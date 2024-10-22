@@ -19,12 +19,12 @@ class TObject;
 
 namespace edm {
   class InputFile {
-  public:  
+  public:
     explicit InputFile(char const* fileName, char const* msg, InputType inputType);
     ~InputFile();
 
-    InputFile(InputFile const&) = delete; // Disallow copying and moving
-    InputFile& operator=(InputFile const&) = delete; // Disallow copying and moving
+    InputFile(InputFile const&) = delete;             // Disallow copying and moving
+    InputFile& operator=(InputFile const&) = delete;  // Disallow copying and moving
 
     void Close();
     void inputFileOpened(std::string const& logicalFileName,
@@ -32,26 +32,29 @@ namespace edm {
                          std::string const& moduleName,
                          std::string const& label,
                          std::string const& fid,
-                         std::vector<std::string> const& branchNames);    
+                         std::vector<std::string> const& branchNames);
     void eventReadFromFile() const;
     void reportInputRunNumber(unsigned int run) const;
     void reportInputLumiSection(unsigned int run, unsigned int lumi) const;
     static void reportSkippedFile(std::string const& fileName, std::string const& logicalFileName);
-    static void reportFallbackAttempt(std::string const& pfn, std::string const& logicalFileName, std::string const& errorMessage);
+    static void reportFallbackAttempt(std::string const& pfn,
+                                      std::string const& logicalFileName,
+                                      std::string const& errorMessage);
     // reportReadBranches is a per job report, rather than per file report.
     // Nevertheless, it is defined here for convenience.
     static void reportReadBranches();
     static void reportReadBranch(InputType inputType, std::string const& branchname);
 
-    TObject* Get(char const* name) {return file_->Get(name);}
-    TFileCacheRead* GetCacheRead() const {return file_->GetCacheRead();}
-    void SetCacheRead(TFileCacheRead* tfcr) {file_->SetCacheRead(tfcr, nullptr, TFile::kDoNotDisconnect);}
+    TObject* Get(char const* name) { return file_->Get(name); }
+    TFileCacheRead* GetCacheRead() const { return file_->GetCacheRead(); }
+    void SetCacheRead(TFileCacheRead* tfcr) { file_->SetCacheRead(tfcr, nullptr, TFile::kDoNotDisconnect); }
     void logFileAction(char const* msg, char const* fileName) const;
+
   private:
     edm::propagate_const<std::unique_ptr<TFile>> file_;
     std::string fileName_;
     JobReport::Token reportToken_;
     InputType inputType_;
-  }; 
-}
+  };
+}  // namespace edm
 #endif

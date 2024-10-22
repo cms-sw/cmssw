@@ -1,6 +1,5 @@
-#include "Calibration/HcalCalibAlgos/src/TCell.h"
+#include "Calibration/HcalCalibAlgos/interface/TCell.h"
 
 namespace Calibration_HcalCalibAlgos {
-  struct dictionary {
-  };
-}
+  struct dictionary {};
+}  // namespace Calibration_HcalCalibAlgos

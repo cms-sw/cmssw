@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWColorBoxIcon
-// 
+//
 /**\class FWColorBoxIcon FWColorBoxIcon.h Fireworks/Core/interface/FWColorBoxIcon.h
 
  Description: <one line class summary>
@@ -26,31 +26,26 @@
 // forward declarations
 
 class FWColorBoxIcon : public FWBoxIconBase {
-   
 public:
-   FWColorBoxIcon(unsigned int iEdgeLength);
-   //virtual ~FWColorBoxIcon();
-   
-   // ---------- const member functions ---------------------
-   
-   // ---------- static member functions --------------------
-   
-   // ---------- member functions ---------------------------
-   void setColor(GContext_t iColorContext)
-   {
-      m_colorContext = iColorContext;
-   }
-   
+  FWColorBoxIcon(unsigned int iEdgeLength);
+  //virtual ~FWColorBoxIcon();
+
+  // ---------- const member functions ---------------------
+
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+  void setColor(GContext_t iColorContext) { m_colorContext = iColorContext; }
+
+  FWColorBoxIcon(const FWColorBoxIcon&) = delete;  // stop default
+
+  const FWColorBoxIcon& operator=(const FWColorBoxIcon&) = delete;  // stop default
+
 private:
-   FWColorBoxIcon(const FWColorBoxIcon&) = delete; // stop default
-   
-   const FWColorBoxIcon& operator=(const FWColorBoxIcon&) = delete; // stop default
+  void drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const override;
 
-   void drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const override;
-
-   // ---------- member data --------------------------------
-   GContext_t m_colorContext ;
+  // ---------- member data --------------------------------
+  GContext_t m_colorContext;
 };
-
 
 #endif

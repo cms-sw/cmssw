@@ -2,8 +2,7 @@
 <use name="FWCore/Framework"/>
 <use name="DataFormats/BTauReco"/>
 <use name="RecoBTau/JetTagComputer"/>
-<use name="CommonTools/Utils"/>
-<use name="roottmva"/>
+<use name="CommonTools/MVAUtils"/>
 <use name="FWCore/Utilities"/>
 <use name="RecoBTag/SecondaryVertex"/>
 <use name="CondFormats/DataRecord"/>

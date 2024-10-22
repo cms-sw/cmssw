@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="alpaka_cuda_async::EcalDigiDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::EcalDigiDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::EcalDigiDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::EcalDigiPhase2DeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::EcalDigiPhase2DeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::EcalDigiPhase2DeviceCollection>>" persistent="false"/>
+</lcgdict>

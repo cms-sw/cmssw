@@ -22,6 +22,7 @@ def neutronBG(process):
     process.g4SimHits.StackingAction.DeadRegions = cms.vstring()
     process.g4SimHits.StackingAction.GammaThreshold = cms.double(0.0)
     # stepping action
+    process.g4SimHits.SteppingAction.MaxNumberOfSteps = cms.int32(1000000)
     process.g4SimHits.SteppingAction.MaxTrackTime = TimeCut
     process.g4SimHits.SteppingAction.DeadRegions = cms.vstring()
     # Russian roulette disabled

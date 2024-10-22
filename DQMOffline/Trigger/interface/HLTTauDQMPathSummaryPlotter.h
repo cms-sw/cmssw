@@ -3,8 +3,9 @@
 #define HLTTauDQMPathSummaryPlotter_h
 
 #include "DQMOffline/Trigger/interface/HLTTauDQMPlotter.h"
+#include "DQMOffline/Trigger/interface/HistoWrapper.h"
 
-#include<vector>
+#include <vector>
 
 class HLTTauDQMPath;
 namespace edm {
@@ -14,27 +15,30 @@ namespace trigger {
   class TriggerEvent;
 }
 
-class HLTTauDQMPathSummaryPlotter: private HLTTauDQMPlotter {
+class HLTTauDQMPathSummaryPlotter : private HLTTauDQMPlotter {
 public:
-    
-  HLTTauDQMPathSummaryPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder, double hltMatchDr);
+  HLTTauDQMPathSummaryPlotter(const edm::ParameterSet& pset,
+                              bool doRefAnalysis,
+                              const std::string& dqmBaseFolder,
+                              double hltMatchDr);
   ~HLTTauDQMPathSummaryPlotter();
 
   using HLTTauDQMPlotter::isValid;
 
-  void setPathObjects(const std::vector<const HLTTauDQMPath *>& pathObjects) {
-    pathObjects_ = pathObjects;
-  }
-  void bookHistograms(DQMStore::IBooker &iBooker);
+  void setPathObjects(const std::vector<const HLTTauDQMPath*>& pathObjects) { pathObjects_ = pathObjects; }
+  void bookHistograms(HistoWrapper& iWrapper, DQMStore::IBooker& iBooker);
 
-  void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection);
+  void analyze(const edm::TriggerResults& triggerResults,
+               const trigger::TriggerEvent& triggerEvent,
+               const HLTTauDQMOfflineObjects& refCollection);
+
 private:
   const double hltMatchDr_;
   const bool doRefAnalysis_;
 
-  std::vector<const HLTTauDQMPath *> pathObjects_;
+  std::vector<const HLTTauDQMPath*> pathObjects_;
 
-  MonitorElement *all_events;
-  MonitorElement *accepted_events;
+  MonitorElement* all_events;
+  MonitorElement* accepted_events;
 };
 #endif

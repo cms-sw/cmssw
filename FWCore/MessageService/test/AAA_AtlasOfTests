@@ -4,7 +4,7 @@ Tests marked $ are tested in both single thread and multithread running.
 Tests marked % are tested with both the default and EDM_ML_DEBUG defined.
 
 u1 $%	Gives different thresholds to multiple destinations, and assigns
-	limit=0 to annoying message categories preEventProcessing and FwkJob.
+	limit=0 to annoying message categories preEventProcessing and FwkTest.
 	Incidnetally tests noTimeStamps.  Also generates a job report file
 	(u1_job_report.mxml).   
 	---------- UnitTestClient_A
@@ -32,7 +32,7 @@ u5 $	Tests reset versus no reset behavior when multiple statistics
 u6 $	Tests hex and other manipulators
 	---------- UnitTestClient_C
 	
-u7	Filtering all but one category (for example FwkJob).
+u7	Filtering all but one category (for example FwkTest).
 	Creates a fwkJobReports u7_job_report.mxml as well as logs. 
 	---------- UnitTestClient_C
 	

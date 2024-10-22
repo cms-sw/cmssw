@@ -2,7 +2,7 @@
 //
 // Package:     DataRecord
 // Class  :     L1MuCSCTFConfigurationRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

@@ -5,7 +5,7 @@ from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 
 
 PFCaloJetParameters = PFJetParameters.clone(
-    src = cms.InputTag('hltParticleFlow')
+    src = 'hltParticleFlow'
 )
 
 ak4PFCaloJets = cms.EDProducer(

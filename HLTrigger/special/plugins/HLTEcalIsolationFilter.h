@@ -9,24 +9,24 @@ namespace edm {
 }
 
 class HLTEcalIsolationFilter : public HLTFilter {
+public:
+  explicit HLTEcalIsolationFilter(const edm::ParameterSet&);
+  ~HLTEcalIsolationFilter() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   public:
-      explicit HLTEcalIsolationFilter(const edm::ParameterSet&);
-      ~HLTEcalIsolationFilter() override;
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-
-   private:
-      edm::InputTag candTag_;
-      edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> candToken_;
-      double maxennearby;
-      double minen;
-      int maxhitout;
-      int maxhitin;
-      double maxenin;
-      double maxenout;
-      double maxetacand;
-
+private:
+  edm::InputTag candTag_;
+  edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> candToken_;
+  double maxennearby;
+  double minen;
+  int maxhitout;
+  int maxhitin;
+  double maxenin;
+  double maxenout;
+  double maxetacand;
 };
 
 #endif

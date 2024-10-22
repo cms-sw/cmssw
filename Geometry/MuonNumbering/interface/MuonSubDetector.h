@@ -14,18 +14,17 @@
  *
  */
 
-#include<string>
+#include <string>
 
 class MuonSubDetector {
- public:
-
+public:
   /*  
    * possible arguments for constructor:
    * "MuonDTHits", "MuonCSCHits", "MuonRPCHits", "MuonGEMHits", "MuonME0Hits"
    */
 
   MuonSubDetector(const std::string& name);
-  ~MuonSubDetector(){};
+  ~MuonSubDetector() {}
 
   bool isBarrel();
   bool isEndcap();
@@ -34,9 +33,9 @@ class MuonSubDetector {
   bool isME0();
   std::string name();
   std::string suIdName();
-      
- private:
-  enum subDetector {barrel,endcap,rpc,gem,me0,nodef};
+
+private:
+  enum subDetector { barrel, endcap, rpc, gem, me0, nodef };
   subDetector detector;
   std::string detectorName;
 };

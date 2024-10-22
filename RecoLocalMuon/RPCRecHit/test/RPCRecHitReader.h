@@ -7,7 +7,7 @@
  *  From D. Fortin  - UC Riverside
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,7 +18,7 @@
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/RPCGeometry/interface/RPCRoll.h" 
+#include "Geometry/RPCGeometry/interface/RPCRoll.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
@@ -35,28 +35,31 @@ class TH1F;
 class TH2F;
 
 class RPCRecHit;
+class RPCGeometry;
+class MuonGeometryRecord;
 
-
-class RPCRecHitReader : public edm::EDAnalyzer
-{
- public:
+class RPCRecHitReader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+public:
   /// Constructor
-   RPCRecHitReader(const edm::ParameterSet& pset);
-  
-   virtual void beginRun(const edm::Run&, const edm::EventSetup& );
-  virtual void endJob();
-  
+  RPCRecHitReader(const edm::ParameterSet& pset);
+
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
+  void endJob() override;
+
   /// Destructor
-  virtual ~RPCRecHitReader();
+  ~RPCRecHitReader() override;
 
   // Operations
 
   /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   unsigned int layerRecHit(RPCRecHit);
 
- private:
+private:
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomBRToken_;
   std::string fOutputFileName;
   std::string recHitLabel1;
   std::string recHitLabel2;
@@ -92,9 +95,9 @@ class RPCRecHitReader : public edm::EDAnalyzer
   TH1F* histoPool2;
   TH1F* histoPool3;
 
-  TH1F*   histoExpectedOcc;
-  TH1F*   histoRealOcc;
-  TH1F*   histoLocalEff;
+  TH1F* histoExpectedOcc;
+  TH1F* histoRealOcc;
+  TH1F* histoLocalEff;
 
   float yLayer;
 
@@ -106,9 +109,8 @@ class RPCRecHitReader : public edm::EDAnalyzer
   bool _trigRPC6;
 
   std::vector<bool> _trigConfig;
-  std::map<int,float> _mapLayer;
+  std::map<int, float> _mapLayer;
   const RPCRoll* _rollEff;
 };
-
 
 #endif

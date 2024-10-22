@@ -25,48 +25,51 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 class TrackAssociatorParameters;
 class TrackDetectorAssociator;
 class MuonServiceProxy;
 
 namespace muonisolation {
 
-class JetExtractor : public reco::isodeposit::IsoDepositExtractor {
+  class JetExtractor : public reco::isodeposit::IsoDepositExtractor {
+  public:
+    JetExtractor();
+    JetExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC);
 
-public:
+    ~JetExtractor() override;
 
-  JetExtractor(){};
-  JetExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
+    void fillVetos(const edm::Event& ev, const edm::EventSetup& evSetup, const reco::TrackCollection& tracks) override;
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Track& track) const override;
 
-  ~JetExtractor() override;
+  private:
+    edm::EDGetTokenT<reco::CaloJetCollection> theJetCollectionToken;
 
-  void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks) override;
-  reco::IsoDeposit
-    deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const override;
+    std::string thePropagatorName;
 
-private:
-  edm::EDGetTokenT<reco::CaloJetCollection> theJetCollectionToken;
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
 
-  std::string thePropagatorName;
+    // Cone cuts and thresholds
+    double theThreshold;
+    double theDR_Veto;
+    double theDR_Max;
 
-  // Cone cuts and thresholds
-  double theThreshold;
-  double theDR_Veto;
-  double theDR_Max;
+    //excludes sumEt of towers that are inside muon veto cone
+    bool theExcludeMuonVeto;
 
-  //excludes sumEt of towers that are inside muon veto cone
-  bool theExcludeMuonVeto;
+    //! the event setup proxy, it takes care the services update
+    std::unique_ptr<MuonServiceProxy> theService;
 
-  //! the event setup proxy, it takes care the services update
-  MuonServiceProxy* theService;
+    std::unique_ptr<TrackAssociatorParameters> theAssociatorParameters;
+    std::unique_ptr<TrackDetectorAssociator> theAssociator;
 
-  TrackAssociatorParameters* theAssociatorParameters;
-  TrackDetectorAssociator* theAssociator;
+    bool thePrintTimeReport;
+  };
 
-  bool thePrintTimeReport;
-
-};
-
-}
+}  // namespace muonisolation
 
 #endif

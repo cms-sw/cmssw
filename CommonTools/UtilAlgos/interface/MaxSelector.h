@@ -7,15 +7,14 @@
 namespace reco {
   namespace modules {
 
-    template<typename T>
+    template <typename T>
     struct ParameterAdapter<MaxSelector<T> > {
-      static MaxSelector<T> make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
-	return MaxSelector<T>( cfg.template getParameter<double>( "max" ) );
+      static MaxSelector<T> make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
+        return MaxSelector<T>(cfg.template getParameter<double>("max"));
       }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-

@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 JetNoBptxPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_UncorrectedJetE30_NoBPTX_v", # 2017 proposal
-        "HLT_UncorrectedJetE30_NoBPTX3BX_v",
-        "HLT_UncorrectedJetE60_NoBPTX3BX_v",
-        "HLT_UncorrectedJetE70_NoBPTX3BX_v",
+#        "HLT_UncorrectedJetE30_NoBPTX_v", # 2017 proposal # Claimed path for Run3, but a control path so no need to monitor it closely here
+#        "HLT_UncorrectedJetE30_NoBPTX3BX_v", # Claimed path for Run3, but a control path so no need to monitor it closely here
+        "HLT_UncorrectedJetE60_NoBPTX3BX_v", # Claimed path for Run3
+#        "HLT_UncorrectedJetE70_NoBPTX3BX_v", # Claimed path for Run3, but a backup so no need to monitor it closely here
         ),
     recCaloJetLabel    = cms.InputTag("ak4CaloJets"),
 

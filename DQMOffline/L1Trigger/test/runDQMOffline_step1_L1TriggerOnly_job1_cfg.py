@@ -21,7 +21,6 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 # Removing other DQM modules form the DQMOfflinePreDPG
-process.DQMOfflinePreDPG.remove(process.dqmDcsInfo)
 process.DQMOfflinePreDPG.remove(process.ecal_dqm_source_offline)
 process.DQMOfflinePreDPG.remove(process.hcalOfflineDQMSource)
 process.DQMOfflinePreDPG.remove(process.SiStripDQMTier0)

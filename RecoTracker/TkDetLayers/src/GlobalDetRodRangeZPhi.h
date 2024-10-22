@@ -11,13 +11,12 @@ class Plane;
 #pragma GCC visibility push(hidden)
 class GlobalDetRodRangeZPhi {
 public:
+  typedef std::pair<float, float> Range;
 
-  typedef std::pair<float,float> Range;
+  GlobalDetRodRangeZPhi(const Plane& RodPlane);
 
-  GlobalDetRodRangeZPhi( const Plane& RodPlane);
-
-  Range zRange() const { return theZRange;}
-  Range phiRange() const { return thePhiRange;}
+  Range zRange() const { return theZRange; }
+  Range phiRange() const { return thePhiRange; }
 
 private:
   Range theZRange;

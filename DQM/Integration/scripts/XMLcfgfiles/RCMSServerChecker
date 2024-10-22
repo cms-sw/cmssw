@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 This module checks if for a specifyed machine the RCMS jobcontrol daemon is 
 running.

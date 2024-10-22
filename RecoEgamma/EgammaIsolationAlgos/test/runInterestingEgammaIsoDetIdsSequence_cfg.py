@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("egamIsoDetIds")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('REPLACE ME')

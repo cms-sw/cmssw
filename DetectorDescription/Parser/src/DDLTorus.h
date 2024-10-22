@@ -20,13 +20,11 @@ class DDLElementRegistry;
  * Torus, same as G4Torus
  *
  */
-class DDLTorus final : public DDLSolid
-{
- public:
+class DDLTorus final : public DDLSolid {
+public:
+  DDLTorus(DDLElementRegistry* myreg);
 
-  DDLTorus( DDLElementRegistry* myreg );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )  override; 
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif

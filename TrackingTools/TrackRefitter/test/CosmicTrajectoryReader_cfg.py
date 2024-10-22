@@ -3,20 +3,20 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TESTFIT")
 
 
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.globalTrackingGeometry_cfi")
 process.load("TrackingTools.TrackRefitter.cosmicMuonTrajectories_cff")
 #process.load("TrackingTools.TrackRefitter.cosmicMuonTrajectories_cff")
 #process.load("TrackingTools.TrackRefitter.ctfWithMaterialTrajectoriesP5_cff")
 
 process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
-
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.GlobalTag.globaltag = 'auto:run3_data_prompt'
 #process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'CRUZET4_V2::All' 
+
 process.prefer("GlobalTag")
 
 

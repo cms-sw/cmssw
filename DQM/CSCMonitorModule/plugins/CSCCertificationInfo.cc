@@ -21,9 +21,7 @@
 using namespace std;
 using namespace edm;
 
-CSCCertificationInfo::CSCCertificationInfo(const edm::ParameterSet& ps) {
-   
-}
+CSCCertificationInfo::CSCCertificationInfo(const edm::ParameterSet& ps) {}
 
 /*** No longer triggered for DQMEDHarvester ***/
 /*
@@ -37,14 +35,10 @@ void CSCCertificationInfo::beginJob(){
 */
 
 // void CSCCertificationInfo::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &, edm::EventSetup const &)
-void CSCCertificationInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
-{
-
-  
-
+void CSCCertificationInfo::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   ibooker.cd();
   ibooker.setCurrentFolder("CSC/EventInfo/CertificationContents");
-  
+
   mos.insert(std::make_pair("CSC_SideMinus", ibooker.bookFloat("CSC_SideMinus")));
   mos.insert(std::make_pair("CSC_SideMinus_Station01", ibooker.bookFloat("CSC_SideMinus_Station01")));
   mos.insert(std::make_pair("CSC_SideMinus_Station01_Ring01", ibooker.bookFloat("CSC_SideMinus_Station01_Ring01")));
@@ -70,13 +64,10 @@ void CSCCertificationInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
   mos.insert(std::make_pair("CSC_SidePlus_Station03_Ring02", ibooker.bookFloat("CSC_SidePlus_Station03_Ring02")));
   mos.insert(std::make_pair("CSC_SidePlus_Station04", ibooker.bookFloat("CSC_SidePlus_Station04")));
 
-
   ibooker.setCurrentFolder("CSC/EventInfo");
   mos.insert(std::make_pair("CertificationSummary", ibooker.bookFloat("CertificationSummary")));
 
-  for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) { 
+  for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) {
     it->second->Fill(-1);
   }
-
 }
-

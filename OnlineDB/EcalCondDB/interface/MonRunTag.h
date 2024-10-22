@@ -7,12 +7,11 @@
 #include "OnlineDB/EcalCondDB/interface/ITag.h"
 #include "OnlineDB/EcalCondDB/interface/MonVersionDef.h"
 
-
 /**
  *   Tag for Monitoring Sub-Run information
  */
 class MonRunTag : public ITag {
- public:
+public:
   friend class MonRunIOV;  // needs permission to write
   friend class EcalCondDBInterface;
 
@@ -31,15 +30,13 @@ class MonRunTag : public ITag {
   void setByID(int id) noexcept(false) override;
 
   // Operators
-  inline bool operator==(const MonRunTag &t) const
-    {
-      return (m_genTag        == t.m_genTag &&
-	      m_monVersionDef == t.m_monVersionDef);
-    }
+  inline bool operator==(const MonRunTag& t) const {
+    return (m_genTag == t.m_genTag && m_monVersionDef == t.m_monVersionDef);
+  }
 
-  inline bool operator!=(const MonRunTag &t) const { return !(*this == t); }
+  inline bool operator!=(const MonRunTag& t) const { return !(*this == t); }
 
- private:
+private:
   // User data for this tag
   std::string m_genTag;
   MonVersionDef m_monVersionDef;
@@ -48,10 +45,9 @@ class MonRunTag : public ITag {
   int writeDB() noexcept(false);
 
   // Access methods
-  void fetchAllTags( std::vector<MonRunTag>* fillVec) noexcept(false);
+  void fetchAllTags(std::vector<MonRunTag>* fillVec) noexcept(false);
 
   void fetchParentIDs(int* verID) noexcept(false);
-
 };
 
 #endif

@@ -1,0 +1,4 @@
+5 * * * * /data/O2O/scripts/SiStripDCS.sh SiStripDetVOff_1hourDelay
+20 * * * * /data/O2O/scripts/SiStripDCS.sh SiStripDetVOff_13hourDelay
+40 * * * * /data/O2O/scripts/SiStripDCS.sh SiStripDetVOff_prompt
+45 * * * * /data/O2O/scripts/SiStripDCS.sh SiStripDetVOff_sampling_test

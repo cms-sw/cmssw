@@ -1,0 +1,125 @@
+#ifdef MPLEX_INTRINSICS
+
+for (int n = 0; n < N; n += MPLEX_INTRINSICS_WIDTH_BYTES / sizeof(T)) {
+#ifdef AVX512_INTRINSICS
+  IntrVec_t all_zeros = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+#else
+  IntrVec_t all_zeros = {0, 0, 0, 0, 0, 0, 0, 0};
+#endif
+
+  IntrVec_t a_3 = LD(a, 3);
+  IntrVec_t b_18 = LD(b, 18);
+  IntrVec_t c_3 = MUL(a_3, b_18);
+  IntrVec_t b_19 = LD(b, 19);
+  IntrVec_t c_4 = MUL(a_3, b_19);
+
+  ST(c, 0, all_zeros);
+  ST(c, 1, all_zeros);
+  ST(c, 2, all_zeros);
+  IntrVec_t a_4 = LD(a, 4);
+  IntrVec_t b_23 = LD(b, 23);
+  c_3 = FMA(a_4, b_23, c_3);
+  IntrVec_t b_24 = LD(b, 24);
+  c_4 = FMA(a_4, b_24, c_4);
+
+  IntrVec_t a_8 = LD(a, 8);
+  IntrVec_t c_8 = MUL(a_8, b_18);
+  ST(c, 3, c_3);
+  IntrVec_t c_9 = MUL(a_8, b_19);
+  ST(c, 4, c_4);
+
+  ST(c, 5, all_zeros);
+  ST(c, 6, all_zeros);
+  ST(c, 7, all_zeros);
+  IntrVec_t a_9 = LD(a, 9);
+  c_8 = FMA(a_9, b_23, c_8);
+  c_9 = FMA(a_9, b_24, c_9);
+
+  ST(c, 10, all_zeros);
+  ST(c, 11, all_zeros);
+  ST(c, 12, all_zeros);
+  IntrVec_t a_14 = LD(a, 14);
+  IntrVec_t c_13 = MUL(a_14, b_23);
+  IntrVec_t c_14 = MUL(a_14, b_24);
+  ST(c, 8, c_8);
+  ST(c, 9, c_9);
+
+  IntrVec_t a_15 = LD(a, 15);
+  IntrVec_t c_15 = a_15;
+  ST(c, 13, c_13);
+  ST(c, 14, c_14);
+
+  IntrVec_t a_16 = LD(a, 16);
+  IntrVec_t b_6 = LD(b, 6);
+  IntrVec_t c_16 = MUL(a_16, b_6);
+  IntrVec_t b_7 = LD(b, 7);
+  IntrVec_t c_17 = MUL(a_16, b_7);
+
+  ST(c, 18, all_zeros);
+  ST(c, 19, all_zeros);
+
+  IntrVec_t b_11 = LD(b, 11);
+  IntrVec_t c_21 = b_11;
+  IntrVec_t b_12 = LD(b, 12);
+  IntrVec_t c_22 = b_12;
+  ST(c, 15, c_15);
+  ST(c, 16, c_16);
+  ST(c, 17, c_17);
+  IntrVec_t b_13 = LD(b, 13);
+  IntrVec_t c_23 = b_13;
+  IntrVec_t b_14 = LD(b, 14);
+  IntrVec_t c_24 = b_14;
+
+  ST(c, 20, all_zeros);
+
+  IntrVec_t a_26 = LD(a, 26);
+  IntrVec_t c_26 = MUL(a_26, b_6);
+  IntrVec_t c_27 = MUL(a_26, b_7);
+
+  ST(c, 25, all_zeros);
+  ST(c, 28, all_zeros);
+  ST(c, 29, all_zeros);
+  ST(c, 21, c_21);
+  ST(c, 22, c_22);
+  ST(c, 23, c_23);
+  ST(c, 24, c_24);
+  ST(c, 26, c_26);
+  ST(c, 27, c_27);
+}
+
+#else
+
+#pragma omp simd
+for (int n = 0; n < N; ++n) {
+  c[0 * N + n] = 0;
+  c[1 * N + n] = 0;
+  c[2 * N + n] = 0;
+  c[3 * N + n] = a[3 * N + n] * b[18 * N + n] + a[4 * N + n] * b[23 * N + n];
+  c[4 * N + n] = a[3 * N + n] * b[19 * N + n] + a[4 * N + n] * b[24 * N + n];
+  c[5 * N + n] = 0;
+  c[6 * N + n] = 0;
+  c[7 * N + n] = 0;
+  c[8 * N + n] = a[8 * N + n] * b[18 * N + n] + a[9 * N + n] * b[23 * N + n];
+  c[9 * N + n] = a[8 * N + n] * b[19 * N + n] + a[9 * N + n] * b[24 * N + n];
+  c[10 * N + n] = 0;
+  c[11 * N + n] = 0;
+  c[12 * N + n] = 0;
+  c[13 * N + n] = a[14 * N + n] * b[23 * N + n];
+  c[14 * N + n] = a[14 * N + n] * b[24 * N + n];
+  c[15 * N + n] = a[15 * N + n];
+  c[16 * N + n] = a[16 * N + n] * b[6 * N + n];
+  c[17 * N + n] = a[16 * N + n] * b[7 * N + n];
+  c[18 * N + n] = 0;
+  c[19 * N + n] = 0;
+  c[20 * N + n] = 0;
+  c[21 * N + n] = b[11 * N + n];
+  c[22 * N + n] = b[12 * N + n];
+  c[23 * N + n] = b[13 * N + n];
+  c[24 * N + n] = b[14 * N + n];
+  c[25 * N + n] = 0;
+  c[26 * N + n] = a[26 * N + n] * b[6 * N + n];
+  c[27 * N + n] = a[26 * N + n] * b[7 * N + n];
+  c[28 * N + n] = 0;
+  c[29 * N + n] = 0;
+}
+#endif

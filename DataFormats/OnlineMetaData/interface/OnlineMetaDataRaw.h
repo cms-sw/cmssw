@@ -10,11 +10,9 @@
 
 #include <cstdint>
 
-
 namespace online {
 
-  struct Luminosity_v1
-  {
+  struct Luminosity_v1 {
     const uint64_t timestamp;
     const uint16_t lumiSection;
     const uint16_t lumiNibble;
@@ -22,8 +20,7 @@ namespace online {
     const float avgPileUp;
   };
 
-  struct BeamSpot_v1
-  {
+  struct BeamSpot_v1 {
     const uint64_t timestamp;
     const float x;
     const float y;
@@ -43,21 +40,47 @@ namespace online {
     const float errSigmaZ;
   };
 
-  struct DCS_v1
-  {
+  struct CTPPS_v1 {
+    uint64_t timestamp;
+    uint64_t status;
+  };
+
+  struct DCS_v1 {
     const uint64_t timestamp;
     const uint32_t highVoltageReady;
     const float magnetCurrent;
   };
 
-  struct Data_v1
-  {
+  struct DCS_v2 {
+    const uint64_t timestamp;
+    const uint32_t highVoltageReady;
+    const uint32_t highVoltageValid;
+    const float magnetCurrent;
+  };
+
+  struct Data_v1 {
     const uint8_t version;
     const Luminosity_v1 luminosity;
     const BeamSpot_v1 beamSpot;
     const DCS_v1 dcs;
   };
 
-}
+  struct Data_v2 {
+    const uint8_t version;
+    const Luminosity_v1 luminosity;
+    const BeamSpot_v1 beamSpot;
+    const CTPPS_v1 ctpps;
+    const DCS_v1 dcs;
+  };
 
-#endif // DATAFORMATS_ONLINEMETADATA_ONLINEMETADATARAW_H
+  struct Data_v3 {
+    const uint8_t version;
+    const Luminosity_v1 luminosity;
+    const BeamSpot_v1 beamSpot;
+    const CTPPS_v1 ctpps;
+    const DCS_v2 dcs;
+  };
+
+}  // namespace online
+
+#endif  // DATAFORMATS_ONLINEMETADATA_ONLINEMETADATARAW_H

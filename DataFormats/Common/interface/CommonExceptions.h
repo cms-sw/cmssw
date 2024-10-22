@@ -3,5 +3,5 @@
 namespace edm {
   class ProductID;
   void checkForWrongProduct(ProductID const& keyID, ProductID const& refID);
-}
+}  // namespace edm
 #endif

@@ -27,7 +27,7 @@ class Event(object):
         header = '{type}: {iEv}'.format( type=self.__class__.__name__,
                                          iEv = self.iEv)
         varlines = []
-        for var,value in sorted(vars(self).iteritems()):
+        for var,value in sorted(vars(self.items())):
             tmp = value
             # check for recursivity
             recursive = False

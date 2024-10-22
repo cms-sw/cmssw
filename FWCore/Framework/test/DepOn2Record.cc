@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     DepOn2Record
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -18,4 +18,3 @@
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
 EVENTSETUP_RECORD_REG(DepOn2Record);
-

@@ -7,17 +7,17 @@ def make_efficiency_string(objtype, plot_type, triggerpath):
     # --- IMPORTANT: Add here a elif if you are introduce a new collection
     #                (see EVTColContainer::getTypeString) 
     if objtype == "Mu" :
-	objtypeLatex="#mu"
+        objtypeLatex="#mu"
     elif objtype == "refittedStandAloneMuons": 
-	objtypeLatex="refittedStandAlone #mu"
+        objtypeLatex="refittedStandAlone #mu"
     elif objtype == "Ele": 
-	objtypeLatex="e"
+        objtypeLatex="e"
     elif objtype == "Photon": 
-	objtypeLatex="#gamma"
+        objtypeLatex="#gamma"
     elif objtype == "PFTau": 
-	objtypeLatex="#tau"
+        objtypeLatex="#tau"
     else:
-	objtypeLatex=objtype
+        objtypeLatex=objtype
     numer_description = "# gen %s passed the %s" % (objtypeLatex,triggerpath)
     denom_description = "# gen %s " % (objtypeLatex)
 
@@ -54,7 +54,7 @@ def make_efficiency_string(objtype, plot_type, triggerpath):
     all_titles = "%s for trigger %s; %s; %s" % (title, triggerpath,
                                         xAxis, yAxis)
     return "Eff_%s_%s '%s' %s_%s %s" % (input_type,triggerpath,
-		    all_titles,input_type,triggerpath,input_type)
+                    all_titles,input_type,triggerpath,input_type)
 
 
 #--- IMPORTANT: Trigger are extracted from the hltExoticaValidator_cfi.py module
@@ -62,7 +62,7 @@ from HLTriggerOffline.Exotica.hltExoticaValidator_cfi import hltExoticaValidator
 #------------------------------------------------------------
 #--- IMPORTANT: Update this collection whenever you introduce a new object
 #               in the code (from EVTColContainer::getTypeString)
-def make_exo_postprocessor(analysis_name, plot_types=["TurnOn1", "TurnOn2", "TurnOn3", "TurnOn4", "EffEta", "EffPhi", "EffDxy"], object_types=["Mu","refittedStandAloneMuons","Track","Ele","Photon","PFTau","PFJet","MET","PFMET","PFMHT","GenMET","CaloJet","CaloMET","CaloMHT","l1MET"], extra_str_templates=[]):
+def make_exo_postprocessor(analysis_name, plot_types=["TurnOn1", "TurnOn2", "TurnOn3", "TurnOn4", "EffEta", "EffPhi", "EffDxy"], object_types=["Mu","refittedStandAloneMuons","Track","Ele","Photon","PFTau","PFJet","MET","PFMET","PFMHT","GenMET","CaloJet","CaloMET","CaloMHT"], extra_str_templates=[]):
     postprocessor = hltExoticaPostProcessor.clone()
     postprocessor.subDirs = ["HLT/Exotica/" + analysis_name]
     efficiency_strings = [] # List of plots to look for. This is quite a bit larger than the number of plots that will be made.
@@ -95,6 +95,7 @@ hltExoticaPostLowPtDimuon = make_exo_postprocessor("LowPtDimuon")
 hltExoticaPostLowPtDielectron = make_exo_postprocessor("LowPtDielectron")
 hltExoticaPostHighPtPhoton = make_exo_postprocessor("HighPtPhoton")
 hltExoticaPostDiPhoton = make_exo_postprocessor("DiPhoton")
+hltExoticaPostDisplacedDiPhoton = make_exo_postprocessor("DisplacedDiPhoton")
 hltExoticaPostSingleMuon = make_exo_postprocessor("SingleMuon")
 hltExoticaPostPFHT = make_exo_postprocessor("PFHT")
 hltExoticaPostCaloHT = make_exo_postprocessor("CaloHT")
@@ -102,6 +103,7 @@ hltExoticaPostJetNoBptx = make_exo_postprocessor("JetNoBptx")
 hltExoticaPostMuonNoBptx = make_exo_postprocessor("MuonNoBptx")
 hltExoticaPostDisplacedMuEG = make_exo_postprocessor("DisplacedMuEG")
 hltExoticaPostDisplacedDimuon = make_exo_postprocessor("DisplacedDimuon")
+hltExoticaPostDisplacedL2Dimuon = make_exo_postprocessor("DisplacedL2Dimuon")
 hltExoticaPostMonojet = make_exo_postprocessor("Monojet")
 hltExoticaPostMonojetBackup = make_exo_postprocessor("MonojetBackup")
 hltExoticaPostPureMET = make_exo_postprocessor("PureMET")
@@ -127,6 +129,7 @@ hltExoticaPostProcessors = cms.Sequence(
     # Photon paths
     hltExoticaPostHighPtPhoton +
     hltExoticaPostDiPhoton +
+    hltExoticaPostDisplacedDiPhoton +
     # HT path
     hltExoticaPostPFHT +
     hltExoticaPostCaloHT +
@@ -136,11 +139,13 @@ hltExoticaPostProcessors = cms.Sequence(
     # Displaced paths
     hltExoticaPostDisplacedMuEG +
     hltExoticaPostDisplacedDimuon +
+    hltExoticaPostDisplacedL2Dimuon +
     # Others
     hltExoticaPostMonojet +
     hltExoticaPostMonojetBackup +
     hltExoticaPostPureMET +
     hltExoticaPostMETplusTrack +
+    hltExoticaPostSingleMuon +
     hltExoticaEleMu +
     hltExoticaPhotonMET +
     hltExoticaHTDisplacedJets +

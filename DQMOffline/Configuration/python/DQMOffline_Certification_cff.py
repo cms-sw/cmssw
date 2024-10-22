@@ -8,15 +8,21 @@ from DQMOffline.Configuration.DQMOffline_CRT_cff import *
 
 DQMOffline_Certification = cms.Sequence(daq_dqmoffline*dcs_dqmoffline*crt_dqmoffline)
 
-DQMCertCommon = cms.Sequence(siStripDaqInfo * sipixelDaqInfo * 
-                             siStripDcsInfo * sipixelDcsInfo *
-                             siStripCertificationInfo * sipixelCertification *
-                             trackingCertificationInfo *
-                             egammaDataCertificationTask *
-                             dqmOfflineTriggerCert)
+DQMCertTrackerStrip = cms.Sequence(siStripDaqInfo * 
+				   siStripDcsInfo * 
+				   siStripCertificationInfo)
+
+DQMCertTrackerPixel = cms.Sequence(sipixelDaqInfo *
+				   sipixelDcsInfo)
+
+DQMCertTracking = cms.Sequence(trackingCertificationInfo) 
+
+DQMCertEGamma = cms.Sequence(egammaDataCertificationTask)
+
+DQMCertTrigger = cms.Sequence(dqmOfflineTriggerCert)
 
 DQMCertMuon = cms.Sequence(dtDAQInfo * rpcDaqInfo * cscDaqInfo *
-                           dtDCSByLumiSummary * rpcDCSSummary * cscDcsInfo *
+                           rpcDCSSummary * cscDcsInfo *
                            dtCertificationSummary * rpcDataCertification * cscCertificationInfo)
 
 DQMCertEcal = cms.Sequence(ecalDaqInfoTask * ecalPreshowerDaqInfoTask *
@@ -25,9 +31,11 @@ DQMCertEcal = cms.Sequence(ecalDaqInfoTask * ecalPreshowerDaqInfoTask *
 
 DQMCertJetMET = cms.Sequence(dataCertificationJetMETSequence)
 
-from DQM.SiPixelPhase1Config.SiPixelPhase1OfflineDQM_harvesting_cff import *
-from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+DQMCertCommon = cms.Sequence( DQMCertTrackerStrip *
+			      DQMCertTrackerPixel *
+			      DQMCertTracking *
+			      DQMCertEGamma *
+			      DQMCertTrigger)
 
-phase1Pixel.toReplaceWith(DQMCertCommon, DQMCertCommon.copyAndExclude([ # FIXME
-    sipixelCertification # segfaults when included
-]))
+DQMCertCommonFakeHLT = cms.Sequence( DQMCertCommon )
+DQMCertCommonFakeHLT.remove( dqmOfflineTriggerCert )

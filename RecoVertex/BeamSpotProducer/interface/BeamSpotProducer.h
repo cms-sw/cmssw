@@ -17,23 +17,25 @@ ________________________________________________________________**/
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
-class BeamSpotProducer: public edm::stream::EDProducer<> {
+class BeamSpotProducer : public edm::stream::EDProducer<> {
+public:
+  typedef std::vector<edm::ParameterSet> Parameters;
 
-  public:
-	typedef std::vector<edm::ParameterSet> Parameters;
+  /// constructor
+  explicit BeamSpotProducer(const edm::ParameterSet& iConf);
+  /// destructor
+  ~BeamSpotProducer() override;
 
-	/// constructor
-	explicit BeamSpotProducer(const edm::ParameterSet& iConf);
-	/// destructor
-	~BeamSpotProducer() override;
-	
-	/// produce a beam spot class
-	void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  /// produce a beam spot class
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  private:
-	
+private:
+  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> m_beamToken;
 };
 
 #endif

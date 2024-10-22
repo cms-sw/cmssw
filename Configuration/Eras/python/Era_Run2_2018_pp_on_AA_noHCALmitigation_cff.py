@@ -1,0 +1,7 @@
+import FWCore.ParameterSet.Config as cms
+
+from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
+from Configuration.Eras.Modifier_pf_badHcalMitigationOff_cff import pf_badHcalMitigationOff
+
+Run2_2018_pp_on_AA_noHCALmitigation = cms.ModifierChain(Run2_2018_pp_on_AA,pf_badHcalMitigationOff)
+

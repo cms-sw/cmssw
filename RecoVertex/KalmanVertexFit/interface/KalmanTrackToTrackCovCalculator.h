@@ -4,17 +4,14 @@
 #include "RecoVertex/VertexPrimitives/interface/TrackToTrackCovCalculator.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 
-  /**
+/**
    * Calculates all the track-to-track covariance matrices using the Kalman 
    * filter algorithms after the vertex has been fit and the tracks refit.
    */
 
 template <unsigned int N>
-class KalmanTrackToTrackCovCalculator:public TrackToTrackCovCalculator<N>
-{
-
-public: 
- 
+class KalmanTrackToTrackCovCalculator : public TrackToTrackCovCalculator<N> {
+public:
   typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
 
   KalmanTrackToTrackCovCalculator() {}
@@ -26,14 +23,9 @@ public:
    * \return The map containing the covariance matrices.
    */
 
- typename CachingVertex<N>::TrackToTrackMap operator() (const CachingVertex<N> & vertex) const override;
- 
- KalmanTrackToTrackCovCalculator * clone() const override
- {
-   return new KalmanTrackToTrackCovCalculator(* this);
- }
+  typename CachingVertex<N>::TrackToTrackMap operator()(const CachingVertex<N>& vertex) const override;
 
+  KalmanTrackToTrackCovCalculator* clone() const override { return new KalmanTrackToTrackCovCalculator(*this); }
 };
-
 
 #endif

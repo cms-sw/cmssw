@@ -9,19 +9,20 @@
 
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-template<typename KeyRefProd, typename CVal>
-class AssociationVector2ValueMap : public edm::EDProducer {
- public:
+template <typename KeyRefProd, typename CVal>
+class AssociationVector2ValueMap : public edm::global::EDProducer<> {
+public:
   AssociationVector2ValueMap(const edm::ParameterSet&);
- private:
+
+private:
   typedef edm::AssociationVector<KeyRefProd, CVal> av_t;
   typedef typename CVal::value_type value_t;
   typedef edm::ValueMap<value_t> vm_t;
   typedef typename av_t::CKey collection_t;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   edm::EDGetTokenT<av_t> av_;
 };
 
@@ -31,14 +32,16 @@ class AssociationVector2ValueMap : public edm::EDProducer {
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "DataFormats/Common/interface/CloneTrait.h"
 
-template<typename KeyRefProd, typename CVal>
-AssociationVector2ValueMap<KeyRefProd, CVal>::AssociationVector2ValueMap(const edm::ParameterSet& cfg) :
-  av_(consumes<av_t>(cfg.template getParameter<edm::InputTag>("src"))) {
+template <typename KeyRefProd, typename CVal>
+AssociationVector2ValueMap<KeyRefProd, CVal>::AssociationVector2ValueMap(const edm::ParameterSet& cfg)
+    : av_(consumes<av_t>(cfg.template getParameter<edm::InputTag>("src"))) {
   produces<vm_t>();
 }
 
-template<typename KeyRefProd, typename CVal>
-void AssociationVector2ValueMap<KeyRefProd, CVal>::produce(edm::Event& evt, const edm::EventSetup&) {
+template <typename KeyRefProd, typename CVal>
+void AssociationVector2ValueMap<KeyRefProd, CVal>::produce(edm::StreamID,
+                                                           edm::Event& evt,
+                                                           const edm::EventSetup&) const {
   using namespace edm;
   using namespace std;
   Handle<av_t> av;
@@ -50,7 +53,7 @@ void AssociationVector2ValueMap<KeyRefProd, CVal>::produce(edm::Event& evt, cons
   size_t size = av->size();
   vector<value_t> values;
   values.reserve(size);
-  for(typename av_t::const_iterator i = av->begin(); i != av->end(); ++i) {
+  for (typename av_t::const_iterator i = av->begin(); i != av->end(); ++i) {
     values.push_back(i->second);
   }
   filler.insert(av->keyProduct(), values.begin(), values.end());

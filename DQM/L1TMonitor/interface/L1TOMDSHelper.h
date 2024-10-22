@@ -16,75 +16,62 @@
 #include <map>
 
 // Simplified structure for single object conditions information
-class BeamConfiguration{
+class BeamConfiguration {
+public:
+  BeamConfiguration() {
+    m_valid = false;
+    nCollidingBunches = 0;
+  }
 
-  public:
-
-    BeamConfiguration(){
-      m_valid           = false;
-      nCollidingBunches = 0;
+  bool bxConfig(int iBx) {
+    if (beam1[iBx] && beam2[iBx]) {
+      return true;
+    } else {
+      return false;
     }
+  }
 
-    bool bxConfig(int iBx){
-      if(beam1[iBx] && beam2[iBx]){return true;}
-      else                        {return false;}
-    }
-    
-    bool isValid()          {return m_valid;}
-    
-    bool m_valid;
-    int  nCollidingBunches;
-    std::vector<bool> beam1;
-    std::vector<bool> beam2;
+  bool isValid() { return m_valid; }
 
+  bool m_valid;
+  int nCollidingBunches;
+  std::vector<bool> beam1;
+  std::vector<bool> beam2;
 };
 
 // Simplified structure for single object conditions information
-struct WbMTriggerXSecFit{
-
-  TString bitName;         // Bit Name for which the fit refers to
-  TString fitFunction;     // Fitting function (hard coded for now...)
-  float   bitNumber;       // Bit Number for which the fit refers to
-  float   pm1, p0, p1, p2; // Fit parameters f(x)=pm1*x^(-1)+p0+p1*x+p2*x^2
- 
+struct WbMTriggerXSecFit {
+  TString bitName;        // Bit Name for which the fit refers to
+  TString fitFunction;    // Fitting function (hard coded for now...)
+  float bitNumber;        // Bit Number for which the fit refers to
+  float pm1, p0, p1, p2;  // Fit parameters f(x)=pm1*x^(-1)+p0+p1*x+p2*x^2
 };
 
 class L1TOMDSHelper {
+public:
+  enum Error { NO_ERROR = 0, WARNING_DB_CONN_FAILED, WARNING_DB_QUERY_FAILED, WARNING_DB_INCORRECT_NBUNCHES };
 
-  public:
+public:
+  L1TOMDSHelper();
+  ~L1TOMDSHelper();  // Destructor
 
-    enum Error{
-      NO_ERROR=0,
-      WARNING_DB_CONN_FAILED,
-      WARNING_DB_QUERY_FAILED,
-      WARNING_DB_INCORRECT_NBUNCHES
-    };
+  bool connect(std::string iOracleDB, std::string iPathCondDB, int &error);
+  std::map<std::string, WbMTriggerXSecFit> getWbMTriggerXsecFits(std::string iTable, int &error);
+  std::map<std::string, WbMTriggerXSecFit> getWbMAlgoXsecFits(int &error);
+  std::map<std::string, WbMTriggerXSecFit> getWbMTechXsecFits(int &error);
+  int getNumberCollidingBunches(int lhcFillNumber, int &error);
+  BeamConfiguration getBeamConfiguration(int lhcFillNumber, int &error);
+  std::vector<bool> getBunchStructure(int lhcFillNumber, int &error);
+  std::vector<float> getInitBunchLumi(int lhcFillNumber, int &error);
+  std::vector<double> getRelativeBunchLumi(int lhcFillNumber, int &error);
 
-  public:
+  std::string enumToStringError(int);
 
-    L1TOMDSHelper(); 
-    ~L1TOMDSHelper(); // Destructor
+private:
+  std::string m_oracleDB;
+  std::string m_pathCondDB;
 
-    bool                                    connect              (std::string iOracleDB,std::string iPathCondDB,int &error);
-    std::map<std::string,WbMTriggerXSecFit> getWbMTriggerXsecFits(std::string iTable,int &error);
-    std::map<std::string,WbMTriggerXSecFit> getWbMAlgoXsecFits       (int &error);
-    std::map<std::string,WbMTriggerXSecFit> getWbMTechXsecFits       (int &error);
-    int                                     getNumberCollidingBunches(int lhcFillNumber,int &error);
-    BeamConfiguration                       getBeamConfiguration     (int lhcFillNumber,int &error);
-    std::vector<bool>                       getBunchStructure        (int lhcFillNumber,int &error);
-    std::vector<float>                      getInitBunchLumi         (int lhcFillNumber,int &error);
-    std::vector<double>                     getRelativeBunchLumi     (int lhcFillNumber,int &error);
-
-    std::string                             enumToStringError(int);
-
-  private:
-
-
-    std::string m_oracleDB;
-    std::string m_pathCondDB;
-
-    l1t::OMDSReader *m_omdsReader;
-
+  l1t::OMDSReader *m_omdsReader;
 };
 
 #endif

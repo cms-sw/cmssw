@@ -22,6 +22,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
 
 #include <memory>
 #include <string>
@@ -33,29 +34,44 @@ namespace edmtest {
 }
 
 namespace edm {
+  class MergeableRunProductMetadata;
   class ModuleCallingContext;
-  
+
   class RunForOutput : public OccurrenceForOutput {
   public:
-    RunForOutput(RunPrincipal const& rp, ModuleDescription const& md,
-        ModuleCallingContext const*, bool isAtEnd);
+    RunForOutput(RunTransitionInfo const&,
+                 ModuleDescription const&,
+                 ModuleCallingContext const*,
+                 bool isAtEnd,
+                 MergeableRunProductMetadata const* = nullptr);
+    RunForOutput(RunPrincipal const&,
+                 ModuleDescription const&,
+                 ModuleCallingContext const*,
+                 bool isAtEnd,
+                 MergeableRunProductMetadata const* = nullptr);
     ~RunForOutput() override;
 
-    RunAuxiliary const& runAuxiliary() const {return aux_;}
-    RunID const& id() const {return aux_.id();}
-    RunNumber_t run() const {return aux_.run();}
-    Timestamp const& beginTime() const {return aux_.beginTime();}
-    Timestamp const& endTime() const {return aux_.endTime();}
+    RunAuxiliary const& runAuxiliary() const { return aux_; }
+    RunID const& id() const { return aux_.id(); }
+    RunNumber_t run() const { return aux_.run(); }
+    Timestamp const& beginTime() const { return aux_.beginTime(); }
+    Timestamp const& endTime() const { return aux_.endTime(); }
+    MergeableRunProductMetadata const* mergeableRunProductMetadata() const { return mergeableRunProductMetadata_; }
+
+    /**\return Reusable index which can be used to separate data for different simultaneous Runs.
+     */
+    RunIndex index() const;
 
   private:
-    friend class edmtest::TestOutputModule; // For testing
+    friend class edmtest::TestOutputModule;  // For testing
 
-    RunPrincipal const&
-    runPrincipal() const;
+    RunPrincipal const& runPrincipal() const;
 
     RunAuxiliary const& aux_;
 
+    MergeableRunProductMetadata const* mergeableRunProductMetadata_;
+
     static const std::string emptyString_;
   };
-}
+}  // namespace edm
 #endif

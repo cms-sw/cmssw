@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     BeamSpotObjectsRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Tue Mar  6 19:34:33 CST 2007
 // $Id$
 

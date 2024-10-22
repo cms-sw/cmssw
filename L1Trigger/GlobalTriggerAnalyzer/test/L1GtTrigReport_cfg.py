@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to run L1GtTrigReport on GT output file containing 
 #    the readout record L1GlobalTriggerReadoutRecord
@@ -13,10 +14,10 @@ import sys
 # process
 process = cms.Process('L1GtTrigReport')
 
-print '\n'
+print('\n')
 from L1Trigger.GlobalTriggerAnalyzer.UserOptions_cff import *
 if errorUserOptions == True :
-    print '\nError returned by UserOptions_cff\n'
+    print('\nError returned by UserOptions_cff\n')
     sys.exit()
 
 
@@ -38,7 +39,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = useGlobalTag+'::All'
+process.GlobalTag.globaltag = useGlobalTag
 
 #
 # l1GtTrigReport module
@@ -77,7 +78,6 @@ else :
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtTrigReport']
-process.MessageLogger.categories.append('L1GtTrigReport')
 
 #process.MessageLogger.cerr.threshold = 'DEBUG'
 process.MessageLogger.cerr.threshold = 'INFO'

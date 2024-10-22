@@ -35,7 +35,7 @@ Package which contains .cff files defining event content for the different data 
 "RecoBTag/Configuration/data/RecoBTag_EventContent.cff"
 "RecoTauTag/Configuration/data/RecoTauTag_EventContent.cff"
 "RecoVertex/Configuration/data/RecoVertex_EventContent.cff"
-"RecoPixelVertexing/Configuration/data/RecoPixelVertexing_EventContent.cff"
+"RecoTracker/Configuration/data/RecoPixelVertexing_EventContent.cff"
 "RecoEgamma/Configuration/data/RecoEgamma_EventContent.cff"
 # Simulation part
 "SimG4Core/Configuration/data/SimG4Core_EventContent.cff"

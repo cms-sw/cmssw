@@ -14,14 +14,14 @@
 class TrackerTopology;
 
 class CombinedTSG : public CompositeTSG {
- public:
-  CombinedTSG(const edm::ParameterSet &pset,edm::ConsumesCollector& iC);
+public:
+  CombinedTSG(const edm::ParameterSet &pset, edm::ConsumesCollector &iC);
   ~CombinedTSG() override;
 
   /// provide the seeds from the TSGs: must be overloaded
-  void trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection &) override;
+  void trackerSeeds(const TrackCand &, const TrackingRegion &, const TrackerTopology *, BTSeedCollection &) override;
 
- private:
+private:
   std::string theCategory;
 };
 

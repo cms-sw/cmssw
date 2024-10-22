@@ -1,3 +1,4 @@
+from __future__ import print_function
 #########################
 #
 # Configuration file for PileUp events
@@ -39,7 +40,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 if flat:
-	print 'You choose the flat geometry'
+	print('You choose the flat geometry')
 	process.load('L1Trigger.TrackTrigger.TkOnlyFlatGeom_cff') # Special config file for TkOnly geometry
 	process.TTStubAlgorithm_official_Phase2TrackerDigi_.zMatchingPS = cms.bool(False) # Tilted is the new default
 	process.TTStubAlgorithm_official_Phase2TrackerDigi_.EndcapCutSet = cms.VPSet(
@@ -51,7 +52,7 @@ if flat:
 		cms.PSet( EndcapCut = cms.vdouble( 0, 0.5, 0.5, 0.5, 0.5, 1., 1.5, 2.5, 4., 5, 7, 5.5, 7, 7, 7, 7) ),
 		)
 else:
-	print 'You choose the tilted geometry'
+	print('You choose the tilted geometry')
 	process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff') # Special config file for TkOnly geometry
 
 process.maxEvents = cms.untracked.PSet(

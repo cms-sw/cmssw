@@ -2,56 +2,60 @@
 #define TkSeedingLayers_SeedingHitSet_H
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <vector>
+#include <algorithm>
 
 class SeedingHitSet {
 public:
-
-  using      RecHit        = BaseTrackerRecHit;
-  using      RecHitPointer = BaseTrackerRecHit *;
+  using RecHit = BaseTrackerRecHit;
+  using RecHitPointer = BaseTrackerRecHit *;
   using ConstRecHitPointer = BaseTrackerRecHit const *;
 
-  static ConstRecHitPointer nullPtr() { return nullptr;}
+  static ConstRecHitPointer nullPtr() { return nullptr; }
 
-  SeedingHitSet() {theRecHits[0]=theRecHits[1]=theRecHits[2]=theRecHits[3]=nullptr;}
+  SeedingHitSet() = default;
 
-  SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two) 
-  // : theRecHits{{one,two,ConstRecHitPointer()}}
-  {
-    theRecHits[0]=one;
-    theRecHits[1]=two;
-    theRecHits[2]=theRecHits[3]=nullptr;
+  SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two) : SeedingHitSet({one, two}) {}
+
+  SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two, ConstRecHitPointer three)
+      : SeedingHitSet({one, two, three}) {}
+
+  SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two, ConstRecHitPointer three, ConstRecHitPointer four)
+      : SeedingHitSet({one, two, three, four}) {}
+
+  SeedingHitSet(const std::vector<ConstRecHitPointer> &hits) {
+    if (hits.size() >= 2) {
+      auto end = std::find(hits.begin(), hits.end(), nullPtr());
+      auto size = std::distance(hits.begin(), end);
+      if (size >= 2) {
+        theRecHits.reserve(size);
+        std::copy(hits.begin(), end, std::back_inserter(theRecHits));
+      }
+    }
   }
-  SeedingHitSet(ConstRecHitPointer  one, ConstRecHitPointer  two, 
-		ConstRecHitPointer three) 
-  // : theRecHits{{one,two,three}},
-  {
-    theRecHits[0]=one;
-    theRecHits[1]=two;
-    theRecHits[2]=three;
-    theRecHits[3]=nullptr;
+
+  SeedingHitSet(const std::initializer_list<ConstRecHitPointer> &hits) {
+    if (hits.size() >= 2) {
+      auto end = std::find(hits.begin(), hits.end(), nullPtr());
+      auto size = std::distance(hits.begin(), end);
+      if (size >= 2) {
+        theRecHits.reserve(size);
+        std::copy(hits.begin(), end, std::back_inserter(theRecHits));
+      }
+    }
   }
-  
-  SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two, 
-		ConstRecHitPointer three, ConstRecHitPointer four) 
-  {
-    theRecHits[0]=one;
-    theRecHits[1]=two;
-    theRecHits[2]=three;
-    theRecHits[3]=four;
-  }
-  
 
-  ConstRecHitPointer const * data() const { return theRecHits;}
+  ConstRecHitPointer const *data() const { return theRecHits.data(); }
 
-  unsigned int size() const { return theRecHits[3] ? 4 : (theRecHits[2] ? 3 : ( theRecHits[1] ? 2 : 0 ) ); }
+  unsigned int size() const { return theRecHits.size(); }
 
-  ConstRecHitPointer  get(unsigned int i) const { return theRecHits[i]; }
-  ConstRecHitPointer  operator[](unsigned int i) const { return theRecHits[i]; }
-  
-  
-private:
-  ConstRecHitPointer theRecHits[4];
+  ConstRecHitPointer get(unsigned int i) const { return theRecHits[i]; }
+  ConstRecHitPointer operator[](unsigned int i) const { return theRecHits[i]; }
+
+protected:
+  std::vector<ConstRecHitPointer> theRecHits;
 };
-
 
 #endif

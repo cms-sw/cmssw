@@ -14,41 +14,44 @@
 
 #include "CommonTools/RecoUtils/interface/PFCand_AssoMapAlgos.h"
 
- // 0 = neutral particle,
- // 1 = charged particle not associated to any vertex
- // 2 = charged particle associated to pile-up vertex
- // 3 = charged particle associated to vertex of hard-scatter event
+// 0 = neutral particle,
+// 1 = charged particle not associated to any vertex
+// 2 = charged particle associated to pile-up vertex
+// 3 = charged particle associated to vertex of hard-scatter event
 namespace noPuUtils {
-  enum {kNeutral=0, kChNoAssoc, kChPUAssoc, kChHSAssoc};
+  enum { kNeutral = 0, kChNoAssoc, kChPUAssoc, kChHSAssoc };
 
   typedef std::vector<std::pair<reco::PFCandidateRef, int> > CandQualityPairVector;
   typedef std::vector<std::pair<reco::VertexRef, int> > VertexQualityPairVector;
 
-  typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::PFCandidateCollection, reco::VertexCollection, int> > 
-    reversedPFCandToVertexAssMap; 
-  
+  typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::PFCandidateCollection, reco::VertexCollection, int> >
+      reversedPFCandToVertexAssMap;
 
+  // check if the pf candidate is associated with a vertex,
+  // return the type of association
+  int isVertexAssociated(const reco::PFCandidatePtr&,
+                         const PFCandToVertexAssMap&,
+                         const reco::VertexCollection&,
+                         double);
 
+  // reverse the vertex-pfcandidate association map
+  noPuUtils::reversedPFCandToVertexAssMap reversePFCandToVertexAssociation(const PFCandToVertexAssMap&);
 
-// check if the pf candidate is associated with a vertex, 
-// return the type of association
-int isVertexAssociated(const reco::PFCandidatePtr&, const PFCandToVertexAssMap&, const reco::VertexCollection&, double);
+  // check if the pf candidate is associated with a vertex,
+  // based over references keys
+  // return the type of association
+  int isVertexAssociated_fast(const reco::PFCandidateRef&,
+                              const noPuUtils::reversedPFCandToVertexAssMap&,
+                              const reco::VertexCollection&,
+                              double,
+                              int&,
+                              int);
 
-// reverse the vertex-pfcandidate association map
-noPuUtils::reversedPFCandToVertexAssMap reversePFCandToVertexAssociation(const PFCandToVertexAssMap&);
+  //promote a low quality association to a better level
+  // if dz justifies it
+  void promoteAssocToHSAssoc(
+      int quality, double z, const reco::VertexCollection& vertices, double dZ, int& vtxAssociationType, bool checkdR2);
 
-// check if the pf candidate is associated with a vertex,
-// based over references keys 
-// return the type of association
-int isVertexAssociated_fast(const reco::PFCandidateRef&, const noPuUtils::reversedPFCandToVertexAssMap&, const reco::VertexCollection&, double, int&, int);
-
-//promote a low quality association to a better level
-// if dz justifies it 
-void promoteAssocToHSAssoc(int quality, double z,
-			   const reco::VertexCollection& vertices,
-			   double dZ, int& vtxAssociationType, bool checkdR2);
-
-
-}
+}  // namespace noPuUtils
 
 #endif

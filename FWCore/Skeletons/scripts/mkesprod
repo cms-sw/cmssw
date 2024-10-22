@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 #pylint: disable-msg=
 """
@@ -15,10 +15,6 @@ if  sys.version_info < (2, 6):
 
 # package modules
 from FWCore.Skeletons.cms import generate
-
-def tmpl_dir():
-    "Return location of template directory wrt script location"
-    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
 
 def pkg_help():
     "mkesprod help function"
@@ -51,18 +47,18 @@ def pkg_help():
     msg += '\n'
     return msg
 
-def config(tmpl, pkg_help, tmpl_dir):
+def config(tmpl, pkg_help):
     "Parse input arguments to mk-script"
     kwds  = {'author': '', 'tmpl': tmpl,
-             'args': {}, 'debug': False, 'tmpl_dir': tmpl_dir}
+             'args': {}, 'debug': False}
     etags = []
     args  = []
     if  len(sys.argv) >= 2: # user give us arguments
         if  sys.argv[1] in ['-h', '--help', '-help']:
-            print pkg_help
+            print(pkg_help)
             sys.exit(0)
         kwds['pname'] = sys.argv[1]
-        for idx in xrange(2, len(sys.argv)):
+        for idx in range(2, len(sys.argv)):
             opt = sys.argv[idx]
             if  opt == '-author':
                 kwds['author'] = sys.argv[idx+1]
@@ -70,7 +66,7 @@ def config(tmpl, pkg_help, tmpl_dir):
                 etags.append('@%s' % opt)
                 continue
             elif  opt in ['-h', '--help', '-help']:
-                print pkg_help
+                print(pkg_help)
                 sys.exit(0)
             elif  opt == '-debug':
                 kwds['debug'] = True
@@ -80,13 +76,13 @@ def config(tmpl, pkg_help, tmpl_dir):
     elif len(sys.argv) == 1:
         # need to walk
         msg   = 'Please enter %s name: ' % tmpl.lower()
-        kwds['pname'] = raw_input(msg)
+        kwds['pname'] = input(msg)
         msg   = 'Please enter record name: '
-        args.append(raw_input(msg))
+        args.append(input(msg))
         msg   = 'Please enter data types (separate by space): '
-        args += [t for t in raw_input(msg).split()]
+        args += [t for t in input(msg).split()]
     else:
-        print pkg_help
+        print(pkg_help)
         sys.exit(0)
     if  args:
         # first element is record name, others are data types
@@ -99,4 +95,4 @@ def config(tmpl, pkg_help, tmpl_dir):
     return kwds
 
 if __name__ == '__main__':
-    generate(config('ESProducer', pkg_help(), tmpl_dir()))
+    generate(config('ESProducer', pkg_help()))

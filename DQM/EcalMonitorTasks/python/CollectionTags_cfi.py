@@ -1,6 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalDQMCollectionTags = cms.untracked.PSet(
+# Dec 2019: ecalDQMCollectionTags was changed from an untracked PSet to a tracked PSet.
+# The reason is that this PSet is part of the offline DQM configuration for both pp
+# and HI runs. For HI runs, there is a function in the the config builder that
+# replaces all inputTags named "rawDataCollector" to "rawDataMapperByLabel", which
+# is necessary for HI runs. As of Dec 2019, this function was called "MassReplaceInputTag".
+# This only works if the collection tags below are part of a tracked PSet.
+
+ecalDQMCollectionTags = cms.PSet(
     Source = cms.untracked.InputTag("rawDataCollector"),
     EcalRawData = cms.untracked.InputTag("ecalDigis"),
     EBGainErrors = cms.untracked.InputTag("ecalDigis", "EcalIntegrityGainErrors"),
@@ -37,5 +44,17 @@ ecalDQMCollectionTags = cms.untracked.PSet(
     EBBasicCluster = cms.untracked.InputTag("particleFlowClusterECAL"),
     EEBasicCluster = cms.untracked.InputTag("particleFlowClusterECAL"),
     EBSuperCluster = cms.untracked.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALBarrel"),
-    EESuperCluster = cms.untracked.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALEndcapWithPreshower")
+    EESuperCluster = cms.untracked.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALEndcapWithPreshower"),
+    EBCpuDigi = cms.untracked.InputTag("ecalDigis@cpu", "ebDigis"),
+    EECpuDigi = cms.untracked.InputTag("ecalDigis@cpu", "eeDigis"),
+    EBGpuDigi = cms.untracked.InputTag("ecalDigis@cuda", "ebDigis"),
+    EEGpuDigi = cms.untracked.InputTag("ecalDigis@cuda", "eeDigis"),
+    EBCpuUncalibRecHit = cms.untracked.InputTag("ecalMultiFitUncalibRecHit@cpu", "EcalUncalibRecHitsEB"),
+    EECpuUncalibRecHit = cms.untracked.InputTag("ecalMultiFitUncalibRecHit@cpu", "EcalUncalibRecHitsEE"),
+    EBGpuUncalibRecHit = cms.untracked.InputTag("ecalMultiFitUncalibRecHit@cuda", "EcalUncalibRecHitsEB"),
+    EEGpuUncalibRecHit = cms.untracked.InputTag("ecalMultiFitUncalibRecHit@cuda", "EcalUncalibRecHitsEE"),
+    EBCpuRecHit = cms.untracked.InputTag("ecalRecHit@cpu", "EcalRecHitsEB"),
+    EECpuRecHit = cms.untracked.InputTag("ecalRecHit@cpu", "EcalRecHitsEE"),
+    EBGpuRecHit = cms.untracked.InputTag("ecalRecHit@cuda", "EcalRecHitsEB"),
+    EEGpuRecHit = cms.untracked.InputTag("ecalRecHit@cuda", "EcalRecHitsEE")
 )

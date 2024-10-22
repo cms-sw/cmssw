@@ -12,11 +12,10 @@ class MeasurementEstimator;
 
 class dso_hidden NonPropagatingDetMeasurements {
 public:
-
-  std::vector<TrajectoryMeasurement> get( const MeasurementDet& det,
-					  const TrajectoryStateOnSurface& stateOnThisDet,
-					  const MeasurementEstimator& est,
-                                          const MeasurementTrackerEvent& data) const;
+  std::vector<TrajectoryMeasurement> get(const MeasurementDet& det,
+                                         const TrajectoryStateOnSurface& stateOnThisDet,
+                                         const MeasurementEstimator& est,
+                                         const MeasurementTrackerEvent& data) const;
 };
 
-#endif 
+#endif

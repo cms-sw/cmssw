@@ -2,7 +2,7 @@
 //
 // Package:     Records
 // Class  :     EcalPreshowerGeometryRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

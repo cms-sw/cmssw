@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 """
@@ -20,8 +21,6 @@ dump = False #dump python
 # vvv
 
 
-if len(sys.argv) > 1 and sys.argv[1].endswith('.py'):
-    sys.argv.pop(0)
 if len(sys.argv) == 2 and ':' in sys.argv[1]:
     argv = sys.argv[1].split(':')
 else:
@@ -31,9 +30,9 @@ for arg in argv:
     (k, v) = map(str.strip, arg.split('='))
     if k not in globals():
         raise "Unknown argument '%s'!" % (k,)
-    if type(globals()[k]) == bool:
+    if isinstance(globals()[k], bool):
         globals()[k] = v.lower() in ('y', 'yes', 'true', 't', '1')
-    elif type(globals()[k]) == int:
+    elif isinstance(globals()[k], int):
         globals()[k] = int(v)
     else:
         globals()[k] = v
@@ -235,5 +234,5 @@ process.schedule = cms.Schedule(process.L1simulation_step,
 
 if dump:
     outfile = open('dump_TTBarRelVal_Stage2uGT_TestVectors_'+repr(job)+'.py','w')
-    print >> outfile,process.dumpPython()
+    print(process.dumpPython(), file=outfile)
     outfile.close()

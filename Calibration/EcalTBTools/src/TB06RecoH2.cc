@@ -1,42 +1,41 @@
 #include "Calibration/EcalTBTools/interface/TB06RecoH2.h"
 
-/* 
-*/
+/*
+ */
 
-//FIXME ClassImp (TB06RecoH2)
+// FIXME ClassImp (TB06RecoH2)
 
-void TB06RecoH2::reset ()
-{
-  run = 0 ;
-  event = 0 ;
-  tableIsMoving = 0 ;
-  S6ADC = 0 ;
+void TB06RecoH2::reset() {
+  run = 0;
+  event = 0;
+  tableIsMoving = 0;
+  S6ADC = 0;
 
-  MEXTLindex = 0 ;
-  MEXTLeta = 0 ;
-  MEXTLphi = 0 ;
-  MEXTLenergy = 0. ;
-  beamEnergy = 0. ;
+  MEXTLindex = 0;
+  MEXTLeta = 0;
+  MEXTLphi = 0;
+  MEXTLenergy = 0.;
+  beamEnergy = 0.;
 
-  for (int eta = 0 ; eta<7 ; ++eta)
-    for (int phi = 0 ; phi<7 ; ++phi)
-      localMap[eta][phi] = 0. ;
+  for (int eta = 0; eta < 7; ++eta)
+    for (int phi = 0; phi < 7; ++phi)
+      localMap[eta][phi] = 0.;
 
   S1uncalib_ = 0.;
   S25uncalib_ = 0.;
   S9uncalib_ = 0.;
   S49uncalib_ = 0.;
 
-  xECAL = 0. ;
-  yECAL = 0. ;
-  zECAL = 0. ;
-  xHodo = 0. ;
-  yHodo = 0. ;
-  zHodo = 0. ;
-  xSlopeHodo = 0. ;
-  ySlopeHodo = 0. ;
-  xQualityHodo = 0. ;
-  yQualityHodo = 0. ;
+  xECAL = 0.;
+  yECAL = 0.;
+  zECAL = 0.;
+  xHodo = 0.;
+  yHodo = 0.;
+  zHodo = 0.;
+  xSlopeHodo = 0.;
+  ySlopeHodo = 0.;
+  xQualityHodo = 0.;
+  yQualityHodo = 0.;
   wcAXo_ = 0;
   wcAYo_ = 0;
   wcBXo_ = 0;
@@ -73,8 +72,7 @@ void TB06RecoH2::reset ()
   TOF1S_ = -999.;
   TOF1J_ = -999.;
   TOF2S_ = -999.;
-  TOF2J_ = -999.;  
+  TOF2J_ = -999.;
 
-  convFactor = 0. ;
+  convFactor = 0.;
 }
-                                                                                                                                                                    

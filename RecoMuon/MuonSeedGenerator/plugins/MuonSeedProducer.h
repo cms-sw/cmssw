@@ -17,34 +17,38 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 class MuonSeedBuilder;
 
-class MuonSeedProducer: public edm::stream::EDProducer<> {
- public:
-
+class MuonSeedProducer : public edm::stream::EDProducer<> {
+public:
   /// Constructor
   MuonSeedProducer(const edm::ParameterSet&);
-  
+
   /// Destructor
   ~MuonSeedProducer() override;
-  
+
   // Operations
 
   /// Get event properties to send to builder to fill seed collection
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   // This Producer private debug flag
   bool debug;
 
   /// Builder where seeds are formed
   MuonSeedBuilder* muonSeedBuilder_;
 
+  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonLayersToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
 };
 
 #endif
-

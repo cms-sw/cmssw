@@ -6,10 +6,11 @@ from Configuration.Geometry.GeometryExtended2017Plan1_cff import *
 
 # Reconstruction geometry services
 #  Tracking Geometry
-from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
+from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
 
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 
 #Muon

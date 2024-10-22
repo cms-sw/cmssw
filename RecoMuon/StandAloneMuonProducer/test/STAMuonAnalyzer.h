@@ -8,44 +8,48 @@
  */
 
 // Base Class Headers
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class TFile;
 class TH1F;
 class TH2F;
+class MagneticField;
+class IdealMagneticFieldRecord;
+class GlobalTrackingGeometry;
+class GlobalTrackingGeometryRecord;
 
-class STAMuonAnalyzer: public edm::EDAnalyzer {
+class STAMuonAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
-  STAMuonAnalyzer(const edm::ParameterSet& pset);
+  STAMuonAnalyzer(const edm::ParameterSet &pset);
 
   /// Destructor
-  virtual ~STAMuonAnalyzer();
+  ~STAMuonAnalyzer() override;
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
-  virtual void beginJob() ;
-  virtual void endJob() ;
+  void beginJob() override;
+  void endJob() override;
+
 protected:
-
 private:
   std::string theRootFileName;
-  TFile* theFile;
+  TFile *theFile;
 
   std::string theSTAMuonLabel;
   std::string theSeedCollectionLabel;
 
   // Histograms
   TH1F *hPtRec;
-  TH1F *hPtSim; 
+  TH1F *hPtSim;
   TH1F *hPres;
   TH1F *h1_Pres;
   TH1F *hPTDiff;
@@ -58,7 +62,7 @@ private:
   int numberOfRecTracks;
 
   std::string theDataType;
-  
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> theGeomToken;
 };
 #endif
-

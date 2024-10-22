@@ -18,65 +18,65 @@
 using namespace std;
 using namespace edm;
 
-DTOccupancyClusterBuilder::  DTOccupancyClusterBuilder() : maxMean(-1.),
-							   maxRMS(-1.) {
-}
+DTOccupancyClusterBuilder::DTOccupancyClusterBuilder() : maxMean(-1.), maxRMS(-1.) {}
 
-DTOccupancyClusterBuilder::~DTOccupancyClusterBuilder(){}
-
-
+DTOccupancyClusterBuilder::~DTOccupancyClusterBuilder() {}
 
 void DTOccupancyClusterBuilder::addPoint(const DTOccupancyPoint& point) {
   // loop over points already stored
-  for(set<DTOccupancyPoint>::const_iterator pt = thePoints.begin(); pt != thePoints.end(); ++pt) {
+  for (set<DTOccupancyPoint>::const_iterator pt = thePoints.begin(); pt != thePoints.end(); ++pt) {
     theDistances[(*pt).distance(point)] = make_pair(*pt, point);
   }
   thePoints.insert(point);
 }
 
-
 void DTOccupancyClusterBuilder::buildClusters() {
-  while(buildNewCluster()) {
-    if(thePoints.size() <= 1) break;
+  while (buildNewCluster()) {
+    if (thePoints.size() <= 1)
+      break;
   }
-    
+
   // build single point clusters with the remaining points
-  for(set<DTOccupancyPoint>::const_iterator pt = thePoints.begin(); pt != thePoints.end();
-      ++pt) {
+  for (set<DTOccupancyPoint>::const_iterator pt = thePoints.begin(); pt != thePoints.end(); ++pt) {
     DTOccupancyCluster clusterCandidate(*pt);
     theClusters.push_back(clusterCandidate);
     // store the range for building the histograms later
-    if(clusterCandidate.maxMean() > maxMean) maxMean = clusterCandidate.maxMean();
-    if(clusterCandidate.maxRMS() > maxRMS) maxRMS = clusterCandidate.maxRMS();
+    if (clusterCandidate.maxMean() > maxMean)
+      maxMean = clusterCandidate.maxMean();
+    if (clusterCandidate.maxRMS() > maxRMS)
+      maxRMS = clusterCandidate.maxRMS();
   }
   LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder")
-    << " # of valid clusters: " << theClusters.size() << endl;
+      << " # of valid clusters: " << theClusters.size() << endl;
   sortClusters();
-  
 }
-
 
 void DTOccupancyClusterBuilder::drawClusters(std::string canvasName) {
   int nBinsX = 100;
   int nBinsY = 100;
   int colorMap[12] = {632, 600, 800, 400, 820, 416, 432, 880, 616, 860, 900, 920};
 
-  TCanvas *canvas = new TCanvas(canvasName.c_str(),canvasName.c_str()); 
+  TCanvas* canvas = new TCanvas(canvasName.c_str(), canvasName.c_str());
   canvas->cd();
-  for(vector<DTOccupancyCluster>::const_iterator cluster = theClusters.begin();
-      cluster != theClusters.end(); ++cluster) {
+  for (vector<DTOccupancyCluster>::const_iterator cluster = theClusters.begin(); cluster != theClusters.end();
+       ++cluster) {
     stringstream stream;
-    stream << canvasName << "_" << cluster-theClusters.begin();
+    stream << canvasName << "_" << cluster - theClusters.begin();
     string histoName = stream.str();
-    TH2F *histo = (*cluster).getHisto(histoName, nBinsX, 0, maxMean+3*maxMean/100.,
-				      nBinsY, 0, maxRMS+3*maxRMS/100., colorMap[cluster-theClusters.begin()]);
-    if(cluster == theClusters.begin()) 
+    TH2F* histo = (*cluster).getHisto(histoName,
+                                      nBinsX,
+                                      0,
+                                      maxMean + 3 * maxMean / 100.,
+                                      nBinsY,
+                                      0,
+                                      maxRMS + 3 * maxRMS / 100.,
+                                      colorMap[cluster - theClusters.begin()]);
+    if (cluster == theClusters.begin())
       histo->Draw("box");
     else
       histo->Draw("box,same");
   }
 }
-
 
 std::pair<DTOccupancyPoint, DTOccupancyPoint> DTOccupancyClusterBuilder::getInitialPair() {
   return theDistances.begin()->second;
@@ -84,88 +84,79 @@ std::pair<DTOccupancyPoint, DTOccupancyPoint> DTOccupancyClusterBuilder::getInit
 
 void DTOccupancyClusterBuilder::computePointToPointDistances() {
   theDistances.clear();
-  for(set<DTOccupancyPoint>::const_iterator pt_i = thePoints.begin(); pt_i != thePoints.end();
-      ++pt_i) { // i loopo
-    for(set<DTOccupancyPoint>::const_iterator pt_j = thePoints.begin(); pt_j != thePoints.end();
-	++pt_j) { // j loop
-      if(*pt_i != *pt_j) {
-	theDistances[pt_i->distance(*pt_j)] = make_pair(*pt_i, *pt_j);
+  for (set<DTOccupancyPoint>::const_iterator pt_i = thePoints.begin(); pt_i != thePoints.end(); ++pt_i) {    // i loopo
+    for (set<DTOccupancyPoint>::const_iterator pt_j = thePoints.begin(); pt_j != thePoints.end(); ++pt_j) {  // j loop
+      if (*pt_i != *pt_j) {
+        theDistances[pt_i->distance(*pt_j)] = make_pair(*pt_i, *pt_j);
       }
     }
   }
 }
 
-
-
 void DTOccupancyClusterBuilder::computeDistancesToCluster(const DTOccupancyCluster& cluster) {
   theDistancesFromTheCluster.clear();
-  for(set<DTOccupancyPoint>::const_iterator pt = thePoints.begin(); pt != thePoints.end(); ++pt) {
+  for (set<DTOccupancyPoint>::const_iterator pt = thePoints.begin(); pt != thePoints.end(); ++pt) {
     theDistancesFromTheCluster[cluster.distance(*pt)] = *pt;
   }
 }
 
-
 bool DTOccupancyClusterBuilder::buildNewCluster() {
   LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder")
-    << "--------- New Cluster Candidate ----------------------" << endl;
+      << "--------- New Cluster Candidate ----------------------" << endl;
   pair<DTOccupancyPoint, DTOccupancyPoint> initialPair = getInitialPair();
   LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder")
-    << "   Initial Pair: " << endl
-    << "           point1: mean " << initialPair.first.mean()
-    << " rms " << initialPair.first.rms() << endl
-    << "           point2: mean " << initialPair.second.mean()
-    << " rms " << initialPair.second.rms() << endl;
+      << "   Initial Pair: " << endl
+      << "           point1: mean " << initialPair.first.mean() << " rms " << initialPair.first.rms() << endl
+      << "           point2: mean " << initialPair.second.mean() << " rms " << initialPair.second.rms() << endl;
   DTOccupancyCluster clusterCandidate(initialPair.first, initialPair.second);
-  if(clusterCandidate.isValid()) {
+  if (clusterCandidate.isValid()) {
     // remove already used pair
     thePoints.erase(initialPair.first);
     thePoints.erase(initialPair.second);
-    if(!thePoints.empty()) {
+    if (!thePoints.empty()) {
       computeDistancesToCluster(clusterCandidate);
-      while(clusterCandidate.addPoint(theDistancesFromTheCluster.begin()->second)) {
-	thePoints.erase(theDistancesFromTheCluster.begin()->second);
-	if(thePoints.empty()) break;
-	computeDistancesToCluster(clusterCandidate);
+      while (clusterCandidate.addPoint(theDistancesFromTheCluster.begin()->second)) {
+        thePoints.erase(theDistancesFromTheCluster.begin()->second);
+        if (thePoints.empty())
+          break;
+        computeDistancesToCluster(clusterCandidate);
       }
     }
   } else {
     return false;
   }
   LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder")
-    << "   # of layers: " << clusterCandidate.nPoints()
-    << " avrg. mean: " << clusterCandidate.averageMean() << " avrg. rms: " << clusterCandidate.averageRMS() << endl;
+      << "   # of layers: " << clusterCandidate.nPoints() << " avrg. mean: " << clusterCandidate.averageMean()
+      << " avrg. rms: " << clusterCandidate.averageRMS() << endl;
   theClusters.push_back(clusterCandidate);
   // store the range for building the histograms later
-  if(clusterCandidate.maxMean() > maxMean) maxMean = clusterCandidate.maxMean();
-  if(clusterCandidate.maxRMS() > maxRMS) maxRMS = clusterCandidate.maxRMS();
+  if (clusterCandidate.maxMean() > maxMean)
+    maxMean = clusterCandidate.maxMean();
+  if (clusterCandidate.maxRMS() > maxRMS)
+    maxRMS = clusterCandidate.maxRMS();
   computePointToPointDistances();
   return true;
 }
-  
-
 
 void DTOccupancyClusterBuilder::sortClusters() {
   LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder") << " sorting" << endl;
   sort(theClusters.begin(), theClusters.end(), clusterIsLessThan);
   // we save the detid of the clusters which are not the best one
-  for(vector<DTOccupancyCluster>::const_iterator cluster = ++(theClusters.begin());
-      cluster != theClusters.end(); ++cluster) { // loop over clusters skipping the first
+  for (vector<DTOccupancyCluster>::const_iterator cluster = ++(theClusters.begin()); cluster != theClusters.end();
+       ++cluster) {  // loop over clusters skipping the first
     set<DTLayerId> clusterLayers = (*cluster).getLayerIDs();
     LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder")
-      << "     # layers in the cluster: " << clusterLayers.size() << endl;
+        << "     # layers in the cluster: " << clusterLayers.size() << endl;
     theProblematicLayers.insert(clusterLayers.begin(), clusterLayers.end());
   }
   LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder")
-    << " # of problematic layers: " << theProblematicLayers.size() << endl;
+      << " # of problematic layers: " << theProblematicLayers.size() << endl;
 }
 
-
-DTOccupancyCluster DTOccupancyClusterBuilder::getBestCluster() const {
-  return theClusters.front();
-}
+DTOccupancyCluster DTOccupancyClusterBuilder::getBestCluster() const { return theClusters.front(); }
 
 bool DTOccupancyClusterBuilder::isProblematic(DTLayerId layerId) const {
-  if(theProblematicLayers.find(layerId) != theProblematicLayers.end()) {
+  if (theProblematicLayers.find(layerId) != theProblematicLayers.end()) {
     return true;
   }
   return false;

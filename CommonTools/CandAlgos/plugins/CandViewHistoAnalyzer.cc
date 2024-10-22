@@ -11,5 +11,4 @@
 
 typedef HistoAnalyzer<reco::CandidateView> CandViewHistoAnalyzer;
 
-DEFINE_FWK_MODULE( CandViewHistoAnalyzer );
-
+DEFINE_FWK_MODULE(CandViewHistoAnalyzer);

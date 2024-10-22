@@ -19,17 +19,16 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-class MuonHitsChamberResidual : public MuonChamberResidual
-{
+class MuonHitsChamberResidual : public MuonChamberResidual {
 public:
-  
-  MuonHitsChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator,
-                          DetId chamberId, const AlignableDetOrUnitPtr& chamberAlignable);
-  
-  void segment_fit();
-  
-protected:
+  MuonHitsChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
+                          AlignableNavigator* navigator,
+                          DetId chamberId,
+                          const AlignableDetOrUnitPtr& chamberAlignable);
 
+  void segment_fit();
+
+protected:
   double m_chamber_width;
   double m_chamber_length;
   double m_residual_1;
@@ -59,4 +58,4 @@ protected:
   double m_hity_xy;
 };
 
-#endif // Alignment_MuonAlignmentAlgorithms_MuonHitsChamberResidual_H
+#endif  // Alignment_MuonAlignmentAlgorithms_MuonHitsChamberResidual_H

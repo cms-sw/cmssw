@@ -60,7 +60,8 @@ process.source.fileNames.extend(
 process.source.processingMode = cms.untracked.string("Runs")
 
 
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
      qtList = cms.untracked.FileInPath('DQMOffline/Trigger/data/EgHLTOffQualityTests.xml'),
      verboseQT = cms.untracked.bool(True),
      qtestOnEndJob =cms.untracked.bool(False),
@@ -69,7 +70,6 @@ process.qTester = cms.EDAnalyzer("QualityTester",
  )
 
 
-process.DQMStore.collateHistograms = True
 process.EDMtoMEConverter.convertOnEndLumi = False
 process.EDMtoMEConverter.convertOnEndRun = True
 

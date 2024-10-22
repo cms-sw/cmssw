@@ -4,6 +4,7 @@
 This script checks the outputs from SiStripDetVOffFakeBuilder and reader. It compares the status of all detIds
 both for low and high voltage and it checks that the values written in the database are correctly read back.
 '''
+from __future__ import print_function
 
 import os
 
@@ -23,15 +24,14 @@ def compare(vType):
     builderDetIds = builderOutput.split('\n')
     readerDetIds = readerOutput.split('\n')
 
-    builderDetIds = list(builderDetIds)
-    builderDetIds.sort()
+    builderDetIds = sorted(builderDetIds)
 
     #builderLine = popen
 
     i = 0
     printNum = 5
-    print "Checking", vType, ":"
-    print "printing the first ", printNum, " for comparison"
+    print("Checking", vType, ":")
+    print("printing the first ", printNum, " for comparison")
     for detId in builderDetIds:
         #if( i < 1000 ):
         # print "detId = ", detId
@@ -43,12 +43,12 @@ def compare(vType):
             readerDetId = readerDetIds[i]
             # builderDetId = builderDetIds[i].split()[0]           
             if( readerDetId != builderDetId ):
-                print "does not match: builder = ", detId, " reader = ", readerDetIds[i]
+                print("does not match: builder = ", detId, " reader = ", readerDetIds[i])
             if( i < printNum ):
-                print "builder = ", detId
-                print "reader = ", readerDetIds[i]
+                print("builder = ", detId)
+                print("reader = ", readerDetIds[i])
             i += 1
-    print
+    print()
 
 
 builderFile = open("SiStripDetVOffFakeBuilder.log")

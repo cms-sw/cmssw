@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     HcalCalibrationQIEDataRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Sat Mar  1 15:49:07 CET 2008
 // $Id$
 

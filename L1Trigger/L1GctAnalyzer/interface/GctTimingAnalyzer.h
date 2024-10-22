@@ -5,7 +5,7 @@
 //
 // Package:    GctTimingAnalyzer
 // Class:      GctTimingAnalyzer
-// 
+//
 /**\class GctTimingAnalyzer GctTimingAnalyzer.cc L1Trigger/L1GctAnalzyer/interface/GctTimingAnalyzer.h
 
 Description: Analyse the timing of all of the GCT pipelines
@@ -19,7 +19,7 @@ Description: Analyse the timing of all of the GCT pipelines
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -33,22 +33,19 @@ Description: Analyse the timing of all of the GCT pipelines
 #include <iostream>
 #include <fstream>
 
-class GctTimingAnalyzer : public edm::EDAnalyzer {
-
- public:
-
+class GctTimingAnalyzer : public edm::one::EDAnalyzer<> {
+public:
   explicit GctTimingAnalyzer(const edm::ParameterSet&);
   ~GctTimingAnalyzer() override;
 
- private:
-
+private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  std::string m_outputFileName; // Output file
+  std::string m_outputFileName;  // Output file
   std::ofstream m_outputFile;
 
-  edm::InputTag m_gctSource; // General source label
-  edm::InputTag m_isoEmSource;   
+  edm::InputTag m_gctSource;  // General source label
+  edm::InputTag m_isoEmSource;
   edm::InputTag m_nonIsoEmSource;
   edm::InputTag m_cenJetsSource;
   edm::InputTag m_forJetsSource;
@@ -61,7 +58,6 @@ class GctTimingAnalyzer : public edm::EDAnalyzer {
   bool m_doESums;
 
   unsigned m_evtNum;
-
 };
 
 #endif

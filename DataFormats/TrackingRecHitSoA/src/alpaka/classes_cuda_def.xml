@@ -1,0 +1,16 @@
+<lcgdict>
+  <class name="alpaka_cuda_async::PortableCollection<TrackingRecHitLayout<pixelTopology::Phase1>>" persistent="false"/>
+  <class name="alpaka_cuda_async::TrackingRecHitSoAPhase1" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::TrackingRecHitSoAPhase1>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::TrackingRecHitSoAPhase1>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::PortableCollection<TrackingRecHitLayout<pixelTopology::Phase2>>" persistent="false"/>
+  <class name="alpaka_cuda_async::TrackingRecHitSoAPhase2" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::TrackingRecHitSoAPhase2>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::TrackingRecHitSoAPhase2>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::PortableCollection<TrackingRecHitLayout<pixelTopology::HIonPhase1>>" persistent="false"/>
+  <class name="alpaka_cuda_async::TrackingRecHitSoAHIonPhase1" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::TrackingRecHitSoAHIonPhase1>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::TrackingRecHitSoAHIonPhase1>>" persistent="false"/>
+</lcgdict>

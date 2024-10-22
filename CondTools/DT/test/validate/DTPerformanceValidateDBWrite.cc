@@ -4,7 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTPerformanceValidateHandler> DTPerformanceValidateDBWrite;
 
-
 DEFINE_FWK_MODULE(DTPerformanceValidateDBWrite);
-
-

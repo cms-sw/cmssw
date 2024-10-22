@@ -8,30 +8,38 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
-namespace edm{
+namespace edm {
   class ConfigurationDescriptions;
 }
 
 class HcalTimeSlewEP : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
-  public:
-    HcalTimeSlewEP(const edm::ParameterSet&);
-    ~HcalTimeSlewEP();
-    
-    typedef std::unique_ptr<HcalTimeSlew> ReturnType;
+public:
+  HcalTimeSlewEP(const edm::ParameterSet&);
+  ~HcalTimeSlewEP() override;
 
-    static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
- 
-    ReturnType produce(const HcalTimeSlewRecord&);
+  typedef std::unique_ptr<HcalTimeSlew> ReturnType;
 
- protected:
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-    const edm::ParameterSet& pset_;
+  ReturnType produce(const HcalTimeSlewRecord&);
+
+protected:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
+
+private:
+  struct M2Parameters {
+    float t0, m, tmaximum;
+  };
+  struct M3Parameters {
+    double cap, tspar0, tspar1, tspar2, tspar0_siPM, tspar1_siPM, tspar2_siPM;
+  };
+  std::vector<M2Parameters> m2parameters_;
+  std::vector<M3Parameters> m3parameters_;
 };
 
 #endif

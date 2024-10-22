@@ -7,26 +7,24 @@
 #include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
 
-#include<vector>
+#include <vector>
 
 namespace CLHEP {
   class HepRandomEngine;
 }
 
-class ESElectronicsSim
-{
- public:
+class ESElectronicsSim {
+public:
+  enum { MAXADC = 4095 };
+  enum { MINADC = 0 };
 
-  enum {MAXADC = 4095};
-  enum {MINADC = 0};
-
-  ESElectronicsSim (bool addNoise);
+  ESElectronicsSim(bool addNoise);
   virtual ~ESElectronicsSim();
 
-  void setGain (const int gain) { gain_ = gain; }
+  void setGain(const int gain) { gain_ = gain; }
   void setPedestals(const ESPedestals* peds) { peds_ = peds; }
   void setMIPs(const ESIntercalibConstants* mips) { mips_ = mips; }
-  void setMIPToGeV (const double MIPToGeV) { MIPToGeV_ = MIPToGeV; }
+  void setMIPToGeV(const double MIPToGeV) { MIPToGeV_ = MIPToGeV; }
 
   virtual void analogToDigital(CLHEP::HepRandomEngine*, const CaloSamples& cs, ESDataFrame& df) const;
   virtual void digitalToAnalog(const ESDataFrame& df, CaloSamples& cs) const;
@@ -34,18 +32,15 @@ class ESElectronicsSim
   ///  anything that needs to be done once per event
   void newEvent(CLHEP::HepRandomEngine*) {}
 
-  private :
+private:
+  bool addNoise_;
+  int gain_;
+  const ESPedestals* peds_;
+  const ESIntercalibConstants* mips_;
+  double MIPToGeV_;
 
-    bool addNoise_;
-    int gain_;
-    const ESPedestals *peds_;
-    const ESIntercalibConstants *mips_;
-    double MIPToGeV_;
-
-    std::vector<ESSample> encode(const CaloSamples& timeframe, CLHEP::HepRandomEngine*) const;
-    double decode(const ESSample & sample, const DetId & detId) const;
-
-} ;
-
+  std::vector<ESSample> encode(const CaloSamples& timeframe, CLHEP::HepRandomEngine*) const;
+  double decode(const ESSample& sample, const DetId& detId) const;
+};
 
 #endif

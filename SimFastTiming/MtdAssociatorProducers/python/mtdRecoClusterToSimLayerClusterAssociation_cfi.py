@@ -1,0 +1,7 @@
+import FWCore.ParameterSet.Config as cms
+
+from SimFastTiming.MtdAssociatorProducers.mtdRecoClusterToSimLayerClusterAssociationDefault_cfi import mtdRecoClusterToSimLayerClusterAssociationDefault as _mtdRecoClusterToSimLayerClusterAssociationDefault
+mtdRecoClusterToSimLayerClusterAssociation = _mtdRecoClusterToSimLayerClusterAssociationDefault.clone()
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(mtdRecoClusterToSimLayerClusterAssociation, mtdSimClustersTag = "mixData:MergedMtdTruthLC")

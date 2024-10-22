@@ -8,7 +8,6 @@
 /**
  *   Abstract base class for a definition object
  */
-class IDef : public IUniqueDBObject {
-};
+class IDef : public IUniqueDBObject {};
 
 #endif

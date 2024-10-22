@@ -1,4 +1,5 @@
-from FWCore.GuiBrowsers.ConfigToolBase import *
+from __future__ import print_function
+from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 from FWCore.ParameterSet.Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase
 from FWCore.ParameterSet.SequenceTypes import _ModuleSequenceType, _Sequenceable
 from FWCore.ParameterSet.SequenceTypes import *
@@ -6,6 +7,11 @@ from PhysicsTools.PatAlgos.tools.helpers import *
 from PhysicsTools.PatAlgos.recoLayer0.bTagging_cff import *
 import sys
 from FWCore.ParameterSet.MassReplace import MassSearchReplaceAnyInputTagVisitor
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4PuppiCentralTagInfos,pfParticleNetFromMiniAODAK4PuppiCentralJetTags,pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags,pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4PuppiForwardTagInfos,pfParticleNetFromMiniAODAK4PuppiForwardJetTags,pfParticleNetFromMiniAODAK4PuppiForwardDiscriminatorsJetTags
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSCentralTagInfos,pfParticleNetFromMiniAODAK4CHSCentralJetTags,pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags,pfNegativeParticleNetFromMiniAODAK4CHSCentralJetTags
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSForwardTagInfos,pfParticleNetFromMiniAODAK4CHSForwardJetTags,pfParticleNetFromMiniAODAK4CHSForwardDiscriminatorsJetTags
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import pfParticleNetFromMiniAODAK8TagInfos,pfParticleNetFromMiniAODAK8JetTags,pfParticleNetFromMiniAODAK8DiscriminatorsJetTags
 
 ## dictionary with supported jet clustering algorithms
 supportedJetAlgos = {
@@ -16,7 +22,7 @@ supportedJetAlgos = {
 
 def checkJetCorrectionsFormat(jetCorrections):
     ## check for the correct format
-    if type(jetCorrections) != type(('PAYLOAD-LABEL',['CORRECTION-LEVEL-A','CORRECTION-LEVEL-B'], 'MET-LABEL')):
+    if not isinstance(jetCorrections, type(('PAYLOAD-LABEL',['CORRECTION-LEVEL-A','CORRECTION-LEVEL-B'], 'MET-LABEL'))):
         raise ValueError("In addJetCollection: 'jetCorrections' must be 'None' (as a python value w/o quotation marks), or of type ('PAYLOAD-LABEL', ['CORRECTION-LEVEL-A', \
         'CORRECTION-LEVEL-B', ...], 'MET-LABEL'). Note that 'MET-LABEL' can be set to 'None' (as a string in quotation marks) in case you do not want to apply MET(Type1) \
         corrections.")
@@ -63,8 +69,8 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                 ## otherwise levels is miss configured
                 error=True
             else:
-                raise ValueError, "In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
-                once. Check the list of correction levels you requested to be applied: ", jetCorrections[1]
+                raise ValueError("In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
+                once. Check the list of correction levels you requested to be applied: "+ jetCorrections[1])
         if x == 'L1FastJet' :
             if not error :
                 if _type == "JPT" :
@@ -79,14 +85,14 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                 ## otherwise levels is miss configured
                 error=True
             else:
-                raise ValueError, "In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
-                once. Check the list of correction levels you requested to be applied: ", jetCorrections[1]
+                raise ValueError("In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
+                once. Check the list of correction levels you requested to be applied: "+ jetCorrections[1])
     patJets.jetCorrFactorsSource=cms.VInputTag(cms.InputTag('patJetCorrFactors'+labelName+postfix))
     ## configure MET(Type1) corrections
     if jetCorrections[2].lower() != 'none' and jetCorrections[2] != '':
         if not jetCorrections[2].lower() == 'type-1' and not jetCorrections[2].lower() == 'type-2':
-            raise valueError, "In addJetCollection: Wrong choice of MET corrections for new jet collection. Possible choices are None (or empty string), Type-1, Type-2 (i.e.\
-            Type-1 and Type-2 corrections applied). This choice is not case sensitive. Your choice was: ", jetCorrections[2]
+            raise ValueError("In addJetCollection: Wrong choice of MET corrections for new jet collection. Possible choices are None (or empty string), Type-1, Type-2 (i.e.\
+            Type-1 and Type-2 corrections applied). This choice is not case sensitive. Your choice was: "+ jetCorrections[2])
         if _type == "JPT":
             raise ValueError("In addJecCollection: MET(type1) corrections are not supported for JPTJets. Please set the MET-LABEL to \"None\" (as string in quatiation \
             marks) and use raw tcMET together with JPTJets.")
@@ -198,6 +204,8 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                                     cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'),
                                     jetCorrections[0]+_labelCorrName+'corrPfMetType2'+postfix)),
                                 process, task)
+            if 'Puppi' in jetSource.value() and pfCandidates.value() == 'particleFlow':
+                getattr(process,jetCorrections[0]+_labelCorrName+'CandMETcorr'+postfix).srcWeights = "puppiNoLep"
 
         ## common configuration for Calo and PF
         if ('L1FastJet' in jetCorrections[1] or 'L1Fastjet' in jetCorrections[1]):
@@ -231,6 +239,33 @@ def setupSVClustering(btagInfo, svClustering, algo, rParam, fatJets=cms.InputTag
         if groomedFatJets != cms.InputTag(''):
             btagInfo.groomedFatJets = groomedFatJets
 
+def setupPuppiForPackedPF(process, useExistingWeights=True, postfix=''):
+    """
+    Setup puppi weights
+    Two instances of PuppiProducer:
+    - packedpuppi (for jet reclustering)
+    - packedpuppiNoLep (for MET reclustering)
+    """
+    from CommonTools.PileupAlgos.Puppi_cff import puppi
+    task = getPatAlgosToolsTask(process)
+
+    puppiLabel = 'packedpuppi'+postfix
+
+    ## Instantiate PuppiProducer with "puppiLabel"
+    ## if it does not exist.
+    if not hasattr(process, puppiLabel):
+        addToProcessAndTask(puppiLabel, puppi.clone(
+            useExistingWeights = useExistingWeights,
+            candName = 'packedPFCandidates',
+            vertexName = 'offlineSlimmedPrimaryVertices'), process, task)
+
+    puppiNoLepLabel = puppiLabel+'NoLep'
+
+    if hasattr(process, puppiLabel) and not hasattr(process, puppiNoLepLabel):
+        addToProcessAndTask(puppiNoLepLabel, getattr(process, puppiLabel).clone(
+            puppiNoLep = True), process, task)
+
+    return puppiLabel, puppiNoLepLabel
 
 def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, tightBTagNTkHits, loadStdRecoBTag, svClustering, fatJets, groomedFatJets,
                   algo, rParam, btagDiscriminators, btagInfos, patJets, labelName, btagPrefix, postfix):
@@ -239,12 +274,13 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
 
     ## expand the btagDiscriminators to remove the meta taggers and substitute the equivalent sources
     discriminators = set(btagDiscriminators)
-    present_meta = discriminators.intersection(set(supportedMetaDiscr.keys()))
-    discriminators -= present_meta
-    for meta_tagger in present_meta:
+    present_metaSet = discriminators.intersection(set(supportedMetaDiscr.keys()))
+    discriminators -= present_metaSet
+    for meta_tagger in present_metaSet:
         for src in supportedMetaDiscr[meta_tagger]:
             discriminators.add(src)
-    btagDiscriminators = list(discriminators)
+    present_meta = sorted(present_metaSet)
+    btagDiscriminators = sorted(discriminators)
 
     ## expand tagInfos to what is explicitly required by user + implicit
     ## requirements that come in from one or the other discriminator
@@ -322,6 +358,60 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     ## setup all required btagInfos : we give a dedicated treatment for different
     ## types of tagInfos here. A common treatment is possible but might require a more
     ## general approach anyway in coordination with the btagging POG.
+
+    runNegativeVertexing = False
+    runNegativeCvsLVertexing = False
+    for btagInfo in requiredTagInfos:
+        if btagInfo in (
+            'pfInclusiveSecondaryVertexFinderNegativeTagInfos',
+            'pfNegativeDeepFlavourTagInfos',
+            'pfNegativeParticleNetAK4TagInfos',
+            ):
+            runNegativeVertexing = True
+        if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos':
+            runNegativeCvsLVertexing = True
+            
+    if runNegativeVertexing or runNegativeCvsLVertexing:
+        import RecoVertex.AdaptiveVertexFinder.inclusiveNegativeVertexing_cff as NegVertex
+
+    if runNegativeVertexing:                
+        addToProcessAndTask(btagPrefix+'inclusiveCandidateNegativeVertexFinder'+labelName+postfix,
+                            NegVertex.inclusiveCandidateNegativeVertexFinder.clone(primaryVertices = pvSource,tracks=pfCandidates),
+                            process, task)
+        addToProcessAndTask(btagPrefix+'candidateNegativeVertexMerger'+labelName+postfix,
+                            NegVertex.candidateNegativeVertexMerger.clone(secondaryVertices = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeVertexFinder'+labelName+postfix)),
+                            process, task)
+        addToProcessAndTask(btagPrefix+'candidateNegativeVertexArbitrator'+labelName+postfix,
+                            NegVertex.candidateNegativeVertexArbitrator.clone( secondaryVertices = cms.InputTag(btagPrefix+'candidateNegativeVertexMerger'+labelName+postfix)
+                                                                               ,primaryVertices = pvSource
+                                                                               ,tracks=pfCandidates),
+                            process, task)
+        addToProcessAndTask(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix,
+                            NegVertex.inclusiveCandidateNegativeSecondaryVertices.clone(secondaryVertices = cms.InputTag(btagPrefix+'candidateNegativeVertexArbitrator'+labelName+postfix)),
+                            process, task)
+
+    if runNegativeCvsLVertexing:
+        addToProcessAndTask(btagPrefix+'inclusiveCandidateNegativeVertexFinderCvsL'+labelName+postfix,
+                            NegVertex.inclusiveCandidateNegativeVertexFinderCvsL.clone(primaryVertices = pvSource,tracks=pfCandidates),
+                            process, task)
+        addToProcessAndTask(btagPrefix+'candidateNegativeVertexMergerCvsL'+labelName+postfix,
+                            NegVertex.candidateNegativeVertexMergerCvsL.clone(secondaryVertices = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeVertexFinderCvsL'+labelName+postfix)),
+                            process, task)
+        addToProcessAndTask(btagPrefix+'candidateNegativeVertexArbitratorCvsL'+labelName+postfix,
+                            NegVertex.candidateNegativeVertexArbitratorCvsL.clone( secondaryVertices = cms.InputTag(btagPrefix+'candidateNegativeVertexMergerCvsL'+labelName+postfix)
+                                                                               ,primaryVertices = pvSource
+                                                                               ,tracks=pfCandidates),
+                            process, task)
+        addToProcessAndTask(btagPrefix+'inclusiveCandidateNegativeSecondaryVerticesCvsL'+labelName+postfix,
+                            NegVertex.inclusiveCandidateNegativeSecondaryVerticesCvsL.clone(secondaryVertices = cms.InputTag(btagPrefix+'candidateNegativeVertexArbitratorCvsL'+labelName+postfix)),
+                            process, task)
+
+
+    # Setup the PUPPI ValueMap that will consumed by the TagInfo producers.
+    puppi_value_map = "puppi"
+    if pfCandidates.value() == 'packedPFCandidates':
+        puppi_value_map = setupPuppiForPackedPF(process)[0]
+
     acceptedTagInfos = list()
     for btagInfo in requiredTagInfos:
         if hasattr(btag,btagInfo):
@@ -464,7 +554,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.clone(
                                         trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix),
-                                        extSVCollection=svSourceCvsL),
+                                        extSVCollection = btagPrefix+'inclusiveCandidateNegativeSecondaryVerticesCvsL'+labelName+postfix),
                                     process, task)
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
@@ -486,7 +576,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfInclusiveSecondaryVertexFinderNegativeTagInfos.clone(
                                         trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix),
-                                        extSVCollection=svSource),
+                                        extSVCollection=cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix)),
                                     process, task)
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
@@ -546,45 +636,308 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.softPFElectronsTagInfos.clone(jets = jetSource, primaryVertex=pvSource, electrons=elSource),
                                     process, task)
+            if btagInfo == 'pixelClusterTagInfos':
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pixelClusterTagInfos.clone(jets = jetSource, vertices=pvSource),
+                                    process, task)
+
+
+            if 'pfBoostedDouble' in btagInfo or 'SecondaryVertex' in btagInfo:
+                _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
+                _btagInfo.weights = cms.InputTag(puppi_value_map)
 
             if 'DeepFlavourTagInfos' in btagInfo:
-
+                svUsed = svSource
                 if btagInfo == 'pfNegativeDeepFlavourTagInfos':
-                    deep_csv_tag_infos = 'pfDeepCSVNegativeTagInfos' 
+                    deep_csv_tag_infos = 'pfDeepCSVNegativeTagInfos'
+                    svUsed = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix)
+                    flip = True 
                 else:
-                    deep_csv_tag_infos = 'pfDeepCSVTagInfos' 
+                    deep_csv_tag_infos = 'pfDeepCSVTagInfos'
+                    flip = False
 
                 # use right input tags when running with RECO PF candidates, which actually
-                # depens of wether jets were slimmed or not (check for s/S-limmed in name)
-                if not ('limmed' in jetSource.value()):
-                  puppi_value_map = cms.InputTag("puppi")
-                  vertex_associator = cms.InputTag("primaryVertexAssociation","original")
+                # depends of whether jets use "particleFlow"
+                if pfCandidates.value() == 'packedPFCandidates':
+                    vertex_associator = cms.InputTag("")
                 else:
-                  puppi_value_map = cms.InputTag("")
-                  vertex_associator = cms.InputTag("")
+                    vertex_associator = cms.InputTag("primaryVertexAssociation","original")
+
+                # If this jet is a puppi jet, then set is_weighted_jet to true.
+                is_weighted_jet = False
+                if ('puppi' in jetSource.value().lower()):
+                    is_weighted_jet = True
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepFlavourTagInfos.clone(
                                       jets = jetSource,
                                       vertices=pvSource,
-                                      secondary_vertices=svSource,
+                                      secondary_vertices=svUsed,
                                       shallow_tag_infos = cms.InputTag(btagPrefix+deep_csv_tag_infos+labelName+postfix),
                                       puppi_value_map = puppi_value_map,
                                       vertex_associator = vertex_associator,
+                                      is_weighted_jet = is_weighted_jet,
+                                      flip = flip),
+                                    process, task)
+
+            if ('ParticleTransformerAK4TagInfos' in btagInfo) and ('UnifiedParticleTransformerAK4TagInfos' not in btagInfo): #We also have to veto UParT is we select ParT
+                svUsed = svSource
+                if btagInfo == 'pfNegativeParticleTransformerAK4TagInfos':
+                    svUsed, flip, max_sip3dsig_for_flip = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix), True, 10.
+                else:
+                    svUsed, flip, max_sip3dsig_for_flip = svSource, False, -1.
+                # use right input tags when running with RECO PF candidates, which actually
+                # depends of whether jets use "particleFlow"
+                if pfCandidates.value() == 'packedPFCandidates':
+                    vertex_associator = cms.InputTag("")
+                else:
+                    vertex_associator = cms.InputTag("primaryVertexAssociation","original")
+
+                # If this jet is a puppi jet, then set is_weighted_jet to true.
+                is_weighted_jet = False
+                if ('puppi' in jetSource.value().lower()):
+                    is_weighted_jet = True
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfParticleTransformerAK4TagInfos.clone(
+                                      jets = jetSource,
+                                      vertices=pvSource,
+                                      secondary_vertices=svUsed,
+                                      puppi_value_map = puppi_value_map,
+                                      vertex_associator = vertex_associator,
+                                      is_weighted_jet = is_weighted_jet,
+                                      flip = flip,
+                                      max_sip3dsig_for_flip=max_sip3dsig_for_flip),
+                                    process, task)
+                
+            if 'UnifiedParticleTransformerAK4TagInfos' in btagInfo:
+                svUsed = svSource
+                if btagInfo == 'pfNegativeUnifiedParticleTransformerAK4TagInfos':
+                    svUsed = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix)
+                    flip = True 
+                else:
+                    flip = False
+                # use right input tags when running with RECO PF candidates, which actually
+                # depends of whether jets use "particleFlow"
+                if pfCandidates.value() == 'packedPFCandidates':
+                    vertex_associator = cms.InputTag("")
+                else:
+                    vertex_associator = cms.InputTag("primaryVertexAssociation","original")
+
+                # If this jet is a puppi jet, then set is_weighted_jet to true.
+                is_weighted_jet = False
+                if ('puppi' in jetSource.value().lower()):
+                    is_weighted_jet = True
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfUnifiedParticleTransformerAK4TagInfos.clone(
+                                      jets = jetSource,
+                                      vertices=pvSource,
+                                      secondary_vertices=svUsed,
+                                      puppi_value_map = puppi_value_map,
+                                      vertex_associator = vertex_associator,
+                                      is_weighted_jet = is_weighted_jet,
+                                      flip = flip),
+                                    process, task)
+
+            if btagInfo == 'pfDeepDoubleXTagInfos':
+                # can only run on PAT jets, so the updater needs to be used
+                if 'updated' not in jetSource.value().lower():
+                    raise ValueError("Invalid jet collection: %s. pfDeepDoubleXTagInfos only supports running via updateJetCollection." % jetSource.value())
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfDeepDoubleXTagInfos.clone(
+                                      jets = jetSource,
+                                      vertices=pvSource,
+                                      secondary_vertices=svSource,
+                                      shallow_tag_infos = cms.InputTag(btagPrefix+'pfBoostedDoubleSVAK8TagInfos'+labelName+postfix),
+                                      puppi_value_map = puppi_value_map,
+                                      ),
+                                    process, task)
+            if btagInfo == 'pfHiggsInteractionNetTagInfos':
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfHiggsInteractionNetTagInfos.clone(
+                                      jets = jetSource,
+                                      vertices = pvSource,
+                                      secondary_vertices = svSource,
+                                      pf_candidates = pfCandidates,
+                                      puppi_value_map = puppi_value_map
+                                      ),
+                                    process, task)
+
+            if btagInfo == 'pfDeepBoostedJetTagInfos':
+                if pfCandidates.value() == 'packedPFCandidates':
+                    # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
+                    if 'updated' not in jetSource.value().lower():
+                        raise ValueError("Invalid jet collection: %s. pfDeepBoostedJetTagInfos only supports running via updateJetCollection." % jetSource.value())
+                    vertex_associator = ""
+                elif pfCandidates.value() == 'particleFlow':
+                    raise ValueError("Running pfDeepBoostedJetTagInfos with reco::PFCandidates is currently not supported.")
+                    # case 2: running on new jet collection whose daughters are PFCandidates (e.g., cluster jets in RECO/AOD)
+                    # daughters are the particles used in jet clustering, so already scaled by their puppi weights
+                    # Uncomment the lines below after running pfDeepBoostedJetTagInfos with reco::PFCandidates becomes supported
+#                     vertex_associator = "primaryVertexAssociation:original"
+                else:
+                    raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfDeepBoostedJetTagInfos.clone(
+                                      jets = jetSource,
+                                      vertices = pvSource,
+                                      secondary_vertices = svSource,
+                                      pf_candidates = pfCandidates,
+                                      puppi_value_map = puppi_value_map,
+                                      vertex_associator = vertex_associator,
+                                      ),
+                                    process, task)
+
+            if btagInfo == 'pfParticleNetTagInfos':
+                if pfCandidates.value() == 'packedPFCandidates':
+                    # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
+                    vertex_associator = ""
+                elif pfCandidates.value() == 'particleFlow':
+                    raise ValueError("Running pfDeepBoostedJetTagInfos with reco::PFCandidates is currently not supported.")
+                    # case 2: running on new jet collection whose daughters are PFCandidates (e.g., cluster jets in RECO/AOD)
+                    vertex_associator = "primaryVertexAssociation:original"
+                else:
+                    raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfParticleNetTagInfos.clone(
+                                      jets = jetSource,
+                                      vertices = pvSource,
+                                      secondary_vertices = svSource,
+                                      pf_candidates = pfCandidates,
+                                      puppi_value_map = puppi_value_map,
+                                      vertex_associator = vertex_associator,
+                                      ),
+                                    process, task)
+
+            if 'ParticleNetAK4TagInfos' in btagInfo:
+                if btagInfo == 'pfNegativeParticleNetAK4TagInfos':
+                    secondary_vertices = btagPrefix + \
+                        'inclusiveCandidateNegativeSecondaryVertices' + labelName + postfix
+                    flip_ip_sign = True
+                    sip3dSigMax = 10
+                else:
+                    secondary_vertices = svSource
+                    flip_ip_sign = False
+                    sip3dSigMax = -1
+                if pfCandidates.value() == 'packedPFCandidates':
+                    # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
+                    vertex_associator = ""
+                elif pfCandidates.value() == 'particleFlow':
+                    raise ValueError("Running pfDeepBoostedJetTagInfos with reco::PFCandidates is currently not supported.")
+                    # case 2: running on new jet collection whose daughters are PFCandidates (e.g., cluster jets in RECO/AOD)
+                    vertex_associator = "primaryVertexAssociation:original"
+                else:
+                    raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+                # If this jet is a Puppi jet, use puppi-weighted p4.
+                use_puppiP4 = False
+                if "puppi" in jetSource.value().lower():
+                    use_puppiP4 = True
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfParticleNetAK4TagInfos.clone(
+                                      jets = jetSource,
+                                      vertices = pvSource,
+                                      secondary_vertices = secondary_vertices,
+                                      pf_candidates = pfCandidates,
+                                      puppi_value_map = puppi_value_map,
+                                      vertex_associator = vertex_associator,
+                                      flip_ip_sign = flip_ip_sign,
+                                      sip3dSigMax = sip3dSigMax,
+                                      use_puppiP4 = use_puppiP4
                                       ),
                                     process, task)
 
             acceptedTagInfos.append(btagInfo)
         elif hasattr(toptag, btagInfo) :
             acceptedTagInfos.append(btagInfo)
+        elif btagInfo == 'pfParticleNetFromMiniAODAK4PuppiCentralTagInfos' or btagInfo == 'pfNegativeParticleNetFromMiniAODAK4PuppiCentralTagInfos':
+            # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
+            if btagInfo == 'pfNegativeParticleNetFromMiniAODAK4PuppiCentralTagInfos':
+                svUsed, flip_ip_sign, max_sip3dsig_for_flip = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix), True, 10.
+            else:
+                svUsed, flip_ip_sign, max_sip3dsig_for_flip = svSource, False, -1.
+            if pfCandidates.value() != 'packedPFCandidates':
+                raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+            addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                pfParticleNetFromMiniAODAK4PuppiCentralTagInfos.clone(
+                                  jets = jetSource,
+                                  vertices = pvSource,
+                                  secondary_vertices = svUsed,
+                                  pf_candidates = pfCandidates,
+                                  puppi_value_map = puppi_value_map,
+                                  flip_ip_sign = flip_ip_sign,
+                                  max_sip3dsig_for_flip = max_sip3dsig_for_flip,
+                                  ),
+                                process, task)
+            acceptedTagInfos.append(btagInfo)
+        elif btagInfo == 'pfParticleNetFromMiniAODAK4PuppiForwardTagInfos':
+            # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
+            if pfCandidates.value() != 'packedPFCandidates':
+                raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+            addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                pfParticleNetFromMiniAODAK4PuppiForwardTagInfos.clone(
+                                  jets = jetSource,
+                                  vertices = pvSource,
+                                  secondary_vertices = svSource,
+                                  pf_candidates = pfCandidates,
+                                  puppi_value_map = puppi_value_map
+                                  ),
+                                process, task)
+            acceptedTagInfos.append(btagInfo)
+        elif btagInfo == 'pfParticleNetFromMiniAODAK4CHSCentralTagInfos' or btagInfo == 'pfNegativeParticleNetFromMiniAODAK4CHSCentralTagInfos':
+            # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
+            if btagInfo == 'pfNegativeParticleNetFromMiniAODAK4CHSCentralTagInfos':
+                svUsed, flip_ip_sign, max_sip3dsig_for_flip = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix), True, 10.
+            else:
+                svUsed, flip_ip_sign, max_sip3dsig_for_flip = svSource, False, -1.
+            if pfCandidates.value() != 'packedPFCandidates':
+                raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+            addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                pfParticleNetFromMiniAODAK4CHSCentralTagInfos.clone(
+                                  jets = jetSource,
+                                  vertices = pvSource,
+                                  secondary_vertices = svUsed,
+                                  pf_candidates = pfCandidates,
+                                  puppi_value_map = puppi_value_map,
+                                  flip_ip_sign = flip_ip_sign,
+                                  max_sip3dsig_for_flip = max_sip3dsig_for_flip,
+                                  ),
+                                process, task)
+            acceptedTagInfos.append(btagInfo)
+        elif btagInfo == 'pfParticleNetFromMiniAODAK4CHSForwardTagInfos':
+            # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
+            if pfCandidates.value() != 'packedPFCandidates':
+                raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+            addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                pfParticleNetFromMiniAODAK4CHSForwardTagInfos.clone(
+                                  jets = jetSource,
+                                  vertices = pvSource,
+                                  secondary_vertices = svSource,
+                                  pf_candidates = pfCandidates,
+                                  puppi_value_map = puppi_value_map,
+                                  ),
+                                process, task)
+            acceptedTagInfos.append(btagInfo)
+        elif btagInfo == 'pfParticleNetFromMiniAODAK8TagInfos':
+            # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
+            if pfCandidates.value() != 'packedPFCandidates':
+                raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+            addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                pfParticleNetFromMiniAODAK8TagInfos.clone(
+                                  jets = jetSource,
+                                  vertices = pvSource,
+                                  secondary_vertices = svSource,
+                                  pf_candidates = pfCandidates,
+                                  puppi_value_map = puppi_value_map,
+                                  ),
+                                process, task)
+            acceptedTagInfos.append(btagInfo)
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo)
-    ## setup all required btagDiscriminators
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo))
+    # setup all required btagDiscriminators
     acceptedBtagDiscriminators = list()
-    for discriminator_name in btagDiscriminators :			
+    for discriminator_name in btagDiscriminators :
         btagDiscr = discriminator_name.split(':')[0] #split input tag to get the producer label
         #print discriminator_name, '-->', btagDiscr
+        newDiscr = btagPrefix+btagDiscr+labelName+postfix #new discriminator name
         if hasattr(btag,btagDiscr): 
-            newDiscr = btagPrefix+btagDiscr+labelName+postfix #new discriminator name
             if hasattr(process, newDiscr):
                 pass 
             elif hasattr(getattr(btag, btagDiscr), 'tagInfos'):
@@ -611,14 +964,99 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             else:
                 raise ValueError('I do not know how to update %s it does not have neither "tagInfos" nor "src" attributes' % btagDiscr)
             acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4PuppiCentralJetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfParticleNetFromMiniAODAK4PuppiCentralJetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4PuppiForwardJetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfParticleNetFromMiniAODAK4PuppiForwardJetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4CHSCentralJetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfParticleNetFromMiniAODAK4CHSCentralJetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfNegativeParticleNetFromMiniAODAK4CHSCentralJetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfNegativeParticleNetFromMiniAODAK4CHSCentralJetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4CHSForwardJetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfParticleNetFromMiniAODAK4CHSForwardJetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK8JetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfParticleNetFromMiniAODAK8JetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr))
+            
     #update meta-taggers, if any
     for meta_tagger in present_meta:
         btagDiscr = meta_tagger.split(':')[0] #split input tag to get the producer label
         #print discriminator_name, '-->', btagDiscr
+        newDiscr = btagPrefix+btagDiscr+labelName+postfix #new discriminator name
         if hasattr(btag,btagDiscr): 
-            newDiscr = btagPrefix+btagDiscr+labelName+postfix #new discriminator name
             if hasattr(process, newDiscr):
                 pass 
             else:
@@ -635,9 +1073,100 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                         new_dep = btagPrefix+dependency+labelName+postfix
                     replace = MassSearchReplaceAnyInputTagVisitor(dependency, new_dep)
                     replace.doIt(getattr(process, newDiscr), newDiscr)
-            acceptedBtagDiscriminators.append(meta_tagger)            
+            acceptedBtagDiscriminators.append(meta_tagger)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags':
+            if hasattr(process, newDiscr):
+                pass 
+            else:
+                addToProcessAndTask(
+                    newDiscr,
+                    pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags.clone(),
+                    process,
+                    task
+                )
+                for dependency in supportedMetaDiscr[meta_tagger]:
+                    if ':' in dependency:
+                        new_dep = btagPrefix+dependency.split(':')[0]+labelName+postfix+':'+dependency.split(':')[1]
+                    else:
+                        new_dep = btagPrefix+dependency+labelName+postfix
+                    replace = MassSearchReplaceAnyInputTagVisitor(dependency, new_dep)
+                    replace.doIt(getattr(process, newDiscr), newDiscr)
+            acceptedBtagDiscriminators.append(meta_tagger)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4PuppiForwardDiscriminatorsJetTags':
+            if hasattr(process, newDiscr):
+                pass 
+            else:
+                addToProcessAndTask(
+                    newDiscr,
+                    pfParticleNetFromMiniAODAK4PuppiForwardDiscriminatorsJetTags.clone(),
+                    process,
+                    task
+                )
+                for dependency in supportedMetaDiscr[meta_tagger]:
+                    if ':' in dependency:
+                        new_dep = btagPrefix+dependency.split(':')[0]+labelName+postfix+':'+dependency.split(':')[1]
+                    else:
+                        new_dep = btagPrefix+dependency+labelName+postfix
+                    replace = MassSearchReplaceAnyInputTagVisitor(dependency, new_dep)
+                    replace.doIt(getattr(process, newDiscr), newDiscr)
+            acceptedBtagDiscriminators.append(meta_tagger)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags':
+            if hasattr(process, newDiscr):
+                pass 
+            else:
+                addToProcessAndTask(
+                    newDiscr,
+                    pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags.clone(),
+                    process,
+                    task
+                )
+                for dependency in supportedMetaDiscr[meta_tagger]:
+                    if ':' in dependency:
+                        new_dep = btagPrefix+dependency.split(':')[0]+labelName+postfix+':'+dependency.split(':')[1]
+                    else:
+                        new_dep = btagPrefix+dependency+labelName+postfix
+                    replace = MassSearchReplaceAnyInputTagVisitor(dependency, new_dep)
+                    replace.doIt(getattr(process, newDiscr), newDiscr)
+            acceptedBtagDiscriminators.append(meta_tagger)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4CHSForwardDiscriminatorsJetTags':
+            if hasattr(process, newDiscr):
+                pass 
+            else:
+                addToProcessAndTask(
+                    newDiscr,
+                    pfParticleNetFromMiniAODAK4CHSForwardDiscriminatorsJetTags.clone(),
+                    process,
+                    task
+                )
+                for dependency in supportedMetaDiscr[meta_tagger]:
+                    if ':' in dependency:
+                        new_dep = btagPrefix+dependency.split(':')[0]+labelName+postfix+':'+dependency.split(':')[1]
+                    else:
+                        new_dep = btagPrefix+dependency+labelName+postfix
+                    replace = MassSearchReplaceAnyInputTagVisitor(dependency, new_dep)
+                    replace.doIt(getattr(process, newDiscr), newDiscr)
+            acceptedBtagDiscriminators.append(meta_tagger)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK8DiscriminatorsJetTags':
+            if hasattr(process, newDiscr):
+                pass 
+            else:
+                addToProcessAndTask(
+                    newDiscr,
+                    pfParticleNetFromMiniAODAK8DiscriminatorsJetTags.clone(),
+                    process,
+                    task
+                )
+                for dependency in supportedMetaDiscr[meta_tagger]:
+                    if ':' in dependency:
+                        new_dep = btagPrefix+dependency.split(':')[0]+labelName+postfix+':'+dependency.split(':')[1]
+                    else:
+                        new_dep = btagPrefix+dependency+labelName+postfix
+                    replace = MassSearchReplaceAnyInputTagVisitor(dependency, new_dep)
+                    replace.doIt(getattr(process, newDiscr), newDiscr)
+            acceptedBtagDiscriminators.append(meta_tagger)
+                        
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr))
         
     ## replace corresponding tags for pat jet production
     patJets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in acceptedTagInfos ] )
@@ -771,7 +1300,7 @@ class AddJetCollection(ConfigToolBase):
         and \'type-2\' are not case sensitive.", tuple, acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'btagDiscriminators',['None'], "If you are interested in btagging, in most cases just the labels of the btag discriminators that \
         you are interested in is all relevant information that you need for a high level analysis. Add here all btag discriminators, that you are interested in as a list of strings. \
-        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(supportedBtagDiscr.keys()+supportedMetaDiscr.keys()),Type=list)
+        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(list(set().union(supportedBtagDiscr.keys(),supportedMetaDiscr.keys()))),Type=list)
         self.addParameter(self._defaultParameters,'btagInfos',['None'], "The btagInfos objects contain all relevant information from which all discriminators of a certain \
         type have been calculated. You might be interested in keeping this information for low level tests or to re-calculate some discriminators from hand. Note that this information \
         on the one hand can be very space consuming and that it is not necessary to access the pre-calculated btag discriminator information that has been derived from it. Only in very \
@@ -1061,6 +1590,9 @@ class AddJetCollection(ConfigToolBase):
                                     process, task)
 
                 knownModules.append('patJetFlavourAssociation'+_labelName+postfix)
+            if 'Puppi' in jetSource.value() and pfCandidates.value() == 'particleFlow':
+                _newPatJetFlavourAssociation=getattr(process, 'patJetFlavourAssociation'+_labelName+postfix)
+                _newPatJetFlavourAssociation.weights = cms.InputTag("puppi")
             ## modify new patJets collection accordingly
             _newPatJets.JetFlavourInfoSource.setModuleLabel('patJetFlavourAssociation'+_labelName+postfix)
             ## if the jets is actually a subjet
@@ -1072,6 +1604,7 @@ class AddJetCollection(ConfigToolBase):
                 _newPatJets.JetFlavourInfoSource=cms.InputTag('patJetFlavourAssociation'+_labelName+postfix,'SubJets')
         else:
             _newPatJets.getJetMCFlavour = False
+            _newPatJets.addJetFlavourInfo = False
 
         ## add jetTrackAssociation for legacy btagging (or jetTracksAssociation only) if required by user
         if (jetTrackAssociation or bTaggingLegacy):
@@ -1177,7 +1710,7 @@ class SwitchJetCollection(ConfigToolBase):
         applied. If you are not interested in MET(Type1) corrections to this new patJet collection pass None as third argument of the python tuple.", tuple, acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'btagDiscriminators',['None'], "If you are interested in btagging in general the btag discriminators is all relevant \
         information that you need for a high level analysis. Add here all btag discriminators, that you are interested in as a list of strings. If this list is empty no btag \
-        discriminator information will be added to your new patJet collection.", allowedValues=(supportedBtagDiscr.keys()+supportedMetaDiscr.keys()),Type=list)
+        discriminator information will be added to your new patJet collection.", allowedValues=(list(set().union(supportedBtagDiscr.keys(),supportedMetaDiscr.keys()))),Type=list)
         self.addParameter(self._defaultParameters,'btagInfos',['None'], "The btagInfos objects conatin all relevant information from which all discriminators of a certain \
         type have been calculated. Note that this information on the one hand can be very space consuming and on the other hand is not necessary to access the btag discriminator \
         information that has been derived from it. Only in very special cases the btagInfos might really be needed in your analysis. Add here all btagInfos, that you are interested \
@@ -1379,6 +1912,7 @@ class UpdateJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'groomedFatJets', cms.InputTag(''), "Groomed fat jet collection used for secondary vertex clustering", cms.InputTag)
         self.addParameter(self._defaultParameters,'algo', 'AK', "Jet algorithm of the input collection from which the new patJet collection should be created")
         self.addParameter(self._defaultParameters,'rParam', 0.4, "Jet size (distance parameter R used in jet clustering)")
+        self.addParameter(self._defaultParameters,'sortByPt', True, "Set to False to not modify incoming jet order")
         self.addParameter(self._defaultParameters,'printWarning', True, "To be use as False in production to reduce log size")
         self.addParameter(self._defaultParameters,'jetCorrections',None, "Add all relevant information about jet energy corrections that you want to be added to your new patJet \
         collection. The format has to be given in a python tuple of type: (\'AK4Calo\',[\'L2Relative\', \'L3Absolute\'], patMet). Here the first argument corresponds to the payload \
@@ -1390,7 +1924,7 @@ class UpdateJetCollection(ConfigToolBase):
         and \'type-2\' are not case sensitive.", tuple, acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'btagDiscriminators',['None'], "If you are interested in btagging, in most cases just the labels of the btag discriminators that \
         you are interested in is all relevant information that you need for a high level analysis. Add here all btag discriminators, that you are interested in as a list of strings. \
-        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(supportedBtagDiscr.keys()+supportedMetaDiscr.keys()),Type=list)
+        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(list(set().union(supportedBtagDiscr.keys(),supportedMetaDiscr.keys()))),Type=list)
         self.addParameter(self._defaultParameters,'btagInfos',['None'], "The btagInfos objects contain all relevant information from which all discriminators of a certain \
         type have been calculated. You might be interested in keeping this information for low level tests or to re-calculate some discriminators from hand. Note that this information \
         on the one hand can be very space consuming and that it is not necessary to access the pre-calculated btag discriminator information that has been derived from it. Only in very \
@@ -1412,7 +1946,7 @@ class UpdateJetCollection(ConfigToolBase):
         """
         return self._defaultParameters
 
-    def __call__(self,process,labelName=None,postfix=None,btagPrefix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,tightBTagNTkHits=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,printWarning=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None):
+    def __call__(self,process,labelName=None,postfix=None,btagPrefix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,tightBTagNTkHits=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,sortByPt=None,printWarning=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None):
         """
         Function call wrapper. This will check the parameters and call the actual implementation that
         can be found in toolCode via the base class function apply.
@@ -1471,6 +2005,9 @@ class UpdateJetCollection(ConfigToolBase):
         if rParam is None:
             rParam=self._defaultParameters['rParam'].value
         self.setParameter('rParam', rParam)
+        if sortByPt is None:
+            sortByPt=self._defaultParameters['sortByPt'].value
+        self.setParameter('sortByPt', sortByPt)
         if printWarning is None:
             printWarning=self._defaultParameters['printWarning'].value
         self.setParameter('printWarning', printWarning)
@@ -1508,6 +2045,7 @@ class UpdateJetCollection(ConfigToolBase):
         groomedFatJets=self._parameters['groomedFatJets'].value
         algo=self._parameters['algo'].value
         rParam=self._parameters['rParam'].value
+        sortByPt=self._parameters['sortByPt'].value
         printWarning=self._parameters['printWarning'].value
         jetCorrections=self._parameters['jetCorrections'].value
         btagDiscriminators=list(self._parameters['btagDiscriminators'].value)
@@ -1540,6 +2078,8 @@ class UpdateJetCollection(ConfigToolBase):
 
         ## add new updatedPatJets to process (keep instance for later further modifications)
         from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import updatedPatJets
+        if not sortByPt: # default is True
+            updatedPatJets.sort = cms.bool(False)
         if 'updatedPatJets'+_labelName+postfix in knownModules :
             _newPatJets=getattr(process, 'updatedPatJets'+_labelName+postfix)
             _newPatJets.jetSource=jetSource
@@ -1606,9 +2146,12 @@ class UpdateJetCollection(ConfigToolBase):
             _newPatJets.addTagInfos = False
 
         ## add jet correction factors if required by user
-        if (jetCorrections != None or bTagging):
+        if (jetCorrections is not None or bTagging):
             ## check the jet corrections format
-            checkJetCorrectionsFormat(jetCorrections)
+            if jetCorrections is None and bTagging:
+                raise ValueError("Passing jetCorrections = None while running bTagging is likely not intended.")
+            else:
+                checkJetCorrectionsFormat(jetCorrections)
             ## reset MET corrrection
             if jetCorrections[2].lower() != 'none' and jetCorrections[2] != '':
                 sys.stderr.write("-------------------------------------------------------------------\n")

@@ -1,20 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
+from DQM.SiStripMonitorSummary.SiStripMonitorCommon_cfi import MonitorSiStrip_PSet
+
 CondDataMonitoring = cms.EDAnalyzer("SiStripMonitorCondData",
 
     OutputFileName             = cms.string('SiStripMonitorCondData.root'),
                                   
     OutputMEsInRootFile        = cms.bool(True),
 
-    MonitorSiStripPedestal     = cms.bool(True),
-    MonitorSiStripNoise        = cms.bool(True),
-    MonitorSiStripQuality      = cms.bool(True),
-    MonitorSiStripCabling      = cms.bool(True),
-    MonitorSiStripLowThreshold = cms.bool(True),
-    MonitorSiStripHighThreshold= cms.bool(True),
-    MonitorSiStripApvGain      = cms.bool(True),                              
-    MonitorSiStripLorentzAngle = cms.bool(True),                            
-    MonitorSiStripBackPlaneCorrection = cms.bool(True),                            
+    MonitorSiStrip_PSet = MonitorSiStrip_PSet.clone(
+    MonitorSiStripPedestal     = True,
+    MonitorSiStripNoise        = True,
+    MonitorSiStripQuality      = True,
+    MonitorSiStripCabling      = True,
+    MonitorSiStripLowThreshold = True,
+    MonitorSiStripHighThreshold= True,
+    MonitorSiStripApvGain      = True, 
+    MonitorSiStripLorentzAngle = True,  
+    MonitorSiStripBackPlaneCorrection = True
+    ),
 
     FillConditions_PSet = cms.PSet(
       FolderName_For_QualityAndCabling_SummaryHistos= cms.string("SiStrip/Tracks"),

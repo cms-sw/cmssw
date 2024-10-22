@@ -1,9 +1,10 @@
+from __future__ import absolute_import
 import unittest
 import os
 import shutil
 import copy
 
-from config import *
+from .config import *
 
 class ConfigTestCase(unittest.TestCase):
 

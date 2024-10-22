@@ -1,0 +1,10 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+<use name="RecoTracker/Record"/>
+<use name="RecoTracker/TkDetLayers"/>
+<use name="RecoTracker/TkMSParametrization"/>
+<library file="*.cc" name="RecoTrackerTkMSParametrizationPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

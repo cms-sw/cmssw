@@ -14,7 +14,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,7 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -57,23 +55,19 @@
 //
 
 class L1TCSCTF : public DQMEDAnalyzer {
-
- public:
-
+public:
   // Constructor
   L1TCSCTF(const edm::ParameterSet& ps);
 
   // Destructor
   ~L1TCSCTF() override;
 
- protected:
+protected:
   // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  //virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
 
- private:
+private:
   // ----------member data ---------------------------
 
   MonitorElement* csctfntrack;
@@ -84,13 +78,11 @@ class L1TCSCTF : public DQMEDAnalyzer {
   MonitorElement* csctfoccupancies;
   MonitorElement* csctfoccupancies_H;
 
-
   MonitorElement* csctferrors_mpc;
   MonitorElement* cscWireStripOverflow;
 
   //MonitorElement* runId_;
   //MonitorElement* lumisecId_;
-
 
   //MonitorElement* haloDelEta112;
   //MonitorElement* haloDelEta12;
@@ -98,12 +90,12 @@ class L1TCSCTF : public DQMEDAnalyzer {
   //MonitorElement* haloDelEta13;
 
   MonitorElement* csctfChamberOccupancies;
-  MonitorElement* csctfTrackPhi; //all tracks but halo
-  MonitorElement* csctfTrackEta; //all tracks but halo
-  MonitorElement* csctfTrackEtaLowQ;  //all tracks but halo
-  MonitorElement* csctfTrackEtaHighQ; //all tracks but halo
-  MonitorElement* csctfTrackPhi_H; //halo tracks only
-  MonitorElement* csctfTrackEta_H; //halo tracks only
+  MonitorElement* csctfTrackPhi;       //all tracks but halo
+  MonitorElement* csctfTrackEta;       //all tracks but halo
+  MonitorElement* csctfTrackEtaLowQ;   //all tracks but halo
+  MonitorElement* csctfTrackEtaHighQ;  //all tracks but halo
+  MonitorElement* csctfTrackPhi_H;     //halo tracks only
+  MonitorElement* csctfTrackEta_H;     //halo tracks only
   MonitorElement* cscTrackStubNumbers;
   MonitorElement* csctfTrackM;
   MonitorElement* trackModeVsQ;
@@ -165,29 +157,28 @@ class L1TCSCTF : public DQMEDAnalyzer {
   MonitorElement* csc_wire_MEminus41;
   MonitorElement* csc_wire_MEminus42;
 
-
   // 1-> 6 plus endcap
   // 7->12 minus endcap
   MonitorElement* DTstubsTimeTrackMenTimeArrival[12];
-  int BxInEvent_; //bx of the CSC muon candidate
-  bool isCSCcand_;//does GMT readout window have a CSC cand?
+  int BxInEvent_;   //bx of the CSC muon candidate
+  bool isCSCcand_;  //does GMT readout window have a CSC cand?
 
   int L1ABXN;
 
-  int nev_; // Number of events processed
-  std::string outputFile_; //file name for ROOT ouput
+  int nev_;                 // Number of events processed
+  std::string outputFile_;  //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
   std::ofstream logFile_;
   edm::InputTag gmtProducer, lctProducer, trackProducer, statusProducer, mbProducer;
-  bool gangedME11a_; // needed this be set false for Run2
+  bool gangedME11a_;  // needed this be set false for Run2
 
   CSCSectorReceiverLUT* srLUTs_[5][2][6];
 
-  const L1MuTriggerScales  *ts;
-  const L1MuTriggerPtScale *tpts;
-  unsigned long long m_scalesCacheID ;
-  unsigned long long m_ptScaleCacheID ;
+  const L1MuTriggerScales* ts;
+  const L1MuTriggerPtScale* tpts;
+  unsigned long long m_scalesCacheID;
+  unsigned long long m_ptScaleCacheID;
 
   //define Token(-s)
   edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtProducerToken_;
@@ -196,6 +187,8 @@ class L1TCSCTF : public DQMEDAnalyzer {
   edm::EDGetTokenT<L1CSCTrackCollection> tracksToken_;
   edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > dtStubsToken_;
   edm::EDGetTokenT<L1CSCTrackCollection> mbtracksToken_;
+  edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> l1muTscalesToken_;
+  edm::ESGetToken<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd> ptscalesToken_;
 };
 
 #endif

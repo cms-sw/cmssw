@@ -1,13 +1,14 @@
 #ifndef DQM_L1TMonitor_L1TStage2uGMT_h
 #define DQM_L1TMonitor_L1TStage2uGMT_h
 
-
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonShower.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,40 +16,38 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-
 class L1TStage2uGMT : public DQMEDAnalyzer {
-
- public:
-
+public:
   L1TStage2uGMT(const edm::ParameterSet& ps);
   ~L1TStage2uGMT() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- protected:
-
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+protected:
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:  
-
+private:
   l1t::tftype getTfOrigin(const int tfMuonIndex);
 
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtBMTFToken;
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtOMTFToken;
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtEMTFToken;
-  edm::EDGetTokenT<l1t::MuonBxCollection> ugmtMuonToken;
-  std::string monitorDir;
-  bool emul;
-  bool verbose;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtBMTFToken_;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtOMTFToken_;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtEMTFToken_;
+  edm::EDGetTokenT<l1t::MuonBxCollection> ugmtMuonToken_;
+  edm::EDGetTokenT<l1t::RegionalMuonShowerBxCollection> ugmtEMTFShowerToken_;
+  edm::EDGetTokenT<l1t::MuonShowerBxCollection> ugmtMuonShowerToken_;
+  std::string monitorDir_;
+  bool emul_;
+  bool verbose_;
+  bool displacedQuantities_;
+  bool hadronicShowers_;
 
   const float etaScale_;
   const float phiScale_;
 
-  MonitorElement* ugmtBMTFBX;
   MonitorElement* ugmtBMTFnMuons;
   MonitorElement* ugmtBMTFhwPt;
+  MonitorElement* ugmtBMTFhwPtUnconstrained;
+  MonitorElement* ugmtBMTFhwDXY;
   MonitorElement* ugmtBMTFhwEta;
   MonitorElement* ugmtBMTFhwPhi;
   MonitorElement* ugmtBMTFglbPhi;
@@ -61,7 +60,6 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtBMTFMuMuDPhi;
   MonitorElement* ugmtBMTFMuMuDR;
 
-  MonitorElement* ugmtOMTFBX;
   MonitorElement* ugmtOMTFnMuons;
   MonitorElement* ugmtOMTFhwPt;
   MonitorElement* ugmtOMTFhwEta;
@@ -79,9 +77,10 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtOMTFMuMuDPhi;
   MonitorElement* ugmtOMTFMuMuDR;
 
-  MonitorElement* ugmtEMTFBX;
   MonitorElement* ugmtEMTFnMuons;
   MonitorElement* ugmtEMTFhwPt;
+  MonitorElement* ugmtEMTFhwPtUnconstrained;
+  MonitorElement* ugmtEMTFhwDXY;
   MonitorElement* ugmtEMTFhwEta;
   MonitorElement* ugmtEMTFhwPhiPos;
   MonitorElement* ugmtEMTFhwPhiNeg;
@@ -97,6 +96,8 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtEMTFMuMuDPhi;
   MonitorElement* ugmtEMTFMuMuDR;
 
+  MonitorElement* ugmtEMTFShowerTypeOccupancyPerSector;
+
   MonitorElement* ugmtBOMTFposMuMuDEta;
   MonitorElement* ugmtBOMTFposMuMuDPhi;
   MonitorElement* ugmtBOMTFposMuMuDR;
@@ -111,15 +112,12 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtEOMTFnegMuMuDPhi;
   MonitorElement* ugmtEOMTFnegMuMuDR;
 
-  MonitorElement* ugmtBMTFBXvsProcessor;
-  MonitorElement* ugmtOMTFBXvsProcessor;
-  MonitorElement* ugmtEMTFBXvsProcessor;
-  MonitorElement* ugmtBXvsLink;
-
   MonitorElement* ugmtMuonBX;
   MonitorElement* ugmtnMuons;
   MonitorElement* ugmtMuonIndex;
   MonitorElement* ugmtMuonhwPt;
+  MonitorElement* ugmtMuonhwPtUnconstrained;
+  MonitorElement* ugmtMuonhwDXY;
   MonitorElement* ugmtMuonhwEta;
   MonitorElement* ugmtMuonhwPhi;
   MonitorElement* ugmtMuonhwEtaAtVtx;
@@ -130,6 +128,7 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtMuonhwIso;
 
   MonitorElement* ugmtMuonPt;
+  MonitorElement* ugmtMuonPtUnconstrained;
   MonitorElement* ugmtMuonEta;
   MonitorElement* ugmtMuonPhi;
   MonitorElement* ugmtMuonEtaAtVtx;
@@ -159,6 +158,10 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtMuonBXvshwChargeValid;
   MonitorElement* ugmtMuonBXvshwQual;
   MonitorElement* ugmtMuonBXvshwIso;
+  MonitorElement* ugmtMuonChargevsLink;
+
+  // Output shower plots
+  MonitorElement* ugmtMuonShowerTypeOccupancyPerBx;
 
   // muon correlations
   MonitorElement* ugmtMuMuInvMass;
@@ -199,6 +202,10 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtMuMuDEtaEneg;
   MonitorElement* ugmtMuMuDPhiEneg;
   MonitorElement* ugmtMuMuDREneg;
+
+  static constexpr unsigned IDX_LOOSE_SHOWER{3};
+  static constexpr unsigned IDX_TIGHT_SHOWER{2};
+  static constexpr unsigned IDX_NOMINAL_SHOWER{1};
 };
 
 #endif

@@ -6,40 +6,41 @@
 #include "SimG4CMS/Calo/interface/HcalTestHistoManager.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
 #include <cmath>
+#include <iostream>
+#include <memory>
 
-HcalTestHistoManager::HcalTestHistoManager(const std::string & file) :
-  tree(nullptr), h(nullptr), kount(0) {
+//#define EDM_ML_DEBUG
+
+HcalTestHistoManager::HcalTestHistoManager(const std::string& file) : tree_(nullptr), kount_(0) {
+  edm::Service<TFileService> fs;
   if (fs.isAvailable()) {
-    h    = new HcalTestHistoClass();
+    h_ = std::make_unique<HcalTestHistoClass>();
 
-    tree = fs->make<TTree>("HcalTest", "HcalTest");
-    tree->SetAutoSave(10000);
-    tree->Branch("HcalTestHisto", "HcalTestHistoClass", &h); 
-    edm::LogInfo("HcalSim") << "HcalTestHistoManager:===>>>  Book the Tree";
+    tree_ = fs->make<TTree>("HcalTest", "HcalTest");
+    tree_->SetAutoSave(10000);
+    tree_->Branch("HcalTestHisto", "HcalTestHistoClass", &h_);
+    edm::LogVerbatim("HcalSim") << "HcalTestHistoManager:===>>>  Book the Tree";
   } else {
-    edm::LogInfo("HcalSim") << "HcalTestHistoManager:===>>> No file provided";
+    edm::LogVerbatim("HcalSim") << "HcalTestHistoManager:===>>> No file provided";
   }
 }
 
 HcalTestHistoManager::~HcalTestHistoManager() {
-
-  edm::LogInfo("HcalSim") << "============================================="
-			  << "========================================\n"
-			  << "=== HcalTestHistoManager: Start writing user "
-			  << "histograms after " << kount << " events ";
-  if (h) delete h;
+  edm::LogVerbatim("HcalSim") << "================================================================="
+                              << "====================\n=== HcalTestHistoManager: Start writing user "
+                              << "histograms after " << kount_ << " events ";
 }
 
-void HcalTestHistoManager::fillTree(HcalTestHistoClass *  histos) {
-
-  kount++;
-  LogDebug("HcalSim") << "HcalTestHistoManager: tree pointer for " << kount 
-		      << " = " << histos;
-  if (tree) {
-    h = histos;
-    tree->Fill();
+void HcalTestHistoManager::fillTree(HcalTestHistoClass* histos) {
+  ++kount_;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalSim") << "HcalTestHistoManager: tree pointer for " << kount_ << " = " << histos;
+#endif
+  if (tree_) {
+    h_.reset(histos);
+    tree_->Fill();
   }
 }

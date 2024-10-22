@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     HeavyIonRcd
-// 
+//
 /**\class 
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Tue Jul 10 05:49:16 EDT 2007
 // $Id$
 //

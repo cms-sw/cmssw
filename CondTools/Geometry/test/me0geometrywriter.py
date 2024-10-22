@@ -1,9 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("ME0GeometryWriter")
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process("ME0GeometryWriter",Phase2C17I13M9)
 process.load('CondCore.CondDB.CondDB_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D20_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D110_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load('Configuration.StandardSequences.DD4hep_GeometrySimPhase2_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+
+process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('myLog'),
+    myLog = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO'),
+    )
+)
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),

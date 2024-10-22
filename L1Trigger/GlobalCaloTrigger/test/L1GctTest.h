@@ -2,7 +2,7 @@
 //
 // Package:    L1GctTest
 // Class:      L1GctTest
-// 
+//
 /**\class L1GctTest L1GctTest.cc L1Trigger/GlobalCaloTrigger/test/L1GctTest.cc
 
  Description: a collection of GCT tests
@@ -14,13 +14,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,32 +33,41 @@ class gctTestFunctions;
 //
 // class declaration
 //
+class L1GctJetFinderParamsRcd;
+class L1GctChannelMaskRcd;
+class L1JetEtScaleRcd;
+class L1HtMissScaleRcd;
+class L1HfRingEtScaleRcd;
 
-class L1GctTest : public edm::EDAnalyzer {
+class L1GctTest : public edm::one::EDAnalyzer<> {
 public:
-
   /// typedefs
-  typedef L1GlobalCaloTrigger::lutPtr       lutPtr;
+  typedef L1GlobalCaloTrigger::lutPtr lutPtr;
   typedef L1GlobalCaloTrigger::lutPtrVector lutPtrVector;
 
   explicit L1GctTest(const edm::ParameterSet&);
   ~L1GctTest();
 
-
 private:
-  virtual void beginJob() ;
+  virtual void beginJob();
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob() ;
+  virtual void endJob();
 
   void configureGct(const edm::EventSetup& c);
-  void configParamsPrint(std::ostream & out);
+  void configParamsPrint(std::ostream& out);
 
   // ----------member data ---------------------------
 
   L1GlobalCaloTrigger* m_gct;
   lutPtrVector m_jetEtCalibLuts;
 
-  gctTestFunctions* m_tester;
+  std::unique_ptr<gctTestFunctions> m_tester;
+
+  edm::ESGetToken<L1GctJetFinderParams, L1GctJetFinderParamsRcd> m_jfParsToken;
+  edm::ESGetToken<L1GctChannelMask, L1GctChannelMaskRcd> m_chanMaskToken;
+  edm::ESGetToken<L1CaloEtScale, L1JetEtScaleRcd> m_etScaleToken;
+  edm::ESGetToken<L1CaloEtScale, L1HtMissScaleRcd> m_htMissScaleToken;
+  edm::ESGetToken<L1CaloEtScale, L1HfRingEtScaleRcd> m_hfRingEtScaleToken;
 
   bool theElectronTestIsEnabled;
   bool theSingleEventTestIsEnabled;

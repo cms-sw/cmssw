@@ -1,6 +1,23 @@
-<library   file="BeamSpot_PayloadInspector.cc" name="BeamSpot_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="boost_python"/>
+<library file="BeamSpot_PayloadInspector.cc" name="BeamSpot_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="boost_python"/>
+</library>
+
+<library file="BeamSpotOnline_PayloadInspector.cc" name="BeamSpotOnline_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="boost_python"/>
+</library>
+
+<library file="SimBeamSpot_PayloadInspector.cc" name="SimBeamSpot_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="boost_python"/>
+</library>
+
+<library file="SimBeamSpotHLLHC_PayloadInspector.cc" name="SimBeamSpotHLLHC_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="boost_python"/>
 </library>

@@ -1,9 +1,11 @@
-<use   name="CondCore/CondDB"/>
-<use   name="CondCore/Utilities"/>
-<use   name="CondFormats/Common"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/Utilities"/>
-<use   name="CommonTools/TrackerMap"/>
-<use   name="CalibTracker/StandaloneTrackerTopology"/>
-<bin   file="testSiStripPayloadInspector.cpp" name="testSiStripPayloadInspector">
+<use name="CalibFormats/SiStripObjects"/>
+<use name="CommonTools/TrackerMap"/>
+<use name="CondCore/Utilities"/>
+<use name="FWCore/PluginManager"/>
+<use name="CalibTracker/StandaloneTrackerTopology"/>
+<use name="roothistpainter"/>
+<use name="DQM/TrackerRemapper"/>
+<use name="CalibTracker/SiStripCommon"/>
+<bin file="testSiStripPayloadInspector.cpp" name="testSiStripPayloadInspector">
 </bin>
+<test name="test_SiStripG2GainsValidator" command="test_SiStripG2GainsValidator.sh"/>

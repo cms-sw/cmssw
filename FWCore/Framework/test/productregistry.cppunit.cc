@@ -6,16 +6,17 @@
    \date 21 July 2005
 */
 
-
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 
@@ -23,17 +24,17 @@
 
 #include <iostream>
 
-class testProductRegistry: public CppUnit::TestFixture {
-CPPUNIT_TEST_SUITE(testProductRegistry);
+class testProductRegistry : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testProductRegistry);
 
-CPPUNIT_TEST(testSignal);
-CPPUNIT_TEST(testWatch);
-CPPUNIT_TEST_EXCEPTION(testCircular,cms::Exception);
+  CPPUNIT_TEST(testSignal);
+  CPPUNIT_TEST(testWatch);
+  CPPUNIT_TEST_EXCEPTION(testCircular, cms::Exception);
 
-CPPUNIT_TEST(testProductRegistration);
-CPPUNIT_TEST(testAddAlias);
+  CPPUNIT_TEST(testProductRegistration);
+  CPPUNIT_TEST(testAddAlias);
 
-CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE_END();
 
 public:
   testProductRegistry();
@@ -45,57 +46,52 @@ public:
   void testProductRegistration();
   void testAddAlias();
 
- private:
+private:
   std::shared_ptr<edm::BranchDescription> intBranch_;
   std::shared_ptr<edm::BranchDescription> floatBranch_;
+  std::shared_ptr<edm::BranchDescription> intVecBranch_;
+  std::shared_ptr<edm::BranchDescription> simpleVecBranch_;
+  std::shared_ptr<edm::BranchDescription> simpleDerivedVecBranch_;
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testProductRegistry);
 
 namespace {
-   struct Listener {
-      int* heard_;
-      Listener(int& hear) : heard_(&hear) {}
-      void operator()(edm::BranchDescription const&) {
-         ++(*heard_);
-      }
-   };
+  struct Listener {
+    int* heard_;
+    Listener(int& hear) : heard_(&hear) {}
+    void operator()(edm::BranchDescription const&) { ++(*heard_); }
+  };
 
-   struct Responder {
-      std::string name_;
-      edm::ProductRegistry* reg_;
-      Responder(std::string const& iName,
-                edm::ConstProductRegistry& iConstReg,
-                edm::ProductRegistry& iReg) : name_(iName),reg_(&iReg) {
-        iConstReg.watchProductAdditions(this, &Responder::respond);
-      }
-      void respond(edm::BranchDescription const& iDesc) {
-         edm::ParameterSet dummyProcessPset;
-         dummyProcessPset.registerIt();
-         auto pc = std::make_shared<edm::ProcessConfiguration>();
-         pc->setParameterSetID(dummyProcessPset.id());
+  struct Responder {
+    std::string name_;
+    edm::ProductRegistry* reg_;
+    Responder(std::string const& iName, edm::ConstProductRegistry& iConstReg, edm::ProductRegistry& iReg)
+        : name_(iName), reg_(&iReg) {
+      iConstReg.watchProductAdditions(this, &Responder::respond);
+    }
+    void respond(edm::BranchDescription const& iDesc) {
+      edm::ParameterSet dummyProcessPset;
+      dummyProcessPset.registerIt();
+      auto pc = std::make_shared<edm::ProcessConfiguration>();
+      pc->setParameterSetID(dummyProcessPset.id());
 
-         edm::BranchDescription prod(iDesc.branchType(),
-                                     name_,
-                                     iDesc.processName(),
-                                     iDesc.fullClassName(),
-                                     iDesc.friendlyClassName(),
-                                     iDesc.productInstanceName() + "-" + name_,
-                                     "",
-                                     iDesc.parameterSetID(),
-                                     iDesc.unwrappedType()
-                                    );
-         reg_->addProduct(prod);
-      }
-   };
-}
+      edm::BranchDescription prod(iDesc.branchType(),
+                                  name_,
+                                  iDesc.processName(),
+                                  iDesc.fullClassName(),
+                                  iDesc.friendlyClassName(),
+                                  iDesc.productInstanceName() + "-" + name_,
+                                  "",
+                                  iDesc.parameterSetID(),
+                                  iDesc.unwrappedType());
+      reg_->addProduct(prod);
+    }
+  };
+}  // namespace
 
-testProductRegistry::testProductRegistry() :
-  intBranch_(),
-  floatBranch_() {
-}
-
+testProductRegistry::testProductRegistry() {}
 
 void testProductRegistry::setUp() {
   edm::ParameterSet dummyProcessPset;
@@ -105,99 +101,128 @@ void testProductRegistry::setUp() {
 
   edm::ParameterSet pset;
   pset.registerIt();
-  intBranch_.reset(new edm::BranchDescription(edm::InEvent, "labeli", "PROD",
-                                          "int", "int", "int",
-                                          "", pset.id(),
-                                          edm::TypeWithDict(typeid(int))));
+  intBranch_ = std::make_shared<edm::BranchDescription>(
+      edm::InEvent, "labeli", "PROD", "int", "int", "int", "", pset.id(), edm::TypeWithDict(typeid(int)));
 
-  floatBranch_.reset(new edm::BranchDescription(edm::InEvent, "labelf", "PROD",
-                                            "float", "float", "float",
-                                            "", pset.id(),
-                                            edm::TypeWithDict(typeid(float))));
+  floatBranch_ = std::make_shared<edm::BranchDescription>(
+      edm::InEvent, "labelf", "PROD", "float", "float", "float", "", pset.id(), edm::TypeWithDict(typeid(float)));
 
+  intVecBranch_ = std::make_shared<edm::BranchDescription>(edm::InEvent,
+                                                           "labelvi",
+                                                           "PROD",
+                                                           "std::vector<int>",
+                                                           "ints",
+                                                           "vint",
+                                                           "",
+                                                           pset.id(),
+                                                           edm::TypeWithDict(typeid(std::vector<int>)));
+
+  simpleVecBranch_ =
+      std::make_shared<edm::BranchDescription>(edm::InEvent,
+                                               "labelovsimple",
+                                               "PROD",
+                                               "edm::OwnVector<edmtest::Simple>",
+                                               "edmtestSimplesOwned",
+                                               "ovsimple",
+                                               "",
+                                               pset.id(),
+                                               edm::TypeWithDict(typeid(edm::OwnVector<edmtest::Simple>)));
+  simpleDerivedVecBranch_ =
+      std::make_shared<edm::BranchDescription>(edm::InEvent,
+                                               "labelovsimplederived",
+                                               "PROD",
+                                               "edm::OwnVector<edmtest::SimpleDerived>",
+                                               "edmtestSimpleDerivedsOwned",
+                                               "ovsimplederived",
+                                               "",
+                                               pset.id(),
+                                               edm::TypeWithDict(typeid(edm::OwnVector<edmtest::SimpleDerived>)));
 }
 
 namespace {
-  template <class T> void kill_and_clear(std::shared_ptr<T>& p) { p.reset(); }
-}
+  template <class T>
+  void kill_and_clear(std::shared_ptr<T>& p) {
+    p.reset();
+  }
+}  // namespace
 
 void testProductRegistry::tearDown() {
   kill_and_clear(floatBranch_);
   kill_and_clear(intBranch_);
 }
 
-void testProductRegistry:: testSignal() {
-   using namespace edm;
-   SignallingProductRegistry reg;
+void testProductRegistry::testSignal() {
+  using namespace edm;
+  SignallingProductRegistry reg;
 
-   int hear=0;
-   Listener listening(hear);
-   reg.productAddedSignal_.connect(listening);
+  int hear = 0;
+  Listener listening(hear);
+  reg.productAddedSignal_.connect(listening);
 
-   //BranchDescription prod(InEvent, "label", "PROD", "int", "int", "int", md);
+  //BranchDescription prod(InEvent, "label", "PROD", "int", "int", "int", md);
 
-   //   reg.addProduct(prod);
-   reg.addProduct(*intBranch_);
-   CPPUNIT_ASSERT(1 == hear);
+  //   reg.addProduct(prod);
+  reg.addProduct(*intBranch_);
+  CPPUNIT_ASSERT(1 == hear);
 }
 
-void testProductRegistry:: testWatch() {
-   using namespace edm;
-   SignallingProductRegistry reg;
-   ConstProductRegistry constReg(reg);
+void testProductRegistry::testWatch() {
+  using namespace edm;
+  SignallingProductRegistry reg;
+  ConstProductRegistry constReg(reg);
 
-   int hear=0;
-   Listener listening(hear);
-   constReg.watchProductAdditions(listening);
-   constReg.watchProductAdditions(listening, &Listener::operator());
+  int hear = 0;
+  Listener listening(hear);
+  constReg.watchProductAdditions(listening);
+  constReg.watchProductAdditions(listening, &Listener::operator());
 
-   Responder one("one",constReg, reg);
+  Responder one("one", constReg, reg);
 
-   //BranchDescription prod(InEvent, "label", "PROD", "int", "int", "int");
-   //reg.addProduct(prod);
-   reg.addProduct(*intBranch_);
+  //BranchDescription prod(InEvent, "label", "PROD", "int", "int", "int");
+  //reg.addProduct(prod);
+  reg.addProduct(*intBranch_);
 
-   //BranchDescription prod2(InEvent, "label", "PROD", "float", "float", "float");
-   //   reg.addProduct(prod2);
-   reg.addProduct(*floatBranch_);
+  //BranchDescription prod2(InEvent, "label", "PROD", "float", "float", "float");
+  //   reg.addProduct(prod2);
+  reg.addProduct(*floatBranch_);
 
-   //Should be 4 products
-   // 1 from the 'int' in this routine
-   // 1 from 'one' responding to this call
-   // 1 from the 'float'
-   // 1 from 'one' responding to the original call
-   CPPUNIT_ASSERT(4 * 2 == hear);
-   CPPUNIT_ASSERT(4 == reg.size());
+  //Should be 4 products
+  // 1 from the 'int' in this routine
+  // 1 from 'one' responding to this call
+  // 1 from the 'float'
+  // 1 from 'one' responding to the original call
+  CPPUNIT_ASSERT(4 * 2 == hear);
+  CPPUNIT_ASSERT(4 == reg.size());
 }
-void testProductRegistry:: testCircular() {
-   using namespace edm;
-   SignallingProductRegistry reg;
-   ConstProductRegistry constReg(reg);
+void testProductRegistry::testCircular() {
+  using namespace edm;
+  SignallingProductRegistry reg;
+  ConstProductRegistry constReg(reg);
 
-   int hear=0;
-   Listener listening(hear);
-   constReg.watchProductAdditions(listening);
-   constReg.watchProductAdditions(listening, &Listener::operator());
+  int hear = 0;
+  Listener listening(hear);
+  constReg.watchProductAdditions(listening);
+  constReg.watchProductAdditions(listening, &Listener::operator());
 
-   Responder one("one", constReg, reg);
-   Responder two("two", constReg, reg);
+  Responder one("one", constReg, reg);
+  Responder two("two", constReg, reg);
 
-   //BranchDescription prod(InEvent, "label","PROD","int","int","int");
-   //reg.addProduct(prod);
-   reg.addProduct(*intBranch_);
+  //BranchDescription prod(InEvent, "label","PROD","int","int","int");
+  //reg.addProduct(prod);
+  reg.addProduct(*intBranch_);
 
-   //Should be 5 products
-   // 1 from the original 'add' in this routine
-   // 1 from 'one' responding to this call
-   // 1 from 'two' responding to 'one'
-   // 1 from 'two' responding to the original call
-   // 1 from 'one' responding to 'two'
-   CPPUNIT_ASSERT(5 * 2 == hear);
-   CPPUNIT_ASSERT(5 == reg.size());
+  //Should be 5 products
+  // 1 from the original 'add' in this routine
+  // 1 from 'one' responding to this call
+  // 1 from 'two' responding to 'one'
+  // 1 from 'two' responding to the original call
+  // 1 from 'one' responding to 'two'
+  CPPUNIT_ASSERT(5 * 2 == hear);
+  CPPUNIT_ASSERT(5 == reg.size());
 }
 
-void testProductRegistry:: testProductRegistration() {
-   edm::AssertHandler ah;
+void testProductRegistry::testProductRegistration() {
+  edm::AssertHandler ah;
 
   std::string configuration(
       "import FWCore.ParameterSet.Config as cms\n"
@@ -209,8 +234,8 @@ void testProductRegistry:: testProductRegistration() {
       "process.m2 = cms.EDProducer('TestPRegisterModule2')\n"
       "process.p = cms.Path(process.m1*process.m2)\n");
   try {
-    edm::EventProcessor proc(configuration, true);
-  } catch(cms::Exception const& iException) {
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
+  } catch (cms::Exception const& iException) {
     std::cout << "caught " << iException.explainSelf() << std::endl;
     throw;
   }
@@ -225,10 +250,51 @@ void testProductRegistry::testAddAlias() {
   reg.addProduct(*floatBranch_);
   reg.addLabelAlias(*floatBranch_, "aliasf", "instanceAlias");
 
-  reg.setFrozen(false);
-  std::vector<std::pair<std::string, std::string> > const& v = reg.aliasToOriginal();
-  CPPUNIT_ASSERT(v.at(0).first == "aliasf" &&
-                 v.at(0).second == "labelf" &&
-                 v.at(1).first == "aliasi" &&
-                 v.at(1).second == "labeli");
+  reg.addProduct(*intVecBranch_);
+  reg.addLabelAlias(*intVecBranch_, "aliasvi", "instanceAlias");
+
+  reg.addProduct(*simpleVecBranch_);
+  reg.addLabelAlias(*simpleVecBranch_, "aliasovsimple", "instanceAlias");
+
+  reg.addProduct(*simpleDerivedVecBranch_);
+  reg.addLabelAlias(*simpleDerivedVecBranch_, "aliasovsimple", "instanceAlias");
+
+  std::set<edm::TypeID> productTypesConsumed{intBranch_->unwrappedTypeID(),
+                                             floatBranch_->unwrappedTypeID(),
+                                             intVecBranch_->unwrappedTypeID(),
+                                             simpleVecBranch_->unwrappedTypeID(),
+                                             simpleDerivedVecBranch_->unwrappedTypeID()};
+  std::set<edm::TypeID> elementTypesConsumed{intBranch_->unwrappedTypeID(), edm::TypeID(typeid(edmtest::Simple))};
+  reg.setFrozen(productTypesConsumed, elementTypesConsumed, "TEST");
+  {
+    auto notFound = reg.aliasToModules(edm::PRODUCT_TYPE, intBranch_->unwrappedTypeID(), "alias", "instance");
+    CPPUNIT_ASSERT(notFound.empty());
+  }
+  {
+    auto found = reg.aliasToModules(edm::PRODUCT_TYPE, intBranch_->unwrappedTypeID(), "aliasi", "instanceAlias");
+    CPPUNIT_ASSERT(found.size() == 1);
+    CPPUNIT_ASSERT(found[0] == "labeli");
+  }
+  {
+    auto found = reg.aliasToModules(edm::PRODUCT_TYPE, floatBranch_->unwrappedTypeID(), "aliasf", "instanceAlias");
+    CPPUNIT_ASSERT(found.size() == 1);
+    CPPUNIT_ASSERT(found[0] == "labelf");
+  }
+  {
+    auto found = reg.aliasToModules(edm::PRODUCT_TYPE, intVecBranch_->unwrappedTypeID(), "aliasvi", "instanceAlias");
+    CPPUNIT_ASSERT(found.size() == 1);
+    CPPUNIT_ASSERT(found[0] == "labelvi");
+  }
+  {
+    auto found = reg.aliasToModules(edm::ELEMENT_TYPE, intBranch_->unwrappedTypeID(), "aliasvi", "instanceAlias");
+    CPPUNIT_ASSERT(found.size() == 1);
+    CPPUNIT_ASSERT(found[0] == "labelvi");
+  }
+  {
+    auto found =
+        reg.aliasToModules(edm::ELEMENT_TYPE, edm::TypeID(typeid(edmtest::Simple)), "aliasovsimple", "instanceAlias");
+    CPPUNIT_ASSERT(found.size() == 2);
+    CPPUNIT_ASSERT(std::find(found.begin(), found.end(), "labelovsimple") != found.end());
+    CPPUNIT_ASSERT(std::find(found.begin(), found.end(), "labelovsimplederived") != found.end());
+  }
 }

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
+from RecoTracker.PixelSeeding.PixelTripletHLTGenerator_cfi import *
 SeedGeneratorParameters = cms.PSet(
     ComponentName = cms.string('TSGFromOrderedHits'),
     OrderedHitsFactoryPSet = cms.PSet(

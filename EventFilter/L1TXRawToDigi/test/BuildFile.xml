@@ -1,6 +1,4 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
-<use name="FWCore/PluginManager"/>
-<use name="FWCore/MessageLogger"/>
-<use name="DataFormats/FEDRawData"/>
-<bin name="testUCTUnpacker" file="testUCTUnpacker.cpp"> </bin>
+<bin name="testUCTUnpacker" file="testUCTUnpacker.cpp">
+  <flags TEST_RUNNER_CMD="cat ${LOCALTOP}/src/EventFilter/L1TXRawToDigi/test/event_test1.txt | testUCTUnpacker"/>
+  <use name="EventFilter/L1TXRawToDigi"/>
+</bin>

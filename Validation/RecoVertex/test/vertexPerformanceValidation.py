@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 from Validation.RecoTrack.plotting.validation import Sample, Validation
 import Validation.RecoTrack.plotting.validation as validation

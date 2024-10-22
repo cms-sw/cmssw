@@ -13,18 +13,19 @@
 
 namespace heppy {
 
-class PdfWeightProducerTool {
-    public:
-        PdfWeightProducerTool() {}
-        void addPdfSet(const std::string &name) ;
-        void beginJob() ;
-        void processEvent(const GenEventInfoProduct & pdfstuff) ;
-        const std::vector<double> & getWeights(const std::string &name) const ;
-    private:
-        std::vector<std::string> pdfs_; 
-        std::map<std::string, std::vector<double> > weights_;    
-};
+  class PdfWeightProducerTool {
+  public:
+    PdfWeightProducerTool() {}
+    void addPdfSet(const std::string &name);
+    void beginJob();
+    void processEvent(const GenEventInfoProduct &pdfstuff);
+    const std::vector<double> &getWeights(const std::string &name) const;
 
-};
+  private:
+    std::vector<std::string> pdfs_;
+    std::map<std::string, std::vector<double> > weights_;
+  };
+
+};  // namespace heppy
 
 #endif

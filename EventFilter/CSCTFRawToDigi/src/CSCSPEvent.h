@@ -8,21 +8,21 @@
 
 class CSCSPEvent {
 private:
-	CSCSPHeader   header_;
-	CSCSPCounters counters_;
-	CSCSPRecord   record_[7];
-	CSCSPTrailer  trailer_;
+  CSCSPHeader header_;
+  CSCSPCounters counters_;
+  CSCSPRecord record_[7];
+  CSCSPTrailer trailer_;
 
 public:
-	const CSCSPHeader&   header  (void) const throw() { return header_;   }
-	const CSCSPCounters& counters(void) const throw() { return counters_; }
-	const CSCSPTrailer&  trailer (void) const throw() { return trailer_;  }
+  const CSCSPHeader& header(void) const throw() { return header_; }
+  const CSCSPCounters& counters(void) const throw() { return counters_; }
+  const CSCSPTrailer& trailer(void) const throw() { return trailer_; }
 
-	const CSCSPRecord& record(unsigned int tbin) const throw() { return record_[tbin]; }
+  const CSCSPRecord& record(unsigned int tbin) const throw() { return record_[tbin]; }
 
-	bool unpack(const unsigned short *&buf) throw() ;
+  bool unpack(const unsigned short*& buf) throw();
 
-	CSCSPEvent(void){}
+  CSCSPEvent(void) {}
 };
 
 #endif

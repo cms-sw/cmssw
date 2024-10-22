@@ -1,0 +1,27 @@
+#include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
+
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
+typedef SimpleFlatTableProducer<Run3ScoutingVertex> SimpleRun3ScoutingVertexFlatTableProducer;
+
+#include "DataFormats/Scouting/interface/Run3ScoutingPhoton.h"
+typedef SimpleFlatTableProducer<Run3ScoutingPhoton> SimpleRun3ScoutingPhotonFlatTableProducer;
+
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
+typedef SimpleFlatTableProducer<Run3ScoutingMuon> SimpleRun3ScoutingMuonFlatTableProducer;
+
+#include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
+typedef SimpleFlatTableProducer<Run3ScoutingElectron> SimpleRun3ScoutingElectronFlatTableProducer;
+
+#include "DataFormats/Scouting/interface/Run3ScoutingTrack.h"
+typedef SimpleFlatTableProducer<Run3ScoutingTrack> SimpleRun3ScoutingTrackFlatTableProducer;
+
+#include "DataFormats/Scouting/interface/Run3ScoutingPFJet.h"
+typedef SimpleFlatTableProducer<Run3ScoutingPFJet> SimpleRun3ScoutingPFJetFlatTableProducer;
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SimpleRun3ScoutingVertexFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingPhotonFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingMuonFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingElectronFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingTrackFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingPFJetFlatTableProducer);

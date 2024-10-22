@@ -1,22 +1,23 @@
 #ifndef HcalAlgos_HcalPulseShape_h
 #define HcalAlgos_HcalPulseShape_h
 
-#include<vector>
+#include <vector>
 
 class HcalPulseShape {
 public:
   HcalPulseShape();
+  HcalPulseShape(const std::vector<double>&, unsigned);
   void setNBin(int n);
   void setShapeBin(int i, float f);
-  float getTpeak() const { return tpeak_; }
   float operator()(double time) const;
   float at(double time) const;
   float integrate(double tmin, double tmax) const;
-  int nbins() const {return nbin_;}
+  int nbins() const { return nbin_; }
+  std::vector<float> const& data() const { return shape_; }
+
 private:
   std::vector<float> shape_;
   int nbin_;
-  float tpeak_;
 };
 
 #endif

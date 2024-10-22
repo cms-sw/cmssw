@@ -1,6 +1,0 @@
-plugins/BuildFile.xml
-plugins/EDProducer.cc
-python/CfiFile_cfi.py
-python/ConfFile_cfg.py
-test
-doc

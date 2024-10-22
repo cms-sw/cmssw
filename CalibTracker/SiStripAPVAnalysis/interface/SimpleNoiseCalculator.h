@@ -7,39 +7,39 @@
  */
 
 class SimpleNoiseCalculator : public TkNoiseCalculator {
-  
-public:  
-  
+public:
   // Use the constructor without arguments, since the other will soon
   // be obsolete.
   SimpleNoiseCalculator();
   SimpleNoiseCalculator(int evnt_ini, bool useDB);
   ~SimpleNoiseCalculator() override;
 
-  void setStripNoise(ApvAnalysis::PedestalType& in) override {theNoise.clear(); theNoise = in;}
-  ApvAnalysis::PedestalType noise() const override {return theNoise;}
-  float stripNoise(int in) const override {return theNoise[in];}
-  int nevents() const {return numberOfEvents;}
+  void setStripNoise(ApvAnalysis::PedestalType& in) override {
+    theNoise.clear();
+    theNoise = in;
+  }
+  ApvAnalysis::PedestalType noise() const override { return theNoise; }
+  float stripNoise(int in) const override { return theNoise[in]; }
+  int nevents() const { return numberOfEvents; }
 
-  void updateStatus() override;  
-  void resetNoise() override {theNoise.clear();}
+  void updateStatus() override;
+  void resetNoise() override { theNoise.clear(); }
   void updateNoise(ApvAnalysis::PedestalType& in) override;
   void newEvent() override;
-  
-  ApvAnalysis::PedestalType stripCMPSubtractedSignal() const
-               {return theCMPSubtractedSignal;}
-  
+
+  ApvAnalysis::PedestalType stripCMPSubtractedSignal() const { return theCMPSubtractedSignal; }
+
 protected:
   void init();
 
 protected:
   ApvAnalysis::PedestalType theNoise;
   ApvAnalysis::PedestalType theCMPSubtractedSignal;
-  std::vector<double> theNoiseSum,theNoiseSqSum;
+  std::vector<double> theNoiseSum, theNoiseSqSum;
   std::vector<unsigned short> theEventPerStrip;
   int numberOfEvents;
   bool alreadyUsedEvent;
-  bool useDB_;  
+  bool useDB_;
 
   int eventsRequiredToCalibrate_;
   // int eventsRequiredToUpdate_;

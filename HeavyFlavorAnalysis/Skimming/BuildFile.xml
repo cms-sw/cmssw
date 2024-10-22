@@ -1,8 +1,0 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/MuonReco"/>
-<export>
-  <lib   name="1"/>
-</export>

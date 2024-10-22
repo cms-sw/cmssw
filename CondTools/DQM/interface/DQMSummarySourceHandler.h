@@ -9,20 +9,21 @@
 
 namespace popcon {
   class DQMSummarySourceHandler : public popcon::PopConSourceHandler<DQMSummary> {
-   public:
-    DQMSummarySourceHandler(const edm::ParameterSet & pset);
+  public:
+    DQMSummarySourceHandler(const edm::ParameterSet& pset);
     ~DQMSummarySourceHandler() override;
     void getNewObjects() override;
     std::string id() const override;
-   private:
+
+  private:
     std::string m_name;
     //cond::Time_t m_since;
     unsigned long long m_since;
-    // for reading from omds 
+    // for reading from omds
     std::string m_connectionString;
     std::string m_user;
     std::string m_pass;
   };
-}
+}  // namespace popcon
 
 #endif

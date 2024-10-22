@@ -1,0 +1,3 @@
+<bin name="hltParseTriggerExpressions" file="hltParseTriggerExpressions.cpp">
+  <use name="HLTrigger/HLTcore"/>
+</bin>

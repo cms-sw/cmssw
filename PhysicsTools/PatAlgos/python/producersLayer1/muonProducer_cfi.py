@@ -71,11 +71,13 @@ patMuons = cms.EDProducer("PATMuonProducer",
         #        deltaR = cms.double(0.3)
         #    )),
     ),
-
+    # Read and store combined inverse beta
+    addInverseBeta    = cms.bool(True),  
+    sourceMuonTimeExtra = cms.InputTag("muons","combined"), #Use combined info, not only csc or dt
     # mc matching
     addGenMatch   = cms.bool(True),
     embedGenMatch = cms.bool(True),
-    genParticleMatch = cms.InputTag("muonMatch"), ## particles source to be used for the matching
+    genParticleMatch = cms.required.allowed(cms.InputTag, cms.VInputTag, default = cms.InputTag("muonMatch")), ## particles source to be used for the matching
 
     # efficiencies
     addEfficiencies = cms.bool(False),
@@ -99,45 +101,43 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # PhysicsTools/PatUtils/src/PFIsolation.cc
     # only works in miniaod, so set to True in miniAOD_tools.py
     computeMiniIso = cms.bool(False),
+    effectiveAreaVec = cms.vdouble(0.0566, 0.0562, 0.0363, 0.0119, 0.0064),
     pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
     miniIsoParams = cms.vdouble(0.05, 0.2, 10.0, 0.5, 0.0001, 0.01, 0.01, 0.01, 0.0),
 
+    computePuppiCombinedIso = cms.bool(False),
     # Standard Muon Selectors and Jet-related observables
     # Depends on MiniIsolation, so only works in miniaod
     # Don't forget to set flags properly in miniAOD_tools.py                      
-    computeMuonMVA = cms.bool(False),
-    mvaTrainingFile = cms.string("RecoMuon/MuonIdentification/data/mu_BDTG.weights.xml"),
+    computeMuonIDMVA = cms.bool(False),
+    mvaIDTrainingFile      = cms.FileInPath("RecoMuon/MuonIdentification/data/mvaID.onnx"),
+    mvaIDwpMedium = cms.double(0.08),
+    mvaIDwpTight = cms.double(0.20),
     recomputeBasicSelectors = cms.bool(True),
-    mvaUseJec = cms.bool(True),
+    useJec = cms.bool(True),
     mvaDrMax = cms.double(0.4),
     mvaJetTag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     mvaL1Corrector = cms.InputTag("ak4PFCHSL1FastjetCorrector"),
     mvaL1L2L3ResCorrector = cms.InputTag("ak4PFCHSL1FastL2L3Corrector"),
     rho = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
 
+    computeSoftMuonMVA = cms.bool(False),
+    softMvaTrainingFile = cms.FileInPath("RecoMuon/MuonIdentification/data/TMVA-muonid-bmm4-B-25.weights.xml"),
+    softMvaRun3Model = cms.string("RecoMuon/MuonIdentification/data/Run2022-20231030-1731-Event0"),
+
     # MC Info
-    muonSimInfo = cms.InputTag("muonSimClassifier")                 
-                          
+    muonSimInfo = cms.InputTag("muonSimClassifier"),                 
+
+    # Trigger Info 
+    addTriggerMatching = cms.bool(False),                      
+    triggerObjects = cms.InputTag("slimmedPatTrigger"),
+    triggerResults = cms.InputTag("TriggerResults","","HLT"),
+    hltCollectionFilters = cms.vstring('*')
 )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(patMuons,
+                     mvaJetTag = cms.InputTag("pfDeepCSVJetTags:probb"),
+)
 
 

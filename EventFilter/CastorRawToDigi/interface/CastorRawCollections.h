@@ -11,21 +11,17 @@
  *
  ************************************************************/
 
-
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-class CastorRawCollections 
-{
+class CastorRawCollections {
 public:
-
-   CastorRawCollections();
-   ~CastorRawCollections();
-    std::vector<CastorDataFrame>* castorCont;
-    std::vector<ZDCDataFrame>* zdcCont;
-    std::vector<HcalCalibDataFrame>* calibCont;
-    std::vector<CastorTriggerPrimitiveDigi>* tpCont;
-	std::vector<HcalTTPDigi>* ttp;
-
+  CastorRawCollections();
+  ~CastorRawCollections();
+  std::vector<CastorDataFrame>* castorCont;
+  std::vector<ZDCDataFrame>* zdcCont;
+  std::vector<HcalCalibDataFrame>* calibCont;
+  std::vector<CastorTriggerPrimitiveDigi>* tpCont;
+  std::vector<HcalTTPDigi>* ttp;
 };
 
 #endif

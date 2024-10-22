@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
@@ -34,7 +35,7 @@ process.options = cms.untracked.PSet(
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cout.enable = cms.untracked.bool(True)
 process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)
@@ -43,7 +44,7 @@ process.MessageLogger.cout.FwkReport = cms.untracked.PSet(
     reportEvery = cms.untracked.int32(10000)
     )
 
-process.MessageLogger.cerr.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cerr.enable = cms.untracked.bool(True)
 process.MessageLogger.cerr.threshold = cms.untracked.string("WARNING")
 process.MessageLogger.cerr.default = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)
@@ -67,7 +68,7 @@ process.seqRECO = cms.Sequence()
 
 if options.fromRAW == 1:
     process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
-    process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+    process.load("Configuration.StandardSequences.MagneticField_cff")
     process.load("Configuration.StandardSequences.GeometryDB_cff")
     process.load("Configuration.StandardSequences.Reconstruction_cff")
     process.load("Configuration.StandardSequences.L1Reco_cff")
@@ -205,4 +206,4 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('MultiplicityMonitor.root')
                                    )
 
-print process.dumpPython()
+print(process.dumpPython())

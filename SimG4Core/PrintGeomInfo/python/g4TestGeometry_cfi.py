@@ -6,8 +6,8 @@ def checkOverlap(process):
 
     process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
     process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-    process.load("Geometry.HcalCommonData.hcalParameters_cfi")
-    process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
+    process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
+    process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
     process.load("IOMC.RandomEngine.IOMC_cff")
     process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
     process.load('GeneratorInterface.Core.generatorSmeared_cfi')
@@ -41,5 +41,6 @@ def checkOverlap(process):
     process.g4SimHits.UseMagneticField = False
     process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
     process.g4SimHits.Physics.DummyEMPhysics = True
+    process.g4SimHits.LHCTransport = False
 
     return(process)

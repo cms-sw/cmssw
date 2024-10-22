@@ -80,10 +80,11 @@ process.siStripQualityESProducer.ReduceGranularity = cms.bool(False)
 #-------------------------------------------------
 process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
-process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
-                              dataLabel = cms.untracked.string(""),
-                              TkMapFileName = cms.untracked.string("TkMapBadComponents_Cabling.png")  #available filetypes: .pdf .png .jpg .svg
-                              )
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+process.stat = siStripQualityStatistics.clone(
+        TkMapFileName=cms.untracked.string("TkMapBadComponents_Cabling.png")  #available filetypes: .pdf .png .jpg .svg
+        )
+
 
 process.p = cms.Path(process.stat)
 

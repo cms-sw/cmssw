@@ -1,0 +1,8 @@
+<use name="FWCore/Framework"/>
+<use name="Geometry/HGCalTBCommonData"/>
+<use name="Geometry/HGCalCommonData"/>
+<use name="Geometry/Records"/>
+<use name="DetectorDescription/Core"/>
+<flags EDM_PLUGIN="1"/>
+<library file="*.cc" name="testGeometryHGCalTBCommonData">
+</library>

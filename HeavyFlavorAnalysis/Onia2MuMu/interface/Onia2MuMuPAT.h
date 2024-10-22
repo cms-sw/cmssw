@@ -1,16 +1,16 @@
 #ifndef HeavyFlavorAnalysis_Onia2MuMu_Onia2MuMuPAT_h
 #define HeavyFlavorAnalysis_Onia2MuMu_Onia2MuMuPAT_h
 
-
 // system include files
 #include <memory>
 
 // FW include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
 
 // DataFormat includes
@@ -22,41 +22,43 @@
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-template<typename T>
-struct GreaterByVProb {
-  bool operator()( const T & t1, const T & t2 ) const {
-    return t1.userFloat("vProb") > t2.userFloat("vProb");
-  }
-};
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
+template <typename T>
+struct GreaterByVProb {
+  bool operator()(const T& t1, const T& t2) const { return t1.userFloat("vProb") > t2.userFloat("vProb"); }
+};
 
 //
 // class decleration
 //
 
-class Onia2MuMuPAT : public edm::EDProducer {
- public:
+class Onia2MuMuPAT : public edm::stream::EDProducer<> {
+public:
   explicit Onia2MuMuPAT(const edm::ParameterSet&);
-  ~Onia2MuMuPAT() override;
 
- private:
-  void beginJob() override ;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-  bool isAbHadron(int pdgID);
-  bool isAMixedbHadron(int pdgID, int momPdgID);
-  std::pair<int, float> findJpsiMCInfo(reco::GenParticleRef genJpsi);
-
   // ----------member data ---------------------------
- private:
-  
+private:
+  bool isAbHadron(int pdgID) const;
+  bool isAMixedbHadron(int pdgID, int momPdgID) const;
+  std::pair<int, float> findJpsiMCInfo(reco::GenParticleRef genJpsi) const;
+
   edm::EDGetTokenT<edm::View<pat::Muon>> muons_;
   edm::EDGetTokenT<reco::BeamSpot> thebeamspot_;
   edm::EDGetTokenT<reco::VertexCollection> thePVs_;
   edm::EDGetTokenT<reco::TrackCollection> revtxtrks_;
   edm::EDGetTokenT<reco::BeamSpot> revtxbs_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> theTTBuilderToken_;
   StringCutObjectSelector<pat::Muon> higherPuritySelection_;
-  StringCutObjectSelector<pat::Muon> lowerPuritySelection_; 
+  StringCutObjectSelector<pat::Muon> lowerPuritySelection_;
   StringCutObjectSelector<reco::Candidate, true> dimuonSelection_;
   bool addCommonVertex_, addMuonlessPrimaryVertex_;
   bool resolveAmbiguity_;
@@ -64,13 +66,11 @@ class Onia2MuMuPAT : public edm::EDProducer {
   GreaterByVProb<pat::CompositeCandidate> vPComparator_;
 
   InvariantMassFromVertex massCalculator;
-
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions

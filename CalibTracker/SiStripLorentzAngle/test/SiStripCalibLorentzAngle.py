@@ -47,9 +47,9 @@ process.source = cms.Source("EmptySource",
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = cms.untracked.vstring('sistripLACalib')
-process.MessageLogger.destinations = cms.untracked.vstring('LACalibDebug_Calib')
+process.MessageLogger.cerr.enable = False
 
-process.MessageLogger.LACalibDebug_Calib =  cms.untracked.PSet(
+process.MessageLogger.files.LACalibDebug_Calib =  cms.untracked.PSet(
       threshold = cms.untracked.string('DEBUG'),
       noLineBreaks = cms.untracked.bool(False),
       DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0))

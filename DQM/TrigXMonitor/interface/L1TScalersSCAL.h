@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
@@ -14,15 +13,15 @@
 #include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 
 class L1TScalersSCAL : public DQMEDAnalyzer {
- public:
+public:
   enum { N_LUMISECTION_TIME = 93 };
-  
+
   L1TScalersSCAL(const edm::ParameterSet& ps);
   ~L1TScalersSCAL() override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
- private:
+
+private:
   edm::EDGetTokenT<Level1TriggerScalersCollection> l1triggerscalers_;
   edm::EDGetTokenT<LumiScalersCollection> lumiscalers_;
   edm::EDGetTokenT<L1AcceptBunchCrossingCollection> l1acceptBX_;

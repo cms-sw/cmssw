@@ -19,21 +19,21 @@ process.source = cms.Source("PoolSource",
 )
 
 process.prodD = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("prodC"),
+    labels = cms.VInputTag("prodC"),
     onlyGetOnEvent = cms.untracked.uint32(1)
 )
 
 process.prodE = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("prodD"),
+    labels = cms.VInputTag("prodD"),
     onlyGetOnEvent = cms.untracked.uint32(2)
 )
 
 process.K103 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("A101")
+    labels = cms.VInputTag("A101")
 )
 
 process.K203 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("K201")
+    labels = cms.VInputTag("K201")
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

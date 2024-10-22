@@ -41,7 +41,7 @@ layerInfo = cms.PSet(
     ),
 )
 
-layerList = cms.vstring(
+layerList = [
     'FPix1_pos+FPix2_pos', 
     'FPix1_neg+FPix2_neg', 
     'TID2_pos+TID3_pos', 
@@ -60,7 +60,7 @@ layerList = cms.vstring(
     'MTEC7_pos+MTEC8_pos',
     'MTEC8_neg+MTEC9_neg',
     'MTEC8_pos+MTEC9_pos'
-    )
+    ]
 
 beamhaloTrackerSeeds = cms.EDProducer("CtfSpecialSeedGenerator",
     SeedMomentum = cms.double(15.0), ##initial momentum in GeV !!!set to a lower value for slice test data
@@ -92,7 +92,7 @@ beamhaloTrackerSeeds = cms.EDProducer("CtfSpecialSeedGenerator",
     SeedsFromNegativeY = cms.bool(False),
     doClusterCheck = cms.bool(True),
     ClusterCollectionLabel = cms.InputTag("siStripClusters"),
-    MaxNumberOfCosmicClusters = cms.uint32(10000),
+    MaxNumberOfStripClusters = cms.uint32(10000),
     MaxNumberOfPixelClusters = cms.uint32(10000),
     PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),
     CheckHitsAreOnDifferentLayers = cms.bool(False),

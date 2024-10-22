@@ -17,19 +17,21 @@
 namespace coral {
   //class IConnection;
   class ISessionProxy;
-}
+}  // namespace coral
 
 class ReadBase {
- public:
+public:
   ReadBase();
   virtual ~ReadBase();
   virtual void run() = 0;
-  void setVerbosityLevel( coral::MsgLevel level ) ;
- protected:
-  coral::ISessionProxy* connect( const std::string& connectionString,
-				 const std::string& user, 
-				 const std::string& password );
- private:
+  void setVerbosityLevel(coral::MsgLevel level);
+
+protected:
+  coral::ISessionProxy* connect(const std::string& connectionString,
+                                const std::string& user,
+                                const std::string& password);
+
+private:
   //coral::IConnection* m_connection;
   coral::ConnectionService m_connectionService;
 };

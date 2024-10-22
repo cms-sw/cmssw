@@ -1,6 +1,5 @@
 
 import FWCore.ParameterSet.Config as cms
-from RecoParticleFlow.PFClusterProducer.particleFlowZeroSuppressionECAL_cff import *
 
 #until we are actually clustering across the EB/EE boundary
 #it is faster to cluster EB and EE as separate
@@ -19,8 +18,8 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
              srFlags = cms.InputTag(""),
              qualityTests = cms.VPSet(
                   cms.PSet(
-                  name = cms.string("PFRecHitQTestECALMultiThreshold"),
-                  thresholds = particle_flow_zero_suppression_ECAL.thresholds
+                  name = cms.string("PFRecHitQTestDBThreshold"),
+                  applySelectionsToAllCrystals=cms.bool(True),    
                   ),
                   cms.PSet(
                   name = cms.string("PFRecHitQTestECAL"),
@@ -37,8 +36,8 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
             srFlags = cms.InputTag(""),
             qualityTests = cms.VPSet(
                  cms.PSet(
-                 name = cms.string("PFRecHitQTestECALMultiThreshold"),
-                 thresholds = particle_flow_zero_suppression_ECAL.thresholds
+                 name = cms.string("PFRecHitQTestDBThreshold"),
+                 applySelectionsToAllCrystals=cms.bool(True),     
                  ),
                  cms.PSet(
                  name = cms.string("PFRecHitQTestECAL"),

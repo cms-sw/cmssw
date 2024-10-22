@@ -13,22 +13,17 @@
 // user include files
 #include "DataFormats/FWLite/interface/EventHistoryGetter.h"
 
-
 namespace fwlite {
 
-    //
-    // constructors and destructor
-    //
-    EventHistoryGetter::EventHistoryGetter(const Event* event) {
-        event_ = event;
-    }
+  //
+  // constructors and destructor
+  //
+  EventHistoryGetter::EventHistoryGetter(const Event* event) { event_ = event; }
 
-    EventHistoryGetter::~EventHistoryGetter() {}
+  EventHistoryGetter::~EventHistoryGetter() {}
 
-    //
-    // const member functions
-    //
-    const edm::ProcessHistory& EventHistoryGetter::history() const {
-        return event_->history();
-    }
-}
+  //
+  // const member functions
+  //
+  const edm::ProcessHistory& EventHistoryGetter::history() const { return event_->history(); }
+}  // namespace fwlite

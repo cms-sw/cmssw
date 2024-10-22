@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CSCDigitizerTest")
@@ -8,7 +9,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.Services_cff')
 
 process.load("SimGeneral.MixingModule.mixLowLumPU_cfi")
-print str(process.RandomNumberGeneratorService)
+print(str(process.RandomNumberGeneratorService))
 process.mix.input.fileNames = cms.untracked.vstring(['file:cscNeutronWriter.root'])
 #process.mix.mixObjects.mixSH.input.append(cms.InputTag('cscNeutronWriter'))
 process.mix.mixObjects.mixSH.input = cms.VInputTag(cms.InputTag('cscNeutronWriter'))

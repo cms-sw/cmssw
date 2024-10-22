@@ -24,13 +24,12 @@ def customise(process):
 
     # use directly the generator output, no Hector
 
-    process.g4SimHits.Generator.HepMCProductLabel = cms.string('generatorSmeared')
+    process.g4SimHits.Generator.HepMCProductLabel = 'generatorSmeared'
 
     # modify the content
 
     #process.output.outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
-    process.outputModules_().iteritems().next()[1].outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
-            
+    next(iter(process.outputModules_().items()))[1].outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
 # user schedule: use only calorimeters digitization and local reconstruction
 
     del process.schedule[:] 
@@ -38,21 +37,21 @@ def customise(process):
     process.schedule.append(process.generation_step)
     process.schedule.append(process.simulation_step)
 
-    process.ecalMultiFitUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
-    process.ecalMultiFitUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
+    process.ecalMultiFitUncalibRecHitCPU.EBdigiCollection = "simEcalDigis:ebDigis"
+    process.ecalMultiFitUncalibRecHitCPU.EEdigiCollection = "simEcalDigis:eeDigis"
     process.ecalPreshowerRecHit.ESdigiCollection = cms.InputTag("simEcalPreshowerDigis") 
 
     delattr(process,"hbhereco")
     process.hbhereco = process.hbheprereco.clone()
     process.hcalLocalRecoSequence.replace(process.hbheprereco,process.hbhereco)
-    process.hbhereco.digiLabelQIE8 = cms.InputTag("simHcalUnsuppressedDigis")
-    process.hbhereco.digiLabelQIE11 = cms.InputTag("simHcalUnsuppressedDigis","HBHEQIE11DigiCollection")
+    process.hbhereco.cpu.digiLabelQIE8 = cms.InputTag("simHcalUnsuppressedDigis")
+    process.hbhereco.cpu.digiLabelQIE11 = cms.InputTag("simHcalUnsuppressedDigis","HBHEQIE11DigiCollection")
     process.horeco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.hfreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
-    process.ecalRecHit.recoverEBIsolatedChannels = cms.bool(False)
-    process.ecalRecHit.recoverEEIsolatedChannels = cms.bool(False)
-    process.ecalRecHit.recoverEBFE = cms.bool(False)
-    process.ecalRecHit.recoverEEFE = cms.bool(False)
+    process.ecalRecHit.cpu.recoverEBIsolatedChannels = cms.bool(False)
+    process.ecalRecHit.cpu.recoverEEIsolatedChannels = cms.bool(False)
+    process.ecalRecHit.cpu.recoverEBFE = cms.bool(False)
+    process.ecalRecHit.cpu.recoverEEFE = cms.bool(False)
 
 #    process.local_digireco = cms.Path(process.mix * process.calDigi * process.ecalLocalRecoSequence * process.hbhereco * process.hfreco * process.horeco * (process.ecalClusters+process.caloTowersRec) * process.reducedEcalRecHitsSequence )
 
@@ -67,7 +66,7 @@ def customise(process):
             cms.InputTag("interestingEcalDetIdEE"),
             )            
 
-    process.local_digireco = cms.Path(process.mix * process.addPileupInfo * process.bunchSpacingProducer * process.calDigi * process.ecalPacker * process.esDigiToRaw * process.hcalRawData * process.rawDataCollector * process.ecalDigis * process.ecalPreshowerDigis * process.hcalDigis * process.calolocalreco *(process.ecalClustersNoPFBox+process.caloTowersRec) * process.reducedEcalRecHitsSequenceEcalOnly )
+    process.local_digireco = cms.Path(process.mix * process.addPileupInfo * process.bunchSpacingProducer * process.calDigi * process.ecalPacker * process.esDigiToRaw * process.hcalRawData * process.rawDataCollector * process.ecalDigis * process.ecalPreshowerDigis * process.hcalDigis * process.calolocalreco * process.hbhereco * process.hfreco * process.horeco *(process.ecalClustersNoPFBox+process.caloTowersRec) * process.reducedEcalRecHitsSequenceEcalOnly )
 
     process.schedule.append(process.local_digireco)
 
@@ -83,6 +82,5 @@ def customise(process):
 
     process.schedule.append(process.endjob_step)
     #process.schedule.append(process.out_step)
-    process.schedule.append(getattr(process,process.outputModules_().iteritems().next()[0]+"_step"))
 
     return(process)

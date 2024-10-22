@@ -9,17 +9,21 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Reader")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring("*"),
-    DetVOffReaderSummary = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    DetVOffReaderDebug = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('DetVOffReaderSummary', 'DetVOffReaderDebug')
+    debugModules = cms.untracked.vstring('*'),
+    files = cms.untracked.PSet(
+        DetVOffReaderDebug = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG')
+        ),
+        DetVOffReaderSummary = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
 )
 
 # Use this instead to see only the summary

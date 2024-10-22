@@ -30,6 +30,10 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EBLaserMAX = cms.double(3.0),
     EELaserMAX = cms.double(8.0),
 
+    # to select timing conditions record
+    timeCalibTag = cms.ESInputTag('', ''),
+    timeOffsetTag = cms.ESInputTag('', ''),
+
     # useful if time is not calculated, as at HLT                        
     skipTimeCalib = cms.bool(False),                         
 
@@ -49,7 +53,7 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
                             
     # for channel recovery
     algoRecover = cms.string("EcalRecHitWorkerRecover"),
-    recoverEBIsolatedChannels = cms.bool(False),
+    recoverEBIsolatedChannels = cms.bool(False),##default is false
     recoverEEIsolatedChannels = cms.bool(False),
     recoverEBVFE  = cms.bool(False),
     recoverEEVFE  = cms.bool(False),
@@ -76,8 +80,11 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     eeDetIdToBeRecovered = cms.InputTag("ecalDetIdToBeRecovered:eeDetId"),
     ebFEToBeRecovered = cms.InputTag("ecalDetIdToBeRecovered:ebFE"),
     eeFEToBeRecovered = cms.InputTag("ecalDetIdToBeRecovered:eeFE"),
-    singleChannelRecoveryMethod = cms.string("NeuralNetworks"),
-    singleChannelRecoveryThreshold = cms.double(8),
+    singleChannelRecoveryMethod = cms.string("BDTG"),
+    singleChannelRecoveryThreshold = cms.double(0.70), #Threshold in GeV
+    sum8ChannelRecoveryThreshold = cms.double(0.),     #Threshold in GeV
+    bdtWeightFileNoCracks = cms.FileInPath("RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_noCracks_ZskimData2017_v1.xml"),
+    bdtWeightFileCracks = cms.FileInPath("RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_onlyCracks_ZskimData2017_v1.xml"),
     triggerPrimitiveDigiCollection = cms.InputTag("ecalDigis:EcalTriggerPrimitives"),
     cleaningConfig=cleaningAlgoConfig,
 
@@ -88,4 +95,33 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(ecalRecHit, 
                  killDeadChannels = False,
                  recoverEBFE = False,
-                 recoverEEFE = False)
+                 recoverEEFE = False,
+                 recoverEBIsolatedChannels = False
+                )
+
+# use CC timing method for Run3 and Phase 2 (carried over from Run3 era)
+from Configuration.ProcessModifiers.ecal_cctiming_cff import ecal_cctiming
+ecal_cctiming.toModify(ecalRecHit,
+    timeCalibTag = ':CC',
+    timeOffsetTag = ':CC'
+)
+
+# this overrides the modifications made by ecal_cctiming if both modifiers are active
+from Configuration.ProcessModifiers.gpuValidationEcal_cff import gpuValidationEcal
+gpuValidationEcal.toModify(ecalRecHit,
+    timeCalibTag = ':',
+    timeOffsetTag = ':'
+)
+
+# Phase 2 modifications
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toModify(ecalRecHit,
+    EBuncalibRecHitCollection = "ecalUncalibRecHitPhase2:EcalUncalibRecHitsEB",
+    EEuncalibRecHitCollection = "",  # No EE input since there is no ECAL endcap in Phase 2
+    killDeadChannels = False,
+    recoverEBFE = False,
+    recoverEEFE = False,
+    recoverEBIsolatedChannels = False,
+    recoverEEIsolatedChannels = False
+)
+

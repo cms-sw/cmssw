@@ -4,13 +4,9 @@
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class FTFPCMS_BERT: public PhysicsList {
-
+class FTFPCMS_BERT : public PhysicsList {
 public:
-  FTFPCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::ChordFinderSetter *chordFinderSetter_, const edm::ParameterSet & p);
+  FTFPCMS_BERT(const edm::ParameterSet& p);
 };
 
 #endif
-
-
-

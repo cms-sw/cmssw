@@ -28,7 +28,6 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 # TkDetMap for TkHistoMap
 #-------------------------------------------------
 process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 #-------------------------------------------------
 # Calibration
@@ -46,7 +45,6 @@ process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 #-------------------------------------------------
 # DQMStore Service
 process.DQMStore = cms.Service("DQMStore",
-                               referenceFileName = cms.untracked.string(''),
                                verbose = cms.untracked.int32(0)
                                )
 # SiStripMonitorTrack

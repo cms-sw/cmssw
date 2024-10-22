@@ -1,0 +1,12 @@
+import FWCore.ParameterSet.Config as cms
+
+from Configuration.ProcessModifiers.enableSonicTriton_cff import enableSonicTriton
+from Configuration.ProcessModifiers.particleNetSonicTriton_cff import particleNetSonicTriton
+from Configuration.ProcessModifiers.particleNetPTSonicTriton_cff import particleNetPTSonicTriton
+from Configuration.ProcessModifiers.deepMETSonicTriton_cff import deepMETSonicTriton
+from Configuration.ProcessModifiers.deepTauSonicTriton_cff import deepTauSonicTriton
+from Configuration.ProcessModifiers.particleTransformerAK4SonicTriton_cff import particleTransformerAK4SonicTriton
+
+# collect all SonicTriton-related process modifiers here
+allSonicTriton = cms.ModifierChain(enableSonicTriton,deepMETSonicTriton,particleNetSonicTriton,particleNetPTSonicTriton,deepTauSonicTriton,particleTransformerAK4SonicTriton)
+

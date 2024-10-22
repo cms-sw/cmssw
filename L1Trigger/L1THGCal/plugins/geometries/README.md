@@ -1,18 +1,15 @@
 Trigger geometries provide the following interfaces:
-* Mapping between HGCAL cells, trigger cells and trigger modules
-* Navigation between trigger cells
+* Mapping between HGCAL sensor cells, trigger cells, modules, lpGBTs and backend FPGAs
 
 The available HGCAL trigger geometries are the following:
-* `HGCalTriggerGeometryHexLayerBasedImp1` (DEFAULT)
-  - The trigger cell mapping is defined over a full layer and is not constrained by wafer boundaries
-* `HGCalTriggerGeometryHexImp2`
-  - The trigger cell mapping is defined within single wafers. Trigger cells are therefore constrained by the wafer boundaries
-  - The trigger cells in the BH section are not defined
-* `HGCalTriggerGeometryHexImp1` (DEPRECATED)
-  - The trigger cell mapping is defined over the full detector
-  - The trigger cells in the BH section are not defined
-  - The trigger cell neighbors are not defined (no navigation)
-* `HGCalTriggerGeometryImp1` (DEPRECATED)
-  - It is based on the old HGCAL square geometry
-  - The trigger cell mapping is defined over the full detector
-  - The trigger cell neighbors are not defined (no navigation)
+* `HGCalTriggerGeometryV9Imp3` (DEFAULT)
+  - Compatible with the HGCAL geometries >= V9
+  - All links mapping are available (elinks, lpGBT, BE links)
+  - Backend FPGA mappings are available
+  - Links and FPGA mappings are defined in external JSON files
+  - Mapping configs are available for 72 and 120 input links per Stage 1 FPGA.
+  - These mappings correspond to a PU-driven distribution of elinks; there is no configuration corresponding to signal-driven elink distribution at the moment.
+* `HGCalTriggerGeometryV9Imp2`
+  - Compatible with the HGCAL geometries >= V9
+  - No links mapping. Only the number of elinks per module/ECON-T is available. Both PU-driven and signal-driven elink distributions can be used.
+  - Backend FPGA mappings are not available

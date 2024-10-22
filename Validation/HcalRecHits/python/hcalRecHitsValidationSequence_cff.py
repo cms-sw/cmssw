@@ -13,6 +13,6 @@ hcalRecHitsValidationSequence = cms.Sequence(NoiseRatesValidation*RecHitsValidat
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(hcalRecHitsValidationSequence, hcalRecHitsValidationSequence.copyAndExclude([NoiseRatesValidation]))
 
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-_phase2_hcalRecHitsValidationSequence = hcalRecHitsValidationSequence.copyAndExclude([NoiseRatesValidation])
-phase2_hcal.toReplaceWith(hcalRecHitsValidationSequence, _phase2_hcalRecHitsValidationSequence)
+_run3_hcalRecHitsValidationSequence = hcalRecHitsValidationSequence.copyAndExclude([NoiseRatesValidation])
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+run3_HB.toReplaceWith(hcalRecHitsValidationSequence, _run3_hcalRecHitsValidationSequence)

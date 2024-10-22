@@ -1,0 +1,10 @@
+<use name="CepGen"/>
+<lib name="CepGenHepMC2"/>
+<use name="FWCore/Framework"/>
+<use name="GeneratorInterface/Core"/>
+<use name="clhep"/>
+<use name="hepmc"/>
+<flags CXXFLAGS="-Wno-error=missing-braces -Wno-missing-braces -Wno-non-virtual-dtor"/>
+<export>
+  <lib name="1"/>
+</export>

@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::one::EDProducer
-// 
+//
 /**\class edm::one::EDProducer EDProducer.h "FWCore/Framework/interface/one/EDProducer.h"
 
  Description: [one line class summary]
@@ -26,42 +26,61 @@
 // forward declarations
 namespace edm {
   namespace one {
-    template< typename... T>
-    class EDProducer : public virtual EDProducerBase,
-                       public producer::AbilityToImplementor<T>::Type... { 
+    template <typename... T>
+    class EDProducer : public virtual EDProducerBase, public producer::AbilityToImplementor<T>::Type... {
     public:
+      static_assert(not(CheckAbility<module::Abilities::kRunCache, T...>::kHasIt and
+                        CheckAbility<module::Abilities::kOneWatchRuns, T...>::kHasIt),
+                    "Cannot use both WatchRuns and RunCache");
+      static_assert(not(CheckAbility<module::Abilities::kLuminosityBlockCache, T...>::kHasIt and
+                        CheckAbility<module::Abilities::kOneWatchLuminosityBlocks, T...>::kHasIt),
+                    "Cannot use both WatchLuminosityBlocks and LuminosityBLockCache");
+
       EDProducer() = default;
+      EDProducer(const EDProducer&) = delete;
+      const EDProducer& operator=(const EDProducer&) = delete;
+
 #ifdef __INTEL_COMPILER
       virtual ~EDProducer() = default;
 #endif
       //
-      
+
       // ---------- const member functions ---------------------
-      bool wantsGlobalRuns() const final {
-        return WantsGlobalRunTransitions<T...>::value;
-      }
-      bool wantsGlobalLuminosityBlocks() const final {
+      bool wantsProcessBlocks() const noexcept final { return WantsProcessBlockTransitions<T...>::value; }
+      bool wantsInputProcessBlocks() const noexcept final { return WantsInputProcessBlockTransitions<T...>::value; }
+      bool wantsGlobalRuns() const noexcept final { return WantsGlobalRunTransitions<T...>::value; }
+      bool wantsGlobalLuminosityBlocks() const noexcept final {
         return WantsGlobalLuminosityBlockTransitions<T...>::value;
       }
 
-      SerialTaskQueue* globalRunsQueue() final { return globalRunsQueue_.queue();}
-      SerialTaskQueue* globalLuminosityBlocksQueue() final { return globalLuminosityBlocksQueue_.queue();}
+      bool hasAbilityToProduceInBeginProcessBlocks() const final {
+        return HasAbilityToProduceInBeginProcessBlocks<T...>::value;
+      }
+      bool hasAbilityToProduceInEndProcessBlocks() const final {
+        return HasAbilityToProduceInEndProcessBlocks<T...>::value;
+      }
+
+      bool hasAbilityToProduceInBeginRuns() const final { return HasAbilityToProduceInBeginRuns<T...>::value; }
+      bool hasAbilityToProduceInEndRuns() const final { return HasAbilityToProduceInEndRuns<T...>::value; }
+
+      bool hasAbilityToProduceInBeginLumis() const final { return HasAbilityToProduceInBeginLumis<T...>::value; }
+      bool hasAbilityToProduceInEndLumis() const final { return HasAbilityToProduceInEndLumis<T...>::value; }
+
+      SerialTaskQueue* globalRunsQueue() final { return globalRunsQueue_.queue(); }
+      SerialTaskQueue* globalLuminosityBlocksQueue() final { return globalLuminosityBlocksQueue_.queue(); }
 
       // ---------- static member functions --------------------
-      
-      // ---------- member functions ---------------------------
-      
-    private:
-      EDProducer(const EDProducer&) = delete;
-      const EDProducer& operator=(const EDProducer&) = delete;
-      
-      // ---------- member data --------------------------------
-      impl::OptionalSerialTaskQueueHolder<WantsGlobalRunTransitions<T...>::value> globalRunsQueue_;
-      impl::OptionalSerialTaskQueueHolder<WantsGlobalLuminosityBlockTransitions<T...>::value> globalLuminosityBlocksQueue_;
-    };
-    
-  }
-}
 
+      // ---------- member functions ---------------------------
+
+    private:
+      // ---------- member data --------------------------------
+      impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalRunTransitions<T...>::value> globalRunsQueue_;
+      impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalLuminosityBlockTransitions<T...>::value>
+          globalLuminosityBlocksQueue_;
+    };
+
+  }  // namespace one
+}  // namespace edm
 
 #endif

@@ -1,4 +1,9 @@
-<bin   name="TestDataFormatsHistogramsMEtoEDMFormat" file="metoedmformat_t.cc">
-  <use   name="cppunit"/>
-  <use   name="DataFormats/Histograms"/>
+<bin name="TestDataFormatsHistogramsMEtoEDMFormat" file="metoedmformat_t.cc">
+  <use name="cppunit"/>
+  <use name="DataFormats/Histograms"/>
+</bin>
+
+<bin name="TestDataFormatsHistogramsPath" file="MonitorElementData_Path_catch.cc">
+  <use name="catch2"/>
+  <use name="DataFormats/Histograms"/>
 </bin>

@@ -2,4 +2,3 @@
 #include "DetIdAssociatorFactory.h"
 
 EDM_REGISTER_PLUGINFACTORY(DetIdAssociatorFactory, "DetIdAssociatorFactory");
-

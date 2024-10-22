@@ -1,6 +1,0 @@
-<use   name="DataFormats/Common"/>
-<use   name="boost"/>
-
-<export>
-  <lib   name="1"/>
-</export>

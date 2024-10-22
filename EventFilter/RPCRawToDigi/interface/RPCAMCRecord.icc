@@ -1,0 +1,99 @@
+#ifndef EventFilter_RPCRawToDigi_RPCAMCRecord_icc
+#define EventFilter_RPCRawToDigi_RPCAMCRecord_icc
+
+#include "EventFilter/RPCRawToDigi/interface/RPCAMCRecord.h"
+
+namespace rpcamc {
+
+  inline void Header::set(unsigned int nword, std::uint64_t const word) {
+    if (nword < 2)
+      record_[nword] = word;
+  }
+
+  inline void Header::reset() {
+    record_[0] = 0x0;
+    record_[1] = 0x0;
+  }
+
+  inline std::uint64_t const* Header::getRecord() const { return record_; }
+
+  inline unsigned int Header::getAMCNumber() const { return (record_[0] & amc_number_mask_) >> amc_number_offset_; }
+
+  inline unsigned int Header::getEventCounter() const {
+    return (record_[0] & event_counter_mask_) >> event_counter_offset_;
+  }
+
+  inline unsigned int Header::getBXCounter() const { return (record_[0] & bx_counter_mask_) >> bx_counter_offset_; }
+
+  inline unsigned int Header::getDataLength() const { return (record_[0] & data_length_mask_) >> data_length_offset_; }
+
+  inline bool Header::hasDataLength() const { return ((record_[0] & data_length_mask_) != data_length_mask_); }
+
+  inline unsigned int Header::getOrbitCounter() const {
+    return (record_[1] & orbit_counter_mask_) >> orbit_counter_offset_;
+  }
+
+  inline unsigned int Header::getBoardId() const { return (record_[1] & board_id_mask_) >> board_id_offset_; }
+
+  inline void Header::setAMCNumber(unsigned int amc_number) {
+    record_[0] &= ~amc_number_mask_;
+    record_[0] |= (((std::uint64_t)(amc_number) << amc_number_offset_) & amc_number_mask_);
+  }
+
+  inline void Header::setEventCounter(unsigned int event_counter) {
+    record_[0] &= ~event_counter_mask_;
+    record_[0] |= (((std::uint64_t)(event_counter) << event_counter_offset_) & event_counter_mask_);
+  }
+
+  inline void Header::setBXCounter(unsigned int bx_counter) {
+    record_[0] &= ~bx_counter_mask_;
+    record_[0] |= (((std::uint64_t)(bx_counter) << bx_counter_offset_) & bx_counter_mask_);
+  }
+
+  inline void Header::setDataLength(unsigned int data_length) {
+    record_[0] &= ~data_length_mask_;
+    record_[0] |= (((std::uint64_t)(data_length) << data_length_offset_) & data_length_mask_);
+  }
+
+  inline void Header::setOrbitCounter(unsigned int orbit_counter) {
+    record_[1] &= ~orbit_counter_mask_;
+    record_[1] |= (((std::uint64_t)(orbit_counter) << orbit_counter_offset_) & orbit_counter_mask_);
+  }
+
+  inline void Header::setBoardId(unsigned int board_id) {
+    record_[1] &= ~board_id_mask_;
+    record_[1] |= (((std::uint64_t)(board_id) << board_id_offset_) & board_id_mask_);
+  }
+
+  inline void Trailer::set(std::uint64_t const record) { record_ = record; }
+
+  inline void Trailer::reset() { record_ = 0x0; }
+
+  inline std::uint64_t const& Trailer::getRecord() const { return record_; }
+
+  inline std::uint32_t Trailer::getCRC() const { return (record_ & crc_mask_) >> crc_offset_; }
+
+  inline unsigned int Trailer::getEventCounter() const {
+    return (record_ & event_counter_mask_) >> event_counter_offset_;
+  }
+
+  inline unsigned int Trailer::getDataLength() const { return (record_ & data_length_mask_) >> data_length_offset_; }
+
+  inline void Trailer::setCRC(std::uint32_t crc) {
+    record_ &= ~crc_mask_;
+    record_ |= (((std::uint64_t)(crc) << crc_offset_) & crc_mask_);
+  }
+
+  inline void Trailer::setEventCounter(unsigned int event_counter) {
+    record_ &= ~event_counter_mask_;
+    record_ |= (((std::uint64_t)(event_counter) << event_counter_offset_) & event_counter_mask_);
+  }
+
+  inline void Trailer::setDataLength(unsigned int data_length) {
+    record_ &= ~data_length_mask_;
+    record_ |= (((std::uint64_t)(data_length) << data_length_offset_) & data_length_mask_);
+  }
+
+}  // namespace rpcamc
+
+#endif  // EventFilter_RPCRawToDigi_RPCAMCRecord_icc

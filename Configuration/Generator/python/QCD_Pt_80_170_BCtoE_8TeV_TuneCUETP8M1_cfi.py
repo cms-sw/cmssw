@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 
-generator = cms.EDFilter("Pythia8GeneratorFilter",
+generator = cms.EDFilter("Pythia8ConcurrentGeneratorFilter",
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
                          maxEventsToPrint = cms.untracked.int32(0),
                          pythiaPylistVerbosity = cms.untracked.int32(1),
@@ -32,7 +32,8 @@ genParticlesForFilter = cms.EDProducer("GenParticleProducer",
                                        )
 
 bctoefilter = cms.EDFilter("BCToEFilter",
-                           filterAlgoPSet = cms.PSet(eTThreshold = cms.double(1),
+                           filterAlgoPSet = cms.PSet(maxAbsEta = cms.double(2.5),
+                                                     eTThreshold = cms.double(1),
                                                      genParSource = cms.InputTag("genParticlesForFilter")
                                                      )
                            )

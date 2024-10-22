@@ -1,0 +1,13 @@
+import FWCore.ParameterSet.Config as cms
+
+commonParameters = cms.PSet(
+                HepMCProductLabel = cms.InputTag('generatorSmeared'),
+                Verbosity = cms.bool(False),
+                EtaCut     = cms.double(8.2),
+                useBeamPositionFromLHCInfo=cms.bool(False), # if False, it will be taken from the BeamSpotObjectsRcd
+                produceHitsRelativeToBeam = cms.bool(True),
+                MomentumCut= cms.double(3000),
+                PPSRegionStart_45 = cms.double(203),
+                PPSRegionStart_56 = cms.double(203)
+)
+

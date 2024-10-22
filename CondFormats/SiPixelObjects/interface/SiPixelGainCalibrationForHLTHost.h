@@ -1,0 +1,9 @@
+#ifndef CondFormats_SiPixelObjects_SiPixelGainCalibrationForHLTHost_h
+#define CondFormats_SiPixelObjects_SiPixelGainCalibrationForHLTHost_h
+
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLTLayout.h"
+
+using SiPixelGainCalibrationForHLTHost = PortableHostCollection<SiPixelGainCalibrationForHLTSoA>;
+
+#endif  // CondFormats_SiPixelObjects_SiPixelGainCalibrationForHLTHost_h

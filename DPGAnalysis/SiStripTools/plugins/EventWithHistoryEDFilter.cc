@@ -17,14 +17,13 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 #include <vector>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -41,21 +40,17 @@
 // class declaration
 //
 
-class EventWithHistoryEDFilter : public edm::EDFilter {
+class EventWithHistoryEDFilter : public edm::global::EDFilter<> {
 public:
   explicit EventWithHistoryEDFilter(const edm::ParameterSet&);
-  ~EventWithHistoryEDFilter() override;
 
 private:
-
-  void beginJob() override ;
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  bool filter(edm::StreamID streamId, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 
-  std::vector<EventWithHistoryFilter> _ehfilters;
-  bool _debu;
+  std::vector<EventWithHistoryFilter> ehfilters_;
+  const bool debu_;
 };
 
 //
@@ -69,70 +64,36 @@ private:
 //
 // constructors and destructor
 //
-EventWithHistoryEDFilter::EventWithHistoryEDFilter(const edm::ParameterSet& iConfig):
-  _ehfilters(),
-  _debu(iConfig.getUntrackedParameter<bool>("debugPrint",false))
-{
-   //now do what ever initialization is needed
+EventWithHistoryEDFilter::EventWithHistoryEDFilter(const edm::ParameterSet& iConfig)
+    : ehfilters_(), debu_(iConfig.getUntrackedParameter<bool>("debugPrint", false)) {
+  //now do what ever initialization is needed
 
-  std::vector<edm::ParameterSet> filterconfigs(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >
-					       ("filterConfigurations",std::vector<edm::ParameterSet>()));
+  std::vector<edm::ParameterSet> filterconfigs(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >(
+      "filterConfigurations", std::vector<edm::ParameterSet>()));
 
-  for(std::vector<edm::ParameterSet>::iterator ps=filterconfigs.begin();
-      ps!=filterconfigs.end();++ps) {
+  for (auto& ps : filterconfigs) {
+    ps.augment(iConfig.getUntrackedParameter<edm::ParameterSet>("commonConfiguration", edm::ParameterSet()));
 
-    ps->augment(iConfig.getUntrackedParameter<edm::ParameterSet>("commonConfiguration",edm::ParameterSet()));
-
-    const EventWithHistoryFilter filter(*ps, consumesCollector());
-    _ehfilters.push_back(filter);
-
+    ehfilters_.emplace_back(ps, consumesCollector());
   }
-
-
 }
-
-
-EventWithHistoryEDFilter::~EventWithHistoryEDFilter()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-EventWithHistoryEDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
+bool EventWithHistoryEDFilter::filter(edm::StreamID streamId, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   bool selected = false;
 
-  for(std::vector<EventWithHistoryFilter>::const_iterator filter=_ehfilters.begin();
-      filter!=_ehfilters.end();++filter) {
-
-    selected = selected || filter->selected(iEvent,iSetup);
-
+  for (const auto& filter : ehfilters_) {
+    selected = selected || filter.selected(iEvent, iSetup);
   }
 
-  if(_debu && selected ) edm::LogInfo("SELECTED") << "selected event";
+  if (debu_ && selected)
+    edm::LogInfo("SELECTED") << "selected event";
 
   return selected;
-
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-EventWithHistoryEDFilter::beginJob()
-{}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-EventWithHistoryEDFilter::endJob() {
 }
 
 //define this as a plug-in

@@ -29,15 +29,12 @@
 
 #include <string>
 
-class PFchsMETcorrInputProducer : public edm::stream::EDProducer<>  
-{
- public:
-
+class PFchsMETcorrInputProducer : public edm::stream::EDProducer<> {
+public:
   explicit PFchsMETcorrInputProducer(const edm::ParameterSet&);
   ~PFchsMETcorrInputProducer() override;
-    
- private:
 
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleLabel_;
@@ -46,12 +43,6 @@ class PFchsMETcorrInputProducer : public edm::stream::EDProducer<>
 
   unsigned goodVtxNdof_;
   double goodVtxZ_;
- 
-
 };
 
 #endif
-
-
- 
-

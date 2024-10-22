@@ -20,7 +20,7 @@ process.Timing = cms.Service("Timing"
 
 # source
 readFiles = cms.untracked.vstring()
-secFiles = cms.untracked.vstring() 
+secFiles = cms.untracked.vstring()
 source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V1-v3/00000/067739D0-AFAB-E411-AC03-0025905A48D0.root'
@@ -79,8 +79,8 @@ process.source = source
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(400) )
 
 ### conditions
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 ### standard includes
@@ -96,6 +96,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 ### validation-specific includes
 #process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
@@ -164,6 +165,3 @@ process.options = cms.untracked.PSet(
     numberOfStreams = cms.untracked.uint32(8),
     wantSummary = cms.untracked.bool(True)
 )
-
-
-

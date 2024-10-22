@@ -4,7 +4,7 @@
 //
 // Package:     TrackingTools/PatternTools
 // Class  :     trackingParametersAtClosestApproachToBeamSpot
-// 
+//
 /**\function trackingParametersAtClosestApproachToBeamSpot "TrackingTools/PatternTools/interface/trackingParametersAtClosestApproachToBeamSpot.h"
 
  Description: Given the momentum and origin of a particle, calculate the tracking parameters at its closest approach to the beam spot
@@ -20,7 +20,7 @@
 // system include files
 
 // user include files
-#include "MagneticField/Engine/interface/MagneticField.h" 
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -28,12 +28,12 @@
 // forward declarations
 
 namespace reco {
-  std::pair<bool,reco::TrackBase::ParameterVector> 
-    trackingParametersAtClosestApproachToBeamSpot(const Basic3DVector<double>& vertex,
-                                                  const Basic3DVector<double>& momAtVtx,
-                                                  float charge,
-                                                  const MagneticField& magField,
-                                                  const BeamSpot& bs);
+  std::pair<bool, reco::TrackBase::ParameterVector> trackingParametersAtClosestApproachToBeamSpot(
+      const Basic3DVector<double>& vertex,
+      const Basic3DVector<double>& momAtVtx,
+      float charge,
+      const MagneticField& magField,
+      const BeamSpot& bs);
 }
 
 #endif

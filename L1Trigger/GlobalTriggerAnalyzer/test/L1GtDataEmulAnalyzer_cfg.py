@@ -114,7 +114,7 @@ process.PoolSource.fileNames = ['/store/data/2008/5/20/T0ReReco-GlobalCruzet1-A-
 # load and configure modules
 
 process.load("Configuration.StandardSequences.FakeConditions_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.load("L1Trigger.Configuration.L1Config_cff")
 
@@ -194,9 +194,10 @@ process.p = cms.Path(process.l1GtEmulDigis*process.l1GtDataEmulAnalyzer*process.
 
 # Message Logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories = ['*']
-process.MessageLogger.destinations = ['cout']
+
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
     threshold = cms.untracked.string('INFO'),
     INFO = cms.untracked.PSet(
         #limit = cms.untracked.int32(-1)

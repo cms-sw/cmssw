@@ -23,9 +23,9 @@ namespace edm {
   class TimeoutPoolOutputModule : public PoolOutputModule {
   public:
     explicit TimeoutPoolOutputModule(ParameterSet const& ps);
-    ~TimeoutPoolOutputModule() override{};
-    TimeoutPoolOutputModule(TimeoutPoolOutputModule const&) = delete; // Disallow copying and moving
-    TimeoutPoolOutputModule& operator=(TimeoutPoolOutputModule const&) = delete; // Disallow copying and moving
+    ~TimeoutPoolOutputModule() override {}
+    TimeoutPoolOutputModule(TimeoutPoolOutputModule const&) = delete;             // Disallow copying and moving
+    TimeoutPoolOutputModule& operator=(TimeoutPoolOutputModule const&) = delete;  // Disallow copying and moving
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -36,8 +36,8 @@ namespace edm {
   private:
     mutable time_t m_lastEvent;
     mutable unsigned int eventsWrittenInCurrentFile;
-    mutable int    m_timeout;
+    mutable int m_timeout;
   };
-}
+}  // namespace edm
 
 #endif

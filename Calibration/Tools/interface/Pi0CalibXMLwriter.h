@@ -8,22 +8,18 @@
 #include <iostream>
 
 class Pi0CalibXMLwriter {
-
-
 public:
+  Pi0CalibXMLwriter(EcalSubdetector = EcalBarrel);
+  Pi0CalibXMLwriter(EcalSubdetector = EcalBarrel, int = 0);
+  ~Pi0CalibXMLwriter();
 
-Pi0CalibXMLwriter(EcalSubdetector=EcalBarrel);
-Pi0CalibXMLwriter(EcalSubdetector=EcalBarrel, int=0);
-~Pi0CalibXMLwriter();
-
-void writeLine(EBDetId const &, float);
-void writeLine(EEDetId const &, float);
-
+  void writeLine(EBDetId const &, float);
+  void writeLine(EEDetId const &, float);
 
 private:
- EcalSubdetector subdet_;
- int loop_;
- FILE* FILENAME;
+  EcalSubdetector subdet_;
+  int loop_;
+  FILE *FILENAME;
 };
 
 #endif

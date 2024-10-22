@@ -4,12 +4,15 @@ process = cms.Process("CaloTest")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+process.load('Configuration.StandardSequences.Generator_cff')
 
 #Magnetic Field 		
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #Geometry
 process.load("Validation.HcalHits.testGeometryPMTXML_cfi")
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
+process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
 
 # Calo geometry service model
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
@@ -21,15 +24,23 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("Validation.HcalHits.HcalHitValidation_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HFShower', 
-        'HcalSim', 
-        'CaloSim', 
-        'G4cout', 
-        'G4cerr', 
-        'ValidHcal'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        CaloSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
         G4cerr = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        G4cout = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HFShower = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         ValidHcal = cms.untracked.PSet(
@@ -38,31 +49,16 @@ process.MessageLogger = cms.Service("MessageLogger",
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
+        enable = cms.untracked.bool(True)
     )
 )
 
 process.Timing = cms.Service("Timing")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
+process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
@@ -90,7 +86,6 @@ process.USER = cms.OutputModule("PoolOutputModule",
 )
 
 process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0)
 )
 
@@ -101,13 +96,14 @@ process.DQM = cms.Service("DQM",
     collectorHost = cms.untracked.string('')
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.hcalHitValid)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.hcalHitValid)
 process.outpath = cms.EndPath(process.USER)
 process.VtxSmeared.SigmaX = 0.00001
 process.VtxSmeared.SigmaY = 0.00001
 process.VtxSmeared.SigmaZ = 0.00001
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_EMV'
+process.g4SimHits.OnlySDs = ['EcalSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector']
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
 process.g4SimHits.HCalSD.UseParametrize = True
 process.g4SimHits.HCalSD.UsePMTHits = True
 process.g4SimHits.HCalSD.BetaThreshold = 0.70
@@ -137,5 +133,4 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('SimG4HcalValidation')
 ))
 process.hcalHitValid.outputFile = '100_pi_bs_plots.root'
-
 

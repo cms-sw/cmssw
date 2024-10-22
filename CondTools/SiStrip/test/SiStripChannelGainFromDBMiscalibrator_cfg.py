@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
@@ -8,7 +9,7 @@ process = cms.Process("Demo")
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                  "92X_dataRun2_Prompt_v8",
+                  "auto:run2_data",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
@@ -26,23 +27,29 @@ options.parseArguments()
 ## MessageLogger
 ##
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-process.MessageLogger.categories.append("SmearSiStripChannelGainFromDB")  
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.SiStripChannelGainFromDBMiscalibrator=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
+    enableStatistics = cms.untracked.bool(True),
     threshold = cms.untracked.string("WARNING"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
                                    reportEvery = cms.untracked.int32(1000)
                                    ),                                                      
-    SmearSiStripChannelGainFromDB  = cms.untracked.PSet( limit = cms.untracked.int32(-1))
+    SiStripChannelGainFromDBMiscalibrator  = cms.untracked.PSet( limit = cms.untracked.int32(-1))
     )
-process.MessageLogger.statistics.append('cout') 
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff") # Ideal geometry and interface 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag,options.globalTag, '')
 
+print("Using Global Tag:", process.GlobalTag.globaltag._value)
+
+##
+## Empty Source
+##
 process.source = cms.Source("EmptySource",
                             firstRun = cms.untracked.uint32(options.runNumber),
                             numberEventsInRun = cms.untracked.uint32(1),
@@ -58,7 +65,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 ##
 ## separately partition by partition
 ##
-byParition = cms.VPSet(
+byPartition = cms.VPSet(
     cms.PSet(partition = cms.string("TIB"),
              doScale   = cms.bool(True),
              doSmear   = cms.bool(True),
@@ -134,7 +141,8 @@ subsets =  cms.VPSet(
 # process.demo = cms.EDAnalyzer('SiStripChannelGainFromDBMiscalibrator',
 #                               record = cms.untracked.string("SiStripApvGainRcd"),
 #                               gainType = cms.untracked.uint32(1), #0 for G1, 1 for G2
-#                               params = subsets # as a cms.VPset
+#                               params = subsets, # as a cms.VPset
+#                               saveMaps = cms.bool(True)      
 #                               )
 
 process.load("CondTools.SiStrip.scaleAndSmearSiStripGains_cfi")
@@ -142,21 +150,20 @@ process.scaleAndSmearSiStripGains.gainType = 1        # 0 for G1, 1 for G2
 process.scaleAndSmearSiStripGains.params   = subsets  # as a cms.VPset
 
 ##
-## Database output service
-##
-process.load("CondCore.CondDB.CondDB_cfi")
-
-##
 ## Output database (in this case local sqlite file)
 ##
-process.CondDB.connect = 'sqlite_file:modifiedGains_'+options.globalTag+'_IOV_'+str(options.runNumber)+".db"
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                          process.CondDB,
-                                          timetype = cms.untracked.string('runnumber'),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('SiStripApvGainRcd'),
-                                                                     tag = cms.string('modifiedGains')
-                                                                     )
-                                                            )
-                                          )
+    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+    DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(3),
+        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+    ),
+    timetype = cms.untracked.string('runnumber'),
+    connect = cms.string('sqlite_file:modifiedSiStripGains_%s_IOV_%s.db' % ( process.GlobalTag.globaltag._value, str(options.runNumber))),
+    toPut = cms.VPSet(cms.PSet(
+        record = cms.string('SiStripApvGainRcd'),
+        tag = cms.string('modifiedGains')
+    ))
+)
 
 process.p = cms.Path(process.scaleAndSmearSiStripGains)

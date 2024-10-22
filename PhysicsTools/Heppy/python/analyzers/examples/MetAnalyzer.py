@@ -1,12 +1,13 @@
+from __future__ import print_function
 import copy
 from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
 import random
 
 def pv(vc):
-    print 'x = {x:5.4f},  y = {y:5.4f},  z = {z:5.4f}'.format(x=vc.X(),
+    print('x = {x:5.4f},  y = {y:5.4f},  z = {z:5.4f}'.format(x=vc.X(),
                                                               y=vc.Y(),
-                                                              z=vc.Z())
+                                                              z=vc.Z()))
 
 class MetAnalyzer( Analyzer ):
     '''Analyze MET in Z+jet events.
@@ -63,15 +64,15 @@ class MetAnalyzer( Analyzer ):
         event.u2 = u2
         
         if self.cfg_ana.verbose:
-            print 'met', met.pt()
-            print 'diL', diL
-            print 'vVect'
+            print('met', met.pt())
+            print('diL', diL)
+            print('vVect')
             pv(vVect)
-            print 'uvVect'
+            print('uvVect')
             pv(uvVect)
-            print 'uvVectPerp'
+            print('uvVectPerp')
             pv(uvVectPerp)
-            print u1, u2
+            print(u1, u2)
         
         return True
 

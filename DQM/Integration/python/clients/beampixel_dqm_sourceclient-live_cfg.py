@@ -1,16 +1,31 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("BeamPixel", eras.Run2_2017)
+import sys
+if 'runkey=hi_run' in sys.argv:
+  from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
+  process = cms.Process("BeamPixel", Run3_pp_on_PbPb_approxSiStripClusters)
+else:
+  from Configuration.Eras.Era_Run3_cff import Run3
+  process = cms.Process("BeamPixel", Run3)
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest = True
 
 
 #----------------------------
 # Common for PP and HI running
 #----------------------------
+if unitTest == True:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
+else:
+    process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 # Use this to run locally (for testing purposes)
 #process.load("DQM.Integration.config.fileinputsource_cfi")
-# Otherwise use this
-process.load("DQM.Integration.config.inputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 
 #----------------------------
@@ -26,7 +41,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter", SelectedTrig
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "BeamPixel"
 process.dqmSaver.tag = "BeamPixel"
-
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'BeamPixel'
+process.dqmSaverPB.runNumber = options.runNumber
 
 #----------------------------
 # Conditions
@@ -34,7 +51,7 @@ process.dqmSaver.tag = "BeamPixel"
 # Use this to run locally (for testing purposes), choose the right GT
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run2_data", "")
+#process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run3_data", "")
 # Otherwise use this
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
@@ -50,7 +67,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 #----------------------------
 # Define Sequences
 #----------------------------
-process.dqmModules  = cms.Sequence(process.dqmEnv + process.dqmSaver)
+process.dqmModules  = cms.Sequence(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
 process.physTrigger = cms.Sequence(process.hltTriggerTypeFilter)
 
 
@@ -59,37 +76,64 @@ process.physTrigger = cms.Sequence(process.hltTriggerTypeFilter)
 #----------------------------
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
-
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
+
 #----------------------------
-# Proton-Proton Specific Part
+# Tracking General Configuration
+#----------------------------
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+
+
+#----------------------------
+# Pixel-Tracks&Vertices Config
+#----------------------------
+from RecoTracker.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
+process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
+process.load("RecoVertex.Configuration.RecoPixelVertexing_cff")
+from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
+process.pixelVertices = pixelVertices.clone(
+    TkFilterParameters = dict(
+	minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin)
+)
+process.pixelTracksTrackingRegions.RegionPSet.originRadius     = 0.4
+process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 15.
+process.pixelTracksTrackingRegions.RegionPSet.originXPos       = 0.08
+process.pixelTracksTrackingRegions.RegionPSet.originYPos       = -0.03
+process.pixelTracksTrackingRegions.RegionPSet.originZPos       = 0.
+
+
+#----------------------------
+# Proton-Proton Specific Section
 #----------------------------
 if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1 or 
     process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
-    process.runType.getRunType() == process.runType.hpu_run):
-    print "[beampixel_dqm_sourceclient-live_cfg]::running pp"
-
-    process.castorDigis.InputLabel           = cms.InputTag("rawDataCollector")
-    process.csctfDigis.producer              = cms.InputTag("rawDataCollector")
-    process.dttfDigis.DTTF_FED_Source        = cms.InputTag("rawDataCollector")
-    process.ecalDigis.InputLabel             = cms.InputTag("rawDataCollector")
-    process.ecalPreshowerDigis.sourceTag     = cms.InputTag("rawDataCollector")
-    process.gctDigis.inputLabel              = cms.InputTag("rawDataCollector")
-    process.gtDigis.DaqGtInputTag            = cms.InputTag("rawDataCollector")
-    process.hcalDigis.InputLabel             = cms.InputTag("rawDataCollector")
-    process.muonCSCDigis.InputObjects        = cms.InputTag("rawDataCollector")
-    process.muonDTDigis.inputLabel           = cms.InputTag("rawDataCollector")
-    process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataCollector")
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataCollector")
-    process.siStripDigis.ProductLabel        = cms.InputTag("rawDataCollector")
-
-    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
-    process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
-    process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+    process.runType.getRunType() == process.runType.hpu_run or process.runType.getRunType() == process.runType.commissioning_run ):
+    print("[beampixel_dqm_sourceclient-live_cfg]::running pp")
 
 
+    #----------------------------
+    # Tracking Configuration
+    #----------------------------
+    process.castorDigis.InputLabel           = "rawDataCollector"
+    process.csctfDigis.producer              = "rawDataCollector"
+    process.dttfDigis.DTTF_FED_Source        = "rawDataCollector"
+    process.ecalDigisCPU.InputLabel          = "rawDataCollector"
+    process.ecalPreshowerDigis.sourceTag     = "rawDataCollector"
+    process.gctDigis.inputLabel              = "rawDataCollector"
+    process.gtDigis.DaqGtInputTag            = "rawDataCollector"
+    process.hcalDigis.InputLabel             = "rawDataCollector"
+    process.muonCSCDigis.InputObjects        = "rawDataCollector"
+    process.muonDTDigis.inputLabel           = "rawDataCollector"
+    process.muonRPCDigis.InputLabel          = "rawDataCollector"
+    process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
+    process.siPixelDigis.cpu.InputLabel      = "rawDataCollector"
+    process.siStripDigis.ProductLabel        = "rawDataCollector"
+
+    
     #----------------------------
     # pixelVertexDQM Config
     #----------------------------
@@ -111,86 +155,43 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
                                             zStep              = cms.double(0.04),
-                                            VxErrCorr          = cms.double(1.2), # Keep checking this with later release
+                                            VxErrCorr          = cms.double(1.0), # Was 1.2, changed to 1.0 in Run3 13.6 TeV collisions - Keep checking this with later release
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))
-    if process.dqmRunConfig.type.value() is "production":
-        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
-    else:
-        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
-    print "[beampixel_dqm_sourceclient-live_cfg]::saving DIP file into " + str(process.pixelVertexDQM.fileName)
-
-
-    #----------------------------
-    # Pixel-Tracks&Vertices Config
-    #----------------------------
-    from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
-    process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
-    process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
-    process.load("RecoPixelVertexing.PixelTrackFitting.PixelTracks_2017_cff")
-    process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
-    process.recopixelvertexing = cms.Sequence(process.pixelTracksSequence + process.pixelVertices)
-    process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
-    process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
-    process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 6
-    process.pixelTracksTrackingRegions.RegionPSet.originXPos = 0.08
-    process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
-    process.pixelTracksTrackingRegions.RegionPSet.originZPos = 1
-
-
-    #----------------------------
-    # Pixel-Tracks&Vertices Reco
-    #----------------------------
-    process.reconstructionStep = cms.Sequence(process.siPixelDigis*
-                                              process.siStripDigis*
-                                              process.striptrackerlocalreco*
-                                              process.offlineBeamSpot*
-                                              process.siPixelClustersPreSplitting*
-                                              process.siPixelRecHitsPreSplitting*
-                                              process.siPixelClusterShapeCachePreSplitting*
-                                              process.recopixelvertexing)
-
-
-    #----------------------------
-    # Define Path
-    #----------------------------
-    process.p = cms.Path(process.scalersRawToDigi*process.physTrigger*process.reconstructionStep*process.pixelVertexDQM*process.dqmModules)
-
-
 
 
 #----------------------------
-# Heavy Ion Specific Part
+# Heavy Ion Specific Section
 #----------------------------
 if (process.runType.getRunType() == process.runType.hi_run):
-    print "[beampixel_dqm_sourceclient-live_cfg]::running HI"
+    print("[beampixel_dqm_sourceclient-live_cfg]::running HI")
 
-    process.castorDigis.InputLabel           = cms.InputTag("rawDataRepacker")
-    process.csctfDigis.producer              = cms.InputTag("rawDataRepacker")
-    process.dttfDigis.DTTF_FED_Source        = cms.InputTag("rawDataRepacker")
-    process.ecalDigis.InputLabel             = cms.InputTag("rawDataRepacker")
-    process.ecalPreshowerDigis.sourceTag     = cms.InputTag("rawDataRepacker")
-    process.gctDigis.inputLabel              = cms.InputTag("rawDataRepacker")
-    process.gtDigis.DaqGtInputTag            = cms.InputTag("rawDataRepacker")
-    process.hcalDigis.InputLabel             = cms.InputTag("rawDataRepacker")
-    process.muonCSCDigis.InputObjects        = cms.InputTag("rawDataRepacker")
-    process.muonDTDigis.inputLabel           = cms.InputTag("rawDataRepacker")
-    process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataRepacker")
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataRepacker")
-    process.siStripDigis.ProductLabel        = cms.InputTag("rawDataRepacker")
 
-    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
-    process.load("Configuration.StandardSequences.ReconstructionHeavyIons_cff")
-    process.load("RecoLocalTracker.Configuration.RecoLocalTrackerHeavyIons_cff")
+    #----------------------------
+    # Tracking Configuration
+    #----------------------------
+    process.castorDigis.InputLabel           = "rawDataRepacker"
+    process.csctfDigis.producer              = "rawDataRepacker"
+    process.dttfDigis.DTTF_FED_Source        = "rawDataRepacker"
+    process.ecalDigisCPU.InputLabel          = "rawDataRepacker"
+    process.ecalPreshowerDigis.sourceTag     = "rawDataRepacker"
+    process.gctDigis.inputLabel              = "rawDataRepacker"
+    process.gtDigis.DaqGtInputTag            = "rawDataRepacker"
+    process.hcalDigis.InputLabel             = "rawDataRepacker"
+    process.muonCSCDigis.InputObjects        = "rawDataRepacker"
+    process.muonDTDigis.inputLabel           = "rawDataRepacker"
+    process.muonRPCDigis.InputLabel          = "rawDataRepacker"
+    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
+    process.siPixelDigis.cpu.InputLabel      = "rawDataRepacker"
+    process.siStripDigis.ProductLabel        = "rawDataRepacker"
 
 
     #----------------------------
     # pixelVertexDQM Config
     #----------------------------
     process.pixelVertexDQM = DQMEDAnalyzer('Vx3DHLTAnalyzer',
-                                            vertexCollection   = cms.untracked.InputTag("hiSelectedVertexPreSplitting"),
+                                            vertexCollection   = cms.untracked.InputTag("pixelVertices"),
                                             pixelHitCollection = cms.untracked.InputTag("siPixelRecHitsPreSplitting"),
                                             debugMode          = cms.bool(True),
                                             nLumiFit           = cms.uint32(5),
@@ -207,61 +208,36 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
                                             zStep              = cms.double(0.04),
-                                            VxErrCorr          = cms.double(1.2), # Keep checking this with later release
+                                            VxErrCorr          = cms.double(1.0), # Was 1.2, changed to 1.0 in Run3 13.6 TeV collisions - Keep checking this with later release
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))
-    if process.dqmRunConfig.type.value() is "production":
-        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
-    else:
-        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
-    print "[beampixel_dqm_sourceclient-live_cfg]::saving DIP file into " + str(process.pixelVertexDQM.fileName)
 
 
-    #----------------------------
-    # Pixel-Tracks&Vertices Config
-    #----------------------------
-    from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
-    from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
-    siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
-
-    from RecoHI.HiTracking.HIPixelVerticesPreSplitting_cff import *
-    process.PixelLayerTriplets.BPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
-    process.PixelLayerTriplets.FPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
-
-    process.hiPixel3PrimTracksFilter = process.hiFilter.clone(VertexCollection     = cms.InputTag("hiSelectedVertexPreSplitting"),
-                                                              clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting"))
-    process.hiPixel3PrimTracks.Filter                    = cms.InputTag("hiPixel3PrimTracksFilter")
-    process.hiPixel3PrimTracks.ComponentName             = cms.string("GlobalTrackingRegionWithVerticesProducer")
-    process.hiPixel3PrimTracks.VertexCollection          = cms.InputTag("hiSelectedVertexPreSplitting")
-    process.hiPixel3PrimTracks.ptMin                     = cms.double(0.9)
-    process.hiPixel3PrimTracks.clusterShapeCacheSrc      = cms.InputTag("siPixelClusterShapeCachePreSplitting")
-    process.hiPixel3ProtoTracksPreSplitting.originRadius = cms.double(0.4)
-    process.hiPixelAdaptiveVertexPreSplitting.vertexCollections.useBeamConstraint = cms.bool(False)
-
-    process.hiPixel3ProtoTracksPreSplitting.RegionFactoryPSet.RegionPSet.originRadius = 0.2   # default 0.2
-    process.hiPixel3ProtoTracksPreSplitting.RegionFactoryPSet.RegionPSet.fixedError   = 0.5   # default 3.0
-    process.hiSelectedProtoTracksPreSplitting.maxD0Significance                       = 100   # default 5.0
-    process.hiPixelAdaptiveVertexPreSplitting.TkFilterParameters.maxD0Significance    = 100   # default 3.0
-    process.hiPixelAdaptiveVertexPreSplitting.vertexCollections.useBeamConstraint     = False # default False
-    process.hiPixelAdaptiveVertexPreSplitting.vertexCollections.maxDistanceToBeam     = 1.0   # default 0.1
+#----------------------------
+# File to save beamspot info
+#----------------------------
+if process.dqmRunConfig.type.value() == "production":
+    process.pixelVertexDQM.fileName = "/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt"
+else:
+    process.pixelVertexDQM.fileName = "/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"
+print("[beampixel_dqm_sourceclient-live_cfg]::saving DIP file into " + str(process.pixelVertexDQM.fileName))
 
 
-    #----------------------------
-    # Pixel-Tracks&Vertices Reco
-    #----------------------------
-    process.reconstructionStep = cms.Sequence(process.siPixelDigis*
-                                              process.offlineBeamSpot*
-                                              process.pixeltrackerlocalreco*
-                                              process.siPixelClusterShapeCachePreSplitting*
-                                              process.hiPixelVerticesPreSplitting*
-                                              process.PixelLayerTriplets*
-                                              process.pixelFitterByHelixProjections*
-                                              process.hiPixel3PrimTracksFilter*
-                                              process.hiPixel3PrimTracks)
+#----------------------------
+# Pixel-Tracks&Vertices Reco
+#----------------------------
+process.reconstructionStep = cms.Sequence(process.siPixelDigis*
+                                          process.siStripDigis*
+                                          process.striptrackerlocalreco*
+                                          process.offlineBeamSpot*
+                                          process.siPixelClustersPreSplitting*
+                                          process.siPixelRecHitsPreSplitting*
+                                          process.siPixelClusterShapeCachePreSplitting*
+                                          process.recopixelvertexing)
 
 
-    #----------------------------
-    # Define Path
-    #----------------------------
-    process.p = cms.Path(process.scalersRawToDigi*process.physTrigger*process.reconstructionStep*process.pixelVertexDQM*process.dqmModules)
+#----------------------------
+# Define Path
+#----------------------------
+process.p = cms.Path(process.scalersRawToDigi*process.physTrigger*process.reconstructionStep*process.pixelVertexDQM*process.dqmModules)

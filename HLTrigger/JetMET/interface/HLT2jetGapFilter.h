@@ -10,7 +10,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 //
@@ -18,19 +18,20 @@ namespace edm {
 //
 
 class HLT2jetGapFilter : public HLTFilter {
+public:
+  explicit HLT2jetGapFilter(const edm::ParameterSet&);
+  ~HLT2jetGapFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-   public:
-      explicit HLT2jetGapFilter(const edm::ParameterSet&);
-      ~HLT2jetGapFilter() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+private:
+  edm::EDGetTokenT<reco::CaloJetCollection> m_theCaloJetToken;
 
-   private:
-      edm::EDGetTokenT<reco::CaloJetCollection> m_theCaloJetToken;
-
-      edm::InputTag inputTag_; // input tag identifying jets
-      double minEt_;
-      double minEta_;
+  edm::InputTag inputTag_;  // input tag identifying jets
+  double minEt_;
+  double minEta_;
 };
 
-#endif //HLT2jetGapFilter_h
+#endif  //HLT2jetGapFilter_h

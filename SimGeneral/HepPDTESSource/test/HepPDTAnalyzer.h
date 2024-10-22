@@ -5,8 +5,9 @@
 //
 // Package:    HepPDTAnalyzer
 // Class:      HepPDTAnalyzer
-// 
-/**\class HepPDTAnalyzer HepPDTAnalyzer.cc test/HepPDTAnalyzer/src/HepPDTAnalyzer.cc
+//
+/**\class HepPDTAnalyzer HepPDTAnalyzer.cc
+ test/HepPDTAnalyzer/src/HepPDTAnalyzer.cc
 
  Description: <one line class summary>
 
@@ -19,32 +20,33 @@
 //
 //
 
-#include <memory>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <memory>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 namespace edm {
   class ParameterSet;
 }
 
-class HepPDTAnalyzer : public edm::EDAnalyzer {
+class HepPDTAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit HepPDTAnalyzer( const edm::ParameterSet & );
-  ~HepPDTAnalyzer() override;
-  
-  
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  explicit HepPDTAnalyzer(const edm::ParameterSet &);
+  ~HepPDTAnalyzer() override = default;
 
-  void printInfo(const ParticleData* & part);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  void printBanner(); 
+  void printInfo(const ParticleData *&part);
+
+  void printBanner();
+
 private:
-  std::string particleName_;
+  const std::string particleName_;
+  const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
 };
 
 #endif

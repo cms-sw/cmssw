@@ -11,6 +11,8 @@
 
 #include "CalibMuon/DTCalibration/interface/DTTTrigBaseCorrection.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 
@@ -22,25 +24,25 @@ class DTTtrig;
 
 namespace dtCalibration {
 
-class DTTTrigConstantShift: public DTTTrigBaseCorrection {
-public:
-  // Constructor
-  DTTTrigConstantShift(const edm::ParameterSet&);
+  class DTTTrigConstantShift : public DTTTrigBaseCorrection {
+  public:
+    // Constructor
+    DTTTrigConstantShift(const edm::ParameterSet&, edm::ConsumesCollector);
 
-  // Destructor
-  ~DTTTrigConstantShift() override;
+    // Destructor
+    ~DTTTrigConstantShift() override;
 
-  void setES(const edm::EventSetup& setup) override;
-  DTTTrigData correction(const DTSuperLayerId&) override;
+    void setES(const edm::EventSetup& setup) override;
+    DTTTrigData correction(const DTSuperLayerId&) override;
 
-private:
-  std::string dbLabel_;
-  std::string calibChamber_;
-  double value_;
+  private:
+    std::string calibChamber_;
+    double value_;
 
-  const DTTtrig *tTrigMap_;
-  DTChamberId chosenChamberId_;
-};
+    const DTTtrig* tTrigMap_;
+    DTChamberId chosenChamberId_;
+    edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
+  };
 
-} // namespace
+}  // namespace dtCalibration
 #endif

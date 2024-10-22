@@ -1,7 +1,6 @@
 #ifndef MessageLogger_ErrorObj_h
 #define MessageLogger_ErrorObj_h
 
-
 // ----------------------------------------------------------------------
 //
 // ErrorObj 	is the representation of all information about an error
@@ -22,120 +21,110 @@
 //
 // ----------------------------------------------------------------------
 
-
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELlist.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 
+#include "fmt/format.h"
+
 #include <sstream>
 #include <string>
 
-namespace edm {       
+namespace edm {
 
+  // ----------------------------------------------------------------------
+  // Prerequisite classes:
+  // ----------------------------------------------------------------------
 
-// ----------------------------------------------------------------------
-// Prerequisite classes:
-// ----------------------------------------------------------------------
+  class ELcout;
 
-class ELcout;
+  // ----------------------------------------------------------------------
+  // ErrorObj:
+  // ----------------------------------------------------------------------
 
+  class ErrorObj {
+  public:
+    // --- birth/death:
+    //
+    ErrorObj(const messagelogger::ELseverityLevel& sev, std::string_view id, bool verbatim = false);
+    ErrorObj(const ErrorObj& orig);  // Same serial number and everything!
+    virtual ~ErrorObj();
 
-// ----------------------------------------------------------------------
-// ErrorObj:
-// ----------------------------------------------------------------------
+    ErrorObj& operator=(const ErrorObj& other);
+    void swap(ErrorObj& other);
+    // --- accessors:
+    //
+    int serial() const;
+    const ELextendedID& xid() const;
+    const std::string& idOverflow() const;
+    time_t timestamp() const;
+    const ELlist_string& items() const;
+    bool reactedTo() const;
+    std::string fullText() const;
+    const std::string& context() const;
+    bool is_verbatim() const;
 
-class ErrorObj  {
+    // mutators:
+    //
+    virtual void setSeverity(const messagelogger::ELseverityLevel& sev);
+    virtual void setID(std::string_view ID);
+    virtual void setModule(std::string_view module);
+    virtual void setSubroutine(std::string_view subroutine);
+    virtual void setContext(std::string_view context);
 
-public:
-  // --- birth/death:
+    // -----  Methods for ErrorLog or for physicists logging errors:
+    //
+    template <class T>
+    inline ErrorObj& opltlt(const T& t);
+    ErrorObj& opltlt(const char s[]);
+    inline ErrorObj& operator<<(std::ostream& (*f)(std::ostream&));
+    inline ErrorObj& operator<<(std::ios_base& (*f)(std::ios_base&));
+    template <typename... Args>
+    inline ErrorObj& format(fmt::format_string<Args...> format, Args&&... args);
+    inline ErrorObj& vformat(std::string_view fmt, fmt::format_args args);
+
+    virtual ErrorObj& emitToken(std::string_view txt);
+
+    // ---  mutators for use by ELadministrator and ELtsErrorLog
+    //
+    virtual void set(const messagelogger::ELseverityLevel& sev, std::string_view id);
+    virtual void clear();
+    virtual void setReactedTo(bool r);
+
+  private:
+    // ---  data members:
+    //
+    int mySerial;
+    ELextendedID myXid;
+    std::string myIdOverflow;
+    time_t myTimestamp;
+    ELlist_string myItems;
+    bool myReactedTo;
+    std::string myContext;
+    std::ostringstream myOs;
+    std::string emptyString;
+    bool verbatim;
+
+  };  // ErrorObj
+
+  // ----------------------------------------------------------------------
+
+  // -----  Method for physicists logging errors:
   //
-  ErrorObj( const ELseverityLevel & sev, 
-  	    const ELstring & id, 
-	    bool verbatim = false );
-  ErrorObj( const ErrorObj & orig );  // Same serial number and everything!
-  virtual ~ErrorObj();
+  template <class T>
+  inline ErrorObj& operator<<(ErrorObj& e, const T& t);
 
-  ErrorObj& operator=( const ErrorObj& other );
-  void swap ( ErrorObj& other );
-  // --- accessors:
-  //
-  int                    serial() const;
-  const ELextendedID &   xid() const;
-  const ELstring &       idOverflow() const;
-  time_t                 timestamp() const;
-  const ELlist_string &  items() const;
-  bool                   reactedTo() const;
-  ELstring               fullText() const;
-  ELstring               context() const;
-  bool                   is_verbatim() const;
+  ErrorObj& operator<<(ErrorObj& e, const char s[]);
 
-  // mutators:
-  //
-  virtual void  setSeverity  ( const ELseverityLevel & sev );
-  virtual void  setID        ( const ELstring & ID );
-  virtual void  setModule    ( const ELstring & module );
-  virtual void  setSubroutine( const ELstring & subroutine );
-  virtual void  setContext   ( const ELstring & context );
+  // ----------------------------------------------------------------------
 
-  // -----  Methods for ErrorLog or for physicists logging errors:
-  //
-  template< class T >
-  inline ErrorObj &  opltlt ( const T & t );
-         ErrorObj &  opltlt ( const char s[] );
-  inline ErrorObj &  operator<< ( std::ostream&(*f)(std::ostream&) ); 
-  inline ErrorObj &  operator<< ( std::ios_base&(*f)(std::ios_base&) ); 
+  // ----------------------------------------------------------------------
+  // Global functions:
+  // ----------------------------------------------------------------------
 
-  virtual ErrorObj &  emitToken( const ELstring & txt );
+  inline void swap(ErrorObj& a, ErrorObj& b) { a.swap(b); }
 
-  // ---  mutators for use by ELadministrator and ELtsErrorLog
-  //
-  virtual void  set( const ELseverityLevel & sev, const ELstring & id );
-  virtual void  clear();
-  virtual void  setReactedTo ( bool r );
-
-private:
-
-  // ---  data members:
-  //
-  int            mySerial;
-  ELextendedID   myXid;
-  ELstring       myIdOverflow;
-  time_t         myTimestamp;
-  ELlist_string  myItems;
-  bool           myReactedTo;
-  ELstring       myContext;
-  std::ostringstream myOs; 
-  std::string    emptyString;
-  bool		 verbatim;
-    
-};  // ErrorObj
-
-
-// ----------------------------------------------------------------------
-
-
-// -----  Method for physicists logging errors:
-//
-template< class T >
-inline ErrorObj &  operator<<( ErrorObj & e, const T & t );
-
-ErrorObj &  operator<<( ErrorObj & e, const char s[] );
-
-
-// ----------------------------------------------------------------------
-
-
-// ----------------------------------------------------------------------
-// Global functions:
-// ----------------------------------------------------------------------
-
-inline
-void swap(ErrorObj& a, ErrorObj& b) {
-  a.swap(b);
-}
-
-}        // end of namespace edm
+}  // end of namespace edm
 
 // ----------------------------------------------------------------------
 // .icc
@@ -144,11 +133,9 @@ void swap(ErrorObj& a, ErrorObj& b) {
 // The icc file contains the template for operator<< (ErrorObj&, T)
 
 #define ERROROBJ_ICC
-  #include "FWCore/MessageLogger/interface/ErrorObj.icc"
-#undef  ERROROBJ_ICC
-
+#include "FWCore/MessageLogger/interface/ErrorObj.icc"
+#undef ERROROBJ_ICC
 
 // ----------------------------------------------------------------------
 
-
-#endif // MessageLogger_ErrorObj_h
+#endif  // MessageLogger_ErrorObj_h

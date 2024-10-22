@@ -8,6 +8,7 @@ class CmsRun(object):
     procDesc = _pp.ProcessDesc()
     process.fillProcessDesc(procDesc.pset())
     self._cppProcessor = _pf.PythonEventProcessor(procDesc)
+
   def run(self):
     """Process all the events
     """

@@ -26,22 +26,22 @@ namespace edm {
 //
 
 class HLTPixlMBForAlignmentFilter : public HLTFilter {
+public:
+  explicit HLTPixlMBForAlignmentFilter(const edm::ParameterSet&);
+  ~HLTPixlMBForAlignmentFilter() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   public:
-      explicit HLTPixlMBForAlignmentFilter(const edm::ParameterSet&);
-      ~HLTPixlMBForAlignmentFilter() override;
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+private:
+  edm::InputTag pixlTag_;  // input tag identifying product containing Pixel-tracks
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> pixlToken_;
 
-   private:
-      edm::InputTag pixlTag_;  // input tag identifying product containing Pixel-tracks
-      edm::EDGetTokenT<reco::RecoChargedCandidateCollection> pixlToken_;
-
-      double min_Pt_;          // min pt cut
-      unsigned int min_trks_;  // minimum number of tracks from same vertex
-      float min_sep_;          // minimum separation of two tracks in phi-eta
-      float min_isol_;         // size of isolation cone around track
-
+  double min_Pt_;          // min pt cut
+  unsigned int min_trks_;  // minimum number of tracks from same vertex
+  float min_sep_;          // minimum separation of two tracks in phi-eta
+  float min_isol_;         // size of isolation cone around track
 };
 
-#endif //HLTPixlMBForAlignmentFilter_h
+#endif  //HLTPixlMBForAlignmentFilter_h

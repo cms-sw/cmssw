@@ -2,11 +2,11 @@
 //
 // Package:     Geometry
 // Class  :     DisplayPlugin
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Mar 18 04:09:19 CDT 2010
 //
 
@@ -27,18 +27,14 @@ using namespace fireworks::geometry;
 //
 // constructors and destructor
 //
-DisplayPlugin::DisplayPlugin()
-{
-}
+DisplayPlugin::DisplayPlugin() {}
 
 // DisplayPlugin::DisplayPlugin(const DisplayPlugin& rhs)
 // {
 //    // do actual copying here;
 // }
 
-DisplayPlugin::~DisplayPlugin()
-{
-}
+DisplayPlugin::~DisplayPlugin() {}
 
 //
 // assignment operators

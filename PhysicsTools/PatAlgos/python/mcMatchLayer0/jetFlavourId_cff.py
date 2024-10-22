@@ -41,3 +41,14 @@ patJetFlavourIdLegacy = cms.Sequence(patJetFlavourIdLegacyTask)
 
 patJetFlavourIdTask = cms.Task(patJetPartons, patJetFlavourAssociation)
 patJetFlavourId = cms.Sequence(patJetFlavourIdTask)
+
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(patJetPartons, particles = "hiSignalGenParticles")
+pp_on_AA.toModify(patJetFlavourAssociation,
+                  jets = 'akCs4PFJets',
+                  rParam = 0.4,
+)
+pp_on_AA.toModify(patJetPartonAssociationLegacy,
+                  jets = "akCs4PFJets",
+                  partons = "allPartons",
+)

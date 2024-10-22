@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection  label="hcalSimNumbering.xml" eval="true">
+  <Vector name="phioff" type="numeric" nEntries="5">
+    0.0*deg, 0.0*deg, 0.0*deg, 10.0*deg, 10.0*deg
+  </Vector>
+  <Vector name="etaTable" type="numeric" nEntries="101">
+    0.000,  0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609, 0.696,
+    0.783,  0.870, 0.957, 1.044, 1.131, 1.218, 1.305, 1.392,1.4094,
+    1.4268,1.4442,1.4616, 1.479,1.4964,1.5138,1.5312,1.5486, 1.566,
+    1.5834,1.6008,1.6182,1.6356, 1.653,1.6704,1.6878,1.7052,1.7226,
+    1.740, 1.7574,1.7748,1.7922,1.8096, 1.827,1.8444,1.8618,1.8792,
+    1.8966, 1.914,1.9314,1.9488,1.9662,1.9836, 2.001,2.0184,2.0358,
+    2.0532,2.0706, 2.088,2.1054,2.1228,2.1402,2.1576, 2.175,2.1924,
+    2.2098,2.2272,2.2446, 2.262,2.2794,2.2968,2.3142,2.3316, 2.349,
+    2.3664,2.3838,2.4012,2.4186, 2.436,2.4534,2.4708,2.4882,2.5056,
+    2.523, 2.5404,2.5578,2.5752,2.5926, 2.610,2.6274,2.6448,2.6622,
+    2.6796, 2.697, 2.732, 2.767, 2.802, 2.837, 2.872, 2.904, 2.936,
+    2.968, 3.000
+  </Vector>
+  <Vector name="rTable" type="numeric" nEntries="14">
+    12.50*cm, 16.90*cm, 20.10*cm, 24.00*cm, 28.60*cm, 34.00*cm,
+    40.60*cm, 48.30*cm, 57.60*cm, 68.60*cm, 81.80*cm, 97.50*cm,
+    116.20*cm, 130.00*cm
+  </Vector>
+  <Vector name="phibin" type="numeric" nEntries="100">
+    5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg,
+    5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg,
+    5.0*deg, 5.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg
+  </Vector>
+  <Vector name="phitable" type="numeric" nEntries="13">
+    10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg,
+    10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 20.0*deg,
+    20.0*deg
+  </Vector>
+  <Vector name="layerGroupSimEta1" type="numeric" nEntries="19">
+    1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4
+  </Vector>
+  <Vector name="layerGroupSimEta16" type="numeric" nEntries="19">
+    1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
+  </Vector>
+  <Vector name="layerGroupSimEta17" type="numeric" nEntries="19">
+    2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+  </Vector>
+  <Vector name="layerGroupSimEta18" type="numeric" nEntries="19">
+    1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5
+  </Vector>
+  <Vector name="layerGroupSimEta19" type="numeric" nEntries="19">
+    1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6
+  </Vector>
+  <Vector name="layerGroupSimEta44" type="numeric" nEntries="19">
+    1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7
+  </Vector>
+  <Vector name="etaMin" type="numeric" nEntries="4">
+    1, 16, 29, 1
+  </Vector>
+  <Vector name="etaMax" type="numeric" nEntries="4">
+    16,100, 41, 15
+  </Vector>
+  <Vector name="MaxDepth" type="numeric" nEntries="4">
+     4,  7,  4,  4
+  </Vector>
+  <Vector name="etaRange" type="numeric" nEntries="4">
+    1.392, 3.000, 5.500, 1.305
+  </Vector>
+  <Vector name="gparHF" type="numeric" nEntries="7">
+    22.0*cm, 165.0*cm, 30.0*cm, 0.0*cm, 1115.0*cm, 0.375*cm,
+    1137.0*cm
+  </Vector>
+  <Vector name="noff" type="numeric" nEntries="31">
+    15,103, 4, 10, 5, 2, 4, 18, 19, 11, 12, 13, 14,  3,  4, 53,  4,  0,  1,
+    0,   0, 0,  0, 0,10, 5,  0,  1,  7,  7,  7
+  </Vector>
+  <Vector name="Layer0Wt" type="numeric" nEntries="2">
+    1.2, 1.2
+  </Vector>
+  <Vector name="HBGains" type="numeric" nEntries="4">
+    117.0, 117.0, 117.0, 217.0
+  </Vector>
+  <Vector name="HBShift" type="numeric" nEntries="4">
+    0, 0, 0, 0
+  </Vector>
+  <Vector name="HEGains" type="numeric" nEntries="7">
+    178.0, 178.0, 178.0, 178.0, 178.0, 178.0, 178.0
+  </Vector>
+  <Vector name="HEShift" type="numeric" nEntries="7">
+    0, 0, 0, 0, 0, 0, 0
+  </Vector>
+  <Vector name="HFGains" type="numeric" nEntries="4">
+    2.840, 2.090, 2.840, 2.090
+  </Vector>
+  <Vector name="HFShift" type="numeric" nEntries="4">
+    0, 0, 0, 0
+  </Vector>
+</ConstantsSection>
+
+<SpecParSection label="hcalSimNumbering.xml" eval="true">
+  <SpecPar name="hcal">
+    <PartSelector path="//HBS.*"/>
+    <PartSelector path="//HTS.*"/>
+    <PartSelector path="//HES.*"/>
+    <PartSelector path="//HVQF"/>
+    <Parameter name="OnlyForHcalSimNumbering" value="HCAL" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

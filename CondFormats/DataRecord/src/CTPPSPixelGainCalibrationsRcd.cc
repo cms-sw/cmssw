@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     CTPPSPixelGainCalibrationsRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

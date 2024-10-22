@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class BTauGenericMVAJetTagComputerRcd : public edm::eventsetup::EventSetupRecordImplementation<BTauGenericMVAJetTagComputerRcd> {};
+class BTauGenericMVAJetTagComputerRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<BTauGenericMVAJetTagComputerRcd> {};
 
 #endif

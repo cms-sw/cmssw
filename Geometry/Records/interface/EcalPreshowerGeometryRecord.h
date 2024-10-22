@@ -4,7 +4,7 @@
 //
 // Package:     Records
 // Class  :     EcalPreshowerGeometryRecord
-// 
+//
 //
 // Author:      Brian Heltsley
 // Created:     Tue April 1, 2008
@@ -18,20 +18,15 @@
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
-
-class EcalPreshowerGeometryRecord : 
-  public edm::eventsetup::DependentRecordImplementation<
-   EcalPreshowerGeometryRecord,
-		boost::mpl::vector<
-                IdealGeometryRecord,
-		ESAlignmentRcd, 
-		ESAlignmentErrorRcd,
-                ESAlignmentErrorExtendedRcd,
-		GlobalPositionRcd,
-                PEcalPreshowerRcd
-		> > {};
+class EcalPreshowerGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<EcalPreshowerGeometryRecord,
+                                                            edm::mpl::Vector<IdealGeometryRecord,
+                                                                             ESAlignmentRcd,
+                                                                             ESAlignmentErrorRcd,
+                                                                             ESAlignmentErrorExtendedRcd,
+                                                                             GlobalPositionRcd,
+                                                                             PEcalPreshowerRcd> > {};
 
 #endif /* RECORDS_ECALPRESHOWERGEOMETRYRECORD_H */
-

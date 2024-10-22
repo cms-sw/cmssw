@@ -1,0 +1,9 @@
+{
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
+    "destinationTags": {
+        "CTPPSRPAlignment_byPCL_v1_prompt": {}
+    }, 
+    "inputTag": "CTPPSRPAlignment_real_pcl", 
+    "since": null, 
+    "userText": "Tier0 PCL Upload for CTPPSRPAlignment"
+}

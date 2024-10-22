@@ -1,12 +1,12 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -15,16 +15,16 @@
 
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
 
-class VertexAssociatorByPositionAndTracksProducer: public edm::global::EDProducer<> {
+class VertexAssociatorByPositionAndTracksProducer : public edm::global::EDProducer<> {
 public:
-  explicit VertexAssociatorByPositionAndTracksProducer(const edm::ParameterSet&);
+  explicit VertexAssociatorByPositionAndTracksProducer(const edm::ParameterSet &);
   ~VertexAssociatorByPositionAndTracksProducer() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);      
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-      
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
+
   // ----------member data ---------------------------
   const double absZ_;
   const double sigmaZ_;
@@ -38,25 +38,26 @@ private:
   edm::EDGetTokenT<reco::SimToRecoCollection> trackSimToRecoAssociationToken_;
 };
 
-VertexAssociatorByPositionAndTracksProducer::VertexAssociatorByPositionAndTracksProducer(const edm::ParameterSet& config):
-  absZ_(config.getParameter<double>("absZ")),
-  sigmaZ_(config.getParameter<double>("sigmaZ")),
-  maxRecoZ_(config.getParameter<double>("maxRecoZ")),
-  absT_(config.getParameter<double>("absT")),
-  sigmaT_(config.getParameter<double>("sigmaT")),
-  maxRecoT_(config.getParameter<double>("maxRecoT")),
-  sharedTrackFraction_(config.getParameter<double>("sharedTrackFraction")),
-  trackRecoToSimAssociationToken_(consumes<reco::RecoToSimCollection>(config.getParameter<edm::InputTag>("trackAssociation"))),
-  trackSimToRecoAssociationToken_(consumes<reco::SimToRecoCollection>(config.getParameter<edm::InputTag>("trackAssociation")))
-{
+VertexAssociatorByPositionAndTracksProducer::VertexAssociatorByPositionAndTracksProducer(const edm::ParameterSet &config)
+    : absZ_(config.getParameter<double>("absZ")),
+      sigmaZ_(config.getParameter<double>("sigmaZ")),
+      maxRecoZ_(config.getParameter<double>("maxRecoZ")),
+      absT_(config.getParameter<double>("absT")),
+      sigmaT_(config.getParameter<double>("sigmaT")),
+      maxRecoT_(config.getParameter<double>("maxRecoT")),
+      sharedTrackFraction_(config.getParameter<double>("sharedTrackFraction")),
+      trackRecoToSimAssociationToken_(
+          consumes<reco::RecoToSimCollection>(config.getParameter<edm::InputTag>("trackAssociation"))),
+      trackSimToRecoAssociationToken_(
+          consumes<reco::SimToRecoCollection>(config.getParameter<edm::InputTag>("trackAssociation"))) {
   produces<reco::VertexToTrackingVertexAssociator>();
 }
 
 VertexAssociatorByPositionAndTracksProducer::~VertexAssociatorByPositionAndTracksProducer() {}
 
-void VertexAssociatorByPositionAndTracksProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void VertexAssociatorByPositionAndTracksProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  
+
   // Matching conditions
   desc.add<double>("absZ", 0.1);
   desc.add<double>("sigmaZ", 3.0);
@@ -72,38 +73,38 @@ void VertexAssociatorByPositionAndTracksProducer::fillDescriptions(edm::Configur
   descriptions.add("VertexAssociatorByPositionAndTracks", desc);
 }
 
-void VertexAssociatorByPositionAndTracksProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
-  edm::Handle<reco::RecoToSimCollection > recotosimCollectionH;
+void VertexAssociatorByPositionAndTracksProducer::produce(edm::StreamID,
+                                                          edm::Event &iEvent,
+                                                          const edm::EventSetup &) const {
+  edm::Handle<reco::RecoToSimCollection> recotosimCollectionH;
   iEvent.getByToken(trackRecoToSimAssociationToken_, recotosimCollectionH);
 
-  edm::Handle<reco::SimToRecoCollection > simtorecoCollectionH;
+  edm::Handle<reco::SimToRecoCollection> simtorecoCollectionH;
   iEvent.getByToken(trackSimToRecoAssociationToken_, simtorecoCollectionH);
 
   std::unique_ptr<VertexAssociatorByPositionAndTracks> impl;
 
   if (!recotosimCollectionH.isValid() || !simtorecoCollectionH.isValid()) {
     if (!recotosimCollectionH.isValid())
-      edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
-	<< "trackRecoToSimAssociation is not available in the event";
+      edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed") << "trackRecoToSimAssociation is not available in the event";
     if (!simtorecoCollectionH.isValid())
-      edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
-	<< "trackSimToRecoAssociation is not available in the event";
+      edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed") << "trackSimToRecoAssociation is not available in the event";
     return;
-  } 
-  if( sigmaT_ < 0.0 ) {
+  }
+  if (sigmaT_ < 0.0) {
     impl = std::make_unique<VertexAssociatorByPositionAndTracks>(&(iEvent.productGetter()),
-								 absZ_,
-								 sigmaZ_,
-								 maxRecoZ_,
-								 sharedTrackFraction_,
-								 recotosimCollectionH.product(),
-								 simtorecoCollectionH.product());
+                                                                 absZ_,
+                                                                 sigmaZ_,
+                                                                 maxRecoZ_,
+                                                                 sharedTrackFraction_,
+                                                                 recotosimCollectionH.product(),
+                                                                 simtorecoCollectionH.product());
   } else {
     impl = std::make_unique<VertexAssociatorByPositionAndTracks>(&(iEvent.productGetter()),
                                                                  absZ_,
                                                                  sigmaZ_,
                                                                  maxRecoZ_,
-								 absT_,
+                                                                 absT_,
                                                                  sigmaT_,
                                                                  maxRecoT_,
                                                                  sharedTrackFraction_,

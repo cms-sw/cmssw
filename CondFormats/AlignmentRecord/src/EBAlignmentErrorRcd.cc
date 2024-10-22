@@ -2,7 +2,7 @@
 //
 // Package:     EBGeometry
 // Class  :     EBAlignmentErrorRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

@@ -17,6 +17,6 @@ namespace reco {
   typedef edm::RefVector<RecoTauPiZeroCollection> RecoTauPiZeroRefVector;
   /// iterator over a vector of references to RecoTauPiZero objects all in the same collection
   typedef RecoTauPiZeroRefVector::iterator RecoTauPiZeroRefVector_iterator;
-}
+}  // namespace reco
 
 #endif

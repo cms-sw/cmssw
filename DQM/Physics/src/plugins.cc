@@ -21,7 +21,8 @@
 #include "DQM/Physics/src/B2GDQM.h"
 #include "DQM/Physics/src/CentralityDQM.h"
 #include "DQM/Physics/src/CentralitypADQM.h"
-
+#include "DQM/Physics/src/FSQDQM.h"
+#include "DQM/Physics/src/SMPDQM.h"
 DEFINE_FWK_MODULE(BPhysicsOniaDQM);
 DEFINE_FWK_MODULE(EwkDQM);
 DEFINE_FWK_MODULE(EwkMuDQM);
@@ -43,7 +44,8 @@ DEFINE_FWK_MODULE(ExoticaDQM);
 DEFINE_FWK_MODULE(B2GDQM);
 DEFINE_FWK_MODULE(CentralityDQM);
 DEFINE_FWK_MODULE(CentralitypADQM);
-
+DEFINE_FWK_MODULE(FSQDQM);
+DEFINE_FWK_MODULE(SMPDQM);
 // Local Variables:
 // show-trailing-whitespace: t
 // truncate-lines: t

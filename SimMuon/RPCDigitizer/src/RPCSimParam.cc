@@ -9,7 +9,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 
-RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config){
+RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config) {
   aveEff = config.getParameter<double>("averageEfficiency");
   aveCls = config.getParameter<double>("averageClusterSize");
   resRPC = config.getParameter<double>("timeResolution");
@@ -20,139 +20,121 @@ RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config){
   lbGate = config.getParameter<double>("linkGateWidth");
   rpcdigiprint = config.getParameter<bool>("printOutDigitizer");
 
-  rate=config.getParameter<double>("Rate");
-  nbxing=config.getParameter<int>("Nbxing");
-  gate=config.getParameter<double>("Gate");
+  rate = config.getParameter<double>("Rate");
+  nbxing = config.getParameter<int>("Nbxing");
+  gate = config.getParameter<double>("Gate");
 
   if (rpcdigiprint) {
-    std::cout <<"Average Efficiency        = "<<aveEff<<std::endl;
-    std::cout <<"Average Cluster Size      = "<<aveCls<<" strips"<<std::endl;
-    std::cout <<"RPC Time Resolution       = "<<resRPC<<" ns"<<std::endl;
-    std::cout <<"RPC Signal formation time = "<<timOff<<" ns"<<std::endl;
-    std::cout <<"RPC adjacent strip delay  = "<<dtimCs<<" ns"<<std::endl;
-    std::cout <<"Electronic Jitter         = "<<resEle<<" ns"<<std::endl;
-    std::cout <<"Signal propagation time   = "<<sspeed<<" x c"<<std::endl;
-    std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
+    std::cout << "Average Efficiency        = " << aveEff << std::endl;
+    std::cout << "Average Cluster Size      = " << aveCls << " strips" << std::endl;
+    std::cout << "RPC Time Resolution       = " << resRPC << " ns" << std::endl;
+    std::cout << "RPC Signal formation time = " << timOff << " ns" << std::endl;
+    std::cout << "RPC adjacent strip delay  = " << dtimCs << " ns" << std::endl;
+    std::cout << "Electronic Jitter         = " << resEle << " ns" << std::endl;
+    std::cout << "Signal propagation time   = " << sspeed << " x c" << std::endl;
+    std::cout << "Link Board Gate Width     = " << lbGate << " ns" << std::endl;
   }
 
   _rpcSync = new RPCSynchronizer(config);
 }
 
-RPCSimParam::~RPCSimParam(){
-  delete _rpcSync;
-}
+RPCSimParam::~RPCSimParam() { delete _rpcSync; }
 
-
-void
-RPCSimParam::simulate(const RPCRoll* roll,
-                      const edm::PSimHitContainer& rpcHits,
-                      CLHEP::HepRandomEngine* engine)
-{
+void RPCSimParam::simulate(const RPCRoll* roll, const edm::PSimHitContainer& rpcHits, CLHEP::HepRandomEngine* engine) {
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
   theRpcDigiSimLinks.clear();
   theDetectorHitMap.clear();
   theRpcDigiSimLinks = RPCDigiSimLinks(roll->id().rawId());
 
-  const Topology& topology=roll->specs()->topology();
+  const Topology& topology = roll->specs()->topology();
 
-  for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
-       _hit != rpcHits.end(); ++_hit){
-
+  for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin(); _hit != rpcHits.end(); ++_hit) {
     // Here I hould check if the RPC are up side down;
-    const LocalPoint& entr=_hit->entryPoint();
+    const LocalPoint& entr = _hit->entryPoint();
     int time_hit = _rpcSync->getSimHitBx(&(*_hit), engine);
 
     // Effinciecy
     float eff = CLHEP::RandFlat::shoot(engine);
     if (eff < aveEff) {
-
-      int centralStrip = topology.channel(entr)+1;  
-      int fstrip=centralStrip;
-      int lstrip=centralStrip;
+      int centralStrip = topology.channel(entr) + 1;
+      int fstrip = centralStrip;
+      int lstrip = centralStrip;
       // Compute the cluster size
       double w = CLHEP::RandFlat::shoot(engine);
-      if (w < 1.e-10) w=1.e-10;
-      int clsize = static_cast<int>( -1.*aveCls*log(w)+1.);
+      if (w < 1.e-10)
+        w = 1.e-10;
+      int clsize = static_cast<int>(-1. * aveCls * log(w) + 1.);
       std::vector<int> cls;
       cls.push_back(centralStrip);
-      if (clsize > 1){
-	for (int cl = 0; cl < (clsize-1)/2; cl++)
-	  if (centralStrip - cl -1 >= 1  ){
-	    fstrip = centralStrip-cl-1;
-	    cls.push_back(fstrip);
-	  }
-	for (int cl = 0; cl < (clsize-1)/2; cl++)
-	  if (centralStrip + cl + 1 <= roll->nstrips() ){
-	    lstrip = centralStrip+cl+1;
-	    cls.push_back(lstrip);
-	  }
-	if (clsize%2 == 0 ){
-	  // insert the last strip according to the 
-	  // simhit position in the central strip 
-	  double deltaw=roll->centreOfStrip(centralStrip).x()-entr.x();
-	  if (deltaw<0.) {
-	    if (lstrip < roll->nstrips() ){
-	      lstrip++;
-	      cls.push_back(lstrip);
-	    }
-	  }else{
-	    if (fstrip > 1 ){
-	      fstrip--;
-	      cls.push_back(fstrip);
-	    }
-	  }
-	}
+      if (clsize > 1) {
+        for (int cl = 0; cl < (clsize - 1) / 2; cl++)
+          if (centralStrip - cl - 1 >= 1) {
+            fstrip = centralStrip - cl - 1;
+            cls.push_back(fstrip);
+          }
+        for (int cl = 0; cl < (clsize - 1) / 2; cl++)
+          if (centralStrip + cl + 1 <= roll->nstrips()) {
+            lstrip = centralStrip + cl + 1;
+            cls.push_back(lstrip);
+          }
+        if (clsize % 2 == 0) {
+          // insert the last strip according to the
+          // simhit position in the central strip
+          double deltaw = roll->centreOfStrip(centralStrip).x() - entr.x();
+          if (deltaw < 0.) {
+            if (lstrip < roll->nstrips()) {
+              lstrip++;
+              cls.push_back(lstrip);
+            }
+          } else {
+            if (fstrip > 1) {
+              fstrip--;
+              cls.push_back(fstrip);
+            }
+          }
+        }
       }
 
-      for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
-	// Check the timing of the adjacent strip
-	std::pair<unsigned int, int> digi(*i,time_hit);
+      for (std::vector<int>::iterator i = cls.begin(); i != cls.end(); i++) {
+        // Check the timing of the adjacent strip
+        std::pair<unsigned int, int> digi(*i, time_hit);
 
-	theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
-	strips.insert(digi);
+        theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &(*_hit)));
+        strips.insert(digi);
       }
     }
   }
 }
 
-
-void RPCSimParam::simulateNoise(const RPCRoll* roll,
-                                CLHEP::HepRandomEngine* engine)
-{
-
+void RPCSimParam::simulateNoise(const RPCRoll* roll, CLHEP::HepRandomEngine* engine) {
   RPCDetId rpcId = roll->id();
   int nstrips = roll->nstrips();
   double area = 0.0;
-  
-  if ( rpcId.region() == 0 )
-    {
-      const RectangularStripTopology* top_ = dynamic_cast<const
-	RectangularStripTopology*>(&(roll->topology()));
-      float xmin = (top_->localPosition(0.)).x();
-      float xmax = (top_->localPosition((float)roll->nstrips())).x();
-      float striplength = (top_->stripLength());
-      area = striplength*(xmax-xmin);
-    }
-  else
-    {
-      const TrapezoidalStripTopology* top_=dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology()));
-      float xmin = (top_->localPosition(0.)).x();
-      float xmax = (top_->localPosition((float)roll->nstrips())).x();
-      float striplength = (top_->stripLength());
-      area = striplength*(xmax-xmin);
-    }
 
-  double ave = rate*nbxing*gate*area*1.0e-9;
-  
+  if (rpcId.region() == 0) {
+    const RectangularStripTopology* top_ = dynamic_cast<const RectangularStripTopology*>(&(roll->topology()));
+    float xmin = (top_->localPosition(0.)).x();
+    float xmax = (top_->localPosition((float)roll->nstrips())).x();
+    float striplength = (top_->stripLength());
+    area = striplength * (xmax - xmin);
+  } else {
+    const TrapezoidalStripTopology* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology()));
+    float xmin = (top_->localPosition(0.)).x();
+    float xmax = (top_->localPosition((float)roll->nstrips())).x();
+    float striplength = (top_->stripLength());
+    area = striplength * (xmax - xmin);
+  }
+
+  double ave = rate * nbxing * gate * area * 1.0e-9;
+
   CLHEP::RandPoissonQ randPoissonQ(*engine, ave);
   N_hits = randPoissonQ.fire();
 
-  for (int i = 0; i < N_hits; i++ ){   
+  for (int i = 0; i < N_hits; i++) {
     int strip = static_cast<int>(CLHEP::RandFlat::shoot(engine, 1, nstrips));
     int time_hit;
-    time_hit = (static_cast<int>(CLHEP::RandFlat::shoot(engine, (nbxing*gate)/gate))) - nbxing/2;
-    std::pair<int, int> digi(strip,time_hit);
+    time_hit = (static_cast<int>(CLHEP::RandFlat::shoot(engine, (nbxing * gate) / gate))) - nbxing / 2;
+    std::pair<int, int> digi(strip, time_hit);
     strips.insert(digi);
   }
-
 }

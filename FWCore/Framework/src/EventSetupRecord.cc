@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -11,289 +11,104 @@
 //
 
 // system include files
-#include <cassert>
-#include <string>
-#include <exception>
+#include <sstream>
 
 // user include files
+#include "FWCore/Framework/interface/DataKeyTags.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-#include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
-#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/TypeIDBase.h"
+
+namespace {
+  void throwWrongRecordType(const edm::TypeIDBase& aFromToken, const edm::eventsetup::EventSetupRecordKey& aRecord) {
+    throw cms::Exception("WrongRecordType") << "A ESGetTokenGeneric token using the record " << aFromToken.name()
+                                            << " was passed to record " << aRecord.type().name();
+  }
+}  // namespace
 
 namespace edm {
-   namespace eventsetup {
-//
-// constants, enums and typedefs
-//
-      typedef std::map< DataKey , const DataProxy* > Proxies;
-//
-// static data member definitions
-//
+  namespace eventsetup {
 
-//
-// constructors and destructor
-//
-EventSetupRecord::EventSetupRecord() :
-validity_(),
-proxies_(),
-eventSetup_(nullptr),
-cacheIdentifier_(1), //start with 1 since 0 means we haven't checked yet
-transientAccessRequested_(false)
-{
-}
+    EventSetupRecord::EventSetupRecord() {}
 
-// EventSetupRecord::EventSetupRecord(const EventSetupRecord& rhs)
-// {
-//    // do actual copying here;
-// }
+    EventSetupRecord::~EventSetupRecord() {}
 
-EventSetupRecord::~EventSetupRecord()
-{
-}
-
-//
-// assignment operators
-//
-// const EventSetupRecord& EventSetupRecord::operator=(const EventSetupRecord& rhs)
-// {
-//   //An exception safe implementation is
-//   EventSetupRecord temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-void
-EventSetupRecord::set(const ValidityInterval& iInterval) 
-{
-   validity_ = iInterval;
-}
-
-void
-EventSetupRecord::getESProducers(std::vector<ComponentDescription const*>& esproducers) {
-   esproducers.clear();
-   esproducers.reserve(proxies_.size());
-   for (auto const& iData : proxies_) {
-      ComponentDescription const* componentDescription = iData.second->providerDescription();
-      if (!componentDescription->isLooper_ && !componentDescription->isSource_) {
-         esproducers.push_back(componentDescription);
+    bool EventSetupRecord::doGet(const ESGetTokenGeneric& aToken, bool aGetTransiently) const {
+      if UNLIKELY (aToken.transitionID() != transitionID()) {
+        throwWrongTransitionID();
       }
-   }
-}
-
-void
-EventSetupRecord::fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys) {
-   referencedDataKeys.clear();
-   for (auto const& iData : proxies_) {
-      referencedDataKeys[iData.first] = iData.second->providerDescription();
-   }
-}
-
-bool 
-EventSetupRecord::add(const DataKey& iKey ,
-                    const DataProxy* iProxy)
-{
-   //
-   const DataProxy* proxy = find(iKey);
-   if (nullptr != proxy) {
-      //
-      // we already know the field exist, so do not need to check against end()
-      //
-      
-      // POLICY: If a Producer and a Source both claim to deliver the same data, the
-      //  Producer 'trumps' the Source. If two modules of the same type claim to deliver the
-      //  same data, this is an error unless the configuration specifically states which one
-      //  is to be chosen.  A Looper trumps both a Producer and a Source.
-
-      assert(proxy->providerDescription());
-      assert(iProxy->providerDescription());
-      if(iProxy->providerDescription()->isLooper_) {
-         (*proxies_.find(iKey)).second = iProxy ;
-	 return true;
+      if UNLIKELY (aToken.recordType() != key().type()) {
+        throwWrongRecordType(aToken.recordType(), key());
       }
-	 
-      if(proxy->providerDescription()->isSource_ == iProxy->providerDescription()->isSource_) {
-         //should lookup to see if there is a specified 'chosen' one and only if not, throw the exception
-         throw cms::Exception("EventSetupConflict") <<"two EventSetup "<< 
-         (proxy->providerDescription()->isSource_? "Sources":"Producers")
-         <<" want to deliver type=\""<< iKey.type().name() <<"\" label=\""<<iKey.name().value()<<"\"\n"
-         <<" from record "<<key().type().name() <<". The two providers are \n"
-         <<"1) type=\""<<proxy->providerDescription()->type_<<"\" label=\""<<proxy->providerDescription()->label_<<"\"\n"
-         <<"2) type=\""<<iProxy->providerDescription()->type_<<"\" label=\""<<iProxy->providerDescription()->label_<<"\"\n"
-         <<"Please either\n   remove one of these "<<(proxy->providerDescription()->isSource_?"Sources":"Producers")
-         <<"\n   or find a way of configuring one of them so it does not deliver this data"
-         <<"\n   or use an es_prefer statement in the configuration to choose one.";
-      } else if(proxy->providerDescription()->isSource_) {
-         (*proxies_.find(iKey)).second = iProxy ;
-      } else {
-         return false;
+      auto resolverIndex = getTokenIndices_[aToken.index().value()];
+      if UNLIKELY (resolverIndex.value() == std::numeric_limits<int>::max()) {
+        return false;
       }
-   }
-   else {
-      proxies_.insert(Proxies::value_type(iKey , iProxy)) ;
-   }
-   return true ;
-}
 
-void 
-EventSetupRecord::clearProxies() 
-{
-   proxies_.clear();
-}
+      const ComponentDescription* cd = nullptr;
+      DataKey const* dk = nullptr;
+      return nullptr != impl_->getFromResolverAfterPrefetch(resolverIndex, aGetTransiently, cd, dk);
+    }
 
-void 
-EventSetupRecord::cacheReset() 
-{
-   transientAccessRequested_ = false;
-   ++cacheIdentifier_;
-}
+    bool EventSetupRecord::wasGotten(const DataKey& aKey) const { return impl_->wasGotten(aKey); }
 
-bool
-EventSetupRecord::transientReset()
-{
-   bool returnValue = transientAccessRequested_;
-   transientAccessRequested_=false;
-   return returnValue;
-}
-      
-//
-// const member functions
-//
-      
-const void* 
-EventSetupRecord::getFromProxy(DataKey const & iKey ,
-                               const ComponentDescription*& iDesc,
-                               bool iTransientAccessOnly) const
-{
-   if(iTransientAccessOnly) { this->transientAccessRequested(); }
+    edm::eventsetup::ComponentDescription const* EventSetupRecord::providerDescription(const DataKey& aKey) const {
+      return impl_->providerDescription(aKey);
+    }
 
-   const DataProxy* proxy = this->find(iKey);
-   
-   const void* hold = nullptr;
-   
-   if(nullptr!=proxy) {
-      try {
-        convertException::wrap([&]() {
-            hold = proxy->get(*this, iKey,iTransientAccessOnly);
-            iDesc = proxy->providerDescription(); 
-        });
-      }
-      catch(cms::Exception& e) {
-         addTraceInfoToCmsException(e,iKey.name().value(),proxy->providerDescription(), iKey);
-         //NOTE: the above function can't do the 'throw' since it causes the C++ class type
-         // of the throw to be changed, a 'rethrow' does not have that problem
-         throw;
-      }
-   }
-   return hold;   
-}
-      
-const DataProxy* 
-EventSetupRecord::find(const DataKey& iKey) const 
-{
-   Proxies::const_iterator entry(proxies_.find(iKey)) ;
-   if (entry != proxies_.end()) {
-      return entry->second;
-   }
-   return nullptr;
-}
-      
-bool 
-EventSetupRecord::doGet(const DataKey& aKey, bool aGetTransiently) const {
-   const DataProxy* proxy = find(aKey);
-   if(nullptr != proxy) {
-      try {
-         convertException::wrap([&]() {
-            proxy->doGet(*this, aKey, aGetTransiently);
-         });
-      }
-      catch( cms::Exception& e) {
-         addTraceInfoToCmsException(e,aKey.name().value(),proxy->providerDescription(), aKey);
-         //NOTE: the above function can't do the 'throw' since it causes the C++ class type
-         // of the throw to be changed, a 'rethrow' does not have that problem
-         throw;
-      }
-   }
-   return nullptr != proxy;
-}
+    void EventSetupRecord::addTraceInfoToCmsException(cms::Exception& iException,
+                                                      const char* iName,
+                                                      const ComponentDescription* iDescription,
+                                                      const DataKey& iKey) const {
+      std::ostringstream ost;
+      ost << "Using EventSetup component " << iDescription->type_ << "/'" << iDescription->label_ << "' to make data "
+          << iKey.type().name() << "/'" << iName << "' in record " << this->key().type().name();
+      iException.addContext(ost.str());
+    }
 
-bool 
-EventSetupRecord::wasGotten(const DataKey& aKey) const {
-   const DataProxy* proxy = find(aKey);
-   if(nullptr != proxy) {
-      return proxy->cacheIsValid();
-   }
-   return false;
-}
+    std::exception_ptr EventSetupRecord::makeUninitializedTokenException(EventSetupRecordKey const& iRecordKey,
+                                                                         TypeTag const& iDataKey) {
+      cms::Exception ex("InvalidESGetToken");
+      ex << "Attempted to get data using an invalid token of type ESGetToken<" << iDataKey.name() << ","
+         << iRecordKey.name()
+         << ">.\n"
+            "Please call consumes to properly initialize the token.";
+      return std::make_exception_ptr(ex);
+    }
 
-edm::eventsetup::ComponentDescription const* 
-EventSetupRecord::providerDescription(const DataKey& aKey) const {
-   const DataProxy* proxy = find(aKey);
-   if(nullptr != proxy) {
-      return proxy->providerDescription();
-   }
-   return nullptr;
-}
+    std::exception_ptr EventSetupRecord::makeInvalidTokenException(EventSetupRecordKey const& iRecordKey,
+                                                                   TypeTag const& iDataKey,
+                                                                   unsigned int iTransitionID) {
+      cms::Exception ex("InvalidESGetToken");
+      ex << "Attempted to get data using an invalid token of type ESGetToken<" << iDataKey.name() << ","
+         << iRecordKey.name() << "> that had transition ID set (" << iTransitionID
+         << ") but not the index.\n"
+            "This should not happen, please contact core framework developers.";
+      return std::make_exception_ptr(ex);
+    }
 
-void 
-EventSetupRecord::fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const
-{
-  oToFill.clear();
-  oToFill.reserve(proxies_.size());
-  
-  for(std::map< DataKey , const DataProxy* >::const_iterator it = proxies_.begin(), itEnd=proxies_.end();
-      it != itEnd;
-      ++it) {
-    oToFill.push_back(it->first);
-  }
-  
-}
+    void EventSetupRecord::throwWrongTransitionID() const {
+      cms::Exception ex("ESGetTokenWrongTransition");
+      ex << "The transition ID stored in the ESGetToken does not match the\n"
+         << "transition where the token is being used. The associated record\n"
+         << "type is: " << key().type().name() << "\n"
+         << "For producers, filters and analyzers this transition ID is\n"
+         << "set as a template parameter to the call to the esConsumes\n"
+         << "function that creates the token. Event is the default transition.\n"
+         << "Other possibilities are BeginRun, EndRun, BeginLuminosityBlock,\n"
+         << "or EndLuminosityBlock. You may need multiple tokens if you want to\n"
+         << "get the same data in multiple transitions. The transition ID has a\n"
+         << "different meaning in ESProducers. For ESProducers, the transition\n"
+         << "ID identifies the function that produces the EventSetup data (often\n"
+         << "there is one function named produce but there can be multiple\n"
+         << "functions with different names). For ESProducers, the ESGetToken\n"
+         << "must be used in the function associated with the ESConsumesCollector\n"
+         << "returned by the setWhatProduced function.";
+      throw ex;
+    }
 
-void 
-EventSetupRecord::validate(const ComponentDescription* iDesc, const ESInputTag& iTag) const
-{
-   if(iDesc && !iTag.module().empty()) {
-      bool matched = false;
-      if(iDesc->label_.empty()) {
-         matched = iDesc->type_ == iTag.module();
-      } else {
-         matched = iDesc->label_ == iTag.module();
-      }
-      if(!matched) {
-         throw cms::Exception("EventSetupWrongModule") <<"EventSetup data was retrieved using an ESInputTag with the values\n"
-         <<"  moduleLabel = '"<<iTag.module()<<"'\n"
-         <<"  dataLabel = '"<<iTag.data()<<"'\n"
-         <<"but the data matching the C++ class type and dataLabel comes from module type="<<iDesc->type_<<" label='"<<iDesc->label_
-         <<"'.\n Please either change the ESInputTag's 'module' label to be "<<( iDesc->label_.empty()? iDesc->type_:iDesc->label_)
-         <<"\n or add the EventSetup module "<<iTag.module()<<" to the configuration.";
-      }
-   }
-}
-
-void 
-EventSetupRecord::addTraceInfoToCmsException(cms::Exception& iException, const char* iName, const ComponentDescription* iDescription, const DataKey& iKey) const
-{
-   std::ostringstream ost;
-   ost << "Using EventSetup component "
-       << iDescription->type_
-       << "/'" << iDescription->label_
-       << "' to make data "
-       << iKey.type().name() << "/'"
-       << iName
-       << "' in record "
-       << this->key().type().name();
-   iException.addContext(ost.str());
-}         
-
-//
-// static member functions
-//
-   }
-}
+  }  // namespace eventsetup
+}  // namespace edm

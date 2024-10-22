@@ -8,14 +8,15 @@ namespace ecaldqm {
   class TimingClient : public DQWorkerClient {
   public:
     TimingClient();
-    ~TimingClient() {}
+    ~TimingClient() override {}
 
     void producePlots(ProcessType) override;
 
   private:
     void setParams(edm::ParameterSet const&) override;
 
-    float toleranceMean_;
+    float ebtoleranceMean_;
+    float eetoleranceMean_;
     float toleranceMeanFwd_;
     float toleranceRMS_;
     float toleranceRMSFwd_;
@@ -26,7 +27,6 @@ namespace ecaldqm {
     float tailPopulThreshold_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

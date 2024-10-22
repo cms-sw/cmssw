@@ -9,21 +9,19 @@
  ************************************************************/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include <string>
 #include <vector>
 
-namespace edmtest_thing
-{
-  class StreamThingProducer : public edm::EDProducer
-  {
+namespace edmtest_thing {
+  class StreamThingProducer : public edm::global::EDProducer<> {
   public:
     explicit StreamThingProducer(edm::ParameterSet const& ps);
 
-    virtual ~StreamThingProducer();
+    ~StreamThingProducer() override;
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
     int size_;
@@ -34,5 +32,5 @@ namespace edmtest_thing
     bool apply_bit_mask_;
     unsigned int bit_mask_;
   };
-}
+}  // namespace edmtest_thing
 #endif

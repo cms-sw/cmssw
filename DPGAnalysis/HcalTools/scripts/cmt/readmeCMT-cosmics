@@ -1,0 +1,65 @@
+1) interactive test for running one CRUZET run:
+344566 , dataset=/Cosmics/Commissioning2021-v1/RAW)
+this dataset was created with CMSSW_11_3_4  and 
+with SCRAM_ARCH slc7_amd64_gcc900) 
+
+voms-proxy-init -voms cms -rfc 
+./mkcfg_new120.csh runlist_cosmics
+cd PYTHON_runlist_cosmics
+cmsRun Reco_344566_1_cfg.py &
+-> crash since you need to specify  global Tag
+see global Tag:
+https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions#Global_Tags_for_2021_data_taking
+(  113X_dataRun3_HLT_v3 	for CMSSW_11_3_2 onwards 	CRUZET 2021 	first HLT GT for CRUZET 2021 ))
+correct any python using cards:
+process = cms.Process("TEST", eras.Run3)
+process.GlobalTag.globaltag = '113X_dataRun3_HLT_v3'
+and runnung again 
+and Global_344566.root was produced
+cp Global_344566.root /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/histos/. 
+./index_toAddOnlyNewRunsCosmics_EOS.sh runlist_cosmics
+cd /afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMScript/CMSSW_11_3_4/src/DPGAnalysis/HcalTools/macros/cmt
+./compile.csh RemoteMonitoringGLOBAL.cc
+./compile.csh RemoteMonitoringMAP_Global.cc 
+./CMT_EOS.sh runlist_cosmics 
+./GlobalRMT_EOS.sh runlist_cosmics
+Plots are on site:
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/
+-----------------------
+On branch CMSSW_11_3_4_RMTNEW33
+Changes not staged for commit:
+        modified:   ../../macros/cmt/RemoteMonitoringMAP_Global.cc
+        modified:   file_lists.csh
+        modified:   index_zhokin.sh
+Untracked files:
+        ../../README
+        ../../macros/cmt/RemoteMonitoringGLOBAL.cc.exe
+        ../../macros/cmt/RemoteMonitoringMAP_Global.cc.exe
+        ../../macros/cmt/RemoteMonitoringMAP_Global_DEBUG.cc
+        ../../macros/cmt/RemoteMonitoringMAP_Global_DEFAULT.cc
+        PYTHON_runlist_cosmics/
+        TXT_runlist_cosmics/
+        _runlist_
+        dir-Logs/
+        file_lists.csh_OLD
+        index_toAddOnlyNewRunsCosmics_EOS.sh
+        runlist_cosmics
+-----------------------
+-----------------------------------------------------------
+-----------------------
+
+
+2) test condor running for CRAFT:
+Run list : 345737 345744 345745 345747 345752 345753 345754 345755
+345756 345758 345768 345772 345786 345787 345797 345799 345800 345801
+345810 345812 345819 345821 345822 345823 345824 345826 345828 345829
+345830 345876
+https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=dataset+run%3D345797
+dataset run=345797
+dataset =  /Cosmics/Commissioning2021-v1/RAW
+use for test only 3 runs :
+345821 345822 345823  in file runlist_craft
+cp runlist_craft runlist_run (for default name runlist_run of file condor.jdl )
+./index_toAddOnlyNewRunsCRAFT_EOS.sh
+
+345843 

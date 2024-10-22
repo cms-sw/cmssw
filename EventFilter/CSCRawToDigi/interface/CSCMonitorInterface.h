@@ -1,5 +1,5 @@
-#ifndef CSCMonitorInterface_h
-#define CSCMonitorInterface_h
+#ifndef EventFilter_CSCRawToDigi_CSCMonitorInterface_h
+#define EventFilter_CSCRawToDigi_CSCMonitorInterface_h
 
 /** \class CSCMonitorInterface
  *
@@ -10,22 +10,17 @@
  *
  */
 
-
 class CSCDCCEventData;
 class CSCDCCExaminer;
 
-class CSCMonitorInterface{
-
+class CSCMonitorInterface {
 public:
-
-    CSCMonitorInterface(){}
-    virtual ~CSCMonitorInterface(){}
-    // virtual void process(CSCDCCEventData & dccData)=0;
-    virtual void process(CSCDCCExaminer * examiner, CSCDCCEventData * dccData)=0;      
+  CSCMonitorInterface() {}
+  virtual ~CSCMonitorInterface() {}
+  // virtual void process(CSCDCCEventData & dccData)=0;
+  virtual void process(CSCDCCExaminer* examiner, CSCDCCEventData* dccData) = 0;
 
 private:
-
-
 };
 
 #endif

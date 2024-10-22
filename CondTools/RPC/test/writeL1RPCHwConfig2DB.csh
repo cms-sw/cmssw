@@ -100,7 +100,7 @@ process Write2DB = {
 }
 %%
 #
-cmsRun -p writeL1RPCHwConfig2DB.cfg
+cmsRun writeL1RPCHwConfig2DB.cfg
 #
 if ( -f writeL1RPCHwConfig2DB.inp )then
  set goon = `cat writeL1RPCHwConfig2DB.inp`

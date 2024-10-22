@@ -1823,7 +1823,7 @@
     <String name="ChildName" value="GEMBox21B"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
-    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="startCopyNo" value="([gemf:Layer1Offset]+2)"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="40*deg"/>
@@ -1836,7 +1836,7 @@
     <String name="ChildName" value="GEMBox21F"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
-    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="startCopyNo" value="([gemf:Layer1Offset]+1)"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="40*deg"/>
@@ -1849,7 +1849,7 @@
     <String name="ChildName" value="GEMBox21B"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
-    <Numeric name="startCopyNo" value="53"/>
+    <Numeric name="startCopyNo" value="([gemf:Layer2Offset]+3)"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="40*deg"/>
@@ -1862,7 +1862,7 @@
     <String name="ChildName" value="GEMBox21F"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
-    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="startCopyNo" value="([gemf:Layer2Offset]+2)"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="40*deg"/>
@@ -1876,7 +1876,7 @@
     <String name="ChildName" value="GEMBox21B"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
-    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="startCopyNo" value="([gemf:Layer1Offset]+2)"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="-40*deg"/>
@@ -1889,7 +1889,7 @@
     <String name="ChildName" value="GEMBox21F"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
-    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="startCopyNo" value="([gemf:Layer1Offset]+1)"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="-40*deg"/>
@@ -1902,7 +1902,7 @@
     <String name="ChildName" value="GEMBox21B"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
-    <Numeric name="startCopyNo" value="53"/>
+    <Numeric name="startCopyNo" value="([gemf:Layer2Offset]+3)"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="-40*deg"/>
@@ -1915,7 +1915,7 @@
     <String name="ChildName" value="GEMBox21F"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
-    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="startCopyNo" value="([gemf:Layer2Offset]+2)"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="-40*deg"/>

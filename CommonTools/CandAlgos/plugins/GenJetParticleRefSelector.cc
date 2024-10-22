@@ -5,13 +5,10 @@
 namespace reco {
   namespace modules {
 
-    typedef SingleObjectSelector<
-              reco::GenParticleCollection,
-              ::GenJetParticleSelector,
-              reco::GenParticleRefVector
-            > GenJetParticleRefSelector;
+    typedef SingleObjectSelector<reco::GenParticleCollection, ::GenJetParticleSelector, reco::GenParticleRefVector>
+        GenJetParticleRefSelector;
 
-   DEFINE_FWK_MODULE(GenJetParticleRefSelector);
+    DEFINE_FWK_MODULE(GenJetParticleRefSelector);
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco

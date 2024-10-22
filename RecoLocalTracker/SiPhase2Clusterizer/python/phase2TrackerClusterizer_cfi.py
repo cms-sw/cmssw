@@ -7,5 +7,6 @@ siPhase2Clusters = cms.EDProducer('Phase2TrackerClusterizer',
     maxNumberClusters = cms.uint32(0)
 )
 
-
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(siPhase2Clusters, src = "mixData:Tracker")
 

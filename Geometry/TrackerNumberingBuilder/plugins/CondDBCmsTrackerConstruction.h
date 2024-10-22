@@ -15,16 +15,9 @@ class PGeometricDet;
  */
 
 class CondDBCmsTrackerConstruction {
- public:
-  CondDBCmsTrackerConstruction();
-  const GeometricDet* construct( const PGeometricDet& pgd );
-  //  void constructSubDet( const PGeometricDet& pgd, const std::string & s );
-  
- protected:
-
-  //  std::string attribute_;  
-  //  CmsTrackerStringToEnum theCmsTrackerStringToEnum;
-
+public:
+  CondDBCmsTrackerConstruction() = delete;
+  static std::unique_ptr<GeometricDet> construct(const PGeometricDet& pgd);
 };
 
 #endif

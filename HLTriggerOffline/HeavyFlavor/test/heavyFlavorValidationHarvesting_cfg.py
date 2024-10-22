@@ -1,3 +1,4 @@
+from __future__ import print_function
 sampleName = "/RelValJpsiMM/CMSSW_3_5_0_pre2-STARTUP3X_V14-v1/GEN-SIM-RECO"
 
 import FWCore.ParameterSet.Config as cms
@@ -23,7 +24,6 @@ process.source = cms.Source("PoolSource",
 
 process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')
 process.dqmSaver.dirName = '/tmp/'
-#process.DQMStore.referenceFileName = '/tmp/DQM_V0001_R000000001__TProfile_3_1__CMSSW_X_Y_Z__RECO.root'
 #process.dqmSaver.referenceHandling = 'all'
 process.load('HLTriggerOffline/HeavyFlavor/heavyFlavorValidationHarvestingSequence_cff')
 
@@ -44,13 +44,13 @@ optManager  = DbsOptionParser()
 api = DbsApi(opts.__dict__)
 
 try :
-    print "Files to process:"
+    print("Files to process:")
     for afile in api.listDatasetFiles(datasetPath=sampleName):
         process.source.fileNames.append(afile['LogicalFileName'])
-        print afile['LogicalFileName']
+        print(afile['LogicalFileName'])
 
 except DbsApiException as ex:
-     print "Caught API Exception %s: %s "  % (ex.getClassName(), ex.getErrorMessage() )
+     print("Caught API Exception %s: %s "  % (ex.getClassName(), ex.getErrorMessage() ))
      if ex.getErrorCode() not in (None, ""):
-          print "DBS Exception Error Code: ", ex.getErrorCode()
+          print("DBS Exception Error Code: ", ex.getErrorCode())
 

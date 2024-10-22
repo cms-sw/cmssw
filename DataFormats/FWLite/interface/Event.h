@@ -36,6 +36,7 @@
  }
  \endcode
 
+ NOTE: This class is not safe to use across threads.
 */
 //
 // Original Author:  Chris Jones
@@ -62,154 +63,183 @@
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 namespace edm {
-   class WrapperBase;
-   class ProductRegistry;
-   class BranchDescription;
-   class EDProductGetter;
-   class EventAux;
-   class Timestamp;
-   class TriggerResults;
-   class TriggerNames;
-   class TriggerResultsByName;
-}
+  class WrapperBase;
+  class ProductRegistry;
+  class BranchDescription;
+  class EDProductGetter;
+  class EventAux;
+  class Timestamp;
+  class TriggerResults;
+  class TriggerNames;
+  class TriggerResultsByName;
+}  // namespace edm
 class TCut;
 
 namespace fwlite {
-   class BranchMapReader;
-   class HistoryGetterBase;
-   class DataGetterHelper;
-   class RunFactory;
-   class Event : public EventBase
-   {
+  class BranchMapReader;
+  class HistoryGetterBase;
+  class DataGetterHelper;
+  class RunFactory;
+  class ChainEvent;
+  class MultiChainEvent;
 
-      public:
-         // NOTE: Does NOT take ownership so iFile must remain around
-         // at least as long as Event.
-         // useCache and baFunc (branch-access-function) are passed to
-         // DataGetterHelper and help with external management of TTreeCache
-         // associated with the file. By default useCache is true and internal
-         // DataGetterHelper caching is enabled. When user sets useCache to
-         // false no cache is created unless user attaches and controls it
-         // himself.
-         Event(TFile* iFile, bool useCache=true,
-               std::function<void (TBranch const&)> baFunc=[](TBranch const&){});
-         ~Event() override;
+  class Event : public EventBase {
+  public:
+    friend class ChainEvent;
+    friend class MultiChainEvent;
 
-         ///Advance to next event in the TFile
-         Event const& operator++() override;
+    // NOTE: Does NOT take ownership so iFile must remain around
+    // at least as long as Event.
+    // useCache and baFunc (branch-access-function) are passed to
+    // DataGetterHelper and help with external management of TTreeCache
+    // associated with the file. By default useCache is true and internal
+    // DataGetterHelper caching is enabled. When user sets useCache to
+    // false no cache is created unless user attaches and controls it
+    // himself.
+    Event(TFile* iFile, bool useCache = true, std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
 
-         ///Find index of given event-id
-         Long64_t indexFromEventId(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
+    Event(Event const&) = delete;  // stop default
 
-         ///Go to the event at index iIndex
-         bool to (Long64_t iIndex);
+    Event const& operator=(Event const&) = delete;  // stop default
 
-         ///Go to event by Run & Event number
-         bool to(const edm::EventID &id);
-         bool to(edm::RunNumber_t run, edm::EventNumber_t event);
-         bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
+    ~Event() override;
 
-         /// Go to the very first Event.
-         Event const& toBegin() override;
+    ///Advance to next event in the TFile
+    Event const& operator++() override;
 
-         // ---------- const member functions ---------------------
-         ///Return the branch name in the TFile which contains the data
-         std::string const getBranchNameFor(std::type_info const&,
-                                                    char const* iModuleLabel,
-                                                    char const* iProductInstanceLabel,
-                                                    char const* iProcessName) const override;
+    ///Find index of given event-id
+    Long64_t indexFromEventId(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
-         using fwlite::EventBase::getByLabel;
-         /// This function should only be called by fwlite::Handle<>
-         bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
-         //void getByBranchName(std::type_info const&, char const*, void*&) const;
+    ///Go to the event at index iIndex
+    bool to(Long64_t iIndex);
 
-         ///Properly setup for edm::Ref, etc and then call TTree method
-         void       draw(Option_t* opt);
-         Long64_t   draw(char const* varexp, const TCut& selection, Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0);
-         Long64_t   draw(char const* varexp, char const* selection, Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0);
-         Long64_t   scan(char const* varexp = "", char const* selection = "", Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0);
+    ///Go to event by Run & Event number
+    bool to(const edm::EventID& id);
+    bool to(edm::RunNumber_t run, edm::EventNumber_t event);
+    bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
-         bool isValid() const;
-         operator bool () const;
-         bool atEnd() const override;
+    /// Go to the very first Event.
+    Event const& toBegin() override;
 
-         ///Returns number of events in the file
-         Long64_t size() const;
+    // ---------- const member functions ---------------------
+    ///Return the branch name in the TFile which contains the data
+    std::string const getBranchNameFor(std::type_info const&,
+                                       char const* iModuleLabel,
+                                       char const* iProductInstanceLabel,
+                                       char const* iProcessName) const override;
 
-         edm::EventAuxiliary const& eventAuxiliary() const override;
+    template <typename T>
+    edm::EDGetTokenT<T> consumes(edm::InputTag const& iTag) const {
+      auto bid =
+          dataHelper_.getBranchIDFor(typeid(T), iTag.label().c_str(), iTag.instance().c_str(), iTag.process().c_str());
+      if (bid) {
+        return this->makeTokenUsing<T>(bid.value().id());
+      }
+      return {};
+    }
+    using fwlite::EventBase::getByLabel;
+    /// This function should only be called by fwlite::Handle<>
+    bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
+    //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
-         std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
-            return branchMap_.getBranchDescriptions();
-         }
-         std::vector<std::string> const& getProcessHistory() const;
-         TFile* getTFile() const {
-            return branchMap_.getFile();
-         }
+    ///Properly setup for edm::Ref, etc and then call TTree method
+    void draw(Option_t* opt);
+    Long64_t draw(char const* varexp,
+                  const TCut& selection,
+                  Option_t* option = "",
+                  Long64_t nentries = 1000000000,
+                  Long64_t firstentry = 0);
+    Long64_t draw(char const* varexp,
+                  char const* selection,
+                  Option_t* option = "",
+                  Long64_t nentries = 1000000000,
+                  Long64_t firstentry = 0);
+    Long64_t scan(char const* varexp = "",
+                  char const* selection = "",
+                  Option_t* option = "",
+                  Long64_t nentries = 1000000000,
+                  Long64_t firstentry = 0);
 
-         edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const override;
+    bool isValid() const;
+    operator bool() const;
+    bool atEnd() const override;
 
-         edm::WrapperBase const* getByProductID(edm::ProductID const&) const override;
-         edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const;
-         void getThinnedProducts(edm::ProductID const& pid,
-                                 std::vector<edm::WrapperBase const*>& foundContainers,
-                                 std::vector<unsigned int>& keys) const;
+    ///Returns number of events in the file
+    Long64_t size() const;
 
-         edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
+    edm::EventAuxiliary const& eventAuxiliary() const override;
 
-         edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
+    std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
+      return branchMap_.getBranchDescriptions();
+    }
+    std::vector<std::string> const& getProcessHistory() const;
+    TFile* getTFile() const { return branchMap_.getFile(); }
 
-         edm::ProcessHistory const& processHistory() const override {return history();}
+    edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const override;
 
-         fwlite::LuminosityBlock const& getLuminosityBlock() const;
-         fwlite::Run             const& getRun() const;
+    edm::WrapperBase const* getByProductID(edm::ProductID const&) const override;
+    std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(edm::ProductID const& pid,
+                                                                                       unsigned int key) const;
+    void getThinnedProducts(edm::ProductID const& pid,
+                            std::vector<edm::WrapperBase const*>& foundContainers,
+                            std::vector<unsigned int>& keys) const;
+    edm::OptionalThinnedKey getThinnedKeyFrom(edm::ProductID const& parent,
+                                              unsigned int key,
+                                              edm::ProductID const& thinned) const;
 
-         // ---------- static member functions --------------------
-         static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
+    edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
 
+    edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
 
-      private:
-         friend class internal::ProductGetter;
-         friend class ChainEvent;
-         friend class EventHistoryGetter;
+    edm::ProcessHistory const& processHistory() const override { return history(); }
 
-         Event(Event const&) = delete; // stop default
+    fwlite::LuminosityBlock const& getLuminosityBlock() const;
+    fwlite::Run const& getRun() const;
 
-         Event const& operator=(Event const&) = delete; // stop default
+    // ---------- static member functions --------------------
+    static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
 
-         edm::ProcessHistory const& history() const;
-         void updateAux(Long_t eventIndex) const;
-         void fillParameterSetRegistry() const;
-         void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) { return dataHelper_.setGetter(getter);}
+  private:
+    bool getByTokenImp(edm::EDGetToken, edm::WrapperBase const*&) const override;
+    friend class internal::ProductGetter;
+    friend class ChainEvent;
+    friend class EventHistoryGetter;
 
-         // ---------- member data --------------------------------
-         mutable TFile* file_;
-         // TTree* eventTree_;
-         TTree* eventHistoryTree_;
-         // Long64_t eventIndex_;
-         mutable std::shared_ptr<fwlite::LuminosityBlock>  lumi_;
-         mutable std::shared_ptr<fwlite::Run>  run_;
-         mutable fwlite::BranchMapReader branchMap_;
+    edm::ProcessHistory const& history() const;
+    void updateAux(Long_t eventIndex) const;
+    void fillParameterSetRegistry() const;
+    void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) { return dataHelper_.setGetter(getter); }
 
-         //takes ownership of the strings used by the DataKey keys in data_
-         mutable std::vector<char const*> labels_;
-         mutable edm::ProcessHistoryMap historyMap_;
-         mutable std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
-         mutable std::vector<std::string> procHistoryNames_;
-         mutable edm::EventAuxiliary aux_;
-         mutable EntryFinder entryFinder_;
-         edm::EventAuxiliary const* pAux_;
-         edm::EventAux const* pOldAux_;
-         TBranch* auxBranch_;
-         int fileVersion_;
-         mutable bool parameterSetRegistryFilled_;
+    // ---------- member data --------------------------------
+    //This class is not inteded to be used across different threads
+    CMS_SA_ALLOW mutable TFile* file_;
+    // TTree* eventTree_;
+    TTree* eventHistoryTree_;
+    // Long64_t eventIndex_;
+    CMS_SA_ALLOW mutable std::shared_ptr<fwlite::LuminosityBlock> lumi_;
+    CMS_SA_ALLOW mutable std::shared_ptr<fwlite::Run> run_;
+    CMS_SA_ALLOW mutable fwlite::BranchMapReader branchMap_;
 
-         fwlite::DataGetterHelper dataHelper_;
-         mutable std::shared_ptr<RunFactory> runFactory_;
-   };
+    //takes ownership of the strings used by the DataKey keys in data_
+    CMS_SA_ALLOW mutable std::vector<char const*> labels_;
+    CMS_SA_ALLOW mutable edm::ProcessHistoryMap historyMap_;
+    CMS_SA_ALLOW mutable std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
+    CMS_SA_ALLOW mutable std::vector<std::string> procHistoryNames_;
+    CMS_SA_ALLOW mutable edm::EventAuxiliary aux_;
+    CMS_SA_ALLOW mutable EntryFinder entryFinder_;
+    edm::EventAuxiliary const* pAux_;
+    edm::EventAux const* pOldAux_;
+    TBranch* auxBranch_;
+    int fileVersion_;
+    CMS_SA_ALLOW mutable bool parameterSetRegistryFilled_;
 
-}
+    fwlite::DataGetterHelper dataHelper_;
+    CMS_SA_ALLOW mutable std::shared_ptr<RunFactory> runFactory_;
+  };
+
+}  // namespace fwlite
 #endif

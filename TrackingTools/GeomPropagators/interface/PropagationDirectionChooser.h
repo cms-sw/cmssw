@@ -14,22 +14,15 @@ class Plane;
 
 class PropagationDirectionChooser {
 public:
-
   PropagationDirectionChooser() {}
-  
+
   ~PropagationDirectionChooser() {}
 
-  PropagationDirection operator() (const FreeTrajectoryState&,
-				   const Surface&) const;
+  PropagationDirection operator()(const FreeTrajectoryState&, const Surface&) const;
 
-  PropagationDirection operator() (const FreeTrajectoryState&,
-				   const Plane&) const;
+  PropagationDirection operator()(const FreeTrajectoryState&, const Plane&) const;
 
-  PropagationDirection operator() (const FreeTrajectoryState&,
-				   const Cylinder&) const;
-
+  PropagationDirection operator()(const FreeTrajectoryState&, const Cylinder&) const;
 };
 
 #endif
-
-

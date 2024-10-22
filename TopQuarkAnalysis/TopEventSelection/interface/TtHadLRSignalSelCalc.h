@@ -1,5 +1,5 @@
 //
-// Adapted TtHadLRSignalSelCalc.h,v 1.1 2007/06/15 08:49:19 heyninck Exp 
+// Adapted TtHadLRSignalSelCalc.h,v 1.1 2007/06/15 08:49:19 heyninck Exp
 // for fully hadronic channel
 
 #ifndef TtHadLRSignalSelCalc_h
@@ -26,17 +26,14 @@
 #include "TString.h"
 
 class TtHadLRSignalSelCalc {
-
- public:
-  
+public:
   TtHadLRSignalSelCalc();
-  TtHadLRSignalSelCalc(const TString&,const std::vector<int>&);
-  ~TtHadLRSignalSelCalc();	
-  void  operator()(TtHadEvtSolution&);
-  
- private:
+  TtHadLRSignalSelCalc(const TString&, const std::vector<int>&);
+  ~TtHadLRSignalSelCalc();
+  void operator()(TtHadEvtSolution&);
 
-  LRHelpFunctions  * myLR;
+private:
+  LRHelpFunctions* myLR;
   bool addPurity;
 };
 

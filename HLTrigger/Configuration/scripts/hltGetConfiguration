@@ -1,10 +1,10 @@
-#!/usr/bin/env python
-
-import sys, os
+#!/usr/bin/env python3
+import sys
+import os
 import argparse
-from extend_argparse import *
 
-import HLTrigger.Configuration.Tools.confdb  as confdb
+from HLTrigger.Configuration.extend_argparse import *
+import HLTrigger.Configuration.Tools.confdb as confdb
 import HLTrigger.Configuration.Tools.options as options
 
 # define an argparse parser to parse our options
@@ -29,7 +29,7 @@ parser.add_argument('menu',
                     action  = 'store',
                     type    = options.ConnectionHLTMenu,
                     metavar = 'MENU',
-                    help    = 'HLT menu to dump from the database. Supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2}/]{offline|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible database schemas are "v1" and "v2" (default).\nThe possible databases are "offline" (default, used for offline development), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.' )
+		    help    = 'HLT menu to dump from the database. Supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2|v3}/]{run3|run2|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible converters are "v1", "v2, and "v3" (default).\nThe possible databases are "run3" (default, used for offline development), "run2" (used for accessing run2 offline development menus), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.\nNote other converters and databases exist as options but they are only for expert/special use.' )
 
 # options
 parser.add_argument('--process',
@@ -44,7 +44,7 @@ parser.add_argument('--type',
                     metavar = 'TYPE',
                     choices = options.globalTag,
                     default = defaults.type,
-                    help    = 'Set global options acording to a specific HLT luminosity and type (%(choices)s).' )
+                    help    = 'Set global options according to a specific HLT luminosity and type (%(choices)s).' )
 parser.add_argument('--globaltag',
                     dest    = 'globaltag',
                     action  = 'store',
@@ -74,6 +74,37 @@ parser.add_argument('--l1-emulator',
                     default = defaults.emulator,
                     const   = 'Full',
                     help    = 'Run the Full stage-2 L1T emulator.' )
+
+group = parser.add_mutually_exclusive_group()
+group.add_argument('--dbproxy',
+                    dest    = 'proxy',
+                    action  = 'store_true',
+                    default = defaults.proxy,
+                    help    = 'Use a socks proxy to connect outside CERN network (default: False)' )
+group.add_argument('--dbtunnel',
+                    dest    = 'tunnel',
+                    action  = 'store_true',
+                    default = defaults.tunnel,
+                    help    = 'Use direct tunnel to connect outside CERN network (default: False)' )
+
+parser.add_argument('--dbproxyport',
+                    dest    = 'proxy_port',
+                    action  = 'store',
+                    metavar = 'PROXYPORT',
+                    default = defaults.proxy_port,
+                    help    = 'Port of the socks proxy (default: 8080)' )
+parser.add_argument('--dbproxyhost',
+                    dest    = 'proxy_host',
+                    action  = 'store',
+                    metavar = 'PROXYHOST',
+                    default = defaults.proxy_host,
+                    help    = 'Host of the socks proxy (default: "localhost")' )
+parser.add_argument('--dbtunnelport',
+                    dest    = 'tunnel_port',
+                    action  = 'store',
+                    metavar = 'TUNNELPORT',
+                    default = defaults.tunnel_port,
+                    help    = 'Port when using a direct tunnel on localhost (default: 10121)' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--prescale',
@@ -160,7 +191,7 @@ parser.add_argument('--setup',
                     type    = str,
                     default = defaults.setup,
                     metavar = 'STORE',
-                    help    = 'If set, download setup_cff from the specified configuration and load it.' )
+                    help    = 'If set, download setup_cff from the specified configuration and load it. Note, it is forced to be the same database and converter as specified by primary menu configuration, in fact it is an error to specify a converter/database here and the command will fail' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--output',
@@ -224,9 +255,20 @@ parser.add_argument('--help',
 # parse command line arguments and options
 config = parser.parse_args(namespace = options.HLTProcessOptions())
 
-cmdArgs = sys.argv
-cmdArgs[0] = os.path.basename(sys.argv[0])
+# do not include db-proxy/tunnel options in 1st-line comment
+cmdArgs, skipNext = [], False
+for cmdArg in sys.argv:
+  if skipNext:
+    skipNext = False
+    continue
+  if cmdArg.startswith('--dbproxy') or cmdArg.startswith('--dbtunnel'):
+    if cmdArg.startswith('--dbproxyh') or cmdArg.startswith('--dbproxyp') or cmdArg.startswith('--dbtunnelp'):
+      skipNext = '=' not in cmdArg
+    continue
+  cmdArgs += [cmdArg]
+cmdArgs[0] = os.path.basename(cmdArgs[0])
+
 cmdLine = ' '.join(cmdArgs)
-print '# ' + cmdLine
-print
-print confdb.HLTProcess(config).dump()
+print('# ' + cmdLine)
+print()
+print(confdb.HLTProcess(config).dump())

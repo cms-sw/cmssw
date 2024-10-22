@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Copied from GEMCode/GEMValidation
 """
 
-from ROOT import *
+from ROOT import TFile, gStyle, TCanvas, gPad, TH1F
 
 import os
 import sys
@@ -93,8 +93,8 @@ if __name__ == '__main__' :
   options, args = parser.parse_args()
 
   if len(args)==0 :
-    print "Input file name is None."
-    print "Use default name.[ DQM_v6.root and DQM_v7.root]"
+    print("Input file name is None.")
+    print("Use default name.[ DQM_v6.root and DQM_v7.root]")
     args.append("DQM_v6.root")
     args.append("DQM_v7.root")
 

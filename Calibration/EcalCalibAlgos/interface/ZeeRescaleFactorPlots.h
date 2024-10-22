@@ -1,11 +1,11 @@
 #ifndef ZEERESCALEFACTORPLOTS_H
-#define  ZEERESCALEFACTORPLOTS_H
+#define ZEERESCALEFACTORPLOTS_H
 
 // -*- C++ -*-
 //
 // Package:    ElectronCalibration
 // Class:      ElectronCalibration
-// 
+//
 /**\class ElectronCalibration ElectronCalibration.cc Calibration/EcalCalibAlgos/src/ElectronCalibration.cc
 
  Description: Perform single electron calibration (tested on TB data only).
@@ -19,13 +19,11 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -46,22 +44,18 @@
 #include "TH1.h"
 #include "TH2.h"
 
-
 // class declaration
 //
 
 class ZeeRescaleFactorPlots {
- 
- public:
-  ZeeRescaleFactorPlots( char* );
+public:
+  ZeeRescaleFactorPlots(char*);
   ~ZeeRescaleFactorPlots();
-  
-  void writeHistograms( ZIterativeAlgorithmWithFit* );
-  
- private:
-  
+
+  void writeHistograms(ZIterativeAlgorithmWithFit*);
+
+private:
   TFile* file_;
   char* fileName_;
-  
 };
 #endif

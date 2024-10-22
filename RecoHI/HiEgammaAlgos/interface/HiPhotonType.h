@@ -20,40 +20,35 @@
 
 #include <vector>
 
-class HiGammaJetSignalDef
-{
- public:
-
+class HiGammaJetSignalDef {
+public:
   HiGammaJetSignalDef();
   HiGammaJetSignalDef(const reco::GenParticleCollection *sigPartic);
-  bool IsIsolated(const reco::GenParticle &pp)            ;
-  bool IsIsolatedPP(const reco::GenParticle &pp)            ;
-  bool IsIsolatedJP(const reco::GenParticle &pp)            ;
+  bool IsIsolated(const reco::GenParticle &pp);
+  bool IsIsolatedPP(const reco::GenParticle &pp);
+  bool IsIsolatedJP(const reco::GenParticle &pp);
 
   //  bool IsSignal(const reco::Candidate &pp, double dPhi, bool isIso);
   //  int getIndex(const reco::Candidate &pp);
-  double getDeltaR (const reco::Candidate &track1, const reco::Candidate &track2);
+  double getDeltaR(const reco::Candidate &track1, const reco::Candidate &track2);
   double getDeltaPhi(const reco::Candidate &track1, const reco::Candidate &track2);
   double PI;
 
- private:
-  const reco::GenParticleCollection        *fSigParticles;
-
+private:
+  const reco::GenParticleCollection *fSigParticles;
 };
 
-class HiPhotonType
-{
- public:
+class HiPhotonType {
+public:
   HiPhotonType(edm::Handle<reco::GenParticleCollection> inputHandle);
   bool IsPrompt(const reco::GenParticle &pp);
   bool IsIsolated(const reco::GenParticle &pp);
   //  bool IsIsolatedPP(const reco::GenParticle &pp);
   //  bool IsIsolatedJP(const reco::GenParticle &pp);
   double PI;
- 
- private:
+
+private:
   HiGammaJetSignalDef mcisocut;
 };
 
 #endif
-

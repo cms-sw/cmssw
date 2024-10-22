@@ -5,7 +5,6 @@
 <use name="boost"/>
 <use name="gsl"/>
 <use name="root"/>
-<use name="tinyxml"/>
-<use name="GeneratorInterface/Core"/>
-<use name="GeneratorInterface/Pythia6Interface"/>
-<flags   RIVET_PLUGIN="1"/>
+<use name="hepmc3"/>
+<flags RIVET_PLUGIN="1"/>
+<flags CXXFLAGS="-Wno-error=missing-braces -Wno-missing-braces -Wno-non-virtual-dtor"/>

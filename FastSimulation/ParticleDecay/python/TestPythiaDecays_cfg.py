@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -14,11 +15,13 @@ process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
                             fileNames = cms.untracked.vstring(options.inputFiles)
 )
-print process.source.fileNames
+print(process.source.fileNames)
 
 process.demo = cms.EDAnalyzer('TestPythiaDecays',
                               outputFile = cms.string(options.outputFile)
 )
 
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string(options.outputFile))
 
 process.p = cms.Path(process.demo)

@@ -25,8 +25,8 @@ Main classes:
 Auxiliary classes:
 
 - MuonBaseNumber
-- MuonDDDConstants
-- MuonDDDNumbering
+- MuonGeometryConstants
+- MuonGeometryNumbering
 - MuonNumberingScheme
 - MuonSimHitNumberingScheme
 - MuonSubDetector

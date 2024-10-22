@@ -12,7 +12,7 @@ using namespace std;
 #include "MERunManager.hh"
 #include <TSystem.h>
 
-ClassImp(MEChanPanel)
+ClassImp(MEChanPanel);
 
 MEChanPanel::MEChanPanel(const TGWindow *p, MusEcalGUI* main,
 			 UInt_t w, UInt_t h)

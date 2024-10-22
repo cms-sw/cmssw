@@ -1,4 +1,0 @@
-	<output>
-		<var source="runMVA" name="MVAOutput"/>
-	</output>
-</MVATrainer>

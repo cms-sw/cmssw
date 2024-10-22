@@ -4,7 +4,7 @@
 //
 // Package:    SiStripApvGainCalculator
 // Class:      SiStripApvGainCalculator
-// 
+//
 /**\class SiStripApvGainCalculator SiStripApvGainCalculator.cc CalibTracker/SiStripChannelGain/src/SiStripApvGainCalculator.cc
 
  Description: <one line class summary>
@@ -18,33 +18,35 @@
 //
 //
 
-
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+
 #include <vector>
+#include <memory>
 
 class SiStripGainRandomCalculator : public ConditionDBWriter<SiStripApvGain> {
-
 public:
-
-  explicit SiStripGainRandomCalculator(const edm::ParameterSet&);
+  explicit SiStripGainRandomCalculator(const edm::ParameterSet &);
   ~SiStripGainRandomCalculator() override;
 
 private:
-
   void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
 
-  SiStripApvGain * getNewObject() override;
+  std::unique_ptr<SiStripApvGain> getNewObject() override;
 
 private:
-
   double meanGain_;
   double sigmaGain_;
   double minimumPosValue_;
 
-  std::vector< std::pair<uint32_t, unsigned short> > detid_apvs_;
-  unsigned long long m_cacheID_;
+  std::vector<std::pair<uint32_t, unsigned short> > detid_apvs_;
   bool printdebug_;
 
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESWatcher<TrackerDigiGeometryRecord> tkDigiGeomRcdWatcher_;
 };
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1ObjectKeysOnlineProdBase
-// 
+//
 /**\class L1ObjectKeysOnlineProdBase L1ObjectKeysOnlineProdBase.h CondTools/L1Trigger/interface/L1ObjectKeysOnlineProdBase.h
 
  Description: Abstract base class for producers that navigate OMDS to get
@@ -37,19 +37,22 @@
 // forward declarations
 
 class L1ObjectKeysOnlineProdBase : public edm::ESProducer {
-   public:
-      L1ObjectKeysOnlineProdBase(const edm::ParameterSet&);
-      ~L1ObjectKeysOnlineProdBase() override;
+public:
+  L1ObjectKeysOnlineProdBase(const edm::ParameterSet&);
+  ~L1ObjectKeysOnlineProdBase() override;
 
-      typedef std::shared_ptr<L1TriggerKey> ReturnType;
+  typedef std::unique_ptr<L1TriggerKey> ReturnType;
+  typedef std::unique_ptr<L1TriggerKey>::pointer FillType;
 
-      ReturnType produce(const L1TriggerKeyRcd&);
+  ReturnType produce(const L1TriggerKeyRcd&);
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) = 0 ;
-   private:
-      // ----------member data ---------------------------
- protected:
-      l1t::OMDSReader m_omdsReader ;
+  virtual void fillObjectKeys(FillType) = 0;
+
+private:
+  // ----------member data ---------------------------
+protected:
+  l1t::OMDSReader m_omdsReader;
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> l1TriggerKeyToken_;
 };
 
 #endif

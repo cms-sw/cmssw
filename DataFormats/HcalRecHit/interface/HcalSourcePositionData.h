@@ -7,18 +7,17 @@
 
 class HcalSourcePositionData {
 public:
-
   HcalSourcePositionData();
-  ~HcalSourcePositionData(){}
-  
+  ~HcalSourcePositionData() {}
+
   inline int messageCounter() const { return messageCounter_; }
   inline int status() const { return status_; }
   inline int indexCounter() const { return indexCounter_; }
-  inline int reelCounter() const { return reelCounter_; } 
+  inline int reelCounter() const { return reelCounter_; }
   inline int motorCurrent() const { return motorCurrent_; }
-  inline int speed() const { return -1; } // no longer implemented
+  inline int speed() const { return -1; }  // no longer implemented
   inline int motorVoltage() const { return motorVoltage_; }
-  inline int tubeId() const { return -1; } // no longer implemented
+  inline int tubeId() const { return -1; }  // no longer implemented
   inline int driverId() const { return driverId_; }
   inline int sourceId() const { return sourceId_; }
   inline std::string tubeNameFromCoord() const { return tubeNameFromCoord_; }
@@ -30,21 +29,21 @@ public:
   void getDAQTimestamp(int& seconds, int& useconds) const;
 
   void set(int message_counter,
-		 int timestamp1_sec,
-		 int timestamp1_usec,
-		 int timestamp2_sec,
-		 int timestamp2_usec,
-		 int status,
-		 int index_counter,
-		 int reel_counter,
-		 int motor_current,
-		 int motor_voltage,
-		 int driver_id,
-     int source_id,
-     std::string tubeNameFromCoord,
-     std::string tubeDescFromSD,
-     std::string lastCommand,
-     std::string message);
+           int timestamp1_sec,
+           int timestamp1_usec,
+           int timestamp2_sec,
+           int timestamp2_usec,
+           int status,
+           int index_counter,
+           int reel_counter,
+           int motor_current,
+           int motor_voltage,
+           int driver_id,
+           int source_id,
+           std::string tubeNameFromCoord,
+           std::string tubeDescFromSD,
+           std::string lastCommand,
+           std::string message);
 
 private:
   int messageCounter_;

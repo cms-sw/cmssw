@@ -4,7 +4,7 @@
 //
 // Package:     MuonAlignment
 // Class  :     MuonAlignmentInputMethod
-// 
+//
 /**\class MuonAlignmentInputMethod MuonAlignmentInputMethod.h Alignment/MuonAlignment/interface/MuonAlignmentInputMethod.h
 
  Description: <one line class summary>
@@ -28,33 +28,35 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 // forward declarations
 
 class MuonAlignmentInputMethod {
-   public:
-      MuonAlignmentInputMethod();
-      virtual ~MuonAlignmentInputMethod();
+public:
+  MuonAlignmentInputMethod();
+  MuonAlignmentInputMethod(const DTGeometry* dtGeometry,
+                           const CSCGeometry* cscGeometry,
+                           const GEMGeometry* gemGeometry);
+  virtual ~MuonAlignmentInputMethod();
 
-      // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-      virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
+  virtual AlignableMuon* newAlignableMuon() const;
 
-   protected:
-      std::shared_ptr<DTGeometry> idealDTGeometry(const edm::EventSetup &iSetup) const;
-      std::shared_ptr<CSCGeometry> idealCSCGeometry(const edm::EventSetup &iSetup) const;
+  MuonAlignmentInputMethod(const MuonAlignmentInputMethod&) = delete;  // stop default
 
-   private:
-      MuonAlignmentInputMethod(const MuonAlignmentInputMethod&) = delete; // stop default
+  const MuonAlignmentInputMethod& operator=(const MuonAlignmentInputMethod&) = delete;  // stop default
 
-      const MuonAlignmentInputMethod& operator=(const MuonAlignmentInputMethod&) = delete; // stop default
-
-      // ---------- member data --------------------------------
+private:
+  // ---------- member data --------------------------------
+  const DTGeometry* dtGeometry_;
+  const CSCGeometry* cscGeometry_;
+  const GEMGeometry* gemGeometry_;
 };
-
 
 #endif

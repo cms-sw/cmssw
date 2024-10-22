@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 """ This python cfg converts a plain DQM root file in a EDM file that can be used to run the SiStrip bad channel calibration as done @ Tier0"""
@@ -9,7 +10,6 @@ process = cms.Process("CONV")
 #process.load("DQMServices.Core.test.MessageLogger_cfi")
 process.load('Configuration.EventContent.EventContent_cff')
 process.load("DQMServices.Core.DQM_cfg")
-#process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
 
 
@@ -24,7 +24,7 @@ process.maxEvents = cms.untracked.PSet(
 
 
 runNumber = int(process.fileReader.RootFileName.value().split('/')[-1].split('_')[2].lstrip("R"))
-print "Run number extracted from file name:",runNumber
+print("Run number extracted from file name:",runNumber)
 
 process.source = cms.Source("EmptySource",
                             firstRun = cms.untracked.uint32(runNumber),
@@ -45,7 +45,6 @@ process.ALCARECOStreamSiStripPCLHistos = cms.OutputModule("PoolOutputModule",
                                                           )
 
 process.MEtoEDMConvertSiStrip = cms.EDProducer("MEtoEDMConverter",
-                                               deleteAfterCopy = cms.untracked.bool(False),
                                                Verbosity = cms.untracked.int32(0),
                                                Frequency = cms.untracked.int32(50),
                                                Name = cms.untracked.string('MEtoEDMConverter'),

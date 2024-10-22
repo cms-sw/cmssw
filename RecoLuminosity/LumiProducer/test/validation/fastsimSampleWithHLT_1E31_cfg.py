@@ -79,8 +79,11 @@ process.source = cms.Source("EmptySource",
 process.simulation = cms.Sequence(process.generator*process.simulationWithFamos)
 
 # You many not want to simulate everything
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
+process.fastSimProducer.SimulateCalorimetry = True
+for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
 # Number of pileup events per crossing
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
@@ -89,7 +92,6 @@ process.HLTEndSequence = cms.Sequence(process.dummyModule)
 
 # HLT schedule
 process.schedule = cms.Schedule()
-process.schedule.extend(process.HLTSchedule)
 
 # To write out events 
 process.load("FastSimulation.Configuration.EventContent_cff")
@@ -108,13 +110,13 @@ process.outpath = cms.EndPath(process.o1)
 process.schedule.append(process.outpath)
 
 process.load("FWCore/MessageService/MessageLogger_cfi")
-process.MessageLogger.categories.append('L1GtTrigReport')
-process.MessageLogger.categories.append('HLTrigReport')
+process.MessageLogger.L1GtTrigReport=dict()
+process.MessageLogger.HLTrigReport=dict()
 
 # Keep the logging output to a nice level #
 ##process.Timing =  cms.Service("Timing")
 ##process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt","cout")
-##process.MessageLogger.categories.append("FamosManager")
+##
 ##process.MessageLogger.cout = cms.untracked.PSet(threshold=cms.untracked.string("INFO"),
 ##                                                default=cms.untracked.PSet(limit=cms.untracked.int32(0)),
 ##                                                FamosManager=cms.untracked.PSet(limit=cms.untracked.int32(100000)))

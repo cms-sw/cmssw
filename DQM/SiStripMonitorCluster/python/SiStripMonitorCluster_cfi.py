@@ -21,9 +21,23 @@ SiStripMonitorCluster = DQMEDAnalyzer('SiStripMonitorCluster',
 
     TopFolderName = cms.string('SiStrip'),
 
-    BPTXfilter     = cms.PSet(),
-    PixelDCSfilter = cms.PSet(),
-    StripDCSfilter = cms.PSet(),
+    BPTXfilter = cms.PSet(),
+    PixelDCSfilter = cms.PSet(
+        andOr = cms.bool(False),
+        dcsInputTag = cms.InputTag("scalersRawToDigi"),
+        dcsRecordInputTag = cms.InputTag( "onlineMetaDataDigis" ),
+        dcsPartitions = cms.vint32(28, 29),
+        andOrDcs = cms.bool(False),
+        errorReplyDcs = cms.bool(True)
+    ),
+    StripDCSfilter = cms.PSet(
+        andOr = cms.bool(False),
+        dcsInputTag = cms.InputTag("scalersRawToDigi"),
+        dcsRecordInputTag = cms.InputTag( "onlineMetaDataDigis" ),
+        dcsPartitions = cms.vint32(24, 25, 26, 27),
+        andOrDcs = cms.bool(False),
+        errorReplyDcs = cms.bool(True)
+    ),
 
     CreateTrendMEs = cms.bool(False),
     TrendVs10LS = cms.bool(False),
@@ -312,9 +326,9 @@ SiStripMonitorCluster = DQMEDAnalyzer('SiStripMonitorCluster',
         ),
 
      TProfNClustersFED = cms.PSet(
-         Nbinsx          = cms.int32(500),
-         xmax           = cms.double(500),
-         xmin           = cms.double(0),
+         Nbinsx          = cms.int32(440),
+         xmax           = cms.double(489.5),
+         xmin           = cms.double(49.5),
          Nbinsy = cms.int32(200),
          ymin = cms.double(-0.5),
          ymax = cms.double(199999.5),
@@ -390,3 +404,12 @@ SiStripMonitorCluster = DQMEDAnalyzer('SiStripMonitorCluster',
     ShowControlView = cms.bool(False),
     ShowReadoutView = cms.bool(False)
 )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(SiStripMonitorCluster,  TH1NClusPx = dict(xmax = 39999.5))
+run3_common.toModify(SiStripMonitorCluster,  TH1NClusStrip = dict(xmax = 299999.5))
+run3_common.toModify(SiStripMonitorCluster,  TProfNClusStrip = dict(ymax = 299999.5))
+run3_common.toModify(SiStripMonitorCluster,  TProfNClusPixel = dict(ymax = 39999.5))
+run3_common.toModify(SiStripMonitorCluster,  TProfNClustersFED = dict(ymax = 299999.5))
+run3_common.toModify(SiStripMonitorCluster,  TH2CStripVsCpixel = dict(xmax = 299999.5, ymax = 39999.5))
+run3_common.toModify(SiStripMonitorCluster,  TH1TotalNumberOfClusters = dict(xmax = 44999.5))

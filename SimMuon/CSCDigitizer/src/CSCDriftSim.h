@@ -12,9 +12,9 @@
  * Last mod: <BR>
  * 30-Jun-00 ptc Doxygenate. <BR>
  *               Bug-fix in ctor: first bin of integral was 'nan'. <BR>
- *               Bug-trap in avalancheCharge(): very rarely could attempt access outside std::vector. <BR>
- * <p>
- * 01-08/00 vin  use binary search in avalancheCharge()<br>
+ *               Bug-trap in avalancheCharge(): very rarely could attempt access
+ * outside std::vector. <BR> <p> 01-08/00 vin  use binary search in
+ * avalancheCharge()<br>
  */
 
 #include <vector>
@@ -29,21 +29,22 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class CSCDriftSim
-{
+class CSCDriftSim {
 public:
   CSCDriftSim();
 
   ~CSCDriftSim();
 
-  /** takes a point, 
+  /** takes a point,
    and creates a signal on the wire
   */
-  CSCDetectorHit getWireHit(const Local3DPoint & ionClusterPosition,
-                            const CSCLayer *, int wire, const PSimHit & simHit,
-                            CLHEP::HepRandomEngine*);
+  CSCDetectorHit getWireHit(const Local3DPoint &ionClusterPosition,
+                            const CSCLayer *,
+                            int wire,
+                            const PSimHit &simHit,
+                            CLHEP::HepRandomEngine *);
 
-  void setMagneticField(const MagneticField * field) {theMagneticField = field;}
+  void setMagneticField(const MagneticField *field) { theMagneticField = field; }
 
 private:
   // helper functions
@@ -57,8 +58,8 @@ private:
   double driftTimeSigmaHighB();
   double avgDrift() const;
   double driftSigma() const;
-  double avalancheCharge(CLHEP::HepRandomEngine*);
-  double gasGain(const CSCDetId & id) const;
+  double avalancheCharge(CLHEP::HepRandomEngine *);
+  double gasGain(const CSCDetId &id) const;
 
   // local magnetic field
   float bz;
@@ -70,7 +71,7 @@ private:
 
   const double ELECTRON_DIFFUSION_COEFF;
 
-  const MagneticField * theMagneticField;
+  const MagneticField *theMagneticField;
 };
 
 #endif

@@ -2,7 +2,7 @@
 //
 // Package:     Package
 // Class  :     filterImplementors
-// 
+//
 // Implementation:
 //     Explicitly instantiate implementor templates for EDFilterBase
 //
@@ -19,11 +19,14 @@
 namespace edm {
   namespace global {
     namespace impl {
+      template class WatchProcessBlock<edm::global::EDFilterBase>;
+      template class BeginProcessBlockProducer<edm::global::EDFilterBase>;
+      template class EndProcessBlockProducer<edm::global::EDFilterBase>;
       template class BeginRunProducer<edm::global::EDFilterBase>;
       template class EndRunProducer<edm::global::EDFilterBase>;
       template class BeginLuminosityBlockProducer<edm::global::EDFilterBase>;
       template class EndLuminosityBlockProducer<edm::global::EDFilterBase>;
       template class ExternalWork<edm::global::EDFilterBase>;
-    }
-  }
-}
+    }  // namespace impl
+  }  // namespace global
+}  // namespace edm

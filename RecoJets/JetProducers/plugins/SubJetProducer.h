@@ -6,24 +6,20 @@
 #include "RecoJets/JetAlgorithms/interface/SubJetAlgorithm.h"
 #include "RecoJets/JetAlgorithms/interface/CompoundPseudoJet.h"
 
-namespace cms
-{
-  class SubJetProducer : public CompoundJetProducer
-  {
+namespace cms {
+  class SubJetProducer : public CompoundJetProducer {
   public:
-
     SubJetProducer(const edm::ParameterSet& ps);
 
     ~SubJetProducer() override {}
-    
-    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
-    
-    void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
+
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
+    void runAlgorithm(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   private:
-    SubJetAlgorithm        alg_;         /// The algorithm to do the work
-
+    SubJetAlgorithm alg_;  /// The algorithm to do the work
   };
 
-}
+}  // namespace cms
 #endif

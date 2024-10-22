@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::stream::EDProducerBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -31,18 +31,14 @@ using namespace edm::stream;
 //
 // constructors and destructor
 //
-EDProducerBase::EDProducerBase(): moduleDescriptionPtr_(nullptr)
-{
-}
+EDProducerBase::EDProducerBase() : moduleDescriptionPtr_(nullptr) {}
 
 // EDProducerBase::EDProducerBase(const EDProducerBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-EDProducerBase::~EDProducerBase()
-{
-}
+EDProducerBase::~EDProducerBase() {}
 
 //
 // assignment operators
@@ -67,21 +63,22 @@ EDProducerBase::~EDProducerBase()
 //
 // static member functions
 //
-void
-EDProducerBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
+void EDProducerBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
   ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
 
-void
-EDProducerBase::prevalidate(ConfigurationDescriptions& iConfig) {
-  edmodule_mightGet_config(iConfig);
-}
+size_t EDProducerBase::transformIndex_(edm::BranchDescription const& iBranch) const noexcept { return -1; }
+edm::ProductResolverIndex EDProducerBase::transformPrefetch_(std::size_t iIndex) const noexcept { return 0; }
+void EDProducerBase::transformAsync_(WaitingTaskHolder iTask,
+                                     std::size_t iIndex,
+                                     edm::EventForTransformer& iEvent,
+                                     edm::ActivityRegistry* iAct,
+                                     ServiceWeakToken const& iToken) const noexcept {}
+
+void EDProducerBase::prevalidate(ConfigurationDescriptions& iConfig) { edmodule_mightGet_config(iConfig); }
 
 static const std::string kBaseType("EDProducer");
 
-const std::string&
-EDProducerBase::baseType() {
-  return kBaseType;
-}
+const std::string& EDProducerBase::baseType() { return kBaseType; }

@@ -30,14 +30,10 @@ multPhiCorrParams_T1T2Txy_25ns     = cms.VPSet( pset for pset in multPhiCorrPara
 pfMEtMultShiftCorr = cms.EDProducer("MultShiftMETcorrInputProducer",
     srcPFlow = cms.InputTag('particleFlow', ''),
     vertexCollection = cms.InputTag('offlinePrimaryVertices'),
+    srcWeights = cms.InputTag(''),
     parameters = multPhiCorrParams_Txy_25ns
 )
 
 pfMEtSysShiftCorrSequence = cms.Sequence( pfMEtMultShiftCorr )
-
-#from Configuration.StandardSequences.Eras import eras
-#eras.run2_common.toModify(pfMEtMultShiftCorr, parameters=multPhiCorrParams_Txy_25ns )
-#eras.run2_50ns_specific.toModify(pfMEtMultShiftCorr, parameters=multPhiCorrParams_Txy_50ns )
-#eras.run2_25ns_specific.toModify(pfMEtMultShiftCorr, parameters=multPhiCorrParams_Txy_25ns )
 
 

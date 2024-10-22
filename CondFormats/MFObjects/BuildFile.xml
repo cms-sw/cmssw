@@ -1,9 +1,6 @@
-<flags   GENREFLEX_ARGS="--"/>
-<use   name="DataFormats/StdDictionaries"/>
-<use   name="CondFormats/Common"/>
-<use   name="FWCore/Utilities"/>
-<use   name="boost_serialization"/>
-
+<use name="CondFormats/Serialization"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

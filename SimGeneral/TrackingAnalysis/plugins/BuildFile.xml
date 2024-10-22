@@ -1,7 +1,10 @@
-<use   name="SimGeneral/TrackingAnalysis"/>
-<use   name="DataFormats/TrackerCommon"/>
-<use   name="DataFormats/HepMCCandidate"/>
-<use   name="SimGeneral/MixingModule"/>
-<library   file="*.cc" name="SimGeneralTrackingAnalysisPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="SimGeneral/TrackingAnalysis"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="Geometry/Records"/>
+<use name="SimDataFormats/TrackerDigiSimLink"/>
+<use name="SimGeneral/MixingModule"/>
+<use name="SimGeneral/PreMixingModule"/>
+<library file="*.cc" name="SimGeneralTrackingAnalysisPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

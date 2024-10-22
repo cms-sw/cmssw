@@ -3,7 +3,9 @@
 
 #include <string>
 namespace edm {
-  std::string createGlobalIdentifier();
-}
+  std::string createGlobalIdentifier(bool binary = false);
+
+  bool isValidGlobalIdentifier(std::string const& guid);
+}  // namespace edm
 
 #endif

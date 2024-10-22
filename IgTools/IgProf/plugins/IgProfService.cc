@@ -1,6 +1,6 @@
 
 //
-//  Description: FWK service to implement hook for igprof memory profile 
+//  Description: FWK service to implement hook for igprof memory profile
 //               dump functionality
 //
 //  Peter Elmer, Princeton University                        18 Nov, 2008
@@ -22,65 +22,61 @@
 
 using namespace edm::service;
 
-IgProfService::IgProfService(ParameterSet const& ps, 
-                             ActivityRegistry&iRegistry)
-  : dump_(nullptr),
-    mineventrecord_(1),
-    prescale_(1),
-    nrecord_(0),
-    nevent_(0),
-    nrun_(0),
-    nlumi_(0),
-    nfileopened_(0),
-    nfileclosed_(0) {
-
-
-    // Removing the __extension__ gives a warning which
-    // is acknowledged as a language problem in the C++ Standard Core 
-    // Language Defect Report
-    //
-    // http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#195
-    //
-    // since the suggested decision seems to be that the syntax should
-    // actually be "Conditionally-Supported Behavior" in some 
-    // future C++ standard I simply silence the warning.
-    if (void *sym = dlsym(nullptr, "igprof_dump_now")) {
-      dump_ = __extension__ (void(*)(const char *)) sym;
-    } else
-      edm::LogWarning("IgProfModule")
-        << "IgProfModule requested but application is not"
-        << " currently being profiled with igprof\n";
+IgProfService::IgProfService(ParameterSet const &ps, ActivityRegistry &iRegistry)
+    : dump_(nullptr),
+      mineventrecord_(1),
+      prescale_(1),
+      nrecord_(0),
+      nevent_(0),
+      nrun_(0),
+      nlumi_(0),
+      nfileopened_(0),
+      nfileclosed_(0) {
+  // Removing the __extension__ gives a warning which
+  // is acknowledged as a language problem in the C++ Standard Core
+  // Language Defect Report
+  //
+  // http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#195
+  //
+  // since the suggested decision seems to be that the syntax should
+  // actually be "Conditionally-Supported Behavior" in some
+  // future C++ standard I simply silence the warning.
+  if (void *sym = dlsym(nullptr, "igprof_dump_now")) {
+    dump_ = __extension__(void (*)(const char *)) sym;
+  } else
+    edm::LogWarning("IgProfModule") << "IgProfModule requested but application is not"
+                                    << " currently being profiled with igprof\n";
 
   // Get the configuration
-  prescale_    
-    = ps.getUntrackedParameter<int>("reportEventInterval", prescale_);
-  mineventrecord_    
-    = ps.getUntrackedParameter<int>("reportFirstEvent", mineventrecord_);
+  prescale_ = ps.getUntrackedParameter<int>("reportEventInterval", prescale_);
+  mineventrecord_ = ps.getUntrackedParameter<int>("reportFirstEvent", mineventrecord_);
 
-  atPostBeginJob_  
-    = ps.getUntrackedParameter<std::string>("reportToFileAtPostBeginJob", atPostBeginJob_);
-  atPostBeginRun_ 
-    = ps.getUntrackedParameter<std::string>("reportToFileAtPostBeginRun", atPostBeginRun_);
-  atPostBeginLumi_ 
-    = ps.getUntrackedParameter<std::string>("reportToFileAtPostBeginLumi", atPostBeginLumi_);
+  atPostBeginJob_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostBeginJob", atPostBeginJob_);
+  atPostBeginRun_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostBeginRun", atPostBeginRun_);
+  atPostBeginLumi_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostBeginLumi", atPostBeginLumi_);
 
-  atPreEvent_     
-    = ps.getUntrackedParameter<std::string>("reportToFileAtPreEvent", atPreEvent_);
-  atPostEvent_     
-    = ps.getUntrackedParameter<std::string>("reportToFileAtPostEvent", atPostEvent_);
+  atPreEvent_ = ps.getUntrackedParameter<std::string>("reportToFileAtPreEvent", atPreEvent_);
+  atPostEvent_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostEvent", atPostEvent_);
 
-  atPostEndLumi_ 
-    = ps.getUntrackedParameter<std::string>("reportToFileAtPostEndLumi", atPostEndLumi_);
-  atPostEndRun_ 
-    = ps.getUntrackedParameter<std::string>("reportToFileAtPostEndRun", atPostEndRun_);
-  atPostEndJob_  
-    = ps.getUntrackedParameter<std::string>("reportToFileAtPostEndJob", atPostEndJob_);
+  modules_ = ps.getUntrackedParameter<std::vector<std::string>>("reportModules", modules_);
+  moduleTypes_ = ps.getUntrackedParameter<std::vector<std::string>>("reportModuleTypes", moduleTypes_);
+  std::sort(modules_.begin(), modules_.end());
+  std::sort(moduleTypes_.begin(), moduleTypes_.end());
+  atPreModuleEvent_ = ps.getUntrackedParameter<std::string>("reportToFileAtPreModuleEvent", atPreModuleEvent_);
+  atPostModuleEvent_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostModuleEvent", atPostModuleEvent_);
 
-  atPostOpenFile_ 
-    = ps.getUntrackedParameter<std::string>("reportToFileAtPostOpenFile", atPostOpenFile_);
-  atPostCloseFile_ 
-    = ps.getUntrackedParameter<std::string>("reportToFileAtPostCloseFile", atPostCloseFile_);
+  atPostEndLumi_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostEndLumi", atPostEndLumi_);
+  atPreEndRun_ = ps.getUntrackedParameter<std::string>("reportToFileAtPreEndRun", atPreEndRun_);
+  atPostEndRun_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostEndRun", atPostEndRun_);
+  atPreEndProcessBlock_ =
+      ps.getUntrackedParameter<std::string>("reportToFileAtPreEndProcessBlock", atPreEndProcessBlock_);
+  atPostEndProcessBlock_ =
+      ps.getUntrackedParameter<std::string>("reportToFileAtPostEndProcessBlock", atPostEndProcessBlock_);
+  atPreEndJob_ = ps.getUntrackedParameter<std::string>("reportToFileAtPreEndJob", atPreEndJob_);
+  atPostEndJob_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostEndJob", atPostEndJob_);
 
+  atPostOpenFile_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostOpenFile", atPostOpenFile_);
+  atPostCloseFile_ = ps.getUntrackedParameter<std::string>("reportToFileAtPostCloseFile", atPostCloseFile_);
 
   // Register for the framework signals
   iRegistry.watchPostBeginJob(this, &IgProfService::postBeginJob);
@@ -90,66 +86,150 @@ IgProfService::IgProfService(ParameterSet const& ps,
   iRegistry.watchPreEvent(this, &IgProfService::preEvent);
   iRegistry.watchPostEvent(this, &IgProfService::postEvent);
 
+  if (not modules_.empty() or not moduleTypes_.empty()) {
+    iRegistry.watchPreModuleEvent(this, &IgProfService::preModuleEvent);
+    iRegistry.watchPostModuleEvent(this, &IgProfService::postModuleEvent);
+  }
+
   iRegistry.watchPostGlobalEndLumi(this, &IgProfService::postEndLumi);
+  iRegistry.watchPreGlobalEndRun(this, &IgProfService::preEndRun);
   iRegistry.watchPostGlobalEndRun(this, &IgProfService::postEndRun);
+  iRegistry.watchPreEndProcessBlock(this, &IgProfService::preEndProcessBlock);
+  iRegistry.watchPostEndProcessBlock(this, &IgProfService::postEndProcessBlock);
+  iRegistry.watchPreEndJob(this, &IgProfService::preEndJob);
   iRegistry.watchPostEndJob(this, &IgProfService::postEndJob);
 
   iRegistry.watchPostOpenFile(this, &IgProfService::postOpenFile);
   iRegistry.watchPostCloseFile(this, &IgProfService::postCloseFile);
-
 }
 
-void IgProfService::postBeginJob() { 
-  makeDump(atPostBeginJob_); 
+void IgProfService::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.setComment(
+      "All file parameters allow the following replaceable tokens:\n"
+      "  %I : record number\n"
+      "  %E : event number\n"
+      "  %R : run number\n"
+      "  %L : lumi number\n"
+      "  %F : file open count\n"
+      "  %C : file close count\n"
+      "  %M : module label");
+  desc.addUntracked<int>("reportEventInterval", 1)->setComment("write a new file every n events");
+  desc.addUntracked<int>("reportFirstEvent", 1)->setComment("first event count to start writing files");
+  ;
+
+  desc.addUntracked<std::string>("reportToFileAtPostBeginJob", "");
+  desc.addUntracked<std::string>("reportToFileAtPostBeginRun", "");
+  desc.addUntracked<std::string>("reportToFileAtPostBeginLumi", "");
+
+  desc.addUntracked<std::string>("reportToFileAtPreEvent", "");
+  desc.addUntracked<std::string>("reportToFileAtPostEvent", "");
+
+  desc.addUntracked<std::vector<std::string>>("reportModules", {});
+  desc.addUntracked<std::vector<std::string>>("reportModuleTypes", {});
+
+  desc.addUntracked<std::string>("reportToFileAtPreModuleEvent", "");
+  desc.addUntracked<std::string>("reportToFileAtPostModuleEvent", "");
+
+  desc.addUntracked<std::string>("reportToFileAtPostEndLumi", "");
+  desc.addUntracked<std::string>("reportToFileAtPreEndRun", "");
+  desc.addUntracked<std::string>("reportToFileAtPostEndRun", "");
+  desc.addUntracked<std::string>("reportToFileAtPreEndProcessBlock", "");
+  desc.addUntracked<std::string>("reportToFileAtPostEndProcessBlock", "");
+  desc.addUntracked<std::string>("reportToFileAtPreEndJob", "");
+  desc.addUntracked<std::string>("reportToFileAtPostEndJob", "");
+
+  desc.addUntracked<std::string>("reportToFileAtPostOpenFile", "");
+  desc.addUntracked<std::string>("reportToFileAtPostCloseFile", "");
+
+  descriptions.addDefault(desc);
 }
 
-void IgProfService::postBeginRun(GlobalContext const& gc) {
-  nrun_ = gc.luminosityBlockID().run(); makeDump(atPostBeginRun_); 
+void IgProfService::postBeginJob() { makeDump(atPostBeginJob_); }
+
+void IgProfService::postBeginRun(GlobalContext const &gc) {
+  nrun_ = gc.luminosityBlockID().run();
+  makeDump(atPostBeginRun_);
 }
 
-void IgProfService::postBeginLumi(GlobalContext const& gc) { 
-  nlumi_ = gc.luminosityBlockID().luminosityBlock(); makeDump(atPostBeginLumi_); 
+void IgProfService::postBeginLumi(GlobalContext const &gc) {
+  nlumi_ = gc.luminosityBlockID().luminosityBlock();
+  makeDump(atPostBeginLumi_);
 }
 
-void IgProfService::preEvent(StreamContext const& iStream) {
-  ++nrecord_; // count before events
+void IgProfService::preEvent(StreamContext const &iStream) {
+  ++nrecord_;  // count before events
   nevent_ = iStream.eventID().event();
-  if ((prescale_ > 0) && 
-      (nrecord_ >= mineventrecord_) &&
-      (((nrecord_ - mineventrecord_)% prescale_) == 0)) makeDump(atPreEvent_);
+  if ((prescale_ > 0) && (nrecord_ >= mineventrecord_) && (((nrecord_ - mineventrecord_) % prescale_) == 0))
+    makeDump(atPreEvent_);
 }
 
-void IgProfService::postEvent(StreamContext const& iStream) {
+void IgProfService::postEvent(StreamContext const &iStream) {
   nevent_ = iStream.eventID().event();
-  if ((prescale_ > 0) && 
-      (nrecord_ >= mineventrecord_) &&
-      (((nrecord_ - mineventrecord_)% prescale_) == 0)) makeDump(atPostEvent_);
+  if ((prescale_ > 0) && (nrecord_ >= mineventrecord_) && (((nrecord_ - mineventrecord_) % prescale_) == 0))
+    makeDump(atPostEvent_);
 }
 
-void IgProfService::postEndLumi(GlobalContext const &) { 
-  makeDump(atPostEndLumi_); 
+void IgProfService::preModuleEvent(StreamContext const &iStream, ModuleCallingContext const &mcc) {
+  nevent_ = iStream.eventID().event();
+  if ((prescale_ > 0) && (nrecord_ >= mineventrecord_) && (((nrecord_ - mineventrecord_) % prescale_) == 0)) {
+    auto const &moduleLabel = mcc.moduleDescription()->moduleLabel();
+    auto const &moduleType = mcc.moduleDescription()->moduleName();
+    if (std::binary_search(modules_.begin(), modules_.end(), moduleLabel) or
+        std::binary_search(moduleTypes_.begin(), moduleTypes_.end(), moduleType)) {
+      makeDump(atPreModuleEvent_, moduleLabel);
+    }
+  }
 }
 
-void IgProfService::postEndRun(GlobalContext const &) { 
-  makeDump(atPostEndRun_); 
+void IgProfService::postModuleEvent(StreamContext const &iStream, ModuleCallingContext const &mcc) {
+  nevent_ = iStream.eventID().event();
+  if ((prescale_ > 0) && (nrecord_ >= mineventrecord_) && (((nrecord_ - mineventrecord_) % prescale_) == 0)) {
+    auto const &moduleLabel = mcc.moduleDescription()->moduleLabel();
+    auto const &moduleType = mcc.moduleDescription()->moduleName();
+    if (std::binary_search(modules_.begin(), modules_.end(), moduleLabel) or
+        std::binary_search(moduleTypes_.begin(), moduleTypes_.end(), moduleType)) {
+      makeDump(atPostModuleEvent_, moduleLabel);
+    }
+  }
 }
 
-void IgProfService::postEndJob() { 
-  makeDump(atPostEndJob_); 
+void IgProfService::postEndLumi(GlobalContext const &gc) {
+  nlumi_ = gc.luminosityBlockID().luminosityBlock();
+  makeDump(atPostEndLumi_);
 }
 
-void IgProfService::postOpenFile (std::string const&, bool) {
-  ++nfileopened_; 
+void IgProfService::preEndRun(GlobalContext const &gc) {
+  nrun_ = gc.luminosityBlockID().run();
+  makeDump(atPreEndRun_);
+}
+
+void IgProfService::postEndRun(GlobalContext const &gc) {
+  nrun_ = gc.luminosityBlockID().run();
+  makeDump(atPostEndRun_);
+}
+
+void IgProfService::preEndProcessBlock(GlobalContext const &gc) { makeDump(atPreEndProcessBlock_); }
+
+void IgProfService::postEndProcessBlock(GlobalContext const &gc) { makeDump(atPostEndProcessBlock_); }
+
+void IgProfService::preEndJob() { makeDump(atPreEndJob_); }
+
+void IgProfService::postEndJob() { makeDump(atPostEndJob_); }
+
+void IgProfService::postOpenFile(std::string const &) {
+  ++nfileopened_;
   makeDump(atPostOpenFile_);
-}  
+}
 
-void IgProfService::postCloseFile (std::string const&, bool) {
-  ++nfileclosed_; 
+void IgProfService::postCloseFile(std::string const &) {
+  ++nfileclosed_;
   makeDump(atPostCloseFile_);
-}  
+}
 
-void IgProfService::makeDump(const std::string &format) {
-  if (! dump_ || format.empty())
+void IgProfService::makeDump(const std::string &format, std::string_view moduleLabel) {
+  if (!dump_ || format.empty())
     return;
 
   std::string final(format);
@@ -159,16 +239,15 @@ void IgProfService::makeDump(const std::string &format) {
   final = replaceU64(final, "%L", nlumi_);
   final = replace(final, "%F", nfileopened_);
   final = replace(final, "%C", nfileclosed_);
+  final = replace(final, "%M", moduleLabel);
   dump_(final.c_str());
 }
 
-std::string 
-IgProfService::replace(const std::string &s, const char *pat, int val) {
+std::string IgProfService::replace(const std::string &s, const char *pat, int val) {
   size_t pos = 0;
   size_t patlen = strlen(pat);
   std::string result = s;
-  while ((pos = result.find(pat, pos)) != std::string::npos)
-  {
+  while ((pos = result.find(pat, pos)) != std::string::npos) {
     char buf[64];
     int n = sprintf(buf, "%d", val);
     result.replace(pos, patlen, buf);
@@ -178,13 +257,11 @@ IgProfService::replace(const std::string &s, const char *pat, int val) {
   return result;
 }
 
-std::string 
-IgProfService::replaceU64(const std::string &s, const char *pat, unsigned long long val) {
+std::string IgProfService::replaceU64(const std::string &s, const char *pat, unsigned long long val) {
   size_t pos = 0;
   size_t patlen = strlen(pat);
   std::string result = s;
-  while ((pos = result.find(pat, pos)) != std::string::npos)
-  {
+  while ((pos = result.find(pat, pos)) != std::string::npos) {
     char buf[64];
     int n = sprintf(buf, "%llu", val);
     result.replace(pos, patlen, buf);
@@ -194,5 +271,16 @@ IgProfService::replaceU64(const std::string &s, const char *pat, unsigned long l
   return result;
 }
 
-DEFINE_FWK_SERVICE(IgProfService);
+std::string IgProfService::replace(const std::string &s, const char *pat, std::string_view val) {
+  size_t pos = 0;
+  size_t patlen = strlen(pat);
+  std::string result = s;
+  while ((pos = result.find(pat, pos)) != std::string::npos) {
+    result.replace(pos, patlen, val.data());
+    pos = pos - patlen + val.size();
+  }
 
+  return result;
+}
+
+DEFINE_FWK_SERVICE(IgProfService);

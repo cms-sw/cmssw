@@ -385,7 +385,6 @@ ProbePhotonVariablesToStore = cms.PSet(
 
 CommonStuffForPhotonProbe = cms.PSet(
    variables = cms.PSet(ProbePhotonVariablesToStore),
-   ignoreExceptions =  cms.bool (False),
    #fillTagTree      =  cms.bool (True),
    addRunLumiInfo   =  cms.bool (True),
    addEventVariablesInfo   =  cms.bool (True),
@@ -505,7 +504,6 @@ process.photonIDsusydiphotonToHLT = cms.EDAnalyzer("TagProbeFitTreeProducer",
       probe_phi  = cms.string("phi"),
       probe_et  = cms.string("et"),
     ),
-    ignoreExceptions =  cms.bool (False),
     addRunLumiInfo   =  cms.bool (False),
     addEventVariablesInfo   =  cms.bool (False),                                                        
     tagProbePairs = cms.InputTag("tagphotonIDsusydiphoton"),

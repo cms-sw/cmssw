@@ -22,65 +22,63 @@ class FWGUIEventSelector;
 class CmsShowNavigator;
 class FWConfiguration;
 
-namespace fireworks
-{
-class Context;
+namespace fireworks {
+  class Context;
 }
 
-class FWGUIEventFilter: public TGMainFrame
-{
+class FWGUIEventFilter : public TGMainFrame {
 public:
-   FWGUIEventFilter(CmsShowNavigator*);
-   ~FWGUIEventFilter() override;
-   void CloseWindow() override;
-   
-   void show(std::list<FWEventSelector*>* sels, int filterMode, int state);
-   void reset();    
+  FWGUIEventFilter(CmsShowNavigator*);
+  ~FWGUIEventFilter() override;
+  void CloseWindow() override;
 
-   std::list<FWGUIEventSelector*>& guiSelectors() { return m_guiSelectors; }
-   
-   void newEventEntry();
-   void newTriggerEntry();
-   void addSelector(FWEventSelector* sel);
-   void deleteEntry(FWGUIEventSelector*);
-   bool isOpen() { return m_isOpen; }
-   void apply();
-   void disableFilters();
-   void setupDisableFilteringButton(bool);
-   void checkApplyButton();
-   void changeFilterMode();
-   int  getFilterMode();
-   void updateFilterStateLabel(int);
-   /*
+  void show(std::list<FWEventSelector*>* sels, int filterMode, int state);
+  void reset();
+
+  std::list<FWGUIEventSelector*>& guiSelectors() { return m_guiSelectors; }
+
+  void newEventEntry();
+  void newTriggerEntry();
+  void addSelector(FWEventSelector* sel);
+  void deleteEntry(FWGUIEventSelector*);
+  bool isOpen() { return m_isOpen; }
+  void apply();
+  void disableFilters();
+  void setupDisableFilteringButton(bool);
+  void checkApplyButton();
+  void changeFilterMode();
+  int getFilterMode();
+  void updateFilterStateLabel(int);
+  /*
    void addTo(FWConfiguration&) const;
    void setFrom(const FWConfiguration&);
    */
-   Bool_t HandleKey(Event_t *event) override;
-   ClassDefOverride(FWGUIEventFilter, 0);
-   
-private:   
-   static const int s_entryHeight = 21;
-   
-   int          m_origFilterMode;
-   bool         m_isOpen;
-   bool         m_filtersRemoved;
-   
-   std::list<FWGUIEventSelector*> m_guiSelectors;
+  Bool_t HandleKey(Event_t* event) override;
+  ClassDefOverride(FWGUIEventFilter, 0);
 
-   TGCompositeFrame*    m_eventSelectionFrameParent;
-   TGCompositeFrame*    m_eventSelectionFrame;
+private:
+  static const int s_entryHeight = 21;
 
-   TGCompositeFrame*    m_triggerSelectionFrameParent;
-   TGCompositeFrame*    m_triggerSelectionFrame;
+  int m_origFilterMode;
+  bool m_isOpen;
+  bool m_filtersRemoved;
 
-   TGRadioButton*       m_rad1;
-   TGRadioButton*       m_rad2;
-   TGLabel*             m_stateLabel;
-   TGTextButton*        m_applyBtn;
-   TGTextButton*        m_disableFilteringBtn;
-   FWCustomIconsButton* m_addBtn;
+  std::list<FWGUIEventSelector*> m_guiSelectors;
 
-   CmsShowNavigator*    m_navigator;
+  TGCompositeFrame* m_eventSelectionFrameParent;
+  TGCompositeFrame* m_eventSelectionFrame;
+
+  TGCompositeFrame* m_triggerSelectionFrameParent;
+  TGCompositeFrame* m_triggerSelectionFrame;
+
+  TGRadioButton* m_rad1;
+  TGRadioButton* m_rad2;
+  TGLabel* m_stateLabel;
+  TGTextButton* m_applyBtn;
+  TGTextButton* m_disableFilteringBtn;
+  FWCustomIconsButton* m_addBtn;
+
+  CmsShowNavigator* m_navigator;
 };
 
 #endif

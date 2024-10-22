@@ -4,8 +4,9 @@
 //
 // Package:     Watcher
 // Class  :     SimWatcherMakerBase
-// 
-/**\class SimWatcherMakerBase SimWatcherMakerBase.h SimG4Core/Watcher/interface/SimWatcherMakerBase.h
+//
+/**\class SimWatcherMakerBase SimWatcherMakerBase.h
+ SimG4Core/Watcher/interface/SimWatcherMakerBase.h
 
  Description: Base class for the 'maker' which creates Watchers
 
@@ -26,25 +27,21 @@
 
 // forward declarations
 class SimActivityRegistry;
-namespace edm{
+namespace edm {
   class ParameterSet;
 }
 class SimWatcher;
 class SimProducer;
-class SimWatcherMakerBase
-{
+class SimWatcherMakerBase {
+public:
+  SimWatcherMakerBase() {}
+  virtual ~SimWatcherMakerBase() {}
 
-   public:
-      SimWatcherMakerBase() {}
-      virtual ~SimWatcherMakerBase() {}
-
-      // ---------- const member functions ---------------------
-      virtual void make(const edm::ParameterSet&,
-			SimActivityRegistry&,
-			std::shared_ptr<SimWatcher>&,
-			std::shared_ptr<SimProducer>&
-	 ) const = 0;
+  // ---------- const member functions ---------------------
+  virtual void make(const edm::ParameterSet &,
+                    SimActivityRegistry &,
+                    std::shared_ptr<SimWatcher> &,
+                    std::shared_ptr<SimProducer> &) const = 0;
 };
-
 
 #endif

@@ -21,11 +21,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
-class L1GlobalTriggerObjectMaps
-{
-
+class L1GlobalTriggerObjectMaps {
 public:
-
   L1GlobalTriggerObjectMaps() {}
 
   ~L1GlobalTriggerObjectMaps() {}
@@ -60,8 +57,7 @@ public:
   /// condition is defined in the L1 Trigger Menu. The following function
   /// returns an object which has a function that returns the index into the
   /// L1 Object Collections of each object in each combination.
-  CombinationsInCondition getCombinationsInCondition(int algorithmBitNumber,
-                                                     unsigned conditionNumber) const;
+  CombinationsInCondition getCombinationsInCondition(int algorithmBitNumber, unsigned conditionNumber) const;
 
   /// Returns the ID of the ParameterSet containing the algorithm names
   /// and condition names.
@@ -75,9 +71,7 @@ public:
   // functions is expected to carefully take care of.
 
   void reserveForAlgorithms(unsigned n);
-  void pushBackAlgorithm(unsigned startIndexOfConditions,
-                         int algorithmBitNumber,
-                         bool algorithmResult);
+  void pushBackAlgorithm(unsigned startIndexOfConditions, int algorithmBitNumber, bool algorithmResult);
 
   // This function should be called after filling the data in this object
   // using the pushBack* methods.
@@ -96,16 +90,13 @@ public:
   class AlgorithmResult {
   public:
     AlgorithmResult();
-    AlgorithmResult(unsigned startIndexOfConditions,
-                    int algorithmBitNumber,
-                    bool algorithmResult);
+    AlgorithmResult(unsigned startIndexOfConditions, int algorithmBitNumber, bool algorithmResult);
     unsigned startIndexOfConditions() const { return m_startIndexOfConditions; }
     short algorithmBitNumber() const { return m_algorithmBitNumber; }
     bool algorithmResult() const { return m_algorithmResult; }
     // The operator is used for searching in the std::vector<AlgorithmResult>
-    bool operator<(AlgorithmResult const& right) const {
-      return m_algorithmBitNumber < right.algorithmBitNumber();
-    }
+    bool operator<(AlgorithmResult const& right) const { return m_algorithmBitNumber < right.algorithmBitNumber(); }
+
   private:
     unsigned m_startIndexOfConditions;
     short m_algorithmBitNumber;
@@ -115,12 +106,11 @@ public:
   class ConditionResult {
   public:
     ConditionResult();
-    ConditionResult(unsigned startIndexOfCombinations,
-                    unsigned short nObjectsPerCombination,
-                    bool conditionResult);
+    ConditionResult(unsigned startIndexOfCombinations, unsigned short nObjectsPerCombination, bool conditionResult);
     unsigned startIndexOfCombinations() const { return m_startIndexOfCombinations; }
     unsigned short nObjectsPerCombination() const { return m_nObjectsPerCombination; }
     bool conditionResult() const { return m_conditionResult; }
+
   private:
     unsigned m_startIndexOfCombinations;
     unsigned short m_nObjectsPerCombination;
@@ -129,8 +119,7 @@ public:
 
   class ConditionsInAlgorithm {
   public:
-    ConditionsInAlgorithm(ConditionResult const* conditionResults,
-                          unsigned nConditions);
+    ConditionsInAlgorithm(ConditionResult const* conditionResults, unsigned nConditions);
     unsigned nConditions() const { return m_nConditions; }
     bool getConditionResult(unsigned condition) const;
 
@@ -147,8 +136,8 @@ public:
 
     unsigned nCombinations() const { return m_nCombinations; }
     unsigned short nObjectsPerCombination() const { return m_nObjectsPerCombination; }
-    unsigned char getObjectIndex(unsigned combination,
-                                 unsigned object) const;
+    unsigned char getObjectIndex(unsigned combination, unsigned object) const;
+
   private:
     unsigned char const* m_startOfObjectIndexes;
     unsigned m_nCombinations;
@@ -156,7 +145,6 @@ public:
   };
 
 private:
-
   void getStartEndIndex(int algorithmBitNumber, unsigned& startIndex, unsigned& endIndex) const;
 
   // data members
@@ -172,8 +160,6 @@ private:
   edm::ParameterSetID m_namesParameterSetID;
 };
 
-inline void swap(L1GlobalTriggerObjectMaps& lh, L1GlobalTriggerObjectMaps& rh) {
-  lh.swap(rh);
-}
+inline void swap(L1GlobalTriggerObjectMaps& lh, L1GlobalTriggerObjectMaps& rh) { lh.swap(rh); }
 
 #endif

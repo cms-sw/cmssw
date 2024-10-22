@@ -1,0 +1,10 @@
+<library name="RecoMTDTransientTrackingRecHitPlugins" file="*.cc">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/CommonDetUnit" source_only="1"/>
+  <use name="Geometry/Records"/>
+  <use name="RecoMTD/TransientTrackingRecHit"/>
+  <use name="TrackingTools/Records"/>
+  <use name="TrackingTools/TransientTrackingRecHit"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

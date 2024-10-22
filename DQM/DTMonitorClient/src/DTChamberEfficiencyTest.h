@@ -1,7 +1,6 @@
 #ifndef DTChamberEfficiencyTest_H
 #define DTChamberEfficiencyTest_H
 
-
 /** \class DTChamberEfficiencyTest
  * *
  *  DQM Test Client
@@ -13,21 +12,20 @@
  *   
  */
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMEDHarvester.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <memory>
 #include <iostream>
@@ -41,36 +39,33 @@ class DTChamberId;
 class DTSuperLayerId;
 class DTLayerId;
 
-class DTChamberEfficiencyTest: public DQMEDHarvester{
-
+class DTChamberEfficiencyTest : public DQMEDHarvester {
 public:
-
   /// Constructor
-  DTChamberEfficiencyTest(const edm::ParameterSet& ps);
-  
+  DTChamberEfficiencyTest(const edm::ParameterSet &ps);
+
   /// Destructor
   ~DTChamberEfficiencyTest() override;
 
 protected:
-
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// book the new ME
-  void bookHistos(DQMStore::IBooker &, const DTChamberId & ch);
+  void bookHistos(DQMStore::IBooker &, const DTChamberId &ch);
 
   /// book the report summary
   void bookHistos(DQMStore::IBooker &);
 
   /// Get the ME name
-  std::string getMEName(std::string histoTag, const DTChamberId & chID);
+  std::string getMEName(std::string histoTag, const DTChamberId &chID);
 
   /// DQM Client Diagnostic
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
-
-
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;
 
 private:
-
   int nevents;
   unsigned int nLumiSegs;
   int prescaleFactor;
@@ -79,13 +74,14 @@ private:
   bool bookingdone;
 
   edm::ParameterSet parameters;
-  edm::ESHandle<DTGeometry> muonGeom;
 
-  std::map< std::string , MonitorElement* > xEfficiencyHistos;
-  std::map< std::string , MonitorElement* > yEfficiencyHistos;
-  std::map< std::string , MonitorElement* > xVSyEffHistos;
-  std::map< int, MonitorElement* > summaryHistos;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry *muonGeom;
 
+  std::map<std::string, MonitorElement *> xEfficiencyHistos;
+  std::map<std::string, MonitorElement *> yEfficiencyHistos;
+  std::map<std::string, MonitorElement *> xVSyEffHistos;
+  std::map<int, MonitorElement *> summaryHistos;
 };
 
 #endif

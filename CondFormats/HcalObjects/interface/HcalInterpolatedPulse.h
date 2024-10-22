@@ -8,4 +8,4 @@
 // 3 ts ahead of the 10 time slices digitized)
 typedef InterpolatedPulse<1500U> HcalInterpolatedPulse;
 
-#endif // CondFormats_HcalObjects_HcalInterpolatedPulse_h_
+#endif  // CondFormats_HcalObjects_HcalInterpolatedPulse_h_

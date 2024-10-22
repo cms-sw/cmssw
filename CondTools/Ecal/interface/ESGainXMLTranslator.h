@@ -14,16 +14,11 @@
 class ESGain;
 
 class ESGainXMLTranslator {
-
 public:
+  static int writeXML(const std::string& filename, const EcalCondHeader& header, const ESGain& record);
 
-  static int writeXML (const std::string& filename,
-		       const EcalCondHeader& header,
-		       const ESGain& record);
- private:
-  
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const ESGain& record);
+private:
+  static std::string dumpXML(const EcalCondHeader& header, const ESGain& record);
 };
 
-#endif // __ESGainXMLTranslator_h_
+#endif  // __ESGainXMLTranslator_h_

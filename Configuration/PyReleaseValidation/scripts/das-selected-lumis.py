@@ -1,4 +1,5 @@
-#!/bin/env python
+#!/usr/bin/env python3
+from __future__ import print_function
 import json , sys
 input_range = []
 output_files_list = []
@@ -10,15 +11,16 @@ jdata = sys.stdin.read()
 try:
   lumi_data = json.loads(jdata) 
 except:
-  print jdata
+  print(jdata)
   exit (1)
 lumi_data = lumi_data['data']
 
 def match_in(sub_list,lumi_list):
-  sub_list = map(int,sub_list)
-  lumi_list = map(int,lumi_list)
-  for i in range(sub_list[0],sub_list[1]+1):
-    if i >= lumi_list[0] and i <= lumi_list[1]: return True
+  for i in range(int(sub_list[0]),int(sub_list[1])+1):
+    if len(lumi_list) == 1:
+      if i == int(lumi_list[0]): return True
+    else:
+      if i >= int(lumi_list[0]) and i <= int(lumi_list[1]): return True
   return False
 
 def check_lumi_ranges(given_lumi_list , sub_range):
@@ -29,20 +31,20 @@ def check_lumi_ranges(given_lumi_list , sub_range):
 
 def process_lumi(data):
   for lumi_info in data:
-    if type(lumi_info['lumi']) is list:
+    if isinstance(lumi_info['lumi'], list):
       lumi_nums = lumi_info['lumi'][0]['number']
       lumi_file = lumi_info['file'][0]['name']
     else:
       lumi_nums = lumi_info['lumi']['number']
       lumi_file = lumi_info['file']['name']
-    if not type(lumi_nums[0]) is list: lumi_rang = [ [n,n] for n in lumi_nums ]
+    if not isinstance(lumi_nums[0], list): lumi_rang = [ [n,n] for n in lumi_nums ]
     else: lumi_rang = lumi_nums
     for sub_list in lumi_rang:
       if check_lumi_ranges(input_range,tuple(sub_list)):
         output_files_list.append(lumi_file)
         break
   for out_file_name in output_files_list:
-    print out_file_name
+    print(out_file_name)
 
 #Get file names for desired lumi ranges
 process_lumi(lumi_data)

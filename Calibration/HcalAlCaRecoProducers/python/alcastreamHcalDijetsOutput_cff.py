@@ -5,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #  module alcastreamHcalDijetsOutput = PoolOutputModule
 alcastreamHcalDijetsOutput = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_DiJProd_*_*')
+                                           'keep HcalNoiseSummary_hcalnoise_*_*',
+                                           'keep *_DiJProd_*_*')
 )
 

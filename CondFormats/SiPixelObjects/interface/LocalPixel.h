@@ -4,43 +4,41 @@
 namespace sipixelobjects {
 
   /// identify pixel inside single ROC
-  class LocalPixel { 
+  class LocalPixel {
+  public:
+    static const int numRowsInRoc = 80;
+    static const int numColsInRoc = 52;
 
-    public:
+    /// row and collumn in ROC representation
+    struct RocRowCol {
+      int rocRow, rocCol;
+      bool valid() const { return (0 <= rocRow) & (rocRow < numRowsInRoc) & (0 <= rocCol) & (rocCol < numColsInRoc); }
+    };
 
-      static const int numRowsInRoc = 80;
-      static const int numColsInRoc = 52;
+    /// double collumn and pixel ID in double collumn representation
+    struct DcolPxid {
+      int dcol, pxid;
+      bool valid() const { return ((0 <= dcol) & (dcol < 26) & (2 <= pxid) & (pxid < 162)); }
+    };
 
-      /// row and collumn in ROC representation 
-      struct RocRowCol { 
-        int rocRow, rocCol; 
-        bool valid() const { return    (0 <= rocRow) & (rocRow < numRowsInRoc)  
-	    & (0 <= rocCol) & (rocCol < numColsInRoc); }
-      };
+    LocalPixel(const DcolPxid& pixel) {
+      thePixel.rocRow = numRowsInRoc - pixel.pxid / 2;
+      thePixel.rocCol = pixel.dcol * 2 + pixel.pxid % 2;
+    }
 
-      /// double collumn and pixel ID in double collumn representation
-      struct DcolPxid { 
-        int dcol, pxid; 
-        bool valid() const { return ( (0 <= dcol) & (dcol < 26) &  (2 <= pxid) & (pxid < 162) ); }
-      }; 
+    LocalPixel(const RocRowCol& pixel) : thePixel(pixel) {}
 
-      LocalPixel( const DcolPxid & pixel) {
-        thePixel.rocRow = numRowsInRoc - pixel.pxid/2;
-	thePixel.rocCol = pixel.dcol*2 + pixel.pxid%2;
-      }
+    int dcol() const { return thePixel.rocCol / 2; }
+    int pxid() const { return 2 * (numRowsInRoc - thePixel.rocRow) + (thePixel.rocCol % 2); }
 
-      LocalPixel( const RocRowCol & pixel) : thePixel(pixel) {} 
+    int rocRow() const { return thePixel.rocRow; }
+    int rocCol() const { return thePixel.rocCol; }
 
-      int  dcol() const { return thePixel.rocCol/2; }
-      int  pxid() const { return 2*(numRowsInRoc-thePixel.rocRow)+ (thePixel.rocCol%2); }
+    bool valid() const { return thePixel.valid(); }
 
-      int  rocRow() const { return thePixel.rocRow; }
-      int  rocCol() const { return thePixel.rocCol; }
-
-      bool valid() const { return thePixel.valid(); }
-    private:
-      RocRowCol thePixel;
+  private:
+    RocRowCol thePixel;
   };
-}
+}  // namespace sipixelobjects
 
 #endif

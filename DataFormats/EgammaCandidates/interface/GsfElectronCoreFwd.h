@@ -9,13 +9,13 @@
 
 namespace reco {
 
-  class GsfElectronCore ;
-  typedef std::vector<GsfElectronCore> GsfElectronCoreCollection ;
-  typedef edm::Ref<GsfElectronCoreCollection> GsfElectronCoreRef ;
-  typedef edm::RefProd<GsfElectronCoreCollection> GsfElectronCoreRefProd ;
-  typedef edm::RefVector<GsfElectronCoreCollection> GsfElectronCoreRefVector ;
-  typedef GsfElectronCoreRefVector::iterator GsfElectronCore_iterator ;
+  class GsfElectronCore;
+  typedef std::vector<GsfElectronCore> GsfElectronCoreCollection;
+  typedef edm::Ref<GsfElectronCoreCollection> GsfElectronCoreRef;
+  typedef edm::RefProd<GsfElectronCoreCollection> GsfElectronCoreRefProd;
+  typedef edm::RefVector<GsfElectronCoreCollection> GsfElectronCoreRefVector;
+  typedef GsfElectronCoreRefVector::iterator GsfElectronCore_iterator;
 
-}
+}  // namespace reco
 
 #endif

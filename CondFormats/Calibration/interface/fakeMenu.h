@@ -3,27 +3,28 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <map>
-class Algo{
- public:
-  Algo(){}
+class Algo {
+public:
+  Algo() {}
   int a;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-class AlgoMap : public std::map<std::string, Algo>{
- public:
-  AlgoMap(){}
+class AlgoMap : public std::map<std::string, Algo> {
+public:
+  AlgoMap() {}
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-class fakeMenu{
- public:
+class fakeMenu {
+public:
   // constructor
-  fakeMenu(){}
-  virtual ~fakeMenu(){}
- private:
+  fakeMenu() {}
+  virtual ~fakeMenu() {}
+
+private:
   AlgoMap m_algorithmMap;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-#endif 
+#endif

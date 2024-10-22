@@ -4,14 +4,14 @@
 // define this as a plug-in
 //
 typedef FFTJetCorrectionESProducer<fftcorrtypes::BasicJet> FFTBasicJetCorrectionESProducer;
-typedef FFTJetCorrectionESProducer<fftcorrtypes::GenJet>   FFTGenJetCorrectionESProducer;
-typedef FFTJetCorrectionESProducer<fftcorrtypes::CaloJet>  FFTCaloJetCorrectionESProducer;
-typedef FFTJetCorrectionESProducer<fftcorrtypes::PFJet>    FFTPFJetCorrectionESProducer;
+typedef FFTJetCorrectionESProducer<fftcorrtypes::GenJet> FFTGenJetCorrectionESProducer;
+typedef FFTJetCorrectionESProducer<fftcorrtypes::CaloJet> FFTCaloJetCorrectionESProducer;
+typedef FFTJetCorrectionESProducer<fftcorrtypes::PFJet> FFTPFJetCorrectionESProducer;
 typedef FFTJetCorrectionESProducer<fftcorrtypes::TrackJet> FFTTrackJetCorrectionESProducer;
-typedef FFTJetCorrectionESProducer<fftcorrtypes::JPTJet>   FFTJPTJetCorrectionESProducer;
-typedef FFTJetCorrectionESProducer<fftcorrtypes::PFCHS0>   FFTPFCHS0CorrectionESProducer;
-typedef FFTJetCorrectionESProducer<fftcorrtypes::PFCHS1>   FFTPFCHS1CorrectionESProducer;
-typedef FFTJetCorrectionESProducer<fftcorrtypes::PFCHS2>   FFTPFCHS2CorrectionESProducer;
+typedef FFTJetCorrectionESProducer<fftcorrtypes::JPTJet> FFTJPTJetCorrectionESProducer;
+typedef FFTJetCorrectionESProducer<fftcorrtypes::PFCHS0> FFTPFCHS0CorrectionESProducer;
+typedef FFTJetCorrectionESProducer<fftcorrtypes::PFCHS1> FFTPFCHS1CorrectionESProducer;
+typedef FFTJetCorrectionESProducer<fftcorrtypes::PFCHS2> FFTPFCHS2CorrectionESProducer;
 
 DEFINE_FWK_EVENTSETUP_MODULE(FFTBasicJetCorrectionESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(FFTGenJetCorrectionESProducer);

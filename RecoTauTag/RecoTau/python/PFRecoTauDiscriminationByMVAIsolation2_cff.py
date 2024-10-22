@@ -1,100 +1,55 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import *
-from RecoTauTag.RecoTau.RecoTauDiscriminantCutMultiplexer_cfi import *
+from RecoTauTag.RecoTau.recoTauDiscriminantCutMultiplexerDefault_cfi import recoTauDiscriminantCutMultiplexerDefault
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauBasicDiscriminators
+import RecoTauTag.RecoTau.pfRecoTauDiscriminationByIsolationMVA2_cfi as _mod
 
-chargedIsoPtSum = pfRecoTauDiscriminationByIsolation.clone(
-    PFTauProducer = cms.InputTag('pfTauProducer'),
-    ApplyDiscriminationByECALIsolation = cms.bool(False),
-    ApplyDiscriminationByTrackerIsolation = cms.bool(True),
-    applyOccupancyCut = cms.bool(False),
-    applySumPtCut = cms.bool(False),
-    applyDeltaBetaCorrection = cms.bool(False),
-    storeRawSumPt = cms.bool(True),
-    storeRawPUsumPt = cms.bool(False),
-    customOuterCone = cms.double(0.5),
-    isoConeSizeForDeltaBeta = cms.double(0.8),
-    verbosity = cms.int32(0)
-)
-neutralIsoPtSum = pfRecoTauDiscriminationByIsolation.clone(
-    PFTauProducer = cms.InputTag('pfTauProducer'),
-    ApplyDiscriminationByECALIsolation = cms.bool(True),
-    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
-    applyOccupancyCut = cms.bool(False),
-    applySumPtCut = cms.bool(False),
-    applyDeltaBetaCorrection = cms.bool(False),
-    storeRawSumPt = cms.bool(True),
-    storeRawPUsumPt = cms.bool(False),
-    customOuterCone = cms.double(0.5),
-    isoConeSizeForDeltaBeta = cms.double(0.8),
-    verbosity = cms.int32(0)
-)
-puCorrPtSum = pfRecoTauDiscriminationByIsolation.clone(
-    PFTauProducer = cms.InputTag('pfTauProducer'),
-    ApplyDiscriminationByECALIsolation = cms.bool(False),
-    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
-    applyOccupancyCut = cms.bool(False),
-    applySumPtCut = cms.bool(False),
-    applyDeltaBetaCorrection = cms.bool(True),
-    storeRawSumPt = cms.bool(False),
-    storeRawPUsumPt = cms.bool(True),
-    customOuterCone = cms.double(0.5),
-    isoConeSizeForDeltaBeta = cms.double(0.8),
-    verbosity = cms.int32(0)
-)
-
-discriminationByIsolationMVA2raw = cms.EDProducer("PFRecoTauDiscriminationByIsolationMVA2",
-
+discriminationByIsolationMVA2raw = _mod.pfRecoTauDiscriminationByIsolationMVA2.clone(
     # tau collection to discriminate
-    PFTauProducer = cms.InputTag('pfTauProducer'),
+    PFTauProducer = 'pfTauProducer',
 
     # Require leading pion ensures that:
     #  1) these is at least one track above threshold (0.5 GeV) in the signal cone
     #  2) a track OR a pi-zero in the signal cone has pT > 5 GeV
     Prediscriminants = requireLeadTrack,
-    loadMVAfromDB = cms.bool(True),
-    mvaName = cms.string("tauIdMVAnewDMwLT"),
-    mvaOpt = cms.string("newDMwLT"),
+    loadMVAfromDB = True,
+    inputFileName = "RecoTauTag/RecoTau/data/emptyMVAinputFile", # the filename for MVA if it is not loaded from DB
+    mvaName = "tauIdMVAnewDMwLT",
+    mvaOpt  = "newDMwLT",
 
     # NOTE: tau lifetime reconstruction sequence needs to be run before
-    srcTauTransverseImpactParameters = cms.InputTag(''),
+    srcTauTransverseImpactParameters = '',
     
-    srcChargedIsoPtSum = cms.InputTag('chargedIsoPtSum'),
-    srcNeutralIsoPtSum = cms.InputTag('neutralIsoPtSum'),
-    srcPUcorrPtSum = cms.InputTag('puCorrPtSum')
+    srcBasicTauDiscriminators = 'hpsPFTauBasicDiscriminators',
+    srcChargedIsoPtSumIndex = 0,
+    srcNeutralIsoPtSumIndex = 1,
+    srcPUcorrPtSumIndex = 5,
 )
 
-discriminationByIsolationMVA2VLoose = recoTauDiscriminantCutMultiplexer.clone(
-    PFTauProducer = cms.InputTag('pfTauProducer'),    
+discriminationByIsolationMVA2 = recoTauDiscriminantCutMultiplexerDefault.clone(
+    PFTauProducer = 'pfTauProducer',    
     Prediscriminants = requireLeadTrack,
-    toMultiplex = cms.InputTag('discriminationByIsolationMVA2raw'),
-    key = cms.InputTag('discriminationByIsolationMVA2raw:category'),
-    loadMVAfromDB = cms.bool(True),
+    toMultiplex = 'discriminationByIsolationMVA2raw',
+    loadMVAfromDB = True,
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
-            cut = cms.string("newDMwLTEff80"),
+            cut = cms.string("newDMwLT"),
             variable = cms.string("pt"),
         )
-    )
+    ),
+    workingPoints = [
+        "Eff80",
+        "Eff70",
+        "Eff60",
+        "Eff50",
+        "Eff40"
+    ]
 )
-discriminationByIsolationMVA2Loose = discriminationByIsolationMVA2VLoose.clone()
-discriminationByIsolationMVA2Loose.mapping[0].cut = cms.string("newDMwLTEff70")
-discriminationByIsolationMVA2Medium = discriminationByIsolationMVA2VLoose.clone()
-discriminationByIsolationMVA2Medium.mapping[0].cut = cms.string("newDMwLTEff60")
-discriminationByIsolationMVA2Tight = discriminationByIsolationMVA2VLoose.clone()
-discriminationByIsolationMVA2Tight.mapping[0].cut = cms.string("newDMwLTEff50")
-discriminationByIsolationMVA2VTight = discriminationByIsolationMVA2VLoose.clone()
-discriminationByIsolationMVA2VTight.mapping[0].cut = cms.string("newDMwLTEff40")
 
-mvaIsolation2Seq = cms.Sequence(
-    chargedIsoPtSum
-   + neutralIsoPtSum
-   + puCorrPtSum
-   + discriminationByIsolationMVA2raw
-   + discriminationByIsolationMVA2VLoose
-   + discriminationByIsolationMVA2Loose
-   + discriminationByIsolationMVA2Medium
-   + discriminationByIsolationMVA2Tight
-   + discriminationByIsolationMVA2VTight
+mvaIsolation2Task = cms.Task(
+    hpsPFTauBasicDiscriminators
+   , discriminationByIsolationMVA2raw
+   , discriminationByIsolationMVA2
 )
+mvaIsolation2Seq = cms.Sequence(mvaIsolation2Task)

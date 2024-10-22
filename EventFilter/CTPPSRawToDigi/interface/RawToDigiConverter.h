@@ -1,8 +1,10 @@
 /****************************************************************************
 *
 * This is a part of the TOTEM offline software.
-* Authors: 
+* Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
+*   Nicola Minafra
+*   Laurent Forthomme
 *
 ****************************************************************************/
 
@@ -11,70 +13,93 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemAnalysisMask.h"
+#include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
 
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
+#include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
+#include "DataFormats/TotemReco/interface/TotemT2Digi.h"
 
 /// \brief Collection of code to convert TOTEM raw data into digi.
-class RawToDigiConverter
-{
-  public:
-    RawToDigiConverter(const edm::ParameterSet &conf);
+class RawToDigiConverter {
+public:
+  RawToDigiConverter(const edm::ParameterSet &conf);
 
-    /// Creates RP digi.
-    void Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
-      edm::DetSetVector<TotemRPDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status);
+  /// Creates RP digi.
+  void run(const VFATFrameCollection &coll,
+           const TotemDAQMapping &mapping,
+           const TotemAnalysisMask &mask,
+           edm::DetSetVector<TotemRPDigi> &digi,
+           edm::DetSetVector<TotemVFATStatus> &status);
 
-    /// Creates Diamond digi.
-    void Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
-      edm::DetSetVector<CTPPSDiamondDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status);
+  /// Creates Diamond digi.
+  void run(const VFATFrameCollection &coll,
+           const TotemDAQMapping &mapping,
+           const TotemAnalysisMask &mask,
+           edm::DetSetVector<CTPPSDiamondDigi> &digi,
+           edm::DetSetVector<TotemVFATStatus> &status);
 
-    /// Print error summaries.
-    void PrintSummaries() const;
+  /// Creates Totem Timing digi.
+  void run(const VFATFrameCollection &coll,
+           const TotemDAQMapping &mapping,
+           const TotemAnalysisMask &mask,
+           edm::DetSetVector<TotemTimingDigi> &digi,
+           edm::DetSetVector<TotemVFATStatus> &status);
 
-  private:
-    struct Record
-    {
-      const TotemVFATInfo *info;
-      const VFATFrame *frame;
-      TotemVFATStatus status;
-    };
+  /// Creates Totem T2 digi
+  void run(const VFATFrameCollection &coll,
+           const TotemDAQMapping &mapping,
+           const TotemAnalysisMask &mask,
+           edmNew::DetSetVector<TotemT2Digi> &digi,
+           edm::DetSetVector<TotemVFATStatus> &status);
 
-    unsigned char verbosity;
-    
-    unsigned int printErrorSummary;
-    unsigned int printUnknownFrameSummary;
+  /// Print error summaries.
+  void printSummaries() const;
 
-    enum TestFlag { tfNoTest, tfWarn, tfErr };
+private:
+  struct Record {
+    const TotemVFATInfo *info;
+    const VFATFrame *frame;
+    TotemVFATStatus status;
+  };
 
-    /// flags for which tests to run
-    unsigned int testFootprint;
-    unsigned int testCRC;
-    unsigned int testID;
-    unsigned int testECRaw;
-    unsigned int testECDAQ;
-    unsigned int testECMostFrequent;
-    unsigned int testBCMostFrequent;
+  const unsigned char verbosity;
 
-    /// the minimal required number of frames to determine the most frequent counter value
-    unsigned int EC_min, BC_min;
+  const bool printErrorSummary;
+  const bool printUnknownFrameSummary;
 
-    /// the minimal required (relative) occupancy of the most frequent counter value to be accepted
-    double EC_fraction, BC_fraction;
+  enum TestFlag { tfNoTest, tfWarn, tfErr };
 
-    /// error summaries
-    std::map<TotemFramePosition, std::map<TotemVFATStatus, unsigned int> > errorSummary;
-    std::map<TotemFramePosition, unsigned int> unknownSummary;
+  /// flags for which tests to run
+  const unsigned int testFootprint;
+  const unsigned int testCRC;
+  const unsigned int testID;
+  const unsigned int testECMostFrequent;
+  const unsigned int testBCMostFrequent;
 
-    /// Common processing for all VFAT based sub-systems.
-    void RunCommon(const VFATFrameCollection &input, const TotemDAQMapping &mapping,
-      std::map<TotemFramePosition, Record> &records);
+  /// the minimal required number of frames to determine the most frequent counter value
+  const unsigned int EC_min, BC_min;
+
+  /// the minimal required (relative) occupancy of the most frequent counter value to be accepted
+  const double EC_fraction, BC_fraction;
+
+  //Test file with two 8-bit hwID fields
+  const bool olderTotemT2FileTest;
+
+  /// error summaries
+  std::map<TotemFramePosition, std::map<TotemVFATStatus, unsigned int> > errorSummary;
+  std::map<TotemFramePosition, unsigned int> unknownSummary;
+
+  /// Common processing for all VFAT based sub-systems.
+  void runCommon(const VFATFrameCollection &input,
+                 const TotemDAQMapping &mapping,
+                 std::map<TotemFramePosition, Record> &records);
 };
 
 #endif

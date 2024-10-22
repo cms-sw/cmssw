@@ -1,22 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
-import DQM.TrackingMonitor.TrackingMonitor_cfi
-MonitorTrackGLBMuons = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-MonitorTrackGLBMuons.TrackProducer = 'globalMuons'
-MonitorTrackGLBMuons.AlgoName = 'glb'
-MonitorTrackGLBMuons.FolderName = 'Muons/globalMuons'
-MonitorTrackGLBMuons.doBeamSpotPlots = False
-MonitorTrackGLBMuons.BSFolderName = 'Muons/globalCosmicMuons/BeamSpotParameters'
-MonitorTrackGLBMuons.doSeedParameterHistos = False
-MonitorTrackGLBMuons.doProfilesVsLS = True
-MonitorTrackGLBMuons.doAllPlots = False
-MonitorTrackGLBMuons.doGeneralPropertiesPlots = True
-MonitorTrackGLBMuons.doHitPropertiesPlots = True
-MonitorTrackGLBMuons.doTrackerSpecific = True
-MonitorTrackGLBMuons.doDCAPlots = True
-MonitorTrackGLBMuons.doDCAwrtPVPlots = True
-MonitorTrackGLBMuons.doDCAwrt000Plots = False
-MonitorTrackGLBMuons.doSIPPlots  = True
-MonitorTrackGLBMuons.doEffFromHitPatternVsPU = True
-MonitorTrackGLBMuons.doEffFromHitPatternVsBX = False
-MonitorTrackGLBMuons.doEffFromHitPatternVsLUMI = cms.bool(True)
+from DQM.TrackingMonitor.TrackingMonitor_cfi import *
+MonitorTrackGLBMuons = TrackMon.clone(
+    TrackProducer = 'globalMuons',
+    AlgoName = 'glb',
+    FolderName = 'Muons/globalMuons',
+    doBeamSpotPlots = False,
+    BSFolderName = 'Muons/globalCosmicMuons/BeamSpotParameters',
+    doSeedParameterHistos = False,
+    doProfilesVsLS = True,
+    doAllPlots = False,
+    doGeneralPropertiesPlots = True,
+    doHitPropertiesPlots = True,
+    doTrackerSpecific = True,
+    doDCAPlots = True,
+    doDCAwrtPVPlots = True,
+    doDCAwrt000Plots = False,
+    doSIPPlots  = True,
+    doEffFromHitPatternVsPU = True,
+    doEffFromHitPatternVsBX = False,
+    doEffFromHitPatternVsLUMI = True
+)

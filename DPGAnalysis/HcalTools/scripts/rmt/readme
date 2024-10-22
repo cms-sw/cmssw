@@ -1,0 +1,50 @@
+1. To start batch
+One has to put the run from which one starts:
+/afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMScript/
+ LASER_LIST/LASTRUN
+ LED_LIST/LUSTRUN
+ MIXED_LASER_LIST/LASTRUN
+ MIXED_LED_LIST/LASTRUN
+ MIXED_LIST/LASTRUN
+ MIXED_PEDESTAL_LIST/LASTRUN
+
+Input root files from local runs are automatically appeared in:
+/eos/cms/store/group/dpg_hcal/comm_hcal/USC
+
+List of runs for batch will be put in the same directories with the timestamp.
+ 
+./batch_condor_combine.csh CALIB_TYPE ERA
+
+Two in put parameters
+
+CALIB_TYPE can be LED, LASER, PEDESTAL or MIXED_LED, MIXED_PEDESTAL 
+refering to different types of signal organized in local runs
+
+ERA can be  era2018, era2019, era2021 
+it corresponds to job pythons in
+/afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMScript/CMSSW_13_0_9/src/DPGAnalysis/HcalTools/python
+ 
+Example of batch submission
+./batch_condor_combine.csh MIXED_LED era2021
+
+
+2. After batch jobs finished one has to perform command
+./update_rdmpage_new.csh
+
+To update web page
+https://cms-hcal-dpg.web.cern.ch/cms-hcal-dpg/HcalRemoteMonitoring/RMT/
+
+3. One can include batch submission in crontab by 
+acrontab -e
+
+All pathes have to be full path starting from root directory.
+
+
+4. Log files will be in:
+/afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMScript/
+BSUB -> condor jobs 
+LOG -> job output
+BATCHLOG -> condoroutput
+
+Files with gistograms will be put in
+/eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/RMT/histos

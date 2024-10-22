@@ -11,7 +11,5 @@
 #include "DPGAnalysis/SiStripTools/bin/BSvsBPIX.h"
 
 namespace DPGAnalysis_SiStripTools_bin {
-  struct dictionary {
-  };
-}
-
+  struct dictionary {};
+}  // namespace DPGAnalysis_SiStripTools_bin

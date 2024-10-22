@@ -1,5 +1,5 @@
+from __future__ import print_function
 import os
-
 import FWCore.ParameterSet.Config as cms
 
 
@@ -10,21 +10,11 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 options = VarParsing.VarParsing ('standard')
 options.register('sample', 'data1', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Input sample")
-options.register('useTrackList', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Use list of preselected tracks")
-options.register('isTest', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Test run")
 
 # get and parse the command line arguments
-if( hasattr(sys, "argv") ):
-    for args in sys.argv :
-        arg = args.split(',')
-        for val in arg:
-            val = val.split('=')
-            if(len(val)==2):
-                setattr(options,val[0], val[1])
+options.parseArguments()
 
-print "Input sample: ", options.sample
-print "Use list of preselected tracks: ", options.useTrackList
-print "Test run: ", options.isTest
+print("Input sample: ", options.sample)
 
 
 ##
@@ -38,8 +28,7 @@ process = cms.Process("ApeSkim")
 ## Message Logger
 ##
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.categories.append('AlignmentTrackSelector')
-#process.MessageLogger.categories.append('')
+process.MessageLogger.AlignmentTrackSelector=dict()
 process.MessageLogger.cerr.INFO.limit = 0
 process.MessageLogger.cerr.default.limit = -1
 process.MessageLogger.cerr.AlignmentTrackSelector = cms.untracked.PSet(limit = cms.untracked.int32(-1))
@@ -55,73 +44,83 @@ process.options = cms.untracked.PSet(
 )
 
 
+##
+## Start of Configuration
+##
 
-isData1 = isData2 = isData3 = isData4 = False
-isData = False
-isQcd = isWlnu = isZmumu = isZtautau = isZmumu10 = isZmumu20 =  isZmumu50 = False
-isMc = False
+maxEvents = -1
+outputName = "defaultOutputName.root"
+outputPath = None
+outputFileSize = 350000
+
+##
+## TrackSelection can be SingleMu, DoubleMu, MinBias, Cosmics
+## The choice affects which AlignmentTrackSelector is used.
+## Currently, DoubleMu means ZToMuMu, so if there is the need 
+## for UpsilonToMuMu or JPsiToMuMu, these have to be added first
+##
+trackSelection = "SingleMu"
+globalTag = None
+outputPath = None # can also be specified. If that is done, files are copied to this path afterwards
+
+if "iov" in options.sample:
+    ## Configure here for campaigns with many different datasets (such as multi-IOV)
+    iovNo = options.sample.split("iov")[1]
+    process.load("Alignment.APEEstimation.samples.")
+    outputName = ".root"
+    outputPath = None
+    trackSelection = "SingleMu"
 if options.sample == 'data1':
-    isData1 = True
-    isData = True
-elif options.sample == 'data2':
-    isData2 = True
-    isData = True
-elif options.sample == 'data3':
-    isData3 = True
-    isData = True
-elif options.sample == 'data4':
-    isData4 = True
-    isData = True
-elif options.sample == 'qcd':
-    isQcd = True
-    isMc = True
-elif options.sample == 'wlnu':
-    isWlnu = True
-    isMc = True
-elif options.sample == 'zmumu':
-    isZmumu = True
-    isMc = True
-elif options.sample == 'ztautau':
-    isZtautau = True
-    isMc = True
-elif options.sample == 'zmumu10':
-    isZmumu10 = True
-    isMc = True
-elif options.sample == 'zmumu20':
-    isZmumu20 = True
-    isMc = True
-elif options.sample == 'zmumu50':
-    isZmumu50 = True
-    isMc = True
-
-else:
-    print 'ERROR --- incorrect data sammple: ', options.sample
-    exit(8888)
+    process.load("Alignment.APEEstimation.samples.Data_TkAlMinBias_Run2018C_PromptReco_v3_cff")
+    outputName = 'MinBias.root'
+    #outputPath = "workingArea"
+    trackSelection = "MinBias"
+if options.sample == 'data3':
+    process.load("Alignment.APEEstimation.samples.Data_TkAlMuonIsolated_22Jan2013C_v1_cff")
+    outputName = 'Data_TkAlMuonIsolated_22Jan2013C.root'
+    trackSelection = "SingleMu"
+if options.sample == 'data4':
+    process.load("Alignment.APEEstimation.samples.Data_TkAlMuonIsolated_22Jan2013D_v1_cff")
+    outputName = 'Data_TkAlMuonIsolated_22Jan2013D.root'
+    trackSelection = "SingleMu"
+# The following options are used for MC samples
+if options.sample == 'qcd':
+    globalTag = "auto:run2_mc"
+    process.load("Alignment.APEEstimation.samples.MC_UL16_ttbar_cff")
+    outputPath = '/eos/cms/store/caf/user/mteroerd/Skims/MC/UL16'    
+    outputName = 'MC_UL16_ttbar.root'
+    trackSelection = "GenSim"
+if options.sample == 'wlnu':
+    process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_2016UL_cff")
+    outputPath = '/eos/cms/store/caf/user/jschulz/Skims/MC/UL2016ReRecoRealistic'
+    outputName = 'Mc_TkAlMuonIsolated_WJetsToLNu_2016.root'
+    trackSelection = "SingleMu"
+    
+# For unit tests
+if options.sample == 'UnitTest':
+    process.load("Alignment.APEEstimation.samples.MC_UnitTest_TkAlMuonIsolated_cff")
+    outputName = 'MC_UnitTest_TkAlMuonIsolated.root'
+    maxEvents = 1000
+    globalTag = "auto:phase1_2022_design"
+    trackSelection = "SingleMu"
 
 
+print("Using output name %s"%(outputName))
+if outputPath:
+    print("Using output path %s"%(outputPath))
 
 ##
-## Input Files
+## Choice of GlobalTag
 ##
-
-
-if isData1: process.load("Alignment.APEEstimation.samples.Data_TkAlMuonIsolated_Run2015B_PromptReco_v1_cff")
-if isData2: process.load("Alignment.APEEstimation.samples.Data_TkAlMuonIsolated_22Jan2013B_v1_cff")
-if isData3: process.load("Alignment.APEEstimation.samples.Data_TkAlMuonIsolated_22Jan2013C_v1_cff")
-if isData4: process.load("Alignment.APEEstimation.samples.Data_TkAlMuonIsolated_22Jan2013D_v1_cff")
-if isQcd: process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_qcd_cff")
-if isWlnu: process.load("Alignment.APEEstimation.samples.Mc_WJetsToLNu_74XTest_cff")
-if isZmumu10: process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_zmumu10_cff")
-if isZmumu20: process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_zmumu20_cff")
-if isZmumu50: process.load("Alignment.APEEstimation.samples.DYToMuMu_M-50_Tune4C_13TeV-pythia8_Spring14dr-TkAlMuonIsolated-castor_PU_S14_POSTLS170_V6-v1_ALCARECO_cff")
-
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
-print "Using global tag "+process.GlobalTag.globaltag._value
+if globalTag == None:
+    print("No global tag specified, is this intended?")
+else:   
+    process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
+print("Using global tag "+process.GlobalTag.globaltag._value)
 
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
@@ -131,28 +130,38 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ##
 ## Number of Events (should be after input file)
 ##
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-if options.isTest: process.maxEvents.input = 1001
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(maxEvents) )
 
 
 ##
 ## Skim tracks
 ##
-import Alignment.APEEstimation.AlignmentTrackSelector_cff
-process.MuSkim = Alignment.APEEstimation.AlignmentTrackSelector_cff.MuSkimSelector
 
 
 
-##
-## If preselected track list is used
-##
-if options.useTrackList:
-    process.MuSkim.src = 'TrackList'
-    process.TriggerSelectionSequence *= process.TrackList
+import Alignment.APEEstimation.AlignmentTrackSelector_cff as AlignmentTrackSelector
+
+
+# Determination of which AlignmentTrackSelector to use
+if trackSelection == "SingleMu":
+    trackSelector = AlignmentTrackSelector.MuSkimSelector
+elif trackSelection == "GenSim":
+    trackSelector = AlignmentTrackSelector.genSimSkimSelector    
+elif trackSelection == "DoubleMu":
+    trackSelector = AlignmentTrackSelector.DoubleMuSkimSelector
+elif trackSelection == "MinBias":
+    trackSelector = AlignmentTrackSelector.MinBiasSkimSelector
+elif trackSelection == "Cosmics":
+    trackSelector = AlignmentTrackSelector.CosmicsSkimSelector
+else: # Extend list here with custom track selectors
+    print("Unknown trackSelection %s, exiting"%(trackSelection))
+    exit(1)
+
+process.MuSkim = trackSelector
 
 import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
-process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlMuonIsolated')
-#~ process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlZMuMu')
+process.seqTrackselRefit = trackselRefit.getSequence(process, trackSelector.src.getModuleLabel())
+
 
 ##
 ## Path
@@ -162,8 +171,6 @@ process.path = cms.Path(
     process.seqTrackselRefit*
     process.MuSkim
 )
-
-
 
 ##
 ## Define event selection from path
@@ -175,32 +182,15 @@ EventSelection = cms.PSet(
 )
 
 
-
 ##
 ## configure output module
 ##
 process.out = cms.OutputModule("PoolOutputModule",
     ## Parameters directly for PoolOutputModule
-    fileName = cms.untracked.string('Data_TkAlMuonIsolated_DoubleMuon_Run2015B_PromptReco1.root'),
-    #logicalFileName = cms.untracked.string(''),
-    #catalog = cms.untracked.string(''),
-    # Maximus size per file before a new one is created
-    maxSize = cms.untracked.int32(700000),
-    #compressionLevel = cms.untracked.int32(0),
-    #basketSize = cms.untracked.int32(0),
-    #splitLevel = cms.untracked.int32(0),
-    #sortBaskets = cms.untracked.string(''),
-    #treeMaxVirtualSize =  cms.untracked.int32(0),
-    #fastCloning = cms.untracked.bool(False),
-    #overrideInputFileSplitLevels = cms.untracked.bool(True),
+    fileName = cms.untracked.string(outputName),
+    # Maximum size per file before a new one is created
+    maxSize = cms.untracked.int32(outputFileSize),
     dropMetaData = cms.untracked.string("DROPPED"),
-    #dataset = cms.untracked.PSet(
-    #    filterName = cms.untracked.string('TkAlMuonIsolated'),
-    #    dataTier = cms.untracked.string('ALCARECO'),
-    #),
-    # Not yet implemented
-    #eventAutoFlushCompressedSize = cms.untracked.int32(5*1024*1024),
-    
     ## Parameters for inherited OutputModule
     SelectEvents = EventSelection.SelectEvents,
     outputCommands = cms.untracked.vstring(
@@ -209,13 +199,6 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 process.load("Alignment.APEEstimation.PrivateSkim_EventContent_cff")
 process.out.outputCommands.extend(process.ApeSkimEventContent.outputCommands)
-
-
-if options.isTest:
-  process.out.fileName = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_apeSkim.root'
-
-
-
 
 
 ##

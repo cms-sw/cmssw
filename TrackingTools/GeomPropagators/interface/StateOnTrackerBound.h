@@ -12,22 +12,15 @@ class Propagator;
  */
 class StateOnTrackerBound {
 public:
-
   StateOnTrackerBound(const Propagator* prop);
 
   ~StateOnTrackerBound();
 
-  TrajectoryStateOnSurface 
-  operator()( const TrajectoryStateOnSurface& tsos) const;
+  TrajectoryStateOnSurface operator()(const TrajectoryStateOnSurface& tsos) const;
 
-  TrajectoryStateOnSurface 
-  operator()( const FreeTrajectoryState& fts) const;
+  TrajectoryStateOnSurface operator()(const FreeTrajectoryState& fts) const;
 
 private:
-
   Propagator* thePropagator;
-
 };
 #endif
-
-

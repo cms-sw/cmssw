@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 
-generator = cms.EDFilter("Pythia8GeneratorFilter",
+generator = cms.EDFilter("Pythia8ConcurrentGeneratorFilter",
 	maxEventsToPrint = cms.untracked.int32(1),
 	pythiaPylistVerbosity = cms.untracked.int32(1),
 	filterEfficiency = cms.untracked.double(0.00042),
@@ -48,8 +48,8 @@ mugenfilter = cms.EDFilter("MCSmartSingleParticleFilter",
 
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('\$Revision$'),
-    name = cms.untracked.string('\$Source$'),
+    version = cms.untracked.string('\\$Revision$'),
+    name = cms.untracked.string('\\$Source$'),
     annotation = cms.untracked.string('QCD dijet production, pThat > 20 GeV, with INCLUSIVE muon preselection (pt(mu) > 15 GeV), 13 TeV, TuneCUETP8M1')
 )
 

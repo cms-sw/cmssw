@@ -16,55 +16,51 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
-
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class BPHMassCuts {
-
- public:
-
+public:
   /** Constructor
    */
-  BPHMassCuts( double minMass, double maxMass ): mMin( minMass ),
-                                                 mMax( maxMass ) {}
+  BPHMassCuts(double minMass, double maxMass) : mMin(minMass), mMax(maxMass) {}
+
+  // deleted copy constructor and assignment operator
+  BPHMassCuts(const BPHMassCuts& x) = delete;
+  BPHMassCuts& operator=(const BPHMassCuts& x) = delete;
 
   /** Destructor
    */
-  virtual ~BPHMassCuts() {}
+  virtual ~BPHMassCuts() = default;
 
   /** Operations
    */
   /// set mass cuts
-  void setMassMin( double m ) { mMin = m; return; }
-  void setMassMax( double m ) { mMax = m; return; }
+  void setMassMin(double m) {
+    mMin = m;
+    return;
+  }
+  void setMassMax(double m) {
+    mMax = m;
+    return;
+  }
 
   /// get current mass cuts
   double getMassMin() const { return mMin; }
   double getMassMax() const { return mMax; }
 
- protected:
-
-  // private copy and assigment constructors
-  BPHMassCuts           ( const BPHMassCuts& x );
-  BPHMassCuts& operator=( const BPHMassCuts& x );
-
+protected:
   double mMin;
   double mMax;
-
 };
 
-
 #endif
-

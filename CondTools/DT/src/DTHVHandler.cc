@@ -26,19 +26,14 @@
 // C++ Headers --
 //---------------
 
-
 //-------------------
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-DTHVHandler::DTHVHandler():
-  objectPtr ( nullptr ) {
-}
-
+DTHVHandler::DTHVHandler() : objectPtr(nullptr) {}
 
 /*
 DTHVHandler::DTHVHandler( const DTHVStatus* dbObject,
@@ -47,26 +42,18 @@ DTHVHandler::DTHVHandler( const DTHVStatus* dbObject,
   dtGeomPtr( geometry ) {
 }
 */
-DTHVHandler::DTHVHandler( const DTHVStatus* dbObject ):
-  objectPtr( dbObject ) {
-}
-
+DTHVHandler::DTHVHandler(const DTHVStatus* dbObject) : objectPtr(dbObject) {}
 
 //--------------
 // Destructor --
 //--------------
-DTHVHandler::~DTHVHandler() {
-}
-
+DTHVHandler::~DTHVHandler() {}
 
 //--------------
 // Operations --
 //--------------
-int DTHVHandler::get( const DTWireId& id,
-                      int&         flagA,
-                      int&         flagC,
-                      int&         flagS ) const {
-/*
+int DTHVHandler::get(const DTWireId& id, int& flagA, int& flagC, int& flagS) const {
+  /*
   if ( objectPtr == 0 ) {
     flagA = flagC = flagS = 0;
     return 999;
@@ -80,56 +67,42 @@ int DTHVHandler::get( const DTWireId& id,
                          flagA, flagC, flagS );
 */
   flagA = flagC = flagS = 0;
-  if ( objectPtr == nullptr ) return 999;
+  if (objectPtr == nullptr)
+    return 999;
   int iCell = id.wire();
   int fCell;
   int lCell;
-  int
-  fCheck = objectPtr->get( id.wheel(),
-                           id.station(),
-                           id.sector(),
-                           id.superLayer(),
-                           id.layer(),
-                           0,     fCell, lCell,
-                           flagA, flagC, flagS );
-  if ( ( fCheck == 0 ) &&
-       ( fCell <= iCell ) &&
-       ( lCell >= iCell ) ) return 0;
-  fCheck = objectPtr->get( id.wheel(),
-                           id.station(),
-                           id.sector(),
-                           id.superLayer(),
-                           id.layer(),
-                           1,     fCell, lCell,
-                           flagA, flagC, flagS );
-  if ( ( fCheck == 0 ) &&
-       ( fCell <= iCell ) &&
-       ( lCell >= iCell ) ) return 0;
+  int fCheck = objectPtr->get(
+      id.wheel(), id.station(), id.sector(), id.superLayer(), id.layer(), 0, fCell, lCell, flagA, flagC, flagS);
+  if ((fCheck == 0) && (fCell <= iCell) && (lCell >= iCell))
+    return 0;
+  fCheck = objectPtr->get(
+      id.wheel(), id.station(), id.sector(), id.superLayer(), id.layer(), 1, fCell, lCell, flagA, flagC, flagS);
+  if ((fCheck == 0) && (fCell <= iCell) && (lCell >= iCell))
+    return 0;
   flagA = flagC = flagS = 0;
   return 1;
 }
-
 
 int DTHVHandler::offChannelsNumber() const {
   int offNum = 0;
   DTHVStatus::const_iterator iter = objectPtr->begin();
   DTHVStatus::const_iterator iend = objectPtr->end();
-  while ( iter != iend ) {
-    const std::pair<DTHVStatusId,DTHVStatusData>& entry = *iter++;
-    DTHVStatusId   hvId = entry.first;
+  while (iter != iend) {
+    const std::pair<DTHVStatusId, DTHVStatusData>& entry = *iter++;
+    DTHVStatusId hvId = entry.first;
     DTHVStatusData data = entry.second;
-    if (   data.flagA || data.flagC || data.flagS   )
-           offNum += ( 1 + data.lCell - data.fCell );
+    if (data.flagA || data.flagC || data.flagS)
+      offNum += (1 + data.lCell - data.fCell);
   }
   return offNum;
 }
 
-
-int DTHVHandler::offChannelsNumber( const DTChamberId& id ) const {
+int DTHVHandler::offChannelsNumber(const DTChamberId& id) const {
   int offNum = 0;
   DTHVStatus::const_iterator iter = objectPtr->begin();
   DTHVStatus::const_iterator iend = objectPtr->end();
-/*
+  /*
   while ( iter != iend ) {
     const std::pair<DTHVStatusId,DTHVStatusData>& entry = *iter++;
     DTHVStatusId   idCh = entry.first;
@@ -143,20 +116,17 @@ int DTHVHandler::offChannelsNumber( const DTChamberId& id ) const {
          offNum += ( 1 + lCell - fCell );
   }
 */
-  while ( iter != iend ) {
-    const std::pair<DTHVStatusId,DTHVStatusData>& entry = *iter++;
-    DTHVStatusId   hvId = entry.first;
+  while (iter != iend) {
+    const std::pair<DTHVStatusId, DTHVStatusData>& entry = *iter++;
+    DTHVStatusId hvId = entry.first;
     DTHVStatusData data = entry.second;
-    if ( ( hvId.  wheelId == id.  wheel() ) &&
-         ( hvId.stationId == id.station() ) &&
-         ( hvId. sectorId == id. sector() ) &&
-         ( data.flagA || data.flagC || data.flagS ) )
-           offNum += ( 1 + data.lCell - data.fCell );
+    if ((hvId.wheelId == id.wheel()) && (hvId.stationId == id.station()) && (hvId.sectorId == id.sector()) &&
+        (data.flagA || data.flagC || data.flagS))
+      offNum += (1 + data.lCell - data.fCell);
   }
   return offNum;
-//  return 0;
+  //  return 0;
 }
-
 
 /*
 int DTHVHandler::findLayerPart( const DTWireId& id ) const {
@@ -195,4 +165,3 @@ int DTHVHandler::getLayerEdges( const DTLayerId& id, int part,
   return 1;
 }
 */
-

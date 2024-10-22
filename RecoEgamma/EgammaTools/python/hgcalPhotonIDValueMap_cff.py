@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import dEdX_weights
+from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import dEdX
 
 # cfi from HGCalPhotonIDValueMapProducer::fillDescriptions()
 from RecoEgamma.EgammaTools.hgcalPhotonIDValueMap_cfi import *
-hgcalPhotonIDValueMap.dEdXWeights = dEdX_weights
+hgcalPhotonIDValueMap.dEdXWeights = dEdX.weights

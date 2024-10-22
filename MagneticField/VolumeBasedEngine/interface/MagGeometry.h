@@ -8,8 +8,7 @@
  */
 
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "MagneticField/Layers/src/MagBinFinders.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "MagneticField/Layers/interface/MagBinFinders.h"
 
 #include <vector>
 #include <atomic>
@@ -18,51 +17,48 @@ class MagBLayer;
 class MagESector;
 class MagVolume;
 class MagVolume6Faces;
-template <class T> class PeriodicBinFinderInPhi;
+template <class T>
+class PeriodicBinFinderInPhi;
 
 class MagGeometry {
 public:
-
-  typedef Surface::GlobalVector   GlobalVector;
-  typedef Surface::GlobalPoint    GlobalPoint;
+  typedef Surface::GlobalVector GlobalVector;
+  typedef Surface::GlobalPoint GlobalPoint;
 
   /// Constructor
-  MagGeometry(int geomVersion, const std::vector<MagBLayer *>& ,
-			     const std::vector<MagESector *>& ,
-			     const std::vector<MagVolume6Faces*>& ,
-			     const std::vector<MagVolume6Faces*>& );
-  MagGeometry(int geomVersion, const std::vector<MagBLayer const*>& ,
-			     const std::vector<MagESector const*>& ,
-			     const std::vector<MagVolume6Faces const*>& ,
-			     const std::vector<MagVolume6Faces const*>& );
+  MagGeometry(int geomVersion,
+              const std::vector<MagBLayer*>&,
+              const std::vector<MagESector*>&,
+              const std::vector<MagVolume6Faces*>&,
+              const std::vector<MagVolume6Faces*>&);
+  MagGeometry(int geomVersion,
+              const std::vector<MagBLayer const*>&,
+              const std::vector<MagESector const*>&,
+              const std::vector<MagVolume6Faces const*>&,
+              const std::vector<MagVolume6Faces const*>&);
 
   /// Destructor
   ~MagGeometry();
 
   /// Return field vector at the specified global point
-  GlobalVector fieldInTesla(const GlobalPoint & gp) const;
+  GlobalVector fieldInTesla(const GlobalPoint& gp) const;
 
   /// Find a volume
-  MagVolume const * findVolume(const GlobalPoint & gp, double tolerance=0.) const;
-
-  // Deprecated, will be removed
-  bool isZSymmetric() const {return false;}
+  MagVolume const* findVolume(const GlobalPoint& gp, double tolerance = 0.) const;
 
   // FIXME: only for temporary tests, should be removed.
-  const std::vector<MagVolume6Faces const*> & barrelVolumes() const {return theBVolumes;}
-  const std::vector<MagVolume6Faces const*> & endcapVolumes() const {return theEVolumes;}
+  const std::vector<MagVolume6Faces const*>& barrelVolumes() const { return theBVolumes; }
+  const std::vector<MagVolume6Faces const*>& endcapVolumes() const { return theEVolumes; }
 
 private:
-
-  friend class MagGeometryExerciser; // for debug purposes
+  friend class MagGeometryExerciser;  // for debug purposes
 
   // Linear search (for debug purposes only)
-  MagVolume const* findVolume1(const GlobalPoint & gp, double tolerance=0.) const;
-
+  MagVolume const* findVolume1(const GlobalPoint& gp, double tolerance = 0.) const;
 
   bool inBarrel(const GlobalPoint& gp) const;
 
-  mutable std::atomic<MagVolume const*> lastVolume; // Cache last volume found
+  const int me_;  // Instance ID, to trigger cache invalidation at IOV boundaries
 
   std::vector<MagBLayer const*> theBLayers;
   std::vector<MagESector const*> theESectors;
@@ -76,6 +72,12 @@ private:
 
   bool cacheLastVolume;
   int geometryVersion;
+
+  // boundaries of internal barrel-endcap volume separation
+  double theBarrelRsq1;
+  double theBarrelRsq2;
+  double theBarrelZ0;
+  double theBarrelZ1;
+  double theBarrelZ2;
 };
 #endif
-

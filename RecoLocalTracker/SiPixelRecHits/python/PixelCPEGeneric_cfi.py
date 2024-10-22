@@ -1,74 +1,56 @@
 import FWCore.ParameterSet.Config as cms
 
-PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
+from RecoLocalTracker.SiPixelRecHits._generic_default_cfi import _generic_default
+PixelCPEGenericESProducer = _generic_default.clone()
 
-    ComponentName = cms.string('PixelCPEGeneric'),
-    Alpha2Order = cms.bool(True),
-    PixelErrorParametrization = cms.string('NOTcmsim'),
+# This customizes the Run3 Pixel CPE generic reconstruction in order to activate the IrradiationBiasCorrection
+# because of the expected resolution loss due to radiation damage
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(PixelCPEGenericESProducer, IrradiationBiasCorrection = True)
 
-    # Allows cuts to be optimized
-    eff_charge_cut_lowX = cms.double(0.0),
-    eff_charge_cut_lowY = cms.double(0.0),
-    eff_charge_cut_highX = cms.double(1.0),
-    eff_charge_cut_highY = cms.double(1.0),
-    size_cutX = cms.double(3.0),
-    size_cutY = cms.double(3.0),
-
-    # Edge cluster errors in microns (determined by looking at residual RMS) 
-    EdgeClusterErrorX = cms.double( 50.0 ),                                      
-    EdgeClusterErrorY = cms.double( 85.0 ),                                                     
-
-    # ggiurgiu@jhu.edu
-    inflate_errors = cms.bool(False),
-    inflate_all_errors_no_trk_angle = cms.bool(False),
-
-    # Can use errors predicted by the template code
-    # If UseErrorsFromTemplates is False, must also set
-    # TruncatePixelCharge, IrradiationBiasCorrection, DoCosmics and LoadTemplatesFromDB to be False                                        
-    UseErrorsFromTemplates = cms.bool(True),
-
-    # When set True this gives a slight improvement in resolution at no cost 
-    TruncatePixelCharge = cms.bool(True),
-
-    # Turn this ON later
-    IrradiationBiasCorrection = cms.bool(False),                                       
-
-    # When set to True we use templates with extended angular acceptance   
-    DoCosmics = cms.bool(False),                                      
-
-    LoadTemplatesFromDB = cms.bool(True),                                       
-
-    # petar, for clusterProbability() from TTRHs
-    ClusterProbComputationFlag = cms.int32(0),
-
-    # new parameters added in 1/14, dk
-    # LA defined by hand, FOR TESTING ONLY, not for production   
-    # 0.0 means that the offset is taken from DB        
-    #lAOffset = cms..double(0.0),
-    #lAWidthBPix = cms.double(0.0),
-    #lAWidthFPix = cms.double(0.0),
-
-    # Flag to select the source of LA-Width
-    # Normal = True, use LA from DB
-    useLAWidthFromDB = cms.bool(True),                             
-    # if lAWith=0 and useLAWidthFromDB=false than width is calculated from lAOffset.         
-    # Use the LA-Offsets from Alignment instead of our calibration
-    useLAAlignmentOffsets = cms.bool(False),                             
-                                           
-    #MagneticFieldRecord: e.g. "" or "ParabolicMF"
-    MagneticFieldRecord = cms.ESInputTag(""),
-)
-
-# This customization will be removed once we get the templates for phase2 pixel
-# FIXME::Is the Upgrade variable actually used?
+# customize the Pixel CPE generic producer for phase2
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(PixelCPEGenericESProducer, 
-  useLAWidthFromDB = False,
-  UseErrorsFromTemplates = False,
-  LoadTemplatesFromDB = False,
+phase2_tracker.toModify(PixelCPEGenericESProducer,
+  UseErrorsFromTemplates = True,
+  LoadTemplatesFromDB = True,
+  NoTemplateErrorsWhenNoTrkAngles = True,
   TruncatePixelCharge = False,
-  IrradiationBiasCorrection = False,
+  IrradiationBiasCorrection = False, # set IBC off
   DoCosmics = False,
-  Upgrade = cms.bool(True)
+  isPhase2 = True,                    # use 'Phase2' version of hardcoded CPE errors
+  xerr_barrel_ln = [0.00025, 0.00030, 0.00035, 0.00035],
+  xerr_barrel_ln_def = 0.00035,
+  yerr_barrel_ln = [0.00210, 0.00115, 0.00125],
+  yerr_barrel_ln_def = 0.00125,
+  xerr_endcap = [0.00072, 0.00025],
+  xerr_endcap_def = 0.00060,
+  yerr_endcap = [0.00289, 0.00025],
+  yerr_endcap_def = 0.00180,
+  # if SmallPitch
+  # xerr_barrel_l1 = [0.00104, 0.000691, 0.00122],
+  # xerr_barrel_l1_def = 0.00321,
+  # yerr_barrel_l1 = [0.00199, 0.00136, 0.0015, 0.00153, 0.00152, 0.00171, 0.00154, 0.00157, 0.00154],
+  # yerr_barrel_l1_def = 0.00164
+  # else
+  xerr_barrel_l1 = [0.00025, 0.00030, 0.00035, 0.00035],
+  xerr_barrel_l1_def = 0.00035,
+  yerr_barrel_l1 = [0.00210, 0.00115, 0.00125],
+  yerr_barrel_l1_def = 0.00125
 )
 
+# customize the Pixel CPE generic producer for phase2 3D pixels
+# Will remove any usage of template / genError payloads from the reconstruction
+from Configuration.Eras.Modifier_phase2_3DPixels_cff import phase2_3DPixels
+from Configuration.ProcessModifiers.PixelCPEGeneric_cff import PixelCPEGeneric
+(phase2_tracker & (phase2_3DPixels & PixelCPEGeneric)).toModify(PixelCPEGenericESProducer,
+                                                                UseErrorsFromTemplates = False,    # no GenErrors
+                                                                LoadTemplatesFromDB = False        # do not load templates
+                                                                )
+# customize the Pixel CPE generic producer for phase2 square pixels
+# Do use Template errors for square pixels even in the first tracking step
+# This is needed because hardcoded errors in https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEGeneric.cc#L113
+# have been optimized for rectangular 25x100 pixels, and in the current generic reco setup we use hardcoded errors for the first tracking pass
+from Configuration.Eras.Modifier_phase2_squarePixels_cff import phase2_squarePixels
+(phase2_tracker & (phase2_squarePixels | phase2_3DPixels)).toModify(PixelCPEGenericESProducer,
+                                                                    NoTemplateErrorsWhenNoTrkAngles = False # use genErrors in the seeding step (when no track angles are available)
+                                                                    )

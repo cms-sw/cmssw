@@ -1,0 +1,103 @@
+<!-- This mapping is a preliminary real T2 mapping, still to be updated and validated
+     and made unique in each arm. -->
+<top>
+  <arm id="0">  <!-- sector 45, CMS negative z -->
+    <nt2_plane id="0">
+      <nt2_tile id="0" hwId="0x20" FEDId="577" GOHId="1" IdxInFiber="0" pay="0"/>
+      <nt2_tile id="1" hwId="0x21" FEDId="577" GOHId="1" IdxInFiber="0" pay="1"/>
+      <nt2_tile id="2" hwId="0x22" FEDId="577" GOHId="1" IdxInFiber="1" pay="0"/>
+      <nt2_tile id="3" hwId="0x23" FEDId="577" GOHId="1" IdxInFiber="1" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="1">
+      <nt2_tile id="0" hwId="0x24" FEDId="577" GOHId="1" IdxInFiber="2" pay="0"/>
+      <nt2_tile id="1" hwId="0x25" FEDId="577" GOHId="1" IdxInFiber="2" pay="1"/>
+      <nt2_tile id="2" hwId="0x26" FEDId="577" GOHId="1" IdxInFiber="3" pay="0"/>
+      <nt2_tile id="3" hwId="0x27" FEDId="577" GOHId="1" IdxInFiber="3" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="2">
+      <nt2_tile id="0" hwId="0x28" FEDId="577" GOHId="1" IdxInFiber="4" pay="0"/>
+      <nt2_tile id="1" hwId="0x29" FEDId="577" GOHId="1" IdxInFiber="4" pay="1"/>
+      <nt2_tile id="2" hwId="0x2A" FEDId="577" GOHId="1" IdxInFiber="5" pay="0"/>
+      <nt2_tile id="3" hwId="0x2B" FEDId="577" GOHId="1" IdxInFiber="5" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="3">
+      <nt2_tile id="0" hwId="0x2C" FEDId="577" GOHId="1" IdxInFiber="6" pay="0"/>
+      <nt2_tile id="1" hwId="0x2D" FEDId="577" GOHId="1" IdxInFiber="6" pay="1"/>
+      <nt2_tile id="2" hwId="0x2E" FEDId="577" GOHId="1" IdxInFiber="7" pay="0"/>
+      <nt2_tile id="3" hwId="0x2F" FEDId="577" GOHId="1" IdxInFiber="7" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="4">
+      <nt2_tile id="0" hwId="0x30" FEDId="577" GOHId="1" IdxInFiber="8" pay="0"/>
+      <nt2_tile id="1" hwId="0x31" FEDId="577" GOHId="1" IdxInFiber="8" pay="1"/>
+      <nt2_tile id="2" hwId="0x32" FEDId="577" GOHId="1" IdxInFiber="9" pay="0"/>
+      <nt2_tile id="3" hwId="0x33" FEDId="577" GOHId="1" IdxInFiber="9" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="5">
+      <nt2_tile id="0" hwId="0x34" FEDId="577" GOHId="1" IdxInFiber="10" pay="0"/>
+      <nt2_tile id="1" hwId="0x35" FEDId="577" GOHId="1" IdxInFiber="10" pay="1"/>
+      <nt2_tile id="2" hwId="0x36" FEDId="577" GOHId="1" IdxInFiber="11" pay="0"/>
+      <nt2_tile id="3" hwId="0x37" FEDId="577" GOHId="1" IdxInFiber="11" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="6">
+      <nt2_tile id="0" hwId="0x38" FEDId="577" GOHId="1" IdxInFiber="12" pay="0"/>
+      <nt2_tile id="1" hwId="0x39" FEDId="577" GOHId="1" IdxInFiber="12" pay="1"/>
+      <nt2_tile id="2" hwId="0x3A" FEDId="577" GOHId="1" IdxInFiber="13" pay="0"/>
+      <nt2_tile id="3" hwId="0x3B" FEDId="577" GOHId="1" IdxInFiber="13" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="7">
+      <nt2_tile id="0" hwId="0x3C" FEDId="577" GOHId="1" IdxInFiber="14" pay="0"/>
+      <nt2_tile id="1" hwId="0x3D" FEDId="577" GOHId="1" IdxInFiber="14" pay="1"/>
+      <nt2_tile id="2" hwId="0x3E" FEDId="577" GOHId="1" IdxInFiber="15" pay="0"/>
+      <nt2_tile id="3" hwId="0x3F" FEDId="577" GOHId="1" IdxInFiber="15" pay="1"/>
+    </nt2_plane>
+  </arm>
+  <arm id="1">  <!-- sector 56, CMS positive z -->
+    <nt2_plane id="0">
+      <nt2_tile id="0" hwId="0x120" FEDId="577" GOHId="0" IdxInFiber="0" pay="0"/>
+      <nt2_tile id="1" hwId="0x121" FEDId="577" GOHId="0" IdxInFiber="0" pay="1"/>
+      <nt2_tile id="2" hwId="0x122" FEDId="577" GOHId="0" IdxInFiber="1" pay="0"/>
+      <nt2_tile id="3" hwId="0x123" FEDId="577" GOHId="0" IdxInFiber="1" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="1">
+      <nt2_tile id="0" hwId="0x124" FEDId="577" GOHId="0" IdxInFiber="2" pay="0"/>
+      <nt2_tile id="1" hwId="0x125" FEDId="577" GOHId="0" IdxInFiber="2" pay="1"/>
+      <nt2_tile id="2" hwId="0x126" FEDId="577" GOHId="0" IdxInFiber="3" pay="0"/>
+      <nt2_tile id="3" hwId="0x127" FEDId="577" GOHId="0" IdxInFiber="3" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="2">
+      <nt2_tile id="0" hwId="0x128" FEDId="577" GOHId="0" IdxInFiber="4" pay="0"/>
+      <nt2_tile id="1" hwId="0x129" FEDId="577" GOHId="0" IdxInFiber="4" pay="1"/>
+      <nt2_tile id="2" hwId="0x12A" FEDId="577" GOHId="0" IdxInFiber="5" pay="0"/>
+      <nt2_tile id="3" hwId="0x12B" FEDId="577" GOHId="0" IdxInFiber="5" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="3">
+      <nt2_tile id="0" hwId="0x12C" FEDId="577" GOHId="0" IdxInFiber="6" pay="0"/>
+      <nt2_tile id="1" hwId="0x12D" FEDId="577" GOHId="0" IdxInFiber="6" pay="1"/>
+      <nt2_tile id="2" hwId="0x12E" FEDId="577" GOHId="0" IdxInFiber="7" pay="0"/>
+      <nt2_tile id="3" hwId="0x12F" FEDId="577" GOHId="0" IdxInFiber="7" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="4">
+      <nt2_tile id="0" hwId="0x130" FEDId="577" GOHId="0" IdxInFiber="8" pay="0"/>
+      <nt2_tile id="1" hwId="0x131" FEDId="577" GOHId="0" IdxInFiber="8" pay="1"/>
+      <nt2_tile id="2" hwId="0x132" FEDId="577" GOHId="0" IdxInFiber="9" pay="0"/>
+      <nt2_tile id="3" hwId="0x133" FEDId="577" GOHId="0" IdxInFiber="9" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="5">
+      <nt2_tile id="0" hwId="0x134" FEDId="577" GOHId="0" IdxInFiber="10" pay="0"/>
+      <nt2_tile id="1" hwId="0x135" FEDId="577" GOHId="0" IdxInFiber="10" pay="1"/>
+      <nt2_tile id="2" hwId="0x136" FEDId="577" GOHId="0" IdxInFiber="11" pay="0"/>
+      <nt2_tile id="3" hwId="0x137" FEDId="577" GOHId="0" IdxInFiber="11" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="6">
+      <nt2_tile id="0" hwId="0x138" FEDId="577" GOHId="0" IdxInFiber="12" pay="0"/>
+      <nt2_tile id="1" hwId="0x139" FEDId="577" GOHId="0" IdxInFiber="12" pay="1"/>
+      <nt2_tile id="2" hwId="0x13A" FEDId="577" GOHId="0" IdxInFiber="13" pay="0"/>
+      <nt2_tile id="3" hwId="0x13B" FEDId="577" GOHId="0" IdxInFiber="13" pay="1"/>
+    </nt2_plane>
+    <nt2_plane id="7">
+      <nt2_tile id="0" hwId="0x13C" FEDId="577" GOHId="0" IdxInFiber="14" pay="0"/>
+      <nt2_tile id="1" hwId="0x13D" FEDId="577" GOHId="0" IdxInFiber="14" pay="1"/>
+      <nt2_tile id="2" hwId="0x13E" FEDId="577" GOHId="0" IdxInFiber="15" pay="0"/>
+      <nt2_tile id="3" hwId="0x13F" FEDId="577" GOHId="0" IdxInFiber="15" pay="1"/>
+    </nt2_plane>
+  </arm>

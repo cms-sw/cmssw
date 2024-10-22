@@ -9,20 +9,31 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
-namespace JetComb{
-  /// distinguish between hadronic and leptonic 
+namespace JetComb {
+  /// distinguish between hadronic and leptonic
   /// decay chain of the top
-  enum DecayType {kHad, kLep};
+  enum DecayType { kHad, kLep };
   /// supported std single variable types
-  enum VarType   {kMass, kPt, kEta, kPhi, kTheta};
-  /// supported comparison types 
-  enum CompType  {kDeltaM, kDeltaR, kDeltaPhi, kDeltaTheta};
+  enum VarType { kMass, kPt, kEta, kPhi, kTheta };
+  /// supported comparison types
+  enum CompType { kDeltaM, kDeltaR, kDeltaPhi, kDeltaTheta };
   /// b-tagging algorithms
-  enum BTagAlgo  {kTrackCountHighEff, kTrackCountHighPur, kSoftMuon, kSoftMuonByPt, kSofMuonByIP3d, 
-	          kSoftElec, kBProbability, kProbability, kSimpleSecondVtx, kCombSecondVtx, kCombSecondVtxMVA};
+  enum BTagAlgo {
+    kTrackCountHighEff,
+    kTrackCountHighPur,
+    kSoftMuon,
+    kSoftMuonByPt,
+    kSofMuonByIP3d,
+    kSoftElec,
+    kBProbability,
+    kProbability,
+    kSimpleSecondVtx,
+    kCombSecondVtx,
+    kCombSecondVtxMVA
+  };
   /// operators for combining variables
-  enum Operator  {kAdd, kMult};
-}
+  enum Operator { kAdd, kMult };
+}  // namespace JetComb
 
 /**
    \class   TtSemiLepJetComb TtSemiLepJetComb.h "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepJetComb.h"
@@ -35,13 +46,14 @@ namespace JetComb{
 */
 
 class TtSemiLepJetComb {
-
- public:
-  
+public:
   /// emtpy constructor
   TtSemiLepJetComb();
   /// default constructor
-  TtSemiLepJetComb(const std::vector<pat::Jet>&, const std::vector<int>&, const math::XYZTLorentzVector&, const pat::MET&);
+  TtSemiLepJetComb(const std::vector<pat::Jet>&,
+                   const std::vector<int>&,
+                   const math::XYZTLorentzVector&,
+                   const pat::MET&);
   /// default destructor
   ~TtSemiLepJetComb();
 
@@ -64,9 +76,9 @@ class TtSemiLepJetComb {
   double compareHadWLepW(JetComb::CompType comp) const;
   /// comparison between the two b candidates
   double compareHadBLepB(JetComb::CompType comp) const;
-  /// comparison between the lightQ and the lightQBar candidate  
+  /// comparison between the lightQ and the lightQBar candidate
   double compareLightQuarks(JetComb::CompType comp) const;
-  /// comparison between the lepton and the neutrino candidate 
+  /// comparison between the lepton and the neutrino candidate
   double compareLeptonNeutrino(JetComb::CompType comp) const;
   /// comparison between the top and the W candidate
   double compareTopW(JetComb::DecayType dec1, JetComb::DecayType dec2, JetComb::CompType comp) const;
@@ -86,12 +98,12 @@ class TtSemiLepJetComb {
   double compareBLepton(JetComb::DecayType decay, JetComb::CompType comp) const;
   /// comparison between the b and the neutrino candidate
   double compareBNeutrino(JetComb::DecayType decay, JetComb::CompType comp) const;
- 
-  /// pt of the hadronic top candidate relative to pt of the 
-  /// sum of all other reconstruction possibilities (returns 
+
+  /// pt of the hadronic top candidate relative to pt of the
+  /// sum of all other reconstruction possibilities (returns
   /// values between 0 and 1)
   double relativePtHadronicTop() const;
-  /// scalar sum of the pt of the b candidates relative to 
+  /// scalar sum of the pt of the b candidates relative to
   /// scalar sum of the pt of the light quark candidates
   double bOverLightQPt() const;
 
@@ -103,13 +115,13 @@ class TtSemiLepJetComb {
   double combinedBTagsForLightQuarks(JetComb::BTagAlgo algo, JetComb::Operator op) const;
 
   /// add an arbitary user defined variable with given key and value
-  double addUserVar(std::string key, double value) { return userVariables_[key]=value;};
+  double addUserVar(std::string key, double value) { return userVariables_[key] = value; };
   /// receive user defined variable value with given key
   double userVar(const std::string& key) const {
-    return (userVariables_.find(key)!=userVariables_.end() ? userVariables_.find(key)->second : -9999.);};
+    return (userVariables_.find(key) != userVariables_.end() ? userVariables_.find(key)->second : -9999.);
+  };
 
- private:
-
+private:
   /// reconstruct mother candidates from final state candidates
   void deduceMothers();
   /// b-tag value of one of the 4 jets
@@ -117,16 +129,19 @@ class TtSemiLepJetComb {
   /// light quark candidate variable with default on q and not qbar
   double lightQVar(JetComb::VarType var) const { return lightQVar(false, var); };
   /// return lightQ or lightQBar candidate depending on argument
-  const pat::Jet& lightQ(bool qbar=false) const { return (qbar ? hadQBarJet_ : hadQJet_); }
+  const pat::Jet& lightQ(bool qbar = false) const { return (qbar ? hadQBarJet_ : hadQJet_); }
   /// return leptonic or hadronic b candidate depending on argument
-  const pat::Jet& bQuark(JetComb::DecayType decay) const { return (decay==JetComb::kHad ? hadBJet_ : lepBJet_); }
+  const pat::Jet& bQuark(JetComb::DecayType decay) const { return (decay == JetComb::kHad ? hadBJet_ : lepBJet_); }
   /// return leptonic or hadronic W candidate depending on argument
-  const math::XYZTLorentzVector& wBoson(JetComb::DecayType decay) const { return (decay==JetComb::kHad ? hadW_ : lepW_); }
+  const math::XYZTLorentzVector& wBoson(JetComb::DecayType decay) const {
+    return (decay == JetComb::kHad ? hadW_ : lepW_);
+  }
   /// return leptonic or hadronic top candidate depending on argument
-  const math::XYZTLorentzVector& top(JetComb::DecayType decay) const { return (decay==JetComb::kHad ? hadTop_ : lepTop_); }  
+  const math::XYZTLorentzVector& top(JetComb::DecayType decay) const {
+    return (decay == JetComb::kHad ? hadTop_ : lepTop_);
+  }
 
- private:
-
+private:
   /// lightQ jet
   pat::Jet hadQJet_;
   /// lightQBar jet

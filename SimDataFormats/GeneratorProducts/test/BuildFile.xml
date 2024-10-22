@@ -1,0 +1,4 @@
+<bin file="rootio_t.cc" name="SimDataFormatsGeneratorProductsRootTest">
+  <use name="hepmc"/>
+  <use name="root"/>
+</bin>

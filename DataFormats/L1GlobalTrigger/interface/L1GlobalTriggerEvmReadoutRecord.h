@@ -33,113 +33,97 @@
 
 // class interface
 
-class L1GlobalTriggerEvmReadoutRecord
-{
+class L1GlobalTriggerEvmReadoutRecord {
+public:
+  /// constructors
+  L1GlobalTriggerEvmReadoutRecord();
+
+  L1GlobalTriggerEvmReadoutRecord(int NumberBxInEvent);
+
+  L1GlobalTriggerEvmReadoutRecord(const int numberBxInEvent, const int numberFdlBoards);
+
+  /// copy constructor
+  L1GlobalTriggerEvmReadoutRecord(const L1GlobalTriggerEvmReadoutRecord&);
+
+  /// destructor
+  virtual ~L1GlobalTriggerEvmReadoutRecord();
+
+  /// assignment operator
+  L1GlobalTriggerEvmReadoutRecord& operator=(const L1GlobalTriggerEvmReadoutRecord&);
+
+  /// equal operator
+  bool operator==(const L1GlobalTriggerEvmReadoutRecord&) const;
+
+  /// unequal operator
+  bool operator!=(const L1GlobalTriggerEvmReadoutRecord&) const;
 
 public:
+  /// get Global Trigger decision and the decision word
+  ///   overloaded w.r.t. bxInEvent argument
+  ///   bxInEvent not given: for bunch cross with L1Accept
+  const bool decision(int bxInEvent) const;
+  const DecisionWord decisionWord(int bxInEvent) const;
 
-    /// constructors
-    L1GlobalTriggerEvmReadoutRecord();
+  const bool decision() const;
+  const DecisionWord decisionWord() const;
 
-    L1GlobalTriggerEvmReadoutRecord(int NumberBxInEvent);
+  /// set global decision and the decision word
+  void setDecision(bool t, int bxInEvent);
+  void setDecisionWord(const DecisionWord& decisionWordValue, int bxInEvent);
 
-    L1GlobalTriggerEvmReadoutRecord(const int numberBxInEvent, const int numberFdlBoards);
+  void setDecision(bool t);
+  void setDecisionWord(const DecisionWord& decisionWordValue);
 
-    /// copy constructor
-    L1GlobalTriggerEvmReadoutRecord(const L1GlobalTriggerEvmReadoutRecord&);
+  /// print global decision and algorithm decision word
+  void printGtDecision(std::ostream& myCout, int bxInEventValue) const;
+  void printGtDecision(std::ostream& myCout) const;
 
-    /// destructor
-    virtual ~L1GlobalTriggerEvmReadoutRecord();
+  /// print technical triggers
+  void printTechnicalTrigger(std::ostream& myCout, int bxInEventValue) const;
+  void printTechnicalTrigger(std::ostream& myCout) const;
 
-    /// assignment operator
-    L1GlobalTriggerEvmReadoutRecord& operator=(const L1GlobalTriggerEvmReadoutRecord&);
+  //**************************************************************************
+  // get/set hardware-related words
+  //
+  // Board description: file GlobalTriggerBoardsMapper.dat // TODO xml file instead?
+  //**************************************************************************
 
-    /// equal operator
-    bool operator==(const L1GlobalTriggerEvmReadoutRecord&) const;
+  /// get / set GTFE word (record) in the GT readout record
+  const L1GtfeExtWord gtfeWord() const;
+  void setGtfeWord(const L1GtfeExtWord&);
 
-    /// unequal operator
-    bool operator!=(const L1GlobalTriggerEvmReadoutRecord&) const;
+  /// get / set TCS word (record) in the GT readout record
+  const L1TcsWord tcsWord() const;
+  void setTcsWord(const L1TcsWord&);
 
-public:
+  /// get the vector of L1GtFdlWord
+  const std::vector<L1GtFdlWord> gtFdlVector() const { return m_gtFdlWord; }
 
-    /// get Global Trigger decision and the decision word
-    ///   overloaded w.r.t. bxInEvent argument
-    ///   bxInEvent not given: for bunch cross with L1Accept
-    const bool decision(int bxInEvent) const;
-    const DecisionWord decisionWord(int bxInEvent) const;
+  std::vector<L1GtFdlWord>& gtFdlVector() { return m_gtFdlWord; }
 
-    const bool decision() const;
-    const DecisionWord decisionWord() const;
+  /// get / set FDL word (record) in the GT readout record
+  const L1GtFdlWord gtFdlWord(int bxInEvent) const;
+  const L1GtFdlWord gtFdlWord() const;
 
-    /// set global decision and the decision word
-    void setDecision(bool t, int bxInEvent);
-    void setDecisionWord(const DecisionWord& decisionWordValue, int bxInEvent);
+  void setGtFdlWord(const L1GtFdlWord&, int bxInEvent);
+  void setGtFdlWord(const L1GtFdlWord&);
 
-    void setDecision(bool t);
-    void setDecisionWord(const DecisionWord& decisionWordValue);
+  // other methods
 
-    /// print global decision and algorithm decision word
-    void printGtDecision(std::ostream& myCout, int bxInEventValue) const;
-    void printGtDecision(std::ostream& myCout) const;
+  /// clear the record
+  void reset();
 
-    /// print technical triggers
-    void printTechnicalTrigger(std::ostream& myCout, int bxInEventValue) const;
-    void printTechnicalTrigger(std::ostream& myCout) const;
+  /// pretty print the content of a L1GlobalTriggerEvmReadoutRecord
+  void print(std::ostream& myCout) const;
 
-    //**************************************************************************
-    // get/set hardware-related words
-    //
-    // Board description: file GlobalTriggerBoardsMapper.dat // TODO xml file instead?
-    //**************************************************************************
-
-
-    /// get / set GTFE word (record) in the GT readout record
-    const L1GtfeExtWord gtfeWord() const;
-    void setGtfeWord(const L1GtfeExtWord&);
-
-    /// get / set TCS word (record) in the GT readout record
-    const L1TcsWord tcsWord() const;
-    void setTcsWord(const L1TcsWord&);
-
-    /// get the vector of L1GtFdlWord
-    const std::vector<L1GtFdlWord> gtFdlVector() const
-    {
-        return m_gtFdlWord;
-    }
-
-    std::vector<L1GtFdlWord>& gtFdlVector()
-    {
-        return m_gtFdlWord;
-    }
-
-    /// get / set FDL word (record) in the GT readout record
-    const L1GtFdlWord gtFdlWord(int bxInEvent) const;
-    const L1GtFdlWord gtFdlWord() const;
-
-    void setGtFdlWord(const L1GtFdlWord&, int bxInEvent);
-    void setGtFdlWord(const L1GtFdlWord&);
-
-    // other methods
-
-    /// clear the record
-    void reset();
-
-    /// pretty print the content of a L1GlobalTriggerEvmReadoutRecord
-    void print(std::ostream& myCout) const;
-
-
-    /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const L1GlobalTriggerEvmReadoutRecord&);
-
+  /// output stream operator
+  friend std::ostream& operator<<(std::ostream&, const L1GlobalTriggerEvmReadoutRecord&);
 
 private:
+  L1GtfeExtWord m_gtfeWord;
+  L1TcsWord m_tcsWord;
 
-    L1GtfeExtWord m_gtfeWord;
-    L1TcsWord m_tcsWord;
-
-    std::vector<L1GtFdlWord> m_gtFdlWord;
-
+  std::vector<L1GtFdlWord> m_gtFdlWord;
 };
-
 
 #endif

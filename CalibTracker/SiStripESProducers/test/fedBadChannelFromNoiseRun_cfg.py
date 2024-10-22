@@ -2,10 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("fedBadChannelFromNoiseRun")
 process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    destinations = cms.untracked.vstring('cout')
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
@@ -25,13 +28,9 @@ process.source = cms.Source("EmptyIOVSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.load("CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi")
-from CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi import siStripBadModuleFedErrESSource
-siStripBadModuleFedErrESSource.appendToDataLabel = cms.string('BadModules_from_FEDBadChannel')
-siStripBadModuleFedErrESSource.ReadFromFile = cms.bool(False)
 
 process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
-        cms.PSet(record = cms.string('SiStripBadModuleFedErrRcd'), tag = cms.string('BadModules_from_FEDBadChannel'))
+        # BadChannel list from FED errors is added below
 #        cms.PSet(record = cms.string('SiStripDetCablingRcd'), tag = cms.string(''))
 )
 process.siStripQualityESProducer.ReduceGranularity = cms.bool(False)
@@ -41,10 +40,11 @@ process.siStripQualityESProducer.ThresholdForReducedGranularity = cms.double(0.3
 process.load("DQM.SiStripCommon.TkHistoMap_cff")
 ####
 
-process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
-    dataLabel = cms.untracked.string('')
-)
-
-
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+process.stat = siStripQualityStatistics.clone(
+        BadComponentsFromFedErrors=siStripQualityStatistics.clone(
+            Add=cms.bool(True)
+            )
+        )
 process.p = cms.Path(process.stat)
 

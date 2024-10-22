@@ -27,62 +27,55 @@ public:
   SiStripConfObjectFakeESSource(const edm::ParameterSet&);
   ~SiStripConfObjectFakeESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue& iov,
+                      edm::ValidityInterval& iValidity) override;
 
   typedef std::unique_ptr<SiStripConfObject> ReturnType;
   ReturnType produce(const SiStripConfObjectRcd&);
 
 private:
   std::vector<edm::ParameterSet> m_parameters;
-  edm::FileInPath m_file;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiStripConfObjectFakeESSource::SiStripConfObjectFakeESSource(const edm::ParameterSet& iConfig)
-{
+SiStripConfObjectFakeESSource::SiStripConfObjectFakeESSource(const edm::ParameterSet& iConfig) {
   setWhatProduced(this);
   findingRecord<SiStripConfObjectRcd>();
 
   m_parameters = iConfig.getParameter<std::vector<edm::ParameterSet>>("Parameters");
-  m_file = iConfig.getParameter<edm::FileInPath>("file");
 }
 
 SiStripConfObjectFakeESSource::~SiStripConfObjectFakeESSource() {}
 
-void SiStripConfObjectFakeESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity )
-{
+void SiStripConfObjectFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                                                   const edm::IOVSyncValue& iov,
+                                                   edm::ValidityInterval& iValidity) {
   iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
 }
 
 // ------------ method called to produce the data  ------------
-SiStripConfObjectFakeESSource::ReturnType
-SiStripConfObjectFakeESSource::produce(const SiStripConfObjectRcd& iRecord)
-{
+SiStripConfObjectFakeESSource::ReturnType SiStripConfObjectFakeESSource::produce(const SiStripConfObjectRcd& iRecord) {
   using namespace edm::es;
 
   auto confObject = std::make_unique<SiStripConfObject>();
 
-  for ( const auto& param : m_parameters ) {
+  for (const auto& param : m_parameters) {
     const std::string paramType{param.getParameter<std::string>("ParameterType")};
     const std::string paramName{param.getParameter<std::string>("ParameterName")};
-    if( paramType == "int" ) {
+    if (paramType == "int") {
       confObject->put(paramName, param.getParameter<int32_t>("ParameterValue"));
-    }
-    else if( paramType == "double" ) {
+    } else if (paramType == "double") {
       confObject->put(paramName, param.getParameter<double>("ParameterValue"));
-    }
-    else if( paramType == "string" ) {
+    } else if (paramType == "string") {
       confObject->put(paramName, param.getParameter<std::string>("ParameterValue"));
-    }
-    else if( paramType == "bool" ) {
+    } else if (paramType == "bool") {
       confObject->put(paramName, param.getParameter<bool>("ParameterValue"));
-    }
-    else if( paramType == "vint32" ) {
-      confObject->put(paramName, param.getParameter<std::vector<int> >("ParameterValue"));
-    }
-    else if( paramType == "vstring" ) {
-      confObject->put(paramName, param.getParameter<std::vector<std::string> >("ParameterValue"));
+    } else if (paramType == "vint32") {
+      confObject->put(paramName, param.getParameter<std::vector<int>>("ParameterValue"));
+    } else if (paramType == "vstring") {
+      confObject->put(paramName, param.getParameter<std::vector<std::string>>("ParameterValue"));
     }
   }
 

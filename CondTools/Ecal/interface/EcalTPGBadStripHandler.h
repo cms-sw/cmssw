@@ -11,7 +11,6 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,8 +21,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-
-
 
 #include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
 #include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
@@ -40,57 +37,52 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-namespace popcon
-{
+namespace popcon {
 
+  class EcalTPGBadStripHandler : public popcon::PopConSourceHandler<EcalTPGStripStatus> {
+  public:
+    EcalTPGBadStripHandler(edm::ParameterSet const&);
+    ~EcalTPGBadStripHandler() override;
 
-	class EcalTPGBadStripHandler : public popcon::PopConSourceHandler<EcalTPGStripStatus>
-	{
+    void getNewObjects() override;
 
-		public:
-                        EcalTPGBadStripHandler(edm::ParameterSet const & );
-			~EcalTPGBadStripHandler() override; 
-			
-			void getNewObjects() override;
-			
-			std::map<std::string, int> makeTTEEDetId();
-			
-			std::string id() const override { return m_name;}
-			
-			void readFromFile(const char* inputFile) ;
-			void writeFile(const char* inputFile);
-			
-			EcalCondDBInterface* econn;
+    std::map<std::string, int> makeTTEEDetId();
 
-		private:
-			std::string to_string( char value[]) {
-	    		  std::ostringstream streamOut;
-	    		  streamOut << value;
-	    		  return streamOut.str();
-	  		}
-			
-			const EcalTPGStripStatus * mystripStat;
+    std::string id() const override { return m_name; }
 
-			unsigned int m_firstRun ;
-			unsigned int m_lastRun ;
-			std::map <std::string, int> mapDetEEId;
-			
-			std::string m_location;
-			std::string m_gentag;
-			std::string m_sid;
-			std::string m_user;
-			std::string m_pass;
-                        std::string m_locationsource;
-                        std::string m_name;
-			unsigned int m_runnr;
-			std::string m_runtype;
-			std::string m_i_tag;
-			int m_i_version;
-			unsigned int m_i_run_number;
-			int m_i_badStrip;
-	};
-}
+    void readFromFile(const char* inputFile);
+    void writeFile(const char* inputFile);
+
+    EcalCondDBInterface* econn;
+
+  private:
+    std::string to_string(char value[]) {
+      std::ostringstream streamOut;
+      streamOut << value;
+      return streamOut.str();
+    }
+
+    const EcalTPGStripStatus* mystripStat;
+
+    unsigned int m_firstRun;
+    unsigned int m_lastRun;
+    std::map<std::string, int> mapDetEEId;
+
+    std::string m_location;
+    std::string m_gentag;
+    std::string m_sid;
+    std::string m_user;
+    std::string m_pass;
+    std::string m_locationsource;
+    std::string m_name;
+    unsigned int m_runnr;
+    std::string m_runtype;
+    std::string m_i_tag;
+    int m_i_version;
+    unsigned int m_i_run_number;
+    int m_i_badStrip;
+  };
+}  // namespace popcon
 #endif
-

@@ -5,7 +5,7 @@
 //
 // Package:    PrimaryVertexProducerAlgorithm
 // Class:      PrimaryVertexProducerAlgorithm
-// 
+//
 /**\class PrimaryVertexProducerAlgorithm PrimaryVertexProducerAlgorithm.cc RecoVertex/PrimaryVertexProducerAlgorithm/src/PrimaryVertexProducerAlgorithm.cc
 
  Description: allow redoing the primary vertex reconstruction from a list of tracks, considered obsolete
@@ -19,14 +19,11 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -42,10 +39,8 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/HITrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/GapClusterizerInZ.h"
-#include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
-//#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include <algorithm>
 #include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
@@ -57,50 +52,42 @@
 
 class PrimaryVertexProducerAlgorithm : public VertexReconstructor {
 public:
-
   explicit PrimaryVertexProducerAlgorithm(const edm::ParameterSet&);
   ~PrimaryVertexProducerAlgorithm() override;
-  
-  // obsolete method
-  std::vector<TransientVertex> 
-  vertices(const std::vector<reco::TransientTrack> & tracks) const override;
 
-  virtual std::vector<TransientVertex> 
-  vertices(const std::vector<reco::TransientTrack> & tracks, 
-	   const reco::BeamSpot & beamSpot,
-	   const std::string& label=""
-	   ) const;
+  // obsolete method
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack>& tracks) const override;
+
+  virtual std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack>& tracks,
+                                                const reco::BeamSpot& beamSpot,
+                                                const std::string& label = "") const;
   /** Clone method
-   */ 
-  PrimaryVertexProducerAlgorithm * clone() const override {
-    return new PrimaryVertexProducerAlgorithm(*this);
-  }
-  
+   */
+  PrimaryVertexProducerAlgorithm* clone() const override { return new PrimaryVertexProducerAlgorithm(*this); }
 
   // access to config
   edm::ParameterSet config() const { return theConfig; }
   edm::InputTag trackLabel;
   edm::InputTag beamSpotLabel;
+
 private:
   using VertexReconstructor::vertices;
   // ----------member data ---------------------------
-  TrackFilterForPVFindingBase* theTrackFilter; 
+  TrackFilterForPVFindingBase* theTrackFilter;
   TrackClusterizerInZ* theTrackClusterizer;
 
   // vtx fitting algorithms
   struct algo {
-    VertexFitter<5> * fitter;
-    VertexCompatibleWithBeam * vertexSelector;
-    std::string  label;
+    VertexFitter<5>* fitter;
+    VertexCompatibleWithBeam* vertexSelector;
+    std::string label;
     bool useBeamConstraint;
     double minNdof;
   };
 
-  std::vector< algo > algorithms;
+  std::vector<algo> algorithms;
 
   edm::ParameterSet theConfig;
   bool fVerbose;
-
 };
 #endif
-

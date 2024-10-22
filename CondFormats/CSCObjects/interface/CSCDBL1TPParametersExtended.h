@@ -13,14 +13,13 @@
  *
  */
 
-union S{
+union S {
   unsigned int i;
   bool b;
 };
 
-class CSCDBL1TPParametersExtended
-{
- public:
+class CSCDBL1TPParametersExtended {
+public:
   CSCDBL1TPParametersExtended();
   ~CSCDBL1TPParametersExtended();
 
@@ -30,7 +29,7 @@ class CSCDBL1TPParametersExtended
   void setValue(const std::string&, int);
   void setValue(const std::string&, bool);
 
- private:
+private:
   std::vector<int> paramsInt_;
   std::vector<int> paramsBool_;
 
@@ -52,7 +51,7 @@ class CSCDBL1TPParametersExtended
       "me11_phase1_tmbDropUsedClcts",
       "me11_phase1_matchEarliestAlctME11Only",
       "me11_phase1_matchEarliestClctME11Only",
-    };
+  };
 
   const std::vector<std::string> paramNamesInt_{
       /* Parameters %for 2007 version of ALCT firmware */
@@ -125,7 +124,7 @@ class CSCDBL1TPParametersExtended
       "me11_phase1_tmbEarlyTbins",
       "me11_phase1_tmbCrossBxAlgorithm",
       "me11_phase1_maxME11LCTs",
-    };
+  };
 
   COND_SERIALIZABLE;
 };

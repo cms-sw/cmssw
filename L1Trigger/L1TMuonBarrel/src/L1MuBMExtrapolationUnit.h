@@ -33,8 +33,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -42,7 +40,8 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 class L1MuBMSectorProcessor;
 class L1MuBMSEU;
 class L1MuDTTFParameters;
@@ -51,59 +50,54 @@ class L1MuDTTFParameters;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuBMExtrapolationUnit : public L1AbstractProcessor {
+class L1MuBMExtrapolationUnit {
+public:
+  typedef std::pair<Extrapolation, unsigned int> SEUId;
+  typedef std::map<SEUId, L1MuBMSEU*, std::less<SEUId> > SEUmap;
 
-  public:
+  /// constructor
+  L1MuBMExtrapolationUnit(const L1MuBMSectorProcessor&, edm::ConsumesCollector iC);
 
-    typedef std::pair<Extrapolation, unsigned int> SEUId;
-    typedef std::map<SEUId, L1MuBMSEU*, std::less<SEUId> > SEUmap;
+  /// destructor
+  ~L1MuBMExtrapolationUnit();
 
-    /// constructor
-    L1MuBMExtrapolationUnit(const L1MuBMSectorProcessor& );
+  /// run Extrapolation Unit
+  void run(const edm::EventSetup& c);
 
-    /// destructor
-    ~L1MuBMExtrapolationUnit() override;
+  /// reset Extrapolation Unit
+  void reset();
 
-    /// run Extrapolation Unit
-    void run(const edm::EventSetup& c) override;
+  /// reset a single extrapolation
+  void reset(Extrapolation ext, unsigned int startAdr, unsigned int relAdr);
 
-    /// reset Extrapolation Unit
-    void reset() override;
+  /// get extrapolation address from a given ERS
+  unsigned short int getAddress(Extrapolation ext, unsigned int startAdr, int id) const;
 
-     /// reset a single extrapolation
-    void reset(Extrapolation ext, unsigned int startAdr, unsigned int relAdr );
+  /// get extrapolation quality from a given ERS
+  unsigned short int getQuality(Extrapolation ext, unsigned int startAdr, int id) const;
 
-    /// get extrapolation address from a given ERS
-    unsigned short int getAddress(Extrapolation ext, unsigned int startAdr, int id) const;
+  /// get Extrapolator table for a given SEU
+  const std::bitset<12>& getEXTable(Extrapolation ext, unsigned int startAdr) const;
 
-    /// get extrapolation quality from a given ERS
-    unsigned short int getQuality(Extrapolation ext, unsigned int startAdr, int id) const;
+  /// get Quality Sorter table for a given SEU
+  const std::bitset<12>& getQSTable(Extrapolation ext, unsigned int startAdr) const;
 
-    /// get Extrapolator table for a given SEU
-    const std::bitset<12>& getEXTable(Extrapolation ext, unsigned int startAdr) const;
+  /// return number of successful extrapolations
+  int numberOfExt() const;
 
-    /// get Quality Sorter table for a given SEU
-    const std::bitset<12>& getQSTable(Extrapolation ext, unsigned int startAdr) const;
+  /// print all successful extrapolations
+  void print(int level = 0) const;
 
-    /// return number of successful extrapolations
-    int numberOfExt() const;
+  /// return station of start and target track segment for a given extrapolation
+  static std::pair<int, int> which_ext(Extrapolation ext);
 
-    /// print all successful extrapolations
-    void print(int level=0) const;
+private:
+  const L1MuBMSectorProcessor& m_sp;  // reference to Sector Processor
 
-    /// return station of start and target track segment for a given extrapolation
-    static std::pair<int,int> which_ext(Extrapolation ext);
+  mutable SEUmap m_SEUs;  // Single Extrapolation Units
 
-  private:
-
-    const L1MuBMSectorProcessor& m_sp;   // reference to Sector Processor
-
-    mutable SEUmap m_SEUs;               // Single Extrapolation Units
-
-    //edm::ESHandle< L1MuDTTFParameters > pars;
-    edm::ESHandle< L1TMuonBarrelParams > bmtfParamsHandle;
-    L1MuDTTFParameters  pars;
-
+  edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> m_paramsToken;
+  L1MuDTTFParameters pars;
 };
 
 #endif

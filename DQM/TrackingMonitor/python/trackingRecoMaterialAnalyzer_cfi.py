@@ -11,6 +11,7 @@ materialDumperAnalyzer = DQMEDAnalyzer('TrackingRecoMaterialAnalyser',
                                         TrackerRecHitBuilder = cms.string('WithAngleAndTemplate'),
                                         Smoother = cms.string('KFSmootherForRefitInsideOut'),
                                         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
+                                        MTDRecHitBuilder = cms.string('MTDRecHitBuilder'),
                                         RefitDirection = cms.string('alongMomentum'),
                                         RefitRPCHits = cms.bool(True),
                                         Propagator = cms.string('SmartPropagatorAnyRKOpposite'),
@@ -18,9 +19,6 @@ materialDumperAnalyzer = DQMEDAnalyzer('TrackingRecoMaterialAnalyser',
                                         PropagatorAlong = cms.string("RungeKuttaTrackerPropagator"),
                                         PropagatorOpposite = cms.string("RungeKuttaTrackerPropagatorOpposite")
 )
-
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(materialDumperAnalyzer, TrackerRecHitBuilder='WithTrackAngle')
 
 materialDumper = cms.Sequence(materialDumperAnalyzer)
 materialDumper_step = cms.Path(materialDumper)

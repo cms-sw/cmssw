@@ -21,9 +21,13 @@ process.load("FWCore.MessageService.test.Services_cff")
 # Here is the configuration of the MessgeLogger Service:
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('simplestML'),
-    simplestML = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        simplestML = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
     )
 )
 

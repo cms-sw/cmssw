@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     HcalOOTPileupCorrectionMapCollRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

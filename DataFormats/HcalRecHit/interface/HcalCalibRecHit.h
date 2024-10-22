@@ -19,9 +19,10 @@ public:
   float time() const { return time_; }
   /// get the id
   HcalCalibDetId id() const { return id_; }
+
 private:
   HcalCalibDetId id_;
-  float amplitude_,time_;
+  float amplitude_, time_;
 };
 
 std::ostream& operator<<(std::ostream& s, const HcalCalibRecHit& hit);

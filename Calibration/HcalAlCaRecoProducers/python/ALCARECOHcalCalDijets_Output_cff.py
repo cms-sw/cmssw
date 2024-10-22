@@ -11,6 +11,7 @@ OutALCARECOHcalCalDijets_noDrop = cms.PSet(
     outputCommands = cms.untracked.vstring( 
         'keep *_DiJetsProd_*_*',
         'keep triggerTriggerEvent_*_*_*',
+        'keep HcalNoiseSummary_hcalnoise_*_*',
         'keep *_particleFlow_*_*',
         'keep recoPFBlocks_particleFlowBlock_*_*',
         #'keep recoPFClusters_*_*_*',

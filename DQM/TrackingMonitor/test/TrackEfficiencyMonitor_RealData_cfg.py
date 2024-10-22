@@ -23,7 +23,7 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
-process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi")
 process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
 
 process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
@@ -36,15 +36,17 @@ process.load("DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi")
 process.load("DQM.TrackingMonitor.TrackEfficiencyClient_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('TrackEffMon'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('cout')
+    debugModules = cms.untracked.vstring('TrackEffMon')
 )
 
 process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0)
 )
 

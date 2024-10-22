@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     L1JetEtScaleRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Wed Oct  4 16:49:43 CEST 2006
 // $Id: L1JetEtScaleRcd.cc,v 1.1 2006/10/04 14:53:17 jbrooke Exp $
 

@@ -1,7 +1,6 @@
 #!/bin/tcsh
 
-cmsenv
-rehash
+eval `scram runtime -csh`
 
 echo
 date +%F\ %a\ %T

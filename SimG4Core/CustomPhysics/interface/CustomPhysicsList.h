@@ -1,29 +1,24 @@
 #ifndef SimG4Core_CustomPhysics_CustomPhysicsList_H
 #define SimG4Core_CustomPhysics_CustomPhysicsList_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "G4VPhysicsConstructor.hh"
 
 #include <string>
 
 class G4ProcessHelper;
-class G4Decay;
 class CustomParticleFactory;
 
-class CustomPhysicsList : public G4VPhysicsConstructor 
-{
+class CustomPhysicsList : public G4VPhysicsConstructor {
 public:
-  CustomPhysicsList(const std::string& name, const edm::ParameterSet & p);
+  CustomPhysicsList(const std::string& name, const edm::ParameterSet& p, bool useuni = false);
   ~CustomPhysicsList() override;
 
   void ConstructParticle() override;
   void ConstructProcess() override;
 
 private:
-
-  static G4ThreadLocal std::unique_ptr<G4Decay> fDecayProcess;
   static G4ThreadLocal std::unique_ptr<G4ProcessHelper> myHelper;
-
   std::unique_ptr<CustomParticleFactory> fParticleFactory;
 
   bool fHadronicInteraction;
@@ -34,5 +29,5 @@ private:
   std::string processDefFilePath;
   double dfactor;
 };
- 
+
 #endif

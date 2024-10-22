@@ -4,39 +4,31 @@ ROOT.gROOT.SetBatch(True)
 
 import sys
 
-from optparse import OptionParser
-parser = OptionParser(usage = "usage: %prog [options] inputFile fraction outputFile",
-                      version = "%prog $Id:$")
-(options, args) = parser.parse_args()
+from argparse import ArgumentParser
+parser = ArgumentParser()
+parser.add_argument("inputFile", type=str)
+parser.add_argument("fraction", type=float)
+parser.add_argument("outputFile", type=str)
+options = parser.parse_args()
 
-if len(args) <= 2: 
-    parser.print_usage()
-    sys.exit(2)
-    
-try:
-    frac = float(args[1])
-except TypeError:
-    parser.print_usage()
-    print "fraction must be a floating point number (e.g. 0.5)"
-    sys.exit(2)
-
-input  = ROOT.TFile(args[0])
-output = ROOT.TFile(args[2], "RECREATE")
+frac = options.fraction
+input  = ROOT.TFile(options.inputFile)
+output = ROOT.TFile(options.outputFile, "RECREATE")
 for k in input.GetListOfKeys():
-    print k.GetName(), k.GetClassName()
+    print(k.GetName(), k.GetClassName())
     if k.GetClassName() == "TDirectoryFile":
-        print "  processing directory ",k.GetName()
+        print("  processing directory ",k.GetName())
         din  = input.Get(k.GetName())
         dout = output.mkdir(k.GetName())
         for i in din.GetListOfKeys():
             if i.GetClassName() == "TTree":
                 src = din.Get(i.GetName()) #i.ReadObj(); # ReadObj doesn't work!!!
                 newEntries = int(src.GetEntries()*frac)
-                print "    cropped TTree",i.GetName(),", original entries",src.GetEntries(), ", new entries",newEntries
+                print("    cropped TTree",i.GetName(),", original entries",src.GetEntries(), ", new entries",newEntries)
                 cloned = src.CloneTree(newEntries)
                 dout.WriteTObject(cloned, i.GetName())       
             elif i.GetClassName() != "TDirectory":
                 dout.WriteTObject(i.ReadObj(), i.GetName())
-                print "    copied ",i.GetClassName(),i.GetName()
+                print("    copied ",i.GetClassName(),i.GetName())
 
 

@@ -2,19 +2,14 @@
 #define DQM_SiStripCommissioningClients_ApvTimingHistograms_H
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
-
-class DQMStore;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class ApvTimingHistograms : public virtual CommissioningHistograms {
-
- public:
-  
-  ApvTimingHistograms( const edm::ParameterSet& pset, DQMStore* );
+public:
+  ApvTimingHistograms(const edm::ParameterSet& pset, DQMStore*);
   ~ApvTimingHistograms() override;
-  
-  void histoAnalysis( bool debug ) override;
-  
+
+  void histoAnalysis(bool debug) override;
 };
 
-#endif // DQM_SiStripCommissioningClients_ApvTimingHistograms_H
-
+#endif  // DQM_SiStripCommissioningClients_ApvTimingHistograms_H

@@ -10,6 +10,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
+#include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
 
 class EcalTrigTowerConstituentsMap;
 
@@ -18,19 +20,22 @@ namespace ecaldqm {
   class SelectiveReadoutTask : public DQWorkerTask {
   public:
     SelectiveReadoutTask();
-    ~SelectiveReadoutTask() {}
+    ~SelectiveReadoutTask() override {}
 
     void addDependencies(DependencySet&) override;
 
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    void beginEvent(edm::Event const&, edm::EventSetup const&) override;
+    void beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) override;
 
     bool analyze(void const*, Collections) override;
 
     void runOnSource(FEDRawDataCollection const&);
     void runOnRawData(EcalRawDataCollection const&);
-    template<typename SRFlagCollection> void runOnSrFlags(SRFlagCollection const&, Collections);
-    template<typename DigiCollection> void runOnDigis(DigiCollection const&, Collections);
+    template <typename SRFlagCollection>
+    void runOnSrFlags(SRFlagCollection const&, Collections);
+    template <typename DigiCollection>
+    void runOnDigis(DigiCollection const&, Collections);
+    void setTokens(edm::ConsumesCollector&) override;
 
     enum Constants {
       nFIRTaps = 6,
@@ -49,41 +54,47 @@ namespace ecaldqm {
 
     std::set<std::pair<int, int> > suppressed_;
     std::vector<short> flags_;
+    edm::ESGetToken<EcalSRSettings, EcalSRSettingsRcd> hSr;
   };
 
-  inline bool SelectiveReadoutTask::analyze(void const* _p, Collections _collection){
-    switch(_collection){
-    case kSource:
-      if(_p) runOnSource(*static_cast<FEDRawDataCollection const*>(_p));
-      return true;
-      break;
-    case kEcalRawData:
-      if(_p) runOnRawData(*static_cast<EcalRawDataCollection const*>(_p));
-      return true;
-      break;
-    case kEBSrFlag:
-      if(_p) runOnSrFlags(*static_cast<EBSrFlagCollection const*>(_p), _collection);
-      return true;
-      break;
-    case kEESrFlag:
-      if(_p) runOnSrFlags(*static_cast<EESrFlagCollection const*>(_p), _collection);
-      return true;
-      break;
-    case kEBDigi:
-      if(_p) runOnDigis(*static_cast<EBDigiCollection const*>(_p), _collection);
-      return true;
-      break;
-    case kEEDigi:
-      if(_p) runOnDigis(*static_cast<EEDigiCollection const*>(_p), _collection);
-      return true;
-      break;
-    default:
-      break;
+  inline bool SelectiveReadoutTask::analyze(void const* _p, Collections _collection) {
+    switch (_collection) {
+      case kSource:
+        if (_p)
+          runOnSource(*static_cast<FEDRawDataCollection const*>(_p));
+        return true;
+        break;
+      case kEcalRawData:
+        if (_p)
+          runOnRawData(*static_cast<EcalRawDataCollection const*>(_p));
+        return true;
+        break;
+      case kEBSrFlag:
+        if (_p)
+          runOnSrFlags(*static_cast<EBSrFlagCollection const*>(_p), _collection);
+        return true;
+        break;
+      case kEESrFlag:
+        if (_p)
+          runOnSrFlags(*static_cast<EESrFlagCollection const*>(_p), _collection);
+        return true;
+        break;
+      case kEBDigi:
+        if (_p)
+          runOnDigis(*static_cast<EBDigiCollection const*>(_p), _collection);
+        return true;
+        break;
+      case kEEDigi:
+        if (_p)
+          runOnDigis(*static_cast<EEDigiCollection const*>(_p), _collection);
+        return true;
+        break;
+      default:
+        break;
     }
     return false;
   }
 
-}
+}  // namespace ecaldqm
 
 #endif
-

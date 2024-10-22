@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // File  :     AbilityToImplementor
-// 
+//
 /**\class  edm::stream::AbilityToImplementor producerAbilityToImplementor.h "FWCore/Framework/interface/stream/AbilityToImplementor.h"
 
  Description: Class used to pair a module Ability to the actual base class used to implement that ability
@@ -22,70 +22,110 @@
 
 // user include files
 #include "FWCore/Framework/interface/moduleAbilities.h"
+#include "FWCore/Framework/interface/stream/moduleAbilities.h"
 #include "FWCore/Framework/interface/stream/implementors.h"
 
 // forward declarations
 namespace edm {
   namespace stream {
-    template<typename T> struct AbilityToImplementor;
-    
-    template<typename C>
+    template <typename T>
+    struct AbilityToImplementor;
+
+    template <typename C>
     struct AbilityToImplementor<edm::GlobalCache<C>> {
-      typedef edm::stream::impl::GlobalCacheHolder<C> Type;
-    };
-    
-    template<typename C>
-    struct AbilityToImplementor<edm::RunCache<C>> {
-      typedef edm::stream::impl::RunCacheHolder<C> Type;
-    };
-    
-    template<typename C>
-    struct AbilityToImplementor<edm::RunSummaryCache<C>> {
-      typedef edm::stream::impl::RunSummaryCacheHolder<C> Type;
-    };
-    
-    template<typename C>
-    struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
-      typedef edm::stream::impl::LuminosityBlockCacheHolder<C> Type;
-    };
-    
-    template<typename C>
-    struct AbilityToImplementor<edm::LuminosityBlockSummaryCache<C>> {
-      typedef edm::stream::impl::LuminosityBlockSummaryCacheHolder<C> Type;
-    };
-    
-    template<>
-    struct AbilityToImplementor<edm::BeginRunProducer> {
-      typedef edm::stream::impl::BeginRunProducer Type;
-    };
-    
-    template<>
-    struct AbilityToImplementor<edm::EndRunProducer> {
-      typedef edm::stream::impl::EndRunProducer Type;
-    };
-    
-    template<>
-    struct AbilityToImplementor<edm::BeginLuminosityBlockProducer> {
-      typedef edm::stream::impl::BeginLuminosityBlockProducer Type;
-    };
-    
-    template<>
-    struct AbilityToImplementor<edm::EndLuminosityBlockProducer> {
-      typedef edm::stream::impl::EndLuminosityBlockProducer Type;
+      using Type = edm::stream::impl::GlobalCacheHolder<C>;
     };
 
-    template<>
+    template <typename... CacheTypes>
+    struct AbilityToImplementor<edm::InputProcessBlockCache<CacheTypes...>> {
+      using Type = edm::stream::impl::InputProcessBlockCacheHolder<CacheTypes...>;
+    };
+
+    template <typename C>
+    struct AbilityToImplementor<edm::RunCache<C>> {
+      using Type = edm::stream::impl::RunCacheHolder<C>;
+    };
+
+    template <typename C>
+    struct AbilityToImplementor<edm::RunSummaryCache<C>> {
+      using Type = edm::stream::impl::RunSummaryCacheHolder<C>;
+    };
+
+    template <typename C>
+    struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
+      using Type = edm::stream::impl::LuminosityBlockCacheHolder<C>;
+    };
+
+    template <typename C>
+    struct AbilityToImplementor<edm::LuminosityBlockSummaryCache<C>> {
+      using Type = edm::stream::impl::LuminosityBlockSummaryCacheHolder<C>;
+    };
+
+    template <>
+    struct AbilityToImplementor<edm::WatchProcessBlock> {
+      using Type = edm::stream::impl::WatchProcessBlock;
+    };
+
+    template <>
+    struct AbilityToImplementor<edm::BeginProcessBlockProducer> {
+      using Type = edm::stream::impl::BeginProcessBlockProducer;
+    };
+
+    template <>
+    struct AbilityToImplementor<edm::EndProcessBlockProducer> {
+      using Type = edm::stream::impl::EndProcessBlockProducer;
+    };
+
+    template <>
+    struct AbilityToImplementor<edm::BeginRunProducer> {
+      using Type = edm::stream::impl::BeginRunProducer;
+    };
+
+    template <>
+    struct AbilityToImplementor<edm::EndRunProducer> {
+      using Type = edm::stream::impl::EndRunProducer;
+    };
+
+    template <>
+    struct AbilityToImplementor<edm::BeginLuminosityBlockProducer> {
+      using Type = edm::stream::impl::BeginLuminosityBlockProducer;
+    };
+
+    template <>
+    struct AbilityToImplementor<edm::EndLuminosityBlockProducer> {
+      using Type = edm::stream::impl::EndLuminosityBlockProducer;
+    };
+
+    template <>
     struct AbilityToImplementor<edm::ExternalWork> {
-      typedef edm::stream::impl::ExternalWork Type;
+      using Type = edm::stream::impl::ExternalWork;
     };
 
     // As currently implemented this ability only works
     // with EDProducer, not with EDAnalyzers or EDFilters!
-    template<>
-    struct AbilityToImplementor<edm::Accumulator> {
-      typedef edm::stream::impl::Accumulator Type;
+    template <>
+    struct AbilityToImplementor<edm::Transformer> {
+      using Type = edm::stream::impl::Transformer;
     };
-  }
-}
+
+    // As currently implemented this ability only works
+    // with EDProducer, not with EDAnalyzers or EDFilters!
+    template <>
+    struct AbilityToImplementor<edm::Accumulator> {
+      using Type = edm::stream::impl::Accumulator;
+    };
+
+    template <>
+    struct AbilityToImplementor<edm::stream::WatchRuns> {
+      using Type = edm::stream::impl::WatchRuns;
+    };
+
+    template <>
+    struct AbilityToImplementor<edm::stream::WatchLuminosityBlocks> {
+      using Type = edm::stream::impl::WatchLuminosityBlocks;
+    };
+
+  }  // namespace stream
+}  // namespace edm
 
 #endif

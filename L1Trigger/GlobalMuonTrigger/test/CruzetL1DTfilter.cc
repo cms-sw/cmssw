@@ -9,7 +9,7 @@
 */
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
@@ -17,11 +17,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-class CruzetL1DTfilter : public edm::EDFilter {
-  
+class CruzetL1DTfilter : public edm::global::EDFilter<> {
 public:
-  explicit CruzetL1DTfilter( const edm::ParameterSet&);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  explicit CruzetL1DTfilter(const edm::ParameterSet&);
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+
 private:
   // mode:
   // 1 - bottom only
@@ -32,15 +32,14 @@ private:
   edm::InputTag _GMTInputTag;
 };
 
-
 CruzetL1DTfilter::CruzetL1DTfilter(const edm::ParameterSet& ps) {
   _mode = ps.getParameter<int>("mode");
   _GMTInputTag = ps.getParameter<edm::InputTag>("GMTInputTag");
 }
 
-bool CruzetL1DTfilter::filter(edm::Event& e, const edm::EventSetup& es) {
-  edm::Handle<L1MuGMTReadoutCollection> gmtrc; 
-  e.getByLabel(_GMTInputTag,gmtrc);
+bool CruzetL1DTfilter::filter(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const {
+  edm::Handle<L1MuGMTReadoutCollection> gmtrc;
+  e.getByLabel(_GMTInputTag, gmtrc);
 
   bool result = false;
   L1MuGMTReadoutRecord gmtrr = gmtrc->getRecord();
@@ -49,15 +48,21 @@ bool CruzetL1DTfilter::filter(edm::Event& e, const edm::EventSetup& es) {
   std::vector<L1MuRegionalCand> rmc = gmtrr.getDTBXCands();
   bool top = false;
   bool bot = false;
-  for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+  for (iter1 = rmc.begin(); iter1 != rmc.end(); iter1++) {
     int phi = (*iter1).phi_packed();
-    if(phi>=18 && phi<=53)  top = true;
-    if(phi>=90 && phi<=125) bot = true;
+    if (phi >= 18 && phi <= 53)
+      top = true;
+    if (phi >= 90 && phi <= 125)
+      bot = true;
   }
-  if(_mode==1 && bot) result = true;
-  if(_mode==2 && top) result = true;
-  if(_mode==3 && (top || bot)) result = true;
-  if(_mode==4 && (top && bot)) result = true;
+  if (_mode == 1 && bot)
+    result = true;
+  if (_mode == 2 && top)
+    result = true;
+  if (_mode == 3 && (top || bot))
+    result = true;
+  if (_mode == 4 && (top && bot))
+    result = true;
 
   return result;
 }

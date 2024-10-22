@@ -57,9 +57,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         noLineBreaks = cms.untracked.bool(True),
         threshold = cms.untracked.string('DEBUG'),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
@@ -79,7 +76,8 @@ process.dtNoiseAnalyzer = cms.EDAnalyzer("DTnoiseDBValidation",
     labelDB = cms.untracked.string('noiseToValidate')
 )
 
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests.xml')
 )

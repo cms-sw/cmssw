@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 # options
@@ -29,7 +30,7 @@ options.parseArguments()
 # the job
 process = cms.Process("L1GctConfigDump")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cout.enable = cms.untracked.bool(True)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('l1GctConfigDump')
 
@@ -50,7 +51,7 @@ if (options.globalTag != "") :
 
 if (options.sqlite != "") :
     process.load("CondTools.L1Trigger.L1CondDBSource_cff")
-    print "Can't read SQLite files yet"
+    print("Can't read SQLite files yet")
 
 if (options.cfi > 0) :
     process.load("L1Trigger.Configuration.L1Trigger_FakeConditions_cff")

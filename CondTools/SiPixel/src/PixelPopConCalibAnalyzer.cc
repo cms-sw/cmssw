@@ -3,7 +3,7 @@
 //
 // Package:    CondTools/SiPixel
 // Class:      PixelPopConCalibAnalyzer
-// 
+//
 /**\class PixelPopConCalibAnalyzer PixelPopConCalibAnalyzer.cc CondTools/SiPixel/src/PixelPopConCalibAnalyzer.cc
 
  Description: <one line class summary>
@@ -18,12 +18,10 @@
 //
 //
 
-
 #include "CondCore/PopCon/interface/PopConAnalyzer.h"
 #include "CondTools/SiPixel/interface/PixelPopConCalibAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondTools/SiPixel/interface/PixelPopConCalibSourceHandler.h"
-
 
 typedef popcon::PopConAnalyzer<PixelPopConCalibSourceHandler> PixelPopConCalibAnalyzer;
 

@@ -1,8 +1,12 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
+from builtins import zip
+from builtins import object
+from past.utils import old_div
+from builtins import range
 import sys
 import re
-import optparse
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pprint import pprint
 import array
 import ROOT
@@ -53,7 +57,7 @@ class LumiInfo (object):
                     self.numXings += 1
             except:
                 raise RuntimeError("Inst Lumi Info malformed")
-            self.aveInstLum = self.totInstLum / (self.numXings)
+            self.aveInstLum = old_div(self.totInstLum, (self.numXings))
             self.xingInfo   = True
         self.key       = (self.run, self.lumi)
         self.keyString = self.key.__str__()
@@ -73,7 +77,7 @@ class LumiInfo (object):
         self.numXings = 1
         xing = 1
         self.aveInstLum = self.totInstLum = lum = \
-                          self.delivered / LumiInfo.lumiSectionLength
+                          old_div(self.delivered, LumiInfo.lumiSectionLength)
         self.instLums.append( (xing, lum) )
         self.xingInfo = True
         return True
@@ -82,7 +86,7 @@ class LumiInfo (object):
     def deadtime (self):
         if not self.delivered:
             return 1
-        return 1 - (self.recorded / self.delivered)
+        return 1 - (old_div(self.recorded, self.delivered))
 
 
     def __str__ (self):
@@ -104,7 +108,7 @@ class LumiInfo (object):
 class LumiInfoCont (dict):
 
     def __init__ (self, filename, **kwargs):
-        print "loading luminosity information from '%s'." % filename
+        print("loading luminosity information from '%s'." % filename)
         source = open (filename, 'r')
         self.minMaxKeys = ['totInstLum', 'aveInstLum', 'numXings',
                      'delivered', 'recorded']
@@ -134,7 +138,7 @@ class LumiInfoCont (dict):
             if lumi.xingInfo:
                 #print "yes", lumi.keyString
                 if not self.xingInfo:
-                    print "huh?"
+                    print("huh?")
             for key in self.minMaxKeys:
                 val = getattr (lumi, key)
                 if val < self._min[key] or self._min[key] < 0:
@@ -169,7 +173,7 @@ class LumiInfoCont (dict):
 
     def __str__ (self):
         retval = 'run,     lum     del ( dt  ) inst (#xng)\n'
-        for key, value in sorted (self.iteritems()):
+        for key, value in sorted (self.items()):
             retval += "%s\n" % value
         return retval
 
@@ -193,22 +197,22 @@ class LumiInfoCont (dict):
     def _integrateContainer (self):
         # calculate numbers for recorded integrated luminosity
         total = 0.
-        for key, lumi in self.iteritems():
+        for key, lumi in self.items():
             total += lumi.recorded
             lumi.totalRecorded = total
-            lumi.fracRecorded  = total / self.totalRecLum
+            lumi.fracRecorded  = old_div(total, self.totalRecLum)
         # calculate numbers for average xing instantaneous luminosity
         if not self.xingInfo:
             # nothing to do here
             return
         xingKeyList = []
         maxAveInstLum = 0.
-        for key, lumi in self.iteritems():
+        for key, lumi in self.items():
             if not lumi.xingInfo and not lumi.fixXingInfo():
                 if not self.noWarnings:
-                    print "Do not have lumi xing info for %s" % lumi.keyString
+                    print("Do not have lumi xing info for %s" % lumi.keyString)
                 if not self.allowNoXing:
-                    print "Setting no Xing info flag"
+                    print("Setting no Xing info flag")
                     self.xingInfo = False
                     return
                 continue
@@ -221,8 +225,8 @@ class LumiInfoCont (dict):
             lumi = self[tup[1]]
             total += lumi.recorded
             lumi.totalAXILrecorded = total
-            lumi.fracAXILrecorded  = total / self.totalRecLum
-            lumi.fracAXIL = lumi.aveInstLum / maxAveInstLum
+            lumi.fracAXILrecorded  = old_div(total, self.totalRecLum)
+            lumi.fracAXIL = old_div(lumi.aveInstLum, maxAveInstLum)
 
 
 #############################
@@ -233,7 +237,7 @@ class LumiInfoCont (dict):
 
 def loadEvents (filename, cont, options):
     eventsDict = {}
-    print "loading events from '%s'" % filename
+    print("loading events from '%s'" % filename)
     events = open (filename, 'r')
     runIndex, lumiIndex, eventIndex, weightIndex = 0, 1, 2, 3
     if options.relOrder:
@@ -246,7 +250,7 @@ def loadEvents (filename, cont, options):
         pieces = sepRE.split (line.strip())
         if len (pieces) < minPieces:
             if nonSpaceRE.search (line):
-                print "skipping", line
+                print("skipping", line)
             continue
         try:
             run, lumi, event = int( pieces[runIndex]   ), \
@@ -257,16 +261,16 @@ def loadEvents (filename, cont, options):
         key = (run, lumi)
         if key not in cont:
             if options.ignore:
-                print "Warning, %s is not found in the lumi information" \
-                      % key.__str__()
+                print("Warning, %s is not found in the lumi information" \
+                      % key.__str__())
                 continue
             else:
                 raise RuntimeError("%s is not found in lumi information.  Use '--ignoreNoLumiEvents' option to ignore these events and continue." \
                       % key.__str__())
         if options.edfMode != 'time' and not cont[key].xingInfo:
             if options.ignore:
-                print "Warning, %s does not have Xing information" \
-                      % key.__str__()
+                print("Warning, %s does not have Xing information" \
+                      % key.__str__())
                 continue
             else:
                 raise RuntimeError("%s  does not have Xing information.  Use '--ignoreNoLumiEvents' option to ignore these events and continue." \
@@ -300,7 +304,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
             expectedVals = []
             predVals   = []
         # loop over events
-        for key, eventList in sorted( eventsDict.iteritems() ):
+        for key, eventList in sorted( eventsDict.items() ):
             usePoints = True
             # should we add this point?
             if lumiCont.minRun and lumiCont.minRun > key[0] or \
@@ -310,7 +314,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
                 weight += event[1]
                 if not usePoints:
                     continue
-                factor = weight / totalWeight
+                factor = old_div(weight, totalWeight)
                 try:
                     intLum = lumiCont[key].totalRecorded
                 except:
@@ -319,7 +323,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
                 if lumiCont.minIntLum and lumiCont.minIntLum > intLum or \
                    lumiCont.maxIntLum and lumiCont.maxIntLum < intLum:
                     continue
-                lumFrac = intLum / lumiCont.totalRecLum
+                lumFrac = old_div(intLum, lumiCont.totalRecLum)
                 xVals.append( lumiCont[key].totalRecorded)
                 yVals.append (factor)
                 expectedVals.append (lumFrac)
@@ -334,8 +338,8 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         ## Reset Expected ##
         ####################
         if options.resetExpected:
-            slope = (yVals[-1] - yVals[0]) / (xVals[-1] - xVals[0])
-            print "slope", slope
+            slope = old_div((yVals[-1] - yVals[0]), (xVals[-1] - xVals[0]))
+            print("slope", slope)
             for index, old in enumerate (expectedVals):
                 expectedVals[index] = yVals[0] + \
                                     slope * (xVals[index] - xVals[0])
@@ -385,9 +389,9 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
             for thisRange in rangeList:
                 upper = thisRange[1]
                 lower = thisRange[0]
-                slope = (yVals[upper] - yVals[lower]) / \
-                        (xVals[upper] - xVals[lower])
-                print "slope", slope
+                slope = old_div((yVals[upper] - yVals[lower]), \
+                        (xVals[upper] - xVals[lower]))
+                print("slope", slope)
                 # now go over the range inclusively
                 pairList = []
                 for index in range (lower, upper + 1):
@@ -403,7 +407,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         eventTupList = []
         if not lumiCont.xingInfo:
             raise RuntimeError("Luminosity Xing information missing.")
-        for key, eventList in sorted( eventsDict.iteritems() ):
+        for key, eventList in sorted( eventsDict.items() ):
             try:
                 lumi =  lumiCont[key]
                 instLum   = lumi.aveInstLum
@@ -418,7 +422,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         eventTupList.sort()
         for eventTup in eventTupList:
             weight += eventTup[5]
-            factor = weight / totalWeight
+            factor = old_div(weight, totalWeight)
             if 'instLum' == options.edfMode:
                 xVals.append (eventTup[0])
             else:
@@ -430,20 +434,20 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         raise RuntimeError("It looks like Charles screwed up if you are seeing this.")
 
     size = len (xVals)
-    step = int (math.sqrt(size) / 2 + 1)
+    step = int (old_div(math.sqrt(size), 2) + 1)
     if options.printValues:
         for index in range (size):
-            print "%8f %8f %8f" % (xVals[index], yVals[index], expectedVals[index]),
+            print("%8f %8f %8f" % (xVals[index], yVals[index], expectedVals[index]), end=' ')
             if index > step:
                 denom = xVals[index] - xVals[index - step]
                 numer = yVals[index] - yVals[index - step]
                 if denom:
-                    print " %8f" % (numer / denom),
+                    print(" %8f" % (old_div(numer, denom)), end=' ')
             if 0 == index % step:
-                print " **", ## indicates statistically independent
+                print(" **", end=' ') ## indicates statistically independent
                              ## slope measurement
-            print
-        print
+            print()
+        print()
 
     xArray = array.array ('d', xVals)
     yArray = array.array ('d', yVals)
@@ -459,7 +463,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
 
     # run statistical tests
     if options.weights:
-        print "average weight per event:", weight / ( size - 1)
+        print("average weight per event:", old_div(weight, ( size - 1)))
     maxDistance = ROOT.TMath.KolmogorovTest (size, yArray,
                                              size, expected,
                                              "M")
@@ -552,74 +556,68 @@ if __name__ == '__main__':
     ## command line options ##
     ##########################
     allowedEDF = ['time', 'instLum', 'instIntLum']
-    parser = optparse.OptionParser ("Usage: %prog [options] lumi.csv events.txt output.png", description='Script for generating EDF curves. See https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideGenerateEDF for more details.')
-    plotGroup  = optparse.OptionGroup (parser, "Plot Options")
-    rangeGroup = optparse.OptionGroup (parser, "Range Options")
-    inputGroup = optparse.OptionGroup (parser, "Input Options")
-    modeGroup  = optparse.OptionGroup (parser, "Mode Options")
-    plotGroup.add_option ('--title', dest='title', type='string',
-                          default = 'Empirical Distribution Function',
-                          help = 'title of plot (default %default)')
-    plotGroup.add_option ('--predicted', dest='pred', type='float',
-                          default = 0,
-                          help = 'factor by which predicted curve is greater than observed')
-    plotGroup.add_option ('--predLabel', dest='predLabel', type='string',
-                          default = 'Predicted',
-                          help = 'label of predicted in legend')
-    plotGroup.add_option ('--noDataPoints', dest='noDataPoints',
-                          action='store_true',
-                          help="Draw lines but no points for data")
-    rangeGroup.add_option ('--minRun', dest='minRun', type='int', default=0,
-                           help='Minimum run number to consider')
-    rangeGroup.add_option ('--maxRun', dest='maxRun', type='int', default=0,
-                           help='Maximum run number to consider')
-    rangeGroup.add_option ('--minIntLum', dest='minIntLum', type='float', default=0,
-                           help='Minimum integrated luminosity to consider')
-    rangeGroup.add_option ('--maxIntLum', dest='maxIntLum', type='float', default=0,
-                           help='Maximum integrated luminosity to consider')
-    rangeGroup.add_option ('--resetExpected', dest='resetExpected',
-                           action='store_true',
-                           help='Reset expected from total yield to highest point considered')
-    rangeGroup.add_option ('--breakExpectedIntLum', dest='breakExpectedIntLum',
-                           type='string', action='append', default=[],
-                           help='Break expected curve into pieces at integrated luminosity boundaries')
-    inputGroup.add_option ('--ignoreNoLumiEvents', dest='ignore',
-                           action='store_true',
-                           help = 'Ignore (with a warning) events that do not have a lumi section')
-    inputGroup.add_option ('--noWarnings', dest='noWarnings',
-                           action='store_true',
-                           help = 'Do not print warnings about missing luminosity information')
-    inputGroup.add_option ('--runEventLumi', dest='relOrder',
-                           action='store_true',
-                           help = 'Parse event list assuming Run, Event #, Lumi# order')
-    inputGroup.add_option ('--weights', dest='weights', action='store_true',
-                           help = 'Read fourth column as a weight')
-    modeGroup.add_option ('--print', dest='printValues', action='store_true',
-                          help = 'Print X and Y values of EDF plot')
-    modeGroup.add_option ('--runsWithLumis', dest='runsWithLumis',
-                          type='string',action='append', default=[],
-                          help='Print out run and lumi sections corresponding to integrated luminosities provided and then exits')
-    modeGroup.add_option ('--edfMode', dest='edfMode', type='string',
-                          default='time',
-                          help="EDF Mode %s (default '%%default')" % allowedEDF)
-    parser.add_option_group (plotGroup)
-    parser.add_option_group (rangeGroup)
-    parser.add_option_group (inputGroup)
-    parser.add_option_group (modeGroup)
-    (options, args) = parser.parse_args()
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter, usage='%(prog)s [options] lumi.csv events.txt output.png', description='Script for generating EDF curves. See https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideGenerateEDF for more details.')
+    plotGroup  = parser.add_argument_group("Plot Options")
+    rangeGroup = parser.add_argument_group("Range Options")
+    inputGroup = parser.add_argument_group("Input Options")
+    modeGroup  = parser.add_argument_group("Mode Options")
+    plotGroup.add_argument('--title', dest='title', type=str,
+                           default = 'Empirical Distribution Function',
+                           help = 'title of plot')
+    plotGroup.add_argument('--predicted', dest='pred', type=float,
+                           default = 0,
+                           help = 'factor by which predicted curve is greater than observed')
+    plotGroup.add_argument('--predLabel', dest='predLabel', type=str,
+                           default = 'Predicted',
+                           help = 'label of predicted in legend')
+    plotGroup.add_argument('--noDataPoints', dest='noDataPoints',
+                           default = False, action='store_true',
+                           help="Draw lines but no points for data")
+    rangeGroup.add_argument('--minRun', dest='minRun', type=int, default=0,
+                            help='Minimum run number to consider')
+    rangeGroup.add_argument('--maxRun', dest='maxRun', type=int, default=0,
+                            help='Maximum run number to consider')
+    rangeGroup.add_argument('--minIntLum', dest='minIntLum', type=float, default=0,
+                            help='Minimum integrated luminosity to consider')
+    rangeGroup.add_argument('--maxIntLum', dest='maxIntLum', type=float, default=0,
+                            help='Maximum integrated luminosity to consider')
+    rangeGroup.add_argument('--resetExpected', dest='resetExpected',
+                            default = False, action='store_true',
+                            help='Reset expected from total yield to highest point considered')
+    rangeGroup.add_argument('--breakExpectedIntLum', dest='breakExpectedIntLum',
+                            type=str, action='append', default=[],
+                            help='Break expected curve into pieces at integrated luminosity boundaries')
+    inputGroup.add_argument('--ignoreNoLumiEvents', dest='ignore',
+                            default = False, action='store_true',
+                            help = 'Ignore (with a warning) events that do not have a lumi section')
+    inputGroup.add_argument('--noWarnings', dest='noWarnings',
+                            default = False,action='store_true',
+                            help = 'Do not print warnings about missing luminosity information')
+    inputGroup.add_argument('--runEventLumi', dest='relOrder',
+                            default = False, action='store_true',
+                            help = 'Parse event list assuming Run, Event #, Lumi# order')
+    inputGroup.add_argument('--weights', dest='weights', default = False, action='store_true',
+                            help = 'Read fourth column as a weight')
+    modeGroup.add_argument('--print', dest='printValues', default = False, action='store_true',
+                           help = 'Print X and Y values of EDF plot')
+    modeGroup.add_argument('--runsWithLumis', dest='runsWithLumis',
+                           type=str,action='append', default=[],
+                           help='Print out run and lumi sections corresponding to integrated luminosities provided and then exits')
+    modeGroup.add_argument('--edfMode', dest='edfMode', type=str,
+                           default='time',
+                           help="EDF Mode", choices=allowedEDF)
+    parser.add_argument("lumi_csv", metavar="lumi.csv", type=str)
+    parser.add_argument("events_txt", metavar="events.txt", type=str, nargs='?')
+    parser.add_argument("output_png", metavar="output.png", type=str, nargs='?')
+    options = parser.parse_args()
 
-    if options.edfMode not in allowedEDF:
-        raise RuntimeError("edfMode (currently '%s') must be one of %s" \
-              % (options.edfMode, allowedEDF))
-
-    if len (args) != 3 and not (options.runsWithLumis and len(args) >= 1):
-        raise RuntimeError("Must provide lumi.csv, events.txt, and output.png")
-
+    if not options.runsWithLumis and (options.events_txt is None or options.output_png is None):
+        parser.error("Must provide lumi.csv, events.txt, and output.png")
 
     ##########################
     ## load Luminosity info ##
     ##########################
-    cont = LumiInfoCont (args[0], **options.__dict__)
+    cont = LumiInfoCont (options.lumi_csv, **options.__dict__)
     cont.minRun    = options.minRun
     cont.maxRun    = options.maxRun
     cont.minIntLum = options.minIntLum
@@ -649,11 +647,11 @@ if __name__ == '__main__':
         recLumValue = recLumis [recLumIndex]
         prevRecLumi = 0.
         done = False
-        for key, lumi in cont.iteritems():
+        for key, lumi in cont.items():
             if prevRecLumi >= recLumValue and recLumValue < lumi.totalRecorded:
                 # found it
-                print "%s contains total recorded lumi %f" % \
-                      (key.__str__(), recLumValue)
+                print("%s contains total recorded lumi %f" % \
+                      (key.__str__(), recLumValue))
                 while True:
                     recLumIndex += 1
                     if recLumIndex == len (recLumis):
@@ -662,21 +660,21 @@ if __name__ == '__main__':
                     recLumValue = recLumis [recLumIndex]
                     if prevRecLumi >= recLumValue and recLumValue < lumi.totalRecorded:
                         # found it
-                        print "%s contains total recorded lumi %f" % \
-                              (key.__str__(), recLumValue)
+                        print("%s contains total recorded lumi %f" % \
+                              (key.__str__(), recLumValue))
                     else:
                         break
                 if done:
                     break
             prevRecLumi = lumi.totalRecorded
         if recLumIndex < len (recLumis):
-            print "Theses lumis not found: %s" % recLumis[recLumIndex:]
+            print("Theses lumis not found: %s" % recLumis[recLumIndex:])
         sys.exit()
 
     ####################
     ## make EDF plots ##
     ####################
     if options.edfMode != 'time' and not cont.xingInfo:
-        raise RuntimeError("'%s' does not have Xing info" % args[0])
-    eventsDict, totalWeight = loadEvents (args[1], cont, options)
-    makeEDFplot (cont, eventsDict, totalWeight, args[2], options)
+        raise RuntimeError("'%s' does not have Xing info" % options.lumi_csv)
+    eventsDict, totalWeight = loadEvents (options.events_txt, cont, options)
+    makeEDFplot (cont, eventsDict, totalWeight, options.output_png, options)

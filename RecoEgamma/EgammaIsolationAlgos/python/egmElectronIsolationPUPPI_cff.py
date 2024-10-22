@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import PhysicsTools.IsolationAlgos.CITKPFIsolationSumProducerForPUPPI_cfi as _mod
 
 IsoConeDefinitions = cms.VPSet(
         cms.PSet( isolationAlgo = cms.string('ElectronPFIsolationWithConeVeto'), 
@@ -21,23 +22,23 @@ IsoConeDefinitions = cms.VPSet(
                   miniAODVertexCodes = cms.vuint32(2,3) )
         )
 
-egmElectronIsolationAODPUPPI = cms.EDProducer( "CITKPFIsolationSumProducerForPUPPI",
-                srcToIsolate = cms.InputTag("gedGsfElectrons"),
-                srcForIsolationCone = cms.InputTag(''),
+egmElectronIsolationAODPUPPI = _mod.CITKPFIsolationSumProducerForPUPPI.clone(
+                srcToIsolate = "gedGsfElectrons",
+                srcForIsolationCone = '',
                 isolationConeDefinitions = IsoConeDefinitions
 )
 
-egmElectronIsolationMiniAODPUPPI = cms.EDProducer( "CITKPFIsolationSumProducerForPUPPI",
-                srcToIsolate = cms.InputTag("slimmedElectrons"),
-                srcForIsolationCone = cms.InputTag('packedPFCandidates'),
-                puppiValueMap = cms.InputTag(''),
+egmElectronIsolationMiniAODPUPPI = _mod.CITKPFIsolationSumProducerForPUPPI.clone(
+                srcToIsolate = "slimmedElectrons",
+                srcForIsolationCone = 'packedPFCandidates',
+                puppiValueMap = '',
                 isolationConeDefinitions = IsoConeDefinitions
 )
 
-egmElectronIsolationMiniAODPUPPINoLeptons = cms.EDProducer( "CITKPFIsolationSumProducerForPUPPI",
-                srcToIsolate = cms.InputTag("slimmedElectrons"),
-                srcForIsolationCone = cms.InputTag('packedPFCandidates'),
-                puppiValueMap = cms.InputTag(''),
-                usePUPPINoLepton = cms.bool(True),
+egmElectronIsolationMiniAODPUPPINoLeptons = _mod.CITKPFIsolationSumProducerForPUPPI.clone(
+                srcToIsolate = "slimmedElectrons",
+                srcForIsolationCone = 'packedPFCandidates',
+                puppiValueMap = '',
+                usePUPPINoLepton = True,
                 isolationConeDefinitions = IsoConeDefinitions
 )

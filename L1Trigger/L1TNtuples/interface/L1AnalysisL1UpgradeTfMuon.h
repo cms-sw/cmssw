@@ -5,22 +5,23 @@
 
 #include "L1AnalysisL1UpgradeTfMuonDataFormat.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
-namespace L1Analysis
-{
-  class L1AnalysisL1UpgradeTfMuon 
-  {
+namespace L1Analysis {
+  class L1AnalysisL1UpgradeTfMuon {
   public:
-    enum {TEST=0};
+    enum { TEST = 0 };
     L1AnalysisL1UpgradeTfMuon();
     ~L1AnalysisL1UpgradeTfMuon();
-    void Reset() {l1upgradetfmuon_.Reset();}
-    void SetTfMuon (const l1t::RegionalMuonCandBxCollection& muon, unsigned maxL1UpgradeTfMuon);
-    L1AnalysisL1UpgradeTfMuonDataFormat * getData() {return &l1upgradetfmuon_;}
+    void Reset() {
+      l1upgradetfmuon_.Reset();
+      isRun3_ = false;
+    }
+    void SetRun3Muons() { isRun3_ = true; }
+    void SetTfMuon(const l1t::RegionalMuonCandBxCollection& muon, unsigned maxL1UpgradeTfMuon);
+    L1AnalysisL1UpgradeTfMuonDataFormat* getData() { return &l1upgradetfmuon_; }
 
-  private :
+  private:
     L1AnalysisL1UpgradeTfMuonDataFormat l1upgradetfmuon_;
-  }; 
-}
+    bool isRun3_{false};
+  };
+}  // namespace L1Analysis
 #endif
-
-

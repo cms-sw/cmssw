@@ -1,0 +1,9 @@
+<use name="dd4hep-core"/>
+<use name="dd4hep-geant4"/>
+<use name="geant4core"/>
+<use name="FWCore/MessageLogger"/>
+<use name="rootgeom"/>
+<use name="rootmath"/>
+<export>
+  <lib name="1"/>
+</export>

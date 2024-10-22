@@ -1,0 +1,3 @@
+L1TZDCProducerV1.cc is the V1 version of the L1TZDCProducer plugin prior to the adoption of fully calibrated tpDigis as provided by the HCal group
+
+Similarly, etSumZDCProducerV1_cfi.py is the corresponding initialization of the v1 producer that would be under the python directory

@@ -4,7 +4,7 @@
 //
 // Package:     MuonAlignment
 // Class  :     MuonAlignmentInputDB
-// 
+//
 /**\class MuonAlignmentInputDB MuonAlignmentInputDB.h Alignment/MuonAlignment/interface/MuonAlignmentInputDB.h
 
  Description: <one line class summary>
@@ -26,30 +26,53 @@
 
 // forward declarations
 
-class MuonAlignmentInputDB: public MuonAlignmentInputMethod {
-   public:
-      MuonAlignmentInputDB();
-      MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel, bool getAPEs);
-      ~MuonAlignmentInputDB() override;
+class MuonAlignmentInputDB : public MuonAlignmentInputMethod {
+public:
+  MuonAlignmentInputDB(const DTGeometry* dtGeometry,
+                       const CSCGeometry* cscGeometry,
+                       const GEMGeometry* gemGeometry,
+                       const Alignments* dtAlignments,
+                       const Alignments* cscAlignments,
+                       const Alignments* gemAlignments,
+                       const Alignments* globalPositionRcd);
+  MuonAlignmentInputDB(const DTGeometry* dtGeometry,
+                       const CSCGeometry* cscGeometry,
+                       const GEMGeometry* gemGeometry,
+                       const Alignments* dtAlignments,
+                       const Alignments* cscAlignments,
+                       const Alignments* gemAlignments,
+                       const AlignmentErrorsExtended* dtAlignmentErrorsExtended,
+                       const AlignmentErrorsExtended* cscAlignmentErrorsExtended,
+                       const AlignmentErrorsExtended* gemAlignmentErrorsExtended,
+                       const Alignments* globalPositionRcd);
+  ~MuonAlignmentInputDB() override;
 
-      // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-      AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const override;
+  AlignableMuon* newAlignableMuon() const override;
 
-   private:
-      MuonAlignmentInputDB(const MuonAlignmentInputDB&) = delete; // stop default
+  MuonAlignmentInputDB(const MuonAlignmentInputDB&) = delete;  // stop default
 
-      const MuonAlignmentInputDB& operator=(const MuonAlignmentInputDB&) = delete; // stop default
+  const MuonAlignmentInputDB& operator=(const MuonAlignmentInputDB&) = delete;  // stop default
 
-      // ---------- member data --------------------------------
+private:
+  // ---------- member data --------------------------------
+  const DTGeometry* dtGeometry_;
+  const CSCGeometry* cscGeometry_;
+  const GEMGeometry* gemGeometry_;
+  const Alignments* dtAlignments_;
+  const Alignments* cscAlignments_;
+  const Alignments* gemAlignments_;
+  const AlignmentErrorsExtended* dtAlignmentErrorsExtended_;
+  const AlignmentErrorsExtended* cscAlignmentErrorsExtended_;
+  const AlignmentErrorsExtended* gemAlignmentErrorsExtended_;
+  const Alignments* globalPositionRcd_;
 
-      std::string m_dtLabel, m_cscLabel;
-      bool m_getAPEs;
+  const bool m_getAPEs;
 };
-
 
 #endif

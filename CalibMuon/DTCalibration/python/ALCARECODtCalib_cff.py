@@ -21,3 +21,14 @@ dt4DSegmentsNoWire.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.tTrigModeConf
 from RecoMET.METFilters.metFilters_cff import primaryVertexFilter, noscraping
 
 seqALCARECODtCalib = cms.Sequence(primaryVertexFilter * noscraping * ALCARECODtCalibHLTFilter * DTCalibMuonSelection * dt4DSegmentsNoWire) 
+
+## customizations for the pp_on_AA eras
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(ALCARECODtCalibHLTFilter,
+                  eventSetupPathsKey='DtCalibHI'
+)
+
+seqALCARECODtCalibHI = cms.Sequence(ALCARECODtCalibHLTFilter * dt4DSegmentsNoWire)
+
+#Specify to use HI sequence for the pp_on_AA eras
+pp_on_AA.toReplaceWith(seqALCARECODtCalib,seqALCARECODtCalibHI)

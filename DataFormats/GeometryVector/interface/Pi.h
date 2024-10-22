@@ -28,15 +28,14 @@
 
 namespace Geom {
 
-  inline constexpr double pi()     {return     3.141592653589793238;}
-  inline constexpr double twoPi()  {return 2. *3.141592653589793238;}
-  inline constexpr double halfPi() {return 0.5*3.141592653589793238;}
+  inline constexpr double pi() { return 3.141592653589793238; }
+  inline constexpr double twoPi() { return 2. * 3.141592653589793238; }
+  inline constexpr double halfPi() { return 0.5 * 3.141592653589793238; }
 
-  inline constexpr float fpi()     {return     3.141592653589793238f;}
-  inline constexpr float ftwoPi()  {return 2.f *3.141592653589793238f;}
-  inline constexpr float fhalfPi() {return 0.5f*3.141592653589793238f;}
+  inline constexpr float fpi() { return 3.141592653589793238f; }
+  inline constexpr float ftwoPi() { return 2.f * 3.141592653589793238f; }
+  inline constexpr float fhalfPi() { return 0.5f * 3.141592653589793238f; }
 
-
-}
+}  // namespace Geom
 
 #endif

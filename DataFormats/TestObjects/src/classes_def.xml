@@ -5,6 +5,7 @@
  <class name="edmtest::IntProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="4286676158"/>
  </class>
+ <class name="std::pair<edmtest::IntProduct, edm::RandomNumberGeneratorState>"/>
  <class name="edmtest::UInt64Product" ClassVersion="11">
   <version ClassVersion="11" checksum="3240540910"/>
   <version ClassVersion="10" checksum="380152127"/>
@@ -20,6 +21,10 @@
  <class name="edmtest::TransientIntProduct" ClassVersion="11">
   <version ClassVersion="10" checksum="304339852"/>
   <version ClassVersion="11" checksum="639295444"/>
+  <field name="dummy" transient="true"/>
+ </class>
+ <class name="edmtest::ATransientIntProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="2661369959"/>
   <field name="dummy" transient="true"/>
  </class>
  <class name="edmtest::Int16_tProduct" ClassVersion="10">
@@ -78,8 +83,11 @@
  </ioread>
  <class name="edm::Wrapper<edmtest::DummyProduct>"/>
  <class name="edm::Wrapper<edmtest::IntProduct>"/>
+ <class name="std::vector<std::unique_ptr<edmtest::IntProduct>>"/>
+ <class name="edm::Wrapper<std::vector<std::unique_ptr<edmtest::IntProduct>>>"/>
  <class name="edm::Wrapper<edmtest::UInt64Product>"/>
  <class name="edm::Wrapper<edmtest::TransientIntProduct>" persistent="false"/>
+ <class name="edm::Wrapper<edmtest::ATransientIntProduct>" persistent="false"/>
  <class name="edm::Wrapper<edmtest::Int16_tProduct>"/>
  <class name="edm::Wrapper<edmtest::DoubleProduct>"/>
  <class name="edm::Wrapper<edmtest::StringProduct>"/>
@@ -112,11 +120,11 @@
  <class name="std::vector<edmtest::Thing>"/>
  <class name="std::vector<edmtest::OtherThing>"/>
  <class name="edm::RefProd<std::vector<edmtest::Thing> >"/>
- <class name="edm::RefToBaseProd<edmtest::Thing>"/>
+ <class name="edm::RefToBaseProd<edmtest::Thing>" rntupleSplit="false"/>
  <class name="edm::reftobase::BaseHolder<edmtest::Thing>"/>
  <class name="edm::reftobase::Holder<edmtest::Thing,edm::Ref<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> > >"/>
- <class name="edm::RefToBase<edmtest::Thing>"/>
- <class name="edm::RefToBaseVector<edmtest::Thing>"/>
+ <class name="edm::RefToBase<edmtest::Thing>" rntupleSplit="false"/>
+ <class name="edm::RefToBaseVector<edmtest::Thing>" rntupleSplit="false"/>
  <class name="edm::reftobase::BaseVectorHolder<edmtest::Thing>"/>
  <class name="edm::reftobase::VectorHolder<edmtest::Thing, edm::RefVector<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> > >"/>
  <class name="edm::Ptr<edmtest::Thing>"/>
@@ -133,6 +141,16 @@
  <class name="edm::Wrapper<edmtest::ThingWithIsEqual>"/>
  <class name="edm::Wrapper<std::vector<edmtest::Thing> >"/>
  <class name="edm::Wrapper<std::vector<edmtest::OtherThing> >"/>
+
+ <class name="edmNew::DetSetVector<edmtest::Thing>"/>
+ <class name="edm::Ref<edmNew::DetSetVector<edmtest::Thing>, edmtest::Thing, edmNew::DetSetVector<edmtest::Thing>::FindForDetSetVector>"/>
+ <class name="edm::RefVector<edmNew::DetSetVector<edmtest::Thing>, edmtest::Thing, edmNew::DetSetVector<edmtest::Thing>::FindForDetSetVector>"/>
+ <class name="edm::Wrapper<edmNew::DetSetVector<edmtest::Thing> >"/>
+ <class name="edmtest::TrackOfDSVThings" ClassVersion="3">
+  <version ClassVersion="3" checksum="635556054"/>
+ </class>
+ <class name="std::vector<edmtest::TrackOfDSVThings>"/>
+ <class name="edm::Wrapper<std::vector<edmtest::TrackOfDSVThings> >"/>
 
  <class name="edmtestprod::Simple" ClassVersion="10">
   <version ClassVersion="10" checksum="2751437416"/>
@@ -155,6 +173,8 @@
    <version ClassVersion="3" checksum="1338867524"/>
  </class>
  <class name="edm::Wrapper<edmtest::DeleteEarly>"/>
+ <class name="edm::RefProd<edmtest::DeleteEarly>"/>
+ <class name="edm::Wrapper<edm::RefProd<edmtest::DeleteEarly>>"/>
 
  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<int> >,edm::RefProd<std::vector<int> > >"/>
  <class name="edm::AssociationMap<edm::OneToOne<std::vector<int>,std::vector<int>,unsigned int> >">
@@ -237,7 +257,149 @@ exception when running testMissingDictionaryChecking_cfg.py.
  <class name="edm::soa::Table<edm::soa::Column<edmtest::kAnInt,int>, edm::soa::Column<edmtest::kAFloat,float>,edm::soa::Column<edmtest::kAString,std::string> >"/>
  <class name="edm::Wrapper<edm::soa::Table<edm::soa::Column<edmtest::kAnInt,int>, edm::soa::Column<edmtest::kAFloat,float>,edm::soa::Column<edmtest::kAString,std::string> > >" persistent="false"/>
 -->
+
  <class name="edm::soa::Table<edmtest::AnInt, edmtest::AFloat,edmtest::AString >"/>
  <class name="edm::Wrapper<edm::soa::Table<edmtest::AnInt, edmtest::AFloat,edmtest::AString > >"/>
+
+ <class name="std::vector<edmtest::VectorVectorElementNonSplit>"/>
+ <class name="edmtest::VectorVectorMiddleNonSplit" ClassVersion="3">
+  <version ClassVersion="3" checksum="154899713"/>
+ </class>
+ <class name="std::vector<edmtest::VectorVectorMiddleNonSplit>"/>
+ <class name="edmtest::VectorVectorTopNonSplit" ClassVersion="3">
+  <version ClassVersion="3" checksum="4025798122"/>
+ </class>
+ <class name="edm::Wrapper<edmtest::VectorVectorTopNonSplit>"/>
+
+ <class name="std::vector<edmtest::VectorVectorElement>"/>
+ <class name="edmtest::VectorVectorMiddle" ClassVersion="3">
+  <version ClassVersion="3" checksum="759237291"/>
+ </class>
+ <class name="std::vector<edmtest::VectorVectorMiddle>"/>
+ <class name="edmtest::VectorVectorTop" ClassVersion="3">
+  <version ClassVersion="3" checksum="3368381068"/>
+ </class>
+ <class name="edm::Wrapper<edmtest::VectorVectorTop>"/>
+
+<!--
+ <class name="edmtest::SchemaEvolutionChangeOrder" ClassVersion="3">
+  <version ClassVersion="3" checksum="3343384061"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionAddMember" ClassVersion="3">
+  <version ClassVersion="3" checksum="1610659294"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionRemoveMember" ClassVersion="3">
+  <version ClassVersion="3" checksum="868607665"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionMoveToBase" ClassVersion="3">
+  <version ClassVersion="3" checksum="765817207"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionBase" ClassVersion="3">
+  <version ClassVersion="3" checksum="3149060785"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionChangeType" ClassVersion="3">
+  <version ClassVersion="3" checksum="1127956593"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionBaseA" ClassVersion="3">
+  <version ClassVersion="3" checksum="857239365"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionAddBase" ClassVersion="3">
+  <version ClassVersion="3" checksum="2069239453"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionContained" ClassVersion="3">
+  <version ClassVersion="3" checksum="726645586"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionPointerToMember" ClassVersion="3">
+  <version ClassVersion="3" checksum="113169654"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionPointerToUniquePtr" ClassVersion="3">
+  <version ClassVersion="3" checksum="1545257825"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionCArrayToStdArray" ClassVersion="3">
+  <version ClassVersion="3" checksum="2848265407"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionCArrayToStdVector" ClassVersion="3">
+  <version ClassVersion="3" checksum="3834066865"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionVectorToList" ClassVersion="3">
+  <version ClassVersion="3" checksum="354293136"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionMapToUnorderedMap" ClassVersion="3">
+  <version ClassVersion="3" checksum="4049010227"/>
+ </class>
+ <class name="edmtest::VectorVectorElement" ClassVersion="3">
+  <version ClassVersion="3" checksum="62209940"/>
+ </class>
+ <class name="edmtest::VectorVectorElementNonSplit" ClassVersion="3">
+  <version ClassVersion="3" checksum="15875282"/>
+ </class>
+-->
+
+ <class name="edmtest::SchemaEvolutionChangeOrder" ClassVersion="4">
+  <version ClassVersion="3" checksum="3343384061"/>
+  <version ClassVersion="4" checksum="3343403663"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionAddMember" ClassVersion="4">
+  <version ClassVersion="3" checksum="1610659294"/>
+  <version ClassVersion="4" checksum="548196481"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionRemoveMember" ClassVersion="4">
+  <version ClassVersion="3" checksum="868607665"/>
+  <version ClassVersion="4" checksum="2937585049"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionMoveToBase" ClassVersion="4">
+  <version ClassVersion="3" checksum="765817207"/>
+  <version ClassVersion="4" checksum="288892591"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionBase" ClassVersion="4">
+  <version ClassVersion="3" checksum="3149060785"/>
+  <version ClassVersion="4" checksum="717584440"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionChangeType" ClassVersion="4">
+  <version ClassVersion="3" checksum="1127956593"/>
+  <version ClassVersion="4" checksum="231165691"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionBaseA" ClassVersion="3">
+  <version ClassVersion="3" checksum="857239365"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionAddBase" ClassVersion="4">
+  <version ClassVersion="3" checksum="2069239453"/>
+  <version ClassVersion="4" checksum="1505648056"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionContained" ClassVersion="3">
+  <version ClassVersion="3" checksum="726645586"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionPointerToMember" ClassVersion="4">
+  <version ClassVersion="3" checksum="113169654"/>
+  <version ClassVersion="4" checksum="37723204"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionPointerToUniquePtr" ClassVersion="4">
+  <version ClassVersion="3" checksum="1545257825"/>
+  <version ClassVersion="4" checksum="3437951039"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionCArrayToStdArray" ClassVersion="4">
+  <version ClassVersion="3" checksum="2848265407"/>
+  <version ClassVersion="4" checksum="66373354"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionCArrayToStdVector" ClassVersion="4">
+  <version ClassVersion="3" checksum="3834066865"/>
+  <version ClassVersion="4" checksum="1835343327"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionVectorToList" ClassVersion="4">
+  <version ClassVersion="3" checksum="354293136"/>
+  <version ClassVersion="4" checksum="3857065429"/>
+ </class>
+ <class name="edmtest::SchemaEvolutionMapToUnorderedMap" ClassVersion="4">
+  <version ClassVersion="3" checksum="4049010227"/>
+  <version ClassVersion="4" checksum="3999644942"/>
+ </class>
+ <class name="edmtest::VectorVectorElement" ClassVersion="4">
+  <version ClassVersion="3" checksum="62209940"/>
+  <version ClassVersion="4" checksum="4237216747"/>
+ </class>
+ <class name="edmtest::VectorVectorElementNonSplit" ClassVersion="4">
+  <version ClassVersion="3" checksum="15875282"/>
+  <version ClassVersion="4" checksum="3857705420"/>
+ </class>
 
 </lcgdict>

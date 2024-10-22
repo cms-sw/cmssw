@@ -19,6 +19,6 @@ namespace l1t {
   typedef edm::RefVector<HGCFETriggerDigiCollection> HGCFETriggerDigiRefVector;
   typedef edm::Ptr<HGCFETriggerDigi> HGCFETriggerDigiPtr;
   typedef std::vector<HGCFETriggerDigiPtr> HGCFETriggerDigiPtrVector;
-}
+}  // namespace l1t
 
 #endif

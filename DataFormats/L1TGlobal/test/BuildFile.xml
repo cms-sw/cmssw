@@ -1,0 +1,15 @@
+<use name="DataFormats/L1TGlobal"/>
+
+<library name="testGlobalObjectMapRecord" file="TestReadGlobalObjectMapRecord.cc,TestWriteGlobalObjectMapRecord.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+</library>
+
+<test name="TestGlobalObjectMapRecordFormat" command="TestGlobalObjectMapRecordFormat.sh"/>
+
+<bin file="test_catch2_l1tGlobalObject.cc" name="test_l1tGlobalObjectCatch2">
+  <use name="FWCore/MessageLogger"/>
+  <use name="catch2"/>
+</bin>

@@ -1,20 +1,22 @@
 ## Dump  100  events in CSC segment builder - Tim Cox - 09.09.2013
 ## This version runs in 700pre3 on a real data RelVal RAW sample.
+## Change Geometry_cff to GeometryDB_cff and update GT July.2022
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-process.load("Configuration/StandardSequences/Geometry_cff")
-process.load("Configuration/StandardSequences/MagneticField_cff")
-process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 # --- MATCH GT TO RELEASE AND DATA SAMPLE
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
-process.GlobalTag.globaltag = 'PRE_62_V8::All'
 
 # --- NUMBER OF EVENTS --- 
 
@@ -32,13 +34,13 @@ process.source    = cms.Source("PoolSource",
 # LogTrace output goes to cout; all other output to "junk.log"
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append("CSCRecHit")
-process.MessageLogger.categories.append("CSCSegAlgoST")
 
 # module label is something like "muonCSCDigis"...
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.junk = dict()
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
     threshold = cms.untracked.string("DEBUG"),
     default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),

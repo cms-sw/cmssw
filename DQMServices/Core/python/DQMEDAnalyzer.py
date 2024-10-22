@@ -1,1 +1,1 @@
-from FWCore.ParameterSet.Config import EDAnalyzer as DQMEDAnalyzer
+from FWCore.ParameterSet.Config import EDProducer as DQMEDAnalyzer

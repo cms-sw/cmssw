@@ -10,23 +10,17 @@
  *
  */
 
-
 class CSCTFDCCEventData;
 class CSCTFTBEventData;
 
-class CSCTFMonitorInterface{
-
+class CSCTFMonitorInterface {
 public:
-
-    CSCTFMonitorInterface(){}
-    virtual ~CSCTFMonitorInterface(){}
-    virtual void process(CSCTFDCCEventData & dccData)=0;
-    virtual void process(CSCTFTBEventData & tbdata)=0;
-      
+  CSCTFMonitorInterface() {}
+  virtual ~CSCTFMonitorInterface() {}
+  virtual void process(CSCTFDCCEventData& dccData) = 0;
+  virtual void process(CSCTFTBEventData& tbdata) = 0;
 
 private:
-
-
 };
 
 #endif

@@ -2,12 +2,10 @@
 #include <string>
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
-
 #include "HepMC/GenEvent.h"
 #include "HepMC/SimpleVector.h"
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,33 +14,25 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-class LHEFilter : public edm::EDFilter {
-    public:
-	explicit LHEFilter(const edm::ParameterSet &params);
-	~LHEFilter() override;
+class LHEFilter : public edm::one::EDFilter<> {
+public:
+  explicit LHEFilter(const edm::ParameterSet &params);
+  ~LHEFilter() override = default;
 
-    protected:
-	bool filter(edm::Event &event, const edm::EventSetup &es) override;
+protected:
+  bool filter(edm::Event &event, const edm::EventSetup &es) override;
 
-    private:
-	edm::InputTag	sourceLabel;
+private:
+  const edm::EDGetTokenT<edm::HepMCProduct> hepMCToken_;
 };
 
-LHEFilter::LHEFilter(const edm::ParameterSet &params) :
-	sourceLabel(params.getParameter<edm::InputTag>("src"))
-{
-}
+LHEFilter::LHEFilter(const edm::ParameterSet &params)
+    : hepMCToken_(consumes<edm::HepMCProduct>(params.getParameter<edm::InputTag>("src"))) {}
 
-LHEFilter::~LHEFilter()
-{
-}
+bool LHEFilter::filter(edm::Event &event, const edm::EventSetup &es) {
+  const edm::Handle<edm::HepMCProduct> &product = event.getHandle(hepMCToken_);
 
-bool LHEFilter::filter(edm::Event &event, const edm::EventSetup &es)
-{
-	edm::Handle<edm::HepMCProduct> product;
-	event.getByLabel(sourceLabel, product);
-
-	return product->GetEvent();
+  return product->GetEvent();
 }
 
 DEFINE_FWK_MODULE(LHEFilter);

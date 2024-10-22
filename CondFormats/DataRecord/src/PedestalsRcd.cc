@@ -3,4 +3,3 @@
 
 EVENTSETUP_RECORD_REG(PedestalsRcd);
 EVENTSETUP_RECORD_REG(anotherPedestalsRcd);
-

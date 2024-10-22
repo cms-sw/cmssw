@@ -18,45 +18,35 @@
 
 // -----------------------------------------------------------------------------
 //
-JetTracksAssociationXtrpCalo::JetTracksAssociationXtrpCalo() 
-{}
+JetTracksAssociationXtrpCalo::JetTracksAssociationXtrpCalo() {}
 
 // -----------------------------------------------------------------------------
 //
-JetTracksAssociationXtrpCalo::~JetTracksAssociationXtrpCalo() 
-{}
-
+JetTracksAssociationXtrpCalo::~JetTracksAssociationXtrpCalo() {}
 
 // -----------------------------------------------------------------------------
 //
 
-void JetTracksAssociationXtrpCalo::produce( Association* fAssociation,
-					    JetRefs const & fJets,
-					    std::vector<reco::TrackExtrapolation> const & fExtrapolations,
-					    CaloGeometry const & fGeo,
-					    double dR )
-{
-  for ( JetRefs::const_iterator jetsBegin = fJets.begin(),
-	  jetsEnd = fJets.end(), 
-	  ijet = jetsBegin;
-	ijet != jetsEnd; ++ijet ) {
+void JetTracksAssociationXtrpCalo::produce(Association* fAssociation,
+                                           JetRefs const& fJets,
+                                           std::vector<reco::TrackExtrapolation> const& fExtrapolations,
+                                           CaloGeometry const& fGeo,
+                                           double dR) {
+  for (JetRefs::const_iterator jetsBegin = fJets.begin(), jetsEnd = fJets.end(), ijet = jetsBegin; ijet != jetsEnd;
+       ++ijet) {
     reco::TrackRefVector associated;
-    associateInputTracksToJet( associated, **ijet, fExtrapolations, dR );
-    reco::JetTracksAssociation::setValue( fAssociation, *ijet, associated );
+    associateInputTracksToJet(associated, **ijet, fExtrapolations, dR);
+    reco::JetTracksAssociation::setValue(fAssociation, *ijet, associated);
   }
-  
-  
 }
 
-
-
-void JetTracksAssociationXtrpCalo::associateInputTracksToJet( reco::TrackRefVector& associated,
-							      const reco::Jet& fJet,
-							      std::vector<reco::TrackExtrapolation> const & fExtrapolations,
-							      double dR ) 
-{
-  reco::CaloJet const * pCaloJet = dynamic_cast<reco::CaloJet const *>(&fJet);
-  if ( pCaloJet == nullptr ) {
+void JetTracksAssociationXtrpCalo::associateInputTracksToJet(
+    reco::TrackRefVector& associated,
+    const reco::Jet& fJet,
+    std::vector<reco::TrackExtrapolation> const& fExtrapolations,
+    double dR) {
+  reco::CaloJet const* pCaloJet = dynamic_cast<reco::CaloJet const*>(&fJet);
+  if (pCaloJet == nullptr) {
     throw cms::Exception("InvalidInput") << "Expecting calo jets only in JetTracksAssociationXtrpCalo";
   }
   // Loop over CaloTowers
@@ -65,27 +55,25 @@ void JetTracksAssociationXtrpCalo::associateInputTracksToJet( reco::TrackRefVect
 
   // now cache the mapping of (det ID --> track)
 
-//  std::cout<<" New jet "<<jetEta<<" "<<jetPhi<<" Jet ET "<<pCaloJet->et()<<std::endl;
+  //  std::cout<<" New jet "<<jetEta<<" "<<jetPhi<<" Jet ET "<<pCaloJet->et()<<std::endl;
 
-  for ( std::vector<reco::TrackExtrapolation>::const_iterator xtrpBegin = fExtrapolations.begin(),
-	  xtrpEnd = fExtrapolations.end(), ixtrp = xtrpBegin;
-	ixtrp != xtrpEnd; ++ixtrp ) {
-	
-    if ( ixtrp->positions().empty() ) continue;
-    reco::TrackBase::Point const & point = ixtrp->positions().at(0);
-    
-    
-    double dr = reco::deltaR<double>( jetEta, jetPhi, point.eta(), point.phi() );
-    if ( dr < dR ) {
+  for (std::vector<reco::TrackExtrapolation>::const_iterator xtrpBegin = fExtrapolations.begin(),
+                                                             xtrpEnd = fExtrapolations.end(),
+                                                             ixtrp = xtrpBegin;
+       ixtrp != xtrpEnd;
+       ++ixtrp) {
+    if (ixtrp->positions().empty())
+      continue;
+    reco::TrackBase::Point const& point = ixtrp->positions().at(0);
 
-//    std::cout<<" JetTracksAssociationXtrpCalo::associateInputTracksToJet:: initial track "<<ixtrp->track()->pt()<<" "<<ixtrp->track()->eta()<<
-//    " "<<ixtrp->track()->phi()<< " Extrapolated position "<<point.eta()<<" "<<point.phi()<<" Valid? "<<ixtrp->isValid().at(0)<<" Jet eta, phi "<<jetEta<<" "<<jetPhi<<" Jet ET "<<pCaloJet->et()<<
-//    " dr "<<dr<<" dR "<<dR<<std::endl;
+    double dr = reco::deltaR<double>(jetEta, jetPhi, point.eta(), point.phi());
+    if (dr < dR) {
+      //    std::cout<<" JetTracksAssociationXtrpCalo::associateInputTracksToJet:: initial track "<<ixtrp->track()->pt()<<" "<<ixtrp->track()->eta()<<
+      //    " "<<ixtrp->track()->phi()<< " Extrapolated position "<<point.eta()<<" "<<point.phi()<<" Valid? "<<ixtrp->isValid().at(0)<<" Jet eta, phi "<<jetEta<<" "<<jetPhi<<" Jet ET "<<pCaloJet->et()<<
+      //    " dr "<<dr<<" dR "<<dR<<std::endl;
 
-      reco::TrackRef matchedTrack = ixtrp->track(); 
-      associated.push_back( matchedTrack );      
+      reco::TrackRef matchedTrack = ixtrp->track();
+      associated.push_back(matchedTrack);
     }
   }
-
-
 }

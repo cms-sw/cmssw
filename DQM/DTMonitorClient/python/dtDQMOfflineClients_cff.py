@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.DTMonitorClient.dtChamberEfficiencyClient_cfi import *
+from DQMOffline.MuonDPG.dtTnPEfficiencyClient_cfi import *
 from DQM.DTMonitorClient.dtSegmentAnalysisTest_cfi import *
 segmentTest.normalizeHistoPlots = True
 segmentTest.runOnline = False
@@ -14,7 +15,8 @@ blockedROChannelTest.offlineMode = True;
 from DQM.DTMonitorClient.ALCARECODTCalibSynchDQMClient_cff import *
 
 
-dtQualityTests = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+dtQualityTests = DQMQualityTester(
                          #reportThreshold = cms.untracked.string('red'),
                          prescaleFactor = cms.untracked.int32(1),
                          qtList = cms.untracked.FileInPath('DQM/DTMonitorClient/test/QualityTests.xml'),
@@ -25,6 +27,7 @@ dtQualityTests = cms.EDAnalyzer("QualityTester",
 dtClients = cms.Sequence(segmentTest+
                          dtResolutionAnalysisTest+
                          dtChamberEfficiencyClient+
+                         dtTnPEfficiencyClient+
                          triggerEffTest+
                          blockedROChannelTest+
                          dtRunConditionVarClient+

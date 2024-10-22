@@ -1,0 +1,184 @@
+--------------------- For RUN3: Global runs of 2021,2022,...
+======================================================
+
+
+I.  ------- Preparation of framework: 
+=====================================
+
+ssh lxplus
+
+cd your_working_dir
+
+setenv SCRAM_ARCH slc7_amd64_gcc10
+
+cmsrel CMSSW_12_3_0_pre4
+
+cd CMSSW_12_3_0_pre4/src
+
+cmsenv
+
+git cms-addpkg DPGAnalysis/HcalTools
+
+cd DPGAnalysis/HcalTools
+
+II.  ----- Compilation of main code CMTRawAnalyzer.cc 
+======================================================
+
+scram b 
+
+cd your_dir_CMSSW_12_3_0_pre4/src/DPGAnalysis/HcalTools/scripts/cmt 
+( this is initial_dir )
+
+IIIa.-------   Necessary corrections: 
+======================================
+
+1) correct file "file_lists.csh" for dataset used
+on DAS site : https://cmsweb.cern.ch/das/
+issue the command:
+(as example:)
+dataset run=346512
+and see the dataset names containing RAW, NZS Hcal, like:
+/HcalNZS/Commissioning2021-v1/RAW
+
+2) correct file "runlist_run" to specify run list
+
+IIIb.-------   Possible corrections: 
+======================================
+
+ 1) see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions#HLT_reconstruction_Global_tags
+
+and specify in file " a.py.end " the HLT name in line "process.GlobalTag.globaltag ..." 
+
+
+IVa.  -------  Running interactively: 
+====================================
+setenv SCRAM_ARCH slc7_amd64_gcc10
+cmsenv
+voms-proxy-init -voms cms -rfc
+
+./mkcfg_new120.csh runlist_run
+
+- see, how many py-files in PYTHON_runlist_run dir..
+
+- run ~ 15 jobs per PC: 1-15, 15-30, ...nn1- NN using commands:
+
+./run_interactive.csh runlist_run nn1 NN
+
+IVb.  ------  Running using condor.jdl: 
+======================================
+
+-  specify if necessary the lines in file    run_condor.csh : 
+
+setenv SCRAM_ARCH slc7_amd64_gcc10
+
+cmsrel CMSSW_12_3_0_pre4
+
+cd CMSSW_12_3_0_pre4/src
+
+- and line with eos-directory, 
+where you are going to record the resulting root files:
+
+/eos/cms/store/user/zhokin/CMT/RootFilesToBeMarched/2022
+
+
+- specify the line "Transfer_Input_Files =" in file      condor.jdl   : 
+
+namely, correct path for CMTRawAnalyzer.cc, CMTRawAnalyzer.h and BuildFile.xml
+
+(and specify IF NECESSARY runlist_run name used "arguments  = runlist_run ..." 
+or just as example: cp runlist_craft runlist_run)
+
+------    In advance, before condor starting issue commands: 
+
+voms-proxy-init -voms cms -rfc
+
+voms-proxy-init -voms cms -rfc -out /afs/cern.ch/user/z/zhokin/private/x509up
+
+chmod +x /afs/cern.ch/user/z/zhokin/private/x509up 
+
+
+- to start, issue main command: 
+
+condor_submit condor.jdl
+
+- running...... wait, check using condor commands like:
+
+condor_q
+(see condor commands:   https://twiki.cern.ch/twiki/bin/view/CMSPublic/CompOpsGlideinWMSCondorCommands )
+condor_history |grep zhokin
+(condor_rm 3748513.0 (it's to remove all jobs 3748513.0))
+
+    see obtained root files in dir: 
+
+cd /eos/cms/store/user/zhokin/CMT/RootFilesToBeMarched/2022
+
+V.  -------------------  Copying:
+======================================
+
+ all good root files to be copied into /initial_dir/longruns/.
+(example:
+scp Global*.root /afs/cern.ch/work/z/zhokin/hcal/qq8/CMSSW_12_3_0_pre4/src/DPGAnalysis/HcalTools/scripts/cmt/longruns/.
+)
+    check all root-files availability: 
+
+cd  /initial_dir
+./checkoutput120.csh PYTHON_runlist_run longruns > tmp.txt
+
+see file tmp.txt and missed_run_parts to see which root file still to be reproduced:
+crashed jobs to be re-runned interactively and copied into dir longruns/.
+ 
+- merging run-root-piecies into one big run-root file: 
+
+./glu_runs_fromfile.csh longruns runlist_run
+
+-  copy into /eos using examples like:
+
+eos cp Global_325001.root /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/histos/Global_325001.root
+or 
+cp Global_555555.root /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/histos/Global_555555.root
+cp Global_345821_1.root /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/histos/Global_345821.root
+
+- for check:
+eos ls -l /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/histos/
+
+
+VI. --- Three steps to provide visualization of new global-runs: 
+================================================================
+ - correct in advance the file "index_zhokin.sh": 
+a) put last line number of CMT site; 
+b) check dataset name; 
+c) for printout:correct comments and type;
+
+1) ./index_zhokin.sh runlist_run 
+
+[[[ (or absolet: try to correct file "index_toAddOnlyNewRuns_EOS.sh" for "dasgoclient.. dataset=..." and 
+"k=" - number(!) of new-recorded global-runs and execute:
+( for tests use also: index_toAddOnlyNewRunsCRAFT_EOS.sh , index_toAddOnlyNewRunsCosmics_EOS.sh runlist_test )
+  1) ./index_toAddOnlyNewRuns_EOS.sh runlist_run 
+(use for craft test: ./index_toAddOnlyNewRunsCRAFT_EOS.sh runlist_test ) ]]]
+
+eos cp OLDindex.html /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/OLDindex.html
+
+eos cp index_draft.html /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/index.html
+
+for check of new lines on CMT site see:
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/
+
+--------------------------------------
+
+- in dir. .../macros/cmt/
+./compile.csh RemoteMonitoringGLOBAL.cc
+./compile.csh RemoteMonitoringMAP_Global.cc
+
+- and again, in dir. /scripts/cmt/ execute:
+  2) ./CMT_EOS.sh runlist_run (or if test use runlist_test )
+( a lot of printout.., wait a moment till the message:"CMT script done")
+  3) ./GlobalRMT_EOS.sh runlist_run (or if test use runlist_test )
+(wait a moment till the message:"GlobalRMT script done")
+    See the results at https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/ 
+
+-- IF NECESSARY: provide for each new run the CMTanalysis using Instruction below. 
+    Edit default file CMTresults.html to provide the summary for each new run. 
+Copy each time corrected CMTresults.html file into /eos in corresponding dir. , 
+as is shown below :
+cp CMTresults.html /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/GLOBAL_325001/CMTresults.html 

@@ -17,28 +17,24 @@
 
 class MediumProperties;
 
-class EnergyLossUpdator final : public MaterialEffectsUpdator 
-{
- public:
-  EnergyLossUpdator* clone() const override {
-    return new EnergyLossUpdator(*this);
-  }
+class EnergyLossUpdator final : public MaterialEffectsUpdator {
+public:
+  EnergyLossUpdator* clone() const override { return new EnergyLossUpdator(*this); }
 
 public:
-  EnergyLossUpdator( float mass ) :
-    MaterialEffectsUpdator(mass) {}
+  EnergyLossUpdator(float mass) : MaterialEffectsUpdator(mass) {}
 
   // here comes the actual computation of the values
-  void compute (const TrajectoryStateOnSurface&, 
-			const PropagationDirection, Effect & effect) const override;
+  void compute(const TrajectoryStateOnSurface&, const PropagationDirection, Effect& effect) const override;
 
 private:
   // Internal routine for ionization acc. to Bethe-Bloch
-  void computeBetheBloch (const LocalVector&, const MediumProperties&, Effect & effect) const dso_internal;
+  void computeBetheBloch(const LocalVector&, const MediumProperties&, Effect& effect) const dso_internal;
   // Internal routine for energy loss by electrons due to radiation
-  void computeElectrons (const LocalVector&, const MediumProperties&,
-			 const PropagationDirection, Effect & effect) const dso_internal;
-
+  void computeElectrons(const LocalVector&,
+                        const MediumProperties&,
+                        const PropagationDirection,
+                        Effect& effect) const dso_internal;
 };
 
 #endif

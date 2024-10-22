@@ -16,15 +16,18 @@ namespace edm {
 }
 
 class HLTEgammaAllCombMassFilter : public HLTFilter {
-
- public:
+public:
   explicit HLTEgammaAllCombMassFilter(const edm::ParameterSet&);
   ~HLTEgammaAllCombMassFilter() override;
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-  static void getP4OfLegCands(const edm::Event& iEvent, const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>& filterToken, std::vector<math::XYZTLorentzVector>& p4s);
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void getP4OfLegCands(const edm::Event& iEvent,
+                              const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>& filterToken,
+                              std::vector<math::XYZTLorentzVector>& p4s);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   edm::InputTag firstLegLastFilterTag_;
   edm::InputTag secondLegLastFilterTag_;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> firstLegLastFilterToken_;
@@ -33,5 +36,3 @@ class HLTEgammaAllCombMassFilter : public HLTFilter {
 };
 
 #endif
-
-

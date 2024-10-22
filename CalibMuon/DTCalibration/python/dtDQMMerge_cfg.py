@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('MERGEDQM')
+process = cms.Process('MERGEDQM',eras.Run3)
 
 process.load('Configuration.EventContent.EventContent_cff')
 

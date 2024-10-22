@@ -4,7 +4,7 @@
 //
 // Package:     PluginManager
 // Class  :     PluginInfo
-// 
+//
 /**\class PluginInfo PluginInfo.h FWCore/PluginManager/interface/PluginInfo.h
 
  Description: Holds information about a particular plugin
@@ -19,15 +19,15 @@
 //
 
 // system include files
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 // user include files
 
 // forward declarations
 namespace edmplugin {
-struct PluginInfo {
-  std::string name_;
-  boost::filesystem::path loadable_;
-};
-}
+  struct PluginInfo {
+    std::string name_;
+    std::filesystem::path loadable_;
+  };
+}  // namespace edmplugin
 #endif

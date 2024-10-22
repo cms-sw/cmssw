@@ -21,22 +21,19 @@ class EndOfTrack;
 #include <string>
 #include <vector>
 
-class MaterialBudget : public SimWatcher, 
+class MaterialBudget : public SimWatcher,
                        public Observer<const BeginOfRun*>,
                        public Observer<const BeginOfTrack*>,
-		       public Observer<const G4Step*>,
+                       public Observer<const G4Step*>,
                        public Observer<const EndOfTrack*> {
-
 public:
-
   MaterialBudget(const edm::ParameterSet&);
+  MaterialBudget(const MaterialBudget&) = delete;  // stop default
   ~MaterialBudget() override;
-  
-private:
 
-  MaterialBudget(const MaterialBudget&) = delete;          // stop default
-  const MaterialBudget& operator=(const MaterialBudget&) = delete; // ...
-  
+  const MaterialBudget& operator=(const MaterialBudget&) = delete;  // ...
+
+private:
   void update(const BeginOfRun*) override;
   void update(const BeginOfTrack*) override;
   void update(const G4Step*) override;
@@ -44,14 +41,14 @@ private:
 
   void book(const edm::ParameterSet&);
   bool stopAfter(const G4Step*);
-  
-  std::vector<std::string>      detTypes, detNames;
-  std::vector<int>              constituents, detLevels,regionTypes,stackOrder;
-  std::vector<double>           etaRegions, boundaries;
+
+  std::vector<std::string> detTypes, detNames;
+  std::vector<int> constituents, detLevels, regionTypes, stackOrder;
+  std::vector<double> etaRegions, boundaries;
   std::vector<G4LogicalVolume*> logVolumes;
-  std::vector<TProfile*>        me100, me200, me300, me400, me500, me600;
-  std::vector<double>           stepLen, radLen, intLen;
-  double                        eta, phi, stepT;
+  std::vector<TProfile*> me100, me200, me300, me400, me500, me600;
+  std::vector<double> stepLen, radLen, intLen;
+  double eta_, phi_, stepT;
 };
 
 #endif

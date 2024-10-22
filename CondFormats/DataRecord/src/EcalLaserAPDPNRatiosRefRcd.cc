@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     EcalLaserAPDPNRatiosRefRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Fri Jun  1 12:31:01 CEST 2007
 // $Id$
 

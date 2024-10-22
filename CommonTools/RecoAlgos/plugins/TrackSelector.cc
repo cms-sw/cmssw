@@ -26,9 +26,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
- typedef SingleObjectSelector<
-           reco::TrackCollection, 
-           StringCutObjectSelector<reco::Track> 
-         > TrackSelector;
+typedef SingleObjectSelector<reco::TrackCollection, StringCutObjectSelector<reco::Track> > TrackSelector;
 
-DEFINE_FWK_MODULE( TrackSelector );
+DEFINE_FWK_MODULE(TrackSelector);

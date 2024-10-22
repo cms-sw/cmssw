@@ -11,7 +11,7 @@ RPCCPPFLinkMapPopConAnalyzer = cms.EDAnalyzer('RPCAMCLinkMapPopConAnalyzer'
                                                   , wheelNotSide = cms.bool(False)
                                                   , wheelOrSideFED = cms.vint32(1386, 1386)
                                                   , nSectors = cms.uint32(4)
-                                                  , wheelOrSideSectorAMC = cms.vint64(0x5678, 0x1234)
+                                                  , wheelOrSideSectorAMC = cms.vint64(0x789a, 0x3456)
                                                   , txtFile = cms.untracked.string('')
                                               )
 )

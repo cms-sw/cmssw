@@ -5,16 +5,16 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -27,10 +27,11 @@
 // class declaration
 //
 
-class ElectronRegressionEnergyProducer : public edm::EDFilter {
+class ElectronRegressionEnergyProducer : public edm::stream::EDFilter<> {
 public:
   explicit ElectronRegressionEnergyProducer(const edm::ParameterSet&);
   ~ElectronRegressionEnergyProducer() override;
+
 private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
@@ -52,29 +53,33 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> recHitCollectionEBToken_;
   edm::EDGetTokenT<EcalRecHitCollection> recHitCollectionEEToken_;
 
-  ElectronEnergyRegressionEvaluate *regressionEvaluator;
+  ElectronEnergyRegressionEvaluate* regressionEvaluator;
 
   edm::EDGetTokenT<reco::VertexCollection> hVertexToken_;
   edm::EDGetTokenT<double> hRhoKt6PFJetsToken_;
 
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> ecalTopoToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 };
 
-
 ElectronRegressionEnergyProducer::ElectronRegressionEnergyProducer(const edm::ParameterSet& iConfig) {
-  printDebug_  = iConfig.getUntrackedParameter<bool>("printDebug", false);
+  printDebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
   electronToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronTag"));
 
-  regressionInputFile_  = iConfig.getParameter<std::string>("regressionInputFile");
+  regressionInputFile_ = iConfig.getParameter<std::string>("regressionInputFile");
   energyRegressionType_ = iConfig.getParameter<uint32_t>("energyRegressionType");
 
-  nameEnergyReg_      = iConfig.getParameter<std::string>("nameEnergyReg");
+  nameEnergyReg_ = iConfig.getParameter<std::string>("nameEnergyReg");
   nameEnergyErrorReg_ = iConfig.getParameter<std::string>("nameEnergyErrorReg");
 
   recHitCollectionEBToken_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitCollectionEB"));
   recHitCollectionEEToken_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitCollectionEE"));
 
   hVertexToken_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
-  hRhoKt6PFJetsToken_ = consumes<double>(edm::InputTag("kt6PFJets","rho"));
+  hRhoKt6PFJetsToken_ = consumes<double>(edm::InputTag("kt6PFJets", "rho"));
+
+  ecalTopoToken_ = esConsumes();
+  caloGeomToken_ = esConsumes();
 
   produces<edm::ValueMap<double> >(nameEnergyReg_);
   produces<edm::ValueMap<double> >(nameEnergyErrorReg_);
@@ -83,48 +88,41 @@ ElectronRegressionEnergyProducer::ElectronRegressionEnergyProducer(const edm::Pa
 
   //set regression type
   ElectronEnergyRegressionEvaluate::ElectronEnergyRegressionType type = ElectronEnergyRegressionEvaluate::kNoTrkVar;
-  if (energyRegressionType_ == 1) type = ElectronEnergyRegressionEvaluate::kNoTrkVar;
-  else if (energyRegressionType_ == 2) type = ElectronEnergyRegressionEvaluate::kWithSubCluVar;
-  else if (energyRegressionType_ == 3) type = ElectronEnergyRegressionEvaluate::kWithTrkVarV1;
-  else if (energyRegressionType_ == 4) type = ElectronEnergyRegressionEvaluate::kWithTrkVarV2;
+  if (energyRegressionType_ == 1)
+    type = ElectronEnergyRegressionEvaluate::kNoTrkVar;
+  else if (energyRegressionType_ == 2)
+    type = ElectronEnergyRegressionEvaluate::kWithSubCluVar;
+  else if (energyRegressionType_ == 3)
+    type = ElectronEnergyRegressionEvaluate::kWithTrkVarV1;
+  else if (energyRegressionType_ == 4)
+    type = ElectronEnergyRegressionEvaluate::kWithTrkVarV2;
 
   //load weights and initialize
-  regressionEvaluator->initialize(regressionInputFile_,type);
+  regressionEvaluator->initialize(regressionInputFile_, type);
 
   geomInitialized_ = false;
-
 }
 
-
-ElectronRegressionEnergyProducer::~ElectronRegressionEnergyProducer()
-{
-  delete regressionEvaluator;
-}
+ElectronRegressionEnergyProducer::~ElectronRegressionEnergyProducer() { delete regressionEvaluator; }
 
 // ------------ method called on each new Event  ------------
 bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   assert(regressionEvaluator->isInitialized());
 
   if (!geomInitialized_) {
-    edm::ESHandle<CaloTopology> theCaloTopology;
-    iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-    ecalTopology_ = & (*theCaloTopology);
-
-    edm::ESHandle<CaloGeometry> theCaloGeometry;
-    iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
-    caloGeometry_ = & (*theCaloGeometry);
+    ecalTopology_ = &(iSetup.getData(ecalTopoToken_));
+    caloGeometry_ = &(iSetup.getData(caloGeomToken_));
     geomInitialized_ = true;
   }
 
-  std::unique_ptr<edm::ValueMap<double> > regrEnergyMap(new edm::ValueMap<double>() );
+  std::unique_ptr<edm::ValueMap<double> > regrEnergyMap(new edm::ValueMap<double>());
   edm::ValueMap<double>::Filler energyFiller(*regrEnergyMap);
 
-  std::unique_ptr<edm::ValueMap<double> > regrEnergyErrorMap(new edm::ValueMap<double>() );
+  std::unique_ptr<edm::ValueMap<double> > regrEnergyErrorMap(new edm::ValueMap<double>());
   edm::ValueMap<double>::Filler energyErrorFiller(*regrEnergyErrorMap);
 
   edm::Handle<reco::GsfElectronCollection> egCollection;
-  iEvent.getByToken(electronToken_,egCollection);
+  iEvent.getByToken(electronToken_, egCollection);
   const reco::GsfElectronCollection egCandidates = (*egCollection.product());
 
   std::vector<double> energyValues;
@@ -135,28 +133,23 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
   //**************************************************************************
   // Rechits
   //**************************************************************************
-  edm::Handle< EcalRecHitCollection > pEBRecHits;
-  edm::Handle< EcalRecHitCollection > pEERecHits;
-  iEvent.getByToken( recHitCollectionEBToken_, pEBRecHits );
-  iEvent.getByToken( recHitCollectionEEToken_, pEERecHits );
+  edm::Handle<EcalRecHitCollection> pEBRecHits;
+  edm::Handle<EcalRecHitCollection> pEERecHits;
+  iEvent.getByToken(recHitCollectionEBToken_, pEBRecHits);
+  iEvent.getByToken(recHitCollectionEEToken_, pEERecHits);
 
   //**************************************************************************
   //Get Number of Vertices
   //**************************************************************************
   edm::Handle<reco::VertexCollection> hVertexProduct;
-  iEvent.getByToken(hVertexToken_,hVertexProduct);
+  iEvent.getByToken(hVertexToken_, hVertexProduct);
   const reco::VertexCollection inVertices = *(hVertexProduct.product());
 
   // loop through all vertices
   Int_t nvertices = 0;
-  for (reco::VertexCollection::const_iterator inV = inVertices.begin();
-       inV != inVertices.end(); ++inV) {
-
+  for (reco::VertexCollection::const_iterator inV = inVertices.begin(); inV != inVertices.end(); ++inV) {
     // pass these vertex cuts
-    if (inV->ndof() >= 4
-        && inV->position().Rho() <= 2.0
-        && fabs(inV->z()) <= 24.0
-      ) {
+    if (inV->ndof() >= 4 && inV->position().Rho() <= 2.0 && fabs(inV->z()) <= 24.0) {
       nvertices++;
     }
   }
@@ -169,49 +162,36 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
   iEvent.getByToken(hRhoKt6PFJetsToken_, hRhoKt6PFJets);
   rho = (*hRhoKt6PFJets);
 
-
-  for ( reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin();
-        egIter != egCandidates.end(); ++egIter) {
-
-    const EcalRecHitCollection * recHits=nullptr;
-    if(egIter->isEB())
-        recHits = pEBRecHits.product();
+  for (reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end();
+       ++egIter) {
+    const EcalRecHitCollection* recHits = nullptr;
+    if (egIter->isEB())
+      recHits = pEBRecHits.product();
     else
-        recHits = pEERecHits.product();
+      recHits = pEERecHits.product();
 
-    SuperClusterHelper mySCHelper(&(*egIter),recHits,ecalTopology_,caloGeometry_);
+    SuperClusterHelper mySCHelper(&(*egIter), recHits, ecalTopology_, caloGeometry_);
 
-    double energy=regressionEvaluator->calculateRegressionEnergy(&(*egIter),
-                                                          mySCHelper,
-                                                          rho,nvertices,
-                                                          printDebug_);
+    double energy = regressionEvaluator->calculateRegressionEnergy(&(*egIter), mySCHelper, rho, nvertices, printDebug_);
 
-    double error=regressionEvaluator->calculateRegressionEnergyUncertainty(&(*egIter),
-                                                                    mySCHelper,
-                                                                    rho,nvertices,
-                                                                    printDebug_);
+    double error =
+        regressionEvaluator->calculateRegressionEnergyUncertainty(&(*egIter), mySCHelper, rho, nvertices, printDebug_);
 
     energyValues.push_back(energy);
     energyErrorValues.push_back(error);
-
   }
 
-  energyFiller.insert( egCollection, energyValues.begin(), energyValues.end() );
+  energyFiller.insert(egCollection, energyValues.begin(), energyValues.end());
   energyFiller.fill();
 
-  energyErrorFiller.insert( egCollection, energyErrorValues.begin(), energyErrorValues.end() );
+  energyErrorFiller.insert(egCollection, energyErrorValues.begin(), energyErrorValues.end());
   energyErrorFiller.fill();
 
-  iEvent.put(std::move(regrEnergyMap),nameEnergyReg_);
-  iEvent.put(std::move(regrEnergyErrorMap),nameEnergyErrorReg_);
+  iEvent.put(std::move(regrEnergyMap), nameEnergyReg_);
+  iEvent.put(std::move(regrEnergyErrorMap), nameEnergyErrorReg_);
 
   return true;
-
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ElectronRegressionEnergyProducer);
-
-
-

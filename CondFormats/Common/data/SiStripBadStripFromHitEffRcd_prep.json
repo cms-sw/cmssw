@@ -1,0 +1,9 @@
+{
+    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
+    "destinationTags": {
+        "SiStripBadChannel_FromHitEfficiency_v0_prompt": {}
+    }, 
+    "inputTag": "SiStripBadStripRcdHitEff_pcl", 
+    "since": null, 
+    "userText": "T0 PCL Upload for SiStrip bad-channels from Hit Efficiency"
+}

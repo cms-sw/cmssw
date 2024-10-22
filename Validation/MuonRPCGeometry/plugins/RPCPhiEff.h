@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,23 +37,21 @@
 // class decleration
 //
 
-class RPCPhiEff:public edm::EDAnalyzer {
- public:
+class RPCPhiEff : public edm::one::EDAnalyzer<> {
+public:
   explicit RPCPhiEff(const edm::ParameterSet &);
   ~RPCPhiEff() override;
 
-
- private:
+private:
   void beginJob() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  std::string fromCones(const edm::Event & iEvent);
-  std::string fromRaw(const edm::Event & iEvent);
+  std::string fromCones(const edm::Event &iEvent);
+  std::string fromRaw(const edm::Event &iEvent);
   void endJob() override;
   std::ofstream m_outfileC;
   std::ofstream m_outfileR;
 
   // ----------member data ---------------------------
-
 
   RPCConst rpcconst;
   //L1MuTriggerScales m_scales;
@@ -63,9 +61,6 @@ class RPCPhiEff:public edm::EDAnalyzer {
   edm::EDGetTokenT<RPCDigiCollection> m_rpcdigiToken;
 
   RPCConst m_const;
-
-
 };
 
 #endif
-

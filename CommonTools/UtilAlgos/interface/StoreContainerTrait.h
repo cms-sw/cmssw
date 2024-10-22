@@ -10,31 +10,30 @@
 #include "DataFormats/Common/interface/AssociationVector.h"
 
 namespace helper {
-  template<typename OutputCollection>
-    struct StoreContainerTrait {
-      typedef std::vector<const typename OutputCollection::value_type *> type;
+  template <typename OutputCollection>
+  struct StoreContainerTrait {
+    typedef std::vector<const typename OutputCollection::value_type *> type;
   };
 
-  template<typename C>
+  template <typename C>
   struct StoreContainerTrait<edm::RefVector<C> > {
     typedef edm::RefVector<C> type;
   };
 
-  template<typename T>
+  template <typename T>
   struct StoreContainerTrait<edm::RefToBaseVector<T> > {
     typedef edm::RefToBaseVector<T> type;
   };
 
-  template<typename T>
+  template <typename T>
   struct StoreContainerTrait<edm::PtrVector<T> > {
     typedef edm::PtrVector<T> type;
   };
 
-  template<typename R, typename C>
-   struct StoreContainerTrait<edm::AssociationVector<R, C> > {
-     typedef typename StoreContainerTrait<typename R::product_type>::type type;
+  template <typename R, typename C>
+  struct StoreContainerTrait<edm::AssociationVector<R, C> > {
+    typedef typename StoreContainerTrait<typename R::product_type>::type type;
   };
-}
+}  // namespace helper
 
 #endif
-

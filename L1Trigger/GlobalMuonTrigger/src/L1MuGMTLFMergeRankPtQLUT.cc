@@ -2,7 +2,7 @@
 //
 //   Class: L1MuGMTLFMergeRankPtQLUT
 //
-// 
+//
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -29,38 +29,17 @@
 // InitParameters  --
 //-------------------
 
-void L1MuGMTLFMergeRankPtQLUT::InitParameters() {
-}
+void L1MuGMTLFMergeRankPtQLUT::InitParameters() {}
 
 //------------------------
 // The Lookup Function  --
 //------------------------
 
-unsigned L1MuGMTLFMergeRankPtQLUT::TheLookupFunction (int idx, unsigned q, unsigned pt) const {
+unsigned L1MuGMTLFMergeRankPtQLUT::TheLookupFunction(int idx, unsigned q, unsigned pt) const {
   // idx is DT, BRPC, CSC, FRPC
   // INPUTS:  q(3) pt(5)
-  // OUTPUTS: rank_ptq(2) 
-
+  // OUTPUTS: rank_ptq(2)
 
   // a dependence of the merge rank on pt an quality can be defined, here
   return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

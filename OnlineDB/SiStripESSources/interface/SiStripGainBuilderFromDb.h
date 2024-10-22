@@ -5,22 +5,18 @@
 #include "CalibTracker/SiStripESProducers/interface/SiStripGainESSource.h"
 
 class SiStripGainBuilderFromDb : public SiStripGainESSource {
-  
- public:
-  
-  SiStripGainBuilderFromDb( const edm::ParameterSet& );
+public:
+  SiStripGainBuilderFromDb(const edm::ParameterSet&);
 
   ~SiStripGainBuilderFromDb() override;
-  
+
   /** Builds pedestals using info from configuration database. */
   SiStripApvGain* makeGain() override;
-  
- protected:
-  
+
+protected:
   /** Virtual method that is called by makeGain() to allow
       gain to be written to the conditions database. */
-  virtual void writeGainToCondDb( const SiStripApvGain& ) {;}
-  
+  virtual void writeGainToCondDb(const SiStripApvGain&) { ; }
 };
 
-#endif // OnlineDB_SiStripESSources_SiStripGainBuilderFromDb_H
+#endif  // OnlineDB_SiStripESSources_SiStripGainBuilderFromDb_H

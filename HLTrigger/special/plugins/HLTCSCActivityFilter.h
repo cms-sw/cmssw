@@ -18,7 +18,6 @@ Implementation:
 //
 //
 
-
 // include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -45,16 +44,18 @@ class HLTCSCActivityFilter : public HLTFilter {
 public:
   explicit HLTCSCActivityFilter(const edm::ParameterSet&);
   ~HLTCSCActivityFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
   edm::EDGetTokenT<CSCStripDigiCollection> m_cscStripDigiToken;
   edm::InputTag m_cscStripDigiTag;
   bool m_MESR;
-  int  m_RingNumb;
-  int  m_StationNumb;
+  int m_RingNumb;
+  int m_StationNumb;
 };
 
 #endif

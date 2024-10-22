@@ -8,26 +8,21 @@
 
 #include "IOMC/ParticleGuns/interface/BaseFlatGunProducer.h"
 
-namespace edm
-{
-  
-  class FlatRandomOneOverPtGunProducer : public BaseFlatGunProducer
-  {
-  
+namespace edm {
+
+  class FlatRandomOneOverPtGunProducer : public BaseFlatGunProducer {
   public:
-    FlatRandomOneOverPtGunProducer(const ParameterSet & pset);
+    FlatRandomOneOverPtGunProducer(const ParameterSet& pset);
     ~FlatRandomOneOverPtGunProducer() override;
-   
-    void produce(Event & e, const EventSetup& es) override;
+
+    void produce(Event& e, const EventSetup& es) override;
 
   private:
-    
     // data members
-    
-    double            fMinOneOverPt   ;
-    double            fMaxOneOverPt   ;
 
+    double fMinOneOverPt;
+    double fMaxOneOverPt;
   };
-} 
+}  // namespace edm
 
 #endif

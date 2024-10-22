@@ -2,5 +2,6 @@
 #define CondFormats_DataRecord_EcalGlobalShowerContainmentCorrectionsVsEtaRcd_H
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
-class EcalGlobalShowerContainmentCorrectionsVsEtaRcd : public edm::eventsetup::EventSetupRecordImplementation<EcalGlobalShowerContainmentCorrectionsVsEtaRcd> {};
+class EcalGlobalShowerContainmentCorrectionsVsEtaRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<EcalGlobalShowerContainmentCorrectionsVsEtaRcd> {};
 #endif

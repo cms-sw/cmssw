@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<DDDefinition>
+
+  <SpecParSection label="mtdProdCuts.xml" eval="true">
+    <SpecPar name="fasttime-btl">
+      <PartSelector path="//BarrelTimingLayer"/>
+      <Parameter name="CMSCutsRegion" value="FastTimerRegionBTL" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
+      <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
+      <Parameter name="ProdCutsForProtons" value="0.1*mm"/>
+    </SpecPar>
+    <SpecPar name="fasttime-etl">
+      <PartSelector path="//EndcapTimingLayer"/>
+      <PartSelector path="//CALOECTSFront"/>
+      <Parameter name="CMSCutsRegion" value="FastTimerRegionETL" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
+      <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
+      <Parameter name="ProdCutsForProtons" value="0.1*mm"/>
+    </SpecPar>
+    <SpecPar name="fasttime-sens-btl">
+      <PartSelector path="//BTLCrystal1"/>
+      <PartSelector path="//BTLCrystal2"/>
+      <PartSelector path="//BTLCrystal3"/>
+      <Parameter name="CMSCutsRegion" value="FastTimerRegionSensBTL" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
+      <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
+      <Parameter name="ProdCutsForProtons" value="0.1*mm"/>
+    </SpecPar>
+    <SpecPar name="fasttime-sens-etl">
+      <PartSelector path="//EModule_Timingactive"/>
+      <Parameter name="CMSCutsRegion" value="FastTimerRegionSensETL" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
+      <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
+      <Parameter name="ProdCutsForProtons" value="0.01*mm"/>
+    </SpecPar>
+
+  </SpecParSection>
+
+</DDDefinition>
+

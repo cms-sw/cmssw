@@ -1,46 +1,61 @@
 import FWCore.ParameterSet.Config as cms
 
-# Calo geometry service model
-#
-# removed by tommaso
-#
-#ECAL conditions
-#  include "CalibCalorimetry/EcalTrivialCondModules/data/EcalTrivialCondRetriever.cfi"
-#
-#TPG condition needed by ecalRecHit producer if TT recovery is ON
+# TPG condition needed by ecalRecHit producer if TT recovery is ON
 from RecoLocalCalo.EcalRecProducers.ecalRecHitTPGConditions_cff import *
-#ECAL reconstruction
-#from RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi import *
-from RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi import *
-from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
+
+# ECAL reconstruction
+from RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cff import *
+from RecoLocalCalo.EcalRecProducers.ecalRecHit_cff import *
 from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalCompactTrigPrim_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalTPSkim_cfi import *
-
 from RecoLocalCalo.EcalRecProducers.ecalDetailedTimeRecHit_cfi import *
 
-#ecalUncalibRecHitSequence = cms.Sequence(ecalGlobalUncalibRecHit*
-#                                         ecalDetIdToBeRecovered)
+ecalUncalibRecHitTask = cms.Task(
+    ecalMultiFitUncalibRecHitTask,
+    ecalDetIdToBeRecovered)
 
-ecalUncalibRecHitSequence = cms.Sequence(ecalMultiFitUncalibRecHit*
-                                        ecalDetIdToBeRecovered)
+ecalUncalibRecHitSequence = cms.Sequence(ecalUncalibRecHitTask)
 
-ecalRecHitSequence        = cms.Sequence(ecalRecHit*
-                                         ecalCompactTrigPrim*
-                                         ecalTPSkim+
-                                         ecalPreshowerRecHit)
+ecalRecHitNoTPTask = cms.Task(
+    ecalCalibratedRecHitTask,
+    ecalPreshowerRecHit)
 
-ecalLocalRecoSequence     = cms.Sequence(ecalUncalibRecHitSequence*
-                                         ecalRecHitSequence)
+ecalRecHitNoTPSequence = cms.Sequence(ecalRecHitNoTPTask)
 
+ecalRecHitTask = cms.Task(
+    ecalCompactTrigPrim,
+    ecalTPSkim,
+    ecalRecHitNoTPTask)
+
+ecalRecHitSequence = cms.Sequence(ecalRecHitTask)
+
+ecalLocalRecoTask = cms.Task(
+    ecalUncalibRecHitTask,
+    ecalRecHitTask)
+
+ecalLocalRecoSequence = cms.Sequence(ecalLocalRecoTask)
+
+ecalOnlyLocalRecoTask = cms.Task(
+    ecalUncalibRecHitTask,
+    ecalRecHitNoTPTask)
+
+ecalOnlyLocalRecoSequence = cms.Sequence(ecalOnlyLocalRecoTask)
+
+# Phase 2 modifications
 from RecoLocalCalo.EcalRecProducers.ecalDetailedTimeRecHit_cfi import *
-_phase2_timing_ecalRecHitSequence = cms.Sequence( ecalRecHitSequence.copy() + ecalDetailedTimeRecHit )
+_phase2_timing_ecalRecHitTask = cms.Task( ecalRecHitTask.copy() , ecalDetailedTimeRecHit )
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toReplaceWith( ecalRecHitSequence, _phase2_timing_ecalRecHitSequence )
+phase2_timing.toReplaceWith( ecalRecHitTask, _phase2_timing_ecalRecHitTask )
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2_cff import *
+phase2_ecal_devel.toReplaceWith(ecalUncalibRecHitTask, ecalUncalibRecHitPhase2Task)
+phase2_ecal_devel.toReplaceWith(ecalRecHitNoTPTask, ecalRecHitNoTPTask.copyAndExclude([ecalPreshowerRecHit]))
 
-_fastSim_ecalRecHitSequence = ecalRecHitSequence.copyAndExclude([ecalCompactTrigPrim,ecalTPSkim])
-_fastSim_ecalUncalibRecHitSequence = ecalUncalibRecHitSequence.copyAndExclude([ecalDetIdToBeRecovered])
+# FastSim modifications
+_fastSim_ecalRecHitTask = ecalRecHitTask.copyAndExclude([ecalCompactTrigPrim,ecalTPSkim])
+_fastSim_ecalUncalibRecHitTask = ecalUncalibRecHitTask.copyAndExclude([ecalDetIdToBeRecovered])
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(ecalRecHitSequence, _fastSim_ecalRecHitSequence)
-fastSim.toReplaceWith(ecalUncalibRecHitSequence, _fastSim_ecalUncalibRecHitSequence)
+fastSim.toReplaceWith(ecalRecHitTask, _fastSim_ecalRecHitTask)
+fastSim.toReplaceWith(ecalUncalibRecHitTask, _fastSim_ecalUncalibRecHitTask)

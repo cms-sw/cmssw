@@ -1,0 +1,88 @@
+// To be included after SelectHitRange / Indices().
+
+#define MKFP(_V_) mkfp->_V_.ConstAt(mi, 0, 0)
+#define MKFPI(_V_, _i_, _j_) mkfp->_V_[iI].ConstAt(mi, _i_, _j_)
+#define MKFPAR(_i_) mkfp->Par[iI].ConstAt(mi, _i_, 0)
+#define MKFERR(_i_, _j_) mkfp->Err[iI].ConstAt(mi, _i_, _j_)
+
+const int iI = MkFitter::iP;
+TrackVec &recseeds = m_event->seedTracks_;
+int mi = 0;  // mplex index
+for (int ti = itrack; ti < end; ++ti, ++mi) {
+  int label = MKFP(Label);
+  int seed = MKFP(SeedIdx);
+
+  float x = std::min(1000.f, MKFPAR(0)), y = std::min(1000.f, MKFPAR(1)), z = std::min(1000.f, MKFPAR(2));
+  float r2 = x * x + y * y, r = std::sqrt(r2), phi = getPhi(x, y);
+  float dphidx = -y / r2, dphidy = x / r2;
+  float dphi2 = dphidx * dphidx * MKFERR(0, 0) + dphidy * dphidy * MKFERR(1, 1) + 2 * dphidx * dphidy * MKFERR(0, 1);
+  float Dphi = dphi2 >= 0 ? 3 * std::sqrt(dphi2) : dphi2;
+  float Dz = MKFERR(2, 2) >= 0 ? 3 * std::sqrt(MKFERR(2, 2)) : -1;
+
+  float px = std::min(1000.f, MKFPAR(3)), py = std::min(1000.f, MKFPAR(4));
+
+  std::vector<int> indices;
+  m_event_of_hits.m_layers_of_hits[ilay].SelectHitIndices(z, phi, Dz, Dphi, indices, false);
+  int nshi = indices.size();
+
+  // Dump for
+  // printf("Select hits: %2d %2d\n", MKFP(XHitSize), nshi);
+  // if (MKFP(XHitSize) != nshi)
+  // {
+  //   // printf("Select hits: %2d %2d\n", MKFP(XHitSize), nshi);
+  //   m_event_of_hits.m_layers_of_hits[ilay].SelectHitIndices(z, phi, Dz, Dphi, indices, false, true);
+  //   printf("\n");
+  // }
+
+  static bool first = true;
+  if (first) {
+    printf(
+        "ZZZ_ERR event/I:label/I:mc_pt/F:seed/I:seed_pt/F:seed_chi/F:cand/I:layer/I:chi2/F:Nh/I:"
+        "pT/F:r/F:z/F:phi/F:eta/F:Dphi/F:Dz/F:"
+        "etam/F:etaM/F:Nh2p/I:"
+        "err00/F:err11/F:err22/F:err33/F:err44/F:err55/F"
+        "\n");
+    first = false;
+  }
+
+  // ./mkFit | perl -ne 'if (/^ZZZ_ERR/) { s/^ZZZ_ERR //og; print; }' xxx.rtt
+
+  printf(
+      "ZZZ_ERR %d %d %f "
+      "%d %f %f %d "
+      "%d %f %d "
+      "%f %f %f %f %f %f %f "
+      "%f %f %d "
+      "%f %f %f %f %f %f\n",
+      m_event->evtID(),
+      label,
+      m_event->simTracks_[label].pT(),
+      seed,
+      recseeds[seed].pT(),
+      recseeds[seed].chi2(),
+      MKFP(CandIdx),
+      ilay,
+      MKFP(Chi2),
+      mkfp->countValidHits(mi),
+      std::hypot(px, py),
+      r,
+      MKFPAR(2),
+      phi,
+      getEta(r, MKFPAR(2)),
+      Dphi,
+      Dz,
+      getEta(r, z - Dz),
+      getEta(r, z + Dz),
+      MKFP(XHitSize),
+      MKFERR(0, 0),
+      MKFERR(1, 1),
+      MKFERR(2, 2),
+      MKFERR(3, 3),
+      MKFERR(4, 4),
+      MKFERR(5, 5));
+}
+
+#undef MKFP
+#undef MKFPI
+#undef MKFPAR
+#undef MKFERR

@@ -16,7 +16,8 @@ process.source = cms.Source("PoolSource",
 )
 
 process.a1 = cms.EDAnalyzer("StreamThingAnalyzer",
-    product_to_get = cms.string('m1')
+    product_to_get = cms.string('m1'),
+    inChecksum = cms.untracked.string('out')
 )
 
 process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',

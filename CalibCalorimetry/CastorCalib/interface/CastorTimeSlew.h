@@ -1,7 +1,6 @@
 #ifndef CALIBCALORIMETRY_CASTORCALIB_CASTORTIMESLEW_H
 #define CALIBCALORIMETRY_CASTORCALIB_CASTORTIMESLEW_H 1
 
-
 /** \class CastorTimeSlew
   * 
   * copy from HCAL (author: J. Mans)
@@ -17,12 +16,12 @@
   */
 class CastorTimeSlew {
 public:
-  enum BiasSetting { Slow=0, Medium=1, Fast=2 };
+  enum BiasSetting { Slow = 0, Medium = 1, Fast = 2 };
 
   /** \brief Returns the amount (ns) by which a pulse of the given
    number of fC will be delayed by the timeslew effect, for the
    specified bias setting. */
-  static double delay(double fC, BiasSetting bias=Medium);
+  static double delay(double fC, BiasSetting bias = Medium);
 };
 
 #endif

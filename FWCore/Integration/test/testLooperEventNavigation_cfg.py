@@ -6,11 +6,6 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.threshold = 'ERROR'
 
-import FWCore.Framework.test.cmsExceptionsFatalOption_cff
-process.options = cms.untracked.PSet(
-  Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
-)
-
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge1.root',
@@ -19,6 +14,10 @@ process.source = cms.Source("PoolSource",
     #, processingMode = cms.untracked.string('RunsAndLumis')
     #, duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
     , noEventSort = cms.untracked.bool(False)
+    , inputCommands = cms.untracked.vstring(
+        'keep *',
+        'drop edmtestThingWithMerge_makeThingToBeDropped1_*_*'
+    )
 )
 
 

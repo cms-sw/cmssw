@@ -14,7 +14,7 @@ process.source = cms.Source(
 )
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.globalTrackingGeometry_cfi")
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
@@ -195,7 +195,7 @@ process.looper = cms.Looper(
     compareToSimTracks = cms.bool(True),
 
     # This line is only necessary when running on fastSim
-    # SimTracksCollection = cms.untracked.InputTag("famosSimHits"),
+    # SimTracksCollection = cms.untracked.InputTag("fastSimProducer"),
     # This must be set to true when using events generated with Sherpa
     # Sherpa = cms.untracked.bool(True),
 
@@ -212,7 +212,7 @@ process.looper = cms.Looper(
 
 
     # Only used when reading events from a root tree
-    MaxEventsFromRootTree = cms.int32(-1)
+    MaxEventsFromRootTree = cms.int32(-1),
 
     # Specify a file if you want to read events from a root tree in a local file.
     # In this case the input source should be an empty source with 0 events.

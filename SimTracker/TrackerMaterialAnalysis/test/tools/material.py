@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import re
 import bisect
@@ -57,7 +58,7 @@ class ElementBase:
       self.name = []
     elif isinstance(other, ElementBase):
       self.name = other.name
-    elif isinstance(other, basestring):
+    elif isinstance(other, str):
       self.parse(other)
     else:
       raise TypeError("Cannot initialize an ElementBase from type %s" % type(other))
@@ -124,9 +125,9 @@ def parse(source):
   for line in source:
     match = pattern.match(line)
     if not match:
-      print 'Warning: the following line does not match the parsing rules:'
-      print line
-      print
+      print('Warning: the following line does not match the parsing rules:')
+      print(line)
+      print()
       continue
     r   = float(match.group(2))
     z   = float(match.group(3))
@@ -170,9 +171,9 @@ def split_along(direction, elements, cuts):
     i = bisect.bisect(cuts, element.position[direction])
     matching_filters = [ filter for filter in filters if filter.match(element) ]
     if len(matching_filters) == 0:
-      print "Error: no matches for element %s" % element.full_name()
+      print("Error: no matches for element %s" % element.full_name())
     elif len(matching_filters) > 1:
-      print "Error: too many matches for element %s" % element.full_name()
+      print("Error: too many matches for element %s" % element.full_name())
     else:
       groups[i].append( matching_filters[0] )
   return groups

@@ -1,7 +1,9 @@
 """
 Utilities for rootplot including histogram classes.
 """
+from __future__ import print_function
 
+from builtins import range
 __license__ = '''\
 Copyright (c) 2009-2010 Jeff Klukas <klukas@wisc.edu>
 
@@ -147,13 +149,13 @@ class Hist(object):
             hist.GetPoint(i, x, y)
             self.x.append(copy.copy(x))
             self.y.append(copy.copy(y))
-        lower = [max(0, hist.GetErrorXlow(i))  for i in xrange(n)]
-        upper = [max(0, hist.GetErrorXhigh(i)) for i in xrange(n)]
+        lower = [max(0, hist.GetErrorXlow(i))  for i in range(n)]
+        upper = [max(0, hist.GetErrorXhigh(i)) for i in range(n)]
         self.xerr = [lower[:], upper[:]]
-        lower = [max(0, hist.GetErrorYlow(i))  for i in xrange(n)]
-        upper = [max(0, hist.GetErrorYhigh(i)) for i in xrange(n)]
+        lower = [max(0, hist.GetErrorYlow(i))  for i in range(n)]
+        upper = [max(0, hist.GetErrorYhigh(i)) for i in range(n)]
         self.yerr = [lower[:], upper[:]]
-        self.xedges = [self.x[i] - self.xerr[0][i] for i in xrange(n)]
+        self.xedges = [self.x[i] - self.xerr[0][i] for i in range(n)]
         self.xedges.append(self.x[n - 1] + self.xerr[1][n - 1])
         self.width = [self.xedges[i + 1] - self.xedges[i] for i in range(n)]
         self.underflow, self.overflow = 0, 0
@@ -346,7 +348,7 @@ class HistStack(object):
             return max([sum([h[i] for h in self.hists])
                        for i in range(self.hists[0].nbins)])
         except:
-            print [h.nbins for h in self.hists]
+            print([h.nbins for h in self.hists])
     def scale(self, factor):
         """Scale all Hists by factor."""
         for hist in self.hists:
@@ -439,13 +441,13 @@ def loadROOT(batch=True):
     try:
         import ROOT
     except ImportError:
-        print """\
+        print("""\
 The program was unable to access PyROOT.  Usually, this just requires switching
 to the same major version of python that used when compiling ROOT.  To
 determine which version that is, try the following command:
     root -config 2>&1 | tr ' ' '\\n' | egrep 'python|PYTHON'
 If this is different from the python version you are currently using, try
-changing your PATH to point to the new one."""
+changing your PATH to point to the new one.""")
         sys.exit(1)
     ## Enter batch mode, unless outputting to C macros
     ## There is a bug in pyROOT that fails to export colors in batch mode

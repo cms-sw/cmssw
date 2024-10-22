@@ -15,9 +15,14 @@ ootPhotons = _gedPhotons.clone(
     candidateP4type = "fromEcalEnergy",
     reconstructionStep = "ootfinal",
     pfEgammaCandidates = "",
-    chargedHadronIsolation = cms.InputTag(""),
-    neutralHadronIsolation = cms.InputTag(""),
-    photonIsolation = cms.InputTag(""),
+    pfIsolCfg = cms.PSet(
+        chargedHadronIso = cms.InputTag(""),
+        neutralHadronIso = cms.InputTag(""),
+        photonIso = cms.InputTag(""),
+        chargedHadronWorstVtxIso = cms.InputTag(""),
+        chargedHadronWorstVtxGeomVetoIso = cms.InputTag(""),
+        chargedHadronPFPVIso = cms.InputTag(""),
+    ),
     pfECALClusIsolation = cms.InputTag("ootPhotonEcalPFClusterIsolationProducer"),
     pfHCALClusIsolation = cms.InputTag("ootPhotonHcalPFClusterIsolationProducer"),
     valueMapPhotons = ""
@@ -26,32 +31,3 @@ del ootPhotons.regressionConfig
 
 
 
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-
-run2_miniAOD_80XLegacy.toModify(
-    ootPhotonsTmp, 
-    barrelEcalHits = "reducedEcalRecHitsEB",
-    endcapEcalHits = "reducedEcalRecHitsEE",
-    preshowerHits = "reducedEcalRecHitsES",
-    hcalTowers = ""
-)
-run2_miniAOD_80XLegacy.toModify(
-    ootPhotons, 
-    barrelEcalHits = "reducedEcalRecHitsEB",
-    endcapEcalHits = "reducedEcalRecHitsEE",
-    preshowerHits = "reducedEcalRecHitsES",
-    hcalTowers = "",
-    pfECALClusIsolation = None,
-    pfHCALClusIsolation = None
-)
-run2_miniAOD_80XLegacy.toModify(
-    ootPhotonsTmp.isolationSumsCalculatorSet, 
-    barrelEcalRecHitCollection = "reducedEcalRecHitsEB",
-    endcapEcalRecHitCollection = "reducedEcalRecHitsEE",
-    HcalRecHitCollection = ""
-)
-run2_miniAOD_80XLegacy.toModify(
-    ootPhotonsTmp.mipVariableSet,
-    barrelEcalRecHitCollection = "reducedEcalRecHitsEB",
-    endcapEcalRecHitCollection = "reducedEcalRecHitsEE",
-)

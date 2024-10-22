@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 """ Helper functions for time conversions """
+from __future__ import print_function
 
 def pack(high,low):
     """pack high,low 32bit unsigned int to one unsigned 64bit long long
@@ -53,11 +54,11 @@ import sys
 
 # The first parameter is the name of the script
 if len(sys.argv) < 3:
-    print "Please provide the name of the sqlite file and the tag as in: ",
-    print "./CheckAllIOVs.py Example1a.db SiStripDetVOff_Fake_31X"
+    print("Please provide the name of the sqlite file and the tag as in: ", end=' ')
+    print("./CheckAllIOVs.py Example1a.db SiStripDetVOff_Fake_31X")
     sys.exit(1)
 
-print "Reading all IOVs"
+print("Reading all IOVs")
 
 # Example1a.db
 # SiStripDetVOff_Fake_31X
@@ -82,8 +83,8 @@ for i in range(0, len(splittedList), 2):
         endDate = timeStamptoDate(int(end))
         if end == "18446744073709551615":
             end = str(int(start) + 1)
-        print "start date = ", startDate,
-        print ", end date = ", endDate
+        print("start date = ", startDate, end=' ')
+        print(", end date = ", endDate)
         fullDates="_FROM_"+startDate.replace(" ", "_").replace(":", "_")+"_TO_"+endDate.replace(" ", "_").replace(":", "_")
         fileName="DetVOffPrint"+fullDates+"_cfg.py"
         os.system("cat templateCheckAllIOVs_cfg.py | sed -e \"s/STARTTIME/"+start+"/g\" | sed -e \"s/ENDTIME/"+end+"/g\" | sed -e \"s/DATE/"+fullDates+"/g\" | sed -e \"s/DATABASE/sqlite_file:"+database+"/g\" > "+fileName)
@@ -92,7 +93,7 @@ for i in range(0, len(splittedList), 2):
 
         for line in open("DetVOffReaderDebug_"+fullDates+".log", "r"):
             if "IOV" in line or "OFF" in line or "ON" in line:
-                print line.strip("\n")
+                print(line.strip("\n"))
 
 # # Do it afterwards because popen does not wait for the end of the job.
 # for i in range(0, len(splittedList), 2):

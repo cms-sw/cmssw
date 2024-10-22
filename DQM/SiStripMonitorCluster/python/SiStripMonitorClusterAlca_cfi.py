@@ -1,245 +1,232 @@
 import FWCore.ParameterSet.Config as cms
 
-import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
+from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 
 # SiStripMonitorCluster
-SiStripCalZeroBiasMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-
-SiStripCalZeroBiasMonitorCluster.ClusterProducerStrip = cms.InputTag("calZeroBiasClusters")
-SiStripCalZeroBiasMonitorCluster.ClusterProducerPix = cms.InputTag('siPixelClusters')
-
-SiStripCalZeroBiasMonitorCluster.ResetMEsEachRun = cms.bool(False)
-
-SiStripCalZeroBiasMonitorCluster.StripQualityLabel = cms.string('unbiased')
-
-SiStripCalZeroBiasMonitorCluster.SelectAllDetectors = cms.bool(True)
-SiStripCalZeroBiasMonitorCluster.ShowMechanicalStructureView = cms.bool(True)
-
-SiStripCalZeroBiasMonitorCluster.ClusterLabel = cms.string('')
-
-SiStripCalZeroBiasMonitorCluster.TkHistoMap_On = cms.bool(False)
-
-SiStripCalZeroBiasMonitorCluster.ClusterChTkHistoMap_On = cms.bool(False)
-
-SiStripCalZeroBiasMonitorCluster.TopFolderName = cms.string('AlcaReco/SiStrip')
-
-SiStripCalZeroBiasMonitorCluster.BPTXfilter     = cms.PSet()
-SiStripCalZeroBiasMonitorCluster.PixelDCSfilter = cms.PSet()
-SiStripCalZeroBiasMonitorCluster.StripDCSfilter = cms.PSet()
-
-SiStripCalZeroBiasMonitorCluster.CreateTrendMEs = cms.bool(False)
-SiStripCalZeroBiasMonitorCluster.TrendVs10LS = cms.bool(False)
-SiStripCalZeroBiasMonitorCluster.TH1ClusterNoise = cms.PSet(
-    Nbinx          = cms.int32(20),
-    xmin           = cms.double(-0.5),
-    xmax           = cms.double(9.5),
-    layerswitchon  = cms.bool(False),
-    moduleswitchon = cms.bool(False)
+SiStripCalZeroBiasMonitorCluster = SiStripMonitorCluster.clone(
+    ClusterProducerStrip = "calZeroBiasClusters",
+    ClusterProducerPix = 'siPixelClusters',
+    ResetMEsEachRun = False,
+    StripQualityLabel = 'unbiased',
+    SelectAllDetectors = True,
+    ShowMechanicalStructureView = True,
+    ClusterLabel = '',
+    TkHistoMap_On = False,
+    ClusterChTkHistoMap_On = False,
+    TopFolderName = 'AlcaReco/SiStrip',
+    BPTXfilter = SiStripMonitorCluster.BPTXfilter.clone(),
+    PixelDCSfilter = SiStripMonitorCluster.PixelDCSfilter.clone(),
+    StripDCSfilter = SiStripMonitorCluster.StripDCSfilter.clone(),
+    CreateTrendMEs = False,
+    TrendVs10LS = False,
+    TH1ClusterNoise = SiStripMonitorCluster.TH1ClusterNoise.clone(
+        Nbinx = 20,
+        xmin = -0.5,
+        xmax = 9.5,
+        layerswitchon  = False,
+        moduleswitchon = False
+    ),
+    TH1NrOfClusterizedStrips = SiStripMonitorCluster.TH1NrOfClusterizedStrips.clone(
+        Nbinx = 20,
+        xmin = -0.5,
+        xmax = 99.5,
+        layerswitchon  = False,
+        moduleswitchon = False
+    ),
+    TH1ClusterPos = SiStripMonitorCluster.TH1ClusterPos.clone(
+        Nbinx = 768,
+        xmin = -0.5,
+        xmax = 767.5,
+        layerswitchon  = True,
+        moduleswitchon = False
+    ),
+    TH1ClusterDigiPos = SiStripMonitorCluster.TH1ClusterDigiPos.clone(
+        Nbinx = 768,
+        xmin = -0.5,
+        xmax = 767.5,
+        layerswitchon  = False,
+        moduleswitchon = True
+    ),
+    TH1ModuleLocalOccupancy = SiStripMonitorCluster.TH1ModuleLocalOccupancy.clone(
+        Nbinx = 20,
+        xmin = -0.5,
+        xmax = 0.95,
+        layerswitchon  = False,
+        moduleswitchon = False
+    ),
+    TH1nClusters = SiStripMonitorCluster.TH1nClusters.clone(
+        Nbinx = 11,
+        xmin = -0.5,
+        xmax = 10.5,
+        layerswitchon  = False,
+        moduleswitchon = False
+    ),
+    TH1ClusterStoN = SiStripMonitorCluster.TH1ClusterStoN.clone(
+        Nbinx = 100,
+        xmin = -0.5,
+        xmax = 299.5,
+        layerswitchon  = False,
+        moduleswitchon = False
+    ),
+    TH1ClusterStoNVsPos = SiStripMonitorCluster.TH1ClusterStoNVsPos.clone(
+        Nbinx = 768,
+        xmin = -0.5,
+        xmax = 767.5,
+        Nbiny = 100,
+        ymin = -0.5,
+        ymax = 299.5,
+        layerswitchon  = False,
+        moduleswitchon = False
+    ),
+    TH1ClusterCharge = SiStripMonitorCluster.TH1ClusterCharge.clone(
+        Nbinx = 200,
+        xmin = -0.5,        
+        xmax = 799.5,
+        layerswitchon = False,
+        moduleswitchon = False,
+        subdetswitchon = True
+    ),
+    TH1ClusterWidth = SiStripMonitorCluster.TH1ClusterWidth.clone(
+        Nbinx = 30,
+        xmin = -0.5,
+        xmax = 29.5,
+        layerswitchon  = False,        
+        moduleswitchon = False,
+        subdetswitchon = True
+    ),
+    TProfNumberOfCluster = SiStripMonitorCluster.TProfNumberOfCluster.clone(
+        Nbinx = 100,
+        xmin = -0.5,
+        xmax = 499.5,
+        layerswitchon = False,        
+        moduleswitchon = False        
+    ),
+    TProfClusterWidth    = SiStripMonitorCluster.TProfClusterWidth.clone(
+        Nbinx = 100,
+        xmin = -0.5,
+        xmax = 499.5,
+        layerswitchon = False,        
+        moduleswitchon = False        
+    ),
+    ClusterConditions = SiStripMonitorCluster.ClusterConditions.clone(
+        minWidth = 0.0,
+        On = True,
+        maxStoN = 10000.0,
+        minStoN = 0.0,
+        maxWidth = 10000.0
+    ),
+    TProfTotalNumberOfClusters = SiStripMonitorCluster.TProfTotalNumberOfClusters.clone(
+        subdetswitchon = True
+    ),
+    TH1TotalNumberOfClusters = SiStripMonitorCluster.TH1TotalNumberOfClusters.clone(
+        Nbinx = 500,
+        xmin = -0.5,
+        xmax = 19999.5,
+        subdetswitchon = True
+    ),
+    TProfClustersApvCycle = SiStripMonitorCluster.TProfClustersApvCycle.clone(
+        Nbins = 70,
+        xmin = -0.5,
+        xmax = 69.5,
+        Nbinsy = 200,
+        ymin = 0.0,
+        ymax = 0.0,
+        subdetswitchon = True
+    ),
+    TH2ClustersApvCycle = SiStripMonitorCluster.TH2ClustersApvCycle.clone(
+        Nbinsx = 70,
+        xmin = -0.5,
+        xmax = 69.5,
+        Nbinsy = 400,
+        ymin = 0.0,
+        yfactor = 0.01,
+        subdetswitchon = True
+    ),
+    TProfClustersVsDBxCycle = SiStripMonitorCluster.TProfClustersVsDBxCycle.clone(
+        Nbins = 800,
+        xmin = 0.5,
+        xmax = 800.5,
+        ymin = 0.0,
+        ymax = 0.0,
+        subdetswitchon = False
+    ),
+    TProf2ApvCycleVsDBx = SiStripMonitorCluster.TProf2ApvCycleVsDBx.clone(
+        Nbinsx = 70,
+        xmin = -0.5,
+        xmax = 69.5,
+        Nbinsy = 800,
+        ymin = 0.5,
+        ymax = 800.5,
+        zmin = 0.0,
+        zmax = 0.0,
+        subdetswitchon = False
+    ),
+    TH2ApvCycleVsDBxGlobal = SiStripMonitorCluster.TH2ApvCycleVsDBxGlobal.clone(
+        Nbinsx = 70,
+        xmin = -0.5,
+        xmax = 69.5,
+        Nbinsy = 800,
+        ymin = 0.5,
+        ymax = 800.5,
+        globalswitchon = False
+    ),
+    TH2CStripVsCpixel = SiStripMonitorCluster.TH2CStripVsCpixel.clone(
+        Nbinsx = 150,
+        xmin = -0.5,
+        xmax = 74999.5,
+        Nbinsy = 50,
+        ymin = -0.5,
+        ymax = 14999.5,
+        globalswitchon = False
+    ),
+    MultiplicityRegions = SiStripMonitorCluster.MultiplicityRegions.clone(
+        k0 = 0.13,  # k from linear fit of the diagonal
+        q0 = 300,   # +/- variation of y axis intercept
+        dk0 = 40,   #+/- variation of k0 (in %) to contain the diagonal zone
+        MaxClus = 20000, #Divide Region 2 and Region 3
+        MinPix = 50  # minimum number of Pix clusters to flag events with zero Si clusters
+    ),
+    TH1MultiplicityRegions = SiStripMonitorCluster.TH1MultiplicityRegions.clone(
+        Nbinx = 5,
+        xmin = 0.5,
+        xmax = 5.5,
+        globalswitchon = False
+    ),        
+    TH1MainDiagonalPosition = SiStripMonitorCluster.TH1MainDiagonalPosition.clone(
+        Nbinsx = 100,
+        xmin = 0.,
+        xmax = 2.,
+        globalswitchon = False
+    ),   
+    # Nunmber of Cluster in Pixel
+    TH1NClusPx = SiStripMonitorCluster.TH1NClusPx.clone(
+        Nbinsx = 200,
+        xmax = 19999.5,                      
+        xmin = -0.5
+    ),
+    # Number of Cluster in Strip
+    TH1NClusStrip = SiStripMonitorCluster.TH1NClusStrip.clone(
+        Nbinsx = 500,
+        xmax = 99999.5,                      
+        xmin = -0.5
+    ),
+    TH1StripNoise2ApvCycle = SiStripMonitorCluster.TH1StripNoise2ApvCycle.clone(
+        Nbinsx = 70,
+        xmin = -0.5,
+        xmax = 69.5,
+        globalswitchon = False
+    ),
+    TH1StripNoise3ApvCycle = SiStripMonitorCluster.TH1StripNoise3ApvCycle.clone(
+        Nbinsx = 70,
+        xmin = -0.5,
+        xmax = 69.5,
+        globalswitchon = False
+    ),
+    Mod_On = True,
+    ClusterHisto = False,
+    HistoryProducer = "consecutiveHEs",
+    ApvPhaseProducer = "APVPhases",
+    UseDCSFiltering = True,
+    ShowControlView = False,
+    ShowReadoutView = False
 )
-SiStripCalZeroBiasMonitorCluster.TH1NrOfClusterizedStrips = cms.PSet(
-    Nbinx          = cms.int32(20),
-    xmin           = cms.double(-0.5),
-    xmax           = cms.double(99.5),
-    layerswitchon  = cms.bool(False),
-    moduleswitchon = cms.bool(False)
-)
-SiStripCalZeroBiasMonitorCluster.TH1ClusterPos = cms.PSet(
-    Nbinx          = cms.int32(768),
-    xmin           = cms.double(-0.5),
-    xmax           = cms.double(767.5),
-    layerswitchon  = cms.bool(True),
-    moduleswitchon = cms.bool(False)
-)
-SiStripCalZeroBiasMonitorCluster.TH1ClusterDigiPos = cms.PSet(
-    Nbinx          = cms.int32(768),
-    xmin           = cms.double(-0.5),
-    xmax           = cms.double(767.5),
-    layerswitchon  = cms.bool(False),
-    moduleswitchon = cms.bool(True)
-)                                
-SiStripCalZeroBiasMonitorCluster.TH1ModuleLocalOccupancy = cms.PSet(
-    Nbinx          = cms.int32(20),
-    xmin           = cms.double(-0.5),
-    xmax           = cms.double(0.95),
-    layerswitchon  = cms.bool(False),
-    moduleswitchon = cms.bool(False)
-)
-SiStripCalZeroBiasMonitorCluster.TH1nClusters = cms.PSet(
-    Nbinx          = cms.int32(11),
-    xmin           = cms.double(-0.5),
-    xmax           = cms.double(10.5),
-    layerswitchon  = cms.bool(False),
-    moduleswitchon = cms.bool(False)
-)
-SiStripCalZeroBiasMonitorCluster.TH1ClusterStoN = cms.PSet(
-    Nbinx          = cms.int32(100),
-    xmin           = cms.double(-0.5),
-    xmax           = cms.double(299.5),
-    layerswitchon  = cms.bool(False),
-    moduleswitchon = cms.bool(False)
-)
-SiStripCalZeroBiasMonitorCluster.TH1ClusterStoNVsPos = cms.PSet(
-    Nbinx          = cms.int32(768),
-    xmin           = cms.double(-0.5),
-    xmax           = cms.double(767.5),
-    Nbiny          = cms.int32(100),
-    ymin           = cms.double(-0.5),
-    ymax           = cms.double(299.5),
-    layerswitchon  = cms.bool(False),
-    moduleswitchon = cms.bool(False)
-)
-SiStripCalZeroBiasMonitorCluster.TH1ClusterCharge = cms.PSet(
-    Nbinx          = cms.int32(200),
-    xmin           = cms.double(-0.5),        
-    xmax           = cms.double(799.5),
-    layerswitchon  = cms.bool(False),
-    moduleswitchon = cms.bool(False),
-    subdetswitchon = cms.bool(True)
-)
-SiStripCalZeroBiasMonitorCluster.TH1ClusterWidth = cms.PSet(
-    Nbinx          = cms.int32(30),
-    xmin           = cms.double(-0.5),
-    xmax           = cms.double(29.5),
-    layerswitchon  = cms.bool(False),        
-    moduleswitchon = cms.bool(False),
-    subdetswitchon = cms.bool(True)
-)
-SiStripCalZeroBiasMonitorCluster.TProfNumberOfCluster = cms.PSet(
-    Nbinx            = cms.int32(100),
-    xmin             = cms.double(-0.5),
-    xmax             = cms.double(499.5),
-    layerswitchon    = cms.bool(False),        
-    moduleswitchon   = cms.bool(False)        
-)
-SiStripCalZeroBiasMonitorCluster.TProfClusterWidth    = cms.PSet(
-    Nbinx            = cms.int32(100),
-    xmin             = cms.double(-0.5),
-    xmax             = cms.double(499.5),
-    layerswitchon    = cms.bool(False),        
-    moduleswitchon   = cms.bool(False)        
-)                           
-SiStripCalZeroBiasMonitorCluster.ClusterConditions = cms.PSet(
-    minWidth   = cms.double(0.0),
-    On         = cms.bool(True),
-    maxStoN    = cms.double(10000.0),
-    minStoN    = cms.double(0.0),
-    maxWidth   = cms.double(10000.0)
-)
-SiStripCalZeroBiasMonitorCluster.TProfTotalNumberOfClusters = cms.PSet(
-    subdetswitchon = cms.bool(True)
-)
-SiStripCalZeroBiasMonitorCluster.TH1TotalNumberOfClusters = cms.PSet(
-    Nbinx          = cms.int32(500),
-    xmin           = cms.double(-0.5),
-    xmax           = cms.double(19999.5),
-    subdetswitchon = cms.bool(True)
-)
-SiStripCalZeroBiasMonitorCluster.TProfClustersApvCycle = cms.PSet(
-    Nbins = cms.int32(70),
-    xmin = cms.double(-0.5),
-    xmax = cms.double(69.5),
-    Nbinsy = cms.int32(200),
-    ymin = cms.double(0.0),
-    ymax = cms.double(0.0),
-    subdetswitchon = cms.bool(True)
-    )
-SiStripCalZeroBiasMonitorCluster.TH2ClustersApvCycle = cms.PSet(
-    Nbinsx = cms.int32(70),
-    xmin = cms.double(-0.5),
-    xmax = cms.double(69.5),
-    Nbinsy = cms.int32(400),
-    ymin = cms.double(0.0),
-    yfactor = cms.double(0.01),
-    subdetswitchon = cms.bool(True)
-)
-SiStripCalZeroBiasMonitorCluster.TProfClustersVsDBxCycle = cms.PSet(
-    Nbins = cms.int32(800),
-    xmin = cms.double(0.5),
-    xmax = cms.double(800.5),
-    ymin = cms.double(0.0),
-    ymax = cms.double(0.0),
-    subdetswitchon = cms.bool(False)
-    )
-SiStripCalZeroBiasMonitorCluster.TProf2ApvCycleVsDBx = cms.PSet(
-    Nbinsx = cms.int32(70),
-    xmin   = cms.double(-0.5),
-    xmax   = cms.double(69.5),
-    Nbinsy = cms.int32(800),
-    ymin   = cms.double(0.5),
-    ymax   = cms.double(800.5),
-    zmin   = cms.double(0.0),
-    zmax   = cms.double(0.0),
-    subdetswitchon = cms.bool(False)
-    )
-SiStripCalZeroBiasMonitorCluster.TH2ApvCycleVsDBxGlobal = cms.PSet(
-    Nbinsx = cms.int32(70),
-    xmin   = cms.double(-0.5),
-    xmax   = cms.double(69.5),
-    Nbinsy = cms.int32(800),
-    ymin   = cms.double(0.5),
-    ymax   = cms.double(800.5),
-    globalswitchon = cms.bool(False)
-    )
-SiStripCalZeroBiasMonitorCluster.TH2CStripVsCpixel = cms.PSet(
-    Nbinsx = cms.int32(150),
-    xmin   = cms.double(-0.5),
-    xmax   = cms.double(74999.5),
-    Nbinsy = cms.int32(50),
-    ymin   = cms.double(-0.5),
-    ymax   = cms.double(14999.5),
-    globalswitchon = cms.bool(False)
-    )
-SiStripCalZeroBiasMonitorCluster.MultiplicityRegions = cms.PSet(
-    k0 = cms.double(0.13),  # k from linear fit of the diagonal
-    q0 = cms.double(300),   # +/- variation of y axis intercept
-    dk0 = cms.double(40),   #+/- variation of k0 (in %) to contain the diagonal zone
-    MaxClus = cms.double(20000), #Divide Region 2 and Region 3
-    MinPix = cms.double(50)  # minimum number of Pix clusters to flag events with zero Si clusters
-    )
-SiStripCalZeroBiasMonitorCluster.TH1MultiplicityRegions = cms.PSet(
-    Nbinx          = cms.int32(5),
-    xmin           = cms.double(0.5),
-    xmax           = cms.double(5.5),
-    globalswitchon = cms.bool(False)
-    )                                 
-SiStripCalZeroBiasMonitorCluster.TH1MainDiagonalPosition= cms.PSet(
-    Nbinsx          = cms.int32(100),
-    xmin           = cms.double(0.),
-    xmax           = cms.double(2.),
-    globalswitchon = cms.bool(False)
-    )                            
-# Nunmber of Cluster in Pixel
-SiStripCalZeroBiasMonitorCluster.TH1NClusPx = cms.PSet(
-    Nbinsx = cms.int32(200),
-    xmax = cms.double(19999.5),                      
-    xmin = cms.double(-0.5)
-    )
-# Number of Cluster in Strip
-SiStripCalZeroBiasMonitorCluster.TH1NClusStrip = cms.PSet(
-    Nbinsx = cms.int32(500),
-    xmax = cms.double(99999.5),                      
-    xmin = cms.double(-0.5)
-    )
-SiStripCalZeroBiasMonitorCluster.TH1StripNoise2ApvCycle = cms.PSet(
-    Nbinsx = cms.int32(70),
-    xmin   = cms.double(-0.5),
-    xmax   = cms.double(69.5),
-    globalswitchon = cms.bool(False)
-    )
-SiStripCalZeroBiasMonitorCluster.TH1StripNoise3ApvCycle = cms.PSet(
-    Nbinsx = cms.int32(70),
-    xmin   = cms.double(-0.5),
-    xmax   = cms.double(69.5),
-    globalswitchon = cms.bool(False)
-    )
-SiStripCalZeroBiasMonitorCluster.Mod_On = cms.bool(True)
-SiStripCalZeroBiasMonitorCluster.ClusterHisto = cms.bool(False)                                                  
-
-SiStripCalZeroBiasMonitorCluster.HistoryProducer = cms.InputTag("consecutiveHEs")
-SiStripCalZeroBiasMonitorCluster.ApvPhaseProducer = cms.InputTag("APVPhases")
-
-SiStripCalZeroBiasMonitorCluster.UseDCSFiltering = cms.bool(True)
-                                              
-SiStripCalZeroBiasMonitorCluster.ShowControlView = cms.bool(False)
-SiStripCalZeroBiasMonitorCluster.ShowReadoutView = cms.bool(False)
-

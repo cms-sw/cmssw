@@ -5,12 +5,14 @@
  <class name="PGeometricDet::Item"/>
  <class name="std::vector<PGeometricDet::Item>"/>
 
- <class name="PGeometricDetExtra" class_version="0">
-   <field name="pgdes_" mapping="blob"/>
+ <class name="PTrackerAdditionalParametersPerDet" class_version="0"/>
+
+ <class name="PGeometricTimingDet" class_version="0">
+   <field name="pgeomdets_" mapping="blob"/>
  </class>
- <class name="PGeometricDetExtra::Item"/>
- <class name="std::vector<PGeometricDetExtra::Item>"/>
- 
+ <class name="PGeometricTimingDet::Item"/>
+ <class name="std::vector<PGeometricTimingDet::Item>"/>
+
  <class name="PCaloGeometry" class_version="0">
    <field name="m_translation" mapping="blob"/>
    <field name="m_dimension" mapping="blob"/>
@@ -41,6 +43,13 @@
  </class>
  <class name="PTrackerParameters::Item"/>
  <class name="std::vector<PTrackerParameters::Item>"/>
+
+ <class name="PMTDParameters" class_version="0"> 
+   <field name="vitems" mapping="blob"/>
+   <field name="vpars" mapping="blob"/>
+ </class>
+ <class name="PMTDParameters::Item"/>
+ <class name="std::vector<PMTDParameters::Item>"/>
 
  <class name="HcalParameters" class_version="0"> 
    <field name="rHB"              mapping="blob"/>
@@ -146,4 +155,55 @@
    <field name="mode_"            mapping="blob"/>
    <field name="copiesInLayers_"  mapping="blob"/>
  </class>
+ <class name="HcalSimulationParameters" class_version="1"> 
+   <field name="attenuationLength_"     mapping="blob"/>
+   <field name="lambdaLimits_"          mapping="blob"/>
+   <field name="shortFiberLength_"      mapping="blob"/>
+   <field name="longFiberLength_"       mapping="blob"/>
+   <field name="pmtRight_"              mapping="blob"/>
+   <field name="pmtFiberRight_"         mapping="blob"/>
+   <field name="pmtLeft_"               mapping="blob"/>
+   <field name="pmtFiberLeft_"          mapping="blob"/>
+   <field name="hfLevels_"              mapping="blob"/>
+   <field name="hfNames_"               mapping="blob"/>
+   <field name="hfFibreNames_"          mapping="blob"/>
+   <field name="hfPMTNames_"            mapping="blob"/>
+   <field name="hfFibreStraightNames_"  mapping="blob"/>
+   <field name="hfFibreConicalNames_"   mapping="blob"/>
+   <field name="hcalMaterialNames_"     mapping="blob"/>
+ </class>
+ <class name="CaloSimulationParameters" class_version="0"> 
+   <field name="caloNames_"             mapping="blob"/>
+   <field name="levels_"                mapping="blob"/>
+   <field name="neighbours_"            mapping="blob"/>
+   <field name="insideNames_"           mapping="blob"/>
+   <field name="insideLevel_"           mapping="blob"/>
+   <field name="fCaloNames_"            mapping="blob"/>
+   <field name="fLevels_"               mapping="blob"/>
+ </class>
+ <class name="EcalSimulationParameters" class_version="0"> 
+   <field name="nxtalEta_"              mapping="blob"/>
+   <field name="nxtalPhi_"              mapping="blob"/>
+   <field name="phiBaskets_"            mapping="blob"/>
+   <field name="etaBaskets_"            mapping="blob"/>
+   <field name="ncrys_"                 mapping="blob"/>
+   <field name="nmods_"                 mapping="blob"/>
+   <field name="useWeight_"             mapping="blob"/>
+   <field name="depth1Name_"            mapping="blob"/>
+   <field name="depth2Name_"            mapping="blob"/>
+   <field name="lvNames_"               mapping="blob"/>
+   <field name="matNames_"              mapping="blob"/>
+   <field name="dzs_"                   mapping="blob"/>
+ </class>
+ <class name="MuonOffsetMap" class_version="0"> 
+   <field name="muonMap_"         mapping="blob"/>
+ </class>
+
+ <class name="PDetGeomDesc" class_version="0">
+   <field name="container_" mapping="blob"/>
+ </class>
+ <class name="PDetGeomDesc::Item"/>
+ <class name="std::vector<PDetGeomDesc::Item>"/>
+
 </lcgdict> 
+

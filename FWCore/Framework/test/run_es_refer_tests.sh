@@ -3,6 +3,7 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
+LOCAL_TEST_DIR="${CMSSW_BASE}/src/FWCore/Framework/test"
 (cmsRun ${LOCAL_TEST_DIR}/test_es_prefer_prods_cfg.py ) || die 'Failure using test_es_prefer_prods_cfg.py' $?
 (cmsRun ${LOCAL_TEST_DIR}/test_es_prefer_sources_cfg.py ) || die 'Failure using test_es_prefer_sources_cfg.py' $?
 (cmsRun ${LOCAL_TEST_DIR}/test_es_prefer_source_beats_prod_cfg.py ) || die 'Failure using test_es_prefer_source_beats_prod_cfg.py' $?

@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to run the L1GtTriggerMenuLite producer  
 # with the options set in UserOptions_cff.py
@@ -9,10 +10,10 @@ import sys
 
 process = cms.Process("L1T")
 
-print '\n'
+print('\n')
 from L1Trigger.GlobalTriggerAnalyzer.UserOptions_cff import *
 if errorUserOptions == True :
-    print '\nError returned by UserOptions_cff\n'
+    print('\nError returned by UserOptions_cff\n')
     sys.exit()
 
 
@@ -32,10 +33,10 @@ process.maxEvents = cms.untracked.PSet(
 # load and configure modules via Global Tag
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = useGlobalTag+'::All'
+process.GlobalTag.globaltag = useGlobalTag
 
 
 # processes to be run
@@ -55,14 +56,12 @@ else :
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtTriggerMenuLite']
-process.MessageLogger.categories.append('L1GtTriggerMenuLiteProducer')
 
 process.MessageLogger.cerr.default.limit = 0
-process.MessageLogger.cerr.FwkJob.limit = 0
 process.MessageLogger.cerr.FwkReport.limit = 0
 process.MessageLogger.cerr.FwkSummary.limit = 0
 
-process.MessageLogger.debugs = cms.untracked.PSet( 
+process.MessageLogger.files.debugs = cms.untracked.PSet( 
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -71,14 +70,14 @@ process.MessageLogger.debugs = cms.untracked.PSet(
         L1GtTriggerMenuLiteProducer = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
         )
 
-process.MessageLogger.warnings = cms.untracked.PSet( 
+process.MessageLogger.files.warnings = cms.untracked.PSet( 
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         L1GtTriggerMenuLiteProducer = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
         )
 
-process.MessageLogger.errors = cms.untracked.PSet( 
+process.MessageLogger.files.errors = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
         L1GtTriggerMenuLiteProducer = cms.untracked.PSet( limit = cms.untracked.int32(-1) )

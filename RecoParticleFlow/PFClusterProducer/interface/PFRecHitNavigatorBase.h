@@ -6,9 +6,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
@@ -24,38 +23,37 @@
 #include <unordered_map>
 
 class PFRecHitNavigatorBase {
- public:
-  typedef std::unordered_map<unsigned,unsigned> DetIdToHitIdx;
+public:
+  typedef std::unordered_map<unsigned, unsigned> DetIdToHitIdx;
 
   PFRecHitNavigatorBase() = default;
-  PFRecHitNavigatorBase(const edm::ParameterSet& iConfig) {}
+  PFRecHitNavigatorBase(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {}
 
   virtual ~PFRecHitNavigatorBase() = default;
 
-  virtual void beginEvent(const edm::EventSetup&)=0;
-  virtual void associateNeighbours(reco::PFRecHit&,std::unique_ptr<reco::PFRecHitCollection>&,edm::RefProd<reco::PFRecHitCollection>&)=0;
+  virtual void init(const edm::EventSetup&) = 0;
+  virtual void associateNeighbours(reco::PFRecHit&,
+                                   std::unique_ptr<reco::PFRecHitCollection>&,
+                                   edm::RefProd<reco::PFRecHitCollection>&) = 0;
 
-
- protected:
-
-  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi,short depth) {
-    auto found_hit = std::lower_bound(hits->begin(),hits->end(),
-				      id,
-				      [](const reco::PFRecHit& a, 
-					 const DetId& id){
-					return a.detId() < id;
-				      });
-    if( found_hit != hits->end() && found_hit->detId() == id.rawId() ) {
-      hit.addNeighbour(eta,phi,depth,found_hit-hits->begin());
-    }    
+protected:
+  void associateNeighbour(const DetId& id,
+                          reco::PFRecHit& hit,
+                          std::unique_ptr<reco::PFRecHitCollection>& hits,
+                          edm::RefProd<reco::PFRecHitCollection>& refProd,
+                          short eta,
+                          short phi,
+                          short depth) {
+    auto found_hit = std::lower_bound(
+        hits->begin(), hits->end(), id, [](const reco::PFRecHit& a, const DetId& id) { return a.detId() < id; });
+    if (found_hit != hits->end() && found_hit->detId() == id.rawId()) {
+      hit.addNeighbour(eta, phi, depth, found_hit - hits->begin());
+    }
   }
-
-
 };
 
-
-
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory<PFRecHitNavigatorBase*(const edm::ParameterSet&)> PFRecHitNavigationFactory;
+typedef edmplugin::PluginFactory<PFRecHitNavigatorBase*(const edm::ParameterSet&, edm::ConsumesCollector&)>
+    PFRecHitNavigationFactory;
 
 #endif

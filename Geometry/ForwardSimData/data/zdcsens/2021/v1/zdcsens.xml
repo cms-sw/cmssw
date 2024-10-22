@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<DDDefinition>
+ <SpecParSection label="zdcsens.xml" eval="true">
+  <SpecPar name="zdc">
+   <PartSelector path="//ZDC_HadFiber"/>
+   <PartSelector path="//ZDC_EMFiber"/>
+   <PartSelector path="//RPDChannel"/>
+   <Parameter name="SensitiveDetector" value="ZdcSensitiveDetector" eval="false"/>
+   <Parameter name="ReadOutName" value="ZDCHITS" eval="false"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>

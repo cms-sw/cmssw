@@ -14,7 +14,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -35,9 +34,7 @@
 //              ---------------------
 
 class DTT0Data {
-
- public:
-
+public:
   DTT0Data();
   ~DTT0Data();
 
@@ -45,19 +42,15 @@ class DTT0Data {
   float t0mean;
   float t0rms;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
 class DTT0 {
-
- public:
-
+public:
   /** Constructor
    */
   DTT0();
-  DTT0( const std::string& version );
+  DTT0(const std::string& version);
 
   /** Destructor
    */
@@ -66,92 +59,77 @@ class DTT0 {
   /** Operations
    */
   /// get content
-  int cellT0( int   wheelId,
-              int stationId,
-              int  sectorId,
-              int      slId,
-              int   layerId,
-              int    cellId,
-              float& t0mean,
-              float& t0rms,
-              DTTimeUnits::type unit ) const
-      { return get( wheelId, stationId, sectorId, slId, layerId, cellId,
-                    t0mean, t0rms, unit ); };
-  int cellT0( const DTWireId& id,
-              float& t0mean,
-              float& t0rms,
-              DTTimeUnits::type unit ) const
-      { return get( id, t0mean, t0rms, unit ); };
-  int get( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int      slId,
-           int   layerId,
-           int    cellId,
-           float& t0mean,
-           float& t0rms,
-           DTTimeUnits::type unit ) const;
-  int get( const DTWireId& id,
-           float& t0mean,
-           float& t0rms,
-           DTTimeUnits::type unit ) const;
+  int cellT0(int wheelId,
+             int stationId,
+             int sectorId,
+             int slId,
+             int layerId,
+             int cellId,
+             float& t0mean,
+             float& t0rms,
+             DTTimeUnits::type unit) const {
+    return get(wheelId, stationId, sectorId, slId, layerId, cellId, t0mean, t0rms, unit);
+  };
+  int cellT0(const DTWireId& id, float& t0mean, float& t0rms, DTTimeUnits::type unit) const {
+    return get(id, t0mean, t0rms, unit);
+  };
+  int get(int wheelId,
+          int stationId,
+          int sectorId,
+          int slId,
+          int layerId,
+          int cellId,
+          float& t0mean,
+          float& t0rms,
+          DTTimeUnits::type unit) const;
+  int get(const DTWireId& id, float& t0mean, float& t0rms, DTTimeUnits::type unit) const;
   float unit() const;
 
   /// access version
-  const
-  std::string& version() const;
+  const std::string& version() const;
   std::string& version();
 
   /// reset content
   void clear();
 
-  int setCellT0( int   wheelId,
-                 int stationId,
-                 int  sectorId,
-                 int      slId,
-                 int   layerId,
-                 int    cellId,
-                 float t0mean,
-                 float t0rms,
-                 DTTimeUnits::type unit )
-      { return set( wheelId, stationId, sectorId, slId, layerId, cellId,
-                    t0mean, t0rms, unit ); };
-  int setCellT0( const DTWireId& id,
-                 float t0mean,
-                 float t0rms,
-                 DTTimeUnits::type unit )
-      { return set( id, t0mean, t0rms, unit ); };
-  int set( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int      slId,
-           int   layerId,
-           int    cellId,
-           float t0mean,
-           float t0rms,
-           DTTimeUnits::type unit );
-  int set( const DTWireId& id,
-           float t0mean,
-           float t0rms,
-           DTTimeUnits::type unit );
-  void setUnit( float unit );
+  int setCellT0(int wheelId,
+                int stationId,
+                int sectorId,
+                int slId,
+                int layerId,
+                int cellId,
+                float t0mean,
+                float t0rms,
+                DTTimeUnits::type unit) {
+    return set(wheelId, stationId, sectorId, slId, layerId, cellId, t0mean, t0rms, unit);
+  };
+  int setCellT0(const DTWireId& id, float t0mean, float t0rms, DTTimeUnits::type unit) {
+    return set(id, t0mean, t0rms, unit);
+  };
+  int set(int wheelId,
+          int stationId,
+          int sectorId,
+          int slId,
+          int layerId,
+          int cellId,
+          float t0mean,
+          float t0rms,
+          DTTimeUnits::type unit);
+  int set(const DTWireId& id, float t0mean, float t0rms, DTTimeUnits::type unit);
+  void setUnit(float unit);
 
   /// Access methods to data
   typedef std::vector<DTT0Data>::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
- private:
-
+private:
   std::string dataVersion;
   float nsPerCount;
 
-  std::vector< DTT0Data > dataList;
+  std::vector<DTT0Data> dataList;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
-#endif // DTT0_H
-
+#endif  // DTT0_H

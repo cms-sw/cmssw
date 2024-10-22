@@ -23,46 +23,43 @@
 ///
 
 class TEcnaRootFile : public TObject {
-
 protected:
-
-  void      Init();
+  void Init();
 
 public:
+  TString fRootFileName;    // Treename of fRootFile
+  TString fRootFileStatus;  // Status of fRootFile
 
-  TString     fRootFileName;            // Treename of fRootFile
-  TString     fRootFileStatus;          // Status of fRootFile
+  TFile *fRootFile;  // Root file for ECNA
 
-  TFile      *fRootFile;                // Root file for ECNA
-
-  Int_t       fCounterBytesCnaResults;  // Counter of bytes in fCnaResultsTree
-  Int_t       fNbEntries;               // Nb of entries in fCnaResultsTree
-  TTree      *fCnaResultsTree;    // Tree containing the individual results
+  Int_t fCounterBytesCnaResults;  // Counter of bytes in fCnaResultsTree
+  Int_t fNbEntries;               // Nb of entries in fCnaResultsTree
+  TTree *fCnaResultsTree;         // Tree containing the individual results
                                   // individual result = equivalent
                                   // of one ASCII file
 
-  TBranch         *fCnaResultsBranch;  // Branch of the individual results
-  TEcnaResultType *fCnaIndivResult;    // One of the individual results
-                                       // in the branch fCnaResultsBranch
+  TBranch *fCnaResultsBranch;        // Branch of the individual results
+  TEcnaResultType *fCnaIndivResult;  // One of the individual results
+                                     // in the branch fCnaResultsBranch
 
   TEcnaRootFile();
-  TEcnaRootFile(TEcnaObject*, const Text_t*, const TString&);
-  TEcnaRootFile(TEcnaObject*, const Text_t*);
+  TEcnaRootFile(TEcnaObject *, const Text_t *, const TString &);
+  TEcnaRootFile(TEcnaObject *, const Text_t *);
 
-  TEcnaRootFile(const Text_t*);
-  TEcnaRootFile(const Text_t*, const TString&);
+  TEcnaRootFile(const Text_t *);
+  TEcnaRootFile(const Text_t *, const TString &);
 
   ~TEcnaRootFile() override;
 
-  void   ReStart(const Text_t*);
-  void   ReStart(const Text_t*, const TString&);
-  void   CloseFile();
-  Bool_t OpenR(const Text_t* = "");
-  Bool_t OpenW(const Text_t* = "");
+  void ReStart(const Text_t *);
+  void ReStart(const Text_t *, const TString &);
+  void CloseFile();
+  Bool_t OpenR(const Text_t * = "");
+  Bool_t OpenW(const Text_t * = "");
   Bool_t ReadElement(Int_t);
-  Bool_t ReadElement(CnaResultTyp,Int_t);
-  Int_t  ReadElementNextEntryNumber(CnaResultTyp,Int_t);
-  ClassDefOverride(TEcnaRootFile,1)  //Root file of CNA
+  Bool_t ReadElement(CnaResultTyp, Int_t);
+  Int_t ReadElementNextEntryNumber(CnaResultTyp, Int_t);
+  ClassDefOverride(TEcnaRootFile, 1)  //Root file of CNA
 };
 
 R__EXTERN TEcnaRootFile *gCnaRootFile;

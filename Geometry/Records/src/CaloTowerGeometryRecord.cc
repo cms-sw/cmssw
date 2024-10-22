@@ -2,7 +2,7 @@
 //
 // Package:     Records
 // Class  :     CaloTowerGeometryRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

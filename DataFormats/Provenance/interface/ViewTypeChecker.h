@@ -15,12 +15,12 @@ namespace edm {
     ViewTypeChecker();
     virtual ~ViewTypeChecker();
 
-    std::type_info const& valueTypeInfo() const {return valueTypeInfo_();}
-    std::type_info const& memberTypeInfo() const {return memberTypeInfo_();}
+    std::type_info const& valueTypeInfo() const { return valueTypeInfo_(); }
+    std::type_info const& memberTypeInfo() const { return memberTypeInfo_(); }
 
-   private:
+  private:
     virtual std::type_info const& valueTypeInfo_() const = 0;
     virtual std::type_info const& memberTypeInfo_() const = 0;
   };
-}
+}  // namespace edm
 #endif

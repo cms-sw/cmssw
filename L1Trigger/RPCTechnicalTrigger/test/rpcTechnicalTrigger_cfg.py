@@ -2,22 +2,23 @@ import FWCore.ParameterSet.Config as cms
 import os
 
 maxevts   = 1000
-globaltag = 'STARTUP31X_V1::All'
-globaltag = 'STARTUP3XY_V9::All'
+globaltag = 'STARTUP31X_V1'
+globaltag = 'STARTUP3XY_V9'
 inputfile = '/store/relval/CMSSW_3_1_1/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V1-v2/0002/FCBE122E-D66B-DE11-9667-001D09F291D2.root'
 
 process   = cms.Process("RPCTechnicalTrigger")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.categories = ['*']
-process.MessageLogger.destinations = ['cout']
+
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
     	threshold = cms.untracked.string('DEBUG'),
 	INFO = cms.untracked.PSet(
         limit = cms.untracked.int32(-1) ) )
 
 #.. Geometry and Global Tags
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string( globaltag )
 process.load("Configuration.StandardSequences.MagneticField_cff")

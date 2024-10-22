@@ -1,0 +1,1 @@
+<test name="TestCTPPSDirectProtonSimulation" command="simu/run_multiple"/>

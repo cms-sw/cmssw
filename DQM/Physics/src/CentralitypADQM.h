@@ -12,25 +12,21 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
-class DQMStore;
 
 class CentralitypADQM : public DQMEDAnalyzer {
-
- public:
+public:
   explicit CentralitypADQM(const edm::ParameterSet& ps);
   ~CentralitypADQM() override;
 
- protected:
+protected:
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
- private:
-  void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
-                              edm::EventSetup const&) override;
+private:
+  void bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm::EventSetup const&) override;
 
   // void bookHistos(DQMStore * bei );
   //  DQMStore* bei_;
@@ -43,13 +39,12 @@ class CentralitypADQM : public DQMEDAnalyzer {
   edm::EDGetTokenT<std::vector<reco::Vertex> > vertexToken;
   edm::Handle<std::vector<reco::Vertex> > vertex_;
 
-  edm::InputTag  eventplaneTag_;
+  edm::InputTag eventplaneTag_;
   edm::EDGetTokenT<reco::EvtPlaneCollection> eventplaneToken;
-  
+
   edm::InputTag centralityBinTag_;
   edm::EDGetTokenT<int> centralityBinToken;
-  edm::Handle<int>centralityBin_;
-
+  edm::Handle<int> centralityBin_;
 
   ///////////////////////////
   // Histograms
@@ -78,30 +73,15 @@ class CentralitypADQM : public DQMEDAnalyzer {
   MonitorElement* h_hiZDC;
   MonitorElement* h_hiZDCplus;
   MonitorElement* h_hiZDCminus;
+  MonitorElement* h_hiPF;
+  MonitorElement* h_hiPFplus;
+  MonitorElement* h_hiPFminus;
 
   MonitorElement* h_vertex_x;
   MonitorElement* h_vertex_y;
   MonitorElement* h_vertex_z;
 
   MonitorElement* h_cent_bin;
-
-  MonitorElement* h_ep_HFm1;
-  MonitorElement* h_ep_HFp1;
-  MonitorElement* h_ep_trackm1;
-  MonitorElement* h_ep_trackp1;
-  MonitorElement* h_ep_castor1;
-
-  MonitorElement* h_ep_HFm2;
-  MonitorElement* h_ep_HFp2;
-  MonitorElement* h_ep_trackmid2;
-  MonitorElement* h_ep_trackm2;
-  MonitorElement* h_ep_trackp2;
-  MonitorElement* h_ep_castor2;
-
-  MonitorElement* h_ep_HFm3;
-  MonitorElement* h_ep_HFp3;
-  MonitorElement* h_ep_trackmid3;
-
 };
 
 #endif

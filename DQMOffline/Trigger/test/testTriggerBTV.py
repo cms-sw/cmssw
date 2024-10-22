@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DQM")
@@ -59,5 +60,5 @@ process.options = cms.untracked.PSet(
     )
 
 outfile = open('config.py','w')
-print >> outfile,process.dumpPython()
+print(process.dumpPython(), file=outfile)
 outfile.close()

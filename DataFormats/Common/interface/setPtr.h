@@ -33,76 +33,56 @@ namespace edm {
   namespace detail {
 
     template <typename COLLECTION>
-    void
-    reallySetPtr(COLLECTION const& coll,
-                 std::type_info const& iToType,
-                 unsigned long iIndex,
-                 void const*& oPtr) {
-      typedef COLLECTION                            product_type;
-      typedef typename GetProduct<product_type>::element_type     element_type;
+    void reallySetPtr(COLLECTION const& coll, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) {
+      typedef COLLECTION product_type;
+      typedef typename GetProduct<product_type>::element_type element_type;
       typedef typename product_type::const_iterator iter;
 
-      if(iToType == typeid(element_type)) {
+      if (iToType == typeid(element_type)) {
         iter it = coll.begin();
-        std::advance(it,iIndex);
+        std::advance(it, iIndex);
         element_type const* address = GetProduct<product_type>::address(it);
         oPtr = address;
       } else {
         iter it = coll.begin();
-        std::advance(it,iIndex);
+        std::advance(it, iIndex);
         element_type const* address = GetProduct<product_type>::address(it);
 
-        oPtr = pointerToBase(iToType,address);
+        oPtr = pointerToBase(iToType, address);
 
-        if(nullptr == oPtr) {
+        if (nullptr == oPtr) {
           Exception::throwThis(errors::LogicError,
-            "TypeConversionError"
-             "edm::Ptr<> : unable to convert type ",
-             typeid(element_type).name(),
-             " to ",
-             iToType.name(),
-             "\n");
+                               "TypeConversionError"
+                               "edm::Ptr<> : unable to convert type ",
+                               typeid(element_type).name(),
+                               " to ",
+                               iToType.name(),
+                               "\n");
         }
       }
     }
-  }
+  }  // namespace detail
 
   template <typename T, typename A>
-  void
-  setPtr(std::vector<T, A> const& obj,
-         std::type_info const& iToType,
-         unsigned long iIndex,
-         void const*& oPtr) {
+  void setPtr(std::vector<T, A> const& obj, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) {
     detail::reallySetPtr(obj, iToType, iIndex, oPtr);
   }
 
   template <typename T, typename A>
-  void
-  setPtr(std::list<T, A> const& obj,
-         std::type_info const& iToType,
-         unsigned long iIndex,
-         void const*& oPtr) {
+  void setPtr(std::list<T, A> const& obj, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) {
     detail::reallySetPtr(obj, iToType, iIndex, oPtr);
   }
 
   template <typename T, typename A>
-  void
-  setPtr(std::deque<T, A> const& obj,
-         std::type_info const& iToType,
-         unsigned long iIndex,
-         void const*& oPtr) {
+  void setPtr(std::deque<T, A> const& obj, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) {
     detail::reallySetPtr(obj, iToType, iIndex, oPtr);
   }
 
   template <typename T, typename A, typename Comp>
-  void
-  setPtr(std::set<T, A, Comp> const& obj,
-         std::type_info const& iToType,
-         unsigned long iIndex,
-         void const*& oPtr) {
+  void setPtr(std::set<T, A, Comp> const& obj, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) {
     detail::reallySetPtr(obj, iToType, iIndex, oPtr);
   }
 
-}
+}  // namespace edm
 
 #endif

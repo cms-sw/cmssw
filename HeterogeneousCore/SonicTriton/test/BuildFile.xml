@@ -1,0 +1,11 @@
+<test name="TestHeterogeneousCoreSonicTritonProducerCPU" command="unittest.sh ${LOCALTOP} CPU"/>
+<test name="TestHeterogeneousCoreSonicTritonProducerGPU" command="unittest.sh ${LOCALTOP} GPU"/>
+<test name="TestHeterogeneousCoreSonicTritonVersionCheck" command="cmsTritonConfigTool versioncheck">
+  <use name="cmsswdata"/>
+</test>
+<library file="*.cc" name="testHeterogenousCoreSonicTriton">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Framework"/>
+  <use name="HeterogeneousCore/SonicTriton"/>
+</library>

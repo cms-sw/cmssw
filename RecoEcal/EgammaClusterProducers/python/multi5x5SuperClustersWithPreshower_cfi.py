@@ -18,6 +18,6 @@ multi5x5SuperClustersWithPreshower = cms.EDProducer("PreshowerPhiClusterProducer
                                                     endcapSClusterProducer = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapSuperClusters")
                                                     )
 
-uncleanedOnlyMulti5x5SuperClustersWithPreshower = multi5x5SuperClustersWithPreshower.clone()
-
-uncleanedOnlyMulti5x5SuperClustersWithPreshower.endcapSClusterProducer = cms.InputTag("multi5x5SuperClusters","uncleanOnlyMulti5x5EndcapSuperClusters")
+uncleanedOnlyMulti5x5SuperClustersWithPreshower = multi5x5SuperClustersWithPreshower.clone(
+    endcapSClusterProducer = "multi5x5SuperClusters:uncleanOnlyMulti5x5EndcapSuperClusters"
+)

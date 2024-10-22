@@ -16,13 +16,8 @@ inOutSeedsFromTrackerMuons = cms.EDProducer("MuonReSeeder",
     TrackerRecHitBuilder = cms.string('WithAngleAndTemplate'),
     Smoother = cms.string('KFSmootherForRefitInsideOut'),
     MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
+    MTDRecHitBuilder = cms.string('MTDRecHitBuilder'),
     RefitDirection = cms.string('alongMomentum'),
     RefitRPCHits = cms.bool(True),
     Propagator = cms.string('SmartPropagatorAnyRKOpposite'),
 )
-
-# This customization will be removed once we get the templates for
-# phase2 pixel
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(inOutSeedsFromTrackerMuons, TrackerRecHitBuilder = 'WithTrackAngle') # FIXME
-

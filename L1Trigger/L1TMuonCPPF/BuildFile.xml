@@ -1,0 +1,17 @@
+<export>
+  <lib name="1"/>
+</export>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/L1TMuon"/>
+<use name="L1Trigger/L1TMuon"/>
+<use name="root"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/RPCDigi"/>
+<use name="DataFormats/RPCRecHit"/>
+<use name="CondFormats/RPCObjects"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/RPCGeometry"/>
+<use name="FWCore/MessageLogger"/>
+<use name="L1Trigger/L1TMuonEndCap"/>

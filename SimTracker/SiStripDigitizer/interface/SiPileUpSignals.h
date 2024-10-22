@@ -11,34 +11,35 @@ class SimHit;
  * Class which takes the responses from each SimHit and piles-up them, within a given module.
  * More precisely, it keeps for each strip the link to each individual measurement.
  */
-class SiPileUpSignals{ 
- public:
+class SiPileUpSignals {
+public:
   // type used to describe the amplitude on a strip
   typedef float Amplitude;
-  // associates to each strip a vector of amplitudes. 
+  // associates to each strip a vector of amplitudes.
   // That allows later to comput the fraction of the contribution of each simhit to the ADC value
-  typedef std::map<int, Amplitude>  SignalMapType;
-  typedef std::map<uint32_t, SignalMapType>  signalMaps;
-  
+  typedef std::map<int, Amplitude> SignalMapType;
+  typedef std::map<uint32_t, SignalMapType> signalMaps;
+
   SiPileUpSignals() { reset(); }
 
-  virtual ~SiPileUpSignals() { }
-  
+  virtual ~SiPileUpSignals() {}
+
   virtual void add(uint32_t detID,
                    const std::vector<float>& locAmpl,
-                   const size_t& firstChannelWithSignal, const size_t& lastChannelWithSignal);
+                   const size_t& firstChannelWithSignal,
+                   const size_t& lastChannelWithSignal);
 
-  void reset(){ resetSignals(); }
-  
+  void reset() { resetSignals(); }
+
   const SignalMapType* getSignal(uint32_t detID) const {
     auto where = signal_.find(detID);
-    if(where == signal_.end()) {
+    if (where == signal_.end()) {
       return nullptr;
     }
     return &where->second;
   }
-  
- private:
+
+private:
   void resetSignals();
   signalMaps signal_;
 };

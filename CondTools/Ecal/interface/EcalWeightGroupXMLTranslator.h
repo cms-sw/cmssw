@@ -15,20 +15,13 @@
 #include <string>
 
 class EcalWeightGroupXMLTranslator {
-
 public:
+  static int readXML(const std::string& filename, EcalCondHeader& header, EcalWeightXtalGroups& record);
 
-  static int readXML  (const std::string& filename, 
-		       EcalCondHeader& header,
-		       EcalWeightXtalGroups& record);
+  static int writeXML(const std::string& filename, const EcalCondHeader& header, const EcalWeightXtalGroups& record);
 
-  static int writeXML (const std::string& filename,
-		       const EcalCondHeader& header,
-		       const EcalWeightXtalGroups& record);
 private:
-  
-  static std::string dumpXML (const EcalCondHeader& header,
-			      const EcalWeightXtalGroups& record);
+  static std::string dumpXML(const EcalCondHeader& header, const EcalWeightXtalGroups& record);
 };
 
-#endif // __EcalWeightGroupXMLTranslator_h_
+#endif  // __EcalWeightGroupXMLTranslator_h_

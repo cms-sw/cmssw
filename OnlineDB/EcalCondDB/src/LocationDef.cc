@@ -1,81 +1,60 @@
 #include <string>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
-
 #include "OnlineDB/EcalCondDB/interface/LocationDef.h"
 
 using namespace std;
 using namespace oracle::occi;
 
-LocationDef::LocationDef()
-{
+LocationDef::LocationDef() {
   m_env = nullptr;
   m_conn = nullptr;
   m_ID = 0;
   m_loc = "";
 }
 
+LocationDef::~LocationDef() {}
 
+string LocationDef::getLocation() const { return m_loc; }
 
-LocationDef::~LocationDef()
-{
-}
-
-
-
-string LocationDef::getLocation() const
-{
-  return m_loc;
-}
-
-
-
-void LocationDef::setLocation(string loc)
-{
+void LocationDef::setLocation(string loc) {
   if (loc != m_loc) {
     m_ID = 0;
     m_loc = loc;
   }
 }
 
-
-  
-int LocationDef::fetchID()
-  noexcept(false)
-{
+int LocationDef::fetchID() noexcept(false) {
   // Return def from memory if available
   if (m_ID) {
     return m_ID;
   }
 
   this->checkConnection();
-  
+
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT def_id FROM location_def WHERE "
-		 "location = :location");
+    stmt->setSQL(
+        "SELECT def_id FROM location_def WHERE "
+        "location = :location");
     stmt->setString(1, m_loc);
 
     ResultSet* rset = stmt->executeQuery();
-    
+
     if (rset->next()) {
       m_ID = rset->getInt(1);
     } else {
       m_ID = 0;
     }
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(std::runtime_error("LocationDef::fetchID:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("LocationDef::fetchID:  " + e.getMessage()));
   }
 
   return m_ID;
 }
 
-
-
-void LocationDef::setByID(int id) 
-  noexcept(false)
-{
+void LocationDef::setByID(int id) noexcept(false) {
   this->checkConnection();
 
   try {
@@ -91,32 +70,28 @@ void LocationDef::setByID(int id)
     } else {
       throw(std::runtime_error("LocationDef::setByID:  Given def_id is not in the database"));
     }
-    
+
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-   throw(std::runtime_error("LocationDef::setByID:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("LocationDef::setByID:  " + e.getMessage()));
   }
 }
 
-
-
-void LocationDef::fetchAllDefs( std::vector<LocationDef>* fillVec) 
-  noexcept(false)
-{
+void LocationDef::fetchAllDefs(std::vector<LocationDef>* fillVec) noexcept(false) {
   this->checkConnection();
   try {
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT def_id FROM location_def ORDER BY def_id");
     ResultSet* rset = stmt->executeQuery();
-    
+
     LocationDef locationDef;
     locationDef.setConnection(m_env, m_conn);
 
-    while(rset->next()) {
-      locationDef.setByID( rset->getInt(1) );
-      fillVec->push_back( locationDef );
+    while (rset->next()) {
+      locationDef.setByID(rset->getInt(1));
+      fillVec->push_back(locationDef);
     }
-  } catch (SQLException &e) {
-    throw(std::runtime_error("LocationDef::fetchAllDefs:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("LocationDef::fetchAllDefs:  " + e.getMessage()));
   }
 }

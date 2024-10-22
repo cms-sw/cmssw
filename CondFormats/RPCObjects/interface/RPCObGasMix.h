@@ -13,21 +13,20 @@
 #include <vector>
 
 class RPCObGasMix {
-    public:
-      struct Item {
-        int unixtime;
-        float gas1; // IC4H10
-        float gas2; // C2H2F4
-        float gas3; // SF6
-      
-      COND_SERIALIZABLE;
-};
-    RPCObGasMix(){}
-    virtual ~RPCObGasMix(){}
-    std::vector<Item>  ObGasMix_rpc;
-   
-   COND_SERIALIZABLE;
+public:
+  struct Item {
+    int unixtime;
+    float gas1;  // IC4H10
+    float gas2;  // C2H2F4
+    float gas3;  // SF6
+
+    COND_SERIALIZABLE;
+  };
+  RPCObGasMix() {}
+  virtual ~RPCObGasMix() {}
+  std::vector<Item> ObGasMix_rpc;
+
+  COND_SERIALIZABLE;
 };
 
 #endif
-

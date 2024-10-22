@@ -74,7 +74,7 @@ ApeEstimatorTemplate = cms.EDAnalyzer('ApeEstimator',
     minGoodHitsPerTrack = cms.uint32(0),
     
     #File containing TrackerTree with ideal Geometry
-    TrackerTreeFile = cms.string(os.environ['CMSSW_BASE'] + '/src/Alignment/TrackerAlignment/hists/TrackerTree.root'),
+    TrackerTreeFile = cms.string(os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/TrackerTree.root'),
     
     #Sectors defining set of modules for common overview plots resp. APE values
     Sectors = cms.VPSet(),

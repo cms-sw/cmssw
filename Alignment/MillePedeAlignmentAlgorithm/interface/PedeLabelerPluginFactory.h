@@ -15,7 +15,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
 
-typedef edmplugin::PluginFactory<PedeLabelerBase* (const PedeLabelerBase::TopLevelAlignables&,
-						   const edm::ParameterSet&)> PedeLabelerPluginFactory;
+typedef edmplugin::PluginFactory<PedeLabelerBase*(const PedeLabelerBase::TopLevelAlignables&, const edm::ParameterSet&)>
+    PedeLabelerPluginFactory;
 
 #endif

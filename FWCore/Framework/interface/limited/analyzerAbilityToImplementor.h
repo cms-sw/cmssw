@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // File  :     analyzerAbilityToImplementor
-// 
+//
 /**\file  analyzerAbilityToImplementor.h "FWCore/Framework/interface/limited/analyzerAbilityToImplementor.h"
 
  Description: Class used to pair a module Ability to the actual base class used to implement that ability
@@ -29,34 +29,45 @@
 namespace edm {
   namespace limited {
     namespace analyzer {
-      template<typename T> struct AbilityToImplementor;
-      
-      template<typename C>
+      template <typename T>
+      struct AbilityToImplementor;
+
+      template <typename C>
       struct AbilityToImplementor<edm::StreamCache<C>> {
-        typedef edm::limited::impl::StreamCacheHolder<edm::limited::EDAnalyzerBase,C> Type;
+        using Type = edm::limited::impl::StreamCacheHolder<edm::limited::EDAnalyzerBase, C>;
       };
 
-      template<typename C>
+      template <typename... Cs>
+      struct AbilityToImplementor<edm::InputProcessBlockCache<Cs...>> {
+        using Type = edm::limited::impl::InputProcessBlockCacheHolder<edm::limited::EDAnalyzerBase, Cs...>;
+      };
+
+      template <typename C>
       struct AbilityToImplementor<edm::RunCache<C>> {
-        typedef edm::limited::impl::RunCacheHolder<edm::limited::EDAnalyzerBase,C> Type;
+        using Type = edm::limited::impl::RunCacheHolder<edm::limited::EDAnalyzerBase, C>;
       };
-      
-      template<typename C>
+
+      template <typename C>
       struct AbilityToImplementor<edm::RunSummaryCache<C>> {
-        typedef edm::limited::impl::RunSummaryCacheHolder<edm::limited::EDAnalyzerBase,C> Type;
+        using Type = edm::limited::impl::RunSummaryCacheHolder<edm::limited::EDAnalyzerBase, C>;
       };
-      
-      template<typename C>
+
+      template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
-        typedef edm::limited::impl::LuminosityBlockCacheHolder<edm::limited::EDAnalyzerBase,C> Type;
+        using Type = edm::limited::impl::LuminosityBlockCacheHolder<edm::limited::EDAnalyzerBase, C>;
       };
-      
-      template<typename C>
+
+      template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockSummaryCache<C>> {
-        typedef edm::limited::impl::LuminosityBlockSummaryCacheHolder<edm::limited::EDAnalyzerBase,C> Type;
+        using Type = edm::limited::impl::LuminosityBlockSummaryCacheHolder<edm::limited::EDAnalyzerBase, C>;
       };
-    }
-  }
-}
+
+      template <>
+      struct AbilityToImplementor<edm::WatchProcessBlock> {
+        using Type = edm::limited::impl::WatchProcessBlock<edm::limited::EDAnalyzerBase>;
+      };
+    }  // namespace analyzer
+  }  // namespace limited
+}  // namespace edm
 
 #endif

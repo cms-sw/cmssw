@@ -9,7 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class MODDCCDetailsDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   MODDCCDetailsDat();
   ~MODDCCDetailsDat() override;
@@ -53,20 +53,14 @@ class MODDCCDetailsDat : public IDataItem {
   inline void setForcedFullSupp(int x) { m_fusu = x; }
   inline int getForcedFullSupp() const { return m_fusu; }
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const MODDCCDetailsDat* item, MODRunIOV* iov )
-    noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const MODDCCDetailsDat* item, MODRunIOV* iov) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, MODDCCDetailsDat >* data, MODRunIOV* iov)
-  noexcept(false);
+  void writeArrayDB(const std::map<EcalLogicID, MODDCCDetailsDat>* data, MODRunIOV* iov) noexcept(false);
 
-
-
-  void fetchData(std::map< EcalLogicID, MODDCCDetailsDat >* fillMap, MODRunIOV* iov)
-     noexcept(false);
+  void fetchData(std::map<EcalLogicID, MODDCCDetailsDat>* fillMap, MODRunIOV* iov) noexcept(false);
 
   // User data
   int m_qpll;
@@ -81,7 +75,6 @@ class MODDCCDetailsDat : public IDataItem {
   int m_alff;
   int m_fuff;
   int m_fusu;
-
 };
 
 #endif

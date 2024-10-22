@@ -10,10 +10,15 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <vector>
 
@@ -21,30 +26,35 @@ class MuonDetLayerGeometry;
 
 struct TrajectoryStateTransform;
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
-class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
- public:
-
+class CosmicMuonSeedGenerator : public edm::stream::EDProducer<> {
+public:
   /// Constructor
   CosmicMuonSeedGenerator(const edm::ParameterSet&);
-  
+
   /// Destructor
   ~CosmicMuonSeedGenerator() override;
-  
+
   // Operations
 
   /// reconstruct muon's seeds
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   struct MuonRecHitPair {
-     MuonRecHitPair(const MuonTransientTrackingRecHit::MuonRecHitPointer& a, const MuonTransientTrackingRecHit::MuonRecHitPointer& b, std::string c = "") :  first(a), second (b), type(c) {}
+    MuonRecHitPair(const MuonTransientTrackingRecHit::MuonRecHitPointer& a,
+                   const MuonTransientTrackingRecHit::MuonRecHitPointer& b,
+                   std::string c = "")
+        : first(a), second(b), type(c) {}
 
-     MuonTransientTrackingRecHit::MuonRecHitPointer first;
-     MuonTransientTrackingRecHit::MuonRecHitPointer second;
-     std::string type;
+    MuonTransientTrackingRecHit::MuonRecHitPointer first;
+    MuonTransientTrackingRecHit::MuonRecHitPointer second;
+    std::string type;
   };
 
   typedef std::vector<MuonRecHitPair> MuonRecHitPairVector;
@@ -54,7 +64,6 @@ class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
                    const MuonTransientTrackingRecHit::MuonRecHitContainer& hits,
                    const edm::EventSetup& eSetup) const;
 
-
   void createSeeds(TrajectorySeedCollection& results,
                    const CosmicMuonSeedGenerator::MuonRecHitPairVector& hits,
                    const edm::EventSetup& eSetup) const;
@@ -63,18 +72,19 @@ class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
   bool checkQuality(const MuonTransientTrackingRecHit::MuonRecHitPointer&) const;
 
   /// select seed candidates from Segments in Event
-  MuonTransientTrackingRecHit::MuonRecHitContainer selectSegments(const MuonTransientTrackingRecHit::MuonRecHitContainer&) const;
+  MuonTransientTrackingRecHit::MuonRecHitContainer selectSegments(
+      const MuonTransientTrackingRecHit::MuonRecHitContainer&) const;
 
-  /// create TrajectorySeed from MuonTransientTrackingRecHit 
+  /// create TrajectorySeed from MuonTransientTrackingRecHit
   std::vector<TrajectorySeed> createSeed(const MuonTransientTrackingRecHit::MuonRecHitPointer&,
                                          const edm::EventSetup&) const;
 
-
-  std::vector<MuonRecHitPair> makeSegPairs(const MuonTransientTrackingRecHit::MuonRecHitContainer&, const MuonTransientTrackingRecHit::MuonRecHitContainer&, std::string) const;
+  std::vector<MuonRecHitPair> makeSegPairs(const MuonTransientTrackingRecHit::MuonRecHitContainer&,
+                                           const MuonTransientTrackingRecHit::MuonRecHitContainer&,
+                                           std::string) const;
 
   /// create TrajectorySeed from MuonRecHitPair
-  std::vector<TrajectorySeed> createSeed(const MuonRecHitPair&,
-                                         const edm::EventSetup&) const;
+  std::vector<TrajectorySeed> createSeed(const MuonRecHitPair&, const edm::EventSetup&) const;
 
   TrajectorySeed tsosToSeed(const TrajectoryStateOnSurface&, uint32_t) const;
   TrajectorySeed tsosToSeed(const TrajectoryStateOnSurface&, uint32_t, edm::OwnVector<TrackingRecHit>&) const;
@@ -87,14 +97,14 @@ class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
   bool leftIsBetter(const MuonTransientTrackingRecHit::MuonRecHitPointer&,
                     const MuonTransientTrackingRecHit::MuonRecHitPointer&) const;
 
-  struct DecreasingGlobalY{
-    bool operator()(const MuonTransientTrackingRecHit::ConstMuonRecHitPointer &lhs,
-		    const MuonTransientTrackingRecHit::ConstMuonRecHitPointer &rhs) const{ 
-      return lhs->globalPosition().y() > rhs->globalPosition().y(); 
+  struct DecreasingGlobalY {
+    bool operator()(const MuonTransientTrackingRecHit::ConstMuonRecHitPointer& lhs,
+                    const MuonTransientTrackingRecHit::ConstMuonRecHitPointer& rhs) const {
+      return lhs->globalPosition().y() > rhs->globalPosition().y();
     }
   };
 
- private: 
+private:
   /// enable DT Segment Flag
   bool theEnableDTFlag;
 
@@ -109,18 +119,18 @@ class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
 
   /// the maximum number of Seeds
   unsigned int theMaxSeeds;
-  
+
   /// the maximum chi2 required for dt and csc rechits
   double theMaxDTChi2;
   double theMaxCSCChi2;
   bool theForcePointDownFlag;
   edm::ESHandle<MuonDetLayerGeometry> theMuonLayers;
   edm::ESHandle<MagneticField> theField;
+  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonLayersToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken;
 
   std::map<std::string, float> theParameters;
 
   MuonDetLayerMeasurements* muonMeasurements;
-
 };
 #endif
-

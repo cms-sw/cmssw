@@ -5,8 +5,7 @@
 #include "Validation/Geometry/interface/MaterialBudgetForward.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-DEFINE_SIMWATCHER (MaterialBudget);
-DEFINE_SIMWATCHER (MaterialBudgetAction);
-DEFINE_SIMWATCHER (MaterialBudgetHcal);
-DEFINE_SIMWATCHER (MaterialBudgetForward);
-
+DEFINE_SIMWATCHER(MaterialBudget);
+DEFINE_SIMWATCHER(MaterialBudgetAction);
+DEFINE_SIMWATCHER(MaterialBudgetHcal);
+DEFINE_SIMWATCHER(MaterialBudgetForward);

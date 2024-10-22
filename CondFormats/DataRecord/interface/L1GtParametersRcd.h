@@ -18,7 +18,7 @@
  */
 
 // system include files
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 // user include files
 //#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
@@ -35,6 +35,8 @@
 //     // empty
 
 // };
-class L1GtParametersRcd : public edm::eventsetup::DependentRecordImplementation<L1GtParametersRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+class L1GtParametersRcd
+    : public edm::eventsetup::DependentRecordImplementation<L1GtParametersRcd,
+                                                            edm::mpl::Vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {};
 
 #endif

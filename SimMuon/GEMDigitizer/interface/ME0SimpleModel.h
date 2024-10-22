@@ -1,7 +1,6 @@
 #ifndef SimMuon_GEMDigitizer_ME0SimpleModel_h
 #define SimMuon_GEMDigitizer_ME0SimpleModel_h
 
-
 /** 
  * \class ME0SimpleModel
  *
@@ -16,15 +15,12 @@
 
 class ME0Geometry;
 
-namespace CLHEP
-{
+namespace CLHEP {
   class HepRandomEngine;
 }
 
-class ME0SimpleModel: public ME0DigiModel
-{
+class ME0SimpleModel : public ME0DigiModel {
 public:
-
   ME0SimpleModel(const edm::ParameterSet&);
 
   ~ME0SimpleModel() override;
@@ -37,12 +33,12 @@ public:
 
   void simulateNoise(const ME0EtaPartition*, CLHEP::HepRandomEngine*) override;
 
-  std::vector<std::pair<int,int> > 
-    simulateClustering(const ME0EtaPartition*, const PSimHit*, const int, CLHEP::HepRandomEngine*) override;
+  std::vector<std::pair<int, int> > simulateClustering(const ME0EtaPartition*,
+                                                       const PSimHit*,
+                                                       const int,
+                                                       CLHEP::HepRandomEngine*) override;
 
 private:
-
-
   double averageEfficiency_;
   double averageShapingTime_;
   double timeResolution_;
@@ -61,17 +57,15 @@ private:
   double instLumi_;
   double rateFact_;
   double referenceInstLumi_;
-  //params for charged background model for ME0 
+  //params for charged background model for ME0
   double ME0ElecBkgParam0_;
   double ME0ElecBkgParam1_;
   double ME0ElecBkgParam2_;
   double ME0ElecBkgParam3_;
-  //params for neutral background model for ME0 
+  //params for neutral background model for ME0
   double ME0NeuBkgParam0_;
   double ME0NeuBkgParam1_;
   double ME0NeuBkgParam2_;
   double ME0NeuBkgParam3_;
 };
 #endif
-
-

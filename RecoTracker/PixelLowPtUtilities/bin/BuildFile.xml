@@ -1,0 +1,11 @@
+<use name="RecoTracker/PixelLowPtUtilities"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimTracker/TrackerHitAssociation"/>
+<library file="*.cc" name="RecoPixelVertexingPixelLowPtUtilitiesTools">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<bin file="ClusterShapeAnalyzer.cpp" name="clusterShapeAnalyzer">
+  <use name="root"/>
+  <use name="boost_program_options"/>
+</bin>

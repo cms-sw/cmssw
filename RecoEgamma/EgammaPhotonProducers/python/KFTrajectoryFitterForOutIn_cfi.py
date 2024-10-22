@@ -4,9 +4,9 @@ from RecoEgamma.EgammaPhotonProducers.propAlongMomentumWithMaterialForElectrons_
 from RecoEgamma.EgammaPhotonProducers.chi2EstimatorForOutInFit_cfi import *
 import TrackingTools.TrackFitters.KFTrajectoryFitter_cfi
 #KFTrajectoryFitterESProducer
-KFTrajectoryFitterForOutIn = TrackingTools.TrackFitters.KFTrajectoryFitter_cfi.KFTrajectoryFitter.clone()
-KFTrajectoryFitterForOutIn.ComponentName = 'KFFitterForOutIn'
-KFTrajectoryFitterForOutIn.Propagator = 'alongMomElePropagator'
-KFTrajectoryFitterForOutIn.Estimator = 'Chi2ForOutIn'
-KFTrajectoryFitterForOutIn.minHits = 3
-
+KFTrajectoryFitterForOutIn = TrackingTools.TrackFitters.KFTrajectoryFitter_cfi.KFTrajectoryFitter.clone(
+    ComponentName = 'KFFitterForOutIn',
+    Propagator    = 'alongMomElePropagator',
+    Estimator     = 'Chi2ForOutIn',
+    minHits       = 3
+)

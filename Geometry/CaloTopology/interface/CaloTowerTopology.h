@@ -13,9 +13,9 @@
 class CaloTowerTopology final : public CaloSubdetectorTopology {
 public:
   /// standard constructor
-  CaloTowerTopology(const HcalTopology * topology);
+  CaloTowerTopology(const HcalTopology* topology);
   /// virtual destructor
-  ~CaloTowerTopology() override { }
+  ~CaloTowerTopology() override {}
   /// is this detid present in the Topology?
   bool valid(const DetId& id) const override;
   virtual bool validDetId(const CaloTowerDetId& id) const;
@@ -33,18 +33,18 @@ public:
   std::vector<DetId> down(const DetId& id) const override;
 
   //mimic accessors from HcalTopology, but with continuous ieta
-  int firstHBRing() const {return firstHBRing_;}
-  int lastHBRing()  const {return lastHBRing_;}
-  int firstHERing() const {return firstHERing_;}
-  int lastHERing()  const {return lastHERing_;}
-  int firstHFRing() const {return firstHFRing_;}
-  int lastHFRing()  const {return lastHFRing_;}
-  int firstHORing() const {return firstHORing_;}
-  int lastHORing()  const {return lastHORing_;}
-  int firstHEDoublePhiRing()   const {return firstHEDoublePhiRing_;} 
-  int firstHEQuadPhiRing()     const {return firstHEQuadPhiRing_;} 
-  int firstHFQuadPhiRing()     const {return firstHFQuadPhiRing_;}
-  
+  int firstHBRing() const { return firstHBRing_; }
+  int lastHBRing() const { return lastHBRing_; }
+  int firstHERing() const { return firstHERing_; }
+  int lastHERing() const { return lastHERing_; }
+  int firstHFRing() const { return firstHFRing_; }
+  int lastHFRing() const { return lastHFRing_; }
+  int firstHORing() const { return firstHORing_; }
+  int lastHORing() const { return lastHORing_; }
+  int firstHEDoublePhiRing() const { return firstHEDoublePhiRing_; }
+  int firstHEQuadPhiRing() const { return firstHEQuadPhiRing_; }
+  int firstHFQuadPhiRing() const { return firstHFQuadPhiRing_; }
+
   //conversion between CaloTowerTopology ieta and HcalTopology ieta
   int convertCTtoHcal(int ct_ieta) const;
   int convertHcaltoCT(int hcal_ieta, HcalSubdetector subdet) const;
@@ -52,12 +52,12 @@ public:
   //dense index functions moved from CaloTowerDetId
   uint32_t denseIndex(const DetId& id) const;
   CaloTowerDetId detIdFromDenseIndex(uint32_t din) const;
-  bool validDenseIndex(uint32_t din) const { return ( din < kSizeForDenseIndexing ); }
+  bool validDenseIndex(uint32_t din) const { return (din < kSizeForDenseIndexing); }
   uint32_t sizeForDenseIndexing() const { return kSizeForDenseIndexing; }
-  
+
 private:
   //member variables
-  const HcalTopology * hcaltopo;
+  const HcalTopology* hcaltopo;
   int firstHBRing_, lastHBRing_;
   int firstHERing_, lastHERing_;
   int firstHFRing_, lastHFRing_;
@@ -65,6 +65,5 @@ private:
   int firstHEDoublePhiRing_, firstHEQuadPhiRing_, firstHFQuadPhiRing_;
   int nSinglePhi_, nDoublePhi_, nQuadPhi_, nEtaHE_;
   uint32_t kSizeForDenseIndexing;
-
 };
 #endif

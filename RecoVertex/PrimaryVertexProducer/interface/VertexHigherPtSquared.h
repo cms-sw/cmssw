@@ -11,18 +11,13 @@
  * in decreasing order of the sum of the squared track pT's
  */
 struct VertexHigherPtSquared {
+  bool operator()(const TransientVertex& v1, const TransientVertex& v2) const;
 
-  bool operator() ( const TransientVertex & v1, 
-		    const TransientVertex & v2) const;
-
-  bool operator() ( const reco::Vertex & v1, const reco::Vertex & v2) const;
-
+  bool operator()(const reco::Vertex& v1, const reco::Vertex& v2) const;
 
 public:
-
-  double sumPtSquared(const reco::Vertex & v) const;
-  double sumPtSquared(const std::vector<reco::TransientTrack> & tks) const ;
-
+  double sumPtSquared(const reco::Vertex& v) const;
+  double sumPtSquared(const std::vector<reco::TransientTrack>& tks) const;
 };
 
 #endif

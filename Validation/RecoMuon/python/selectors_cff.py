@@ -1,6 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
-# TrackingParticle (MC truth) selectors
+# TrackingParticle skims used in muon validation
+
+import SimMuon.MCTruth.trackingParticleMuon_cfi
+TPrefs = SimMuon.MCTruth.trackingParticleMuon_cfi.trackingParticleMuon.clone()
+
+TPmu = TPrefs.clone()
+TPmu_seq = cms.Sequence( TPmu )
+
+TPpfmu = TPrefs.clone(
+    skim = 'pf'
+)
+TPpfmu_seq = cms.Sequence( TPpfmu )
+
+TPtrack = TPrefs.clone(
+    skim = 'track',
+    ptmin = 2.
+)
+TPtrack_seq = cms.Sequence( TPtrack )
+
+# TrackingParticle selectors for signal efficiencies
+
 muonTPSet = cms.PSet(
     src = cms.InputTag("mix", "MergedTrackTruth"),
     pdgId = cms.vint32(13, -13),
@@ -63,6 +83,12 @@ cosmicMuonTPSet = cms.PSet(
     stableOnly = cms.bool(True), # accept only TP from the Generator (linked to GenParticles)
     chargedOnly = cms.bool(True)
 )
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(muonTPSet, src = "mixData:MergedTrackTruth")
+premix_stage2.toModify(cosmicMuonTPSet, src = "mixData:MergedTrackTruth")
+premix_stage2.toModify(displacedMuonTPSet, src = "mixData:MergedTrackTruth")
+premix_stage2.toModify(me0MuonTPSet, src = "mixData:MergedTrackTruth")
 
 #muonTP = cms.EDFilter("TrackingParticleSelector",
 #    muonTPSet

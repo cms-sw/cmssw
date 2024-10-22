@@ -1,0 +1,6 @@
+<environment>
+  <bin file="testHIPAnalyzers.cc" name="testHIPAnalyzers">
+    <use name="FWCore/TestProcessor"/>
+    <use name="catch2"/>
+  </bin>
+</environment>  

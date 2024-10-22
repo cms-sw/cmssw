@@ -1,41 +1,31 @@
 #ifndef SiStripMonitorSummary_SiStripBackPlaneCorrectionDQM_h
 #define SiStripMonitorSummary_SiStripBackPlaneCorrectionDQM_h
 
-
 #include "DQM/SiStripMonitorSummary/interface/SiStripBaseCondObjDQM.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
 
-
-class SiStripBackPlaneCorrectionDQM : public SiStripBaseCondObjDQM{
- 
-  public:
-  
-  SiStripBackPlaneCorrectionDQM(const edm::EventSetup & eSetup,
+class SiStripBackPlaneCorrectionDQM
+    : public SiStripBaseCondObjDQMGet<SiStripBackPlaneCorrection, SiStripBackPlaneCorrectionRcd> {
+public:
+  SiStripBackPlaneCorrectionDQM(edm::ESGetToken<SiStripBackPlaneCorrection, SiStripBackPlaneCorrectionRcd> token,
                                 edm::RunNumber_t iRun,
-                                edm::ParameterSet const& hPSet,
-                                edm::ParameterSet const& fPSet);
-  
-  ~SiStripBackPlaneCorrectionDQM() override;
-  
-  void getActiveDetIds(const edm::EventSetup & eSetup) override;
-  
-  void fillModMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es) override{};
-  void fillMEsForDet(const ModMEs& selModME_,uint32_t selDetId_, const TrackerTopology* tTopo) override{};
-  
-  void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es) override;
-  void fillMEsForLayer( /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology* tTopo) override;
-  
-  unsigned long long getCache(const edm::EventSetup & eSetup) override{ return eSetup.get<SiStripBackPlaneCorrectionRcd>().cacheIdentifier();}
-  
-  void getConditionObject(const edm::EventSetup & eSetup) override{
-    eSetup.get<SiStripBackPlaneCorrectionRcd>().get(bpcorrectionHandle_);
-    cacheID_memory = cacheID_current;
-  }
+                                edm::ParameterSet const &hPSet,
+                                edm::ParameterSet const &fPSet,
+                                const TrackerTopology *tTopo,
+                                const TkDetMap *tkDetMap);
 
-  private:
-    edm::ESHandle<SiStripBackPlaneCorrection> bpcorrectionHandle_;
+  ~SiStripBackPlaneCorrectionDQM() override;
+
+  void getActiveDetIds(const edm::EventSetup &eSetup) override;
+
+  void fillModMEs(const std::vector<uint32_t> &selectedDetIds) override {}
+  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_) override {}
+
+  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds) override;
+  void fillMEsForLayer(
+      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_) override;
 };
 
 #endif

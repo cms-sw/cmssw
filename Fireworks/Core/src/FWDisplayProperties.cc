@@ -17,13 +17,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 
 // A static default property.
-const FWDisplayProperties FWDisplayProperties::defaultProperties
-(FWColorManager::getDefaultStartColorIndex(), true, 0);
+const FWDisplayProperties FWDisplayProperties::defaultProperties(FWColorManager::getDefaultStartColorIndex(), true, 0);
 
-FWDisplayProperties::FWDisplayProperties(Color_t iColor,
-                                         bool    isVisible,
-                                         Char_t  transparency) 
-   : m_color(iColor),
-     m_isVisible(isVisible),
-     m_transparency(transparency)
-{}
+FWDisplayProperties::FWDisplayProperties(Color_t iColor, bool isVisible, Char_t transparency)
+    : m_color(iColor), m_isVisible(isVisible), m_transparency(transparency) {}

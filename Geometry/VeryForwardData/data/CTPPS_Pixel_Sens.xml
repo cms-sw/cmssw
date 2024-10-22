@@ -3,6 +3,7 @@
 	<SpecParSection label="CTPPS_Pixel_Sens.xml">
 		<SpecPar name="ROUHitsCTPPSPixel">
 			<PartSelector path="//.*:RPixWafer"/>
+			<PartSelector path="//.*:RPixWafer2x2"/>
 			<Parameter name="SensitiveDetector" value="CTPPSSensitiveDetector" eval="false"/>
 			<Parameter name="ReadOutName" value="CTPPSPixelHits" eval="false"/>
 		</SpecPar>
@@ -17,6 +18,7 @@
 		</SpecPar>
 		<SpecPar name="CTPPSPixelSensitivePart">
 			<PartSelector path="//.*:RPixWafer"/>
+			<PartSelector path="//.*:RPixWafer2x2"/>
 			<Parameter name="CMSCutsRegion" value="CTPPSPixelSensitiveRegion" eval="false"/>
 			<Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
 			<Parameter name="ProdCutsForPositrons" value="0.01*mm"/>

@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Common
 // Class  :     TriggerResultsByName
-// 
+//
 /**\class TriggerResultsByName TriggerResultsByName.h FWCore/Common/interface/TriggerResultsByName.h
 
  Description: Class which provides methods to access trigger results
@@ -46,11 +46,8 @@ namespace edm {
   class HLTPathStatus;
 
   class TriggerResultsByName {
-
   public:
-
-    TriggerResultsByName(TriggerResults const* triggerResults,
-                         TriggerNames const* triggerNames);
+    TriggerResultsByName(TriggerResults const* triggerResults, TriggerNames const* triggerNames);
 
     bool isValid() const;
 
@@ -63,7 +60,7 @@ namespace edm {
     bool accept() const;
 
     // Has any path encountered an error (exception)
-    bool  error() const;
+    bool error() const;
 
     HLTPathStatus const& at(std::string const& pathName) const;
     HLTPathStatus const& at(unsigned i) const;
@@ -104,7 +101,6 @@ namespace edm {
     std::vector<std::string>::size_type size() const;
 
   private:
-
     unsigned getAndCheckIndex(std::string const& pathName) const;
 
     void throwTriggerResultsMissing() const;
@@ -113,5 +109,5 @@ namespace edm {
     TriggerResults const* triggerResults_;
     TriggerNames const* triggerNames_;
   };
-}
+}  // namespace edm
 #endif

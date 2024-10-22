@@ -7,12 +7,8 @@
 /// \author: D. Puigh OSU
 ///
 
-
-// system include files
-#include <boost/shared_ptr.hpp>
-
-// user include files
-
+// System include files
+// User include files
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -22,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
@@ -31,157 +28,226 @@
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
-//#include <vector>
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
+#include "DataFormats/TCDS/interface/TCDSRecord.h"
+
+#include <vector>
 
 using namespace std;
 using namespace edm;
 using namespace l1t;
 
-  //
-  // class declaration
-  //
+//
+// Class declaration
+//
 
-  class L1TExtCondProducer : public stream::EDProducer<> {
-  public:
-    explicit L1TExtCondProducer(const ParameterSet&);
-    ~L1TExtCondProducer() override;
+class L1TExtCondProducer : public stream::EDProducer<> {
+public:
+  explicit L1TExtCondProducer(const ParameterSet&);
+  ~L1TExtCondProducer() override;
 
-    static void fillDescriptions(ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-  private:
-    void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-    // ----------member data ---------------------------
-    // unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
-    //boost::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
-    //boost::shared_ptr<const FirmwareVersion> m_fwv;
-    //boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
+  // ---------- Member data ---------------------------
+  // unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
+  //std::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
+  //std::shared_ptr<const FirmwareVersion> m_fwv;
+  //std::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
 
-    // BX parameters
-    int bxFirst_;
-    int bxLast_;
+  // BX parameters
+  int bxFirst_;
+  int bxLast_;
 
-    bool setBptxAND_;
-    bool setBptxPlus_;
-    bool setBptxMinus_;
-    bool setBptxOR_;
+  bool setBptxAND_;
+  bool setBptxPlus_;
+  bool setBptxMinus_;
+  bool setBptxOR_;
 
-    unsigned long long m_l1GtMenuCacheID;
-    std::map<std::string, unsigned int> m_extBitMap;
-  };
+  unsigned long long m_l1GtMenuCacheID;
+  std::map<std::string, unsigned int> m_extBitMap;
 
-  //
-  // constructors and destructor
-  //
-  L1TExtCondProducer::L1TExtCondProducer(const ParameterSet& iConfig) :
-    bxFirst_ (iConfig.getParameter<int>("bxFirst")),
-    bxLast_ (iConfig.getParameter<int>("bxLast")),
-    setBptxAND_ (iConfig.getParameter<bool>("setBptxAND")),
-    setBptxPlus_ (iConfig.getParameter<bool>("setBptxPlus")),
-    setBptxMinus_ (iConfig.getParameter<bool>("setBptxMinus")),
-    setBptxOR_ (iConfig.getParameter<bool>("setBptxOR"))
-  {
-    // register what you produce
-    produces<GlobalExtBlkBxCollection>();
+  unsigned int m_triggerRulePrefireVetoBit;
 
-    // Initialize parameters
-    m_l1GtMenuCacheID = 0ULL;
+  bool makeTriggerRulePrefireVetoBit_;
+  edm::EDGetTokenT<TCDSRecord> tcdsRecordToken_;
+  edm::InputTag tcdsInputTag_;
+  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1GtMenuToken_;
+};
+
+//
+// Constructors and destructor
+//
+L1TExtCondProducer::L1TExtCondProducer(const ParameterSet& iConfig)
+    : bxFirst_(iConfig.getParameter<int>("bxFirst")),
+      bxLast_(iConfig.getParameter<int>("bxLast")),
+      setBptxAND_(iConfig.getParameter<bool>("setBptxAND")),
+      setBptxPlus_(iConfig.getParameter<bool>("setBptxPlus")),
+      setBptxMinus_(iConfig.getParameter<bool>("setBptxMinus")),
+      setBptxOR_(iConfig.getParameter<bool>("setBptxOR")),
+      tcdsInputTag_(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel")),
+      l1GtMenuToken_(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>()) {
+  makeTriggerRulePrefireVetoBit_ = false;
+
+  m_triggerRulePrefireVetoBit = GlobalExtBlk::maxExternalConditions - 1;
+
+  tcdsRecordToken_ = consumes<TCDSRecord>(tcdsInputTag_);
+  // Note that the tcdsRecord input tag should be used as InputTag("unpackTcds","tcdsRecord") only for data
+  if (!(tcdsInputTag_ == edm::InputTag(""))) {
+    makeTriggerRulePrefireVetoBit_ = true;
   }
 
+  // Register what you produce
+  produces<GlobalExtBlkBxCollection>();
 
-  L1TExtCondProducer::~L1TExtCondProducer()
-  {
+  // Initialize parameters
+  m_l1GtMenuCacheID = 0ULL;
+}
+
+L1TExtCondProducer::~L1TExtCondProducer() {}
+
+//
+// Member functions
+//
+
+// ------------ method called to produce the data ------------
+void L1TExtCondProducer::produce(Event& iEvent, const EventSetup& iSetup) {
+  LogDebug("L1TExtCondProducer") << "L1TExtCondProducer::produce function called...\n";
+
+  // Get / update the trigger menu from the EventSetup
+  // local cache & check on cacheIdentifier
+  unsigned long long l1GtMenuCacheID = iSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
+
+  if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
+    edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu = iSetup.getHandle(l1GtMenuToken_);
+    const L1TUtmTriggerMenu* utml1GtMenu = l1GtMenu.product();
+
+    // Instantiate Parser
+    TriggerMenuParser gtParser = TriggerMenuParser();
+
+    std::map<std::string, unsigned int> extBitMap = gtParser.getExternalSignals(utml1GtMenu);
+
+    m_l1GtMenuCacheID = l1GtMenuCacheID;
+    m_extBitMap = extBitMap;
   }
 
+  edm::Handle<TCDSRecord> tcdsRecordH;
+  iEvent.getByToken(tcdsRecordToken_, tcdsRecordH);
+  makeTriggerRulePrefireVetoBit_ = makeTriggerRulePrefireVetoBit_ && tcdsRecordH.isValid();
 
+  bool TriggerRulePrefireVetoBit(false);
+  // The following list of checks on the tcdsRecord is relevant only for data;
+  // code taken from Nick Smith's EventFilter/L1TRawToDigi/plugins/TriggerRulePrefireVetoFilter.cc
+  if (iEvent.isRealData() && makeTriggerRulePrefireVetoBit_) {
+    const auto& tcdsRecord = *tcdsRecordH.product();
 
-  //
-  // member functions
-  //
+    uint64_t thisEvent = (tcdsRecord.getBXID() - 1) + tcdsRecord.getOrbitNr() * 3564ull;
 
-  // ------------ method called to produce the data ------------
-  void
-  L1TExtCondProducer::produce(Event& iEvent, const EventSetup& iSetup)
-  {
-
-    LogDebug("L1TExtCondProducer") << "L1TExtCondProducer::produce function called...\n";
-
-    // get / update the trigger menu from the EventSetup
-    // local cache & check on cacheIdentifier
-    unsigned long long l1GtMenuCacheID = iSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
-
-    if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-
-        edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
-        iSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
-        const L1TUtmTriggerMenu* utml1GtMenu =  l1GtMenu.product();
-
-	// Instantiate Parser
-        TriggerMenuParser gtParser = TriggerMenuParser();
-
-	std::map<std::string, unsigned int> extBitMap = gtParser.getExternalSignals(utml1GtMenu);
-
-	m_l1GtMenuCacheID = l1GtMenuCacheID;
-	m_extBitMap = extBitMap;
+    std::vector<uint64_t> eventHistory;
+    for (auto&& l1a : tcdsRecord.getFullL1aHistory()) {
+      eventHistory.push_back(thisEvent - ((l1a.getBXID() - 1) + l1a.getOrbitNr() * 3564ull));
     }
 
-    // Setup vectors
-    GlobalExtBlk extCond_bx;
+    // It should be 16 according to TCDSRecord.h, we only care about the last 4
+    if (eventHistory.size() >= 4) {
+      // No more than 1 L1A in 3 BX
+      if (eventHistory[0] < 3ull) {
+        edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (1 in 3)";
+      }
 
-    //outputs
-    std::unique_ptr<GlobalExtBlkBxCollection> extCond( new GlobalExtBlkBxCollection(0,bxFirst_,bxLast_));
+      if (eventHistory[0] == 3ull)
+        TriggerRulePrefireVetoBit = true;
 
-    bool foundBptxAND = ( m_extBitMap.find("BPTX_plus_AND_minus.v0")!=m_extBitMap.end() );
-    bool foundBptxPlus = ( m_extBitMap.find("BPTX_plus.v0")!=m_extBitMap.end() );
-    bool foundBptxMinus = ( m_extBitMap.find("BPTX_minus.v0")!=m_extBitMap.end() );
-    bool foundBptxOR = ( m_extBitMap.find("BPTX_plus_OR_minus.v0")!=m_extBitMap.end() );
+      // No more than 2 L1As in 25 BX
+      if (eventHistory[0] < 25ull and eventHistory[1] < 25ull) {
+        edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (2 in 25)";
+      }
+      if (eventHistory[0] < 25ull and eventHistory[1] == 25ull)
+        TriggerRulePrefireVetoBit = true;
 
-    // Fill in some external conditions for testing
-    if( setBptxAND_ && foundBptxAND ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_plus_AND_minus.v0"],true);
-    if( setBptxPlus_ && foundBptxPlus ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_plus.v0"],true);
-    if( setBptxMinus_ && foundBptxMinus ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_minus.v0"],true);
-    if( setBptxOR_ && foundBptxOR ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_plus_OR_minus.v0"],true);
+      // No more than 3 L1As in 100 BX
+      if (eventHistory[0] < 100ull and eventHistory[1] < 100ull and eventHistory[2] <= 100ull) {
+        if (eventHistory[2] == 100ull)
+          TriggerRulePrefireVetoBit = true;
+        else
+          edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (3 in 100)";
+      }
 
-    //check for updated Bptx names as well
-    foundBptxAND = ( m_extBitMap.find("ZeroBias_BPTX_AND_VME")!=m_extBitMap.end() );
-    foundBptxPlus = ( m_extBitMap.find("BPTX_B1_VME")!=m_extBitMap.end() );
-    foundBptxMinus = ( m_extBitMap.find("BPTX_B2_VME")!=m_extBitMap.end() );
-    foundBptxOR = ( m_extBitMap.find("BPTX_OR_VME")!=m_extBitMap.end() );
-
-    // Fill in some external conditions for testing
-    if( setBptxAND_ && foundBptxAND ) extCond_bx.setExternalDecision(m_extBitMap["ZeroBias_BPTX_AND_VME"],true);
-    if( setBptxPlus_ && foundBptxPlus ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_B1_VME"],true);
-    if( setBptxMinus_ && foundBptxMinus ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_B2_VME"],true);
-    if( setBptxOR_ && foundBptxOR ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_OR_VME"],true);
-
-    // Fill Externals
-    for( int iBx=bxFirst_; iBx<=bxLast_; iBx++ ){
-      extCond->push_back(iBx, extCond_bx);
+      // No more than 4 L1As in 240 BX
+      if (eventHistory[0] < 240ull and eventHistory[1] < 240ull and eventHistory[2] < 240ull and
+          eventHistory[3] <= 240ull) {
+        if (eventHistory[3] == 240ull)
+          TriggerRulePrefireVetoBit = true;
+        else
+          edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (4 in 240)";
+      }
     }
+  }
+  // Setup vectors
+  GlobalExtBlk extCond_bx;
 
+  // Outputs
+  std::unique_ptr<GlobalExtBlkBxCollection> extCond(new GlobalExtBlkBxCollection(0, bxFirst_, bxLast_));
 
-    iEvent.put(std::move(extCond));
+  bool foundBptxAND = (m_extBitMap.find("BPTX_plus_AND_minus.v0") != m_extBitMap.end());
+  bool foundBptxPlus = (m_extBitMap.find("BPTX_plus.v0") != m_extBitMap.end());
+  bool foundBptxMinus = (m_extBitMap.find("BPTX_minus.v0") != m_extBitMap.end());
+  bool foundBptxOR = (m_extBitMap.find("BPTX_plus_OR_minus.v0") != m_extBitMap.end());
 
+  // Fill in some external conditions for testing
+  if (setBptxAND_ && foundBptxAND)
+    extCond_bx.setExternalDecision(m_extBitMap["BPTX_plus_AND_minus.v0"], true);
+  if (setBptxPlus_ && foundBptxPlus)
+    extCond_bx.setExternalDecision(m_extBitMap["BPTX_plus.v0"], true);
+  if (setBptxMinus_ && foundBptxMinus)
+    extCond_bx.setExternalDecision(m_extBitMap["BPTX_minus.v0"], true);
+  if (setBptxOR_ && foundBptxOR)
+    extCond_bx.setExternalDecision(m_extBitMap["BPTX_plus_OR_minus.v0"], true);
+
+  // Check for updated Bptx names as well
+  foundBptxAND = (m_extBitMap.find("ZeroBias_BPTX_AND_VME") != m_extBitMap.end());
+  foundBptxPlus = (m_extBitMap.find("BPTX_B1_VME") != m_extBitMap.end());
+  foundBptxMinus = (m_extBitMap.find("BPTX_B2_VME") != m_extBitMap.end());
+  foundBptxOR = (m_extBitMap.find("BPTX_OR_VME") != m_extBitMap.end());
+
+  // Fill in some external conditions for testing
+  if (setBptxAND_ && foundBptxAND)
+    extCond_bx.setExternalDecision(m_extBitMap["ZeroBias_BPTX_AND_VME"], true);
+  if (setBptxPlus_ && foundBptxPlus)
+    extCond_bx.setExternalDecision(m_extBitMap["BPTX_B1_VME"], true);
+  if (setBptxMinus_ && foundBptxMinus)
+    extCond_bx.setExternalDecision(m_extBitMap["BPTX_B2_VME"], true);
+  if (setBptxOR_ && foundBptxOR)
+    extCond_bx.setExternalDecision(m_extBitMap["BPTX_OR_VME"], true);
+
+  // Set the bit for the TriggerRulePrefireVeto if true
+  if (TriggerRulePrefireVetoBit)
+    extCond_bx.setExternalDecision(m_triggerRulePrefireVetoBit, true);
+
+  // Fill Externals
+  for (int iBx = bxFirst_; iBx <= bxLast_; iBx++) {
+    extCond->push_back(iBx, extCond_bx);
   }
 
-  // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
-  void
-  L1TExtCondProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
-    // simGtExtFakeProd
-    edm::ParameterSetDescription desc;
-    desc.add<bool>("setBptxMinus", true);
-    desc.add<bool>("setBptxAND", true);
-    desc.add<int>("bxFirst", -2);
-    desc.add<bool>("setBptxOR", true);
-    desc.add<int>("bxLast", 2);
-    desc.add<bool>("setBptxPlus", true);
-    descriptions.add("simGtExtFakeProd", desc);
-  }
+  iEvent.put(std::move(extCond));
+}
 
+// ------------ Method fills 'descriptions' with the allowed parameters for the module ------------
+void L1TExtCondProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+  // simGtExtFakeProd
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("setBptxMinus", true);
+  desc.add<bool>("setBptxAND", true);
+  desc.add<int>("bxFirst", -2);
+  desc.add<bool>("setBptxOR", true);
+  desc.add<int>("bxLast", 2);
+  desc.add<bool>("setBptxPlus", true);
+  desc.add<edm::InputTag>("tcdsRecordLabel", edm::InputTag(""));
+  descriptions.add("simGtExtFakeProd", desc);
+}
 
-
-//define this as a plug-in
+// Define this as a plug-in
 DEFINE_FWK_MODULE(L1TExtCondProducer);

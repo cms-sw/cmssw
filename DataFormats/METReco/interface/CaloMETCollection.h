@@ -14,10 +14,9 @@
  ************************************************************/
 
 #include <vector>
-#include "DataFormats/METReco/interface/CaloMETFwd.h" 
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
 
-namespace reco
-{
+namespace reco {
   typedef std::vector<reco::CaloMET> CaloMETCollection;
-}  
-#endif // METRECO_CaloMETCOLLECTION_H
+}
+#endif  // METRECO_CaloMETCOLLECTION_H

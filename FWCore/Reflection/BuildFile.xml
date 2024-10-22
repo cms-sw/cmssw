@@ -1,0 +1,6 @@
+<use name="rootcling"/>
+<use name="tbb"/>
+<use name="FWCore/Utilities"/>
+<export>
+  <lib name="1"/>
+</export>

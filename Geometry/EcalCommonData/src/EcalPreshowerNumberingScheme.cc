@@ -5,15 +5,13 @@
 
 #include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include <sstream>
 
-#include <iostream>
-using namespace std;
+//#define EDM_ML_DEBUG
 
-EcalPreshowerNumberingScheme::EcalPreshowerNumberingScheme() : 
-  EcalNumberingScheme() {
-
-  // For SFLX2a, we use copy# 1-3 
-  int vL2ax[3] = { 4,  6, 10};
+EcalPreshowerNumberingScheme::EcalPreshowerNumberingScheme() : EcalNumberingScheme() {
+  // For SFLX2a, we use copy# 1-3
+  int vL2ax[3] = {4, 6, 10};
   int vL2ay[3] = {29, 31, 35};
   // For SFLX2b, we use copy# 1
   int vL2bx[1] = {2};
@@ -25,8 +23,9 @@ EcalPreshowerNumberingScheme::EcalPreshowerNumberingScheme() :
   int vL3bx[1] = {38};
   int vL3by[1] = {25};
   // For SFLX1a, we use odd number in copy# 1-52
-  int vL1ax[26] = { 2,  4,  4,  8,  8,  8,  8, 10, 12, 12, 14, 14, 20, 20, 26, 26, 28, 28, 30, 32, 32, 32, 32, 36, 36, 38};
-  int vL1ay[26] = {21, 25, 21, 33, 29, 25, 21, 21, 25, 21, 31, 27, 32, 28, 31, 27, 25, 21, 21, 33, 29, 25, 21, 25, 21, 21};
+  int vL1ax[26] = {2, 4, 4, 8, 8, 8, 8, 10, 12, 12, 14, 14, 20, 20, 26, 26, 28, 28, 30, 32, 32, 32, 32, 36, 36, 38};
+  int vL1ay[26] = {21, 25, 21, 33, 29, 25, 21, 21, 25, 21, 31, 27, 32,
+                   28, 31, 27, 25, 21, 21, 33, 29, 25, 21, 25, 21, 21};
   // For SFLX1b, we use copy# 2
   int vL1bx[1] = {22};
   int vL1by[1] = {27};
@@ -40,7 +39,7 @@ EcalPreshowerNumberingScheme::EcalPreshowerNumberingScheme() :
   int vL1ex[1] = {14};
   int vL1ey[1] = {23};
   // For SFLX0a, we use odd number if copy# 1-46
-  int vL0ax[23] = { 6,  6, 10, 10, 12, 12, 14, 16, 16, 18, 18, 20, 22, 22, 24, 24, 26, 28, 28, 30, 30, 34, 34};
+  int vL0ax[23] = {6, 6, 10, 10, 12, 12, 14, 16, 16, 18, 18, 20, 22, 22, 24, 24, 26, 28, 28, 30, 30, 34, 34};
   int vL0ay[23] = {26, 21, 30, 25, 34, 29, 35, 36, 31, 36, 31, 36, 36, 31, 36, 31, 35, 34, 29, 30, 25, 26, 21};
   // For SFL0b, we use copy# 2
   int vL0bx[1] = {24};
@@ -49,7 +48,7 @@ EcalPreshowerNumberingScheme::EcalPreshowerNumberingScheme() :
   int vL0cx[1] = {16};
   int vL0cy[1] = {26};
 
-  for (int i=0; i<1; ++i) {
+  for (int i = 0; i < 1; ++i) {
     L1bx[i] = vL1bx[i];
     L1by[i] = vL1by[i];
     L1cx[i] = vL1cx[i];
@@ -68,262 +67,412 @@ EcalPreshowerNumberingScheme::EcalPreshowerNumberingScheme() :
     L2by[i] = vL2by[i];
   }
 
-  for (int i=0; i<3; ++i) {
+  for (int i = 0; i < 3; ++i) {
     L3ax[i] = vL3ax[i];
     L3ay[i] = vL3ay[i];
     L2ax[i] = vL2ax[i];
     L2ay[i] = vL2ay[i];
   }
 
-  for (int i=0; i<23; ++i) {
+  for (int i = 0; i < 23; ++i) {
     L0ax[i] = vL0ax[i];
     L0ay[i] = vL0ay[i];
   }
 
-  for (int i=0; i<26; ++i) {
+  for (int i = 0; i < 26; ++i) {
     L1ax[i] = vL1ax[i];
     L1ay[i] = vL1ay[i];
   }
 
-  edm::LogInfo("EcalGeom") << "Creating EcalPreshowerNumberingScheme";
+  edm::LogVerbatim("EcalGeom") << "Creating EcalPreshowerNumberingScheme";
 }
 
 EcalPreshowerNumberingScheme::~EcalPreshowerNumberingScheme() {
-  edm::LogInfo("EcalGeom") << "Deleting EcalPreshowerNumberingScheme";
+  edm::LogVerbatim("EcalGeom") << "Deleting EcalPreshowerNumberingScheme";
 }
 
-uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const  {
-
-  int level = baseNumber.getLevels();
-  uint32_t intIndex = 0; 
-  if (level > 0) {
-    
+/*
+ * Compute the Ecal Preshower DetId.
+ * General NB: if possible, it would be way better to just access the DetID from a hash map from G4 Volume, 
+ * rather than recomputing it for each SimHit - see Tracker.
+ */
+uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const {
+  const int numberOfHierarchyLevels = baseNumber.getLevels();
+  bool dd4hep = ((numberOfHierarchyLevels == 10) && (baseNumber.getCopyNumber(numberOfHierarchyLevels - 1) == 1) &&
+                 (baseNumber.getLevelName(numberOfHierarchyLevels - 1) != "OCMS"));
+#ifdef EDM_ML_DEBUG
+  std::ostringstream st1;
+  for (int k = 0; k < numberOfHierarchyLevels; ++k)
+    st1 << ", " << baseNumber.getLevelName(k) << ":" << baseNumber.getCopyNumber(k);
+  edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme: dd4hep " << dd4hep
+                               << " witg  geometry levels = " << numberOfHierarchyLevels << st1.str();
+#endif
+  uint32_t intIndex = 0;
+  if (numberOfHierarchyLevels > 0) {
     // depth index - silicon layer 1-st or 2-nd
     int layer = 0;
-    if(baseNumber.getLevelName(0) == "SFSX") {
+    if (baseNumber.getLevelName(0).find("SFSX") != std::string::npos) {
       layer = 1;
-    } else if (baseNumber.getLevelName(0) == "SFSY") {
+    } else if (baseNumber.getLevelName(0).find("SFSY") != std::string::npos) {
       layer = 2;
     } else {
       edm::LogWarning("EcalGeom") << "EcalPreshowerNumberingScheme: Wrong name"
-				  << " of Presh. Si. Strip : " 
-				  << baseNumber.getLevelName(0);
+                                  << " of Presh. Si. Strip : " << baseNumber.getLevelName(0);
     }
-    
+
     // Z index +Z = 1 ; -Z = 2
-    int zside   = baseNumber.getCopyNumber("EREG");
-    zside=2*(1-zside)+1;
 
-    // box number
-    int box = baseNumber.getCopyNumber(2);
+    int zs = dd4hep ? baseNumber.getCopyNumber(4) : baseNumber.getCopyNumber(5);
+    int zside = 2 * (1 - zs) + 1;
 
-    int x=0,y=0,ix,iy,id;
-    int mapX[10] ={0,0,0,0,0,0,0,0,0,0};  int mapY[10] ={0,0,0,0,0,0,0,0,0,0};
-    const std::string& ladd = baseNumber.getLevelName(3);
-    int ladd_copy = baseNumber.getCopyNumber(3);
-    
-    if(ladd=="SFLX0a" || ladd=="SFLY0a" ) { 
-      mapX[5] = mapX[6] = mapX[7] = mapX[8] = mapX[9] = 1; 
-      mapY[0] = 0; mapY[1] = 1; mapY[2] = 2; mapY[3] = 3; mapY[4] = 4; 
-      mapY[5] = 0; mapY[6] = 1; mapY[7] = 2;  mapY[8] = 3;  mapY[9] = 4; 
+    // box numer and ladder copy number
+    int box(0), ladd_copy(0);
+    std::string ladd("");
+    if (dd4hep) {
+      auto num1 = numbers(baseNumber.getLevelName(2));
+      box = num1.second;
+      ladd_copy = num1.first;
+      ladd = baseNumber.getLevelName(2).substr(0, 6);
+    } else {
+      box = baseNumber.getCopyNumber(2);
+      ladd_copy = baseNumber.getCopyNumber(3);
+      ladd = baseNumber.getLevelName(3).substr(0, 6);
+    }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme::Box " << box << " Ladder " << ladd << ":"
+                                 << ladd_copy;
+#endif
 
-      id = (int) ((float)ladd_copy/2+0.5);
+    int x = 0, y = 0, ix, iy, id;
+    int mapX[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int mapY[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-      x = L0ax[id-1] + mapX[box-1000-1];
-      y = L0ay[id-1] + mapY[box-1000-1];    
+    if (ladd == "SFLX0a" || ladd == "SFLY0a") {
+      mapX[5] = mapX[6] = mapX[7] = mapX[8] = mapX[9] = 1;
+      mapY[0] = 0;
+      mapY[1] = 1;
+      mapY[2] = 2;
+      mapY[3] = 3;
+      mapY[4] = 4;
+      mapY[5] = 0;
+      mapY[6] = 1;
+      mapY[7] = 2;
+      mapY[8] = 3;
+      mapY[9] = 4;
 
-      if ((ladd_copy%2) == 0) {
-	if (mapX[box-1000-1]==0) x += 1;
-	else if (mapX[box-1000-1]==1) x -= 1; 
-	y = 41 - y;
+      id = (int)((float)ladd_copy / 2 + 0.5);
+
+      x = L0ax[id - 1] + mapX[box - 1000 - 1];
+      y = L0ay[id - 1] + mapY[box - 1000 - 1];
+
+      if ((ladd_copy % 2) == 0) {
+        if (mapX[box - 1000 - 1] == 0)
+          x += 1;
+        else if (mapX[box - 1000 - 1] == 1)
+          x -= 1;
+        y = 41 - y;
       }
     }
-    if(ladd=="SFLX0b" || ladd=="SFLY0b") { 
-      mapX[4] = mapX[5] = mapX[6] = mapX[7] = mapX[8] = 1; 
-      mapY[0] = 1; mapY[1] = 2; mapY[2] = 3; mapY[3] = 4; mapY[4] = 0; 
-      mapY[5] = 1; mapY[6] = 2; mapY[7] = 3;  mapY[8] = 4;  mapY[9] = 0; 
+    if (ladd == "SFLX0b" || ladd == "SFLY0b") {
+      mapX[4] = mapX[5] = mapX[6] = mapX[7] = mapX[8] = 1;
+      mapY[0] = 1;
+      mapY[1] = 2;
+      mapY[2] = 3;
+      mapY[3] = 4;
+      mapY[4] = 0;
+      mapY[5] = 1;
+      mapY[6] = 2;
+      mapY[7] = 3;
+      mapY[8] = 4;
+      mapY[9] = 0;
 
-      x = L0bx[0] + mapX[box-2000-1];
-      y = L0by[0] + mapY[box-2000-1];    
+      x = L0bx[0] + mapX[box - 2000 - 1];
+      y = L0by[0] + mapY[box - 2000 - 1];
 
       if (ladd_copy == 1) {
-	x = 41 - x;
-	y = 41 - y;
+        x = 41 - x;
+        y = 41 - y;
       }
     }
-    if(ladd=="SFLX0c" || ladd=="SFLY0c") {
-      mapX[5] = mapX[6] = mapX[7] = mapX[8] = 1; 
-      mapY[0] = 0; mapY[1] = 1; mapY[2] = 2; mapY[3] = 3; mapY[4] = 4; 
-      mapY[5] = 1; mapY[6] = 2; mapY[7] = 3;  mapY[8] = 4;  mapY[9] = 0; 
+    if (ladd == "SFLX0c" || ladd == "SFLY0c") {
+      mapX[5] = mapX[6] = mapX[7] = mapX[8] = 1;
+      mapY[0] = 0;
+      mapY[1] = 1;
+      mapY[2] = 2;
+      mapY[3] = 3;
+      mapY[4] = 4;
+      mapY[5] = 1;
+      mapY[6] = 2;
+      mapY[7] = 3;
+      mapY[8] = 4;
+      mapY[9] = 0;
 
-      x = L0cx[0] + mapX[box-3000-1];
-      y = L0cy[0] + mapY[box-3000-1]; 
+      x = L0cx[0] + mapX[box - 3000 - 1];
+      y = L0cy[0] + mapY[box - 3000 - 1];
 
       if (ladd_copy == 2) {
-	x = 41 - x;
-	y = 41 - y;
+        x = 41 - x;
+        y = 41 - y;
       }
     }
-    if(ladd=="SFLX1a" || ladd=="SFLY1a" ) {
-      mapX[4] = mapX[5] = mapX[6] = mapX[7]  = 1; 
-      mapY[0] = 0; mapY[1] = 1; mapY[2] = 2; mapY[3] = 3; mapY[4] = 0; 
-      mapY[5] = 1; mapY[6] = 2; mapY[7] = 3;  mapY[8] = 0;  mapY[9] = 0; 
+    if (ladd == "SFLX1a" || ladd == "SFLY1a") {
+      mapX[4] = mapX[5] = mapX[6] = mapX[7] = 1;
+      mapY[0] = 0;
+      mapY[1] = 1;
+      mapY[2] = 2;
+      mapY[3] = 3;
+      mapY[4] = 0;
+      mapY[5] = 1;
+      mapY[6] = 2;
+      mapY[7] = 3;
+      mapY[8] = 0;
+      mapY[9] = 0;
 
-      id = (int) ((float)ladd_copy/2+0.5);
+      id = (int)((float)ladd_copy / 2 + 0.5);
 
-      x = L1ax[id-1] + mapX[box-4000-1];
-      y = L1ay[id-1] + mapY[box-4000-1];    
+      x = L1ax[id - 1] + mapX[box - 4000 - 1];
+      y = L1ay[id - 1] + mapY[box - 4000 - 1];
 
-      if ((ladd_copy%2) == 0) {
-	if (mapX[box-4000-1]==0) x += 1;
-	else if (mapX[box-4000-1]==1) x -= 1; 
-	y = 41 - y;
+      if ((ladd_copy % 2) == 0) {
+        if (mapX[box - 4000 - 1] == 0)
+          x += 1;
+        else if (mapX[box - 4000 - 1] == 1)
+          x -= 1;
+        y = 41 - y;
       }
     }
-    if(ladd=="SFLX1b" || ladd=="SFLY1b" ) {
-      mapX[3] = mapX[4] = mapX[5] = mapX[6]  = 1; 
-      mapY[0] = 1; mapY[1] = 2; mapY[2] = 3; mapY[3] = 0; mapY[4] = 1; 
-      mapY[5] = 2; mapY[6] = 3; mapY[7] = 0;  mapY[8] = 0;  mapY[9] = 0; 
+    if (ladd == "SFLX1b" || ladd == "SFLY1b") {
+      mapX[3] = mapX[4] = mapX[5] = mapX[6] = 1;
+      mapY[0] = 1;
+      mapY[1] = 2;
+      mapY[2] = 3;
+      mapY[3] = 0;
+      mapY[4] = 1;
+      mapY[5] = 2;
+      mapY[6] = 3;
+      mapY[7] = 0;
+      mapY[8] = 0;
+      mapY[9] = 0;
 
-      x = L1bx[0] + mapX[box-5000-1];
-      y = L1by[0] + mapY[box-5000-1];    
+      x = L1bx[0] + mapX[box - 5000 - 1];
+      y = L1by[0] + mapY[box - 5000 - 1];
 
       if (ladd_copy == 1) {
-	x = 41 - x;
-	y = 41 - y;
+        x = 41 - x;
+        y = 41 - y;
       }
     }
-    if(ladd=="SFLX1c" || ladd=="SFLY1c" ) {
-      mapX[4] = mapX[5] = mapX[6]  = 1; 
-      mapY[0] = 0; mapY[1] = 1; mapY[2] = 2; mapY[3] = 3; mapY[4] = 1; 
-      mapY[5] = 2; mapY[6] = 3; mapY[7] = 0;  mapY[8] = 0;  mapY[9] = 0; 
+    if (ladd == "SFLX1c" || ladd == "SFLY1c") {
+      mapX[4] = mapX[5] = mapX[6] = 1;
+      mapY[0] = 0;
+      mapY[1] = 1;
+      mapY[2] = 2;
+      mapY[3] = 3;
+      mapY[4] = 1;
+      mapY[5] = 2;
+      mapY[6] = 3;
+      mapY[7] = 0;
+      mapY[8] = 0;
+      mapY[9] = 0;
 
-      x = L1cx[0] + mapX[box-6000-1];
-      y = L1cy[0] + mapY[box-6000-1];    
+      x = L1cx[0] + mapX[box - 6000 - 1];
+      y = L1cy[0] + mapY[box - 6000 - 1];
 
       if (ladd_copy == 2) {
-	x = 41 - x;
-	y = 41 - y;
+        x = 41 - x;
+        y = 41 - y;
       }
     }
-    if(ladd=="SFLX1d" || ladd=="SFLY1d" ) {
-      mapX[2] = mapX[3] = mapX[4] = mapX[5]  = 1; 
-      mapY[0] = 2; mapY[1] = 3; mapY[2] = 0; mapY[3] = 1; mapY[4] = 2; 
-      mapY[5] = 3; mapY[6] = 0; mapY[7] = 0;  mapY[8] = 0;  mapY[9] = 0; 
+    if (ladd == "SFLX1d" || ladd == "SFLY1d") {
+      mapX[2] = mapX[3] = mapX[4] = mapX[5] = 1;
+      mapY[0] = 2;
+      mapY[1] = 3;
+      mapY[2] = 0;
+      mapY[3] = 1;
+      mapY[4] = 2;
+      mapY[5] = 3;
+      mapY[6] = 0;
+      mapY[7] = 0;
+      mapY[8] = 0;
+      mapY[9] = 0;
 
-      x = L1dx[0] + mapX[box-7000-1];
-      y = L1dy[0] + mapY[box-7000-1];    
+      x = L1dx[0] + mapX[box - 7000 - 1];
+      y = L1dy[0] + mapY[box - 7000 - 1];
 
       if (ladd_copy == 1) {
-	x = 41 - x;
-	y = 41 - y;
+        x = 41 - x;
+        y = 41 - y;
       }
     }
-    if(ladd=="SFLX1e" || ladd=="SFLY1e") {
-      mapX[4] = mapX[5] = 1; 
-      mapY[0] = 0; mapY[1] = 1; mapY[2] = 2; mapY[3] = 3; mapY[4] = 2; 
-      mapY[5] = 3; mapY[6] = 0; mapY[7] = 0; mapY[8] = 0; mapY[9] = 0; 
+    if (ladd == "SFLX1e" || ladd == "SFLY1e") {
+      mapX[4] = mapX[5] = 1;
+      mapY[0] = 0;
+      mapY[1] = 1;
+      mapY[2] = 2;
+      mapY[3] = 3;
+      mapY[4] = 2;
+      mapY[5] = 3;
+      mapY[6] = 0;
+      mapY[7] = 0;
+      mapY[8] = 0;
+      mapY[9] = 0;
 
-      x = L1ex[0] + mapX[box-8000-1];
-      y = L1ey[0] + mapY[box-8000-1];    
+      x = L1ex[0] + mapX[box - 8000 - 1];
+      y = L1ey[0] + mapY[box - 8000 - 1];
 
       if (ladd_copy == 2) {
-	x = 41 - x;
-	y = 41 - y;
+        x = 41 - x;
+        y = 41 - y;
       }
     }
-    if(ladd=="SFLX3a" || ladd=="SFLY3a" ) {
-      mapX[4] = mapX[5] = mapX[6] = 1; 
-      mapY[0] = 0; mapY[1] = 1; mapY[2] = 2; mapY[3] = 3; mapY[4] = 0; 
-      mapY[5] = 1; mapY[6] = 2; mapY[7] = 0; mapY[8] = 0; mapY[9] = 0; 
+    if (ladd == "SFLX3a" || ladd == "SFLY3a") {
+      mapX[4] = mapX[5] = mapX[6] = 1;
+      mapY[0] = 0;
+      mapY[1] = 1;
+      mapY[2] = 2;
+      mapY[3] = 3;
+      mapY[4] = 0;
+      mapY[5] = 1;
+      mapY[6] = 2;
+      mapY[7] = 0;
+      mapY[8] = 0;
+      mapY[9] = 0;
 
-      id = (ladd_copy>3)? ladd_copy-3 : 4-ladd_copy;     
+      id = (ladd_copy > 3) ? ladd_copy - 3 : 4 - ladd_copy;
 
-      x = L3ax[id-1] + mapX[box-9000-1];
-      y = L3ay[id-1] + mapY[box-9000-1];    
+      x = L3ax[id - 1] + mapX[box - 9000 - 1];
+      y = L3ay[id - 1] + mapY[box - 9000 - 1];
 
-      if (ladd_copy<4) {
-	x = 41 - x;
-	y = 41 - y;
+      if (ladd_copy < 4) {
+        x = 41 - x;
+        y = 41 - y;
       }
     }
-    if(ladd=="SFLX3b" || ladd=="SFLY3b") {
-      mapX[4] = mapX[5] = 1; 
-      mapY[0] = 0; mapY[1] = 1; mapY[2] = 2; mapY[3] = 3; mapY[4] = 0; 
-      mapY[5] = 1; mapY[6] = 0; mapY[7] = 0; mapY[8] = 0; mapY[9] = 0; 
+    if (ladd == "SFLX3b" || ladd == "SFLY3b") {
+      mapX[4] = mapX[5] = 1;
+      mapY[0] = 0;
+      mapY[1] = 1;
+      mapY[2] = 2;
+      mapY[3] = 3;
+      mapY[4] = 0;
+      mapY[5] = 1;
+      mapY[6] = 0;
+      mapY[7] = 0;
+      mapY[8] = 0;
+      mapY[9] = 0;
 
-      x = L3bx[0] + mapX[box-11000-1];
-      y = L3by[0] + mapY[box-11000-1];
+      x = L3bx[0] + mapX[box - 11000 - 1];
+      y = L3by[0] + mapY[box - 11000 - 1];
 
       if (ladd_copy == 1) {
-	x = 41 - x;
-	y = 41 - y;
-      }  
+        x = 41 - x;
+        y = 41 - y;
+      }
     }
-    if(ladd=="SFLX2a" || ladd=="SFLY2a") {
-      mapX[3] = mapX[4] = mapX[5] = mapX[6]  = 1; 
-      mapY[0] = 0; mapY[1] = 1; mapY[2] = 2; mapY[3] = 0; mapY[4] = 1; 
-      mapY[5] = 2; mapY[6] = 3; mapY[7] = 0; mapY[8] = 0; mapY[9] = 0; 
+    if (ladd == "SFLX2a" || ladd == "SFLY2a") {
+      mapX[3] = mapX[4] = mapX[5] = mapX[6] = 1;
+      mapY[0] = 0;
+      mapY[1] = 1;
+      mapY[2] = 2;
+      mapY[3] = 0;
+      mapY[4] = 1;
+      mapY[5] = 2;
+      mapY[6] = 3;
+      mapY[7] = 0;
+      mapY[8] = 0;
+      mapY[9] = 0;
 
-      id = (ladd_copy>3)? 7-ladd_copy : ladd_copy;     
+      id = (ladd_copy > 3) ? 7 - ladd_copy : ladd_copy;
 
-      x = L2ax[id-1] + mapX[box-10000-1];
-      y = L2ay[id-1] + mapY[box-10000-1];
+      x = L2ax[id - 1] + mapX[box - 10000 - 1];
+      y = L2ay[id - 1] + mapY[box - 10000 - 1];
 
-      if (ladd_copy>3) {
-	x = 41 - x;
-	y = 41 - y;
-      }  
+      if (ladd_copy > 3) {
+        x = 41 - x;
+        y = 41 - y;
+      }
     }
-    if(ladd=="SFLX2b" || ladd=="SFLY2b") {
-      mapX[2] = mapX[3] = mapX[4] = mapX[5]  = 1;             
-      mapY[0] = 0; mapY[1] = 1; mapY[2] = 0; mapY[3] = 1; mapY[4] = 2; 
-      mapY[5] = 3; mapY[6] = 0; mapY[7] = 0; mapY[8] = 0; mapY[9] = 0; 
+    if (ladd == "SFLX2b" || ladd == "SFLY2b") {
+      mapX[2] = mapX[3] = mapX[4] = mapX[5] = 1;
+      mapY[0] = 0;
+      mapY[1] = 1;
+      mapY[2] = 0;
+      mapY[3] = 1;
+      mapY[4] = 2;
+      mapY[5] = 3;
+      mapY[6] = 0;
+      mapY[7] = 0;
+      mapY[8] = 0;
+      mapY[9] = 0;
 
-      x = L2bx[0] + mapX[box-12000-1];
-      y = L2by[0] + mapY[box-12000-1];
+      x = L2bx[0] + mapX[box - 12000 - 1];
+      y = L2by[0] + mapY[box - 12000 - 1];
 
       if (ladd_copy == 2) {
-	x = 41 - x;
-	y = 41 - y;
-      }  
+        x = 41 - x;
+        y = 41 - y;
+      }
     }
-       
-    if (zside<0 && layer == 1) x = 41 - x;
+
+    if (zside < 0 && layer == 1)
+      x = 41 - x;
 
     ix = x;
     iy = y;
 
     if (layer == 2) {
-      x = (zside>0) ? iy : 41 - iy; 
+      x = (zside > 0) ? iy : 41 - iy;
       y = 41 - ix;
     }
 
     // strip number inside wafer
     int strip = baseNumber.getCopyNumber(0);
-    
+
     if (layer == 1) {
-      if (zside>0 && y<=20) 
-	strip = 33 - strip;
-      else if (zside<0 && y>20)
-	strip = 33 - strip;
+      if (zside > 0 && y <= 20)
+        strip = 33 - strip;
+      else if (zside < 0 && y > 20)
+        strip = 33 - strip;
     } else if (layer == 2) {
-      if (zside>0 && x<=20) 
-	strip = 33 - strip;
-      else if (zside<0 && x>20)
-	strip = 33 -strip;
+      if (zside > 0 && x <= 20)
+        strip = 33 - strip;
+      else if (zside < 0 && x > 20)
+        strip = 33 - strip;
     }
-    
-    intIndex =  ESDetId(strip, x, y, layer, zside).rawId(); 
-    
-    LogDebug("EcalGeom") << "EcalPreshowerNumberingScheme : zside "<<zside<<" Ladd "<< ladd << " ladd_copy: "<<ladd_copy<<" box "<<box<<" x "<<x<<" y "<<y<<" layer "<<layer<<" strip " << strip<<" UnitID 0x" << std::hex << intIndex << std::dec;
-    
-    for (int ich = 0; ich < level; ich++) {
-      LogDebug("EcalGeom") << "Name = " << baseNumber.getLevelName(ich) 
-			   << " copy = " << baseNumber.getCopyNumber(ich);
-    }
+
+    intIndex = ESDetId(strip, x, y, layer, zside).rawId();
+
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme : zside " << zs << ":" << zside << " Ladd " << ladd
+                                 << " ladd_copy: " << ladd_copy << " box " << box << " x " << x << " y " << y
+                                 << " layer " << layer << " strip " << strip << " UnitID 0x" << std::hex << intIndex
+                                 << std::dec;
+
+    for (int ich = 0; ich < numberOfHierarchyLevels; ich++)
+      edm::LogVerbatim("EcalGeom") << "Name = " << baseNumber.getLevelName(ich)
+                                   << " copy = " << baseNumber.getCopyNumber(ich);
+#endif
   }
-  
+
   return intIndex;
 }
 
+std::pair<int, int> EcalPreshowerNumberingScheme::numbers(const std::string& name) const {
+  int num1(-1), num2(-1);
+  if (name.find('#') != std::string::npos) {
+    uint32_t ip1 = name.find('#');
+    if (name.find('!') != std::string::npos) {
+      uint32_t ip2 = name.find('!');
+      num1 = ::atoi(name.substr(ip1 + 1, ip2 - ip1 - 1).c_str());
+      if (name.find('#', ip2) != std::string::npos) {
+        uint32_t ip3 = name.find('#', ip2);
+        num2 = ::atoi(name.substr(ip3 + 1, name.size() - ip3 - 1).c_str());
+      }
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme::Numbers from " << name << " are " << num1 << " and "
+                               << num2;
+#endif
+  return std::make_pair(num1, num2);
+}

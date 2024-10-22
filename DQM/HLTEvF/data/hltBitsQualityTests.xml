@@ -1,14 +1,3 @@
 <TESTSCONFIGURATION>
 
-<QTEST name="CompareHist_Shape">
-         <TYPE>Comp2RefKolmogorov</TYPE>
-         <PARAM name="testparam">0</PARAM>
-         <PARAM name="error">0.30</PARAM>
-         <PARAM name="warning">0.70</PARAM>
-</QTEST>
-
-<LINK name="*Ratio_HLT_L1MuOpen">
-        <TestName activate="false">CompareHist_Shape</TestName>
-</LINK>
-
 </TESTSCONFIGURATION>

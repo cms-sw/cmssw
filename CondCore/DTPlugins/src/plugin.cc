@@ -27,9 +27,6 @@
 #include "CondFormats/DataRecord/interface/DTPerformanceRcd.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
-#include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
-#include "CondFormats/DataRecord/interface/DTKeyedConfigContainerRcd.h"
-#include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
 #include "CondFormats/DTObjects/interface/DTTPGParameters.h"
 #include "CondFormats/DataRecord/interface/DTTPGParametersRcd.h"
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
@@ -51,78 +48,81 @@
 
 #include <memory>
 
-namespace cond {
-  template <> std::shared_ptr<BaseKeyed> deserialize<BaseKeyed>( const std::string& payloadType,
-						 const Binary& payloadData,
-						 const Binary& streamerInfoData ){
-    DESERIALIZE_BASE_CASE( BaseKeyed );                                                                                                                                                                                                             
-    DESERIALIZE_POLIMORPHIC_CASE( BaseKeyed, DTKeyedConfig );
-
-    // here we come if none of the deserializations above match the payload type:                                                                                                                                                                                             
-    throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"", "deserialize<>" );
-  }
-}
-
+namespace {
+  struct InitDTCCBConfig {
+    void operator()(DTCCBConfig& e) { e.initialize(); }
+  };
+}  // namespace
 
 namespace {
-  struct InitDTCCBConfig {void operator()(DTCCBConfig& e){ e.initialize();}};
-}
+  struct InitDTDeadFlag {
+    void operator()(DTDeadFlag& e) { e.initialize(); }
+  };
+}  // namespace
 
 namespace {
-  struct InitDTDeadFlag {void operator()(DTDeadFlag& e){ e.initialize();}};
-}
+  struct InitDTHVStatus {
+    void operator()(DTHVStatus& e) { e.initialize(); }
+  };
+}  // namespace
 
 namespace {
-  struct InitDTHVStatus {void operator()(DTHVStatus& e){ e.initialize();}};
-}
+  struct InitDTLVStatus {
+    void operator()(DTLVStatus& e) { e.initialize(); }
+  };
+}  // namespace
 
 namespace {
-  struct InitDTLVStatus {void operator()(DTLVStatus& e){ e.initialize();}};
-}
+  struct InitDTMtime {
+    void operator()(DTMtime& e) { e.initialize(); }
+  };
+}  // namespace
 
 namespace {
-  struct InitDTMtime {void operator()(DTMtime& e){ e.initialize();}};
-}
+  struct InitDTPerformance {
+    void operator()(DTPerformance& e) { e.initialize(); }
+  };
+}  // namespace
 
 namespace {
-  struct InitDTPerformance {void operator()(DTPerformance& e){ e.initialize();}};
-}
+  struct InitDTRangeT0 {
+    void operator()(DTRangeT0& e) { e.initialize(); }
+  };
+}  // namespace
 
 namespace {
-  struct InitDTRangeT0 {void operator()(DTRangeT0& e){ e.initialize();}};
-}
+  struct InitDTStatusFlag {
+    void operator()(DTStatusFlag& e) { e.initialize(); }
+  };
+}  // namespace
 
 namespace {
-  struct InitDTStatusFlag {void operator()(DTStatusFlag& e){ e.initialize();}};
-}
+  struct InitDTTPGParameters {
+    void operator()(DTTPGParameters& e) { e.initialize(); }
+  };
+}  // namespace
 
 namespace {
-  struct InitDTTPGParameters {void operator()(DTTPGParameters& e){ e.initialize();}};
-}
+  struct InitDTTtrig {
+    void operator()(DTTtrig& e) { e.initialize(); }
+  };
+}  // namespace
 
-namespace {
-  struct InitDTTtrig {void operator()(DTTtrig& e){ e.initialize();}};
-}
-
-REGISTER_PLUGIN(DTReadOutMappingRcd,DTReadOutMapping);
-REGISTER_PLUGIN(DTT0Rcd,DTT0);
-REGISTER_PLUGIN(DTT0RefRcd,DTT0);
-REGISTER_PLUGIN_INIT(DTRangeT0Rcd,DTRangeT0,InitDTRangeT0);
-REGISTER_PLUGIN_INIT(DTTtrigRcd,DTTtrig,InitDTTtrig);
-REGISTER_PLUGIN_INIT(DTMtimeRcd,DTMtime,InitDTMtime);
-REGISTER_PLUGIN_INIT(DTStatusFlagRcd,DTStatusFlag,InitDTStatusFlag);
-REGISTER_PLUGIN_INIT(DTDeadFlagRcd,DTDeadFlag,InitDTDeadFlag);
-REGISTER_PLUGIN_INIT(DTPerformanceRcd,DTPerformance,InitDTPerformance);
-REGISTER_PLUGIN_INIT(DTCCBConfigRcd,DTCCBConfig,InitDTCCBConfig);
-REGISTER_PLUGIN_INIT(DTTPGParametersRcd,DTTPGParameters,InitDTTPGParameters);
-REGISTER_PLUGIN_INIT(DTHVStatusRcd,DTHVStatus,InitDTHVStatus);
-REGISTER_PLUGIN_INIT(DTLVStatusRcd,DTLVStatus,InitDTLVStatus);
-REGISTER_PLUGIN(DTKeyedConfigContainerRcd, cond::BaseKeyed);
-REGISTER_KEYLIST_PLUGIN(DTKeyedConfigListRcd,cond::persistency::KeyList,DTKeyedConfigContainerRcd);
+REGISTER_PLUGIN(DTReadOutMappingRcd, DTReadOutMapping);
+REGISTER_PLUGIN(DTT0Rcd, DTT0);
+REGISTER_PLUGIN_NO_SERIAL(DTT0RefRcd, DTT0);
+REGISTER_PLUGIN_INIT(DTRangeT0Rcd, DTRangeT0, InitDTRangeT0);
+REGISTER_PLUGIN_INIT(DTTtrigRcd, DTTtrig, InitDTTtrig);
+REGISTER_PLUGIN_INIT(DTMtimeRcd, DTMtime, InitDTMtime);
+REGISTER_PLUGIN_INIT(DTStatusFlagRcd, DTStatusFlag, InitDTStatusFlag);
+REGISTER_PLUGIN_INIT(DTDeadFlagRcd, DTDeadFlag, InitDTDeadFlag);
+REGISTER_PLUGIN_INIT(DTPerformanceRcd, DTPerformance, InitDTPerformance);
+REGISTER_PLUGIN_INIT(DTCCBConfigRcd, DTCCBConfig, InitDTCCBConfig);
+REGISTER_PLUGIN_INIT(DTTPGParametersRcd, DTTPGParameters, InitDTTPGParameters);
+REGISTER_PLUGIN_INIT(DTHVStatusRcd, DTHVStatus, InitDTHVStatus);
+REGISTER_PLUGIN_INIT(DTLVStatusRcd, DTLVStatus, InitDTLVStatus);
 REGISTER_PLUGIN(DTRecoUncertaintiesRcd, DTRecoUncertainties);
 //New flexyble payloads for ttrig, vdrift, uncertainty
 REGISTER_PLUGIN(DTRecoConditionsTtrigRcd, DTRecoConditions);
-REGISTER_PLUGIN(DTRecoConditionsVdriftRcd, DTRecoConditions);
-REGISTER_PLUGIN(DTRecoConditionsUncertRcd, DTRecoConditions);
-
-
+REGISTER_PLUGIN_NO_SERIAL(DTRecoConditionsVdriftRcd, DTRecoConditions);
+REGISTER_PLUGIN_NO_SERIAL(DTRecoConditionsUncertRcd, DTRecoConditions);

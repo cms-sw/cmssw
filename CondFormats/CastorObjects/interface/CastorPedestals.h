@@ -15,23 +15,21 @@ $Author: katsas
 
 //typedef CastorCondObjectContainer<CastorPedestal> CastorPedestals;
 
-class CastorPedestals: public CastorCondObjectContainer<CastorPedestal>
-{
- public:
-  //constructor definition: has to contain 
-  CastorPedestals():CastorCondObjectContainer<CastorPedestal>(), unitIsADC(false) {}
-  CastorPedestals(bool isADC):CastorCondObjectContainer<CastorPedestal>(), unitIsADC(isADC) {}
+class CastorPedestals : public CastorCondObjectContainer<CastorPedestal> {
+public:
+  //constructor definition: has to contain
+  CastorPedestals() : CastorCondObjectContainer<CastorPedestal>(), unitIsADC(false) {}
+  CastorPedestals(bool isADC) : CastorCondObjectContainer<CastorPedestal>(), unitIsADC(isADC) {}
 
   // are the units ADC ? (true=ADC, false=fC)
-  bool isADC() const {return unitIsADC;} 
+  bool isADC() const { return unitIsADC; }
   // set unit boolean
-  void setUnitADC(bool isADC) {unitIsADC = isADC;}
+  void setUnitADC(bool isADC) { unitIsADC = isADC; }
 
- private:
+private:
   bool unitIsADC;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

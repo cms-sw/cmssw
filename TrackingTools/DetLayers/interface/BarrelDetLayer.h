@@ -19,47 +19,38 @@
 #include <vector>
 #include <algorithm>
 
-
 class BarrelDetLayer : public DetLayer {
- public:
+public:
+  BarrelDetLayer(bool doHaveGroup) : DetLayer(doHaveGroup, true), theCylinder(nullptr) {}
 
-  BarrelDetLayer(bool doHaveGroup) : DetLayer(doHaveGroup,true),
-    theCylinder(nullptr){}
-  
   ~BarrelDetLayer() override;
 
   /// GeometricSearchDet interface
-  const BoundSurface&  surface() const  final { return *theCylinder;}
+  const BoundSurface& surface() const final { return *theCylinder; }
 
-  std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const final;
+  std::pair<bool, TrajectoryStateOnSurface> compatible(const TrajectoryStateOnSurface& ts,
+                                                       const Propagator&,
+                                                       const MeasurementEstimator&) const final;
 
   /// DetLayer interface
-  Location location() const final {return GeomDetEnumerators::barrel;}
-
+  Location location() const final { return GeomDetEnumerators::barrel; }
 
   /// Extension of the interface
-  virtual const BoundCylinder&  specificSurface() const final { return *theCylinder;}
+  virtual const BoundCylinder& specificSurface() const final { return *theCylinder; }
 
-  bool contains( const Local3DPoint& p) const;
-
-
+  bool contains(const Local3DPoint& p) const;
 
 protected:
-
   virtual void initialize();
 
-  void setSurface( BoundCylinder* cp);
+  void setSurface(BoundCylinder* cp);
   virtual BoundCylinder* computeSurface();
 
-  SimpleCylinderBounds const & bounds() const { return static_cast<SimpleCylinderBounds const &>(theCylinder->bounds());} 
-
+  SimpleCylinderBounds const& bounds() const { return static_cast<SimpleCylinderBounds const&>(theCylinder->bounds()); }
 
 private:
   //float theRmin, theRmax, theZmin, theZmax;
-  ReferenceCountingPointer<BoundCylinder>  theCylinder;
-
+  ReferenceCountingPointer<BoundCylinder> theCylinder;
 };
 
-#endif 
+#endif

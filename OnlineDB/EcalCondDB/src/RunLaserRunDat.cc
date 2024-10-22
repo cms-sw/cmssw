@@ -8,8 +8,7 @@
 using namespace std;
 using namespace oracle::occi;
 
-RunLaserRunDat::RunLaserRunDat()
-{
+RunLaserRunDat::RunLaserRunDat() {
   m_env = nullptr;
   m_conn = nullptr;
   m_writeStmt = nullptr;
@@ -17,44 +16,37 @@ RunLaserRunDat::RunLaserRunDat()
   m_laserSeqCond = "";
 }
 
+RunLaserRunDat::~RunLaserRunDat() {}
 
-
-RunLaserRunDat::~RunLaserRunDat()
-{
-}
-
-
-
-void RunLaserRunDat::prepareWrite()
-  noexcept(false)
-{
+void RunLaserRunDat::prepareWrite() noexcept(false) {
   this->checkConnection();
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO run_laserrun_config_dat (iov_id, logic_id, "
-			"laser_sequence_type, laser_sequence_cond) "
-			"VALUES (:1, :2, "
-			":3, :4 )");
-  } catch (SQLException &e) {
-    throw(std::runtime_error("RunLaserRunDat::prepareWrite():  "+e.getMessage()));
+    m_writeStmt->setSQL(
+        "INSERT INTO run_laserrun_config_dat (iov_id, logic_id, "
+        "laser_sequence_type, laser_sequence_cond) "
+        "VALUES (:1, :2, "
+        ":3, :4 )");
+  } catch (SQLException& e) {
+    throw(std::runtime_error("RunLaserRunDat::prepareWrite():  " + e.getMessage()));
   }
 }
 
-
-
-void RunLaserRunDat::writeDB(const EcalLogicID* ecid, const RunLaserRunDat* item, RunIOV* iov)
-  noexcept(false)
-{
+void RunLaserRunDat::writeDB(const EcalLogicID* ecid, const RunLaserRunDat* item, RunIOV* iov) noexcept(false) {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(std::runtime_error("RunLaserRunDat::writeDB:  IOV not in DB")); }
+  if (!iovID) {
+    throw(std::runtime_error("RunLaserRunDat::writeDB:  IOV not in DB"));
+  }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(std::runtime_error("RunLaserRunDat::writeDB:  Bad EcalLogicID")); }
-  
+  if (!logicID) {
+    throw(std::runtime_error("RunLaserRunDat::writeDB:  Bad EcalLogicID"));
+  }
+
   try {
     m_writeStmt->setInt(1, iovID);
     m_writeStmt->setInt(2, logicID);
@@ -62,54 +54,51 @@ void RunLaserRunDat::writeDB(const EcalLogicID* ecid, const RunLaserRunDat* item
     m_writeStmt->setString(4, item->getLaserSequenceCond());
 
     m_writeStmt->executeUpdate();
-  } catch (SQLException &e) {
-    throw(std::runtime_error("RunLaserRunDat::writeDB():  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("RunLaserRunDat::writeDB():  " + e.getMessage()));
   }
 }
 
-
-
-void RunLaserRunDat::fetchData(map< EcalLogicID, RunLaserRunDat >* fillMap, RunIOV* iov)
-  noexcept(false)
-{
+void RunLaserRunDat::fetchData(map<EcalLogicID, RunLaserRunDat>* fillMap, RunIOV* iov) noexcept(false) {
   this->checkConnection();
   fillMap->clear();
 
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
-  if (!iovID) { 
-    //  throw(std::runtime_error("RunLaserRunDat::writeDB:  IOV not in DB")); 
+  if (!iovID) {
+    //  throw(std::runtime_error("RunLaserRunDat::writeDB:  IOV not in DB"));
     return;
   }
 
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-		 "d.laser_sequence_type, d.laser_sequence_cond "
-		 "FROM channelview cv JOIN run_laserrun_config_dat d "
-		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
-		 "WHERE d.iov_id = :iov_id");
+    stmt->setSQL(
+        "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
+        "d.laser_sequence_type, d.laser_sequence_cond "
+        "FROM channelview cv JOIN run_laserrun_config_dat d "
+        "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
+        "WHERE d.iov_id = :iov_id");
     stmt->setInt(1, iovID);
     ResultSet* rset = stmt->executeQuery();
-    
-    std::pair< EcalLogicID, RunLaserRunDat > p;
-    RunLaserRunDat dat;
-    while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
-			     rset->getInt(2),        // logic_id
-			     rset->getInt(3),        // id1
-			     rset->getInt(4),        // id2
-			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
 
-      dat.setLaserSequenceType( rset->getString(7));    // maps_to
-      dat.setLaserSequenceCond( rset->getString(8));    // maps_to
+    std::pair<EcalLogicID, RunLaserRunDat> p;
+    RunLaserRunDat dat;
+    while (rset->next()) {
+      p.first = EcalLogicID(rset->getString(1),   // name
+                            rset->getInt(2),      // logic_id
+                            rset->getInt(3),      // id1
+                            rset->getInt(4),      // id2
+                            rset->getInt(5),      // id3
+                            rset->getString(6));  // maps_to
+
+      dat.setLaserSequenceType(rset->getString(7));  // maps_to
+      dat.setLaserSequenceCond(rset->getString(8));  // maps_to
 
       p.second = dat;
       fillMap->insert(p);
     }
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(std::runtime_error("RunLaserRunDat::fetchData():  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("RunLaserRunDat::fetchData():  " + e.getMessage()));
   }
 }

@@ -1,34 +1,32 @@
-#include "RecoLocalCalo/EcalRecProducers/plugins/ESRecHitWorker.h"
+#include "ESRecHitWorker.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "CondFormats/DataRecord/interface/ESGainRcd.h"
-#include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
-#include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
-#include "CondFormats/DataRecord/interface/ESTimeSampleWeightsRcd.h"
-#include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
-#include "CondFormats/DataRecord/interface/ESRecHitRatioCutsRcd.h"
-#include "CondFormats/DataRecord/interface/ESAngleCorrectionFactorsRcd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <cmath>
 #include <iomanip>
 #include <iostream>
 
-ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet& ps) :
-        ESRecHitWorkerBaseClass( ps )
-{
+ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet &ps, edm::ConsumesCollector cc) : ESRecHitWorkerBaseClass(ps) {
   recoAlgo_ = ps.getParameter<int>("ESRecoAlgo");
+  esgainToken_ = cc.esConsumes<ESGain, ESGainRcd>();
+  esMIPToGeVToken_ = cc.esConsumes<ESMIPToGeVConstant, ESMIPToGeVConstantRcd>();
+  esWeightsToken_ = cc.esConsumes<ESTimeSampleWeights, ESTimeSampleWeightsRcd>();
+  esPedestalsToken_ = cc.esConsumes<ESPedestals, ESPedestalsRcd>();
+  esMIPsToken_ = cc.esConsumes<ESIntercalibConstants, ESIntercalibConstantsRcd>();
+  esChannelStatusToken_ = cc.esConsumes<ESChannelStatus, ESChannelStatusRcd>();
+  esRatioCutsToken_ = cc.esConsumes<ESRecHitRatioCuts, ESRecHitRatioCutsRcd>();
+  esAngleCorrFactorsToken_ = cc.esConsumes<ESAngleCorrectionFactors, ESAngleCorrectionFactorsRcd>();
 
   if (recoAlgo_ == 0)
     algoW_ = new ESRecHitSimAlgo();
-  else if (recoAlgo_ == 1) 
+  else if (recoAlgo_ == 1)
     algoF_ = new ESRecHitFitAlgo();
-  else 
+  else
     algoA_ = new ESRecHitAnalyticAlgo();
 }
 
@@ -37,42 +35,41 @@ ESRecHitWorker::~ESRecHitWorker() {
     delete algoW_;
   else if (recoAlgo_ == 1)
     delete algoF_;
-  else 
+  else
     delete algoA_;
 }
 
-void ESRecHitWorker::set(const edm::EventSetup& es) {
-
-  es.get<ESGainRcd>().get(esgain_);
+void ESRecHitWorker::set(const edm::EventSetup &es) {
+  esgain_ = es.getHandle(esgainToken_);
   const ESGain *gain = esgain_.product();
 
-  es.get<ESMIPToGeVConstantRcd>().get(esMIPToGeV_);
+  esMIPToGeV_ = es.getHandle(esMIPToGeVToken_);
   const ESMIPToGeVConstant *mipToGeV = esMIPToGeV_.product();
 
   double ESGain = gain->getESGain();
-  double ESMIPToGeV = (ESGain == 1) ? mipToGeV->getESValueLow() : mipToGeV->getESValueHigh(); 
+  double ESMIPToGeV = (ESGain == 1) ? mipToGeV->getESValueLow() : mipToGeV->getESValueHigh();
 
-  es.get<ESTimeSampleWeightsRcd>().get(esWeights_);
+  esWeights_ = es.getHandle(esWeightsToken_);
   const ESTimeSampleWeights *wgts = esWeights_.product();
 
   float w0 = wgts->getWeightForTS0();
   float w1 = wgts->getWeightForTS1();
   float w2 = wgts->getWeightForTS2();
 
-  es.get<ESPedestalsRcd>().get(esPedestals_);
+  esPedestals_ = es.getHandle(esPedestalsToken_);
   const ESPedestals *peds = esPedestals_.product();
 
-  es.get<ESIntercalibConstantsRcd>().get(esMIPs_);
+  esMIPs_ = es.getHandle(esMIPsToken_);
   const ESIntercalibConstants *mips = esMIPs_.product();
 
-  es.get<ESAngleCorrectionFactorsRcd>().get(esAngleCorrFactors_);
+  esAngleCorrFactors_ = es.getHandle(esAngleCorrFactorsToken_);
   const ESAngleCorrectionFactors *ang = esAngleCorrFactors_.product();
 
-  es.get<ESChannelStatusRcd>().get(esChannelStatus_);
+  esChannelStatus_ = es.getHandle(esChannelStatusToken_);
   const ESChannelStatus *channelStatus = esChannelStatus_.product();
 
-  es.get<ESRecHitRatioCutsRcd>().get(esRatioCuts_);
-  const ESRecHitRatioCuts *ratioCuts = esRatioCuts_.product(); 
+  esRatioCuts_ = es.getHandle(esRatioCutsToken_);
+  const ESRecHitRatioCuts *ratioCuts = esRatioCuts_.product();
 
   if (recoAlgo_ == 0) {
     algoW_->setESGain(ESGain);
@@ -104,19 +101,16 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
   }
 }
 
-bool
-ESRecHitWorker::run( const ESDigiCollection::const_iterator & itdg,
-                     ESRecHitCollection & result )
-{
+bool ESRecHitWorker::run(const ESDigiCollection::const_iterator &itdg, ESRecHitCollection &result) {
   if (recoAlgo_ == 0)
-    result.push_back( algoW_->reconstruct(*itdg) );
+    result.push_back(algoW_->reconstruct(*itdg));
   else if (recoAlgo_ == 1)
-    result.push_back( algoF_->reconstruct(*itdg) );
-  else 
-    result.push_back( algoA_->reconstruct(*itdg) );
+    result.push_back(algoF_->reconstruct(*itdg));
+  else
+    result.push_back(algoA_->reconstruct(*itdg));
   return true;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/ESRecHitWorkerFactory.h"
-DEFINE_EDM_PLUGIN( ESRecHitWorkerFactory, ESRecHitWorker, "ESRecHitWorker" );
+DEFINE_EDM_PLUGIN(ESRecHitWorkerFactory, ESRecHitWorker, "ESRecHitWorker");

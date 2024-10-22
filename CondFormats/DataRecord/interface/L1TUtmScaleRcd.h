@@ -1,4 +1,4 @@
-// L1TUtmScaleRcd                                                                                            
+// L1TUtmScaleRcd
 // Description: Record for L1TUtmScale
 //
 // automatically generate by make_records.pl
@@ -14,6 +14,6 @@ class L1TUtmScaleRcd : public edm::eventsetup::EventSetupRecordImplementation<L1
 //#include "FWCore/Framework/interface/DependentRecordImplementation.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-//class L1TUtmScaleRcd : public edm::eventsetup::DependentRecordImplementation<L1TUtmScaleRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+//class L1TUtmScaleRcd : public edm::eventsetup::DependentRecordImplementation<L1TUtmScaleRcd, edm::mpl::Vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif

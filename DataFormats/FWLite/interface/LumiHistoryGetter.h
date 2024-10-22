@@ -22,23 +22,23 @@
 #include "DataFormats/FWLite/interface/HistoryGetterBase.h"
 
 namespace fwlite {
-    class LumiHistoryGetter : public HistoryGetterBase{
-        public:
-            LumiHistoryGetter(const LuminosityBlock*);
-            ~LumiHistoryGetter() override;
+  class LumiHistoryGetter : public HistoryGetterBase {
+  public:
+    LumiHistoryGetter(const LuminosityBlock*);
+    ~LumiHistoryGetter() override;
 
-            // ---------- const member functions ---------------------
-            const edm::ProcessHistory& history() const override;
+    // ---------- const member functions ---------------------
+    const edm::ProcessHistory& history() const override;
 
-        private:
-            LumiHistoryGetter(const LumiHistoryGetter&) = delete; // stop default
+    LumiHistoryGetter(const LumiHistoryGetter&) = delete;  // stop default
 
-            const LumiHistoryGetter& operator=(const LumiHistoryGetter&) = delete; // stop default
+    const LumiHistoryGetter& operator=(const LumiHistoryGetter&) = delete;  // stop default
 
-            // ---------- member data --------------------------------
-            const fwlite::LuminosityBlock* lumi_;
-    };
+  private:
+    // ---------- member data --------------------------------
+    const fwlite::LuminosityBlock* lumi_;
+  };
 
-}
+}  // namespace fwlite
 
 #endif

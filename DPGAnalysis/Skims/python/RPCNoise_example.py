@@ -2,13 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("USER")
 
-process.load("Configuration/StandardSequences/Geometry_cff")
-process.load("Configuration/StandardSequences/MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'CRUZET4_V5P::All'
+process.GlobalTag.globaltag = 'auto:run3_data_prompt'
 process.prefer("GlobalTag")
-process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
-process.load("Configuration/StandardSequences/ReconstructionCosmics_cff")
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(

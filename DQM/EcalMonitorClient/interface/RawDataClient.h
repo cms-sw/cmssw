@@ -8,17 +8,16 @@ namespace ecaldqm {
   class RawDataClient : public DQWorkerClient {
   public:
     RawDataClient();
-    ~RawDataClient() {}
+    ~RawDataClient() override {}
 
     void producePlots(ProcessType) override;
 
   private:
     void setParams(edm::ParameterSet const&) override;
-
+    int minEvents_;
     float synchErrThresholdFactor_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

@@ -4,14 +4,14 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Geometry.GeometryExtended2019_cff import *
 
 
-
 # Reconstruction geometry services
 #  Tracking Geometry
 #bah - well, this is not a cfi!
-from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
+from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
 
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 
 #Muon
@@ -23,7 +23,6 @@ from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
 from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
-trackerGeometry.applyAlignment = cms.bool(False)
 
 #  Calorimeters
 from Geometry.CaloEventSetup.CaloTopology_cfi import *

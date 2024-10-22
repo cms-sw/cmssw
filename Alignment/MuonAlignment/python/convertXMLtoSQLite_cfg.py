@@ -8,9 +8,28 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
+process.DTGeometryAlInputXML = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('idealForInputXML'),
+    applyAlignment = cms.bool(False), 
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True)
+)
+
+process.CSCGeometryAlInputXML = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('idealForInputXML'),
+    debugV = cms.untracked.bool(False),
+    useGangedStripsInME1a = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    useOnlyWiresInME1a = cms.bool(False),
+    useRealWireGeometry = cms.bool(True),
+    useCentreTIOffsets = cms.bool(False),
+    applyAlignment = cms.bool(False), 
+    useDDD = cms.bool(True)
+)
+
 process.MuonGeometryDBConverter = cms.EDAnalyzer("MuonGeometryDBConverter",
     input = cms.string("xml"),
-    fileName = cms.string(str(sys.argv[2])),
+    fileName = cms.string(str(sys.argv[1])),
     shiftErr = cms.double(1000.),
     angleErr = cms.double(6.28),
     output = cms.string("db"))
@@ -18,7 +37,7 @@ process.MuonGeometryDBConverter = cms.EDAnalyzer("MuonGeometryDBConverter",
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBSetup,
-    connect = cms.string("sqlite_file:"+str(sys.argv[2])[:-3]+"db"),
+    connect = cms.string("sqlite_file:"+str(sys.argv[1])[:-3]+"db"),
     toPut = cms.VPSet(
         cms.PSet(record = cms.string("DTAlignmentRcd"), tag = cms.string("DTAlignmentRcd")),
         cms.PSet(record = cms.string("DTAlignmentErrorExtendedRcd"), tag = cms.string("DTAlignmentErrorExtendedRcd")),

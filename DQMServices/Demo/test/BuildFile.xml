@@ -1,0 +1,8 @@
+<use name="DQMServices/Core"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<library file="*.cc" name="DQMServicesDemoTestPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<test name="TestDQMServicesDemo" command="runtests.sh"/>

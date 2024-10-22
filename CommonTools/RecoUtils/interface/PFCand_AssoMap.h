@@ -29,27 +29,25 @@
 
 #include "CommonTools/RecoUtils/interface/PFCand_AssoMapAlgos.h"
 
-
 //
 // class declaration
 //
 
 class PFCand_AssoMap : public edm::stream::EDProducer<>, public PFCand_AssoMapAlgos {
-   public:
-      explicit PFCand_AssoMap(const edm::ParameterSet&);
-      ~PFCand_AssoMap() override;
+public:
+  explicit PFCand_AssoMap(const edm::ParameterSet&);
+  ~PFCand_AssoMap() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-      edm::InputTag input_AssociationType_;
+  edm::InputTag input_AssociationType_;
 
-      edm::EDGetTokenT<reco::PFCandidateCollection> token_PFCandidates_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> token_PFCandidates_;
 };
-
 
 #endif

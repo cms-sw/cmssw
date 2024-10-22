@@ -7,20 +7,21 @@
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-class RunSummaryHandler : public popcon::PopConSourceHandler<RunSummary>{
- public:
+class RunSummaryHandler : public popcon::PopConSourceHandler<RunSummary> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~RunSummaryHandler() override;
-  RunSummaryHandler(const edm::ParameterSet& pset); 
- private:
+  RunSummaryHandler(const edm::ParameterSet& pset);
+
+private:
   std::string m_name;
   unsigned long long m_since;
-  
-  // for reading from omds 
-  
-  std::string  m_connectionString;
-  
+
+  // for reading from omds
+
+  std::string m_connectionString;
+
   std::string m_authpath;
   std::string m_host;
   std::string m_sid;
@@ -29,4 +30,4 @@ class RunSummaryHandler : public popcon::PopConSourceHandler<RunSummary>{
   int m_port;
 };
 
-#endif 
+#endif

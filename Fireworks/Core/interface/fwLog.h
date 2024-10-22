@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     fwLog
-// 
+//
 /**\class fwLog fwLog.h Fireworks/Core/interface/fwLog.h
 
  Description: Simple logging utility
@@ -32,22 +32,17 @@
 
 // forward declarations
 namespace fwlog {
-   enum LogLevel {
-      kDebug,
-      kInfo,
-      kWarning,
-      kError
-   };
+  enum LogLevel { kDebug, kInfo, kWarning, kError };
 
-   const char* levelName(LogLevel);
-   std::ostream& logger();
-   void setLogger(std::ostream*);
-   
-   LogLevel presentLogLevel();
-   void setPresentLogLevel(LogLevel);
-}
+  const char* levelName(LogLevel);
+  std::ostream& logger();
+  void setLogger(std::ostream*);
+
+  LogLevel presentLogLevel();
+  void setPresentLogLevel(LogLevel);
+}  // namespace fwlog
 
 #define fwLog(_level_) \
-   (fwlog::presentLogLevel() > _level_) ? fwlog::logger() : fwlog::logger()<< fwlog::levelName(_level_)<<": "
+  (fwlog::presentLogLevel() > _level_) ? fwlog::logger() : fwlog::logger() << fwlog::levelName(_level_) << ": "
 
 #endif

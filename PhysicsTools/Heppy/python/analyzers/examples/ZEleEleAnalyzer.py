@@ -1,3 +1,4 @@
+from __future__ import print_function
 from PhysicsTools.Heppy.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
 from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.DiObject import DiElectron
@@ -11,7 +12,7 @@ class ZEleEleAnalyzer( DiLeptonAnalyzer ):
 
     def declareHandles(self):
         super(ZEleEleAnalyzer, self).declareHandles()
-        print 'ZEleEleAnalyzer.declareHandles'
+        print('ZEleEleAnalyzer.declareHandles')
         self.handles['diLeptons'] = AutoHandle(
             'cmgDiElectronSelStdLep',
             'std::vector<cmg::DiObject<cmg::Electron,cmg::Electron>>'

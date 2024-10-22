@@ -36,18 +36,18 @@ class VIDCutFlowResult:
         return self.__instance.getValueCutUpon(idx_or_name)
     
     def getCutFlowResultMasking(self,things_to_mask):       
-        if type(things_to_mask) == str or type(things_to_mask) == int:
+        if isinstance(things_to_mask, str) or isinstance(things_to_mask, int):
             return VIDCutFlowResult(self.__instance.getCutFlowResultMasking(things_to_mask))
-        elif type(things_to_mask) != list:
+        elif not isinstance(things_to_mask, list):
             raise Exception('InvalidType','getCutFlowResultMasking only accepts (lists of) strings or ints!')
             
-        if type(things_to_mask) == list:
+        if isinstance(things_to_mask, list):
             vect = None
             if len(things_to_mask) <= 0: 
                 raise Exception('NothingToMask')
-            if type(things_to_mask[0]) == str:
+            if isinstance(things_to_mask[0], str):
                 vect = ROOT.std.vector('std::string')()
-            elif type(things_to_mask[0]) == int:
+            elif isinstance(things_to_mask[0], int):
                 vect = ROOT.std.vector('unsigned int')()
             else:
                 raise Exception('InvalidType','getCutFlowResultMasking only accepts (lists of) strings or ints!')

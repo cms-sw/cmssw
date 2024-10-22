@@ -15,18 +15,15 @@
 #include <vector>
 
 namespace l1t {
-  void SortJets(std::vector<l1t::Jet> * input,
-                std::vector<l1t::Jet> * output);
+  void SortJets(std::vector<l1t::Jet>* input, std::vector<l1t::Jet>* output);
 
-  void SortEGammas(std::vector<l1t::EGamma> * input,
-		   std::vector<l1t::EGamma> * output);
+  void SortEGammas(std::vector<l1t::EGamma>* input, std::vector<l1t::EGamma>* output);
 
-  void SortTaus(std::vector<l1t::Tau> * input,
-                std::vector<l1t::Tau> * output);
+  void SortTaus(std::vector<l1t::Tau>* input, std::vector<l1t::Tau>* output);
 
   unsigned int pack15bits(int pt, int eta, int phi);
   unsigned int pack16bits(int pt, int eta, int phi);
   unsigned int pack16bitsEgammaSpecial(int pt, int eta, int phi);
-}
+}  // namespace l1t
 
 #endif

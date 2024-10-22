@@ -22,37 +22,39 @@
 
 namespace reco {
 
-class VertexFilter {
-    public:
-	VertexFilter(const edm::ParameterSet &params);
-	~VertexFilter() {}
+  class VertexFilter {
+  public:
+    VertexFilter(const edm::ParameterSet &params);
+    ~VertexFilter() {}
 
-	bool operator () (const reco::Vertex &pv, const TemplatedSecondaryVertex<reco::Vertex> &sv,
-	                  const GlobalVector &direction) const;
-	bool operator () (const reco::Vertex &pv, const TemplatedSecondaryVertex<reco::VertexCompositePtrCandidate> &sv,
-	                  const GlobalVector &direction) const;
+    bool operator()(const reco::Vertex &pv,
+                    const TemplatedSecondaryVertex<reco::Vertex> &sv,
+                    const GlobalVector &direction) const;
+    bool operator()(const reco::Vertex &pv,
+                    const TemplatedSecondaryVertex<reco::VertexCompositePtrCandidate> &sv,
+                    const GlobalVector &direction) const;
 
-    private:
-	bool		useTrackWeights;
-	double		minTrackWeight;
-	double		massMax;
-	double		fracPV;
-	unsigned int	multiplicityMin;
+  private:
+    bool useTrackWeights;
+    double minTrackWeight;
+    double massMax;
+    double fracPV;
+    unsigned int multiplicityMin;
 
-	double		distVal2dMin;
-	double		distVal2dMax;
-	double		distVal3dMin;
-	double		distVal3dMax;
+    double distVal2dMin;
+    double distVal2dMax;
+    double distVal3dMin;
+    double distVal3dMax;
 
-	double		distSig2dMin;
-	double		distSig2dMax;
-	double		distSig3dMin;
-	double		distSig3dMax;
+    double distSig2dMin;
+    double distSig2dMax;
+    double distSig3dMin;
+    double distSig3dMax;
 
-	double		maxDeltaRToJetAxis;
-	V0Filter	v0Filter;
-};
+    double maxDeltaRToJetAxis;
+    V0Filter v0Filter;
+  };
 
-} // namespace reco
+}  // namespace reco
 
-#endif // RecoBTag_SecondaryVertex_VertexFilter_h
+#endif  // RecoBTag_SecondaryVertex_VertexFilter_h

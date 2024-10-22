@@ -1,41 +1,21 @@
 #ifndef SimG4Core_CustomPhysics_DummyChargeFlipProcess_h
 #define SimG4Core_CustomPhysics_DummyChargeFlipProcess_h 1
- 
+
 #include "globals.hh"
 #include "G4HadronicProcess.hh"
-#include "G4CrossSectionDataStore.hh"
-#include "G4HadronElasticDataSet.hh"
-#include "G4Element.hh"
-#include "G4ElementVector.hh"
-#include "G4VDiscreteProcess.hh"
-#include "G4LightMedia.hh"
-#include "G4Step.hh"
-#include "G4TrackStatus.hh"
+#include "G4ParticleChange.hh"
 
-#include <iostream>
-
-class DummyChargeFlipProcess : public G4HadronicProcess
-{
+class DummyChargeFlipProcess : public G4HadronicProcess {
 public:
+  DummyChargeFlipProcess(const G4String& processName = "Dummy");
 
-   DummyChargeFlipProcess(const G4String& processName = "Dummy");
+  ~DummyChargeFlipProcess() override;
 
-   ~DummyChargeFlipProcess() override;
- 
-   G4VParticleChange* PostStepDoIt(const G4Track& aTrack, const G4Step& aStep) override;
+  G4VParticleChange* PostStepDoIt(const G4Track& aTrack, const G4Step& aStep) override;
 
-
-   G4bool IsApplicable(const G4ParticleDefinition& aParticleType) override;
-
-   void BuildPhysicsTable(const G4ParticleDefinition& aParticleType) override;
-
-   void DumpPhysicsTable(const G4ParticleDefinition& aParticleType);
+  G4bool IsApplicable(const G4ParticleDefinition& aParticleType) override;
 
 private:
-
-   G4double GetMicroscopicCrossSection(const G4DynamicParticle* aParticle,
-                                       const G4Element* anElement,
-				       G4double aTemp);
-
+  G4ParticleChange* fPartChange;
 };
 #endif

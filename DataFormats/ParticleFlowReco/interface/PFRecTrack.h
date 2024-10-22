@@ -2,10 +2,8 @@
 #define DataFormats_ParticleFlowReco_PFRecTrack_h
 
 #include "DataFormats/ParticleFlowReco/interface/PFTrack.h"
-/* #include "DataFormats/Common/interface/RefToBase.h" */
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include <iostream>
 
 namespace reco {
 
@@ -20,26 +18,20 @@ namespace reco {
      \date   July 2006
   */
   class PFRecTrack : public PFTrack {
-
   public:
-    
     /// different types of fitting algorithms
     enum AlgoType_t {
       Unknown = 0,
-      KF = 1, // Kalman filter 
+      KF = 1,  // Kalman filter
       GSF = 2,
-      KF_ELCAND=3// Gaussian sum filter
+      KF_ELCAND = 3  // Gaussian sum filter
     };
 
     PFRecTrack();
-    ~PFRecTrack(){};  
-    PFRecTrack(double charge, 
-               AlgoType_t algoType, 
-               int trackId,
-               const reco::TrackRef& trackref );
-    
-    PFRecTrack(double charge,
-               AlgoType_t algoType);
+    ~PFRecTrack() {}
+    PFRecTrack(double charge, AlgoType_t algoType, int trackId, const reco::TrackRef& trackref);
+
+    PFRecTrack(double charge, AlgoType_t algoType);
 
     /*     PFRecTrack(const PFRecTrack& other); */
 
@@ -47,35 +39,37 @@ namespace reco {
     unsigned int algoType() const { return algoType_; }
 
     /// \return id
-    int trackId() const {return trackId_;}
+    int trackId() const { return trackId_; }
 
     /// \return reference to corresponding track
-    const reco::TrackRef& 
-      trackRef() const {return trackRef_;}
+    const reco::TrackRef& trackRef() const { return trackRef_; }
 
     /// \set the significance of the signed transverse impact parameter
-    void setSTIP(float STIP){STIP_=STIP;}
+    void setSTIP(float STIP) { STIP_ = STIP; }
 
     /// \return the significance of the signed transverse impact parameter
-    const float STIP() const{return STIP_;}
+    const float STIP() const { return STIP_; }
+
+    /// \return eta
+    inline auto eta() const { return trackRef_->eta(); }
+
+    /// \return phi
+    inline auto phi() const { return trackRef_->phi(); }
 
   private:
-
     /// type of fitting algorithm used to reconstruct the track
     AlgoType_t algoType_;
-    
+
     /// track id
     int trackId_;
 
     /// reference to corresponding track
-    reco::TrackRef        trackRef_;
+    reco::TrackRef trackRef_;
     float STIP_;
-
   };
 
-  std::ostream& operator<<(std::ostream& out, 
-                           const PFRecTrack& track);
+  std::ostream& operator<<(std::ostream& out, const PFRecTrack& track);
 
-}
+}  // namespace reco
 
 #endif

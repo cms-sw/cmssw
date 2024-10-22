@@ -14,7 +14,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -34,14 +33,13 @@ class BPHRecoBuilder;
 //              ---------------------
 
 class BPHDecayMomentum {
-
-  friend class BPHRecoBuilder;
-
- public:
-
+public:
   /** Constructors are protected
    *  this object can exist only as part of a derived class
    */
+  // deleted copy constructor and assignment operator
+  BPHDecayMomentum(const BPHDecayMomentum& x) = delete;
+  BPHDecayMomentum& operator=(const BPHDecayMomentum& x) = delete;
 
   /** Destructor
    */
@@ -81,8 +79,7 @@ class BPHDecayMomentum {
   virtual const std::vector<const reco::Candidate*>& daughFull() const;
 
   /// get the original particle from the clone
-  virtual const reco::Candidate* originalReco(
-          const reco::Candidate* daug ) const;
+  virtual const reco::Candidate* originalReco(const reco::Candidate* daug) const;
 
   /// get the list of previously reconstructed particles
   /// e.g. in JPsi -> mu+mu-   returns an empty list
@@ -92,13 +89,15 @@ class BPHDecayMomentum {
 
   /// get a simple particle from the name
   /// return null pointer if not found
-  virtual const reco::Candidate* getDaug( const std::string& name ) const;
+  virtual const reco::Candidate* getDaug(const std::string& name) const;
 
   /// get a previously reconstructed particle from the name
   /// return null pointer if not found
-  virtual BPHRecoConstCandPtr getComp( const std::string& name ) const;
+  virtual BPHRecoConstCandPtr getComp(const std::string& name) const;
 
- protected:
+  const std::map<std::string, const reco::Candidate*>& daugMap() const { return dMap; }
+
+  const std::map<std::string, BPHRecoConstCandPtr>& compMap() const { return cMap; }
 
   struct Component {
     const reco::Candidate* cand;
@@ -107,29 +106,31 @@ class BPHDecayMomentum {
     std::string searchList;
   };
 
+protected:
   // constructors
-  BPHDecayMomentum();
-  BPHDecayMomentum( const std::map<std::string,Component>& daugMap );
-  BPHDecayMomentum( const std::map<std::string,Component>& daugMap,
-                    const std::map<std::string,BPHRecoConstCandPtr> compMap );
+  BPHDecayMomentum(int daugNum = 2, int compNum = 2);
+  BPHDecayMomentum(const std::map<std::string, Component>& daugMap, int compNum = 2);
+  BPHDecayMomentum(const std::map<std::string, Component>& daugMap,
+                   const std::map<std::string, BPHRecoConstCandPtr> compMap);
 
   // get an object filled in the constructor
   // to be used in the creation of other bases of BPHRecoCandidate
   const std::vector<Component>& componentList() const;
 
-  /// add a simple particle giving it a name
-  /// particles are cloned, eventually specifying a different mass
-  virtual void addP( const std::string& name,
-                     const reco::Candidate* daug, double mass = -1.0 );
-  /// add a previously reconstructed particle giving it a name
-  virtual void addP( const std::string& name,
-                     const BPHRecoConstCandPtr& comp );
+  // add a simple particle giving it a name
+  // particles are cloned, eventually specifying a different mass
+  virtual void addP(const std::string& name, const reco::Candidate* daug, double mass = -1.0);
+  // add a previously reconstructed particle giving it a name
+  virtual void addP(const std::string& name, const BPHRecoConstCandPtr& comp);
 
   // utility function used to cash reconstruction results
   virtual void setNotUpdated() const;
 
- private:
+  // function doing the job to clone reconstructed decays:
+  // copy stable particles and clone cascade decays up to chosen level
+  virtual void fill(BPHRecoCandidate* ptr, int level) const = 0;
 
+private:
   // object filled in the constructor
   // to be used in the creation of other bases of BPHRecoCandidate
   std::vector<Component> compList;
@@ -141,12 +142,12 @@ class BPHDecayMomentum {
   // pointers to simple and previously reconstructed particles
   // (clones stored for simple particles)
   std::vector<const reco::Candidate*> dList;
-  std::vector<BPHRecoConstCandPtr   > cList;
+  std::vector<BPHRecoConstCandPtr> cList;
 
   // maps linking names to decay products
   // (simple and previously reconstructed particles)
-  std::map<std::string,const reco::Candidate*> dMap;
-  std::map<std::string,BPHRecoConstCandPtr   > cMap;
+  std::map<std::string, const reco::Candidate*> dMap;
+  std::map<std::string, BPHRecoConstCandPtr> cMap;
 
   // map linking cloned particles to original ones
   std::map<const reco::Candidate*, const reco::Candidate*> clonesMap;
@@ -157,7 +158,7 @@ class BPHDecayMomentum {
   mutable pat::CompositeCandidate compCand;
 
   // create clones of simple particles, store them and their names
-  void clonesList( const std::map<std::string,Component>& daugMap );
+  void clonesList(const std::map<std::string, Component>& daugMap);
 
   // fill lists of previously reconstructed particles and their names
   // and retrieve cascade decay products
@@ -165,18 +166,16 @@ class BPHDecayMomentum {
 
   // compute the total momentum of simple particles, produced
   // directly or in cascade decays
-  virtual void sumMomentum(
-               const std::vector<const reco::Candidate*> dl ) const;
+  virtual void sumMomentum(const std::vector<const reco::Candidate*>& dl, const std::vector<std::string>& dn) const;
 
   // recursively fill the list of simple particles, produced
   // directly or in cascade decays
-  virtual void fillDaug( std::vector<const reco::Candidate*>& ad ) const;
+  virtual void fillDaug(std::vector<const reco::Candidate*>& ad,
+                        const std::string& name,
+                        std::vector<std::string>& an) const;
 
   // compute the total momentum and cache it
   virtual void computeMomentum() const;
-
 };
 
-
 #endif
-

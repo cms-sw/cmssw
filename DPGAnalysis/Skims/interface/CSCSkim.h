@@ -19,8 +19,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -69,38 +68,33 @@
 #include "TString.h"
 #include "TTree.h"
 
-
-class CSCSkim : public edm::EDFilter {
- public:
+class CSCSkim : public edm::one::EDFilter<> {
+public:
   // Constructor
-  explicit CSCSkim(const edm::ParameterSet& pset);
-   
+  explicit CSCSkim(const edm::ParameterSet &pset);
+
   // Destructor
   ~CSCSkim() override;
-     
+
   // Analysis routines
   void beginJob() override;
-  bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;
+  bool filter(edm::Event &event, const edm::EventSetup &eventSetup) override;
   void endJob() override;
-       
-protected:
-       
-private: 
 
+protected:
+private:
   // main skimming routine
-  bool doCSCSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits, 
-                     edm::Handle<CSCSegmentCollection> cscSegments);
+  bool doCSCSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits, edm::Handle<CSCSegmentCollection> cscSegments);
 
   // extra skimming routine for alignment studies
   bool doOverlapSkimming(edm::Handle<CSCSegmentCollection> cscSegments);
 
   // skimming routine for messy events
-  bool doMessyEventSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits, 
+  bool doMessyEventSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits,
                             edm::Handle<CSCSegmentCollection> cscSegments);
 
   // select events with DIGIs in a certain chamber
-  bool doCertainChamberSelection(edm::Handle<CSCWireDigiCollection> wires,
-				 edm::Handle<CSCStripDigiCollection> strips);
+  bool doCertainChamberSelection(edm::Handle<CSCWireDigiCollection> wires, edm::Handle<CSCStripDigiCollection> strips);
 
   // select events which might probe the DT-CSC overlap region
   bool doDTOverlap(edm::Handle<CSCSegmentCollection> cscSegments);
@@ -112,10 +106,12 @@ private:
   bool doLongSATrack(edm::Handle<reco::TrackCollection> saTracks);
 
   // select events suitable for magnetic field studies - they have a track in the tracker
-  bool doBFieldStudySelection(edm::Handle<reco::TrackCollection> saTracks, edm::Handle<reco::TrackCollection> Tracks, edm::Handle<reco::MuonCollection> gMuons);
+  bool doBFieldStudySelection(edm::Handle<reco::TrackCollection> saTracks,
+                              edm::Handle<reco::TrackCollection> Tracks,
+                              edm::Handle<reco::MuonCollection> gMuons);
 
   // some useful functions
-  int    chamberSerial(int kE, int kS, int kR, int kCh);
+  int chamberSerial(int kE, int kS, int kR, int kCh);
 
   // counters
   int nEventsAnalyzed;
@@ -139,6 +135,9 @@ private:
   // file names
   std::string outputFileName;
   std::string histogramFileName;
+
+  // es token names
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> m_CSCGeomToken;
 
   // token names
   edm::EDGetTokenT<CSCWireDigiCollection> wds_token;
@@ -176,7 +175,6 @@ private:
   float redChiSqMax;
   int nValidHitsMin;
 
-
   // histograms for skimming module
   TH1F *hxnRecHits;
   TH1F *hxnSegments;
@@ -190,6 +188,5 @@ private:
   TH1F *mevnSegments1;
 
   TH1F *xxP, *xxnValidHits, *xxnCSCHits, *xxredChiSq, *xxnTrackerHits;
-
 };
 #endif

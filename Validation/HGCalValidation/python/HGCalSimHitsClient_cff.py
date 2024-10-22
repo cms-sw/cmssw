@@ -6,4 +6,4 @@ hgcalSimHitClientHEF = hgcalSimHitClientEE.clone(
     DetectorName  = cms.string("HGCalHESiliconSensitive"))
 
 hgcalSimHitClientHEB = hgcalSimHitClientEE.clone(
-    DetectorName  = cms.string("HCal"))
+    DetectorName  = cms.string("HGCalHEScintillatorSensitive"))

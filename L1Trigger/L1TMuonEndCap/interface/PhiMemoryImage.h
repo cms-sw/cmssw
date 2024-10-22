@@ -6,7 +6,6 @@
 
 // Originally written by Ivan Furic and Matt Carver (Univ of Florida)
 
-
 class PhiMemoryImage {
 public:
   typedef uint64_t value_type;

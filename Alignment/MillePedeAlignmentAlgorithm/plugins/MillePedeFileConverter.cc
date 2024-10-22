@@ -18,14 +18,12 @@ MillePedeFileConverter::MillePedeFileConverter(const edm::ParameterSet& iConfig)
   produces<FileBlobCollection, edm::Transition::EndLuminosityBlock>(fileBlobLabel_);
 }
 
-MillePedeFileConverter::~MillePedeFileConverter() {}
+void MillePedeFileConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) {
+  auto const& moduleType = moduleDescription().moduleName();
+  auto const& moduleLabel = moduleDescription().moduleLabel();
 
-void MillePedeFileConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi,
-                                                       const edm::EventSetup& iSetup) {
-  edm::LogInfo("MillePedeFileActions")
-      << "Inserting all data from file " << inputDir_ + inputFileName_
-      << " as a FileBlob to the lumi, using label \"" << fileBlobLabel_
-      << "\".";
+  edm::LogInfo("MillePedeFileActions") << "Inserting all data from file " << inputDir_ + inputFileName_
+                                       << " as a FileBlob to the lumi, using label \"" << fileBlobLabel_ << "\".";
   // Preparing the FileBlobCollection:
   auto fileBlobCollection = std::make_unique<FileBlobCollection>();
 
@@ -33,30 +31,36 @@ void MillePedeFileConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLu
   // (The FileBlob will signal problems with the file itself.)
   FileBlob fileBlob{inputDir_ + inputFileName_, true};
 
-  if (fileBlob.size() > 0) {	// skip if no data or FileBlob file not found
+  if (fileBlob.size() > 0) {  // skip if no data or FileBlob file not found
     // Adding the FileBlob to the lumi:
     fileBlobCollection->addFileBlob(fileBlob);
+    edm::LogInfo(moduleType) << "[" << moduleLabel << "] fileBlob size was not empty, putting file blob with size "
+                             << fileBlob.size() << std::endl;
   }
+
+  edm::LogInfo(moduleType) << "[" << moduleLabel << "]"
+                           << " Root file contains " << fileBlobCollection->size() << " FileBlob(s).";
   iLumi.put(std::move(fileBlobCollection), fileBlobLabel_);
 }
 
 // Manage the parameters for the module:
 // (Note that this will autogenerate the _cfi.py file.)
-void MillePedeFileConverter::fillDescriptions(
-    edm::ConfigurationDescriptions& descriptions) {
+void MillePedeFileConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<std::string>("fileDir", "")->setComment(
-      "Keep the fileDir empty if you want to write to the current "
-      "directory. If you use it, it should end with a slash.");
+  desc.add<std::string>("fileDir", "")
+      ->setComment(
+          "Keep the fileDir empty if you want to write to the current "
+          "directory. If you use it, it should end with a slash.");
 
-  desc.add<std::string>("inputBinaryFile", "milleBinary.dat")->setComment(
-      "Filename of the file created by Mille in the AlignmentProducer");
+  desc.add<std::string>("inputBinaryFile", "milleBinary.dat")
+      ->setComment("Filename of the file created by Mille in the AlignmentProducer");
 
-  desc.add<std::string>("fileBlobLabel", "milleBinary.dat")->setComment(
-      "It's probably a good idea to keep the label the same as the "
-      "original filename(s). See configuration of "
-      "MillePedeFileExtractor, it should be the same there.");
+  desc.add<std::string>("fileBlobLabel", "milleBinary.dat")
+      ->setComment(
+          "It's probably a good idea to keep the label the same as the "
+          "original filename(s). See configuration of "
+          "MillePedeFileExtractor, it should be the same there.");
 
   descriptions.add("millePedeFileConverter", desc);
   descriptions.setComment(

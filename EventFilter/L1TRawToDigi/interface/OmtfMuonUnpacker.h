@@ -3,23 +3,23 @@
 
 #include <string>
 
-
 #include "DataFormats/L1TMuon/interface/OMTF/OmtfDataWord64.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
-namespace omtf { class MuonDataWord64; }
+namespace omtf {
+  class MuonDataWord64;
+}
 
 namespace omtf {
 
-class MuonUnpacker {
+  class MuonUnpacker {
+  public:
+    void unpack(unsigned int fed,
+                unsigned int amc,
+                const MuonDataWord64 &raw,
+                l1t::RegionalMuonCandBxCollection *muColl);
+  };
 
-public:
-
-  void unpack(unsigned int fed, unsigned int amc, const MuonDataWord64 &raw, l1t::RegionalMuonCandBxCollection * muColl);
-
-};
-
-}
+}  // namespace omtf
 #endif
-

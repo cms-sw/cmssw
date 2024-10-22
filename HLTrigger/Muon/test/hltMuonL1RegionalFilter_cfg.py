@@ -40,7 +40,7 @@ process.load("HLTrigger.Muon.HLTMuonL1RegionalFilter_cfi")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = cms.untracked.vstring('HLTMuonL1RegionalFilter')
-process.MessageLogger.categories = cms.untracked.vstring('HLTMuonL1RegionalFilter')
+process.MessageLogger.HLTMuonL1RegionalFilter = dict()
 process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.cerr.DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) )
 

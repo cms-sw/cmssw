@@ -1,0 +1,9 @@
+<use name="hector"/>
+<use name="hepmc"/>
+<use name="clhep"/>
+<use name="root"/>
+<use name="boost"/>
+<use name="boost_program_options"/>
+<export>
+  <lib name="1"/>
+</export>

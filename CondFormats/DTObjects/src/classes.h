@@ -1,62 +1,46 @@
 #include "CondFormats/DTObjects/src/headers.h"
 
-
 namespace CondFormats_DTObjects {
   struct dictionary {
-//    std::pair<           DTT0Id,           DTT0Data>          t0Pair;
-    std::pair<        DTTtrigId,        DTTtrigData>       tTrigPair;
-    std::pair<        DTMtimeId,        DTMtimeData>       mTimePair;
-    std::pair<      DTRangeT0Id,      DTRangeT0Data>     rangeT0Pair;
-    std::pair<   DTStatusFlagId,   DTStatusFlagData>  statusFlagPair;
-    std::pair<     DTDeadFlagId,     DTDeadFlagData>    deadFlagPair;
-    std::pair<  DTPerformanceId,  DTPerformanceData> performancePair;
-    std::pair<     DTLVStatusId,     DTLVStatusData>    lvStatusPair;
-    std::pair<     DTHVStatusId,     DTHVStatusData>    hvStatusPair;
-    std::pair<          DTCCBId,                int>         ccbPair;
-    std::pair<DTTPGParametersId,DTTPGParametersData>         tpgPair;
+    //    std::pair<           DTT0Id,           DTT0Data>          t0Pair;
+    std::pair<DTTtrigId, DTTtrigData> tTrigPair;
+    std::pair<DTMtimeId, DTMtimeData> mTimePair;
+    std::pair<DTRangeT0Id, DTRangeT0Data> rangeT0Pair;
+    std::pair<DTStatusFlagId, DTStatusFlagData> statusFlagPair;
+    std::pair<DTDeadFlagId, DTDeadFlagData> deadFlagPair;
+    std::pair<DTPerformanceId, DTPerformanceData> performancePair;
+    std::pair<DTLVStatusId, DTLVStatusData> lvStatusPair;
+    std::pair<DTHVStatusId, DTHVStatusData> hvStatusPair;
+    std::pair<DTCCBId, int> ccbPair;
+    std::pair<DTTPGParametersId, DTTPGParametersData> tpgPair;
 
-    std::vector< DTReadOutGeometryLink >            readoutMap;
-//    std::vector< std::pair<           DTT0Id,
-//                                    DTT0Data> >          t0Map;
-    std::vector< DTT0Data                     >          t0Map;
-    std::vector< std::pair<        DTTtrigId,
-                                 DTTtrigData> >       tTrigMap;
-    std::vector< std::pair<        DTMtimeId,
-                                 DTMtimeData> >       mTimeMap;
-    std::vector< std::pair<      DTRangeT0Id,
-                               DTRangeT0Data> >     rangeT0Map;
-    std::vector< std::pair<   DTStatusFlagId,
-                            DTStatusFlagData> >  statusFlagMap;
-    std::vector< std::pair<     DTDeadFlagId,
-                              DTDeadFlagData> >    deadFlagMap;
-    std::vector< std::pair<  DTPerformanceId,
-                           DTPerformanceData> > performanceMap;
-    std::vector< std::pair<     DTLVStatusId,
-                              DTLVStatusData> >    lvStatusMap;
-    std::vector< std::pair<     DTHVStatusId,
-                              DTHVStatusData> >    hvStatusMap;
-    std::vector<                 DTConfigKey  >        confKey;
-    std::vector< std::pair<          DTCCBId,
-                                         int> >         ccbMap;
-    std::vector< std::pair<DTTPGParametersId,
-                         DTTPGParametersData> >         tpgMap;
+    std::vector<DTReadOutGeometryLink> readoutMap;
+    //    std::vector< std::pair<           DTT0Id,
+    //                                    DTT0Data> >          t0Map;
+    std::vector<DTT0Data> t0Map;
+    std::vector<std::pair<DTTtrigId, DTTtrigData> > tTrigMap;
+    std::vector<std::pair<DTMtimeId, DTMtimeData> > mTimeMap;
+    std::vector<std::pair<DTRangeT0Id, DTRangeT0Data> > rangeT0Map;
+    std::vector<std::pair<DTStatusFlagId, DTStatusFlagData> > statusFlagMap;
+    std::vector<std::pair<DTDeadFlagId, DTDeadFlagData> > deadFlagMap;
+    std::vector<std::pair<DTPerformanceId, DTPerformanceData> > performanceMap;
+    std::vector<std::pair<DTLVStatusId, DTLVStatusData> > lvStatusMap;
+    std::vector<std::pair<DTHVStatusId, DTHVStatusData> > hvStatusMap;
+    std::vector<DTConfigKey> confKey;
+    std::vector<std::pair<DTCCBId, int> > ccbMap;
+    std::vector<std::pair<DTTPGParametersId, DTTPGParametersData> > tpgMap;
 
+    //    std::vector< std::pair<   DTT0Id,DTT0Data> > blah2;
+    //    std::vector< std::pair<DTTtrigId,DTTtrigData> > blah3;
+    //    std::vector< std::pair<DTMtimeId,DTMtimeData> > blah4;
+    //    std::vector< std::pair<DTStatusFlagId,DTStatusFlagData> > blah5;
 
-
-//    std::vector< std::pair<   DTT0Id,DTT0Data> > blah2;
-//    std::vector< std::pair<DTTtrigId,DTTtrigData> > blah3;
-//    std::vector< std::pair<DTMtimeId,DTMtimeData> > blah4;
-//    std::vector< std::pair<DTStatusFlagId,DTStatusFlagData> > blah5;
-
-    
     std::pair<uint32_t, std::vector<float> > p_payload;
     std::map<uint32_t, std::vector<float> > payload;
     std::pair<uint32_t, std::vector<double> > p_payloadD;
     std::map<uint32_t, std::vector<double> > payloadD;
-
   };
-}
-
+}  // namespace CondFormats_DTObjects
 
 /*
 // wrapper declarations

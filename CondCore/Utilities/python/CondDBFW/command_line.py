@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Command line module that the "command line" script.
 
@@ -6,7 +6,7 @@ Works by taking the main keyword (first command given to the script),
 passing that to the function that will deal with that action, along with the following arguments as parameters for that function.
 """
 
-import querying
+from . import querying
 import argparse
 import datetime
 
@@ -110,7 +110,7 @@ def copy_tag(arguments):
 	# set end_of_validity to -1 because sqlite doesn't support long ints
 	source_tag.end_of_validity = -1
 	source_tag.name = arguments.dest_tag
-	source_tag.modification_time = datetime.datetime.now()
+	source_tag.modification_time = datetime.datetime.utcnow()
 
 	# create new iovs
 	new_iovs = []
@@ -152,7 +152,7 @@ def copy_global_tag(arguments):
 	tags = source_connection.tag(name=tags)
 
 	# copy global tag first
-	global_tag.insertion_time = datetime.datetime.now()
+	global_tag.insertion_time = datetime.datetime.utcnow()
 	global_tag.validity = -1
 	dest_connection.write_and_commit(global_tag)
 

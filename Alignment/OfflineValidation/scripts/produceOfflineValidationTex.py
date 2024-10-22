@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # This script creates a .tex-file for displaying the results
 # of an offline alignment validation of the CMS tracker.
 #
@@ -17,6 +17,7 @@
 
 
 
+from __future__ import print_function
 import os
 import stat
 import sys
@@ -27,11 +28,11 @@ from Alignment.OfflineValidation.TkAlAllInOneTool.presentationTemplates import *
 
 # Script execution.
 def main():
-    print 'Producing a .tex file from plots...'
+    print('Producing a .tex file from plots...')
 
     # Get plots from given paths
     if len(sys.argv) < 2:
-        print 'Error: Need path of plots as an argument!'
+        print('Error: Need path of plots as an argument!')
         sys.exit(1)
 
     validations = []

@@ -1,23 +1,14 @@
 #include "SimMuon/Neutron/src/RootNeutronReader.h"
 #include <sstream>
 
-RootNeutronReader::RootNeutronReader(const std::string & fileName)
-: theFile(new TFile(fileName.c_str()))
-{
-}
+RootNeutronReader::RootNeutronReader(const std::string& fileName) : theFile(new TFile(fileName.c_str())) {}
 
+RootChamberReader& RootNeutronReader::chamberReader(int chamberType) {
+  std::map<int, RootChamberReader>::iterator mapItr = theChamberReaders.find(chamberType);
 
-RootChamberReader & RootNeutronReader::chamberReader(int chamberType)
-{
-  std::map<int, RootChamberReader>::iterator mapItr
-    = theChamberReaders.find(chamberType);
-
-  if(mapItr != theChamberReaders.end())
-  {
+  if (mapItr != theChamberReaders.end()) {
     return mapItr->second;
-  }
-  else
-  {
+  } else {
     // make a new one
     std::ostringstream treeName;
     treeName << "ChamberType" << chamberType;
@@ -26,10 +17,6 @@ RootChamberReader & RootNeutronReader::chamberReader(int chamberType)
   }
 }
 
-
-void RootNeutronReader::readNextEvent(int chamberType, edm::PSimHitContainer & result)
-{
-   chamberReader(chamberType).read(result);
+void RootNeutronReader::readNextEvent(int chamberType, edm::PSimHitContainer& result) {
+  chamberReader(chamberType).read(result);
 }
-
-

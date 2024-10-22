@@ -1,0 +1,7 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="SimTransport/PPSProtonTransport"/>
+<use name="hepmc"/>
+<use name="clhep"/>
+<use name="hector"/>
+<flags EDM_PLUGIN="1"/>

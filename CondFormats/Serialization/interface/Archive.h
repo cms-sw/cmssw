@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CondFormats_Serialization_Archive_hh
+#define CondFormats_Serialization_Archive_hh
 
 // Missing in EOS' portable archive
 #include <cassert>
@@ -11,14 +12,15 @@
 #include "CondFormats/Serialization/interface/eos/portable_oarchive.hpp"
 
 namespace cond {
-namespace serialization {
+  namespace serialization {
 
-  typedef eos::portable_iarchive InputArchive;
-  typedef eos::portable_oarchive OutputArchive;
+    typedef eos::portable_iarchive InputArchive;
+    typedef eos::portable_oarchive OutputArchive;
 
-  typedef boost::archive::xml_iarchive InputArchiveXML;
-  typedef boost::archive::xml_oarchive OutputArchiveXML;
+    typedef boost::archive::xml_iarchive InputArchiveXML;
+    typedef boost::archive::xml_oarchive OutputArchiveXML;
 
-}
-}
+  }  // namespace serialization
+}  // namespace cond
 
+#endif

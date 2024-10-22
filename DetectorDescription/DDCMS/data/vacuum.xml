@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+  <MaterialSection>
+    <CompositeMaterial name="Air" density="1.214*mg/cm3" symbol=" " method="mixture by weight">
+      <MaterialFraction fraction="0.7494">
+	<rMaterial name="materials:Nitrogen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.2369">
+	<rMaterial name="materials:Oxygen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0129">
+	<rMaterial name="materials:Argon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0008">
+	<rMaterial name="materials:Hydrogen"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="Vacuum" density="1e-10*mg/cm3" symbol=" " method="mixture by weight">
+      <MaterialFraction fraction="0.7494">
+	<rMaterial name="materials:Nitrogen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.2369">
+	<rMaterial name="materials:Oxygen"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0129">
+	<rMaterial name="materials:Argon"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.0008">
+	<rMaterial name="materials:Hydrogen"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+  </MaterialSection>
+</DDDefinition>

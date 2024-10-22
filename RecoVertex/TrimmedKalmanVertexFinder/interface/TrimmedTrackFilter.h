@@ -11,14 +11,12 @@
  */
 
 class TrimmedTrackFilter {
-
 public:
-
   /** Constructor with cuts defined at runtime by configurables
    */
   TrimmedTrackFilter();
 
-  ~TrimmedTrackFilter(){};
+  ~TrimmedTrackFilter() {}
 
   /** Access to pT cut
    */
@@ -31,9 +29,7 @@ public:
   bool operator()(const reco::TransientTrack &) const;
 
 private:
-
   double thePtCut;
-
 };
 
-#endif 
+#endif

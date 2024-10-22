@@ -1,16 +1,16 @@
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/Math"/>
-<use   name="SimG4CMS/Calo"/>
-<use   name="FastSimulation/CaloGeometryTools"/>
-<use   name="FastSimulation/CalorimeterProperties"/>
-<use   name="FastSimulation/Event"/>
-<use   name="FastSimulation/Utilities"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="Geometry/EcalAlgo"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="rootmath"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/Math"/>
+<use name="SimG4CMS/Calo"/>
+<use name="FastSimulation/CaloGeometryTools"/>
+<use name="FastSimulation/CalorimeterProperties"/>
+<use name="FastSimulation/Event"/>
+<use name="FastSimulation/Utilities"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/EcalAlgo"/>
+<use name="FWCore/MessageLogger"/>
+<use name="rootmath"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

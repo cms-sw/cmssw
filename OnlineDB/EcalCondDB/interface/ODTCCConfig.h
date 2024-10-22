@@ -13,7 +13,7 @@
 #define BUFSIZE 200;
 
 class ODTCCConfig : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODTCCConfig();
   ~ODTCCConfig() override;
@@ -44,16 +44,14 @@ class ODTCCConfig : public IODConfig {
   inline void setSLBClob(unsigned char* x) { m_slb_clob = x; }
   inline unsigned char* getSLBClob() const { return m_slb_clob; }
 
-  void setParameters(const std::map<std::string,std::string>& my_keys_map);
+  void setParameters(const std::map<std::string, std::string>& my_keys_map);
 
-  
- private:
-  void prepareWrite()  noexcept(false) override;
-  void writeDB()       noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
+  void writeDB() noexcept(false);
   void clear();
-  void fetchData(ODTCCConfig * result)     noexcept(false);
-  int fetchID()  noexcept(false);
-
+  void fetchData(ODTCCConfig* result) noexcept(false);
+  int fetchID() noexcept(false);
 
   int fetchNextId() noexcept(false);
 
@@ -62,11 +60,11 @@ class ODTCCConfig : public IODConfig {
   unsigned char* m_tcc_clob;
   unsigned char* m_lut_clob;
   unsigned char* m_slb_clob;
-  std::string  m_tcc_file;
-  std::string  m_lut_file;
-  std::string  m_slb_file;
-  std::string  m_test_url;
-  int  m_ntest;
+  std::string m_tcc_file;
+  std::string m_lut_file;
+  std::string m_slb_file;
+  std::string m_test_url;
+  int m_ntest;
   unsigned int m_size;
 };
 

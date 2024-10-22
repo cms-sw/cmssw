@@ -14,20 +14,14 @@
   \author   Steven Lowette
 */
 
-
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class TransientTrackBuilder;
 
 namespace reco {
   class Track;
-}
-
-namespace edm {
-  class Event;
-  class EventSetup;
 }
 
 namespace pat {
@@ -36,20 +30,24 @@ namespace pat {
 
   class LeptonVertexSignificance {
   public:
-    LeptonVertexSignificance();
-    LeptonVertexSignificance(const edm::EventSetup & iSetup, edm::ConsumesCollector && iC);
-    ~LeptonVertexSignificance();
+    LeptonVertexSignificance() = default;
+    ~LeptonVertexSignificance() = default;
 
-    float calculate(const Electron & anElectron, const edm::Event & iEvent);
-    float calculate(const Muon & aMuon, const edm::Event & iEvent);
+    //NOTE: expects vertices from "offlinePrimaryVerticesFromCTFTracks"
+    static edm::InputTag vertexCollectionTag();
+
+    //NOTE: expects TransientTrackBuilder to be a copy of one from record TransientTrackRecord with label "TransientTrackBuilder"
+    float calculate(const Electron& anElectron,
+                    const reco::VertexCollection& vertices,
+                    const TransientTrackBuilder& builder);
+    float calculate(const Muon& aMuon, const reco::VertexCollection& vertices, const TransientTrackBuilder& builder);
 
   private:
-    float calculate(const reco::Track & track, const edm::Event & iEvent);
-    TransientTrackBuilder * theTrackBuilder_;
-    edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+    float calculate(const reco::Track& track,
+                    const reco::VertexCollection& vertices,
+                    const TransientTrackBuilder& builder);
   };
 
-}
+}  // namespace pat
 
 #endif
-

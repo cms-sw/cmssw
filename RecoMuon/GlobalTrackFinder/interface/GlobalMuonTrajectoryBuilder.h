@@ -14,38 +14,44 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup; }
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class MuonServiceProxy;
 class Trajectory;
 
 class GlobalMuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
+public:
+  /// constructor with Parameter Set and MuonServiceProxy
+  GlobalMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
 
-  public:
+  /// destructor
+  ~GlobalMuonTrajectoryBuilder() override;
 
-    /// constructor with Parameter Set and MuonServiceProxy
-  GlobalMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*,edm::ConsumesCollector&);
-          
-    /// destructor
-    ~GlobalMuonTrajectoryBuilder() override;
+  using GlobalTrajectoryBuilderBase::trajectories;
 
-    /// reconstruct trajectories from standalone and tracker only Tracks    
-    MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&) override;
+  /// reconstruct trajectories from standalone and tracker only Tracks
+  MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&) override;
 
-    /// pass the Event to the algo at each event
-    void setEvent(const edm::Event&) override;
+  /// pass the Event to the algo at each event
+  void setEvent(const edm::Event&) override;
 
-  private:
-  
-    /// make a TrackCand collection using tracker Track, Trajectory information
-    std::vector<TrackCand> makeTkCandCollection(const TrackCand&) override;
+private:
+  /// make a TrackCand collection using tracker Track, Trajectory information
+  std::vector<TrackCand> makeTkCandCollection(const TrackCand&) override;
 
-  private:
-  
-    edm::InputTag theTkTrackLabel;
-    edm::EDGetTokenT<reco::TrackCollection> allTrackerTracksToken;
-    edm::Handle<reco::TrackCollection> allTrackerTracks;
-
+private:
+  edm::InputTag theTkTrackLabel;
+  edm::EDGetTokenT<reco::TrackCollection> allTrackerTracksToken;
+  edm::Handle<reco::TrackCollection> allTrackerTracks;
+  edm::InputTag thePrimaryVtxLabel;
+  edm::EDGetTokenT<reco::VertexCollection> primaryVertexToken;
+  edm::Handle<reco::VertexCollection> vertexCollection;
+  bool selectHighPurity_;
 };
 #endif

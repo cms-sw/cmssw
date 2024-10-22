@@ -3,6 +3,7 @@
 #include "CommonTools/RecoAlgos/interface/RecoTrackViewRefSelector.h"
 
 namespace reco {
-  typedef ObjectSelectorStreamProducer<RecoTrackViewRefSelector, edm::RefToBaseVector<reco::Track>> RecoTrackViewRefSelector;
+  typedef ObjectSelectorStreamProducer<RecoTrackViewRefSelector, edm::RefToBaseVector<reco::Track>>
+      RecoTrackViewRefSelector;
   DEFINE_FWK_MODULE(RecoTrackViewRefSelector);
-}
+}  // namespace reco

@@ -8,27 +8,23 @@
 
 #include "Alignment/ReferenceTrajectories/interface/BeamSpotTransientTrackingRecHit.h"
 
-AlgebraicVector BeamSpotTransientTrackingRecHit::parameters() const
-{
+AlgebraicVector BeamSpotTransientTrackingRecHit::parameters() const {
   AlgebraicVector result(1);
   result[0] = localPosition().x();
   return result;
 }
 
-AlgebraicSymMatrix BeamSpotTransientTrackingRecHit::parametersError() const
-{
+AlgebraicSymMatrix BeamSpotTransientTrackingRecHit::parametersError() const {
   LocalError le = localPositionError();
   AlgebraicSymMatrix m(1);
   m[0][0] = le.xx();
   return m;
 }
 
-
-static AlgebraicMatrix initialize()
-{
-  AlgebraicMatrix ret( 1, 5, 0);
+static AlgebraicMatrix initialize() {
+  AlgebraicMatrix ret(1, 5, 0);
   ret[0][3] = 1;
   return ret;
 }
 
-const AlgebraicMatrix BeamSpotTransientTrackingRecHit::theProjectionMatrix=initialize();
+const AlgebraicMatrix BeamSpotTransientTrackingRecHit::theProjectionMatrix = initialize();

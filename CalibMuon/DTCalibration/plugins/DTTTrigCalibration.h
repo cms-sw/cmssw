@@ -9,27 +9,29 @@
  *  \author G. Cerminara - INFN Torino
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 #include <string>
 #include <map>
-
 
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class TFile;
 class TH1F;
 class DTTimeBoxFitter;
 class DTTTrigBaseSync;
 class DTTtrig;
+class DTStatusFlag;
+class DTStatusFlagRcd;
 
-class DTTTrigCalibration : public edm::EDAnalyzer {
+class DTTTrigCalibration : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTTTrigCalibration(const edm::ParameterSet& pset);
@@ -40,14 +42,12 @@ public:
   // Operations
 
   /// Fill the time boxes
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   /// Fit the time box rising edge and write the resulting ttrig to the DB
   void endJob() override;
 
-
 protected:
-
 private:
   // Generate the time box name
   std::string getTBoxName(const DTSuperLayerId& slId) const;
@@ -63,8 +63,8 @@ private:
   // Debug flag
   bool debug;
 
-  // The label used to retrieve digis from the event
-  std::string digiLabel;
+  // The token used to retrieve digis from the event
+  edm::EDGetTokenT<DTDigiCollection> digiToken;
 
   // The TDC time-window
   int maxTDCCounts;
@@ -72,8 +72,8 @@ private:
   int maxDigiPerLayer;
 
   // The file which will contain the time boxes
-  TFile *theFile;
-  
+  TFile* theFile;
+
   // Map of the histograms by SL
   std::map<DTSuperLayerId, TH1F*> theHistoMap;
   std::map<DTLayerId, TH1F*> theOccupancyMap;
@@ -82,16 +82,15 @@ private:
   bool doSubtractT0;
   // Switch for checking of noisy channels
   bool checkNoisyChannels;
-   //card to switch on/off the DB writing
-  bool findTMeanAndSigma; 
+  //card to switch on/off the DB writing
+  bool findTMeanAndSigma;
   // the kfactor to be uploaded in the ttrig DB
   double kFactor;
 
   // The fitter
-  DTTimeBoxFitter *theFitter;
+  std::unique_ptr<DTTimeBoxFitter> theFitter;
   // The module for t0 subtraction
-  DTTTrigBaseSync *theSync;//FIXME: should be const
-
+  std::unique_ptr<DTTTrigBaseSync> theSync;  //FIXME: should be const
+  edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> theStatusMapToken;
 };
 #endif
-

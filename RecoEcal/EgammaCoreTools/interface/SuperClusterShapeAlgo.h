@@ -24,25 +24,20 @@
 
 class CaloSubdetectorTopology;
 
-class SuperClusterShapeAlgo
-{
+class SuperClusterShapeAlgo {
+public:
+  SuperClusterShapeAlgo(const EcalRecHitCollection* hits, const CaloSubdetectorGeometry* geometry);
 
- public:
-  SuperClusterShapeAlgo(const EcalRecHitCollection* hits,
-			const CaloSubdetectorGeometry* geometry);
-
-  void Calculate_Covariances(const reco::SuperCluster &passedCluster);
+  void Calculate_Covariances(const reco::SuperCluster& passedCluster);
 
   double etaWidth() { return etaWidth_; }
   double phiWidth() { return phiWidth_; }
 
- private:
-
+private:
   const EcalRecHitCollection* recHits_;
   const CaloSubdetectorGeometry* geometry_;
 
   double etaWidth_, phiWidth_;
-  
 };
 
 #endif

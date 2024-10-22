@@ -1,0 +1,54 @@
+#! /usr/bin/env python3
+
+import sys
+import os
+import argparse
+
+from FWCore.ParameterSet.processFromFile import processFromFile
+from FWCore.ParameterSet.Mixins import PrintOptions
+
+parser = argparse.ArgumentParser(
+  description = '%(prog)s splits the given CMSSW configuration file into one file per top-level object, and outputs the configuration for the main process object.',
+)
+parser.add_argument('file', metavar = 'FILE')
+parser.add_argument("configArgs",
+  nargs=argparse.REMAINDER, help="arguments that will be passed to Python configuration file")
+
+parser.add_argument('-o', '--output',
+  metavar = 'OUT',
+  type = argparse.FileType('w'),
+  default = sys.stdout,
+  help = 'write the process configuration to %(metavar)s instead of standard output')
+parser.add_argument('-d', '--output-directory',
+  metavar = 'DIR',
+  type = str,
+  default = None,
+  help = 'create the individual files and subdirectories under %(metavar)s instead of the current directory; if %(metavar)s does not exist it will be created first')
+parser.add_argument('-s', '--subdirectories',
+  action = "store_true",
+  default = False,
+  help = 'create subdirectories for different modules categories')
+
+args = parser.parse_args()
+
+# make the behaviour of 'cmsRun file.py' and 'edmConfigSplit file.py' more consistent
+sys.path.append(os.getcwd())
+
+process = processFromFile(args.file, args.configArgs)
+
+options = PrintOptions()
+options.useSubdirectories = args.subdirectories
+options.targetDirectory = args.output_directory
+
+files = process.splitPython(options)
+for fn, c in files.items():
+  if fn == '-':
+    continue
+  d = os.path.dirname(fn)
+  if d and not os.path.isdir(d):
+    os.makedirs(d)
+  with open(fn, 'w') as f:
+    f.write(c)
+
+args.output.write(files['-'])
+args.output.close()

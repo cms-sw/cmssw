@@ -5,11 +5,10 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include <vector>
-#include "DataFormats/Common/interface/RefToBase.h" 
+#include "DataFormats/Common/interface/RefToBase.h"
 
 namespace edm {
-    typedef std::vector<CTPPSFastTrack> CTPPSFastTrackContainer;
-} // edm
+  typedef std::vector<CTPPSFastTrack> CTPPSFastTrackContainer;
+}  // namespace edm
 
-#endif 
-
+#endif

@@ -12,26 +12,20 @@
 #include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
 //#include "CommonDet/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
-
-
 
 class OuterHitPhiPrediction;
 class BarrelDetLayer;
 class ForwardDetLayer;
 class MeasurementTrackerEvent;
+class MagneticField;
+class MultipleScatteringParametrisationMaker;
 
 class RectangularEtaPhiTrackingRegion final : public TrackingRegion {
 public:
-  enum class UseMeasurementTracker {
-    kNever = -1,
-    kForSiStrips = 0,
-    kAlways = 1
-  };
+  enum class UseMeasurementTracker { kNever = -1, kForSiStrips = 0, kAlways = 1 };
 
   static UseMeasurementTracker intToUseMeasurementTracker(int value) {
     assert(value >= -1 && value <= 1);
@@ -40,31 +34,36 @@ public:
 
   static UseMeasurementTracker doubleToUseMeasurementTracker(double value) {
     // mimic the old behaviour
-    if(value >  0.5) return UseMeasurementTracker::kAlways;
-    if(value > -0.5) return UseMeasurementTracker::kForSiStrips;
+    if (value > 0.5)
+      return UseMeasurementTracker::kAlways;
+    if (value > -0.5)
+      return UseMeasurementTracker::kForSiStrips;
     return UseMeasurementTracker::kNever;
   }
 
   static UseMeasurementTracker stringToUseMeasurementTracker(const std::string& name);
 
-  RectangularEtaPhiTrackingRegion(RectangularEtaPhiTrackingRegion const & rh) :
-    TrackingRegion(rh),
-    theEtaRange(rh.theEtaRange),
-    theLambdaRange(rh.theLambdaRange),
-    thePhiMargin(rh.thePhiMargin),
-    theMeanLambda(rh.theMeanLambda),
-    theMeasurementTrackerUsage(rh.theMeasurementTrackerUsage),
-    thePrecise(rh.thePrecise),
-    theUseEtaPhi(rh.theUseEtaPhi),
-    theMeasurementTracker(rh.theMeasurementTracker) {}
-  
-  RectangularEtaPhiTrackingRegion& operator=(RectangularEtaPhiTrackingRegion const &)=delete;
-  RectangularEtaPhiTrackingRegion(RectangularEtaPhiTrackingRegion &&)=default;
-  RectangularEtaPhiTrackingRegion& operator=(RectangularEtaPhiTrackingRegion &&)=default;
+  RectangularEtaPhiTrackingRegion() {}
+
+  RectangularEtaPhiTrackingRegion(RectangularEtaPhiTrackingRegion const& rh)
+      : TrackingRegion(rh),
+        theEtaRange(rh.theEtaRange),
+        theLambdaRange(rh.theLambdaRange),
+        thePhiMargin(rh.thePhiMargin),
+        theMeanLambda(rh.theMeanLambda),
+        theMeasurementTrackerUsage(rh.theMeasurementTrackerUsage),
+        thePrecise(rh.thePrecise),
+        theUseEtaPhi(rh.theUseEtaPhi),
+        theMeasurementTracker(rh.theMeasurementTracker),
+        theField(rh.theField),
+        theMSMaker(rh.theMSMaker) {}
+  RectangularEtaPhiTrackingRegion& operator=(RectangularEtaPhiTrackingRegion const&) = delete;
+  RectangularEtaPhiTrackingRegion(RectangularEtaPhiTrackingRegion&&) = default;
+  RectangularEtaPhiTrackingRegion& operator=(RectangularEtaPhiTrackingRegion&&) = delete;
 
   typedef TkTrackingRegionsMargin<float> Margin;
 
- /** constructor (symmetric eta and phi margins). <BR>
+  /** constructor (symmetric eta and phi margins). <BR>
   * dir        - the direction around which region is constructed <BR>
   *              the initial direction of the momentum of the particle 
   *              should be in the range <BR> 
@@ -88,133 +87,166 @@ public:
   *  deltaPhi  - allowed deviation of the initial direction of particle
   *              in phi in respect to direction of the region 
   *  whereToUseMeasurementTracker: 1=everywhere, 0=outside pixles, -1=nowhere
+  * msmaker    - Needed if either precise or useMS is true
   */
-  RectangularEtaPhiTrackingRegion( const GlobalVector & dir, 
-				   const GlobalPoint & vertexPos,
-                                   float ptMin, float rVertex, float zVertex,
-                                   float deltaEta, float deltaPhi,
-                                   UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
-                                   bool precise = true,
-                                   const MeasurementTrackerEvent *measurementTracker = nullptr,
-				   bool etaPhiRegion=false) 
-    : RectangularEtaPhiTrackingRegion(dir, vertexPos, Range( -1/ptMin, 1/ptMin), rVertex, zVertex,
-                                      Margin(std::abs(deltaEta), std::abs(deltaEta)),
-                                      Margin(std::abs(deltaPhi), std::abs(deltaPhi)),
-                                      whereToUseMeasurementTracker, precise,
-                                      measurementTracker, etaPhiRegion)
-    {}
- 
- /** constructor (asymmetrinc eta and phi margins). <BR>
+  RectangularEtaPhiTrackingRegion(const GlobalVector& dir,
+                                  const GlobalPoint& vertexPos,
+                                  float ptMin,
+                                  float rVertex,
+                                  float zVertex,
+                                  float deltaEta,
+                                  float deltaPhi,
+                                  const MagneticField& field,
+                                  const MultipleScatteringParametrisationMaker* msmaker,
+                                  bool precise = true,
+                                  UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
+                                  const MeasurementTrackerEvent* measurementTracker = nullptr,
+                                  bool etaPhiRegion = false)
+      : RectangularEtaPhiTrackingRegion(dir,
+                                        vertexPos,
+                                        Range(-1 / ptMin, 1 / ptMin),
+                                        rVertex,
+                                        zVertex,
+                                        Margin(std::abs(deltaEta), std::abs(deltaEta)),
+                                        Margin(std::abs(deltaPhi), std::abs(deltaPhi)),
+                                        field,
+                                        msmaker,
+                                        precise,
+                                        whereToUseMeasurementTracker,
+                                        measurementTracker,
+                                        etaPhiRegion) {}
+
+  /** constructor (asymmetrinc eta and phi margins). <BR>
   * non equal left-right eta and phi bounds around direction are
   * possible. The ranges are defined using \c Margin.
   * the meaning of other arguments is the same as in the case of 
   * symmetring bounds to direction of the region.
   */
-  RectangularEtaPhiTrackingRegion( const GlobalVector & dir, 
-		                       const GlobalPoint & vertexPos,
-                                   float ptMin, float rVertex, float zVertex,
-                                   Margin etaMargin,
-                                   Margin phiMargin,
-                                   UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
-				   bool precise = true, 
-                                   const MeasurementTrackerEvent *measurementTracker = nullptr,
-				   bool etaPhiRegion=false) 
-    : RectangularEtaPhiTrackingRegion(dir, vertexPos, Range( -1/ptMin, 1/ptMin), rVertex, zVertex,
-                                      etaMargin, phiMargin,
-                                      whereToUseMeasurementTracker, precise,
-                                      measurementTracker, etaPhiRegion)
-    {}
+  RectangularEtaPhiTrackingRegion(const GlobalVector& dir,
+                                  const GlobalPoint& vertexPos,
+                                  float ptMin,
+                                  float rVertex,
+                                  float zVertex,
+                                  Margin etaMargin,
+                                  Margin phiMargin,
+                                  const MagneticField& field,
+                                  const MultipleScatteringParametrisationMaker* msmaker,
+                                  bool precise = true,
+                                  UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
+                                  const MeasurementTrackerEvent* measurementTracker = nullptr,
+                                  bool etaPhiRegion = false)
+      : RectangularEtaPhiTrackingRegion(dir,
+                                        vertexPos,
+                                        Range(-1 / ptMin, 1 / ptMin),
+                                        rVertex,
+                                        zVertex,
+                                        etaMargin,
+                                        phiMargin,
+                                        field,
+                                        msmaker,
+                                        precise,
+                                        whereToUseMeasurementTracker,
+                                        measurementTracker,
+                                        etaPhiRegion) {}
 
- /** constructor (explicit pt range, asymmetrinc eta and phi margins). <BR>
+  /** constructor (explicit pt range, asymmetrinc eta and phi margins). <BR>
   * the meaning of other arguments is the same as in the case of 
   * symmetring bounds to direction of the region.
   */
-  RectangularEtaPhiTrackingRegion( const GlobalVector & dir, 
-		                       const GlobalPoint & vertexPos,
-                                   Range invPtRange, 
-                                   float rVertex, float zVertex,
-                                   Margin etaMargin,
-                                   Margin phiMargin,
-                                   UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
-                                   bool precise = true,
-                                   const MeasurementTrackerEvent *measurementTracker = nullptr,
-				   bool etaPhiRegion=false, bool useMS=true) 
-    : TrackingRegionBase( dir, vertexPos, invPtRange, rVertex, zVertex),
-    thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), 
-    thePrecise(precise),theUseMS(useMS),theUseEtaPhi(etaPhiRegion),
-    theMeasurementTracker(measurementTracker)
-    { initEtaRange(dir, etaMargin); }
-
+  RectangularEtaPhiTrackingRegion(const GlobalVector& dir,
+                                  const GlobalPoint& vertexPos,
+                                  Range invPtRange,
+                                  float rVertex,
+                                  float zVertex,
+                                  Margin etaMargin,
+                                  Margin phiMargin,
+                                  const MagneticField& field,
+                                  const MultipleScatteringParametrisationMaker* msmaker,
+                                  bool precise = true,
+                                  UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
+                                  const MeasurementTrackerEvent* measurementTracker = nullptr,
+                                  bool etaPhiRegion = false,
+                                  bool useMS = true)
+      : TrackingRegionBase(dir, vertexPos, invPtRange, rVertex, zVertex),
+        thePhiMargin(phiMargin),
+        theMeasurementTrackerUsage(whereToUseMeasurementTracker),
+        thePrecise(precise),
+        theUseMS(useMS),
+        theUseEtaPhi(etaPhiRegion),
+        theMeasurementTracker(measurementTracker),
+        theField(&field),
+        theMSMaker(msmaker) {
+    initEtaRange(dir, etaMargin);
+  }
 
   /// allowed eta range [eta_min, eta_max] interval
-  const Range & etaRange() const { return theEtaRange; }
-  const Range & tanLambdaRange() const { return theLambdaRange; }
+  const Range& etaRange() const { return theEtaRange; }
+  const Range& tanLambdaRange() const { return theLambdaRange; }
 
-  /// defined phi range around phi0, margin is [phi_left,phi_right]. 
+  /// defined phi range around phi0, margin is [phi_left,phi_right].
   /// region is defined in a range: [phi0-phi_left, phi0+phi_right]
-  const Margin & phiMargin() const { return thePhiMargin; }
+  const Margin& phiMargin() const { return thePhiMargin; }
 
-  /// is precise error calculation switched on 
-  bool  isPrecise() const { return thePrecise; }
+  /// is precise error calculation switched on
+  bool isPrecise() const { return thePrecise; }
 
-  TrackingRegion::Hits hits(
-      const edm::EventSetup& es,
-      const SeedingLayerSetsHits::SeedingLayer& layer) const override;
+  TrackingRegion::Hits hits(const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
-  HitRZCompatibility * checkRZ(const DetLayer* layer,  
-				       const Hit &  outerHit,
-				       const edm::EventSetup&iSetup,
-				       const DetLayer* outerlayer=nullptr,
-				       float lr=0, float gz=0, float dr=0, float dz=0) const override
-  { return checkRZOld(layer,outerHit,iSetup, outerlayer); }
+  /// Set the elements of the mask corresponding to the tracks that are compatable with the region.
+  /// Does not reset the elements corresponding to the tracks that are not compatible.
+  void checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const override;
 
-  RectangularEtaPhiTrackingRegion* clone() const override { 
-    return new RectangularEtaPhiTrackingRegion(*this);
+  std::unique_ptr<HitRZCompatibility> checkRZ(const DetLayer* layer,
+                                              const Hit& outerHit,
+                                              const DetLayer* outerlayer = nullptr,
+                                              float lr = 0,
+                                              float gz = 0,
+                                              float dr = 0,
+                                              float dz = 0) const override {
+    return checkRZOld(layer, outerHit, outerlayer);
+  }
+
+  std::unique_ptr<TrackingRegion> clone() const override {
+    return std::make_unique<RectangularEtaPhiTrackingRegion>(*this);
   }
 
   std::string name() const override { return "RectangularEtaPhiTrackingRegion"; }
   std::string print() const override;
 
 private:
-  HitRZCompatibility* checkRZOld(
-      const DetLayer* layer, 
-      const Hit &  outerHit,
-      const edm::EventSetup&iSetup,
-      const DetLayer* outerlayer) const;
+  std::unique_ptr<HitRZCompatibility> checkRZOld(const DetLayer* layer,
+                                                 const Hit& outerHit,
+                                                 const DetLayer* outerlayer) const;
 
-  std::unique_ptr<MeasurementEstimator> estimator(const BarrelDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
-  std::unique_ptr<MeasurementEstimator> estimator(const ForwardDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
+  std::unique_ptr<MeasurementEstimator> estimator(const BarrelDetLayer* layer) const dso_internal;
+  std::unique_ptr<MeasurementEstimator> estimator(const ForwardDetLayer* layer) const dso_internal;
 
-  OuterHitPhiPrediction phiWindow(const edm::EventSetup& iSetup) const dso_internal;
+  OuterHitPhiPrediction phiWindow(const MagneticField& field) const dso_internal;
   HitRZConstraint rzConstraint() const dso_internal;
 
-  void  initEtaRange( const GlobalVector & dir, const Margin& margin);
+  void initEtaRange(const GlobalVector& dir, const Margin& margin);
 
 private:
-
   Range theEtaRange;
-  Range theLambdaRange; // this is actually tanLambda
+  Range theLambdaRange;  // this is actually tanLambda
   Margin thePhiMargin;
   float theMeanLambda;
   const UseMeasurementTracker theMeasurementTrackerUsage = UseMeasurementTracker::kNever;
-  bool thePrecise=false;
-  bool theUseMS=false;
-  bool theUseEtaPhi=false;
-  const MeasurementTrackerEvent *theMeasurementTracker = nullptr;
-
-
+  bool thePrecise = false;
+  bool theUseMS = false;
+  bool theUseEtaPhi = false;
+  const MeasurementTrackerEvent* theMeasurementTracker = nullptr;
+  const MagneticField* theField = nullptr;
+  const MultipleScatteringParametrisationMaker* theMSMaker = nullptr;
 
   using cacheHitPointer = mayown_ptr<BaseTrackerRecHit>;
-  using cacheHits=std::vector<cacheHitPointer>;
-
-  
+  using cacheHits = std::vector<cacheHitPointer>;
 
   /*  wait... think! 
    *  done? questions?  think again, look where this region is constructed
    *  still question? study tracker code for the next couple of weeks, then we may discuss.  
    */
   mutable cacheHits cache;
-
 };
 
 #endif

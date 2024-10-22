@@ -71,27 +71,31 @@ namespace hcal {
     /** \brief Lookup all factories providing concrete objects from the specified base class
      */
     static void getFactories(const char* baseClass, std::vector<AbstractPluginFactory*>& factories);
+
   private:
-    static std::map<std::string, std::map<std::string, AbstractPluginFactory*> > &factories();
+    static std::map<std::string, std::map<std::string, AbstractPluginFactory*> >& factories();
   };
 
   /** \brief Templated generic plugin factory used by the DECLARE_PLUGGABLE macro 
       \ingroup hcalBase
    */
-  template<class T> 
+  template <class T>
   class PluginFactoryTemplate : public AbstractPluginFactory {
   public:
-    PluginFactoryTemplate(const char* bc, const char* dc) : m_baseClass(bc), m_derivedClass(dc) { PluginManager::registerFactory(bc,dc,this); }
-    virtual ~PluginFactoryTemplate() = default;
-    virtual Pluggable* newInstance() { return new T; }
-    virtual const char* getBaseClass() const { return m_baseClass; }
-    virtual const char* getDerivedClass() const { return m_derivedClass; }
+    PluginFactoryTemplate(const char* bc, const char* dc) : m_baseClass(bc), m_derivedClass(dc) {
+      PluginManager::registerFactory(bc, dc, this);
+    }
+    ~PluginFactoryTemplate() override = default;
+    Pluggable* newInstance() override { return new T; }
+    const char* getBaseClass() const override { return m_baseClass; }
+    const char* getDerivedClass() const override { return m_derivedClass; }
+
   private:
     const char* m_baseClass;
     const char* m_derivedClass;
   };
 
-}
+}  // namespace hcal
 
 /** \def DECLARE_PLUGGABLE(BASECLASS,MYCLASS)
    \brief Utility macro which creates a static object specializing PluginFactoryTemplate for a specific class (base and concrete).
@@ -104,6 +108,7 @@ namespace hcal {
    \endcode
    \ingroup hcalBase
 */
-#define DECLARE_PLUGGABLE(BASECLASS,MYCLASS) static hcal::PluginFactoryTemplate<MYCLASS> hcal_plugin_ ## MYCLASS ( #BASECLASS , #MYCLASS );
+#define DECLARE_PLUGGABLE(BASECLASS, MYCLASS) \
+  static hcal::PluginFactoryTemplate<MYCLASS> hcal_plugin_##MYCLASS(#BASECLASS, #MYCLASS);
 
-#endif // PluginManager_hh_included
+#endif  // PluginManager_hh_included

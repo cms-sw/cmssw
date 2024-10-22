@@ -13,5 +13,5 @@ FILE=\"$CWD/$INPUTFILE\"
 
 if [ "$#" == 1 ]
 then
-root -l -b -q "$CMSSW_BASE/src/CosmicRateTool/TrackAnalyzer/macros/CosmicRateTool_MakeIdList.C(${FILE})"
+root -l -b -q "$CMSSW_BASE/src/Alignment/TrackerAlignment/macros/CosmicRateTool_MakeIdList.C(${FILE})"
 fi

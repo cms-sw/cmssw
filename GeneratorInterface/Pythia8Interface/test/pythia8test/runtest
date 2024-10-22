@@ -1,6 +1,3 @@
-cd ..
-scram b
-cd -
 rm -f testi.dat
 rm -f test.dat
 rm -f p8test.html

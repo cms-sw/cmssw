@@ -2,7 +2,6 @@
 #define CommonTools_PFCandProducer_PFPileUpAlgo_
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -10,46 +9,44 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class PFPileUpAlgo {
- public:
+public:
+  typedef std::vector<edm::FwdPtr<reco::PFCandidate> > PFCollection;
 
+  PFPileUpAlgo() : checkClosestZVertex_(true), verbose_(false) { ; }
 
-  typedef std::vector< edm::FwdPtr<reco::PFCandidate> >  PFCollection;
+  PFPileUpAlgo(bool checkClosestZVertex, bool verbose = false)
+      : checkClosestZVertex_(checkClosestZVertex), verbose_(verbose) {
+    ;
+  }
 
-  PFPileUpAlgo():checkClosestZVertex_(true), verbose_(false) {;}
-    
-  PFPileUpAlgo( bool checkClosestZVertex, bool verbose=false):
-    checkClosestZVertex_(checkClosestZVertex), verbose_(verbose) {;}
-
-  ~PFPileUpAlgo(){;}
+  ~PFPileUpAlgo() { ; }
 
   // the last parameter is needed if you want to use the sourceCandidatePtr
-  void process(const PFCollection & pfCandidates, 
-	       const reco::VertexCollection & vertices)  ;
+  void process(const PFCollection& pfCandidates, const reco::VertexCollection& vertices);
 
   inline void setVerbose(bool verbose) { verbose_ = verbose; }
 
-  inline void setCheckClosestZVertex(bool val) { checkClosestZVertex_ = val;}
+  inline void setCheckClosestZVertex(bool val) { checkClosestZVertex_ = val; }
+  inline void setNumOfPUVtxsForCharged(unsigned int val) { fNumOfPUVtxsForCharged_ = val; }
+  inline void setDzCutForChargedFromPUVtxs(double val) { fDzCutForChargedFromPUVtxs_ = val; }
 
-  const PFCollection & getPFCandidatesFromPU() const {return pfCandidatesFromPU_;}
-  
-  const PFCollection & getPFCandidatesFromVtx() const {return pfCandidatesFromVtx_;}
+  const PFCollection& getPFCandidatesFromPU() const { return pfCandidatesFromPU_; }
 
-  int chargedHadronVertex(const reco::VertexCollection& vertices, 
-			const reco::PFCandidate& pfcand ) const;
+  const PFCollection& getPFCandidatesFromVtx() const { return pfCandidatesFromVtx_; }
 
+  int chargedHadronVertex(const reco::VertexCollection& vertices, const reco::PFCandidate& pfcand) const;
 
- private  :
-
+private:
   /// use the closest z vertex if a track is not in a vertex
-  bool   checkClosestZVertex_;
-  
-  
+  bool checkClosestZVertex_;
+  unsigned int fNumOfPUVtxsForCharged_;
+  double fDzCutForChargedFromPUVtxs_;
+
   /// verbose ?
-  bool   verbose_;
+  bool verbose_;
 
   PFCollection pfCandidatesFromVtx_;
   PFCollection pfCandidatesFromPU_;
-  
 };
 
 #endif

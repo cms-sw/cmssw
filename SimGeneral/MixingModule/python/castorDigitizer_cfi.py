@@ -12,7 +12,7 @@ castorDigitizer = cms.PSet(
         samplingFactor = cms.double(0.062577), ## GeV/pe
 
         doPhotoStatistics = cms.bool(True),
-        photoelectronsToAnalog = cms.double(4.009),
+        photoelectronsToAnalog = cms.double(4.1718),
         simHitToPhotoelectrons = cms.double(1000.0),
         syncPhase = cms.bool(True),
         timePhase = cms.double(-4.0)

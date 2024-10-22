@@ -12,9 +12,15 @@ process.siPixelCabling.toGet = cms.VPSet(cms.PSet(
 ))
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     debugModules = cms.untracked.vstring('*'),
-    destinations = cms.untracked.vstring('read'),
-    read = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
+    files = cms.untracked.PSet(
+        read = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
 )
 
 process.readstruct =  cms.EDAnalyzer("SiPixelFedCablingMapAnalyzer")

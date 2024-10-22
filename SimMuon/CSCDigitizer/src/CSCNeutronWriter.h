@@ -10,10 +10,9 @@
   \author   Rick Wilkinson, Caltech
  */
 
-class CSCNeutronWriter : public SubsystemNeutronWriter
-{
+class CSCNeutronWriter : public SubsystemNeutronWriter {
 public:
-  explicit CSCNeutronWriter(edm::ParameterSet const& pset);
+  explicit CSCNeutronWriter(edm::ParameterSet const &pset);
   ~CSCNeutronWriter() override;
 
 protected:
@@ -24,9 +23,7 @@ protected:
   int chamberId(int globalDetId) const override;
 
   /// decides whether this cluster is good enough to be included
-  bool accept(const edm::PSimHitContainer & cluster) const override {return true;}
-
+  bool accept(const edm::PSimHitContainer &cluster) const override { return true; }
 };
 
 #endif
-

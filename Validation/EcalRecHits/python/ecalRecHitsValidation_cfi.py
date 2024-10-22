@@ -10,8 +10,9 @@ ecalRecHitsValidation = DQMEDAnalyzer('EcalRecHitsValidation',
     ESrechitCollection = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     EBuncalibrechitCollection = cms.InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEB"),
     EBrechitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    moduleLabelMC = cms.string('generatorSmeared')
+    moduleLabelMC = cms.string('generatorSmeared'),
+    enableEndcaps = cms.untracked.bool(True)
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(ecalRecHitsValidation, hitsProducer = "famosSimHits")
+fastSim.toModify(ecalRecHitsValidation, hitsProducer = "fastSimProducer")

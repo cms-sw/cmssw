@@ -1,5 +1,12 @@
 <lcgdict>
-  <class name="DCSRecord" ClassVersion="3">
+  <class name="CTPPSRecord" ClassVersion="3">
+    <version ClassVersion="3" checksum="289718030"/>
+    <field name="romanPotNames_" transient="true"/>
+    <field name="statusNames_" transient="true"/>
+  </class>
+  <class name="DCSRecord" ClassVersion="5">
+    <version ClassVersion="5" checksum="442670371"/>
+    <version ClassVersion="4" checksum="920984468"/>
     <version ClassVersion="3" checksum="2537350258"/>
     <field name="partitionNames_" transient="true"/>
   </class>
@@ -7,9 +14,11 @@
     <version ClassVersion="3" checksum="2293125545"/>
   </class>
 
+  <class name="edm::RefProd<CTPPSRecord>"/>
   <class name="edm::RefProd<DCSRecord>"/>
   <class name="edm::RefProd<OnlineLuminosityRecord>"/>
 
+  <class name="edm::Wrapper<CTPPSRecord>"/>
   <class name="edm::Wrapper<DCSRecord>"/>
   <class name="edm::Wrapper<OnlineLuminosityRecord>"/>
 </lcgdict>

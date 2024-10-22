@@ -15,49 +15,58 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 namespace muonisolation {
 
-class CaloExtractor : public reco::isodeposit::IsoDepositExtractor {
+  class CaloExtractor : public reco::isodeposit::IsoDepositExtractor {
+  public:
+    CaloExtractor() {}
+    CaloExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC);
 
-public:
+    ~CaloExtractor() override {}
 
-  CaloExtractor(){};
-  CaloExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
+    void fillVetos(const edm::Event& ev, const edm::EventSetup& evSetup, const reco::TrackCollection& tracks) override;
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Track& track) const override;
 
-  ~CaloExtractor() override{}
+    /// Extrapolate muons to calorimeter-object positions
+    static GlobalPoint MuonAtCaloPosition(
+        const reco::Track& muon, const double bz, const GlobalPoint& endpos, bool fixVxy = false, bool fixVz = false);
 
-  void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks) override;
-  reco::IsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const override;
+  private:
+    // CaloTower Collection Label
+    edm::EDGetTokenT<CaloTowerCollection> theCaloTowerCollectionToken;
 
-  /// Extrapolate muons to calorimeter-object positions
-  static GlobalPoint MuonAtCaloPosition(const reco::Track& muon, const double bz, const GlobalPoint& endpos, bool fixVxy=false, bool fixVz=false);
+    // Label of deposit
+    std::string theDepositLabel;
 
-private:
-  // CaloTower Collection Label
-  edm::EDGetTokenT<CaloTowerCollection> theCaloTowerCollectionToken;
+    const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> theCaloGeomToken;
+    const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
 
-  // Label of deposit
-  std::string theDepositLabel;
+    // Cone cuts and thresholds
+    double theWeight_E;
+    double theWeight_H;
+    double theThreshold_E;
+    double theThreshold_H;
+    double theDR_Veto_E;
+    double theDR_Veto_H;
+    double theDR_Max;
+    bool vertexConstraintFlag_XY;
+    bool vertexConstraintFlag_Z;
 
-  // Cone cuts and thresholds
-  double theWeight_E;
-  double theWeight_H;
-  double theThreshold_E;
-  double theThreshold_H;
-  double theDR_Veto_E;
-  double theDR_Veto_H;
-  double theDR_Max;
-  bool vertexConstraintFlag_XY;
-  bool vertexConstraintFlag_Z;
+    // Vector of calo Ids to veto
+    std::vector<DetId> theVetoCollection;
 
-  // Vector of calo Ids to veto
-  std::vector<DetId> theVetoCollection;
+    // Determine noise for HCAL and ECAL (take some defaults for the time being)
+    double noiseEcal(const CaloTower& tower) const;
+    double noiseHcal(const CaloTower& tower) const;
+  };
 
-  // Determine noise for HCAL and ECAL (take some defaults for the time being)
-  double noiseEcal(const CaloTower& tower) const;
-  double noiseHcal(const CaloTower& tower) const;
-};
-
-}
+}  // namespace muonisolation
 
 #endif

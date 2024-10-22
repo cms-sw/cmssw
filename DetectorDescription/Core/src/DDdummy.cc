@@ -1,1 +1,1 @@
-void dddddd() { int i=1; ++i; }
+void dddddd() {}

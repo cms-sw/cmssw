@@ -6,23 +6,19 @@
 namespace edm {
 
   class FlatRandomEThetaGunProducer : public FlatBaseThetaGunProducer {
-  
   public:
     FlatRandomEThetaGunProducer(const ParameterSet &);
     ~FlatRandomEThetaGunProducer() override;
 
   private:
-   
-    void produce(Event &e, const EventSetup& es) override;
-    
-  protected :
-  
-    // data members
-    
-    double            fMinE   ;
-    double            fMaxE   ;
+    void produce(Event &e, const EventSetup &es) override;
 
+  protected:
+    // data members
+
+    double fMinE;
+    double fMaxE;
   };
-} 
+}  // namespace edm
 
 #endif

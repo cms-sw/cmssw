@@ -1,4 +1,0 @@
-known bugs
-.) Each module has a "preferred" pair of surfaces - (almost) perpendicular to R for barrel modules, perpendicular to Z in the endacps.
-   Currently, it is assumed that all tracks will cross a module at a preferred surface: for those which don't, the wrong normal (and thus cos(theta)) is used.
-

@@ -21,7 +21,6 @@ process.GlobalTag.globaltag = "GR_R_52_V2::All"
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 #process.siPixelDigis.InputLabel = "rawDataCollector"
 process.siPixelDigis.InputLabel = "rawDataCollector"
-process.siPixelDigis.Timing = True
 process.siPixelDigis.UseQualityInfo = False
 process.siPixelDigis.IncludeErrors = True
 process.siPixelDigis.ErrorList = [29]

@@ -15,26 +15,25 @@ void PixelDigiCollection::put(Range input, unsigned int detID) {
   std::vector<PixelDigi> temporary;
   PixelDigiCollection::ContainerIterator sort_begin = input.first;
   PixelDigiCollection::ContainerIterator sort_end = input.second;
-  for ( ;sort_begin != sort_end; ++sort_begin ) {
+  for (; sort_begin != sort_end; ++sort_begin) {
     temporary.push_back(*sort_begin);
   }
-  std::sort(temporary.begin(),temporary.end());
+  std::sort(temporary.begin(), temporary.end());
 
   // iterators over input
   PixelDigiCollection::ContainerIterator begin = temporary.begin();
   PixelDigiCollection::ContainerIterator end = temporary.end();
-  for ( ;begin != end; ++begin ) {
+  for (; begin != end; ++begin) {
     container_.push_back(*begin);
-    if ( first ) {
-      inputRange.first = container_.size()-1;
+    if (first) {
+      inputRange.first = container_.size() - 1;
       first = false;
     }
   }
-  inputRange.second = container_.size()-1;
-  
+  inputRange.second = container_.size() - 1;
+
   // fill map
   map_[detID] = inputRange;
-
 }
 
 const PixelDigiCollection::Range PixelDigiCollection::get(unsigned int detID) const {
@@ -42,13 +41,13 @@ const PixelDigiCollection::Range PixelDigiCollection::get(unsigned int detID) co
 
   auto found = map_.find(detID);
   PixelDigiCollection::IndexRange returnIndexRange{};
-  if(found != map_.end()) {
+  if (found != map_.end()) {
     returnIndexRange = found->second;
   }
 
   PixelDigiCollection::Range returnRange;
-  returnRange.first  = container_.begin()+returnIndexRange.first;
-  returnRange.second = container_.begin()+returnIndexRange.second+1;
+  returnRange.first = container_.begin() + returnIndexRange.first;
+  returnRange.second = container_.begin() + returnIndexRange.second + 1;
 
   return returnRange;
 }
@@ -57,7 +56,7 @@ const std::vector<unsigned int> PixelDigiCollection::detIDs() const {
   // returns vector of detIDs in map
 
   PixelDigiCollection::RegistryIterator begin = map_.begin();
-  PixelDigiCollection::RegistryIterator end   = map_.end();
+  PixelDigiCollection::RegistryIterator end = map_.end();
 
   std::vector<unsigned int> output;
 
@@ -66,5 +65,4 @@ const std::vector<unsigned int> PixelDigiCollection::detIDs() const {
   }
 
   return output;
-
 }

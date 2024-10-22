@@ -8,6 +8,7 @@ OutALCARECOHcalCalGammaJet_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalGammaJet')
     ),
     outputCommands = cms.untracked.vstring(
+            'keep HcalNoiseSummary_hcalnoise_*_*',
             'keep *_gedPhotons_*_*',
             'keep recoPhotonCores_gedPhotonCore_*_*',
             'keep recoSuperClusters_particleFlowEGamma_*_*',

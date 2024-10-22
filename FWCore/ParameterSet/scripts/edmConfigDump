@@ -1,26 +1,34 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
-from optparse import OptionParser
 import sys
 import os 
-import imp
+import argparse
+from FWCore.ParameterSet.processFromFile import processFromFile
 
 # make the behaviour of 'cmsRun file.py' and 'edmConfigDump file.py' more consistent
 sys.path.append(os.getcwd())
 
-parser = OptionParser()
-parser.usage = "%prog <file> : expand this python configuration"
+parser = argparse.ArgumentParser(description="Expand python configuration")
+parser.add_argument("filename",
+                    help="Python configuration file")
+parser.add_argument("--prune", action="store_true",
+                    help="Prune the configuration before printing it")
+parser.add_argument("--pruneVerbose", action="store_true",
+                    help="With --prune, be verbose on what is pruned")
+parser.add_argument("-o", "--output", type=str, default=None,
+                    help="Save the configuration dump into this file. In this case any printouts from the configuration continue to be printed to stdout. Default is to print the configuration dump to stdout.")
+parser.add_argument("configArgs",
+                    nargs=argparse.REMAINDER, help="arguments that will be passed to Python configuration file")
 
-(options,args) = parser.parse_args()
+options = parser.parse_args()
+cmsProcess = processFromFile(options.filename, options.configArgs)
 
-if len(args)!=1:
-    parser.print_help()
-    sys.exit(1)
+if options.prune:
+    cmsProcess.prune(options.pruneVerbose)
 
-filename = args[0]
-handle = open(filename, 'r')
-cfo = imp.load_source("pycfg", filename, handle)
-cmsProcess = cfo.process
-handle.close()
+if options.output is not None:
+    with open(options.output, "w") as f:
+        f.write(cmsProcess.dumpPython())
+else:
+    print(cmsProcess.dumpPython())
 
-print cmsProcess.dumpPython()

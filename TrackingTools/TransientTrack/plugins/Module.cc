@@ -2,7 +2,4 @@
 
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
 
-
 DEFINE_FWK_EVENTSETUP_MODULE(TransientTrackBuilderESProducer);
-
-

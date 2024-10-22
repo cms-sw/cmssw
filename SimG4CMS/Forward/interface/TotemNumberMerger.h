@@ -18,7 +18,7 @@
 // Original Author:  R. Capra
 //         Created:  Tue May 16 10:14:34 CEST 2006
 //
- 
+
 // system include files
 
 // user include files
@@ -26,26 +26,21 @@
 #include "globals.hh"
 
 class TotemNumberMerger {
-
-public: 
-
+public:
   // ---------- Constructor and destructor -----------------
   TotemNumberMerger();
   ~TotemNumberMerger();
 
   // ---------- The two operations -------------------------
-  unsigned long    Merge(unsigned long value1,  unsigned long value2) const;
-  unsigned long    Merge(unsigned long value1,  unsigned long value2, 
-			 unsigned long value3)  const;
-  unsigned long    Merge(unsigned long value1,  unsigned long value2,
-			 unsigned long value3,  unsigned long value4) const;
-  void             Split(unsigned long source,  unsigned long &value1, 
-			 unsigned long &value2) const;
-  void             Split(unsigned long source,  unsigned long &value1, 
-			 unsigned long &value2, unsigned long &value3) const;
-  void             Split(unsigned long source,  unsigned long &value1, 
-			 unsigned long &value2, unsigned long &value3,
-			 unsigned long &value4) const;
+  unsigned long Merge(unsigned long value1, unsigned long value2) const;
+  unsigned long Merge(unsigned long value1, unsigned long value2, unsigned long value3) const;
+  unsigned long Merge(unsigned long value1, unsigned long value2, unsigned long value3, unsigned long value4) const;
+  void Split(unsigned long source, unsigned long &value1, unsigned long &value2) const;
+  void Split(unsigned long source, unsigned long &value1, unsigned long &value2, unsigned long &value3) const;
+  void Split(unsigned long source,
+             unsigned long &value1,
+             unsigned long &value2,
+             unsigned long &value3,
+             unsigned long &value4) const;
 };
 #endif
-

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
 process = cms.Process("bphAnalysis")
@@ -18,7 +19,7 @@ process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 patAlgosToolsTask.add(process.MEtoEDMConverter)
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
@@ -37,7 +38,7 @@ process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring(
 #    'file:/...complete_file_path.../D0D90725-1D61-E511-B812-0025907277CE.root'
 ))
 
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.load('PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff')
@@ -80,3 +81,4 @@ process.p = cms.Path(
     process.testBPHSpecificDecay,
     patAlgosToolsTask
 )
+

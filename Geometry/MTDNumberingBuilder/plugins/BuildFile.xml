@@ -1,0 +1,9 @@
+<use name="Geometry/MTDNumberingBuilder"/>
+<use name="CondFormats/GeometryObjects"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="Geometry/MTDCommonData"/>
+<use name="Geometry/Records"/>
+<library file="*.cc" name="GeometryMTDNumberingBuilderPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

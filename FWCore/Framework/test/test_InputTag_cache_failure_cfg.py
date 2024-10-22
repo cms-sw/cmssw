@@ -4,7 +4,7 @@ process = cms.Process("Test")
 #we want to continue processing after a 'ProductNotFound' exception in order
 # to test what happens to the cache held by the InputTag
 process.options = cms.untracked.PSet(
-    SkipEvent = cms.untracked.vstring('ProductNotFound')
+    TryToContinue = cms.untracked.vstring('ProductNotFound')
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -28,7 +28,7 @@ process.zInt = cms.EDProducer("IntProducer", ivalue=cms.int32(26))
 
 process.getOne = cms.EDAnalyzer("IntTestAnalyzer",
     valueMustMatch = cms.untracked.int32(1),
-    moduleLabel = cms.untracked.string('one')
+    moduleLabel = cms.untracked.InputTag('one')
 )
 
 process.p = cms.Path(process.double+process.doubleTwo+process.zInt+process.getOne)

@@ -44,18 +44,17 @@ siStripQualityESProducerUnbiased.ListOfRecordToMerge = cms.VPSet(
 # Clusterizer #
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
 
+siStripUnbiasedClusterizerConditions = SiStripClusterizerConditionsESProducer.clone(QualityLabel="unbiased", Label="unbiased")
 calZeroBiasClusters = siStripClusters.clone()
-calZeroBiasClusters.Clusterizer.QualityLabel = 'unbiased'
+if hasattr(calZeroBiasClusters, "Clusterizer"): calZeroBiasClusters.Clusterizer.ConditionsLabel = 'unbiased'
 
 # Not persistent collections needed by the filters in the AlCaReco DQM
 from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
 from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi import *
 
 # SiStripQuality (only to test the different data labels)#
-qualityStatistics = cms.EDAnalyzer("SiStripQualityStatistics",
-    TkMapFileName = cms.untracked.string(''),
-    dataLabel = cms.untracked.string('unbiased')
-)
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+qualityStatistics = siStripQualityStatistics.clone(StripQualityLabel=cms.string("unbiased"))
 
 # Sequence #
 seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)

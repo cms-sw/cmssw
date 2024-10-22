@@ -7,9 +7,9 @@
 #define SMATRIX_USE_CONSTEXPR
 #include <Math/SVector.h>
 
-
 #include <iostream>
 
-template<typename T, int N> using RKSmallVector =  ROOT::Math::SVector<T,N>;
+template <typename T, int N>
+using RKSmallVector = ROOT::Math::SVector<T, N>;
 
 #endif

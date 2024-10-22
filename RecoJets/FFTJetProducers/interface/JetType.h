@@ -4,17 +4,9 @@
 #include <string>
 
 namespace fftjetcms {
-    enum JetType
-    {
-        BASICJET = 0,
-        GENJET,
-        CALOJET,
-        PFJET,
-        TRACKJET,
-        JPTJET
-    };
+  enum JetType { BASICJET = 0, GENJET, CALOJET, PFJET, TRACKJET, JPTJET };
 
-    JetType parseJetType(const std::string& name);
-}
+  JetType parseJetType(const std::string& name);
+}  // namespace fftjetcms
 
-#endif // RecoJets_FFTJetProducers_JetType_h
+#endif  // RecoJets_FFTJetProducers_JetType_h

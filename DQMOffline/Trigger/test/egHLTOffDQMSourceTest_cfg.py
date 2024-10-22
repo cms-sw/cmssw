@@ -83,7 +83,6 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 
 
-process.DQMStore.collateHistograms = True
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
     process.FEVTEventContent,

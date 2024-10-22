@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
@@ -8,12 +9,12 @@ import re
 readFiles = cms.untracked.vstring()
 
 matchRootFile = re.compile("\S*\.root$")
-for argument in sys.argv[2:]:
+for argument in sys.argv[1:]:
    if matchRootFile.search(argument):
       fileToRead = "file:"+argument
       readFiles.append(fileToRead)
 
-print "readFiles : \n", readFiles
+print("readFiles : \n", readFiles)
 
 process = cms.Process("CONV")
 process.load("Configuration.StandardSequences.Reconstruction_cff")

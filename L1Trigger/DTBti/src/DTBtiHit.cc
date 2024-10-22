@@ -7,7 +7,7 @@
 //
 //   Author List:
 //   C. Grandi
-//   Modifications: 
+//   Modifications:
 //   S. Vanini
 //   17/V/04  SV: tdrift in tdc units, phase is included!!
 //   22/VI/04 SV: last trigger code update
@@ -45,13 +45,11 @@ const float DTBtiHit::_stepTimeTdc = 16.;
 // Constructors --
 //----------------
 
-DTBtiHit::DTBtiHit(const DTDigi* hitdigi, DTConfigBti* config) :
-  _hitdigi(hitdigi), _config(config) {
-
+DTBtiHit::DTBtiHit(const DTDigi* hitdigi, DTConfigBti* config) : _hitdigi(hitdigi), _config(config) {
   //SV tdcunits 11V04: time in tdc units! setup time too!
-  _curTime = hitdigi->countsTDC(); //@@ only DT>0
+  _curTime = hitdigi->countsTDC();  //@@ only DT>0
 
-/*
+  /*
   // *** ATTENTION FOR RUNNING TESTBEAM DATA ***
   // SV 26/IX/03 if digi are corrected with wire t0s in DTBXDigitizer 
   // tdrift values must be corrected with  t0 mean instead because
@@ -82,35 +80,29 @@ DTBtiHit::DTBtiHit(const DTDigi* hitdigi, DTConfigBti* config) :
 */
   //bti clocks of 16 tdc units : first clock is number 1!
   //_clockTime = (int)( (_curTime + _config->SetupTime()) / _stepTimeTdc ) + 1;
-  _clockTime = (int)( _curTime  / _stepTimeTdc ) + 1;
-
+  _clockTime = (int)(_curTime / _stepTimeTdc) + 1;
 }
 
-DTBtiHit::DTBtiHit(int clockTime, DTConfigBti* config) :
-  _config(config) {
+DTBtiHit::DTBtiHit(int clockTime, DTConfigBti* config) : _config(config) {
   _clockTime = clockTime;
   _hitdigi = nullptr;
   _curTime = 4000;
 }
 
-DTBtiHit::DTBtiHit(const DTBtiHit& hit) :
-  _hitdigi(hit._hitdigi), _config(hit._config), _curTime(hit._curTime), 
-  _clockTime(hit._clockTime) {
-}
+DTBtiHit::DTBtiHit(const DTBtiHit& hit)
+    : _hitdigi(hit._hitdigi), _config(hit._config), _curTime(hit._curTime), _clockTime(hit._clockTime) {}
 
 //--------------
 // Destructor --
 //--------------
-DTBtiHit::~DTBtiHit() {
-}
+DTBtiHit::~DTBtiHit() {}
 
 //--------------
 // Operations --
 //--------------
 
-DTBtiHit &
-DTBtiHit::operator=(const DTBtiHit& hit){
-  if(this != &hit){
+DTBtiHit& DTBtiHit::operator=(const DTBtiHit& hit) {
+  if (this != &hit) {
     _hitdigi = hit._hitdigi;
     _config = hit._config;
     _curTime = hit._curTime;

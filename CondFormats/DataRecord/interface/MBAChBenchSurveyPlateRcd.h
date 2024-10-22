@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-class MBAChBenchSurveyPlateRcd : public edm::eventsetup::EventSetupRecordImplementation<MBAChBenchSurveyPlateRcd> {
-    
-};
+class MBAChBenchSurveyPlateRcd : public edm::eventsetup::EventSetupRecordImplementation<MBAChBenchSurveyPlateRcd> {};
 
 #endif

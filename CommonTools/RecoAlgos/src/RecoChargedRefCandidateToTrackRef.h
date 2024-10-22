@@ -5,19 +5,21 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedRefCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedRefCandidateFwd.h"
 
-namespace edm { class EventSetup; class ParameterSet; }
+namespace edm {
+  class EventSetup;
+  class ParameterSet;
+  class ConsumesCollector;
+}  // namespace edm
 
 namespace converter {
   struct RecoChargedRefCandidateToTrackRef {
     typedef reco::RecoChargedRefCandidate value_type;
     typedef reco::RecoChargedRefCandidateCollection Components;
     typedef reco::TrackRef Candidate;
-    RecoChargedRefCandidateToTrackRef(const edm::ParameterSet & cfg) {}
+    RecoChargedRefCandidateToTrackRef(const edm::ParameterSet& cfg, const edm::ConsumesCollector&) {}
     void beginFirstRun(const edm::EventSetup&) {}
-    void convert(const reco::RecoChargedRefCandidateRef& c, reco::TrackRef& trkRef) const {
-      trkRef = c->track();
-    }  
+    void convert(const reco::RecoChargedRefCandidateRef& c, reco::TrackRef& trkRef) const { trkRef = c->track(); }
   };
-}
+}  // namespace converter
 
 #endif

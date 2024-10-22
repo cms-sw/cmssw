@@ -4,30 +4,26 @@
 
 //typedef popcon::PopConAnalyzer<HcalLutMetadataHandler> HcalLutMetadataPopConAnalyzer;
 
-class HcalLutMetadataPopConAnalyzer: public popcon::PopConAnalyzer<HcalLutMetadataHandler>
-{
+class HcalLutMetadataPopConAnalyzer : public popcon::PopConAnalyzer<HcalLutMetadataHandler> {
 public:
   typedef HcalLutMetadataHandler SourceHandler;
 
-  HcalLutMetadataPopConAnalyzer(const edm::ParameterSet& pset): 
-    popcon::PopConAnalyzer<HcalLutMetadataHandler>(pset),
-    m_populator(pset),
-    m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+  HcalLutMetadataPopConAnalyzer(const edm::ParameterSet& pset)
+      : popcon::PopConAnalyzer<HcalLutMetadataHandler>(pset),
+        m_populator(pset),
+        m_source(pset.getParameter<edm::ParameterSet>("Source")),
+        m_tok(esConsumes<HcalLutMetadata, HcalLutMetadataRcd>()) {}
 
 private:
-  void endJob() override 
-  {
+  void endJob() override {
     m_source.initObject(myDBObject);
     write();
   }
 
-  void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override
-  {
+  void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override {
     //Using ES to get the data:
 
-    edm::ESHandle<HcalLutMetadata> objecthandle;
-    esetup.get<HcalLutMetadataRcd>().get(objecthandle);
-    myDBObject = new HcalLutMetadata(*objecthandle.product() );
+    myDBObject = new HcalLutMetadata(esetup.getData(m_tok));
   }
 
   void write() { m_populator.write(m_source); }
@@ -35,6 +31,7 @@ private:
 private:
   popcon::PopCon m_populator;
   SourceHandler m_source;
+  edm::ESGetToken<HcalLutMetadata, HcalLutMetadataRcd> m_tok;
 
   HcalLutMetadata* myDBObject;
 };

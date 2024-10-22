@@ -2,7 +2,7 @@
 //
 // Package:     ESGeometry
 // Class  :     ESAlignmentErrorRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

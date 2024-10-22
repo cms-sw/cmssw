@@ -17,6 +17,6 @@ namespace reco {
   typedef edm::RefVector<ConvBremSeedCollection> ConvBremSeedRefVector;
   /// iterator over a vector of reference to ConvBremSeed objects
   typedef ConvBremSeedRefVector::iterator convbremphltseed_iterator;
-}
+}  // namespace reco
 
 #endif

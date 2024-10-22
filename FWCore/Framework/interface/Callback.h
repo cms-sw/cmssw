@@ -1,16 +1,15 @@
-#ifndef Framework_Callback_h
-#define Framework_Callback_h
 // -*- C++ -*-
+#ifndef FWCore_Framework_Callback_h
+#define FWCore_Framework_Callback_h
 //
 // Package:     Framework
 // Class  :     Callback
-// 
-/**\class Callback Callback.h FWCore/Framework/interface/Callback.h
+//
+/**\class edm::eventsetup::Callback
 
- Description: Functional object used as the 'callback' for the CallbackProxy
+ Description: Functional object used as the 'callback' for the CallbackESProductResolver
 
- Usage:
-    <usage>
+ Usage: Produces data objects for ESProducers in EventSetup system
 
 */
 //
@@ -18,104 +17,67 @@
 // Created:     Sun Apr 17 14:30:24 EDT 2005
 //
 
-// system include files
-#include <vector>
-// user include files
-#include "FWCore/Framework/interface/produce_helpers.h"
-#include "FWCore/Utilities/interface/propagate_const.h"
+#include <memory>
+#include <utility>
 
-// forward declarations
+#include "oneapi/tbb/task_group.h"
+
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Framework/interface/CallbackBase.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+
 namespace edm {
-   namespace eventsetup {
-      
-      //need a virtual distructor since owner of callback only knows
-      // about the base class.  Other users of callback know the specific
-      // type
-      struct CallbackBase { virtual ~CallbackBase() {} };
-      
-      // The default decorator that does nothing
-      template< typename TRecord>
-      struct CallbackSimpleDecorator {
-         void pre(const TRecord&) {}
-         void post(const TRecord&) {}
-      };
-      
-      template<typename T,         //producer's type
-               typename TReturn,   //return type of the producer's method
-               typename TRecord,   //the record passed in as an argument
-               typename TDecorator //allows customization using pre/post calls 
-                             =CallbackSimpleDecorator<TRecord> >
-      class Callback : public CallbackBase {
-       public:
-         typedef TReturn (T ::* method_type)(const TRecord&);
-         
-         Callback(T* iProd, 
-                   method_type iMethod,
-                   const TDecorator& iDec = TDecorator()) :
-            proxyData_(produce::size< TReturn >::value, static_cast<void*>(nullptr)),
-            producer_(iProd), 
-            method_(iMethod),
-            wasCalledForThisRecord_(false),
-            decorator_(iDec) {}
-         
-         
-         // ---------- const member functions ---------------------
-         
-         // ---------- static member functions --------------------
-         
-         // ---------- member functions ---------------------------
-         
-         
-         void operator()(const TRecord& iRecord) { 
-            if(!wasCalledForThisRecord_) {
-               decorator_.pre(iRecord);
-               storeReturnedValues((producer_->*method_)(iRecord));                  
-               wasCalledForThisRecord_ = true;
-               decorator_.post(iRecord);
-            }
-         }
-         
-         template<class DataT>
-            void holdOntoPointer(DataT* iData) {
-               proxyData_[produce::find_index<TReturn,DataT>::value] = iData;
-            }
-         
-         void storeReturnedValues(TReturn iReturn) {
-            //std::cout <<" storeReturnedValues "<< iReturn <<" " <<iReturn->value_ <<std::endl;
-            typedef typename produce::product_traits<TReturn>::type type;
-            setData(iReturn, static_cast<typename  type::head_type*>(nullptr), static_cast<const typename type::tail_type *>(nullptr));
-         }
-         
-         template<class RemainingContainerT, class DataT, class ProductsT>
-            void setData(ProductsT& iProducts, const RemainingContainerT*, const DataT*) {
-               DataT* temp = reinterpret_cast< DataT*>(proxyData_[produce::find_index<TReturn,DataT>::value]) ;
-               if(nullptr != temp) { copyFromTo(iProducts, *temp); }
-               setData(iProducts, static_cast< const typename RemainingContainerT::head_type *>(nullptr),
-                       static_cast< const typename RemainingContainerT::tail_type *>(nullptr));
-            }
-         template<class DataT, class ProductsT>
-            void setData(ProductsT& iProducts, const produce::Null*, const DataT*) {
-               
-               DataT* temp = reinterpret_cast< DataT*>(proxyData_[produce::find_index<TReturn,DataT>::value]) ;
-               //std::cout <<" setData["<< produce::find_index<TReturn,DataT>::value<<"] "<< temp <<std::endl;
-               if(nullptr != temp) { copyFromTo(iProducts, *temp); } 
-            }
-         void newRecordComing() {
-            wasCalledForThisRecord_ = false;
-         }
-         
-     private:
-         Callback(const Callback&) = delete; // stop default
-         
-         const Callback& operator=(const Callback&) = delete; // stop default
 
-         std::vector<void*> proxyData_;
-         edm::propagate_const<T*> producer_;
-         method_type method_;
-         bool wasCalledForThisRecord_;
-         TDecorator decorator_;
-      };
-   }
-}
+  class EventSetupImpl;
 
+  namespace eventsetup {
+
+    class EventSetupRecordImpl;
+
+    template <typename T,             //producer's type
+              typename TProduceFunc,  //produce functor type
+              typename TReturn,       //return type of the produce method
+              typename TRecord,       //the record passed in as an argument
+              typename TDecorator     //allows customization using pre/post calls
+              = CallbackSimpleDecorator<TRecord>>
+    class Callback : public CallbackBase<T, TProduceFunc, TReturn, TRecord, TDecorator> {
+    public:
+      using Base = CallbackBase<T, TProduceFunc, TReturn, TRecord, TDecorator>;
+
+      Callback(T* iProd, TProduceFunc iProduceFunc, unsigned int iID, const TDecorator& iDec = TDecorator())
+          : Callback(iProd, std::make_shared<TProduceFunc>(std::move(iProduceFunc)), iID, iDec) {}
+
+      Callback* clone() {
+        return new Callback(Base::producer(), Base::produceFunction(), Base::transitionID(), Base::decorator());
+      }
+
+      void prefetchAsync(WaitingTaskHolder iTask,
+                         EventSetupRecordImpl const* iRecord,
+                         EventSetupImpl const* iEventSetupImpl,
+                         ServiceToken const& token,
+                         ESParentContext const& iParent) noexcept {
+        return Base::prefetchAsyncImpl(
+            [this](auto&& group, auto&& token, auto&& record, auto&& es) {
+              constexpr bool emitPostPrefetchingSignal = true;
+              auto produceFunctor = [this](TRecord const& record) { return (*Base::produceFunction())(record); };
+              return Base::makeProduceTask(
+                  group, token, record, es, emitPostPrefetchingSignal, std::move(produceFunctor));
+            },
+            std::move(iTask),
+            iRecord,
+            iEventSetupImpl,
+            token,
+            iParent);
+      }
+
+    private:
+      Callback(T* iProd,
+               std::shared_ptr<TProduceFunc> iProduceFunc,
+               unsigned int iID,
+               const TDecorator& iDec = TDecorator())
+          : Base(iProd, std::move(iProduceFunc), iID, iDec) {}
+    };
+  }  // namespace eventsetup
+}  // namespace edm
 #endif

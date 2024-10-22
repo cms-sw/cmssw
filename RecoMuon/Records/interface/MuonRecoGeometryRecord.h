@@ -12,11 +12,10 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
+class MuonRecoGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<MuonRecoGeometryRecord,
+                                                            edm::mpl::Vector<MuonGeometryRecord> > {};
 
-class MuonRecoGeometryRecord : public edm::eventsetup::DependentRecordImplementation<MuonRecoGeometryRecord,
-  boost::mpl::vector<MuonGeometryRecord> > {};
-
-#endif 
-
+#endif

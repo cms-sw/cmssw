@@ -1,0 +1,8 @@
+<use name="CondCore/Utilities"/>
+<use name="FWCore/PluginManager"/>
+<use name="Alignment/CommonAlignment"/>
+<use name="CalibTracker/StandaloneTrackerTopology"/>
+<bin file="testTrackerAlignmentPayloadInspector.cpp" name="testTrackerAlignmentPayloadInspector">
+  <use name="DQM/TrackerRemapper"/>   
+  <use name="CalibTracker/SiPixelESProducers"/>
+</bin>

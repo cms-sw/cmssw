@@ -1,51 +1,47 @@
-// $Id: RawEventFileWriterForBU.cc,v 1.1.2.6 2013/03/28 14:56:53 aspataru Exp $
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <sstream>
 
-#include "EventFilter/Utilities/plugins/RawEventFileWriterForBU.h"
+// CMSSW headers
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
-
+#include "EventFilter/Utilities/plugins/RawEventFileWriterForBU.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <iostream>
-#include <sstream>
-#include <cstdio>
-#include <cstdlib>
-#include <cerrno>
-#include <cstring>
-#include <boost/filesystem/fstream.hpp>
+#include "IOPool/Streamer/interface/FRDEventMessage.h"
+#include "IOPool/Streamer/interface/FRDFileHeader.h"
 
 using namespace jsoncollector;
-
+using namespace edm::streamer;
 
 //TODO:get run directory information from DaqDirector
 
-RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps):
-      // default to .5ms sleep per event
-       microSleep_(ps.getUntrackedParameter<int>("microSleep", 0))
-       //debug_(ps.getUntrackedParameter<bool>("debug", False))
-{
-
+RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps)
+    : microSleep_(ps.getParameter<int>("microSleep")),
+      frdFileVersion_(ps.getParameter<unsigned int>("frdFileVersion")) {
   //per-file JSD and FastMonitor
   rawJsonDef_.setDefaultGroup("legend");
-  rawJsonDef_.addLegendItem("NEvents","integer",DataPointDefinition::SUM);
+  rawJsonDef_.addLegendItem("NEvents", "integer", DataPointDefinition::SUM);
 
   perFileEventCount_.setName("NEvents");
   perFileSize_.setName("NBytes");
 
-  fileMon_ = new FastMonitor(&rawJsonDef_,false);
-  fileMon_->registerGlobalMonitorable(&perFileEventCount_,false,nullptr);
-  fileMon_->registerGlobalMonitorable(&perFileSize_,false,nullptr);
+  fileMon_ = new FastMonitor(&rawJsonDef_, false);
+  fileMon_->registerGlobalMonitorable(&perFileEventCount_, false, nullptr);
+  fileMon_->registerGlobalMonitorable(&perFileSize_, false, nullptr);
   fileMon_->commit(nullptr);
 
   //per-lumi JSD and FastMonitor
   eolJsonDef_.setDefaultGroup("legend");
-  eolJsonDef_.addLegendItem("NEvents","integer",DataPointDefinition::SUM);
-  eolJsonDef_.addLegendItem("NFiles","integer",DataPointDefinition::SUM);
-  eolJsonDef_.addLegendItem("TotalEvents","integer",DataPointDefinition::SUM);
-  eolJsonDef_.addLegendItem("NLostEvents","integer",DataPointDefinition::SUM);
+  eolJsonDef_.addLegendItem("NEvents", "integer", DataPointDefinition::SUM);
+  eolJsonDef_.addLegendItem("NFiles", "integer", DataPointDefinition::SUM);
+  eolJsonDef_.addLegendItem("TotalEvents", "integer", DataPointDefinition::SUM);
+  eolJsonDef_.addLegendItem("NLostEvents", "integer", DataPointDefinition::SUM);
 
   perLumiEventCount_.setName("NEvents");
   perLumiFileCount_.setName("NFiles");
@@ -53,87 +49,72 @@ RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps):
   perLumiLostEventCount_.setName("NLostEvents");
   perLumiSize_.setName("NBytes");
 
-  lumiMon_ = new FastMonitor(&eolJsonDef_,false);
-  lumiMon_->registerGlobalMonitorable(&perLumiEventCount_,false,nullptr);
-  lumiMon_->registerGlobalMonitorable(&perLumiFileCount_,false,nullptr);
-  lumiMon_->registerGlobalMonitorable(&perLumiTotalEventCount_,false,nullptr);
-  lumiMon_->registerGlobalMonitorable(&perLumiLostEventCount_,false,nullptr);
-  lumiMon_->registerGlobalMonitorable(&perLumiSize_,false,nullptr);
+  lumiMon_ = new FastMonitor(&eolJsonDef_, false);
+  lumiMon_->registerGlobalMonitorable(&perLumiEventCount_, false, nullptr);
+  lumiMon_->registerGlobalMonitorable(&perLumiFileCount_, false, nullptr);
+  lumiMon_->registerGlobalMonitorable(&perLumiTotalEventCount_, false, nullptr);
+  lumiMon_->registerGlobalMonitorable(&perLumiLostEventCount_, false, nullptr);
+  lumiMon_->registerGlobalMonitorable(&perLumiSize_, false, nullptr);
   lumiMon_->commit(nullptr);
-
 
   //per-run JSD and FastMonitor
   eorJsonDef_.setDefaultGroup("legend");
-  eorJsonDef_.addLegendItem("NEvents","integer",DataPointDefinition::SUM);
-  eorJsonDef_.addLegendItem("NFiles","integer",DataPointDefinition::SUM);
-  eorJsonDef_.addLegendItem("NLumis","integer",DataPointDefinition::SUM);
-  eorJsonDef_.addLegendItem("LastLumi","integer",DataPointDefinition::SUM);
+  eorJsonDef_.addLegendItem("NEvents", "integer", DataPointDefinition::SUM);
+  eorJsonDef_.addLegendItem("NFiles", "integer", DataPointDefinition::SUM);
+  eorJsonDef_.addLegendItem("NLumis", "integer", DataPointDefinition::SUM);
+  eorJsonDef_.addLegendItem("LastLumi", "integer", DataPointDefinition::SUM);
 
   perRunEventCount_.setName("NEvents");
   perRunFileCount_.setName("NFiles");
   perRunLumiCount_.setName("NLumis");
   perRunLastLumi_.setName("LastLumi");
- 
-  runMon_ = new FastMonitor(&eorJsonDef_,false);
-  runMon_->registerGlobalMonitorable(&perRunEventCount_,false,nullptr);
-  runMon_->registerGlobalMonitorable(&perRunFileCount_,false,nullptr);
-  runMon_->registerGlobalMonitorable(&perRunLumiCount_,false,nullptr);
-  runMon_->registerGlobalMonitorable(&perRunLastLumi_,false,nullptr);
+
+  runMon_ = new FastMonitor(&eorJsonDef_, false);
+  runMon_->registerGlobalMonitorable(&perRunEventCount_, false, nullptr);
+  runMon_->registerGlobalMonitorable(&perRunFileCount_, false, nullptr);
+  runMon_->registerGlobalMonitorable(&perRunLumiCount_, false, nullptr);
+  runMon_->registerGlobalMonitorable(&perRunLastLumi_, false, nullptr);
   runMon_->commit(nullptr);
-
 }
 
-RawEventFileWriterForBU::RawEventFileWriterForBU(std::string const& fileName)
-{
+RawEventFileWriterForBU::RawEventFileWriterForBU(std::string const& fileName) {}
 
-}
-
-RawEventFileWriterForBU::~RawEventFileWriterForBU()
-{
+RawEventFileWriterForBU::~RawEventFileWriterForBU() {
   delete fileMon_;
   delete lumiMon_;
   delete runMon_;
 }
 
-void RawEventFileWriterForBU::doOutputEvent(FRDEventMsgView const& msg)
-{
-  ssize_t retval =  write(outfd_,(void*)msg.startAddress(), msg.size());
+void RawEventFileWriterForBU::doOutputEvent(FRDEventMsgView const& msg) {
+  ssize_t retval = write(outfd_, (void*)msg.startAddress(), msg.size());
 
-  if((unsigned)retval!= msg.size()){
+  if ((unsigned)retval != msg.size()) {
     throw cms::Exception("RawEventFileWriterForBU", "doOutputEvent")
-      << "Error writing FED Raw Data event data to "
-      << fileName_ << ".  Possibly the output disk "
-      << "is full?" << std::endl;
+        << "Error writing FED Raw Data event data to " << fileName_ << ".  Possibly the output disk "
+        << "is full?" << std::endl;
   }
 
   // throttle event output
   usleep(microSleep_);
   perFileEventCount_.value()++;
-  perFileSize_.value()+=msg.size();
+  perFileSize_.value() += msg.size();
 
   //  cms::Adler32((const char*) msg.startAddress(), msg.size(), adlera_, adlerb_);
 }
 
-void RawEventFileWriterForBU::doOutputEventFragment(unsigned char* dataPtr, unsigned long dataSize)
-{
-
-  throw cms::Exception("RawEventFileWriterForBU", "doOutputEventFragment")
-    << "Unsupported output mode ";
-
-  //cms::Adler32((const char*) dataPtr, dataSize, adlera_, adlerb_);
-}
-
-void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std::string const& name, int ls)
-{
+void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std::string const& name, int ls) {
   destinationDir_ = destinationDir;
 
-  if (closefd()) finishFileWrite(ls);
+  if (outfd_ != -1) {
+    finishFileWrite(ls);
+    closefd();
+  }
 
   fileName_ = name;
 
   if (!writtenJSDs_) {
     writeJsds();
-/*    std::stringstream ss;
+    /*    std::stringstream ss;
     ss << destinationDir_ << "/jsd";
     mkdir(ss.str().c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 
@@ -164,71 +145,99 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
       FileIO::writeStringToFile(eorJSDName, content);
     }
 */
-    writtenJSDs_=true;
-
+    writtenJSDs_ = true;
   }
 
-  outfd_ = open(fileName_.c_str(), O_WRONLY | O_CREAT,  S_IRWXU | S_IRWXG | S_IRWXO);
-   edm::LogInfo("RawEventFileWriterForBU") << " opened " << fileName_;
-  if(outfd_ < 0) { //attention here... it may happen that outfd_ is *not* set (e.g. missing initialize call...)
-    throw cms::Exception("RawEventFileWriterForBU","initialize")
-      << "Error opening FED Raw Data event output file: " << name
-      << ": " << strerror(errno) << "\n";
+  outfd_ = open(fileName_.c_str(), O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IRWXO);
+  edm::LogInfo("RawEventFileWriterForBU") << " opened " << fileName_;
+
+  if (outfd_ < 0) {  //attention here... it may happen that outfd_ is *not* set (e.g. missing initialize call...)
+    throw cms::Exception("RawEventFileWriterForBU", "initialize")
+        << "Error opening FED Raw Data event output file: " << name << ": " << strerror(errno) << "\n";
   }
 
   perFileEventCount_.value() = 0;
   perFileSize_.value() = 0;
 
-
   adlera_ = 1;
   adlerb_ = 0;
+
+  if (frdFileVersion_ == 1) {
+    //reserve space for file header
+    ftruncate(outfd_, sizeof(FRDFileHeader_v1));
+    lseek(outfd_, sizeof(FRDFileHeader_v1), SEEK_SET);
+    perFileSize_.value() = sizeof(FRDFileHeader_v1);
+  } else if (frdFileVersion_ == 2) {
+    ftruncate(outfd_, sizeof(FRDFileHeader_v2));
+    lseek(outfd_, sizeof(FRDFileHeader_v2), SEEK_SET);
+    perFileSize_.value() = sizeof(FRDFileHeader_v2);
+  }
+  assert(frdFileVersion_ <= 2);
 }
 
-void RawEventFileWriterForBU::writeJsds()
-{
-
+void RawEventFileWriterForBU::writeJsds() {
   std::stringstream ss;
   ss << destinationDir_ << "/jsd";
   mkdir(ss.str().c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 
-  std::string rawJSDName = ss.str()+"/rawData.jsd";
-  std::string eolJSDName = ss.str()+"/EoLS.jsd";
-  std::string eorJSDName = ss.str()+"/EoR.jsd";
+  std::string rawJSDName = ss.str() + "/rawData.jsd";
+  std::string eolJSDName = ss.str() + "/EoLS.jsd";
+  std::string eorJSDName = ss.str() + "/EoR.jsd";
 
   fileMon_->setDefPath(rawJSDName);
   lumiMon_->setDefPath(eolJSDName);
   runMon_->setDefPath(eorJSDName);
 
-  struct stat   fstat;
-  if (stat (rawJSDName.c_str(), &fstat) != 0) {
+  struct stat fstat;
+  if (stat(rawJSDName.c_str(), &fstat) != 0) {
     std::string content;
-    JSONSerializer::serialize(&rawJsonDef_,content);
+    JSONSerializer::serialize(&rawJsonDef_, content);
     FileIO::writeStringToFile(rawJSDName, content);
   }
 
-  if (stat (eolJSDName.c_str(), &fstat) != 0) {
+  if (stat(eolJSDName.c_str(), &fstat) != 0) {
     std::string content;
-    JSONSerializer::serialize(&eolJsonDef_,content);
+    JSONSerializer::serialize(&eolJsonDef_, content);
     FileIO::writeStringToFile(eolJSDName, content);
   }
 
-  if (stat (eorJSDName.c_str(), &fstat) != 0) {
+  if (stat(eorJSDName.c_str(), &fstat) != 0) {
     std::string content;
-    JSONSerializer::serialize(&eorJsonDef_,content);
+    JSONSerializer::serialize(&eorJsonDef_, content);
     FileIO::writeStringToFile(eorJSDName, content);
   }
 }
 
-void RawEventFileWriterForBU::finishFileWrite(int ls)
-{
-
+void RawEventFileWriterForBU::finishFileWrite(int ls) {
+  if (frdFileVersion_ == 1) {
+    //rewind
+    lseek(outfd_, 0, SEEK_SET);
+    FRDFileHeader_v1 frdFileHeader(perFileEventCount_.value(), (uint32_t)ls, perFileSize_.value());
+    write(outfd_, (char*)&frdFileHeader, sizeof(FRDFileHeader_v1));
+    closefd();
     //move raw file from open to run directory
-    rename(fileName_.c_str(),(destinationDir_+fileName_.substr(fileName_.rfind("/"))).c_str());
- 
+    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind('/'))).c_str());
+
+    edm::LogInfo("RawEventFileWriterForBU")
+        << "Wrote RAW input file: " << fileName_ << " with perFileEventCount = " << perFileEventCount_.value()
+        << " and size " << perFileSize_.value();
+  } else if (frdFileVersion_ == 2) {
+    lseek(outfd_, 0, SEEK_SET);
+    FRDFileHeader_v2 frdFileHeader(0, perFileEventCount_.value(), (uint32_t)run_, (uint32_t)ls, perFileSize_.value());
+    write(outfd_, (char*)&frdFileHeader, sizeof(FRDFileHeader_v2));
+    closefd();
+    //move raw file from open to run directory
+    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind('/'))).c_str());
+    edm::LogInfo("RawEventFileWriterForBU")
+        << "Wrote RAW input file: " << fileName_ << " with perFileEventCount = " << perFileEventCount_.value()
+        << " and size " << perFileSize_.value();
+  } else {
+    closefd();
+    //move raw file from open to run directory
+    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind('/'))).c_str());
     //create equivalent JSON file
-    std::stringstream ss;
     //TODO:fix this to use DaqDirector convention and better extension replace
-    boost::filesystem::path source(fileName_);
+    std::filesystem::path source(fileName_);
     std::string path = source.replace_extension(".jsn").string();
 
     fileMon_->snap(ls);
@@ -236,32 +245,35 @@ void RawEventFileWriterForBU::finishFileWrite(int ls)
     fileMon_->discardCollected(ls);
 
     //move the json file from open
-    rename(path.c_str(),(destinationDir_+path.substr(path.rfind("/"))).c_str());
-    //there is a small chance that script gets interrupted while this isn't consistent (non-atomic)
-    perLumiFileCount_.value()++;
-    perLumiEventCount_.value()+=perFileEventCount_.value();
-    perLumiSize_.value()+=perFileSize_.value();
-    perLumiTotalEventCount_.value()+=perFileEventCount_.value();
-    //update open lumi value when first file is completed
-    lumiOpen_ =  ls;
+    rename(path.c_str(), (destinationDir_ + path.substr(path.rfind('/'))).c_str());
 
-    edm::LogInfo("RawEventFileWriterForBU") << "Wrote JSON input file: " << path 
-					    << " with perFileEventCount = " << perFileEventCount_.value()
-                                            << " and size " << perFileSize_.value();
-
+    edm::LogInfo("RawEventFileWriterForBU")
+        << "Wrote JSON input file: " << path << " with perFileEventCount = " << perFileEventCount_.value()
+        << " and size " << perFileSize_.value();
+  }
+  //there is a small chance that script gets interrupted while this isn't consistent (non-atomic)
+  perLumiFileCount_.value()++;
+  perLumiEventCount_.value() += perFileEventCount_.value();
+  perLumiSize_.value() += perFileSize_.value();
+  perLumiTotalEventCount_.value() += perFileEventCount_.value();
+  //update open lumi value when first file is completed
+  lumiOpen_ = ls;
 }
 
-
-void RawEventFileWriterForBU::endOfLS(int ls)
-{
-  if (closefd()) finishFileWrite(ls);
+void RawEventFileWriterForBU::endOfLS(int ls) {
+  if (outfd_ != -1) {
+    finishFileWrite(ls);
+    closefd();
+  }
   lumiMon_->snap(ls);
 
   std::ostringstream ostr;
 
-  if (run_==-1) makeRunPrefix(destinationDir_);
+  if (run_ == -1)
+    makeRunPrefix(destinationDir_);
 
-  ostr << destinationDir_ << "/"<< runPrefix_ << "_ls" << std::setfill('0') << std::setw(4) << ls << "_EoLS" << ".jsn";
+  ostr << destinationDir_ << "/" << runPrefix_ << "_ls" << std::setfill('0') << std::setw(4) << ls << "_EoLS"
+       << ".jsn";
   //outfd_ = open(ostr.str().c_str(), O_WRONLY | O_CREAT,  S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);
   //closefd();
 
@@ -278,31 +290,35 @@ void RawEventFileWriterForBU::endOfLS(int ls)
   perLumiFileCount_ = 0;
   perLumiTotalEventCount_ = 0;
   perLumiSize_ = 0;
-  lumiClosed_ =  ls;
+  lumiClosed_ = ls;
 }
 
-void RawEventFileWriterForBU::stop()
-{
-  if (lumiOpen_>lumiClosed_)  endOfLS(lumiOpen_);
+void RawEventFileWriterForBU::stop() {
+  if (lumiOpen_ > lumiClosed_)
+    endOfLS(lumiOpen_);
   edm::LogInfo("RawEventFileWriterForBU") << "Writing EOR file!";
-  if (!destinationDir_.empty())
-    {
-      // create EoR file
-      if (run_==-1) makeRunPrefix(destinationDir_);
-      std::string path = destinationDir_ + "/" + runPrefix_ + "_ls0000_EoR.jsn";
-      runMon_->snap(0);
-      runMon_->outputFullJSON(path, 0);
-    }
+  if (!destinationDir_.empty()) {
+    // create EoR file
+    if (run_ == -1)
+      makeRunPrefix(destinationDir_);
+    std::string path = destinationDir_ + "/" + runPrefix_ + "_ls0000_EoR.jsn";
+    runMon_->snap(0);
+    runMon_->outputFullJSON(path, 0);
+  }
 }
 
 //TODO:get from DaqDirector !
-void RawEventFileWriterForBU::makeRunPrefix(std::string const& destinationDir)
-{
+void RawEventFileWriterForBU::makeRunPrefix(std::string const& destinationDir) {
   //dirty hack: extract run number from destination directory
-  std::string::size_type pos = destinationDir.find("run");
-  std::string run = destinationDir.substr(pos+3);
-  run_=atoi(run.c_str());
+  std::string::size_type pos = destinationDir.rfind("/run");
+  std::string run = destinationDir.substr(pos + 4);
+  run_ = atoi(run.c_str());
   std::stringstream ss;
   ss << "run" << std::setfill('0') << std::setw(6) << run_;
   runPrefix_ = ss.str();
+}
+
+void RawEventFileWriterForBU::extendDescription(edm::ParameterSetDescription& desc) {
+  desc.add<int>("microSleep", 0);
+  desc.add<unsigned int>("frdFileVersion", 0);
 }

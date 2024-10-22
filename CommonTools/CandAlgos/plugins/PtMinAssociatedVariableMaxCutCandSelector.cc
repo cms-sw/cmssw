@@ -24,12 +24,8 @@
 
 typedef double isolation;
 
-typedef SingleObjectSelector<
-          edm::AssociationVector<reco::CandidateRefProd, std::vector<isolation> >,
-          PairSelector<
-            RefSelector<PtMinSelector>,
-            MaxSelector<isolation>
-          >
-        > PtMinAssociatedVariableMaxCutCandSelector;
+typedef SingleObjectSelector<edm::AssociationVector<reco::CandidateRefProd, std::vector<isolation> >,
+                             PairSelector<RefSelector<PtMinSelector>, MaxSelector<isolation> > >
+    PtMinAssociatedVariableMaxCutCandSelector;
 
-DEFINE_FWK_MODULE( PtMinAssociatedVariableMaxCutCandSelector );
+DEFINE_FWK_MODULE(PtMinAssociatedVariableMaxCutCandSelector);

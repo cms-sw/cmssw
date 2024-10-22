@@ -4,7 +4,7 @@
 //
 // Package:     EventFilter/GctRawToDigi
 // Class  :     L1GctInternJetProducer
-// 
+//
 /**\class L1GctInternJetProducer \file L1GctInternJetProducer.h EventFilter/GctRawToDigi/plugins/L1GctInternJetProducer.h 
 
 \author Alex Tapper
@@ -14,37 +14,34 @@
 */
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 
 // forward declarations
-class L1CaloGeometry ;
+class L1CaloGeometry;
 
-class L1GctInternJetProducer : public edm::EDProducer {
-   public:
-      explicit L1GctInternJetProducer(const edm::ParameterSet&);
-      ~L1GctInternJetProducer() override;
+class L1GctInternJetProducer : public edm::global::EDProducer<> {
+public:
+  explicit L1GctInternJetProducer(const edm::ParameterSet&);
 
-   private:
-      void beginJob() override ;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-      math::PtEtaPhiMLorentzVector gctLorentzVector( const double& et,
-						     const L1GctCand& cand,
-						     const L1CaloGeometry* geom,
-						     bool central ) ;
-
-      edm::InputTag internalJetSource_;
-
-      bool centralBxOnly_;
-
+  edm::InputTag internalJetSource_;
+  edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> caloGeomToken_;
+  edm::ESGetToken<L1CaloEtScale, L1JetEtScaleRcd> jetScaleToken_;
+  bool centralBxOnly_;
 };
 
 #endif

@@ -6,8 +6,10 @@ File       : utils.py
 Author     : Valentin Kuznetsov <vkuznet@gmail.com>
 Description: Utilities module
 """
+from __future__ import print_function
 
 # system modules
+from builtins import range
 import os
 import re
 import sys
@@ -18,11 +20,25 @@ import subprocess
 # template tag pattern
 TAG = re.compile(r'[a-zA-Z0-9]')
 
+def template_directory():
+    "Return location of template directory"
+    mkTemplates = "src/FWCore/Skeletons/mkTemplates"
+    # Check developer area first
+    if "CMSSW_BASE" in os.environ:
+        ret = os.path.join(os.environ["CMSSW_BASE"], mkTemplates)
+        if os.path.exists(ret):
+            return ret
+    # Then release area
+    ret = os.path.join(os.environ["CMSSW_RELEASE_BASE"], mkTemplates)
+    if not os.path.exists(ret):
+        raise Exception("Did not find 'FWCore/Skeletons/mkTemplates' directory in the developer area nor in the release area")
+    return ret
+
 def parse_word(word):
     "Parse word which contas double underscore tag"
     output = set()
     words  = word.split()
-    for idx in xrange(0, len(words)):
+    for idx in range(0, len(words)):
         pat = words[idx]
         if  pat and len(pat) > 4 and pat[:2] == '__': # we found enclosure
             tag = pat[2:pat.rfind('__')]
@@ -40,15 +56,15 @@ def test_env(tdir, tmpl):
     provide meaningful error message back to the user.
     """
     if  not tdir or not os.path.isdir(tdir):
-        print "Unable to access template dir: %s" % tdir
+        print("Unable to access template dir: %s" % tdir)
         sys.exit(1)
     if  not os.listdir(tdir):
-        print "No template files found in template dir %s" % tdir
+        print("No template files found in template dir %s" % tdir)
         sys.exit(0)
     if  not tmpl:
         msg  = "No template type is provided, "
         msg += "see available templates via --templates option"
-        print msg
+        print(msg)
         sys.exit(1)
 
 def functor(code, kwds, debug=0):
@@ -59,7 +75,7 @@ def functor(code, kwds, debug=0):
     """
     args  = []
     for key, val in kwds.items():
-        if  isinstance(val, basestring):
+        if  isinstance(val, str):
             arg = '%s="%s"' % (key, val)
         elif isinstance(val, list):
             arg = '%s=%s' % (key, val)
@@ -68,22 +84,22 @@ def functor(code, kwds, debug=0):
             raise Exception(msg)
         args.append(arg)
     func  = '\nimport sys'
-    func += '\nimport StringIO'
+    func += '\nimport io'
     func += "\ndef func(%s):\n" % ','.join(args)
     func += code
     func += """
 def capture():
     "Capture snippet printous"
     old_stdout = sys.stdout
-    sys.stdout = StringIO.StringIO()
+    sys.stdout = io.StringIO()
     func()
     out = sys.stdout.getvalue()
     sys.stdout = old_stdout
     return out\n
 capture()\n"""
     if  debug:
-        print "\n### generated code\n"
-        print func
+        print("\n### generated code\n")
+        print(func)
     # compile python code as exec statement
     obj   = compile(func, '<string>', 'exec')
     # define execution namespace
@@ -99,7 +115,7 @@ def user_info(ainput=None):
         return ainput
     pwdstr = pwd.getpwnam(os.getlogin())
     author = pwdstr.pw_gecos
-    if  author and isinstance(author, basestring):
+    if  author and isinstance(author, str):
         author = author.split(',')[0]
     return author
 
@@ -110,7 +126,7 @@ def code_generator(kwds):
     """
     debug = kwds.get('debug', None)
     if  debug:
-        print "Configuration:"
+        print("Configuration:")
         pprint.pprint(kwds)
     try:
         klass  = kwds.get('tmpl')
@@ -120,7 +136,7 @@ def code_generator(kwds):
         klass  = 'AbstractPkg'
         module = __import__('FWCore.Skeletons.pkg', fromlist=[klass])
         if  debug:
-            print "%s, will use %s" % (str(err), klass)
+            print("%s, will use %s" % (str(err), klass))
     obj = getattr(module, klass)(kwds)
     return obj
 
@@ -137,11 +153,11 @@ def tree(idir):
         ndirs = len(dirs)
         if  ndirs > 1:
             dsep  = '|  '*(ndirs-1)
-        print '%s%s/' % (dsep, dirs[-1])
+        print('%s%s/' % (dsep, dirs[-1]))
         dtot += 1
         for fname in files:
             fsep = dsep + '|--'
-            print '%s %s' % (fsep, fname)
+            print('%s %s' % (fsep, fname))
             ftot += 1
     if  dtot == -1 or not dtot:
         dmsg = ''
@@ -154,6 +170,6 @@ def tree(idir):
     else:
         fmsg = ''
     if  dmsg and fmsg:
-        print "Total: %s %s" % (dmsg, fmsg)
+        print("Total: %s %s" % (dmsg, fmsg))
     else:
-        print "No directories/files in %s" % idir
+        print("No directories/files in %s" % idir)

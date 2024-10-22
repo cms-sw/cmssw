@@ -5,7 +5,7 @@ to CMSSW). It inserts into the event a PGlobalSimHit object as defined in
 SimDataFormats/GlobalValidation.
 
 This package is run from the Validation/GlobalHits/test directory. To execute 
-type cmsRun -p *.cfg with one of the following four .cfg files:
+type cmsRun *.cfg with one of the following four .cfg files:
 
 EvtGen+DetSim+Global.cfg runs the full chain of event generation, detector
 	simulation and global translation making use of local .cfi files

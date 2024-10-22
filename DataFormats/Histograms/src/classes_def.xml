@@ -21,9 +21,11 @@
  <class name="MEtoEDM<TH1F>"/>
  <class name="MEtoEDM<TH1S>"/>
  <class name="MEtoEDM<TH1D>"/>
+ <class name="MEtoEDM<TH1I>"/>
  <class name="MEtoEDM<TH2F>"/>
  <class name="MEtoEDM<TH2S>"/>
  <class name="MEtoEDM<TH2D>"/>
+ <class name="MEtoEDM<TH2I>"/>
  <class name="MEtoEDM<TH3F>"/>
  <class name="MEtoEDM<TProfile>"/>
  <class name="MEtoEDM<TProfile2D>"/>
@@ -31,25 +33,29 @@
  <class name="MEtoEDM<int>"/>
  <class name="MEtoEDM<long long>"/>
  <class name="MEtoEDM<TString>"/>
- <class name="MEtoEDM<TH1F>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH1S>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH1D>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH2F>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH2S>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH2D>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH3F>::MEtoEDMObject"/>
- <class name="MEtoEDM<TProfile>::MEtoEDMObject"/>
- <class name="MEtoEDM<TProfile2D>::MEtoEDMObject"/>
- <class name="MEtoEDM<double>::MEtoEDMObject"/>
- <class name="MEtoEDM<int>::MEtoEDMObject"/>
- <class name="MEtoEDM<long long>::MEtoEDMObject"/>
- <class name="MEtoEDM<TString>::MEtoEDMObject"/>
+ <class name="MEtoEDM<TH1F>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH1S>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH1D>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH1I>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH2F>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH2S>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH2D>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH2I>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH3F>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TProfile>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TProfile2D>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<double>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<int>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<long long>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TString>::MEtoEDMObject" rntupleSplit="false"/>
  <class name="std::vector<MEtoEDM<TH1F>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH1S>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH1D>::MEtoEDMObject>"/>
+ <class name="std::vector<MEtoEDM<TH1I>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH2F>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH2S>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH2D>::MEtoEDMObject>"/>
+ <class name="std::vector<MEtoEDM<TH2I>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH3F>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TProfile>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TProfile2D>::MEtoEDMObject>"/>
@@ -60,9 +66,11 @@
  <class name="edm::Wrapper<MEtoEDM<TH1F> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH1S> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH1D> >"/>
+ <class name="edm::Wrapper<MEtoEDM<TH1I> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH2F> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH2S> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH2D> >"/>
+ <class name="edm::Wrapper<MEtoEDM<TH2I> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH3F> >"/>
  <class name="edm::Wrapper<MEtoEDM<TProfile> >"/>
  <class name="edm::Wrapper<MEtoEDM<TProfile2D> >"/>
@@ -73,4 +81,9 @@
 
  <class name="DQMToken" ClassVersion="0"/>
  <class name="edm::Wrapper<DQMToken>" persistent="false"/>
+ <class name="MonitorElementCollection" persistent="false"/>
+ <class name="edm::Wrapper<MonitorElementCollection>" persistent="false"/>
+ <class name="MonitorElementData" persistent="false"/>
+ <class name="edm::Wrapper<MonitorElementData>" persistent="false"/>
+
 </lcgdict>

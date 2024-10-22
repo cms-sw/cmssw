@@ -13,17 +13,23 @@ class SiStripApvGainSimRcd : public edm::eventsetup::EventSetupRecordImplementat
 /*Record associated to SiStripBadStrip Object*/
 class SiStripBadChannelRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBadChannelRcd> {};
 class SiStripBadFiberRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBadFiberRcd> {};
-class SiStripBadModuleRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBadModuleRcd, boost::mpl::vector<TrackerTopologyRcd> > {};
+class SiStripBadModuleRcd
+    : public edm::eventsetup::DependentRecordImplementation<SiStripBadModuleRcd, edm::mpl::Vector<TrackerTopologyRcd> > {
+};
 class SiStripBadStripRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBadStripRcd> {};
 class SiStripDCSStatusRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripDCSStatusRcd> {};
 
 class SiStripFedCablingRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripFedCablingRcd> {};
 
-/*Recod associated to SiStripLorenzaAngle Object: the SimRcd is used in simulation only*/
-class SiStripLorentzAngleRcd : public edm::eventsetup::DependentRecordImplementation<SiStripLorentzAngleRcd, boost::mpl::vector<TrackerTopologyRcd> > {};
+/*Record associated to SiStripLorentzAngle Object: the SimRcd is used in simulation only*/
+class SiStripLorentzAngleRcd
+    : public edm::eventsetup::DependentRecordImplementation<SiStripLorentzAngleRcd,
+                                                            edm::mpl::Vector<TrackerTopologyRcd> > {};
 class SiStripLorentzAngleSimRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripLorentzAngleSimRcd> {};
 
-class SiStripBackPlaneCorrectionRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBackPlaneCorrectionRcd, boost::mpl::vector<TrackerTopologyRcd> > {};
+class SiStripBackPlaneCorrectionRcd
+    : public edm::eventsetup::DependentRecordImplementation<SiStripBackPlaneCorrectionRcd,
+                                                            edm::mpl::Vector<TrackerTopologyRcd> > {};
 
 class SiStripDetVOffRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripDetVOffRcd> {};
 
@@ -31,7 +37,8 @@ class SiStripLatencyRcd : public edm::eventsetup::EventSetupRecordImplementation
 
 class SiStripBaseDelayRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBaseDelayRcd> {};
 
-class SiStripNoisesRcd : public edm::eventsetup::DependentRecordImplementation<SiStripNoisesRcd, boost::mpl::vector<TrackerTopologyRcd> > {};
+class SiStripNoisesRcd
+    : public edm::eventsetup::DependentRecordImplementation<SiStripNoisesRcd, edm::mpl::Vector<TrackerTopologyRcd> > {};
 
 class SiStripPedestalsRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripPedestalsRcd> {};
 
@@ -41,10 +48,15 @@ class SiStripSummaryRcd : public edm::eventsetup::EventSetupRecordImplementation
 
 /*Record Associated to SiStripThreshold Object*/
 class SiStripThresholdRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripThresholdRcd> {};
-class SiStripClusterThresholdRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripClusterThresholdRcd> {};
+class SiStripClusterThresholdRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripClusterThresholdRcd> {
+};
 
 /*Record for the configuration object*/
 class SiStripConfObjectRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripConfObjectRcd> {};
+
+/*Record for the APV simulation parameters*/
+class SiStripApvSimulationParametersRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<SiStripApvSimulationParametersRcd> {};
 
 /*Records for upgrade */
 class Phase2TrackerCablingRcd : public edm::eventsetup::EventSetupRecordImplementation<Phase2TrackerCablingRcd> {};

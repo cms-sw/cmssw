@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltHiggsValidator = DQMEDAnalyzer('HLTHiggsValidator',
         
     hltProcessName = cms.string("HLT"),
-    analyses       = cms.vstring("HWW", "HZZ", "HZZControlPaths", "MuonJet", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH","WHToENuBB","MSSMHbb","MSSMHbbmu","VBFHToInv"),
+    analyses       = cms.vstring("HWW", "HZZ", "HZZControlPaths", "MuonJet", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH","WHToENuBB","VBFHToInv"),
     histDirectory  = cms.string("HLT/Higgs"),
     
     # -- The instance name of the reco::GenParticles collection 
@@ -403,34 +404,6 @@ hltHiggsValidator = DQMEDAnalyzer('HLTHiggsValidator',
         minCandidates = cms.uint32(1),
         ),
  
-    MSSMHbb  = cms.PSet(
-        hltPathsToCheck = cms.vstring(
-            "HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets100MaxDeta1p6_v",
-            "HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets116MaxDeta1p6_v",
-            "HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets128MaxDeta1p6_v",
-            ),
-        recJetLabel  = cms.string("ak4PFJetsCHS"),
-        jetTagLabel  = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-        # -- Analysis specific cuts
-        minCandidates = cms.uint32(3),
-        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.92, 0.92 , 0, 0, 0, 0, 100., 100., 0.0, 0.0), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
-        ),
- 
-    MSSMHbbmu  = cms.PSet(
-        hltPathsToCheck = cms.vstring(
-            "HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets40MaxDeta1p6_v1",
-            "HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets54MaxDeta1p6_v1",
-            "HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets62MaxDeta1p6_v1",
-            ),
-        recMuonLabel  = cms.string("muons"),
-        recJetLabel  = cms.string("ak4PFJetsCHS"),
-        jetTagLabel  = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-        # -- Analysis specific cuts
-        minCandidates = cms.uint32(3),
-        Mu_genCut     = cms.string("pt > 12 && abs(eta) < 2.3 && abs(pdgId) == 13 && status == 1"),
-        Mu_recCut     = cms.string("pt > 12 && abs(eta) < 2.3 && isGlobalMuon"),
-        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.92, 0.92 , 0, 0, 0, 0, 30.0, 30.0, 0.0, 0.0), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
-        ),
         
     VBFHToInv  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
@@ -444,3 +417,14 @@ hltHiggsValidator = DQMEDAnalyzer('HLTHiggsValidator',
         minCandidates = cms.uint32(2),
         ), 
 )
+
+hltHiggsValidator_run3 = hltHiggsValidator.clone()
+hltHiggsValidator_run3.VBFHbb_0btag.jetTagLabel = "pfDeepCSVJetTags:probb"
+hltHiggsValidator_run3.VBFHbb_1btag.jetTagLabel = "pfDeepCSVJetTags:probb"
+hltHiggsValidator_run3.VBFHbb_2btag.jetTagLabel = "pfDeepCSVJetTags:probb"
+hltHiggsValidator_run3.ZnnHbb.jetTagLabel = "pfDeepCSVJetTags:probb"
+hltHiggsValidator_run3.X4b.jetTagLabel = "pfDeepCSVJetTags:probb"
+hltHiggsValidator_run3.AHttH.jetTagLabel = "pfDeepCSVJetTags:probb"
+
+run3_common.toReplaceWith( hltHiggsValidator, hltHiggsValidator_run3)
+

@@ -1,13 +1,11 @@
 #ifndef GEOMETRY_ECALGEOMETRYLOADER_ICC
-#define GEOMETRY_ECALGEOMETRYLOADER_ICC 1
+#define GEOMETRY_ECALGEOMETRYLOADER_ICC
 
 #include "CondFormats/Alignment/interface/AlignTransform.h"
-
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
-
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -17,142 +15,227 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDNodes.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDScope.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DD4hep/Filter.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <vector>
+//#define EDM_ML_DEBUG
 
 template <class T>
-const double 
-CaloGeometryLoader<T>::k_ScaleFromDDDtoGeant ( 0.1 ) ;
+typename CaloGeometryLoader<T>::PtrType CaloGeometryLoader<T>::load(const DDCompactView* cpv,
+                                                                    const Alignments* alignments,
+                                                                    const Alignments* globals) {
+  PtrType geom = std::make_unique<T>();
 
-template <class T>
-CaloGeometryLoader<T>::CaloGeometryLoader() :
-m_filter(DDSpecificsMatchesValueFilter{DDValue( "SensitiveDetector",
-                                                "EcalSensitiveDetector",
-				                0                        )},
-         DDSpecificsMatchesValueFilter{DDValue( "ReadOutName",
-   				                T::hitString(),
-				                0              )})
-{
+  makeGeometry(cpv, dynamic_cast<T*>(geom.get()), alignments, globals);
+
+  return geom;
 }
 
 template <class T>
-typename CaloGeometryLoader<T>::PtrType
-CaloGeometryLoader<T>::load( const DDCompactView*  cpv        ,
-			     const Alignments*     alignments ,
-			     const Alignments*     globals       ) 
-{
-   PtrType geom ( new T ) ;
+typename CaloGeometryLoader<T>::PtrType CaloGeometryLoader<T>::load(const cms::DDCompactView* cpv,
+                                                                    const Alignments* alignments,
+                                                                    const Alignments* globals) {
+  PtrType geom = std::make_unique<T>();
 
-   makeGeometry( cpv,
-		 dynamic_cast<T*>( geom.get() ),
-		 alignments,
-		 globals ) ;
+  makeGeometry(cpv, dynamic_cast<T*>(geom.get()), alignments, globals);
 
-   return geom ;
+  return geom;
 }
 
 template <class T>
-void 
-CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
-				     T*                    geom       ,
-				     const Alignments*     alignments ,
-				     const Alignments*     globals      )
-{
-   DDFilteredView fv0 ( *cpv, m_filter ) ;
+void CaloGeometryLoader<T>::makeGeometry(const DDCompactView* cpv,
+                                         T* geom,
+                                         const Alignments* alignments,
+                                         const Alignments* globals) {
+  DDAndFilter<DDSpecificsMatchesValueFilter, DDSpecificsMatchesValueFilter> filter(
+      DDSpecificsMatchesValueFilter{DDValue("SensitiveDetector", "EcalSensitiveDetector", 0)},
+      DDSpecificsMatchesValueFilter{DDValue("ReadOutName", T::hitString(), 0)});
 
-   fillNamedParams( fv0, geom ) ;
+  DDFilteredView fv0(*cpv, filter);
 
-   geom->allocateCorners( T::k_NumberOfCellsForCorners ) ;
-   geom->allocatePar( T::k_NumberOfParametersPerShape*T::k_NumberOfShapes,
-		      T::k_NumberOfParametersPerShape ) ;
+  fillNamedParams(fv0, geom);
 
-   DDFilteredView fv( *cpv, m_filter ) ;
- 
-   unsigned int counter ( 0 ) ;
-   for( bool doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling() )
-   {
-      const DDSolid& solid ( fv.logicalPart().solid() ) ;
-      if (boost::starts_with(solid.name().name(), "EA")) 
-      {
-	 continue;
-      }      
-      ++counter ;
+  geom->allocateCorners(T::k_NumberOfCellsForCorners);
+  geom->allocatePar(T::k_NumberOfParametersPerShape * T::k_NumberOfShapes, T::k_NumberOfParametersPerShape);
 
-      const ParmVec& parameters ( solid.parameters() ) ;
+  DDFilteredView fv(*cpv, filter);
 
-      DD3Vector x, y, z;
-      fv.rotation().GetComponents( x, y, z ) ;
-      const CLHEP::HepRep3x3 temp( x.X(), y.X(), z.X(),
-				   x.Y(), y.Y(), z.Y(),
-			           x.Z(), y.Z(), z.Z() );
-      const CLHEP::HepRotation hr ( temp );
-      const CLHEP::Hep3Vector h3v ( fv.translation().X(),
-		 		    fv.translation().Y(),
-				    fv.translation().Z()  ) ;
-      const HepGeom::Transform3D ht3d ( hr,          // only scale translation
-	 	 		        k_ScaleFromDDDtoGeant*h3v ) ;    
+  unsigned int counter(0);
+  for (bool doSubDets = fv.firstChild(); doSubDets; doSubDets = fv.nextSibling()) {
+    const DDSolid& solid(fv.logicalPart().solid());
+    if (boost::starts_with(solid.name().name(), "EA")) {
+      continue;
+    }
+    ++counter;
 
-      const DetId id ( getDetIdForDDDNode( fv ) ) ;
+    const ParmVec& parameters(solid.parameters());
 
-      const unsigned int which ( geom->alignmentTransformIndexLocal( id ) ) ;
+    DD3Vector x, y, z;
+    fv.rotation().GetComponents(x, y, z);
+    const CLHEP::HepRep3x3 temp(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
+    const CLHEP::HepRotation hr(temp);
+    const CLHEP::Hep3Vector h3v(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
+    const HepGeom::Transform3D ht3d(hr,  // only scale translation
+                                    k_ScaleFromDDD * h3v);
 
-      assert( nullptr == alignments ||
-	      which < alignments->m_align.size() ) ;
+    const DetId id(getDetIdForDDDNode(fv));
 
-      const AlignTransform* at ( nullptr == alignments ? nullptr :
-				 &alignments->m_align[ which ] ) ;
+    const unsigned int which(geom->alignmentTransformIndexLocal(id));
 
-      assert( nullptr == at || ( geom->alignmentTransformIndexLocal( DetId( at->rawId() ) ) == which ) ) ;
+    assert(nullptr == alignments || which < alignments->m_align.size());
 
-      const unsigned int gIndex ( geom->alignmentTransformIndexGlobal( id ) ) ;
+    const AlignTransform* at(nullptr == alignments ? nullptr : &alignments->m_align[which]);
 
-      const AlignTransform* globalT ( nullptr == globals ? nullptr :
-				      ( globals->m_align.size() > gIndex ? 
-					&globals->m_align[ gIndex ] : nullptr ) ) ;
+    assert(nullptr == at || (geom->alignmentTransformIndexLocal(DetId(at->rawId())) == which));
 
-      const HepGeom::Transform3D atr ( nullptr == at ? ht3d :
-				 ( nullptr == globalT ? at->transform()*ht3d :
-				   at->transform()*globalT->transform()*ht3d ) ) ;
+    const unsigned int gIndex(geom->alignmentTransformIndexGlobal(id));
 
-      fillGeom( geom, parameters, atr, id ) ;
-   }
+    const AlignTransform* globalT(
+        nullptr == globals ? nullptr : (globals->m_align.size() > gIndex ? &globals->m_align[gIndex] : nullptr));
 
-   assert( counter <= T::k_NumberOfCellsForCorners ) ;
+    const HepGeom::Transform3D atr(
+        nullptr == at ? ht3d
+                      : (nullptr == globalT ? at->transform() * ht3d : at->transform() * globalT->transform() * ht3d));
 
-   geom->initializeParms() ;
+    fillGeom(geom, parameters, atr, id, k_ScaleFromDDD);
+  }
+
+  assert(counter <= T::k_NumberOfCellsForCorners);
+
+  geom->initializeParms();
 }
 
 template <class T>
-unsigned int 
-CaloGeometryLoader<T>::getDetIdForDDDNode( const DDFilteredView& fv )
-{
+void CaloGeometryLoader<T>::makeGeometry(const cms::DDCompactView* cpv,
+                                         T* geom,
+                                         const Alignments* alignments,
+                                         const Alignments* globals) {
+  cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
+
+  fillNamedParams(fv, geom);
+
+  geom->allocateCorners(T::k_NumberOfCellsForCorners);
+  geom->allocatePar(T::k_NumberOfParametersPerShape * T::k_NumberOfShapes, T::k_NumberOfParametersPerShape);
+
+  std::string attribute = "ReadOutName";
+  cms::DDSpecParRefs ref;
+  const cms::DDSpecParRegistry& mypar = cpv->specpars();
+  mypar.filter(ref, attribute, T::hitString());
+  fv.mergedSpecifics(ref);
+
+  unsigned int counter(0);
+  while (fv.firstChild()) {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EcalGeom") << "Do child " << fv.name();
+#endif
+    if (boost::starts_with(dd4hep::dd::noNamespace(fv.name()), "EA")) {
+      continue;
+    }
+    ++counter;
+
+    const ParmVec& parameters(fv.parameters());
+
+    DD3Vector x, y, z;
+    fv.rotation().GetComponents(x, y, z);
+    const CLHEP::HepRep3x3 temp(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
+    const CLHEP::HepRotation hr(temp);
+    const CLHEP::Hep3Vector h3v(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
+    const HepGeom::Transform3D ht3d(hr,  // only scale translation
+                                    k_ScaleFromDD4hep * h3v);
+
+    const DetId id(getDetIdForDD4hepNode(fv));
+
+    const unsigned int which(geom->alignmentTransformIndexLocal(id));
+
+    assert(nullptr == alignments || which < alignments->m_align.size());
+
+    const AlignTransform* at(nullptr == alignments ? nullptr : &alignments->m_align[which]);
+
+    assert(nullptr == at || (geom->alignmentTransformIndexLocal(DetId(at->rawId())) == which));
+
+    const unsigned int gIndex(geom->alignmentTransformIndexGlobal(id));
+
+    const AlignTransform* globalT(
+        nullptr == globals ? nullptr : (globals->m_align.size() > gIndex ? &globals->m_align[gIndex] : nullptr));
+
+    const HepGeom::Transform3D atr(
+        nullptr == at ? ht3d
+                      : (nullptr == globalT ? at->transform() * ht3d : at->transform() * globalT->transform() * ht3d));
+
+    fillGeom(geom, parameters, atr, id, k_ScaleFromDD4hep);
+  }
+
+  assert(counter <= T::k_NumberOfCellsForCorners);
+
+  geom->initializeParms();
+}
+
+template <class T>
+unsigned int CaloGeometryLoader<T>::getDetIdForDDDNode(const DDFilteredView& fv) {
   // perform some consistency checks
   // get the parents and grandparents of this node
 
-  const DDGeoHistory& parents ( fv.geoHistory() ) ;
-  const DDGeoHistory::size_type psize ( parents.size() ) ;
+  const DDGeoHistory& parents(fv.geoHistory());
+  const DDGeoHistory::size_type psize(parents.size());
 
-  EcalBaseNumber baseNumber ;
-  baseNumber.setSize( psize ) ;
+  EcalBaseNumber baseNumber;
+  baseNumber.setSize(psize);
 
-  for( unsigned int i=1 ; i<=psize ; ++i )
-  {
-     baseNumber.addLevel( parents[psize-i].logicalPart().name().name(),
-			  parents[psize-i].copyno() ) ;
+  for (unsigned int i = 1; i <= psize; ++i) {
+    baseNumber.addLevel(parents[psize - i].logicalPart().name().name(), parents[psize - i].copyno());
   }
 
-  return m_scheme.getUnitID( baseNumber );  
+  return m_scheme.getUnitID(baseNumber);
 }
 
+template <class T>
+unsigned int CaloGeometryLoader<T>::getDetIdForDD4hepNode(const cms::DDFilteredView& fv) {
+  // perform some consistency checks
+  // get the parents and grandparents of this node
+
+  const std::string path(fv.path());
+  auto psize = fv.level();
+
+  EcalBaseNumber baseNumber;
+  baseNumber.setSize(psize);
+
+  size_t n = path.find('/') + 1;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << path << " n " << n;
+#endif
+  size_t start = n, startold = n;
+  std::string det(""), num("");
+  bool done(false);
+  for (size_t i = n; i <= path.size(); ++i) {
+    if (i == path.size() || path[i] == '/') {
+      num = path.substr(start, i - start);
+      startold = start = i + 1;
+      baseNumber.addLevel(det, std::stoi(num));
+      done = true;
+    } else if (path[i] == ':') {
+      startold = start = i + 1;
+    } else if (path[i] == '_') {
+      det = done ? path.substr(start, i - start) : path.substr(startold, i - startold);
+      start = i + 1;
+      done = false;
+    }
+  }
+  baseNumber.reverse();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "Base number with " << baseNumber.getLevels() << " levels";
+  for (int k = 0; k < baseNumber.getLevels(); ++k)
+    edm::LogVerbatim("EcalGeom") << "[" << k << "] " << baseNumber.getLevelName(k) << ":"
+                                 << baseNumber.getCopyNumber(k);
+#endif
+  return m_scheme.getUnitID(baseNumber);
+}
 
 #endif

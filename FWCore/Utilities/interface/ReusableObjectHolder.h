@@ -17,21 +17,23 @@
 
  This class manages the cache of reusable objects and therefore an instance of this
  class must live as long as you want the cache to live.
- 
- The primary way of using the class it to call makeOrGetAndClear
- An example use would be
+
+ The primary way of using the class is to call makeOrGet:
  \code
- auto objectToUse = holder.makeOrGetAndClear(
-                             []() { return new MyObject(10); }, //makes new one
-                             [](MyObject* old) {old->reset(); } //resets old one
-                    );
+ auto objectToUse = holder.makeOrGet([]() { return new MyObject(); });
+ use(*objectToUse);
  \endcode
- 
- If you always want to set the values you can use makeOrGet
+
+ If the returned object should be be automatically set or reset, call makeOrGetAndClear:
  \code
- auto objectToUse = holder.makeOrGet(
-                         []() { return new MyObject(); });
- objectToUse->setValue(3);
+ auto objectToUse = holder.makeOrGetAndClear([]() { return new MyObject(10); },   // makes new objects
+                                             [](MyObject* old) { old->reset(); }  // resets any object before returning it
+ );
+ \endcode
+ which is equivalent to
+ \code
+ auto objectToUse = holder.makeOrGet([]() { return new MyObject(10); });
+ objectToUse->reset();
  \endcode
  
  NOTE: If you hold onto the std::shared_ptr<> until another call to the ReusableObjectHolder,
@@ -59,96 +61,109 @@
  }
  \endcode
 
+ When a custom deleter is used, the deleter type must be the same to
+ all objects. The deleter is allowed to have state that depends on the
+ object. The deleter object is passed along the std::unique_ptr, and
+ is internally kept along the object. The deleter object must be copyable.
  */
 //
 // Original Author:  Chris Jones
 //         Created:  Fri, 31 July 2014 14:29:41 GMT
 //
 
-#include <memory>
-#include <cassert>
 #include <atomic>
-#include "tbb/task.h"
-#include "tbb/concurrent_queue.h"
+#include <cassert>
+#include <memory>
 
+#include <oneapi/tbb/concurrent_queue.h>
 
 namespace edm {
-  template<class T>
+  template <class T, class Deleter = std::default_delete<T>>
   class ReusableObjectHolder {
   public:
-    ReusableObjectHolder():m_outstandingObjects(0){}
-    ReusableObjectHolder(ReusableObjectHolder&& iOther):
-    m_availableQueue(std::move(iOther.m_availableQueue)),
-    m_outstandingObjects(0) {
-      assert(0== iOther.m_outstandingObjects);
+    using deleter_type = Deleter;
+
+    ReusableObjectHolder() : m_outstandingObjects(0) {}
+    ReusableObjectHolder(ReusableObjectHolder&& iOther)
+        : m_availableQueue(std::move(iOther.m_availableQueue)), m_outstandingObjects(0) {
+      assert(0 == iOther.m_outstandingObjects);
     }
-    ~ReusableObjectHolder() {
-      assert(0==m_outstandingObjects);
-   		T* item = 0;
-      while(  m_availableQueue.try_pop(item)) {
-        delete item;
+    ~ReusableObjectHolder() noexcept {
+      assert(0 == m_outstandingObjects);
+      std::unique_ptr<T, Deleter> item;
+      while (m_availableQueue.try_pop(item)) {
+        item.reset();
       }
     }
-    
+
     ///Adds the item to the cache.
     /// Use this function if you know ahead of time
     /// how many cached items you will need.
-   	void add(std::unique_ptr<T> iItem){
-   		if(0!=iItem) {
-   			m_availableQueue.push(iItem.release());
-   		}
-   	}
-    
+    void add(std::unique_ptr<T, Deleter> iItem) {
+      if (nullptr != iItem) {
+        m_availableQueue.push(std::move(iItem));
+      }
+    }
+
     ///Tries to get an already created object,
-   	/// if none are available, returns an empty shared_ptr.
+    /// if none are available, returns an empty shared_ptr.
     /// Use this function in conjunction with add()
-   	std::shared_ptr<T> tryToGet() {
-   		T* item = 0;
-   		m_availableQueue.try_pop(item);
-   		if (0==item) {
-   			return std::shared_ptr<T>{};
-   		}
-   		//instead of deleting, hand back to queue
-      auto pHolder = this;
-      ++m_outstandingObjects;
-   		return std::shared_ptr<T>{item, [pHolder](T* iItem) {pHolder->addBack(iItem);} };
-   	}
-    
-    ///If there isn't an object already available, creates a new one using iFunc
-   	template< typename F>
-   	std::shared_ptr<T> makeOrGet( F iFunc) {
-   		std::shared_ptr<T> returnValue;
-   		while ( ! ( returnValue = tryToGet()) ) {
-   			add( std::unique_ptr<T>(iFunc()) );
-   		}
-   		return returnValue;
-   	}
-    
-    ///If there is an object already available, passes the object to iClearFunc and then
-    /// returns the object.
-    ///If there is not an object already available, creates a new one using iMakeFunc
-   	template< typename FM, typename FC>
-   	std::shared_ptr<T> makeOrGetAndClear( FM iMakeFunc, FC iClearFunc) {
-   		std::shared_ptr<T> returnValue;
-   		while ( ! ( returnValue = tryToGet()) ) {
-   			add( std::unique_ptr<T>(iMakeFunc()) );
-   		}
-   		iClearFunc(returnValue.get());
-   		return returnValue;
-   	}
-    
+    std::shared_ptr<T> tryToGet() {
+      std::unique_ptr<T, Deleter> item;
+      if (m_availableQueue.try_pop(item)) {
+        return wrapCustomDeleter(std::move(item));
+      } else {
+        return std::shared_ptr<T>{};
+      }
+    }
+
+    ///Takes an object from the queue if one is available, or creates one using iMakeFunc.
+    template <typename FM>
+    std::shared_ptr<T> makeOrGet(FM&& iMakeFunc) {
+      std::unique_ptr<T, Deleter> item;
+      if (m_availableQueue.try_pop(item)) {
+        return wrapCustomDeleter(std::move(item));
+      } else {
+        return wrapCustomDeleter(makeUnique(iMakeFunc()));
+      }
+    }
+
+    ///Takes an object from the queue if one is available, or creates one using iMakeFunc.
+    ///Then, passes the object to iClearFunc, and returns it.
+    template <typename FM, typename FC>
+    std::shared_ptr<T> makeOrGetAndClear(FM&& iMakeFunc, FC&& iClearFunc) {
+      std::shared_ptr<T> returnValue = makeOrGet(std::forward<FM>(iMakeFunc));
+      iClearFunc(returnValue.get());
+      return returnValue;
+    }
+
   private:
-    void addBack(T* iItem){
-   		m_availableQueue.push(iItem);
+    ///Wraps an object in a shared_ptr<T> with a custom deleter, that hands the wrapped object
+    // back to the queue instead of deleting it
+    std::shared_ptr<T> wrapCustomDeleter(std::unique_ptr<T, Deleter> item) {
+      auto deleter = item.get_deleter();
+      ++m_outstandingObjects;
+      return std::shared_ptr<T>{
+          item.release(), [this, deleter](T* iItem) { this->addBack(std::unique_ptr<T, Deleter>{iItem, deleter}); }};
+    }
+
+    std::unique_ptr<T> makeUnique(T* ptr) {
+      static_assert(std::is_same_v<Deleter, std::default_delete<T>>,
+                    "Generating functions returning raw pointers are supported only with std::default_delete<T>");
+      return std::unique_ptr<T>{ptr};
+    }
+
+    std::unique_ptr<T, Deleter> makeUnique(std::unique_ptr<T, Deleter> ptr) { return ptr; }
+
+    void addBack(std::unique_ptr<T, Deleter> iItem) {
+      m_availableQueue.push(std::move(iItem));
       --m_outstandingObjects;
-   	}
-   	
-   	tbb::concurrent_queue<T*> m_availableQueue;
+    }
+
+    oneapi::tbb::concurrent_queue<std::unique_ptr<T, Deleter>> m_availableQueue;
     std::atomic<size_t> m_outstandingObjects;
   };
-  
-}
 
-
+}  // namespace edm
 
 #endif /* end of include guard: FWCore_Utilities_ReusableObjectHolder_h */

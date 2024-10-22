@@ -4,7 +4,7 @@
 //
 // Package:     RPCTrigger
 // Class  :     TTPatternsGroup
-// 
+//
 /**
  \class TTPatternsGroup TTPatternsGroup.h L1Trigger/RPCTrigger/interface/TTPatternsGroup.h
  \brief Group of paterns, for which the "baseline"("track") algorithm is performed. 
@@ -13,12 +13,12 @@
 
 */
 #include "L1Trigger/RPCTrigger/interface/TPatternsGroup.h"
- 
-class TTPatternsGroup: public TPatternsGroup {
-    friend class RPCPacData;
-    public:
-      TTPatternsGroup();
-};
 
+class TTPatternsGroup : public TPatternsGroup {
+  friend class RPCPacData;
+
+public:
+  TTPatternsGroup();
+};
 
 #endif

@@ -2,5 +2,6 @@
 #define CondFormats_DataRecord_EcalClusterEnergyUncertaintyParametersRcd_h
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
-class EcalClusterEnergyUncertaintyParametersRcd : public edm::eventsetup::EventSetupRecordImplementation<EcalClusterEnergyUncertaintyParametersRcd> {};
+class EcalClusterEnergyUncertaintyParametersRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<EcalClusterEnergyUncertaintyParametersRcd> {};
 #endif

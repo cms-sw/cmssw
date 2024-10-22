@@ -36,14 +36,12 @@
 #include <memory>
 #include <vector>
 
-
 class DTTrackFinderConfig : public edm::ESProducer {
- public:
-
+public:
   DTTrackFinderConfig(const edm::ParameterSet&);
 
   ~DTTrackFinderConfig() override;
-  
+
   std::unique_ptr<L1MuDTExtLut> produceL1MuDTExtLut(const L1MuDTExtLutRcd&);
 
   std::unique_ptr<L1MuDTPhiLut> produceL1MuDTPhiLut(const L1MuDTPhiLutRcd&);
@@ -58,8 +56,7 @@ class DTTrackFinderConfig : public edm::ESProducer {
 
   std::unique_ptr<L1MuDTTFMasks> produceL1MuDTTFMasks(const L1MuDTTFMasksRcd&);
 
- private:
-
+private:
 };
 
 #endif

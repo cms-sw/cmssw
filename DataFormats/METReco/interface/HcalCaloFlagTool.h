@@ -18,10 +18,11 @@ public:
   int getFieldWidth(HcalSubdetector sd, const std::string& field) const;
   bool hasField(HcalSubdetector sd, const std::string& field) const;
   bool hasField(HcalSubdetector sd, int bit) const;
+
 private:
   std::string releaseName_;
   bool standardFormat_;
   int major_, minor_, patch_, subpatch_;
 };
 
-#endif //DataFormats_METReco_HcalCaloFlagTool_h
+#endif  //DataFormats_METReco_HcalCaloFlagTool_h

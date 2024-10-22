@@ -1,0 +1,3856 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DetectorDescription/Schema/DDLSchema.xsd">
+  <ConstantsSection label="mb4Shield.xml" eval="true">
+    <Constant name="Tile1_x" value="(960.0/2.0)*mm"/>         <!-- common value for YB+2 YB-2 MB4 (S4 and S13) Tiles -->
+    <Constant name="Tile1_y" value="(610.0/2.0)*mm"/>         <!-- common value for YB+2 YB-2 MB4 (S4 and S13) Tiles -->
+    <Constant name="Tile2_x" value="(1456.0/2.0)*mm"/>        <!-- common value for YB+1 YB-1 MB4 (S4 and S13) Tiles type B -->
+    <Constant name="Tile2_y" value="(827.0/2.0)*mm"/>         <!-- common value for YB+1 YB-1 MB4 (S4 and S13) Tiles type B-->
+    <Constant name="Tile3_x" value="(1756.0/2.0)*mm"/>        <!-- common value for YB+2 YB-2 YB+1 YB-1 S1,2,3,5,6,7 Tiles type A-->
+    <Constant name="Tile3_y" value="(827.0/2.0)*mm"/>         <!-- common value for YB+2 YB-2 YB+1 YB-1 S1,2,3,5,6,7 Tiles type A-->
+    <Constant name="ShieldAl_xyz" value="(3.0/2.0)*mm"/>      <!-- common value for all shields -->
+    <Constant name="ShieldLead_z" value="(7.0/2.0)*mm"/>      <!-- for YB+2 YB+1 YB-1 MB4 (S4 and S13) type B  -->
+    <Constant name="ShieldSteel_z" value="(20.0/2.0)*mm"/>    <!-- for YB+2 MB4 (S4 and S13)-->
+    <Constant name="ShieldBoroton_z" value="(90.0/2.0)*mm"/>  <!-- for YB+2 YB+1 YB-1 MB4 (S4 and S13) type B  -->
+    <Constant name="ShieldBoroton2_z" value="(30.0/2.0)*mm"/> <!-- for YB-2 MB4 (S4 and S13) and YB+2 YB-2 YB+1 YB-1 S 1,2,3,5,6,7 type A-->
+    <Constant name="ShieldBoroton1_z" value="(50.8/2.0)*mm"/> <!-- for YB-2 MB4 (S4 and S13) -->
+    <Constant name="ShieldSteel1_z" value="(10.0/2.0)*mm"/>   <!-- for YB-2 MB4 (S4 and S13) -->
+    <Constant name="CoordZ_1" value="-3.5*mm"/> 
+    <Constant name="CoordZ_2" value="15.0*mm"/>
+    <Constant name="CoordZ_3" value="45.0*mm"/>  
+    <Constant name="RadiusMB4ShieldS3" value="[mb4:MB4BigUnitRadius]+[mbCommon:MBHeight_With1RPC]+[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]+1.85*mm"/> <!-- common value -->
+  </ConstantsSection> 
+<!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--                                                                  SOLID SECTION                                                                     -->
+<!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--> 
+  <SolidSection  label="mb4Shield.xml">
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB+2  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S13   --> 
+    <Box name="MB4ShieldTopN_13" dx="3.0*[Tile1_x] + [ShieldAl_xyz]" dy="4.0*[Tile1_y] + [ShieldAl_xyz]" dz="[ShieldBoroton_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldTopN_13" dx="[Tile1_x]" dy="[Tile1_y]" dz="[ShieldBoroton_z]" /> 
+    <Box name="Tile2_MB4ShieldTopN_13" dx="[Tile1_x]" dy="[Tile1_y]" dz="[ShieldLead_z]" /> 
+<!--   S4   --> 
+    <Box name="MB4ShieldTopN_4" dx="3.0*[Tile1_x] + [ShieldAl_xyz]" dy="4.0*[Tile1_y] + [ShieldAl_xyz]" dz="[ShieldBoroton_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldTopN_4" dx="[Tile1_x]" dy="[Tile1_y]" dz="[ShieldBoroton_z]" /> 
+    <Box name="Tile2_MB4ShieldTopN_4" dx="[Tile1_x]" dy="[Tile1_y]" dz="[ShieldLead_z]" /> 
+<!--   S3    --> 
+    <Box name="MB4ShieldYB2S3N_3" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB2S3N_3" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB2S3N_3" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />
+<!--   S5    --> 
+    <Box name="MB4ShieldYB2S5N_5" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB2S5N_5" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB2S5N_5" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />
+<!--   S2    --> 
+    <Box name="MB4ShieldYB2S2N_2" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB2S2N_2" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB2S2N_2" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S6    --> 
+    <Box name="MB4ShieldYB2S6N_6" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB2S6N_6" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB2S6N_6" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S7    --> 
+    <Box name="MB4ShieldYB2S7N_7" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB2S7N_7" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB2S7N_7" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S1    --> 
+    <Box name="MB4ShieldYB2S1N_1" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB2S1N_1" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB2S1N_1" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB-2  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S13   --> 
+    <Box name="MB4ShieldTopP_13" dx="3.0*[Tile1_x] + [ShieldAl_xyz]" dy="4.0*[Tile1_y] + [ShieldAl_xyz]" dz="[ShieldAl_xyz]+[ShieldBoroton1_z]+[ShieldLead_z]" />
+    <Box name="Tile1_MB4ShieldTopP_13" dx="[Tile1_x]" dy="[Tile1_y]" dz="[ShieldLead_z]" /> 
+    <Box name="Tile2_MB4ShieldTopP_13" dx="[Tile1_x]" dy="[Tile1_y]" dz="[ShieldBoroton1_z]" /> 
+<!--   S4   --> 
+    <Box name="MB4ShieldTopP_4" dx="3.0*[Tile1_x]+ [ShieldAl_xyz]" dy="4.0*[Tile1_y]+ [ShieldAl_xyz]" dz="[ShieldAl_xyz]/2.0+[ShieldSteel1_z]+[ShieldBoroton2_z]+[ShieldLead_z]" />
+    <Box name="Tile1_MB4ShieldTopP_4" dx="[Tile1_x]" dy="[Tile1_y]" dz="[ShieldLead_z]" /> 
+    <Box name="Tile2_MB4ShieldTopP_4" dx="[Tile1_x]" dy="[Tile1_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile3_MB4ShieldTopP_4" dx="[Tile1_x]" dy="[Tile1_y]" dz="[ShieldSteel1_z]" />
+<!--   S3    --> 
+    <Box name="MB4ShieldYB2S3P_3" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB2S3P_3" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB2S3P_3" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S5    --> 
+    <Box name="MB4ShieldYB2S5P_5" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB2S5P_5" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB2S5P_5" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />        
+<!--   S2    --> 
+    <Box name="MB4ShieldYB2S2P_2" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB2S2P_2" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB2S2P_2" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />        
+<!--   S6    --> 
+    <Box name="MB4ShieldYB2S6P_6" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB2S6P_6" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB2S6P_6" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S7    --> 
+    <Box name="MB4ShieldYB2S7P_7" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB2S7P_7" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB2S7P_7" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S1    --> 
+    <Box name="MB4ShieldYB2S1P_1" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB2S1P_1" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB2S1P_1" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB+1  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S13   --> 
+    <Box name="MB4ShieldYB1TopN_13" dx="2.0*[Tile2_x] + [ShieldAl_xyz]" dy="3.0*[Tile2_y] + [ShieldAl_xyz]" dz="[ShieldBoroton_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1TopN_13" dx="[Tile2_x]" dy="[Tile2_y]" dz="[ShieldBoroton_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1TopN_13" dx="[Tile2_x]" dy="[Tile2_y]" dz="[ShieldLead_z]" /> 
+<!--   S4   --> 
+    <Box name="MB4ShieldYB1TopN_4" dx="2.0*[Tile2_x] + [ShieldAl_xyz]" dy="3.0*[Tile2_y] + [ShieldAl_xyz]" dz="[ShieldBoroton_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1TopN_4" dx="[Tile2_x]" dy="[Tile2_y]" dz="[ShieldBoroton_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1TopN_4" dx="[Tile2_x]" dy="[Tile2_y]" dz="[ShieldLead_z]" />  
+<!--   S3    --> 
+    <Box name="MB4ShieldYB1S3N_3" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1S3N_3" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1S3N_3" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S5    --> 
+    <Box name="MB4ShieldYB1S5N_5" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1S5N_5" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1S5N_5" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />        
+<!--   S2    --> 
+    <Box name="MB4ShieldYB1S2N_2" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1S2N_2" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1S2N_2" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S6    --> 
+    <Box name="MB4ShieldYB1S6N_6" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1S6N_6" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1S6N_6" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S7    --> 
+    <Box name="MB4ShieldYB1S7N_7" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1S7N_7" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1S7N_7" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S1    --> 
+    <Box name="MB4ShieldYB1S1N_1" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1S1N_1" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1S1N_1" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB-1  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S13   --> 
+    <Box name="MB4ShieldYB1TopP_13" dx="2.0*[Tile2_x] + [ShieldAl_xyz]" dy="3.0*[Tile2_y] + [ShieldAl_xyz]" dz="[ShieldBoroton_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1TopP_13" dx="[Tile2_x]" dy="[Tile2_y]" dz="[ShieldBoroton_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1TopP_13" dx="[Tile2_x]" dy="[Tile2_y]" dz="[ShieldLead_z]" /> 
+<!--   S4   --> 
+    <Box name="MB4ShieldYB1TopP_4" dx="2.0*[Tile2_x] + [ShieldAl_xyz]" dy="3.0*[Tile2_y] + [ShieldAl_xyz]" dz="[ShieldBoroton_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1TopP_4" dx="[Tile2_x]" dy="[Tile2_y]" dz="[ShieldBoroton_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1TopP_4" dx="[Tile2_x]" dy="[Tile2_y]" dz="[ShieldLead_z]" />
+<!--   S3    --> 
+    <Box name="MB4ShieldYB1S3P_3" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1S3P_3" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1S3P_3" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S5    --> 
+    <Box name="MB4ShieldYB1S5P_5" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1S5P_5" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1S5P_5" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S2    --> 
+    <Box name="MB4ShieldYB1S2P_2" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1S2P_2" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1S2P_2" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S6    --> 
+    <Box name="MB4ShieldYB1S6P_6" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1S6P_6" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1S6P_6" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S7    --> 
+    <Box name="MB4ShieldYB1S7P_7" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1S7P_7" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1S7P_7" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!--   S1    --> 
+    <Box name="MB4ShieldYB1S1P_1" dx="2.0*[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB1S1P_1" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB1S1P_1" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />         
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB0  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S3    --> 
+    <Box name="MB4ShieldYB0S3" dx="[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB0S3" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB0S3" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />
+<!--   S5    --> 
+    <Box name="MB4ShieldYB0S5" dx="[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB0S5" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB0S5" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />
+<!--   S2    --> 
+    <Box name="MB4ShieldYB0S2" dx="[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB0S2" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB0S2" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />
+<!--   S6    --> 
+    <Box name="MB4ShieldYB0S6" dx="[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB0S6" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB0S6" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />
+<!--   S1    --> 
+    <Box name="MB4ShieldYB0S1" dx="[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB0S1" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB0S1" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />
+<!--   S7    --> 
+    <Box name="MB4ShieldYB0S7" dx="[Tile3_x] + [ShieldAl_xyz]" dy="3.0*[Tile3_y] + [ShieldAl_xyz]" dz="[ShieldBoroton2_z]+[ShieldLead_z]+[ShieldAl_xyz]" />
+    <Box name="Tile1_MB4ShieldYB0S7" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldBoroton2_z]" /> 
+    <Box name="Tile2_MB4ShieldYB0S7" dx="[Tile3_x]" dy="[Tile3_y]" dz="[ShieldLead_z]" />
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  END OF SOLID SECTION +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->   
+  </SolidSection>
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--                                                                    LOGIC SECTION                                                                    -->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--> 
+  <LogicalPartSection label="mb4Shield.xml">
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB+2  ++++++++++x+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S13   --> 
+    <LogicalPart name="MB4ShieldTopN_13" category="unspecified">
+      <rSolid name="MB4ShieldTopN_13"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldTopN_13" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldTopN_13"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldTopN_13" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldTopN_13"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S4   --> 
+    <LogicalPart name="MB4ShieldTopN_4" category="unspecified">
+      <rSolid name="MB4ShieldTopN_4"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldTopN_4" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldTopN_4"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldTopN_4" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldTopN_4"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S3    --> 
+    <LogicalPart name="MB4ShieldYB2S3N_3" category="unspecified">
+      <rSolid name="MB4ShieldYB2S3N_3"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB2S3N_3" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB2S3N_3"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB2S3N_3" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB2S3N_3"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S5    --> 
+    <LogicalPart name="MB4ShieldYB2S5N_5" category="unspecified">
+      <rSolid name="MB4ShieldYB2S5N_5"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB2S5N_5" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB2S5N_5"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB2S5N_5" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB2S5N_5"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S2    --> 
+    <LogicalPart name="MB4ShieldYB2S2N_2" category="unspecified">
+      <rSolid name="MB4ShieldYB2S2N_2"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB2S2N_2" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB2S2N_2"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB2S2N_2" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB2S2N_2"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S6    --> 
+    <LogicalPart name="MB4ShieldYB2S6N_6" category="unspecified">
+      <rSolid name="MB4ShieldYB2S6N_6"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB2S6N_6" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB2S6N_6"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB2S6N_6" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB2S6N_6"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S7    --> 
+    <LogicalPart name="MB4ShieldYB2S7N_7" category="unspecified">
+      <rSolid name="MB4ShieldYB2S7N_7"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB2S7N_7" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB2S7N_7"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB2S7N_7" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB2S7N_7"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S1    --> 
+    <LogicalPart name="MB4ShieldYB2S1N_1" category="unspecified">
+      <rSolid name="MB4ShieldYB2S1N_1"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB2S1N_1" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB2S1N_1"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB2S1N_1" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB2S1N_1"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB-2  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S13   --> 
+    <LogicalPart name="MB4ShieldTopP_13" category="unspecified">
+      <rSolid name="MB4ShieldTopP_13"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldTopP_13" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldTopP_13"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldTopP_13" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldTopP_13"/>
+      <rMaterial name="materials:Boron PolyethylHD"/>
+    </LogicalPart>
+    <!--   S4   --> 
+    <LogicalPart name="MB4ShieldTopP_4" category="unspecified">
+      <rSolid name="MB4ShieldTopP_4"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldTopP_4" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldTopP_4"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldTopP_4" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldTopP_4"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile3_MB4ShieldTopP_4" category="unspecified">
+      <rSolid name="Tile3_MB4ShieldTopP_4"/>
+      <rMaterial name="materials:StainlessSteel"/>
+    </LogicalPart>
+    <!--   S3    --> 
+    <LogicalPart name="MB4ShieldYB2S3P_3" category="unspecified">
+      <rSolid name="MB4ShieldYB2S3P_3"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB2S3P_3" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB2S3P_3"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB2S3P_3" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB2S3P_3"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S5    --> 
+    <LogicalPart name="MB4ShieldYB2S5P_5" category="unspecified">
+      <rSolid name="MB4ShieldYB2S5P_5"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB2S5P_5" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB2S5P_5"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB2S5P_5" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB2S5P_5"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S2    --> 
+    <LogicalPart name="MB4ShieldYB2S2P_2" category="unspecified">
+      <rSolid name="MB4ShieldYB2S2P_2"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB2S2P_2" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB2S2P_2"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB2S2P_2" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB2S2P_2"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S6    --> 
+    <LogicalPart name="MB4ShieldYB2S6P_6" category="unspecified">
+      <rSolid name="MB4ShieldYB2S6P_6"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB2S6P_6" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB2S6P_6"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB2S6P_6" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB2S6P_6"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S7    --> 
+    <LogicalPart name="MB4ShieldYB2S7P_7" category="unspecified">
+      <rSolid name="MB4ShieldYB2S7P_7"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB2S7P_7" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB2S7P_7"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB2S7P_7" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB2S7P_7"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S1    --> 
+    <LogicalPart name="MB4ShieldYB2S1P_1" category="unspecified">
+      <rSolid name="MB4ShieldYB2S1P_1"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB2S1P_1" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB2S1P_1"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB2S1P_1" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB2S1P_1"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB+1  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S13   --> 
+    <LogicalPart name="MB4ShieldYB1TopN_13" category="unspecified">
+      <rSolid name="MB4ShieldYB1TopN_13"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1TopN_13" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1TopN_13"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1TopN_13" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1TopN_13"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S4   --> 
+    <LogicalPart name="MB4ShieldYB1TopN_4" category="unspecified">
+      <rSolid name="MB4ShieldYB1TopN_4"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1TopN_4" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1TopN_4"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1TopN_4" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1TopN_4"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S3    --> 
+    <LogicalPart name="MB4ShieldYB1S3N_3" category="unspecified">
+      <rSolid name="MB4ShieldYB1S3N_3"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1S3N_3" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1S3N_3"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1S3N_3" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1S3N_3"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S5    --> 
+    <LogicalPart name="MB4ShieldYB1S5N_5" category="unspecified">
+      <rSolid name="MB4ShieldYB1S5N_5"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1S5N_5" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1S5N_5"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1S5N_5" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1S5N_5"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S2    --> 
+    <LogicalPart name="MB4ShieldYB1S2N_2" category="unspecified">
+      <rSolid name="MB4ShieldYB1S2N_2"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1S2N_2" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1S2N_2"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1S2N_2" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1S2N_2"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S6    --> 
+    <LogicalPart name="MB4ShieldYB1S6N_6" category="unspecified">
+      <rSolid name="MB4ShieldYB1S6N_6"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1S6N_6" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1S6N_6"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1S6N_6" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1S6N_6"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S7    --> 
+    <LogicalPart name="MB4ShieldYB1S7N_7" category="unspecified">
+      <rSolid name="MB4ShieldYB1S7N_7"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1S7N_7" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1S7N_7"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1S7N_7" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1S7N_7"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S1    --> 
+    <LogicalPart name="MB4ShieldYB1S1N_1" category="unspecified">
+      <rSolid name="MB4ShieldYB1S1N_1"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1S1N_1" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1S1N_1"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1S1N_1" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1S1N_1"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB-1  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S13   --> 
+    <LogicalPart name="MB4ShieldYB1TopP_13" category="unspecified">
+      <rSolid name="MB4ShieldYB1TopP_13"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1TopP_13" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1TopP_13"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1TopP_13" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1TopP_13"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S4   --> 
+    <LogicalPart name="MB4ShieldYB1TopP_4" category="unspecified">
+      <rSolid name="MB4ShieldYB1TopP_4"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1TopP_4" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1TopP_4"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1TopP_4" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1TopP_4"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S3    --> 
+    <LogicalPart name="MB4ShieldYB1S3P_3" category="unspecified">
+      <rSolid name="MB4ShieldYB1S3P_3"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1S3P_3" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1S3P_3"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1S3P_3" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1S3P_3"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S5    --> 
+    <LogicalPart name="MB4ShieldYB1S5P_5" category="unspecified">
+      <rSolid name="MB4ShieldYB1S5P_5"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1S5P_5" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1S5P_5"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1S5P_5" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1S5P_5"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S2    --> 
+    <LogicalPart name="MB4ShieldYB1S2P_2" category="unspecified">
+      <rSolid name="MB4ShieldYB1S2P_2"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1S2P_2" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1S2P_2"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1S2P_2" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1S2P_2"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S6    --> 
+    <LogicalPart name="MB4ShieldYB1S6P_6" category="unspecified">
+      <rSolid name="MB4ShieldYB1S6P_6"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1S6P_6" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1S6P_6"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1S6P_6" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1S6P_6"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S7    --> 
+    <LogicalPart name="MB4ShieldYB1S7P_7" category="unspecified">
+      <rSolid name="MB4ShieldYB1S7P_7"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1S7P_7" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1S7P_7"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1S7P_7" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1S7P_7"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <!--   S1    --> 
+    <LogicalPart name="MB4ShieldYB1S1P_1" category="unspecified">
+      <rSolid name="MB4ShieldYB1S1P_1"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB1S1P_1" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB1S1P_1"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB1S1P_1" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB1S1P_1"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB0  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S3    --> 
+    <LogicalPart name="MB4ShieldYB0S3" category="unspecified">
+      <rSolid name="MB4ShieldYB0S3"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB0S3" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB0S3"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB0S3" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB0S3"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+<!--   S5    --> 
+    <LogicalPart name="MB4ShieldYB0S5" category="unspecified">
+      <rSolid name="MB4ShieldYB0S5"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB0S5" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB0S5"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB0S5" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB0S5"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+<!--   S2    --> 
+    <LogicalPart name="MB4ShieldYB0S2" category="unspecified">
+      <rSolid name="MB4ShieldYB0S2"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB0S2" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB0S2"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB0S2" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB0S2"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+<!--   S6    --> 
+    <LogicalPart name="MB4ShieldYB0S6" category="unspecified">
+      <rSolid name="MB4ShieldYB0S6"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB0S6" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB0S6"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB0S6" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB0S6"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+<!--   S1    --> 
+    <LogicalPart name="MB4ShieldYB0S1" category="unspecified">
+      <rSolid name="MB4ShieldYB0S1"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB0S1" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB0S1"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB0S1" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB0S1"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+<!--   S7    --> 
+    <LogicalPart name="MB4ShieldYB0S7" category="unspecified">
+      <rSolid name="MB4ShieldYB0S7"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Tile1_MB4ShieldYB0S7" category="unspecified">
+      <rSolid name="Tile1_MB4ShieldYB0S7"/>
+      <rMaterial name="materials:Boron Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="Tile2_MB4ShieldYB0S7" category="unspecified">
+      <rSolid name="Tile2_MB4ShieldYB0S7"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++   END OF LOGICAL PART SECTION  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+</LogicalPartSection>
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--                                                                POSITION SECTION                                                                     -->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--> 
+  <PosPartSection label="mb4Shield.xml">
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB+2  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S13   --> 
+    <PosPart copyNumber="13">  
+      <rParent name="muonBase:MBWheel_2N"/>
+      <rChild name="MB4ShieldTopN_13"/>
+      <rRotation name="rotations:MM404"/>
+      <Translation x="-[mb4:MB4TopPos_x]" y="[mb4:MB4TopPos_y] + 240.0*mm" z="[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile1_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile1_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]*3.0" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile1_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile1_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile1_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile1_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="7">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile1_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="8">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile1_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="9">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile1_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="10">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile1_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="11">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile1_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-3.0*[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="12">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile1_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile2_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile2_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]*3.0" z="[CoordZ_3]"/>
+    </PosPart>
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile2_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile2_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile2_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart>
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile2_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="7">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile2_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="8">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile2_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart>
+    <PosPart copyNumber="9">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile2_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="10">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile2_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="11">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile2_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-3.0*[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart>
+    <PosPart copyNumber="12">  
+      <rParent name="MB4ShieldTopN_13"/>
+      <rChild name="Tile2_MB4ShieldTopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart> 
+    <!--   S4   --> 
+    <PosPart copyNumber="4">  
+      <rParent name="muonBase:MBWheel_2N"/>
+      <rChild name="MB4ShieldTopN_4"/>
+      <rRotation name="rotations:MM404"/>
+      <Translation x="[mb4:MB4TopPos_x]" y="[mb4:MB4TopPos_y] + 240.0*mm" z="[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile1_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile1_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]*3.0" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile1_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile1_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile1_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile1_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="7">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile1_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="8">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile1_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="9">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile1_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="10">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile1_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="11">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile1_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-3.0*[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="12">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile1_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile2_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile2_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]*3.0" z="[CoordZ_3]"/>
+    </PosPart>
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile2_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile2_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile2_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart>
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile2_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="7">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile2_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="8">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile2_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart>
+    <PosPart copyNumber="9">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile2_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="10">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile2_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="11">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile2_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-3.0*[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart>
+    <PosPart copyNumber="12">  
+      <rParent name="MB4ShieldTopN_4"/>
+      <rChild name="Tile2_MB4ShieldTopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="[CoordZ_3]"/>
+    </PosPart> 
+    <!--   S3  --> 
+    <PosPart copyNumber="3">
+      <rParent name="muonBase:MBWheel_2N"/>
+      <rChild name="MB4ShieldYB2S3N_3"/>
+      <rRotation name="rotations:MM403"/>
+      <Translation x="270.0*mm + [RadiusMB4ShieldS3]*cos(60.*deg+[mb4:MB4BigPosAngle])" y="-150.0*mm + [RadiusMB4ShieldS3]*sin(60.*deg+[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S3N_3"/>
+      <rChild name="Tile1_MB4ShieldYB2S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S3N_3"/>
+      <rChild name="Tile1_MB4ShieldYB2S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S3N_3"/>
+      <rChild name="Tile1_MB4ShieldYB2S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S3N_3"/>
+      <rChild name="Tile1_MB4ShieldYB2S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S3N_3"/>
+      <rChild name="Tile1_MB4ShieldYB2S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S3N_3"/>
+      <rChild name="Tile1_MB4ShieldYB2S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S3N_3"/>
+      <rChild name="Tile2_MB4ShieldYB2S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S3N_3"/>
+      <rChild name="Tile2_MB4ShieldYB2S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S3N_3"/>
+      <rChild name="Tile2_MB4ShieldYB2S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S3N_3"/>
+      <rChild name="Tile2_MB4ShieldYB2S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S3N_3"/>
+      <rChild name="Tile2_MB4ShieldYB2S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S3N_3"/>
+      <rChild name="Tile2_MB4ShieldYB2S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S5   --> 
+    <PosPart copyNumber="5">
+      <rParent name="muonBase:MBWheel_2N"/>
+      <rChild name="MB4ShieldYB2S5N_5"/>
+      <rRotation name="rotations:MM405"/>
+      <Translation x="-270.00*mm + [RadiusMB4ShieldS3]*cos(120.*deg-[mb4:MB4BigPosAngle])" y="-150.0*mm + [RadiusMB4ShieldS3]*sin(120.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>
+    </PosPart> 
+ <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S5N_5"/>
+      <rChild name="Tile1_MB4ShieldYB2S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S5N_5"/>
+      <rChild name="Tile1_MB4ShieldYB2S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S5N_5"/>
+      <rChild name="Tile1_MB4ShieldYB2S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S5N_5"/>
+      <rChild name="Tile1_MB4ShieldYB2S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S5N_5"/>
+      <rChild name="Tile1_MB4ShieldYB2S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S5N_5"/>
+      <rChild name="Tile1_MB4ShieldYB2S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S5N_5"/>
+      <rChild name="Tile2_MB4ShieldYB2S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S5N_5"/>
+      <rChild name="Tile2_MB4ShieldYB2S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S5N_5"/>
+      <rChild name="Tile2_MB4ShieldYB2S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S5N_5"/>
+      <rChild name="Tile2_MB4ShieldYB2S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S5N_5"/>
+      <rChild name="Tile2_MB4ShieldYB2S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S5N_5"/>
+      <rChild name="Tile2_MB4ShieldYB2S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S2   --> 
+    <PosPart copyNumber="2">
+      <rParent name="muonBase:MBWheel_2N"/>
+      <rChild name="MB4ShieldYB2S2N_2"/>
+      <rRotation name="rotations:MM402"/>
+      <Translation x="150.0*mm + [RadiusMB4ShieldS3]*cos(30.*deg+[mb4:MB4BigPosAngle])" y="-260.0*mm + [RadiusMB4ShieldS3]*sin(30.*deg+[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S2N_2"/>
+      <rChild name="Tile1_MB4ShieldYB2S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S2N_2"/>
+      <rChild name="Tile1_MB4ShieldYB2S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S2N_2"/>
+      <rChild name="Tile1_MB4ShieldYB2S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S2N_2"/>
+      <rChild name="Tile1_MB4ShieldYB2S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S2N_2"/>
+      <rChild name="Tile1_MB4ShieldYB2S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S2N_2"/>
+      <rChild name="Tile1_MB4ShieldYB2S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S2N_2"/>
+      <rChild name="Tile2_MB4ShieldYB2S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S2N_2"/>
+      <rChild name="Tile2_MB4ShieldYB2S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S2N_2"/>
+      <rChild name="Tile2_MB4ShieldYB2S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S2N_2"/>
+      <rChild name="Tile2_MB4ShieldYB2S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S2N_2"/>
+      <rChild name="Tile2_MB4ShieldYB2S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S2N_2"/>
+      <rChild name="Tile2_MB4ShieldYB2S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S6   --> 
+    <PosPart copyNumber="6">
+      <rParent name="muonBase:MBWheel_2N"/>
+      <rChild name="MB4ShieldYB2S6N_6"/>
+      <rRotation name="rotations:MM406"/>
+      <Translation x="-150.0*mm + [RadiusMB4ShieldS3]*cos(150.*deg-[mb4:MB4BigPosAngle])" y="-260.0*mm + [RadiusMB4ShieldS3]*sin(150.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>     
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S6N_6"/>
+      <rChild name="Tile1_MB4ShieldYB2S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S6N_6"/>
+      <rChild name="Tile1_MB4ShieldYB2S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S6N_6"/>
+      <rChild name="Tile1_MB4ShieldYB2S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S6N_6"/>
+      <rChild name="Tile1_MB4ShieldYB2S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S6N_6"/>
+      <rChild name="Tile1_MB4ShieldYB2S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S6N_6"/>
+      <rChild name="Tile1_MB4ShieldYB2S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S6N_6"/>
+      <rChild name="Tile2_MB4ShieldYB2S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S6N_6"/>
+      <rChild name="Tile2_MB4ShieldYB2S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S6N_6"/>
+      <rChild name="Tile2_MB4ShieldYB2S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S6N_6"/>
+      <rChild name="Tile2_MB4ShieldYB2S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S6N_6"/>
+      <rChild name="Tile2_MB4ShieldYB2S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S6N_6"/>
+      <rChild name="Tile2_MB4ShieldYB2S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S7   --> 
+    <PosPart copyNumber="7">
+      <rParent name="muonBase:MBWheel_2N"/>
+      <rChild name="MB4ShieldYB2S7N_7"/>
+      <rRotation name="rotations:MM407"/>
+      <Translation x="[RadiusMB4ShieldS3]*cos(180.*deg-[mb4:MB4BigPosAngle])" y="-310.0*mm + [RadiusMB4ShieldS3]*sin(180.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>     
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S7N_7"/>
+      <rChild name="Tile1_MB4ShieldYB2S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S7N_7"/>
+      <rChild name="Tile1_MB4ShieldYB2S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S7N_7"/>
+      <rChild name="Tile1_MB4ShieldYB2S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S7N_7"/>
+      <rChild name="Tile1_MB4ShieldYB2S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S7N_7"/>
+      <rChild name="Tile1_MB4ShieldYB2S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S7N_7"/>
+      <rChild name="Tile1_MB4ShieldYB2S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S7N_7"/>
+      <rChild name="Tile2_MB4ShieldYB2S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S7N_7"/>
+      <rChild name="Tile2_MB4ShieldYB2S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S7N_7"/>
+      <rChild name="Tile2_MB4ShieldYB2S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S7N_7"/>
+      <rChild name="Tile2_MB4ShieldYB2S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S7N_7"/>
+      <rChild name="Tile2_MB4ShieldYB2S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S7N_7"/>
+      <rChild name="Tile2_MB4ShieldYB2S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S1   --> 
+    <PosPart copyNumber="1">
+      <rParent name="muonBase:MBWheel_2N"/>
+      <rChild name="MB4ShieldYB2S1N_1"/>
+      <rRotation name="rotations:MM401"/>
+      <Translation x="-60.0*mm + [RadiusMB4ShieldS3]" y="-320.0*mm + [mb4:MB4BigPos_y]" z="[mbCommon:MBPos_z]"/>     
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S1N_1"/>
+      <rChild name="Tile1_MB4ShieldYB2S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S1N_1"/>
+      <rChild name="Tile1_MB4ShieldYB2S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S1N_1"/>
+      <rChild name="Tile1_MB4ShieldYB2S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S1N_1"/>
+      <rChild name="Tile1_MB4ShieldYB2S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S1N_1"/>
+      <rChild name="Tile1_MB4ShieldYB2S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S1N_1"/>
+      <rChild name="Tile1_MB4ShieldYB2S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S1N_1"/>
+      <rChild name="Tile2_MB4ShieldYB2S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S1N_1"/>
+      <rChild name="Tile2_MB4ShieldYB2S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S1N_1"/>
+      <rChild name="Tile2_MB4ShieldYB2S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S1N_1"/>
+      <rChild name="Tile2_MB4ShieldYB2S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S1N_1"/>
+      <rChild name="Tile2_MB4ShieldYB2S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S1N_1"/>
+      <rChild name="Tile2_MB4ShieldYB2S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>  
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB-2  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    <!--   S13   --> 
+    <PosPart copyNumber="13">  
+      <rParent name="muonBase:MBWheel_2P"/>
+      <rChild name="MB4ShieldTopP_13"/>
+      <rRotation name="rotations:MM404"/>
+      <Translation x="-[mb4:MB4TopPos_x]" y="[mb4:MB4TopPos_y] + 240.0*mm" z="-[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile1_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="25.4*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile1_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]*3.0" z="25.4*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile1_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="25.4*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile1_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]" z="25.4*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile1_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]" z="25.4*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile1_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]" z="25.4*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="7">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile1_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-[Tile1_y]" z="25.4*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="8">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile1_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile1_y]" z="25.4*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile1_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-[Tile1_y]" z="25.4*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="10">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile1_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="25.4*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="11">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile1_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-3.0*[Tile1_y]" z="25.4*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile1_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="25.4*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile2_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile2_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]*3.0" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile2_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile2_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile2_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile2_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="7">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile2_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="8">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile2_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="9">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile2_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="10">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile2_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="11">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile2_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-3.0*[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="12">  
+      <rParent name="MB4ShieldTopP_13"/>
+      <rChild name="Tile2_MB4ShieldTopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="[CoordZ_1]"/>
+    </PosPart> 
+    <!--   S4   --> 
+    <PosPart copyNumber="4">  
+      <rParent name="muonBase:MBWheel_2P"/>
+      <rChild name="MB4ShieldTopP_4"/>
+      <rRotation name="rotations:MM404"/>
+      <Translation x="[mb4:MB4TopPos_x]" y="[mb4:MB4TopPos_y] + 240.0*mm" z="-[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile1_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="19.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile1_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]*3.0" z="19.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile1_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="19.25*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile1_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]" z="19.25*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile1_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]" z="19.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile1_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]" z="19.25*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="7">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile1_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-[Tile1_y]" z="19.25*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="8">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile1_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile1_y]" z="19.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile1_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-[Tile1_y]" z="19.25*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="10">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile1_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="19.25*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="11">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile1_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-3.0*[Tile1_y]" z="19.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile1_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="19.25*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile2_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="0.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile2_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]*3.0" z="0.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile2_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="0.75*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile2_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]" z="0.75*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile2_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]" z="0.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile2_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]" z="0.75*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="7">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile2_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-[Tile1_y]" z="0.75*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="8">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile2_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile1_y]" z="0.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile2_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-[Tile1_y]" z="0.75*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="10">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile2_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="0.75*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="11">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile2_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-3.0*[Tile1_y]" z="0.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile2_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="0.75*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile3_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="-19.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile3_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]*3.0" z="-19.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile3_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]*3.0" z="-19.25*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile3_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="[Tile1_y]" z="-19.25*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile3_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile1_y]" z="-19.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile3_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="[Tile1_y]" z="-19.25*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="7">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile3_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-[Tile1_y]" z="-19.25*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="8">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile3_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile1_y]" z="-19.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="9">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile3_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-[Tile1_y]" z="-19.25*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="10">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile3_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="-19.25*mm"/>
+    </PosPart> 
+    <PosPart copyNumber="11">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile3_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-3.0*[Tile1_y]" z="-19.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="12">  
+      <rParent name="MB4ShieldTopP_4"/>
+      <rChild name="Tile3_MB4ShieldTopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="2.0*[Tile1_x]" y="-3.0*[Tile1_y]" z="-19.25*mm"/>
+    </PosPart>
+    <!--   S3   --> 
+    <PosPart copyNumber="3">
+      <rParent name="muonBase:MBWheel_2P"/>
+      <rChild name="MB4ShieldYB2S3P_3"/>
+      <rRotation name="rotations:RM1892"/>
+      <Translation x="270.00*mm + [RadiusMB4ShieldS3]*cos(60.*deg+[mb4:MB4BigPosAngle])" y="-150.0*mm + [RadiusMB4ShieldS3]*sin(60.*deg+[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S3P_3"/>
+      <rChild name="Tile1_MB4ShieldYB2S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S3P_3"/>
+      <rChild name="Tile1_MB4ShieldYB2S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S3P_3"/>
+      <rChild name="Tile1_MB4ShieldYB2S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S3P_3"/>
+      <rChild name="Tile1_MB4ShieldYB2S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S3P_3"/>
+      <rChild name="Tile1_MB4ShieldYB2S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S3P_3"/>
+      <rChild name="Tile1_MB4ShieldYB2S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S3P_3"/>
+      <rChild name="Tile2_MB4ShieldYB2S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S3P_3"/>
+      <rChild name="Tile2_MB4ShieldYB2S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S3P_3"/>
+      <rChild name="Tile2_MB4ShieldYB2S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S3P_3"/>
+      <rChild name="Tile2_MB4ShieldYB2S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S3P_3"/>
+      <rChild name="Tile2_MB4ShieldYB2S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S3P_3"/>
+      <rChild name="Tile2_MB4ShieldYB2S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S5   --> 
+    <PosPart copyNumber="5">
+      <rParent name="muonBase:MBWheel_2P"/>
+      <rChild name="MB4ShieldYB2S5P_5"/>
+      <rRotation name="rotations:RM1912"/>
+      <Translation x="-270.00*mm + [RadiusMB4ShieldS3]*cos(120.*deg-[mb4:MB4BigPosAngle])" y="-150.0*mm + [RadiusMB4ShieldS3]*sin(120.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>     
+    </PosPart>  
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S5P_5"/>
+      <rChild name="Tile1_MB4ShieldYB2S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S5P_5"/>
+      <rChild name="Tile1_MB4ShieldYB2S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S5P_5"/>
+      <rChild name="Tile1_MB4ShieldYB2S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S5P_5"/>
+      <rChild name="Tile1_MB4ShieldYB2S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S5P_5"/>
+      <rChild name="Tile1_MB4ShieldYB2S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S5P_5"/>
+      <rChild name="Tile1_MB4ShieldYB2S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S5P_5"/>
+      <rChild name="Tile2_MB4ShieldYB2S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S5P_5"/>
+      <rChild name="Tile2_MB4ShieldYB2S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S5P_5"/>
+      <rChild name="Tile2_MB4ShieldYB2S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S5P_5"/>
+      <rChild name="Tile2_MB4ShieldYB2S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S5P_5"/>
+      <rChild name="Tile2_MB4ShieldYB2S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S5P_5"/>
+      <rChild name="Tile2_MB4ShieldYB2S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S2   --> 
+    <PosPart copyNumber="2">
+      <rParent name="muonBase:MBWheel_2P"/>
+      <rChild name="MB4ShieldYB2S2P_2"/>
+      <rRotation name="rotations:RM1882"/>
+      <Translation x="150.00*mm + [RadiusMB4ShieldS3]*cos(30.*deg+[mb4:MB4BigPosAngle])" y="-260.0*mm + [RadiusMB4ShieldS3]*sin(30.*deg+[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>     
+    </PosPart>    
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S2P_2"/>
+      <rChild name="Tile1_MB4ShieldYB2S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S2P_2"/>
+      <rChild name="Tile1_MB4ShieldYB2S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S2P_2"/>
+      <rChild name="Tile1_MB4ShieldYB2S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S2P_2"/>
+      <rChild name="Tile1_MB4ShieldYB2S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S2P_2"/>
+      <rChild name="Tile1_MB4ShieldYB2S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S2P_2"/>
+      <rChild name="Tile1_MB4ShieldYB2S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S2P_2"/>
+      <rChild name="Tile2_MB4ShieldYB2S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S2P_2"/>
+      <rChild name="Tile2_MB4ShieldYB2S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S2P_2"/>
+      <rChild name="Tile2_MB4ShieldYB2S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S2P_2"/>
+      <rChild name="Tile2_MB4ShieldYB2S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S2P_2"/>
+      <rChild name="Tile2_MB4ShieldYB2S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S2P_2"/>
+      <rChild name="Tile2_MB4ShieldYB2S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S6   --> 
+    <PosPart copyNumber="6">
+      <rParent name="muonBase:MBWheel_2P"/>
+      <rChild name="MB4ShieldYB2S6P_6"/>
+      <rRotation name="rotations:RM1922"/>
+      <Translation x="-150.0*mm + [RadiusMB4ShieldS3]*cos(150.*deg-[mb4:MB4BigPosAngle])" y="-260.0*mm + [RadiusMB4ShieldS3]*sin(150.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>     
+    </PosPart>    
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S6P_6"/>
+      <rChild name="Tile1_MB4ShieldYB2S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S6P_6"/>
+      <rChild name="Tile1_MB4ShieldYB2S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S6P_6"/>
+      <rChild name="Tile1_MB4ShieldYB2S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S6P_6"/>
+      <rChild name="Tile1_MB4ShieldYB2S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S6P_6"/>
+      <rChild name="Tile1_MB4ShieldYB2S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S6P_6"/>
+      <rChild name="Tile1_MB4ShieldYB2S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S6P_6"/>
+      <rChild name="Tile2_MB4ShieldYB2S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S6P_6"/>
+      <rChild name="Tile2_MB4ShieldYB2S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S6P_6"/>
+      <rChild name="Tile2_MB4ShieldYB2S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S6P_6"/>
+      <rChild name="Tile2_MB4ShieldYB2S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S6P_6"/>
+      <rChild name="Tile2_MB4ShieldYB2S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S6P_6"/>
+      <rChild name="Tile2_MB4ShieldYB2S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S7   --> 
+    <PosPart copyNumber="7">
+      <rParent name="muonBase:MBWheel_2P"/>
+      <rChild name="MB4ShieldYB2S7P_7"/>
+      <rRotation name="rotations:90XD"/>
+      <Translation x="[RadiusMB4ShieldS3]*cos(180.*deg-[mb4:MB4BigPosAngle])" y="-310.0*mm + [RadiusMB4ShieldS3]*sin(180.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>     
+    </PosPart>    
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S7P_7"/>
+      <rChild name="Tile1_MB4ShieldYB2S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S7P_7"/>
+      <rChild name="Tile1_MB4ShieldYB2S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S7P_7"/>
+      <rChild name="Tile1_MB4ShieldYB2S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S7P_7"/>
+      <rChild name="Tile1_MB4ShieldYB2S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S7P_7"/>
+      <rChild name="Tile1_MB4ShieldYB2S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S7P_7"/>
+      <rChild name="Tile1_MB4ShieldYB2S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S7P_7"/>
+      <rChild name="Tile2_MB4ShieldYB2S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S7P_7"/>
+      <rChild name="Tile2_MB4ShieldYB2S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S7P_7"/>
+      <rChild name="Tile2_MB4ShieldYB2S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S7P_7"/>
+      <rChild name="Tile2_MB4ShieldYB2S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S7P_7"/>
+      <rChild name="Tile2_MB4ShieldYB2S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S7P_7"/>
+      <rChild name="Tile2_MB4ShieldYB2S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S1   --> 
+    <PosPart copyNumber="1">
+      <rParent name="muonBase:MBWheel_2P"/>
+      <rChild name="MB4ShieldYB2S1P_1"/>
+      <rRotation name="rotations:RM1872"/>
+      <Translation x="-60.0*mm + [RadiusMB4ShieldS3]" y="-320.0*mm + [mb4:MB4BigPos_y]" z="[mbCommon:MBPos_z]"/>     
+    </PosPart>    
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S1P_1"/>
+      <rChild name="Tile1_MB4ShieldYB2S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S1P_1"/>
+      <rChild name="Tile1_MB4ShieldYB2S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S1P_1"/>
+      <rChild name="Tile1_MB4ShieldYB2S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S1P_1"/>
+      <rChild name="Tile1_MB4ShieldYB2S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S1P_1"/>
+      <rChild name="Tile1_MB4ShieldYB2S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S1P_1"/>
+      <rChild name="Tile1_MB4ShieldYB2S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB2S1P_1"/>
+      <rChild name="Tile2_MB4ShieldYB2S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB2S1P_1"/>
+      <rChild name="Tile2_MB4ShieldYB2S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB2S1P_1"/>
+      <rChild name="Tile2_MB4ShieldYB2S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB2S1P_1"/>
+      <rChild name="Tile2_MB4ShieldYB2S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB2S1P_1"/>
+      <rChild name="Tile2_MB4ShieldYB2S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB2S1P_1"/>
+      <rChild name="Tile2_MB4ShieldYB2S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>  
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB+1  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S13   --> 
+    <PosPart copyNumber="13">  
+      <rParent name="muonBase:MBWheel_1N"/>
+      <rChild name="MB4ShieldYB1TopN_13"/>
+      <rRotation name="rotations:MM404"/>
+      <Translation x="-[mb4:MB4TopPos_x]" y="[mb4:MB4TopPos_y] + 240.0*mm" z="[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1TopN_13"/>
+      <rChild name="Tile1_MB4ShieldYB1TopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1TopN_13"/>
+      <rChild name="Tile1_MB4ShieldYB1TopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1TopN_13"/>
+      <rChild name="Tile1_MB4ShieldYB1TopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="0.0*mm" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1TopN_13"/>
+      <rChild name="Tile1_MB4ShieldYB1TopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="0.0*mm" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1TopN_13"/>
+      <rChild name="Tile1_MB4ShieldYB1TopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1TopN_13"/>
+      <rChild name="Tile1_MB4ShieldYB1TopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1TopN_13"/>
+      <rChild name="Tile2_MB4ShieldYB1TopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1TopN_13"/>
+      <rChild name="Tile2_MB4ShieldYB1TopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1TopN_13"/>
+      <rChild name="Tile2_MB4ShieldYB1TopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="0.0*mm" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1TopN_13"/>
+      <rChild name="Tile2_MB4ShieldYB1TopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="0.0*mm" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1TopN_13"/>
+      <rChild name="Tile2_MB4ShieldYB1TopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1TopN_13"/>
+      <rChild name="Tile2_MB4ShieldYB1TopN_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <!--   S4   -->
+    <PosPart copyNumber="4">  
+      <rParent name="muonBase:MBWheel_1N"/>
+      <rChild name="MB4ShieldYB1TopN_4"/>
+      <rRotation name="rotations:MM404"/>
+      <Translation x="[mb4:MB4TopPos_x]" y="[mb4:MB4TopPos_y] + 240.0*mm" z="[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1TopN_4"/>
+      <rChild name="Tile1_MB4ShieldYB1TopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1TopN_4"/>
+      <rChild name="Tile1_MB4ShieldYB1TopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1TopN_4"/>
+      <rChild name="Tile1_MB4ShieldYB1TopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="0.0*mm" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1TopN_4"/>
+      <rChild name="Tile1_MB4ShieldYB1TopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="0.0*mm" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1TopN_4"/>
+      <rChild name="Tile1_MB4ShieldYB1TopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1TopN_4"/>
+      <rChild name="Tile1_MB4ShieldYB1TopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1TopN_4"/>
+      <rChild name="Tile2_MB4ShieldYB1TopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1TopN_4"/>
+      <rChild name="Tile2_MB4ShieldYB1TopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1TopN_4"/>
+      <rChild name="Tile2_MB4ShieldYB1TopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="0.0*mm" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1TopN_4"/>
+      <rChild name="Tile2_MB4ShieldYB1TopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="0.0*mm" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1TopN_4"/>
+      <rChild name="Tile2_MB4ShieldYB1TopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1TopN_4"/>
+      <rChild name="Tile2_MB4ShieldYB1TopN_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart>  
+    <!--   S3   --> 
+    <PosPart copyNumber="3">
+      <rParent name="muonBase:MBWheel_1N"/>
+      <rChild name="MB4ShieldYB1S3N_3"/>
+      <rRotation name="rotations:MM403"/>
+      <Translation x="270.0*mm + [RadiusMB4ShieldS3]*cos(60.*deg+[mb4:MB4BigPosAngle])" y="-150.0*mm + [RadiusMB4ShieldS3]*sin(60.*deg+[mb4:MB4BigPosAngle])" z="-[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S3N_3"/>
+      <rChild name="Tile1_MB4ShieldYB1S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S3N_3"/>
+      <rChild name="Tile1_MB4ShieldYB1S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S3N_3"/>
+      <rChild name="Tile1_MB4ShieldYB1S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S3N_3"/>
+      <rChild name="Tile1_MB4ShieldYB1S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S3N_3"/>
+      <rChild name="Tile1_MB4ShieldYB1S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S3N_3"/>
+      <rChild name="Tile1_MB4ShieldYB1S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S3N_3"/>
+      <rChild name="Tile2_MB4ShieldYB1S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S3N_3"/>
+      <rChild name="Tile2_MB4ShieldYB1S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S3N_3"/>
+      <rChild name="Tile2_MB4ShieldYB1S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S3N_3"/>
+      <rChild name="Tile2_MB4ShieldYB1S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S3N_3"/>
+      <rChild name="Tile2_MB4ShieldYB1S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S3N_3"/>
+      <rChild name="Tile2_MB4ShieldYB1S3N_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>  
+    <!--   S5   --> 
+    <PosPart copyNumber="5">
+      <rParent name="muonBase:MBWheel_1N"/>
+      <rChild name="MB4ShieldYB1S5N_5"/>
+      <rRotation name="rotations:MM405"/>
+      <Translation x="-270.0*mm + [RadiusMB4ShieldS3]*cos(120.*deg-[mb4:MB4BigPosAngle])" y="-150.0*mm + [RadiusMB4ShieldS3]*sin(120.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>          
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S5N_5"/>
+      <rChild name="Tile1_MB4ShieldYB1S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S5N_5"/>
+      <rChild name="Tile1_MB4ShieldYB1S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S5N_5"/>
+      <rChild name="Tile1_MB4ShieldYB1S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S5N_5"/>
+      <rChild name="Tile1_MB4ShieldYB1S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S5N_5"/>
+      <rChild name="Tile1_MB4ShieldYB1S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S5N_5"/>
+      <rChild name="Tile1_MB4ShieldYB1S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S5N_5"/>
+      <rChild name="Tile2_MB4ShieldYB1S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S5N_5"/>
+      <rChild name="Tile2_MB4ShieldYB1S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S5N_5"/>
+      <rChild name="Tile2_MB4ShieldYB1S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S5N_5"/>
+      <rChild name="Tile2_MB4ShieldYB1S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S5N_5"/>
+      <rChild name="Tile2_MB4ShieldYB1S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S5N_5"/>
+      <rChild name="Tile2_MB4ShieldYB1S5N_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <!--   S2   --> 
+    <PosPart copyNumber="2">
+      <rParent name="muonBase:MBWheel_1N"/>
+      <rChild name="MB4ShieldYB1S2N_2"/>
+      <rRotation name="rotations:MM402"/>
+      <Translation x="150.0*mm + [RadiusMB4ShieldS3]*cos(30.*deg+[mb4:MB4BigPosAngle])" y="-260.0*mm + [RadiusMB4ShieldS3]*sin(30.*deg+[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>          
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S2N_2"/>
+      <rChild name="Tile1_MB4ShieldYB1S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S2N_2"/>
+      <rChild name="Tile1_MB4ShieldYB1S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S2N_2"/>
+      <rChild name="Tile1_MB4ShieldYB1S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S2N_2"/>
+      <rChild name="Tile1_MB4ShieldYB1S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S2N_2"/>
+      <rChild name="Tile1_MB4ShieldYB1S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S2N_2"/>
+      <rChild name="Tile1_MB4ShieldYB1S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S2N_2"/>
+      <rChild name="Tile2_MB4ShieldYB1S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S2N_2"/>
+      <rChild name="Tile2_MB4ShieldYB1S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S2N_2"/>
+      <rChild name="Tile2_MB4ShieldYB1S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S2N_2"/>
+      <rChild name="Tile2_MB4ShieldYB1S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S2N_2"/>
+      <rChild name="Tile2_MB4ShieldYB1S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S2N_2"/>
+      <rChild name="Tile2_MB4ShieldYB1S2N_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S6   --> 
+    <PosPart copyNumber="6">
+      <rParent name="muonBase:MBWheel_1N"/>
+      <rChild name="MB4ShieldYB1S6N_6"/>
+      <rRotation name="rotations:MM406"/>
+      <Translation x="-150.0*mm + [RadiusMB4ShieldS3]*cos(150.*deg-[mb4:MB4BigPosAngle])" y="-260.0*mm + [RadiusMB4ShieldS3]*sin(150.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>          
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S6N_6"/>
+      <rChild name="Tile1_MB4ShieldYB1S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S6N_6"/>
+      <rChild name="Tile1_MB4ShieldYB1S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S6N_6"/>
+      <rChild name="Tile1_MB4ShieldYB1S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S6N_6"/>
+      <rChild name="Tile1_MB4ShieldYB1S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S6N_6"/>
+      <rChild name="Tile1_MB4ShieldYB1S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S6N_6"/>
+      <rChild name="Tile1_MB4ShieldYB1S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S6N_6"/>
+      <rChild name="Tile2_MB4ShieldYB1S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S6N_6"/>
+      <rChild name="Tile2_MB4ShieldYB1S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S6N_6"/>
+      <rChild name="Tile2_MB4ShieldYB1S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S6N_6"/>
+      <rChild name="Tile2_MB4ShieldYB1S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S6N_6"/>
+      <rChild name="Tile2_MB4ShieldYB1S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S6N_6"/>
+      <rChild name="Tile2_MB4ShieldYB1S6N_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S7   --> 
+    <PosPart copyNumber="7">
+      <rParent name="muonBase:MBWheel_1N"/>
+      <rChild name="MB4ShieldYB1S7N_7"/>
+      <rRotation name="rotations:MM407"/>
+      <Translation x="[RadiusMB4ShieldS3]*cos(180.*deg-[mb4:MB4BigPosAngle])" y="-310.0*mm + [RadiusMB4ShieldS3]*sin(180.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>          
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S7N_7"/>
+      <rChild name="Tile1_MB4ShieldYB1S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S7N_7"/>
+      <rChild name="Tile1_MB4ShieldYB1S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S7N_7"/>
+      <rChild name="Tile1_MB4ShieldYB1S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S7N_7"/>
+      <rChild name="Tile1_MB4ShieldYB1S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S7N_7"/>
+      <rChild name="Tile1_MB4ShieldYB1S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S7N_7"/>
+      <rChild name="Tile1_MB4ShieldYB1S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S7N_7"/>
+      <rChild name="Tile2_MB4ShieldYB1S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S7N_7"/>
+      <rChild name="Tile2_MB4ShieldYB1S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S7N_7"/>
+      <rChild name="Tile2_MB4ShieldYB1S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S7N_7"/>
+      <rChild name="Tile2_MB4ShieldYB1S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S7N_7"/>
+      <rChild name="Tile2_MB4ShieldYB1S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S7N_7"/>
+      <rChild name="Tile2_MB4ShieldYB1S7N_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <!--   S1  --> 
+    <PosPart copyNumber="1">
+      <rParent name="muonBase:MBWheel_1N"/>
+      <rChild name="MB4ShieldYB1S1N_1"/>
+      <rRotation name="rotations:MM401"/>
+      <Translation x="-60.0*mm + [RadiusMB4ShieldS3]" y="-320.0*mm + [mb4:MB4BigPos_y]" z="[mbCommon:MBPos_z]"/>          
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S1N_1"/>
+      <rChild name="Tile1_MB4ShieldYB1S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S1N_1"/>
+      <rChild name="Tile1_MB4ShieldYB1S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S1N_1"/>
+      <rChild name="Tile1_MB4ShieldYB1S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S1N_1"/>
+      <rChild name="Tile1_MB4ShieldYB1S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S1N_1"/>
+      <rChild name="Tile1_MB4ShieldYB1S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S1N_1"/>
+      <rChild name="Tile1_MB4ShieldYB1S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S1N_1"/>
+      <rChild name="Tile2_MB4ShieldYB1S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S1N_1"/>
+      <rChild name="Tile2_MB4ShieldYB1S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S1N_1"/>
+      <rChild name="Tile2_MB4ShieldYB1S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S1N_1"/>
+      <rChild name="Tile2_MB4ShieldYB1S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S1N_1"/>
+      <rChild name="Tile2_MB4ShieldYB1S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S1N_1"/>
+      <rChild name="Tile2_MB4ShieldYB1S1N_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB-1  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S13   --> 
+    <PosPart copyNumber="13">  
+      <rParent name="muonBase:MBWheel_1P"/>
+      <rChild name="MB4ShieldYB1TopP_13"/>
+      <rRotation name="rotations:MM404"/>
+      <Translation x="-[mb4:MB4TopPos_x]" y="[mb4:MB4TopPos_y] + 240.0*mm" z="[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1TopP_13"/>
+      <rChild name="Tile1_MB4ShieldYB1TopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1TopP_13"/>
+      <rChild name="Tile1_MB4ShieldYB1TopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1TopP_13"/>
+      <rChild name="Tile1_MB4ShieldYB1TopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="0.0*mm" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1TopP_13"/>
+      <rChild name="Tile1_MB4ShieldYB1TopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="0.0*mm" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1TopP_13"/>
+      <rChild name="Tile1_MB4ShieldYB1TopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1TopP_13"/>
+      <rChild name="Tile1_MB4ShieldYB1TopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1TopP_13"/>
+      <rChild name="Tile2_MB4ShieldYB1TopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1TopP_13"/>
+      <rChild name="Tile2_MB4ShieldYB1TopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1TopP_13"/>
+      <rChild name="Tile2_MB4ShieldYB1TopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="0.0*mm" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1TopP_13"/>
+      <rChild name="Tile2_MB4ShieldYB1TopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="0.0*mm" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1TopP_13"/>
+      <rChild name="Tile2_MB4ShieldYB1TopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1TopP_13"/>
+      <rChild name="Tile2_MB4ShieldYB1TopP_13"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <!--   S4   -->
+    <PosPart copyNumber="4">  
+      <rParent name="muonBase:MBWheel_1P"/>
+      <rChild name="MB4ShieldYB1TopP_4"/>
+      <rRotation name="rotations:MM404"/>
+      <Translation x="[mb4:MB4TopPos_x]" y="[mb4:MB4TopPos_y] + 240.0*mm" z="[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1TopP_4"/>
+      <rChild name="Tile1_MB4ShieldYB1TopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1TopP_4"/>
+      <rChild name="Tile1_MB4ShieldYB1TopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1TopP_4"/>
+      <rChild name="Tile1_MB4ShieldYB1TopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="0.0*mm" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1TopP_4"/>
+      <rChild name="Tile1_MB4ShieldYB1TopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="0.0*mm" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1TopP_4"/>
+      <rChild name="Tile1_MB4ShieldYB1TopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1TopP_4"/>
+      <rChild name="Tile1_MB4ShieldYB1TopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1TopP_4"/>
+      <rChild name="Tile2_MB4ShieldYB1TopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1TopP_4"/>
+      <rChild name="Tile2_MB4ShieldYB1TopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1TopP_4"/>
+      <rChild name="Tile2_MB4ShieldYB1TopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="0.0*mm" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1TopP_4"/>
+      <rChild name="Tile2_MB4ShieldYB1TopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="0.0*mm" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1TopP_4"/>
+      <rChild name="Tile2_MB4ShieldYB1TopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1TopP_4"/>
+      <rChild name="Tile2_MB4ShieldYB1TopP_4"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile2_x]" y="-[Tile2_y]*2.0" z="[CoordZ_3]"/>
+    </PosPart>
+    <!--   S3  --> 
+    <PosPart copyNumber="3">
+      <rParent name="muonBase:MBWheel_1P"/>
+      <rChild name="MB4ShieldYB1S3P_3"/>
+      <rRotation name="rotations:RM1892"/>
+      <Translation x="270.0*mm + [RadiusMB4ShieldS3]*cos(60.*deg+[mb4:MB4BigPosAngle])" y="-150.0*mm + [RadiusMB4ShieldS3]*sin(60.*deg+[mb4:MB4BigPosAngle])" z="-[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S3P_3"/>
+      <rChild name="Tile1_MB4ShieldYB1S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S3P_3"/>
+      <rChild name="Tile1_MB4ShieldYB1S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S3P_3"/>
+      <rChild name="Tile1_MB4ShieldYB1S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S3P_3"/>
+      <rChild name="Tile1_MB4ShieldYB1S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S3P_3"/>
+      <rChild name="Tile1_MB4ShieldYB1S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S3P_3"/>
+      <rChild name="Tile1_MB4ShieldYB1S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S3P_3"/>
+      <rChild name="Tile2_MB4ShieldYB1S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S3P_3"/>
+      <rChild name="Tile2_MB4ShieldYB1S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S3P_3"/>
+      <rChild name="Tile2_MB4ShieldYB1S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S3P_3"/>
+      <rChild name="Tile2_MB4ShieldYB1S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S3P_3"/>
+      <rChild name="Tile2_MB4ShieldYB1S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S3P_3"/>
+      <rChild name="Tile2_MB4ShieldYB1S3P_3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S5  --> 
+    <PosPart copyNumber="5">
+      <rParent name="muonBase:MBWheel_1P"/>
+      <rChild name="MB4ShieldYB1S5P_5"/>
+      <rRotation name="rotations:RM1912"/>
+      <Translation x="-270.0*mm + [RadiusMB4ShieldS3]*cos(120.*deg-[mb4:MB4BigPosAngle])" y="-150.0*mm + [RadiusMB4ShieldS3]*sin(120.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>           
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S5P_5"/>
+      <rChild name="Tile1_MB4ShieldYB1S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S5P_5"/>
+      <rChild name="Tile1_MB4ShieldYB1S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S5P_5"/>
+      <rChild name="Tile1_MB4ShieldYB1S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S5P_5"/>
+      <rChild name="Tile1_MB4ShieldYB1S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S5P_5"/>
+      <rChild name="Tile1_MB4ShieldYB1S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S5P_5"/>
+      <rChild name="Tile1_MB4ShieldYB1S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S5P_5"/>
+      <rChild name="Tile2_MB4ShieldYB1S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S5P_5"/>
+      <rChild name="Tile2_MB4ShieldYB1S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S5P_5"/>
+      <rChild name="Tile2_MB4ShieldYB1S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S5P_5"/>
+      <rChild name="Tile2_MB4ShieldYB1S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S5P_5"/>
+      <rChild name="Tile2_MB4ShieldYB1S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S5P_5"/>
+      <rChild name="Tile2_MB4ShieldYB1S5P_5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S2  --> 
+    <PosPart copyNumber="2">
+      <rParent name="muonBase:MBWheel_1P"/>
+      <rChild name="MB4ShieldYB1S2P_2"/>
+      <rRotation name="rotations:RM1882"/>
+      <Translation x="150.0*mm + [RadiusMB4ShieldS3]*cos(30.*deg+[mb4:MB4BigPosAngle])" y="-260.0*mm + [RadiusMB4ShieldS3]*sin(30.*deg+[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>                  </PosPart>        
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S2P_2"/>
+      <rChild name="Tile1_MB4ShieldYB1S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S2P_2"/>
+      <rChild name="Tile1_MB4ShieldYB1S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S2P_2"/>
+      <rChild name="Tile1_MB4ShieldYB1S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S2P_2"/>
+      <rChild name="Tile1_MB4ShieldYB1S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S2P_2"/>
+      <rChild name="Tile1_MB4ShieldYB1S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S2P_2"/>
+      <rChild name="Tile1_MB4ShieldYB1S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S2P_2"/>
+      <rChild name="Tile2_MB4ShieldYB1S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S2P_2"/>
+      <rChild name="Tile2_MB4ShieldYB1S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S2P_2"/>
+      <rChild name="Tile2_MB4ShieldYB1S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S2P_2"/>
+      <rChild name="Tile2_MB4ShieldYB1S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S2P_2"/>
+      <rChild name="Tile2_MB4ShieldYB1S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S2P_2"/>
+      <rChild name="Tile2_MB4ShieldYB1S2P_2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S6  --> 
+    <PosPart copyNumber="6">
+      <rParent name="muonBase:MBWheel_1P"/>
+      <rChild name="MB4ShieldYB1S6P_6"/>
+      <rRotation name="rotations:RM1922"/>
+      <Translation x="-150.0*mm + [RadiusMB4ShieldS3]*cos(150.*deg-[mb4:MB4BigPosAngle])" y="-260.0*mm + [RadiusMB4ShieldS3]*sin(150.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>               </PosPart>        
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S6P_6"/>
+      <rChild name="Tile1_MB4ShieldYB1S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S6P_6"/>
+      <rChild name="Tile1_MB4ShieldYB1S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S6P_6"/>
+      <rChild name="Tile1_MB4ShieldYB1S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S6P_6"/>
+      <rChild name="Tile1_MB4ShieldYB1S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S6P_6"/>
+      <rChild name="Tile1_MB4ShieldYB1S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S6P_6"/>
+      <rChild name="Tile1_MB4ShieldYB1S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S6P_6"/>
+      <rChild name="Tile2_MB4ShieldYB1S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S6P_6"/>
+      <rChild name="Tile2_MB4ShieldYB1S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S6P_6"/>
+      <rChild name="Tile2_MB4ShieldYB1S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S6P_6"/>
+      <rChild name="Tile2_MB4ShieldYB1S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S6P_6"/>
+      <rChild name="Tile2_MB4ShieldYB1S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S6P_6"/>
+      <rChild name="Tile2_MB4ShieldYB1S6P_6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S7  --> 
+    <PosPart copyNumber="7">
+      <rParent name="muonBase:MBWheel_1P"/>
+      <rChild name="MB4ShieldYB1S7P_7"/>
+      <rRotation name="rotations:90XD"/>
+      <Translation x="[RadiusMB4ShieldS3]*cos(180.*deg-[mb4:MB4BigPosAngle])" y="-310.0*mm + [RadiusMB4ShieldS3]*sin(180.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>               
+    </PosPart>        
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S7P_7"/>
+      <rChild name="Tile1_MB4ShieldYB1S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S7P_7"/>
+      <rChild name="Tile1_MB4ShieldYB1S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S7P_7"/>
+      <rChild name="Tile1_MB4ShieldYB1S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S7P_7"/>
+      <rChild name="Tile1_MB4ShieldYB1S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S7P_7"/>
+      <rChild name="Tile1_MB4ShieldYB1S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S7P_7"/>
+      <rChild name="Tile1_MB4ShieldYB1S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S7P_7"/>
+      <rChild name="Tile2_MB4ShieldYB1S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S7P_7"/>
+      <rChild name="Tile2_MB4ShieldYB1S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S7P_7"/>
+      <rChild name="Tile2_MB4ShieldYB1S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S7P_7"/>
+      <rChild name="Tile2_MB4ShieldYB1S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S7P_7"/>
+      <rChild name="Tile2_MB4ShieldYB1S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S7P_7"/>
+      <rChild name="Tile2_MB4ShieldYB1S7P_7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S1  --> 
+    <PosPart copyNumber="1">
+      <rParent name="muonBase:MBWheel_1P"/>
+      <rChild name="MB4ShieldYB1S1P_1"/>
+      <rRotation name="rotations:RM1872"/>
+      <Translation x="-60.0*mm + [RadiusMB4ShieldS3]" y="-320.0*mm + [mb4:MB4BigPos_y]" z="[mbCommon:MBPos_z]"/>               
+    </PosPart>        
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S1P_1"/>
+      <rChild name="Tile1_MB4ShieldYB1S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S1P_1"/>
+      <rChild name="Tile1_MB4ShieldYB1S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S1P_1"/>
+      <rChild name="Tile1_MB4ShieldYB1S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S1P_1"/>
+      <rChild name="Tile1_MB4ShieldYB1S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S1P_1"/>
+      <rChild name="Tile1_MB4ShieldYB1S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S1P_1"/>
+      <rChild name="Tile1_MB4ShieldYB1S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB1S1P_1"/>
+      <rChild name="Tile2_MB4ShieldYB1S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB1S1P_1"/>
+      <rChild name="Tile2_MB4ShieldYB1S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB1S1P_1"/>
+      <rChild name="Tile2_MB4ShieldYB1S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="4">  
+      <rParent name="MB4ShieldYB1S1P_1"/>
+      <rChild name="Tile2_MB4ShieldYB1S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="5">  
+      <rParent name="MB4ShieldYB1S1P_1"/>
+      <rChild name="Tile2_MB4ShieldYB1S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="6">  
+      <rParent name="MB4ShieldYB1S1P_1"/>
+      <rChild name="Tile2_MB4ShieldYB1S1P_1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Tile3_x]" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  YB0  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ --> 
+<!--   S3  --> 
+    <PosPart copyNumber="3">
+      <rParent name="muonBase:MBWheel_0"/>
+      <rChild name="MB4ShieldYB0S3"/>
+      <rRotation name="rotations:RM1892"/>
+      <Translation x="1020.0*mm + [RadiusMB4ShieldS3]*cos(60.*deg+[mb4:MB4BigPosAngle])" y="-580.0*mm + [RadiusMB4ShieldS3]*sin(60.*deg+[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB0S3"/>
+      <rChild name="Tile1_MB4ShieldYB0S3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB0S3"/>
+      <rChild name="Tile1_MB4ShieldYB0S3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB0S3"/>
+      <rChild name="Tile1_MB4ShieldYB0S3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB0S3"/>
+      <rChild name="Tile2_MB4ShieldYB0S3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*m" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB0S3"/>
+      <rChild name="Tile2_MB4ShieldYB0S3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB0S3"/>
+      <rChild name="Tile2_MB4ShieldYB0S3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>
+    <!--   S5   --> 
+    <PosPart copyNumber="5">
+      <rParent name="muonBase:MBWheel_0"/>
+      <rChild name="MB4ShieldYB0S5"/>
+      <rRotation name="rotations:MM405"/>
+      <Translation x="-1020.00*mm + [RadiusMB4ShieldS3]*cos(120.*deg-[mb4:MB4BigPosAngle])" y="-580.0*mm + [RadiusMB4ShieldS3]*sin(120.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB0S5"/>
+      <rChild name="Tile1_MB4ShieldYB0S5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB0S5"/>
+      <rChild name="Tile1_MB4ShieldYB0S5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB0S5"/>
+      <rChild name="Tile1_MB4ShieldYB0S5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB0S5"/>
+      <rChild name="Tile2_MB4ShieldYB0S5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*m" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB0S5"/>
+      <rChild name="Tile2_MB4ShieldYB0S5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB0S5"/>
+      <rChild name="Tile2_MB4ShieldYB0S5"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <!--   S2  --> 
+    <PosPart copyNumber="2">
+      <rParent name="muonBase:MBWheel_0"/>
+      <rChild name="MB4ShieldYB0S2"/>
+      <rRotation name="rotations:RM1882"/>
+      <Translation x="595.0*mm + [RadiusMB4ShieldS3]*cos(30.*deg+[mb4:MB4BigPosAngle])" y="-1030.0*mm + [RadiusMB4ShieldS3]*sin(30.*deg+[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB0S2"/>
+      <rChild name="Tile1_MB4ShieldYB0S2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB0S2"/>
+      <rChild name="Tile1_MB4ShieldYB0S2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB0S2"/>
+      <rChild name="Tile1_MB4ShieldYB0S2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB0S2"/>
+      <rChild name="Tile2_MB4ShieldYB0S2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*m" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB0S2"/>
+      <rChild name="Tile2_MB4ShieldYB0S2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB0S2"/>
+      <rChild name="Tile2_MB4ShieldYB0S2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <!--   S6  --> 
+    <PosPart copyNumber="6">
+      <rParent name="muonBase:MBWheel_0"/>
+      <rChild name="MB4ShieldYB0S6"/>
+      <rRotation name="rotations:RM1922"/>
+      <Translation x="-595.0*mm + [RadiusMB4ShieldS3]*cos(150.*deg-[mb4:MB4BigPosAngle])" y="-1030.0*mm + [RadiusMB4ShieldS3]*sin(150.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB0S6"/>
+      <rChild name="Tile1_MB4ShieldYB0S6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB0S6"/>
+      <rChild name="Tile1_MB4ShieldYB0S6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB0S6"/>
+      <rChild name="Tile1_MB4ShieldYB0S6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB0S6"/>
+      <rChild name="Tile2_MB4ShieldYB0S6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*m" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB0S6"/>
+      <rChild name="Tile2_MB4ShieldYB0S6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB0S6"/>
+      <rChild name="Tile2_MB4ShieldYB0S6"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <!--   S1   --> 
+    <PosPart copyNumber="1">
+      <rParent name="muonBase:MBWheel_0"/>
+      <rChild name="MB4ShieldYB0S1"/>
+      <rRotation name="rotations:MM401"/>
+      <Translation x="-60.0*mm + [RadiusMB4ShieldS3]" y="-1200.0*mm + [mb4:MB4BigPos_y]" z="[mbCommon:MBPos_z]"/>     
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB0S1"/>
+      <rChild name="Tile1_MB4ShieldYB0S1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB0S1"/>
+      <rChild name="Tile1_MB4ShieldYB0S1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB0S1"/>
+      <rChild name="Tile1_MB4ShieldYB0S1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB0S1"/>
+      <rChild name="Tile2_MB4ShieldYB0S1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*m" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB0S1"/>
+      <rChild name="Tile2_MB4ShieldYB0S1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB0S1"/>
+      <rChild name="Tile2_MB4ShieldYB0S1"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <!--   S7  --> 
+    <PosPart copyNumber="7">
+      <rParent name="muonBase:MBWheel_0"/>
+      <rChild name="MB4ShieldYB0S7"/>
+      <rRotation name="rotations:90XD"/>
+      <Translation x="[RadiusMB4ShieldS3]*cos(180.*deg-[mb4:MB4BigPosAngle])" y="-1190.0*mm + [RadiusMB4ShieldS3]*sin(180.*deg-[mb4:MB4BigPosAngle])" z="[mbCommon:MBPos_z]"/>               
+    </PosPart> 
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB0S7"/>
+      <rChild name="Tile1_MB4ShieldYB0S7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB0S7"/>
+      <rChild name="Tile1_MB4ShieldYB0S7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="0.0" z="[CoordZ_1]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB0S7"/>
+      <rChild name="Tile1_MB4ShieldYB0S7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile3_y]*2.0" z="[CoordZ_1]"/>
+    </PosPart>
+    <PosPart copyNumber="1">  
+      <rParent name="MB4ShieldYB0S7"/>
+      <rChild name="Tile2_MB4ShieldYB0S7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*m" y="[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="2">  
+      <rParent name="MB4ShieldYB0S7"/>
+      <rChild name="Tile2_MB4ShieldYB0S7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="0.0" z="[CoordZ_2]"/>
+    </PosPart> 
+    <PosPart copyNumber="3">  
+      <rParent name="MB4ShieldYB0S7"/>
+      <rChild name="Tile2_MB4ShieldYB0S7"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0.0*mm" y="-[Tile3_y]*2.0" z="[CoordZ_2]"/>
+    </PosPart>        
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ END OF POSITION SECTION ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+  </PosPartSection>
+</DDDefinition>
+
+<!-- 
+   
+ 
+   -->
+ 

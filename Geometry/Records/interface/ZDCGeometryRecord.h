@@ -4,7 +4,7 @@
 //
 // Package:     Records
 // Class  :     ZDCGeometryRecord
-// 
+//
 //
 // Author:      Brian Heltsley
 // Created:     Tue April 1, 2008
@@ -13,24 +13,24 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "Geometry/Records/interface/PZdcRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
-
-class ZDCGeometryRecord : 
-   public edm::eventsetup::DependentRecordImplementation<
-   ZDCGeometryRecord,
-		boost::mpl::vector<
-                IdealGeometryRecord,
-		ZDCAlignmentRcd, 
-		ZDCAlignmentErrorRcd,
-                ZDCAlignmentErrorExtendedRcd,
-		GlobalPositionRcd,
-		PZdcRcd         	> > {};
+class ZDCGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<ZDCGeometryRecord,
+                                                            edm::mpl::Vector<IdealGeometryRecord,
+                                                                             HcalParametersRcd,
+                                                                             HcalSimNumberingRecord,
+                                                                             HcalRecNumberingRecord,
+                                                                             ZDCAlignmentRcd,
+                                                                             ZDCAlignmentErrorRcd,
+                                                                             ZDCAlignmentErrorExtendedRcd,
+                                                                             GlobalPositionRcd,
+                                                                             PZdcRcd> > {};
 
 #endif /* RECORDS_ZDCGEOMETRYRECORD_H */
-

@@ -6,18 +6,14 @@
 
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 
-EcalTimeOffsetConstant::EcalTimeOffsetConstant() 
-{
-  EBvalue_=0.;
-  EEvalue_=0.;
+EcalTimeOffsetConstant::EcalTimeOffsetConstant() {
+  EBvalue_ = 0.;
+  EEvalue_ = 0.;
 }
 
-EcalTimeOffsetConstant::EcalTimeOffsetConstant(const float& EBvalue,const float& EEvalue)
-{
+EcalTimeOffsetConstant::EcalTimeOffsetConstant(const float& EBvalue, const float& EEvalue) {
   EBvalue_ = EBvalue;
   EEvalue_ = EEvalue;
 }
 
-EcalTimeOffsetConstant::~EcalTimeOffsetConstant()
-{
-}
+EcalTimeOffsetConstant::~EcalTimeOffsetConstant() {}

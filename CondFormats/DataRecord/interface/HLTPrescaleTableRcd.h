@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     HLTPrescaleTableRcd
-// 
+//
 /**\class HLTPrescaleTableRcd HLTPrescaleTableRcd.h CondFormats/DataRecord/interface/HLTPrescaleTableRcd.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Thu Feb 25 15:41:50 CET 2010
 // $Id$
 //

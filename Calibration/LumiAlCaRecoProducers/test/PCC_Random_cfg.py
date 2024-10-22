@@ -21,12 +21,9 @@ process.OutALCARECOPromptCalibProdPCC = cms.PSet(
 )
 #Make sure that variables match in producer.cc and .h
 process.alcaPCCProducer = cms.EDProducer("AlcaPCCProducer",
-    AlcaPCCProducerParameters = cms.PSet(
-        WriteToDB = cms.bool(False),
-        pixelClusterLabel = cms.InputTag("siPixelClustersForLumi"),
-        #Mod factor to count lumi and the string to specify output 
-        trigstring = cms.untracked.string("alcaPCCRand") 
-    ),
+    pixelClusterLabel = cms.InputTag("siPixelClustersForLumi"),
+    #Mod factor to count lumi and the string to specify output 
+    trigstring = cms.untracked.string("alcaPCCRand") 
 )
 
 process.OutALCARECOLumiPixels = cms.PSet(
@@ -69,7 +66,6 @@ process.siPixelDigisForLumi = cms.EDProducer("SiPixelRawToDigi",
     Regions = cms.PSet(
 
     ),
-    Timing = cms.untracked.bool(False),
     UsePhase1 = cms.bool(False),
     UsePilotBlade = cms.bool(False),
     UseQualityInfo = cms.bool(False),
@@ -119,89 +115,39 @@ process.pathALCARECOLumiPixels = cms.Path(process.seqALCARECOLumiPixels)
 process.ALCARECOStreamPromptCalibProdOutPath = cms.EndPath(process.ALCARECOStreamPromptCalibProdPCC)
 
 process.MessageLogger = cms.Service("MessageLogger",
-    FrameworkJobReport = cms.untracked.PSet(
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(10000000),
-            optionalPSet = cms.untracked.bool(True)
-        ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        optionalPSet = cms.untracked.bool(True)
-    ),
-    categories = cms.untracked.vstring('FwkJob', 
-        'FwkReport', 
-        'FwkSummary', 
-        'Root_NoDictionary'),
     cerr = cms.untracked.PSet(
         FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(0),
-            optionalPSet = cms.untracked.bool(True)
+            limit = cms.untracked.int32(0)
         ),
         FwkReport = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000),
-            optionalPSet = cms.untracked.bool(True),
             reportEvery = cms.untracked.int32(100000)
         ),
         FwkSummary = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000),
-            optionalPSet = cms.untracked.bool(True),
             reportEvery = cms.untracked.int32(1)
         ),
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         Root_NoDictionary = cms.untracked.PSet(
-            limit = cms.untracked.int32(0),
-            optionalPSet = cms.untracked.bool(True)
+            limit = cms.untracked.int32(0)
         ),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000)
         ),
         noTimeStamps = cms.untracked.bool(False),
-        optionalPSet = cms.untracked.bool(True),
-        threshold = cms.untracked.string('INFO')
-    ),
-    cerr_stats = cms.untracked.PSet(
-        optionalPSet = cms.untracked.bool(True),
-        output = cms.untracked.string('cerr'),
-        threshold = cms.untracked.string('WARNING')
-    ),
-    cout = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
+        threshold = cms.untracked.string('INFO'),
+        enableStatistics = cms.untracked.bool(True),
+        statisticsThreshold = cms.untracked.string('WARNING')
     ),
     debugModules = cms.untracked.vstring(),
-    debugs = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
     default = cms.untracked.PSet(
 
     ),
-    destinations = cms.untracked.vstring('warnings', 
-        'errors', 
-        'infos', 
-        'debugs', 
-        'cout', 
-        'cerr'),
-    errors = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    fwkJobReports = cms.untracked.vstring('FrameworkJobReport'),
-    infos = cms.untracked.PSet(
-        Root_NoDictionary = cms.untracked.PSet(
-            limit = cms.untracked.int32(0),
-            optionalPSet = cms.untracked.bool(True)
-        ),
-        optionalPSet = cms.untracked.bool(True),
-        placeholder = cms.untracked.bool(True)
-    ),
-    statistics = cms.untracked.vstring('cerr_stats'),
     suppressDebug = cms.untracked.vstring(),
     suppressInfo = cms.untracked.vstring(),
-    suppressWarning = cms.untracked.vstring(),
-    warnings = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    )
+    suppressWarning = cms.untracked.vstring()
 )
 #added line for additional output summary `
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )

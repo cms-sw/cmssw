@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
 from TrackingTools.GeomPropagators.StraightLinePropagator_cfi import *
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 from TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi import *
@@ -48,11 +47,15 @@ MuonServiceProxy = cms.PSet(
 # run3_GEM
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify(MuonServiceProxy,
-    ServiceParameters = dict(GEMLayers = cms.untracked.bool(True))
+    ServiceParameters = dict(GEMLayers = True)
 )
 
 # phase2_muon
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify(MuonServiceProxy,
-    ServiceParameters = dict(ME0Layers = cms.bool(True))
+    ServiceParameters = dict(ME0Layers = True)
+)
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toModify(MuonServiceProxy,
+    ServiceParameters = dict(ME0Layers = False)
 )

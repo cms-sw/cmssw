@@ -3,9 +3,8 @@
 import ROOT
 import inspect
 import sys
-import optparse
 from FWCore.ParameterSet.VarParsing import VarParsing
-
+from builtins import int
 
 ROOT.gSystem.Load("libFWCoreFWLite")
 ROOT.FWLiteEnabler.enable()
@@ -26,17 +25,17 @@ def warn (*args, **kwargs):
     #print "after '%s'" % filename
     blankLines = kwargs.get('blankLines', 0)
     if blankLines:
-        print '\n' * blankLines
+        print('\n' * blankLines)
     spaces = kwargs.get('spaces', 0)
     if spaces:
-        print ' ' * spaces,
+        print(' ' * spaces, end=' ')
     if len (args):
-        print "%s (%s): " % (filename, lineNum),
+        print("%s (%s): " % (filename, lineNum), end=' ')
         for arg in args:
-            print arg,
-        print
+            print(arg, end=' ')
+        print()
     else:
-        print "%s (%s):" % (filename, lineNum)
+        print("%s (%s):" % (filename, lineNum))
 
 ########################
 ## ################## ##
@@ -58,7 +57,7 @@ class Handle:
         ROOT.gErrorIgnoreLevel = ROOT.kError
         self._nodel = False
         if kwargs.get ('noDelete'):
-            print "Not deleting wrapper"
+            print("Not deleting wrapper")
             del kwargs['noDelete']
         else:
             self._nodel = True
@@ -229,7 +228,7 @@ class Lumis:
                     raise RuntimeError("getByLabel Error: label tuple has too " \
                         "many arguments '%s'" % argsList[0])
                 argsList = list(argsList[0])
-            if( type(argsList[0]) is str and ":" in argsList[0] ):
+            if( isinstance(argsList[0], str) and ":" in argsList[0] ):
                 if argsList[0].count(":") > 3:
                     raise RuntimeError("getByLabel Error: label tuple has too " \
                         "many arguments '%s'" % argsList[0].split(":"))
@@ -387,7 +386,7 @@ class Runs:
                     raise RuntimeError("getByLabel Error: label tuple has too " \
                         "many arguments '%s'" % argsList[0])
                 argsList = list(argsList[0])
-            if( type(argsList[0]) is str and ":" in argsList[0] ):
+            if( isinstance(argsList[0], str) and ":" in argsList[0] ):
                 if argsList[0].count(":") > 3:
                     raise RuntimeError("getByLabel Error: label tuple has too " \
                         "many arguments '%s'" % argsList[0].split(":"))
@@ -511,7 +510,7 @@ class Events:
         """Jumps to event entryIndex"""
         if self._veryFirstTime:
             self._createFWLiteEvent()
-        return self._event.to ( long(entryIndex) )
+        return self._event.to ( int(entryIndex) )
 
         
     def toBegin (self):
@@ -563,7 +562,7 @@ class Events:
                     raise RuntimeError("getByLabel Error: label tuple has too " \
                         "many arguments '%s'" % argsList[0])
                 argsList = list(argsList[0])
-            if( type(argsList[0]) is str and ":" in argsList[0] ):
+            if( isinstance(argsList[0], str) and ":" in argsList[0] ):
                 if argsList[0].count(":") > 3:
                     raise RuntimeError("getByLabel Error: label tuple has too " \
                         "many arguments '%s'" % argsList[0].split(":"))

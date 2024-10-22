@@ -1,8 +1,8 @@
-#ifndef __RecoParticleFlow_PFTracking_convbremhelpersHeavyObjectCache_h__
-#define __RecoParticleFlow_PFTracking_convbremhelpersHeavyObjectCache_h__
+#ifndef RecoParticleFlow_PFTracking_ConvBremHeavyObjectCache_H
+#define RecoParticleFlow_PFTracking_ConvBremHeavyObjectCache_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include <memory>
 
@@ -15,11 +15,7 @@ namespace convbremhelpers {
     std::unique_ptr<const GBRForest> gbrEndcapsLowPt_;
     std::unique_ptr<const GBRForest> gbrEndcapsHighPt_;
     std::unique_ptr<const PFEnergyCalibration> pfcalib_;
-  private:
-    std::unique_ptr<const GBRForest> setupMVA(const std::string&);
-    // for variable binding
-    float secR, sTIP, nHITS1, Epout, detaBremKF, ptRatioGsfKF;
   };
-}
+}  // namespace convbremhelpers
 
 #endif

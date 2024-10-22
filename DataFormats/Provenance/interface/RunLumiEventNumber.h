@@ -9,12 +9,12 @@
 
 namespace edm {
 
-   typedef unsigned long long EventNumber_t;
-   typedef unsigned int LuminosityBlockNumber_t;
-   typedef unsigned int RunNumber_t;
+  typedef unsigned long long EventNumber_t;
+  typedef unsigned int LuminosityBlockNumber_t;
+  typedef unsigned int RunNumber_t;
 
-   EventNumber_t const invalidEventNumber = 0U;
-   LuminosityBlockNumber_t const invalidLuminosityBlockNumber = 0U;
-   RunNumber_t const invalidRunNumber = 0U;
-}
+  EventNumber_t const invalidEventNumber = 0U;
+  LuminosityBlockNumber_t const invalidLuminosityBlockNumber = 0U;
+  RunNumber_t const invalidRunNumber = 0U;
+}  // namespace edm
 #endif

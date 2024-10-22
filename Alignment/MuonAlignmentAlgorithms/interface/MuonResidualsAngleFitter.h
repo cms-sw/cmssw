@@ -9,33 +9,26 @@
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFitter.h"
 
-class MuonResidualsAngleFitter: public MuonResidualsFitter {
+class MuonResidualsAngleFitter : public MuonResidualsFitter {
 public:
-  enum {
-    kAngle = 0,
-    kXControl,
-    kYControl,
-    kSigma,
-    kGamma,
-    kNPar
-  };
+  enum { kAngle = 0, kXControl, kYControl, kSigma, kGamma, kNPar };
 
-  enum {
-    kResidual = 0,
-    kXAngle,
-    kYAngle,
-    kNData
-  };
+  enum { kResidual = 0, kXAngle, kYAngle, kNData };
 
-  MuonResidualsAngleFitter(int residualsModel, int minHitsPerRegion, int useResiduals, bool weightAlignment=true): MuonResidualsFitter(residualsModel, minHitsPerRegion, useResiduals, weightAlignment) {}
+  MuonResidualsAngleFitter(int residualsModel, int minHitsPerRegion, int useResiduals, bool weightAlignment = true)
+      : MuonResidualsFitter(residualsModel, minHitsPerRegion, useResiduals, weightAlignment) {}
 
   int type() const override { return MuonResidualsFitter::kAngleFitter; }
 
   int npar() override {
-    if (residualsModel() == kPureGaussian || residualsModel() == kGaussPowerTails) return kNPar - 1;
-    else if (residualsModel() == kPowerLawTails) return kNPar;
-    else if (residualsModel() == kROOTVoigt) return kNPar;
-    else assert(false);
+    if (residualsModel() == kPureGaussian || residualsModel() == kGaussPowerTails)
+      return kNPar - 1;
+    else if (residualsModel() == kPowerLawTails)
+      return kNPar;
+    else if (residualsModel() == kROOTVoigt)
+      return kNPar;
+    else
+      assert(false);
   }
   int ndata() override { return kNData; }
 
@@ -47,4 +40,4 @@ protected:
   void inform(TMinuit *tMinuit) override;
 };
 
-#endif // Alignment_MuonAlignmentAlgorithms_MuonResidualsAngleFitter_H
+#endif  // Alignment_MuonAlignmentAlgorithms_MuonResidualsAngleFitter_H

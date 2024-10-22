@@ -10,8 +10,6 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.load('CommonTools/PileupAlgos/Puppi_cff')
-process.load('CommonTools/PileupAlgos/PhotonPuppi_cff')
-from CommonTools.PileupAlgos.PhotonPuppi_cff        import setupPuppiPhoton
 from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
 
 process.load('CommonTools/PileupAlgos/softKiller_cfi')
@@ -37,16 +35,10 @@ process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
 
 
 makePuppiesFromMiniAOD(process)
-#setupPuppiPhoton(process)
-#process.packedPFCandidatesNoLep = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) != 13 && abs(pdgId) != 11"))
-#process.puppiNoLep = process.puppi.clone()
-#process.puppiNoLep.candName = cms.InputTag('packedPFCandidatesNoLep')
-#process.puppiNoLep.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
 
-process.load('RecoMET.METProducers.PFMET_cfi')
-process.pfMet.src = cms.InputTag('puppiForMET')
+process.load('RecoMET.METProducers.pfMetPuppi_cfi')
 #process.puppiNoLep.useExistingWeights = True
-process.puSequence = cms.Sequence(process.pfNoLepPUPPI*process.puppi*process.puppiNoLep*process.egmPhotonIDSequence*process.puppiForMET*process.pfMet)
+process.puSequence = cms.Sequence(process.puppi*process.puppiNoLep*process.pfMetPuppi)
 process.p = cms.Path(process.puSequence)
 process.output = cms.OutputModule("PoolOutputModule",
                                   outputCommands = cms.untracked.vstring('keep *'),

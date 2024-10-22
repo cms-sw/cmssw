@@ -27,13 +27,11 @@ class DDLElementRegistry;
  *                                                                         
  */
 
-class DDLSolid : public DDXMLElement
-{
+class DDLSolid : public DDXMLElement {
 public:
-
   /// Constructor
-  DDLSolid( DDLElementRegistry* myreg );
+  DDLSolid(DDLElementRegistry* myreg);
 
-  void setReference( const std::string& nmspace, DDCompactView& cpv );
+  void setReference(const std::string& nmspace, DDCompactView& cpv);
 };
 #endif

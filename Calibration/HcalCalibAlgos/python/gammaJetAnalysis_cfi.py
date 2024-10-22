@@ -9,7 +9,7 @@ GammaJetAnalysis = cms.EDAnalyzer('GammaJetAnalysis',
                                   PFMETTYPE1Coll      = cms.InputTag("pfType1CorrectedMet"),
                                   photonCollName      = cms.string('gedPhotons'),
                                   pfJetCollName       = cms.string('ak4PFJetsCHS'),
-                                  pfJetCorrName       = cms.string('ak4PFCHSL2L3'),
+                                  JetCorrections      = cms.InputTag("ak4PFCHSL2L3Corrector"),
                                   genJetCollName      = cms.string('ak4GenJets'),
                                   genParticleCollName = cms.string('genParticles'),
                                   genEventInfoName    = cms.string('generator'),
@@ -37,5 +37,8 @@ GammaJetAnalysis = cms.EDAnalyzer('GammaJetAnalysis',
                                   doGenJets           = cms.bool(True),
                                   debug               = cms.untracked.int32(0),
                                   debugHLTTrigNames   = cms.untracked.int32(2),
-                                  workOnAOD           = cms.int32(0)
+                                  workOnAOD           = cms.int32(0),
+                                  stageL1Trigger = cms.uint32(1)
                                   )
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(GammaJetAnalysis, stageL1Trigger = 2)

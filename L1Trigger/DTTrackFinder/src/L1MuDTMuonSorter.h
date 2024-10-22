@@ -28,8 +28,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -42,47 +40,42 @@ class L1MuDTSecProcId;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTMuonSorter : public L1AbstractProcessor {
+class L1MuDTMuonSorter {
+public:
+  /// constructor
+  L1MuDTMuonSorter(const L1MuDTTrackFinder&);
 
-  public:
+  /// destructor
+  ~L1MuDTMuonSorter();
 
-    /// constructor
-    L1MuDTMuonSorter(const L1MuDTTrackFinder&);
+  /// run Muon Sorter
+  void run();
 
-    /// destructor
-    ~L1MuDTMuonSorter() override;
+  /// reset Muon Sorter
+  void reset();
 
-    /// run Muon Sorter
-    void run() override;
-    
-    /// reset Muon Sorter
-    void reset() override;
-    
-    /// print results after sorting
-    void print() const;
+  /// print results after sorting
+  void print() const;
 
-    /// return number of found muon candidates after sorter
-    inline int numberOfTracks() const { return m_TrackCands.size(); }
-    
-    /// return pointer to a muon candidate
-    inline const L1MuDTTrack* track(int id) const { return m_TrackCands[id]; }
-    
-    /// return vector of muon candidates
-    inline const std::vector<const L1MuDTTrack*>& tracks() const { return m_TrackCands; }
+  /// return number of found muon candidates after sorter
+  inline int numberOfTracks() const { return m_TrackCands.size(); }
 
-  private:
+  /// return pointer to a muon candidate
+  inline const L1MuDTTrack* track(int id) const { return m_TrackCands[id]; }
 
-    /// run the Cancel Out Logic of the muon sorter
-    void runCOL(std::vector<L1MuDTTrack*>&) const; 
+  /// return vector of muon candidates
+  inline const std::vector<const L1MuDTTrack*>& tracks() const { return m_TrackCands; }
 
-    /// find out if two Sector Processors are neighbours
-    static int neighbour(const L1MuDTSecProcId& spid1, const L1MuDTSecProcId& spid2);
+private:
+  /// run the Cancel Out Logic of the muon sorter
+  void runCOL(std::vector<L1MuDTTrack*>&) const;
 
-  private:
+  /// find out if two Sector Processors are neighbours
+  static int neighbour(const L1MuDTSecProcId& spid1, const L1MuDTSecProcId& spid2);
 
-    const L1MuDTTrackFinder&        m_tf;
-    std::vector<const L1MuDTTrack*> m_TrackCands;
-
+private:
+  const L1MuDTTrackFinder& m_tf;
+  std::vector<const L1MuDTTrack*> m_TrackCands;
 };
 
 #endif

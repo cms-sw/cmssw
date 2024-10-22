@@ -8,7 +8,7 @@
 #include <string>
 
 class CSCRSensorData {
- public:
+public:
   std::string sensorType_;
   int sensorNo_;
   std::string meLayer_;
@@ -25,19 +25,19 @@ class CSCRSensorData {
   float normInterceptError_;
   float shifts_;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 /**
    Description: Class for CSCRSensors for use as calibration.
  **/
 class CSCRSensors {
- public:
+public:
   CSCRSensors() {}
   virtual ~CSCRSensors() {}
   std::vector<CSCRSensorData> cscRSens_;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-#endif // CondFormats_CSCRSensors_H
+#endif  // CondFormats_CSCRSensors_H

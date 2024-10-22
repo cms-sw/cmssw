@@ -1,5 +1,5 @@
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -11,7 +11,6 @@
 #include <cmath>
 #include <iostream>
 
-
 namespace edm {
   class EventSetup;
 }
@@ -19,69 +18,66 @@ namespace edm {
 using namespace std;
 using namespace edm;
 
-namespace edmtest
-{
+namespace edmtest {
 
-  class TestLumiProducer : public edm::EDAnalyzer
-  {
+  class TestLumiProducer : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
   public:
-
     explicit TestLumiProducer(edm::ParameterSet const&);
-    virtual ~TestLumiProducer();
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-    virtual void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c);
-
+    void beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) override {}
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) override;
   };
 
   // -----------------------------------------------------------------
 
-  TestLumiProducer::TestLumiProducer(edm::ParameterSet const& ps)
-  {
-    consumes<LumiSummary,edm::InLumi>(edm::InputTag("lumiProducer",""));
-    consumes<LumiDetails,edm::InLumi>(edm::InputTag("lumiProducer",""));
+  TestLumiProducer::TestLumiProducer(edm::ParameterSet const& ps) {
+    consumes<LumiSummary, edm::InLumi>(edm::InputTag("lumiProducer", ""));
+    consumes<LumiDetails, edm::InLumi>(edm::InputTag("lumiProducer", ""));
   }
 
   // -----------------------------------------------------------------
 
-  TestLumiProducer::~TestLumiProducer()
-  {
-  }
-
-  // -----------------------------------------------------------------
-
-  void TestLumiProducer::analyze(edm::Event const& e,edm::EventSetup const&)
-  {
-  }
+  void TestLumiProducer::analyze(edm::Event const& e, edm::EventSetup const&) {}
 
   // -----------------------------------------------------------------
 
   void TestLumiProducer::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
-
     Handle<LumiSummary> lumiSummary;
     lumiBlock.getByLabel("lumiProducer", lumiSummary);
-    if(lumiSummary->isValid()){
+    if (lumiSummary->isValid()) {
       std::cout << *lumiSummary << "\n";
-    }else{
-      std::cout << "no valid lumi summary data" <<std::endl;
+    } else {
+      std::cout << "no valid lumi summary data" << std::endl;
     }
     Handle<LumiDetails> lumiDetails;
     lumiBlock.getByLabel("lumiProducer", lumiDetails);
-    if(lumiDetails->isValid()){
+    if (lumiDetails->isValid()) {
       //std::cout << *lumiDetails << "\n";
-      std::cout<<"lumivalue beamintensity 1 "<<lumiDetails->lumiBeam1Intensity(1)<<" "<<lumiDetails->lumiBeam2Intensity(1)<<std::endl;
-      std::cout<<"lumivalue 1 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,1)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(1)<<std::endl;
-      std::cout<<"lumivalue 214 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,214)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(214)<<std::endl;
-      std::cout<<"lumivalue 643 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,643)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(643)<<std::endl;
-      std::cout<<"lumivalue 895 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,895)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(895)<<std::endl;
-      std::cout<<"lumivalue 901 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,901)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(901)<<std::endl;
-      std::cout<<"lumivalue 1000 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,1000)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(1000)<<std::endl;
-      std::cout<<"lumivalue 1475 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,1475)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(1475)<<std::endl;
-      std::cout<<"lumivalue 2053 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,2053)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(2053)<<std::endl;
-      std::cout<<"lumivalue 2765 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,2765)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(2765)<<std::endl;
-      std::cout<<"lumivalue 3500 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,3500)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(3500)<<std::endl;
-    }else{
-      std::cout << "no valid lumi detail data" <<std::endl;
+      std::cout << "lumivalue beamintensity 1 " << lumiDetails->lumiBeam1Intensity(1) << " "
+                << lumiDetails->lumiBeam2Intensity(1) << std::endl;
+      std::cout << "lumivalue 1 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 1) * 6.37 << " "
+                << lumiDetails->lumiBeam1Intensity(1) << std::endl;
+      std::cout << "lumivalue 214 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 214) * 6.37 << " "
+                << lumiDetails->lumiBeam1Intensity(214) << std::endl;
+      std::cout << "lumivalue 643 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 643) * 6.37 << " "
+                << lumiDetails->lumiBeam1Intensity(643) << std::endl;
+      std::cout << "lumivalue 895 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 895) * 6.37 << " "
+                << lumiDetails->lumiBeam1Intensity(895) << std::endl;
+      std::cout << "lumivalue 901 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 901) * 6.37 << " "
+                << lumiDetails->lumiBeam1Intensity(901) << std::endl;
+      std::cout << "lumivalue 1000 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 1000) * 6.37 << " "
+                << lumiDetails->lumiBeam1Intensity(1000) << std::endl;
+      std::cout << "lumivalue 1475 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 1475) * 6.37 << " "
+                << lumiDetails->lumiBeam1Intensity(1475) << std::endl;
+      std::cout << "lumivalue 2053 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 2053) * 6.37 << " "
+                << lumiDetails->lumiBeam1Intensity(2053) << std::endl;
+      std::cout << "lumivalue 2765 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 2765) * 6.37 << " "
+                << lumiDetails->lumiBeam1Intensity(2765) << std::endl;
+      std::cout << "lumivalue 3500 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 3500) * 6.37 << " "
+                << lumiDetails->lumiBeam1Intensity(3500) << std::endl;
+    } else {
+      std::cout << "no valid lumi detail data" << std::endl;
     }
     // We know the content we put into the objects in the
     // configuration, manually check to see that we can
@@ -145,7 +141,7 @@ namespace edmtest
     }
     */
   }
-}
+}  // namespace edmtest
 
 using edmtest::TestLumiProducer;
 

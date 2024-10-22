@@ -10,7 +10,7 @@
  */
 //
 //--------------------------------------------------
-#ifndef L1MUDT_TF_SETUP_H 
+#ifndef L1MUDT_TF_SETUP_H
 #define L1MUDT_TF_SETUP_H
 
 //---------------
@@ -20,7 +20,6 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -33,26 +32,22 @@ class L1MuDTTrackFinder;
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
- 
+
 class L1MuDTTFSetup {
+public:
+  /// constructor
+  L1MuDTTFSetup(const edm::ParameterSet& ps, edm::ConsumesCollector&& ix);
 
-  public:
+  /// destructor
+  virtual ~L1MuDTTFSetup();
 
-    /// constructor
-    L1MuDTTFSetup(const edm::ParameterSet & ps,edm::ConsumesCollector && ix);
+  /// perform action per run
 
-    /// destructor
-    virtual ~L1MuDTTFSetup();
+  /// return the main trigger object
+  L1MuDTTrackFinder* TrackFinder() { return m_tf; }
 
-    /// perform action per run
-
-    /// return the main trigger object
-    L1MuDTTrackFinder* TrackFinder() { return m_tf; }
-
-  private:
-
-    L1MuDTTrackFinder* m_tf;
-
+private:
+  L1MuDTTrackFinder* m_tf;
 };
 
 #endif

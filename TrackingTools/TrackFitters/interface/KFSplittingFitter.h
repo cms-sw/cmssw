@@ -12,55 +12,42 @@
 #include "TrackingTools/TrackFitters/interface/RecHitSplitter.h"
 
 class KFSplittingFitter final : public TrajectoryFitter {
-
 private:
-
-  typedef RecHitSplitter::RecHitContainer        RecHitContainer;
+  typedef RecHitSplitter::RecHitContainer RecHitContainer;
 
   typedef TrajectoryStateOnSurface TSOS;
   typedef FreeTrajectoryState FTS;
   typedef TrajectoryMeasurement TM;
 
 public:
-
   KFSplittingFitter(const Propagator& aPropagator,
                     const TrajectoryStateUpdator& aUpdator,
-                    const MeasurementEstimator& aEstimator) :
-    fitter(aPropagator, aUpdator, aEstimator) {}
-
+                    const MeasurementEstimator& aEstimator)
+      : fitter(aPropagator, aUpdator, aEstimator) {}
 
   KFSplittingFitter(const Propagator* aPropagator,
-		    const TrajectoryStateUpdator* aUpdator,
-		    const MeasurementEstimator* aEstimator) :
-    fitter(aPropagator, aUpdator, aEstimator) {}
+                    const TrajectoryStateUpdator* aUpdator,
+                    const MeasurementEstimator* aEstimator)
+      : fitter(aPropagator, aUpdator, aEstimator) {}
 
-    std::unique_ptr<TrajectoryFitter> clone() const override {
-      return std::unique_ptr<TrajectoryFitter>(
-          new KFSplittingFitter(fitter.propagator(),
-                                fitter.updator(),
-                                fitter.estimator()));
+  std::unique_ptr<TrajectoryFitter> clone() const override {
+    return std::unique_ptr<TrajectoryFitter>(
+        new KFSplittingFitter(fitter.propagator(), fitter.updator(), fitter.estimator()));
   }
 
-  Trajectory fitOne(const Trajectory& aTraj,
-		    fitType type) const override;
+  Trajectory fitOne(const Trajectory& aTraj, fitType type) const override;
+  Trajectory fitOne(const TrajectorySeed& aSeed, const RecHitContainer& hits, fitType type) const override;
   Trajectory fitOne(const TrajectorySeed& aSeed,
-		    const RecHitContainer& hits,
-		    fitType type) const override;
- Trajectory fitOne(const TrajectorySeed& aSeed,
-		    const RecHitContainer& hits,
-		    const TSOS& firstPredTsos,
-		    fitType type) const override;
+                    const RecHitContainer& hits,
+                    const TSOS& firstPredTsos,
+                    fitType type) const override;
 
-  void setHitCloner(TkCloner const * hc)  override{
-        fitter.setHitCloner(hc);
-  }
+  void setHitCloner(TkCloner const* hc) override { fitter.setHitCloner(hc); }
 
- private :
+private:
+  void sorter(const RecHitContainer& hits, PropagationDirection dir, RecHitContainer& result) const;
 
- void sorter(const RecHitContainer& hits, PropagationDirection dir, RecHitContainer & result) const;
-
- KFTrajectoryFitter fitter;
-
+  KFTrajectoryFitter fitter;
 };
 
-#endif //CD_KFSplittingFitter_H_
+#endif  //CD_KFSplittingFitter_H_

@@ -3,18 +3,11 @@ process = cms.Process("TEST")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'CRZT210_V1::All' 
 process.prefer("GlobalTag")
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
-
-## process.load("Configuration.StandardSequences.Reconstruction_cff")
-#process.load("Configuration.StandardSequences.MagneticField_0T_cff")
-#process.load("Configuration.StandardSequences.Geometry_cff")
-#
-##process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
-
 process.load("RecoMuon.MuonIdentification.muonIdProducerSequence_cff")
 process.load("RecoMuon.MuonIdentification.links_cfi")
 process.maxEvents = cms.untracked.PSet(

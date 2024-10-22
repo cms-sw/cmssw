@@ -1,23 +1,40 @@
 <environment>
-  <use   name="FWCore/Framework"/>
-  <bin   file="EventMessageTest.cpp">
-    <use   name="IOPool/Streamer"/>
+  <use name="FWCore/Framework"/>
+  <bin file="EventMessageTest.cpp">
+    <use name="IOPool/Streamer"/>
   </bin>
-  <bin   file="ReadStreamerFile.cpp">
-    <use   name="IOPool/Streamer"/>
-    <flags   TEST_RUNNER_ARGS=" bin/bash teststreamfile.dat"/>
+
+  <bin file="ReadStreamerFile.cpp">
+    <use name="IOPool/Streamer"/>
+    <use name="FWCore/Catalog"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="FWCore/Services"/>
+    <flags TEST_RUNNER_ARGS="all"/>
+    <flags PRE_TEST="WriteStreamerFile"/>
   </bin>
-  <bin   file="WriteStreamerFile.cpp">
-    <use   name="IOPool/Streamer"/>
+
+  <bin file="WriteStreamerFile.cpp">
+    <use name="IOPool/Streamer"/>
   </bin>
-  <bin   file="RunThis_t.cpp">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunSimple_NewStreamer.sh"/>
-  </bin>
-  <library   file="StreamThingProducer.cc" name="StreamThingProducer">
-    <flags   EDM_PLUGIN="1"/>
-    <use   name="DataFormats/TestObjects"/>
+
+  <test name="NewStreamerUNCOMPRESSED" command="RunUNCOMPRESSED.sh"/>
+
+  <test name="NewStreamerZLIB" command="RunZLIB.sh"/>
+
+  <test name="NewStreamerLZMA" command="RunLZMA.sh"/>
+
+  <test name="NewStreamerZSTD" command="RunZSTD.sh"/>
+
+  <test name="TestIOPoolStreamerRefProductIDMetadataConsistency" command="run_TestRefProductIDMetadataConsistencyStreamer.sh"/>
+  
+  <library file="StreamThingProducer.cc" name="StreamThingProducer">
+    <flags EDM_PLUGIN="1"/>
+    <use name="DataFormats/TestObjects"/>
   </library>
-  <library   file="StreamThingAnalyzer.cc" name="StreamThingAnalyzer">
-    <flags   EDM_PLUGIN="1"/>
+
+  <library file="StreamThingAnalyzer.cc" name="StreamThingAnalyzer">
+    <flags EDM_PLUGIN="1"/>
   </library>
+
 </environment>

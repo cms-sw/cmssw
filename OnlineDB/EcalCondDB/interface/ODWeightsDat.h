@@ -10,7 +10,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODFEWeightsInfo.h"
 
 class ODWeightsDat : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODWeightsDat();
   ~ODWeightsDat() override;
@@ -33,14 +33,14 @@ class ODWeightsDat : public IODConfig {
   inline void setCrystalId(int dac) { m_xt = dac; }
   inline int getCrystalId() const { return m_xt; }
 
-  inline void setWeight0( float x) { m_wei0 = x; }
-  inline void setWeight1( float x) { m_wei1 = x; }
-  inline void setWeight2( float x) { m_wei2 = x; }
-  inline void setWeight3( float x) { m_wei3 = x; }
-  inline void setWeight4( float x) { m_wei4 = x; }
-  inline void setWeight5( float x) { m_wei5 = x; }
+  inline void setWeight0(float x) { m_wei0 = x; }
+  inline void setWeight1(float x) { m_wei1 = x; }
+  inline void setWeight2(float x) { m_wei2 = x; }
+  inline void setWeight3(float x) { m_wei3 = x; }
+  inline void setWeight4(float x) { m_wei4 = x; }
+  inline void setWeight5(float x) { m_wei5 = x; }
 
-  inline void setWeight( int pos, float x) { m_wei[pos] = x; }
+  inline void setWeight(int pos, float x) { m_wei[pos] = x; }
 
   inline float getWeight0() const { return m_wei0; }
   inline float getWeight1() const { return m_wei1; }
@@ -51,22 +51,17 @@ class ODWeightsDat : public IODConfig {
 
   inline std::vector<std::vector<float> > getWeight() const { return dccw; }
 
- private:
+private:
   void clear();
-  void prepareWrite() 
-    noexcept(false) override;
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const ODWeightsDat* item, ODFEWeightsInfo* iov )
-    noexcept(false);
+  void writeDB(const ODWeightsDat* item, ODFEWeightsInfo* iov) noexcept(false);
 
-  void writeArrayDB(const std::vector< ODWeightsDat >& data, ODFEWeightsInfo* iov)
-    noexcept(false);
+  void writeArrayDB(const std::vector<ODWeightsDat>& data, ODFEWeightsInfo* iov) noexcept(false);
 
+  void fetchData(std::vector<ODWeightsDat>* fillMap, ODFEWeightsInfo* iov) noexcept(false);
 
-  void fetchData(std::vector< ODWeightsDat >* fillMap, ODFEWeightsInfo* iov)
-     noexcept(false);
-
-  void fetchData(ODWeightsDat * p)     noexcept(false);
+  void fetchData(ODWeightsDat* p) noexcept(false);
 
   // User data
   int m_sm;
@@ -74,14 +69,14 @@ class ODWeightsDat : public IODConfig {
   int m_tt;
   int m_xt;
   int m_ID;
-  
+
   float m_wei0;
   float m_wei1;
   float m_wei2;
   float m_wei3;
   float m_wei4;
   float m_wei5;
-  
+
   float m_wei[6];
   std::vector<std::vector<float> > dccw;
 };

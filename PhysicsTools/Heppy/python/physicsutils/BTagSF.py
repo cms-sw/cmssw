@@ -1,3 +1,4 @@
+from __future__ import print_function
 # importing the python binding to the C++ class from ROOT 
 from ROOT import heppy
 
@@ -13,4 +14,4 @@ class BTagSF(heppy.BTagSF):
 if __name__ == '__main__':
 
     btag = BTagSF(12345)
-    print 'created BTagSF instance'
+    print('created BTagSF instance')

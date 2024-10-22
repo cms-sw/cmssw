@@ -1,0 +1,9 @@
+<library file="stubs/*.cc" name="FWCoreReflectionTestObjects">
+  <flags LCG_DICT_HEADER="stubs/classes.h"/>
+  <flags LCG_DICT_XML="stubs/classes_def.xml"/>
+  <use name="DataFormats/Common"/>
+</library>
+
+<test name="TestFWCoreReflectionCheckClassVersion" command="run_checkClassVersion.sh"/>
+<test name="TestFWCoreReflectionDumpClassVersion" command="run_dumpClassVersion.sh"/>
+<test name="TestFWCoreReflectionClassVersionUpdate" command="run_classVersionUpdate.sh"/>

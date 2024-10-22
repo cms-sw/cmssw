@@ -1,5 +1,5 @@
-#ifndef IOPool_Streamer_StreamerFileReader_h
-#define IOPool_Streamer_StreamerFileReader_h
+#ifndef CalibCalorimetry_EcalLaserSorting_WatcherStreamFileReader_h
+#define CalibCalorimetry_EcalLaserSorting_WatcherStreamFileReader_h
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -19,36 +19,36 @@
  * This protection is obviously not full proof, especially to transfer lag.
  */
 
-namespace edm{
+namespace edm::streamer {
   class StreamerInputFile;
 }
 
-class WatcherStreamFileReader{
+class WatcherStreamFileReader {
 public:
   WatcherStreamFileReader(edm::ParameterSet const& pset);
   ~WatcherStreamFileReader();
 
-  const InitMsgView* getHeader(); 
-  const EventMsgView* getNextEvent();
-  const bool newHeader(); 
+  const edm::streamer::InitMsgView* getHeader();
+  const edm::streamer::EventMsgView* getNextEvent();
+  const bool newHeader();
 
-  edm::StreamerInputFile* getInputFile();
+  edm::streamer::StreamerInputFile* getInputFile();
 
   void closeFile();
-  
+
 private:
+  void moveJustReadFile();
   /** Directory to look for streamer files
    */
   std::string inputDir_;
-  
+
   /** Streamer file name pattern list
    */
-  std::vector<std::string> filePatterns_; 
+  std::vector<std::string> filePatterns_;
 
   /** Directory where file are moved during processing
    */
   std::string inprocessDir_;
-
 
   /** Directory where file must be moved once processed
    */
@@ -57,28 +57,22 @@ private:
   /** Directory where file must be moved if file is unreadble (e.g empty size)
    */
   std::string corruptedDir_;
-  
+
   /** Cached input file stream
    */
-  std::auto_ptr<edm::StreamerInputFile> streamerInputFile_;
+  std::unique_ptr<edm::streamer::StreamerInputFile> streamerInputFile_;
 
   std::string fileName_;
 
   std::string tokenFile_;
 
   int timeOut_;
-  
+
   std::deque<std::string> filesInQueue_;
 
   bool end_;
-  
+
   int verbosity_;
-
-  std::string fileListCmd_;
-
-  std::string curDir_;
-
 };
 
 #endif
-

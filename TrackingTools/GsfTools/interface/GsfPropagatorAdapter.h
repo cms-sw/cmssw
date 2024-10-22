@@ -12,62 +12,46 @@ class MagneticField;
  * components, using an specified single-state propagator.
  */
 class GsfPropagatorAdapter final : public Propagator {
-
 public:
   /// Constructor with explicit propagator
-  GsfPropagatorAdapter (const Propagator& Propagator);
+  GsfPropagatorAdapter(const Propagator& Propagator);
 
   ~GsfPropagatorAdapter() override {}
 
   using Propagator::propagate;
   using Propagator::propagateWithPath;
 
-
-  std::pair<TrajectoryStateOnSurface,double>
-  propagateWithPath (const TrajectoryStateOnSurface&,
-		     const Plane&) const  override;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const TrajectoryStateOnSurface&,
+                                                                const Plane&) const override;
 
   /** Propagation to cylinder with path length calculation.
    */
-  std::pair<TrajectoryStateOnSurface,double>
-  propagateWithPath (const TrajectoryStateOnSurface&,
-		     const Cylinder&) const  override;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const TrajectoryStateOnSurface&,
+                                                                const Cylinder&) const override;
 
   /** Propagation to plane with path length calculation.
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
-  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
-									const Plane&) const  override;
-
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState&,
+                                                                const Plane&) const override;
 
   /** Propagation to cylinder with path length calculation.
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
-  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
-									const Cylinder&) const  override;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState&,
+                                                                const Cylinder&) const override;
 
 public:
+  bool setMaxDirectionChange(float phiMax) override { return thePropagator->setMaxDirectionChange(phiMax); }
 
-  bool setMaxDirectionChange( float phiMax) override {
-    return thePropagator->setMaxDirectionChange(phiMax);
-  }
-
- void setPropagationDirection (PropagationDirection dir) override;
+  void setPropagationDirection(PropagationDirection dir) override;
 
   /// access to single state propagator
-  inline const Propagator& propagator () const
-  {
-    return *thePropagator;
-  }
+  inline const Propagator& propagator() const { return *thePropagator; }
 
-  GsfPropagatorAdapter* clone() const override 
-  {
-    return new GsfPropagatorAdapter(*thePropagator);
-  }
+  GsfPropagatorAdapter* clone() const override { return new GsfPropagatorAdapter(*thePropagator); }
 
-  const MagneticField* magneticField() const override {
-    return thePropagator->magneticField();
-  }
+  const MagneticField* magneticField() const override { return thePropagator->magneticField(); }
 
 private:
   // Single state propagator

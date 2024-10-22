@@ -1,8 +1,9 @@
 # startup commands for interactive use
 
-from ROOT import *
+import ROOT
+from ROOT import gSystem
 from PhysicsTools.PythonAnalysis import *
 
 gSystem.Load("libFWCoreFWLite.so")
-FWLiteEnabler::enable()
+ROOT.FWLiteEnabler.enable()
 

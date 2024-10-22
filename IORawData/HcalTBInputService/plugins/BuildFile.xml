@@ -1,16 +1,17 @@
-<use   name="IORawData/HcalTBInputService"/>
-<use   name="DataFormats/FEDRawData"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="root"/>
-<library   file="HcalTBWriter.cc" name="HcalTBWriter">
-  <use   name="DataFormats/Common"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="boost"/>
-  <flags   EDM_PLUGIN="1"/>
+<use name="IORawData/HcalTBInputService"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="root"/>
+<library file="HcalTBWriter.cc" name="HcalTBWriter">
+  <use name="DataFormats/Common"/>
+  <use name="FWCore/Utilities"/>
+  <use name="boost"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="HcalTBSource.cc" name="HcalTBSource.cc">
-  <use   name="FWCore/Sources"/>
-  <flags   EDM_PLUGIN="1"/>
+
+<library file="HcalTBSource.cc" name="HcalTBSource.cc">
+  <use name="FWCore/Sources"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

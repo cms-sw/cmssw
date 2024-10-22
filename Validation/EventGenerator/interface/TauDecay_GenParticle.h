@@ -21,25 +21,24 @@ Implementation:
 
 // class declaration
 class TauDecay_GenParticle : public TauDecay {
- public:
+public:
   TauDecay_GenParticle();
   ~TauDecay_GenParticle();
 
   //Function to analyze the tau
-  bool AnalyzeTau(const reco::GenParticle *Tau,unsigned int &MODE_ID,unsigned int &TauBitMask,bool dores, bool dopi0);
+  bool AnalyzeTau(const reco::GenParticle *Tau, unsigned int &MODE_ID, unsigned int &TauBitMask, bool dores, bool dopi0);
   // Functions to get results
-  std::vector<const reco::GenParticle* > Get_TauDecayProducts(){return TauDecayProducts;}
-  std::vector<unsigned int> Get_MotherIdx(){return MotherIdx;}
-  bool AddRadInfo(const reco::GenParticle *Particle,unsigned int midx);
+  std::vector<const reco::GenParticle *> Get_TauDecayProducts() { return TauDecayProducts; }
+  std::vector<unsigned int> Get_MotherIdx() { return MotherIdx; }
+  bool AddRadInfo(const reco::GenParticle *Particle, unsigned int midx);
 
- private:
+private:
   // recursive function to loop through tau decay products
-  void Analyze(const reco::GenParticle *Particle,unsigned int midx,bool dores, bool dopi0);
-  void AddPi0Info(const reco::GenParticle *Particle,unsigned int midx);
+  void Analyze(const reco::GenParticle *Particle, unsigned int midx, bool dores, bool dopi0);
+  void AddPi0Info(const reco::GenParticle *Particle, unsigned int midx);
   //varibles
-  std::vector<const reco::GenParticle*> TauDecayProducts;
+  std::vector<const reco::GenParticle *> TauDecayProducts;
   std::vector<unsigned int> MotherIdx;
   unsigned int MODE_ID, TauBitMask;
-
- };
+};
 #endif

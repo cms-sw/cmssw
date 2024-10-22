@@ -2,7 +2,7 @@
 //
 // Package:     ServiceRegistry
 // Class  :     ServiceMakerBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -28,18 +28,14 @@ using namespace edm::serviceregistry;
 //
 // constructors and destructor
 //
-ServiceMakerBase::ServiceMakerBase()
-{
-}
+ServiceMakerBase::ServiceMakerBase() {}
 
 // ServiceMakerBase::ServiceMakerBase(const ServiceMakerBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-ServiceMakerBase::~ServiceMakerBase()
-{
-}
+ServiceMakerBase::~ServiceMakerBase() {}
 
 //
 // assignment operators

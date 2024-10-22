@@ -60,17 +60,51 @@ trackingOfflineAnalyser = DQMEDHarvester("TrackingOfflineDQM",
     )
 )
 
-trackingQTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+trackingQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_tier0.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(trackingQTester,
+                  qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_tier0_heavyions.xml')
+)
+
 from DQM.TrackingMonitorClient.TrackingEffFromHitPatternClientConfig_cff import trackingEffFromHitPattern
+from DQM.TrackingMonitorClient.TrackingEffFromHitPatternClientConfigZeroBias_cff import trackingEffFromHitPatternZeroBias
 
 from DQM.TrackingMonitorClient.V0MonitoringClient_cff import *
 from DQM.TrackingMonitorClient.primaryVertexResolutionClient_cfi import *
 # Sequence
-TrackingOfflineDQMClient = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPattern*voMonitoringClientSequence*primaryVertexResolutionClient)
 
+# from DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi import *
+# TrackEffMon_ckf = TrackEffMon.clone(
+#     TKTrackCollection = 'ctfWithMaterialTracksP5',
+#     AlgoName = 'CKFTk',
+#     FolderName = 'Tracking/TrackParameters/TrackEfficiency'
+# )
 
+from DQM.TrackingMonitor.TrackEfficiencyClient_cfi import *
+TrackEffClient.FolderName = 'Tracking/TrackParameters/TrackEfficiency'
+TrackEffClient.AlgoName   = 'CKFTk'
+
+from DQM.TrackingMonitor.TrackFoldedOccupancyClient_cfi import *
+
+TrackingOfflineDQMClient = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPattern*voMonitoringClientSequence*primaryVertexResolutionClient*TrackEffClient*foldedMapClientSeq)
+
+TrackingOfflineDQMClientZeroBias = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPatternZeroBias*voMonitoringClientSequence*primaryVertexResolutionClient*TrackEffClient*foldedMapClientSeq)
+
+# fastsim customs
+_TrackingOfflineDQMClient_fastsim = TrackingOfflineDQMClient.copy()
+_TrackingOfflineDQMClient_fastsim.remove(foldedMapClientSeq)
+
+_TrackingOfflineDQMClientZeroBias_fastsim = TrackingOfflineDQMClientZeroBias.copy()
+_TrackingOfflineDQMClientZeroBias_fastsim.remove(foldedMapClientSeq)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(TrackingOfflineDQMClient,_TrackingOfflineDQMClient_fastsim)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(TrackingOfflineDQMClientZeroBias,_TrackingOfflineDQMClientZeroBias_fastsim)

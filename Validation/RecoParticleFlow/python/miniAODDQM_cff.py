@@ -3,90 +3,86 @@ import FWCore.ParameterSet.Config as cms
 # jet
 from DQMOffline.PFTau.PFJetDQMAnalyzer_cfi import pfJetDQMAnalyzer
 
-JetValidation1 = pfJetDQMAnalyzer.clone()
-JetValidation1.BenchmarkLabel  = cms.string('slimmedJetValidation/CompWithPFJets')
-JetValidation1.InputCollection = cms.InputTag('slimmedJets')
-JetValidation1.MatchCollection = cms.InputTag('ak4PFJetsCHS') # ak5PFJetsCHS # ak5PFJets
-JetValidation1.ptMin = cms.double(10.0)
-JetValidation1.CreatePFractionHistos = cms.bool(True)
-#JetValidation1.InputCollection = cms.InputTag('ak5PFJets')
-#JetValidation1.MatchCollection = cms.InputTag('slimmedJets')
+slimmedJetValidation1 = pfJetDQMAnalyzer.clone(
+    BenchmarkLabel  = 'slimmedJetValidation/CompWithPFJets',
+    InputCollection = 'slimmedJets',
+    MatchCollection = 'ak4PFJetsCHS', # ak5PFJetsCHS # ak5PFJets
+    ptMin = 10.0,
+    CreatePFractionHistos = True
+    #InputCollection = 'ak5PFJets'
+    #MatchCollection = 'slimmedJets'
+)
 
-JetValidation2 = pfJetDQMAnalyzer.clone()
-JetValidation2.BenchmarkLabel  = cms.string('slimmedJetValidation/CompWithPFJetsEC')
-#JetValidation2.InputCollection = JetValidation1.MatchCollection
-#JetValidation2.MatchCollection = JetValidation1.InputCollection
-JetValidation2.InputCollection = cms.InputTag('slimmedJets')
-JetValidation2.MatchCollection = cms.InputTag('ak4PFJetsNewL1Fast23') # ak4PFJetsCHSEC # ak4PFJetsCHS
-JetValidation2.ptMin = JetValidation1.ptMin
-JetValidation2.CreatePFractionHistos = cms.bool(True)
+slimmedJetValidation2 = pfJetDQMAnalyzer.clone(
+    BenchmarkLabel  = 'slimmedJetValidation/CompWithPFJetsEC',
+    #InputCollection = JetValidation1.MatchCollection
+    #MatchCollection = JetValidation1.InputCollection
+    InputCollection = 'slimmedJets',
+    MatchCollection = 'ak4PFJetsNewL1Fast23', # ak4PFJetsCHSEC # ak4PFJetsCHS
+    ptMin = slimmedJetValidation1.ptMin,
+    CreatePFractionHistos = True
+)
 
 
 # jetRes plots
 from DQMOffline.PFTau.PFJetResDQMAnalyzer_cfi import pfJetResDQMAnalyzer
 
-JetResValidation1 = pfJetResDQMAnalyzer.clone()
-JetResValidation1.InputCollection = JetValidation1.InputCollection
-JetResValidation1.MatchCollection = JetValidation1.MatchCollection
-JetResValidation1.ptMin = JetValidation1.ptMin
+slimmedJetResValidation1 = pfJetResDQMAnalyzer.clone(
+    InputCollection = slimmedJetValidation1.InputCollection,
+    MatchCollection = slimmedJetValidation1.MatchCollection,
+    ptMin = slimmedJetValidation1.ptMin
+)
 
-JetResValidation2 = pfJetResDQMAnalyzer.clone()
-JetResValidation2.InputCollection = JetValidation2.InputCollection
-JetResValidation2.MatchCollection = JetValidation2.MatchCollection
-JetResValidation2.ptMin = JetValidation2.ptMin
+slimmedJetResValidation2 = pfJetResDQMAnalyzer.clone(
+    InputCollection = slimmedJetValidation2.InputCollection,
+    MatchCollection = slimmedJetValidation2.MatchCollection,
+    ptMin = slimmedJetValidation2.ptMin
+)
 
 
 # MET
 from DQMOffline.PFTau.PFMETDQMAnalyzer_cfi import pfMETDQMAnalyzer
 
-METValidation1 = pfMETDQMAnalyzer.clone()
-METValidation1.BenchmarkLabel  = cms.string('slimmedMETValidation/CompWithPFMET')
-METValidation1.InputCollection = cms.InputTag('slimmedMETs')
-METValidation1.MatchCollection = cms.InputTag('pfMet')
+slimmedMETValidation1 = pfMETDQMAnalyzer.clone(
+    BenchmarkLabel  = 'slimmedMETValidation/CompWithPFMET',
+    InputCollection = 'slimmedMETs',
+    MatchCollection = 'pfMet'
+)
 
-METValidation2 = pfMETDQMAnalyzer.clone()
-METValidation2.BenchmarkLabel  = cms.string('slimmedMETValidation/CompWithPFMETT1')
-METValidation2.InputCollection = cms.InputTag('slimmedMETs')
-METValidation2.MatchCollection = cms.InputTag('pfMetT1')
+slimmedMETValidation2 = pfMETDQMAnalyzer.clone(
+    BenchmarkLabel  = 'slimmedMETValidation/CompWithPFMETT1',
+    InputCollection = 'slimmedMETs',
+    MatchCollection = 'pfMetT1'
+)
 
 
 # muons
 from DQMOffline.PFTau.PFMuonDQMAnalyzer_cfi import pfMuonDQMAnalyzer
 
-slimmedMuonValidation1 = pfMuonDQMAnalyzer.clone()
-slimmedMuonValidation1.BenchmarkLabel  = cms.string('SlimmedMuonValidation/CompWithRecoMuons')
-slimmedMuonValidation1.InputCollection = cms.InputTag('slimmedMuons')
-slimmedMuonValidation1.MatchCollection = cms.InputTag('muons')
-# official
-#muonPFsequenceMC.inputTagMuonReco = cms.InputTag('slimmedMuons')
-#muonPFsequenceMC.inputTagGenParticles = cms.InputTag('muons')
-#muonPFsequenceMC.runOnMC = cms.bool(False)
-# RefCore: A request to resolve a reference to a product of type 'std::vector<reco::Track>' with ProductID '3:1469' can not be satisfied because the product cannot be found.
-# with the following:
-#muonPFsequenceMC.inputTagMuonReco = cms.InputTag('muons')
-#muonPFsequenceMC.inputTagGenParticles = cms.InputTag('slimmedMuons')
+slimmedMuonValidation1 = pfMuonDQMAnalyzer.clone(
+    BenchmarkLabel  = 'slimmedMuonValidation/CompWithRecoMuons',
+    InputCollection = 'slimmedMuons',
+    MatchCollection = 'muons'
+)
 
 
 # electrons
 from DQMOffline.PFTau.PFElectronDQMAnalyzer_cfi import pfElectronDQMAnalyzer
 
-ElectronValidation1 = pfElectronDQMAnalyzer.clone()
-ElectronValidation1.BenchmarkLabel  = cms.string('slimmedElectronValidation/CompWithGedGsfElectrons')
-ElectronValidation1.InputCollection = cms.InputTag('slimmedElectrons')
-ElectronValidation1.MatchCollection = cms.InputTag('gedGsfElectrons') 
-# use electrons plots for muons
-#ElectronValidation2 = pfElectronDQMAnalyzer.clone()
-#ElectronValidation2.BenchmarkLabel  = slimmedMuonValidation1.BenchmarkLabel
-#ElectronValidation2.InputCollection = slimmedMuonValidation1.InputCollection
-#ElectronValidation2.MatchCollection = slimmedMuonValidation1.MatchCollection
+slimmedElectronValidation1 = pfElectronDQMAnalyzer.clone(
+    BenchmarkLabel  = 'slimmedElectronValidation/CompWithGedGsfElectrons',
+    InputCollection = 'slimmedElectrons',
+    MatchCollection = 'gedGsfElectrons'
+)
+
 
 from JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi import type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD
 
 miniAODDQMSequence = cms.Sequence(
-                                  type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD *
-                                  JetValidation1 * JetValidation2 *
-                                  JetResValidation1 * JetResValidation2 *
-                                  METValidation1 * METValidation2 *
-                                  slimmedMuonValidation1 *
-                                  ElectronValidation1
-                                  )
+    type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD *
+    slimmedJetValidation1 * slimmedJetValidation2 *
+    slimmedJetResValidation1 * slimmedJetResValidation2 *
+    slimmedMETValidation1 * slimmedMETValidation2 *
+    slimmedMuonValidation1 *
+    slimmedElectronValidation1
+)

@@ -1,0 +1,3 @@
+<bin name="l1tHashMenuFirmwareUUID" file="l1tHashMenuFirmwareUUID.cpp">
+  <use name="CondFormats/L1TObjects"/>
+</bin>

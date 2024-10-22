@@ -1,0 +1,9 @@
+<bin file="alpaka/testDeviceAdditionKernel.dev.cc" name="testAlpakaDeviceAdditionKernel">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="HeterogeneousTest/AlpakaKernel"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<test name="testAlpakaTestKernelAdditionModule" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/AlpakaKernel/test/testAlpakaTestKernelAdditionModule.py"/>

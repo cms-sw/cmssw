@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class PhotonConversionMVAComputerRcd : public edm::eventsetup::EventSetupRecordImplementation<PhotonConversionMVAComputerRcd> {};
+class PhotonConversionMVAComputerRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<PhotonConversionMVAComputerRcd> {};
 
 #endif

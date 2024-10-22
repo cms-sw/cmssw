@@ -8,7 +8,7 @@ process.load("GeneratorInterface.PyquenInterface.pyquenDefault_cfi")
 
 process.source = cms.Source("EmptySource")
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10)
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000)
                                        )
 
 process.SimpleMemoryCheck = cms.Service('SimpleMemoryCheck',
@@ -16,15 +16,11 @@ process.SimpleMemoryCheck = cms.Service('SimpleMemoryCheck',
                                         oncePerEventMode = cms.untracked.bool(False)
                                         )
 
-process.ana = cms.EDAnalyzer('HydjetAnalyzer'
+process.ana = cms.EDAnalyzer('PyquenAnalyzer'
                              )
 
 process.TFileService = cms.Service('TFileService',
-                                   fileName = cms.string('treefile.root')
+                                   fileName = cms.string('Pyquen_0_5020GeV.root')
                                    )
 
 process.p = cms.Path(process.generator*process.ana)
-
-
-
-

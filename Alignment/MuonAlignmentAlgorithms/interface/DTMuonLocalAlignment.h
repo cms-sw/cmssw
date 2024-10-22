@@ -16,28 +16,24 @@
 #define MAX_HIT_CHAM 14
 
 class DTMuonLocalAlignment {
-  
-  public:
-
+public:
   DTMuonLocalAlignment();
 
-  ~DTMuonLocalAlignment(); 
+  ~DTMuonLocalAlignment();
 
-  void initNTuples(int );
-  
-  void setBranchAddressTree(); 
-  
+  void initNTuples(int);
+
+  void setBranchAddressTree();
+
   std::string ntuplePath;
 
   int numberOfRootFiles;
- 
+
   TChain *tali;
 
   TFile *f;
 
-
-
-  //Block of variables for the tree 
+  //Block of variables for the tree
   //---------------------------------------------------------
   float p, pt, eta, phi, charge;
   int nseg;
@@ -74,14 +70,14 @@ class DTMuonLocalAlignment {
   float ycp[MAX_SEGMENT][MAX_HIT_CHAM];
   float excp[MAX_SEGMENT][MAX_HIT_CHAM];
   float eycp[MAX_SEGMENT][MAX_HIT_CHAM];
-  int wh[MAX_SEGMENT]; int st[MAX_SEGMENT]; int sr[MAX_SEGMENT];
+  int wh[MAX_SEGMENT];
+  int st[MAX_SEGMENT];
+  int sr[MAX_SEGMENT];
   int sl[MAX_SEGMENT][MAX_HIT_CHAM];
   int la[MAX_SEGMENT][MAX_HIT_CHAM];
   //---------------------------------------------------------------
 
-  private:
-
-
+private:
 };
 
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:    L1GlobalCaloTrigger
 // Class:      L1GctValidation
-// 
+//
 /**\class L1GctValidation L1GctValidation.cc L1Trigger/L1GlobalCaloTrigger/plugins/L1GctValidation.cc
 
  Description: produces standard plots of Gct output quantities to enable validation
@@ -16,78 +16,84 @@
 // Date:   February 2008
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 #include "TH1.h"
 #include "TH2.h"
 //
 // class declaration
 //
 
-class L1GctValidation : public edm::EDAnalyzer {
-   public:
-      explicit L1GctValidation(const edm::ParameterSet&);
-      ~L1GctValidation() override;
+class L1GctValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit L1GctValidation(const edm::ParameterSet&);
+  ~L1GctValidation() override;
 
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-   private:
-      void beginJob() override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+  // ----------member data ---------------------------
 
-      // ----------member data ---------------------------
+  edm::InputTag m_gctinp_tag;
+  edm::InputTag m_energy_tag;
 
-      edm::InputTag m_gctinp_tag;
-      edm::InputTag m_energy_tag;
+  TH1F* theSumEtInLsb;
+  TH1F* theSumHtInLsb;
+  TH1F* theMissEtInLsb;
+  TH1F* theMissHtInLsb;
+  TH1F* theSumEtInGeV;
+  TH1F* theSumHtInGeV;
+  TH1F* theMissEtInGeV;
+  TH1F* theMissEtAngle;
+  TH2F* theMissEtVector;
+  TH1F* theMissHtInGeV;
+  TH1F* theMissHtAngle;
+  TH2F* theMissHtVector;
 
-      TH1F* theSumEtInLsb;
-      TH1F* theSumHtInLsb;
-      TH1F* theMissEtInLsb;
-      TH1F* theMissHtInLsb;
-      TH1F* theSumEtInGeV;
-      TH1F* theSumHtInGeV;
-      TH1F* theMissEtInGeV;
-      TH1F* theMissEtAngle;
-      TH2F* theMissEtVector;
-      TH1F* theMissHtInGeV;
-      TH1F* theMissHtAngle;
-      TH2F* theMissHtVector;
+  TH2F* theSumEtVsInputRegions;
+  TH2F* theMissEtMagVsInputRegions;
+  TH2F* theMissEtAngleVsInputRegions;
+  TH2F* theMissHtMagVsInputRegions;
 
-      TH2F* theSumEtVsInputRegions;
-      TH2F* theMissEtMagVsInputRegions;
-      TH2F* theMissEtAngleVsInputRegions;
-      TH2F* theMissHtMagVsInputRegions;
+  TH2F* theMissEtVsMissHt;
+  TH2F* theMissEtVsMissHtAngle;
+  TH2F* theDPhiVsMissEt;
+  TH2F* theDPhiVsMissHt;
 
-      TH2F* theMissEtVsMissHt;
-      TH2F* theMissEtVsMissHtAngle;
-      TH2F* theDPhiVsMissEt;
-      TH2F* theDPhiVsMissHt;
+  TH2F* theHtVsInternalJetsSum;
+  TH2F* theMissHtVsInternalJetsSum;
+  TH2F* theMissHtPhiVsInternalJetsSum;
+  TH2F* theMissHxVsInternalJetsSum;
+  TH2F* theMissHyVsInternalJetsSum;
 
-      TH2F* theHtVsInternalJetsSum;
-      TH2F* theMissHtVsInternalJetsSum;
-      TH2F* theMissHtPhiVsInternalJetsSum;
-      TH2F* theMissHxVsInternalJetsSum;
-      TH2F* theMissHyVsInternalJetsSum;
-
-      TH1F* theHfRing0EtSumPositiveEta;
-      TH1F* theHfRing0EtSumNegativeEta;
-      TH1F* theHfRing1EtSumPositiveEta;
-      TH1F* theHfRing1EtSumNegativeEta;
-      TH1F* theHfRing0CountPositiveEta;
-      TH1F* theHfRing0CountNegativeEta;
-      TH1F* theHfRing1CountPositiveEta;
-      TH1F* theHfRing1CountNegativeEta;
-
+  TH1F* theHfRing0EtSumPositiveEta;
+  TH1F* theHfRing0EtSumNegativeEta;
+  TH1F* theHfRing1EtSumPositiveEta;
+  TH1F* theHfRing1EtSumNegativeEta;
+  TH1F* theHfRing0CountPositiveEta;
+  TH1F* theHfRing0CountNegativeEta;
+  TH1F* theHfRing1CountPositiveEta;
+  TH1F* theHfRing1CountNegativeEta;
+  edm::ESGetToken<L1GctJetFinderParams, L1GctJetFinderParamsRcd> m_jfParsToken;
+  edm::ESGetToken<L1CaloEtScale, L1HtMissScaleRcd> m_htMissScaleToken;
+  edm::ESGetToken<L1CaloEtScale, L1HfRingEtScaleRcd> m_hfRingEtScaleToken;
 };
 #endif

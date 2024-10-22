@@ -79,21 +79,18 @@ process.dtTTrigAnalyzer = DQMEDAnalyzer('DTtTrigDBValidation',
     #OutputFileName = cms.string('tTrigDBValidation_DT_tTrig_cosmics_2009_v3_prompt.root')
 )
 
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     prescaleFactor = cms.untracked.int32(1),
     reportThreshold = cms.untracked.string('black'),
     qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests.xml')
 )
 
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = config.workflowName
 process.dqmSaver.dirName = config.outputdir
-process.DQMStore.collateHistograms = False
 process.DQM.collectorHost = ''
 """
-process.DQMStore.referenceFileName = ''
-process.DQMStore.collateHistograms = True
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = workflowName
 process.dqmSaver.saveByRun = -1

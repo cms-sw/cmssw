@@ -18,48 +18,46 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "CondFormats/JetMETObjects/interface/MEtXYcorrectParameters.h"
+#include "JetMETCorrections/Objects/interface/MEtXYcorrectRecord.h"
 
 #include <TF1.h>
 
 #include <string>
 #include <vector>
 
-class MultShiftMETcorrDBInputProducer : public edm::stream::EDProducer<>  
-{
- public:
-
+class MultShiftMETcorrDBInputProducer : public edm::stream::EDProducer<> {
+public:
   explicit MultShiftMETcorrDBInputProducer(const edm::ParameterSet&);
   ~MultShiftMETcorrDBInputProducer() override;
-    
- private:
 
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  static int translateTypeToAbsPdgId( reco::PFCandidate::ParticleType type );
+  static int translateTypeToAbsPdgId(reco::PFCandidate::ParticleType type);
 
-
-  edm::EDGetTokenT<edm::View<reco::Candidate> > pflow_;
+  edm::EDGetTokenT<edm::View<reco::Candidate>> pflow_;
   edm::EDGetTokenT<edm::View<reco::Vertex>> vertices_;
+  edm::ESGetToken<MEtXYcorrectParametersCollection, MEtXYcorrectRecord> mMEtXYcorParaColl_;
   std::string moduleLabel_;
   std::string mPayloadName;
   std::string mSampleType;
   bool mIsData;
+  edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
 
   std::vector<edm::ParameterSet> cfgCorrParameters_;
 
   std::vector<double> etaMin_, etaMax_;
   int counts_;
   double sumPt_;
-  std::unique_ptr< TF1 > formula_x_;
-  std::unique_ptr< TF1 > formula_y_;
+  std::unique_ptr<TF1> formula_x_;
+  std::unique_ptr<TF1> formula_y_;
 };
 
 #endif
-
-
- 
-

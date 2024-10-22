@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("L1TDQMOffline")
 import os
 import sys
-import commands
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("DQMServices.Core.DQM_cfg")
@@ -83,8 +82,8 @@ process.load('DQMOffline.L1Trigger.L1TMuonDQMEfficiency_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("TrackingTools.Configuration.TrackingTools_cff")
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_ICHEP16_repro_v0', '')
 process.load('DQMOffline.L1Trigger.L1TMuonDQMOffline_cfi')
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")

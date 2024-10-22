@@ -10,6 +10,7 @@ recoMuonValidator = DQMEDAnalyzer('RecoMuonValidator',
     usePFMuon = cms.untracked.bool(False),
 
     simLabel = cms.InputTag("mix","MergedTrackTruth"),
+    tpRefVector = cms.bool(False),
     muonLabel = cms.InputTag("muons"),
 
     muAssocLabel = cms.InputTag("muonAssociatorByHitsHelper"),
@@ -93,3 +94,6 @@ recoMuonValidator = DQMEDAnalyzer('RecoMuonValidator',
     # Number of sim,reco Tracks     #
     nTrks = cms.untracked.uint32(50)
 )
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(recoMuonValidator, simLabel = "mixData:MergedTrackTruth")

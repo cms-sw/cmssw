@@ -19,7 +19,7 @@ class CaloTowerConstituentsMap {
 public:
   CaloTowerConstituentsMap() = delete;
   ~CaloTowerConstituentsMap();
-  CaloTowerConstituentsMap(const HcalTopology * hcaltopo, const CaloTowerTopology * cttopo);
+  CaloTowerConstituentsMap(const HcalTopology* hcaltopo, const CaloTowerTopology* cttopo);
 
   /// Get the tower id for this det id (or null if not known)
   CaloTowerDetId towerOf(const DetId& id) const;
@@ -34,20 +34,20 @@ public:
   void sort();
 
   /// add standard (hardcoded) HB items?
-  void useStandardHB(bool use=true);
+  void useStandardHB(bool use = true);
   /// add standard (hardcoded) HE items?
-  void useStandardHE(bool use=true);
+  void useStandardHE(bool use = true);
   /// add standard (hardcoded) HO items?
-  void useStandardHO(bool use=true);
+  void useStandardHO(bool use = true);
   /// add standard (hardcoded) HF items?
-  void useStandardHF(bool use=true);
+  void useStandardHF(bool use = true);
   /// add standard (hardcoded) EB items?
-  void useStandardEB(bool use=true);
+  void useStandardEB(bool use = true);
 
 private:
-  const HcalTopology * m_hcaltopo;
-  const CaloTowerTopology * m_cttopo;
-    
+  const HcalTopology* m_hcaltopo;
+  const CaloTowerTopology* m_cttopo;
+
   bool standardHB_;
   bool standardHE_;
   bool standardHF_;
@@ -56,14 +56,14 @@ private:
 
   struct MapItem {
     typedef DetId key_type;
-    MapItem(const DetId& acell, const CaloTowerDetId& atower) : cell(acell),tower(atower) { }
+    MapItem(const DetId& acell, const CaloTowerDetId& atower) : cell(acell), tower(atower) {}
     DetId cell;
     CaloTowerDetId tower;
     inline DetId id() const { return cell; }
   };
 
   edm::SortedCollection<MapItem> m_items;
-  mutable std::atomic<std::multimap<CaloTowerDetId,DetId>*> m_reverseItems;
+  mutable std::atomic<std::multimap<CaloTowerDetId, DetId>*> m_reverseItems;
 };
 
 #endif

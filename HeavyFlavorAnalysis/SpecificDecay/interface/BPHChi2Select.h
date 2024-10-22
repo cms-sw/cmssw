@@ -24,49 +24,49 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class BPHChi2Select: public BPHVertexSelect {
-
- public:
-
+class BPHChi2Select : public BPHVertexSelect {
+public:
   /** Constructor
    */
-  BPHChi2Select( double prob ): probMin( prob ) {}
+  BPHChi2Select(double prob) : probMin(prob) {}
+
+  // deleted copy constructor and assignment operator
+  BPHChi2Select(const BPHChi2Select& x) = delete;
+  BPHChi2Select& operator=(const BPHChi2Select& x) = delete;
 
   /** Destructor
    */
-  ~BPHChi2Select() override {}
+  ~BPHChi2Select() override = default;
 
   /** Operations
    */
   /// select vertex
-  bool accept( const BPHDecayVertex& cand ) const override {
+  bool accept(const BPHDecayVertex& cand) const override {
+    if (probMin < 0.0)
+      return true;
     const reco::Vertex& v = cand.vertex();
-    if ( v.isFake() ) return false;
-    if ( !v.isValid() ) return false;
-    return ( TMath::Prob( v.chi2(), lround( v.ndof() ) ) > probMin );
+    if (v.isFake())
+      return false;
+    if (!v.isValid())
+      return false;
+    return (TMath::Prob(v.chi2(), lround(v.ndof())) >= probMin);
   }
 
   /// set prob min
-  void setProbMin( double p ) { probMin = p; return; }
+  void setProbMin(double p) {
+    probMin = p;
+    return;
+  }
 
   /// get current prob min
   double getProbMin() const { return probMin; }
 
- private:
-
-  // private copy and assigment constructors
-  BPHChi2Select           ( const BPHChi2Select& x ) = delete;
-  BPHChi2Select& operator=( const BPHChi2Select& x ) = delete;
-
+private:
   double probMin;
-
 };
 
-
 #endif
-

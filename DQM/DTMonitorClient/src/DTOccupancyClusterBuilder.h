@@ -16,7 +16,6 @@
 #include <vector>
 #include <string>
 
-
 class DTOccupancyClusterBuilder {
 public:
   /// Constructor
@@ -32,7 +31,7 @@ public:
   /// build the clusters
   void buildClusters();
 
-  /// draw a TH2F histograms showing the clusters 
+  /// draw a TH2F histograms showing the clusters
   void drawClusters(std::string canvasName);
 
   /// get the cluster correspondig to "normal" cell occupancy.
@@ -41,7 +40,6 @@ public:
   bool isProblematic(DTLayerId layerId) const;
 
 protected:
-
 private:
   std::pair<DTOccupancyPoint, DTOccupancyPoint> getInitialPair();
 
@@ -52,7 +50,7 @@ private:
   bool buildNewCluster();
 
   void sortClusters();
-  
+
   std::set<DTOccupancyPoint> thePoints;
   std::map<double, std::pair<DTOccupancyPoint, DTOccupancyPoint> > theDistances;
   std::map<double, DTOccupancyPoint> theDistancesFromTheCluster;
@@ -61,8 +59,6 @@ private:
 
   double maxMean;
   double maxRMS;
-
 };
 
 #endif
-

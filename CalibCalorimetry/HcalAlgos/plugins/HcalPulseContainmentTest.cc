@@ -1,7 +1,6 @@
 #include <memory>
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentManager.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 
@@ -21,39 +20,35 @@
 class HcalTimeSlew;
 
 class HcalPulseContainmentTest : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
-
 public:
   explicit HcalPulseContainmentTest(const edm::ParameterSet& iConfig);
   ~HcalPulseContainmentTest() override;
 
 private:
   void beginJob() override;
-  void beginRun(edm::Run const&,  edm::EventSetup const&) override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&,  edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
+  const edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> tok_slew_;
   const HcalTimeSlew* hcalTimeSlew_delay_;
 };
 
-HcalPulseContainmentTest::HcalPulseContainmentTest(const edm::ParameterSet& iConfig) { 
-  hcalTimeSlew_delay_ = nullptr;
-}
+HcalPulseContainmentTest::HcalPulseContainmentTest(const edm::ParameterSet& iConfig)
+    : tok_slew_(esConsumes<HcalTimeSlew, HcalTimeSlewRecord>(edm::ESInputTag{"", "HBHE"})),
+      hcalTimeSlew_delay_(nullptr) {}
 
-HcalPulseContainmentTest::~HcalPulseContainmentTest() { } 
+HcalPulseContainmentTest::~HcalPulseContainmentTest() {}
 
-void HcalPulseContainmentTest::beginJob() {
-}
+void HcalPulseContainmentTest::beginJob() {}
 
 void HcalPulseContainmentTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
-  edm::ESHandle<HcalTimeSlew> delay;
-  iSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
-  hcalTimeSlew_delay_ = &*delay;
+  hcalTimeSlew_delay_ = &iSetup.getData(tok_slew_);
 
   float fixedphase_ns = 6.0;
   float max_fracerror = 0.02;
-  std::auto_ptr<HcalPulseContainmentManager> manager;
-  manager = std::auto_ptr<HcalPulseContainmentManager>( new HcalPulseContainmentManager(max_fracerror));
+  std::unique_ptr<HcalPulseContainmentManager> manager;
+  manager = std::make_unique<HcalPulseContainmentManager>(max_fracerror, true);
   manager->setTimeSlew(hcalTimeSlew_delay_);
 
   HcalDetId hb1(HcalBarrel, 1, 1, 1);
@@ -69,7 +64,13 @@ void HcalPulseContainmentTest::analyze(const edm::Event& iEvent, const edm::Even
   // HB and HE have the same shape here
   double corr4 = manager->correction(he1, 4, fixedphase_ns, fc);
   assert(corr4 == corr1);
-  std::cout << corr1 << " " <<corr2 << " " <<corr3 << " " <<corr4 << " " << std::endl;
+  edm::LogPrint("HcalPulseContainmentTest") << corr1 << " " << corr2 << " " << corr3 << " " << corr4;
+  // test 1TS correction at high energy
+  double corr5 = manager->correction(hb1, 1, fixedphase_ns, 100000.);
+  edm::LogPrint("HcalPulseContainmentTest") << corr5;
+  // test 2TS correction at high energy
+  double corr6 = manager->correction(hb1, 2, fixedphase_ns, 100000.);
+  edm::LogPrint("HcalPulseContainmentTest") << corr6;
 }
 
 //define this as a plug-in

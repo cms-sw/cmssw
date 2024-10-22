@@ -28,52 +28,40 @@ namespace pat {
 
   /// Structure defining the muon selection
   struct MuonSelection {
-    std::string selectionType; ///< Choose selection type (see PATMuonCleaner)
-    
+    std::string selectionType;  ///< Choose selection type (see PATMuonCleaner)
+
     /// @name Cuts for "custom" selection type:
     //@{
     double dPbyPmax;
     double chi2max;
-    int    nHitsMin;
+    int nHitsMin;
     //@}
-	
-	/// @name Option for "muId" selection type:
+
+    /// @name Option for "muId" selection type:
     //@{
     muon::SelectionType flag;
-	double minCaloCompatibility;
-	double minSegmentCompatibility;
+    double minCaloCompatibility;
+    double minSegmentCompatibility;
     //@}
-	
   };
 
-
   class MuonSelector {
-
   public:
-    
-    MuonSelector( const MuonSelection& cfg ) : config_( cfg ) {}
+    MuonSelector(const MuonSelection& cfg) : config_(cfg) {}
     ~MuonSelector() {}
 
     /// Returns 0 if muon matches criteria, a flag otherwise.
     /// Criteria depend on the selector's configuration.
-    const pat::ParticleStatus
-    filter( const unsigned int& index,
-            const edm::View<reco::Muon>& muons ) const;
-    
+    const pat::ParticleStatus filter(const unsigned int& index, const edm::View<reco::Muon>& muons) const;
+
   private:
-    
     MuonSelection config_;
 
     /// Full-fledged selection based on SusyAnalyser
-    const pat::ParticleStatus
-    customSelection_( const unsigned int& index,
-                      const edm::View<reco::Muon>& muons  ) const;
-	const pat::ParticleStatus
-    muIdSelection_( const unsigned int& index,
-                      const edm::View<reco::Muon>& muons  ) const;
-    
+    const pat::ParticleStatus customSelection_(const unsigned int& index, const edm::View<reco::Muon>& muons) const;
+    const pat::ParticleStatus muIdSelection_(const unsigned int& index, const edm::View<reco::Muon>& muons) const;
 
-  }; // class
-} // namespace
+  };  // class
+}  // namespace pat
 
 #endif

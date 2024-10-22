@@ -60,50 +60,10 @@
    <version ClassVersion="10" checksum="414205262"/>
   </class>
 
-  <class name="std::vector<SiStripRecHit2D*>"/>
-  <class name="std::vector<SiStripRecHit1D*>"/>
-  <class name="std::vector<SiStripMatchedRecHit2D*>"/>
-  <class name="std::vector<SiTrackerMultiRecHit*>"/>
-  <class name="edm::OwnVector<SiStripMatchedRecHit2D,edm::ClonePolicy<SiStripMatchedRecHit2D> >"/>
-  <class name="edm::OwnVector<SiStripMatchedRecHit2D,edm::ClonePolicy<SiStripMatchedRecHit2D> >::const_iterator"/>
-  <class name="edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >"/>
-  <class name="edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >"/>
+  <class name="std::vector<std::unique_ptr<BaseTrackerRecHit>>" persistent="false"/>
+  <class name="edm::Wrapper<std::vector<std::unique_ptr<BaseTrackerRecHit>>>" persistent="false"/>
 
-  <class name="edm::OwnVector<SiTrackerMultiRecHit,edm::ClonePolicy<SiTrackerMultiRecHit> >"/>
-  <class name="edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >::const_iterator"/>
-  <class name="edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >::const_iterator"/>
-
-  <class name="edm::OwnVector<SiTrackerMultiRecHit,edm::ClonePolicy<SiTrackerMultiRecHit> >::const_iterator"/>
-
-  <class name="edm::OwnVector<BaseTrackerRecHit>" persistent="false"/>
-  <class name="edm::Wrapper<edm::OwnVector<BaseTrackerRecHit> >" persistent="false"/>
-
-  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2D, edm::ClonePolicy<SiStripRecHit2D> >, edm::ClonePolicy<SiStripRecHit2D> >"/>
-  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit1D, edm::ClonePolicy<SiStripRecHit1D> >, edm::ClonePolicy<SiStripRecHit1D> >"/>
-
-  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2D, edm::ClonePolicy<SiStripRecHit2D> >, edm::ClonePolicy<SiStripRecHit2D> >::id_iterator"/>
-  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit1D, edm::ClonePolicy<SiStripRecHit1D> >, edm::ClonePolicy<SiStripRecHit1D> >::id_iterator"/>
-
-  <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2D, edm::ClonePolicy<SiStripRecHit2D> >, edm::ClonePolicy<SiStripRecHit2D> > >"/>
-  <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit1D, edm::ClonePolicy<SiStripRecHit1D> >, edm::ClonePolicy<SiStripRecHit1D> > >"/>
-
-  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D, edm::ClonePolicy<SiStripMatchedRecHit2D> >, edm::ClonePolicy<SiStripMatchedRecHit2D> >"/>
-  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D, edm::ClonePolicy<SiStripMatchedRecHit2D> >, edm::ClonePolicy<SiStripMatchedRecHit2D> >::id_iterator"/>
-
-  <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D, edm::ClonePolicy<SiStripMatchedRecHit2D> >, edm::ClonePolicy<SiStripMatchedRecHit2D> > >"/>
-
-  <class name="std::vector<SiPixelRecHit*>"/>
   <class name="std::vector<SiPixelRecHit>"/>
-  <class name="edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >"/>
-  <class name="edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >::const_iterator"/>
-  <class name="edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> >"/>
-  <class name="edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> >::id_iterator"/>
-  <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> > >"/>
-  <class name="edm::Ref<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D> >"/>
-  <class name="edm::Ref<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D> >"/>
-
-  <class name="edm::RefVector<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D> >"/>
-  <class name="edm::RefVector<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D> >"/>
 
  <class name="std::vector<SiStripRecHit2D>"/>
  <class name="std::vector<SiStripRecHit1D>"/>
@@ -131,17 +91,21 @@
 
   // fastsim containers
   
-  <class name="FastTrackerRecHit" ClassVersion="10">
+   <class name="FastTrackerRecHit" ClassVersion="11">
     <version ClassVersion="10" checksum="1775447631"/>
+     <version ClassVersion="11" checksum="1771133479"/>
   </class>
-  <class name="FastSingleTrackerRecHit" ClassVersion="10">
+  <class name="FastSingleTrackerRecHit" ClassVersion="11">
     <version ClassVersion="10" checksum="640282606"/>
+    <version ClassVersion="11" checksum="1553028806"/>
   </class>
-  <class name="FastMatchedTrackerRecHit" ClassVersion="10">
+  <class name="FastMatchedTrackerRecHit" ClassVersion="11">
    <version ClassVersion="10" checksum="4015701870"/>
+   <version ClassVersion="11" checksum="412726454"/>
   </class>
-  <class name="FastProjectedTrackerRecHit" ClassVersion="10">
-   <version ClassVersion="10" checksum="2372844383"/>
+  <class name="FastProjectedTrackerRecHit" ClassVersion="11">
+	<version ClassVersion="10" checksum="2372844383"/>
+	<version ClassVersion="11" checksum="3790581543"/>
   </class>
 
   <class name="std::vector<edm::OwnVector<FastTrackerRecHit,edm::ClonePolicy<FastTrackerRecHit> > >"/>
@@ -175,5 +139,26 @@
   <class name="edm::Wrapper< edmNew::DetSet< Phase2TrackerRecHit1D > >" splitLevel="0"/>
   <class name="edm::Wrapper< std::vector< edmNew::DetSet< Phase2TrackerRecHit1D > > >" splitLevel="0"/>
   <class name="edm::Wrapper< Phase2TrackerRecHit1DCollectionNew >"/>
+
+  <class name="MTDTrackingRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="820400911"/>
+  </class>
+
+  <class name="std::vector<MTDTrackingRecHit>"/>
+  <class name="MTDTrackingDetSetVector"/>
+  <class name="edm::Wrapper< MTDTrackingDetSetVector >"/>
+  <class name="VectorHit" ClassVersion="3">
+   <version ClassVersion="3" checksum="1631967306"/>
+  </class>
+  <class name="VectorHit2D" ClassVersion="3">
+   <version ClassVersion="3" checksum="86550371"/>
+  </class>
+
+  <class name="edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>,Phase2TrackerCluster1D,edmNew::DetSetVector<Phase2TrackerCluster1D>::FindForDetSetVector> >"/>
+  <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>,Phase2TrackerCluster1D,edmNew::DetSetVector<Phase2TrackerCluster1D>::FindForDetSetVector> > >"/>
+  <class name="edmNew::DetSetVector<VectorHit> "/>
+  <class name="std::vector<VectorHit> "/>
+  <class name="edm::Wrapper< edmNew::DetSetVector<VectorHit> >"/>
+
 
 </lcgdict>

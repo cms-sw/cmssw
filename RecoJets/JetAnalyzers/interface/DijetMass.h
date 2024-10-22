@@ -17,34 +17,32 @@ class TFile;
      Modified and cleaned up to work in 3.3.X
  *
  */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-
-template<class Jet>
-class DijetMass : public edm::EDAnalyzer {
+template <class Jet>
+class DijetMass : public edm::one::EDAnalyzer<> {
 public:
-  DijetMass( const edm::ParameterSet & );
+  DijetMass(const edm::ParameterSet&);
 
 private:
   typedef std::vector<Jet> JetCollection;
   //Framwework stuff
-  void beginJob( ) override;
-  void analyze( const edm::Event& , const edm::EventSetup& ) override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
   // Parameters passed via the config file
-  double PtHistMax;      // Maximum edge of Pt histograms
-  double EtaMax;  
+  double PtHistMax;  // Maximum edge of Pt histograms
+  double EtaMax;
   std::string histogramFile;
-  std::string AKJets; 
-  std::string AKCorJets; 
-  std::string ICJets; 
-  std::string ICCorJets; 
-  std::string SCJets; 
-  std::string SCCorJets; 
-  std::string KTJets; 
-  std::string KTCorJets; 
-
+  std::string AKJets;
+  std::string AKCorJets;
+  std::string ICJets;
+  std::string ICCorJets;
+  std::string SCJets;
+  std::string SCCorJets;
+  std::string KTJets;
+  std::string KTCorJets;
 
   //Simple Hists
   TH1F ptAKunc, etaAKunc, phiAKunc, m2jAKunc;
@@ -56,13 +54,12 @@ private:
   TH1F ptSCunc, etaSCunc, phiSCunc, m2jSCunc;
   TH1F ptSCcor, etaSCcor, phiSCcor, m2jSCcor;
 
-  //Histo File 
+  //Histo File
   TFile* m_file;
 
   //Internal parameters
   int evtCount;
   int numJets;
-
 };
 
 #endif

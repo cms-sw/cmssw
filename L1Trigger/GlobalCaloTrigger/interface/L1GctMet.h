@@ -17,31 +17,35 @@
 class L1CaloEtScale;
 class L1GctHtMissLut;
 
-class L1GctMet
-{
- public:
-
+class L1GctMet {
+public:
   enum metAlgoType { cordicTranslate, useHtMissLut, oldGct, floatingPoint };
 
-  typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissNBits    > etMissType;
-  typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissPhiNBits > etMissPhiType;
+  typedef L1GctUnsignedInt<L1GctEtMiss::kEtMissNBits> etMissType;
+  typedef L1GctUnsignedInt<L1GctEtMiss::kEtMissPhiNBits> etMissPhiType;
   typedef L1GctWheelEnergyFpga::etComponentType etComponentType;
 
   struct etmiss_vec {
-    etMissType    mag;
+    etMissType mag;
     etMissPhiType phi;
   };
 
-  L1GctMet(const unsigned ex=0, const unsigned ey=0, const metAlgoType algo=cordicTranslate);
-  L1GctMet(const etComponentType& ex, const etComponentType& ey, const metAlgoType algo=cordicTranslate);
+  L1GctMet(const unsigned ex = 0, const unsigned ey = 0, const metAlgoType algo = cordicTranslate);
+  L1GctMet(const etComponentType& ex, const etComponentType& ey, const metAlgoType algo = cordicTranslate);
   ~L1GctMet();
 
   // return the missing Et as (magnitude, angle)
-  etmiss_vec metVector() const ;
+  etmiss_vec metVector() const;
 
   // set and get the components
-  void setComponents(const unsigned ex, const unsigned ey) { setExComponent(ex); setEyComponent(ey); }
-  void setComponents(const etComponentType& ex, const etComponentType& ey) { setExComponent(ex); setEyComponent(ey); }
+  void setComponents(const unsigned ex, const unsigned ey) {
+    setExComponent(ex);
+    setEyComponent(ey);
+  }
+  void setComponents(const etComponentType& ex, const etComponentType& ey) {
+    setExComponent(ex);
+    setEyComponent(ey);
+  }
   void setExComponent(const unsigned ex);
   void setEyComponent(const unsigned ey);
   void setExComponent(const etComponentType& ex) { m_exComponent = ex; }
@@ -67,15 +71,14 @@ class L1GctMet
 
   const L1CaloEtScale* etScale() const;
   const double componentLsb() const;
- private:
 
-  enum etComponentShift { kExOrEyMissComponentShift=4 };
+private:
+  enum etComponentShift { kExOrEyMissComponentShift = 4 };
 
   struct etmiss_internal {
     unsigned mag;
     unsigned phi;
   };
-
 
   /// Private method to check for an overflow condition on the input components
   /// Allows the check to depend on the algorithm type
@@ -83,17 +86,17 @@ class L1GctMet
 
   etComponentType m_exComponent;
   etComponentType m_eyComponent;
-  metAlgoType     m_algoType;
-  unsigned short  m_bitShift;
+  metAlgoType m_algoType;
+  unsigned short m_bitShift;
 
   L1GctHtMissLut* m_htMissLut;
 
-  etmiss_internal cordicTranslateAlgo (const int ex, const int ey, const bool of) const;
-  etmiss_internal useHtMissLutAlgo    (const int ex, const int ey, const bool of) const;
-  etmiss_internal oldGctAlgo          (const int ex, const int ey) const;
-  etmiss_internal floatingPointAlgo   (const int ex, const int ey) const;
+  etmiss_internal cordicTranslateAlgo(const int ex, const int ey, const bool of) const;
+  etmiss_internal useHtMissLutAlgo(const int ex, const int ey, const bool of) const;
+  etmiss_internal oldGctAlgo(const int ex, const int ey) const;
+  etmiss_internal floatingPointAlgo(const int ex, const int ey) const;
 
-  int cordicShiftAndRoundBits (const int e, const unsigned nBits) const;
+  int cordicShiftAndRoundBits(const int e, const unsigned nBits) const;
 };
 
 #endif

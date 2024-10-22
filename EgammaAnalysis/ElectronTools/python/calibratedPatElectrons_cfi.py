@@ -1,12 +1,12 @@
 
 import FWCore.ParameterSet.Config as cms
-
+import RecoEgamma.EgammaTools.calibratedPatElectronProducer_cfi as _mod
 
 #==============================================================================
 # corrected pat electrons
 #==============================================================================
 
-calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
+calibratedPatElectrons = _mod.calibratedPatElectronProducer.clone(
 
     # input collections
     inputPatElectronsTag = cms.InputTag("eleRegressionEnergy"),

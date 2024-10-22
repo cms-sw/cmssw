@@ -1,15 +1,10 @@
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/SiStripObjects"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/FEDRawData"/>
-<use   name="DataFormats/SiStripDigi"/>
-<use   name="DataFormats/SiStripCluster"/>
-<use   name="DataFormats/SiStripCommon"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
-<use   name="boost"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/SiStripDigi"/>
+<use name="DataFormats/SiStripCommon"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

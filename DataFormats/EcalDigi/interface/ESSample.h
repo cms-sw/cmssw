@@ -2,16 +2,14 @@
 #define DIGIECAL_ESSAMPLE_H
 
 #include <ostream>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class ESSample {
-
- public:
-
+public:
   ESSample() { theSample = 0; }
   ESSample(int16_t data) { theSample = data; }
   ESSample(int adc);
-    
+
   /// get the raw word
   int16_t raw() const { return theSample; }
   /// get the ADC sample (singed 16 bits)
@@ -19,10 +17,8 @@ class ESSample {
   /// for streaming
   int16_t operator()() { return theSample; }
 
- private:
-
+private:
   int16_t theSample;
-
 };
 
 std::ostream& operator<<(std::ostream&, const ESSample&);

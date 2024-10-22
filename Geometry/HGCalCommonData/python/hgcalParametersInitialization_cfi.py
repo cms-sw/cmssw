@@ -1,19 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
-hgcalEEParametersInitialize = cms.ESProducer("HGCalParametersESModule",
-                                             Name  = cms.untracked.string("HGCalEESensitive"),
-                                             NameW = cms.untracked.string("HGCalEEWafer"),
-                                             NameC = cms.untracked.string("HGCalEECell")
+from Geometry.HGCalCommonData.hgcalEEParametersInitialization_cfi import *
+
+hgcalHESiParametersInitialize = hgcalEEParametersInitialize.clone(
+    name  = "HGCalHESiliconLayer",
+    name2 = "HGCalHESiliconSensitive",
+    nameW = "HGCalHEWafer",
+    nameC = "HGCalHESiliconSensitive",
+    nameX = "HGCalHESiliconSensitive",
 )
 
-hgcalHESiParametersInitialize = cms.ESProducer("HGCalParametersESModule",
-                                               Name  = cms.untracked.string("HGCalHESiliconSensitive"),
-                                               NameW = cms.untracked.string("HGCalHEWafer"),
-                                               NameC = cms.untracked.string("HGCalHECell")
-)
-
-hgcalHEScParametersInitialize = cms.ESProducer("HGCalParametersESModule",
-                                               Name = cms.untracked.string("HGCalHEScintillatorSensitive"),
-                                               NameW = cms.untracked.string("HGCalWafer"),
-                                               NameC = cms.untracked.string("HGCalCell")
+hgcalHEScParametersInitialize = hgcalEEParametersInitialize.clone(
+    name  = "HGCalHEScintillatorSensitive",
+    name2 = "HGCalHEScintillatorSensitive",
+    nameW = "HGCalWafer",
+    nameC = "HGCalHEScintillatorSensitive",
+    nameX = "HGCalHEScintillatorSensitive",
 )

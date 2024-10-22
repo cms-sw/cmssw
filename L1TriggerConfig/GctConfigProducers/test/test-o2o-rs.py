@@ -4,14 +4,14 @@ import sys
 import os
 
 # arguments
-if (len(sys.argv)>2) :
-    key=str(sys.argv[2])
+if (len(sys.argv)>1) :
+    key=str(sys.argv[1])
 else :
     key='Default'
 
 process = cms.Process("L1ConfigWritePayloadDummy")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cout.enable = cms.untracked.bool(True)
 process.MessageLogger.cout.threshold = cms.untracked.string('INFO')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 

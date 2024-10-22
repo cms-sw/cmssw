@@ -3,12 +3,11 @@
 
 namespace hf_egamma {
 
-	double eSeLCorrected(double es, double el, double m, double b);
+  double eSeLCorrected(double es, double el, double m, double b);
 
-	//enum CorrectionEra { ce_Fall10, ce_Spring11, ce_Summer11, ce_Data41 };
+  //enum CorrectionEra { ce_Fall10, ce_Spring11, ce_Summer11, ce_Data41 };
 
-	double eSeLCorrected(double es, double el, int era);
-}
+  double eSeLCorrected(double es, double el, int era);
+}  // namespace hf_egamma
 
-#endif // HFEGamma_SL_CORRECTOR
-
+#endif  // HFEGamma_SL_CORRECTOR

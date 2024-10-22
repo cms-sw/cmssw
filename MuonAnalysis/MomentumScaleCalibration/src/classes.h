@@ -5,6 +5,5 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitProvenance.h"
 
 namespace MuonAnalysis_MomentumScaleCalibration {
-  struct dictionary {
-  };
-}
+  struct dictionary {};
+}  // namespace MuonAnalysis_MomentumScaleCalibration

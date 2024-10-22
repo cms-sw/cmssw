@@ -6,10 +6,9 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
-typedef SingleObjectSelector<
-   reco::RecoChargedCandidateCollection, 
-   StringCutObjectSelector<reco::RecoChargedCandidate>,
-   reco::RecoChargedCandidateRefVector
-   > RecoChargedCandidateRefSelector;
+typedef SingleObjectSelector<reco::RecoChargedCandidateCollection,
+                             StringCutObjectSelector<reco::RecoChargedCandidate>,
+                             reco::RecoChargedCandidateRefVector>
+    RecoChargedCandidateRefSelector;
 
-DEFINE_FWK_MODULE( RecoChargedCandidateRefSelector );
+DEFINE_FWK_MODULE(RecoChargedCandidateRefSelector);

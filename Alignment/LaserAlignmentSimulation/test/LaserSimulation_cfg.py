@@ -9,7 +9,7 @@ process = cms.Process("PROD")
 # include default services, like RandomNumberGenerator
 process.load("Configuration.StandardSequences.Services_cff")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -71,8 +71,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'HCalGeom', 
         'HcalSim', 
         'TrackerMapDDDtoID', 
-        'TrackerSimInfoNumbering'),
-    fwkJobReports = cms.untracked.vstring('FrameworkJobReport.xml')
+        'TrackerSimInfoNumbering')
 )
 
 

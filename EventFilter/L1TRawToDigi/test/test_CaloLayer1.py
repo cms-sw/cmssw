@@ -104,8 +104,8 @@ process.collectPackers = cms.EDProducer("RawDataCollectorByLabel",
 # Path and EndPath definitions
 process.path = cms.Path(
     process.caloLayer1Digis *
-    process.caloLayer1Raw *
-    process.collectPackers
+    process.collectPackers,
+    process.caloLayer1Raw
 )
 
 process.out = cms.EndPath(

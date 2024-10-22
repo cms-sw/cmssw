@@ -15,7 +15,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -36,15 +35,13 @@ class DTWireId;
 //              ---------------------
 
 class DTHVHandler {
-
- public:
-
+public:
   /** Constructor
    */
   DTHVHandler();
-  DTHVHandler( const DTHVStatus* dbObject );
-//  DTHVHandler( const DTHVStatus* dbObject,
-//               const DTGeometry* geometry );
+  DTHVHandler(const DTHVStatus* dbObject);
+  //  DTHVHandler( const DTHVStatus* dbObject,
+  //               const DTGeometry* geometry );
 
   /** Destructor
    */
@@ -53,28 +50,21 @@ class DTHVHandler {
   /** Operations
    */
   /// get content
-  int get( const DTWireId& id,
-           int&         flagA,
-           int&         flagC,
-           int&         flagS ) const;
-  int offChannelsNumber() const; 
-  int offChannelsNumber( const DTChamberId& id ) const; 
+  int get(const DTWireId& id, int& flagA, int& flagC, int& flagS) const;
+  int offChannelsNumber() const;
+  int offChannelsNumber(const DTChamberId& id) const;
   /// access db object
   const DTHVStatus* getDBObject() const;
 
- private:
-
+private:
   const DTHVStatus* objectPtr;
-//  const DTGeometry* dtGeomPtr;
+  //  const DTGeometry* dtGeomPtr;
 
-//  int findLayerPart( const DTWireId& id ) const;
-//  int getLayerEdges( const DTLayerId& id,
-//                     int& fCell, int& lCell  ) const;
-//  int getLayerEdges( const DTLayerId& id, int part,
-//                     int& fCell, int& lCell  ) const;
-
+  //  int findLayerPart( const DTWireId& id ) const;
+  //  int getLayerEdges( const DTLayerId& id,
+  //                     int& fCell, int& lCell  ) const;
+  //  int getLayerEdges( const DTLayerId& id, int part,
+  //                     int& fCell, int& lCell  ) const;
 };
 
-
-#endif // DTHVHandler_H
-
+#endif  // DTHVHandler_H

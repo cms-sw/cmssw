@@ -20,19 +20,21 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include <memory>
+
 class Chi2MeasurementEstimator;
 class Propagator;
 class MeasurementTracker;
 class GeometricSearchTracker;
 class DirectTrackerNavigation;
-class TrajectoryStateTransform;
+struct TrajectoryStateTransform;
 class TrackerTopology;
+class TrackerRecoGeometryRecord;
 
 class TSGFromPropagation : public TrackerSeedGenerator {
-
 public:
   /// constructor
-  TSGFromPropagation(const edm::ParameterSet &pset, edm::ConsumesCollector& iC);
+  TSGFromPropagation(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
 
   TSGFromPropagation(const edm::ParameterSet& par, edm::ConsumesCollector& iC, const MuonServiceProxy*);
 
@@ -40,8 +42,11 @@ public:
   ~TSGFromPropagation() override;
 
   /// generate seed(s) for a track
-  void  trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, std::vector<TrajectorySeed>&) override;
-    
+  void trackerSeeds(const TrackCand&,
+                    const TrackingRegion&,
+                    const TrackerTopology*,
+                    std::vector<TrajectorySeed>&) override;
+
   /// initialize
   void init(const MuonServiceProxy*) override;
 
@@ -49,30 +54,26 @@ public:
   void setEvent(const edm::Event&) override;
 
 private:
-
   TrajectoryStateOnSurface innerState(const TrackCand&) const;
 
   TrajectoryStateOnSurface outerTkState(const TrackCand&) const;
 
-  const LayerMeasurements* tkLayerMeasurements() const { return &theTkLayerMeasurements; } 
+  const TrajectoryStateUpdator* updator() const { return theUpdator.get(); }
 
-  const TrajectoryStateUpdator* updator() const {return theUpdator;}
+  const Chi2MeasurementEstimator* estimator() const { return theEstimator.get(); }
 
-  const Chi2MeasurementEstimator* estimator() const { return theEstimator; }
-
-  edm::ESHandle<Propagator> propagator() const {return theService->propagator(thePropagatorName); }
+  edm::ESHandle<Propagator> propagator() const { return theService->propagator(thePropagatorName); }
 
   /// create a hitless seed from a trajectory state
   TrajectorySeed createSeed(const TrajectoryStateOnSurface&, const DetId&) const;
 
   /// create a seed from a trajectory state
-  TrajectorySeed createSeed(const TrajectoryStateOnSurface& tsos, const edm::OwnVector<TrackingRecHit>& container, const DetId& id) const;
+  TrajectorySeed createSeed(const TrajectoryStateOnSurface& tsos,
+                            const edm::OwnVector<TrackingRecHit>& container,
+                            const DetId& id) const;
 
   /// select valid measurements
   void validMeasurements(std::vector<TrajectoryMeasurement>&) const;
-
-  /// look for measurements on the first compatible layer (faster way)
-  std::vector<TrajectoryMeasurement> findMeasurements_new(const DetLayer*, const TrajectoryStateOnSurface&) const;
 
   /// look for measurements on the first compatible layer
   std::vector<TrajectoryMeasurement> findMeasurements(const DetLayer*, const TrajectoryStateOnSurface&) const;
@@ -83,80 +84,69 @@ private:
   void getRescalingFactor(const TrackCand& staMuon);
 
   /// adjust the error matrix of the FTS
-  void adjust(FreeTrajectoryState &) const;
+  void adjust(FreeTrajectoryState&) const;
 
   /// adjust the error matrix of the TSOS
-  void adjust(TrajectoryStateOnSurface &) const;
+  void adjust(TrajectoryStateOnSurface&) const;
 
   double dxyDis(const TrajectoryStateOnSurface& tsos) const;
 
   double zDis(const TrajectoryStateOnSurface& tsos) const;
 
-  struct increasingEstimate{
-    bool operator()(const TrajectoryMeasurement& lhs,
-                    const TrajectoryMeasurement& rhs) const{ 
+  struct increasingEstimate {
+    bool operator()(const TrajectoryMeasurement& lhs, const TrajectoryMeasurement& rhs) const {
       return lhs.estimate() < rhs.estimate();
     }
   };
 
   struct isInvalid {
     bool operator()(const TrajectoryMeasurement& measurement) {
-      return ( ((measurement).recHit() == nullptr) || !((measurement).recHit()->isValid()) || !((measurement).updatedState().isValid()) ); 
+      return (((measurement).recHit() == nullptr) || !((measurement).recHit()->isValid()) ||
+              !((measurement).updatedState().isValid()));
     }
   };
 
-  unsigned long long theCacheId_MT;
   unsigned long long theCacheId_TG;
 
-  std::string theCategory;
+  const std::string theCategory;
 
-  LayerMeasurements  theTkLayerMeasurements;
-
-  edm::ESHandle<GeometricSearchTracker> theTracker;
-
-  std::string theMeasTrackerName;
-  edm::ESHandle<MeasurementTracker> theMeasTracker;
-  edm::InputTag theMeasurementTrackerEventTag;
   edm::Handle<MeasurementTrackerEvent> theMeasTrackerEvent;
 
-  const DirectTrackerNavigation* theNavigation;
+  std::unique_ptr<const DirectTrackerNavigation> theNavigation;
 
   const MuonServiceProxy* theService;
 
-  const TrajectoryStateUpdator* theUpdator;
+  std::unique_ptr<const TrajectoryStateUpdator> theUpdator;
 
-  const Chi2MeasurementEstimator* theEstimator;
+  std::unique_ptr<const Chi2MeasurementEstimator> theEstimator;
 
-  TrajectoryStateTransform* theTSTransformer;
-
-  double theMaxChi2;
+  const double theMaxChi2;
 
   double theFlexErrorRescaling;
 
-  double theFixedErrorRescaling;
+  const double theFixedErrorRescaling;
 
-  bool theUseVertexStateFlag;
+  const bool theUseVertexStateFlag;
 
-  bool theUpdateStateFlag;
+  const bool theUpdateStateFlag;
 
-  std::string theResetMethod; 
+  enum class ResetMethod { discrete, fixed, matrix };
+  const ResetMethod theResetMethod;
 
-  bool theSelectStateFlag;
+  const bool theSelectStateFlag;
 
-  std::string thePropagatorName;
+  const std::string thePropagatorName;
 
-  MuonErrorMatrix * theErrorMatrixAdjuster;
+  std::unique_ptr<MuonErrorMatrix> theErrorMatrixAdjuster;
 
-  bool theAdjustAtIp;
+  const double theSigmaZ;
 
-  double theSigmaZ; 
-
-  edm::ParameterSet theConfig;
+  const edm::ParameterSet theErrorMatrixPset;
 
   edm::Handle<reco::BeamSpot> beamSpot;
-  edm::InputTag theBeamSpotInputTag;
-  edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
-  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventToken;
+  const edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
+  const edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventToken;
+  const edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> theTrackerToken;
 };
 
-#endif 
+#endif

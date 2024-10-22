@@ -2,7 +2,7 @@
 //
 // Package:    L1TriggerKeyOnlineProd
 // Class:      L1TriggerKeyOnlineProd
-// 
+//
 /**\class L1TriggerKeyOnlineProd L1TriggerKeyOnlineProd.h CondTools/L1TriggerKeyOnlineProd/src/L1TriggerKeyOnlineProd.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 // $Id: L1TriggerKeyOnlineProd.cc,v 1.10 2008/10/13 01:49:48 wsun Exp $
 //
 //
-
 
 // system include files
 
@@ -45,68 +44,52 @@
 // constructors and destructor
 //
 L1TriggerKeyOnlineProd::L1TriggerKeyOnlineProd(const edm::ParameterSet& iConfig)
-  : m_subsystemLabels( iConfig.getParameter< std::vector< std::string > >(
-      "subsystemLabels" ) )
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
-   setWhatProduced(this);
+    : m_subsystemLabels(iConfig.getParameter<std::vector<std::string> >("subsystemLabels")) {
+  //the following line is needed to tell the framework what
+  // data is being produced
+  auto cc = setWhatProduced(this);
 
-   //now do what ever other initialization is needed
+  //now do what ever other initialization is needed
+  l1TriggerKeyToken_ = cc.consumes(edm::ESInputTag("", "SubsystemKeysOnly"));
+  for (const auto& mlabel : m_subsystemLabels) {
+    l1TriggerKeyTokenVec_.emplace_back(cc.consumes(edm::ESInputTag("", mlabel)));
+  }
 }
 
-
-L1TriggerKeyOnlineProd::~L1TriggerKeyOnlineProd()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+L1TriggerKeyOnlineProd::~L1TriggerKeyOnlineProd() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-L1TriggerKeyOnlineProd::ReturnType
-L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
-{
-   using namespace edm::es;
+L1TriggerKeyOnlineProd::ReturnType L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord) {
+  // Start with "SubsystemKeysOnly"
+  edm::ESHandle<L1TriggerKey> subsystemKeys;
+  try {
+    subsystemKeys = iRecord.getHandle(l1TriggerKeyToken_);
+  } catch (l1t::DataAlreadyPresentException& ex) {
+    throw ex;
+  }
 
-   // Start with "SubsystemKeysOnly"
-   edm::ESHandle< L1TriggerKey > subsystemKeys ;
-   try
-     {
-       iRecord.get( "SubsystemKeysOnly", subsystemKeys ) ;
-     }
-   catch( l1t::DataAlreadyPresentException& ex )
-     {
-       throw ex ;
-     }
-
-   std::shared_ptr<L1TriggerKey> pL1TriggerKey = std::make_shared< L1TriggerKey >( *subsystemKeys ) ;
+  std::unique_ptr<L1TriggerKey> pL1TriggerKey = std::make_unique<L1TriggerKey>(*subsystemKeys);
 
   // Collate object keys
-  std::vector< std::string >::const_iterator itr = m_subsystemLabels.begin() ;
-  std::vector< std::string >::const_iterator end = m_subsystemLabels.end() ;
-  for( ; itr != end ; ++itr )
-    {
-      edm::ESHandle< L1TriggerKey > objectKeys ;
-      try
-	{
-	  iRecord.get( *itr, objectKeys ) ;
-	}
-      catch( l1t::DataAlreadyPresentException& ex )
-	{
-	  throw ex ;
-	}
-
-      pL1TriggerKey->add( objectKeys->recordToKeyMap() ) ;
+  for (const auto& l1token : l1TriggerKeyTokenVec_) {
+    edm::ESHandle<L1TriggerKey> objectKeys;
+    try {
+      objectKeys = iRecord.getHandle(l1token);
+    } catch (l1t::DataAlreadyPresentException& ex) {
+      throw ex;
     }
 
-   return pL1TriggerKey ;
+    pL1TriggerKey->add(objectKeys->recordToKeyMap());
+  }
+
+  return pL1TriggerKey;
 }
 
 //define this as a plug-in

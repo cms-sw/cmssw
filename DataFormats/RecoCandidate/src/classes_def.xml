@@ -25,7 +25,8 @@
    <version ClassVersion="11" checksum="2294254376"/>
    <version ClassVersion="10" checksum="4182970126"/>
   </class>
-  <class name="reco::CaloRecHitCandidate" ClassVersion="12">
+  <class name="reco::CaloRecHitCandidate" ClassVersion="13">
+   <version ClassVersion="13" checksum="1653614292"/>
    <version ClassVersion="12" checksum="878375709"/>
    <version ClassVersion="11" checksum="85197237"/>
    <version ClassVersion="10" checksum="1441861764"/>
@@ -82,21 +83,16 @@
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > >" />
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,unsigned int> > >" />
 
-  <class name="edm::Wrapper<reco::SimToRecoCollection>" />
-  <class name="edm::Wrapper<reco::RecoToSimCollection>" />
-
-  <class name="reco::SimToRecoCollection" >
-   <field name="transientMap_" transient="true"/>
-  </class>
-  <class name="reco::RecoToSimCollection" >
-   <field name="transientMap_" transient="true"/>
-  </class>
-
-
   <class name="edm::ValueMap<reco::IsoDeposit>" />
   <class name="edm::ValueMap<reco::FitQuality>" />
-  <class pattern="edm::Wrapper<edm::ValueMap<*>" />
-  <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
+  <!-- <class pattern="edm::Wrapper<edm::ValueMap<*>" /> -->
+<class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<vector<reco::Track>,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,unsigned int> > >" />
+<class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::RecoChargedCandidate>,float,unsigned int> > >" />
+<class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::RecoEcalCandidate>,float,unsigned int> > >" />
+<class name="edm::Wrapper<edm::OwnVector<reco::RecoCandidate,edm::ClonePolicy<reco::RecoCandidate> > >" />
+  <!-- <class pattern="edm::Wrapper<edm::AssociationMap<*>" /> -->
+<class name="edm::Wrapper<edm::ValueMap<reco::FitQuality> >" />
+<class name="edm::Wrapper<edm::ValueMap<reco::IsoDeposit> >" />
  
   <class name="edm::reftobase::Holder<reco::Candidate, reco::RecoChargedCandidateRef>" />
   <class name="edm::reftobase::RefHolder<reco::RecoChargedCandidateRef>" />
@@ -118,8 +114,7 @@
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::RecoEcalCandidateRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::RecoEcalCandidateRefVector>" />
 
-
-  <class name="reco::IsoDeposit" ClassVersion="10">
+  <class name="reco::IsoDeposit" ClassVersion="10" rntupleSplit="false">
    <version ClassVersion="10" checksum="2477314412"/>
   </class>
   <class name="reco::IsoDeposit::const_iterator" ClassVersion="10">

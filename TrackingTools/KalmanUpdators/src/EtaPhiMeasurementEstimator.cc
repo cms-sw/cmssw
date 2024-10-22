@@ -6,10 +6,8 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-std::pair<bool,double> 
-EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
-				   const TrackingRecHit& aRecHit) const {
-
+std::pair<bool, double> EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
+                                                             const TrackingRecHit& aRecHit) const {
   // As the center of the plane is in the region, no need to waste time to test the hit as well
   return std::make_pair(true, 1.0);
 
@@ -28,28 +26,23 @@ EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
     return std::make_pair(false, 0.0);
 
   */
-
 }
 
-bool EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
-				   const Plane& plane) const {
-
+bool EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos, const Plane& plane) const {
   auto dEta = std::abs(tsos.globalPosition().eta() - plane.eta());
   auto dPhi = std::abs(deltaPhi(tsos.globalPosition().barePhi(), plane.phi()));
 
-
-  LogDebug("EtaPhiMeasurementEstimator")<< "The state to compare with is \n"<< tsos << "\n"
-					<< "The plane position center is: " << plane.position() << "\n"
-					<< "the deta = " << thedEta << " --- the dPhi = " << thedPhi << "\n"
-					<< "deta = "<< fabs(dEta)<< " --- dPhi = "<<fabs(dPhi);
+  LogDebug("EtaPhiMeasurementEstimator") << "The state to compare with is \n"
+                                         << tsos << "\n"
+                                         << "The plane position center is: " << plane.position() << "\n"
+                                         << "the deta = " << thedEta << " --- the dPhi = " << thedPhi << "\n"
+                                         << "deta = " << fabs(dEta) << " --- dPhi = " << fabs(dPhi);
 
   // does not take into account bounds... (not sure it was intentional)
-  return (dEta < thedEta) & (dPhi <thedPhi);
+  return (dEta < thedEta) & (dPhi < thedPhi);
 }
 
-MeasurementEstimator::Local2DVector EtaPhiMeasurementEstimator::maximalLocalDisplacement( const TrajectoryStateOnSurface& tsos,
-					const Plane& plane) const {
-
-  return  Local2DVector(30., 30.);
+MeasurementEstimator::Local2DVector EtaPhiMeasurementEstimator::maximalLocalDisplacement(
+    const TrajectoryStateOnSurface& tsos, const Plane& plane) const {
+  return Local2DVector(30., 30.);
 }
-

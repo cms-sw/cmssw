@@ -1,0 +1,4 @@
+<use name="CondCore/Utilities"/>
+<use name="FWCore/PluginManager"/>
+<bin file="testAlCaRecoTriggerBitsPayloadInspector.cpp" name="testAlCaRecoTriggerBitsPayloadInspector">
+</bin>

@@ -4,7 +4,7 @@
 //
 // Package:     Records
 // Class  :     EcalEndcapGeometryRecord
-// 
+//
 //
 // Author:      Brian Heltsley
 // Created:     Tue April 1, 2008
@@ -18,20 +18,15 @@
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
-
-class EcalEndcapGeometryRecord : 
-  public edm::eventsetup::DependentRecordImplementation<
-   EcalEndcapGeometryRecord,
-		boost::mpl::vector<
-                IdealGeometryRecord,
-		EEAlignmentRcd, 
-		EEAlignmentErrorRcd,
-                EEAlignmentErrorExtendedRcd, 
-		GlobalPositionRcd,
-                PEcalEndcapRcd
-		> > {};
+class EcalEndcapGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<EcalEndcapGeometryRecord,
+                                                            edm::mpl::Vector<IdealGeometryRecord,
+                                                                             EEAlignmentRcd,
+                                                                             EEAlignmentErrorRcd,
+                                                                             EEAlignmentErrorExtendedRcd,
+                                                                             GlobalPositionRcd,
+                                                                             PEcalEndcapRcd> > {};
 
 #endif /* RECORDS_ECALENDCAPGEOMETRYRECORD_H */
-

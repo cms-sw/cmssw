@@ -7,16 +7,14 @@ namespace cond {
 
   class IOVDescription {
   public:
-    IOVDescription(){}
-    virtual ~ IOVDescription(){}
-    virtual IOVDescription * clone() const { return new  IOVDescription(*this);}
+    IOVDescription() {}
+    virtual ~IOVDescription() {}
+    virtual IOVDescription* clone() const { return new IOVDescription(*this); }
 
   private:
-  
-  COND_SERIALIZABLE;
-};
+    COND_SERIALIZABLE;
+  };
 
-
-}
+}  // namespace cond
 
 #endif

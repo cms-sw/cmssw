@@ -9,7 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODGolBiasCurrentInfo.h"
 
 class ODGolBiasCurrentDat : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODGolBiasCurrentDat();
   ~ODGolBiasCurrentDat() override;
@@ -38,20 +38,14 @@ class ODGolBiasCurrentDat : public IODConfig {
   inline void setStatus(int dac) { m_sta = dac; }
   inline int getStatus() const { return m_sta; }
 
+private:
+  void prepareWrite() noexcept(false) override;
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+  void writeDB(const ODGolBiasCurrentDat* item, ODGolBiasCurrentInfo* iov) noexcept(false);
 
-  void writeDB(const ODGolBiasCurrentDat* item, ODGolBiasCurrentInfo* iov )
-    noexcept(false);
+  void writeArrayDB(const std::vector<ODGolBiasCurrentDat>& data, ODGolBiasCurrentInfo* iov) noexcept(false);
 
-  void writeArrayDB(const std::vector< ODGolBiasCurrentDat >& data, ODGolBiasCurrentInfo* iov)
-    noexcept(false);
-
-
-  void fetchData(std::vector< ODGolBiasCurrentDat >* fillMap, ODGolBiasCurrentInfo* iov)
-     noexcept(false);
+  void fetchData(std::vector<ODGolBiasCurrentDat>* fillMap, ODGolBiasCurrentInfo* iov) noexcept(false);
 
   // User data
   int m_gol;
@@ -61,7 +55,6 @@ class ODGolBiasCurrentDat : public IODConfig {
   int m_pll_cur;
   int m_sta;
   int m_ID;
- 
 };
 
 #endif

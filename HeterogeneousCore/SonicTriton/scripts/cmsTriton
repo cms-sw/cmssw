@@ -1,0 +1,741 @@
+#!/bin/bash
+
+# defaults
+CONTAINER=apptainer
+VERBOSE=""
+VERBOSE_ARGS="--log-verbose=1 --log-error=1 --log-warning=1 --log-info=1"
+WTIME=600
+SERVER=triton_server_instance
+RETRIES=3
+REPOS=()
+MODELS=()
+FORCE=""
+CLEANUP=true
+TMPDIR=""
+INSTANCES=0
+LOCALMODELREPO=""
+DRYRUN=""
+PARENTPID=""
+BASEPORT=8000
+AUTOPORT=""
+NPORTS=3
+IMAGE=fastml/triton-torchgeo:22.07-py3-geometric
+SANDBOX=""
+COMPAT_USR=""
+EXTRAPATH=/cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin
+OSVERSION=$(sed -nr 's/[^0-9]*([0-9]+).*/\1/p' /etc/redhat-release)
+if [ "$OSVERSION" -eq 7 ]; then
+	# this is the latest version with guaranteed sl7 support
+	EXTRAPATH=/cvmfs/oasis.opensciencegrid.org/mis/apptainer/1.2.5/bin
+fi
+DEVICE=auto
+THREADCONTROL=""
+
+get_sandbox(){
+	if [ -z "$SANDBOX" ]; then
+		echo /cvmfs/unpacked.cern.ch/registry.hub.docker.com/${IMAGE}
+	else
+		echo "$SANDBOX"
+	fi
+}
+
+usage() {
+	ECHO="echo -e"
+	$ECHO "cmsTriton [options] [start|stop|check]"
+	$ECHO
+	$ECHO "Options:"
+	$ECHO "-c          \t don't cleanup temporary dir (for debugging)"
+	$ECHO "-C [dir]    \t directory containing Nvidia compatibility drivers (checks CMSSW_BASE by default if available)"
+	$ECHO "-D          \t dry run: print container commands rather than executing them"
+	$ECHO "-d [exe]    \t container choice: apptainer, docker, podman, podman-hpc (default: ${CONTAINER})"
+	$ECHO "-E [path]   \t include extra path(s) for executables (default: ${EXTRAPATH})"
+	$ECHO "-f          \t force reuse of (possibly) existing container instance"
+	$ECHO "-g [device] \t device choice: auto (try to detect GPU), CPU, GPU (default: ${DEVICE})"
+	$ECHO "-i [name]   \t server image name (default: ${IMAGE})"
+	$ECHO "-I [num]    \t number of model instances (default: ${INSTANCES} -> means no local editing of config files)"
+	$ECHO "-M [dir]    \t model repository (can be given more than once)"
+	$ECHO "-m [dir]    \t specific model directory (can be given more than once)"
+	$ECHO "-n [name]   \t name of container instance, also used for default hidden temporary dir (default: ${SERVER})"
+	$ECHO "-P [port]   \t base port number for services (-1: automatically find an unused port range) (default: ${BASEPORT})"
+	$ECHO "-p [pid]    \t automatically shut down server when process w/ specified PID ends (-1: use parent process PID)"
+	$ECHO "-r [num]    \t number of retries when starting container (default: ${RETRIES})"
+	$ECHO "-s [dir]    \t apptainer sandbox directory (default: $(get_sandbox))"
+	$ECHO "-t [dir]    \t non-default hidden temporary dir"
+	$ECHO "-v          \t (verbose) start: activate server debugging info; stop: keep server logs"
+	$ECHO "-w [time]   \t maximum time to wait for server to start (default: ${WTIME} seconds)"
+	$ECHO "-h          \t print this message and exit"
+	$ECHO
+	$ECHO "Operations:"
+	$ECHO "start       \t start server"
+	$ECHO "stop        \t stop server"
+	$ECHO "check       \t check if server can run on this system"
+	exit $1
+}
+
+# check shm locations
+SHM=/dev/shm
+if [ -e /run/shm ]; then
+	SHM=/run/shm
+fi
+
+while getopts "cC:Dd:fg:i:I:M:m:n:P:p:r:s:t:vw:h" opt; do
+	case "$opt" in
+		c) CLEANUP=""
+		;;
+		C) COMPAT_USR="$OPTARG"
+		;;
+		D) DRYRUN=echo
+		;;
+		d) CONTAINER="$OPTARG"
+		;;
+		f) FORCE=true
+		;;
+		g) DEVICE="$OPTARG"
+		;;
+		i) IMAGE="$OPTARG"
+		;;
+		I) INSTANCES="$OPTARG"
+		;;
+		M) REPOS+=("$OPTARG")
+		;;
+		m) MODELS+=("$OPTARG")
+		;;
+		n) SERVER="$OPTARG"
+		;;
+		P) if [ "$OPTARG" -eq -1 ]; then AUTOPORT=true; else BASEPORT="$OPTARG"; fi
+		;;
+		p) if [ "$OPTARG" -eq -1 ]; then PARENTPID="$PPID"; else PARENTPID="$OPTARG"; fi
+		;;
+		r) RETRIES="$OPTARG"
+		;;
+		s) SANDBOX="$OPTARG"
+		;;
+		t) TMPDIR="$OPTARG"
+		;;
+		v) VERBOSE="$VERBOSE_ARGS"
+		;;
+		w) WTIME="$OPTARG"
+		;;
+		h) usage 0
+		;;
+	esac
+done
+
+shift $(($OPTIND - 1))
+OP=$1
+
+if [ "$OP" != start ] && [ "$OP" != stop ] && [ "$OP" != check ]; then
+	usage 1
+fi
+
+# check acceptable values for device choice
+DEVICE="${DEVICE,,}"
+if [[ ! " auto cpu gpu " =~ " $DEVICE " ]]; then
+	echo "Unsupported device value: $DEVICE"
+	exit 1
+fi
+
+# check acceptable values for container choice
+CONTAINER="${CONTAINER,,}"
+if [[ ! " apptainer docker podman podman-hpc " =~ " $CONTAINER " ]]; then
+	echo "Unsupported container value: $CONTAINER"
+	exit 1
+fi
+
+if [ "$RETRIES" -le 0 ]; then
+	RETRIES=1
+fi
+
+TOPDIR=$PWD
+if [ -z "$TMPDIR" ]; then
+	TMPDIR="${TOPDIR}/.${SERVER}"
+else
+	TMPDIR=$(readlink -f $TMPDIR)
+fi
+
+# update path
+if [ -n "$EXTRAPATH" ]; then
+	export PATH="${EXTRAPATH}:${PATH}"
+fi
+
+# find executables
+if [ "$CONTAINER" == "docker" ]; then
+	if [ -z "$DOCKER" ]; then
+		DOCKER="docker"
+	fi
+elif [ "$CONTAINER" == "podman" ]; then
+	if [ -z "$PODMAN" ]; then
+		PODMAN="podman"
+	fi
+elif [ "$CONTAINER" == "podman-hpc" ]; then
+	if [ -z "$PODMAN" ]; then
+		PODMAN="podman-hpc"
+	fi
+else
+	if [ -z "$APPTAINER" ]; then
+		if type apptainer >& /dev/null; then
+			APPTAINER=apptainer
+		elif type singularity >& /dev/null; then
+			APPTAINER=singularity
+		else
+			echo "Missing apptainer and singularity"
+			exit 1
+		fi
+	fi
+fi
+
+SANDBOX=$(get_sandbox)
+SANDBOX=$(readlink -f ${SANDBOX})
+LOG="log_${SERVER}.log"
+STOPLOG="log_stop_${SERVER}.log"
+LIB=lib
+STARTED_INDICATOR="Started GRPCInferenceService"
+SEGFAULT_INDICATOR="Address already in use"
+EXTRA=""
+COMPAT_SCRIPT=/etc/shinit_v2
+
+# this will be reset later if chosen device is gpu
+if [ "$INSTANCES" -gt 0 ]; then
+	THREADCONTROL=true
+fi
+
+compute_ports(){
+	# compute derived port numbers
+	export HTTPPORT=$BASEPORT
+	export GRPCPORT=$((BASEPORT+1))
+	export METRPORT=$((BASEPORT+2))
+}
+
+check_port(){
+	# success on this command means the port is in use
+	if 2>/dev/null >"/dev/tcp/0.0.0.0/$1"; then
+		return 1
+	else
+		return 0
+	fi
+}
+
+check_ports(){
+	if check_port $HTTPPORT && check_port $GRPCPORT && check_port $METRPORT; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+find_ports(){
+	while ! check_ports; do
+		BASEPORT=$((BASEPORT+NPORTS))
+		compute_ports
+	done
+	echo "CMS_TRITON_GRPC_PORT: $GRPCPORT"
+}
+
+handle_ports(){
+	# handle ports
+	compute_ports
+	if [ -n "$AUTOPORT" ]; then
+		find_ports
+	elif ! check_ports; then
+		echo "Error: requested port in use"
+		return 1
+	fi
+	export PORTARGS="--http-port=${HTTPPORT} --grpc-port=${GRPCPORT} --metrics-port=${METRPORT}"
+}
+
+start_docker(){
+	# mount all model repositories
+	MOUNTARGS=""
+	REPOARGS=""
+	for REPO in ${REPOS[@]}; do
+		MOUNTARGS="$MOUNTARGS -v$REPO:$REPO"
+		REPOARGS="$REPOARGS --model-repository=${REPO}"
+	done
+
+	# compatibility driver environment
+	if [ -n "$COMPAT" ]; then
+		MOUNTARGS="$MOUNTARGS -v$COMPAT"
+		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
+			MOUNTARGS="$MOUNTARGS -v$COMPAT_SCRIPT_MOUNT"
+		fi
+	fi
+
+	$DRYRUN $DOCKER run -d --name ${SERVER} \
+		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 --ipc="host" --cap-add=IPC_OWNER \
+		-p${HTTPPORT}:${HTTPPORT} -p${GRPCPORT}:${GRPCPORT} -p${METRPORT}:${METRPORT} $EXTRA $MOUNTARGS \
+		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
+}
+
+start_podman(){
+	# mount all model repositories
+	MOUNTARGS=""
+	REPOARGS=""
+	for REPO in ${REPOS[@]}; do
+		MOUNTARGS="$MOUNTARGS --volume $REPO:$REPO"
+		REPOARGS="$REPOARGS --model-repository=${REPO}"
+	done
+
+	# compatibility driver environment
+	if [ -n "$COMPAT" ]; then
+		MOUNTARGS="$MOUNTARGS --volume $COMPAT"
+		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
+			MOUNTARGS="$MOUNTARGS --volume $COMPAT_SCRIPT_MOUNT"
+		fi
+	fi
+
+	$DRYRUN $PODMAN run -d --name ${SERVER} \
+		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 \
+		-p${HTTPPORT}:${HTTPPORT} -p${GRPCPORT}:${GRPCPORT} -p${METRPORT}:${METRPORT} $EXTRA $MOUNTARGS \
+		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
+}
+
+start_apptainer(){
+	# triton server image may need to modify contents of opt/tritonserver/lib/
+	# but cvmfs is read-only
+	# -> make a writable local directory with the same contents
+	# this is no longer needed as of triton 2.11.0, but kept for compatibility w/ older server versions
+	$DRYRUN mkdir ${LIB}
+	$DRYRUN ln -s ${SANDBOX}/opt/tritonserver/lib/* ${LIB}/
+
+	# mount all model repositories
+	MOUNTARGS=""
+	REPOARGS=""
+	for REPO in ${REPOS[@]}; do
+		MOUNTARGS="$MOUNTARGS -B $REPO"
+		REPOARGS="$REPOARGS --model-repository=${REPO}"
+	done
+
+	# compatibility driver environment
+	if [ -n "$COMPAT" ]; then
+		MOUNTARGS="$MOUNTARGS -B $COMPAT"
+		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
+			MOUNTARGS="$MOUNTARGS -B $COMPAT_SCRIPT_MOUNT"
+		fi
+	fi
+
+    # workaround for https://github.com/apptainer/apptainer/issues/2164
+    unset DBUS_SESSION_BUS_ADDRESS
+
+	# start instance
+	# need to bind /cvmfs for above symlinks to work inside container
+	# --underlay: workaround for https://github.com/apptainer/apptainer/issues/2167
+	$DRYRUN $APPTAINER instance start \
+		--underlay \
+		-B ${SHM}:/run/shm -B ${LIB}:/opt/tritonserver/lib -B ${SANDBOX} $MOUNTARGS $EXTRA \
+		${SANDBOX} ${SERVER}
+
+	START_EXIT=$?
+	if [ "$START_EXIT" -ne 0 ]; then
+		rm -rf ${LIB}
+		return "$START_EXIT"
+	fi
+
+	# run the actual server
+	if [ -z "$DRYRUN" ]; then
+		REDIR="$LOG"
+	else
+		REDIR=/dev/stdout
+	fi
+	$DRYRUN $APPTAINER run instance://${SERVER} \
+		tritonserver $PORTARGS $REPOARGS $VERBOSE >& ${REDIR} &
+	[ -z "$DRYRUN" ] || wait
+}
+
+stop_docker(){
+	# keep log
+	if [ -z "$DRYRUN" ]; then
+		if [ -n "$VERBOSE" ]; then $DOCKER logs ${SERVER} >& "$LOG"; fi
+	fi
+
+	$DRYRUN $DOCKER stop ${SERVER}
+	$DRYRUN $DOCKER rm ${SERVER}
+}
+
+stop_podman(){
+	# keep log
+	if [ -z "$DRYRUN" ]; then
+		if [ -n "$VERBOSE" ]; then $PODMAN logs ${SERVER} >& "$LOG"; fi
+	fi
+
+	$DRYRUN $PODMAN stop ${SERVER}
+	$DRYRUN $PODMAN rm ${SERVER}
+}
+
+stop_apptainer(){
+	$DRYRUN $APPTAINER instance stop ${SERVER}
+}
+
+test_docker(){
+	# docker logs print to stderr
+	${DOCKER} logs ${SERVER} |& grep "$1"
+}
+
+test_podman(){
+	# podman logs print to stdout
+	${PODMAN} logs ${SERVER} |& grep "$1"
+}
+
+test_apptainer(){
+	grep "$1" $LOG
+}
+
+wait_server(){
+	if [ -n "$DRYRUN" ]; then
+		return
+	fi
+
+	COUNT=0
+	while ! $TEST_FN "$STARTED_INDICATOR" >& /dev/null; do
+		if $TEST_FN "$SEGFAULT_INDICATOR" >& /dev/null; then
+			handle_ports
+			PORT_EXIT=$?
+			# port exit is zero if it found a new, good port; so retry
+			if [ "$PORT_EXIT" -ne 0 ]; then
+				auto_stop true
+				exit $PORT_EXIT
+			else
+				return 1
+			fi
+		elif [ "$COUNT" -gt "$WTIME" ]; then
+			echo "timed out waiting for server to start"
+			auto_stop true
+			exit 1
+		else
+			COUNT=$(($COUNT + 1))
+			sleep 1
+		fi
+	done
+
+	echo "server is ready!"
+}
+
+list_models(){
+	# make list of model repositories
+	LOCALMODELREPO="local_model_repo"
+	if [ -n "$THREADCONTROL" ]; then
+		if [ -d "$TMPDIR/$LOCALMODELREPO" ]; then
+			#Want to start with a fresh copy of model files in case this directory already exists with local edits
+			rm -rf $TMPDIR/$LOCALMODELREPO
+		fi
+		$DRYRUN mkdir $TMPDIR/$LOCALMODELREPO
+		MKMODELDIR_EXIT=$?
+		if [ "$MKMODELDIR_EXIT" -ne 0 ]; then
+			echo "Could not create local_model_repo dir: $TMPDIR/$LOCALMODELREPO"
+			exit "$MKMODELDIR_EXIT"
+		fi
+	fi
+
+	for MODEL in ${MODELS[@]}; do
+		# check if file was provided rather than directory
+		if [ -f "$MODEL" ]; then
+			MODEL="$(dirname "$MODEL")"
+		fi
+		if [ -n "$THREADCONTROL" ]; then
+			$DRYRUN cmsTritonConfigTool threadcontrol -c ${MODEL}/config.pbtxt --copy $TMPDIR/$LOCALMODELREPO --nThreads $INSTANCES
+			TOOL_EXIT=$?
+			if [ "$TOOL_EXIT" -ne 0 ]; then
+				echo "Could not apply threadcontrol to $MODEL"
+				exit "$TOOL_EXIT"
+			fi
+		else
+			REPOS+=("$(dirname "$MODEL")")
+		fi
+	done
+	if [ -n "$THREADCONTROL" ]; then
+		REPOS=$TMPDIR/$LOCALMODELREPO
+	else
+		for ((r=0; r < ${#REPOS[@]}; r++)); do
+			# avoid issues w/ multiple levels of symlinks
+			REPOS[$r]=$(readlink -f ${REPOS[$r]})
+		done
+		read -a REPOS <<< "$(printf "%s\n" "${REPOS[@]}" | sort -u | tr '\n' ' ')"
+	fi
+}
+
+auto_stop(){
+	# allow enabling verbosity here even if disabled at top level
+	# but otherwise use top-level setting
+	if [ -n "$1" ]; then VERBOSE="$VERBOSE_ARGS"; fi
+	PARENTPID="$2"
+
+	if [ -n "$PARENTPID" ]; then
+		if [ -n "$VERBOSE" ]; then
+			echo "watching PID $PARENTPID"
+			ps
+		fi
+		PCOUNTER=0
+		PMAX=5
+		# builtin wait is not used here because it can only monitor a child process, not a parent process
+		while [ "$PCOUNTER" -le "$PMAX" ]; do
+			if ! kill -0 $PARENTPID >& /dev/null; then
+				PCOUNTER=$((PCOUNTER+1))
+				if [ -n "$VERBOSE" ]; then
+					echo "trigger $PCOUNTER:"
+					ps
+				fi
+			else
+				# must get N in a row, otherwise reset
+				if [ "$PCOUNTER" -gt 0 ] && [ -n "$VERBOSE" ]; then
+					echo "reset:"
+					ps
+				fi
+				PCOUNTER=0
+			fi
+			sleep 1
+		done
+	fi
+	$STOP_FN
+
+	# move logs out of tmp dir
+	if [ -z "$DRYRUN" ] && [ -n "$VERBOSE" ]; then
+		mv "$LOG" "$TOPDIR"
+		# only keep non-empty log
+		if [ -s "$STOPLOG" ]; then
+			mv "$STOPLOG" "$TOPDIR"
+		fi
+	fi
+
+	if [ -n "$CLEANUP" ]; then
+		$DRYRUN cd "$TOPDIR"
+		$DRYRUN rm -rf "$TMPDIR"
+	fi
+}
+
+make_tmp(){
+	# make sure everything happens in tmp dir
+	$DRYRUN mkdir "$TMPDIR"
+	MKDIR_EXIT=$?
+	if [ "$MKDIR_EXIT" -ne 0 ]; then
+		echo "Could not create temp dir: $TMPDIR"
+		exit "$MKDIR_EXIT"
+	fi
+	$DRYRUN cd "$TMPDIR"
+}
+
+scram_tag(){
+	cd $CMSSW_BASE
+	TOOL="$1"
+	TAG="$2"
+	scram tool tag $TOOL $TAG 2> /dev/null || true
+}
+
+driver_docker(){
+	$DOCKER run --rm --entrypoint env ${IMAGE} | grep "CUDA_DRIVER_VERSION="
+}
+
+driver_podman(){
+	$PODMAN run --rm --entrypoint env ${IMAGE} | grep "CUDA_DRIVER_VERSION="
+}
+
+driver_apptainer(){
+	D2S=${SANDBOX}/.singularity.d/env/10-docker2singularity.sh
+	if [ -f "$D2S" ]; then
+		source $D2S && echo "CUDA_DRIVER_VERSION=$CUDA_DRIVER_VERSION"
+	fi
+}
+
+compat_docker(){
+	$DOCKER cp $($DOCKER create --rm ${IMAGE}):${COMPAT_SCRIPT} .
+}
+
+compat_apptainer(){
+	cp ${SANDBOX}/${COMPAT_SCRIPT} .
+}
+
+check_drivers(){
+	# get sandbox env vars in subshell
+	eval "$($DRIVER_FN)"
+	# copied from https://github.com/triton-inference-server/server/blob/v2.11.0/nvidia_entrypoint.sh
+	# regex generalized to handle SUSE
+	DRIVER_VERSION=$(sed -nr 's/^NVRM.*Kernel Module[^.]* ([0-9.]*).*$/\1/p' /proc/driver/nvidia/version 2>/dev/null || true)
+	if [[ "${DRIVER_VERSION%%.*}" -ge "${CUDA_DRIVER_VERSION%%.*}" ]]; then
+		return 0
+	fi
+
+	export COMPAT=""
+
+	# 1. check for user-specified compatibility drivers
+	if [ -n "$COMPAT_USR" ] && [ -d "$COMPAT_USR" ]; then
+		COMPAT="$COMPAT_USR"
+	fi
+
+	# 2. check for compatibility drivers from CMSSW if available
+	# based on $CMSSW_BASE/config/SCRAM/hooks/runtime/00-nvidia-drivers
+	# but need to check drivers, not runtime
+	if [ -z "$COMPAT" ] && [ -n "$CMSSW_BASE" ]; then
+		CUDA_BASE=$(scram_tag cuda CUDA_BASE)
+		COMPAT_CMSSW=${CUDA_BASE}/drivers
+
+		if [ -n "$CUDA_BASE" ] && [ -d "$COMPAT_CMSSW" ]; then
+			COMPAT="$COMPAT_CMSSW"
+		fi
+	fi
+
+	# 3. finally, check expected system location
+	COMPAT_SYS=/usr/local/cuda/compat
+	if [ -z "$COMPAT" ] && [ -d "$COMPAT_SYS" ]; then
+		COMPAT="$COMPAT_SYS"
+	fi
+
+	if [ -n "$COMPAT" ]; then
+		# in order to mount drivers where Triton expects them
+		export COMPAT="${COMPAT}:${COMPAT_SYS}/lib.real"
+		# workaround for bug in Triton/Nvidia compatibility check
+		if [ "$PWD" == "$TMPDIR" ]; then
+			$DRYRUN $COMPAT_FN
+			COMPAT_SCRIPT_BASE=$(basename $COMPAT_SCRIPT)
+			# newer containers already include this fix, no need to do it twice
+			if ! grep -Fq 'LD_PRELOAD=""' $COMPAT_SCRIPT_BASE; then
+				$DRYRUN sed -i 's/LD_LIBRARY_PATH="${_CUDA_COMPAT_REALLIB}"/&; LD_PRELOAD=""/' $COMPAT_SCRIPT_BASE
+				COMPAT_SCRIPT_PATH=$(readlink -f $TMPDIR/$COMPAT_SCRIPT_BASE)
+				COMPAT_SCRIPT_MOUNT="$COMPAT_SCRIPT_PATH:$COMPAT_SCRIPT"
+			fi
+		fi
+		return 0
+	else
+		return 1
+	fi
+}
+
+extra_docker(){
+	if [ "$DEVICE" == gpu ]; then
+		EXTRA="--gpus all"
+	fi
+}
+extra_podman(){
+	if [ "$DEVICE" == gpu ]; then
+		EXTRA="--device nvidia.com/gpu=all"
+	fi
+}
+extra_podman_hpc(){
+	if [ "$DEVICE" == gpu ]; then
+		EXTRA="--gpu"
+	fi
+	EXTRA="$EXTRA --cvmfs --log-driver=json-file"
+}
+extra_apptainer(){
+	if [ "$DEVICE" == gpu ]; then
+		EXTRA="--nv"
+	fi
+}
+
+if [ "$CONTAINER" == "docker" ]; then
+	START_FN=start_docker
+	EXTRA_FN=extra_docker
+	TEST_FN=test_docker
+	STOP_FN=stop_docker
+	DRIVER_FN=driver_docker
+	COMPAT_FN=compat_docker
+	PROG_NAME=docker
+elif [ "$CONTAINER" == "podman" ]; then
+	START_FN=start_podman
+	EXTRA_FN=extra_podman
+	TEST_FN=test_podman
+	STOP_FN=stop_podman
+	DRIVER_FN=driver_podman
+	COMPAT_FN=compat_podman
+	PROG_NAME=podman
+elif [ "$CONTAINER" == "podman-hpc" ]; then
+	START_FN=start_podman
+	EXTRA_FN=extra_podman_hpc
+	TEST_FN=test_podman
+	STOP_FN=stop_podman
+	DRIVER_FN=driver_podman
+	COMPAT_FN=compat_podman
+	PROG_NAME=podman-hpc
+else
+	START_FN=start_apptainer
+	EXTRA_FN=extra_apptainer
+	TEST_FN=test_apptainer
+	STOP_FN=stop_apptainer
+	DRIVER_FN=driver_apptainer
+	COMPAT_FN=compat_apptainer
+	PROG_NAME=apptainer
+fi
+
+if [ "$OP" == check ]; then
+	check_drivers
+	exit $?
+elif [ "$OP" == start ]; then
+	# handle cleaning up
+	if [ -n "$FORCE" ]; then
+		auto_stop
+	elif [ -d "$TMPDIR" ]; then
+		echo "Error: this container may already exist (override with -f)"
+		exit 1
+	fi
+
+	# auto GPU check
+	if [ "$DEVICE" == auto ]; then
+		if nvidia-smi -L >& /dev/null; then
+			DEVICE=gpu
+		else
+			DEVICE=cpu
+		fi
+	fi
+	echo "CMS_TRITON_CHOSEN_DEVICE: $DEVICE"
+	$EXTRA_FN
+
+	# do not apply thread control settings if GPU use is requested
+	if [ "$DEVICE" == gpu ]; then
+		THREADCONTROL=""
+	fi
+
+	handle_ports
+	PORT_EXIT=$?
+	if [ "$PORT_EXIT" -ne 0 ]; then exit $PORT_EXIT; fi
+
+	# if parent PID is provided, automatically stop server when finished
+	# do this before actually trying to start the server in case of ctrl+c
+	if [ -n "$PARENTPID" ]; then
+		auto_stop "" "$PARENTPID" >& "$STOPLOG" &
+	fi
+
+	START_EXIT=0
+	for ((counter=0; counter < ${RETRIES}; counter++)); do
+		make_tmp
+
+		# if we plan on editing model configs, must copy files into /tmp/local_model_repo, which is deleted upon retry
+		if [ "$counter" -eq 0 ] || [ -n "$THREADCONTROL" ]; then list_models; fi
+
+		# only need to check drivers if using GPU
+		if [ "$DEVICE" == gpu ]; then
+			check_drivers
+			DRIVER_EXIT=$?
+			if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi
+		fi
+
+		$START_FN
+		START_EXIT=$?
+		if [ "$START_EXIT" -eq 0 ]; then
+			wait_server
+			WAIT_EXIT=$?
+			if [ "$WAIT_EXIT" -eq 0 ]; then
+				break
+			else
+				# allow to keep retrying if there was a port issue
+				counter=$((counter-1))
+				START_EXIT="$WAIT_EXIT"
+			fi
+		fi
+
+		if [ "$START_EXIT" -ne 0 ]; then
+			auto_stop
+			echo "Retrying after container issue..."
+		fi
+	done
+	if [ "$START_EXIT" -ne 0 ]; then
+		echo "Error from $PROG_NAME"
+		exit "$START_EXIT"
+	fi
+else
+	# check for tmp dir
+	if [ -d "$TMPDIR" ] || [ -n "$DRYRUN" ]; then
+		$DRYRUN cd "$TMPDIR"
+	elif [ -z "$FORCE" ]; then
+		echo "Error: attempt to stop unknown container $SERVER"
+		exit 1
+	fi
+
+	auto_stop
+fi

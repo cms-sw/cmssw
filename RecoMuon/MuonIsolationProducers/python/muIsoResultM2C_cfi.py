@@ -14,7 +14,7 @@ muIsoResultM2C = cms.EDProducer("MuIsoCandidateResultProducer",
         UnweightedInputTkDeps
     ), 
         cms.PSet(
-            UnweightedInputTowEcalDeps
+            UnweightedInputHitEcalDeps
         ), 
         cms.PSet(
             UnweightedInputTowHcalDeps

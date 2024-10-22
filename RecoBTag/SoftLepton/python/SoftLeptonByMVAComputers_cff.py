@@ -16,6 +16,15 @@ softPFMuonCommon = cms.PSet(
     useAdaBoost = cms.bool(True)
 )
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(
+    softPFElectronCommon,
+    useCondDB = cms.bool(False),
+).toModify(
+    softPFMuonCommon,
+    useCondDB = cms.bool(False),
+)
+
 softPFElectronComputer = cms.ESProducer("ElectronTaggerESProducer",
     softPFElectronCommon,
     ipSign = cms.string("any"),

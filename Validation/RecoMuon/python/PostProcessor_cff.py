@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from Validation.RecoMuon.PostProcessor_RecoMuonValidator_cff import *
+from Validation.RecoMuon.PostProcessor_RecoDisplacedMuonValidator_cff import *
 
 postProcessorMuonTrack = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/MuonTrack/*"),
@@ -53,9 +54,11 @@ postProcessorMuonTrack = DQMEDHarvester("DQMGenericClient",
     resolution = cms.vstring(
         "dxypull_vs_eta 'dxy Pull vs #eta' dxypull_vs_eta",
         "dxyres_vs_eta 'dxy Residual vs #eta' dxyres_vs_eta",
+        "dxyres_vs_phi 'dxy Residual vs #phi' dxyres_vs_phi",
         "dxyres_vs_pt 'dxy Residual vs p_{T}' dxyres_vs_pt",
         "dzpull_vs_eta 'dz Pull vs #eta' dzpull_vs_eta",
         "dzres_vs_eta 'dz Residual vs #eta' dzres_vs_eta",
+        "dzres_vs_phi 'dz Residual vs #phi' dzres_vs_phi",
         "dzres_vs_pt 'dz Residual vs p_{T}' dzres_vs_pt",
         "phipull_vs_eta '#phi Pull vs #eta' phipull_vs_eta",
         "phipull_vs_phi '#phi Pull vs #phi' phipull_vs_phi",
@@ -93,4 +96,5 @@ postProcessorMuonTrackComp = DQMEDHarvester("DQMGenericClient",
 
 recoMuonPostProcessors = cms.Sequence( postProcessorMuonTrack 
                                           * postProcessorMuonTrackComp 
-                                          * postProcessorsRecoMuonValidator_seq )
+                                          * postProcessorsRecoMuonValidator_seq
+                                          * postProcessorsRecoDisplacedMuonValidator_seq )

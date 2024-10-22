@@ -1,0 +1,4 @@
+<test name="testCondToolsDQMUpload" command="test_write.sh"/>
+<test name="testCondToolsDQMRead" command="test_read.sh">
+  <flags PRE_TEST="testCondToolsDQMUpload"/>
+</test>

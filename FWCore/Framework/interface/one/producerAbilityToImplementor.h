@@ -4,7 +4,7 @@
 //
 // Package:     Package
 // Class  :     producer::AbilityToImplementor
-// 
+//
 /**\class producer::AbilityToImplementor producerAbilityToImplementor.h "FWCore/Framework/interface/one/producerAbilityToImplementor.h"
 
  Description: [one line class summary]
@@ -31,51 +31,86 @@
 namespace edm {
   namespace one {
     namespace producer {
-      template<typename T> struct AbilityToImplementor;
-      
-      template<>
+      template <typename T>
+      struct AbilityToImplementor;
+
+      template <>
       struct AbilityToImplementor<edm::one::SharedResources> {
-        typedef edm::one::impl::SharedResourcesUser<edm::one::EDProducerBase> Type;
+        using Type = edm::one::impl::SharedResourcesUser<edm::one::EDProducerBase>;
       };
-      
-      template<>
+
+      template <>
       struct AbilityToImplementor<edm::one::WatchRuns> {
-        typedef edm::one::impl::RunWatcher<edm::one::EDProducerBase> Type;
+        using Type = edm::one::impl::RunWatcher<edm::one::EDProducerBase>;
       };
 
-      template<>
+      template <>
       struct AbilityToImplementor<edm::one::WatchLuminosityBlocks> {
-        typedef edm::one::impl::LuminosityBlockWatcher<edm::one::EDProducerBase> Type;
+        using Type = edm::one::impl::LuminosityBlockWatcher<edm::one::EDProducerBase>;
       };
-      
-      template<>
+
+      template <>
+      struct AbilityToImplementor<edm::WatchProcessBlock> {
+        using Type = edm::one::impl::WatchProcessBlock<edm::one::EDProducerBase>;
+      };
+
+      template <>
+      struct AbilityToImplementor<edm::BeginProcessBlockProducer> {
+        using Type = edm::one::impl::BeginProcessBlockProducer<edm::one::EDProducerBase>;
+      };
+
+      template <>
+      struct AbilityToImplementor<edm::EndProcessBlockProducer> {
+        using Type = edm::one::impl::EndProcessBlockProducer<edm::one::EDProducerBase>;
+      };
+
+      template <>
       struct AbilityToImplementor<edm::BeginRunProducer> {
-        typedef edm::one::impl::BeginRunProducer<edm::one::EDProducerBase> Type;
+        using Type = edm::one::impl::BeginRunProducer<edm::one::EDProducerBase>;
       };
 
-      template<>
+      template <>
       struct AbilityToImplementor<edm::EndRunProducer> {
-        typedef edm::one::impl::EndRunProducer<edm::one::EDProducerBase> Type;
+        using Type = edm::one::impl::EndRunProducer<edm::one::EDProducerBase>;
       };
 
-      template<>
+      template <>
       struct AbilityToImplementor<edm::BeginLuminosityBlockProducer> {
-        typedef edm::one::impl::BeginLuminosityBlockProducer<edm::one::EDProducerBase> Type;
+        using Type = edm::one::impl::BeginLuminosityBlockProducer<edm::one::EDProducerBase>;
       };
-      
-      template<>
+
+      template <>
       struct AbilityToImplementor<edm::EndLuminosityBlockProducer> {
-        typedef edm::one::impl::EndLuminosityBlockProducer<edm::one::EDProducerBase> Type;
+        using Type = edm::one::impl::EndLuminosityBlockProducer<edm::one::EDProducerBase>;
       };
 
-      template<>
+      template <>
+      struct AbilityToImplementor<edm::Transformer> {
+        using Type = edm::one::impl::Transformer<edm::one::EDProducerBase>;
+      };
+
+      template <typename... Cs>
+      struct AbilityToImplementor<edm::InputProcessBlockCache<Cs...>> {
+        using Type = edm::one::impl::InputProcessBlockCacheHolder<edm::one::EDProducerBase, Cs...>;
+      };
+
+      template <typename C>
+      struct AbilityToImplementor<edm::RunCache<C>> {
+        using Type = edm::one::impl::RunCacheHolder<edm::one::EDProducerBase, C>;
+      };
+
+      template <typename C>
+      struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
+        using Type = edm::one::impl::LuminosityBlockCacheHolder<edm::one::EDProducerBase, C>;
+      };
+
+      template <>
       struct AbilityToImplementor<edm::Accumulator> {
-        typedef edm::one::impl::Accumulator<edm::one::EDProducerBase> Type;
+        using Type = edm::one::impl::Accumulator<edm::one::EDProducerBase>;
       };
 
-    }
-  }
-}
-
+    }  // namespace producer
+  }  // namespace one
+}  // namespace edm
 
 #endif

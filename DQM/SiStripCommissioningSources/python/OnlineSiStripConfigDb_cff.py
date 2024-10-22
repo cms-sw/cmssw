@@ -9,6 +9,7 @@ SiStripConfigDb = cms.Service("SiStripConfigDb",
 
 # use the config db rather than conditions db configuration parameters
 SiStripCondObjBuilderFromDb = cms.Service("SiStripCondObjBuilderFromDb")
+SiStripCondObjBuilderFromDb.SiStripDetInfoFile = cms.FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")
 FedCablingFromConfigDb = cms.ESSource("SiStripFedCablingBuilderFromDb",
     CablingSource = cms.untracked.string('UNDEFINED')
 )
@@ -19,4 +20,3 @@ NoiseFromConfigDb = cms.ESSource("SiStripNoiseBuilderFromDb")
 myNoisePrefer = cms.ESPrefer("SiStripNoiseBuilderFromDb", "NoiseFromConfigDb")
 # produce SiStripFecCabling and SiStripDetCabling out of SiStripFedCabling
 sistripconn = cms.ESProducer("SiStripConnectivity")
-SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")

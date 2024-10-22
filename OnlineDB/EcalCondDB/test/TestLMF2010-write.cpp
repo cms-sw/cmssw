@@ -1,29 +1,27 @@
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <vector>
-#include <time.h>
-#include <cstdlib>
-#include <limits.h>
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/LMFDefFabric.h"
 #include "OnlineDB/EcalCondDB/interface/LMFLaserPulseDat.h"
 #include "OnlineDB/EcalCondDB/interface/LMFPnPrimDat.h"
 #include "OnlineDB/EcalCondDB/interface/all_lmf_types.h"
+#include <climits>
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
 
 using namespace std;
 
 class CondDBApp {
 public:
-
   /**
    *   App constructor; Makes the database connection
    */
-  CondDBApp(string sid, string user, string pass, run_t r)
-  {
+  CondDBApp(string sid, string user, string pass, run_t r) {
     try {
       cout << "Making connection..." << flush;
-      econn = new EcalCondDBInterface( sid, user, pass );
+      econn = new EcalCondDBInterface(sid, user, pass);
       run = r;
       cout << "Done." << endl;
     } catch (runtime_error &e) {
@@ -35,10 +33,7 @@ public:
   /**
    *  App destructor;  Cleans up database connection
    */
-  ~CondDBApp() 
-  {
-    delete econn;
-  }
+  ~CondDBApp() { delete econn; }
 
   void doRead() {
     std::string location = "P5_Co";
@@ -53,13 +48,13 @@ public:
     LMFRunIOV lmfruniov(econn);
     lmfruniov.debug();
     cout << econn->getEnv() << " " << econn->getConn() << endl;
-    std::list< LMFRunIOV > iov_l = lmfruniov.fetchBySequence( seq );
+    std::list<LMFRunIOV> iov_l = lmfruniov.fetchBySequence(seq);
     cout << iov_l.size() << endl;
     exit(0);
     lmfruniov.setSequence(seq).setLmr(3);
     lmfruniov.fetchID();
     lmfruniov.dump();
-    vector<LMFDat*> v; 
+    vector<LMFDat *> v;
     LMFRunDat *lmfrundat = new LMFRunDat(econn);
     LMFTestPulseConfigDat *lmfconfigdat = new LMFTestPulseConfigDat(econn);
     LMFLaserConfigDat *lmflaserconfdat = new LMFLaserConfigDat(econn);
@@ -107,14 +102,13 @@ public:
     seq.dump();
     // now write and check that we have a different ID
     econn->insertLmfSeq(&seq);
-    seq.dump();    
+    seq.dump();
     // now create the corresponding LMF_RUN_IOV
-    LMFRunIOV lmfruniov(econn->getEnv(),
-			econn->getConn());
+    LMFRunIOV lmfruniov(econn->getEnv(), econn->getConn());
     // we need to associate a tag to the LMF_RUN_IOV. For all classes we have
     // different constructors.
     LMFRunTag lmfruntag(econn);
-    lmfruntag.setGeneralTag("gen").setVersion(2); // operators can be catenated
+    lmfruntag.setGeneralTag("gen").setVersion(2);  // operators can be catenated
     if (lmfruntag.exists()) {
       lmfruntag.dump();
       cout << "OK" << endl;
@@ -123,13 +117,10 @@ public:
       cout << "Does not exists" << endl;
     }
     // we can just get the tags from the DB
-    boost::ptr_list<LMFUnique> listOfTags = lmfruntag.fetchAll();
-    boost::ptr_list<LMFUnique>::iterator itag = listOfTags.begin();
-    boost::ptr_list<LMFUnique>::iterator etag = listOfTags.end();
+    auto listOfTags = lmfruntag.fetchAll();
     cout << "Found " << listOfTags.size() << " tags" << endl;
-    while (itag != etag) {
-      itag->dump();
-      itag++;
+    for (auto &tag : listOfTags) {
+      tag->dump();
     }
     // we can also get the tags from the fabric
     lmfruntag = fabric.getRunTag("gen", 3);
@@ -149,15 +140,19 @@ public:
     cout << "Starting filling primitives" << endl;
     // get the list of logic_ids
     vector<EcalLogicID> ecid_vec;
-    int sm_min=1;
-    int sm_max=36;
-    int ch_min=0;
-    int ch_max=1;
-    ecid_vec = econn->getEcalLogicIDSetOrdered("EB_LM_side", sm_min, sm_max,
-                                               ch_min, ch_max,
-                                               EcalLogicID::NULLID, 
-					       EcalLogicID::NULLID,
-                                               "EB_crystal_number", 1234 );
+    int sm_min = 1;
+    int sm_max = 36;
+    int ch_min = 0;
+    int ch_max = 1;
+    ecid_vec = econn->getEcalLogicIDSetOrdered("EB_LM_side",
+                                               sm_min,
+                                               sm_max,
+                                               ch_min,
+                                               ch_max,
+                                               EcalLogicID::NULLID,
+                                               EcalLogicID::NULLID,
+                                               "EB_crystal_number",
+                                               1234);
     cout << ecid_vec.size() << endl;
     // create random data
     vector<EcalLogicID>::const_iterator i = ecid_vec.begin();
@@ -192,7 +187,7 @@ public:
       tpDat.setData(logic_id, gain[g], rand(), rand(), rand());
       vector<float> random_data;
       for (int k = 0; k < 8; k++) {
-	random_data.push_back((float)rand()/RAND_MAX);
+        random_data.push_back((float)rand() / static_cast<float>(RAND_MAX));
       }
       lcDat.setData(logic_id, random_data);
     }
@@ -252,13 +247,12 @@ public:
   }
 
 private:
-  CondDBApp();  // hidden default constructor
-  EcalCondDBInterface* econn;
+  CondDBApp() = delete;  // hidden default constructor
+  EcalCondDBInterface *econn;
   run_t run;
 };
 
-int main (int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
   string sid;
   string user;
   string pass;

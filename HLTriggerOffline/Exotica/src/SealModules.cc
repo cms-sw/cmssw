@@ -1,6 +1,6 @@
 
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 #include "HLTriggerOffline/Exotica/interface/HLTExoticaValidator.h"
 

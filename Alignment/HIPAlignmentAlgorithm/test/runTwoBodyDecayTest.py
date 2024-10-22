@@ -1,10 +1,10 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TBDtest")
 
 # Messages
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
@@ -131,7 +131,7 @@ if hasattr(optpy, "TBDconstraint"):
       strTBDConstrainer="TwoBodyDecayConstraint,trackParameters"
 
 if strTBDConstrainer is not None:
-   print "strTBDConstrainer=",strTBDConstrainer
+   print("strTBDConstrainer=",strTBDConstrainer)
 
 process.TrackRefitterSequence = TrackRefitterSequencer.getSequence(
    process,
@@ -160,7 +160,7 @@ process.AlignmentTrackSelector.TwoBodyDecaySelector.minXMass = 80.0
 process.AlignmentTrackSelector.TwoBodyDecaySelector.maxXMass = 100.0
 
 
-print process.TrackRefitterSequence
+print(process.TrackRefitterSequence)
 subproc=[
    "offlineBeamSpot",
    "HighPurityTrackSelector",
@@ -175,16 +175,16 @@ subproc=[
 moduleSum=None
 for sp in subproc:
    if hasattr(process, sp):
-      print "\n\tAttributes for process.{}".format(sp)
+      print("\n\tAttributes for process.{}".format(sp))
       if moduleSum is None:
          moduleSum=getattr(process,sp)
       else:
          moduleSum+=getattr(process,sp)
       for v in vars(getattr(process,sp)):
-         print v,":",getattr(getattr(process,sp),v)
+         print(v,":",getattr(getattr(process,sp),v))
 
 process.TrackRefitterSequence = cms.Sequence(moduleSum)
-print "Final process path:",process.TrackRefitterSequence
+print("Final process path:",process.TrackRefitterSequence)
 process.p = cms.Path(process.TrackRefitterSequence)
 
 
@@ -193,7 +193,7 @@ if strflagopts:
    TAG = TAG + "_" + strflagopts
 TAG = TAG.replace(':','_')
 TAG = TAG.strip()
-print "Output file:","analyzed_{0}.root".format(TAG)
+print("Output file:","analyzed_{0}.root".format(TAG))
 process.Analyzer = cms.EDAnalyzer(
    "HIPTwoBodyDecayAnalyzer",
    alcarecotracks = cms.InputTag(strtrackcollname),

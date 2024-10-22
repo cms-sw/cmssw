@@ -4,8 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "tbb/concurrent_unordered_map.h"
-
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
@@ -21,16 +20,18 @@ namespace edm {
 
   namespace dqh {
     struct parentage_hash {
-      std::size_t operator()(edm::ParentageID const& iKey) const{
-        return iKey.smallHash();
-      }
+      std::size_t operator()(edm::ParentageID const& iKey) const { return iKey.smallHash(); }
     };
-  }
+  }  // namespace dqh
 
   struct DaqProvenanceHelper {
     typedef std::map<ProcessHistoryID, ProcessHistoryID> ProcessHistoryIDMap;
-    typedef tbb::concurrent_unordered_map<ParentageID, ParentageID, dqh::parentage_hash> ParentageIDMap;
+    typedef oneapi::tbb::concurrent_unordered_map<ParentageID, ParentageID, dqh::parentage_hash> ParentageIDMap;
     explicit DaqProvenanceHelper(TypeID const& rawDataType);
+    explicit DaqProvenanceHelper(TypeID const& rawDataType,
+                                 std::string const& collectionName,
+                                 std::string const& friendlyName,
+                                 std::string const& sourceLabel);
     ProcessHistoryID daqInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry) const;
     void saveInfo(BranchDescription const& oldBD, BranchDescription const& newBD) {
       oldProcessName_ = oldBD.processName();
@@ -46,7 +47,7 @@ namespace edm {
     ParentageID const& mapParentageID(ParentageID const& phid) const;
     BranchID const& mapBranchID(BranchID const& branchID) const;
 
-    BranchDescription const& branchDescription() const {return constBranchDescription_;}
+    BranchDescription const& branchDescription() const { return constBranchDescription_; }
     ProcessHistoryID const* oldProcessHistoryID() const { return oldProcessHistoryID_; }
     ProductProvenance const& dummyProvenance() const { return dummyProvenance_; }
 
@@ -64,5 +65,5 @@ namespace edm {
     ProcessHistoryIDMap phidMap_;
     ParentageIDMap parentageIDMap_;
   };
-}
+}  // namespace edm
 #endif

@@ -17,6 +17,6 @@ namespace reco {
   typedef edm::RefVector<PFTauTransverseImpactParameterCollection> PFTauTransverseImpactParameterRefVector;
   /// iterator over a vector of references to PFTauTransverseImpactParameter objects all in the same collection
   typedef PFTauTransverseImpactParameterRefVector::iterator PFTauTransverseImpactParameter_iterator;
-}
+}  // namespace reco
 
 #endif

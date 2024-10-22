@@ -39,20 +39,24 @@ namespace edm {
     using VectorInputSource::productRegistryUpdate;
 
     // const accessors
-    bool skipBadFiles() const {return skipBadFiles_;}
-    bool bypassVersionCheck() const {return bypassVersionCheck_;}
-    unsigned int nStreams() const {return nStreams_;}
-    int treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
-    ProductSelectorRules const& productSelectorRules() const {return productSelectorRules_;}
-    RunHelperBase* runHelper() {return runHelper_.get();}
+    bool skipBadFiles() const { return skipBadFiles_; }
+    bool bypassVersionCheck() const { return bypassVersionCheck_; }
+    unsigned int nStreams() const { return nStreams_; }
+    int treeMaxVirtualSize() const { return treeMaxVirtualSize_; }
+    ProductSelectorRules const& productSelectorRules() const { return productSelectorRules_; }
+    RunHelperBase* runHelper() { return runHelper_.get(); }
 
-    static void fillDescriptions(ConfigurationDescriptions & descriptions);
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
     virtual void closeFile_();
     void beginJob() override;
     void endJob() override;
-    bool readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id, bool recycleFiles) override;
+    bool readOneEvent(EventPrincipal& cache,
+                      size_t& fileNameHash,
+                      CLHEP::HepRandomEngine*,
+                      EventID const* id,
+                      bool recycleFiles) override;
     void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& id) override;
     void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) override;
 
@@ -68,6 +72,6 @@ namespace edm {
     InputFileCatalog catalog_;
     edm::propagate_const<std::unique_ptr<RootEmbeddedFileSequence>> fileSequence_;
 
-  }; // class EmbeddedRootSource
-}
+  };  // class EmbeddedRootSource
+}  // namespace edm
 #endif

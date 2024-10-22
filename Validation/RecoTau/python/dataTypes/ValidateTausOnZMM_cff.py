@@ -9,9 +9,10 @@ from RecoJets.Configuration.GenJetParticles_cff import *
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
+
 selectMuons = cms.EDProducer(
     "GenParticlePruner",
-    src = cms.InputTag("genParticles"),
+    src = cms.InputTag("prunedGenParticles"),
     select = cms.vstring(
     "drop  *  ", # this is the default
     "keep++ pdgId = 13",
@@ -19,7 +20,7 @@ selectMuons = cms.EDProducer(
     )
 )
 
-selectStableMuons = genParticlesForJets.clone(src = cms.InputTag("selectMuons"))
+selectStableMuons = genParticlesForJets.clone(src = "selectMuons")
 
 kinematicSelectedTauValDenominatorZMM = cms.EDFilter(
    "CandPtrSelector",
@@ -38,11 +39,26 @@ zttLabeler = lambda module : SetValidationExtention(module, 'ZMM')
 zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorZMM.visit(zttModifier)
 
+#Set discriminators
+discs_to_retain = ['ByDecayModeFinding', 'MuonRejection']
+proc.RunHPSValidationZMM.discriminators = cms.VPSet([p for p in proc.RunHPSValidationZMM.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
+
 #Sets the correct naming to efficiency histograms
 proc.efficienciesZMM.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorZMM)
+proc.efficienciesZMMSummary = cms.EDProducer("TauDQMHistEffProducer",
+    plots = cms.PSet(
+        Summary = cms.PSet(
+            denominator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZMM_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZMM_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZMM_Summary/#PAR#PlotNum'),
+            parameter = cms.vstring('summary'),
+            stepByStep = cms.bool(True)
+        ),
+    )
+)
 
 #checks what's new in the process (the cloned sequences and modules in them)
-newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('ZMM') != -1), dir(proc) )
+newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('ZMM') != -1)]
 
 #spawns a local variable with the same name as the proc attribute, needed for future process.load
 for newAttr in newProcAttributes:
@@ -50,9 +66,8 @@ for newAttr in newProcAttributes:
 
 produceDenominatorZMM = cms.Sequence(
       selectMuons
-      +selectStableMuons
-#      +objectTypeSelectedTauValDenominatorModule
-      +kinematicSelectedTauValDenominatorZMM
+      +cms.ignore(selectStableMuons)
+      +cms.ignore(kinematicSelectedTauValDenominatorZMM)
       )
 
 produceDenominator = cms.Sequence(produceDenominatorZMM)
@@ -66,4 +81,3 @@ runTauValidation = cms.Sequence(
       runTauValidationBatchMode
       +TauEfficienciesZMM
       )
-

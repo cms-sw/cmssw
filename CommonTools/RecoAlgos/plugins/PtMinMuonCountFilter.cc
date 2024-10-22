@@ -12,9 +12,6 @@
 #include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
 #include "CommonTools/UtilAlgos/interface/PtMinSelector.h"
 
-typedef ObjectCountFilter<
-          reco::MuonCollection, 
-          PtMinSelector
-        >::type PtMinMuonCountFilter;
+typedef ObjectCountFilter<reco::MuonCollection, PtMinSelector>::type PtMinMuonCountFilter;
 
-DEFINE_FWK_MODULE( PtMinMuonCountFilter );
+DEFINE_FWK_MODULE(PtMinMuonCountFilter);

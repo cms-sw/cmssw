@@ -1,0 +1,9 @@
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/RunInfo"/>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
+<use name="Geometry/VeryForwardRPTopology"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="rootcore"/>
+<library name="SimPPSDirectSimProducerPlugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>

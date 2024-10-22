@@ -3,7 +3,7 @@
 
 #include "Geometry/CSCGeometry/interface/OffsetRadialStripTopology.h"
 #include <iosfwd>
-#include <utility> // for std::pair
+#include <utility>  // for std::pair
 
 /** \class CSCStripTopology
  * ABC interface for all endcap muon CSC radial strip topologies. <BR>
@@ -25,9 +25,8 @@
  *
  */
 
-class CSCStripTopology : public  OffsetRadialStripTopology {
+class CSCStripTopology : public OffsetRadialStripTopology {
 public:
-
   /** 
    * Constructor
    *    \param ns number of strips
@@ -38,7 +37,7 @@ public:
    *    \param aoff offset of y symmetry axis from local y as fraction of angular strip width.
    *    \param ymid local y of symmetry centre of strip plane _before_ it is offset. <BR>
    */
-  CSCStripTopology( int ns, float aw, float dh, float r, float aoff, float ymid );
+  CSCStripTopology(int ns, float aw, float dh, float r, float aoff, float ymid);
 
   ~CSCStripTopology() override;
 
@@ -47,7 +46,7 @@ public:
    *
    * The return value is a pair p with p.first = m, p.second = c, where y=mx+c.
    */
-  std::pair<float, float> equationOfStrip( float strip ) const;
+  std::pair<float, float> equationOfStrip(float strip) const;
 
   /**
    * Return local y limits of strip plane

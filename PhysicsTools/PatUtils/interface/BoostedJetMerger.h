@@ -2,7 +2,7 @@
 //
 // Package:    BoostedJetMerger
 // Class:      BoostedJetMerger
-// 
+//
 // \class BoostedJetMerger BoostedJetMerger.h PhysicsTools/PatUtils/interface/BoostedJetMerger.h
 // Description: Class to "deswizzle" information from various pat::Jet collections.
 //
@@ -11,7 +11,6 @@
 // $Id: BoostedJetMerger.cc,v 1.1 2013/03/07 20:13:55 srappocc Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -30,41 +29,39 @@
 // class decleration
 //
 
-
 /// Predicate to use for find_if.
 /// This checks whether a given edm::Ptr<reco::Candidate>
 /// (as you would get from the reco::BasicJet daughters)
 /// to see if it matches the original object ref of
 /// another pat::Jet (which is to find the corrected / btagged
-/// pat::Jet that corresponds to the subjet in question). 
+/// pat::Jet that corresponds to the subjet in question).
 struct FindCorrectedSubjet {
   // Input the daughter you're interested in checking
-  FindCorrectedSubjet( edm::Ptr<reco::Candidate> const & da ) : 
-    da_(da) {}
+  FindCorrectedSubjet(edm::Ptr<reco::Candidate> const& da) : da_(da) {}
 
-  // Predicate operator to compare an input pat::Jet to. 
-  bool operator()( pat::Jet const & subjet ) const {
+  // Predicate operator to compare an input pat::Jet to.
+  bool operator()(pat::Jet const& subjet) const {
     const edm::Ptr<reco::Candidate>& subjetOrigRef = subjet.originalObjectRef();
-    if ( da_ == subjetOrigRef ) {
+    if (da_ == subjetOrigRef) {
       return true;
-    }
-    else return false;
+    } else
+      return false;
   }
 
   edm::Ptr<reco::Candidate> da_;
 };
 
 class BoostedJetMerger : public edm::stream::EDProducer<> {
-   public:
-      explicit BoostedJetMerger(const edm::ParameterSet&);
-      ~BoostedJetMerger() override;
+public:
+  explicit BoostedJetMerger(const edm::ParameterSet&);
+  ~BoostedJetMerger() override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      
-      // ----------member data ---------------------------
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      // data labels
-      edm::EDGetTokenT<edm::View<pat::Jet> >  jetToken_;
-      edm::EDGetTokenT<edm::View<pat::Jet> >  subjetToken_;
+  // ----------member data ---------------------------
+
+  // data labels
+  edm::EDGetTokenT<edm::View<pat::Jet> > jetToken_;
+  edm::EDGetTokenT<edm::View<pat::Jet> > subjetToken_;
 };

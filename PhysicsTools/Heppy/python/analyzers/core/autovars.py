@@ -6,6 +6,7 @@
 #
 # TODO: more documentation needed here!
 
+from builtins import range
 class NTupleVariable:
     """Branch containing an individual variable (either of the event or of an object), created with a name and a function to compute it
        - name, type, help, default: obvious 
@@ -174,7 +175,7 @@ class NTupleCollection:
         treeNumpy.var("n"+self.name, int)
         allvars = self.objectType.allVars(isMC)
         for v in allvars:
-            for i in xrange(1,self.maxlen+1):
+            for i in range(1,self.maxlen+1):
                 h = v.help
                 if self.help: h = "%s for %s [%d]" % ( h if h else v.name, self.help, i-1 )
                 treeNumpy.var("%s%d_%s" % (self.name, i, v.name), type=v.type, default=v.default, title=h, filler=v.filler)
@@ -195,7 +196,7 @@ class NTupleCollection:
         num = min(self.maxlen,len(collection))
         treeNumpy.fill("n"+self.name, num)
         allvars = self.objectType.allVars(isMC)
-        for i in xrange(num): 
+        for i in range(num): 
             o = collection[i]
             for v in allvars:
                 treeNumpy.fill("%s%d_%s" % (self.name, i+1, v.name), v(o))
@@ -209,7 +210,7 @@ class NTupleCollection:
         allvars = self.objectType.allVars(isMC)
         for v in allvars:
             name="%s_%s" % (self.name, v.name) if v.name != "" else self.name
-            treeNumpy.vfill(name, [ v(collection[i]) for i in xrange(num) ])
+            treeNumpy.vfill(name, [ v(collection[i]) for i in range(num) ])
     def __repr__(self):
         return "<NTupleCollection[%s]>" % self.name
 

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("electrons")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -32,7 +32,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.Timing = cms.Service("Timing")
 
-from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
+from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cff import *
 from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *
 
 electronSeeds = cms.Sequence(ecalDrivenElectronSeeds)

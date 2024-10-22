@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -21,10 +21,10 @@
 
 using namespace edm;
 
-class TrackInfoAnalyzer : public edm::EDAnalyzer {
- public:
+class TrackInfoAnalyzer : public edm::one::EDAnalyzer<> {
+public:
   TrackInfoAnalyzer(const edm::ParameterSet& pset);
-  void beginJob(){
+  void beginJob() {
     //       cout << "beginJob" <<endl;
     //     edm::ESHandle<TrackerGeometry> tkgeom;
     //    c.get<TrackerDigiGeometryRecord>().get( tkgeom );
@@ -40,18 +40,14 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
     tib4ext = new TH1F("Tib4Ext", "Tib Layer 4 Ext", 100, -0.5, 0.5);
   }
 
-  ~TrackInfoAnalyzer(){
-    delete output;
-  }
+  ~TrackInfoAnalyzer() { delete output; }
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){ //analyze
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {  //analyze
 
     using namespace reco;
 
     //Retrieve tracker topology from geometry
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-    const TrackerTopology* const tTopo = tTopoHandle.product();
+    const TrackerTopology* const tTopo = &setup.getData(tkTopoToken);
 
     //std::cout << "\nEvent ID = "<< event.id() << std::endl ;
     edm::Handle<reco::TrackInfoCollection> trackCollection;
@@ -59,50 +55,65 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
 
     reco::TrackInfoCollection tC = *(trackCollection.product());
 
-    edm::LogInfo("TrackInfoAnalyzer") <<"number of infos "<< tC.size();
-    for (reco::TrackInfoCollection::iterator track=tC.begin(); track!=tC.end(); ++track){
-
+    edm::LogInfo("TrackInfoAnalyzer") << "number of infos " << tC.size();
+    for (reco::TrackInfoCollection::iterator track = tC.begin(); track != tC.end(); ++track) {
       //const reco::TrackInfo::TrajectoryInfo tinfo=track->trajstate();
       reco::TrackInfo::TrajectoryInfo::const_iterator iter;
-      edm::LogInfo("TrackInfoAnalyzer") <<"N hits in the seed: "<<track->seed().nHits();
-      edm::LogInfo("TrackInfoAnalyzer") <<"Starting state "<<track->seed().startingState().parameters().position();
-      if(track->trajStateMap().size()>0){
-      for(iter=track->trajStateMap().begin();iter!=track->trajStateMap().end();++iter){
-	edm::LogInfo("TrackInfoAnalyzer") <<"LocalMomentum: "<<(track->stateOnDet(Combined,(*iter).first)->parameters()).momentum();
-	edm::LogInfo("TrackInfoAnalyzer") <<"LocalPosition: "<<(track->stateOnDet(Combined,(*iter).first)->parameters()).position();
-	edm::LogInfo("TrackInfoAnalyzer") <<"LocalPosition (rechit): "<<((*iter).first)->localPosition();
-	DetId id= (*iter).first->geographicalId();
-	unsigned int iSubDet = StripSubdetector(id).subdetId();
-        if (iSubDet == StripSubdetector::TIB){
-          int layer = tTopo->tibLayer(id);
-          unsigned int order = tTopo->tibOrder(id);
-          if(layer==1){
-            if(order==0)tib1int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	      else if(order==1)tib1ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	  }
-	  else if(layer==2){
-	    if(order==0)tib2int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(order==1)tib2ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	  }
-	  else if(layer==3){
-	    if(order==0)tib3int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(order==1)tib3ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	  }
-	  else if(layer==4){
-	    if(order==0)tib4int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(order==1)tib4ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	  }
-	}
+      edm::LogInfo("TrackInfoAnalyzer") << "N hits in the seed: " << track->seed().nHits();
+      edm::LogInfo("TrackInfoAnalyzer") << "Starting state " << track->seed().startingState().parameters().position();
+      if (track->trajStateMap().size() > 0) {
+        for (iter = track->trajStateMap().begin(); iter != track->trajStateMap().end(); ++iter) {
+          edm::LogInfo("TrackInfoAnalyzer")
+              << "LocalMomentum: " << (track->stateOnDet(Combined, (*iter).first)->parameters()).momentum();
+          edm::LogInfo("TrackInfoAnalyzer")
+              << "LocalPosition: " << (track->stateOnDet(Combined, (*iter).first)->parameters()).position();
+          edm::LogInfo("TrackInfoAnalyzer") << "LocalPosition (rechit): " << ((*iter).first)->localPosition();
+          DetId id = (*iter).first->geographicalId();
+          unsigned int iSubDet = StripSubdetector(id).subdetId();
+          if (iSubDet == StripSubdetector::TIB) {
+            int layer = tTopo->tibLayer(id);
+            unsigned int order = tTopo->tibOrder(id);
+            if (layer == 1) {
+              if (order == 0)
+                tib1int->Fill((track->stateOnDet(Combined, (*iter).first)->parameters()).position().x() -
+                              ((*iter).first)->localPosition().x());
+              else if (order == 1)
+                tib1ext->Fill((track->stateOnDet(Combined, (*iter).first)->parameters()).position().x() -
+                              ((*iter).first)->localPosition().x());
+            } else if (layer == 2) {
+              if (order == 0)
+                tib2int->Fill((track->stateOnDet(Combined, (*iter).first)->parameters()).position().x() -
+                              ((*iter).first)->localPosition().x());
+              else if (order == 1)
+                tib2ext->Fill((track->stateOnDet(Combined, (*iter).first)->parameters()).position().x() -
+                              ((*iter).first)->localPosition().x());
+            } else if (layer == 3) {
+              if (order == 0)
+                tib3int->Fill((track->stateOnDet(Combined, (*iter).first)->parameters()).position().x() -
+                              ((*iter).first)->localPosition().x());
+              else if (order == 1)
+                tib3ext->Fill((track->stateOnDet(Combined, (*iter).first)->parameters()).position().x() -
+                              ((*iter).first)->localPosition().x());
+            } else if (layer == 4) {
+              if (order == 0)
+                tib4int->Fill((track->stateOnDet(Combined, (*iter).first)->parameters()).position().x() -
+                              ((*iter).first)->localPosition().x());
+              else if (order == 1)
+                tib4ext->Fill((track->stateOnDet(Combined, (*iter).first)->parameters()).position().x() -
+                              ((*iter).first)->localPosition().x());
+            }
+          }
+        }
       }
     }
   }
-}
-  void endJob(){
+  void endJob() {
     output->Write();
     output->Close();
   }
- private:
-  TFile * output;
+
+private:
+  TFile* output;
   TH1F* tib1int;
   TH1F* tib1ext;
   TH1F* tib2int;
@@ -111,16 +122,14 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
   TH1F* tib3ext;
   TH1F* tib4int;
   TH1F* tib4ext;
-  std::string filename;
-  edm::EDGetTokenT<reco::TrackInfoCollection> trackCollectionToken;
-
+  const std::string filename;
+  const edm::EDGetTokenT<reco::TrackInfoCollection> trackCollectionToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken;
 };
 
 TrackInfoAnalyzer::TrackInfoAnalyzer(const edm::ParameterSet& pset)
-: filename(pset.getParameter<std::string>("OutFileName"))
-, trackCollectionToken(consumes<reco::TrackInfoCollection>(pset.getParameter<edm::InputTag>("TrackInfo")))
-{}
-
+    : filename(pset.getParameter<std::string>("OutFileName")),
+      trackCollectionToken(consumes<reco::TrackInfoCollection>(pset.getParameter<edm::InputTag>("TrackInfo"))),
+      tkTopoToken(esConsumes()) {}
 
 DEFINE_FWK_MODULE(TrackInfoAnalyzer);
-

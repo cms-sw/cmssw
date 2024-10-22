@@ -12,24 +12,24 @@
 #include <iostream>
 
 class ESWeight {
- public:
+public:
   ESWeight();
   ESWeight(const double& awgt);
   ESWeight(const ESWeight& awgt);
-  ESWeight& operator=(const ESWeight&rhs);
+  ESWeight& operator=(const ESWeight& rhs);
 
   double value() const { return wgt_; }
   double operator()() const { return wgt_; }
 
   void setValue(const double& awgt) { wgt_ = awgt; }
-  bool operator ==(const ESWeight&rhs) const { return (wgt_ == rhs.wgt_); }
-  bool operator !=(const ESWeight&rhs) const { return (wgt_ != rhs.wgt_); }
-  bool operator <(const ESWeight&rhs) const { return (wgt_ < rhs.wgt_); }
-  bool operator >(const ESWeight&rhs) const { return (wgt_ > rhs.wgt_); }
-  bool operator <=(const ESWeight&rhs) const { return (wgt_ <= rhs.wgt_); }
-  bool operator >=(const ESWeight&rhs) const { return (wgt_ >= rhs.wgt_); }
+  bool operator==(const ESWeight& rhs) const { return (wgt_ == rhs.wgt_); }
+  bool operator!=(const ESWeight& rhs) const { return (wgt_ != rhs.wgt_); }
+  bool operator<(const ESWeight& rhs) const { return (wgt_ < rhs.wgt_); }
+  bool operator>(const ESWeight& rhs) const { return (wgt_ > rhs.wgt_); }
+  bool operator<=(const ESWeight& rhs) const { return (wgt_ <= rhs.wgt_); }
+  bool operator>=(const ESWeight& rhs) const { return (wgt_ >= rhs.wgt_); }
 
- private:
+private:
   double wgt_;
 };
 

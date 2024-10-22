@@ -1,4 +1,11 @@
 <TESTSCONFIGURATION> 
+<QTEST name="XrangeWithin:0-10.0" activate="false"> 
+     <TYPE>ContentsXRange</TYPE> 
+     <PARAM name="error">0.2</PARAM> 
+     <PARAM name="warning">0.4</PARAM> 
+     <PARAM name="xmin">0</PARAM> 
+     <PARAM name="xmax">10.0</PARAM> 
+</QTEST>
 <QTEST name="XrangeWithin:NumberOfTracks" activate="true">
       <TYPE>ContentsXRange</TYPE>
       <PARAM name="error">0.85</PARAM>
@@ -6,38 +13,130 @@
       <PARAM name="xmin">0.0</PARAM>
       <PARAM name="xmax">2000.0</PARAM>
 </QTEST>
-<QTEST name="XrangeWithin:NumberOfRecHitsPerTrk" activate="true"> 
+<QTEST name="XrangeWithin:NumberOfRecHitsPerTrack" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
      <PARAM name="error">0.80</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="xmin">4.0</PARAM> 
+     <PARAM name="xmin">3.0</PARAM> 
      <PARAM name="xmax">35.0</PARAM> 
 </QTEST>
-<QTEST name="XrangeWithin:Chi2overDoF" activate="true"> 
-     <TYPE>ContentsXRange</TYPE> 
+<QTEST name="MeanWithinExpected:NumberOfRecHitsPerTrack" activate="true">
+     <TYPE>MeanWithinExpected</TYPE> 
+     <PARAM name="error">0.80</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="mean">1.0</PARAM>
+     <PARAM name="useRMS">0</PARAM>
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM>
+     <PARAM name="minEntries">0</PARAM>
+     <PARAM name="xmin">8.0</PARAM>
+     <PARAM name="xmax">17.0</PARAM>       
+</QTEST>
+<QTEST name="MeanWithinExpected:Chi2oNDF" activate="true">
+     <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.85</PARAM> 
      <PARAM name="warning">0.95</PARAM> 
-     <PARAM name="xmin">0</PARAM> 
-     <PARAM name="xmax">10.0</PARAM> 
+     <PARAM name="mean">1.0</PARAM>
+     <PARAM name="useRMS">0</PARAM>
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM>
+     <PARAM name="minEntries">0</PARAM>
+     <PARAM name="xmin">0.5</PARAM>
+     <PARAM name="xmax">2.5</PARAM> 
 </QTEST>
 <QTEST name="XrangeWithin:TrackPt" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
      <PARAM name="error">0.85</PARAM> 
      <PARAM name="warning">0.95</PARAM> 
      <PARAM name="xmin">0</PARAM> 
-     <PARAM name="xmax">100.0</PARAM> 
+     <PARAM name="xmax">200.0</PARAM> 
 </QTEST>
-
-<LINK name="*TrackParameters/GeneralProperties/NumberOfTracks_HeavyIonTk">
+<QTEST name="XrangeWithin:FractionOfGoodTracks" activate="true"> 
+     <TYPE>ContentsXRange</TYPE> 
+     <PARAM name="error">0.85</PARAM> 
+     <PARAM name="warning">0.95</PARAM> 
+     <PARAM name="xmin">0.7</PARAM> 
+     <PARAM name="xmax">1.1</PARAM> 
+</QTEST>
+<QTEST name="MeanWithinExpected:TrackSeed" activate="true"> 
+     <TYPE>MeanWithinExpected</TYPE> 
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="mean">1.0</PARAM>
+     <PARAM name="useRMS">0</PARAM>
+     <PARAM name="useSigma">0</PARAM>
+     <PARAM name="useRange">1</PARAM>
+     <PARAM name="minEntries">0</PARAM>
+     <PARAM name="xmin">0.5</PARAM>
+     <PARAM name="xmax">50000.0</PARAM>
+</QTEST>
+<QTEST name="CheckVariance:BPixLayersPerTrackVsPhi" activate="true">
+     <TYPE>CheckVariance</TYPE>
+     <PARAM name="error">0.05</PARAM>
+     <PARAM name="warning">0.04</PARAM>
+</QTEST>
+<QTEST name="CheckVariance:PixEndcapLayersPerTrackVsPhi" activate="true">
+     <TYPE>CheckVariance</TYPE>
+     <PARAM name="error">0.05</PARAM>
+     <PARAM name="warning">0.04</PARAM>
+</QTEST>
+<QTEST name="CheckVariance:TIBLayersPerTrackVsPhi" activate="true">
+     <TYPE>CheckVariance</TYPE>
+     <PARAM name="error">0.05</PARAM>
+     <PARAM name="warning">0.04</PARAM>
+</QTEST>
+<QTEST name="CheckVariance:TOBLayersPerTrackVsPhi" activate="true">
+     <TYPE>CheckVariance</TYPE>
+     <PARAM name="error">0.05</PARAM>
+     <PARAM name="warning">0.04</PARAM>
+</QTEST>
+<QTEST name="CheckVariance:TIDLayersPerTrackVsPhi" activate="true">
+     <TYPE>CheckVariance</TYPE>
+     <PARAM name="error">0.05</PARAM>
+     <PARAM name="warning">0.04</PARAM>
+</QTEST>
+<QTEST name="CheckVariance:TECLayersPerTrackVsPhi" activate="true">
+     <TYPE>CheckVariance</TYPE>
+     <PARAM name="error">0.05</PARAM>
+     <PARAM name="warning">0.04</PARAM>
+</QTEST>
+<LINK name="*TrackParameters/*/GeneralProperties/NumberOfTracks_GenTk">
   <TestName activate="true">XrangeWithin:NumberOfTracks</TestName>
 </LINK>
-<LINK name="*TrackParameters/HitProperties/NumberOfRecHitsPerTrack_HeavyIonTk">
-  <TestName activate="true">XrangeWithin:NumberOfRecHitsPerTrk</TestName>
+<LINK name="*TrackParameters/*/HitProperties/NumberOfRecHitsPerTrack_GenTk">
+  <TestName activate="true">XrangeWithin:NumberOfRecHitsPerTrack</TestName>
 </LINK>
-<LINK name="*TrackParameters/GeneralProperties/Chi2oNDF_HeavyIonTk">
-  <TestName activate="true">XrangeWithin:Chi2overDoF</TestName>
+<LINK name="*TrackParameters/*/HitProperties/NumberOfRecHitsPerTrack_GenTk">
+  <TestName activate="true">MeanWithinExpected:NumberOfRecHitsPerTrack</TestName>
 </LINK>
-<LINK name="*TrackParameters/GeneralProperties/TrackPt_ImpactPoint_HeavyIonTk">
+<LINK name="*TrackParameters/*/GeneralProperties/Chi2oNDF_GenTk">
+  <TestName activate="true">MeanWithinExpected:Chi2oNDF</TestName>
+</LINK>
+<LINK name="*TrackParameters/*/GeneralProperties/TrackPt_ImpactPoint_GenTk">
   <TestName activate="true">XrangeWithin:TrackPt</TestName>
 </LINK>
-</TESTCONFIGURATION>
+<LINK name="*TrackParameters/*/GeneralProperties/FractionOfGoodTracks_GenTk">
+  <TestName activate="false">XrangeWithin:FractionOfGoodTracks</TestName>
+</LINK>
+<LINK name="*TrackParameters/*/TrackBuilding/NumberOfSeeds_*">
+  <TestName activate="true">MeanWithinExpected:TrackSeed</TestName>
+</LINK>
+<LINK name="*TrackParameters/HitProperties/PixBarrel/NumberOfPixBarrelLayersPerTrackVsPhiProfile_GenTk*">
+  <TestName activate="true">CheckVariance:BPixLayersPerTrackVsPhi</TestName>
+</LINK>
+<LINK name="*TrackParameters/HitProperties/PixEndcap/NumberOfPixEndcapLayersPerTrackVsPhiProfile_GenTk*">
+  <TestName activate="true">CheckVariance:BPixLayersPerTrackVsPhi</TestName>
+</LINK>
+<LINK name="*TrackParameters/HitProperties/TIB/NumberOfTIBLayersPerTrackVsPhiProfile_GenTk*">
+  <TestName activate="true">CheckVariance:BPixLayersPerTrackVsPhi</TestName>
+</LINK>
+<LINK name="*TrackParameters/HitProperties/TOB/NumberOfTOBLayersPerTrackVsPhiProfile_GenTk*">
+  <TestName activate="true">CheckVariance:BPixLayersPerTrackVsPhi</TestName>
+</LINK>
+<LINK name="*TrackParameters/HitProperties/TID/NumberOfTIDLayersPerTrackVsPhiProfile_GenTk*">
+  <TestName activate="true">CheckVariance:BPixLayersPerTrackVsPhi</TestName>
+</LINK>
+<LINK name="*TrackParameters/HitProperties/TEC/NumberOfTECLayersPerTrackVsPhiProfile_GenTk*">
+  <TestName activate="true">CheckVariance:BPixLayersPerTrackVsPhi</TestName>
+</LINK>
+</TESTSCONFIGURATION>

@@ -11,5 +11,4 @@
 
 typedef NtpProducer<reco::CandidateView> CandViewNtpProducer;
 
-DEFINE_FWK_MODULE( CandViewNtpProducer );
-
+DEFINE_FWK_MODULE(CandViewNtpProducer);

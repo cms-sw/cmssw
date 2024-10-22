@@ -23,10 +23,9 @@
 #include "TopQuarkAnalysis/TopHitFit/interface/Lepjets_Event_Lep.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/fourvec.h"
 
-namespace hitfit{
+namespace hitfit {
 
-
-    /**
+  /**
        @class LeptonTranslatorBase.
 
        @brief Template class of function object to translate lepton physics
@@ -41,31 +40,28 @@ namespace hitfit{
        be translated into HitFit's Lepjets_Event_Lep.
 
      */
-    template <class ALepton>
-    class LeptonTranslatorBase {
-
-
-    public:
-
-        /**
+  template <class ALepton>
+  class LeptonTranslatorBase {
+  public:
+    /**
            @brief Default constructor.
          */
-        LeptonTranslatorBase();
+    LeptonTranslatorBase();
 
-        /**
+    /**
            @brief Constructor, instantiate a LeptonTranslatorBase object
            using the name of and input file in std::string format.
 
            @param ifile The path of the input file.
          */
-        LeptonTranslatorBase(const std::string& ifile);
+    LeptonTranslatorBase(const std::string& ifile);
 
-        /**
+    /**
            @brief Destructor.
          */
-        ~LeptonTranslatorBase();
+    ~LeptonTranslatorBase();
 
-        /**
+    /**
            @brief Convert a lepton physics object of type ALepton into
            HitFit lepton physics object of type Lepjets_Event_Lep.
 
@@ -77,33 +73,28 @@ namespace hitfit{
            user would like to use the resolution embedded in the object,
            and not the resolution read when instantiating the class.
          */
-        Lepjets_Event_Lep operator()(const ALepton& lepton,
-                                     int type = hitfit::lepton_label,
-                                     bool useObjEmbRes = false);
+    Lepjets_Event_Lep operator()(const ALepton& lepton, int type = hitfit::lepton_label, bool useObjEmbRes = false);
 
-        /**
+    /**
            @brief Return the  \f$ \eta- \f$ dependent resolution of the lepton.
          */
-        const EtaDepResolution& resolution() const;
+    const EtaDepResolution& resolution() const;
 
-        /**
+    /**
            @brief Check if a lepton has  \f$ \eta \f$  value which is within the
            valid  \f$ \eta \f$  range of the resolution.
 
            @param lepton The lepton whose  \f$ \eta \f$  value is to be checked.
         */
-        bool CheckEta(const ALepton& lepton) const;
+    bool CheckEta(const ALepton& lepton) const;
 
-
-    private:
-
-        /**
+  private:
+    /**
            @brief The  \f$ \eta- \f$ dependent resolution.
          */
-        EtaDepResolution resolution_;
+    EtaDepResolution resolution_;
+  };
 
-    };
+}  // namespace hitfit
 
-} // namespace hitfit
-
-#endif // #ifndef HitFit_LeptonTranslatorBase_h
+#endif  // #ifndef HitFit_LeptonTranslatorBase_h

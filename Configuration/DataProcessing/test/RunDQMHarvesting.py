@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 _RunDQMHarvesting_
 
@@ -6,6 +6,7 @@ Test wrapper to generate a harvesting config and push it into cmsRun for
 testing with a few input files etc from the command line
 
 """
+from __future__ import print_function
 
 import sys
 import getopt
@@ -51,10 +52,10 @@ class RunDQMHarvesting:
             msg += str(ex)
             raise RuntimeError(msg)
 
-        print "Retrieved Scenario: %s" % self.scenario
-        print "Using Global Tag: %s" % self.globalTag
-        print "Dataset: %s" % self.dataset
-        print "Run: %s" % self.run
+        print("Retrieved Scenario: %s" % self.scenario)
+        print("Using Global Tag: %s" % self.globalTag)
+        print("Dataset: %s" % self.dataset)
+        print("Run: %s" % self.run)
         
         
         try:
@@ -73,13 +74,13 @@ class RunDQMHarvesting:
         process.source.fileNames.append(self.inputLFN)
 
 
-        pklFile = open("RunDQMHarvestingCfg.pkl", "w")
+        pklFile = open("RunDQMHarvestingCfg.pkl", "wb")
         psetFile = open("RunDQMHarvestingCfg.py", "w")
         try:
-            pickle.dump(process, pklFile)
+            pickle.dump(process, pklFile, protocol=0)
             psetFile.write("import FWCore.ParameterSet.Config as cms\n")
             psetFile.write("import pickle\n")
-            psetFile.write("handle = open('RunDQMHarvestingCfg.pkl')\n")
+            psetFile.write("handle = open('RunDQMHarvestingCfg.pkl','rb')\n")
             psetFile.write("process = pickle.load(handle)\n")
             psetFile.write("handle.close()\n")
             psetFile.close()
@@ -92,7 +93,7 @@ class RunDQMHarvesting:
             pklFile.close()
 
         cmsRun = "cmsRun -j FrameworkJobReport.xml RunDQMHarvestingCfg.py"
-        print "Now do:\n%s" % cmsRun
+        print("Now do:\n%s" % cmsRun)
         
 
 
@@ -104,8 +105,8 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
     except getopt.GetoptError as ex:
-        print usage
-        print str(ex)
+        print(usage)
+        print(str(ex))
         sys.exit(1)
 
 

@@ -5,7 +5,7 @@
 //
 // Package:    AlCaECALRecHitReducer
 // Class:      AlCaECALRecHitReducer
-// 
+//
 /**\class AlCaECALRecHitReducer AlCaECALRecHitReducer.cc Calibration/EcalAlCaRecoProducers/src/AlCaECALRecHitReducer.cc
 
  Description: Example of a producer of AlCa electrons
@@ -21,22 +21,22 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
@@ -45,29 +45,27 @@
 //! class declaration
 //!
 
-class AlCaECALRecHitReducer : public edm::EDProducer {
- public:
+class AlCaECALRecHitReducer : public edm::global::EDProducer<> {
+public:
   //! ctor
   explicit AlCaECALRecHitReducer(const edm::ParameterSet&);
   ~AlCaECALRecHitReducer() override;
-  
-  
+
   //! producer
-  void produce(edm::Event &, const edm::EventSetup&) override;
-  
- private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
   // ----------member data ---------------------------
-  
-  
-  
+
   edm::EDGetTokenT<EcalRecHitCollection> ebRecHitsToken_;
   edm::EDGetTokenT<EcalRecHitCollection> eeRecHitsToken_;
   edm::EDGetTokenT<EcalRecHitCollection> esRecHitsToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
-  std::vector< edm::EDGetTokenT<edm::View < reco::RecoCandidate> > > eleViewTokens_;
+  std::vector<edm::EDGetTokenT<edm::View<reco::RecoCandidate> > > eleViewTokens_;
 
   edm::EDGetTokenT<reco::PhotonCollection> photonToken_;
   edm::EDGetTokenT<reco::SuperClusterCollection> EESuperClusterToken_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
   std::string alcaBarrelHitsCollection_;
   std::string alcaEndcapHitsCollection_;
   std::string alcaPreshowerHitsCollection_;
@@ -84,11 +82,8 @@ class AlCaECALRecHitReducer : public edm::EDProducer {
   std::string alcaCaloClusterCollection_;
 
   void AddMiniRecHitCollection(const reco::SuperCluster& sc,
-			       std::set<DetId>& reducedRecHitMap,
-			       const CaloTopology *caloTopology
-			       );
-
-
+                               std::set<DetId>& reducedRecHitMap,
+                               const CaloTopology* caloTopology) const;
 };
 
 #endif

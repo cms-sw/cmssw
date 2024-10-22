@@ -10,9 +10,6 @@
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
- typedef SingleObjectSelector<
-           reco::CaloJetCollection, 
-           EtaRangeSelector
-         > EtaRangeCaloJetSelector;
+typedef SingleObjectSelector<reco::CaloJetCollection, EtaRangeSelector> EtaRangeCaloJetSelector;
 
-DEFINE_FWK_MODULE( EtaRangeCaloJetSelector );
+DEFINE_FWK_MODULE(EtaRangeCaloJetSelector);

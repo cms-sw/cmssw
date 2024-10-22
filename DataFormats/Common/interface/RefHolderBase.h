@@ -16,8 +16,9 @@ namespace edm {
 
     class RefHolderBase {
     public:
-      RefHolderBase() { }
-      template <class T> T const* getPtr() const;
+      RefHolderBase();
+      template <class T>
+      T const* getPtr() const;
       virtual ~RefHolderBase();
       virtual RefHolderBase* clone() const = 0;
 
@@ -28,14 +29,6 @@ namespace edm {
       // hidden in 'this'. They can not be equal if they are of
       // different types.
       virtual bool isEqualTo(RefHolderBase const& rhs) const = 0;
-
-      // If the type of Ref I contain matches the type contained in
-      // 'fillme', set the Ref in 'fillme' equal to mine and return
-      // true. If not, write the name of the type I really contain to
-      // msg, and return false.
-
-      virtual bool fillRefIfMyTypeMatches(RefHolderBase& ref,
-					  std::string& msg) const = 0;
 
       virtual std::unique_ptr<RefVectorHolderBase> makeVectorHolder() const = 0;
       virtual EDProductGetter const* productGetter() const = 0;
@@ -58,18 +51,14 @@ namespace edm {
     // Implementation of RefHolderBase
     //------------------------------------------------------------------
 
-    inline
-    RefHolderBase::~RefHolderBase()
-    { }
+    inline RefHolderBase::~RefHolderBase() {}
 
     template <class T>
-    T const*
-    RefHolderBase::getPtr() const
-    {
+    T const* RefHolderBase::getPtr() const {
       return static_cast<T const*>(pointerToType(typeid(T)));
     }
 
-  }
-}
+  }  // namespace reftobase
+}  // namespace edm
 
 #endif

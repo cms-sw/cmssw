@@ -16,8 +16,9 @@ physicsEventsFilter = cms.EDFilter("HLTTriggerTypeFilter",
 
 # GT unpacker
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
-gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
-gtDigis.DaqGtInputTag = 'rawDataCollector'
+gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone(
+   DaqGtInputTag = 'rawDataCollector'
+)
 
 # Scalers info
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
@@ -28,8 +29,6 @@ scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import *
 twinMuxStage2Digis.DTTM7_FED_Source = 'rawDataCollector'
 
-#from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
-#from EventFilter.DTRawToDigi.dtunpackerDDULocal_cfi import *
 #dtunpacker.readOutParameters.performDataIntegrityMonitor = True
 #dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
 #dtunpacker.readOutParameters.debug = False
@@ -48,15 +47,14 @@ from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
 from DQM.DTMonitorClient.dtDataIntegrityTest_cfi import *
 from DQM.DTMonitorClient.dtBlockedROChannelsTest_cfi import *
-DTDataIntegrityTask.processingMode = 'Online'
-DTDataIntegrityTask.dtDDULabel     = 'dtunpacker'
-DTDataIntegrityTask.dtROS25Label   = 'dtunpacker'
-DTDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
-DTDataIntegrityTask.checkUros      = True
+dtDataIntegrityTask.processingMode = 'Online'
+dtDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
+blockedROChannelTest.checkUros      = True
 
 # Digi task
 from DQM.DTMonitorModule.dtDigiTask_cfi import *
 from DQM.DTMonitorClient.dtOccupancyTest_cfi import *
+from DQM.DTMonitorClient.dtOccupancyTestML_cfi import *
 dtDigiMonitor.readDB = False 
 dtDigiMonitor.filterSyncNoise = True
 dtDigiMonitor.lookForSyncNoise = True
@@ -66,7 +64,7 @@ from DQM.DTMonitorModule.dtTriggerBaseTask_cfi import *
 from DQM.DTMonitorModule.dtTriggerLutTask_cfi import *
 from DQM.DTMonitorClient.dtLocalTriggerTest_cfi import *
 from DQM.DTMonitorClient.dtTriggerLutTest_cfi import *
-
+triggerTest.hwSources = ['TM']
 # scaler task
 from DQM.DTMonitorModule.dtScalerInfoTask_cfi import *
 
@@ -85,7 +83,8 @@ dtNoiseAnalysisMonitor.doSynchNoise = True
 # report summary
 from DQM.DTMonitorClient.dtSummaryClients_cfi import *
 
-dtqTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+dtqTester = DQMQualityTester(
                          #reportThreshold = cms.untracked.string('red'),
                          prescaleFactor = cms.untracked.int32(1),
                          qtList = cms.untracked.FileInPath('DQM/DTMonitorClient/test/QualityTests.xml'),
@@ -105,17 +104,17 @@ dtTPmonitor.inTimeHitsUpperBound = 0
 # Local Trigger task for test pulses
 from DQM.DTMonitorModule.dtTriggerTask_TP_cfi import *
 from DQM.DTMonitorClient.dtLocalTriggerTest_TP_cfi import *
-
+dtTPTriggerTest.hwSources = ['TM']
 
 unpackers = cms.Sequence(dtunpacker + twinMuxStage2Digis + scalersRawToDigi)
 
 reco = cms.Sequence(dt1DRecHits + dt4DSegments)
 
 # sequence of DQM tasks to be run on physics events only
-dtDQMTask = cms.Sequence(DTDataIntegrityTask + dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerBaseMonitor + dtTriggerLutMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
+dtDQMTask = cms.Sequence(dtDataIntegrityTask + dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerBaseMonitor + dtTriggerLutMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
 
 # DQM clients to be run on physics event only
-dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerLutTest + triggerTest + dtOccupancyTest + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)
+dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerLutTest + triggerTest + dtOccupancyTest + dtOccupancyTestML + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)
 
 # DQM tasks and clients to be run on calibration events only
 dtDQMCalib = cms.Sequence(dtTPmonitor + dtTPTriggerMonitor + dtTPmonitorTest + dtTPTriggerTest)

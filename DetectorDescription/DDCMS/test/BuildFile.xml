@@ -1,0 +1,69 @@
+<use name="cppunit"/>
+<bin name="testDD4hepFilteredView" file="DDFilteredView.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+  <use name="rootgeom"/>
+</bin>
+
+<bin name="testDD4hepFilteredViewFirstChild" file="DDFilteredView.firstChild.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+  <use name="rootgeom"/>
+</bin>
+
+<bin name="testDD4hepFilteredViewLevel" file="DDFilteredView.level.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+  <use name="rootgeom"/>
+</bin>
+
+<bin name="testDD4hepFilteredViewGet" file="DDFilteredView.get.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+  <use name="rootgeom"/>
+</bin>
+
+<bin name="testDD4hepFilteredViewGoTo" file="DDFilteredView.goto.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+  <use name="rootgeom"/>
+</bin>
+
+<bin name="testDD4hepFilteredViewFind" file="DDFilteredView.find.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+  <use name="rootgeom"/>
+</bin>
+
+<bin name="testDD4hepCompactView" file="DDCompactView.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+  <use name="rootgeom"/>
+</bin>
+
+<bin name="testDD4hepFilter" file="Filter.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+</bin>
+
+<bin name="testDD4hepExpandedNodes" file="ExpandedNodes.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+</bin>
+
+<bin name="testDD4hepDDSolidShapes" file="DDSolidShapes.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+</bin>
+
+<bin name="testDD4hepDDSolid" file="DDSolid.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="rootgeom"/>
+</bin>
+
+<bin name="testDD4hepDDSolidLegacyShapes" file="DDSolidLegacyShapes.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+</bin>
+
+<test name="DetectorDescriptionDDCMSTestDriver" command="runTest.sh"/>
+
+<bin name="testDDUnits" file="testRunner.cpp,DDUnits.cppunit.cc">
+  <use name="clhep"/>
+</bin>

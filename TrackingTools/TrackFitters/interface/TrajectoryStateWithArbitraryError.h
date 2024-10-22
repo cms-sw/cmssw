@@ -13,16 +13,12 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 class TrajectoryStateWithArbitraryError {
-
 private:
-
   typedef FreeTrajectoryState FTS;
   typedef TrajectoryStateOnSurface TSOS;
 
 public:
-  
   TSOS operator()(const TSOS& aTsos) const;
-
 };
 
-#endif //CD_TrajectoryStateWithArbitraryError_H_
+#endif  //CD_TrajectoryStateWithArbitraryError_H_

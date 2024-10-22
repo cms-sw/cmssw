@@ -19,21 +19,21 @@ namespace edm {
 class SimpleZSPJPTJetCorrector;
 
 class ZSPJPTJetCorrector {
- public:
-  ZSPJPTJetCorrector (const edm::ParameterSet& fParameters);
-  virtual ~ZSPJPTJetCorrector ();
-  /// apply correction using Event information 
-  virtual double correction( const reco::Jet&, const edm::Event&, const edm::EventSetup& ) const;
+public:
+  ZSPJPTJetCorrector(const edm::ParameterSet& fParameters);
+  virtual ~ZSPJPTJetCorrector();
+  /// apply correction using Event information
+  virtual double correction(const reco::Jet&, const edm::Event&, const edm::EventSetup&) const;
   /// Set the number of pileups
-  virtual int setPU() const {return fixedPU;}
+  virtual int setPU() const { return fixedPU; }
 
- private:
-  std::vector<SimpleZSPJPTJetCorrector*>   mSimpleCorrector;
-  std::vector<SimpleZSPJPTJetCorrector*>   mSimpleCorrectorOffset;
-  std::vector<std::string>              theFilesL1Offset;
-  std::vector<std::string>              theFilesZSP;
-  int                                   iPU;
-  int                                   fixedPU;
+private:
+  std::vector<SimpleZSPJPTJetCorrector*> mSimpleCorrector;
+  std::vector<SimpleZSPJPTJetCorrector*> mSimpleCorrectorOffset;
+  std::vector<std::string> theFilesL1Offset;
+  std::vector<std::string> theFilesZSP;
+  int iPU;
+  int fixedPU;
 };
 
 #endif

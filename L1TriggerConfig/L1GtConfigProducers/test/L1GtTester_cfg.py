@@ -1,3 +1,4 @@
+from __future__ import print_function
 # cfg file to test L1 GT records
 #
 # V M Ghete  2008 - 2010 - 2012
@@ -90,66 +91,59 @@ process.pathL1GtPrescaleFactorsAndMasks = cms.Path(process.seqL1GtPrescaleFactor
 # Schedule definition
 process.schedule = cms.Schedule()
 
-print ''
+print('')
 
 if printStableParameters == True :
     process.schedule.extend([process.pathL1GtStableParameters])
-    print "Printing L1 GT stable parameters from global tag ", useGlobalTag
+    print("Printing L1 GT stable parameters from global tag ", useGlobalTag)
 else :
-    print "L1 GT stable parameters from ", useGlobalTag, " not requested to be printed"
+    print("L1 GT stable parameters from ", useGlobalTag, " not requested to be printed")
 
 if printParameters == True :
     process.schedule.extend([process.pathL1GtParameters])
-    print "Printing L1 GT parameters from global tag ", useGlobalTag
+    print("Printing L1 GT parameters from global tag ", useGlobalTag)
 else :
-    print "L1 GT parameters from ", useGlobalTag, " not requested to be printed"
+    print("L1 GT parameters from ", useGlobalTag, " not requested to be printed")
 
 if printBoardMaps == True :
     process.schedule.extend([process.pathL1GtBoardMaps])
-    print "Printing L1 GT board maps from global tag ", useGlobalTag
+    print("Printing L1 GT board maps from global tag ", useGlobalTag)
 else :
-    print "L1 GT board maps from ", useGlobalTag, " not requested to be printed"
+    print("L1 GT board maps from ", useGlobalTag, " not requested to be printed")
 
 if printPsbSetup == True :
     process.schedule.extend([process.pathL1GtPsbSetup])
-    print "Printing L1 GT PSB setup from global tag ", useGlobalTag
+    print("Printing L1 GT PSB setup from global tag ", useGlobalTag)
 else :
-    print "L1 GT PSB setup from ", useGlobalTag, " not requested to be printed"
+    print("L1 GT PSB setup from ", useGlobalTag, " not requested to be printed")
 
 if printPrescaleFactorsAndMasks == True :
     process.schedule.extend([process.pathL1GtPrescaleFactorsAndMasks])
-    print "Printing L1 GT prescale factors and masks from global tag ", useGlobalTag
+    print("Printing L1 GT prescale factors and masks from global tag ", useGlobalTag)
 else :
-    print "L1 GT prescale factors and masks from ", useGlobalTag, " not requested to be printed"
+    print("L1 GT prescale factors and masks from ", useGlobalTag, " not requested to be printed")
     
 
 
 # services
 
 # Message Logger
-process.MessageLogger.categories.append('L1GtPrescaleFactorsAndMasksTester')
-process.MessageLogger.destinations = ['L1GtTester_errors', 
-                                      'L1GtTester_warnings', 
-                                      'L1GtTester_info', 
-                                      'L1GtTester_debug'
-                                      ]
-process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
+process.MessageLogger.cerr.enable = False
 
-process.MessageLogger.L1GtTester_errors = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtTester_errors = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
         L1GtPrescaleFactorsAndMasksTester = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
        )
 
-process.MessageLogger.L1GtTester_warnings = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtTester_warnings = cms.untracked.PSet( 
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         L1GtPrescaleFactorsAndMasksTester = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtTester_info = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtTester_info = cms.untracked.PSet( 
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -157,7 +151,7 @@ process.MessageLogger.L1GtTester_info = cms.untracked.PSet(
         L1GtPrescaleFactorsAndMasksTester = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtTester_debug = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtTester_debug = cms.untracked.PSet( 
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),

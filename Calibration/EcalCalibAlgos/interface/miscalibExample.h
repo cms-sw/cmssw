@@ -11,18 +11,20 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include <string>
 #include "TH1.h"
@@ -31,28 +33,24 @@
 // class declaration
 //
 
+class miscalibExample : public edm::one::EDAnalyzer<> {
+public:
+  explicit miscalibExample(const edm::ParameterSet&);
+  ~miscalibExample() override;
 
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
 
-class miscalibExample : public edm::EDAnalyzer {
-   public:
-      explicit miscalibExample(const edm::ParameterSet&);
-      ~miscalibExample() override;
+private:
+  // ----------member data ---------------------------
+  const std::string rootfile_;
+  const std::string correctedHybridSuperClusterProducer_;
+  const std::string correctedHybridSuperClusterCollection_;
+  int read_events;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> correctedHybridSuperClusterToken_;
 
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void beginJob() override;
-      void endJob() override;
-   private:
-
-
-      // ----------member data ---------------------------
-      std::string rootfile_;
-      std::string correctedHybridSuperClusterProducer_;
-      std::string correctedHybridSuperClusterCollection_;
-      std::string BarrelHitsCollection_;
-      std::string ecalHitsProducer_ ;
-      int read_events;
-
-      TH1F* scEnergy;
+  TH1F* scEnergy;
 };
 
 #endif

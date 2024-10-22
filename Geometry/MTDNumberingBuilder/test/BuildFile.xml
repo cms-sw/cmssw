@@ -1,0 +1,11 @@
+<library name="testMTDNumberingBuilder" file="GeometricTimingDetAnalyzer.cc">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/MTDNumberingBuilder"/>
+  <use name="Geometry/Records"/>
+  <use name="rootcling"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<test name="GeometryMTDNumberingBuilderTestDriver" command="runTest.sh"/>

@@ -5,15 +5,13 @@
 
 #include <vector>
 class CentralityTable {
-  
-  public:
-
-  struct BinValues{
+public:
+  struct BinValues {
     float mean;
     float var;
-  
-  COND_SERIALIZABLE;
-};
+
+    COND_SERIALIZABLE;
+  };
 
   struct CBin {
     float bin_edge;
@@ -33,15 +31,14 @@ class CentralityTable {
     BinValues var0;
     BinValues var1;
     BinValues var2;
-  
-  COND_SERIALIZABLE;
-};
-    
-  CentralityTable(){}
+
+    COND_SERIALIZABLE;
+  };
+
+  CentralityTable() {}
   std::vector<CBin> m_table;
 
   COND_SERIALIZABLE;
 };
 
 #endif
-

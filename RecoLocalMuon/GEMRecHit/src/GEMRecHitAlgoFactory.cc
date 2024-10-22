@@ -8,5 +8,4 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-EDM_REGISTER_PLUGINFACTORY(GEMRecHitAlgoFactory,"GEMRecHitAlgoFactory");
-
+EDM_REGISTER_PLUGINFACTORY(GEMRecHitAlgoFactory, "GEMRecHitAlgoFactory");

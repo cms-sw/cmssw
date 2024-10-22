@@ -20,6 +20,6 @@ namespace reco {
   typedef edm::RefVector<PFRecoTauChargedHadronCollection> PFRecoTauChargedHadronRefVector;
   /// iterator over a vector of references to PFRecoTauChargedHadron objects all in the same collection
   typedef PFRecoTauChargedHadronRefVector::iterator PFRecoTauChargedHadronRefVector_iterator;
-}
+}  // namespace reco
 
 #endif

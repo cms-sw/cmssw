@@ -1,5 +1,5 @@
-#ifndef Alignment_ReferenceTrajectories_BzeroReferenceTrajectory_h 
-#define Alignment_ReferenceTrajectories_BzeroReferenceTrajectory_h 
+#ifndef Alignment_ReferenceTrajectories_BzeroReferenceTrajectory_h
+#define Alignment_ReferenceTrajectories_BzeroReferenceTrajectory_h
 
 /**
  *  Class implementing the reference trajectory of a single particle in
@@ -32,9 +32,7 @@
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
-class BzeroReferenceTrajectory : public ReferenceTrajectory
-{
-
+class BzeroReferenceTrajectory : public ReferenceTrajectory {
 public:
   /**Constructor with Tsos at first hit (in physical order) and list of hits 
      [if (hitsAreReverse) ==> order of hits is in opposite direction compared
@@ -45,17 +43,15 @@ public:
    */
   BzeroReferenceTrajectory(const TrajectoryStateOnSurface& tsos,
                            const TransientTrackingRecHit::ConstRecHitContainer& recHits,
-                           const MagneticField *magField,
+                           const MagneticField* magField,
                            const reco::BeamSpot& beamSpot,
                            const ReferenceTrajectoryBase::Config& config);
 
   ~BzeroReferenceTrajectory() override {}
 
-  BzeroReferenceTrajectory* clone() const override
-    { return new BzeroReferenceTrajectory(*this); }
+  BzeroReferenceTrajectory* clone() const override { return new BzeroReferenceTrajectory(*this); }
 
 private:
-
   double theMomentumEstimate;
 };
 

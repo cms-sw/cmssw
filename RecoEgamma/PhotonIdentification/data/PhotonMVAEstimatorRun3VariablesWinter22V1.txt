@@ -1,0 +1,32 @@
+#
+# File: PhotonMVAEstimatorRun3VariablesWinter22V1.txt
+#
+# This file is to be read by the MVAVariableManager class. Lists all the
+# variables which appear in the .xml files for the MVA based Photon IDs for Run3.
+# Variables are given line by line. The columns of each entry correspond to:
+#
+#     1. The name under which the variable appears in the weight files.
+#     2. How to get this variable from the photon with the cut parser (NO SPACES!)
+#        or if not available, how to get the variables elsewhere.
+#     3. The lower clip value for the variable to avoid crazy values. "None" if no clip.
+#     4. The upper clip value.
+#
+
+pho_SCRawE                 superCluster.rawEnergy                                              None None
+pho_R9Full5x5              full5x5_r9                                                          None None
+pho_SigmaIEtaIEtaFull5x5   full5x5_showerShapeVariables.sigmaIetaIeta                          None None
+pho_SCEtaWidth             superCluster.etaWidth                                               None None
+pho_SCPhiWidth             superCluster.phiWidth                                               None None
+pho_SigmaIEtaIPhiFull5x5   full5x5_showerShapeVariables.sigmaIetaIphi                          None None
+pho_S4                     full5x5_showerShapeVariables.e2x2/full5x5_showerShapeVariables.e5x5 None None
+pho_ConeHoverE             hcalOverEcal                                                        None None
+pho_EcalPFClusterIso       ecalPFClusterIso                                                    None None
+pho_HcalPFClusterIso       hcalPFClusterIso                                                    None None
+pho_trkSumPtHollowConeDR03 trkSumPtHollowConeDR03                                              None None
+pho_trkSumPtSolidConeDR04  trkSumPtSolidConeDR04                                               None None
+pho_PFChIso         	   chargedHadronIso                                                    None None
+pho_PFChWorstIso           chargedHadronWorstVtxIso                                            None None
+pho_SCEta                  superCluster.eta                                                    None None
+evt_rho 		   fixedGridRhoAll                                                     None None
+pho_ESEffSigmaRR           full5x5_showerShapeVariables.effSigmaRR                             None None
+pho_PreShEbySCRawE         superCluster.preshowerEnergy/superCluster.rawEnergy                 None None

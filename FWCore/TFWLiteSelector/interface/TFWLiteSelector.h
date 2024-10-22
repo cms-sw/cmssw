@@ -4,7 +4,7 @@
 //
 // Package:     TFWLiteSelector
 // Class  :     TFWLiteSelector
-// 
+//
 /**\class TFWLiteSelector TFWLiteSelector.h FWCore/TFWLiteSelector/interface/TFWLiteSelector.h
 
  Description: A 'safe' form of a TSelector which uses a Worker helper class to do the processing
@@ -54,37 +54,29 @@ class TList;
 
 // forward declarations
 template <class TWorker>
-class TFWLiteSelector : public TFWLiteSelectorBasic
-{
+class TFWLiteSelector : public TFWLiteSelectorBasic {
+public:
+  TFWLiteSelector() : worker_() {}
+  ~TFWLiteSelector() override {}
 
-   public:
-      TFWLiteSelector() : worker_() {}
-      ~TFWLiteSelector() override {}
+  // ---------- const member functions ---------------------
 
-      // ---------- const member functions ---------------------
+  // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+  // ---------- member functions ---------------------------
 
-      // ---------- member functions ---------------------------
+private:
+  TFWLiteSelector(const TFWLiteSelector&);  // stop default
 
-   private:
-      TFWLiteSelector(const TFWLiteSelector&); // stop default
+  const TFWLiteSelector& operator=(const TFWLiteSelector&);  // stop default
 
-      const TFWLiteSelector& operator=(const TFWLiteSelector&); // stop default
+  void preProcessing(const TList* in, TList& out) override { worker_ = std::make_shared<TWorker>(in, out); }
+  void process(const edm::Event& iEvent) override { worker_->process(iEvent); }
+  void postProcessing(TList& out) override { worker_->postProcess(out); }
 
-      void preProcessing(const TList*in, TList& out) override {
-        worker_ = std::make_shared<TWorker>(in,out);
-      }
-      void process(const edm::Event& iEvent) override {
-        worker_->process(iEvent);
-      }
-      void postProcessing(TList& out) override {
-        worker_->postProcess(out);
-      }
-      
-      // ---------- member data --------------------------------
-      edm::propagate_const<std::shared_ptr<TWorker>> worker_;
-      ClassDefOverride(TFWLiteSelector,2)
+  // ---------- member data --------------------------------
+  edm::propagate_const<std::shared_ptr<TWorker>> worker_;
+  ClassDefOverride(TFWLiteSelector, 2)
 };
 
 #endif

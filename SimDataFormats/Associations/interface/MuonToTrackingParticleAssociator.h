@@ -5,44 +5,43 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/Associations/interface/MuonTrackType.h"
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociatorBaseImpl.h"
+#include "SimDataFormats/Associations/interface/MuonTrackType.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include <memory>
 
 namespace reco {
-  class MuonToTrackingParticleAssociator  {
-    
+  class MuonToTrackingParticleAssociator {
   public:
-    
-    MuonToTrackingParticleAssociator ();
-    ~MuonToTrackingParticleAssociator ();
+    MuonToTrackingParticleAssociator() = default;
+    ~MuonToTrackingParticleAssociator() = default;
 #ifndef __GCCXML__
     MuonToTrackingParticleAssociator(std::unique_ptr<MuonToTrackingParticleAssociatorBaseImpl>);
 #endif
-    
-    void associateMuons(MuonToSimCollection & recoToSim, SimToMuonCollection & simToReco,
-                        const edm::RefToBaseVector<reco::Muon> & muons, MuonTrackType type,
-                        const edm::RefVector<TrackingParticleCollection>& tpColl) const {
-      impl_->associateMuons(recoToSim, simToReco, muons, type, tpColl);
-    }
-    void associateMuons(MuonToSimCollection & recoToSim, SimToMuonCollection & simToReco,
-                        const edm::Handle<edm::View<reco::Muon> > & muons, MuonTrackType type, 
-                        const edm::Handle<TrackingParticleCollection>& tpColl) const {
-      impl_->associateMuons(recoToSim, simToReco, muons, type, tpColl);
-    }
+    MuonToTrackingParticleAssociator(MuonToTrackingParticleAssociator &&) = default;
+    MuonToTrackingParticleAssociator &operator=(MuonToTrackingParticleAssociator &&) = default;
+    MuonToTrackingParticleAssociator(const MuonToTrackingParticleAssociator &) = delete;
+    MuonToTrackingParticleAssociator &operator=(const MuonToTrackingParticleAssociator &) = delete;
 
-    void swap(MuonToTrackingParticleAssociator& iOther) {
-      std::swap(impl_, iOther.impl_);
+    void associateMuons(MuonToSimCollection &recoToSim,
+                        SimToMuonCollection &simToReco,
+                        const edm::RefToBaseVector<reco::Muon> &muons,
+                        MuonTrackType type,
+                        const edm::RefVector<TrackingParticleCollection> &tpColl) const {
+      impl_->associateMuons(recoToSim, simToReco, muons, type, tpColl);
+    }
+    void associateMuons(MuonToSimCollection &recoToSim,
+                        SimToMuonCollection &simToReco,
+                        const edm::Handle<edm::View<reco::Muon>> &muons,
+                        MuonTrackType type,
+                        const edm::Handle<TrackingParticleCollection> &tpColl) const {
+      impl_->associateMuons(recoToSim, simToReco, muons, type, tpColl);
     }
 
   private:
-    MuonToTrackingParticleAssociator( const MuonToTrackingParticleAssociator&) = delete;
-    MuonToTrackingParticleAssociator& operator=( const MuonToTrackingParticleAssociator&) = delete;
-
-    MuonToTrackingParticleAssociatorBaseImpl const* impl_;
+    std::unique_ptr<MuonToTrackingParticleAssociatorBaseImpl const> impl_;
   };
-}
+}  // namespace reco
 
 #endif

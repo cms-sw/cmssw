@@ -1,3 +1,4 @@
+from __future__ import print_function
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -11,10 +12,15 @@
 #                                                                              
 ################################################################################
 
+from sys import version_info
 from os import getenv
 from os.path import exists
-from httplib import HTTPSConnection
-from urllib2  import AbstractHTTPHandler
+if version_info[0]==2:
+  from httplib import HTTPSConnection
+  from urllib2  import AbstractHTTPHandler
+else:
+  from http.client import HTTPSConnection
+  from urllib.request  import AbstractHTTPHandler
 #-------------------------------------------------------------------------------  
 
 class X509CertAuth(HTTPSConnection):
@@ -48,11 +54,11 @@ class X509CertAuth(HTTPSConnection):
         cert_file = x509_path
 
     if not key_file or not exists(key_file):
-      print >>stderr, "No certificate private key file found"
+      print("No certificate private key file found", file=stderr)
       exit(1)
 
     if not cert_file or not exists(cert_file):
-      print >>stderr, "No certificate public key file found"
+      print("No certificate public key file found", file=stderr)
       exit(1)
 
     #print "Using SSL private key", key_file

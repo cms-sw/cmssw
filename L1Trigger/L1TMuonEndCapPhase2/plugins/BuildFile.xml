@@ -1,0 +1,4 @@
+<library file="*.cc" name="L1TriggerL1TMuonEndCapPhase2Plugins">
+  <use name="L1Trigger/L1TMuonEndCapPhase2"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

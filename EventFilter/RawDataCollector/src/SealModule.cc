@@ -6,4 +6,3 @@
 using namespace edm::serviceregistry;
 
 DEFINE_FWK_MODULE(RawDataCollectorByLabel);
-

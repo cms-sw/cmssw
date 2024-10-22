@@ -14,7 +14,7 @@
  *
  ************************************************************/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -30,32 +30,30 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-  class HcalTBObjectUnpacker : public edm::EDProducer
-  {
-  public:
-    explicit HcalTBObjectUnpacker(const edm::ParameterSet& ps);
-    ~HcalTBObjectUnpacker() override;
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
-  private:
-    int triggerFed_;
-    int sdFed_;
-    int spdFed_;
-    int tdcFed_;
-    int qadcFed_;
-    std::string calibFile_;
-    hcaltb::HcalTBTriggerDataUnpacker tdUnpacker_;
-    hcaltb::HcalTBSlowDataUnpacker    sdUnpacker_;
-    hcaltb::HcalTBTDCUnpacker         tdcUnpacker_;
-    hcaltb::HcalTBQADCUnpacker        qadcUnpacker_;
-    hcaltb::HcalTBSourcePositionDataUnpacker         spdUnpacker_;
-    bool doRunData_, doTriggerData_, doEventPosition_, doTiming_, doSourcePos_,doBeamADC_;
+class HcalTBObjectUnpacker : public edm::stream::EDProducer<> {
+public:
+  explicit HcalTBObjectUnpacker(const edm::ParameterSet& ps);
 
-    std::vector<std::vector<std::string> > calibLines_;
-    edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
-    void parseCalib();
+private:
+  int triggerFed_;
+  int sdFed_;
+  int spdFed_;
+  int tdcFed_;
+  int qadcFed_;
+  std::string calibFile_;
+  hcaltb::HcalTBTriggerDataUnpacker tdUnpacker_;
+  hcaltb::HcalTBSlowDataUnpacker sdUnpacker_;
+  hcaltb::HcalTBTDCUnpacker tdcUnpacker_;
+  hcaltb::HcalTBQADCUnpacker qadcUnpacker_;
+  hcaltb::HcalTBSourcePositionDataUnpacker spdUnpacker_;
+  bool doRunData_, doTriggerData_, doEventPosition_, doTiming_, doSourcePos_, doBeamADC_;
 
-  };
+  std::vector<std::vector<std::string> > calibLines_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
 
+  void parseCalib();
+};
 
 #endif

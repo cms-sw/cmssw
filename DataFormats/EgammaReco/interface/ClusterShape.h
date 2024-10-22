@@ -20,15 +20,31 @@ namespace reco {
 
   class ClusterShape {
   public:
-    ClusterShape() { }
-    ClusterShape( double cEE, double cEP, double cPP, 
-                  double eMax, DetId eMaxId, double e2nd, DetId e2ndId,
-		  double e2x2, double e3x2, double e3x3, double e4x4,
-		  double e5x5, double E10_Right_, double E10_Left_,
-		  double E10_Top_, double E10_Bottom_, double e3x2Ratio,
-		  double LAT, double etaLAT, double phiLAT, double A20, double A42,
-                  const std::vector<double>& energyBasketFractionEta_,
-                  const std::vector<double>& energyBasketFractionPhi_);
+    ClusterShape() {}
+    ClusterShape(double cEE,
+                 double cEP,
+                 double cPP,
+                 double eMax,
+                 DetId eMaxId,
+                 double e2nd,
+                 DetId e2ndId,
+                 double e2x2,
+                 double e3x2,
+                 double e3x3,
+                 double e4x4,
+                 double e5x5,
+                 double E10_Right_,
+                 double E10_Left_,
+                 double E10_Top_,
+                 double E10_Bottom_,
+                 double e3x2Ratio,
+                 double LAT,
+                 double etaLAT,
+                 double phiLAT,
+                 double A20,
+                 double A42,
+                 const std::vector<double>& energyBasketFractionEta_,
+                 const std::vector<double>& energyBasketFractionPhi_);
     double eMax() const { return eMax_; }
     double e2nd() const { return e2nd_; }
     double e2x2() const { return e2x2_; }
@@ -50,10 +66,10 @@ namespace reco {
     double zernike20() const { return A20_; }
     double zernike42() const { return A42_; }
 
-    std::vector<double> energyBasketFractionEta() const { return energyBasketFractionEta_;}
-    std::vector<double> energyBasketFractionPhi() const { return energyBasketFractionPhi_;}
-    DetId eMaxId() const { return eMaxId_;}
-    DetId e2ndId() const { return e2ndId_;}
+    std::vector<double> energyBasketFractionEta() const { return energyBasketFractionEta_; }
+    std::vector<double> energyBasketFractionPhi() const { return energyBasketFractionPhi_; }
+    DetId eMaxId() const { return eMaxId_; }
+    DetId e2ndId() const { return e2ndId_; }
 
   private:
     Double32_t covEtaEta_, covEtaPhi_, covPhiPhi_;
@@ -69,6 +85,6 @@ namespace reco {
     DetId eMaxId_, e2ndId_;
   };
 
-}
+}  // namespace reco
 
 #endif

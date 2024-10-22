@@ -1,0 +1,7 @@
+<iftool name="rocm">
+  <use name="rocm"/>
+  <use name="FWCore/Utilities" source_only="true"/>
+  <export>
+    <lib name="1"/>
+  </export>
+</iftool>

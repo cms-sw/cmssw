@@ -60,19 +60,9 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 # enable debug message logging for our modules
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    threshold  = cms.untracked.string('DEBUG'),
-    categories = cms.untracked.vstring('L1T'),
-#    l1t   = cms.untracked.PSet(
-#	threshold  = cms.untracked.string('DEBUG')
-#    ),
+process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
-#        'stage1Raw',
-#        'caloStage1Digis'
-#    ),
-#    cout = cms.untracked.PSet(
-#    )
+    threshold = cms.untracked.string('DEBUG')
 )
 
 # TTree output file

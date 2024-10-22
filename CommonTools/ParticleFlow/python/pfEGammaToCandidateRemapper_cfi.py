@@ -7,3 +7,5 @@ pfEGammaToCandidateRemapper = cms.EDProducer("PFEGammaToCandidateRemapper",
     photon2pf = cms.InputTag("particleBasedIsolation","gedPhotons"), 
     pf2pf = cms.InputTag("FILLME")
 )
+
+pfEGammaToCandidateRemapperCleaned = pfEGammaToCandidateRemapper.clone(pf2pf = "cleanedParticleFlow")

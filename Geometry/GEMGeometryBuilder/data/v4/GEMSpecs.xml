@@ -9,5 +9,9 @@
       <PartSelector path="//GHA1.."/>
       <Parameter name="nPads" value="192"/>
     </SpecPar>
+    <SpecPar name="dPhiGE11" eval="true">
+      <PartSelector path="//GHA1.."/>
+      <Parameter name="dPhi" value="10.15*deg"/>
+    </SpecPar>
   </SpecParSection>
 </DDDefinition>

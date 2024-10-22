@@ -1,8 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+from __future__ import print_function
 import os,sys
 import getopt
-import commands
+import subprocess
 import time
 import ROOT
 import urllib
@@ -18,8 +19,8 @@ def numberOfEvents(file,mode):
    rootfile.GetObject("gainCalibrationTree%s/tree"%mode,tree)
    NEntries = tree.GetEntries()
    rootfile.Close()
-   print file +' --> '+str(NEntries)
-   print "gainCalibrationTree%s/tree"%mode
+   print(file +' --> '+str(NEntries))
+   print("gainCalibrationTree%s/tree"%mode)
    return NEntries	
 
 
@@ -64,16 +65,16 @@ if(firstRun!=-1 or lastRun!=-1): automatic = False
 
 DQM_dir = "AlCaReco/SiStripGains" if "AagBunch" not in opt.calMode else "AlCaReco/SiStripGainsAAG"
 
-print
-print
-print "Gain payload computing configuration"
-print "  firstRun = " +str(firstRun)
-print "  lastRun  = " +str(lastRun)
-print "  publish  = " +str(publish)
-print "  usePCL   = " +str(usePCL)
-print "  calMode  = " + calMode
-print "  DQM_dir  = " + DQM_dir
-print
+print()
+print()
+print("Gain payload computing configuration")
+print("  firstRun = " +str(firstRun))
+print("  lastRun  = " +str(lastRun))
+print("  publish  = " +str(publish))
+print("  usePCL   = " +str(usePCL))
+print("  calMode  = " + calMode)
+print("  DQM_dir  = " + DQM_dir)
+print()
 
 
 #go to parent directory = test directory
@@ -81,10 +82,10 @@ os.chdir("..");
 
 #identify last run of the previous calibration
 if(firstRun<=0):
-   out = commands.getstatusoutput("ls /afs/cern.ch/cms/tracker/sistrvalidation/WWW/CalibrationValidation/ParticleGain/ | grep Run_ | tail -n 1");
+   out = subprocess.getstatusoutput("ls /afs/cern.ch/cms/tracker/sistrvalidation/WWW/CalibrationValidation/ParticleGain/ | grep Run_ | tail -n 1");
    firstRun = int(out[1].split('_')[3])+1
-   print "firstRun set to " +str(firstRun)
-   print
+   print("firstRun set to " +str(firstRun))
+   print()
 
 initEnv='cd ' + os.getcwd() + ';'
 initEnv+='source /afs/cern.ch/cms/cmsset_default.sh' + ';'
@@ -97,30 +98,30 @@ run = 0
 FileList = ""
 
 dataCertInfo = dataCert.get()
-print "Loaded certification info. Last update : %s"%dataCertInfo["Last update"] 
+print("Loaded certification info. Last update : %s"%dataCertInfo["Last update"]) 
 
 lastGoodRun = -1
 if(usePCL==True):
    print("Get the list of PCL output files from DAS")
-   print initEnv+"das_client.py  --limit=9999 --query='dataset=%s'"%PCLDATASET
-   dasOutput = commands.getstatusoutput(initEnv+"das_client.py  --limit=9999 --query='dataset=%s'"%PCLDATASET)[1]
+   print(initEnv+"das_client.py  --limit=9999 --query='dataset=%s'"%PCLDATASET)
+   dasOutput = subprocess.getstatusoutput(initEnv+"das_client.py  --limit=9999 --query='dataset=%s'"%PCLDATASET)[1]
    datasets = [ line for line in dasOutput.splitlines()
                 if not line.startswith('Showing') and 'SCRAM fatal' not in line and len(line)>0 ]
-   print datasets
+   print(datasets)
    if len( datasets)==0 or 'Error' in " ".join(datasets):
-       print "Issues in gathering the dataset names, please check the command and the query"
-       print "***** DAS OUTPUT *****"
-       print dasOutput
-       print "**********************"
+       print("Issues in gathering the dataset names, please check the command and the query")
+       print("***** DAS OUTPUT *****")
+       print(dasOutput)
+       print("**********************")
        exit (0) 
 
    runs = []
    for dataset in datasets:
-       runs += [ (dataset, line) for line in commands.getstatusoutput(initEnv+
+       runs += [ (dataset, line) for line in subprocess.getstatusoutput(initEnv+
                                          "das_client.py  --limit=9999 --query='run dataset=%s'"%dataset)[1].splitlines()
                       if not line.startswith('Showing') and 'SCRAM fatal' not in line and len(line)>0 ]
    if len( runs )==0 or 'Error' in " ".join(datasets):
-       print "Issues in gathering the run numbers, please check the command and the query"
+       print("Issues in gathering the run numbers, please check the command and the query")
        exit (0)
    sorted( runs, key=lambda x: x[1])
 
@@ -129,13 +130,13 @@ if(usePCL==True):
       if(run<firstRun or run in runsToVeto):continue
       if(lastRun>0 and run>lastRun):continue      
       if not dataCert.checkRun(run,dataCertInfo):
-         print "Skipping..."
+         print("Skipping...")
          continue
       lastGoodRun = run
       sys.stdout.write( 'Gathering infos for RUN %i:  ' % run )
 
       #check the events available for this run
-      NEventsDasOut = [ line for line in commands.getstatusoutput(initEnv+
+      NEventsDasOut = [ line for line in subprocess.getstatusoutput(initEnv+
        "das_client.py  --limit=9999 --query='summary dataset=%s run=%i | grep summary.nevents'"%(dataset,run))[1].splitlines()
                         if not line.startswith('Showing') and 'SCRAM fatal' not in line and len(line)>0 ][-1]
       if(not NEventsDasOut.isdigit() ):
@@ -151,7 +152,7 @@ if(usePCL==True):
          continue
 
       FileList+="#run=" + str(run) + " -->  NEvents="+str(NEvents/1000).rjust(8)+"K\n"
-      resultsFiles = [ line for line in commands.getstatusoutput(initEnv+
+      resultsFiles = [ line for line in subprocess.getstatusoutput(initEnv+
                        "das_client.py  --limit=9999 --query='file dataset=%s run=%i'"%(dataset,run))[1].splitlines()
                        if not line.startswith('Showing') and 'SCRAM fatal' not in line and len(line)>0 ]
       if len(resultsFiles)==0 or 'Error' in " ".join(resultsFiles):
@@ -167,8 +168,8 @@ if(usePCL==True):
 
 else:
    print("Get the list of calibTree from castor (eos ls " + CALIBTREEPATH + ")")
-   calibTreeInfo = commands.getstatusoutput("eos ls -l "+CALIBTREEPATH)[1].split('\n');
-   print calibTreeInfo
+   calibTreeInfo = subprocess.getstatusoutput("eos ls -l "+CALIBTREEPATH)[1].split('\n');
+   print(calibTreeInfo)
    # collect the list of runs and file size
    # calibTreeInfo.split()[8] - file name
    # calibTreeInfo.split()[4] - file size
@@ -186,10 +187,10 @@ else:
       if(run<firstRun or run in runsToVeto):continue
       if(lastRun>0 and run>lastRun):continue
       if not dataCert.checkRun(run,dataCertInfo):
-         print "Skipping..."
+         print("Skipping...")
          continue
       if run<295310:
-         print "Skipping..."
+         print("Skipping...")
          continue
       lastGoodRun = run
       NEvents = numberOfEvents("root://eoscms//eos/cms"+CALIBTREEPATH+'/'+info[0],calMode);	
@@ -201,22 +202,22 @@ else:
       if(automatic==True and NTotalEvents >= maxNEvents):break;
 
 if lastGoodRun < 0:
-   print "No good run to process."
+   print("No good run to process.")
    sys.exit()
 if(lastRun<=0):lastRun = lastGoodRun
 
-print "RunRange=[" + str(firstRun) + "," + str(lastRun) + "] --> NEvents=" + str(NTotalEvents/1000)+"K"
+print("RunRange=[" + str(firstRun) + "," + str(lastRun) + "] --> NEvents=" + str(NTotalEvents/1000)+"K")
 
-if(automatic==True and NTotalEvents<2e6):	#ask at least 2M events to perform the calibration
-	print 'Not Enough events to run the calibration'
+if(automatic==True and NTotalEvents<2e6): #ask at least 2M events to perform the calibration
+        print('Not Enough events to run the calibration')
         os.system('echo "Gain calibration postponed" | mail -s "Gain calibration postponed ('+str(firstRun)+' to '+str(lastRun)+') NEvents=' + str(NTotalEvents/1000)+'K" ' + mail)
-	exit(0);
+        exit(0)
 
 name = "Run_"+str(firstRun)+"_to_"+str(lastRun)
 if len(calMode)>0:  name = name+"_"+calMode
 if(usePCL==True):   name = name+"_PCL"
 else:               name = name+"_CalibTree"
-print name
+print(name)
 
 oldDirectory = "7TeVData"
 newDirectory = "Data_"+name;
@@ -241,14 +242,14 @@ job = initEnv
 job+= "\ncd %s; \npwd; \nls; \npython submitJob.py -f %s -l %s -p %s -P %s"%(os.getcwd(),firstRun,lastRun,usePCL,publish)
 job+= " -m %s -s %s -a %s"%(calMode,scriptDir,automatic)
 
-print "*** JOB : ***"
-print job
-print "cwd = %s"%(os.getcwd())
+print("*** JOB : ***")
+print(job)
+print("cwd = %s"%(os.getcwd()))
 with open("job.sh","w") as f:
    f.write(job)
 os.system("chmod +x job.sh")
 submitCMD =  'bsub  -q 2nd -J G2prod -R "type == SLC6_64 && pool > 30000" "job.sh"'
-print submitCMD
+print(submitCMD)
 os.system(submitCMD)
 
 #if(os.system("sh sequence.sh \"" + name + "\" \"" + calMode + "\" \"CMS Preliminary  -  Run " + str(firstRun) + " to " + str(lastRun) + "\"")!=0):

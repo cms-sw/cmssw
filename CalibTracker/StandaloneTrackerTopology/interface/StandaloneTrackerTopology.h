@@ -21,6 +21,6 @@ namespace StandaloneTrackerTopology {
    * edm::EventSetup (e.g. ROOT macros).
    */
   TrackerTopology fromTrackerParametersXMLString(const std::string& xmlContent);
-};
+};  // namespace StandaloneTrackerTopology
 
-#endif // TRACKER_TOPOLOGY_STANDALONE_H
+#endif  // TRACKER_TOPOLOGY_STANDALONE_H

@@ -5,7 +5,6 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
-
 /**
  * Pure abstract class implementing constraint application 
  * on multiple tracks (back to back, collinearity etc.)
@@ -21,19 +20,17 @@
  * Kirill Prokofiev, October 2003
  */
 
-class MultiTrackKinematicConstraint
-{
+class MultiTrackKinematicConstraint {
 public:
-
-/**
+  /**
  *  Default constructor and destructor
  */
- 
-MultiTrackKinematicConstraint() {}
 
-virtual ~MultiTrackKinematicConstraint() {}
+  MultiTrackKinematicConstraint() {}
 
-/**
+  virtual ~MultiTrackKinematicConstraint() {}
+
+  /**
  * Methods making vector of values
  * and derivative matrices with
  * respect to vertex position and
@@ -41,21 +38,15 @@ virtual ~MultiTrackKinematicConstraint() {}
  * Input paramters are put into one vector: 
  * (Vertex position, particle_parameters_1,..., particle_parameters_n)
  */
-virtual AlgebraicVector  value(const std::vector<KinematicState>&,
-                               const GlobalPoint& ) const = 0; 
+  virtual AlgebraicVector value(const std::vector<KinematicState>&, const GlobalPoint&) const = 0;
 
-virtual AlgebraicMatrix parametersDerivative(const std::vector<KinematicState>&,
-                                             const GlobalPoint& ) const = 0;
+  virtual AlgebraicMatrix parametersDerivative(const std::vector<KinematicState>&, const GlobalPoint&) const = 0;
 
+  virtual AlgebraicMatrix positionDerivative(const std::vector<KinematicState>&, const GlobalPoint&) const = 0;
 
-virtual AlgebraicMatrix positionDerivative(const std::vector<KinematicState>&,
-                                           const GlobalPoint& ) const = 0;
-				    
-virtual int numberOfEquations() const = 0;
+  virtual int numberOfEquations() const = 0;
 
-virtual MultiTrackKinematicConstraint * clone() const = 0;
-
+  virtual MultiTrackKinematicConstraint* clone() const = 0;
 };
-
 
 #endif

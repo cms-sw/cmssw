@@ -1,0 +1,8 @@
+<test name="testAOTTools" command="python3 ${LOCALTOP}/src/PhysicsTools/TensorFlowAOT/test/testAOTTools.py"/>
+
+<bin name="testTFAOTInterface" file="testRunner.cpp,testInterface.cc">
+  <use name="cppunit"/>
+  <use name="PhysicsTools/TensorFlowAOT"/>
+  <use name="tfaot-model-test-simple"/>
+  <use name="tfaot-model-test-multi"/>
+</bin>

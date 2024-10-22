@@ -608,6 +608,7 @@ c      endif
 c      write(*,*)'Entering MGVETO'
 c      write(*,*)'qcut is ',qcut,' and showerkt is ',showerkt
       IPVETO=0
+      YCUT=-1.0
 c     Return if not MLM matching (or non-matched subprocess)
       
       IF(ICKKW.LE.0.OR.IEXC.eq.-1) RETURN

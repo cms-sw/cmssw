@@ -20,9 +20,10 @@ namespace reco {
 }
 
 namespace edm {
-  template<typename T> class View;
+  template <typename T>
+  class View;
   class InputTag;
-}
+}  // namespace edm
 
 namespace pat {
   class Electron;
@@ -31,14 +32,16 @@ namespace pat {
   public:
     TrackerIsolationPt();
     virtual ~TrackerIsolationPt();
-    
-    float calculate(const Electron & theElectron, const edm::View<reco::Track> & theTracks, float isoConeElectron = 0.3) const;
-    float calculate(const Muon & theMuon, const edm::View<reco::Track> & theTracks, float isoConeMuon = 0.3) const;
-    
+
+    float calculate(const Electron& theElectron,
+                    const edm::View<reco::Track>& theTracks,
+                    float isoConeElectron = 0.3) const;
+    float calculate(const Muon& theMuon, const edm::View<reco::Track>& theTracks, float isoConeMuon = 0.3) const;
+
   private:
-    float calculate(const reco::Track & theTrack, const edm::View<reco::Track> & theTracks, float isoCone) const;
+    float calculate(const reco::Track& theTrack, const edm::View<reco::Track>& theTracks, float isoCone) const;
   };
 
-}
+}  // namespace pat
 
 #endif

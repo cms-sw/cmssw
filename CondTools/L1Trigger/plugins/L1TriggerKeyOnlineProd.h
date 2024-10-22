@@ -4,7 +4,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1TriggerKeyOnlineProd
-// 
+//
 /**\class L1TriggerKeyOnlineProd L1TriggerKeyOnlineProd.h CondTools/L1Trigger/interface/L1TriggerKeyOnlineProd.h
 
  Description: Get L1TriggerKey objects from all subsystems and collate.
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Mar  2 03:04:19 CET 2008
 // $Id: L1TriggerKeyOnlineProd.h,v 1.2 2008/09/12 04:50:59 wsun Exp $
 //
@@ -33,18 +33,23 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 
 // forward declarations
+class L1TriggerKey;
+class L1TriggerKeyRcd;
 
 class L1TriggerKeyOnlineProd : public edm::ESProducer {
-   public:
-      L1TriggerKeyOnlineProd(const edm::ParameterSet&);
-      ~L1TriggerKeyOnlineProd() override;
+public:
+  L1TriggerKeyOnlineProd(const edm::ParameterSet&);
+  ~L1TriggerKeyOnlineProd() override;
 
-      typedef std::shared_ptr<L1TriggerKey> ReturnType;
+  typedef std::unique_ptr<L1TriggerKey> ReturnType;
 
-      ReturnType produce(const L1TriggerKeyRcd&);
-   private:
-      // ----------member data ---------------------------
-      std::vector< std::string > m_subsystemLabels ;
+  ReturnType produce(const L1TriggerKeyRcd&);
+
+private:
+  // ----------member data ---------------------------
+  std::vector<std::string> m_subsystemLabels;
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> l1TriggerKeyToken_;
+  std::vector<edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd>> l1TriggerKeyTokenVec_;
 };
 
 #endif

@@ -14,11 +14,17 @@
 #include <set>
 #include <iosfwd>
 #include <memory>
+#include <variant>
+#include <optional>
+#include <unordered_map>
+#include <vector>
+#include <cassert>
 
 namespace edm {
 
   class ParameterSet;
-  template <typename T> class ParameterDescriptionCases;
+  template <typename T>
+  class ParameterDescriptionCases;
   class DocFormatHelper;
 
   // Originally these were defined such that the values were the
@@ -41,14 +47,18 @@ namespace edm {
     k_double = 'D',
     k_vdouble = 'd',
     k_bool = 'B',
-    k_string = 'S',
-    k_vstring = 's',
+    k_stringRaw = 'Z',
+    k_vstringRaw = 'z',
+    k_stringHex = 'S',
+    k_vstringHex = 's',
     k_EventID = 'E',
     k_VEventID = 'e',
     k_LuminosityBlockID = 'M',
     k_VLuminosityBlockID = 'm',
     k_InputTag = 't',
     k_VInputTag = 'v',
+    k_ESInputTag = 'g',
+    k_VESInputTag = 'G',
     k_FileInPath = 'F',
     k_LuminosityBlockRange = 'A',
     k_VLuminosityBlockRange = 'a',
@@ -59,6 +69,122 @@ namespace edm {
   };
 
   std::string parameterTypeEnumToString(ParameterTypes iType);
+
+  namespace cfi {
+    struct Paths {
+      //This is the 'path' through the cms.PSet hierarchy.
+      // E.g. foo.bar.tar would have a Path for foo, bar, and tar with
+      // tar having a null nodes_ variable.
+      std::optional<std::unordered_map<std::string, Paths>> nodes_;
+    };
+    struct Typed {};
+    struct ClassFile {
+      void parameterMustBeTyped() {
+        Paths* p = &fullPaths_;
+        for (auto n : presentPath_) {
+          if (not p->nodes_) {
+            p->nodes_ = std::unordered_map<std::string, Paths>();
+          }
+          p = &(p->nodes_.value().emplace(n, Paths{})).first->second;
+        }
+      }
+      void pushNode(std::string_view iNode) { presentPath_.push_back(iNode); }
+      void popNode() {
+        assert(not presentPath_.empty());
+        presentPath_.pop_back();
+      }
+
+      Paths releasePaths() { return std::move(fullPaths_); }
+
+    private:
+      std::vector<std::string_view> presentPath_;
+      Paths fullPaths_;
+    };
+    struct Untyped {
+      Untyped(Paths iPaths) : paths_(iPaths) {}
+      bool needToSwitchToTyped(std::string_view iNode) {
+        presentPath_.push_back(iNode);
+        if (not paths_.nodes_.has_value()) {
+          return false;
+        }
+        const Paths* p = &paths_;
+        for (auto const& n : presentPath_) {
+          if (not paths_.nodes_.has_value()) {
+            return false;
+          }
+          auto f = paths_.nodes_->find(std::string(n));
+          if (f == paths_.nodes_->end()) {
+            return false;
+          }
+          p = &f->second;
+        }
+        return not p->nodes_.has_value();
+      }
+      void popNode() {
+        assert(not presentPath_.empty());
+        presentPath_.pop_back();
+      }
+
+    private:
+      std::vector<std::string_view> presentPath_;
+      Paths paths_;
+    };
+
+    using CfiOptions = std::variant<cfi::Typed, cfi::ClassFile, cfi::Untyped>;
+
+    inline void parameterMustBeTyped(CfiOptions& iOps) noexcept {
+      if (std::holds_alternative<cfi::ClassFile>(iOps)) {
+        std::get<cfi::ClassFile>(iOps).parameterMustBeTyped();
+      }
+    }
+    inline void parameterMustBeTyped(CfiOptions& iOps, std::string_view iNode) noexcept {
+      if (std::holds_alternative<cfi::ClassFile>(iOps)) {
+        auto& d = std::get<cfi::ClassFile>(iOps);
+        d.pushNode(iNode);
+        d.parameterMustBeTyped();
+        d.popNode();
+      }
+    }
+    [[nodiscard]] inline bool shouldWriteUntyped(CfiOptions const& iOps) noexcept {
+      return std::holds_alternative<cfi::Untyped>(iOps);
+    }
+
+    struct NodeGuard {
+      NodeGuard(CfiOptions& iOp) : options_(&iOp) {}
+      NodeGuard() = delete;
+      NodeGuard(NodeGuard const&) = delete;
+      NodeGuard& operator=(NodeGuard const&) = delete;
+      NodeGuard(NodeGuard&& iOther) : options_{iOther.options_} { iOther.options_ = nullptr; }
+      NodeGuard& operator=(NodeGuard&& iOther) {
+        NodeGuard temp{std::move(iOther)};
+        options_ = temp.options_;
+        temp.options_ = nullptr;
+        return *this;
+      }
+      ~NodeGuard() {
+        if (nullptr == options_) {
+          return;
+        }
+        if (std::holds_alternative<ClassFile>(*options_)) {
+          std::get<ClassFile>(*options_).popNode();
+        } else if (std::holds_alternative<Untyped>(*options_)) {
+          std::get<Untyped>(*options_).popNode();
+        }
+      }
+      CfiOptions* options_;
+    };
+
+    [[nodiscard]] inline std::pair<bool, NodeGuard> needToSwitchToTyped(std::string_view iNode,
+                                                                        CfiOptions& iOpt) noexcept {
+      if (std::holds_alternative<Untyped>(iOpt)) {
+        return std::pair(std::get<Untyped>(iOpt).needToSwitchToTyped(iNode), NodeGuard(iOpt));
+      } else if (std::holds_alternative<ClassFile>(iOpt)) {
+        std::get<ClassFile>(iOpt).pushNode(iNode);
+      }
+      return std::pair(false, NodeGuard(iOpt));
+    }
+  }  // namespace cfi
+  using CfiOptions = cfi::CfiOptions;
 
   struct ParameterTypeToEnum {
     template <class T>
@@ -71,19 +197,16 @@ namespace edm {
     explicit Comment(std::string const& iComment);
     explicit Comment(char const* iComment);
     std::string const& comment() const { return comment_; }
+
   private:
     std::string comment_;
   };
 
   class ParameterDescriptionNode {
-
   public:
-
     ParameterDescriptionNode() {}
 
-    explicit ParameterDescriptionNode(Comment const& iComment) :
-      comment_(iComment.comment()) {
-    }
+    explicit ParameterDescriptionNode(Comment const& iComment) : comment_(iComment.comment()) {}
 
     virtual ~ParameterDescriptionNode();
 
@@ -99,9 +222,7 @@ namespace edm {
     // named "optional" is true, which should only be possible for the
     // top level nodes of a ParameterSetDescription.  When a parameter is
     // found or inserted its label is added into the list of validatedLabels.
-    void validate(ParameterSet& pset,
-                  std::set<std::string>& validatedLabels,
-                  bool optional) const {
+    void validate(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const {
       validate_(pset, validatedLabels, optional);
     }
 
@@ -116,25 +237,20 @@ namespace edm {
     // a valid cfi, in some cases the description can be so pathological
     // that it is impossible to write a cfi that will pass validation.
     void writeCfi(std::ostream& os,
+                  bool optional,
                   bool& startWithComma,
                   int indentation,
+                  CfiOptions& options,
                   bool& wroteSomething) const {
-      writeCfi_(os, startWithComma, indentation, wroteSomething);
+      writeCfi_(os, optional, startWithComma, indentation, options, wroteSomething);
     }
 
     // Print out the description in human readable format
-    void print(std::ostream& os,
-               bool optional,
-               bool writeToCfi,
-               DocFormatHelper& dfh) const;
+    void print(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const;
 
-    bool hasNestedContent() const {
-      return hasNestedContent_();
-    }
+    bool hasNestedContent() const { return hasNestedContent_(); }
 
-    void printNestedContent(std::ostream& os,
-                            bool optional,
-                            DocFormatHelper& dfh) const;
+    void printNestedContent(std::ostream& os, bool optional, DocFormatHelper& dfh) const;
 
     // The next three functions are only called by the logical nodes
     // on their subnodes.  When executing these functions, the
@@ -143,17 +259,13 @@ namespace edm {
     // Usually checks to see if a parameter exists in the configuration, but
     // if the node is a logical node, then it returns the value of the logical
     // expression.
-    bool exists(ParameterSet const& pset) const {
-      return exists_(pset);
-    }
+    bool exists(ParameterSet const& pset) const { return exists_(pset); }
 
     // For most nodes, this simply returns the same value as the exists
     // function.  But for AND nodes this returns true if either its subnodes
     // exists.  Used by operator&& during validation, if either of an AND node's
     // subnodes exists, then both subnodes get validated.
-    bool partiallyExists(ParameterSet const& pset) const {
-      return partiallyExists_(pset);
-    }
+    bool partiallyExists(ParameterSet const& pset) const { return partiallyExists_(pset); }
 
     // For most nodes, this simply returns the same value as the exists
     // function. It is different for an XOR node.  It counts
@@ -166,9 +278,7 @@ namespace edm {
     // -- if it returns zero, then validation tries to validate the first node and
     // then rechecks to see what the missing parameter insertion did (there could
     // be side effects on the nodes that were not validated)
-    int howManyXORSubNodesExist(ParameterSet const& pset) const {
-      return howManyXORSubNodesExist_(pset);
-    }
+    int howManyXORSubNodesExist(ParameterSet const& pset) const { return howManyXORSubNodesExist_(pset); }
 
     /* Validation puts requirements on which parameters can and cannot exist
     within a ParameterSet.  The evaluation of whether a ParameterSet passes
@@ -228,35 +338,28 @@ namespace edm {
       checkAndGetLabelsAndTypes_(usedLabels, parameterTypes, wildcardTypes);
     }
 
+    virtual bool isWildcard() const { return false; }
     static void printSpaces(std::ostream& os, int n);
 
   protected:
-
     virtual void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
                                             std::set<ParameterTypes>& parameterTypes,
                                             std::set<ParameterTypes>& wildcardTypes) const = 0;
 
-    virtual void validate_(ParameterSet& pset,
-                           std::set<std::string>& validatedLabels,
-                           bool optional) const = 0;
+    virtual void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const = 0;
 
     virtual void writeCfi_(std::ostream& os,
+                           bool optional,
                            bool& startWithComma,
                            int indentation,
+                           CfiOptions&,
                            bool& wroteSomething) const = 0;
 
-    virtual void print_(std::ostream&,
-                        bool /*optional*/,
-                        bool /*writeToCfi*/,
-                        DocFormatHelper&) const { }
+    virtual void print_(std::ostream&, bool /*optional*/, bool /*writeToCfi*/, DocFormatHelper&) const {}
 
-    virtual bool hasNestedContent_() const {
-      return false;
-    }
+    virtual bool hasNestedContent_() const { return false; }
 
-    virtual void printNestedContent_(std::ostream&,
-                                     bool /*optional*/,
-                                     DocFormatHelper&) const { }
+    virtual void printNestedContent_(std::ostream&, bool /*optional*/, DocFormatHelper&) const {}
 
     virtual bool exists_(ParameterSet const& pset) const = 0;
 
@@ -270,94 +373,73 @@ namespace edm {
   template <>
   struct value_ptr_traits<ParameterDescriptionNode> {
     static ParameterDescriptionNode* clone(ParameterDescriptionNode const* p) { return p->clone(); }
+    static void destroy(ParameterDescriptionNode* p) { delete p; }
   };
 
   // operator>> ---------------------------------------------
 
-  std::unique_ptr<ParameterDescriptionCases<bool> >
-  operator>>(bool caseValue,
-             ParameterDescriptionNode const& node);
+  std::unique_ptr<ParameterDescriptionCases<bool>> operator>>(bool caseValue, ParameterDescriptionNode const& node);
 
-  std::unique_ptr<ParameterDescriptionCases<int> >
-  operator>>(int caseValue,
-             ParameterDescriptionNode const& node);
+  std::unique_ptr<ParameterDescriptionCases<int>> operator>>(int caseValue, ParameterDescriptionNode const& node);
 
-  std::unique_ptr<ParameterDescriptionCases<std::string> >
-  operator>>(std::string const& caseValue,
-             ParameterDescriptionNode const& node);
+  std::unique_ptr<ParameterDescriptionCases<std::string>> operator>>(std::string const& caseValue,
+                                                                     ParameterDescriptionNode const& node);
 
-  std::unique_ptr<ParameterDescriptionCases<std::string> >
-  operator>>(char const* caseValue,
-             ParameterDescriptionNode const& node);
+  std::unique_ptr<ParameterDescriptionCases<std::string>> operator>>(char const* caseValue,
+                                                                     ParameterDescriptionNode const& node);
 
-  std::unique_ptr<ParameterDescriptionCases<bool> >
-  operator>>(bool caseValue,
-             std::unique_ptr<ParameterDescriptionNode> node);
+  std::unique_ptr<ParameterDescriptionCases<bool>> operator>>(bool caseValue,
+                                                              std::unique_ptr<ParameterDescriptionNode> node);
 
-  std::unique_ptr<ParameterDescriptionCases<int> >
-  operator>>(int caseValue,
-             std::unique_ptr<ParameterDescriptionNode> node);
+  std::unique_ptr<ParameterDescriptionCases<int>> operator>>(int caseValue,
+                                                             std::unique_ptr<ParameterDescriptionNode> node);
 
-  std::unique_ptr<ParameterDescriptionCases<std::string> >
-  operator>>(std::string const& caseValue,
-             std::unique_ptr<ParameterDescriptionNode> node);
+  std::unique_ptr<ParameterDescriptionCases<std::string>> operator>>(std::string const& caseValue,
+                                                                     std::unique_ptr<ParameterDescriptionNode> node);
 
-  std::unique_ptr<ParameterDescriptionCases<std::string> >
-  operator>>(char const* caseValue,
-             std::unique_ptr<ParameterDescriptionNode> node);
+  std::unique_ptr<ParameterDescriptionCases<std::string>> operator>>(char const* caseValue,
+                                                                     std::unique_ptr<ParameterDescriptionNode> node);
 
   // operator&& ---------------------------------------------
 
-  std::unique_ptr<ParameterDescriptionNode>
-  operator&&(ParameterDescriptionNode const& node_left,
-             ParameterDescriptionNode const& node_right);
+  std::unique_ptr<ParameterDescriptionNode> operator&&(ParameterDescriptionNode const& node_left,
+                                                       ParameterDescriptionNode const& node_right);
 
-  std::unique_ptr<ParameterDescriptionNode>
-  operator&&(std::unique_ptr<ParameterDescriptionNode> node_left,
-             ParameterDescriptionNode const& node_right);
+  std::unique_ptr<ParameterDescriptionNode> operator&&(std::unique_ptr<ParameterDescriptionNode> node_left,
+                                                       ParameterDescriptionNode const& node_right);
 
-  std::unique_ptr<ParameterDescriptionNode>
-  operator&&(ParameterDescriptionNode const& node_left,
-             std::unique_ptr<ParameterDescriptionNode> node_right);
+  std::unique_ptr<ParameterDescriptionNode> operator&&(ParameterDescriptionNode const& node_left,
+                                                       std::unique_ptr<ParameterDescriptionNode> node_right);
 
-  std::unique_ptr<ParameterDescriptionNode>
-  operator&&(std::unique_ptr<ParameterDescriptionNode> node_left,
-             std::unique_ptr<ParameterDescriptionNode> node_right);
+  std::unique_ptr<ParameterDescriptionNode> operator&&(std::unique_ptr<ParameterDescriptionNode> node_left,
+                                                       std::unique_ptr<ParameterDescriptionNode> node_right);
 
   // operator|| ---------------------------------------------
 
-  std::unique_ptr<ParameterDescriptionNode>
-  operator||(ParameterDescriptionNode const& node_left,
-             ParameterDescriptionNode const& node_right);
+  std::unique_ptr<ParameterDescriptionNode> operator||(ParameterDescriptionNode const& node_left,
+                                                       ParameterDescriptionNode const& node_right);
 
-  std::unique_ptr<ParameterDescriptionNode>
-  operator||(std::unique_ptr<ParameterDescriptionNode> node_left,
-             ParameterDescriptionNode const& node_right);
+  std::unique_ptr<ParameterDescriptionNode> operator||(std::unique_ptr<ParameterDescriptionNode> node_left,
+                                                       ParameterDescriptionNode const& node_right);
 
-  std::unique_ptr<ParameterDescriptionNode>
-  operator||(ParameterDescriptionNode const& node_left,
-             std::unique_ptr<ParameterDescriptionNode> node_right);
+  std::unique_ptr<ParameterDescriptionNode> operator||(ParameterDescriptionNode const& node_left,
+                                                       std::unique_ptr<ParameterDescriptionNode> node_right);
 
-  std::unique_ptr<ParameterDescriptionNode>
-  operator||(std::unique_ptr<ParameterDescriptionNode> node_left,
-             std::unique_ptr<ParameterDescriptionNode> node_right);
+  std::unique_ptr<ParameterDescriptionNode> operator||(std::unique_ptr<ParameterDescriptionNode> node_left,
+                                                       std::unique_ptr<ParameterDescriptionNode> node_right);
 
   // operator^  ---------------------------------------------
 
-  std::unique_ptr<ParameterDescriptionNode>
-  operator^(ParameterDescriptionNode const& node_left,
-            ParameterDescriptionNode const& node_right);
+  std::unique_ptr<ParameterDescriptionNode> operator^(ParameterDescriptionNode const& node_left,
+                                                      ParameterDescriptionNode const& node_right);
 
-  std::unique_ptr<ParameterDescriptionNode>
-  operator^(std::unique_ptr<ParameterDescriptionNode> node_left,
-            ParameterDescriptionNode const& node_right);
+  std::unique_ptr<ParameterDescriptionNode> operator^(std::unique_ptr<ParameterDescriptionNode> node_left,
+                                                      ParameterDescriptionNode const& node_right);
 
-  std::unique_ptr<ParameterDescriptionNode>
-  operator^(ParameterDescriptionNode const& node_left,
-            std::unique_ptr<ParameterDescriptionNode> node_right);
+  std::unique_ptr<ParameterDescriptionNode> operator^(ParameterDescriptionNode const& node_left,
+                                                      std::unique_ptr<ParameterDescriptionNode> node_right);
 
-  std::unique_ptr<ParameterDescriptionNode>
-  operator^(std::unique_ptr<ParameterDescriptionNode> node_left,
-            std::unique_ptr<ParameterDescriptionNode> node_right);
-}
+  std::unique_ptr<ParameterDescriptionNode> operator^(std::unique_ptr<ParameterDescriptionNode> node_left,
+                                                      std::unique_ptr<ParameterDescriptionNode> node_right);
+}  // namespace edm
 #endif

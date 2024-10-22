@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     EcalLaserAlphasRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Fri Jun  1 12:28:55 CEST 2007
 // $Id$
 

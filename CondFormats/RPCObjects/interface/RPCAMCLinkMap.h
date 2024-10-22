@@ -8,31 +8,24 @@
 #include "CondFormats/RPCObjects/interface/RPCAMCLink.h"
 #include "CondFormats/RPCObjects/interface/RPCLBLink.h"
 
-class RPCAMCLinkMap
-{
+class RPCAMCLinkMap {
 public:
-    typedef std::map<RPCAMCLink, RPCLBLink> map_type;
+  typedef std::map<RPCAMCLink, RPCLBLink> map_type;
 
 public:
-    RPCAMCLinkMap();
+  RPCAMCLinkMap();
 
-    map_type & getMap();
-    map_type const & getMap() const;
+  map_type& getMap();
+  map_type const& getMap() const;
 
 protected:
-    map_type map_;
+  map_type map_;
 
-    COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-inline RPCAMCLinkMap::map_type & RPCAMCLinkMap::getMap()
-{
-    return map_;
-}
+inline RPCAMCLinkMap::map_type& RPCAMCLinkMap::getMap() { return map_; }
 
-inline RPCAMCLinkMap::map_type const & RPCAMCLinkMap::getMap() const
-{
-    return map_;
-}
+inline RPCAMCLinkMap::map_type const& RPCAMCLinkMap::getMap() const { return map_; }
 
-#endif // CondFormats_RPCObjects_RPCAMCLinkMap_h
+#endif  // CondFormats_RPCObjects_RPCAMCLinkMap_h

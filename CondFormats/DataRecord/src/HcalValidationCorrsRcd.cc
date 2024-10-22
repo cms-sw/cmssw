@@ -2,7 +2,7 @@
 //
 // Package:     DataRecord
 // Class  :     HcalValidationCorrsRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

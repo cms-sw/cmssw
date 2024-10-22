@@ -1,0 +1,12 @@
+<use name="FWCore/Framework"/>
+<use name="dd4hep-geant4"/>
+<use name="DetectorDescription/DDCMS"/>
+<test name="DD4hepGeometryTestDriver" command="runTest.sh"/>
+
+<library name="DD4hepGeometryTestPlugins" file="plugins/*.cc">
+  <use name="SimG4Core/DD4hepGeometry"/>
+  <use name="geant4core"/>
+  <use name="Geometry/Records"/>
+  <lib name="Geom"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -1,26 +1,22 @@
 ## Process  100  events in CSC segment builder - Tim Cox - 22.01.2015
 ## This version runs in  74X  on a Real RAW relval sample in 730 
 ## Now testing on FullSim+PU TTbar sample in 730
+## Change Geometry_cff to GeometryDB_cff and update GT July.2022
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-process.load("Configuration/StandardSequences/Geometry_cff")
-process.load("Configuration/StandardSequences/MagneticField_cff")
-process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
 
 # --- MATCH GT TO RELEASE AND DATA SAMPLE
-
-# Tag for 730 Real Data relvals
-##process.GlobalTag.globaltag = "GR_P_V43D::All"
-
-# Tag for 730 Sim relvals
-process.GlobalTag.globaltag = "MCRUN2_73_V5::All"
-
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
 # --- NUMBER OF EVENTS --- 
 
@@ -43,9 +39,9 @@ process.cscSegments.algo_psets[3].algo_psets[1].CSCDebug = cms.untracked.bool(Tr
 
 
 # --- Activate LogVerbatim IN CSCSegment
-process.MessageLogger.categories.append("CSCSegment")
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
@@ -57,14 +53,16 @@ process.MessageLogger.cout = cms.untracked.PSet(
 ### LogTrace output goes to cout; all other output to "junk.log"
 
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
-#process.MessageLogger.categories.append("CSCRecHit")
-#process.MessageLogger.categories.append("CSCSegment")
-#process.MessageLogger.categories.append("CSCSegAlgoST")
+#process.MessageLogger.CSCRecHit=dict()
+#process.MessageLogger.CSCSegment=dict()
+#process.MessageLogger.CSCSegAlgoST=dict()
 
 ###  module label is something like "muonCSCDigis"...
 #process.MessageLogger.debugModules = cms.untracked.vstring("*")
-#process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
+#process.MessageLogger.cerr.enable = False
+#process.MessageLogger.files.junk = dict()
 #process.MessageLogger.cout = cms.untracked.PSet(
+#    enable    = cms.untracked.bool(True),
 #    threshold = cms.untracked.string("DEBUG"),
 #    default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
 #    FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),

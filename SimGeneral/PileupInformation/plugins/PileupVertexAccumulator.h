@@ -18,30 +18,29 @@
 #include <vector>
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
+
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
   class ConsumesCollector;
-  namespace one {
-    class EDProducerBase;
-  }
+  class ProducerBase;
   class Event;
   class EventSetup;
   class ParameterSet;
-  template<typename T> class Handle;
+  template <typename T>
+  class Handle;
   class StreamID;
-}
+}  // namespace edm
 
 class PileUpEventPrincipal;
 
 namespace cms {
   class PileupVertexAccumulator : public DigiAccumulatorMixMod {
   public:
-
-    explicit PileupVertexAccumulator(const edm::ParameterSet& conf, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+    explicit PileupVertexAccumulator(const edm::ParameterSet& conf, edm::ProducesCollector, edm::ConsumesCollector& iC);
 
     ~PileupVertexAccumulator() override;
 
@@ -59,9 +58,7 @@ namespace cms {
     edm::InputTag Mtag_;
     edm::InputTag fallbackMtag_;
     bool saveVtxTimes_;
-
   };
-}
-
+}  // namespace cms
 
 #endif

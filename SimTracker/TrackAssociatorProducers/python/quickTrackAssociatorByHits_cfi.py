@@ -8,24 +8,26 @@ quickTrackAssociatorByHits = cms.EDProducer("QuickTrackAssociatorByHitsProducer"
 	Purity_SimToReco = cms.double(0.75),
 	ThreeHitTracksAreSpecial = cms.bool(True),
         PixelHitWeight = cms.double(1.0),
-	associatePixel = cms.bool(True),
-	associateStrip = cms.bool(True),
-        pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
-        stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
         useClusterTPAssociation = cms.bool(True),
         cluster2TPSrc = cms.InputTag("tpClusterProducer")
 )
 
-from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(quickTrackAssociatorByHits,
-    associateStrip = False,
-    associatePixel = False,
-    useClusterTPAssociation = False
+quickTrackAssociatorByHitsTrackerHitAssociator = quickTrackAssociatorByHits.clone(
+    useClusterTPAssociation = False,
+    associateStrip = cms.bool(True),
+    associatePixel = cms.bool(True),
+    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
 )
 
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify( 
-    quickTrackAssociatorByHits,
-    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel"),
-    stripSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(quickTrackAssociatorByHits, quickTrackAssociatorByHitsTrackerHitAssociator.clone(
+    associateStrip = False,
+    associatePixel = False,
+))
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+(fastSim & premix_stage2).toModify(quickTrackAssociatorByHits,
+    pixelSimLinkSrc = "mixData:PixelDigiSimLink",
+    stripSimLinkSrc = "mixData:StripDigiSimLink",
 )

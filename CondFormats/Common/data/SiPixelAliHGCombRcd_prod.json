@@ -1,0 +1,10 @@
+{
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
+    "destinationTags": {
+        "SiPixelAliHGCombined_PCL_v0_hlt": {}, 
+        "SiPixelAliHGCombined_PCL_v0_prompt": {}
+    }, 
+    "inputTag": "SiPixelAliHGCombined_pcl", 
+    "since": null, 
+    "userText": "T0 PCL Upload for SiPixel HG Combined (MinBias + Z->mm) Ali. (prod)"
+}

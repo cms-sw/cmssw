@@ -1,0 +1,138 @@
+#ifndef EventFilter_RPCRawToDigi_RPCCPPFRecord_icc
+#define EventFilter_RPCRawToDigi_RPCCPPFRecord_icc
+
+#include "EventFilter/RPCRawToDigi/interface/RPCCPPFRecord.h"
+
+namespace rpccppf {
+
+  inline void RXRecord::set(std::uint32_t const record) { record_ = record; }
+
+  inline void RXRecord::reset() { record_ = da_mask_; }
+
+  inline std::uint32_t const& RXRecord::getRecord() const { return record_; }
+
+  inline unsigned int RXRecord::getLink() const { return (record_ & link_mask_) >> link_offset_; }
+
+  inline unsigned int RXRecord::getBXCounterMod() const {
+    return (record_ & bx_counter_mod_mask_) >> bx_counter_mod_offset_;
+  }
+
+  inline bool RXRecord::isAcknowledge() const { return ((record_ & da_mask_) ? true : false); }
+
+  inline bool RXRecord::isError() const { return ((record_ & de_mask_) ? true : false); }
+
+  inline bool RXRecord::isEOD() const { return ((record_ & eod_mask_) ? true : false); }
+
+  inline unsigned int RXRecord::getDelay() const { return (record_ & delay_mask_) >> delay_offset_; }
+
+  inline unsigned int RXRecord::getLinkBoard() const { return (record_ & link_board_mask_) >> link_board_offset_; }
+
+  inline unsigned int RXRecord::getConnector() const { return (record_ & connector_mask_) >> connector_offset_; }
+
+  inline unsigned int RXRecord::getPartition() const { return (record_ & partition_mask_) >> partition_offset_; }
+
+  inline std::uint8_t RXRecord::getPartitionData() const {
+    return (record_ & partition_data_mask_) >> partition_data_offset_;
+  }
+
+  inline void RXRecord::setLink(unsigned int link) {
+    record_ &= ~link_mask_;
+    record_ |= (((std::uint32_t)(link) << link_offset_) & link_mask_);
+  }
+
+  inline void RXRecord::setBXCounterMod(unsigned int bx) {
+    bx %= 27;
+    record_ &= ~bx_counter_mod_mask_;
+    record_ |= (((std::uint32_t)(bx) << bx_counter_mod_offset_) & bx_counter_mod_mask_);
+  }
+
+  inline void RXRecord::setAcknowledge(bool da) {
+    if (da)
+      record_ |= da_mask_;
+    else
+      record_ &= ~(da_mask_);
+  }
+
+  inline void RXRecord::setError(bool de) {
+    if (de)
+      record_ |= de_mask_;
+    else
+      record_ &= ~(de_mask_);
+  }
+
+  inline void RXRecord::setEOD(bool eod) {
+    if (eod)
+      record_ |= eod_mask_;
+    else
+      record_ &= ~(eod_mask_);
+  }
+
+  inline void RXRecord::setDelay(unsigned int delay) {
+    record_ &= ~delay_mask_;
+    record_ |= (((std::uint32_t)(delay) << delay_offset_) & delay_mask_);
+  }
+
+  inline void RXRecord::setLinkBoard(unsigned int link_board) {
+    record_ &= ~link_board_mask_;
+    record_ |= (((std::uint32_t)(link_board) << link_board_offset_) & link_board_mask_);
+  }
+
+  inline void RXRecord::setConnector(unsigned int connector) {
+    record_ &= ~connector_mask_;
+    record_ |= (((std::uint32_t)(connector) << connector_offset_) & connector_mask_);
+  }
+
+  inline void RXRecord::setPartition(unsigned int partition) {
+    record_ &= ~partition_mask_;
+    record_ |= (((std::uint32_t)(partition) << partition_offset_) & partition_mask_);
+  }
+
+  inline void RXRecord::setPartitionData(std::uint8_t data) {
+    record_ &= ~partition_data_mask_;
+    record_ |= (((std::uint32_t)(data) << partition_data_offset_) & partition_data_mask_);
+  }
+
+  inline void TXRecord::set(std::uint32_t const record) { record_ = record; }
+
+  inline void TXRecord::reset() { record_ = phi_mask_[0] | phi_mask_[1]; }
+
+  inline std::uint32_t const& TXRecord::getRecord() const { return record_; }
+
+  inline unsigned int TXRecord::getTheta(unsigned int index) const {
+    if (index < 2) {
+      return (record_ & theta_mask_[index]) >> theta_offset_[index];
+    }
+    return 0;
+  }
+
+  inline unsigned int TXRecord::getPhi(unsigned int index) const {
+    if (index < 2) {
+      return (record_ & phi_mask_[index]) >> phi_offset_[index];
+    }
+    return 0;
+  }
+
+  inline bool TXRecord::isValid(unsigned int index) const {
+    if (index < 2) {
+      return ((record_ & phi_mask_[index]) == phi_mask_[index] ? false : true);
+    }
+    return false;
+  }
+
+  inline void TXRecord::setTheta(unsigned int index, unsigned int theta) {
+    if (index < 2) {
+      record_ &= ~theta_mask_[index];
+      record_ |= (((std::uint32_t)(theta) << theta_offset_[index]) & theta_mask_[index]);
+    }
+  }
+
+  inline void TXRecord::setPhi(unsigned int index, unsigned int phi) {
+    if (index < 2) {
+      record_ &= ~phi_mask_[index];
+      record_ |= (((std::uint32_t)(phi) << phi_offset_[index]) & phi_mask_[index]);
+    }
+  }
+
+}  // namespace rpccppf
+
+#endif  // EventFilter_RPCRawToDigi_RPCCPPFRecord_icc

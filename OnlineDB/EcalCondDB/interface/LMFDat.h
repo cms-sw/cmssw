@@ -1,7 +1,6 @@
 #ifndef LMFDAT_H
 #define LMFDAT_H
 
-
 /*
  Last updated by  Giovanni.Organtini@roma1.infn.it 2010
  */
@@ -17,20 +16,19 @@
  *   Data Tables for LMF Runs
  */
 class LMFDat : public LMFUnique {
- public:
+public:
   friend class EcalCondDBInterface;
 
   LMFDat();
   LMFDat(EcalDBConnection *c);
-  LMFDat(oracle::occi::Environment* env,
-	 oracle::occi::Connection* conn);
-  ~LMFDat() override { }
+  LMFDat(oracle::occi::Environment *env, oracle::occi::Connection *conn);
+  ~LMFDat() override {}
 
   virtual std::string foreignKeyName() const;
 
-  LMFDat& setLMFRunIOV(const LMFRunIOV &iov) {
+  LMFDat &setLMFRunIOV(const LMFRunIOV &iov) {
     setInt(foreignKeyName(), iov.getID());
-    attach(foreignKeyName(), (LMFUnique*)&iov);
+    attach(foreignKeyName(), (LMFUnique *)&iov);
     return *this;
   }
   LMFRunIOV getLMFRunIOV() const {
@@ -39,37 +37,31 @@ class LMFDat : public LMFUnique {
     return runiov;
   }
 
-  Tm getSubrunStart() const {
-    return getLMFRunIOV().getSubRunStart();
-  }
+  Tm getSubrunStart() const { return getLMFRunIOV().getSubRunStart(); }
 
   void getPrevious(LMFDat *dat) noexcept(false);
   void getNext(LMFDat *dat) noexcept(false);
 
-  virtual std::string getTableName() const {
-    return m_tableName;
-  }
-  virtual std::string getIovIdFieldName() const ;
+  virtual std::string getTableName() const { return m_tableName; }
+  virtual std::string getIovIdFieldName() const;
   int getLMFRunIOVID();
 
-  LMFDat& setData(int logic_id, const std::vector<float> &data) {
+  LMFDat &setData(int logic_id, const std::vector<float> &data) {
     m_data[logic_id] = data;
     return *this;
   }
-  LMFDat& setData(const EcalLogicID &logic_id, 
-		  const std::vector<float> &data) {
+  LMFDat &setData(const EcalLogicID &logic_id, const std::vector<float> &data) {
     m_data[logic_id.getLogicID()] = data;
     return *this;
   }
-  LMFDat& setData(const EcalLogicID &logic_id, const std::string &key, 
-		  float v) {
+  LMFDat &setData(const EcalLogicID &logic_id, const std::string &key, float v) {
     int id = logic_id.getLogicID();
     m_data[id].resize(m_keys.size());
     m_data[id][m_keys[key]] = v;
     return *this;
   }
   int size() const { return m_data.size(); }
-  
+
   std::map<unsigned int, std::string> getReverseMap() const;
 
   /* UNSAFE methods returning data for a given logic_id */
@@ -107,9 +99,7 @@ class LMFDat : public LMFUnique {
     return l;
   }
 
-  std::map<std::string, unsigned int> getKeys() {
-    return m_keys;
-  }
+  std::map<std::string, unsigned int> getKeys() { return m_keys; }
   std::list<std::string> getKeyList() {
     std::list<std::string> l;
     std::map<std::string, unsigned int>::const_iterator i = m_keys.begin();
@@ -120,10 +110,10 @@ class LMFDat : public LMFUnique {
     }
     return l;
   }
-  LMFDat& setMaxDataToDump(int n);
-  void dump() const override ;
-  void dump(int n) const override ;
-  virtual void dump(int n, int max) const ;
+  LMFDat &setMaxDataToDump(int n);
+  void dump() const override;
+  void dump(int n) const override;
+  virtual void dump(int n, int max) const;
   std::map<int, std::vector<float> > fetchData() noexcept(false);
   void fetch() noexcept(false);
   void fetch(int logic_id) noexcept(false);
@@ -135,8 +125,9 @@ class LMFDat : public LMFUnique {
 
   bool isValid() override;
   void setWhereClause(std::string w);
-  void setWhereClause(std::string w, const std::vector<std::string>& p);
- protected:
+  void setWhereClause(std::string w, const std::vector<std::string> &p);
+
+protected:
   void getNeighbour(LMFDat *dat, int which) noexcept(false);
   int writeDB() noexcept(false) override;
   bool check();

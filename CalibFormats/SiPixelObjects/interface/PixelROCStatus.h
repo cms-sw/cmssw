@@ -10,24 +10,20 @@
 #include <set>
 #include <string>
 
-namespace pos{
+namespace pos {
 
-/*! \class PixelROCStatus PixelROCStatus.h "interface/PixelROCStatus.h"
+  /*! \class PixelROCStatus PixelROCStatus.h "interface/PixelROCStatus.h"
 *   \brief This class implements..
 *
 *   A longer explanation will be placed here later
 */
   class PixelROCStatus {
-
-
   private:
-
     uint32_t bits_;
 
   public:
-
     //Insert new status before nStatus
-    enum ROCstatus {off=0, noHits, noInit, noAnalogSignal, nStatus};
+    enum ROCstatus { off = 0, noHits, noInit, noAnalogSignal, nStatus };
 
     PixelROCStatus();
     PixelROCStatus(const std::set<ROCstatus>& stat);
@@ -40,11 +36,10 @@ namespace pos{
     void clear(ROCstatus stat);
     void set(ROCstatus stat, bool mode);
     void set(const std::string& statName);
-    bool get(ROCstatus stat) const ;
+    bool get(ROCstatus stat) const;
 
     // Added by Dario (March 4th 2008)
-    void reset(void) ;
- 
+    void reset(void);
   };
-}
+}  // namespace pos
 #endif

@@ -120,14 +120,6 @@ MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(10000000)
         )
     ),
-    FrameworkJobReport = cms.untracked.PSet(
-        #untracked PSet default = 
-        #        { untracked int32 limit = 0 }
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(10000000)
-        )
-    ),
-    fwkJobReports = cms.untracked.vstring('FrameworkJobReport'),
     categories = cms.untracked.vstring('FwkJob', 'MEtoEDMConverter_MEtoEDMConverter', 'MEtoEDMConverter_endJob', 'MEtoEDMConverter_beginRun', 'MEtoEDMConverter_endRun', 'EDMtoMEConverter_EDMtoMEConverter', 'EDMtoMEConverter_endJob', 'EDMtoMEConverter_beginRun', 'EDMtoMEConverter_endRun', 'ScheduleExecutionFailure', 'EventSetupDependency', 'Root_Warning', 'Root_Error'),
     destinations = cms.untracked.vstring('MessageLogger', 'cout', 'cerr')
 )

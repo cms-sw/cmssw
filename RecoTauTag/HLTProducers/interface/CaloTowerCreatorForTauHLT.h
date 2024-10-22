@@ -30,35 +30,32 @@ namespace edm {
 }
 
 class CaloTowerCreatorForTauHLT : public edm::global::EDProducer<> {
- public:
+public:
   /// constructor from parameter set
-  CaloTowerCreatorForTauHLT( const edm::ParameterSet & );
+  CaloTowerCreatorForTauHLT(const edm::ParameterSet&);
   /// destructor
-  ~CaloTowerCreatorForTauHLT() override;
-  /// 
-  static void fillDescriptions( edm::ConfigurationDescriptions& desc );
+  ~CaloTowerCreatorForTauHLT() override = default;
+  ///
+  static void fillDescriptions(edm::ConfigurationDescriptions& desc);
 
- private:
+private:
   /// process one event
-  void produce( edm::StreamID sid, edm::Event& evt, const edm::EventSetup& stp ) const override;
+  void produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& stp) const override;
 
   /// verbosity
   const int mVerbose;
   /// label of source collection
   const edm::EDGetTokenT<CaloTowerCollection> mtowers_token;
   /// use only towers in cone mCone around L1 candidate for regional jet reco
-  const double mCone;
+  const double mCone, mCone2;
   /// label of tau trigger type analysis
   const edm::EDGetTokenT<l1extra::L1JetParticleCollection> mTauTrigger_token;
-  /// imitator of L1 seeds
-  //edm::InputTag ml1seeds;
   /// ET threshold
   const double mEtThreshold;
   /// E threshold
   const double mEThreshold;
   //
   const int mTauId;
-
 };
 
 #endif

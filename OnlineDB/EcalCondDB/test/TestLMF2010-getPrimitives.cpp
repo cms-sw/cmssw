@@ -1,29 +1,27 @@
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <vector>
-#include <time.h>
-#include <cstdlib>
-#include <limits.h>
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/LMFDefFabric.h"
 #include "OnlineDB/EcalCondDB/interface/LMFLaserPulseDat.h"
 #include "OnlineDB/EcalCondDB/interface/LMFPnPrimDat.h"
 #include "OnlineDB/EcalCondDB/interface/all_lmf_types.h"
+#include <climits>
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
 
 using namespace std;
 
 class CondDBApp {
 public:
-
   /**
    *   App constructor; Makes the database connection
    */
-  CondDBApp(string sid, string user, string pass)
-  {
+  CondDBApp(string sid, string user, string pass) {
     try {
       cout << "Making connection..." << flush;
-      econn = new EcalCondDBInterface( sid, user, pass );
+      econn = new EcalCondDBInterface(sid, user, pass);
       cout << "Done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -34,10 +32,7 @@ public:
   /**
    *  App destructor;  Cleans up database connection
    */
-  ~CondDBApp() 
-  {
-    delete econn;
-  }
+  ~CondDBApp() { delete econn; }
 
   void doRead() {
     LMFPnPrimDat pnPrim(econn);
@@ -47,8 +42,7 @@ public:
     pnPrim.fetch(ecid, t);
     pnPrim.setMaxDataToDump(10);
     pnPrim.dump();
-    cout << "These data were taken on " << pnPrim.getSubrunStart().str() 
-	 << endl;
+    cout << "These data were taken on " << pnPrim.getSubrunStart().str() << endl;
     LMFPnPrimDat *p = new LMFPnPrimDat;
     LMFPnPrimDat *n = new LMFPnPrimDat;
     pnPrim.getPrevious(p);
@@ -60,12 +54,11 @@ public:
   }
 
 private:
-  CondDBApp();  // hidden default constructor
-  EcalCondDBInterface* econn;
+  CondDBApp() = delete;  // hidden default constructor
+  EcalCondDBInterface *econn;
 };
 
-int main (int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
   string sid;
   string user;
   string pass;

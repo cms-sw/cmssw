@@ -4,7 +4,7 @@
 //
 // Package:    GctConfigProducers
 // Class:      L1GctConfigProducers
-// 
+//
 /**\class L1GctConfigProducers L1GctConfigProducers.h L1Trigger/L1GctConfigProducers/interface/L1GctConfigProducers.h
 
  Description: <one line class summary>
@@ -18,11 +18,10 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
-#include<vector>
+#include <vector>
 
 // user include files
 
@@ -40,26 +39,26 @@ class L1GctChannelMask;
 
 class L1GctJetFinderParamsRcd;
 class L1GctChannelMaskRcd;
-
+class L1CaloGeometryRecord;
 
 //
 // class declaration
 //
 
 class L1GctConfigProducers : public edm::ESProducer {
- public:
+public:
   L1GctConfigProducers(const edm::ParameterSet&);
   ~L1GctConfigProducers() override;
-  
-  typedef std::shared_ptr<L1GctJetFinderParams>          JfParamsReturnType;
-  typedef std::shared_ptr<L1GctChannelMask>          ChanMaskReturnType;
-  
+
+  using JfParamsReturnType = std::unique_ptr<L1GctJetFinderParams>;
+  using ChanMaskReturnType = std::unique_ptr<L1GctChannelMask>;
+
   JfParamsReturnType produceJfParams(const L1GctJetFinderParamsRcd&);
   ChanMaskReturnType produceChanMask(const L1GctChannelMaskRcd&);
 
   std::vector<double> etToEnergyConversion(const L1CaloGeometry* geom) const;
- 
- private:
+
+private:
   // ----------member data ---------------------------
   double m_rgnEtLsb;
   double m_htLsb;
@@ -73,16 +72,15 @@ class L1GctConfigProducers : public edm::ESProducer {
   unsigned m_corrFunType;
   bool m_convertToEnergy;
 
-  std::vector< std::vector<double> > m_jetCalibFunc;
-  std::vector< std::vector<double> > m_tauCalibFunc;
+  std::vector<std::vector<double> > m_jetCalibFunc;
+  std::vector<std::vector<double> > m_tauCalibFunc;
+
+  edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> m_caloGeomToken;
 
   unsigned m_metEtaMask;
   unsigned m_tetEtaMask;
   unsigned m_mhtEtaMask;
   unsigned m_thtEtaMask;
-
 };
 
 #endif
-
-

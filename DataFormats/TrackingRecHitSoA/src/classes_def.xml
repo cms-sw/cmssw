@@ -1,0 +1,28 @@
+<lcgdict>
+  <class name="TrackingRecHitSoA<pixelTopology::Phase1>"/>
+  <class name="TrackingRecHitSoA<pixelTopology::Phase1>::Layout<>"/>
+  <class name="TrackingRecHitLayout<pixelTopology::Phase1>"/>
+  <class name="TrackingRecHitSoAView<pixelTopology::Phase1>"/>
+
+  <class name="PortableHostCollection<TrackingRecHitLayout<pixelTopology::Phase1>>"/>
+  <class name="TrackingRecHitHostPhase1"/>
+  <class name="edm::Wrapper<TrackingRecHitHostPhase1>" splitLevel="0"/>
+
+  <class name="TrackingRecHitSoA<pixelTopology::Phase2>"/>
+  <class name="TrackingRecHitSoA<pixelTopology::Phase2>::Layout<>"/>
+  <class name="TrackingRecHitLayout<pixelTopology::Phase2>"/>
+  <class name="TrackingRecHitSoAView<pixelTopology::Phase2>"/>
+
+  <class name="PortableHostCollection<TrackingRecHitLayout<pixelTopology::Phase2>>"/>
+  <class name="TrackingRecHitHostPhase2"/>
+  <class name="edm::Wrapper<TrackingRecHitHostPhase2>" splitLevel="0"/>
+
+  <class name="TrackingRecHitSoA<pixelTopology::HIonPhase1>"/>
+  <class name="TrackingRecHitSoA<pixelTopology::HIonPhase1>::Layout<>"/>
+  <class name="TrackingRecHitLayout<pixelTopology::HIonPhase1>"/>
+  <class name="TrackingRecHitSoAView<pixelTopology::HIonPhase1>"/>
+
+  <class name="PortableHostCollection<TrackingRecHitLayout<pixelTopology::HIonPhase1>>"/>
+  <class name="TrackingRecHitHostHIonPhase1"/>
+  <class name="edm::Wrapper<TrackingRecHitHostHIonPhase1>" splitLevel="0"/>
+</lcgdict>

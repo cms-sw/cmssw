@@ -14,21 +14,13 @@
 
 class GsfChi2MeasurementEstimator : public Chi2MeasurementEstimatorBase {
 public:
+  GsfChi2MeasurementEstimator() : Chi2MeasurementEstimatorBase(100.), theEstimator(100.) {}
 
-  GsfChi2MeasurementEstimator() : 
-    Chi2MeasurementEstimatorBase(100.),
-    theEstimator(100.) {}
+  GsfChi2MeasurementEstimator(double aMaxChi2) : Chi2MeasurementEstimatorBase(aMaxChi2), theEstimator(aMaxChi2) {}
 
-  GsfChi2MeasurementEstimator(double aMaxChi2) : 
-    Chi2MeasurementEstimatorBase(aMaxChi2),
-    theEstimator(aMaxChi2) {}
+  std::pair<bool, double> estimate(const TrajectoryStateOnSurface&, const TrackingRecHit&) const override;
 
-  std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-					  const TrackingRecHit&) const override;
-
-  GsfChi2MeasurementEstimator* clone() const override {
-    return new GsfChi2MeasurementEstimator(*this);
-  }
+  GsfChi2MeasurementEstimator* clone() const override { return new GsfChi2MeasurementEstimator(*this); }
 
 private:
   Chi2MeasurementEstimator theEstimator;

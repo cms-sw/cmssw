@@ -2,7 +2,6 @@
 #define HCALSIMPLERECALGO_H 1
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
@@ -35,48 +34,55 @@
 class HcalSimpleRecAlgo {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
-  HcalSimpleRecAlgo(bool correctForTimeslew, 
-		    bool correctForContainment, float fixedPhaseNs);
+  HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForContainment, float fixedPhaseNs, edm::ConsumesCollector iC);
 
-  void beginRun(edm::EventSetup const & es);
+  void beginRun(edm::EventSetup const& es);
   void endRun();
 
-  void initPulseCorr(int toadd); 
+  void initPulseCorr(int toadd);
 
   // set RecoParams channel-by-channel.
-  void setRecoParams(bool correctForTimeslew, bool correctForPulse, bool setLeakCorrection, int pileupCleaningID, float phaseNS);
+  void setRecoParams(
+      bool correctForTimeslew, bool correctForPulse, bool setLeakCorrection, int pileupCleaningID, float phaseNS);
 
-  // usage of leak correction 
+  // usage of leak correction
   void setLeakCorrection();
 
   // set OOT pileup corrections
-  void setHFPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
-  void setHOPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
+  void setHFPileupCorrection(std::shared_ptr<AbsOOTPileupCorrection> corr);
+  void setHOPileupCorrection(std::shared_ptr<AbsOOTPileupCorrection> corr);
 
   // Set bunch crossing information.
   // This object will not manage the pointer.
   void setBXInfo(const BunchXParameter* info, unsigned lenInfo);
 
+  HFRecHit reconstruct(
+      const HFDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HFRecHit reconstructQIE10(
+      const QIE10DataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
-  HFRecHit reconstruct(const HFDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HFRecHit reconstructQIE10(const QIE10DataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-
-  HORecHit reconstruct(const HODataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HORecHit reconstruct(
+      const HODataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,
+                              int first,
+                              int toadd,
+                              const HcalCoder& coder,
+                              const HcalCalibrations& calibs) const;
 
 private:
   bool correctForTimeslew_;
   bool correctForPulse_;
   float phaseNS_;
+  const edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> delayToken_;
   std::unique_ptr<HcalPulseContainmentManager> pulseCorr_;
   int runnum_;  // data run numer
   bool setLeakCorrection_;
   int pileupCleaningID_;
   const BunchXParameter* bunchCrossingInfo_;
   unsigned lenBunchCrossingInfo_;
-  boost::shared_ptr<AbsOOTPileupCorrection> hbhePileupCorr_;
-  boost::shared_ptr<AbsOOTPileupCorrection> hfPileupCorr_;
-  boost::shared_ptr<AbsOOTPileupCorrection> hoPileupCorr_;
+  std::shared_ptr<AbsOOTPileupCorrection> hbhePileupCorr_;
+  std::shared_ptr<AbsOOTPileupCorrection> hfPileupCorr_;
+  std::shared_ptr<AbsOOTPileupCorrection> hoPileupCorr_;
 
   HcalPulseShapes theHcalPulseShapes_;
 

@@ -1,0 +1,6 @@
+<library name="RecoLocalTrackerSiStripZeroSuppressionTestPlugins" file="*.cc">
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="CommonTools/Utils"/>
+  <use name="RecoLocalTracker/SiStripZeroSuppression"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

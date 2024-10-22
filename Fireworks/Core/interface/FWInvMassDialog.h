@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWInvMassDialog
-// 
+//
 /**\class FWInvMassDialog FWInvMassDialog.h Fireworks/Core/interface/FWInvMassDialog.h
 
  Description: [one line class summary]
@@ -29,44 +29,41 @@ class FWSelectionManager;
 class TGTextView;
 class TGTextButton;
 
-class FWInvMassDialog : public TGMainFrame
-{
-
+class FWInvMassDialog : public TGMainFrame {
 public:
-   FWInvMassDialog(FWSelectionManager* sm);
-   ~FWInvMassDialog() override;
+  FWInvMassDialog(FWSelectionManager* sm);
+  ~FWInvMassDialog() override;
 
-   void CloseWindow() override;
+  void CloseWindow() override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   void Calculate();
+  void Calculate();
 
 protected:
-   void beginUpdate();
-   void addLine(const TString& line);
-   void endUpdate();
+  void beginUpdate();
+  void addLine(const TString& line);
+  void endUpdate();
 
 private:
-   FWInvMassDialog(const FWInvMassDialog&); // stop default
+  FWInvMassDialog(const FWInvMassDialog&);  // stop default
 
-   const FWInvMassDialog& operator=(const FWInvMassDialog&); // stop default
+  const FWInvMassDialog& operator=(const FWInvMassDialog&);  // stop default
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   FWSelectionManager *m_selectionMgr;
+  FWSelectionManager* m_selectionMgr;
 
-   TGTextView   *m_text;
-   TGTextButton *m_button;
+  TGTextView* m_text;
+  TGTextButton* m_button;
 
-   bool          m_firstLine;
+  bool m_firstLine;
 
-   ClassDefOverride(FWInvMassDialog, 0);
+  ClassDefOverride(FWInvMassDialog, 0);
 };
-
 
 #endif

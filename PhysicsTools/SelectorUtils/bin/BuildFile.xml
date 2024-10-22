@@ -1,17 +1,14 @@
-<use   name="DataFormats/PatCandidates"/>
-<use   name="DataFormats/FWLite"/>
-<use   name="FWCore/FWLite"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PythonParameterSet"/>
-<use   name="root"/>
-<use   name="boost"/>
-<use   name="boost_python"/>
-<use   name="CommonTools/Utils"/>
-<use   name="PhysicsTools/Utilities"/>
-<use   name="PhysicsTools/FWLite"/>
-<use   name="PhysicsTools/SelectorUtils"/>
-<environment>
-  <bin   file="testSelection_wplusjets.C">
-  <bin   file="calculateIdMD5.cc"></bin>
-  </bin>
-</environment>
+<use name="boost"/>
+<use name="root"/>
+<use name="DataFormats/FWLite"/>
+<use name="FWCore/FWLite"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ParameterSetReader"/>
+<use name="PhysicsTools/FWLite"/>
+<use name="PhysicsTools/SelectorUtils"/>
+<bin file="testSelection_wplusjets.C">
+</bin>
+
+<bin file="calculateIdMD5.cc">
+  <use name="Utilities/OpenSSL"/>
+</bin>

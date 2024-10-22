@@ -1,11 +1,6 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Framework"/>
-<use name="FWCore/MessageLogger"/>
 <use name="Geometry/CommonDetUnit"/>
-<use name="Geometry/MuonNumbering"/>
-<use name="Geometry/EcalCommonData"/>
-<use name="Geometry/CSCGeometryBuilder"/>
-<use name="DetectorDescription/Core"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/DTGeometry"/>
@@ -13,16 +8,16 @@
 <use name="Geometry/RPCGeometry"/>
 <use name="Geometry/GEMGeometry"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/MTDGeometryBuilder"/>
 <use name="Geometry/Records"/>
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/MuonDetId"/>
-<use name="DataFormats/SiStripDetId"/>
-<use name="DataFormats/SiPixelDetId"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="Fireworks/Core"/>
 <use name="rootcore"/>
-<lib name="Geom"/>
-<lib name="Eve"/>
-<lib name="Physics"/>
+<use name="rootgeom"/>
+<use name="rooteve"/>
+<use name="rootphysics"/>
 <export>
-<lib name="1"/>
+  <lib name="1"/>
 </export>

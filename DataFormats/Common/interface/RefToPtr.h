@@ -7,7 +7,7 @@ Ref: A function template for conversion from Ref to Ptr
 
 ----------------------------------------------------------------------*/
 /*
-    ----------------------------------------------------------------------*/ 
+    ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefTraits.h"
@@ -16,7 +16,7 @@ Ref: A function template for conversion from Ref to Ptr
 namespace edm {
   template <typename C>
   Ptr<typename C::value_type> refToPtr(
-    Ref<C, typename C::value_type, refhelper::FindUsingAdvance<C, typename C::value_type> > const& ref) {
+      Ref<C, typename C::value_type, refhelper::FindUsingAdvance<C, typename C::value_type> > const& ref) {
     typedef typename C::value_type T;
     if (ref.isNull()) {
       return Ptr<T>();
@@ -32,5 +32,5 @@ namespace edm {
     }
     return Ptr<T>(ref.id(), ref.get(), ref.key());
   }
-}
+}  // namespace edm
 #endif

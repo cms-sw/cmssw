@@ -1,0 +1,8 @@
+<test name="testExpressPPSAlCaRecoProducer" command="test_express_AlCaRecoProducer.sh"/>
+<test name="testExpressPPSAlCaRecoOutput" command="test_express_PPSAlCaReco_output.sh">
+  <flags PRE_TEST="testExpressPPSAlCaRecoProducer"/>
+</test>
+<test name="testPromptPPSAlCaRecoProducer" command="test_prompt_AlCaRecoProducer.sh"/>
+<test name="testPromptPPSAlCaRecoOutput" command="test_prompt_PPSAlCaReco_output.sh">
+  <flags PRE_TEST="testPromptPPSAlCaRecoProducer"/>
+</test>

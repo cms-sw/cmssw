@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("OMTFEmulation")
 import os
 import sys
-import commands
+#import subprocess
 
 verbose = False
 
@@ -72,7 +72,7 @@ process.source = cms.Source(
 process.source.fileNames =  cms.untracked.vstring()
 path = "/home/akalinow/scratch/CMS/OverlapTrackFinder/Crab/SingleMuFullEta/721_FullEta_v4/data/"
 command = "ls "+path+"/SingleMu_10_?_*"
-fileList = commands.getoutput(command).split("\n")
+fileList = subprocess.getoutput(command).split("\n")
 process.source.fileNames =  cms.untracked.vstring()
 for aFile in fileList:
     process.source.fileNames.append('file:'+aFile)
@@ -96,8 +96,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000))
 process.load('Configuration.Geometry.GeometryExtended2015_cff')
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 ############################
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 ####Event Setup Producer

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -129,16 +130,16 @@ process.load("CommonTools.UtilAlgos.TFileService_cfi")
 process.TFileService.fileName = cms.string('l1tCalo_2016_histos.root')
 
 # enable debug message logging for our modules
-process.MessageLogger.categories.append('L1TCaloEvents')
+process.MessageLogger.L1TCaloEvents=dict()
 
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 
 if (options.dumpRaw):
-    process.MessageLogger.infos.placeholder = cms.untracked.bool(False)
-    process.MessageLogger.infos.INFO = cms.untracked.PSet(limit = cms.untracked.int32(0))
-    process.MessageLogger.infos.L1TCaloEvents = cms.untracked.PSet(
-      optionalPSet = cms.untracked.bool(True),
-      limit = cms.untracked.int32(10000)
+    process.MessageLogger.files.infos = cms.untracked.PSet(
+        INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+        L1TCaloEvents = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000)
+        )
     )
 
 if (options.debug):
@@ -187,7 +188,7 @@ process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v2a
 #process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.xml'
 process.TriggerMenuXml.newGrammar = cms.bool(options.newXML)
 if(options.newXML):
-   print "Using new XML Grammar "
+   print("Using new XML Grammar ")
    #process.TriggerMenuXml.DefXmlFile = 'L1Menu_CollisionsHeavyIons2015_v4_uGT_v2.xml'
    #process.TriggerMenuXml.DefXmlFile = 'MuonTest.xml'
    process.TriggerMenuXml.DefXmlFile = 'test_ext.xml'
@@ -201,7 +202,6 @@ process.load('L1Trigger.L1TGlobal.simGlobalStage2Digis_cff')
 process.simGlobalStage2Digis.caloInputTag = cms.InputTag("gtStage2Digis","GT")
 process.simGlobalStage2Digis.GmtInputTag = cms.InputTag("gtStage2Digis","GT")
 process.simGlobalStage2Digis.extInputTag = cms.InputTag("gtStage2Digis","GT")
-process.simGlobalStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
 process.simGlobalStage2Digis.PrescaleSet = cms.uint32(1)
 process.simGlobalStage2Digis.Verbosity = cms.untracked.int32(0)
 

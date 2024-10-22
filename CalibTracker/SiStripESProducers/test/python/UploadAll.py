@@ -5,6 +5,7 @@
 # The tagList needs: tag name, tag type (e.g. Ideal, StartUp, ...) and possible additional
 # sed commands where the " are escaped as \".
 
+from __future__ import print_function
 import os
 import sys
 
@@ -31,13 +32,13 @@ def systemActions(tag, actionType):
     signal = returnValue & 0xFF
     exitCode = (returnValue >> 8) & 0xFF
     if( exitCode == 65 ):
-        print "Exit code = 65"
+        print("Exit code = 65")
     if( exitCode != 0 and exitCode != 65 ):
-        print "Error: return value = ", returnValue
-        print "signal = ",
-        print signal,
-        print "exit code = ",
-        print exitCode
+        print("Error: return value = ", returnValue)
+        print("signal = ", end=' ')
+        print(signal, end=' ')
+        print("exit code = ", end=' ')
+        print(exitCode)
         os.system("cat "+fileName)
         sys.exit()
 
@@ -46,13 +47,13 @@ def systemActions(tag, actionType):
 def createAllTags(tagList, actionType="Writer"):
     # Loop on all the tags in the tagList and fill the destination
     for tag in tagList:
-        print "--------------------------------------------------"
-        print "Creating tag "+tag.tagName+" of type "+tag.tagType,
+        print("--------------------------------------------------")
+        print("Creating tag "+tag.tagName+" of type "+tag.tagType, end=' ')
         if( tag.replaceStrings != "" ):
-            print "with additional options: "+tag.replaceStrings
+            print("with additional options: "+tag.replaceStrings)
         else:
-            print
-        print "--------------------------------------------------"
+            print()
+        print("--------------------------------------------------")
         systemActions(tag, "Writer")
 
 
@@ -60,9 +61,9 @@ def createAllTags(tagList, actionType="Writer"):
 def readAllTags(tagList):
     # Read all the tags and write a summary
     for tag in tagList:
-        print "--------------------------------------------------"
-        print "Reading tag"+tag.tagName+" of type "+tag.tagType
-        print "--------------------------------------------------"
+        print("--------------------------------------------------")
+        print("Reading tag"+tag.tagName+" of type "+tag.tagType)
+        print("--------------------------------------------------")
         # Use the additional replaces to change the log name
         os.system("cat DummyCondDBReaderTemplate_cfg.py | sed -e \"s@TAGNAME@"+tag.tagName+"@\" -e \"s@RCDNAME@"+tag.rcdName+"@\" > DummyCondDBReader_"+tag.tagName+"_cfg.py")
         tag.replaceStrings = "-e \"s@Ideal.log@"+tag.tagType+"@\""

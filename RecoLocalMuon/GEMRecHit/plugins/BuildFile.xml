@@ -1,0 +1,6 @@
+<use name="RecoLocalMuon/GEMRecHit"/>
+<use name="FWCore/Framework"/>
+<use name="Geometry/Records"/>
+<use name="CondFormats/GEMObjects"/>
+<use name="CondFormats/DataRecord"/>
+<flags EDM_PLUGIN="1"/>

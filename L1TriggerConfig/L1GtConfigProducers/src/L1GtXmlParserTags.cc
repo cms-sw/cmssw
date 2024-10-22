@@ -22,15 +22,12 @@
 
 // constructor
 L1GtXmlParserTags::L1GtXmlParserTags() {
-
-    // empty
+  // empty
 }
 
 // destructor
 L1GtXmlParserTags::~L1GtXmlParserTags() {
-
-    // empty
-
+  // empty
 }
 
 // static class members
@@ -50,7 +47,6 @@ const std::string L1GtXmlParserTags::m_xmlTagMenuDescription("Menu_Description")
 const std::string L1GtXmlParserTags::m_xmlTagMenuAlgImpl("AlgImplementation");
 
 const std::string L1GtXmlParserTags::m_xmlTagScaleDbKey("ScaleDbKey");
-
 
 const std::string L1GtXmlParserTags::m_xmlTagChip("condition_chip_");
 const std::string L1GtXmlParserTags::m_xmlTagConditions("conditions");

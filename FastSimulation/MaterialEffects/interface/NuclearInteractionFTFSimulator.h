@@ -11,7 +11,7 @@
  *
  * \author Vladimir Ivanchenko
  * $Date: 20-Jan-2015
- */ 
+ */
 
 #include "FastSimulation/MaterialEffects/interface/MaterialEffectsSimulator.h"
 
@@ -37,26 +37,21 @@ class G4PhysicsLogVector;
 static const int numHadrons = 30;
 static const int npoints = 21;
 
-class NuclearInteractionFTFSimulator : public MaterialEffectsSimulator
-{
+class NuclearInteractionFTFSimulator : public MaterialEffectsSimulator {
 public:
-
   /// Constructor
-  NuclearInteractionFTFSimulator(unsigned int distAlgo, double distCut, 
-				 double elimit, double eth);
+  NuclearInteractionFTFSimulator(unsigned int distAlgo, double distCut, double elimit, double eth);
 
   /// Default Destructor
   ~NuclearInteractionFTFSimulator() override;
 
 private:
-
   /// Generate a nuclear interaction according to the probability that it happens
   void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*) override;
 
   void saveDaughter(ParticlePropagator& Particle, const G4LorentzVector& lv, int pdgid);
 
-  double distanceToPrimary(const RawParticle& Particle,
-			   const RawParticle& aDaughter) const;
+  double distanceToPrimary(const RawParticle& Particle, const RawParticle& aDaughter) const;
 
   static const G4ParticleDefinition* theG4Hadron[numHadrons];
   static int theId[numHadrons];
@@ -64,9 +59,9 @@ private:
 
   G4TheoFSGenerator* theHadronicModel;
   G4FTFModel* theStringModel;
-  G4ExcitedStringDecay* theStringDecay; 
+  G4ExcitedStringDecay* theStringDecay;
   G4LundStringFragmentation* theLund;
-  G4GeneratorPrecompoundInterface* theCascade; 
+  G4GeneratorPrecompoundInterface* theCascade;
 
   G4CascadeInterface* theBertiniCascade;
   G4DiffuseElastic* theDiffuseElastic;

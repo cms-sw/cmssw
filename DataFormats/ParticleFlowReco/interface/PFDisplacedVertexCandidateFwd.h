@@ -10,14 +10,14 @@ namespace reco {
   class PFDisplacedVertexCandidate;
 
   /// collection of PFDisplacedVertexCandidate objects
-  typedef std::vector<PFDisplacedVertexCandidate> PFDisplacedVertexCandidateCollection;  
-    
+  typedef std::vector<PFDisplacedVertexCandidate> PFDisplacedVertexCandidateCollection;
+
   /// persistent reference to a PFDisplacedVertexCandidate objects
   typedef edm::Ref<PFDisplacedVertexCandidateCollection> PFDisplacedVertexCandidateRef;
 
   /// handle to a PFDisplacedVertexCandidate collection
   typedef edm::Handle<PFDisplacedVertexCandidateCollection> PFDisplacedVertexCandidateHandle;
 
-}
+}  // namespace reco
 
 #endif

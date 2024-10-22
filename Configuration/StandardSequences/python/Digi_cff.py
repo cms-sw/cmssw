@@ -20,25 +20,50 @@ from SimCalorimetry.Configuration.SimCalorimetry_cff import *
 #
 from SimMuon.Configuration.SimMuon_cff import *
 #
+# PPS Digis
+# returns sequence "ctppsDigi"
+from SimPPS.Configuration.SimPPS_cff import *
+#
 # TrackingParticle Producer is now part of the mixing module, so
 # it is no longer run here.
 #
 from SimGeneral.Configuration.SimGeneral_cff import *
 
+from SimTracker.Configuration.SimTrackerLinks_cff import *
+
 # add updating the GEN information by default
 from Configuration.StandardSequences.Generator_cff import *
 from GeneratorInterface.Core.generatorSmeared_cfi import *
-from SimGeneral.PileupInformation.genPUProtons_cfi import *
 
-doAllDigi = cms.Sequence(generatorSmeared*calDigi+muonDigi)
-pdigi = cms.Sequence(generatorSmeared*fixGenInfo*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo*genPUProtons)
-pdigi_valid = cms.Sequence(pdigi)
-pdigi_nogen=cms.Sequence(generatorSmeared*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo*genPUProtons)
-pdigi_valid_nogen=cms.Sequence(pdigi_nogen)
+doAllDigiTask = cms.Task(generatorSmeared, calDigiTask, muonDigiTask, ctppsDigiTask)
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+# premixing stage2 runs muon digis after PreMixingModule (configured in DataMixerPreMix_cff)
+premix_stage2.toReplaceWith(doAllDigiTask, doAllDigiTask.copyAndExclude([muonDigiTask]))
+
+pdigiTask_nogen = cms.Task(generatorSmeared, cms.TaskPlaceholder("randomEngineStateProducer"), cms.TaskPlaceholder("mix"), doAllDigiTask, addPileupInfo)
+# premixing stage2 runs addPileupInfo after PreMixingModule (configured in DataMixerPreMix_cff)
+premix_stage2.toReplaceWith(pdigiTask_nogen, pdigiTask_nogen.copyAndExclude([addPileupInfo]))
+
+pdigiTask = cms.Task(pdigiTask_nogen, fixGenInfoTask, tpPruningTask)
+
+doAllDigi = cms.Sequence(doAllDigiTask)
+pdigi = cms.Sequence(pdigiTask)
+pdigi_valid = cms.Sequence(pdigiTask)
+pdigi_nogen=cms.Sequence(pdigiTask_nogen)
+pdigi_valid_nogen=cms.Sequence(pdigiTask_nogen)
 
 from GeneratorInterface.HiGenCommon.HeavyIon_cff import *
-pdigi_hi=cms.Sequence(pdigi+heavyIon)
-pdigi_hi_nogen=cms.Sequence(pdigi_nogen+heavyIon)
+pdigiTask_hi = cms.Task(pdigiTask, heavyIon)
+pdigiTask_hi_nogen = cms.Task(pdigiTask_nogen, genJetMETTask, heavyIon)
+pdigi_hi=cms.Sequence(pdigiTask_hi)
+pdigi_hi_nogen=cms.Sequence(pdigiTask_hi_nogen)
+
+# define genPUProtons as an EDProducer only when not in premixing stage2 job
+# in premixing stage2 genPUProtons is an EDAlias, defined in aliases_PreMix_cfi
+def _premixStage2GenPUProtons(process):
+    process.load("SimGeneral.PileupInformation.genPUProtons_cfi")
+    process.pdigiTask_nogen.add(process.genPUProtons)
+modifyDigi_premixStage2GenPUProtons = (~premix_stage2).makeProcessModifier(_premixStage2GenPUProtons)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 def _fastSimDigis(process):
@@ -48,7 +73,8 @@ def _fastSimDigis(process):
     # use an alias to make the mixed track collection available under the usual label
     from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliases
     loadDigiAliases(process)
-modifyDigi_fastSimDigis = fastSim.makeProcessModifier(_fastSimDigis)
+# no need for the aliases for premixing stage1
+modifyDigi_fastSimDigis = (fastSim & ~premix_stage1).makeProcessModifier(_fastSimDigis)
 
 #phase 2 common mods
 def _modifyEnableHcalHardcode( theProcess ):
@@ -59,5 +85,3 @@ def _modifyEnableHcalHardcode( theProcess ):
 
 from Configuration.Eras.Modifier_hcalHardcodeConditions_cff import hcalHardcodeConditions
 modifyEnableHcalHardcode_ = hcalHardcodeConditions.makeProcessModifier( _modifyEnableHcalHardcode )
-
-

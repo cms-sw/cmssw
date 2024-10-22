@@ -185,7 +185,7 @@ if useLocalDB :
 # clusterize through raw (OK)
 # for digi to raw
 process.siPixelRawData.InputLabel = 'simSiPixelDigis'
-process.SiStripDigiToRaw.InputModuleLabel = 'simSiPixelDigis'
+process.SiStripDigiToRaw.InputDigis = cms.InputTag('simSiPixelDigis', "ZeroSuppressed")
 # for Raw2digi for simulations 
 process.siPixelDigis.InputLabel = 'siPixelRawData'
 process.siStripDigis.ProductLabel = 'SiStripDigiToRaw'

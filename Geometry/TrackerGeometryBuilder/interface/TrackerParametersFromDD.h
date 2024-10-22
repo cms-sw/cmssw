@@ -4,17 +4,23 @@
 #include <vector>
 
 class DDCompactView;
+
+namespace cms {
+  class DDCompactView;
+}
+
 class PTrackerParameters;
 
 class TrackerParametersFromDD {
- public:
+public:
   TrackerParametersFromDD() {}
   virtual ~TrackerParametersFromDD() {}
 
-  bool build( const DDCompactView*,
-	      PTrackerParameters& );
- private:
-  void putOne( int, std::vector<int> &, PTrackerParameters& );
+  bool build(const DDCompactView*, PTrackerParameters&);
+  bool build(const cms::DDCompactView*, PTrackerParameters&);
+
+private:
+  void putOne(int, std::vector<int>&, PTrackerParameters&);
 };
 
 #endif

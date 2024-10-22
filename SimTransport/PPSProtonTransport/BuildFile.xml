@@ -1,0 +1,19 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimDataFormats/Forward"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="Utilities/PPS"/>
+<use   name="SimTransport/TotemRPProtonTransportParametrization"/>
+<use   name="CondFormats/PPSObjects"/>
+<use   name="CondFormats/BeamSpotObjects"/>
+<use   name="CondFormats/RunInfo"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="hector"/>
+<use   name="hepmc"/>
+<use   name="clhep"/>
+<use   name="rootcore"/>
+<export>
+  <lib name="1"/>
+</export>
+

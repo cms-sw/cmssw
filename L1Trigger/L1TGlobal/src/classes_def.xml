@@ -1,10 +1,14 @@
 <lcgdict>
   <class name="CorrelationTemplate"/>
+  <class name="CorrelationThreeBodyTemplate"/>
   <class name="CorrelationWithOverlapRemovalTemplate"/>
   <class name="CorrelationTemplate::CorrelationParameter"/>
+  <class name="CorrelationThreeBodyTemplate::CorrelationThreeBodyParameter"/>
   <class name="CorrelationWithOverlapRemovalTemplate::CorrelationWithOverlapRemovalParameter"/>
   <class name="std::vector<CorrelationTemplate>"/>
   <class name="std::vector<std::vector<CorrelationTemplate> >"/>
+  <class name="std::vector<CorrelationThreeBodyTemplate>"/>
+  <class name="std::vector<std::vector<CorrelationThreeBodyTemplate> >"/>
   <class name="std::vector<CorrelationWithOverlapRemovalTemplate>"/>
   <class name="std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >"/>
   <class name="TriggerMenu" class_version="TriggerMenu_V01">
@@ -19,13 +23,18 @@
     <field name="m_vecCaloTemplate" mapping="blob" />
     <field name="m_vecCastorTemplate" mapping="blob" />
     <field name="m_vecCorrelationTemplate" mapping="blob" />
+    <field name="m_vecCorrelationThreeBodyTemplate" mapping="blob" />
     <field name="m_vecCorrelationWithOverlapRemovalTemplate" mapping="blob" />
     <field name="m_vecEnergySumTemplate" mapping="blob" />
+    <field name="m_vecEnergySumZdcTemplate" mapping="blob" />
+    <field name="m_vecAXOL1TLTemplate" mapping="blob" />
+    <field name="m_vecCICADATemplate" mapping="blob" />
     <field name="m_vecExternalTemplate" mapping="blob" />
     <field name="m_vecHfBitCountsTemplate" mapping="blob" />
     <field name="m_vecHfRingEtSumsTemplate" mapping="blob" />
     <field name="m_vecJetCountsTemplate" mapping="blob" />
     <field name="m_vecMuonTemplate" mapping="blob" />
+    <field name="m_vecMuonShowerTemplate" mapping="blob" />
   </class>
   <class name="MuonTemplate"/>
   <class name="MuonTemplate::ObjectParameter"/>
@@ -39,4 +48,10 @@
   <class name="CaloTemplate::CorrelationParameter"/>
   <class name="std::vector<CaloTemplate>"/>
   <class name="std::vector<std::vector<CaloTemplate> >"/>
+
+  <class name="MuonShowerTemplate"/>
+  <class name="MuonShowerTemplate::ObjectParameter"/>
+  <class name="std::vector<MuonShowerTemplate::ObjectParameter>"/>
+  <class name="std::vector<MuonShowerTemplate>"/>
+  <class name="std::vector<std::vector<MuonShowerTemplate> >"/>
 </lcgdict>

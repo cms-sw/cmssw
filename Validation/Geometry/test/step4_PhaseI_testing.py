@@ -5,9 +5,9 @@
 # with command line options: step4 --filetype DQM --mc --conditions auto:phase1_2017_realistic --era Run2_2017 -s HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM -n -1 --filein file:matbdgForReco_FromReco_TTbarPhaseI_inDQM.root --python_filename fuffa_harvesting.py --no_exec
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('HARVESTING',eras.Run2_2017)
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+process = cms.Process('HARVESTING',Run2_2017)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

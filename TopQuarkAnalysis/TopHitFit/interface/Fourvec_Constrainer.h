@@ -46,7 +46,6 @@
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 //
 
-
 /**
 
     @file Fourvec_Constrainer.h
@@ -73,7 +72,6 @@
 #ifndef HITFIT_FOURVEC_CONSTRAINER_H
 #define HITFIT_FOURVEC_CONSTRAINER_H
 
-
 #include <string>
 #include <vector>
 #include <iosfwd>
@@ -81,43 +79,40 @@
 #include "TopQuarkAnalysis/TopHitFit/interface/Chisq_Constrainer.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/matutil.h"
 
-
 namespace hitfit {
 
+  class Defaults;
+  class Fourvec_Event;
+  class Pair_Table;
 
-class Defaults;
-class Fourvec_Event;
-class Pair_Table;
-
-
-/**
+  /**
     @class Fourvec_Constrainer_Args
 
     @brief Hold on to parameters for the Fourvec_Constrainer class.
  */
-class Fourvec_Constrainer_Args
-//
-// Purpose: Hold on to parameters for the Fourvec_Constrainer class.
-//
-// Parameters controlling the operation of the fitter:
-//   bool use_e         - If true, then when rescaling the 4-vectors
-//                        for a given mass, keep the measured energy
-//                        and scale the 3-momentum.  Otherwise, keep
-//                        the 3-momentum and scale the energy.
-//   float e_com        - The center-of-mass energy.
-//                        (Used only to keep the fit from venturing
-//                        into completely unphysical regions.)
-//   bool ignore_met    - If this is true and the event does not
-//                        have a neutrino, then the fit will be done
-//                        without the overall transverse momentum
-//                        constraint (and thus the missing Et information
-//                        will be ignored).  If the event does have
-//                        a neutrino, this parameter is ignored.
-//
-{
-public:
-  // Constructor.  Initialize from a Defaults object.
-  /**
+  class Fourvec_Constrainer_Args
+  //
+  // Purpose: Hold on to parameters for the Fourvec_Constrainer class.
+  //
+  // Parameters controlling the operation of the fitter:
+  //   bool use_e         - If true, then when rescaling the 4-vectors
+  //                        for a given mass, keep the measured energy
+  //                        and scale the 3-momentum.  Otherwise, keep
+  //                        the 3-momentum and scale the energy.
+  //   float e_com        - The center-of-mass energy.
+  //                        (Used only to keep the fit from venturing
+  //                        into completely unphysical regions.)
+  //   bool ignore_met    - If this is true and the event does not
+  //                        have a neutrino, then the fit will be done
+  //                        without the overall transverse momentum
+  //                        constraint (and thus the missing Et information
+  //                        will be ignored).  If the event does have
+  //                        a neutrino, this parameter is ignored.
+  //
+  {
+  public:
+    // Constructor.  Initialize from a Defaults object.
+    /**
      @brief Constructor, initialize from a Defaults object.
 
      @param defs The set of parameters for the initialization.  The instance
@@ -126,64 +121,60 @@ public:
      - double <i>e_com</i>.
      - bool <i>ignore_met</i>.
    */
-  Fourvec_Constrainer_Args (const Defaults& defs);
+    Fourvec_Constrainer_Args(const Defaults& defs);
 
-  // Retrieve parameter values.
-  /**
+    // Retrieve parameter values.
+    /**
      Return the <i>_use_e</i> parameter.
    */
-  bool use_e () const;
+    bool use_e() const;
 
-  /**
+    /**
      Return the <i>_e_com</i> parameter.
    */
-  double e_com () const;
+    double e_com() const;
 
-  /**
+    /**
      Return the <i>_ignore_met</i> parameter.
    */
-  bool ignore_met () const;
+    bool ignore_met() const;
 
+    // Arguments for subobjects.
+    const Chisq_Constrainer_Args& chisq_constrainer_args() const;
 
-  // Arguments for subobjects.
-  const Chisq_Constrainer_Args& chisq_constrainer_args () const;
-
-
-private:
-  // Hold on to parameter values.
-  /**
+  private:
+    // Hold on to parameter values.
+    /**
      If TRUE, then when rescaling a four-momentum for a given mass,
      keep the measured energy and scale the three-momentum.
      If FALSE, then keep the three-momentum and scale the energy.
    */
-  bool _use_e;
+    bool _use_e;
 
-  /**
+    /**
      The center-of-mass energy. Used only to keep the fit from
      going into a completely unphysical region.
    */
-  double _e_com;
+    double _e_com;
 
-  /**
+    /**
      If TRUE and the event does not have a neutrino, then the fit
      will be done without the overall transverse momentum constraint.
      Thus the missing transverse energy information will be ignored.
      If the event does have a neutrino, this parameter is ignored.
      If FALSE, take into account the overall transverse momentum constraint.
    */
-  bool _ignore_met;
+    bool _ignore_met;
 
-  /**
+    /**
      The internal arguments for the subobjects.
    */
-  Chisq_Constrainer_Args _chisq_constrainer_args;
-};
+    Chisq_Constrainer_Args _chisq_constrainer_args;
+  };
 
+  //*************************************************************************
 
-//*************************************************************************
-
-
-/**
+  /**
     @class Fourvec_Constrainer
 
     @brief Do a kinematic fit for a set of four-momenta, given a set
@@ -226,38 +217,38 @@ private:
     the RHS of the oncstrant should be zero.
 
  */
-class Fourvec_Constrainer
-//
-// Purpose: Do a kinematic fit for a set of 4-vectors, given a set
-//          of mass constraints.
-//
-{
-public:
-  // Constructor.
-  // ARGS holds the parameter settings for this instance.
-  /**
+  class Fourvec_Constrainer
+  //
+  // Purpose: Do a kinematic fit for a set of 4-vectors, given a set
+  //          of mass constraints.
+  //
+  {
+  public:
+    // Constructor.
+    // ARGS holds the parameter settings for this instance.
+    /**
      @brief Constructor.
 
      @param args Parameter settings for this instance.
    */
-  Fourvec_Constrainer (const Fourvec_Constrainer_Args& args);
+    Fourvec_Constrainer(const Fourvec_Constrainer_Args& args);
 
-  // Specify an additional constraint S for the problem.
-  // The format for S is described above.
-  /**
+    // Specify an additional constraint S for the problem.
+    // The format for S is described above.
+    /**
      @brief Specify an additional constraint <i>s</i> for the problem.
      The format for <i>s</i> is described in the class description.
 
      @param s The constraint to add.
    */
-  void add_constraint (std::string s);
+    void add_constraint(std::string s);
 
-  // Specify the combination of objects that will be returned by
-  // constrain() as the mass.  The format of S is the same as for
-  // normal constraints.  The LHS specifies the mass to calculate;
-  // the RHS should be zero.
-  // This should only be called once.
-  /**
+    // Specify the combination of objects that will be returned by
+    // constrain() as the mass.  The format of S is the same as for
+    // normal constraints.  The LHS specifies the mass to calculate;
+    // the RHS should be zero.
+    // This should only be called once.
+    /**
      @brief Specify a combination of objects that will be returned
      by the constrain() method as mass.  The format of <i>s</i>
      is the same as for normal constraints.  The left-hand side specifies
@@ -266,13 +257,13 @@ public:
 
      @param s The constraint defining the mass.
    */
-  void mass_constraint (std::string s);
+    void mass_constraint(std::string s);
 
-  // Do a constrained fit for EV.  Returns the requested mass and
-  // its error in M and SIGM, and the pull quantities in PULLX and
-  // PULLY.  Returns the chisq; this will be < 0 if the fit failed
-  // to converge.
-  /**
+    // Do a constrained fit for EV.  Returns the requested mass and
+    // its error in M and SIGM, and the pull quantities in PULLX and
+    // PULLY.  Returns the chisq; this will be < 0 if the fit failed
+    // to converge.
+    /**
      @brief Do a constrained fit for event <i>ev</i>.  Returns the requested
      mass and its uncertainty in <i>m</i> and <i>sigm</i>, and the pull
      quantities in <i>pullx</i> and <i>pully</i>.  Returns the \f$\chi^{2}\f$,
@@ -302,41 +293,33 @@ public:
      The fit \f$\chi^{2}\f$, this value will be negative if the fit failed
      to converge.
    */
-  double constrain (Fourvec_Event& ev,
-                    double& m,
-                    double& sigm,
-                    Column_Vector& pullx,
-                    Column_Vector& pully);
+    double constrain(Fourvec_Event& ev, double& m, double& sigm, Column_Vector& pullx, Column_Vector& pully);
 
-  // Dump the internal state.
-  friend std::ostream& operator<< (std::ostream& s,
-                                   const Fourvec_Constrainer& c);
+    // Dump the internal state.
+    friend std::ostream& operator<<(std::ostream& s, const Fourvec_Constrainer& c);
 
-
-private:
-  // Parameter settings.
-  /**
+  private:
+    // Parameter settings.
+    /**
      Parameter settings for this instance.
    */
-  const Fourvec_Constrainer_Args _args;
+    const Fourvec_Constrainer_Args _args;
 
-  // The constraints for this problem.
-  /**
+    // The constraints for this problem.
+    /**
      The constraints for this problem.
    */
-  std::vector<Constraint> _constraints;
+    std::vector<Constraint> _constraints;
 
-  // The constraint giving the mass to be calculated.  This
-  // should have no more than one entry.
-  /**
+    // The constraint giving the mass to be calculated.  This
+    // should have no more than one entry.
+    /**
       The constraint giving the mass to be calculated.  This should
       have no more than one entry.
    */
-  std::vector<Constraint> _mass_constraint;
-};
+    std::vector<Constraint> _mass_constraint;
+  };
 
+}  // namespace hitfit
 
-} // namespace hitfit
-
-
-#endif // not HITFIT_FOURVEC_CONSTRAINER_H
+#endif  // not HITFIT_FOURVEC_CONSTRAINER_H

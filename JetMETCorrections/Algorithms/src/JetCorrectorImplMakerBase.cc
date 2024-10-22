@@ -2,7 +2,7 @@
 //
 // Package:     JetMETCorrections/Algorithms
 // Class  :     JetCorrectorImplMakerBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -17,13 +17,11 @@
 #include "JetMETCorrections/Algorithms/interface/JetCorrectorImplMakerBase.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
-
 
 //
 // constants, enums and typedefs
@@ -36,33 +34,28 @@
 //
 // constructors and destructor
 //
-JetCorrectorImplMakerBase::JetCorrectorImplMakerBase(edm::ParameterSet const& iPSet):
-  level_(iPSet.getParameter<std::string>("level")),
-  algo_(iPSet.getParameter<std::string>("algorithm")),
-  cacheId_(0)
-{
-}
+JetCorrectorImplMakerBase::JetCorrectorImplMakerBase(edm::ParameterSet const& iPSet, edm::ConsumesCollector iC)
+    : level_(iPSet.getParameter<std::string>("level")),
+      algoToken_(iC.esConsumes(edm::ESInputTag("", iPSet.getParameter<std::string>("algorithm")))),
+      cacheId_(0) {}
 
 // JetCorrectorImplMakerBase::JetCorrectorImplMakerBase(const JetCorrectorImplMakerBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-JetCorrectorImplMakerBase::~JetCorrectorImplMakerBase()
-{
-}
+JetCorrectorImplMakerBase::~JetCorrectorImplMakerBase() {}
 
 //
 // member functions
 //
 
-std::shared_ptr<FactorizedJetCorrectorCalculator const> 
-JetCorrectorImplMakerBase::getCalculator(edm::EventSetup const& iSetup, std::function<void(std::string const&)> iLevelCheck) {
+std::shared_ptr<FactorizedJetCorrectorCalculator const> JetCorrectorImplMakerBase::getCalculator(
+    edm::EventSetup const& iSetup, std::function<void(std::string const&)> iLevelCheck) {
   auto const& rec = iSetup.get<JetCorrectionsRecord>();
-  if( cacheId_ != rec.cacheIdentifier()) {
-    edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-    rec.get(algo_,JetCorParColl); 
-    auto const& parameters = ((*JetCorParColl)[level_]);
+  if (cacheId_ != rec.cacheIdentifier()) {
+    auto const& JetCorParColl = rec.get(algoToken_);
+    auto const& parameters = JetCorParColl[level_];
 
     iLevelCheck(parameters.definitions().level());
     std::vector<JetCorrectorParameters> vParam;
@@ -74,8 +67,7 @@ JetCorrectorImplMakerBase::getCalculator(edm::EventSetup const& iSetup, std::fun
   return corrector_;
 }
 
-void 
-JetCorrectorImplMakerBase::addToDescription(edm::ParameterSetDescription& iDescription) {
+void JetCorrectorImplMakerBase::addToDescription(edm::ParameterSetDescription& iDescription) {
   iDescription.add<std::string>("level");
   iDescription.add<std::string>("algorithm");
 }

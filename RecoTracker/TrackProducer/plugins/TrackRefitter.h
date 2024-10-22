@@ -13,7 +13,6 @@
 
 class TrackRefitter : public KfTrackProducerBase, public edm::stream::EDProducer<> {
 public:
-
   /// Constructor
   explicit TrackRefitter(const edm::ParameterSet& iConfig);
 
@@ -26,6 +25,7 @@ private:
   Constraint constraint_;
   edm::EDGetToken trkconstrcoll_;
 
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
 };
 
 #endif

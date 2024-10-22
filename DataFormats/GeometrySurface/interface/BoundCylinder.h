@@ -16,5 +16,4 @@
 
 using BoundCylinder = Cylinder;
 
-
-#endif // Geom_BoundCylinder_H
+#endif  // Geom_BoundCylinder_H

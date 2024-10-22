@@ -4,6 +4,5 @@
 #include "TVirtualFFT.h"
 
 namespace PhysicsTools_TagAndProbe {
-  struct dictionary {
-  };
-}
+  struct dictionary {};
+}  // namespace PhysicsTools_TagAndProbe

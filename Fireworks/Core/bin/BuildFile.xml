@@ -1,9 +1,10 @@
 <bin name="cmsShow.exe" file="cmsShow.cc">
- <use name="FWCore/MessageLogger"/>
- <use name="Fireworks/Core"/>
- <use name="rootinteractive"/>
- <lib name="Eve"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="Fireworks/Core"/>
+  <use name="rootinteractive"/>
+  <use name="rooteve"/>
 </bin>
+
 <bin name="cmsShowSendReport" file="cmsShowSendReport.cc">
- <use name="zlib"/>
+  <use name="zlib"/>
 </bin>

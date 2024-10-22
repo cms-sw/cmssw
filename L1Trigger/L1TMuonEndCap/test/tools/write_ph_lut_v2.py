@@ -2,11 +2,15 @@
 
 import os
 
-path = 'L1Trigger/L1TMuonEndCap/data/emtf_luts/vl_lut_me11_edges/'
-
+in_path = 'L1Trigger/L1TMuonEndCap/test/tools/pc_luts/firmware_data/'
+# in_path = 'L1Trigger/L1TMuonEndCap/test/tools/pc_luts/firmware_MC/'
 
 def main():
-  full_path = os.environ['CMSSW_BASE'] + '/src/' + path + '%s'
+  full_path = os.environ['CMSSW_BASE'] + '/src/' + in_path + '%s'
+  out_dir   = os.environ['CMSSW_BASE'] + '/src/' + in_path.replace('firmware', 'emulator')
+
+  if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
 
   all_files = []
 
@@ -115,12 +119,12 @@ def main():
   assert(len(th_lut_array) == 12*61*128)
   assert(len(th_corr_lut_array) == 12*7*128)
 
-  dump_array_into_file(ph_init_array, "ph_init_neighbor.txt")
-  dump_array_into_file(ph_disp_array, "ph_disp_neighbor.txt")
-  dump_array_into_file(th_init_array, "th_init_neighbor.txt")
-  dump_array_into_file(th_disp_array, "th_disp_neighbor.txt")
-  dump_array_into_file(th_lut_array, "th_lut_neighbor.txt")
-  dump_array_into_file(th_corr_lut_array, "th_corr_lut_neighbor.txt")
+  dump_array_into_file(ph_init_array, out_dir+"ph_init_neighbor.txt")
+  dump_array_into_file(ph_disp_array, out_dir+"ph_disp_neighbor.txt")
+  dump_array_into_file(th_init_array, out_dir+"th_init_neighbor.txt")
+  dump_array_into_file(th_disp_array, out_dir+"th_disp_neighbor.txt")
+  dump_array_into_file(th_lut_array, out_dir+"th_lut_neighbor.txt")
+  dump_array_into_file(th_corr_lut_array, out_dir+"th_corr_lut_neighbor.txt")
 
   return
 

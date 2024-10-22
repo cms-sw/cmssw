@@ -9,20 +9,18 @@
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <string>
 #include <vector>
 
-class TauDQMHistEffProducer : public edm::EDAnalyzer
-{
-  struct cfgEntryPlot
-  {
+class TauDQMHistEffProducer : public DQMEDHarvester {
+  struct cfgEntryPlot {
     explicit cfgEntryPlot(const edm::ParameterSet&);
     explicit cfgEntryPlot(const std::string&, const std::string&, const std::string&);
     std::string numerator_;
@@ -30,12 +28,10 @@ class TauDQMHistEffProducer : public edm::EDAnalyzer
     std::string efficiency_;
   };
 
- public:
+public:
   explicit TauDQMHistEffProducer(const edm::ParameterSet&);
   ~TauDQMHistEffProducer() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override{}
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& iget) override;
 
 private:
   std::vector<cfgEntryPlot> cfgEntryPlot_;
@@ -43,5 +39,3 @@ private:
 };
 
 #endif
-
-

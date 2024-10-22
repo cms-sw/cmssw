@@ -12,13 +12,11 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-class BPHRecoBuilder;
-
 namespace reco {
   class Candidate;
 }
@@ -27,47 +25,36 @@ namespace reco {
 // C++ Headers --
 //---------------
 #include <string>
+#include <map>
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class BPHRecoSelect {
-
- public:
-
+public:
   /** Constructor
    */
-  BPHRecoSelect();
+  BPHRecoSelect() {}
+
+  // deleted copy constructor and assignment operator
+  BPHRecoSelect(const BPHRecoSelect& x) = delete;
+  BPHRecoSelect& operator=(const BPHRecoSelect& x) = delete;
 
   /** Destructor
    */
-  virtual ~BPHRecoSelect();
+  virtual ~BPHRecoSelect() = default;
+
+  using AcceptArg = reco::Candidate;
 
   /** Operations
    */
   /// accept function
-  /// pointers to other particles in the decays can be obtained 
-  /// by the function "get" giving the particle name (passing the pointer 
+  /// pointers to other particles in the decays can be obtained
+  /// by the function "get" giving the particle name (passing the pointer
   /// to the builder)
-  virtual bool accept( const reco::Candidate& cand ) const;
-  virtual bool accept( const reco::Candidate& cand,
-                       const BPHRecoBuilder* build ) const;
-
- protected:
-
-  // function to get other particles pointers
-  const reco::Candidate* get( const std::string& name,
-                              const BPHRecoBuilder* build ) const;
-
- private:
-
-  // private copy and assigment constructors
-  BPHRecoSelect           ( const BPHRecoSelect& x ) = delete;
-  BPHRecoSelect& operator=( const BPHRecoSelect& x ) = delete;
-
+  virtual bool accept(const reco::Candidate& cand) const = 0;
+  virtual bool accept(const reco::Candidate& cand, const BPHRecoBuilder* builder) const { return accept(cand); }
 };
 
-
 #endif
-

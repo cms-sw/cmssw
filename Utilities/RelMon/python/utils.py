@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -9,29 +11,32 @@
 ################################################################################
 
 
+from builtins import range
 import array
 import os
 import re
 import sys
-from cPickle import load
+from pickle import load
 from os.path import dirname,basename,join,isfile
 from threading import Thread
 from time import asctime
 
 theargv=sys.argv
 sys.argv=[]
-from ROOT import *
 import ROOT
 ROOT.gErrorIgnoreLevel=1001
 ROOT.gROOT.SetBatch(True)
 sys.argv=theargv
 
-from urllib2  import Request,build_opener,urlopen
+if sys.version_info[0]==2:
+  from urllib2  import Request,build_opener,urlopen
+else:
+  from urllib.request  import Request,build_opener,urlopen
 
 if "RELMON_SA" in os.environ:
-  from definitions import *
-  from authentication import X509CertOpen
-  from utils import __file__ as this_module_name  
+  from .definitions import *
+  from .authentication import X509CertOpen
+  from .utils import __file__ as this_module_name  
 else:
   from Utilities.RelMon.definitions import *
   from Utilities.RelMon.authentication import X509CertOpen
@@ -43,7 +48,7 @@ else:
 _log_level=10
 def logger(msg_level,message):
   if msg_level>=_log_level:
-    print "[%s] %s" %(asctime(),message)
+    print("[%s] %s" %(asctime(),message))
 
 #-------------------------------------------------------------------------------
 def setTDRStyle():  
@@ -71,8 +76,8 @@ def literal2root (literal,rootType):
   try:  
       tbuffer = TBufferFile(TBufferFile.kRead, len(bitsarray), bitsarray, False,0)
   except:
-      print "could not transform to object array:"
-      print [ i for i in  bitsarray ]
+      print("could not transform to object array:")
+      print([ i for i in  bitsarray ])
   
   # replace a couple of shortcuts with the real root class name
   if rootType == 'TPROF':
@@ -87,11 +92,18 @@ def literal2root (literal,rootType):
 #-------------------------------------------------------------------------------
 
 def getNbins(h):
+  """
+  To be used in loops on bin number with range()
+  For each dimension there are GetNbinsX()+2 bins including underflow 
+  and overflow, and range() loops starts from 0. So the total number
+  of bins as upper limit of a range() loop already includes the next 
+  to last value needed.
+  """
   biny=h.GetNbinsY()
-  if biny>1:biny+=1
+  if biny>1: biny+=2
   binz=h.GetNbinsZ()
-  if binz>1:binz+=1
-  return (h.GetNbinsX()+1)*(biny)*(binz)
+  if binz>1:binz+=2
+  return (h.GetNbinsX()+2)*(biny)*(binz)
 
 #-------------------------------------------------------------------------------
 
@@ -165,7 +177,7 @@ class StatisticalTest(object):
 #-------------------------------------------------------------------------------
 
 def is_empty(h):
-  for i in xrange(1,getNbins(h)):
+  for i in range(0,getNbins(h)):
     if h.GetBinContent(i)!=0: return False
   return True
   #return h.GetSumOfWeights()==0
@@ -175,7 +187,7 @@ def is_empty(h):
 def is_sparse(h):
   filled_bins=0.
   nbins=h.GetNbinsX()
-  for ibin in xrange(nbins):
+  for ibin in range(0,nbins+2):
     if h.GetBinContent(ibin)>0:
       filled_bins+=1
   #print "%s %s --> %s" %(filled_bins,nbins,filled_bins/nbins)
@@ -220,11 +232,11 @@ def profile2histo(profile):
   bin_low_edges=[]
   n_bins=profile.GetNbinsX()
   
-  for ibin in xrange(1,n_bins+2):
+  for ibin in range(1,n_bins+2):
     bin_low_edges.append(profile.GetBinLowEdge(ibin))
   bin_low_edges=array.array('f',bin_low_edges)
   histo=TH1F(profile.GetName(),profile.GetTitle(),n_bins,bin_low_edges)
-  for ibin in xrange(0,n_bins+1):
+  for ibin in range(0,n_bins+2):
     histo.SetBinContent(ibin,profile.GetBinContent(ibin))
     histo.SetBinError(ibin,profile.GetBinError(ibin))    
   
@@ -241,16 +253,16 @@ class Chi2(StatisticalTest):
     n_filled_l=[]
     for h in self.h1,self.h2:
       nfilled=0.
-      for ibin in xrange(1,nbins+1):
+      for ibin in range(0,nbins+2):
         if h.GetBinContent(ibin)>0:
           nfilled+=1
       n_filled_l.append(nfilled)
-    return len(filter (lambda x:x>=min_filled,n_filled_l) )>0
+    return len([x for x in n_filled_l if x>=min_filled] )>0
 
   def absval(self):
     nbins=getNbins(self.h1)
     binc=0
-    for i in xrange(1,nbins):
+    for i in range(0,nbins):
       for h in self.h1,self.h2:
         binc=h.GetBinContent(i)
         if binc<0:
@@ -326,7 +338,7 @@ class BinToBin(StatisticalTest):
     equal = 1
     nbins = getNbins(self.h1)
     n_ok_bins=0.0
-    for ibin in xrange(0, nbins+2):
+    for ibin in range(0, nbins):
       h1bin=self.h1.GetBinContent(ibin)
       h2bin=self.h2.GetBinContent(ibin)
       bindiff=h1bin-h2bin
@@ -335,9 +347,9 @@ class BinToBin(StatisticalTest):
 
       if binavg==0 or abs(bindiff) < self.epsilon:
         n_ok_bins+=1
-        #print "Bin %ibin: bindiff %s" %(ibin,bindiff)
+        #print("Bin %ibin: bindiff %s" %(ibin,bindiff))
       else:
-        print "Bin %ibin: bindiff %s" %(ibin,bindiff)
+        print("Bin %ibin: bindiff %s" %(ibin,bindiff))
 
       #if abs(bindiff)!=0 :
         #print "Bin %ibin: bindiff %s" %(ibin,bindiff)
@@ -345,7 +357,7 @@ class BinToBin(StatisticalTest):
     rank=n_ok_bins/nbins
     
     if rank!=1:
-      print "Histogram %s differs: nok: %s ntot: %s" %(self.h1.GetName(),n_ok_bins,nbins)
+      print("Histogram %s differs: nok: %s ntot: %s" %(self.h1.GetName(),n_ok_bins,nbins))
     
     return rank
 
@@ -384,7 +396,7 @@ class BinToBin1percent(StatisticalTest):
     equal = 1
     nbins = getNbins(self.h1)
     n_ok_bins=0.0
-    for ibin in xrange(0,nbins):
+    for ibin in range(0,nbins):
       ibin+=1
       h1bin=self.h1.GetBinContent(ibin)
       h2bin=self.h2.GetBinContent(ibin)
@@ -396,7 +408,7 @@ class BinToBin1percent(StatisticalTest):
         n_ok_bins+=1
         #print "Bin %i bin: bindiff %s" %(ibin,bindiff)
       else:
-        print "-->Bin %i bin: bindiff %s (%s - %s )" %(ibin,bindiff,h1bin,h2bin)
+        print("-->Bin %i bin: bindiff %s (%s - %s )" %(ibin,bindiff,h1bin,h2bin))
 
       #if abs(bindiff)!=0 :
         #print "Bin %ibin: bindiff %s" %(ibin,bindiff)
@@ -404,7 +416,7 @@ class BinToBin1percent(StatisticalTest):
     rank=n_ok_bins/nbins
     
     if rank!=1:
-      print "%s nok: %s ntot: %s" %(self.h1.GetName(),n_ok_bins,nbins)
+      print("%s nok: %s ntot: %s" %(self.h1.GetName(),n_ok_bins,nbins))
     
     return rank
 #-------------------------------------------------------------------------------
@@ -426,7 +438,7 @@ def ask_ok(prompt, retries=4, complaint='yes or no'):
         retries = retries - 1
         if retries < 0:
             raise IOError('refusenik user')
-        print complaint
+        print(complaint)
 
 #-------------------------------------------------------------------------------
 
@@ -437,7 +449,7 @@ class unpickler(Thread):
     self.directory=""
 
   def run(self):
-    print "Reading directory from %s" %(self.filename)
+    print("Reading directory from %s" %(self.filename))
     ifile=open(self.filename,"rb")
     self.directory=load(ifile) 
     ifile.close()
@@ -453,13 +465,13 @@ def wget(url):
   bin_content=None
   try:
     filename=basename(url)  
-    print "Checking existence of file %s on disk..."%filename
+    print("Checking existence of file %s on disk..."%filename)
     if not isfile("./%s"%filename):      
       bin_content=opener.open(datareq).read()
     else:
-      print "File %s exists, skipping.." %filename
+      print("File %s exists, skipping.." %filename)
   except ValueError:
-    print "Error: Unknown url %s" %url
+    print("Error: Unknown url %s" %url)
   
   if bin_content!=None:  
     ofile = open(filename, 'wb')
@@ -471,29 +483,29 @@ def wget(url):
 
 def get_relvaldata_id(file):
     """Returns unique relvaldata ID for a given file."""
-    run_id = re.search('R\d{9}', file)
-    run = re.search('_RelVal_([\w\d]*)-v\d__', file)
+    run_id = re.search('R\\d{9}', file)
+    run = re.search('_RelVal_([\\w\\d]*)-v\\d__', file)
     if not run:
-        run = re.search('GR_R_\d*_V\d*C?_([\w\d]*)-v\d__', file)
+        run = re.search('GR_R_\\d*_V\\d*C?_([\\w\\d]*)-v\\d__', file)
     if run_id and run:
         return (run_id.group(), run.group(1))
     return None
 
 def get_relvaldata_cmssw_version(file):
     """Returns tuple (CMSSW release, GR_R version) for specified RelValData file."""
-    cmssw_release = re.findall('(CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?)-', file)
-    gr_r_version = re.findall('-(GR_R_\d*_V\d*\w?)(?:_RelVal)?_', file)
+    cmssw_release = re.findall('(CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?)-', file)
+    gr_r_version = re.findall('-(GR_R_\\d*_V\\d*\\w?)(?:_RelVal)?_', file)
     if not gr_r_version:
-        gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-(\w*)_RelVal_', file)
+        gr_r_version = re.findall('CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?-(\\w*)_RelVal_', file)
     if cmssw_release and gr_r_version:
         return (cmssw_release[0], gr_r_version[0])
 
 def get_relvaldata_version(file):
     """Returns tuple (CMSSW version, run version) for specified file."""
-    cmssw_version = re.findall('DQM_V(\d*)_', file)
-    run_version = re.findall('_RelVal_[\w\d]*-v(\d)__', file)
+    cmssw_version = re.findall('DQM_V(\\d*)_', file)
+    run_version = re.findall('_RelVal_[\\w\\d]*-v(\\d)__', file)
     if not run_version:
-        run_version = re.findall('GR_R_\d*_V\d*C?_[\w\d]*-v(\d)__', file)
+        run_version = re.findall('GR_R_\\d*_V\\d*C?_[\\w\\d]*-v(\\d)__', file)
     if cmssw_version and run_version:
         return (int(cmssw_version[0]), int(run_version[0]))
 
@@ -512,8 +524,8 @@ def get_relvaldata_max_version(files):
 ##-------------------   Make files pairs:  RelVal utils   ---------------------
 def get_relval_version(file):
     """Returns tuple (CMSSW version, run version) for specified file."""
-    cmssw_version = re.findall('DQM_V(\d*)_', file)
-    run_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-[\w\d]*_V\d*\w?(?:_[\w\d]*)?-v(\d*)__', file)
+    cmssw_version = re.findall('DQM_V(\\d*)_', file)
+    run_version = re.findall('CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?-[\\w\\d]*_V\\d*\\w?(?:_[\\w\\d]*)?-v(\\d*)__', file)
     if cmssw_version and run_version:
         return (int(cmssw_version[0]), int(run_version[0]))
 
@@ -530,8 +542,8 @@ def get_relval_max_version(files):
     return max_file
 
 def get_relval_cmssw_version(file):
-    cmssw_release = re.findall('(CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?)-', file)
-    gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(_[\w\d]*)?-v', file)
+    cmssw_release = re.findall('(CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?)-', file)
+    gr_r_version = re.findall('CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?-([\\w\\d]*)_V\\d*\\w?(_[\\w\\d]*)?-v', file)
     if cmssw_release and gr_r_version:
         if "PU" in gr_r_version[0][0] and not "FastSim" in file:
             __gt = re.sub('^[^_]*_', "", gr_r_version[0][0])
@@ -543,8 +555,8 @@ def get_relval_cmssw_version(file):
 
 def get_relval_id(file):
     """Returns unique relval ID (dataset name) for a given file."""
-    dataset_name = re.findall('R\d{9}__([\w\D]*)__CMSSW_', file)
-    __process_string = re.search('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(_[\w\d]*)?-v', file)
+    dataset_name = re.findall('R\\d{9}__([\\w\\D]*)__CMSSW_', file)
+    __process_string = re.search('CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?-([\\w\\d]*)_V\\d*\\w?(_[\\w\\d]*)?-v', file)
     _ps = ""
     if __process_string:
         if "PU" in __process_string.group(1) and not "FastSim" in file:
@@ -584,12 +596,12 @@ def make_files_pairs(files, verbose=True):
 
     ## Print the division into groups
     if verbose:
-        print '\nFound versions:'
+        print('\nFound versions:')
         for version in versions_files:
-            print '%s: %d files' % (str(version),  len(versions_files[version]))
+            print('%s: %d files' % (str(version),  len(versions_files[version])))
 
-    if len(versions_files.keys()) <= 1:
-        print '\nFound too little versions, there is nothing to pair. Exiting...\n'
+    if len(versions_files) <= 1:
+        print('\nFound too little versions, there is nothing to pair. Exiting...\n')
         exit()
 
     ## Select two biggest groups.
@@ -602,11 +614,11 @@ def make_files_pairs(files, verbose=True):
 
     ## Print two biggest groups.
     if verbose:
-        print '\nPairing %s (%d files) and %s (%d files)' % (str(v1),
-                len(versions_files[v1]), str(v2), len(versions_files[v2]))
+        print('\nPairing %s (%d files) and %s (%d files)' % (str(v1),
+                len(versions_files[v1]), str(v2), len(versions_files[v2])))
 
     ## Pairing two versions
-    print '\nGot pairs:'
+    print('\nGot pairs:')
     pairs = []
     for unique_id in set([get_id(file) for file in versions_files[v1]]):
         if is_relval_data:
@@ -624,8 +636,8 @@ def make_files_pairs(files, verbose=True):
         if len(c1_files) > 0 and len(c2_files) > 0:
             first_file = get_max_version(c1_files)
             second_file = get_max_version(c2_files)
-            print '%s\n%s\n' % (first_file, second_file)
+            print('%s\n%s\n' % (first_file, second_file))
             pairs.extend((first_file, second_file))
     if verbose:
-        print "Paired and got %d files.\n" % len(pairs)
+        print("Paired and got %d files.\n" % len(pairs))
     return pairs

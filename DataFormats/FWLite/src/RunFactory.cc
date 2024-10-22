@@ -17,17 +17,17 @@
 
 namespace fwlite {
 
-    //
-    // constructors and destructor
-    //
-    RunFactory::RunFactory() {}
-    RunFactory::~RunFactory() {}
+  //
+  // constructors and destructor
+  //
+  RunFactory::RunFactory() {}
+  RunFactory::~RunFactory() {}
 
-    std::shared_ptr<fwlite::Run> RunFactory::makeRun(std::shared_ptr<BranchMapReader> branchMap) const {
-        if (not run_) {
-            run_ = std::make_shared<fwlite::Run>(branchMap);
-        }
-        return run_;
+  std::shared_ptr<fwlite::Run> RunFactory::makeRun(std::shared_ptr<BranchMapReader> branchMap) const {
+    if (not run_) {
+      run_ = std::make_shared<fwlite::Run>(branchMap);
     }
+    return run_;
+  }
 
-}
+}  // namespace fwlite

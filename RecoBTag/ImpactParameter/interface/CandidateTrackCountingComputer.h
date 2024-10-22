@@ -5,7 +5,6 @@
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
 #include "RecoBTag/ImpactParameter/interface/TemplatedTrackCountingComputer.h"
 
+typedef TemplatedTrackCountingComputer<std::vector<reco::CandidatePtr>, reco::JetTagInfo> CandidateTrackCountingComputer;
 
-typedef TemplatedTrackCountingComputer<std::vector<reco::CandidatePtr>,reco::JetTagInfo> CandidateTrackCountingComputer;
-
-#endif // ImpactParameter_CandTrackCountingComputer_h
+#endif  // ImpactParameter_CandTrackCountingComputer_h

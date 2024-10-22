@@ -10,12 +10,11 @@
 namespace edm {
   class ParameterSet;
   class Event;
-}
+}  // namespace edm
 
 namespace reco {
   class BeamSpot;
 }
-
 
 class TH1F;
 class TH2F;
@@ -23,14 +22,13 @@ class TProfile;
 class TFileDirectory;
 
 class BSvsPVHistogramMaker {
-
- public:
+public:
   BSvsPVHistogramMaker(edm::ConsumesCollector&& iC);
   BSvsPVHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
 
   ~BSvsPVHistogramMaker();
 
-  void book(const std::string dirname="");
+  void book(const std::string dirname = "");
   void beginRun(const unsigned int nrun);
   void fill(const unsigned int orbit, const int bx, const reco::VertexCollection& vertices, const reco::BeamSpot& bs);
   void fill(const edm::Event& iEvent, const reco::VertexCollection& vertices, const reco::BeamSpot& bs);
@@ -38,8 +36,7 @@ class BSvsPVHistogramMaker {
   double x(const reco::BeamSpot& bs, const double z) const;
   double y(const reco::BeamSpot& bs, const double z) const;
 
- private:
-
+private:
   TFileDirectory* _currdir;
   const unsigned int m_maxLS;
   const bool useSlope_;
@@ -72,8 +69,6 @@ class BSvsPVHistogramMaker {
   TH2F** _hdeltaxvsbx2drun;
   TH2F** _hdeltayvsbx2drun;
   TH2F** _hdeltazvsbx2drun;
-
 };
 
-
-#endif //  Validation_RecoVertex_BSvsPVHistogramMaker_H
+#endif  //  Validation_RecoVertex_BSvsPVHistogramMaker_H

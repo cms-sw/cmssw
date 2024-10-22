@@ -1,7 +1,6 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="RecoLocalMuon/DTSegment"/>
-<use   name="CLHEP"/>
-<library   file="*.cc" name="RecoLocalMuonDTSegmentPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<use name="RecoLocalMuon/DTSegment"/>
+<use name="CLHEP"/>
+<library file="*.cc" name="RecoLocalMuonDTSegmentPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

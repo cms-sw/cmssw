@@ -8,7 +8,7 @@
 
 typedef BoostIODBWriter<HcalInterpolatedPulseColl> HcalInterpolatedPulseDBWriter;
 
-typedef BoostIODBReader<HcalInterpolatedPulseColl,HcalInterpolatedPulseCollRcd> HcalInterpolatedPulseDBReader;
+typedef BoostIODBReader<HcalInterpolatedPulseColl, HcalInterpolatedPulseCollRcd> HcalInterpolatedPulseDBReader;
 
 DEFINE_FWK_MODULE(HcalInterpolatedPulseDBWriter);
 DEFINE_FWK_MODULE(HcalInterpolatedPulseDBReader);

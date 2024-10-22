@@ -7,6 +7,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TESTMERGE")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
+process.CPU = cms.Service("CPU",
+    disableJobReportOutput = cms.untracked.bool(True)
+)
+
 process.AdaptorConfig = cms.Service("AdaptorConfig",
     stats = cms.untracked.bool(False)
 )

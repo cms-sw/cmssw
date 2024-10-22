@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 siStripNoisesFakeESSource = cms.ESSource("SiStripNoisesFakeESSource",
         appendToDataLabel = cms.string(''),
+        SiStripDetInfoFile = cms.FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"),
 
         printDebug = cms.untracked.uint32(5),
-        file = cms.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
 
         StripLengthMode = cms.bool(True),
 

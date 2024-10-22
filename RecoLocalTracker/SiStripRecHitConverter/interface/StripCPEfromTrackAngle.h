@@ -3,12 +3,10 @@
 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 
-class StripCPEfromTrackAngle : public StripCPE 
-{
-
+class StripCPEfromTrackAngle : public StripCPE {
 private:
   using StripCPE::localParameters;
-  
+
   //Error parameterization, low cluster width function
   float mLC_P[3];
   float mHC_P[4][2];
@@ -28,31 +26,32 @@ private:
 
   Algo m_algo;
 
-public:  
+public:
   using AlgoParam = StripCPE::AlgoParam;
   using AClusters = StripClusterParameterEstimator::AClusters;
-  using ALocalValues  = StripClusterParameterEstimator::ALocalValues;
-  
-  void localParameters(AClusters const & clusters, ALocalValues & retValues, const GeomDetUnit& gd, const LocalTrajectoryParameters &ltp) const override;
+  using ALocalValues = StripClusterParameterEstimator::ALocalValues;
 
-  StripClusterParameterEstimator::LocalValues
-  localParameters( const SiStripCluster& cl, AlgoParam const & ap) const override;
+  void localParameters(AClusters const& clusters,
+                       ALocalValues& retValues,
+                       const GeomDetUnit& gd,
+                       const LocalTrajectoryParameters& ltp) const override;
 
-  
-  StripClusterParameterEstimator::LocalValues
-  localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const override;
-  
-  float stripErrorSquared(const unsigned N, const float uProj, const SiStripDetId::SubDetector loc ) const ;
+  StripClusterParameterEstimator::LocalValues localParameters(const SiStripCluster& cl,
+                                                              AlgoParam const& ap) const override;
+
+  StripClusterParameterEstimator::LocalValues localParameters(const SiStripCluster&,
+                                                              const GeomDetUnit&,
+                                                              const LocalTrajectoryParameters&) const override;
+
+  float stripErrorSquared(const unsigned N, const float uProj, const SiStripDetId::SubDetector loc) const;
   float legacyStripErrorSquared(const unsigned N, const float uProj) const;
 
-
-  StripCPEfromTrackAngle( edm::ParameterSet & conf,
-                          const MagneticField& mag,
-                          const TrackerGeometry& geom,
-                          const SiStripLorentzAngle& lorentz,
-                          const SiStripBackPlaneCorrection& backPlaneCorrection,
-                          const SiStripConfObject& confObj,
-                          const SiStripLatency& latency);
-
+  StripCPEfromTrackAngle(edm::ParameterSet& conf,
+                         const MagneticField& mag,
+                         const TrackerGeometry& geom,
+                         const SiStripLorentzAngle& lorentz,
+                         const SiStripBackPlaneCorrection& backPlaneCorrection,
+                         const SiStripConfObject& confObj,
+                         const SiStripLatency& latency);
 };
 #endif

@@ -1,0 +1,7 @@
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="TrackingTools/DetLayers"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<export>
+  <lib name="1"/>
+</export>

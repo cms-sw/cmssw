@@ -18,6 +18,7 @@ oniaPATMuonsWithoutTrigger = PhysicsTools.PatAlgos.producersLayer1.muonProducer_
     userIsolation = cms.PSet(),   # no extra isolation beyond what's in reco::Muon itself
     isoDeposits = cms.PSet(),     # no heavy isodeposits
     addGenMatch = False,          # no mc
+    addTriggerMatching = cms.bool(False)
 )
 
 oniaSelectedMuons = cms.EDFilter('PATMuonSelector',

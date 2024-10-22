@@ -23,53 +23,44 @@ class DTSuperLayer;
 class DTLayer;
 class DetId;
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
 /* C++ Headers */
 #include <memory>
 #include <vector>
 
+namespace dtGeometryBuilder {
+  RectangularPlaneBounds* getRecPlaneBounds(const std::vector<double>::const_iterator& shapeStart);
+}
+
 /* ====================================================================== */
 
 /* Class DTGeometryBuilderFromCondDB Interface */
 
-class DTGeometryBuilderFromCondDB{
+class DTGeometryBuilderFromCondDB {
+public:
+  /* Constructor */
+  DTGeometryBuilderFromCondDB();
 
-  public:
+  /* Destructor */
+  virtual ~DTGeometryBuilderFromCondDB();
 
-/* Constructor */ 
-    DTGeometryBuilderFromCondDB() ;
+  /* Operations */
+  void build(const std::shared_ptr<DTGeometry>& theGeometry, const RecoIdealGeometry& rig);
 
-/* Destructor */ 
-    virtual ~DTGeometryBuilderFromCondDB() ;
+private:
+  DTChamber* buildChamber(const DetId& id, const RecoIdealGeometry& rig, size_t idt) const;
 
-/* Operations */ 
-    void build(const std::shared_ptr<DTGeometry>& theGeometry,
-               const RecoIdealGeometry& rig);
+  DTSuperLayer* buildSuperLayer(DTChamber* chamber, const DetId& id, const RecoIdealGeometry& rig, size_t idt) const;
 
-  private:
-    DTChamber* buildChamber(const DetId& id,
-                            const RecoIdealGeometry& rig,
-			    size_t idt) const ;
+  DTLayer* buildLayer(DTSuperLayer* sl, const DetId& id, const RecoIdealGeometry& rig, size_t idt) const;
 
-    DTSuperLayer* buildSuperLayer(DTChamber* chamber,
-                                  const DetId& id,
-                                  const RecoIdealGeometry& rig,
-				  size_t idt) const ;
+  typedef ReferenceCountingPointer<Plane> RCPPlane;
 
-    DTLayer* buildLayer(DTSuperLayer* sl,
-                        const DetId& id,
-                        const RecoIdealGeometry& rig,
-			size_t idt) const ;
+  RCPPlane plane(const std::vector<double>::const_iterator tranStart,
+                 const std::vector<double>::const_iterator rotStart,
+                 Bounds* bounds) const;
 
-
-    typedef ReferenceCountingPointer<Plane> RCPPlane;
-
-    RCPPlane plane(const std::vector<double>::const_iterator tranStart,
-                   const std::vector<double>::const_iterator rotStart,
-                   Bounds * bounds) const ;
-
-  protected:
-
+protected:
 };
-#endif // DTGEOMETRYBUILDERFROMCONDDB_H
-
+#endif  // DTGEOMETRYBUILDERFROMCONDDB_H

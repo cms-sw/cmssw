@@ -7,16 +7,33 @@ Provides methods for performing/closing the request, as well as getting the requ
 Note: user agent string from current version of cmsDbUpload
 """
 
-import pycurl
-from StringIO import StringIO
-from urllib import urlencode
+#import pycurl
+import requests
+from io import StringIO
+from urllib.parse import urlencode
 import traceback
 import sys
 import json
-from errors import *
+from .errors import *
 from time import sleep
 
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 class url_query():
+
+	def __init__(self, url=None, url_data=None, body=None):
+		self._url = url
+		self._url_data = url_data
+		self._body = body
+
+	def send(self):
+		if self._body:
+			return requests.post(self._url, data=self._body, params=self._url_data, verify=False).text
+		else:
+			return requests.get(self._url, params=self._url_data, verify=False).text
+
+"""class url_query():
 
 	def __init__(self, url=None, url_data=None, body=None, response_stream=None, timeout=60):
 		if not(url):
@@ -87,4 +104,4 @@ class url_query():
 					print("Unforesoon error occurred when sending data to server.")
 					traceback.print_exc()
 		if attempt == max_retries:
-			raise NoMoreRetriesException(max_retries)
+			raise NoMoreRetriesException(max_retries)"""

@@ -2,7 +2,7 @@
 //
 // Package:    SiPixelGainCalibrationAnalysis
 // Class:      SiPixelGainCalibrationAnalysis
-// 
+//
 /**\class SiPixelGainCalibrationAnalysis SiPixelGainCalibrationAnalysis.h CalibTracker/SiPixelGainCalibrationAnalysis/interface/SiPixelGainCalibrationAnalysis.h
 
 Description: <one line class summary>
@@ -16,13 +16,11 @@ Implementation:
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "CalibTracker/SiPixelTools/interface/SiPixelOfflineCalibAnalysisBase.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -37,7 +35,7 @@ Implementation:
 
 //#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "TLinearFitter.h"
 #include "TGraphErrors.h"
 #include <fstream>
@@ -47,28 +45,27 @@ Implementation:
 
 class SiPixelGainCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
 public:
-  explicit SiPixelGainCalibrationAnalysis(const edm::ParameterSet& iConfig);
+  explicit SiPixelGainCalibrationAnalysis(const edm::ParameterSet &iConfig);
   ~SiPixelGainCalibrationAnalysis() override;
 
-  void doSetup(const edm::ParameterSet&);
+  void doSetup(const edm::ParameterSet &);
   bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix) override;
 
   bool checkCorrectCalibrationType() override;
 
 private:
-      
-  void calibrationSetup(const edm::EventSetup& iSetup) override;
-      
+  void calibrationSetup(const edm::EventSetup &iSetup) override;
+
   void calibrationEnd() override;
   void newDetID(uint32_t detid) override;
   void fillDatabase();
   void printSummary();
   std::vector<float> CalculateAveragePerColumn(uint32_t detid, std::string label);
-  // ----------member data --------------------------- 
+  // ----------member data ---------------------------
   edm::ParameterSet conf_;
   // more class members used to keep track of the histograms
-  std::map<uint32_t,std::map<std::string, MonitorElement *> > bookkeeper_;
-  std::map<uint32_t,std::map<std::string, MonitorElement *> > bookkeeper_pixels_;
+  std::map<uint32_t, std::map<std::string, MonitorElement *> > bookkeeper_;
+  std::map<uint32_t, std::map<std::string, MonitorElement *> > bookkeeper_pixels_;
 
   // fitter
   int nfitparameters_;
@@ -97,9 +94,9 @@ private:
   bool sum_gain_cols_;
   bool filldb_;
   bool writeSummary_;
-  
-  // parameters for database output  
-  std::string  recordName_;
+
+  // parameters for database output
+  std::string recordName_;
   bool appendMode_;
   /*SiPixelGainCalibration *theGainCalibrationDbInput_;
   SiPixelGainCalibrationOffline *theGainCalibrationDbInputOffline_;
@@ -114,10 +111,9 @@ private:
   uint16_t min_nentries_;
   bool useVcalHigh_;
   double scalarVcalHigh_VcalLow_;
-  
+
   //Summary
   std::ofstream summary_;
   uint32_t currentDetID_;
-  int* statusNumbers_;
-  
+  int *statusNumbers_;
 };

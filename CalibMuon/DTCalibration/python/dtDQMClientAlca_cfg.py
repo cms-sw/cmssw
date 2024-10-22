@@ -1,18 +1,20 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 class config: pass
 config.dqmAtRunEnd = True
 if config.dqmAtRunEnd: config.fileMode = 'FULLMERGE'
 else: config.fileMode = 'NOMERGE'
 
-process = cms.Process("HARVESTING")
+process = cms.Process("HARVESTING",eras.Run3)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.GlobalTag.globaltag = ""
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run3_data']
 
 process.load("CondCore.CondDB.CondDB_cfi")
 process.load("DQMServices.Core.DQM_cfg")
@@ -35,17 +37,13 @@ process.load('DQM.DTMonitorClient.ALCARECODTCalibSynchDQMClient_cff')
 
 workflowName = '/Mu/Calibration-v1/DQM'
 if config.dqmAtRunEnd:
-    process.DQMStore.referenceFileName = ''
     process.dqmSaver.convention = 'Offline'
     process.dqmSaver.workflow = workflowName
-    process.DQMStore.collateHistograms = False
     process.EDMtoMEConverter.convertOnEndLumi = True
     process.EDMtoMEConverter.convertOnEndRun = True
 else:
-    process.DQMStore.referenceFileName = ''
     process.dqmSaver.convention = 'Offline'
     process.dqmSaver.workflow = workflowName
-    process.DQMStore.collateHistograms = True
     process.EDMtoMEConverter.convertOnEndLumi = True
     process.EDMtoMEConverter.convertOnEndRun = True
     process.dqmSaver.saveByRun = -1

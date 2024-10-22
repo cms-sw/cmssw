@@ -10,7 +10,6 @@
 /// \author: Ivan Amos Cali MIT
 ///
 
-
 // system include files
 #include <memory>
 
@@ -19,7 +18,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -41,8 +39,6 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 #include <vector>
-
-
 
 //
 // class declaration

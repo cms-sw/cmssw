@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to run the L1 GT test analyzer according to 
 #   the options set in "user choices"
@@ -8,10 +9,10 @@ import sys
 
 process = cms.Process("L1GtAnalyzer")
 
-print '\n'
+print('\n')
 from L1Trigger.GlobalTriggerAnalyzer.UserOptions_cff import *
 if errorUserOptions == True :
-    print '\nError returned by UserOptions_cff. Script stops here.\n'
+    print('\nError returned by UserOptions_cff. Script stops here.\n')
     sys.exit()
 
 
@@ -41,7 +42,7 @@ process.maxEvents = cms.untracked.PSet(
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.GlobalTag.globaltag = useGlobalTag
 
@@ -155,21 +156,13 @@ else :
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtAnalyzer']
-process.MessageLogger.categories.append('L1GtAnalyzer')
-process.MessageLogger.categories.append('L1GtUtils')
-process.MessageLogger.categories.append('L1GtTrigReport')
-process.MessageLogger.destinations = ['L1GtAnalyzer_error', 
-                                      'L1GtAnalyzer_warning', 
-                                      'L1GtAnalyzer_info', 
-                                      'L1GtAnalyzer_debug'
-                                      ]
 
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cerr.default.limit = 0
-process.MessageLogger.cerr.FwkJob.limit = 0
 process.MessageLogger.cerr.FwkReport.limit = 0
 process.MessageLogger.cerr.FwkSummary.limit = 0
 
-process.MessageLogger.L1GtAnalyzer_debug = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtAnalyzer_debug = cms.untracked.PSet( 
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -180,7 +173,7 @@ process.MessageLogger.L1GtAnalyzer_debug = cms.untracked.PSet(
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(0) ) 
         )
 
-process.MessageLogger.L1GtAnalyzer_info = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtAnalyzer_info = cms.untracked.PSet( 
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -190,7 +183,7 @@ process.MessageLogger.L1GtAnalyzer_info = cms.untracked.PSet(
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtAnalyzer_warning = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtAnalyzer_warning = cms.untracked.PSet( 
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -199,7 +192,7 @@ process.MessageLogger.L1GtAnalyzer_warning = cms.untracked.PSet(
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtAnalyzer_error = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtAnalyzer_error = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
         L1GtAnalyzer = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 

@@ -1,4 +1,5 @@
-from ROOT import *
+from __future__ import print_function
+from ROOT import gPad, gStyle, TCanvas
 import re
 
 files = ['DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root']
@@ -101,7 +102,7 @@ def producePlots():
         for f in file_handles:
             histo = f.Get(h['name'])
             if not histo:
-                print 'Failed to get histograms %s', h
+                print('Failed to get histograms %s', h)
             else:
                 if counter == 0:
                     counter += 1

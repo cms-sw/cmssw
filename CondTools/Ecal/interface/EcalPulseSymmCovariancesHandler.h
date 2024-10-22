@@ -11,7 +11,6 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -34,33 +33,29 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-namespace popcon
-{
+namespace popcon {
 
-  class EcalPulseSymmCovariancesHandler : public popcon::PopConSourceHandler<EcalPulseSymmCovariances>
-    {
-      
-    public:
-      EcalPulseSymmCovariancesHandler(edm::ParameterSet const & );
-      ~EcalPulseSymmCovariancesHandler() override;
-      bool checkPulseSymmCovariance(EcalPulseSymmCovariances::Item* item);
-      void fillSimPulseSymmCovariance( EcalPulseSymmCovariances::Item* item, bool isbarrel );
-      void getNewObjects() override;
-      std::string id() const override { return m_name;}
+  class EcalPulseSymmCovariancesHandler : public popcon::PopConSourceHandler<EcalPulseSymmCovariances> {
+  public:
+    EcalPulseSymmCovariancesHandler(edm::ParameterSet const&);
+    ~EcalPulseSymmCovariancesHandler() override;
+    bool checkPulseSymmCovariance(EcalPulseSymmCovariances::Item* item);
+    void fillSimPulseSymmCovariance(EcalPulseSymmCovariances::Item* item, bool isbarrel);
+    void getNewObjects() override;
+    std::string id() const override { return m_name; }
 
-    private:
-      const EcalPulseSymmCovariances * mypulseshapes;
+  private:
+    const EcalPulseSymmCovariances* mypulseshapes;
 
-      unsigned int m_firstRun ;
-      unsigned int m_lastRun ;
-      
-      std::string m_gentag;
-      std::string m_filename;
-      std::string m_name;      
-      std::vector<double> m_EBPulseShapeCovariance, m_EEPulseShapeCovariance;
+    unsigned int m_firstRun;
+    unsigned int m_lastRun;
 
-    };
-}
+    std::string m_gentag;
+    std::string m_filename;
+    std::string m_name;
+    std::vector<double> m_EBPulseShapeCovariance, m_EEPulseShapeCovariance;
+  };
+}  // namespace popcon
 #endif

@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("FIRST")
 
-process.Tracer = cms.Service('Tracer')
+process.Tracer = cms.Service('Tracer',
+  dumpEventSetupInfo = cms.untracked.bool(True)
+)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -32,10 +34,47 @@ process.DoodadESSource = cms.ESSource("DoodadESSource"
                                       , test2 = cms.untracked.string('z')
 )
 
+process.ZombieKillerService = cms.Service("ZombieKillerService")
+process.JobReportService = cms.Service("JobReportService")
+
 # ---------------------------------------------------------------
 
 copyProcess = cms.Process("COPY")
 process.addSubProcess(cms.SubProcess(copyProcess))
+
+# The following services are intended to test the isProcessWideService
+# function which is defined in some services. These services
+# should never be constructed and ignored, because
+# The service from the top level process should be used.
+# They intentionally have an illegal parameter to fail
+# if they are ever constructed.
+copyProcess.MessageLogger = cms.Service("MessageLogger",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.CPU = cms.Service("CPU",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.InitRootHandlers = cms.Service("InitRootHandlers",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.ZombieKillerService = cms.Service("ZombieKillerService",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.JobReportService = cms.Service("JobReportService",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.SiteLocalConfigService = cms.Service("SiteLocalConfigService",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.AdaptorConfig = cms.Service("AdaptorConfig",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.ResourceInformationService = cms.Service("ResourceInformationService",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.CondorStatusService = cms.Service("CondorStatusService",
+    intentionallyIllegalParameter = cms.bool(True)
+)
 
 copyProcess.DoodadESSource = cms.ESSource("DoodadESSource"
                                           , appendToDataLabel = cms.string('abc')
@@ -110,7 +149,7 @@ copy2Process.DoodadESSource = cms.ESSource("DoodadESSource"
 prod2Process = cms.Process("PROD2")
 copy2Process.addSubProcess(cms.SubProcess(prod2Process,
     outputCommands = cms.untracked.vstring(
-        "keep *", 
+        "keep *",
         "drop *_putInt_*_*"),
 ))
 prod2Process.DoodadESSource = cms.ESSource("DoodadESSource"
@@ -235,7 +274,7 @@ prod2Process.endPath1 = cms.EndPath(prod2Process.out)
 prod2ProcessAlt = cms.Process("PROD2ALT")
 copy2Process.addSubProcess(cms.SubProcess(prod2ProcessAlt,
     outputCommands = cms.untracked.vstring(
-        "keep *", 
+        "keep *",
         "drop *_putInt_*_*"),
 ))
 prod2ProcessAlt.DoodadESSource = cms.ESSource("DoodadESSource"

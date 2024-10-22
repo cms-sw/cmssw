@@ -7,11 +7,21 @@ import FWCore.ParameterSet.Config as cms
 #HLTsiStripClusters.SiStripRefGetter  = cms.InputTag("hltSiStripClusters")
 
 # SiStripCluster monitoring
+from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import SiPixelTemplateStoreESProducer
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
-HLTSiStripMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-HLTSiStripMonitorCluster.ClusterProducerStrip = cms.InputTag("hltSiStripRawToClustersFacility")
-HLTSiStripMonitorCluster.ClusterProducerPix   = cms.InputTag("hltSiPixelClusters")
-HLTSiStripMonitorCluster.TopFolderName        = cms.string("HLT/SiStrip")
+HLTSiStripMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone(
+    ClusterProducerStrip = "hltSiStripRawToClustersFacility",
+    ClusterProducerPix   = "hltSiPixelClusters",
+    TopFolderName        = "HLT/SiStrip",
+    ClusterHisto         = True,
+    Mod_On               = False
+)
+
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(HLTSiStripMonitorCluster,
+                         ClusterProducerStrip = "hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression",
+                         ClusterProducerPix   = "hltSiPixelClustersAfterSplittingPPOnAA")
+
 HLTSiStripMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon   = cms.bool(True)
 HLTSiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon      = cms.bool(False)
 HLTSiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = cms.bool(True)
@@ -20,8 +30,7 @@ HLTSiStripMonitorCluster.TH1MultiplicityRegions.globalswitchon  = cms.bool(True)
 HLTSiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon = cms.bool(True)
 HLTSiStripMonitorCluster.TH1StripNoise2ApvCycle.globalswitchon  = cms.bool(False)
 HLTSiStripMonitorCluster.TH1StripNoise3ApvCycle.globalswitchon  = cms.bool(False)
-HLTSiStripMonitorCluster.ClusterHisto = cms.bool(True)
-HLTSiStripMonitorCluster.Mod_On            = cms.bool(False)
+
 HLTSiStripMonitorCluster.BPTXfilter = cms.PSet(
         andOr         = cms.bool( False ),
             dbLabel       = cms.string("SiStripDQMTrigger"),
@@ -33,6 +42,7 @@ HLTSiStripMonitorCluster.BPTXfilter = cms.PSet(
 HLTSiStripMonitorCluster.PixelDCSfilter = cms.PSet(
         andOr         = cms.bool( False ),
             dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+            dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis"),
             dcsPartitions = cms.vint32 ( 28, 29),
             andOrDcs      = cms.bool( False ),
             errorReplyDcs = cms.bool( True ),
@@ -40,6 +50,7 @@ HLTSiStripMonitorCluster.PixelDCSfilter = cms.PSet(
 HLTSiStripMonitorCluster.StripDCSfilter = cms.PSet(
         andOr         = cms.bool( False ),
             dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+            dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis"),
             dcsPartitions = cms.vint32 ( 24, 25, 26, 27 ),
             andOrDcs      = cms.bool( False ),
             errorReplyDcs = cms.bool( True ),
@@ -64,7 +75,6 @@ HLTSiStripMonitorCluster.TH1NClusStrip = cms.PSet(
         xmin = cms.double(-0.5)
     )
 hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProducer",
-  DoCosmics = cms.bool( False ),
   LoadTemplatesFromDB = cms.bool( True ),
   ComponentName = cms.string( "hltESPPixelCPETemplateReco" ),
   Alpha2Order = cms.bool( True ),
@@ -84,7 +94,6 @@ hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
   size_cutX = cms.double( 3.0 ),
   inflate_all_errors_no_trk_angle = cms.bool( False ),
   IrradiationBiasCorrection = cms.bool( False ),
-  TanLorentzAnglePerTesla = cms.double( 0.106 ),
   inflate_errors = cms.bool( False ),
   eff_charge_cut_lowX = cms.double( 0.0 ),
   eff_charge_cut_highY = cms.double( 1.0 ),
@@ -92,7 +101,6 @@ hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
   EdgeClusterErrorY = cms.double( 85.0 ),
   ComponentName = cms.string( "hltESPPixelCPEGeneric" ),
   eff_charge_cut_lowY = cms.double( 0.0 ),
-  PixelErrorParametrization = cms.string( "NOTcmsim" ),
   Alpha2Order = cms.bool( True )
 )
 
@@ -132,25 +140,34 @@ hltESPStripCPEfromTrackAngle = cms.ESProducer( "StripCPEESProducer",
 )
 
 from RecoTracker.TrackProducer.TrackRefitter_cfi import *
-hltTrackRefitterForSiStripMonitorTrack = TrackRefitter.clone()
-hltTrackRefitterForSiStripMonitorTrack.beamSpot                = cms.InputTag("hltOnlineBeamSpot")
-hltTrackRefitterForSiStripMonitorTrack.MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent')
-hltTrackRefitterForSiStripMonitorTrack.TrajectoryInEvent       = cms.bool(True)
-hltTrackRefitterForSiStripMonitorTrack.useHitsSplitting        = cms.bool(False)
-#hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltIter4Merged") # scenario 0
-hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltMergedTracks") # hltIter2Merged # scenario 1
-#hltTrackRefitterForSiStripMonitorTrack.TTRHBuilder             = cms.string('hltESPTTRHBuilderAngleAndTemplate')
-hltTrackRefitterForSiStripMonitorTrack.TTRHBuilder             = cms.string('hltESPTTRHBWithTrackAngle')
+hltTrackRefitterForSiStripMonitorTrack = TrackRefitter.clone(
+    beamSpot                = "hltOnlineBeamSpot",
+    MeasurementTrackerEvent = 'MeasurementTrackerEvent',
+    TrajectoryInEvent       = True,
+    useHitsSplitting        = False,
+    #src                     = "hltIter4Merged", # scenario 0
+    src                     = "hltMergedTracks", # hltIter2Merged # scenario 1
+    #TTRHBuilder             = 'hltESPTTRHBuilderAngleAndTemplate',
+    TTRHBuilder             = 'hltESPTTRHBWithTrackAngle'
+)
+
+pp_on_PbPb_run3.toModify(hltTrackRefitterForSiStripMonitorTrack,
+                         src = 'hltMergedTracksPPOnAA')
 
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
-HLTSiStripMonitorTrack = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-HLTSiStripMonitorTrack.TrackProducer     = 'hltTrackRefitterForSiStripMonitorTrack' 
-HLTSiStripMonitorTrack.TrackLabel        = ''
-HLTSiStripMonitorTrack.AlgoName          = cms.string("HLT")
-HLTSiStripMonitorTrack.Cluster_src       = cms.InputTag('hltSiStripRawToClustersFacility')
-HLTSiStripMonitorTrack.Trend_On          = cms.bool(True)
-HLTSiStripMonitorTrack.TopFolderName     = cms.string('HLT/SiStrip')
-HLTSiStripMonitorTrack.Mod_On            = cms.bool(False)
+HLTSiStripMonitorTrack = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
+    TrackProducer     = 'hltTrackRefitterForSiStripMonitorTrack',
+    TrackLabel        = '',
+    AlgoName          = "HLT",
+    Cluster_src       = 'hltSiStripRawToClustersFacility',
+    Trend_On          = True,
+    TopFolderName     = 'HLT/SiStrip',
+    Mod_On            = False
+)
+
+pp_on_PbPb_run3.toModify(HLTSiStripMonitorTrack,
+                         Cluster_src       = 'hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression')
+
 sistripMonitorHLTsequence = cms.Sequence(
     HLTSiStripMonitorCluster
     * hltTrackRefitterForSiStripMonitorTrack

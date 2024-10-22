@@ -2,37 +2,50 @@
 #define FWCore_Framework_SubProcess_h
 
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
-#include "FWCore/Framework/src/PrincipalCache.h"
-#include "FWCore/Framework/interface/ScheduleItems.h"
+#include "FWCore/Framework/interface/PrincipalCache.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <set>
+#include <vector>
 
 namespace edm {
   class ActivityRegistry;
   class BranchDescription;
   class BranchIDListHelper;
+  class EventPrincipal;
+  class EventSetupImpl;
+  class ExceptionCollector;
   class HistoryAppender;
-  class IOVSyncValue;
+  class LuminosityBlockPrincipal;
+  class LumiTransitionInfo;
+  class MergeableRunProductMetadata;
+  class ModuleTypeResolverMaker;
   class ParameterSet;
+  class Principal;
+  class ProcessBlockTransitionInfo;
   class ProductRegistry;
   class PreallocationConfiguration;
+  class RunTransitionInfo;
   class ThinnedAssociationsHelper;
   class SubProcessParentageHelper;
   class WaitingTaskHolder;
@@ -46,6 +59,7 @@ namespace edm {
                ParameterSet const& topLevelParameterSet,
                std::shared_ptr<ProductRegistry const> parentProductRegistry,
                std::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
+               ProcessBlockHelperBase const& parentProcessBlockHelper,
                ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
                SubProcessParentageHelper const& parentSubProcessParentageHelper,
                eventsetup::EventSetupsController& esController,
@@ -53,70 +67,83 @@ namespace edm {
                ServiceToken const& token,
                serviceregistry::ServiceLegacy iLegacy,
                PreallocationConfiguration const& preallocConfig,
-               ProcessContext const* parentProcessContext);
+               ProcessContext const* parentProcessContext,
+               ModuleTypeResolverMaker const* typeResolverMaker);
 
     ~SubProcess() override;
 
-    SubProcess(SubProcess const&) = delete; // Disallow copying
-    SubProcess& operator=(SubProcess const&) = delete; // Disallow copying
-    SubProcess(SubProcess&&) = default; // Allow Moving
-    SubProcess& operator=(SubProcess&&) = default; // Allow moving
+    SubProcess(SubProcess const&) = delete;             // Disallow copying
+    SubProcess& operator=(SubProcess const&) = delete;  // Disallow copying
+    SubProcess(SubProcess&&) = default;                 // Allow Moving
+    SubProcess& operator=(SubProcess&&) = delete;       // Move not supported by PrincipalCache
 
     //From OutputModule
     void selectProducts(ProductRegistry const& preg,
                         ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
                         std::map<BranchID, bool>& keepAssociation);
 
-    SelectedProductsForBranchType const& keptProducts() const {return keptProducts_;}
+    SelectedProductsForBranchType const& keptProducts() const { return keptProducts_; }
+
+    // Returns the set of modules whose products may be consumed by
+    // modules in this SubProcess or its child SubProcesses
+    std::vector<ModuleProcessName> keepOnlyConsumedUnscheduledModules(bool deleteModules);
 
     void doBeginJob();
-    void doEndJob();
+    void doEndJob(ExceptionCollector&);
 
     void doEventAsync(WaitingTaskHolder iHolder,
-                      EventPrincipal const& principal);
+                      EventPrincipal const& principal,
+                      std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
-    void doBeginRunAsync(WaitingTaskHolder iHolder, RunPrincipal const& principal, IOVSyncValue const& ts);
+    template <typename Traits>
+    void doBeginProcessBlockAsync(WaitingTaskHolder iHolder,
+                                  ProcessBlockTransitionInfo const& iTransitionInfo,
+                                  bool cleaningUpAfterException);
 
-    void doEndRunAsync(WaitingTaskHolder iHolder, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void doEndProcessBlockAsync(WaitingTaskHolder iHolder,
+                                ProcessBlockTransitionInfo const& iTransitionInfo,
+                                bool cleaningUpAfterException);
 
-    void doBeginLuminosityBlockAsync(WaitingTaskHolder iHolder, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
+    void doBeginRunAsync(WaitingTaskHolder iHolder, RunTransitionInfo const& iTransitionInfo);
 
-    void doEndLuminosityBlockAsync(WaitingTaskHolder iHolder, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void doEndRunAsync(WaitingTaskHolder iHolder,
+                       RunTransitionInfo const& iTransitionInfo,
+                       bool cleaningUpAfterException);
 
+    void doBeginLuminosityBlockAsync(WaitingTaskHolder iHolder, LumiTransitionInfo const& iTransitionInfo);
 
-    void doBeginStream(unsigned int);
-    void doEndStream(unsigned int);
-    void doStreamBeginRunAsync(WaitingTaskHolder iHolder,
-                               unsigned int iID,
-                               RunPrincipal const& principal,
-                               IOVSyncValue const& ts);
+    void doEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
+                                   LumiTransitionInfo const& iTransitionInfo,
+                                   bool cleaningUpAfterException);
+
+    void doBeginStream(unsigned int streamID);
+    void doEndStream(unsigned int streamID, ExceptionCollector& collector, std::mutex& collectorMutex) noexcept;
+    void doStreamBeginRunAsync(WaitingTaskHolder iHolder, unsigned int iID, RunTransitionInfo const&);
 
     void doStreamEndRunAsync(WaitingTaskHolder iHolder,
-                             unsigned int iID, RunPrincipal const& principal,
-                             IOVSyncValue const& ts,
+                             unsigned int iID,
+                             RunTransitionInfo const&,
                              bool cleaningUpAfterException);
 
-    void doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
-                                           unsigned int iID,
-                                           LuminosityBlockPrincipal const& principal,
-                                           IOVSyncValue const& ts);
+    void doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder, unsigned int iID, LumiTransitionInfo const&);
 
     void doStreamEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
                                          unsigned int iID,
-                                         LuminosityBlockPrincipal const& principal,
-                                         IOVSyncValue const& ts,
+                                         LumiTransitionInfo const&,
                                          bool cleaningUpAfterException);
 
+    void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal&);
 
-    // Write the luminosity block
-    void writeLumi(LuminosityBlockPrincipal&);
+    void clearLumiPrincipal(LuminosityBlockPrincipal&);
 
-    void deleteLumiFromCache(LuminosityBlockPrincipal&);
+    using ProcessBlockType = PrincipalCache::ProcessBlockType;
+    void writeProcessBlockAsync(edm::WaitingTaskHolder task, ProcessBlockType);
 
-    // Write the run
-    void writeRun(ProcessHistoryID const& parentPhID, int runNumber);
+    void writeRunAsync(WaitingTaskHolder, RunPrincipal const&, MergeableRunProductMetadata const*);
 
-    void deleteRunFromCache(ProcessHistoryID const& parentPhID, int runNumber);
+    void clearRunPrincipal(RunPrincipal&);
+
+    void clearProcessBlockPrincipal(ProcessBlockType);
 
     // Call closeFile() on all OutputModules.
     void closeOutputFiles() {
@@ -147,11 +174,11 @@ namespace edm {
     // Call shouldWeCloseFile() on all OutputModules.
     bool shouldWeCloseOutput() const {
       ServiceRegistry::Operate operate(serviceToken_);
-      if(schedule_->shouldWeCloseOutput()) {
+      if (schedule_->shouldWeCloseOutput()) {
         return true;
       }
-      for(auto const& subProcess : subProcesses_) {
-        if(subProcess.shouldWeCloseOutput()) {
+      for (auto const& subProcess : subProcesses_) {
+        if (subProcess.shouldWeCloseOutput()) {
           return true;
         }
       }
@@ -168,9 +195,7 @@ namespace edm {
     /// Return the number of events this SubProcess has tried to process
     /// (inclues both successes and failures, including failures due
     /// to exceptions during processing).
-    int totalEvents() const {
-      return schedule_->totalEvents();
-    }
+    int totalEvents() const { return schedule_->totalEvents(); }
 
     /// Return the number of events which have been passed by one or more trigger paths.
     int totalEventsPassed() const {
@@ -185,20 +210,6 @@ namespace edm {
       return schedule_->totalEventsFailed();
     }
 
-    /// Turn end_paths "off" if "active" is false;
-    /// Turn end_paths "on" if "active" is true.
-    void enableEndPaths(bool active) {
-      ServiceRegistry::Operate operate(serviceToken_);
-      schedule_->enableEndPaths(active);
-      for_all(subProcesses_, [active](auto& subProcess){ subProcess.enableEndPaths(active); });
-    }
-
-    /// Return true if end_paths are active, and false if they are inactive.
-    bool endPathsEnabled() const {
-      ServiceRegistry::Operate operate(serviceToken_);
-      return schedule_->endPathsEnabled();
-    }
-
     /// Return the trigger report information on paths,
     /// modules-in-path, modules-in-endpath, and modules.
     void getTriggerReport(TriggerReport& rep) const {
@@ -210,11 +221,11 @@ namespace edm {
     /// If there is a subprocess, get this information from the subprocess.
     bool terminate() const {
       ServiceRegistry::Operate operate(serviceToken_);
-      if(schedule_->terminate()) {
+      if (schedule_->terminate()) {
         return true;
       }
-      for(auto const& subProcess : subProcesses_) {
-        if(subProcess.terminate()) {
+      for (auto const& subProcess : subProcesses_) {
+        if (subProcess.terminate()) {
           return true;
         }
       }
@@ -225,20 +236,20 @@ namespace edm {
     void clearCounters() {
       ServiceRegistry::Operate operate(serviceToken_);
       schedule_->clearCounters();
-      for_all(subProcesses_, [](auto& subProcess){ subProcess.clearCounters(); });
+      for_all(subProcesses_, [](auto& subProcess) { subProcess.clearCounters(); });
     }
 
   private:
     void beginJob();
-    void endJob();
-    void processAsync(WaitingTaskHolder iHolder, EventPrincipal const& e);
-    void beginRun(RunPrincipal const& r, IOVSyncValue const& ts);
-    void endRun(RunPrincipal const& r, IOVSyncValue const& ts, bool cleaningUpAfterException);
-    void beginLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts);
-    void endLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void endJob(ExceptionCollector&);
+    void processAsync(WaitingTaskHolder iHolder,
+                      EventPrincipal const& e,
+                      std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
     void propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const;
-    void fixBranchIDListsForEDAliases(std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
+    bool parentProducedProductIsKept(Principal const& parentPrincipal, Principal& principal) const;
+    void fixBranchIDListsForEDAliases(
+        std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
     void keepThisBranch(BranchDescription const& desc,
                         std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
                         std::set<BranchID>& keptProductsInEvent);
@@ -247,34 +258,41 @@ namespace edm {
       return droppedBranchIDToKeptBranchID_;
     }
 
-    std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return get_underlying_safe(branchIDListHelper_);}
-    std::shared_ptr<BranchIDListHelper>& branchIDListHelper() {return get_underlying_safe(branchIDListHelper_);}
-    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {return get_underlying_safe(thinnedAssociationsHelper_);}
-    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper() {return get_underlying_safe(thinnedAssociationsHelper_);}
+    std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {
+      return get_underlying_safe(branchIDListHelper_);
+    }
+    std::shared_ptr<BranchIDListHelper>& branchIDListHelper() { return get_underlying_safe(branchIDListHelper_); }
+    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {
+      return get_underlying_safe(thinnedAssociationsHelper_);
+    }
+    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper() {
+      return get_underlying_safe(thinnedAssociationsHelper_);
+    }
 
-    std::shared_ptr<ActivityRegistry>             actReg_; // We do not use propagate_const because the registry itself is mutable.
-    ServiceToken                                  serviceToken_;
-    std::shared_ptr<ProductRegistry const>        parentPreg_;
-    std::shared_ptr<ProductRegistry const>        preg_;
+    std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
+    ServiceToken serviceToken_;
+    std::shared_ptr<ProductRegistry const> parentPreg_;
+    std::shared_ptr<ProductRegistry const> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<SubProcessBlockHelper>> processBlockHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     edm::propagate_const<std::shared_ptr<SubProcessParentageHelper>> subProcessParentageHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
-    std::shared_ptr<ProcessConfiguration const>   processConfiguration_;
-    ProcessContext                                processContext_;
-    PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
+    std::shared_ptr<ProcessConfiguration const> processConfiguration_;
+    ProcessContext processContext_;
+    PathsAndConsumesOfModules pathsAndConsumesOfModules_;
     //We require 1 history for each Run, Lumi and Stream
     // The vectors first hold Stream info, then Lumi then Run
-    unsigned int                                  historyLumiOffset_;
-    unsigned int                                  historyRunOffset_;
-    std::vector<ProcessHistoryRegistry>           processHistoryRegistries_;
-    std::vector<HistoryAppender>                  historyAppenders_;
-    PrincipalCache                                principalCache_;
-    //vector index is principal lumi's index value
+    unsigned int historyLumiOffset_;
+    unsigned int historyRunOffset_;
+    std::vector<ProcessHistoryRegistry> processHistoryRegistries_;
+    std::vector<HistoryAppender> historyAppenders_;
+    PrincipalCache principalCache_;
+    //vector index is principal's index value
+    std::vector<std::shared_ptr<RunPrincipal>> inUseRunPrincipals_;
     std::vector<std::shared_ptr<LuminosityBlockPrincipal>> inUseLumiPrincipals_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
     edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
-    std::map<ProcessHistoryID, ProcessHistoryID>  parentToChildPhID_;
     std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<ParameterSet>> processParameterSet_;
 
@@ -294,10 +312,9 @@ namespace edm {
     // needed because of possible EDAliases.
     // filled in only if key and value are different.
     std::map<BranchID::value_type, BranchID::value_type> droppedBranchIDToKeptBranchID_;
-
   };
 
   // free function
   std::vector<ParameterSet> popSubProcessVParameterSet(ParameterSet& parameterSet);
-}
+}  // namespace edm
 #endif

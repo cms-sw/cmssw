@@ -1,7 +1,7 @@
 #ifndef JetSignalVertexCompatibility_h
 #define JetSignalVertexCompatibility_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -9,20 +9,24 @@
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetSignalVertexCompatibilityAlgo.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
-class JetSignalVertexCompatibility : public edm::EDProducer {
-    public:
-	JetSignalVertexCompatibility(const edm::ParameterSet &params);
-	~JetSignalVertexCompatibility() override;
+class TransientTrackBuilder;
+class TransientTrackRecord;
 
-	void produce(edm::Event &event, const edm::EventSetup &es) override;
+class JetSignalVertexCompatibility : public edm::stream::EDProducer<> {
+public:
+  JetSignalVertexCompatibility(const edm::ParameterSet &params);
+  ~JetSignalVertexCompatibility() override;
 
-    private:
-	reco::JetSignalVertexCompatibilityAlgo	algo;
+  void produce(edm::Event &event, const edm::EventSetup &es) override;
 
-	edm::EDGetTokenT<reco::JetTracksAssociationCollection> jetTracksAssocToken;
-	edm::EDGetTokenT<reco::VertexCollection> primaryVerticesToken;
+private:
+  reco::JetSignalVertexCompatibilityAlgo algo;
 
+  edm::EDGetTokenT<reco::JetTracksAssociationCollection> jetTracksAssocToken;
+  edm::EDGetTokenT<reco::VertexCollection> primaryVerticesToken;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> builderToken;
 };
 
-#endif // JetSignalVertexCompatibility_h
+#endif  // JetSignalVertexCompatibility_h

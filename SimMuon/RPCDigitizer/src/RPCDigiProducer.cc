@@ -1,6 +1,3 @@
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigiProducer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
@@ -9,7 +6,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -37,24 +33,26 @@ namespace CLHEP {
 }
 
 RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
-
   produces<RPCDigiCollection>();
   produces<RPCDigitizerSimLinks>("RPCDigiSimLink");
 
-  //Name of Collection used for create the XF 
+  //Name of Collection used for create the XF
   mix_ = ps.getParameter<std::string>("mixLabel");
   collection_for_XF = ps.getParameter<std::string>("InputCollection");
 
   edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-   throw cms::Exception("Configuration")
-     << "RPCDigitizer requires the RandomNumberGeneratorService\n"
-        "which is not present in the configuration file.  You must add the service\n"
-        "in the configuration file or remove the modules that require it.";
+  if (!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+        << "RPCDigitizer requires the RandomNumberGeneratorService\n"
+           "which is not present in the configuration file.  You must add the service\n"
+           "in the configuration file or remove the modules that require it.";
   }
-  theRPCSimSetUp =  new RPCSimSetUp(ps);
+  theRPCSimSetUp = new RPCSimSetUp(ps);
   theDigitizer = new RPCDigitizer(ps);
-  crossingFrameToken = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_,collection_for_XF));
+  crossingFrameToken = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_for_XF));
+  geomToken = esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+  noiseToken = esConsumes<RPCStripNoises, RPCStripNoisesRcd, edm::Transition::BeginRun>();
+  clsToken = esConsumes<RPCClusterSize, RPCClusterSizeRcd, edm::Transition::BeginRun>();
 }
 
 RPCDigiProducer::~RPCDigiProducer() {
@@ -62,56 +60,50 @@ RPCDigiProducer::~RPCDigiProducer() {
   delete theRPCSimSetUp;
 }
 
-void RPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& eventSetup){
+void RPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& eventSetup) {
+  edm::ESHandle<RPCGeometry> hGeom = eventSetup.getHandle(geomToken);
+  const RPCGeometry* pGeom = &*hGeom;
 
-  edm::ESHandle<RPCGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get( hGeom );
-  const RPCGeometry *pGeom = &*hGeom;
+  edm::ESHandle<RPCStripNoises> noiseRcd = eventSetup.getHandle(noiseToken);
 
-  edm::ESHandle<RPCStripNoises> noiseRcd;
-  eventSetup.get<RPCStripNoisesRcd>().get(noiseRcd);
+  edm::ESHandle<RPCClusterSize> clsRcd = eventSetup.getHandle(clsToken);
 
-   edm::ESHandle<RPCClusterSize> clsRcd;
-   eventSetup.get<RPCClusterSizeRcd>().get(clsRcd);
+  theRPCSimSetUp->setGeometry(pGeom);
+  theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
+  //    theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), noiseRcd->getCls());
 
-  theRPCSimSetUp->setGeometry( pGeom );
-   theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
-//    theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), noiseRcd->getCls());
-  
-  theDigitizer->setGeometry( pGeom );
+  theDigitizer->setGeometry(pGeom);
   // theRPCSimSetUp->setGeometry( pGeom );
-  theDigitizer->setRPCSimSetUp( theRPCSimSetUp );
+  theDigitizer->setRPCSimSetUp(theRPCSimSetUp);
 }
 
 void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
-
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
-  LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] got the CLHEP::HepRandomEngine engine from the edm::Event.streamID() and edm::Service<edm::RandomNumberGenerator>";
-  LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] test the CLHEP::HepRandomEngine by firing once RandFlat ---- this must be the first time in SimMuon/RPCDigitizer";
-  LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] to activate the test go in RPCDigiProducer.cc and uncomment the line below";
+  LogDebug("RPCDigiProducer") << "[RPCDigiProducer::produce] got the CLHEP::HepRandomEngine engine from the "
+                                 "edm::Event.streamID() and edm::Service<edm::RandomNumberGenerator>";
+  LogDebug("RPCDigiProducer") << "[RPCDigiProducer::produce] test the CLHEP::HepRandomEngine by firing once RandFlat "
+                                 "---- this must be the first time in SimMuon/RPCDigitizer";
+  LogDebug("RPCDigiProducer")
+      << "[RPCDigiProducer::produce] to activate the test go in RPCDigiProducer.cc and uncomment the line below";
   // LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] Fired RandFlat :: "<<CLHEP::RandFlat::shoot(engine);
 
-
-  edm::Handle<CrossingFrame<PSimHit> > cf;
-  // Obsolate code, based on getByLabel  
+  // Obsolate code, based on getByLabel
   //  e.getByLabel(mix_, collection_for_XF, cf);
   //New code, based on tokens
-  e.getByToken(crossingFrameToken, cf);
+  const edm::Handle<CrossingFrame<PSimHit>>& cf = e.getHandle(crossingFrameToken);
 
-  std::unique_ptr<MixCollection<PSimHit> >
-    hits( new MixCollection<PSimHit>(cf.product()) );
+  std::unique_ptr<MixCollection<PSimHit>> hits(new MixCollection<PSimHit>(cf.product()));
 
   // Create empty output
   std::unique_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
-  std::unique_ptr<RPCDigitizerSimLinks> RPCDigitSimLink(new RPCDigitizerSimLinks() );
+  std::unique_ptr<RPCDigitizerSimLinks> RPCDigitSimLink(new RPCDigitizerSimLinks());
 
   // run the digitizer
   theDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink, engine);
 
   // store them in the event
   e.put(std::move(pDigis));
-  e.put(std::move(RPCDigitSimLink),"RPCDigiSimLink");
+  e.put(std::move(RPCDigitSimLink), "RPCDigiSimLink");
 }
-

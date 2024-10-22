@@ -1,17 +1,5 @@
 <TESTSCONFIGURATION>
 
-<QTEST name="Chi2QTest0.01">
-        <TYPE>Comp2RefChi2</TYPE> 
-        <PARAM name="minEntries">1</PARAM>
-        <PARAM name="testparam">0</PARAM>
-        <PARAM name="error">0.01</PARAM> 
-        <PARAM name="warning">0.01</PARAM>
-</QTEST>
-<LINK name="*1jet30*">
-     <TestName activate="true">Chi2QTest0.01</TestName>
-</LINK>
-
-
 <QTEST name="DeadChannels">
 	<TYPE>DeadChannel</TYPE>	
         <PARAM name="threshold">3</PARAM>

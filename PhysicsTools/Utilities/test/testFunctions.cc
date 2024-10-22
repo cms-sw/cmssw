@@ -21,18 +21,20 @@ class testFunctions : public CppUnit::TestFixture {
 public:
   void setUp() {}
   void tearDown() {}
-  void checkAll(); 
+  void checkAll();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testFunctions);
 
 struct TestFun {
-  TestFun() : gauss_(0, 1) { }
+  TestFun() : gauss_(0, 1) {}
   double operator()(double x) {
-    ++ counter_; return gauss_(x);
+    ++counter_;
+    return gauss_(x);
   }
-  void reset() { counter_ = 0; } 
+  void reset() { counter_ = 0; }
   static size_t counter_;
+
 private:
   funct::Gaussian gauss_;
 };
@@ -47,10 +49,10 @@ void testFunctions::checkAll() {
     Identity i;
     const double epsilon = 1.e-6;
     Sum<Gaussian, Gaussian>::type g1plus2 = g1 + g2;
-    Product<Gaussian, Gaussian>::type g1times2 = g1 * g2; 
+    Product<Gaussian, Gaussian>::type g1times2 = g1 * g2;
     Difference<Gaussian, Gaussian>::type g1minus2 = g1 - g2;
-    Ratio<Gaussian, Gaussian>::type g1over2 = g1 / g2; 
-    Minus<Gaussian>::type gm1 = - g1;
+    Ratio<Gaussian, Gaussian>::type g1over2 = g1 / g2;
+    Minus<Gaussian>::type gm1 = -g1;
     Composition<Identity, Gaussian>::type gg1 = compose(i, g1);
     double x = 0.5;
     CPPUNIT_ASSERT(std::abs(g1plus2(x) - (g1(x) + g2(x))) < epsilon);
@@ -59,9 +61,10 @@ void testFunctions::checkAll() {
     CPPUNIT_ASSERT(std::abs(g1over2(x) - (g1(x) / g2(x))) < epsilon);
     CPPUNIT_ASSERT(std::abs(gm1(x) - (-g1(x))) < epsilon);
     Convolution<Gaussian, Gaussian, TrapezoidIntegrator>::type ggt(g1, g1, -5, 5, TrapezoidIntegrator(1000));
-    CPPUNIT_ASSERT(std::abs(ggt(0) - g1(0)/sqrt(2.0))<epsilon);
-    Convolution<Gaussian, Gaussian, GaussLegendreIntegrator>::type gggl(g1, g1, -5, 5, GaussLegendreIntegrator(1000, epsilon));
-    CPPUNIT_ASSERT(std::abs(gggl(0) - g1(0)/sqrt(2.0))<epsilon);
+    CPPUNIT_ASSERT(std::abs(ggt(0) - g1(0) / sqrt(2.0)) < epsilon);
+    Convolution<Gaussian, Gaussian, GaussLegendreIntegrator>::type gggl(
+        g1, g1, -5, 5, GaussLegendreIntegrator(1000, epsilon));
+    CPPUNIT_ASSERT(std::abs(gggl(0) - g1(0) / sqrt(2.0)) < epsilon);
     CPPUNIT_ASSERT(gg1(0) == g1(0));
   }
   {
@@ -91,7 +94,7 @@ void testFunctions::checkAll() {
     CPPUNIT_ASSERT(num<3>() == 3);
   }
   {
-    Fraction<1,2>::type _1_2;
+    Fraction<1, 2>::type _1_2;
     CPPUNIT_ASSERT(_1_2 == 0.5);
   }
   {
@@ -104,27 +107,30 @@ void testFunctions::checkAll() {
     TestFun f;
     Master<TestFun> g(f);
     Slave<TestFun> g1(g), g2(g);
-    const double epsilon = 1.e-5; 
+    const double epsilon = 1.e-5;
     double y, y1, y2, x;
     CPPUNIT_ASSERT(f.counter_ == 0);
-    x = 0.5; y = g(x), y1 = g1(x), y2 = g2(x);
+    x = 0.5;
+    y = g(x), y1 = g1(x), y2 = g2(x);
     CPPUNIT_ASSERT(y == y1 && y1 == y2);
     CPPUNIT_ASSERT(f.counter_ == 1);
     CPPUNIT_ASSERT(std::abs(f(x) - y) < epsilon);
     f.reset();
-    x = 1.5; y1 = g1(x), y = g(x), y2 = g2(x);
+    x = 1.5;
+    y1 = g1(x), y = g(x), y2 = g2(x);
     CPPUNIT_ASSERT(y == y1 && y1 == y2);
     CPPUNIT_ASSERT(f.counter_ == 1);
     CPPUNIT_ASSERT(std::abs(f(x) - y) < epsilon);
     f.reset();
-    x = 0.765; y2 = g2(x), y1 = g1(x), y = g(x);
+    x = 0.765;
+    y2 = g2(x), y1 = g1(x), y = g(x);
     CPPUNIT_ASSERT(y == y1 && y1 == y2);
-    CPPUNIT_ASSERT(f.counter_ == 1); 
+    CPPUNIT_ASSERT(f.counter_ == 1);
     CPPUNIT_ASSERT(std::abs(f(x) - y) < epsilon);
     f.reset();
-    g(0.5); 
+    g(0.5);
     CPPUNIT_ASSERT(f.counter_ == 1);
-    g(0.5); 
+    g(0.5);
     CPPUNIT_ASSERT(f.counter_ == 2);
     g1(0.5);
     CPPUNIT_ASSERT(f.counter_ == 2);
@@ -134,7 +140,8 @@ void testFunctions::checkAll() {
     CPPUNIT_ASSERT(f.counter_ == 3);
     f.reset();
     // odd case: slaves don't catch a change in values
-    x = 0.123; y = g(x), y1 = g1(0.5), y2 = g2(0.7);
+    x = 0.123;
+    y = g(x), y1 = g1(0.5), y2 = g2(0.7);
     CPPUNIT_ASSERT(y == y1 && y1 == y2);
     CPPUNIT_ASSERT(f.counter_ == 1);
     f.reset();

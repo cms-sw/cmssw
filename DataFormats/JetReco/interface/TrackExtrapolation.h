@@ -25,33 +25,28 @@ namespace reco {
     // the size on disk, because due to the bug, double was actually stored on disk in ROOT 5.
     typedef ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> > Point;
     typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> > Vector;
+
   public:
-
-
     TrackExtrapolation() {}
-    TrackExtrapolation( reco::TrackRef const & track,
-			std::vector<Point> const & pos,
-			std::vector<Vector> const & mom) :
-    track_(track)
-    {
-      pos_.resize( pos.size() );
-      copy( pos.begin(), pos.end(), pos_.begin() );
-      mom_.resize( mom.size() );
-      copy( mom.begin(), mom.end(), mom_.begin() );
+    TrackExtrapolation(reco::TrackRef const& track, std::vector<Point> const& pos, std::vector<Vector> const& mom)
+        : track_(track) {
+      pos_.resize(pos.size());
+      copy(pos.begin(), pos.end(), pos_.begin());
+      mom_.resize(mom.size());
+      copy(mom.begin(), mom.end(), mom_.begin());
     }
 
     ~TrackExtrapolation() {}
 
-    reco::TrackRef const &                 track()      const { return track_;}
-    std::vector<Point> const &  positions()  const { return pos_;}
-    std::vector<Vector> const & momenta()    const { return mom_;}
+    reco::TrackRef const& track() const { return track_; }
+    std::vector<Point> const& positions() const { return pos_; }
+    std::vector<Vector> const& momenta() const { return mom_; }
 
   protected:
-    reco::TrackRef    track_;
-    std::vector<Point>      pos_;
-    std::vector<Vector>     mom_;
+    reco::TrackRef track_;
+    std::vector<Point> pos_;
+    std::vector<Vector> mom_;
   };
-}
-
+}  // namespace reco
 
 #endif

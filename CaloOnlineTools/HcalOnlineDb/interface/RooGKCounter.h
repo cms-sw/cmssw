@@ -8,23 +8,22 @@
 #include <ctime>
 
 class RooGKCounter {
-  
- public:
+public:
   RooGKCounter();
-  RooGKCounter( const char *message );
-  RooGKCounter( unsigned long int theFirst, unsigned long int theDivider );
+  RooGKCounter(const char* message);
+  RooGKCounter(unsigned long int theFirst, unsigned long int theDivider);
   ~RooGKCounter();
 
-  void setCounter( unsigned long int );
-  void setDivider( unsigned int );
-  void setPrintCount( bool _printCount );
-  void setNewLine( bool newLine );
-  void setMessage( const char* );
-  void count( void );
-  unsigned long int getCount( void );
-  void increment( long int _incr );
+  void setCounter(unsigned long int);
+  void setDivider(unsigned int);
+  void setPrintCount(bool _printCount);
+  void setNewLine(bool newLine);
+  void setMessage(const char*);
+  void count(void);
+  unsigned long int getCount(void);
+  void increment(long int _incr);
 
- private:
+private:
   unsigned long int _count;
   unsigned long int _firstCount;
   unsigned int _divider;
@@ -35,7 +34,7 @@ class RooGKCounter {
 
   time_t initTime, firstTickTime, lastPrintTime, lastTickTime;
 
-  void init( void );
+  void init(void);
 
   //ClassDef(RooGKCounter,1)
 };

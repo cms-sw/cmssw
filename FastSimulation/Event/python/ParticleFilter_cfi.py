@@ -9,7 +9,13 @@ ParticleFilterBlock = cms.PSet(
         # Charged particles with pT < pTMin (GeV/c) are not simulated
         chargedPtMin = cms.double(0.1),
         # Particles must have energy greater than EMin [GeV]
-        EMin = cms.double(0.1)
+        EMin = cms.double(0.1),
+        # the two following variables define the volume enclosed by the calorimeters
+        # radius of the ECAL barrel inner surface
+        rMax = cms.double(129.),
+        # half-length of the ECAL endcap inner surface
+        zMax = cms.double(317.),
+        # List of invisible particles (abs of pdgid)
+        invisibleParticles = cms.vint32()
         )
     )
-

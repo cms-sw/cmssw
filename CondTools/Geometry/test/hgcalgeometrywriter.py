@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("HGCalGeometryWriter")
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process("HGCalGeometryWriter",Phase2C17I13M9)
 process.load('CondCore.CondDB.CondDB_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D3_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D110_cff')
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -14,17 +15,23 @@ process.source = cms.Source("EmptyIOVSource",
 process.HGCalEEParametersWriter = cms.EDAnalyzer("PHGCalParametersDBBuilder",
                                                  Name = cms.untracked.string("HGCalEESensitive"),
                                                  NameW = cms.untracked.string("HGCalWafer"),
-                                                 NameC = cms.untracked.string("HGCalCell"))
+                                                 NameC = cms.untracked.string("HGCalCell"),
+                                                 NameT = cms.untracked.string("HGCal")
+)
 
 process.HGCalHEParametersWriter = cms.EDAnalyzer("PHGCalParametersDBBuilder",
                                                  Name = cms.untracked.string("HGCalHESiliconSensitive"),
                                                  NameW = cms.untracked.string("HGCalWafer"),
-                                                 NameC = cms.untracked.string("HGCalCell"))
+                                                 NameC = cms.untracked.string("HGCalCell"),
+                                                 NameT = cms.untracked.string("HGCal")
+)
 
 process.HGCalHEScParametersWriter = cms.EDAnalyzer("PHGCalParametersDBBuilder",
                                                    Name = cms.untracked.string("HGCalHEScintillatorSensitive"),
                                                    NameW = cms.untracked.string("HGCalWafer"),
-                                                   NameC = cms.untracked.string("HGCalCell"))
+                                                   NameC = cms.untracked.string("HGCalCell"),
+                                                   NameT = cms.untracked.string("HGCal")
+)
 
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')

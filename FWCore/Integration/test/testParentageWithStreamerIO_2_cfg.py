@@ -13,11 +13,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.prod11 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring()
+    labels = cms.VInputTag()
 )
 
 process.prod12 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("prod11")
+    labels = cms.VInputTag("prod11")
 )
 
 process.test1 = cms.EDAnalyzer("TestParentage",

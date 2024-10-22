@@ -1,9 +1,8 @@
 // Classname: TFitConstraintEp
-// Author: Jan E. Sundermann, Verena Klose (TU Dresden)      
-
+// Author: Jan E. Sundermann, Verena Klose (TU Dresden)
 
 //________________________________________________________________
-// 
+//
 // TFitConstraintEp::
 // --------------------
 //
@@ -20,33 +19,20 @@
 // Constructor --
 //----------------
 
-
-
 TFitConstraintEp::TFitConstraintEp()
-  :TAbsFitConstraint()
-  ,_particles(0)
-  ,_constraint(0.)
-  ,_component(TFitConstraintEp::pX)
-{}
+    : TAbsFitConstraint(), _particles(0), _constraint(0.), _component(TFitConstraintEp::pX) {}
 
-TFitConstraintEp::TFitConstraintEp(const TString &name, const TString &title,
+TFitConstraintEp::TFitConstraintEp(const TString& name,
+                                   const TString& title,
                                    TFitConstraintEp::component thecomponent,
                                    Double_t constraint)
-  :TAbsFitConstraint(name, title)
-  ,_constraint(constraint)
-  ,_component(thecomponent)
-{
-}
+    : TAbsFitConstraint(name, title), _constraint(constraint), _component(thecomponent) {}
 
-TFitConstraintEp::TFitConstraintEp(std::vector<TAbsFitParticle*>* particles, 
-				   TFitConstraintEp::component thecomponent, 
-				   Double_t constraint)
-  :TAbsFitConstraint()
-  ,_particles(0)
-  ,_constraint(constraint)
-  ,_component(thecomponent)
-{
-  // particles: vector containing pointer to TAbsFitParticle objects. 
+TFitConstraintEp::TFitConstraintEp(std::vector<TAbsFitParticle*>* particles,
+                                   TFitConstraintEp::component thecomponent,
+                                   Double_t constraint)
+    : TAbsFitConstraint(), _particles(0), _constraint(constraint), _component(thecomponent) {
+  // particles: vector containing pointer to TAbsFitParticle objects.
   //            Energy or momentum conservation will be calculated for
   //            those particles.
   // thecomponent: conserved 4vector component ( pX, pY, pZ, E ). For
@@ -59,16 +45,13 @@ TFitConstraintEp::TFitConstraintEp(std::vector<TAbsFitParticle*>* particles,
   }
 }
 
-TFitConstraintEp::TFitConstraintEp(const TString &name, const TString &title,
-				   std::vector<TAbsFitParticle*>* particles, 
-				   TFitConstraintEp::component thecomponent, 
-				   Double_t constraint)
-  :TAbsFitConstraint(name, title)
-  ,_particles(0)
-  ,_constraint(constraint)
-  ,_component(thecomponent)
-{
-  // particles: vector containing pointer to TAbsFitParticle objects. 
+TFitConstraintEp::TFitConstraintEp(const TString& name,
+                                   const TString& title,
+                                   std::vector<TAbsFitParticle*>* particles,
+                                   TFitConstraintEp::component thecomponent,
+                                   Double_t constraint)
+    : TAbsFitConstraint(name, title), _particles(0), _constraint(constraint), _component(thecomponent) {
+  // particles: vector containing pointer to TAbsFitParticle objects.
   //            Energy or momentum conservation will be calculated for
   //            those particles.
   // thecomponent: conserved 4vector component ( pX, pY, pZ, E ). For
@@ -84,57 +67,69 @@ TFitConstraintEp::TFitConstraintEp(const TString &name, const TString &title,
 //--------------
 // Destructor --
 //--------------
-TFitConstraintEp::~TFitConstraintEp() {
+TFitConstraintEp::~TFitConstraintEp() {}
 
-}
-
-void TFitConstraintEp::addParticle( TAbsFitParticle* particle ) {
+void TFitConstraintEp::addParticle(TAbsFitParticle* particle) {
   // Add one particles to list of constrained particles
 
-  _particles.push_back( particle );
-
+  _particles.push_back(particle);
 }
 
-void TFitConstraintEp::addParticles( TAbsFitParticle* p1, TAbsFitParticle* p2, TAbsFitParticle* p3, TAbsFitParticle* p4,
-				     TAbsFitParticle* p5, TAbsFitParticle* p6, TAbsFitParticle* p7, TAbsFitParticle* p8,
-				     TAbsFitParticle* p9, TAbsFitParticle* p10) {
+void TFitConstraintEp::addParticles(TAbsFitParticle* p1,
+                                    TAbsFitParticle* p2,
+                                    TAbsFitParticle* p3,
+                                    TAbsFitParticle* p4,
+                                    TAbsFitParticle* p5,
+                                    TAbsFitParticle* p6,
+                                    TAbsFitParticle* p7,
+                                    TAbsFitParticle* p8,
+                                    TAbsFitParticle* p9,
+                                    TAbsFitParticle* p10) {
   // Add many particles to list of constrained particles
 
-  if (p1) addParticle( p1 );
-  if (p2) addParticle( p2 );
-  if (p3) addParticle( p3 );
-  if (p4) addParticle( p4 );
-  if (p5) addParticle( p5 );
-  if (p6) addParticle( p6 );
-  if (p7) addParticle( p7 );
-  if (p8) addParticle( p8 );
-  if (p9) addParticle( p9 );
-  if (p10) addParticle( p10 );
-
+  if (p1)
+    addParticle(p1);
+  if (p2)
+    addParticle(p2);
+  if (p3)
+    addParticle(p3);
+  if (p4)
+    addParticle(p4);
+  if (p5)
+    addParticle(p5);
+  if (p6)
+    addParticle(p6);
+  if (p7)
+    addParticle(p7);
+  if (p8)
+    addParticle(p8);
+  if (p9)
+    addParticle(p9);
+  if (p10)
+    addParticle(p10);
 }
 
 //--------------
 // Operations --
 //--------------
-TMatrixD* TFitConstraintEp::getDerivative( TAbsFitParticle* particle ) {
+TMatrixD* TFitConstraintEp::getDerivative(TAbsFitParticle* particle) {
   // returns derivative df/dP with P=(p,E) and f the constraint (f=0).
   // The matrix contains one row (df/dp, df/dE).
 
-  TMatrixD* DerivativeMatrix = new TMatrixD(1,4);
+  TMatrixD* DerivativeMatrix = new TMatrixD(1, 4);
   (*DerivativeMatrix) *= 0.;
-  (*DerivativeMatrix)(0,(int) _component) = 1.;
+  (*DerivativeMatrix)(0, (int)_component) = 1.;
   return DerivativeMatrix;
 }
-
 
 Double_t TFitConstraintEp::getInitValue() {
   // Get initial value of constraint (before the fit)
 
-  Double_t InitValue(0) ; 
+  Double_t InitValue(0);
   UInt_t Npart = _particles.size();
-  for (unsigned int i=0;i<Npart;i++) {
+  for (unsigned int i = 0; i < Npart; i++) {
     const TLorentzVector* FourVec = _particles[i]->getIni4Vec();
-    InitValue += (*FourVec)[(int) _component];
+    InitValue += (*FourVec)[(int)_component];
   }
   InitValue -= _constraint;
   return InitValue;
@@ -145,9 +140,9 @@ Double_t TFitConstraintEp::getCurrentValue() {
 
   Double_t CurrentValue(0);
   UInt_t Npart = _particles.size();
-  for (unsigned int i=0;i<Npart;i++) {
+  for (unsigned int i = 0; i < Npart; i++) {
     const TLorentzVector* FourVec = _particles[i]->getCurr4Vec();
-    CurrentValue += (*FourVec)[(int) _component];
+    CurrentValue += (*FourVec)[(int)_component];
   }
   CurrentValue -= _constraint;
   return CurrentValue;
@@ -159,8 +154,7 @@ TString TFitConstraintEp::getInfoString() {
   std::stringstream info;
   info << std::scientific << std::setprecision(6);
 
-  info << "__________________________" << std::endl
-       << std::endl;
+  info << "__________________________" << std::endl << std::endl;
   info << "OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << std::endl;
 
   info << "initial value: " << getInitValue() << std::endl;
@@ -169,12 +163,10 @@ TString TFitConstraintEp::getInfoString() {
   info << "constraint: " << _constraint << std::endl;
 
   return info.str();
-
 }
 
 void TFitConstraintEp::print() {
   // Print constraint contents
 
   edm::LogVerbatim("KinFitter") << this->getInfoString();
-
 }

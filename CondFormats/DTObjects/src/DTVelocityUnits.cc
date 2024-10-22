@@ -16,31 +16,24 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
-
 
 //-------------------
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-DTVelocityUnits::DTVelocityUnits() {
-}
+DTVelocityUnits::DTVelocityUnits() {}
 
 //--------------
 // Destructor --
 //--------------
-DTVelocityUnits::~DTVelocityUnits() {
-}
+DTVelocityUnits::~DTVelocityUnits() {}
 
 //--------------
 // Operations --
 //--------------
-
-

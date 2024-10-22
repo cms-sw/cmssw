@@ -11,27 +11,28 @@ namespace edm {
 }
 
 class HLTPixelIsolTrackFilter : public HLTFilter {
+public:
+  explicit HLTPixelIsolTrackFilter(const edm::ParameterSet&);
+  ~HLTPixelIsolTrackFilter() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   public:
-      explicit HLTPixelIsolTrackFilter(const edm::ParameterSet&);
-      ~HLTPixelIsolTrackFilter() override;
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-
-   private:
-      edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> candToken_;
-      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> hltGTseedToken_;
-      edm::InputTag candTag_;
-      edm::InputTag hltGTseedlabel_;
-      double maxptnearby_;
-      double minpttrack_;
-      double minetatrack_;
-      double maxetatrack_;
-      bool filterE_;
-      double minEnergy_;
-      int nMaxTrackCandidates_;
-      bool dropMultiL2Event_;
-      double minDeltaPtL1Jet_;
+private:
+  edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> candToken_;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> hltGTseedToken_;
+  edm::InputTag candTag_;
+  edm::InputTag hltGTseedlabel_;
+  double maxptnearby_;
+  double minpttrack_;
+  double minetatrack_;
+  double maxetatrack_;
+  bool filterE_;
+  double minEnergy_;
+  int nMaxTrackCandidates_;
+  bool dropMultiL2Event_;
+  double minDeltaPtL1Jet_;
 };
 
 #endif

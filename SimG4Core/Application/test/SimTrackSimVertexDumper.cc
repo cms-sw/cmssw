@@ -1,33 +1,17 @@
-// -*- C++ -*-
-//
-// Package:    SimTrackerDumper
-// Class:      SimTrackSimVertexDumper
-// 
-/*
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-//
-
-
 // system include files
-#include <memory>
-
-#include "SimG4Core/Application/test/SimTrackSimVertexDumper.h"
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "DataFormats/Common/interface/ValidHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
@@ -35,82 +19,104 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/GenEvent.h"
- 
-SimTrackSimVertexDumper::SimTrackSimVertexDumper( const edm::ParameterSet& iConfig ):
-  HepMCLabel(iConfig.getParameter<edm::InputTag>("moduleLabelHepMC")),
-  SimTkLabel(iConfig.getParameter<edm::InputTag>("moduleLabelTk")),
-  SimVtxLabel(iConfig.getParameter<edm::InputTag>("moduleLabelVtx")),
-  dumpHepMC(iConfig.getUntrackedParameter<bool>("dumpHepMC","false"))
-{
 
-}
+class SimTrackSimVertexDumper : public edm::one::EDAnalyzer<> {
+public:
+  explicit SimTrackSimVertexDumper(const edm::ParameterSet&);
+  ~SimTrackSimVertexDumper() override {}
 
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override {}
+  void endJob() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  edm::EDGetTokenT<edm::HepMCProduct> hepmcToken_;
+  edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
+  bool dumpHepMC_;
+};
+
+SimTrackSimVertexDumper::SimTrackSimVertexDumper(const edm::ParameterSet& iConfig)
+    : hepmcToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("moduleLabelHepMC"))),
+      simTrackToken_(consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("moduleLabelTk"))),
+      simVertexToken_(consumes<edm::SimVertexContainer>(iConfig.getParameter<edm::InputTag>("moduleLabelVtx"))),
+      dumpHepMC_(iConfig.getUntrackedParameter<bool>("dumpHepMC")) {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-SimTrackSimVertexDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
-   using namespace edm;
-   using namespace HepMC;
+void SimTrackSimVertexDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace HepMC;
 
-   std::vector<SimTrack> theSimTracks;
-   std::vector<SimVertex> theSimVertexes;
+  std::vector<SimTrack> theSimTracks;
+  std::vector<SimVertex> theSimVertexes;
 
-   Handle<HepMCProduct> MCEvt;
-   Handle<SimTrackContainer> SimTk;
-   Handle<SimVertexContainer> SimVtx;
+  auto MCEvt = edm::makeValid(iEvent.getHandle(hepmcToken_));
+  const HepMC::GenEvent* evt = MCEvt->GetEvent();
 
-   iEvent.getByLabel(HepMCLabel, MCEvt);
-   const HepMC::GenEvent* evt = MCEvt->GetEvent();
+  auto SimTk = edm::makeValid(iEvent.getHandle(simTrackToken_));
+  auto SimVtx = edm::makeValid(iEvent.getHandle(simVertexToken_));
 
+  theSimTracks.insert(theSimTracks.end(), SimTk->begin(), SimTk->end());
+  theSimVertexes.insert(theSimVertexes.end(), SimVtx->begin(), SimVtx->end());
 
-   iEvent.getByLabel(SimTkLabel,SimTk);
-   iEvent.getByLabel(SimVtxLabel,SimVtx);
+  edm::LogPrint("DumpTkVtx") << "\n SimVertex / SimTrack structure dump \n";
+  edm::LogPrint("DumpTkVtx") << " SimVertex in the event = " << theSimVertexes.size();
+  edm::LogPrint("DumpTkVtx") << " SimTracks in the event = " << theSimTracks.size();
+  edm::LogPrint("DumpTkVtx") << "\n";
+  for (unsigned int isimvtx = 0; isimvtx < theSimVertexes.size(); isimvtx++) {
+    edm::LogPrint("DumpTkVtx") << "SimVertex " << isimvtx << " = " << theSimVertexes[isimvtx] << "\n";
+    for (unsigned int isimtk = 0; isimtk < theSimTracks.size(); isimtk++) {
+      if (theSimTracks[isimtk].vertIndex() >= 0 && std::abs(theSimTracks[isimtk].vertIndex()) == (int)isimvtx) {
+        edm::LogPrint("DumpTkVtx") << "  SimTrack " << isimtk << " = " << theSimTracks[isimtk]
+                                   << " Track Id = " << theSimTracks[isimtk].trackId();
 
-   theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
-   theSimVertexes.insert(theSimVertexes.end(),SimVtx->begin(),SimVtx->end());
+        // for debugging purposes
+        if (dumpHepMC_) {
+          if (theSimTracks[isimtk].genpartIndex() != -1) {
+            HepMC::GenParticle* part = evt->barcode_to_particle(theSimTracks[isimtk].genpartIndex());
+            if (part) {
+              edm::LogPrint("DumpTkVtx") << "  ---> Corresponding to HepMC particle " << *part;
+            } else {
+              edm::LogPrint("DumpTkVtx") << " ---> Corresponding HepMC particle to barcode "
+                                         << theSimTracks[isimtk].genpartIndex() << " not in selected event ";
+            }
+          }
+        }
+      }
+    }
+    edm::LogPrint("DumpTkVtx") << "\n";
+  }
 
-   std::cout << "\n SimVertex / SimTrack structure dump \n" << std::endl;
-   std::cout << " SimVertex in the event = " << theSimVertexes.size() << std::endl;
-   std::cout << " SimTracks in the event = " << theSimTracks.size() << std::endl;
-   std::cout << "\n" << std::endl;
-   for (unsigned int isimvtx = 0; isimvtx < theSimVertexes.size(); isimvtx++){
-     std::cout << "SimVertex " << isimvtx << " = " << theSimVertexes[isimvtx] << "\n" << std::endl;
-     for (unsigned int isimtk = 0; isimtk < theSimTracks.size() ; isimtk++ ) {
-       if ( theSimTracks[isimtk].vertIndex() >= 0 && std::abs(theSimTracks[isimtk].vertIndex()) == (int)isimvtx ) {
-         std::cout<<"  SimTrack " << isimtk << " = "<< theSimTracks[isimtk] 
-		  <<" Track Id = "<<theSimTracks[isimtk].trackId()<< std::endl;
+  for (std::vector<SimTrack>::iterator isimtk = theSimTracks.begin(); isimtk != theSimTracks.end(); ++isimtk) {
+    if (isimtk->noVertex()) {
+      edm::LogPrint("DumpTkVtx") << "SimTrack without an associated Vertex = " << *isimtk;
+    }
+  }
 
-         // for debugging purposes
-         if (dumpHepMC ) {
-           if ( theSimTracks[isimtk].genpartIndex() != -1 ) {
-             HepMC::GenParticle* part = evt->barcode_to_particle( theSimTracks[isimtk].genpartIndex() ) ;
-             if ( part ) { std::cout << "  ---> Corresponding to HepMC particle " << *part << std::endl; }
-             else { std::cout << " ---> Corresponding HepMC particle to barcode " << theSimTracks[isimtk].genpartIndex() << " not in selected event " << std::endl; }
-           }
-         }
-       }
-     }
-     std::cout << "\n" << std::endl;
-   }
-   
-   for (std::vector<SimTrack>::iterator isimtk = theSimTracks.begin();
-        isimtk != theSimTracks.end(); ++isimtk){
-     if(isimtk->noVertex()){
-       std::cout<<"SimTrack without an associated Vertex = "<< *isimtk <<std::endl;
-     }
-   }
-   
-   return;
+  return;
 }
+
+void SimTrackSimVertexDumper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("moduleLabelHepMC", edm::InputTag("generatorSmeared"))
+      ->setComment("Input generated HepMC event after vtx smearing");
+  desc.add<edm::InputTag>("moduleLabelTk", edm::InputTag("g4SimHits"))
+      ->setComment("Module for input SimTrack collection");
+  desc.add<edm::InputTag>("moduleLabelVtx", edm::InputTag("g4SimHits"))
+      ->setComment("Module for input SimVertex collection");
+  desc.addUntracked<bool>("dumpHepMC", false);
+  descriptions.add("simTrackSimVertexDumper", desc);
+}
+
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SimTrackSimVertexDumper);

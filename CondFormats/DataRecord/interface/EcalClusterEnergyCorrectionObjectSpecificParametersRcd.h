@@ -2,5 +2,6 @@
 #define CondFormats_DataRecord_EcalClusterEnergyCorrectionObjectSpecificParametersRcd_h
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
-class EcalClusterEnergyCorrectionObjectSpecificParametersRcd : public edm::eventsetup::EventSetupRecordImplementation<EcalClusterEnergyCorrectionObjectSpecificParametersRcd> {};
+class EcalClusterEnergyCorrectionObjectSpecificParametersRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<EcalClusterEnergyCorrectionObjectSpecificParametersRcd> {};
 #endif

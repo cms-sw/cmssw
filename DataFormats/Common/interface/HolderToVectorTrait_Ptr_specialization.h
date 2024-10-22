@@ -28,19 +28,20 @@
 #include "DataFormats/Common/interface/VectorHolder.h"
 
 namespace edm {
-  template <typename T> class PtrVector;
+  template <typename T>
+  class PtrVector;
   namespace reftobase {
 
     template <typename T, typename U>
     struct PtrHolderToVector {
-      static  std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() {
+      static std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() {
         return std::unique_ptr<BaseVectorHolder<T> >(new VectorHolder<T, edm::PtrVector<U> >);
       }
     };
 
-    template<typename T, typename U>
+    template <typename T, typename U>
     struct HolderToVectorTrait<T, Ptr<U> > {
-      typedef PtrHolderToVector<T, U > type;
+      typedef PtrHolderToVector<T, U> type;
     };
 
     template <typename T>
@@ -50,12 +51,12 @@ namespace edm {
       }
     };
 
-    template<typename T>
+    template <typename T>
     struct RefHolderToRefVectorTrait<Ptr<T> > {
       typedef PtrRefHolderToRefVector<T> type;
     };
-  }
-}
+  }  // namespace reftobase
+}  // namespace edm
 
 #endif
 #endif

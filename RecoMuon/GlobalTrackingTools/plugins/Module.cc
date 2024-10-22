@@ -4,7 +4,6 @@
 
 #include "RecoMuon/GlobalTrackingTools/plugins/GlobalTrackQualityProducer.h"
 
-
 DEFINE_FWK_MODULE(GlobalTrackQualityProducer);
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
@@ -16,4 +15,7 @@ DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, MuonTrackingRegionBuilder, "Muo
 using MuonTrackingRegionEDProducer = TrackingRegionEDProducerT<MuonTrackingRegionBuilder>;
 DEFINE_FWK_MODULE(MuonTrackingRegionEDProducer);
 
-
+#include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionByPtBuilder.h"
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, MuonTrackingRegionByPtBuilder, "MuonTrackingRegionByPtBuilder");
+using MuonTrackingRegionByPtEDProducer = TrackingRegionEDProducerT<MuonTrackingRegionByPtBuilder>;
+DEFINE_FWK_MODULE(MuonTrackingRegionByPtEDProducer);

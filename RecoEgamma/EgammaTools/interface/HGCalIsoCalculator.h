@@ -43,47 +43,44 @@
  *
  *
  */
-class HGCalIsoCalculator{
+class HGCalIsoCalculator {
 public:
-    HGCalIsoCalculator();
+  HGCalIsoCalculator();
 
-    ~HGCalIsoCalculator();
+  ~HGCalIsoCalculator();
 
-    void setDeltaR(const float dr){dr2_=dr*dr;}
+  void setDeltaR(const float dr) { dr2_ = dr * dr; }
 
-    void setMinDeltaR(const float dr){mindr2_=dr*dr;}
+  void setMinDeltaR(const float dr) { mindr2_ = dr * dr; }
 
-    void setRecHitTools(const hgcal::RecHitTools * recHitTools){rechittools_ = recHitTools;}
+  void setRecHitTools(const hgcal::RecHitTools* recHitTools) { rechittools_ = recHitTools; }
 
-    void setNRings(const size_t nrings);
+  void setNRings(const size_t nrings);
 
-    void setNLayers(unsigned int nLayers){nlayers_=nLayers;}
+  void setNLayers(unsigned int nLayers) { nlayers_ = nLayers; }
 
-    /// fill - once per event
-    void setRecHits(
-        edm::Handle<HGCRecHitCollection> hitsEE,
-        edm::Handle<HGCRecHitCollection> hitsFH,
-        edm::Handle<HGCRecHitCollection> hitsBH
-      );
+  /// fill - once per event
+  void setRecHits(edm::Handle<HGCRecHitCollection> hitsEE,
+                  edm::Handle<HGCRecHitCollection> hitsFH,
+                  edm::Handle<HGCRecHitCollection> hitsBH);
 
-    void produceHGCalIso(const reco::CaloClusterPtr & seedCluster);
+  void produceHGCalIso(const reco::CaloClusterPtr& seedCluster);
 
-    const float getIso(const unsigned int ring) const;
+  const float getIso(const unsigned int ring) const;
 
 private:
-    std::vector<float> isoringdeposits_;
-    std::vector<unsigned int> ringasso_;
+  std::vector<float> isoringdeposits_;
+  std::vector<unsigned int> ringasso_;
 
-    float dr2_,mindr2_;
+  float dr2_, mindr2_;
 
-    const hgcal::RecHitTools* rechittools_;
-    edm::Handle<HGCRecHitCollection> recHitsEE_;
-    edm::Handle<HGCRecHitCollection> recHitsFH_;
-    edm::Handle<HGCRecHitCollection> recHitsBH_;
-    std::vector<std::pair<float,float>> hitEtaPhiCache_;
-    bool debug_;
-    unsigned int nlayers_;
+  const hgcal::RecHitTools* rechittools_;
+  edm::Handle<HGCRecHitCollection> recHitsEE_;
+  edm::Handle<HGCRecHitCollection> recHitsFH_;
+  edm::Handle<HGCRecHitCollection> recHitsBH_;
+  std::vector<std::pair<float, float>> hitEtaPhiCache_;
+  bool debug_;
+  unsigned int nlayers_;
 };
-
 
 #endif /* RecoEgamma_EgammaTools_HGCalIsoCalculator_h */

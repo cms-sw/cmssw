@@ -19,56 +19,48 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
-using namespace std;
 
 //-------------------
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
 L1MuDTChambThDigi::L1MuDTChambThDigi() {
+  bx = -100;
+  wheel = 0;
+  sector = 0;
+  station = 0;
 
-  bx              = -100;
-  wheel           = 0;
-  sector          = 0;
-  station         = 0;
-
-  for(int i=0;i<7;i++) {
+  for (int i = 0; i < 7; i++) {
     m_outPos[i] = 0;
     m_outQual[i] = 0;
   }
 }
 
-L1MuDTChambThDigi::L1MuDTChambThDigi( int ubx, int uwh, int usc, int ust,
-                                      int* upos, int* uqual ) {
+L1MuDTChambThDigi::L1MuDTChambThDigi(int ubx, int uwh, int usc, int ust, int* upos, int* uqual) {
+  bx = ubx;
+  wheel = uwh;
+  sector = usc;
+  station = ust;
 
-  bx              = ubx;
-  wheel           = uwh;
-  sector          = usc;
-  station         = ust;
-
-  for(int i=0;i<7;i++) {
+  for (int i = 0; i < 7; i++) {
     m_outPos[i] = upos[i];
     m_outQual[i] = uqual[i];
   }
 }
 
-L1MuDTChambThDigi::L1MuDTChambThDigi( int ubx, int uwh, int usc, int ust,
-                                      int* upos ) {
+L1MuDTChambThDigi::L1MuDTChambThDigi(int ubx, int uwh, int usc, int ust, int* upos) {
+  bx = ubx;
+  wheel = uwh;
+  sector = usc;
+  station = ust;
 
-  bx              = ubx;
-  wheel           = uwh;
-  sector          = usc;
-  station         = ust;
-
-  for(int i=0;i<7;i++) {
+  for (int i = 0; i < 7; i++) {
     m_outPos[i] = upos[i];
     m_outQual[i] = 0;
   }
@@ -77,40 +69,34 @@ L1MuDTChambThDigi::L1MuDTChambThDigi( int ubx, int uwh, int usc, int ust,
 //--------------
 // Destructor --
 //--------------
-L1MuDTChambThDigi::~L1MuDTChambThDigi() {
-}
+L1MuDTChambThDigi::~L1MuDTChambThDigi() {}
 
 //--------------
 // Operations --
 //--------------
-int L1MuDTChambThDigi::bxNum() const {
-  return bx;
-}
+int L1MuDTChambThDigi::bxNum() const { return bx; }
 
-int L1MuDTChambThDigi::whNum() const {
-  return wheel;
-}
-int L1MuDTChambThDigi::scNum() const {
-  return sector;
-}
-int L1MuDTChambThDigi::stNum() const {
-  return station;
-}
+int L1MuDTChambThDigi::whNum() const { return wheel; }
+int L1MuDTChambThDigi::scNum() const { return sector; }
+int L1MuDTChambThDigi::stNum() const { return station; }
 
 int L1MuDTChambThDigi::code(const int i) const {
-  if (i<0||i>=7) return 0;
+  if (i < 0 || i >= 7)
+    return 0;
 
-  return (int)(m_outPos[i]+m_outQual[i]);
+  return (int)(m_outPos[i] + m_outQual[i]);
 }
 
 int L1MuDTChambThDigi::position(const int i) const {
-  if (i<0||i>=7) return 0;
+  if (i < 0 || i >= 7)
+    return 0;
 
   return (int)m_outPos[i];
 }
 
 int L1MuDTChambThDigi::quality(const int i) const {
-  if (i<0||i>=7) return 0;
+  if (i < 0 || i >= 7)
+    return 0;
 
   return (int)m_outQual[i];
 }

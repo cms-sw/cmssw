@@ -3,7 +3,4 @@
 
 #include "EventFilter/ESDigiToRaw/interface/ESDigiToRaw.h"
 
-
 DEFINE_FWK_MODULE(ESDigiToRaw);
-
-

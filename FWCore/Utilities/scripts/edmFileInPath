@@ -1,0 +1,21 @@
+#!/bin/bash
+function usage(){
+  echo "Usage: $0 [-h|--help] <data-file>"
+  echo "       $0 CondTools/Hcal/data/hcalpfcuts.txt"
+  exit $1
+}
+
+
+if [ "$1" = "" ] ; then
+  echo "ERROR: Mising input data file name"
+  usage 1
+fi
+[ "$1" = "-h" -o "$1" = "--help" ] && usage 0
+
+data_file=$1
+for dir in $(echo $CMSSW_SEARCH_PATH | tr ':' '\n') ; do
+  [ -e $dir/${data_file} ] || continue
+  echo "$dir/${data_file}"
+  exit 0
+done
+exit 1

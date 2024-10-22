@@ -1,9 +1,8 @@
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,58 +12,51 @@
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 
-
 using namespace std;
 using namespace edm;
 
 // class declaration
-class RPCReadOutMapAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit RPCReadOutMapAnalyzer( const edm::ParameterSet& );
-      ~RPCReadOutMapAnalyzer();
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-   private:
-   bool m_flag;
+class RPCReadOutMapAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  explicit RPCReadOutMapAnalyzer(const edm::ParameterSet&);
+  ~RPCReadOutMapAnalyzer() override = default;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  bool m_flag;
+  edm::ESGetToken<RPCEMap, RPCEMapRcd> readoutMappingToken_;
+  edm::ESGetToken<RPCReadOutMapping, RPCReadOutMappingRcd> mapZeroToken_;
 };
 
-
-RPCReadOutMapAnalyzer::RPCReadOutMapAnalyzer( const edm::ParameterSet& iConfig )
-: m_flag(iConfig.getUntrackedParameter<bool>("useNewEMap",false))
-{
+RPCReadOutMapAnalyzer::RPCReadOutMapAnalyzer(const edm::ParameterSet& iConfig)
+    : m_flag(iConfig.getUntrackedParameter<bool>("useNewEMap", false)),
+      readoutMappingToken_(esConsumes()),
+      mapZeroToken_(esConsumes()) {
   ::putenv(const_cast<char*>(std::string("CORAL_AUTH_USER konec").c_str()));
   ::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD konecPass").c_str()));
 }
 
+void RPCReadOutMapAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  std::cout << "====== RPCReadOutMapAnalyzer" << std::endl;
 
-RPCReadOutMapAnalyzer::~RPCReadOutMapAnalyzer(){}
+  const RPCReadOutMapping* map;
+  if (m_flag) {
+    map = iSetup.getData(readoutMappingToken_).convert();
+  } else {
+    map = &iSetup.getData(mapZeroToken_);
+  }
+  cout << "version: " << map->version() << endl;
 
-void RPCReadOutMapAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
+  pair<int, int> dccRange = map->dccNumberRange();
+  cout << " dcc range: " << dccRange.first << " to " << dccRange.second << endl;
+  vector<const DccSpec*> dccs = map->dccList();
+  typedef vector<const DccSpec*>::const_iterator IDCC;
+  for (IDCC idcc = dccs.begin(); idcc != dccs.end(); idcc++)
+    cout << (**idcc).print(4);
 
-   std::cout << "====== RPCReadOutMapAnalyzer" << std::endl;
-
-   const RPCReadOutMapping* map;
-   if (m_flag) {
-     edm::ESHandle<RPCEMap> readoutMapping;
-     iSetup.get<RPCEMapRcd>().get(readoutMapping);
-     const RPCEMap* eMap=readoutMapping.product();
-//     RPCReadOutMapping* map = eMap->convert();
-     map = eMap->convert();
-   } else {
-     edm::ESHandle<RPCReadOutMapping> map0;
-     iSetup.get<RPCReadOutMappingRcd>().get(map0);
-     map=map0.product();
-   }
-   cout << "version: " << map->version() << endl;
-
-   pair<int,int> dccRange = map->dccNumberRange();
-   cout <<" dcc range: " << dccRange.first <<" to "<<dccRange.second<<endl; 
-   vector<const DccSpec *> dccs = map->dccList();
-   typedef vector<const DccSpec *>::const_iterator IDCC;
-   for (IDCC idcc = dccs.begin(); idcc != dccs.end(); idcc++) cout <<(**idcc).print(4);
-
-   cout <<"--- --- --- --- --- --- --- --- ---"<<endl; 
-   cout <<"--- --- --- --- --- --- --- --- ---"<<endl; 
-/*
+  cout << "--- --- --- --- --- --- --- --- ---" << endl;
+  cout << "--- --- --- --- --- --- --- --- ---" << endl;
+  /*
    ChamberRawDataSpec linkboard;
    linkboard.dccId = 790;
    linkboard.dccInputChannelNum = 1;
@@ -89,8 +81,6 @@ void RPCReadOutMapAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
   }
      
 */
-
-   
 }
 
 //define this as a plug-in

@@ -26,44 +26,36 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-      struct ComponentDescription {
-         std::string label_; // A human friendly string that uniquely identifies the label
-         std::string type_;  // A human friendly string that uniquely identifies the name
-         bool isSource_;
-         bool isLooper_;
+  namespace eventsetup {
+    struct ComponentDescription {
+      std::string label_;  // A human friendly string that uniquely identifies the label
+      std::string type_;   // A human friendly string that uniquely identifies the name
 
-         // ID of parameter set of the creator
-         ParameterSetID pid_;
+      // ID of parameter set of the creator
+      ParameterSetID pid_;
 
-         /* ----------- end of provenance information ------------- */
+      unsigned int id_;
 
-         ComponentDescription() :
-             label_(),
-             type_(),
-             isSource_(false),
-             isLooper_(false),
-             pid_() {}
+      bool isSource_;
+      bool isLooper_;
 
-         ComponentDescription(std::string const& iType,
-                              std::string const& iLabel,
-                              bool iIsSource,
-                              bool iIsLooper = false) :
-                                label_(iLabel),
-                                type_(iType),
-                                isSource_(iIsSource),
-                                isLooper_(iIsLooper),
-                                pid_() {}
+      /* ----------- end of provenance information ------------- */
 
-         bool operator<(ComponentDescription const& iRHS) const {
-            return (type_ == iRHS.type_) ? (label_ < iRHS.label_) : (type_<iRHS.type_);
-         }
-         bool operator==(ComponentDescription const& iRHS) const {
-            return label_ == iRHS.label_ &&
-            type_ == iRHS.type_ &&
-            isSource_ == iRHS.isSource_;
-         }
-      };
-   }
-}
+      ComponentDescription() : label_(), type_(), pid_(), id_(unknownID()), isSource_(false), isLooper_(false) {}
+
+      ComponentDescription(
+          std::string const& iType, std::string const& iLabel, unsigned int iId, bool iIsSource, bool iIsLooper = false)
+          : label_(iLabel), type_(iType), pid_(), id_(iId), isSource_(iIsSource), isLooper_(iIsLooper) {}
+
+      [[nodiscard]] static constexpr unsigned int unknownID() noexcept { return 0xFFFFFFFF; }
+
+      bool operator<(ComponentDescription const& iRHS) const {
+        return (type_ == iRHS.type_) ? (label_ < iRHS.label_) : (type_ < iRHS.type_);
+      }
+      bool operator==(ComponentDescription const& iRHS) const {
+        return label_ == iRHS.label_ && type_ == iRHS.type_ && isSource_ == iRHS.isSource_;
+      }
+    };
+  }  // namespace eventsetup
+}  // namespace edm
 #endif

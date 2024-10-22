@@ -11,16 +11,21 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSurface& tsos,
-						      const TrackingRecHit& aRecHit) const {
-  GetComponents comps(tsos);  
-  auto const & predictedComponents = comps();
-  if (predictedComponents.empty()) {
-    edm::LogError("GsfMultiStateUpdator") << "Trying to update trajectory state with zero components! " ;
+                                                      const TrackingRecHit& aRecHit) const {
+  if (!tsos.isValid()) {
+    edm::LogError("GsfMultiStateUpdator") << "Trying to update trajectory state with invalid TSOS! ";
     return TrajectoryStateOnSurface();
   }
 
-  auto && weights = PosteriorWeightsCalculator(predictedComponents).weights(aRecHit);
-  if ( weights.empty() ) {
+  GetComponents comps(tsos);
+  auto const& predictedComponents = comps();
+  if (predictedComponents.empty()) {
+    edm::LogError("GsfMultiStateUpdator") << "Trying to update trajectory state with zero components! ";
+    return TrajectoryStateOnSurface();
+  }
+
+  auto&& weights = PosteriorWeightsCalculator(predictedComponents).weights(aRecHit);
+  if (weights.empty()) {
     edm::LogError("GsfMultiStateUpdator") << " no weights could be retreived. invalid updated state !.";
     return TrajectoryStateOnSurface();
   }
@@ -28,17 +33,22 @@ TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSur
   MultiTrajectoryStateAssembler result;
 
   int i = 0;
-  for (auto const & tsosI : predictedComponents) {
+  for (auto const& tsosI : predictedComponents) {
     TrajectoryStateOnSurface updatedTSOS = KFUpdator().update(tsosI, aRecHit);
-    if (updatedTSOS.isValid()){
-      result.addState(TrajectoryStateOnSurface(weights[i], 
+
+    if (double det;
+        updatedTSOS.isValid() && updatedTSOS.localError().valid() && updatedTSOS.localError().posDef() &&
+        (det = 0., updatedTSOS.curvilinearError().matrix().Sub<AlgebraicSymMatrix22>(0, 0).Det(det) && det > 0) &&
+        (det = 0., updatedTSOS.curvilinearError().matrix().Sub<AlgebraicSymMatrix33>(0, 0).Det(det) && det > 0) &&
+        (det = 0., updatedTSOS.curvilinearError().matrix().Sub<AlgebraicSymMatrix44>(0, 0).Det(det) && det > 0) &&
+        (det = 0., updatedTSOS.curvilinearError().matrix().Det2(det) && det > 0)) {
+      result.addState(TrajectoryStateOnSurface(weights[i],
                                                updatedTSOS.localParameters(),
-					       updatedTSOS.localError(), updatedTSOS.surface(), 
-					       &(tsos.globalParameters().magneticField()),
-					       tsosI.surfaceSide()
-                                              ));
-    }
-    else{
+                                               updatedTSOS.localError(),
+                                               updatedTSOS.surface(),
+                                               &(tsos.globalParameters().magneticField()),
+                                               tsosI.surfaceSide()));
+    } else {
       edm::LogError("GsfMultiStateUpdator") << "KF updated state " << i << " is invalid. skipping.";
     }
     ++i;

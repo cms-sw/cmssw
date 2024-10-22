@@ -1,8 +1,5 @@
-<export>
-</export>
-<environment>
-  <bin   file="runtestPhysicsToolsNanoAOD.cpp">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash PhysicsTools/NanoAOD/test runtests.sh"/>
-    <use   name="FWCore/Utilities"/>
-  </bin>
-</environment>
+<bin file="test_catch2_*.cc" name="testPhysicsToolsNanoAODTP">
+  <use name="FWCore/TestProcessor"/>
+  <use name="DataFormats/NanoAOD"/>
+  <use name="catch2"/>
+</bin>

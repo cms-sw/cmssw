@@ -29,30 +29,24 @@ method of the templated argument.  This allows the ParameterSetDescriptionFiller
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 namespace edm {
-  template< typename T>
-  class ParameterSetDescriptionFiller : public ParameterSetDescriptionFillerBase
-  {
+  template <typename T>
+  class ParameterSetDescriptionFiller : public ParameterSetDescriptionFillerBase {
   public:
     ParameterSetDescriptionFiller() {}
+    ParameterSetDescriptionFiller(const ParameterSetDescriptionFiller&) = delete;                   // stop default
+    const ParameterSetDescriptionFiller& operator=(const ParameterSetDescriptionFiller&) = delete;  // stop default
 
-    void fill(ConfigurationDescriptions & descriptions) const override {
+    void fill(ConfigurationDescriptions& descriptions) const override {
       T::fillDescriptions(descriptions);
       T::prevalidate(descriptions);
     }
 
-    const std::string& baseType() const override {
-      return T::baseType();
-    }
+    const std::string& baseType() const override { return T::baseType(); }
 
     const std::string& extendedBaseType() const override {
       const T* type = nullptr;
       return ParameterSetDescriptionFillerBase::extendedBaseType(type);
     }
-
-  private:
-    ParameterSetDescriptionFiller(const ParameterSetDescriptionFiller&) = delete; // stop default
-    const ParameterSetDescriptionFiller& operator=(const ParameterSetDescriptionFiller&) = delete; // stop default
-    
   };
 
   // We need a special version of this class for Services because there is
@@ -65,159 +59,135 @@ namespace edm {
 
   namespace fillDetails {
 
-    using no_tag = std::false_type; // type indicating FALSE
-    using yes_tag = std::true_type; // type indicating TRUE
+    using no_tag = std::false_type;  // type indicating FALSE
+    using yes_tag = std::true_type;  // type indicating TRUE
 
-    template <typename T, void (*)(ConfigurationDescriptions &)>  struct fillDescriptions_function;
-    template <typename T> no_tag  has_fillDescriptions_helper(...);
-    template <typename T> yes_tag has_fillDescriptions_helper(fillDescriptions_function<T, &T::fillDescriptions> * dummy);
+    template <typename T, void (*)(ConfigurationDescriptions&)>
+    struct fillDescriptions_function;
+    template <typename T>
+    no_tag has_fillDescriptions_helper(...);
+    template <typename T>
+    yes_tag has_fillDescriptions_helper(fillDescriptions_function<T, &T::fillDescriptions>* dummy);
 
-    template<typename T>
+    template <typename T>
     struct has_fillDescriptions_function {
-      static constexpr bool value =
-      std::is_same<decltype(has_fillDescriptions_helper<T>(nullptr)),yes_tag>::value;
+      static constexpr bool value = std::is_same<decltype(has_fillDescriptions_helper<T>(nullptr)), yes_tag>::value;
+    };
+
+    template <typename T, void (*)(ConfigurationDescriptions&)>
+    struct prevalidate_function;
+    template <typename T>
+    no_tag has_prevalidate_helper(...);
+    template <typename T>
+    yes_tag has_prevalidate_helper(fillDescriptions_function<T, &T::prevalidate>* dummy);
+
+    template <typename T>
+    struct has_prevalidate_function {
+      static constexpr bool value = std::is_same<decltype(has_prevalidate_helper<T>(nullptr)), yes_tag>::value;
     };
 
     template <typename T>
-    struct DoFillDescriptions {
-      void operator()(ConfigurationDescriptions & descriptions) {
+    void fillIfExists(ConfigurationDescriptions& descriptions) {
+      if constexpr (has_fillDescriptions_function<T>::value) {
         T::fillDescriptions(descriptions);
-      }
-    };
-
-    template <typename T>
-    struct DoFillAsUnknown {
-      void operator()(ConfigurationDescriptions & descriptions) {
+      } else {
         ParameterSetDescription desc;
         desc.setUnknown();
         descriptions.addDefault(desc);
       }
-    };
-
-    template <typename T, void (*)(ConfigurationDescriptions &)>  struct prevalidate_function;
-    template <typename T> no_tag  has_prevalidate_helper(...);
-    template <typename T> yes_tag has_prevalidate_helper(fillDescriptions_function<T, &T::prevalidate> * dummy);
-
-    template<typename T>
-    struct has_prevalidate_function {
-      static constexpr bool value =
-      std::is_same<decltype(has_prevalidate_helper<T>(nullptr)),yes_tag>::value;
-    };
+    }
 
     template <typename T>
-    struct DoPrevalidate {
-      void operator()(ConfigurationDescriptions & descriptions) {
+    void prevalidateIfExists(ConfigurationDescriptions& descriptions) {
+      if constexpr (has_prevalidate_function<T>::value) {
         T::prevalidate(descriptions);
       }
-    };
+    }
 
-    template <typename T>
-    struct DoNothing {
-      void operator()(ConfigurationDescriptions & descriptions) {
-      }
-    };
-
-  }
+  }  // namespace fillDetails
 
   // Not needed at the moment
   //void prevalidateService(ConfigurationDescriptions &);
 
-  template< typename T>
-  class DescriptionFillerForServices : public ParameterSetDescriptionFillerBase
-  {
+  template <typename T>
+  class DescriptionFillerForServices : public ParameterSetDescriptionFillerBase {
   public:
     DescriptionFillerForServices() {}
 
     // If T has a fillDescriptions function then just call that, otherwise
     // put in an "unknown description" as a default.
-    void fill(ConfigurationDescriptions & descriptions) const override {
-      std::conditional_t<edm::fillDetails::has_fillDescriptions_function<T>::value,
-                         edm::fillDetails::DoFillDescriptions<T>,
-                         edm::fillDetails::DoFillAsUnknown<T>> fill_descriptions;
-      fill_descriptions(descriptions);
+    void fill(ConfigurationDescriptions& descriptions) const override {
+      fillDetails::fillIfExists<T>(descriptions);
       //we don't have a need for prevalidation of services at the moment, so this is a placeholder
       // Probably the best package to declare this in would be FWCore/ServiceRegistry
       //prevalidateService(descriptions);
     }
 
-    const std::string& baseType() const override {
-      return kBaseForService;
-    }
+    const std::string& baseType() const override { return kBaseForService; }
 
-    const std::string& extendedBaseType() const override {
-      return kEmpty;
-    }
+    const std::string& extendedBaseType() const override { return kEmpty; }
 
   private:
-    void prevalidate(ConfigurationDescriptions & descriptions);
-    DescriptionFillerForServices(const DescriptionFillerForServices&); // stop default
-    const DescriptionFillerForServices& operator=(const DescriptionFillerForServices&); // stop default
+    void prevalidate(ConfigurationDescriptions& descriptions);
+    DescriptionFillerForServices(const DescriptionFillerForServices&);                   // stop default
+    const DescriptionFillerForServices& operator=(const DescriptionFillerForServices&);  // stop default
   };
 
-  template<typename T>
-  class DescriptionFillerForESSources : public ParameterSetDescriptionFillerBase
-  {
+  template <typename T>
+  class DescriptionFillerForESSources : public ParameterSetDescriptionFillerBase {
   public:
     DescriptionFillerForESSources() {}
+    DescriptionFillerForESSources(const DescriptionFillerForESSources&) = delete;                   // stop default
+    const DescriptionFillerForESSources& operator=(const DescriptionFillerForESSources&) = delete;  // stop default
 
     // If T has a fillDescriptions function then just call that, otherwise
     // put in an "unknown description" as a default.
-    void fill(ConfigurationDescriptions & descriptions) const override {
-      std::conditional_t<edm::fillDetails::has_fillDescriptions_function<T>::value,
-                         edm::fillDetails::DoFillDescriptions<T>,
-                         edm::fillDetails::DoFillAsUnknown<T>> fill_descriptions;
-      fill_descriptions(descriptions);
-
-      std::conditional_t<edm::fillDetails::has_prevalidate_function<T>::value,
-                         edm::fillDetails::DoPrevalidate<T>,
-                         edm::fillDetails::DoNothing<T>> prevalidate;
-      prevalidate(descriptions);
+    void fill(ConfigurationDescriptions& descriptions) const override {
+      fillDetails::fillIfExists<T>(descriptions);
+      fillDetails::prevalidateIfExists<T>(descriptions);
     }
 
-    const std::string& baseType() const override {
-      return kBaseForESSource;
-    }
+    const std::string& baseType() const override { return kBaseForESSource; }
 
-    const std::string& extendedBaseType() const override {
-      return kEmpty;
-    }
-
-  private:
-    DescriptionFillerForESSources(const DescriptionFillerForESSources&) = delete; // stop default
-    const DescriptionFillerForESSources& operator=(const DescriptionFillerForESSources&) = delete; // stop default
+    const std::string& extendedBaseType() const override { return kEmpty; }
   };
 
-  template<typename T>
-  class DescriptionFillerForESProducers : public ParameterSetDescriptionFillerBase
-  {
+  template <typename T>
+  class DescriptionFillerForESProducers : public ParameterSetDescriptionFillerBase {
   public:
     DescriptionFillerForESProducers() {}
+    DescriptionFillerForESProducers(const DescriptionFillerForESProducers&) = delete;                   // stop default
+    const DescriptionFillerForESProducers& operator=(const DescriptionFillerForESProducers&) = delete;  // stop default
 
     // If T has a fillDescriptions function then just call that, otherwise
     // put in an "unknown description" as a default.
-    void fill(ConfigurationDescriptions & descriptions) const override {
-      std::conditional_t<edm::fillDetails::has_fillDescriptions_function<T>::value,
-                         edm::fillDetails::DoFillDescriptions<T>,
-                         edm::fillDetails::DoFillAsUnknown<T>> fill_descriptions;
-      fill_descriptions(descriptions);
-
-      std::conditional_t<edm::fillDetails::has_prevalidate_function<T>::value,
-                         edm::fillDetails::DoPrevalidate<T>,
-                         edm::fillDetails::DoNothing<T>> prevalidate;
-      prevalidate(descriptions);
+    void fill(ConfigurationDescriptions& descriptions) const override {
+      fillDetails::fillIfExists<T>(descriptions);
+      fillDetails::prevalidateIfExists<T>(descriptions);
     }
 
-    const std::string& baseType() const override {
-      return kBaseForESProducer;
-    }
+    const std::string& baseType() const override { return kBaseForESProducer; }
 
-    const std::string& extendedBaseType() const override {
-      return kEmpty;
-    }
-
-  private:
-    DescriptionFillerForESProducers(const DescriptionFillerForESProducers&) = delete; // stop default
-    const DescriptionFillerForESProducers& operator=(const DescriptionFillerForESProducers&) = delete; // stop default
+    const std::string& extendedBaseType() const override { return kEmpty; }
   };
-}
+
+  template <typename T>
+  class DescriptionFillerForEDLoopers : public ParameterSetDescriptionFillerBase {
+  public:
+    DescriptionFillerForEDLoopers() {}
+    DescriptionFillerForEDLoopers(const DescriptionFillerForEDLoopers&) = delete;                   // stop default
+    const DescriptionFillerForEDLoopers& operator=(const DescriptionFillerForEDLoopers&) = delete;  // stop default
+
+    // If T has a fillDescriptions function then just call that, otherwise
+    // put in an "unknown description" as a default.
+    void fill(ConfigurationDescriptions& descriptions) const override {
+      fillDetails::fillIfExists<T>(descriptions);
+      fillDetails::prevalidateIfExists<T>(descriptions);
+    }
+
+    const std::string& baseType() const override { return kBaseForEDLooper; }
+
+    const std::string& extendedBaseType() const override { return kEmpty; }
+  };
+}  // namespace edm
 #endif

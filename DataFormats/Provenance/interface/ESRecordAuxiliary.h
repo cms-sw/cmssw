@@ -4,7 +4,7 @@
 //
 // Package:     Provenance
 // Class  :     ESRecordAuxiliary
-// 
+//
 /**\class ESRecordAuxiliary ESRecordAuxiliary.h DataFormats/Provenance/interface/ESRecordAuxiliary.h
 
  Description: Holds information pertinent to a particular stored EventSetup Record
@@ -26,32 +26,29 @@
 
 // forward declarations
 namespace edm {
-  class ESRecordAuxiliary
-  {
-    
+  class ESRecordAuxiliary {
   public:
     ESRecordAuxiliary();
-    ESRecordAuxiliary(const edm::EventID&, const edm::Timestamp& );
+    ESRecordAuxiliary(const edm::EventID&, const edm::Timestamp&);
     //~ESRecordAuxiliary();
-    
+
     // ---------- const member functions ---------------------
-    const edm::EventID& eventID() const { return eventID_;}
-    const edm::Timestamp& timestamp() const { return timestamp_;}
-    
+    const edm::EventID& eventID() const { return eventID_; }
+    const edm::Timestamp& timestamp() const { return timestamp_; }
 
     // ---------- static member functions --------------------
-    
+
     // ---------- member functions ---------------------------
-    
+
   private:
     //ESRecordAuxiliary(const ESRecordAuxiliary&); // stop default
-    
+
     //const ESRecordAuxiliary& operator=(const ESRecordAuxiliary&); // stop default
-    
+
     // ---------- member data --------------------------------
     edm::EventID eventID_;
-    edm::Timestamp timestamp_;    
+    edm::Timestamp timestamp_;
   };
-}
+}  // namespace edm
 
 #endif

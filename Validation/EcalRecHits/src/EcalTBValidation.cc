@@ -1,45 +1,43 @@
-// Ecal H4 tesbeam analysis 
-#include "Validation/EcalRecHits/interface/EcalTBValidation.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+// Ecal H4 tesbeam analysis
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRecInfo.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRecInfo.h"
-#include "TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include "Validation/EcalRecHits/interface/EcalTBValidation.h"
 
 #include <iostream>
 #include <string>
 
+EcalTBValidation::EcalTBValidation(const edm::ParameterSet &config) {
+  data_ = config.getUntrackedParameter<int>("data", -1000);
+  xtalInBeam_ = config.getUntrackedParameter<int>("xtalInBeam", -1000);
 
-EcalTBValidation::EcalTBValidation( const edm::ParameterSet& config ) {  
-
-  data_                  = config.getUntrackedParameter<int>("data",-1000);
-  xtalInBeam_            = config.getUntrackedParameter<int>("xtalInBeam",-1000);
-
-  digiCollection_        = config.getParameter<std::string>("digiCollection");
-  digiProducer_          = config.getParameter<std::string>("digiProducer");
-  hitCollection_         = config.getParameter<std::string>("hitCollection");
-  hitProducer_           = config.getParameter<std::string>("hitProducer");
+  digiCollection_ = config.getParameter<std::string>("digiCollection");
+  digiProducer_ = config.getParameter<std::string>("digiProducer");
+  hitCollection_ = config.getParameter<std::string>("hitCollection");
+  hitProducer_ = config.getParameter<std::string>("hitProducer");
   hodoRecInfoCollection_ = config.getParameter<std::string>("hodoRecInfoCollection");
-  hodoRecInfoProducer_   = config.getParameter<std::string>("hodoRecInfoProducer");
-  tdcRecInfoCollection_  = config.getParameter<std::string>("tdcRecInfoCollection");
-  tdcRecInfoProducer_    = config.getParameter<std::string>("tdcRecInfoProducer");
+  hodoRecInfoProducer_ = config.getParameter<std::string>("hodoRecInfoProducer");
+  tdcRecInfoCollection_ = config.getParameter<std::string>("tdcRecInfoCollection");
+  tdcRecInfoProducer_ = config.getParameter<std::string>("tdcRecInfoProducer");
   eventHeaderCollection_ = config.getParameter<std::string>("eventHeaderCollection");
-  eventHeaderProducer_   = config.getParameter<std::string>("eventHeaderProducer");
+  eventHeaderProducer_ = config.getParameter<std::string>("eventHeaderProducer");
 
   digi_Token_ = consumes<EBDigiCollection>(edm::InputTag(digiProducer_, digiCollection_));
   hit_Token_ = consumes<EBUncalibratedRecHitCollection>(edm::InputTag(hitProducer_, hitCollection_));
   hodoRec_Token_ = consumes<EcalTBHodoscopeRecInfo>(edm::InputTag(hodoRecInfoProducer_, hodoRecInfoCollection_));
   tdcRec_Token_ = consumes<EcalTBTDCRecInfo>(edm::InputTag(tdcRecInfoProducer_, tdcRecInfoCollection_));
   eventHeader_Token_ = consumes<EcalTBEventHeader>(edm::InputTag(eventHeaderProducer_));
-  //rootfile_              = config.getUntrackedParameter<std::string>("rootfile","EcalTBValidation.root");
+  // rootfile_              =
+  // config.getUntrackedParameter<std::string>("rootfile","EcalTBValidation.root");
 
   // verbosity...
   verbose_ = config.getUntrackedParameter<bool>("verbose", false);
-    
+
   meETBxib_ = nullptr;
   meETBampltdc_ = nullptr;
   meETBShape_ = nullptr;
@@ -62,220 +60,219 @@ EcalTBValidation::EcalTBValidation( const edm::ParameterSet& config ) {
   meETBe1e25vsY_ = nullptr;
   meETBe9e25vsX_ = nullptr;
   meETBe9e25vsY_ = nullptr;
-
 }
 
+EcalTBValidation::~EcalTBValidation() {}
 
-EcalTBValidation::~EcalTBValidation(){}
-
-void EcalTBValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){
-
-  std::string hname;   
-  ibooker.setCurrentFolder( "EcalRecHitsV/EcalTBValidationTask" );
+void EcalTBValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &) {
+  std::string hname;
+  ibooker.setCurrentFolder("EcalRecHitsV/EcalTBValidationTask");
 
   hname = "xtal in beam position";
-  meETBxib_          = ibooker.book2D( hname, hname, 85, 0., 85., 20,0., 20. );
+  meETBxib_ = ibooker.book2D(hname, hname, 85, 0., 85., 20, 0., 20.);
   hname = "Max Amplitude vs TDC offset";
-  meETBampltdc_      = ibooker.book2D( hname, hname, 100, 0., 1., 1000, 0., 4000. );
+  meETBampltdc_ = ibooker.book2D(hname, hname, 100, 0., 1., 1000, 0., 4000.);
   hname = "Beam Profile X";
-  meETBhodoX_        = ibooker.book1D( hname, hname, 100, -20., 20. );
+  meETBhodoX_ = ibooker.book1D(hname, hname, 100, -20., 20.);
   hname = "Beam Profile Y";
-  meETBhodoY_        = ibooker.book1D( hname, hname, 100, -20., 20. );
+  meETBhodoY_ = ibooker.book1D(hname, hname, 100, -20., 20.);
   hname = "E1x1 energy";
-  meETBe1x1_         = ibooker.book1D( hname, hname, 1000, 0., 4000. );
+  meETBe1x1_ = ibooker.book1D(hname, hname, 1000, 0., 4000.);
   hname = "E3x3 energy";
-  meETBe3x3_         = ibooker.book1D( hname, hname, 1000, 0., 4000. );
+  meETBe3x3_ = ibooker.book1D(hname, hname, 1000, 0., 4000.);
   hname = "E5x5 energy";
-  meETBe5x5_         = ibooker.book1D( hname, hname, 1000, 0., 4000. );
+  meETBe5x5_ = ibooker.book1D(hname, hname, 1000, 0., 4000.);
   hname = "E1x1 energy center";
-  meETBe1x1_center_  = ibooker.book1D( hname, hname, 1000, 0., 4000. );
+  meETBe1x1_center_ = ibooker.book1D(hname, hname, 1000, 0., 4000.);
   hname = "E3x3 energy center";
-  meETBe3x3_center_  = ibooker.book1D( hname, hname, 1000, 0., 4000. );
+  meETBe3x3_center_ = ibooker.book1D(hname, hname, 1000, 0., 4000.);
   hname = "E5x5 energy center";
-  meETBe5x5_center_  = ibooker.book1D( hname, hname, 1000, 0., 4000. );
+  meETBe5x5_center_ = ibooker.book1D(hname, hname, 1000, 0., 4000.);
   hname = "E1 over E9 ratio";
-  meETBe1e9_         = ibooker.book1D( hname, hname, 600, 0., 1.2 );
+  meETBe1e9_ = ibooker.book1D(hname, hname, 600, 0., 1.2);
   hname = "E1 over E25 ratio";
-  meETBe1e25_        = ibooker.book1D( hname, hname, 600, 0., 1.2 );
+  meETBe1e25_ = ibooker.book1D(hname, hname, 600, 0., 1.2);
   hname = "E9 over E25 ratio";
-  meETBe9e25_        = ibooker.book1D( hname, hname, 600, 0., 1.2 );
+  meETBe9e25_ = ibooker.book1D(hname, hname, 600, 0., 1.2);
   hname = "E1 vs X";
-  meETBe1vsX_        = ibooker.book2D( hname, hname, 80, -20, 20, 1000, 0., 4000. );
+  meETBe1vsX_ = ibooker.book2D(hname, hname, 80, -20, 20, 1000, 0., 4000.);
   hname = "E1 vs Y";
-  meETBe1vsY_        = ibooker.book2D( hname, hname, 80, -20, 20, 1000, 0., 4000. );  
+  meETBe1vsY_ = ibooker.book2D(hname, hname, 80, -20, 20, 1000, 0., 4000.);
   hname = "E1 over E9 vs X";
-  meETBe1e9vsX_      = ibooker.book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
+  meETBe1e9vsX_ = ibooker.book2D(hname, hname, 80, -20, 20, 600, 0., 1.2);
   hname = "E1 over E9 vs Y";
-  meETBe1e9vsY_      = ibooker.book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
+  meETBe1e9vsY_ = ibooker.book2D(hname, hname, 80, -20, 20, 600, 0., 1.2);
   hname = "E1 over E25 vs X";
-  meETBe1e25vsX_     = ibooker.book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
+  meETBe1e25vsX_ = ibooker.book2D(hname, hname, 80, -20, 20, 600, 0., 1.2);
   hname = "E1 over E25 vs Y";
-  meETBe1e25vsY_     = ibooker.book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
+  meETBe1e25vsY_ = ibooker.book2D(hname, hname, 80, -20, 20, 600, 0., 1.2);
   hname = "E9 over E25 vs X";
-  meETBe9e25vsX_     = ibooker.book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
+  meETBe9e25vsX_ = ibooker.book2D(hname, hname, 80, -20, 20, 600, 0., 1.2);
   hname = "E9 over E25 vs Y";
-  meETBe9e25vsY_     = ibooker.book2D( hname, hname, 80, -20, 20, 600, 0., 1.2 );
+  meETBe9e25vsY_ = ibooker.book2D(hname, hname, 80, -20, 20, 600, 0., 1.2);
   hname = "Xtal in Beam Shape";
-  meETBShape_        = ibooker.book2D( hname, hname, 250, 0, 10, 350, 0, 3500 );
-
+  meETBShape_ = ibooker.book2D(hname, hname, 250, 0, 10, 350, 0, 3500);
 }
 
-void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& setup ) {
-
+void EcalTBValidation::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   using namespace edm;
   using namespace cms;
 
   // digis
-  const EBDigiCollection* theDigis=nullptr;
+  const EBDigiCollection *theDigis = nullptr;
   Handle<EBDigiCollection> pdigis;
   event.getByToken(digi_Token_, pdigis);
-  if(pdigis.isValid()){
-    theDigis = pdigis.product(); 
-  } 
-  else {    
+  if (pdigis.isValid()) {
+    theDigis = pdigis.product();
+  } else {
     std::cerr << "Error! can't get the product " << digiCollection_.c_str() << std::endl;
     return;
   }
 
   // rechits
-  const EBUncalibratedRecHitCollection* theHits=nullptr;  
+  const EBUncalibratedRecHitCollection *theHits = nullptr;
   Handle<EBUncalibratedRecHitCollection> phits;
   event.getByToken(hit_Token_, phits);
-  if(phits.isValid()){
-    theHits = phits.product(); 
-  } 
-  else {
+  if (phits.isValid()) {
+    theHits = phits.product();
+  } else {
     std::cerr << "Error! can't get the product " << hitCollection_.c_str() << std::endl;
     return;
   }
 
   // hodoscopes
-  const EcalTBHodoscopeRecInfo* theHodo=nullptr;  
+  const EcalTBHodoscopeRecInfo *theHodo = nullptr;
   Handle<EcalTBHodoscopeRecInfo> pHodo;
   event.getByToken(hodoRec_Token_, pHodo);
-  if(pHodo.isValid()){ 
-    theHodo = pHodo.product(); 
-  }
-  else{ 
+  if (pHodo.isValid()) {
+    theHodo = pHodo.product();
+  } else {
     std::cerr << "Error! can't get the product " << hodoRecInfoCollection_.c_str() << std::endl;
     return;
   }
-  
+
   // tdc
-  const EcalTBTDCRecInfo* theTDC=nullptr;
+  const EcalTBTDCRecInfo *theTDC = nullptr;
   Handle<EcalTBTDCRecInfo> pTDC;
   event.getByToken(tdcRec_Token_, pTDC);
-  if(pTDC.isValid()){
-    theTDC = pTDC.product(); 
-  }
-  else{ 
+  if (pTDC.isValid()) {
+    theTDC = pTDC.product();
+  } else {
     std::cerr << "Error! can't get the product " << tdcRecInfoCollection_.c_str() << std::endl;
     return;
   }
 
   // event header
-  const EcalTBEventHeader* evtHeader=nullptr;
+  const EcalTBEventHeader *evtHeader = nullptr;
   Handle<EcalTBEventHeader> pEventHeader;
-  event.getByToken(eventHeader_Token_ , pEventHeader);
-  if(pEventHeader.isValid()){
-    evtHeader = pEventHeader.product(); 
-  }
-  else{ 
+  event.getByToken(eventHeader_Token_, pEventHeader);
+  if (pEventHeader.isValid()) {
+    evtHeader = pEventHeader.product();
+  } else {
     std::cerr << "Error! can't get the product " << eventHeaderProducer_.c_str() << std::endl;
     return;
   }
-  
- 
+
   // -----------------------------------------------------------------------
   // xtal-in-beam
-  EBDetId xtalInBeamId(1,xtalInBeam_, EBDetId::SMCRYSTALMODE);
-  if (xtalInBeamId==EBDetId(0)){ return; }
+  EBDetId xtalInBeamId(1, xtalInBeam_, EBDetId::SMCRYSTALMODE);
+  if (xtalInBeamId == EBDetId(0)) {
+    return;
+  }
   int xibEta = xtalInBeamId.ieta();
   int xibPhi = xtalInBeamId.iphi();
 
   // skipping events with moving table (in data)
-  if (data_ && (evtHeader->tableIsMoving())) return;
-  
+  if (data_ && (evtHeader->tableIsMoving()))
+    return;
+
   // amplitudes
   EBDetId Xtals5x5[25];
-  for (unsigned int icry=0;icry<25;icry++){
-    unsigned int row    = icry/5;
-    unsigned int column = icry%5;
-    int ieta = xtalInBeamId.ieta()+column-2;
-    int iphi = xtalInBeamId.iphi()+row-2;
-    if(EBDetId::validDetId(ieta, iphi)){ 
-      EBDetId tempId(ieta, iphi,EBDetId::ETAPHIMODE);
-      if (tempId.ism()==1) 
-	Xtals5x5[icry] = tempId;
+  for (unsigned int icry = 0; icry < 25; icry++) {
+    unsigned int row = icry / 5;
+    unsigned int column = icry % 5;
+    int ieta = xtalInBeamId.ieta() + column - 2;
+    int iphi = xtalInBeamId.iphi() + row - 2;
+    if (EBDetId::validDetId(ieta, iphi)) {
+      EBDetId tempId(ieta, iphi, EBDetId::ETAPHIMODE);
+      if (tempId.ism() == 1)
+        Xtals5x5[icry] = tempId;
       else
-	Xtals5x5[icry] = EBDetId(0);
+        Xtals5x5[icry] = EBDetId(0);
     } else {
-      Xtals5x5[icry] = EBDetId(0);   
+      Xtals5x5[icry] = EBDetId(0);
     }
-  } 
- 
+  }
+
   // matrices
   double ampl1x1 = 0.;
   double ampl3x3 = 0.;
   double ampl5x5 = 0.;
-  for (unsigned int icry=0;icry<25;icry++) {
-    if (!Xtals5x5[icry].null()){
+  for (unsigned int icry = 0; icry < 25; icry++) {
+    if (!Xtals5x5[icry].null()) {
       double theAmpl = (theHits->find(Xtals5x5[icry]))->amplitude();
       ampl5x5 += theAmpl;
-      if (icry==12){ampl1x1 = theAmpl;}
-      if (icry==6 || icry==7 || icry==8 || icry==11 || icry==12 || icry==13 || icry==16 || icry==17 || icry==18){ampl3x3 += theAmpl;}
-    }}
-
-
-  // pulse shape
-  double sampleSave[10];
-  for(int ii=0; ii < 10; ++ii){ sampleSave[ii] = 0.0; }
-  EBDigiCollection::const_iterator thisDigi = theDigis->find(xtalInBeamId);
-  // int sMax = -1; // UNUSED
-  double eMax = 0.;
-  if (thisDigi != theDigis->end()){
-    EBDataFrame myDigi = (*thisDigi);
-    for (int sample=0; sample < myDigi.size(); ++sample){
-      double analogSample = myDigi.sample(sample).adc();
-      sampleSave[sample]  = analogSample;
-      if ( eMax < analogSample ) {
-	eMax = analogSample;
-	// sMax = sample; // UNUSED
+      if (icry == 12) {
+        ampl1x1 = theAmpl;
+      }
+      if (icry == 6 || icry == 7 || icry == 8 || icry == 11 || icry == 12 || icry == 13 || icry == 16 || icry == 17 ||
+          icry == 18) {
+        ampl3x3 += theAmpl;
       }
     }
   }
-  
+
+  // pulse shape
+  double sampleSave[10];
+  for (int ii = 0; ii < 10; ++ii) {
+    sampleSave[ii] = 0.0;
+  }
+  EBDigiCollection::const_iterator thisDigi = theDigis->find(xtalInBeamId);
+  // int sMax = -1; // UNUSED
+  double eMax = 0.;
+  if (thisDigi != theDigis->end()) {
+    EBDataFrame myDigi = (*thisDigi);
+    for (int sample = 0; sample < myDigi.size(); ++sample) {
+      double analogSample = myDigi.sample(sample).adc();
+      sampleSave[sample] = analogSample;
+      if (eMax < analogSample) {
+        eMax = analogSample;
+        // sMax = sample; // UNUSED
+      }
+    }
+  }
+
   // beam profile
   double xBeam = theHodo->posX();
   double yBeam = theHodo->posY();
 
   // filling histos
-  meETBxib_      -> Fill(xibEta, xibPhi);
-  meETBhodoX_    -> Fill(xBeam);
-  meETBhodoY_    -> Fill(yBeam);
-  meETBampltdc_  -> Fill(theTDC->offset(),ampl1x1);
-  meETBe1x1_     -> Fill(ampl1x1);
-  meETBe3x3_     -> Fill(ampl3x3);
-  meETBe5x5_     -> Fill(ampl5x5);
-  meETBe1e9_     -> Fill(ampl1x1/ampl3x3);
-  meETBe1e25_    -> Fill(ampl1x1/ampl5x5);
-  meETBe9e25_    -> Fill(ampl3x3/ampl5x5);
-  meETBe1vsX_    -> Fill(xBeam,ampl1x1);
-  meETBe1vsY_    -> Fill(yBeam,ampl1x1);
-  meETBe1e9vsX_  -> Fill(xBeam,ampl1x1/ampl3x3);
-  meETBe1e9vsY_  -> Fill(yBeam,ampl1x1/ampl3x3);
-  meETBe1e25vsX_ -> Fill(xBeam,ampl1x1/ampl5x5);
-  meETBe1e25vsY_ -> Fill(yBeam,ampl1x1/ampl5x5);
-  meETBe9e25vsX_ -> Fill(xBeam,ampl3x3/ampl5x5);
-  meETBe9e25vsY_ -> Fill(yBeam,ampl3x3/ampl5x5);
+  meETBxib_->Fill(xibEta, xibPhi);
+  meETBhodoX_->Fill(xBeam);
+  meETBhodoY_->Fill(yBeam);
+  meETBampltdc_->Fill(theTDC->offset(), ampl1x1);
+  meETBe1x1_->Fill(ampl1x1);
+  meETBe3x3_->Fill(ampl3x3);
+  meETBe5x5_->Fill(ampl5x5);
+  meETBe1e9_->Fill(ampl1x1 / ampl3x3);
+  meETBe1e25_->Fill(ampl1x1 / ampl5x5);
+  meETBe9e25_->Fill(ampl3x3 / ampl5x5);
+  meETBe1vsX_->Fill(xBeam, ampl1x1);
+  meETBe1vsY_->Fill(yBeam, ampl1x1);
+  meETBe1e9vsX_->Fill(xBeam, ampl1x1 / ampl3x3);
+  meETBe1e9vsY_->Fill(yBeam, ampl1x1 / ampl3x3);
+  meETBe1e25vsX_->Fill(xBeam, ampl1x1 / ampl5x5);
+  meETBe1e25vsY_->Fill(yBeam, ampl1x1 / ampl5x5);
+  meETBe9e25vsX_->Fill(xBeam, ampl3x3 / ampl5x5);
+  meETBe9e25vsY_->Fill(yBeam, ampl3x3 / ampl5x5);
 
-  for(int ii=0; ii < 10; ++ii){ meETBShape_->Fill(double(ii)+theTDC->offset(),sampleSave[ii]); }
+  for (int ii = 0; ii < 10; ++ii) {
+    meETBShape_->Fill(double(ii) + theTDC->offset(), sampleSave[ii]);
+  }
 
-  if ( (fabs(xBeam)<2.5) && (fabs(yBeam)<2.5) ){ 
-    meETBe1x1_center_  -> Fill(ampl1x1);
-    meETBe3x3_center_  -> Fill(ampl3x3);
-    meETBe5x5_center_  -> Fill(ampl5x5);
+  if ((fabs(xBeam) < 2.5) && (fabs(yBeam) < 2.5)) {
+    meETBe1x1_center_->Fill(ampl1x1);
+    meETBe3x3_center_->Fill(ampl3x3);
+    meETBe5x5_center_->Fill(ampl5x5);
   }
 }
-
-

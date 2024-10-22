@@ -1,3 +1,5 @@
-import FWCore.ParameterSet.Config as cms
+from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *
+from Geometry.ForwardGeometry.zdcHardcodeGeometryEP_cfi import zdcHardcodeGeometryEP
+from Configuration.Eras.Modifier_zdcAddRPD_cff import zdcAddRPD
 
-ZdcHardcodeGeometryEP = cms.ESProducer( "ZdcHardcodeGeometryEP" )
+zdcAddRPD.toModify(zdcHardcodeGeometryEP, zdcAddRPD = True)

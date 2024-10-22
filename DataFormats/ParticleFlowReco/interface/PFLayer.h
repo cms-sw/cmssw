@@ -3,7 +3,6 @@
 
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
 
-
 /**\class PFLayer
    \brief layer definition for PFRecHit and PFCluster
    
@@ -19,8 +18,7 @@
 */
 
 class PFLayer {
-
- public:
+public:
   /// constructor
   PFLayer() {}
 
@@ -28,22 +26,23 @@ class PFLayer {
   ~PFLayer() {}
 
   /// layer definition
-  enum Layer {PS2          = -12, 
-              PS1          = -11,
-              ECAL_ENDCAP  = -2,
-              ECAL_BARREL  = -1,
-	      NONE         = 0,
-              HCAL_BARREL1 = 1,
-              HCAL_BARREL2 = 2,
-              HCAL_ENDCAP  = 3,
-              HF_EM        = 11,
-              HF_HAD       = 12,
-              HGCAL        = 13  // HGCal, could be EM or HAD
+  enum Layer {
+    PS2 = -12,
+    PS1 = -11,
+    ECAL_ENDCAP = -2,
+    ECAL_BARREL = -1,
+    NONE = 0,
+    HCAL_BARREL1 = 1,
+    HCAL_BARREL2 = 2,
+    HCAL_ENDCAP = 3,
+    HF_EM = 11,
+    HF_HAD = 12,
+    HGCAL = 13  // HGCal, could be EM or HAD
   };
 
-  static reco::CaloID  toCaloID( Layer layer);
-  
-  static Layer         fromCaloID( const reco::CaloID& id);
+  static reco::CaloID toCaloID(Layer layer);
+
+  static Layer fromCaloID(const reco::CaloID& id);
 };
 
 #endif

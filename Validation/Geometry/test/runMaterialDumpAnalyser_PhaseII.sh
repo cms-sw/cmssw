@@ -8,7 +8,7 @@ set -x
 # DEFAULTS
 
 events=5000
-geometry=Extended2023D11
+geometry=Extended2026D77
 
 # ARGUMENT PARSING
 
@@ -59,7 +59,7 @@ fi
 # DIGI comes next
 if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII.root ; then
   cmsDriver.py step2   \
--s DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:@fake2  \
+-s DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:@fake2  \
 --conditions auto:phase2_realistic \
 -n -1  \
 --era Phase2C2  \
@@ -83,7 +83,6 @@ if checkFile SingleMuPt10_step3_RECO_DQM_PhaseII.root ; then
 -s RAW2DIGI,L1Reco,RECO,VALIDATION:@phase2Validation,DQM:@phase2 \
 --conditions auto:phase2_realistic \
 -n -1  \
---runUnscheduled \
 --era Phase2C2  \
 --eventcontent FEVTDEBUGHLT,DQM  \
 --datatier GEN-SIM-RECO,DQMIO  \
@@ -136,7 +135,7 @@ fi
 
 for t in BeamPipe Tracker Phase2PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
   if [ ! -e matbdg_${t}.root ]; then
-    cmsRun runP_Tracker_cfg.py geom=${geometry} label=$t >& /dev/null &
+    python3 runP_Tracker.py geom=${geometry} label=$t >& /dev/null &
   fi
 done
 
@@ -145,7 +144,7 @@ waitPendingJobs
 # Always run the comparison at this stage, since you are guaranteed that all the ingredients are there
 
 for t in BeamPipe Tracker TrackerSumPhaseII Phase2PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
-  python MaterialBudget.py -s -d ${t}
+  python3 MaterialBudget.py -s -d ${t}
   if [ $? -ne 0 ]; then
     echo "Error while producing simulation material for ${t}, aborting"
     exit 1

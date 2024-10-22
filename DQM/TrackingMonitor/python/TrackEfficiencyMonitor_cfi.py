@@ -18,7 +18,7 @@ TrackEffMon = DQMEDAnalyzer('TrackEfficiencyMonitor',
 
     FolderName = cms.string('Track/Efficiencies'),
     AlgoName = cms.string('CTF'),
-            
+    muoncoll = cms.InputTag('muons'),        
     muonXBin =  cms.int32(50),
     muonXMin = cms.double(-100),
     muonXMax = cms.double(100),
@@ -90,7 +90,6 @@ TrackEffMon = DQMEDAnalyzer('TrackEfficiencyMonitor',
     signDeltaYBin = cms.int32(50),
     signDeltaYMin = cms.double(-5),
     signDeltaYMax = cms.double(5),
-    
  
 )   
     

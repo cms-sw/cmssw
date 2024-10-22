@@ -1,0 +1,390 @@
+<?xml version="1.0"?>
+<DDDefinition>
+    <ConstantsSection label="Input" eval="true">
+        <Constant name="InnerRingREdge" value="49.16*mm"/>
+        <Constant name="InnerRingRMin" value="50.16*mm"/>
+        <Constant name="InnerRingRMax" value="51.16*mm"/>
+        <Constant name="InnerRingEdge" value="1.00*mm"/>
+        <Constant name="InnerRingHalfWidth" value="29.50*mm"/>
+        <Constant name="OuterRingRMin" value="157.5*mm"/>
+        <Constant name="OuterRingRMax" value="158.5*mm"/>
+        <Constant name="OuterRingREdge" value="159.5*mm"/>
+        <Constant name="OuterRingEdge" value="1.00*mm"/>
+        <Constant name="OuterRingHalfWidth" value="29.50*mm"/>
+    </ConstantsSection>
+    <!-- Disk root -->
+    <ConstantsSection label="Root" eval="true">
+        <Constant name="DiskRmin" value="[InnerRingREdge]"/>
+        <Constant name="DiskRmax" value="[OuterRingREdge]"/>
+        <Constant name="DiskHalfWidth" value="[OuterRingHalfWidth]"/>
+    </ConstantsSection>
+    <!-- New description (modification) 04/17/07 : Panel3R, 4R and 4L were going through the Disk, so 2mm were added to the Width of the mother volume of the Disk -->
+    <SolidSection label="Root">
+        <Tubs name="PixelForwardDisk" rMin="[DiskRmin]" rMax="[DiskRmax]" dz="[DiskHalfWidth]+2.0*mm" startPhi="0." deltaPhi="360*deg"/>
+    </SolidSection>
+    <LogicalPartSection label="Root">
+        <LogicalPart name="PixelForwardDiskZPlus" category="envelope">
+            <rSolid name="PixelForwardDisk"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardDiskZMinus" category="envelope">
+            <rSolid name="PixelForwardDisk"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <!-- Support rings -->
+    <SolidSection label="Rings">
+        <Tubs name="PixelForwardDiskInnerRing" rMin="[InnerRingRMin]" rMax="[InnerRingRMax]" dz="[InnerRingHalfWidth]" startPhi="0." deltaPhi="360*deg"/>
+        <Tubs name="PixelForwardDiskInnerRingEdge" rMin="[InnerRingREdge]" rMax="[InnerRingRMin]" dz="[InnerRingEdge]/2." startPhi="0." deltaPhi="360*deg"/>
+        <Tubs name="PixelForwardDiskOuterRing" rMin="[OuterRingRMin]" rMax="[OuterRingRMax]" dz="[OuterRingHalfWidth]" startPhi="0." deltaPhi="360*deg"/>
+        <Tubs name="PixelForwardDiskOuterRingEdge" rMin="[OuterRingRMax]" rMax="[OuterRingREdge]" dz="[OuterRingEdge]/2." startPhi="0." deltaPhi="360*deg"/>
+    </SolidSection>
+    <LogicalPartSection label="Rings">
+        <LogicalPart name="PixelForwardDiskInnerRing" category="support">
+            <rSolid name="PixelForwardDiskInnerRing"/>
+            <rMaterial name="pixfwdMaterials:Aluminium_InnerRing"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardDiskInnerRingEdge" category="support">
+            <rSolid name="PixelForwardDiskInnerRingEdge"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardDiskOuterRing" category="support">
+            <rSolid name="PixelForwardDiskOuterRing"/>
+            <rMaterial name="pixfwdMaterials:Aluminium_OuterRing"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardDiskOuterRingEdge" category="support">
+            <rSolid name="PixelForwardDiskOuterRingEdge"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <PosPartSection label="Rings">
+        <!-- Z Plus Disk -->
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdDisk:PixelForwardDiskZPlus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskInnerRing"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdDisk:PixelForwardDiskZPlus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskInnerRingEdge"/>
+            <Translation x="0." y="0." z="-[InnerRingHalfWidth]-[InnerRingEdge]/2."/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdDisk:PixelForwardDiskZPlus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskInnerRingEdge"/>
+            <Translation x="0." y="0." z="[InnerRingHalfWidth]+[InnerRingEdge]/2."/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdDisk:PixelForwardDiskZPlus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskOuterRing"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdDisk:PixelForwardDiskZPlus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskOuterRingEdge"/>
+            <Translation x="0." y="0." z="-[OuterRingHalfWidth]-[OuterRingEdge]/2."/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdDisk:PixelForwardDiskZPlus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskOuterRingEdge"/>
+            <Translation x="0." y="0." z="[OuterRingHalfWidth]+[OuterRingEdge]/2."/>
+        </PosPart>
+        <!-- Z Minus Disk -->
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskInnerRing"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskInnerRingEdge"/>
+            <Translation x="0." y="0." z="-[InnerRingHalfWidth]-[InnerRingEdge]/2."/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskInnerRingEdge"/>
+            <Translation x="0." y="0." z="[InnerRingHalfWidth]+[InnerRingEdge]/2."/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskOuterRing"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskOuterRingEdge"/>
+            <Translation x="0." y="0." z="-[OuterRingHalfWidth]-[OuterRingEdge]/2."/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskOuterRingEdge"/>
+            <Translation x="0." y="0." z="[OuterRingHalfWidth]+[OuterRingEdge]/2."/>
+        </PosPart>
+    </PosPartSection>
+    <!-- Blades -->
+    <!-- Z Plus Disk -->
+    <Algorithm name="track:DDPixFwdBladesNew">
+        <rParent name="pixfwdDisk:PixelForwardDiskZPlus"/>
+        <Numeric name="Endcap"       value="1."/>
+        <Numeric name="Blades"       value="[pixfwdRotation:Blades]"/>
+        <Numeric name="BladeAngle"   value="[pixfwdRotation:BladeAngle]"/>
+        <Numeric name="BladeZShift"  value="[pixfwdRotation:BladeZShift]"/>
+        <Numeric name="AncorRadius"  value="[pixfwdRotation:AncorRadius]"/>
+        <Numeric name="JX"           value="[pixfwdRotation:JX]"/>
+        <Numeric name="JY"           value="[pixfwdRotation:JY]"/>
+        <Numeric name="JZ"           value="[pixfwdRotation:JZ]"/>
+        <Numeric name="KX"           value="[pixfwdRotation:KX]"/>
+        <Numeric name="KY"           value="[pixfwdRotation:KY]"/>
+        <Numeric name="KZ"           value="[pixfwdRotation:KZ]"/>
+        <Numeric name="NippleType"   value="0"/>
+        <String name="FlagString"    value="YYYYYYYYYYYYYYYYYYYYYYYY"/>
+        <String name="FlagSelector"  value="Y"/>
+        <String name="Child"         value="pixfwdBlade:PixelForwardBlade"/>
+        <Numeric name="StartCopy"    value="1"/>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdBlade:AnchorY], 0. </Vector>
+        <String name="ChildRotation" value=""/>
+    </Algorithm>
+    <!-- Z Minus Disk -->
+    <Algorithm name="track:DDPixFwdBladesNew">
+        <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
+        <Numeric name="Endcap"       value="-1."/>
+        <Numeric name="Blades"       value="[pixfwdRotation:Blades]"/>
+        <Numeric name="BladeAngle"   value="[pixfwdRotation:BladeAngle]"/>
+        <Numeric name="BladeZShift"  value="[pixfwdRotation:BladeZShift]"/>
+        <Numeric name="AncorRadius"  value="[pixfwdRotation:AncorRadius]"/>
+        <Numeric name="JX"           value="[pixfwdRotation:JX]"/>
+        <Numeric name="JY"           value="[pixfwdRotation:JY]"/>
+        <Numeric name="JZ"           value="[pixfwdRotation:JZ]"/>
+        <Numeric name="KX"           value="[pixfwdRotation:KX]"/>
+        <Numeric name="KY"           value="[pixfwdRotation:KY]"/>
+        <Numeric name="KZ"           value="[pixfwdRotation:KZ]"/>
+        <Numeric name="NippleType"   value="0"/>
+        <String name="FlagString"    value="YYYYYYYYYYYYYYYYYYYYYYYY"/>
+        <String name="FlagSelector"  value="Y"/>
+        <String name="Child"         value="pixfwdBlade:PixelForwardBlade"/>
+        <Numeric name="StartCopy"    value="1"/>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdBlade:AnchorY], 0. </Vector>
+        <String name="ChildRotation" value="pixfwdCommon:ReflectionX"/>
+    </Algorithm>
+    <!-- Panels -->
+    <ConstantsSection label="Panels" eval="true">
+        <Constant name="zPanel" value="[pixfwdBlade:RootHalfThickness]+[pixfwdPanel:RootHalfThickness]"/>
+    </ConstantsSection>
+    <!-- Z Plus Disk -->
+    <Algorithm name="track:DDPixFwdBladesNew">
+        <rParent name="pixfwdDisk:PixelForwardDiskZPlus"/>
+        <Numeric name="Endcap"       value="1."/>
+        <Numeric name="Blades"       value="[pixfwdRotation:Blades]"/>
+        <Numeric name="BladeAngle"   value="[pixfwdRotation:BladeAngle]"/>
+        <Numeric name="BladeZShift"  value="[pixfwdRotation:BladeZShift]"/>
+        <Numeric name="AncorRadius"  value="[pixfwdRotation:AncorRadius]"/>
+        <Numeric name="JX"           value="[pixfwdRotation:JX]"/>
+        <Numeric name="JY"           value="[pixfwdRotation:JY]"/>
+        <Numeric name="JZ"           value="[pixfwdRotation:JZ]"/>
+        <Numeric name="KX"           value="[pixfwdRotation:KX]"/>
+        <Numeric name="KY"           value="[pixfwdRotation:KY]"/>
+        <Numeric name="KZ"           value="[pixfwdRotation:KZ]"/>
+        <Numeric name="NippleType"   value="0"/>
+        <String name="FlagString"    value="RLLLLRLLLLLRRLLLLRLLLLLR"/>
+        <!-- Panel Layout ZPlus 3  -->
+        <String name="FlagSelector"  value="R"/>
+        <String name="Child" value="pixfwdPanel:PixelForwardPanel3Right"/>
+        <Numeric name="StartCopy"    value="1"/>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AnchorY], [zPanel] </Vector>
+        <String name="ChildRotation" value=""/>
+    </Algorithm>
+    <Algorithm name="track:DDPixFwdBladesNew">
+        <rParent name="pixfwdDisk:PixelForwardDiskZPlus"/>
+        <Numeric name="Endcap"       value="1."/>
+        <Numeric name="Blades"       value="[pixfwdRotation:Blades]"/>
+        <Numeric name="BladeAngle"   value="[pixfwdRotation:BladeAngle]"/>
+        <Numeric name="BladeZShift"  value="[pixfwdRotation:BladeZShift]"/>
+        <Numeric name="AncorRadius"  value="[pixfwdRotation:AncorRadius]"/>
+        <Numeric name="JX"           value="[pixfwdRotation:JX]"/>
+        <Numeric name="JY"           value="[pixfwdRotation:JY]"/>
+        <Numeric name="JZ"           value="[pixfwdRotation:JZ]"/>
+        <Numeric name="KX"           value="[pixfwdRotation:KX]"/>
+        <Numeric name="KY"           value="[pixfwdRotation:KY]"/>
+        <Numeric name="KZ"           value="[pixfwdRotation:KZ]"/>
+        <Numeric name="NippleType"   value="0"/>
+        <String name="FlagString"    value="RLLLLRLLLLLRRLLLLRLLLLLR"/>
+        <!-- Panel Layout ZPlus 3  -->
+        <String name="FlagSelector"  value="L"/>
+        <String name="Child"         value="pixfwdPanel:PixelForwardPanel3Left"/>
+        <Numeric name="StartCopy"    value="1"/>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AnchorY], [zPanel] </Vector>
+        <String name="ChildRotation" value=""/>
+    </Algorithm>
+    <Algorithm name="track:DDPixFwdBladesNew">
+        <rParent name="pixfwdDisk:PixelForwardDiskZPlus"/>
+        <Numeric name="Endcap"       value="1."/>
+        <Numeric name="Blades"       value="[pixfwdRotation:Blades]"/>
+        <Numeric name="BladeAngle"   value="[pixfwdRotation:BladeAngle]"/>
+        <Numeric name="BladeZShift"  value="[pixfwdRotation:BladeZShift]"/>
+        <Numeric name="AncorRadius"  value="[pixfwdRotation:AncorRadius]"/>
+        <Numeric name="JX"           value="[pixfwdRotation:JX]"/>
+        <Numeric name="JY"           value="[pixfwdRotation:JY]"/>
+        <Numeric name="JZ"           value="[pixfwdRotation:JZ]"/>
+        <Numeric name="KX"           value="[pixfwdRotation:KX]"/>
+        <Numeric name="KY"           value="[pixfwdRotation:KY]"/>
+        <Numeric name="KZ"           value="[pixfwdRotation:KZ]"/>
+        <Numeric name="NippleType"   value="0"/>
+        <String name="FlagString"    value="LLLLLLRLLLLRLLLLLLRLLLLR"/>
+        <!-- Panel Layout ZPlus 4  -->
+        <String name="FlagSelector"  value="R"/>
+        <String name="Child"         value="pixfwdPanel:PixelForwardPanel4Right"/>
+        <Numeric name="StartCopy"    value="1"/>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AnchorY], -[zPanel] </Vector>
+        <String name="ChildRotation" value="pixfwdCommon:Y180"/>
+    </Algorithm>
+    <Algorithm name="track:DDPixFwdBladesNew">
+        <rParent name="pixfwdDisk:PixelForwardDiskZPlus"/>
+        <Numeric name="Endcap"       value="1."/>
+        <Numeric name="Blades"       value="[pixfwdRotation:Blades]"/>
+        <Numeric name="BladeAngle"   value="[pixfwdRotation:BladeAngle]"/>
+        <Numeric name="BladeZShift"  value="[pixfwdRotation:BladeZShift]"/>
+        <Numeric name="AncorRadius"  value="[pixfwdRotation:AncorRadius]"/>
+        <Numeric name="JX"           value="[pixfwdRotation:JX]"/>
+        <Numeric name="JY"           value="[pixfwdRotation:JY]"/>
+        <Numeric name="JZ"           value="[pixfwdRotation:JZ]"/>
+        <Numeric name="KX"           value="[pixfwdRotation:KX]"/>
+        <Numeric name="KY"           value="[pixfwdRotation:KY]"/>
+        <Numeric name="KZ"           value="[pixfwdRotation:KZ]"/>
+        <Numeric name="NippleType"   value="0"/>
+        <String name="FlagString"    value="LLLLLLRLLLLRLLLLLLRLLLLR"/>
+        <!-- Panel Layout ZPlus 4  -->
+        <String name="FlagSelector"  value="L"/>
+        <String name="Child" value="pixfwdPanel:PixelForwardPanel4Left"/>
+        <Numeric name="StartCopy"    value="1"/>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AnchorY], -[zPanel] </Vector>
+        <String name="ChildRotation" value="pixfwdCommon:Y180"/>
+    </Algorithm>
+    <!-- Z Minus Disk -->
+    <Algorithm name="track:DDPixFwdBladesNew">
+        <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
+        <Numeric name="Endcap"       value="-1."/>
+        <Numeric name="Blades"       value="[pixfwdRotation:Blades]"/>
+        <Numeric name="BladeAngle"   value="[pixfwdRotation:BladeAngle]"/>
+        <Numeric name="BladeZShift"  value="[pixfwdRotation:BladeZShift]"/>
+        <Numeric name="AncorRadius"  value="[pixfwdRotation:AncorRadius]"/>
+        <Numeric name="JX"           value="[pixfwdRotation:JX]"/>
+        <Numeric name="JY"           value="[pixfwdRotation:JY]"/>
+        <Numeric name="JZ"           value="[pixfwdRotation:JZ]"/>
+        <Numeric name="KX"           value="[pixfwdRotation:KX]"/>
+        <Numeric name="KY"           value="[pixfwdRotation:KY]"/>
+        <Numeric name="KZ"           value="[pixfwdRotation:KZ]"/>
+        <Numeric name="NippleType"   value="0"/>
+        <String name="FlagString"    value="LRRRRRLRRRRLLRRRRRLRRRRL"/>
+        <!-- Panel Layout ZMinus 3  -->
+        <String name="FlagSelector"  value="R"/>
+        <String name="Child"         value="pixfwdPanel:PixelForwardPanel3Right"/>
+        <Numeric name="StartCopy"    value="1"/>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AnchorY], [zPanel] </Vector>
+        <String name="ChildRotation" value=""/>
+    </Algorithm>
+    <Algorithm name="track:DDPixFwdBladesNew">
+        <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
+        <Numeric name="Endcap"       value="-1."/>
+        <Numeric name="Blades"       value="[pixfwdRotation:Blades]"/>
+        <Numeric name="BladeAngle"   value="[pixfwdRotation:BladeAngle]"/>
+        <Numeric name="BladeZShift"  value="[pixfwdRotation:BladeZShift]"/>
+        <Numeric name="AncorRadius"  value="[pixfwdRotation:AncorRadius]"/>
+        <Numeric name="JX"           value="[pixfwdRotation:JX]"/>
+        <Numeric name="JY"           value="[pixfwdRotation:JY]"/>
+        <Numeric name="JZ"           value="[pixfwdRotation:JZ]"/>
+        <Numeric name="KX"           value="[pixfwdRotation:KX]"/>
+        <Numeric name="KY"           value="[pixfwdRotation:KY]"/>
+        <Numeric name="KZ"           value="[pixfwdRotation:KZ]"/>
+        <Numeric name="NippleType"   value="0"/>
+        <String name="FlagString"    value="LRRRRRLRRRRLLRRRRRLRRRRL"/>
+        <!-- Panel Layout ZMinus 3  -->
+        <String name="FlagSelector"  value="L"/>
+        <String name="Child"         value="pixfwdPanel:PixelForwardPanel3Left"/>
+        <Numeric name="StartCopy"    value="1"/>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AnchorY], [zPanel] </Vector>
+        <String name="ChildRotation" value=""/>
+    </Algorithm>
+    <Algorithm name="track:DDPixFwdBladesNew">
+        <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
+        <Numeric name="Endcap"       value="-1."/>
+        <Numeric name="Blades"       value="[pixfwdRotation:Blades]"/>
+        <Numeric name="BladeAngle"   value="[pixfwdRotation:BladeAngle]"/>
+        <Numeric name="BladeZShift"  value="[pixfwdRotation:BladeZShift]"/>
+        <Numeric name="AncorRadius"  value="[pixfwdRotation:AncorRadius]"/>
+        <Numeric name="JX"           value="[pixfwdRotation:JX]"/>
+        <Numeric name="JY"           value="[pixfwdRotation:JY]"/>
+        <Numeric name="JZ"           value="[pixfwdRotation:JZ]"/>
+        <Numeric name="KX"           value="[pixfwdRotation:KX]"/>
+        <Numeric name="KY"           value="[pixfwdRotation:KY]"/>
+        <Numeric name="KZ"           value="[pixfwdRotation:KZ]"/>
+        <Numeric name="NippleType"   value="0"/>
+        <String name="FlagString"    value="LRRRRLRRRRRRLRRRRLRRRRRR"/>
+        <!-- Panel Layout ZMinus 4  -->
+        <String name="FlagSelector"  value="R"/>
+        <String name="Child"         value="pixfwdPanel:PixelForwardPanel4Right"/>
+        <Numeric name="StartCopy"    value="1"/>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AnchorY], -[zPanel] </Vector>
+        <String name="ChildRotation" value="pixfwdCommon:Y180"/>
+    </Algorithm>
+    <Algorithm name="track:DDPixFwdBladesNew">
+        <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
+        <Numeric name="Endcap"       value="-1."/>
+        <Numeric name="Blades"       value="[pixfwdRotation:Blades]"/>
+        <Numeric name="BladeAngle"   value="[pixfwdRotation:BladeAngle]"/>
+        <Numeric name="BladeZShift"  value="[pixfwdRotation:BladeZShift]"/>
+        <Numeric name="AncorRadius"  value="[pixfwdRotation:AncorRadius]"/>
+        <Numeric name="JX"           value="[pixfwdRotation:JX]"/>
+        <Numeric name="JY"           value="[pixfwdRotation:JY]"/>
+        <Numeric name="JZ"           value="[pixfwdRotation:JZ]"/>
+        <Numeric name="KX"           value="[pixfwdRotation:KX]"/>
+        <Numeric name="KY"           value="[pixfwdRotation:KY]"/>
+        <Numeric name="KZ"           value="[pixfwdRotation:KZ]"/>
+        <Numeric name="NippleType"   value="0"/>
+        <String name="FlagString"    value="LRRRRLRRRRRRLRRRRLRRRRRR"/>
+        <!-- Panel Layout ZMinus 4  -->
+        <String name="FlagSelector"  value="L"/>
+        <String name="Child"         value="pixfwdPanel:PixelForwardPanel4Left"/>
+        <Numeric name="StartCopy"    value="1"/>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AnchorY], -[zPanel] </Vector>
+        <String name="ChildRotation" value="pixfwdCommon:Y180"/>
+    </Algorithm>
+    <!-- Nipples -->
+    <Algorithm name="track:DDPixFwdBladesNew">
+        <rParent name="pixfwdDisk:PixelForwardDiskZPlus"/>
+        <Numeric name="Endcap" value="1."/>
+        <Numeric name="Blades"       value="[pixfwdRotation:Blades]"/>
+        <Numeric name="BladeAngle"   value="[pixfwdRotation:BladeAngle]"/>
+        <Numeric name="BladeZShift"  value="[pixfwdRotation:BladeZShift]"/>
+        <Numeric name="AncorRadius"  value="[pixfwdRotation:AncorRadius]"/>
+        <Numeric name="JX"           value="[pixfwdRotation:JX]"/>
+        <Numeric name="JY"           value="[pixfwdRotation:JY]"/>
+        <Numeric name="JZ"           value="[pixfwdRotation:JZ]"/>
+        <Numeric name="KX"           value="[pixfwdRotation:KX]"/>
+        <Numeric name="KY"           value="[pixfwdRotation:KY]"/>
+        <Numeric name="KZ"           value="[pixfwdRotation:KZ]"/>
+        <Numeric name="NippleType"   value="1"/>
+        <String name="FlagString"    value="YYYYYNYYYYYNYYYYYNYYYYYN"/>
+        <String name="FlagSelector"  value="Y"/>
+        <String name="Child"         value="pixfwdNipple:PixelForwardNippleZPlus"/>
+        <Numeric name="StartCopy"    value="1"/>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., 0., 0. </Vector>
+        <String name="ChildRotation" value="pixfwdNipple:NippleToCoverZPlus"/>
+    </Algorithm>
+    <Algorithm name="track:DDPixFwdBladesNew">
+        <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
+        <Numeric name="Endcap" value="-1."/>
+        <Numeric name="Blades"       value="[pixfwdRotation:Blades]"/>
+        <Numeric name="BladeAngle"   value="[pixfwdRotation:BladeAngle]"/>
+        <Numeric name="BladeZShift"  value="[pixfwdRotation:BladeZShift]"/>
+        <Numeric name="AncorRadius"  value="[pixfwdRotation:AncorRadius]"/>
+        <Numeric name="JX"           value="[pixfwdRotation:JX]"/>
+        <Numeric name="JY"           value="[pixfwdRotation:JY]"/>
+        <Numeric name="JZ"           value="[pixfwdRotation:JZ]"/>
+        <Numeric name="KX"           value="[pixfwdRotation:KX]"/>
+        <Numeric name="KY"           value="[pixfwdRotation:KY]"/>
+        <Numeric name="KZ"           value="[pixfwdRotation:KZ]"/>
+        <Numeric name="NippleType"   value="1"/>
+        <String name="FlagString"    value="NYYYYYNYYYYYNYYYYYNYYYYY"/>
+        <String name="FlagSelector"  value="Y"/>
+        <String name="Child"         value="pixfwdNipple:PixelForwardNippleZMinus"/>
+        <Numeric name="StartCopy"    value="1"/>
+        <Vector name="ChildTranslation" type="numeric" nEntries="3"> 0., 0., 0. </Vector>
+        <String name="ChildRotation" value="pixfwdNipple:NippleToCoverZMinus"/>
+    </Algorithm>
+</DDDefinition>

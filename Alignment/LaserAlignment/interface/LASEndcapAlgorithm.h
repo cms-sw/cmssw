@@ -17,20 +17,18 @@
 ///
 /// calculate parameters for both endcaps from measurement
 ///
-/// TODO: 
+/// TODO:
 ///   * calculate the parameter errors
 ///   * include the beam parameters
 ///   * calculate the global parameters
 ///
 class LASEndcapAlgorithm {
-
- public:
+public:
   LASEndcapAlgorithm();
-  LASEndcapAlignmentParameterSet CalculateParameters( LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>& );
-  double GetAlignmentParameterCorrection( int, int, int, int, LASGlobalData<LASCoordinateSet>&, LASEndcapAlignmentParameterSet& );
-
+  LASEndcapAlignmentParameterSet CalculateParameters(LASGlobalData<LASCoordinateSet>&,
+                                                     LASGlobalData<LASCoordinateSet>&);
+  double GetAlignmentParameterCorrection(
+      int, int, int, int, LASGlobalData<LASCoordinateSet>&, LASEndcapAlignmentParameterSet&);
 };
-
-
 
 #endif

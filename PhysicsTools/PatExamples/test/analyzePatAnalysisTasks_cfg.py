@@ -5,7 +5,6 @@ process = cms.Process("Test")
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
     "file:patTuple.root"
-#"file:store/patTuple.root"
   )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
@@ -52,7 +51,7 @@ process.p.replace(process.jecAnalyzer, process.jecAnalyzer * process.jecAnalyzer
 #               #
 #################
 ## Geometry and Detector Conditions (needed for a Scaling up and down the JEC)
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = cms.string( autoCond[ 'startup' ] )

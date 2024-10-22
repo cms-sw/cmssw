@@ -1,11 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-ExoticaDQM = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ExoticaDQM = DQMEDAnalyzer(
     "ExoticaDQM",
-
-    #Trigger Results
-    TriggerResults           = cms.InputTag('TriggerResults','','HLT'),
-    HltPaths                 = cms.vstring("HLT_Mu","HLT_Ele","HLT_Photon","HLT_PFHT","HLT_HT","HLT_PFMET","HLT_MET","HLT_"),
 
     #Physics objects
     vertexCollection         = cms.InputTag('offlinePrimaryVertices'),
@@ -18,7 +15,7 @@ ExoticaDQM = cms.EDAnalyzer(
     pfJetCollection          = cms.InputTag('ak4PFJetsCHS'),
     jetCorrector             = cms.InputTag('ak4PFL1FastL2L3Corrector'),
 
-    DiJetPFJetCollection     = cms.VInputTag('ak4PFJetsCHS','ak8PFJetsCHS'),
+    DiJetPFJetCollection     = cms.VInputTag('ak4PFJetsCHS','ak8PFJetsPuppi'),
 
     caloMETCollection        = cms.InputTag("caloMetM"),
     pfMETCollection          = cms.InputTag("pfMet"),

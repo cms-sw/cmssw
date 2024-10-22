@@ -38,19 +38,37 @@ siStripQualityESProducerUnbiased.ListOfRecordToMerge = cms.VPSet(
 # Clusterizer #
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
 
-
+siStripUnbiasedClusterizerConditions = SiStripClusterizerConditionsESProducer.clone(QualityLabel="unbiased", Label="unbiased")
 calZeroBiasClusters = siStripClusters.clone()
-calZeroBiasClusters.Clusterizer.QualityLabel = 'unbiased'
+if hasattr(calZeroBiasClusters, "Clusterizer"): calZeroBiasClusters.Clusterizer.ConditionsLabel = 'unbiased'
 
 # Not persistent collections needed by the filters in the AlCaReco DQM
 from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
 from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi import *
 
 # SiStripQuality (only to test the different data labels)#
-qualityStatistics = cms.EDAnalyzer("SiStripQualityStatistics",
-    TkMapFileName = cms.untracked.string(''),
-    dataLabel = cms.untracked.string('unbiased')
-)
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+qualityStatistics = siStripQualityStatistics.clone(StripQualityLabel=cms.string("unbiased"))
 
 # Sequence #
 seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)
+
+## customizations for the pp_on_AA eras
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+(pp_on_XeXe_2017 | pp_on_AA).toModify(ALCARECOSiStripCalZeroBiasHLT,
+                                      eventSetupPathsKey='SiStripCalZeroBiasHI'
+)
+
+# Select pp-like events based on the pixel cluster multiplicity
+import HLTrigger.special.hltPixelActivityFilter_cfi
+HLTPixelActivityFilterForSiStripCalZeroBias = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone()
+HLTPixelActivityFilterForSiStripCalZeroBias.maxClusters = 500
+HLTPixelActivityFilterForSiStripCalZeroBias.inputTag    = 'siPixelClusters'
+
+seqALCARECOSiStripCalZeroBiasHI = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)
+
+#Specify we want to use our other sequence 
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(seqALCARECOSiStripCalZeroBias,
+                                           seqALCARECOSiStripCalZeroBiasHI
+)

@@ -6,9 +6,9 @@
 #include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 
 REGISTER_PLUGIN(L1JetEtScaleRcd, L1CaloEtScale);
-REGISTER_PLUGIN(L1EmEtScaleRcd, L1CaloEtScale);
-REGISTER_PLUGIN(L1HtMissScaleRcd, L1CaloEtScale);
-REGISTER_PLUGIN(L1HfRingEtScaleRcd, L1CaloEtScale);
+REGISTER_PLUGIN_NO_SERIAL(L1EmEtScaleRcd, L1CaloEtScale);
+REGISTER_PLUGIN_NO_SERIAL(L1HtMissScaleRcd, L1CaloEtScale);
+REGISTER_PLUGIN_NO_SERIAL(L1HfRingEtScaleRcd, L1CaloEtScale);
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"

@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     SiPixelDynamicInefficiencyRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

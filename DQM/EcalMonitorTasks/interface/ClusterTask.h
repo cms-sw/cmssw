@@ -13,11 +13,12 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include <bitset>
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class ClusterTask : public DQWorkerTask {
   public:
     ClusterTask();
@@ -27,7 +28,7 @@ namespace ecaldqm
 
     void addDependencies(DependencySet&) override;
 
-    void beginEvent(edm::Event const&, edm::EventSetup const&) override;
+    void beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) override;
     void endEvent(edm::Event const&, edm::EventSetup const&) override;
 
     bool analyze(void const*, Collections) override;
@@ -38,14 +39,7 @@ namespace ecaldqm
 
     void setTokens(edm::ConsumesCollector&) override;
 
-    enum TriggerTypes {
-      kEcalTrigger,
-      kHcalTrigger,
-      kCSCTrigger,
-      kDTTrigger,
-      kRPCTrigger,
-      nTriggerTypes
-    };
+    enum TriggerTypes { kEcalTrigger, kHcalTrigger, kCSCTrigger, kDTTrigger, kRPCTrigger, nTriggerTypes };
 
   private:
     void setParams(edm::ParameterSet const&) override;
@@ -65,33 +59,36 @@ namespace ecaldqm
     edm::InputTag L1MuGMTReadoutCollectionTag_;
     edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> L1GlobalTriggerReadoutRecordToken_;
     edm::EDGetTokenT<L1MuGMTReadoutCollection> L1MuGMTReadoutCollectionToken_;
+    edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> menuRcd;
   };
 
-  inline bool ClusterTask::analyze(void const* _p, Collections _collection){
-    switch(_collection){
-    case kEBRecHit:
-    case kEERecHit:
-      if(_p) runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
-      return true;
-      break;
-    case kEBBasicCluster:
-    case kEEBasicCluster:
-      if(_p) runOnBasicClusters(*static_cast<edm::View<reco::CaloCluster> const*>(_p), _collection);
-      return true;
-      break;
-    case kEBSuperCluster:
-    case kEESuperCluster:
-      if(_p) runOnSuperClusters(*static_cast<reco::SuperClusterCollection const*>(_p), _collection);
-      return true;
-      break;
-    default:
-      break;
+  inline bool ClusterTask::analyze(void const* _p, Collections _collection) {
+    switch (_collection) {
+      case kEBRecHit:
+      case kEERecHit:
+        if (_p)
+          runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
+        return true;
+        break;
+      case kEBBasicCluster:
+      case kEEBasicCluster:
+        if (_p)
+          runOnBasicClusters(*static_cast<edm::View<reco::CaloCluster> const*>(_p), _collection);
+        return true;
+        break;
+      case kEBSuperCluster:
+      case kEESuperCluster:
+        if (_p)
+          runOnSuperClusters(*static_cast<reco::SuperClusterCollection const*>(_p), _collection);
+        return true;
+        break;
+      default:
+        break;
     }
 
     return false;
   }
 
-}
+}  // namespace ecaldqm
 
 #endif
-

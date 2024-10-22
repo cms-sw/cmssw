@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # This cfg calls MakeAngleLUT which is obsolete and completely unused.
 #
@@ -12,7 +13,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '90X_upgrade2023_realistic_v9', '')
-print "Using GlobalTag: %s" % process.GlobalTag.globaltag.value()
+print("Using GlobalTag: %s" % process.GlobalTag.globaltag.value())
 
 # Fake alignment is/should be ideal geometry
 # ==========================================

@@ -11,59 +11,57 @@
 // #include "HepMC/PythiaWrapper6_2.h"
 
 namespace CLHEP {
-   class HepRandomEngine;
+  class HepRandomEngine;
 }
 
-namespace gen
-{
+namespace gen {
 
-   // the callbacks from Pythia which are passed on to the Pythia6Service
-   extern "C" {
-      double pyr_(int* idummy);
-   }
+  // the callbacks from Pythia which are passed on to the Pythia6Service
+  extern "C" {
+  double pyr_(int* idummy);
+  }
 
-   class Pythia6Service : public FortranInstance
-   {
-      public:         
-         // ctor & dtor
-         Pythia6Service();
-	 Pythia6Service( edm::ParameterSet const& );
-	 ~Pythia6Service() override ; 
-     
-         void setGeneralParams();
-         void setCSAParams();
-         void setSLHAParams();
-         void setPYUPDAParams(bool afterPyinit);
-	 void setSLHAFromHeader( const std::vector<std::string> &lines );
-	 
-	 void openSLHA( const char* );
-	 void closeSLHA();
-	 void openPYUPDA( const char*, bool write_file );
-	 void closePYUPDA();
+  class Pythia6Service : public FortranInstance {
+  public:
+    // ctor & dtor
+    Pythia6Service();
+    Pythia6Service(edm::ParameterSet const&);
+    ~Pythia6Service() override;
 
-         // initialise Pythia on first call from "dummy" instance
-         void enter() override;
+    void setGeneralParams();
+    void setCSAParams();
+    void setSLHAParams();
+    void setPYUPDAParams(bool afterPyinit);
+    void setSLHAFromHeader(const std::vector<std::string>& lines);
 
-         CLHEP::HepRandomEngine* randomEngine() const { return fRandomEngine; }
-         void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
+    void openSLHA(const char*);
+    void closeSLHA();
+    void openPYUPDA(const char*, bool write_file);
+    void closePYUPDA();
 
-     private:
-        friend double gen::pyr_(int*);
+    // initialise Pythia on first call from "dummy" instance
+    void enter() override;
 
-        bool fInitialising;
+    CLHEP::HepRandomEngine* randomEngine() const { return fRandomEngine; }
+    void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
 
-        CLHEP::HepRandomEngine* fRandomEngine;
+  private:
+    friend double gen::pyr_(int*);
 
-        std::vector<std::string> fParamGeneral;
-        std::vector<std::string> fParamCSA;
-        std::vector<std::string> fParamSLHA; 
-        std::vector<std::string> fParamPYUPDA; 
-	int  fUnitSLHA;
-	int  fUnitPYUPDA;
+    bool fInitialising;
 
-        static Pythia6Service *fPythia6Owner;
-   };
+    CLHEP::HepRandomEngine* fRandomEngine;
 
-}
+    std::vector<std::string> fParamGeneral;
+    std::vector<std::string> fParamCSA;
+    std::vector<std::string> fParamSLHA;
+    std::vector<std::string> fParamPYUPDA;
+    int fUnitSLHA;
+    int fUnitPYUPDA;
+
+    static Pythia6Service* fPythia6Owner;
+  };
+
+}  // namespace gen
 
 #endif

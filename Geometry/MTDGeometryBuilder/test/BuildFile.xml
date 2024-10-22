@@ -1,0 +1,32 @@
+<library name="MTDDigiGeometryAnalyzer" file="MTDDigiGeometryAnalyzer.cc">
+  <use name="DataFormats/GeometrySurface"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/CommonTopologies"/>
+  <use name="Geometry/MTDGeometryBuilder"/>
+  <use name="Geometry/Records"/>
+  <use name="boost_system"/>
+  <use name="rootcling"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library name="DD4hep_TestBTLPixelTopology" file="DD4hep_TestBTLPixelTopology.cc">
+  <use name="DataFormats/ForwardDetId"/>
+  <use name="DataFormats/Math"/>
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/GeometrySurface"/>
+  <use name="Geometry/CommonTopologies"/>
+  <use name="Geometry/MTDCommonData"/>
+  <use name="Geometry/MTDGeometryBuilder"/>
+  <use name="Geometry/MTDNumberingBuilder"/>
+  <use name="Geometry/Records"/>
+  <use name="rootcling"/>
+  <use name="dd4hep"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<test name="GeometryMTDGeometryBuilderTestDriver" command="runTest.sh"/>

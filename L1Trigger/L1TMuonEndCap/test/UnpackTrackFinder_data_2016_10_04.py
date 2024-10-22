@@ -3,9 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 import os
 import sys
-import commands
 import subprocess
-from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process('L1TMuonEmulation')
 

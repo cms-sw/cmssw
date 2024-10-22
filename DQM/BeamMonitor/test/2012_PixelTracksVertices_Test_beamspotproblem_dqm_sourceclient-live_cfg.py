@@ -9,7 +9,7 @@ process.load("DQM.BeamMonitor.BeamSpotProblemMonitor_cff")
 ####---Massage logger Services----####
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['BeamSpotProblemMonitor']
-process.MessageLogger.categories = ['BeamSpotProblemMonitor']
+process.MessageLogger.BeamSpotProblemMonitor = dict()
 process.MessageLogger.cerr.threshold = "INFO"
 
 
@@ -114,7 +114,8 @@ process.tracking_FirstStep  = cms.Sequence(    process.siPixelDigis*
 
 #--pixel tracking ends here-----
 
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
                                  qtList = cms.untracked.FileInPath('DQM/BeamMonitor/test/BeamSpotAvailableTest.xml'),
                                  prescaleFactor = cms.untracked.int32(1),                               
                                  testInEventloop = cms.untracked.bool(False),

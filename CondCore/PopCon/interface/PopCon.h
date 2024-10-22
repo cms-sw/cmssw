@@ -1,11 +1,9 @@
-
 #ifndef POPCON_POPCON_H
 #define POPCON_POPCON_H
 //
 // Author: Vincenzo Innocente
 // Original Author:  Marcin BOGUSZ
-// 
-
+//
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -16,17 +14,14 @@
 
 #include "CondCore/CondDB/interface/Time.h"
 
-#include <boost/bind.hpp>
 #include <algorithm>
-#include <vector>
+#include <functional>
 #include <string>
+#include <vector>
 
-
-#include<iostream>
-
+#include <iostream>
 
 namespace popcon {
-
 
   /* Populator of the Condition DB
    *
@@ -34,28 +29,19 @@ namespace popcon {
   class PopCon {
   public:
     typedef cond::Time_t Time_t;
-    //typedef cond::Summary Summary;
 
     PopCon(const edm::ParameterSet& pset);
-     
-     virtual ~PopCon();
 
-     template<typename Source>
-       void write(Source const & source);
+    virtual ~PopCon();
 
-     template<typename T>
-     void writeOne(T * payload, Time_t time);
-
-   
-    
-     
-  private:
-     cond::persistency::Session initialize();
-     void finalize(Time_t lastTill);
-
+    template <typename Source>
+    void write(Source const& source);
 
   private:
+    cond::persistency::Session initialize();
+    void finalize(Time_t lastTill);
 
+  private:
     edm::Service<cond::service::PoolDBOutputService> m_dbService;
 
     cond::persistency::Session m_targetSession;
@@ -65,90 +51,59 @@ namespace popcon {
     std::string m_authPath;
 
     int m_authSys;
-    
-    std::string  m_record;
-    
+
+    std::string m_record;
+
     std::string m_payload_name;
-    
+
     bool m_LoggingOn;
 
     std::string m_tag;
-    
+
     cond::TagInfo_t m_tagInfo;
-    
+
     cond::LogDBEntry_t m_logDBEntry;
 
     bool m_close;
-    
+
     Time_t m_lastTill;
 
     static constexpr const char* const s_version = "5.0";
   };
 
-
-  template<typename T>
-  void PopCon::writeOne(T * payload, Time_t time) {
-    m_dbService->writeOne(payload, time, m_record, m_LoggingOn);
-  }
-
-  
-  template<typename Container>
-  void displayHelper(Container const & payloads) {
-    typename Container::const_iterator it;
-    for (it = payloads.begin(); it != payloads.end(); it++)
-      edm::LogInfo ("PopCon")<< "Since " << (*it).time << std::endl;
-  }     
-  
-  
-  template<typename Container>
-  const std::string displayIovHelper(Container const & payloads) {
-    if (payloads.empty()) return std::string("Nothing to transfer;");
-    std::ostringstream s;
-    // when only 1 payload is transferred; 
-    if ( payloads.size()==1)
-      s << "Since " << (*payloads.begin()).time <<  "; " ;
-    else{
-      // when more than one payload are transferred;  
-      s << "first payload Since " <<  (*payloads.begin()).time <<  ", "
-        << "last payload Since "  << (*payloads.rbegin()).time <<  "; " ;  
-    }  
-    return s.str();
-  }
-  
-  
-  
-  
-  
-  template<typename Source>
-  void PopCon::write(Source const & source) {
+  template <typename Source>
+  void PopCon::write(Source const& source) {
     typedef typename Source::value_type value_type;
     typedef typename Source::Container Container;
-    
-    std::pair<Container const *, std::string const> ret = source(initialize(),
-  								 m_tagInfo,m_logDBEntry); 
-    Container const & payloads = *ret.first;
-    
-    if(m_LoggingOn) {
+
+    std::pair<Container const*, std::string const> ret = source(initialize(), m_tagInfo, m_logDBEntry);
+    Container const& iovs = *ret.first;
+
+    if (m_LoggingOn) {
+      std::string msg("Nothing to transfer;");
+      size_t niovs = iovs.size();
+      if (niovs) {
+        std::ostringstream s;
+        if (niovs == 1) {
+          s << "Since " << (*iovs.begin()).first << "; ";
+        } else {
+          s << "first payload Since " << (*iovs.begin()).first << ", "
+            << "last payload Since " << (*iovs.rbegin()).first << "; ";
+        }
+        msg = s.str();
+      }
       std::ostringstream s;
-      s << "PopCon v" << s_version << "; " << displayIovHelper(payloads) << ret.second;
-      //s << "PopCon v" << s_version << "; " << cond::userInfo() << displayIovHelper(payloads) << ret.second;
-      m_dbService->setLogHeaderForRecord(m_record,source.id(),s.str());
+      s << "PopCon v" << s_version << "; " << msg << ret.second;
+      m_dbService->setLogHeaderForRecord(m_record, source.id(), s.str());
     }
-    displayHelper(payloads);
-    
-    std::for_each(payloads.begin(),payloads.end(),
-		  boost::bind(&popcon::PopCon::writeOne<value_type>,this,
-			      boost::bind(&Container::value_type::payload,_1),
-			      boost::bind(&Container::value_type::time,_1)
-			      )
-		   );
-    
-    
-    finalize(payloads.empty() ? Time_t(0): payloads.back().time);
+    for (const auto& it : iovs)
+      edm::LogInfo("PopCon") << "Since " << it.first << std::endl;
+
+    m_dbService->writeMany(iovs, m_record);
+
+    finalize(iovs.empty() ? Time_t(0) : iovs.rbegin()->first);
   }
- 
-}
 
-#endif //  POPCON_POPCON_H
+}  // namespace popcon
 
-
+#endif  //  POPCON_POPCON_H

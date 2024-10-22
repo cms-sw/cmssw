@@ -1,5 +1,6 @@
-#!/usr/bin/env python
-import sys,os,commands
+#!/usr/bin/env python3
+from __future__ import print_function
+import sys,os,subprocess
 from CommonMethods import *
 
 class FileObj:
@@ -13,9 +14,9 @@ class FileObj:
 def main():
     payloadDir = "./archive_repro_13May/payloads/"
     aCommand  = "ls " + payloadDir + " | grep BeamSpotObjects_2009_LumiBased_ | grep txt"           
-    output = commands.getstatusoutput( aCommand )
+    output = subprocess.getstatusoutput( aCommand )
     listOfFiles = output[1].split('\n')                                                                              
-    print listOfFiles
+    print(listOfFiles)
     finalList = {}
     for fileName in listOfFiles:
         file = open(payloadDir + fileName)
@@ -29,8 +30,7 @@ def main():
                 file.close()
                 break
 
-    sortedKeys = finalList.keys()
-    sortedKeys.sort()
+    sortedKeys = sorted(finalList.keys())
 
     databaseTag = ''
     regExp = re.search('(\D+)(\d+)_(\d+)_(\w+)',listOfFiles[0])
@@ -39,18 +39,18 @@ def main():
     else:
         exit("Can't find reg exp")
 
-    uuid = commands.getstatusoutput('uuidgen -t')[1]
+    uuid = subprocess.getstatusoutput('uuidgen -t')[1]
     final_sqlite_file_name = databaseTag + '@' + uuid
     megaNumber = "18446744073709551615"
-    print final_sqlite_file_name
+    print(final_sqlite_file_name)
     for run in sortedKeys:
         appendSqliteFile(final_sqlite_file_name + ".db", payloadDir+finalList[run].fileName.replace(".txt",".db"), databaseTag, finalList[run].iovSince, megaNumber,payloadDir)
-        print finalList[run].fileName.replace(".txt",".db")
+        print(finalList[run].fileName.replace(".txt",".db"))
     aCommand  = "cp " + payloadDir + finalList[sortedKeys[0]].fileName + " " + payloadDir + final_sqlite_file_name + ".txt"
-    output = commands.getstatusoutput( aCommand )
+    output = subprocess.getstatusoutput( aCommand )
     dropbox = "/DropBox"
-    print sortedKeys[0]
-    print finalList[sortedKeys[0]].fileName
+    print(sortedKeys[0])
+    print(finalList[sortedKeys[0]].fileName)
 #    uploadSqliteFile(payloadDir, final_sqlite_file_name, dropbox)
             
 

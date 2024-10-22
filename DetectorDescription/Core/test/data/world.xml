@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <SolidSection>
+    <Box name="MotherOfAllBoxes" dx="10*m" dy="10*m" dz="10*m"/>
+  </SolidSection>
+  <LogicalPartSection>
+    <LogicalPart name="World">
+      <rMaterial name="materials:Air"/>
+      <rSolid name="MotherOfAllBoxes"/>
+    </LogicalPart>
+    <LogicalPart name="MotherOfAllBoxes">
+      <rMaterial name="materials:Air"/>
+      <rSolid name="MotherOfAllBoxes"/>
+    </LogicalPart>
+  </LogicalPartSection>
+</DDDefinition>

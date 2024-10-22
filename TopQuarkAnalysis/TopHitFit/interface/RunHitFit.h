@@ -62,9 +62,9 @@
 // increase the number of permutations rapidly.
 //
 
-namespace hitfit{
+namespace hitfit {
 
-/**
+  /**
     @brief Template class of experiment-independent interface to HitFit.
     This class is intended to be used inside the programming environment of
     a specific experiment, where each type of physics objects has its
@@ -149,40 +149,35 @@ namespace hitfit{
     object class be translated into HitFit's Fourvec.
 
  */
-template <class AElectron,
-          class AMuon,
-          class AJet,
-          class AMet>
-class RunHitFit {
-
-private:
-
+  template <class AElectron, class AMuon, class AJet, class AMet>
+  class RunHitFit {
+  private:
     /**
        The translator from AElectron to Lepjets_Event_Lep.
      */
-    LeptonTranslatorBase<AElectron>     _ElectronTranslator;
+    LeptonTranslatorBase<AElectron> _ElectronTranslator;
 
     /**
        The translator from AMuon to Lepjets_Event_Lep.
      */
-    LeptonTranslatorBase<AMuon>         _MuonTranslator;
+    LeptonTranslatorBase<AMuon> _MuonTranslator;
 
     /**
        The translator from AJet to Lepjets_Event_Jet.
      */
-    JetTranslatorBase<AJet>             _JetTranslator;
+    JetTranslatorBase<AJet> _JetTranslator;
 
     /**
        The translator from AMet to Fourvec.
      */
-    METTranslatorBase<AMet>             _METTranslator;
+    METTranslatorBase<AMet> _METTranslator;
 
     /**
        The internal event.
        The internal event only contains lepton and missing
        transverse energy.
      */
-    Lepjets_Event                       _event;
+    Lepjets_Event _event;
 
     /**
        The internal array of jets.
@@ -198,7 +193,7 @@ private:
        the assumed jet type and applying the appropriate jet energy
        correction.
      */
-    std::vector<AJet>                   _jets;
+    std::vector<AJet> _jets;
 
     /**
        Boolean flag which sets whether to use jet resolution
@@ -209,25 +204,24 @@ private:
        By default this flag is set to FALSE if user does not specify anything
        about which resolution to be used.
      */
-    bool                                _jetObjRes;
+    bool _jetObjRes;
 
     /**
        The interface between the event and the fitting algorithm.
      */
-    Top_Fit                             _Top_Fit;
+    Top_Fit _Top_Fit;
 
     /**
        The array of events with permutation information before fitting.
      */
-    std::vector<Lepjets_Event>          _Unfitted_Events;
+    std::vector<Lepjets_Event> _Unfitted_Events;
 
     /**
        The results of the kinematic fit.
      */
-    std::vector<Fit_Result>             _Fit_Results;
+    std::vector<Fit_Result> _Fit_Results;
 
-public:
-
+  public:
     /**
        @brief Constructor.
 
@@ -256,41 +250,35 @@ public:
        to.  A value of zero means this constraint will be removed.
      */
     RunHitFit(const LeptonTranslatorBase<AElectron>& el,
-              const LeptonTranslatorBase<AMuon>&     mu,
-              const JetTranslatorBase<AJet>&         jet,
-              const METTranslatorBase<AMet>&         met,
-              const std::string                      default_file,
-              double                                 lepw_mass,
-              double                                 hadw_mass,
-              double                                 top_mass):
-        _ElectronTranslator(el),
-        _MuonTranslator(mu),
-        _JetTranslator(jet),
-        _METTranslator(met),
-        _event(0,0),
-        _jetObjRes(false),
-        _Top_Fit(Top_Fit_Args(Defaults_Text(default_file)),lepw_mass,hadw_mass,top_mass)
-    {
-    }
+              const LeptonTranslatorBase<AMuon>& mu,
+              const JetTranslatorBase<AJet>& jet,
+              const METTranslatorBase<AMet>& met,
+              const std::string default_file,
+              double lepw_mass,
+              double hadw_mass,
+              double top_mass)
+        : _ElectronTranslator(el),
+          _MuonTranslator(mu),
+          _JetTranslator(jet),
+          _METTranslator(met),
+          _event(0, 0),
+          _jetObjRes(false),
+          _Top_Fit(Top_Fit_Args(Defaults_Text(default_file)), lepw_mass, hadw_mass, top_mass) {}
 
     /**
        @brief Destructor.
      */
-    ~RunHitFit()
-    {
-    }
+    ~RunHitFit() {}
 
     /**
        @brief Clear the internal event, fit results, and jets.
      */
-    void
-    clear()
-    {
-        _event = Lepjets_Event(0,0);
-        _jets.clear();
-        _jetObjRes = false;
-        _Unfitted_Events.clear();
-        _Fit_Results.clear();
+    void clear() {
+      _event = Lepjets_Event(0, 0);
+      _jets.clear();
+      _jetObjRes = false;
+      _Unfitted_Events.clear();
+      _Fit_Results.clear();
     }
 
     /**
@@ -302,12 +290,9 @@ public:
        user would like to use the resolution embedded in the object,
        and not the resolution read when instantiating the class.
      */
-    void
-    AddLepton(const AElectron& electron,
-              bool useObjRes = false)
-    {
-        _event.add_lep(_ElectronTranslator(electron,electron_label,useObjRes));
-        return;
+    void AddLepton(const AElectron& electron, bool useObjRes = false) {
+      _event.add_lep(_ElectronTranslator(electron, electron_label, useObjRes));
+      return;
     }
 
     /**
@@ -319,12 +304,9 @@ public:
        user would like to use the resolution embedded in the object,
        and not the resolution read when instantiating the class.
     */
-    void
-    AddLepton(const AMuon& muon,
-              bool useObjRes = false)
-    {
-        _event.add_lep(_MuonTranslator(muon,muon_label,useObjRes));
-        return;
+    void AddLepton(const AMuon& muon, bool useObjRes = false) {
+      _event.add_lep(_MuonTranslator(muon, muon_label, useObjRes));
+      return;
     }
 
     /**
@@ -347,33 +329,27 @@ public:
        user would like to use the resolution embedded in the object,
        and not the resolution read when instantiating the class.
     */
-    void
-    AddJet(const AJet& jet,
-           bool useObjRes = false)
-    {
-        // Only set flag when adding the first jet
-        // the additional jets then WILL be treated in the
-        // same way like the first jet.
-        if (_jets.empty()) {
-            _jetObjRes = useObjRes;
-        }
+    void AddJet(const AJet& jet, bool useObjRes = false) {
+      // Only set flag when adding the first jet
+      // the additional jets then WILL be treated in the
+      // same way like the first jet.
+      if (_jets.empty()) {
+        _jetObjRes = useObjRes;
+      }
 
-        if (_jets.size() < MAX_HITFIT_JET) {
-            _jets.push_back(jet);
-        }
-        return;
+      if (_jets.size() < MAX_HITFIT_JET) {
+        _jets.push_back(jet);
+      }
+      return;
     }
 
     /**
        @brief Set the missing transverse energy of the internal event.
      */
-    void
-    SetMet(const AMet& met,
-           bool useObjRes = false)
-    {
-        _event.met()    = _METTranslator(met,useObjRes);
-        _event.kt_res() = _METTranslator.KtResolution(met,useObjRes);
-        return;
+    void SetMet(const AMet& met, bool useObjRes = false) {
+      _event.met() = _METTranslator(met, useObjRes);
+      _event.kt_res() = _METTranslator.KtResolution(met, useObjRes);
+      return;
     }
 
     /**
@@ -381,11 +357,9 @@ public:
 
        @param res The resolution.
      */
-    void
-    SetKtResolution(const Resolution& res)
-    {
-        _event.kt_res() = res;
-        return;
+    void SetKtResolution(const Resolution& res) {
+      _event.kt_res() = res;
+      return;
     }
 
     /**
@@ -394,173 +368,138 @@ public:
        @param res The \f$E_{T}\!\!\!\!/\f$ resolution, same as \f$k_{T}\f$
        resolution.
      */
-    void
-    SetMETResolution(const Resolution& res)
-    {
-        SetKtResolution(res);
-        return;
+    void SetMETResolution(const Resolution& res) {
+      SetKtResolution(res);
+      return;
     }
 
     /**
        @brief Return a constant reference to the underlying Top_Fit object.
      */
-    const Top_Fit&
-    GetTopFit() const
-    {
-        return _Top_Fit;
-    }
+    const Top_Fit& GetTopFit() const { return _Top_Fit; }
 
     /**
        @brief Fit all permutations of the internal event.  Returns the
        number of permutations.
      */
-    std::vector<Fit_Result>::size_type
-    FitAllPermutation()
-    {
+    std::vector<Fit_Result>::size_type FitAllPermutation() {
+      if (_jets.size() < MIN_HITFIT_JET) {
+        // For ttbar lepton+jets, a minimum of MIN_HITFIT_JETS jets
+        // is required
+        return 0;
+      }
 
-        if (_jets.size() < MIN_HITFIT_JET) {
-            // For ttbar lepton+jets, a minimum of MIN_HITFIT_JETS jets
-            // is required
-            return 0;
-        }
+      if (_jets.size() > MAX_HITFIT_JET) {
+        // Restrict the maximum number of jets in the fit
+        // to prevent loop overflow
+        return 0;
+      }
 
-        if (_jets.size() > MAX_HITFIT_JET) {
-            // Restrict the maximum number of jets in the fit
-            // to prevent loop overflow
-            return 0;
-        }
+      _Unfitted_Events.clear();
+      _Fit_Results.clear();
 
-        _Unfitted_Events.clear();
-        _Fit_Results.clear();
+      // Prepare the array of jet types for permutation
+      std::vector<int> jet_types(_jets.size(), unknown_label);
+      jet_types[0] = lepb_label;
+      jet_types[1] = hadb_label;
+      jet_types[2] = hadw1_label;
+      jet_types[3] = hadw1_label;
 
-        // Prepare the array of jet types for permutation
-        std::vector<int> jet_types (_jets.size(), unknown_label);
-        jet_types[0] = lepb_label;
-        jet_types[1] = hadb_label;
-        jet_types[2] = hadw1_label;
-        jet_types[3] = hadw1_label;
+      if (_Top_Fit.args().do_higgs_flag() && _jets.size() >= MIN_HITFIT_TTH) {
+        jet_types[4] = higgs_label;
+        jet_types[5] = higgs_label;
+      }
 
-        if (_Top_Fit.args().do_higgs_flag() && _jets.size() >= MIN_HITFIT_TTH) {
-            jet_types[4] = higgs_label;
-            jet_types[5] = higgs_label;
-        }
+      std::stable_sort(jet_types.begin(), jet_types.end());
 
-        std::stable_sort(jet_types.begin(),jet_types.end());
+      do {
+        // begin loop over all jet permutation
+        for (int nusol = 0; nusol != 2; nusol++) {
+          // loop over two neutrino solution
+          bool nuz = bool(nusol);
 
-        do {
+          // Copy the event
+          Lepjets_Event fev = _event;
 
-            // begin loop over all jet permutation
-            for (int nusol = 0 ; nusol != 2 ; nusol++) {
-                // loop over two neutrino solution
-                bool nuz = bool(nusol);
+          // Add jets into the event, with the assumed type
+          // in accord with the permutation.
+          // The translator _JetTranslator will correctly
+          // return object of Lepjets_Event_Jet with
+          // jet energy correction applied in accord with
+          // the assumed jet type (b or light).
+          for (size_t j = 0; j != _jets.size(); j++) {
+            fev.add_jet(_JetTranslator(_jets[j], jet_types[j], _jetObjRes));
+          }
 
-                // Copy the event
-                Lepjets_Event fev = _event;
+          // Clone fev (intended to be fitted event)
+          // to ufev (intended to be unfitted event)
+          Lepjets_Event ufev = fev;
 
-                // Add jets into the event, with the assumed type
-                // in accord with the permutation.
-                // The translator _JetTranslator will correctly
-                // return object of Lepjets_Event_Jet with
-                // jet energy correction applied in accord with
-                // the assumed jet type (b or light).
-                for (size_t j = 0 ; j != _jets.size(); j++) {
-                    fev.add_jet(_JetTranslator(_jets[j],jet_types[j],_jetObjRes));
-                }
+          // Set jet types.
+          fev.set_jet_types(jet_types);
+          ufev.set_jet_types(jet_types);
 
-                // Clone fev (intended to be fitted event)
-                // to ufev (intended to be unfitted event)
-                Lepjets_Event ufev = fev;
+          // Store the unfitted event
+          _Unfitted_Events.push_back(ufev);
 
-                // Set jet types.
-                fev.set_jet_types(jet_types);
-                ufev.set_jet_types(jet_types);
+          // Prepare the placeholder for various kinematic quantities
+          double umwhad;
+          double utmass;
+          double mt;
+          double sigmt;
+          Column_Vector pullx;
+          Column_Vector pully;
 
-                // Store the unfitted event
-                _Unfitted_Events.push_back(ufev);
+          // Do the fit
+          double chisq = _Top_Fit.fit_one_perm(fev, nuz, umwhad, utmass, mt, sigmt, pullx, pully);
+          // Store output of the fit
+          _Fit_Results.push_back(Fit_Result(chisq, fev, pullx, pully, umwhad, utmass, mt, sigmt));
 
-                // Prepare the placeholder for various kinematic quantities
-                double umwhad;
-                double utmass;
-                double mt;
-                double sigmt;
-                Column_Vector pullx;
-                Column_Vector pully;
+        }  // end loop over two neutrino solution
 
-                // Do the fit
-                double chisq= _Top_Fit.fit_one_perm(fev,
-                                                    nuz,
-                                                    umwhad,
-                                                    utmass,
-                                                    mt,
-                                                    sigmt,
-                                                    pullx,
-                                                    pully);
-                // Store output of the fit
-                _Fit_Results.push_back(Fit_Result(chisq,
-                                                  fev,
-                                                  pullx,
-                                                  pully,
-                                                  umwhad,
-                                                  utmass,
-                                                  mt,
-                                                  sigmt));
+      } while (std::next_permutation(jet_types.begin(), jet_types.end()));
+      // end loop over all jet permutations
 
-            } // end loop over two neutrino solution
-
-        } while (std::next_permutation (jet_types.begin(), jet_types.end()));
-        // end loop over all jet permutations
-
-        return _Fit_Results.size();
-
+      return _Fit_Results.size();
     }
 
     /**
         @brief Return the unfitted events for all permutations.
      */
-    std::vector<Lepjets_Event>
-    GetUnfittedEvent()
-    {
-        return _Unfitted_Events;
-    }
+    std::vector<Lepjets_Event> GetUnfittedEvent() { return _Unfitted_Events; }
 
     /**
         @brief Return the results of fitting all permutations of the
         internal event.
      */
-    std::vector<Fit_Result>
-    GetFitAllPermutation()
-    {
-        return _Fit_Results;
-    }
+    std::vector<Fit_Result> GetFitAllPermutation() { return _Fit_Results; }
 
     /**
        Minimum number of jet as input to HitFit in Tt event
      */
-    static const unsigned int MIN_HITFIT_JET =   4 ;
+    static const unsigned int MIN_HITFIT_JET = 4;
 
     /**
        Minimum number of jet as input to HitFit in TtH event
      */
-    static const unsigned int MIN_HITFIT_TTH =   6 ;
+    static const unsigned int MIN_HITFIT_TTH = 6;
 
     /**
        Maximum number of jet as input to HitFit in each event
      */
-    static const unsigned int MAX_HITFIT_JET =   8 ;
+    static const unsigned int MAX_HITFIT_JET = 8;
 
     /**
        Maximum number of HitFit permutation in each event.
      */
-    static const unsigned int MAX_HITFIT     = 1680;
+    static const unsigned int MAX_HITFIT = 1680;
 
     /**
        Maximum number of fitted variables in HitFit in each event
      */
-    static const unsigned int MAX_HITFIT_VAR =  32 ;
+    static const unsigned int MAX_HITFIT_VAR = 32;
+  };
 
+}  // namespace hitfit
 
-};
-
-} // namespace hitfit
-
-#endif // #ifndef RUNHITFIT_H
+#endif  // #ifndef RUNHITFIT_H

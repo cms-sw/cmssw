@@ -11,29 +11,39 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 
-class GEMCSCSegmentBuilder; 
+#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+
+class GEMCSCSegmentBuilder;
 
 class GEMCSCSegmentProducer : public edm::stream::EDProducer<> {
 public:
-    /// Constructor
-    explicit GEMCSCSegmentProducer(const edm::ParameterSet&);
-    /// Destructor
-    ~GEMCSCSegmentProducer() override;
-    /// Produce the GEM-CSCSegment collection
-    void produce(edm::Event&, const edm::EventSetup&) override;
+  /// Constructor
+  explicit GEMCSCSegmentProducer(const edm::ParameterSet&);
+  /// Destructor
+  ~GEMCSCSegmentProducer() override;
+  /// generate gemcscSegment_cfi
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  /// Produce the GEM-CSCSegment collection
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-    int iev; // events through
-    GEMCSCSegmentBuilder* segmentBuilder_;
-    edm::EDGetTokenT<CSCSegmentCollection> csc_token;
-    edm::EDGetTokenT<GEMRecHitCollection>  gem_token;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> kCSCGeometryToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> kGEMGeometryToken_;
+  const edm::EDGetTokenT<CSCSegmentCollection> kCSCSegmentCollectionToken_;
+  const edm::EDGetTokenT<GEMRecHitCollection> kGEMRecHitCollectionToken_;
+
+  int iev;  // events through
+  GEMCSCSegmentBuilder* segmentBuilder_;
 };
 
 #endif

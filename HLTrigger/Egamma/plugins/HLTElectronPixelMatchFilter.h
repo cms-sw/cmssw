@@ -16,52 +16,49 @@ namespace edm {
 }
 
 class HLTElectronPixelMatchFilter : public HLTFilter {
-
- public:
+public:
   explicit HLTElectronPixelMatchFilter(const edm::ParameterSet&);
   ~HLTElectronPixelMatchFilter() override;
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
- private:
-  float calDPhi1Sq(reco::ElectronSeedCollection::const_iterator seed, int charge)const;
-  float calDPhi2Sq(reco::ElectronSeedCollection::const_iterator seed, int charge)const;
-  float calDZ2Sq(reco::ElectronSeedCollection::const_iterator seed, int charge)const;
-  int getNrOfMatches(edm::Handle<reco::ElectronSeedCollection>& eleSeeds,
-		     reco::SuperClusterRef& candSCRef)const;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  
-  edm::InputTag candTag_;     // input tag identifying product contains filtered egammas
+private:
+  float calDPhi1Sq(reco::ElectronSeedCollection::const_iterator seed, int charge) const;
+  float calDPhi2Sq(reco::ElectronSeedCollection::const_iterator seed, int charge) const;
+  float calDZ2Sq(reco::ElectronSeedCollection::const_iterator seed, int charge) const;
+  int getNrOfMatches(edm::Handle<reco::ElectronSeedCollection>& eleSeeds, reco::SuperClusterRef& candSCRef) const;
+
+  edm::InputTag candTag_;  // input tag identifying product contains filtered egammas
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
-  
-  edm::InputTag l1PixelSeedsTag_; // input tag for the pixel seed - supercluster map
+
+  edm::InputTag l1PixelSeedsTag_;  // input tag for the pixel seed - supercluster map
   edm::EDGetTokenT<reco::ElectronSeedCollection> l1PixelSeedsToken_;
-  
-  double npixelmatchcut_;     // number of pixelmatch hits
-  int    ncandcut_;           // number of electrons required
-  
+
+  double npixelmatchcut_;  // number of pixelmatch hits
+  int ncandcut_;           // number of electrons required
+
   edm::InputTag l1EGTag_;
-  
+
   // cuts on s2
-  float s2BarrelThres_ ;
+  float s2BarrelThres_;
   float s2InterThres_;
   float s2ForwardThres_;
 
   //parameters to create s (divide by param)
-  float sPhi1B_ ;
-  float sPhi1I_ ;
-  float sPhi1F_ ;
-  float sPhi2B_ ;
-  float sPhi2I_ ;
-  float sPhi2F_ ;
-  float sZ2B_ ;
-  float sR2I_ ;
-  float sR2F_ ;
-  
+  float sPhi1B_;
+  float sPhi1I_;
+  float sPhi1F_;
+  float sPhi2B_;
+  float sPhi2I_;
+  float sPhi2F_;
+  float sZ2B_;
+  float sR2I_;
+  float sR2F_;
+
   bool isPixelVeto_;
-  bool useS_ ;
+  bool useS_;
 };
 
-#endif //HLTElectronPixelMatchFilter_h
-
-
+#endif  //HLTElectronPixelMatchFilter_h

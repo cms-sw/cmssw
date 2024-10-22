@@ -5,7 +5,7 @@ process = cms.Process("AnalyzeVFATFrames")
 
 # default options
 options = VarParsing.VarParsing ('analysis')
-options.inputFiles= 'file:/afs/cern.ch/user/j/jkaspar/public/run268608_ls0001_streamA_StorageManager.root',
+options.inputFiles= 'file:/eos/cms/store/group/dpg_ctpps/comm_ctpps/TotemTiming/Minidaq/306/run312306_ls0015_streamA_StorageManager.dat',
 options.outputFile = 'this_is_not_used'
 options.maxEvents = 10
 
@@ -22,7 +22,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # raw data source
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("NewEventStreamFileReader",
     fileNames = cms.untracked.vstring(options.inputFiles)
 )
 
@@ -33,7 +33,7 @@ process.maxEvents = cms.untracked.PSet(
 # frame analyzer
 process.totemVFATFrameAnalyzer = cms.EDAnalyzer("TotemVFATFrameAnalyzer",
     rawDataTag = cms.InputTag("rawDataCollector"),
-    fedIds = cms.vuint32(578, 579, 580),
+    fedIds = cms.vuint32(587),
     RawUnpacking = cms.PSet()
 )
 
@@ -41,3 +41,4 @@ process.totemVFATFrameAnalyzer = cms.EDAnalyzer("TotemVFATFrameAnalyzer",
 process.p = cms.Path(
     process.totemVFATFrameAnalyzer
 )
+

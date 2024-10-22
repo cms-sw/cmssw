@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="hgcal.xml" eval="true">
+  <Constant name="WaferSize"             value="167.4408*mm"/>
+  <Constant name="WaferThickness"        value="0.30*mm"/>
+  <Constant name="WaferThicknessFine"    value="0.30*mm"/>
+  <Constant name="WaferThicknessCoarse1" value="0.20*mm"/>
+  <Constant name="WaferThicknessCoarse2" value="0.30*mm"/>
+  <Constant name="SensorSeparation"      value="0.10*mm"/>
+  <Constant name="SensorSizeOffset"      value="0.87*mm"/>
+  <Constant name="GuardRingOffset"       value="0.90*mm"/>
+  <Constant name="MouseBite"             value="5.00*mm"/>
+  <Constant name="ModuleThicknessEE"     value="3.4*mm"/>
+  <Constant name="CellThicknessFine"     value="0.12*mm"/>
+  <Constant name="CellThicknessCoarse1"  value="0.20*mm"/>
+  <Constant name="CellThicknessCoarse2"  value="0.30*mm"/>
+  <Constant name="ScintillatorThickness" value="3.0*mm"/>
+  <Constant name="NumberOfCellsFine"     value="12"/>
+  <Constant name="NumberOfCellsCoarse"   value="8"/>
+  <Constant name="zHGCalEE1"             value="100.0*mm"/>
+  <Constant name="zHGCalEE2"             value="300.0*mm"/>
+  <Constant name="rMinHGCalEE1"          value="0.0*mm"/>
+  <Constant name="rMaxHGCalEE1"          value="500.0*mm"/>
+  <Constant name="rad100200P0"           value="-1.60163E-06"/>
+  <Constant name="rad100200P1"           value="2.50640E-03"/>
+  <Constant name="rad100200P2"           value="-1.46943E+00"/>
+  <Constant name="rad100200P3"           value="3.82025E+02"/>
+  <Constant name="rad100200P4"           value="-3.705690E+04"/>
+  <Constant name="rad200300P0"           value="-4.43240E-07"/>
+  <Constant name="rad200300P1"           value="7.70078E-04"/>
+  <Constant name="rad200300P2"           value="-4.97013E-01"/>
+  <Constant name="rad200300P3"           value="1.40778E+02"/>
+  <Constant name="rad200300P4"           value="-1.46340E+04"/>
+  <Constant name="zMinForRadPar"         value="335.0*cm"/>
+  <Constant name="ChoiceType"            value="0"/>
+  <Constant name="NCornerCut"            value="2"/>
+  <Constant name="FracAreaMin"           value="0.2"/>
+</ConstantsSection>
+
+<SolidSection label="hgcal.xml" eval="true">
+  <Polycone name="HGCalService" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCalEE1]" rMin="[rMinHGCalEE1]"  rMax="[rMaxHGCalEE1]"/>
+    <ZSection z="[zHGCalEE2]" rMin="[rMinHGCalEE1]"  rMax="[rMaxHGCalEE1]"/>
+  </Polycone>
+  <Polycone name="HGCal" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCalEE1]" rMin="[rMinHGCalEE1]"  rMax="[rMaxHGCalEE1]"/>
+    <ZSection z="[zHGCalEE2]" rMin="[rMinHGCalEE1]"  rMax="[rMaxHGCalEE1]"/>
+  </Polycone>
+  <Polycone name="HGCalEE" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCalEE1]" rMin="[rMinHGCalEE1]"  rMax="[rMaxHGCalEE1]"/>
+    <ZSection z="[zHGCalEE2]" rMin="[rMinHGCalEE1]"  rMax="[rMaxHGCalEE1]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="hgcal.xml">
+  <LogicalPart name="HGCalService" category="unspecified">
+    <rSolid name="HGCalService"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCal" category="unspecified">
+    <rSolid name="HGCal"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEE" category="unspecified">
+    <rSolid name="HGCalEE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcal.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CALOECRear"/>
+    <rChild name="hgcal:HGCalService"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCalService"/>
+    <rChild name="hgcal:HGCal"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcal:HGCalEE"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

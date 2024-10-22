@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# for parabolic magnetic field
+from Configuration.ProcessModifiers.trackingParabolicMf_cff import trackingParabolicMf
+
 #
 # This cfi should be included to run the CkfTrajectoryMaker 
 #
@@ -32,4 +35,12 @@ ckfTrajectories = cms.EDProducer("CkfTrajectoryMaker",
     MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent")
 )
 
-
+ckfTrajectoriesIterativeDefault = ckfTrajectories.clone(
+    TrajectoryBuilder = cms.string('GroupedCkfTrajectoryBuilderIterativeDefault'),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('GroupedCkfTrajectoryBuilderIterativeDefault')),
+)
+trackingParabolicMf.toModify(ckfTrajectoriesIterativeDefault,
+                             NavigationSchool='SimpleNavigationSchoolParabolicMf')
+trackingParabolicMf.toModify(ckfTrajectoriesIterativeDefault.TransientInitialStateEstimatorParameters,
+                             propagatorAlongTISE   ='PropagatorWithMaterialParabolicMf',
+                             propagatorOppositeTISE='PropagatorWithMaterialParabolicMfOpposite')

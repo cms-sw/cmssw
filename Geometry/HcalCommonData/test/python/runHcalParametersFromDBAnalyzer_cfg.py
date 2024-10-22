@@ -11,6 +11,9 @@ process.GlobalTag.toGet = cms.VPSet(cms.PSet(record = cms.string('HcalParameters
                                              connect = cms.string("sqlite_file:myfile.db")
                                              )
                                     )
+process.load('FWCore.MessageService.MessageLogger_cfi')
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.HCalGeom=dict()
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(

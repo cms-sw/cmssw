@@ -2,7 +2,6 @@
 #define _ClosestApproachOnHelices_H_
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <utility>
 
 /** \class ClosestApproachOnHelices
@@ -19,19 +18,14 @@ class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
 
 class ClosestApproachOnHelices {
-
 public:
-
   ClosestApproachOnHelices() {}
 
   virtual ~ClosestApproachOnHelices() {}
 
+  virtual bool calculate(const TrajectoryStateOnSurface& sta, const TrajectoryStateOnSurface& stb) = 0;
 
-  virtual bool calculate(const TrajectoryStateOnSurface & sta, 
-	 const TrajectoryStateOnSurface & stb) = 0;
-
-  virtual bool calculate(const FreeTrajectoryState & sta,
-	const FreeTrajectoryState & stb) = 0;
+  virtual bool calculate(const FreeTrajectoryState& sta, const FreeTrajectoryState& stb) = 0;
 
   virtual bool status() const = 0;
 
@@ -47,8 +41,7 @@ public:
   /** Distance between the points of closest approach */
   virtual float distance() const = 0;
 
-  virtual ClosestApproachOnHelices * clone() const = 0;
-
+  virtual ClosestApproachOnHelices* clone() const = 0;
 };
 
 #endif

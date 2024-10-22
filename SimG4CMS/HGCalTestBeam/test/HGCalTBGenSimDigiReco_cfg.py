@@ -10,10 +10,11 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTB160Module4XML_cfi')
-process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
-process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
-process.load('Geometry.CaloEventSetup.HGCalTopology_cfi')
-process.load('Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi')
+process.load('Geometry.HGCalTBCommonData.hgcalTBNumberingInitialization_cfi')
+process.load('Geometry.HGCalTBCommonData.hgcalTBParametersInitialization_cfi')
+process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
+process.load('Geometry.CaloEventSetup.HGCalTBTopology_cfi')
+process.load('Geometry.HGCalGeometry.HGCalTBGeometryESProducer_cfi')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('GeneratorInterface.Core.generatorSmeared_cfi')
@@ -23,7 +24,7 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('SimG4CMS.HGCalTestBeam.DigiHGCalTB160_cff')
-process.load('RecoLocalCalo.HGCalRecProducers.HGCalLocalRecoSequence_cff')
+process.load('RecoLocalCalo.HGCalRecProducers.HGCalLocalRecoTestBeamSequence_cff')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTBAnalyzer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
@@ -93,13 +94,17 @@ process.VtxSmeared.SigmaY = 0.65
 process.VtxSmeared.MeanZ  = -3500.0
 process.VtxSmeared.SigmaZ = 0
 process.HGCalUncalibRecHit.HGCHEFConfig.isSiFE = False
+process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
+                             'HGCSensitiveDetector',
+                             'HGCalTB1601SensitiveDetector',
+                             'HcalTB06BeamDetector']
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.digitisation_step = cms.Path(process.mix)
-process.reconstruction_step = cms.Path(process.HGCalLocalRecoSequence)
+process.reconstruction_step = cms.Path(process.HGCalLocalRecoTestBeamSequence)
 process.analysis_step = cms.Path(process.HGCalTBAnalyzer)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
@@ -110,8 +115,7 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
-for label, prod in process.producers_().iteritems():
+for label, prod in process.producers_().items():
         if prod.type_() == "OscarMTProducer":
             # ugly hack
             prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"
-

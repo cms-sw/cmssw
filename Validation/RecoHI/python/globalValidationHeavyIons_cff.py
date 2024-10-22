@@ -44,8 +44,7 @@ globalValidationHI = cms.Sequence(
 
     + hcalSimHitStudy
     #+ hcalDigisValidationSequence  # simHcalDigis not in RAWDEBUG
-    + hcalRecHitsValidationSequence
-    + calotowersValidationSequence
+    # hcalRecHits and calotowers come from DQMOffline/Hcal 
     
     + hiTrackValidation         # validation of 'hiGeneralTracks'
     + hiJetValidation           # validation of pileup jet finders

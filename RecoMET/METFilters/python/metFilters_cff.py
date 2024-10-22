@@ -88,39 +88,8 @@ from RecoMET.METFilters.BadChargedCandidateFilter_cfi import *
 ## The muon bad track filter (2016) ________________________________________________||
 from RecoMET.METFilters.BadPFMuonFilter_cfi import *
 
+## The muon bad track filter with Dz cut (2020) _____________________________________||
+from RecoMET.METFilters.BadPFMuonDzFilter_cfi import *
 
-metFilters = cms.Sequence(
-   HBHENoiseFilterResultProducer *
-   HBHENoiseFilter *
-   primaryVertexFilter*
-#   HBHENoiseIsoFilter*
-#   HcalStripHaloFilter *
-   CSCTightHaloFilter *
-#   hcalLaserEventFilter *
-   #Various proposals for updated halo filters.
-   ##2015 proposals: 
-   #CSCTightHaloTrkMuUnvetoFilter *
-   #CSCTightHalo2015Filter *
-   ##2016 proposals
-   #globalTightHalo2016Filter*
-   #globalSuperTightHalo2016Filter*
-   EcalDeadCellTriggerPrimitiveFilter* 
-   ecalBadCalibFilter*
-#   *goodVertices * trackingFailureFilter *
-   eeBadScFilter*
-#   ecalLaserCorrFilter *
-#   trkPOGFilters
-   chargedHadronTrackResolutionFilter *
-   BadChargedCandidateFilter*
-   BadPFMuonFilter *
-   BadChargedCandidateSummer16Filter*
-   BadPFMuonSummer16Filter *
-   muonBadTrackFilter
-)
-
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toReplaceWith(metFilters, metFilters.copyAndExclude([
-    HBHENoiseFilterResultProducer, HBHENoiseFilter, # No hcalnoise for hgcal
-    eeBadScFilter                                   # No EE
-]))
-
+#HF noise filter 
+from RecoMET.METFilters.hfNoisyHitsFilter_cfi import *

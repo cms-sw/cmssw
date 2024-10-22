@@ -15,33 +15,32 @@
 // FAMOS headers
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
 
-//C++ headers 
+//C++ headers
 #include <vector>
 
 class CaloGeometryHelper;
 
-class CrystalWindowMap
-{
- public:
+class CrystalWindowMap {
+public:
   /// Constructor from vector of Crystal
-   CrystalWindowMap(const CaloGeometryHelper *, const std::vector<Crystal> & cw);
-  ~CrystalWindowMap(){;};
+  CrystalWindowMap(const CaloGeometryHelper*, const std::vector<Crystal>& cw);
+  ~CrystalWindowMap() { ; };
 
   /// get the ordered list of the crystals around the crystal given as a first argument
-  bool getCrystalWindow(unsigned , std::vector<unsigned>&  ) const ;
+  bool getCrystalWindow(unsigned, std::vector<unsigned>&) const;
   /// same thing but with a different interface
-  bool getCrystalWindow(unsigned iq,const std::vector<unsigned>*  cw) const;
+  bool getCrystalWindow(unsigned iq, const std::vector<unsigned>* cw) const;
   /// same thing but with a different interface
   const std::vector<unsigned>& getCrystalWindow(unsigned, bool& status) const;
-  inline unsigned size() const {return size_;}
+  inline unsigned size() const { return size_; }
 
- private:
-  const CaloGeometryHelper * myCalorimeter_;
-  
+private:
+  const CaloGeometryHelper* myCalorimeter_;
+
   unsigned size_;
   const std::vector<Crystal>& originalVector_;
 
-  std::vector< std::vector<unsigned> > myNeighbours_; 
+  std::vector<std::vector<unsigned> > myNeighbours_;
 };
 
 #endif

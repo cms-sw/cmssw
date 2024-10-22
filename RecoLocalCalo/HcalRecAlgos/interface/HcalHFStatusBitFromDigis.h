@@ -19,20 +19,17 @@ class HcalHFStatusBitFromDigis {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
   HcalHFStatusBitFromDigis();
-  HcalHFStatusBitFromDigis(const edm::ParameterSet& HFDigiTimeParams,
-			   const edm::ParameterSet& HFTimeInWindowParams);
+  HcalHFStatusBitFromDigis(const edm::ParameterSet& HFDigiTimeParams, const edm::ParameterSet& HFTimeInWindowParams);
   // Destructor
   ~HcalHFStatusBitFromDigis();
 
   // The important stuff!  Methods for setting the status flag values
-  void hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame& digi,
-			 const HcalCoder& coder,
-			 const HcalCalibrations& calib);
-  void resetParamsFromDB(int firstSample, int samplesToAdd, int expectedPeak, double minthreshold, const std::vector<double>& coef);
+  void hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calib);
+  void resetParamsFromDB(
+      int firstSample, int samplesToAdd, int expectedPeak, double minthreshold, const std::vector<double>& coef);
   void resetFlagTimeSamples(int firstSample, int samplesToAdd, int expectedPeak);
 
 private:
-
   // variables for cfg files
 
   // VARIABLES FOR SETTING HFDigiTime FLAG
@@ -44,11 +41,10 @@ private:
   int firstSample_;
   int samplesToAdd_;
   int expectedPeak_;
-  
+
   // Coefficients used to determine energy ratio threshold:
   // E_peak/(Etotal) > coef0_-exp(coef1_+coef2_*Energy+coef3_*E^2+...)
   std::vector<double> coef_;
-
 
   // VARIABLES FOR SETTING HFInTimeWindow FLAG
   double HFlongwindowEthresh_;

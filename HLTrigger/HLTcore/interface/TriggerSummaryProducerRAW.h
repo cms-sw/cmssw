@@ -12,10 +12,11 @@
  */
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 
 #include <string>
 
@@ -30,18 +31,18 @@ namespace edm {
 //
 // class declaration
 //
-class TriggerSummaryProducerRAW : public edm::stream::EDProducer<> {
-  
- public:
+class TriggerSummaryProducerRAW : public edm::global::EDProducer<> {
+public:
   explicit TriggerSummaryProducerRAW(const edm::ParameterSet&);
   ~TriggerSummaryProducerRAW() override;
-  static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
- private:
+private:
   /// process name
   std::string pn_;
 
   edm::GetterOfProducts<trigger::TriggerFilterObjectWithRefs> getterOfProducts_;
+  const edm::EDPutTokenT<trigger::TriggerEventWithRefs> putToken_;
 };
 #endif

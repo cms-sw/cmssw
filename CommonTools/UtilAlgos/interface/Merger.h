@@ -19,53 +19,68 @@
  */
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/CloneTrait.h"
 #include <vector>
 
-template<typename InputCollection,
-	 typename OutputCollection = InputCollection,
-	 typename P = typename edm::clonehelper::CloneTrait<InputCollection>::type>
+template <typename InputCollection,
+          typename OutputCollection = InputCollection,
+          typename P = typename edm::clonehelper::CloneTrait<InputCollection>::type>
 class Merger : public edm::global::EDProducer<> {
 public:
   /// constructor from parameter set
-  explicit Merger( const edm::ParameterSet& );
+  explicit Merger(const edm::ParameterSet&);
   /// destructor
   ~Merger() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   /// process an event
-  void produce( edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   /// vector of strings
-  typedef std::vector<edm::EDGetTokenT<InputCollection> > vtoken;
+  typedef std::vector<edm::EDGetTokenT<InputCollection>> vtoken;
   /// labels of the collections to be merged
   vtoken srcToken_;
 };
 
-template<typename InputCollection, typename OutputCollection, typename P>
-Merger<InputCollection, OutputCollection, P>::Merger( const edm::ParameterSet& par ) :
-  srcToken_( edm::vector_transform(par.template getParameter<std::vector<edm::InputTag> >( "src" ), [this](edm::InputTag const & tag){return consumes<InputCollection>(tag);} ) ) {
+template <typename InputCollection, typename OutputCollection, typename P>
+Merger<InputCollection, OutputCollection, P>::Merger(const edm::ParameterSet& par)
+    : srcToken_(edm::vector_transform(par.template getParameter<std::vector<edm::InputTag>>("src"),
+                                      [this](edm::InputTag const& tag) { return consumes<InputCollection>(tag); })) {
   produces<OutputCollection>();
 }
 
-template<typename InputCollection, typename OutputCollection, typename P>
-Merger<InputCollection, OutputCollection, P>::~Merger() {
-}
+template <typename InputCollection, typename OutputCollection, typename P>
+Merger<InputCollection, OutputCollection, P>::~Merger() {}
 
-template<typename InputCollection, typename OutputCollection, typename P>
-void Merger<InputCollection, OutputCollection, P>::produce( edm::StreamID, edm::Event& evt, const edm::EventSetup&) const {
-  std::unique_ptr<OutputCollection> coll( new OutputCollection );
-  for( typename vtoken::const_iterator s = srcToken_.begin(); s != srcToken_.end(); ++ s ) {
+template <typename InputCollection, typename OutputCollection, typename P>
+void Merger<InputCollection, OutputCollection, P>::produce(edm::StreamID,
+                                                           edm::Event& evt,
+                                                           const edm::EventSetup&) const {
+  std::unique_ptr<OutputCollection> coll(new OutputCollection);
+  for (typename vtoken::const_iterator s = srcToken_.begin(); s != srcToken_.end(); ++s) {
     edm::Handle<InputCollection> h;
-    evt.getByToken( * s, h );
-    for( typename InputCollection::const_iterator c = h->begin(); c != h->end(); ++c ) {
-      coll->push_back( P::clone( * c ) );
+    evt.getByToken(*s, h);
+    for (typename InputCollection::const_iterator c = h->begin(); c != h->end(); ++c) {
+      coll->push_back(P::clone(*c));
     }
   }
   evt.put(std::move(coll));
 }
 
-#endif
+template <typename InputCollection, typename OutputCollection, typename P>
+void Merger<InputCollection, OutputCollection, P>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::vector<edm::InputTag>>("src",
+                                       {
+                                           edm::InputTag("collection1"),
+                                           edm::InputTag("collection2"),
+                                       });
+  descriptions.addWithDefaultLabel(desc);
+}
 
+#endif

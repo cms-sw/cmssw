@@ -1,46 +1,37 @@
 import FWCore.ParameterSet.Config as cms
 from  PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simplePATMETFlatTableProducer_cfi import simplePATMETFlatTableProducer
 
-
-
-##################### User floats producers, selectors ##########################
-## this can be merged with chsFor soft activity if we keep the same selection
-chsForTkMet = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string('charge()!=0 && pvAssociationQuality()>=5 && vertexRef().key()==0'))
-tkMet = cms.EDProducer("PFMETProducer",
-    src = cms.InputTag("chsForTkMet"),
-    alias = cms.string('tkMet'),
-    globalThreshold = cms.double(0.0),
-    calculateSignificance = cms.bool(False),
+simpleSingletonPATMETFlatTableProducer = simplePATMETFlatTableProducer.clone(
+    singleton = cms.bool(True),
+    cut = None,
+    lazyEval = None
 )
 
-
-
 ##################### Tables for final output and docs ##########################
-metTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+pfmetTable = simpleSingletonPATMETFlatTableProducer.clone(
     src = cms.InputTag("slimmedMETs"),
-    name = cms.string("MET"),
+    name = cms.string("PFMET"),
     doc = cms.string("slimmedMET, type-1 corrected PF MET"),
-    singleton = cms.bool(True),  # there's always exactly one MET per event
-    extension = cms.bool(False), # this is the main table for the MET
     variables = cms.PSet(PTVars,
-       sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10),
        covXX = Var("getSignificanceMatrix().At(0,0)",float,doc="xx element of met covariance matrix", precision=8),
        covXY = Var("getSignificanceMatrix().At(0,1)",float,doc="xy element of met covariance matrix", precision=8),
        covYY = Var("getSignificanceMatrix().At(1,1)",float,doc="yy element of met covariance matrix", precision=8),
        significance = Var("metSignificance()", float, doc="MET significance",precision=10),
-       MetUnclustEnUpDeltaX = Var("shiftedPx('UnclusteredEnUp')-px()", float, doc="Delta (METx_mod-METx) Unclustered Energy Up",precision=10),
-       MetUnclustEnUpDeltaY = Var("shiftedPy('UnclusteredEnUp')-py()", float, doc="Delta (METy_mod-METy) Unclustered Energy Up",precision=10),
-
+       sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10), 
+       sumPtUnclustered = Var("metSumPtUnclustered()", float, doc="sumPt used for MET significance",precision=10),
+       ptUnclusteredUp = Var("shiftedPt('UnclusteredEnUp')", float, doc="Unclustered up pt",precision=10),
+       ptUnclusteredDown = Var("shiftedPt('UnclusteredEnDown')", float, doc="Unclustered down pt",precision=10),
+       phiUnclusteredUp = Var("shiftedPhi('UnclusteredEnUp')", float, doc="Unclustered up phi",precision=10),
+       phiUnclusteredDown = Var("shiftedPhi('UnclusteredEnDown')", float, doc="Unclustered down phi",precision=10),
     ),
 )
 
 
-rawMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-    src = metTable.src,
-    name = cms.string("RawMET"),
+rawMetTable = simpleSingletonPATMETFlatTableProducer.clone(
+    src = pfmetTable.src,
+    name = cms.string("RawPFMET"),
     doc = cms.string("raw PF MET"),
-    singleton = cms.bool(True),  # there's always exactly one MET per event
-    extension = cms.bool(False), # this is the main table for the MET
     variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
        pt  = Var("uncorPt",  float, doc="pt", precision=10),
        phi = Var("uncorPhi", float, doc="phi", precision=10),
@@ -49,12 +40,10 @@ rawMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 )
 
 
-caloMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-    src = metTable.src,
+caloMetTable = simpleSingletonPATMETFlatTableProducer.clone(
+    src = pfmetTable.src,
     name = cms.string("CaloMET"),
-    doc = cms.string("CaloMET"),
-    singleton = cms.bool(True),  # there's always exactly one MET per event
-    extension = cms.bool(False), # this is the main table for the MET
+    doc = cms.string("Offline CaloMET (muon corrected)"),
     variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
        pt  = Var("caloMETPt",  float, doc="pt", precision=10),
        phi = Var("caloMETPhi", float, doc="phi", precision=10),
@@ -62,35 +51,72 @@ caloMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 
-puppiMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+puppiMetTable = simpleSingletonPATMETFlatTableProducer.clone(
     src = cms.InputTag("slimmedMETsPuppi"),
     name = cms.string("PuppiMET"),
     doc = cms.string("PUPPI  MET"),
-    singleton = cms.bool(True),  # there's always exactly one MET per event
-    extension = cms.bool(False), # this is the main table for the MET
     variables = cms.PSet(PTVars,
+       covXX = Var("getSignificanceMatrix().At(0,0)",float,doc="xx element of met covariance matrix", precision=8),
+       covXY = Var("getSignificanceMatrix().At(0,1)",float,doc="xy element of met covariance matrix", precision=8),
+       covYY = Var("getSignificanceMatrix().At(1,1)",float,doc="yy element of met covariance matrix", precision=8),
+       significance = Var("metSignificance()", float, doc="MET significance",precision=10),
        sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10),
+       sumPtUnclustered = Var("metSumPtUnclustered()", float, doc="sumPt used for MET significance",precision=10),
+       ptUnclusteredUp = Var("shiftedPt('UnclusteredEnUp')", float, doc="Unclustered up pt",precision=10),
+       ptUnclusteredDown = Var("shiftedPt('UnclusteredEnDown')", float, doc="Unclustered down pt",precision=10),
+       phiUnclusteredUp = Var("shiftedPhi('UnclusteredEnUp')", float, doc="Unclustered up phi",precision=10),
+       phiUnclusteredDown = Var("shiftedPhi('UnclusteredEnDown')", float, doc="Unclustered down phi",precision=10),
     ),
 )
 
-tkMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-    src = cms.InputTag("tkMet"),
-    name = cms.string("TkMET"),
-    doc = cms.string("Track MET computed with tracks from PV0 ( pvAssociationQuality()>=5 ) "),
-    singleton = cms.bool(True),  # there's always exactly one MET per event
-    extension = cms.bool(False), # this is the main table for the TkMET
-    variables = cms.PSet(PTVars,
-       sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10),
+rawPuppiMetTable = simpleSingletonPATMETFlatTableProducer.clone(
+    src = puppiMetTable.src,
+    name = cms.string("RawPuppiMET"),
+    doc = cms.string("raw Puppi MET"),
+    variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
+       pt  = Var("uncorPt",  float, doc="pt", precision=10),
+       phi = Var("uncorPhi", float, doc="phi", precision=10),
+       sumEt = Var("uncorSumEt", float, doc="scalar sum of Et", precision=10),
+    ),)
+
+
+trkMetTable = simpleSingletonPATMETFlatTableProducer.clone(
+    src = pfmetTable.src,
+    name = cms.string("TrkMET"),
+    doc = cms.string("Track MET computed with tracks from PV0 ( pvAssociationQuality()>=4 ) "),
+    variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
+       pt = Var("corPt('RawTrk')", float, doc="raw track MET pt",precision=10),
+       phi = Var("corPhi('RawTrk')", float, doc="raw track MET phi",precision=10),
+       sumEt = Var("corSumEt('RawTrk')", float, doc="raw track scalar sum of Et",precision=10),
     ),
 )
 
+deepMetResolutionTuneTable = simpleSingletonPATMETFlatTableProducer.clone(
+    # current deepMets are saved in slimmedMETs in MiniAOD,
+    # in the same way as chsMet/TrkMET
+    src = pfmetTable.src,
+    name = cms.string("DeepMETResolutionTune"),
+    doc = cms.string("Deep MET trained with resolution tune"),
+    variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
+        pt = Var("corPt('RawDeepResolutionTune')", float, doc="DeepMET ResolutionTune pt",precision=-1),
+        phi = Var("corPhi('RawDeepResolutionTune')", float, doc="DeepmET ResolutionTune phi",precision=12),
+    ),
+)
 
-metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-    src = metTable.src,
+deepMetResponseTuneTable = simpleSingletonPATMETFlatTableProducer.clone(
+    src = pfmetTable.src,
+    name = cms.string("DeepMETResponseTune"),
+    doc = cms.string("Deep MET trained with extra response tune"),
+    variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
+        pt = Var("corPt('RawDeepResponseTune')", float, doc="DeepMET ResponseTune pt",precision=-1),
+        phi = Var("corPhi('RawDeepResponseTune')", float, doc="DeepMET ResponseTune phi",precision=12),
+    ),
+)
+
+metMCTable = simpleSingletonPATMETFlatTableProducer.clone(
+    src = pfmetTable.src,
     name = cms.string("GenMET"),
     doc = cms.string("Gen MET"),
-    singleton = cms.bool(True),  
-    extension = cms.bool(False),
     variables = cms.PSet(
        pt  = Var("genMET.pt",  float, doc="pt", precision=10),
        phi = Var("genMET.phi", float, doc="phi", precision=10),
@@ -98,8 +124,6 @@ metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 )
 
 
-
-metSequence = cms.Sequence(chsForTkMet+tkMet)
-metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTable + tkMetTable)
-metMC = cms.Sequence( metMCTable )
-
+metTablesTask = cms.Task(pfmetTable, rawMetTable, caloMetTable, puppiMetTable, rawPuppiMetTable, trkMetTable, 
+        deepMetResolutionTuneTable, deepMetResponseTuneTable )
+metMCTask = cms.Task( metMCTable )

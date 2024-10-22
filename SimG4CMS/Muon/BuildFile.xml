@@ -1,8 +1,13 @@
-<use   name="SimG4Core/SensitiveDetector"/>
-<use   name="SimG4Core/Notification"/>
-<use   name="boost"/>
-<use   name="geant4core"/>
-<use   name="SimDataFormats/SimHitMaker"/>
-<use   name="SimG4Core/Application"/>
-<use   name="Geometry/MuonNumbering"/>
-<flags   EDM_PLUGIN="1"/>
+<use name="CondFormats/GeometryObjects"/>
+<use name="Geometry/MuonNumbering"/>
+<use name="SimG4Core/Geometry"/>
+<use name="SimG4Core/Notification"/>
+<use name="SimG4Core/Physics"/>
+<use name="SimG4Core/SensitiveDetector"/>
+<use name="SimDataFormats/SimHitMaker"/>
+<use name="boost"/>
+<use name="geant4core"/>
+<use name="hepmc"/>
+<export>
+  <lib name="1"/>
+</export>

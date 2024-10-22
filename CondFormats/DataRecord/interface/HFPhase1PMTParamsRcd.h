@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     HFPhase1PMTParamsRcd
-// 
+//
 /**\class HFPhase1PMTParamsRcd HFPhase1PMTParamsRcd.h CondFormats/DataRecord/interface/HFPhase1PMTParamsRcd.h
 
  Description: record for storing parameters describing Phase 1 HF PMTs
@@ -22,5 +22,4 @@
 
 class HFPhase1PMTParamsRcd : public edm::eventsetup::EventSetupRecordImplementation<HFPhase1PMTParamsRcd> {};
 
-#endif // CondFormats_HFPhase1PMTParamsRcd_h
-
+#endif  // CondFormats_HFPhase1PMTParamsRcd_h

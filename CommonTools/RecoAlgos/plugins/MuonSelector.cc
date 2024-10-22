@@ -29,10 +29,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
- typedef SingleObjectSelector<
-           edm::View<reco::Muon>, 
-           StringCutObjectSelector<reco::Muon>,
-           reco::MuonCollection
-         > MuonSelector;
+typedef SingleObjectSelector<edm::View<reco::Muon>, StringCutObjectSelector<reco::Muon>, reco::MuonCollection>
+    MuonSelector;
 
-DEFINE_FWK_MODULE( MuonSelector );
+DEFINE_FWK_MODULE(MuonSelector);

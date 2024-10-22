@@ -7,19 +7,19 @@
 #include "DataFormats/L1TMuon/interface/OMTF/OmtfDataWord64.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfLinkMappingCsc.h"
 
-namespace edm { class EventSetup; }
+namespace edm {
+  class EventSetup;
+}
 
 namespace omtf {
 
-class CscPacker {
+  class CscPacker {
+  public:
+    void init();
+    void pack(const CSCCorrelatedLCTDigiCollection* prod, FedAmcRawsMap& raws);
 
-public:
-
-  void init();
-  void pack(const CSCCorrelatedLCTDigiCollection* prod, FedAmcRawsMap & raws);
-
-private:
-  MapCscDet2EleIndex       theCsc2Omtf;
-};
-}
+  private:
+    MapCscDet2EleIndex theCsc2Omtf;
+  };
+}  // namespace omtf
 #endif

@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+<!-- 
+    <debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_materials/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/>
+    <debug_materials/>
+    <debug_visattr/>
+-->
+  </debug>
+  
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref="Geometry/CMSCommonData/data/materials.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/rotations.xml"/> 
+    <Include ref="Geometry/HcalCommonData/data/hcalrotations.xml"/> 
+    <Include ref="Geometry/HcalTestBeamData/data/TBHcal.xml"/> 
+    <Include ref="Geometry/HcalTestBeamData/data/TBHcal06BeamLine.xml"/> 
+    <Include ref="Geometry/HcalTestBeamData/data/TBHcal06Ecal.xml"/> 
+    <Include ref="Geometry/HcalTestBeamData/data/TBHcalCable.xml"/> 
+    <Include ref="Geometry/HcalTestBeamData/data/2006/TBHcalBarrel.xml"/> 
+    <Include ref="Geometry/HcalTestBeamData/data/TBHcalEndcap.xml"/> 
+    <Include ref="Geometry/HcalTestBeamData/data/TBHcal06HcalOuter.xml"/> 
+    <Include ref="Geometry/HcalTestBeamData/data/TBHcal06Sens.xml"/> 
+    <Include ref="Geometry/HcalTestBeamData/data/TBHcal06SimNumbering.xml"/> 
+    <Include ref="Geometry/EcalSimData/data/ebsens.xml"/> 
+    <Include ref="Geometry/HcalTestBeamData/data/TBHcal06ProdCuts.xml"/> 
+    <Include ref="Geometry/EcalSimData/data/EBProdCuts.xml"/> 
+    <Include ref="Geometry/HcalTestBeamData/data/TBHcal06Util.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalRecNumbering.xml"/>
+    <Include ref="Geometry/HcalTestBeamData/data/world.xml"/>
+  </IncludeSection>
+  
+</DDDefinition>
+
+
+

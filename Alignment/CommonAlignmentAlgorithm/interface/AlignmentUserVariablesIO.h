@@ -14,32 +14,28 @@
 
 class AlignmentUserVariables;
 
-class AlignmentUserVariablesIO 
-{
-
-  protected:
-
+class AlignmentUserVariablesIO {
+protected:
   virtual ~AlignmentUserVariablesIO() {}
 
   /** open IO */
-  virtual int open(const char* filename, int iteration, bool writemode) =0;
+  virtual int open(const char* filename, int iteration, bool writemode) = 0;
 
   /** close IO */
-  virtual int close(void) =0;
+  virtual int close(void) = 0;
 
   /** write AlignmentUserVariables of one Alignable */
-  virtual int writeOne(Alignable* ali) =0;
+  virtual int writeOne(Alignable* ali) = 0;
 
   /** read AlignmentUserVariables of one Alignable,
       object should be created and has to be deleted */
-  virtual AlignmentUserVariables* readOne(Alignable* ali, int& ierr) =0;
+  virtual AlignmentUserVariables* readOne(Alignable* ali, int& ierr) = 0;
 
   /** write AlignmentUserVariables of many Alignables */
   int write(const align::Alignables& alivec, bool validCheck);
 
   /** read AlignmentUserVariables of many Alignables (using readOne, so take care of memory!) */
   std::vector<AlignmentUserVariables*> read(const align::Alignables& alivec, int& ierr);
-
 };
 
 #endif

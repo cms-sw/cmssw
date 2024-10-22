@@ -1,7 +1,6 @@
 #ifndef DTEfficiencyTask_H
 #define DTEfficiencyTask_H
 
-
 /** \class DTEfficiencyTask
  *  DQM Analysis of 4D DT segments, it produces plots about: <br>
  *      - single cell efficiency
@@ -11,31 +10,27 @@
  *  \author G. Mila - INFN Torino
  */
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include <string>
 #include <map>
 #include <vector>
 
-class DQMStore;
-class MonitorElement;
 class DTGeometry;
 
-class DTEfficiencyTask: public DQMEDAnalyzer{
+class DTEfficiencyTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   DTEfficiencyTask(const edm::ParameterSet& pset);
@@ -44,22 +39,24 @@ public:
   ~DTEfficiencyTask() override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)  override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) final {}
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
 protected:
-
   /// BeginRun
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
-// Book the histograms
-void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  // Book the histograms
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
-
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  const DTGeometry* dtGeom;
 
   // Switch for verbosity
   bool debug;
@@ -77,10 +74,8 @@ private:
   void fillHistos(DTLayerId lId, int firstWire, int lastWire, int missingWire, bool UnassHit);
 
   std::map<DTLayerId, std::vector<MonitorElement*> > histosPerL;
-
 };
 #endif
-
 
 /* Local Variables: */
 /* show-trailing-whitespace: t */

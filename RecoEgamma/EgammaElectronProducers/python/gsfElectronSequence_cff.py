@@ -6,32 +6,17 @@ import FWCore.ParameterSet.Config as cms
 # imported in the reco sequences since the integration with pflow.
 #==============================================================================
 
-from RecoEgamma.EgammaElectronProducers.gsfElectronModules_cff import *
-gsfElectronTask = cms.Task(ecalDrivenGsfElectronCores,ecalDrivenGsfElectrons,gsfElectronCores,gsfElectrons)
-gsfElectronSequence = cms.Sequence(gsfElectronTask)
+from RecoEgamma.EgammaElectronProducers.ecalDrivenGsfElectronCores_cfi import ecalDrivenGsfElectronCores
+from RecoEgamma.EgammaElectronProducers.ecalDrivenGsfElectronCoresHGC_cff import ecalDrivenGsfElectronCoresHGC
+from RecoEgamma.EgammaElectronProducers.gsfElectrons_cfi import *
 
 gsfEcalDrivenElectronTask = cms.Task(ecalDrivenGsfElectronCores,ecalDrivenGsfElectrons)
 gsfEcalDrivenElectronSequence = cms.Sequence(gsfEcalDrivenElectronTask)
 
-_gsfEcalDrivenElectronTaskFromMultiCl = gsfEcalDrivenElectronTask.copy()
-_gsfEcalDrivenElectronTaskFromMultiCl.add(cms.Task(ecalDrivenGsfElectronCoresFromMultiCl,ecalDrivenGsfElectronsFromMultiCl))
-_gsfEcalDrivenElectronSequenceFromMultiCl = cms.Sequence(_gsfEcalDrivenElectronTaskFromMultiCl)
-
-#gsfElectronMergingSequence = cms.Sequence(gsfElectronCores*gsfElectrons)
-
-from RecoEgamma.EgammaElectronProducers.edBasedElectronIso_cff import *
-from RecoEgamma.EgammaElectronProducers.pfBasedElectronIso_cff import *
-
-electronIsoTask = cms.Task(
-        edBasedElectronIsoTask,
-        pfBasedElectronIsoTask
-     )
-electronIsoSequence = cms.Sequence(electronIsoTask)
-
-gsfElectronMergingTask = cms.Task(electronIsoTask,gsfElectronCores,gsfElectrons)
-gsfElectronMergingSequence = cms.Sequence(gsfElectronMergingTask)
+_gsfEcalDrivenElectronTaskHGC = gsfEcalDrivenElectronTask.copy()
+_gsfEcalDrivenElectronTaskHGC.add(cms.Task(ecalDrivenGsfElectronCoresHGC,ecalDrivenGsfElectronsHGC))
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(
-  gsfEcalDrivenElectronTask, _gsfEcalDrivenElectronTaskFromMultiCl
+  gsfEcalDrivenElectronTask, _gsfEcalDrivenElectronTaskHGC
 )

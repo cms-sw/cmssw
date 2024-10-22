@@ -1,5 +1,5 @@
-#ifndef __L1TMUON_TRIGGERPRIMITIVE_H__
-#define __L1TMUON_TRIGGERPRIMITIVE_H__
+#ifndef __L1TMuon_TriggerPrimitive_h__
+#define __L1TMuon_TriggerPrimitive_h__
 //
 // Class: L1TMuon::TriggerPrimitive
 //
@@ -19,15 +19,11 @@
 
 #include <cstdint>
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 
-//DetId
 #include "DataFormats/DetId/interface/DetId.h"
-//Global point (created on the fly)
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
-// Forward declaration
-#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitiveFwd.h"
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 
 // DT digi types
 class DTChamberId;
@@ -39,39 +35,84 @@ class CSCCorrelatedLCTDigi;
 class CSCDetId;
 
 // RPC digi types
-class RPCDigiL1Link;
+class RPCRecHit;
+class RPCDigi;
 class RPCDetId;
 
+// CPPF digi types
+namespace l1t {
+  class CPPFDigi;
+}
+
 // GEM digi types
-class GEMPadDigi;
+class GEMPadDigiCluster;
 class GEMDetId;
 
+// ME0 digi types
+class ME0TriggerDigi;
+class ME0DetId;
 
 namespace L1TMuon {
 
   class TriggerPrimitive {
   public:
-    // define the subsystems that we have available
-    enum subsystem_type{kDT,kCSC,kRPC,kGEM,kNSubsystems};
-
     // define the data we save locally from each subsystem type
     // variables in these structs keep their colloquial meaning
     // within a subsystem
     // for RPCs you have to unroll the digi-link and raw det-id
     struct RPCData {
-    RPCData() : strip(0), strip_low(0), strip_hi(0), layer(0), bx(0), valid(0) {}
+      RPCData()
+          : strip(0),
+            strip_low(0),
+            strip_hi(0),
+            phi_int(0),
+            theta_int(0),
+            emtf_sector(0),
+            emtf_link(0),
+            bx(0),
+            valid(0),
+            x(0.),
+            y(0.),
+            time(0.),
+            isCPPF(false) {}
       uint16_t strip;
-      uint16_t strip_low; // for use in clustering
-      uint16_t strip_hi;  // for use in clustering
-      uint16_t layer;
+      uint16_t strip_low;    // for use in clustering
+      uint16_t strip_hi;     // for use in clustering
+      uint16_t phi_int;      // for CPPFDigis in EMTF
+      uint16_t theta_int;    // for CPPFDigis in EMTF
+      uint16_t emtf_sector;  // for CPPFDigis in EMTF
+      uint16_t emtf_link;    // for CPPFDigis in EMTF
       int16_t bx;
-      uint16_t valid;
+      int16_t valid;
+      float x;     // local coordinate x (use floating-point for now)
+      float y;     // local coordinate y (use floating-point for now)
+      float time;  // time (use floating-point for now)
+      bool isCPPF;
     };
 
     struct CSCData {
-      CSCData() : trknmb(0), valid(0), quality(0), keywire(0), strip(0),
-		  pattern(0), bend(0), bx(0), mpclink(0), bx0(0), syncErr(0),
-		  cscID(0) {}
+      CSCData()
+          : trknmb(0),
+            valid(0),
+            quality(0),
+            keywire(0),
+            strip(0),
+            pattern(0),
+            bend(0),
+            bx(0),
+            mpclink(0),
+            bx0(0),
+            syncErr(0),
+            cscID(0),
+            alct_quality(0),
+            clct_quality(0),
+            // run-3
+            pattern_run3(0),
+            strip_quart_bit(0),
+            strip_eighth_bit(0),
+            strip_quart(0),
+            strip_eighth(0),
+            slope(0) {}
       uint16_t trknmb;
       uint16_t valid;
       uint16_t quality;
@@ -84,158 +125,195 @@ namespace L1TMuon {
       uint16_t bx0;
       uint16_t syncErr;
       uint16_t cscID;
+      uint16_t alct_quality;  // extra info for ALCT (wires)
+      uint16_t clct_quality;  // extra info for CLCT (strips)
+      // run-3
+      uint16_t pattern_run3;
+      uint16_t strip_quart_bit;
+      uint16_t strip_eighth_bit;
+      uint16_t strip_quart;
+      uint16_t strip_eighth;
+      uint16_t slope;
     };
 
     struct DTData {
-      DTData() : bx(0), wheel(0), sector(0), station(0), radialAngle(0),
-		 bendingAngle(0), qualityCode(0), Ts2TagCode(0), BxCntCode(0),
-		 theta_bti_group(0), segment_number(0), theta_code(0),
-		 theta_quality(0) {}
+      DTData()
+          : bx(0),
+            wheel(0),
+            sector(0),
+            station(0),
+            radialAngle(0),
+            bendingAngle(0),
+            qualityCode(0),
+            Ts2TagCode(0),
+            BxCntCode(0),
+            RpcBit(-10),
+            theta_bti_group(0),
+            segment_number(0),
+            theta_code(0),
+            theta_quality(0) {}
       // from ChambPhDigi (corresponds to a TRACO)
       // this gives us directly the phi
-      int bx; // relative? bx number
-      int wheel; // wheel number -3,-2,-1,1,2,3
-      int sector; // 1-12 in DT speak (these correspond to CSC sub-sectors)
-      int station; // 1-4 radially outwards
-      int radialAngle; // packed phi in a sector
-      int bendingAngle; // angle of segment relative to chamber
-      int qualityCode; // need to decode
-      int Ts2TagCode; // ??
-      int BxCntCode; // ????
+      int bx;            // relative? bx number
+      int wheel;         // wheel number -3,-2,-1,1,2,3
+      int sector;        // 1-12 in DT speak (these correspond to CSC sub-sectors)
+      int station;       // 1-4 radially outwards
+      int radialAngle;   // packed phi in a sector
+      int bendingAngle;  // angle of segment relative to chamber
+      int qualityCode;   // need to decode
+      int Ts2TagCode;    // ??
+      int BxCntCode;     // ????
+      int RpcBit;        // 0: DT only, 1: DT segment BX corrected by RPC, 2: RPC only
       // from ChambThDigi (corresponds to a BTI)
       // we have to root out the eta manually
       // theta super layer == SL 1
       // station four has no theta super-layer
       // bti_idx == -1 means there was no theta trigger for this segment
       int theta_bti_group;
-      int segment_number; // position(i)
+      int segment_number;  // position(i)
       int theta_code;
       int theta_quality;
     };
 
+    // See documentation in DataFormats/GEMDigi/interface/GEMPadDigiCluster.h
     struct GEMData {
       GEMData() : pad(0), pad_low(0), pad_hi(0), bx(0) {}
       uint16_t pad;
-      uint16_t pad_low; // for use in clustering
-      uint16_t pad_hi;  // for use in clustering
+      uint16_t pad_low;  // for use in clustering
+      uint16_t pad_hi;   // for use in clustering
       int16_t bx;
     };
 
-    //Persistency
-    TriggerPrimitive(): _subsystem(kNSubsystems) {}
+    // See documentation in DataFormats/GEMDigi/interface/ME0TriggerDigi.h
+    struct ME0Data {
+      ME0Data() : chamberid(0), quality(0), phiposition(0), partition(0), deltaphi(0), bend(0), bx(0) {}
+      uint16_t chamberid;
+      uint16_t quality;
+      uint16_t phiposition;
+      uint16_t partition;
+      uint16_t deltaphi;
+      uint16_t bend;
+      uint16_t bx;
+    };
 
-    //DT
-    TriggerPrimitive(const DTChamberId&,
-		     const L1MuDTChambPhDigi&,
-		     const int segment_number);
-    TriggerPrimitive(const DTChamberId&,
-		     const L1MuDTChambThDigi&,
-		     const int segment_number);
-    TriggerPrimitive(const DTChamberId&,
-		     const L1MuDTChambPhDigi&,
-		     const L1MuDTChambThDigi&,
-		     const int theta_bti_group);
-    //CSC
-    TriggerPrimitive(const CSCDetId&,
-		     const CSCCorrelatedLCTDigi&);
-    //RPC
-    TriggerPrimitive(const RPCDetId& detid,
-                     const unsigned strip,
-                     const unsigned layer,
-                     const int bx);
+    // Persistency
+    TriggerPrimitive() : _id(0), _subsystem(kNSubsystems) {}
 
-    // GEM
-    TriggerPrimitive(const GEMDetId& detid,
-                     const GEMPadDigi& digi);
+    // Constructors from DT data
+    TriggerPrimitive(const DTChamberId& detid, const L1MuDTChambPhDigi& digi_phi, const int segment_number);
+    TriggerPrimitive(const DTChamberId& detid, const L1MuDTChambThDigi& digi_th, const int theta_bti_group);
+    TriggerPrimitive(const DTChamberId& detid,
+                     const L1MuDTChambPhDigi& digi_phi,
+                     const L1MuDTChambThDigi& digi_th,
+                     const int theta_bti_group);
 
-    //copy
-    TriggerPrimitive(const TriggerPrimitive&);
+    // Constructor from CSC data
+    TriggerPrimitive(const CSCDetId& detid, const CSCCorrelatedLCTDigi& digi);
 
+    // Constructors from RPC data
+    TriggerPrimitive(const RPCDetId& detid, const RPCDigi& digi);
+    TriggerPrimitive(const RPCDetId& detid, const RPCRecHit& rechit);
+
+    // Constructor from CPPF data
+    TriggerPrimitive(const RPCDetId& detid, const l1t::CPPFDigi& digi);
+
+    // Constructor from GEM data
+    TriggerPrimitive(const GEMDetId& detid, const GEMPadDigiCluster& digi);
+
+    // Constructor from ME0 data
+    TriggerPrimitive(const ME0DetId& detid, const ME0TriggerDigi& digi);
+    // Constructor from GE0 data
+    TriggerPrimitive(const GEMDetId& detid, const ME0TriggerDigi& digi);
+
+    // Copy constructor
+    TriggerPrimitive(const TriggerPrimitive& tp);
     TriggerPrimitive& operator=(const TriggerPrimitive& tp);
     bool operator==(const TriggerPrimitive& tp) const;
 
     // return the subsystem we belong to
-    const subsystem_type subsystem() const { return _subsystem; }
+    subsystem_type subsystem() const { return _subsystem; }
 
-    const double getCMSGlobalEta() const { return _eta; }
-    void   setCMSGlobalEta(const double eta) { _eta = eta; }
-    const double getCMSGlobalPhi() const { return _phi; }
-    void   setCMSGlobalPhi(const double phi) { _phi = phi; }
-    const double getCMSGlobalRho() const { return _rho; }
-    void   setCMSGlobalRho(const double rho) { _rho = rho; }
+    void setCMSGlobalEta(double eta) { _eta = eta; }
+    void setCMSGlobalPhi(double phi) { _phi = phi; }
+    void setCMSGlobalRho(double rho) { _rho = rho; }
 
-    const GlobalPoint getCMSGlobalPoint() const { double theta = 2. * atan( exp(-_eta) );
-      return GlobalPoint( GlobalPoint::Cylindrical( _rho, _phi, _rho/tan(theta)) ); };
+    double getCMSGlobalEta() const { return _eta; }
+    double getCMSGlobalPhi() const { return _phi; }
+    double getCMSGlobalRho() const { return _rho; }
 
+    GlobalPoint getCMSGlobalPoint() const {
+      double theta = 2. * std::atan(std::exp(-_eta));
+      return GlobalPoint(GlobalPoint::Cylindrical(_rho, _phi, _rho / std::tan(theta)));
+    }
 
     // this is the relative bending angle with respect to the
     // current phi position.
     // The total angle of the track is phi + bendAngle
-    void setThetaBend(const double theta) { _theta = theta; }
+    void setThetaBend(double theta) { _theta = theta; }
     double getThetaBend() const { return _theta; }
 
-    template<typename IDType>
-      IDType detId() const { return IDType(_id); }
+    template <typename IDType>
+    IDType detId() const {
+      return IDType(_id);
+    }
 
     // accessors to raw subsystem data
     void setDTData(const DTData& dt) { _dt = dt; }
     void setCSCData(const CSCData& csc) { _csc = csc; }
     void setRPCData(const RPCData& rpc) { _rpc = rpc; }
     void setGEMData(const GEMData& gem) { _gem = gem; }
+    void setME0Data(const ME0Data& me0) { _me0 = me0; }
 
-    const DTData  getDTData()  const { return _dt;  }
-    const CSCData getCSCData() const { return _csc; }
-    const RPCData getRPCData() const { return _rpc; }
-    const GEMData getGEMData() const { return _gem; }
+    DTData getDTData() const { return _dt; }
+    CSCData getCSCData() const { return _csc; }
+    RPCData getRPCData() const { return _rpc; }
+    GEMData getGEMData() const { return _gem; }
+    ME0Data getME0Data() const { return _me0; }
 
-    DTData&  accessDTData()  { return _dt; }
+    DTData& accessDTData() { return _dt; }
     CSCData& accessCSCData() { return _csc; }
     RPCData& accessRPCData() { return _rpc; }
     GEMData& accessGEMData() { return _gem; }
+    ME0Data& accessME0Data() { return _me0; }
 
     // consistent accessors to common information
-    const int getBX() const;
-    const int getStrip() const;
-    const int getWire() const;
-    const int getPattern() const;
-    const DetId rawId() const {return _id;};
+    int getBX() const;
+    int getStrip() const;
+    int getWire() const;
+    int getPattern() const;
+    DetId rawId() const { return _id; }
 
-    const unsigned getGlobalSector() const { return _globalsector; }
-    const unsigned getSubSector() const { return _subsector; }
+    unsigned getGlobalSector() const { return _globalsector; }
+    unsigned getSubSector() const { return _subsector; }
 
     void print(std::ostream&) const;
 
   private:
     // Translate to 'global' position information at the level of 60
     // degree sectors. Use CSC sectors as a template
-    void calculateDTGlobalSector(const DTChamberId& chid,
-				 unsigned& global_sector,
-				 unsigned& subsector );
-    void calculateCSCGlobalSector(const CSCDetId& chid,
-				  unsigned& global_sector,
-				  unsigned& subsector );
-    void calculateRPCGlobalSector(const RPCDetId& chid,
-                                  unsigned& global_sector,
-                                  unsigned& subsector );
-    void calculateGEMGlobalSector(const GEMDetId& chid,
-                                  unsigned& global_sector,
-                                  unsigned& subsector );
+    template <typename IDType>
+    void calculateGlobalSector(const IDType& chid, unsigned& globalsector, unsigned& subsector) const {
+      // Not sure if this is ever going to get implemented
+      globalsector = 0;
+      subsector = 0;
+    }
 
-    DTData  _dt;
+    DTData _dt;
     CSCData _csc;
     RPCData _rpc;
     GEMData _gem;
+    ME0Data _me0;
 
     DetId _id;
 
     subsystem_type _subsystem;
 
-    unsigned _globalsector; // [1,6] in 60 degree sectors
-    unsigned _subsector; // [1,2] in 30 degree partitions of a sector
-    double _eta,_phi,_rho; // global pseudorapidity, phi, rho
-    double _theta; // bend angle with respect to ray from (0,0,0)
+    unsigned _globalsector;   // [1,6] in 60 degree sectors
+    unsigned _subsector;      // [1,2] in 30 degree partitions of a sector
+    double _eta, _phi, _rho;  // global pseudorapidity, phi, rho
+    double _theta;            // bend angle with respect to ray from (0,0,0)
   };
 
-}
+}  // namespace L1TMuon
 
 #endif

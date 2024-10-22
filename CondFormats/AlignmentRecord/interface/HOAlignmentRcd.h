@@ -5,5 +5,4 @@
 
 class HOAlignmentRcd : public edm::eventsetup::EventSetupRecordImplementation<HOAlignmentRcd> {};
 
-#endif 
-
+#endif

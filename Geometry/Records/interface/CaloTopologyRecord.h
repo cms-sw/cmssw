@@ -5,13 +5,10 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
+class CaloTopologyRecord
+    : public edm::eventsetup::DependentRecordImplementation<CaloTopologyRecord, edm::mpl::Vector<CaloGeometryRecord> > {
+};
 
-class CaloTopologyRecord : 
-   public edm::eventsetup::DependentRecordImplementation<
-   CaloTopologyRecord,
-                     boost::mpl::vector<
-                     CaloGeometryRecord> > {};
-
-#endif 
+#endif

@@ -12,6 +12,10 @@ collisionParameters2760GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/t
                                    comEnergy = cms.double(2760.0)
                                    )
 
+collisionParameters5362GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
+                                      comEnergy = cms.double(5362.0)
+                                  )
+
 collisionParameters = collisionParameters2760GeV.clone()
 
 qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.0), ## initial temperature of QGP; allowed range [0.2,2.0]GeV;
@@ -20,13 +24,11 @@ qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.0), ## initial tem
                          doRadiativeEnLoss = cms.bool(True), ## if true, perform partonic radiative en loss
                          doCollisionalEnLoss = cms.bool(False),
                          qgpNumQuarkFlavor = cms.int32(0),  ## number of active quark flavors in qgp; allowed values: 0,1,2,3 
-                         numQuarkFlavor = cms.int32(0) ## to be removed
                          )
 
 pyquenParameters  = cms.PSet(doIsospin = cms.bool(True),
                              angularSpectrumSelector = cms.int32(0), ## angular emitted gluon spectrum :
-                             embeddingMode = cms.bool(False),
-                             backgroundLabel = cms.InputTag("generator","unsmeared") ## ineffective in no mixing
+                             embeddingMode = cms.int32(0),
                              )
 
 hydjetParameters = cms.PSet(sigmaInelNN = cms.double(58),
@@ -37,7 +39,7 @@ hydjetParameters = cms.PSet(sigmaInelNN = cms.double(58),
                             maxTransverseRapidity = cms.double(1.),
                             rotateEventPlane = cms.bool(True),
                             allowEmptyEvents = cms.bool(False),
-                            embeddingMode = cms.bool(False)                            
+                            embeddingMode = cms.int32(0)                            
                             )
 
 pyquenPythiaDefaultBlock = cms.PSet(

@@ -17,6 +17,6 @@ namespace reco {
   typedef edm::RefVector<PFTauCollection> PFTauRefVector;
   /// iterator over a vector of references to PFTau objects all in the same collection
   typedef PFTauRefVector::iterator pftau_iterator;
-}
+}  // namespace reco
 
 #endif

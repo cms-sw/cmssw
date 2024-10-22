@@ -14,18 +14,14 @@ POOL object to store CastorChannelStatus
 
 //typedef CastorCondObjectContainer<CastorChannelStatus> CastorChannelQuality;
 
-class CastorChannelQuality: public CastorCondObjectContainer<CastorChannelStatus>
-{
- public:
-  CastorChannelQuality():CastorCondObjectContainer<CastorChannelStatus>() {}
+class CastorChannelQuality : public CastorCondObjectContainer<CastorChannelStatus> {
+public:
+  CastorChannelQuality() : CastorCondObjectContainer<CastorChannelStatus>() {}
 
-  std::string myname() const {return (std::string)"CastorChannelQuality";}
+  std::string myname() const { return (std::string) "CastorChannelQuality"; }
 
- private:
-
- COND_SERIALIZABLE;
+private:
+  COND_SERIALIZABLE;
 };
 
-
 #endif
-

@@ -17,10 +17,9 @@
 #include "DataFormats/Common/interface/View.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
-typedef CandidateProducer<
-          edm::View<reco::Track>,
-          reco::RecoChargedCandidateCollection,
-          StringCutObjectSelector<reco::Track>
-        > TrackViewCandidateProducer;
+typedef CandidateProducer<edm::View<reco::Track>,
+                          reco::RecoChargedCandidateCollection,
+                          StringCutObjectSelector<reco::Track> >
+    TrackViewCandidateProducer;
 
 DEFINE_FWK_MODULE(TrackViewCandidateProducer);

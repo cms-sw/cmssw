@@ -12,7 +12,7 @@ process.load("RecoMuon.Configuration.RecoMuon_cff")
 
 process.load("Configuration.StandardSequences.Services_cff")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 

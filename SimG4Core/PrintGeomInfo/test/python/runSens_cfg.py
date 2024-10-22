@@ -1,14 +1,41 @@
+###############################################################################
+# Way to use this:
+#   cmsRun runSens_cfg.py geometry=2023
+#
+#   Options for geometry 2021, 2023, 2024
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, importlib, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PrintGeom")
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "2024",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: 2021, 2023, 2024")
 
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+#####p###############################################################
+# Use the options
+
+geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "Reco_cff"
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+process = cms.Process('PrintSensitive',Run3_DDD)
+
+print("Geometry file: ", geomFile)
+
+process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Geometry.CMSCommonData.cmsIdealGeometryXML_cfi')
-process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
-process.load('Geometry.HcalCommonData.hcalParameters_cfi')
-process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cfi')
 
-process.MessageLogger.destinations = cms.untracked.vstring("SensDet.txt")
+process.MessageLogger.G4cout=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -57,6 +84,7 @@ process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmea
 process.g4SimHits.UseMagneticField        = False
 process.g4SimHits.Physics.DefaultCutValue = 10. 
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-	Name           = cms.untracked.string('HCal*'),
+	Name           = cms.string('*'),
+        DD4Hep         = cms.bool(False),
 	type           = cms.string('PrintSensitive')
 ))

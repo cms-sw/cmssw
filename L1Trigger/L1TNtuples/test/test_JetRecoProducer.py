@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 # conditions
-from Configuration.AlCa.autoCond_condDBv2 import autoCond
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = cms.string( autoCond['run2_mc'] )
 
 # input file
@@ -42,8 +42,6 @@ process.TFileService = cms.Service("TFileService",
 # producer under test
 process.load("L1Trigger.L1TNtuples.l1JetRecoTreeProducer_cfi")
 
-# get corrected jets
-#from JetMETCorrections.Configuration.JetCorrectionProducers_cff import ak4PFCHSJetsL2
 #process.l1RecoTreeProducer.jetTag = cms.untracked.InputTag("ak4PFCHSJetsL2")
 
 process.p = cms.Path(

@@ -1,0 +1,4 @@
+<use name="CondCore/Utilities"/>
+<use name="FWCore/PluginManager"/>
+<bin file="testLumiCorrections.cpp" name="testLumiCorrections">
+</bin>

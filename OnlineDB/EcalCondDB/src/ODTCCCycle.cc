@@ -6,8 +6,7 @@
 using namespace std;
 using namespace oracle::occi;
 
-ODTCCCycle::ODTCCCycle()
-{
+ODTCCCycle::ODTCCCycle() {
   m_env = nullptr;
   m_conn = nullptr;
   m_writeStmt = nullptr;
@@ -17,60 +16,44 @@ ODTCCCycle::ODTCCCycle()
   m_tcc_config_id = 0;
 }
 
+ODTCCCycle::~ODTCCCycle() {}
 
-ODTCCCycle::~ODTCCCycle()
-{
-}
-
-
-void ODTCCCycle::prepareWrite()
-  noexcept(false)
-{
+void ODTCCCycle::prepareWrite() noexcept(false) {
   this->checkConnection();
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO ECAL_TCC_Cycle (cycle_id, tcc_configuration_id ) "
-		 "VALUES (:1, :2 )");
+    m_writeStmt->setSQL(
+        "INSERT INTO ECAL_TCC_Cycle (cycle_id, tcc_configuration_id ) "
+        "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCCycle::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODTCCCycle::prepareWrite():  " + e.getMessage()));
   }
 }
 
-
-void ODTCCCycle::writeDB()  noexcept(false)
-{
+void ODTCCCycle::writeDB() noexcept(false) {
   this->checkConnection();
   this->checkPrepare();
 
   try {
-
     m_writeStmt->setInt(1, this->getId());
     m_writeStmt->setInt(2, this->getTCCConfigurationID());
 
     m_writeStmt->executeUpdate();
 
-
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCCycle::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("ODTCCCycle::writeDB:  " + e.getMessage()));
   }
 
   // Now get the ID
   if (!this->fetchID()) {
     throw(std::runtime_error("ODTCCCycle::writeDB:  Failed to write"));
   }
-  
- 
 }
 
-void ODTCCCycle::clear(){
-  m_tcc_config_id=0;
-}
+void ODTCCCycle::clear() { m_tcc_config_id = 0; }
 
-
-int ODTCCCycle::fetchID()
-  noexcept(false)
-{
+int ODTCCCycle::fetchID() noexcept(false) {
   // Return from memory if available
   if (m_ID) {
     return m_ID;
@@ -79,11 +62,12 @@ int ODTCCCycle::fetchID()
   this->checkConnection();
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cycle_id, tcc_configuration_id FROM ecal_tcc_cycle "
-		 "WHERE cycle_id = :1 ");
+    Statement *stmt = m_conn->createStatement();
+    stmt->setSQL(
+        "SELECT cycle_id, tcc_configuration_id FROM ecal_tcc_cycle "
+        "WHERE cycle_id = :1 ");
     stmt->setInt(1, m_ID);
-    ResultSet* rset = stmt->executeQuery();
+    ResultSet *rset = stmt->executeQuery();
 
     if (rset->next()) {
       m_ID = rset->getInt(1);
@@ -93,26 +77,22 @@ int ODTCCCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODTCCCycle::fetchID:  " + e.getMessage()));
   }
 
   return m_ID;
 }
 
-
-
-void ODTCCCycle::setByID(int id) 
-  noexcept(false)
-{
-   this->checkConnection();
-
+void ODTCCCycle::setByID(int id) noexcept(false) {
+  this->checkConnection();
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cycle_id, tcc_configuration_id FROM ecal_tcc_cycle "
-		 "WHERE cycle_id = :1 ");
+    Statement *stmt = m_conn->createStatement();
+    stmt->setSQL(
+        "SELECT cycle_id, tcc_configuration_id FROM ecal_tcc_cycle "
+        "WHERE cycle_id = :1 ");
     stmt->setInt(1, id);
-    ResultSet* rset = stmt->executeQuery();
+    ResultSet *rset = stmt->executeQuery();
 
     if (rset->next()) {
       m_ID = rset->getInt(1);
@@ -122,44 +102,37 @@ void ODTCCCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODTCCCycle::fetchID:  " + e.getMessage()));
   }
 }
 
-
-
-void ODTCCCycle::fetchData(ODTCCCycle * result)
-  noexcept(false)
-{
+void ODTCCCycle::fetchData(ODTCCCycle *result) noexcept(false) {
   this->checkConnection();
   result->clear();
 
-  if(result->getId()==0){
+  if (result->getId() == 0) {
     throw(std::runtime_error("ODTCCConfig::fetchData(): no Id defined for this ODTCCConfig "));
   }
 
   try {
-
-    m_readStmt->setSQL("SELECT  tcc_configuration_id FROM ecal_tcc_cycle "
-		 "WHERE cycle_id = :1 ");
+    m_readStmt->setSQL(
+        "SELECT  tcc_configuration_id FROM ecal_tcc_cycle "
+        "WHERE cycle_id = :1 ");
 
     m_readStmt->setInt(1, result->getId());
-    ResultSet* rset = m_readStmt->executeQuery();
+    ResultSet *rset = m_readStmt->executeQuery();
 
     rset->next();
 
-    result->setTCCConfigurationID(       rset->getInt(1) );
+    result->setTCCConfigurationID(rset->getInt(1));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCCycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODTCCCycle::fetchData():  " + e.getMessage()));
   }
 }
 
-void ODTCCCycle::insertConfig()
-  noexcept(false)
-{
+void ODTCCCycle::insertConfig() noexcept(false) {
   try {
-
     prepareWrite();
     writeDB();
     m_conn->commit();

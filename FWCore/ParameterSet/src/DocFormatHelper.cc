@@ -1,6 +1,7 @@
 
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
+#include <algorithm>
 #include <ostream>
 #include <iomanip>
 
@@ -8,7 +9,6 @@ namespace edm {
 
   namespace {
     void wrapAndPrintLine(std::ostream& os, std::string const& text, size_t indent, size_t suggestedWidth) {
-
       char oldFill = os.fill();
 
       size_t length = text.size();
@@ -21,13 +21,14 @@ namespace edm {
 
       // Loop over spaces in the text
       while (true) {
-
         // If the rest of the text fits on the current line,
         // then print it and we are done
         if ((length - startLine) <= suggestedWidth) {
           os << std::setfill(' ') << std::setw(indent) << "";
-          if (startLine == 0) os << text;
-          else os << text.substr(startLine);
+          if (startLine == 0)
+            os << text;
+          else
+            os << text.substr(startLine);
           os << "\n";
           break;
         }
@@ -54,7 +55,6 @@ namespace edm {
         }
 
         if ((pos + 1U - startLine) > suggestedWidth) {
-
           // With this word the line is too long.  Print out to
           // the end of the previous word if there was one.
           // If there was not, then print to the end of this word
@@ -76,7 +76,7 @@ namespace edm {
       }
       os.fill(oldFill);
     }
-  }
+  }  // namespace
 
   // Print and wrap text to an output stream.
   // This function looks for new line chars in the text,
@@ -99,7 +99,6 @@ namespace edm {
                                          std::string const& text,
                                          size_t indent,
                                          size_t suggestedWidth) {
-
     size_t pos = text.find_first_of('\n');
     if (pos == std::string::npos) {
       // no embedded newlines
@@ -123,7 +122,6 @@ namespace edm {
   }
 
   size_t DocFormatHelper::commentWidth() const {
-
     // Make the length of a comment at least 30 characters
     // per line, longer if there is more space available
     size_t width = 30U;
@@ -144,4 +142,20 @@ namespace edm {
     os << std::setfill(' ') << std::setw(startColumn2_) << "";
     os.fill(oldFill);
   }
-}
+
+  void DocFormatHelper::addCategory(std::string const& pluginCategory, std::string const& section) {
+    pluginCategoriesAlreadyPrinted_.emplace_back(pluginCategory, section);
+  }
+
+  std::string DocFormatHelper::sectionOfCategoryAlreadyPrinted(std::string const& pluginCategory) const {
+    auto iter = std::find_if(
+        pluginCategoriesAlreadyPrinted_.begin(),
+        pluginCategoriesAlreadyPrinted_.end(),
+        [&pluginCategory](std::pair<std::string, std::string> const& elem) { return elem.first == pluginCategory; });
+    if (iter == pluginCategoriesAlreadyPrinted_.end()) {
+      return std::string();
+    }
+    return iter->second;
+  }
+
+}  // namespace edm

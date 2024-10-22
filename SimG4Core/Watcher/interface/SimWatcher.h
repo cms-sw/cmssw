@@ -4,52 +4,47 @@
 //
 // Package:     Watcher
 // Class  :     SimWatcher
-// 
+//
 /**\class SimWatcher SimWatcher.h SimG4Core/Watcher/interface/SimWatcher.h
 
- Description: Base class for classes that 'watch' what OscarProducer does internally
+ Description: Base class for classes that 'watch' what OscarProducer does
+internally
 
  Usage:
     By itself, this class actually does nothing except allow dynamic loading
 into the OscarProducer.  To do useful work, one must inherit from this class
-and one or more 'Observer<T>' classes.  
+and one or more 'Observer<T>' classes.
 
-    A class that inherits from OscarProducer must have a constructor that takes
-a 'const edm::ParameterSet&' as its only argument.  This constructor will be
-called by the dynamic loading code.
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Tue Nov 22 15:35:11 EST 2005
 //
 
-// system include files
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
-// user include files
+class SimWatcher {
+public:
+  SimWatcher() {}
+  virtual ~SimWatcher() {}
 
-// forward declarations
+  // Two methods are needed to be implemented in the thread
+  // safe watchers and producers
+  virtual void registerConsumes(edm::ConsumesCollector){};
+  virtual void beginRun(edm::EventSetup const &) {}
 
-class SimWatcher
-{
+  bool isMT() const { return applicableForMT; }
 
-   public:
-      SimWatcher() {}
-      virtual ~SimWatcher() {}
+  SimWatcher(const SimWatcher &) = delete;
+  const SimWatcher &operator=(const SimWatcher &) = delete;
 
-      // ---------- const member functions ---------------------
+protected:
+  // Set "true" for thread safe watchers/producers
+  void setMT(bool val) { applicableForMT = val; }
 
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-
-   private:
-      SimWatcher(const SimWatcher&) = delete; // stop default
-
-      const SimWatcher& operator=(const SimWatcher&) = delete; // stop default
-
-      // ---------- member data --------------------------------
-
+private:
+  bool applicableForMT{false};
 };
-
 
 #endif

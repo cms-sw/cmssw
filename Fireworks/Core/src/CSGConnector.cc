@@ -16,7 +16,7 @@
 #include "Fireworks/Core/src/CSGConnector.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 
-ClassImp(CSGConnector)
+ClassImp(CSGConnector);
 
 //
 // constants, enums and typedefs
@@ -57,13 +57,9 @@ ClassImp(CSGConnector)
 //
 // member functions
 //
-void CSGConnector::handleMenu(Int_t entry) {
-   m_supervisor->activateMenuEntry(entry);
-}
+void CSGConnector::handleMenu(Int_t entry) { m_supervisor->activateMenuEntry(entry); }
 
-void CSGConnector::handleToolBar(Int_t entry) {
-   m_supervisor->activateToolBarEntry(entry);
-}
+void CSGConnector::handleToolBar(Int_t entry) { m_supervisor->activateToolBarEntry(entry); }
 
 //
 // const member functions

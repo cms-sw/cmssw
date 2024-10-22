@@ -22,6 +22,8 @@ HcalPhiSymMon = DQMEDAnalyzer('DQMHcalPhiSymAlCaReco',
     # File to save 
     SaveToFile = cms.untracked.bool(False),
     FileName = cms.untracked.string('MonitorAlCaHcalPhiSym.root'),
+    #driven by DQMServices/Core/python/DQMStore_cfi.py
+    perLSsaving = cms.untracked.bool(False), 
     # DQM folder to write to
     FolderName = cms.untracked.string('AlCaReco/HcalPhiSym')
 )

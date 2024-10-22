@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -37,36 +37,35 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::VertexCollection, reco::TrackCollection, int> > TrackToVertexAssMap;
-typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::TrackCollection, reco::VertexCollection, int> > VertexToTrackAssMap;
+typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::VertexCollection, reco::TrackCollection, int> >
+    TrackToVertexAssMap;
+typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::TrackCollection, reco::VertexCollection, int> >
+    VertexToTrackAssMap;
 
 //
 // class declaration
 //
 
-class PF_PU_FirstVertexTracks : public edm::EDProducer {
-   public:
-      explicit PF_PU_FirstVertexTracks(const edm::ParameterSet&);
-      ~PF_PU_FirstVertexTracks() override;
+class PF_PU_FirstVertexTracks : public edm::global::EDProducer<> {
+public:
+  explicit PF_PU_FirstVertexTracks(const edm::ParameterSet&);
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual bool TrackMatch(const reco::Track&,const reco::Track&);
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  bool trackMatch(const reco::Track&, const reco::Track&) const;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-      edm::InputTag input_AssociationType_;
+  edm::InputTag input_AssociationType_;
 
-      edm::EDGetTokenT<TrackToVertexAssMap> token_TrackToVertexAssMap_;
-      edm::EDGetTokenT<VertexToTrackAssMap> token_VertexToTrackAssMap_;
-      edm::EDGetTokenT<reco::TrackCollection> token_generalTracksCollection_;
-      edm::EDGetTokenT<reco::VertexCollection> token_VertexCollection_;
+  edm::EDGetTokenT<TrackToVertexAssMap> token_TrackToVertexAssMap_;
+  edm::EDGetTokenT<VertexToTrackAssMap> token_VertexToTrackAssMap_;
+  edm::EDGetTokenT<reco::TrackCollection> token_generalTracksCollection_;
+  edm::EDGetTokenT<reco::VertexCollection> token_VertexCollection_;
 
-      int input_MinQuality_;
+  int input_MinQuality_;
 };
 
-
 #endif
-

@@ -26,9 +26,6 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
- typedef SingleObjectSelector<
-           reco::PFJetCollection, 
-           StringCutObjectSelector<reco::PFJet> 
-         > PFJetSelector;
+typedef SingleObjectSelector<reco::PFJetCollection, StringCutObjectSelector<reco::PFJet> > PFJetSelector;
 
-DEFINE_FWK_MODULE( PFJetSelector );
+DEFINE_FWK_MODULE(PFJetSelector);

@@ -9,7 +9,7 @@ using namespace std;
 // \class BackgroundEstimator
 // Class to estimate the density of the background per unit area
 //
-// The default behaviour of this class is to compute the global 
+// The default behaviour of this class is to compute the global
 // properties of the background as it is done in ClusterSequenceArea.
 // On top of that, we provide methods to specify an explicit set of
 // jets to use or a list of jets to exclude.
@@ -22,19 +22,17 @@ using namespace std;
 //  - csa      the ClusterSequenceArea to use
 //  - range    the range over which jets will be considered
 BackgroundEstimator::BackgroundEstimator(const ClusterSequenceAreaBase &csa, const RangeDefinition &range)
-  : _csa(csa), _range(range){
+    : _csa(csa), _range(range) {
   reset();
 }
 
 // default dtor
-BackgroundEstimator::~BackgroundEstimator(){
-
-}
+BackgroundEstimator::~BackgroundEstimator() {}
 
 // reset to default values
 // set the list of included jets to the inclusive jets and clear the excluded ones
-void BackgroundEstimator::reset(){
-  // set the list of included jets to the inclusive jets 
+void BackgroundEstimator::reset() {
+  // set the list of included jets to the inclusive jets
   _included_jets = _csa.inclusive_jets();
   _all_from_inclusive = true;
   //set_included_jets(_csa.inclusive_jets());
@@ -53,24 +51,23 @@ void BackgroundEstimator::reset(){
   _uptodate = false;
 }
 
-
 // do the actual job
-void BackgroundEstimator::_compute(){
+void BackgroundEstimator::_compute() {
   //TODO: check that the alg is OK for median computation
   //_check_jet_alg_good_for_median();
 
-  // fill the vector of pt/area with the jets 
+  // fill the vector of pt/area with the jets
   //  - in included_jets
   //  - not in excluded_jets
   //  - in the range
   vector<double> pt_over_areas;
-  double total_area  = 0.0;
-  
+  double total_area = 0.0;
+
   _n_jets_used = 0;
   _n_jets_excluded = 0;
 
   for (unsigned i = 0; i < _included_jets.size(); i++) {
-    const PseudoJet & current_jet = _included_jets[i];
+    const PseudoJet &current_jet = _included_jets[i];
 
     // check that the jet is not explicitly excluded
     // we'll compare them using their cluster_history_index
@@ -80,27 +77,25 @@ void BackgroundEstimator::_compute(){
       excluded |= (_excluded_jets[j].cluster_hist_index() == ref_idx);
 
     // check if the jet is in the range
-    if (_range.is_in_range(current_jet)){
-      if (excluded){
-	// keep track of the explicitly excluded jets
-	_n_jets_excluded++;
+    if (_range.is_in_range(current_jet)) {
+      if (excluded) {
+        // keep track of the explicitly excluded jets
+        _n_jets_excluded++;
       } else {
-	double this_area = (_use_area_4vector) 
-	  ? _csa.area_4vector(current_jet).perp()
-	  : _csa.area(current_jet); 
-	
-	pt_over_areas.push_back(current_jet.perp()/this_area);
-	total_area  += this_area;
-	_n_jets_used++;
+        double this_area = (_use_area_4vector) ? _csa.area_4vector(current_jet).perp() : _csa.area(current_jet);
+
+        pt_over_areas.push_back(current_jet.perp() / this_area);
+        total_area += this_area;
+        _n_jets_used++;
       }
     }
   }
-  
+
   // there is nothing inside our region, so answer will always be zero
   if (pt_over_areas.empty()) {
     _median_rho = 0.0;
-    _sigma      = 0.0;
-    _mean_area  = 0.0;
+    _sigma = 0.0;
+    _mean_area = 0.0;
     return;
   }
 
@@ -120,27 +115,25 @@ void BackgroundEstimator::_compute(){
     _n_empty_jets = _csa.n_empty_jets(_range);
   } else {
     _empty_area = _csa.empty_area_from_jets(_included_jets, _range);
-    _mean_area = total_area / _n_jets_used; // temporary value
+    _mean_area = total_area / _n_jets_used;  // temporary value
     _n_empty_jets = _empty_area / _mean_area;
   }
 
   double total_njets = _n_jets_used + _n_empty_jets;
-  total_area  += _empty_area;
-
+  total_area += _empty_area;
 
   // now get the median & error, accounting for empty jets
   // define the fractions of distribution at median, median-1sigma
-  double posn[2] = {0.5, (1.0-0.6827)/2.0};
+  double posn[2] = {0.5, (1.0 - 0.6827) / 2.0};
   double res[2];
 
   for (int i = 0; i < 2; i++) {
-    double nj_median_pos = (total_njets-1)*posn[i] - _n_empty_jets;
+    double nj_median_pos = (total_njets - 1) * posn[i] - _n_empty_jets;
     double nj_median_ratio;
     if (nj_median_pos >= 0 && pt_over_areas.size() > 1) {
       int int_nj_median = int(nj_median_pos);
-      nj_median_ratio =
-        pt_over_areas[int_nj_median] * (int_nj_median+1-nj_median_pos)
-        + pt_over_areas[int_nj_median+1] * (nj_median_pos - int_nj_median);
+      nj_median_ratio = pt_over_areas[int_nj_median] * (int_nj_median + 1 - nj_median_pos) +
+                        pt_over_areas[int_nj_median + 1] * (nj_median_pos - int_nj_median);
     } else {
       nj_median_ratio = 0.0;
     }
@@ -148,15 +141,11 @@ void BackgroundEstimator::_compute(){
   }
 
   // store the results
-  double error  = res[0] - res[1];
+  double error = res[0] - res[1];
   _median_rho = res[0];
-  _mean_area  = total_area / total_njets;
-  _sigma      = error * sqrt(_mean_area);
+  _mean_area = total_area / total_njets;
+  _sigma = error * sqrt(_mean_area);
 
-  // record that the computation has been performed  
+  // record that the computation has been performed
   _uptodate = true;
 }
-
-
-
-

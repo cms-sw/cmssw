@@ -18,7 +18,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -38,30 +37,41 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/TrajectoryToSeedMap.h"
 
-namespace reco {class TransientTrack;}
+namespace reco {
+  class TransientTrack;
+}
 
 class Trajectory;
+class Chi2MeasurementEstimatorBase;
+class CkfComponentsRecord;
+class NavigationSchoolRecord;
 
 /** \class NuclearSeedsEDProducer
  *
  */
 
 class NuclearSeedsEDProducer : public edm::stream::EDProducer<> {
+public:
+  explicit NuclearSeedsEDProducer(const edm::ParameterSet&);
+  ~NuclearSeedsEDProducer() override;
 
-   public:
-      explicit NuclearSeedsEDProducer(const edm::ParameterSet&);
-      ~NuclearSeedsEDProducer() override;
+private:
+  void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-   private:
-      void beginRun(edm::Run const& run, const edm::EventSetup&) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
+  // ----------member data ---------------------------
+  NuclearInteractionFinder::Config config_;
+  std::unique_ptr<NuclearInteractionFinder> theNuclearInteractionFinder;
 
-      // ----------member data ---------------------------
-      edm::ParameterSet conf_;
-      std::unique_ptr<NuclearInteractionFinder>     theNuclearInteractionFinder;
+  bool improveSeeds;
+  edm::EDGetTokenT<TrajectoryCollection> producer_;
+  edm::EDGetTokenT<MeasurementTrackerEvent> mteToken_;
 
-      bool improveSeeds;
-      edm::EDGetTokenT<TrajectoryCollection> producer_;
-      edm::EDGetTokenT<MeasurementTrackerEvent> mteToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> estimatorToken_;
+  edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measurementTrackerToken_;
+  edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geomSearchTrackerToken_;
+  edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navigationToken_;
 };
 #endif

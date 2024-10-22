@@ -22,15 +22,12 @@ class DDLElementRegistry;
  *
  */
 
-class DDLAlgorithm final : public DDXMLElement
-{
- public:
+class DDLAlgorithm final : public DDXMLElement {
+public:
+  DDLAlgorithm(DDLElementRegistry* myreg);
 
-  DDLAlgorithm( DDLElementRegistry* myreg );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void preProcessElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif
-

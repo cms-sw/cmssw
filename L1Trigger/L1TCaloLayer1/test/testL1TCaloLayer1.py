@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import FWCore.ParameterSet.Config as cms
 
@@ -19,7 +20,7 @@ def formatLumis(lumistring, run) :
     runlumis = (['%d:%s' % (run,lumi) for lumi in lrange] for lrange in lumis)
     return ['-'.join(l) for l in runlumis]
 
-print 'Getting files for run %d...' % options.runNumber
+print('Getting files for run %d...' % options.runNumber)
 if len(options.inputFiles) is 0 and options.inputFileList is '' :
     inputFiles = util.getFilesForRun(options.runNumber, options.dataStream)
 elif len(options.inputFileList) > 0 :
@@ -29,7 +30,7 @@ else :
     inputFiles = cms.untracked.vstring(options.inputFiles)
 if len(inputFiles) is 0 :
     raise Exception('No files found for dataset %s run %d' % (options.dataStream, options.runNumber))
-print 'Ok, time to analyze'
+print('Ok, time to analyze')
 
 process = cms.Process("L1TCaloLayer1Test")
 
@@ -80,13 +81,14 @@ process.load('L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi')
 process.simCaloStage2Layer1Digis.useECALLUT = cms.bool(True)
 process.simCaloStage2Layer1Digis.useHCALLUT = cms.bool(True)
 process.simCaloStage2Layer1Digis.useHFLUT = cms.bool(True)
+process.simCaloStage2Layer1Digis.useHCALFBLUT = cms.bool(False),
 process.simCaloStage2Layer1Digis.useLSB = cms.bool(True)
 process.simCaloStage2Layer1Digis.verbose = cms.bool(True)
-process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("l1tCaloLayer1Digis")
-process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("l1tCaloLayer1Digis")
+process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis"),
+process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis"),
 
 process.load('L1Trigger.L1TCaloLayer1.layer1Validator_cfi')
-process.layer1Validator.testRegionToken = cms.InputTag("l1tCaloLayer1Digis")
+process.layer1Validator.testRegionToken = cms.InputTag("simEcalTriggerPrimitiveDigis"),
 process.layer1Validator.emulRegionToken = cms.InputTag("simCaloStage2Layer1Digis")
 process.layer1Validator.emulTowerToken = cms.InputTag("simCaloStage2Layer1Digis")
 process.layer1Validator.validateTowers = cms.bool(False)

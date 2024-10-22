@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # A Pyrelval Wrapper
 
@@ -11,10 +11,13 @@ from Configuration.Applications.ConfigBuilder import ConfigBuilder, defaultOptio
 import traceback
 from functools import reduce
 
+def checkModifier(era):
+    from FWCore.ParameterSet.Config import Modifier, ModifierChain
+    return isinstance( era, Modifier ) or isinstance( era, ModifierChain )
 
 def checkOptions():
     return
-    
+
 def adaptOptions():
     return
 
@@ -31,27 +34,22 @@ def OptionsFromCommand(command):
 def OptionsFromCommandLine():
     import sys
     options=OptionsFromItems(sys.argv[1:])
-    # memorize the command line arguments 
+    # memorize the command line arguments
     options.arguments = reduce(lambda x, y: x+' '+y, sys.argv[1:])
     return options
 
 def OptionsFromItems(items):
     import sys
-    from Configuration.Applications.Options import parser,threeValued
-    #three valued options
-    for (index,item) in enumerate(items):
-        for (opt,value) in threeValued:
-            if (str(item) in opt) and (index==len(items)-1 or items[index+1].startswith('-')):
-                items.insert(index+1,value)
-                
-    (options,args) = parser.parse_args(items)
+    from Configuration.Applications.Options import parser
 
-    if not options.conditions or options.conditions=="help":
+    options = parser.parse_args(items)
+
+    if options.conditions=="help":
         from Configuration.AlCa import autoCond
         possible=""
         for k in autoCond.autoCond:
             possible+="\nauto:"+k+" -> "+str(autoCond.autoCond[k])
-        raise Exception("the --conditions option is mandatory. Possibilities are: "+possible)
+        parser.error("Possibilities for the --conditions option: "+possible)
 
 
     #################################
@@ -60,10 +58,10 @@ def OptionsFromItems(items):
 
     # check in case of ALCAOUTPUT case for alca splitting
     if options.triggerResultsProcess == None and "ALCAOUTPUT" in options.step:
-        print "ERROR: If ALCA splitting is requested, the name of the process in which the alca producers ran needs to be specified. E.g. via --triggerResultsProcess RECO"
+        print("ERROR: If ALCA splitting is requested, the name of the process in which the alca producers ran needs to be specified. E.g. via --triggerResultsProcess RECO")
         sys.exit(1)
-            
-    if not options.evt_type:            
+
+    if not options.evt_type:
         options.evt_type=sys.argv[1]
 
     #now adjust the given parameters before passing it to the ConfigBuilder
@@ -84,8 +82,6 @@ def OptionsFromItems(items):
                  "SIM":"GEN",
                  "reSIM":"SIM",
                  "DIGI":"SIM",
-                 "DIGIPREMIX":"SIM",
-                 "DIGIPREMIX_S2":"SIM",
                  "reDIGI":"DIGI",
                  "L1REPACK":"RAW",
                  "HLT":"RAW",
@@ -127,7 +123,7 @@ def OptionsFromItems(items):
 
     # add on the end of job sequence...
     addEndJob = True
-    if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or "ALCAHARVEST" in options.step or "ALCAOUTPUT" in options.step or options.step == "": 
+    if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or "ALCAHARVEST" in options.step or "ALCAOUTPUT" in options.step or options.step == "":
         addEndJob = False
     if ("SKIM" in options.step and not "RECO" in options.step):
         addEndJob = False
@@ -135,7 +131,7 @@ def OptionsFromItems(items):
         addEndJob = False
     if ('DQMIO' in options.datatier):
         addEndJob = False
-    if addEndJob:    
+    if addEndJob:
         options.step=options.step+',ENDJOB'
 
 
@@ -144,7 +140,7 @@ def OptionsFromItems(items):
         if options.filein.lower().endswith(".lhe") or options.filein.lower().endswith(".lhef") or options.filein.startswith("lhe:"):
             options.filetype="LHE"
         elif options.filein.startswith("mcdb:"):
-            print "This is a deprecated way of selecting lhe files from article number. Please use lhe:article argument to --filein"
+            print("This is a deprecated way of selecting lhe files from article number. Please use lhe:article argument to --filein")
             options.filein=options.filein.replace('mcdb:','lhe:')
             options.filetype="LHE"
         else:
@@ -174,7 +170,7 @@ def OptionsFromItems(items):
     if not options.python_filename:
         options.python_filename = standardFileName+'.py'
 
-    print options.step
+    print(options.step)
 
 
     # Setting name of process
@@ -184,7 +180,7 @@ def OptionsFromItems(items):
             options.name = 'RESIM'
         elif 'reDIGI' in options.trimmedStep:
             options.name = 'REDIGI'
-        elif 'HLT' in options.trimmedStep:    
+        elif 'HLT' in options.trimmedStep:
             options.name = 'HLT'
         elif 'RECO' in options.trimmedStep:
             options.name = 'RECO'
@@ -204,6 +200,10 @@ def OptionsFromItems(items):
 
     # if not specified by user try to guess whether MC or DATA
     if not options.isData and not options.isMC:
+        if 'LHE' in options.trimmedStep or 'LHE' in options.datatier:
+            options.isMC=True
+        if 'GEN' in options.trimmedStep or 'GEN' in options.datatier:
+            options.isMC=True
         if 'SIM' in options.trimmedStep:
             options.isMC=True
         if 'CFWRITER' in options.trimmedStep:
@@ -216,10 +216,15 @@ def OptionsFromItems(items):
             options.isMC=True
         if 'SIM' in options.datatier:
             options.isMC=True
+        if 'VALIDATION' in options.trimmedStep:
+            options.isMC=True
+        if options.era and 'Phase2' in options.era:
+            options.isMC=True
         if options.isMC:
-            print 'We have determined that this is simulation (if not, rerun cmsDriver.py with --data)'
+            print('We have determined that this is simulation (if not, rerun cmsDriver.py with --data)')
         else:
-            print 'We have determined that this is real data (if not, rerun cmsDriver.py with --mc)'
+            print('We have determined that this is real data (if not, rerun cmsDriver.py with --mc)')
+            options.isData=True
 
     if options.profile:
         if options.profile and options.prefix:
@@ -239,20 +244,29 @@ def OptionsFromItems(items):
             raise Exception("Not a valid profiler type %s. Alternatives are pp, mp, fp=<function>."%(profilerType))
 
         options.prefix = "igprof -t cmsRun -%s" % profilerType
-        
+
+    if options.heap_profile:
+        if options.prefix:
+            raise Exception("--heap_profile and --prefix are incompatible")
+        options.prefix = "env MALLOC_CONF=prof:true,prof_accum:true,prof_prefix:jeprof.out LD_PRELOAD=libjemalloc-prof.so "
+
+    if options.maxmem_profile:
+        if options.prefix:
+            raise Exception("--maxmem_profile and --prefix are incompatible")
+        options.prefix = "env LD_PRELOAD=libPerfToolsAllocMonitorPreload.so:libPerfToolsMaxMemoryPreload.so "
+
     # If an "era" argument was supplied make sure it is one of the valid possibilities
     if options.era :
         from Configuration.StandardSequences.Eras import eras
-        from FWCore.ParameterSet.Config import Modifier, ModifierChain
         # Split the string by commas to check individual eras
         requestedEras = options.era.split(",")
         # Check that the entry is a valid era
         for eraName in requestedEras :
-            if not hasattr( eras, eraName ) : # Not valid, so print a helpful message
+            if not hasattr( eras, eraName ) or not checkModifier(getattr(eras,eraName)): # Not valid, so print a helpful message
                 validOptions="" # Create a stringified list of valid options to print to the user
                 for key in eras.__dict__ :
-                    if isinstance( eras.__dict__[key], Modifier ) or isinstance( eras.__dict__[key], ModifierChain ) :
-                        if validOptions!="" : validOptions+=", " 
+                    if checkModifier(eras.__dict__[key]):
+                        if validOptions!="" : validOptions+=", "
                         validOptions+="'"+key+"'"
                 raise Exception( "'%s' is not a valid option for '--era'. Valid options are %s." % (eraName, validOptions) )
     # If the "--fast" option was supplied automatically enable the fastSim era

@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -21,25 +20,28 @@
 
 class TransientInitialStateEstimator;
 
-namespace cms
-{
-  class dso_internal CkfTrackCandidateMaker : public edm::stream::EDProducer<>, public CkfTrackCandidateMakerBase
-  {
+namespace cms {
+  class dso_internal CkfTrackCandidateMaker : public edm::stream::EDProducer<>, public CkfTrackCandidateMakerBase {
   public:
-
-    explicit CkfTrackCandidateMaker(const edm::ParameterSet& conf):
-      CkfTrackCandidateMakerBase(conf, consumesCollector()){
+    explicit CkfTrackCandidateMaker(const edm::ParameterSet& conf)
+        : CkfTrackCandidateMakerBase(conf, consumesCollector()) {
       produces<TrackCandidateCollection>();
       produces<std::vector<SeedStopInfo> >();
     }
 
-    ~CkfTrackCandidateMaker() override{;}
+    ~CkfTrackCandidateMaker() override { ; }
 
-    void beginRun (edm::Run const& r, edm::EventSetup const & es) override {beginRunBase(r,es);}
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.setComment("Make Ckf track candidates");
+      CkfTrackCandidateMakerBase::fillPSetDescription(desc);
+      descriptions.addWithDefaultLabel(desc);
+    }
 
-    void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
-    
+    void beginRun(edm::Run const& r, edm::EventSetup const& es) override { beginRunBase(r, es); }
+
+    void produce(edm::Event& e, const edm::EventSetup& es) override { produceBase(e, es); }
   };
-}
+}  // namespace cms
 
 #endif

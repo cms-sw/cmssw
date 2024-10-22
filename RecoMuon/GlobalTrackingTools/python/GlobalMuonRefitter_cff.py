@@ -26,13 +26,21 @@ GlobalMuonRefitter = cms.PSet(
     RefitDirection = cms.string('insideOut'),
     PropDirForCosmics = cms.bool(False),
     RefitRPCHits = cms.bool(True),
- 
+
     # DYT stuff
     DYTthrs = cms.vint32(10, 10),
     DYTselector = cms.int32(1),
     DYTupdator = cms.bool(True),
     DYTuseAPE = cms.bool(False),
-    
+    ## Parameters for DYT threshold parametrization
+    DYTuseThrsParametrization = cms.bool(True),
+    DYTthrsParameters = cms.PSet(
+                                  eta0p8 = cms.vdouble(1, -0.919853, 0.990742),
+                                  eta1p2 = cms.vdouble(1, -0.897354, 0.987738),
+                                  eta2p0 = cms.vdouble(4, -0.986855, 0.998516),
+                                  eta2p2 = cms.vdouble(1, -0.940342, 0.992955),
+                                  eta2p4 = cms.vdouble(1, -0.947633, 0.993762),
+                                ),
     # muon station to be skipped
     SkipStation		= cms.int32(-1),
 
@@ -44,11 +52,6 @@ GlobalMuonRefitter = cms.PSet(
 
     RefitFlag = cms.bool( True )
 )
-
-# This customization will be removed once we get the templates for
-# phase2 pixel
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(GlobalMuonRefitter, TrackerRecHitBuilder = 'WithTrackAngle') # FIXME
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 # FastSim doesn't use Runge Kute for propagation

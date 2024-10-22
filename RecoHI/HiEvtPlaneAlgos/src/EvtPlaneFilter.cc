@@ -19,40 +19,37 @@
 
 class EvtPlaneFilter : public edm::stream::EDFilter<> {
 public:
-	explicit EvtPlaneFilter(const edm::ParameterSet&);
-	~EvtPlaneFilter() override;
-private:
-	bool filter(edm::Event&, const edm::EventSetup&) override;
+  explicit EvtPlaneFilter(const edm::ParameterSet&);
+  ~EvtPlaneFilter() override;
 
-	const double vnlow_;
-	const double vnhigh_;
-	const int epidx_;
-	const int eplvl_;
-	edm::EDGetTokenT<reco::EvtPlaneCollection> tag_;
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+
+  const double vnlow_;
+  const double vnhigh_;
+  const int epidx_;
+  const int eplvl_;
+  edm::EDGetTokenT<reco::EvtPlaneCollection> tag_;
 };
 
-EvtPlaneFilter::EvtPlaneFilter(const edm::ParameterSet& ps):
-	vnlow_(ps.getParameter<double>("Vnlow")),
-	vnhigh_(ps.getParameter<double>("Vnhigh")),
-	epidx_(ps.getParameter<int>("EPidx")),
-	eplvl_(ps.getParameter<int>("EPlvl"))
-{
-	tag_ = consumes<reco::EvtPlaneCollection>( ps.getParameter<edm::InputTag>("EPlabel") );
-	return;
+EvtPlaneFilter::EvtPlaneFilter(const edm::ParameterSet& ps)
+    : vnlow_(ps.getParameter<double>("Vnlow")),
+      vnhigh_(ps.getParameter<double>("Vnhigh")),
+      epidx_(ps.getParameter<int>("EPidx")),
+      eplvl_(ps.getParameter<int>("EPlvl")) {
+  tag_ = consumes<reco::EvtPlaneCollection>(ps.getParameter<edm::InputTag>("EPlabel"));
+  return;
 }
 
-EvtPlaneFilter::~EvtPlaneFilter()
-{
-	return;
-}
+EvtPlaneFilter::~EvtPlaneFilter() { return; }
 
-bool EvtPlaneFilter::filter(edm::Event& evt, const edm::EventSetup& es)
-{
-	edm::Handle<reco::EvtPlaneCollection> ep_;
-	evt.getByToken(tag_, ep_);
-	double qn = (*ep_)[epidx_].vn(eplvl_);
-	if ( qn < vnlow_ || qn > vnhigh_ ) return false;
-	return true;
+bool EvtPlaneFilter::filter(edm::Event& evt, const edm::EventSetup& es) {
+  edm::Handle<reco::EvtPlaneCollection> ep_;
+  evt.getByToken(tag_, ep_);
+  double qn = (*ep_)[epidx_].vn(eplvl_);
+  if (qn < vnlow_ || qn > vnhigh_)
+    return false;
+  return true;
 }
 
 DEFINE_FWK_MODULE(EvtPlaneFilter);

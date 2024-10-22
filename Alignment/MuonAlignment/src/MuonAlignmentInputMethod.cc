@@ -2,7 +2,7 @@
 //
 // Package:     MuonAlignment
 // Class  :     MuonAlignmentInputMethod
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -18,10 +18,9 @@
 // user include files
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputMethod.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
-#include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
-#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 //
 // constants, enums and typedefs
@@ -35,6 +34,10 @@
 // constructors and destructor
 //
 MuonAlignmentInputMethod::MuonAlignmentInputMethod() {}
+MuonAlignmentInputMethod::MuonAlignmentInputMethod(const DTGeometry* dtGeometry,
+                                                   const CSCGeometry* cscGeometry,
+                                                   const GEMGeometry* gemGeometry)
+    : dtGeometry_(dtGeometry), cscGeometry_(cscGeometry), gemGeometry_(gemGeometry) {}
 
 // MuonAlignmentInputMethod::MuonAlignmentInputMethod(const MuonAlignmentInputMethod& rhs)
 // {
@@ -59,39 +62,8 @@ MuonAlignmentInputMethod::~MuonAlignmentInputMethod() {}
 // member functions
 //
 
-AlignableMuon *MuonAlignmentInputMethod::newAlignableMuon(const edm::EventSetup& iSetup) const {
-   std::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
-   std::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
-
-   return new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
-}
-
-std::shared_ptr<DTGeometry> MuonAlignmentInputMethod::idealDTGeometry(const edm::EventSetup& iSetup) const {
-   edm::ESTransientHandle<DDCompactView> cpv;
-   iSetup.get<IdealGeometryRecord>().get(cpv);
-
-   edm::ESHandle<MuonDDDConstants> mdc;
-   iSetup.get<MuonNumberingRecord>().get(mdc);
-   DTGeometryBuilderFromDDD DTGeometryBuilder;
-
-   auto boost_dtGeometry = std::make_shared<DTGeometry>();
-   DTGeometryBuilder.build(boost_dtGeometry, &(*cpv), *mdc);
-
-   return boost_dtGeometry;
-}
-
-std::shared_ptr<CSCGeometry> MuonAlignmentInputMethod::idealCSCGeometry(const edm::EventSetup& iSetup) const {
-   edm::ESTransientHandle<DDCompactView> cpv;
-   iSetup.get<IdealGeometryRecord>().get(cpv);
-
-   edm::ESHandle<MuonDDDConstants> mdc;
-   iSetup.get<MuonNumberingRecord>().get(mdc);
-   CSCGeometryBuilderFromDDD CSCGeometryBuilder;
-
-   auto boost_cscGeometry = std::make_shared<CSCGeometry>();
-   CSCGeometryBuilder.build(boost_cscGeometry, &(*cpv), *mdc);
-
-   return boost_cscGeometry;
+AlignableMuon* MuonAlignmentInputMethod::newAlignableMuon() const {
+  return new AlignableMuon(&*dtGeometry_, &*cscGeometry_, &*gemGeometry_);
 }
 
 //

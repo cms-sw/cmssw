@@ -50,104 +50,98 @@ class FWCustomIconsButton;
 class FWNumberEntryField;
 
 namespace edm {
-   class EventBase;
+  class EventBase;
 }
 
 class CmsShowMainFrame : public TGMainFrame
 #ifndef __CINT__
-                       , public CSGActionSupervisor, public sigc::trackable
+    ,
+                         public CSGActionSupervisor,
+                         public sigc::trackable
 #endif
 {
-   friend class FWGUIManager;
+  friend class FWGUIManager;
+
 public:
-   CmsShowMainFrame(const TGWindow *p = nullptr,UInt_t w = 1,UInt_t h = 1,FWGUIManager *m = nullptr);
-   ~CmsShowMainFrame() override;
+  CmsShowMainFrame(const TGWindow* p = nullptr, UInt_t w = 1, UInt_t h = 1, FWGUIManager* m = nullptr);
+  ~CmsShowMainFrame() override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void CloseWindow() override;
+  // ---------- member functions ---------------------------
+  void CloseWindow() override;
 
-   void loadEvent(const edm::EventBase& event);
-   void enableNavigatorControls();
-   void quit();
-   void enableActions(bool enable = true) override;
-   void enablePrevious(bool enable = true);
-   void enableNext(bool enable = true);
-   void enableComplexNavigation(bool enable = true);
-   bool previousIsEnabled();
-   bool nextIsEnabled();
-   void updateStatusBar(const char* status);
-   void clearStatusBar();
-   void setPlayDelayGUI(Float_t val, Bool_t sliderChanged);
-   void HandleMenu(Int_t id) override;
-   Bool_t HandleKey(Event_t *event) override;
-   CSGContinuousAction* playEventsAction() const {
-      return m_playEvents;
-   }
-   CSGContinuousAction* loopAction() const {
-      return m_loopAction;
-   }
-   
-   CSGContinuousAction* playEventsBackwardsAction() const {
-      return m_playEventsBack;
-   }
+  void loadEvent(const edm::EventBase& event);
+  void enableNavigatorControls();
+  void quit();
+  void enableActions(bool enable = true) override;
+  void enablePrevious(bool enable = true);
+  void enableNext(bool enable = true);
+  void enableComplexNavigation(bool enable = true);
+  bool previousIsEnabled();
+  bool nextIsEnabled();
+  void updateStatusBar(const char* status);
+  void clearStatusBar();
+  void setPlayDelayGUI(Float_t val, Bool_t sliderChanged);
+  void HandleMenu(Int_t id) override;
+  Bool_t HandleKey(Event_t* event) override;
+  CSGContinuousAction* playEventsAction() const { return m_playEvents; }
+  CSGContinuousAction* loopAction() const { return m_loopAction; }
 
-   CSGAction* createNewViewerAction(const std::string& iActionName, bool seaprator);
+  CSGContinuousAction* playEventsBackwardsAction() const { return m_playEventsBack; }
 
-   void showFWorksInfo();
+  CSGAction* createNewViewerAction(const std::string& iActionName, bool seaprator);
 
-   void bindCSGActionKeys(const TGMainFrame* f) const;
+  void showFWorksInfo();
 
-   void setSummaryViewWeight(float);
-   float getSummaryViewWeight() const;
+  void bindCSGActionKeys(const TGMainFrame* f) const;
 
-   ClassDefOverride(CmsShowMainFrame, 0);
+  void setSummaryViewWeight(float);
+  float getSummaryViewWeight() const;
+
+  ClassDefOverride(CmsShowMainFrame, 0);
 
 protected:
-   FWCustomIconsButton* m_filterEnableBtn;
-   TGTextButton*        m_filterShowGUIBtn;
-   FWNumberEntryField*  m_runEntry;
-   FWNumberEntryField*  m_lumiEntry;
-   FWNumberEntryField*  m_eventEntry;
-   FWIntValueListener*  m_delaySliderListener;
-   
-   const TGPicture*     m_filterIcons[9];
+  FWCustomIconsButton* m_filterEnableBtn;
+  TGTextButton* m_filterShowGUIBtn;
+  FWNumberEntryField* m_runEntry;
+  FWNumberEntryField* m_lumiEntry;
+  FWNumberEntryField* m_eventEntry;
+  FWIntValueListener* m_delaySliderListener;
+
+  const TGPicture* m_filterIcons[9];
 
 private:
-   CmsShowMainFrame(const CmsShowMainFrame&); // stop default
-   const CmsShowMainFrame& operator=(const CmsShowMainFrame&); // stop default
+  CmsShowMainFrame(const CmsShowMainFrame&);                   // stop default
+  const CmsShowMainFrame& operator=(const CmsShowMainFrame&);  // stop default
 
-   void makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt,
-                           UInt_t bgCol, UInt_t txtCol,
-                           Int_t  width, Int_t  height);
+  void makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt, UInt_t bgCol, UInt_t txtCol, Int_t width, Int_t height);
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   FWGUIManager *m_manager;
-   Long_t m_tooltipDelay;
-   TGLabel* m_timeText;
-   CSGAction *m_nextEvent;
-   CSGAction *m_previousEvent;
-   CSGAction *m_goToFirst;
-   CSGAction *m_goToLast;
-   CSGAction *m_playDelay;
-   CSGAction *m_fworksInfo;
-   CSGContinuousAction *m_playEvents;
-   CSGContinuousAction *m_playEventsBack;
-   CSGContinuousAction *m_loopAction;
-   
-   TGMainFrame* m_fworksAbout;
+  FWGUIManager* m_manager;
+  Long_t m_tooltipDelay;
+  TGLabel* m_timeText;
+  CSGAction* m_nextEvent;
+  CSGAction* m_previousEvent;
+  CSGAction* m_goToFirst;
+  CSGAction* m_goToLast;
+  CSGAction* m_playDelay;
+  CSGAction* m_fworksInfo;
+  CSGContinuousAction* m_playEvents;
+  CSGContinuousAction* m_playEventsBack;
+  CSGContinuousAction* m_loopAction;
 
-   TGSlider* m_delaySlider;
-   TGLabel*  m_delayLabel;
+  TGMainFrame* m_fworksAbout;
 
-   TGStatusBar* m_statBar;
+  TGSlider* m_delaySlider;
+  TGLabel* m_delayLabel;
 
-   TGPopupMenu *m_newViewerMenu;
+  TGStatusBar* m_statBar;
+
+  TGPopupMenu* m_newViewerMenu;
 };
-
 
 #endif

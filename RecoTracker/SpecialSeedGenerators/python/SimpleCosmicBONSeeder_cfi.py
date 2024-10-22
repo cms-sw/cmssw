@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
 import RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi
-
 def makeSimpleCosmicSeedLayers(*layers):
     layerList = cms.vstring()
     if 'ALL' in layers: 
@@ -29,18 +27,19 @@ def makeSimpleCosmicSeedLayers(*layers):
     #print "SEEDING LAYER LIST = ", layerList
     return layerList
 
-layerInfo = RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi.layerInfo.clone()
-layerInfo.TEC.useSimpleRphiHitsCleaner = False
+layerInfo = RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi.layerInfo.clone(
+    TEC = dict(useSimpleRphiHitsCleaner = False)
+)
 layerList = makeSimpleCosmicSeedLayers('ALL'),
 
 simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
     TTRHBuilder = cms.string('WithTrackAngle'),
     ClusterCheckPSet = cms.PSet(
             doClusterCheck = cms.bool(True),
-            MaxNumberOfCosmicClusters = cms.uint32(300),
+            MaxNumberOfStripClusters = cms.uint32(300),
             ClusterCollectionLabel = cms.InputTag("siStripClusters"),
             DontCountDetsAboveNClusters = cms.uint32(20),  # if N > 0, ignore in total the dets with more than N clusters
-            MaxNumberOfPixelClusters = cms.uint32(300),
+            MaxNumberOfPixelClusters = cms.uint32(1000),
             PixelClusterCollectionLabel = cms.InputTag("siPixelClusters")
     ),
     maxTriplets = cms.int32(50000),

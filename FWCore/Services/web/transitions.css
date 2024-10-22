@@ -1,0 +1,85 @@
+
+:root {
+    --colr-black: #3C3530;
+    --colr-green: #AACD6E;
+    --colr-gray: #C5C6B6;
+}
+html {
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "PingFang TC", "Heiti TC", 微軟正黑體, sans-serif;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+body {
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    height: 30px;
+    float: bottom;
+    bottom:0;
+}
+.core {
+    height: 95vh;
+}
+.container {
+    display: grid;
+	
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+	grid-template-columns: repeat(10, 1fr);
+	grid-template-rows: 1fr 30px 30px;
+}
+
+.name_div {
+    background-color: var(--colr-green);
+	grid-column: 1/2;
+	grid-row: 1/8;
+}
+#name_view {
+    width: 100%;
+    height: 100%;
+}
+
+.graph_div {
+	grid-column: 2/11;
+	grid-row: 1/8;
+    background-color: var(--colr-gray);
+}
+#graph_view {
+    width: 100%;
+    height: 100%;
+}
+.time_div {
+	grid-column: 2/11;
+	grid-row: 9;
+    background-color: #FF0000;
+}
+
+#time_view {
+	height: 50px;
+    width: 100%;
+}
+
+.selected {
+	grid-column: 1/11;
+	grid-row: 10;
+	height: 50px;
+}
+
+.controls {
+    grid-column: 1/1;
+    grid-row: 9;
+}

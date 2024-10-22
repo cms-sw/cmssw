@@ -9,7 +9,6 @@ class PixelTopology;
 //typedef PixelDigi Phase2TrackerDigi;
 //typedef PixelDigiSimLink Phase2TrackerDigiSimLink;
 using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
-using Phase2TrackerTopology = PixelTopology ;
+using Phase2TrackerTopology = PixelTopology;
 
 #endif
-

@@ -29,7 +29,6 @@ IOMC/RandomEngine/bin/.*               : geant4core
 
 #geant4 (indirect)
 FastSimulation/Calorimetry/.*          : geant4.*
-FastSimulation/EventProducer/.*        : geant4.*
 FastSimulation/MaterialEffects/.*      : geant4.*
 VisSimulation/VisSimBase/.*            : geant4.*
 Validation/TrackerHits/.*              : geant4.*
@@ -129,11 +128,10 @@ TauAnalysis/MCEmbeddingTools/.* : GeneratorInterface/.*
 
 #f77compiler exception
 Generator.*                      : f77compiler
-ElectroWeakAnalysis/Utilities/.* : f77compiler
 
 #FastSim exception
 FastSimulation/.*                : FastSimulation/.*
-GeneratorInterface/GenFilters/.* : FastSimulation/BaseParticlePropagator,FastSimulation/Particle
+GeneratorInterface/GenFilters/.* : FastSimulation/Particle
 RecoParticleFlow/PF.*            : FastSimulation/.*,GeneratorInterface/.*
 
 ####################################################

@@ -30,9 +30,12 @@ class FWProxyBuilderBase;
 
 typedef edmplugin::PluginFactory<FWProxyBuilderBase*()> FWProxyBuilderFactory;
 
-#define REGISTER_FWPROXYBUILDER(_name_,_type_,_purpose_,_view_) \
-   DEFINE_PROXYBUILDER_METHODS(_name_,_type_,_purpose_,_view_); \
-   DEFINE_EDM_PLUGIN(FWProxyBuilderFactory,_name_,_name_::typeOfBuilder()+_name_::classRegisterTypeName()+(_name_::representsSubPart()?"!":"_")+"@"+_name_::classPurpose()+"@"+_name_::classView()+"#" # _name_)
-
+#define REGISTER_FWPROXYBUILDER(_name_, _type_, _purpose_, _view_)                                       \
+  DEFINE_PROXYBUILDER_METHODS(_name_, _type_, _purpose_, _view_);                                        \
+  DEFINE_EDM_PLUGIN(FWProxyBuilderFactory,                                                               \
+                    _name_,                                                                              \
+                    _name_::typeOfBuilder() + _name_::classRegisterTypeName() +                          \
+                        (_name_::representsSubPart() ? "!" : "_") + "@" + _name_::classPurpose() + "@" + \
+                        _name_::classView() + "#" #_name_)
 
 #endif

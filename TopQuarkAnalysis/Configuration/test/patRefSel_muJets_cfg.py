@@ -1,3 +1,4 @@
+from __future__ import print_function
 # As of 1 Feb 2017:
 # This configuration appears to be already broken in more
 # than one way. It fails to even run only under python.
@@ -38,13 +39,13 @@ options.register( 'addTriggerMatch' , True , VarParsing.VarParsing.multiplicity.
 # parsing command line arguments
 if( hasattr( sys, 'argv' ) ):
   if( len( sys.argv ) > 2 ):
-    print 'Parsing command line arguments:'
+    print('Parsing command line arguments:')
   for args in sys.argv :
     arg = args.split(',')
     for val in arg:
       val = val.split( '=' )
       if( len( val ) == 2 ):
-        print 'Setting "', val[0], '" to:', val[1]
+        print('Setting "', val[0], '" to:', val[1])
         setattr( options, val[0], val[1] )
 
 

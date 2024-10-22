@@ -20,7 +20,7 @@ public:
   ///Printing
   void summary();
 
- private:
+private:
   // The constructor is hidden as we do not want to construct
   // more than one instance.
   Looses();
@@ -29,6 +29,6 @@ public:
   static Looses* myself;
 
   // The table of losses
-  std::map< std::string, std::vector<unsigned> > theLosses;
+  std::map<std::string, std::vector<unsigned> > theLosses;
 };
 #endif

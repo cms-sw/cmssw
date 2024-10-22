@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 _trackingOnly_
 
@@ -18,8 +18,6 @@ class trackingOnly(pp):
         # some dedicated customization are required, though: see specific era implementations
         self.recoSeq=':reconstruction_trackingOnly'
         self.cbSc='pp'
-        # don't run EI, because only tracking is done
-        self.addEI=False
     """
     _trackingOnly_
 
@@ -31,14 +29,14 @@ class trackingOnly(pp):
     def expressProcessing(self, globalTag, **args):
 
         # TkAlMinBias run but hidden to Tier0, in order not to persist it
-        if not args.has_key('skims') :
+        if 'skims' not in args :
             args['skims']=['TkAlMinBias']
         else :
             if not 'TkAlMinBias' in args['skims'] :
                 args['skims'].append('TkAlMinBias')
 
         # reco sequence is limited to tracking => DQM accordingly
-        if not args.has_key('dqmSeq') :
+        if 'dqmSeq' not in args or len(args['dqmSeq'])==0:
             args['dqmSeq'] = ['DQMOfflineTracking']
 
         process = pp.expressProcessing(self, globalTag, **args)

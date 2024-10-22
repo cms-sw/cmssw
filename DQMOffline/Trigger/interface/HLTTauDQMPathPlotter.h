@@ -4,13 +4,13 @@
 
 #include "DQMOffline/Trigger/interface/HLTTauDQMPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPath.h"
-
+#include "DQMOffline/Trigger/interface/HistoWrapper.h"
 
 namespace edm {
   class Event;
   class EventSetup;
   class TriggerResults;
-}
+}  // namespace edm
 
 namespace trigger {
   class TriggerEvent;
@@ -18,24 +18,34 @@ namespace trigger {
 
 class HLTConfigProvider;
 
-class HLTTauDQMPathPlotter: private HLTTauDQMPlotter {
+class HLTTauDQMPathPlotter : private HLTTauDQMPlotter {
 public:
-  HLTTauDQMPathPlotter(const std::string& pathName, const HLTConfigProvider& HLTCP,
-                       bool doRefAnalysis, const std::string& dqmBaseFolder,
-                       const std::string& hltProcess, int ptbins, int etabins, int phibins,
-                       double ptmax, double highptmax,
-                       double l1MatchDr, double hltMatchDr);
+  HLTTauDQMPathPlotter(const std::string &pathName,
+                       const HLTConfigProvider &HLTCP,
+                       bool doRefAnalysis,
+                       const std::string &dqmBaseFolder,
+                       const std::string &hltProcess,
+                       int ptbins,
+                       int etabins,
+                       int phibins,
+                       double ptmax,
+                       double highptmax,
+                       double l1MatchDr,
+                       double hltMatchDr);
   ~HLTTauDQMPathPlotter();
 
   using HLTTauDQMPlotter::isValid;
 
-  void bookHistograms(DQMStore::IBooker &iBooker);
+  void bookHistograms(HistoWrapper &iWrapper, DQMStore::IBooker &iBooker);
 
-  void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection);
+  void analyze(const edm::TriggerResults &triggerResults,
+               const trigger::TriggerEvent &triggerEvent,
+               const HLTTauDQMOfflineObjects &refCollection);
 
   const HLTTauDQMPath *getPathObject() const { return &hltPath_; }
 
   typedef std::tuple<std::string, size_t> FilterIndex;
+
 private:
   const int ptbins_;
   const int etabins_;
@@ -48,6 +58,7 @@ private:
 
   HLTTauDQMPath hltPath_;
 
+  MonitorElement *hCounter_;
   MonitorElement *hAcceptedEvents_;
   MonitorElement *hTrigTauEt_;
   MonitorElement *hTrigTauEta_;
@@ -102,7 +113,7 @@ private:
   MonitorElement *hL2TrigMuonEtaEffDenom_;
   MonitorElement *hL2TrigMuonPhiEffNum_;
   MonitorElement *hL2TrigMuonPhiEffDenom_;
-  
+
   MonitorElement *hL3TrigMuonEtEffNum_;
   MonitorElement *hL3TrigMuonEtEffDenom_;
   MonitorElement *hL3TrigMuonEtaEffNum_;

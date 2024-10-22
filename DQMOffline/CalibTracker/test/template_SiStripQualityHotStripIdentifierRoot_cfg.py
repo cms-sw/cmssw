@@ -95,11 +95,10 @@ process.MySSQ = cms.ESProducer("SiStripQualityESProducer",
 #        ))
 #)
 ###
-#process.stat = cms.EDFilter("SiStripQualityStatistics",
-    #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_offline.png'),
-#    TkMapFileName = cms.untracked.string(''),
-#    dataLabel = cms.untracked.string('test')
-#)
+#from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+#process.reader = siStripQualityStatistics.clone(
+#        #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_offline.png'),
+#        )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),

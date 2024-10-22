@@ -1,0 +1,3 @@
+from HeterogeneousCore.ROCmCore.ProcessAcceleratorROCm import ProcessAcceleratorROCm as _ProcessAcceleratorROCm
+
+ProcessAcceleratorROCm = _ProcessAcceleratorROCm()

@@ -2,10 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ICALIB")
 process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    destinations = cms.untracked.vstring('cout')
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 process.source = cms.Source("EmptyIOVSource",
@@ -23,15 +26,15 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
-    connect = cms.string('sqlite_file:dbfile.db'),
+    timetype = cms.untracked.string('runnumber'),
+    connect = cms.string('sqlite_file:SiStripConditionsDBFile.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadStrip'),
         tag = cms.string('SiStripBadModule_v1')
     ))
 )
 
-process.prod = cms.EDFilter("SiStripBadModuleByHandBuilder",
+process.prod = cms.EDAnalyzer("SiStripBadModuleByHandBuilder",
     BadModuleList = cms.untracked.vuint32(470178036, 470178032, 470178024),
     Record = cms.string('SiStripBadStrip'),
     SinceAppendMode = cms.bool(True),
@@ -41,9 +44,9 @@ process.prod = cms.EDFilter("SiStripBadModuleByHandBuilder",
     file = cms.untracked.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat')
 )
 
-process.print = cms.OutputModule("AsciiOutputModule")
+process.pprint = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.prod)
-process.ep = cms.EndPath(process.print)
+process.ep = cms.EndPath(process.pprint)
 
 

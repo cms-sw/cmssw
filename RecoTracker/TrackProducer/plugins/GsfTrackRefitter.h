@@ -13,7 +13,6 @@
 
 class GsfTrackRefitter : public GsfTrackProducerBase, public edm::stream::EDProducer<> {
 public:
-
   /// Constructor
   explicit GsfTrackRefitter(const edm::ParameterSet& iConfig);
 
@@ -22,11 +21,14 @@ public:
 
 private:
   TrackProducerAlgorithm<reco::GsfTrack> theAlgo;
-  enum Constraint { none, 
-// 		    momentum, 
-		    vertex };
+  enum Constraint {
+    none,
+    // 		    momentum,
+    vertex
+  };
   Constraint constraint_;
   edm::EDGetTokenT<GsfTrackVtxConstraintAssociationCollection> gsfTrackVtxConstraintTag_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
 };
 
 #endif

@@ -100,9 +100,9 @@ process.schedule = cms.Schedule(
 #nc=0
 if (isData):  # replace all instances of "rawDataCollector" with "source" in InputTags
     from FWCore.ParameterSet import Mixins
-    for module in process.__dict__.itervalues():
+    for module in process.__dict__.values():
         if isinstance(module, Mixins._Parameterizable):
-            for parameter in module.__dict__.itervalues():
+            for parameter in module.__dict__.values():
                 if isinstance(parameter, cms.InputTag):
                     if parameter.moduleLabel == 'rawDataCollector':
                         parameter.moduleLabel = 'source'

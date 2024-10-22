@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     L1TriggerKeyRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Tue Jul 17 19:15:08 CEST 2007
 // $Id$
 

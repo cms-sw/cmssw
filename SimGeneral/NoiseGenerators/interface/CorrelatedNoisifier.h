@@ -16,65 +16,60 @@ Uses a Cholesky decomposition
 Any input array f is "noisified" with f += H*r
 where r is an array of random numbers
 
-The above matrix multiplication is expedited in the 
+The above matrix multiplication is expedited in the
 trivial cases of a purely diagonal or identity correlation matrix.
 */
 
 #include "DataFormats/Math/interface/Error.h"
-#include<vector>
+#include <vector>
 
 namespace CLHEP {
   class HepRandomEngine;
 }
 
-template<class M> 
-class CorrelatedNoisifier
-{
-   public:
+template <class M>
+class CorrelatedNoisifier {
+public:
+  typedef std::vector<double> VecDou;
 
-      typedef std::vector<double> VecDou ;
+  CorrelatedNoisifier(const M &symCorMat);  // correlation matrix
 
-      CorrelatedNoisifier( const M& symCorMat ); //correlation matrix
+  CorrelatedNoisifier(int *dummy, const M &cholDecMat);  // decomposition matrix
 
-      CorrelatedNoisifier( int* dummy, const M& cholDecMat ); //decomposition matrix
+  virtual ~CorrelatedNoisifier();
 
-      virtual ~CorrelatedNoisifier() ;
+  void resetCorrelationMatrix(const M &symCorMat);
 
-      void resetCorrelationMatrix( const M& symCorMat ) ;
+  void resetCholDecompMatrix(const M &cholMat);
 
-      void resetCholDecompMatrix( const M& cholMat ) ;
+  template <class T>
+  void noisify(T &frame,  // applies random noise to frame
+               CLHEP::HepRandomEngine *,
+               const VecDou *rangau = nullptr) const;  // use these
 
-      template<class T>
-      void noisify( T& frame ,  // applies random noise to frame
-                    CLHEP::HepRandomEngine*,
-		    const VecDou* rangau = nullptr ) const ; // use these 
+  const M &cholMat() const;  // return decomposition
 
-      const M& cholMat() const ; // return decomposition
+  const VecDou &vecgau() const;
 
-      const VecDou& vecgau() const ;
+private:
+  static const double k_precision;  // precision to which 0 & 1 are compared
 
-   private:
+  void init(const M &symCorMat);
 
-      static const double k_precision ; // precision to which 0 & 1 are compared
+  void initChol();
 
-      void init( const M& symCorMat ) ;
+  bool computeDecomposition(const M &symCorMat);
 
-      void initChol() ;
+  bool checkDecomposition(const M &symCorMat, M &HHtDiff) const;
 
-      bool computeDecomposition( const M& symCorMat ) ;
+  void checkOffDiagonal(const M &symCorMat);
 
-      bool checkDecomposition( const M& symCorMat ,
-			       M&       HHtDiff     ) const ;
+  mutable VecDou m_vecgau;
 
-      void checkOffDiagonal( const M& symCorMat ) ;
+  bool m_isDiagonal;
+  bool m_isIdentity;
 
-      mutable VecDou m_vecgau ;
-
-      bool m_isDiagonal ;
-      bool m_isIdentity ;
-
-      M m_H ;
+  M m_H;
 };
-
 
 #endif

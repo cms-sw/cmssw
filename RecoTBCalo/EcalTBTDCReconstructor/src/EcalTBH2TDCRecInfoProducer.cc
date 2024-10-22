@@ -8,87 +8,70 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-    
-EcalTBH2TDCRecInfoProducer::EcalTBH2TDCRecInfoProducer(edm::ParameterSet const& ps)
-{
-  rawInfoCollection_ = ps.getParameter<std::string>("rawInfoCollection");
-  rawInfoProducer_   = ps.getParameter<std::string>("rawInfoProducer");
-  triggerDataCollection_ = ps.getParameter<std::string>("triggerDataCollection");
-  triggerDataProducer_   = ps.getParameter<std::string>("triggerDataProducer");
-  recInfoCollection_        = ps.getParameter<std::string>("recInfoCollection");
 
+EcalTBH2TDCRecInfoProducer::EcalTBH2TDCRecInfoProducer(edm::ParameterSet const& ps) {
+  rawInfoCollection_ = ps.getParameter<std::string>("rawInfoCollection");
+  rawInfoProducer_ = ps.getParameter<std::string>("rawInfoProducer");
+  triggerDataCollection_ = ps.getParameter<std::string>("triggerDataCollection");
+  triggerDataProducer_ = ps.getParameter<std::string>("triggerDataProducer");
+  recInfoCollection_ = ps.getParameter<std::string>("recInfoCollection");
 
   std::vector<EcalTBH2TDCRecInfoAlgo::EcalTBH2TDCRanges> tdcRanges;
 
-  typedef std::vector< edm::ParameterSet > Parameters;
-  Parameters ranges=ps.getParameter<Parameters>("tdcZeros");
-  for(Parameters::iterator itRanges = ranges.begin(); itRanges != ranges.end(); ++itRanges) 
-    {
-      EcalTBH2TDCRecInfoAlgo::EcalTBH2TDCRanges aRange;
-      aRange.runRanges.first = itRanges->getParameter<int>("startRun");
-      aRange.runRanges.second = itRanges->getParameter<int>("endRun");
-      aRange.tdcZero = itRanges->getParameter< double >("tdcZero");
-      tdcRanges.push_back(aRange);
-    }
-  
+  typedef std::vector<edm::ParameterSet> Parameters;
+  Parameters ranges = ps.getParameter<Parameters>("tdcZeros");
+  for (Parameters::iterator itRanges = ranges.begin(); itRanges != ranges.end(); ++itRanges) {
+    EcalTBH2TDCRecInfoAlgo::EcalTBH2TDCRanges aRange;
+    aRange.runRanges.first = itRanges->getParameter<int>("startRun");
+    aRange.runRanges.second = itRanges->getParameter<int>("endRun");
+    aRange.tdcZero = itRanges->getParameter<double>("tdcZero");
+    tdcRanges.push_back(aRange);
+  }
+
   produces<EcalTBTDCRecInfo>(recInfoCollection_);
-  
+
   algo_ = new EcalTBH2TDCRecInfoAlgo(tdcRanges);
 }
 
-EcalTBH2TDCRecInfoProducer::~EcalTBH2TDCRecInfoProducer() 
-{
+EcalTBH2TDCRecInfoProducer::~EcalTBH2TDCRecInfoProducer() {
   if (algo_)
     delete algo_;
 }
 
-void EcalTBH2TDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& es)
-{
+void EcalTBH2TDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   int runNumber = e.id().run();
   // Get input
-  edm::Handle<HcalTBTiming> ecalRawTDC;  
+  edm::Handle<HcalTBTiming> ecalRawTDC;
   const HcalTBTiming* ecalTDCRawInfo = nullptr;
-  
+
   //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
-  e.getByLabel( rawInfoProducer_, ecalRawTDC);
+  e.getByLabel(rawInfoProducer_, ecalRawTDC);
   if (ecalRawTDC.isValid()) {
     ecalTDCRawInfo = ecalRawTDC.product();
   }
 
-  
-  if (! ecalTDCRawInfo )
-    {
-      edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << rawInfoCollection_.c_str() ;
-      return;
-    }
-  
-  
+  if (!ecalTDCRawInfo) {
+    edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << rawInfoCollection_.c_str();
+    return;
+  }
+
   // Get input
-  edm::Handle<HcalTBTriggerData> triggerData;  
+  edm::Handle<HcalTBTriggerData> triggerData;
   const HcalTBTriggerData* h2TriggerData = nullptr;
   //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
   e.getByLabel(triggerDataProducer_, triggerData);
   if (triggerData.isValid()) {
     h2TriggerData = triggerData.product();
   }
-  
-  if (! h2TriggerData )
-    {
-      edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << triggerDataCollection_.c_str();
-      return;
-    }
-  
-  
-  if (!h2TriggerData->wasBeamTrigger())
-    {
-      e.put(std::make_unique<EcalTBTDCRecInfo>(0.5),recInfoCollection_);
-    }
-   else
-     {
-       e.put(std::make_unique<EcalTBTDCRecInfo>(algo_->reconstruct(runNumber,*ecalRawTDC)),recInfoCollection_);
-     }
-  
 
-} 
+  if (!h2TriggerData) {
+    edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << triggerDataCollection_.c_str();
+    return;
+  }
 
-
+  if (!h2TriggerData->wasBeamTrigger()) {
+    e.put(std::make_unique<EcalTBTDCRecInfo>(0.5), recInfoCollection_);
+  } else {
+    e.put(std::make_unique<EcalTBTDCRecInfo>(algo_->reconstruct(runNumber, *ecalRawTDC)), recInfoCollection_);
+  }
+}

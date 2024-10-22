@@ -1,3 +1,4 @@
+from __future__ import print_function
 from ROOT import TH1F, TH2F, TFile
 
 
@@ -43,7 +44,7 @@ if __name__ == '__main__':
     c = JetEnergyCorrector( sys.argv[1] )
     etas = [-5, -4.5, -4, -3, -2.5, -2, -1, 0, 1, 2, 2.5, 3, 4, 4.5, 5]
     pt = 20.
-    print pt
+    print(pt)
     for eta in etas:
-        print eta, c.correction_factor(pt, eta)
+        print(eta, c.correction_factor(pt, eta))
         

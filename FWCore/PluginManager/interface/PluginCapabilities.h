@@ -4,7 +4,7 @@
 //
 // Package:     PluginManager
 // Class  :     PluginCapabilities
-// 
+//
 /**\class PluginCapabilities PluginCapabilities.h FWCore/PluginManager/interface/PluginCapabilities.h
 
  Description: <one line class summary>
@@ -29,37 +29,36 @@
 namespace edmplugin {
   class SharedLibrary;
   class DummyFriend;
-class PluginCapabilities : public PluginFactoryBase
-{
-   friend class DummyFriend;
-   public:
-      ~PluginCapabilities() override;
+  class PluginCapabilities : public PluginFactoryBase {
+    friend class DummyFriend;
 
-      // ---------- const member functions ---------------------
-      std::vector<PluginInfo> available() const override;
-      const std::string& category() const override; 
-      
-      // ---------- static member functions --------------------
-      static PluginCapabilities* get();
-      
-      // ---------- member functions ---------------------------
-      void load(const std::string& iName);
-      
-      //returns false if loading fails because iName is unknown
-      bool tryToLoad(const std::string& iName);
-      
-      ///Check to see if any capabilities are in the file, returns 'true' if found
-      bool tryToFind(const SharedLibrary& iLoadable);
+  public:
+    PluginCapabilities(const PluginCapabilities&) = delete;                   // stop default
+    const PluginCapabilities& operator=(const PluginCapabilities&) = delete;  // stop default
+    ~PluginCapabilities() override;
 
-   private:
-      PluginCapabilities();
-      PluginCapabilities(const PluginCapabilities&) = delete; // stop default
+    // ---------- const member functions ---------------------
+    std::vector<PluginInfo> available() const override;
+    const std::string& category() const override;
 
-      const PluginCapabilities& operator=(const PluginCapabilities&) = delete; // stop default
+    // ---------- static member functions --------------------
+    static PluginCapabilities* get();
 
-      // ---------- member data --------------------------------
-      std::map<std::string, boost::filesystem::path> classToLoadable_;
-};
+    // ---------- member functions ---------------------------
+    void load(const std::string& iName);
 
-}
+    //returns false if loading fails because iName is unknown
+    bool tryToLoad(const std::string& iName);
+
+    ///Check to see if any capabilities are in the file, returns 'true' if found
+    bool tryToFind(const SharedLibrary& iLoadable);
+
+  private:
+    PluginCapabilities();
+
+    // ---------- member data --------------------------------
+    std::map<std::string, std::filesystem::path> classToLoadable_;
+  };
+
+}  // namespace edmplugin
 #endif

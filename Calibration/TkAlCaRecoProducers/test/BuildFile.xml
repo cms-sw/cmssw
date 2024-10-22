@@ -1,6 +1,9 @@
-<use   name="DQMServices/Core"/>
-<use   name="FWCore/Framework"/>
-<use   name="boost"/>
-<library   file="DQMRootFileReader.cc" name="CalibrationTkAlCaRecoProducersDQMRootFileReader">
-  <flags   EDM_PLUGIN="1"/>
+<test name="testAlCaHarvesting" command="testAlCaHarvesting.sh"/>
+<test name="testBeamSpotWorkflow" command="testBeamSpotWorkflow.sh"/>
+
+<use name="DQMServices/Core"/>
+<use name="FWCore/Framework"/>
+<use name="boost"/>
+<library file="DQMRootFileReader.cc" name="CalibrationTkAlCaRecoProducersDQMRootFileReader">
+  <flags EDM_PLUGIN="1"/>
 </library>

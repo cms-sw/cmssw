@@ -10,7 +10,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.source = cms.Source(
     "NewEventStreamFileReader",
     fileNames = cms.untracked.vstring(
-        "/store/user/mommsen/testData/run302163_ls0787_streamExpress_StorageManager.dat"
+        #"/store/user/mommsen/testData/run309216_ls0038_streamExpressCosmics_StorageManager.dat"  #version 1 data format
+        "/store/user/mommsen/testData/run309369_ls0004_streamExpressCosmics_StorageManager.dat" #version 2 data format
         )
     )
 
@@ -25,7 +26,7 @@ process.tcdsRaw = cms.EDProducer('TcdsRawToDigi')
 process.metaData = cms.EDProducer('OnlineMetaDataRawToDigi')
 
 process.dumpRaw = cms.EDAnalyzer("DumpFEDRawDataProduct",
-    feds = cms.untracked.vint32 (1022,1024),
+    feds = cms.untracked.vint32 (735,1022,1024),
     label = cms.untracked.string("rawDataCollector"),
     dumpPayload = cms.untracked.bool( True )
     )

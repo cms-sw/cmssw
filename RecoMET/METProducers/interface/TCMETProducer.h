@@ -30,21 +30,17 @@
 #include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
 
 //____________________________________________________________________________||
-namespace cms
-{
-  class TCMETProducer: public edm::stream::EDProducer<>
-    {
-    public:
-      explicit TCMETProducer(const edm::ParameterSet&);
-      ~TCMETProducer() override { }
-      void produce(edm::Event&, const edm::EventSetup&) override;
+namespace cms {
+  class TCMETProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit TCMETProducer(const edm::ParameterSet&);
+    ~TCMETProducer() override {}
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
-    private:
-
-      TCMETAlgo tcMetAlgo_;
-
-    };
-}
+  private:
+    TCMETAlgo tcMetAlgo_;
+  };
+}  // namespace cms
 
 //____________________________________________________________________________||
-#endif // TCMETProducer_h
+#endif  // TCMETProducer_h

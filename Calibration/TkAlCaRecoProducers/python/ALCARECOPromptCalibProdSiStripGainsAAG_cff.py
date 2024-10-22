@@ -36,10 +36,6 @@ ALCARECOCalMinBiasFilterForSiStripGainsAAG.TriggerResultsTag = cms.InputTag("Tri
 #process.es_prefer_fakeSiStripDetVOff = cms.ESPrefer("SiStripDetVOffFakeESSource","siStripDetVOffFakeESSource")
 
 
-#process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
-
-
-
 # ------------------------------------------------------------------------------
 # This is the sequence for track refitting of the track saved by SiStripCalMinBias
 # to have access to transient objects produced during RECO step and not saved
@@ -67,31 +63,20 @@ ALCARECOCalibrationTracksRefitAAG = TrackRefitter.clone(src = cms.InputTag("ALCA
                                                      )
 
 # refit and BS can be dropped if done together with RECO.
-# track filter can be moved in acalreco if no otehr users
+# track filter can be moved in acalreco if no other users
 ALCARECOTrackFilterRefitAAG = cms.Sequence(ALCARECOCalibrationTracksAAG +
                                            offlineBeamSpot +
                                            ALCARECOCalibrationTracksRefitAAG )
 
 # ------------------------------------------------------------------------------
-# Get the information you need from the tracks, calibTree-style to have no code difference
-from CalibTracker.SiStripCommon.ShallowEventDataProducer_cfi import shallowEventRun
-from CalibTracker.SiStripCommon.ShallowTracksProducer_cfi import shallowTracks
-from CalibTracker.SiStripCommon.ShallowGainCalibration_cfi import shallowGainCalibration
-ALCARECOShallowEventRunAAG = shallowEventRun.clone()
-ALCARECOShallowTracksAAG   = shallowTracks.clone(Tracks=cms.InputTag('ALCARECOCalibrationTracksRefitAAG'))
-ALCARECOShallowGainCalibrationAAG = shallowGainCalibration.clone(Tracks=cms.InputTag('ALCARECOCalibrationTracksRefitAAG'))
-ALCARECOShallowSequenceAAG = cms.Sequence(ALCARECOShallowEventRunAAG*ALCARECOShallowTracksAAG*ALCARECOShallowGainCalibrationAAG)
-
-# ------------------------------------------------------------------------------
 # This is the module actually doing the calibration
-from CalibTracker.SiStripChannelGain.SiStripGainsPCLWorker_cfi import SiStripGainsPCLWorker                         
-ALCARECOSiStripCalibAAG = SiStripGainsPCLWorker.clone()                                                            
-ALCARECOSiStripCalibAAG.FirstSetOfConstants = cms.untracked.bool(False)   
-ALCARECOSiStripCalibAAG.DQMdir              = cms.untracked.string('AlCaReco/SiStripGainsAAG')
-ALCARECOSiStripCalibAAG.calibrationMode     = cms.untracked.string('AagBunch')          
-ALCARECOSiStripCalibAAG.gain.label          = cms.untracked.string('ALCARECOShallowGainCalibrationAAG')      
-ALCARECOSiStripCalibAAG.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRunAAG')             
-ALCARECOSiStripCalibAAG.tracks.label        = cms.untracked.string('ALCARECOShallowTracksAAG')             
+from CalibTracker.SiStripChannelGain.SiStripGainsPCLWorker_cfi import SiStripGainsPCLWorker
+ALCARECOSiStripCalibAAG = SiStripGainsPCLWorker.clone(
+        tracks              = cms.InputTag('ALCARECOCalibrationTracksRefitAAG'),
+        FirstSetOfConstants = cms.untracked.bool(False),
+        DQMdir              = cms.untracked.string('AlCaReco/SiStripGainsAAG'),
+        calibrationMode     = cms.untracked.string('AagBunch')
+        )
 
 # ----------------------------------------------------------------------------
 
@@ -102,14 +87,12 @@ MEtoEDMConvertSiStripGainsAAG = cms.EDProducer("MEtoEDMConverter",
                                             # 2 provide more detailed output
                                             Frequency = cms.untracked.int32(50),
                                             MEPathToSave = cms.untracked.string('AlCaReco/SiStripGainsAAG'),
-                                            deleteAfterCopy = cms.untracked.bool(True)
 )
 
 # The actual sequence
 seqALCARECOPromptCalibProdSiStripGainsAAG = cms.Sequence(
    ALCARECOCalMinBiasFilterForSiStripGainsAAG *
    ALCARECOTrackFilterRefitAAG *
-   ALCARECOShallowSequenceAAG *
    ALCARECOSiStripCalibAAG *
    MEtoEDMConvertSiStripGainsAAG
 )

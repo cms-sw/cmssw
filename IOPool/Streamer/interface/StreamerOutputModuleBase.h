@@ -1,73 +1,54 @@
 #ifndef IOPool_Streamer_StreamerOutputModuleBase_h
 #define IOPool_Streamer_StreamerOutputModuleBase_h
 
+#include "IOPool/Streamer/interface/StreamerOutputModuleCommon.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
-#include "IOPool/Streamer/interface/StreamSerializer.h"
-#include <memory>
-#include <vector>
+#include "DataFormats/Streamer/interface/StreamedProducts.h"
+//#include "IOPool/Streamer/interface/StreamSerializer.h"
+//#include <memory>
+//#include <vector>
 
-class InitMsgBuilder;
-class EventMsgBuilder;
 namespace edm {
   class ParameterSetDescription;
 
   typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
 
-  class StreamerOutputModuleBase : public one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks> {
-  public:
-    explicit StreamerOutputModuleBase(ParameterSet const& ps);
-    ~StreamerOutputModuleBase() override;
-    static void fillDescription(ParameterSetDescription & desc);
+  namespace streamer {
+    class InitMsgBuilder;
+    class EventMsgBuilder;
 
-  private:
-    void beginRun(RunForOutput const&) override;
-    void endRun(RunForOutput const&) override;
-    void beginJob() override;
-    void endJob() override;
-    void writeRun(RunForOutput const&) override;
-    void writeLuminosityBlock(LuminosityBlockForOutput const&) override;
-    void write(EventForOutput const& e) override;
+    class StreamerOutputModuleBase : public one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks>,
+                                     StreamerOutputModuleCommon {
+    public:
+      explicit StreamerOutputModuleBase(ParameterSet const& ps);
+      ~StreamerOutputModuleBase() override;
+      static void fillDescription(ParameterSetDescription& desc);
 
-    virtual void start() = 0;
-    virtual void stop() = 0;
-    virtual void doOutputHeader(InitMsgBuilder const& init_message) = 0;
-    virtual void doOutputEvent(EventMsgBuilder const& msg) = 0;
+    private:
+      void beginRun(RunForOutput const&) override;
+      void endRun(RunForOutput const&) override;
+      void beginJob() override;
+      void endJob() override;
+      void writeRun(RunForOutput const&) override;
+      void writeLuminosityBlock(LuminosityBlockForOutput const&) override;
+      void write(EventForOutput const& e) override;
 
-    std::unique_ptr<InitMsgBuilder> serializeRegistry();
-    std::unique_ptr<EventMsgBuilder> serializeEvent(EventForOutput const& e); 
-    Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventForOutput const& e) const;
-    void setHltMask(EventForOutput const& e);
-    void setLumiSection();
+      virtual void start() = 0;
+      virtual void stop() = 0;
+      virtual void doOutputHeader(InitMsgBuilder const& init_message) = 0;
+      virtual void doOutputEvent(EventMsgBuilder const& msg) = 0;
 
-  private:
-    SelectedProducts const* selections_;
+      Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventForOutput const& e) const;
 
-    int maxEventSize_;
-    bool useCompression_;
-    int compressionLevel_;
+    private:
+      edm::EDGetTokenT<edm::TriggerResults> trToken_;
+      edm::EDGetTokenT<SendJobHeader::ParameterSetMap> psetToken_;
+      bool lastCallWasBeginRun_ = false;
 
-    // test luminosity sections
-    int lumiSectionInterval_;  
-    double timeInSecSinceUTC;
-
-    StreamSerializer serializer_;
-
-    SerializeDataBuffer serializeDataBuffer_;
-
-    //Event variables, made class memebers to avoid re instatiation for each event.
-    unsigned int hltsize_;
-    uint32 lumi_;
-    std::vector<bool> l1bit_;
-    std::vector<unsigned char> hltbits_;
-    uint32 origSize_;
-    char host_name_[255];
-
-    edm::EDGetTokenT<edm::TriggerResults> trToken_;
-    Strings hltTriggerSelections_;
-    uint32 outputModuleId_;
-  }; //end-of-class-def
-} // end of namespace-edm
+    };  //end-of-class-def
+  }  // namespace streamer
+}  // namespace edm
 
 #endif

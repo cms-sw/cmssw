@@ -54,10 +54,9 @@ process.DQMStore = cms.Service("DQMStore")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 2000
-process.MessageLogger.destinations += ['HiggsValidationMessages']
-process.MessageLogger.categories   += ['HiggsValidation']
+
 process.MessageLogger.debugModules += ['*']#HLTHiggsValidator','HLTHiggsSubAnalysis','HLTHiggsPlotter']
-process.MessageLogger.HiggsValidationMessages = cms.untracked.PSet(
+process.MessageLogger.files.HiggsValidationMessages = cms.untracked.PSet(
     threshold       = cms.untracked.string('DEBUG'),
     default         = cms.untracked.PSet(limit = cms.untracked.int32(0)),
     HiggsValidation = cms.untracked.PSet(limit = cms.untracked.int32(1000))

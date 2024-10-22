@@ -17,15 +17,6 @@ requireLeadTrack = cms.PSet(
       leadTrack = leadTrackFinding,
       )
 
-# Require a existence of a lead track in a CaloTau.
-requireLeadTrackCalo = cms.PSet(
-      BooleanOperator = cms.string("and"),
-      leadTrack = cms.PSet(
-         Producer = cms.InputTag('caloRecoTauDiscriminationByLeadingTrackFinding'),
-         cut = cms.double(0.5)
-         )
-      )
-
 # This is equivalent to the lead track case, and shoudl be deprecated.  
 #  Preserved for backwards compatibility
 requireLeadPion = cms.PSet(
@@ -35,13 +26,13 @@ requireLeadPion = cms.PSet(
 
 def subParameterSets(pSet):
    ''' Generator to return all sub-PSets in a PSet '''
-   for name, value in pSet.parameters_().iteritems():
+   for name, value in pSet.parameters_().items():
       if isinstance(value, cms.PSet):
          yield getattr(pSet, name)
 
 # For RECO type taus, where the tau producer is [tauType]Producer 
 import re
-recoTauTypeMapperRegex = re.compile("(\w*)Producer")
+recoTauTypeMapperRegex = re.compile("(\\w*)Producer")
 def recoTauTypeMapper(tauProducer):
    return recoTauTypeMapperRegex.match(tauProducer).group(1)
 

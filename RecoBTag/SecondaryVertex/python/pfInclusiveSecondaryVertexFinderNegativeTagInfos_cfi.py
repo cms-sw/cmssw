@@ -2,10 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi import *
 
-pfInclusiveSecondaryVertexFinderNegativeTagInfos = pfInclusiveSecondaryVertexFinderTagInfos.clone()
-pfInclusiveSecondaryVertexFinderNegativeTagInfos.extSVDeltaRToJet = cms.double(-0.3)
-pfInclusiveSecondaryVertexFinderNegativeTagInfos.vertexCuts.distVal2dMin = -2.5
-pfInclusiveSecondaryVertexFinderNegativeTagInfos.vertexCuts.distVal2dMax = -0.01
-pfInclusiveSecondaryVertexFinderNegativeTagInfos.vertexCuts.distSig2dMin = -99999.9
-pfInclusiveSecondaryVertexFinderNegativeTagInfos.vertexCuts.distSig2dMax = -2.0
-pfInclusiveSecondaryVertexFinderNegativeTagInfos.vertexCuts.maxDeltaRToJetAxis = -0.5
+pfInclusiveSecondaryVertexFinderNegativeTagInfos = pfInclusiveSecondaryVertexFinderTagInfos.clone(
+    extSVDeltaRToJet = -0.3,
+    extSVCollection  = 'inclusiveCandidateNegativeSecondaryVertices',
+    vertexCuts = dict(
+        distVal2dMin = -2.5,
+        distVal2dMax = -0.01,
+        distSig2dMin = -99999.9,
+        distSig2dMax = -2.0,
+        maxDeltaRToJetAxis = -0.5
+        )
+)

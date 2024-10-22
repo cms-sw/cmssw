@@ -26,3 +26,6 @@
 #include "CondFormats/CSCObjects/interface/CSCTriggerMapping.h"
 #include "CondFormats/CSCObjects/interface/CSCL1TPParameters.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableCCLUT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME11ILT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME21ILT.h"

@@ -1,9 +1,8 @@
 #ifndef DDL_DocumentProvider_H
 #define DDL_DocumentProvider_H
 
-#include<vector>
+#include <vector>
 #include <string>
-
 
 /// DDLDocumentProvider provides a set of URLs and filenames.
 /** @class DDLDocumentProvider
@@ -19,16 +18,14 @@
  *
  */
 class DDLDocumentProvider {
-
- public:
-
-  virtual ~DDLDocumentProvider(){}
+public:
+  virtual ~DDLDocumentProvider() {}
 
   /// Return a list of files as a vector of strings.
-  virtual const std::vector < std::string >&  getFileList(void) const = 0;
+  virtual const std::vector<std::string>& getFileList(void) const = 0;
 
   /// Return a list of urls as a vector of strings.
-  virtual const std::vector < std::string >&  getURLList(void) const = 0;
+  virtual const std::vector<std::string>& getURLList(void) const = 0;
 
   /// Return a flag whether to do xml validation or not.
   virtual bool doValidation() const = 0;
@@ -40,12 +37,10 @@ class DDLDocumentProvider {
   virtual void dumpFileList(void) const = 0;
 
   /// (does not belong here) Read in the configuration file.
-  virtual int readConfig(const std:: string& filename)=0;
+  virtual int readConfig(const std::string& filename) = 0;
 
- protected:
-
- private:
-
+protected:
+private:
 };
 
 #endif

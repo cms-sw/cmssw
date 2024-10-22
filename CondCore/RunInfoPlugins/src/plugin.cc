@@ -8,9 +8,18 @@
 #include "CondFormats/RunInfo/interface/MixingModuleConfig.h"
 #include "CondFormats/DataRecord/interface/FillInfoRcd.h"
 #include "CondFormats/RunInfo/interface/FillInfo.h"
+#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+#include "CondFormats/RunInfo/interface/LHCInfo.h"
+#include "CondFormats/DataRecord/interface/LHCInfoPerLSRcd.h"
+#include "CondFormats/RunInfo/interface/LHCInfoPerLS.h"
+#include "CondFormats/DataRecord/interface/LHCInfoPerFillRcd.h"
+#include "CondFormats/RunInfo/interface/LHCInfoPerFill.h"
 
-REGISTER_PLUGIN(RunSummaryRcd,RunSummary);
-REGISTER_PLUGIN(RunInfoRcd,RunInfo);
+REGISTER_PLUGIN(RunSummaryRcd, RunSummary);
+REGISTER_PLUGIN(RunInfoRcd, RunInfo);
 REGISTER_PLUGIN(L1TriggerScalerRcd, L1TriggerScaler);
-REGISTER_PLUGIN(MixingRcd,MixingModuleConfig);
-REGISTER_PLUGIN(FillInfoRcd,FillInfo);
+REGISTER_PLUGIN(MixingRcd, MixingModuleConfig);
+REGISTER_PLUGIN(FillInfoRcd, FillInfo);
+REGISTER_PLUGIN(LHCInfoRcd, LHCInfo);
+REGISTER_PLUGIN(LHCInfoPerLSRcd, LHCInfoPerLS);
+REGISTER_PLUGIN(LHCInfoPerFillRcd, LHCInfoPerFill);

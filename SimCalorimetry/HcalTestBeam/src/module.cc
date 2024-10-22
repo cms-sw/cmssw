@@ -3,4 +3,3 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
 
 DEFINE_DIGI_ACCUMULATOR(HcalTBDigiProducer);
-

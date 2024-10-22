@@ -14,6 +14,7 @@ RecoTauCleaner = cms.EDProducer("RecoTauCleaner",
             name = cms.string("HPS_Select"),
             plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
             src = cms.InputTag("hpsSelectionDiscriminator"),
+            tolerance = cms.double(0),
         ),
         # CV: Reject 2-prong candidates in which one of the tracks has low pT,
         #     in order to reduce rate of 1-prong taus migrating to 2-prong decay mode
@@ -26,6 +27,8 @@ RecoTauCleaner = cms.EDProducer("RecoTauCleaner",
         #     prefer candidates in which PFGammas are part of strips (rather than being merged with PFRecoTauChargedHadrons)
         cleaners.stripMultiplicity,
         # Take most isolated tau
-        cleaners.combinedIsolation
-    )
+        cleaners.combinedIsolation,
+    ),
+    outputSelection = cms.string(""), # empty string is special value for doing nothing in the plugin
+    verbosity = cms.int32(0)
 )

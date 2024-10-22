@@ -1,16 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-tpScales = cms.PSet(
-    HF=cms.PSet(
-        NCTShift=cms.int32(1),
-        RCTShift=cms.int32(3),
-    ),
-    HBHE=cms.PSet(
-        LSBQIE8=cms.double(1/8.),
-        LSBQIE11=cms.double(1/16.),
-        LSBQIE11Overlap=cms.double(1/8.),
-    )
-)
+from CalibCalorimetry.CaloTPG.tpScales_cff import tpScales
 
 CaloTPGTranscoder = cms.ESProducer("CaloTPGTranscoderULUTs",
     hcalLUT1 = cms.FileInPath('CalibCalorimetry/CaloTPG/data/outputLUTtranscoder_physics.dat'),
@@ -26,3 +16,6 @@ CaloTPGTranscoder = cms.ESProducer("CaloTPGTranscoderULUTs",
     RCTLSB = cms.double(0.25),
     tpScales = tpScales,
 )
+
+from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
+run2_HCAL_2018.toModify(CaloTPGTranscoder, linearLUTs=True)

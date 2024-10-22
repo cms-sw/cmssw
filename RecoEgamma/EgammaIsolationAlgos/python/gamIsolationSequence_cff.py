@@ -4,8 +4,8 @@ from RecoEgamma.EgammaIsolationAlgos.gamIsoDeposits_cff import *
 from RecoEgamma.EgammaIsolationAlgos.gamIsoFromDeposits_cff import *
 
 #Standard reco sequence with photons
-gamIsolationSequence = cms.Sequence(
-    gamIsoDeposits * 
-    gamIsoFromDeposits
+gamIsolationTask = cms.Task(
+    gamIsoDepositsTask,  
+    gamIsoFromDepositsTask
 )
-
+gamIsolationSequence = cms.Sequence(gamIsolationTask)

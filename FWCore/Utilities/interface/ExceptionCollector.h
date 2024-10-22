@@ -45,6 +45,6 @@ namespace edm {
     std::unique_ptr<cms::Exception> accumulatedExceptions_;
     int nExceptions_;
   };
-}
+}  // namespace edm
 
 #endif

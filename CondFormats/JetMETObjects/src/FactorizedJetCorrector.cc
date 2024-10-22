@@ -17,107 +17,54 @@
 //------------------------------------------------------------------------
 //--- Default FactorizedJetCorrector constructor -------------------------
 //------------------------------------------------------------------------
-FactorizedJetCorrector::FactorizedJetCorrector()
-{
-}
+FactorizedJetCorrector::FactorizedJetCorrector() {}
 //------------------------------------------------------------------------
 //--- FactorizedJetCorrector constructor ---------------------------------
 //------------------------------------------------------------------------
-FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const std::string& fFiles, const std::string& fOptions):
-mCalc(fLevels,fFiles,fOptions)
-{
-}
+FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels,
+                                               const std::string& fFiles,
+                                               const std::string& fOptions)
+    : mCalc(fLevels, fFiles, fOptions) {}
 //------------------------------------------------------------------------
 //--- FactorizedJetCorrector constructor ---------------------------------
 //------------------------------------------------------------------------
-FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorParameters>& fParameters):
-  mCalc(fParameters)
-{
-}
+FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorParameters>& fParameters)
+    : mCalc(fParameters) {}
 
 //------------------------------------------------------------------------
 //--- Returns the correction ---------------------------------------------
 //------------------------------------------------------------------------
-float FactorizedJetCorrector::getCorrection()
-{
-  return mCalc.getCorrection(mValues);
-}
+float FactorizedJetCorrector::getCorrection() { return mCalc.getCorrection(mValues); }
 //------------------------------------------------------------------------
 //--- Returns the vector of subcorrections, up to a given level ----------
 //------------------------------------------------------------------------
-std::vector<float> FactorizedJetCorrector::getSubCorrections()
-{
-  return mCalc.getSubCorrections(mValues);
-}
+std::vector<float> FactorizedJetCorrector::getSubCorrections() { return mCalc.getSubCorrections(mValues); }
 //------------------------------------------------------------------------
 //--- Setters ------------------------------------------------------------
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setNPV(int fNPV)
-{
-
-  mValues.setNPV (fNPV);
-}
-void FactorizedJetCorrector::setJetEta(float fEta)
-{
-  mValues.setJetEta( fEta );
-}
+void FactorizedJetCorrector::setNPV(int fNPV) { mValues.setNPV(fNPV); }
+void FactorizedJetCorrector::setJetEta(float fEta) { mValues.setJetEta(fEta); }
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setJetPt(float fPt)
-{
-  mValues.setJetPt(fPt);
-}
+void FactorizedJetCorrector::setJetPt(float fPt) { mValues.setJetPt(fPt); }
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setJetPhi(float fPhi)
-{
-  mValues.setJetPhi( fPhi );
-}
+void FactorizedJetCorrector::setJetPhi(float fPhi) { mValues.setJetPhi(fPhi); }
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setJetE(float fE)
-{
-  mValues.setJetE(fE);
-}
+void FactorizedJetCorrector::setJetE(float fE) { mValues.setJetE(fE); }
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setJetEMF(float fEMF)
-{
-  mValues.setJetEMF( fEMF );
-}
+void FactorizedJetCorrector::setJetEMF(float fEMF) { mValues.setJetEMF(fEMF); }
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setJetA(float fA)
-{
-  mValues.setJetA( fA );
-}
+void FactorizedJetCorrector::setJetA(float fA) { mValues.setJetA(fA); }
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setRho(float fRho)
-{
-  mValues.setRho(fRho);
-}
+void FactorizedJetCorrector::setRho(float fRho) { mValues.setRho(fRho); }
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setJPTrawP4(const TLorentzVector& fJPTrawP4)
-{
-  mValues.setJPTrawP4(fJPTrawP4);
-}
+void FactorizedJetCorrector::setJPTrawP4(const TLorentzVector& fJPTrawP4) { mValues.setJPTrawP4(fJPTrawP4); }
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setJPTrawOff(float fJPTrawOff)
-{
-  mValues.setJPTrawOff(fJPTrawOff);
-}
+void FactorizedJetCorrector::setJPTrawOff(float fJPTrawOff) { mValues.setJPTrawOff(fJPTrawOff); }
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setLepPx(float fPx)
-{
-  mValues.setLepPx( fPx );
-}
+void FactorizedJetCorrector::setLepPx(float fPx) { mValues.setLepPx(fPx); }
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setLepPy(float fPy)
-{
-  mValues.setLepPy( fPy );
-}
+void FactorizedJetCorrector::setLepPy(float fPy) { mValues.setLepPy(fPy); }
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setLepPz(float fPz)
-{
-  mValues.setLepPz(fPz);
-}
+void FactorizedJetCorrector::setLepPz(float fPz) { mValues.setLepPz(fPz); }
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setAddLepToJet(bool fAddLepToJet)
-{
-  mValues.setAddLepToJet(fAddLepToJet);
-}
+void FactorizedJetCorrector::setAddLepToJet(bool fAddLepToJet) { mValues.setAddLepToJet(fAddLepToJet); }

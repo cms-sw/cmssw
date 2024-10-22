@@ -4,7 +4,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "CondCore/EcalPlugins/plugins/EcalDrawUtils.h"
-
+#include "CondCore/EcalPlugins/plugins/EcalFloatCondObjectContainerUtils.h"
 // the data format of the condition to be inspected
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 
@@ -16,165 +16,175 @@
 
 #include <memory>
 #include <sstream>
+#include <array>
 
 namespace {
-  enum {kEBChannels = 61200, kEEChannels = 14648};
-  enum {MIN_IETA = 1, MIN_IPHI = 1, MAX_IETA = 85, MAX_IPHI = 360, EBhistEtaMax = 171};   // barrel lower and upper bounds on eta and phi
-  enum {IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100, EEhistXMax = 220};           // endcaps lower and upper bounds on x and y
+  enum { kEBChannels = 61200, kEEChannels = 14648 };
+  enum {
+    MIN_IETA = 1,
+    MIN_IPHI = 1,
+    MAX_IETA = 85,
+    MAX_IPHI = 360,
+    EBhistEtaMax = 171
+  };  // barrel lower and upper bounds on eta and phi
+  enum {
+    IX_MIN = 1,
+    IY_MIN = 1,
+    IX_MAX = 100,
+    IY_MAX = 100,
+    EEhistXMax = 220
+  };  // endcaps lower and upper bounds on x and y
 
-  /*******************************************************
-   
+  /**************************************************************
      2d histogram of ECAL barrel Intercalib Constants of 1 IOV 
-
-  *******************************************************/
+  ***************************************************************/
 
   // inherit from one of the predefined plot class: Histogram2D
   class EcalIntercalibConstantsEBMap : public cond::payloadInspector::Histogram2D<EcalIntercalibConstants> {
-
   public:
-    EcalIntercalibConstantsEBMap() : cond::payloadInspector::Histogram2D<EcalIntercalibConstants>("ECAL Barrel Intercalib Constants - map ",
-												  "iphi", MAX_IPHI, MIN_IPHI, MAX_IPHI + 1,
-												  "ieta", EBhistEtaMax, -MAX_IETA, MAX_IETA + 1) {
-      Base::setSingleIov( true );
+    EcalIntercalibConstantsEBMap()
+        : cond::payloadInspector::Histogram2D<EcalIntercalibConstants>("ECAL Barrel Intercalib Constants - map ",
+                                                                       "iphi",
+                                                                       MAX_IPHI,
+                                                                       MIN_IPHI,
+                                                                       MAX_IPHI + 1,
+                                                                       "ieta",
+                                                                       EBhistEtaMax,
+                                                                       -MAX_IETA,
+                                                                       MAX_IETA + 1) {
+      Base::setSingleIov(true);
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
+        std::shared_ptr<EcalIntercalibConstants> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          // looping over the EB channels, via the dense-index, mapped into EBDetId's
+          if (payload->barrelItems().empty())
+            return false;
+          // set to 1 for ieta 0 (no crystal)
+          for (int iphi = MIN_IPHI; iphi < MAX_IPHI + 1; iphi++)
+            fillWithValue(iphi, 0, 1);
 
-      for (auto const & iov: iovs) {
-	std::shared_ptr<EcalIntercalibConstants> payload = Base::fetchPayload( std::get<1>(iov) );
-	if( payload.get() ){
-	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (payload->barrelItems().empty()) return false;
-	  // set to -1 for ieta 0 (no crystal)
-	  for(int iphi = MIN_IPHI; iphi < MAX_IPHI+1; iphi++) fillWithValue(iphi, 0, -1);
+          for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
+            uint32_t rawid = EBDetId::unhashIndex(cellid);
 
-	  for(int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
-	    uint32_t rawid = EBDetId::unhashIndex(cellid);
+            // check the existence of ECAL Intercalib Constants, for a given ECAL barrel channel
+            EcalFloatCondObjectContainer::const_iterator value_ptr = payload->find(rawid);
+            if (value_ptr == payload->end())
+              continue;  // cell absent from payload
+            float weight = (float)(*value_ptr);
 
-	    // check the existence of ECAL Intercalib Constants, for a given ECAL barrel channel
-	    EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
-	    if (value_ptr == payload->end()) continue; // cell absent from payload
-	    float weight = (float)(*value_ptr);
-
-	    // fill the Histogram2D here
-	    fillWithValue(  (EBDetId(rawid)).iphi() , (EBDetId(rawid)).ieta(), weight);
-	  }// loop over cellid
-	}// if payload.get()
-      }// loop over IOV's (1 in this case)
+            // fill the Histogram2D here
+            fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), weight);
+          }  // loop over cellid
+        }  // if payload.get()
+      }  // loop over IOV's (1 in this case)
 
       return true;
-    }// fill method
+    }  // fill method
   };
 
   class EcalIntercalibConstantsEEMap : public cond::payloadInspector::Histogram2D<EcalIntercalibConstants> {
-
   private:
     int EEhistSplit = 20;
 
   public:
-    EcalIntercalibConstantsEEMap() : cond::payloadInspector::Histogram2D<EcalIntercalibConstants>( "ECAL Endcap Intercalib Constants - map ",
-												   "ix", EEhistXMax, IX_MIN, EEhistXMax + 1, 
-												   "iy", IY_MAX, IY_MIN, IY_MAX + 1) {
-      Base::setSingleIov( true );
+    EcalIntercalibConstantsEEMap()
+        : cond::payloadInspector::Histogram2D<EcalIntercalibConstants>("ECAL Endcap Intercalib Constants - map ",
+                                                                       "ix",
+                                                                       EEhistXMax,
+                                                                       IX_MIN,
+                                                                       EEhistXMax + 1,
+                                                                       "iy",
+                                                                       IY_MAX,
+                                                                       IY_MIN,
+                                                                       IY_MAX + 1) {
+      Base::setSingleIov(true);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
+        std::shared_ptr<EcalIntercalibConstants> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          if (payload->endcapItems().empty())
+            return false;
 
-      for (auto const & iov: iovs) {
-	std::shared_ptr<EcalIntercalibConstants> payload = Base::fetchPayload( std::get<1>(iov) );
-	if( payload.get() ){
-	  if (payload->endcapItems().empty()) return false;
+          // set to 0 everywhwere
+          for (int ix = IX_MIN; ix < EEhistXMax + 1; ix++)
+            for (int iy = IY_MIN; iy < IY_MAX + 1; iy++)
+              fillWithValue(ix, iy, 0);
 
-	  // set to -1 everywhwere
-	  for(int ix = IX_MIN; ix < EEhistXMax + 1; ix++)
-	    for(int iy = IY_MAX; iy < IY_MAX + 1; iy++)
-	      fillWithValue(ix, iy, -1);
-
-	  for (int cellid = 0;  cellid < EEDetId::kSizeForDenseIndexing; ++cellid){    // loop on EE cells
-	    if (EEDetId::validHashIndex(cellid)){  
-	      uint32_t rawid = EEDetId::unhashIndex(cellid);
-	      EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
-	      if (value_ptr == payload->end()) continue; // cell absent from payload
-	      float weight = (float)(*value_ptr);
-	      EEDetId myEEId(rawid);
-	      if(myEEId.zside() == -1)
-		fillWithValue(myEEId.ix(), myEEId.iy(), weight);
-	      else
-		fillWithValue(myEEId.ix() + IX_MAX + EEhistSplit, myEEId.iy(), weight);
-	    }  // validDetId 
-	  }   // loop over cellid
-	}    // payload
-      }     // loop over IOV's (1 in this case)
+          for (int cellid = 0; cellid < EEDetId::kSizeForDenseIndexing; ++cellid) {  // loop on EE cells
+            if (EEDetId::validHashIndex(cellid)) {
+              uint32_t rawid = EEDetId::unhashIndex(cellid);
+              EcalFloatCondObjectContainer::const_iterator value_ptr = payload->find(rawid);
+              if (value_ptr == payload->end())
+                continue;  // cell absent from payload
+              float weight = (float)(*value_ptr);
+              EEDetId myEEId(rawid);
+              if (myEEId.zside() == -1)
+                fillWithValue(myEEId.ix(), myEEId.iy(), weight);
+              else
+                fillWithValue(myEEId.ix() + IX_MAX + EEhistSplit, myEEId.iy(), weight);
+            }  // validDetId
+          }  // loop over cellid
+        }  // payload
+      }  // loop over IOV's (1 in this case)
       return true;
-    }// fill method
+    }  // fill method
   };
 
   /*************************************************
      2d plot of ECAL IntercalibConstants of 1 IOV
   *************************************************/
   class EcalIntercalibConstantsPlot : public cond::payloadInspector::PlotImage<EcalIntercalibConstants> {
-
   public:
-    EcalIntercalibConstantsPlot() : cond::payloadInspector::PlotImage<EcalIntercalibConstants>("ECAL Intercalib Constants - map ") {
-      setSingleIov( true );
+    EcalIntercalibConstantsPlot()
+        : cond::payloadInspector::PlotImage<EcalIntercalibConstants>("ECAL Intercalib Constants - map ") {
+      setSingleIov(true);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       TH2F* barrel = new TH2F("EB", "mean EB", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F* endc_p = new TH2F("EE+", "mean EE+", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m = new TH2F("EE-", "mean EE-", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
 
       auto iov = iovs.front();
-      std::shared_ptr<EcalIntercalibConstants> payload = fetchPayload( std::get<1>(iov) );
+      std::shared_ptr<EcalIntercalibConstants> payload = fetchPayload(std::get<1>(iov));
       unsigned int run = std::get<0>(iov);
-      if( payload.get() ){
-	if (payload->barrelItems().empty()) return false;
-	for(int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
-	  uint32_t rawid = EBDetId::unhashIndex(cellid);
-	  EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
-	  if (value_ptr == payload->end()) continue; // cell absent from payload
-	  float weight = (float)(*value_ptr);
-	  Double_t phi = (Double_t)(EBDetId(rawid)).iphi() - 0.5;
-	  Double_t eta = (Double_t)(EBDetId(rawid)).ieta();
-	  if(eta > 0.) eta = eta - 0.5;   //   0.5 to 84.5
-	  else eta  = eta + 0.5;         //  -84.5 to -0.5
-	  barrel->Fill(phi, eta, weight);
-	}// loop over cellid
 
-	if (payload->endcapItems().empty()) return false;
-	// looping over the EE channels
-	for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
-	  for(int iy = IY_MIN; iy < IY_MAX+IY_MIN; iy++)
-	    for(int ix = IX_MIN; ix < IX_MAX+IX_MIN; ix++)
-	      if(EEDetId::validDetId(ix, iy, iz)) {
-		EEDetId myEEId = EEDetId(ix, iy, iz, EEDetId::XYMODE);
-		uint32_t rawid = myEEId.rawId();
-		EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
-		if (value_ptr == payload->end()) continue; // cell absent from payload
-		float weight = (float)(*value_ptr);
-		if(iz == 1)
-		  endc_p->Fill(ix, iy, weight);
-		else
-		  endc_m->Fill(ix, iy, weight);
-	      }  // validDetId 
-      }    // payload
+      if (payload.get()) {
+        if (payload->barrelItems().empty())
+          return false;
+
+        fillEBMap_SingleIOV<EcalIntercalibConstants>(payload, barrel);
+
+        if (payload->endcapItems().empty())
+          return false;
+
+        fillEEMap_SingleIOV<EcalIntercalibConstants>(payload, endc_m, endc_p);
+
+      }  // payload
 
       gStyle->SetPalette(1);
-      gStyle->SetOptStat(0);      
-      TCanvas canvas("CC map","CC map", 1600, 450);
+      gStyle->SetOptStat(0);
+      TCanvas canvas("CC map", "CC map", 1600, 450);
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
       t1.SetTextSize(0.05);
       t1.DrawLatex(0.5, 0.96, Form("Ecal IntercalibConstants, IOV %i", run));
 
-      float xmi[3] = {0.0 , 0.24, 0.76};
+      float xmi[3] = {0.0, 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
-      TPad** pad = new TPad*;
+      std::array<std::unique_ptr<TPad>, 3> pad;
       for (int obj = 0; obj < 3; obj++) {
-	pad[obj] = new TPad(Form("p_%i", obj),Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
-	pad[obj]->Draw();
+        pad[obj] = std::make_unique<TPad>(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
+        pad[obj]->Draw();
       }
       //      EcalDrawMaps ICMap;
       pad[0]->cd();
@@ -190,20 +200,20 @@ namespace {
       std::string ImageName(m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
-    }// fill method
+    }  // fill method
   };
 
-  /*****************************************************************
-     2d plot of ECAL IntercalibConstants difference between 2 IOVs
-  *****************************************************************/
-  class EcalIntercalibConstantsDiff : public cond::payloadInspector::PlotImage<EcalIntercalibConstants> {
-
+  /**************************************************************************
+     2d plot of ECAL IntercalibConstants difference or ratio between 2 IOVs
+  ***************************************************************************/
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags, int method>
+  class EcalIntercalibConstantsBase : public cond::payloadInspector::PlotImage<EcalIntercalibConstants, nIOVs, ntags> {
   public:
-    EcalIntercalibConstantsDiff() : cond::payloadInspector::PlotImage<EcalIntercalibConstants>("ECAL Intercalib Constants difference ") {
-      setSingleIov(false);
-    }
+    EcalIntercalibConstantsBase()
+        : cond::payloadInspector::PlotImage<EcalIntercalibConstants, nIOVs, ntags>(
+              "ECAL Intercalib Constants comparison") {}
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+    bool fill() override {
       TH2F* barrel = new TH2F("EB", "mean EB", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F* endc_p = new TH2F("EE+", "mean EE+", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m = new TH2F("EE-", "mean EE-", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
@@ -213,75 +223,74 @@ namespace {
       pEBmax = -10.;
       pEEmax = -10.;
 
-      unsigned int run[2], irun = 0;
+      unsigned int run[2];
       float pEB[kEBChannels], pEE[kEEChannels];
-      for ( auto const & iov: iovs) {
-	std::shared_ptr<EcalIntercalibConstants> payload = fetchPayload( std::get<1>(iov) );
-	run[irun] = std::get<0>(iov);
-	if( payload.get() ){
-	  if (payload->barrelItems().empty()) return false;
-	  for(int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
-	    uint32_t rawid = EBDetId::unhashIndex(cellid);
-	    EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
-	    if (value_ptr == payload->end()) continue; // cell absent from payload
-	    float weight = (float)(*value_ptr);
-	    if(irun == 0) 
-	      pEB[cellid] = weight;
-	    else {
-	      Double_t phi = (Double_t)(EBDetId(rawid)).iphi() - 0.5;
-	      Double_t eta = (Double_t)(EBDetId(rawid)).ieta();
-	      if(eta > 0.) eta = eta - 0.5;   //   0.5 to 84.5
-	      else eta  = eta + 0.5;         //  -84.5 to -0.5
-	      double diff = weight - pEB[cellid];
-	      if(diff < pEBmin) pEBmin = diff;
-	      if(diff > pEBmax) pEBmax = diff;
-	      barrel->Fill(phi, eta, diff);
-	    }
-	  }// loop over cellid
+      std::string l_tagname[2];
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalIntercalibConstants> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
+        if (payload.get()) {
+          if (payload->barrelItems().empty())
+            return false;
+          fillEBMap_TwoIOVs<EcalIntercalibConstants>(payload, barrel, irun, pEB, pEBmin, pEBmax, method);
 
-	  if (payload->endcapItems().empty()) return false;
-	  // looping over the EE channels
-	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
-	    for(int iy = IY_MIN; iy < IY_MAX+IY_MIN; iy++)
-	      for(int ix = IX_MIN; ix < IX_MAX+IX_MIN; ix++)
-		if(EEDetId::validDetId(ix, iy, iz)) {
-		  EEDetId myEEId = EEDetId(ix, iy, iz, EEDetId::XYMODE);
-		  uint32_t cellid = myEEId.hashedIndex();
-		  uint32_t rawid = myEEId.rawId();
-		  EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
-		  if (value_ptr == payload->end()) continue; // cell absent from payload
-		  float weight = (float)(*value_ptr);
-		  if(irun == 0) 
-		    pEE[cellid] = weight;
-		  else {
-		    double diff = weight - pEE[cellid];
-		    if(diff < pEEmin) pEEmin = diff;
-		    if(diff > pEEmax) pEEmax = diff;
-		    if(iz == 1)
-		      endc_p->Fill(ix, iy, diff);
-		    else
-		      endc_m->Fill(ix, iy, diff);
-		  }
-		}  // validDetId 
-	}    // payload
-	irun++;
-      }      // loop over IOVs
+          if (payload->endcapItems().empty())
+            return false;
+          fillEEMap_TwoIOVs<EcalIntercalibConstants>(payload, endc_m, endc_p, irun, pEE, pEEmin, pEEmax, method);
+        }  // payload
+      }  // loop over IOVs
 
       gStyle->SetPalette(1);
-      gStyle->SetOptStat(0);      
-      TCanvas canvas("CC map","CC map", 1600, 450);
+      gStyle->SetOptStat(0);
+      TCanvas canvas("CC map", "CC map", 1600, 450);
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal IntercalibConstants, IOV %i - %i", run[1], run[0]));
-
-      float xmi[3] = {0.0 , 0.24, 0.76};
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      std::string dr[2] = {"-", "/"};
+      if (ntags == 2) {
+        if (len < 170) {
+          t1.SetTextSize(0.05);
+          t1.DrawLatex(0.5,
+                       0.96,
+                       Form("%s IOV %i %s %s  IOV %i",
+                            l_tagname[1].c_str(),
+                            run[1],
+                            dr[method].c_str(),
+                            l_tagname[0].c_str(),
+                            run[0]));
+        } else {
+          t1.SetTextSize(0.05);
+          t1.DrawLatex(0.5, 0.96, Form("Ecal IntercalibConstants, IOV %i %s %i", run[1], dr[method].c_str(), run[0]));
+        }
+      } else {
+        t1.SetTextSize(0.05);
+        t1.DrawLatex(0.5, 0.96, Form("%s, IOV %i %s %i", l_tagname[0].c_str(), run[1], dr[method].c_str(), run[0]));
+      }
+      float xmi[3] = {0.0, 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
-      TPad** pad = new TPad*;
+      std::array<std::unique_ptr<TPad>, 3> pad;
       for (int obj = 0; obj < 3; obj++) {
-	pad[obj] = new TPad(Form("p_%i", obj),Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
-	pad[obj]->Draw();
+        pad[obj] = std::make_unique<TPad>(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
+        pad[obj]->Draw();
       }
       pad[0]->cd();
       DrawEE(endc_m, pEEmin, pEEmax);
@@ -290,18 +299,88 @@ namespace {
       pad[2]->cd();
       DrawEE(endc_p, pEEmin, pEEmax);
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
-    }// fill method
+    }  // fill method
+  };  // class EcalIntercalibConstantsDiffBase
+  using EcalIntercalibConstantsDiffOneTag = EcalIntercalibConstantsBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
+  using EcalIntercalibConstantsDiffTwoTags = EcalIntercalibConstantsBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
+  using EcalIntercalibConstantsRatioOneTag = EcalIntercalibConstantsBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;
+  using EcalIntercalibConstantsRatioTwoTags = EcalIntercalibConstantsBase<cond::payloadInspector::SINGLE_IOV, 2, 1>;
+
+  /*********************************************************
+     2d plot of Ecal Intercalib Constants Summary of 1 IOV
+   *********************************************************/
+  class EcalIntercalibConstantsSummaryPlot : public cond::payloadInspector::PlotImage<EcalIntercalibConstants> {
+  public:
+    EcalIntercalibConstantsSummaryPlot()
+        : cond::payloadInspector::PlotImage<EcalIntercalibConstants>("Ecal Intercalib Constants Summary - map ") {
+      setSingleIov(true);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      auto iov = iovs.front();
+      std::shared_ptr<EcalIntercalibConstants> payload = fetchPayload(std::get<1>(iov));
+      unsigned int run = std::get<0>(iov);
+      TH2F* align;
+      int NbRows;
+
+      if (payload.get()) {
+        NbRows = 2;
+        align = new TH2F("", "", 0, 0, 0, 0, 0, 0);
+
+        float mean_x_EB = 0.0f;
+        float mean_x_EE = 0.0f;
+
+        float rms_EB = 0.0f;
+        float rms_EE = 0.0f;
+
+        int num_x_EB = 0;
+        int num_x_EE = 0;
+
+        payload->summary(mean_x_EB, rms_EB, num_x_EB, mean_x_EE, rms_EE, num_x_EE);
+        fillTableWithSummary(
+            align, "Ecal Intercalib Constants", mean_x_EB, rms_EB, num_x_EB, mean_x_EE, rms_EE, num_x_EE);
+      } else
+        return false;
+
+      gStyle->SetPalette(1);
+      gStyle->SetOptStat(0);
+      TCanvas canvas("CC map", "CC map", 1000, 1000);
+      TLatex t1;
+      t1.SetNDC();
+      t1.SetTextAlign(26);
+      t1.SetTextSize(0.04);
+      t1.SetTextColor(2);
+      t1.DrawLatex(0.5, 0.96, Form("Ecal Intercalib Constants Summary, IOV %i", run));
+
+      TPad pad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
+      pad.Draw();
+      pad.cd();
+      align->Draw("TEXT");
+      TLine* l = new TLine;
+      l->SetLineWidth(1);
+
+      drawTable(NbRows, 4);
+
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
+
+      return true;
+    }
   };
 
-} // close namespace
+}  // namespace
 
 // Register the classes as boost python plugin
-PAYLOAD_INSPECTOR_MODULE( EcalIntercalibConstants ){
-  PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsEBMap);
-  PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsEEMap);
-  PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsPlot);
-  PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsDiff);
+PAYLOAD_INSPECTOR_MODULE(EcalIntercalibConstants) {
+  PAYLOAD_INSPECTOR_CLASS(EcalIntercalibConstantsEBMap);
+  PAYLOAD_INSPECTOR_CLASS(EcalIntercalibConstantsEEMap);
+  PAYLOAD_INSPECTOR_CLASS(EcalIntercalibConstantsPlot);
+  PAYLOAD_INSPECTOR_CLASS(EcalIntercalibConstantsDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalIntercalibConstantsDiffTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalIntercalibConstantsRatioOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalIntercalibConstantsRatioTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalIntercalibConstantsSummaryPlot);
 }

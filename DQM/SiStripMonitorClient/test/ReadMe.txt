@@ -65,7 +65,7 @@
        o do a eval `scramv1 runtime -csh`
        o put the Collector machine name in DQM/StripMonitorCluster/data/MonitorDaemon.cfi
          config file (in the field DestinationAddress)
-       o execute "cmsRun -p  OnlyDQM.cfg"
+       o execute "cmsRun  OnlyDQM.cfg"
 
 
    - Client (start xdaq executable)

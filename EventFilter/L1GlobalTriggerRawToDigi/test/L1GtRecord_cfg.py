@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to produce L1GlobalTriggerRecord from a L1GlobalTriggerReadoutRecord
 # when running on RAW data, one also unpack the data
@@ -86,7 +87,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         else :
             useGlobalTag = 'STARTUP3X_V8M'
     else :
-        print 'Error: no global tag defined for release ', useRelease, ' used with RelVal sample'
+        print('Error: no global tag defined for release ', useRelease, ' used with RelVal sample')
         sys.exit()
    
 elif (useRelValSample == False) and (useLocalFiles == False) :
@@ -99,10 +100,10 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
     elif useRelease == 'CMSSW_3_3_6' :
         useGlobalTag = 'GR09_P_V8'
     else :
-        print 'Error: no global tag defined for release ', useRelease, ' used with data sample'
+        print('Error: no global tag defined for release ', useRelease, ' used with data sample')
         sys.exit()
 else :
-       print 'Using local file(s) with global tag ',  useGlobalTag, ' and release ', useRelease
+       print('Using local file(s) with global tag ',  useGlobalTag, ' and release ', useRelease)
      
 #
 #
@@ -113,10 +114,10 @@ process = cms.Process("TestL1GtRecord")
 # load and configure modules via Global Tag
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = useGlobalTag+'::All'
+process.GlobalTag.globaltag = useGlobalTag
 
 
 # number of events to be processed and source file
@@ -140,7 +141,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         
         if (useRelease == 'CMSSW_3_5_X') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
 
-            print '   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample'  
+            print('   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample')  
 
             dataset = cms.untracked.vstring('/RelValQCD_Pt_80_120/CMSSW_3_5_0_pre3-MC_3XY_V15-v1/GEN-SIM-RECO')
             readFiles.extend( [
@@ -157,7 +158,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
         elif (useRelease == 'CMSSW_3_5_X') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
             
-            print '   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample'  
+            print('   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample')  
 
             dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_3_5_0_pre3-MC_3XY_V15-v1/GEN-SIM-RECO')
             readFiles.extend( [
@@ -174,7 +175,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
         elif (useRelease == 'CMSSW_3_4_1') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
 
-            print '   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample'  
+            print('   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample')  
 
             dataset = cms.untracked.vstring('/RelValQCD_Pt_80_120/CMSSW_3_4_1-MC_3XY_V14-v1/GEN-SIM-RECO')
 
@@ -191,7 +192,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
         elif (useRelease == 'CMSSW_3_4_1') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
             
-            print '   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample'  
+            print('   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample')  
 
             dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_3_4_1-MC_3XY_V14-v1/GEN-SIM-RECO')
             readFiles.extend( [
@@ -208,7 +209,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
 
         else :
-            print 'Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.'    
+            print('Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.')    
             sys.exit()
 
         secFiles.extend([
@@ -218,7 +219,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
         if (useRelease == 'CMSSW_3_5_X') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
         
-            print '   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample'  
+            print('   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample')  
 
             dataset = cms.untracked.vstring('/RelValQCD_Pt_80_120/CMSSW_3_2_2-MC_31X_V3-v1/GEN-SIM-RECO')
             readFiles.extend( [
@@ -235,7 +236,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
         elif (useRelease == 'CMSSW_3_5_X') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
         
-            print '   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample'  
+            print('   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample')  
 
             dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_3_5_0_pre3-STARTUP3X_V15-v1/GEN-SIM-RECO')
             readFiles.extend( [
@@ -252,7 +253,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
         elif (useRelease == 'CMSSW_3_4_1') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
         
-            print '   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample'  
+            print('   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample')  
 
             dataset = cms.untracked.vstring('/RelValQCD_Pt_80_120/CMSSW_3_4_1-STARTUP3X_V14-v1/GEN-SIM-RECO')
             readFiles.extend( [
@@ -269,7 +270,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
         elif (useRelease == 'CMSSW_3_4_1') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
         
-            print '   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample'  
+            print('   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample')  
 
             dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_3_4_1-STARTUP3X_V14-v1/GEN-SIM-RECO')
             readFiles.extend( [
@@ -286,7 +287,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
 
         else :
-            print 'Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.'    
+            print('Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.')    
             sys.exit()
 
                 
@@ -294,7 +295,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
             ])
         
     else :
-        print 'Error: Global Tag ', useGlobalTag, ' not defined.'    
+        print('Error: Global Tag ', useGlobalTag, ' not defined.')    
         sys.exit()
 
 elif (useRelValSample == False) and (useLocalFiles == False) :
@@ -313,7 +314,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
     
         elif runNumber == 116035 :
             dataset = '/Cosmics/Commissioning09-v3/RAW'
-            print '   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag 
+            print('   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag) 
     
             readFiles.extend( [                        
                 '/store/data/Commissioning09/Cosmics/RAW/v3/000/116/035/34A8317D-76AF-DE11-91DB-000423D98DC4.root'
@@ -324,7 +325,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
         
         elif runNumber == 121560 :
             dataset = '/Cosmics/Commissioning09-v3/RAW'
-            print '   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag 
+            print('   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag) 
     
             readFiles.extend( [                        
                 '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/121/560/DC089E4B-5ED4-DE11-A179-000423D98FBC.root'
@@ -334,7 +335,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
                 ])
 
         else :
-            print 'Error: run ', runNumber, ' not defined.'    
+            print('Error: run ', runNumber, ' not defined.')    
             sys.exit()
 
     
@@ -346,7 +347,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
             ] );
 
     else :
-        print 'Error: dataType ',dataType, ' not defined.'    
+        print('Error: dataType ',dataType, ' not defined.')    
         sys.exit()
 
 else :
@@ -357,7 +358,7 @@ else :
     secFiles.extend([
         ])
 
-    print 'Local file(s) ', readFiles
+    print('Local file(s) ', readFiles)
 
 
 
@@ -426,15 +427,11 @@ else :
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtRecord']
-process.MessageLogger.categories.append('L1GlobalTriggerRecord')
-process.MessageLogger.categories.append('L1GtTrigReport')
-
 process.MessageLogger.cerr.default.limit = 0
-process.MessageLogger.cerr.FwkJob.limit = 0
 process.MessageLogger.cerr.FwkReport.limit = 0
 process.MessageLogger.cerr.FwkSummary.limit = 0
 
-process.MessageLogger.debugs = cms.untracked.PSet( 
+process.MessageLogger.files.debugs = cms.untracked.PSet( 
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -444,7 +441,7 @@ process.MessageLogger.debugs = cms.untracked.PSet(
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
         )
 
-process.MessageLogger.warnings = cms.untracked.PSet( 
+process.MessageLogger.files.warnings = cms.untracked.PSet( 
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -452,7 +449,7 @@ process.MessageLogger.warnings = cms.untracked.PSet(
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
         )
 
-process.MessageLogger.errors = cms.untracked.PSet( 
+process.MessageLogger.files.errors = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
         L1GlobalTriggerRecord = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),

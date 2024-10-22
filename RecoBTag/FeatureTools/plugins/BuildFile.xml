@@ -1,0 +1,11 @@
+<use name="FWCore/Framework"/>
+<library file="*.cc" name="RecoBTagFeatureToolsPlugins">
+  <use name="DataFormats/BTauReco"/>
+  <use name="RecoBTag/FeatureTools"/>
+  <use name="DataFormats/PatCandidates"/>
+  <use name="RecoBTag/TrackProbability"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/BTauObjects"/>
+  <use name="TrackingTools/Records"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

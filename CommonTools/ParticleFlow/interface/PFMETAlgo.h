@@ -7,11 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-/* #include "FWCore/Framework/interface/EDProducer.h" */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-/* #include "FWCore/Framework/interface/Event.h" */
-/* #include "FWCore/Framework/interface/MakerMacros.h" */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
@@ -25,27 +21,21 @@
 \date   february 2008
 */
 
-
 namespace pf2pat {
-  
+
   class PFMETAlgo {
   public:
-
     explicit PFMETAlgo(const edm::ParameterSet&);
 
-    ~PFMETAlgo();
-    
-    reco::MET produce(const reco::PFCandidateCollection& pfCandidates);
+    reco::MET produce(const reco::PFCandidateCollection& pfCandidates) const;
 
   private:
-    
     /// HF calibration factor (in 31X applied by PFProducer)
     double hfCalibFactor_;
-    
-    /// verbose ?
-    bool   verbose_;
 
+    /// verbose ?
+    bool verbose_;
   };
-}
+}  // namespace pf2pat
 
 #endif

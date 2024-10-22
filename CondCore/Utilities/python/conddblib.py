@@ -6,7 +6,7 @@ __copyright__ = 'Copyright 2013, CERN'
 __credits__ = ['Giacomo Govi', 'Miguel Ojeda', 'Andreas Pfeiffer']
 __license__ = 'Unknown'
 __maintainer__ = 'Giacomo Govi'
-__email__ = 'mojedasa@cern.ch'
+__email__ = 'giacomo.govi@cern.ch'
 
 
 import os
@@ -15,14 +15,19 @@ import logging
 
 import sqlalchemy
 import sqlalchemy.ext.declarative
+import enum
+from sqlalchemy import Enum
 
-authPathEnvVar = 'COND_AUTH_PATH'
-schema_name = 'CMS_CONDITIONS'
+schema_name = 'cms_conditions'
 dbuser_name = 'cms_conditions'
 dbreader_user_name = 'cms_cond_general_r'
 dbwriter_user_name = 'cms_cond_general_w'
-devdbwriter_user_name = 'cms_cond_general_w'
 logger = logging.getLogger(__name__)
+
+#authentication/authorization params
+authPathEnvVar = 'COND_AUTH_PATH'
+dbkey_filename = 'db.key'
+dbkey_folder = os.path.join('.cms_cond',dbkey_filename)
 
 # frontier services
 PRO ='PromptProd'
@@ -43,44 +48,9 @@ ONLINEORAINT = 'cmsintr_lb'
 if logger.level == logging.NOTSET:
     logger.setLevel(logging.WARN)
 
-
-class EnumMetaclass(type):
-    def __init__(cls, name, bases, dct):
-        cls._members = sorted([member for member in dir(cls) if not member.startswith('_')])
-        cls._map = dict([(member, getattr(cls, member)) for member in cls._members])
-        cls._reversemap = dict([(value, key) for (key, value) in cls._map.items()])
-        super(EnumMetaclass, cls).__init__(name, bases, dct)
-
-    def __len__(cls):
-        return len(cls._members)
-
-    def __getitem__(cls, key):
-        '''Returns the value for this key (if the key is an integer,
-        the value is the nth member from the sorted members list).
-        '''
-
-        if isinstance(key, int):
-            # for tuple() and list()
-            key = cls._members[key]
-        return cls._map[key]
-
-    def __call__(cls, value):
-        '''Returns the key for this value.
-        '''
-
-        return cls._reversemap[value]
-
-
-class Enum(object):
-    '''A la PEP 435, simplified.
-    '''
-
-    __metaclass__ = EnumMetaclass
-
-
 # Utility functions
 def hash(data):
-    return hashlib.sha1(data).hexdigest()
+    return hashlib.sha1(data.encode('ascii')).hexdigest()
 
 
 # Constants
@@ -166,7 +136,10 @@ database_help = '''
       /absolute/path/to/file.db  ===  sqlite:////absolute/path/to/file.db
 '''
 
-class Synchronization(Enum):
+def oracle_connection_string(db_service, db_schema ):
+    return 'oracle://%s/%s'%(db_service,db_schema)
+
+class Synchronization(enum.Enum):
     any        = 'any'
     validation = 'validation'
     mc         = 'mc'
@@ -177,12 +150,14 @@ class Synchronization(Enum):
     pcl        = 'pcl'
     offline    = 'offline'
 
-class TimeType(Enum):
-    run  = 'Run'
-    time = 'Time'
-    lumi = 'Lumi'
-    hash = 'Hash'
-    user = 'User'
+synch_list = list(x.value for x in list(Synchronization))
+
+class TimeType(enum.Enum):
+    Run  = 'Run'
+    Time = 'Time'
+    Lumi = 'Lumi'
+    Hash = 'Hash'
+    User = 'User'
 
 
 # Schema definition
@@ -221,6 +196,9 @@ def make_dbtype( backendName, schemaName, baseType ):
     if schemaName is not None:
         members['__table_args__'] = {'schema': schemaName }
     for k,v in baseType.columns.items():
+        defColVal = None
+        if len(v)==3:
+            defColVal = v[2]
         if isinstance(v[0],DbRef):
             refColDbt = v[0].rtype.columns[v[0].rcol][0]
             pk = (True if v[1]==_Col.pk else False)
@@ -238,9 +216,12 @@ def make_dbtype( backendName, schemaName, baseType ):
                 members[k] = sqlalchemy.Column(v[0],primary_key=True)
             else:
                 nullable = (True if v[1]==_Col.nullable else False)
-                members[k] = sqlalchemy.Column(v[0],nullable=nullable)
+                if defColVal is None:
+                    members[k] = sqlalchemy.Column(v[0],nullable=nullable)
+                else:
+                    members[k] = sqlalchemy.Column(v[0],nullable=nullable, default=defColVal)
     dbType = type(dbtype_name,(_Base,),members)
-    
+
     if backendName not in db_models.keys():
         db_models[backendName] = {}
     db_models[backendName][baseType.__name__] = dbType
@@ -254,14 +235,15 @@ def getSchema(tp):
 class Tag:
     __tablename__       = 'TAG'
     columns             = { 'name': (sqlalchemy.String(name_length),_Col.pk), 
-                            'time_type': (sqlalchemy.Enum(*tuple(TimeType)),_Col.notNull),
+                            'time_type': (sqlalchemy.Enum(*tuple(TimeType.__members__.keys())),_Col.notNull),
                             'object_type': (sqlalchemy.String(name_length),_Col.notNull),
-                            'synchronization': (sqlalchemy.Enum(*tuple(Synchronization)),_Col.notNull),
+                            'synchronization': (sqlalchemy.Enum(*tuple(Synchronization.__members__.keys())),_Col.notNull),
                             'description': (sqlalchemy.String(description_length),_Col.notNull),
                             'last_validated_time':(sqlalchemy.BIGINT,_Col.notNull),
                             'end_of_validity':(sqlalchemy.BIGINT,_Col.notNull),
                             'insertion_time':(sqlalchemy.TIMESTAMP,_Col.notNull),
-                            'modification_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
+                            'modification_time':(sqlalchemy.TIMESTAMP,_Col.notNull),
+                            'protection_code':(sqlalchemy.Integer,_Col.notNull,0)   }
 
 class TagMetadata:
     __tablename__       = 'TAG_METADATA'
@@ -269,6 +251,13 @@ class TagMetadata:
                             'min_serialization_v': (sqlalchemy.String(20),_Col.notNull),
                             'min_since': (sqlalchemy.BIGINT,_Col.notNull),
                             'modification_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
+
+class TagAuthorization:
+    __tablename__       = 'TAG_AUTHORIZATION'
+    columns             = { 'tag_name': (DbRef(Tag,'name'),_Col.pk), 
+                            'access_type': (sqlalchemy.Integer,_Col.notNull),
+                            'credential': (sqlalchemy.String(name_length),_Col.notNull),
+                            'credential_type':(sqlalchemy.Integer,_Col.notNull) }
 
 class Payload:
     __tablename__       = 'PAYLOAD'
@@ -348,7 +337,7 @@ class Connection(object):
                 self.engine.execute('pragma foreign_keys = on')
 
         else:
-            self.engine = sqlalchemy.create_engine(url)
+            self.engine = sqlalchemy.create_engine(url, max_identifier_length=30)
 
         self._session = sqlalchemy.orm.scoped_session(sqlalchemy.orm.sessionmaker(bind=self.engine))
 
@@ -372,7 +361,6 @@ class Connection(object):
         self._url = url
         self._backendName = ('sqlite' if self._is_sqlite else 'oracle' ) 
         self._schemaName = ( None if self._is_sqlite else schema_name )
-        logging.debug(' ... using db "%s", schema "%s"' % (url, self._schemaName) )
         logging.debug('Loading db types...')
         self.get_dbtype(Tag).__name__
         self.get_dbtype(Payload)
@@ -383,6 +371,7 @@ class Connection(object):
         self.get_dbtype(RunInfo)
         if not self._is_sqlite:
             self.get_dbtype(TagMetadata)
+            self.get_dbtype(TagAuthorization)
             self.get_dbtype(BoostRunMap)
         self._is_valid = self.is_valid()
 
@@ -485,7 +474,12 @@ def _getCMSFrontierConnectionString(database):
 def _getCMSSQLAlchemyConnectionString(technology,service,schema_name):
     if technology == 'frontier':
         import urllib
-        return '%s://@%s/%s' % ('oracle+frontier', urllib.quote_plus(_getCMSFrontierConnectionString(service)), schema_name )
+        import sys
+        py3k = sys.version_info >= (3, 0)        
+        if py3k:
+            return '%s://@%s/%s' % ('oracle+frontier', urllib.parse.quote_plus(_getCMSFrontierConnectionString(service)), schema_name )
+        else:
+            return '%s://@%s/%s' % ('oracle+frontier', urllib.quote_plus(_getCMSFrontierConnectionString(service)), schema_name )
     elif technology == 'oracle':
         return '%s://%s@%s' % (technology, schema_name, service)
 
@@ -510,7 +504,7 @@ def make_url(database='pro',read_only = True):
         'oraint':       ('oracle',         'cms_orcoff_int',  { 'R': dbreader_user_name,
                                                                 'W': dbwriter_user_name }, ),
         'oradev':       ('oracle',         'cms_orcoff_prep', { 'R': dbreader_user_name,
-                                                                'W': devdbwriter_user_name }, ),
+                                                                'W': dbwriter_user_name }, ),
         'onlineorapro': ('oracle',         'cms_orcon_prod',  { 'R': dbreader_user_name,
                                                                 'W': dbwriter_user_name }, ),
         'onlineoraint': ('oracle',         'cmsintr_lb',      { 'R': dbreader_user_name,
@@ -536,7 +530,7 @@ def make_url(database='pro',read_only = True):
         url = sqlalchemy.engine.url.make_url('sqlite:///%s' % database)
     return url
 
-def connect(url, authPath=None, verbose=0):
+def connect(url, authPath=None, verbose=0, as_admin=False):
     '''Returns a Connection instance to the CMS Condition DB.
 
     See database_help for the description of the database parameter.
@@ -548,6 +542,7 @@ def connect(url, authPath=None, verbose=0):
         2 = In addition, results of the queries (all rows and the column headers).
     '''
 
+    check_admin = as_admin
     if url.drivername == 'oracle':
         if url.username is None:
             logging.error('Could not resolve the username for the connection %s. Please provide a connection in the format oracle://[user]:[pass]@[host]' %url )
@@ -556,20 +551,40 @@ def connect(url, authPath=None, verbose=0):
             if authPath is None:
                 if authPathEnvVar in os.environ:
                     authPath = os.environ[authPathEnvVar]
-            authFile = None
+            explicit_auth = False
             if authPath is not None:
-                authFile = os.path.join(authPath,'.netrc')
-            if authFile is not None:
-                entryKey = url.host.lower()+"/"+url.username.lower()
-                logging.debug('Looking up credentials for %s in file %s ' %(entryKey,authFile) )
-                import netrc
-                params = netrc.netrc( authFile ).authenticators(entryKey)
-                if params is not None:
-                    (username, account, password) = params
-                    url.password = password
+                dbkey_path = os.path.join(authPath,dbkey_folder)
+                if not os.path.exists(dbkey_path):
+                    authFile = os.path.join(authPath,'.netrc')
+                    if os.path.exists(authFile):
+                        entryKey = url.host.lower()+"/"+url.username.lower()
+                        logging.debug('Looking up credentials for %s in file %s ' %(entryKey,authFile) )
+                        import netrc
+                        params = netrc.netrc( authFile ).authenticators(entryKey)
+                        if params is not None:
+                            (username, account, password) = params
+                            url.username = username
+                            url.password = password
+                        else:
+                            msg = 'The entry %s has not been found in the .netrc file.' %entryKey
+                            raise TypeError(msg)
+                    else:
+                        explicit_auth =True
                 else:
-                    msg = 'The entry %s has not been found in the .netrc file.' %entryKey
-                    raise TypeError(msg)
+                    import libCondDBPyBind11Interface as auth
+                    role_code = auth.reader_role
+                    if url.username == dbwriter_user_name:
+                        role_code = auth.writer_role
+                    if check_admin:
+                        role_code = auth.admin_role
+                    connection_string = oracle_connection_string(url.host.lower(),schema_name)
+                    logging.debug('Using db key to get credentials for %s' %connection_string )
+                    (dbuser,username,password) = auth.get_credentials_from_db(connection_string,role_code,authPath)
+                    if username=='' or password=='':
+                        raise Exception('No credentials found to connect on %s with the required access role.'%connection_string)
+                    check_admin = False
+                    url.username = username
+                    url.password = password
             else:
                 import getpass
                 pwd = getpass.getpass('Password for %s: ' % str(url))
@@ -578,7 +593,10 @@ def connect(url, authPath=None, verbose=0):
                     if pwd is None or pwd == '':
                         raise Exception('Empty password provided, bailing out...')
                 url.password = pwd
-
+        if check_admin:
+            raise Exception('Admin access has not been granted. Please provide a valid admin db-key.')
+    if check_admin:
+       raise Exception('Admin access is not available for technology "%s".' %url.drivername)
     if verbose >= 1:
         logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
@@ -592,7 +610,7 @@ def _exists(session, primary_key, value):
     ret = None
     try: 
         ret = session.query(primary_key).\
-    	    filter(primary_key == value).\
+            filter(primary_key == value).\
             count() != 0
     except sqlalchemy.exc.OperationalError:
         pass
@@ -619,10 +637,10 @@ def listObject(session, name, snapshot=None):
     if is_tag:
         result['type'] = 'Tag'
         result['name'] = session.query(Tag).get(name).name
-	result['timeType'] = session.query(Tag.time_type).\
-				     filter(Tag.name == name).\
-            			     scalar()
-    
+        result['timeType'] = session.query(Tag.time_type).\
+                                     filter(Tag.name == name).\
+                                     scalar()
+
         result['iovs'] = session.query(IOV.since, IOV.insertion_time, IOV.payload_hash, Payload.object_type).\
                 join(IOV.payload).\
                 filter(
@@ -638,11 +656,11 @@ def listObject(session, name, snapshot=None):
         is_global_tag = _exists(session, GlobalTag.name, name)
         if is_global_tag:
             result['type'] = 'GlobalTag'
-	    result['name'] = session.query(GlobalTag).get(name)
+            result['name'] = session.query(GlobalTag).get(name)
             result['tags'] = session.query(GlobalTagMap.record, GlobalTagMap.label, GlobalTagMap.tag_name).\
                                      filter(GlobalTagMap.global_tag_name == name).\
-                    		     order_by(GlobalTagMap.record, GlobalTagMap.label).\
-                    		     all()
+                                     order_by(GlobalTagMap.record, GlobalTagMap.label).\
+                                     all()
     except sqlalchemy.exc.OperationalError:
         sys.stderr.write("No table for GlobalTags found in DB.\n\n")
 

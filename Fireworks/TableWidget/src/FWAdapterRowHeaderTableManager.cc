@@ -2,7 +2,7 @@
 //
 // Package:     TableWidget
 // Class  :     FWAdapterRowHeaderTableManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "Fireworks/TableWidget/src/FWAdapterRowHeaderTableManager.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,11 +26,12 @@
 //
 // constructors and destructor
 //
-FWAdapterRowHeaderTableManager::FWAdapterRowHeaderTableManager(FWTableManagerBase* iTable) :
-m_table(iTable)
- {
-   iTable->Connect("dataChanged()","FWTableManagerBase",static_cast<FWTableManagerBase*>(this),"dataChanged()");
-   iTable->Connect("visualPropertiesChanged()","FWTableManagerBase",static_cast<FWTableManagerBase*>(this),"visualPropertiesChanged()");
+FWAdapterRowHeaderTableManager::FWAdapterRowHeaderTableManager(FWTableManagerBase* iTable) : m_table(iTable) {
+  iTable->Connect("dataChanged()", "FWTableManagerBase", static_cast<FWTableManagerBase*>(this), "dataChanged()");
+  iTable->Connect("visualPropertiesChanged()",
+                  "FWTableManagerBase",
+                  static_cast<FWTableManagerBase*>(this),
+                  "visualPropertiesChanged()");
 }
 
 // FWAdapterRowHeaderTableManager::FWAdapterRowHeaderTableManager(const FWAdapterRowHeaderTableManager& rhs)
@@ -39,9 +39,7 @@ m_table(iTable)
 //    // do actual copying here;
 // }
 
-FWAdapterRowHeaderTableManager::~FWAdapterRowHeaderTableManager()
-{
-}
+FWAdapterRowHeaderTableManager::~FWAdapterRowHeaderTableManager() {}
 
 //
 // assignment operators
@@ -58,37 +56,24 @@ FWAdapterRowHeaderTableManager::~FWAdapterRowHeaderTableManager()
 //
 // member functions
 //
-void
-FWAdapterRowHeaderTableManager::implSort(int col, bool sortOrder) 
-{ 
-}
+void FWAdapterRowHeaderTableManager::implSort(int col, bool sortOrder) {}
 
 //
 // const member functions
 //
-int 
-FWAdapterRowHeaderTableManager::numberOfRows() const { return m_table->numberOfRows();}
+int FWAdapterRowHeaderTableManager::numberOfRows() const { return m_table->numberOfRows(); }
 
-int 
-FWAdapterRowHeaderTableManager::numberOfColumns() const { return 1;}
+int FWAdapterRowHeaderTableManager::numberOfColumns() const { return 1; }
 
-int 
-FWAdapterRowHeaderTableManager::unsortedRowNumber(int iRow) const
-{
-   return m_table->unsortedRowNumber(iRow);
+int FWAdapterRowHeaderTableManager::unsortedRowNumber(int iRow) const { return m_table->unsortedRowNumber(iRow); }
+
+std::vector<std::string> FWAdapterRowHeaderTableManager::getTitles() const {
+  std::vector<std::string> names(1, std::string("labels"));
+  return names;
 }
 
-
-std::vector<std::string> 
-FWAdapterRowHeaderTableManager::getTitles() const {
-   std::vector<std::string> names(1,std::string("labels"));
-   return names;
-}
-
-FWTableCellRendererBase* 
-FWAdapterRowHeaderTableManager::cellRenderer(int iRow, int /*iCol*/) const
-{
-   return m_table->rowHeader(iRow);
+FWTableCellRendererBase* FWAdapterRowHeaderTableManager::cellRenderer(int iRow, int /*iCol*/) const {
+  return m_table->rowHeader(iRow);
 }
 
 //

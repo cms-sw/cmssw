@@ -8,7 +8,6 @@
 //!  \author Remi Mommsen - Fermilab
 //---------------------------------------------------------------------------
 
-
 #include <bitset>
 #include <ostream>
 #include <cstdint>
@@ -17,33 +16,30 @@
 #include "DataFormats/TCDS/interface/BSTRecord.h"
 #include "DataFormats/TCDS/interface/L1aInfo.h"
 
-
-class TCDSRecord
-{
+class TCDSRecord {
 public:
-
   enum BGo {
-    LumiNibble        = 0,
-    BC0               = 1,
-    TestEnable        = 2,
-    PrivateGap        = 3,
-    PrivateOrbit      = 4,
-    Resync            = 5,
-    HardReset         = 6,
-    EC0               = 7,
-    OC0               = 8,
-    Start             = 9,
-    Stop              = 10,
-    StartOfGap        = 11,
+    LumiNibble = 0,
+    BC0 = 1,
+    TestEnable = 2,
+    PrivateGap = 3,
+    PrivateOrbit = 4,
+    Resync = 5,
+    HardReset = 6,
+    EC0 = 7,
+    OC0 = 8,
+    Start = 9,
+    Stop = 10,
+    StartOfGap = 11,
     WarningTestEnable = 13
   };
 
   enum BSTstatus {
-    Unknown           = 0x00000000,
-    Reset             = 0x0000dead,
-    Unlocked          = 0xfa11010c,
-    NoData            = 0xfa110acc,
-    Okay              = 0x0000bea0
+    Unknown = 0x00000000,
+    Reset = 0x0000dead,
+    Unlocked = 0xfa11010c,
+    NoData = 0xfa110acc,
+    Okay = 0x0000bea0
   };
 
   TCDSRecord();
@@ -103,6 +99,9 @@ public:
   // The BST message as received from the LHC
   const BSTRecord& getBST() const { return bst_; }
 
+  // Source FED ID
+  uint16_t getSourceID() const { return sourceid_; }
+
   // List of active paritions, currently not implemented
   typedef std::bitset<96> ActivePartitions;
   ActivePartitions getActivePartitions() const { return activePartitions_; }
@@ -133,9 +132,7 @@ public:
   // Orbit number of last Hard Reset
   uint32_t getLastHardReset() const { return lastBgos_.at(BGo::HardReset); }
 
-
 private:
-
   uint64_t orbitNr_;
   uint64_t triggerCount_;
   uint64_t eventNumber_;
@@ -152,6 +149,7 @@ private:
   uint16_t triggerTypeFlags_;
   uint16_t inputs_;
   uint16_t bxid_;
+  uint16_t sourceid_;
 
   ActivePartitions activePartitions_;
   L1aHistory l1aHistory_;
@@ -159,10 +157,9 @@ private:
   BSTRecord bst_;
 
   std::vector<uint32_t> lastBgos_;
-
 };
 
 /// Pretty-print operator for TCDSRecord
 std::ostream& operator<<(std::ostream&, const TCDSRecord&);
 
-#endif // DATAFORMATS_TCDS_TCDSRECORD_H
+#endif  // DATAFORMATS_TCDS_TCDSRECORD_H

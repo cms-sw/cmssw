@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="hgcalConsData.xml" eval="true">
+  <Vector name="LayerTypesEE" type="numeric" nEntries="1">
+        0 </Vector>
+  <Vector name="WaferIndexEE" type="numeric" nEntries="1">
+      262144 </Vector>
+  <Vector name="WaferPropertiesEE" type="numeric" nEntries="1">
+        1 </Vector>
+  <Vector name="WaferLayerStartEE" type="numeric" nEntries="1">
+        1 </Vector>
+</ConstantsSection>
+
+</DDDefinition>

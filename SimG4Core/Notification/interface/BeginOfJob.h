@@ -5,11 +5,11 @@ namespace edm {
   class EventSetup;
 }
 
-class BeginOfJob
-{
+class BeginOfJob {
 public:
   BeginOfJob(const edm::EventSetup* tJob) : anJob(tJob) {}
-  const edm::EventSetup * operator()() const { return anJob; }
+  const edm::EventSetup* operator()() const { return anJob; }
+
 private:
   const edm::EventSetup* anJob;
 };

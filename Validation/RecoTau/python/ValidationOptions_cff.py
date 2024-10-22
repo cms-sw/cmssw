@@ -1,10 +1,11 @@
+from __future__ import print_function
 import os
 import sys
 try:
    ReleaseBase = os.path.join(os.environ['CMSSW_BASE'], "src")
    ReleaseVersion = os.environ['CMSSW_VERSION']
 except KeyError:
-   print "CMSSW enviroment not set, please run cmsenv!"
+   print("CMSSW enviroment not set, please run cmsenv!")
    sys.exit()
 
 import FWCore.ParameterSet.Config as cms
@@ -56,13 +57,12 @@ options.register( 'dataSource',
                   "Specify where the data should come from. \n\t\tOptions: \
                         \n\t\t\trecoFiles:\t\t\tGet data from [sourceFile] (must have RECO)\
                         \n\t\t\trecoFiles+PFTau:\t\tGet reco data as above, and rerun PFTau with current tags \
-                        \n\t\t\trecoFiles+PFTau+CaloTau:\t\tRun CaloTau too \
                         \n\t\t\tdigiFiles:\t\t\tGet data from [sourceFile] (must have DIGI) and rerun RECO \
                         \n\t\t\tfastsim:\t\t\tRun FastSim \
                         \n\t\t\tfullsim:\t\t\tGen-Sim-Digi-Reco-Validate!\n"
                   )
 
-allowedOptions['dataSource'] = ['recoFiles', 'recoFiles+PFTau', 'recoFiles+PFTau+CaloTau', 'recoFiles+CaloTau', 'recoFiles+CaloTau+PFTau', 'fastsim', 'digiFiles', 'fullsim']
+allowedOptions['dataSource'] = ['recoFiles', 'recoFiles+PFTau', 'fastsim', 'digiFiles', 'fullsim']
 
 options.register( 'sourceFile',
                   'none',
@@ -149,13 +149,13 @@ allowedOptions['lxbatchQueue'] = ['8nm', '1nh', '8nh', '1nd', '1nw']
 
 def checkOptionsForBadInput():
    # Sanity check
-   for optionName, allowedValues in allowedOptions.iteritems():
+   for optionName, allowedValues in allowedOptions.items():
       if not getattr(options, optionName) in allowedValues:
-         print "Bad input to option: %s" % optionName
+         print("Bad input to option: %s" % optionName)
          sys.exit()
 
 def calledBycmsRun():
-   ''' Returns true of this python file is being called via cmsRun '''
+   ''' Returns true of this python3 file is being called via cmsRun '''
    if sys.argv[0].find('cmsRun') == -1:
       return False
    else:
@@ -171,10 +171,10 @@ def CMSSWEnvironmentIsCurrent():
 def returnOptionsString():
    ''' format the options to be passed on the command line.  Used when submitting batch jobs'''
    outputString = ""
-   for optionsName, optionValue in options.__dict__['_singletons'].iteritems():
+   for optionsName, optionValue in options.__dict__['_singletons'].items():
       outputString += " %s=%s" % (optionsName, optionValue)
 
-   for optionsName, optionValues in options.__dict__['_lists'].iteritems():
+   for optionsName, optionValues in options.__dict__['_lists'].items():
       for anOption in optionValues:
          outputString += " %s=%s" % (optionsName, anOption) 
    return outputString

@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="alpaka_rocm_async::PortableCollection<reco::ZVertexSoA>" persistent="false"/>
+  <class name="alpaka_rocm_async::ZVertexSoACollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::ZVertexSoACollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::ZVertexSoACollection>>" persistent="false"/>
+</lcgdict>

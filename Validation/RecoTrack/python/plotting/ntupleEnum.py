@@ -2,7 +2,7 @@
 class _Enum:
     def __init__(self, **values):
         self._reverse = {}
-        for key, value in values.iteritems():
+        for key, value in values.items():
             setattr(self, key, value)
             if value in self._reverse:
                 raise Exception("Value %s is already used for a key %s, tried to re-add it for key %s" % (value, self._reverse[value], key))
@@ -41,7 +41,8 @@ Algo = _Enum(
     standAloneMuon = 18, globalMuon = 19, cosmicStandAloneMuon = 20, cosmicGlobalMuon = 21,
     # Phase1
     highPtTripletStep = 22, lowPtQuadStep = 23, detachedQuadStep = 24,
-    reservedForUpgrades1 = 25, reservedForUpgrades2 = 26,
+    displacedGeneralStep = 25, 
+    displacedRegionalStep = 26,
     bTagGhostTracks = 27,
     beamhalo = 28,
     gsf = 29,
@@ -107,3 +108,4 @@ HitSimType = _Enum(
     Noise = 3,
     Unknown = 99
 )
+

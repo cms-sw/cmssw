@@ -3,15 +3,15 @@ set template=template.py
 set head=pi50
 
 #--- service variables
-set chunk = 2000
+set chunk = 1000
 set     j = 1
 set   one = 1
 
 
 set i=1
-while ( ${i} < 26)
+while ( ${i} < 51)
 
-if( ${i} < 26  ) then 
+if( ${i} < 51  ) then 
   echo "i :"  ${i}
    @ j =  ${i} - $one
    @ j =  $j * $chunk + $one

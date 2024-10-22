@@ -25,21 +25,18 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 //____________________________________________________________________________||
-namespace metsig
-{
+namespace metsig {
 
-  class SignPFSpecificAlgo
-  {
-    
+  class SignPFSpecificAlgo {
   public:
     SignPFSpecificAlgo();
-    ~SignPFSpecificAlgo() { }
+    ~SignPFSpecificAlgo() {}
 
-    void setResolutions( metsig::SignAlgoResolutions *resolutions);
-    void addPFJets(const edm::View<reco::PFJet>* PFJets);
+    void setResolutions(metsig::SignAlgoResolutions *resolutions);
+    void addPFJets(const edm::View<reco::PFJet> *PFJets);
     void addPFCandidate(reco::PFCandidatePtr pf);
-    void useOriginalPtrs(const edm::ProductID& productID);
-    reco::METCovMatrix getSignifMatrix() const {return algo_.getSignifMatrix();}
+    void useOriginalPtrs(const edm::ProductID &productID);
+    reco::METCovMatrix getSignifMatrix() const { return algo_.getSignifMatrix(); }
     reco::METCovMatrix mkSignifMatrix(edm::Handle<edm::View<reco::Candidate> > &PFCandidates);
 
   private:
@@ -48,7 +45,7 @@ namespace metsig
     metsig::significanceAlgo algo_;
   };
 
-}
+}  // namespace metsig
 
 //____________________________________________________________________________||
-#endif // METAlgorithms_SignPFSpecificAlgo_h
+#endif  // METAlgorithms_SignPFSpecificAlgo_h

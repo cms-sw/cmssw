@@ -19,124 +19,97 @@
 using namespace std;
 
 namespace {
-  vector < reco::TransientTrack > convert ( 
-      const vector < const reco::TransientTrack * > & ptrs )
-  {
-    vector < reco::TransientTrack > ret;
-    for ( vector< const reco::TransientTrack * >::const_iterator i=ptrs.begin(); 
-          i!=ptrs.end() ; ++i )
-    {
-      ret.push_back ( **i );
+  vector<reco::TransientTrack> convert(const vector<const reco::TransientTrack*>& ptrs) {
+    vector<reco::TransientTrack> ret;
+    for (vector<const reco::TransientTrack*>::const_iterator i = ptrs.begin(); i != ptrs.end(); ++i) {
+      ret.push_back(**i);
     }
     return ret;
   }
 
 #ifndef __clang__
-  inline GlobalPoint & operator += ( GlobalPoint & a, const GlobalPoint & b )
-  {
-    a = GlobalPoint ( a.x() + b.x(), a.y() + b.y(), a.z() + b.z() );
+  inline GlobalPoint& operator+=(GlobalPoint& a, const GlobalPoint& b) {
+    a = GlobalPoint(a.x() + b.x(), a.y() + b.y(), a.z() + b.z());
     return a;
   }
 #endif
 
-  inline GlobalPoint & operator /= ( GlobalPoint & a, float b )
-  {
-    a = GlobalPoint ( a.x() / b, a.y() / b, a.z() / b );
+  inline GlobalPoint& operator/=(GlobalPoint& a, float b) {
+    a = GlobalPoint(a.x() / b, a.y() / b, a.z() / b);
     return a;
   }
 
 #ifndef __clang__
-  inline bool element ( const reco::TransientTrack & rt, const TransientVertex & rv )
-  {
-    const vector < reco::TransientTrack > trks = rv.originalTracks();
-    for ( vector< reco::TransientTrack >::const_iterator i=trks.begin(); i!=trks.end() ; ++i )
-    {
-      if ( rt == ( *i ) ) return true;
+  inline bool element(const reco::TransientTrack& rt, const TransientVertex& rv) {
+    const vector<reco::TransientTrack> trks = rv.originalTracks();
+    for (vector<reco::TransientTrack>::const_iterator i = trks.begin(); i != trks.end(); ++i) {
+      if (rt == (*i))
+        return true;
     };
     return false;
   }
 #endif
 
-  GlobalPoint toPoint ( const GlobalVector & v )
-  {
-    return GlobalPoint ( v.x(), v.y(), v.z() );
-  }
+  GlobalPoint toPoint(const GlobalVector& v) { return GlobalPoint(v.x(), v.y(), v.z()); }
 
-  GlobalVector toVector ( const GlobalPoint & v )
-  {
-    return GlobalVector ( v.x(), v.y(), v.z() );
-  }
+  GlobalVector toVector(const GlobalPoint& v) { return GlobalVector(v.x(), v.y(), v.z()); }
 
-
-  GlobalPoint computeJetOrigin ( const vector < reco::TransientTrack > & trks )
-  {
+  GlobalPoint computeJetOrigin(const vector<reco::TransientTrack>& trks) {
     FsmwModeFinder3d f;
-    vector< ModeFinder3d::PointAndDistance> input;
-    for ( vector< reco::TransientTrack >::const_iterator i=trks.begin();
-          i!=trks.end() ; ++i )
-    {
-      input.push_back ( ModeFinder3d::PointAndDistance 
-                        ( i->impactPointState().globalPosition(), 1. )  );
+    vector<ModeFinder3d::PointAndDistance> input;
+    for (vector<reco::TransientTrack>::const_iterator i = trks.begin(); i != trks.end(); ++i) {
+      input.push_back(ModeFinder3d::PointAndDistance(i->impactPointState().globalPosition(), 1.));
     }
     return f(input);
   }
 
-  GlobalVector computeJetDirection ( const vector < reco::TransientTrack > & trks )
-  {
+  GlobalVector computeJetDirection(const vector<reco::TransientTrack>& trks) {
     FsmwModeFinder3d f;
-    vector< ModeFinder3d::PointAndDistance> input;
-    for ( vector< reco::TransientTrack >::const_iterator i=trks.begin();
-          i!=trks.end() ; ++i )
-    {
-      input.push_back ( ModeFinder3d::PointAndDistance ( 
-            toPoint ( i->impactPointState().globalMomentum() ), 1. )  );
+    vector<ModeFinder3d::PointAndDistance> input;
+    for (vector<reco::TransientTrack>::const_iterator i = trks.begin(); i != trks.end(); ++i) {
+      input.push_back(ModeFinder3d::PointAndDistance(toPoint(i->impactPointState().globalMomentum()), 1.));
     }
-    GlobalPoint pt ( f(input) );
-    pt/=pt.mag();
-    return toVector ( pt );
+    GlobalPoint pt(f(input));
+    pt /= pt.mag();
+    return toVector(pt);
   }
 
-  GlobalTrajectoryParameters computeJetTrajectory ( const vector < reco::TransientTrack > & trks )
-  {
+  GlobalTrajectoryParameters computeJetTrajectory(const vector<reco::TransientTrack>& trks) {
     /**
      *  construct a trajectory at the mean of
      *  the impact points of all tracks,
      *  momentum = total momentum of all tracks
      *
      */
-    if ( trks.empty() ) return GlobalTrajectoryParameters();
+    if (trks.empty())
+      return GlobalTrajectoryParameters();
 
-    GlobalVector mom = computeJetDirection ( trks );
-    GlobalPoint pos = computeJetOrigin ( trks );
+    GlobalVector mom = computeJetDirection(trks);
+    GlobalPoint pos = computeJetOrigin(trks);
 
-    GlobalTrajectoryParameters ret ( pos, mom, 0,
-        &(trks[0].impactPointState().globalParameters().magneticField()) );
-    #ifdef MVBS_DEBUG
-    DebuggingHarvester("out.txt").save ( ret , "p<sub>tot</sub>" );
-    #endif
+    GlobalTrajectoryParameters ret(pos, mom, 0, &(trks[0].impactPointState().globalParameters().magneticField()));
+#ifdef MVBS_DEBUG
+    DebuggingHarvester("out.txt").save(ret, "p<sub>tot</sub>");
+#endif
     return ret;
   }
 
-  vector < Cluster1D < reco::TransientTrack > > computeIPs (
-      const vector < reco::TransientTrack > & trks )
-  {
-    GlobalTrajectoryParameters jet = computeJetTrajectory ( trks );
-    FreeTrajectoryState axis ( jet );
+  vector<Cluster1D<reco::TransientTrack> > computeIPs(const vector<reco::TransientTrack>& trks) {
+    GlobalTrajectoryParameters jet = computeJetTrajectory(trks);
+    FreeTrajectoryState axis(jet);
     TwoTrackMinimumDistance ttmd;
-    vector < Cluster1D < reco::TransientTrack > > pts;
-    for ( vector< reco::TransientTrack >::const_iterator i=trks.begin(); 
-          i!=trks.end() ; ++i )
-    {
-      bool status = ttmd.calculate( axis,*( i->impactPointState().freeState() ) );
+    vector<Cluster1D<reco::TransientTrack> > pts;
+    for (vector<reco::TransientTrack>::const_iterator i = trks.begin(); i != trks.end(); ++i) {
+      bool status = ttmd.calculate(axis, *(i->impactPointState().freeState()));
       if (status) {
-        pair < GlobalPoint, GlobalPoint > pt = ttmd.points();
-        double d = ( pt.first - pt.second ).mag();
-        double w = 1. / ( 0.002 + d ); // hard coded weights
-        double s = ( pt.first - axis.position() ).mag();
-        Measurement1D ms ( s, 1.0 );
-        vector < const reco::TransientTrack * > trk;
-        trk.push_back ( &(*i) );
-        pts.push_back ( Cluster1D < reco::TransientTrack > ( ms, trk, w ) );
+        pair<GlobalPoint, GlobalPoint> pt = ttmd.points();
+        double d = (pt.first - pt.second).mag();
+        double w = 1. / (0.002 + d);  // hard coded weights
+        double s = (pt.first - axis.position()).mag();
+        Measurement1D ms(s, 1.0);
+        vector<const reco::TransientTrack*> trk;
+        trk.push_back(&(*i));
+        pts.push_back(Cluster1D<reco::TransientTrack>(ms, trk, w));
       }
     }
     /*
@@ -151,40 +124,39 @@ namespace {
   }
 
 #ifndef __clang__
-  inline GlobalPoint computePos ( const GlobalTrajectoryParameters & jet,
-      double s )
-  {
+  inline GlobalPoint computePos(const GlobalTrajectoryParameters& jet, double s) {
     GlobalPoint ret = jet.position();
     ret += s * jet.momentum();
     return ret;
   }
 #endif
 
-  TransientVertex pseudoVertexFit ( const Cluster1D < reco::TransientTrack > & src,
-      bool ascending=false, bool kalmanfit=false )
-  {
+  TransientVertex pseudoVertexFit(const Cluster1D<reco::TransientTrack>& src,
+                                  bool ascending = false,
+                                  bool kalmanfit = false) {
     // cout << "[MultiVertexBSeeder] debug: pseudoVertexFit with " << flush;
-    vector < const reco::TransientTrack * > trkptrs=src.tracks();
-    vector < reco::TransientTrack > trks = convert ( trkptrs );
+    vector<const reco::TransientTrack*> trkptrs = src.tracks();
+    vector<reco::TransientTrack> trks = convert(trkptrs);
     // cout << trks.size() << " tracks.";
     GlobalPoint gp;
     GlobalError ge;
-    if ( kalmanfit )
-    {
-        TransientVertex v = KalmanVertexFitter().vertex ( trks );
-        gp=v.position();
+    if (kalmanfit) {
+      TransientVertex v = KalmanVertexFitter().vertex(trks);
+      gp = v.position();
     }
-    TransientVertex ret = TransientVertex ( gp, ge, trks, -1. );
+    TransientVertex ret = TransientVertex(gp, ge, trks, -1.);
     TransientVertex::TransientTrackToFloatMap mp;
-    float w=1.0; float r=0.5;
-    if ( ascending ) { w = pow ( (float) 0.5, (int) (trks.size()-1) ); r=2.0; };
-    for ( vector< reco::TransientTrack >::const_iterator i=trks.begin(); 
-         i!=trks.end() ; ++i )
-    {
-      mp[*i]=w;
-      w*=r;
+    float w = 1.0;
+    float r = 0.5;
+    if (ascending) {
+      w = pow((float)0.5, (int)(trks.size() - 1));
+      r = 2.0;
+    };
+    for (vector<reco::TransientTrack>::const_iterator i = trks.begin(); i != trks.end(); ++i) {
+      mp[*i] = w;
+      w *= r;
     }
-    ret.weightMap ( mp );
+    ret.weightMap(mp);
     // cout << "[MultiVertexBSeeder] debug: return pseudoVertexFit with " << endl;
     return ret;
   }
@@ -197,52 +169,42 @@ namespace {
       return fitter.vertex ( trks );
     return TransientVertex();
   }*/
+}  // namespace
+
+MultiVertexBSeeder* MultiVertexBSeeder::clone() const { return new MultiVertexBSeeder(*this); }
+
+MultiVertexBSeeder::MultiVertexBSeeder(double nsigma) : theNSigma(nsigma) {}
+
+vector<TransientVertex> MultiVertexBSeeder::vertices(const vector<reco::TransientTrack>& trks,
+                                                     const reco::BeamSpot& s) const {
+  return vertices(trks);
 }
 
-MultiVertexBSeeder * MultiVertexBSeeder::clone() const
-{
-  return new MultiVertexBSeeder ( * this );
-}
-
-MultiVertexBSeeder::MultiVertexBSeeder ( double nsigma ) :
-  theNSigma ( nsigma ) {}
-
-vector < TransientVertex > MultiVertexBSeeder::vertices (
-    const vector < reco::TransientTrack > & trks,
-    const reco::BeamSpot & s) const
-{
-  return vertices ( trks );
-}
-
-vector < TransientVertex > MultiVertexBSeeder::vertices (
-    const vector < reco::TransientTrack > & trks ) const
-{
-  vector < Cluster1D < reco::TransientTrack > > ips = computeIPs ( trks );
+vector<TransientVertex> MultiVertexBSeeder::vertices(const vector<reco::TransientTrack>& trks) const {
+  vector<Cluster1D<reco::TransientTrack> > ips = computeIPs(trks);
   /*
   FsmwClusterizer1D < reco::TransientTrack > fsmw ( .4, theNSigma );
   MultiClusterizer1D<reco::TransientTrack> finder ( fsmw );
   */
   OutermostClusterizer1D<reco::TransientTrack> finder;
 
-  pair < vector < Cluster1D<reco::TransientTrack> >, 
-         vector < const reco::TransientTrack * > > res;
-  res = finder ( ips );
-  #ifdef MVBS_DEBUG
+  pair<vector<Cluster1D<reco::TransientTrack> >, vector<const reco::TransientTrack*> > res;
+  res = finder(ips);
+#ifdef MVBS_DEBUG
   // need to compute jet trajectory again :-(
-  GlobalTrajectoryParameters jet = computeJetTrajectory ( trks );
-  map < string, harvest::MultiType > attrs;
-  attrs["point:mag"]=0.75;
-  attrs["point:color"]="blue";
-  attrs["point:name"]="mode";
-  DebuggingHarvester("out.txt").save ( res.first, jet, attrs, "mode" );
-  #endif
+  GlobalTrajectoryParameters jet = computeJetTrajectory(trks);
+  map<string, harvest::MultiType> attrs;
+  attrs["point:mag"] = 0.75;
+  attrs["point:color"] = "blue";
+  attrs["point:name"] = "mode";
+  DebuggingHarvester("out.txt").save(res.first, jet, attrs, "mode");
+#endif
 
-  vector < TransientVertex > ret;
-  for ( vector< Cluster1D < reco::TransientTrack > >::const_iterator i=res.first.begin(); 
-        i!=res.first.end() ; ++i )
-  {
-    ret.push_back ( pseudoVertexFit ( *i, i!=res.first.begin(), 
-                    /* kalman fit*/ true ) );
+  vector<TransientVertex> ret;
+  for (vector<Cluster1D<reco::TransientTrack> >::const_iterator i = res.first.begin(); i != res.first.end(); ++i) {
+    ret.push_back(pseudoVertexFit(*i,
+                                  i != res.first.begin(),
+                                  /* kalman fit*/ true));
   }
   return ret;
 }

@@ -23,39 +23,32 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class BPHMuonEtaSelect: public BPHParticleEtaSelect {
-
- public:
-
+class BPHMuonEtaSelect : public BPHParticleEtaSelect {
+public:
   /** Constructor
    */
-  BPHMuonEtaSelect( double eta ): BPHParticleEtaSelect( eta ) {}
+  BPHMuonEtaSelect(double eta) : BPHParticleEtaSelect(eta) {}
+
+  // deleted copy constructor and assignment operator
+  BPHMuonEtaSelect(const BPHMuonEtaSelect& x) = delete;
+  BPHMuonEtaSelect& operator=(const BPHMuonEtaSelect& x) = delete;
 
   /** Destructor
    */
-  ~BPHMuonEtaSelect() override {}
+  ~BPHMuonEtaSelect() override = default;
 
   /** Operations
    */
   /// select muon
-  bool accept( const reco::Candidate& cand ) const override {
-    if ( dynamic_cast<const pat::Muon*>( &cand ) == nullptr ) return false;
-    return BPHParticleEtaSelect::accept( cand );
+  bool accept(const reco::Candidate& cand) const override {
+    if (dynamic_cast<const pat::Muon*>(&cand) == nullptr)
+      return false;
+    return BPHParticleEtaSelect::accept(cand);
   }
-
- private:
-
-  // private copy and assigment constructors
-  BPHMuonEtaSelect           ( const BPHMuonEtaSelect& x ) = delete;
-  BPHMuonEtaSelect& operator=( const BPHMuonEtaSelect& x ) = delete;
-
 };
 
-
 #endif
-

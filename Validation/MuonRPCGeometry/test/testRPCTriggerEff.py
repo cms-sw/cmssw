@@ -5,10 +5,12 @@ process = cms.Process("rpctest")
 
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
-#    log = cms.untracked.PSet( threshold = cms.untracked.string("DEBUG") ),
-#    debugModules = cms.untracked.vstring("rpcTriggerDigis"),
-    destinations = cms.untracked.vstring('cout')
-    #destinations = cms.untracked.vstring('cout/dev/null')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    )
 )
 
 # rpc geometry

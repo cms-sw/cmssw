@@ -396,7 +396,7 @@ runped(){
   cd ${MTCC_OUTPUT_DIR};
   echo "# ************************************************* CALCULATING THE PEDESTALS USING THE CFG FILE ${PED_CFG}"
   cat ${PED_CFG};
-  cmsRun  -p ${PED_CFG};
+  cmsRun ${PED_CFG};
   echo "pedestal jobstatus: $?";
   mv ${MTCC_OUTPUT_DIR}/Source_*${PED_RUNNR}.root  ${PED_CFG}_pedestal_histograms.root
 }
@@ -412,7 +412,7 @@ runcms(){
     echo ""
     echo "########################################################################"
     echo "###### RUNNING THE RECONSTRUCTION USING THE CFG FILE ${I_CFG}"
-    cmsRun  -p ${I_CFG}
+    cmsRun ${I_CFG}
     echo "reconstruction jobstatus: $?";
     mv ${MTCC_OUTPUT_DIR}/monitor_cluster_summary.txt  ${I_CFG}_cluster_summary.txt
     mv ${MTCC_OUTPUT_DIR}/monitor_digi_summary.txt  ${I_CFG}_digi_summary.txt

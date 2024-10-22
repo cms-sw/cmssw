@@ -9,19 +9,21 @@ from RecoMET.METProducers.caloMetM_cfi import *
 from RecoMET.Configuration.RecoMET_BeamHaloId_cff import *
 
 ##____________________________________________________________________________||
-metreco = cms.Sequence(
-        caloMet+
-        caloMetBE+
-        caloMetBEFO+
-        muonMETValueMapProducer+
-        caloMetM +
-        BeamHaloId
+metrecoTask = cms.Task(
+        caloMet,
+        caloMetBE,
+        caloMetBEFO,
+        muonMETValueMapProducer,
+        caloMetM,
+        BeamHaloIdTask
         )
+metreco = cms.Sequence(metrecoTask)
 
 ##____________________________________________________________________________||
-metrecoPlusHCALNoise = cms.Sequence( metreco + hcalnoise )
+metrecoPlusHCALNoiseTask = cms.Task( metrecoTask,  hcalnoise )
+metrecoPlusHCALNoise = cms.Sequence(metrecoPlusHCALNoiseTask)
 
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toReplaceWith( metrecoPlusHCALNoise, metreco )
+phase2_hcal.toReplaceWith( metrecoPlusHCALNoiseTask, metrecoTask )
 
 ##____________________________________________________________________________||

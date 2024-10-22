@@ -97,9 +97,7 @@ process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # No SimHits
-process.famosSimHits.SimulateCalorimetry = False
-process.famosSimHits.SimulateTracking = True
-process.famosSimHits.TrackerSimHits.pTmin = 0.2
+process.fastSimProducer.SimulateCalorimetry = False
 
 # Path to run what is needed
 process.p = cms.Path(
@@ -111,7 +109,8 @@ process.p = cms.Path(
 
 # Keep the logging output to a nice level #
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['test.txt']
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.test = dict(extension = 'txt')
 
 # Should be commented out in the analysis step
 process.o1 = cms.OutputModule(

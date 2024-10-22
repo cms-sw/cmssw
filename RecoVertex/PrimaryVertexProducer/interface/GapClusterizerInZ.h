@@ -10,30 +10,26 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-
-
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 class GapClusterizerInZ : public TrackClusterizerInZ {
-
-
 public:
   GapClusterizerInZ(const edm::ParameterSet& conf);
 
-  std::vector< std::vector<reco::TransientTrack> >
-    clusterize(const std::vector<reco::TransientTrack> & tracks)const override;
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
+
+  std::vector<std::vector<reco::TransientTrack> > clusterize(
+      const std::vector<reco::TransientTrack>& tracks) const override;
 
   float zSeparation() const;
 
-  std::vector< TransientVertex >
-    vertices(const std::vector<reco::TransientTrack> & tracks)const;
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack>& tracks) const override;
 
-  ~GapClusterizerInZ() override{};
-  
+  ~GapClusterizerInZ() override {}
+
 private:
   float zSep;
   bool verbose_;
-
 };
 
 #endif

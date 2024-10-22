@@ -25,7 +25,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -37,37 +36,32 @@ class L1MuGMTExtendedCand;
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1MuGMTSorter {
+public:
+  /// constructor
+  L1MuGMTSorter(const L1MuGlobalMuonTrigger&);
 
-  public:
+  /// destructor
+  virtual ~L1MuGMTSorter();
 
-    /// constructor
-    L1MuGMTSorter(const L1MuGlobalMuonTrigger&);
+  /// run Sorter
+  virtual void run();
 
-    /// destructor
-    virtual ~L1MuGMTSorter();
+  /// reset Sorter
+  virtual void reset();
 
-    /// run Sorter
-    virtual void run();
-    
-    /// reset Sorter
-    virtual void reset();
-    
-    /// print results after sorting
-    void print();
+  /// print results after sorting
+  void print();
 
-    /// return number of found muon candidates after sorter
-    inline int numberOfCands() const { return m_MuonCands.size(); }
-    
-    /// return std::vector with all muon candidates
-    inline const std::vector<const L1MuGMTExtendedCand*>& Cands() const { return m_MuonCands; }
+  /// return number of found muon candidates after sorter
+  inline int numberOfCands() const { return m_MuonCands.size(); }
 
-  private:
+  /// return std::vector with all muon candidates
+  inline const std::vector<const L1MuGMTExtendedCand*>& Cands() const { return m_MuonCands; }
 
-    const L1MuGlobalMuonTrigger&  m_gmt;
-    std::vector<const L1MuGMTExtendedCand*>    m_MuonCands;
-
+private:
+  const L1MuGlobalMuonTrigger& m_gmt;
+  std::vector<const L1MuGMTExtendedCand*> m_MuonCands;
 };
 
 #endif

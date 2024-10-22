@@ -5,7 +5,7 @@
  *  \authors: Vadim Khotilovich
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -28,101 +28,88 @@
 
 using namespace std;
 
-
-class GEMDigiReader: public edm::EDAnalyzer
-{
+class GEMDigiReader : public edm::one::EDAnalyzer<> {
 public:
-
   explicit GEMDigiReader(const edm::ParameterSet& pset);
-  
-  ~GEMDigiReader() override{}
-  
-  void analyze(const edm::Event &, const edm::EventSetup&) override; 
-  
-private:
 
-  edm::EDGetTokenT<edm::PSimHitContainer> simhitToken_;
-  edm::EDGetTokenT<GEMDigiCollection> gemDigiToken_;
-  edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > gemDigiSimLinkToken_;
+  ~GEMDigiReader() override {}
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  const edm::EDGetTokenT<edm::PSimHitContainer> simhitToken_;
+  const edm::EDGetTokenT<GEMDigiCollection> gemDigiToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > gemDigiSimLinkToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
 };
 
+GEMDigiReader::GEMDigiReader(const edm::ParameterSet& pset)
+    : simhitToken_(consumes<edm::PSimHitContainer>(pset.getParameter<edm::InputTag>("simhitToken"))),
+      gemDigiToken_(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigiToken"))),
+      gemDigiSimLinkToken_(
+          consumes<edm::DetSetVector<StripDigiSimLink> >(pset.getParameter<edm::InputTag>("gemDigiSimLinkToken"))),
+      geomToken_(esConsumes<GEMGeometry, MuonGeometryRecord>()) {}
 
-
-GEMDigiReader::GEMDigiReader(const edm::ParameterSet& pset) :
-  simhitToken_(consumes<edm::PSimHitContainer>(pset.getParameter<edm::InputTag>("simhitToken"))),
-  gemDigiToken_(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigiToken"))),
-  gemDigiSimLinkToken_(consumes<edm::DetSetVector<StripDigiSimLink> >(pset.getParameter<edm::InputTag>("gemDigiSimLinkToken")))
-{
-}
-
-
-void GEMDigiReader::analyze(const edm::Event & event, const edm::EventSetup& eventSetup)
-{
+void GEMDigiReader::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   LogDebug("GEMDigiReader") << "--- Run: " << event.id().run() << " Event: " << event.id().event() << endl;
 
-  edm::ESHandle<GEMGeometry> pDD;
-  eventSetup.get<MuonGeometryRecord>().get( pDD );
+  const auto& pDD = eventSetup.getHandle(geomToken_);
 
-  edm::Handle<edm::PSimHitContainer> simHits; 
-  event.getByToken(simhitToken_, simHits);    
+  const auto& simHits = event.getHandle(simhitToken_);
 
-  edm::Handle<GEMDigiCollection> digis;
-  event.getByToken(gemDigiToken_, digis);
-   
-  edm::Handle< edm::DetSetVector<StripDigiSimLink> > thelinkDigis;
-  event.getByToken(gemDigiSimLinkToken_, thelinkDigis);
+  const auto& digis = event.getHandle(gemDigiToken_);
+
+  const auto& thelinkDigis = event.getHandle(gemDigiSimLinkToken_);
 
   GEMDigiCollection::DigiRangeIterator detUnitIt;
-  for (detUnitIt = digis->begin();	detUnitIt != digis->end(); ++detUnitIt)
-  {
+  for (detUnitIt = digis->begin(); detUnitIt != digis->end(); ++detUnitIt) {
     const GEMDetId& id = (*detUnitIt).first;
     const GEMEtaPartition* roll = pDD->etaPartition(id);
 
     //     if(id.rawId() != 637567293) continue;
 
     // GEMDetId print-out
-    LogDebug("GEMDigiReader")<<"--------------"<<endl;
-    LogDebug("GEMDigiReader")<<"id: "<<id.rawId()<<" number of strips "<<roll->nstrips()<<endl;
+    LogDebug("GEMDigiReader") << "--------------" << endl;
+    LogDebug("GEMDigiReader") << "id: " << id.rawId() << " number of strips " << roll->nstrips() << endl;
 
     // Loop over the digis of this DetUnit
     const GEMDigiCollection::Range& range = (*detUnitIt).second;
-    for (GEMDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt)
-    {
-      LogDebug("GEMDigiReader")<<" digi "<<*digiIt<<endl;
-      if (digiIt->strip() < 1 || digiIt->strip() > roll->nstrips() )
-      {
-        LogDebug("GEMDigiReader") <<" XXXXXXXXXXXXX Problemt with "<<id<<"  a digi has strip# = "<<digiIt->strip()<<endl;
-      } 
-      for(const auto& simHit: *simHits)
-      {
+    for (GEMDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
+      LogDebug("GEMDigiReader") << " digi " << *digiIt << endl;
+      if (digiIt->strip() < 1 || digiIt->strip() > roll->nstrips()) {
+        LogDebug("GEMDigiReader") << " XXXXXXXXXXXXX Problemt with " << id
+                                  << "  a digi has strip# = " << digiIt->strip() << endl;
+      }
+      for (const auto& simHit : *simHits) {
         GEMDetId rpcId(simHit.detUnitId());
-        if (rpcId == id && abs(simHit.particleType()) == 13)
-        {
-          LogDebug("GEMDigiReader")<<"entry: "<< simHit.entryPoint()<<endl
-				   <<"exit: "<< simHit.exitPoint()<<endl
-				   <<"TOF: "<< simHit.timeOfFlight()<<endl;
+        if (rpcId == id && abs(simHit.particleType()) == 13) {
+          LogDebug("GEMDigiReader") << "entry: " << simHit.entryPoint() << endl
+                                    << "exit: " << simHit.exitPoint() << endl
+                                    << "TOF: " << simHit.timeOfFlight() << endl;
         }
       }
-    }// for digis in layer
-  }// for layers
+    }  // for digis in layer
+  }  // for layers
 
-  for (edm::DetSetVector<StripDigiSimLink>::const_iterator itlink = thelinkDigis->begin(); itlink != thelinkDigis->end(); itlink++)
-  {
-    for(edm::DetSet<StripDigiSimLink>::const_iterator link_iter=itlink->data.begin();link_iter != itlink->data.end();++link_iter)
-    {
+  for (edm::DetSetVector<StripDigiSimLink>::const_iterator itlink = thelinkDigis->begin();
+       itlink != thelinkDigis->end();
+       itlink++) {
+    for (edm::DetSet<StripDigiSimLink>::const_iterator link_iter = itlink->data.begin();
+         link_iter != itlink->data.end();
+         ++link_iter) {
       int detid = itlink->detId();
       int ev = link_iter->eventId().event();
-      float frac =  link_iter->fraction();
+      float frac = link_iter->fraction();
       int strip = link_iter->channel();
       int trkid = link_iter->SimTrackId();
       int bx = link_iter->eventId().bunchCrossing();
-      LogDebug("GEMDigiReader")<<"DetUnit: "<<GEMDetId(detid)<<"  Event ID: "<<ev<<"  trkId: "<<trkid<<"  Strip: "<<strip<<"  Bx: "<<bx<<"  frac: "<<frac<<endl;
+      LogDebug("GEMDigiReader") << "DetUnit: " << GEMDetId(detid) << "  Event ID: " << ev << "  trkId: " << trkid
+                                << "  Strip: " << strip << "  Bx: " << bx << "  frac: " << frac << endl;
     }
   }
 
-  LogDebug("GEMDigiReader")<<"--------------"<<endl;
+  LogDebug("GEMDigiReader") << "--------------" << endl;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GEMDigiReader);
-

@@ -14,18 +14,24 @@
  */
 
 /* Base Class Headers */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 /* Collaborating Class Declarations */
 #include "DataFormats/Common/interface/Handle.h"
 class TFile;
 class TH1F;
 class TH2F;
+
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecClusterCollection.h"
 
 /* C++ Headers */
 #include <iosfwd>
@@ -34,34 +40,37 @@ class TH2F;
 
 /* Class DTClusAnalyzer Interface */
 
-class DTClusAnalyzer : public edm::EDAnalyzer {
+class DTClusAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  /* Constructor */
+  DTClusAnalyzer(const edm::ParameterSet& pset);
 
-  public:
+  /* Destructor */
+  ~DTClusAnalyzer();
 
-/* Constructor */ 
-    DTClusAnalyzer(const edm::ParameterSet& pset) ;
+  /* Operations */
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
-/* Destructor */ 
-    ~DTClusAnalyzer() ;
+private:
+  TH1F* histo(const std::string& name) const;
+  TH2F* histo2d(const std::string& name) const;
 
-/* Operations */ 
-    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+private:
+  bool debug;
+  int _ev;
+  std::string theRootFileName;
+  TFile* theFile;
 
-  private:
-    TH1F* histo(const std::string& name) const;
-    TH2F* histo2d(const std::string& name) const;
+  std::string theRecClusLabel;
+  std::string theRecHits2DLabel;
+  std::string theRecHits1DLabel;
 
-  private:
-    bool debug;
-    int _ev;
-    std::string theRootFileName;
-    TFile* theFile;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDtGeomToken;
 
-    std::string theRecClusLabel;     
-    std::string theRecHits2DLabel;     
-    std::string theRecHits1DLabel;     
-  protected:
+  edm::EDGetTokenT<DTRecClusterCollection> theRecClusToken;
+  edm::EDGetTokenT<DTRecHitCollection> theRecHits1DToken;
+  edm::EDGetTokenT<DTRecSegment2DCollection> theRecHits2DToken;
 
+protected:
 };
-#endif // DTCLUSANALYZER_H
-
+#endif  // DTCLUSANALYZER_H

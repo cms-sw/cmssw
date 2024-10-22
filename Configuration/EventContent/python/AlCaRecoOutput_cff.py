@@ -9,6 +9,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMuHI_Output_cff import *
 # AlCaReco for track based alignment using ZMuMu events for PA data-taking
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMuPA_Output_cff import *
+# AlCaReco for track based alignment using ZMuMu + Vertices events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlDiMuonAndVertex_Output_cff import *
 # AlCaReco for track based alignment using Cosmic muon events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsInCollisions_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics_Output_cff import *
@@ -37,13 +39,26 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMuPA_Output_cff impo
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_Output_cff import *
 # AlCaReco for track based alignment using MinBias events for PbPb data-taking
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_Output_cff import *
+# AlCaReco for track based alignment using JetHT events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlJetHT_Output_cff import *
+# AlCaReco for track based alignment using V0s
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlV0s_Output_cff import *
 
 # AlCaReco for pixel calibration using muons
-from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelLorentzAngle_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuon_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuonLoose_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuonTight_Output_cff import *
 # AlCaReco for tracker calibration using MinBias events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasAAG_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalSmallBiasScan_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_Output_cff import *
+# AlCaReco for SiPixel Bad Component using ZeroBias events
+from CalibTracker.SiPixelQuality.ALCARECOSiPixelCalZeroBias_Output_cff import *
+# AlCaReco for tracker calibration using Cosmics events
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmics_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmicsNano_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalCosmics_Output_cff import *
 
 # AlCaReco for tracker based alignment using beam halo
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlBeamHalo_Output_cff import *
@@ -65,6 +80,8 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalRecalIsolElectron_Output_cff 
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_Output_cff import *
 # ECAL calibration with eta hlt path
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalEtaCalib_Output_cff import *
+# ECAL calibration using the AlCaPhiSym stream (with NanoAOD output)
+from Calibration.EcalCalibAlgos.ALCARECOEcalPhiSym_Output_cff import *
 # ECAL ES alignment
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalESAlign_Output_cff import *
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalTrg_Output_cff import *
@@ -80,7 +97,9 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_Output_cff import
 # HCAL calibration with isolated tracks
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilter_Output_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilterNoHLT_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkNoHLT_Output_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkProducerFilter_Output_cff import *
 # HCAL calibration with iterative phi sym
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIterativePhiSym_Output_cff import *
 # HCAL calibration with min.bias
@@ -93,10 +112,15 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_Output_cff import *
 # HCAL calibration with isolated bunch
-from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsolatedBunchFilter_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsolatedBunchSelector_Output_cff import *
 # HCAL calibration with muons (HB/HE)
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHBHEMuonFilter_Output_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHBHEMuonProducerFilter_Output_cff import *
+# HCAL calibration with muons from low PU (HB/HE)
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalLowPUHBHEMuonFilter_Output_cff import *
+# HCAL calibration with muons (HE)
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHEMuonFilter_Output_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHEMuonProducerFilter_Output_cff import *
 ###############################################################
 # Muon Alignment (incl. stream for calibration)
 ###############################################################
@@ -125,28 +149,48 @@ from CalibMuon.DTCalibration.ALCARECODtCalibHI_Output_cff import *
 from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_Output_cff import *
 
 ###############################################################
+# PPS calibration
+###############################################################
+from CalibPPS.TimingCalibration.ALCARECOPPSCalTrackBasedSel_Output_cff import *
+from CalibPPS.TimingCalibration.ALCARECOPromptCalibProdPPSTimingCalib_Output_cff import *
+from CalibPPS.TimingCalibration.ALCARECOPromptCalibProdPPSDiamondSampicTimingCalib_Output_cff import *
+from CalibPPS.AlignmentGlobal.ALCARECOPromptCalibProdPPSAlignment_Output_cff import *
+
+###############################################################
 # stream for prompt-calibration @ Tier0
 ###############################################################
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProd_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdBeamSpotHP_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdBeamSpotHPLowPU_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStrip_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGains_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGainsAAG_Output_cff import *
-
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripHitEfficiency_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripLorentzAngle_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiPixelLorentzAngle_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiPixelLorentzAngleMCS_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_Output_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAliHG_Output_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAliHGCombined_Output_cff import *
+
+from CalibTracker.SiPixelQuality.ALCARECOPromptCalibProdSiPixel_Output_cff import *
 
 from Calibration.EcalCalibAlgos.ALCARECOPromptCalibProdEcalPedestals_Output_cff import *
-
+from Calibration.LumiAlCaRecoProducers.ALCARECOPromptCalibProdLumiPCC_Output_cff import *
 # Pixel Cluster Counting ALCARECOs
 # in AlCaLumiPixels stream
 from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixels_Output_cff import *
 from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCZeroBias_Output_cff import *
 from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCRandom_Output_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECORawPCCProducer_Output_cff import *
 
 # on top of prompt RECO
 from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import *
 from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCZeroBiasFromRECO_Output_cff import *
 from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCRandomFromRECO_Output_cff import *
+
+from Calibration.PPSAlCaRecoProducer.ALCARECOPPSCalMaxTracks_Output_cff import *
 
 ###############################################################
 # hotline skim workflows
@@ -159,7 +203,5 @@ ALCARECOEventContent = cms.PSet(
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
-
-
 
 ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')

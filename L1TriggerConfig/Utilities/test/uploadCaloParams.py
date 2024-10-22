@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("tester")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cout.enable = cms.untracked.bool(True)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
@@ -23,7 +23,6 @@ process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
 
 from CondCore.CondDB.CondDB_cfi import CondDB
 CondDB.connect = cms.string('sqlite:l1config.db')
-#CondDB.connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS')
 
 outputDB = cms.Service("PoolDBOutputService",
                        CondDB,

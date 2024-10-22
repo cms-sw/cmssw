@@ -15,13 +15,10 @@
 
 // class definition
 class PixelPopConFEDCablingSourceHandler : public PixelPopConSourceHandler<SiPixelFedCablingMap> {
+public:
+  PixelPopConFEDCablingSourceHandler(edm::ParameterSet const &) { ; }
 
- public:
-  PixelPopConFEDCablingSourceHandler(edm::ParameterSet const &) {;}
-
- private:
-
+private:
 };
-
 
 #endif

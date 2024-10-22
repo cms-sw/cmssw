@@ -22,53 +22,49 @@
 class DTSuperLayer;
 class DTChamber;
 
-
 class DTLayer : public GeomDetUnit {
+public:
+  /* Constructor */
+  DTLayer(const DTLayerId& id,
+          ReferenceCountingPointer<BoundPlane>& plane,
+          const DTTopology& topo,
+          const DTLayerType& type,
+          const DTSuperLayer* sl = nullptr);
 
-  public:
+  /* Destructor */
+  ~DTLayer() override;
 
-/* Constructor */ 
-    DTLayer(const DTLayerId& id,
-            ReferenceCountingPointer<BoundPlane>& plane,
-            const DTTopology& topo,
-            const DTLayerType& type,
-            const DTSuperLayer* sl=nullptr) ;
+  /* Operations */
+  const Topology& topology() const override;
 
-/* Destructor */ 
-    ~DTLayer() override ;
+  const GeomDetType& type() const override;
 
-/* Operations */ 
-    const Topology& topology() const override;
+  const DTTopology& specificTopology() const;
 
-    const GeomDetType& type() const override;
+  /// Return the DetId of this SL
+  DTLayerId id() const;
 
-    const DTTopology& specificTopology() const;
+  /// Return the Superlayer this Layer belongs to (0 if any, eg if a
+  /// layer is built on his own)
+  const DTSuperLayer* superLayer() const;
 
-    /// Return the DetId of this SL
-    DTLayerId id() const;
+  /// Return the chamber this Layer belongs to (0 if none, eg if a layer is
+  /// built on his own)
+  const DTChamber* chamber() const;
 
-    /// Return the Superlayer this Layer belongs to (0 if any, eg if a
-    /// layer is built on his own)
-    const DTSuperLayer* superLayer() const ;
+  /// True if the id are the same
+  bool operator==(const DTLayer& l) const;
 
-    /// Return the chamber this Layer belongs to (0 if none, eg if a layer is
-    /// built on his own)
-    const DTChamber* chamber() const;
+  /// A Layer has no components
+  std::vector<const GeomDet*> components() const override;
 
-    /// True if the id are the same
-    bool operator==(const DTLayer& l) const;
+private:
+  DTLayerId theId;
+  DTTopology theTopo;
+  DTLayerType theType;
 
-    /// A Layer has no components
-    std::vector< const GeomDet*> components() const override;
+  const DTSuperLayer* theSL;
 
-  private:
-    DTLayerId   theId;
-    DTTopology  theTopo;
-    DTLayerType theType;
-
-    const DTSuperLayer*   theSL;
-  protected:
-
+protected:
 };
-#endif // DTLAYER_H
-
+#endif  // DTLAYER_H

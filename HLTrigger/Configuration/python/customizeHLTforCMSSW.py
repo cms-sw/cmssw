@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# helper fuctions
+# helper functions
 from HLTrigger.Configuration.common import *
 
 # add one customisation function per PR
@@ -17,82 +17,44 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-def customiseFor21821(process):
-    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-        producer.algorithm.ts4Max = cms.vdouble(100., 20000., 30000)
-        del producer.algorithm.pedestalUpperLimit
-        del producer.algorithm.pedSigmaHPD
-        del producer.algorithm.pedSigmaSiPM
-        del producer.algorithm.noiseHPD
-        del producer.algorithm.noiseSiPM
 
-    for producer in producers_by_type(process, "HcalHitReconstructor"):
-        if hasattr(producer,"puCorrMethod"):
-            del producer.puCorrMethod
 
-    return process
+def customiseForOffline(process):
+    # For running HLT offline on Run-3 Data, use "(OnlineBeamSpotESProducer).timeThreshold = 1e6",
+    # in order to pick the beamspot that was actually used by the HLT (instead of a "fake" beamspot).
+    # These same settings can be used offline for Run-3 Data and Run-3 MC alike.
+    # Note: the products of the OnlineBeamSpotESProducer are used only
+    #       if the configuration uses "(BeamSpotOnlineProducer).useTransientRecord = True".
+    # See CMSHLT-2271 and CMSHLT-2300 for further details.
+    for prod in esproducers_by_type(process, 'OnlineBeamSpotESProducer'):
+        prod.timeThreshold = int(1e6)
 
-def customiseFor22001(process):
-    for producer in producers_by_type(process, "CaloTowersCreator"):
-        if hasattr(producer,'HcalCollapsed'):
-            del producer.HcalCollapsed
-    if hasattr(process,'HcalTopologyIdealEP'):
-        # should only be true for "collapsed" cases (2017, 2018)
-        process.HcalTopologyIdealEP.MergePosition = cms.untracked.bool(True)
-    return process
+    # For running HLT offline and relieve the strain on Frontier so it will no longer inject a
+    # transaction id which tells Frontier to add a unique "&freshkey" to many query URLs.
+    # That was intended as a feature to only be used by the Online HLT, to guarantee that fresh conditions
+    # from the database were loaded at each Lumi section
+    # Seee CMSHLT-3123 for further details
+    if hasattr(process, 'GlobalTag'):
+        # Set ReconnectEachRun and RefreshEachRun to False
+        process.GlobalTag.ReconnectEachRun = cms.untracked.bool(False)
+        process.GlobalTag.RefreshEachRun = cms.untracked.bool(False)
 
-def customiseFor21664_forMahiOn(process):
-    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-        producer.algorithm.useMahi   = cms.bool(True)
-        producer.algorithm.useM2     = cms.bool(False)
-        producer.algorithm.useM3     = cms.bool(False)
-    return process
-
-def customiseFor21664_forMahiOnM2only(process):
-    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-      if (producer.algorithm.useM2 == cms.bool(True)):
-        producer.algorithm.useMahi   = cms.bool(True)
-        producer.algorithm.useM2     = cms.bool(False)
-        producer.algorithm.useM3     = cms.bool(False)
-    return process
-
-def customiseFor2017DtUnpacking(process):
-    """Adapt the HLT to run the legacy DT unpacking
-    for pre2018 data/MC workflows as the default"""
-
-    if hasattr(process,'hltMuonDTDigis'):
-        process.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
-            useStandardFEDid = cms.bool( True ),
-            maxFEDid = cms.untracked.int32( 779 ),
-            inputLabel = cms.InputTag( "rawDataCollector" ),
-            minFEDid = cms.untracked.int32( 770 ),
-            dataType = cms.string( "DDU" ),
-            readOutParameters = cms.PSet(
-                localDAQ = cms.untracked.bool( False ),
-                debug = cms.untracked.bool( False ),
-                rosParameters = cms.PSet(
-                    localDAQ = cms.untracked.bool( False ),
-                    debug = cms.untracked.bool( False ),
-                    writeSC = cms.untracked.bool( True ),
-                    readDDUIDfromDDU = cms.untracked.bool( True ),
-                    readingDDU = cms.untracked.bool( True ),
-                    performDataIntegrityMonitor = cms.untracked.bool( False )
-                    ),
-                performDataIntegrityMonitor = cms.untracked.bool( False )
-                ),
-            dqmOnly = cms.bool( False )
-        )
+        if hasattr(process.GlobalTag, 'toGet'):
+            # Filter out PSet objects containing only 'record' and 'refreshTime'
+            process.GlobalTag.toGet = [
+                pset for pset in process.GlobalTag.toGet
+                if set(pset.parameterNames_()) != {'record', 'refreshTime'}
+            ]
 
     return process
+
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
+    process = customiseForOffline(process)
+
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    process = customiseFor21821(process)
-
-    process = customiseFor22001(process)
-        
     return process

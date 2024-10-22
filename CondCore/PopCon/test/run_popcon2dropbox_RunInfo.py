@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 '''Script that directs the popcon output to the dropbox
 '''
+from __future__ import print_function
 
 __author__ = 'Giacomo Govi'
 
@@ -16,7 +17,7 @@ log_file = 'popcon.log'
 dbox_backend = 'offline' 
 
 def main():
-    print popcon2dropbox.runO2O( cmssw_dir, release_dir, release, scram_arch, job_file, log_file, *sys.argv[1:] )
+    print(popcon2dropbox.runO2O( cmssw_dir, release_dir, release, scram_arch, job_file, log_file, *sys.argv[1:] ))
     popcon2dropbox.upload_to_dropbox( dbox_backend )
 if __name__ == '__main__':
     sys.exit(main())

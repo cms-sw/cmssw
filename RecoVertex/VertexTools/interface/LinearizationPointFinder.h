@@ -9,8 +9,7 @@ class FreeTrajectoryState;
 /**  Generic class to make an Initial Linearization point
  */
 
-class LinearizationPointFinder{
-
+class LinearizationPointFinder {
 public:
   virtual ~LinearizationPointFinder() {}
 
@@ -18,16 +17,14 @@ public:
    *  as an object of type GlobalPoint
    */
 
-  virtual GlobalPoint getLinearizationPoint(const std::vector<reco::TransientTrack> &)
-    const=0;
+  virtual GlobalPoint getLinearizationPoint(const std::vector<reco::TransientTrack> &) const = 0;
 
   virtual GlobalPoint getLinearizationPoint(const std::vector<FreeTrajectoryState> &) const;
 
   /**
    *  Clone method
    */
-   virtual LinearizationPointFinder * clone() const=0;
-
+  virtual LinearizationPointFinder *clone() const = 0;
 };
 
 #endif

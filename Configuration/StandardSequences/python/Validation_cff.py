@@ -30,18 +30,25 @@ from Validation.EventGenerator.BasicGenValidation_cff import *
 from Validation.RecoParticleFlow.miniAODValidation_cff import *
 from Validation.RecoEgamma.photonMiniAODValidationSequence_cff import *
 from Validation.RecoEgamma.egammaValidationMiniAOD_cff import *
+from Validation.RecoTau.RecoTauValidation_cff import *
+from DQMOffline.RecoB.bTagMiniDQM_cff import *
 
 prevalidationNoHLT = cms.Sequence( cms.SequencePlaceholder("mix") * globalPrevalidation * metPreValidSeq * jetPreValidSeq )
 prevalidation = cms.Sequence( cms.SequencePlaceholder("mix") * globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
 prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
-prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * photonMiniAODValidationSequence * egammaValidationMiniAOD)
+prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence 
+                                    * photonMiniAODValidationSequence * egammaValidationMiniAOD
+                                    * produceDenoms)
 
 _prevalidation_fastsim = prevalidation.copy()
 for _entry in [hltassociation]:
     _prevalidation_fastsim.remove(_entry)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(prevalidation,_prevalidation_fastsim)
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(prevalidation, prevalidation.copyAndExclude([cms.SequencePlaceholder("mix"),globalPrevalidation,metPreValidSeq,jetPreValidSeq]))
 
 validationNoHLT = cms.Sequence(
                                genvalid_all
@@ -53,6 +60,20 @@ validationNoHLT.remove(condDataValidation) # foca d'ovatta !
 validation = cms.Sequence(validationNoHLT
                          *hltvalidation)
 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(validation, validation.copyAndExclude([validationNoHLT]))
+
+validationNoHLTHiMix = cms.Sequence(
+                               genvalid_all_hiMix
+                               *globaldigisanalyze
+                               *globalhitsanalyze
+                               *globalrechitsanalyze
+                               *globalValidation)
+validationNoHLTHiMix.remove(condDataValidation) # foca d'ovatta !
+validationHiMix = cms.Sequence(validationNoHLTHiMix
+                               *hltvalidation)
+
+
 _validation_fastsim = validation.copy()
 for _entry in [globaldigisanalyze,globalhitsanalyze,globalrechitsanalyze,hltvalidation]:
     _validation_fastsim.remove(_entry)
@@ -63,7 +84,7 @@ validationLiteTracking = cms.Sequence( validation )
 validationLiteTracking.replace(globalValidation,globalValidationLiteTracking)
 validationLiteTracking.remove(condDataValidation)
 
-validationMiniAOD = cms.Sequence(type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD * JetValidationMiniAOD * METValidationMiniAOD)
+validationMiniAOD = cms.Sequence(type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD * JetValidationMiniAOD * METValidationMiniAOD * tauValidationSequenceMiniAOD * bTagMiniValidationSource)
 
 prevalidation_preprod = cms.Sequence( preprodPrevalidation )
 

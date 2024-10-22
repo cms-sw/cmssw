@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+import CommonTools.ParticleFlow.tppfTausOnPFJetsDeltaR_cfi as _mod
 
-pfNoTau = cms.EDProducer(
-    "TPPFTausOnPFJetsDeltaR",
-    enable =  cms.bool( True ),
-    verbose = cms.untracked.bool( False ),
-    deltaR = cms.double( 0.5 ),
-    name = cms.untracked.string("noTau"),
-    topCollection = cms.InputTag("pfTausPtrs"),
-    bottomCollection = cms.InputTag("pfJetsPtrs"),
+pfNoTau = _mod.tppfTausOnPFJetsDeltaR.clone(
+    enable = True,
+    deltaR = 0.5,
+    name = "noTau",
+    topCollection = "pfTausPtrs",
+    bottomCollection = "pfJetsPtrs",
 )

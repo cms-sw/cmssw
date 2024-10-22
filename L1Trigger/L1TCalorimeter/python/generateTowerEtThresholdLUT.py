@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import math
@@ -26,8 +27,8 @@ if not os.path.isdir(os.environ['LOCALRT'] + "/src/L1Trigger/L1TCalorimeter/data
           "Remember to do 'git add " + os.environ['LOCALRT'] + "L1Trigger/L1TCalorimeter/data' when committing the new LUT!")
     os.makedirs(os.environ['LOCALRT'] + "/src/L1Trigger/L1TCalorimeter/data")
 
-print "Creating tower Et threshold LUT with filename " + os.environ['LOCALRT'] + "/src/L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v6.txt'"
-towEtThreshLUTFile = open(os.environ['LOCALRT']+"/src/L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v6.txt", "w")
+print("Creating tower Et threshold LUT with filename " + os.environ['LOCALRT'] + "/src/L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v7.txt'")
+towEtThreshLUTFile = open(os.environ['LOCALRT']+"/src/L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v7.txt", "w")
 
 
 # write header info
@@ -58,10 +59,10 @@ printBins = ""
 
 for compNTT4 in compNTT4Range:
     for ieta in etaRange:
-        if compNTT4 < 16:
-            towEtThresh = int(round(pow(float(towerAreas[ieta]),1.4)*(1/(1+math.exp(-0.07*(ieta))))*(pow(float(compNTT4),2)/100)))
-        else:
-            towEtThresh = int(round(pow(float(towerAreas[ieta]),1.4)*(1/(1+math.exp(-0.07*(ieta))))*(pow(float(16),2)/100)))
+        #if compNTT4 < 16:
+        towEtThresh = int(round(pow(float(towerAreas[ieta]),1.4)*(1/(1+math.exp(-0.07*(ieta))))*(pow(float(compNTT4),2)/100)))
+        #else:
+        #    towEtThresh = int(round(pow(float(towerAreas[ieta]),1.4)*(1/(1+math.exp(-0.07*(ieta))))*(pow(float(16),2)/100)))
         if ieta > 28:
             towEtThresh -= 2
         if towEtThresh > 12:
@@ -97,6 +98,6 @@ if addr < 2047:
         towEtThreshLUTFile.write(str(addr) + " " + str(0) + " # dummy\n")
         addr+=1
 
-print "Done. Closing file..."
+print("Done. Closing file...")
 
 towEtThreshLUTFile.close()

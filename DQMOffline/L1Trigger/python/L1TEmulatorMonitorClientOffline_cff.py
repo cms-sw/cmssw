@@ -27,4 +27,7 @@ l1temuEventInfoClient.runInEndLumi = False
 l1temuEventInfoClient.runInEndRun = True
 l1temuEventInfoClient.runInEndJob = False
     
+# stage 2
+from DQM.L1TMonitorClient.L1TStage2EmulatorMonitorClient_cff import *
+l1tStage2EmulatorMonitorClientOffline = cms.Sequence(l1tStage2EmulatorMonitorClient)
 

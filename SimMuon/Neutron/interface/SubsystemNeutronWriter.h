@@ -11,7 +11,7 @@
  * signal event to define something as a Neutron Event
  * with the configurable Muon:NeutronTimeCut
  */
- 
+
 #include <vector>
 #include <map>
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -25,10 +25,8 @@ namespace CLHEP {
 class NeutronWriter;
 
 /// doesn't have to be a producer.  Can act as an analyzer, too.
-class SubsystemNeutronWriter : public edm::stream::EDProducer<>
-{
+class SubsystemNeutronWriter : public edm::stream::EDProducer<> {
 public:
-
   explicit SubsystemNeutronWriter(edm::ParameterSet const& pset);
 
   /// destructor prints statistics on number of events written
@@ -36,7 +34,7 @@ public:
 
   void printStats();
 
-  void produce(edm::Event & e, edm::EventSetup const& c) override;
+  void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   virtual int localDetId(int globalDetId) const = 0;
 
@@ -45,30 +43,30 @@ public:
   virtual int chamberId(int globalDetId) const = 0;
 
   /// decides whether this cluster is good enough to be included
-  virtual bool accept(const edm::PSimHitContainer & cluster) const = 0;
+  virtual bool accept(const edm::PSimHitContainer& cluster) const = 0;
 
   /// good practice to do once for each chamber type
   void initialize(int chamberType);
 
 protected:
+  virtual void writeHits(int chamberType, edm::PSimHitContainer& chamberHits, CLHEP::HepRandomEngine*);
 
-  virtual void writeHits(int chamberType, edm::PSimHitContainer & chamberHits, CLHEP::HepRandomEngine*);
-
-  void writeCluster(int chamberType, const edm::PSimHitContainer & cluster);
+  void writeCluster(int chamberType, const edm::PSimHitContainer& cluster);
 
   /// helper to add time offsets and local det ID
-  void adjust(PSimHit & h, float timeOffset, float smearing);
+  void adjust(PSimHit& h, float timeOffset, float smearing);
 
   /// updates the counter
   void updateCount(int chamberType);
 
 private:
-  NeutronWriter * theHitWriter;
+  NeutronWriter* theHitWriter;
   bool useRandFlat;
-  edm::InputTag theInputTag;
-  double theNeutronTimeCut;
-  double theTimeWindow;
-  double theT0;
+  const edm::InputTag theInputTag;
+  const double theNeutronTimeCut;
+  const double theTimeWindow;
+  const double theT0;
+  const edm::EDGetTokenT<edm::PSimHitContainer> hitToken_;
   int theNEvents;
   bool initialized;
   // true means to translate DetId into just layer number, e.g., 1-6 in CSC
@@ -77,4 +75,3 @@ private:
 };
 
 #endif
-

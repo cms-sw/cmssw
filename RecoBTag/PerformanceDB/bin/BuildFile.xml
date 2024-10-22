@@ -1,18 +1,14 @@
-<use   name="CondFormats/PhysicsToolsObjects"/>
-<use   name="RecoBTag/Records"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="RecoBTag/PerformanceDB"/>
-<use   name="PhysicsTools/CondLiteIO"/>
-<use   name="PhysicsTools/FWLite"/>
-
+<use name="CondFormats/PhysicsToolsObjects"/>
+<use name="RecoBTag/PerformanceDB"/>
+<use name="PhysicsTools/CondLiteIO"/>
+<use name="PhysicsTools/FWLite"/>
 <environment>
-  <bin   file="TestPerformanceFWLite_ES.cc">
-    <use   name="rootcore"/>
+  <bin file="TestPerformanceFWLite_ES.cc">
+    <use name="rootcore"/>
   </bin>
-  <bin   file="getbtagPerformance.cc">
-    <use   name="rootcore"/>
+
+  <bin file="getbtagPerformance.cc">
+    <use name="rootcore"/>
   </bin>
 
 </environment>

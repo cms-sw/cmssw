@@ -1,167 +1,122 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_EventSetupRecord_h
 #define FWCore_Framework_EventSetupRecord_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     EventSetupRecord
 //
-/**\class EventSetupRecord EventSetupRecord.h FWCore/Framework/interface/EventSetupRecord.h
+/**\class edm::eventsetup::EventSetupRecord
 
- Description: Base class for all Records in an EventSetup.  Holds data with the same lifetime.
+ Description: Base class for all Records in an EventSetup.  A record is associated
+ with data with the same lifetime.
 
  Usage:
-This class contains the Proxies that make up a given Record.  It
-is designed to be reused time after time, rather than it being
-destroyed and a new one created every time a new Record is
-required.  Proxies can only be added by the EventSetupRecordProvider class which
-uses the 'add' function to do this.  The reason for this is
-that the EventSetupRecordProvider/DataProxyProvider pair are responsible for
-"invalidating" Proxies in a Record.  When a Record
-becomes "invalid" the EventSetupRecordProvider must invalidate
-all the  Proxies which it does using the DataProxyProvider.
 
-When the set of  Proxies for a Records changes, i.e. a
-DataProxyProvider is added of removed from the system, then the
-Proxies in a Record need to be changes as appropriate.
-In this design it was decided the easiest way to achieve this was
-to erase all  Proxies in a Record.
+ This class contains the interface that clients of the EventSetup
+ use to get data associated with a record.
 
-It is important for the management of the Records that each Record
-know the ValidityInterval that represents the time over which its data is valid.
-The ValidityInterval is set by its EventSetupRecordProvider using the
-'set' function.  This quantity can be recovered
-through the 'validityInterval' method.
+ This class holds a pointer to an EventSetupRecordImpl class, which
+ is the class used to get the ESProductResolvers associated with a given Record.
+ It also has a pointer to the EventSetupImpl which is used to lookup
+ dependent records in DependentRecordImplementation.
 
-For a Proxy to be able to derive its contents from the EventSetup, it
-must be able to access any Proxy (and thus any Record) in the
-EventSetup.  The 'make' function of a Proxy provides its
-containing Record as one of its arguments.  To be able to
-access the rest of the EventSetup, it is necessary for a Record to be
-able to access its containing EventSetup.  This task is handled by the
-'eventSetup' function.  The EventSetup is responsible for managing this
-using the 'setEventSetup' and 'clearEventSetup' functions.
+ It is important for the management of the Records that each Record
+ know the ValidityInterval that represents the time over which its
+ data is valid. The ValidityInterval is set by its EventSetupRecordProvider
+ using the 'set' function.  This quantity can be recovered
+ through the 'validityInterval' method.
 
+ Most of the time one uses a record obtained from an EventSetup object
+ and in that case the pointers this contains will be properly initialized
+ automatically. If you construct a record object directly (usually using
+ a type derived from this), then only a very limited subset of functions
+ can be called because most of the member functions will dereference one
+ of the null pointers and seg fault.
 */
 //
 // Author:      Chris Jones
 // Created:     Fri Mar 25 14:38:35 EST 2005
 //
 
-
 // user include files
 #include "FWCore/Framework/interface/FunctorESHandleExceptionFactory.h"
 #include "FWCore/Framework/interface/DataKey.h"
-#include "FWCore/Framework/interface/NoProxyException.h"
+#include "FWCore/Framework/interface/HCTypeTag.h"
+#include "FWCore/Framework/interface/NoProductResolverException.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/Framework/interface/EventSetupRecordImpl.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESGetTokenGeneric.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 // system include files
 #include <exception>
-#include <map>
 #include <memory>
 #include <utility>
 #include <vector>
-#include <atomic>
+#include <cassert>
+#include <limits>
 
 // forward declarations
 namespace cms {
-   class Exception;
+  class Exception;
 }
 
+class testEventsetup;
+class testEventsetupRecord;
+
 namespace edm {
-   class ESHandleExceptionFactory;
-   class ESInputTag;
-   class EventSetup;
+  class ESHandleExceptionFactory;
+  class ESParentContext;
+  class EventSetupImpl;
 
-   namespace eventsetup {
-      struct ComponentDescription;
-      class DataProxy;
-      class EventSetupRecordKey;
+  namespace eventsetup {
+    struct ComponentDescription;
+    class EventSetupRecordKey;
 
-      class EventSetupRecord {
+    class EventSetupRecord {
+    public:
+      EventSetupRecord();
+      EventSetupRecord(EventSetupRecord&&) = default;
+      EventSetupRecord& operator=(EventSetupRecord&&) = default;
 
-      public:
-         EventSetupRecord();
-         virtual ~EventSetupRecord();
+      EventSetupRecord(EventSetupRecord const&) = default;
+      EventSetupRecord& operator=(EventSetupRecord const&) = default;
+      virtual ~EventSetupRecord();
 
-         // ---------- const member functions ---------------------
-         ValidityInterval const& validityInterval() const {
-            return validity_;
-         }
+      // ---------- const member functions ---------------------
+      ValidityInterval validityInterval() const { return impl_->validityInterval(); }
 
-         template<typename HolderT>
-         void get(HolderT& iHolder) const {
-            typename HolderT::value_type const* value = nullptr;
-            ComponentDescription const* desc = nullptr;
-            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            this->getImplementation(value, "", desc, iHolder.transientAccessOnly, whyFailedFactory);
+      void setImpl(EventSetupRecordImpl const* iImpl,
+                   unsigned int transitionID,
+                   ESResolverIndex const* getTokenIndices,
+                   EventSetupImpl const* iEventSetupImpl,
+                   ESParentContext const* iContext) {
+        impl_ = iImpl;
+        transitionID_ = transitionID;
+        getTokenIndices_ = getTokenIndices;
+        eventSetupImpl_ = iEventSetupImpl;
+        context_ = iContext;
+      }
 
-            if(value) {
-              iHolder = HolderT(value, desc);
-            } else {
-              iHolder = HolderT(std::move(whyFailedFactory));
-            }
-         }
+      ///returns false if no data available for key
+      bool doGet(ESGetTokenGeneric const&, bool aGetTransiently = false) const;
 
-         template<typename HolderT>
-         void get(char const* iName, HolderT& iHolder) const {
-            typename HolderT::value_type const* value = nullptr;
-            ComponentDescription const* desc = nullptr;
-            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            this->getImplementation(value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory);
-
-            if(value) {
-              iHolder = HolderT(value, desc);
-            } else {
-              iHolder = HolderT(std::move(whyFailedFactory));
-            }
-         }
-         template<typename HolderT>
-         void get(std::string const& iName, HolderT& iHolder) const {
-            typename HolderT::value_type const* value = nullptr;
-            ComponentDescription const* desc = nullptr;
-            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            this->getImplementation(value, iName.c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
-
-            if(value) {
-              iHolder = HolderT(value, desc);
-            } else {
-              iHolder = HolderT(std::move(whyFailedFactory));
-            }
-         }
-
-         template<typename HolderT>
-         void get(ESInputTag const& iTag, HolderT& iHolder) const {
-            typename HolderT::value_type const* value = nullptr;
-            ComponentDescription const* desc = nullptr;
-            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            this->getImplementation(value, iTag.data().c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
-
-            if(value) {
-              validate(desc, iTag);
-              iHolder = HolderT(value, desc);
-            } else {
-              iHolder = HolderT(std::move(whyFailedFactory));
-            }
-         }
-
-         ///returns false if no data available for key
-         bool doGet(DataKey const& aKey, bool aGetTransiently = false) const;
-
-         /**returns true only if someone has already requested data for this key
+      /**returns true only if someone has already requested data for this key
           and the data was retrieved
           */
-         bool wasGotten(DataKey const& aKey) const;
+      bool wasGotten(DataKey const& aKey) const;
 
-         /**returns the ComponentDescription for the module which creates the data or 0
+      /**returns the ComponentDescription for the module which creates the data or 0
           if no module has been registered for the data. This does not cause the data to
           actually be constructed.
           */
-         ComponentDescription const* providerDescription(DataKey const& aKey) const;
+      ComponentDescription const* providerDescription(DataKey const& aKey) const;
 
-         virtual EventSetupRecordKey key() const = 0;
+      virtual EventSetupRecordKey key() const = 0;
 
-         /**If you are caching data from the Record, you should also keep
+      /**If you are caching data from the Record, you should also keep
           this number.  If this number changes then you know that
           the data you have cached is invalid. This is NOT true if
           if the validityInterval() hasn't changed since it is possible that
@@ -171,81 +126,123 @@ namespace edm {
           The value of '0' will never be returned so you can use that to
           denote that you have not yet checked the value.
           */
-         unsigned long long cacheIdentifier() const {
-            return cacheIdentifier_;
-         }
+      unsigned long long cacheIdentifier() const { return impl_->cacheIdentifier(); }
 
-         ///clears the oToFill vector and then fills it with the keys for all registered data keys
-         void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const;
-         // ---------- static member functions --------------------
+      /**When you are processing multiple validity intervals concurrently,
+          each must have its own cache for data. These caches are numbered
+          from 0 to one less than the maximum number of concurrent validity
+          intervals allowed for that record. This number is returned by
+          the following function. For one record type, all the different validity
+          intervals being processed at the same time will have a different
+          iovIndex. But the iovIndex's of record types that are different
+          are independent of each other.
+          */
+      unsigned int iovIndex() const { return impl_->iovIndex(); }
 
-         // ---------- member functions ---------------------------
+      ///clears the oToFill vector and then fills it with the keys for all registered data keys
+      void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const { impl_->fillRegisteredDataKeys(oToFill); }
 
-         // The following member functions should only be used by EventSetupRecordProvider
-         bool add(DataKey const& iKey ,
-                  DataProxy const* iProxy) ;
-         void clearProxies();
-         void cacheReset() ;
-         /// returns 'true' if a transient request has occurred since the last call to transientReset.
-         bool transientReset() ;
+      ///Classes that derive from EventSetupRecord can redefine this with a false value
+      static constexpr bool allowConcurrentIOVs_ = true;
 
-         void set(ValidityInterval const&);
-         void setEventSetup(EventSetup const* iEventSetup) {eventSetup_ = iEventSetup; }
+      friend class ::testEventsetup;
+      friend class ::testEventsetupRecord;
 
-         void getESProducers(std::vector<ComponentDescription const*>& esproducers);
-         void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys);
+    protected:
+      template <template <typename> typename H, typename T, typename R>
+      H<T> getHandleImpl(ESGetToken<T, R> const& iToken) const {
+        if UNLIKELY (not iToken.isInitialized()) {
+          std::rethrow_exception(makeUninitializedTokenException(this->key(), DataKey::makeTypeTag<T>()));
+        }
+        if UNLIKELY (iToken.transitionID() != transitionID()) {
+          throwWrongTransitionID();
+        }
+        assert(getTokenIndices_);
+        //need to check token has valid index
+        if UNLIKELY (not iToken.hasValidIndex()) {
+          return invalidTokenHandle<H>(iToken);
+        }
 
-      protected:
+        auto resolverIndex = getTokenIndices_[iToken.index().value()];
 
-         DataProxy const* find(DataKey const& aKey) const ;
+        if UNLIKELY (resolverIndex == ESResolverIndex::moduleLabelDoesNotMatch()) {
+          return noResolverHandle<H>(iToken, true);
+        }
 
-         EventSetup const& eventSetup() const {
-            return *eventSetup_;
-         }
+        if UNLIKELY (resolverIndex == ESResolverIndex::noResolverConfigured()) {
+          return noResolverHandle<H>(iToken, false);
+        }
 
-         void validate(ComponentDescription const*, ESInputTag const&) const;
+        T const* value = nullptr;
+        ComponentDescription const* desc = nullptr;
+        std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
 
-         void addTraceInfoToCmsException(cms::Exception& iException, char const* iName, ComponentDescription const*, DataKey const&) const;
-         void changeStdExceptionToCmsException(char const* iExceptionWhatMessage, char const* iName, ComponentDescription const*, DataKey const&) const;
+        impl_->getImplementation(value, resolverIndex, H<T>::transientAccessOnly, desc, whyFailedFactory);
 
-         void transientAccessRequested() const { transientAccessRequested_ = true;}
-      private:
-         EventSetupRecord(EventSetupRecord const&); // stop default
+        if UNLIKELY (not value) {
+          return H<T>(std::move(whyFailedFactory));
+        }
+        return H<T>(value, desc);
+      }
 
-         EventSetupRecord const& operator=(EventSetupRecord const&); // stop default
+      EventSetupImpl const& eventSetup() const noexcept { return *eventSetupImpl_; }
 
-         void const* getFromProxy(DataKey const& iKey ,
-                                  ComponentDescription const*& iDesc,
-                                  bool iTransientAccessOnly) const;
+      ESResolverIndex const* getTokenIndices() const noexcept { return getTokenIndices_; }
 
-         template <typename DataT>
-         void getImplementation(DataT const*& iData ,
-                                char const* iName,
-                                ComponentDescription const*& iDesc,
-                                bool iTransientAccessOnly,
-                                std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
-            DataKey dataKey(DataKey::makeTypeTag<DataT>(),
-                            iName,
-                            DataKey::kDoNotCopyMemory);
+      ESParentContext const* esParentContext() const noexcept { return context_; }
 
-            void const* pValue = this->getFromProxy(dataKey, iDesc, iTransientAccessOnly);
-            if(nullptr == pValue) {
-              whyFailedFactory =
-                makeESHandleExceptionFactory([=]()->std::exception_ptr {
-                    NoProxyException<DataT> ex(this->key(), dataKey);
-                    return std::make_exception_ptr(ex);
-                });
-            }
-            iData = reinterpret_cast<DataT const*> (pValue);
-         }
+      void addTraceInfoToCmsException(cms::Exception& iException,
+                                      char const* iName,
+                                      ComponentDescription const*,
+                                      DataKey const&) const;
 
-         // ---------- member data --------------------------------
-         ValidityInterval validity_;
-         std::map<DataKey, DataProxy const*> proxies_ ;
-         EventSetup const* eventSetup_;
-         unsigned long long cacheIdentifier_;
-         mutable std::atomic<bool> transientAccessRequested_;
-      };
-   }
-}
+      EventSetupRecordImpl const* impl() const { return impl_; }
+
+      unsigned int transitionID() const { return transitionID_; }
+
+    private:
+      template <template <typename> typename H, typename T, typename R>
+      H<T> invalidTokenHandle(ESGetToken<T, R> const& iToken) const {
+        auto const key = this->key();
+        return H<T>{makeESHandleExceptionFactory([key, transitionID = iToken.transitionID()] {
+          return makeInvalidTokenException(key, DataKey::makeTypeTag<T>(), transitionID);
+        })};
+      }
+
+      template <template <typename> typename H, typename T, typename R>
+      H<T> noResolverHandle(ESGetToken<T, R> const& iToken, bool moduleLabelDoesNotMatch) const {
+        auto const key = this->key();
+        auto productLabel = iToken.productLabel();
+        return H<T>{makeESHandleExceptionFactory([key, productLabel, moduleLabelDoesNotMatch] {
+          NoProductResolverException ex(key, heterocontainer::className<T>(), productLabel, moduleLabelDoesNotMatch);
+          return std::make_exception_ptr(ex);
+        })};
+      }
+
+      static std::exception_ptr makeUninitializedTokenException(EventSetupRecordKey const&, TypeTag const&);
+      static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&, TypeTag const&, unsigned int);
+      void throwWrongTransitionID() const;
+
+      // ---------- member data --------------------------------
+      EventSetupRecordImpl const* impl_ = nullptr;
+      EventSetupImpl const* eventSetupImpl_ = nullptr;
+      ESResolverIndex const* getTokenIndices_ = nullptr;
+      ESParentContext const* context_ = nullptr;
+      unsigned int transitionID_ = std::numeric_limits<unsigned int>::max();
+    };
+
+    class EventSetupRecordGeneric : public EventSetupRecord {
+    public:
+      EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl,
+                              unsigned int iTransitionID,
+                              ESResolverIndex const* getTokenIndices,
+                              EventSetupImpl const* eventSetupImpl,
+                              ESParentContext const* context) {
+        setImpl(iImpl, iTransitionID, getTokenIndices, eventSetupImpl, context);
+      }
+
+      EventSetupRecordKey key() const final { return impl()->key(); }
+    };
+  }  // namespace eventsetup
+}  // namespace edm
 #endif

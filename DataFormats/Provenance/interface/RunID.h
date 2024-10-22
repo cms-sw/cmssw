@@ -4,91 +4,55 @@
 //
 // Package:     DataFormats/Provenance
 // Class  :     RunID
-// 
+//
 /**\class edm::RunID
 
  Description: Holds run number
 
- Usage:
-    <usage>
-
 */
-//
-//
 
-// system include files
 #include <iosfwd>
 
-// user include files
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
-// forward declarations
 namespace edm {
 
-class RunID
-{
-   public:
+  class RunID {
+  public:
+    RunID() : run_(invalidRunNumber) {}
+    explicit RunID(RunNumber_t iRun) : run_(iRun) {}
 
-      RunID() : run_(invalidRunNumber) {}
-      explicit RunID(RunNumber_t iRun) :
-	run_(iRun) {}
-      
-      //virtual ~RunID();
+    // ---------- const member functions ---------------------
+    RunNumber_t run() const { return run_; }
 
-      // ---------- const member functions ---------------------
-      RunNumber_t run() const { return run_; }
-   
-      //moving from one RunID to another one
-      RunID next() const {
-         return RunID(run_+1);
+    //moving from one RunID to another one
+    RunID next() const { return RunID(run_ + 1); }
+    RunID previous() const {
+      if (run_ != 0) {
+        return RunID(run_ - 1);
       }
-      RunID previous() const {
-         if(run_ != 0) {
-            return RunID(run_-1);
-         }
-         return RunID(0);
-      }
-      
-      bool operator==(RunID const& iRHS) const {
-         return iRHS.run_ == run_;
-      }
-      bool operator!=(RunID const& iRHS) const {
-         return !(*this == iRHS);
-      }
-      
-      bool operator<(RunID const& iRHS) const {
-         return run_ < iRHS.run_;
-      }
-      bool operator<=(RunID const& iRHS) const {
-         return run_ <= iRHS.run_;
-      }
-      bool operator>(RunID const& iRHS) const {
-         return run_ > iRHS.run_;
-      }
-      bool operator>=(RunID const& iRHS) const {
-         return run_ >= iRHS.run_;
-      }
-      // ---------- static functions ---------------------------
+      return RunID(0);
+    }
 
-      static RunNumber_t maxRunNumber() {
-         return 0xFFFFFFFFU;
-      }
-   
-      static RunID firstValidRun() {
-         return RunID(1);
-      }
-      // ---------- member functions ---------------------------
-   
-   private:
-      //RunID(RunID const&); // stop default
+    bool operator==(RunID const& iRHS) const { return iRHS.run_ == run_; }
+    bool operator!=(RunID const& iRHS) const { return !(*this == iRHS); }
 
-      //RunID const& operator=(RunID const&); // stop default
+    bool operator<(RunID const& iRHS) const { return run_ < iRHS.run_; }
+    bool operator<=(RunID const& iRHS) const { return run_ <= iRHS.run_; }
+    bool operator>(RunID const& iRHS) const { return run_ > iRHS.run_; }
+    bool operator>=(RunID const& iRHS) const { return run_ >= iRHS.run_; }
+    // ---------- static functions ---------------------------
 
-      // ---------- member data --------------------------------
-      RunNumber_t run_;
-};
+    static RunNumber_t maxRunNumber() { return 0xFFFFFFFFU; }
 
-std::ostream& operator<<(std::ostream& oStream, RunID const& iID);
+    static RunID firstValidRun() { return RunID(1); }
 
-}
+  private:
+    // ---------- member data --------------------------------
+    RunNumber_t run_;
+  };
+
+  std::ostream& operator<<(std::ostream& oStream, RunID const& iID);
+
+}  // namespace edm
 #endif

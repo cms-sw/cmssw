@@ -11,7 +11,7 @@
  */
 
 /* Base Class Headers */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecClusterCollection.h"
 
@@ -19,9 +19,11 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class DTCombinatorialExtendedPatternReco;
+class DTGeometry;
+class MuonGeometryRecord;
 
 /* C++ Headers */
 
@@ -29,24 +31,21 @@ class DTCombinatorialExtendedPatternReco;
 
 /* Class DTRecSegment2DExtendedProducer Interface */
 
-class DTRecSegment2DExtendedProducer : public edm::EDProducer {
-
- public:
-
+class DTRecSegment2DExtendedProducer : public edm::stream::EDProducer<> {
+public:
   /// Constructor
-  DTRecSegment2DExtendedProducer(const edm::ParameterSet&) ;
+  DTRecSegment2DExtendedProducer(const edm::ParameterSet&);
 
   /// Destructor
-  ~DTRecSegment2DExtendedProducer() override ;
-    
+  ~DTRecSegment2DExtendedProducer() override;
+
   // Operations
 
   /// The method which produces the 2D-segments
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
- protected:
-
- private:
+protected:
+private:
   // Switch on verbosity
   bool debug;
 
@@ -56,6 +55,6 @@ class DTRecSegment2DExtendedProducer : public edm::EDProducer {
   //static std::string theAlgoName;
   edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
   edm::EDGetTokenT<DTRecClusterCollection> recClusToken_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
-#endif // DTRecHit_DTRecSegment2DExtendedProducer_h
-
+#endif  // DTRecHit_DTRecSegment2DExtendedProducer_h

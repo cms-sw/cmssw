@@ -3,9 +3,16 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("GCTAnalyzerTest")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger = cms.Service ("MessageLogger", 
-	destinations = cms.untracked.vstring( "detailedInfo.txt" ),
-	threshold = cms.untracked.string ( 'WARNING' )
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        detailedInfo = cms.untracked.PSet(
+            extension = cms.untracked.string('txt')
+        )
+    ),
+    threshold = cms.untracked.string('WARNING')
 )
 
 process.source = cms.Source ( "PoolSource",

@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+  <SolidSection label="testPseudoTrapSolids.xml">
+    <PseudoTrap name="ptrap1" dx1="10*cm" dx2="3*cm" dy1="30*cm" dy2="10*cm" dz="30*cm" radius="10*cm" atMinusZ="false"/>
+    <PseudoTrap name="ptrap2" dx1="10*cm" dx2="3*cm" dy1="30*cm" dy2="10*cm" dz="30*cm" radius="10*cm" atMinusZ="true"/>
+    <PseudoTrap name="ptrap3" dx1="10*cm" dx2="3*cm" dy1="30*cm" dy2="10*cm" dz="30*cm" radius="-10*cm" atMinusZ="false"/>
+    <PseudoTrap name="ptrap4" dx1="10*cm" dx2="3*cm" dy1="30*cm" dy2="10*cm" dz="30*cm" radius="-10*cm" atMinusZ="true"/>
+  </SolidSection>
+  <LogicalPartSection label="testPseudoTrapSolids.xml">
+    <LogicalPart name="ptrap1">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="ptrap1"/>
+    </LogicalPart> 
+    <LogicalPart name="ptrap2">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="ptrap2"/>
+    </LogicalPart>
+    <LogicalPart name="ptrap3">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="ptrap3"/>
+    </LogicalPart> 
+    <LogicalPart name="ptrap4">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="ptrap4"/>
+    </LogicalPart>
+  </LogicalPartSection>
+  <PosPartSection label="testPseudoTrapSolids.xml">
+    <PosPart copyNumber="100">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="ptrap1"/>
+      <rRotation name="testRotations:x90"/>
+      <Translation z="0*m" y="0*m" x="0*m"/>
+    </PosPart>
+    <PosPart copyNumber="101">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="ptrap2"/>
+      <rRotation name="testRotations:x90"/>
+      <Translation z="65*cm" y="0*m" x="0*m"/>
+    </PosPart>
+    <PosPart copyNumber="102">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="ptrap3"/>
+      <rRotation name="testRotations:x90"/>
+      <Translation z="130*cm" y="0*m" x="0*m"/>
+    </PosPart>
+    <PosPart copyNumber="103">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="ptrap4"/>
+      <rRotation name="testRotations:x90"/>
+      <Translation z="195*cm" y="0*m" x="0*m"/>
+    </PosPart>
+  </PosPartSection>
+</DDDefinition>

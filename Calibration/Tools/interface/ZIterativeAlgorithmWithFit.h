@@ -17,7 +17,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 /// Class that implements an iterative in situ calibration algorithm
-/// using Z events 
+/// using Z events
 /** \class ZIterativeAlgorithmWithFit 
     Author: paolo.meridiani@roma1.infn.it
 */
@@ -25,11 +25,8 @@
 #define nMaxIterations 50
 #define nMaxChannels 250
 
-
-
-class ZIterativeAlgorithmWithFit 
-{
- public:
+class ZIterativeAlgorithmWithFit {
+public:
   struct ZIterativeAlgorithmWithFitPlots {
     TH1* weightedRescaleFactor[nMaxIterations][nMaxChannels];
     TH1* unweightedRescaleFactor[nMaxIterations][nMaxChannels];
@@ -38,21 +35,19 @@ class ZIterativeAlgorithmWithFit
 
   /// Default constructor
   ZIterativeAlgorithmWithFit();
-  
+
   /// Constructor with explicit iterations & exponent
-  ZIterativeAlgorithmWithFit(const edm::ParameterSet&  ps);
+  ZIterativeAlgorithmWithFit(const edm::ParameterSet& ps);
   //, unsigned int events);
-  
+
   /// Assignment operator
-  ZIterativeAlgorithmWithFit & operator=(const ZIterativeAlgorithmWithFit &r){
-    return *this;
-  }
-  
+  ZIterativeAlgorithmWithFit& operator=(const ZIterativeAlgorithmWithFit& r) { return *this; }
+
   /// Destructor
   virtual ~ZIterativeAlgorithmWithFit();
-  
+
   bool resetIteration();
-  
+
   bool iterate();
 
   bool addEvent(calib::CalibElectron*, calib::CalibElectron*, float);
@@ -60,9 +55,9 @@ class ZIterativeAlgorithmWithFit
   const ZIterativeAlgorithmWithFitPlots* getHistos() const { return thePlots_; }
 
   int getNumberOfIterations() const { return numberOfIterations_; }
-  
+
   int getNumberOfChannels() const { return channels_; }
-  
+
   const std::vector<float>& getOptimizedCoefficients() const { return optimizedCoefficients_; }
 
   const std::vector<float>& getOptimizedCoefficientsError() const { return optimizedCoefficientsError_; }
@@ -91,10 +86,10 @@ class ZIterativeAlgorithmWithFit
   }
   */
 
-  static void gausfit(TH1F * histoou,double* par,double* errpar,float nsigmalow, float nsigmaup, double* mychi2, int* iterations); 
+  static void gausfit(
+      TH1F* histoou, double* par, double* errpar, float nsigmalow, float nsigmaup, double* mychi2, int* iterations);
 
- private:
-
+private:
   void addWeightsCorrections(unsigned int event_id);
 
   void getStatWeights(const std::string& file);
@@ -105,11 +100,11 @@ class ZIterativeAlgorithmWithFit
 
   void recalculateMasses();
 
-  void recalculateWeightsEnergies(calib::CalibElectron* electron); 
+  void recalculateWeightsEnergies(calib::CalibElectron* electron);
 
-  void getWeight(unsigned int evid,std::pair<calib::CalibElectron*,calib::CalibElectron*>, float);
+  void getWeight(unsigned int evid, std::pair<calib::CalibElectron*, calib::CalibElectron*>, float);
 
-  void getWeight(unsigned int evid,calib::CalibElectron* ele,float);
+  void getWeight(unsigned int evid, calib::CalibElectron* ele, float);
 
   void bookHistograms();
 
@@ -124,7 +119,7 @@ class ZIterativeAlgorithmWithFit
   unsigned int currentEvent_;
   unsigned int currentIteration_;
 
-  std::vector< std::pair<calib::CalibElectron*,calib::CalibElectron*> > electrons_;
+  std::vector<std::pair<calib::CalibElectron*, calib::CalibElectron*> > electrons_;
 
   std::vector<float> optimizedCoefficients_;
   std::vector<float> optimizedCoefficientsError_;
@@ -138,15 +133,13 @@ class ZIterativeAlgorithmWithFit
 
   bool UseStatWeights_;
   std::string WeightFileName_;
- 
+
   std::vector<float> StatWeights_;
   std::vector<float> Event_Weight_;
 
   TString calibType_;
-  
+
   static const double M_Z_;
 };
 
-#endif // ZIterativeAlgorithmWithFit_H
-
-
+#endif  // ZIterativeAlgorithmWithFit_H

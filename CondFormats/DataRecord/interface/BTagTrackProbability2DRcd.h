@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     BTagTrackProbability2DRcd
-// 
+//
 /**\class BTagTrackProbability2DRcd BTagTrackProbability2DRcd.h CondFormats/DataRecord/interface/BTagTrackProbability2DRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Thu Jan 11 09:36:33 CET 2007
 // $Id$
 //

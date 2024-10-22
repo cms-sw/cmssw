@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 ################################################################################
 # RelMon: a tool for automatic Release Comparison
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -9,6 +9,7 @@
 #
 ################################################################################
 
+from __future__ import print_function
 import subprocess as sub
 import sys
 from optparse import OptionParser
@@ -64,7 +65,7 @@ if len(options.path1)>0:
 if len(options.path2)>0:
   thepath="%s.*%s"%(thepath,options.path2)  
 command='relmon_rootfiles_spy.py ROOT/%s/%s/ -u -g -p %s'%(relvaldir,releasedir,thepath)
-print command
+print(command)
 sub.call(command.split(" "))
 
 # Main tree:

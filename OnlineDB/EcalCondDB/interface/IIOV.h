@@ -8,7 +8,6 @@
 /**
  *   Abstract base class for an IOV object
  */
-class IIOV : public IUniqueDBObject {
-};
+class IIOV : public IUniqueDBObject {};
 
 #endif

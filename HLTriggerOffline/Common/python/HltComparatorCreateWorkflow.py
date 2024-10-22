@@ -5,6 +5,7 @@
 #   Makes CMSSW config for prompt validation of a given run number,
 #   HLT Key or HLT Config
 
+from __future__ import print_function
 from optparse import OptionParser
 import os, time, re
 
@@ -56,7 +57,7 @@ def ConvertHltOnlineToOffline(config, frontierString):
    # Replace the frontier string
    onlineFrontier = re.search('"(frontier:.*)"', config)
    if not onlineFrontier:
-      print "WARNING: Could not find Frontier string in HLT configuration. Will ignore."
+      print("WARNING: Could not find Frontier string in HLT configuration. Will ignore.")
    else:
       config = config.replace(onlineFrontier.group(1), frontierString)
 
@@ -130,7 +131,7 @@ def GetHltKeyForRun(run):
 # Formats an HLT CFF path into a suitable python include statement
 def FormatHltCff(cffPath):
    pathParts = cffPath.split(".")
-   if not re.match("^[_A-Za-z0-9]*\.[_A-Za-z0-9]*\.[_A-Za-z0-9]*$", cffPath):
+   if not re.match("^[_A-Za-z0-9]*\\.[_A-Za-z0-9]*\\.[_A-Za-z0-9]*$", cffPath):
       raise SystemExit("Expected cff in form Package.Module.configName_cff")
    return 'process.load("%s")' % cffPath
 
@@ -170,8 +171,8 @@ else:
 anaConfig = CreateAnalysisConfig(options.analysis, hltConfig)
 
 if options.hltcff:
-    print "Using HLT configuration:           %s" % hltConfig
+    print("Using HLT configuration:           %s" % hltConfig)
 else:
-    print "Created HLT configuration:         %s" % hltConfig
-print "Created analysis configuration:    %s" % anaConfig
+    print("Created HLT configuration:         %s" % hltConfig)
+print("Created analysis configuration:    %s" % anaConfig)
 

@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     RPCObUXCRcd
-// 
+//
 /**\class RPCObUXCRcd RPCObUXCRcd.h CondFormats/DataRecord/interface/RPCObUXCRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Mon Nov 16 12:18:42 CET 2009
 // $Id$
 //

@@ -1,11 +1,13 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("DumpDBToFile")
+process = cms.Process("DumpDBToFile",eras.Run3)
 
 process.load("CondCore.CondDB.CondDB_cfi")
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.GlobalTag.globaltag = ''
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run3_data']
 
 process.load("CondCore.CondDB.CondDB_cfi")
 

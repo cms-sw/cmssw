@@ -12,8 +12,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfo.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
@@ -22,77 +22,80 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
 class GenJetFlavourTableProducer : public edm::stream::EDProducer<> {
-    public:
-        explicit GenJetFlavourTableProducer(const edm::ParameterSet &iConfig) :
-            name_(iConfig.getParameter<std::string>("name")),
-            src_(consumes<std::vector<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("src"))),
-            cut_(iConfig.getParameter<std::string>("cut"), true),
-            deltaR_(iConfig.getParameter<double>("deltaR")),
-            jetFlavourInfosToken_(consumes<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>("jetFlavourInfos")))
-        {
-            produces<nanoaod::FlatTable>();
-        }
+public:
+  explicit GenJetFlavourTableProducer(const edm::ParameterSet& iConfig)
+      : name_(iConfig.getParameter<std::string>("name")),
+        src_(consumes<std::vector<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("src"))),
+        cut_(iConfig.getParameter<std::string>("cut"), true),
+        deltaR_(iConfig.getParameter<double>("deltaR")),
+        jetFlavourInfosToken_(
+            consumes<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>("jetFlavourInfos"))) {
+    produces<nanoaod::FlatTable>();
+  }
 
-        ~GenJetFlavourTableProducer() override {};
+  ~GenJetFlavourTableProducer() override {}
 
-        static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-            edm::ParameterSetDescription desc;
-            desc.add<edm::InputTag>("src")->setComment("input genJet collection");
-            desc.add<edm::InputTag>("jetFlavourInfos")->setComment("input flavour info collection");
-            desc.add<std::string>("name")->setComment("name of the genJet FlatTable we are extending with flavour information");
-            desc.add<std::string>("cut")->setComment("cut on input genJet collection");
-            desc.add<double>("deltaR")->setComment("deltaR to match genjets");
-            descriptions.add("genJetFlavourTable", desc);
-        }
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src")->setComment("input genJet collection");
+    desc.add<edm::InputTag>("jetFlavourInfos")->setComment("input flavour info collection");
+    desc.add<std::string>("name")->setComment("name of the genJet FlatTable we are extending with flavour information");
+    desc.add<std::string>("cut")->setComment("cut on input genJet collection");
+    desc.add<double>("deltaR")->setComment("deltaR to match genjets");
+    descriptions.add("genJetFlavourTable", desc);
+  }
 
-    private:
-        void produce(edm::Event&, edm::EventSetup const&) override ;
+private:
+  void produce(edm::Event&, edm::EventSetup const&) override;
 
-        std::string name_;
-        edm::EDGetTokenT<std::vector<reco::GenJet> > src_;
-        const StringCutObjectSelector<reco::GenJet> cut_;
-        const double deltaR_;
-        edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> jetFlavourInfosToken_;
-
+  std::string name_;
+  edm::EDGetTokenT<std::vector<reco::GenJet> > src_;
+  const StringCutObjectSelector<reco::GenJet> cut_;
+  const double deltaR_;
+  edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> jetFlavourInfosToken_;
 };
 
 // ------------ method called to produce the data  ------------
-void
-GenJetFlavourTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-    edm::Handle<reco::GenJetCollection> jets;
-    iEvent.getByToken(src_, jets);
-    
-    edm::Handle<reco::JetFlavourInfoMatchingCollection> jetFlavourInfos;
-    iEvent.getByToken(jetFlavourInfosToken_, jetFlavourInfos);
+void GenJetFlavourTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  const auto& jetsProd = iEvent.get(src_);
+  const auto& jetFlavourInfosProd = iEvent.get(jetFlavourInfosToken_);
 
-    unsigned int ncand = 0;
-    std::vector<int> partonFlavour;
-    std::vector<uint8_t> hadronFlavour;
-    
-    for (const reco::GenJet & jet : *jets) {
-      if (!cut_(jet)) continue;
-      ++ncand;
-      bool matched = false;
-      for (const reco::JetFlavourInfoMatching & jetFlavourInfoMatching : *jetFlavourInfos) {
-        if (deltaR(jet.p4(), jetFlavourInfoMatching.first->p4()) < deltaR_) {
-          partonFlavour.push_back(jetFlavourInfoMatching.second.getPartonFlavour());
-          hadronFlavour.push_back(jetFlavourInfoMatching.second.getHadronFlavour());
-          matched = true;
-          break;
-        }
-      }
-      if (!matched) {
-        partonFlavour.push_back(0);
-        hadronFlavour.push_back(0);
+  unsigned int ncand = 0;
+  std::vector<int16_t> partonFlavour;
+  std::vector<uint8_t> hadronFlavour;
+  std::vector<uint8_t> nBHadrons;
+  std::vector<uint8_t> nCHadrons;
+
+  for (const reco::GenJet& jet : jetsProd) {
+    if (!cut_(jet))
+      continue;
+    ++ncand;
+    bool matched = false;
+    for (const reco::JetFlavourInfoMatching& jetFlavourInfoMatching : jetFlavourInfosProd) {
+      if (deltaR(jet.p4(), jetFlavourInfoMatching.first->p4()) < deltaR_) {
+        partonFlavour.push_back(jetFlavourInfoMatching.second.getPartonFlavour());
+        hadronFlavour.push_back(jetFlavourInfoMatching.second.getHadronFlavour());
+        nBHadrons.push_back(jetFlavourInfoMatching.second.getbHadrons().size());
+        nCHadrons.push_back(jetFlavourInfoMatching.second.getcHadrons().size());
+        matched = true;
+        break;
       }
     }
+    if (!matched) {
+      partonFlavour.push_back(0);
+      hadronFlavour.push_back(0);
+      nBHadrons.push_back(0);
+      nCHadrons.push_back(0);
+    }
+  }
 
-    auto tab  = std::make_unique<nanoaod::FlatTable>(ncand, name_, false, true);
-    tab->addColumn<int>("partonFlavour", partonFlavour, "flavour from parton matching", nanoaod::FlatTable::IntColumn);
-    tab->addColumn<uint8_t>("hadronFlavour", hadronFlavour, "flavour from hadron ghost clustering", nanoaod::FlatTable::UInt8Column);
+  auto tab = std::make_unique<nanoaod::FlatTable>(ncand, name_, false, true);
+  tab->addColumn<int16_t>("partonFlavour", partonFlavour, "flavour from parton matching");
+  tab->addColumn<uint8_t>("hadronFlavour", hadronFlavour, "flavour from hadron ghost clustering");
+  tab->addColumn<uint8_t>("nBHadrons", nBHadrons, "number of b-hadrons");
+  tab->addColumn<uint8_t>("nCHadrons", nCHadrons, "number of c-hadrons");
 
-    iEvent.put(std::move(tab));
+  iEvent.put(std::move(tab));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

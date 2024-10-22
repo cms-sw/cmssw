@@ -11,30 +11,28 @@
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
 
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
+#include "L1Trigger/L1TMuonOverlap/interface/XMLConfigReader.h"
 
 class L1TMuonOverlapParamsESProducer : public edm::ESProducer {
-   public:
-  
-      L1TMuonOverlapParamsESProducer(const edm::ParameterSet&);
-      ~L1TMuonOverlapParamsESProducer() override;
+public:
+  L1TMuonOverlapParamsESProducer(const edm::ParameterSet&);
+  ~L1TMuonOverlapParamsESProducer() override;
 
-      typedef std::shared_ptr<L1TMuonOverlapParams> ReturnType;
+  using ReturnType = std::unique_ptr<L1TMuonOverlapParams>;
 
-      ReturnType produceParams(const L1TMuonOverlapParamsRcd&);
+  ReturnType produceParams(const L1TMuonOverlapParamsRcd&);
 
-      ReturnType producePatterns(const L1TMuonOverlapParamsRcd&);
+  ReturnType producePatterns(const L1TMuonOverlapParamsRcd&);
 
-   private:
+private:
+  ///Read Golden Patters from single XML file.
+  ///XMLConfigReader  state is modified, as it hold
+  ///cache of the Golden Patters read from XML file.
+  bool readPatternsXML(XMLConfigReader& aReader);
 
-      ///Read Golden Patters from single XML file.
-      ///XMLConfigReader  state is modified, as it hold
-      ///cache of the Golden Patters read from XML file.
-      bool readPatternsXML(XMLConfigReader  & aReader);
+  ///Read Connections from single XML file.
+  bool readConnectionsXML(const XMLConfigReader& aReader);
 
-      ///Read Connections from single XML file.
-      bool readConnectionsXML(const XMLConfigReader & aReader);
-
-      L1TMuonOverlapParams params;
-      L1TMuonOverlapParams patterns;
+  L1TMuonOverlapParams params;
+  L1TMuonOverlapParams patterns;
 };
-

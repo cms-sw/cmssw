@@ -9,9 +9,6 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class EcalSamplesCorrelationRcd
-    : public edm::eventsetup::EventSetupRecordImplementation<
-        EcalSamplesCorrelationRcd> {
-};
+class EcalSamplesCorrelationRcd : public edm::eventsetup::EventSetupRecordImplementation<EcalSamplesCorrelationRcd> {};
 
 #endif

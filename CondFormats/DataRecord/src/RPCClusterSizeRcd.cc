@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     RPCClusterSizeRcd
-// 
-// Implementation:
-//    Record for the cluster size for each RPC 
 //
-// Author:     Borislav Pavlov 
+// Implementation:
+//    Record for the cluster size for each RPC
+//
+// Author:     Borislav Pavlov
 // Created:     Mon Nov  2 17:43:16 CET 2009
 // $Id$
 

@@ -19,7 +19,7 @@ for bxBinCounter in range(0, -1+len(bxBins)):
 nBXBins = len(bxBins)
 
 bxBinsFine = [i for i in range(1, 3601)]
-bxBinLabelsFine = [str(i) if (i%100 == 0) else "" for i in range(1, 3601)]
+bxBinLabelsFine = [str(i) for i in range(1, 3601)]
 nBXBinsFine = len(bxBinsFine)
 
 EaxisEdges = []
@@ -28,9 +28,11 @@ for i in range(50) :
 
 chi2ThresholdEE = 50.
 chi2ThresholdEB = 16.
-energyThresholdEE = 3.
-energyThresholdEB = 1.
-timingVsBXThreshold = 2.02
+energyThresholdEE = 4.6
+energyThresholdEEFwd = 12.
+energyThresholdEB = 2.02
+timingVsBXThreshold = energyThresholdEB
+timeErrorThreshold = 3.
 timeWindow = 12.5
 summaryTimeWindow = 7.
 
@@ -41,8 +43,11 @@ ecalTimingTask = cms.untracked.PSet(
         chi2ThresholdEE = cms.untracked.double(chi2ThresholdEE),
         chi2ThresholdEB = cms.untracked.double(chi2ThresholdEB),
         energyThresholdEE = cms.untracked.double(energyThresholdEE),
+        energyThresholdEEFwd = cms.untracked.double(energyThresholdEEFwd),
         energyThresholdEB = cms.untracked.double(energyThresholdEB),
-        timingVsBXThreshold = cms.untracked.double(timingVsBXThreshold)
+        timingVsBXThreshold = cms.untracked.double(timingVsBXThreshold),
+        timeErrorThreshold = cms.untracked.double(timeErrorThreshold),
+        splashSwitch = cms.untracked.bool(False)
     ),
     MEs = cms.untracked.PSet(
         TimeMap = cms.untracked.PSet(
@@ -136,14 +141,14 @@ ecalTimingTask = cms.untracked.PSet(
                 high = cms.untracked.double(1.0*nBXBins),
                 nbins = cms.untracked.int32(nBXBins),
                 low = cms.untracked.double(0.0),
-                title = cms.untracked.string('bunch crossing'),
+                title = cms.untracked.string('BX Id'),
                 labels = cms.untracked.vstring(bxBinLabels)
             ),
             yaxis = cms.untracked.PSet(
                 title = cms.untracked.string('Timing (ns)')
             ),
             btype = cms.untracked.string('User'),
-            description = cms.untracked.string('Average hit timing in the barrel as a function of BX number.')
+            description = cms.untracked.string('Average hit timing in EB as a function of BX number. BX ids start at 1. Only events with energy above 2.02 GeV and chi2 less than 16 are used.')
         ),
         BarrelTimingVsBXFineBinned = cms.untracked.PSet(
             path = cms.untracked.string('EcalBarrel/EBTimingTask/EBTMT Timing vs Finely Binned BX'),
@@ -153,14 +158,14 @@ ecalTimingTask = cms.untracked.PSet(
                 high = cms.untracked.double(1.0*nBXBinsFine),
                 nbins = cms.untracked.int32(nBXBinsFine),
                 low = cms.untracked.double(0.0),
-                title = cms.untracked.string('bunch crossing'),
+                title = cms.untracked.string('BX Id'),
                 labels = cms.untracked.vstring(bxBinLabelsFine)
             ),
             yaxis = cms.untracked.PSet(
                 title = cms.untracked.string('Timing (ns)')
             ),
             btype = cms.untracked.string('User'),
-            description = cms.untracked.string('Average hit timing in the barrel as a finely-binned function of BX number.')
+            description = cms.untracked.string('Average hit timing in EB as a finely binned function of BX number. BX ids start at 1. Only events with energy above 2.02 GeV and chi2 less than 16 are used. The Customize button can be used to zoom in.')
         ),
         TimeAmpBXm = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),

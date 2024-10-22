@@ -5,27 +5,23 @@
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignmentSensor.h"
 
 SurveyAlignmentSensor::SurveyAlignmentSensor(const align::Alignables& sensors,
-					     const std::vector<align::StructureType>& levels):
-  SurveyAlignment(sensors, levels)
-{
-}
+                                             const std::vector<align::StructureType>& levels)
+    : SurveyAlignment(sensors, levels) {}
 
-void SurveyAlignmentSensor::findAlignPars(bool bias)
-{
+void SurveyAlignmentSensor::findAlignPars(bool bias) {
   unsigned int nSensor = theSensors.size();
 
-  for (unsigned int i = 0; i < nSensor; ++i)
-  {
+  for (unsigned int i = 0; i < nSensor; ++i) {
     Alignable* ali = theSensors[i];
 
     AlgebraicVector par(6, 0);
     AlgebraicSymMatrix cov(6, 0);
 
-    for (unsigned int l = 0; l < theLevels.size(); ++l)
-    {
+    for (unsigned int l = 0; l < theLevels.size(); ++l) {
       SurveyResidual res(*ali, theLevels[l], bias);
 
-      if ( !res.valid() ) continue;
+      if (!res.valid())
+        continue;
 
       AlgebraicSymMatrix invCov = res.inverseCovariance();
 
@@ -34,9 +30,9 @@ void SurveyAlignmentSensor::findAlignPars(bool bias)
     }
 
     int dummy;
-    cov.invert(dummy); // cov = cov^-1
+    cov.invert(dummy);  // cov = cov^-1
     par = -cov * par;
 
-    ali->setAlignmentParameters( new SurveyParameters(ali, par, cov) );
+    ali->setAlignmentParameters(new SurveyParameters(ali, par, cov));
   }
 }

@@ -5,35 +5,33 @@
  * Contact: Jeremy.Werner@cern.ch
  * Date: February 21, 2007
  */
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "HLTPMMassFilter.h"
+
+#include <cstdlib>
+#include <cmath>
 
 //
 // constructors and destructor
 //
-HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
-{
-  candTag_       = iConfig.getParameter< edm::InputTag > ("candTag");
-  beamSpot_      = iConfig.getParameter< edm::InputTag > ("beamSpot");
-  l1EGTag_       = iConfig.getParameter< edm::InputTag > ("l1EGCand");
+HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), magFieldToken_(esConsumes()) {
+  candTag_ = iConfig.getParameter<edm::InputTag>("candTag");
+  beamSpot_ = iConfig.getParameter<edm::InputTag>("beamSpot");
+  l1EGTag_ = iConfig.getParameter<edm::InputTag>("l1EGCand");
 
-  lowerMassCut_  = iConfig.getParameter<double> ("lowerMassCut");
-  upperMassCut_  = iConfig.getParameter<double> ("upperMassCut");
-  nZcandcut_     = iConfig.getParameter<int> ("nZcandcut");
-  reqOppCharge_  = iConfig.getUntrackedParameter<bool> ("reqOppCharge",false);
-  isElectron1_   = iConfig.getUntrackedParameter<bool> ("isElectron1", true) ;
-  isElectron2_   = iConfig.getUntrackedParameter<bool> ("isElectron2", true) ;
+  lowerMassCut_ = iConfig.getParameter<double>("lowerMassCut");
+  upperMassCut_ = iConfig.getParameter<double>("upperMassCut");
+  nZcandcut_ = iConfig.getParameter<int>("nZcandcut");
+  reqOppCharge_ = iConfig.getUntrackedParameter<bool>("reqOppCharge", false);
+  isElectron1_ = iConfig.getUntrackedParameter<bool>("isElectron1", true);
+  isElectron2_ = iConfig.getUntrackedParameter<bool>("isElectron2", true);
 
-  candToken_     = consumes<trigger::TriggerFilterObjectWithRefs> (candTag_);
-  beamSpotToken_ = consumes<reco::BeamSpot> (beamSpot_);
+  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
+  beamSpotToken_ = consumes<reco::BeamSpot>(beamSpot_);
 }
 
-HLTPMMassFilter::~HLTPMMassFilter()= default;
+HLTPMMassFilter::~HLTPMMassFilter() = default;
 
-void
-HLTPMMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTPMMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("candTag", edm::InputTag("hltL1NonIsoDoublePhotonEt5UpsHcalIsolFilter"));
@@ -49,9 +47,9 @@ HLTPMMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 }
 
 // ------------ method called to produce the data  ------------
-bool
-HLTPMMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
-{
+bool HLTPMMassFilter::hltFilter(edm::Event& iEvent,
+                                const edm::EventSetup& iSetup,
+                                trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -62,19 +60,17 @@ HLTPMMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
     filterproduct.addCollectionTag(l1EGTag_);
   }
 
-  edm::ESHandle<MagneticField> theMagField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+  auto const& theMagField = iSetup.getData(magFieldToken_);
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByToken (candToken_, PrevFilterOutput);
+  iEvent.getByToken(candToken_, PrevFilterOutput);
 
   // beam spot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByToken(beamSpotToken_,recoBeamSpotHandle);
+  iEvent.getByToken(beamSpotToken_, recoBeamSpotHandle);
   // gets its position
-  const GlobalPoint vertexPos(recoBeamSpotHandle->position().x(),
-			      recoBeamSpotHandle->position().y(),
-			      recoBeamSpotHandle->position().z());
+  const GlobalPoint vertexPos(
+      recoBeamSpotHandle->position().x(), recoBeamSpotHandle->position().y(), recoBeamSpotHandle->position().z());
 
   int n = 0;
 
@@ -86,115 +82,96 @@ HLTPMMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
   std::vector<TLorentzVector> pEleCh1;
   std::vector<TLorentzVector> pEleCh2;
   std::vector<double> charge;
-  std::vector<double> etaOrig;
 
   if (isElectron1_ && isElectron2_) {
+    Ref<ElectronCollection> refele;
 
-    Ref< ElectronCollection > refele;
-
-    vector< Ref< ElectronCollection > > electrons;
+    vector<Ref<ElectronCollection> > electrons;
     PrevFilterOutput->getObjects(TriggerElectron, electrons);
 
-    for (auto & electron : electrons) {
-
+    for (auto& electron : electrons) {
       refele = electron;
 
-      TLorentzVector pThisEle(refele->px(), refele->py(),
-			      refele->pz(), refele->energy() );
-      pEleCh1.push_back( pThisEle );
-      charge.push_back( refele->charge() );
+      TLorentzVector pThisEle(refele->px(), refele->py(), refele->pz(), refele->energy());
+      pEleCh1.push_back(pThisEle);
+      charge.push_back(refele->charge());
     }
 
-    for(unsigned int jj=0;jj<electrons.size();jj++){
-
-      TLorentzVector p1Ele = pEleCh1.at(jj);
-      for(unsigned int ii=jj+1;ii<electrons.size();ii++){
-	
-	TLorentzVector p2Ele = pEleCh1.at(ii);
-	
-	if(fabs(p1Ele.E() - p2Ele.E()) < 0.00001) continue;
-	if(reqOppCharge_ && charge[jj]*charge[ii] > 0) continue;
-	
-	TLorentzVector pTot = p1Ele + p2Ele;
-	double mass = pTot.M();
-	
-	if(mass>=lowerMassCut_ && mass<=upperMassCut_){
-	  n++;
-	  refele = electrons[ii];
-	  filterproduct.addObject(TriggerElectron, refele);
-	  refele = electrons[jj];
-	  filterproduct.addObject(TriggerElectron, refele);
-	}
+    std::vector<bool> save_cand(electrons.size(), true);
+    for (unsigned int jj = 0; jj < electrons.size(); jj++) {
+      for (unsigned int ii = jj + 1; ii < electrons.size(); ii++) {
+        if (reqOppCharge_ && charge[jj] * charge[ii] > 0)
+          continue;
+        if (isGoodPair(pEleCh1[jj], pEleCh1[ii])) {
+          n++;
+          for (auto const idx : {jj, ii}) {
+            if (save_cand[idx])
+              filterproduct.addObject(TriggerElectron, electrons[idx]);
+            save_cand[idx] = false;
+          }
+        }
       }
     }
 
   } else {
+    Ref<RecoEcalCandidateCollection> refsc;
 
-    Ref< RecoEcalCandidateCollection > refsc;
-
-    vector< Ref< RecoEcalCandidateCollection > > scs;
+    vector<Ref<RecoEcalCandidateCollection> > scs;
     PrevFilterOutput->getObjects(TriggerCluster, scs);
-    if(scs.empty()) PrevFilterOutput->getObjects(TriggerPhoton, scs);  //we dont know if its type trigger cluster or trigger photon
+    if (scs.empty())
+      PrevFilterOutput->getObjects(TriggerPhoton, scs);  //we dont know if its type trigger cluster or trigger photon
 
-    for (auto & i : scs) {
-
+    for (auto& i : scs) {
       refsc = i;
       const reco::SuperClusterRef sc = refsc->superCluster();
-      TLorentzVector pscPos = approxMomAtVtx(theMagField.product(), vertexPos, sc, 1);
-      pEleCh1.push_back( pscPos );
+      TLorentzVector pscPos = approxMomAtVtx(theMagField, vertexPos, sc, 1);
+      pEleCh1.push_back(pscPos);
 
-      TLorentzVector pscEle = approxMomAtVtx(theMagField.product(), vertexPos, sc, -1);
-      pEleCh2.push_back( pscEle );
-      etaOrig.push_back( sc->eta() );
-
+      TLorentzVector pscEle = approxMomAtVtx(theMagField, vertexPos, sc, -1);
+      pEleCh2.push_back(pscEle);
     }
 
-    for(unsigned int jj=0;jj<scs.size();jj++){
-
-      TLorentzVector p1Ele = pEleCh1.at(jj);
-      for(unsigned int ii=0;ii<scs.size();ii++){
-	
-	TLorentzVector p2Ele = pEleCh2.at(ii);
-	
-	if(fabs(p1Ele.E() - p2Ele.E()) < 0.00001) continue;
-	
-	TLorentzVector pTot = p1Ele + p2Ele;
-	double mass = pTot.M();
-	
-	if(mass>= lowerMassCut_ && mass<=upperMassCut_){
-	  n++;
-	  refsc = scs[ii];
-	  filterproduct.addObject(TriggerCluster, refsc);
-	  refsc = scs[jj];
-	  filterproduct.addObject(TriggerCluster, refsc);
-	}
+    std::vector<bool> save_cand(scs.size(), true);
+    for (unsigned int jj = 0; jj < scs.size(); jj++) {
+      for (unsigned int ii = jj + 1; ii < scs.size(); ii++) {
+        if (isGoodPair(pEleCh1[jj], pEleCh2[ii]) or isGoodPair(pEleCh2[jj], pEleCh1[ii])) {
+          n++;
+          for (auto const idx : {jj, ii}) {
+            if (save_cand[idx])
+              filterproduct.addObject(TriggerCluster, scs[idx]);
+            save_cand[idx] = false;
+          }
+        }
       }
     }
   }
 
-
   // filter decision
-  bool accept(n>=nZcandcut_);
-  // if (accept) std::cout << "n size = " << n << std::endl;
+  bool accept(n >= nZcandcut_);
 
   return accept;
 }
 
-TLorentzVector HLTPMMassFilter::approxMomAtVtx( const MagneticField *magField, const GlobalPoint& xvert, const reco::SuperClusterRef sc, int charge) const
-{
-    GlobalPoint xsc(sc->position().x(),
-		    sc->position().y(),
-		    sc->position().z());
-    float energy = sc->energy();
-    FreeTrajectoryState theFTS = FTSFromVertexToPointFactory::get(*magField, xsc, xvert, energy, charge);
-    float theApproxMomMod = theFTS.momentum().x()*theFTS.momentum().x() +
-                            theFTS.momentum().y()*theFTS.momentum().y() +
-                            theFTS.momentum().z()*theFTS.momentum().z();
-    TLorentzVector theApproxMom(theFTS.momentum().x(),
-				theFTS.momentum().y(),
-				theFTS.momentum().z(),
-                                sqrt(theApproxMomMod + 2.61121E-7));
-    return theApproxMom ;
+bool HLTPMMassFilter::isGoodPair(TLorentzVector const& v1, TLorentzVector const& v2) const {
+  if (std::abs(v1.E() - v2.E()) < 0.00001)
+    return false;
+
+  auto const mass = (v1 + v2).M();
+  return (mass >= lowerMassCut_ and mass <= upperMassCut_);
+}
+
+TLorentzVector HLTPMMassFilter::approxMomAtVtx(const MagneticField& magField,
+                                               const GlobalPoint& xvert,
+                                               const reco::SuperClusterRef sc,
+                                               int charge) const {
+  GlobalPoint xsc(sc->position().x(), sc->position().y(), sc->position().z());
+  float energy = sc->energy();
+  auto theFTS = trackingTools::ftsFromVertexToPoint(magField, xsc, xvert, energy, charge);
+  float theApproxMomMod = theFTS.momentum().x() * theFTS.momentum().x() +
+                          theFTS.momentum().y() * theFTS.momentum().y() + theFTS.momentum().z() * theFTS.momentum().z();
+  TLorentzVector theApproxMom(
+      theFTS.momentum().x(), theFTS.momentum().y(), theFTS.momentum().z(), sqrt(theApproxMomMod + 2.61121E-7));
+  return theApproxMom;
 }
 
 // declare this class as a framework plugin

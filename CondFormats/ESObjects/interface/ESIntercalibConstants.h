@@ -6,5 +6,4 @@ typedef float ESIntercalibConstant;
 typedef ESFloatCondObjectContainer ESIntercalibConstantMap;
 typedef ESIntercalibConstantMap ESIntercalibConstants;
 
-
 #endif

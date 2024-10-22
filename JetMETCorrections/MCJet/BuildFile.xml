@@ -1,7 +1,0 @@
-<use   name="root"/>
-<use   name="clhep"/>
-<use   name="Geometry/Records"/>
-<use   name="DataFormats/JetReco"/>
-<use   name="DataFormats/Common"/>
-<export>
-</export>

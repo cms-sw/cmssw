@@ -6,80 +6,74 @@
  */
 
 template <class Key, class Content>
-DTBufferTree<Key,Content>::DTBufferTree():
-  bufferContent( DTBufferTreeTrait<Content>::getDefault() ) {
+DTBufferTree<Key, Content>::DTBufferTree() : bufferContent(DTBufferTreeTrait<Content>::getDefault()) {}
+
+template <class Key, class Content>
+DTBufferTree<Key, Content>::~DTBufferTree() {
+  map_iter iter = bufferMap.begin();
+  map_iter iend = bufferMap.end();
+  while (iter != iend)
+    delete (iter++)->second;
 }
 
 template <class Key, class Content>
-DTBufferTree<Key,Content>::~DTBufferTree() {
+void DTBufferTree<Key, Content>::clear() {
   map_iter iter = bufferMap.begin();
   map_iter iend = bufferMap.end();
-  while ( iter != iend ) delete (iter++)->second;
-}
-
-template <class Key, class Content>
-void DTBufferTree<Key,Content>::clear() {
-  map_iter iter = bufferMap.begin();
-  map_iter iend = bufferMap.end();
-  while ( iter != iend ) delete (iter++)->second;
+  while (iter != iend)
+    delete (iter++)->second;
   bufferMap.clear();
   bufferContent = std::move(Content(DTBufferTreeTrait<Content>::getDefault()));
 }
 
 template <class Key, class Content>
-int DTBufferTree<Key,Content>::insert( ElementKey fKey,
-                                       ElementKey lKey,
-                                       Content cont ) {
-  if ( fKey == lKey ) {
+int DTBufferTree<Key, Content>::insert(ElementKey fKey, ElementKey lKey, Content cont) {
+  if (fKey == lKey) {
     bufferContent = std::move(cont);
     return 1;
   }
-  map_iter iter = bufferMap.find( *fKey );
-  if ( iter != bufferMap.end() )
-       return iter->second->insert( ++fKey, lKey, std::move(cont) );
+  map_iter iter = bufferMap.find(*fKey);
+  if (iter != bufferMap.end())
+    return iter->second->insert(++fKey, lKey, std::move(cont));
   map_node* bMap = new map_node;
-  bufferMap.insert( std::pair<Key,
-                    DTBufferTree<Key,Content>*>( *fKey, bMap ) );
-  bMap->insert( ++fKey, lKey, std::move(cont) );
+  bufferMap.insert(std::pair<Key, DTBufferTree<Key, Content>*>(*fKey, bMap));
+  bMap->insert(++fKey, lKey, std::move(cont));
   return 0;
 }
 
 template <class Key, class Content>
-int DTBufferTree<Key,Content>::insert( const Key& k,
-                                       Content cont ) {
-  map_iter iter = bufferMap.find( k );
-  if ( iter != bufferMap.end() ) {
+int DTBufferTree<Key, Content>::insert(const Key& k, Content cont) {
+  map_iter iter = bufferMap.find(k);
+  if (iter != bufferMap.end()) {
     iter->second->bufferContent = std::move(cont);
     return 1;
   }
   map_node* bMap = new map_node;
-  bufferMap.insert( std::pair<Key,
-                    DTBufferTree<Key,Content>*>( k, bMap ) );
+  bufferMap.insert(std::pair<Key, DTBufferTree<Key, Content>*>(k, bMap));
   bMap->bufferContent = std::move(cont);
   return 0;
 }
 
 template <class Key, class Content>
-int DTBufferTree<Key,Content>::find( ElementKey fKey,
+int DTBufferTree<Key, Content>::find(ElementKey fKey,
                                      ElementKey lKey,
                                      typename DTBufferTreeTrait<Content>::outputTypeOfConstFind& cont) const {
-  if ( fKey == lKey ) {
+  if (fKey == lKey) {
     cont = DTBufferTreeTrait<Content>::getOutputValue(bufferContent);
     return 0;
   }
-  map_iter iter = bufferMap.find( *fKey++ );
-  if ( iter != bufferMap.end() )
-       return iter->second->find( fKey, lKey, cont );
-  cont =  DTBufferTreeTrait<Content>::getDefault();
+  map_iter iter = bufferMap.find(*fKey++);
+  if (iter != bufferMap.end())
+    return iter->second->find(fKey, lKey, cont);
+  cont = DTBufferTreeTrait<Content>::getDefault();
   return 1;
 }
 
-
 template <class Key, class Content>
-int DTBufferTree<Key,Content>::find( const Key& k,
-                                     typename DTBufferTreeTrait<Content>::outputTypeOfConstFind& cont ) const {
-  map_iter iter = bufferMap.find( k );
-  if ( iter != bufferMap.end() ) {
+int DTBufferTree<Key, Content>::find(const Key& k,
+                                     typename DTBufferTreeTrait<Content>::outputTypeOfConstFind& cont) const {
+  map_iter iter = bufferMap.find(k);
+  if (iter != bufferMap.end()) {
     cont = DTBufferTreeTrait<Content>::getOutputValue(iter->second->bufferContent);
     return 0;
   }
@@ -88,26 +82,25 @@ int DTBufferTree<Key,Content>::find( const Key& k,
 }
 
 template <class Key, class Content>
-int DTBufferTree<Key,Content>::find( ElementKey fKey,
+int DTBufferTree<Key, Content>::find(ElementKey fKey,
                                      ElementKey lKey,
                                      typename DTBufferTreeTrait<Content>::outputTypeOfNonConstFind& cont) {
-  if ( fKey == lKey ) {
+  if (fKey == lKey) {
     cont = DTBufferTreeTrait<Content>::getOutputValue(bufferContent);
     return 0;
   }
-  map_iter iter = bufferMap.find( *fKey++ );
-  if ( iter != bufferMap.end() )
-       return iter->second->find( fKey, lKey, cont );
+  map_iter iter = bufferMap.find(*fKey++);
+  if (iter != bufferMap.end())
+    return iter->second->find(fKey, lKey, cont);
   cont = DTBufferTreeTrait<Content>::getDefault();
   return 1;
 }
 
-
 template <class Key, class Content>
-int DTBufferTree<Key,Content>::find( const Key& k,
-                                     typename DTBufferTreeTrait<Content>::outputTypeOfNonConstFind& cont ) {
-  map_iter iter = bufferMap.find( k );
-  if ( iter != bufferMap.end() ) {
+int DTBufferTree<Key, Content>::find(const Key& k,
+                                     typename DTBufferTreeTrait<Content>::outputTypeOfNonConstFind& cont) {
+  map_iter iter = bufferMap.find(k);
+  if (iter != bufferMap.end()) {
     cont = DTBufferTreeTrait<Content>::getOutputValue(iter->second->bufferContent);
     return 0;
   }

@@ -3,7 +3,7 @@
 #include "RooRealConstant.h"
 using namespace RooFit;
 
-ClassImp(CruijffPdf)
+ClassImp(CruijffPdf);
 
 CruijffPdf::CruijffPdf(const char *name, const char *title,
 	     RooAbsReal& _m, RooAbsReal& _m0, 

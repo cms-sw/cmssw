@@ -1,4 +1,4 @@
-<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/GeometryVector"/>
@@ -14,5 +14,5 @@
 <use name="RecoVertex/AdaptiveVertexFit"/>
 <use name="rootmath"/>
 <export>
-   <lib name="1"/>
+  <lib name="1"/>
 </export>

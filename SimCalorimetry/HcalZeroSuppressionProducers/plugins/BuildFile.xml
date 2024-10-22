@@ -1,0 +1,9 @@
+<use name="CalibFormats/HcalObjects"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/PluginManager"/>
+<use name="SimCalorimetry/HcalZeroSuppressionProducers"/>
+<library file="*.cc" name="SimCalorimetryZeroSuppressionProducersPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -10,34 +10,38 @@
 #include <cstring>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFSectorProcessor.h"
 
 class CSCMuonPortCard;
-class CSCTFSectorProcessor;
-class L1MuTriggerScales ;
-class L1MuTriggerPtScale ;
+class L1MuTriggerScales;
+class L1MuTriggerPtScale;
 
-class CSCTFTrackBuilder
-{
- public:
+class CSCTFTrackBuilder {
+public:
+  using Tokens = CSCTFSectorProcessor::Tokens;
+  static Tokens consumes(const edm::ParameterSet& pset, edm::ConsumesCollector iC) {
+    return CSCTFSectorProcessor::consumes(pset, iC);
+  }
 
-  void initialize(const edm::EventSetup& c);
+  void initialize(const edm::EventSetup& c, const Tokens& tokens);
 
-  enum { nEndcaps = 2, nSectors = 6};
+  enum { nEndcaps = 2, nSectors = 6 };
 
-  CSCTFTrackBuilder(const edm::ParameterSet& pset, bool TMB07,
-		    const L1MuTriggerScales* scales,
-		    const L1MuTriggerPtScale* ptScale);
+  CSCTFTrackBuilder(const edm::ParameterSet& pset,
+                    bool TMB07,
+                    const L1MuTriggerScales* scales,
+                    const L1MuTriggerPtScale* ptScale);
 
   ~CSCTFTrackBuilder();
 
-  void buildTracks(const CSCCorrelatedLCTDigiCollection*, 
-		   const CSCTriggerContainer<csctf::TrackStub>*, //const L1MuDTChambPhContainer*,
-		   L1CSCTrackCollection*, CSCTriggerContainer<csctf::TrackStub>*);
+  void buildTracks(const CSCCorrelatedLCTDigiCollection*,
+                   const CSCTriggerContainer<csctf::TrackStub>*,  //const L1MuDTChambPhContainer*,
+                   L1CSCTrackCollection*,
+                   CSCTriggerContainer<csctf::TrackStub>*);
 
- private:
+private:
   CSCTFSectorProcessor* my_SPs[nEndcaps][nSectors];
   int m_minBX, m_maxBX;
-
 };
 
 #endif

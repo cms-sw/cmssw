@@ -28,7 +28,7 @@
    of reading configuration files and event looping as shown in the example below:
 
    #include "PhysicsTools/PatExamples/interface/BasicMuonAnalyzer.h"
-   #include "PhysicsTools/UtilAlgos/interface/FWLiteAnalyzerWrapper.h"
+   #include "PhysicsTools/FWLite/interface/FWLiteAnalyzerWrapper.h"
 
    typedef fwlite::AnalyzerWrapper<BasicMuonAnalyzer> WrappedFWLiteAnalyzer;
    ...
@@ -37,16 +37,15 @@
    information have a look into the class description of the corresponding wrapper classes.
 */
 
-
 namespace edm {
 
   class BasicAnalyzer {
   public:
     /// default constructor
-    BasicAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fileService){};
-    BasicAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fileService, edm::ConsumesCollector&& iC){};
+    BasicAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fileService) {}
+    BasicAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fileService, edm::ConsumesCollector&& iC) {}
     /// default destructor
-    virtual ~BasicAnalyzer(){};
+    virtual ~BasicAnalyzer() {}
 
     /**
        The following functions have to be implemented for any class
@@ -56,13 +55,13 @@ namespace edm {
     **/
 
     /// everything that needs to be done before the event loop
-    virtual void beginJob()=0;
+    virtual void beginJob() = 0;
     /// everything that needs to be done after the event loop
-    virtual void endJob()  =0;
+    virtual void endJob() = 0;
     /// everything that needs to be done during the event loop
-    virtual void analyze(const edm::EventBase& event)=0;
+    virtual void analyze(const edm::EventBase& event) = 0;
   };
 
-}
+}  // namespace edm
 
 #endif

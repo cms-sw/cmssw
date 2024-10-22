@@ -9,11 +9,13 @@ SiStripBaselineAnalyzer = cms.EDAnalyzer("SiStripBaselineAnalyzer",
     srcBaselinePoints =  cms.InputTag('siStripZeroSuppression','BADAPVBASELINEPOINTSVirginRaw'),
     srcAPVCM  =  cms.InputTag('siStripZeroSuppression','APVCMVirginRaw'),
     srcProcessedRawDigi =  cms.InputTag('siStripZeroSuppression','VirginRaw'),
+    srcDigis =  cms.InputTag('siStripZeroSuppression','VirginRaw'),
     nModuletoDisplay = cms.uint32(10000),
-    plotClusters = cms.bool(False),
+    plotClusters = cms.bool(True),
     plotBaseline = cms.bool(True),
     plotBaselinePoints = cms.bool(False),
     plotRawDigi	= cms.bool(True),
     plotAPVCM	= cms.bool(True),
-    plotPedestals = cms.bool(True)
+    plotPedestals = cms.bool(True),
+    plotDigis = cms.bool(True)
 )

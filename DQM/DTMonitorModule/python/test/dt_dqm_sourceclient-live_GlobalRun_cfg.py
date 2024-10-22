@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DTDQM")
@@ -15,7 +16,6 @@ process.source.sourceURL = cms.string('http://dqm-c2d07-30:22100/urn:xdaq-applic
 #### DQM Environment
 #----------------------------
 process.load("DQMServices.Core.DQM_cfg")
-process.DQMStore.referenceFileName = "/dtdata/dqmdata/global/dt_reference.root"
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
@@ -69,4 +69,4 @@ process.dtDQMPathPhys = cms.Path(process.unpackers + process.dqmmodules + proces
 
 process.dtDQMPathCalib = cms.Path(process.unpackers + process.dqmmodules + process.calibrationEventsFilter * process.dtDQMCalib)
 
-print process.source.sourceURL
+print(process.source.sourceURL)

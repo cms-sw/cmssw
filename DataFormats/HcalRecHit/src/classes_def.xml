@@ -1,5 +1,6 @@
 <lcgdict>
-   <class name="HBHERecHit" ClassVersion="18">
+   <class name="HBHERecHit" ClassVersion="19">
+    <version ClassVersion="19" checksum="3024868190"/>
     <version ClassVersion="18" checksum="642851014"/>
     <version ClassVersion="17" checksum="4076697378"/>
     <version ClassVersion="16" checksum="2359330573"/>
@@ -20,7 +21,8 @@
    <class name="HFPreRecHit" ClassVersion="3">
     <version ClassVersion="3" checksum="224636588"/>
    </class>
-   <class name="HBHEChannelInfo" ClassVersion="7">
+   <class name="HBHEChannelInfo" ClassVersion="8">
+    <version ClassVersion="8" checksum="158975327"/>
     <version ClassVersion="7" checksum="530224705"/>
     <version ClassVersion="3" checksum="184305963"/>
     <version ClassVersion="4" checksum="1052948187"/>
@@ -33,7 +35,8 @@
     <version ClassVersion="12" checksum="1242817974"/>
     <version ClassVersion="10" checksum="1310006561"/>
    </class>
-   <class name="ZDCRecHit" ClassVersion="12">
+   <class name="ZDCRecHit" ClassVersion="13">
+    <version ClassVersion="13" checksum="1625066895"/>
     <version ClassVersion="12" checksum="4082648564"/>
     <version ClassVersion="11" checksum="2452340764"/>
    </class>
@@ -116,4 +119,9 @@
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >,HFRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >,HFRecHit> > >" />
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >,HORecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >,HORecHit> > >" />
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >,HBHERecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >,HBHERecHit> > >" />
-</lcgdict>
+
+  <class name="hcal::HcalRecHitSoA"/>
+  <class name="hcal::HcalRecHitSoA::View"/>
+  <class name="hcal::RecHitHostCollection" />
+  <class name="edm::Wrapper<hcal::RecHitHostCollection>" splitLevel="0"/>
+  </lcgdict>

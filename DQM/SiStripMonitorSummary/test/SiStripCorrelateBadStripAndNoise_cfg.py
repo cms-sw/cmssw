@@ -3,9 +3,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CALIB")
 process.MessageLogger = cms.Service("MessageLogger",
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
-                                    destinations = cms.untracked.vstring('cout')
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
+)
 
 process.source = cms.Source("EmptyIOVSource",
                             firstValue = cms.uint64(108597),
@@ -18,6 +23,8 @@ process.source = cms.Source("EmptyIOVSource",
 process.load('Configuration.Geometry.GeometryExtended_cff')
 process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
 process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
+process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.trackerGeometry.applyAlignment = False
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
@@ -50,12 +57,10 @@ process.SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
                                                   )
 
 
-process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
-                            #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_full.png'),
-                            TkMapFileName = cms.untracked.string(''),
-                            dataLabel = cms.untracked.string('')
-                            )
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+process.stat = siStripQualityStatistics.clone(
+        #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_full.png'),
+        )
 process.analysis = cms.EDAnalyzer("SiStripCorrelateBadStripAndNoise")
 
 

@@ -3,17 +3,15 @@
 
 #include "HepMC/GenParticle.h"
 
-class LumiMonitorFilter
-{
+class LumiMonitorFilter {
 public:
   LumiMonitorFilter();
   virtual ~LumiMonitorFilter();
 
-  void Describe() const; 
-  bool isGoodForLumiMonitor(const HepMC::GenParticle*) const;
+  void Describe() const;
+  bool isGoodForLumiMonitor(const HepMC::GenParticle *) const;
 
 private:
-
 };
 
 #endif

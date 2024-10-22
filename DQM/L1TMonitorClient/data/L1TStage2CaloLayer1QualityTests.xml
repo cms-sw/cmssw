@@ -5,7 +5,7 @@
       <PARAM name="warning">0.</PARAM>
       <PARAM name="error">1.</PARAM>
       <PARAM name="ymin">0.0</PARAM>
-      <PARAM name="ymax">150.0</PARAM>
+      <PARAM name="ymax">10.0</PARAM>
       <PARAM name="useEmptyBins">0</PARAM>
   </QTEST>
 
@@ -14,7 +14,7 @@
       <PARAM name="warning">0.</PARAM>
       <PARAM name="error">1.</PARAM>
       <PARAM name="ymin">0.0</PARAM>
-      <PARAM name="ymax">100.0</PARAM>
+      <PARAM name="ymax">10.0</PARAM>
       <PARAM name="useEmptyBins">0</PARAM>
   </QTEST>
 

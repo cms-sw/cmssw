@@ -1,6 +1,6 @@
 #ifndef GeometryVector_VectorTag_h
 #define GeometryVector_VectorTag_h
 
-class VectorTag{};
+class VectorTag {};
 
-#endif // GeometryVector_VectorTag_h
+#endif  // GeometryVector_VectorTag_h

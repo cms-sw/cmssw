@@ -24,14 +24,12 @@
 #include "CondFormats/DataRecord/interface/CastorRecoParamsRcd.h"
 #include "CondFormats/DataRecord/interface/CastorSaturationCorrsRcd.h"
 
-
-
-REGISTER_PLUGIN(CastorPedestalsRcd,CastorPedestals);
-REGISTER_PLUGIN(CastorPedestalWidthsRcd,CastorPedestalWidths);
-REGISTER_PLUGIN(CastorGainsRcd,CastorGains);
-REGISTER_PLUGIN(CastorGainWidthsRcd,CastorGainWidths);
-REGISTER_PLUGIN(CastorElectronicsMapRcd,CastorElectronicsMap);
-REGISTER_PLUGIN(CastorChannelQualityRcd,CastorChannelQuality);
-REGISTER_PLUGIN(CastorQIEDataRcd,CastorQIEData);
-REGISTER_PLUGIN(CastorRecoParamsRcd,CastorRecoParams);
-REGISTER_PLUGIN(CastorSaturationCorrsRcd,CastorSaturationCorrs);
+REGISTER_PLUGIN(CastorPedestalsRcd, CastorPedestals);
+REGISTER_PLUGIN(CastorPedestalWidthsRcd, CastorPedestalWidths);
+REGISTER_PLUGIN(CastorGainsRcd, CastorGains);
+REGISTER_PLUGIN(CastorGainWidthsRcd, CastorGainWidths);
+REGISTER_PLUGIN(CastorElectronicsMapRcd, CastorElectronicsMap);
+REGISTER_PLUGIN(CastorChannelQualityRcd, CastorChannelQuality);
+REGISTER_PLUGIN(CastorQIEDataRcd, CastorQIEData);
+REGISTER_PLUGIN(CastorRecoParamsRcd, CastorRecoParams);
+REGISTER_PLUGIN(CastorSaturationCorrsRcd, CastorSaturationCorrs);

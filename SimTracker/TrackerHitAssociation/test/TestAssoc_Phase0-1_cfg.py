@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 import os 
 
 # Create a new CMS process
-from Configuration.StandardSequences.Eras import eras
-process = cms.Process('assocTest',eras.Run2_2017)
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+process = cms.Process('assocTest',Run2_2017)
 
 # Import all the necessary files
 process.load('Configuration.StandardSequences.Services_cff')
@@ -95,6 +95,8 @@ process.testassociator = cms.EDAnalyzer("TestAssociator",
 # process.load("SimTracker.TrackerHitAssociation.test.messageLoggerDebug_cff")
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.TrackAssociator = dict()
 
 # Number of events (-1 = all)
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )

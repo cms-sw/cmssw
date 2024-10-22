@@ -9,14 +9,13 @@
  *
  */
 
-#include "CommonTools/RecoAlgos/src/TrackToRefCandidate.h"
+#include "CommonTools/RecoAlgos/interface/TrackToRefCandidate.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-typedef CandidateProducer<
-          edm::View<reco::Track>,
-          reco::RecoChargedRefCandidateCollection,
-          AnySelector,
-          converter::helper::CandConverter<reco::Track>::type
-        > ChargedRefCandidateProducer;
+typedef CandidateProducer<edm::View<reco::Track>,
+                          reco::RecoChargedRefCandidateCollection,
+                          AnySelector,
+                          converter::helper::CandConverter<reco::Track>::type>
+    ChargedRefCandidateProducer;
 
 DEFINE_FWK_MODULE(ChargedRefCandidateProducer);

@@ -5,5 +5,4 @@
 
 class ZDCAlignmentErrorRcd : public edm::eventsetup::EventSetupRecordImplementation<ZDCAlignmentErrorRcd> {};
 
-#endif 
-
+#endif

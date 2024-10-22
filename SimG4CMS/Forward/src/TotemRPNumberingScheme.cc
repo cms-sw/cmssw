@@ -6,7 +6,7 @@
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author: 
+// Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
 //
 
@@ -20,9 +20,7 @@
 // constructors and destructor
 //
 TotemRPNumberingScheme::TotemRPNumberingScheme(int i) {
-  edm::LogInfo("ForwardSim") << " Creating TotemRPNumberingScheme";
+  edm::LogVerbatim("ForwardSim") << " Creating TotemRPNumberingScheme";
 }
 
-TotemRPNumberingScheme::~TotemRPNumberingScheme() {
-  edm::LogInfo("ForwardSim") << " Deleting TotemRPNumberingScheme";
-}
+TotemRPNumberingScheme::~TotemRPNumberingScheme() {}

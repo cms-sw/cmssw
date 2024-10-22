@@ -1,3 +1,4 @@
+#include "CondFormats/PhysicsToolsObjects/interface/DeDxCalibration.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
@@ -7,7 +8,7 @@
 
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTable.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"   
+#include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"

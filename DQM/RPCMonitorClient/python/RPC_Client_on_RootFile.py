@@ -51,7 +51,8 @@ process.rpcEventSummary.PrescaleFactor = 1
 process.load("DQM.RPCMonitorClient.RPCMon_SS_Dbx_Global_cfi")
 
 ################# Quality Tests ############################
-process.qTesterRPC = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTesterRPC = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
     prescaleFactor = cms.untracked.int32(1)
 )
@@ -71,15 +72,14 @@ InputFile = cms.untracked.string('rfio:/castor/cern.ch/user/d/dlomidze/RPC/Globa
 process.RPCDeadChannelTest = DQMEDHarvester("RPCDeadChannelTest")
 process.RPCOccupancyTest = DQMEDHarvester("RPCOccupancyTest")
 process.RPCClusterSizeTest = DQMEDHarvester("RPCClusterSizeTest")
-process.RPCChamberQuality = DQMEDHarvester("RPCChamberQuality")
 #process.RPCDCSDataSimulator = DQMEDHarvester("RPCDCSDataSimulator")
 process.RPCMultiplicityTest = DQMEDHarvester("RPCMultiplicityTest")
 process.RPCOccupancyChipTest = DQMEDHarvester("RPCOccupancyChipTest");
 process.RPCNoisyStripTest = DQMEDHarvester("RPCNoisyStripTest");
 
-#process.p = cms.Path(process.ReadMeFromFile*process.qTesterRPC*process.RPCClusterSizeTest*process.RPCDeadChannelTest*process.RPCOccupancyTest*process.RPCDCSDataSimulator*process.RPCMultiplicityTest*process.RPCChamberQuality*process.dqmSaver)
+#process.p = cms.Path(process.ReadMeFromFile*process.qTesterRPC*process.RPCClusterSizeTest*process.RPCDeadChannelTest*process.RPCOccupancyTest*process.RPCDCSDataSimulator*process.RPCMultiplicityTest*process.dqmSaver)
 
-process.p = cms.Path(process.ReadMeFromFile*process.qTesterRPC*process.RPCClusterSizeTest*process.RPCDeadChannelTest*process.RPCOccupancyTest*process.RPCMultiplicityTest*process.RPCOccupancyChipTest*process.RPCNoisyStripTest*process.RPCChamberQuality*process.dqmSaver)
+process.p = cms.Path(process.ReadMeFromFile*process.qTesterRPC*process.RPCClusterSizeTest*process.RPCDeadChannelTest*process.RPCOccupancyTest*process.RPCMultiplicityTest*process.RPCOccupancyChipTest*process.RPCNoisyStripTest*process.dqmSaver)
 
 
 

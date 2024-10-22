@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import range
 import itertools
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
@@ -51,12 +53,12 @@ class ProvenanceAnalyzer( Analyzer ):
         if eid != self.lastId:
             #import pdb; pdb.set_trace()
             history = event.input.object().processHistory()
-            for i in reversed(range(history.size())):
+            for i in reversed(list(range(history.size()))):
                 conf = history.at(i)
                 release = conf.releaseVersion().replace('"',"")
                 vnums = self.cmsswVNums(release)
                 if conf.processName() in  ("PAT", "RECO","REC2"):
-                    print "processing step %d: process %s, release %r %s, miniAOD %s" % (i, conf.processName(), release, vnums, self.miniAODVersion(vnums))
+                    print("processing step %d: process %s, release %r %s, miniAOD %s" % (i, conf.processName(), release, vnums, self.miniAODVersion(vnums)))
                     self.provenance = [
                         ('release', release),
                         ('releaseVersion', vnums),

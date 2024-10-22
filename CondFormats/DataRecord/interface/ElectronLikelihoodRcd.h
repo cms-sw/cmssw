@@ -8,9 +8,10 @@
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "CondFormats/DataRecord/interface/ElectronLikelihoodPdfsRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
-class ElectronLikelihoodRcd : public edm::eventsetup::DependentRecordImplementation<ElectronLikelihoodRcd, 
-		boost::mpl::vector<ElectronLikelihoodPdfsRcd > > {};
+class ElectronLikelihoodRcd
+    : public edm::eventsetup::DependentRecordImplementation<ElectronLikelihoodRcd,
+                                                            edm::mpl::Vector<ElectronLikelihoodPdfsRcd> > {};
 
 #endif

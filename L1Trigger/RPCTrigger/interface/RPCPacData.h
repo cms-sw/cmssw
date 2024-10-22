@@ -31,17 +31,16 @@ sprawdzic konwencje znaku mionu !!!!! (takze w L1RpcMuon0)
 
 //class RPCPacData: public RPCPacBase {
 class RPCPacData {
-   friend class RPCPac;
+  friend class RPCPac;
 
 public:
-  
   RPCPacData(std::string patFilesDir, int m_tower, int logSector, int logSegment);
-   
+
   RPCPacData(const RPCPattern::RPCPatVec &patVec, const RPCPattern::TQualityVec &qualVec);
 
-  RPCPacData(const L1RPCConfig * patConf, const int tower, const int sector, const int segment);
-  
-  void init(const RPCPatternsParser& parser, const RPCConst::l1RpcConeCrdnts& coneCrdnts);
+  RPCPacData(const L1RPCConfig *patConf, const int tower, const int sector, const int segment);
+
+  void init(const RPCPatternsParser &parser, const RPCConst::l1RpcConeCrdnts &coneCrdnts);
 
   /*RPCPacMuon run(const RPCLogCone& cone) const;*/
 
@@ -58,13 +57,14 @@ public:
   std::string getPatternsGroupDescription(int patternGroupNum);
 
 private:
-//---------------------needed types------------
+  //---------------------needed types------------
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
   typedef std::list<TEPatternsGroup> TEPatternsGroupList;
+
 private:
   //Pac parametrs
-  short m_RefGroupCount; //!<From pac file - TT_REF_GROUP_NUMBERS.
+  short m_RefGroupCount;  //!<From pac file - TT_REF_GROUP_NUMBERS.
 
   short m_MaxQuality;
 
@@ -72,7 +72,7 @@ private:
     * Contains all patterns from pac file. Needed for patterns expolorer,
     * does not used in trigger algorithm. */
   RPCPattern::RPCPatVec m_PatternsVec;
-  
+
   /** The definiton of allowed coincidence of hits in planes and quality values assigned to them.
     * There can be few quality tables in one m_PAC, to every pattern one of those quality table is asigned.
     * (In barrel usualy 2 quality tables are used: one for high pt (4/6) and one for low pt (3/4).
@@ -97,13 +97,15 @@ private:
     * @param qualityBitset - definition of plnaes in coincidance.
     * (qualityBitset[0] == true means, that LogPlane1 should be fired).
     *  @param quality - quality value assigned to given coincidance. */
-  void insertQualityRecord(unsigned int qualityTabNumber,
-                                unsigned short firedPlanes, short quality);
+  void insertQualityRecord(unsigned int qualityTabNumber, unsigned short firedPlanes, short quality);
 
   /** Adds pattern to m_TrackPatternsGroup or appropriate group
     * from m_EnergeticPatternsGroupList. If the appropriate TEPatternsGroup does
     * not exist, it is created.*/
-  void insertPatterns(const RPCPattern::RPCPatVec &pattern, const int tower = 99, const int sector = 99, const int segment = 99 );
+  void insertPatterns(const RPCPattern::RPCPatVec &pattern,
+                      const int tower = 99,
+                      const int sector = 99,
+                      const int segment = 99);
 
   /** Runs the "baselie" m_PAC algorithm. Compares the hits from cone with patterns
    * from m_TrackPatternsGroup. If many patterns fist to the hits (like usual),

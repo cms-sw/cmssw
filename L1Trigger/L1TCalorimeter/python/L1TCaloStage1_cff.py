@@ -41,9 +41,10 @@ l1CaloScales.L1HtMissThresholds = cms.vdouble(
 0.952755905512,	0.96062992126,	0.968503937008,	0.976377952756,	0.984251968504,	0.992125984252,	1.0,
 )
 
-L1TCaloStage1 = cms.Sequence(
-    simRctUpgradeFormatDigis +
-    simCaloStage1Digis +
-    simCaloStage1FinalDigis +
+L1TCaloStage1Task = cms.Task(
+    simRctUpgradeFormatDigis,
+    simCaloStage1Digis,
+    simCaloStage1FinalDigis,
     simCaloStage1LegacyFormatDigis
 )
+L1TCaloStage1 = cms.Sequence(L1TCaloStage1Task)

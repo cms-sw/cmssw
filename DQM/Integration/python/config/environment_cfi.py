@@ -1,6 +1,7 @@
+from __future__ import print_function
 import os
 import FWCore.ParameterSet.Config as cms
-import ConfigParser
+import configparser as ConfigParser
 
 def loadDQMRunConfigFromFile():
     # try reading the config
@@ -13,7 +14,7 @@ def loadDQMRunConfigFromFile():
     config = ConfigParser.ConfigParser()
     files_read = config.read(conf_locations)
 
-    print "Loaded configuration file from:", files_read
+    print("Loaded configuration file from:", files_read)
     return config
 
 # default values, config in file overrides parts of it
@@ -22,7 +23,7 @@ dqmRunConfigDefaults = {
     'userarea': cms.PSet(
         type = cms.untracked.string("userarea"),
         collectorPort = cms.untracked.int32(9190),
-        collectorHost = cms.untracked.string('dqm-c2d07-29.cms'),
+        collectorHost = cms.untracked.string('127.0.0.1'),
     ),
     'playback': cms.PSet(
         type = cms.untracked.string("playback"),
@@ -41,6 +42,9 @@ dqmFileConfig = loadDQMRunConfigFromFile()
 dqmRunConfigType = "userarea"
 if dqmFileConfig.has_option("host", "type"):
     dqmRunConfigType = dqmFileConfig.get("host", "type")
+    
+isDqmPlayback = cms.PSet( value = cms.untracked.bool( dqmRunConfigType == "playback" ) )
+isDqmProduction = cms.PSet( value = cms.untracked.bool( dqmRunConfigType == "production" ) )
 
 dqmRunConfig = dqmRunConfigDefaults[dqmRunConfigType]
 
@@ -51,11 +55,10 @@ if dqmFileConfig.has_option("host", "collectorPort"):
 if dqmFileConfig.has_option("host", "collectorHost"):
     dqmRunConfig.collectorHost = dqmFileConfig.get("host", "collectorHost")
 
-
 # now start the actual configuration
-print "dqmRunConfig:", dqmRunConfig
+print("dqmRunConfig:", dqmRunConfig)
 
-from DQMServices.Core.DQMStore_cfi import *
+from DQMServices.Core.DQMStore_Online_cfi import *
 
 DQM = cms.Service("DQM",
                   debug = cms.untracked.bool(False),
@@ -75,3 +78,11 @@ dqmSaver.path = "./upload"
 dqmSaver.tag = "PID%06d" % os.getpid()
 dqmSaver.producer = 'DQM'
 dqmSaver.backupLumiCount = 15
+
+# Add Protobuf DQM saver
+from DQMServices.FileIO.DQMFileSaverPB_cfi import dqmSaver as dqmSaverPB
+
+dqmSaverPB.path = './upload/pb'
+dqmSaverPB.tag = 'PID%06d' % os.getpid()
+dqmSaverPB.producer = 'DQM'
+dqmSaverPB.fakeFilterUnitMode = True

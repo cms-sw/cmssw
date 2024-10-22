@@ -10,8 +10,6 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
 
- typedef ObjectCountFilter<
-           reco::MuonCollection
-         >::type MuonCountFilter;
+typedef ObjectCountFilter<reco::MuonCollection>::type MuonCountFilter;
 
-DEFINE_FWK_MODULE( MuonCountFilter );
+DEFINE_FWK_MODULE(MuonCountFilter);

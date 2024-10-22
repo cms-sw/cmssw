@@ -6,27 +6,19 @@
 
 #include <string>
 
-class MaterialBudgetEcalHistos : public MaterialBudgetFormat
-{
+class MaterialBudgetEcalHistos : public MaterialBudgetFormat {
 public:
-  
-  MaterialBudgetEcalHistos( MaterialBudgetData* data, 
-			    TestHistoMgr* mgr,
-			    const std::string& fileName );   
-  ~MaterialBudgetEcalHistos() override{ hend(); }
-  
+  MaterialBudgetEcalHistos(std::shared_ptr<MaterialBudgetData> data,
+                           std::shared_ptr<TestHistoMgr> mgr,
+                           const std::string& fileName);
+  ~MaterialBudgetEcalHistos() override {}
   void fillStartTrack() override;
   void fillPerStep() override;
   void fillEndTrack() override;
-  
+  void endOfRun() override;
+
 private:
-  
-  virtual void book(); 
-  virtual void hend(); 
-  
-  
-private:
-  int MAXNUMBERSTEPS;
+  virtual void book();
   double* theDmb;
   double* theX;
   double* theY;
@@ -34,9 +26,7 @@ private:
   double* theVoluId;
   double* theMateId;
 
-  TestHistoMgr* hmgr;
-
+  std::shared_ptr<TestHistoMgr> hmgr;
 };
-
 
 #endif

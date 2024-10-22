@@ -10,16 +10,11 @@ using namespace std;
 
 #include <iostream>
 
-
-DTROSErrorNotifier::DTROSErrorNotifier(DTROSErrorWord error ): error_(error) {}
-
+DTROSErrorNotifier::DTROSErrorNotifier(DTROSErrorWord error) : error_(error) {}
 
 DTROSErrorNotifier::~DTROSErrorNotifier() {}
 
-
 void DTROSErrorNotifier::print() {
-
-    cout<<"[DTUnpackingModule]: WARNING!! ROS Error of type "<<error_.errorType()
-	<<", from ROB "<<error_.robID()<<endl;
-
+  cout << "[DTUnpackingModule]: WARNING!! ROS Error of type " << error_.errorType() << ", from ROB " << error_.robID()
+       << endl;
 }

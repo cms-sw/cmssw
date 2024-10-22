@@ -11,37 +11,22 @@
 #include <vector>
 
 #include "Pythia6Gun.h"
-// #include "HepMC/GenEvent.h"
 
-// #include "FWCore/Framework/interface/ESHandle.h"
-// #include "FWCore/Framework/interface/EDProducer.h"
+namespace gen {
 
-//#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
-//#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
+  // class Pythia6Service;
 
-// #include "HepPID/ParticleIDTranslations.hh"
-
-namespace gen
-{
-  
-// class Pythia6Service;
-  
-  class Pythia6ParticleGun : public Pythia6Gun 
-  {
-  
+  class Pythia6ParticleGun : public Pythia6Gun {
   public:
-
-    Pythia6ParticleGun( const edm::ParameterSet& );
+    Pythia6ParticleGun(const edm::ParameterSet&);
     ~Pythia6ParticleGun() override;
 
   protected:
-       
     // gun particle(s) characteristics
     //
-    std::vector<int> fPartIDs ;
-                
+    std::vector<int> fPartIDs;
   };
 
-}  // end namespace
+}  // namespace gen
 
 #endif

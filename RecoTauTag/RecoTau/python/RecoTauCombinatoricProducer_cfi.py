@@ -99,12 +99,19 @@ combinatoricModifierConfigs = [
     ),
     # Tau energy reconstruction
     # (to avoid double-counting of energy carried by neutral PFCandidates
-    #  in case PFRecoTauChargedHadrons are built from reco::Tracks)                                          
+    #  in case PFRecoTauChargedHadrons are built from reco::Tracks)
     cms.PSet(
         pfTauEnergyAlgorithmPlugin,
         name = cms.string("tau_en_reconstruction"),
         plugin = cms.string("PFRecoTauEnergyAlgorithmPlugin"),
-        verbosity = cms.int32(0)                                              
+    ),
+    # Add refs to "lost tracks", i.e. tracks associated to
+    # PFRecoTauChargedHadrons built from reco::Tracks
+    cms.PSet(
+        name = cms.string("tau_lost_tracks"),
+        trackSrc = cms.InputTag("generalTracks"),
+        plugin = cms.string("PFRecoTauLostTrackPlugin"),
+        verbosity = cms.int32(0)
     )
 ]
 
@@ -127,7 +134,8 @@ _combinatoricTauConfig = cms.PSet(
     minAbsPhotonSumPt_insideSignalCone = cms.double(2.5),
     minRelPhotonSumPt_insideSignalCone = cms.double(0.10),
     minAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9), # CV: always require at least some photon energy inside signal cone 
-    minRelPhotonSumPt_outsideSignalCone = cms.double(1.e+9)  #     for a tau to be reconstructed in a decay mode with pi0s
+    minRelPhotonSumPt_outsideSignalCone = cms.double(1.e+9), #     for a tau to be reconstructed in a decay mode with pi0s
+    verbosity = cms.int32(0)
 )
 
 combinatoricRecoTaus = cms.EDProducer("RecoTauProducer",
@@ -138,7 +146,7 @@ combinatoricRecoTaus = cms.EDProducer("RecoTauProducer",
     chargedHadronSrc = cms.InputTag('ak4PFJetsRecoTauChargedHadrons'),
     piZeroSrc = cms.InputTag("ak4PFJetsRecoTauPiZeros"),
     buildNullTaus = cms.bool(False),
-    outputSelection = cms.string("leadPFChargedHadrCand().isNonnull()"), # MB: always require that leading PFChargedHadron candidate exists
+    outputSelection = cms.string("leadChargedHadrCand().isNonnull()"), # MB: always require that leading PFChargedHadron candidate exists
     # Make maximum size from which to collect isolation cone objects, w.r.t to
     # the axis of the signal cone objects
     builders = cms.VPSet(

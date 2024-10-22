@@ -7,14 +7,13 @@
 
 #include <string>
 
-namespace edm
-{
-    class ParameterSet;
-    class ConsumesCollector;
-}
+namespace edm {
+  class ParameterSet;
+  class ConsumesCollector;
+}  // namespace edm
 
-
-typedef edmplugin::PluginFactory<TrackingRecHitAlgorithm*(const std::string&, const edm::ParameterSet&, edm::ConsumesCollector&)> TrackingRecHitAlgorithmFactory;
-
+typedef edmplugin::PluginFactory<TrackingRecHitAlgorithm*(
+    const std::string&, const edm::ParameterSet&, edm::ConsumesCollector&)>
+    TrackingRecHitAlgorithmFactory;
 
 #endif

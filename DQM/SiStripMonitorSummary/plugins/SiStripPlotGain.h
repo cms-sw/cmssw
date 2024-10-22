@@ -2,8 +2,9 @@
 //
 // Package:    SiStripPlotGain
 // Class:      SiStripPlotGain
-// 
-/**\class SiStripPlotGain SiStripPlotGain.cc DQM/SiStripMonitorSummary/plugins/SiStripPlotGain.cc
+//
+/**\class SiStripPlotGain SiStripPlotGain.cc
+ DQM/SiStripMonitorSummary/plugins/SiStripPlotGain.cc
 
  Description: <one line class summary>
 
@@ -16,69 +17,55 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "TH2F.h"
-#include "TH1F.h"
+// ROOT includes
 #include "TFile.h"
-
+#include "TH1F.h"
+#include "TH2F.h"
 
 //
 // class decleration
 //
 class TrackerTopology;
 
-class SiStripPlotGain : public edm::EDAnalyzer {
+class SiStripPlotGain : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  explicit SiStripPlotGain(const edm::ParameterSet&);
-  ~SiStripPlotGain() override;
-  
-  
+  explicit SiStripPlotGain(const edm::ParameterSet &);
+  ~SiStripPlotGain() override = default;
+
 private:
-  void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override{};
+  void beginRun(const edm::Run &run, const edm::EventSetup &es) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override {}
+  void endRun(const edm::Run &run, const edm::EventSetup &es) override {}
   void endJob() override;
-  
-  void DoAnalysis(const edm::EventSetup& es, const SiStripApvGain&);
-  void getHistos(const uint32_t & detid, const TrackerTopology* tTopo, std::vector<TH1F*>& histos);
-  TH1F* getHisto(const long unsigned int& index);
 
-  unsigned long long getCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripApvGainRcd>().cacheIdentifier();}
+  void DoAnalysis(const TrackerTopology &tTopo, const SiStripApvGain &);
+  void getHistos(DetId detid, const TrackerTopology &tTopo, std::vector<TH1F *> &histos);
+  TH1F *getHisto(const long unsigned int &index);
 
+  // ----------member data ---------------------------
+  edm::ESWatcher<SiStripApvGainRcd> gainWatcher_;
+  edm::ESGetToken<SiStripApvGain, SiStripApvGainRcd> gainToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 
-     // ----------member data ---------------------------
-
-
-  SiStripDetInfoFileReader * fr;
-
-  edm::ESHandle<SiStripApvGain> Handle_;
-
-
-  TFile* file;
-  std::vector<TH1F*> vTH1;
+  TFile *file;
+  std::vector<TH1F *> vTH1;
 
   TrackerMap *tkmap;
-
-  
-  unsigned long long cacheID;
 };
-
-

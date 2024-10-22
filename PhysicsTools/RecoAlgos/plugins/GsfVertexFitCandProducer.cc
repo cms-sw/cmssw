@@ -6,6 +6,4 @@ typedef ConstrainedFitCandProducer<CandCommonVertexFitter<GsfVertexFitter> > Gsf
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( GsfVertexFitCandProducer );
-
-
+DEFINE_FWK_MODULE(GsfVertexFitCandProducer);

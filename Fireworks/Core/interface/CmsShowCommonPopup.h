@@ -22,53 +22,49 @@ class FWColorSelect;
 class FWParameterBase;
 class FWParameterSetterBase;
 
-class CmsShowCommonPopup : public TGTransientFrame,
-                           public FWParameterSetterEditorBase
-{
+class CmsShowCommonPopup : public TGTransientFrame, public FWParameterSetterEditorBase {
 public:
-   CmsShowCommonPopup( CmsShowCommon*, const TGWindow* p = nullptr, UInt_t w = 1, UInt_t h = 1);
-   ~CmsShowCommonPopup() override;
+  CmsShowCommonPopup(CmsShowCommon*, const TGWindow* p = nullptr, UInt_t w = 1, UInt_t h = 1);
+  ~CmsShowCommonPopup() override;
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   void CloseWindow() override { UnmapWindow(); }
+  void CloseWindow() override { UnmapWindow(); }
 
-   void switchBackground();
-   void permuteColors();
-   void randomizeColors();
+  void switchBackground();
+  void permuteColors();
+  void randomizeColors();
 
-   void changeGeomColor(Color_t);
-   void changeGeomTransparency2D(int);
-   void changeGeomTransparency3D(int);
-   void changeSelectionColorSet(Color_t);
-   void colorSetChanged();
-   void setPaletteGUI();
+  void changeGeomColor(Color_t);
+  void changeGeomTransparency2D(int);
+  void changeGeomTransparency3D(int);
+  void changeSelectionColorSet(Color_t);
+  void colorSetChanged();
+  void setPaletteGUI();
 
-   TGComboBox* getCombo() {return m_combo;}
-   ClassDefOverride(CmsShowCommonPopup, 0);
- 
+  TGComboBox* getCombo() { return m_combo; }
+  ClassDefOverride(CmsShowCommonPopup, 0);
+
 private:
-   CmsShowCommonPopup(const CmsShowCommonPopup&);
-   const CmsShowCommonPopup& operator=(const CmsShowCommonPopup&);
+  CmsShowCommonPopup(const CmsShowCommonPopup&);
+  const CmsShowCommonPopup& operator=(const CmsShowCommonPopup&);
 
-   TGFrame* makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
-   void getColorSetColors (int& hci, int& sci);
-   // ---------- member data --------------------------------
+  TGFrame* makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
+  void getColorSetColors(int& hci, int& sci);
+  // ---------- member data --------------------------------
 
-   CmsShowCommon  *m_common;
+  CmsShowCommon* m_common;
 
-   TGTextButton   *m_backgroundButton;
-   TGHSlider      *m_gammaSlider;
-   TGTextButton   *m_gammaButton;
+  TGTextButton* m_backgroundButton;
+  TGHSlider* m_gammaSlider;
+  TGTextButton* m_gammaButton;
 #ifndef __CINT__
-   FWColorSelect* m_colorSelectWidget[kFWGeomColorSize];
-   FWColorSelect* m_colorRnrCtxHighlightWidget;   
-   FWColorSelect* m_colorRnrCtxSelectWidget;
-   std::vector<std::shared_ptr<FWParameterSetterBase> > m_setters;
+  FWColorSelect* m_colorSelectWidget[kFWGeomColorSize];
+  FWColorSelect* m_colorRnrCtxHighlightWidget;
+  FWColorSelect* m_colorRnrCtxSelectWidget;
+  std::vector<std::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
-   TGComboBox     *m_combo;  
+  TGComboBox* m_combo;
 };
-
-
 
 #endif

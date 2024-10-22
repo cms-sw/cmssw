@@ -1,7 +1,5 @@
-
-
-<bin name="array2xmlEB" file="array2xmlEB.cc" >
-   <use name="CondTools/Ecal" />
-   <use name="CondFormats/EcalObjects" />
-   <use name="DataFormats/EcalDetId" />	
+<bin name="array2xmlEB" file="array2xmlEB.cc">
+  <use name="CondTools/Ecal"/>
+  <use name="CondFormats/EcalObjects"/>
+  <use name="DataFormats/EcalDetId"/>
 </bin>

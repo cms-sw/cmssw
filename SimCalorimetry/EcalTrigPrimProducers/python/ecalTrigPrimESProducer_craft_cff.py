@@ -101,3 +101,22 @@ tpparams16 = cms.ESSource("EmptyESSource",
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
+
+
+tpparams17 = cms.ESSource("EmptyESSource",
+    recordName = cms.string('EcalTPGOddWeightIdMapRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
+tpparams18 = cms.ESSource("EmptyESSource",
+    recordName = cms.string('EcalTPGOddWeightGroupRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
+tpparams19 = cms.ESSource("EmptyESSource",
+    recordName = cms.string('EcalTPGTPModeRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)

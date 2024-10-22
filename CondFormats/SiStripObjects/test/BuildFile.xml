@@ -1,11 +1,18 @@
-<use   name="CondFormats/SiStripObjects"/>
-
-<bin   name="TestSiStripLatency" file="TestSiStripLatency.cc">
+<use name="CondFormats/SiStripObjects"/>
+<bin name="TestSiStripLatency" file="TestSiStripLatency.cc">
 </bin>
 
 <bin name="TestCondFormatsSiStripObjects" file="UnitTests/TestSiStripConfObject.cc,UnitTests/TestSiStripBaseDelay.cc,UnitTests/MasterTestCondFormatsSiStripObjects.cpp">
-   <use name="cppunit"/>
+  <use name="cppunit"/>
 </bin>
 
 <bin file="testSerializationSiStripObjects.cpp">
+</bin>
+
+<bin file="test_catch2_main.cpp,test_catch2_SiStripBadStripForPhase2.cpp" name="test_catch2_SiStripBadStrip_Phase2">
+  <use name="catch2"/>
+</bin>
+
+<bin file="test_catch2_main.cpp,test_catch2_SiStripLatency.cpp" name="test_catch2_SiStripLatency">
+  <use name="catch2"/>
 </bin>

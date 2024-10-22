@@ -11,8 +11,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
-typedef IsolationProducer<reco::MuonCollection, CaloTowerCollection,
-			  CalIsolationAlgo<reco::Muon, CaloTowerCollection>
-                         > MuonCalIsolationProducer;
+typedef IsolationProducer<reco::MuonCollection, CaloTowerCollection, CalIsolationAlgo<reco::Muon, CaloTowerCollection> >
+    MuonCalIsolationProducer;
 
-DEFINE_FWK_MODULE( MuonCalIsolationProducer );
+DEFINE_FWK_MODULE(MuonCalIsolationProducer);

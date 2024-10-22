@@ -2,7 +2,7 @@
 //
 // Package:    CondTools/SiStrip
 // Class:      SiStripApvGainRescaler
-// 
+//
 /**\class SiStripApvGainRescaler SiStripApvGainRescaler.cc CondTools/SiStrip/plugins/SiStripApvGainRescaler.cc
 
  Description: Utility class to rescale the values of SiStrip G2 by the ratio of G1_old/G1_new: this is useful in the case in which a Gain2 payload needs to recycled after a G1 update to keep the G1*G2 product constant
@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <iostream>
@@ -29,7 +28,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
@@ -44,163 +42,141 @@
 // class declaration
 //
 
-class SiStripApvGainRescaler : public edm::one::EDAnalyzer<>  {
-   public:
-      explicit SiStripApvGainRescaler(const edm::ParameterSet&);
-      ~SiStripApvGainRescaler();
+class SiStripApvGainRescaler : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripApvGainRescaler(const edm::ParameterSet&);
+  ~SiStripApvGainRescaler() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      std::unique_ptr<SiStripApvGain> getNewObject(const std::map<std::pair<uint32_t,int>,float>& theMap);
-      virtual void endJob() override;
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  std::unique_ptr<SiStripApvGain> getNewObject(const std::map<std::pair<uint32_t, int>, float>& theMap);
 
-      // ----------member data ---------------------------
-      const std::string m_Record;  
- 
+  // ----------member data ---------------------------
+  const uint32_t m_printdebug;
+  const std::string m_Record;
+
+  // take G2_old and G1_old from the regular gain handle
+  const edm::ESGetToken<SiStripGain, SiStripGainRcd> g1g2Token_;
+  // take the additional G1_new from the Gain3Rcd (dirty trick)
+  const edm::ESGetToken<SiStripApvGain, SiStripApvGain3Rcd> g3Token_;
 };
 
 //
 // constructors and destructor
 //
-SiStripApvGainRescaler::SiStripApvGainRescaler(const edm::ParameterSet& iConfig):
-  m_Record(iConfig.getParameter<std::string> ("Record"))
-{
-   //now do what ever initialization is needed
-}
+SiStripApvGainRescaler::SiStripApvGainRescaler(const edm::ParameterSet& iConfig)
+    : m_printdebug{iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)},
+      m_Record(iConfig.getParameter<std::string>("Record")),
+      g1g2Token_(esConsumes()),
+      g3Token_(esConsumes()) {}
 
-SiStripApvGainRescaler::~SiStripApvGainRescaler()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-}
-
-
+SiStripApvGainRescaler::~SiStripApvGainRescaler() = default;
 //
 // member functions
 //
 
 // ------------ method called for each event  ------------
-void
-SiStripApvGainRescaler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+void SiStripApvGainRescaler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   // take G2_old and G1_old from the regular gain handle
-   edm::ESHandle<SiStripGain> g1g2Handle_;
-   iSetup.get<SiStripGainRcd>().get(g1g2Handle_);
+  const auto& g1g2 = iSetup.getData(g1g2Token_);
+  const auto& g3 = iSetup.getData(g3Token_);
 
-   // take the additional G1_new from the Gain3Rcd (dirty trick)
-   edm::ESHandle<SiStripApvGain> g3Handle_;
-   iSetup.get<SiStripApvGain3Rcd>().get(g3Handle_);
+  std::map<std::pair<uint32_t, int>, float> theMap;
 
-   std::map<std::pair<uint32_t,int>,float> theMap;
-   
-   std::vector<uint32_t> detid;
-   g1g2Handle_->getDetIds(detid);
-   for (const auto & d : detid) {
+  std::vector<uint32_t> detid;
+  g1g2.getDetIds(detid);
+  for (const auto& d : detid) {
+    SiStripApvGain::Range rangeG1_old = g1g2.getRange(d, 0);
+    SiStripApvGain::Range rangeG2_old = g1g2.getRange(d, 1);
+    SiStripApvGain::Range rangeG1_new = g3.getRange(d);
 
-     SiStripApvGain::Range rangeG1_old = g1g2Handle_->getRange(d,0);	
-     SiStripApvGain::Range rangeG2_old = g1g2Handle_->getRange(d,1);	
-     SiStripApvGain::Range rangeG1_new = g3Handle_->getRange(d);	
-	      
-     int nAPV=0;
-     for(int it=0;it<rangeG1_old.second-rangeG1_old.first;it++){
-       nAPV++;
+    int nAPV = 0;
+    for (int it = 0; it < rangeG1_old.second - rangeG1_old.first; it++) {
+      nAPV++;
 
-       std::pair<uint32_t,int> index = std::make_pair(d,nAPV);
+      std::pair<uint32_t, int> index = std::make_pair(d, nAPV);
 
-       float G1_old = g1g2Handle_->getApvGain(it,rangeG1_old);
-       float G2_old = g1g2Handle_->getApvGain(it,rangeG2_old);
-       float G1G2_old = G1_old*G2_old;
-       float G1_new = g3Handle_->getApvGain(it,rangeG1_new);
+      float G1_old = g1g2.getApvGain(it, rangeG1_old);
+      float G2_old = g1g2.getApvGain(it, rangeG2_old);
+      float G1G2_old = G1_old * G2_old;
+      float G1_new = g3.getApvGain(it, rangeG1_new);
 
-       // this is based on G1_old*G2_old = G1_new * G2_new ==> G2_new = (G1_old*G2_old)/G1_new
+      // this is based on G1_old*G2_old = G1_new * G2_new ==> G2_new = (G1_old*G2_old)/G1_new
 
-       float NewGain = G1G2_old/G1_new;
+      float NewGain = G1G2_old / G1_new;
 
-       // DO NOT RESCALE APVs set to the default value
-       if(G2_old!=1.){
-	 theMap[index]=NewGain;
-       } else {
-	 theMap[index]=1.;
-       }
+      // DO NOT RESCALE APVs set to the default value
+      if (G2_old != 1.) {
+        theMap[index] = NewGain;
+      } else {
+        theMap[index] = 1.;
+      }
 
-     } // loop over APVs
-   } // loop over DetIds
+    }  // loop over APVs
+  }  // loop over DetIds
 
-   std::unique_ptr<SiStripApvGain> theAPVGains = this->getNewObject(theMap);
+  std::unique_ptr<SiStripApvGain> theAPVGains = this->getNewObject(theMap);
 
-   // write out the APVGains record
-   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  
-   if( poolDbService.isAvailable() )
-     poolDbService->writeOne(theAPVGains.get(),poolDbService->currentTime(),m_Record);
-   else
-     throw std::runtime_error("PoolDBService required.");
- 
-}
+  // write out the APVGains record
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-SiStripApvGainRescaler::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-SiStripApvGainRescaler::endJob() 
-{
+  if (poolDbService.isAvailable())
+    poolDbService->writeOneIOV(*theAPVGains, poolDbService->currentTime(), m_Record);
+  else
+    throw std::runtime_error("PoolDBService required.");
 }
 
 //********************************************************************************//
-std::unique_ptr<SiStripApvGain>
-SiStripApvGainRescaler::getNewObject(const std::map<std::pair<uint32_t,int>,float>& theMap) 
-{
-  std::unique_ptr<SiStripApvGain> obj = std::unique_ptr<SiStripApvGain>(new SiStripApvGain());
-  
+std::unique_ptr<SiStripApvGain> SiStripApvGainRescaler::getNewObject(
+    const std::map<std::pair<uint32_t, int>, float>& theMap) {
+  std::unique_ptr<SiStripApvGain> obj = std::make_unique<SiStripApvGain>();
+
   std::vector<float> theSiStripVector;
-  uint32_t PreviousDetId = 0; 
-  for(const auto &element : theMap){
+  uint32_t PreviousDetId = 0;
+  unsigned int countDetIds(0);  // count DetIds to print
+  for (const auto& element : theMap) {
     uint32_t DetId = element.first.first;
-    if(DetId != PreviousDetId){
-      if(!theSiStripVector.empty()){
-	SiStripApvGain::Range range(theSiStripVector.begin(),theSiStripVector.end());
-	if ( !obj->put(PreviousDetId,range) )  printf("Bug to put detId = %i\n",PreviousDetId);
+    if (DetId != PreviousDetId) {
+      if (!theSiStripVector.empty()) {
+        SiStripApvGain::Range range(theSiStripVector.begin(), theSiStripVector.end());
+        if (!obj->put(PreviousDetId, range))
+          edm::LogError("SiStripApvGainRescaler") << "Bug to put detId = " << PreviousDetId << "\n";
       }
       theSiStripVector.clear();
       PreviousDetId = DetId;
+      countDetIds++;
     }
     theSiStripVector.push_back(element.second);
-    
-    edm::LogInfo("SiStripApvGainRescaler")<<" DetId: "<<DetId 
-					      <<" APV:   "<<element.first.second
-					      <<" Gain:  "<<element.second
-					      <<std::endl;
+
+    if (countDetIds <= m_printdebug) {
+      edm::LogInfo("SiStripApvGainRescaler")
+          << __FUNCTION__ << " DetId: " << DetId << " APV:   " << element.first.second << " Gain:  " << element.second;
+    }
   }
-  
-  if(!theSiStripVector.empty()){
-    SiStripApvGain::Range range(theSiStripVector.begin(),theSiStripVector.end());
-    if ( !obj->put(PreviousDetId,range) )  printf("Bug to put detId = %i\n",PreviousDetId);
+
+  if (!theSiStripVector.empty()) {
+    SiStripApvGain::Range range(theSiStripVector.begin(), theSiStripVector.end());
+    if (!obj->put(PreviousDetId, range))
+      edm::LogError("SiStripApvGainRescaler") << "Bug to put detId = " << PreviousDetId << "\n";
   }
-  
+
   return obj;
 }
 
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-SiStripApvGainRescaler::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiStripApvGainRescaler::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  
-  desc.setComment(" Utility class to rescale the values of SiStrip G2 by the ratio of G1_old/G1_new: this is useful in the case in which a Gain2 payload needs to recycled after a G1 update to keep the G1*G2 product constant."
-		  "PoolDBOutputService must be set up for 'SiStripApvGainRcd'.");
-  
-  desc.add<std::string>("Record","SiStripApvGainRcd");
+
+  desc.setComment(
+      " Utility class to rescale the values of SiStrip G2 by the ratio of G1_old/G1_new: this is useful in the case in "
+      "which a Gain2 payload needs to recycled after a G1 update to keep the G1*G2 product constant."
+      "PoolDBOutputService must be set up for 'SiStripApvGainRcd'.");
+
+  desc.add<std::string>("Record", "SiStripApvGainRcd");
+  desc.addUntracked<unsigned int>("printDebug", 1);
   descriptions.add("rescaleGain2byGain1", desc);
 }
 

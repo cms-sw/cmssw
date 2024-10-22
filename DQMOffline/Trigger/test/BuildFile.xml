@@ -1,0 +1,7 @@
+<bin file="*_catch2_test.cpp" name="testDQMOfflineTrigger">
+  <use name="DQMOffline/Trigger"/>
+  <use name="catch2"/>
+</bin>
+
+<!-- test the HLTFiltersDQMonitor plugin -->
+<test name="testHLTFiltersDQMonitor" command="testHLTFiltersDQMonitor.sh"/>

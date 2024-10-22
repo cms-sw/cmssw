@@ -1,0 +1,10 @@
+<library file="TestPreMixingPileupAnalyzer.cc" name="SimGeneralPreMixingModuleTestPlugins">
+  <flags EDM_PLUGIN="1"/>
+  <use name="DataFormats/Common"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="SimDataFormats/PileupSummaryInfo"/>
+</library>
+
+<test name="runtestSimGeneralPreMixingModule" command="run_testPremixPileupAdjustment.sh"/>

@@ -1,7 +1,6 @@
 #ifndef ERROROBJ_ICC
-  #error ErrorObj.icc erroneously included by file other than ErrorObj.h
+#error ErrorObj.icc erroneously included by file other than ErrorObj.h
 #endif
-
 
 // ----------------------------------------------------------------------
 //
@@ -13,54 +12,65 @@
 
 // ----------------------------------------------------------------------
 
-#include<sstream>
+#include <sstream>
 
-namespace edm {      
+#include "fmt/ostream.h"
 
-// ----------------------------------------------------------------------
-// Methods for physicists adding to an ErrorObj:
-// ----------------------------------------------------------------------
+namespace edm {
 
-template <class T>
-ErrorObj & 
-ErrorObj::opltlt ( const T & t )  {
-  myOs.str(emptyString);
-  myOs << t;
+  // ----------------------------------------------------------------------
+  // Methods for physicists adding to an ErrorObj:
+  // ----------------------------------------------------------------------
+
+  template <class T>
+  ErrorObj& ErrorObj::opltlt(const T& t) {
+    myOs.str(emptyString);
+    myOs << t;
 #ifdef OLD_STYLE_AUTOMATIC_SPACES
-  if ( ! myOs.str().empty() ) emitToken( myOs.str() + ' ' );
+    if (!myOs.str().empty())
+      emitToken(myOs.str() + ' ');
 #else
-  if ( ! myOs.str().empty() ) emitToken( myOs.str() );
+    if (!myOs.str().empty())
+      emitToken(myOs.str());
 #endif
-  return *this;
-}  // operator<< <T>()
+    return *this;
+  }  // operator<< <T>()
 
-// ----------------------------------------------------------------------
-// Global method for physicists adding to an ErrorObj:
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
+  // Global method for physicists adding to an ErrorObj:
+  // ----------------------------------------------------------------------
 
+  template <class T>
+  ErrorObj& operator<<(ErrorObj& e, const T& t) {
+    return e.opltlt(t);
+  }  // operator<< <T>()
 
-template <class T>
-ErrorObj & operator<<( ErrorObj & e, const T & t )  {
-  return e.opltlt(t);
-}  // operator<< <T>()
+  inline ErrorObj& ErrorObj::operator<<(std::ostream& (*f)(std::ostream&)) {
+    f(myOs);
+    myOs.str(emptyString);
+    return *this;
+  }
 
-inline 
-ErrorObj &  
-ErrorObj::operator<< (  std::ostream&(*f)(std::ostream&) ) {
-  f(myOs);
-  myOs.str(emptyString);
-  return *this;
-} 
+  inline ErrorObj& ErrorObj::operator<<(std::ios_base& (*f)(std::ios_base&)) {
+    f(myOs);
+    return *this;
+  }
 
-inline
-ErrorObj &  
-ErrorObj::operator<< ( std::ios_base&(*f)(std::ios_base&) ) {
-  f(myOs);
-  return *this;
-} 
+  template <typename... Args>
+  inline ErrorObj& ErrorObj::format(fmt::format_string<Args...> format, Args&&... args) {
+    auto str = fmt::format(std::move(format), std::forward<Args>(args)...);
+    if (!str.empty())
+      emitToken(str);
+    return *this;
+  }
 
+  inline ErrorObj& ErrorObj::vformat(std::string_view format, fmt::format_args args) {
+    auto str = fmt::vformat(format, args);
+    if (!str.empty())
+      emitToken(str);
+    return *this;
+  }
 
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
 
-
-}        // end of namespace edm
+}  // end of namespace edm

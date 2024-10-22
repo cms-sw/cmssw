@@ -5,5 +5,4 @@
 
 class DTAlignmentRcd : public edm::eventsetup::EventSetupRecordImplementation<DTAlignmentRcd> {};
 
-#endif 
-
+#endif

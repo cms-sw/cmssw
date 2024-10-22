@@ -41,9 +41,9 @@ class Lepton( PhysicsObject):
 
     def lostInner(self):
         if hasattr(self.innerTrack(),"trackerExpectedHitsInner") :
-		return self.innerTrack().trackerExpectedHitsInner().numberOfLostHits()
-	else :	
-		return self.innerTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS)	
+            return self.innerTrack().trackerExpectedHitsInner().numberOfLostHits()
+        else :	
+            return self.innerTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS)	
 
     def p4WithFSR(self):
         ret = self.p4()

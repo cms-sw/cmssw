@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to run online L1 Trigger DQM
 #     the user can choose the environment (live, playback, file-P5, file)
@@ -35,8 +36,8 @@ if l1DqmEnv == 'file' :
     elif globalTagType == 'R' :
         globalTagValue = 'GR_R_52_V4'
     else :
-        print 'No valid global tag type', globalTagType
-        print 'Valid types: HLT, P, E, R'
+        print('No valid global tag type', globalTagType)
+        print('Valid types: HLT, P, E, R')
         sys.exit()
 
 
@@ -45,9 +46,9 @@ process = cms.Process("DQM")
 # check that a valid choice for environment exists
 
 if not ((l1DqmEnv == 'live') or l1DqmEnv == 'playback' or l1DqmEnv == 'file-P5' or l1DqmEnv == 'file' ) :
-    print 'No valid input source was chosen. Your value for l1DqmEnv input parameter is:'
-    print 'l1DqmEnv = ', l1DqmEnv
-    print 'Available options: "live", "playback", "file-P5", "file" '
+    print('No valid input source was chosen. Your value for l1DqmEnv input parameter is:')
+    print('l1DqmEnv = ', l1DqmEnv)
+    print('Available options: "live", "playback", "file-P5", "file" ')
     sys.exit()
 
 #----------------------------
@@ -63,7 +64,7 @@ if l1DqmEnv == 'live' :
     process.EventStreamHttpReader.maxEventRequestRate = cms.untracked.double(25.0)
 
 elif l1DqmEnv == 'playback' :
-    print 'FIXME'
+    print('FIXME')
     sys.exit()
 
 else :
@@ -81,7 +82,6 @@ process.dqmEnv.subSystemFolder = 'L1T'
 
 if l1DqmEnv == 'live' :
     process.load("DQM.Integration.test.environment_cfi")
-    process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
 
     #
     # load and configure modules via Global Tag
@@ -91,7 +91,7 @@ if l1DqmEnv == 'live' :
     process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
 
 elif l1DqmEnv == 'playback' :
-    print 'FIXME'
+    print('FIXME')
 
 elif l1DqmEnv == 'file-P5' :
     process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
@@ -286,25 +286,19 @@ process.schedule.remove(process.l1tSyncPath)
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1tGt']
-process.MessageLogger.categories.append('L1TGT')
-process.MessageLogger.destinations = ['L1TDQM_errors',
-                                      'L1TDQM_warnings',
-                                      'L1TDQM_info',
-                                      'L1TDQM_debug'
-                                      ]
 
-process.MessageLogger.L1TDQM_errors = cms.untracked.PSet(
+process.MessageLogger.files.L1TDQM_errors = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
        )
 
-process.MessageLogger.L1TDQM_warnings = cms.untracked.PSet(
+process.MessageLogger.files.L1TDQM_warnings = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) )
         )
 
-process.MessageLogger.L1TDQM_info = cms.untracked.PSet(
+process.MessageLogger.files.L1TDQM_info = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -312,7 +306,7 @@ process.MessageLogger.L1TDQM_info = cms.untracked.PSet(
         L1TGT = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
         )
 
-process.MessageLogger.L1TDQM_debug = cms.untracked.PSet(
+process.MessageLogger.files.L1TDQM_debug = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -324,7 +318,7 @@ process.MessageLogger.L1TDQM_debug = cms.untracked.PSet(
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
 
-print "Running with run type = ", process.runType.getRunType()
+print("Running with run type = ", process.runType.getRunType())
 process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.csctfDigis.producer = cms.InputTag("rawDataCollector")
 process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataCollector")

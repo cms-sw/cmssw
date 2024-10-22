@@ -17,31 +17,25 @@ namespace edm {
   class ParameterSet;
 }
 
-class SurveyInputTrackerFromDB:
-  public SurveyInputBase
-{
+class SurveyInputTrackerFromDB : public SurveyInputBase {
 public:
-	
-  SurveyInputTrackerFromDB(
-			   const edm::ParameterSet&
-			   );
-	
+  SurveyInputTrackerFromDB(const edm::ParameterSet&);
+
   /// Read ideal tracker geometry from DB
-  void analyze(
-		       const edm::Event&,
-		       const edm::EventSetup&
-		       ) override;
-	
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
 private:
-	
   SurveyInputTextReader::MapType uIdMap;
 
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
+
   std::string textFileName;
-	
+
   /// Add survey info to an alignable
-  void addSurveyInfo(
-		     Alignable*
-		     );
+  void addSurveyInfo(Alignable*);
 };
 
 #endif

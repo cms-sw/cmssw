@@ -1,29 +1,30 @@
-<use   name="rootgraphics"/>
-<use   name="Alignment/TrackerAlignment"/>
-<use   name="DataFormats/TrackingRecHit"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-
-<library   name="AlignmentTrackerAlignment_test" file="*.cpp">
-  <use   name="Geometry/CommonDetUnit"/>
-  <use   name="CondCore/DBOutputService"/>
-  <use   name="CondFormats/Alignment"/>
-  <use   name="CondFormats/AlignmentRecord"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <flags   EDM_PLUGIN="1"/>
+<use name="rootgraphics"/>
+<use name="Alignment/TrackerAlignment"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<library name="AlignmentTrackerAlignment_test" file="*.cpp">
+  <use name="Geometry/CommonDetUnit" source_only="1"/>
+  <use name="CondCore/DBOutputService"/>
+  <use name="CondFormats/Alignment"/>
+  <use name="CondFormats/AlignmentRecord"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 
 <library name="TrackerGeometryAnalyzerPlugin" file="TrackerGeometryAnalyzer.cc">
   <!-- contains TrackerTopology class -->
   <use name="DataFormats/TrackerCommon"/>
   <!-- for IdealGeometryRecord registration
-  <use name="Geometry/Records"/> -->
+<use name="Geometry/Records"/> -->
   <!-- for PTrackerParametersRcd registration -->
   <use name="CondFormats/GeometryObjects"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<test name="test_PixelBaryCentreTool" command="pixelPositions.sh ${LOCALTOP}/tmp/PixelBaryCentreTool"/>
+<test name="test_PixelBaryCentreTool" command="pixelPositions.sh"/>
+<test name="test_ProduceSystematicMisalignment" command="testProduceAllMisalignments.sh"/>
+<test name="test_CreateRandomMisalignment" command="testCreateRandomMisalignment.sh"/>
+<test name="test_CreateReferenceRecords" command="testCreateReferenceRecords.sh"/>

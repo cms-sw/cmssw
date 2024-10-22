@@ -13,11 +13,12 @@
 
 namespace reco {
   // PFTauTransverseImpactParameter
-  typedef edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > PFTauTIPAssociation;
-  typedef PFTauTIPAssociation::value_type PFTauTIPAssociationVT;  
-  typedef edm::Ref<PFTauTIPAssociation> PFTauTIPAssociationRef;  
-  typedef edm::RefProd<PFTauTIPAssociation> PFTauTIPAssociationRefProd;  
-  typedef edm::RefVector<PFTauTIPAssociation> PFTauTIPAssociationRefVector; 
+  typedef edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> >
+      PFTauTIPAssociation;
+  typedef PFTauTIPAssociation::value_type PFTauTIPAssociationVT;
+  typedef edm::Ref<PFTauTIPAssociation> PFTauTIPAssociationRef;
+  typedef edm::RefProd<PFTauTIPAssociation> PFTauTIPAssociationRefProd;
+  typedef edm::RefVector<PFTauTIPAssociation> PFTauTIPAssociationRefVector;
   // std::vector<reco::vertex>
   typedef edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> > PFTauVertexAssociation;
   typedef PFTauVertexAssociation::value_type PFTauVertexAssociationVT;
@@ -25,12 +26,12 @@ namespace reco {
   typedef edm::RefProd<PFTauVertexAssociation> PFTauVertexAssociationRefProd;
   typedef edm::RefVector<PFTauVertexAssociation> PFTauVertexAssociationRefVector;
   // std::vector<std::vector<reco::Vertex> >
-  typedef edm::AssociationVector<PFTauRefProd,  std::vector<std::vector<reco::VertexRef> > > PFTauVertexVAssociation;
+  typedef edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef> > > PFTauVertexVAssociation;
   typedef PFTauVertexVAssociation::value_type PFTauVertexVAssociationVT;
   typedef edm::Ref<PFTauVertexVAssociation> PFTauVertexVAssociationRef;
   typedef edm::RefProd<PFTauVertexVAssociation> PFTauVertexVAssociationRefProd;
   typedef edm::RefVector<PFTauVertexVAssociation> PFTauVertexVAssociationRefVector;
 
-}
+}  // namespace reco
 
 #endif

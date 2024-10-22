@@ -16,8 +16,8 @@
 #include <string>
 #include <iostream>
 
-namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
+namespace pos {
+  /*!  \ingroup ConfigurationObjects "Configuration Objects"
 *    
 *  @{
 *
@@ -33,51 +33,43 @@ namespace pos{
 *  interface and not care about the specific
 *  implementation
 */
-  class PixelMaskBase: public PixelConfigBase {
-
+  class PixelMaskBase : public PixelConfigBase {
   public:
-
-    PixelMaskBase(std::string description, 
-		  std::string creator,
-		  std::string date);
+    PixelMaskBase(std::string description, std::string creator, std::string date);
 
     ~PixelMaskBase() override;
 
-    void setOverride(PixelMaskOverrideBase*);
+    void setOverride(PixelMaskOverrideBase *);
 
-    virtual const PixelROCMaskBits& getMaskBits(int ROCId) const =0;
+    virtual const PixelROCMaskBits &getMaskBits(int ROCId) const = 0;
 
-    virtual PixelROCMaskBits* getMaskBits(PixelROCName name) =0;
+    virtual PixelROCMaskBits *getMaskBits(PixelROCName name) = 0;
 
+    virtual void writeBinary(std::string filename) const = 0;
 
-    virtual void writeBinary(std::string filename) const =0;
+    void writeASCII(std::string filename) const override = 0;
+    void writeXML(pos::PixelConfigKey key, int version, std::string path) const override { ; }
+    void writeXMLHeader(pos::PixelConfigKey key,
+                        int version,
+                        std::string path,
+                        std::ofstream *out,
+                        std::ofstream *out1 = nullptr,
+                        std::ofstream *out2 = nullptr) const override {
+      ;
+    }
+    void writeXML(std::ofstream *out, std::ofstream *out1 = nullptr, std::ofstream *out2 = nullptr) const override { ; }
+    void writeXMLTrailer(std::ofstream *out,
+                         std::ofstream *out1 = nullptr,
+                         std::ofstream *out2 = nullptr) const override {
+      ;
+    }
 
-    void writeASCII(std::string filename) const override =0;
-    void writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const override {;}
-    void writeXMLHeader(pos::PixelConfigKey key, 
-				int version, 
-				std::string path, 
-				std::ofstream *out,
-				std::ofstream *out1 = nullptr,
-				std::ofstream *out2 = nullptr
-				) const override {;}
-    void writeXML( std::ofstream *out,                                                              
-			   std::ofstream *out1 = nullptr ,
-			   std::ofstream *out2 = nullptr ) const override {;}
-    void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 =nullptr
-				  ) const override {;}
+    friend std::ostream &operator<<(std::ostream &s, const PixelMaskBase &mask);
 
-    friend std::ostream& operator<<(std::ostream& s, const PixelMaskBase& mask);
-    
   private:
-
     //Hold pointer to the mask override information.
-    PixelMaskOverrideBase* maskOverride_;
-
-
+    PixelMaskOverrideBase *maskOverride_;
   };
-}
+}  // namespace pos
 /* @} */
 #endif

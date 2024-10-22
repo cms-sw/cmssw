@@ -19,25 +19,21 @@
 #include <memory>
 #include <vector>
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
 class TrackFromPVSelector : public edm::global::EDProducer<> {
 public:
-
   explicit TrackFromPVSelector(edm::ParameterSet const& iConfig);
 
   void produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const override;
 
 private:
-
   double max_dxy_;
   double max_dz_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> v_recoVertexToken_;
   edm::EDGetTokenT<std::vector<reco::Track>> v_recoTrackToken_;
 };
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
@@ -45,11 +41,10 @@ private:
 
 //______________________________________________________________________________
 TrackFromPVSelector::TrackFromPVSelector(edm::ParameterSet const& iConfig)
-  : max_dxy_{iConfig.getParameter<double>("max_dxy")}
-  , max_dz_{iConfig.getParameter<double>("max_dz")}
-  , v_recoVertexToken_{consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVertex"))}
-  , v_recoTrackToken_{consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("srcTrack"))}
-{
+    : max_dxy_{iConfig.getParameter<double>("max_dxy")},
+      max_dz_{iConfig.getParameter<double>("max_dz")},
+      v_recoVertexToken_{consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVertex"))},
+      v_recoTrackToken_{consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("srcTrack"))} {
   produces<std::vector<reco::Track>>();
 }
 
@@ -58,8 +53,7 @@ TrackFromPVSelector::TrackFromPVSelector(edm::ParameterSet const& iConfig)
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void TrackFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
-{
+void TrackFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
   edm::Handle<std::vector<reco::Vertex>> vertices;
   iEvent.getByToken(v_recoVertexToken_, vertices);
 
@@ -69,10 +63,10 @@ void TrackFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventS
   auto goodTracks = std::make_unique<std::vector<reco::Track>>();
   if (!vertices->empty() && !tracks->empty()) {
     auto const& vtxPos = vertices->front().position();
-    std::copy_if(std::cbegin(*tracks), std::cend(*tracks), std::back_inserter(*goodTracks),
-                 [this, &vtxPos](auto const& track) {
-                   return std::abs(track.dxy(vtxPos)) < max_dxy_ && std::abs(track.dz(vtxPos)) < max_dz_;
-                 });
+    std::copy_if(
+        std::cbegin(*tracks), std::cend(*tracks), std::back_inserter(*goodTracks), [this, &vtxPos](auto const& track) {
+          return std::abs(track.dxy(vtxPos)) < max_dxy_ && std::abs(track.dz(vtxPos)) < max_dz_;
+        });
   }
   iEvent.put(std::move(goodTracks));
 }

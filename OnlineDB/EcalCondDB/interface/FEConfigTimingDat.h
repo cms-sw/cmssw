@@ -9,8 +9,8 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class FEConfigTimingDat : public IDataItem {
- public:
-  friend class EcalCondDBInterface; // XXX temp should not need
+public:
+  friend class EcalCondDBInterface;  // XXX temp should not need
   FEConfigTimingDat();
   ~FEConfigTimingDat() override;
 
@@ -22,19 +22,18 @@ class FEConfigTimingDat : public IDataItem {
   inline void setTimingPar2(int x) { m_par2 = x; }
   inline int getTimingPar2() const { return m_par2; }
 
- private:
+private:
   void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigTimingDat* item, FEConfigTimingInfo* iconf) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigTimingDat>* data, FEConfigTimingInfo* iconf) noexcept(false);
+  void writeArrayDB(const std::map<EcalLogicID, FEConfigTimingDat>* data, FEConfigTimingInfo* iconf) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, FEConfigTimingDat >* fillMap, FEConfigTimingInfo* iconf) noexcept(false);
+  void fetchData(std::map<EcalLogicID, FEConfigTimingDat>* fillMap, FEConfigTimingInfo* iconf) noexcept(false);
 
   // User data
   int m_par1;
   int m_par2;
-
 };
 
 #endif

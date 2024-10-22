@@ -2,7 +2,7 @@
 //
 // Package:     PluginManager
 // Class  :     OneDummy
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -17,10 +17,8 @@
 
 namespace testedmplugin {
   struct DummyOne : public DummyBase {
-    int value() const {
-      return 1;
-    }
+    int value() const { return 1; }
   };
-}
+}  // namespace testedmplugin
 
-DEFINE_EDM_PLUGIN(testedmplugin::DummyFactory,testedmplugin::DummyOne,"DummyOne");
+DEFINE_EDM_PLUGIN(testedmplugin::DummyFactory, testedmplugin::DummyOne, "DummyOne");

@@ -20,7 +20,7 @@
 class MagBSlab;
 class MagVolume;
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "MagneticField/Layers/src/MagBinFinders.h"
+#include "MagneticField/Layers/interface/MagBinFinders.h"
 
 class MagBRod {
 public:
@@ -31,17 +31,14 @@ public:
   virtual ~MagBRod();
 
   /// Find the volume containing a point, with a given tolerance
-  const MagVolume * findVolume(const GlobalPoint & gp, double tolerance) const;
+  const MagVolume* findVolume(const GlobalPoint& gp, double tolerance) const;
 
   /// Phi of rod start
-  Geom::Phi<float> minPhi() const {return thePhiMin;}
+  Geom::Phi<float> minPhi() const { return thePhiMin; }
 
 private:
   std::vector<MagBSlab*> theSlabs;
   Geom::Phi<float> thePhiMin;
   MagBinFinders::GeneralBinFinderInZ<double>* theBinFinder;
-
 };
 #endif
-
-

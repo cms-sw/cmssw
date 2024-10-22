@@ -500,6 +500,8 @@ C...to collapse into one or two particles and to check flavours.
     
 C...Rearrange parton shower product listing along strings: begin loop.  
       I1=N  
+      DO 101 J=1,5
+  101 DPC(J)=0
       DO 130 MQGST=1,2  
       DO 120 I=MAX(1,IP),N  
       IF(K(I,1).NE.3) GOTO 120  
@@ -3459,6 +3461,11 @@ C...Initialization of cutoff masses etc.
       PT2MIN=MAX(0.5*PARJ(82),1.1*PARJ(81))**2  
       ALAMS=PARJ(81)**2 
       ALFM=LOG(PT2MIN/ALAMS)    
+      DO 101 I=1,4
+      ISI(I)=0
+      IPA(I)=0
+      KFLD(I)=0
+  101 CONTINUE
     
 C...Store positions of shower initiating partons.   
       M3JC=0    
@@ -7134,7 +7141,7 @@ C...in the event weighting.
      &NAREL(6),WTREL(6),WTMAT(6,6),COEFU(6),IACCMX(4),SIGSMX(4),    
      &SIGSSM(3) 
       DATA CVAR/'tau ','tau''','y*  ','cth '/   
-    
+      INTEGER :: IOFF=0
 C...Select subprocess to study: skip cases not applicable.  
       VINT(143)=1.  
       VINT(144)=1.  
@@ -9582,6 +9589,8 @@ C...Start iteration to find k factor.
         XI=0.   
         YI=0.   
         XK=0.5  
+        XF=1.
+        YF=1.
         IIT=0   
   130   IF(IIT.EQ.0) THEN   
           XK=2.*XK  
@@ -9877,6 +9886,9 @@ C...Add second parton to event record.
     
         IF(RFLAV.LT.PARP(85).AND.NSTR.GE.1) THEN    
 C....Choose relevant string pieces to place gluons on.  
+          IST1=0
+          IST2=0
+          ISTM=0
           DO 210 I=N+1,N+2  
           DMIN=1E8  
           DO 200 ISTR=1,NSTR    
@@ -10346,9 +10358,12 @@ C...(Phys. Rev. D33, 665, plus errata from the authors).
     
 C...Define initial two objects, initialize loop.    
       ISUB=MINT(1)  
-      SH=VINT(44)   
-      IREF(1,5)=0   
-      IREF(1,6)=0   
+      SH=VINT(44)
+C...Initialize variable with default value
+      DO I=1,6
+         IREF(1,I)=0.0
+      ENDDO
+
       IF(ISET(ISUB).EQ.1.OR.ISET(ISUB).EQ.3) THEN   
         IREF(1,1)=MINT(84)+2+ISET(ISUB) 
         IREF(1,2)=0 
@@ -10373,7 +10388,7 @@ cms.. pre-intialize
       DO 140 JT=1,JTMAX 
       KDCY(JT)=0    
       KFL1(JT)=0    
-      KFL2(JT)=0    
+      KFL2(JT)=0
       NSD(JT)=IREF(IP,JT)   
       ID=IREF(IP,JT)    
       IF(ID.EQ.0) GOTO 140  
@@ -11245,6 +11260,7 @@ C...H0 -> g + g; quark loop contribution only
 C...H0 -> gamma + gamma; quark, charged lepton and W loop contributions 
           ETARE=0.  
           ETAIM=0.  
+          EJ=0.
           DO 150 J=1,3*MSTP(1)+1    
           IF(J.LE.2*MSTP(1)) THEN   
             EJ=KCHG(J,1)/3. 
@@ -11286,7 +11302,9 @@ C...H0 -> gamma + gamma; quark, charged lepton and W loop contributions
         ELSEIF(I.EQ.15) THEN    
 C...H0 -> gamma + Z0; quark, charged lepton and W loop contributions    
           ETARE=0.  
-          ETAIM=0.  
+          ETAIM=0.
+          VJ=0.
+          EJ=0.  
           DO 160 J=1,3*MSTP(1)+1    
           IF(J.LE.2*MSTP(1)) THEN   
             EJ=KCHG(J,1)/3. 
@@ -11301,7 +11319,7 @@ C...H0 -> gamma + Z0; quark, charged lepton and W loop contributions
             VJ=AJ-4.*EJ*XW  
             EPS=(2.*PMAS(10+JL,1)/RMAS)**2  
             EPSP=(2.*PMAS(10+JL,1)/PMAS(23,1))**2   
-          ELSE  
+          ELSE
             EPS=(2.*PMAS(24,1)/RMAS)**2 
             EPSP=(2.*PMAS(24,1)/PMAS(23,1))**2  
           ENDIF 
@@ -12116,7 +12134,7 @@ C...pi/s and the conversion factor from GeV^-2 to mb.
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       SAVE /PYINT5/ 
       DIMENSION X(2),XPQ(-6:6),KFAC(2,-40:40),WDTP(0:40),WDTE(0:40,0:5) 
-    
+
 C...Reset number of channels and cross-section. 
       NCHN=0    
       SIGS=0.   
@@ -13987,7 +14005,16 @@ C...I: 2 -> 2, tree diagrams, non-standard model processes.
     
       ELSE  
       IF(ISUB.EQ.161) THEN  
+
+clin-7/2018 add "CALL PYWIDT()" to get rid of compiler warning message;
+c     however, expect this statement not to be reached:
+        CALL PYWIDT(40,SQRT(SH),WDTP,WDTE)  
 C...f + g -> f' + H+/- (q + g -> q' + H+/- only).   
+c     if reached, write a message to standard output and then stop the run:
+        write(6,*) 'ISUB=161 reached: check arguments of CALL PYWIDT()'
+        stop
+clin-7/2018-end
+
         FHCQ=COMFAC*FACA*AS*AEM/XW*1./24    
         DO 900 I=1,MSTP(54) 
         IU=I+MOD(I,2)   

@@ -1,0 +1,10 @@
+{
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
+    "destinationTags": {
+        "SiPixelAli_PCL_v0_hlt": {}, 
+        "TrackerAlignment_PCL_byRun_v2_express": {}
+    }, 
+    "inputTag": "SiPixelAliHG_pcl", 
+    "since": null, 
+    "userText": "T0 PCL Upload for SiPixel HG Ali - moved to the tag consumed by prompt. (prod)"
+}

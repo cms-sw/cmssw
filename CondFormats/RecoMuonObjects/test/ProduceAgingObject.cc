@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Class:      ProduceAgingObject
-// 
+//
 //
 // Original Author:  Sunil Bansal
 //         Created:  Wed, 29 Jun 2016 16:27:31 GMT
@@ -36,286 +36,207 @@
 // Class declaration
 //
 
-class ProduceAgingObject : public edm::one::EDAnalyzer<edm::one::WatchRuns>  
-{
-
+class ProduceAgingObject : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit ProduceAgingObject(const edm::ParameterSet&);
   ~ProduceAgingObject();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-
 private:
-
-  virtual void beginJob() override { };
+  virtual void beginJob() override{};
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override { };
-  virtual void endJob() override { };
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override{};
+  virtual void endJob() override{};
 
   void createRpcAgingMap();
-  void createDtAgingMap(const edm::ESHandle<DTGeometry> & dtGeom);
-  void createCscAgingMap(const edm::ESHandle<CSCGeometry> & cscGeom);
-  void printAgingMap(const std::map<uint32_t,float> & map, 
-		     const std::string & type) const;
+  void createDtAgingMap(const DTGeometry& dtGeom);
+  void createCscAgingMap(const CSCGeometry& cscGeom);
+  void printAgingMap(const std::map<uint32_t, float>& map, const std::string& type) const;
 
   // -- member data --
 
-  std::vector<std::string> m_RPCRegEx;
-  std::map<uint32_t, float> m_RPCChambEffs;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> m_dtGeomToken;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> m_cscGeomToken;
 
   std::vector<std::string> m_DTRegEx;
-  std::map<uint32_t, float> m_DTChambEffs;
-
+  std::vector<std::string> m_RPCRegEx;
   std::vector<std::string> m_CSCRegEx;
+
+  std::map<uint32_t, float> m_DTChambEffs;
+  std::map<uint32_t, float> m_RPCChambEffs;
   std::map<uint32_t, std::pair<uint32_t, float>> m_CSCChambEffs;
 
   std::map<uint32_t, float> m_GEMChambEffs;
   std::map<uint32_t, float> m_ME0ChambEffs;
-
 };
-
 
 //
 // Constructors and destructor
 //
 
 ProduceAgingObject::ProduceAgingObject(const edm::ParameterSet& iConfig)
+    : m_dtGeomToken(esConsumes<edm::Transition::BeginRun>()),
+      m_cscGeomToken(esConsumes<edm::Transition::BeginRun>()),
+      m_DTRegEx(iConfig.getParameter<std::vector<std::string>>("dtRegEx")),
+      m_RPCRegEx(iConfig.getParameter<std::vector<std::string>>("rpcRegEx")),
+      m_CSCRegEx(iConfig.getParameter<std::vector<std::string>>("cscRegEx")) {
+  for (auto gemId : iConfig.getParameter<std::vector<int>>("maskedGEMIDs")) {
+    m_GEMChambEffs[gemId] = 0.;
+  }
 
-{  
-
-  m_DTRegEx  = iConfig.getParameter<std::vector<std::string>>("dtRegEx"); 
-  m_RPCRegEx = iConfig.getParameter<std::vector<std::string>>("rpcRegEx");   
-  m_CSCRegEx = iConfig.getParameter<std::vector<std::string>>("cscRegEx");   
-
-  for ( auto gemId : iConfig.getParameter<std::vector<int>>("maskedGEMIDs"))
-    {
-      m_GEMChambEffs[gemId] = 0.;
-    }
-
-  for ( auto gemId : iConfig.getParameter<std::vector<int>>("maskedME0IDs"))
-    {
-      m_ME0ChambEffs[gemId] = 0.;
-    }
-
+  for (auto gemId : iConfig.getParameter<std::vector<int>>("maskedME0IDs")) {
+    m_ME0ChambEffs[gemId] = 0.;
+  }
 }
 
-
-ProduceAgingObject::~ProduceAgingObject()
-{ 
-
-}
-
+ProduceAgingObject::~ProduceAgingObject() {}
 
 //
 // Member Functions
 //
 
 // -- Called for each event --
-void
-ProduceAgingObject::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void ProduceAgingObject::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  MuonSystemAging muonAgingObject;
 
-  MuonSystemAging* muonAgingObject = new MuonSystemAging();
-  
-  muonAgingObject->m_DTChambEffs  = m_DTChambEffs;
-  muonAgingObject->m_RPCChambEffs = m_RPCChambEffs;
-  muonAgingObject->m_CSCChambEffs = m_CSCChambEffs;
+  muonAgingObject.m_DTChambEffs = m_DTChambEffs;
+  muonAgingObject.m_RPCChambEffs = m_RPCChambEffs;
+  muonAgingObject.m_CSCChambEffs = m_CSCChambEffs;
 
-  muonAgingObject->m_GEMChambEffs = m_GEMChambEffs;
-  muonAgingObject->m_ME0ChambEffs = m_ME0ChambEffs;
+  muonAgingObject.m_GEMChambEffs = m_GEMChambEffs;
+  muonAgingObject.m_ME0ChambEffs = m_ME0ChambEffs;
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if( poolDbService.isAvailable() ) 
-    poolDbService->writeOne( muonAgingObject, 
-			     poolDbService->currentTime(),
-			     "MuonSystemAgingRcd" );
-  
+  if (poolDbService.isAvailable())
+    poolDbService->writeOneIOV(muonAgingObject, poolDbService->currentTime(), "MuonSystemAgingRcd");
 }
 
 // -- Called at the beginning of each run --
-void
-ProduceAgingObject::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
-{
-
-  edm::ESHandle<DTGeometry> dtGeom;
-  iSetup.get<MuonGeometryRecord>().get(dtGeom);
-
-  edm::ESHandle<CSCGeometry> cscGeom;
-  iSetup.get<MuonGeometryRecord>().get(cscGeom);
+void ProduceAgingObject::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  auto const& dtGeom = iSetup.getData(m_dtGeomToken);
+  auto const& cscGeom = iSetup.getData(m_cscGeomToken);
 
   createDtAgingMap(dtGeom);
   createCscAgingMap(cscGeom);
   createRpcAgingMap();
 
-  printAgingMap(m_GEMChambEffs,"GEM");
-  printAgingMap(m_ME0ChambEffs,"ME0");
-  
+  printAgingMap(m_GEMChambEffs, "GEM");
+  printAgingMap(m_ME0ChambEffs, "ME0");
 }
 
 /// -- Create RPC aging map --
-void
-ProduceAgingObject::createRpcAgingMap()
-{
- 
-  std::cout << "[ProduceAgingObject] List of aged RPC objects (ID, efficiency)" 
-	    << std::endl;
-  for (auto & chRegExStr : m_RPCRegEx )
-    {
+void ProduceAgingObject::createRpcAgingMap() {
+  std::cout << "[ProduceAgingObject] List of aged RPC objects (ID, efficiency)" << std::endl;
+  for (auto& chRegExStr : m_RPCRegEx) {
+    std::string id = chRegExStr.substr(0, chRegExStr.find(":"));
+    std::string eff = chRegExStr.substr(id.size() + 1, chRegExStr.find(":"));
 
-      std::string id = chRegExStr.substr(0, chRegExStr.find(":"));
-      std::string eff = chRegExStr.substr(id.size()+1, chRegExStr.find(":"));
-
-      std::cout << "\t( " << id << " , " << eff << " )" << std::endl;
-      m_RPCChambEffs[std::atoi(id.c_str())] = std::atof(eff.c_str());
-      
-    }
-  
+    std::cout << "\t( " << id << " , " << eff << " )" << std::endl;
+    m_RPCChambEffs[std::atoi(id.c_str())] = std::atof(eff.c_str());
+  }
 }
 
 /// -- Create DT aging map ------------
-void
-ProduceAgingObject::createDtAgingMap(const edm::ESHandle<DTGeometry> & dtGeom)
-{
+void ProduceAgingObject::createDtAgingMap(const DTGeometry& dtGeom) {
+  const std::vector<const DTChamber*> chambers = dtGeom.chambers();
 
-  const std::vector<const DTChamber*> chambers = dtGeom->chambers();
+  std::cout << "[ProduceAgingObject] List of aged DT chambers (ChamberID, efficiency)" << std::endl;
+  for (const DTChamber* ch : chambers) {
+    DTChamberId chId = ch->id();
 
-  std::cout << "[ProduceAgingObject] List of aged DT chambers (ChamberID, efficiency)" 
-	    << std::endl;
-  for ( const DTChamber *ch : chambers)
-   {
+    std::string chTag = "WH" + std::to_string(chId.wheel()) + "_ST" + std::to_string(chId.station()) + "_SEC" +
+                        std::to_string(chId.sector());
 
-     DTChamberId chId = ch->id();
+    float eff = 1.;
 
-     std::string chTag = "WH" + std::to_string(chId.wheel())
-                       + "_ST" + std::to_string(chId.station())
-                       + "_SEC" + std::to_string(chId.sector());
+    for (auto& chRegExStr : m_DTRegEx) {
+      std::string effTag(chRegExStr.substr(chRegExStr.find(":")));
 
-     float eff = 1.;
+      const std::regex chRegEx(chRegExStr.substr(0, chRegExStr.find(":")));
+      const std::regex effRegEx("(\\d*\\.\\d*)");
 
-     for (auto & chRegExStr : m_DTRegEx)
-       {
+      std::smatch effMatch;
 
-	 std::string effTag(chRegExStr.substr(chRegExStr.find(":")));
+      if (std::regex_search(chTag, chRegEx) && std::regex_search(effTag, effMatch, effRegEx)) {
+        std::string effStr = effMatch.str();
+        eff = std::atof(effStr.c_str());
+      }
+    }
 
-	 const std::regex chRegEx(chRegExStr.substr(0,chRegExStr.find(":")));
-	 const std::regex effRegEx("(\\d*\\.\\d*)");
-
-	 std::smatch effMatch;
-
-	 if ( std::regex_search(chTag, chRegEx) &&
-	      std::regex_search(effTag, effMatch, effRegEx))
-	   {
-	     std::string effStr = effMatch.str();
-	     eff = std::atof(effStr.c_str());
-	   }
-
-       } 
-
-     if (eff < 1.)
-       {
-	 std::cout << "\t(" << chId << ", " << eff << " )" << std::endl;
-	 m_DTChambEffs[chId.rawId()] = eff;
-       }
-         
-   }
-  
+    if (eff < 1.) {
+      std::cout << "\t(" << chId << ", " << eff << " )" << std::endl;
+      m_DTChambEffs[chId.rawId()] = eff;
+    }
+  }
 }
 
 /// -- Create CSC aging map ------------
-void
-ProduceAgingObject::createCscAgingMap(const edm::ESHandle<CSCGeometry> & cscGeom)
-{
+void ProduceAgingObject::createCscAgingMap(const CSCGeometry& cscGeom) {
+  const auto chambers = cscGeom.chambers();
 
-  const auto chambers = cscGeom->chambers();
+  std::cout << "[ProduceAgingObject] List of aged CSC chambers (ChamberID, efficiency, type)" << std::endl;
 
-  std::cout << "[ProduceAgingObject] List of aged CSC chambers (ChamberID, efficiency, type)" 
-	    << std::endl;
-
-  for ( const auto *ch : chambers) {
-    
+  for (const auto* ch : chambers) {
     CSCDetId chId = ch->id();
-    
-    
-    std::string chTag = (chId.zendcap() == 1 ? "ME+" : "ME-")
-      + std::to_string(chId.station())
-      + "/" + std::to_string(chId.ring())
-      + "/" + std::to_string(chId.chamber());
-    
+
+    std::string chTag = (chId.zendcap() == 1 ? "ME+" : "ME-") + std::to_string(chId.station()) + "/" +
+                        std::to_string(chId.ring()) + "/" + std::to_string(chId.chamber());
+
     int type = 0;
     float eff = 1.;
 
-    for (auto & chRegExStr : m_CSCRegEx) {
-      
+    for (auto& chRegExStr : m_CSCRegEx) {
       int loc = chRegExStr.find(":");
       // if there's no :, then we don't have to correct format
-      if (loc < 0) continue;
+      if (loc < 0)
+        continue;
 
       std::string effTag(chRegExStr.substr(loc));
 
-      const std::regex chRegEx(chRegExStr.substr(0,chRegExStr.find(":")));
+      const std::regex chRegEx(chRegExStr.substr(0, chRegExStr.find(":")));
       const std::regex predicateRegEx("(\\d*,\\d*\\.\\d*)");
 
       std::smatch predicate;
 
-      if ( std::regex_search(chTag, chRegEx) && std::regex_search(effTag, predicate, predicateRegEx)) {
-	std::string predicateStr = predicate.str();
-	std::string typeStr = predicateStr.substr(0,predicateStr.find(","));
-	std::string effStr = predicateStr.substr(predicateStr.find(",")+1);
-	type = std::atoi(typeStr.c_str());
-	eff = std::atof(effStr.c_str());
-	
-	std::cout << "\t( " << chTag << " , " << eff << " , " << type << " )" << std::endl;
-      }
+      if (std::regex_search(chTag, chRegEx) && std::regex_search(effTag, predicate, predicateRegEx)) {
+        std::string predicateStr = predicate.str();
+        std::string typeStr = predicateStr.substr(0, predicateStr.find(","));
+        std::string effStr = predicateStr.substr(predicateStr.find(",") + 1);
+        type = std::atoi(typeStr.c_str());
+        eff = std::atof(effStr.c_str());
 
-    } 
+        std::cout << "\t( " << chTag << " , " << eff << " , " << type << " )" << std::endl;
+      }
+    }
 
     // Note, layer 0 for chamber specification
     int rawId = chId.rawIdMaker(chId.endcap(), chId.station(), chId.ring(), chId.chamber(), 0);
     m_CSCChambEffs[rawId] = std::make_pair(type, eff);
-    
   }
-
 }
-void
-ProduceAgingObject::printAgingMap(const std::map<uint32_t,float> & map, 
-				  const std::string & type) const
-{
- 
-  std::cout << "[ProduceAgingObject] List of aged " 
-	    << type << " objects (ID, efficiency)" 
-	    << std::endl;
+void ProduceAgingObject::printAgingMap(const std::map<uint32_t, float>& map, const std::string& type) const {
+  std::cout << "[ProduceAgingObject] List of aged " << type << " objects (ID, efficiency)" << std::endl;
 
-  
-  std::map<uint32_t,float>::const_iterator mapObj = map.begin();
-  std::map<uint32_t,float>::const_iterator mapEnd = map.end();
+  std::map<uint32_t, float>::const_iterator mapObj = map.begin();
+  std::map<uint32_t, float>::const_iterator mapEnd = map.end();
 
- for ( ; mapObj != mapEnd; ++mapObj)
-   {
-     std::cout << "\t( " << mapObj->first 
-	       << " , " << mapObj->second << " )" << std::endl;
-   }
-
+  for (; mapObj != mapEnd; ++mapObj) {
+    std::cout << "\t( " << mapObj->first << " , " << mapObj->second << " )" << std::endl;
+  }
 }
-
-
-
 
 /// -- Fill 'descriptions' with the allowed parameters for the module  --
-void
-ProduceAgingObject::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
-{
-
+void ProduceAgingObject::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::vector<std::string> >("dtRegEx",    { } );
-  desc.add<std::vector<std::string> >("rpcRegEx",   { } );
-  desc.add<std::vector<std::string> >("cscRegEx",   { } );
-  desc.add<std::vector<int> >("maskedGEMIDs", { } );
-  desc.add<std::vector<int> >("maskedME0IDs", { } );
+  desc.add<std::vector<std::string>>("dtRegEx", {});
+  desc.add<std::vector<std::string>>("rpcRegEx", {});
+  desc.add<std::vector<std::string>>("cscRegEx", {});
+  desc.add<std::vector<int>>("maskedGEMIDs", {});
+  desc.add<std::vector<int>>("maskedME0IDs", {});
 
   descriptions.addDefault(desc);
-
 }
 
 //define this as a plug-in

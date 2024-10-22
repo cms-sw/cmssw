@@ -5,7 +5,6 @@ process = cms.Process("Reader")
 process.load("DQM.SiStripCommon.TkHistoMap_cfi")
 
 process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring(''),
@@ -108,7 +107,6 @@ process.a = cms.ESSource("PoolDBESSource",
 
 
 process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(1)
 )
 

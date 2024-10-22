@@ -4,7 +4,7 @@
 //
 // Package:     Package
 // Class  :     analyzer::AbilityToImplementor
-// 
+//
 /**\class analyzer::AbilityToImplementor analyzerAbilityToImplementor.h "FWCore/Framework/interface/one/analyzerAbilityToImplementor.h"
 
  Description: [one line class summary]
@@ -31,25 +31,45 @@
 namespace edm {
   namespace one {
     namespace analyzer {
-      template<typename T> struct AbilityToImplementor;
-      
-      template<>
+      template <typename T>
+      struct AbilityToImplementor;
+
+      template <>
       struct AbilityToImplementor<edm::one::SharedResources> {
-        typedef edm::one::impl::SharedResourcesUser<edm::one::EDAnalyzerBase> Type;
+        using Type = edm::one::impl::SharedResourcesUser<edm::one::EDAnalyzerBase>;
       };
-      
-      template<>
+
+      template <>
       struct AbilityToImplementor<edm::one::WatchRuns> {
-        typedef edm::one::impl::RunWatcher<edm::one::EDAnalyzerBase> Type;
+        using Type = edm::one::impl::RunWatcher<edm::one::EDAnalyzerBase>;
       };
 
-      template<>
+      template <>
       struct AbilityToImplementor<edm::one::WatchLuminosityBlocks> {
-        typedef edm::one::impl::LuminosityBlockWatcher<edm::one::EDAnalyzerBase> Type;
+        using Type = edm::one::impl::LuminosityBlockWatcher<edm::one::EDAnalyzerBase>;
       };
-    }
-  }
-}
 
+      template <typename... Cs>
+      struct AbilityToImplementor<edm::InputProcessBlockCache<Cs...>> {
+        using Type = edm::one::impl::InputProcessBlockCacheHolder<edm::one::EDAnalyzerBase, Cs...>;
+      };
+
+      template <typename C>
+      struct AbilityToImplementor<edm::RunCache<C>> {
+        using Type = edm::one::impl::RunCacheHolder<edm::one::EDAnalyzerBase, C>;
+      };
+
+      template <typename C>
+      struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
+        using Type = edm::one::impl::LuminosityBlockCacheHolder<edm::one::EDAnalyzerBase, C>;
+      };
+
+      template <>
+      struct AbilityToImplementor<edm::WatchProcessBlock> {
+        using Type = edm::one::impl::WatchProcessBlock<edm::one::EDAnalyzerBase>;
+      };
+    }  // namespace analyzer
+  }  // namespace one
+}  // namespace edm
 
 #endif

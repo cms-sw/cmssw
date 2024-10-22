@@ -17,7 +17,11 @@ Services as an argument to their callback functions.
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 
 #include <iosfwd>
+#include <cstdint>
 
+namespace cms {
+  class Exception;
+}
 namespace edm {
 
   class GlobalContext;
@@ -26,10 +30,8 @@ namespace edm {
   class PlaceInPathContext;
   class StreamContext;
 
-
   class ModuleCallingContext {
   public:
-
     typedef ParentContext::Type Type;
 
     enum class State {
@@ -38,23 +40,27 @@ namespace edm {
       kInvalid
     };
 
-    ModuleCallingContext(ModuleDescription const* moduleDescription);
+    ModuleCallingContext(ModuleDescription const* moduleDescription) noexcept;
 
     ModuleCallingContext(ModuleDescription const* moduleDescription,
+                         std::uintptr_t id,
                          State state,
                          ParentContext const& parent,
-                         ModuleCallingContext const* previousOnThread);
+                         ModuleCallingContext const* previousOnThread) noexcept;
 
-    void setContext(State state,
-                    ParentContext const& parent,
-                    ModuleCallingContext const* previousOnThread);
+    void setContext(State state, ParentContext const& parent, ModuleCallingContext const* previousOnThread) noexcept;
 
-    void setState(State state) { state_ = state; }
+    void setState(State state) noexcept { state_ = state; }
 
-    ModuleDescription const* moduleDescription() const { return moduleDescription_; }
-    State state() const { return state_; }
-    Type type() const { return parent_.type(); }
-    ParentContext const& parent() const { return parent_; }
+    ModuleDescription const* moduleDescription() const noexcept { return moduleDescription_; }
+    State state() const noexcept { return state_; }
+    Type type() const noexcept { return parent_.type(); }
+    /** Returns a unique id for this module to differentiate possibly concurrent calls to the module.
+        The value returned may be large so not appropriate for an index lookup.
+        A value of 0 denotes a call to produce, analyze or filter. Other values denote a transform.
+    */
+    std::uintptr_t callID() const noexcept { return id_; }
+    ParentContext const& parent() const noexcept { return parent_; }
     ModuleCallingContext const* moduleCallingContext() const { return parent_.moduleCallingContext(); }
     PlaceInPathContext const* placeInPathContext() const { return parent_.placeInPathContext(); }
     StreamContext const* streamContext() const { return parent_.streamContext(); }
@@ -64,27 +70,29 @@ namespace edm {
     // These functions will iterate up a series of linked context objects
     // to find the StreamContext or GlobalContext at the top of the series.
     // Throws if the top context object does not have that type.
-    StreamContext const* getStreamContext() const;
-    GlobalContext const* getGlobalContext() const;
+    StreamContext const* getStreamContext() const noexcept(false);
+    GlobalContext const* getGlobalContext() const noexcept(false);
 
     // This function will iterate up a series of linked context objects to
     // find the highest level ModuleCallingContext. It will often return a
     // pointer to itself.
-    ModuleCallingContext const* getTopModuleCallingContext() const;
+    ModuleCallingContext const* getTopModuleCallingContext() const noexcept;
 
     // Returns the number of ModuleCallingContexts above this ModuleCallingContext
     // in the series of linked context objects.
-    unsigned depth() const;
+    unsigned depth() const noexcept;
 
-    ModuleCallingContext const* previousModuleOnThread() const { return previousModuleOnThread_; }
+    ModuleCallingContext const* previousModuleOnThread() const noexcept { return previousModuleOnThread_; }
 
   private:
     ModuleCallingContext const* previousModuleOnThread_;
     ModuleDescription const* moduleDescription_;
     ParentContext parent_;
+    std::uintptr_t id_;
     State state_;
   };
 
+  void exceptionContext(cms::Exception&, ModuleCallingContext const&);
   std::ostream& operator<<(std::ostream&, ModuleCallingContext const&);
-}
+}  // namespace edm
 #endif

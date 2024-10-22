@@ -3,42 +3,60 @@
 
 /*
 Version of the Event Processor used for tests of
-the state machine and other tests.
+TransitionProcessors.icc.
+
+The tests that use this class are less useful than they used
+to be. MockEventProcessor is mainly used to test the code in
+TransitionProcessors.icc (historical sidenote: at the time
+MockEventProcessor was originally created a long time ago,
+the functionality in TransitionProcessors.icc was
+implemented using a boost state machine and MockEventProcessor
+was originally designed to test that).  When
+concurrent runs and concurrent lumis were implemented,
+a lot of functionality was moved from TransitionProcessors.icc
+into EventProcessors.cc. In the tests, MockEventProcessor
+replaces EventProcessor and therefore it cannot be used
+to test code in EventProcessor. Originally, this tested
+the loops over runs, lumis, and events in addition to the
+loops over files. At this point, it is really
+testing only the code related to the loop over files in
+TransitionProcessors.icc and we could clean things up by
+removing the code and parts of the tests that are intended to
+test runs, lumis, and events. That part of the code is not
+serving any purpose anymore. This cleanup would be a lot
+of tedious work for very little practical gain though...
+It might never happen.
 
 Original Authors: W. David Dagenhart, Marc Paterno
 */
 
-#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Framework/interface/InputSource.h"
 
-#include <iostream>
-#include <string>
-#include <sstream>
 #include <exception>
+#include <ostream>
+#include <memory>
+#include <sstream>
+#include <string>
 
 namespace edm {
-  class LuminosityBlockProcessingStatus;
-  
+
   class MockEventProcessor {
   public:
     class TestException : public std::exception {
     public:
-      TestException() noexcept
-      :std::exception() {}
+      TestException() noexcept : std::exception() {}
     };
-    
-    MockEventProcessor(std::string const& mockData,
-                       std::ostream& output,
-                       bool iDoNotMerge);
+
+    MockEventProcessor(std::string const& mockData, std::ostream& output, bool iDoNotMerge);
 
     void runToCompletion();
 
     InputSource::ItemType nextTransitionType();
     InputSource::ItemType lastTransitionType() const;
-    std::pair<edm::ProcessHistoryID, edm::RunNumber_t> nextRunID();
-    edm::LuminosityBlockNumber_t nextLuminosityBlockID();
 
     void readFile();
+    bool fileBlockValid() { return true; }
     void closeInputFile(bool cleaningUpAfterException);
     void openOutputFiles();
     void closeOutputFiles();
@@ -54,27 +72,36 @@ namespace edm {
 
     void doErrorStuff();
 
-    void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalTransitionSucceeded);
-    void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalTranstitionSucceeded, bool cleaningUpAfterException);
+    void beginProcessBlock(bool& beginProcessBlockSucceeded);
+    void inputProcessBlocks();
+    void endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded);
 
-    InputSource::ItemType processLumis(std::shared_ptr<void>);
-    void endUnfinishedLumi();
+    InputSource::ItemType processRuns();
+    void processRun();
+    InputSource::ItemType processLumis();
 
-    std::pair<ProcessHistoryID,RunNumber_t> readRun();
-    std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
-    int readLuminosityBlock(LuminosityBlockProcessingStatus& );
-    int readAndMergeLumi(LuminosityBlockProcessingStatus&);
-    void writeRun(ProcessHistoryID const& phid, RunNumber_t run);
-    void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
-    void writeLumi(LuminosityBlockProcessingStatus&);
-    void deleteLumiFromCache(LuminosityBlockProcessingStatus&);
+    void beginRun(RunNumber_t run);
+
+    void endUnfinishedRun(bool);
+
+    void endRun();
+
+    void endUnfinishedLumi(bool);
+
+    void readRun();
+    void readAndMergeRun();
+    LuminosityBlockNumber_t readLuminosityBlock();
+    LuminosityBlockNumber_t readAndMergeLumi();
+    void writeRun();
+    void clearRunPrincipal();
+    void writeLumi();
+    void clearLumiPrincipal();
 
     bool shouldWeStop() const;
 
     void setExceptionMessageFiles(std::string& message);
-    void setExceptionMessageRuns(std::string& message);
-    void setExceptionMessageLumis(std::string& message);
-
+    void setExceptionMessageRuns();
+    void setExceptionMessageLumis();
 
     bool setDeferredException(std::exception_ptr);
 
@@ -85,14 +112,20 @@ namespace edm {
     void endLumi();
 
     std::string mockData_;
-    std::ostream & output_;
+    std::ostream& output_;
     std::istringstream input_;
-    
-    std::shared_ptr<LuminosityBlockProcessingStatus> lumiStatus_;
-    InputSource::ItemType lastTransition_;
-    
-    int run_;
-    int lumi_;
+
+    bool lumiStatus_ = false;
+    LuminosityBlockNumber_t currentLumiNumber_ = 0;
+    bool didGlobalBeginLumiSucceed_ = false;
+    InputSource::ItemType lastTransition_ = InputSource::ItemType::IsInvalid;
+
+    bool currentRun_ = false;
+    RunNumber_t currentRunNumber_ = 0;
+    bool didGlobalBeginRunSucceed_ = false;
+
+    RunNumber_t nextRun_;
+    LuminosityBlockNumber_t nextLumi_;
 
     bool doNotMerge_;
     bool shouldWeCloseOutput_;
@@ -102,6 +135,6 @@ namespace edm {
     bool reachedEndOfInput_;
     bool shouldThrow_;
   };
-}
+}  // namespace edm
 
 #endif

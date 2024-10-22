@@ -9,7 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class MODCCSTRDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   MODCCSTRDat();
   ~MODCCSTRDat() override;
@@ -20,24 +20,17 @@ class MODCCSTRDat : public IDataItem {
   inline void setWord(int x) { m_word = x; }
   inline int getWord() const { return m_word; }
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const MODCCSTRDat* item, MODRunIOV* iov )
-    noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const MODCCSTRDat* item, MODRunIOV* iov) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, MODCCSTRDat >* data, MODRunIOV* iov)
-  noexcept(false);
+  void writeArrayDB(const std::map<EcalLogicID, MODCCSTRDat>* data, MODRunIOV* iov) noexcept(false);
 
-
-
-  void fetchData(std::map< EcalLogicID, MODCCSTRDat >* fillMap, MODRunIOV* iov)
-     noexcept(false);
+  void fetchData(std::map<EcalLogicID, MODCCSTRDat>* fillMap, MODRunIOV* iov) noexcept(false);
 
   // User data
   int m_word;
-
 };
 
 #endif

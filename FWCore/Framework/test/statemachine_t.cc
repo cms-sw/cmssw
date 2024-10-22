@@ -2,7 +2,7 @@
 
 Test of the statemachine classes.
 
-----------------------------------------------------------------------*/  
+----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
 
@@ -12,7 +12,6 @@ Test of the statemachine classes.
 #include <iostream>
 #include <fstream>
 
-
 int main(int argc, char* argv[]) try {
   std::cout << "Running test in statemachine_t.cc\n";
 
@@ -20,10 +19,10 @@ int main(int argc, char* argv[]) try {
   std::string inputFile;
   std::string outputFile;
   boost::program_options::options_description desc("Allowed options");
-  desc.add_options()
-    ("help,h", "produce help message")
-    ("inputFile,i", boost::program_options::value<std::string>(&inputFile)->default_value(""))
-    ("outputFile,o", boost::program_options::value<std::string>(&outputFile)->default_value("statemachine_test_output.txt"));
+  desc.add_options()("help,h", "produce help message")(
+      "inputFile,i", boost::program_options::value<std::string>(&inputFile)->default_value(""))(
+      "outputFile,o",
+      boost::program_options::value<std::string>(&outputFile)->default_value("statemachine_test_output.txt"));
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
@@ -47,8 +46,7 @@ int main(int argc, char* argv[]) try {
     std::ifstream input;
     input.open(inputFile.c_str());
     if (input.fail()) {
-      std::cerr << "Error, Unable to open mock input file named " 
-                << inputFile << "\n";
+      std::cerr << "Error, Unable to open mock input file named " << inputFile << "\n";
       return 1;
     }
     std::getline(input, mockData, '.');
@@ -60,25 +58,24 @@ int main(int argc, char* argv[]) try {
   fileModes.push_back(true);
   fileModes.push_back(false);
 
-  for (auto mode: fileModes) {
-
+  for (auto mode : fileModes) {
     output << "\nMachine parameters:  ";
-    if (mode) output << "mode = NOMERGE";
-    else output << "mode = FULLMERGE";
+    if (mode)
+      output << "mode = NOMERGE";
+    else
+      output << "mode = FULLMERGE";
 
     output << "\n";
 
-    edm::MockEventProcessor mockEventProcessor(mockData,
-                                               output,
-                                               mode);
+    edm::MockEventProcessor mockEventProcessor(mockData, output, mode);
     try {
       mockEventProcessor.runToCompletion();
-    } catch(edm::MockEventProcessor::TestException const& e) {
-      output <<"caught test exception\n";
+    } catch (edm::MockEventProcessor::TestException const& e) {
+      output << "caught test exception\n";
     }
   }
   return 0;
-} catch(std::exception const& e) {
+} catch (std::exception const& e) {
   std::cerr << e.what() << std::endl;
   return 1;
 }

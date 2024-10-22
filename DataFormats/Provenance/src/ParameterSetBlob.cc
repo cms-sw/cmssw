@@ -2,9 +2,8 @@
 #include <iostream>
 
 namespace edm {
-  std::ostream&
-  operator<<(std::ostream& os, ParameterSetBlob const& blob) {
+  std::ostream& operator<<(std::ostream& os, ParameterSetBlob const& blob) {
     os << blob.pset();
     return os;
   }
-}
+}  // namespace edm

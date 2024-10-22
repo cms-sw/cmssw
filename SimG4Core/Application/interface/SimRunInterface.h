@@ -5,8 +5,6 @@
 // between Geant4 user actions and CMS SIM
 // infrastructure both for sequentional and MT runs
 
-
-class RunManager;
 class RunManagerMT;
 class RunManagerMTWorker;
 class SimTrackManager;
@@ -14,23 +12,19 @@ class RunAction;
 class EventAction;
 class TrackingAction;
 class SteppingAction;
-class G4SimEvent;
+class TmpSimEvent;
 
-class SimRunInterface
-{
+class SimRunInterface {
 public:
-
-  SimRunInterface(RunManager* run, bool master);
-
   SimRunInterface(RunManagerMT* run, bool master);
 
   SimRunInterface(RunManagerMTWorker* run, bool master);
 
-  ~SimRunInterface();
+  ~SimRunInterface() = default;
 
   // Needed because for workers SumRunInterface sits in TLS, while
   // RunManagerMTWorkers are members of edm::stream OscarMTProducer
-  void setRunManagerMTWorker(RunManagerMTWorker *run);
+  void setRunManagerMTWorker(RunManagerMTWorker* run);
 
   void Connect(RunAction*);
 
@@ -46,19 +40,15 @@ public:
 
   void abortRun(bool softAbort);
 
-  G4SimEvent* simEvent();
+  TmpSimEvent* simEvent();
 
 private:
-
-  RunManager* m_runManager;
   RunManagerMT* m_runManagerMT;
-  RunManagerMTWorker *m_runManagerMTWorker;
+  RunManagerMTWorker* m_runManagerMTWorker;
 
   SimTrackManager* m_SimTrackManager;
 
-  bool  m_isMaster;             
+  bool m_isMaster;
 };
 
 #endif
-
-    

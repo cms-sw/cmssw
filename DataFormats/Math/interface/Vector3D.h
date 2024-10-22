@@ -12,7 +12,6 @@ namespace math {
   /// WARNING: ROOT dictionary not provided for the type below
   typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Polar3D<double> > RThetaPhiVectorD;
 
-
   /// spatial vector with cartesian internal representation
   typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float> > XYZVectorF;
   /// spatial vector with cylindrical internal representation using pseudorapidity
@@ -22,9 +21,11 @@ namespace math {
   typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Polar3D<float> > RThetaPhiVectorF;
 
   /// vector in local coordinate system
-  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float>, ROOT::Math::LocalCoordinateSystemTag> LocalVector;
+  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float>, ROOT::Math::LocalCoordinateSystemTag>
+      LocalVector;
   /// vector in glovbal coordinate system
-  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float>, ROOT::Math::GlobalCoordinateSystemTag> GlobalVector;
+  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float>, ROOT::Math::GlobalCoordinateSystemTag>
+      GlobalVector;
 
   /// spatial vector with cartesian internal representation
   typedef XYZVectorD XYZVector;
@@ -32,6 +33,6 @@ namespace math {
   typedef RhoEtaPhiVectorD RhoEtaPhiVector;
   /// spatial vector with polar internal representation
   typedef RThetaPhiVectorD RThetaPhiVector;
-}
+}  // namespace math
 
 #endif

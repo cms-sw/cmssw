@@ -12,4 +12,4 @@ namespace RecoTracker_TkHitPairs {
     RegionsSeedingHitSets rshs;
     edm::Wrapper<RegionsSeedingHitSets> wrshs;
   };
-}
+}  // namespace RecoTracker_TkHitPairs

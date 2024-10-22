@@ -22,6 +22,6 @@ namespace reco {
 
   /// iterator over a vector of reference to SuperClusters
   typedef SuperClusterRefVector::iterator superCluster_iterator;
-}
+}  // namespace reco
 
 #endif

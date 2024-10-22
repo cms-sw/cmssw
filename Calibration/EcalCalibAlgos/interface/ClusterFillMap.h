@@ -4,29 +4,28 @@
 
 #include "Calibration/EcalCalibAlgos/interface/VFillMap.h"
 
-class ClusterFillMap : public VFillMap
-{
-	public:
-	//!ctor
-	ClusterFillMap (int ,
-			int ,
-			const std::map<int,int>& ,
-			double,
-			double, 
-		        const std::map<int,int>&,
-  			EcalIntercalibConstantMap *,
-			EcalIntercalibConstantMap *);
-	
-	//!dtor
-	~ClusterFillMap () override;
+class ClusterFillMap : public VFillMap {
+public:
+  //!ctor
+  ClusterFillMap(int,
+                 int,
+                 const std::map<int, int> &,
+                 double,
+                 double,
+                 const std::map<int, int> &,
+                 EcalIntercalibConstantMap *,
+                 EcalIntercalibConstantMap *);
 
-	//!Fills the map
-        void fillMap (const std::vector<std::pair<DetId,float> > &, 
-			const DetId,
-			const EcalRecHitCollection *, 
-			const EcalRecHitCollection *,
-			std::map<int,double> & xtlMap,
-			double & ) override ;
+  //!dtor
+  ~ClusterFillMap() override;
+
+  //!Fills the map
+  void fillMap(const std::vector<std::pair<DetId, float> > &,
+               const DetId,
+               const EcalRecHitCollection *,
+               const EcalRecHitCollection *,
+               std::map<int, double> &xtlMap,
+               double &) override;
 };
 #endif
 #endif

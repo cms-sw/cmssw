@@ -6,7 +6,6 @@
 // DQM
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -22,11 +21,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-// Trigger
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "FWCore/Common/interface/TriggerNames.h"
 
 // Candidate handling
 #include "DataFormats/Common/interface/Handle.h"
@@ -44,14 +38,11 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/TauReco/interface/CaloTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -100,15 +91,12 @@
 #include <vector>
 #include <map>
 
-class ExoticaDQM: public DQMEDAnalyzer {
-
+class ExoticaDQM : public DQMEDAnalyzer {
 public:
-
   ExoticaDQM(const edm::ParameterSet& ps);
   ~ExoticaDQM() override;
 
 protected:
-
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
   //Resonances
@@ -128,22 +116,13 @@ protected:
   virtual void analyzeDisplacedJets(edm::Event const& e, const edm::EventSetup& s);
 
   // Estimate the momentum vector that a GenParticle would have at its trajectory's point of closest approach to the beam-line.
-  virtual GlobalVector getGenParticleTrajectoryAtBeamline( const edm::EventSetup& iSetup, const  reco::GenParticle* gen );
-  
-private:
+  virtual GlobalVector getGenParticleTrajectoryAtBeamline(const edm::EventSetup& iSetup, const reco::GenParticle* gen);
 
-  void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
-                              edm::EventSetup const&) override;
+private:
+  void bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm::EventSetup const&) override;
 
   int nLumiSecs_;
   int nEvents_, irun, ievt;
-
-  bool isValidHltConfig_;
-
-  //Trigger
-  std::vector<std::string> HltPaths_;
-  edm::EDGetTokenT<edm::TriggerResults> TriggerToken_;
-  edm::Handle<edm::TriggerResults> TriggerResults_;
 
   //Vertex
   edm::EDGetTokenT<reco::VertexCollection> VertexToken_;
@@ -184,8 +163,8 @@ private:
   edm::Handle<reco::PFMETCollection> pfMETCollection_;
 
   // ECAL RECHITS
-  edm::EDGetTokenT<EBRecHitCollection> ecalBarrelRecHitToken_; // reducedEcalRecHitsEB
-  edm::EDGetTokenT<EERecHitCollection> ecalEndcapRecHitToken_; // reducedEcalRecHitsEE
+  edm::EDGetTokenT<EBRecHitCollection> ecalBarrelRecHitToken_;  // reducedEcalRecHitsEB
+  edm::EDGetTokenT<EERecHitCollection> ecalEndcapRecHitToken_;  // reducedEcalRecHitsEE
 
   edm::EDGetTokenT<reco::JetCorrector> JetCorrectorToken_;
   edm::Handle<reco::JetCorrector> JetCorrector_;
@@ -193,7 +172,7 @@ private:
   // Tracks
   edm::EDGetTokenT<reco::TrackCollection> TrackToken_;
   edm::Handle<reco::TrackCollection> TrackCollection_;
-  
+
   // Special collections for highly displaced particles
   edm::EDGetTokenT<reco::TrackCollection> MuonDispToken_;
   edm::Handle<reco::TrackCollection> MuonDispCollection_;
@@ -204,13 +183,16 @@ private:
   edm::EDGetTokenT<reco::GenParticleCollection> GenParticleToken_;
   edm::Handle<reco::GenParticleCollection> GenCollection_;
 
+  //ES tokens
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+
   ///////////////////////////
   // Parameters
   ///////////////////////////
   // Cuts - MultiJets
   // inputs
 
-  reco::helper::JetIDHelper *jetID;
+  reco::helper::JetIDHelper* jetID;
 
   //Varibles Used
   // PFJets
@@ -279,7 +261,7 @@ private:
   //
   double dijet_PFJet1_pt_cut_;
   double dijet_PFJet2_pt_cut_;
-  int    dijet_countPFJet_;
+  int dijet_countPFJet_;
 
   ///////////////////////////
   // Histograms - DiMuon
@@ -296,7 +278,7 @@ private:
   //
   double dimuon_Muon1_pt_cut_;
   double dimuon_Muon2_pt_cut_;
-  int    dimuon_countMuon_;
+  int dimuon_countMuon_;
 
   ///////////////////////////
   // Histograms - DiElectron
@@ -313,7 +295,7 @@ private:
   //
   double dielectron_Electron1_pt_cut_;
   double dielectron_Electron2_pt_cut_;
-  int    dielectron_countElectron_;
+  int dielectron_countElectron_;
 
   ///////////////////////////
   // Histograms - DiPhoton
@@ -342,7 +324,7 @@ private:
   //
   double diphoton_Photon1_pt_cut_;
   double diphoton_Photon2_pt_cut_;
-  int    diphoton_countPhoton_;
+  int diphoton_countPhoton_;
 
   ///////////////////////////
   // Histograms - MonoJet
@@ -362,7 +344,7 @@ private:
   //
   double monojet_PFJet_pt_cut_;
   double monojet_PFJet_met_cut_;
-  int    monojet_countPFJet_;
+  int monojet_countPFJet_;
 
   ///////////////////////////
   // Histograms - MonoMuon
@@ -380,7 +362,7 @@ private:
   //
   double monomuon_Muon_pt_cut_;
   double monomuon_Muon_met_cut_;
-  int    monomuon_countMuon_;
+  int monomuon_countMuon_;
 
   /////////////////////////////
   // Histograms - MonoElectron
@@ -398,7 +380,7 @@ private:
   //
   double monoelectron_Electron_pt_cut_;
   double monoelectron_Electron_met_cut_;
-  int    monoelectron_countElectron_;
+  int monoelectron_countElectron_;
 
   ///////////////////////////
   // Histograms - DiPhoton
@@ -422,8 +404,8 @@ private:
   //
   double monophoton_Photon_pt_cut_;
   double monophoton_Photon_met_cut_;
-  int    monophoton_countPhoton_;
-  
+  int monophoton_countPhoton_;
+
   ///////////////////////////////////
   // Histograms - Displaced Leptons or Jets
   //
@@ -437,9 +419,7 @@ private:
 
   double dispFermion_eta_cut_;
   double dispFermion_pt_cut_;
-  
 };
-
 
 #endif
 

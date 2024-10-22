@@ -11,7 +11,6 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,8 +21,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-
-
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
@@ -37,54 +34,42 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-
-
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
-
 
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-namespace popcon
-{
+namespace popcon {
 
+  class EcalADCToGeVHandler : public popcon::PopConSourceHandler<EcalADCToGeVConstant> {
+  public:
+    EcalADCToGeVHandler(edm::ParameterSet const&);
+    ~EcalADCToGeVHandler() override;
 
-	class EcalADCToGeVHandler : public popcon::PopConSourceHandler<EcalADCToGeVConstant>
-	{
+    void getNewObjects() override;
 
-		public:
-                        EcalADCToGeVHandler(edm::ParameterSet const & );
-			~EcalADCToGeVHandler() override; 
-			
-			void getNewObjects() override;
+    std::string id() const override { return m_name; }
+    EcalCondDBInterface* econn;
 
-			std::string id() const override { return m_name;}
-			EcalCondDBInterface* econn;
+  private:
+    const EcalADCToGeVConstant* myintercalib;
 
+    unsigned int m_firstRun;
+    unsigned int m_lastRun;
 
-
-		private:
-			const EcalADCToGeVConstant * myintercalib;
-
-			unsigned int m_firstRun ;
-			unsigned int m_lastRun ;
-			
-			std::string m_location;
-			std::string m_gentag;
-			std::string m_sid;
-			std::string m_user;
-			std::string m_pass;
-                        std::string m_locationsource;
-                        std::string m_name;
-                        std::string m_file_lowfield;
-                        std::string m_file_highfield;
-
-
-	};
-}
+    std::string m_location;
+    std::string m_gentag;
+    std::string m_sid;
+    std::string m_user;
+    std::string m_pass;
+    std::string m_locationsource;
+    std::string m_name;
+    std::string m_file_lowfield;
+    std::string m_file_highfield;
+  };
+}  // namespace popcon
 #endif
-

@@ -11,7 +11,7 @@ dtDigiMonitor = DQMEDAnalyzer('DTDigiTask',
     # Value of the ttrig pedestal used when not reading from DB
     defaultTtrig = cms.int32(2700),
     # the label to retrieve the DT digis
-    dtDigiLabel = cms.InputTag("dtunpacker"),
+    dtDigiLabel = cms.untracked.InputTag('dtunpacker'),
     # check the noisy flag in the DB and use it
     checkNoisyChannels = cms.untracked.bool(True),
     # set static booking (all the detector)
@@ -32,13 +32,17 @@ dtDigiMonitor = DQMEDAnalyzer('DTDigiTask',
     doInTimeOccupancies = cms.untracked.bool(False),                                
     # switch on the mode for running on test pulses (different top folder)
     testPulseMode = cms.untracked.bool(False),
+    # switch on the mode for running on slice test (different top folder and customizations)
+    sliceTestMode = cms.untracked.bool(False),
+    # time pedestal defining the lower edge of the timebox plots
+    tdcPedestal = cms.untracked.int32(0),
     # switch for filtering on synch noise events (threshold on # of digis per chamber)
     filterSyncNoise = cms.untracked.bool(False),
     # look for synch noise events
     lookForSyncNoise = cms.untracked.bool(False),
     # threshold on # of digis per chamber to define sync noise
     maxTDCHitsPerChamber = cms.untracked.int32(100),
-    # switch for time boxes with layer granularity (commissioning only)                           
+    # switch for time boxes with layer granularity (commissioning only)
     doLayerTimeBoxes = cms.untracked.bool(False)
 )
 

@@ -45,7 +45,7 @@ _localMaxSeeds_HF = cms.PSet(
               )
 
     ),
-    nNeighbours = cms.int32(0)
+    nNeighbours = cms.int32(0),
 )
 
 #topo clusters
@@ -76,7 +76,7 @@ _positionCalcHF_cross_nodepth = cms.PSet(
 )
 
 _positionCalcHF_all_nodepth = _positionCalcHF_cross_nodepth.clone(
-    posCalcNCrystals = cms.int32(-1)
+    posCalcNCrystals = -1
     )
 
 #pf clusters
@@ -104,7 +104,9 @@ _pfClusterizer_HF = cms.PSet(
 particleFlowClusterHF = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHF"),
+    usePFThresholdsFromDB = cms.bool(False),
     recHitCleaners = cms.VPSet(),
+    seedCleaners = cms.VPSet(),
     seedFinder = _localMaxSeeds_HF,
     initialClusteringStep = _topoClusterizer_HF,
     pfClusterBuilder = _pfClusterizer_HF,

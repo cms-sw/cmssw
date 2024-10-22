@@ -12,19 +12,17 @@
  * back to the beginning when it reaches EOF
  */
 
-class RootNeutronReader : public NeutronReader
-{
+class RootNeutronReader : public NeutronReader {
 public:
-  RootNeutronReader(const std::string & fileName);
+  RootNeutronReader(const std::string& fileName);
 
-  void readNextEvent(int chamberType, edm::PSimHitContainer & result) override;
+  void readNextEvent(int chamberType, edm::PSimHitContainer& result) override;
 
-  RootChamberReader & chamberReader(int chamberType);
+  RootChamberReader& chamberReader(int chamberType);
 
 private:
-  TFile * theFile;
+  TFile* theFile;
   std::map<int, RootChamberReader> theChamberReaders;
 };
 
 #endif
-

@@ -1,0 +1,9 @@
+<library name="RecoParticleFlowPFRecHitProducersTest" file="*.cc">
+  <use name="DQMServices/Core"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/ParticleFlowReco"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

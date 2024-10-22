@@ -1,0 +1,15 @@
+<use   name="FWCore/MessageLogger"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/L1TrackTrigger"/>
+<use   name="DataFormats/Math"/>
+<use   name="PhysicsTools/TensorFlow"/>
+<use   name="boost"/>
+<use   name="xerces-c"/>
+<use   name="clhep"/>
+<use   name="root"/>
+<use   name="rootrflx"/>
+<use   name="hls"/>
+<export>
+  <lib   name="1"/>
+</export>

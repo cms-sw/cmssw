@@ -35,16 +35,20 @@ process.maxEvents = cms.untracked.PSet(
         )
 
 process.options = cms.untracked.PSet(
-    #FailPath = cms.untracked.vstring('ProductNotFound'),
+    #TryToContinue = cms.untracked.vstring('ProductNotFound'),
     makeTriggerResults = cms.untracked.bool(True),
     wantSummary = cms.untracked.bool(True)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING')
-                                                              ),
-                                    destinations = cms.untracked.vstring('cout')
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('WARNING')
+    )
+)
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring( 

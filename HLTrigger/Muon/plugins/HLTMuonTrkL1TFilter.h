@@ -6,39 +6,47 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuonSetup.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 class HLTMuonTrkL1TFilter : public HLTFilter {
- public:
+public:
   HLTMuonTrkL1TFilter(const edm::ParameterSet&);
-  ~HLTMuonTrkL1TFilter() override{}
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  ~HLTMuonTrkL1TFilter() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
- private:
+private:
+  const PropagateToMuonSetup propSetup_;
   // WARNING: two input collection represent should be aligned and represent
   // the same list of muons, just stored in different containers
-  edm::InputTag                                          m_muonsTag;   // input collection of muons
-  edm::EDGetTokenT<reco::MuonCollection>                 m_muonsToken; // input collection of muons
-  edm::InputTag                                          m_candsTag;   // input collection of candidates to be referenced
-  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> m_candsToken; // input collection of candidates to be referenced
-  edm::InputTag                                          m_previousCandTag;   // input tag identifying product contains muons passing the previous level
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_previousCandToken; // token identifying product contains muons passing the previous level
-  int m_minTrkHits;
-  int m_minMuonHits;
-  int m_minMuonStations;
-  unsigned int m_allowedTypeMask;
-  unsigned int m_requiredTypeMask;
-  double m_maxNormalizedChi2;
-  double m_minPt;
-  unsigned int m_minN;
-  double m_maxAbsEta;
-  muon::SelectionType m_trkMuonId;
-  bool m_saveTags;
+  const edm::InputTag m_muonsTag;                             // input collection of muons
+  const edm::EDGetTokenT<reco::MuonCollection> m_muonsToken;  // input collection of muons
+  const edm::InputTag m_candsTag;                             // input collection of candidates to be referenced
+  const edm::EDGetTokenT<reco::RecoChargedCandidateCollection>
+      m_candsToken;                       // input collection of candidates to be referenced
+  const edm::InputTag m_previousCandTag;  // input tag identifying product contains muons passing the previous level
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>
+      m_previousCandToken;  // token identifying product contains muons passing the previous level
+  const int m_minTrkHits;
+  const int m_minMuonHits;
+  const int m_minMuonStations;
+  const double m_maxNormalizedChi2;
+  const unsigned int m_allowedTypeMask;
+  const unsigned int m_requiredTypeMask;
+  const muon::SelectionType m_trkMuonId;
+  const double m_minPt;
+  const unsigned int m_minN;
+  const double m_maxAbsEta;
+  const double m_l1MatchingdR;
+  const double m_l1MatchingdR2;
 
+  bool m_saveTags;
 };
 
-#endif //HLTMuonTrkL1TFilter_h
+#endif  //HLTMuonTrkL1TFilter_h

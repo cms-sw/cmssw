@@ -1,3 +1,4 @@
+from __future__ import print_function
 # L1 Trigger DQM sequence (L1T)
 #
 #   authors previous versions - see CVS
@@ -7,7 +8,8 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DQM")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("DQM", Run3)
 
 
 #----------------------------
@@ -15,9 +17,11 @@ process = cms.Process("DQM")
 #
 # for live online DQM in P5
 process.load("DQM.Integration.config.inputsource_cfi")
+from DQM.Integration.config.inputsource_cfi import options
 #
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 #----------------------------
 # DQM Environment
@@ -26,17 +30,19 @@ process.load("DQM.Integration.config.inputsource_cfi")
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'L1TStage1'
 process.dqmSaver.tag = 'L1TStage1'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'L1TStage1'
+process.dqmSaverPB.runNumber = options.runNumber
 
 #
 # references needed
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
 
 # Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
+process.GlobalTag.RefreshEachRun = True
 # Condition for lxplus:: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 #process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
@@ -73,10 +79,10 @@ process.RawToDigi.remove("siStripDigis")
 process.RawToDigi.remove("scalersRawToDigi")
 process.RawToDigi.remove("castorDigis")
 # for GCT, unpack all five samples
-process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
+process.gctDigis.numberOfGctSamplesToUnpack = 5
 
 #if (process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
-process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
+process.gtDigis.DaqGtFedId = 813
 #else:
 #    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
 # 
@@ -101,7 +107,8 @@ process.l1tMonitorClientEndPath = cms.EndPath(process.l1tMonitorClientEndPathSeq
 #
 process.dqmEndPath = cms.EndPath(
                                  process.dqmEnv *
-                                 process.dqmSaver
+                                 process.dqmSaver *
+                                 process.dqmSaverPB
                                  )
 
 #
@@ -172,43 +179,43 @@ process.schedule.remove(process.l1tSyncPath)
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
 
-print "Running with run type = ", process.runType.getRunType()
-process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.csctfDigis.producer = cms.InputTag("rawDataCollector")
-process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataCollector")
-process.ecalDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataCollector")
-process.gctDigis.inputLabel = cms.InputTag("rawDataCollector")
-process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
-process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataCollector")
-process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
-process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
-process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
-process.bxTiming.FedSource = cms.untracked.InputTag("rawDataCollector")
-process.l1s.fedRawData = cms.InputTag("rawDataCollector")
+print("Running with run type = ", process.runType.getRunType())
+process.castorDigis.InputLabel = "rawDataCollector"
+process.csctfDigis.producer = "rawDataCollector"
+process.dttfDigis.DTTF_FED_Source = "rawDataCollector"
+process.ecalDigisCPU.InputLabel = "rawDataCollector"
+process.ecalPreshowerDigis.sourceTag = "rawDataCollector"
+process.gctDigis.inputLabel = "rawDataCollector"
+process.gtDigis.DaqGtInputTag = "rawDataCollector"
+process.gtEvmDigis.EvmGtInputTag = "rawDataCollector"
+process.hcalDigis.InputLabel = "rawDataCollector"
+process.muonCSCDigis.InputObjects = "rawDataCollector"
+process.muonDTDigis.inputLabel = "rawDataCollector"
+process.muonRPCDigis.InputLabel = "rawDataCollector"
+process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
+process.siPixelDigis.cpu.InputLabel = "rawDataCollector"
+process.siStripDigis.ProductLabel = "rawDataCollector"
+process.bxTiming.FedSource = "rawDataCollector"
+process.l1s.fedRawData = "rawDataCollector"
     
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
-    process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
-    process.ecalDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
-    process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
-    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
-    process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
-    process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
-    process.bxTiming.FedSource = cms.untracked.InputTag("rawDataRepacker")
-    process.l1s.fedRawData = cms.InputTag("rawDataRepacker")
+    process.castorDigis.InputLabel = "rawDataRepacker"
+    process.csctfDigis.producer = "rawDataRepacker"
+    process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
+    process.ecalDigisCPU.InputLabel = "rawDataRepacker"
+    process.ecalPreshowerDigis.sourceTag = "rawDataRepacker"
+    process.gctDigis.inputLabel = "rawDataRepacker"
+    process.gtDigis.DaqGtInputTag = "rawDataRepacker"
+    process.gtEvmDigis.EvmGtInputTag = "rawDataRepacker"
+    process.hcalDigis.InputLabel = "rawDataRepacker"
+    process.muonCSCDigis.InputObjects = "rawDataRepacker"
+    process.muonDTDigis.inputLabel = "rawDataRepacker"
+    process.muonRPCDigis.InputLabel = "rawDataRepacker"
+    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
+    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siStripDigis.ProductLabel = "rawDataRepacker"
+    process.bxTiming.FedSource = "rawDataRepacker"
+    process.l1s.fedRawData = "rawDataRepacker"
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

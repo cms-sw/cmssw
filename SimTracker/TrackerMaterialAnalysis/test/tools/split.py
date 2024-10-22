@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import sys
 import xml.dom
 from xml.dom import minidom
@@ -7,12 +8,12 @@ import material
 from domtools import DOMIterator, dom_strip
 
 def usage():
-  print """Usage:
+  print("""Usage:
     split.py NAME [DIRECTION CUT [CUT ...]] 
 
 Read a list of detectors from standard input, splits them into subgrouos at the CUTs position along the given DIRECTION, named after NAME, DIRECTION and relevant CUT. 
 The groups are appended to the trackingMaterialGroups.xml file - if not present an empty one is created beforehand.
-"""
+""")
 
 def split():
   if (len(sys.argv) < 2):

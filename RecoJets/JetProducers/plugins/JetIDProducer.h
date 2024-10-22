@@ -5,7 +5,7 @@
 //
 // Package:    JetIDProducer
 // Class:      JetIDProducer
-// 
+//
 /**\class JetIDProducer JetIDProducer.cc RecoJets/JetProducers/plugins/JetIDProducer.cc
 
  Description: Produces a value map of jet---> jet Id
@@ -20,7 +20,6 @@
 //         Created:  Thu Sep 17 12:18:18 CDT 2009
 //
 //
-
 
 // system include files
 #include <memory>
@@ -43,22 +42,19 @@
 //
 
 class JetIDProducer : public edm::stream::EDProducer<> {
-   public:
+public:
+  explicit JetIDProducer(const edm::ParameterSet&);
+  ~JetIDProducer() override;
 
-      explicit JetIDProducer(const edm::ParameterSet&);
-      ~JetIDProducer() override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      
-      // ----------member data ---------------------------
-      edm::InputTag                 src_;         // input jet source
-      reco::helper::JetIDHelper     helper_;      // jet id helper algorithm
-      reco::helper::JetMuonHitsIDHelper muHelper_;    // jet id from muon rechits helper algorithm
-      
-      edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jet_token_;
+  // ----------member data ---------------------------
+  edm::InputTag src_;                           // input jet source
+  reco::helper::JetIDHelper helper_;            // jet id helper algorithm
+  reco::helper::JetMuonHitsIDHelper muHelper_;  // jet id from muon rechits helper algorithm
 
+  edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jet_token_;
 };
-
 
 #endif

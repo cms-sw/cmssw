@@ -1,3 +1,5 @@
 <bin file="testSerializationPCLConfig.cpp">
-  <use   name="CondFormats/PCLConfig"/>
+  <use name="CondFormats/PCLConfig"/>
 </bin>
+
+<test name="testReadWriteAlignPCLThresholds" command="testReadWriteAlignPCLThresholds.sh"/>

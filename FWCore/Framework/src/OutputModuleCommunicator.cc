@@ -2,7 +2,7 @@
 //
 // Package:     Package
 // Class  :     OutputModuleCommunicator
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -13,10 +13,8 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/src/OutputModuleCommunicator.h"
+#include "FWCore/Framework/interface/OutputModuleCommunicator.h"
 
 using namespace edm;
 
-OutputModuleCommunicator::~OutputModuleCommunicator()
-{
-}
+OutputModuleCommunicator::~OutputModuleCommunicator() {}

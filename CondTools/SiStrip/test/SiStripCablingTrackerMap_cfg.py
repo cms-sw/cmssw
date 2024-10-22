@@ -4,11 +4,18 @@ process = cms.Process("TrackerMapProd")
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring(''),
     cablingReader = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('cablingMap.log')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring(''),
+    files = cms.untracked.PSet(
+        cablingMap = cms.untracked.PSet(
+
+        )
+    )
 )
 
 import CalibTracker.Configuration.Common.PoolDBESSource_cfi
@@ -17,7 +24,7 @@ process.siStripCond.toGet = cms.VPSet(cms.PSet(
     record = cms.string('SiStripFedCablingRcd'),
     tag = cms.string('SiStripFedCabling_Fake_30X')
 ))
-process.siStripCond.connect = 'sqlite_file:dbfile.db'
+process.siStripCond.connect = 'sqlite_file:SiStripConditionsDBFile.db'
 process.siStripCond.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
 process.sistripconn = cms.ESProducer("SiStripConnectivity")

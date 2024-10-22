@@ -2,7 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DDFilteredViewTest")
 
-process.load('Configuration.Geometry.GeometryExtended2015_cff')
+process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.CMSGeom=dict()
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(

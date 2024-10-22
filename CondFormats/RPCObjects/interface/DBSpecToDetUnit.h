@@ -3,10 +3,10 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 struct ChamberLocationSpec;
-class FebLocationSpec;
+struct FebLocationSpec;
 
 class DBSpecToDetUnit {
 public:
-  uint32_t operator()(const ChamberLocationSpec & location, const FebLocationSpec & feb);
+  uint32_t operator()(const ChamberLocationSpec& location, const FebLocationSpec& feb);
 };
 #endif

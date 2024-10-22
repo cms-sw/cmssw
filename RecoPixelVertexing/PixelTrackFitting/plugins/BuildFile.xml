@@ -1,4 +1,0 @@
-<use   name="RecoPixelVertexing/PixelTrackFitting"/>
-<library   file="*.cc" name="RecoPixelVertexingPixelTrackFittingPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

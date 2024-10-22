@@ -2,7 +2,7 @@
 //
 // Package:     test
 // Class  :     DependsOnDummyService
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -18,17 +18,11 @@
 
 using namespace testserviceregistry;
 
-DependsOnDummyService::DependsOnDummyService():
-value_(edm::Service<DummyService>()->value())
-{
-}
+DependsOnDummyService::DependsOnDummyService() : value_(edm::Service<DummyService>()->value()) {}
 
-DependsOnDummyService::~DependsOnDummyService()
-{
-}
+DependsOnDummyService::~DependsOnDummyService() {}
 
-void DependsOnDummyService::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
-{
+void DependsOnDummyService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.addDefault(desc);
 }

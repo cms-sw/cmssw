@@ -13,36 +13,39 @@
 
 namespace tnp {
 
-    /// a simple struct to hold tag, probe and mass
-    struct TagProbePair {
-        reco::CandidateBaseRef tag, probe, pair;
-        float mass;
-        TagProbePair() {}
-        TagProbePair(const reco::CandidateBaseRef &t, const reco::CandidateBaseRef &p,
-                     const reco::CandidateBaseRef &tp, float m) : tag(t), probe(p), pair(tp), mass(m) {}
-    };
-    typedef std::vector<TagProbePair> TagProbePairs;
+  /// a simple struct to hold tag, probe and mass
+  struct TagProbePair {
+    reco::CandidateBaseRef tag, probe, pair;
+    float mass;
+    TagProbePair() {}
+    TagProbePair(const reco::CandidateBaseRef &t,
+                 const reco::CandidateBaseRef &p,
+                 const reco::CandidateBaseRef &tp,
+                 float m)
+        : tag(t), probe(p), pair(tp), mass(m) {}
+  };
+  typedef std::vector<TagProbePair> TagProbePairs;
 
-    class TagProbePairMaker {
-        public:
-            TagProbePairMaker(const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC) ;
+  class TagProbePairMaker {
+  public:
+    TagProbePairMaker(const edm::ParameterSet &iConfig, edm::ConsumesCollector &&iC);
 
+    ~TagProbePairMaker() { delete randGen_; }
+    /// fill in tghe T&P pairs for this event
+    TagProbePairs run(const edm::Event &iEvent) const;
 
-            ~TagProbePairMaker() {delete randGen_;}
-            /// fill in tghe T&P pairs for this event
-            TagProbePairs run(const edm::Event &iEvent) const ;
-        private:
-            edm::EDGetTokenT<reco::CandidateView> srcToken_;
-            enum Arbitration { None, OneProbe, BestMass, Random2, NonDuplicate, OnePair, HighestPt };
-            Arbitration arbitration_;
-            double arbitrationMass_;
-            void arbitrate(TagProbePairs &pairs) const ;
-	    TRandom2* randGen_;
+  private:
+    edm::EDGetTokenT<reco::CandidateView> srcToken_;
+    enum Arbitration { None, OneProbe, BestMass, Random2, NonDuplicate, OnePair, HighestPt };
+    Arbitration arbitration_;
+    double arbitrationMass_;
+    void arbitrate(TagProbePairs &pairs) const;
+    TRandom2 *randGen_;
 
-	    // SCZ
- 	    bool phiCutForTwoLeg_;
- 	    void phiCutByEventNumber(TagProbePairs &pairs, int eventNumber) const ;
-    };
-}
+    // SCZ
+    bool phiCutForTwoLeg_;
+    void phiCutByEventNumber(TagProbePairs &pairs, int eventNumber) const;
+  };
+}  // namespace tnp
 
 #endif

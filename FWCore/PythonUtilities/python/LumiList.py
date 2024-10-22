@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Handle lists of lumi sections. Constuct in several different formats and filter
@@ -10,10 +10,14 @@ This code began life in COMP/CRAB/python/LumiList.py
 """
 
 
+from builtins import range
 import copy
 import json
 import re
-import urllib2
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
 
 class LumiList(object):
     """
@@ -56,7 +60,7 @@ class LumiList(object):
             self.compactList = json.load(jsonFile)
         elif url:
             self.url = url
-            jsonFile = urllib2.urlopen(url)
+            jsonFile = urlopen(url)
             self.compactList = json.load(jsonFile)
         elif lumis:
             runsAndLumis = {}
@@ -107,10 +111,13 @@ class LumiList(object):
             newLumis = []
             for lumi in sorted(self.compactList[run]):
                 # If the next lumi starts inside or just after the last just change the endpoint of the first
-                if newLumis and newLumis[-1][0] <= lumi[0] <= newLumis[-1][1] + 1:
-                    newLumis[-1][1] = max(newLumis[-1][1], lumi[1])
-                else:
+                if isinstance(lumi, int):
                     newLumis.append(lumi)
+                else:
+                    if newLumis and newLumis[-1][0] <= lumi[0] <= newLumis[-1][1] + 1:
+                        newLumis[-1][1] = max(newLumis[-1][1], lumi[1])
+                    else:
+                        newLumis.append(lumi)
             self.compactList[run] = newLumis
 
     def __sub__(self, other): # Things from self not in other
@@ -161,7 +168,7 @@ class LumiList(object):
 
 
             if lumiList:
-                unique = [lumiList[0]]
+                unique = [copy.deepcopy(lumiList[0])]
             for pair in lumiList[1:]:
                 if pair[0] == unique[-1][1]+1:
                     unique[-1][1] = copy.deepcopy(pair[1])
@@ -174,12 +181,12 @@ class LumiList(object):
 
     def __or__(self, other):
         result = {}
-        aruns = self.compactList.keys()
-        bruns = other.compactList.keys()
+        aruns = list(self.compactList.keys())
+        bruns = list(other.compactList.keys())
         runs = set(aruns + bruns)
         for run in runs:
             overlap = sorted(self.compactList.get(run, []) + other.compactList.get(run, []))
-            unique = [overlap[0]]
+            unique = [copy.deepcopy(overlap[0])]
             for pair in overlap[1:]:
                 if pair[0] >= unique[-1][0] and pair[0] <= unique[-1][1]+1 and pair[1] > unique[-1][1]:
                     unique[-1][1] = copy.deepcopy(pair[1])
@@ -238,8 +245,8 @@ class LumiList(object):
         Return the list of pairs representation
         """
         theList = []
-        runs = self.compactList.keys()
-        runs.sort(key=int)
+        runs = list(self.compactList.keys())
+        runs = sorted(run, key=int)
         for run in runs:
             lumis = self.compactList[run]
             for lumiPair in sorted(lumis):
@@ -263,16 +270,19 @@ class LumiList(object):
         """
 
         parts = []
-        runs = self.compactList.keys()
-        runs.sort(key=int)
+        runs = list(self.compactList.keys())
+        runs = sorted(runs, key=int)
         for run in runs:
             lumis = self.compactList[run]
             for lumiPair in sorted(lumis):
+                if isinstance(lumiPair, int):
+                    parts.append(str("%s:%s" % (run, lumiPair)))
+                    continue
                 if lumiPair[0] == lumiPair[1]:
-                    parts.append("%s:%s" % (run, lumiPair[0]))
+                    parts.append(str("%s:%s" % (run, lumiPair[0])))
                 else:
-                    parts.append("%s:%s-%s:%s" %
-                                 (run, lumiPair[0], run, lumiPair[1]))
+                    parts.append(str("%s:%s-%s:%s" %
+                                 (run, lumiPair[0], run, lumiPair[1])))
         return parts
 
 

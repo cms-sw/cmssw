@@ -11,24 +11,21 @@
 #include "OnlineDB/EcalCondDB/interface/LMFIOV.h"
 
 class LMFLmrSubIOV : public LMFUnique {
- public:
+public:
   friend class EcalCondDBInterface;
 
   LMFLmrSubIOV();
   LMFLmrSubIOV(EcalDBConnection *c);
-  LMFLmrSubIOV(oracle::occi::Environment* env,
-	       oracle::occi::Connection* conn);
+  LMFLmrSubIOV(oracle::occi::Environment *env, oracle::occi::Connection *conn);
   ~LMFLmrSubIOV() override;
 
-  LMFLmrSubIOV& setLMFIOV(const LMFIOV &iov);
-  LMFLmrSubIOV& setLMFIOV(int i);
-  LMFLmrSubIOV& setTimes(const Tm& t1, const Tm& t2, const Tm& t3);
-  LMFLmrSubIOV& setTimes(const std::vector<Tm>& t);
-  LMFLmrSubIOV& setTimes(Tm *t); // array of three components
-  
-  int getLMFIOVID() const {
-    return m_lmfIOV;
-  };
+  LMFLmrSubIOV &setLMFIOV(const LMFIOV &iov);
+  LMFLmrSubIOV &setLMFIOV(int i);
+  LMFLmrSubIOV &setTimes(const Tm &t1, const Tm &t2, const Tm &t3);
+  LMFLmrSubIOV &setTimes(const std::vector<Tm> &t);
+  LMFLmrSubIOV &setTimes(Tm *t);  // array of three components
+
+  int getLMFIOVID() const { return m_lmfIOV; };
   LMFIOV getLMFIOV() const {
     LMFIOV iov(m_env, m_conn);
     iov.setByID(m_lmfIOV);
@@ -58,15 +55,9 @@ class LMFLmrSubIOV : public LMFUnique {
     }
     return t;
   }
-  inline Tm getT1() {
-    return m_t[0];
-  }
-  inline Tm getT2() {
-    return m_t[1];
-  }
-  inline Tm getT3() {
-    return m_t[2];
-  }
+  inline Tm getT1() { return m_t[0]; }
+  inline Tm getT2() { return m_t[1]; }
+  inline Tm getT3() { return m_t[2]; }
 
   std::list<int> getIOVIDsLaterThan(const Tm &t) noexcept(false);
   std::list<int> getIOVIDsLaterThan(const Tm &tmin, const Tm &tmax) noexcept(false);
@@ -74,19 +65,15 @@ class LMFLmrSubIOV : public LMFUnique {
   std::list<int> getIOVIDsLaterThan(const Tm &t, const Tm &tmax, int howMany) noexcept(false);
 
   // Operators
-  inline bool operator==(const LMFLmrSubIOV &m) const
-    {
-      return ( (m_lmfIOV   == m.m_lmfIOV) &&
-	       (m_t[0]    == m.m_t[0]) &&
-	       (m_t[1]    == m.m_t[1]) && 
-	       (m_t[2]    == m.m_t[2]));
-    }
+  inline bool operator==(const LMFLmrSubIOV &m) const {
+    return ((m_lmfIOV == m.m_lmfIOV) && (m_t[0] == m.m_t[0]) && (m_t[1] == m.m_t[1]) && (m_t[2] == m.m_t[2]));
+  }
 
   inline bool operator!=(const LMFLmrSubIOV &m) const { return !(*this == m); }
 
   std::list<LMFLmrSubIOV> fetchByLMFIOV(const LMFIOV &iov);
 
- private:
+private:
   int m_lmfIOV;
   Tm m_t[3];
 

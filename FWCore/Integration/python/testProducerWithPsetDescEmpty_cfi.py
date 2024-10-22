@@ -55,7 +55,7 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     testOptAllowedLabelsUntracked = cms.untracked.vstring('ou1', 'ou2', 'ou3'),
     ou1 = cms.untracked.uint32(1),
     ou2 = cms.untracked.uint32(2)
-  )
+  ),
   #, bars = cms.VPSet(
   #  cms.PSet(
   #    ndouDrinks = cms.untracked.uint32(5)
@@ -63,4 +63,15 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
   #  cms.PSet(
   #  )
   #)
+  plugin1 = cms.PSet(
+    type = cms.string('edmtestAnotherValueMaker')
+  ),
+  plugin4 = cms.PSet(
+    value = cms.int32(5),
+    pluginRecursive = cms.PSet(
+      type = cms.string('edmtestAnotherValueMaker')
+    ),
+    type = cms.string('edmtestAnotherMakerWithRecursivePlugin')
+  ),
+  plugin5 = cms.VPSet()
 )

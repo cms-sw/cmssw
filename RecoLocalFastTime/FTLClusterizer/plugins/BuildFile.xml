@@ -1,0 +1,9 @@
+<use name="RecoLocalFastTime/FTLClusterizer"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/FTLRecHit"/>
+<use name="FWCore/MessageLogger"/>
+<use name="RecoLocalFastTime/Records"/>
+<library file="*.cc" name="RecoLocalFastTimeFTLClusterizerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -1,8 +1,10 @@
+from __future__ import print_function
+import os
 class Matrix(dict):
     def __setitem__(self,key,value):
         if key in self:
-            print "ERROR in Matrix"
-            print "overwritting",key,"not allowed"
+            print("ERROR in Matrix")
+            print("overwriting",key,"not allowed")
         else:
             self.update({float(key):WF(float(key),value)})
 
@@ -13,8 +15,8 @@ class Matrix(dict):
 class Steps(dict):
     def __setitem__(self,key,value):
         if key in self:
-            print "ERROR in Step"
-            print "overwritting",key,"not allowed"
+            print("ERROR in Step")
+            print("overwriting",key,"not allowed")
             import sys
             sys.exit(-9)
         else:
@@ -38,7 +40,7 @@ class WF(list):
         
     def interpret(self,stepsDict):
         for s in self:
-            print 'steps',s,stepsDict[s]
+            print('steps',s,stepsDict[s])
             steps.append(stepsDict[s])
     
 
@@ -61,8 +63,8 @@ with open(jsonFile2016) as data_file:
 # LS for a full run by default; otherwise a subset of which you determined the size
 def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
     # print "maxNum is %s"%(maxNum)
-    if type(list_runs[0]) !=int:
-        print "ERROR: list_runs must be a list of intergers"
+    if not isinstance(list_runs[0], int):
+        print("ERROR: list_runs must be a list of integers")
         return None
     local_dict = {}
     ls_count = 0
@@ -85,13 +87,13 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
                 # print "total LS so far  %s    -   grow %s"%(ls_count,local_dict)
             #local_dict[runNumber] = [1,2,3]
         else:
-            print "run %s is NOT present in json %s\n\n"%(run, l_json)
+            print("run %s is NOT present in json %s\n\n"%(run, l_json))
         # print "++    %s"%(local_dict)
 
-    if ( len(local_dict.keys()) > 0 ) :
+    if ( len(local_dict) > 0 ) :
         return local_dict
     else :
-        print "No luminosity section interval passed the json and your selection; returning None"
+        print("No luminosity section interval passed the json and your selection; returning None")
         return None
 
 # print "\n\n\n THIS IS WHAT I RETURN: %s \n\n"%( selectedLS([251244,251251]) )
@@ -101,7 +103,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
 
 InputInfoNDefault=2000000    
 class InputInfo(object):
-    def __init__(self,dataSet,dataSetParent='',label='',run=[],ls={},files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None) :
+    def __init__(self,dataSet,dataSetParent='',label='',run=[],ls={},files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None,skimEvents=False) :
         self.run = run
         self.ls = ls
         self.files = files
@@ -113,29 +115,40 @@ class InputInfo(object):
         self.ib_blacklist = ib_blacklist
         self.ib_block = ib_block
         self.dataSetParent = dataSetParent
-        
+        self.skimEvents = skimEvents
+
     def das(self, das_options, dataset):
-        if len(self.run) is not 0 or self.ls:
-            queries = self.queries(dataset)[:3]
+        if not self.skimEvents and (len(self.run) != 0 or self.ls):
+            queries = self.queries(dataset)
             if len(self.run) != 0:
-              command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
+                command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
             else:
               lumis = self.lumis()
               commands = []
               while queries:
-                commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
+                    commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
               command = ";".join(commands)
             command = "({0})".format(command)
-        else:
+        elif not self.skimEvents:
             command = "dasgoclient %s --query '%s'" % (das_options, self.queries(dataset)[0])
-       
+        elif self.skimEvents:
+            from os import getenv
+            if getenv("JENKINS_PREFIX") is not None:
+                # to be assured that whatever happens the files are only those at CERN
+                command = "das-up-to-nevents.py -d %s -e %d -pc"%(dataset,self.events)
+            else:
+                command = "das-up-to-nevents.py -d %s -e %d"%(dataset,self.events)
         # Run filter on DAS output 
         if self.ib_blacklist:
             command += " | grep -E -v "
             command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
-        from os import getenv
-        if getenv("CMSSW_USE_IBEOS","false")=="true": return command + " | ibeos-lfn-sort"
-        return command + " | sort -u"
+        if not self.skimEvents: ## keep run-lumi sorting
+            from os import getenv
+            if getenv("CMSSW_USE_IBEOS","false")=="true":
+                return "export CMSSW_USE_IBEOS=true; " + command + " | ibeos-lfn-sort"
+            return command + " | sort -u"
+        else:
+            return command
 
     def lumiRanges(self):
         if len(self.run) != 0:
@@ -143,13 +156,17 @@ class InputInfo(object):
         if self.ls :
             return "echo '{\n"+",".join(('"%d" : %s\n'%( int(x),self.ls[x]) for x in self.ls.keys()))+"}'"
         return None
-
+    
     def lumis(self):
       query_lumis = []
       if self.ls:
-        for run in self.ls.keys():
+        for run in sorted(self.ls.keys()):
           run_lumis = []
-          for rng in self.ls[run]: run_lumis.append(str(rng[0])+","+str(rng[1]))
+          for rng in self.ls[run]:
+              if isinstance(rng, int):
+                  run_lumis.append(str(rng))
+              else:
+                  run_lumis.append(str(rng[0])+","+str(rng[1]))
           query_lumis.append(":".join(run_lumis))
       return query_lumis
 
@@ -165,7 +182,7 @@ class InputInfo(object):
             # and use step1_lumiRanges.log to run only on LS which respect your selection
 
             # DO WE WANT T2_CERN ?
-            return ["file {0}={1} run={2}".format(query_by, query_source, query_run) for query_run in self.ls.keys()]
+            return ["file {0}={1} run={2}".format(query_by, query_source, query_run) for query_run in sorted(self.ls.keys())]
             #return ["file {0}={1} run={2} site=T2_CH_CERN".format(query_by, query_source, query_run) for query_run in self.ls.keys()]
 
 
@@ -176,11 +193,17 @@ class InputInfo(object):
             #print the_queries
             return the_queries
 
-        if len(self.run) is not 0:
-            return ["file {0}={1} run={2} site=T2_CH_CERN".format(query_by, query_source, query_run) for query_run in self.run]
+        site = " site=T2_CH_CERN"
+        if "CMSSW_DAS_QUERY_SITES" in os.environ:
+            if os.environ["CMSSW_DAS_QUERY_SITES"]:
+                site = " site=%s" % os.environ["CMSSW_DAS_QUERY_SITES"]
+            else:
+                site = ""
+        if len(self.run) != 0:
+            return ["file {0}={1} run={2}{3}".format(query_by, query_source, query_run, site) for query_run in self.run]
             #return ["file {0}={1} run={2} ".format(query_by, query_source, query_run) for query_run in self.run]
         else:
-            return ["file {0}={1} site=T2_CH_CERN".format(query_by, query_source)]
+            return ["file {0}={1}{2}".format(query_by, query_source, site)]
             #return ["file {0}={1} ".format(query_by, query_source)]
 
     def __str__(self):
@@ -193,13 +216,13 @@ class InputInfo(object):
 def merge(dictlist,TELL=False):
     import copy
     last=len(dictlist)-1
-    if TELL: print last,dictlist
+    if TELL: print(last,dictlist)
     if last==0:
         # ONLY ONE ITEM LEFT
         return copy.copy(dictlist[0])
     else:
         reducedlist=dictlist[0:max(0,last-1)]
-        if TELL: print reducedlist
+        if TELL: print(reducedlist)
         # make a copy of the last item
         d=copy.copy(dictlist[last])
         # update with the last but one item
@@ -211,9 +234,9 @@ def merge(dictlist,TELL=False):
 def remove(d,key,TELL=False):
     import copy
     e = copy.deepcopy(d)
-    if TELL: print "original dict, BEF: %s"%d
+    if TELL: print("original dict, BEF: %s"%d)
     del e[key]
-    if TELL: print "copy-removed dict, AFT: %s"%e
+    if TELL: print("copy-removed dict, AFT: %s"%e)
     return e
 
 
@@ -254,4 +277,8 @@ def genvalid(fragment,d,suffix='all',fi='',dataSet=''):
     c['cfg']=fragment
     return c
 
-
+def check_dups(input):
+    seen = set()
+    dups = set(x for x in input if x in seen or seen.add(x))
+    
+    return dups

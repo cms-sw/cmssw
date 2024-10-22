@@ -1,7 +1,6 @@
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
-<use   name="boost"/>
-<use   name="rootmath"/>
-<use   name="FWCore/Utilities"/>
-
+<use name="boost"/>
+<use name="rootmath"/>
+<use name="FWCore/Utilities"/>

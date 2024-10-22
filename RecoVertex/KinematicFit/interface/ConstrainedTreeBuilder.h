@@ -12,37 +12,35 @@
  * in the next version of the library.
  */
 
-class ConstrainedTreeBuilder
-{
-
+class ConstrainedTreeBuilder {
 public:
+  ConstrainedTreeBuilder();
 
- ConstrainedTreeBuilder();
- 
- ~ConstrainedTreeBuilder();
+  ~ConstrainedTreeBuilder();
 
-/**
+  /**
  * Method constructing tree out of set of refitted states, vertex, and
  * full covariance matrix.
  */
 
- RefCountedKinematicTree buildTree(const std::vector<RefCountedKinematicParticle> & initialParticles, 
-                         const std::vector<KinematicState> & finalStates,
-			 const RefCountedKinematicVertex vtx, const AlgebraicMatrix& fCov) const;
+  RefCountedKinematicTree buildTree(const std::vector<RefCountedKinematicParticle>& initialParticles,
+                                    const std::vector<KinematicState>& finalStates,
+                                    const RefCountedKinematicVertex vtx,
+                                    const AlgebraicMatrix& fCov) const;
 
 private:
-
-  RefCountedKinematicTree buildTree(const RefCountedKinematicParticle virtualParticle, 
-	const RefCountedKinematicVertex vtx, const std::vector<RefCountedKinematicParticle> & particles) const;
+  RefCountedKinematicTree buildTree(const RefCountedKinematicParticle virtualParticle,
+                                    const RefCountedKinematicVertex vtx,
+                                    const std::vector<RefCountedKinematicParticle>& particles) const;
 
   /**
    * Metod to reconstructing the full covariance matrix of the resulting particle.					      
    */
- AlgebraicMatrix covarianceMatrix(const std::vector<RefCountedKinematicParticle> &rPart, 
-                                       const AlgebraicVector7& newPar,
-				       const AlgebraicMatrix& fitCov)const;
-				       
- VirtualKinematicParticleFactory * pFactory;				       
- KinematicVertexFactory * vFactory;
+  AlgebraicMatrix covarianceMatrix(const std::vector<RefCountedKinematicParticle>& rPart,
+                                   const AlgebraicVector7& newPar,
+                                   const AlgebraicMatrix& fitCov) const;
+
+  VirtualKinematicParticleFactory* pFactory;
+  KinematicVertexFactory* vFactory;
 };
 #endif

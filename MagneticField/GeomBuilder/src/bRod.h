@@ -8,32 +8,32 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
-#include "MagneticField/GeomBuilder/src/volumeHandle.h"
-#include "MagneticField/GeomBuilder/src/bSlab.h"
+#include "bSlab.h"
 
 class MagBRod;
 
-class MagGeoBuilderFromDDD::bRod {
-public:
-  /// Constructor from list of volumes
-  bRod(handles::const_iterator begin, handles::const_iterator end);
+namespace magneticfield {
 
-  /// Destructor
-  ~bRod();
- 
-  /// Distance from center along sector normal.
-  const float RN() const {
-    return volumes.front()->RN();
-  }
+  class bRod {
+  public:
+    /// Constructor from list of volumes
+    bRod(handles::const_iterator begin, handles::const_iterator end, bool debugVal = false);
 
-  /// Construct the MagBRod upon request.
-  MagBRod* buildMagBRod() const;
+    /// Destructor
+    ~bRod() = default;
 
-private:
-  std::vector<bSlab> slabs;
-  handles volumes; // pointers to all volumes in the rod
-  mutable MagBRod* mrod;
-};
+    /// Distance from center along sector normal.
+    const float RN() const { return volumes.front()->RN(); }
+
+    /// Construct the MagBRod upon request.
+    MagBRod* buildMagBRod() const;
+
+  private:
+    std::vector<bSlab> slabs;
+    handles volumes;  // pointers to all volumes in the rod
+    mutable MagBRod* mrod;
+    bool debug;  // Allow assignment from other bRod objects
+  };
+}  // namespace magneticfield
 
 #endif

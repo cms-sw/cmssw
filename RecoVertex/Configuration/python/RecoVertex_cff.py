@@ -14,11 +14,19 @@ from CommonTools.RecoAlgos.sortedPrimaryVertices_cfi import *
 from RecoJets.JetProducers.caloJetsForTrk_cff import *
 
 unsortedOfflinePrimaryVertices=offlinePrimaryVertices.clone()
-offlinePrimaryVertices=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices", particles="trackRefsForJetsBeforeSorting")
-offlinePrimaryVerticesWithBS=sortedPrimaryVertices.clone(vertices=cms.InputTag("unsortedOfflinePrimaryVertices","WithBS"), particles="trackRefsForJetsBeforeSorting")
-trackWithVertexRefSelectorBeforeSorting = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVertices")
-trackWithVertexRefSelectorBeforeSorting.ptMax=9e99
-trackWithVertexRefSelectorBeforeSorting.ptErrorCut=9e99
+offlinePrimaryVertices=sortedPrimaryVertices.clone(
+    vertices="unsortedOfflinePrimaryVertices", 
+    particles="trackRefsForJetsBeforeSorting"
+)
+offlinePrimaryVerticesWithBS=sortedPrimaryVertices.clone(
+    vertices="unsortedOfflinePrimaryVertices:WithBS", 
+    particles="trackRefsForJetsBeforeSorting"
+)
+trackWithVertexRefSelectorBeforeSorting = trackWithVertexRefSelector.clone(
+    vertexTag="unsortedOfflinePrimaryVertices",
+    ptMax=9e99,
+    ptErrorCut=9e99
+)
 trackRefsForJetsBeforeSorting = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting")
 
 
@@ -33,36 +41,54 @@ vertexrecoTask = cms.Task(unsortedOfflinePrimaryVertices,
                           )
 vertexreco = cms.Sequence(vertexrecoTask)
 
-#timing
-from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA2D_vectParameters
-DA2D_vectParameters.TkDAClusParameters.verbose = cms.untracked.bool(False)
-unsortedOfflinePrimaryVertices4D = unsortedOfflinePrimaryVertices.clone( verbose = cms.untracked.bool(False),
-                                                                         TkClusParameters = DA2D_vectParameters )
-unsortedOfflinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(0.0)
-unsortedOfflinePrimaryVertices4D.TrackTimesLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel")
-unsortedOfflinePrimaryVertices4D.TrackTimeResosLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution")
-offlinePrimaryVertices4D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4D", particles="trackRefsForJetsBeforeSorting4D", trackTimeTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModel"),trackTimeResoTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModelResolution"),assignment=dict(useTiming=True))
-offlinePrimaryVertices4DWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4D:WithBS", particles="trackRefsForJetsBeforeSorting4D", trackTimeTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModel"),trackTimeResoTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModelResolution"),assignment=dict(useTiming=True))
+#modifications for timing
+from RecoVertex.Configuration.RecoVertex_phase2_timing_cff import (tpClusterProducer ,
+                                                                  quickTrackAssociatorByHits ,
+                                                                  trackTimeValueMapProducer ,
+                                                                  unsortedOfflinePrimaryVertices4DwithPID ,
+                                                                  offlinePrimaryVertices4DwithPID ,
+                                                                  offlinePrimaryVertices4DwithPIDWithBS,
+                                                                  tofPID,
+                                                                  tofPID3D,
+                                                                  tofPID4DnoPID,
+                                                                  unsortedOfflinePrimaryVertices4D,
+                                                                  trackWithVertexRefSelectorBeforeSorting4D,
+                                                                  trackRefsForJetsBeforeSorting4D,
+                                                                  offlinePrimaryVertices4D,
+                                                                  offlinePrimaryVertices4DWithBS)
 
-trackWithVertexRefSelectorBeforeSorting4D = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVertices4D")
-trackWithVertexRefSelectorBeforeSorting4D.ptMax=9e99
-trackWithVertexRefSelectorBeforeSorting4D.ptErrorCut=9e99
-trackRefsForJetsBeforeSorting4D = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting4D")
-
-from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer
-from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import quickTrackAssociatorByHits
-from SimTracker.TrackAssociation.trackTimeValueMapProducer_cfi import trackTimeValueMapProducer
 _phase2_tktiming_vertexrecoTask = cms.Task( vertexrecoTask.copy() ,
                                             tpClusterProducer ,
                                             quickTrackAssociatorByHits ,
                                             trackTimeValueMapProducer ,
+                                            unsortedOfflinePrimaryVertices4D,
                                             trackWithVertexRefSelectorBeforeSorting4D ,
-                                            trackRefsForJetsBeforeSorting4D ,
-                                            unsortedOfflinePrimaryVertices4D ,
-                                            offlinePrimaryVertices4D ,
-                                            offlinePrimaryVertices4DWithBS 
+                                            trackRefsForJetsBeforeSorting4D,
+                                            offlinePrimaryVertices4D,
+                                            offlinePrimaryVertices4DWithBS,
+                                            )
+
+_phase2_tktiming_layer_vertexrecoTask = cms.Task( _phase2_tktiming_vertexrecoTask.copy() ,
+                                            tofPID3D,
+                                            tofPID,
+                                            tofPID4DnoPID,
                                             )
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toReplaceWith(vertexrecoTask, _phase2_tktiming_vertexrecoTask)
 
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toReplaceWith(vertexrecoTask, _phase2_tktiming_layer_vertexrecoTask)
+phase2_timing_layer.toReplaceWith(unsortedOfflinePrimaryVertices4D, unsortedOfflinePrimaryVertices4DwithPID.clone())
+phase2_timing_layer.toReplaceWith(offlinePrimaryVertices4D, offlinePrimaryVertices4DwithPID.clone())
+phase2_timing_layer.toReplaceWith(offlinePrimaryVertices4DWithBS, offlinePrimaryVertices4DwithPIDWithBS.clone())
+phase2_timing_layer.toModify(offlinePrimaryVertices4D, vertices = "unsortedOfflinePrimaryVertices4D", particles = "trackRefsForJetsBeforeSorting4D")
+phase2_timing_layer.toModify(offlinePrimaryVertices4DWithBS, vertices = "unsortedOfflinePrimaryVertices4D:WithBS", particles = "trackRefsForJetsBeforeSorting4D")
+phase2_timing_layer.toModify(unsortedOfflinePrimaryVertices,
+    vertexCollections = {0: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('fromTracksPID'))),
+                         1: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('fromTracksPID')))}
+)
+
+from Configuration.ProcessModifiers.vertex4DTrackSelMVA_cff import vertex4DTrackSelMVA
+vertex4DTrackSelMVA.toModify(unsortedOfflinePrimaryVertices4D, useMVACut = True)
+vertex4DTrackSelMVA.toModify(unsortedOfflinePrimaryVertices4DwithPID, useMVACut = True)

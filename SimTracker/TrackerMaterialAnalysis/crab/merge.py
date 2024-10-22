@@ -1,3 +1,4 @@
+from __future__ import print_function
 #! /usr/bin/env cmsRun
 import glob
 import FWCore.ParameterSet.Config as cms
@@ -5,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 inputFiles = cms.untracked.vstring()
 inputFiles.extend( [('file:%s ' % name) for name in glob.glob('files/*.root')] )
 inputFiles.sort()
-print inputFiles
+print(inputFiles)
 
 process = cms.Process("merge")
 process.source = cms.Source("PoolSource",

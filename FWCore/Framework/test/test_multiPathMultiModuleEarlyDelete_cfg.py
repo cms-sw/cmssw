@@ -13,12 +13,10 @@ process.options = cms.untracked.PSet(
 process.maker = cms.EDProducer("DeleteEarlyProducer")
 
 process.reader1 = cms.EDAnalyzer("DeleteEarlyReader",
-                                tag = cms.untracked.InputTag("maker"),
-                                mightGet = cms.untracked.vstring("edmtestDeleteEarly_maker__TEST"))
+                                tag = cms.untracked.InputTag("maker"))
 
 process.reader2 = cms.EDAnalyzer("DeleteEarlyReader",
-                                 tag = cms.untracked.InputTag("maker"),
-                                 mightGet = cms.untracked.vstring("edmtestDeleteEarly_maker__TEST"))
+                                 tag = cms.untracked.InputTag("maker"))
 
 process.tester1 = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",
                                 expectedValues = cms.untracked.vuint32(3,7,11))
@@ -48,6 +46,6 @@ process.waitTillP2Done = cms.EDAnalyzer("IntConsumingAnalyzer",
                                         getFromModule = cms.untracked.InputTag("p2Done"))
 
 
-process.p1 = cms.Path(process.maker+process.f2+process.reader1+process.tester1+process.p1Done)
-process.p2 = cms.Path(process.waitTillP1Done+process.maker+process.p2PreTester+process.f3+process.reader2+process.tester2+process.p2Done)
-process.p3 = cms.Path(process.waitTillP2Done+process.tester3)
+process.p1 = cms.Path(cms.wait(process.maker)+process.f2+cms.wait(process.reader1)+cms.wait(process.tester1)+process.p1Done)
+process.p2 = cms.Path(cms.wait(process.waitTillP1Done)+cms.wait(process.maker)+cms.wait(process.p2PreTester)+process.f3+cms.wait(process.reader2)+cms.wait(process.tester2)+process.p2Done)
+process.p3 = cms.Path(cms.wait(process.waitTillP2Done)+process.tester3)

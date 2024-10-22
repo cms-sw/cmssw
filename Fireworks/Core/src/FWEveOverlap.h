@@ -7,25 +7,25 @@
 
 class FWGeometryTableManagerBase;
 class TGLViewer;
-class FWEveOverlap : public FWGeoTopNode
-{
+class FWEveOverlap : public FWGeoTopNode {
 public:
-   FWEveOverlap(FWOverlapTableView* v);
-   ~FWEveOverlap() override{}
+  FWEveOverlap(FWOverlapTableView* v);
+  ~FWEveOverlap() override {}
 
-   void Paint(Option_t* option="") override;
-   TString     GetHighlightTooltip() override;
-   
-   FWGeometryTableManagerBase* tableManager() override;
-   FWGeometryTableViewBase* browser() override;
-   void popupMenu(int x, int y, TGLViewer* v) override;
+  void Paint(Option_t* option = "") override;
+  TString GetHighlightTooltip() override;
+
+  FWGeometryTableManagerBase* tableManager() override;
+  FWGeometryTableViewBase* browser() override;
+  void popupMenu(int x, int y, TGLViewer* v) override;
+
 private:
-   FWOverlapTableView       *m_browser;
+  FWOverlapTableView* m_browser;
 
 #ifndef __CINT__
-   bool paintChildNodesRecurse(FWGeometryTableManagerBase::Entries_i pIt, Int_t idx,  const TGeoHMatrix& mtx);
+  bool paintChildNodesRecurse(FWGeometryTableManagerBase::Entries_i pIt, Int_t idx, const TGeoHMatrix& mtx);
 #endif
-   ClassDefOverride(FWEveOverlap, 0);
+  ClassDefOverride(FWEveOverlap, 0);
 };
 
 #endif

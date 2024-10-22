@@ -1,23 +1,19 @@
 <export>
 </export>
-<library   name="PhysicsToolsPatUtils_plugins" file="*.cc">
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="CommonTools/Utils"/>
-  <use   name="CondFormats/JetMETObjects"/>
-  <use   name="DataFormats/Candidate"/>
-  <use   name="DataFormats/JetReco"/>
-  <use   name="DataFormats/METReco"/>
-  <use   name="DataFormats/MuonReco"/>
-  <use   name="DataFormats/ParticleFlowCandidate"/>
-  <use   name="DataFormats/PatCandidates"/>
-  <use   name="JetMETCorrections/Objects"/>
-  <use   name="JetMETCorrections/JetCorrector"/>
-  <use   name="JetMETCorrections/Type1MET"/>
-  <use   name="JetMETCorrections/Modules"/>
-  <use   name="RecoMET/METAlgorithms"/>
-  <use   name="PhysicsTools/PatUtils"/>
-  <use   name="PhysicsTools/UtilAlgos"/>
+<library name="PhysicsToolsPatUtils_plugins" file="*.cc">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="CommonTools/Utils"/>
+  <use name="CondFormats/JetMETObjects"/>
+  <use name="DataFormats/Candidate"/>
+  <use name="DataFormats/JetReco"/>
+  <use name="DataFormats/METReco"/>
+  <use name="DataFormats/ParticleFlowCandidate"/>
+  <use name="DataFormats/PatCandidates"/>
+  <use name="JetMETCorrections/Objects"/>
+  <use name="JetMETCorrections/Type1MET"/>
+  <use name="RecoMET/METAlgorithms"/>
+  <use name="PhysicsTools/PatUtils"/>
+  <use name="PhysicsTools/UtilAlgos"/>
 </library>

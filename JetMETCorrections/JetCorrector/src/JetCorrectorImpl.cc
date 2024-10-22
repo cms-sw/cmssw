@@ -2,7 +2,7 @@
 //
 // Package:     JetMETCorrections/JetCorrector
 // Class  :     JetCorrectorImpl
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "JetMETCorrections/JetCorrector/interface/JetCorrectorImpl.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,18 +26,14 @@
 //
 // constructors and destructor
 //
-reco::JetCorrectorImpl::JetCorrectorImpl()
-{
-}
+reco::JetCorrectorImpl::JetCorrectorImpl() {}
 
 // JetCorrectorImpl::JetCorrectorImpl(const JetCorrectorImpl& rhs)
 // {
 //    // do actual copying here;
 // }
 
-reco::JetCorrectorImpl::~JetCorrectorImpl()
-{
-}
+reco::JetCorrectorImpl::~JetCorrectorImpl() {}
 
 //
 // assignment operators
@@ -60,24 +55,18 @@ reco::JetCorrectorImpl::~JetCorrectorImpl()
 // const member functions
 //
 
-double 
-reco::JetCorrectorImpl::correction (const reco::Jet& fJet,
-				    const edm::RefToBase<reco::Jet>& fJetRef) const  {
+double reco::JetCorrectorImpl::correction(const reco::Jet& fJet, const edm::RefToBase<reco::Jet>& fJetRef) const {
   return correction(fJet);
 }
 
-    /// Apply vectorial correction
-double 
-reco::JetCorrectorImpl::correction ( const reco::Jet& fJet, 
-				     const edm::RefToBase<reco::Jet>& fJetRef,
-				     LorentzVector& corrected ) const {
+/// Apply vectorial correction
+double reco::JetCorrectorImpl::correction(const reco::Jet& fJet,
+                                          const edm::RefToBase<reco::Jet>& fJetRef,
+                                          LorentzVector& corrected) const {
   return correction(fJet);
 }
 
-bool
-reco::JetCorrectorImpl::vectorialCorrection() const {
-  return false;
-}
+bool reco::JetCorrectorImpl::vectorialCorrection() const { return false; }
 
 //
 // static member functions

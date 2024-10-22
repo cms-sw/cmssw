@@ -1,11 +1,7 @@
-<flags   GENREFLEX_ARGS="--"/>
-<use   name="CondFormats/Common"/>
-<use   name="CondFormats/Serialization"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
-<use   name="boost"/>
-
-<use   name="CondFormats/PhysicsToolsObjects"/>
+<use name="CondFormats/Serialization"/>
+<use name="FWCore/Utilities"/>
+<use name="boost"/>
+<use name="CondFormats/PhysicsToolsObjects"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

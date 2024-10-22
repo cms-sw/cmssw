@@ -4,7 +4,7 @@ Contains classes for shell part of framework - basically a collection of classes
 
 """
 
-import querying
+from . import querying
 import sys
 
 connections = []

@@ -4,49 +4,60 @@
 #include <string>
 #include <memory>
 
-#include <boost/python.hpp>
-#include "boost/archive/xml_oarchive.hpp"
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
 
 #include "CondFormats/Serialization/interface/Archive.h"
 
-#define XML_CONVERTER_NAME( CLASS_NAME ) (std::string( #CLASS_NAME )+"2xml").c_str()
+#define XML_CONVERTER_NAME(CLASS_NAME) (std::string(#CLASS_NAME) + "2xml").c_str()
 
-#define PAYLOAD_2XML_MODULE( MODULE_NAME ) \
-  BOOST_PYTHON_MODULE( MODULE_NAME ) 
+#define PAYLOAD_2XML_MODULE(MODULE_NAME) PYBIND11_MODULE(MODULE_NAME, m)
 
-#define PAYLOAD_2XML_CLASS( CLASS_NAME ) \
-  boost::python::class_< Payload2xml<CLASS_NAME> >( XML_CONVERTER_NAME( CLASS_NAME ), boost::python::init<>()) \
-  .def("write",&Payload2xml<CLASS_NAME>::write ) \
-  ;
+#define PAYLOAD_2XML_CLASS(CLASS_NAME)                                    \
+  py::class_<Payload2xml<CLASS_NAME> >(m, XML_CONVERTER_NAME(CLASS_NAME)) \
+      .def(py::init<>())                                                  \
+      .def("write", &Payload2xml<CLASS_NAME>::write);
 
-namespace { // Avoid cluttering the global namespace.
+#include <boost/version.hpp>
+namespace cond {
+  inline std::string boost_version_label() {
+    std::stringstream ss;
+    ss << BOOST_VERSION / 100000 << ".";
+    ss << BOOST_VERSION / 100 % 1000 << ".";
+    ss << BOOST_VERSION % 100;
+    return ss.str();
+  }
+}  // namespace cond
 
-  template <typename PayloadType> class Payload2xml {
+namespace {  // Avoid cluttering the global namespace.
+
+  template <typename PayloadType>
+  class Payload2xml {
   public:
-    Payload2xml(){
-    }
+    Payload2xml() {}
     //
-    std::string write( const std::string &payloadData ){
+    std::string write(const std::string &payloadData) {
       // now to convert
-      std::unique_ptr< PayloadType > payload;
+      std::unique_ptr<PayloadType> payload;
       std::stringbuf sdataBuf;
-      sdataBuf.pubsetbuf( const_cast<char *> ( payloadData.c_str() ), payloadData.size() );
+      sdataBuf.pubsetbuf(const_cast<char *>(payloadData.c_str()), payloadData.size());
 
-      std::istream inBuffer( &sdataBuf );
-      eos::portable_iarchive ia( inBuffer );
-      payload.reset( new PayloadType );
+      std::istream inBuffer(&sdataBuf);
+      cond::serialization::InputArchive ia(inBuffer);
+      payload.reset(new PayloadType);
       ia >> (*payload);
 
       // now we have the object in memory, convert it to xml in a string and return it
       std::ostringstream outBuffer;
       {
-	boost::archive::xml_oarchive xmlResult( outBuffer );
-	xmlResult << boost::serialization::make_nvp( "cmsCondPayload", *payload );
+        boost::archive::xml_oarchive xmlResult(outBuffer);
+        xmlResult << boost::serialization::make_nvp("cmsCondPayload", *payload);
       }
       return outBuffer.str();
     }
   };
 
-} // end namespace
+}  // end namespace
 
 #endif

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 """
-Important note to developers: the random number services of the GEM and 
+Important note to developers: the random number services of the GEM and
 ME0 digi modules are no longer initialized in this file. Instead, they
 are automically initialized through the --era (Run3, Phase2) command.
 In case cmsRun or cmsDriver crashes because of RandomNumberGeneratorSerivce,
@@ -18,7 +18,7 @@ you may have forgotten to specify the correct era!
 #  - drop unnecessary mixObjects
 def customize_mix_muon_only(process):
     process.mix.digitizers = digitizers = cms.PSet()
-    digi_aliases = filter(lambda n: 'Digi' in n, process.aliases.keys())
+    digi_aliases = [n for n in process.aliases.keys() if 'Digi' in n]
     for a in digi_aliases: process.__delattr__(a)
     from SimGeneral.MixingModule.mixObjects_cfi import theMixObjects
     process.mix.mixObjects = theMixObjects
@@ -144,9 +144,9 @@ def customize_digi_addGEM_muon_only(process):
     process = load_GEM_digitizers(process)
     process = customize_mix_addGEM_muon_only(process)
     process.muonDigi = cms.Sequence(
-        process.simMuonCSCDigis + 
-        process.simMuonDTDigis + 
-        process.simMuonRPCDigis + 
+        process.simMuonCSCDigis +
+        process.simMuonDTDigis +
+        process.simMuonRPCDigis +
         process.muonGEMDigi
     )
     process.pdigi = cms.Sequence(
@@ -164,9 +164,9 @@ def customize_digi_addGEM_addME0_muon_only(process):
     process = load_ME0_digitizers(process)
     process = customize_mix_addGEM_addME0_muon_only(process)
     process.muonDigi = cms.Sequence(
-        process.simMuonCSCDigis + 
-        process.simMuonDTDigis + 
-        process.simMuonRPCDigis + 
+        process.simMuonCSCDigis +
+        process.simMuonDTDigis +
+        process.simMuonRPCDigis +
         process.muonGEMDigi +
         process.muonME0Digi
     )
@@ -184,7 +184,7 @@ def customize_digi_addGEM(process):
     process = load_GEM_digitizers(process)
     process = customize_mix_addGEM(process)
     process.doAllDigi = cms.Sequence(
-        process.calDigi + 
+        process.calDigi +
         process.muonDigi +
         process.muonGEMDigi
     )
@@ -205,7 +205,7 @@ def customize_digi_addGEM_addME0(process):
     process = customize_mix_addGEM(process)
     process = customize_mix_addME0(process)
     process.doAllDigi = cms.Sequence(
-        process.calDigi + 
+        process.calDigi +
         process.muonDigi +
         process.muonGEMDigi +
         process.muonME0Digi

@@ -10,9 +10,7 @@
 #include "G4THitsCollection.hh"
 #include "SimG4CMS/FP420/interface/FP420G4Hit.h"
 #include "G4Step.hh"
-#include <boost/cstdint.hpp>
 
 typedef G4THitsCollection<FP420G4Hit> FP420G4HitCollection;
 
 #endif
-

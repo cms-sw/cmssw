@@ -15,5 +15,4 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-EDM_REGISTER_PLUGINFACTORY(DTRecSegment4DAlgoFactory,"DTRecSegment4DAlgoFactory");
-
+EDM_REGISTER_PLUGINFACTORY(DTRecSegment4DAlgoFactory, "DTRecSegment4DAlgoFactory");

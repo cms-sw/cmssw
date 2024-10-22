@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to unpack RAW L1 GT DAQ data
 # the options set in "user choices" file
@@ -12,10 +13,10 @@ import sys
 
 process = cms.Process("TestL1GtUnpacker")
 
-print '\n'
+print('\n')
 from L1Trigger.GlobalTriggerAnalyzer.UserOptions_cff import *
 if errorUserOptions == True :
-    print '\nError returned by UserOptions_cff\n'
+    print('\nError returned by UserOptions_cff\n')
     sys.exit()
 
 # source according to data type
@@ -38,7 +39,7 @@ process.maxEvents = cms.untracked.PSet(
 # load and configure modules via Global Tag
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.GlobalTag.globaltag = useGlobalTag
@@ -117,30 +118,22 @@ process.p = cms.Path(process.l1GtUnpack*process.l1GtTrigReport)
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtUnpack', 'l1GtTrigReport']
-process.MessageLogger.categories.append('L1GlobalTriggerRawToDigi')
-process.MessageLogger.categories.append('L1GtTrigReport')
-process.MessageLogger.destinations = ['L1GtUnpacker_errors', 
-                                      'L1GtUnpacker_warnings', 
-                                      'L1GtUnpacker_info', 
-                                      'L1GtUnpacker'
-                                      ]
-process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
+process.MessageLogger.cerr.enable = False
 
-process.MessageLogger.L1GtUnpacker_errors = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtUnpacker_errors = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
         L1GlobalTriggerRawToDigi = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
        )
 
-process.MessageLogger.L1GtUnpacker_warnings = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtUnpacker_warnings = cms.untracked.PSet( 
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         L1GlobalTriggerRawToDigi = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtUnpacker_info = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtUnpacker_info = cms.untracked.PSet( 
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -148,7 +141,7 @@ process.MessageLogger.L1GtUnpacker_info = cms.untracked.PSet(
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtUnpacker = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtUnpacker = cms.untracked.PSet( 
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),

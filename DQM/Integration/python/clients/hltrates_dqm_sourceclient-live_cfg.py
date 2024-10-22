@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DQM")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("DQM", Run3)
 process.options = cms.untracked.PSet(
   SkipEvent = cms.untracked.vstring('ProductNotFound') 
 )
@@ -9,6 +10,7 @@ process.load("DQMServices.Core.DQM_cfg")
 
 #### leave the following few lines uncommented for online running
 process.load("DQM.Integration.config.inputsource_cfi")
+from DQM.Integration.config.inputsource_cfi import options
 process.load("DQM.Integration.config.environment_cfi")
 #process.DQMEventStreamHttpReader.SelectHLTOutput = cms.untracked.string('hltOutputHLTDQMResults')
 
@@ -32,15 +34,17 @@ process.load("DQM.Integration.config.environment_cfi")
 #process.DQMEventStreamHttpReader.sourceURL = cms.string('http://srv-c2c07-13.cms:11100/urn:xdaq-application:lid=50')
 
 # old, not used
-#process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/hlt_reference.root"
 
 process.dqmSaver.tag = "HLTRates"
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'HLTRates'
+process.dqmSaverPB.runNumber = options.runNumber
 
 #process.load("Configuration.StandardSequences.GeometryPilot2_cff")
 #process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer" ) # for muon hlt dqm
 #SiStrip Local Reco
-#process.load("CalibTracker.SiStripCommon.TkDetMap_cff")
+#process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 
 #---- for P5 (online) DB access
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
@@ -71,7 +75,7 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 #process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
 
-#process.load("CalibTracker.SiStripCommon.TkDetMap_cff")
+#process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 
 ####### JMS Aug 16 2011 you do need to prescale
 process.hltPreTrigResRateMon = cms.EDFilter ("HLTPrescaler",
@@ -87,25 +91,17 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32(6)
       ),
      )
-    )
+)
 
-
-process.load("DQM.HLTEvF.TrigResRateMon_cfi")
-
-# run on 1 out of 8 SM, LSSize 23 -> 23/8 = 2.875
-# stream is prescaled by 10, to correct change LSSize 23 -> 23/10 = 2.3
-process.trRateMon.LuminositySegmentSize = cms.untracked.double(2.3)
-
+process.load("DQM.HLTEvF.triggerRatesMonitor_cfi")
 
 # Add RawToDigi
-process.rateMon = cms.EndPath(process.hltPreTrigResRateMon *process.trRateMon)
+process.rateMon = cms.EndPath(process.hltPreTrigResRateMon *process.triggerRatesMonitor)
 
-
-process.pp = cms.Path(process.dqmEnv+process.dqmSaver)
+process.pp = cms.Path(process.dqmEnv+process.dqmSaver+process.dqmSaverPB)
 
 process.dqmEnv.subSystemFolder = 'HLT/TrigResults'
 #process.hltResults.plotAll = True
-
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

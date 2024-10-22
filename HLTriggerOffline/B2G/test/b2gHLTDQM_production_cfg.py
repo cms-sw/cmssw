@@ -74,10 +74,8 @@ process.content = cms.EDAnalyzer("EventContentAnalyzer")
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('B2GSingleLeptonTriggerDQM'   )
 process.MessageLogger.cerr.B2GSingleLeptonTriggerDQM    = cms.untracked.PSet(limit = cms.untracked.int32(1))
 
-process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)  ## line added to avoid crash when changing run number
 
 
 process.b2gSingleMuonMediumTriggerDQM.preselection.trigger.select = cms.vstring(['HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet50_40_30_v1'])

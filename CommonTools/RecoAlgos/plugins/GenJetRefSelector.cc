@@ -26,10 +26,7 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
- typedef SingleObjectSelector<
-           reco::GenJetCollection, 
-           StringCutObjectSelector<reco::GenJet>,
-           reco::GenJetRefVector
-         > GenJetRefSelector;
+typedef SingleObjectSelector<reco::GenJetCollection, StringCutObjectSelector<reco::GenJet>, reco::GenJetRefVector>
+    GenJetRefSelector;
 
-DEFINE_FWK_MODULE( GenJetRefSelector );
+DEFINE_FWK_MODULE(GenJetRefSelector);

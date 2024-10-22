@@ -4,20 +4,16 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <algorithm>
 
-APVShot::APVShot(): 
-  _zs(true), _apv(-1), _nstrips(0), _median(-1), _detid() { }
+APVShot::APVShot() : _zs(true), _apv(-1), _nstrips(0), _median(-1), _detid() {}
 
-APVShot::APVShot(const bool zs): 
-  _zs(zs), _apv(-1), _nstrips(0), _median(-1), _detid() { }
+APVShot::APVShot(const bool zs) : _zs(zs), _apv(-1), _nstrips(0), _median(-1), _detid() {}
 
-APVShot::APVShot(const std::vector<SiStripDigi>& digis, const DetId& detid, const bool zs):
-  _zs(zs), _apv(-1), _nstrips(0), _median(-1), _detid() 
-{ 
-  computeShot(digis,detid,zs);
+APVShot::APVShot(const std::vector<SiStripDigi>& digis, const DetId& detid, const bool zs)
+    : _zs(zs), _apv(-1), _nstrips(0), _median(-1), _detid() {
+  computeShot(digis, detid, zs);
 }
 
 void APVShot::computeShot(const std::vector<SiStripDigi>& digis, const DetId& detid, const bool zs) {
-
   _zs = zs;
   _detid = detid;
 
@@ -26,25 +22,26 @@ void APVShot::computeShot(const std::vector<SiStripDigi>& digis, const DetId& de
   _median = -1;
 
   std::vector<unsigned int> charge;
-  for(std::vector<SiStripDigi>::const_iterator digi=digis.begin();digi!=digis.end();++digi) {
-
-    if(!_zs || digi->adc()>0) {
+  for (std::vector<SiStripDigi>::const_iterator digi = digis.begin(); digi != digis.end(); ++digi) {
+    if (!_zs || digi->adc() > 0) {
       int oldapv = _apv;
-      _apv = digi->strip()/128;
-      if(oldapv>=0 && oldapv!=_apv) throw cms::Exception("WrongDigiVector") << "Digis from Different APVs" ;
-      
+      _apv = digi->strip() / 128;
+      if (oldapv >= 0 && oldapv != _apv)
+        throw cms::Exception("WrongDigiVector") << "Digis from Different APVs";
+
       charge.push_back(digi->adc());
       ++_nstrips;
     }
   }
-  
+
   // charge to be sorted in descending order
 
-  std::sort(charge.begin(),charge.end()); 
-  std::reverse(charge.begin(),charge.end());
+  std::sort(charge.begin(), charge.end());
+  std::reverse(charge.begin(), charge.end());
 
-  if(charge.size()> 64) { _median = float(charge[64]); }
-
+  if (charge.size() > 64) {
+    _median = float(charge[64]);
+  }
 }
 
 const bool APVShot::isGenuine() const { return (_nstrips > _threshold); }

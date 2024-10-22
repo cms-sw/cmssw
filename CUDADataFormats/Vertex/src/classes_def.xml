@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="ZVertexSoAHost" persistent="false"/>
+  <class name="edm::Wrapper<ZVertexSoAHost>" persistent="false"/>
+  <class name="ZVertexSoADevice" persistent="false"/>
+  <class name="cms::cuda::Product<ZVertexSoADevice>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<ZVertexSoADevice>>" persistent="false"/>
+</lcgdict>

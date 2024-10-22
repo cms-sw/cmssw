@@ -6,7 +6,7 @@ using namespace std;
 
 #include "MEEEDisplay.hh"
 
-ClassImp(MEEEDisplay)
+ClassImp(MEEEDisplay);
 
 list< TObject* > MEEEDisplay::_list;
 map<int,MEEEGeom::EtaPhiPoint> MEEEDisplay::_pointMap;

@@ -41,6 +41,31 @@ supportedBtagInfos = [
     # DeepFlavour tag infos
   , 'pfDeepFlavourTagInfos'
   , 'pfNegativeDeepFlavourTagInfos'
+    # ParticleTransformerAK4 tag infos
+  , 'pfParticleTransformerAK4TagInfos'
+    # UnifiedParticleTransformerAK4 tag infos
+  , 'pfUnifiedParticleTransformerAK4TagInfos'
+    # DeepDoubleB/C tag infos
+  , 'pfDeepDoubleXTagInfos'
+    # DeepBoostedJet tag infos
+  , 'pfDeepBoostedJetTagInfos'
+    # ParticleNet (AK8) tag infos
+  , 'pfParticleNetTagInfos'
+    # ParticleNet (AK4) tag infos
+  , 'pfParticleNetAK4TagInfos'
+  , 'pfNegativeParticleNetAK4TagInfos'
+    # Pixel Cluster tag infos
+  , 'pixelClusterTagInfos'
+    # HiggsInteractionNet tag infos
+  , 'pfHiggsInteractionNetTagInfos'
+  , 'pfParticleNetFromMiniAODAK4PuppiCentralTagInfos'
+  , 'pfParticleNetFromMiniAODAK4PuppiForwardTagInfos'
+  , 'pfParticleNetFromMiniAODAK4CHSCentralTagInfos'
+  , 'pfParticleNetFromMiniAODAK4CHSForwardTagInfos'
+  , 'pfNegativeParticleNetFromMiniAODAK4PuppiCentralTagInfos'
+  , 'pfNegativeParticleNetFromMiniAODAK4CHSCentralTagInfos'
+  , 'pfParticleNetFromMiniAODAK8TagInfos'
+ 
   ]
 # extend for "internal use" in PAT/MINIAOD (renaming)
 supportedBtagInfos.append( 'caTopTagInfosPAT' )
@@ -179,22 +204,180 @@ supportedBtagDiscr = {
   , 'pfDeepFlavourJetTags:probc'                            : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfDeepFlavourJetTags:probuds'                          : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfDeepFlavourJetTags:probg'                            : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfParticleTransformerAK4JetTags:probb'      : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfParticleTransformerAK4JetTags:probbb'     : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfParticleTransformerAK4JetTags:problepb'   : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfParticleTransformerAK4JetTags:probc'      : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfParticleTransformerAK4JetTags:probuds'    : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfParticleTransformerAK4JetTags:probg'      : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfDeepVertexJetTags:probb'                             : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfDeepCombinedJetTags:probb'                           : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfDeepCombinedJetTags:probc'                           : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfDeepCombinedJetTags:probuds'                         : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfDeepCombinedJetTags:probg'                           : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfNegativeDeepFlavourJetTags:probb'                            : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
   , 'pfNegativeDeepFlavourJetTags:probbb'                           : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
   , 'pfNegativeDeepFlavourJetTags:problepb'                         : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
   , 'pfNegativeDeepFlavourJetTags:probc'                            : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
   , 'pfNegativeDeepFlavourJetTags:probuds'                          : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
   , 'pfNegativeDeepFlavourJetTags:probg'                            : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
+  , 'pfDeepDoubleBvLJetTags:probQCD'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleBvLJetTags:probHbb'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleCvLJetTags:probQCD'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleCvLJetTags:probHcc'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleCvBJetTags:probHbb'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleCvBJetTags:probHcc'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleBvLJetTags:probQCD'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleBvLJetTags:probHbb'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleCvLJetTags:probQCD'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleCvLJetTags:probHcc'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleCvBJetTags:probHbb'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleCvBJetTags:probHcc'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleBvLV2JetTags:probQCD'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleBvLV2JetTags:probHbb'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleCvLV2JetTags:probQCD'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleCvLV2JetTags:probHcc'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleCvBV2JetTags:probHbb'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfMassIndependentDeepDoubleCvBV2JetTags:probHcc'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
 }
 
-#meta-taggers are simple arithmetic on top of other taggers, they are stored here
-#such that in case you want them re-run also the parent tagger is re-run as well
+# meta-taggers are simple arithmetic on top of other taggers, they are stored here
+# such that in case you want them re-run also the parent tagger is re-run as well
+
 supportedMetaDiscr = {
    'pfDeepCSVDiscriminatorsJetTags:BvsAll' : ['pfDeepCSVJetTags:probudsg', 'pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probc', 'pfDeepCSVJetTags:probbb'],
    'pfDeepCSVDiscriminatorsJetTags:CvsB' : ['pfDeepCSVJetTags:probudsg', 'pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probc', 'pfDeepCSVJetTags:probbb'],
    'pfDeepCSVDiscriminatorsJetTags:CvsL' : ['pfDeepCSVJetTags:probudsg', 'pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probc', 'pfDeepCSVJetTags:probbb'],
-   'pfDeepCMVADiscriminatorsJetTags:BvsAll' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],   
-   'pfDeepCMVADiscriminatorsJetTags:CvsB' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],   
-   'pfDeepCMVADiscriminatorsJetTags:CvsL' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],   
+   'pfDeepCMVADiscriminatorsJetTags:BvsAll' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],
+   'pfDeepCMVADiscriminatorsJetTags:CvsB' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],
+   'pfDeepCMVADiscriminatorsJetTags:CvsL' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],
 }
+
+# -----------------------------------
+# setup DeepBoostedJet
+from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsProbs, _pfDeepBoostedJetTagsMetaDiscrs, \
+    _pfMassDecorrelatedDeepBoostedJetTagsProbs, _pfMassDecorrelatedDeepBoostedJetTagsMetaDiscrs
+# update supportedBtagDiscr
+for disc in _pfDeepBoostedJetTagsProbs + _pfMassDecorrelatedDeepBoostedJetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfDeepBoostedJetTagInfos"]]
+# update supportedMetaDiscr
+for disc in _pfDeepBoostedJetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfDeepBoostedJetTagsProbs
+for disc in _pfMassDecorrelatedDeepBoostedJetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfMassDecorrelatedDeepBoostedJetTagsProbs
+# -----------------------------------
+
+# -----------------------------------
+# setup ParticleNet AK8
+from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsProbs, _pfParticleNetJetTagsMetaDiscrs, \
+    _pfMassDecorrelatedParticleNetJetTagsProbs, _pfMassDecorrelatedParticleNetJetTagsMetaDiscrs, \
+    _pfParticleNetMassRegressionOutputs
+# update supportedBtagDiscr
+for disc in _pfParticleNetJetTagsProbs + _pfMassDecorrelatedParticleNetJetTagsProbs + _pfParticleNetMassRegressionOutputs:
+    supportedBtagDiscr[disc] = [["pfParticleNetTagInfos"]]
+# update supportedMetaDiscr
+for disc in _pfParticleNetJetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfParticleNetJetTagsProbs
+for disc in _pfMassDecorrelatedParticleNetJetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfMassDecorrelatedParticleNetJetTagsProbs
+# -----------------------------------
+
+# -----------------------------------
+# setup ParticleNet AK4
+from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsProbs, _pfParticleNetAK4JetTagsMetaDiscrs
+# update supportedBtagDiscr
+for disc in _pfParticleNetAK4JetTagsProbs + _pfParticleNetAK4JetTagsMetaDiscrs:
+    supportedBtagDiscr[disc] = [["pfParticleNetAK4TagInfos"]]
+# update supportedMetaDiscr
+for disc in _pfParticleNetAK4JetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfParticleNetAK4JetTagsProbs
+# -----------------------------------
+# setup Negative ParticleNet AK4
+from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfNegativeParticleNetAK4JetTagsProbs
+for disc in _pfNegativeParticleNetAK4JetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfNegativeParticleNetAK4TagInfos"]]
+# -----------------------------------
+# setup Run3 ParticleNet AK4
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs,_pfParticleNetFromMiniAODAK4PuppiCentralJetTagsMetaDiscr
+for disc in _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs:
+    supportedBtagDiscr[disc] =  [["pfParticleNetFromMiniAODAK4PuppiCentralTagInfos"]]
+for disc in _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsMetaDiscr:
+    supportedMetaDiscr[disc] = _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsProbs,_pfParticleNetFromMiniAODAK4PuppiForwardJetTagsMetaDiscr
+for disc in _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsProbs:
+    supportedBtagDiscr[disc] =  [["pfParticleNetFromMiniAODAK4PuppiForwardTagInfos"]]
+for disc in _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsMetaDiscr:
+    supportedMetaDiscr[disc] = _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsProbs
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSCentralJetTagsProbs,_pfParticleNetFromMiniAODAK4CHSCentralJetTagsMetaDiscr
+for disc in _pfParticleNetFromMiniAODAK4CHSCentralJetTagsProbs:
+    supportedBtagDiscr[disc] =  [["pfParticleNetFromMiniAODAK4CHSCentralTagInfos"]]
+for disc in _pfParticleNetFromMiniAODAK4CHSCentralJetTagsMetaDiscr:
+    supportedMetaDiscr[disc] = _pfParticleNetFromMiniAODAK4CHSCentralJetTagsProbs
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSForwardJetTagsProbs,_pfParticleNetFromMiniAODAK4CHSForwardJetTagsMetaDiscr
+for disc in _pfParticleNetFromMiniAODAK4CHSForwardJetTagsProbs:
+    supportedBtagDiscr[disc] =  [["pfParticleNetFromMiniAODAK4CHSForwardTagInfos"]]
+for disc in _pfParticleNetFromMiniAODAK4CHSForwardJetTagsMetaDiscr:
+    supportedMetaDiscr[disc] = _pfParticleNetFromMiniAODAK4CHSForwardJetTagsProbs
+# -----------------------------------
+# setup Negative Run3 ParticleNet AK4 (central only)
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs
+for disc in _pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs:
+    supportedBtagDiscr[disc] =  [["pfNegativeParticleNetFromMiniAODAK4PuppiCentralTagInfos"]]
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfNegativeParticleNetFromMiniAODAK4CHSCentralJetTagsProbs
+for disc in _pfNegativeParticleNetFromMiniAODAK4CHSCentralJetTagsProbs:
+    supportedBtagDiscr[disc] =  [["pfNegativeParticleNetFromMiniAODAK4CHSCentralTagInfos"]]
+# -----------------------------------
+# setup Run3 ParticleNet AK8
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import _pfParticleNetFromMiniAODAK8JetTagsProbs,_pfParticleNetFromMiniAODAK8JetTagsMetaDiscr
+for disc in _pfParticleNetFromMiniAODAK8JetTagsProbs:
+    supportedBtagDiscr[disc] =  [["pfParticleNetFromMiniAODAK8TagInfos"]]
+for disc in _pfParticleNetFromMiniAODAK8JetTagsMetaDiscr:
+    supportedMetaDiscr[disc] = _pfParticleNetFromMiniAODAK8JetTagsProbs
+
+
+# -----------------------------------
+# setup HiggsInteractionNet
+from RecoBTag.ONNXRuntime.pfHiggsInteractionNet_cff import _pfHiggsInteractionNetTagsProbs
+# update supportedBtagDiscr 
+for disc in _pfHiggsInteractionNetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfHiggsInteractionNetTagInfos"]]
+# -----------------------------------
+
+# -----------------------------------
+# setup ParticleTransformer AK4
+from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsProbs, _pfParticleTransformerAK4JetTagsMetaDiscrs
+# update supportedBtagDiscr
+for disc in _pfParticleTransformerAK4JetTagsProbs + _pfParticleTransformerAK4JetTagsMetaDiscrs:
+    supportedBtagDiscr[disc] = [["pfParticleTransformerAK4TagInfos"]]
+# update supportedMetaDiscr
+for disc in _pfParticleTransformerAK4JetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfParticleTransformerAK4JetTagsProbs
+# -----------------------------------
+
+# -----------------------------------
+# setup UnifiedParticleTransformer AK4
+from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import _pfUnifiedParticleTransformerAK4JetTagsProbs, _pfUnifiedParticleTransformerAK4JetTagsMetaDiscrs
+# update supportedBtagDiscr
+for disc in _pfUnifiedParticleTransformerAK4JetTagsProbs + _pfUnifiedParticleTransformerAK4JetTagsMetaDiscrs:
+    supportedBtagDiscr[disc] = [["pfUnifiedParticleTransformerAK4TagInfos"]]
+# update supportedMetaDiscr
+for disc in _pfUnifiedParticleTransformerAK4JetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfUnifiedParticleTransformerAK4JetTagsProbs
+# -----------------------------------
+
+# -----------------------------------
+# setup Negative ParticleTransformer AK4
+from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfNegativeParticleTransformerAK4JetTagsProbs
+# update supportedBtagDiscr
+for disc in _pfNegativeParticleTransformerAK4JetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfNegativeParticleTransformerAK4TagInfos"]]
+# -----------------------------------
+
+# -----------------------------------
+# setup Negative ParticleTransformer AK4
+from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import _pfNegativeUnifiedParticleTransformerAK4JetTagsProbs
+# update supportedBtagDiscr
+for disc in _pfNegativeUnifiedParticleTransformerAK4JetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfNegativeUnifiedParticleTransformerAK4TagInfos"]]
+
 

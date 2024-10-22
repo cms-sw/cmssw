@@ -7,7 +7,7 @@ triggerSynchTest = DQMEDHarvester("DTLocalTriggerSynchTest",
     # run in online environment
     runOnline = cms.untracked.bool(True),
     # kind of trigger data processed by DTLocalTriggerTask
-    hwSources = cms.untracked.vstring('TM','DDU'),
+    hwSources = cms.untracked.vstring('TM'),
     # false if DTLocalTriggerTask used LTC digis
     localrun = cms.untracked.bool(True),                         
     # root folder for booking of histograms
@@ -22,12 +22,9 @@ triggerSynchTest = DQMEDHarvester("DTLocalTriggerSynchTest",
     dbFromTM       = cms.bool(False),
     fineParamDiff   = cms.bool(False),
     coarseParamDiff = cms.bool(False),
-    numHistoTag     = cms.string("TrackCrossingTimeAllInBX"),
-    denHistoTag     = cms.string("TrackCrossingTimeHHInBX"),
-    ratioHistoTag   = cms.string("TrackCrossingTimeAllOverHHInBX")                                  
+    numHistoTag     = cms.string('TrackCrossingTimeAllInBX'),
+    denHistoTag     = cms.string('TrackCrossingTimeHHInBX'),
+    ratioHistoTag   = cms.string('TrackCrossingTimeAllOverHHInBX')                                  
 )
 
-
-from Configuration.Eras.Modifier_run2_common_cff import run2_common
-run2_common.toModify( triggerSynchTest, hwSources = cms.untracked.vstring('TM'))
 

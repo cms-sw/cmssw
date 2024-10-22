@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys, time, random
 
 ### a list of various titels. the actual one is picked randomly

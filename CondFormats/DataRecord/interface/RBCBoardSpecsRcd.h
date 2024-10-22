@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     RBCBoardSpecsRcd
-// 
+//
 /**\class RBCBoardSpecsRcd RBCBoardSpecsRcd.h CondFormats/DataRecord/interface/RBCBoardSpecsRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Thu Dec 11 17:47:19 CET 2008
 // $Id$
 //

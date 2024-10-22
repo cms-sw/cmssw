@@ -6,8 +6,7 @@
 using namespace std;
 using namespace oracle::occi;
 
-ODScanCycle::ODScanCycle()
-{
+ODScanCycle::ODScanCycle() {
   m_env = nullptr;
   m_conn = nullptr;
   m_writeStmt = nullptr;
@@ -17,60 +16,44 @@ ODScanCycle::ODScanCycle()
   m_scan_config_id = 0;
 }
 
+ODScanCycle::~ODScanCycle() {}
 
-ODScanCycle::~ODScanCycle()
-{
-}
-
-
-void ODScanCycle::prepareWrite()
-  noexcept(false)
-{
+void ODScanCycle::prepareWrite() noexcept(false) {
   this->checkConnection();
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO ECAL_Scan_Cycle (cycle_id, scan_id ) "
-		 "VALUES (:1, :2 )");
+    m_writeStmt->setSQL(
+        "INSERT INTO ECAL_Scan_Cycle (cycle_id, scan_id ) "
+        "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanCycle::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODScanCycle::prepareWrite():  " + e.getMessage()));
   }
 }
 
-
-void ODScanCycle::writeDB()  noexcept(false)
-{
+void ODScanCycle::writeDB() noexcept(false) {
   this->checkConnection();
   this->checkPrepare();
 
   try {
-
     m_writeStmt->setInt(1, this->getId());
     m_writeStmt->setInt(2, this->getScanConfigurationID());
 
     m_writeStmt->executeUpdate();
 
-
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanCycle::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("ODScanCycle::writeDB:  " + e.getMessage()));
   }
 
   // Now get the ID
   if (!this->fetchID()) {
     throw(std::runtime_error("ODScanCycle::writeDB:  Failed to write"));
   }
-  
- 
 }
 
-void ODScanCycle::clear(){
-  m_scan_config_id=0;
-}
+void ODScanCycle::clear() { m_scan_config_id = 0; }
 
-
-int ODScanCycle::fetchID()
-  noexcept(false)
-{
+int ODScanCycle::fetchID() noexcept(false) {
   // Return from memory if available
   if (m_ID) {
     return m_ID;
@@ -79,11 +62,12 @@ int ODScanCycle::fetchID()
   this->checkConnection();
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cycle_id, scan_id FROM ecal_scan_cycle "
-		 "WHERE cycle_id = :1 ");
+    Statement *stmt = m_conn->createStatement();
+    stmt->setSQL(
+        "SELECT cycle_id, scan_id FROM ecal_scan_cycle "
+        "WHERE cycle_id = :1 ");
     stmt->setInt(1, m_ID);
-    ResultSet* rset = stmt->executeQuery();
+    ResultSet *rset = stmt->executeQuery();
 
     if (rset->next()) {
       m_ID = rset->getInt(1);
@@ -93,26 +77,22 @@ int ODScanCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODScanCycle::fetchID:  " + e.getMessage()));
   }
 
   return m_ID;
 }
 
-
-
-void ODScanCycle::setByID(int id) 
-  noexcept(false)
-{
-   this->checkConnection();
-
+void ODScanCycle::setByID(int id) noexcept(false) {
+  this->checkConnection();
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cycle_id, scan_configuration_id FROM ecal_scan_cycle "
-		 "WHERE cycle_id = :1 ");
+    Statement *stmt = m_conn->createStatement();
+    stmt->setSQL(
+        "SELECT cycle_id, scan_configuration_id FROM ecal_scan_cycle "
+        "WHERE cycle_id = :1 ");
     stmt->setInt(1, id);
-    ResultSet* rset = stmt->executeQuery();
+    ResultSet *rset = stmt->executeQuery();
 
     if (rset->next()) {
       m_ID = rset->getInt(1);
@@ -122,44 +102,37 @@ void ODScanCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODScanCycle::fetchID:  " + e.getMessage()));
   }
 }
 
-
-
-void ODScanCycle::fetchData(ODScanCycle * result)
-  noexcept(false)
-{
+void ODScanCycle::fetchData(ODScanCycle *result) noexcept(false) {
   this->checkConnection();
   result->clear();
 
-  if(result->getId()==0){
+  if (result->getId() == 0) {
     throw(std::runtime_error("ODScanConfig::fetchData(): no Id defined for this ODScanConfig "));
   }
 
   try {
-
-    m_readStmt->setSQL("SELECT  scan_configuration_id FROM ecal_scan_cycle "
-		 "WHERE cycle_id = :1 ");
+    m_readStmt->setSQL(
+        "SELECT  scan_configuration_id FROM ecal_scan_cycle "
+        "WHERE cycle_id = :1 ");
 
     m_readStmt->setInt(1, result->getId());
-    ResultSet* rset = m_readStmt->executeQuery();
+    ResultSet *rset = m_readStmt->executeQuery();
 
     rset->next();
 
-    result->setScanConfigurationID(       rset->getInt(1) );
+    result->setScanConfigurationID(rset->getInt(1));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanCycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODScanCycle::fetchData():  " + e.getMessage()));
   }
 }
 
-void ODScanCycle::insertConfig()
-  noexcept(false)
-{
+void ODScanCycle::insertConfig() noexcept(false) {
   try {
-
     prepareWrite();
     writeDB();
     m_conn->commit();

@@ -13,6 +13,7 @@ muPFIsoDepositNeutral.src = sourceMuons
 muPFIsoDepositGamma.src = sourceMuons
 muPFIsoDepositPU.src = sourceMuons
 
-pfMuonIsolationSequence = cms.Sequence(
-    muonPFIsolationSequence 
+pfMuonIsolationTask = cms.Task(
+    muonPFIsolationTask 
     )
+pfMuonIsolationSequence = cms.Sequence(pfMuonIsolationTask)

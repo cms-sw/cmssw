@@ -8,10 +8,9 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/JetReco/interface/PFClusterJet.h"
 
-
 namespace reco {
 
-  /// collection of PFClusterJet objects 
+  /// collection of PFClusterJet objects
   typedef std::vector<PFClusterJet> PFClusterJetCollection;
   /// edm references
   typedef edm::Ref<PFClusterJetCollection> PFClusterJetRef;
@@ -22,6 +21,6 @@ namespace reco {
   typedef std::vector<edm::FwdPtr<PFClusterJet> > PFClusterJetFwdPtrVector;
   typedef edm::RefProd<PFClusterJetCollection> PFClusterJetRefProd;
 
-}
+}  // namespace reco
 
 #endif

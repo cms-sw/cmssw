@@ -4,11 +4,9 @@
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class QBBCCMS: public PhysicsList {
-
+class QBBCCMS : public PhysicsList {
 public:
-  QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::ChordFinderSetter *chordFinderSetter_, const edm::ParameterSet & p);
+  QBBCCMS(const edm::ParameterSet& p);
 };
 
 #endif
-

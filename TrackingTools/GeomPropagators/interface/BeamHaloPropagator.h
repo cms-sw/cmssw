@@ -22,74 +22,66 @@
 /* Class BeamHaloPropagator Interface */
 
 class BeamHaloPropagator final : public Propagator {
+public:
+  /* Constructor */
+  ///Defines which propagator is used inside endcap and in barrel
+  BeamHaloPropagator(const Propagator* aEndCapTkProp,
+                     const Propagator* aCrossTkProp,
+                     const MagneticField* field,
+                     PropagationDirection dir = alongMomentum);
 
-  public:
+  ///Defines which propagator is used inside endcap and in barrel
+  BeamHaloPropagator(const Propagator& aEndCapTkProp,
+                     const Propagator& aCrossTkProp,
+                     const MagneticField* field,
+                     PropagationDirection dir = alongMomentum);
 
-    /* Constructor */
-    ///Defines which propagator is used inside endcap and in barrel
-    BeamHaloPropagator(const Propagator* aEndCapTkProp, const Propagator* aCrossTkProp, const MagneticField* field,
-		       PropagationDirection dir = alongMomentum);
+  ///Copy constructor
+  BeamHaloPropagator(const BeamHaloPropagator&);
 
-    ///Defines which propagator is used inside endcap and in barrel
-    BeamHaloPropagator(const Propagator& aEndCapTkProp,const Propagator& aCrossTkProp, const MagneticField* field,
-		       PropagationDirection dir = alongMomentum);
+  /** virtual destructor */
+  ~BeamHaloPropagator() override;
 
+  ///Virtual constructor (using copy c'tor)
+  BeamHaloPropagator* clone() const override {
+    return new BeamHaloPropagator(
+        getEndCapTkPropagator(), getCrossTkPropagator(), magneticField(), propagationDirection());
+  }
 
-    ///Copy constructor
-    BeamHaloPropagator( const BeamHaloPropagator& );
+  void setPropagationDirection(PropagationDirection dir) override {
+    Propagator::setPropagationDirection(dir);
+    theEndCapTkProp->setPropagationDirection(dir);
+    theCrossTkProp->setPropagationDirection(dir);
+  }
 
-    /** virtual destructor */
-    ~BeamHaloPropagator() override ;
+  using Propagator::propagate;
+  using Propagator::propagateWithPath;
 
-    ///Virtual constructor (using copy c'tor)
-    BeamHaloPropagator* clone() const override {
-      return new BeamHaloPropagator(getEndCapTkPropagator(),getCrossTkPropagator(),magneticField(),propagationDirection());
-    }
+private:
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState& fts,
+                                                                const Plane& plane) const override;
 
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState& fts,
+                                                                const Cylinder& cylinder) const override;
 
-    void setPropagationDirection (PropagationDirection dir) override
-    {
-      Propagator::setPropagationDirection(dir);
-      theEndCapTkProp->setPropagationDirection(dir);
-      theCrossTkProp->setPropagationDirection(dir);
-    }
+  ///true if the plane and the fts z position have different sign
+  bool crossingTk(const FreeTrajectoryState& fts, const Plane& plane) const;
 
-    using Propagator::propagate;
-    using Propagator::propagateWithPath;
+  ///return the propagator used in endcaps
+  const Propagator* getEndCapTkPropagator() const;
+  ///return the propagator used to cross the tracker
+  const Propagator* getCrossTkPropagator() const;
+  ///return the magneticField
+  const MagneticField* magneticField() const override { return theField; }
 
- private:
+private:
+  void directionCheck(PropagationDirection dir);
 
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const FreeTrajectoryState& fts,
-                        const Plane& plane) const override;
+  Propagator* theEndCapTkProp;
+  Propagator* theCrossTkProp;
+  const MagneticField* theField;
 
-
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const FreeTrajectoryState& fts,
-                        const Cylinder& cylinder) const override;
-
-
-    ///true if the plane and the fts z position have different sign
-      bool crossingTk(const FreeTrajectoryState& fts, const Plane& plane)  const ;
-
-    ///return the propagator used in endcaps
-    const Propagator* getEndCapTkPropagator() const ;
-    ///return the propagator used to cross the tracker
-    const Propagator* getCrossTkPropagator() const ;
-    ///return the magneticField
-    const MagneticField* magneticField() const override {return theField;}
-
-  private:
-    void directionCheck(PropagationDirection dir);
-
-    Propagator* theEndCapTkProp;
-    Propagator* theCrossTkProp;
-    const MagneticField* theField;
-
-  protected:
-
+protected:
 };
 
 #endif
-
-

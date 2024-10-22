@@ -1,7 +1,6 @@
 #include "DataFormats/EcalRawData/interface/ESKCHIPBlock.h"
 
-ESKCHIPBlock::ESKCHIPBlock()
-{
+ESKCHIPBlock::ESKCHIPBlock() {
   kId_ = -1;
   dccId_ = -1;
   fedId_ = -1;
@@ -13,11 +12,9 @@ ESKCHIPBlock::ESKCHIPBlock()
   flag1_ = -1;
   flag2_ = -1;
   CRC_ = -1;
-
 }
 
-ESKCHIPBlock::ESKCHIPBlock(const int& kId)
-{
+ESKCHIPBlock::ESKCHIPBlock(const int& kId) {
   kId_ = kId;
   dccId_ = -1;
   fedId_ = -1;

@@ -10,17 +10,12 @@
 P.P.
 */
 
+class EcalTPGLutGroup : public EcalTPGGroups {
+public:
+  EcalTPGLutGroup();
+  ~EcalTPGLutGroup();
 
-
-class EcalTPGLutGroup : public EcalTPGGroups
-{
- public:
-
-  EcalTPGLutGroup() ;
-  ~EcalTPGLutGroup() ;
-
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

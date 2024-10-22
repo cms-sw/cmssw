@@ -32,36 +32,33 @@
    very beginning and just to stay within the full framework.
 */
 
-
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Event.h"
-#include <boost/shared_ptr.hpp>
 
 namespace edm {
 
-  template<class T>
+  template <class T>
   class FilterWrapper : public edm::global::EDFilter<> {
-
   public:
     /// default contructor
-    FilterWrapper(const edm::ParameterSet& cfg){ filter_ = boost::shared_ptr<T>( new T(cfg, consumesCollector()) ); }
+    FilterWrapper(const edm::ParameterSet& cfg) { filter_ = std::shared_ptr<T>(new T(cfg, consumesCollector())); }
     /// default destructor
-    ~FilterWrapper() override{}
+    ~FilterWrapper() override {}
     /// everything which has to be done during the event loop. NOTE: We can't use the eventSetup in FWLite so ignore it
     bool filter(edm::StreamID, edm::Event& event, const edm::EventSetup& eventSetup) const override {
-      edm::EventBase & eventBase = dynamic_cast<edm::EventBase &>(event);
-      edm::EventBase const & eventBaseConst = const_cast<edm::EventBase const &>(eventBase);
+      edm::EventBase& eventBase = dynamic_cast<edm::EventBase&>(event);
+      edm::EventBase const& eventBaseConst = const_cast<edm::EventBase const&>(eventBase);
       return (*filter_)(eventBaseConst);
     }
 
   protected:
     /// shared pointer to analysis class of type BasicAnalyzer
-    boost::shared_ptr<T> filter_;
+    std::shared_ptr<T> filter_;
   };
 
-}
+}  // namespace edm
 
 #endif

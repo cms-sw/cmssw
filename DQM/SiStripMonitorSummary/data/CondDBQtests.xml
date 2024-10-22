@@ -54,15 +54,6 @@
 	<PARAM name="error">0.95</PARAM>
 	<PARAM name="warning">0.90</PARAM>
 </QTEST>
-<QTEST name="Summary Qtest compared to Ref ROOT file" activate="false">
-        <TYPE>Comp2RefChi2</TYPE>
-        <PARAM name="testparam">0</PARAM>
-        <PARAM name="error">0.98</PARAM>
-        <PARAM name="warning">0.99</PARAM>
-</QTEST>
-<LINK name="*Summary_Mean*">
-        <TestName activate="false">Summary Qtest compared to Ref ROOT file</TestName>
-</LINK>
 <LINK name="*/Summary_NoiseFromCondDB*"> 
   <TestName activate="true">CondDB Noise Test</TestName> 
 </LINK>
@@ -78,4 +69,4 @@
 <LINK name="*/ApvGainFromCondDB__det*"> 
   <TestName activate="true">CondDB ApvGain Module Level Test</TestName> 
 </LINK>
-</TESTCONFIGURATION>
+</TESTSCONFIGURATION>

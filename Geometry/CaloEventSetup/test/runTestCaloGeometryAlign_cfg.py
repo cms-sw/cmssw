@@ -10,6 +10,8 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.CaloGeom=dict()
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4) )

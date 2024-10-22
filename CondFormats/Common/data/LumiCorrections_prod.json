@@ -1,0 +1,9 @@
+{
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
+    "destinationTags": {
+        "LumiPCC_Corrections_prompt": {}
+    }, 
+    "inputTag": "LumiPCCCorrections_pcl", 
+    "since": null, 
+    "userText": "Tier0 PCL Upload for PCC"
+}

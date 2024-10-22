@@ -7,7 +7,7 @@
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 
 class ODScanConfig : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODScanConfig();
   ~ODScanConfig() override;
@@ -31,27 +31,25 @@ class ODScanConfig : public IODConfig {
   inline int getToVal() const { return m_to_val; }
 
   inline void setStep(int x) { m_step = x; }
-  inline int getStep() const { return m_step ; }
-  void setParameters(const std::map<std::string,std::string>& my_keys_map);
+  inline int getStep() const { return m_step; }
+  void setParameters(const std::map<std::string, std::string>& my_keys_map);
 
- private:
-  void prepareWrite()  noexcept(false) override;
-  void writeDB()       noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
+  void writeDB() noexcept(false);
   void clear();
-  void fetchData(ODScanConfig * result)     noexcept(false);
-  int fetchID()  noexcept(false);
+  void fetchData(ODScanConfig* result) noexcept(false);
+  int fetchID() noexcept(false);
   int fetchNextId() noexcept(false);
-
 
   // User data
   int m_ID;
 
-  int  m_type_id;
+  int m_type_id;
   std::string m_type;
   int m_from_val;
   int m_to_val;
   int m_step;
-
 };
 
 #endif

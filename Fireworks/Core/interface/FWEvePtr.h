@@ -26,58 +26,44 @@
 
 // forward declarations
 
-template < typename T>
+template <typename T>
 class FWEvePtr {
-
 public:
-   FWEvePtr() {
-   }
-   explicit FWEvePtr(T* iElement) : m_container(new TEveElementList()) {
-      m_container->AddElement(iElement);
-   }
-   // ---------- const member functions ---------------------
-   T* operator->() const {
-      return m_container && m_container->HasChildren() ?
-             static_cast<T*>(m_container->FirstChild()) :
-             static_cast<T*>(0);
-   }
-   T& operator*() const {
-      return *(operator->());
-   }
+  FWEvePtr() {}
+  explicit FWEvePtr(T* iElement) : m_container(new TEveElementList()) { m_container->AddElement(iElement); }
+  // ---------- const member functions ---------------------
+  T* operator->() const {
+    return m_container && m_container->HasChildren() ? static_cast<T*>(m_container->FirstChild()) : static_cast<T*>(0);
+  }
+  T& operator*() const { return *(operator->()); }
 
-   T* get() const {
-      return (operator->());
-   }
+  T* get() const { return (operator->()); }
 
-   operator bool() const {
-      return m_container && m_container->HasChildren();
-   }
-   // ---------- static member functions --------------------
+  operator bool() const { return m_container && m_container->HasChildren(); }
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void reset() {
-      m_container.reset();
-   }
-   void reset(T* iNew) {
-      FWEvePtr<T> temp(iNew);
-      swap(temp);
-   }
-   void destroyElement() {
-      if(m_container) {m_container->DestroyElements();}
-      reset();
-   }
+  // ---------- member functions ---------------------------
+  void reset() { m_container.reset(); }
+  void reset(T* iNew) {
+    FWEvePtr<T> temp(iNew);
+    swap(temp);
+  }
+  void destroyElement() {
+    if (m_container) {
+      m_container->DestroyElements();
+    }
+    reset();
+  }
 
-   void swap(FWEvePtr<T>& iOther) {
-      m_container.swap(iOther.m_container);
-   }
+  void swap(FWEvePtr<T>& iOther) { m_container.swap(iOther.m_container); }
+
 private:
-   //FWEvePtr(const FWEvePtr&); // stop default
+  //FWEvePtr(const FWEvePtr&); // stop default
 
-   //const FWEvePtr& operator=(const FWEvePtr&); // stop default
+  //const FWEvePtr& operator=(const FWEvePtr&); // stop default
 
-   // ---------- member data --------------------------------
-   std::shared_ptr<TEveElement> m_container;
+  // ---------- member data --------------------------------
+  std::shared_ptr<TEveElement> m_container;
 };
-
 
 #endif

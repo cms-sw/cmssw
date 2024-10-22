@@ -18,6 +18,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -30,6 +31,10 @@
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
 #include "RecoMET/METProducers/interface/HcalNoiseInfoProducer.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -38,30 +43,32 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 namespace reco {
 
   //
   // class declaration
   //
-  
+
   class HcalNoiseInfoProducer : public edm::stream::EDProducer<> {
   public:
     explicit HcalNoiseInfoProducer(const edm::ParameterSet&);
     ~HcalNoiseInfoProducer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    
+
   private:
-    
     //
     // methods inherited from EDProducer
     // produce(...) fills an HcalNoiseRBXArray with information from various places, and then
     // picks which rbxs are interesting, storing them to the EDM.
     //
-    
+
     void produce(edm::Event&, const edm::EventSetup&) override;
-    
+
     //
     // more internal methods
     // fills an HcalNoiseRBXArray with various data
@@ -76,57 +83,61 @@ namespace reco {
     // other helper functions
     void fillOtherSummaryVariables(HcalNoiseSummary& summary, const CommonHcalNoiseRBXData& data) const;
 
-    
     //
     // parameters
     //
-    
-    bool fillDigis_;        // fill digi information into HcalNoiseRBXs
-    bool fillRecHits_;      // fill rechit information into HcalNoiseRBXs and HcalNoiseSummary
-    bool fillCaloTowers_;   // fill calotower information into HcalNoiseRBXs and HcalNoiseSummary
-    bool fillTracks_;       // fill track information into HcalNoiseSummary
-    bool fillLaserMonitor_; // fill laser monitor information into HcalNoiseSummary
+
+    bool fillDigis_;         // fill digi information into HcalNoiseRBXs
+    bool fillRecHits_;       // fill rechit information into HcalNoiseRBXs and HcalNoiseSummary
+    bool fillCaloTowers_;    // fill calotower information into HcalNoiseRBXs and HcalNoiseSummary
+    bool fillTracks_;        // fill track information into HcalNoiseSummary
+    bool fillLaserMonitor_;  // fill laser monitor information into HcalNoiseSummary
 
     // These provide the requirements for writing an RBX to the event
-    int maxProblemRBXs_;   // maximum number of problematic RBXs to be written to the event record
+    int maxProblemRBXs_;  // maximum number of problematic RBXs to be written to the event record
 
     // parameters for calculating summary variables
-    int maxCaloTowerIEta_;      // maximum caloTower ieta
-    double maxTrackEta_;        // maximum eta of the track
-    double minTrackPt_;         // minimum track Pt
+    int maxCaloTowerIEta_;  // maximum caloTower ieta
+    double maxTrackEta_;    // maximum eta of the track
+    double minTrackPt_;     // minimum track Pt
     double maxNHF_;
     int maxjetindex_;
 
-    const HcalTopology* theHcalTopology_;    
+    const HcalTopology* theHcalTopology_;
 
-    std::string digiCollName_;         // name of the digi collection
-    std::string recHitCollName_;       // name of the rechit collection
-    std::string caloTowerCollName_;    // name of the caloTower collection
-    std::string trackCollName_;        // name of the track collection
-    std::string jetCollName_;          // name of the jet collection
+    std::string digiCollName_;       // name of the digi collection
+    std::string recHitCollName_;     // name of the rechit collection
+    std::string caloTowerCollName_;  // name of the caloTower collection
+    std::string trackCollName_;      // name of the track collection
+    std::string jetCollName_;        // name of the jet collection
 
     edm::EDGetTokenT<HBHEDigiCollection> hbhedigi_token_;
     edm::EDGetTokenT<HcalCalibDigiCollection> hcalcalibdigi_token_;
+    edm::EDGetTokenT<QIE10DigiCollection> lasermondigi_token_;
     edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
     edm::EDGetTokenT<CaloTowerCollection> calotower_token_;
     edm::EDGetTokenT<reco::TrackCollection> track_token_;
     edm::EDGetTokenT<reco::PFJetCollection> jet_token_;
+    edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcaltopo_token_;
+    edm::ESGetToken<HcalDbService, HcalDbRecord> service_token_;
+    edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> quality_token_;
+    edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> severitycomputer_token_;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> calogeometry_token_;
 
-    double totalCalibCharge;    // placeholder to calculate total charge in calibration channels
-    double totalLasmonCharge;    // placeholder to calculate total charge in laser monitor channels
+    double totalCalibCharge;   // placeholder to calculate total charge in calibration channels
+    double totalLasmonCharge;  // placeholder to calculate total charge in laser monitor channels
 
-    double minRecHitE_, minLowHitE_, minHighHitE_, minR45HitE_; // parameters used to determine noise status
-    HcalNoiseAlgo algo_; // algorithms to determine if an RBX is noisy
+    double minRecHitE_, minLowHitE_, minHighHitE_, minR45HitE_;  // parameters used to determine noise status
+    HcalNoiseAlgo algo_;                                         // algorithms to determine if an RBX is noisy
 
     bool useCalibDigi_;
 
     // Variables to store info regarding HBHE calibration digis
-    double calibdigiHBHEthreshold_;  // minimum charge calib digi in order to be counted by noise algorithm
-    std::vector<int> calibdigiHBHEtimeslices_; // time slices to use when computing calibration charge
+    double calibdigiHBHEthreshold_;             // minimum charge calib digi in order to be counted by noise algorithm
+    std::vector<int> calibdigiHBHEtimeslices_;  // time slices to use when computing calibration charge
     // Variables to store info regarding HF calibration digis
     double calibdigiHFthreshold_;
     std::vector<int> calibdigiHFtimeslices_;
-
 
     double TS4TS5EnergyThreshold_;
     std::vector<std::pair<double, double> > TS4TS5UpperCut_;
@@ -141,11 +152,12 @@ namespace reco {
 
     int laserMonitorTSStart_;
     int laserMonitorTSEnd_;
-    
+    unsigned laserMonitorSamples_;
+
     std::vector<float> adc2fC;
     std::vector<float> adc2fCHF;
   };
-  
-} // end of namespace
+
+}  // namespace reco
 
 #endif

@@ -1,4 +1,4 @@
-// L1TUtmAlgorithmRcd                                                                                            
+// L1TUtmAlgorithmRcd
 // Description: Record for L1TUtmAlgorithm
 //
 // automatically generate by make_records.pl
@@ -14,6 +14,6 @@ class L1TUtmAlgorithmRcd : public edm::eventsetup::EventSetupRecordImplementatio
 //#include "FWCore/Framework/interface/DependentRecordImplementation.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-//class L1TUtmAlgorithmRcd : public edm::eventsetup::DependentRecordImplementation<L1TUtmAlgorithmRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+//class L1TUtmAlgorithmRcd : public edm::eventsetup::DependentRecordImplementation<L1TUtmAlgorithmRcd, edm::mpl::Vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif

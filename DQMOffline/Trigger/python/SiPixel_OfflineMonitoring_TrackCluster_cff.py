@@ -3,7 +3,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_HistogramManager_cfi import *
 
-# order is important and it should follow ordering in .h !!!
+# order is important and it should follow ordering in hltSiPixelPhase1ClustersConf VPSet
 hltSiPixelPhase1TrackClustersOnTrackCharge = hltDefaultHistoTrack.clone(
   name = "charge",
   title = "Corrected Cluster Charge (OnTrack)",
@@ -15,6 +15,55 @@ hltSiPixelPhase1TrackClustersOnTrackCharge = hltDefaultHistoTrack.clone(
   )
 )
 
+hltSiPixelPhase1TrackClustersOnTrackCorrCharge = hltDefaultHistoTrack.clone(
+  name = "charge_cor",
+  title = "Tempalte Corrected Cluster Charge (OnTrack)",
+  range_min = 0, range_max = 200e3, range_nbins = 200,
+  xlabel = "Charge (electrons)",
+  enabled=False,
+  specs = VPSet(
+    hltStandardSpecifications1D
+  )
+)
+
+hltSiPixelPhase1TrackTemplateCorr = hltSiPixelPhase1TrackClustersOnTrackCorrCharge.clone(
+  name = "template_corr",
+  title = "Tempalte Correction",
+  range_min = 0, range_max = 20, range_nbins = 200,
+  xlabel = "A.U.",
+  enabled=False
+)
+
+hltSiPixelPhase1TrackClustersOnTrackBigPixelCharge = DefaultHistoTrack.clone(
+  name = "bigpixelcharge",
+  title = "Corrected Big Pixel Charge (OnTrack)",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+  enabled=False,
+
+  specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
+  )
+)
+
+hltSiPixelPhase1TrackClustersOnTrackNotBigPixelCharge = DefaultHistoTrack.clone(
+  name = "notbigpixelcharge",
+  title = "Corrected Not Big Pixel Charge (OnTrack)",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+  enabled=False,
+
+  specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
+  )
+)
+
 hltSiPixelPhase1TrackClustersOnTrackSize = hltDefaultHistoTrack.clone(
   name = "size",
   title = "Total Cluster Size (OnTrack)",
@@ -22,7 +71,7 @@ hltSiPixelPhase1TrackClustersOnTrackSize = hltDefaultHistoTrack.clone(
   xlabel = "size[pixels]",
 
   specs = VPSet(
-    hltStandardSpecifications1D    
+    hltStandardSpecifications1D
   )
 )
 
@@ -58,12 +107,12 @@ hltSiPixelPhase1TrackClustersOnTrackNClusters = hltDefaultHistoTrack.clone(
   xlabel = "clusters",
   dimensions = 0,
   specs = VPSet(
-    Specification().groupBy("PXBarrel/PXLayer" + "/DetId/Event") 
-                   .reduce("COUNT") 
+    Specification().groupBy("PXBarrel/PXLayer" + "/DetId/Event")
+                   .reduce("COUNT")
                    .groupBy("PXBarrel/PXLayer")
                    .saveAll(),
-    Specification().groupBy("PXForward/PXDisk" + "/DetId/Event") 
-                   .reduce("COUNT") 
+    Specification().groupBy("PXForward/PXDisk" + "/DetId/Event")
+                   .reduce("COUNT")
                    .groupBy("PXForward/PXDisk")
                    .saveAll(),
     StandardSpecificationInclusive_Num,
@@ -76,7 +125,7 @@ hltSiPixelPhase1TrackClustersOnTrackPositionB = hltDefaultHistoTrack.clone(
   title = "Cluster_onTrack Positions",
   range_min   =  -60, range_max   =  60, range_nbins   = 600,
   range_y_min = -3.2, range_y_max = 3.2, range_y_nbins = 200,
-  xlabel = "Global Z", ylabel = "Global \phi",
+  xlabel = "Global Z", ylabel = "Global \\phi",
   dimensions = 2,
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").save(),
@@ -113,6 +162,32 @@ hltSiPixelPhase1DigisHitmapOnTrack = hltDefaultHistoTrack.clone(
                             .save(),
   )
 )
+
+hltSiPixelPhase1DigisNdigisOnTrack = hltDefaultHistoTrack.clone(
+  enabled = False,
+  name = "digis on-track", # 'Count of' added automatically
+  title = "Digis on-track",
+  xlabel = "digis (on-track)",
+  range_min = 0,
+  range_max = 300,
+  range_nbins = 50,
+  dimensions = 0, # this is a count
+
+  specs = VPSet(
+    StandardSpecificationTrend_Num,
+    StandardSpecification2DProfile_Num,
+    
+    Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
+                             .reduce("COUNT")    
+                             .groupBy("PXBarrel/PXLayer")
+                             .save(nbins=100, xmin=0, xmax=40000),
+    Specification().groupBy("PXForward/PXDisk/Event")
+                             .reduce("COUNT")    
+                             .groupBy("PXForward/PXDisk/")
+                             .save(nbins=100, xmin=0, xmax=20000),
+  )
+)
+
 
 hltSiPixelPhase1TrackClustersNTracks = hltDefaultHistoTrack.clone(
   name = "ntracks",
@@ -205,7 +280,7 @@ hltSiPixelPhase1TrackClustersOnTrackSizeXYOuter = hltSiPixelPhase1TrackClustersO
   xlabel = "y size",
   ylabel = "x size",
   range_min = 0, range_max  = 20, range_nbins   = 20,
-  range_y_min = 0, range_y_max = 10, range_y_nbins = 10 
+  range_y_min = 0, range_y_max = 10, range_y_nbins = 10
 )
 
 hltSiPixelPhase1TrackClustersOnTrackSizeXYInner = hltSiPixelPhase1TrackClustersOnTrackSizeXYOuter.clone(
@@ -247,11 +322,43 @@ hltSiPixelPhase1TrackClustersOnTrackChargeOuter = hltDefaultHistoTrack.clone(
     Specification().groupBy("PXBarrel/PXLayer").save()
   )
 )
-  
+
 hltSiPixelPhase1TrackClustersOnTrackChargeInner = hltSiPixelPhase1TrackClustersOnTrackChargeOuter.clone(
   name = "chargeInner",
   title = "Corrected Cluster Charge (OnTrack) inner ladders"
-)  
+)
+
+
+hltSiPixelPhase1TrackClustersOnTrackCorrChargeOuter = hltDefaultHistoTrack.clone(
+  name = "chargeOuter_corr",
+  title = "Template Corrected Cluster Charge (OnTrack) outer ladders",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+  enabled = False,
+  specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").save()
+  )
+)
+
+hltSiPixelPhase1TrackClustersOnTrackCorrChargeInner = hltSiPixelPhase1TrackClustersOnTrackCorrChargeOuter.clone(
+  name = "chargeInner_corr",
+  title = "Template Corrected Cluster Charge (OnTrack) inner ladders",
+  enabled = False
+)
+
+hltSiPixelPhase1TrackTemplateCorrOuter = hltSiPixelPhase1TrackClustersOnTrackCorrChargeOuter.clone(
+  name = "templateOuter_corr",
+  title = "Template Correction outer ladders",
+  range_min = 0, range_max = 3, range_nbins = 150,
+  xlabel = "A.U.",
+  enabled = False
+)
+
+hltSiPixelPhase1TrackTemplateCorrInner = hltSiPixelPhase1TrackTemplateCorrOuter.clone(
+  name = "templateInner_corr",
+  title = "Template Correction inner ladders",
+  enabled = False
+)
 
 hltSiPixelPhase1TrackClustersOnTrackShapeOuter = hltDefaultHistoTrack.clone(
   enabled = False,
@@ -275,31 +382,40 @@ hltSiPixelPhase1TrackClustersConf = cms.VPSet(
 ### THE LIST DEFINED IN THE ENUM
 ### https://cmssdt.cern.ch/lxr/source/DQM/SiPixelPhase1TrackClusters/src/SiPixelPhase1TrackClusters.cc#0063
    hltSiPixelPhase1TrackClustersOnTrackCharge,
+   hltSiPixelPhase1TrackClustersOnTrackCorrCharge,
+   hltSiPixelPhase1TrackTemplateCorr,
+   hltSiPixelPhase1TrackClustersOnTrackBigPixelCharge,
+   hltSiPixelPhase1TrackClustersOnTrackNotBigPixelCharge,
    hltSiPixelPhase1TrackClustersOnTrackSize,
    hltSiPixelPhase1TrackClustersOnTrackShape,
    hltSiPixelPhase1TrackClustersOnTrackNClusters,
    hltSiPixelPhase1TrackClustersOnTrackPositionB,
    hltSiPixelPhase1TrackClustersOnTrackPositionF,
    hltSiPixelPhase1DigisHitmapOnTrack,
- 
+   hltSiPixelPhase1DigisNdigisOnTrack,
+
    hltSiPixelPhase1TrackClustersNTracks,
    hltSiPixelPhase1TrackClustersNTracksInVolume,
- 
+
    hltSiPixelPhase1ClustersSizeVsEtaOnTrackOuter,
    hltSiPixelPhase1ClustersSizeVsEtaOnTrackInner,
    hltSiPixelPhase1TrackClustersOnTrackChargeOuter,
    hltSiPixelPhase1TrackClustersOnTrackChargeInner,
- 
+   hltSiPixelPhase1TrackClustersOnTrackCorrChargeOuter,
+   hltSiPixelPhase1TrackClustersOnTrackCorrChargeInner,
+   hltSiPixelPhase1TrackTemplateCorrOuter,
+   hltSiPixelPhase1TrackTemplateCorrInner,
+
    hltSiPixelPhase1TrackClustersOnTrackShapeOuter,
    hltSiPixelPhase1TrackClustersOnTrackShapeInner,
- 
+
    hltSiPixelPhase1TrackClustersOnTrackSizeXOuter,
    hltSiPixelPhase1TrackClustersOnTrackSizeXInner,
    hltSiPixelPhase1TrackClustersOnTrackSizeXF,
    hltSiPixelPhase1TrackClustersOnTrackSizeYOuter,
    hltSiPixelPhase1TrackClustersOnTrackSizeYInner,
    hltSiPixelPhase1TrackClustersOnTrackSizeYF,
- 
+
    hltSiPixelPhase1TrackClustersOnTrackSizeXYOuter,
    hltSiPixelPhase1TrackClustersOnTrackSizeXYInner,
    hltSiPixelPhase1TrackClustersOnTrackSizeXYF,
@@ -310,15 +426,18 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltSiPixelPhase1TrackClustersAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackClusters',
         VertexCut  = cms.untracked.bool(False),
         clusters   = cms.InputTag("hltSiPixelClusters"),
-        tracks     = cms.InputTag("hltMergedTracks"), #hltIter2Merged"
+        tracks     = cms.InputTag("hltTrackRefitterForPixelDQM"),
         clusterShapeCache = cms.InputTag("hltSiPixelClusterShapeCache"),
         vertices = cms.InputTag(""),
         histograms = hltSiPixelPhase1TrackClustersConf,
         geometry   = hltSiPixelPhase1Geometry
 )
 
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(hltSiPixelPhase1TrackClustersAnalyzer,
+                         clusters   = "hltSiPixelClustersAfterSplittingPPOnAA")
+
 hltSiPixelPhase1TrackClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = hltSiPixelPhase1TrackClustersConf,
         geometry   = hltSiPixelPhase1Geometry
 )
-

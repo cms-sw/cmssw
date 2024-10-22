@@ -1,11 +1,4 @@
-/*
-*/
-
 #include "FWCore/Framework/test/MockEventProcessor.h"
-#include "FWCore/Framework/interface/InputSource.h"
-#include <cassert>
-#include <sstream>
-#include <exception>
 
 namespace {
   // As each data item is read from the mock data it is
@@ -16,29 +9,20 @@ namespace {
   };
 
   std::istream& operator>>(std::istream& is, token& t) {
-    if(is >> t.id) is >> t.value;
+    if (is >> t.id)
+      is >> t.value;
     return is;
   }
-  
+
   //The TransitionProcessors.icc uses the class name
   // EventProcessor (with no namespace) as the type
   // to which it interacts.
   using EventProcessor = edm::MockEventProcessor;
-  
-  
-  class WaitingTaskHolder;
-}
 
-namespace edm {
-struct LuminosityBlockPrincipal {
-  LuminosityBlockPrincipal(int iRun,int iLumi): run_(iRun),lumi_(iLumi){}
-  int run_;
-  int lumi_;
-};
-}
+  class WaitingTaskHolder;
+}  // namespace
 
 #define TEST_NO_FWD_DECL
-#include "FWCore/Framework/src/LuminosityBlockProcessingStatus.h"
 
 namespace {
 #include "FWCore/Framework/src/TransitionProcessors.icc"
@@ -46,289 +30,293 @@ namespace {
 
 namespace edm {
 
-  MockEventProcessor::MockEventProcessor(std::string const& mockData,
-                                         std::ostream& output,
-                                         bool iDoNotMerge) :
-    mockData_(mockData),
-    output_(output),
-    input_(mockData_),
-    run_(0),
-    lumi_(0),
-    doNotMerge_(iDoNotMerge),
-    shouldWeCloseOutput_(true),
-    shouldWeEndLoop_(true),
-    shouldWeStop_(false),
-    eventProcessed_(false),
-    reachedEndOfInput_(false),
-    shouldThrow_(false)
-  {
-  }
+  MockEventProcessor::MockEventProcessor(std::string const& mockData, std::ostream& output, bool iDoNotMerge)
+      : mockData_(mockData),
+        output_(output),
+        input_(mockData_),
+        nextRun_(0),
+        nextLumi_(0),
+        doNotMerge_(iDoNotMerge),
+        shouldWeCloseOutput_(true),
+        shouldWeEndLoop_(true),
+        shouldWeStop_(false),
+        eventProcessed_(false),
+        reachedEndOfInput_(false),
+        shouldThrow_(false) {}
 
-  InputSource::ItemType
-  MockEventProcessor::nextTransitionType()
-  {
+  InputSource::ItemType MockEventProcessor::nextTransitionType() {
     token t;
-    if( not (input_ >> t)) {
+    if (not(input_ >> t)) {
       reachedEndOfInput_ = true;
-      return lastTransition_=InputSource::IsStop;
+      return lastTransition_ = InputSource::ItemType::IsStop;
     }
 
     char ch = t.id;
 
     eventProcessed_ = false;
-    if(ch == 'r') {
+    if (ch == 'r') {
       output_ << "    *** nextItemType: Run " << t.value << " ***\n";
-      run_ = t.value;
-      return lastTransition_=InputSource::IsRun;
-    } else if(ch == 'l') {
+      nextRun_ = static_cast<RunNumber_t>(t.value);
+      return lastTransition_ = InputSource::ItemType::IsRun;
+    } else if (ch == 'l') {
       output_ << "    *** nextItemType: Lumi " << t.value << " ***\n";
-      lumi_ = t.value;
-      return lastTransition_=InputSource::IsLumi;
-    } else if(ch == 'e') {
+      nextLumi_ = static_cast<LuminosityBlockNumber_t>(t.value);
+      return lastTransition_ = InputSource::ItemType::IsLumi;
+    } else if (ch == 'e') {
       output_ << "    *** nextItemType: Event ***\n";
       // a special value for test purposes only
-      if(t.value == 7) {
+      if (t.value == 7) {
         shouldWeStop_ = true;
         output_ << "    *** shouldWeStop will return true this event ***\n";
       } else {
         shouldWeStop_ = false;
       }
-      return lastTransition_=InputSource::IsEvent;
-    } else if(ch == 'f') {
+      return lastTransition_ = InputSource::ItemType::IsEvent;
+    } else if (ch == 'f') {
       output_ << "    *** nextItemType: File " << t.value << " ***\n";
       // a special value for test purposes only
-      if(t.value == 0) shouldWeCloseOutput_ = false;
-      else shouldWeCloseOutput_ = true;
-      return lastTransition_=InputSource::IsFile;
-    } else if(ch == 's') {
+      if (t.value == 0)
+        shouldWeCloseOutput_ = false;
+      else
+        shouldWeCloseOutput_ = true;
+      return lastTransition_ = InputSource::ItemType::IsFile;
+    } else if (ch == 's') {
       output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
       // a special value for test purposes only
-      if(t.value == 0) shouldWeEndLoop_ = false;
-      else shouldWeEndLoop_ = true;
-      return lastTransition_=InputSource::IsStop;
-    } else if(ch == 'x') {
+      if (t.value == 0)
+        shouldWeEndLoop_ = false;
+      else
+        shouldWeEndLoop_ = true;
+      return lastTransition_ = InputSource::ItemType::IsStop;
+    } else if (ch == 'x') {
       output_ << "    *** nextItemType: Restart " << t.value << " ***\n";
       shouldWeEndLoop_ = t.value;
-      return lastTransition_=InputSource::IsStop;
-    } else if(ch == 't') {
+      return lastTransition_ = InputSource::ItemType::IsStop;
+    } else if (ch == 't') {
       output_ << "    *** nextItemType: Throw " << t.value << " ***\n";
       shouldThrow_ = true;
       return nextTransitionType();
     }
-    return lastTransition_=InputSource::IsInvalid;
-  }
-  
-  InputSource::ItemType
-  MockEventProcessor::lastTransitionType() const {
-    return lastTransition_;
-  }
-  
-  std::pair<edm::ProcessHistoryID, edm::RunNumber_t>
-  MockEventProcessor::nextRunID() {
-    return std::make_pair(edm::ProcessHistoryID{}, run_);
+    return lastTransition_ = InputSource::ItemType::IsInvalid;
   }
 
-  edm::LuminosityBlockNumber_t
-  MockEventProcessor::nextLuminosityBlockID() {
-    return lumi_;
-  }
-  
-  InputSource::ItemType
-  MockEventProcessor::readAndProcessEvents() {
+  InputSource::ItemType MockEventProcessor::lastTransitionType() const { return lastTransition_; }
+
+  InputSource::ItemType MockEventProcessor::readAndProcessEvents() {
     bool first = true;
     do {
-      if(first) {
+      if (first) {
         first = false;
       } else {
         shouldWeStop();
       }
       readAndProcessEvent();
-      if(shouldWeStop()) {
-        return InputSource::IsEvent;
+      if (shouldWeStop()) {
+        return InputSource::ItemType::IsEvent;
       }
-    }while(nextTransitionType() == InputSource::IsEvent);
-    
+    } while (nextTransitionType() == InputSource::ItemType::IsEvent);
+
     return lastTransitionType();
   }
 
-
-  void
-  MockEventProcessor::runToCompletion() {
-
+  void MockEventProcessor::runToCompletion() {
     do {
       FilesProcessor fp(doNotMerge_);
 
       bool firstTime = true;
       do {
-        if(not firstTime) {
+        if (not firstTime) {
           prepareForNextLoop();
           rewindInput();
         } else {
           firstTime = false;
         }
         startingNewLoop();
-        
+
         auto trans = fp.processFiles(*this);
-        
+
         fp.normalEnd();
-        
-        if(trans != InputSource::IsStop) {
+
+        if (trans != InputSource::ItemType::IsStop) {
           //problem with the source
           doErrorStuff();
           break;
         }
-      } while(not endOfLoop());
-      output_ <<"Left processing loop.\n";
-    } while(not reachedEndOfInput_ and not input_.eof());
-      
+      } while (not endOfLoop());
+      output_ << "Left processing loop.\n";
+    } while (not reachedEndOfInput_ and not input_.eof());
+
     return;
   }
-  
+
   void MockEventProcessor::readFile() {
     output_ << " \treadFile\n";
     throwIfNeeded();
   }
 
-  void MockEventProcessor::closeInputFile(bool /*cleaningUpAfterException*/) {
-    output_ << "\tcloseInputFile\n";
-  }
+  void MockEventProcessor::closeInputFile(bool /*cleaningUpAfterException*/) { output_ << "\tcloseInputFile\n"; }
 
-  void MockEventProcessor::openOutputFiles() {
-    output_ << "\topenOutputFiles\n";
-  }
+  void MockEventProcessor::openOutputFiles() { output_ << "\topenOutputFiles\n"; }
 
-  void MockEventProcessor::closeOutputFiles() {
-    output_ << "\tcloseOutputFiles\n";
-  }
+  void MockEventProcessor::closeOutputFiles() { output_ << "\tcloseOutputFiles\n"; }
 
-  void MockEventProcessor::respondToOpenInputFile() {
-    output_ << "\trespondToOpenInputFile\n";
-  }
+  void MockEventProcessor::respondToOpenInputFile() { output_ << "\trespondToOpenInputFile\n"; }
 
-  void MockEventProcessor::respondToCloseInputFile() {
-    output_ << "\trespondToCloseInputFile\n";
-  }
+  void MockEventProcessor::respondToCloseInputFile() { output_ << "\trespondToCloseInputFile\n"; }
 
-  void MockEventProcessor::startingNewLoop() {
-    output_ << "\tstartingNewLoop\n";
-  }
+  void MockEventProcessor::startingNewLoop() { output_ << "\tstartingNewLoop\n"; }
 
   bool MockEventProcessor::endOfLoop() {
     output_ << "\tendOfLoop\n";
     return shouldWeEndLoop_;
   }
 
-  void MockEventProcessor::rewindInput() {
-    output_ << "\trewind\n";
-  }
+  void MockEventProcessor::rewindInput() { output_ << "\trewind\n"; }
 
-  void MockEventProcessor::prepareForNextLoop() {
-    output_ << "\tprepareForNextLoop\n";
-  }
+  void MockEventProcessor::prepareForNextLoop() { output_ << "\tprepareForNextLoop\n"; }
 
   bool MockEventProcessor::shouldWeCloseOutput() const {
     output_ << "\tshouldWeCloseOutput\n";
     return shouldWeCloseOutput_;
   }
 
-  void MockEventProcessor::doErrorStuff() {
-    output_ << "\tdoErrorStuff\n";
+  void MockEventProcessor::doErrorStuff() { output_ << "\tdoErrorStuff\n"; }
+
+  void MockEventProcessor::beginProcessBlock(bool& beginProcessBlockSucceeded) {}
+  void MockEventProcessor::inputProcessBlocks() {}
+  void MockEventProcessor::endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded) {}
+
+  InputSource::ItemType MockEventProcessor::processRuns() {
+    bool finished = false;
+    auto nextTransition = edm::InputSource::ItemType::IsRun;
+    do {
+      switch (nextTransition) {
+        case edm::InputSource::ItemType::IsRun: {
+          processRun();
+          nextTransition = nextTransitionType();
+          break;
+        }
+        case edm::InputSource::ItemType::IsLumi: {
+          nextTransition = processLumis();
+          break;
+        }
+        default:
+          finished = true;
+      }
+    } while (not finished);
+    return nextTransition;
   }
 
-  void MockEventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalTransitionSucceeded) {
-    output_ << "\tbeginRun " << run << "\n";
-    throwIfNeeded();
-    globalTransitionSucceeded = true;
+  void MockEventProcessor::processRun() {
+    if ((not currentRun_) or (currentRunNumber_ != nextRun_)) {
+      if (currentRun_) {
+        endUnfinishedLumi(true);
+        endUnfinishedRun(true);
+      }
+      currentRun_ = true;
+      readRun();
+      beginRun(currentRunNumber_);
+    } else {
+      //merge
+      readAndMergeRun();
+    }
   }
 
-  void MockEventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalTransitionSucceeded, bool /*cleaningUpAfterException*/ ) {
-    auto postfix = globalTransitionSucceeded? "\n" : " global failed\n";
-    output_ << "\tendRun " << run << postfix;
-  }
-
-  InputSource::ItemType MockEventProcessor::processLumis(std::shared_ptr<void> iRunResource) {
-    
-    if(lumiStatus_ and
-       lumiStatus_->runResource() == iRunResource and
-       lumiStatus_->lumiPrincipal()->lumi_ == lumi_) {
-      readAndMergeLumi(*lumiStatus_);
-      
-      if(nextTransitionType() == InputSource::IsEvent) {
+  InputSource::ItemType MockEventProcessor::processLumis() {
+    if (lumiStatus_ and currentLumiNumber_ == nextLumi_) {
+      readAndMergeLumi();
+      if (nextTransitionType() == InputSource::ItemType::IsEvent) {
         readAndProcessEvents();
-        if(shouldWeStop()) {
-          return edm::InputSource::IsStop;
+        if (shouldWeStop()) {
+          return edm::InputSource::ItemType::IsStop;
         }
       }
     } else {
-      endUnfinishedLumi();
-      lumiStatus_ = std::make_shared<LuminosityBlockProcessingStatus>(this,1,iRunResource);
-      auto lumi = readLuminosityBlock(*lumiStatus_);
-      output_ << "\tbeginLumi " << run_ << "/" << lumi << "\n";
+      endUnfinishedLumi(true);
+      lumiStatus_ = true;
+      auto lumi = readLuminosityBlock();
+      output_ << "\tbeginLumi " << currentRunNumber_ << "/" << lumi << "\n";
       throwIfNeeded();
-      lumiStatus_->globalBeginDidSucceed();
+      didGlobalBeginLumiSucceed_ = true;
       //Need to do event processing here
-      if(nextTransitionType() == InputSource::IsEvent) {
+      if (nextTransitionType() == InputSource::ItemType::IsEvent) {
         readAndProcessEvents();
-        if(shouldWeStop()) {
-          return edm::InputSource::IsStop;
+        if (shouldWeStop()) {
+          return edm::InputSource::ItemType::IsStop;
         }
       }
     }
     return lastTransitionType();
   }
 
-  void MockEventProcessor::endUnfinishedLumi() {
-    if(lumiStatus_) {
-      auto tmp = lumiStatus_;
+  void MockEventProcessor::beginRun(RunNumber_t run) {
+    output_ << "\tbeginRun " << run << "\n";
+    throwIfNeeded();
+    didGlobalBeginRunSucceed_ = true;
+  }
+
+  void MockEventProcessor::endRun() {
+    auto postfix = didGlobalBeginRunSucceed_ ? "\n" : " global failed\n";
+    output_ << "\tendRun " << currentRunNumber_ << postfix;
+    currentRun_ = false;
+  }
+
+  void MockEventProcessor::endUnfinishedRun(bool) {
+    endRun();
+    if (didGlobalBeginRunSucceed_) {
+      writeRun();
+    }
+    clearRunPrincipal();
+  }
+
+  void MockEventProcessor::endUnfinishedLumi(bool) {
+    if (lumiStatus_) {
       endLumi();
-      if(tmp->didGlobalBeginSucceed()) {
-        writeLumi(*tmp);
+      if (didGlobalBeginLumiSucceed_) {
+        writeLumi();
       }
-      deleteLumiFromCache(*tmp);
+      clearLumiPrincipal();
     }
   }
-  
+
   void MockEventProcessor::endLumi() {
-    auto postfix = lumiStatus_->didGlobalBeginSucceed()? "\n" : " global failed\n";
-    output_ << "\tendLumi " << lumiStatus_->lumiPrincipal()->run_ << "/" << lumiStatus_->lumiPrincipal()->lumi_ << postfix;
-    lumiStatus_.reset();
+    auto postfix = didGlobalBeginLumiSucceed_ ? "\n" : " global failed\n";
+    output_ << "\tendLumi " << currentRunNumber_ << "/" << currentLumiNumber_ << postfix;
   }
 
-  std::pair<ProcessHistoryID,RunNumber_t> MockEventProcessor::readRun() {
-    output_ << "\treadRun " << run_ << "\n";
-    return std::make_pair(ProcessHistoryID(), run_);
+  void MockEventProcessor::readRun() {
+    currentRunNumber_ = nextRun_;
+    output_ << "\treadRun " << currentRunNumber_ << "\n";
   }
 
-  std::pair<ProcessHistoryID,RunNumber_t> MockEventProcessor::readAndMergeRun() {
-    output_ << "\treadAndMergeRun " << run_ << "\n";
-    return std::make_pair(ProcessHistoryID(), run_);
+  void MockEventProcessor::readAndMergeRun() { output_ << "\treadAndMergeRun " << currentRunNumber_ << "\n"; }
+
+  LuminosityBlockNumber_t MockEventProcessor::readLuminosityBlock() {
+    output_ << "\treadLuminosityBlock " << nextLumi_ << "\n";
+    currentLumiNumber_ = nextLumi_;
+    return currentLumiNumber_;
   }
 
-  int MockEventProcessor::readLuminosityBlock(LuminosityBlockProcessingStatus& iStatus) {
-    output_ << "\treadLuminosityBlock " << lumi_ << "\n";
-    iStatus.lumiPrincipal() = std::make_shared<LuminosityBlockPrincipal>(run_,lumi_);
-    return lumi_;
+  LuminosityBlockNumber_t MockEventProcessor::readAndMergeLumi() {
+    output_ << "\treadAndMergeLumi " << currentLumiNumber_ << "\n";
+    return currentLumiNumber_;
   }
 
-  int MockEventProcessor::readAndMergeLumi(LuminosityBlockProcessingStatus& iStatus) {
-    output_ << "\treadAndMergeLumi " << lumi_ << "\n";
-    return lumi_;
+  void MockEventProcessor::writeRun() { output_ << "\twriteRun " << currentRunNumber_ << "\n"; }
+
+  void MockEventProcessor::clearRunPrincipal() {
+    output_ << "\tclearRunPrincipal " << currentRunNumber_ << "\n";
+    didGlobalBeginRunSucceed_ = false;
   }
 
-  void MockEventProcessor::writeRun(ProcessHistoryID const& phid, RunNumber_t run) {
-    output_ << "\twriteRun " << run << "\n";
+  void MockEventProcessor::writeLumi() {
+    output_ << "\twriteLumi " << currentRunNumber_ << "/" << currentLumiNumber_ << "\n";
   }
 
-  void MockEventProcessor::deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run) {
-    output_ << "\tdeleteRunFromCache " << run << "\n";
-  }
-
-  void MockEventProcessor::writeLumi(LuminosityBlockProcessingStatus& iStatus) {
-    output_ << "\twriteLumi " << iStatus.lumiPrincipal()->run_ << "/" << iStatus.lumiPrincipal()->lumi_ << "\n";
-  }
-
-  void MockEventProcessor::deleteLumiFromCache(LuminosityBlockProcessingStatus& iStatus) {
-    output_ << "\tdeleteLumiFromCache " << iStatus.lumiPrincipal()->run_ << "/" << iStatus.lumiPrincipal()->lumi_ << "\n";
+  void MockEventProcessor::clearLumiPrincipal() {
+    output_ << "\tclearLumiPrincipal " << currentRunNumber_ << "/" << currentLumiNumber_ << "\n";
+    lumiStatus_ = false;
+    didGlobalBeginLumiSucceed_ = false;
   }
 
   void MockEventProcessor::readAndProcessEvent() {
@@ -344,17 +332,17 @@ namespace edm {
   }
 
   void MockEventProcessor::throwIfNeeded() {
-    if(shouldThrow_) {
+    if (shouldThrow_) {
       shouldThrow_ = false;
-      output_ <<"\tthrowing\n";
+      output_ << "\tthrowing\n";
       throw TestException();
     }
   }
-  
+
   void MockEventProcessor::setExceptionMessageFiles(std::string&) {}
-  void MockEventProcessor::setExceptionMessageRuns(std::string&) {}
-  void MockEventProcessor::setExceptionMessageLumis(std::string&) {}
+  void MockEventProcessor::setExceptionMessageRuns() {}
+  void MockEventProcessor::setExceptionMessageLumis() {}
 
-  bool MockEventProcessor::setDeferredException(std::exception_ptr) { return true;}
+  bool MockEventProcessor::setDeferredException(std::exception_ptr) { return true; }
 
-}
+}  // namespace edm

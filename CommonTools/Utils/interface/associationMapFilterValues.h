@@ -10,13 +10,13 @@
 
 namespace associationMapFilterValuesHelpers {
   // Common implementation
-  template <typename T_AssociationMap, typename T_Key, 
-            typename T_ValueIndex, typename T_Value,
-            typename T_ValueIndices>
-  void findInsert(T_AssociationMap& ret, const T_Key& key,
-                  const T_ValueIndex& valueIndex, const T_Value& value,
+  template <typename T_AssociationMap, typename T_Key, typename T_ValueIndex, typename T_Value, typename T_ValueIndices>
+  void findInsert(T_AssociationMap& ret,
+                  const T_Key& key,
+                  const T_ValueIndex& valueIndex,
+                  const T_Value& value,
                   const T_ValueIndices& value_indices) {
-    if(value_indices.has(valueIndex)) {
+    if (value_indices.has(valueIndex)) {
       ret.insert(key, value);
     }
   }
@@ -47,7 +47,7 @@ namespace associationMapFilterValuesHelpers {
   struct IfFound<edm::RefVector<C, T, F>> {
     template <typename T_AssociationMap, typename T_KeyValue, typename T_ValueIndices>
     static void insert(T_AssociationMap& ret, const T_KeyValue& keyValue, const T_ValueIndices& value_indices) {
-      for(const auto& value: keyValue.val) {
+      for (const auto& value : keyValue.val) {
         findInsert(ret, keyValue.key, value.key(), value, value_indices);
       }
     }
@@ -55,10 +55,10 @@ namespace associationMapFilterValuesHelpers {
 
   // Specialize for vector<pair<Ref, Q>> for OneToManyWithQuality
   template <typename C, typename T, typename F, typename Q>
-  struct IfFound<std::vector<std::pair<edm::Ref<C, T, F>, Q> > > {
+  struct IfFound<std::vector<std::pair<edm::Ref<C, T, F>, Q>>> {
     template <typename T_AssociationMap, typename T_KeyValue, typename T_ValueIndices>
     static void insert(T_AssociationMap& ret, const T_KeyValue& keyValue, const T_ValueIndices& value_indices) {
-      for(const auto& value: keyValue.val) {
+      for (const auto& value : keyValue.val) {
         findInsert(ret, keyValue.key, value.first.key(), value, value_indices);
       }
     }
@@ -66,10 +66,10 @@ namespace associationMapFilterValuesHelpers {
 
   // Specialize for vector<pair<RefToBase, Q>> for OneToManyWithQuality
   template <typename T, typename Q>
-  struct IfFound<std::vector<std::pair<edm::RefToBase<T>, Q> > > {
+  struct IfFound<std::vector<std::pair<edm::RefToBase<T>, Q>>> {
     template <typename T_AssociationMap, typename T_KeyValue, typename T_ValueIndices>
     static void insert(T_AssociationMap& ret, const T_KeyValue& keyValue, const T_ValueIndices& value_indices) {
-      for(const auto& value: keyValue.val) {
+      for (const auto& value : keyValue.val) {
         findInsert(ret, keyValue.key, value.first.key(), value, value_indices);
       }
     }
@@ -79,9 +79,8 @@ namespace associationMapFilterValuesHelpers {
   template <typename T_RefVector>
   struct FillIndices {
     template <typename T_Set, typename T_RefProd>
-    static
-    void fill(T_Set& set, const T_RefVector& valueRefs, const T_RefProd& refProd) {
-      for(const auto& ref: valueRefs) {
+    static void fill(T_Set& set, const T_RefVector& valueRefs, const T_RefProd& refProd) {
+      for (const auto& ref : valueRefs) {
         edm::helpers::checkRef(refProd.val, ref);
         set.insert(ref.key());
       }
@@ -90,18 +89,17 @@ namespace associationMapFilterValuesHelpers {
 
   // Specialize for View
   template <typename T>
-  struct FillIndices<edm::View<T> > {
+  struct FillIndices<edm::View<T>> {
     template <typename T_Set, typename T_RefProd>
-    static
-    void fill(T_Set& set, const edm::View<T>& valueView, const T_RefProd& refProd) {
-      for(size_t i=0; i<valueView.size(); ++i) {
+    static void fill(T_Set& set, const edm::View<T>& valueView, const T_RefProd& refProd) {
+      for (size_t i = 0; i < valueView.size(); ++i) {
         const auto& ref = valueView.refAt(i);
         edm::helpers::checkRef(refProd.val, ref);
         set.insert(ref.key());
       }
     }
   };
-}
+}  // namespace associationMapFilterValuesHelpers
 
 /**
  * Filters entries of AssociationMap by keeping only those
@@ -128,23 +126,24 @@ T_AssociationMap associationMapFilterValues(const T_AssociationMap& map, const T
   // If the input map is empty, just return it in order to avoid an
   // exception from failing edm::helpers::checkRef() (in this case the
   // refProd points to (0,0) that will fail the check).
-  if(map.empty())
+  if (map.empty())
     return map;
 
   T_AssociationMap ret(map.refProd());
 
   // First copy the keys of values to a set for faster lookup of their existence in the map
   edm::IndexSet value_indices;
-  value_indices.reserve(valueRefs.size()); // hopefully a good guess of the last ref index without having to do the gymnastics for genericity
+  value_indices.reserve(
+      valueRefs
+          .size());  // hopefully a good guess of the last ref index without having to do the gymnastics for genericity
   associationMapFilterValuesHelpers::FillIndices<T_RefVector>::fill(value_indices, valueRefs, map.refProd());
 
-  for(const auto& keyValue: map) {
-    associationMapFilterValuesHelpers::IfFound<typename T_AssociationMap::value_type::value_type>::insert(ret, keyValue, value_indices);
+  for (const auto& keyValue : map) {
+    associationMapFilterValuesHelpers::IfFound<typename T_AssociationMap::value_type::value_type>::insert(
+        ret, keyValue, value_indices);
   }
-    
 
   return ret;
 }
 
 #endif
-

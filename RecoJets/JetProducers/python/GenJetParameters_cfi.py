@@ -22,6 +22,7 @@ GenJetParameters = cms.PSet(
       Ghost_EtaMax = cms.double(6.0),
     Rho_EtaMax = cms.double(4.5),
     useDeterministicSeed= cms.bool( True ),
-    minSeed             = cms.uint32( 14327 )
+    minSeed             = cms.uint32( 14327 ), 
+    applyWeight    = cms.bool(False)
     )
 

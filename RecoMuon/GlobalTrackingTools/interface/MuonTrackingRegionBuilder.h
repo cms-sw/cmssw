@@ -34,72 +34,78 @@
 
 class MuonServiceProxy;
 class MeasurementTrackerEvent;
-
-namespace edm {class ParameterSet; class Event;}
+class MagneticField;
+class IdealMagneticFieldRecord;
+class MultipleScatteringParametrisationMaker;
+class TrackerMultipleScatteringRecord;
 
 class MuonTrackingRegionBuilder : public TrackingRegionProducer {
-  
-  public:
- 
-    /// Constructor
-    explicit MuonTrackingRegionBuilder(const edm::ParameterSet& par, edm::ConsumesCollector& iC) { build(par, iC); }
-    explicit MuonTrackingRegionBuilder(const edm::ParameterSet& par, edm::ConsumesCollector&& iC) { build(par, iC); }
+public:
+  /// Constructor
+  explicit MuonTrackingRegionBuilder(const edm::ParameterSet& par, edm::ConsumesCollector& iC) { build(par, iC); }
+  explicit MuonTrackingRegionBuilder(const edm::ParameterSet& par, edm::ConsumesCollector&& iC) { build(par, iC); }
 
-    /// Destructor
-    ~MuonTrackingRegionBuilder() override {}
+  /// Destructor
+  ~MuonTrackingRegionBuilder() override {}
 
-    /// Create Region of Interest
-    std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&, const edm::EventSetup&) const override;
-  
-    /// Define tracking region
-    std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::TrackRef&) const;
-    std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::Track& t) const { return region(t,*theEvent); }
-    std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::Track&, const edm::Event&) const;
+  /// Create Region of Interest
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&, const edm::EventSetup&) const override;
 
-    /// Pass the Event to the algo at each event
-    virtual void setEvent(const edm::Event&);
+  /// Define tracking region
+  std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::TrackRef&) const;
+  std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::Track& t) const {
+    return region(t, *theEvent, *theEventSetup);
+  }
+  std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::Track&,
+                                                          const edm::Event&,
+                                                          const edm::EventSetup&) const;
 
-    /// Add Fill Descriptions
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    static void fillDescriptionsHLT(edm::ParameterSetDescription& descriptions);
-    static void fillDescriptionsOffline(edm::ParameterSetDescription& descriptions);
+  /// Pass the Event to the algo at each event
+  void setEvent(const edm::Event&, const edm::EventSetup&);
 
-  private:
-    
-    void build(const edm::ParameterSet&, edm::ConsumesCollector&);
+  /// Add Fill Descriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptionsHLT(edm::ParameterSetDescription& descriptions);
+  static void fillDescriptionsOffline(edm::ParameterSetDescription& descriptions);
 
-    const edm::Event* theEvent;
+private:
+  void build(const edm::ParameterSet&, edm::ConsumesCollector&);
 
-    bool useVertex;
-    bool useFixedZ;
-    bool useFixedPt;
-    bool useFixedPhi;
-    bool useFixedEta;
-    bool thePrecise;
+  const edm::Event* theEvent;
+  const edm::EventSetup* theEventSetup;
 
-    int theMaxRegions;
+  bool useVertex;
+  bool useFixedZ;
+  bool useFixedPt;
+  bool useFixedPhi;
+  bool useFixedEta;
+  bool thePrecise;
 
-    double theNsigmaEta;
-    double theNsigmaPhi;
-    double theNsigmaDz;
-  
-    double theEtaRegionPar1; 
-    double theEtaRegionPar2;
-    double thePhiRegionPar1;
-    double thePhiRegionPar2;
+  int theMaxRegions;
 
-    double thePtMin;
-    double thePhiMin;
-    double theEtaMin;
-    double theDeltaR;
-    double theHalfZ;
-    double theDeltaPhi;
-    double theDeltaEta;
+  double theNsigmaEta;
+  double theNsigmaPhi;
+  double theNsigmaDz;
 
-    RectangularEtaPhiTrackingRegion::UseMeasurementTracker theOnDemand;
-    edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerToken;
-    edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
-    edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken;
-    edm::EDGetTokenT<reco::TrackCollection> inputCollectionToken;
+  double theEtaRegionPar1;
+  double theEtaRegionPar2;
+  double thePhiRegionPar1;
+  double thePhiRegionPar2;
+
+  double thePtMin;
+  double thePhiMin;
+  double theEtaMin;
+  double theDeltaR;
+  double theHalfZ;
+  double theDeltaPhi;
+  double theDeltaEta;
+
+  RectangularEtaPhiTrackingRegion::UseMeasurementTracker theOnDemand;
+  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerToken;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
+  edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken;
+  edm::EDGetTokenT<reco::TrackCollection> inputCollectionToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bfieldToken;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> msmakerToken;
 };
 #endif

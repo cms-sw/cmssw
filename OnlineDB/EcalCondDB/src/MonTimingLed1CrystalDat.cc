@@ -8,4 +8,3 @@
 
 using namespace std;
 using namespace oracle::occi;
-

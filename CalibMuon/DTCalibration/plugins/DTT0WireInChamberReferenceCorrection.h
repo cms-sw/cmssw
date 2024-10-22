@@ -12,7 +12,11 @@
 #include "CalibMuon/DTCalibration/interface/DTT0BaseCorrection.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
+#include "CondFormats/DTObjects/interface/DTT0.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include <string>
 
 namespace edm {
@@ -24,26 +28,29 @@ class DTGeometry;
 
 namespace dtCalibration {
 
-class DTT0WireInChamberReferenceCorrection: public DTT0BaseCorrection {
-public:
-  // Constructor
-  DTT0WireInChamberReferenceCorrection(const edm::ParameterSet&);
+  class DTT0WireInChamberReferenceCorrection : public DTT0BaseCorrection {
+  public:
+    // Constructor
+    DTT0WireInChamberReferenceCorrection(const edm::ParameterSet&, edm::ConsumesCollector);
 
-  // Destructor
-  ~DTT0WireInChamberReferenceCorrection() override;
+    // Destructor
+    ~DTT0WireInChamberReferenceCorrection() override;
 
-  void setES(const edm::EventSetup& setup) override;
-  DTT0Data correction(const DTWireId&) override;
+    void setES(const edm::EventSetup& setup) override;
+    DTT0Data correction(const DTWireId&) override;
 
-private:
-  DTT0Data defaultT0(const DTWireId&);
+  private:
+    DTT0Data defaultT0(const DTWireId&);
 
-  std::string calibChamber_;
+    std::string calibChamber_;
 
-  DTChamberId chosenChamberId_;
-  const DTT0 *t0Map_;
-  edm::ESHandle<DTGeometry> dtGeom_;
-};
+    DTChamberId chosenChamberId_;
+    const DTT0* t0Map_;
+    edm::ESHandle<DTGeometry> dtGeom_;
 
-} // namespace
+    edm::ESGetToken<DTT0, DTT0Rcd> t0Token_;
+    edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  };
+
+}  // namespace dtCalibration
 #endif

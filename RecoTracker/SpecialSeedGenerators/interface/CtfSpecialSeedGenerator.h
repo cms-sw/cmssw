@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 //DataFormats
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"    
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 //RecoTracker
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
@@ -37,31 +37,26 @@
 
 #include <map>
 
-class CtfSpecialSeedGenerator : public edm::stream::EDProducer<>
-{
- public:
+class CtfSpecialSeedGenerator : public edm::stream::EDProducer<> {
+public:
   typedef TrajectoryStateOnSurface TSOS;
-  
 
   CtfSpecialSeedGenerator(const edm::ParameterSet& conf);
 
-  ~CtfSpecialSeedGenerator() override;//{};
+  ~CtfSpecialSeedGenerator() override;  //{};
 
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;	
-  void endRun(edm::Run const&, edm::EventSetup const&) override;	
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
 
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
- private:
-  
-  bool run(const edm::EventSetup& c, 
-	    const edm::Event& e, 
-            TrajectorySeedCollection& output);
+private:
+  bool run(const edm::EventSetup& c, const edm::Event& e, TrajectorySeedCollection& output);
 
   bool buildSeeds(const edm::EventSetup& iSetup,
                   const edm::Event& e,
-		  const OrderedSeedingHits& osh,
-		  const NavigationDirection& navdir,
+                  const OrderedSeedingHits& osh,
+                  const NavigationDirection& navdir,
                   const PropagationDirection& dir,
                   TrajectorySeedCollection& output);
   //checks that the hits used are at positive y and are on different layers
@@ -69,9 +64,17 @@ class CtfSpecialSeedGenerator : public edm::stream::EDProducer<>
   //We can check if the seed  points in a region covered by scintillators. To be used only in noB case
   //because it uses StraightLinePropagation
   bool postCheck(const TrajectorySeed& seed);
- 
- private:
+
+private:
   edm::ParameterSet conf_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMFToken;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theBuilderToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropAlongToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropOppositeToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTopoToken;
+
   edm::ESHandle<MagneticField> theMagfield;
   edm::ESHandle<TrackerGeometry> theTracker;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
@@ -81,13 +84,13 @@ class CtfSpecialSeedGenerator : public edm::stream::EDProducer<>
   //PropagationDirection inOutPropagationDirection;
   //PropagationDirection outInPropagationDirection;
   //GenericPairOrTripletGenerator* hitsGeneratorOutIn;
-  //GenericPairOrTripletGenerator* hitsGeneratorInOut;	
+  //GenericPairOrTripletGenerator* hitsGeneratorInOut;
   std::vector<std::unique_ptr<OrderedHitsGenerator> > theGenerators;
   std::vector<PropagationDirection> thePropDirs;
-  std::vector<NavigationDirection>  theNavDirs; 
-  TrackingRegionProducer* theRegionProducer;	
+  std::vector<NavigationDirection> theNavDirs;
+  std::unique_ptr<TrackingRegionProducer> theRegionProducer;
   //TrajectoryStateTransform theTransformer;
-  SeedFromGenericPairOrTriplet* theSeedBuilder; 
+  std::unique_ptr<SeedFromGenericPairOrTriplet> theSeedBuilder;
   bool useScintillatorsConstraint;
   BoundPlane::BoundPlanePointer upperScintillator;
   BoundPlane::BoundPlanePointer lowerScintillator;
@@ -96,5 +99,3 @@ class CtfSpecialSeedGenerator : public edm::stream::EDProducer<>
   ClusterChecker check;
 };
 #endif
-
-

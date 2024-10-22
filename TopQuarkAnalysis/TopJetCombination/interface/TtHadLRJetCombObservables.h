@@ -1,7 +1,7 @@
 #ifndef TtHadLRJetCombObservables_h
 #define TtHadLRJetCombObservables_h
 
-// copied TtSemiLRJetCombObservables.h,v 1.4 2007/06/15 08:53:52 by heyninck 
+// copied TtSemiLRJetCombObservables.h,v 1.4 2007/06/15 08:53:52 by heyninck
 /**
   \class    TtHadLRJetCombObservables is based on TtSemiLRJetCombObservables.h 
   \brief    Steering class for the overall hadronic top likelihood
@@ -27,18 +27,15 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtHadEvtSolution.h"
 #include <Math/VectorUtil.h>
 
-
 class TtHadLRJetCombObservables {
-
- public:
-  
+public:
   TtHadLRJetCombObservables();
-  ~TtHadLRJetCombObservables();	
-  
-  void  operator()(TtHadEvtSolution&);
-  
- private:
-  std::vector<std::pair<unsigned int,double> > jetCombVarVal;  
+  ~TtHadLRJetCombObservables();
+
+  void operator()(TtHadEvtSolution&);
+
+private:
+  std::vector<std::pair<unsigned int, double> > jetCombVarVal;
 };
 
 #endif

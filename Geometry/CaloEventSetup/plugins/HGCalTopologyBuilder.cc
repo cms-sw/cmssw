@@ -2,7 +2,7 @@
 //
 // Package:    CaloEventSetup
 // Class:      HGCalTopologyBuilder
-// 
+//
 /**\class HGCalTopologyBuilder HGCalTopologyBuilder.h 
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -23,8 +22,10 @@
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
@@ -32,71 +33,50 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 //
 // class decleration
 //
 
 class HGCalTopologyBuilder : public edm::ESProducer {
-
 public:
-  HGCalTopologyBuilder( const edm::ParameterSet& iP );
-  ~HGCalTopologyBuilder() override ;
+  HGCalTopologyBuilder(const edm::ParameterSet& iP);
+  ~HGCalTopologyBuilder() override;
 
-  typedef std::shared_ptr< HGCalTopology > ReturnType;
+  using ReturnType = std::unique_ptr<HGCalTopology>;
 
   ReturnType produce(const IdealGeometryRecord&);
 
 private:
   // ----------member data ---------------------------
-  std::string        name_;
-  bool               halfType_;
-  ForwardSubdetector subdet_;
+  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> hgcToken_;
+  int det_;
 };
 
-
 HGCalTopologyBuilder::HGCalTopologyBuilder(const edm::ParameterSet& iConfig) {
-
-  name_     = iConfig.getUntrackedParameter<std::string>("Name");
-  int type  = iConfig.getUntrackedParameter<int>("Type");
-  halfType_ = iConfig.getUntrackedParameter<bool>("HalfType");
-  if (type == 0) {
-    subdet_ = HGCEE;
-  } else if (type == 1) {
-    subdet_ = HGCHEF;
-  } else if (type == 2) {
-    subdet_ = HGCHEB;
-  } else {
-    subdet_ = HGCHET;
-  }
-#ifdef DebugLog
-  std::cout <<"constructing HGCalTopology for " << name_ << std::endl;
+  auto name = iConfig.getParameter<std::string>("Name");
+  det_ = iConfig.getParameter<int>("Type");
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "constructing HGCalTopology for " << name << " and det " << det_;
 #endif
-  setWhatProduced(this, name_);
+  hgcToken_ = setWhatProduced(this, name).consumes<HGCalDDDConstants>(edm::ESInputTag{"", name});
 }
 
-
-HGCalTopologyBuilder::~HGCalTopologyBuilder() { }
-
+HGCalTopologyBuilder::~HGCalTopologyBuilder() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-HGCalTopologyBuilder::ReturnType
-HGCalTopologyBuilder::produce(const IdealGeometryRecord& iRecord ) {
+HGCalTopologyBuilder::ReturnType HGCalTopologyBuilder::produce(const IdealGeometryRecord& iRecord) {
+  const HGCalDDDConstants& hgdc = iRecord.get(hgcToken_);
 
-  edm::ESHandle<HGCalDDDConstants>  pHGDC;
-  iRecord.get(name_, pHGDC) ;
-  const HGCalDDDConstants & hgdc = (*pHGDC);
-
-  ReturnType ct ( new HGCalTopology(hgdc, subdet_, halfType_) ) ;
-#ifdef DebugLog
-  std::cout << "Create HGCalTopology(hgdc,subdet,type)" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Create HGCalTopology(hgdc,det)";
 #endif
-  return ct ;
+  return std::make_unique<HGCalTopology>(hgdc, det_);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(HGCalTopologyBuilder);

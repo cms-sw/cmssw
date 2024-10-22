@@ -5,7 +5,7 @@ calotowersAnalyzer = DQMEDAnalyzer('CaloTowersValidation',
     outputFile               = cms.untracked.string(''),
     CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
     hcalselector             = cms.untracked.string('all'),
-    mc                       = cms.untracked.string('yes')
+    mc                       = cms.untracked.bool(True)
 )
 
 

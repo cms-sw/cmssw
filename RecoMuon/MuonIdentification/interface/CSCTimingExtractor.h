@@ -17,10 +17,8 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -47,36 +45,38 @@ namespace edm {
   class ParameterSet;
   class EventSetup;
   class InputTag;
-}
+}  // namespace edm
 
 class MuonServiceProxy;
+class Propagator;
+class TrackingComponentsRecord;
 
 class CSCTimingExtractor {
-
 public:
-  
   /// Constructor
-  CSCTimingExtractor(const edm::ParameterSet&, MuonSegmentMatcher *segMatcher);
-  
+  CSCTimingExtractor(const edm::ParameterSet &, MuonSegmentMatcher *segMatcher, edm::ConsumesCollector &);
+
   /// Destructor
   ~CSCTimingExtractor();
 
- class TimeMeasurement
-  {
-   public:
-     float distIP;
-     float timeCorr;
-     int station;
-     float weightTimeVtx;
-     float weightInvbeta;
+  class TimeMeasurement {
+  public:
+    float distIP;
+    float timeCorr;
+    int station;
+    float weightTimeVtx;
+    float weightInvbeta;
   };
 
   void fillTiming(TimeMeasurementSequence &tmSequence,
-		 const std::vector<const CSCSegment*> &segments,
-		 reco::TrackRef muonTrack,
-                  const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  void fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack,
-                  const edm::Event& iEvent, const edm::EventSetup& iSetup);
+                  const std::vector<const CSCSegment *> &segments,
+                  reco::TrackRef muonTrack,
+                  const edm::Event &iEvent,
+                  const edm::EventSetup &iSetup);
+  void fillTiming(TimeMeasurementSequence &tmSequence,
+                  reco::TrackRef muonTrack,
+                  const edm::Event &iEvent,
+                  const edm::EventSetup &iSetup);
 
 private:
   edm::InputTag CSCSegmentTags_;
@@ -89,9 +89,10 @@ private:
   bool UseWireTime;
   bool UseStripTime;
   bool debug;
-  
+
   std::unique_ptr<MuonServiceProxy> theService;
-  MuonSegmentMatcher *theMatcher;  
+  MuonSegmentMatcher *theMatcher;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
 };
 
 #endif

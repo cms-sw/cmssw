@@ -18,7 +18,7 @@ namespace funct {
     typedef POWER(COS(A), NUM(2)) type;
   };
 
-}
+}  // namespace funct
 
 #include "PhysicsTools/Utilities/interface/Simplify_end.h"
 

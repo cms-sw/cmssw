@@ -13,14 +13,12 @@
 // class declaration
 //
 
-class BaseHepMCFilter  {
+class BaseHepMCFilter {
 public:
   BaseHepMCFilter();
   virtual ~BaseHepMCFilter();
-  
 
-  virtual bool filter(const HepMC::GenEvent* evt)  = 0;
-  
+  virtual bool filter(const HepMC::GenEvent* evt) = 0;
 };
 
 #endif

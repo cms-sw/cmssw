@@ -2,7 +2,7 @@
 //
 // Package:     HEGeometry
 // Class  :     HEAlignmentErrorRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

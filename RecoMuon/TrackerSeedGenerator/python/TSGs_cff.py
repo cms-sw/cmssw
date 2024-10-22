@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
+from RecoTracker.PixelSeeding.PixelTripletHLTGenerator_cfi import *
 from RecoMuon.TrackingTools.MuonErrorMatrixValues_cff import *
 TSGsBlock = cms.PSet(
     TSGFromCombinedHits = cms.PSet(

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("DTVDriftAnalyzer")
+process = cms.Process("DTVDriftAnalyzer",eras.Run3)
 
 process.load("CondCore.CondDB.CondDB_cfi")
 
@@ -14,7 +15,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.dtVDriftAnalyzer = cms.EDAnalyzer("DTVDriftAnalyzer",
-    rootFileName = cms.untracked.string('') 
+    rootFileName = cms.untracked.string(''),
+    readLegacyVDriftDB =cms.bool(True),
 )
 
 process.p = cms.Path(process.dtVDriftAnalyzer)

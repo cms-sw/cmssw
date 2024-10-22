@@ -1,0 +1,507 @@
+<?xml version="1.0"?>
+<DDDefinition>
+    <!-- Blade geometry parameters: Input from drawings -->
+    <ConstantsSection label="Input" eval="true">
+        <Constant name="T01" value="0.5*mm"/>
+        <!-- Blade01.gif -->
+        <Constant name="T02" value="3.0*mm"/>
+        <!-- Blade01.gif -->
+        <Constant name="T03" value="0.5*mm"/>
+        <!-- Blade01.gif -->
+        <Constant name="T04" value="2.5*mm"/>
+        <!-- Blade01.gif -->
+        <Constant name="W01" value="6.5*mm"/>
+        <!-- Blade01.gif -->
+        <Constant name="W02" value="7.5*mm"/>
+        <!-- Blade01.gif -->
+        <Constant name="W03" value="11.5*mm"/>
+        <!-- Blade01.gif -->
+        <Constant name="R01" value="8.57*mm"/>
+        <!-- Blade02.gif -->
+        <Constant name="L01" value="57.1*mm"/>
+        <!-- Blade02.gif -->
+        <Constant name="L02" value="32.38*mm"/>
+        <!-- Blade02.gif -->
+        <Constant name="L03" value="32.42*mm"/>
+        <!-- Blade02.gif -->
+        <Constant name="L09" value="48.80*mm"/>
+        <!-- Blade02.gif -->
+        <Constant name="A01" value="16.625*deg"/>
+        <!-- Blade03.gif -->
+        <Constant name="W04" value="1.0*mm"/>
+        <!-- Blade03.gif -->
+        <Constant name="W05" value="4.0*mm"/>
+        <!-- Blade03.gif -->
+        <Constant name="R02" value="2.0*mm"/>
+        <!-- Blade03.gif -->
+        <Constant name="R03" value="2.0*mm"/>
+        <!-- Blade03.gif -->
+        <Constant name="L04" value="9.79*mm"/>
+        <!-- Blade03.gif -->
+        <Constant name="L05" value="1.83*mm"/>
+        <!-- Blade03.gif -->
+        <Constant name="L10" value="3.47*mm"/>
+        <!-- Blade03.gif -->
+        <Constant name="W06" value="5.6*mm"/>
+        <!-- Blade04.gif -->
+        <Constant name="R04" value="2.0*mm"/>
+        <!-- Blade04.gif -->
+        <Constant name="L06" value="3.77*mm"/>
+        <!-- Blade04.gif -->
+        <Constant name="L07" value="3.0*mm"/>
+        <!-- Blade04.gif -->
+        <Constant name="L08" value="5.79*mm"/>
+        <!-- Blade04.gif -->
+    </ConstantsSection>
+    <!-- All rotations -->
+    <RotationSection label="Blade">
+        <Rotation name="LeftArm01" phiX="[a01]" thetaX="90.*deg" phiY="90.*deg + [a01]" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="RightArm01" phiX="-[a01]" thetaX="90.*deg" phiY="90.*deg - [a01]" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="LeftArm02" phiX="[A01]" thetaX="90.*deg" phiY="90.*deg + [A01]" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+        <Rotation name="RightArm02" phiX="-[A01]" thetaX="90.*deg" phiY="90.*deg - [A01]" thetaY="90.*deg" phiZ="0." thetaZ="0."/>
+    </RotationSection>
+    <!-- Calculating parameters that will be needed by multiple components : -->
+    <ConstantsSection label="Common" eval="true">
+        <!-- Root volume dimensions (may need to be changed later) -->
+        <Constant name="RootHalfLength" value="([L04]+[L03]+[L01]+[W03]/2.)/2."/>
+        <Constant name="RootHalfWidth" value="([L02]+[W03])/2."/>
+        <Constant name="RootHalfThickness" value="[BladeHalfThickness]+0.1*mm"/>
+        <!-- Coordinates of ancor point  -->
+        <Constant name="AnchorX" value="0."/>
+        <Constant name="AnchorY" value="-[RootHalfLength]+[L10]"/>
+        <Constant name="AnchorZ" value="0."/>
+        <!-- Coordinate of point 0 on Blade02.gif. All other Y-coordinates are relative to it. -->
+        <Constant name="y00" value="[AnchorY]-[L10]+[L04]+[L03]"/>
+        <!-- Others -->
+        <Constant name="zCover" value="([T02]-[T03])/2."/>
+        <Constant name="zBody" value="-([T01]+[T03])/2."/>
+        <Constant name="BladeHalfThickness" value="([T01]+[T02])/2."/>
+        <Constant name="BodyHalfThickness" value="([T02]-[T03])/2."/>
+        <Constant name="CoverHalfThickness" value="([T01]+[T03])/2."/>
+    </ConstantsSection>
+    <!-- Root volume for the blade. This volume is positioned by pixfwdDisk.xml -->
+    <!-- Previous description from D. Onoprienko
+         <SolidSection label="Root">
+         <Box name="PixelForwardBlade" dx="[RootHalfWidth]" dy="[RootHalfLength]" dz="[RootHalfThickness]" />
+    </SolidSection>
+         -->
+    <!-- New Description (05/02/07): Two overlaps were fixed. The overlap with the Nipples was fixed by removing 0.1*mm in the mother volume thickness. The second overlap was: The corners of the box describing the mother volume were going outside the DiskOuterRing, so we remove these corners with a little box for simplicity. -->
+    <SolidSection label="Root">
+        <Box name="PixelForwardBlade_main" dx="[RootHalfWidth]" dy="[RootHalfLength]" dz="[RootHalfThickness]-0.1*mm"/>
+        <Box name="PixelForwardBlade_box" dx="1.5*mm" dy="1.5*mm" dz="[RootHalfThickness]"/>
+        <SubtractionSolid name="PixelForwardBlade_Left_subtraction">
+            <rSolid name="PixelForwardBlade_main"/>
+            <rSolid name="PixelForwardBlade_box"/>
+            <Translation x="-[RootHalfWidth]" y="[RootHalfLength]" z="0."/>
+        </SubtractionSolid>
+        <SubtractionSolid name="PixelForwardBlade">
+            <rSolid name="PixelForwardBlade_Left_subtraction"/>
+            <rSolid name="PixelForwardBlade_box"/>
+            <Translation x="[RootHalfWidth]" y="[RootHalfLength]" z="0."/>
+        </SubtractionSolid>
+    </SolidSection>
+    <LogicalPartSection label="Root">
+        <LogicalPart name="PixelForwardBlade" category="envelope">
+            <rSolid name="PixelForwardBlade"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <!-- Constants for Body and Cover -->
+    <ConstantsSection label="BodyCover" eval="true">
+        <Constant name="e01" value="[L02]/2."/>
+        <Constant name="e02" value="sqrt([e01]*[e01]+[L01]*[L01]-[R01]*[R01])"/>
+        <!-- length of straight part of cooling channel -->
+        <Constant name="a01" value="atan([e01]/[L01])-atan([R01]/[e02])"/>
+        <!-- angle between blade axis and straight part of cooling channel -->
+        <Constant name="sin01" value="sin([a01])"/>
+        <Constant name="cos01" value="cos([a01])"/>
+        <Constant name="x04" value="[L02]/2."/>
+        <Constant name="y05" value="[y00]+[L01]"/>
+        <Constant name="x03" value="([R01]*[cos01]+[x04])/2."/>
+        <Constant name="y04" value="[y00]+(-[R01]*[sin01]+[L01])/2."/>
+        <Constant name="e03" value="([L03]*cos([A01]))/2."/>
+        <Constant name="r01" value="([R01]+[W02]/2.-[W04]/2.)"/>
+        <Constant name="y02" value="-[r01]*sin([A01])-[e03]*cos([A01])"/>
+        <Constant name="x01" value="[r01]*cos([A01])-[e03]*sin([A01])"/>
+        <Constant name="x06" value="[L07]/2.+[R04]+[L06]/2."/>
+    </ConstantsSection>
+    <!-- Body -->
+    <SolidSection label="Body">
+        <Box name="PixelForwardBladeBody01" dx="[W02]/2." dy="[e02]/2." dz="[BodyHalfThickness]"/>
+        <Tubs name="PixelForwardBladeBody02_01" rMin="[R01]-[W02]/2." rMax="[R01]+[W02]/2." dz="[BodyHalfThickness]" startPhi="-180.*deg+[a01]" deltaPhi="180.*deg-2.*[a01]"/>
+        <Box name="PixelForwardBladeBody02_02" dx="[W04]/2." dy="[e03]" dz="[BodyHalfThickness]"/>
+        <Box name="PixelForwardBladeBody02_03" dx="[W04]/2." dy="[e03]" dz="[BodyHalfThickness]"/>
+        <UnionSolid name="PixelForwardBladeBody02_int01">
+            <rSolid name="PixelForwardBladeBody02_01"/>
+            <rSolid name="PixelForwardBladeBody02_02"/>
+            <Translation x="-[x01]" y="[y02]" z="0."/>
+            <rRotation name="pixfwdBlade:LeftArm02"/>
+        </UnionSolid>
+        <UnionSolid name="PixelForwardBladeBody02">
+            <rSolid name="PixelForwardBladeBody02_int01"/>
+            <rSolid name="PixelForwardBladeBody02_03"/>
+            <Translation x="[x01]" y="[y02]" z="0."/>
+            <rRotation name="pixfwdBlade:RightArm02"/>
+        </UnionSolid>
+        <Tubs name="PixelForwardBladeBody03" rMin="0." rMax="[W02]/2." dz="[BodyHalfThickness]" startPhi="0*deg" deltaPhi="180*deg"/>
+        <!-- Crossbar -->
+        <Trapezoid name="PixelForwardBladeBody04" dz="[BodyHalfThickness]" bl1="([R01]-[W02]/2.)/[cos01]+([L09]-[W06]/2.)*tan([a01])" bl2="([R01]-[W02]/2.)/[cos01]+([L09]-[W06]/2.)*tan([a01])" tl1="([R01]-[W02]/2.)/[cos01]+([L09]+[W06]/2.)*tan([a01])" tl2="([R01]-[W02]/2.)/[cos01]+([L09]+[W06]/2.)*tan([a01])" h1="[W06]/2." h2="[W06]/2." alp1="0.0" alp2="0.0" phi="90*deg"/>
+        <Box name="PixelForwardBladeBody05_01" dx="[L08]/2." dy="[R04]" dz="[BodyHalfThickness]"/>
+        <Tubs name="PixelForwardBladeBody05_02" rMin="0." rMax="[R04]" dz="[BodyHalfThickness]" startPhi="0." deltaPhi="360*deg"/>
+        <Tubs name="PixelForwardBladeBody05_03" rMin="0." rMax="[R04]" dz="[BodyHalfThickness]" startPhi="0." deltaPhi="360*deg"/>
+        <UnionSolid name="PixelForwardBladeBody05_int01">
+            <rSolid name="PixelForwardBladeBody05_01"/>
+            <rSolid name="PixelForwardBladeBody05_02"/>
+            <Translation x="[L08]/2." y="0." z="0."/>
+        </UnionSolid>
+        <UnionSolid name="PixelForwardBladeBody05">
+            <rSolid name="PixelForwardBladeBody05_int01"/>
+            <rSolid name="PixelForwardBladeBody05_03"/>
+            <Translation x="-[L08]/2." y="0." z="0."/>
+        </UnionSolid>
+    </SolidSection>
+    <LogicalPartSection label="Body">
+        <LogicalPart name="PixelForwardBladeBody01_Left" category="support">
+            <rSolid name="PixelForwardBladeBody01"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeBody01_Right" category="support">
+            <rSolid name="PixelForwardBladeBody01"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeBody02" category="support">
+            <rSolid name="PixelForwardBladeBody02"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeBody03_Left" category="support">
+            <rSolid name="PixelForwardBladeBody03"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeBody03_Right" category="support">
+            <rSolid name="PixelForwardBladeBody03"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeBody04" category="support">
+            <rSolid name="PixelForwardBladeBody04"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeBody05" category="support">
+            <rSolid name="PixelForwardBladeBody05"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <PosPartSection label="Body">
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBlade"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeBody01_Left"/>
+            <Translation x="-[x03]" y="[y04]" z="[zBody]"/>
+            <rRotation name="pixfwdBlade:LeftArm01"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBlade"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeBody01_Right"/>
+            <Translation x="[x03]" y="[y04]" z="[zBody]"/>
+            <rRotation name="pixfwdBlade:RightArm01"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBlade"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeBody02"/>
+            <Translation x="0." y="[y00]" z="[zBody]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBlade"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeBody03_Left"/>
+            <Translation x="-[x04]" y="[y05]" z="[zBody]"/>
+            <rRotation name="pixfwdBlade:LeftArm01"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBlade"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeBody03_Right"/>
+            <Translation x="[x04]" y="[y05]" z="[zBody]"/>
+            <rRotation name="pixfwdBlade:RightArm01"/>
+        </PosPart>
+        <!-- Crossbar -->
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBlade"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeBody04"/>
+            <Translation x="0." y="[y00]+[L09]" z="[zBody]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBladeBody04"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeBody05"/>
+            <Translation x="[x06]" y="0." z="0."/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdBlade:PixelForwardBladeBody04"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeBody05"/>
+            <Translation x="-[x06]" y="0." z="0."/>
+        </PosPart>
+    </PosPartSection>
+    <!-- Cover -->
+    <SolidSection label="Cover">
+        <Box name="PixelForwardBladeCover01" dx="[W03]/2." dy="[e02]/2." dz="[CoverHalfThickness]"/>
+        <Tubs name="PixelForwardBladeCover02_01" rMin="[R01]-[W03]/2." rMax="[R01]+[W03]/2." dz="[CoverHalfThickness]" startPhi="-180.*deg+[a01]" deltaPhi="180.*deg-2.*[a01]"/>
+        <Box name="PixelForwardBladeCover02_02" dx="[W04]/2." dy="[e03]" dz="[CoverHalfThickness]"/>
+        <Box name="PixelForwardBladeCover02_03" dx="[W04]/2." dy="[e03]" dz="[CoverHalfThickness]"/>
+        <UnionSolid name="PixelForwardBladeCover02_int01">
+            <rSolid name="PixelForwardBladeCover02_01"/>
+            <rSolid name="PixelForwardBladeCover02_02"/>
+            <Translation x="-[x01]" y="[y02]" z="0."/>
+            <rRotation name="pixfwdBlade:LeftArm02"/>
+        </UnionSolid>
+        <UnionSolid name="PixelForwardBladeCover02">
+            <rSolid name="PixelForwardBladeCover02_int01"/>
+            <rSolid name="PixelForwardBladeCover02_03"/>
+            <Translation x="[x01]" y="[y02]" z="0."/>
+            <rRotation name="pixfwdBlade:RightArm02"/>
+        </UnionSolid>
+        <Tubs name="PixelForwardBladeCover03" rMin="0." rMax="[W03]/2." dz="[CoverHalfThickness]" startPhi="0*deg" deltaPhi="180*deg"/>
+        <!-- Crossbar -->
+        <Trapezoid name="PixelForwardBladeCover04_01" dz="[CoverHalfThickness]" bl1="([R01]-[W03]/2.)/[cos01]+([L09]-[W06]/2.)*tan([a01])" bl2="([R01]-[W03]/2.)/[cos01]+([L09]-[W06]/2.)*tan([a01])" tl1="([R01]-[W03]/2.)/[cos01]+([L09]+[W06]/2.)*tan([a01])" tl2="([R01]-[W03]/2.)/[cos01]+([L09]+[W06]/2.)*tan([a01])" h1="[W06]/2." h2="[W06]/2." alp1="0.0" alp2="0.0" phi="90*deg"/>
+        <Box name="PixelForwardBladeCover04_02" dx="[L06]/2." dy="[CoverHalfThickness]+[pixfwdCommon:SmallBool]" dz="[R04]"/>
+        <Box name="PixelForwardBladeCover04_03" dx="[L06]/2." dy="[CoverHalfThickness]+[pixfwdCommon:SmallBool]" dz="[R04]"/>
+        <Tubs name="PixelForwardBladeCover04_04" rMin="0." rMax="[R04]" dz="[CoverHalfThickness]+[pixfwdCommon:SmallBool]" startPhi="0." deltaPhi="360*deg"/>
+        <Tubs name="PixelForwardBladeCover04_05" rMin="0." rMax="[R04]" dz="[CoverHalfThickness]+[pixfwdCommon:SmallBool]" startPhi="0." deltaPhi="360*deg"/>
+        <Tubs name="PixelForwardBladeCover04_06" rMin="0." rMax="[R04]" dz="[CoverHalfThickness]+[pixfwdCommon:SmallBool]" startPhi="0." deltaPhi="360*deg"/>
+        <Tubs name="PixelForwardBladeCover04_07" rMin="0." rMax="[R04]" dz="[CoverHalfThickness]+[pixfwdCommon:SmallBool]" startPhi="0." deltaPhi="360*deg"/>
+        <SubtractionSolid name="PixelForwardBladeCover04_int01">
+            <rSolid name="PixelForwardBladeCover04_01"/>
+            <rSolid name="PixelForwardBladeCover04_02"/>
+            <Translation x="[L07]/2.+[R04]+[L06]/2." y="0." z="0."/>
+        </SubtractionSolid>
+        <SubtractionSolid name="PixelForwardBladeCover04_int02">
+            <rSolid name="PixelForwardBladeCover04_int01"/>
+            <rSolid name="PixelForwardBladeCover04_03"/>
+            <Translation x="-[L07]/2.-[R04]-[L06]/2." y="0." z="0."/>
+        </SubtractionSolid>
+        <SubtractionSolid name="PixelForwardBladeCover04_int03">
+            <rSolid name="PixelForwardBladeCover04_int02"/>
+            <rSolid name="PixelForwardBladeCover04_04"/>
+            <Translation x="-[L07]/2.-[R04]" y="0." z="0."/>
+        </SubtractionSolid>
+        <SubtractionSolid name="PixelForwardBladeCover04_int04">
+            <rSolid name="PixelForwardBladeCover04_int03"/>
+            <rSolid name="PixelForwardBladeCover04_05"/>
+            <Translation x="-[L07]/2.-[R04]-[L06]" y="0." z="0."/>
+        </SubtractionSolid>
+        <SubtractionSolid name="PixelForwardBladeCover04_int05">
+            <rSolid name="PixelForwardBladeCover04_int04"/>
+            <rSolid name="PixelForwardBladeCover04_06"/>
+            <Translation x="[L07]/2.+[R04]" y="0." z="0."/>
+        </SubtractionSolid>
+        <SubtractionSolid name="PixelForwardBladeCover04">
+            <rSolid name="PixelForwardBladeCover04_int05"/>
+            <rSolid name="PixelForwardBladeCover04_07"/>
+            <Translation x="[L07]/2.+[R04]+[L06]" y="0." z="0."/>
+        </SubtractionSolid>
+    </SolidSection>
+    <LogicalPartSection label="Cover">
+        <LogicalPart name="PixelForwardBladeCover01_Left" category="support">
+            <rSolid name="PixelForwardBladeCover01"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeCover01_Right" category="support">
+            <rSolid name="PixelForwardBladeCover01"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeCover02" category="support">
+            <rSolid name="PixelForwardBladeCover02"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeCover03_Left" category="support">
+            <rSolid name="PixelForwardBladeCover03"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeCover03_Right" category="support">
+            <rSolid name="PixelForwardBladeCover03"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeCover04" category="support">
+            <rSolid name="PixelForwardBladeCover04"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <PosPartSection label="Cover">
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBlade"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeCover01_Left"/>
+            <Translation x="-[x03]" y="[y04]" z="[zCover]"/>
+            <rRotation name="pixfwdBlade:LeftArm01"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBlade"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeCover01_Right"/>
+            <Translation x="[x03]" y="[y04]" z="[zCover]"/>
+            <rRotation name="pixfwdBlade:RightArm01"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBlade"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeCover02"/>
+            <Translation x="0." y="[y00]" z="[zCover]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBlade"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeCover03_Left"/>
+            <Translation x="-[x04]" y="[y05]" z="[zCover]"/>
+            <rRotation name="pixfwdBlade:LeftArm01"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBlade"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeCover03_Right"/>
+            <Translation x="[x04]" y="[y05]" z="[zCover]"/>
+            <rRotation name="pixfwdBlade:RightArm01"/>
+        </PosPart>
+        <!-- Crossbar -->
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBlade"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeCover04"/>
+            <Translation x="0." y="[y00]+[L09]" z="[zCover]"/>
+        </PosPart>
+    </PosPartSection>
+    <!-- Tip -->
+    <ConstantsSection label="Tip" eval="true">
+        <Constant name="r02" value="[R01]+[W02]/2.-[L03]*sin([A01])"/>
+        <Constant name="r03" value="[r02]-[W04]"/>
+        <Constant name="e04" value="([L04]-[r03])/2."/>
+        <Constant name="e05" value="(([r02]*cos([A01])-[W05]/2.)/sin([A01]))/2."/>
+        <Constant name="y03" value="-([r02]-[W04]/2.)*sin([A01])-[e05]*cos([A01])"/>
+        <Constant name="x02" value="([r02]-[W04]/2.)*cos([A01])-[e05]*sin([A01])"/>
+    </ConstantsSection>
+    <SolidSection label="Tip">
+        <Tubs name="PixelForwardBladeTip01_01" rMin="[r03]" rMax="[r02]" dz="[BladeHalfThickness]" startPhi="180.*deg+[A01]" deltaPhi="180.*deg-2.*[A01]"/>
+        <Box name="PixelForwardBladeTip01_02" dx="[W05]/2." dy="[e04]-[pixfwdCommon:SmallBool]" dz="[BladeHalfThickness]"/>
+        <Tubs name="PixelForwardBladeTip01_03" rMin="[R02]" rMax="[R02]*sqrt(2.)" dz="[BladeHalfThickness]+[pixfwdCommon:SmallBool]" startPhi="180.*deg" deltaPhi="180.*deg"/>
+        <Box name="PixelForwardBladeTip01_04" dx="[W04]/2." dy="[e05]" dz="[BladeHalfThickness]"/>
+        <Box name="PixelForwardBladeTip01_05" dx="[W04]/2." dy="[e05]" dz="[BladeHalfThickness]"/>
+        <UnionSolid name="PixelForwardBladeTip01_int01">
+            <rSolid name="PixelForwardBladeTip01_01"/>
+            <rSolid name="PixelForwardBladeTip01_04"/>
+            <Translation x="-[x02]" y="[y03]" z="0."/>
+            <rRotation name="pixfwdBlade:LeftArm02"/>
+        </UnionSolid>
+        <UnionSolid name="PixelForwardBladeTip01_int02">
+            <rSolid name="PixelForwardBladeTip01_int01"/>
+            <rSolid name="PixelForwardBladeTip01_05"/>
+            <Translation x="[x02]" y="[y03]" z="0."/>
+            <rRotation name="pixfwdBlade:RightArm02"/>
+        </UnionSolid>
+        <UnionSolid name="PixelForwardBladeTip01_int03">
+            <rSolid name="PixelForwardBladeTip01_int02"/>
+            <rSolid name="PixelForwardBladeTip01_02"/>
+            <Translation x="0." y="-[r03]-[e04]-[pixfwdCommon:SmallBool]" z="0."/>
+        </UnionSolid>
+        <SubtractionSolid name="PixelForwardBladeTip01">
+            <rSolid name="PixelForwardBladeTip01_int03"/>
+            <rSolid name="PixelForwardBladeTip01_03"/>
+            <Translation x="0." y="-[L04]+[L05]" z="0."/>
+        </SubtractionSolid>
+    </SolidSection>
+    <LogicalPartSection label="Tip">
+        <LogicalPart name="PixelForwardBladeTip01" category="support">
+            <rSolid name="PixelForwardBladeTip01"/>
+            <rMaterial name="trackermaterial:T_Aluminium"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <PosPartSection label="Tip">
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBlade"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeTip01"/>
+            <Translation x="0." y="[y00]-[L03]" z="0."/>
+        </PosPart>
+    </PosPartSection>
+    <!-- Cooling channel -->
+    <ConstantsSection label="Channel" eval="true">
+        <Constant name="ChanBodyHalfThickness" value="([T04]-[T03])/2."/>
+        <Constant name="ChanCoverHalfThickness" value="[T03]/2."/>
+        <Constant name="z03" value="[BodyHalfThickness]-[ChanBodyHalfThickness]"/>
+        <!-- Channel central plane inside body -->
+        <Constant name="z04" value="-[CoverHalfThickness]+[ChanCoverHalfThickness]"/>
+        <!-- Channel central plane inside cover -->
+    </ConstantsSection>
+    <SolidSection label="Channel">
+        <Box name="PixelForwardBladeChan01_Body" dx="[W01]/2." dy="[e02]/2." dz="[ChanBodyHalfThickness]"/>
+        <Box name="PixelForwardBladeChan01_Cover" dx="[W01]/2." dy="[e02]/2." dz="[ChanCoverHalfThickness]"/>
+        <Tubs name="PixelForwardBladeChan02_Body" rMin="[R01]-[W01]/2." rMax="[R01]+[W01]/2." dz="[ChanBodyHalfThickness]" startPhi="180.*deg+[a01]" deltaPhi="180.*deg-2.*[a01]"/>
+        <Tubs name="PixelForwardBladeChan02_Cover" rMin="[R01]-[W01]/2." rMax="[R01]+[W01]/2." dz="[ChanCoverHalfThickness]" startPhi="180.*deg+[a01]" deltaPhi="180.*deg-2.*[a01]"/>
+        <Tubs name="PixelForwardBladeChan03_Body" rMin="0." rMax="[W01]/2." dz="[ChanBodyHalfThickness]" startPhi="0*deg" deltaPhi="180*deg"/>
+        <Tubs name="PixelForwardBladeChan03_Cover" rMin="0." rMax="[W01]/2." dz="[ChanCoverHalfThickness]" startPhi="0*deg" deltaPhi="180*deg"/>
+    </SolidSection>
+    <LogicalPartSection label="Channel">
+        <LogicalPart name="PixelForwardBladeChan01_Body" category="cooling">
+            <rSolid name="PixelForwardBladeChan01_Body"/>
+            <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeChan01_Cover" category="cooling">
+            <rSolid name="PixelForwardBladeChan01_Cover"/>
+            <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeChan02_Body" category="cooling">
+            <rSolid name="PixelForwardBladeChan02_Body"/>
+            <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeChan02_Cover" category="cooling">
+            <rSolid name="PixelForwardBladeChan02_Cover"/>
+            <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeChan03_Body" category="cooling">
+            <rSolid name="PixelForwardBladeChan03_Body"/>
+            <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBladeChan03_Cover" category="cooling">
+            <rSolid name="PixelForwardBladeChan03_Cover"/>
+            <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <PosPartSection label="Channel">
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBladeBody01_Left"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeChan01_Body"/>
+            <Translation x="0." y="0." z="[z03]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdBlade:PixelForwardBladeBody01_Right"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeChan01_Body"/>
+            <Translation x="0." y="0." z="[z03]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBladeCover01_Left"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeChan01_Cover"/>
+            <Translation x="0." y="0." z="[z04]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdBlade:PixelForwardBladeCover01_Right"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeChan01_Cover"/>
+            <Translation x="0." y="0." z="[z04]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBladeBody02"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeChan02_Body"/>
+            <Translation x="0." y="0." z="[z03]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBladeCover02"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeChan02_Cover"/>
+            <Translation x="0." y="0." z="[z04]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBladeBody03_Left"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeChan03_Body"/>
+            <Translation x="0." y="0." z="[z03]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdBlade:PixelForwardBladeBody03_Right"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeChan03_Body"/>
+            <Translation x="0." y="0." z="[z03]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwdBlade:PixelForwardBladeCover03_Left"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeChan03_Cover"/>
+            <Translation x="0." y="0." z="[z04]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwdBlade:PixelForwardBladeCover03_Right"/>
+            <rChild name="pixfwdBlade:PixelForwardBladeChan03_Cover"/>
+            <Translation x="0." y="0." z="[z04]"/>
+        </PosPart>
+    </PosPartSection>
+</DDDefinition>

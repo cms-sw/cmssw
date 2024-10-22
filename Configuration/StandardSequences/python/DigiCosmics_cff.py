@@ -21,6 +21,10 @@ from SimCalorimetry.Configuration.SimCalorimetry_cff import *
 #
 from SimMuon.Configuration.SimMuon_cff import *
 #
+# PPS Digis
+# returns sequence "ctppsDigi"
+from SimPPS.Configuration.SimPPS_cff import *
+
 # include TrackingParticle Producer
 # NOTA BENE: it MUST be run here at the moment, since it depends 
 # of the availability of the CrossingFrame in the Event
@@ -51,7 +55,19 @@ simHcalDigis.HElevel = cms.int32(-10000)
 simHcalDigis.HOlevel   = cms.int32(-10000)
 simHcalDigis.HFlevel   = cms.int32(-10000)
 
-doAllDigi = cms.Sequence(calDigi+muonDigi)
-pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi)
-pdigi_valid = cms.Sequence(pdigi)
+doAllDigiTask = cms.Task(calDigiTask, muonDigiTask ,ctppsDigiTask)
+pdigiTask = cms.Task(cms.TaskPlaceholder("randomEngineStateProducer"), cms.TaskPlaceholder("mix"), doAllDigiTask)
 
+doAllDigi = cms.Sequence(doAllDigiTask)
+pdigi = cms.Sequence(pdigiTask)
+pdigi_valid = cms.Sequence(pdigiTask)
+
+#phase 2 common mods
+def _modifyEnableHcalHardcode( theProcess ):
+    from CalibCalorimetry.HcalPlugins.Hcal_Conditions_forGlobalTag_cff import hcal_db_producer as _hcal_db_producer, es_hardcode as _es_hardcode, es_prefer_hcalHardcode as _es_prefer_hcalHardcode
+    theProcess.hcal_db_producer = _hcal_db_producer
+    theProcess.es_hardcode = _es_hardcode
+    theProcess.es_prefer_hcalHardcode = _es_prefer_hcalHardcode    
+
+from Configuration.Eras.Modifier_hcalHardcodeConditions_cff import hcalHardcodeConditions
+modifyEnableHcalHardcode_ = hcalHardcodeConditions.makeProcessModifier( _modifyEnableHcalHardcode )

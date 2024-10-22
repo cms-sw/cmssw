@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats
 // Class  :     DropBoxMetadataRcd
-// 
+//
 /**\class DropBoxMetadataRcd DropBoxMetadataRcd.h src/CondFormats/interface/DropBoxMetadataRcd.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Wed Feb 23 11:26:01 CET 2011
 // $Id$
 //

@@ -12,7 +12,7 @@ siPixelDigis.InputLabel = 'source'
 
 # Local Reco ####    
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
-#DefaultClusterizer.QualityLabel = ''   #not needed to specify it is used as default
+#DefaultClusterizer.ConditionsLabel = ''   #not needed to specify it is used as default
 
 # Track Reconstruction ########
 from RecoTracker.Configuration.RecoTracker_cff import *
@@ -21,7 +21,7 @@ from RecoTracker.Configuration.RecoTracker_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 # Pixel Vertex
-from RecoPixelVertexing.Configuration.RecoPixelVertexing_cff import *
+from RecoVertex.Configuration.RecoPixelVertexing_cff import *
 
 # Reconstruction Sequence
 RecoForDQMCollision = cms.Sequence(siPixelDigis*siStripDigis*trackerlocalreco*offlineBeamSpot*recopixelvertexing*ckftracks)

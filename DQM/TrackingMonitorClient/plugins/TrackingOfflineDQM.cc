@@ -2,7 +2,7 @@
 //
 // Package:    TrackingMonitorClient
 // Class:      TrackingOfflineDQM
-// 
+//
 /**\class TrackingOfflineDQM TrackingOfflineDQM.cc DQM/TrackingMonitorCluster/src/TrackingOfflineDQM.cc
 
  Description: <one line class summary>
@@ -18,7 +18,6 @@
 //
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -36,17 +35,16 @@
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
+
 // Cabling
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
-#include <iostream>
 #include <iomanip>
 #include <cstdio>
 #include <string>
 #include <sstream>
 #include <cmath>
-
 
 /** 
 * @brief 
@@ -55,27 +53,22 @@
 * @param roPARAMETER_SET 
 *   Regular Parameter Set that represent read configuration file
 */
-TrackingOfflineDQM::TrackingOfflineDQM(edm::ParameterSet const& pSet) :
-  configPar_(pSet)
-{
-
+TrackingOfflineDQM::TrackingOfflineDQM(edm::ParameterSet const& pSet)
+    : configPar_(pSet), runInfoToken_(esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>()) {
   // Action Executor
   actionExecutor_ = new TrackingActionExecutor(pSet);
 
-  usedWithEDMtoMEConverter_= configPar_.getUntrackedParameter<bool>("UsedWithEDMtoMEConverter",false); 
-  inputFileName_           = configPar_.getUntrackedParameter<std::string>("InputFileName","");
-  outputFileName_          = configPar_.getUntrackedParameter<std::string>("OutputFileName","");
-  globalStatusFilling_     = configPar_.getUntrackedParameter<int>("GlobalStatusFilling", 1);
-
+  usedWithEDMtoMEConverter_ = configPar_.getUntrackedParameter<bool>("UsedWithEDMtoMEConverter", false);
+  inputFileName_ = configPar_.getUntrackedParameter<std::string>("InputFileName", "");
+  outputFileName_ = configPar_.getUntrackedParameter<std::string>("OutputFileName", "");
+  globalStatusFilling_ = configPar_.getUntrackedParameter<int>("GlobalStatusFilling", 1);
 }
 /** 
 * @brief 
 *   Destructor
 * 
 */
-TrackingOfflineDQM::~TrackingOfflineDQM() {
-
-}
+TrackingOfflineDQM::~TrackingOfflineDQM() {}
 /** 
 * @brief 
 *   Executed at the begining of application
@@ -83,10 +76,7 @@ TrackingOfflineDQM::~TrackingOfflineDQM() {
 * @param eSetup
 *   Event Setup object
 */
-void TrackingOfflineDQM::beginJob() {
-
-  edm::LogInfo("BeginJobDone") << "TrackingOfflineDQM::beginJob done";
-}
+void TrackingOfflineDQM::beginJob() { edm::LogInfo("BeginJobDone") << "TrackingOfflineDQM::beginJob done"; }
 /** 
 * @brief 
 *   Executed at the begining a Run
@@ -97,37 +87,33 @@ void TrackingOfflineDQM::beginJob() {
 *  Event Setup object with Geometry, Magnetic Field, etc.
 */
 void TrackingOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo ("BeginRun") <<"TrackingOfflineDQM:: Begining of Run";
+  edm::LogInfo("BeginRun") << " Begining of Run";
 
   int nFEDs = 0;
   int nPixelFEDs = 0;
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != nullptr) {
-
-    edm::ESHandle<RunInfo> sumFED;
-    eSetup.get<RunInfoRcd>().get(sumFED);    
-    if ( sumFED.isValid() ) {
-
+  edm::ESHandle<RunInfo> runInfoRec = eSetup.getHandle(runInfoToken_);
+  if (runInfoRec.isValid()) {
+    sumFED_ = runInfoRec.product();
+    if (sumFED_ != nullptr) {
       const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
       const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
       const int siPixelFedIdMin = FEDNumbering::MINSiPixelFEDID;
       const int siPixelFedIdMax = FEDNumbering::MAXSiPixelFEDID;
-      
-      std::vector<int> FedsInIds= sumFED->m_fed_in;   
-      for ( auto fedID : FedsInIds ) {
-	if ( fedID >= siPixelFedIdMin && fedID <= siPixelFedIdMax ) {
-	  ++nPixelFEDs;
-	  ++nFEDs;
-	}
-	if ( fedID >= siStripFedIdMin && fedID <= siStripFedIdMax )
-	  ++nFEDs;
+
+      std::vector<int> FedsInIds = sumFED_->m_fed_in;
+      for (auto fedID : FedsInIds) {
+        if (fedID >= siPixelFedIdMin && fedID <= siPixelFedIdMax) {
+          ++nPixelFEDs;
+          ++nFEDs;
+        }
+        if (fedID >= siStripFedIdMin && fedID <= siStripFedIdMax)
+          ++nFEDs;
       }
     }
   }
-  const int siPixelFedN = (FEDNumbering::MAXSiPixelFEDID-FEDNumbering::MINSiPixelFEDID+1);
+  const int siPixelFedN = (FEDNumbering::MAXSiPixelFEDID - FEDNumbering::MINSiPixelFEDID + 1);
   allpixelFEDsFound_ = (nPixelFEDs == siPixelFedN);
-  trackerFEDsFound_  = (nFEDs > 0);
-  
+  trackerFEDsFound_ = (nFEDs > 0);
 }
 
 /** 
@@ -136,16 +122,19 @@ void TrackingOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eS
  * End Lumi
  *
 */
-void TrackingOfflineDQM::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
-
-
-  edm::LogInfo("TrackingOfflineDQM") << "TrackingOfflineDQM::dqmBeginLuminosityBlock";
+void TrackingOfflineDQM::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
+                                               DQMStore::IGetter& igetter_,
+                                               edm::LuminosityBlock const& lumiSeg,
+                                               edm::EventSetup const& iSetup) {
+  edm::LogInfo("TrackingOfflineDQM") << "dqmBeginLuminosityBlock";
 
   if (globalStatusFilling_ > 0) {
-    actionExecutor_->createLSStatus(ibooker_,igetter_);
+    actionExecutor_->createLSStatus(ibooker_, igetter_);
 
-    if (trackerFEDsFound_) actionExecutor_->fillStatusAtLumi(ibooker_,igetter_);
-    else actionExecutor_->fillDummyLSStatus();
+    if (trackerFEDsFound_)
+      actionExecutor_->fillStatusAtLumi(ibooker_, igetter_);
+    else
+      actionExecutor_->fillDummyLSStatus();
   }
 }
 /** 
@@ -154,19 +143,17 @@ void TrackingOfflineDQM::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQM
  * End Run
  *
 */
-void TrackingOfflineDQM::dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_)
-{
-
-  edm::LogInfo("TrackingOfflineDQM") << "TrackingOfflineDQM::dqmEndJob";
+void TrackingOfflineDQM::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
+  edm::LogInfo("TrackingOfflineDQM") << "dqmEndJob";
 
   if (globalStatusFilling_ > 0) {
-    actionExecutor_->createGlobalStatus(ibooker_,igetter_);
+    actionExecutor_->createGlobalStatus(ibooker_, igetter_);
 
-    if ( !trackerFEDsFound_ ) {
+    if (!trackerFEDsFound_) {
       actionExecutor_->fillDummyGlobalStatus();
       return;
     } else {
-      actionExecutor_->fillGlobalStatus(ibooker_,igetter_);
+      actionExecutor_->fillGlobalStatus(ibooker_, igetter_);
     }
   }
 }

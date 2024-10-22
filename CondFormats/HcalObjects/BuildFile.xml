@@ -1,13 +1,24 @@
-<flags   GENREFLEX_ARGS="--"/>
-<use   name="CondFormats/Common"/>
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="CondFormats/Serialization"/>
-<use   name="boost_serialization"/>
-
+<ifrelease name="UBSAN">
+  <flags REM_CXXFLAGS="-fno-omit-frame-pointer -fsanitize=undefined"/>
+</ifrelease>
+<use name="boost_serialization"/>
+<use name="CondFormats/Serialization"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/SoATemplate"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CaloTopology"/>
+<iftool name="cuda">
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+<else/>
+  <flags SKIP_FILES="%GPU.cc"/>
+</iftool>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

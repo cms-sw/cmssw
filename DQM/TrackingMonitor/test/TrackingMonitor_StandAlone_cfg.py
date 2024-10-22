@@ -100,7 +100,6 @@ process.TrackMon.doSeedPTHisto          = cms.bool(False)
 
 
 process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0)
 )
 

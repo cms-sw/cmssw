@@ -11,24 +11,20 @@
 #include <vector>
 
 class SimG4HcalHitJetFinder {
-
 public:
-
-  SimG4HcalHitJetFinder(double cone=0.5);
+  SimG4HcalHitJetFinder(double cone = 0.5);
   virtual ~SimG4HcalHitJetFinder();
 
-  void setCone(double);   
+  void setCone(double);
   void setInput(std::vector<CaloHit> *);
-  std::vector<SimG4HcalHitCluster> * getClusters(bool);
-  double rDist(const SimG4HcalHitCluster* , const CaloHit*) const;
+  std::vector<SimG4HcalHitCluster> *getClusters(bool);
+  double rDist(const SimG4HcalHitCluster *, const CaloHit *) const;
   double rDist(const double, const double, const double, const double) const;
 
-private :
-
-  double                           jetcone;
-  std::vector<CaloHit>             input;
-  std::vector<SimG4HcalHitCluster> clusvector; 
-
+private:
+  double jetcone;
+  std::vector<CaloHit> input;
+  std::vector<SimG4HcalHitCluster> clusvector;
 };
 
 #endif

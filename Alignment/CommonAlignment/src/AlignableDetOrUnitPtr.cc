@@ -17,27 +17,33 @@
 // it is currently not possible to inline the following methods in the header...
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-AlignableDetOrUnitPtr::operator Alignable* ()
-{ 
-  if (theAliBeamSpot) return theAliBeamSpot;
-  else if (theAliDet) return theAliDet;
-  else                return theAliDetUnit;
+AlignableDetOrUnitPtr::operator Alignable*() {
+  if (theAliBeamSpot)
+    return theAliBeamSpot;
+  else if (theAliDet)
+    return theAliDet;
+  else
+    return theAliDetUnit;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-AlignableDetOrUnitPtr::operator const Alignable* () const 
-{
-  if (theAliBeamSpot) return theAliBeamSpot;
-  else if (theAliDet) return theAliDet;
-  else                return theAliDetUnit;
+AlignableDetOrUnitPtr::operator const Alignable*() const {
+  if (theAliBeamSpot)
+    return theAliBeamSpot;
+  else if (theAliDet)
+    return theAliDet;
+  else
+    return theAliDetUnit;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-const AlignmentPositionError* AlignableDetOrUnitPtr::alignmentPositionError() const
-{
-  if (theAliBeamSpot)     return theAliBeamSpot->alignmentPositionError();
-  else if (theAliDet)     return theAliDet->alignmentPositionError();
-  else if (theAliDetUnit) return theAliDetUnit->alignmentPositionError();
-  else                    return nullptr;
+const AlignmentPositionError* AlignableDetOrUnitPtr::alignmentPositionError() const {
+  if (theAliBeamSpot)
+    return theAliBeamSpot->alignmentPositionError();
+  else if (theAliDet)
+    return theAliDet->alignmentPositionError();
+  else if (theAliDetUnit)
+    return theAliDetUnit->alignmentPositionError();
+  else
+    return nullptr;
 }
-

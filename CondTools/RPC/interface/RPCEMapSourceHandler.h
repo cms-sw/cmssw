@@ -28,8 +28,6 @@
 #include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
 #include "CondFormats/RPCObjects/interface/DBSpecToDetUnit.h"
 
-
-
 #include "CondCore/CondDB/interface/Session.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ISchema.h"
@@ -39,39 +37,38 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 
-namespace popcon
-{
-	class RPCEMapSourceHandler : public popcon::PopConSourceHandler<RPCEMap>
-	{
-
-		public:
+namespace popcon {
+  class RPCEMapSourceHandler : public popcon::PopConSourceHandler<RPCEMap> {
+  public:
     RPCEMapSourceHandler(const edm::ParameterSet& ps);
     ~RPCEMapSourceHandler() override;
     void getNewObjects() override;
-    std::string id() const override {return m_name;}
+    std::string id() const override { return m_name; }
     void ConnectOnlineDB(std::string connect, std::string authPath);
     void DisconnectOnlineDB();
     void readEMap1();
     int Compare2EMaps(const Ref& map1, RPCEMap* map2);
 
-		private:
-    RPCEMap * eMap;
-    cond::persistency::Session  session;
+  private:
+    RPCEMap* eMap;
+    cond::persistency::Session session;
     std::string m_name;
     int m_dummy;
     int m_validate;
     std::string m_connect;
     std::string m_authpath;
 
-  // utilities
-    std::string IntToString(int num)
-    {
+    // utilities
+    std::string IntToString(int num) {
       std::stringstream snum;
       snum << num << std::flush;
-      return(snum.str());
+      return (snum.str());
     }
 
-    typedef struct{int febId,chamberId,connectorId,lbInputNum,posInLocalEtaPart,posInCmsEtaPart;std::string localEtaPart,cmsEtaPart;} FEBStruct;
-	};
-}
+    typedef struct {
+      int febId, chamberId, connectorId, lbInputNum, posInLocalEtaPart, posInCmsEtaPart;
+      std::string localEtaPart, cmsEtaPart;
+    } FEBStruct;
+  };
+}  // namespace popcon
 #endif

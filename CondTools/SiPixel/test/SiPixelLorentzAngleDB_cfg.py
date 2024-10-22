@@ -1,4 +1,5 @@
-#import os
+from __future__ import print_function
+import os
 import shlex, shutil, getpass
 #import subprocess
 
@@ -7,31 +8,27 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SiPixelInclusiveBuilder")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
-process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string("INFO"))
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.cout = dict(enable = True, threshold = "WARNING")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #hptopo
 
 #process.load("Configuration.StandardSequences.GeometryIdeal_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.autoCond_condDBv2 import autoCond
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_design']
-print process.GlobalTag.globaltag
+print(process.GlobalTag.globaltag)
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-
+#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 #process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff")
-
 #process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-
 #process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
-
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(1),
@@ -56,10 +53,11 @@ user = getpass.getuser()
 #file = "/tmp/" + user + "/SiPixelLorentzAngle.db"
 file = "siPixelLorentzAngle.db"
 sqlfile = "sqlite_file:" + file
-print '\n-> Uploading as user %s into file %s, i.e. %s\n' % (user, file, sqlfile)
+print('\n-> Uploading as user %s into file %s, i.e. %s\n' % (user, file, sqlfile))
 
 #standard python libraries instead of spawn processes
-shutil.move("siPixelLorentzAngle.db", "siPixelLorentzAngle_old.db")
+if(os.path.isfile('./'+file)):
+    shutil.move("siPixelLorentzAngle.db", "siPixelLorentzAngle_old.db")
 #subprocess.call(["/bin/cp", "siPixelLorentzAngle.db", file])
 #subprocess.call(["/bin/mv", "siPixelLorentzAngle.db", "siPixelLorentzAngle.db"])
 
@@ -85,17 +83,12 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
             tag = cms.string('SiPixelLorentzAngle_2015_v2')
             #tag = cms.string('SiPixelLorentzAngle_v1')
         ),
-###        cms.PSet(
-###            record = cms.string('SiPixelLorentzAngleSimRcd'),
-###            tag = cms.string('SiPixelLorentzAngleSim_v1')
-###        ),
-                     )
+        ###        cms.PSet(
+        ###            record = cms.string('SiPixelLorentzAngleSimRcd'),
+        ###            tag = cms.string('SiPixelLorentzAngleSim_v1')
+        ###        ),
+    )
 )
-
-
-
-
-
 
 ###### LORENTZ ANGLE OBJECT ######
 process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",

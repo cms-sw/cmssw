@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
 #include <vector>
+#include <map>
 
 class CalibrationAnalysis;
 class TH1;
@@ -16,47 +17,34 @@ class TF1;
 */
 
 class CalibrationAlgorithm : public CommissioningAlgorithm {
-  
- public:
-  
-  CalibrationAlgorithm( const edm::ParameterSet & pset, CalibrationAnalysis* const );
-  
-  ~CalibrationAlgorithm() override {;}
-  
-  inline const Histo& histo( int i ) const { return histo_[i]; }
-  
- private:
+public:
+  CalibrationAlgorithm(const edm::ParameterSet& pset, CalibrationAnalysis* const);
+  ~CalibrationAlgorithm() override { ; }
 
-  CalibrationAlgorithm() {;}
-  
-  void extract( const std::vector<TH1*>& ) override;
+  inline const Histo& histo(int& i) { return histo_[i]; }
+
+private:
+  CalibrationAlgorithm() { ; }
+
+  void extract(const std::vector<TH1*>&) override;
 
   void analyse() override;
 
-  void correctDistribution( TH1* ) const;
+  void correctDistribution(TH1*) const;
 
-  TF1* fitPulse( TH1*, 
-		 float rangeLow = 0, 
-		 float rangeHigh = -1 );
-  
-  float maximum( TH1* );
-  
-  float turnOn( TH1* );
-  
- private:
-  
+  float baseLine(TF1*);
+  float turnOn(TF1*, const float&);
+  float decayTime(TF1*);
+
+private:
   /** pulse shape*/
-  Histo histo_[32];
+  std::vector<Histo> histo_;
+  std::vector<int> stripId_;
+  std::vector<int> calChan_;
+  std::vector<int> apvId_;
 
-  /** Fitter in deconvolution mode */
-  TF1* deconv_fitter_;
-  /** Fitter in peak mode */
-
-  TF1* peak_fitter_;
-  
+  /** analysis object */
   CalibrationAnalysis* cal_;
-  
 };
 
-#endif // DQM_SiStripCommissioningAnalysis_CalibrationAlgorithm_H
-
+#endif  // DQM_SiStripCommissioningAnalysis_CalibrationAlgorithm_H

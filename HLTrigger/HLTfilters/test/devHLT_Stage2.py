@@ -5,10 +5,11 @@
 # with command line options: debug --no_exec --conditions auto:run2_mc_25ns14e33_v4 -s DIGI:pdigi_valid,L1,DIGI2RAW,RAW2DIGI --datatier GEN-SIM-DIGI-RAW-HLTDEBUG -n 10 --era Run2_25ns --eventcontent FEVTDEBUGHLT --filein filelist:step1_dasquery.log --fileout file:step2.root
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-#process = cms.Process('L1SEQS',eras.Run2_25ns)
-process = cms.Process('HLT',eras.Run2_2016)
+#from Configuration.Eras.Era_Run2_25ns_cff import Run2_25ns
+#process = cms.Process('L1SEQS',Run2_25ns)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process('HLT',Run2_2016)
 
 
 # import of standard configurations
@@ -34,10 +35,21 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-            destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
-            detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
-            #debugModules = cms.untracked.vstring( 'hltL1TSeed' )
-            debugModules = cms.untracked.vstring( 'hltL1TSeed', 'hltTriggerSummaryRAW' )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring(
+        'hltL1TSeed', 
+        'hltTriggerSummaryRAW'
+    ),
+    files = cms.untracked.PSet(
+        critical = cms.untracked.PSet(
+
+        ),
+        detailedInfo = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG')
+        )
+    )
 )
 
 #

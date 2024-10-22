@@ -13,9 +13,9 @@
 #include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 
 namespace boost {
-namespace serialization {
+  namespace serialization {
 
-/*
+    /*
  * Note regarding object tracking: all autos used here
  * must resolve to untracked types, since we use local
  * variables in the stack which could end up with the same
@@ -24,41 +24,37 @@ namespace serialization {
  * by Boost Serialization.
  */
 
-// DataFormats/HLTReco/interface/HLTPrescaleTable.h
-template<class Archive>
-void save(Archive & ar, const trigger::HLTPrescaleTable & obj, const unsigned int)
-{
-    auto set = obj.set();
-    auto lab = obj.labels();
-    auto tab = obj.table();
-    ar & boost::serialization::make_nvp("set_"   , set );
-    ar & boost::serialization::make_nvp("labels_", lab );
-    ar & boost::serialization::make_nvp("table_" , tab );  
-}
+    // DataFormats/HLTReco/interface/HLTPrescaleTable.h
+    template <class Archive>
+    void save(Archive& ar, const trigger::HLTPrescaleTable& obj, const unsigned int) {
+      auto set = obj.set();
+      auto lab = obj.labels();
+      auto tab = obj.table();
+      ar& boost::serialization::make_nvp("set_", set);
+      ar& boost::serialization::make_nvp("labels_", lab);
+      ar& boost::serialization::make_nvp("table_", tab);
+    }
 
-template<class Archive>
-void load(Archive & ar, trigger::HLTPrescaleTable & obj, const unsigned int)
-{
-    // FIXME: avoid copying if we are OK getting a non-const reference
-    unsigned int set_;
-    std::vector<std::string> labels_;
-    std::map<std::string,std::vector<unsigned int> > table_;
+    template <class Archive>
+    void load(Archive& ar, trigger::HLTPrescaleTable& obj, const unsigned int) {
+      // FIXME: avoid copying if we are OK getting a non-const reference
+      unsigned int set_;
+      std::vector<std::string> labels_;
+      std::map<std::string, std::vector<unsigned int> > table_;
 
-    ar & boost::serialization::make_nvp("set_"   , set_ );
-    ar & boost::serialization::make_nvp("labels_", labels_ );
-    ar & boost::serialization::make_nvp("table_" , table_ );  
-    trigger::HLTPrescaleTable tmp(set_, labels_, table_);
-    obj = tmp;
+      ar& boost::serialization::make_nvp("set_", set_);
+      ar& boost::serialization::make_nvp("labels_", labels_);
+      ar& boost::serialization::make_nvp("table_", table_);
+      trigger::HLTPrescaleTable tmp(set_, labels_, table_);
+      obj = tmp;
+    }
 
-}
+    template <class Archive>
+    void serialize(Archive& ar, trigger::HLTPrescaleTable& obj, const unsigned int v) {
+      split_free(ar, obj, v);
+    }
 
-template<class Archive>
-void serialize(Archive & ar, trigger::HLTPrescaleTable & obj, const unsigned int v)
-{
-    split_free(ar, obj, v);
-}
-
-} // namespace serialization
-} // namespace boost
+  }  // namespace serialization
+}  // namespace boost
 
 #endif

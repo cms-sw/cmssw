@@ -28,7 +28,13 @@ namespace edm {
     static const std::string kPhotos;
     static const std::string kTauola;
     static const std::string kEvtGen;
-    static const std::string kHerwig6;
+  };
+
+  //ES modules can not share resources with ED modules
+  class ESSharedResourceNames {
+  public:
+    static const std::string kDDGeometry;
+    static const std::string kDD4hep;
   };
 
   // Each time the following function is called, it returns a different
@@ -46,5 +52,5 @@ namespace edm {
   // the same shared resource name, there will be no performance effects.
   // This function provides a unique name to be used for that purpose.
   std::string uniqueSharedResourceName();
-}
+}  // namespace edm
 #endif

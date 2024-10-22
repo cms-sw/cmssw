@@ -8,9 +8,5 @@
         (0.5,"DefaultMVFAnnealing:Ratio").value();
 */
 
-DefaultMVFAnnealing::DefaultMVFAnnealing (
-     const double cutoff, const double T, const double ratio ) :
-  GeometricAnnealing (cutoff, 
-                      T, 
-                      ratio)
-{}
+DefaultMVFAnnealing::DefaultMVFAnnealing(const double cutoff, const double T, const double ratio)
+    : GeometricAnnealing(cutoff, T, ratio) {}

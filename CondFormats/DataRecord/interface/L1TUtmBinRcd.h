@@ -1,4 +1,4 @@
-// L1TUtmBinRcd                                                                                            
+// L1TUtmBinRcd
 // Description: Record for L1TUtmBin
 //
 // automatically generate by make_records.pl
@@ -14,6 +14,6 @@ class L1TUtmBinRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TU
 //#include "FWCore/Framework/interface/DependentRecordImplementation.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-//class L1TUtmBinRcd : public edm::eventsetup::DependentRecordImplementation<L1TUtmBinRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+//class L1TUtmBinRcd : public edm::eventsetup::DependentRecordImplementation<L1TUtmBinRcd, edm::mpl::Vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif

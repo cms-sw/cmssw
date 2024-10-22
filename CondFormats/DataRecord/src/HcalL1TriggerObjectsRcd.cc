@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     HcalL1TriggerObjectsRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Fri Nov  7 18:37:16 CET 2008
 // $Id$
 

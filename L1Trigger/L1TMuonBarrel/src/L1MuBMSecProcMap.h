@@ -37,37 +37,33 @@ class L1MuBMSectorProcessor;
 //              ---------------------
 
 class L1MuBMSecProcMap {
+public:
+  typedef std::map<L1MuBMSecProcId, L1MuBMSectorProcessor*, std::less<L1MuBMSecProcId> > SPmap;
+  typedef SPmap::iterator SPmap_iter;
 
-  public:
+  /// constructor
+  L1MuBMSecProcMap();
 
-    typedef std::map<L1MuBMSecProcId, L1MuBMSectorProcessor*, std::less<L1MuBMSecProcId> >  SPmap;
-    typedef SPmap::iterator                                   SPmap_iter;
+  /// destructor
+  virtual ~L1MuBMSecProcMap();
 
-    /// constructor
-    L1MuBMSecProcMap();
+  /// return pointer to Sector Processor
+  L1MuBMSectorProcessor* sp(const L1MuBMSecProcId&) const;
 
-    /// destructor
-    virtual ~L1MuBMSecProcMap();
+  /// insert a Sector Processor into the container
+  void insert(const L1MuBMSecProcId&, L1MuBMSectorProcessor* sp);
 
-    /// return pointer to Sector Processor
-    L1MuBMSectorProcessor* sp(const L1MuBMSecProcId& ) const;
+  /// return number of entries present in the container
+  inline int size() const { return m_map.size(); }
 
-    /// insert a Sector Processor into the container
-    void insert(const L1MuBMSecProcId&, L1MuBMSectorProcessor* sp);
+  /// return iterator which points to the first entry of the container
+  inline SPmap_iter begin() { return m_map.begin(); }
 
-    /// return number of entries present in the container
-    inline int size() const { return m_map.size(); }
+  /// return iterator which points to the one-past-last entry of the container
+  inline SPmap_iter end() { return m_map.end(); }
 
-    /// return iterator which points to the first entry of the container
-    inline SPmap_iter begin() { return m_map.begin(); }
-
-    /// return iterator which points to the one-past-last entry of the container
-    inline SPmap_iter end() { return m_map.end(); }
-
-  private:
-
-    SPmap m_map;
-
+private:
+  SPmap m_map;
 };
 
 #endif

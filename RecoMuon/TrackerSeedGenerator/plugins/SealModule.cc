@@ -10,7 +10,6 @@
 #include "DualByL2TSG.h"
 #include "CombinedTSG.h"
 
-
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGSmart, "TSGSmart");
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGFromOrderedHits, "TSGFromOrderedHits");
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGForRoadSearch, "TSGForRoadSearch");
@@ -19,13 +18,9 @@ DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, DualByEtaTSG, "DualByEtaTSG");
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, DualByL2TSG, "DualByL2TSG");
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, CombinedTSG, "CombinedTSG");
 
-
-
-
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "TSGFromL1Muon.h"
 #include "TSGFromL2Muon.h"
-
 
 DEFINE_FWK_MODULE(TSGFromL1Muon);
 DEFINE_FWK_MODULE(TSGFromL2Muon);
@@ -39,8 +34,7 @@ DEFINE_FWK_MODULE(TSGFromL2Muon);
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-
-typedef CollectionCombiner<std::vector< Trajectory> > TrajectoryCombiner;
+typedef CollectionCombiner<std::vector<Trajectory> > TrajectoryCombiner;
 typedef CollectionCombiner<L3MuonTrajectorySeedCollection> L3MuonTrajectorySeedCombiner;
 typedef CollectionCombiner<reco::TrackCollection> L3TrackCombiner;
 typedef CollectionCombiner<TrackCandidateCollection> L3TrackCandCombiner;
@@ -51,4 +45,3 @@ DEFINE_FWK_MODULE(L3MuonTrajectorySeedCombiner);
 DEFINE_FWK_MODULE(L3TrackCombiner);
 DEFINE_FWK_MODULE(L3TrackCandCombiner);
 DEFINE_FWK_MODULE(L3TrackLinksCombiner);
-

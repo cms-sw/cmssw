@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('DIGI')
@@ -22,7 +23,7 @@ process.mix.theDigitizers = cms.PSet( hgcee      = cms.PSet( hgceeDigitizer),
                                       hgchefront = cms.PSet( hgchefrontDigitizer),
                                       hgcheback  = cms.PSet( hgchebackDigitizer)
                                       )
-print process.mix.theDigitizers
+print(process.mix.theDigitizers)
 
 # input configuration
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )

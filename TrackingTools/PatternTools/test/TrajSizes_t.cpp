@@ -3,8 +3,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
-
-#include<iostream>
+#include <iostream>
 
 #define PSIZE(CNAME) std::cout << #CNAME << ": " << sizeof(CNAME) << std::endl
 
@@ -14,6 +13,7 @@ int main() {
   PSIZE(TransientTrackingRecHit);
   PSIZE(Trajectory);
   PSIZE(TempTrajectory);
+  PSIZE(TempTrajectory::Payload);
 
   return 0;
 }

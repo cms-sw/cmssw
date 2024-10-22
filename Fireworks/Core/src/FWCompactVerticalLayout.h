@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWCompactVerticalLayout
-// 
+//
 /**\class FWCompactVerticalLayout FWCompactVerticalLayout.h Fireworks/Core/interface/FWCompactVerticalLayout.h
 
  Description: <one line class summary>
@@ -26,28 +26,24 @@
 // forward declarations
 
 class FWCompactVerticalLayout : public TGVerticalLayout {
-
 public:
-   FWCompactVerticalLayout( TGCompositeFrame* iMain);
-   ~FWCompactVerticalLayout() override;
-   
-   // ---------- const member functions ---------------------
-   void Layout() override;
-   TGDimension GetDefaultSize() const override;
-   
-   // ---------- static member functions --------------------
-   
-   // ---------- member functions ---------------------------
-   ClassDefOverride(FWCompactVerticalLayout,0)  // Vertical layout manager
+  FWCompactVerticalLayout(TGCompositeFrame* iMain);
+  ~FWCompactVerticalLayout() override;
 
-private:
-   FWCompactVerticalLayout(const FWCompactVerticalLayout&); // stop default
-   
-   const FWCompactVerticalLayout& operator=(const FWCompactVerticalLayout&); // stop default
-   
-   // ---------- member data --------------------------------
-   
+  // ---------- const member functions ---------------------
+  void Layout() override;
+  TGDimension GetDefaultSize() const override;
+
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+  ClassDefOverride(FWCompactVerticalLayout, 0)  // Vertical layout manager
+
+      private : FWCompactVerticalLayout(const FWCompactVerticalLayout&);  // stop default
+
+  const FWCompactVerticalLayout& operator=(const FWCompactVerticalLayout&);  // stop default
+
+  // ---------- member data --------------------------------
 };
-
 
 #endif

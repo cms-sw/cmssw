@@ -1,0 +1,10 @@
+<environment>
+  <test name="TestDataFormatsTTTrackTrackWord" command="cmsRun ${LOCALTOP}/src/DataFormats/L1TrackTrigger/test/testDataFormatsTTTrackTrackWord_cfg.py"/>
+  <library file="TestDataFormatsTTTrackTrackWord.cc" name="DataFormatsTTTrackTrackWordTest">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="DataFormats/L1TrackTrigger"/>
+    <use name="DataFormats/TestObjects"/>
+  </library>
+</environment>

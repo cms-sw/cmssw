@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Utilities
 // Class  :     CallOnceNoWait
-// 
+//
 /**\class edm::CallOnceNoWait CallOnceNoWait.h "FWCore/Utilities/interface/CallOnceNoWait.h"
 
  Description: Thread safe way to do something 1 time
@@ -37,23 +37,21 @@
 // forward declarations
 
 namespace edm {
-  class CallOnceNoWait
-  {
+  class CallOnceNoWait {
   public:
     CallOnceNoWait() : m_called(false) {}
-    
+
     template <typename T>
     void operator()(T iCall) {
       bool expected = false;
-      if(m_called.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
+      if (m_called.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
         iCall();
       }
     }
-    
+
   private:
     std::atomic<bool> m_called;
   };
-}
-
+}  // namespace edm
 
 #endif

@@ -1,0 +1,17 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="TrackingTools/DetLayers"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="RecoTracker/DeDx"/>
+<use name="FastSimulation/TrajectoryManager"/>
+<use name="FastSimulation/SimplifiedGeometryPropagator"/>
+<use name="FastSimulation/Calorimetry"/>
+<use name="FastSimulation/CaloGeometryTools"/>
+<use name="FastSimulation/ShowerDevelopment"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="DataFormats/Math"/>
+<use name="hepmc"/>
+<use name="clhep"/>
+<flags EDM_PLUGIN="1"/>

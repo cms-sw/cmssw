@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
+    <Include ref='Alignment/CocoaApplication/test/table2DWithMirror.xml'/>
+  </IncludeSection>
+
+</DDDefinition>

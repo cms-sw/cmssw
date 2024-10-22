@@ -1,0 +1,10 @@
+import FWCore.ParameterSet.Config as cms
+
+from ..modules.hltL1TEGammaFilteredCollectionProducer_cfi import *
+from ..modules.hltParticleFlowClusterECALL1Seeded_cfi import *
+from ..modules.hltParticleFlowClusterECALUncorrectedL1Seeded_cfi import *
+from ..modules.hltParticleFlowRecHitECALL1Seeded_cfi import *
+from ..modules.hltParticleFlowSuperClusterECALL1Seeded_cfi import *
+from ..modules.hltRechitInRegionsECAL_cfi import *
+
+HLTPFClusteringForEgammaL1SeededSequence = cms.Sequence((hltL1TEGammaFilteredCollectionProducer+hltRechitInRegionsECAL+hltParticleFlowRecHitECALL1Seeded+hltParticleFlowClusterECALUncorrectedL1Seeded+hltParticleFlowClusterECALL1Seeded+hltParticleFlowSuperClusterECALL1Seeded))

@@ -6,20 +6,19 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
-#include "FastSimulation/Particle/interface/RawParticle.h"
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
 
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalSimulationConstants.h"
+#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 #include "SimG4CMS/Calo/interface/HcalNumberingScheme.h"
 #include "G4ThreeVector.hh"
 
@@ -32,41 +31,38 @@
 #include <memory>
 #include <map>
 
-class DDCompactView;    
 class FSimEvent;
 class FSimTrack;
 class HFShowerLibrary;
 class RandomEngineAndDistribution;
 
 class FastHFShowerLibrary {
-  
 public:
-
   // Constructor and Destructor
-  FastHFShowerLibrary(edm::ParameterSet const & p);
-  ~FastHFShowerLibrary(){;}
+  FastHFShowerLibrary(edm::ParameterSet const&, edm::ConsumesCollector&&);
+  ~FastHFShowerLibrary() {}
 
 public:
+  void const initHFShowerLibrary(const edm::EventSetup&);
+  void recoHFShowerLibrary(const FSimTrack& myTrack);
+  void modifyDepth(HcalNumberingFromDDD::HcalID& id);
+  const std::map<CaloHitID, float>& getHitsMap() { return hitMap; };
 
-  void       const    initHFShowerLibrary(const edm::EventSetup& );
-  void                recoHFShowerLibrary(const FSimTrack &myTrack);
-  void                modifyDepth(uint32_t &id);
-  const std::map<CaloHitID,float>& getHitsMap() { return hitMap; };
-
-  void  SetRandom(const RandomEngineAndDistribution *);
+  void SetRandom(const RandomEngineAndDistribution*);
 
 private:
-
   const edm::ParameterSet fast;
   std::unique_ptr<HFShowerLibrary> hfshower;
   std::unique_ptr<HcalNumberingFromDDD> numberingFromDDD;
-  HcalDDDSimConstants* hcalConstants;
+  const HcalDDDSimConstants* hcalConstants;
   HcalNumberingScheme numberingScheme;
-  
-  std::map<CaloHitID,float> hitMap;
+
+  std::map<CaloHitID, float> hitMap;
 
   bool applyFidCut;
   std::string name;
 
+  const edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> hcalDDDSimConstantsESToken_;
+  const edm::ESGetToken<HcalSimulationConstants, HcalSimNumberingRecord> hcalSimulationConstantsESToken_;
 };
 #endif

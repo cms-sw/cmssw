@@ -21,6 +21,6 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class CSCDCSDataRcd : public edm::eventsetup::EventSetupRecordImplementation<CSCDCSDataRcd> { };
+class CSCDCSDataRcd : public edm::eventsetup::EventSetupRecordImplementation<CSCDCSDataRcd> {};
 
 #endif

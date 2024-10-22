@@ -4,7 +4,7 @@
 //
 // Package:    HLTL1NumberFilter
 // Class:      HLTL1NumberFilter
-// 
+//
 /**\class HLTL1NumberFilter HLTL1NumberFilter.cc filter/HLTL1NumberFilter/src/HLTL1NumberFilter.cc
 
 Description: Filter to select HCAL abort gap events
@@ -17,7 +17,6 @@ Implementation:
 //         Created:  Tue Jan 22 13:55:00 CET 2008
 //
 //
-
 
 // include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -38,13 +37,13 @@ Implementation:
 
 class HLTL1NumberFilter : public edm::global::EDFilter<> {
 public:
-  explicit HLTL1NumberFilter(const edm::ParameterSet&);
+  explicit HLTL1NumberFilter(const edm::ParameterSet &);
   ~HLTL1NumberFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
 private:
   bool filter(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
-  
+
   // ----------member data ---------------------------
 
   /// raw data

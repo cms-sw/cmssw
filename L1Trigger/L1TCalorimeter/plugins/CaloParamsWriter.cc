@@ -1,6 +1,6 @@
 // CaloParamsWriter
 //
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -28,25 +28,19 @@
 // class declaration
 //
 
-class CaloParamsWriter : public edm::EDAnalyzer {
+class CaloParamsWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit CaloParamsWriter(const edm::ParameterSet&) {}
-   ~CaloParamsWriter() override {}
-  void analyze(const edm::Event&, const edm::EventSetup&) override;  
-
+  ~CaloParamsWriter() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 };
 
-
-
-void CaloParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
-{
-  l1t::DataWriter dataWriter;  
+void CaloParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  l1t::DataWriter dataWriter;
   std::string token = dataWriter.writePayload(evSetup, "L1TCaloParamsRcd@CaloParams");
-  if ( dataWriter.updateIOV("L1TCaloParamsRcd", token, 1, false) ) std::cout << "IOV updated!" << std::endl;
+  if (dataWriter.updateIOV("L1TCaloParamsRcd", token, 1, false))
+    std::cout << "IOV updated!" << std::endl;
   std::cout << "Payload token = " << token << std::endl;
 }
 
 DEFINE_FWK_MODULE(CaloParamsWriter);
-
-
-

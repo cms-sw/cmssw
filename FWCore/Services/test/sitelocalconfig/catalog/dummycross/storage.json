@@ -1,0 +1,11 @@
+[
+   {  "site": "DUMMY_CROSS_SITE",
+      "volume": "CMSXrootdFederation",
+      "protocols": [
+         {  "protocol": "XRootD",
+            "access": "global-ro",
+            "prefix": "root://xrootd-cms.infn.it/"
+         }
+      ]
+   }
+]

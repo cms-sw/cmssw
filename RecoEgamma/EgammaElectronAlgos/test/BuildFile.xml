@@ -1,0 +1,5 @@
+<library name="RecoEgammaEgammaElectronAlgosTestPlugins" file="*.cc">
+  <use name="FWCore/Framework"/>
+  <use name="RecoEgamma/EgammaElectronAlgos"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

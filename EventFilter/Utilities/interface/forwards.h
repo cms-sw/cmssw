@@ -1,39 +1,40 @@
 #ifndef JSON_FORWARDS_H_INCLUDED
-# define JSON_FORWARDS_H_INCLUDED
+#define JSON_FORWARDS_H_INCLUDED
 
-# include "config.h"
+#include "config.h"
 
-namespace Json {
+namespace jsoncollector {
+  namespace Json {
 
-   // writer.h
-   class FastWriter;
-   class StyledWriter;
+    // writer.h
+    class FastWriter;
+    class StyledWriter;
 
-   // reader.h
-   class Reader;
+    // reader.h
+    class Reader;
 
-   // features.h
-   class Features;
+    // features.h
+    class Features;
 
-   // value.h
-   typedef int Int;
-   typedef unsigned int UInt;
-   class StaticString;
-   class Path;
-   class PathArgument;
-   class Value;
-   class ValueIteratorBase;
-   class ValueIterator;
-   class ValueConstIterator;
+    // value.h
+    typedef int Int;
+    typedef unsigned int UInt;
+    class StaticString;
+    class Path;
+    class PathArgument;
+    class Value;
+    class ValueIteratorBase;
+    class ValueIterator;
+    class ValueConstIterator;
 #ifdef JSON_VALUE_USE_INTERNAL_MAP
-   class ValueAllocator;
-   class ValueMapAllocator;
-   class ValueInternalLink;
-   class ValueInternalArray;
-   class ValueInternalMap;
-#endif // #ifdef JSON_VALUE_USE_INTERNAL_MAP
+    class ValueAllocator;
+    class ValueMapAllocator;
+    class ValueInternalLink;
+    class ValueInternalArray;
+    class ValueInternalMap;
+#endif  // #ifdef JSON_VALUE_USE_INTERNAL_MAP
 
-} // namespace Json
+  }  // namespace Json
+}  // namespace jsoncollector
 
-
-#endif // JSON_FORWARDS_H_INCLUDED
+#endif  // JSON_FORWARDS_H_INCLUDED

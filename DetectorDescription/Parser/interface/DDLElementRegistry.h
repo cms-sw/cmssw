@@ -1,8 +1,6 @@
 #ifndef DETECTOR_DESCRIPTION_PARSER_DDL_ELEMENT_REGISTRY_H
 #define DETECTOR_DESCRIPTION_PARSER_DDL_ELEMENT_REGISTRY_H
 
-#include "DetectorDescription/Core/interface/Singleton.h"
-#include "DetectorDescription/Core/interface/Singleton.icc"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 
 #include <CLHEP/Evaluator/Evaluator.h>
@@ -22,16 +20,14 @@ class DDXMLElement;
  *
  */
 
-class DDLElementRegistry
-{
-
- public:
-  typedef std::map <std::string, std::shared_ptr<DDXMLElement> > RegistryMap;
+class DDLElementRegistry {
+public:
+  typedef std::map<std::string, std::shared_ptr<DDXMLElement> > RegistryMap;
 
   DDLElementRegistry();
 
   ~DDLElementRegistry();
-  
+
   /// This allows other Elements to register themselves with the static registry
   void registerElement(const std::string& name, DDXMLElement*);
 
@@ -41,15 +37,13 @@ class DDLElementRegistry
    *  return a pointer if already registered or NULL, no instantiating.
    *
    */
-  std::shared_ptr<DDXMLElement> getElement(const std::string& name); 
+  std::shared_ptr<DDXMLElement> getElement(const std::string& name);
 
-  ClhepEvaluator &evaluator() { return DDI::Singleton<ClhepEvaluator>::instance(); }
+  ClhepEvaluator& evaluator() { return evaluator_; }
 
- private:
+private:
   RegistryMap registry_;
+  ClhepEvaluator evaluator_;
 };
-
-///This is only here because of the boost::spirit::parser stuff of DDLMap needing to be re-designed.
-typedef DDI::Singleton<DDLElementRegistry> DDLGlobalRegistry;
 
 #endif

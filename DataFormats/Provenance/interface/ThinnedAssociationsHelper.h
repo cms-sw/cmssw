@@ -18,11 +18,12 @@ namespace edm {
   class ThinnedAssociationBranches {
   public:
     ThinnedAssociationBranches();
-    ThinnedAssociationBranches(BranchID const&, BranchID const&, BranchID const&);
+    ThinnedAssociationBranches(BranchID const&, BranchID const&, BranchID const&, bool slimmed);
 
     BranchID const& parent() const { return parent_; }
     BranchID const& association() const { return association_; }
     BranchID const& thinned() const { return thinned_; }
+    bool isSlimmed() const { return slimmed_; }
 
     bool operator<(ThinnedAssociationBranches const& rhs) const { return parent_ < rhs.parent_; }
 
@@ -30,11 +31,11 @@ namespace edm {
     BranchID parent_;
     BranchID association_;
     BranchID thinned_;
+    bool slimmed_ = false;
   };
 
   class ThinnedAssociationsHelper {
   public:
-
     ThinnedAssociationsHelper();
 
     std::vector<ThinnedAssociationBranches>::const_iterator begin() const;
@@ -43,12 +44,11 @@ namespace edm {
     std::vector<ThinnedAssociationBranches>::const_iterator parentBegin(BranchID const&) const;
     std::vector<ThinnedAssociationBranches>::const_iterator parentEnd(BranchID const&) const;
 
-    void addAssociation(BranchID const&, BranchID const&, BranchID const&);
+    void addAssociation(BranchID const&, BranchID const&, BranchID const&, bool slimmed);
     void addAssociation(ThinnedAssociationBranches const&);
 
     std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > associationToBranches() const;
 
-    void sort();
     void clear() { vThinnedAssociationBranches_.clear(); }
 
     void selectAssociationProducts(std::vector<BranchDescription const*> const& associationDescriptions,
@@ -64,23 +64,26 @@ namespace edm {
     void updateFromSecondaryInput(ThinnedAssociationsHelper const&,
                                   std::vector<BranchID> const& associationsFromSecondary);
 
-    void updateFromParentProcess(ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
-                                 std::map<BranchID, bool> const& keepAssociation,
-                                 std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
+    void updateFromParentProcess(
+        ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
+        std::map<BranchID, bool> const& keepAssociation,
+        std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
 
-    void initAssociationsFromSecondary(std::vector<BranchID> const&,
-                                       ThinnedAssociationsHelper const&);
+    void initAssociationsFromSecondary(std::vector<BranchID> const&, ThinnedAssociationsHelper const&);
 
   private:
+    bool shouldKeepAssociation(
+        BranchID const& association,
+        std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > const& associationToBranches,
+        std::set<BranchID>& branchesInRecursion,
+        std::set<BranchID> const& keptProductsInEvent,
+        std::map<BranchID, bool>& keepAssociation) const;
+    std::vector<ThinnedAssociationBranches>::const_iterator lower_bound(
+        ThinnedAssociationBranches const& branches) const;
 
-    bool shouldKeepAssociation(BranchID const& association,
-                               std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > const& associationToBranches,
-                               std::set<BranchID>& branchesInRecursion,
-                               std::set<BranchID> const& keptProductsInEvent,
-                               std::map<BranchID, bool>& keepAssociation) const;
-
+    void ensureSlimmingConstraints() const;
 
     std::vector<ThinnedAssociationBranches> vThinnedAssociationBranches_;
   };
-}
+}  // namespace edm
 #endif

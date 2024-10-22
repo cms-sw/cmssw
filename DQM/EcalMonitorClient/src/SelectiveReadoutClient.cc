@@ -1,19 +1,13 @@
-#include "../interface/SelectiveReadoutClient.h"
+#include "DQM/EcalMonitorClient/interface/SelectiveReadoutClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include <cmath>
 
-namespace ecaldqm
-{
-  SelectiveReadoutClient::SelectiveReadoutClient() :
-    DQWorkerClient()
-  {
-  }
+namespace ecaldqm {
+  SelectiveReadoutClient::SelectiveReadoutClient() : DQWorkerClient() {}
 
-  void
-  SelectiveReadoutClient::producePlots(ProcessType)
-  {
+  void SelectiveReadoutClient::producePlots(ProcessType) {
     MESet& meFRDropped(MEs_.at("FRDropped"));
     MESet& meZSReadout(MEs_.at("ZSReadout"));
     MESet& meFR(MEs_.at("FR"));
@@ -34,22 +28,22 @@ namespace ecaldqm
     MESet const& sMedIntMap(sources_.at("MedIntMap"));
     MESet const& sLowIntMap(sources_.at("LowIntMap"));
 
-    MESet::const_iterator ruItr(sRUForcedMap);
-    MESet::const_iterator frItr(sFullReadoutMap);
-    MESet::const_iterator zs1Itr(sZS1Map);
-    MESet::const_iterator zsItr(sZSMap);
-    MESet::const_iterator zsfrItr(sZSFullReadoutMap);
-    MESet::const_iterator frdItr(sFRDroppedMap);
+    MESet::const_iterator ruItr(GetElectronicsMap(), sRUForcedMap);
+    MESet::const_iterator frItr(GetElectronicsMap(), sFullReadoutMap);
+    MESet::const_iterator zs1Itr(GetElectronicsMap(), sZS1Map);
+    MESet::const_iterator zsItr(GetElectronicsMap(), sZSMap);
+    MESet::const_iterator zsfrItr(GetElectronicsMap(), sZSFullReadoutMap);
+    MESet::const_iterator frdItr(GetElectronicsMap(), sFRDroppedMap);
 
-    MESet::iterator frdRateItr(meFRDropped);
-    MESet::iterator zsrRateItr(meZSReadout);
-    MESet::iterator frRateItr(meFR);
-    MESet::iterator ruRateItr(meRUForced);
-    MESet::iterator zs1RateItr(meZS1);
+    MESet::iterator frdRateItr(GetElectronicsMap(), meFRDropped);
+    MESet::iterator zsrRateItr(GetElectronicsMap(), meZSReadout);
+    MESet::iterator frRateItr(GetElectronicsMap(), meFR);
+    MESet::iterator ruRateItr(GetElectronicsMap(), meRUForced);
+    MESet::iterator zs1RateItr(GetElectronicsMap(), meZS1);
 
-    MESet::const_iterator cEnd(sFlagCounterMap.end());
-    for(MESet::const_iterator cItr(sFlagCounterMap.beginChannel()); cItr != cEnd; cItr.toNextChannel()){
-
+    MESet::const_iterator cEnd(sFlagCounterMap.end(GetElectronicsMap()));
+    for (MESet::const_iterator cItr(sFlagCounterMap.beginChannel(GetElectronicsMap())); cItr != cEnd;
+         cItr.toNextChannel(GetElectronicsMap())) {
       ruItr = cItr;
       frItr = cItr;
       zs1Itr = cItr;
@@ -67,34 +61,33 @@ namespace ecaldqm
       float nZS12Flags(zsItr->getBinContent());
       float nFullReadoutFlags(frItr->getBinContent());
 
-      if(nFlags > 0.){
+      if (nFlags > 0.) {
         frRateItr->setBinContent(nFullReadoutFlags / nFlags);
         zs1RateItr->setBinContent(zs1Itr->getBinContent() / nFlags);
         ruRateItr->setBinContent(ruItr->getBinContent() / nFlags);
       }
-      if(nZS12Flags > 0.)
+      if (nZS12Flags > 0.)
         zsrRateItr->setBinContent(zsfrItr->getBinContent() / nZS12Flags);
-      if(nFullReadoutFlags > 0.)
+      if (nFullReadoutFlags > 0.)
         frdRateItr->setBinContent(frdItr->getBinContent() / nFullReadoutFlags);
-
     }
 
     // iterator not supported for kTriggerTower binning yet
-    for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; ++iTT){
+    for (unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; ++iTT) {
       EcalTrigTowerDetId id(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
 
-      float nHigh(sHighIntMap.getBinContent(id));
-      float nMed(sMedIntMap.getBinContent(id));
-      float nLow(sLowIntMap.getBinContent(id));
+      float nHigh(sHighIntMap.getBinContent(getEcalDQMSetupObjects(), id));
+      float nMed(sMedIntMap.getBinContent(getEcalDQMSetupObjects(), id));
+      float nLow(sLowIntMap.getBinContent(getEcalDQMSetupObjects(), id));
       float total(nHigh + nMed + nLow);
 
-      if(total > 0.){
-        meHighInterest.setBinContent(id, nHigh / total);
-        meMedInterest.setBinContent(id, nMed / total);
-        meLowInterest.setBinContent(id, nLow / total);
+      if (total > 0.) {
+        meHighInterest.setBinContent(getEcalDQMSetupObjects(), id, nHigh / total);
+        meMedInterest.setBinContent(getEcalDQMSetupObjects(), id, nMed / total);
+        meLowInterest.setBinContent(getEcalDQMSetupObjects(), id, nLow / total);
       }
     }
   }
 
   DEFINE_ECALDQM_WORKER(SelectiveReadoutClient);
-}
+}  // namespace ecaldqm

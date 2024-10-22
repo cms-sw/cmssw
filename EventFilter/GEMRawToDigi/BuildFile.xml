@@ -1,0 +1,7 @@
+<use name="DataFormats/GEMDigi"/>
+<use name="rootrflx"/>
+<use name="boost"/>
+<use name="root"/>
+<export>
+  <lib name="1"/>
+</export>

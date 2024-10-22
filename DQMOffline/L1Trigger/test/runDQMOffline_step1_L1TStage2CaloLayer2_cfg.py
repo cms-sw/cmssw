@@ -1,7 +1,6 @@
 import os
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
-from Configuration.StandardSequences.Eras import eras
 
 
 def get_root_files(path):
@@ -36,7 +35,8 @@ inputFilesRAW = {
 }
 
 
-process = cms.Process('L1TStage2EmulatorDQM', eras.Run2_2016)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process('L1TStage2EmulatorDQM', Run2_2016)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -91,7 +91,7 @@ else:
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 
-process.load('DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi')
+process.load('DQMOffline.L1Trigger.L1TEtSumJetOffline_cfi')
 process.load('DQMOffline.L1Trigger.L1TEGammaOffline_cfi')
 process.load('DQMOffline.L1Trigger.L1TTauOffline_cfi')
 
@@ -101,16 +101,22 @@ if os.environ.get('DEBUG', False):
         '*',
     )
 
+# pfMETT1 from https://github.com/cms-sw/cmssw/blob/master/DQMOffline/JetMET/python/jetMETDQMOfflineSource_cff.py#L109,
+# is difficult to set up, let's use pfMet for testing
+process.l1tPFMetNoMuForDQM.pfMETCollection = 'pfMet'
+
 process.dqmoffline_step = cms.Path(
-    process.l1tStage2CaloLayer2OfflineDQMEmu +
-    process.l1tStage2CaloLayer2OfflineDQM +
+    process.goodPFJetsForL1T *
+    process.l1tPFMetNoMuForDQM *
+    process.l1tEtSumJetOfflineDQMEmu +
+    process.l1tEtSumJetOfflineDQM +
     process.l1tEGammaOfflineDQM +
     process.l1tEGammaOfflineDQMEmu +
     process.l1tTauOfflineDQM +
     process.l1tTauOfflineDQMEmu
 )
 if options.sample != 'TTJet':
-    process.dqmoffline_step.remove(process.l1tStage2CaloLayer2OfflineDQMEmu)
+    process.dqmoffline_step.remove(process.l1tEtSumJetOfflineDQMEmu)
     process.dqmoffline_step.remove(process.l1tEGammaOfflineDQMEmu)
     process.dqmoffline_step.remove(process.l1tTauOfflineDQMEmu)
 

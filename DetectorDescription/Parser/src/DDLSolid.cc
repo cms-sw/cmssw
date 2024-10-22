@@ -8,20 +8,15 @@
 
 class DDCompactView;
 
-DDLSolid::DDLSolid( DDLElementRegistry* myreg )
-  : DDXMLElement( myreg )
-{}
+DDLSolid::DDLSolid(DDLElementRegistry* myreg) : DDXMLElement(myreg) {}
 
-void
-DDLSolid::setReference( const std::string& nmspace, DDCompactView& cpv )
-{
+void DDLSolid::setReference(const std::string& nmspace, DDCompactView& cpv) {
   // in case it was a BooleanSolid or a ReflectionSolid, clear rSolid.
   auto myrSolid = myRegistry_->getElement("rSolid");
   myrSolid->clear();
 
   // Make sure Solid elements are in LogicalPart elements.
-  if (parent() == "LogicalPart")
-  {
+  if (parent() == "LogicalPart") {
     auto refsol = myRegistry_->getElement("rSolid");
     std::vector<std::string> names;
     std::vector<std::string> values;

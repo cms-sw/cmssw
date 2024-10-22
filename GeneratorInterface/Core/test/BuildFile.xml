@@ -1,0 +1,8 @@
+<environment>
+<library file="FailingGeneratorFilter.cc" name="FailingGeneratorFilter">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="GeneratorInterface/Core"/>
+</library>
+<test name="FailingGeneratorFilterTest" command="${LOCALTOP}/src/GeneratorInterface/Core/test/test_FailingGeneratorFilter.sh"/>
+</environment>

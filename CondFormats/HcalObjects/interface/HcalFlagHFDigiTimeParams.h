@@ -6,20 +6,16 @@
 #include "CondFormats/HcalObjects/interface/HcalFlagHFDigiTimeParam.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
-
-class HcalFlagHFDigiTimeParams: public HcalCondObjectContainer<HcalFlagHFDigiTimeParam>
-{
- public:
+class HcalFlagHFDigiTimeParams : public HcalCondObjectContainer<HcalFlagHFDigiTimeParam> {
+public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalFlagHFDigiTimeParams():HcalCondObjectContainer<HcalFlagHFDigiTimeParam>(nullptr) {}
+  HcalFlagHFDigiTimeParams() : HcalCondObjectContainer<HcalFlagHFDigiTimeParam>(nullptr) {}
 #endif
-  HcalFlagHFDigiTimeParams(const HcalTopology* ht):HcalCondObjectContainer<HcalFlagHFDigiTimeParam>(ht) {}
+  HcalFlagHFDigiTimeParams(const HcalTopology* ht) : HcalCondObjectContainer<HcalFlagHFDigiTimeParam>(ht) {}
 
-  std::string myname() const override {return (std::string)"HcalFlagHFDigiTimeParams";}
+  std::string myname() const override { return (std::string) "HcalFlagHFDigiTimeParams"; }
 
- private:
-
-
- COND_SERIALIZABLE;
+private:
+  COND_SERIALIZABLE;
 };
 #endif

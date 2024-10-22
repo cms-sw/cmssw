@@ -14,10 +14,10 @@ class IterativeHelixExtrapolatorToLine final : public HelixLineExtrapolation {
 public:
   /** Constructor using point, direction and (transverse!) curvature.
    */
-  IterativeHelixExtrapolatorToLine (const PositionType& point,
-				    const DirectionType& direction,
-				    const float curvature,
-				    const PropagationDirection propDir = anyDirection);
+  IterativeHelixExtrapolatorToLine(const PositionType& point,
+                                   const DirectionType& direction,
+                                   const float curvature,
+                                   const PropagationDirection propDir = anyDirection);
   // destructor
   ~IterativeHelixExtrapolatorToLine() override {}
 
@@ -25,39 +25,39 @@ public:
    *  along the helix from the starting point to the closest approach. 
    *  to the point. The starting point is given in the constructor.
    */
-  std::pair<bool,double> pathLength (const GlobalPoint& point) const override;
+  std::pair<bool, double> pathLength(const GlobalPoint& point) const override;
 
   /** Propagation status (true if valid) and (signed) path length 
    *  along the helix from the starting point to the closest approach
    *  to the line. The starting point is given in the constructor.
    */
-  std::pair<bool,double> pathLength (const Line& line) const override;
+  std::pair<bool, double> pathLength(const Line& line) const override;
 
   /** Position at pathlength s from the starting point.
    */
-  PositionType position (double s) const override;
+  PositionType position(double s) const override;
 
   /** Direction at pathlength s from the starting point.
    */
-  DirectionType direction (double s) const override;
+  DirectionType direction(double s) const override;
 
   /** Position at pathlength s from the starting point.
    */
-  PositionTypeDouble positionInDouble (double s) const;
+  PositionTypeDouble positionInDouble(double s) const;
 
   /** Direction at pathlength s from the starting point.
    */
-  DirectionTypeDouble directionInDouble (double s) const;
+  DirectionTypeDouble directionInDouble(double s) const;
 
 private:
   /// common functionality for extrapolation to line or point
-  template <class T> 
-  std::pair<bool,double> genericPathLength (const T& object) const dso_internal;
+  template <class T>
+  std::pair<bool, double> genericPathLength(const T& object) const dso_internal;
 
 private:
-  const double theX0,theY0,theZ0;
-  double theCosPhi0,theSinPhi0;
-  double theCosTheta,theSinTheta;
+  const double theX0, theY0, theZ0;
+  double theCosPhi0, theSinPhi0;
+  double theCosTheta, theSinTheta;
   const double theRho;
 
   HelixExtrapolatorToLine2Order theQuadraticSolutionFromStart;

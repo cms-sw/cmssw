@@ -22,22 +22,27 @@
 #include <exception>
 #include <memory>
 
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/task_group.h"
+
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
-
   class WaitingTask;
   class WaitingTaskHolder;
 
   class WaitingTaskWithArenaHolder {
   public:
-
     WaitingTaskWithArenaHolder();
 
     // Note that the arena will be the one containing the thread
     // that runs this constructor. This is the arena where you
     // eventually intend for the task to be spawned.
-    explicit WaitingTaskWithArenaHolder(WaitingTask* iTask);
+    explicit WaitingTaskWithArenaHolder(oneapi::tbb::task_group&, WaitingTask* iTask);
+
+    // Takes ownership of the underlying task and uses the current
+    // arena.
+    explicit WaitingTaskWithArenaHolder(WaitingTaskHolder&& iTask);
 
     ~WaitingTaskWithArenaHolder();
 
@@ -55,6 +60,12 @@ namespace edm {
     // the task. doneWaiting can be called from a non-TBB thread.
     void doneWaiting(std::exception_ptr iExcept);
 
+    // Use in the case where you need to inform the parent task of a
+    // failure before some other child task which may be run later
+    // reports a different, but related failure. You must later call
+    // doneWaiting in the same thread passing the same exception.
+    void presetTaskAsFailed(std::exception_ptr iExcept) noexcept;
+
     // This next function is useful if you know from the context that
     // m_arena (which is set when the constructor was executes) is the
     // same arena in which you want to execute the doneWaiting function.
@@ -68,11 +79,43 @@ namespace edm {
     // the problem quickly).
     WaitingTaskHolder makeWaitingTaskHolderAndRelease();
 
-  private:
+    bool taskHasFailed() const noexcept;
 
+    bool hasTask() const noexcept;
+
+    /** since oneapi::tbb::task_group is thread safe, we can return it non-const from here since
+        the object is not really part of the state of the holder
+     */
+    CMS_SA_ALLOW oneapi::tbb::task_group* group() const { return m_group; }
+
+  private:
     // ---------- member data --------------------------------
     WaitingTask* m_task;
-    std::shared_ptr<tbb::task_arena> m_arena;
+    oneapi::tbb::task_group* m_group;
+    std::shared_ptr<oneapi::tbb::task_arena> m_arena;
   };
-}
+
+  template <typename F>
+  auto make_lambda_with_holder(WaitingTaskWithArenaHolder h, F&& f) {
+    return [holder = std::move(h), func = std::forward<F>(f)]() mutable {
+      try {
+        func(holder);
+      } catch (...) {
+        holder.doneWaiting(std::current_exception());
+      }
+    };
+  }
+
+  template <typename F>
+  auto make_waiting_task_with_holder(WaitingTaskWithArenaHolder h, F&& f) {
+    return make_waiting_task(
+        [holder = h, func = make_lambda_with_holder(h, std::forward<F>(f))](std::exception_ptr const* excptr) mutable {
+          if (excptr) {
+            holder.doneWaiting(*excptr);
+            return;
+          }
+          func();
+        });
+  }
+}  // namespace edm
 #endif

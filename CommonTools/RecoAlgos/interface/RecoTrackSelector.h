@@ -7,36 +7,34 @@
  */
 #include "CommonTools/RecoAlgos/interface/RecoTrackSelectorBase.h"
 
-class RecoTrackSelector: public RecoTrackSelectorBase {
- public:
+class RecoTrackSelector : public RecoTrackSelectorBase {
+public:
   typedef reco::TrackRef reference_type;
   typedef reco::TrackCollection collection;
-  typedef std::vector<const reco::Track *> container;
+  typedef std::vector<const reco::Track*> container;
   typedef container::const_iterator const_iterator;
 
   /// Constructors
   RecoTrackSelector() {}
-  RecoTrackSelector ( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
-    RecoTrackSelectorBase( cfg, iC ) {}
+  RecoTrackSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) : RecoTrackSelectorBase(cfg, iC) {}
 
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
 
-  void select( const edm::Handle<collection>& c, const edm::Event & event, const edm::EventSetup&es) {
-    init(event,es);
+  void select(const edm::Handle<collection>& c, const edm::Event& event, const edm::EventSetup& es) {
+    init(event, es);
     selected_.clear();
-    for( reco::TrackCollection::const_iterator trk = c->begin();
-         trk != c->end(); ++ trk ) {
-      reference_type tkref(c,std::distance(c->begin(),trk));
-      if ( operator()(*tkref) ) {
-	selected_.push_back( & * trk );
+    for (reco::TrackCollection::const_iterator trk = c->begin(); trk != c->end(); ++trk) {
+      reference_type tkref(c, std::distance(c->begin(), trk));
+      if (operator()(*tkref)) {
+        selected_.push_back(&*trk);
       }
     }
   }
 
   size_t size() const { return selected_.size(); }
 
- private:
+private:
   container selected_;
 };
 

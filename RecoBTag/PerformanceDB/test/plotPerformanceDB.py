@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #
 #
 # Francisco Yumiceva
@@ -8,11 +8,13 @@
 #
 #____________________________________________________________
 
+from __future__ import print_function
+from builtins import range
 import sys
 import math
-import commands
+import subprocess
 from array import array
-from ROOT import *
+from ROOT import TCanvas, TFile, TGraphErrors
 
 def main():
 
@@ -55,7 +57,7 @@ def main():
     MCefferrarray_alleta = array('d')
         
 
-    for ipt in xrange(0,ptNbins):
+    for ipt in range(0,ptNbins):
         SF_alleta = 0.
         SFerr_alleta = 0.
         Eff_alleta = 0.
@@ -67,21 +69,21 @@ def main():
         ptarray.append( apt )
         pterrarray.append( ptbinwidth*0.5 )
                     
-        for ieta in xrange(0,etaNbins):
+        for ieta in range(0,etaNbins):
 
             aeta = etamin = ieta*etabinwidth
 
-            print "pt = "+str(apt) + " eta = "+str(aeta)
+            print("pt = "+str(apt) + " eta = "+str(aeta))
             tmpjetpt = jetpt+str(apt)
             tmpjeteta = jeteta+str(aeta)
     
             allcmd = executable+ sp +rootFile+ sp +payload+ sp +flavor+ sp +typeSF+ sp +tmpjetpt+ sp +tmpjeteta
-            print allcmd
-            output = commands.getstatusoutput(allcmd)
-            print output[1]
+            print(allcmd)
+            output = subprocess.getstatusoutput(allcmd)
+            print(output[1])
             
             if output[0]!=0:
-                print " Error retrieving data from file DB."
+                print(" Error retrieving data from file DB.")
 
             aSF = float( output[1].split()[2] )
             aSFerr = float( output[1].split()[4] )
@@ -91,11 +93,11 @@ def main():
             
             allcmd = executable+ sp +rootFile+ sp +payload+ sp +flavor+ sp +typeEff+ sp +tmpjetpt+ sp +tmpjeteta
             #print allcmd
-            output = commands.getstatusoutput(allcmd)
+            output = subprocess.getstatusoutput(allcmd)
             #print output[1]
             
             if output[0]!=0:
-                print " Error retrieving data from file DB."
+                print(" Error retrieving data from file DB.")
                 
             aEff = float( output[1].split()[2] )
             aEfferr = float( output[1].split()[4] )

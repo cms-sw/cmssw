@@ -11,12 +11,19 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    u10_warnings = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
-        noTimeStamps = cms.untracked.bool(True)
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    destinations = cms.untracked.vstring('u10_warnings'),
-    fwkJobReports = cms.untracked.vstring('u10_job_report')
+    files = cms.untracked.PSet(
+        u10_warnings = cms.untracked.PSet(
+            threshold = cms.untracked.string('WARNING'),
+            noTimeStamps = cms.untracked.bool(True)
+        )
+    )
+)
+
+process.CPU = cms.Service("CPU",
+    disableJobReportOutput = cms.untracked.bool(True)
 )
 
 process.maxEvents = cms.untracked.PSet(

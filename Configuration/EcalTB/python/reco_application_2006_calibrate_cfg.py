@@ -14,12 +14,12 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/u1/meridian/data/h4/2006/h4b.00013247.A.0.0.root')
 )
 
-process.ecal2006TBRecHit = cms.EDProducer("EcalRecHitProducer",
+process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
+process.ecal2006TBRecHit = process.ecalRecHit.clone(
     EEuncalibRecHitCollection = cms.string(''),
     uncalibRecHitProducer = cms.string('ecal2006TBWeightUncalibRecHit'),
     EBuncalibRecHitCollection = cms.string('EcalUncalibRecHitsEB'),
-    EBrechitCollection = cms.string('EcalRecHitsEB'),
-    EErechitCollection = cms.string('')
+    EErechitCollection = ''
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

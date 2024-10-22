@@ -5,7 +5,7 @@
 /**
  *   Description:  Create GMT HW test patterns
 */
-//                
+//
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -24,7 +24,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,36 +47,28 @@ class L1MuGMTExtendedCand;
 //              -- Class Interface --
 //              ---------------------
 
+class L1MuGMTPattern : public edm::one::EDAnalyzer<> {
+public:
+  // constructor
+  explicit L1MuGMTPattern(const edm::ParameterSet&);
+  ~L1MuGMTPattern() override;
 
-class L1MuGMTPattern : public edm::EDAnalyzer {
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void printRegional(std::string tag, const std::vector<L1MuRegionalCand>& rmc);
+  void printGMT(std::string tag, const std::vector<L1MuGMTExtendedCand>& exc);
+  void printMipIso(L1CaloRegionCollection const* regions);
+  void printMI(const std::vector<unsigned>* mi);
+  void printCANC();
+  unsigned invertQPt(unsigned);
 
- 
-  public:
+  void beginJob() override;
+  void endJob() override;
 
-    // constructor
-    explicit L1MuGMTPattern(const edm::ParameterSet&);
-    virtual ~L1MuGMTPattern();
-
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    void printRegional(std::string tag, const std::vector<L1MuRegionalCand>& rmc);
-    void printGMT(std::string tag, const std::vector<L1MuGMTExtendedCand>& exc);
-    void printMipIso(L1CaloRegionCollection const* regions);
-    void printMI(const std::vector<unsigned>* mi);
-    void printCANC();
-    unsigned invertQPt(unsigned);
-
-    virtual void beginJob();
-    virtual void endJob();
-
-  private:
-
-
-    edm::InputTag m_inputTag;
-    edm::InputTag m_inputCaloTag;
-    std::string m_outfilename;
-    int m_outputType;
-      
+private:
+  edm::InputTag m_inputTag;
+  edm::InputTag m_inputCaloTag;
+  std::string m_outfilename;
+  int m_outputType;
 };
-
 
 #endif

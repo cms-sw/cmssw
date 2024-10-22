@@ -1,7 +1,6 @@
-<library   file="XrdStorageMaker.cc" name="UtilitiesXrdAdaptorPlugin">
-  <use   name="Utilities/StorageFactory"/>
-  <use   name="Utilities/XrdAdaptor"/>
-  <lib   name="XrdCl"/>
-  <flags   EDM_PLUGIN="1"/>
-  <flags   CXXFLAGS="-D_FILE_OFFSET_BITS=64"/>
+<library file="XrdStorageMaker.cc" name="UtilitiesXrdAdaptorPlugin">
+  <use name="Utilities/StorageFactory"/>
+  <use name="Utilities/XrdAdaptor"/>
+  <flags EDM_PLUGIN="1"/>
+  <flags CXXFLAGS="-D_FILE_OFFSET_BITS=64"/>
 </library>

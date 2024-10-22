@@ -26,10 +26,9 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
- typedef SingleObjectSelector<
-           reco::SuperClusterCollection, 
-           StringCutObjectSelector<reco::SuperCluster>,
-           reco::SuperClusterRefVector
-         > SuperClusterRefSelector;
+typedef SingleObjectSelector<reco::SuperClusterCollection,
+                             StringCutObjectSelector<reco::SuperCluster>,
+                             reco::SuperClusterRefVector>
+    SuperClusterRefSelector;
 
-DEFINE_FWK_MODULE( SuperClusterRefSelector );
+DEFINE_FWK_MODULE(SuperClusterRefSelector);

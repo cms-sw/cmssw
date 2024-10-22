@@ -7,22 +7,22 @@
 #include <vector>
 
 namespace pat {
-  typedef edm::AssociationVector<pat::TauRefProd,std::vector<float> > PATTauDiscriminatorBase;
+  typedef edm::AssociationVector<pat::TauRefProd, std::vector<float> > PATTauDiscriminatorBase;
 
   class PATTauDiscriminator : public PATTauDiscriminatorBase {
   public:
     /// empty constructor
-    PATTauDiscriminator(); // : PATTauDiscriminatorBase() {}
+    PATTauDiscriminator();  // : PATTauDiscriminatorBase() {}
     /// constructor from reference to pat::Tau
-    PATTauDiscriminator(const pat::TauRefProd & ref) : PATTauDiscriminatorBase(ref) {}
-    /// constructor from base object   
+    PATTauDiscriminator(const pat::TauRefProd &ref) : PATTauDiscriminatorBase(ref) {}
+    /// constructor from base object
     PATTauDiscriminator(const PATTauDiscriminatorBase &v) : PATTauDiscriminatorBase(v) {}
   };
 
-  typedef pat::PATTauDiscriminator::value_type PATTauDiscriminatorVT;  
-  typedef edm::Ref<pat::PATTauDiscriminator> PATTauDiscriminatorRef;  
-  typedef edm::RefProd<pat::PATTauDiscriminator> PATTauDiscriminatorRefProd;  
-  typedef edm::RefVector<pat::PATTauDiscriminator> PATTauDiscriminatorRefVector; 
-}
+  typedef pat::PATTauDiscriminator::value_type PATTauDiscriminatorVT;
+  typedef edm::Ref<pat::PATTauDiscriminator> PATTauDiscriminatorRef;
+  typedef edm::RefProd<pat::PATTauDiscriminator> PATTauDiscriminatorRefProd;
+  typedef edm::RefVector<pat::PATTauDiscriminator> PATTauDiscriminatorRefVector;
+}  // namespace pat
 
 #endif

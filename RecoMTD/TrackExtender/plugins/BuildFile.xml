@@ -1,0 +1,13 @@
+<use name="RecoMTD/DetLayers"/>
+<use name="RecoMTD/Records"/>
+<use name="FWCore/Framework"/>
+<library file="TrackExtenderWithMTD.cc" name="RecoMTDTrackExtenderPlugins">
+  <use name="clhep"/>
+  <use name="TrackingTools/TrackRefitter"/>
+  <use name="TrackingTools/Records"/>
+  <use name="TrackingTools/TransientTrack"/>
+  <use name="TrackingTools/KalmanUpdators"/>
+  <use name="MagneticField/Records"/>
+  <use name="MagneticField/Engine"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

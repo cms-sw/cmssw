@@ -1,0 +1,17 @@
+<library name="L1TriggerDTTrigPhase2Plugins" file="*.cc">
+ <use name="CalibMuon/DTDigiSync"/>
+ <use name="DQM/DTMonitorModule"/>
+ <use name="DataFormats/Common"/>
+ <use name="DataFormats/DTDigi"/>
+ <use name="DataFormats/L1DTTrackFinder"/>
+ <use name="DataFormats/MuonDetId"/>
+ <use name="DataFormats/RPCRecHit"/>
+ <use name="FWCore/Framework"/>
+ <use name="FWCore/ParameterSet"/>
+ <use name="FWCore/Utilities"/>
+ <use name="Geometry/DTGeometry"/>
+ <use name="Geometry/RPCGeometry"/>
+ <use name="Geometry/Records"/>
+ <use name="L1Trigger/DTTriggerPhase2"/>
+ <flags EDM_PLUGIN="1"/>
+</library>

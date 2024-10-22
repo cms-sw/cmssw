@@ -27,16 +27,9 @@ To check validity, one can use the isValid() function.
 namespace edm {
   class OrphanHandleBase {
   public:
-    OrphanHandleBase() :
-      product_(), id_(ProductID()) {
-    }
+    OrphanHandleBase() : product_(), id_(ProductID()) {}
 
-    OrphanHandleBase(void const* iProd, ProductID const& iId) :
-      product_(iProd), id_(iId) {
-      assert(iProd);
-    }
-
-    ~OrphanHandleBase() {}
+    OrphanHandleBase(void const* iProd, ProductID const& iId) : product_(iProd), id_(iId) { assert(iProd); }
 
     void clear() {
       product_ = nullptr;
@@ -48,16 +41,8 @@ namespace edm {
       swap(product_, other.product_);
       std::swap(id_, other.id_);
     }
-    
-    OrphanHandleBase& operator=(OrphanHandleBase const& rhs) {
-      OrphanHandleBase temp(rhs);
-      this->swap(temp);
-      return *this;
-    }
 
-    bool isValid() const {
-      return product_ && id_ != ProductID();
-    }
+    bool isValid() const { return product_ && id_ != ProductID(); }
 
     ProductID id() const;
 
@@ -70,11 +55,7 @@ namespace edm {
   };
 
   // Free swap function
-  inline
-  void
-  swap(OrphanHandleBase& a, OrphanHandleBase& b) {
-    a.swap(b);
-  }
-}
+  inline void swap(OrphanHandleBase& a, OrphanHandleBase& b) { a.swap(b); }
+}  // namespace edm
 
 #endif

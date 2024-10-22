@@ -9,6 +9,6 @@
 
 using dtCalibration::DTTTrigBaseCorrection;
 
-DTTTrigBaseCorrection::DTTTrigBaseCorrection(){}
+DTTTrigBaseCorrection::DTTTrigBaseCorrection() {}
 
-DTTTrigBaseCorrection::~DTTTrigBaseCorrection(){}
+DTTTrigBaseCorrection::~DTTTrigBaseCorrection() {}

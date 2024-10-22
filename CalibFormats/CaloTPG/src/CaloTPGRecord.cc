@@ -2,11 +2,11 @@
 //
 // Package:     CaloTPG
 // Class  :     CaloTPGRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Wed Sep 13 19:20:14 CDT 2006
 // $Id$
 

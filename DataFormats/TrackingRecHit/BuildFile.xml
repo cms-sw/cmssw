@@ -1,10 +1,14 @@
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/CLHEP"/>
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="FWCore/Utilities"/>
-<use   name="clhep"/>
-
+<flags CXXFLAGS="-Wno-error=array-bounds" />
+<use name="DataFormats/Common"/>
+<use name="DataFormats/CLHEP"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/Math"/>
+<use name="clhep"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

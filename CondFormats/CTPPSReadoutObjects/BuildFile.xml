@@ -1,9 +1,0 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/Concurrency"/>
-<use name="DataFormats/CTPPSDetId"/>
-
-<use name="CondFormats/Serialization"/>
-<use name="boost_serialization"/>
-<export>
-	<lib name="1"/>
-</export>

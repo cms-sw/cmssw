@@ -17,7 +17,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -28,7 +27,7 @@
 #include <climits>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -58,24 +57,24 @@
 // class decleration
 //
 
-class MultiplicityTimeCorrelations : public edm::EDAnalyzer {
-   public:
-      explicit MultiplicityTimeCorrelations(const edm::ParameterSet&);
-      ~MultiplicityTimeCorrelations() override;
-
+class MultiplicityTimeCorrelations : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
+public:
+  explicit MultiplicityTimeCorrelations(const edm::ParameterSet&);
+  ~MultiplicityTimeCorrelations() override;
 
 private:
-  void beginJob() override ;
+  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
+  void endJob() override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   DigiBXCorrHistogramMaker<EventWithHistory> _digibxcorrhmevent;
   EventWithHistoryFilter _evfilter;
 
-  std::map<int,std::map<unsigned int,TH1F*> > _dbxhistos;
+  std::map<int, std::map<unsigned int, TH1F*> > _dbxhistos;
   /*
   std::map<int,TH1F*> _dbxtkhistos;
   std::map<int,TH1F*> _dbxtibhistos;
@@ -100,7 +99,6 @@ private:
   SiStripTKNumbers _trnumb;
 
   std::vector<int> _dbxbins;
-
 };
 
 //
@@ -114,39 +112,41 @@ private:
 //
 // constructors and destructor
 //
-MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterSet& iConfig):
-  _digibxcorrhmevent(iConfig, consumesCollector()),
-  _evfilter(),
-  _hecollection(iConfig.getParameter<edm::InputTag>("historyProduct")),
-  _hecollectionToken(consumes<EventWithHistory>(_hecollection)),
-  _apvphasecollToken(consumes<APVCyclePhaseCollection>(iConfig.getParameter<edm::InputTag>("apvPhaseCollection"))),
-  _multiplicityMapToken(mayConsume<std::map<unsigned int, int> >(iConfig.getParameter<edm::InputTag>("multiplicityMap"))),
-  _subdets(),
-  _binmax(),
-  _loworbit(iConfig.getUntrackedParameter<int>("lowedgeOrbit")),
-  _highorbit(iConfig.getUntrackedParameter<int>("highedgeOrbit")),
-  _mindbx(iConfig.getUntrackedParameter<int>("minDBX")),
-  _mintrpltdbx(iConfig.getUntrackedParameter<int>("minTripletDBX")),
-  _trnumb(),
-  _dbxbins(iConfig.getUntrackedParameter<std::vector<int> >("dbxBins"))
-{
-   //now do what ever initialization is needed
+MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterSet& iConfig)
+    : _digibxcorrhmevent(iConfig, consumesCollector()),
+      _evfilter(),
+      _hecollection(iConfig.getParameter<edm::InputTag>("historyProduct")),
+      _hecollectionToken(consumes<EventWithHistory>(_hecollection)),
+      _apvphasecollToken(consumes<APVCyclePhaseCollection>(iConfig.getParameter<edm::InputTag>("apvPhaseCollection"))),
+      _multiplicityMapToken(
+          mayConsume<std::map<unsigned int, int> >(iConfig.getParameter<edm::InputTag>("multiplicityMap"))),
+      _subdets(),
+      _binmax(),
+      _loworbit(iConfig.getUntrackedParameter<int>("lowedgeOrbit")),
+      _highorbit(iConfig.getUntrackedParameter<int>("highedgeOrbit")),
+      _mindbx(iConfig.getUntrackedParameter<int>("minDBX")),
+      _mintrpltdbx(iConfig.getUntrackedParameter<int>("minTripletDBX")),
+      _trnumb(),
+      _dbxbins(iConfig.getUntrackedParameter<std::vector<int> >("dbxBins")) {
+  //now do what ever initialization is needed
+
+  usesResource(TFileService::kSharedResource);
 
   // configure the filter
 
   edm::ParameterSet filterConfig;
-  filterConfig.addUntrackedParameter<edm::InputTag>("historyProduct",_hecollection);
-  if(_mindbx>0) {
+  filterConfig.addUntrackedParameter<edm::InputTag>("historyProduct", _hecollection);
+  if (_mindbx > 0) {
     std::vector<int> dbxrange;
-    dbxrange.push_back(_mindbx+1);
+    dbxrange.push_back(_mindbx + 1);
     dbxrange.push_back(-1);
-    filterConfig.addUntrackedParameter<std::vector<int> >("dbxRange",dbxrange);
+    filterConfig.addUntrackedParameter<std::vector<int> >("dbxRange", dbxrange);
   }
-  if(_mintrpltdbx>0) {
+  if (_mintrpltdbx > 0) {
     std::vector<int> dbxtrpltrange;
-    dbxtrpltrange.push_back(_mintrpltdbx+1);
+    dbxtrpltrange.push_back(_mintrpltdbx + 1);
     dbxtrpltrange.push_back(-1);
-    filterConfig.addUntrackedParameter<std::vector<int> >("dbxTripletRange",dbxtrpltrange);
+    filterConfig.addUntrackedParameter<std::vector<int> >("dbxTripletRange", dbxtrpltrange);
   }
 
   _evfilter.set(filterConfig, consumesCollector());
@@ -157,44 +157,45 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
 
   // create map of labels
 
-  std::vector<edm::ParameterSet> wantedsubds(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("wantedSubDets"));
+  std::vector<edm::ParameterSet> wantedsubds(
+      iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("wantedSubDets"));
 
-  for(std::vector<edm::ParameterSet>::iterator ps=wantedsubds.begin();ps!=wantedsubds.end();++ps) {
+  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
     _subdets[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
     _binmax[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int>("binMax");
   }
-  std::map<int,std::string> labels;
+  std::map<int, std::string> labels;
 
-  for(std::map<unsigned int,std::string>::const_iterator subd=_subdets.begin();subd!=_subdets.end();++subd) {
+  for (std::map<unsigned int, std::string>::const_iterator subd = _subdets.begin(); subd != _subdets.end(); ++subd) {
     labels[int(subd->first)] = subd->second;
   }
 
   //
 
-  _digibxcorrhmevent.book("EventProcs",labels);
+  _digibxcorrhmevent.book("EventProcs", labels);
 
   TFileDirectory subdbxbin = tfserv->mkdir("DBXDebugging");
 
-  for(std::vector<int>::const_iterator bin=_dbxbins.begin();bin!=_dbxbins.end();bin++) {
-    char hname[200]; char htitle[200];
+  for (std::vector<int>::const_iterator bin = _dbxbins.begin(); bin != _dbxbins.end(); bin++) {
+    char hname[200];
+    char htitle[200];
 
     edm::LogInfo("DBXHistosBinMaxValue") << "Setting bin max values";
 
-    for(std::map<unsigned int, std::string>::const_iterator subd=_subdets.begin();subd!=_subdets.end();++subd) {
-      if(_binmax.find(subd->first)==_binmax.end()) {
-	edm::LogVerbatim("DBXHistosNotConfiguredBinMax") << "Bin max for " << subd->second
-						     << " not configured: " << _trnumb.nstrips(int(subd->first)) << " used";
-	_binmax[subd->first] = _trnumb.nstrips(int(subd->first));
+    for (std::map<unsigned int, std::string>::const_iterator subd = _subdets.begin(); subd != _subdets.end(); ++subd) {
+      if (_binmax.find(subd->first) == _binmax.end()) {
+        edm::LogVerbatim("DBXHistosNotConfiguredBinMax")
+            << "Bin max for " << subd->second << " not configured: " << _trnumb.nstrips(int(subd->first)) << " used";
+        _binmax[subd->first] = _trnumb.nstrips(int(subd->first));
       }
 
       edm::LogVerbatim("DBXHistosBinMaxValue") << "Bin max for " << subd->second << " is " << _binmax[subd->first];
 
-
-
-      sprintf(hname,"sumn%sdigi_%d",subd->second.c_str(),*bin);
-      sprintf(htitle,"%s digi multiplicity at DBX = %d",subd->second.c_str(),*bin);
+      sprintf(hname, "sumn%sdigi_%d", subd->second.c_str(), *bin);
+      sprintf(htitle, "%s digi multiplicity at DBX = %d", subd->second.c_str(), *bin);
       LogDebug("DBXDebug") << "creating histogram " << hname << " " << htitle;
-      _dbxhistos[*bin][subd->first]= subdbxbin.make<TH1F>(hname,htitle,1000,0.,_binmax[subd->first]/(20*1000)*1000);
+      _dbxhistos[*bin][subd->first] =
+          subdbxbin.make<TH1F>(hname, htitle, 1000, 0., _binmax[subd->first] / (20 * 1000) * 1000);
       _dbxhistos[*bin][subd->first]->GetXaxis()->SetTitle("Number of Digis");
     }
     /*
@@ -229,47 +230,35 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
     _dbxtechistos[*bin]->GetXaxis()->SetTitle("Number of Digis");
     */
   }
-
 }
 
-
-MultiplicityTimeCorrelations::~MultiplicityTimeCorrelations()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+MultiplicityTimeCorrelations::~MultiplicityTimeCorrelations() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void
-MultiplicityTimeCorrelations::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void MultiplicityTimeCorrelations::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   // get Phase
 
   Handle<APVCyclePhaseCollection> apvphase;
-  iEvent.getByToken(_apvphasecollToken,apvphase);
+  iEvent.getByToken(_apvphasecollToken, apvphase);
 
   // get HE
 
   Handle<EventWithHistory> he;
-  iEvent.getByToken(_hecollectionToken,he);
+  iEvent.getByToken(_hecollectionToken, he);
 
   // check if the event is selected
 
-  if((_loworbit < 0 || iEvent.orbitNumber() >= _loworbit) &&
-     (_highorbit < 0 || iEvent.orbitNumber() <= _highorbit)) {
-
-    if(_evfilter.selected(iEvent,iSetup)) {
-
-
+  if ((_loworbit < 0 || iEvent.orbitNumber() >= _loworbit) && (_highorbit < 0 || iEvent.orbitNumber() <= _highorbit)) {
+    if (_evfilter.selected(iEvent, iSetup)) {
       //Compute digi multiplicity
       /*
       int ntkdigi=0;
@@ -279,34 +268,34 @@ MultiplicityTimeCorrelations::analyze(const edm::Event& iEvent, const edm::Event
       int ntecdigi=0;
       */
       Handle<std::map<unsigned int, int> > mults;
-      iEvent.getByToken(_multiplicityMapToken,mults);
+      iEvent.getByToken(_multiplicityMapToken, mults);
 
       // create map of digi multiplicity
 
-      std::map<int,int> digimap;
-      for(std::map<unsigned int, int>::const_iterator mult=mults->begin();mult!=mults->end();++mult) {
-	if(_subdets.find(mult->first)!=_subdets.end()) digimap[int(mult->first)] = mult->second;
+      std::map<int, int> digimap;
+      for (std::map<unsigned int, int>::const_iterator mult = mults->begin(); mult != mults->end(); ++mult) {
+        if (_subdets.find(mult->first) != _subdets.end())
+          digimap[int(mult->first)] = mult->second;
       }
 
-      _digibxcorrhmevent.fill(*he,digimap,apvphase);
+      _digibxcorrhmevent.fill(*he, digimap, apvphase);
 
       // fill debug histos
 
-      if(he->depth()!=0) {
+      if (he->depth() != 0) {
+        long long dbx = he->deltaBX();
 
-	long long dbx = he->deltaBX();
-
-	if(_dbxhistos.find(dbx)!=_dbxhistos.end()) {
-	  for(std::map<unsigned int,int>::const_iterator ndigi=mults->begin();ndigi!=mults->end();++ndigi) {
-	  _dbxhistos[dbx][ndigi->first]->Fill(ndigi->second);
-	  }
-	}
-	if(_dbxhistos.find(-1)!=_dbxhistos.end()) {
-	  for(std::map<unsigned int,int>::const_iterator ndigi=mults->begin();ndigi!=mults->end();++ndigi) {
-	  _dbxhistos[-1][ndigi->first]->Fill(ndigi->second);
-	  }
-	}
-	/*
+        if (_dbxhistos.find(dbx) != _dbxhistos.end()) {
+          for (std::map<unsigned int, int>::const_iterator ndigi = mults->begin(); ndigi != mults->end(); ++ndigi) {
+            _dbxhistos[dbx][ndigi->first]->Fill(ndigi->second);
+          }
+        }
+        if (_dbxhistos.find(-1) != _dbxhistos.end()) {
+          for (std::map<unsigned int, int>::const_iterator ndigi = mults->begin(); ndigi != mults->end(); ++ndigi) {
+            _dbxhistos[-1][ndigi->first]->Fill(ndigi->second);
+          }
+        }
+        /*
 	if(_dbxtkhistos.find(dbx)!=_dbxtkhistos.end()) {
 	  _dbxtkhistos[dbx]->Fill(ntkdigi);
 	}
@@ -345,12 +334,8 @@ MultiplicityTimeCorrelations::analyze(const edm::Event& iEvent, const edm::Event
   }
 }
 
-
 // ------------ method called once each job just before starting event loop  ------------
-void
-MultiplicityTimeCorrelations::beginJob()
-{
-
+void MultiplicityTimeCorrelations::beginJob() {
   LogDebug("IntegerDebug") << " int max and min " << INT_MIN << " " << INT_MAX;
   LogDebug("IntegerDebug") << " uint max and min " << UINT_MAX;
   LogDebug("IntegerDebug") << " long max and min " << LONG_MIN << " " << LONG_MAX;
@@ -358,20 +343,14 @@ MultiplicityTimeCorrelations::beginJob()
   LogDebug("IntegerDebug") << " long long max and min " << LLONG_MIN << " " << LLONG_MAX;
   LogDebug("IntegerDebug") << " u long long max and min " << ULLONG_MAX;
 
-
-  edm::LogInfo("MultiplicityTimeCorrelations") << " Correlation studies performed only in the orbit # range " << _loworbit << " " << _highorbit ;
-
+  edm::LogInfo("MultiplicityTimeCorrelations")
+      << " Correlation studies performed only in the orbit # range " << _loworbit << " " << _highorbit;
 }
 
-void
-MultiplicityTimeCorrelations::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-
+void MultiplicityTimeCorrelations::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   _digibxcorrhmevent.beginRun(iRun.run());
-
 }
 // ------------ method called once each job just after ending the event loop  ------------
-void
-MultiplicityTimeCorrelations::endJob() {
-}
+void MultiplicityTimeCorrelations::endJob() {}
 //define this as a plug-in
 DEFINE_FWK_MODULE(MultiplicityTimeCorrelations);

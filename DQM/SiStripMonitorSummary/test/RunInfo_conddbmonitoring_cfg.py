@@ -126,7 +126,6 @@ process.poolDBESSourceFedCabling = cms.ESSource("PoolDBESSource",
 )
 
 process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(1)
 )
 
@@ -235,9 +234,7 @@ process.SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
 
 process.sistripconn = cms.ESProducer("SiStripConnectivity")
 
-process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
-    TkMapFileName = cms.untracked.string(''),
-    dataLabel = cms.untracked.string('')
-)
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+process.stat = siStripQualityStatistics.clone()
 
 process.e = cms.EndPath(process.stat)

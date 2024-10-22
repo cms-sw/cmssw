@@ -69,7 +69,7 @@ JET_CUTS = "abs(eta)<2.6 && chargedHadronEnergyFraction>0 && electronEnergyFract
 ##
 process = cms.Process("TagProbe")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.GlobalTag.globaltag = GLOBAL_TAG
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -389,8 +389,6 @@ process.PassingHLT = cms.EDProducer("trgMatchedGsfElectronProducer",
 ##   |_____/_/\_\\__\___|_|  |_| |_|\__,_|_|    \_/ \__,_|_|  |___/
 ##   
 ## Here we show how to use a module to compute an external variable
-## process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
-## ak5PFResidual.useCondDB = False
 
 process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestJetComputer",
     probes = cms.InputTag("goodSuperClusters"),
@@ -926,7 +924,6 @@ TagVariablesToStore = cms.PSet(
 
 CommonStuffForGsfElectronProbe = cms.PSet(
     variables = cms.PSet(ProbeVariablesToStore),
-    ignoreExceptions =  cms.bool (False),
     addRunLumiInfo   =  cms.bool (True),
     addEventVariablesInfo   =  cms.bool (True),
     pairVariables =  cms.PSet(ZVariablesToStore),
@@ -1249,7 +1246,6 @@ process.WP95ToHLT = cms.EDAnalyzer("TagProbeFitTreeProducer",
       probe_gsfEle_isEE           = cms.string("isEE"),
       probe_gsfEle_isGap          = cms.string("isGap"),
     ),
-    ignoreExceptions =  cms.bool (False),
     addRunLumiInfo   =  cms.bool (False),
     addEventVariablesInfo   =  cms.bool (False),                                                        
     tagProbePairs = cms.InputTag("tagWP95"),

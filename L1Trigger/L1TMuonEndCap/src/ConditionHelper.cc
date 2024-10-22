@@ -1,5 +1,8 @@
 #include "L1Trigger/L1TMuonEndCap/interface/ConditionHelper.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
 
@@ -8,24 +11,19 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
+ConditionHelper::ConditionHelper(edm::ConsumesCollector iC)
+    : params_cache_id_(0ULL), forest_cache_id_(0ULL), paramsToken_(iC.esConsumes()), forestToken_(iC.esConsumes()) {}
 
-ConditionHelper::ConditionHelper():
-  params_cache_id_(0ULL), forest_cache_id_(0ULL) {
-}
+ConditionHelper::~ConditionHelper() {}
 
-ConditionHelper::~ConditionHelper() {
-}
-
-bool ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+void ConditionHelper::checkAndUpdateConditions(const edm::EventSetup& iSetup) {
   bool new_params = false;
   bool new_forests = false;
 
   // Pull configuration from the EventSetup
-  auto& params_setup = iSetup.get<L1TMuonEndCapParamsRcd>();
+  auto params_setup = iSetup.get<L1TMuonEndCapParamsRcd>();
   if (params_setup.cacheIdentifier() != params_cache_id_) {
-    params_setup.get(params_);
+    params_ = params_setup.getHandle(paramsToken_);
 
     // with the magic above you can use params_->fwVersion to change emulator's behavior
     // ...
@@ -36,9 +34,9 @@ bool ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const e
   }
 
   // Pull pt LUT from the EventSetup
-  auto& forest_setup = iSetup.get<L1TMuonEndCapForestRcd>();
+  auto forest_setup = iSetup.get<L1TMuonEndCapForestRcd>();
   if (forest_setup.cacheIdentifier() != forest_cache_id_) {
-    forest_setup.get(forest_);
+    forest_ = forest_setup.getHandle(forestToken_);
 
     // at this point we want to reload the newly pulled pT LUT
     // ...
@@ -48,12 +46,15 @@ bool ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const e
     new_forests = true;
   }
 
-  // // Debug
-  // std::cout << "Run number: " << iEvent.id().run() << " fw_version: " << get_fw_version()
-  //    << " pt_lut_version: " << get_pt_lut_version() << " pc_lut_version: " << get_pc_lut_version()
-  //    << std::endl;
+  bool new_conditions = (new_params || new_forests);
+  if (new_conditions) {
+    edm::LogInfo("L1T") << "EMTF updating conditions: pc_lut_ver: " << get_pc_lut_version()
+                        << " pt_lut_ver: " << get_pt_lut_version() << " fw_ver: " << get_fw_version();
+  }
 
-  return (new_params || new_forests);
+  // Debug
+  //edm::LogWarning("L1T") << "EMTF new conditions? Yes (1) or no (0)? -- " << new_conditions << std::endl;
+  //edm::LogWarning("L1T") << "EMTF updating conditions: pc_lut_ver: " << get_pc_lut_version() << " pt_lut_ver: " << get_pt_lut_version() << " fw_ver: " << get_fw_version();
 }
 
 unsigned int ConditionHelper::get_fw_version() const {
@@ -64,16 +65,37 @@ unsigned int ConditionHelper::get_fw_version() const {
 unsigned int ConditionHelper::get_pt_lut_version() const {
   // std::cout << "    - Getting pT LUT version from ConditionHelper: version = " << (params_->PtAssignVersion_ & 0xff);
   // std::cout << " (lowest bits of " << params_->PtAssignVersion_ << ")" << std::endl;
+  if (params_->firmwareVersion_ < 50000)  // for 2016
+    return 5;
   return (params_->PtAssignVersion_ & 0xff);  // Version indicated by first two bytes
 }
 
 unsigned int ConditionHelper::get_pc_lut_version() const {
   // "PhiMatchWindowSt1" arbitrarily re-mapped to Primitive conversion (PC LUT) version
   // because of rigid CondFormats naming conventions - AWB 02.06.17
-  // std::cout << "    - Getting PC LUT version from ConditionHelper: version = " << params_->PhiMatchWindowSt1_ << std::endl;
+  // std::cout << "    - Getting proper PC LUT version from ConditionHelper: version = " << params_->PhiMatchWindowSt1_ << std::endl;
   // return params_->PhiMatchWindowSt1_;
-
   // Hack until we figure out why the database is returning "0" for 2017 data - AWB 04.08.17
-  // std::cout << "    - Getting PC LUT version from ConditionHelper: version = " << (params_->firmwareVersion_ >= 50000) << std::endl;
-  return (params_->firmwareVersion_ >= 50000);
+  // std::cout << "    - Getting hacked PC LUT version from ConditionHelper: version = " << (params_->firmwareVersion_ >= 50000) << std::endl;
+  if (params_->firmwareVersion_ < 50000) {  // For 2016
+    return 0;
+  } else if (params_->firmwareVersion_ < 1537467271) {  // From the beginning of 2017
+    return 1;                                           // Corresponding to FW timestamps before Sept. 20, 2018
+  } else if (params_->firmwareVersion_ <
+             1664468309) {  // Corresponds to September 29, 2022. The firmware was deployed on October 6, 2022.
+    return 2;               // Starting September 26, 2018 with run 323556 (data only, not in MC)
+  } else if (params_->firmwareVersion_ <
+             1687686338) {  // Corresponds to June 25, 2023. The firmware was deployed on June 26, 2023.
+    return 3;               // Starting October 6, 2022 with run 359924 (data only, not in MC)
+  } else if (params_->firmwareVersion_ <
+             1716282790) {  // Corresponds to May 21, 2024. The firmware was deployed on May 28, 2024.
+    return 4;               // Starting July 1, 2023 with run 369675 (data only, not in MC)
+  } else {
+    return 5;  // Starting May 28, 2024 with run 381316 (data only, not in MC)
+  }
+}
+
+unsigned int ConditionHelper::get_pc_lut_version_unchecked() const {
+  // See comment in get_pc_lut_version()
+  return params_->PhiMatchWindowSt1_;
 }

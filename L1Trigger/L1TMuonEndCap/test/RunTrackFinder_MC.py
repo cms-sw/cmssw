@@ -2,15 +2,14 @@
 # ## Basic (but usually unnecessary) imports
 # import os
 # import sys
-# import commands
 
 import subprocess
 
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('reL1T', eras.Run2_2016)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process('reL1T', Run2_2016)
 
 ## Import standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

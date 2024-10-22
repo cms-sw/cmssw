@@ -1,13 +1,17 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="DataFormats/TrackerCommon"/>
-<use   name="DetectorDescription/Core"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="Geometry/CommonTopologies"/>
-<use   name="Geometry/TrackerNumberingBuilder"/>
-<use   name="clhep"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="DetectorDescription/Core"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="Geometry/TrackerNumberingBuilder"/>
+<use name="CondFormats/GeometryObjects"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="clhep"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

@@ -51,6 +51,7 @@ process.output = cms.OutputModule("PoolOutputModule",
                                   fileName = cms.untracked.string('filteredSC.root'),
                                   SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p1')
                                   )
+)
 
 
 process.filterProbCluster = EDFilter("ProbClustersFilter",

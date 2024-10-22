@@ -1,8 +1,8 @@
 #ifndef CkfBaseTrajectoryFilter_H
 #define CkfBaseTrajectoryFilter_H
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
-
 #include "TrackingTools/TrajectoryFiltering/interface/ChargeSignificanceTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/MaxConsecLostHitsTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/MaxHitsTrajectoryFilter.h"
@@ -13,24 +13,34 @@
 #include "TrackingTools/TrajectoryFiltering/interface/LooperTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/SeedExtensionTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/MaxCCCLostHitsTrajectoryFilter.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class CkfBaseTrajectoryFilter : public TrajectoryFilter {
 public:
+  explicit CkfBaseTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC)
+      :  //define the filters by default in the BaseCkfTrajectoryBuilder
+        theChargeSignificanceTrajectoryFilter(new ChargeSignificanceTrajectoryFilter(pset, iC)),
+        theMaxConsecLostHitsTrajectoryFilter(new MaxConsecLostHitsTrajectoryFilter(pset, iC)),
+        theMaxHitsTrajectoryFilter(new MaxHitsTrajectoryFilter(pset, iC)),
+        theMaxLostHitsTrajectoryFilter(new MaxLostHitsTrajectoryFilter(pset, iC)),
+        theLostHitsFractionTrajectoryFilter(new LostHitsFractionTrajectoryFilter(pset, iC)),
+        theMinHitsTrajectoryFilter(new MinHitsTrajectoryFilter(pset, iC)),
+        theMinPtTrajectoryFilter(new MinPtTrajectoryFilter(pset, iC)),
+        theLooperTrajectoryFilter(new LooperTrajectoryFilter(pset, iC)),
+        theSeedExtensionTrajectoryFilter(new SeedExtensionTrajectoryFilter(pset, iC)),
+        theMaxCCCLostHitsTrajectoryFilter(new MaxCCCLostHitsTrajectoryFilter(pset, iC)) {}
 
-  explicit CkfBaseTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC):
-    //define the filters by default in the BaseCkfTrajectoryBuilder
-    theChargeSignificanceTrajectoryFilter(new ChargeSignificanceTrajectoryFilter(pset, iC)),
-    theMaxConsecLostHitsTrajectoryFilter(new MaxConsecLostHitsTrajectoryFilter(pset, iC)),
-    theMaxHitsTrajectoryFilter(new MaxHitsTrajectoryFilter(pset, iC)),
-    theMaxLostHitsTrajectoryFilter(new MaxLostHitsTrajectoryFilter(pset, iC)),
-    theLostHitsFractionTrajectoryFilter(new LostHitsFractionTrajectoryFilter(pset, iC)),
-    theMinHitsTrajectoryFilter(new MinHitsTrajectoryFilter(pset, iC)),
-    theMinPtTrajectoryFilter(new MinPtTrajectoryFilter(pset, iC)),
-    theLooperTrajectoryFilter(new LooperTrajectoryFilter(pset, iC)),
-    theSeedExtensionTrajectoryFilter(new SeedExtensionTrajectoryFilter(pset, iC)),
-    theMaxCCCLostHitsTrajectoryFilter(new MaxCCCLostHitsTrajectoryFilter(pset, iC))
-  {}
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+    ChargeSignificanceTrajectoryFilter::fillPSetDescription(iDesc);
+    MaxConsecLostHitsTrajectoryFilter::fillPSetDescription(iDesc);
+    MaxHitsTrajectoryFilter::fillPSetDescription(iDesc);
+    MaxLostHitsTrajectoryFilter::fillPSetDescription(iDesc);
+    LostHitsFractionTrajectoryFilter::fillPSetDescription(iDesc);
+    MinHitsTrajectoryFilter::fillPSetDescription(iDesc);
+    MinPtTrajectoryFilter::fillPSetDescription(iDesc);
+    LooperTrajectoryFilter::fillPSetDescription(iDesc);
+    SeedExtensionTrajectoryFilter::fillPSetDescription(iDesc);
+    MaxCCCLostHitsTrajectoryFilter::fillPSetDescription(iDesc);
+  }
 
   void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {
     theChargeSignificanceTrajectoryFilter->setEvent(iEvent, iSetup);
@@ -44,49 +54,52 @@ public:
     theMaxCCCLostHitsTrajectoryFilter->setEvent(iEvent, iSetup);
   }
 
-  bool qualityFilter( const Trajectory& traj) const override {return QF<Trajectory>(traj);}
-  bool qualityFilter( const TempTrajectory& traj) const override {return QF<TempTrajectory>(traj);}
- 
-  bool toBeContinued( Trajectory& traj) const override {return TBC<Trajectory>(traj);}
-  bool toBeContinued( TempTrajectory& traj) const override {return TBC<TempTrajectory>(traj);}
+  bool qualityFilter(const Trajectory& traj) const override { return QF<Trajectory>(traj); }
+  bool qualityFilter(const TempTrajectory& traj) const override { return QF<TempTrajectory>(traj); }
 
-   std::string name() const override { return "CkfBaseTrajectoryFilter";}
+  bool toBeContinued(Trajectory& traj) const override { return TBC<Trajectory>(traj); }
+  bool toBeContinued(TempTrajectory& traj) const override { return TBC<TempTrajectory>(traj); }
 
-  inline edm::ParameterSetDescription getFilledConfigurationDescription() {
-    edm::ParameterSetDescription descLooper           = theLooperTrajectoryFilter->getFilledConfigurationDescription();
-    edm::ParameterSetDescription descLostHitsFraction = theLostHitsFractionTrajectoryFilter->getFilledConfigurationDescription();
-    edm::ParameterSetDescription descMinHits          = theMinHitsTrajectoryFilter->getFilledConfigurationDescription();
+  std::string name() const override { return "CkfBaseTrajectoryFilter"; }
 
-    edm::ParameterSetDescription desc;
-    desc.add<edm::ParameterSetDescription>("looperTrajectoryFilter",          descLooper);
-    desc.add<edm::ParameterSetDescription>("lostHitsFractionTrajectoryFilter",descLostHitsFraction);
-    desc.add<edm::ParameterSetDescription>("minHitsTrajectoryFilter",         descMinHits);
-    return desc;
-  }
-  
 protected:
+  template <class T>
+  bool QF(const T& traj) const {
+    if (!theSeedExtensionTrajectoryFilter->qualityFilter(traj))
+      return false;
+    if (!theChargeSignificanceTrajectoryFilter->qualityFilter(traj))
+      return false;
+    if (!theMinHitsTrajectoryFilter->qualityFilter(traj))
+      return false;
+    if (!theMinPtTrajectoryFilter->qualityFilter(traj))
+      return false;
+    if (!theLooperTrajectoryFilter->qualityFilter(traj))
+      return false;
+    return true;
+  }
 
-  template <class T> bool QF(const T& traj) const{
-    if (!theSeedExtensionTrajectoryFilter->qualityFilter(traj)) return false;
-    if (!theChargeSignificanceTrajectoryFilter->qualityFilter(traj)) return false;            
-    if (!theMinHitsTrajectoryFilter->qualityFilter(traj)) return false;
-    if (!theMinPtTrajectoryFilter->qualityFilter(traj)) return false;
-    if (!theLooperTrajectoryFilter->qualityFilter(traj)) return false;
-    return true;}
-
-  template <class T> bool TBC(T& traj) const{
-    if (!theSeedExtensionTrajectoryFilter->toBeContinued(traj)) return false;
-    if (!theMaxHitsTrajectoryFilter->toBeContinued(traj)) return false;     
-    if (!theMaxLostHitsTrajectoryFilter->toBeContinued(traj)) return false;
-    if (!theMaxConsecLostHitsTrajectoryFilter->toBeContinued(traj)) return false;
-    if (!theLostHitsFractionTrajectoryFilter->toBeContinued(traj)) return false;
-    if (!theMaxCCCLostHitsTrajectoryFilter->toBeContinued(traj)) return false;
-    if (!theMinPtTrajectoryFilter->toBeContinued(traj)) return false;     
-    if (!theChargeSignificanceTrajectoryFilter->toBeContinued(traj)) return false;
-    if (!theLooperTrajectoryFilter->toBeContinued(traj)) return false;
-    return true;}
-
-  
+  template <class T>
+  bool TBC(T& traj) const {
+    if (!theSeedExtensionTrajectoryFilter->toBeContinued(traj))
+      return false;
+    if (!theMaxHitsTrajectoryFilter->toBeContinued(traj))
+      return false;
+    if (!theMaxLostHitsTrajectoryFilter->toBeContinued(traj))
+      return false;
+    if (!theMaxConsecLostHitsTrajectoryFilter->toBeContinued(traj))
+      return false;
+    if (!theLostHitsFractionTrajectoryFilter->toBeContinued(traj))
+      return false;
+    if (!theMaxCCCLostHitsTrajectoryFilter->toBeContinued(traj))
+      return false;
+    if (!theMinPtTrajectoryFilter->toBeContinued(traj))
+      return false;
+    if (!theChargeSignificanceTrajectoryFilter->toBeContinued(traj))
+      return false;
+    if (!theLooperTrajectoryFilter->toBeContinued(traj))
+      return false;
+    return true;
+  }
 
   std::unique_ptr<ChargeSignificanceTrajectoryFilter> theChargeSignificanceTrajectoryFilter;
   std::unique_ptr<MaxConsecLostHitsTrajectoryFilter> theMaxConsecLostHitsTrajectoryFilter;

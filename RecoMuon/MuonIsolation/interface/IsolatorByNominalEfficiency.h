@@ -14,7 +14,9 @@
 #include <vector>
 #include <string>
 
-namespace muonisolation { class NominalEfficiencyThresholds; }
+namespace muonisolation {
+  class NominalEfficiencyThresholds;
+}
 
 namespace muonisolation {
   class IsolatorByNominalEfficiency : public MuIsoBaseIsolator {
@@ -22,14 +24,14 @@ namespace muonisolation {
     typedef MuIsoBaseIsolator::DepositContainer DepositContainer;
 
     //! Constructor
-    IsolatorByNominalEfficiency(const std::string & thrFile,
-				const std::vector<std::string> & ceff,
-				const std::vector<double> & weights);
+    IsolatorByNominalEfficiency(const std::string& thrFile,
+                                const std::vector<std::string>& ceff,
+                                const std::vector<double>& weights);
 
-    IsolatorByNominalEfficiency(const std::string & thrFile,
-				const std::vector<std::string> & ceff,
-				const std::vector<double> & weights, const std::vector<double> & thresh	);
-
+    IsolatorByNominalEfficiency(const std::string& thrFile,
+                                const std::vector<std::string>& ceff,
+                                const std::vector<double>& weights,
+                                const std::vector<double>& thresh);
 
     ~IsolatorByNominalEfficiency() override;
 
@@ -39,13 +41,13 @@ namespace muonisolation {
     Cuts cuts(float nominalEfficiency) const;
 
   private:
-
     class ConeSizes {
     private:
-      enum  IsoDim { DIM = 15};
+      enum IsoDim { DIM = 15 };
       static const float cone_dr[DIM];
+
     public:
-      int dim() const { return DIM;}
+      int dim() const { return DIM; }
       double size(int i) const;
       int index(float dr) const;
     };
@@ -56,20 +58,20 @@ namespace muonisolation {
     // Size of cone for a given nominal efficiency value.
     int bestConeForEfficiencyIndex(float eff_thr) const;
 
-    typedef std::multimap<float,int> mapNomEff_Cone;
+    typedef std::multimap<float, int> mapNomEff_Cone;
     mapNomEff_Cone cones(const std::vector<std::string>& names);
 
     std::string findPath(const std::string& fileName);
 
-    ResultType resultType() const override { return ISOL_FLOAT_TYPE;}
+    ResultType resultType() const override { return ISOL_FLOAT_TYPE; }
 
   private:
     mapNomEff_Cone coneForEfficiency;
-    NominalEfficiencyThresholds * thresholds;
+    NominalEfficiencyThresholds* thresholds;
     std::vector<double> theWeights;
     std::vector<double> theDepThresholds;
     ConeSizes theConesInfo;
   };
-}
+}  // namespace muonisolation
 
 #endif

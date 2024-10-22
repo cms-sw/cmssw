@@ -19,7 +19,6 @@ Implementation:
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -27,30 +26,29 @@ Implementation:
 #include "GeneratorInterface/Core/interface/BaseHepMCFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 //
 // class decleration
 //
 
 class GenericDauHepMCFilter : public BaseHepMCFilter {
-  public:
-     GenericDauHepMCFilter(const edm::ParameterSet&);
-    ~GenericDauHepMCFilter() override;
+public:
+  GenericDauHepMCFilter(const edm::ParameterSet&);
+  ~GenericDauHepMCFilter() override;
 
-    bool filter(const HepMC::GenEvent* evt) override;
-    
-  private:
-    // ----------memeber function----------------------
+  bool filter(const HepMC::GenEvent* evt) override;
 
-    // ----------member data ---------------------------
+private:
+  // ----------memeber function----------------------
 
-    int particleID;
-    bool chargeconju;
-    int ndaughters;
-    std::vector<int> dauIDs;    
-    double minptcut;
-    double maxptcut;
-    double minetacut;
-    double maxetacut;
-    };
+  // ----------member data ---------------------------
+
+  int particleID;
+  bool chargeconju;
+  int ndaughters;
+  std::vector<int> dauIDs;
+  double minptcut;
+  double maxptcut;
+  double minetacut;
+  double maxetacut;
+};
 #endif

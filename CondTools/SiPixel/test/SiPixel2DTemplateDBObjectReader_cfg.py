@@ -7,8 +7,8 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 #process.load("CalibTracker.SiPixelESProducers.SiPixel2DTemplateDBObjectESProducer_cfi")
 
 #magfield and version are argument #1 and #2
-#magfield = float(sys.argv[2])
-#version = sys.argv[3]
+#magfield = float(sys.argv[1])
+#version = sys.argv[2]
 
 #magfield and version are hardcoded for the record
 magfield = 38

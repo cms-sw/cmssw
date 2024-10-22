@@ -1,6 +1,6 @@
-<use   name="FWCore/Framework"/>
-<use   name="CondCore/CondDB"/>
-<use   name="boost"/>
+<use name="CondCore/CondDB"/>
+<use name="curl"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

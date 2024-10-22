@@ -1,12 +1,24 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
-process = cms.Process("HARVESTING")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("HARVESTING", Run3)
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+	unitTest=True
 
 #----------------------------
 #### Histograms Source
 #----------------------------
-# for live online DQM in P5
-process.load("DQM.Integration.config.pbsource_cfi")
+
+if unitTest:
+   process.load("DQM.Integration.config.unittestinputsource_cfi")
+   from DQM.Integration.config.unittestinputsource_cfi import options
+else:
+   # for live online DQM in P5
+   process.load("DQM.Integration.config.pbsource_cfi")
+   from DQM.Integration.config.pbsource_cfi import options
 
 #----------------------------
 #### DQM Environment
@@ -16,10 +28,13 @@ process.dqmEnv.subSystemFolder = 'HLTpb'
 process.dqmEnv.eventInfoFolder = 'EventInfo'
 process.dqmSaver.tag = 'HLTpb'
 #process.dqmSaver.path = './HLT'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'HLTpb'
+process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 
 # customise for playback
-if process.dqmRunConfig.type.value() is "playback":
+if process.dqmRunConfig.type.value() == "playback":
     process.dqmEnv.eventInfoFolder = 'EventInfo/Random'
 
 # DQM Modules
@@ -27,14 +42,14 @@ if process.dqmRunConfig.type.value() is "playback":
 process.load('HLTrigger.Timer.fastTimerServiceClient_cfi')
 process.fastTimerServiceClient.dqmPath = "HLT/TimerService"
 # timing VS lumi
-process.fastTimerServiceClient.doPlotsVsScalLumi  = cms.bool(True)
-process.fastTimerServiceClient.doPlotsVsPixelLumi = cms.bool(False)
-process.fastTimerServiceClient.scalLumiME = cms.PSet(
-    folder = cms.string('HLT/LumiMonitoring'),
-    name   = cms.string('lumiVsLS'),
-    nbins  = cms.int32(5000),
-    xmin   = cms.double(0),
-    xmax   = cms.double(20000)
+process.fastTimerServiceClient.doPlotsVsOnlineLumi = True
+process.fastTimerServiceClient.doPlotsVsPixelLumi = False
+process.fastTimerServiceClient.onlineLumiME = dict(
+    folder = 'HLT/LumiMonitoring',
+    name   = 'lumiVsLS',
+    nbins  = 6000,
+    xmin   = 0,
+    xmax   = 30000,
 )
 
 # ThroughputService client
@@ -48,13 +63,10 @@ process.psColumnVsLumi = process.dqmCorrelationClient.clone(
       folder = cms.string("HLT/PSMonitoring"),
       name   = cms.string("psColumnVSlumi"),
       doXaxis = cms.bool( True ),
-      nbinsX = cms.int32( 5000),
-      xminX  = cms.double(    0.),
-      xmaxX  = cms.double(20000.),
+      nbinsX = cms.int32( 6000 ),
+      xminX  = cms.double( 0. ),
+      xmaxX  = cms.double( 30000. ),
       doYaxis = cms.bool( False ),
-      nbinsY = cms.int32 (   8),
-      xminY  = cms.double(   0.),
-      xmaxY  = cms.double(   8.),
    ),
    me1 = cms.PSet(
       folder   = cms.string("HLT/LumiMonitoring"),
@@ -68,8 +80,5 @@ process.psColumnVsLumi = process.dqmCorrelationClient.clone(
    ),
 )
 
-process.load('DQM.HLTEvF.psMonitorClient_cfi')
-process.psChecker = process.psMonitorClient.clone()
-
-
-process.p = cms.EndPath( process.fastTimerServiceClient + process.throughputServiceClient + process.psColumnVsLumi + process.psChecker + process.dqmEnv + process.dqmSaver )
+print("Final Source settings:", process.source)
+process.p = cms.EndPath( process.fastTimerServiceClient + process.throughputServiceClient + process.psColumnVsLumi + process.dqmEnv + process.dqmSaver + process.dqmSaverPB )

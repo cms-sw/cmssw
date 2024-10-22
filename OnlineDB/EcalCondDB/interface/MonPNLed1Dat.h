@@ -10,7 +10,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class MonPNLed1Dat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   MonPNLed1Dat();
   ~MonPNLed1Dat() override;
@@ -44,19 +44,15 @@ class MonPNLed1Dat : public IDataItem {
 
   inline void setTaskStatus(bool status) { m_taskStatus = status; }
   inline bool getTaskStatus() const { return m_taskStatus; }
-  
- private:
-  void prepareWrite() 
-    noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const MonPNLed1Dat* item, MonRunIOV* iov)
-    noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeArrayDB(const std::map< EcalLogicID, MonPNLed1Dat >* data, MonRunIOV* iov)
-    noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const MonPNLed1Dat* item, MonRunIOV* iov) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, MonPNLed1Dat >* fillVec, MonRunIOV* iov)
-     noexcept(false);
+  void writeArrayDB(const std::map<EcalLogicID, MonPNLed1Dat>* data, MonRunIOV* iov) noexcept(false);
+
+  void fetchData(std::map<EcalLogicID, MonPNLed1Dat>* fillVec, MonRunIOV* iov) noexcept(false);
 
   // User data
   float m_adcMeanG1;

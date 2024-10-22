@@ -6,4 +6,4 @@ namespace edm {
     oStream << "run: " << iID.run() << " lumi: " << iID.luminosityBlock() << " event: " << iID.event();
     return oStream;
   }
-}
+}  // namespace edm

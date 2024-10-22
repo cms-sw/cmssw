@@ -8,15 +8,13 @@
 #include "Geometry/CaloGeometry/interface/CaloNumberingScheme.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class HcalNumberingScheme : public CaloNumberingScheme {
-
 public:
   HcalNumberingScheme();
   ~HcalNumberingScheme() override;
   virtual uint32_t getUnitID(const HcalNumberingFromDDD::HcalID& id);
-
 };
 
 #endif

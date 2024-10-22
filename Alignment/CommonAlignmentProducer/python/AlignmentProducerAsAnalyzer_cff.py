@@ -10,7 +10,7 @@ from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi impor
 # parameters
 from Alignment.CommonAlignmentAlgorithm.AlignmentParameterStore_cfi import *
 
-AlignmentProducer = cms.EDAnalyzer("AlignmentProducerAsAnalyzer",
+AlignmentProducer = cms.EDProducer("AlignmentProducerAsAnalyzer",
                     AlignmentParameterStore, # configuration of AlignmentParameterStore
                     doTracker = cms.untracked.bool(True),
                     doMuon = cms.untracked.bool(False),
@@ -75,4 +75,16 @@ AlignmentProducer = cms.EDAnalyzer("AlignmentProducerAsAnalyzer",
 
                     # update alignables if triggered by corresponding input IOV boundary
                     enableAlignableUpdates = cms.bool(False),
+                    
+                    # Change tracker alignment record name to avoid confusion bettwen HG and LG PCL alignment
+                    trackerAlignmentRcdName = cms.string("TrackerAlignmentRcd")
                     )
+import Geometry.DTGeometryBuilder.dtGeometryDB_cfi
+DTGeometryAlignmentProducerAsAnalyzer = Geometry.DTGeometryBuilder.dtGeometryDB_cfi.DTGeometryESModule.clone()
+DTGeometryAlignmentProducerAsAnalyzer.appendToDataLabel = 'idealForAlignmentProducerBase'
+import Geometry.CSCGeometryBuilder.cscGeometryDB_cfi
+CSCGeometryAlignmentProducerAsAnalyzer = Geometry.CSCGeometryBuilder.cscGeometryDB_cfi.CSCGeometryESModule.clone()
+CSCGeometryAlignmentProducerAsAnalyzer.appendToDataLabel = 'idealForAlignmentProducerBase'
+import   Geometry.GEMGeometryBuilder.gemGeometryDB_cfi
+GEMGeometryAlignmentProducerAsAnalyzer = Geometry.GEMGeometryBuilder.gemGeometryDB_cfi.GEMGeometryESModule.clone()
+GEMGeometryAlignmentProducerAsAnalyzer.appendToDataLabel = 'idealForAlignmentProducerBase'

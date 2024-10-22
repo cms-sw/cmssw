@@ -1,7 +1,7 @@
 #ifndef FWCore_Concurrency_ThreadSafeOutputFileStream_h
 #define FWCore_Concurrency_ThreadSafeOutputFileStream_h
 
-#include "tbb/concurrent_queue.h"
+#include "oneapi/tbb/concurrent_queue.h"
 
 #include <atomic>
 #include <fstream>
@@ -18,9 +18,9 @@ namespace edm {
 
   private:
     std::ofstream file_;
-    std::atomic<bool> msgBeingLogged_ {false};
-    tbb::concurrent_queue<std::string> waitingMessages_ {};
+    std::atomic<bool> msgBeingLogged_{false};
+    oneapi::tbb::concurrent_queue<std::string> waitingMessages_{};
   };
-}
+}  // namespace edm
 
 #endif

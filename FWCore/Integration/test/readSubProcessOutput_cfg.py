@@ -21,48 +21,24 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.testproducts = cms.EDAnalyzer("TestMergeResults",
 
     expectedBeginRunProd = cms.untracked.vint32(
-        0,           0,      0,   # start
-        0,           0,      0,   # begin file 1
-        10001,   10002,  10003,   # * begin run 1
-        10001,   10002,  10003,   # * events
         10001,   10002,  10003,   # end run 1
-        10001,   10002,  10003,   # * begin run 2
-        10001,   10002,  10003,   # * events
         10001,   10002,  10003,   # end run 2
-        10001,   10002,  10003,   # * begin run 2
-        10001,   10002,  10003,   # * events
         10001,   10002,  10003    # end run 3
     ),
 
     expectedEndRunProd = cms.untracked.vint32(
-        0,           0,      0,      # start
-        0,           0,      0,      # begin file 1
-        100001,   100002,  100003,   # begin run 1
-        100001,   100002,  100003,   # * events
-        100001,   100002,  100003,   # * end run 1
-        100001,   100002,  100003,   # begin run 2
-        100001,   100002,  100003,   # * events
-        100001,   100002,  100003,   # * end run 2
-        100001,   100002,  100003,   # begin run 2
-        100001,   100002,  100003,   # * events
-        100001,   100002,  100003    # * end run 3
+        100001,   100002,  100003,   # end run 1
+        100001,   100002,  100003,   # end run 2
+        100001,   100002,  100003    # end run 3
     ),
 
     expectedBeginLumiProd = cms.untracked.vint32(
-        0,           0,      0,   # start
-        0,           0,      0,   # begin file 1
-        101,       102,    103,   # * begin run 1 lumi 1
-        101,       102,    103,   # * events
         101,       102,    103    # end run 1 lumi 1
 # There are more, but all with the same pattern as the first        
     ),
 
     expectedEndLumiProd = cms.untracked.vint32(
-        0,           0,      0,   # start
-        0,           0,      0,   # begin file 1
-        1001,     1002,   1003,   # begin run 1 lumi 1
-        1001,     1002,   1003,   # * events
-        1001,     1002,   1003    # * end run 1 lumi 1
+        1001,     1002,   1003    # end run 1 lumi 1
     ),
 
     expectedProcessHistoryInRuns = cms.untracked.vstring(

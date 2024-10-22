@@ -18,14 +18,12 @@ typedef int DetId;
 
 using namespace edm;
 
-
 //------------------------------------------------------
 // This is a sample VALUE class, almost the simplest possible.
 //------------------------------------------------------
 
-class Value
-{
- public:
+class Value {
+public:
   // The following is a hack, to make this class Value look like the
   // real use case.
   typedef int DetId;
@@ -34,11 +32,11 @@ class Value
   typedef DetId key_type;
 
   // VALUES must be default constructible
-  Value() : d_(0.0), id_(0) { }
+  Value() : d_(0.0), id_(0) {}
 
   // This constructor is used for testing; it is not required by the
   // concept VALUE.
-  Value(double d, DetId anId) : d_(d), id_(anId) { }
+  Value(double d, DetId anId) : d_(d), id_(anId) {}
 
   // This access function is used for testing; it is not required by
   // the concept VALUE.
@@ -46,42 +44,36 @@ class Value
 
   // VALUES must have a const member function id() that returns a
   // key_type. N.B.: here, DetId is key_type.
-  DetId  id() const { return id_; }
+  DetId id() const { return id_; }
 
-  // VALUES must be destructible 
+  // VALUES must be destructible
   ~Value() {}
 
   // The private stuff below is all implementation detail, and not
   // required by the concept VALUE.
- private:
+private:
   double d_;
-  DetId  id_;  
+  DetId id_;
 };
 
-//------------------------------------------------------ 
+//------------------------------------------------------
 // If one wants to test SortedCollections using operator==, then one
 // must use a VALUE that is equality comparable. Otherwise, VALUE need
 // not be equality comparable.
-//------------------------------------------------------ 
+//------------------------------------------------------
 
-bool operator==(Value const& a, Value const& b)
-{
-  return (a.id() == b.id()) && (a.val() == b.val());
-}
+bool operator==(Value const& a, Value const& b) { return (a.id() == b.id()) && (a.val() == b.val()); }
 
-//------------------------------------------------------ 
-// The stream insertion operator is not required; it is used here 
+//------------------------------------------------------
+// The stream insertion operator is not required; it is used here
 // for diagnostic output.
-//------------------------------------------------------ 
-std::ostream&
-operator<< (std::ostream& os, const Value& v)
-{
+//------------------------------------------------------
+std::ostream& operator<<(std::ostream& os, const Value& v) {
   os << "id: " << v.id() << " val: " << v.val();
   return os;
 }
 
-class testSortedCollection: public CppUnit::TestFixture
-{
+class testSortedCollection : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testSortedCollection);
   CPPUNIT_TEST(constructTest);
   CPPUNIT_TEST(insertTest);
@@ -91,11 +83,10 @@ class testSortedCollection: public CppUnit::TestFixture
   CPPUNIT_TEST(squarebracketTest);
   CPPUNIT_TEST_SUITE_END();
 
+public:
+  void setUp() {}
+  void tearDown() {}
 
- public:
-  void setUp(){}
-  void tearDown(){}
-   
   void constructTest();
   void insertTest();
   void accessTest();
@@ -107,10 +98,9 @@ class testSortedCollection: public CppUnit::TestFixture
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testSortedCollection);
 
-typedef edm::SortedCollection<Value,StrictWeakOrdering<Value> > scoll_type;
+typedef edm::SortedCollection<Value, StrictWeakOrdering<Value> > scoll_type;
 
-void testSortedCollection::constructTest()
-{
+void testSortedCollection::constructTest() {
   scoll_type c1;
   CPPUNIT_ASSERT(c1.size() == 0);
 
@@ -126,8 +116,7 @@ void testSortedCollection::constructTest()
   CPPUNIT_ASSERT(c3 == c4);
 }
 
-void testSortedCollection::insertTest()
-{
+void testSortedCollection::insertTest() {
   scoll_type c;
   Value v1(1.1, 1);
   Value v2(2.2, 2);
@@ -139,16 +128,12 @@ void testSortedCollection::insertTest()
 }
 
 template <class T, class SORT>
-void append_to_both(edm::SortedCollection<T,SORT>& sc,
-		    std::vector<T>& vec,
-		    const T& t)
-{
+void append_to_both(edm::SortedCollection<T, SORT>& sc, std::vector<T>& vec, const T& t) {
   sc.push_back(t);
   vec.push_back(t);
 }
 
-void testSortedCollection::accessTest()
-{
+void testSortedCollection::accessTest() {
   scoll_type c;
   std::vector<Value> vec;
   append_to_both(c, vec, Value(1.5, 3));
@@ -165,38 +150,36 @@ void testSortedCollection::accessTest()
   CPPUNIT_ASSERT(c.size() == vec.size());
 
   {
-    scoll_type::iterator i = c.find(DetId(100)); // does not exist!
+    scoll_type::iterator i = c.find(DetId(100));  // does not exist!
     CPPUNIT_ASSERT(i == c.end());
   }
 
   {
     std::cerr << "Dumping SortedCollection" << std::endl;
-    std::copy (c.begin(), c.end(), std::ostream_iterator<Value>(std::cerr, "\n"));
+    std::copy(c.begin(), c.end(), std::ostream_iterator<Value>(std::cerr, "\n"));
   }
 
   {
     std::vector<Value>::const_iterator i = vec.begin();
     std::vector<Value>::const_iterator e = vec.end();
     std::cerr << "There are " << vec.size() << " searches to do...\n";
-    while (i != e)
-      {
-	DetId id = i->id();
-	std::cerr << "Looking for id: " << id << "...   ";
-	//scoll_type::iterator loc = c.find(i->id());
-	scoll_type::iterator loc = c.find(id);
-	if (loc == c.end())
-	  std::cerr << "Failed to find this id!\n";
-	else
-	  std::cerr << "Found it, record is: " << *loc << '\n';
-	CPPUNIT_ASSERT(loc != c.end());
-	CPPUNIT_ASSERT(*loc == *i);
-	++i;
-      }
+    while (i != e) {
+      DetId id = i->id();
+      std::cerr << "Looking for id: " << id << "...   ";
+      //scoll_type::iterator loc = c.find(i->id());
+      scoll_type::iterator loc = c.find(id);
+      if (loc == c.end())
+        std::cerr << "Failed to find this id!\n";
+      else
+        std::cerr << "Found it, record is: " << *loc << '\n';
+      CPPUNIT_ASSERT(loc != c.end());
+      CPPUNIT_ASSERT(*loc == *i);
+      ++i;
+    }
   }
 }
 
-void testSortedCollection::swapTest()
-{
+void testSortedCollection::swapTest() {
   scoll_type c;
   std::vector<Value> vec;
   append_to_both(c, vec, Value(1.5, 3));
@@ -227,8 +210,7 @@ void testSortedCollection::swapTest()
   }
 }
 
-void testSortedCollection::frontbackTest()
-{
+void testSortedCollection::frontbackTest() {
   scoll_type c;
   std::vector<Value> vec;
   append_to_both(c, vec, Value(1.5, 3));
@@ -247,8 +229,7 @@ void testSortedCollection::frontbackTest()
   CPPUNIT_ASSERT(cr.back() == Value(4.5, 1001));
 }
 
-void testSortedCollection::squarebracketTest()
-{
+void testSortedCollection::squarebracketTest() {
   scoll_type c;
   std::vector<Value> vec;
   append_to_both(c, vec, Value(1.5, 3));
@@ -272,6 +253,3 @@ void testSortedCollection::squarebracketTest()
   CPPUNIT_ASSERT(cr[3] == Value(2.5, 200));
   CPPUNIT_ASSERT(cr[4] == Value(4.5, 1001));
 }
-
-
-

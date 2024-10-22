@@ -7,20 +7,17 @@
 
 namespace edm {
 
-  bool
-  untaintString(char const* pattern, char const* regexp);
+  bool untaintString(char const* pattern, char const* regexp);
 
-  bool
-  is_glob(std::string const& pattern);
+  bool is_glob(std::string const& pattern);
 
-  std::string
-  glob2reg(std::string const& pattern);
+  std::string glob2reg(std::string const& pattern);
 
-  std::vector<std::vector<std::string>::const_iterator>
-  regexMatch(std::vector<std::string> const& strings, std::regex const& regexp);
+  std::vector<std::vector<std::string>::const_iterator> regexMatch(std::vector<std::string> const& strings,
+                                                                   std::regex const& regexp);
 
-  std::vector<std::vector<std::string>::const_iterator>
-  regexMatch(std::vector<std::string> const& strings, std::string const& pattern);
-}
+  std::vector<std::vector<std::string>::const_iterator> regexMatch(std::vector<std::string> const& strings,
+                                                                   std::string const& pattern);
+}  // namespace edm
 
-#endif // FWCore_Utilities_RegexMatch_h
+#endif  // FWCore_Utilities_RegexMatch_h

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -57,20 +58,20 @@ allconds = [
 
 #custom help message
 if options.info:
-    print "dumplist possibilities:"
-    print allconds
-    print "dbfile format: sqlite_file:foo.db"
-    print "frontierloc possibilities: frontier://FrontierProd/CMS_CONDITIONS (default), frontier://FrontierDev/CMS_COND_HCAL, etc."
-    print "dblist/frontierlist entry format: HcalPedestalsRcd:hcal_pedestals_fC_v6_mc or HcalPedestalsRcd:effective:HcalPedestals_2018_v2.0_mc_effective for labeled records"
-    print "asciilist entry format: Pedestals:CondFormats/HcalObjects/data/hcal_pedestals_fC_v5.txt"
-    print "command can be used to execute extra settings, newline separated, e.g.: process.es_hardcode.useHEUpgrade=cms.bool(True)\\nprocess.es_hardcode.useHFUpgrade=cms.bool(True)"
-    print "dump will do the equivalent of edmConfigDump: use with python instead of cmsRun"
-    print "specifying globaltag without the proper geometry may cause errors"
+    print("dumplist possibilities:")
+    print(allconds)
+    print("dbfile format: sqlite_file:foo.db")
+    print("frontierloc possibilities: frontier://FrontierProd/CMS_CONDITIONS (default), frontier://FrontierDev/CMS_COND_HCAL, etc.")
+    print("dblist/frontierlist entry format: HcalPedestalsRcd:hcal_pedestals_fC_v6_mc or HcalPedestalsRcd:effective:HcalPedestals_2018_v2.0_mc_effective for labeled records")
+    print("asciilist entry format: Pedestals:CondFormats/HcalObjects/data/hcal_pedestals_fC_v5.txt")
+    print("command can be used to execute extra settings, newline separated, e.g.: process.es_hardcode.useHEUpgrade=cms.bool(True)\\nprocess.es_hardcode.useHFUpgrade=cms.bool(True)")
+    print("dump will do the equivalent of edmConfigDump: use with python instead of cmsRun")
+    print("specifying globaltag without the proper geometry may cause errors")
     
     sys.exit(0)
 
 if not options.dumplist:
-    print "Nothing to do!"
+    print("Nothing to do!")
     sys.exit(0)
     
 process = cms.Process("DUMP")
@@ -78,12 +79,12 @@ if options.era:
     from Configuration.StandardSequences.Eras import eras
     process = cms.Process("DUMP",getattr(eras,options.era))
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
 
 if options.globaltag:
-    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+    from Configuration.AlCa.GlobalTag import GlobalTag
     process.GlobalTag = GlobalTag(process.GlobalTag, options.globaltag, '')
 
 # extracted from Configuration/Applications/python/ConfigBuilder.py
@@ -136,7 +137,6 @@ process.source = cms.Source("EmptySource",
 
 if options.dbfile and options.dblist:
     process.es_dbfile = cms.ESSource("PoolDBESSource",
-        process.CondDBSetup,
         timetype = cms.string('runnumber'),
         connect = cms.string(options.dbfile),
         authenticationMethod = cms.untracked.uint32(0),
@@ -150,7 +150,6 @@ if options.dbfile and options.dblist:
 
 if options.frontierloc and options.frontierlist:
     process.es_frontier = cms.ESSource("PoolDBESSource",
-        process.CondDBSetup,
         timetype = cms.string('runnumber'),
         connect = cms.string(options.frontierloc),
         authenticationMethod = cms.untracked.uint32(0),
@@ -188,7 +187,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 if options.dump:
-    print process.dumpPython()
+    print(process.dumpPython())
     sys.exit(0)
 else:
     process.p = cms.Path(process.prod)

@@ -12,26 +12,21 @@ class Bounds;
 
 class PlaneBuilder {
 public:
-
-  typedef Surface::PositionType                  PositionType;
-  typedef Surface::RotationType                  RotationType;
-  typedef ReferenceCountingPointer<Plane>        ReturnType;
+  typedef Surface::PositionType PositionType;
+  typedef Surface::RotationType RotationType;
+  typedef ReferenceCountingPointer<Plane> ReturnType;
 
   /** Builds a plane with origin at pos and with rotation matrix rot
    */
-  ReturnType plane( const PositionType& pos, const RotationType& rot) const {
-    return ReturnType( new Plane( pos, rot));
-  }
+  ReturnType plane(const PositionType& pos, const RotationType& rot) const { return ReturnType(new Plane(pos, rot)); }
 
   /** Same as above, with bounds. The bounds are cloned, and a new 
    *  copy is used in the plane, so you don't have to create them with "new",
    *  and if you do, don't forget to delete them.
    */
-  ReturnType plane( const PositionType& pos, const RotationType& rot, 
-		    Bounds * bounds) const {
-    return ReturnType( new Plane( pos, rot, bounds));
+  ReturnType plane(const PositionType& pos, const RotationType& rot, Bounds* bounds) const {
+    return ReturnType(new Plane(pos, rot, bounds));
   }
-
 };
 
 #endif

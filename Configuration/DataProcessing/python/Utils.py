@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 _Utils_
 
@@ -117,8 +117,6 @@ def harvestingMode(process, datasetName, args,rANDl=True):
         process.source.processingMode = cms.untracked.string('RunsAndLumis')
     process.dqmSaver.workflow = datasetName
     process.dqmSaver.saveByLumiSection = 1
-    if 'referenceFile' in args and args.get('referenceFile', ''):
-        process.DQMStore.referenceFileName = cms.untracked.string(args['referenceFile'])
 
 def dictIO(options,args):
     if 'outputs' in args:
@@ -133,6 +131,20 @@ def dqmSeq(args,default):
         return ':'+('+'.join(args['dqmSeq']))
     else:
         return default
+
+def nanoFlavours(flavours):
+    """
+    _nanoFlavours_
+
+    Creates and returns the configuration string for the NANO flavours
+    from the list of flavors to be run.
+
+    """
+
+    step = ''
+    if len(flavours) >0 :
+        step = ':'+('+'.join(flavours))
+    return step
 
 def gtNameAndConnect(globalTag, args):
     if 'globalTagConnect' in args and args['globalTagConnect'] != '':

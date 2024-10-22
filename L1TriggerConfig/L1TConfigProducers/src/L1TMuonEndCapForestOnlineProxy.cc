@@ -9,26 +9,24 @@
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestO2ORcd.h"
 
 class L1TMuonEndCapForestOnlineProxy : public edm::ESProducer {
-public:
-    std::shared_ptr<L1TMuonEndCapForest> produce(const L1TMuonEndCapForestO2ORcd& record);
+private:
+  const edm::ESGetToken<L1TMuonEndCapForest, L1TMuonEndCapForestRcd> baseSettings_token;
 
-    L1TMuonEndCapForestOnlineProxy(const edm::ParameterSet&);
-    ~L1TMuonEndCapForestOnlineProxy(void) override{}
+public:
+  std::unique_ptr<L1TMuonEndCapForest> produce(const L1TMuonEndCapForestO2ORcd& record);
+
+  L1TMuonEndCapForestOnlineProxy(const edm::ParameterSet&);
+  ~L1TMuonEndCapForestOnlineProxy(void) override {}
 };
 
-L1TMuonEndCapForestOnlineProxy::L1TMuonEndCapForestOnlineProxy(const edm::ParameterSet& iConfig) : edm::ESProducer() {
-    setWhatProduced(this);
-}
+L1TMuonEndCapForestOnlineProxy::L1TMuonEndCapForestOnlineProxy(const edm::ParameterSet& iConfig)
+    : baseSettings_token(setWhatProduced(this).consumes()) {}
 
-std::shared_ptr<L1TMuonEndCapForest> L1TMuonEndCapForestOnlineProxy::produce(const L1TMuonEndCapForestO2ORcd& record) {
+std::unique_ptr<L1TMuonEndCapForest> L1TMuonEndCapForestOnlineProxy::produce(const L1TMuonEndCapForestO2ORcd& record) {
+  const L1TMuonEndCapForestRcd& baseRcd = record.template getRecord<L1TMuonEndCapForestRcd>();
+  auto const& baseSettings = baseRcd.get(baseSettings_token);
 
-    const L1TMuonEndCapForestRcd& baseRcd = record.template getRecord< L1TMuonEndCapForestRcd >() ;
-    edm::ESHandle< L1TMuonEndCapForest > baseSettings ;
-    baseRcd.get( baseSettings ) ;
-
-    std::shared_ptr< L1TMuonEndCapForest > retval = std::make_shared< L1TMuonEndCapForest >( *(baseSettings.product()) );
-
-    return retval;
+  return std::make_unique<L1TMuonEndCapForest>(baseSettings);
 }
 
 //define this as a plug-in

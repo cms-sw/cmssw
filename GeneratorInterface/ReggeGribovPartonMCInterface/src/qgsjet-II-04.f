@@ -4335,6 +4335,8 @@ c-----------------------------------------------------------------------
       common /qgarr43/ moniou
       common /qgdebug/  debug
 
+c... initialize
+      qgppdi=0.d0
       if(debug.ge.3)write (moniou,201)xp,iqq
       if(xp.ge..9999999d0)then
        qgppdi=0.d0
@@ -13095,6 +13097,8 @@ c---------------------------------------------------------------------------
       if(debug.ge.2)write (moniou,201)s,t,iq1,iq2
 
       u=s-t
+c... initialize
+      qgfbor=0.0
       if(n.eq.1)then
        if(iq1.eq.0.and.iq2.eq.0)then        !gluon-gluon
         qgfbor=(3.d0-t*u/s**2+s*u/t**2+s*t/u**2)*4.5d0

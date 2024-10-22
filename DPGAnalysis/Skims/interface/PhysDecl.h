@@ -17,7 +17,7 @@
 // user include files
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,19 +31,18 @@
 // class declaration
 //
 
-
-class PhysDecl : public edm::EDFilter {
+class PhysDecl : public edm::one::EDFilter<> {
 public:
-  explicit PhysDecl( const edm::ParameterSet & );
+  explicit PhysDecl(const edm::ParameterSet &);
   ~PhysDecl() override;
-  
+
 private:
-  bool filter ( edm::Event &, const edm::EventSetup&) override;
-  
+  bool filter(edm::Event &, const edm::EventSetup &) override;
+
   bool applyfilter;
   bool debugOn;
   bool init_;
-  std::vector<std::string>  hlNames_;  // name of each HLT algorithm
+  std::vector<std::string> hlNames_;  // name of each HLT algorithm
   edm::EDGetTokenT<edm::TriggerResults> hlTriggerResults_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigis_;
 };

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # set up variables
 #def readConfig(fileName)
 import FWCore.ParameterSet.Config as cms
@@ -18,13 +19,13 @@ class fileINI:
 #		 self.denominatorTriggerPath=ConfigSectionMap("config")["denominatorTriggerPath"]
 
 		 files=files.splitlines()
-		 self.files=filter(lambda x: len(x)>0,files)
+		 self.files=[x for x in files if len(x)>0]
 
 		 self.btag_modules=cms.VInputTag()
 		 self.btag_pathes=cms.vstring()
 		 self.btag_modules_string=cms.vstring()
 		 for path in Config.options("btag"):
-		 	print path
+		 	print(path)
 		 	modules=Config.get("btag",path)
 		 	modules=modules.splitlines()
 		 	for module in modules:
@@ -36,7 +37,7 @@ class fileINI:
 		 self.vertex_modules=cms.VInputTag()
 		 self.vertex_pathes=cms.vstring()
 		 for path in Config.options("vertex"):
-		 	print path
+		 	print(path)
 		 	modules=Config.get("vertex",path)
 		 	modules=modules.splitlines()
 		 	for module in modules:
@@ -45,17 +46,17 @@ class fileINI:
 				 	self.vertex_pathes.extend([path])
 				 	
 def printMe(self):
-	print
-	print  "Reading ", self.fileName
-	print
-	print  "denominatorTriggerPath		=	",self.denominatorTriggerPath
-	print  "maxEvents		=	",self.maxEvents
-	print  "CMSSWVER		=	",self.CMSSWVER
-	print  "processname		=	",self.processname
-	print  "jets (for matching)	=	",self.jets
-	print  "files			=	",self.files
-	print  "btag_modules		",self.btag_modules
-	print  "btag_pathes		",self.btag_pathes
-	print  "vertex_modules		",self.vertex_modules
-	print  "vertex_pathes		",self.vertex_pathes
-	print
+	print()
+	print("Reading ", self.fileName)
+	print()
+	print("denominatorTriggerPath		=	",self.denominatorTriggerPath)
+	print("maxEvents		=	",self.maxEvents)
+	print("CMSSWVER		=	",self.CMSSWVER)
+	print("processname		=	",self.processname)
+	print("jets (for matching)	=	",self.jets)
+	print("files			=	",self.files)
+	print("btag_modules		",self.btag_modules)
+	print("btag_pathes		",self.btag_pathes)
+	print("vertex_modules		",self.vertex_modules)
+	print("vertex_pathes		",self.vertex_pathes)
+	print()

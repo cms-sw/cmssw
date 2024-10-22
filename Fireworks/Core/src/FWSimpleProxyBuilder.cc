@@ -29,19 +29,14 @@
 //
 // constructors and destructor
 //
-FWSimpleProxyBuilder::FWSimpleProxyBuilder(const std::type_info& iType) :
-   m_helper(iType)
-{
-}
+FWSimpleProxyBuilder::FWSimpleProxyBuilder(const std::type_info& iType) : m_helper(iType) {}
 
 // FWSimpleProxyBuilder::FWSimpleProxyBuilder(const FWSimpleProxyBuilder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWSimpleProxyBuilder::~FWSimpleProxyBuilder()
-{
-}
+FWSimpleProxyBuilder::~FWSimpleProxyBuilder() {}
 
 //
 // assignment operators
@@ -59,107 +54,83 @@ FWSimpleProxyBuilder::~FWSimpleProxyBuilder()
 // member functions
 //
 
-void
-FWSimpleProxyBuilder::clean()
-{
-   for (Product_it i = m_products.begin(); i != m_products.end(); ++i)
-   {
-      if ((*i)->m_elements)
-      {
-         TEveElement* elms = (*i)->m_elements;
-         for (TEveElement::List_i it = elms->BeginChildren(); it != elms->EndChildren(); ++it)
-            (*it)->DestroyElements();
-      }
-   }
+void FWSimpleProxyBuilder::clean() {
+  for (Product_it i = m_products.begin(); i != m_products.end(); ++i) {
+    if ((*i)->m_elements) {
+      TEveElement* elms = (*i)->m_elements;
+      for (TEveElement::List_i it = elms->BeginChildren(); it != elms->EndChildren(); ++it)
+        (*it)->DestroyElements();
+    }
+  }
 
-   cleanLocal();
+  cleanLocal();
 }
 
-void
-FWSimpleProxyBuilder::itemChangedImp(const FWEventItem* iItem)
-{
-   if (iItem)
-   {
-      m_helper.itemChanged(iItem);
-   }
+void FWSimpleProxyBuilder::itemChangedImp(const FWEventItem* iItem) {
+  if (iItem) {
+    m_helper.itemChanged(iItem);
+  }
 }
 
-void
-FWSimpleProxyBuilder::build(const FWEventItem* iItem,
-                            TEveElementList* product, const FWViewContext* vc)
-{
-   size_t size = iItem->size();
-   TEveElement::List_i pIdx = product->BeginChildren();
-   for (int index = 0; index < static_cast<int>(size); ++index)
-   {
-      TEveElement* itemHolder = nullptr;
-      if (index <  product->NumChildren())
-      {
-         itemHolder = *pIdx;
-         itemHolder->SetRnrSelfChildren(true, true);
-         ++pIdx;
-      }
-      else
-      {
-         itemHolder = createCompound();
-         product->AddElement(itemHolder);
-      }
-      if (iItem->modelInfo(index).displayProperties().isVisible())
-      {
-         const void* modelData = iItem->modelData(index);
-         build(m_helper.offsetObject(modelData),index, *itemHolder, vc);
-      }
-   }
+void FWSimpleProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc) {
+  size_t size = iItem->size();
+  TEveElement::List_i pIdx = product->BeginChildren();
+  for (int index = 0; index < static_cast<int>(size); ++index) {
+    TEveElement* itemHolder = nullptr;
+    if (index < product->NumChildren()) {
+      itemHolder = *pIdx;
+      itemHolder->SetRnrSelfChildren(true, true);
+      ++pIdx;
+    } else {
+      itemHolder = createCompound();
+      product->AddElement(itemHolder);
+    }
+    if (iItem->modelInfo(index).displayProperties().isVisible()) {
+      const void* modelData = iItem->modelData(index);
+      build(m_helper.offsetObject(modelData), index, *itemHolder, vc);
+    }
+  }
 }
 
-void
-FWSimpleProxyBuilder::buildViewType(const FWEventItem* iItem,
-                                    TEveElementList* product, FWViewType::EType viewType, const FWViewContext* vc)
-{
-   size_t size = iItem->size();
-   TEveElement::List_i pIdx = product->BeginChildren();
-   for (int index = 0; index < static_cast<int>(size); ++index)
-   {
-      TEveElement* itemHolder = nullptr;
-      if (index < product->NumChildren())
-      {
-         itemHolder = *pIdx;
-         itemHolder->SetRnrSelfChildren(true, true);
-         ++pIdx;
-      }
-      else
-      {
-         itemHolder = createCompound();
-         product->AddElement(itemHolder);
-      }
-      if (iItem->modelInfo(index).displayProperties().isVisible())
-      {
-         const void* modelData = iItem->modelData(index);
-         buildViewType(m_helper.offsetObject(modelData),index, *itemHolder, viewType, vc);
-      }
-   }
+void FWSimpleProxyBuilder::buildViewType(const FWEventItem* iItem,
+                                         TEveElementList* product,
+                                         FWViewType::EType viewType,
+                                         const FWViewContext* vc) {
+  size_t size = iItem->size();
+  TEveElement::List_i pIdx = product->BeginChildren();
+  for (int index = 0; index < static_cast<int>(size); ++index) {
+    TEveElement* itemHolder = nullptr;
+    if (index < product->NumChildren()) {
+      itemHolder = *pIdx;
+      itemHolder->SetRnrSelfChildren(true, true);
+      ++pIdx;
+    } else {
+      itemHolder = createCompound();
+      product->AddElement(itemHolder);
+    }
+    if (iItem->modelInfo(index).displayProperties().isVisible()) {
+      const void* modelData = iItem->modelData(index);
+      buildViewType(m_helper.offsetObject(modelData), index, *itemHolder, viewType, vc);
+    }
+  }
 }
 
-
-bool
-FWSimpleProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                             FWViewType::EType viewType, const FWViewContext* vc)
-{
-   const FWEventItem::ModelInfo& info = iId.item()->modelInfo(iId.index());
-   bool returnValue = false;
-   if (info.displayProperties().isVisible() && iCompound->NumChildren()==0)
-   {
-      const void* modelData = iId.item()->modelData(iId.index());
-      if (haveSingleProduct())      
-         build(m_helper.offsetObject(modelData),iId.index(),*iCompound, vc);
-      else
-         buildViewType(m_helper.offsetObject(modelData),iId.index(),*iCompound, viewType, vc);
-      returnValue=true;
-   }
-   return returnValue;
+bool FWSimpleProxyBuilder::visibilityModelChanges(const FWModelId& iId,
+                                                  TEveElement* iCompound,
+                                                  FWViewType::EType viewType,
+                                                  const FWViewContext* vc) {
+  const FWEventItem::ModelInfo& info = iId.item()->modelInfo(iId.index());
+  bool returnValue = false;
+  if (info.displayProperties().isVisible() && iCompound->NumChildren() == 0) {
+    const void* modelData = iId.item()->modelData(iId.index());
+    if (haveSingleProduct())
+      build(m_helper.offsetObject(modelData), iId.index(), *iCompound, vc);
+    else
+      buildViewType(m_helper.offsetObject(modelData), iId.index(), *iCompound, viewType, vc);
+    returnValue = true;
+  }
+  return returnValue;
 }
-
-
 
 //
 // const member functions
@@ -168,8 +139,4 @@ FWSimpleProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEveElement* 
 //
 // static member functions
 //
-std::string
-FWSimpleProxyBuilder::typeOfBuilder()
-{
-   return std::string("simple#");
-}
+std::string FWSimpleProxyBuilder::typeOfBuilder() { return std::string("simple#"); }

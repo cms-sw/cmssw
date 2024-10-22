@@ -1,58 +1,33 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_h2tb_cff import h2tb
 
-process = cms.Process("PROD")
+process = cms.Process("PROD", h2tb)
 
-process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+process.load('SimG4CMS.HcalTestBeam.TB2006Geometry77XML_cfi')
+process.load('SimGeneral.HepPDTESSource.pdt_cfi')
 process.load('Configuration.StandardSequences.Services_cff')
-process.load("SimG4CMS.HcalTestBeam.TB2006Geometry77XML_cfi")
-process.load("Geometry.HcalCommonData.hcalParameters_cfi")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
-process.load("Configuration.EventContent.EventContent_cff")
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
+process.load('Geometry.HcalTestBeamData.hcalDDDSimConstants_cff')
+process.load('Configuration.EventContent.EventContent_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
 process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 process.load('SimG4Core.Application.g4SimHits_cfi')
 process.load('IOMC.RandomEngine.IOMC_cff')
 
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HCalGeom=dict()
+    process.MessageLogger.HcalSim=dict()
+
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('hcaltb06_77.root')
                                    )
 
-process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations = cms.untracked.vstring('cout'),
-                                    categories = cms.untracked.vstring('CaloSim', 
-                                                                       'HCalGeom', 
-                                                                       'HcalSim', 
-                                                                       'HcalTBSim', 
-                                                                       'SimHCalData'),
-                                    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        HcalTBSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        SimHCalData = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            )
-        )
-                                    )
-
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
+
+beamPosition = -800.0
 
 process.common_beam_direction_parameters = cms.PSet(
     MinE   = cms.double(50.0),
@@ -62,7 +37,7 @@ process.common_beam_direction_parameters = cms.PSet(
     MaxEta       = cms.double(0.5655),
     MinPhi       = cms.double(0.15708),
     MaxPhi       = cms.double(0.15708),
-    BeamPosition = cms.double(-800.0)
+    BeamPosition = cms.double(beamPosition)
     )
 
 process.source = cms.Source("EmptySource",
@@ -118,6 +93,7 @@ process.testbeam = cms.EDAnalyzer("HcalTB06Analysis",
         HcalWidth  = cms.double(0.640),
         EcalFactor = cms.double(1.0),
         HcalFactor = cms.double(100.0),
+        MIP        = cms.double(0.8),
         Verbose    = cms.untracked.bool(True),
         MakeTree   = cms.untracked.bool(True)
         )
@@ -128,10 +104,12 @@ process.outpath = cms.EndPath(process.o1)
 
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
 process.g4SimHits.Physics.Region = 'HcalRegion'
 process.g4SimHits.Physics.DefaultCutValue = 1.
 
+process.g4SimHits.StackingAction.KillGamma = False
+process.g4SimHits.CaloSD.BeamPosition = beamPosition
 process.g4SimHits.ECalSD.UseBirkLaw = True
 process.g4SimHits.ECalSD.BirkL3Parametrization = True
 process.g4SimHits.ECalSD.BirkC1 = 0.033
@@ -147,23 +125,3 @@ process.g4SimHits.HCalSD.UseShowerLibrary    = False
 process.g4SimHits.HCalSD.TestNumberingScheme = False
 process.g4SimHits.HCalSD.UseHF   = False
 process.g4SimHits.HCalSD.ForTBH2 = True
-
-process.g4SimHits.CaloSD = cms.PSet(
-    process.common_beam_direction_parameters,
-    process.common_heavy_suppression,
-    EminTrack      = cms.double(1.0),
-    TmaxHit        = cms.double(1000.0),
-    EminHits       = cms.vdouble(0.0,0.0,0.0,0.0),
-    EminHitsDepth  = cms.vdouble(0.0,0.0,0.0,0.0),
-    TmaxHits       = cms.vdouble(1000.0,1000.0,1000.0,1000.0),
-    HCNames        = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
-    UseResponseTables = cms.vint32(0,0,0,0),
-    SuppressHeavy  = cms.bool(False),
-    CheckHits      = cms.untracked.int32(25),
-    UseMap         = cms.untracked.bool(True),
-    Verbosity      = cms.untracked.int32(0),
-    DetailedTiming = cms.untracked.bool(False),
-    CorrectTOFBeam = cms.bool(False)
-    )
-
-process.g4SimHits.CaloTrkProcessing.TestBeam = True

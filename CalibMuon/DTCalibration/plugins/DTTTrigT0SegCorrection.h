@@ -9,12 +9,15 @@
  */
 
 #include "CalibMuon/DTCalibration/interface/DTTTrigBaseCorrection.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 
 namespace edm {
   class ParameterSet;
-}
+  class ConsumesCollector;
+}  // namespace edm
 
 class DTTtrig;
 
@@ -23,27 +26,26 @@ class TFile;
 
 namespace dtCalibration {
 
-class DTTTrigT0SegCorrection: public DTTTrigBaseCorrection {
-public:
-  // Constructor
-  DTTTrigT0SegCorrection(const edm::ParameterSet&);
+  class DTTTrigT0SegCorrection : public DTTTrigBaseCorrection {
+  public:
+    // Constructor
+    DTTTrigT0SegCorrection(const edm::ParameterSet&, edm::ConsumesCollector);
 
-  // Destructor
-  ~DTTTrigT0SegCorrection() override;
+    // Destructor
+    ~DTTTrigT0SegCorrection() override;
 
-  void setES(const edm::EventSetup& setup) override;
-  DTTTrigData correction(const DTSuperLayerId&) override;
+    void setES(const edm::EventSetup& setup) override;
+    DTTTrigData correction(const DTSuperLayerId&) override;
 
-private:
-  const TH1F* getHisto(const DTSuperLayerId&);
-  std::string getHistoName(const DTSuperLayerId& slID);
+  private:
+    const TH1F* getHisto(const DTSuperLayerId&);
+    std::string getHistoName(const DTSuperLayerId& slID);
 
-  TFile* rootFile_;
+    TFile* rootFile_;
 
-  std::string dbLabel;
+    const DTTtrig* tTrigMap_;
+    edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
+  };
 
-  const DTTtrig *tTrigMap_;
-};
-
-} // namespace
+}  // namespace dtCalibration
 #endif

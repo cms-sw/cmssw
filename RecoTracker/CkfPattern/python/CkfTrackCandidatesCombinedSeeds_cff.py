@@ -7,9 +7,8 @@ from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cff import *
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import *
 # navigation school
 from RecoTracker.TkNavigation.NavigationSchoolESProducer_cff import *
-import copy
 from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
 # generate CTF track candidates ############
-ckfTrackCandidatesCombinedSeeds = copy.deepcopy(ckfTrackCandidates)
-ckfTrackCandidatesCombinedSeeds.src = cms.InputTag('globalCombinedSeeds')
-
+ckfTrackCandidatesCombinedSeeds = ckfTrackCandidates.clone(
+    src = 'globalCombinedSeeds'
+)

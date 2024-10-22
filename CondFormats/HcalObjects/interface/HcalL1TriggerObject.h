@@ -8,31 +8,28 @@
 */
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
+class HcalL1TriggerObject {
+public:
+  HcalL1TriggerObject() : mId(0), mAvrgPed(0.), mRespCorrGain(0.), mFlag(0) {}
 
-class HcalL1TriggerObject 
-{
- public:
-  HcalL1TriggerObject():mId(0), mAvrgPed(0.), mRespCorrGain(0.), mFlag(0) {}
-  
-  HcalL1TriggerObject(unsigned long fId, float fAvrgPed, float fRespCorrGain, unsigned long fFlag = 0):
-    mId(fId), mAvrgPed(fAvrgPed), mRespCorrGain(fRespCorrGain), mFlag(fFlag) {}
-  
-  uint32_t rawId () const {return mId;}
+  HcalL1TriggerObject(unsigned long fId, float fAvrgPed, float fRespCorrGain, unsigned long fFlag = 0)
+      : mId(fId), mAvrgPed(fAvrgPed), mRespCorrGain(fRespCorrGain), mFlag(fFlag) {}
 
-  float getPedestal() const {return mAvrgPed;}
-  float getRespGain() const {return mRespCorrGain;}
-  uint32_t getFlag() const {return mFlag;}
+  uint32_t rawId() const { return mId; }
 
- private:
+  float getPedestal() const { return mAvrgPed; }
+  float getRespGain() const { return mRespCorrGain; }
+  uint32_t getFlag() const { return mFlag; }
+
+private:
   uint32_t mId;
   float mAvrgPed;
   float mRespCorrGain;
   uint32_t mFlag;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

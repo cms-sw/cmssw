@@ -6,41 +6,35 @@ import FWCore.ParameterSet.Config as cms
 #-----------------
 
 #	import the tasks
-from DQM.HcalTasks.DigiTask import digiTask
-from DQM.HcalTasks.DigiPhase1Task import digiPhase1Task
-from DQM.HcalTasks.RawTask import rawTask
-from DQM.HcalTasks.TPTask import tpTask
-from DQM.HcalTasks.RecHitTask import recHitTask
+from DQM.HcalTasks.DigiTask_cfi import digiTask
+from DQM.HcalTasks.RawTask_cfi import rawTask
+from DQM.HcalTasks.TPTask_cfi import tpTask
+from DQM.HcalTasks.RecHitTask_cfi import recHitTask
 
 #	set processing type to Offine
-digiTask.ptype = cms.untracked.int32(1)
-digiPhase1Task.ptype = cms.untracked.int32(1)
-tpTask.ptype = cms.untracked.int32(1)
-recHitTask.ptype = cms.untracked.int32(1)
-rawTask.ptype = cms.untracked.int32(1)
+digiTask.ptype = 1
+tpTask.ptype = 1
+recHitTask.ptype = 1
+rawTask.ptype = 1
 
 #	set the run key(value and name)
-digiTask.runkeyVal = cms.untracked.int32(2)
-tpTask.runkeyVal = cms.untracked.int32(2)
-recHitTask.runkeyVal = cms.untracked.int32(2)
-rawTask.runkeyVal = cms.untracked.int32(2)
+digiTask.runkeyVal = 2
+tpTask.runkeyVal = 2
+recHitTask.runkeyVal = 2
+rawTask.runkeyVal = 2
 
-digiTask.runkeyName = cms.untracked.string("cosmic_run")
-tpTask.runkeyName = cms.untracked.string("cosmic_run")
-recHitTask.runkeyName = cms.untracked.string("cosmic_run")
-rawTask.runkeyName = cms.untracked.string("cosmic_run")
+digiTask.runkeyName = "cosmic_run"
+tpTask.runkeyName = "cosmic_run"
+recHitTask.runkeyName = "cosmic_run"
+rawTask.runkeyName = "cosmic_run"
 
 #	set the Emulator label for TP Task
-tpTask.tagEmul = cms.untracked.InputTag("valHcalTriggerPrimitiveDigis")
+tpTask.tagEmul = "valHcalTriggerPrimitiveDigis"
 
 hcalOfflineSourceSequence = cms.Sequence(
 	digiTask
 	+recHitTask
 	+rawTask)
 
-_phase1_hcalOfflineSourceSequence = hcalOfflineSourceSequence.copy() 
-_phase1_hcalOfflineSourceSequence.insert(0,digiPhase1Task)
 
-from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-run2_HCAL_2017.toReplaceWith( hcalOfflineSourceSequence, _phase1_hcalOfflineSourceSequence )
 

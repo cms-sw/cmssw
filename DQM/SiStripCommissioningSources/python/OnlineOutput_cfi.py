@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-consumer = cms.EDFilter("ShmStreamConsumer",
+consumer = cms.EDFilter("GlobalEvFOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *', 
         'keep FEDRawDataCollection_*_*_*'

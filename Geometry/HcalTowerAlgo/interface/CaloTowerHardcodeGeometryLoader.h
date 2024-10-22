@@ -14,15 +14,16 @@
   */
 class CaloTowerHardcodeGeometryLoader {
 public:
-  std::unique_ptr<CaloSubdetectorGeometry> load(const CaloTowerTopology *limits, const HcalTopology *hcaltopo, const HcalDDDRecConstants* hcons);
+  std::unique_ptr<CaloSubdetectorGeometry> load(const CaloTowerTopology *limits,
+                                                const HcalTopology *hcaltopo,
+                                                const HcalDDDRecConstants *hcons);
+
 private:
-  void makeCell(uint32_t din, CaloSubdetectorGeometry* geom) const;
+  void makeCell(uint32_t din, CaloSubdetectorGeometry *geom) const;
   const CaloTowerTopology *m_limits;
   const HcalTopology *m_hcaltopo;
   const HcalDDDRecConstants *m_hcons;
   std::vector<double> theHBHEEtaBounds, theHFEtaBounds;
-
-
 };
 
 #endif

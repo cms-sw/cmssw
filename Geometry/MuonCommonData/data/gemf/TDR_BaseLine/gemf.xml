@@ -2,7 +2,9 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="gemf.xml" eval="true">
-  <Constant name="Tilt"       value="2.5*deg"/>
+  <Constant name="Tilt"         value="2.5*deg"/>
+  <Constant name="Layer1Offset" value="0"/>
+  <Constant name="Layer2Offset" value="50"/>
 </ConstantsSection>
 
 <MaterialSection label="gemf.xml">

@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 	<ConstantsSection label="ebcon.xml" eval="true">
-		<Constant name="BarZPts01" value="-3045.0*mm"/>
+		<Constant name="BarZPts01" value="-3046.0*mm"/>
 		<Constant name="BarZPts02" value="-2686.7*mm"/>
 		<Constant name="BarZPts03" value=" 2686.7*mm"/>
-		<Constant name="BarZPts04" value=" 3045.0*mm"/>
+		<Constant name="BarZPts04" value=" 3046.0*mm"/>
 		<Constant name="BarRMin01" value=" 1455.22*mm"/>
 		<Constant name="BarRMin02" value=" 1238.00*mm"/>
 		<Constant name="BarRMin03" value=" 1238.00*mm"/>

@@ -18,7 +18,7 @@
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
 //
- 
+
 // system include files
 
 // user include files
@@ -26,15 +26,10 @@
 #include "SimG4CMS/Forward/interface/TotemRPOrganization.h"
 
 class TotemRPNumberingScheme : public TotemRPOrganization {
-
 public:
-
   // ---------- Constructor and destructor -----------------
   TotemRPNumberingScheme(int i);
   ~TotemRPNumberingScheme() override;
-	 
-  //  virtual uint32_t GetUnitID(const G4Step* aStep) const ;
-
 };
 
 #endif

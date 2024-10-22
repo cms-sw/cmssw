@@ -54,7 +54,7 @@ def setConfiguration(process, collection, mode, monitorFile, binaryFile,
     ## Tracktype specific ##
     ########################
 
-    if collection == "ALCARECOTkAlZMuMu" or collection == "ALCARECOTkAlZMuMuHI" or collection == "ALCARECOTkAlZMuMuPA":
+    if collection == "ALCARECOTkAlZMuMu" or collection == "ALCARECOTkAlZMuMuHI" or collection == "ALCARECOTkAlZMuMuPA" or collection == "ALCARECOTkAlDiMuon":
         process.AlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(
              process.TwoBodyDecayTrajectoryFactory
         )
@@ -67,8 +67,17 @@ def setConfiguration(process, collection, mode, monitorFile, binaryFile,
         process.AlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(
              process.TwoBodyDecayTrajectoryFactory
         )
-        process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryMass =  9.4502
+        process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryMass = 9.4502
         process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryWidth = 0.0644
+        process.AlignmentProducer.algoConfig.TrajectoryFactory.MaterialEffects = "LocalGBL"
+        # to account for multiple scattering in these layers
+        process.AlignmentProducer.algoConfig.TrajectoryFactory.UseInvalidHits = True
+    elif collection == "ALCARECOTkAlJpsiMuMu":
+        process.AlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(
+             process.TwoBodyDecayTrajectoryFactory
+        )
+        process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryMass = 3.0969
+        process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryWidth = 0.03
         process.AlignmentProducer.algoConfig.TrajectoryFactory.MaterialEffects = "LocalGBL"
         # to account for multiple scattering in these layers
         process.AlignmentProducer.algoConfig.TrajectoryFactory.UseInvalidHits = True

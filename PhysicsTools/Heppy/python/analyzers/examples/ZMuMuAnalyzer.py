@@ -1,3 +1,4 @@
+from __future__ import print_function
 from PhysicsTools.Heppy.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
 from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.DiObject import DiMuon
@@ -11,7 +12,7 @@ class ZMuMuAnalyzer( DiLeptonAnalyzer ):
 
     def declareHandles(self):
         super(ZMuMuAnalyzer, self).declareHandles()
-        print 'ZMuMuAnalyzer.declareHandles'
+        print('ZMuMuAnalyzer.declareHandles')
         self.handles['diLeptons'] = AutoHandle(
             'cmgDiMuonSel',
             'std::vector<cmg::DiObject<cmg::Muon,cmg::Muon>>'

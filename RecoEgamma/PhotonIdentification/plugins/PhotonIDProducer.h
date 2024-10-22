@@ -8,23 +8,20 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonIDAlgo.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
+#include "CutBasedPhotonIDAlgo.h"
 
-class PhotonIDProducer : public edm::stream::EDProducer<>
-{
- public:
-
+class PhotonIDProducer : public edm::stream::EDProducer<> {
+public:
   explicit PhotonIDProducer(const edm::ParameterSet& conf);
   ~PhotonIDProducer() override;
 
   void produce(edm::Event& e, const edm::EventSetup& c) override;
-   
- private:
 
-  CutBasedPhotonIDAlgo* cutBasedAlgo_; 	   
+private:
+  CutBasedPhotonIDAlgo* cutBasedAlgo_;
 
   edm::ParameterSet conf_;
   edm::EDGetTokenT<reco::PhotonCollection> photonToken_;
@@ -34,7 +31,6 @@ class PhotonIDProducer : public edm::stream::EDProducer<>
   std::string photonCutBasedIDTightLabel_;
 
   bool doCutBased_;
-
 };
 
 #endif

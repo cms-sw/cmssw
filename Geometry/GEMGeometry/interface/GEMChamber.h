@@ -28,13 +28,13 @@ public:
   GEMDetId id() const;
 
   // Which subdetector
-  SubDetector subDetector() const override {return GeomDetEnumerators::GEM;}
+  SubDetector subDetector() const override { return GeomDetEnumerators::GEM; }
 
   /// equal if the id is the same
   bool operator==(const GEMChamber& ch) const;
 
   /// Add EtaPartition to the chamber which takes ownership
-  void add(GEMEtaPartition* roll);
+  void add(const GEMEtaPartition* roll);
 
   /// Return the rolls in the chamber
   std::vector<const GeomDet*> components() const override;
@@ -42,11 +42,11 @@ public:
   /// Return the sub-component (roll) with a given id in this chamber
   const GeomDet* component(DetId id) const override;
 
-  /// Return the eta partition corresponding to the given id 
+  /// Return the eta partition corresponding to the given id
   const GEMEtaPartition* etaPartition(GEMDetId id) const;
 
   const GEMEtaPartition* etaPartition(int isl) const;
-  
+
   /// Return the eta partitions
   const std::vector<const GEMEtaPartition*>& etaPartitions() const;
 
@@ -54,11 +54,9 @@ public:
   int nEtaPartitions() const;
 
 private:
-
   GEMDetId detId_;
 
   // vector of eta partitions for a chamber
   std::vector<const GEMEtaPartition*> etaPartitions_;
-
 };
 #endif

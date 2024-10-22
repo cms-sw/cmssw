@@ -4,29 +4,29 @@
   Date:   2007-08-24
 */
 
+#include <arpa/inet.h>
+#include <csignal>
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <sys/socket.h>
-#include <arpa/inet.h>
-#include <signal.h>
 #include <unistd.h>
-#include <cstring>
-#include <cstdlib>
 
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
-int gContinue=1;
+int gContinue = 1;
 bool Connected = false;
-char * Buffer;
+char *Buffer;
 
 void CtrlC(int aSigNum) {
   std::cout << "Ctrl-c detected, stopping run" << std::endl;
-  gContinue=0;
-  delete [] Buffer;
+  gContinue = 0;
+  delete[] Buffer;
   exit(1);
 }
 
-int main(){
+int main() {
   using std::cout;
   using std::endl;
 
@@ -50,49 +50,48 @@ int main(){
   unsigned short servPort = 51006;
   unsigned int Buffer_Size;
 
-  signal(SIGINT,CtrlC);
+  signal(SIGINT, CtrlC);
 
-  clntLen = sizeof(clntAddr);    
+  clntLen = sizeof(clntAddr);
   Buffer_Size = sizeof(lumiSection);
   Buffer = new char[Buffer_Size];
-  
-  if((servSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP))<0){
+
+  if ((servSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
     cout << "***  socket failed **** " << endl;
     exit(1);
   }
-  
+
   memset(&servAddr, 0, sizeof(servAddr));
   servAddr.sin_family = AF_INET;
   servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
   servAddr.sin_port = htons(servPort);
-  do{
-    if((er = bind(servSock, (struct sockaddr *) &servAddr, sizeof(servAddr))) < 0){
+  do {
+    if ((er = bind(servSock, (struct sockaddr *)&servAddr, sizeof(servAddr))) < 0) {
       cout << " *** bind failed *** " << endl;
       cout << " Attempting to bind in 30 seconds " << endl;
       sleep(30);
     }
-  }while(er < 0 && gContinue);
+  } while (er < 0 && gContinue);
 
-  if(listen(servSock, 5) < 0){
+  if (listen(servSock, 5) < 0) {
     cout << " *** listen failed *** " << endl;
     exit(1);
   }
   memset(reinterpret_cast<char *>(&lumiSection), 0, Buffer_Size);
-  memset(Buffer, 0, Buffer_Size); 
+  memset(Buffer, 0, Buffer_Size);
 
-  while(gContinue){
-
+  while (gContinue) {
     cout << " ** Generating Lumi Section ** " << endl;
     HT.GenerateFakeData(lumiSection);
-    
+
     orbitCount += 4;
-    
-    if(orbitCount >= sizeOfSection){
+
+    if (orbitCount >= sizeOfSection) {
       sectionCount++;
       orbitCount = 0;
     }
-    
-    if(sectionCount >= sizeOfRun){
+
+    if (sectionCount >= sizeOfRun) {
       runCount++;
       sectionCount = 0;
     }
@@ -104,30 +103,24 @@ int main(){
     lumiSection.hdr.numBunches = 3546;
     lumiSection.hdr.numHLXs = 36;
     lumiSection.hdr.bCMSLive = true;
-    
-    memcpy(Buffer,reinterpret_cast<char *>(&lumiSection), Buffer_Size);
 
-    if(Connected == false){
+    memcpy(Buffer, reinterpret_cast<char *>(&lumiSection), Buffer_Size);
 
-      do{
-	cout << " **** Waiting *** " << endl;
-	if((clntSock = accept(servSock, (struct sockaddr *) &clntAddr, &clntLen)) < 0)
-	  cout << " ** accept() failed ** " << endl;
-      }while(clntSock < 0 && gContinue);
+    if (Connected == false) {
+      do {
+        cout << " **** Waiting *** " << endl;
+        if ((clntSock = accept(servSock, (struct sockaddr *)&clntAddr, &clntLen)) < 0)
+          cout << " ** accept() failed ** " << endl;
+      } while (clntSock < 0 && gContinue);
       Connected = true;
-      
+
     } else {
-      
-      cout << " ** Sending Lumi Section - Run: " 
-	   << lumiSection.hdr.runNumber
-	   << " Section: " 
-	   << lumiSection.hdr.sectionNumber
-	   << " Orbit: "
-	   << lumiSection.hdr.startOrbit
-	   << " ** " << endl;
-      if(send(clntSock, Buffer, Buffer_Size, 0) != (int)Buffer_Size){
-	cout << " ** send failed ** " << endl;
-	Connected = false;
+      cout << " ** Sending Lumi Section - Run: " << lumiSection.hdr.runNumber
+           << " Section: " << lumiSection.hdr.sectionNumber << " Orbit: " << lumiSection.hdr.startOrbit << " ** "
+           << endl;
+      if (send(clntSock, Buffer, Buffer_Size, 0) != (int)Buffer_Size) {
+        cout << " ** send failed ** " << endl;
+        Connected = false;
       }
       sleep(3);
     }

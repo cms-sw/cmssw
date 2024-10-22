@@ -1,3 +1,4 @@
+from __future__ import print_function
 ##########################################################################
 # Classes which are needed by the mps_validate.py file.
 ##
@@ -60,18 +61,18 @@ class PedeDumpData:
 
     def printLog(self):
         if (self.sumValue != 0):
-            print "Sum(Chi^2)/Sum(Ndf) = {0} = {1}".format(self.sumSteps, self.sumValue)
+            print("Sum(Chi^2)/Sum(Ndf) = {0} = {1}".format(self.sumSteps, self.sumValue))
         else:
-            print "Sum(W*Chi^2)/Sum(Ndf)/<W> = {0} = {1}".format(self.sumSteps, self.sumWValue)
-        print "with correction for down-weighting: {0}".format(self.correction)
-        print "Peak dynamic memory allocation: {0} GB".format(self.memory)
-        print "Total time: {0} h {1} m {2} s".format(self.time[0], self.time[1], self.time[2])
-        print "Number of records: {0}".format(self.nrec)
-        print "Total number of parameters: {0}".format(self.ntgb)
-        print "Number of variable parameters: {0}".format(self.nvgb)
-        print "Warning:"
+            print("Sum(W*Chi^2)/Sum(Ndf)/<W> = {0} = {1}".format(self.sumSteps, self.sumWValue))
+        print("with correction for down-weighting: {0}".format(self.correction))
+        print("Peak dynamic memory allocation: {0} GB".format(self.memory))
+        print("Total time: {0} h {1} m {2} s".format(self.time[0], self.time[1], self.time[2]))
+        print("Number of records: {0}".format(self.nrec))
+        print("Total number of parameters: {0}".format(self.ntgb))
+        print("Number of variable parameters: {0}".format(self.nvgb))
+        print("Warning:")
         for line in self.warning:
-            print line
+            print(line)
 
 
 class MonitorData:

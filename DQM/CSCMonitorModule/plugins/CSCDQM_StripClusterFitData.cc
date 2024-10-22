@@ -3,7 +3,7 @@
 
 namespace cscdqm {
 
-  StripClusterFitData::StripClusterFitData(){}
-  StripClusterFitData::~StripClusterFitData(){}
+  StripClusterFitData::StripClusterFitData() {}
+  StripClusterFitData::~StripClusterFitData() {}
 
-}
+}  // namespace cscdqm

@@ -26,39 +26,36 @@
 // forward declarations
 class TClass;
 namespace edm {
-   class EDProduct;
-   class ObjectWithDict;
-}
+  class EDProduct;
+  class ObjectWithDict;
+}  // namespace edm
 
 class FWItemAccessorBase {
-
 public:
-   FWItemAccessorBase();
-   virtual ~FWItemAccessorBase();
+  FWItemAccessorBase();
+  virtual ~FWItemAccessorBase();
 
-   // ---------- const member functions ---------------------
-   virtual const void* modelData(int iIndex) const = 0;
-   virtual const void* data() const = 0;
-   virtual unsigned int size() const = 0;
-   virtual const TClass* modelType() const = 0;
-   virtual const TClass* type() const = 0;
+  // ---------- const member functions ---------------------
+  virtual const void* modelData(int iIndex) const = 0;
+  virtual const void* data() const = 0;
+  virtual unsigned int size() const = 0;
+  virtual const TClass* modelType() const = 0;
+  virtual const TClass* type() const = 0;
 
-   virtual bool isCollection() const = 0;
+  virtual bool isCollection() const = 0;
 
-   ///override if id of an object should be different than the index
-   //virtual std::string idForIndex(int iIndex) const;
-   // ---------- member functions ---------------------------
-   virtual void setData(const edm::ObjectWithDict& )=0;
-   virtual void reset() = 0;
+  ///override if id of an object should be different than the index
+  //virtual std::string idForIndex(int iIndex) const;
+  // ---------- member functions ---------------------------
+  virtual void setData(const edm::ObjectWithDict&) = 0;
+  virtual void reset() = 0;
 
 private:
-   //FWItemAccessorBase(const FWItemAccessorBase&); // stop default
+  //FWItemAccessorBase(const FWItemAccessorBase&); // stop default
 
-   //const FWItemAccessorBase& operator=(const FWItemAccessorBase&); // stop default
+  //const FWItemAccessorBase& operator=(const FWItemAccessorBase&); // stop default
 
-   // ---------- member data --------------------------------
-
+  // ---------- member data --------------------------------
 };
-
 
 #endif

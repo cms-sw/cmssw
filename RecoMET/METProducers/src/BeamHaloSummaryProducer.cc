@@ -12,21 +12,20 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-BeamHaloSummaryProducer::BeamHaloSummaryProducer(const edm::ParameterSet& iConfig)
-{
+BeamHaloSummaryProducer::BeamHaloSummaryProducer(const edm::ParameterSet& iConfig) {
   IT_CSCHaloData = iConfig.getParameter<edm::InputTag>("CSCHaloDataLabel");
   IT_EcalHaloData = iConfig.getParameter<edm::InputTag>("EcalHaloDataLabel");
   IT_HcalHaloData = iConfig.getParameter<edm::InputTag>("HcalHaloDataLabel");
   IT_GlobalHaloData = iConfig.getParameter<edm::InputTag>("GlobalHaloDataLabel");
-  
-  L_EcalPhiWedgeEnergy = (float) iConfig.getParameter<double>("l_EcalPhiWedgeEnergy");
+
+  L_EcalPhiWedgeEnergy = (float)iConfig.getParameter<double>("l_EcalPhiWedgeEnergy");
   L_EcalPhiWedgeConstituents = iConfig.getParameter<int>("l_EcalPhiWedgeConstituents");
   L_EcalPhiWedgeToF = (float)iConfig.getParameter<double>("l_EcalPhiWedgeToF");
   L_EcalPhiWedgeConfidence = (float)iConfig.getParameter<double>("l_EcalPhiWedgeConfidence");
   L_EcalShowerShapesRoundness = (float)iConfig.getParameter<double>("l_EcalShowerShapesRoundness");
-  L_EcalShowerShapesAngle =(float) iConfig.getParameter<double>("l_EcalShowerShapesAngle");  
-  L_EcalSuperClusterSize = (int) iConfig.getParameter<int>("l_EcalSuperClusterSize");
-  L_EcalSuperClusterEnergy = (float) iConfig.getParameter<double>("l_EcalSuperClusterEnergy");
+  L_EcalShowerShapesAngle = (float)iConfig.getParameter<double>("l_EcalShowerShapesAngle");
+  L_EcalSuperClusterSize = (int)iConfig.getParameter<int>("l_EcalSuperClusterSize");
+  L_EcalSuperClusterEnergy = (float)iConfig.getParameter<double>("l_EcalSuperClusterEnergy");
 
   T_EcalPhiWedgeEnergy = (float)iConfig.getParameter<double>("t_EcalPhiWedgeEnergy");
   T_EcalPhiWedgeConstituents = iConfig.getParameter<int>("t_EcalPhiWedgeConstituents");
@@ -34,14 +33,14 @@ BeamHaloSummaryProducer::BeamHaloSummaryProducer(const edm::ParameterSet& iConfi
   T_EcalPhiWedgeConfidence = (float)iConfig.getParameter<double>("t_EcalPhiWedgeConfidence");
   T_EcalShowerShapesRoundness = (float)iConfig.getParameter<double>("t_EcalShowerShapesRoundness");
   T_EcalShowerShapesAngle = (float)iConfig.getParameter<double>("t_EcalShowerShapesAngle");
-  T_EcalSuperClusterSize = (int) iConfig.getParameter<int>("t_EcalSuperClusterSize");
-  T_EcalSuperClusterEnergy = (float) iConfig.getParameter<double>("t_EcalSuperClusterEnergy");
+  T_EcalSuperClusterSize = (int)iConfig.getParameter<int>("t_EcalSuperClusterSize");
+  T_EcalSuperClusterEnergy = (float)iConfig.getParameter<double>("t_EcalSuperClusterEnergy");
 
   L_HcalPhiWedgeEnergy = (float)iConfig.getParameter<double>("l_HcalPhiWedgeEnergy");
   L_HcalPhiWedgeConstituents = iConfig.getParameter<int>("l_HcalPhiWedgeConstituents");
   L_HcalPhiWedgeToF = (float)iConfig.getParameter<double>("l_HcalPhiWedgeToF");
   L_HcalPhiWedgeConfidence = (float)iConfig.getParameter<double>("l_HcalPhiWedgeConfidence");
-  
+
   T_HcalPhiWedgeEnergy = (float)iConfig.getParameter<double>("t_HcalPhiWedgeEnergy");
   T_HcalPhiWedgeConstituents = iConfig.getParameter<int>("t_HcalPhiWedgeConstituents");
   T_HcalPhiWedgeToF = (float)iConfig.getParameter<double>("t_HcalPhiWedgeToF");
@@ -57,9 +56,8 @@ BeamHaloSummaryProducer::BeamHaloSummaryProducer(const edm::ParameterSet& iConfi
   produces<BeamHaloSummary>();
 }
 
-void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
-{
-  // BeamHaloSummary object 
+void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup) {
+  // BeamHaloSummary object
   auto TheBeamHaloSummary = std::make_unique<BeamHaloSummary>();
 
   // CSC Specific Halo Data
@@ -67,60 +65,53 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //  iEvent.getByLabel(IT_CSCHaloData, TheCSCHaloData);
   iEvent.getByToken(cschalodata_token_, TheCSCHaloData);
 
-  const CSCHaloData CSCData = (*TheCSCHaloData.product() );
+  const CSCHaloData CSCData = (*TheCSCHaloData.product());
 
-  //CSCLoose Id for 2011 
-  if( CSCData.NumberOfHaloTriggers() ||
-      CSCData.NumberOfHaloTracks()   ||
-      (CSCData.NOutOfTimeHits() > 10 && CSCData.NFlatHaloSegments() > 2 ) ||
-      CSCData.GetSegmentsInBothEndcaps() ||
-      CSCData.NTracksSmalldT() )
+  //CSCLoose Id for 2011
+  if (CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks() ||
+      (CSCData.NOutOfTimeHits() > 10 && CSCData.NFlatHaloSegments() > 2) || CSCData.GetSegmentsInBothEndcaps() ||
+      CSCData.NTracksSmalldT())
     TheBeamHaloSummary->GetCSCHaloReport()[0] = 1;
 
   //CSCTight Id for 2011
-  if( (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfHaloTracks()) ||
-      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTriggers() ) ||
-      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTracks() ) ||
-      CSCData.GetSegmentsInBothEndcaps() ||
-      (CSCData.NTracksSmalldT() && CSCData.NumberOfHaloTracks() ) ||
-      (CSCData.NFlatHaloSegments() > 3 && (CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks()) ))
+  if ((CSCData.NumberOfHaloTriggers() && CSCData.NumberOfHaloTracks()) ||
+      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTriggers()) ||
+      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTracks()) || CSCData.GetSegmentsInBothEndcaps() ||
+      (CSCData.NTracksSmalldT() && CSCData.NumberOfHaloTracks()) ||
+      (CSCData.NFlatHaloSegments() > 3 && (CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks())))
     TheBeamHaloSummary->GetCSCHaloReport()[1] = 1;
 
   //CSCLoose Id from 2010
-  if( CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks() || CSCData.NumberOfOutOfTimeTriggers() )
+  if (CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks() || CSCData.NumberOfOutOfTimeTriggers())
     TheBeamHaloSummary->GetCSCHaloReport()[2] = 1;
 
   //CSCTight Id from 2010
-  if( (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfHaloTracks()) ||
+  if ((CSCData.NumberOfHaloTriggers() && CSCData.NumberOfHaloTracks()) ||
       (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfOutOfTimeTriggers()) ||
-      (CSCData.NumberOfHaloTracks() && CSCData.NumberOfOutOfTimeTriggers() ) )
+      (CSCData.NumberOfHaloTracks() && CSCData.NumberOfOutOfTimeTriggers()))
     TheBeamHaloSummary->GetCSCHaloReport()[3] = 1;
 
   //CSCTight Id for 2015
-  if( (CSCData.NumberOfHaloTriggers_TrkMuUnVeto() && CSCData.NumberOfHaloTracks()) ||
-      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTriggers_TrkMuUnVeto() ) ||
-      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTracks() ) ||
+  if ((CSCData.NumberOfHaloTriggers_TrkMuUnVeto() && CSCData.NumberOfHaloTracks()) ||
+      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTriggers_TrkMuUnVeto()) ||
+      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTracks()) ||
       CSCData.GetSegmentsInBothEndcaps_Loose_TrkMuUnVeto() ||
-      (CSCData.NTracksSmalldT() && CSCData.NumberOfHaloTracks() ) ||
-      (CSCData.NFlatHaloSegments() > 3 && (CSCData.NumberOfHaloTriggers_TrkMuUnVeto() || CSCData.NumberOfHaloTracks()) ))
+      (CSCData.NTracksSmalldT() && CSCData.NumberOfHaloTracks()) ||
+      (CSCData.NFlatHaloSegments() > 3 && (CSCData.NumberOfHaloTriggers_TrkMuUnVeto() || CSCData.NumberOfHaloTracks())))
     TheBeamHaloSummary->GetCSCHaloReport()[4] = 1;
 
   //Update
-  if(  (CSCData.NumberOfHaloTriggers_TrkMuUnVeto() && CSCData.NFlatHaloSegments_TrkMuUnVeto() ) ||
-       CSCData.GetSegmentsInBothEndcaps_Loose_dTcut_TrkMuUnVeto() ||
-       CSCData.GetSegmentIsCaloMatched()
-       )
+  if ((CSCData.NumberOfHaloTriggers_TrkMuUnVeto() && CSCData.NFlatHaloSegments_TrkMuUnVeto()) ||
+      CSCData.GetSegmentsInBothEndcaps_Loose_dTcut_TrkMuUnVeto() || CSCData.GetSegmentIsCaloMatched())
     TheBeamHaloSummary->GetCSCHaloReport()[5] = 1;
-  
-
 
   //Ecal Specific Halo Data
   Handle<EcalHaloData> TheEcalHaloData;
   //  iEvent.getByLabel(IT_EcalHaloData, TheEcalHaloData);
   iEvent.getByToken(ecalhalodata_token_, TheEcalHaloData);
 
-  const EcalHaloData EcalData = (*TheEcalHaloData.product() );
-  
+  const EcalHaloData EcalData = (*TheEcalHaloData.product());
+
   bool EcalLooseId = false, EcalTightId = false;
   /*  COMMENTED OUT, NEEDS TO BE TUNED 
       const std::vector<PhiWedge> EcalWedges = EcalData.GetPhiWedges();
@@ -158,33 +149,32 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   edm::ValueMap<float> vm_Angle = EcalData.GetShowerShapesAngle();
   edm::ValueMap<float> vm_Roundness = EcalData.GetShowerShapesRoundness();
-  
-  //Access selected SuperClusters
-  for(unsigned int n = 0 ; n < EcalData.GetSuperClusters().size() ; n++ )
-    {
-      edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters()[n] );
-      
-      float angle = vm_Angle[cluster];
-      float roundness = vm_Roundness[cluster];
-      
-      //Loose Selection
-      if(  (angle > 0. && angle < L_EcalShowerShapesAngle ) && ( roundness > 0. && roundness < L_EcalShowerShapesRoundness ) )
-        {
-          if( cluster->energy() > L_EcalSuperClusterEnergy && cluster->size() > (unsigned int) L_EcalSuperClusterSize )
-            EcalLooseId = true;
-        }
 
-      //Tight Selection 
-      if(  (angle > 0. && angle < T_EcalShowerShapesAngle ) && ( roundness > 0. && roundness < T_EcalShowerShapesRoundness ) )
-        {
-          if( cluster->energy() > T_EcalSuperClusterEnergy && cluster->size() > (unsigned int)T_EcalSuperClusterSize )
-            EcalTightId = true;
-        }
+  //Access selected SuperClusters
+  for (unsigned int n = 0; n < EcalData.GetSuperClusters().size(); n++) {
+    edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters()[n]);
+
+    float angle = vm_Angle[cluster];
+    float roundness = vm_Roundness[cluster];
+
+    //Loose Selection
+    if ((angle > 0. && angle < L_EcalShowerShapesAngle) &&
+        (roundness > 0. && roundness < L_EcalShowerShapesRoundness)) {
+      if (cluster->energy() > L_EcalSuperClusterEnergy && cluster->size() > (unsigned int)L_EcalSuperClusterSize)
+        EcalLooseId = true;
     }
-  
-  if( EcalLooseId ) 
+
+    //Tight Selection
+    if ((angle > 0. && angle < T_EcalShowerShapesAngle) &&
+        (roundness > 0. && roundness < T_EcalShowerShapesRoundness)) {
+      if (cluster->energy() > T_EcalSuperClusterEnergy && cluster->size() > (unsigned int)T_EcalSuperClusterSize)
+        EcalTightId = true;
+    }
+  }
+
+  if (EcalLooseId)
     TheBeamHaloSummary->GetEcalHaloReport()[0] = 1;
-  if( EcalTightId ) 
+  if (EcalTightId)
     TheBeamHaloSummary->GetEcalHaloReport()[1] = 1;
 
   // Hcal Specific Halo Data
@@ -192,51 +182,47 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //  iEvent.getByLabel(IT_HcalHaloData, TheHcalHaloData);
   iEvent.getByToken(hcalhalodata_token_, TheHcalHaloData);
 
-  const HcalHaloData HcalData = (*TheHcalHaloData.product() );
+  const HcalHaloData HcalData = (*TheHcalHaloData.product());
   const std::vector<PhiWedge>& HcalWedges = HcalData.GetPhiWedges();
   bool HcalLooseId = false, HcalTightId = false;
-  for( std::vector<PhiWedge>::const_iterator iWedge = HcalWedges.begin() ; iWedge != HcalWedges.end() ; iWedge++ )
-    {
-      bool HcaliPhi = false;
-      //Loose Id
-      if( iWedge-> Energy() > L_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > L_HcalPhiWedgeConstituents && std::abs(iWedge->ZDirectionConfidence()) > L_HcalPhiWedgeConfidence)
-        {
-          HcalLooseId = true;
-          HcaliPhi = true;
-        }
-
-      //Tight Id
-      if( iWedge-> Energy() > T_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents && std::abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence)
-        {
-          HcalTightId = true;
-          HcaliPhi = true;
-	}
-      
-      for( unsigned int i = 0 ; i < TheBeamHaloSummary->GetHcaliPhiSuspects().size() ; i++ )
-	{
-          if( iWedge->iPhi() == TheBeamHaloSummary->GetHcaliPhiSuspects()[i] )
-            {
-              HcaliPhi = false;  // already stored this iPhi 
-	      continue;
-            }
-	}
-      if( HcaliPhi ) 
-	TheBeamHaloSummary->GetHcaliPhiSuspects().push_back( iWedge->iPhi() ) ;
+  for (std::vector<PhiWedge>::const_iterator iWedge = HcalWedges.begin(); iWedge != HcalWedges.end(); iWedge++) {
+    bool HcaliPhi = false;
+    //Loose Id
+    if (iWedge->Energy() > L_HcalPhiWedgeEnergy && iWedge->NumberOfConstituents() > L_HcalPhiWedgeConstituents &&
+        std::abs(iWedge->ZDirectionConfidence()) > L_HcalPhiWedgeConfidence) {
+      HcalLooseId = true;
+      HcaliPhi = true;
     }
-  
-  if( HcalLooseId ) 
+
+    //Tight Id
+    if (iWedge->Energy() > T_HcalPhiWedgeEnergy && iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents &&
+        std::abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence) {
+      HcalTightId = true;
+      HcaliPhi = true;
+    }
+
+    for (unsigned int i = 0; i < TheBeamHaloSummary->GetHcaliPhiSuspects().size(); i++) {
+      if (iWedge->iPhi() == TheBeamHaloSummary->GetHcaliPhiSuspects()[i]) {
+        HcaliPhi = false;  // already stored this iPhi
+        continue;
+      }
+    }
+    if (HcaliPhi)
+      TheBeamHaloSummary->GetHcaliPhiSuspects().push_back(iWedge->iPhi());
+  }
+
+  if (HcalLooseId)
     TheBeamHaloSummary->GetHcalHaloReport()[0] = 1;
-  if( HcalTightId ) 
+  if (HcalTightId)
     TheBeamHaloSummary->GetHcalHaloReport()[1] = 1;
 
-
-  for( unsigned int i = 0 ; i < HcalData.getProblematicStrips().size() ; i++ ) {
+  for (unsigned int i = 0; i < HcalData.getProblematicStrips().size(); i++) {
     auto const& problematicStrip = HcalData.getProblematicStrips()[i];
-    if(problematicStrip.cellTowerIds.size() < (unsigned int)problematicStripMinLength) continue;
+    if (problematicStrip.cellTowerIds.size() < (unsigned int)problematicStripMinLength)
+      continue;
 
     TheBeamHaloSummary->getProblematicStrips().push_back(problematicStrip);
   }
-
 
   // Global Halo Data
   Handle<GlobalHaloData> TheGlobalHaloData;
@@ -245,56 +231,52 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   bool GlobalLooseId = false;
   bool GlobalTightId = false;
-  const GlobalHaloData GlobalData = (*TheGlobalHaloData.product() );
+  const GlobalHaloData GlobalData = (*TheGlobalHaloData.product());
   const std::vector<PhiWedge>& MatchedHcalWedges = GlobalData.GetMatchedHcalPhiWedges();
   const std::vector<PhiWedge>& MatchedEcalWedges = GlobalData.GetMatchedEcalPhiWedges();
 
   //Loose Id
-  if( !MatchedEcalWedges.empty() || !MatchedHcalWedges.empty() ) 
+  if (!MatchedEcalWedges.empty() || !MatchedHcalWedges.empty())
     GlobalLooseId = true;
 
   //Tight Id
-  for( std::vector<PhiWedge>::const_iterator iWedge = MatchedEcalWedges.begin() ; iWedge != MatchedEcalWedges.end(); iWedge ++ )
-    {
-      if( iWedge->NumberOfConstituents() > T_EcalPhiWedgeConstituents )
-        GlobalTightId = true;
-      if( std::abs(iWedge->ZDirectionConfidence()) > T_EcalPhiWedgeConfidence )
-	GlobalTightId = true;
-    }
+  for (std::vector<PhiWedge>::const_iterator iWedge = MatchedEcalWedges.begin(); iWedge != MatchedEcalWedges.end();
+       iWedge++) {
+    if (iWedge->NumberOfConstituents() > T_EcalPhiWedgeConstituents)
+      GlobalTightId = true;
+    if (std::abs(iWedge->ZDirectionConfidence()) > T_EcalPhiWedgeConfidence)
+      GlobalTightId = true;
+  }
 
-  for( std::vector<PhiWedge>::const_iterator iWedge = MatchedHcalWedges.begin() ; iWedge != MatchedHcalWedges.end(); iWedge ++ )
-    {
-      if( iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents )
-        GlobalTightId = true;
-      if( std::abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence )
-	GlobalTightId = true;
-    }
+  for (std::vector<PhiWedge>::const_iterator iWedge = MatchedHcalWedges.begin(); iWedge != MatchedHcalWedges.end();
+       iWedge++) {
+    if (iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents)
+      GlobalTightId = true;
+    if (std::abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence)
+      GlobalTightId = true;
+  }
 
-  if( GlobalLooseId ) 
+  if (GlobalLooseId)
     TheBeamHaloSummary->GetGlobalHaloReport()[0] = 1;
-  if( GlobalTightId )
+  if (GlobalTightId)
     TheBeamHaloSummary->GetGlobalHaloReport()[1] = 1;
-  
+
   //GlobalTight Id for 2016
-  if((GlobalData.GetSegmentIsEBCaloMatched() || GlobalData.GetHaloPatternFoundEB() ) ||
-     (GlobalData.GetSegmentIsEECaloMatched() || GlobalData.GetHaloPatternFoundEE() ) ||
-     (GlobalData.GetSegmentIsHBCaloMatched() || GlobalData.GetHaloPatternFoundHB() ) ||
-     (GlobalData.GetSegmentIsHECaloMatched() || GlobalData.GetHaloPatternFoundHE() ) 
-     )
+  if ((GlobalData.GetSegmentIsEBCaloMatched() || GlobalData.GetHaloPatternFoundEB()) ||
+      (GlobalData.GetSegmentIsEECaloMatched() || GlobalData.GetHaloPatternFoundEE()) ||
+      (GlobalData.GetSegmentIsHBCaloMatched() || GlobalData.GetHaloPatternFoundHB()) ||
+      (GlobalData.GetSegmentIsHECaloMatched() || GlobalData.GetHaloPatternFoundHE()))
     TheBeamHaloSummary->GetGlobalHaloReport()[2] = 1;
 
-  //Global SuperTight Id for 2016 
-  if((GlobalData.GetSegmentIsEBCaloMatched() && GlobalData.GetHaloPatternFoundEB() ) ||
-     (GlobalData.GetSegmentIsEECaloMatched() && GlobalData.GetHaloPatternFoundEE() ) ||
-     (GlobalData.GetSegmentIsHBCaloMatched() && GlobalData.GetHaloPatternFoundHB() ) ||
-     (GlobalData.GetSegmentIsHECaloMatched() && GlobalData.GetHaloPatternFoundHE() ) 
-     ) 
+  //Global SuperTight Id for 2016
+  if ((GlobalData.GetSegmentIsEBCaloMatched() && GlobalData.GetHaloPatternFoundEB()) ||
+      (GlobalData.GetSegmentIsEECaloMatched() && GlobalData.GetHaloPatternFoundEE()) ||
+      (GlobalData.GetSegmentIsHBCaloMatched() && GlobalData.GetHaloPatternFoundHB()) ||
+      (GlobalData.GetSegmentIsHECaloMatched() && GlobalData.GetHaloPatternFoundHE()))
     TheBeamHaloSummary->GetGlobalHaloReport()[3] = 1;
- 
-
 
   iEvent.put(std::move(TheBeamHaloSummary));
   return;
 }
 
-BeamHaloSummaryProducer::~BeamHaloSummaryProducer(){}
+BeamHaloSummaryProducer::~BeamHaloSummaryProducer() {}

@@ -6,14 +6,13 @@
 //#include "CondTools/DQM/interface/ReadBase.h"
 
 class DQMSummaryReader : virtual public TestBase /*ReadBase*/ {
- public:
-  DQMSummaryReader(const std::string& connectionString,
-		   const std::string& user,
-		   const std::string& pass);
-   ~DQMSummaryReader() override;
-   void run() override;
-  DQMSummary readData(const std::string & table, /*const std::string & column,*/ const long long r_number); 
- private:
+public:
+  DQMSummaryReader(const std::string& connectionString, const std::string& user, const std::string& pass);
+  ~DQMSummaryReader() override;
+  void run() override;
+  DQMSummary readData(const std::string& table, /*const std::string & column,*/ const long long r_number);
+
+private:
   std::string m_tableToRead;
   //std::string m_columnToRead;
   std::string m_connectionString;

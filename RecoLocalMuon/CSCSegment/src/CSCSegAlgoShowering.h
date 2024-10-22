@@ -24,9 +24,7 @@
 class CSCSegFit;
 
 class CSCSegAlgoShowering {
-
- public:
-
+public:
   typedef std::vector<const CSCRecHit2D*> ChamberHitContainer;
 
   /// Constructor
@@ -35,12 +33,10 @@ class CSCSegAlgoShowering {
   /// Destructor
   virtual ~CSCSegAlgoShowering();
 
-  CSCSegment showerSeg( const CSCChamber* aChamber, const ChamberHitContainer& rechits );
+  CSCSegment showerSeg(const CSCChamber* aChamber, const ChamberHitContainer& rechits);
 
-
- private:
-
-  /// Utility functions 	
+private:
+  /// Utility functions
   bool isHitNearSegment(const CSCRecHit2D* h) const;
   bool addHit(const CSCRecHit2D* hit, int layer);
   bool hasHitOnLayer(int layer) const;
@@ -49,25 +45,24 @@ class CSCSegAlgoShowering {
   void updateParameters(void);
 
   // Member variables
-  const std::string myName; 
+  const std::string myName;
   const CSCChamber* theChamber;
 
   ChamberHitContainer protoSegment;
 
   // input from .cfi file
-  bool   debug;
-  int    minHitsPerSegment;
+  bool debug;
+  int minHitsPerSegment;
   double dRPhiFineMax;
   double dPhiFineMax;
-  float  tanPhiMax;
-  float  tanThetaMax;
-  float  chi2Max;
-  float  maxRatioResidual;
-//  float  maxDR;
-  float  maxDTheta;
-  float  maxDPhi;
+  float tanPhiMax;
+  float tanThetaMax;
+  float chi2Max;
+  float maxRatioResidual;
+  //  float  maxDR;
+  float maxDTheta;
+  float maxDPhi;
 
-  CSCSegFit* sfit_; // current fit
+  CSCSegFit* sfit_;  // current fit
 };
 #endif
-

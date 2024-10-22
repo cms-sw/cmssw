@@ -1,0 +1,559 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <ConstantsSection label="me0.xml" eval="true">
+    <Constant name="rMin"   value="[mf:rMinME0] + 10.*cm"/>
+    <Constant name="rMax"   value="149.5*cm"/>
+    <Constant name="dZ"     value="0.0122066*cm + 0.5*([rMax]-[rMin])"/>
+    <Constant name="rPos"   value="([dZ] + [rMin])"/>
+    <Constant name="z10"    value="12.35*cm"/> 
+    <Constant name="z20"    value="([z10]-5*cm)"/> 
+    <Constant name="z30"    value="([z20]-5*cm)"/> 
+    <Constant name="z40"    value="([z30]-5*cm)"/> 
+    <Constant name="z50"    value="([z40]-5*cm)"/> 
+    <Constant name="z60"    value="([z50]-5*cm)"/> 
+    <Constant name="Angle"  value="10.0*deg"/>
+    <Constant name="slope"  value="tan([Angle])"/>
+    <Constant name="xBot"   value="([rMin]*[slope])"/> 
+    <Constant name="xTop"   value="(2.*[dZ]*[slope]+[xBot])"/>
+    <Constant name="tBase"  value="1.6*mm"/>
+    <Constant name="tFoil"  value="0.025*mm"/>
+    <Constant name="tSense" value="(6.0*mm-[tFoil])/2"/>
+    <Constant name="tGas1"  value="(1.0*mm-2*[tFoil])/2"/>
+    <Constant name="tGas2"  value="(2.0*mm-2*[tFoil])/2"/>
+    <Constant name="tGas3"  value="(1.0*mm-[tFoil])/2"/>
+    <Constant name="tRead"  value="1.5*mm"/>
+    <Constant name="tTop"   value="0.5*mm"/>
+    <Constant name="zBase"  value="-([tSense]+[tBase])"/>
+    <Constant name="zFoil1" value="([tSense]+[tFoil])"/>
+    <Constant name="zGas1"  value="([zFoil1]+[tFoil]+[tGas1])"/>
+    <Constant name="zFoil2" value="([zGas1]+[tFoil]+[tGas1])"/>
+    <Constant name="zGas2"  value="([zFoil2]+[tFoil]+[tGas2])"/>
+    <Constant name="zFoil3" value="([zGas2]+[tFoil]+[tGas2])"/>
+    <Constant name="zGas3"  value="([zFoil3]+[tFoil]+[tGas3])"/>
+    <Constant name="zRead"  value="([zGas3]+[tGas3]+[tRead])"/>
+    <Constant name="zTop"   value="([zRead]+[tRead]+[tTop])"/>
+  
+    <Constant name="dzGap"  value="0.2500*mm"/>
+    <Constant name="dzS1"   value="73.803*mm"/>
+    <Constant name="dzS2"   value="([dzS1])"/>
+    <Constant name="dzS3"   value="58.463*mm"/>
+    <Constant name="dzS4"   value="([dzS3])"/>
+    <Constant name="dzS5"   value="46.566*mm"/>
+    <Constant name="dzS6"   value="([dzS5])"/>
+    <Constant name="dzS7"   value="38.213*mm"/>
+    <Constant name="dzS8"   value="([dzS7])"/>
+
+    <Constant name="dzInL"  value="([dzS1]+[dzS2]+[dzS3]+[dzS4]+[dzS5]+[dzS6]+[dzS7]+[dzS8]+7*[dzGap])"/>
+    <Constant name="z10L"   value="([dzInL]-[dzS1])"/> 
+    <Constant name="z20L"   value="([z10L]-[dzS1]-2*[dzGap]-[dzS2])"/> 
+    <Constant name="z30L"   value="([z20L]-[dzS2]-2*[dzGap]-[dzS3])"/> 
+    <Constant name="z40L"   value="([z30L]-[dzS3]-2*[dzGap]-[dzS4])"/> 
+    <Constant name="z50L"   value="([z40L]-[dzS4]-2*[dzGap]-[dzS5])"/> 
+    <Constant name="z60L"   value="([z50L]-[dzS5]-2*[dzGap]-[dzS6])"/> 
+    <Constant name="z70L"   value="([z60L]-[dzS6]-2*[dzGap]-[dzS7])"/> 
+    <Constant name="z80L"   value="([z70L]-[dzS7]-2*[dzGap]-[dzS8])"/> 
+
+    <Constant name="dxTop"  value="(([rPos]+[dzInL])*[slope])"/>
+    <Constant name="dx11"   value="([dxTop]-[slope]*([dzInL]-[z10L]+[dzS1]))"/>
+    <Constant name="dx12"   value="([dxTop]-[slope]*([dzInL]-[z10L]-[dzS1]))"/>
+    <Constant name="dx21"   value="([dxTop]-[slope]*([dzInL]-[z20L]+[dzS2]))"/>
+    <Constant name="dx22"   value="([dxTop]-[slope]*([dzInL]-[z20L]-[dzS2]))"/>
+    <Constant name="dx31"   value="([dxTop]-[slope]*([dzInL]-[z30L]+[dzS3]))"/>
+    <Constant name="dx32"   value="([dxTop]-[slope]*([dzInL]-[z30L]-[dzS3]))"/>
+    <Constant name="dx41"   value="([dxTop]-[slope]*([dzInL]-[z40L]+[dzS4]))"/>
+    <Constant name="dx42"   value="([dxTop]-[slope]*([dzInL]-[z40L]-[dzS4]))"/>
+    <Constant name="dx51"   value="([dxTop]-[slope]*([dzInL]-[z50L]+[dzS5]))"/>
+    <Constant name="dx52"   value="([dxTop]-[slope]*([dzInL]-[z50L]-[dzS5]))"/>
+    <Constant name="dx61"   value="([dxTop]-[slope]*([dzInL]-[z60L]+[dzS6]))"/>
+    <Constant name="dx62"   value="([dxTop]-[slope]*([dzInL]-[z60L]-[dzS6]))"/>
+    <Constant name="dx71"   value="([dxTop]-[slope]*([dzInL]-[z70L]+[dzS7]))"/>
+    <Constant name="dx72"   value="([dxTop]-[slope]*([dzInL]-[z70L]-[dzS7]))"/>
+    <Constant name="dx81"   value="([dxTop]-[slope]*([dzInL]-[z80L]+[dzS8]))"/>
+    <Constant name="dx82"   value="([dxTop]-[slope]*([dzInL]-[z80L]-[dzS8]))"/>
+  </ConstantsSection>
+
+  <SolidSection label="me0.xml">
+    <Tubs name="ME0" rMin="[rMin]" rMax="[rMax]+2.5*cm" dz="14.75*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+    <Trd1 name="ME0Box" dz="[dZ]" dy1="14.75*cm" dy2="14.75*cm" dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="ME0L"    dz="[dZ]" dy1="[tSense]" dy2="[tSense]" dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="ME0Base" dz="[dZ]" dy1="[tBase]"  dy2="[tBase]"  dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="ME0Gas1" dz="[dZ]" dy1="[tGas1]"  dy2="[tGas1]"  dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="ME0Gas2" dz="[dZ]" dy1="[tGas2]"  dy2="[tGas2]"  dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="ME0Gas3" dz="[dZ]" dy1="[tGas3]"  dy2="[tGas3]"  dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="ME0Foil" dz="[dZ]" dy1="[tFoil]"  dy2="[tFoil]"  dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="ME0Read" dz="[dZ]" dy1="[tRead]"  dy2="[tRead]"  dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="ME0Top"  dz="[dZ]" dy1="[tTop]"   dy2="[tTop]"   dx1="[xBot]" dx2="[xTop]" />
+  
+  <Trd1 name="GHA001" dz="[dzS1]" dy1="[tSense]" dy2="[tSense]" dx1="[dx11]" dx2="[dx12]" />
+  <Trd1 name="GHA002" dz="[dzS2]" dy1="[tSense]" dy2="[tSense]" dx1="[dx21]" dx2="[dx22]" />
+  <Trd1 name="GHA003" dz="[dzS3]" dy1="[tSense]" dy2="[tSense]" dx1="[dx31]" dx2="[dx32]" />
+  <Trd1 name="GHA004" dz="[dzS4]" dy1="[tSense]" dy2="[tSense]" dx1="[dx41]" dx2="[dx42]" />
+  <Trd1 name="GHA005" dz="[dzS5]" dy1="[tSense]" dy2="[tSense]" dx1="[dx51]" dx2="[dx52]" />
+  <Trd1 name="GHA006" dz="[dzS6]" dy1="[tSense]" dy2="[tSense]" dx1="[dx61]" dx2="[dx62]" />
+  <Trd1 name="GHA007" dz="[dzS7]" dy1="[tSense]" dy2="[tSense]" dx1="[dx71]" dx2="[dx72]" />
+  <Trd1 name="GHA008" dz="[dzS8]" dy1="[tSense]" dy2="[tSense]" dx1="[dx81]" dx2="[dx82]" />
+  </SolidSection>
+
+  <LogicalPartSection label="me0.xml">
+    <LogicalPart name="ME0P" category="unspecified">
+      <rSolid name="ME0"/>
+      <rMaterial name="materials:ME_free_space"/>
+    </LogicalPart>
+    <LogicalPart name="ME0N" category="unspecified">
+      <rSolid name="ME0"/>
+      <rMaterial name="materials:ME_free_space"/>
+    </LogicalPart>
+    <LogicalPart name="ME0Box" category="unspecified">
+      <rSolid name="ME0Box"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="ME0L" category="unspecified">
+      <rSolid name="ME0L"/>
+      <rMaterial name="gemf:M_GEM_Gas"/>
+    </LogicalPart>
+    <LogicalPart name="ME0Foil" category="unspecified">
+      <rSolid name="ME0Foil"/>
+      <rMaterial name="gemf:M_GEM_Foil"/>
+    </LogicalPart>
+    <LogicalPart name="ME0Gas1" category="unspecified">
+      <rSolid name="ME0Gas1"/>
+      <rMaterial name="gemf:M_GEM_Gas"/>
+    </LogicalPart>
+    <LogicalPart name="ME0Gas2" category="unspecified">
+      <rSolid name="ME0Gas2"/>
+      <rMaterial name="gemf:M_GEM_Gas"/>
+    </LogicalPart>
+    <LogicalPart name="ME0Gas3" category="unspecified">
+      <rSolid name="ME0Gas3"/>
+      <rMaterial name="gemf:M_GEM_Gas"/>
+    </LogicalPart>
+    <LogicalPart name="ME0Read" category="unspecified">
+      <rSolid name="ME0Read"/>
+      <rMaterial name="gemf:M_Rdout_Brd"/>
+    </LogicalPart>
+    <LogicalPart name="ME0Base" category="unspecified">
+      <rSolid name="ME0Base"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="ME0Top" category="unspecified">
+      <rSolid name="ME0Top"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+
+  <LogicalPart name="GHA001" category="unspecified">
+    <rSolid name="GHA001"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA002" category="unspecified">
+    <rSolid name="GHA002"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA003" category="unspecified">
+    <rSolid name="GHA003"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA004" category="unspecified">
+    <rSolid name="GHA004"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA005" category="unspecified">
+    <rSolid name="GHA005"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA006" category="unspecified">
+    <rSolid name="GHA006"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA007" category="unspecified">
+    <rSolid name="GHA007"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA008" category="unspecified">
+    <rSolid name="GHA008"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+
+  </LogicalPartSection>
+  <PosPartSection label="me0.xml">
+    <PosPart copyNumber="1">
+      <rParent name="mf:ME0RingP"/>
+      <rChild name="me0:ME0P"/>
+      <Translation x="0*fm" y="0*fm" z="5.3935*m" />
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="mf:ME0RingN"/>
+      <rChild name="me0:ME0N"/>
+      <Translation x="0*fm" y="0*fm" z="5.3935*m" />
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0L"/>
+      <Translation x="0*fm" y="[z10]" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Base"/>
+      <Translation x="0*fm" y="([z10]+[zBase])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z10]+[zFoil1])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas1"/>
+      <Translation x="0*fm" y="([z10]+[zGas1])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="11">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z10]+[zFoil2])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas2"/>
+      <Translation x="0*fm" y="([z10]+[zGas2])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="21">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z10]+[zFoil3])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas3"/>
+      <Translation x="0*fm" y="([z10]+[zGas3])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Read"/>
+      <Translation x="0*fm" y="([z10]+[zRead])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Top"/>
+      <Translation x="0*fm" y="([z10]+[zTop])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0L"/>
+      <Translation x="0*fm" y="[z20]" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Base"/>
+      <Translation x="0*fm" y="([z20]+[zBase])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z20]+[zFoil1])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas1"/>
+      <Translation x="0*fm" y="([z20]+[zGas1])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="12">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z20]+[zFoil2])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas2"/>
+      <Translation x="0*fm" y="([z20]+[zGas2])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="22">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z20]+[zFoil3])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas3"/>
+      <Translation x="0*fm" y="([z20]+[zGas3])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Read"/>
+      <Translation x="0*fm" y="([z20]+[zRead])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Top"/>
+      <Translation x="0*fm" y="([z20]+[zTop])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0L"/>
+      <Translation x="0*fm" y="[z30]" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Base"/>
+      <Translation x="0*fm" y="([z30]+[zBase])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z30]+[zFoil1])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas1"/>
+      <Translation x="0*fm" y="([z30]+[zGas1])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z30]+[zFoil2])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas2"/>
+      <Translation x="0*fm" y="([z30]+[zGas2])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="23">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z30]+[zFoil3])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas3"/>
+      <Translation x="0*fm" y="([z30]+[zGas3])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Read"/>
+      <Translation x="0*fm" y="([z30]+[zRead])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Top"/>
+      <Translation x="0*fm" y="([z30]+[zTop])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0L"/>
+      <Translation x="0*fm" y="[z40]" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Base"/>
+      <Translation x="0*fm" y="([z40]+[zBase])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z40]+[zFoil1])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas1"/>
+      <Translation x="0*fm" y="([z40]+[zGas1])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="14">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z40]+[zFoil2])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas2"/>
+      <Translation x="0*fm" y="([z40]+[zGas2])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="24">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z40]+[zFoil3])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas3"/>
+      <Translation x="0*fm" y="([z40]+[zGas3])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Read"/>
+      <Translation x="0*fm" y="([z40]+[zRead])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Top"/>
+      <Translation x="0*fm" y="([z40]+[zTop])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0L"/>
+      <Translation x="0*fm" y="[z50]" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Base"/>
+      <Translation x="0*fm" y="([z50]+[zBase])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z50]+[zFoil1])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas1"/>
+      <Translation x="0*fm" y="([z50]+[zGas1])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="15">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z50]+[zFoil2])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas2"/>
+      <Translation x="0*fm" y="([z50]+[zGas2])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="25">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z50]+[zFoil3])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas3"/>
+      <Translation x="0*fm" y="([z50]+[zGas3])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Read"/>
+      <Translation x="0*fm" y="([z50]+[zRead])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Top"/>
+      <Translation x="0*fm" y="([z50]+[zTop])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0L"/>
+      <Translation x="0*fm" y="[z60]" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Base"/>
+      <Translation x="0*fm" y="([z60]+[zBase])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z60]+[zFoil1])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas1"/>
+      <Translation x="0*fm" y="([z60]+[zGas1])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="16">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z60]+[zFoil2])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas2"/>
+      <Translation x="0*fm" y="([z60]+[zGas2])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="26">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Foil"/>
+      <Translation x="0*fm" y="([z60]+[zFoil3])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Gas3"/>
+      <Translation x="0*fm" y="([z60]+[zGas3])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Read"/>
+      <Translation x="0*fm" y="([z60]+[zRead])" z="0*fm" />
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="ME0Box"/>
+      <rChild name="ME0Top"/>
+      <Translation x="0*fm" y="([z60]+[zTop])" z="0*fm" />
+    </PosPart>
+ 
+    <PosPart copyNumber="1">
+      <rParent name="ME0L"/>
+      <rChild name="GHA001"/>
+      <Translation x="0*fm" y="0*fm" z="[z10L]" />
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="ME0L"/>
+      <rChild name="GHA002"/>
+      <Translation x="0*fm" y="0*fm" z="[z20L]" />
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="ME0L"/>
+      <rChild name="GHA003"/>
+      <Translation x="0*fm" y="0*fm" z="[z30L]" />
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="ME0L"/>
+      <rChild name="GHA004"/>
+      <Translation x="0*fm" y="0*fm" z="[z40L]" />
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="ME0L"/>
+      <rChild name="GHA005"/>
+      <Translation x="0*fm" y="0*fm" z="[z50L]" />
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="ME0L"/>
+      <rChild name="GHA006"/>
+      <Translation x="0*fm" y="0*fm" z="[z60L]" />
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="ME0L"/>
+      <rChild name="GHA007"/>
+      <Translation x="0*fm" y="0*fm" z="[z70L]" />
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="ME0L"/>
+      <rChild name="GHA008"/>
+      <Translation x="0*fm" y="0*fm" z="[z80L]" />
+    </PosPart>
+  </PosPartSection>
+
+  <Algorithm name="muon:DDGEMAngular">
+    <rParent name="ME0P"/>
+    <String name="ChildName" value="ME0Box"/>
+    <String name="RotNameSpace" value="me0"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="1"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="0*mm"/>
+  </Algorithm>
+  <Algorithm name="muon:DDGEMAngular">
+    <rParent name="ME0N"/>
+    <String name="ChildName" value="ME0Box"/>
+    <String name="RotNameSpace" value="me0"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="1"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="0*mm"/>
+  </Algorithm>
+
+</DDDefinition>

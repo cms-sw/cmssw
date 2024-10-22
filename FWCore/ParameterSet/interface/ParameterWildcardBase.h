@@ -9,60 +9,52 @@
 #include <iosfwd>
 #include <vector>
 
-
 namespace edm {
 
   class ParameterSet;
   class DocFormatHelper;
 
-  enum WildcardValidationCriteria {
-    RequireZeroOrMore,
-    RequireAtLeastOne,
-    RequireExactlyOne
-  };
+  enum WildcardValidationCriteria { RequireZeroOrMore, RequireAtLeastOne, RequireExactlyOne };
 
-  class ParameterWildcardBase : public ParameterDescriptionNode 
-  {
+  class ParameterWildcardBase : public ParameterDescriptionNode {
   public:
     ~ParameterWildcardBase() override;
 
     ParameterTypes type() const { return type_; }
     bool isTracked() const { return isTracked_; }
     WildcardValidationCriteria criteria() const { return criteria_; }
- 
+
+    bool isWildcard() const override { return true; }
+
   protected:
-    ParameterWildcardBase(ParameterTypes iType,
-                          bool isTracked,
-                          WildcardValidationCriteria criteria
-                         );
+    ParameterWildcardBase(ParameterTypes iType, bool isTracked, WildcardValidationCriteria criteria);
 
     void throwIfInvalidPattern(char const* pattern) const;
     void throwIfInvalidPattern(std::string const& pattern) const;
 
     void validateMatchingNames(std::vector<std::string> const& matchingNames,
-                               std::set<std::string> & validatedLabels,
+                               std::set<std::string>& validatedLabels,
                                bool optional) const;
 
   private:
+    void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+                                    std::set<ParameterTypes>& parameterTypes,
+                                    std::set<ParameterTypes>& wildcardTypes) const override;
 
-    void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
-                                    std::set<ParameterTypes> & parameterTypes,
-                                    std::set<ParameterTypes> & wildcardTypes) const override;
-
-    void writeCfi_(std::ostream & os,
-                   bool & startWithComma,
+    void writeCfi_(std::ostream& os,
+                   bool optional,
+                   bool& startWithComma,
                    int indentation,
-                   bool & wroteSomething) const override;
+                   CfiOptions&,
+                   bool& wroteSomething) const override;
 
-    void print_(std::ostream & os,
-                bool optional,
-                bool writeToCfi,
-                DocFormatHelper & dfh) const override;
+    void print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const override;
 
     bool partiallyExists_(ParameterSet const& pset) const override;
 
     int howManyXORSubNodesExist_(ParameterSet const& pset) const override;
 
+    virtual void writeTemplate(std::ostream& os, int indentation, CfiOptions&) const;
     ParameterTypes type_;
     bool isTracked_;
     WildcardValidationCriteria criteria_;
@@ -75,5 +67,5 @@ namespace edm {
     // pattern if we implement regular expressions, globbing, or some
     // other kind of wildcard patterns other than "*".
   };
-}
+}  // namespace edm
 #endif

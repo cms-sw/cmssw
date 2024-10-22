@@ -1,8 +1,10 @@
-#ifndef  CondFormats_SiPixelObjects_CablingPathToDetUnit_H
-#define  CondFormats_SiPixelObjects_CablingPathToDetUnit_H
+#ifndef CondFormats_SiPixelObjects_CablingPathToDetUnit_H
+#define CondFormats_SiPixelObjects_CablingPathToDetUnit_H
 
 namespace sipixelobjects {
-  struct CablingPathToDetUnit { unsigned int fed, link, roc; };
-}
+  struct CablingPathToDetUnit {
+    unsigned int fed, link, roc;
+  };
+}  // namespace sipixelobjects
 
 #endif

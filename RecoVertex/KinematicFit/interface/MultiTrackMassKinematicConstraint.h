@@ -10,8 +10,7 @@
  * Constraint to force some of the particles in the fit to have a certain invariant mass.
  */
 
-class MultiTrackMassKinematicConstraint : public MultiTrackKinematicConstraint{
-
+class MultiTrackMassKinematicConstraint : public MultiTrackKinematicConstraint {
 public:
   /**
    * Constructor
@@ -20,47 +19,40 @@ public:
    * in the fit, the first will be used)
    */
   MultiTrackMassKinematicConstraint(const ParticleMass& theMass, const unsigned int nbrParticles)
-	: mass(theMass), nPart(nbrParticles)
-  {}
-
+      : mass(theMass), nPart(nbrParticles) {}
 
   /**
    * Returns a vector of values of constraint
    * equations at the point where the input
    * particles are defined.
    */
-  AlgebraicVector  value(const std::vector<KinematicState> &states,
-                          const GlobalPoint& point) const override;
-
+  AlgebraicVector value(const std::vector<KinematicState>& states, const GlobalPoint& point) const override;
 
   /**
    * Returns a matrix of derivatives of
    * constraint equations w.r.t.
    * particle parameters
    */
-  AlgebraicMatrix parametersDerivative(const std::vector<KinematicState> &states,
-                                	const GlobalPoint& point) const override;
+  AlgebraicMatrix parametersDerivative(const std::vector<KinematicState>& states,
+                                       const GlobalPoint& point) const override;
 
   /**
    * Returns a matrix of derivatives of
    * constraint equations w.r.t.
    * vertex position
    */
-  AlgebraicMatrix positionDerivative(const std::vector<KinematicState> &states,
-                                      const GlobalPoint& point) const override;
+  AlgebraicMatrix positionDerivative(const std::vector<KinematicState>& states,
+                                     const GlobalPoint& point) const override;
 
   /**
    * Number of equations per track used for the fit
    */
-  int numberOfEquations() const override {return 1;}
+  int numberOfEquations() const override { return 1; }
 
-  MultiTrackMassKinematicConstraint * clone() const override
-  {return new MultiTrackMassKinematicConstraint(*this);}
+  MultiTrackMassKinematicConstraint* clone() const override { return new MultiTrackMassKinematicConstraint(*this); }
 
 private:
-
   const ParticleMass mass;
   const unsigned int nPart;
-
 };
 #endif

@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
-process = cms.Process("L1TMuonEmulation", eras.Run2_2016)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process("L1TMuonEmulation", Run2_2016)
 import os
 import sys
-import commands
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -20,8 +19,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2015_cff')
 ############################
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 
 process.load('L1Trigger.L1TMuon.hackConditions_cff')

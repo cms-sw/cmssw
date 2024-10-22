@@ -1,6 +1,7 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-from FWCore.GuiBrowsers.ConfigToolBase import *
+from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet
 from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 from PhysicsTools.PatAlgos.cleaningLayer1.tauCleaner_cfi import preselection
@@ -14,40 +15,19 @@ def applyPostfix(process, label, postfix):
         raise ValueError("Error in <applyPostfix>: No module of name = %s attached to process !!" % (label + postfix))
     return result
 
-# switch to CaloTau collection
-def switchToCaloTau(process,
-                    tauSource = cms.InputTag('caloRecoTauProducer'),
-                    patTauLabel = "",
-                    postfix = ""):
-    print ' switching PAT Tau input to: ', tauSource
-
-    applyPostfix(process, "tauMatch" + patTauLabel, postfix).src = tauSource
-    applyPostfix(process, "tauGenJetMatch"+ patTauLabel, postfix).src = tauSource
-    
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).tauSource = tauSource
-    # CV: reconstruction of tau lifetime information not implemented for CaloTaus yet
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).tauTransverseImpactParameterSource = ""
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).tauIDSources = _buildIDSourcePSet('caloRecoTau', classicTauIDSources, postfix)
-
-    ## Isolation is somewhat an issue, so we start just by turning it off
-    print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).isolation   = cms.PSet()
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).isoDeposits = cms.PSet()
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).userIsolation = cms.PSet()
-
-    ## adapt cleanPatTaus
-    if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
-        getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = preselection
-
 def _buildIDSourcePSet(tauType, idSources, postfix =""):
     """ Build a PSet defining the tau ID sources to embed into the pat::Tau """
     output = cms.PSet()
     for label, discriminator in idSources:
-        if ":" in discriminator:
-          discr = discriminator.split(":")
-          setattr(output, label, cms.InputTag(tauType + discr[0] + postfix + ":" + discr[1]))
-        else:  
-          setattr(output, label, cms.InputTag(tauType + discriminator + postfix))
+        wp = -99
+        if ";" in discriminator: #read from PFTauDiscriminatorContainer
+            discriminator, wp_str = discriminator.split(";")
+            wp = int(wp_str)
+        id = cms.PSet()
+        id.inputTag = cms.InputTag(discriminator.replace(":", postfix + ":"))
+        id.provenanceConfigLabel=cms.string("")
+        id.idLabel=cms.string("")
+        setattr(output, label, id)
     return output
 
 def _switchToPFTau(process,
@@ -57,7 +37,7 @@ def _switchToPFTau(process,
                    patTauLabel = "",
                    postfix = ""):
     """internal auxiliary function to switch to **any** PFTau collection"""
-    print ' switching PAT Tau input to: ', tauSource
+    print(' switching PAT Tau input to: ', tauSource)
 
     applyPostfix(process, "tauMatch" + patTauLabel, postfix).src = tauSource
     applyPostfix(process, "tauGenJetMatch" + patTauLabel, postfix).src = tauSource
@@ -126,6 +106,7 @@ hpsTauIDSources = [
     ("byVTightIsolationMVArun2v1DBoldDMwLT", "DiscriminationByVTightIsolationMVArun2v1DBoldDMwLT"),
     ("byVVTightIsolationMVArun2v1DBoldDMwLT", "DiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT"),
     ("byIsolationMVArun2v1DBnewDMwLTraw", "DiscriminationByIsolationMVArun2v1DBnewDMwLTraw"),
+    ("byVVLooseIsolationMVArun2v1DBnewDMwLT", "DiscriminationByVVLooseIsolationMVArun2v1DBnewDMwLT"),
     ("byVLooseIsolationMVArun2v1DBnewDMwLT", "DiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT"),
     ("byLooseIsolationMVArun2v1DBnewDMwLT", "DiscriminationByLooseIsolationMVArun2v1DBnewDMwLT"),
     ("byMediumIsolationMVArun2v1DBnewDMwLT", "DiscriminationByMediumIsolationMVArun2v1DBnewDMwLT"),
@@ -152,6 +133,7 @@ hpsTauIDSources = [
     ("footprintCorrectiondR03", "FootprintCorrectiondR03"),
     ("photonPtSumOutsideSignalConedR03", "PhotonPtSumOutsideSignalConedR03"),
     ("byIsolationMVArun2v1DBdR03oldDMwLTraw", "DiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw"),
+    ("byVVLooseIsolationMVArun2v1DBdR03oldDMwLT", "DiscriminationByVVLooseIsolationMVArun2v1DBdR03oldDMwLT"),
     ("byVLooseIsolationMVArun2v1DBdR03oldDMwLT", "DiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT"),
     ("byLooseIsolationMVArun2v1DBdR03oldDMwLT", "DiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT"),
     ("byMediumIsolationMVArun2v1DBdR03oldDMwLT", "DiscriminationByMediumIsolationMVArun2v1DBdR03oldDMwLT"),
@@ -172,6 +154,7 @@ hpsTauIDSources = [
     ("againstElectronMediumMVA6", "DiscriminationByMVA6MediumElectronRejection"),
     ("againstElectronTightMVA6", "DiscriminationByMVA6TightElectronRejection"),
     ("againstElectronVTightMVA6", "DiscriminationByMVA6VTightElectronRejection"),
+    ("againstElectronDeadECAL", "DiscriminationByDeadECALElectronRejection"),
 ]
 
 # switch to PFTau collection produced for fixed dR = 0.07 signal cone size
@@ -222,8 +205,7 @@ def switchToPFTauByType(process,
     mapping = {
         'shrinkingConePFTau' : switchToPFTauShrinkingCone,
         'fixedConePFTau'     : switchToPFTauFixedCone,
-        'hpsPFTau'           : switchToPFTauHPS,
-        'caloRecoTau'        : switchToCaloTau
+        'hpsPFTau'           : switchToPFTauHPS
     }
     if not pfTauType in mapping.keys():
         raise ValueError("Error in <switchToPFTauByType>: Undefined pfTauType = %s !!" % pfTauType)
@@ -307,7 +289,7 @@ class AddTauCollection(ConfigToolBase):
         ## disable computation of particle-flow based IsoDeposits
         ## in case tau is of CaloTau type
         if typeLabel == 'Tau':
-            print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
+            print("NO PF Isolation will be computed for CaloTau (this could be improved later)")
             doPFIsoDeposits = False
 
         ## create old module label from standardAlgo
@@ -388,13 +370,8 @@ class AddTauCollection(ConfigToolBase):
         ## set discriminators
         ## (using switchTauCollection functions)
         oldTaus = getattr(process, oldLabel())
-        if typeLabel == 'Tau':
-            switchToCaloTau(process,
+        switchToPFTauByType(process, pfTauType = algoLabel + typeLabel,
                             tauSource = getattr(newTaus, "tauSource"),
                             patTauLabel = capitalize(algoLabel + typeLabel))
-        else:
-            switchToPFTauByType(process, pfTauType = algoLabel + typeLabel,
-                                tauSource = getattr(newTaus, "tauSource"),
-                                patTauLabel = capitalize(algoLabel + typeLabel))
 
 addTauCollection=AddTauCollection()

@@ -3,23 +3,20 @@
 #include <sstream>
 #include <iomanip>
 
-std::string HCAL_HLX::TimeStamp::TimeStampLong( time_t rawtime ){
-
-  if( rawtime == 0 )
+std::string HCAL_HLX::TimeStamp::TimeStampLong(time_t rawtime) {
+  if (rawtime == 0)
     time(&rawtime);
 
   return ctime(&rawtime);
 }
 
-std::string HCAL_HLX::TimeStamp::TimeStampYYYYMM( time_t rawtime ){
-
-  std::string tempStr = TimeStampYYYYMMDD( rawtime );
-  return tempStr.substr(0,6);
+std::string HCAL_HLX::TimeStamp::TimeStampYYYYMM(time_t rawtime) {
+  std::string tempStr = TimeStampYYYYMMDD(rawtime);
+  return tempStr.substr(0, 6);
 }
 
-std::string HCAL_HLX::TimeStamp::TimeStampYYYYMMDD( time_t rawtime ){
-
-  if( rawtime == 0 ) 
+std::string HCAL_HLX::TimeStamp::TimeStampYYYYMMDD(time_t rawtime) {
+  if (rawtime == 0)
     time(&rawtime);
 
   struct tm* timeinfo;

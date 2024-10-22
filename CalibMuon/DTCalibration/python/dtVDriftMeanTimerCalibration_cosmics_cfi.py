@@ -27,7 +27,8 @@ dtVDriftMeanTimerCalibration = cms.EDAnalyzer("DTVDriftCalibration",
         # Switch on/off the TO correction from pulses
         doT0Correction = cms.bool(True),
         debug = cms.untracked.bool(False),
-        tTrigLabel = cms.string('cosmics')
+        tTrigLabel = cms.string('cosmics'),
+        t0Label = cms.string('')
     ),
     # Choose to calculate vDrift and t0 or just fill the TMax histograms
     findVDriftAndT0 = cms.untracked.bool(False),
@@ -38,5 +39,8 @@ dtVDriftMeanTimerCalibration = cms.EDAnalyzer("DTVDriftCalibration",
         calibConstFileName = cms.untracked.string('vDriftAndReso.txt')
     ),
     # Name of the txt file which will contain the calibrated v_drift
-    vDriftFileName = cms.untracked.string('vDriftFromMtime.txt')
+    vDriftFileName = cms.untracked.string('vDriftFromMtime.txt'),
+
+    # Use legacy DB format
+    writeLegacyVDriftDB =cms.bool(True),
 )

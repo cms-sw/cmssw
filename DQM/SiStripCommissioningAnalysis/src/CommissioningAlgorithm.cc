@@ -7,28 +7,26 @@
 #include <iomanip>
 
 // ----------------------------------------------------------------------------
-// 
-CommissioningAlgorithm::CommissioningAlgorithm( CommissioningAnalysis* const anal )
-  : anal_( anal )
-{;}
+//
+CommissioningAlgorithm::CommissioningAlgorithm(CommissioningAnalysis* const anal) : anal_(anal) { ; }
 
 // ----------------------------------------------------------------------------
-// 
-CommissioningAlgorithm::CommissioningAlgorithm()
-  : anal_(nullptr)
-{;}
+//
+CommissioningAlgorithm::CommissioningAlgorithm() : anal_(nullptr) { ; }
 
 // ----------------------------------------------------------------------------
-// 
-void CommissioningAlgorithm::analysis( const std::vector<TH1*>& histos ) { 
-  if ( anal_ ) { anal()->reset(); }
-  extract( histos );
+//
+void CommissioningAlgorithm::analysis(const std::vector<TH1*>& histos) {
+  if (anal_) {
+    anal()->reset();
+  }
+  extract(histos);
   analyse();
 }
 
 // ----------------------------------------------------------------------------
-// 
-uint32_t CommissioningAlgorithm::extractFedKey( const TH1* const his ) {
-  SiStripHistoTitle title( his->GetName() );
+//
+uint32_t CommissioningAlgorithm::extractFedKey(const TH1* const his) {
+  SiStripHistoTitle title(his->GetName());
   return title.keyValue();
 }

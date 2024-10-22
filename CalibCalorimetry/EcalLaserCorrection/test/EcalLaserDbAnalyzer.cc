@@ -2,22 +2,12 @@
 // Toyoko Orimoto (Caltech), 10 July 2007
 //
 
-
 // system include files
 #include <memory>
-//#include <time.h>
-#include <string>
-#include <map>
-#include <iostream>
-#include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
@@ -30,20 +20,16 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
+class EcalLaserDbAnalyzer : public edm::global::EDAnalyzer<> {
+public:
+  explicit EcalLaserDbAnalyzer(const edm::ParameterSet&);
+  ~EcalLaserDbAnalyzer() override = default;
 
-using namespace std;
+  void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
 
-
-class EcalLaserDbAnalyzer : public edm::EDAnalyzer {
-        public:
-                explicit EcalLaserDbAnalyzer( const edm::ParameterSet& );
-                ~EcalLaserDbAnalyzer ();
-
-
-                virtual void analyze( const edm::Event&, const edm::EventSetup& );
-        private:
-
-                // ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
+  const edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> laserDbToken_;
 };
 
 //
@@ -57,92 +43,80 @@ class EcalLaserDbAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-EcalLaserDbAnalyzer::EcalLaserDbAnalyzer( const edm::ParameterSet& iConfig )
-{
-
-}
-
-
-EcalLaserDbAnalyzer::~EcalLaserDbAnalyzer()
-{
-
-}
-
+EcalLaserDbAnalyzer::EcalLaserDbAnalyzer(const edm::ParameterSet& iConfig) : laserDbToken_(esConsumes()) {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-        void
-EcalLaserDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
+void EcalLaserDbAnalyzer::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const& iSetup) const {
+  // get record from offline DB
+  const auto& setup = iSetup.getData(laserDbToken_);
+  edm::LogInfo("EcalLaserDbService") << "EcalLaserDbAnalyzer::analyze-> got EcalLaserDbRecord:";
 
-        // get record from offline DB
-        edm::ESHandle<EcalLaserDbService> pSetup;
-        iSetup.get<EcalLaserDbRecord>().get( pSetup );
-        std::cout << "EcalLaserDbAnalyzer::analyze-> got EcalLaserDbRecord: " << std::endl;
+  EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair;
+  const EcalLaserAPDPNRatios* myapdpn = setup.getAPDPNRatios();
+  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap = myapdpn->getLaserMap();
 
+  //   EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp;
+  //   const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap =  myapdpn->getTimeMap();
 
-        EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair;
-        const EcalLaserAPDPNRatios* myapdpn =  pSetup->getAPDPNRatios();
-        const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap =  myapdpn->getLaserMap();
+  EcalLaserAPDPNref apdpnref;
+  const EcalLaserAPDPNRatiosRef* myapdpnref = setup.getAPDPNRatiosRef();
+  const EcalLaserAPDPNRatiosRefMap& laserRefMap = myapdpnref->getMap();
 
-        //   EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp;
-        //   const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap =  myapdpn->getTimeMap();
+  EcalLaserAlpha alpha;
+  const EcalLaserAlphas* myalpha = setup.getAlphas();
+  const EcalLaserAlphaMap& laserAlphaMap = myalpha->getMap();
 
-        EcalLaserAPDPNref apdpnref;
-        const EcalLaserAPDPNRatiosRef* myapdpnref =  pSetup->getAPDPNRatiosRef();
-        const EcalLaserAPDPNRatiosRefMap& laserRefMap =  myapdpnref->getMap();
+  EcalLinearCorrections::Values linValues;
+  const EcalLinearCorrections* mylinear = setup.getLinearCorrections();
+  const EcalLinearCorrections::EcalValueMap& linearValueMap = mylinear->getValueMap();
 
-        EcalLaserAlpha alpha;
-        const EcalLaserAlphas* myalpha =  pSetup->getAlphas();
-        const EcalLaserAlphaMap& laserAlphaMap =  myalpha->getMap();
+  for (int ieta = -EBDetId::MAX_IETA; ieta <= EBDetId::MAX_IETA; ++ieta) {
+    if (ieta == 0)
+      continue;
+    for (int iphi = EBDetId::MIN_IPHI; iphi <= EBDetId::MAX_IPHI; ++iphi) {
+      EBDetId ebdetid(ieta, iphi);
 
-        EcalLinearCorrections::Values linValues;
-        const EcalLinearCorrections* mylinear = pSetup->getLinearCorrections();
-        const EcalLinearCorrections::EcalValueMap& linearValueMap =  mylinear->getValueMap();
+      edm::LogVerbatim("EcalLaserDbService") << ebdetid << " " << ebdetid.ietaSM() << " " << ebdetid.iphiSM() << "\n";
 
-        for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
-                if(ieta==0) continue;
-                for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-                        EBDetId ebdetid(ieta,iphi);
+      EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator itratio = laserRatiosMap.find(ebdetid);
+      if (itratio != laserRatiosMap.end()) {
+        apdpnpair = (*itratio);
+        edm::LogVerbatim("EcalLaserDbService")
+            << " APDPN pair = " << apdpnpair.p1 << " , " << apdpnpair.p2 << " , " << apdpnpair.p3 << "\n";
+      } else {
+        edm::LogError("EcalLaserDbService") << "error with laserRatiosMap!";
+      }
 
-                        std::cout << ebdetid << " " << ebdetid.ietaSM() << " " << ebdetid.iphiSM() << std::endl;
+      EcalLinearCorrections::EcalValueMap::const_iterator itlin = linearValueMap.find(ebdetid);
+      if (itlin != linearValueMap.end()) {
+        linValues = (*itlin);
+        edm::LogVerbatim("EcalLaserDbService")
+            << " APDPN pair = " << linValues.p1 << " , " << linValues.p2 << " , " << linValues.p3 << "\n";
+      } else {
+        edm::LogError("EcalLaserDbService") << "error with linearValuesMap!";
+      }
 
-                        EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator itratio = laserRatiosMap.find( ebdetid );
-                        if (itratio != laserRatiosMap.end()) {
-                                apdpnpair = (*itratio);
-                                std::cout << " APDPN pair = " << apdpnpair.p1 << " , " << apdpnpair.p2 << " , " << apdpnpair.p3 << std::endl;
-                        } else {
-                                edm::LogError("EcalLaserDbService") << "error with laserRatiosMap!" << endl;
-                        }
+      EcalLaserAPDPNRatiosRefMap::const_iterator itref = laserRefMap.find(ebdetid);
+      if (itref != laserRefMap.end()) {
+        apdpnref = (*itref);
+        edm::LogVerbatim("EcalLaserDbService") << " APDPN ref = " << apdpnref << "\n";
+      } else {
+        edm::LogError("EcalLaserDbService") << "error with laserRefMap!";
+      }
 
-                        EcalLinearCorrections::EcalValueMap::const_iterator itlin = linearValueMap.find( ebdetid );
-                        if (itlin != linearValueMap.end()) {
-                                linValues = (*itlin);
-                                std::cout << " APDPN pair = " << linValues.p1 << " , " << linValues.p2 << " , " << linValues.p3 << std::endl;
-                        } else {
-                                edm::LogError("EcalLaserDbService") << "error with linearValuesMap!" << endl;
-                        }
-
-                        EcalLaserAPDPNRatiosRefMap::const_iterator itref = laserRefMap.find( ebdetid );
-                        if ( itref != laserRefMap.end() ) {
-                                apdpnref = (*itref);
-                                std::cout << " APDPN ref = " << apdpnref << std::endl;
-                        } else {
-                                edm::LogError("EcalLaserDbService") << "error with laserRefMap!" << endl;
-                        }
-
-                        EcalLaserAlphaMap::const_iterator italpha = laserAlphaMap.find( ebdetid );
-                        if ( italpha != laserAlphaMap.end() ) {
-                                alpha = (*italpha);
-                                std::cout << " ALPHA = " << alpha << std::endl;
-                        } else {
-                                edm::LogError("EcalLaserDbService") << "error with laserAlphaMap!" << endl;
-                        }
-                }
-        }
+      EcalLaserAlphaMap::const_iterator italpha = laserAlphaMap.find(ebdetid);
+      if (italpha != laserAlphaMap.end()) {
+        alpha = (*italpha);
+        edm::LogVerbatim("EcalLaserDbService") << " ALPHA = " << alpha << "\n";
+      } else {
+        edm::LogError("EcalLaserDbService") << "error with laserAlphaMap!";
+      }
+    }
+  }
 }
 
 //define this as a plug-in

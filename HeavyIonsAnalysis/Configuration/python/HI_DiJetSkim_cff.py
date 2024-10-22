@@ -15,10 +15,10 @@ primaryVertexFilterForJets = cms.EDFilter("VertexSelector",
     )
 
 # jet energy correction (L2+L3)
-from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
-icPu5CaloJetsL2L3 = cms.EDProducer('CaloJetCorrectionProducer',
+from JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff import ic5CaloL2RelativeCorrector, ic5CaloL3AbsoluteCorrector, ic5CaloL2L3Corrector, ic5CaloL2L3CorrectorTask
+icPu5CaloJetsL2L3 = cms.EDProducer('CorrectedCaloJetProducer',
     src = cms.InputTag('iterativeConePu5CaloJets'),
-    correctors = cms.vstring('ic5CaloL2L3')
+    correctors = cms.VInputTag('ic5CaloL2L3Corrector')
     )
 
 # leading jet E_T filter
@@ -65,5 +65,6 @@ diJetSkimSequence = cms.Sequence(hltJetHI
                                  * goodLeadingJet
                                  * goodSecondJet
                                  * backToBackDijets
-                                 * dijetFilter
+                                 * dijetFilter,
+                                 ic5CaloL2L3CorrectorTask
                                  )

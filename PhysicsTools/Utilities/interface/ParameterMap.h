@@ -9,9 +9,9 @@ namespace fit {
     double val, min, max, err;
     bool fixed;
   };
-  
+
   typedef std::map<std::string, parameter_t> parameterMap_t;
   typedef std::vector<std::pair<std::string, parameter_t> > parameterVector_t;
-}
+}  // namespace fit
 
 #endif

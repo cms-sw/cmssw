@@ -3,12 +3,11 @@
 
 #include <iosfwd>
 
-namespace edm 
-{
+namespace edm {
   class FileFormatVersion {
   public:
-    FileFormatVersion() : value_(-1) { }
-    explicit FileFormatVersion(int vers) : value_(vers)  { }
+    FileFormatVersion() : value_(-1) {}
+    explicit FileFormatVersion(int vers) : value_(vers) {}
     ~FileFormatVersion() {}
     bool isValid() const;
     bool productIDIsInt() const;
@@ -31,14 +30,13 @@ namespace edm
     bool storedProductProvenanceUsed() const;
     bool useReducedProcessHistoryID() const;
     bool hasThinnedAssociations() const;
-    int value() const {return value_;}
-    
-   private:
+    int value() const { return value_; }
+
+  private:
     int value_;
   };
 
-  std::ostream&
-  operator<< (std::ostream& os, FileFormatVersion const& ff);
+  std::ostream& operator<<(std::ostream& os, FileFormatVersion const& ff);
 
-}
+}  // namespace edm
 #endif

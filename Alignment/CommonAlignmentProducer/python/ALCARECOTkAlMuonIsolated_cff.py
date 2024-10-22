@@ -48,3 +48,17 @@ ALCARECOTkAlMuonIsolated.TwoBodyDecaySelector.applyChargeFilter = False
 ALCARECOTkAlMuonIsolated.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 
 seqALCARECOTkAlMuonIsolated = cms.Sequence(ALCARECOTkAlMuonIsolatedHLT+ALCARECOTkAlMuonIsolatedDCSFilter+ALCARECOTkAlMuonIsolatedGoodMuons+ALCARECOTkAlMuonIsolatedRelCombIsoMuons+ALCARECOTkAlMuonIsolated)
+
+
+## customizations for the pp_on_AA eras
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+(pp_on_XeXe_2017 | pp_on_AA).toModify(ALCARECOTkAlMuonIsolatedHLT,
+                                      eventSetupPathsKey='TkAlMuonIsolatedHI'
+)
+
+(pp_on_XeXe_2017 | pp_on_AA).toModify(ALCARECOTkAlMuonIsolated.GlobalSelector,
+                                    minJetDeltaR=0.0
+)
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(ALCARECOTkAlMuonIsolated, etaMin = -4, etaMax = 4)

@@ -11,5 +11,4 @@ typedef float EcalTimeCalibError;
 typedef EcalFloatCondObjectContainer EcalTimeCalibErrorMap;
 typedef EcalTimeCalibErrorMap EcalTimeCalibErrors;
 
-
 #endif

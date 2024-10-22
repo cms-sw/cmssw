@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Top level script to run SiStrip DCS O2O.
 @author: Huilin Qu
@@ -28,6 +28,7 @@ def run(args):
     o2ocmd += ' --destTags {destTags}'
     o2ocmd += ' --destDb {destDb}'
     o2ocmd += ' --inputTag {inputTag}'
+    o2ocmd += ' --sourceDb {sourceDb}'
     o2ocmd += ' --condDbRead {condDbRead}'
     if args.debug:
         o2ocmd += ' --debug'
@@ -55,7 +56,7 @@ def summary(args, is_ok, logfile):
     debugLabel = '[TEST] ' if args.debug else ''
     with open(logfile, 'rb') as log:
         helper.send_mail(subject='%sDCS O2O Failure: %s' % (debugLabel, args.jobname),
-                 message=log.read(),
+                 message=str(log.read()),
                  send_to=args.mail_log_to,
                  send_from=args.mail_from)
 

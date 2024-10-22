@@ -11,14 +11,18 @@ process = cms.Process("Reader")
 
 # Use this to have also debug info (WARNING: the resulting file is > 200MB.
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring("*"),
-    LorentzAngleDepReaderSummary = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    LorentzAngleDepReaderDebug = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    destinations = cms.untracked.vstring('LorentzAngleDepReaderSummary', 'LorentzAngleDepReaderDebug')
+    debugModules = cms.untracked.vstring('*'),
+    files = cms.untracked.PSet(
+        LorentzAngleDepReaderDebug = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG')
+        ),
+        LorentzAngleDepReaderSummary = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
 )
 
 # How to use the EmptyIOVSource:

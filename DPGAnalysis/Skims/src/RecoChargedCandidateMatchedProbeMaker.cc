@@ -3,6 +3,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DPGAnalysis/Skims/interface/MatchedProbeMaker.h"
 
-typedef MatchedProbeMaker< reco::RecoChargedCandidate > RecoChargedCandidateMatchedProbeMaker;
+typedef MatchedProbeMaker<reco::RecoChargedCandidate> RecoChargedCandidateMatchedProbeMaker;
 
-DEFINE_FWK_MODULE( RecoChargedCandidateMatchedProbeMaker );
+DEFINE_FWK_MODULE(RecoChargedCandidateMatchedProbeMaker);

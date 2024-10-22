@@ -2,11 +2,11 @@
 //
 // Package:     Record
 // Class  :     HcalSimNumberingRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Thu Dec 24 16:41:02 PDT 2013
 
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"

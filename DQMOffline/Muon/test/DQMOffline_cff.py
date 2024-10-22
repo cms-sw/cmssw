@@ -4,7 +4,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Components.DQMMessageLogger_cfi import *
-from DQMServices.Components.DQMDcsInfo_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
 from DQM.HcalMonitorModule.hcal_dqm_source_fileT0_cff import *
@@ -17,7 +16,7 @@ from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitor_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 
-DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
+DQMOfflinePreDPG = cms.Sequence( 
                                  #ecal_dqm_source_offline *
                                  #hcalOfflineDQMSource *
                                  SiStripDQMTier0 *
@@ -71,7 +70,7 @@ DQMOfflinePOGMC = cms.Sequence( DQMOfflinePrePOGMC *
 DQMOfflinePhysics = cms.Sequence( dqmPhysics )
 
 
-DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
+DQMOfflineCommon = cms.Sequence( 
                                  DQMMessageLogger *
                                  SiStripDQMTier0 *
                                  siPixelOfflineDQM_source 

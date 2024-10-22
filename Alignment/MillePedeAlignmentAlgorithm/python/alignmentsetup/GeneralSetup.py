@@ -1,3 +1,4 @@
+from __future__ import print_function
 def setup(process, global_tag, zero_tesla = False):
     """General setup of an alignment process.
 
@@ -23,6 +24,6 @@ def setup(process, global_tag, zero_tesla = False):
 
     from Configuration.AlCa.GlobalTag import GlobalTag
     process.GlobalTag = GlobalTag(process.GlobalTag, global_tag)
-    print "Using Global Tag:", process.GlobalTag.globaltag._value
+    print("Using Global Tag:", process.GlobalTag.globaltag._value)
 
     return process # not required because the cms.Process is modified in place

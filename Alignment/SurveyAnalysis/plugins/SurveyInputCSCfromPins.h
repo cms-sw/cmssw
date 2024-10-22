@@ -11,23 +11,44 @@
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyInputBase.h"
+#include "CondFormats/Alignment/interface/Definitions.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-class SurveyInputCSCfromPins:
-  public SurveyInputBase
-{
+class SurveyInputCSCfromPins : public SurveyInputBase {
 public:
-	
-  SurveyInputCSCfromPins(const edm::ParameterSet&);
-	
+  SurveyInputCSCfromPins(const edm::ParameterSet &);
+
   /// Read ideal tracker geometry from DB
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
-
-  void orient(LocalVector LC1, LocalVector LC2, double a, double b, double &T, double &dx, double &dy, double &dz, double &PhX, double &PhZ);
-  void errors(double a, double b, bool missing1, bool missing2, double &dx_dx, double &dy_dy, double &dz_dz, double &phix_phix, double &phiz_phiz, double &dy_phix);
+  void orient(align::LocalVector LC1,
+              align::LocalVector LC2,
+              double a,
+              double b,
+              double &T,
+              double &dx,
+              double &dy,
+              double &dz,
+              double &PhX,
+              double &PhZ);
+  void errors(double a,
+              double b,
+              bool missing1,
+              bool missing2,
+              double &dx_dx,
+              double &dy_dy,
+              double &dz_dz,
+              double &phix_phix,
+              double &phiz_phiz,
+              double &dy_phix);
 
   void fillAllRecords(Alignable *ali);
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> DTGeoToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> CSCGeoToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> GEMGeoToken_;
 
   std::string m_pinPositions;
   std::string m_rootFile;

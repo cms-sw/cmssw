@@ -16,18 +16,17 @@
 namespace coral {
   class IConnection;
   class ISession;
-}
+}  // namespace coral
 
 class TestBase {
 public:
   TestBase();
   virtual ~TestBase();
   virtual void run() = 0;
-  void setVerbosityLevel( coral::MsgLevel level ) ;
+  void setVerbosityLevel(coral::MsgLevel level);
+
 protected:
-  coral::ISession* connect( const std::string& connectionString,
-                            const std::string& user, 
-                            const std::string& password );
+  coral::ISession* connect(const std::string& connectionString, const std::string& user, const std::string& password);
 
 private:
   coral::IConnection* m_connection;

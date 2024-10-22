@@ -10,7 +10,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,27 +22,24 @@
 
 #include "TNtuple.h"
 
+class CSCSharesInputTest : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit CSCSharesInputTest(const edm::ParameterSet &myConfig);
 
-class CSCSharesInputTest : public edm::EDAnalyzer {
-	public:
-		explicit CSCSharesInputTest(const edm::ParameterSet &myConfig);
-		
-		~CSCSharesInputTest();
-		
-	private:
-		virtual void beginJob();
-		
-		virtual void analyze(const edm::Event &myEvent, const edm::EventSetup &mySetup);
-		
-		virtual void endJob();
-		
+  ~CSCSharesInputTest();
 
-		edm::EDGetTokenT<CSCRecHit2DCollection> rh_token;
-		edm::EDGetTokenT<edm::View<reco::Muon> > mu_token;
-		
-		std::map<std::string, uint64_t> counts_;
-		
-		edm::Service<TFileService> rootFile_;
-		std::map<std::string, TNtuple *> ntuples_;
+private:
+  virtual void beginJob();
+
+  virtual void analyze(const edm::Event &myEvent, const edm::EventSetup &mySetup);
+
+  virtual void endJob();
+
+  edm::EDGetTokenT<CSCRecHit2DCollection> rh_token;
+  edm::EDGetTokenT<edm::View<reco::Muon> > mu_token;
+
+  std::map<std::string, uint64_t> counts_;
+
+  edm::Service<TFileService> rootFile_;
+  std::map<std::string, TNtuple *> ntuples_;
 };
-

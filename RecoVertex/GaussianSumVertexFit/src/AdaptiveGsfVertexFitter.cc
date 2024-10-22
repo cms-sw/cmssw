@@ -5,12 +5,7 @@
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexTrackCompatibilityEstimator.h"
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 
-
-
-AdaptiveGsfVertexFitter::AdaptiveGsfVertexFitter(const edm::ParameterSet& pSet,
-	const LinearizationPointFinder & linP )
-{
-
+AdaptiveGsfVertexFitter::AdaptiveGsfVertexFitter(const edm::ParameterSet& pSet, const LinearizationPointFinder& linP) {
   bool limitComponents_ = pSet.getParameter<bool>("limitComponents");
 
   DeepCopyPointerByClone<GsfVertexMerger> theMerger;
@@ -19,13 +14,12 @@ AdaptiveGsfVertexFitter::AdaptiveGsfVertexFitter(const edm::ParameterSet& pSet,
     theMerger = new GsfVertexMerger(pSet.getParameter<edm::ParameterSet>("GsfMergerParameters"));
   }
 
-  theFitter = new AdaptiveVertexFitter(
-      GeometricAnnealing(),
-      linP,
-      GsfVertexUpdator(limitComponents_, &*theMerger),
-      GsfVertexTrackCompatibilityEstimator(),
-      GsfVertexSmoother(limitComponents_, &*theMerger),
-      MultiPerigeeLTSFactory() );
+  theFitter = new AdaptiveVertexFitter(GeometricAnnealing(),
+                                       linP,
+                                       GsfVertexUpdator(limitComponents_, &*theMerger),
+                                       GsfVertexTrackCompatibilityEstimator(),
+                                       GsfVertexSmoother(limitComponents_, &*theMerger),
+                                       MultiPerigeeLTSFactory());
   theFitter->gsfIntermediarySmoothing(true);
 
   /**
@@ -39,19 +33,14 @@ AdaptiveGsfVertexFitter::AdaptiveGsfVertexFitter(const edm::ParameterSet& pSet,
    *   for a track to be considered "significant".
    *   If fewer than two tracks are significant, an exception is thrown.
    */
-  theFitter->setParameters ( pSet.getParameter<double>("maxshift"),
-                    pSet.getParameter<double>("maxlpshift"),
-                    pSet.getParameter<int>("maxstep"),
-                    pSet.getParameter<double>("weightthreshold") );
-
+  theFitter->setParameters(pSet.getParameter<double>("maxshift"),
+                           pSet.getParameter<double>("maxlpshift"),
+                           pSet.getParameter<int>("maxstep"),
+                           pSet.getParameter<double>("weightthreshold"));
 }
 
-AdaptiveGsfVertexFitter::AdaptiveGsfVertexFitter(const AdaptiveGsfVertexFitter & original)
-{
+AdaptiveGsfVertexFitter::AdaptiveGsfVertexFitter(const AdaptiveGsfVertexFitter& original) {
   theFitter = original.theFitter->clone();
 }
 
-AdaptiveGsfVertexFitter::~AdaptiveGsfVertexFitter()
-{
-  delete theFitter;
-}
+AdaptiveGsfVertexFitter::~AdaptiveGsfVertexFitter() { delete theFitter; }

@@ -54,12 +54,12 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 
 ###############################
-# Only hltResults
+# Only dqmHLTFiltersDQMonitor
 #
 ##############################
 #
 # Offline
-process.pHLT = cms.Path(process.hltResults)
+process.pHLT = cms.Path(process.dqmHLTFiltersDQMonitor)
 
 
 

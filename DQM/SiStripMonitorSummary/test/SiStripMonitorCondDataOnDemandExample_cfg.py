@@ -35,7 +35,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2)
 )
 
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiStripMonitorSummary/data/CondDBQtests.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True)
@@ -43,7 +44,6 @@ process.qTester = cms.EDAnalyzer("QualityTester",
 
 
 process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(1)
 )
 

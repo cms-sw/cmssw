@@ -1,42 +1,42 @@
 import FWCore.ParameterSet.Config as cms
 
-import DQM.TrackingMonitor.TrackingMonitor_cfi
-TrackerCosmicTrackMon = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
+from DQM.TrackingMonitor.TrackingMonitor_cfi import *
+TrackerCosmicTrackMon = TrackMon.clone(
+    # Update specific parameters
+    SeedProducer = "combinedP5SeedsForCTF",
+    TCProducer = "ckfTrackCandidatesP5",
+    beamSpot = "offlineBeamSpot",     
 
-# Update specific parameters
-TrackerCosmicTrackMon.SeedProducer          = cms.InputTag("combinedP5SeedsForCTF")
-TrackerCosmicTrackMon.TCProducer            = cms.InputTag("ckfTrackCandidatesP5")
-TrackerCosmicTrackMon.beamSpot              = cms.InputTag("offlineBeamSpot")              
+    MeasurementState = 'default',
 
-TrackerCosmicTrackMon.MeasurementState      = cms.string('default')
+    doAllPlots = False,
+    doHitPropertiesPlots = True,
+    doGeneralPropertiesPlots = True,
+    doBeamSpotPlots = False,
+    doSeedParameterHistos = False,
 
-TrackerCosmicTrackMon.doAllPlots            = cms.bool(False)
-TrackerCosmicTrackMon.doHitPropertiesPlots     = cms.bool(True)
-TrackerCosmicTrackMon.doGeneralPropertiesPlots = cms.bool(True)
-TrackerCosmicTrackMon.doBeamSpotPlots       = cms.bool(False)
-TrackerCosmicTrackMon.doSeedParameterHistos = cms.bool(False)
+    Chi2Max = 500.0,
 
-TrackerCosmicTrackMon.Chi2Max               = cms.double(500.0)
+    TkSizeBin = 25,
+    TkSizeMax = 24.5,
 
-TrackerCosmicTrackMon.TkSizeBin             = cms.int32(25)
-TrackerCosmicTrackMon.TkSizeMax             = cms.double(24.5)
+    TkSeedSizeBin = 20,
+    TkSeedSizeMax = 19.5,
 
-TrackerCosmicTrackMon.TkSeedSizeBin         = cms.int32(20)
-TrackerCosmicTrackMon.TkSeedSizeMax         = cms.double(19.5)
+    RecLayBin = 35,
+    RecLayMax = 34.5,
 
-TrackerCosmicTrackMon.RecLayBin             = cms.int32(35)
-TrackerCosmicTrackMon.RecLayMax             = cms.double(34.5)
+    TrackPtMax = 30.0,
+    TrackPtMin = -0.5,
 
-TrackerCosmicTrackMon.TrackPtMax            = cms.double(30.0)
-TrackerCosmicTrackMon.TrackPtMin            = cms.double(-0.5)
+    TrackPxMax = 50.0,
+    TrackPxMin = -50.0,
 
-TrackerCosmicTrackMon.TrackPxMax            = cms.double(50.0)
-TrackerCosmicTrackMon.TrackPxMin            = cms.double(-50.0)
+    TrackPyMax = 50.0,
+    TrackPyMin = -50.0,
 
-TrackerCosmicTrackMon.TrackPyMax            = cms.double(50.0)
-TrackerCosmicTrackMon.TrackPyMin            = cms.double(-50.0)
+    TrackPzMax = 50.0,
+    TrackPzMin = -50.0,
 
-TrackerCosmicTrackMon.TrackPzMax            = cms.double(50.0)
-TrackerCosmicTrackMon.TrackPzMin            = cms.double(-50.0)
-
-TrackerCosmicTrackMon.doLumiAnalysis        = cms.bool(False)                       
+    doLumiAnalysis = False
+)

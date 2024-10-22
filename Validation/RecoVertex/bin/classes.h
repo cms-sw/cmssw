@@ -3,6 +3,5 @@
 #include "Validation/RecoVertex/bin/multibsvspvplots.h"
 
 namespace Validation_RecoVertex_bin {
-  struct dictionary {
-  };
-}
+  struct dictionary {};
+}  // namespace Validation_RecoVertex_bin

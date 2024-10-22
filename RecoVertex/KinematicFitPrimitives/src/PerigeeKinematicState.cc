@@ -3,30 +3,29 @@
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 
-PerigeeKinematicState::PerigeeKinematicState(const KinematicState& state, const GlobalPoint& pt):
- point(pt), inState(state),  errorIsAvailable(true),vl(true)
-{
- if(!(state.isValid())) throw VertexException("PerigeeKinematicState::kinematic state passed is not valid!");
+PerigeeKinematicState::PerigeeKinematicState(const KinematicState& state, const GlobalPoint& pt)
+    : point(pt), inState(state), errorIsAvailable(true), vl(true) {
+  if (!(state.isValid()))
+    throw VertexException("PerigeeKinematicState::kinematic state passed is not valid!");
 
-//working with parameters:
- KinematicPerigeeConversions conversions;
- par  = conversions.extendedPerigeeFromKinematicParameters(state,pt);
-   
-//creating the error
- AlgebraicSymMatrix77 const & err = state.kinematicParametersError().matrix();
+  //working with parameters:
+  KinematicPerigeeConversions conversions;
+  par = conversions.extendedPerigeeFromKinematicParameters(state, pt);
 
-//making jacobian for curvilinear frame
- JacobianCartesianToCurvilinear jj(state.freeTrajectoryState().parameters());  
- AlgebraicMatrix67 ki2cu;
- ki2cu.Place_at(jj.jacobian(),0,0);
- ki2cu(5,6) = 1.;
- AlgebraicMatrix66 cu2pe;
- cu2pe.Place_at(PerigeeConversions::jacobianCurvilinear2Perigee(state.freeTrajectoryState()),0,0);
- cu2pe(5,5) = 1.;
- AlgebraicMatrix67 jacobian = cu2pe*ki2cu;
+  //creating the error
+  AlgebraicSymMatrix77 const& err = state.kinematicParametersError().matrix();
 
- cov = ExtendedPerigeeTrajectoryError(ROOT::Math::Similarity(jacobian, err));
+  //making jacobian for curvilinear frame
+  JacobianCartesianToCurvilinear jj(state.freeTrajectoryState().parameters());
+  AlgebraicMatrix67 ki2cu;
+  ki2cu.Place_at(jj.jacobian(), 0, 0);
+  ki2cu(5, 6) = 1.;
+  AlgebraicMatrix66 cu2pe;
+  cu2pe.Place_at(PerigeeConversions::jacobianCurvilinear2Perigee(state.freeTrajectoryState()), 0, 0);
+  cu2pe(5, 5) = 1.;
+  AlgebraicMatrix67 jacobian = cu2pe * ki2cu;
 
+  cov = ExtendedPerigeeTrajectoryError(ROOT::Math::Similarity(jacobian, err));
 }
 
 /*

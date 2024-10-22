@@ -57,11 +57,6 @@ process.GlobalTag.toGet = cms.VPSet(
              connect = cms.string("sqlite_file:myfile.db"),
 #             label = cms.string("Extended")
              ),
-    cms.PSet(record = cms.string("PGeometricDetExtraRcd"),
-             tag = cms.string("TKExtra_Geometry_TagXX"),
-             connect = cms.string("sqlite_file:myfile.db"),
-#             label = cms.string("Extra")
-             ),
     cms.PSet(record = cms.string("IdealGeometryRecord"),
              tag = cms.string("TKRECO_Geometry_TagXX"),
              connect = cms.string("sqlite_file:myfile.db")
@@ -86,12 +81,13 @@ process.GeometryTester = cms.EDAnalyzer("GeometryTester",
                                         HcalTest = cms.untracked.bool(True),
                                         HGCalTest = cms.untracked.bool(False),
                                         CaloTowerTest = cms.untracked.bool(True),
-                                        CastorTest = cms.untracked.bool(True),
+                                        CastorTest = cms.untracked.bool(False),
                                         ZDCTest = cms.untracked.bool(True),
                                         CSCTest = cms.untracked.bool(True),
                                         DTTest = cms.untracked.bool(True),
                                         RPCTest = cms.untracked.bool(True),
-                                        geomLabel = cms.untracked.string("")
+                                        geomLabel = cms.untracked.string(""),
+                                        roundValues = cms.untracked.bool(False)
                                         )
 
 process.maxEvents = cms.untracked.PSet(

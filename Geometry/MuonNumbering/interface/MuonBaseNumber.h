@@ -16,26 +16,23 @@
 
 #include <vector>
 
-#include "Geometry/MuonNumbering/src/LevelBaseNumber.h"
+#include "Geometry/MuonNumbering/interface/LevelBaseNumber.h"
 
 class MuonBaseNumber {
- public:
+public:
+  MuonBaseNumber() {}
+  ~MuonBaseNumber() {}
 
-  MuonBaseNumber(){};
-  ~MuonBaseNumber(){};
-
-  void addBase(const int level,const int super,const int base);
+  void addBase(const int level, const int super, const int base);
   void addBase(const LevelBaseNumber&);
-  
+
   int getLevels() const;
   int getSuperNo(int level) const;
   int getBaseNo(int level) const;
 
-
- protected:
+protected:
   typedef std::vector<LevelBaseNumber> basenumber_type;
-  basenumber_type sortedBaseNumber;  
-
+  basenumber_type sortedBaseNumber;
 };
 
 #endif

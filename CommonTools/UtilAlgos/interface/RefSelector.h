@@ -7,15 +7,14 @@
 namespace reco {
   namespace modules {
 
-    template<typename S>
+    template <typename S>
     struct ParameterAdapter<RefSelector<S> > {
-      static RefSelector<S> make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
-	return RefSelector<S>( modules::make<S>( cfg, iC ) );
+      static RefSelector<S> make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
+        return RefSelector<S>(modules::make<S>(cfg, iC));
       }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-

@@ -26,34 +26,31 @@
  */
 
 class TrimmedVertexFinder {
-
 public:
-
   typedef ReferenceCountingPointer<VertexTrack<5> > RefCountedVertexTrack;
   typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
-  TrimmedVertexFinder(const VertexFitter<5> * vf, 
-		      const VertexUpdator<5> * vu, 
-		      const VertexTrackCompatibilityEstimator<5> * ve);
+  TrimmedVertexFinder(const VertexFitter<5>* vf,
+                      const VertexUpdator<5>* vu,
+                      const VertexTrackCompatibilityEstimator<5>* ve);
 
   /** Copy constructor, needed to handle copy of pointer data members correctly
    */
-  TrimmedVertexFinder(const TrimmedVertexFinder & other);
+  TrimmedVertexFinder(const TrimmedVertexFinder& other);
   ~TrimmedVertexFinder();
 
   /** Make 0 or 1 vertex 
    *  On output, `remain` contains the incompatible tracks
    */
-  std::vector<TransientVertex> 
-    vertices(std::vector<reco::TransientTrack> & remain) const;
-  
+  std::vector<TransientVertex> vertices(std::vector<reco::TransientTrack>& remain) const;
+
   /** Same as above,
    * only with the extra information of the beamspot
    * constraint.
    */
-  std::vector<TransientVertex> 
-    vertices(std::vector<reco::TransientTrack> & remain,
-        const reco::BeamSpot & s, bool use_beamspot=true ) const;
+  std::vector<TransientVertex> vertices(std::vector<reco::TransientTrack>& remain,
+                                        const reco::BeamSpot& s,
+                                        bool use_beamspot = true) const;
 
   /** Access to parameter
    */
@@ -65,26 +62,20 @@ public:
 
   /** clone method
    */
-  TrimmedVertexFinder * clone() const {
-    return new TrimmedVertexFinder(*this);
-  }
-
+  TrimmedVertexFinder* clone() const { return new TrimmedVertexFinder(*this); }
 
 private:
-
   // finds least compatible track
   // returns vtxTracks.end() if all tracks are compatible
   //
-  std::vector<RefCountedVertexTrack>::iterator theWorst(
-    const CachingVertex<5> & vtx, 
-    std::vector<RefCountedVertexTrack> & vtxTracks, 
-    float cut) const;
+  std::vector<RefCountedVertexTrack>::iterator theWorst(const CachingVertex<5>& vtx,
+                                                        std::vector<RefCountedVertexTrack>& vtxTracks,
+                                                        float cut) const;
 
-  VertexFitter<5> * theFitter;
-  VertexUpdator<5> * theUpdator;
-  VertexTrackCompatibilityEstimator<5> * theEstimator;
+  VertexFitter<5>* theFitter;
+  VertexUpdator<5>* theUpdator;
+  VertexTrackCompatibilityEstimator<5>* theEstimator;
   float theMinProb;
-
 };
 
 #endif

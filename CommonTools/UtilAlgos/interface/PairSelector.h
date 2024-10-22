@@ -7,20 +7,17 @@
 namespace reco {
   namespace modules {
 
-    template<typename S1, typename S2>
+    template <typename S1, typename S2>
     struct ParameterAdapter<PairSelector<S1, S2> > {
-      static PairSelector<S1, S2> make( const edm::ParameterSet & cfg ) {
-	return PairSelector<S1, S2>( modules::make<S1>( cfg ),
-				     modules::make<S2>( cfg ) );
+      static PairSelector<S1, S2> make(const edm::ParameterSet& cfg) {
+        return PairSelector<S1, S2>(modules::make<S1>(cfg), modules::make<S2>(cfg));
       }
-      static PairSelector<S1, S2> make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
-	return PairSelector<S1, S2>( modules::make<S1>( cfg, iC ),
-				     modules::make<S2>( cfg, iC ) );
+      static PairSelector<S1, S2> make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
+        return PairSelector<S1, S2>(modules::make<S1>(cfg, iC), modules::make<S2>(cfg, iC));
       }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-

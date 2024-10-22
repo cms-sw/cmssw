@@ -12,22 +12,20 @@
  Usage: Sets up unique identifier for crystals in 2002 test beam
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Fri May 20 10:14:34 CEST 2006
 //
-  
+
 // system include files
- 
+
 // user include files
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02NumberingScheme.h"
 
 class HcalTB02XtalNumberingScheme : public HcalTB02NumberingScheme {
-
 public:
   HcalTB02XtalNumberingScheme();
   ~HcalTB02XtalNumberingScheme() override;
   int getUnitID(const G4Step* aStep) const override;
-
 };
 
 #endif

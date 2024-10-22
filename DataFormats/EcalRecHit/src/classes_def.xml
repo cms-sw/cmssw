@@ -39,4 +39,12 @@
   <class name="edm::Wrapper<edm::DetSetVector<EcalRecHit> >"/>
   <class name="edm::Wrapper<std::vector<std::vector<edm::DetSet<EcalRecHit> > > >"/>
 
+  <class name="EcalOotAmpArray"/>
+  <class name="EcalUncalibratedRecHitSoA"/>
+  <class name="EcalUncalibratedRecHitSoA::View"/>
+  <class name="EcalUncalibratedRecHitHostCollection" ClassVersion="3">
+    <version ClassVersion="3" checksum="2717044868"/>
+  </class>
+  <class name="edm::Wrapper<EcalUncalibratedRecHitHostCollection>" splitLevel="0"/>
+
 </lcgdict>

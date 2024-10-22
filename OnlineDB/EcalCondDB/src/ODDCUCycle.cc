@@ -6,8 +6,7 @@
 using namespace std;
 using namespace oracle::occi;
 
-ODDCUCycle::ODDCUCycle()
-{
+ODDCUCycle::ODDCUCycle() {
   m_env = nullptr;
   m_conn = nullptr;
   m_writeStmt = nullptr;
@@ -17,60 +16,44 @@ ODDCUCycle::ODDCUCycle()
   m_dcu_config_id = 0;
 }
 
+ODDCUCycle::~ODDCUCycle() {}
 
-ODDCUCycle::~ODDCUCycle()
-{
-}
-
-
-void ODDCUCycle::prepareWrite()
-  noexcept(false)
-{
+void ODDCUCycle::prepareWrite() noexcept(false) {
   this->checkConnection();
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO ECAL_DCU_Cycle (cycle_id, dcu_configuration_id ) "
-		 "VALUES (:1, :2 )");
+    m_writeStmt->setSQL(
+        "INSERT INTO ECAL_DCU_Cycle (cycle_id, dcu_configuration_id ) "
+        "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUCycle::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODDCUCycle::prepareWrite():  " + e.getMessage()));
   }
 }
 
-
-void ODDCUCycle::writeDB()  noexcept(false)
-{
+void ODDCUCycle::writeDB() noexcept(false) {
   this->checkConnection();
   this->checkPrepare();
 
   try {
-
     m_writeStmt->setInt(1, this->getId());
     m_writeStmt->setInt(2, this->getDCUConfigurationID());
 
     m_writeStmt->executeUpdate();
 
-
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUCycle::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("ODDCUCycle::writeDB:  " + e.getMessage()));
   }
 
   // Now get the ID
   if (!this->fetchID()) {
     throw(std::runtime_error("ODDCUCycle::writeDB:  Failed to write"));
   }
-  
- 
 }
 
-void ODDCUCycle::clear(){
-  m_dcu_config_id=0;
-}
+void ODDCUCycle::clear() { m_dcu_config_id = 0; }
 
-
-int ODDCUCycle::fetchID()
-  noexcept(false)
-{
+int ODDCUCycle::fetchID() noexcept(false) {
   // Return from memory if available
   if (m_ID) {
     return m_ID;
@@ -79,11 +62,12 @@ int ODDCUCycle::fetchID()
   this->checkConnection();
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cycle_id, dcu_configuration_id FROM ecal_dcu_cycle "
-		 "WHERE cycle_id = :1 ");
+    Statement *stmt = m_conn->createStatement();
+    stmt->setSQL(
+        "SELECT cycle_id, dcu_configuration_id FROM ecal_dcu_cycle "
+        "WHERE cycle_id = :1 ");
     stmt->setInt(1, m_ID);
-    ResultSet* rset = stmt->executeQuery();
+    ResultSet *rset = stmt->executeQuery();
 
     if (rset->next()) {
       m_ID = rset->getInt(1);
@@ -93,26 +77,22 @@ int ODDCUCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODDCUCycle::fetchID:  " + e.getMessage()));
   }
 
   return m_ID;
 }
 
-
-
-void ODDCUCycle::setByID(int id) 
-  noexcept(false)
-{
-   this->checkConnection();
-
+void ODDCUCycle::setByID(int id) noexcept(false) {
+  this->checkConnection();
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cycle_id, dcu_configuration_id FROM ecal_dcu_cycle "
-		 "WHERE cycle_id = :1 ");
+    Statement *stmt = m_conn->createStatement();
+    stmt->setSQL(
+        "SELECT cycle_id, dcu_configuration_id FROM ecal_dcu_cycle "
+        "WHERE cycle_id = :1 ");
     stmt->setInt(1, id);
-    ResultSet* rset = stmt->executeQuery();
+    ResultSet *rset = stmt->executeQuery();
 
     if (rset->next()) {
       m_ID = rset->getInt(1);
@@ -122,44 +102,37 @@ void ODDCUCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODDCUCycle::fetchID:  " + e.getMessage()));
   }
 }
 
-
-
-void ODDCUCycle::fetchData(ODDCUCycle * result)
-  noexcept(false)
-{
+void ODDCUCycle::fetchData(ODDCUCycle *result) noexcept(false) {
   this->checkConnection();
   result->clear();
 
-  if(result->getId()==0){
+  if (result->getId() == 0) {
     throw(std::runtime_error("ODDCUConfig::fetchData(): no Id defined for this ODDCUConfig "));
   }
 
   try {
-
-    m_readStmt->setSQL("SELECT  dcu_configuration_id FROM ecal_dcu_cycle "
-		 "WHERE cycle_id = :1 ");
+    m_readStmt->setSQL(
+        "SELECT  dcu_configuration_id FROM ecal_dcu_cycle "
+        "WHERE cycle_id = :1 ");
 
     m_readStmt->setInt(1, result->getId());
-    ResultSet* rset = m_readStmt->executeQuery();
+    ResultSet *rset = m_readStmt->executeQuery();
 
     rset->next();
 
-    result->setDCUConfigurationID(       rset->getInt(1) );
+    result->setDCUConfigurationID(rset->getInt(1));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUCycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODDCUCycle::fetchData():  " + e.getMessage()));
   }
 }
 
-void ODDCUCycle::insertConfig()
-  noexcept(false)
-{
+void ODDCUCycle::insertConfig() noexcept(false) {
   try {
-
     prepareWrite();
     writeDB();
     m_conn->commit();
@@ -172,4 +145,3 @@ void ODDCUCycle::insertConfig()
     throw(std::runtime_error("EcalCondDBInterface::insertDataSet:  Unknown exception caught"));
   }
 }
-

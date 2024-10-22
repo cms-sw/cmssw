@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 from Validation.RecoTrack.plotting.validation import Sample, Validation
 import Validation.RecoTrack.plotting.validation as validation
@@ -183,7 +183,7 @@ if "_phase2" in NewRelease:
     doPhase2PU = True
 
 ### Track algorithm name and quality. Can be a list.
-Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn',
+Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','displacedGeneralStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn','displacedRegionalStep',
         'ak4PFJets','btvLike'
 ]
 #Algos= ['ootb']
@@ -206,6 +206,8 @@ kwargs_tracking = {
         # filter out the pT>0.9 GeV track selection
         "": limitRelVal,
         "tpPtLess09": limitRelVal,
+        "tpEtaGreater2p7": limitRelVal,
+        "displaced": limitRelVal,
         "allTPEffic": limitRelVal,
         "fromPV": limitRelVal,
         "fromPVAllTP": limitRelVal,

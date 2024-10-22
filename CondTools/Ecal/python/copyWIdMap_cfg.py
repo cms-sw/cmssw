@@ -33,7 +33,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
+db_reader_account = 'CMS_ECAL_R'
+db_service,db_user,db_pwd = auth.get_db_credentials( db_reader_account )
 
 process.Test1 = cms.EDAnalyzer("ExTestEcalTPGWeightIdMapAnalyzer",
     record = cms.string('EcalTPGWeightIdMapRcd'),
@@ -49,7 +50,9 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGWeightIdMapAnalyzer",
      LocationSource = cms.string('P5'),
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),
-     RunType = cms.string('PHYSICS')
+     RunType = cms.string('PHYSICS'),
+     fileType = cms.string(''),
+     fileName = cms.string('')
     )                            
 )
 

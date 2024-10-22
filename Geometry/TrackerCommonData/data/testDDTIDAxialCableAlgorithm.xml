@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <SolidSection>
+    <Box name="MotherOfAllBoxes" dx="10*m" dy="10*m" dz="10*m"/>
+  </SolidSection>
+  <LogicalPartSection>
+    <LogicalPart name="MotherOfAllBoxes">
+      <rMaterial name="materials:Air"/>
+      <rSolid name="MotherOfAllBoxes"/>
+    </LogicalPart> 
+  </LogicalPartSection>
+  <Algorithm name="track:DDTIDAxialCableAlgo">
+    <rParent name="testDDTIDAxialCableAlgorithm:MotherOfAllBoxes"/>
+    <String name="ChildName" value="tidAxialCable"/>
+    <String name="MaterialIn" value="materials:Air"/>
+    <String name="MaterialOut" value="materials:Air"/>
+    <Numeric name="ZBend" value="30.*cm"/>
+    <Numeric name="ZEnd" value="30.*cm"/>
+    <Numeric name="RMin" value="10.*cm"/>
+    <Numeric name="RMax" value="15.*cm"/>
+    <Numeric name="RTop" value="20.*cm"/>
+    <Numeric name="Width" value="1.*mm"/>
+    <Numeric name="Thick" value="3.*mm"/>
+    <Vector name="Angles" type="numeric" nEntries="3"> 30.*deg, 10.*deg, 5.*deg </Vector>
+    <Vector name="ZPosWheel" type="numeric" nEntries="1"> 1.*cm</Vector>
+    <Vector name="ZPosRing" type="numeric" nEntries="1"> 1.*cm</Vector>
+  </Algorithm>
+  <PosPartSection label="">
+    <PosPart copyNumber="2">
+      <rParent name=":world_volume"/>
+      <rChild name="testDDTIDAxialCableAlgorithm:MotherOfAllBoxes"/>
+    </PosPart>
+  </PosPartSection>
+</DDDefinition>

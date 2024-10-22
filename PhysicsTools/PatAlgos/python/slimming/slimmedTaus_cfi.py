@@ -6,8 +6,10 @@ slimmedTaus = cms.EDProducer("PATTauSlimmer",
    dropPiZeroRefs = cms.bool(True),
    dropTauChargedHadronRefs = cms.bool(True),
    dropPFSpecific = cms.bool(True),
-   packedPFCandidates = cms.InputTag("packedPFCandidates"), 
+   packedPFCandidates = cms.InputTag("packedPFCandidates"),
    modifyTaus = cms.bool(True),
-   modifierConfig = cms.PSet( modifications = cms.VPSet() )    
+   modifierConfig = cms.PSet( modifications = cms.VPSet() ),
+   linkToLostTracks = cms.bool(True),
+   lostTracks = cms.InputTag("lostTracks")
 )
 

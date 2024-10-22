@@ -11,32 +11,43 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+class TrackerTopology;
 
-class TrackerAlignment
-{
-
+class TrackerAlignment {
 public:
-  TrackerAlignment( const edm::EventSetup& setup );
+  TrackerAlignment(const TrackerTopology* tTopo, const TrackerGeometry* tGeom);
 
   ~TrackerAlignment();
-  
-  AlignableTracker* getAlignableTracker() { return theAlignableTracker; }
-   
-  void moveAlignablePixelEndCaps( int rawId, const align::Scalars& localDisplacements, 
-                                  const align::Scalars& localRotations  );
-  void moveAlignableEndCaps( int rawId, const align::Scalars& localDisplacements, const align::Scalars& localRotations  );
-  void moveAlignablePixelHalfBarrels( int rawId, const align::Scalars& localDisplacements, const align::Scalars& localRotations  );
-  void moveAlignableInnerHalfBarrels( int rawId, const align::Scalars& localDisplacements, const align::Scalars& localRotations  );
-  void moveAlignableOuterHalfBarrels( int rawId, const align::Scalars& localDisplacements, const align::Scalars& localRotations  );	
-  void moveAlignableTIDs( int rawId, const align::Scalars& localDisplacements, const align::Scalars& localRotations  );
-  void moveAlignableTIBTIDs( int rawId, const align::Scalars& globalDisplacements, const align::RotationType& backwardRotation, const align::RotationType& forwardRotation, bool toAndFro);
-  
-  void saveToDB();
-  
-private:  
-  AlignableTracker* theAlignableTracker;
 
+  AlignableTracker* getAlignableTracker() { return theAlignableTracker; }
+
+  void moveAlignablePixelEndCaps(int rawId,
+                                 const align::Scalars& localDisplacements,
+                                 const align::Scalars& localRotations);
+  void moveAlignableEndCaps(int rawId, const align::Scalars& localDisplacements, const align::Scalars& localRotations);
+  void moveAlignablePixelHalfBarrels(int rawId,
+                                     const align::Scalars& localDisplacements,
+                                     const align::Scalars& localRotations);
+  void moveAlignableInnerHalfBarrels(int rawId,
+                                     const align::Scalars& localDisplacements,
+                                     const align::Scalars& localRotations);
+  void moveAlignableOuterHalfBarrels(int rawId,
+                                     const align::Scalars& localDisplacements,
+                                     const align::Scalars& localRotations);
+  void moveAlignableTIDs(int rawId, const align::Scalars& localDisplacements, const align::Scalars& localRotations);
+  void moveAlignableTIBTIDs(int rawId,
+                            const align::Scalars& globalDisplacements,
+                            const align::RotationType& backwardRotation,
+                            const align::RotationType& forwardRotation,
+                            bool toAndFro);
+
+  void saveToDB();
+
+private:
+  AlignableTracker* theAlignableTracker;
   std::string theAlignRecordName, theErrorRecordName;
-  
 };
-#endif //TrackerAlignment_H
+#endif  //TrackerAlignment_H

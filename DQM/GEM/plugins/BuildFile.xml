@@ -1,0 +1,11 @@
+<library file="*.cc" name="DQMGEMPlugins">
+  <flags EDM_PLUGIN="1"/>
+  <use name="DataFormats/MuonReco"/>
+  <use name="DQM/GEM"/>
+  <use name="DQMServices/Core"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="RecoMuon/TrackingTools"/>
+  <use name="TrackingTools/TransientTrack"/>
+  <use name="Validation/MuonHits"/>
+</library>

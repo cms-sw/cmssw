@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 _trackingOnlyEra_Run2_2018
 
@@ -22,11 +22,9 @@ class trackingOnlyEra_Run2_2018(trackingOnly):
         # some dedicated customization are required, though: customisePostEra_Run2_2018_trackingOnly
         self.recoSeq=':reconstruction_trackingOnly'
         self.cbSc='pp'
-        self.addEI=False
         self.eras=Run2_2018
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018' ]
         self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_express_trackingOnly' ]
-        self.alcaHarvCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_harvesting_trackingOnly' ]
         self.visCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018' ]
 
     """

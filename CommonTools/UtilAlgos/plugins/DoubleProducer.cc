@@ -6,13 +6,14 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
-class DoubleProducer : public edm::EDProducer {
+class DoubleProducer : public edm::stream::EDProducer<> {
 public:
-  DoubleProducer( const edm::ParameterSet & cfg );
+  DoubleProducer(const edm::ParameterSet& cfg);
+
 private:
-  void produce( edm::Event & evt, const edm::EventSetup&) override;
+  void produce(edm::Event& evt, const edm::EventSetup&) override;
   double value_;
 };
 
@@ -22,16 +23,15 @@ private:
 using namespace edm;
 using namespace std;
 
-DoubleProducer::DoubleProducer( const ParameterSet & cfg ) :
-value_( cfg.getParameter<double>( "value" ) ){
+DoubleProducer::DoubleProducer(const ParameterSet& cfg) : value_(cfg.getParameter<double>("value")) {
   produces<double>();
 }
 
-void DoubleProducer::produce( Event & evt, const EventSetup & ) {
-  unique_ptr<double> value( new double( value_ ) );
+void DoubleProducer::produce(Event& evt, const EventSetup&) {
+  unique_ptr<double> value(new double(value_));
   evt.put(std::move(value));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( DoubleProducer );
+DEFINE_FWK_MODULE(DoubleProducer);

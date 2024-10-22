@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -14,8 +15,7 @@ def appendDTChamberMaskerAtUnpacking(process):
 
         process.muonDTDigis.digiTag = cms.InputTag('preDtDigis') 
 
-        process.filteredDtDigiSequence = cms.Sequence(process.preDtDigis + process.muonDTDigis)
-        process.RawToDigi.replace(process.muonDTDigis, process.filteredDtDigiSequence)
+        process.RawToDigiTask.add(process.preDtDigis)
 
         if hasattr(process,"dtTriggerEfficiencyMonitor") :
             process.dtTriggerEfficiencyMonitor.inputTagDDU = 'preDtDigis'
@@ -47,10 +47,10 @@ def appendDTChamberMaskerAtHLT(process):
 
         process.filteredHltDtDigiSequence = cms.Sequence(process.preHltDtDigis + process.hltMuonDTDigis)
         if hasattr(process,'HLTMuonLocalRecoSequence') :
-            print "1"
+            print("1")
             process.HLTMuonLocalRecoSequence.replace(process.hltMuonDTDigis, process.filteredHltDtDigiSequence)
         if hasattr(process,'HLTMuonLocalRecoMeanTimerSequence') :
-            print "2"
+            print("2")
             process.HLTMuonLocalRecoMeanTimerSequence.replace(process.hltMuonDTDigis, process.filteredHltDtDigiSequence)
 
         process.globalReplace("hltMuonDTDigis",filteredHltDtDigiSequence)

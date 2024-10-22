@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('MuonClassif',eras.Phase2)
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process('MuonClassif',Phase2)
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -63,10 +63,6 @@ from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn
 process = setCrossingFrameOn(process)
 
 ######
-process.MessageLogger.categories = cms.untracked.vstring('MuonToTrackingParticleAssociatorEDProducer',
-'MuonToTrackingParticleAssociatorByHits','MuonAssociatorByHitsHelper','MuonToTrackingParticleAssociatorByHitsImpl',
-'TrackerMuonHitExtractor','MuonMCClassifier',
-'FwkJob','FwkReport','FwkSummary','Root_NoDictionary')
 
 process.MessageLogger.cerr = cms.untracked.PSet(
     noTimeStamps = cms.untracked.bool(True),
@@ -91,6 +87,7 @@ process.MessageLogger.cerr = cms.untracked.PSet(
 )
 
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
     noTimeStamps = cms.untracked.bool(True),
     threshold = cms.untracked.string('INFO'),
 

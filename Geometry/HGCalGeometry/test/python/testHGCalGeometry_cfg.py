@@ -1,28 +1,48 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalHGCalGeometry_cfg.py geometry=V17
+#
+#   Options for geometry V16, V17, V18
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PROD")
-process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "V17",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: V16, V17, V18")
 
-process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
-process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('HGCHGCalGeometry',Phase2C17I13M9)
+geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "XML_cfi"
+print("Geometry file: ", geomFile)
+process.load(geomFile)
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
+process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
+
+process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("Geometry.CaloEventSetup.HGCalTopology_cfi")
 process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HGCalGeom'),
-    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HGCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-)
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeomX=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -48,19 +68,16 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prodEE = cms.EDAnalyzer("HGCalGeometryTester",
-                                Detector   = cms.string("HGCalEESensitive"),
-                                SquareCell = cms.bool(False),
-                                )
+process.load("Geometry.HGCalGeometry.hgcalGeometryTesterEE_cfi")
 
-process.prodHEF = process.prodEE.clone(
+process.hgcalGeometryTesterHEF = process.hgcalGeometryTesterEE.clone(
     Detector   = "HGCalHESiliconSensitive",
-    SquareCell = False
 )
 
-process.prodHEB = process.prodEE.clone(
+process.hgcalGeometryTesterHEB = process.hgcalGeometryTesterEE.clone(
     Detector   = "HGCalHEScintillatorSensitive",
-    SquareCell = True
 )
 
-process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
+#process.p1 = cms.Path(process.generator*process.hgcalGeometryTesterEE*process.hgcalGeometryTesterHEF*process.hgcalGeometryTesterHEB)
+process.p1 = cms.Path(process.generator*process.hgcalGeometryTesterEE*process.hgcalGeometryTesterHEF)
+#process.p1 = cms.Path(process.generator*process.hgcalGeometryTesterHEB)

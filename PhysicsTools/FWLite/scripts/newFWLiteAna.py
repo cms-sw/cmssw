@@ -1,6 +1,7 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
-import optparse
+from __future__ import print_function
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import os
 import sys
 import re
@@ -91,20 +92,19 @@ if __name__ == '__main__':
     base         = os.environ.get ('CMSSW_BASE')
     release_base = os.environ.get ('CMSSW_RELEASE_BASE')
     if not base or not release_base:
-        print "Error: You must have already setup a CMSSW release.  Aborting."
+        print("Error: You must have already setup a CMSSW release.  Aborting.")
         sys.exit()
     # setup the options
-    parser = optparse.OptionParser('usage: %prog [options] '
-                                   'Package/SubPackage/name\n'
-								   'Creates new analysis code')
-    parser.add_option ('--copy', dest='copy', type='string', default = 'blank',
-                       help='Copies example. COPY should either be a file'
-                       ' _or_ an example in PhysicsTools/FWLite/examples')
-    parser.add_option ('--newPackage', dest='newPackage', action='store_true',
-                       help='Will create Package/Subpackage folders if necessary')
-    parser.add_option ('--toTest', dest='toTest', action='store_true',
-                       help='Will create files in test/ instead of bin/')
-    (options, args) = parser.parse_args()
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter, description='Creates new analysis code')
+    parser.add_argument('--copy', dest='copy', type=str, default = 'blank',
+                        help='Copies example. COPY should either be a file'
+                        ' _or_ an example in PhysicsTools/FWLite/examples')
+    parser.add_argument('--newPackage', dest='newPackage', action='store_true',
+                        help='Will create Package/Subpackage folders if necessary')
+    parser.add_argument('--toTest', dest='toTest', action='store_true',
+                        help='Will create files in test/ instead of bin/')
+    parser.add_argument("name", metavar="Package/SubPackage/name", type=str)
+    options = parser.parse_args()
     # get the name of the copy file and make sure we can find everything
     copy = options.copy
     if not re.search ('\.cc$', copy):
@@ -129,21 +129,18 @@ if __name__ == '__main__':
             found = True
             # Is there a Buildfile too?
             if not os.path.exists (build):
-                print "Error: Found '%s', but no accompying " % name, \
-                      "Buildfile '%s'. Aborting" % build
+                print("Error: Found '%s', but no accompanying " % name, \
+                      "Buildfile '%s'. Aborting" % build)
                 sys.exit()
             fullName = name
             fullBuild = build
             break
     if not found:
-        print "Error: Did not find '%s' to copy.  Aborting." % copy
+        print("Error: Did not find '%s' to copy.  Aborting." % copy)
         sys.exit()
-    if len (args) != 1:
-        parser.print_usage()
-        sys.exit()
-    pieces = args[0].split('/')
+    pieces = options.name.split('/')
     if len (pieces) != 3:
-        print "Error: Need to provide 'Package/SubPackage/name'"
+        print("Error: Need to provide 'Package/SubPackage/name'")
         sys.exit()    
     target = pieces[2]
     match = ccRE.match (target)
@@ -151,7 +148,7 @@ if __name__ == '__main__':
         target = match.group (1)    
     buildPiece = extractBuildFilePiece (fullBuild, copy, target)
     if not buildPiece:
-        print "Error: Could not extract necessary info from Buildfile. Aborting."
+        print("Error: Could not extract necessary info from Buildfile. Aborting.")
         sys.exit()
     # print buildPiece
     firstDir  = base + '/src/' + pieces[0]
@@ -168,7 +165,7 @@ if __name__ == '__main__':
     targetCC = dirList[2] + '/' + target + '.cc'
     targetBuild = dirList[2] + '/BuildFile'
     if os.path.exists (targetCC):
-        print 'Error: "%s" already exists.  Aborting.' % targetCC
+        print('Error: "%s" already exists.  Aborting.' % targetCC)
         sys.exit()
     # Start making directory structure
     for currDir in dirList:
@@ -176,13 +173,13 @@ if __name__ == '__main__':
             os.mkdir (currDir)
     # copy the file over
     shutil.copyfile (fullName, targetCC)
-    print "Copied:\n   %s\nto:\n   %s.\n" % (fullName, targetCC)
+    print("Copied:\n   %s\nto:\n   %s.\n" % (fullName, targetCC))
     createBuildFile (targetBuild)
     if extractBuildFilePiece (targetBuild, target):
-        print "Buildfile already has '%s'.  Skipping" % target
+        print("Buildfile already has '%s'.  Skipping" % target)
     else :
         # we don't already have a piece here
         if addBuildPiece (targetBuild, buildPiece):
-            print "Added info to:\n   %s." % targetBuild
+            print("Added info to:\n   %s." % targetBuild)
         else:
-            print "Unable to modify Buildfile.  Sorry."
+            print("Unable to modify Buildfile.  Sorry.")

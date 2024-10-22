@@ -14,28 +14,23 @@
 
 class CartesianTrajectoryError {
 public:
-// construct
+  // construct
   CartesianTrajectoryError() {}
 
   /** Constructing class from error matrix.
    */
-  CartesianTrajectoryError(const AlgebraicSymMatrix66& aCovarianceMatrix) :
-    theCovarianceMatrix(aCovarianceMatrix) { }
+  CartesianTrajectoryError(const AlgebraicSymMatrix66& aCovarianceMatrix) : theCovarianceMatrix(aCovarianceMatrix) {}
 
-// access
+  // access
 
   /** Returning error matrix.
    */
-  const AlgebraicSymMatrix66 &matrix() const {
-    return theCovarianceMatrix;
-  }
+  const AlgebraicSymMatrix66& matrix() const { return theCovarianceMatrix; }
 
   /** Enables the multiplication of the error matrix with a scalar "factor".
    */
 
-  void operator *= (double factor) {
-    theCovarianceMatrix *= factor;
-  }
+  void operator*=(double factor) { theCovarianceMatrix *= factor; }
 
   /// Position error submatrix
 
@@ -43,10 +38,7 @@ public:
    *  and correlations between the different position coordinates. 
    */
 
-  const GlobalError position() const {
-    return GlobalError( theCovarianceMatrix.Sub<AlgebraicSymMatrix33>(0,0));
-  }
-
+  const GlobalError position() const { return GlobalError(theCovarianceMatrix.Sub<AlgebraicSymMatrix33>(0, 0)); }
 
 private:
   AlgebraicSymMatrix66 theCovarianceMatrix;

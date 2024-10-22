@@ -1,20 +1,13 @@
-<use   name="DQMServices/ClientConfig"/>
-<use   name="DQMServices/Core"/>
-<use   name="SimDataFormats/TrackingAnalysis"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="root"/>
-<lib   name="MathMore"/>
-<use   name="SimTracker/TrackAssociation"/>
-<use   name="SimTracker/TrackerHitAssociation"/>
-<use   name="DQM/SiStripCommon"/>
-<use   name="CalibTracker/Records"/>
-<use   name="CommonTools/TriggerUtils"/>
-<use   name="RecoLocalTracker/ClusterParameterEstimator"/>
-<use   name="RecoTracker/TkSeedingLayers"/>
-<use   name="SimTracker/Records"/>
-
+<use name="DQMServices/Core"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="DataFormats/TrackReco"/>
+<use name="root"/>
+<lib name="MathMore"/>
+<use name="SimTracker/TrackAssociation"/>
+<use name="SimTracker/TrackerHitAssociation"/>
+<use name="DQM/SiStripCommon"/>
+<use name="CalibTracker/Records"/>
+<use name="RecoTracker/TkSeedingLayers"/>
 <export>
   <lib name="ValidationRecoTrack"/>
 </export>
-
-

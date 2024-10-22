@@ -1,7 +1,7 @@
-#ifndef SiPixelPhase1RecHitsV_h 
-#define SiPixelPhase1RecHitsV_h 
+#ifndef SiPixelPhase1RecHitsV_h
+#define SiPixelPhase1RecHitsV_h
 // -*- C++ -*-
-// 
+//
 // Package:     SiPixelPhase1RecHitsV
 // Class  :     SiPixelPhase1RecHitsV
 //
@@ -28,11 +28,11 @@ class SiPixelPhase1RecHitsV : public SiPixelPhase1Base {
     PULL_Y,
   };
 
-  public:
+public:
   explicit SiPixelPhase1RecHitsV(const edm::ParameterSet& conf);
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  private:
+private:
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   edm::EDGetTokenT<SiPixelRecHitCollection> srcToken_;
 };

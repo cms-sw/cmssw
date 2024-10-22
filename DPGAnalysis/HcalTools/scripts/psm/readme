@@ -1,0 +1,272 @@
+!!!!!!!!!!!!!!
+
+
+!!!!!!!!!!!!!!
+Changes were made to add option to use also only ALCARECO collection:
+                                  # if = 0 -> do not use digis at all
+                                  flagToUseDigiCollectionsORNot = cms.int32(1),
+
+!!!!!!!!!!!!!!
+Warning: before use, correct everywhere below the letters:
+   ...qq8/CMSSW_12_3_0_pre4... for needed dirs.
+
+!!!!!!!!!!!!!!
+setenv SCRAM_ARCH slc7_amd64_gcc10
+cmsrel CMSSW_12_3_0_pre4
+cd CMSSW_12_3_0_pre4/src
+cmsenv
+git cms-addpkg DPGAnalysis/HcalTools
+
+git cms-addpkg Calibration/HcalAlCaRecoProducers
+git cms-addpkg Calibration/HcalCalibAlgos
+scram b
+
+
+!!!!!!!!!!!!!!
+I.SELECTION OF RUNS FOR EACH ERA
+==============================
+
+1. fill into files (ztmpHcalNZS_A,...E...HI) all list of runs for each 
+       dataset era (...Run2018A-v1,..E....HI..) using commands:
+dasgoclient --query="run dataset=/HcalNZS/Run2018A-v1/RAW" --limit=0 > ztmpHcalNZS_A
+or for ALCARECO collection:
+dasgoclient --query="run dataset=/HcalNZS/Commissioning2021-HcalCalMinBias-PromptReco-v1/ALCARECO" --limit=0 > ztmpHcalNZS_ALCARECO
+dasgoclient --query="run dataset=/MinimumBias/Commissioning2021-HcalCalIterativePhiSym-PromptReco-v1/ALCARECO" --limit=0 > ztmpHcalMB_ALCARECO
+dasgoclient --query="run dataset=/MinimumBias0/Commissioning2021-HcalCalIterativePhiSym-PromptReco-v1/ALCARECO" --limit=0 > ztmpHcalMB0_ALCARECO
+dasgoclient --query="run dataset=/MinimumBias1/Commissioning2021-HcalCalIterativePhiSym-PromptReco-v1/ALCARECO" --limit=0 > ztmpHcalMB1_ALCARECO
+dasgoclient --query="run dataset=/MinimumBias2/Commissioning2021-HcalCalIterativePhiSym-PromptReco-v1/ALCARECO" --limit=0 > ztmpHcalMB2_ALCARECO
+
+2. specify in file rundate.sh the line with ...dataset=... 
+and correct the line:
+mv index_selection.html index_selectionA(B...).html
+
+and use obtained txt file ztmpHcalNZS_A(B...) 
+and execute one of the commands: 
+
+./rundate.sh ztmpHcalNZS_ALCARECO > ztmpNZSALCARECO
+
+./rundate.sh ztmpHcalNZS_A > ztmpA
+./rundate.sh ztmpHcalNZS_B > ztmpB
+./rundate.sh ztmpHcalNZS_C > ztmpC
+./rundate.sh ztmpHcalNZS_D > ztmpD
+./rundate.sh ztmpHcalNZS_E > ztmpE
+./rundate.sh ztmpHcalNZS_HI > ztmpHI
+
+(file index_selectionA(B...).html is created ) 
+
+3. use file index_selectionA(B...).html to select runs 
+of needed size and only 1 run per day(last one),
+with comparison with 
+https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18
+/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt
+
+, create txt files:
+                 runtime_runA(B...)
+                 runlist_runA(B...)
+
+
+II. running of main cc-kode (creation of root files)
+===================================================
+1) interactively
+(w/o config.Data.lumiMask = 
+'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18
+/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt'
+)
+- necessary corrections: 
+1. correct file "file_lists.csh" or "file_ALCARECO.csh" or "file_IMPSM.csh" for dataset used
+2. correct file "runlist_runA(B...)" to specify run list
+- running:
+./mkcfg_new120.csh runlist_runA(B...)
+./mkcfg_newALCARECO.csh runlist_2ALCARECO
+
+- see, how many py-files in PYTHON_runlist_run dir..
+- run ~ 15 jobs per PC: 1-15, 15-30, ...nn1- NN using commands:
+./run_interactive.csh runlist_run nn1 NN
+
+2) using crab:
+see https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/PromptReco/
+- correct: PSM_Global_2018_cfg.py
+- for each run correct and use scripts:
+crab_NZS2018C_1(2...).py
+- running:
+source /cvmfs/cms.cern.ch/crab3/crab.csh
+source /cvmfs/cms.cern.ch/crab3/crab_standalone.csh
+setenv SCRAM_ARCH slc7_amd64_gcc10
+cmsenv
+
+crab submit -c crab_NZS2018C_1(2...).py
+
+to check(kill) use: 
+crab status
+crab status -d ./crab_20200212_101405
+crab tasks 
+crab tasks --days
+crab kill -d ./crab_20200212_101405
+
+III. copy and merge root files
+==============================
+1) from eos, merge pices of root files into one big run-root file in your_dir on afs:
+(using script cp_runs_fromeos_into_longruns.sh )
+ ./cp_runs_fromeos_into_longruns.sh runlist_runA /afs/cern.ch/work/z/zhokin/hcal/qq8/CMSSW_12_3_0_pre4/src/DPGAnalysis/HcalTools/scripts/psm/longruns
+ ./cp_runs_fromeos_into_longruns.sh runlist_runB /afs/cern.ch/work/z/zhokin/hcal/qq8/CMSSW_12_3_0_pre4/src/DPGAnalysis/HcalTools/scripts/psm/longruns
+ ./cp_runs_fromeos_into_longruns.sh runlist_runC /afs/cern.ch/work/z/zhokin/hcal/qq8/CMSSW_12_3_0_pre4/src/DPGAnalysis/HcalTools/scripts/psm/longruns
+ (input dir is /eos/cms/store/user/zhokin/PSM/HcalNZS/2018 ; see: ll /eos/cms/store/user/zhokin/PSM/HcalNZS/ )
+
+[1.1 (DOESN'T WORK YET) in principle, you can use merging directly within eos dir.
+For that, use script glu_runs_oneos.csh directly from eos:
+cd /eos/cms/store/user/zhokin/PSM/HcalNZS
+./glu_runs_oneos.csh /eos/cms/store/user/zhokin/PSM/HcalNZS/2018 runlist_eostest1
+]
+
+2) in use of interactive running use the next :
+cd /afs/cern.ch/work/z/zhokin/hcal/qq8/CMSSW_12_3_0_pre4/src/DPGAnalysis/HcalTools/scripts/psm
+2.1 check all root-files availability: 
+cd /afs/cern.ch/work/z/zhokin/hcal/qq8/CMSSW_12_3_0_pre4/src/DPGAnalysis/HcalTools/scripts/psm
+./checkoutput120.csh PYTHON_runlist_run longruns
+
+2.2 merging run-root-piecies into one big run-root file: 
+cd /afs/cern.ch/work/z/zhokin/hcal/qq8/CMSSW_12_3_0_pre4/src/DPGAnalysis/HcalTools/scripts/psm
+(crashed jobs to be re-runned interactively and copied into dir longruns )
+./glu_runs_fromfile.csh longruns runlist_run
+
+3) copy into /eos: 
+cd /afs/cern.ch/work/z/zhokin/hcal/qq8/CMSSW_12_3_0_pre4/src/DPGAnalysis/HcalTools/scripts/psm
+copy all files Global_"run".root from your_dir into eos:
+cp Global_*.root /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/GlobalPSM/histos/. 
+cp Global_*.root /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/ALCARECOPSM/histos/. 
+or each run only::
+eos cp  /your_dir/Global_345821.root /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/GlobalPSM/histos
+check:
+eos ls -l /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/GlobalPSM/histos/
+
+IV. visulization on GlobalPSM sajt
+==================================
+-- to visualize table for each new run, use script: 
+-- fill table on GlobalPSM sajt: add new runs
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalPSM
+ - correct file index_toAddOnlyNewRuns_EOS.sh for "dasgoclient.. dataset=..." and "k="
+   and then use scripts: 
+./index_toAddOnlyNewRuns_EOS.sh runlist_runA
+./index_toAddOnlyNewRuns_EOS.sh runlist_runB
+./index_toAddOnlyNewRuns_EOS.sh runlist_runC
+./index_toAddOnlyNewRuns_EOS.sh runlist_runD
+
+./index_toAddOnlyNewRuns_EOS.sh runlist_1ALCARECO
+./index_toAddOnlyNewRuns_EOS.sh runlist_2ALCARECO
+
+At that, check index_draft.html and if everything is ok, copy it:
+cp index_draft.html /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/GlobalPSM/index.html
+cp index_draft.html /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/ALCARECOPSM/index.html
+cp index_draft.html /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/IMPSM/index.html
+
+
+-- to visualize PSM-plots for each new run, use script:
+    --------------------------------------------------
+cd macros/psm
+./compile.csh RemoteMonitoringPSM.cc
+./compile.csh RemoteMonitoringALCARECOPSM.cc
+./compile.csh RemoteMonitoringIMPSM.cc
+./compile.csh RemoteMonitoringIMPSMTEST.cc
+
+cd scripts/psm
+./GlobalPSM_EOS.sh  runlist_all
+
+./ALCARECOPSM_EOS.sh runlist_1ALCARECO
+./ALCARECOPSM_EOS.sh runlist_2ALCARECO
+./IMPSM_EOS.sh runlist_1IMPSM
+
+(during this running, for each run, new dirs like GLOBAL_runnumber
+will be created in dir.
+/eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/GlobalPSM 
+or
+/eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/ALCARECOPSM 
+or
+/eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/IMPSM 
+
+)
+
+V. helpfull sites and dirs
+==================
+1) Phi-Symmetry Monitoring(PSM) Tool for IMALCARECO RUNs:
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/IMPSM/
+
+2) Phi-Symmetry Monitoring(PSM) Tool for ALCARECO RUNs
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/ALCARECOPSM
+
+3) Phi-Symmetry Monitoring(PSM) Tool for Global RUNs
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalPSM/
+
+====  example of IMPSM for Natalii (Iterative Method)
+cd /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/
+mkdir IMPSM
+=======
+
+ ls -latr /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/
+
+drwxr-xr-x. 2 kodolova zh 4096 Mar 13  2020 AMT
+drwxr-xr-x. 2 kodolova zh 4096 Sep 28 16:21 RMT
+drwxr-xr-x. 2 kodolova zh 4096 Nov 23 09:02 CMT
+drwxr-xr-x. 2    51962 zh 4096 Nov 23 09:33 GlobalRMT
+drwxr-xr-x. 2 zhokin   zh 4096 Dec  3 13:07 GlobalPSM
+drwxr-xr-x. 2 zhokin   zh 4096 Dec  6 14:31 ALCARECOPSM
+drwxr-xr-x. 2 zhokin   zh 4096 Dec  7 10:41 IMPSM
+======
+sites:
+-----
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT
+
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT
+
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalPSM
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/ALCARECOPSM
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/IMPSM
+
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/AMT
+
+
+VI. tests:
+==========
+cd macros/psm
+cp /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/IMPSM/histos/Global_346512.root .
+./compile.csh RemoteMonitoringIMPSMTEST.cc
+./RemoteMonitoringIMPSMTEST.cc.exe Global_346512.root Global_346512.root Global
+
+local:
+firefox MAP.html
+gnome-open RBX-HO-3plots.png
+grep RBX-HB-3plotsmore *.html
+ll HB_ADCampl.html
+
+
+==================================
+==================================
+==================================
+==================================
+==================================
+VII. use of AMT scripts
+=====================
+-- use macro zGlobalamtTimeDependenciesPhiSymmetryHE.cc
+ in dir 
+ cd /afs/cern.ch/work/z/zhokin/hcal/qq8/CMSSW_12_3_0_pre4/src/DPGAnalysis/HcalTools/macros/amt
+ - create dirs. 
+zamtPhiSymmetryHElin 
+zamtPhiSymmetryHElog
+
+ - ./compile.csh zGlobalamtTimeDependenciesPhiSymmetryHE.cc
+ - ./zGlobalamtTimeDependenciesPhiSymmetryHE.cc.exe
+
+cd zamtPhiSymmetryHElog
+gnome-open *.png
+
+-- visualization:
+ - correct files in dir:
+/eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/AMT/index.html
+and mainly here:
+/afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/AMTweb
+ 
+ -see site:
+
+https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/AMT
+
+https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/AMT/HE.html

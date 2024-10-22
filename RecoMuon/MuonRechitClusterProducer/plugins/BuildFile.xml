@@ -1,0 +1,8 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="Geometry/CSCGeometry"/>
+<use   name="Geometry/DTGeometry"/>
+<use   name="Geometry/Records"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="fastjet"/>
+<flags EDM_PLUGIN="1"/>

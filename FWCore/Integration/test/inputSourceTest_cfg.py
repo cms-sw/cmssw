@@ -8,8 +8,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2)
 )
 
-process.source = cms.Source("ThingSource",
-    module_label = cms.untracked.string('Thing')
+process.source = cms.Source("ThingSource"
 )
 
 process.OtherThing = cms.EDProducer("OtherThingProducer",

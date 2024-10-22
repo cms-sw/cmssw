@@ -12,26 +12,21 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
-// The following typedef is used only in this implementation file, in
-// order to shorten several lines of code.
-typedef std::vector<edm::BranchDescription const*> VCBDP;
+  // The following typedef is used only in this implementation file, in
+  // order to shorten several lines of code.
+  typedef std::vector<edm::BranchDescription const*> VCBDP;
 
-  namespace 
-  {
-  
+  namespace {
+
     //--------------------------------------------------
     // function partial_match is a helper for Rule. It encodes the
     // matching of std::strings, and knows about wildcarding rules.
-    inline
-    bool
-    partial_match(const std::regex& regularExpression,
-  		  const std::string& branchstring)
-    {
+    inline bool partial_match(const std::regex& regularExpression, const std::string& branchstring) {
       return std::regex_match(branchstring, regularExpression);
     }
-  }
+  }  // namespace
 
-  //--------------------------------------------------  
+  //--------------------------------------------------
   // Class Rule is used to determine whether or not a given branch
   // (really a ProductResolver, as described by the BranchDescription object
   // that specifies that ProductResolver) matches a 'rule' specified by the
@@ -59,67 +54,59 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   // This class has much room for optimization. This should be
   // revisited as soon as profiling data are available.
 
-  ProductSelectorRules::Rule::Rule(std::string const& s, std::string const& parameterName, std::string const& owner) :
-    selectflag_(),
-    productType_(),
-    moduleLabel_(),
-    instanceName_(),
-    processName_()
-  {
+  ProductSelectorRules::Rule::Rule(std::string const& s, std::string const& parameterName, std::string const& owner)
+      : selectflag_(), productType_(), moduleLabel_(), instanceName_(), processName_() {
     if (s.size() < 6)
       throw edm::Exception(edm::errors::Configuration)
-        << "Invalid statement in configuration file\n"
-        << "In " << owner << " parameter named '" << parameterName << "'\n"
-        << "Rule must have at least 6 characters because it must\n"
-        << "specify 'keep ' or 'drop ' and also supply a pattern.\n"
-	<< "This is the invalid output configuration rule:\n" 
-	<< "    " << s << "\n"
-        << "Exception thrown from ProductSelectorRules::Rule\n";
+          << "Invalid statement in configuration file\n"
+          << "In " << owner << " parameter named '" << parameterName << "'\n"
+          << "Rule must have at least 6 characters because it must\n"
+          << "specify 'keep ' or 'drop ' and also supply a pattern.\n"
+          << "This is the invalid output configuration rule:\n"
+          << "    " << s << "\n"
+          << "Exception thrown from ProductSelectorRules::Rule\n";
 
-    if (s.substr(0,4) == "keep")
+    if (s.substr(0, 4) == "keep")
       selectflag_ = true;
-    else if (s.substr(0,4) == "drop")
+    else if (s.substr(0, 4) == "drop")
       selectflag_ = false;
     else
       throw edm::Exception(edm::errors::Configuration)
-        << "Invalid statement in configuration file\n"
-        << "In " << owner << " parameter named '" << parameterName << "'\n"
-        << "Rule must specify 'keep ' or 'drop ' and also supply a pattern.\n"
-	<< "This is the invalid output configuration rule:\n" 
-	<< "    " << s << "\n"
-        << "Exception thrown from ProductSelectorRules::Rule\n";
+          << "Invalid statement in configuration file\n"
+          << "In " << owner << " parameter named '" << parameterName << "'\n"
+          << "Rule must specify 'keep ' or 'drop ' and also supply a pattern.\n"
+          << "This is the invalid output configuration rule:\n"
+          << "    " << s << "\n"
+          << "Exception thrown from ProductSelectorRules::Rule\n";
 
-    if ( !std::isspace(s[4]) ) {
-
+    if (!std::isspace(s[4])) {
       throw edm::Exception(edm::errors::Configuration)
-        << "Invalid statement in configuration file\n"
-        << "In " << owner << " parameter named '" << parameterName << "'\n"
-        << "In each rule, 'keep' or 'drop' must be followed by a space\n"
-	<< "This is the invalid output configuration rule:\n" 
-	<< "    " << s << "\n"
-        << "Exception thrown from ProductSelectorRules::Rule\n";
+          << "Invalid statement in configuration file\n"
+          << "In " << owner << " parameter named '" << parameterName << "'\n"
+          << "In each rule, 'keep' or 'drop' must be followed by a space\n"
+          << "This is the invalid output configuration rule:\n"
+          << "    " << s << "\n"
+          << "Exception thrown from ProductSelectorRules::Rule\n";
     }
 
     // Now pull apart the std::string to get at the bits and pieces of the
     // specification...
-    
+
     // Grab from after 'keep/drop ' (note the space!) to the end of
     // the std::string...
-    std::string spec(s.begin()+5, s.end());
+    std::string spec(s.begin() + 5, s.end());
 
     // Trim any leading and trailing whitespace from spec
     boost::trim(spec);
 
-    if (spec == "*") // special case for wildcard
+    if (spec == "*")  // special case for wildcard
     {
-      productType_  = ".*";
-      moduleLabel_  = ".*";
+      productType_ = ".*";
+      moduleLabel_ = ".*";
       instanceName_ = ".*";
-      processName_  = ".*";
+      processName_ = ".*";
       return;
-    }
-    else
-    {
+    } else {
       std::vector<std::string> parts;
       boost::split(parts, spec, boost::is_any_of("_"));
 
@@ -129,13 +116,12 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
 
       // Require all the std::strings to contain only alphanumberic
       // characters or "*" or "?"
-      if (good) 
-      {
+      if (good) {
         for (int i = 0; i < 4; ++i) {
-	  std::string& field = parts[i];
+          std::string& field = parts[i];
           int size = field.size();
           for (int j = 0; j < size; ++j) {
-            if ( !(isalnum(field[j]) || field[j] == '*' || field[j] == '?') ) {
+            if (!(isalnum(field[j]) || field[j] == '*' || field[j] == '?')) {
               good = false;
             }
           }
@@ -149,109 +135,97 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         }
       }
 
-      if (!good)
-      {
-      throw edm::Exception(edm::errors::Configuration)
-        << "Invalid statement in configuration file\n"
-        << "In " << owner << " parameter named '" << parameterName << "'\n"
-        << "In each rule, after 'keep ' or 'drop ' there must\n"
-        << "be a branch specification of the form 'type_label_instance_process'\n"
-        << "There must be 4 fields separated by underscores\n"
-        << "The fields can only contain alphanumeric characters and the wildcards * or ?\n"
-        << "Alternately, a single * is also allowed for the branch specification\n"
-	<< "This is the invalid output configuration rule:\n" 
-	<< "    " << s << "\n"
-        << "Exception thrown from ProductSelectorRules::Rule\n";
+      if (!good) {
+        throw edm::Exception(edm::errors::Configuration)
+            << "Invalid statement in configuration file\n"
+            << "In " << owner << " parameter named '" << parameterName << "'\n"
+            << "In each rule, after 'keep ' or 'drop ' there must\n"
+            << "be a branch specification of the form 'type_label_instance_process'\n"
+            << "There must be 4 fields separated by underscores\n"
+            << "The fields can only contain alphanumeric characters and the wildcards * or ?\n"
+            << "Alternately, a single * is also allowed for the branch specification\n"
+            << "This is the invalid output configuration rule:\n"
+            << "    " << s << "\n"
+            << "Exception thrown from ProductSelectorRules::Rule\n";
       }
 
-      productType_  = parts[0];
-      moduleLabel_  = parts[1];
+      productType_ = parts[0];
+      moduleLabel_ = parts[1];
       instanceName_ = parts[2];
-      processName_  = parts[3];
+      processName_ = parts[3];
     }
   }
 
-  void
-  ProductSelectorRules::Rule::applyToAll(std::vector<BranchSelectState>& branchstates) const {
+  void ProductSelectorRules::Rule::applyToAll(std::vector<BranchSelectState>& branchstates) const {
     std::vector<BranchSelectState>::iterator it = branchstates.begin();
     std::vector<BranchSelectState>::iterator end = branchstates.end();
-    for (; it != end; ++it) applyToOne(it->desc, it->selectMe);
+    for (; it != end; ++it)
+      applyToOne(it->desc, it->selectMe);
   }
 
-  void
-  ProductSelectorRules::applyToAll(std::vector<BranchSelectState>& branchstates) const {
+  void ProductSelectorRules::applyToAll(std::vector<BranchSelectState>& branchstates) const {
     std::vector<Rule>::const_iterator it = rules_.begin();
     std::vector<Rule>::const_iterator end = rules_.end();
-    for (; it != end; ++it) it->applyToAll(branchstates);
+    for (; it != end; ++it)
+      it->applyToAll(branchstates);
   }
 
-//   bool
-//   Rule::applyToOne(edm::BranchDescription const* branch) const
-//   {
-//     bool match = 
-//       partial_match(productType_, branch->friendlyClassName()) && 
-//       partial_match(moduleLabel_, branch->moduleLabel()) &&
-//       partial_match(instanceName_, branch->productInstanceName()) &&
-//       partial_match(processName_, branch->processName());
+  //   bool
+  //   Rule::applyToOne(edm::BranchDescription const* branch) const
+  //   {
+  //     bool match =
+  //       partial_match(productType_, branch->friendlyClassName()) &&
+  //       partial_match(moduleLabel_, branch->moduleLabel()) &&
+  //       partial_match(instanceName_, branch->productInstanceName()) &&
+  //       partial_match(processName_, branch->processName());
 
-//     return match ? selectflag_ : !selectflag_;      
-//   }
+  //     return match ? selectflag_ : !selectflag_;
+  //   }
 
-  void
-  ProductSelectorRules::Rule::applyToOne(edm::BranchDescription const* branch,
-		   bool& result) const
-  {
-    if (this->appliesTo(branch)) result = selectflag_;    
+  void ProductSelectorRules::Rule::applyToOne(edm::BranchDescription const* branch, bool& result) const {
+    if (this->appliesTo(branch))
+      result = selectflag_;
   }
 
-  bool
-  ProductSelectorRules::Rule::appliesTo(edm::BranchDescription const* branch) const
-  {
-    return
-      partial_match(productType_, branch->friendlyClassName()) && 
-      partial_match(moduleLabel_, branch->moduleLabel()) &&
-      partial_match(instanceName_, branch->productInstanceName()) &&
-      partial_match(processName_, branch->processName());
+  bool ProductSelectorRules::Rule::appliesTo(edm::BranchDescription const* branch) const {
+    return partial_match(productType_, branch->friendlyClassName()) &&
+           partial_match(moduleLabel_, branch->moduleLabel()) &&
+           partial_match(instanceName_, branch->productInstanceName()) &&
+           partial_match(processName_, branch->processName());
   }
 
-  const std::vector<std::string>&
-  ProductSelectorRules::defaultSelectionStrings() {
+  const std::vector<std::string>& ProductSelectorRules::defaultSelectionStrings() {
     static const std::vector<std::string> s_defaultStrings(1U, std::string("keep *"));
     return s_defaultStrings;
   }
 
-  void
-  ProductSelectorRules::fillDescription(ParameterSetDescription& desc, char const* parameterName, std::vector<std::string> const& defaultStrings) {
+  void ProductSelectorRules::fillDescription(ParameterSetDescription& desc,
+                                             char const* parameterName,
+                                             std::vector<std::string> const& defaultStrings) {
     ;
     desc.addUntracked<std::vector<std::string> >(parameterName, defaultStrings)
         ->setComment("Specifies which branches are kept or dropped.");
   }
 
   ProductSelectorRules::ProductSelectorRules(ParameterSet const& pset,
-			       std::string const& parameterName,
-			       std::string const& parameterOwnerName) :
-  rules_(),
-  parameterName_(parameterName),
-  parameterOwnerName_(parameterOwnerName)
-  {
+                                             std::string const& parameterName,
+                                             std::string const& parameterOwnerName)
+      : rules_(), parameterName_(parameterName), parameterOwnerName_(parameterOwnerName) {
     // Fill the rules.
     // If there is no parameter whose name is parameterName_ in the
     // ParameterSet we are given, we use the following default.
     std::vector<std::string> defaultCommands(1U, std::string("keep *"));
 
-    std::vector<std::string> commands = 
-      pset.getUntrackedParameter<std::vector<std::string> >(parameterName,
-						    defaultCommands);
+    std::vector<std::string> commands =
+        pset.getUntrackedParameter<std::vector<std::string> >(parameterName, defaultCommands);
     if (commands.empty()) {
       commands.push_back(defaultCommands[0]);
     }
     rules_.reserve(commands.size());
-    for(std::vector<std::string>::const_iterator it = commands.begin(), end = commands.end();
-        it != end; ++it) {
+    for (std::vector<std::string>::const_iterator it = commands.begin(), end = commands.end(); it != end; ++it) {
       rules_.push_back(Rule(*it, parameterName, parameterOwnerName));
     }
     keepAll_ = commands.size() == 1 && commands[0] == defaultCommands[0];
   }
 
-
-}
+}  // namespace edm

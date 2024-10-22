@@ -5,4 +5,3 @@
  **/
 
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
-

@@ -16,8 +16,7 @@
 
 #include "CondFormats/Alignment/interface/SurveyError.h"
 
-struct SurveyErrors
-{
+struct SurveyErrors {
   SurveyErrors() {}
 
   std::vector<SurveyError> m_surveyErrors;

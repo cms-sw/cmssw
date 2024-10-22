@@ -1,0 +1,18 @@
+# This file contains the Effective Area (EA) constants for computing
+# PU-corrections for the variable ECal cluster isolation (IsoE)
+#
+# https://indico.cern.ch/event/1204275/#5-update-on-run3-photon-cut-ba
+# https://indico.cern.ch/event/1204277/#5-update-on-run3-photon-cut-ba
+#
+# The corrections are made by fitting degree 2 polynomials and
+# hence, each correction has two EA constants.
+#
+#
+# |eta| min   |eta| max       EA for IsoE (linear quadratic)
+0.0            1.0               0.0866519 -0.000229628
+1.0            1.479             0.0730397 -0.000213401
+1.479          2.0               0.0542479 -0.000109338
+2.0            2.2               0.0486181 -6.20977e-05
+2.2            2.3               0.0412923 9.63732e-06
+2.3            2.4               0.03555 5.79549e-05
+2.4            2.5               0.0360895 7.28546e-06

@@ -9,26 +9,27 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"   
-#include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 class HLTHcalTowerNoiseCleanerWithrechit : public edm::stream::EDProducer<> {
-  
- public:
+public:
   explicit HLTHcalTowerNoiseCleanerWithrechit(const edm::ParameterSet&);
   ~HLTHcalTowerNoiseCleanerWithrechit() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
+  edm::ESGetToken<CaloTowerTopology, HcalRecNumberingRecord> const hcalRecNumberingRecordToken_;
   edm::EDGetTokenT<reco::HcalNoiseRBXCollection> m_theHcalNoiseToken;
   edm::EDGetTokenT<CaloTowerCollection> m_theCaloTowerCollectionToken;
   // parameters
@@ -54,18 +55,18 @@ class HLTHcalTowerNoiseCleanerWithrechit : public edm::stream::EDProducer<> {
 
   double TS4TS5EnergyThreshold_;
   std::vector<std::pair<double, double> > TS4TS5UpperCut_;
-  std::vector<std::pair<double, double> > TS4TS5LowerCut_;  
+  std::vector<std::pair<double, double> > TS4TS5LowerCut_;
 
   // Rechit-r45 filter parameters:
   std::vector<double> hltMinRBXRechitR45Cuts_;
 
   // helper function to compare noise data energies
   struct noisedatacomp {
-    inline bool operator() ( const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) {
-      return t1.energy()>t2.energy();
+    inline bool operator()(const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) const {
+      return t1.energy() > t2.energy();
     }
   };
   typedef std::set<CommonHcalNoiseRBXData, noisedatacomp> noisedataset_t;
 };
 
-#endif //HLTHcalTowerNoiseCleanerWithrechit_h
+#endif  //HLTHcalTowerNoiseCleanerWithrechit_h

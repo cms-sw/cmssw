@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import cStringIO,operator
 from functools import reduce
@@ -33,14 +34,13 @@ def indent(rows, hasHeader=False, headerChar='-', delim=' | ', justify='left',
     # select the appropriate justify method
     justify = {'center':str.center, 'right':str.rjust, 'left':str.ljust}[justify.lower()]
     output=cStringIO.StringIO()
-    if separateRows: print >> output, rowSeparator
+    if separateRows: print(rowSeparator, file=output)
     for physicalRows in logicalRows:
         for row in physicalRows:
-            print >> output, \
-                prefix \
+            print(prefix \
                 + delim.join([justify(str(item),width) for (item,width) in zip(row,maxWidths)]) \
-                + postfix
-        if separateRows or hasHeader: print >> output, rowSeparator; hasHeader=False
+                + postfix, file=output)
+        if separateRows or hasHeader: print(rowSeparator, file=output); hasHeader=False
     return output.getvalue()
 
 # written by Mike Brown
@@ -95,9 +95,9 @@ def importDF(path):
 #            sys.path.append(".")
             globals()[m] = __import__(m)
             imported_modules.append(m)
-            print "Searching in "+ module
+            print("Searching in "+ module)
         except ImportError:
-            print "skipping", module
+            print("skipping", module)
         
 # END of import            
        
@@ -116,14 +116,14 @@ def search(query):
     
     if (data != ""):
         rows = [row.strip().split('||')  for row in data.splitlines()]
-        print indent([labels]+rows, hasHeader=True, separateRows=True, prefix='| ', postfix=' |',  wrapfunc=lambda x: wrap_always(x,width))
+        print(indent([labels]+rows, hasHeader=True, separateRows=True, prefix='| ', postfix=' |',  wrapfunc=lambda x: wrap_always(x,width)))
     else:
-        print "No documentation found" 
+        print("No documentation found") 
 
 def help():
-    print "usage: dataformats pattern_to_search"
-    print "example: dataformats muon"
-    print "Note! multiple patterns separated by space are not supported"
+    print("usage: dataformats pattern_to_search")
+    print("example: dataformats muon")
+    print("Note! multiple patterns separated by space are not supported")
 
 if __name__ == "__main__":
 
@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
     if (len(sys.argv) > 2):
         importDF(sys.argv[1])
-        print "\nSearching for: "+sys.argv[2]+"\n" 
+        print("\nSearching for: "+sys.argv[2]+"\n") 
         search(sys.argv[2])
 
     else:

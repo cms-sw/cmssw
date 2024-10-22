@@ -1,6 +1,6 @@
 #ifndef GeometryVector_PointTag_h
 #define GeometryVector_PointTag_h
 
-class PointTag{};
+class PointTag {};
 
-#endif // GeometryVector_PointTag_h
+#endif  // GeometryVector_PointTag_h

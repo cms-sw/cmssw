@@ -24,25 +24,25 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class HPDIonFeedbackSim: public CaloVPECorrection
-{
-  public:
-    /// need a shaper in order to set thermal noise
-    HPDIonFeedbackSim(const edm::ParameterSet&, const CaloShapes * shapes);
-    ~HPDIonFeedbackSim() override;
-    
-    //copied from HFSimParameters.h
-    void setDbService(const HcalDbService * service) {theDbService = service;}
+class HPDIonFeedbackSim : public CaloVPECorrection {
+public:
+  /// need a shaper in order to set thermal noise
+  HPDIonFeedbackSim(const edm::ParameterSet&, const CaloShapes* shapes);
+  ~HPDIonFeedbackSim() override;
 
-    // in units of fC
-    double correctPE(const DetId & detId, double npe, CLHEP::HepRandomEngine*) const override;
-    double getIonFeedback(DetId detId, double signal, double pedWidth, bool doThermal, bool isInGeV, CLHEP::HepRandomEngine*);
+  //copied from HFSimParameters.h
+  void setDbService(const HcalDbService* service) { theDbService = service; }
 
-    void addThermalNoise(CaloSamples & samples, CLHEP::HepRandomEngine*);
+  // in units of fC
+  double correctPE(const DetId& detId, double npe, CLHEP::HepRandomEngine*) const override;
+  double getIonFeedback(
+      DetId detId, double signal, double pedWidth, bool doThermal, bool isInGeV, CLHEP::HepRandomEngine*);
 
-  private:
-    double fCtoGeV(const DetId & detId) const;
-    const HcalDbService * theDbService;
-    const CaloShapes * theShapes;
+  void addThermalNoise(CaloSamples& samples, CLHEP::HepRandomEngine*);
+
+private:
+  double fCtoGeV(const DetId& detId) const;
+  const HcalDbService* theDbService;
+  const CaloShapes* theShapes;
 };
 #endif

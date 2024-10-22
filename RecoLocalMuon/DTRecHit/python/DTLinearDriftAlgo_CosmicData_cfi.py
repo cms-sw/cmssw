@@ -27,7 +27,8 @@ DTLinearDriftAlgo_CosmicData = cms.PSet(
             # Switch on/off the T0 correction from pulses
             doT0Correction = cms.bool(True),
             debug = cms.untracked.bool(False),
-            tTrigLabel = cms.string('cosmics')
+            tTrigLabel = cms.string('cosmics'),
+            t0Label = cms.string('')
         ),
         maxTime = cms.double(420.0)
     ),

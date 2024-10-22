@@ -7,94 +7,102 @@
 // Original Author: Marcel Schneider
 // Additional Authors: Alexander Morton - modifying code for validation use
 
-#include "Validation/SiPixelPhase1TrackingParticleV/interface/SiPixelPhase1TrackingParticleV.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "Validation/SiPixelPhase1TrackingParticleV/interface/SiPixelPhase1TrackingParticleV.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-class TrackAssociatorByHits; 
+class TrackAssociatorByHits;
 
 namespace {
-  bool trackIdHitPairLess(const std::pair<unsigned int, const PSimHit*>& a, const std::pair<unsigned int, const PSimHit*>& b) {
+  bool trackIdHitPairLess(const std::pair<unsigned int, const PSimHit *> &a,
+                          const std::pair<unsigned int, const PSimHit *> &b) {
     return a.first < b.first;
   }
 
-  bool trackIdHitPairLessSort(const std::pair<unsigned int, const PSimHit*>& a, const std::pair<unsigned int, const PSimHit*>& b) {
-    if(a.first == b.first) {
-      const auto atof = edm::isFinite(a.second->timeOfFlight()) ? a.second->timeOfFlight() : std::numeric_limits<decltype(a.second->timeOfFlight())>::max();
-      const auto btof = edm::isFinite(b.second->timeOfFlight()) ? b.second->timeOfFlight() : std::numeric_limits<decltype(b.second->timeOfFlight())>::max();
+  bool trackIdHitPairLessSort(const std::pair<unsigned int, const PSimHit *> &a,
+                              const std::pair<unsigned int, const PSimHit *> &b) {
+    if (a.first == b.first) {
+      const auto atof = edm::isFinite(a.second->timeOfFlight())
+                            ? a.second->timeOfFlight()
+                            : std::numeric_limits<decltype(a.second->timeOfFlight())>::max();
+      const auto btof = edm::isFinite(b.second->timeOfFlight())
+                            ? b.second->timeOfFlight()
+                            : std::numeric_limits<decltype(b.second->timeOfFlight())>::max();
       return atof < btof;
     }
     return a.first < b.first;
   }
-}
+}  // namespace
 
-
-SiPixelPhase1TrackingParticleV::SiPixelPhase1TrackingParticleV(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1Base(iConfig),
-  vec_TrackingParticle_Token_( consumes<TrackingParticleCollection>( iConfig.getParameter<edm::InputTag>( "src" ) ) )
-{
-  for(const auto& tag: iConfig.getParameter<std::vector<edm::InputTag>>("simHitToken")) {
+SiPixelPhase1TrackingParticleV::SiPixelPhase1TrackingParticleV(const edm::ParameterSet &iConfig)
+    : SiPixelPhase1Base(iConfig),
+      vec_TrackingParticle_Token_(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("src"))) {
+  for (const auto &tag : iConfig.getParameter<std::vector<edm::InputTag>>("simHitToken")) {
     simHitTokens_.push_back(consumes<std::vector<PSimHit>>(tag));
   }
 }
 
-void SiPixelPhase1TrackingParticleV::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
-  edm::Handle<TrackingParticleCollection>  TruthTrackContainer;
-  iEvent.getByToken( vec_TrackingParticle_Token_, TruthTrackContainer );
-  const TrackingParticleCollection *tPC   = TruthTrackContainer.product();
+void SiPixelPhase1TrackingParticleV::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  edm::Handle<TrackingParticleCollection> TruthTrackContainer;
+  iEvent.getByToken(vec_TrackingParticle_Token_, TruthTrackContainer);
+  const TrackingParticleCollection *tPC = TruthTrackContainer.product();
   std::vector<std::pair<unsigned int, const PSimHit *>> trackIdToHitPtr;
 
   // A multimap linking SimTrack::trackId() to a pointer to PSimHit
   // Similar to TrackingTruthAccumulator
-  for(const auto& simHitToken: simHitTokens_) {
-    edm::Handle<std::vector<PSimHit> > hsimhits;
+  for (const auto &simHitToken : simHitTokens_) {
+    edm::Handle<std::vector<PSimHit>> hsimhits;
     iEvent.getByToken(simHitToken, hsimhits);
-    trackIdToHitPtr.reserve(trackIdToHitPtr.size()+hsimhits->size());
-    for(const auto& simHit: *hsimhits) {
+    trackIdToHitPtr.reserve(trackIdToHitPtr.size() + hsimhits->size());
+    for (const auto &simHit : *hsimhits) {
       trackIdToHitPtr.emplace_back(simHit.trackId(), &simHit);
     }
   }
   std::stable_sort(trackIdToHitPtr.begin(), trackIdToHitPtr.end(), trackIdHitPairLessSort);
 
-
   // Loop over TrackingParticle's
-  for (TrackingParticleCollection::const_iterator t = tPC -> begin(); t != tPC -> end(); ++t) {
-
+  for (TrackingParticleCollection::const_iterator t = tPC->begin(); t != tPC->end(); ++t) {
     // histo manager requires a det ID, use first tracker hit
 
     bool isBpixtrack = false, isFpixtrack = false;
     DetId id;
 
-    for(const SimTrack& simTrack: t->g4Tracks()) {
+    for (const SimTrack &simTrack : t->g4Tracks()) {
       // Logic is from TrackingTruthAccumulator
-      auto range = std::equal_range(trackIdToHitPtr.begin(), trackIdToHitPtr.end(), std::pair<unsigned int, const PSimHit *>(simTrack.trackId(), nullptr), trackIdHitPairLess);
-      if(range.first == range.second) continue;
+      auto range = std::equal_range(trackIdToHitPtr.begin(),
+                                    trackIdToHitPtr.end(),
+                                    std::pair<unsigned int, const PSimHit *>(simTrack.trackId(), nullptr),
+                                    trackIdHitPairLess);
+      if (range.first == range.second)
+        continue;
 
       auto iHitPtr = range.first;
-      for(; iHitPtr != range.second; ++iHitPtr) {
-        const PSimHit& simHit = *(iHitPtr->second);
-        if(simHit.eventId() != t->eventId())
+      for (; iHitPtr != range.second; ++iHitPtr) {
+        const PSimHit &simHit = *(iHitPtr->second);
+        if (simHit.eventId() != t->eventId())
           continue;
-        id = DetId( simHit.detUnitId() );
+        id = DetId(simHit.detUnitId());
 
         // check we are in pixel
         uint32_t subdetid = (id.subdetId());
-	if (subdetid == PixelSubdetector::PixelBarrel) isBpixtrack = true;
-	if (subdetid == PixelSubdetector::PixelEndcap) isFpixtrack = true;
-	if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap) continue;
+        if (subdetid == PixelSubdetector::PixelBarrel)
+          isBpixtrack = true;
+        if (subdetid == PixelSubdetector::PixelEndcap)
+          isFpixtrack = true;
+        if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap)
+          continue;
       }
     }
 
-    if ( isBpixtrack || isFpixtrack ) {
+    if (isBpixtrack || isFpixtrack) {
       histo[MASS].fill(t->mass(), id, &iEvent);
       histo[CHARGE].fill(t->charge(), id, &iEvent);
       histo[ID].fill(t->pdgId(), id, &iEvent);
@@ -113,4 +121,3 @@ void SiPixelPhase1TrackingParticleV::analyze(const edm::Event& iEvent, const edm
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1TrackingParticleV);
-

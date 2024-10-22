@@ -5,6 +5,7 @@
 
 # adapted from PhysicsTools/PatExamples/bin/PatBasicFWLiteAnalyzer.py
 
+from __future__ import print_function
 import ROOT
 import sys
 from DataFormats.FWLite import Events, Handle
@@ -37,7 +38,7 @@ for event in events:
     trigobjs = handle.product()
 
     trigobjs.getObjects(TriggerElectron, ROOT.electrons)
-    print "number of electrons in this event:",len(ROOT.electrons)
+    print("number of electrons in this event:",len(ROOT.electrons))
 
     bestOneOverEminusOneOverP = None
 
@@ -50,15 +51,15 @@ for event in events:
 
     for eleindex, electron in enumerate(ROOT.electrons):
 
-        print "electron",eleindex
+        print("electron",eleindex)
         # see HLTrigger/Egamma/src/HLTElectronOneOEMinusOneOPFilterRegional.cc
         # how 1/E-1/p is calculated 
         tracks = electron.track().product()
 
         superClusters = electron.superCluster().product()
 
-        print "  number of tracks:",len(tracks)
-        print "  number of superclusters:",len(superClusters)
+        print("  number of tracks:",len(tracks))
+        print("  number of superclusters:",len(superClusters))
 
         for track in tracks:
             momentum = track.p()
@@ -68,7 +69,7 @@ for event in events:
 
                 thisOneOverEminusOneOverP = abs(1/energy - 1/momentum)
                 
-                print "    momentum=",momentum,"energy=",energy,"E/P=",energy/momentum,"1/E-1/p=",thisOneOverEminusOneOverP
+                print("    momentum=",momentum,"energy=",energy,"E/P=",energy/momentum,"1/E-1/p=",thisOneOverEminusOneOverP)
 
 
                 if bestOneOverEminusOneOverP == None or thisOneOverEminusOneOverP < bestOneOverEminusOneOverP:
@@ -80,9 +81,9 @@ for event in events:
 
     # loop over electron trigger objects
 
-    print "best value:",bestOneOverEminusOneOverP
+    print("best value:",bestOneOverEminusOneOverP)
 
     
 
-print "total number of electrons:",numElectronsSeen
-print "events with at least one electron:",numEventsWithElectron
+print("total number of electrons:",numElectronsSeen)
+print("events with at least one electron:",numEventsWithElectron)

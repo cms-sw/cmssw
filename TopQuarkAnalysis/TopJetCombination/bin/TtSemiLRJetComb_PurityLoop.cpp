@@ -23,29 +23,28 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //input files
-const  int       nrFiles  	  		= 51;
-const  TString   path     	  		= "dcap://maite.iihe.ac.be:/pnfs/iihe/becms/heyninck/TtSemiMuEvents_TopRex_Juni/TtSemiMuEvents_";
+const int nrFiles = 51;
+const TString path = "dcap://maite.iihe.ac.be:/pnfs/iihe/becms/heyninck/TtSemiMuEvents_TopRex_Juni/TtSemiMuEvents_";
 
 //matching variables
-const  double 	 SumAlphaCut  	  		= 0.7;
+const double SumAlphaCut = 0.7;
 
 //select which observables to use
-const  int      nrJetCombObs  			= 7;
-const  int      JetCombObs[nrJetCombObs] 	= {1,2,3,4,5,6,7};
-const  TString  JetCombInputFileName   		= "../data/TtSemiLRJetCombAllObs.root";
+const int nrJetCombObs = 7;
+const int JetCombObs[nrJetCombObs] = {1, 2, 3, 4, 5, 6, 7};
+const TString JetCombInputFileName = "../data/TtSemiLRJetCombAllObs.root";
 
 //likelihood histogram variables
-const  int   	nrJetCombLRtotBins   		= 30;
-const  double 	JetCombLRtotMin   		= -5;
-const  double 	JetCombLRtotMax      		= 7;
-const  char* 	JetCombLRtotFitFunction      	= "[0]/(1 + 1/exp([1]*([2] - x)))";
+const int nrJetCombLRtotBins = 30;
+const double JetCombLRtotMin = -5;
+const double JetCombLRtotMax = 7;
+const char *JetCombLRtotFitFunction = "[0]/(1 + 1/exp([1]*([2] - x)))";
 
 //output files ps/root
-const  TString  JetCombOutFileName   		= "../data/TtSemiLRJetCombSelObsAndPurity.root";
-const  TString  JetCombPSfile     		= "../data/TtSemiLRJetCombSelObsAndPurity.ps";
+const TString JetCombOutFileName = "../data/TtSemiLRJetCombSelObsAndPurity.root";
+const TString JetCombPSfile = "../data/TtSemiLRJetCombSelObsAndPurity.ps";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //
 // Global variables
@@ -54,105 +53,102 @@ LRHelpFunctions *myLRhelper;
 void doEventloop();
 std::vector<int> obsNrs;
 
-
 //
 // Main analysis
 //
 
-int main() { 
+int main() {
   gSystem->Load("libFWCoreFWLite");
   FWLiteEnabler::enable();
-  
-  
+
   // define all histograms & fit functions
   //to replace with something more elegant
-  for(int j = 0; j < nrJetCombObs; j++){
+  for (int j = 0; j < nrJetCombObs; j++) {
     obsNrs.push_back(JetCombObs[j]);
   }
   myLRhelper = new LRHelpFunctions(nrJetCombLRtotBins, JetCombLRtotMin, JetCombLRtotMax, JetCombLRtotFitFunction);
 
   // read in S/S+N fits of observables to use
-  myLRhelper -> readObsHistsAndFits(JetCombInputFileName, obsNrs, false);
-  
+  myLRhelper->readObsHistsAndFits(JetCombInputFileName, obsNrs, false);
+
   // fill calculated LR value for each signal or background contributions
-  doEventloop(); 
-  
+  doEventloop();
+
   // make Purity vs logLR and Purity vs. Efficiency plot
-  myLRhelper -> makeAndFitPurityHists();       
-    
+  myLRhelper->makeAndFitPurityHists();
+
   // store histograms and fits in root-file
-  myLRhelper -> storeToROOTfile(JetCombOutFileName);
-     
+  myLRhelper->storeToROOTfile(JetCombOutFileName);
+
   // make some control plots and put them in a .ps file
-  myLRhelper -> storeControlPlots(JetCombPSfile);
+  myLRhelper->storeControlPlots(JetCombPSfile);
 }
-
-
-
-
 
 //
 // Loop over the events (with the definition of what is considered signal and background)
 //
 
-void doEventloop(){ 
-  std::cout<<std::endl<<std::endl<<"**** STARTING EVENT LOOP ****"<<std::endl;
+void doEventloop() {
+  std::cout << std::endl << std::endl << "**** STARTING EVENT LOOP ****" << std::endl;
   int totNrEv = 0;
   for (int nr = 1; nr <= nrFiles; nr++) {
-   TString ft = path; 
-   ft += nr-1;
-   ft += ".root";
+    TString ft = path;
+    ft += nr - 1;
+    ft += ".root";
     if (!gSystem->AccessPathName(ft)) {
       TFile *file = TFile::Open(ft);
-      TTree * events = dynamic_cast<TTree*>( file->Get( "Events" ) );
-      assert( events != 0 );
-      TBranch * solsbranch = events->GetBranch( "TtSemiEvtSolutions_solutions__TtEventReco.obj" );
+      TTree *events = dynamic_cast<TTree *>(file->Get("Events"));
+      assert(events != nullptr);
+      TBranch *solsbranch = events->GetBranch("TtSemiEvtSolutions_solutions__TtEventReco.obj");
       //TBranch * solsbranch = events->GetBranch( "TtSemiEvtSolutions_solutions__CommonBranchSel.obj" );
-      assert( solsbranch != 0 );
+      assert(solsbranch != nullptr);
       std::vector<TtSemiEvtSolution> sols;
-      solsbranch->SetAddress( & sols );
-    
-      //loop over all events in a file 
-      for( int ev = 0; ev < events->GetEntries(); ++ ev ) {
+      solsbranch->SetAddress(&sols);
+
+      //loop over all events in a file
+      for (int ev = 0; ev < events->GetEntries(); ++ev) {
         ++totNrEv;
-        if((double)((totNrEv*1.)/1000.) == (double) (totNrEv/1000)) std::cout<< "  Processing event "<< totNrEv<<std::endl; 
-        solsbranch->GetEntry( ev );
-        if(sols.size()== 12){
+        if ((double)((totNrEv * 1.) / 1000.) == (double)(totNrEv / 1000))
+          std::cout << "  Processing event " << totNrEv << std::endl;
+        solsbranch->GetEntry(ev);
+        if (sols.size() == 12) {
           // check if good matching solution exists
           bool trueSolExists = false;
-          for(int s=0; s<12; s++){
-            if(sols[s].getMCBestSumAngles()<SumAlphaCut) trueSolExists = true;
+          for (int s = 0; s < 12; s++) {
+            if (sols[s].getMCBestSumAngles() < SumAlphaCut)
+              trueSolExists = true;
           }
-          if(trueSolExists){
-	    double maxLogLRVal = -999.;
-	    int    maxLogLRSol = -999;
-	    //loop over solutions
-	    for(int s=0; s<12; s++){
+          if (trueSolExists) {
+            double maxLogLRVal = -999.;
+            int maxLogLRSol = -999;
+            //loop over solutions
+            for (int s = 0; s < 12; s++) {
               // get observable values
-	      std::vector<double> obsVals;
-	      for(int j = 0; j < nrJetCombObs; j++){
-	        if( myLRhelper->obsFitIncluded(obsNrs[j]) ) obsVals.push_back(sols[s].getLRJetCombObsVal(obsNrs[j]));
-	      }
-	      double logLR =  myLRhelper -> calcLRval(obsVals);
-	      if(logLR>maxLogLRVal) { maxLogLRVal = logLR; maxLogLRSol = s; };
-	    }
-	    if(sols[maxLogLRSol].getMCBestSumAngles()<SumAlphaCut && sols[maxLogLRSol].getMCBestJetComb()==maxLogLRSol) {
-	      myLRhelper -> fillLRSignalHist(maxLogLRVal);
-	      //std::cout << "mxLR " << maxLogLRVal << std::endl;
-	    }
-	    else
-	    {
-	      myLRhelper -> fillLRBackgroundHist(maxLogLRVal);
-	      //std::cout << "mxLR (bg) " << maxLogLRVal << std::endl;
-	    }
+              std::vector<double> obsVals;
+              for (int j = 0; j < nrJetCombObs; j++) {
+                if (myLRhelper->obsFitIncluded(obsNrs[j]))
+                  obsVals.push_back(sols[s].getLRJetCombObsVal(obsNrs[j]));
+              }
+              double logLR = myLRhelper->calcLRval(obsVals);
+              if (logLR > maxLogLRVal) {
+                maxLogLRVal = logLR;
+                maxLogLRSol = s;
+              };
+            }
+            if (sols[maxLogLRSol].getMCBestSumAngles() < SumAlphaCut &&
+                sols[maxLogLRSol].getMCBestJetComb() == maxLogLRSol) {
+              myLRhelper->fillLRSignalHist(maxLogLRVal);
+              //std::cout << "mxLR " << maxLogLRVal << std::endl;
+            } else {
+              myLRhelper->fillLRBackgroundHist(maxLogLRVal);
+              //std::cout << "mxLR (bg) " << maxLogLRVal << std::endl;
+            }
           }
-        }  
+        }
       }
       file->Close();
-    }
-    else
-    {
-      std::cout<<ft<<" doesn't exist"<<std::endl;
+    } else {
+      std::cout << ft << " doesn't exist" << std::endl;
     }
   }
 }

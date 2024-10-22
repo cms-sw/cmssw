@@ -32,116 +32,79 @@
 // forward declarations
 
 // constructors
-L1GtHfBitCountsTemplate::L1GtHfBitCountsTemplate()
-        : L1GtCondition()
-{
+L1GtHfBitCountsTemplate::L1GtHfBitCountsTemplate() : L1GtCondition() { m_condCategory = CondHfBitCounts; }
 
-    m_condCategory = CondHfBitCounts;
-
+L1GtHfBitCountsTemplate::L1GtHfBitCountsTemplate(const std::string& cName) : L1GtCondition(cName) {
+  m_condCategory = CondHfBitCounts;
 }
 
-L1GtHfBitCountsTemplate::L1GtHfBitCountsTemplate(const std::string& cName)
-        : L1GtCondition(cName)
-{
+L1GtHfBitCountsTemplate::L1GtHfBitCountsTemplate(const std::string& cName, const L1GtConditionType& cType)
+    : L1GtCondition(cName, CondHfBitCounts, cType) {
+  m_condCategory = CondHfBitCounts;
 
-    m_condCategory = CondHfBitCounts;
+  // should be always 1 - they are global quantities...
+  int nObjects = nrObjects();
 
-}
+  if (nObjects > 0) {
+    m_objectParameter.reserve(nObjects);
 
-L1GtHfBitCountsTemplate::L1GtHfBitCountsTemplate(const std::string& cName,
-        const L1GtConditionType& cType)
-        : L1GtCondition(cName, CondHfBitCounts, cType)
-{
-
-    m_condCategory = CondHfBitCounts;
-
-    // should be always 1 - they are global quantities...
-    int nObjects = nrObjects();
-
-    if (nObjects > 0) {
-        m_objectParameter.reserve(nObjects);
-
-        m_objectType.reserve(nObjects);
-        m_objectType.assign(nObjects, HfBitCounts);
-    }
-
+    m_objectType.reserve(nObjects);
+    m_objectType.assign(nObjects, HfBitCounts);
+  }
 }
 
 // copy constructor
-L1GtHfBitCountsTemplate::L1GtHfBitCountsTemplate(const L1GtHfBitCountsTemplate& cp)
-        : L1GtCondition(cp.m_condName)
-{
-    copy(cp);
+L1GtHfBitCountsTemplate::L1GtHfBitCountsTemplate(const L1GtHfBitCountsTemplate& cp) : L1GtCondition(cp.m_condName) {
+  copy(cp);
 }
 
 // destructor
-L1GtHfBitCountsTemplate::~L1GtHfBitCountsTemplate()
-{
-    // empty now
+L1GtHfBitCountsTemplate::~L1GtHfBitCountsTemplate() {
+  // empty now
 }
 
 // assign operator
-L1GtHfBitCountsTemplate& L1GtHfBitCountsTemplate::operator= (const L1GtHfBitCountsTemplate& cp)
-{
-
-    copy(cp);
-    return *this;
+L1GtHfBitCountsTemplate& L1GtHfBitCountsTemplate::operator=(const L1GtHfBitCountsTemplate& cp) {
+  copy(cp);
+  return *this;
 }
-
 
 // setConditionParameter - set the parameters of the condition
-void L1GtHfBitCountsTemplate::setConditionParameter(
-    const std::vector<ObjectParameter>& objParameter)
-{
-
-    m_objectParameter = objParameter;
-
+void L1GtHfBitCountsTemplate::setConditionParameter(const std::vector<ObjectParameter>& objParameter) {
+  m_objectParameter = objParameter;
 }
 
-void L1GtHfBitCountsTemplate::print(std::ostream& myCout) const
-{
+void L1GtHfBitCountsTemplate::print(std::ostream& myCout) const {
+  myCout << "\n  L1GtHfBitCountsTemplate print..." << std::endl;
 
-    myCout << "\n  L1GtHfBitCountsTemplate print..." << std::endl;
+  L1GtCondition::print(myCout);
 
-    L1GtCondition::print(myCout);
+  int nObjects = nrObjects();
 
-    int nObjects = nrObjects();
+  for (int i = 0; i < nObjects; i++) {
+    myCout << std::endl;
+    myCout << "  Template for object " << i << std::endl;
+    myCout << "    countIndex        = " << std::hex << m_objectParameter[i].countIndex << " [ dec ]" << std::endl;
+    myCout << "    countThreshold    = " << std::hex << m_objectParameter[i].countThreshold << " [ hex ]" << std::endl;
+  }
 
-    for (int i = 0; i < nObjects; i++) {
-        myCout << std::endl;
-        myCout << "  Template for object " << i << std::endl;
-        myCout << "    countIndex        = "
-        << std::hex << m_objectParameter[i].countIndex << " [ dec ]" << std::endl;
-        myCout << "    countThreshold    = "
-        << std::hex << m_objectParameter[i].countThreshold << " [ hex ]" << std::endl;
-
-    }
-
-    // reset to decimal output
-    myCout << std::dec << std::endl;
+  // reset to decimal output
+  myCout << std::dec << std::endl;
 }
 
 // output stream operator
-std::ostream& operator<<(std::ostream& os, const L1GtHfBitCountsTemplate& result)
-{
-    result.print(os);
-    return os;
-
+std::ostream& operator<<(std::ostream& os, const L1GtHfBitCountsTemplate& result) {
+  result.print(os);
+  return os;
 }
 
-void L1GtHfBitCountsTemplate::copy(const L1GtHfBitCountsTemplate& cp)
-{
+void L1GtHfBitCountsTemplate::copy(const L1GtHfBitCountsTemplate& cp) {
+  m_condName = cp.condName();
+  m_condCategory = cp.condCategory();
+  m_condType = cp.condType();
+  m_objectType = cp.objectType();
+  m_condGEq = cp.condGEq();
+  m_condChipNr = cp.condChipNr();
 
-    m_condName     = cp.condName();
-    m_condCategory = cp.condCategory();
-    m_condType     = cp.condType();
-    m_objectType   = cp.objectType();
-    m_condGEq      = cp.condGEq();
-    m_condChipNr   = cp.condChipNr();
-
-    m_objectParameter = *(cp.objectParameter());
-
+  m_objectParameter = *(cp.objectParameter());
 }
-
-
-

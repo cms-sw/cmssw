@@ -3,12 +3,11 @@
 
 #include "DQWorkerClient.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class PNIntegrityClient : public DQWorkerClient {
   public:
     PNIntegrityClient();
-    ~PNIntegrityClient() {}
+    ~PNIntegrityClient() override {}
 
     void producePlots(ProcessType) override;
 
@@ -17,7 +16,6 @@ namespace ecaldqm
 
     float errFractionThreshold_;
   };
-}
+}  // namespace ecaldqm
 
 #endif
-

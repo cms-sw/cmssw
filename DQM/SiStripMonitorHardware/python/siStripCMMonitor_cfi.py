@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-siStripCMMonitor = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+siStripCMMonitor = DQMEDAnalyzer(
     "SiStripCMMonitorPlugin",
     #Raw data collection
     RawDataTag = cms.untracked.InputTag('source'),

@@ -18,11 +18,10 @@
  */
 
 class LMFColoredTable : public LMFDat {
- public:
+public:
   LMFColoredTable();
-  LMFColoredTable(EcalDBConnection *c);
-  LMFColoredTable(oracle::occi::Environment* env,
-	          oracle::occi::Connection* conn);
+  LMFColoredTable(EcalDBConnection* c);
+  LMFColoredTable(oracle::occi::Environment* env, oracle::occi::Connection* conn);
   ~LMFColoredTable() override {}
 
   std::string getTableName() const override = 0;
@@ -46,37 +45,32 @@ class LMFColoredTable : public LMFDat {
     return *this;
   }
   virtual LMFColoredTable& setSystem(std::string s);
-  LMFColoredTable& setVmin(EcalLogicID &id, int v) {
+  LMFColoredTable& setVmin(EcalLogicID& id, int v) {
     setData(id, "VMIN", v);
     return *this;
   }
-  LMFColoredTable& setVmax(EcalLogicID &id, int v) {
+  LMFColoredTable& setVmax(EcalLogicID& id, int v) {
     setData(id, "VMAX", v);
     return *this;
   }
 
-  LMFColoredTable& setVersions(EcalLogicID &id, int vmin, int vmax) {
+  LMFColoredTable& setVersions(EcalLogicID& id, int vmin, int vmax) {
     setData(id, "VMIN", vmin);
     setData(id, "VMAX", vmax);
     return *this;
   }
 
-  int getVmin(EcalLogicID &id) {
-    return getData(id, "VMIN");
-  }
+  int getVmin(EcalLogicID& id) { return getData(id, "VMIN"); }
 
-  int getVmax(EcalLogicID &id) {
-    return getData(id, "VMAX");
-  }
+  int getVmax(EcalLogicID& id) { return getData(id, "VMAX"); }
 
   int writeDB() noexcept(false) override;
 
-
- protected:
+protected:
   int m_color;
   int m_system;
 
- private:
+private:
   std::map<int, std::string> COLOR;
   std::map<int, std::string> SYSTEM;
 };

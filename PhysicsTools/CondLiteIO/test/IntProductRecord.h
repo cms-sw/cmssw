@@ -4,7 +4,7 @@
 //
 // Package:     CondLiteIO
 // Class  :     IntProductRecord
-// 
+//
 /**\class IntProductRecord IntProductRecord.h PhysicsTools/CondLiteIO/interface/IntProductRecord.h
 
  Description: [one line class summary]

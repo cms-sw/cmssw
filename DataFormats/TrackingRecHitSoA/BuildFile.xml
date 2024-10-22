@@ -1,0 +1,13 @@
+<use name="alpaka"/>
+<use name="rootcore"/>
+<use name="eigen"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/SiPixelClusterSoA"/>
+<use name="DataFormats/SoATemplate" source_only="1"/>
+<use name="DataFormats/TrackerCommon" source_only="1"/>
+<use name="Geometry/CommonTopologies" source_only="1"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="!serial"/>
+<export>
+    <lib name="1"/>
+</export>

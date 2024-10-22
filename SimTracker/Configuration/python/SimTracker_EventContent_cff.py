@@ -13,8 +13,20 @@ SimTrackerFEVTDEBUG = cms.PSet(
         'keep *_assoc2thStepTk_*_*', 
         'keep *_assoc2GsfTracks_*_*', 
         'keep *_assocOutInConversionTracks_*_*', 
-        'keep *_assocInOutConversionTracks_*_*')
+        'keep *_assocInOutConversionTracks_*_*',
+        'keep *_TTClusterAssociatorFromPixelDigis_*_*',
+        'keep *_TTStubAssociatorFromPixelDigis_*_*',
+        'keep *_simHitTPAssocProducer_*_*')
+
 )
+# For phase2 premixing switch the sim digi collections to the ones including pileup
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+(premix_stage2 & phase2_tracker).toModify(SimTrackerFEVTDEBUG, outputCommands = SimTrackerFEVTDEBUG.outputCommands + [
+    'drop *_simSiPixelDigis_*_*',
+    'keep *_mixData_Pixel_*',
+    'keep *_mixData_Tracker_*',
+])
 
 SimTrackerDEBUG = cms.PSet(
     outputCommands = cms.untracked.vstring(
@@ -26,15 +38,41 @@ SimTrackerDEBUG = cms.PSet(
 )
 #RAW content 
 SimTrackerRAW = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_allTrackMCMatch_*_*')
+    outputCommands = cms.untracked.vstring(
+        'keep *_allTrackMCMatch_*_*',
+        'keep *_prunedTrackingParticles_*_*',
+        'keep *_prunedDigiSimLinks_*_*')
 )
 #RECO content
 SimTrackerRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_allTrackMCMatch_*_*')
+    outputCommands = cms.untracked.vstring(
+        'keep *_allTrackMCMatch_*_*',
+        'keep *_prunedTrackMCMatch_*_*')
 )
 #AOD content
 SimTrackerAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_allTrackMCMatch_*_*')
+    outputCommands = cms.untracked.vstring(
+        'keep *_allTrackMCMatch_*_*',
+        'keep *_prunedTrackMCMatch_*_*')
 )
 
+# Event content for premixing library
+SimTrackerPREMIX = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+        'keep *_simSiPixelDigis_*_*', # covers digis and digiSimLinks
+        'keep *_simSiStripDigis_ZeroSuppressed_*',
+        'keep StripDigiSimLinkedmDetSetVector_simSiStripDigis_*_*',
+        'keep *_mix_AffectedAPVList_*',
+    )
+)
+phase2_tracker.toModify(SimTrackerPREMIX, outputCommands = [
+        'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
+        'keep *_*_Phase2OTDigiSimLink_*',
+        'keep *_simSiPixelDigis_*_*', # covers digis and digiSimLinks
+])
 
+from Configuration.Eras.Modifier_strips_vfp30_2016_cff import strips_vfp30_2016
+for _entry in [SimTrackerFEVTDEBUG,SimTrackerDEBUG,SimTrackerRAW,SimTrackerRECO,SimTrackerAOD,SimTrackerPREMIX]:
+    strips_vfp30_2016.toModify(_entry, outputCommands = _entry.outputCommands + [
+        'keep *_simAPVsaturation_SimulatedAPVDynamicGain_*'
+    ])

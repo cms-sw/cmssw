@@ -1,5 +1,4 @@
 <use name=SimTracker/TrackAssociation>
-<use name=SimTracker/Records>
 
 <library file="CVRAnalysis.cc VertexHisto.cc TrackHisto.cc" name=CVRAnalysis>
 	<use name=FWCore/Framework>

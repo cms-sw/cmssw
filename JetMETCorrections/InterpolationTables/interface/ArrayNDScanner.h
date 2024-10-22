@@ -15,7 +15,7 @@
 #include <climits>
 
 namespace npstat {
-   /**
+  /**
     * This class can be used to iterate over array indices without actually
     * building the array or requesting any memory from the heap. Typical use:
     *
@@ -33,59 +33,61 @@ namespace npstat {
     * slices of some array (so that the array itself can not be used
     * to obtain similar information easily).
     */
-    class ArrayNDScanner
-    {
-    public:
-        //@{
-        /** Constructor from a multidimensional array shape */
-        inline ArrayNDScanner(const unsigned* shape, const unsigned lenShape)
-            {initialize(shape, lenShape);}
+  class ArrayNDScanner {
+  public:
+    //@{
+    /** Constructor from a multidimensional array shape */
+    inline ArrayNDScanner(const unsigned* shape, const unsigned lenShape) { initialize(shape, lenShape); }
 
-        inline explicit ArrayNDScanner(const std::vector<unsigned>& shape)
-            {initialize(shape.empty() ? static_cast<unsigned*>(nullptr) : 
-                        &shape[0], shape.size());}
-        //@}
+    inline explicit ArrayNDScanner(const std::vector<unsigned>& shape) {
+      initialize(shape.empty() ? static_cast<unsigned*>(nullptr) : &shape[0], shape.size());
+    }
 
-        /** Dimensionality of the scan */
-        inline unsigned dim() const {return dim_;}
+    ArrayNDScanner() = delete;
+    //@}
 
-        /** Retrieve current state (i.e., linear index of the scan) */
-        inline unsigned long state() const {return state_;}
+    /** Dimensionality of the scan */
+    inline unsigned dim() const { return dim_; }
 
-        /** Maximum possible state (i.e., linear index of the scan) */
-        inline unsigned long maxState() const {return maxState_;}
+    /** Retrieve current state (i.e., linear index of the scan) */
+    inline unsigned long state() const { return state_; }
 
-        /** Returns false when iteration is complete */
-        inline bool isValid() const {return state_ < maxState_;}
+    /** Maximum possible state (i.e., linear index of the scan) */
+    inline unsigned long maxState() const { return maxState_; }
 
-        /** Retrieve current multidimensional index */
-        void getIndex(unsigned* index, unsigned indexBufferLen) const;
+    /** Returns false when iteration is complete */
+    inline bool isValid() const { return state_ < maxState_; }
 
-        /** Reset the state (as if the object has just been constructed) */
-        inline void reset() {state_ = 0UL;}
+    /** Retrieve current multidimensional index */
+    void getIndex(unsigned* index, unsigned indexBufferLen) const;
 
-        /** Prefix increment */
-        inline ArrayNDScanner& operator++()
-            {if (state_ < maxState_) ++state_; return *this;}
+    /** Reset the state (as if the object has just been constructed) */
+    inline void reset() { state_ = 0UL; }
 
-        /** Postfix increment (distinguished by the dummy "int" parameter) */
-        inline void operator++(int) {if (state_ < maxState_) ++state_;}
+    /** Prefix increment */
+    inline ArrayNDScanner& operator++() {
+      if (state_ < maxState_)
+        ++state_;
+      return *this;
+    }
 
-        /** Set the state directly */
-        inline void setState(const unsigned long state)
-            {state_ = state <= maxState_ ? state : maxState_;}
+    /** Postfix increment (distinguished by the dummy "int" parameter) */
+    inline void operator++(int) {
+      if (state_ < maxState_)
+        ++state_;
+    }
 
-    private:
-        ArrayNDScanner() = delete;
-        
-        void initialize(const unsigned* shape, unsigned lenShape);
+    /** Set the state directly */
+    inline void setState(const unsigned long state) { state_ = state <= maxState_ ? state : maxState_; }
 
-        unsigned long strides_[CHAR_BIT*sizeof(unsigned long)];
-        unsigned long state_;
-        unsigned long maxState_;
-        unsigned dim_;
-    };
-}
+  private:
+    void initialize(const unsigned* shape, unsigned lenShape);
 
-#endif // NPSTAT_ARRAYSCANNER_HH_
+    unsigned long strides_[CHAR_BIT * sizeof(unsigned long)];
+    unsigned long state_;
+    unsigned long maxState_;
+    unsigned dim_;
+  };
+}  // namespace npstat
 
+#endif  // NPSTAT_ARRAYSCANNER_HH_

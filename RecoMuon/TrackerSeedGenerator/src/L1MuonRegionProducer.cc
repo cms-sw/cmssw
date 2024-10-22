@@ -5,47 +5,53 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/L1MuonPixelTrackFitter.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 
 using namespace std;
 
-L1MuonRegionProducer::L1MuonRegionProducer(const edm::ParameterSet& cfg) {
-
+L1MuonRegionProducer::L1MuonRegionProducer(const edm::ParameterSet& cfg, edm::ConsumesCollector iC)
+    : theFieldToken(iC.esConsumes()), theMSMakerToken(iC.esConsumes()) {
   edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
-  thePtMin            = regionPSet.getParameter<double>("ptMin");
-  theOriginRadius     = regionPSet.getParameter<double>("originRadius");
+  thePtMin = regionPSet.getParameter<double>("ptMin");
+  theOriginRadius = regionPSet.getParameter<double>("originRadius");
   theOriginHalfLength = regionPSet.getParameter<double>("originHalfLength");
-  theOrigin = GlobalPoint( regionPSet.getParameter<double>("originXPos"),
-                           regionPSet.getParameter<double>("originYPos"),
-                           regionPSet.getParameter<double>("originZPos"));
-}   
+  theOrigin = GlobalPoint(regionPSet.getParameter<double>("originXPos"),
+                          regionPSet.getParameter<double>("originYPos"),
+                          regionPSet.getParameter<double>("originZPos"));
+}
 
-void L1MuonRegionProducer::setL1Constraint(const L1MuGMTCand & muon)
-{
-  thePhiL1 = muon.phiValue()+0.021817;
+void L1MuonRegionProducer::setL1Constraint(const L1MuGMTCand& muon) {
+  thePhiL1 = muon.phiValue() + 0.021817;
   theEtaL1 = muon.etaValue();
   theChargeL1 = muon.charge();
 }
 
-std::vector<std::unique_ptr<TrackingRegion> > L1MuonRegionProducer::regions() const
-{
+std::vector<std::unique_ptr<TrackingRegion> > L1MuonRegionProducer::regions(const edm::EventSetup& iSetup) const {
+  const auto& field = iSetup.getData(theFieldToken);
+  const auto& msmaker = iSetup.getData(theMSMakerToken);
   double dx = cos(thePhiL1);
   double dy = sin(thePhiL1);
   double dz = sinh(theEtaL1);
-  GlobalVector direction(dx,dy,dz);        // muon direction
+  GlobalVector direction(dx, dy, dz);  // muon direction
 
   std::vector<std::unique_ptr<TrackingRegion> > result;
-  double bending = L1MuonPixelTrackFitter::getBending(1./thePtMin, theEtaL1, theChargeL1);
+  double bending = L1MuonPixelTrackFitter::getBending(1. / thePtMin, theEtaL1, theChargeL1);
   bending = fabs(bending);
-  double errBending = L1MuonPixelTrackFitter::getBendingError(1./thePtMin, theEtaL1);
+  double errBending = L1MuonPixelTrackFitter::getBendingError(1. / thePtMin, theEtaL1);
 
-  result.push_back( 
-      std::make_unique<RectangularEtaPhiTrackingRegion>( direction, theOrigin,
-          thePtMin, theOriginRadius, theOriginHalfLength, 0.15, bending+3*errBending) );
+  result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(direction,
+                                                                     theOrigin,
+                                                                     thePtMin,
+                                                                     theOriginRadius,
+                                                                     theOriginHalfLength,
+                                                                     0.15,
+                                                                     bending + 3 * errBending,
+                                                                     field,
+                                                                     &msmaker));
 
   return result;
 }
-
-
-
-

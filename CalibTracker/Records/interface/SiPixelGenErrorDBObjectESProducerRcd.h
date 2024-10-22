@@ -3,11 +3,14 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
 
-class SiPixelGenErrorDBObjectESProducerRcd : public edm::eventsetup::DependentRecordImplementation<SiPixelGenErrorDBObjectESProducerRcd, boost::mpl::vector<IdealMagneticFieldRecord, SiPixelGenErrorDBObjectRcd> > {};
+class SiPixelGenErrorDBObjectESProducerRcd
+    : public edm::eventsetup::DependentRecordImplementation<
+          SiPixelGenErrorDBObjectESProducerRcd,
+          edm::mpl::Vector<IdealMagneticFieldRecord, SiPixelGenErrorDBObjectRcd> > {};
 
 #endif

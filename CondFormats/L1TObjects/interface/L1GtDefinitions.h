@@ -22,22 +22,14 @@
 #include <string>
 
 // user include files
-
+#include "DataFormats/L1GlobalTrigger/interface/L1GtDefinitions.h"
 
 /// board types in GT
-enum L1GtBoardType {
-    GTFE,
-    FDL,
-    PSB,
-    GMT,
-    TCS,
-    TIM,
-    BoardNull
-};
+enum L1GtBoardType { GTFE, FDL, PSB, GMT, TCS, TIM, BoardNull, L1GtBoardTypeInvalid = -1 };
 
 struct L1GtBoardTypeStringToEnum {
-    const char* label;
-    L1GtBoardType value;
+  const char* label;
+  L1GtBoardType value;
 };
 
 L1GtBoardType l1GtBoardTypeStringToEnum(const std::string&);
@@ -45,37 +37,38 @@ std::string l1GtBoardTypeEnumToString(const L1GtBoardType&);
 
 /// quadruples sent to GT via PSB
 enum L1GtPsbQuad {
-    Free,
-    TechTr,
-    IsoEGQ,
-    NoIsoEGQ,
-    CenJetQ,
-    ForJetQ,
-    TauJetQ,
-    ESumsQ,
-    JetCountsQ,
-    MQB1,
-    MQB2,
-    MQF3,
-    MQF4,
-    MQB5,
-    MQB6,
-    MQF7,
-    MQF8,
-    MQB9,
-    MQB10,
-    MQF11,
-    MQF12,
-    CastorQ,
-    HfQ,
-    BptxQ,
-    GtExternalQ,
-    PsbQuadNull
+  Free,
+  TechTr,
+  IsoEGQ,
+  NoIsoEGQ,
+  CenJetQ,
+  ForJetQ,
+  TauJetQ,
+  ESumsQ,
+  JetCountsQ,
+  MQB1,
+  MQB2,
+  MQF3,
+  MQF4,
+  MQB5,
+  MQB6,
+  MQF7,
+  MQF8,
+  MQB9,
+  MQB10,
+  MQF11,
+  MQF12,
+  CastorQ,
+  HfQ,
+  BptxQ,
+  GtExternalQ,
+  PsbQuadNull,
+  L1GtPsbQuadInvalid = -1
 };
 
 struct L1GtPsbQuadStringToEnum {
-    const char* label;
-    L1GtPsbQuad value;
+  const char* label;
+  L1GtPsbQuad value;
 };
 
 L1GtPsbQuad l1GtPsbQuadStringToEnum(const std::string&);
@@ -97,56 +90,19 @@ std::string l1GtPsbQuadEnumToString(const L1GtPsbQuad&);
 /// TypeBptx: BPTX (logical result only; definition in BPTX system)
 /// TypeExternal: external conditions (logical result only; definition in L1 GT external systems)
 /// Type2CorrWithOverlapRemoval: three particles, first two with spatial correlations among them, third used for removal if overlap
-enum L1GtConditionType {
-    TypeNull,
-    Type1s,
-    Type2s,
-    Type2wsc,
-    Type2cor,
-    Type3s,
-    Type4s,
-    TypeETM,
-    TypeETT,
-    TypeHTT,
-    TypeHTM,
-    TypeJetCounts,
-    TypeCastor,
-    TypeHfBitCounts,
-    TypeHfRingEtSums,
-    TypeBptx,
-    TypeExternal,
-    Type2corWithOverlapRemoval
-};
 
 struct L1GtConditionTypeStringToEnum {
-    const char* label;
-    L1GtConditionType value;
+  const char* label;
+  L1GtConditionType value;
 };
 
 L1GtConditionType l1GtConditionTypeStringToEnum(const std::string&);
 std::string l1GtConditionTypeEnumToString(const L1GtConditionType&);
 
-/// condition categories
-enum L1GtConditionCategory {
-    CondNull,
-    CondMuon,
-    CondCalo,
-    CondEnergySum,
-    CondJetCounts,
-    CondCorrelation,
-    CondCastor,
-    CondHfBitCounts,
-    CondHfRingEtSums,
-    CondBptx,
-    CondExternal,
-    CondCorrelationWithOverlapRemoval
-};
-
 struct L1GtConditionCategoryStringToEnum {
-    const char* label;
-    L1GtConditionCategory value;
+  const char* label;
+  L1GtConditionCategory value;
 };
-
 
 L1GtConditionCategory l1GtConditionCategoryStringToEnum(const std::string&);
 std::string l1GtConditionCategoryEnumToString(const L1GtConditionCategory&);

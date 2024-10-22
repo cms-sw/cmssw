@@ -1,8 +1,0 @@
-<lcgdict>  
-  <class pattern="VersionedSelector<*>"/>
-  <class pattern="MakeVersionedSelector<*>"/>
-  <class pattern="PrintVIDToString<*>"/>
-  <class pattern="MakePtrFromCollection<*>"/>
-  <class name="ElectronMVAEstimatorRun2Spring16GeneralPurpose" transient="true"/>
-  <class name="ElectronMVAEstimatorRun2Spring16HZZ" transient="true"/>
-</lcgdict>

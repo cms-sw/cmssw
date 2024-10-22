@@ -11,7 +11,6 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,7 +21,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-
 
 #include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
@@ -39,56 +37,48 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-namespace popcon
-{
+namespace popcon {
 
+  class EcalTPGPedestalsHandler : public popcon::PopConSourceHandler<EcalTPGPedestals> {
+    std::string to_string(char value[]) {
+      std::ostringstream streamOut;
+      streamOut << value;
+      return streamOut.str();
+    }
 
-	class EcalTPGPedestalsHandler : public popcon::PopConSourceHandler<EcalTPGPedestals>
-	{
+  public:
+    EcalTPGPedestalsHandler(edm::ParameterSet const&);
+    ~EcalTPGPedestalsHandler() override;
+    void getNewObjects() override;
 
-	  std::string to_string( char value[]) {
-	    std::ostringstream streamOut;
-	    streamOut << value;
-	    return streamOut.str();
-	  }
+    std::string id() const override { return m_name; }
 
-		public:
+    void readFromFile(const char* inputFile);
+    void writeFile(const char* inputFile);
 
-                        EcalTPGPedestalsHandler(edm::ParameterSet const & );
-			~EcalTPGPedestalsHandler() override; 
-			void getNewObjects() override;
+    EcalCondDBInterface* econn;
 
-			std::string id() const override { return m_name;}
+  private:
+    const EcalTPGPedestals* mypedestals;
 
-			void readFromFile(const char* inputFile) ;
-			void writeFile(const char* inputFile);
+    unsigned int m_firstRun;
+    unsigned int m_lastRun;
 
-
-			EcalCondDBInterface* econn;
-
-		private:
-			const EcalTPGPedestals * mypedestals;
-
-			unsigned int m_firstRun ;
-			unsigned int m_lastRun ;
-			
-			std::string m_location;
-			std::string m_gentag;
-			std::string m_sid;
-			std::string m_user;
-			std::string m_pass;
-                        std::string m_locationsource;
-                        std::string m_name;
-			unsigned int m_runnr;
-			std::string m_runtype;
-			std::string m_i_tag;
-			int m_i_version;
-			unsigned int m_i_run_number;
-			int m_i_ped;
-
-	};
-}
+    std::string m_location;
+    std::string m_gentag;
+    std::string m_sid;
+    std::string m_user;
+    std::string m_pass;
+    std::string m_locationsource;
+    std::string m_name;
+    unsigned int m_runnr;
+    std::string m_runtype;
+    std::string m_i_tag;
+    int m_i_version;
+    unsigned int m_i_run_number;
+    int m_i_ped;
+  };
+}  // namespace popcon
 #endif
-

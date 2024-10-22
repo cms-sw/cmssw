@@ -4,6 +4,7 @@
 #
 # This module provides common functions for tasks with crab3.
 # You need no create a CrabController object in order to use the functions
+from __future__ import print_function
 import os,sys,glob
 import tarfile
 import xml.etree.ElementTree as ET
@@ -15,7 +16,7 @@ import logging
 import datetime
 import uuid
 import time
-from  httplib import HTTPException
+from http.client import HTTPException
 from multiprocessing import Process, Queue
 
 from CRABAPI.RawCommand import crabCommand
@@ -167,7 +168,6 @@ class CrabController():
                 else:
                     callname = name
                 res = self.callCrabCommand( ('status', '--long', callname) )
-                #print res
                 if 'taskFailureMsg' in res and 'jobs' in res:
                     return res['status'], res['jobs'], res['taskFailureMsg']
                 elif 'jobs' in res and 'taskFailureMsg' not in res:
@@ -177,7 +177,7 @@ class CrabController():
                 else:
                      return res['status'],{},None
             except Exception as e:
-                print e
+                print(e)
                 self.logger.error("Can not run crab status request")
                 return "NOSTATE",{},None
 
@@ -321,17 +321,17 @@ def crabCommandProcess(q,crabCommandArgs):
             res = crabCommand(*crabCommandArgs)
             break
         except HTTPException as e:
-            print "crab error ---------------"
-            print e
-            print "end error ---------------"
-            print "will try again!"
+            print("crab error ---------------")
+            print(e)
+            print("end error ---------------")
+            print("will try again!")
             import time
             time.sleep(5)
         except CachefileNotFoundException as e:
-            print "crab error ---------------"
-            print e
-            print "end error ---------------"
-            print crabCommandArgs
+            print("crab error ---------------")
+            print(e)
+            print("end error ---------------")
+            print(crabCommandArgs)
             res={ 'status':"CachefileNotFound",'jobs':{}}
             break
         if i>5:
@@ -346,16 +346,16 @@ class CertInfo:
                               stderr = subprocess.PIPE,
                               shell=True)
         stdout, stderr = p.communicate()
-        print stdout
+        print(stdout)
         if p.returncode != 0:
             self.vo = ""
             self.voGroup = ""
             self.voRole = ""
         else:
-            lines = stdout.split("\n")
-            splitline = lines[0].split("/")
+            lines = stdout.split(b"\n")
+            splitline = lines[0].split(b"/")
             if len(splitline) < 4:
-                splitline = lines[1].split("/")
+                splitline = lines[1].split(b"/")
             self.vo = splitline[1]
             self.voGroup = splitline[2]
             try:
@@ -403,7 +403,7 @@ class CrabTask:
         #~ self.lock = multiprocessing.Lock()
         #setup logging
         self.log = logging.getLogger( 'crabTask' )
-        self.log.setLevel(logging._levelNames[ debuglevel ])
+        self.log.setLevel(logging.getLevelName(debuglevel))
         self.jobs = {}
         self.localDir = localDir
         self.outlfn = outlfn
@@ -524,7 +524,7 @@ class CrabTask:
             #try it once more
             time.sleep(2)
             self.state , self.jobs,self.failureReason = controller.status(self.crab_folder)
-        self.nJobs = len(self.jobs.keys())
+        self.nJobs = len(self.jobs)
         self.updateJobStats()
         if self.state == "NOSTATE":
             self.log.debug( "Trying to resubmit because of NOSTATE" )
@@ -565,7 +565,7 @@ class CrabTask:
         try:
             intJobkeys = [int(x) for x in jobKeys]
         except:
-            print "error parsing job numers to int"
+            print("error parsing job numers to int")
 
         #maxjobnumber = max(intJobkeys)
 
@@ -611,7 +611,7 @@ class CrabTask:
                                 break
                         break
             except:
-                print "Can not parse / read %s" % logArchName
+                print("Can not parse / read %s" % logArchName)
         return log
 
 ## Class holds job statistics for several Crab tasks

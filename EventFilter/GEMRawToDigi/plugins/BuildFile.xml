@@ -1,0 +1,13 @@
+<use name="CommonTools/UtilAlgos"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/GEMObjects"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/GEMDigi"/>
+<use name="EventFilter/GEMRawToDigi"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<library file="*.cc" name="EventFilterGEMRawToDigiPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -3,7 +3,7 @@
 
 /// \class TrackerAlignableId
 ///
-/// Helper class to provide unique numerical ID's for Alignables. 
+/// Helper class to provide unique numerical ID's for Alignables.
 /// The unique ID is formed from:
 ///  - the AlignableObjectId (DetUnit, Det, Rod, Layer, etc.)
 ///  - the geographical ID of the first GeomDet in the composite.
@@ -19,19 +19,15 @@
 class DetId;
 class TrackerTopology;
 
-class TrackerAlignableId
-{
-
+class TrackerAlignableId {
 public:
-  
   TrackerAlignableId() {}
 
   /// Return type and layer of DetId
   /// Keep this for now.
   /// Concept of a "layer" in Alignment is obsolete.
   /// Will be replaced by a more generic function.
-  std::pair<int,int> typeAndLayerFromDetId( const DetId& detId, const TrackerTopology* tTopo ) const;
-
+  std::pair<int, int> typeAndLayerFromDetId(const DetId& detId, const TrackerTopology* tTopo) const;
 };
 
 #endif

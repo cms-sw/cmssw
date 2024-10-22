@@ -1,33 +1,27 @@
 ## Process sim digi events with CSC rechit & segment builders - Tim Cox - 11.02.2015
 ## This version runs in 7_4_0_preX on a 7_3_0 simulated data DIGI relval sample.
 ## Run on  1000  events of a 25ns PU TTbar sample
+## Change Geometry_cff to GeometryDB_cff and update GT July.2022
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-# Geometry access changed after Yana hypernews post 10.02.2015
-# had been using...
-##process.load("Configuration.StandardSequences.Geometry_cff")
-# which just points to...
-##process.load("Configuration.Geometry.GeometryIdeal_cff")
-# yana wants...
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 ##process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
-
 process.load("CalibMuon.CSCCalibration.CSCChannelMapper_cfi")
 process.load("CalibMuon.CSCCalibration.CSCIndexer_cfi")
 process.CSCIndexerESProducer.AlgoName = cms.string("CSCIndexerPostls1")
 process.CSCChannelMapperESProducer.AlgoName = cms.string("CSCChannelMapperPostls1")
 
 # --- MATCH GT TO RELEASE AND DATA SAMPLE
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
-process.GlobalTag.globaltag = "MCRUN2_73_V5::All"
 
 # --- NUMBER OF EVENTS
 
@@ -78,9 +72,9 @@ process.cscSegments.algo_psets[3].algo_psets[0].useShowering = cms.bool(True)
 process.cscSegments.algo_psets[3].algo_psets[1].useShowering = cms.bool(True)
 
 # --- Activate LogVerbatim IN CSCSegment                                                                                         
-process.MessageLogger.categories.append("CSCSegment")
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),

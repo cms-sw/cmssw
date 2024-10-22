@@ -110,6 +110,11 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 #       connect = "frontier://FrontierProd/CMS_CONDITIONS",
 #       record = "TrackerAlignmentErrorExtendedRcd",
 #       tag = "TrackerAlignmentErrorsExtended_Upgrade2017_design_v0")
+# tagwriter.setCondition(process,
+#       connect = "frontier://FrontierProd/CMS_CONDITIONS",
+#       record = "SiPixelLorentzAngleRcd",
+#       label = "fromAlignment",
+#       tag = "SiPixelLorentzAngle_fromAlignment_phase1_mc_v1")
 
 
 #######################
@@ -200,6 +205,54 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 #     )
 # ] # end of process.AlignmentProducer.RunRangeSelection
 
+# # To run simultaneous calibrations of the pixel Lorentz angle you need to
+# # include the corresponding config fragment and configure the granularity and
+# # IOVs (must be consistent with input LA/template/alignment IOVs) for it.
+# # Note: There are different version of the LA record available in the global
+# #       tag. Depending on the TTRHBuilder, one has to set a label to configure
+# #       which of them is to be used. The default TTRHBuilder uses pixel
+# #       templates which ignores the unlabelled LA record and uses only the one
+# #       labelled "fromAlignment". This is also the default value in the
+# #       integrated LA calibration. If you are using the generic CPE instead of
+# #       the template CPE you have to use the following setting:
+# #
+# #       siPixelLA.lorentzAngleLabel = ""
+#
+# from Alignment.CommonAlignmentAlgorithm.SiPixelLorentzAngleCalibration_cff \
+#     import SiPixelLorentzAngleCalibration as siPixelLA
+# siPixelLA.LorentzAngleModuleGroups.Granularity = cms.VPSet()
+# siPixelLA.LorentzAngleModuleGroups.RunRange = cms.vuint32(290550,
+#                                                           295000,
+#                                                           298100)
+#
+# siPixelLA.LorentzAngleModuleGroups.Granularity.extend([
+#     cms.PSet(
+#         levels = cms.PSet(
+#             alignParams = cms.vstring(
+#                 'TrackerP1PXBModule,,RINGLAYER'
+#             ),
+#             RINGLAYER = cms.PSet(
+#                 pxbDetId  = cms.PSet(
+#                     moduleRanges = cms.vint32(ring, ring),
+#                     layerRanges = cms.vint32(layer, layer)
+#                 )
+#             )
+#         )
+#     )
+#     for ring in xrange(1,9) # [1,8]
+#     for layer in xrange(1,5) # [1,4]
+# ])
+# siPixelLA.LorentzAngleModuleGroups.Granularity.append(
+#     cms.PSet(
+#         levels = cms.PSet(
+#             alignParams = cms.vstring('TrackerP1PXECModule,,posz'),
+#             posz = cms.PSet(zRanges = cms.vdouble(-9999.0, 9999.0))
+#         )
+#     )
+# )
+#
+# process.AlignmentProducer.calibrations.append(siPixelLA)
+
 
 #########################
 ## insert Pedesettings ##
@@ -208,13 +261,17 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 # # reasonable pede settings are already defined in
 # # 'confAliProducer.setConfiguration' above
 # #
-# # if you want obtain alignment errors, use "inversion 3 0.8" as
-# # process.AlignmentProducer.algoConfig.pedeSteerer.method
+# # if you want to obtain alignment errors, use the following setting:
+# # process.AlignmentProducer.algoConfig.pedeSteerer.method = "inversion 3 0.8"
 # #
 # # a list of possible options is documented here:
 # # http://www.desy.de/~kleinwrt/MP2/doc/html/option_page.html#sec-cmd
 # #
-# # you can change or drop pede settings as follows:
+# # if you need to request a larger stack size for individual threads when
+# # running pede, you can do this with this setting: 
+# # process.AlignmentProducer.algoConfig.pedeSteerer.pedeCommand = "export OMP_STACKSIZE=20M; pede"
+# #
+# # you can change or drop pede options as follows:
 #
 # import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper as helper
 # helper.set_pede_option(process, "entries 50 10 2")

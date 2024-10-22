@@ -146,20 +146,17 @@ WP_Tight_EE = EleWorkingPoint_V2(
     )
 
 # Second, define what effective areas to use for pile-up correction
-isoInputs = IsolationCutInputs_V2(
-    # phoIsolationEffAreas
-    "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"
-)
+isoEffAreas = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"
 
 
 #
 # Set up VID configuration for all cuts and working points
 #
 
-cutBasedElectronID_Spring15_25ns_V1_standalone_veto = configureVIDCutBasedEleID_V2(WP_Veto_EB, WP_Veto_EE, isoInputs)
-cutBasedElectronID_Spring15_25ns_V1_standalone_loose = configureVIDCutBasedEleID_V2(WP_Loose_EB, WP_Loose_EE, isoInputs)
-cutBasedElectronID_Spring15_25ns_V1_standalone_medium = configureVIDCutBasedEleID_V2(WP_Medium_EB, WP_Medium_EE, isoInputs)
-cutBasedElectronID_Spring15_25ns_V1_standalone_tight = configureVIDCutBasedEleID_V2(WP_Tight_EB, WP_Tight_EE, isoInputs)
+cutBasedElectronID_Spring15_25ns_V1_standalone_veto = configureVIDCutBasedEleID_V2(WP_Veto_EB, WP_Veto_EE, isoEffAreas)
+cutBasedElectronID_Spring15_25ns_V1_standalone_loose = configureVIDCutBasedEleID_V2(WP_Loose_EB, WP_Loose_EE, isoEffAreas)
+cutBasedElectronID_Spring15_25ns_V1_standalone_medium = configureVIDCutBasedEleID_V2(WP_Medium_EB, WP_Medium_EE, isoEffAreas)
+cutBasedElectronID_Spring15_25ns_V1_standalone_tight = configureVIDCutBasedEleID_V2(WP_Tight_EB, WP_Tight_EE, isoEffAreas)
 
 
 # The MD5 sum numbers below reflect the exact set of cut variables

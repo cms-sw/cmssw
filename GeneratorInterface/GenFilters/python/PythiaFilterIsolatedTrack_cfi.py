@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 isotrack_filter = cms.EDFilter("PythiaFilterIsolatedTrack",
-                               ModuleLabel     = cms.untracked.InputTag('generator','unsmeared'),
-                               MaxSeedEta      = cms.untracked.double(2.3),
-                               MinSeedMom      = cms.untracked.double(20.0),
-                               MinIsolTrackMom = cms.untracked.double(2.0),
-                               IsolCone        = cms.untracked.double(40.0),
-                               OnlyHadrons     = cms.untracked.bool(True)
+                               moduleLabel     = cms.untracked.InputTag('generator','unsmeared'),
+                               maxSeedEta      = cms.untracked.double(2.3),
+                               minSeedEta      = cms.untracked.double(0.0),
+                               minSeedMom      = cms.untracked.double(20.0),
+                               minIsolTrackMom = cms.untracked.double(2.0),
+                               isolCone        = cms.untracked.double(40.0),
+                               onlyHadrons     = cms.untracked.bool(True)
                                )
 
 

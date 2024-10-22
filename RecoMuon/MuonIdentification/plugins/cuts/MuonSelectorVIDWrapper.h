@@ -6,24 +6,22 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-template<muon::SelectionType selectionType,reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration>
-  class MuonSelectorVIDWrapper : public CutApplicatorBase {
- public:
- MuonSelectorVIDWrapper(const edm::ParameterSet& c) :
- CutApplicatorBase(c) { }
+template <muon::SelectionType selectionType,
+          reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration>
+class MuonSelectorVIDWrapper : public CutApplicatorBase {
+public:
+  MuonSelectorVIDWrapper(const edm::ParameterSet& c) : CutApplicatorBase(c) {}
 
- double value(const reco::CandidatePtr& cand) const final {
-   edm::Ptr<reco::Muon> mu(cand);
-   return muon::isGoodMuon(*mu,selectionType,arbitrationType);
- }
+  double value(const reco::CandidatePtr& cand) const final {
+    edm::Ptr<reco::Muon> mu(cand);
+    return muon::isGoodMuon(*mu, selectionType, arbitrationType);
+  }
 
- result_type operator()(const edm::Ptr<reco::Muon> & muon) const final {
-   return muon::isGoodMuon(*muon,selectionType,arbitrationType);
- }
+  result_type operator()(const edm::Ptr<reco::Muon>& muon) const final {
+    return muon::isGoodMuon(*muon, selectionType, arbitrationType);
+  }
 
- CandidateType candidateType() const final {
-   return MUON;
- }
+  CandidateType candidateType() const final { return MUON; }
 };
 
 #endif

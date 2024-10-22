@@ -4,4 +4,3 @@
 
 using cms::PileupVertexAccumulator;
 DEFINE_DIGI_ACCUMULATOR(PileupVertexAccumulator);
-

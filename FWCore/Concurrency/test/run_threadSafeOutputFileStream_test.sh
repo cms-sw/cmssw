@@ -27,8 +27,6 @@
 # linebreaks, I replaced the line breaks with semicolons, and compare
 # accordingly.
 
-pushd ${LOCAL_TMP_DIR}
-
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
 test_threadSafeOutputFileStream || die "test_ThreadSafeOutputFileStream" $?
@@ -37,5 +35,3 @@ do
     comparison="Thread index: ${thindex} Entry: 0;Thread index: ${thindex} Entry: 1;Thread index: ${thindex} Entry: 2;Thread index: ${thindex} Entry: 3;"
     [[ "$( grep "Thread index: ${thindex}" thread_safe_ofstream_test.txt | tr \\n \; )" == "${comparison}" ]] || die "test_ThreadSafeOutputFileStream_output" $?
 done
-
-popd

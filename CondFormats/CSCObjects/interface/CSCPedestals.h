@@ -7,24 +7,24 @@
 #include <vector>
 #include <map>
 
-class CSCPedestals{
- public:
+class CSCPedestals {
+public:
   CSCPedestals();
   ~CSCPedestals();
-  
-  struct Item{
+
+  struct Item {
     float ped;
     float rms;
-  
-  COND_SERIALIZABLE;
-};
 
-  const Item & item(const CSCDetId & cscId, int strip) const;
+    COND_SERIALIZABLE;
+  };
 
-  typedef std::map< int,std::vector<Item> > PedestalMap;
+  const Item& item(const CSCDetId& cscId, int strip) const;
+
+  typedef std::map<int, std::vector<Item> > PedestalMap;
   PedestalMap pedestals;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

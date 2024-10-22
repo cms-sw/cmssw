@@ -59,22 +59,17 @@ using namespace std;
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 
-L1TBeamConfiguration::L1TBeamConfiguration(){
+L1TBeamConfiguration::L1TBeamConfiguration() { m_valid = false; }
 
+bool L1TBeamConfiguration::bxConfig(unsigned iBx) {
+  if (m_valid && beam1.size() > iBx && beam2.size() > iBx) {
+    if (beam1[iBx] && beam2[iBx]) {
+      return true;
+    } else {
+      return false;
+    }
 
-  m_valid = false;
-
-}
-
-bool L1TBeamConfiguration::bxConfig(unsigned iBx){
-
-  if(m_valid && beam1.size()>iBx && beam2.size()>iBx){
-
-    if(beam1[iBx] && beam2[iBx]){return true;}
-    else                        {return false;}
-
-  }else{
+  } else {
     return false;
   }
 }
-

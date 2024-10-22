@@ -27,6 +27,6 @@
 // forward declarations
 
 namespace edm {
-  typedef std::vector<std::pair<edm::ProductID,unsigned long> > FillViewHelperVector;
+  typedef std::vector<std::pair<edm::ProductID, unsigned long> > FillViewHelperVector;
 }
 #endif

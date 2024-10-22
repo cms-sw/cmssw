@@ -9,13 +9,14 @@
 typedef std::vector<float> EcalFunctionParameters;
 
 class EcalFunParams {
-        public:
-                EcalFunctionParameters & params() { return m_params; }
-                EcalFunctionParameters const & params() const { return m_params; }
-        private:
-                EcalFunctionParameters m_params;
+public:
+  EcalFunctionParameters& params() { return m_params; }
+  EcalFunctionParameters const& params() const { return m_params; }
 
-        COND_SERIALIZABLE;
+private:
+  EcalFunctionParameters m_params;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

@@ -2,75 +2,77 @@
 #define SimG4CMS_DreamSD_h
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-#include "G4String.hh"
-#include "G4PhysicsOrderedFreeVector.hh"
+#include "G4PhysicsFreeVector.hh"
 
 #include <map>
 
-const int MAXPHOTONS = 500; // Maximum number of photons we can store
+const int MAXPHOTONS = 500;  // Maximum number of photons we can store
 
 class G4LogicalVolume;
 
-class TTree;
-
 class DreamSD : public CaloSD {
-
-public:    
-
-  DreamSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
-	  edm::ParameterSet const &, const SimTrackManager*);
+public:
+  DreamSD(const std::string &,
+          const DDCompactView *,
+          const cms::DDCompactView *,
+          const SensitiveDetectorCatalog &,
+          edm::ParameterSet const &,
+          const SimTrackManager *);
   ~DreamSD() override {}
-  bool   ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
-  uint32_t setDetUnitId(const G4Step*) override;
+
+  uint32_t setDetUnitId(const G4Step *) override;
 
 protected:
+  double getEnergyDeposit(const G4Step *) override;
+  void initRun() override;
 
-  G4bool getStepInfo(G4Step* aStep) override;
-  void   initRun() override;
+private:
+  typedef std::pair<double, double> Doubles;
+  typedef std::map<G4LogicalVolume *, Doubles> DimensionMap;
 
-private:    
-
-  typedef std::pair<double,double> Doubles;
-  typedef std::map<G4LogicalVolume*,Doubles> DimensionMap;
-
-  void           initMap(const std::string&, const DDCompactView &);
-  double         curve_LY(const G4Step*, int); 
-  const double   crystalLength(G4LogicalVolume*) const;
-  const double   crystalWidth(G4LogicalVolume*) const;
+  void initMap(const std::string &);
+  void fillMap(const std::string &, double, double);
+  double curve_LY(const G4Step *, int);
+  double crystalLength(G4LogicalVolume *) const;
+  double crystalWidth(G4LogicalVolume *) const;
 
   /// Returns the total energy due to Cherenkov radiation
-  double         cherenkovDeposit_(const G4Step* aStep );
+  double cherenkovDeposit_(const G4Step *aStep);
   /// Returns average number of photons created by track
   double getAverageNumberOfPhotons_(const double charge,
-				    const double beta,
-				    const G4Material* aMaterial,
-				    const G4MaterialPropertyVector* rIndex );
+                                    const double beta,
+                                    const G4Material *aMaterial,
+                                    const G4MaterialPropertyVector *rIndex);
   /// Returns energy deposit for a given photon
-  double getPhotonEnergyDeposit_( const G4ParticleMomentum& p, 
-				  const G4ThreeVector& x,
-				  const G4Step* aStep );
+  double getPhotonEnergyDeposit_(const G4ParticleMomentum &p, const G4ThreeVector &x, const G4Step *aStep);
   /// Sets material properties at run-time...
-  bool setPbWO2MaterialProperties_(G4Material* aMaterial );
+  bool setPbWO2MaterialProperties_(G4Material *aMaterial);
 
-  bool         useBirk, doCherenkov_, readBothSide_;
-  double       birk1, birk2, birk3;
-  double       slopeLY;
-  DimensionMap xtalLMap; // Store length and width
+  static constexpr double k_ScaleFromDDDToG4 = 1.0;
+  static constexpr double k_ScaleFromDD4hepToG4 = 1.0 / dd4hep::mm;
 
-  int          side;
+  const DDCompactView *cpvDDD_;
+  const cms::DDCompactView *cpvDD4hep_;
+
+  bool useBirk_, doCherenkov_, readBothSide_, dd4hep_;
+  double birk1_, birk2_, birk3_;
+  double slopeLY_;
+  DimensionMap xtalLMap_;  // Store length and width
+
+  int side_;
 
   /// Table of Cherenkov angle integrals vs photon momentum
-  std::unique_ptr<G4PhysicsOrderedFreeVector> chAngleIntegrals_;
-  G4MaterialPropertiesTable* materialPropertiesTable;
-  // Histogramming
-  TTree* ntuple_;
-  int nphotons_;
-  float px_[MAXPHOTONS],py_[MAXPHOTONS],pz_[MAXPHOTONS];
-  float x_[MAXPHOTONS],y_[MAXPHOTONS],z_[MAXPHOTONS];
+  std::unique_ptr<G4PhysicsFreeVector> chAngleIntegrals_;
+  G4MaterialPropertiesTable *materialPropertiesTable_;
 
+  int nphotons_;
 };
 
-#endif // DreamSD_h
+#endif  // DreamSD_h

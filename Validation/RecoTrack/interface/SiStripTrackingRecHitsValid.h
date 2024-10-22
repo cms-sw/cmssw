@@ -2,88 +2,78 @@
 #define Validation_RecoTrack_SiStripTrackingRecHitsValid_h
 
 //DQM services for histogram
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
-
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h" 
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <TROOT.h>
 #include <TTree.h>
 #include <TFile.h>
 #include <TH1F.h>
 #include <TProfile.h>
+#include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //--- for SimHit association
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"  
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-
-#include <string>
 
 class SiStripDetCabling;
 class SiStripDCSStatus;
 
-class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
-{
- public:
-  
+class SiStripTrackingRecHitsValid : public DQMEDAnalyzer {
+public:
   SiStripTrackingRecHitsValid(const edm::ParameterSet& conf);
-  
+
   ~SiStripTrackingRecHitsValid() override;
 
   // ALL
-  //Simple hits MEs either from matched either 
+  //Simple hits MEs either from matched either
   //from hit1D, hit2D in all subdetectors.
-  struct SimpleHitsMEs{ 
+  struct SimpleHitsMEs {
     MonitorElement* meCategory;
     MonitorElement* meTrackwidth;
     MonitorElement* meExpectedwidth;
@@ -116,10 +106,9 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
     MonitorElement* meResolxMF;
     MonitorElement* meResMF;
     MonitorElement* mePullMF;
-
   };
 
-  struct LayerMEs{ // MEs for Layer Level
+  struct LayerMEs {  // MEs for Layer Level
     MonitorElement* meWclusRphi;
     MonitorElement* meAdcRphi;
     MonitorElement* meResolxLFRphi;
@@ -179,12 +168,10 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
     MonitorElement* merapidityResProfilewclus2;
     MonitorElement* merapidityResProfilewclus3;
     MonitorElement* merapidityResProfilewclus4;
-    
-
   };
 
-  struct StereoAndMatchedMEs{ // MEs for stereo and matched hits
-      
+  struct StereoAndMatchedMEs {  // MEs for stereo and matched hits
+
     MonitorElement* meWclusSas;
     MonitorElement* meAdcSas;
     MonitorElement* meResolxLFSas;
@@ -221,53 +208,53 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
     MonitorElement* meResyMatched;
     MonitorElement* mePullxMatched;
     MonitorElement* mePullyMatched;
-
   };
 
-  struct RecHitProperties{ 
+  struct RecHitProperties {
     float x;
     float y;
     float z;
-    float resolxx; 
-    float resolxy; 
-    float resolyy; 
-    float resolxxMF; // in Measurement Frame
-//    float phi;
+    float resolxx;
+    float resolxy;
+    float resolyy;
+    float resolxxMF;  // in Measurement Frame
+                      //    float phi;
     float resx;
     float resy;
-    float resxMF;// in Measurement Frame
+    float resxMF;  // in Measurement Frame
     float pullx;
     float pully;
-    float pullxMF;// in Measurement Frame
+    float pullxMF;  // in Measurement Frame
     float trackangle;
     float trackanglebeta;
-//    float trackangle2;
+    //    float trackangle2;
     float trackwidth;
-    int   expectedwidth;
-    int   category;
-    float  thickness;
-    int   clusiz;
+    int expectedwidth;
+    int category;
+    float thickness;
+    int clusiz;
     float cluchg;
   };
 
- protected:
-
+protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
-  const MagneticField * magfield2_ ;
-  void beginJob(const edm::EventSetup& es);
-  void endJob();
+  void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) override;
 
- private:
-  
+private:
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_geomToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoToken, m_topoTokenBR;
+  const edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> m_SiStripDetCablingToken;
+  const edm::ESGetToken<StripClusterParameterEstimator, TkStripCPERecord> m_stripCPEToken;
+
+  edm::ESWatcher<SiStripDetCablingRcd> watchSiStripDetCablingRcd_;
+
   DQMStore* dbe_;
   bool runStandalone;
   bool outputMEsInRootFile;
   std::string outputFileName;
-  
+
   std::string topFolderName_;
-  
- 
+
   bool layerswitchResolx_LF;
   bool layerswitchResolx_MF;
   bool layerswitchRes_LF;
@@ -302,10 +289,10 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
   bool layerswitchAdcRphi;
   bool layerswitchResolxLFRphi;
   bool layerswitchResolxMFRphi;
-  bool layerswitchResolxMFRphiwclus1 ;
-  bool layerswitchResolxMFRphiwclus2 ;
-  bool layerswitchResolxMFRphiwclus3 ;
-  bool layerswitchResolxMFRphiwclus4 ;
+  bool layerswitchResolxMFRphiwclus1;
+  bool layerswitchResolxMFRphiwclus2;
+  bool layerswitchResolxMFRphiwclus3;
+  bool layerswitchResolxMFRphiwclus4;
   bool layerswitchResLFRphi;
   bool layerswitchResMFRphi;
   bool layerswitchResMFRphiwclus1;
@@ -395,48 +382,70 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
   std::vector<PSimHit> matched;
   std::map<std::string, LayerMEs> LayerMEsMap;
   std::map<std::string, StereoAndMatchedMEs> StereoAndMatchedMEsMap;
-  std::map<std::string, std::vector< uint32_t > > LayerDetMap;
-  std::map<std::string, std::vector< uint32_t > > StereoAndMatchedDetMap;
+  std::map<std::string, std::vector<uint32_t> > LayerDetMap;
+  std::map<std::string, std::vector<uint32_t> > StereoAndMatchedDetMap;
+  std::pair<LocalPoint, LocalVector> projectHit(const PSimHit& hit,
+                                                const StripGeomDetUnit* stripDet,
+                                                const BoundPlane& plane);
 
-  edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
+  LocalVector driftDirection(const StripGeomDetUnit* det) const;
 
-  std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,const BoundPlane& plane);
+  MonitorElement* Fit_SliceY(TH2F* Histo2D);
 
-  LocalVector driftDirection(const StripGeomDetUnit* det)const;
+  void createMEs(DQMStore::IBooker& ibooker, const edm::EventSetup& es);
+  void createSimpleHitsMEs(DQMStore::IBooker& ibooker);
+  void createLayerMEs(DQMStore::IBooker& ibooker, std::string label);
+  void createStereoAndMatchedMEs(DQMStore::IBooker& ibooker, std::string label);
 
-  MonitorElement* Fit_SliceY(TH2F * Histo2D);
+  MonitorElement* bookME1D(DQMStore::IBooker& ibooker,
+                           const char* ParameterSetLabel,
+                           const char* HistoName,
+                           const char* HistoTitle);
+  MonitorElement* bookMEProfile(DQMStore::IBooker& ibooker,
+                                const char* ParameterSetLabel,
+                                const char* HistoName,
+                                const char* HistoTitle);
 
-  void createMEs(DQMStore::IBooker & ibooker,const edm::EventSetup& es);
-  void createSimpleHitsMEs(DQMStore::IBooker & ibooker); 
-  void createLayerMEs(DQMStore::IBooker & ibooker,std::string label);
-  void createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,std::string label);
-  
-  MonitorElement* bookME1D(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
-  MonitorElement* bookMEProfile(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
-
-  inline void fillME(MonitorElement* ME,float value1){if (ME!=nullptr)ME->Fill(value1);}
-  inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=nullptr)ME->Fill(value1,value2);}
-  inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=nullptr)ME->Fill(value1,value2,value3);}
-  inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=nullptr)ME->Fill(value1,value2,value3,value4);}
-  
+  inline void fillME(MonitorElement* ME, float value1) {
+    if (ME != nullptr)
+      ME->Fill(value1);
+  }
+  inline void fillME(MonitorElement* ME, float value1, float value2) {
+    if (ME != nullptr)
+      ME->Fill(value1, value2);
+  }
+  inline void fillME(MonitorElement* ME, float value1, float value2, float value3) {
+    if (ME != nullptr)
+      ME->Fill(value1, value2, value3);
+  }
+  inline void fillME(MonitorElement* ME, float value1, float value2, float value3, float value4) {
+    if (ME != nullptr)
+      ME->Fill(value1, value2, value3, value4);
+  }
 
   edm::ParameterSet conf_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
-  unsigned long long m_cacheID_;
   edm::ParameterSet Parameters;
 
   RecHitProperties rechitpro;
 
-  void rechitanalysis(LocalVector ldir, const TrackingRecHit *rechit, const StripGeomDetUnit *stripdet, edm::ESHandle < StripClusterParameterEstimator > stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D);
-  
-  enum class MatchStatus { matched, monoHit, stereoHit};
-  void rechitanalysis_matched(LocalVector ldir, const TrackingRecHit *rechit, const GluedGeomDet* gluedDet,TrackerHitAssociator& associate, edm::ESHandle < StripClusterParameterEstimator > stripcpe, const MatchStatus matchedmonorstereo);
- 
+  void rechitanalysis(LocalVector ldir,
+                      const TrackingRecHit* rechit,
+                      const StripGeomDetUnit* stripdet,
+                      const StripClusterParameterEstimator* stripcpe,
+                      TrackerHitAssociator& associate,
+                      bool simplehit1or2D);
+
+  enum class MatchStatus { matched, monoHit, stereoHit };
+  void rechitanalysis_matched(LocalVector ldir,
+                              const TrackingRecHit* rechit,
+                              const GluedGeomDet* gluedDet,
+                              TrackerHitAssociator& associate,
+                              const StripClusterParameterEstimator* stripcpe,
+                              const MatchStatus matchedmonorstereo);
 
   float track_rapidity;
   edm::EDGetTokenT<std::vector<reco::Track> > tracksInputToken_;
-
 };
-
 
 #endif

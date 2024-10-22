@@ -10,6 +10,18 @@
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
+#include "DataFormats/GEMDigi/interface/GEMAMC13Status.h"
+#include "DataFormats/GEMDigi/interface/GEMAMC13StatusCollection.h"
+
+#include "DataFormats/GEMDigi/interface/GEMAMCStatus.h"
+#include "DataFormats/GEMDigi/interface/GEMAMCStatusCollection.h"
+
+#include "DataFormats/GEMDigi/interface/GEMOHStatus.h"
+#include "DataFormats/GEMDigi/interface/GEMOHStatusCollection.h"
+
+#include "DataFormats/GEMDigi/interface/GEMVFATStatus.h"
+#include "DataFormats/GEMDigi/interface/GEMVFATStatusCollection.h"
+
 #include "DataFormats/GEMDigi/interface/ME0DigiPreReco.h"
 #include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
 
@@ -27,64 +39,3 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
-
-namespace DataFormats_GEMDigi {
-  struct dictionary {
-    
-    GEMDigi g;
-    std::vector<GEMDigi>  vg;
-    std::vector<std::vector<GEMDigi> >  vvg;
-    GEMDigiCollection gcol;
-    edm::Wrapper<GEMDigiCollection> wg;
-
-    GEMPadDigi gc;
-    std::vector<GEMPadDigi>  vgc;
-    std::vector<std::vector<GEMPadDigi> >  vvgc;
-    GEMPadDigiCollection gccol;
-    edm::Wrapper<GEMPadDigiCollection> wgc;
-
-    GEMPadDigiCluster gcc;
-    std::vector<GEMPadDigiCluster>  vgcc;
-    std::vector<std::vector<GEMPadDigiCluster> >  vvgcc;
-    GEMPadDigiClusterCollection gcccol;
-    edm::Wrapper<GEMPadDigiClusterCollection> wgcc;
-
-    GEMCoPadDigi gcp;
-    std::vector<GEMCoPadDigi>  vgcp;
-    std::vector<std::vector<GEMCoPadDigi> >  vvgcp;
-    GEMCoPadDigiCollection gcpcol;
-    edm::Wrapper<GEMCoPadDigiCollection> wgcp;
-
-    ME0DigiPreReco m;
-    std::vector<ME0DigiPreReco>  vm;
-    std::vector<std::vector<ME0DigiPreReco> >  vvm;
-    ME0DigiPreRecoCollection mcol;
-    edm::Wrapper<ME0DigiPreRecoCollection> wm;
-    ME0DigiPreRecoMap mmap;
-    edm::Wrapper<ME0DigiPreRecoMap> wmmap;
-    
-    ME0Digi mm;
-    std::vector<ME0Digi>  vmm;
-    std::vector<std::vector<ME0Digi> >  vvmm;
-    ME0DigiCollection mmcol;
-    edm::Wrapper<ME0DigiCollection> wmm;
-
-    ME0PadDigi mp;
-    std::vector<ME0PadDigi>  vmp;
-    std::vector<std::vector<ME0PadDigi> >  vvmp;
-    ME0PadDigiCollection mpcol;
-    edm::Wrapper<ME0PadDigiCollection> wmp;
-
-    ME0PadDigiCluster mpc;
-    std::vector<ME0PadDigiCluster>  vmpc;
-    std::vector<std::vector<ME0PadDigiCluster> >  vvmpc;
-    ME0PadDigiClusterCollection mpccol;
-    edm::Wrapper<ME0PadDigiClusterCollection> wmpc;
-
-    ME0TriggerDigi ml;
-    std::vector<ME0TriggerDigi>  vml;
-    std::vector<std::vector<ME0TriggerDigi> >  vvml;
-    ME0TriggerDigiCollection mlcol;
-    edm::Wrapper<ME0TriggerDigiCollection> wml;
-  };
-}

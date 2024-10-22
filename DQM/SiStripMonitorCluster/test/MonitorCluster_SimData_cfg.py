@@ -24,12 +24,18 @@ process.maxEvents = cms.untracked.PSet(
 # Message Logger
 #-------------------------------------------------
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('siStripDigis',
-                                         'siStripZeroSuppression',
-                                         'siStripClusters'
-                                         'SiStripMonitorCluster'),
-    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
-    destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    ),
+    debugModules = cms.untracked.vstring(
+        'siStripDigis', 
+        'siStripZeroSuppression', 
+        'siStripClustersSiStripMonitorCluster'
+    )
 )
 
 #-------------------------------------------------

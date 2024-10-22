@@ -2,7 +2,7 @@
 //
 // Package:     SimDataFormats/Associations
 // Class  :     MuonToTrackingParticleAssociator
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,22 +15,9 @@
 // user include files
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
 
-
 //
 // constructors and destructor
 //
-reco::MuonToTrackingParticleAssociator::MuonToTrackingParticleAssociator():
-  impl_(nullptr)
-{
-}
-
-reco::MuonToTrackingParticleAssociator::MuonToTrackingParticleAssociator(std::unique_ptr<MuonToTrackingParticleAssociatorBaseImpl> iImpl):
-  impl_(iImpl.release())
-{
-}
-
-reco::MuonToTrackingParticleAssociator::~MuonToTrackingParticleAssociator()
-{
-  delete impl_;
-}
-
+reco::MuonToTrackingParticleAssociator::MuonToTrackingParticleAssociator(
+    std::unique_ptr<MuonToTrackingParticleAssociatorBaseImpl> iImpl)
+    : impl_(std::move(iImpl)) {}

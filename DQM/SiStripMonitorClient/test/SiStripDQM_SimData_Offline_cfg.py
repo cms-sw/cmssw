@@ -5,15 +5,20 @@ process = cms.Process("DQMOnlineSimData")
 # Message Logger
 #-------------------------------------------------
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('SiStripZeroSuppression', 
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('ERROR')
+    ),
+    debugModules = cms.untracked.vstring(
+        'SiStripZeroSuppression', 
         'SiStripMonitorDigi', 
         'SiStripMonitorCluster', 
         'SiStripMonitorTrackSim', 
-        'MonitorTrackResidualsSim'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR')
-    ),
-    destinations = cms.untracked.vstring('cout')
+        'MonitorTrackResidualsSim'
+    )
 )
 
 #-------------------------------------------------

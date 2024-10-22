@@ -1,9 +1,9 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Reflection/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include "TClass.h"
 
@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace edm {
+namespace edm::streamer {
 
   bool loadCap(std::string const& name, std::vector<std::string>& missingDictionaries) {
     FDEBUG(1) << "Loading dictionary for " << name << "\n";
@@ -25,8 +25,7 @@ namespace edm {
     if (ttest != nullptr) {
       ttest->BuildRealData();
     } else {
-      throw edm::Exception(errors::Configuration)
-			<< "Could not find TClass for " << name << "\n";
+      throw edm::Exception(errors::Configuration) << "Could not find TClass for " << name << "\n";
     }
   }
   // ---------------------
@@ -45,26 +44,24 @@ namespace edm {
         throwMissingDictionariesException(missingDictionaries, context);
       }
     }
-    done=true;
+    done = true;
   }
 
   namespace {
     TClass* getRootClass(std::string const& name) {
-      TClass* tc = TClass::GetClass(name.c_str());    
-      
-      if(tc == nullptr) {
-	throw edm::Exception(errors::Configuration,"getRootClass")
-	  << "could not find TClass for " << name
-	  << "\n";
+      TClass* tc = TClass::GetClass(name.c_str());
+
+      if (tc == nullptr) {
+        throw edm::Exception(errors::Configuration, "getRootClass") << "could not find TClass for " << name << "\n";
       }
-      
+
       return tc;
     }
-  }
+  }  // namespace
 
   // ---------------------
   TClass* getTClass(std::type_info const& ti) {
     TypeID const type(ti);
     return getRootClass(type.className());
   }
-}
+}  // namespace edm::streamer

@@ -26,18 +26,18 @@
 
 /// map containing the conditions
 namespace l1t {
-typedef std::map<std::string, GlobalCondition*> ConditionMap;
+  typedef std::map<std::string, GlobalCondition*> ConditionMap;
 
-/// map containing the algorithms
-typedef std::map<std::string, GlobalAlgorithm> AlgorithmMap;
+  /// map containing the algorithms
+  typedef std::map<std::string, GlobalAlgorithm> AlgorithmMap;
 
-/// iterators through map containing the conditions
-typedef ConditionMap::const_iterator CItCond;
-typedef ConditionMap::iterator ItCond;
+  /// iterators through map containing the conditions
+  typedef ConditionMap::const_iterator CItCond;
+  typedef ConditionMap::iterator ItCond;
 
-/// iterators through map containing the algorithms
-typedef AlgorithmMap::const_iterator CItAlgo;
-typedef AlgorithmMap::iterator ItAlgo;
+  /// iterators through map containing the algorithms
+  typedef AlgorithmMap::const_iterator CItAlgo;
+  typedef AlgorithmMap::iterator ItAlgo;
 
-}
+}  // namespace l1t
 #endif /*L1Trigger_L1TGlobal_TriggerMenuFwd_h*/

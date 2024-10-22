@@ -7,36 +7,29 @@
 #include <string>
 
 class SummaryPlotFactoryBase {
-  
- protected:
-    
-  void init( const sistrip::Monitorable&, 
-	     const sistrip::Presentation&,
-	     const sistrip::View&, 
-	     const std::string& top_level_dir, 
-	     const sistrip::Granularity& );
-  
-  void fill( TH1& summary_histo );
+protected:
+  void init(const sistrip::Monitorable&,
+            const sistrip::Presentation&,
+            const sistrip::View&,
+            const std::string& top_level_dir,
+            const sistrip::Granularity&);
 
- protected:
+  void fill(TH1& summary_histo);
 
+protected:
   // Constructors, destructors
   SummaryPlotFactoryBase();
   ~SummaryPlotFactoryBase();
-  
+
   // Parameters
   sistrip::Monitorable mon_;
   sistrip::Presentation pres_;
   sistrip::View view_;
   std::string level_;
   sistrip::Granularity gran_;
-  
+
   // Summary plot generator class
   SummaryGenerator* generator_;
-  
 };
 
-#endif // DQM_SiStripCommissioningSummary_SummaryPlotFactoryBase_H
-
-
-
+#endif  // DQM_SiStripCommissioningSummary_SummaryPlotFactoryBase_H

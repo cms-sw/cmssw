@@ -1,0 +1,6 @@
+use 
+
+setenv SCRAM_ARCH ec8_amd64_gcc12
+cmsenv
+voms-proxy-init -voms cms -rfc
+

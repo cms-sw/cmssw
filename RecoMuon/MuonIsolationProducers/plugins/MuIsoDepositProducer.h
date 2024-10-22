@@ -7,13 +7,15 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include <string>
 
-namespace edm { class Event; }
-namespace edm { class EventSetup; }
+namespace edm {
+  class Event;
+}
+namespace edm {
+  class EventSetup;
+}
 
 class MuIsoDepositProducer : public edm::stream::EDProducer<> {
-
 public:
-
   //! constructor
   MuIsoDepositProducer(const edm::ParameterSet&);
 
@@ -22,13 +24,10 @@ public:
 
   //! data making method
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
-private:
-  //! module configuration
-  edm::ParameterSet theConfig;
 
+private:
   //! input type. Choose from:
-  //! 
+  //!
   std::string theInputType;
 
   bool theExtractForCandidate;
@@ -37,7 +36,6 @@ private:
   edm::EDGetToken theMuonCollectionTag;
   std::vector<std::string> theDepositNames;
   bool theMultipleDepositsFlag;
-  reco::isodeposit::IsoDepositExtractor * theExtractor;
-
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> theExtractor;
 };
 #endif

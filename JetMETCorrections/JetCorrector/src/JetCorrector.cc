@@ -2,7 +2,7 @@
 //
 // Package:     JetMETCorrections/JetCorrector
 // Class  :     JetCorrector
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,11 +15,7 @@
 // user include files
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
-
 //
 // constructors and destructor
 //
-reco::JetCorrector::JetCorrector()
-{
-}
-
+reco::JetCorrector::JetCorrector() {}

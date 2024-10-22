@@ -1,7 +1,6 @@
 #ifndef FWCore_MessageLogger_MessageSender_h
 #define FWCore_MessageLogger_MessageSender_h
 
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
@@ -9,57 +8,57 @@
 
 #include <map>
 
-// Change log
-//
-//  1  mf 8/25/08	error summary information for LoggedErrorsSummary()
-//
-//  2  mf 6/22/09	add severity to LoggedErrorsSummary by using 
-//			ErrorSummaryEntry as map key
-//			
-//  3 wmtan 6/22/11     Hold the ErrorObj with a shared pointer with a custom deleter.
-//                      The custom deleter takes over the function of the message sending from the MessageSender destructor.
-//                      This allows MessageSender to be copyable, which fixes the clang compilation errors.
-         
+namespace edm {
 
-namespace edm
-{
+  class MessageSender {
+    struct ErrorObjDeleter {
+      ErrorObjDeleter() {}
+      void operator()(ErrorObj* errorObjPtr);
+    };
 
-class MessageSender
-{
-  struct ErrorObjDeleter {
-    ErrorObjDeleter() {}
-    void operator()(ErrorObj * errorObjPtr);
-  };
+  public:
+    // ---  birth/death:
+    MessageSender() = default;
+    MessageSender(messagelogger::ELseverityLevel const& sev,
+                  std::string_view id,
+                  bool verbatim = false,
+                  bool suppressed = false);
+    MessageSender(MessageSender&&) = default;
+    MessageSender(MessageSender const&) = default;
+    MessageSender& operator=(MessageSender&&) = default;
+    MessageSender& operator=(MessageSender const&) = default;
+    ~MessageSender();
 
-public:
-  // ---  birth/death:
-  MessageSender() : errorobj_p() {} 
-  MessageSender( ELseverityLevel const & sev, 
-  		 ELstring const & id,
-		 bool verbatim = false, bool suppressed = false );
-  ~MessageSender();
+    // ---  stream out the next part of a message:
+    template <class T>
+    MessageSender& operator<<(T const& t) {
+      if (valid())
+        (*errorobj_p) << t;
+      return *this;
+    }
 
-  // ---  stream out the next part of a message:
-  template< class T >
-    MessageSender &
-    operator<< ( T const & t )
-  {
-    if (valid()) (*errorobj_p) << t;
-    return *this;
-  }
+    template <typename... Args>
+    MessageSender& format(fmt::format_string<Args...> format, Args&&... args) {
+      if (valid())
+        errorobj_p->format(std::move(format), std::forward<Args>(args)...);
+      return *this;
+    }
 
-  bool valid() {
-    return errorobj_p != nullptr;
-  }
-  
-private:
-  // data:
-  std::shared_ptr<ErrorObj> errorobj_p;
+    template <typename... Args>
+    MessageSender& vformat(std::string_view fmt, fmt::format_args args) {
+      if (valid())
+        errorobj_p->vformat(fmt, args);
+      return *this;
+    }
 
-};  // MessageSender
+    bool valid() const noexcept { return errorobj_p != nullptr; }
 
+  private:
+    // data:
+    std::shared_ptr<ErrorObj> errorobj_p;
+
+  };  // MessageSender
 
 }  // namespace edm
-
 
 #endif  // FWCore_MessageLogger_MessageSender_h

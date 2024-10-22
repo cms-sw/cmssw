@@ -1,7 +1,6 @@
 #ifndef DTSegmentAnalysisTest_H
 #define DTSegmentAnalysisTest_H
 
-
 /** \class DTSegmentAnalysisTest
  * *
  *  DQM Test Client
@@ -13,21 +12,18 @@
  *   
  */
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <DQMServices/Core/interface/DQMEDHarvester.h>
-
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <memory>
 #include <iostream>
@@ -40,36 +36,35 @@ class DTGeometry;
 class DTChamberId;
 class DTSuperLayerId;
 
-class DTSegmentAnalysisTest: public DQMEDHarvester{
-
+class DTSegmentAnalysisTest : public DQMEDHarvester {
 public:
-
   /// Constructor
-  DTSegmentAnalysisTest(const edm::ParameterSet& ps);
-  
+  DTSegmentAnalysisTest(const edm::ParameterSet &ps);
+
   /// Destructor
   ~DTSegmentAnalysisTest() override;
 
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
   void bookHistos(DQMStore::IBooker &);
 
   /// Get the ME name
-  std::string getMEName(const DTChamberId & chID, std::string histoTag);
+  std::string getMEName(const DTChamberId &chID, std::string histoTag);
 
   /// Perform client diagnostic operations
   void performClientDiagnostic(DQMStore::IGetter &);
 
-  void endRun(edm::Run const& run, edm::EventSetup const& c) override;
-
 protected:
-
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;
+
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const &lumiSeg, edm::EventSetup const &);
 
 private:
-
-  int nevents;
+  int nLSs;
   unsigned int nLumiSegs;
   // switch on for detailed analysis
   bool detailedAnalysis;
@@ -83,18 +78,15 @@ private:
   bool bookingdone;
 
   edm::ParameterSet parameters;
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry *muonGeom;
 
-  // the histograms  
-  std::map< std::pair<int,int>, MonitorElement* > chi2Histos;
-  std::map< std::pair<int,int>, MonitorElement* > segmRecHitHistos;
-  std::map< int, MonitorElement* > summaryHistos;
-  bool normalizeHistoPlots;
+  // the histograms
+  std::map<std::pair<int, int>, MonitorElement *> chi2Histos;
+  std::map<std::pair<int, int>, MonitorElement *> segmRecHitHistos;
+  std::map<int, MonitorElement *> summaryHistos;
   // top folder for the histograms in DQMStore
   std::string topHistoFolder;
-  // hlt DQM mode
-  bool hltDQMMode;
 };
 
 #endif
-

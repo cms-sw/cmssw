@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 
 from Configuration.AlCa.autoCond import aliases
@@ -54,7 +55,7 @@ class GlobalTag:
         """ Compares two input GTs to see if they have the same prefix. Returns the index in the internal list of GTs of the match
         or -1 in case of no match. """
         if inputGTParams[0][0].find("_") == -1:
-            print "Invalid GT name. It does not contain an _, it cannot be used for replacements."
+            print("Invalid GT name. It does not contain an _, it cannot be used for replacements.")
             sys.exit(1)
         prefix = inputGTParams[0][0].split("_")[0]
         for i in range(0, len(self.gtParams)):

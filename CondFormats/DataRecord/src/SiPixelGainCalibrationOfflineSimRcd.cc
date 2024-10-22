@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelGainCalibrationOfflineSimRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Fri Mar 13 12:13:12 CET 2009
 // $Id$
 

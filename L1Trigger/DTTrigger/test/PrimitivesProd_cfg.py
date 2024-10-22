@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("L1DTTrigProd")
-
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cff")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False

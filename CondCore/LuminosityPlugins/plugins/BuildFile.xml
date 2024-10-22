@@ -1,0 +1,5 @@
+<library file="LumiCorrections_PayloadInspector.cc" name="LumiCorrections_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="boost_python"/>
+</library>

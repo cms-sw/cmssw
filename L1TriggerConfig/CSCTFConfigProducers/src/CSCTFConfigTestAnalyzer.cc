@@ -2,9 +2,7 @@
 //
 // Package:    CSCTFConfigTestAnalyzer
 // Class:      CSCTFConfigTestAnalyzer
-// 
-
-
+//
 
 // system include files
 #include <iostream>
@@ -12,7 +10,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -28,23 +26,20 @@
 
 #include "CondTools/L1Trigger/interface/Exception.h"
 
-
 //
 // class decleration
 //
 
-class CSCTFConfigTestAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit CSCTFConfigTestAnalyzer(const edm::ParameterSet&);
-      ~CSCTFConfigTestAnalyzer() override;
+class CSCTFConfigTestAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  explicit CSCTFConfigTestAnalyzer(const edm::ParameterSet&);
 
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-   private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
+  edm::ESGetToken<L1TriggerKeyList, L1TriggerKeyListRcd> keyListToken_;
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> keyToken_;
 };
 
 //
@@ -58,117 +53,67 @@ class CSCTFConfigTestAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-CSCTFConfigTestAnalyzer::CSCTFConfigTestAnalyzer(const edm::ParameterSet& iConfig)
-
-{
-   //now do what ever initialization is needed
-
+CSCTFConfigTestAnalyzer::CSCTFConfigTestAnalyzer(const edm::ParameterSet& iConfig) : keyToken_(esConsumes()) {
+  //now do what ever initialization is needed
 }
-
-
-CSCTFConfigTestAnalyzer::~CSCTFConfigTestAnalyzer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void
-CSCTFConfigTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+void CSCTFConfigTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   ESHandle< L1TriggerKeyList > pList ;
-   iSetup.get< L1TriggerKeyListRcd >().get( pList ) ;
+  ESHandle<L1TriggerKeyList> pList = iSetup.getHandle(keyListToken_);
 
-   std::cout << "Found " << pList->tscKeyToTokenMap().size() << " TSC keys:"
-	     << std::endl ;
+  std::cout << "Found " << pList->tscKeyToTokenMap().size() << " TSC keys:" << std::endl;
 
-   L1TriggerKeyList::KeyToToken::const_iterator iTSCKey =
-     pList->tscKeyToTokenMap().begin() ;
-   L1TriggerKeyList::KeyToToken::const_iterator eTSCKey =
-     pList->tscKeyToTokenMap().end() ;
-   for( ; iTSCKey != eTSCKey ; ++iTSCKey )
-     {
-       std::cout << iTSCKey->first << " " << iTSCKey->second << std::endl ;
-     }
-   std::cout << std::endl ;
+  L1TriggerKeyList::KeyToToken::const_iterator iTSCKey = pList->tscKeyToTokenMap().begin();
+  L1TriggerKeyList::KeyToToken::const_iterator eTSCKey = pList->tscKeyToTokenMap().end();
+  for (; iTSCKey != eTSCKey; ++iTSCKey) {
+    std::cout << iTSCKey->first << " " << iTSCKey->second << std::endl;
+  }
+  std::cout << std::endl;
 
-   L1TriggerKeyList::RecordToKeyToToken::const_iterator iRec =
-     pList->recordTypeToKeyToTokenMap().begin() ;
-   L1TriggerKeyList::RecordToKeyToToken::const_iterator eRec =
-     pList->recordTypeToKeyToTokenMap().end() ;
-   for( ; iRec != eRec ; ++iRec )
-     {
-       const L1TriggerKeyList::KeyToToken& keyTokenMap = iRec->second ;
-       std::cout << "For record@type " << iRec->first << ", found "
-		 << keyTokenMap.size() << " keys:" << std::endl ;
+  L1TriggerKeyList::RecordToKeyToToken::const_iterator iRec = pList->recordTypeToKeyToTokenMap().begin();
+  L1TriggerKeyList::RecordToKeyToToken::const_iterator eRec = pList->recordTypeToKeyToTokenMap().end();
+  for (; iRec != eRec; ++iRec) {
+    const L1TriggerKeyList::KeyToToken& keyTokenMap = iRec->second;
+    std::cout << "For record@type " << iRec->first << ", found " << keyTokenMap.size() << " keys:" << std::endl;
 
-       L1TriggerKeyList::KeyToToken::const_iterator iKey = keyTokenMap.begin();
-       L1TriggerKeyList::KeyToToken::const_iterator eKey = keyTokenMap.end() ;
-       for( ; iKey != eKey ; ++iKey )
-	 {
-	   std::cout << iKey->first << " " << iKey->second << std::endl ;
-	 }
-       std::cout << std::endl ;
-     }
+    L1TriggerKeyList::KeyToToken::const_iterator iKey = keyTokenMap.begin();
+    L1TriggerKeyList::KeyToToken::const_iterator eKey = keyTokenMap.end();
+    for (; iKey != eKey; ++iKey) {
+      std::cout << iKey->first << " " << iKey->second << std::endl;
+    }
+    std::cout << std::endl;
+  }
 
-   try
-     {
-       ESHandle< L1TriggerKey > pKey ;
-       iSetup.get< L1TriggerKeyRcd >().get( pKey ) ;
+  try {
+    ESHandle<L1TriggerKey> pKey = iSetup.getHandle(keyToken_);
 
-       // std::cout << "Current TSC key = " << pKey->getTSCKey() << std::endl ;
-       std::cout << "Current TSC key = " << pKey->tscKey() << std::endl ;
+    // std::cout << "Current TSC key = " << pKey->getTSCKey() << std::endl ;
+    std::cout << "Current TSC key = " << pKey->tscKey() << std::endl;
 
-       std::cout << "Current subsystem keys:" << std::endl ;
-       std::cout << "CSCTF " << pKey->subsystemKey( L1TriggerKey::kCSCTF )
-		 << std::endl ;
-       std::cout << "DTTF " << pKey->subsystemKey( L1TriggerKey::kDTTF )
-		 << std::endl ;
-       std::cout << "RPC " << pKey->subsystemKey( L1TriggerKey::kRPC )
-		 << std::endl ;
-       std::cout << "GMT " << pKey->subsystemKey( L1TriggerKey::kGMT )
-		 << std::endl ;
-       std::cout << "RCT " << pKey->subsystemKey( L1TriggerKey::kRCT )
-		 << std::endl ;
-       std::cout << "GCT " << pKey->subsystemKey( L1TriggerKey::kGCT )
-		 << std::endl ;
-       std::cout << "TSP0 " << pKey->subsystemKey( L1TriggerKey::kTSP0 )
-		 << std::endl ;
+    std::cout << "Current subsystem keys:" << std::endl;
+    std::cout << "CSCTF " << pKey->subsystemKey(L1TriggerKey::kCSCTF) << std::endl;
+    std::cout << "DTTF " << pKey->subsystemKey(L1TriggerKey::kDTTF) << std::endl;
+    std::cout << "RPC " << pKey->subsystemKey(L1TriggerKey::kRPC) << std::endl;
+    std::cout << "GMT " << pKey->subsystemKey(L1TriggerKey::kGMT) << std::endl;
+    std::cout << "RCT " << pKey->subsystemKey(L1TriggerKey::kRCT) << std::endl;
+    std::cout << "GCT " << pKey->subsystemKey(L1TriggerKey::kGCT) << std::endl;
+    std::cout << "TSP0 " << pKey->subsystemKey(L1TriggerKey::kTSP0) << std::endl;
 
-       const L1TriggerKey::RecordToKey& recKeyMap = pKey->recordToKeyMap() ;
-       L1TriggerKey::RecordToKey::const_iterator iRec = recKeyMap.begin() ;
-       L1TriggerKey::RecordToKey::const_iterator eRec = recKeyMap.end() ;
-       for( ; iRec != eRec ; ++iRec )
-	 {
-	   std::cout << iRec->first << " " << iRec->second << std::endl ;
-	 }
-     }
-   catch( cms::Exception& ex )
-     {
-       std::cout << "No L1TriggerKey found." << std::endl ;
-     }
-
-}
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-CSCTFConfigTestAnalyzer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-CSCTFConfigTestAnalyzer::endJob() {
+    const L1TriggerKey::RecordToKey& recKeyMap = pKey->recordToKeyMap();
+    L1TriggerKey::RecordToKey::const_iterator iRec = recKeyMap.begin();
+    L1TriggerKey::RecordToKey::const_iterator eRec = recKeyMap.end();
+    for (; iRec != eRec; ++iRec) {
+      std::cout << iRec->first << " " << iRec->second << std::endl;
+    }
+  } catch (cms::Exception& ex) {
+    std::cout << "No L1TriggerKey found." << std::endl;
+  }
 }
 
 //define this as a plug-in

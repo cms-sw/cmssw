@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT
 import numpy as np
 
@@ -46,7 +47,7 @@ class BTagWeightCalculator:
         fn_hf (string) - path to the heavy flavour weight file
         fn_lf (string) - path to the light flavour weight file
         """
-        print "[BTagWeightCalculator]: Initializing from files", fn_hf, fn_lf
+        print("[BTagWeightCalculator]: Initializing from files", fn_hf, fn_lf)
 
         #print "hf"
         self.pdfs["hf"] = self.getHistosFromFile(fn_hf)

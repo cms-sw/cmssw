@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -9,9 +11,10 @@
 #                                                                              
 ################################################################################
 
+from builtins import range
 from os import chdir,getcwd,listdir,makedirs
 from os.path import basename,join,exists
-import cgi
+import html
 
 import sys
 theargv=sys.argv
@@ -20,16 +23,19 @@ from ROOT import TCanvas,gStyle,TH1F,TGaxis,gPad,kRed
 sys.argv=theargv
 
 import os
+import hashlib
+import random
+from matplotlib.colors import to_hex
+
 if "RELMON_SA" in os.environ:
-  from dirstructure import Comparison,Directory
-  from definitions import *
-  from utils import unpickler
+  from .dirstructure import Comparison,Directory
+  from .definitions import *
+  from .utils import unpickler
 else:
   from Utilities.RelMon.dirstructure import Comparison,Directory
   from Utilities.RelMon.definitions import *
   from Utilities.RelMon.utils import unpickler
   
-  import hashlib
 #-------------------------------------------------------------------------------
 
 def encode_obj_url(url):
@@ -77,9 +83,12 @@ style_location="/cms-service-reldqm"
 def get_page_header(directory=None, standalone=False, additional_header=""):
   style_location="/cms-service-reldqm"
   if standalone:
-    style_location = "http://cms-service-reldqm.web.cern.ch/" + style_location +"/"
+    style_location = "https://raw.githubusercontent.com/cms-PdmV/RelMonService2/77c534ec93401ca5de222ac62a6422f02389dafc/report_website/" #RelMonService2 
   javascripts=''
   style=''
+  tablestyle=''
+  thead_h = 400 
+  wrapper_h = 1500
   if directory!=None and len(directory.comparisons)>0:
     meta=directory.meta
     style='img.fail {border:1px solid #ff0000;}\n'+\
@@ -90,18 +99,34 @@ def get_page_header(directory=None, standalone=False, additional_header=""):
           'a.black_link:hover {color: #737373}\n'+\
           'a.black_link:visited {color: #333333}\n'+\
           'a.black_link:active {color: #333333}\n'
+    ## fixed first row and first column table
+    
+    wrapper_h = min(thead_h + (70 * len(directory.comparisons)),1800)
+
+  tablestyle = '\n.wrapper { overflow: auto; height: %dpx;} \n'%(wrapper_h)
+  tablestyle += 'table {  position: relative; border-collapse: separate; border-spacing: 0;} \n'
+  tablestyle += 'table { position: relative; border-collapse: separate; border-spacing: 0;} \n'
+  tablestyle += 'table th, table td { width: 50px; padding: 5px; background-color: white;} \n'
+  tablestyle += 'table th { position: sticky; top: 0; z-index: 2; height: %dpx;} \n'%(thead_h)
+  tablestyle += 'table th:nth-child(1) { left:0; z-index:3;} \n'
+  tablestyle += '.sticky-col { position: sticky; background-color: #C9FFD1  ; width: 200px; left:0}\n'
+  tablestyle += '.center_head { position: absolute; top: 50%; left: 50%;} \n'
+  tablestyle += '.vertical_head {top: 60%; -webkit-transform:  translateX(-50%) translateY(-50%) rotate(-90deg); -moz-transform: translateX(-50%) translateY(-50%) rotate(-90deg);} \n'
   javascripts=""
+
   
-  
+
   html='<html>'+\
        '<head>'+\
        '<title>RelMon Summary</title>'+\
-       '<link rel="stylesheet" href="%s/style/blueprint/screen.css" type="text/css" media="screen, projection">'%style_location+\
-       '<link rel="stylesheet" href="%s/style/blueprint/print.css" type="text/css" media="print">'%style_location+\
-       '<link rel="stylesheet" href="%s/style/blueprint/plugins/fancy-type/screen.css" type="text/css" media="screen, projection">'%style_location+\
+       '<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>' + \
+       '<link rel="stylesheet" href="%s/screen.css" type="text/css" media="screen, projection">'%style_location+\
+       '<link rel="stylesheet" href="%s/print.css" type="text/css" media="print">'%style_location+\
+       '<link rel="stylesheet" href="%s/fancy-type-screen.css" type="text/css" media="screen, projection">'%style_location+\
        '<style type="text/css">'+\
        '.rotation {display: block;-webkit-transform: rotate(-90deg);-moz-transform: rotate(-90deg); }'+\
        '%s'%style+\
+       '%s'%tablestyle +\
        '</style>'+\
        '%s'%javascripts+\
        '%s'%additional_header+\
@@ -119,10 +144,7 @@ def get_page_footer():
 #-------------------------------------------------------------------------------
 
 def get_title_section(directory, hashing_flag, standalone, depth=2):
-  if standalone:
-      cms_logo_url = "http://cms-service-reldqm.web.cern.ch/cms-service-reldqm/style/CMS.gif"
-  else:
-      cms_logo_url = "cms-service-reldqm/style/CMS.gif"
+  
   mother_name=basename(directory.mother_dir)
   mother_file_name=""
   if depth==1:
@@ -208,7 +230,7 @@ def get_subdirs_section(directory, hashing_flag):
     html+='</div>'
     
     html+='<div class="span-6 last">'
-    html+='<a href="%s"><img src="%s" class="top right"></a>'%(link,subdir.get_summary_chart_ajax(150,100))
+    html+= subdir.get_piechart_js(120,link)
     html+='</div>'
     
     html+='<hr>'
@@ -255,11 +277,11 @@ def get_summary_section(directory,matrix_page=True):
   html= '<div class="span-6">'+\
         '<h3>Summary</h3>'
   html+=get_dir_stats(directory)
-  html+='<a href="%s/%s">To the DQM GUI...</a>' %(server,base_url)
+  html+='<a href="%s/%s/start?runnr=%s;dataset=/%s/%s/DQMIO;sampletype=offline_data;filter=all;referencepos=on-side;referenceshow=all;referencenorm=True;referenceobj1=other:%s:/%s/%s/DQMIO:;referenceobj2=none;referenceobj3=none;referenceobj4=none;search=;striptype=object;stripruns=;stripaxis=run;stripomit=none;workspace=Everything;size=M;focus=;zoom=no;">To the DQM GUI...</a>' %(server,base_url,meta.run1,meta.sample1,meta.release1,meta.run2,meta.sample2,meta.release2)
   html+='</div>'
         
   html+='<div class="span-7 colborder">'+\
-        '<img src="%s" class="top right">'%directory.get_summary_chart_ajax(200,200)+\
+        '%s'%(directory.get_piechart_js(150)) +\
         '</div>'+\
         '<div class="span-9 last">'
   if matrix_page:
@@ -285,7 +307,7 @@ def get_comparisons(category,directory):
   tot_counter=1
   
   # get the right ones
-  comparisons= filter (lambda comp: comp.status == cat_states[category] , directory.comparisons) 
+  comparisons= [comp for comp in directory.comparisons if comp.status == cat_states[category]] 
   n_comparisons=len(comparisons)    
 
   is_reverse=True
@@ -377,7 +399,7 @@ def get_rank_section(directory):
     h=directory.rank_histo
     rank_histof=TH1F(h.GetName(),"",h.GetNbinsX(),h.GetXaxis().GetXmin(),h.GetXaxis().GetXmax())
     rank_histof.SetLineWidth(2)
-    for i in xrange(0,h.GetNbinsX()+1):
+    for i in range(0,h.GetNbinsX()+1):
       rank_histof.SetBinContent(i,h.GetBinContent(i))
     h.SetTitle("Ranks Summary;Rank;Frequency")
     h.Draw("Hist")
@@ -487,27 +509,35 @@ def directory2html(directory, hashing, standalone, depth=0):
 
   #chdir(old_cwd)
 
-#-------------------------------------------------------------------------------
+def build_gauge_js(rate,w=100,minrate=.80,add_rate=False):
 
-def build_gauge(total_success_rate,minrate=.80,small=False,escaped=False):
-  total_success_rate_scaled=(total_success_rate-minrate)
-  total_success_rate_scaled_repr=total_success_rate_scaled/(1-minrate)
-  if total_success_rate_scaled_repr<0:
-    total_success_rate_scaled_repr=0
-  size_s="200x100"
-  if small:
-    size_s="40x30"
-  #print "Total success rate %2.2f and scaled %2.2f "%(total_success_rate,total_success_rate_scaled)
-  gauge_link ="https://chart.googleapis.com/chart?chs=%s&cht=gom"%size_s
-  gauge_link+="&chd=t:%2.1f"%(total_success_rate_scaled_repr*100.)
-  if not small:
-    gauge_link+="&chxt=x,y&chxl=0:|%2.1f%%|1:|%i%%|%i%%|100%%"%(total_success_rate*100,minrate*100.,(1+minrate)*50)
-    gauge_link+="&chma=10,10,10,0"
-  img_tag= '<img src="%s">'%gauge_link
-  if escaped:
-    img_tag=cgi.escape(img_tag)    
-  return img_tag
+  color = to_hex(gauge_cmap((rate-minrate)/(1.0-minrate)))
+  font_size = int(w/9)
+  gauge_max = 1. - rate
 
+  name = random.getrandbits(64) # just a random has for the canvas
+  html = "" 
+  html += '<canvas id="%s" style="width:100%%;max-width:%d"></canvas>'%(name,w)
+
+  # "gauge" chart
+  html += '<script> new Chart("%s",'%(name) 
+  html += '{ type: "doughnut",'
+
+  # data
+  html += 'data: {'
+  html += 'labels: ["Success", "Failure"],'
+  html += 'datasets: [{ backgroundColor: ["%s", "#C7C7C7"],'%(color)
+  html += 'data: [%f,%f]}] },'%(rate,gauge_max)
+
+  #options
+  html += 'options: { responsive: true, rotation: -3.1415926536, circumference: 3.1415926536 ,' ## in radiants
+  html += ' legend: { display: false }, tooltips: {enabled: false}, hover: {mode: null}},'
+  html += '}); </script>'
+  if add_rate:
+    html += '<div style="width: 100%%; position: relative; left: %d; margin-top: -%dpx; font-align: center">'%(int(2*w/7),font_size)
+    html += '<span style="color: %s; font-family: courier; font-size:  %dpx;">%.2f%%</span></div>'%(color,font_size,rate*100.)
+
+  return html
 #-------------------------------------------------------------------------------
 
 def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
@@ -549,7 +579,7 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
             present_subdirs[subdirname]={"nsucc":nsucc,"weight":weight}
         # Make it usable also for subdirectories
         for subsubdirname,subsubdir in subdir.get_subdirs_dict().items():          
-          for pathname in filter(lambda name:"/" in name,subdir_list):           
+          for pathname in [name for name in subdir_list if "/" in name]:           
             selected_subdirname,selected_subsubdirname = pathname.split("/")
             if selected_subdirname == subdirname and selected_subsubdirname==subsubdirname:
               #print "Studying directory ",subsubdirname," in directory ",subdirname
@@ -568,7 +598,7 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
                 present_subdirs[subsubdirname]={"nsucc":nsucc,"weight":weight}      
 
     if total_ndirs == 0:
-      print "No directory of the category %s is present in the samples: skipping." %cat_name
+      print("No directory of the category %s is present in the samples: skipping." %cat_name)
       continue
     
     average_success_rate=total_directory_successes/(total_ndirs)
@@ -610,7 +640,7 @@ def make_categories_summary(dir_dict,aggregation_rules):
     html+='</div>'
     
     html+='<div class="span-6 last">'
-    html+=build_gauge(average_success_rate)
+    html+=build_gauge_js(average_success_rate,add_rate=True)
     html+='</div>'
     
     html+='<hr>'
@@ -621,7 +651,7 @@ def make_categories_summary(dir_dict,aggregation_rules):
 def make_twiki_table(dir_dict,aggregation_rules):
   
   # decide the release
-  meta= dir_dict.items()[0][1].meta
+  meta= list(dir_dict.items())[0][1].meta
   releases=sorted([meta.release1,meta.release2])
   latest_release=releases[1].split("-")[0]
   
@@ -644,7 +674,7 @@ def make_twiki_table(dir_dict,aggregation_rules):
 
   for cat_name,present_subdirs,total_weight,average_success_rate in aggr_pairs_info:
     #print cat_name,present_subdirs,total_weight,average_success_rate
-    html+=build_gauge(average_success_rate,small=True,escaped=True)
+    html+=build_gauge_js(average_success_rate,w=40)
     html+=" | "    
   
   html+='</div> <a href="#top">Top...</a>'
@@ -687,7 +717,7 @@ def make_barchart_summary(dir_dict,name="the_chart",title="DQM directory",the_ag
                          });
       }
     </script>
-    """%(name,40*counter,title)
+    """%(name,35*counter,title)
   return script
 
 
@@ -710,7 +740,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   
   
   # Get the list of pickles
-  sample_pkls=filter(lambda name: name.endswith(".pkl"),listdir("./"))
+  sample_pkls=[name for name in listdir("./") if name.endswith(".pkl")]
   
   # Load directories, build a list of all first level subdirs  
   dir_unpicklers=[]
@@ -798,68 +828,69 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   page_html+=make_categories_summary(dir_dict,aggregation_rules)
 
   # Make the Directories chart
-  page_html+='<div class="span-24"><h2 class="alt"><a name="detailed_barchart">Detailed Barchart</a></h2></div>'
   page_html+='<div id="dir_chart"></div> <a href="#top">Top...</a><hr>'
   
   # Barbarian vertical space. Suggestions are welcome
-  for i in xrange(2):
+  for i in range(2):
     page_html+='<div class="span-24"><p></p></div>\n'
 
  
   # Prepare the table
-  page_html+='<div class="span-24"><h2 class="alt"><a name="summary_table">Summary Table</a></h2></div>'
+  page_html+='<div class="span-24"><h2 class="alt"><a name="summary_table">Summary Table</a></h2> <h4> <span class="alt"> (scrollable) </span> </h4> </div>'
 
-  for i in xrange(5):
-    page_html+='<div class="span-24"><p></p></div>\n'
-    
+  div_width= min(len(dir_dict.keys()) * 70 + 500,1500) #80 px per column + 200 for the first column
+  page_html+='<div class="wrapper" style = "width: %dpx;">'%(div_width)
   page_html+="""
-        <table border="1" >
+        <table>
+        <thead>
           <tr>
-          <td> </td>          
+          <th> <p class = "vertical_head center_head"></p> </th>        
   """
   
   # First row with samples
   page_html+="""
-          <td><div class="span-1"><p class="rotation" style="alt"><b>Summary</b></p></div></td>"""
+          <th> <p class = "vertical_head center_head">Summary</p></th>"""
 
   sorted_samples=sorted(dir_dict.keys())
   for sample in sorted_samples:
-    sample_nick=sample
-    ## For runs: put only the number after the _
-    #if "_" in sample:
-      #run_number=sample.split("_")[-1]      
-      #if (not run_number.isalpha()) and len(run_number)>=6:
-    #sample_nick=run_number
-      
+    if "_" in sample and "Data" not in sample:
+      sample_nick="_".join(sample.split("X_")[0].split("_")[:-1]) 
+      # Cleaning for MC: just the fragment
+    elif "Data" in sample and "RelVal" in sample:
+      sample_nick = "".join([sample.split("_")[0],sample.split("RelVal")[-1]])
+      # Cleaning for Data: PD + Era + Run
+    else:
+      sample_nick = sample
       
     page_html+="""
-          <td><div class="span-1"><p class="rotation" style="">%s</p></div></td>"""%sample_nick
-  page_html+="          </tr>\n"
+          <th> <p class = "vertical_head center_head">%s</th></p>"""%sample_nick
+  page_html+="</tr> \n </thead> \n </tbody> \n"
 
 
  # FIRST ROW
  # Now the summaries  at the beginning of the table
   page_html+="<tr>"
-  page_html+='<td  style="background-color:white;"><div class="span-1">'
+  page_html+='<td class="sticky-col">'
   
-  page_html+='<b>Summary</b></div></td>'
-  page_html+='<td style="background-color:white;" class = "colborder" ><div class="span-1"><img src="%s" alt="%s"></div></td>'%(global_dir.get_summary_chart_ajax(55,55),get_pie_tooltip(global_dir))
+  page_html+='<b>Summary</b></td>'
+  page_html+='<td><div class="span-1"> %s </div></td>'%(global_dir.get_piechart_js(50))
   for sample in sorted_samples:
     col=dir_dict[sample]
     # check if the directory was a top one or not
     summary_page_name="RelMonSummary.html"
     if col.name!="":
       summary_page_name=hash_name(col.name, hashing_flag)+".html"
-    img_link=col.get_summary_chart_ajax(55,55)
-    page_html+='<td  style="background-color:white;"><div class="span-1">'
-    page_html+='<a href="%s/%s"><img src="%s" title="%s"></a></div></td>' %(sample,summary_page_name,img_link,get_pie_tooltip(col))
+    title = get_pie_tooltip(col)
+    chart = col.get_piechart_js(50,sample+"/"+summary_page_name)
+    page_html+='<td>'
+    page_html+='%s </a></td>' %(chart)
   page_html+="</tr>"
 
   # Now the content
   for subdir_name in all_subdirs:  
 
     page_html+='          <tr>\n'
-    page_html+='          <td style="background-color:white;">%s</td>\n' %subdir_name  
+    page_html+='          <td class="sticky-col" style="font-weight:bold;">%s</td>\n' %subdir_name  
 
     row_summary=Directory("row_summary","")
     sample_counter=0
@@ -874,9 +905,10 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
 
     # one first row for the summary!
     row_summary.calcStats()
-    img_link=row_summary.get_summary_chart_ajax(55,55)
-    page_html+='<td  style="background-color:white;"><div class="span-1">'
-    page_html+='<img src="%s" title="%s"></div></td>' %(img_link,get_pie_tooltip(row_summary))
+    title = get_pie_tooltip(col)
+    chart = row_summary.get_piechart_js(50)
+    page_html+='<td><div>'#<div class="span-1">'
+    page_html+= chart + '</div></td>'
 
     for sample in sorted_samples:
       sample_counter+=1      
@@ -899,30 +931,27 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
         summary_page=join(sample,"%s.html"%(hash_name(directory.name+subdir_name,hashing_flag)))
       dir_is_there=subdir_name in subdirs_dict
 
-      img_link="https://chart.googleapis.com/chart?cht=p3&chco=C0C0C0&chs=50x50&chd=t:1"
-      img_tooltip="N/A"
+      img_link="https://upload.wikimedia.org/wikipedia/commons/a/a8/Circle_Davys-Grey_Solid.svg"
+      page_html+='<td><div class="span-1">'
+
       if dir_is_there:
         #row_summary.subdirs.append(subdirs_dict[subdir_name])
-        img_link=subdirs_dict[subdir_name].get_summary_chart_ajax(50,50)
-        img_tooltip=get_pie_tooltip(subdirs_dict[subdir_name])
-
-      page_html+='<td  style="background-color:white;"><div class="span-1">'
-      if dir_is_there:
-        page_html+='<a href="%s">'%(summary_page)
-      page_html+='<img src="%s" title="%s" height=50 width=50>' %(img_link,img_tooltip)
-      if dir_is_there:
-        page_html+='</a>'
+        chart=subdirs_dict[subdir_name].get_piechart_js(50,summary_page)
+        page_html+='%s'%chart
+      else:
+        page_html+='<img src="%s" title="%s" height=50 width=50>' %(img_link,"Unavailable")
       page_html+='</div></td>' 
 
     page_html+="          </tr>\n"        
 
 
 
-  page_html+='</table> <a href="#top">Top...</a><hr>'
+  page_html+='</tbody> </table> </div> <a href="#top">Top...</a><hr>'
 
   page_html+=get_rank_section(global_dir)
 
-  page_html+=make_twiki_table(dir_dict,aggregation_rules_twiki)
+  #page_html+=make_twiki_table(dir_dict,aggregation_rules_twiki) 
+  # ^ commenting out for the moment, not really useful nor used
 
   page_html+=get_page_footer()
   return page_html  
@@ -930,8 +959,9 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
 
 #-----------UPDATES------
 def hash_name(file_name, flag):
-    #print "     HashFILE name: "+file_name
     if flag: #if hashing flag is ON then return
+        if (3,0,0) <= sys.version_info:
+            return hashlib.md5(file_name.encode('utf-8')).hexdigest()[:10]
         return hashlib.md5(file_name).hexdigest()[:10] #md5 hashed file name with length 10
     else:
         return file_name #return standart name

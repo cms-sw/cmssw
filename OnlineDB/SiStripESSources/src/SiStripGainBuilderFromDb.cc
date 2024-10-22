@@ -12,36 +12,29 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-SiStripGainBuilderFromDb::SiStripGainBuilderFromDb( const edm::ParameterSet& pset ) 
-  : SiStripGainESSource( pset )
-{
-  LogTrace(mlESSources_) 
-    << "[SiStripGainBuilderFromDb::" << __func__ << "]"
-    << " Constructing object...";
+SiStripGainBuilderFromDb::SiStripGainBuilderFromDb(const edm::ParameterSet& pset) : SiStripGainESSource(pset) {
+  LogTrace(mlESSources_) << "[SiStripGainBuilderFromDb::" << __func__ << "]"
+                         << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 SiStripGainBuilderFromDb::~SiStripGainBuilderFromDb() {
-  LogTrace(mlESSources_)
-    << "[SiStripGainBuilderFromDb::" << __func__ << "]"
-    << " Destructing object...";
+  LogTrace(mlESSources_) << "[SiStripGainBuilderFromDb::" << __func__ << "]"
+                         << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 SiStripApvGain* SiStripGainBuilderFromDb::makeGain() {
-  LogTrace(mlESSources_) 
-    << "[SiStripGainBuilderFromDb::" << __func__ << "]"
-    << " Constructing Gain object...";
+  LogTrace(mlESSources_) << "[SiStripGainBuilderFromDb::" << __func__ << "]"
+                         << " Constructing Gain object...";
 
   /** Service to access onlineDB and extract pedestal/gain */
   edm::Service<SiStripCondObjBuilderFromDb> condObjBuilder_;
-  
-  // Create Gain object 
+
+  // Create Gain object
   SiStripApvGain* gain;
   condObjBuilder_->getValue(gain);
   return gain;
-  
 }
-

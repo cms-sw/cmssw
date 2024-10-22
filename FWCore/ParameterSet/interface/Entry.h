@@ -10,12 +10,11 @@
 //
 // ----------------------------------------------------------------------
 
-
 #include <string>
 #include <vector>
 #include <iosfwd>
 
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 //@@ not needed, but there might be trouble if we take it out
@@ -42,11 +41,11 @@ namespace edm {
   public:
     // Bool
     Entry(std::string const& name, bool val, bool is_tracked);
-    bool  getBool() const;
+    bool getBool() const;
 
     // Int32
     Entry(std::string const& name, int val, bool is_tracked);
-    int  getInt32() const;
+    int getInt32() const;
 
     // vInt32
     Entry(std::string const& name, std::vector<int> const& val, bool is_tracked);
@@ -54,7 +53,7 @@ namespace edm {
 
     // Uint32
     Entry(std::string const& name, unsigned val, bool is_tracked);
-    unsigned  getUInt32() const;
+    unsigned getUInt32() const;
 
     // vUint32
     Entry(std::string const& name, std::vector<unsigned> const& val, bool is_tracked);
@@ -62,7 +61,7 @@ namespace edm {
 
     // Int64
     Entry(std::string const& name, long long val, bool is_tracked);
-    long long  getInt64() const;
+    long long getInt64() const;
 
     // vInt64
     Entry(std::string const& name, std::vector<long long> const& val, bool is_tracked);
@@ -70,7 +69,7 @@ namespace edm {
 
     // Uint64
     Entry(std::string const& name, unsigned long long val, bool is_tracked);
-    unsigned long long  getUInt64() const;
+    unsigned long long getUInt64() const;
 
     // vUint64
     Entry(std::string const& name, std::vector<unsigned long long> const& val, bool is_tracked);
@@ -154,58 +153,55 @@ namespace edm {
     std::vector<ParameterSet> getVPSet() const;
 
     // coded string
-    Entry(std::string const& name, std::string const&);
-    Entry(std::string const& name, std::string const& type,
-          std::string const& value, bool is_tracked);
-    Entry(std::string const& name, std::string const& type,
-          std::vector<std::string> const& value, bool is_tracked);
+    Entry(std::string name, std::string_view);
+    Entry(std::string name, std::string_view type, std::string_view value, bool is_tracked);
+    Entry(std::string name, std::string_view type, std::vector<std::string> const& value, bool is_tracked);
 
-    ~Entry();
+    ~Entry() = default;
+    Entry(Entry const&) = default;
+    Entry(Entry&&) = default;
+    Entry& operator=(Entry const&) = default;
+    Entry& operator=(Entry&&) = default;
     // encode
 
     std::string toString() const;
     void toString(std::string& result) const;
-    void toDigest(cms::Digest &digest) const;
+    void toDigest(cms::Digest& digest) const;
 
-    size_t sizeOfString() const {return rep.size() + 4;}
+    size_t sizeOfString() const { return rep_.size() + 4; }
 
     // access
-    bool isTracked() const { return tracked == '+'; }
+    bool isTracked() const { return tracked_ == '+'; }
 
-    char typeCode() const { return type; }
+    char typeCode() const { return type_; }
 
     friend std::ostream& operator<<(std::ostream& ost, Entry const& entry);
 
+    //empty string view denotes failure to find bounds
+    static std::string_view bounds(std::string_view, std::size_t iEndHint);
+
   private:
     std::string name_;
-    std::string  rep;
-    char         type;
-    char         tracked;
+    std::string rep_;
+    char type_;
+    char tracked_;
 
     // verify class invariant
     void validate() const;
 
     // decode
-    bool fromString(std::string::const_iterator b, std::string::const_iterator e);
+    bool fromString(std::string_view::const_iterator b, std::string_view::const_iterator e);
 
     // helpers to throw exceptions
     void throwValueError(char const* expectedType) const;
-    void throwEntryError(char const* expectedType,std::string const& badRep) const;
+    void throwEntryError(char const* expectedType, std::string const& badRep) const;
     void throwEncodeError(char const* type) const;
 
   };  // Entry
 
+  inline bool operator==(Entry const& a, Entry const& b) { return a.toString() == b.toString(); }
 
-  inline bool
-  operator==(Entry const& a, Entry const& b) {
-    return a.toString() == b.toString();
-  }
-
-  inline bool
-  operator!=(Entry const& a, Entry const& b) {
-    return !(a == b);
-  }
-} // namespace edm
-
+  inline bool operator!=(Entry const& a, Entry const& b) { return !(a == b); }
+}  // namespace edm
 
 #endif

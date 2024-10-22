@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     ProductDeletedException
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -13,8 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/ProductDeletedException.h"
-
+#include "FWCore/Framework/src/ProductDeletedException.h"
 
 using namespace edm;
 
@@ -29,7 +28,4 @@ using namespace edm;
 //
 // constructors and destructor
 //
-ProductDeletedException::ProductDeletedException():
-cms::Exception("ProductDeleted")
-{
-}
+ProductDeletedException::ProductDeletedException() : cms::Exception("ProductDeleted") {}

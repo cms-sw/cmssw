@@ -1,18 +1,26 @@
-<flags   GENREFLEX_ARGS="--"/>
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="CalibFormats/SiPixelObjects"/>
-<use   name="FWCore/Utilities"/>
-<use   name="DataFormats/FEDRawData"/>
-<use   name="DataFormats/SiPixelDigi"/>
-<use   name="CondFormats/Serialization"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/SiStripObjects"/>
-<use   name="root"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="boost"/>
-<use   name="boost_serialization"/>
-
+<use name="alpaka"/>
+<use name="CalibFormats/SiPixelObjects"/>
+<use name="CondCore/DBOutputService"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/External"/>
+<use name="CondFormats/Serialization"/>
+<use name="CondFormats/SiStripObjects"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/SoATemplate"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
+

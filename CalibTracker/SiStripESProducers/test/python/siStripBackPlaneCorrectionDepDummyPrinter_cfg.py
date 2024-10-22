@@ -9,9 +9,16 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Reader")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     debugModules = cms.untracked.vstring('BackPlaneCorrectionReaderSummary'),
-    threshold = cms.untracked.string('DEBUG'),
-    destinations = cms.untracked.vstring('BackPlaneCorrectionReader.log')
+    files = cms.untracked.PSet(
+        BackPlaneCorrectionReader = cms.untracked.PSet(
+
+        )
+    ),
+    threshold = cms.untracked.string('DEBUG')
 )
 
 

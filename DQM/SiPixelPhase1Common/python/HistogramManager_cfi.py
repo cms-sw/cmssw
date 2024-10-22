@@ -39,7 +39,7 @@ PerModule = cms.PSet(enabled = cms.bool(True)) # normal histos per module
 PerLadder = cms.PSet(enabled = cms.bool(True)) # histos per ladder, profiles
 PerLayer2D = cms.PSet(enabled = cms.bool(True)) # 2D maps/profiles of layers
 PerLayer1D = cms.PSet(enabled = cms.bool(True)) # normal histos per layer
-PerReadout = cms.PSet(enabled = cms.bool(True)) # "Readout view", also for initial timing
+PerReadout = cms.PSet(enabled = cms.bool(False)) # "Readout view", also for initial timing
 OverlayCurvesForTiming= cms.PSet(enabled = cms.bool(False)) #switch to overlay digi/clusters curves for timing scan
 IsOffline = cms.PSet(enabled = cms.bool(True)) # should be switch off for Online
 
@@ -48,6 +48,9 @@ IsOffline = cms.PSet(enabled = cms.bool(True)) # should be switch off for Online
 DefaultHisto = cms.PSet(
   # Setting this to False hides all plots of this HistogramManager. It does not even record any data.
   enabled = cms.bool(True),
+
+  # If this is set to False Overflows will not be used for statistics evaluation (i.e. Mean,RMS)
+  statsOverflows = cms.bool(True),
 
   # a.k.a. online harvesting. Might be useful in offline for custom harvesting,
   # but the main purpose is online, where this is on by default.
@@ -97,17 +100,21 @@ DefaultHisto = cms.PSet(
   #)
 )
 
-DefaultHistoDigiCluster=DefaultHisto.clone()
-DefaultHistoDigiCluster.topFolderName= cms.string("PixelPhase1/Phase1_MechanicalView")
+DefaultHistoDigiCluster=DefaultHisto.clone(
+    topFolderName = "PixelPhase1/Phase1_MechanicalView"
+)
 
-DefaultHistoSummary=DefaultHisto.clone()
-DefaultHistoSummary.topFolderName= cms.string("PixelPhase1/Summary")
+DefaultHistoSummary=DefaultHisto.clone(
+    topFolderName = "PixelPhase1/Summary"
+)
 
-DefaultHistoTrack=DefaultHisto.clone()
-DefaultHistoTrack.topFolderName= cms.string("PixelPhase1/Tracks")
+DefaultHistoTrack=DefaultHisto.clone(
+    topFolderName = "PixelPhase1/Tracks"
+)
 
-DefaultHistoReadout=DefaultHisto.clone()
-DefaultHistoReadout.topFolderName= cms.string("PixelPhase1/FED/Readout")
+DefaultHistoReadout=DefaultHisto.clone(
+    topFolderName = "PixelPhase1/FED/Readout"
+)
 
 # Commonly used specifications.
 StandardSpecifications1D = [

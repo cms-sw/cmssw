@@ -38,9 +38,6 @@ def customizeTracking(newpixclusters, newstripclusters, newpixrechits, newstripr
     stripPairElectronSeedLayers.TID.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
     stripPairElectronSeedLayers.TEC.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
 
-    
-    MeasurementTracker.pixelClusterProducer = newpixelclusters
-    MeasurementTracker.stripClusterProducer = newstripclusters
 
     MeasurementTrackerEvent.pixelClusterProducer =newpixelclusters
     MeasurementTrackerEvent.stripClusterProducer =newstripclusters

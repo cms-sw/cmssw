@@ -17,5 +17,6 @@ from RecoEcal.EgammaClusterProducers.hybridClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.cosmicClusteringSequence_cff import *
 # create path with all clustering algos
 # NB: preshower MUST be run after island clustering in the endcap
-ecalClustersCosmics = cms.Sequence(hybridClusteringSequence*cosmicClusteringSequence)
+ecalClustersCosmicsTask = cms.Task(hybridClusteringTask,cosmicClusteringTask)
+ecalClustersCosmics = cms.Sequence(ecalClustersCosmicsTask)
 

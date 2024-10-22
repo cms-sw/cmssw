@@ -9,7 +9,7 @@
 #include <map>
 #include <vector>
 
-typedef struct TRIGGGER{
+typedef struct TRIGGGER {
   int runNum;
   int eventNum;
   int beamTrigger;
@@ -20,9 +20,9 @@ typedef struct TRIGGGER{
   int laserTrigger;
   int ledTrigger;
   int spillTrigger;
-}TRIGGER;
+} TRIGGER;
 
-typedef struct TDC{
+typedef struct TDC {
   double trigger;
   double ttcL1;
   double beamCoincidence[5];
@@ -41,46 +41,46 @@ typedef struct TDC{
   double bh2[5];
   double bh3[5];
   double bh4[5];
-}TDC;
+} TDC;
 
-typedef struct ADC{
-  double    VM;
-  double    V3;
-  double    V6;
-  double    VH1;
-  double    VH2;
-  double    VH3;
-  double    VH4;
-  double    Ecal7x7;
-  double    Sci521;
-  double    Sci528;
-  double    CK1;
-  double    CK2;
-  double    CK3;
-  double    SciVLE;
-  double    S1;
-  double    S2;
-  double    S3;
-  double    S4;
-  double    VMF;
-  double    VMB;
-  double    VM1;
-  double    VM2;
-  double    VM3;
-  double    VM4;
-  double    VM5;
-  double    VM6;
-  double    VM7;
-  double    VM8;
-  double    TOF1;
-  double    TOF2;
-  double    BH1;
-  double    BH2;
-  double    BH3;
-  double    BH4;
-}ADC;
+typedef struct ADC {
+  double VM;
+  double V3;
+  double V6;
+  double VH1;
+  double VH2;
+  double VH3;
+  double VH4;
+  double Ecal7x7;
+  double Sci521;
+  double Sci528;
+  double CK1;
+  double CK2;
+  double CK3;
+  double SciVLE;
+  double S1;
+  double S2;
+  double S3;
+  double S4;
+  double VMF;
+  double VMB;
+  double VM1;
+  double VM2;
+  double VM3;
+  double VM4;
+  double VM5;
+  double VM6;
+  double VM7;
+  double VM8;
+  double TOF1;
+  double TOF2;
+  double BH1;
+  double BH2;
+  double BH3;
+  double BH4;
+} ADC;
 
-typedef struct CHAMB{
+typedef struct CHAMB {
   double WCAx[5];
   double WCAy[5];
   double WCBx[5];
@@ -97,10 +97,9 @@ typedef struct CHAMB{
   double WCGy[5];
   double WCHx[5];
   double WCHy[5];
-}CHAMB; 
+} CHAMB;
 
-
-typedef struct ZDCN{
+typedef struct ZDCN {
   double zdcHADMod1;
   double zdcHADMod2;
   double zdcHADMod3;
@@ -113,9 +112,9 @@ typedef struct ZDCN{
   double zdcScint1;
   double zdcScint2;
   double zdcExtras[7];
-}ZDCN;
+} ZDCN;
 
-typedef struct ZDCP{
+typedef struct ZDCP {
   double zdcHADMod1;
   double zdcHADMod2;
   double zdcHADMod3;
@@ -128,11 +127,11 @@ typedef struct ZDCP{
   double zdcScint1;
   double zdcScint2;
   double zdcExtras[7];
-}ZDCP;
+} ZDCP;
 
 class ZdcTBAnalysis {
 public:
-  ZdcTBAnalysis(); 
+  ZdcTBAnalysis();
   void setup(const std::string& histoFileName);
   void analyze(const ZDCRecHitCollection& hf);
   void analyze(const HcalTBTriggerData& trg);
@@ -142,7 +141,7 @@ public:
   void fillTree();
   void done();
 
- private:
+private:
   int iside;
   int isection;
   int ichannel;
@@ -180,43 +179,43 @@ public:
   double bh2hits[5];
   double bh3hits[5];
   double bh4hits[5];
-  
-  double    VMadc;
-  double    V3adc;
-  double    V6adc;
-  double    VH1adc;
-  double    VH2adc;
-  double    VH3adc;
-  double    VH4adc;
-  double    Ecal7x7adc;
-  double    Sci521adc;
-  double    Sci528adc;
 
-  double    CK1adc;
-  double    CK2adc;
-  double    CK3adc;
-  double    SciVLEadc;
-  double    S1adc;
-  double    S2adc;
-  double    S3adc;
-  double    S4adc;
+  double VMadc;
+  double V3adc;
+  double V6adc;
+  double VH1adc;
+  double VH2adc;
+  double VH3adc;
+  double VH4adc;
+  double Ecal7x7adc;
+  double Sci521adc;
+  double Sci528adc;
 
-  double    VMFadc;
-  double    VMBadc;
-  double    VM1adc;
-  double    VM2adc;
-  double    VM3adc;
-  double    VM4adc;
-  double    VM5adc;
-  double    VM6adc;
-  double    VM7adc;
-  double    VM8adc;
-  double    TOF1adc;
-  double    TOF2adc;
-  double    BH1adc;
-  double    BH2adc;
-  double    BH3adc;
-  double    BH4adc;
+  double CK1adc;
+  double CK2adc;
+  double CK3adc;
+  double SciVLEadc;
+  double S1adc;
+  double S2adc;
+  double S3adc;
+  double S4adc;
+
+  double VMFadc;
+  double VMBadc;
+  double VM1adc;
+  double VM2adc;
+  double VM3adc;
+  double VM4adc;
+  double VM5adc;
+  double VM6adc;
+  double VM7adc;
+  double VM8adc;
+  double TOF1adc;
+  double TOF2adc;
+  double BH1adc;
+  double BH2adc;
+  double BH3adc;
+  double BH4adc;
 
   std::vector<double> wcax;
   std::vector<double> wcay;
@@ -242,7 +241,6 @@ public:
   ZDCP zdcp;
   ZDCN zdcn;
 
-  TFile* outFile; 
+  TFile* outFile;
   TTree* ZdcAnalize;
-
- };
+};

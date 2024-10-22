@@ -24,17 +24,17 @@ namespace edm {
 }
 
 class CaloTowerFromL1TSeededCreatorForTauHLT : public edm::global::EDProducer<> {
- public:
+public:
   /// constructor from parameter set
-  CaloTowerFromL1TSeededCreatorForTauHLT( const edm::ParameterSet & );
+  CaloTowerFromL1TSeededCreatorForTauHLT(const edm::ParameterSet&);
   /// destructor
-  ~CaloTowerFromL1TSeededCreatorForTauHLT();
-  /// 
-  static void fillDescriptions( edm::ConfigurationDescriptions& desc );
+  ~CaloTowerFromL1TSeededCreatorForTauHLT() override;
+  ///
+  static void fillDescriptions(edm::ConfigurationDescriptions& desc);
 
- private:
+private:
   /// process one event
-  void produce( edm::StreamID sid, edm::Event& evt, const edm::EventSetup& stp ) const override;
+  void produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& stp) const override;
 
   /// verbosity
   const int m_verbose;
@@ -50,7 +50,6 @@ class CaloTowerFromL1TSeededCreatorForTauHLT : public edm::global::EDProducer<> 
   const double m_EtThreshold;
   /// E threshold
   const double m_EThreshold;
-
 };
 
 #endif

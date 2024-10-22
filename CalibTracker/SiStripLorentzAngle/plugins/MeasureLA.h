@@ -14,49 +14,56 @@
 
 namespace sistrip {
 
-class MeasureLA : public edm::ESProducer {
+  class MeasureLA : public edm::ESProducer {
+  public:
+    explicit MeasureLA(const edm::ParameterSet&);
+    std::unique_ptr<SiStripLorentzAngle> produce(const SiStripLorentzAngleRcd&);
 
- public:
+  private:
+    enum GRANULARITY { LAYER = 0, MODULE = 1, MODULESUMMARY = 2 };
+    static std::string granularity(int32_t g) {
+      switch (g) {
+        case LAYER:
+          return "_layer";
+        case MODULE:
+          return "_module";
+        case MODULESUMMARY:
+          return "_moduleSummary";
+      }
+      return "";
+    };
 
-  explicit MeasureLA(const edm::ParameterSet&);
-  std::unique_ptr<SiStripLorentzAngle> produce(const SiStripLorentzAngleRcd&);
-  
- private:
+    void store_calibrations();
+    void store_methods_and_granularity(const edm::VParameterSet&);
 
-  enum GRANULARITY {LAYER=0, MODULE=1, MODULESUMMARY=2};
-  static std::string granularity(int32_t g) { switch(g) {
-    case LAYER: return "_layer"; 
-    case MODULE: return "_module"; 
-    case MODULESUMMARY: return "_moduleSummary";
-  } return "";};
+    void summarize_module_muH_byLayer(const LA_Filler_Fitter&);
+    void process_reports() const;
+    template <class T>
+    void write_report_text(const std::string,
+                           const LA_Filler_Fitter::Method&,
+                           const std::map<T, LA_Filler_Fitter::Result>&) const;
+    void write_report_text_ms(const std::string, const LA_Filler_Fitter::Method) const;
+    void write_report_plots(const std::string, const LA_Filler_Fitter::Method, const GRANULARITY) const;
 
-  void store_calibrations();
-  void store_methods_and_granularity(const edm::VParameterSet&);
+    void calibrate(const std::pair<unsigned, LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&) const;
+    std::pair<unsigned, LA_Filler_Fitter::Method> calibration_key(const std::string layer,
+                                                                  const LA_Filler_Fitter::Method) const;
+    std::pair<unsigned, LA_Filler_Fitter::Method> calibration_key(const uint32_t detid,
+                                                                  const LA_Filler_Fitter::Method) const;
 
-  void summarize_module_muH_byLayer(const LA_Filler_Fitter&);
-  void process_reports() const;
-  template<class T>
-  void write_report_text(const std::string, const LA_Filler_Fitter::Method&, const std::map<T,LA_Filler_Fitter::Result>&) const;
-  void write_report_text_ms(const std::string, const LA_Filler_Fitter::Method ) const;
-  void write_report_plots(const std::string, const LA_Filler_Fitter::Method, const GRANULARITY) const;
+    const std::vector<std::string> inputFiles;
+    const std::string inFileLocation;
+    const edm::FileInPath fp_;
+    const edm::VParameterSet reports, measurementPreferences, calibrations;
+    std::map<std::pair<uint32_t, LA_Filler_Fitter::Method>, float> slope, offset, error_scaling;
+    int32_t methods;
+    bool byModule, byLayer;
+    const float localybin;
+    const unsigned stripsperbin, maxEvents;
+    Book book;
 
-  void calibrate(const std::pair<unsigned,LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&) const;
-  std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const std::string layer, const LA_Filler_Fitter::Method) const;
-  std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method) const ;
+    TrackerTopology tTopo_;
+  };
 
-  const std::vector<std::string> inputFiles;
-  const std::string inFileLocation;
-  const edm::FileInPath fp_;
-  const edm::VParameterSet reports, measurementPreferences, calibrations;
-  std::map<std::pair<uint32_t,LA_Filler_Fitter::Method>,float> slope, offset, error_scaling;
-  int32_t methods;
-  bool byModule, byLayer;
-  const float localybin;
-  const unsigned stripsperbin,maxEvents;
-  Book book;
-
-  TrackerTopology tTopo_;
-};
-
-}
+}  // namespace sistrip
 #endif

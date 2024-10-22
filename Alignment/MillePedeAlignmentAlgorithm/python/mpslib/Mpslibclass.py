@@ -1,3 +1,4 @@
+from __future__ import print_function
 # This Jobdatabas-Class interacts with the mps.db file.
 # It's member-variables are often called in the mps_... scripts.
 #
@@ -37,6 +38,7 @@
 #       JOBSP3      - possible name as given to mps_setup.pl -N <name> ...
 #       JOBID       - ID of the LSF/HTCondor job
 
+from builtins import range
 import datetime
 import time
 import os
@@ -68,7 +70,7 @@ class jobdatabase:
                            "directory and that the campaign is set up.")
                 else:
                     msg = "Database file '"+db_file_name+"' not found. Exiting."
-                print msg
+                print(msg)
                 sys.exit(1)
 
         #read infolines at the top, used rstrip to delete the '\n'
@@ -96,8 +98,9 @@ class jobdatabase:
 
 
         for line in DBFILE:
-            line = line.rstrip('\n')                #removes the pesky \n from line
-            parts = line.split(":")                 #read each line and split into parts list
+            if line.strip() == "": continue # ignore empty lines
+            line = line.rstrip('\n')        # removes the pesky \n from line
+            parts = line.split(":")         # read each line and split into parts list
             self.JOBNUMBER.append(int(parts[0]))
             self.JOBDIR.append(parts[1].strip())
             self.JOBID.append(parts[2])
@@ -126,26 +129,26 @@ class jobdatabase:
     # prints the member varaiables and arrays to the terminal
     def print_memdb(self):
         #print metainfo
-        print "\n=== mps database printout ===\n"
-        print self.header
-        print 'Script:\t\t',    self.batchScript
-        print 'cfg:\t\t',       self.cfgTemplate
-        print 'files:\t\t',     self.infiList
-        print 'class:\t\t',     self.classInf
-        print 'name:\t\t',      self.addFiles
-        print 'driver:\t\t',    self.driver
-        print 'mergeScript:\t', self.mergeScript
-        print 'mssDir:\t\t',    self.mssDir
-        print 'updateTime:\t',  self.updateTimeHuman
-        print 'elapsed:\t',     self.elapsedTime
-        print 'mssDirPool:\t',  self.mssDirPool
-        print 'pedeMem:\t',             self.pedeMem, '\n'
+        print("\n=== mps database printout ===\n")
+        print(self.header)
+        print('Script:\t\t',    self.batchScript)
+        print('cfg:\t\t',       self.cfgTemplate)
+        print('files:\t\t',     self.infiList)
+        print('class:\t\t',     self.classInf)
+        print('name:\t\t',      self.addFiles)
+        print('driver:\t\t',    self.driver)
+        print('mergeScript:\t', self.mergeScript)
+        print('mssDir:\t\t',    self.mssDir)
+        print('updateTime:\t',  self.updateTimeHuman)
+        print('elapsed:\t',     self.elapsedTime)
+        print('mssDirPool:\t',  self.mssDirPool)
+        print('pedeMem:\t',             self.pedeMem, '\n')
 
         #print interesting Job-level lists ---- to add: t/evt, fix remarks
-        print '###     dir      jobid    stat  try  rtime      nevt  remark   weight  name'
-        print "------------------------------------------------------------------------------"
-        for i in xrange(self.nJobs):
-            print '%03d  %6s  %9s  %6s  %3d  %5d  %8d  %8s  %5s  %s' % (
+        print('###     dir      jobid    stat  try  rtime      nevt  remark   weight  name')
+        print("------------------------------------------------------------------------------")
+        for i in range(self.nJobs):
+            print('%03d  %6s  %9s  %6s  %3d  %5d  %8d  %8s  %5s  %s' % (
                 self.JOBNUMBER[i],
                 self.JOBDIR[i],
                 self.JOBID[i],
@@ -155,12 +158,12 @@ class jobdatabase:
                 self.JOBNEVT[i],
                 self.JOBHOST[i],
                 self.JOBSP2[i],
-                self.JOBSP3[i])
+                self.JOBSP3[i]))
 
         #print merge Jobs if merge mode
         if self.driver == 'merge':
-            for i in xrange(self.nJobs,len(self.JOBDIR)):
-                print '%s  %6s  %9s  %6s  %3d  %5d  %8d  %8s  %5s  %s' % (
+            for i in range(self.nJobs,len(self.JOBDIR)):
+                print('%s  %6s  %9s  %6s  %3d  %5d  %8d  %8s  %5s  %s' % (
                     'MMM',
                     self.JOBDIR[i],
                     self.JOBID[i],
@@ -170,7 +173,7 @@ class jobdatabase:
                     self.JOBNEVT[i],
                     self.JOBHOST[i],
                     self.JOBSP2[i],
-                    self.JOBSP3[i])
+                    self.JOBSP3[i]))
 
         #print summed info
         totalEvents = sum(self.JOBNEVT[:self.nJobs])
@@ -178,10 +181,10 @@ class jobdatabase:
         meanCpuPerEvent = 0.
         if totalEvents > 0:
             meanCpuPerEvent = float(totalCpu)/totalEvents
-        print "------------------------------------------------------------------------------"
-        print "\t\t\t\t\tEvent total:\t",       totalEvents
-        print "\t\t\t\t\tCPU total:\t",         totalCpu,               's'
-        print "\t\t\t\t\tMean CPU/event:\t",meanCpuPerEvent,'s'
+        print("------------------------------------------------------------------------------")
+        print("\t\t\t\t\tEvent total:\t",       totalEvents)
+        print("\t\t\t\t\tCPU total:\t",         totalCpu,               's')
+        print("\t\t\t\t\tMean CPU/event:\t",meanCpuPerEvent,'s')
 
 
 
@@ -215,7 +218,7 @@ class jobdatabase:
             DBFILE.write("%s\n" % item)
 
         #write mps.db jobinfo
-        for i in xrange(len(self.JOBID)):
+        for i in range(len(self.JOBID)):
             DBFILE.write('%03d:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n' %
                          (i+1,
                           self.JOBDIR[i],
@@ -238,7 +241,7 @@ class jobdatabase:
     def get_class(self, argument=''):
         CLASSES = self.classInf.split(':')
         if len(CLASSES)<1 or len(CLASSES)>2:
-            print '\nget_class():\n  class must be of the form \'class\' or \'classMille:classPede\', but is \'%s\'!\n\n', classInf
+            print('\nget_class():\n  class must be of the form \'class\' or \'classMille:classPede\', but is \'%s\'!\n\n', classInf)
             sys.exit(1)
         elif argument == 'mille':
             return CLASSES[0]
@@ -248,5 +251,5 @@ class jobdatabase:
             elif len(CLASSES) == 2:
                 return CLASSES[1]
         else:
-            print '\nget_class():\n  Know class only for \'mille\' or \'pede\', not %s!\n\n' %argument
+            print('\nget_class():\n  Know class only for \'mille\' or \'pede\', not %s!\n\n' %argument)
             sys.exit(1)

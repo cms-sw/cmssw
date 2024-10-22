@@ -2,8 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 DisplacedDimuonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_DoubleMu43NoFiltersNoVtx_v", # 2017 displaced mu-mu (main)
-        "HLT_DoubleMu48NoFiltersNoVtx_v", # 2017 displaced mu-mu (backup)
+        "HLT_DoubleMu43NoFiltersNoVtx_v", # 2017 displaced mu-mu (main) # Claimed path for Run3
+        "HLT_DoubleL3Mu16_10NoVtx_DxyMin0p01cm_v", #New Run3 path (introduced in HLT V1.3)
+        "HLT_DoubleL3dTksMu16_10NoVtx_DxyMin0p01cm_v", #New Run3 path (introduced in HLT V1.3)
         ),
     recMuonLabel  = cms.InputTag("muons"),
     # -- Analysis specific cuts

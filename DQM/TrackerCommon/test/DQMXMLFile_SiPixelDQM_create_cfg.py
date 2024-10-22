@@ -1,16 +1,18 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import os
 
 process = cms.Process( "CREATE" )
 
-process.MessageLogger=cms.Service( "MessageLogger"
-, cout = cms.untracked.PSet(
-    threshold = cms.untracked.string( 'INFO' )
-  )
-, destinations = cms.untracked.vstring(
-    'cout'
-  )
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 process.source = cms.Source( "EmptyIOVSource"
@@ -31,7 +33,7 @@ process.dqmXmlFileTest = cms.EDAnalyzer( "DQMXMLFilePopConAnalyzer"
   , zip        = cms.untracked.bool( False )
   )
 )
-print "Used XML file: " + process.dqmXmlFileTest.Source.XMLFile.pythonValue()
+print("Used XML file: " + process.dqmXmlFileTest.Source.XMLFile.pythonValue())
 
 process.load( "CondCore.DBCommon.CondDBCommon_cfi" )
 process.CondDBCommon.connect          = cms.string( 'sqlite_file:DQMXMLFile_SiPixelDQM.db' )

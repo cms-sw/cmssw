@@ -21,14 +21,12 @@ process.configurationMetadata = cms.untracked.PSet(
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
-process.load("Configuration.StandardSequences.MagneticField_38T_UpdatedMap_cff")
-# trick to make it work with newnew magfield (not in 229)
-process.VolumeBasedMagneticFieldESProducer.version='grid_1103l_090322_3_8t'
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'CRAFT_V4P::All' 
+process.GlobalTag.globaltag = 'auto:run3_data_prompt'
 process.prefer("GlobalTag")
 
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")

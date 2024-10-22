@@ -4,105 +4,186 @@
 
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Catalog/interface/SiteLocalConfig.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <boost/algorithm/string.hpp>
 
+#include <iostream>
+
 namespace edm {
 
-  InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames, std::string const& override, bool useLFNasPFNifLFNnotFound) :
-    logicalFileNames_(fileNames),
-    fileNames_(fileNames),
-    fallbackFileNames_(fileNames.size()),
-    fileCatalogItems_(),
-    fileLocator_(),
-    overrideFileLocator_(),
-    fallbackFileLocator_(),
-    overrideFallbackFileLocator_() {
-
-    init(override, "", useLFNasPFNifLFNnotFound);
-  }
-
-  InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames, std::string const& override, std::string const& overrideFallback, bool useLFNasPFNifLFNnotFound) :
-    logicalFileNames_(fileNames),
-    fileNames_(fileNames),
-    fallbackFileNames_(fileNames.size()),
-    fileCatalogItems_(),
-    fileLocator_(),
-    overrideFileLocator_(),
-    fallbackFileLocator_(),
-    overrideFallbackFileLocator_() {
-
-    init(override, overrideFallback, useLFNasPFNifLFNnotFound);
+  InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames,
+                                     std::string const& override,
+                                     bool useLFNasPFNifLFNnotFound,
+                                     edm::CatalogType catType)
+      : logicalFileNames_(fileNames), fileNames_(fileNames), fileCatalogItems_(), overrideFileLocator_() {
+    init(override, useLFNasPFNifLFNnotFound, catType);
   }
 
   InputFileCatalog::~InputFileCatalog() {}
 
-  void InputFileCatalog::init(std::string const& inputOverride, std::string const& inputOverrideFallback, bool useLFNasPFNifLFNnotFound) {
+  std::vector<std::string> InputFileCatalog::fileNames(unsigned iCatalog) const {
+    std::vector<std::string> tmp;
+    tmp.reserve(fileCatalogItems_.size());
+    for (auto const& item : fileCatalogItems_) {
+      tmp.push_back(item.fileName(iCatalog));
+    }
+    return tmp;
+  }
 
-    fileCatalogItems_.reserve(fileNames_.size());
+  void InputFileCatalog::init(std::string const& inputOverride,
+                              bool useLFNasPFNifLFNnotFound,
+                              edm::CatalogType catType) {
     typedef std::vector<std::string>::iterator iter;
-    for(iter it = fileNames_.begin(), lt = logicalFileNames_.begin(), itEnd = fileNames_.end(), ft = fallbackFileNames_.begin();
-        it != itEnd; ++it, ++lt, ++ft) {
+
+    if (!overrideFileLocator_ && !inputOverride.empty()) {
+      if (catType == edm::CatalogType::TrivialCatalog) {
+        overrideFileLocator_ =
+            std::make_unique<FileLocator>(inputOverride);  // propagate_const<T> has no reset() function
+      } else if (catType == edm::CatalogType::RucioCatalog) {
+        //now make a struct from input string
+        std::vector<std::string> tmps;
+        boost::algorithm::split(tmps, inputOverride, boost::is_any_of(std::string(",")));
+        if (tmps.size() != 5) {
+          cms::Exception ex("FileCatalog");
+          ex << "Trying to override input file catalog but invalid input override string " << inputOverride
+             << " (Should be site,subSite,storageSite,volume,protocol)";
+          ex.addContext("Calling edm::InputFileCatalog::init()");
+          throw ex;
+        }
+
+        edm::CatalogAttributes inputOverride_struct(tmps[0],   //current-site
+                                                    tmps[1],   //current-subSite
+                                                    tmps[2],   //desired-data-access-site
+                                                    tmps[3],   //desired-data-access-volume
+                                                    tmps[4]);  //desired-data-access-protocol
+
+        overrideFileLocator_ =
+            std::make_unique<FileLocator>(inputOverride_struct);  // propagate_const<T> has no reset() function
+      }
+    }
+
+    Service<SiteLocalConfig> localconfservice;
+    if (!localconfservice.isAvailable()) {
+      cms::Exception ex("FileCatalog");
+      ex << "edm::SiteLocalConfigService is not available";
+      ex.addContext("Calling edm::InputFileCatalog::init()");
+      throw ex;
+    }
+
+    if (catType == edm::CatalogType::TrivialCatalog) {
+      std::vector<std::string> const& tmp_dataCatalogs = localconfservice->trivialDataCatalogs();
+      if (!fileLocators_trivalCatalog_.empty())
+        fileLocators_trivalCatalog_.clear();
+      //Construct all file locators from data catalogs. If a data catalog is invalid (wrong protocol for example), it is skipped and no file locator is constructed (an exception is thrown out from FileLocator::init).
+      for (const auto& catalog : tmp_dataCatalogs) {
+        try {
+          fileLocators_trivalCatalog_.push_back(std::make_unique<FileLocator>(catalog));
+        } catch (cms::Exception const& e) {
+          edm::LogWarning("InputFileCatalog")
+              << "Caught an exception while constructing a file locator in InputFileCatalog::init: " << e.what()
+              << "Skip this catalog";
+        }
+      }
+      if (fileLocators_trivalCatalog_.empty()) {
+        cms::Exception ex("FileCatalog");
+        ex << "Unable to construct any file locator in InputFileCatalog::init";
+        ex.addContext("Calling edm::InputFileCatalog::init()");
+        throw ex;
+      }
+    } else if (catType == edm::CatalogType::RucioCatalog) {
+      std::vector<edm::CatalogAttributes> const& tmp_dataCatalogs = localconfservice->dataCatalogs();
+      if (!fileLocators_.empty())
+        fileLocators_.clear();
+      //Construct all file locators from data catalogs. If a data catalog is invalid (wrong protocol for example), it is skipped and no file locator is constructed (an exception is thrown out from FileLocator::init).
+      for (const auto& catalog : tmp_dataCatalogs) {
+        try {
+          fileLocators_.push_back(std::make_unique<FileLocator>(catalog));
+        } catch (cms::Exception const& e) {
+          edm::LogWarning("InputFileCatalog")
+              << "Caught an exception while constructing a file locator in InputFileCatalog::init: " << e.what()
+              << "Skip this catalog";
+        }
+      }
+      if (fileLocators_.empty()) {
+        cms::Exception ex("FileCatalog");
+        ex << "Unable to construct any file locator in InputFileCatalog::init";
+        ex.addContext("Calling edm::InputFileCatalog::init()");
+        throw ex;
+      }
+    } else {
+      cms::Exception ex("FileCatalog");
+      ex << "Undefined catalog type";
+      ex.addContext("Calling edm::InputFileCatalog::init()");
+      throw ex;
+    }
+
+    for (iter it = fileNames_.begin(), lt = logicalFileNames_.begin(), itEnd = fileNames_.end(); it != itEnd;
+         ++it, ++lt) {
       boost::trim(*it);
+      std::vector<std::string> pfns;
       if (it->empty()) {
-        throw Exception(errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
-          << "An empty string specified in the fileNames parameter for input source.\n";
+        cms::Exception ex("FileCatalog");
+        ex << "An empty string specified in the fileNames parameter for input source";
+        ex.addContext("Calling edm::InputFileCatalog::init()");
+        throw ex;
       }
       if (isPhysical(*it)) {
-        if(it->back() == ':') {
-          throw Exception(errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
-            << "An empty physical file name specified in the fileNames parameter for input source.\n";
+        if (it->back() == ':') {
+          cms::Exception ex("FileCatalog");
+          ex << "An empty physical file name specified in the fileNames parameter for input source";
+          ex.addContext("Calling edm::InputFileCatalog::init()");
+          throw ex;
         }
+        pfns.push_back(*it);
         // Clear the LFN.
         lt->clear();
       } else {
-        if (!fileLocator_) {
-          fileLocator_ = std::make_unique<FileLocator>("", false); // propagate_const<T> has no reset() function
-        }
-        if (!overrideFileLocator_ && !inputOverride.empty()) {
-          overrideFileLocator_ = std::make_unique<FileLocator>(inputOverride, false); // propagate_const<T> has no reset() function
-        }
-        if (!fallbackFileLocator_) {
-          try {
-            fallbackFileLocator_ = std::make_unique<FileLocator>("", true); // propagate_const<T> has no reset() function
-          } catch (cms::Exception const& e) {
-            // No valid fallback locator is OK too.
-          }
-        }
-        if (!overrideFallbackFileLocator_ && !inputOverrideFallback.empty()) {
-          overrideFallbackFileLocator_ = std::make_unique<FileLocator>(inputOverrideFallback, true); // propagate_const<T> has no reset() function
-        }
         boost::trim(*lt);
-        findFile(*it, *ft, *lt, useLFNasPFNifLFNnotFound);
+        findFile(*lt, pfns, useLFNasPFNifLFNnotFound, catType);
       }
-      fileCatalogItems_.push_back(FileCatalogItem(*it, *lt, *ft));
+
+      fileCatalogItems_.push_back(FileCatalogItem(pfns, *lt));
     }
   }
 
-  void InputFileCatalog::findFile(std::string& pfn, std::string& fallbackPfn, std::string const& lfn, bool useLFNasPFNifLFNnotFound) {
+  void InputFileCatalog::findFile(std::string const& lfn,
+                                  std::vector<std::string>& pfns,
+                                  bool useLFNasPFNifLFNnotFound,
+                                  edm::CatalogType catType) {
     if (overrideFileLocator_) {
-      pfn = overrideFileLocator_->pfn(lfn);
-      if (pfn.empty()) {
-        pfn = fileLocator_->pfn(lfn);
-      }
+      pfns.push_back(overrideFileLocator_->pfn(lfn, catType));
     } else {
-      pfn = fileLocator_->pfn(lfn);
-    }
-    if (pfn.empty() && useLFNasPFNifLFNnotFound) {
-      pfn = lfn;
-    }
-    // Empty PFN will be found by caller.
-
-    if (overrideFallbackFileLocator_) {
-      fallbackPfn = overrideFallbackFileLocator_->pfn(lfn);
-      if (fallbackFileLocator_ && fallbackPfn.empty()) {
-        fallbackPfn = fallbackFileLocator_->pfn(lfn);
+      if (catType == edm::CatalogType::TrivialCatalog) {
+        for (auto const& locator : fileLocators_trivalCatalog_) {
+          std::string pfn = locator->pfn(lfn, edm::CatalogType::TrivialCatalog);
+          if (pfn.empty() && useLFNasPFNifLFNnotFound)
+            pfns.push_back(lfn);
+          else
+            pfns.push_back(pfn);
+        }
+      } else if (catType == edm::CatalogType::RucioCatalog) {
+        for (auto const& locator : fileLocators_) {
+          std::string pfn = locator->pfn(lfn, edm::CatalogType::RucioCatalog);
+          if (pfn.empty() && useLFNasPFNifLFNnotFound)
+            pfns.push_back(lfn);
+          else
+            pfns.push_back(pfn);
+        }
+      } else {
+        cms::Exception ex("FileCatalog");
+        ex << "Undefined catalog type";
+        ex.addContext("Calling edm::InputFileCatalog::findFile()");
+        throw ex;
       }
-    } else if (fallbackFileLocator_) {
-      fallbackPfn = fallbackFileLocator_->pfn(lfn);
-      // Empty fallback PFN is OK.
     }
+
+    // Empty PFN will be found by caller.
   }
-}
+
+}  // namespace edm

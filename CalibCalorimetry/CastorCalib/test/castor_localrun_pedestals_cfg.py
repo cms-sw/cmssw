@@ -115,9 +115,13 @@ process.castorpedestalsanalysis = cms.EDAnalyzer("CastorPedestalsAnalysis",
     castorDigiCollectionTag = cms.InputTag('castorDigis')
 )
 
+process.TFileService = cms.Service("TFileService",
+   fileName = cms.string('castorDigis.root')
+)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['detailedInfo.txt']
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.detailedInfo = dict(extension = 'txt')
 
 #process.p = cms.Path(process.dumpRaw*process.castorDigis*process.dump*process.m*process.dumpECA)
 process.p = cms.Path(process.castorDigis*process.castorpedestalsanalysis)

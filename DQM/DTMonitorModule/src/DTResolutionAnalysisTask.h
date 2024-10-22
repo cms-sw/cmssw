@@ -13,25 +13,24 @@
  *  \author G. Cerminara - INFN Torino
  */
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
 #include <map>
 #include <vector>
 
-class DQMStore;
-class MonitorElement;
 class DTGeometry;
 
-class DTResolutionAnalysisTask: public DQMEDAnalyzer{
+class DTResolutionAnalysisTask : public DQMOneEDAnalyzer<> {
 public:
   /// Constructor
   DTResolutionAnalysisTask(const edm::ParameterSet& pset);
@@ -40,23 +39,22 @@ public:
   ~DTResolutionAnalysisTask() override;
 
   /// BookHistograms
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   /// BeginRun
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
+  //  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
+  //  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) final {}
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
-
 protected:
-
 private:
-
-  edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* dtGeom;
 
   int prescaleFactor;
   int resetCycle;
@@ -68,20 +66,16 @@ private:
   edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // Book a set of histograms for a give chamber
-  void bookHistos(DQMStore::IBooker & ibooker, DTSuperLayerId slId);
+  void bookHistos(DQMStore::IBooker& ibooker, DTSuperLayerId slId);
   // Fill a set of histograms for a give chamber
-  void fillHistos(DTSuperLayerId slId,
-		  float distExtr,
-		  float residual);
+  void fillHistos(DTSuperLayerId slId, float distExtr, float residual);
 
   std::map<DTSuperLayerId, std::vector<MonitorElement*> > histosPerSL;
 
   // top folder for the histograms in DQMStore
   std::string topHistoFolder;
-
 };
 #endif
-
 
 /* Local Variables: */
 /* show-trailing-whitespace: t */

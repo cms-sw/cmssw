@@ -6,38 +6,31 @@
 
 #include "PhysicsTools/PatUtils/interface/PATJetCorrExtractor.h"
 
-namespace CaloJetMETcorrInputProducer_namespace
-{
+namespace CaloJetMETcorrInputProducer_namespace {
   template <>
-  class InputTypeCheckerT<pat::Jet>
-  {
-    public:
-
-     void operator()(const pat::Jet& jet) const
-     {
-       // check that pat::Jet is of Calo-type
-       if ( !jet.isCaloJet() )
-	 throw cms::Exception("InvalidInput")
-	   << "Input pat::Jet is not of Calo-type !!\n";
-     }
-     bool isPatJet(const pat::Jet& jet) const {
-       return true;
-     }
+  class InputTypeCheckerT<pat::Jet> {
+  public:
+    void operator()(const pat::Jet& jet) const {
+      // check that pat::Jet is of Calo-type
+      if (!jet.isCaloJet())
+        throw cms::Exception("InvalidInput") << "Input pat::Jet is not of Calo-type !!\n";
+    }
+    bool isPatJet(const pat::Jet& jet) const { return true; }
   };
 
   template <>
-  class RawJetExtractorT<pat::Jet>
-  {
-    public:
-     RawJetExtractorT(){}
+  class RawJetExtractorT<pat::Jet> {
+  public:
+    RawJetExtractorT() {}
 
-     reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const
-     {
-       if ( jet.jecSetsAvailable() ) return jet.correctedP4("Uncorrected");
-       else return jet.p4();
-     }
+    reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const {
+      if (jet.jecSetsAvailable())
+        return jet.correctedP4("Uncorrected");
+      else
+        return jet.p4();
+    }
   };
-}
+}  // namespace CaloJetMETcorrInputProducer_namespace
 
 typedef CaloJetMETcorrInputProducerT<pat::Jet, PATJetCorrExtractor> PATCaloJetMETcorrInputProducer;
 

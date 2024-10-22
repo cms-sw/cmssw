@@ -54,9 +54,9 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = cms.untracked.vstring('sistripLAProfile')
-process.MessageLogger.destinations = cms.untracked.vstring('MY_DEBUG_NUMBER')
+process.MessageLogger.cerr.enable = False
 
-process.MessageLogger.MY_DEBUG_NUMBER =  cms.untracked.PSet(
+process.MessageLogger.files.MY_DEBUG_NUMBER =  cms.untracked.PSet(
       threshold = cms.untracked.string('DEBUG'),
       noLineBreaks = cms.untracked.bool(False),
       DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0))

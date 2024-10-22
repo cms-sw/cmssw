@@ -8,12 +8,11 @@ from RecoJets.Configuration.GenJetParticles_cff import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
 kinematicSelectedTauValDenominatorQCD = cms.EDFilter(
-   "GenJetSelector", #"GenJetSelector"
-   src = cms.InputTag('ak4GenJets'),
-   cut = kinematicSelectedTauValDenominatorCut,#cms.string('pt > 5. && abs(eta) < 2.5'), #Defined: Validation.RecoTau.RecoTauValidation_cfi 
-   filter = cms.bool(False)
+    "GenJetSelector",
+    src = cms.InputTag('slimmedGenJets'),
+    cut = kinematicSelectedTauValDenominatorCut,#cms.string('pt > 5. && abs(eta) < 2.5'), #Defined: Validation.RecoTau.RecoTauValidation_cfi 
+    filter = cms.bool(False)
 )
-
 
 procAttributes = dir(proc) #Takes a snapshot of what there in the process
 helpers.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominator, 'QCD') #clones the sequence inside the process with QCD postfix
@@ -25,20 +24,34 @@ zttLabeler = lambda module : SetValidationExtention(module, 'QCD')
 zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorQCD.visit(zttModifier)
 
+#Set discriminators
+discs_to_retain = ['ByDecayModeFinding', 'CombinedIsolationDBSumPtCorr3Hits', 'IsolationMVArun2v1DBoldDMwLT', 'IsolationMVArun2v1DBnewDMwLT']
+proc.RunHPSValidationQCD.discriminators = cms.VPSet([p for p in proc.RunHPSValidationQCD.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
+
 #Sets the correct naming to efficiency histograms
 proc.efficienciesQCD.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorQCD)
+proc.efficienciesQCDSummary = cms.EDProducer("TauDQMHistEffProducer",
+    plots = cms.PSet(
+        Summary = cms.PSet(
+            denominator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerQCD_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/standardValidation/hpsPFTauProducerQCD_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerQCD_Summary/#PAR#PlotNum'),
+            parameter = cms.vstring('summary'),
+            stepByStep = cms.bool(True)
+        ),
+    )
+)
 
 #checks what's new in the process (the cloned sequences and modules in them)
-newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('QCD') != -1), dir(proc) )
+newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('QCD') != -1)]
 
 #spawns a local variable with the same name as the proc attribute, needed for future process.load
 for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
-
 produceDenominatorQCD = cms.Sequence(
-    kinematicSelectedTauValDenominatorQCD
-    )
+    cms.ignore(kinematicSelectedTauValDenominatorQCD)
+)
 
 produceDenominator = cms.Sequence(produceDenominatorQCD)
 

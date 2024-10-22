@@ -6274,7 +6274,9 @@ c log of f3 * f4 * f5
       if(ish.ge.7)write(ifch,*)'log(f3*f4*f5):',f35log
 
 c log of phase space integral --> psilog
-           if(iocova.eq.1)then
+c ... initialization
+      psilog=0.0
+      if(iocova.eq.1)then
       psilog=alog(2.*np*np*(np-1)/tecm**4/pi)
       do i=1,np
       psilog=psilog+alog(tecm**2*pi/2./i/i)
@@ -6490,9 +6492,11 @@ c-----------------------------------------------------------------------
       parameter(mxclu=10000)
       real am(mxclu)
       character cen*6,cvol*6
+c     the code needs am to be kept between calls
+      save am
+      data am /mxclu*0/
 
       if(iii.eq.0)then
-
       am(nrclu)=amt
 
       return
@@ -6767,9 +6771,11 @@ c-----------------------------------------------------------------------
       parameter(mxclu=10000)
       integer ku(mxclu),kd(mxclu),ks(mxclu)
       character cfl*3,cen*6,cvol*6
+      save ku,kd,ks
+      data ku/mxclu*0/,kd/mxclu*0/,ks/mxclu*0/
 
       if(iii.eq.0)then
-
+      
       ku(nrclu)=u
       kd(nrclu)=d
       ks(nrclu)=s
@@ -8441,6 +8447,8 @@ c     -----------------------------------------
       tau=taui
       taux=taui
       taum=0.0
+c...  initialize
+      mcut=0
       if(ish.ge.9)write(ifch,*)'initial tau:',tau,'   c_M:',mpar
 
         if(corzer.gt.1.e-30)then

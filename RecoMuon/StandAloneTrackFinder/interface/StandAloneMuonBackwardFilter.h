@@ -9,7 +9,11 @@
 
 class MuonServiceProxy;
 
-namespace edm {class ParameterSet; class EventSetup; class Event;}
+namespace edm {
+  class ParameterSet;
+  class EventSetup;
+  class Event;
+}  // namespace edm
 
 class StandAloneMuonBackwardFilter {
 public:
@@ -17,19 +21,14 @@ public:
   StandAloneMuonBackwardFilter(const edm::ParameterSet& par, const MuonServiceProxy*);
 
   /// Destructor
-  virtual ~StandAloneMuonBackwardFilter(){};
+  virtual ~StandAloneMuonBackwardFilter() {}
 
   // Operations
 
   /// Pass the Event to the algo at each event
   virtual void setEvent(const edm::Event& event);
 
-
 protected:
-
 private:
-
 };
 #endif
-
-

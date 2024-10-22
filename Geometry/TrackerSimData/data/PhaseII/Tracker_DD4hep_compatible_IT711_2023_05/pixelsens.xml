@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<!--
+============= XML GENERATION METADATA HEADER =============
+tkLayout revision: dev-splitsensors-3556-2e96df9
+tkLayout developed by https://github.com/tkLayout/tkLayout/graphs/contributors .
+Adinda De Wit (adewit on lxplus780.cern.ch) responsible for cross-check of the automatically-generated description below.
+generation date: 2023-05-25.16:08:21
+note: see OT800_IT711_2023_05_25.cfg for full config files
+=========== END XML GENERATION METADATA HEADER ===========
+-->
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<SpecParSection label="spec-pars2.xml">
+  <SpecPar name="ROUHitsTrackerPhase2PixelBarrel">
+<PartSelector path="//ITLayer1R1BModuleInnerPixel3DActiveOne"/>
+<PartSelector path="//ITLayer1R1BModuleInnerPixel3DActiveTwo"/>
+<PartSelector path="//ITLayer1R2BModuleInnerPixel3DActiveOne"/>
+<PartSelector path="//ITLayer1R2BModuleInnerPixel3DActiveTwo"/>
+<PartSelector path="//ITLayer1R3BModuleInnerPixel3DActiveOne"/>
+<PartSelector path="//ITLayer1R3BModuleInnerPixel3DActiveTwo"/>
+<PartSelector path="//ITLayer1R4BModuleInnerPixel3DActiveOne"/>
+<PartSelector path="//ITLayer1R4BModuleInnerPixel3DActiveTwo"/>
+<PartSelector path="//ITLayer1R5BModuleInnerPixel3DActiveOne"/>
+<PartSelector path="//ITLayer1R5BModuleInnerPixel3DActiveTwo"/>
+<PartSelector path="//ITLayer2R1BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer2R2BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer2R3BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer2R4BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer2R5BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer3R1BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer3R2BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer3R3BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer3R4BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer3R5BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer4R1BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer4R2BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer4R3BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer4R4BModuleInnerPixelActive"/>
+<PartSelector path="//ITLayer4R5BModuleInnerPixelActive"/>
+    <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
+    <Parameter name="ReadOutName" value="TrackerHitsPixelBarrel" />
+  </SpecPar>
+
+  <SpecPar name="ROUHitsTrackerPhase2PixelEndcap">
+<PartSelector path="//ITDisc1R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc1R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc1R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc1R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc2R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc2R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc2R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc2R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc3R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc3R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc3R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc3R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc4R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc4R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc4R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc4R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc5R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc5R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc5R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc5R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc6R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc6R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc6R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc6R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc7R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc7R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc7R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc7R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc8R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc8R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc8R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc8R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc9R5EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc10R5EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc11R5EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12R1EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12R2EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12R3EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12R4EModuleInnerPixelActive"/>
+<PartSelector path="//ITDisc12R5EModuleInnerPixelActive"/>
+    <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
+    <Parameter name="ReadOutName" value="TrackerHitsPixelEndcap" />
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>
+

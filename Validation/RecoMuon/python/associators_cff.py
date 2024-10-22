@@ -9,186 +9,285 @@ from Validation.RecoMuon.track_selectors_cff import *
 import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi
 trackAssociatorByHits = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
 
-tpToTkmuTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
-    associator = cms.InputTag('trackAssociatorByHits'),
-    label_tp = cms.InputTag('mix', 'MergedTrackTruth'),
-#    label_tr = cms.InputTag('generalTracks')
-    label_tr = cms.InputTag('probeTracks')
+from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import trackingParticleRecoTrackAsssociation as _trackingParticleRecoTrackAsssociation
+tpToTkmuTrackAssociation = _trackingParticleRecoTrackAsssociation.clone(
+    associator = 'trackAssociatorByHits',
+#    label_tr = 'generalTracks',
+    label_tr = 'probeTracks'
 )
 
 #
 # MuonAssociatorByHits used for all track collections
 #
 import SimMuon.MCTruth.MuonAssociatorByHits_cfi
-MABH = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+MABH = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone(
 # DEFAULTS ###################################
-#    EfficiencyCut_track = cms.double(0.),
-#    PurityCut_track = cms.double(0.),
-#    EfficiencyCut_muon = cms.double(0.),
-#    PurityCut_muon = cms.double(0.),
-#    includeZeroHitMuons = cms.bool(True),
-#    acceptOneStubMatchings = cms.bool(False),
+#    EfficiencyCut_track = 0.,
+#    PurityCut_track = 0.,
+#    EfficiencyCut_muon = 0.,
+#    PurityCut_muon = 0.,
+#    includeZeroHitMuons = True,
+#    acceptOneStubMatchings = False,
+#    rejectBadGlobal = True,
+#    tpTag = "mix","MergedTrackTruth",
+#    tpRefVector = False
 ##############################################
-MABH.EfficiencyCut_track = 0.5
-MABH.PurityCut_track = 0.75
-MABH.EfficiencyCut_muon = 0.5
-MABH.PurityCut_muon = 0.75
-MABH.includeZeroHitMuons = False
+    EfficiencyCut_track = 0.5,
+    PurityCut_track = 0.75,
+    EfficiencyCut_muon = 0.5,
+    PurityCut_muon = 0.75,
+    includeZeroHitMuons = False,
+    tpTag = ("TPmu"),
+    tpRefVector = True
+##############################################
+)
+tpToTkMuonAssociation = MABH.clone(
+    #tracksTag = 'generalTracks',
+    tracksTag ='probeTracks',
+    UseTracker = True,
+    UseMuon = False,
+    tpTag = ("TPtrack")
+)
+tpToStaSeedAssociation = MABH.clone(
+    tracksTag = 'seedsOfSTAmuons',
+    UseTracker = False,
+    UseMuon = True,
+    EfficiencyCut_muon = 0.
+)
+tpToStaMuonAssociation = MABH.clone(
+    tracksTag = 'standAloneMuons',
+    UseTracker = False,
+    UseMuon = True
+)
+tpToStaUpdMuonAssociation = MABH.clone(
+    tracksTag = 'standAloneMuons:UpdatedAtVtx',
+    UseTracker = False,
+    UseMuon = True
+)
+tpToGlbMuonAssociation = MABH.clone(
+    tracksTag = 'globalMuons',
+    UseTracker = True,
+    UseMuon = True
+)
+tpToStaRefitMuonAssociation = MABH.clone(
+    tracksTag = 'refittedStandAloneMuons',
+    UseTracker = False,
+    UseMuon = True
+)
+tpToStaRefitUpdMuonAssociation = MABH.clone(
+    tracksTag = 'refittedStandAloneMuons:UpdatedAtVtx',
+    UseTracker = False,
+    UseMuon = True
+)
+tpToDisplacedTrkMuonAssociation = MABH.clone(
+    tracksTag = 'displacedTracks',
+    UseTracker = True,
+    UseMuon = False,
+    tpTag = ("TPtrack")
+)
+tpToDisplacedStaSeedAssociation = MABH.clone(
+    tracksTag = 'seedsOfDisplacedSTAmuons',
+    UseTracker = False,
+    UseMuon = True,
+    EfficiencyCut_muon = 0.
+)
+tpToDisplacedStaMuonAssociation = MABH.clone(
+    tracksTag = 'displacedStandAloneMuons',
+    UseTracker = False,
+    UseMuon = True
+)
+tpToDisplacedGlbMuonAssociation = MABH.clone(
+    tracksTag = 'displacedGlobalMuons',
+    UseTracker = True,
+    UseMuon = True
+)
+tpToTevFirstMuonAssociation = MABH.clone(
+    tracksTag = 'tevMuons:firstHit',
+    UseTracker = True,
+    UseMuon = True,
+    EfficiencyCut_muon = 0.
+)
+tpToTevPickyMuonAssociation = MABH.clone(
+    tracksTag = 'tevMuons:picky',
+    UseTracker = True,
+    UseMuon = True,
+    EfficiencyCut_muon = 0.
+)
+tpToTevDytMuonAssociation = MABH.clone(
+    tracksTag = 'tevMuons:dyt',
+    UseTracker = True,
+    UseMuon = True,
+    EfficiencyCut_muon = 0.,
+    rejectBadGlobal = False
+)
+# tuneP (GlobalMuons with TuneP definition)
+tpToTunePMuonAssociation = MABH.clone(
+    tracksTag = 'tunepMuonTracks',
+    UseTracker = True,
+    UseMuon = True,
+    EfficiencyCut_muon = 0.,
+    rejectBadGlobal = False
+)
+# PFMuons
+tpToPFMuonAssociation = MABH.clone(
+    tracksTag = 'pfMuonTracks',
+    UseTracker = True,
+    UseMuon = True,
+    tpTag = ("TPpfmu"),
+    EfficiencyCut_muon = 0.,
+    rejectBadGlobal = False
+)
+# all offline reco::Muons with loose cuts
+# note in this case muons can be of any type: set UseTracker=UseMuon=true and rejectBadGlobal=false,
+# then define the logic in the muon track producer, run beforehand.
+tpTorecoMuonMuonAssociation = MABH.clone(
+    tracksTag = 'recoMuonTracks',
+    UseTracker = True,
+    UseMuon = True,
+    EfficiencyCut_track = 0.,
+    EfficiencyCut_muon = 0.,
+    # matching to a skimmed TP collection needs a purity cut to avoid pathological cases
+    #PurityCut_track = 0.,
+    #PurityCut_muon = 0.,
+    includeZeroHitMuons = True,
+    rejectBadGlobal = False
+)
+# ME0Muons
+tpToME0MuonMuonAssociation = MABH.clone(
+    tracksTag = 'extractMe0Muons',
+    UseTracker = True,
+    UseMuon = False
+)
+# GEMmuons
+tpToGEMMuonMuonAssociation = MABH.clone(
+    tracksTag = 'extractGemMuons',
+    UseTracker = True,
+    UseMuon = False
+)
+# === HLT muon tracks 
 #
-MABHhlt = MABH.clone()
-MABHhlt.EfficiencyCut_track = 0. # backup solution as UseGrouped/UseSplitting are always assumed to be true
-MABHhlt.DTrechitTag = 'hltDt1DRecHits'
-MABHhlt.ignoreMissingTrackCollection = True
-################################################
+MABHhlt = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone(
+# DEFAULTS ###################################
+#    EfficiencyCut_track = cms.double(0.), # backup solution as UseGrouped/UseSplitting are always assumed to be true
+#    EfficiencyCut_muon = cms.double(0.),  # | loose matching requests for triggering
+#    includeZeroHitMuons = cms.bool(True), # |
+#    acceptOneStubMatchings = cms.bool(False),
+#    rejectBadGlobal = cms.bool(True),
+##############################################
+    PurityCut_track = 0.75,
+    PurityCut_muon = 0.75,
+    DTrechitTag = 'hltDt1DRecHits',
+    ignoreMissingTrackCollection = True,
+    tpTag = ("TPmu"),
+    tpRefVector = True
+)
+##############################################
 
-tpToTkMuonAssociation = MABH.clone()
-#tpToTkMuonAssociation.tracksTag = 'generalTracks'
-tpToTkMuonAssociation.tracksTag ='probeTracks'
-tpToTkMuonAssociation.UseTracker = True
-tpToTkMuonAssociation.UseMuon = False
+tpToL2MuonAssociation = MABHhlt.clone(
+    tracksTag = 'hltL2Muons',
+    UseTracker = False,
+    UseMuon = True
+)
+tpToL2UpdMuonAssociation = MABHhlt.clone(
+    tracksTag = 'hltL2Muons:UpdatedAtVtx',
+    UseTracker = False,
+    UseMuon = True
+)
+tpToL3OITkMuonAssociation = MABHhlt.clone(
+    tracksTag = 'hltIterL3OIMuonTrackSelectionHighPurity',
+    UseTracker = True,
+    UseMuon = False
+)
+tpToL3TkMuonAssociation = MABHhlt.clone(
+    tracksTag = 'hltIterL3MuonMerged',
+    UseTracker = True,
+    UseMuon = False
+)
+tpToL3FromL1TkMuonAssociation = MABHhlt.clone(
+    tracksTag = 'hltIterL3MuonAndMuonFromL1Merged',
+    UseTracker = True,
+    UseMuon = False
+)
+tpToL0L3FromL1TkMuonAssociation = MABHhlt.clone(
+    tracksTag = 'hltIter0IterL3FromL1MuonTrackSelectionHighPurity',
+    UseTracker = True,
+    UseMuon = False
+)
+tpToL3GlbMuonAssociation = MABHhlt.clone(
+    tracksTag = 'hltIterL3GlbMuon',
+    UseTracker = True,
+    UseMuon = True
+)
+tpToL3NoIDMuonAssociation = MABHhlt.clone(
+    tracksTag = 'hltIterL3MuonsNoIDTracks',
+    UseTracker = True,
+    UseMuon = True,
+    rejectBadGlobal = False
+)
+tpToL3MuonAssociation = MABHhlt.clone(
+    tracksTag = 'hltIterL3MuonsTracks',
+    UseTracker = True,
+    UseMuon = True,
+    rejectBadGlobal = False
+)
 
-tpToStaSeedAssociation = MABH.clone()
-tpToStaSeedAssociation.tracksTag = 'seedsOfSTAmuons'
-tpToStaSeedAssociation.UseTracker = False
-tpToStaSeedAssociation.UseMuon = True
-tpToStaSeedAssociation.EfficiencyCut_muon = 0.
-
-tpToStaMuonAssociation = MABH.clone()
-tpToStaMuonAssociation.tracksTag = 'standAloneMuons'
-tpToStaMuonAssociation.UseTracker = False
-tpToStaMuonAssociation.UseMuon = True
-
-tpToStaUpdMuonAssociation = MABH.clone()
-tpToStaUpdMuonAssociation.tracksTag = 'standAloneMuons:UpdatedAtVtx'
-tpToStaUpdMuonAssociation.UseTracker = False
-tpToStaUpdMuonAssociation.UseMuon = True
-
-tpToGlbMuonAssociation = MABH.clone()
-tpToGlbMuonAssociation.tracksTag = 'globalMuons'
-tpToGlbMuonAssociation.UseTracker = True
-tpToGlbMuonAssociation.UseMuon = True
-
-tpToStaRefitMuonAssociation = MABH.clone()
-tpToStaRefitMuonAssociation.tracksTag = 'refittedStandAloneMuons'
-tpToStaRefitMuonAssociation.UseTracker = False
-tpToStaRefitMuonAssociation.UseMuon = True
-
-tpToStaRefitUpdMuonAssociation = MABH.clone()
-tpToStaRefitUpdMuonAssociation.tracksTag = 'refittedStandAloneMuons:UpdatedAtVtx'
-tpToStaRefitUpdMuonAssociation.UseTracker = False
-tpToStaRefitUpdMuonAssociation.UseMuon = True
-
-tpToDisplacedTrkMuonAssociation = MABH.clone()
-tpToDisplacedTrkMuonAssociation.tracksTag = 'displacedTracks'
-tpToDisplacedTrkMuonAssociation.UseTracker = True
-tpToDisplacedTrkMuonAssociation.UseMuon = False
-
-tpToDisplacedStaSeedAssociation = MABH.clone()
-tpToDisplacedStaSeedAssociation.tracksTag = 'seedsOfDisplacedSTAmuons'
-tpToDisplacedStaSeedAssociation.UseTracker = False
-tpToDisplacedStaSeedAssociation.UseMuon = True
-tpToDisplacedStaSeedAssociation.EfficiencyCut_muon = 0.
-
-tpToDisplacedStaMuonAssociation = MABH.clone()
-tpToDisplacedStaMuonAssociation.tracksTag = 'displacedStandAloneMuons'
-tpToDisplacedStaMuonAssociation.UseTracker = False
-tpToDisplacedStaMuonAssociation.UseMuon = True
-
-tpToDisplacedGlbMuonAssociation = MABH.clone()
-tpToDisplacedGlbMuonAssociation.tracksTag = 'displacedGlobalMuons'
-tpToDisplacedGlbMuonAssociation.UseTracker = True
-tpToDisplacedGlbMuonAssociation.UseMuon = True
-
-tpToTevFirstMuonAssociation = MABH.clone()
-tpToTevFirstMuonAssociation.tracksTag = 'tevMuons:firstHit'
-tpToTevFirstMuonAssociation.UseTracker = True
-tpToTevFirstMuonAssociation.UseMuon = True
-tpToTevFirstMuonAssociation.EfficiencyCut_muon = 0.
-
-tpToTevPickyMuonAssociation = MABH.clone()
-tpToTevPickyMuonAssociation.tracksTag = 'tevMuons:picky'
-tpToTevPickyMuonAssociation.UseTracker = True
-tpToTevPickyMuonAssociation.UseMuon = True
-tpToTevPickyMuonAssociation.EfficiencyCut_muon = 0.
-
-tpToTevDytMuonAssociation = MABH.clone()
-tpToTevDytMuonAssociation.tracksTag = 'tevMuons:dyt'
-tpToTevDytMuonAssociation.UseTracker = True
-tpToTevDytMuonAssociation.UseMuon = True
-tpToTevDytMuonAssociation.EfficiencyCut_muon = 0.
-
-tpToME0MuonMuonAssociation = MABH.clone()
-tpToME0MuonMuonAssociation.tracksTag = 'extractMe0Muons'
-tpToME0MuonMuonAssociation.UseTracker = True
-tpToME0MuonMuonAssociation.UseMuon = False
-
-tpToGEMMuonMuonAssociation = MABH.clone()
-tpToGEMMuonMuonAssociation.tracksTag = 'extractGemMuons'
-tpToGEMMuonMuonAssociation.UseTracker = True
-tpToGEMMuonMuonAssociation.UseMuon = False
-
-tpToL3TkMuonAssociation = MABHhlt.clone()
-tpToL3TkMuonAssociation.tracksTag = 'hltL3TkTracksFromL2'
-tpToL3TkMuonAssociation.UseTracker = True
-tpToL3TkMuonAssociation.UseMuon = False
-
-tpToL2MuonAssociation = MABHhlt.clone()
-tpToL2MuonAssociation.tracksTag = 'hltL2Muons'
-tpToL2MuonAssociation.UseTracker = False
-tpToL2MuonAssociation.UseMuon = True
-
-tpToL2UpdMuonAssociation = MABHhlt.clone()
-tpToL2UpdMuonAssociation.tracksTag = 'hltL2Muons:UpdatedAtVtx'
-tpToL2UpdMuonAssociation.UseTracker = False
-tpToL2UpdMuonAssociation.UseMuon = True
-
-tpToL3MuonAssociation = MABHhlt.clone()
-tpToL3MuonAssociation.tracksTag = 'hltL3Muons'
-tpToL3MuonAssociation.UseTracker = True
-tpToL3MuonAssociation.UseMuon = True
 
 #
 # COSMICS reco
+MABHcosmic = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone(
+# DEFAULTS ###################################
+#    acceptOneStubMatchings = False,
+#    rejectBadGlobal = True,
+#    tpTag = "mix:MergedTrackTruth",
+#    tpRefVector = False,
+###############################################
+    EfficiencyCut_track = 0.5,
+    PurityCut_track = 0.75,
+    EfficiencyCut_muon = 0.5,
+    PurityCut_muon = 0.75,
+    includeZeroHitMuons = False
+)
+################################################
 #
 # 2-legs cosmics reco: simhits can be twice the reconstructed ones in any single leg
 # (Quality cut have to be set at 0.25, purity cuts can stay at default value 0.75)
 # T.B.D. upper and lower leg should be analyzed separately 
 #
-tpToTkCosmicSelMuonAssociation = MABH.clone()
-tpToTkCosmicSelMuonAssociation.tracksTag = 'ctfWithMaterialTracksP5LHCNavigation'
-tpToTkCosmicSelMuonAssociation.UseTracker = True
-tpToTkCosmicSelMuonAssociation.UseMuon = False
-tpToTkCosmicSelMuonAssociation.EfficiencyCut_track = 0.25
-
-tpToStaCosmicSelMuonAssociation = MABH.clone()
-tpToStaCosmicSelMuonAssociation.tracksTag = 'cosmicMuons'
-tpToStaCosmicSelMuonAssociation.UseTracker = False
-tpToStaCosmicSelMuonAssociation.UseMuon = True
-tpToStaCosmicSelMuonAssociation.EfficiencyCut_muon = 0.25
-
-tpToGlbCosmicSelMuonAssociation = MABH.clone()
-tpToGlbCosmicSelMuonAssociation.tracksTag = 'globalCosmicMuons'
-tpToGlbCosmicSelMuonAssociation.UseTracker = True
-tpToGlbCosmicSelMuonAssociation.UseMuon = True
-tpToGlbCosmicSelMuonAssociation.EfficiencyCut_track = 0.25
-tpToGlbCosmicSelMuonAssociation.EfficiencyCut_muon = 0.25
-
+tpToTkCosmicSelMuonAssociation = MABHcosmic.clone(
+    tracksTag = 'ctfWithMaterialTracksP5LHCNavigation',
+    UseTracker = True,
+    UseMuon = False,
+    EfficiencyCut_track = 0.25
+)
+tpToStaCosmicSelMuonAssociation = MABHcosmic.clone(
+    tracksTag = 'cosmicMuons',
+    UseTracker = False,
+    UseMuon = True,
+    EfficiencyCut_muon = 0.25
+)
+tpToGlbCosmicSelMuonAssociation = MABHcosmic.clone(
+    tracksTag = 'globalCosmicMuons',
+    UseTracker = True,
+    UseMuon = True,
+    EfficiencyCut_track = 0.25,
+    EfficiencyCut_muon = 0.25
+)
 # 1-leg cosmics reco
-tpToTkCosmic1LegSelMuonAssociation = MABH.clone()
-tpToTkCosmic1LegSelMuonAssociation.tracksTag = 'ctfWithMaterialTracksP5'
-tpToTkCosmic1LegSelMuonAssociation.UseTracker = True
-tpToTkCosmic1LegSelMuonAssociation.UseMuon = False
-
-tpToStaCosmic1LegSelMuonAssociation = MABH.clone()
-tpToStaCosmic1LegSelMuonAssociation.tracksTag = 'cosmicMuons1Leg'
-tpToStaCosmic1LegSelMuonAssociation.UseTracker = False
-tpToStaCosmic1LegSelMuonAssociation.UseMuon = True
-
-tpToGlbCosmic1LegSelMuonAssociation = MABH.clone()
-tpToGlbCosmic1LegSelMuonAssociation.tracksTag = 'globalCosmicMuons1Leg'
-tpToGlbCosmic1LegSelMuonAssociation.UseTracker = True
-tpToGlbCosmic1LegSelMuonAssociation.UseMuon = True
-
+tpToTkCosmic1LegSelMuonAssociation = MABHcosmic.clone(
+    tracksTag = 'ctfWithMaterialTracksP5',
+    UseTracker = True,
+    UseMuon = False
+)
+tpToStaCosmic1LegSelMuonAssociation = MABHcosmic.clone(
+    tracksTag = 'cosmicMuons1Leg',
+    UseTracker = False,
+    UseMuon = True
+)
+tpToGlbCosmic1LegSelMuonAssociation = MABHcosmic.clone(
+    tracksTag = 'globalCosmicMuons1Leg',
+    UseTracker = True,
+    UseMuon = True
+)
 #
 # The full-sim association sequences
 #
@@ -198,10 +297,13 @@ muonAssociation_seq = cms.Sequence(
     +trackAssociatorByHits+tpToTkmuTrackAssociation
     +seedsOfSTAmuons_seq+tpToStaSeedAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation
     +tpToGlbMuonAssociation
+    +pfMuonTracks_seq+tpToPFMuonAssociation
+    +recoMuonTracks_seq+tpTorecoMuonMuonAssociation
     )
 
 muonAssociationTEV_seq = cms.Sequence(
     tpToTevFirstMuonAssociation+tpToTevPickyMuonAssociation+tpToTevDytMuonAssociation
+    +tunepMuonTracks_seq+tpToTunePMuonAssociation
     )
 
 muonAssociationDisplaced_seq = cms.Sequence(
@@ -220,14 +322,23 @@ muonAssociationCosmic_seq = cms.Sequence(
     )
 
 muonAssociationHLT_seq = cms.Sequence(
-    tpToL2MuonAssociation+tpToL2UpdMuonAssociation+tpToL3TkMuonAssociation+tpToL3MuonAssociation
+    tpToL2MuonAssociation+tpToL2UpdMuonAssociation
+    +tpToL3OITkMuonAssociation+tpToL3TkMuonAssociation+tpToL3FromL1TkMuonAssociation+tpToL0L3FromL1TkMuonAssociation
+    +tpToL3GlbMuonAssociation
+    +hltIterL3MuonsNoIDTracks_seq+tpToL3NoIDMuonAssociation
+    +hltIterL3MuonsTracks_seq+tpToL3MuonAssociation
     )
 
 
 # fastsim has no hlt specific dt hit collection
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 _DTrechitTag = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.DTrechitTag
-fastSim.toModify(tpToL3TkMuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(tpToL2MuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(tpToL2UpdMuonAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(tpToL3OITkMuonAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(tpToL3TkMuonAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(tpToL3FromL1TkMuonAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(tpToL0L3FromL1TkMuonAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(tpToL3GlbMuonAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(tpToL3NoIDMuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(tpToL3MuonAssociation, DTrechitTag = _DTrechitTag)

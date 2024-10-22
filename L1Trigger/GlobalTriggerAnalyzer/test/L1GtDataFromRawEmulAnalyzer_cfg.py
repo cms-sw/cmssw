@@ -168,7 +168,7 @@ process.PoolSource.fileNames = ['/store/data/GlobalCruzet1/A/000/000/000/RAW/000
 # configuration
 #
 process.load("Configuration.StandardSequences.FakeConditions_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.load("L1Trigger.Configuration.L1Config_cff")
 
@@ -250,9 +250,10 @@ process.p = cms.Path(process.RawToDigi*process.l1GtEmulDigis*process.l1GtDataEmu
 
 # Message Logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories = ['*']
-process.MessageLogger.destinations = ['cout']
+
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
     threshold = cms.untracked.string('INFO'),
     INFO = cms.untracked.PSet(
         #limit = cms.untracked.int32(-1)

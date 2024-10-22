@@ -1,12 +1,7 @@
-import socket
 import datetime
 import os
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
-
-sourceConnection = 'oracle://cms_omds_adg/CMS_TRK_R'
-if socket.getfqdn().find('.cms') != -1:
-    sourceConnection = 'oracle://cms_omds_lb/CMS_TRK_R'
 
 options = VarParsing.VarParsing()
 options.register('delay'
@@ -14,6 +9,12 @@ options.register('delay'
                 , VarParsing.VarParsing.multiplicity.singleton
                 , VarParsing.VarParsing.varType.int
                 , "Time delay (in hours) for the O2O. The O2O then queries the PVSS DB from last IOV until (current hour - delay), ignoring minutes and seconds."
+                  )
+options.register('sourceConnection'
+                , 'oracle://cms_omds_adg/CMS_TRK_R'  # default value
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.string
+                , "Connection string to the PVSS DB."
                   )
 options.register('destinationConnection'
                 , 'sqlite_file:SiStripDetVOff.db'  # default value
@@ -61,7 +62,7 @@ process.source = cms.Source("EmptySource",
 # -----------------------------------------------------------------------------
 process.SiStripDetVOffBuilder = cms.Service(
     "SiStripDetVOffBuilder",
-    onlineDB = cms.string(sourceConnection),
+    onlineDB=cms.string(options.sourceConnection),
     authPath=cms.string(authPath),
 
     # Format for date/time vector:  year, month, day, hour, minute, second, nanosecond      

@@ -26,9 +26,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
- typedef SingleObjectSelector<
-           reco::CaloJetCollection, 
-           StringCutObjectSelector<reco::CaloJet> 
-         > CaloJetSelector;
+typedef SingleObjectSelector<reco::CaloJetCollection, StringCutObjectSelector<reco::CaloJet> > CaloJetSelector;
 
-DEFINE_FWK_MODULE( CaloJetSelector );
+DEFINE_FWK_MODULE(CaloJetSelector);

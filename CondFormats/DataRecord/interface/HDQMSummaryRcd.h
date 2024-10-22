@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     HDQMSummaryRcd
-// 
+//
 /**\class HDQMSummaryRcd HDQMSummaryRcd.h CondFormats/DataRecord/interface/HDQMSummaryRcd.h
 
  Description: <one line class summary>

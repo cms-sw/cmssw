@@ -1,5 +1,6 @@
 #!/bin/env python
 
+from __future__ import print_function
 import os
 
 # Path of the input tables
@@ -23,6 +24,6 @@ for part in range (1, 3) :
             f.write(fullpath+'\n')
             status = os.system('${CMSSW_BASE}/test/${SCRAM_ARCH}/prepareFieldTable '+fullpath +' '+ subdir+'/grid.'+volNo+'.bin '+ str(sector))
             if status != 0 :
-                print 'ERROR table not processed:', fullpath
+                print('ERROR table not processed:', fullpath)
         
 f.close()

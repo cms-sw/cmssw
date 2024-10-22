@@ -30,81 +30,77 @@ class TGWindow;
 class FWEventItemsManager;
 
 namespace edm {
-   class EventID;
+  class EventID;
 }
 
 class FWFileEntry {
 public:
-   struct Filter
-   {
-      FWTEventList*      m_eventList;
-      FWEventSelector*   m_selector;  // owned by navigator
-      bool               m_needsUpdate;
-      
-      Filter(FWEventSelector* s) : m_eventList(nullptr), m_selector(s), m_needsUpdate(true) {}
-      ~Filter()
-      {
-         delete m_eventList;
-      }
+  struct Filter {
+    FWTEventList* m_eventList;
+    FWEventSelector* m_selector;  // owned by navigator
+    bool m_needsUpdate;
 
-      bool hasSelectedEvents()
-      {
-         return m_eventList && m_eventList->GetN();
-      }
-   };
-   
-   FWFileEntry(const std::string& name, bool checkVersion);
-   virtual ~FWFileEntry();
-      
-   TFile*         file()  { return m_file; }
-   fwlite::Event* event() { return m_event; }
-   TTree*         tree()  { return m_eventTree; }
-   FWTEventList*  globalSelection() { return m_globalEventList; }
-   FWTTreeCache*  fwTreeCache();
-   
-   std::list<Filter*>& filters() { return m_filterEntries; }
-   
-   void openFile(bool);
-   void closeFile();
+    Filter(FWEventSelector* s) : m_eventList(nullptr), m_selector(s), m_needsUpdate(true) {}
+    ~Filter() { delete m_eventList; }
 
-   bool isEventSelected(int event);
+    bool hasSelectedEvents() { return m_eventList && m_eventList->GetN(); }
+  };
 
-   bool hasSelectedEvents();
+  FWFileEntry(const std::string& name, bool checkVersion, bool checkGlobalTag);
+  virtual ~FWFileEntry();
 
-   bool hasActiveFilters();
+  TFile* file() { return m_file; }
+  fwlite::Event* event() { return m_event; }
+  TTree* tree() { return m_eventTree; }
+  FWTEventList* globalSelection() { return m_globalEventList; }
+  FWTTreeCache* fwTreeCache();
 
-   int  firstSelectedEvent();
-   int  lastSelectedEvent();
+  std::list<Filter*>& filters() { return m_filterEntries; }
 
-   int  lastEvent() { return m_eventTree->GetEntries() -1; }
+  const std::string& getGlobalTag() const { return m_globalTag; }
 
-   int  nextSelectedEvent(int event);
-   int  previousSelectedEvent(int event);
+  void openFile(bool, bool);
+  void closeFile();
 
-   void needUpdate() { m_needUpdate = true; }
-   void updateFilters(const FWEventItemsManager* eiMng, bool isOR);
+  bool isEventSelected(int event);
 
-   // CallIns from FWEventItemsManager for tree-cache add/remove branch
-   void NewEventItemCallIn(const FWEventItem* it);
-   void RemovingEventItemCallIn(const FWEventItem* it);
+  bool hasSelectedEvents();
+
+  bool hasActiveFilters();
+
+  int firstSelectedEvent();
+  int lastSelectedEvent();
+
+  int lastEvent() { return m_eventTree->GetEntries() - 1; }
+
+  int nextSelectedEvent(int event);
+  int previousSelectedEvent(int event);
+
+  void needUpdate() { m_needUpdate = true; }
+  void updateFilters(const FWEventItemsManager* eiMng, bool isOR);
+
+  // CallIns from FWEventItemsManager for tree-cache add/remove branch
+  void NewEventItemCallIn(const FWEventItem* it);
+  void RemovingEventItemCallIn(const FWEventItem* it);
+
+  FWFileEntry(const FWFileEntry&) = delete;                   // stop default
+  const FWFileEntry& operator=(const FWFileEntry&) = delete;  // stop default
 
 private:
-   FWFileEntry(const FWFileEntry&) = delete;    // stop default
-   const FWFileEntry& operator=(const FWFileEntry&) = delete;    // stop default
+  void runFilter(Filter* fe, const FWEventItemsManager* eiMng);
+  bool filterEventsWithCustomParser(Filter* filter);
 
-   void runFilter(Filter* fe, const FWEventItemsManager* eiMng);
-   bool filterEventsWithCustomParser(Filter* filter);
+  std::string getBranchName(const FWEventItem* it) const;
 
-   std::string getBranchName(const FWEventItem *it) const;
+  std::string m_name;
+  TFile* m_file;
+  TTree* m_eventTree;
+  fwlite::Event* m_event;
 
-   std::string            m_name;
-   TFile*                 m_file;
-   TTree*                 m_eventTree;
-   fwlite::Event*         m_event;
-   
-   bool                   m_needUpdate; // To be set in navigator::filterChanged/Added, newFile
-   
-   std::list<Filter*>     m_filterEntries;
-   FWTEventList*          m_globalEventList;
+  bool m_needUpdate;  // To be set in navigator::filterChanged/Added, newFile
+  std::string m_globalTag;
+
+  std::list<Filter*> m_filterEntries;
+  FWTEventList* m_globalEventList;
 };
 #endif

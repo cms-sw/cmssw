@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from math import pi
 
-B2GDQM = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+B2GDQM = DQMEDAnalyzer(
     "B2GDQM",
 
     #Trigger Results
@@ -12,10 +13,9 @@ B2GDQM = cms.EDAnalyzer(
 
     jetLabels = cms.VInputTag(
         'ak4PFJets',
-        'ak4PFJetsCHS',
-        'ak8PFJetsCHS',
-        'ak8PFJetsCHSSoftDrop',
-        'cmsTopTagPFJetsCHS'
+        'ak4PFJetsPuppi',
+        'ak8PFJetsPuppi',
+        'ak8PFJetsPuppiSoftDrop'
         ),
     jetPtMins = cms.vdouble(
         50.,
@@ -26,11 +26,11 @@ B2GDQM = cms.EDAnalyzer(
         ),
     pfMETCollection          = cms.InputTag("pfMet"),
 
-    cmsTagLabel = cms.InputTag("cmsTopTagPFJetsCHS"),
+    sdjetLabel = cms.InputTag("ak8PFJetsPuppiSoftDrop"),
     muonSrc = cms.InputTag("muons"),
     electronSrc = cms.InputTag("gedGsfElectrons"),
 
-    allHadPtCut = cms.double(400.0),
+    allHadPtCut = cms.double(380.0),             # Edit in 2019: Lower pt cut slightly because this now selects groomed jet pt
     allHadRapidityCut = cms.double(1.0),
     allHadDeltaPhiCut = cms.double( pi / 2.0),
 

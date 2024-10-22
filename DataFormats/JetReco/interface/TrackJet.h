@@ -1,7 +1,6 @@
 #ifndef DataFormats_JetReco_TrackJet_h
 #define DataFormats_JetReco_TrackJet_h
 
-
 /** \class reco::TrackJet
  *
  * \short Jets made out of tracks
@@ -16,60 +15,53 @@
  *
  ************************************************************/
 
-
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedRefCandidate.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-
 namespace reco {
 
   class TrackJet : public Jet {
+  public:
+    /// Default constructor
+    TrackJet();
+    /// Constructor without constituents
+    TrackJet(const LorentzVector& fP4, const Point& fVertex);
+    /// Constructor from RecoChargedRefCandidate constituents
+    TrackJet(const LorentzVector& fP4, const Point& fVertex, const Jet::Constituents& fConstituents);
+    /// Destructor
+    ~TrackJet() override {}
+    /// Polymorphic clone
+    TrackJet* clone() const override;
 
-    public:
+    /// Number of track daughters
+    size_t numberOfTracks() const { return numberOfDaughters(); }
+    /// Return Ptr to the track costituent
+    virtual edm::Ptr<reco::Track> track(size_t i) const;
+    /// Return pointers to all track costituents
+    std::vector<edm::Ptr<reco::Track> > tracks() const;
 
-      /// Default constructor
-      TrackJet();
-      /// Constructor without constituents
-      TrackJet(const LorentzVector & fP4, const Point & fVertex);
-      /// Constructor from RecoChargedRefCandidate constituents
-      TrackJet(const LorentzVector & fP4, const Point & fVertex, const Jet::Constituents & fConstituents);
-      /// Destructor
-      ~TrackJet() override {}
-      /// Polymorphic clone
-      TrackJet * clone () const override;
+    /// calculate and set the charge by adding up the constituting track charges
+    void resetCharge();
+    /// get associated primary vertex
+    const reco::VertexRef primaryVertex() const;
+    /// set associated primary vertex
+    void setPrimaryVertex(const reco::VertexRef& vtx);
+    /// check jet to be associated to the hard primary vertex
+    bool fromHardVertex() const { return (this->primaryVertex().index() == 0); }
 
-      /// Number of track daughters
-      size_t numberOfTracks() const { return numberOfDaughters(); }
-      /// Return Ptr to the track costituent
-      virtual edm::Ptr<reco::Track> track(size_t i) const;
-      /// Return pointers to all track costituents
-      std::vector<edm::Ptr<reco::Track> > tracks() const;
+    /// Print object
+    std::string print() const override;
 
-      /// calculate and set the charge by adding up the constituting track charges
-      void resetCharge();
-      /// get associated primary vertex
-      const reco::VertexRef primaryVertex() const;
-      /// set associated primary vertex
-      void setPrimaryVertex(const reco::VertexRef & vtx);
-      /// check jet to be associated to the hard primary vertex
-      bool fromHardVertex() const { return (this->primaryVertex().index() == 0); }
+  private:
+    /// Polymorphic overlap
+    bool overlap(const Candidate& dummy) const override;
 
-      /// Print object
-      std::string print () const override;
-
-    private:
-
-      /// Polymorphic overlap
-      bool overlap(const Candidate & dummy) const override;
-
-    private:
-
-      /// Associated primary vertex
-      reco::VertexRef vtx_;
-
+  private:
+    /// Associated primary vertex
+    reco::VertexRef vtx_;
   };
 
-}
+}  // namespace reco
 
 #endif

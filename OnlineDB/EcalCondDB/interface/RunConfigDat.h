@@ -9,7 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class RunConfigDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   RunConfigDat();
   ~RunConfigDat() override;
@@ -23,17 +23,16 @@ class RunConfigDat : public IDataItem {
   inline int getConfigVersion() const { return m_configVer; }
   inline void setConfigVersion(int ver) { m_configVer = ver; }
 
- private:
+private:
   void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const RunConfigDat* item, RunIOV* iov ) noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const RunConfigDat* item, RunIOV* iov) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, RunConfigDat >* fillMap, RunIOV* iov) noexcept(false);
+  void fetchData(std::map<EcalLogicID, RunConfigDat>* fillMap, RunIOV* iov) noexcept(false);
 
   // User data
   std::string m_configTag;
   int m_configVer;
-
 };
 
 #endif

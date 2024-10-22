@@ -4,12 +4,8 @@
   <class name="std::vector<TinyEvent>" persistent="false"/>
   <class name="EventWithHistory" persistent="false"/>
   <class name="APVCyclePhaseCollection" persistent="false"/>
-  <class name="SingleSiStripDigiMultiplicity" persistent="false"/>
-  <class name="SingleSiStripClusterMultiplicity" persistent="false"/>
-  <class name="SingleSiPixelClusterMultiplicity" persistent="false"/>
-  <class name="SiPixelClusterSiStripClusterMultiplicityPair" persistent="false"/>
-  <class name="ClusterSummarySingleMultiplicity" persistent="false"/>
-  <class name="ClusterSummaryMultiplicityPair" persistent="false"/>
+  <class name="sistriptools::values::Multiplicity" persistent="false"/>
+  <class name="sistriptools::values::MultiplicityPair<sistriptools::values::Multiplicity, sistriptools::values::Multiplicity>" persistent="false"/>
 
   <class name="edm::Wrapper<std::vector<TinyEvent> >" persistent="false"/>
   <class name="edm::Wrapper<EventWithHistory>" persistent="false"/>

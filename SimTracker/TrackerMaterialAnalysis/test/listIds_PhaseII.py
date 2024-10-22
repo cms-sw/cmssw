@@ -1,19 +1,35 @@
 #! /usr/bin/env cmsRun
+# cmsRun listIds_PhaseII.py fromDB=False
 
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
 
-process = cms.Process("MaterialAnalyser")
+###################################################################
+# Set default phase-2 settings
+###################################################################
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
 
-readGeometryFromDB = False
+process = cms.Process("MaterialAnalyser",_PH2_ERA)
 
-if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
+options = VarParsing('analysis')
+
+options.register('fromDB',
+                 False,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.bool,
+                 'Read Geometry from DB?',
+)
+
+options.parseArguments()
+
+if options.fromDB :
+   process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+   from Configuration.AlCa.GlobalTag import GlobalTag
+   process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, '')
 else:
-# GlobalTag and geometry via GT
-  process.load('Configuration.Geometry.GeometrySimDB_cff')
-  process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-  from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+   process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
+   process.trackerGeometry.applyAlignment = False # needed to avoid to pass the Global Position Record
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 

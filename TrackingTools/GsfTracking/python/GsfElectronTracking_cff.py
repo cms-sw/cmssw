@@ -1,18 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
-from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
+from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cff import *
 from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 
 electronSeedsTask = cms.Task(trackerDrivenElectronSeeds,ecalDrivenElectronSeeds,electronMergedSeeds) 
 electronSeeds = cms.Sequence(electronSeedsTask)
-_electronSeedsTaskFromMultiCl = electronSeedsTask.copy()
-_electronSeedsTaskFromMultiCl.add(cms.Task(ecalDrivenElectronSeedsFromMultiCl,electronMergedSeedsFromMultiCl))
-_electronSeedsFromMultiCl = cms.Sequence(_electronSeedsTaskFromMultiCl)
 
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toReplaceWith(
-  electronSeedsTask, _electronSeedsTaskFromMultiCl )
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toReplaceWith(electronSeedsTask, electronSeedsTask.copyAndExclude([trackerDrivenElectronSeeds]))
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 _fastSim_electronSeedsTask = electronSeedsTask.copy()
@@ -28,7 +24,6 @@ from TrackingTools.GsfTracking.GsfElectronGsfFit_cff import *
 electronGsfTrackingTask = cms.Task(electronSeedsTask,electronCkfTrackCandidates,electronGsfTracks)
 electronGsfTracking = cms.Sequence(electronGsfTrackingTask)
 _electronGsfTrackingTask = electronGsfTrackingTask.copy()
-_electronGsfTrackingTask.add(cms.Task(electronCkfTrackCandidatesFromMultiCl,electronGsfTracksFromMultiCl))
 _fastSim_electronGsfTrackingTask = electronGsfTrackingTask.copy()
 _fastSim_electronGsfTrackingTask.replace(electronCkfTrackCandidates,fastElectronCkfTrackCandidates)
 fastSim.toReplaceWith(electronGsfTrackingTask,_fastSim_electronGsfTrackingTask)
@@ -39,7 +34,7 @@ phase2_hgcal.toReplaceWith(
 )
 
 from SimTracker.TrackAssociation.trackTimeValueMapProducer_cfi import trackTimeValueMapProducer
-gsfTrackTimeValueMapProducer = trackTimeValueMapProducer.clone(trackSrc = cms.InputTag('electronGsfTracks'))
+gsfTrackTimeValueMapProducer = trackTimeValueMapProducer.clone(trackSrc = 'electronGsfTracks')
 
 electronGsfTrackingWithTimingTask = cms.Task(electronGsfTrackingTask.copy(),gsfTrackTimeValueMapProducer)
 electronGsfTrackingWithTiming = cms.Sequence(electronGsfTrackingWithTimingTask)

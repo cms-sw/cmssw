@@ -1,3 +1,4 @@
+from __future__ import print_function
 import json
 import ROOT
 from pprint import pprint
@@ -25,7 +26,7 @@ if(options.verbose):
     pprint(values)
 
 bins=len(values)
-print "n. of bins",bins
+print("n. of bins",bins)
 histo=ROOT.TH1F("histo",title+";"+x_label+";"+y_label,bins,values[0]['x'],values[bins-1]['x'])
 for i,value in enumerate(values):
     histo.SetBinContent(i+1,value['y'])

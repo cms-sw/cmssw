@@ -20,11 +20,10 @@ public:
   void setCalibrationWidths(const DetId id, const HcalCalibrationWidths& ca);
   void clear();
   std::vector<DetId> getAllChannels() const;
+
 private:
   struct CalibWidthSetObject {
-    CalibWidthSetObject(const DetId& aid) {
-      id = hcalTransformedId(aid);
-    }
+    CalibWidthSetObject(const DetId& aid) { id = hcalTransformedId(aid); }
     DetId id;
     HcalCalibrationWidths calib;
     bool operator<(const CalibWidthSetObject& cso) const { return id < cso.id; }
@@ -32,7 +31,7 @@ private:
   };
   typedef CalibWidthSetObject Item;
   HcalCalibrationWidths dummy;
-  std::unordered_map<uint32_t,CalibWidthSetObject> mItems;
+  std::unordered_map<uint32_t, CalibWidthSetObject> mItems;
 };
 
 #endif

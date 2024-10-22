@@ -20,7 +20,6 @@
 //
 ///////////////////////////////////////////////////////
 
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,26 +34,25 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-
-
-
 class HLTTrackerHaloFilter : public HLTFilter {
 public:
   explicit HLTTrackerHaloFilter(const edm::ParameterSet&);
   ~HLTTrackerHaloFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterInputToken_;
-  edm::InputTag inputTag_; // input tag identifying product containing pixel clusters
-  int max_clusTp_; // Maximum number of TEC+ clusters
-  int max_clusTm_; // Maximum number of TEC- clusters
-  int sign_accu_;  // Minimal size for a signal accumulation
-  int max_clusT_;  // Maximum number of TEC clusters
-  int max_back_;   // Max number of accumulations per side
-  int fastproc_;   // fast unpacking of cluster info, based on DetIds
+  edm::InputTag inputTag_;  // input tag identifying product containing pixel clusters
+  int max_clusTp_;          // Maximum number of TEC+ clusters
+  int max_clusTm_;          // Maximum number of TEC- clusters
+  int sign_accu_;           // Minimal size for a signal accumulation
+  int max_clusT_;           // Maximum number of TEC clusters
+  int max_back_;            // Max number of accumulations per side
+  int fastproc_;            // fast unpacking of cluster info, based on DetIds
 
   static const int m_TEC_cells[];
 };

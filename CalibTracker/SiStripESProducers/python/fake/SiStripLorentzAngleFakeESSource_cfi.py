@@ -18,6 +18,4 @@ siStripLorentzAngleFakeESSource = cms.ESSource("SiStripLorentzAngleFakeESSource"
        TOB_EstimatedValuesMax = cms.vdouble(0.021, 0.021, 0.021, 0.021, 0.021, 0.021),
        # TOB errors
        TOB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.,    0.,    0.),
-       
-       file = cms.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),         
    )

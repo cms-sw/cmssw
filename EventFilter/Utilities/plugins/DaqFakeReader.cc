@@ -7,6 +7,7 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/TCDS/interface/TCDSRaw.h"
 
 #include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 
@@ -19,174 +20,180 @@
 #include <cmath>
 #include <sys/time.h>
 #include <cstring>
-
+#include <cstdlib>
+#include <chrono>
 
 using namespace std;
 using namespace edm;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset) 
-  : runNum(1)
-  , eventNum(1)
-  , empty_events(pset.getUntrackedParameter<bool>("emptyEvents",false)) 
-  , meansize(pset.getUntrackedParameter<unsigned int>("meanSize",1024))
-  , width(pset.getUntrackedParameter<unsigned int>("width",1024))
-  , injected_errors_per_million_events(pset.getUntrackedParameter<unsigned int>("injectErrPpm",0))
-  , modulo_error_events(injected_errors_per_million_events ? 1000000/injected_errors_per_million_events : 0xffffffff)
-{
+DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset)
+    : runNum(1),
+      eventNum(1),
+      empty_events(pset.getUntrackedParameter<bool>("emptyEvents", false)),
+      fillRandom_(pset.getUntrackedParameter<bool>("fillRandom", false)),
+      meansize(pset.getUntrackedParameter<unsigned int>("meanSize", 1024)),
+      width(pset.getUntrackedParameter<unsigned int>("width", 1024)),
+      injected_errors_per_million_events(pset.getUntrackedParameter<unsigned int>("injectErrPpm", 0)),
+      tcdsFEDID_(pset.getUntrackedParameter<unsigned int>("tcdsFEDID", 1024)),
+      modulo_error_events(injected_errors_per_million_events ? 1000000 / injected_errors_per_million_events
+                                                             : 0xffffffff) {
   // mean = pset.getParameter<float>("mean");
+  if (tcdsFEDID_ < FEDNumbering::MINTCDSuTCAFEDID)
+    throw cms::Exception("DaqFakeReader::DaqFakeReader")
+        << " TCDS FED ID lower than " << FEDNumbering::MINTCDSuTCAFEDID;
+  if (fillRandom_) {
+    //intialize random seed
+    auto time_count =
+        static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+    srand(time_count & 0xffffffff);
+  }
   produces<FEDRawDataCollection>();
 }
 
 //______________________________________________________________________________
-DaqFakeReader::~DaqFakeReader()
-{
-  
-}
-
+DaqFakeReader::~DaqFakeReader() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-int DaqFakeReader::fillRawData(Event& e,
-			       FEDRawDataCollection*& data)
-{
+int DaqFakeReader::fillRawData(Event& e, FEDRawDataCollection*& data) {
   // a null pointer is passed, need to allocate the fed collection
-  data=new FEDRawDataCollection();
+  data = new FEDRawDataCollection();
   EventID eID = e.id();
-  
-  if(!empty_events)
-    {
+  auto ls = e.luminosityBlock();
 
-      // Fill the EventID
-      eventNum++;
-      // FIXME:
-      
-      fillFEDs(FEDNumbering::MINSiPixelFEDID,
-	       FEDNumbering::MAXSiPixelFEDID, 
-	       eID, *data, meansize, width);
-      fillFEDs(FEDNumbering::MINSiStripFEDID, 
-	       FEDNumbering::MAXSiStripFEDID, 
-	       eID, *data, meansize, width);
-      fillFEDs(FEDNumbering::MINDTFEDID, 
-	       FEDNumbering::MAXDTFEDID, 
-	       eID, *data, meansize, width);
-      fillFEDs(FEDNumbering::MINCSCFEDID, 
-	       FEDNumbering::MAXCSCFEDID, 
-	       eID, *data, meansize, width);
-      fillFEDs(FEDNumbering::MINRPCFEDID,
-	       FEDNumbering::MAXRPCFEDID, 
-	       eID, *data, meansize, width);
-      fillFEDs(FEDNumbering::MINECALFEDID, 
-	       FEDNumbering::MAXECALFEDID, 
-	       eID, *data, meansize, width);
-      fillFEDs(FEDNumbering::MINHCALFEDID, 
-	       FEDNumbering::MAXHCALFEDID, 
-	       eID, *data, meansize, width);
+  if (!empty_events) {
+    // Fill the EventID
+    eventNum++;
+    // FIXME:
 
-      timeval now;
-      gettimeofday(&now,nullptr);
-      fillGTPFED(eID, *data,&now);
-      //TODO: write fake TCDS FED filler
-    }
+    fillFEDs(FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID, eID, *data, meansize, width);
+    fillFEDs(FEDNumbering::MINSiStripFEDID, FEDNumbering::MAXSiStripFEDID, eID, *data, meansize, width);
+    fillFEDs(FEDNumbering::MINDTFEDID, FEDNumbering::MAXDTFEDID, eID, *data, meansize, width);
+    fillFEDs(FEDNumbering::MINCSCFEDID, FEDNumbering::MAXCSCFEDID, eID, *data, meansize, width);
+    fillFEDs(FEDNumbering::MINRPCFEDID, FEDNumbering::MAXRPCFEDID, eID, *data, meansize, width);
+    fillFEDs(FEDNumbering::MINECALFEDID, FEDNumbering::MAXECALFEDID, eID, *data, meansize, width);
+    fillFEDs(FEDNumbering::MINHCALFEDID, FEDNumbering::MAXHCALFEDID, eID, *data, meansize, width);
+
+    timeval now;
+    gettimeofday(&now, nullptr);
+    fillTCDSFED(eID, *data, ls, &now);
+  }
   return 1;
 }
 
-void DaqFakeReader::produce(Event&e, EventSetup const&es){
-
+void DaqFakeReader::produce(Event& e, EventSetup const& es) {
   edm::Handle<FEDRawDataCollection> rawdata;
-  FEDRawDataCollection *fedcoll = nullptr;
-  fillRawData(e,fedcoll);
+  FEDRawDataCollection* fedcoll = nullptr;
+  fillRawData(e, fedcoll);
   std::unique_ptr<FEDRawDataCollection> bare_product(fedcoll);
   e.put(std::move(bare_product));
 }
 
-
 //______________________________________________________________________________
-void DaqFakeReader::fillFEDs(const int fedmin, const int fedmax,
-			     EventID& eID,
-			     FEDRawDataCollection& data,
-			     float meansize,
-			     float width)
-{
-  
+void DaqFakeReader::fillFEDs(
+    const int fedmin, const int fedmax, EventID& eID, FEDRawDataCollection& data, float meansize, float width) {
   // FIXME: last ID included?
-  for (int fedId = fedmin; fedId <= fedmax; ++fedId ) {
-    
+  for (int fedId = fedmin; fedId <= fedmax; ++fedId) {
     // Generate size...
-    float logsiz = CLHEP::RandGauss::shoot(std::log(meansize),
-				    std::log(meansize)-std::log(width/2.));
+    float logsiz = CLHEP::RandGauss::shoot(std::log(meansize), std::log(meansize) - std::log(width / 2.));
     size_t size = int(std::exp(logsiz));
-    size -= size % 8; // all blocks aligned to 64 bit words
+    size -= size % 8;  // all blocks aligned to 64 bit words
 
     FEDRawData& feddata = data.FEDData(fedId);
     // Allocate space for header+trailer+payload
-    feddata.resize(size+16); 
+    feddata.resize(size + 16);
+
+    if (fillRandom_) {
+      //fill FED with random values
+      size_t size_ui = size - size % sizeof(unsigned int);
+      for (size_t i = 0; i < size_ui; i += sizeof(unsigned int)) {
+        *((unsigned int*)(feddata.data() + i)) = (unsigned int)rand();
+      }
+      //remainder
+      for (size_t i = size_ui; i < size; i++) {
+        *(feddata.data() + i) = rand() & 0xff;
+      }
+    }
 
     // Generate header
     FEDHeader::set(feddata.data(),
-	       1,             // Trigger type
-	       eID.event(),   // LV1_id (24 bits)
-	       0,             // BX_id
-	       fedId);        // source_id
+                   1,            // Trigger type
+                   eID.event(),  // LV1_id (24 bits)
+                   0,            // BX_id
+                   fedId);       // source_id
 
     // Payload = all 0s...
 
     // Generate trailer
-    int crc = 0; // FIXME : get CRC
-    FEDTrailer::set(feddata.data()+8+size,
-		    size/8+2, // in 64 bit words!!!
-		    crc,
-		    0,        // Evt_stat
-		    0);       // TTS bits
-  }  
+    int crc = 0;  // FIXME : get CRC
+    FEDTrailer::set(feddata.data() + 8 + size,
+                    size / 8 + 2,  // in 64 bit words!!!
+                    crc,
+                    0,   // Evt_stat
+                    0);  // TTS bits
+  }
 }
 
-void DaqFakeReader::fillGTPFED(EventID& eID,
-                                FEDRawDataCollection& data, timeval *now)
-{
-  uint32_t fedId = FEDNumbering::MINTriggerGTPFEDID;
+void DaqFakeReader::fillTCDSFED(EventID& eID, FEDRawDataCollection& data, uint32_t ls, timeval* now) {
+  uint32_t fedId = tcdsFEDID_;
   FEDRawData& feddata = data.FEDData(fedId);
-  uint32_t size = evf::evtn::SLINK_WORD_SIZE*37-16;//BST52_3BX
-  feddata.resize(size+16);
+  uint32_t size = sizeof(tcds::Raw_v1);
+  feddata.resize(size + 16);
+
+  uint64_t orbitnr = 0;
+  uint16_t bxid = 0;
 
   FEDHeader::set(feddata.data(),
-             1,             // Trigger type
-             eID.event(),   // LV1_id (24 bits)
-             0,             // BX_id
-             fedId);        // source_id
+                 1,            // Trigger type
+                 eID.event(),  // LV1_id (24 bits)
+                 bxid,         // BX_id
+                 fedId);       // source_id
 
-  int crc = 0; // FIXME : get CRC
-  FEDTrailer::set(feddata.data()+8+size,
-                  size/8+2, // in 64 bit words!!!
+  tcds::Raw_v1* tcds = reinterpret_cast<tcds::Raw_v1*>(feddata.data() + FEDHeader::length);
+  tcds::BST_v1* bst = const_cast<tcds::BST_v1*>(&tcds->bst);
+  tcds::Header_v1* header = const_cast<tcds::Header_v1*>(&tcds->header);
+
+  const_cast<uint32_t&>(bst->gpstimehigh) = now->tv_sec;
+  const_cast<uint32_t&>(bst->gpstimelow) = now->tv_usec;
+  const_cast<uint16_t&>(bst->lhcFillHigh) = 0;
+  const_cast<uint16_t&>(bst->lhcFillLow) = 0;
+
+  const_cast<uint32_t&>(header->orbitHigh) = orbitnr & 0xffff00;
+  const_cast<uint16_t&>(header->orbitLow) = orbitnr & 0xff;
+  const_cast<uint16_t&>(header->bxid) = bxid;
+
+  const_cast<uint64_t&>(header->eventNumber) = eID.event();
+  const_cast<uint32_t&>(header->lumiSection) = ls;
+
+  int crc = 0;  // only full event crc32c checked in HLT, not FED CRC16
+  FEDTrailer::set(feddata.data() + 8 + size,
+                  size / 8 + 2,  // in 64 bit words!!!
                   crc,
-                  0,        // Evt_stat
-                  0);       // TTS bits
-
-  unsigned char * pOffset = feddata.data() + FEDHeader::length;
-  //fill in event ID
-  *( (uint32_t*)(pOffset + evf::evtn::EVM_BOARDID_OFFSET * evf::evtn::SLINK_WORD_SIZE / 2)) = evf::evtn::EVM_BOARDID_VALUE << evf::evtn::EVM_BOARDID_SHIFT;
-  *( (uint32_t*)(pOffset + FEDHeader::length + (9*2 + evf::evtn::EVM_TCS_TRIGNR_OFFSET) * evf::evtn::SLINK_WORD_SIZE / 2))  = eID.event();
-  //fill in timestamp
-  *( (uint32_t*) (pOffset + evf::evtn::EVM_GTFE_BSTGPS_OFFSET * evf::evtn::SLINK_WORD_SIZE / 2)) = now->tv_sec;
-  *( (uint32_t*) (pOffset + FEDHeader::length + evf::evtn::EVM_GTFE_BSTGPS_OFFSET * evf::evtn::SLINK_WORD_SIZE / 2 + evf::evtn::SLINK_HALFWORD_SIZE)) = now->tv_usec;
-
-  //*( (uint16_t*) (pOffset + (evtn::EVM_GTFE_BLOCK*2 + evtn::EVM_TCS_LSBLNR_OFFSET)*evtn::SLINK_HALFWORD_SIZE)) = (unsigned short)fakeLs_-1;
-
-  //we could also generate lumiblock, bcr, orbit,... but they are not currently used by the FRD input source
-
+                  0,   // Evt_stat
+                  0);  // TTS bits
 }
 
-
-void DaqFakeReader::beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE)
-{
+void DaqFakeReader::beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE) {
   std::cout << "DaqFakeReader begin Lumi " << iL.luminosityBlock() << std::endl;
-  fakeLs_=iL.luminosityBlock();
+  fakeLs_ = iL.luminosityBlock();
+}
+
+void DaqFakeReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Injector of generated raw FED data for DAQ testing");
+  desc.addUntracked<bool>("emptyEvents", false);
+  desc.addUntracked<bool>("fillRandom", false);
+  desc.addUntracked<unsigned int>("meanSize", 1024);
+  desc.addUntracked<unsigned int>("width", 1024);
+  desc.addUntracked<unsigned int>("injectErrPpm", 1024);
+  desc.addUntracked<unsigned int>("tcdsFEDID", 1024);
+  descriptions.add("DaqFakeReader", desc);
 }

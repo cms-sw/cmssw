@@ -9,7 +9,8 @@
 #____________________________________________________________
 
 
-import ConfigParser
+from __future__ import print_function
+import configparser as ConfigParser
 import ROOT
 import sys
 import math
@@ -43,13 +44,13 @@ def main():
     for event in events:
         i = i + 1
         if i%10 == 0:
-            print  i
+            print(i)
 
         event.getByLabel (label, handleBSpot)
         # get the product
         spot = handleBSpot.product()
 
-        print " x = "+str(spot.x0())
+        print(" x = "+str(spot.x0()))
                         
         if i==10: break
                                                                                     

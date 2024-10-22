@@ -1,8 +1,0 @@
-<library   file="*.cc" name="RecoRomanPotRecoFP420Plugins">
-  <use   name="RecoRomanPot/RecoFP420"/>
-  <use   name="SimRomanPot/SimFP420"/>
-  <use   name="SimG4CMS/FP420"/>
-  <use   name="gsl"/>
-  <use   name="hector"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

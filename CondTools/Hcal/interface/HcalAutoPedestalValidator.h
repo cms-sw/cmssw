@@ -12,9 +12,8 @@
 #include <vector>
 #include <algorithm>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -38,18 +37,19 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
-class HcalAutoPedestalValidator: public edm::EDAnalyzer
-{
- public:
+class HcalAutoPedestalValidator : public edm::one::EDAnalyzer<> {
+public:
   HcalAutoPedestalValidator(edm::ParameterSet const& ps);
 
   ~HcalAutoPedestalValidator() override;
 
   void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
 
- private:
+private:
   std::string outfile;
   double epsilon;
+  edm::ESGetToken<HcalPedestals, HcalPedestalsRcd> m_tok1;
+  edm::ESGetToken<HcalPedestals, HcalPedestalsRcd> m_tok2;
   //  vecDetId getMissingDetIds(std::vector<HcalPedestals> &);
 };
 #endif

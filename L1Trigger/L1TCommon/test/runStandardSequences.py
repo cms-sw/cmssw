@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -5,10 +6,11 @@
 # with command line options: debug --no_exec --conditions auto:run2_mc_25ns14e33_v4 -s DIGI:pdigi_valid,L1,DIGI2RAW,RAW2DIGI --datatier GEN-SIM-DIGI-RAW-HLTDEBUG -n 10 --era Run2_25ns --eventcontent FEVTDEBUGHLT --filein filelist:step1_dasquery.log --fileout file:step2.root
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-#process = cms.Process('L1SEQS',eras.Run2_25ns)
-process = cms.Process('L1SEQS',eras.Run2_2016)
+#from Configuration.Eras.Era_Run2_25ns_cff import Run2_25ns
+#process = cms.Process('L1SEQS',Run2_25ns)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process('L1SEQS',Run2_2016)
 
 process.MessageLogger = cms.Service(
     "MessageLogger",
@@ -123,13 +125,13 @@ process.debug_step = cms.Path(
 # Schedule definition
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.raw2digi_step,process.l1reco_step,process.debug_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
 
-print "L1T Emulation Sequence is:  "
-print process.SimL1Emulator
+print("L1T Emulation Sequence is:  ")
+print(process.SimL1Emulator)
 #print "L1T DigiToRaw Sequence is:  "
 #print process.L1TDigiToRaw
 #print "L1T RawToDigi Sequence is:  "
 #print process.L1TRawToDigi
 #print "L1T Reco Sequence is:  "
 #print process.L1Reco
-print "DigiToRaw is:  "
-print process.DigiToRaw
+print("DigiToRaw is:  ")
+print(process.DigiToRaw)

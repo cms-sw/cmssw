@@ -6,6 +6,7 @@ Helper functions for CherryPy application ``browse_db.py``.
 Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
+from __future__ import print_function
 
 import sqlite3
 import re
@@ -48,7 +49,7 @@ renaming = {
 def get_img_path(filename, path):
     '''Returns image path for https://cmsweb.cern.ch/dqm histogram
     visualisation service'''
-    run = int(re.findall('_R(\d*)__', filename)[0])
+    run = int(re.findall('_R(\\d*)__', filename)[0])
     parts = [e.rstrip('.root') for e in filename.split('__')]
     path = path.replace('Run summary/', '')
     return 'archive/%s/%s/%s/%s/%s' % (run, parts[1], parts[2], parts[3], path)
@@ -67,16 +68,16 @@ def get_img_url(path, f1, f2=None, w=250, h=250):
 def get_dataset_name(name):
     '''Returns extracted dataset name from the given ROOT filename.'''
     if re.search('RelVal', name):
-        run = str(int(re.findall('_R(\d{9})_', name)[0]))
-        ds = re.findall('GR_R_\d*_V\d*C?_(?:RelVal)?_([\w\d]*-v\d+)_', name)[0]
+        run = str(int(re.findall('_R(\\d{9})_', name)[0]))
+        ds = re.findall('GR_R_\\d*_V\\d*C?_(?:RelVal)?_([\\w\\d]*-v\\d+)_', name)[0]
     else:
-        run, ds = re.findall('R(\d{9})__([\w\d]*)__CMSSW_', name)[0:1]
+        run, ds = re.findall('R(\\d{9})__([\\w\\d]*)__CMSSW_', name)[0:1]
     return '_'.join([ds, str(int(run))])
 
 
 def get_release(name):
     '''Returns extracted release from the given ROOT filename.'''
-    return re.findall('R\d{9}__([\w\d_-]*)__DQM.root', name)[0]
+    return re.findall('R\\d{9}__([\\w\\d_-]*)__DQM.root', name)[0]
 
 
 def get_stats(c, threshold, dir_ranges):
@@ -132,7 +133,7 @@ def get_folders(c, file_id, filename, dir_id, threshold):  # TODO: If folder [Eg
 
 def join_ranges(ranges, elem):
     '''To do less DB calls, joins [(from_id, till_id), ...] ranges.'''
-    if type(ranges) == tuple:
+    if isinstance(ranges, tuple):
         ranges = [ranges]
     if ranges[-1][-1] + 1 == elem[0]:
         ranges[-1] = (ranges[-1][0], elem[1])
@@ -223,7 +224,7 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
 
     ## Select Summary Barchart, Detailed Barchart
     for folder in folders:
-        print folder
+        print(folder)
     #   detailed_ratios: (name, success_ratio)
     #   summary_ratios: (name, success_ratio)
 
@@ -245,7 +246,7 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
     # Fetch stats
     summary_stats = dict()
     detailed_stats = dict()
-    for name, ranges in cum_lvl3_dir_ranges.iteritems():
+    for name, ranges in cum_lvl3_dir_ranges.items():
         successes, nulls, fails = get_stats(c, threshold, ranges)
         if name in detailed_stats:
             detailed_stats[name][0] += successes
@@ -263,13 +264,13 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
 
     # Calculate ratio
     summary_ratios = []
-    for name, stats in summary_stats.iteritems():
+    for name, stats in summary_stats.items():
         total = sum(stats)
         if total:
             ratio = float(stats[0]) / sum(stats)
             summary_ratios.append((name, ratio))
     detailed_ratios = []
-    for name, stats in detailed_stats.iteritems():
+    for name, stats in detailed_stats.items():
         total = sum(stats)
         if total:
             ratio = float(stats[0]) / sum(stats)

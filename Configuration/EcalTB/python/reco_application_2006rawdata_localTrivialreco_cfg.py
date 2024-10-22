@@ -4,16 +4,19 @@ process = cms.Process("uncalibRecHitsProd")
 process.load("EventFilter.EcalTBRawToDigi.ecalTBunpack_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('ecalTBunpack'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(100000)
         ),
+        enable = cms.untracked.bool(True),
+        noLineBreaks = cms.untracked.bool(True),
         noTimeStamps = cms.untracked.bool(True),
-        noLineBreaks = cms.untracked.bool(True)
+        threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('cout')
+    debugModules = cms.untracked.vstring('ecalTBunpack')
 )
 
 process.source = cms.Source("PoolSource",

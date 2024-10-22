@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="noTaperElement.xml" eval="true">
+  <Constant name="dxTiming"   value="8.00*mm"/>
+</ConstantsSection>
+
+<SolidSection label="noTaperElement.xml">
+  <Box  name="SFBX" dx="0.5*[dxTiming]" dy="0.5*[dxTiming]" dz="0.5*[noTaperEndcap:dzTiming]"/>
+</SolidSection>
+
+<LogicalPartSection label="noTaperElement.xml">
+  <LogicalPart name="SFBX" category="unspecified">
+    <rSolid name="SFBX"/>
+    <rMaterial name="materials:E_Silicon"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<Algorithm name="hgcal:DDHGCalNoTaperEndcap">
+  <rParent name="noTaper:SFLY"/>
+  <String name="ChildName" value="noTaperElement:SFBX"/>
+  <Numeric name="n"           value="125"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo"  value="1"/>
+  <Numeric name="invert"      value="1"/>
+  <Numeric name="rMin"        value="[noTaperEndcap:rInTiming]"/>
+  <Numeric name="rMax"        value="[noTaperEndcap:rOutTiming]"/> 
+  <Numeric name="tiltAngle"   value="0"/>
+  <Numeric name="zoffset"     value="0"/>
+  <Numeric name="xyoffset"    value="[noTaperElement:dxTiming]"/>
+</Algorithm>
+
+<SpecParSection label="noTaperElement.xml" eval="true">
+  <SpecPar name="noTaperEndcapNumbering">
+    <PartSelector path="//SFBX"/>
+    <Parameter name="Volume" value="SFBX" eval="false"/>
+    <Parameter name="geomParsE"  value="[noTaperEndcap:rInTiming]"/>
+    <Parameter name="geomParsE"  value="[noTaperEndcap:rOutTiming]"/>
+    <Parameter name="geomParsE"  value="[noTaperEndcap:dzTiming]"/>
+    <Parameter name="numberEtaE" value="250"/>
+    <Parameter name="numberPhiE" value="720"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

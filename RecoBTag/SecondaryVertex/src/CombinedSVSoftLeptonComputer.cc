@@ -3,9 +3,5 @@
 using namespace reco;
 using namespace std;
 
-
-CombinedSVSoftLeptonComputer::CombinedSVSoftLeptonComputer(const edm::ParameterSet &params) :
-	CombinedSVComputer(params),
-	SoftLeptonFlip(params.getParameter<bool>("SoftLeptonFlip"))
-{
-}
+CombinedSVSoftLeptonComputer::CombinedSVSoftLeptonComputer(const edm::ParameterSet &params)
+    : CombinedSVComputer(params), SoftLeptonFlip(params.getParameter<bool>("SoftLeptonFlip")) {}

@@ -1,0 +1,10 @@
+<iftool name="cuda-gcc-support">
+  <bin file="testDeviceAddition.cu" name="testCudaDeviceAddition">
+    <use name="catch2"/>
+    <use name="cuda"/>
+    <use name="HeterogeneousTest/CUDADevice"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+  </bin>
+
+  <test name="testCUDATestDeviceAdditionModule" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/CUDADevice/test/testCUDATestDeviceAdditionModule.py"/>
+</iftool>

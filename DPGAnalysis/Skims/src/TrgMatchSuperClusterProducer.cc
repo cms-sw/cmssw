@@ -2,5 +2,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-typedef TriggerMatchProducer< reco::SuperCluster > trgMatchSuperClusterProducer;
-DEFINE_FWK_MODULE( trgMatchSuperClusterProducer );
+typedef TriggerMatchProducer<reco::SuperCluster> trgMatchSuperClusterProducer;
+DEFINE_FWK_MODULE(trgMatchSuperClusterProducer);

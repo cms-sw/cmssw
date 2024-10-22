@@ -1,6 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import os, time, sys, shutil, glob, smtplib, re, commands
+from __future__ import print_function
+import os, time, sys, shutil, glob, smtplib, re, subprocess
 import getopt as gop
 import zipfile as zp
 from datetime import datetime
@@ -55,25 +56,25 @@ def injectFile(f,renotify=False):
               "--appname dqmArchive",
               "--appversion dqmArchive_1_0"]
   cmd="%s %s" % (INJECTIONSCRIPT," ".join(parameters))
-  result = commands.getstatusoutput(cmd)
+  result = subprocess.getstatusoutput(cmd)
   if result[0] >= 1:
     output = result[1]
-    print "Error injecting file %s to transfer system checking if it exists" % f
+    print("Error injecting file %s to transfer system checking if it exists" % f)
     chkparameters=["--check","--filename %s" % fname,"--config %s" % CONFIGFILE]
     cmd="%s %s" % (INJECTIONSCRIPT," ".join(chkparameters))
-    result = commands.getstatusoutput(cmd)
+    result = subprocess.getstatusoutput(cmd)
     if result[0]==1:
       if "File not found in database" in result[1]:
-        print "Error: file %s not found in transfer database, check configuration" % f
+        print("Error: file %s not found in transfer database, check configuration" % f)
         return 0
       else:
-        print "Warning: file %s already exists in transfer database" % f
+        print("Warning: file %s already exists in transfer database" % f)
         return 2
     else:
-      print "Error: problem checking database entry for file %s\n Error:%s" % (f,result[1])
+      print("Error: problem checking database entry for file %s\n Error:%s" % (f,result[1]))
       return 0
   else:
-    print "File %s injected successfully" % f
+    print("File %s injected successfully" % f)
   return 1
 #=====================================================================================
 def transferFiles():

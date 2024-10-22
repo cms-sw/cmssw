@@ -21,8 +21,12 @@ patTauDiscriminantCutMultiplexer = cms.EDProducer(
             cut = cms.double(0.)
             )
         ),
-    key = cms.InputTag("fixme"), # a discriminator
     loadMVAfromDB = cms.bool(True),
+    inputFileName = cms.FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"), # the filename for MVA if it is not loaded from DB
+    mvaOutput_normalization = cms.string(""), # the special value for not using a string parameter is empty string ""
+    # it's the same value as the atribute of this plugin class is initialized with anyway
+    # and throughout configs this parameter is everywhere set to non-empty value
+
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
@@ -32,5 +36,7 @@ patTauDiscriminantCutMultiplexer = cms.EDProducer(
             category = cms.uint32(1),
             cut = cms.double(0.2),
         ),
-    )
+    ),
+    workingPoints = cms.vstring(),
+    verbosity = cms.int32(0)
 )

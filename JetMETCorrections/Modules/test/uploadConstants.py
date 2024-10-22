@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import print_function
 import os
 import re
 import sys
@@ -7,8 +8,8 @@ import subprocess
 #******************   template file  **********************************
 templateFile = open('templateForDropbox.txt', 'r')
 fileContents = templateFile.read(-1)
-print '--------------- TEMPLATE :  -----------------'
-print fileContents
+print('--------------- TEMPLATE :  -----------------')
+print(fileContents)
 p1 = re.compile(r'TAGNAME')
 p2 = re.compile(r'PRODNAME')
 
@@ -34,9 +35,9 @@ for aa in ALGO_LIST: #loop for jet algorithms
     k1 = p1.sub( s1, fileContents )
     k2 = p2.sub( s2, k1 )
     k2outfile = s2 + '.txt'
-    print '--------------------------------------'
-    print 'ORCOFF File for jet correction : ' + s2
-    print 'Written to ' + k2outfile
+    print('--------------------------------------')
+    print('ORCOFF File for jet correction : ' + s2)
+    print('Written to ' + k2outfile)
     FILE = open(k2outfile,"w")
     FILE.write(k2)       
     files.append( k2outfile )
@@ -45,6 +46,6 @@ for aa in ALGO_LIST: #loop for jet algorithms
 
 for ifile in files :
     s = "./dropBoxOffline_test.sh "+ERA+".db " + ifile
-    print s
+    print(s)
     subprocess.call( ["./dropBoxOffline_test.sh", ERA+".db", ifile])
   

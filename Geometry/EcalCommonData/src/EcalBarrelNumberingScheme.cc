@@ -4,142 +4,144 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "Geometry/EcalCommonData/interface/EcalBarrelNumberingScheme.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include <sstream>
 
-#include <iostream>
+//#define EDM_ML_DEBUG
 
-EcalBarrelNumberingScheme::EcalBarrelNumberingScheme() : 
-  EcalNumberingScheme() {
-  edm::LogInfo("EcalGeom") << "Creating EcalBarrelNumberingScheme";
+EcalBarrelNumberingScheme::EcalBarrelNumberingScheme() : EcalNumberingScheme() {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "Creating EcalBarrelNumberingScheme";
+#endif
 }
 
 EcalBarrelNumberingScheme::~EcalBarrelNumberingScheme() {
-  edm::LogInfo("EcalGeom") << "Deleting EcalBarrelNumberingScheme";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "Deleting EcalBarrelNumberingScheme";
+#endif
 }
 
 uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const {
+  const uint32_t nLevels(baseNumber.getLevels());
 
-  const uint32_t nLevels ( baseNumber.getLevels() ) ;
-
-//  LogDebug("EcalGeom") << "ECalBarrelNumberingScheme geometry levels = " << nLevels;
-  
-
-  if( 12 > nLevels )
-  {   
-     edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID(): "
-				 << "Not enough levels found in EcalBaseNumber ( "
-				 <<  nLevels 
-				 << ") Returning 0" ;
-     return 0;
+#ifdef EDM_ML_DEBUG
+  std::ostringstream st1;
+  for (uint32_t k = 0; k < nLevels; ++k)
+    st1 << ", " << baseNumber.getLevelName(k) << ":" << baseNumber.getCopyNumber(k);
+  edm::LogVerbatim("EcalGeom") << "ECalBarrelNumberingScheme geometry levels = " << nLevels << st1.str();
+#endif
+  if (11 > nLevels) {
+    edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID(): "
+                                << "Not enough levels found in EcalBaseNumber ( " << nLevels << ") Returning 0";
+    return 0;
   }
 
-  const std::string& cryName ( baseNumber.getLevelName( 0 ) ) ; // name of crystal volume
+  const std::string& cryName(baseNumber.getLevelName(0).substr(0, 7));  // name of crystal volume
 
-  const int cryType ( ::atoi( cryName.c_str() + 5 ) ) ;
+  const int cryType(::atoi(cryName.c_str() + 5));
 
-  const int off ( 12 < nLevels ? 3 : 0 ) ;
+  uint32_t wallCopy(0), hawCopy(0), fawCopy(0), supmCopy(0);
+  const int off(13 < nLevels ? 3 : 0);
 
-  const uint32_t wallCopy ( baseNumber.getCopyNumber( 3 + off ) ) ;
-  const uint32_t hawCopy  ( baseNumber.getCopyNumber( 4 + off ) ) ;
-  const uint32_t fawCopy  ( baseNumber.getCopyNumber( 5 + off ) ) ;
-  const uint32_t supmCopy ( baseNumber.getCopyNumber( 6 + off ) ) ;
+  if ((nLevels != 11) && (nLevels != 14)) {
+    wallCopy = baseNumber.getCopyNumber(3 + off);
+    hawCopy = baseNumber.getCopyNumber(4 + off);
+    fawCopy = baseNumber.getCopyNumber(5 + off);
+    supmCopy = baseNumber.getCopyNumber(6 + off);
+  } else {
+    auto num1 = numbers(baseNumber.getLevelName(3 + off));
+    wallCopy = num1.second;
+    hawCopy = num1.first;
+    auto num2 = numbers(baseNumber.getLevelName(4 + off));
+    fawCopy = num2.second;
+    supmCopy = num2.first;
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << nLevels << " off: " << off << " cryType: " << cryType << " wallCopy: " << wallCopy
+                               << " hawCopy: " << hawCopy << " fawCopy: " << fawCopy << " supmCopy: " << supmCopy;
+#endif
+  // error checking
 
-//      LogDebug("EcalGeom") << baseNumber.getLevelName(0) << ", "
-//                           << baseNumber.getLevelName(1) << ", "
-//                           << baseNumber.getLevelName(2) << ", "
-//                           << baseNumber.getLevelName(3) << ", "
-//                           << baseNumber.getLevelName(4) << ", "
-//                           << baseNumber.getLevelName(5) << ", "
-//                           << baseNumber.getLevelName(6) << ", "
-//                           << baseNumber.getLevelName(7)         ;
-
-      // error checking
-
-  if( 1  > cryType ||
-      17 < cryType    )
-  {
-     edm::LogWarning("EdalGeom") << "ECalBarrelNumberingScheme::getUnitID(): "
-				 << "****************** Bad crystal name = " 
-				 << cryName 
-				 << ", Volume Name = " 
-				 << baseNumber.getLevelName(0)              ;
-     return 0 ;
+  if (1 > cryType || 17 < cryType) {
+    edm::LogWarning("EdalGeom") << "ECalBarrelNumberingScheme::getUnitID(): "
+                                << "****************** Bad crystal name = " << cryName
+                                << ", Volume Name = " << baseNumber.getLevelName(0);
+    return 0;
   }
 
-  if( 1 > wallCopy ||
-      5 < wallCopy    )
-  {
-     edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID(): "
-				 << "****************** Bad wall copy = " 
-				 << wallCopy 
-				 << ", Volume Name = " 
-				 << baseNumber.getLevelName(3)              ;
-     return 0 ;
+  if (1 > wallCopy || 5 < wallCopy) {
+    edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID(): "
+                                << "****************** Bad wall copy = " << wallCopy
+                                << ", Volume Name = " << baseNumber.getLevelName(3);
+    return 0;
   }
 
-  if( 1 > hawCopy ||
-      2 < hawCopy    )
-  {
-     edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID(): "
-				 << "****************** Bad haw copy = " 
-				 << hawCopy  
-				 << ", Volume Name = " 
-				 << baseNumber.getLevelName(4)              ;
-     return 0 ;
+  if (1 > hawCopy || 2 < hawCopy) {
+    edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID(): "
+                                << "****************** Bad haw copy = " << hawCopy
+                                << ", Volume Name = " << baseNumber.getLevelName(4);
+    return 0;
   }
 
-  if( 1  > fawCopy ||
-      10 < fawCopy    )
-  {
-     edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID(): "
-				 << "****************** Bad faw copy = " 
-				 << fawCopy  
-				 << ", Volume Name = " 
-				 << baseNumber.getLevelName(5)              ;
-     return 0 ;
+  if (1 > fawCopy || 10 < fawCopy) {
+    edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID(): "
+                                << "****************** Bad faw copy = " << fawCopy
+                                << ", Volume Name = " << baseNumber.getLevelName(5);
+    return 0;
   }
 
-  if( 1  > supmCopy ||
-      36 < supmCopy    )
-  {
-     edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID(): "
-				 << "****************** Bad supermodule copy = " 
-				 << supmCopy 
-				 << ", Volume Name = " 
-				 << baseNumber.getLevelName(6)              ;
-     return 0 ;
+  if (1 > supmCopy || 36 < supmCopy) {
+    edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID(): "
+                                << "****************** Bad supermodule copy = " << supmCopy
+                                << ", Volume Name = " << baseNumber.getLevelName(6);
+    return 0;
   }
 
   // all inputs are fine. Go ahead and decode
 
-  const int32_t zsign    ( 18 < supmCopy ? -1 : 1 ) ;
+  const int32_t zsign(18 < supmCopy ? -1 : 1);
 
-  const int32_t eta      ( 5*( cryType - 1 ) + wallCopy ) ;
+  const int32_t eta(5 * (cryType - 1) + wallCopy);
 
-  const int32_t phi      ( 18 < supmCopy ?
-			   20*( supmCopy - 19 ) + 2*( 10 - fawCopy ) + 3 - hawCopy :
-			   20*( supmCopy -  1 ) + 2*( fawCopy - 1  ) +     hawCopy   ) ;
+  const int32_t phi(18 < supmCopy ? 20 * (supmCopy - 19) + 2 * (10 - fawCopy) + 3 - hawCopy
+                                  : 20 * (supmCopy - 1) + 2 * (fawCopy - 1) + hawCopy);
 
-  const int32_t intindex ( EBDetId( zsign*eta, phi ).rawId() ) ;
+  const int32_t intindex(EBDetId(zsign * eta, phi).rawId());
 
-/*
+  /*
   static int count ( 1 ) ;
   if( 0==count%1000 )
   {
-     std::cout<<"************************** NLEVELS="<<nLevels
-	      <<", eta="<<eta<<", phi="<<phi<<", zsign="<<zsign<<std::endl;
+     edm::LogVerbatim("EcalGeom") << "************************** NLEVELS=" << nLevels
+	      << ", eta="<<eta<<", phi=" << phi << ", zsign=" << zsign;
   }
   ++count;
 */
-//      LogDebug("EcalGeom") << "EcalBarrelNumberingScheme: "
-//                           << "supmCopy = " << supmCopy
-//                           << ", fawCopy = " << fawCopy
-//                           << ", hawCopy = " << hawCopy
-//                           << ", wallCopy = " << wallCopy
-//                           << ", cryType = " << cryType
-//                           << "\n           zsign = "  << zsign 
-//                           << ", eta = " << eta 
-//                           << ", phi = " << phi 
-//                           << ", packed index = 0x" << std::hex << intindex << std::dec ;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalBarrelNumberingScheme: "
+                               << "supmCopy = " << supmCopy << ", fawCopy = " << fawCopy << ", hawCopy = " << hawCopy
+                               << ", wallCopy = " << wallCopy << ", cryType = " << cryType
+                               << "\n           zsign = " << zsign << ", eta = " << eta << ", phi = " << phi
+                               << ", packed index = 0x" << std::hex << intindex << std::dec;
+#endif
+  return intindex;
+}
 
-  return intindex ;  
+std::pair<int, int> EcalBarrelNumberingScheme::numbers(const std::string& name) const {
+  int num1(-1), num2(-1);
+  if (name.find('#') != std::string::npos) {
+    uint32_t ip1 = name.find('#');
+    if (name.find('!') != std::string::npos) {
+      uint32_t ip2 = name.find('!');
+      num1 = ::atoi(name.substr(ip1 + 1, ip2 - ip1 - 1).c_str());
+      if (name.find('#', ip2) != std::string::npos) {
+        uint32_t ip3 = name.find('#', ip2);
+        num2 = ::atoi(name.substr(ip3 + 1, name.size() - ip3 - 1).c_str());
+      }
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalBarrelNumberingScheme::Numbers from " << name << " are " << num1 << " and "
+                               << num2;
+#endif
+  return std::make_pair(num1, num2);
 }

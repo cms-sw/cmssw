@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 rpcRecHits = cms.EDProducer("RPCRecHitProducer",
@@ -14,4 +15,4 @@ rpcRecHits = cms.EDProducer("RPCRecHitProducer",
 
 #disabling DIGI2RAW,RAW2DIGI chain for Phase2
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-phase2_muon.toModify(rpcRecHits, rpcDigiLabel = cms.InputTag('simMuonRPCDigis'))
+phase2_muon.toModify(rpcRecHits, rpcDigiLabel = 'simMuonRPCDigis')

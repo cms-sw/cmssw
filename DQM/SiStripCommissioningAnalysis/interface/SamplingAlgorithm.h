@@ -16,34 +16,30 @@ class TF1;
 */
 
 class SamplingAlgorithm : public CommissioningAlgorithm {
-  
- public:
-  
-  SamplingAlgorithm( const edm::ParameterSet & pset, SamplingAnalysis* const, uint32_t latencyCode = 0 );
-  
-  ~SamplingAlgorithm() override {;}
-  
-  inline const Histo& histo() const;
-  
- private:
-  
-  SamplingAlgorithm() {;}
+public:
+  SamplingAlgorithm(const edm::ParameterSet& pset, SamplingAnalysis* const, uint32_t latencyCode = 0);
 
-  void extract( const std::vector<TH1*>& ) override;
-  
+  ~SamplingAlgorithm() override { ; }
+
+  inline const Histo& histo() const;
+
+private:
+  SamplingAlgorithm() { ; }
+
+  void extract(const std::vector<TH1*>&) override;
+
   void analyse() override;
-  
-  void pruneProfile( TProfile* profile ) const;
-  
-  void correctBinning( TProfile* prof ) const;
-  
-  void correctProfile( TProfile* profile, float SoNcut=3. ) const;
-  
- private:
-  
+
+  void pruneProfile(TProfile* profile) const;
+
+  void correctBinning(TProfile* prof) const;
+
+  void correctProfile(TProfile* profile, float SoNcut = 3.) const;
+
+private:
   /** pulse shape*/
   Histo histo_;
-  
+
   /** Fitter in peak and deconvolution mode */
   TF1* deconv_fitter_;
   TF1* peak_fitterA_;
@@ -54,8 +50,6 @@ class SamplingAlgorithm : public CommissioningAlgorithm {
 
   /** SamplingAnalysis object */
   SamplingAnalysis* samp_;
-  
 };
 
-#endif // DQM_SiStripCommissioningAnalysis_SamplingAlgorithm_H
-
+#endif  // DQM_SiStripCommissioningAnalysis_SamplingAlgorithm_H

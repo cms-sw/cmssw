@@ -42,7 +42,6 @@ Concrete isolation algorithm: extract IsoDeposit using extractor and get sumPt i
 - Range:  helper class implementation of (min, max) range for ordered types.
 
 \subsection plugins Plugins
-- ExtractorFromDeposits: finds IsoDeposit of the input track in the event record.
 - TrackExtractor: make IsoDeposit using "other" tracks within "DR_Veto" to "DR_Max", with |dZ|< "Diff_z" and |dr_xy| < "Diff_r" from the muon track.
 - CaloExtractorByAssociator: with CaloTowers or recHits on input would provide MuIsoDeposits for ecal, hcal and ho separately (3 cts) using TrackDetectorAssociator.
 The deposit values are hit/tower et; each hit/tower with energy>3*sigmaNoise and et> threshold, being within "DR_Max" and excluding "DR_Veto" gets an entry.

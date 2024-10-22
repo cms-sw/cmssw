@@ -5,4 +5,4 @@
 
 class SoftLeptonBTagRecord : public edm::eventsetup::EventSetupRecordImplementation<SoftLeptonBTagRecord> {};
 
-#endif // RecoBTag_Records_SoftLeptonBTagRecord_h
+#endif  // RecoBTag_Records_SoftLeptonBTagRecord_h

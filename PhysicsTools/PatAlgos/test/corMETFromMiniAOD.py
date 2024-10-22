@@ -15,7 +15,6 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 # Message Logger settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 # Set the process options -- Display summary at the end, enable unscheduled execution
@@ -38,10 +37,6 @@ redoPuppi=True # rebuild puppiMET
 
 ### External JECs =====================================================================================================
 
-#from Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff import *
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 from Configuration.AlCa.autoCond import autoCond
 if runOnData:
   process.GlobalTag.globaltag = autoCond['run2_data']
@@ -128,7 +123,6 @@ if redoPuppi:
   runMetCorAndUncFromMiniAOD(process,
                              isData=runOnData,
                              metType="Puppi",
-                             pfCandColl=cms.InputTag("puppiForMET"),
                              recoMetFromPFCs=True,
                              reclusterJets=True,
                              jetFlavor="AK4PFPuppi",
@@ -141,7 +135,6 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
     compressionAlgorithm = cms.untracked.string('LZMA'),
     eventAutoFlushCompressedSize = cms.untracked.int32(15728640),
     outputCommands = cms.untracked.vstring( "keep *_slimmedMETs_*_*",
-                                            "keep *_slimmedMETsNoHF_*_*",
                                             "keep *_patPFMet_*_*",
                                             "keep *_patPFMetT1_*_*",
                                             "keep *_patPFMetT1JetResDown_*_*",

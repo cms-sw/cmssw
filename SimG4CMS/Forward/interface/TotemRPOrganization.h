@@ -15,40 +15,23 @@
  
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
 //
- 
+
 // system include files
 
 // user include files
 
 #include "SimG4CMS/Forward/interface/TotemVDetectorOrganization.h"
-#include "globals.hh"
 
 class TotemRPOrganization : public TotemVDetectorOrganization {
-
-public: 
-
+public:
   // ---------- Constructor and destructor -----------------
   TotemRPOrganization();
-           ~TotemRPOrganization() override;
+  ~TotemRPOrganization() override;
 
   // ---------- member functions ---------------------------
-  uint32_t         GetUnitID(const G4Step* aStep);
-  uint32_t         GetUnitID(const G4Step* aStep) const override;
-
-private:
-
-  // ---------- member data --------------------------------
-  bool             _needUpdateUnitID;
-  bool             _needUpdateData;
-
-  int              _currentUnitID;
-  int              _currentDetectorPosition ;
-  int              _currentPlane;
-  int              _currentCSC;
-  int              _currentLayer;
-
+  uint32_t getUnitID(const G4Step* aStep) const override;
 };
 #endif

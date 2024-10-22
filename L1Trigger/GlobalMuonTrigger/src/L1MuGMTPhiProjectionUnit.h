@@ -12,7 +12,7 @@
 //
 //
 //   Author :
-//   H. Sakulin            CERN EP 
+//   H. Sakulin            CERN EP
 //
 //   Migrated to CMSSW:
 //   I. Mikulec
@@ -32,7 +32,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -44,16 +43,12 @@
 class L1MuGMTMipIsoAU;
 class L1MuGMTCand;
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1MuGMTPhiProjectionUnit {
-
- public:  
-
+public:
   /// constructor
   L1MuGMTPhiProjectionUnit(const L1MuGMTMipIsoAU& miau, int id);
 
@@ -62,37 +57,36 @@ class L1MuGMTPhiProjectionUnit {
 
   /// run phi projection unit
   void run();
-    
+
   /// clear phi projection unit
   void reset();
-        
+
   /// print results after phi projection
   void print() const;
-    
+
   /// return identifier
   inline int id() const { return m_id; }
-    	
+
   /// return phi select bit (idx: 0..17)
   inline bool isSelected(int idx) const { return m_phi_select[idx]; }
 
- private:
-
+private:
   void load();
 
- private:
+private:
   typedef std::bitset<18> TPhiBits;
 
   const L1MuGMTMipIsoAU& m_MIAU;
-    
+
   // index: (0..31: 16*isFWD + 8*isISO + 4* isRPC + nr )
-  int m_id; 
-    
+  int m_id;
+
   const L1MuRegionalCand* m_mu;
 
-  int m_iphi;   // region index of central region
-  float m_fphi; // fine grain phi inside central region
-    
+  int m_iphi;    // region index of central region
+  float m_fphi;  // fine grain phi inside central region
+
   TPhiBits m_phi_select;
 };
-  
+
 #endif

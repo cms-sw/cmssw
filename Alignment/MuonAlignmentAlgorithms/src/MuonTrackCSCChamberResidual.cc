@@ -5,25 +5,23 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonTrackCSCChamberResidual.h"
 //#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
-
-MuonTrackCSCChamberResidual::MuonTrackCSCChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator,
-                                                         DetId chamberId, AlignableDetOrUnitPtr chamberAlignable)
-  : MuonChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable)
-{
+MuonTrackCSCChamberResidual::MuonTrackCSCChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
+                                                         AlignableNavigator *navigator,
+                                                         DetId chamberId,
+                                                         AlignableDetOrUnitPtr chamberAlignable)
+    : MuonChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable) {
   m_type = MuonChamberResidual::kCSC;
   align::GlobalVector zDirection(0., 0., 1.);
   m_sign = m_globalGeometry->idToDet(m_chamberId)->toLocal(zDirection).z() > 0. ? 1. : -1.;
 }
 
-
-void MuonTrackCSCChamberResidual::setSegmentResidual(const reco::MuonChamberMatch *trk, const reco::MuonSegmentMatch *seg)
-{
+void MuonTrackCSCChamberResidual::setSegmentResidual(const reco::MuonChamberMatch *trk,
+                                                     const reco::MuonSegmentMatch *seg) {
   CSCDetId id(trk->id.rawId());
 
   CSCSegmentRef segmentCSC = seg->cscSegmentRef;
-  if (segmentCSC.get() != nullptr)
-  {
-    const CSCSegment* segment = segmentCSC.get();
+  if (segmentCSC.get() != nullptr) {
+    const CSCSegment *segment = segmentCSC.get();
     m_numHits = segment->nRecHits();
     m_ndof = segment->degreesOfFreedom();
     m_chi2 = segment->chi2();
@@ -42,11 +40,11 @@ void MuonTrackCSCChamberResidual::setSegmentResidual(const reco::MuonChamberMatc
   m_residual = - m_sign * g_trk.perp() * dphi; // coming from global, need to adjust the sign
   std::cout<<"cscres="<<m_residual<<"  dx="<<trk->x-seg->x<<"  diff="<<trk->x-seg->x - m_residual<<std::endl;
   */
-  m_residual = trk->x-seg->x;
-  m_residual_error = sqrt( pow(trk->xErr, 2) + pow(seg->xErr, 2) );
+  m_residual = trk->x - seg->x;
+  m_residual_error = sqrt(pow(trk->xErr, 2) + pow(seg->xErr, 2));
   m_resslope = trk->dXdZ - seg->dXdZ;
-  m_resslope_error = sqrt( pow(trk->dXdZErr, 2) + pow(seg->dXdZErr, 2) );
-  
+  m_resslope_error = sqrt(pow(trk->dXdZErr, 2) + pow(seg->dXdZErr, 2));
+
   m_trackx = trk->x;
   m_tracky = trk->y;
   m_trackdxdz = trk->dXdZ;

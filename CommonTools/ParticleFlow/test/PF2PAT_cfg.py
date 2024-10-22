@@ -1,3 +1,4 @@
+from __future__ import print_function
 # official example for PF2PAT
 
 import FWCore.ParameterSet.Config as cms
@@ -17,7 +18,7 @@ process.source = cms.Source("PoolSource",
 
 
 
-print process.source
+print(process.source)
 
 # path ---------------------------------------------------------------
 

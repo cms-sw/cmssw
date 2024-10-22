@@ -14,7 +14,7 @@
 
 class OpticalAlignMeasurements;
 
-std::ostream & operator<<(std::ostream &, const OpticalAlignMeasurements &);
+std::ostream &operator<<(std::ostream &, const OpticalAlignMeasurements &);
 
 /**
    Description: Class for OpticalAlignMeasurements for use by COCOA.
@@ -29,4 +29,4 @@ public:
   COND_SERIALIZABLE;
 };
 
-#endif // OpticalAlignMeasurements_H
+#endif  // OpticalAlignMeasurements_H

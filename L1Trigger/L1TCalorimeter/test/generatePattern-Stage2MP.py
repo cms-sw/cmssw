@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -79,7 +80,7 @@ if (options.maxEvents == -1):
 try:
     os.stat(options.outDir)
 except:
-    print 'Output directory does not exist. Creating directory: ' + options.outDir
+    print('Output directory does not exist. Creating directory: ' + options.outDir)
     os.mkdir(options.outDir)
 
 process = cms.Process('L1Emulator')
@@ -142,16 +143,16 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 
 # enable debug message logging for our modules
-process.MessageLogger.categories.append('L1TCaloEvents')
+process.MessageLogger.L1TCaloEvents=dict()
 
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 
 if (options.dump):
-    process.MessageLogger.infos.placeholder = cms.untracked.bool(False)
-    process.MessageLogger.infos.INFO = cms.untracked.PSet(limit = cms.untracked.int32(0))
-    process.MessageLogger.infos.L1TCaloEvents = cms.untracked.PSet(
-      optionalPSet = cms.untracked.bool(True),
-      limit = cms.untracked.int32(10000)
+    process.MessageLogger.files.infos = cms.untracked.PSet(
+        INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+        L1TCaloEvents = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000)
+        )
     )
 
 if (options.debug):
@@ -169,6 +170,7 @@ process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_4_cfi')
 process.caloStage2Params.towerEncoding    = cms.bool(True)
 process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')
 process.load('L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi')
+process.simCaloStage2Digis.useStaticConfig = True
 process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
 process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("hcalDigis")
 

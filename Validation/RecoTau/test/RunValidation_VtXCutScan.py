@@ -1,3 +1,4 @@
+from __future__ import print_function
 #!/usr/bin/env cmsRun
 
 import shutil
@@ -20,7 +21,7 @@ checkOptionsForBadInput()
 
 # Make sure we dont' clobber another directory! Skip in batch mode (runs from an LSF machine)
 if not CMSSWEnvironmentIsCurrent() and options.batchNumber == -1 and not options.gridJob:
-   print "CMSSW_BASE points to a different directory, please rerun cmsenv!"
+   print("CMSSW_BASE points to a different directory, please rerun cmsenv!")
    sys.exit()
 
 
@@ -64,13 +65,13 @@ outputDir = os.path.join(outputDir, subDirName)
 configDir = os.path.join(outputDir, "Config")
 
 if os.path.exists(outputDir) and options.batchNumber < 0:# and not options.gridJob:
-   print "Output directory %s already exists!  OK to overwrite?" % outputDir
+   print("Output directory %s already exists!  OK to overwrite?" % outputDir)
    while True:
       input = raw_input("Please enter [y/n] ")
       if (input == 'y'):
          break
       elif (input == 'n'):
-         print " ...exiting."
+         print(" ...exiting.")
          sys.exit()
 
 if not os.path.exists(outputDir):
@@ -87,7 +88,7 @@ if not os.path.exists(configDir):
 
 def LoadDataCffFile(theFile):
    if not os.path.isfile(theFile):
-      print "Error - %s is not a file!" % theFile
+      print("Error - %s is not a file!" % theFile)
       sys.exit()
    outputFile = os.path.join(configDir, "DataSource_cff.py")
    shutil.copy(theFile, outputFile)
@@ -158,12 +159,12 @@ if options.gridJob:
 else:
    outputFileName = os.path.join(outputDir, outputFileNameBase)
 
-print 'The output file will be: '+outputFileName
+print('The output file will be: '+outputFileName)
 if options.gridJob:
    cfg=open('./crab.cfg', 'r')
    cfgContent=cfg.read()
    if cfgContent.find(outputFileName) == -1:
-      print "ERROR: CRAB output file not matching the grid one!\nexiting..."
+      print("ERROR: CRAB output file not matching the grid one!\nexiting...")
       sys.exit()
 
 process.saveTauEff = cms.EDAnalyzer("TauDQMSimpleFileSaver",
@@ -282,7 +283,7 @@ TauTagValOutputCommands.outputCommands.extend(process.RecoTauTagRECO.outputComma
 #	 )
 
 processDumpFile = open('VtxTest.py','w')
-print >> processDumpFile, process.dumpPython()
+print(process.dumpPython(), file=processDumpFile)
 #if grid job end here
 ## if not options.gridJob:
 

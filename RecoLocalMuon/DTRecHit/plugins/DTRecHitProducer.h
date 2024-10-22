@@ -17,9 +17,11 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class DTRecHitBaseAlgo;
+class DTGeometry;
+class MuonGeometryRecord;
 
 class DTRecHitProducer : public edm::stream::EDProducer<> {
 public:
@@ -37,10 +39,8 @@ private:
   const bool debug;
   // The label to be used to retrieve DT digis from the event
   edm::EDGetTokenT<DTDigiCollection> DTDigiToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
   // The reconstruction algorithm
-  DTRecHitBaseAlgo *theAlgo;
-//   static string theAlgoName;
-
+  std::unique_ptr<DTRecHitBaseAlgo> theAlgo;
 };
 #endif
-

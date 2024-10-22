@@ -1,16 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-FullSimEngine = cms.untracked.string('HepJamesRandom')
-#FullSimEngine = cms.untracked.string('MixMaxRng')
-FastSimEngine = cms.untracked.string('TRandom3')
+FullSimEngine = cms.untracked.string('MixMaxRng')
+FastSimEngine = cms.untracked.string('MixMaxRng')
 RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-#
-#  seed for a source no longer needed - replaces by "generator"
-#
-#    theSource = cms.PSet(
-#        initialSeed = cms.untracked.uint32(123456789),
-#        engineName = cms.untracked.string('HepJamesRandom')
-#    ),
+
     externalLHEProducer = cms.PSet(
         initialSeed = cms.untracked.uint32(234567),
         engineName = FullSimEngine
@@ -19,21 +12,14 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         initialSeed = cms.untracked.uint32(123456789),
         engineName = FullSimEngine
     ),
-#
-# EvtGenProducer discontinued, replaced by funtionalities in ExternalDecays,
-# altogether wrapped with "generator"
-#
-#    evtgenproducer = cms.PSet( 
-#        initialSeed = cms.untracked.uint32(93278151),
-#        engineName = cms.untracked.string('HepJamesRandom') 
-#    ),
+
     VtxSmeared = cms.PSet(
         initialSeed = cms.untracked.uint32(98765432),
         engineName = FullSimEngine
     ),
     LHCTransport = cms.PSet(
         initialSeed = cms.untracked.uint32(87654321),
-        engineName = FastSimEngine
+        engineName = cms.untracked.string('TRandom3')
     ),
     hiSignalLHCTransport = cms.PSet(
         initialSeed = cms.untracked.uint32(88776655),
@@ -104,7 +90,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
          engineName = FastSimEngine
     ),
                                            
-    famosSimHits = cms.PSet(
+    fastSimProducer = cms.PSet(
         initialSeed = cms.untracked.uint32(13579),
         engineName = FastSimEngine
     ),
@@ -161,6 +147,16 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     # filter for simulated beam spot
     simBeamSpotFilter = cms.PSet(
         initialSeed = cms.untracked.uint32(87654321),
+        engineName = FullSimEngine
+    ),
+
+    RPixDetDigitizer = cms.PSet(
+        initialSeed = cms.untracked.uint32(137137),
+        engineName = FullSimEngine
+    ),
+
+    RPSiDetDigitizer = cms.PSet(
+        initialSeed = cms.untracked.uint32(137137),
         engineName = FullSimEngine
     )
     # to save the status of the last event (useful for crashes)

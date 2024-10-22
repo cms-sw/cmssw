@@ -1,0 +1,44 @@
+<library name="SiPixelStatusProducer" file="SiPixelStatusProducer.cc">
+ <use name="CalibTracker/SiPixelQuality"/>
+ <use name="CondFormats/DataRecord"/>
+ <use name="CondFormats/RunInfo"/>
+ <use name="CondFormats/SiPixelObjects"/>
+ <use name="DQM/SiPixelPhase1Common"/>
+ <use name="DataFormats/Common"/>
+ <use name="DataFormats/DetId"/>
+ <use name="DataFormats/FEDRawData"/>
+ <use name="DataFormats/SiPixelCluster"/>
+ <use name="DataFormats/SiPixelDetId"/>
+ <use name="DataFormats/SiPixelDigi"/>
+ <use name="DataFormats/TrackerCommon"/>
+ <use name="FWCore/Framework"/>
+ <use name="FWCore/MessageLogger"/>
+ <use name="FWCore/ParameterSet"/>
+ <use name="FWCore/Utilities"/>
+ <use name="FWCore/Concurrency"/>
+ <use name="Geometry/CommonDetUnit" source_only="1"/>
+ <use name="Geometry/Records"/>
+ <use name="Geometry/TrackerGeometryBuilder"/>
+ <use name="rootcling"/>
+ <flags EDM_PLUGIN="1"/>
+</library>
+<library name="SiPixelStatusHarvester" file="SiPixelStatusHarvester.cc">
+ <use name="CalibTracker/SiPixelQuality"/>
+ <use name="CondCore/DBOutputService"/>
+ <use name="CondFormats/DataRecord"/>
+ <use name="CondFormats/SiPixelObjects"/>
+ <use name="DQM/SiPixelPhase1Common"/>
+ <use name="DQMServices/Core"/>
+ <use name="DataFormats/Common"/>
+ <use name="DataFormats/TrackerCommon"/>
+ <use name="FWCore/Framework"/>
+ <use name="FWCore/MessageLogger"/>
+ <use name="FWCore/ParameterSet"/>
+ <use name="FWCore/ServiceRegistry"/>
+ <use name="FWCore/Utilities"/>
+ <use name="Geometry/CommonDetUnit" source_only="1"/>
+ <use name="Geometry/Records"/>
+ <use name="Geometry/TrackerGeometryBuilder"/>
+ <use name="rootcling"/>
+ <flags EDM_PLUGIN="1"/>
+</library>

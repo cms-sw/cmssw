@@ -4,7 +4,7 @@
 //
 // Package:     Records
 // Class  :     CastorGeometryRecord
-// 
+//
 //
 // Author:      Brian Heltsley
 // Created:     Tue April 1, 2008
@@ -18,20 +18,15 @@
 #include "CondFormats/AlignmentRecord/interface/CastorAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "Geometry/Records/interface/PCastorRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
-
-class CastorGeometryRecord : 
-   public edm::eventsetup::DependentRecordImplementation<
-   CastorGeometryRecord,
-		boost::mpl::vector<
-                IdealGeometryRecord,
-		CastorAlignmentRcd, 
-		CastorAlignmentErrorRcd,
-                CastorAlignmentErrorExtendedRcd,
-		GlobalPositionRcd,
-		PCastorRcd
-		> > {};
+class CastorGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<CastorGeometryRecord,
+                                                            edm::mpl::Vector<IdealGeometryRecord,
+                                                                             CastorAlignmentRcd,
+                                                                             CastorAlignmentErrorRcd,
+                                                                             CastorAlignmentErrorExtendedRcd,
+                                                                             GlobalPositionRcd,
+                                                                             PCastorRcd> > {};
 
 #endif /* RECORDS_CastorGEOMETRYRECORD_H */
-

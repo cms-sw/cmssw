@@ -13,23 +13,20 @@
  *  not one state, but a Gaussian Mixture of state (see BasicMultiTrajectoryState).
  *  Should always be used in order to create a new RefCountedLinearizedTrackState, 
  *  so that the reference-counting mechanism works well. 
- */ 
+ */
 
-class MultiPerigeeLTSFactory : public AbstractLTSFactory<5>  {
-
+class MultiPerigeeLTSFactory : public AbstractLTSFactory<5> {
 public:
-
   typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
-  RefCountedLinearizedTrackState
-    linearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track) const override;
+  RefCountedLinearizedTrackState linearizedTrackState(const GlobalPoint& linP,
+                                                      const reco::TransientTrack& track) const override;
 
-  RefCountedLinearizedTrackState
-    linearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track,
-    	const TrajectoryStateOnSurface& tsos) const override;
+  RefCountedLinearizedTrackState linearizedTrackState(const GlobalPoint& linP,
+                                                      const reco::TransientTrack& track,
+                                                      const TrajectoryStateOnSurface& tsos) const override;
 
-  const MultiPerigeeLTSFactory * clone() const override;
-
+  const MultiPerigeeLTSFactory* clone() const override;
 };
 
 #endif

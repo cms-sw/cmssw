@@ -1,8 +1,11 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import Validation.RecoTau.ValidationUtils as Utils
 import copy
 import re
 import os
+
+import RecoTauTag.Configuration.HPSPFTaus_cff as RecoModules #Working point indices are extracted from here
 
 #from Validation.RecoTau.ValidationOptions_cff import *
 
@@ -111,7 +114,8 @@ GenericTriggerSelectionParameters = cms.PSet(
    verbosityLevel = cms.uint32(0) #0: complete silence (default), needed for T0 processing;
 )
 
-proc.templateAnalyzer = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+proc.templateAnalyzer = DQMEDAnalyzer(
    "TauTagValidation",
    StandardMatchingParameters,
    GenericTriggerSelection = GenericTriggerSelectionParameters,
@@ -135,73 +139,63 @@ fastSim.toModify(
 proc.RunHPSValidation.ExtensionName = ""
 #RunHPSValidation.TauPtCut = cms.double(15.)
 proc.RunHPSValidation.TauProducer   = cms.InputTag('hpsPFTauProducer')
+
+def tauIDMVAinputs(module, wp):
+    return {"container" : cms.string(module), "workingPointIndex" : cms.int32(-1 if wp=="raw" else getattr(RecoModules, module).workingPoints.index(wp))}
+def tauIDbasicinputs(module, wp):
+    index = RecoModules.getBasicTauDiscriminatorRawIndex(getattr(RecoModules, module), wp, True)
+    if index==None:
+        index = RecoModules.getBasicTauDiscriminatorWPIndex(getattr(RecoModules, module), wp, True)
+    else:
+        index = -index - 1 #use negative indices for raw values
+    if index!=None:
+        return {"container" : cms.string(module), "workingPointIndex" : cms.int32(index)}
+    print ("Basic Tau Discriminator <{}> <{}> for Validation configuration not found!".format(module, wp))
+    raise Exception
+
 proc.RunHPSValidation.discriminators = cms.VPSet(
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFindingNewDMs"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFindingOldDMs"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5VLooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5LooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5MediumElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5TightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5VTightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseMuonRejection3"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightMuonRejection3"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLoosePileupWeightedIsolation3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumPileupWeightedIsolation3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightPileupWeightedIsolation3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6VLooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6LooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6MediumElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6TightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6VTightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1PWoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3HitsdR03"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3HitsdR03"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3HitsdR03"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1DBdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1PWdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False))
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFinding"),plotStep = cms.bool(True),selectionCut = cms.double(0.5),container = cms.string("")),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFindingNewDMs"),plotStep = cms.bool(True),selectionCut = cms.double(0.5),container = cms.string("")),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFindingOldDMs"),plotStep = cms.bool(True),selectionCut = cms.double(0.5),container = cms.string("")),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),plotStep = cms.bool(True),container = cms.string("hpsPFTauBasicDiscriminators"),provenanceConfigLabel=cms.string("IDWPdefinitions"),idLabel=cms.string("ByLooseCombinedIsolationDBSumPtCorr3Hits")),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits"),plotStep = cms.bool(True),container = cms.string("hpsPFTauBasicDiscriminators"),provenanceConfigLabel=cms.string("IDWPdefinitions"),idLabel=cms.string("ByMediumCombinedIsolationDBSumPtCorr3Hits")),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits"),plotStep = cms.bool(True),container = cms.string("hpsPFTauBasicDiscriminators"),provenanceConfigLabel=cms.string("IDWPdefinitions"),idLabel=cms.string("ByTightCombinedIsolationDBSumPtCorr3Hits")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseElectronRejection"),plotStep = cms.bool(False),selectionCut = cms.double(0.5),container = cms.string("")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumElectronRejection"),plotStep = cms.bool(True),selectionCut = cms.double(0.5),container = cms.string("")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightElectronRejection"),plotStep = cms.bool(False),selectionCut = cms.double(0.5),container = cms.string("")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5VLooseElectronRejection"),plotStep = cms.bool(False),selectionCut = cms.double(0.5),container = cms.string("")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5LooseElectronRejection"),plotStep = cms.bool(False),selectionCut = cms.double(0.5),container = cms.string("")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5MediumElectronRejection"),plotStep = cms.bool(False),selectionCut = cms.double(0.5),container = cms.string("")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5TightElectronRejection"),plotStep = cms.bool(False),selectionCut = cms.double(0.5),container = cms.string("")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5VTightElectronRejection"),plotStep = cms.bool(False),selectionCut = cms.double(0.5),container = cms.string("")),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseMuonRejection3"),plotStep = cms.bool(True),container = cms.string("hpsPFTauDiscriminationByMuonRejection3"),provenanceConfigLabel=cms.string("IDWPdefinitions"),idLabel=cms.string("ByLooseMuonRejection3")),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightMuonRejection3"),plotStep = cms.bool(True),container = cms.string("hpsPFTauDiscriminationByMuonRejection3"),provenanceConfigLabel=cms.string("IDWPdefinitions"),idLabel=cms.string("ByTightMuonRejection3")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6VLooseElectronRejection"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByMVA6ElectronRejection"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_VLoose")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6LooseElectronRejection"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByMVA6ElectronRejection"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_Loose")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6MediumElectronRejection"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByMVA6ElectronRejection"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_Medium")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6TightElectronRejection"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByMVA6ElectronRejection"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_Tight")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6VTightElectronRejection"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByMVA6ElectronRejection"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_VTight")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_VLoose")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_Loose")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_Medium")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_Tight")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_VTight")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_VVTight")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_VLoose")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_Loose")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_Medium")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1DBnewDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_Tight")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBnewDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_VTight")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_VVTight")),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3HitsdR03"),plotStep = cms.bool(True),container = cms.string("hpsPFTauBasicDiscriminatorsdR03"),provenanceConfigLabel=cms.string("IDWPdefinitions"),idLabel=cms.string("ByLooseCombinedIsolationDBSumPtCorr3HitsdR03")),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3HitsdR03"),plotStep = cms.bool(True),container = cms.string("hpsPFTauBasicDiscriminatorsdR03"),provenanceConfigLabel=cms.string("IDWPdefinitions"),idLabel=cms.string("ByMediumCombinedIsolationDBSumPtCorr3HitsdR03")),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3HitsdR03"),plotStep = cms.bool(True),container = cms.string("hpsPFTauBasicDiscriminatorsdR03"),provenanceConfigLabel=cms.string("IDWPdefinitions"),idLabel=cms.string("ByTightCombinedIsolationDBSumPtCorr3HitsdR03")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_VLoose")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_Loose")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBdR03oldDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_Medium")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1DBdR03oldDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_Tight")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBdR03oldDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_VTight")),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBdR03oldDMwLT"),plotStep = cms.bool(False),container = cms.string("hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLT"),provenanceConfigLabel=cms.string("workingPoints"),idLabel=cms.string("_VVTight")),
 )
 
 proc.TauValNumeratorAndDenominator = cms.Sequence(
@@ -220,7 +214,8 @@ EFFICIENCY
 """
 
 plotPset = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominator)
-proc.efficiencies = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+proc.efficiencies = DQMEDHarvester(
    "TauDQMHistEffProducer",
    plots = plotPset    
    )
@@ -252,7 +247,7 @@ PLOTTING
 
 """
 
-loadTau = cms.EDAnalyzer("TauDQMFileLoader",
+loadTau = DQMEDAnalyzer("TauDQMFileLoader",
   test = cms.PSet(
     #inputFileNames = cms.vstring('/afs/cern.ch/user/f/friis/scratch0/MyValidationArea/310pre6NewTags/src/Validation/RecoTau/test/CMSSW_3_1_0_pre6_ZTT_0505Fixes.root'),
     inputFileNames = cms.vstring('/opt/sbg/cms/ui4_data1/dbodin/CMSSW_3_5_1/src/TauID/QCD_recoFiles/TauVal_CMSSW_3_6_0_QCD.root'),
@@ -393,7 +388,7 @@ standardCompareTestAndReference = cms.PSet(
 #   The plotting of HPS Efficiencies
 #
 ##################################################
-## plotHPSEfficiencies = cms.EDAnalyzer("TauDQMHistPlotter",
+## plotHPSEfficiencies = DQMEDAnalyzer("TauDQMHistPlotter",
 ##                                      standardDrawingStuff,
 ##                                      standardCompareTestAndReference,
 ##                                      drawJobs = Utils.SpawnDrawJobs(RunHPSValidation, plotPset),
@@ -409,7 +404,7 @@ standardCompareTestAndReference = cms.PSet(
 #   The plotting of all the Shrinking cone leading pion efficiencies
 #
 ##################################################
-## plotPFTauHighEfficiencyEfficienciesLeadingPion = cms.EDAnalyzer("TauDQMHistPlotter",
+## plotPFTauHighEfficiencyEfficienciesLeadingPion = DQMEDAnalyzer("TauDQMHistPlotter",
 ##                                                                 standardDrawingStuff,
 ##                                                                 standardCompareTestAndReference,
 ##                                                                 drawJobs = Utils.SpawnDrawJobs(PFTausHighEfficiencyLeadingPionBothProngs, plotPset),
@@ -455,10 +450,10 @@ class ApplyFunctionToSequence:
 def TranslateToLegacyProdNames(input):
    input = re.sub('fixedConePFTauProducer', 'pfRecoTauProducer', input)
    #fixedDiscriminationRegex = re.compile('fixedConePFTauDiscrimination( \w* )')
-   fixedDiscriminationRegex = re.compile('fixedConePFTauDiscrimination(\w*)')
+   fixedDiscriminationRegex = re.compile('fixedConePFTauDiscrimination(\\w*)')
    input = fixedDiscriminationRegex.sub(r'pfRecoTauDiscrimination\1', input)
    input = re.sub('shrinkingConePFTauProducer', 'pfRecoTauProducerHighEfficiency', input)
-   shrinkingDiscriminationRegex = re.compile('shrinkingConePFTauDiscrimination(\w*)')
+   shrinkingDiscriminationRegex = re.compile('shrinkingConePFTauDiscrimination(\\w*)')
    input = shrinkingDiscriminationRegex.sub(r'pfRecoTauDiscrimination\1HighEfficiency', input)
    return input
 
@@ -470,8 +465,8 @@ def ConvertDrawJobToLegacyCompare(input):
    if not hasattr(input, "drawJobs"):
       return
    myDrawJobs = input.drawJobs.parameters_()
-   for drawJobName, drawJobData in myDrawJobs.iteritems():
-      print drawJobData
+   for drawJobName, drawJobData in myDrawJobs.items():
+      print(drawJobData)
       if not drawJobData.plots.pythonTypeName() == "cms.PSet":
          continue
       pSetToInsert = cms.PSet(
@@ -502,9 +497,9 @@ def MakeLabeler(TestLabel, ReferenceLabel):
          if module.processes.hasParameter(['test', 'legendEntry']) and module.processes.hasParameter([ 'reference', 'legendEntry']):
             module.processes.test.legendEntry = TestLabel
             module.processes.reference.legendEntry = ReferenceLabel
-            print "Set test label to %s and reference label to %s for plot producer %s" % (TestLabel, ReferenceLabel, module.label())
+            print("Set test label to %s and reference label to %s for plot producer %s" % (TestLabel, ReferenceLabel, module.label()))
          else:
-            print "ERROR in RecoTauValidation_cfi::MakeLabeler - trying to set test/reference label but %s does not have processes.(test/reference).legendEntry parameters!" % module.label()
+            print("ERROR in RecoTauValidation_cfi::MakeLabeler - trying to set test/reference label but %s does not have processes.(test/reference).legendEntry parameters!" % module.label())
    return labeler
 
 def SetYmodulesToLog(matchingNames = []):
@@ -512,7 +507,7 @@ def SetYmodulesToLog(matchingNames = []):
    def yLogger(module):
       ''' set a module to use log scaling in the yAxis'''
       if hasattr(module, 'drawJobs'):
-         print "EK DEBUG"
+         print("EK DEBUG")
          drawJobParamGetter = lambda subName : getattr(module.drawJobs, subName)
          #for subModule in [getattr(module.drawJobs, subModuleName) for subModuleName in dir(module.drawJobs)]:
          attrNames = dir(module.drawJobs)
@@ -521,7 +516,7 @@ def SetYmodulesToLog(matchingNames = []):
             if len(matchingNames) == 0:
                matchedNames = ['take','everything','and','dont','bother']
             if hasattr(subModule, "yAxis") and len(matchedNames):
-               print "Setting drawJob: ", subModuleName, " to log scale."
+               print("Setting drawJob: ", subModuleName, " to log scale.")
                subModule.yAxis = cms.string('fakeRate') #'fakeRate' configuration specifies the log scaling
          if len(matchingNames) == 0: 
             module.yAxes.efficiency.maxY_log = 40
@@ -538,7 +533,7 @@ def SetBaseDirectory(Directory):
          newPath = os.path.join(newPath, oldPath)
          if not os.path.exists(newPath):
             os.makedirs(newPath)
-         print newPath
+         print(newPath)
          module.outputFilePath = cms.string("%s" % newPath)
    return BaseDirectorizer
 
@@ -549,7 +544,7 @@ def RemoveComparisonPlotCommands(module):
       for drawJob in drawJobs:
          if drawJob != "TauIdEffStepByStep":
             module.drawJobs.__delattr__(drawJob)
-            print "Removing comparison plot", drawJob
+            print("Removing comparison plot", drawJob)
 
 def SetPlotDirectory(myPlottingSequence, directory):
    myFunctor = ApplyFunctionToSequence(SetBaseDirectory(directory))

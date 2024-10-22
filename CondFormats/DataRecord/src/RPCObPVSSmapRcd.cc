@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     RPCObPVSSmapRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Wed Oct 15 21:38:05 CEST 2008
 // $Id$
 

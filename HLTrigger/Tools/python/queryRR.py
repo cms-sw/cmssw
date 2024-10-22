@@ -2,9 +2,10 @@
 
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/DqmRrApi
 
+from __future__ import absolute_import
 from sys import stderr, exit
 import xml.dom.minidom
-from rrapi import RRApi, RRApiError
+from .rrapi import RRApi, RRApiError
 
 def queryRR(firstRun,lastRun,groupName):
     rrurl = "http://runregistry.web.cern.ch/runregistry/"

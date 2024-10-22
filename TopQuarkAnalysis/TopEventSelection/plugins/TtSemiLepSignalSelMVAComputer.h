@@ -2,7 +2,7 @@
 #define TtSemiLepSignalSelMVAComputer_h
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "PhysicsTools/MVAComputer/interface/HelperMacros.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
@@ -18,31 +18,25 @@
 MVA_COMPUTER_CONTAINER_DEFINE(TtSemiLepSignalSelMVA);  // defines TopSemiLepLepSignalSelMVARcd
 #endif
 
-class TtSemiLepSignalSelMVAComputer : public edm::EDProducer {
-
- public:
-
+class TtSemiLepSignalSelMVAComputer : public edm::stream::EDProducer<> {
+public:
   explicit TtSemiLepSignalSelMVAComputer(const edm::ParameterSet&);
   ~TtSemiLepSignalSelMVAComputer() override;
 
- private:
-
-  void beginJob() override;
+private:
   void produce(edm::Event& evt, const edm::EventSetup& setup) override;
-  void endJob() override;
 
   double DeltaPhi(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2);
   double DeltaR(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2);
 
-  edm::EDGetTokenT< edm::View<pat::Muon> > muonsToken_;
-  edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
+  edm::ESGetToken<PhysicsTools::Calibration::MVAComputerContainer, TtSemiLepSignalSelMVARcd> mvaToken_;
+  edm::EDGetTokenT<edm::View<pat::Muon> > muonsToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
   edm::EDGetTokenT<edm::View<pat::MET> > METsToken_;
-  edm::EDGetTokenT< edm::View<pat::Electron> > electronsToken_;
+  edm::EDGetTokenT<edm::View<pat::Electron> > electronsToken_;
+  edm::EDPutTokenT<double> putToken_;
 
   PhysicsTools::MVAComputerCache mvaComputer;
-
-  double DiscSel;
-
 };
 
 #endif

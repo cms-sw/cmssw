@@ -4,5 +4,4 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 class EcalSRSettingsRcd : public edm::eventsetup::EventSetupRecordImplementation<EcalSRSettingsRcd> {};
 
-
-#endif //ECALSRSETTINGSRCD_H not defined
+#endif  //ECALSRSETTINGSRCD_H not defined

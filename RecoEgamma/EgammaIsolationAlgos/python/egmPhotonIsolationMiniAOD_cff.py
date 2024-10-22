@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaIsolationAlgos.egmIsoConeDefinitions_cfi import IsoConeDefinitions as _IsoConeDefinitions
+import PhysicsTools.IsolationAlgos.CITKPFIsolationSumProducer_cfi as _mod
 
-egmPhotonIsolation = cms.EDProducer( "CITKPFIsolationSumProducer",
-                                     srcToIsolate = cms.InputTag("slimmedPhotons"),
-                                     srcForIsolationCone = cms.InputTag('packedPFCandidates'),
+egmPhotonIsolation = _mod.CITKPFIsolationSumProducer.clone(
+                                     srcToIsolate = "slimmedPhotons",
+                                     srcForIsolationCone = 'packedPFCandidates',
                                      isolationConeDefinitions = _IsoConeDefinitions
                                      )	
 

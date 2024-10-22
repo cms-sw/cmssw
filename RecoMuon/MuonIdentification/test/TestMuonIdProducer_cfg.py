@@ -1,10 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
-# process.load("Configuration.StandardSequences.MagneticField_cff")
-# process.load("Configuration.StandardSequences.Geometry_cff")
-# process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# process.load("Configuration.StandardSequences.Reconstruction_cff")
+# process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -121,10 +118,6 @@ process.schedule = cms.Schedule(process.muonid_study,process.endjob_step,process
 #Setup FWK for multithreaded
 process.options.numberOfThreads=cms.untracked.uint32(8)
 process.options.numberOfStreams=cms.untracked.uint32(0)
-
-#do not add changes to your config after this point (unless you know what you are doing)
-from FWCore.ParameterSet.Utilities import convertToUnscheduled
-process=convertToUnscheduled(process)
 
 
 # Customisation from command line

@@ -8,8 +8,8 @@
 #include "TH1F.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -21,90 +21,76 @@
 // class decleration
 //
 
-class TrackCategoriesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>
-{
+class TrackCategoriesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
-
-    explicit TrackCategoriesAnalyzer(const edm::ParameterSet&);
-    ~TrackCategoriesAnalyzer() override;
+  explicit TrackCategoriesAnalyzer(const edm::ParameterSet &);
+  ~TrackCategoriesAnalyzer() override;
 
 private:
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+  // Member data
 
-    // Member data
+  edm::EDGetTokenT<edm::View<reco::Track>> trackProducer_;
 
-    edm::EDGetTokenT<edm::View<reco::Track> > trackProducer_;
+  std::size_t totalTracks_;
 
-    std::size_t totalTracks_;
+  TrackClassifier classifier_;
 
-    TrackClassifier classifier_;
+  TH1F *trackCategories_;
 
-    TH1F * trackCategories_;
-
-    Int_t numberTrackCategories_;
+  Int_t numberTrackCategories_;
 };
 
+TrackCategoriesAnalyzer::TrackCategoriesAnalyzer(const edm::ParameterSet &config)
+    : classifier_(config, consumesCollector()) {
+  // Get the track collection
+  trackProducer_ = consumes<edm::View<reco::Track>>(config.getUntrackedParameter<edm::InputTag>("trackProducer"));
 
-TrackCategoriesAnalyzer::TrackCategoriesAnalyzer(const edm::ParameterSet& config) : classifier_(config,consumesCollector())
-{
-    // Get the track collection
-    trackProducer_ = consumes<edm::View<reco::Track>>(config.getUntrackedParameter<edm::InputTag> ( "trackProducer" ));
+  // Get the file service
+  usesResource("TFileService");
+  edm::Service<TFileService> fs;
 
-    // Get the file service
-    usesResource("TFileService");
-    edm::Service<TFileService> fs;
+  // Create a sub directory associated to the analyzer
+  TFileDirectory directory = fs->mkdir("TrackCategoriesAnalyzer");
 
-    // Create a sub directory associated to the analyzer
-    TFileDirectory directory = fs->mkdir( "TrackCategoriesAnalyzer" );
+  // Number of track categories
+  numberTrackCategories_ = TrackCategories::Unknown + 1;
 
-    // Number of track categories
-    numberTrackCategories_ = TrackCategories::Unknown+1;
+  // Define a new histograms
+  trackCategories_ = fs->make<TH1F>("Frequency",
+                                    "Frequency for the different track categories",
+                                    numberTrackCategories_,
+                                    -0.5,
+                                    numberTrackCategories_ - 0.5);
 
-    // Define a new histograms
-    trackCategories_ = fs->make<TH1F>(
-                           "Frequency",
-                           "Frequency for the different track categories",
-                           numberTrackCategories_,
-                           -0.5,
-                           numberTrackCategories_ - 0.5
-                       );
-
-    // Set the proper categories names
-    for (Int_t i = 0; i < numberTrackCategories_; ++i)
-        trackCategories_->GetXaxis()->SetBinLabel(i+1, TrackCategories::Names[i]);
+  // Set the proper categories names
+  for (Int_t i = 0; i < numberTrackCategories_; ++i)
+    trackCategories_->GetXaxis()->SetBinLabel(i + 1, TrackCategories::Names[i]);
 }
 
+TrackCategoriesAnalyzer::~TrackCategoriesAnalyzer() {}
 
-TrackCategoriesAnalyzer::~TrackCategoriesAnalyzer() { }
+void TrackCategoriesAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &setup) {
+  // Track collection
+  edm::Handle<edm::View<reco::Track>> trackCollection;
+  event.getByToken(trackProducer_, trackCollection);
 
+  // Set the classifier for a new event
+  classifier_.newEvent(event, setup);
 
-void TrackCategoriesAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
-{
-    // Track collection
-    edm::Handle<edm::View<reco::Track> > trackCollection;
-    event.getByToken(trackProducer_, trackCollection);
+  // Loop over the track collection.
+  for (std::size_t index = 0; index < trackCollection->size(); index++) {
+    edm::RefToBase<reco::Track> track(trackCollection, index);
 
-    // Set the classifier for a new event
-    classifier_.newEvent(event, setup);
+    // Classify the tracks
+    classifier_.evaluate(track);
 
-    // Loop over the track collection.
-    for (std::size_t index = 0; index < trackCollection->size(); index++)
-    {
-        edm::RefToBase<reco::Track> track(trackCollection, index);
-
-        // Classify the tracks
-        classifier_.evaluate(track);
-
-        // Fill the histogram with the categories
-        for (Int_t i = 0; i != numberTrackCategories_; ++i)
-            if (
-                classifier_.is( (TrackCategories::Category) i )
-            )
-                trackCategories_->Fill(i);
-    }
+    // Fill the histogram with the categories
+    for (Int_t i = 0; i != numberTrackCategories_; ++i)
+      if (classifier_.is((TrackCategories::Category)i))
+        trackCategories_->Fill(i);
+  }
 }
-
 
 DEFINE_FWK_MODULE(TrackCategoriesAnalyzer);
-

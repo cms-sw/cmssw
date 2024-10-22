@@ -5,7 +5,7 @@
 //
 // Package:    GctFibreAnalyzer
 // Class:      GctFibreAnalyzer
-// 
+//
 /**\class GctFibreAnalyzer GctFibreAnalyzer.cc L1Trigger/L1GctAnalzyer/interface/GctFibreAnalyzer.h
 
 Description: Analyzer individual fibre channels from the source card.
@@ -19,7 +19,7 @@ Description: Analyzer individual fibre channels from the source card.
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,15 +29,12 @@ Description: Analyzer individual fibre channels from the source card.
 // Gct fibre data format
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctFibreWord.h"
 
-class GctFibreAnalyzer : public edm::EDAnalyzer {
-
- public:
-
+class GctFibreAnalyzer : public edm::one::EDAnalyzer<> {
+public:
   explicit GctFibreAnalyzer(const edm::ParameterSet&);
   ~GctFibreAnalyzer() override;
 
- private:
-
+private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   bool CheckFibreWord(const L1GctFibreWord fibre);

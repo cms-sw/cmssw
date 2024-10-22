@@ -12,51 +12,55 @@
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
 #include <limits>
 
-namespace edm { class Event; class EventSetup; class ConsumesCollector;}
+namespace edm {
+  class Event;
+  class EventSetup;
+  class ConsumesCollector;
+}  // namespace edm
 
 namespace ctfseeding {
 
   class HitExtractor {
   public:
     using TkHit = BaseTrackerRecHit;
-    using TkHitRef = BaseTrackerRecHit const &;
+    using TkHitRef = BaseTrackerRecHit const&;
     using HitPointer = mayown_ptr<BaseTrackerRecHit>;
-    using Hits=std::vector<HitPointer>;
-    
-    virtual ~HitExtractor(){}
+    using Hits = std::vector<HitPointer>;
+
+    virtual ~HitExtractor() {}
     HitExtractor() {}
-    
-    virtual Hits hits(const TkTransientTrackingRecHitBuilder& ttrhBuilder, const edm::Event& , const edm::EventSetup& ) const =0;
-    virtual HitExtractor * clone() const = 0;
-    
+
+    virtual Hits hits(const TkTransientTrackingRecHitBuilder& ttrhBuilder,
+                      const edm::Event&,
+                      const edm::EventSetup&) const = 0;
+    virtual HitExtractor* clone() const = 0;
+
     //skip clusters
-    void useSkipClusters(const edm::InputTag & m, edm::ConsumesCollector& iC) {
-      skipClusters=true; maskCluster=true;
+    void useSkipClusters(const edm::InputTag& m, edm::ConsumesCollector& iC) {
+      skipClusters = true;
+      maskCluster = true;
       useSkipClusters_(m, iC);
     }
-    bool skipClusters=false;
-    bool filterCluster=false;
-    bool maskCluster=false;
-    float minGoodCharge=0;  
+    bool skipClusters = false;
+    bool filterCluster = false;
+    bool maskCluster = false;
+    float minGoodCharge = 0;
 
   protected:
-    virtual void useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) = 0;
+    virtual void useSkipClusters_(const edm::InputTag& m, edm::ConsumesCollector& iC) = 0;
   };
-  
-  
+
   template <typename DSTV, typename A, typename B>
-  inline void range2SeedingHits(DSTV const & dstv,
-				HitExtractor::Hits & v,
-				std::pair<A,B> const & sel) {
-    typename DSTV::Range range = dstv.equal_range(sel.first,sel.second);
+  inline void range2SeedingHits(DSTV const& dstv, HitExtractor::Hits& v, std::pair<A, B> const& sel) {
+    typename DSTV::Range range = dstv.equal_range(sel.first, sel.second);
     size_t ts = v.size();
-    for(typename DSTV::const_iterator id=range.first; id!=range.second; id++)
+    for (typename DSTV::const_iterator id = range.first; id != range.second; id++)
       ts += std::distance((*id).begin(), (*id).end());
     v.reserve(ts);
-    for(typename DSTV::const_iterator id=range.first; id!=range.second; id++){
-      for ( auto const & h : (*id) ) v.emplace_back(h);
+    for (typename DSTV::const_iterator id = range.first; id != range.second; id++) {
+      for (auto const& h : (*id))
+        v.emplace_back(h);
     }
-  
   }
-}
+}  // namespace ctfseeding
 #endif

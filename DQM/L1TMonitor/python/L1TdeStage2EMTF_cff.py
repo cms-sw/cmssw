@@ -1,13 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.L1TMonitor.L1TdeStage2EMTF_cfi import *
+from DQM.L1TMonitor.L1TdeStage2RegionalShower_cfi import *
+from Configuration.Eras.Modifier_stage2L1Trigger_2024_cff import stage2L1Trigger_2024
 
 # List of bins to ignore
 ignoreBinsDeStage2Emtf = [1]
 
 # compares the unpacked EMTF regional muon collection to the emulated EMTF regional muon collection
 # only muons that do not match are filled in the histograms
-l1tdeStage2EmtfComp = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tdeStage2EmtfComp = DQMEDAnalyzer(
     "L1TStage2RegionalMuonCandComp",
     regionalMuonCollection1 = cms.InputTag("emtfStage2Digis"),
     regionalMuonCollection2 = cms.InputTag("valEmtfStage2Digis", "EMTF"),
@@ -18,6 +21,12 @@ l1tdeStage2EmtfComp = cms.EDAnalyzer(
     ignoreBadTrackAddress = cms.untracked.bool(True),
     ignoreBin = cms.untracked.vint32(ignoreBinsDeStage2Emtf),
     verbose = cms.untracked.bool(False),
+    hasDisplacementInfo = cms.untracked.bool(False),
+)
+
+stage2L1Trigger_2024.toModify(
+    l1tdeStage2EmtfComp,
+    hasDisplacementInfo = cms.untracked.bool(True) # Linden Burack 7/26/2024
 )
 
 # sequences
@@ -26,3 +35,6 @@ l1tdeStage2EmtfOnlineDQMSeq = cms.Sequence(
     l1tdeStage2EmtfComp
 )
 
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+_run3shower_l1tdeStage2EmtfOnlineDQMSeq = l1tdeStage2EmtfOnlineDQMSeq.copy()
+run3_GEM.toReplaceWith(l1tdeStage2EmtfOnlineDQMSeq, cms.Sequence(_run3shower_l1tdeStage2EmtfOnlineDQMSeq + l1tdeStage2RegionalShower))

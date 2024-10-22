@@ -1,5 +1,5 @@
-#ifndef PFGsfHelper_H
-#define PFGsfHelper_H
+#ifndef RecoParticleFlow_PFTracking_PFGsfHelper_H
+#define RecoParticleFlow_PFTracking_PFGsfHelper_H
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -14,7 +14,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateTransform.h"
 
-
 /// \brief Abstract
 /*!
 \author Daniele Benedetti
@@ -26,23 +25,21 @@
  Other utilities: 
 */
 
-class TrajectoryMeasurement; 
-class PFGsfHelper{
-  
- public:
-  PFGsfHelper ( const TrajectoryMeasurement&);
+class TrajectoryMeasurement;
+class PFGsfHelper {
+public:
+  PFGsfHelper(const TrajectoryMeasurement&);
   ~PFGsfHelper();
 
   GlobalVector computeP(bool ComputeMode) const;
-  bool isValid () const;
-  double fittedDP () const;
+  bool isValid() const;
+  double fittedDP() const;
   double sigmafittedDP() const;
 
- private:
-  
-  void computeQpMode (const TrajectoryStateOnSurface tsos,
-		      AlgebraicVector5& parameters, AlgebraicSymMatrix55& covariance) const;
-  
+private:
+  void computeQpMode(const TrajectoryStateOnSurface tsos,
+                     AlgebraicVector5& parameters,
+                     AlgebraicSymMatrix55& covariance) const;
 
   float mode_Px;
   float mode_Py;

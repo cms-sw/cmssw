@@ -35,40 +35,35 @@ namespace edm {
     ~OrphanHandle();
 
     T const* product() const;
-    T const* operator->() const; // alias for product()
+    T const* operator->() const;  // alias for product()
     T const& operator*() const;
 
   private:
   };
 
   template <class T>
-  OrphanHandle<T>::OrphanHandle() : OrphanHandleBase()
-  { }
+  OrphanHandle<T>::OrphanHandle() : OrphanHandleBase() {}
 
   template <class T>
-  OrphanHandle<T>::OrphanHandle(T const* prod, ProductID const& theId) : OrphanHandleBase(prod, theId) {
-  }
+  OrphanHandle<T>::OrphanHandle(T const* prod, ProductID const& theId) : OrphanHandleBase(prod, theId) {}
 
   template <class T>
   OrphanHandle<T>::~OrphanHandle() {}
 
   template <class T>
-  T const* 
-  OrphanHandle<T>::product() const {
+  T const* OrphanHandle<T>::product() const {
     return static_cast<T const*>(productStorage());
   }
 
   template <class T>
-  T const* 
-  OrphanHandle<T>::operator->() const {
+  T const* OrphanHandle<T>::operator->() const {
     return product();
   }
 
   template <class T>
-  T const& 
-  OrphanHandle<T>::operator*() const {
+  T const& OrphanHandle<T>::operator*() const {
     return *product();
   }
 
-}
+}  // namespace edm
 #endif

@@ -7,8 +7,11 @@
  *  \author S. Bolognesi
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 // #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 #include <string>
 
@@ -16,15 +19,14 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class TFile;
 class DTTimeBoxFitter;
 class DTSuperLayerId;
 class DTTtrig;
 
-
-class DTTTrigWriter : public edm::EDAnalyzer {
+class DTTTrigWriter : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTTTrigWriter(const edm::ParameterSet& pset);
@@ -35,14 +37,12 @@ public:
   // Operations
 
   /// Compute the ttrig by fiting the TB rising edge
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   /// Write ttrig in the DB
   void endJob() override;
 
- 
 protected:
-
 private:
   // Generate the time box name
   std::string getTBoxName(const DTSuperLayerId& slId) const;
@@ -53,16 +53,19 @@ private:
   double kFactor;
 
   // The file which contains the tMax histograms
-  TFile *theFile;
+  TFile* theFile;
 
   // The name of the input root file which contains the tMax histograms
   std::string theRootInputFile;
 
   // The fitter
-  DTTimeBoxFitter *theFitter;
+  DTTimeBoxFitter* theFitter;
 
   // The object to be written to DB
-  DTTtrig* tTrig; 
+  DTTtrig* tTrig;
 
+  //geom
+  edm::ESHandle<DTGeometry> dtGeom;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif

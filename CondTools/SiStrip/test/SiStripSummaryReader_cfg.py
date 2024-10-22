@@ -3,10 +3,17 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SiStripSummaryReader")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('SiStripSummaryReader.log')
+    files = cms.untracked.PSet(
+        SiStripSummaryReader = cms.untracked.PSet(
+
+        )
+    )
 )
 
 
@@ -27,7 +34,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dbfile.db'),
+    connect = cms.string('sqlite_file:SiStripConditionsDBFile.db'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripSummaryRcd'),
         tag = cms.string('SiStripSummary_test1')

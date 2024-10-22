@@ -47,8 +47,8 @@ for i in range(len(value)):
     errorParameters += prepend+"1"
     prepend = ", "
 
-print "values = ", values
-print "errors = ", errors
+print("values = ", values)
+print("errors = ", errors)
     
 cfgFile = open("ErrorsPropagationAnalyzer_cfg.py", 'r')
 outputCfgFile = open("Errors_cfg.py", 'w')
@@ -63,4 +63,4 @@ for line in cfgFile:
         outputCfgFile.write(line.replace("ErrorFactors = cms.vint32(),", "ErrorFactors = cms.vint32("+errorParameters+"),"))
     else:
         outputCfgFile.write( line )
-    # print line
+    # print(line)

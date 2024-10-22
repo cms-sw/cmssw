@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     FWHFTowerProxyBuilder
-// 
+//
 /**\class FWHFTowerProxyBuilder FWHFTowerProxyBuilder.h Fireworks/Calo/interface/FWHFTowerProxyBuilder.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Mon May 31 16:41:23 CEST 2010
 //
 
@@ -22,7 +22,7 @@
 
 // user include files
 #include "Fireworks/Calo/interface/FWCaloDataProxyBuilderBase.h"
-#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
+#include "Fireworks/Calo/interface/FWFromTEveCaloDataSelector.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
@@ -30,41 +30,39 @@ class TEveCaloDataVec;
 //
 // base
 //
-class FWHFTowerProxyBuilderBase : public FWCaloDataProxyBuilderBase
-{
+class FWHFTowerProxyBuilderBase : public FWCaloDataProxyBuilderBase {
 public:
-   FWHFTowerProxyBuilderBase();
-   ~FWHFTowerProxyBuilderBase() override;
-  
-   // ---------- const member functions ---------------------
-  
-   // ---------- static member functions --------------------
-  
-   // ---------- member functions ---------------------------
-   REGISTER_PROXYBUILDER_METHODS();
+  FWHFTowerProxyBuilderBase();
+  ~FWHFTowerProxyBuilderBase() override;
+
+  // ---------- const member functions ---------------------
+
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+  REGISTER_PROXYBUILDER_METHODS();
 
 protected:
-   void setCaloData(const fireworks::Context&) override;
-   void fillCaloData() override;
-   bool assertCaloDataSlice() override;
-  
-   void itemBeingDestroyed(const FWEventItem*) override;
+  void setCaloData(const fireworks::Context&) override;
+  void fillCaloData() override;
+  bool assertCaloDataSlice() override;
+
+  void itemBeingDestroyed(const FWEventItem*) override;
+
+public:
+  FWHFTowerProxyBuilderBase(const FWHFTowerProxyBuilderBase&) = delete;  // stop default
+
+  const FWHFTowerProxyBuilderBase& operator=(const FWHFTowerProxyBuilderBase&) = delete;  // stop default
 
 private:
-  
-   FWHFTowerProxyBuilderBase(const FWHFTowerProxyBuilderBase&) = delete; // stop default
-  
-   const FWHFTowerProxyBuilderBase& operator=(const FWHFTowerProxyBuilderBase&) = delete; // stop default
-  
-   void build(const FWEventItem* iItem,
-                      TEveElementList* product, const FWViewContext*) override;
-  
-   int fillTowerForDetId(unsigned int rawid, float);
-   // ---------- member data --------------------------------
-  
-   const HFRecHitCollection* m_hits;
-   //   int   m_depth;
-   TEveCaloDataVec* m_vecData;  
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+
+  int fillTowerForDetId(unsigned int rawid, float);
+  // ---------- member data --------------------------------
+
+  const HFRecHitCollection* m_hits;
+  //   int   m_depth;
+  TEveCaloDataVec* m_vecData;
 };
 
 /*

@@ -8,7 +8,6 @@
   [date]: October 15, 2009
 */
 
-
 //Standard C++ classes
 #include <iostream>
 #include <string>
@@ -24,6 +23,7 @@
 #include <cstdlib>
 
 // user include files
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -155,8 +155,8 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -176,16 +176,13 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-namespace reco
-{
+namespace reco {
   class GlobalHaloDataProducer : public edm::stream::EDProducer<> {
-
   public:
     explicit GlobalHaloDataProducer(const edm::ParameterSet&);
     ~GlobalHaloDataProducer() override;
 
   private:
-
     void produce(edm::Event&, const edm::EventSetup&) override;
 
     GlobalHaloAlgo GlobalAlgo;
@@ -208,16 +205,18 @@ namespace reco
     edm::EDGetTokenT<CSCHaloData> cschalo_token_;
     edm::EDGetTokenT<EcalHaloData> ecalhalo_token_;
     edm::EDGetTokenT<HcalHaloData> hcalhalo_token_;
+    edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscgeometry_token_;
+    edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globaltrackinggeometry_token_;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> calogeometry_token_;
 
     float EcalMinMatchingRadius;
-    float  EcalMaxMatchingRadius;
+    float EcalMaxMatchingRadius;
     float HcalMinMatchingRadius;
     float HcalMaxMatchingRadius;
     float CaloTowerEtThreshold;
 
     bool ishlt;
   };
-}
+}  // namespace reco
 
 #endif
-

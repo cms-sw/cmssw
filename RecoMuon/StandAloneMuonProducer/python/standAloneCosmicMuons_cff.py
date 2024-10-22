@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi" 
 # in 150 shall be changed into
 # include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cff"
-# from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
+# from Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi import *
 # from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 # Magnetic Field
 #include "MagneticField/Engine/data/uniformMagneticField.cfi" 
@@ -24,7 +24,8 @@ from RecoMuon.StandAloneMuonProducer.standAloneMuons_cfi import *
 #replace standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableRPCMeasurement = false
 #replace standAloneMuons.STATrajBuilderParameters.RefitterParameters.EnableDTMeasurement = false
 #replace standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableDTMeasurement = false
-standAloneCosmicMuons = cms.Sequence(CosmicMuonSeed*standAloneMuons)
+standAloneCosmicMuonsTask = cms.Task(CosmicMuonSeed,standAloneMuons)
+standAloneCosmicMuons = cms.Sequence(standAloneCosmicMuonsTask)
 standAloneMuons.InputObjects = 'CosmicMuonSeed'
 standAloneMuons.STATrajBuilderParameters.NavigationType = 'Direct'
 standAloneMuons.TrackLoaderParameters.VertexConstraint = False

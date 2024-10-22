@@ -11,40 +11,55 @@ from RecoBTag.Combined.pfDeepCMVADiscriminatorsJetTags_cfi import pfDeepCMVADisc
 ##
 
 pfDeepCSVNegativeTagInfos = pfDeepCSVTagInfos.clone(
-	svTagInfos=cms.InputTag('pfInclusiveSecondaryVertexFinderNegativeTagInfos')
-	)
-pfDeepCSVNegativeTagInfos.computer.vertexFlip = True
-pfDeepCSVNegativeTagInfos.computer.trackFlip = True
-pfDeepCSVNegativeTagInfos.computer.trackSelection.sip3dSigMax = 0
-pfDeepCSVNegativeTagInfos.computer.trackPseudoSelection.sip3dSigMax = 0
-pfDeepCSVNegativeTagInfos.computer.trackPseudoSelection.sip2dSigMin = -99999.9
-pfDeepCSVNegativeTagInfos.computer.trackPseudoSelection.sip2dSigMax = -2.0
+    svTagInfos='pfInclusiveSecondaryVertexFinderNegativeTagInfos',
+    computer = dict(
+        vertexFlip = True,
+        trackFlip = True,
+        trackSelection = dict( 
+            sip3dSigMax = 10.0
+            ),
+        trackPseudoSelection = dict(
+            sip3dSigMax = 10.0,
+            sip2dSigMin = -99999.9,
+            sip2dSigMax = -2.0
+            )
+        )
+    )
 
 pfNegativeDeepCSVJetTags = pfDeepCSVJetTags.clone(
-	src=cms.InputTag('pfDeepCSVNegativeTagInfos')
+	src='pfDeepCSVNegativeTagInfos'
 	)
 
-pfDeepCSVPositiveTagInfos = pfDeepCSVTagInfos.clone()
-pfDeepCSVPositiveTagInfos.computer.trackSelection.sip3dSigMin = 0
-pfDeepCSVPositiveTagInfos.computer.trackPseudoSelection.sip3dSigMin = 0
+pfDeepCSVPositiveTagInfos = pfDeepCSVTagInfos.clone(
+    computer = dict(
+        trackSelection = dict( 
+            sip3dSigMin = 0
+            ),
+        trackPseudoSelection = dict(
+            sip3dSigMin = 0
+            )
+        )
+
+    )
+
 pfPositiveDeepCSVJetTags = pfDeepCSVJetTags.clone(
-	src=cms.InputTag('pfDeepCSVPositiveTagInfos')
+	src='pfDeepCSVPositiveTagInfos'
 	)
 
 # Deep CMVA
 pfDeepCMVANegativeTagInfos = pfDeepCMVATagInfos.clone(
-	deepNNTagInfos = cms.InputTag('pfDeepCSVNegativeTagInfos')
+	deepNNTagInfos = 'pfDeepCSVNegativeTagInfos'
 	)
 	
 pfNegativeDeepCMVAJetTags = pfDeepCMVAJetTags.clone(
-	src=cms.InputTag('pfDeepCMVANegativeTagInfos')
+	src='pfDeepCMVANegativeTagInfos'
 	)
 
 pfDeepCMVAPositiveTagInfos = pfDeepCMVATagInfos.clone(
-	deepNNTagInfos = cms.InputTag('pfDeepCSVPositiveTagInfos')
+	deepNNTagInfos = 'pfDeepCSVPositiveTagInfos'
 	)
 pfPositiveDeepCMVAJetTags = pfDeepCMVAJetTags.clone(
-	src=cms.InputTag('pfDeepCMVAPositiveTagInfos')
+	src='pfDeepCMVAPositiveTagInfos'
 	)
 
 

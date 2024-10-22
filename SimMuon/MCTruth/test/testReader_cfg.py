@@ -13,10 +13,8 @@ process.source = cms.Source("PoolSource",
 # MessageLogger
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger.categories = cms.untracked.vstring('testReader',
-    'FwkJob', 'FwkReport', 'FwkSummary', 'Root_NoDictionary')                                       
-
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
     noTimeStamps = cms.untracked.bool(True),
     threshold = cms.untracked.string('INFO'),
     INFO = cms.untracked.PSet(
@@ -41,13 +39,12 @@ process.MessageLogger.cout = cms.untracked.PSet(
     ),
     Root_NoDictionary = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
-    )
+    ),
+    enableStatistics = cms.untracked.bool(True)
 )
 
-process.MessageLogger.statistics = cms.untracked.vstring('cout')
-
 process.MessageLogger.cerr = cms.untracked.PSet(
-    placeholder = cms.untracked.bool(True)
+    enable = cms.untracked.bool(False)
 )
 
 process.testanalyzer = cms.EDAnalyzer("testReader",

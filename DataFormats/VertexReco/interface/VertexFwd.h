@@ -19,6 +19,6 @@ namespace reco {
   typedef VertexRefVector::iterator vertex_iterator;
   /// persistent reference to a Vertex, using views
   typedef edm::RefToBase<reco::Vertex> VertexBaseRef;
-}
+}  // namespace reco
 
 #endif

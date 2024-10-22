@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     RPCObUXCRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Mon Nov 16 12:18:42 CET 2009
 // $Id$
 

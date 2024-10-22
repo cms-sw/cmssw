@@ -4,7 +4,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1MuonParticle
-// 
+//
 /**\class L1MuonParticle \file L1MuonParticle.h DataFormats/L1Trigger/interface/L1MuonParticle.h \author Werner Sun
 
  Description: L1Extra particle class for muon objects.
@@ -24,100 +24,80 @@
 
 namespace l1extra {
 
-   class L1MuonParticle : public reco::LeafCandidate
-   {
+  class L1MuonParticle : public reco::LeafCandidate {
+  public:
+    L1MuonParticle();
 
-      public:
-	 L1MuonParticle();
+    // Eventually, all L1MuGMTCands will be L1MuGMTExtendedCands,
+    // as soon as dictionaries for them exist in
+    // L1Trigger/GlobalMuonTrigger.
 
-	 // Eventually, all L1MuGMTCands will be L1MuGMTExtendedCands,
-	 // as soon as dictionaries for them exist in
-	 // L1Trigger/GlobalMuonTrigger.
+    L1MuonParticle(Charge q, const LorentzVector& p4, const L1MuGMTExtendedCand& aCand, int bx = 0);
 
-	 L1MuonParticle( Charge q,
-			 const LorentzVector& p4,
-			 const L1MuGMTExtendedCand& aCand,
-			 int bx = 0 ) ;
+    L1MuonParticle(Charge q, const PolarLorentzVector& p4, const L1MuGMTExtendedCand& aCand, int bx = 0);
 
-	 L1MuonParticle( Charge q,
-			 const PolarLorentzVector& p4,
-			 const L1MuGMTExtendedCand& aCand,
-			 int bx = 0 ) ;
+    // Creates null Ref.
+    L1MuonParticle(Charge q,
+                   const LorentzVector& p4,
+                   bool isolated = false,
+                   bool mip = false,
+                   bool forward = false,
+                   bool rpc = false,
+                   unsigned int detector = 0,
+                   int bx = 0);
 
-         // Creates null Ref.
-         L1MuonParticle( Charge q,
-                         const LorentzVector& p4,
-                         bool isolated = false,
-                         bool mip = false,
-			 bool forward = false,
-			 bool rpc = false,
-			 unsigned int detector = 0,
-			 int bx = 0 ) ;
+    L1MuonParticle(Charge q,
+                   const PolarLorentzVector& p4,
+                   bool isolated = false,
+                   bool mip = false,
+                   bool forward = false,
+                   bool rpc = false,
+                   unsigned int detector = 0,
+                   int bx = 0);
 
-         L1MuonParticle( Charge q,
-                         const PolarLorentzVector& p4,
-                         bool isolated = false,
-                         bool mip = false,
-			 bool forward = false,
-			 bool rpc = false,
-			 unsigned int detector = 0,
-			 int bx = 0 ) ;
+    ~L1MuonParticle() override {}
 
-	 ~L1MuonParticle() override {}
+    // ---------- const member functions ---------------------
+    bool isIsolated() const { return isolated_; }
 
-	 // ---------- const member functions ---------------------
-         bool isIsolated() const
-         { return isolated_ ; }
+    bool isMip() const { return mip_; }
 
-         bool isMip() const
-         { return mip_ ; }
+    bool isForward() const { return forward_; }
 
-	 bool isForward() const
-	 { return forward_ ; }
+    bool isRPC() const { return rpc_; }
 
-	 bool isRPC() const
-	 { return rpc_ ; }
+    const L1MuGMTExtendedCand& gmtMuonCand() const { return cand_; }
 
-	 const L1MuGMTExtendedCand& gmtMuonCand() const
-	 { return cand_ ; }
+    L1MuonParticle* clone() const override { return new L1MuonParticle(*this); }
 
-	 L1MuonParticle* clone() const override
-	 { return new L1MuonParticle( *this ) ; }
+    int bx() const { return bx_; }
 
-	 int bx() const
-	 { return bx_ ; }
+    // ---------- static member functions --------------------
 
-	 // ---------- static member functions --------------------
+    // ---------- member functions ---------------------------
+    void setIsolated(bool isIso) { isolated_ = isIso; }
 
-	 // ---------- member functions ---------------------------
-	 void setIsolated( bool isIso )
-	 { isolated_ = isIso ; }
+    void setMip(bool isMip) { mip_ = isMip; }
 
-	 void setMip( bool isMip )
-	 { mip_ = isMip ; }
+    void setForward(bool isForward) { forward_ = isForward; }
 
-	 void setForward( bool isForward )
-	 { forward_ = isForward ; }
+    void setRPC(bool isRPC) { rpc_ = isRPC; }
 
-	 void setRPC( bool isRPC )
-	 { rpc_ = isRPC ; }
+    void setBx(int bx) { bx_ = bx; }
 
-	 void setBx( int bx )
-	 { bx_ = bx ; }
+  private:
+    // L1MuonParticle(const L1MuonParticle&); // stop default
 
-      private:
-	 // L1MuonParticle(const L1MuonParticle&); // stop default
+    // const L1MuonParticle& operator=(const L1MuonParticle&); // stop default
 
-	 // const L1MuonParticle& operator=(const L1MuonParticle&); // stop default
-
-	 // ---------- member data --------------------------------
-         bool isolated_ ;
-         bool mip_ ;
-	 bool forward_ ;
-	 bool rpc_ ;
-	 L1MuGMTExtendedCand cand_ ;
-	 int bx_ ;
-   };
-}
+    // ---------- member data --------------------------------
+    bool isolated_;
+    bool mip_;
+    bool forward_;
+    bool rpc_;
+    L1MuGMTExtendedCand cand_;
+    int bx_;
+  };
+}  // namespace l1extra
 
 #endif

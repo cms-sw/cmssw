@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to pack a GT EVM record
 #
@@ -173,7 +174,7 @@ if useRelValSample == True :
 
 
         else :
-            print 'Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.'    
+            print('Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.')    
             sys.exit()
 
         secFiles.extend([
@@ -233,7 +234,7 @@ if useRelValSample == True :
 
 
         else :
-            print 'Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.'    
+            print('Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.')    
             sys.exit()
 
                 
@@ -241,14 +242,14 @@ if useRelValSample == True :
             ])
         
     else :
-        print 'Error: Global Tag ', useGlobalTag, ' not defined.'    
+        print('Error: Global Tag ', useGlobalTag, ' not defined.')    
         sys.exit()
 
 else : 
 
     # data
     dataset = '/Cosmics/Commissioning09-v1/RAW'
-    print '   Running on set: '+ dataset    
+    print('   Running on set: '+ dataset)    
     
     readFiles.extend( [
        '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/00BD9A1F-B908-DE11-8B2C-000423D94A04.root',
@@ -275,10 +276,10 @@ if useLocalFiles :
 # load and configure modules via Global Tag
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = useGlobalTag+'::All'
+process.GlobalTag.globaltag = useGlobalTag
 # FIXME remove when Global Tag OK
 process.load('L1Trigger.Configuration.L1Trigger_FakeConditions_cff')
 
@@ -328,8 +329,8 @@ else :
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtEvmPack']
-process.MessageLogger.destinations = ['L1GtEvmPacker']
-process.MessageLogger.L1GtEvmPacker = cms.untracked.PSet(
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.L1GtEvmPacker = cms.untracked.PSet(
     threshold=cms.untracked.string('DEBUG'),
     #threshold = cms.untracked.string('INFO'),
     #threshold = cms.untracked.string('ERROR'),

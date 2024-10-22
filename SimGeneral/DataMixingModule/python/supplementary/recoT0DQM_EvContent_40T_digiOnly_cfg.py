@@ -94,7 +94,7 @@ process.load("L1Trigger.Configuration.L1Config_cff")
 process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFConfigProducer_cfi")
 process.load("L1TriggerConfig.CSCTFConfigProducers.L1MuCSCTFConfigurationRcdSrc_cfi")
 
-#process.roadSearchSeedsP5.MaxNumberOfCosmicClusters = 100
+#process.roadSearchSeedsP5.MaxNumberOfStripClusters = 100
 
 
 #Paths

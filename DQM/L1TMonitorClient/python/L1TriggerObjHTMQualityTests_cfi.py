@@ -2,7 +2,8 @@
  
 import FWCore.ParameterSet.Config as cms
 
-l1TriggerObjHTMQualityTests = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+l1TriggerObjHTMQualityTests = DQMQualityTester(
     qtList=cms.untracked.FileInPath('DQM/L1TMonitorClient/data/L1TriggerObjHTMQualityTests.xml'),
     QualityTestPrescaler=cms.untracked.int32(1),
     getQualityTestsFromFile=cms.untracked.bool(True),

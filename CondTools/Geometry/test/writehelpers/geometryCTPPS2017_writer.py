@@ -4,12 +4,8 @@ process = cms.Process("GeometryWriter")
 
 process.load('CondCore.CondDB.CondDB_cfi')
 
-# This will read all the little XML files and from
-# that fill the DDCompactView. The modules that fill
-# the reco part of the database need the DDCompactView.
-# process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
-# from Geometry.VeryForwardGeometry.geometryRP_cfi import XMLIdealGeometryESSource_CTPPS
-# process.XMLIdealGeometryESSource = XMLIdealGeometryESSource_CTPPS.clone()
+# geometry
+process.load("Geometry.VeryForwardGeometry.dd4hep.geometryRPFromDD_2017_cfi")
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -24,16 +20,25 @@ process.source = cms.Source("EmptyIOVSource",
 # XML files, but there is no way to directly build the
 # DDCompactView from this.
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
-                                           XMLFileName = cms.untracked.string("./geSingleBigFile.xml"),
+                                           XMLFileName = cms.untracked.string("./ge2017SingleBigFile.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
+
+# DB writer
+process.ppsGeometryBuilder = cms.EDAnalyzer("PPSGeometryBuilder",
+                                            fromDD4hep = cms.untracked.bool(True),
+                                            isRun2 = cms.untracked.bool(True),
+                                            compactViewTag = cms.untracked.string('XMLIdealGeometryESSource_CTPPS')
+)
 
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),
-                                                                     tag = cms.string('XMLFILE_Geometry_TagXX_Extended2017_mc'))
+                                                                     tag = cms.string('XMLFILE_CTPPS_Geometry_2017_TagXX')),
+                                                            cms.PSet(record = cms.string('VeryForwardIdealGeometryRecord'),
+                                                                     tag = cms.string('PPSRECO_Geometry_2017_TagXX'))
                                                             )
                                           )
 
@@ -41,5 +46,5 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.p1 = cms.Path(process.XMLGeometryWriter)
+process.p1 = cms.Path(process.XMLGeometryWriter+process.ppsGeometryBuilder)
 

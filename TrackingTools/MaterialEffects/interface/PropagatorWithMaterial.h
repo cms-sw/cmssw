@@ -23,7 +23,6 @@
 
 class MagneticField;
 class PropagatorWithMaterial final : public Propagator {
-
 public:
   /** Constructor with PropagationDirection and mass hypothesis.
    *  Uses AnalyticalPropagator and CombinedMaterialEffectsUpdator
@@ -35,40 +34,39 @@ public:
    *  default neglected), but assuming that the track Pt will never fall
    *  below ptMin.
    */
-  PropagatorWithMaterial (PropagationDirection dir, const float mass,
-			  const MagneticField * mf=nullptr,const float maxDPhi=1.6,
-			  bool useRungeKutta=false, float ptMin=-1.,bool useOldGeoPropLogic=true);
+  PropagatorWithMaterial(PropagationDirection dir,
+                         const float mass,
+                         const MagneticField* mf = nullptr,
+                         const float maxDPhi = 1.6,
+                         bool useRungeKutta = false,
+                         float ptMin = -1.,
+                         bool useOldGeoPropLogic = true);
 
   ~PropagatorWithMaterial() override;
-
-
 
   using Propagator::propagate;
   using Propagator::propagateWithPath;
 
-
 private:
-  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos,
-									const Plane& plane) const override;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const TrajectoryStateOnSurface& tsos,
+                                                                const Plane& plane) const override;
 
-  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts,
-									const Plane& plane) const override;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState& fts,
+                                                                const Plane& plane) const override;
 
-  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos,
-									const Cylinder& cylinder) const override;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const TrajectoryStateOnSurface& tsos,
+                                                                const Cylinder& cylinder) const override;
 
-  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts,
-									const Cylinder& cylinder) const override;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState& fts,
+                                                                const Cylinder& cylinder) const override;
 
 public:
   /// Limit on change in azimuthal angle
-  bool setMaxDirectionChange( float phiMax)  override{
-    return theGeometricalPropagator->setMaxDirectionChange(phiMax);
-  }
+  bool setMaxDirectionChange(float phiMax) override { return theGeometricalPropagator->setMaxDirectionChange(phiMax); }
   /// Propagation direction
-  void setPropagationDirection (PropagationDirection dir) override;
+  void setPropagationDirection(PropagationDirection dir) override;
 
-  enum MaterialLocation {atSource, atDestination, fromDirection};
+  enum MaterialLocation { atSource, atDestination, fromDirection };
   /** Choice of location for including material effects:
    *  fromDirection is equivalent to atSource for propagation alongMomentum
    *  and to atDestination for propagation oppositeToMomentum.
@@ -77,25 +75,15 @@ public:
    *  will effectively disable material effects when propagating from
    *  a FreeTrajectoryState.
    */
-  void setMaterialLocation (const MaterialLocation location) {
-    theMaterialLocation = location;
-  }
+  void setMaterialLocation(const MaterialLocation location) { theMaterialLocation = location; }
   /// Access to the geometrical propagator
-  const Propagator& geometricalPropagator() const {
-    return *theGeometricalPropagator;
-  }
+  const Propagator& geometricalPropagator() const { return *theGeometricalPropagator; }
   /// Access to the MaterialEffectsUpdator
-  const MaterialEffectsUpdator& materialEffectsUpdator() const {
-    return *theMEUpdator;
-  }
+  const MaterialEffectsUpdator& materialEffectsUpdator() const { return *theMEUpdator; }
 
-  const MagneticField* magneticField() const override {return field;}
+  const MagneticField* magneticField() const override { return field; }
 
-
-  PropagatorWithMaterial* clone() const override
-    {
-      return new PropagatorWithMaterial(*this);
-    }
+  PropagatorWithMaterial* clone() const override { return new PropagatorWithMaterial(*this); }
 
 private:
   /// Inclusion of material at the source?
@@ -107,16 +95,13 @@ private:
   defaultRKPropagator::Product rkProduct;
   DeepCopyPointerByClone<Propagator> theGeometricalPropagator;
 
-
   // Material effects
   DeepCopyPointerByClone<MaterialEffectsUpdator> theMEUpdator;
-  typedef std::pair<TrajectoryStateOnSurface,double> TsosWP;
+  typedef std::pair<TrajectoryStateOnSurface, double> TsosWP;
   // Use material at source?
   MaterialLocation theMaterialLocation;
-  const MagneticField * field;
+  const MagneticField* field;
   bool useRungeKutta_;
 };
 
 #endif
-
-

@@ -9,6 +9,7 @@ namespace edm {
   class ConsumesCollector;
 }
 
-typedef edmplugin::PluginFactory< TrajectoryFilter* (const edm::ParameterSet&, edm::ConsumesCollector& iC) > TrajectoryFilterFactory;
+typedef edmplugin::PluginFactory<TrajectoryFilter*(const edm::ParameterSet&, edm::ConsumesCollector& iC)>
+    TrajectoryFilterFactory;
 
 #endif

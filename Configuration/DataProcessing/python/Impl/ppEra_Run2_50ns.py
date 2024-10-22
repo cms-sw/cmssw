@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 _ppEra_Run2_50ns_
 
@@ -20,7 +20,6 @@ class ppEra_Run2_50ns(pp):
         pp.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
-        self.addEI=True
         self.eras=Run2_50ns
     """
     _ppEra_Run2_50ns_

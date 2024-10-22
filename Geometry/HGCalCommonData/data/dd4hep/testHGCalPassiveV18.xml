@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v3/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/extend/v2/cmsextent.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cms/2026/v5/cms.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cmsMother.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/eta3/etaMax.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/caloBase/2026/v7/caloBase.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalMaterial/v2/hgcalMaterial.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcal/v18/hgcal.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalPassive/v18/hgcalPassive.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalPassive/v18/hgcalpos.xml"/>
+   </IncludeSection>
+
+ </DDDefinition>
+

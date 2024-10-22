@@ -19,16 +19,16 @@ Machine parameters:  mode = NOMERGE
 	shouldWeStop
 	endLumi 1/1
 	writeLumi 1/1
-	deleteLumiFromCache 1/1
+	clearLumiPrincipal 1/1
 	readLuminosityBlock 2
 	beginLumi 1/2
     *** nextItemType: File 0 ***
 	endLumi 1/2
 	writeLumi 1/2
-	deleteLumiFromCache 1/2
+	clearLumiPrincipal 1/2
 	endRun 1
 	writeRun 1
-	deleteRunFromCache 1
+	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -44,7 +44,7 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Lumi 3 ***
 	endLumi 1/2
 	writeLumi 1/2
-	deleteLumiFromCache 1/2
+	clearLumiPrincipal 1/2
 	readLuminosityBlock 3
 	beginLumi 1/3
     *** nextItemType: Event ***
@@ -55,10 +55,10 @@ Machine parameters:  mode = NOMERGE
 	shouldWeStop
 	endLumi 1/3
 	writeLumi 1/3
-	deleteLumiFromCache 1/3
+	clearLumiPrincipal 1/3
 	endRun 1
 	writeRun 1
-	deleteRunFromCache 1
+	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -85,7 +85,7 @@ Machine parameters:  mode = FULLMERGE
 	shouldWeStop
 	endLumi 1/1
 	writeLumi 1/1
-	deleteLumiFromCache 1/1
+	clearLumiPrincipal 1/1
 	readLuminosityBlock 2
 	beginLumi 1/2
     *** nextItemType: File 0 ***
@@ -101,7 +101,7 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Lumi 3 ***
 	endLumi 1/2
 	writeLumi 1/2
-	deleteLumiFromCache 1/2
+	clearLumiPrincipal 1/2
 	readLuminosityBlock 3
 	beginLumi 1/3
     *** nextItemType: Event ***
@@ -112,10 +112,10 @@ Machine parameters:  mode = FULLMERGE
 	shouldWeStop
 	endLumi 1/3
 	writeLumi 1/3
-	deleteLumiFromCache 1/3
+	clearLumiPrincipal 1/3
 	endRun 1
 	writeRun 1
-	deleteRunFromCache 1
+	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles

@@ -29,23 +29,23 @@ from RecoLocalCalo.HcalRecAlgos.hcalRecAlgos_cfi import hcalRecAlgos
 
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify(hcalRecAlgos,
-    phase = cms.uint32(1),
+    phase = 1,
     SeverityLevels = {
-        2 : dict( RecHitFlags = cms.vstring('HBHEIsolatedNoise') ),
-        3 : dict( RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity',  
-                                            'HBHEFlatNoise', 
-                                            'HBHESpikeNoise', 
-                                            'HBHETS4TS5Noise', 
-                                            'HBHENegativeNoise', 
-                                            'HBHEOOTPU'
-                )
+        2 : dict( RecHitFlags = ['HBHEIsolatedNoise',
+                                 'HFAnomalousHit']
             ),
-        4: dict( RecHitFlags = cms.vstring('HFLongShort', 
-                                           'HFS8S1Ratio',  
-                                           'HFPET', 
-                                           'HFSignalAsymmetry'
-                )
+        3 : dict( RecHitFlags = ['HBHEHpdHitMultiplicity',  
+                                 'HBHEFlatNoise', 
+                                 'HBHESpikeNoise', 
+                                 'HBHETS4TS5Noise', 
+                                 'HBHENegativeNoise', 
+                                 'HBHEOOTPU']
+            ),
+        4 : dict( RecHitFlags = ['HFLongShort', 
+                                 'HFS8S1Ratio',  
+                                 'HFPET', 
+                                 'HFSignalAsymmetry']
             ),
     },
-    RecoveredRecHitBits = cms.vstring('')
+    RecoveredRecHitBits = ['']
 )

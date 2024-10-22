@@ -11,6 +11,7 @@ from DQM.EcalMonitorClient.SelectiveReadoutClient_cfi import ecalSelectiveReadou
 from DQM.EcalMonitorClient.TimingClient_cfi import ecalTimingClient
 from DQM.EcalMonitorClient.TrigPrimClient_cfi import ecalTrigPrimClient
 from DQM.EcalMonitorClient.SummaryClient_cfi import ecalSummaryClient
+from DQM.EcalMonitorClient.MLClient_cfi import ecalMLClient
 
 ecalMonitorClient = DQMEDHarvester("EcalDQMonitorClient",
     moduleName = cms.untracked.string("Ecal Monitor Client"),
@@ -22,6 +23,7 @@ ecalMonitorClient = DQMEDHarvester("EcalDQMonitorClient",
         "RawDataClient",
         "TrigPrimClient",
         "TimingClient",
+        "MLClient",
         "SummaryClient"
     ),
     # task parameters (included from indivitual cfis)
@@ -33,7 +35,8 @@ ecalMonitorClient = DQMEDHarvester("EcalDQMonitorClient",
         SelectiveReadoutClient = ecalSelectiveReadoutClient,
         TimingClient = ecalTimingClient,
         TrigPrimClient = ecalTrigPrimClient,
-        SummaryClient = ecalSummaryClient
+        SummaryClient = ecalSummaryClient,
+        MLClient = ecalMLClient
     ),
     commonParameters = ecalCommonParams,
     verbosity = cms.untracked.int32(0)

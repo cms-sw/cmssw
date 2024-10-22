@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<DDDefinition>
+    
+<ConstantsSection label="pixfwd.xml" eval="true">
+ <Constant name="CylindersOuterRmin" value="168.00*mm"/>
+ <Constant name="CylindersOuterRmax" value="174.50*mm"/>
+ <Constant name="CylindersOuterLength" value="2101.09*mm"/> 
+ <Constant name="CylindersEndFlangeLength" value="41.30*mm"/> 
+ <Constant name="RootRadius"     value="[CylindersOuterRmax]"/>
+ <Constant name="RootHalfLength" value="[CylindersOuterLength]/2. + [CylindersEndFlangeLength]/2."/>
+ <Constant name="AnchorZ"        value="0.*mm"/>
+ <Constant name="ZPixelForward"  value="291.*mm"/>
+ <Constant name="RootStartZ"     value="-4*mm"/> 
+ <Constant name="RootMidZ1"      value="[cms:TrackLumiZ1]-[ZPixelForward]"/>
+ <Constant name="RootMidZ2"      value="[cms:TrackLumiZ2]-[ZPixelForward]"/>
+ <Constant name="RootMidZ3"      value="[cms:TrackBeamZ1]-[ZPixelForward]"/>
+ <Constant name="RootEndZ"       value="2*[RootHalfLength]"/>
+ <Constant name="DiskHalfWidth"  value="36.625*mm"/>  <!-- 37.5*mm -->
+ <Constant name="Disk1Z"         value="[DiskHalfWidth]"/>
+</ConstantsSection>
+
+<SolidSection label="pixfwd.xml">
+ <Polycone name="PixelForwardZplus" startPhi="0*deg" deltaPhi="360*deg" >
+ <ZSection z="[RootStartZ]"  rMin="[cms:TrackBeamR1]"  rMax="[RootRadius]"/>
+ <ZSection z="[RootMidZ1]"   rMin="[cms:TrackBeamR11]" rMax="[RootRadius]"/>
+ <ZSection z="[RootMidZ2]"   rMin="[cms:TrackBeamR11]" rMax="[RootRadius]"/>
+ <ZSection z="[RootMidZ3]"   rMin="[cms:TrackBeamR12]" rMax="[RootRadius]"/>
+ <ZSection z="[RootEndZ]"    rMin="[cms:TrackBeamR2]"  rMax="[RootRadius]"/>
+ </Polycone>
+ <Polycone name="PixelForwardZminus" startPhi="0*deg" deltaPhi="360*deg" >
+ <ZSection z="-[RootEndZ]"    rMin="[cms:TrackBeamR2]"  rMax="[RootRadius]"/>
+ <ZSection z="-[RootMidZ3]"   rMin="[cms:TrackBeamR12]" rMax="[RootRadius]"/>
+ <ZSection z="-[RootMidZ2]"   rMin="[cms:TrackBeamR11]" rMax="[RootRadius]"/>
+ <ZSection z="-[RootMidZ1]"   rMin="[cms:TrackBeamR11]" rMax="[RootRadius]"/>
+ <ZSection z="-[RootStartZ]"  rMin="[cms:TrackBeamR1]"  rMax="[RootRadius]"/>
+ </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="pixfwd.xml">
+ <LogicalPart name="PixelForwardZplus" category="envelope">
+  <rSolid name="PixelForwardZplus"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardZminus" category="envelope">
+  <rSolid name="PixelForwardZminus"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="pixfwd.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="pixfwd:PixelForwardZplus"/>
+    <Translation x="0*mm" y="0*mm" z="[ZPixelForward]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="cms:CMSE"/>
+    <rChild name="pixfwd:PixelForwardZminus"/>
+    <Translation x="0*mm" y="0*mm" z="-[ZPixelForward]"/>
+  </PosPart>
+</PosPartSection>
+    
+</DDDefinition>

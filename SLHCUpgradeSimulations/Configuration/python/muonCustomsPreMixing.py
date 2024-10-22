@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
-import muonCustoms
+from . import muonCustoms
 
 def customise_csc_PostLS1(process):
     process=muonCustoms.customise_csc_PostLS1(process)

@@ -10,12 +10,11 @@ namespace ecaldqm {
   class EnergyTask : public DQWorkerTask {
   public:
     EnergyTask();
-    ~EnergyTask() {}
+    ~EnergyTask() override {}
 
     bool filterRunType(short const*) override;
 
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
+    void beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) override;
     bool analyze(void const*, Collections) override;
 
     void runOnRecHits(EcalRecHitCollection const&);
@@ -27,21 +26,21 @@ namespace ecaldqm {
     //    float threshS9_;
   };
 
-  inline bool EnergyTask::analyze(void const* _p, Collections _collection){
-    switch(_collection){
-    case kEBRecHit:
-    case kEERecHit:
-      if(_p) runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p));
-      return true;
-      break;
-    default:
-      break;
+  inline bool EnergyTask::analyze(void const* _p, Collections _collection) {
+    switch (_collection) {
+      case kEBRecHit:
+      case kEERecHit:
+        if (_p)
+          runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p));
+        return true;
+        break;
+      default:
+        break;
     }
 
     return false;
   }
 
-}
+}  // namespace ecaldqm
 
 #endif
-

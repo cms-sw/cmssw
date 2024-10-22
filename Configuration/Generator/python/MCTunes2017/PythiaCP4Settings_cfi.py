@@ -5,7 +5,6 @@ pythia8CP4SettingsBlock = cms.PSet(
     'Tune:pp 14',
     'Tune:ee 7',
     'MultipartonInteractions:ecmPow=0.02012',
-    'PDF:pSet=20',
     'MultipartonInteractions:bProfile=2',
     'MultipartonInteractions:pT0Ref=1.483',
     'MultipartonInteractions:coreRadius=0.5971',
@@ -21,6 +20,10 @@ pythia8CP4SettingsBlock = cms.PSet(
     'TimeShower:alphaSorder=2',
     'TimeShower:alphaSvalue=0.118',
     'SpaceShower:rapidityOrder=off', 
+    'SigmaTotal:mode = 0',
+    'SigmaTotal:sigmaEl = 21.89',
+    'SigmaTotal:sigmaTot = 100.309',
+    'PDF:pSet=LHAPDF6:NNPDF31_nnlo_as_0118',
    )
 )
 

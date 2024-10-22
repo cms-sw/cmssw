@@ -3,13 +3,13 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_HistogramManager_cfi import *
 
-# order is important and it should follow ordering in .h !!!
+# order is important and it should follow ordering in hltSiPixelPhase1ClustersConf VPSet
 hltSiPixelPhase1ClustersCharge = hltDefaultHistoDigiCluster.clone(
   name = "charge",
   title = "Cluster Charge",
   range_min = 0, range_max = 200e3, range_nbins = 200,
   xlabel = "Charge (electrons)",
-  
+
   specs = VPSet(
     #StandardSpecification2DProfile,
     hltStandardSpecificationPixelmapProfile,
@@ -17,6 +17,36 @@ hltSiPixelPhase1ClustersCharge = hltDefaultHistoDigiCluster.clone(
 #    StandardSpecifications1D,
     hltStandardSpecifications1D,
     StandardSpecificationTrend2D
+  )
+)
+
+hltSiPixelPhase1ClustersBigPixelCharge = DefaultHistoDigiCluster.clone(
+  name = "bigpixelcharge",
+  title = "Big Pixel Charge",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+  enabled=False,
+
+  specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
+  )
+)
+
+hltSiPixelPhase1ClustersNotBigPixelCharge = DefaultHistoDigiCluster.clone(
+  name = "notbigpixelcharge",
+  title = "Not Big Pixel Charge",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+  enabled=False,
+
+  specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
   )
 )
 
@@ -120,7 +150,7 @@ hltSiPixelPhase1ClustersPositionB = hltDefaultHistoDigiCluster.clone(
   title = "Cluster Positions",
   range_min   =  -60, range_max   =  60, range_nbins   = 600,
   range_y_min = -3.2, range_y_max = 3.2, range_y_nbins = 200,
-  xlabel = "Global Z", ylabel = "Global \phi",
+  xlabel = "Global Z", ylabel = "Global \\phi",
   dimensions = 2,
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").save(),
@@ -220,18 +250,18 @@ hltSiPixelPhase1ClustersReadoutNClusters = hltDefaultHistoReadout.clone(
 hltSiPixelPhase1ClustersPixelToStripRatio = hltDefaultHistoDigiCluster.clone(
   name = "cluster_ratio",
   title = "Pixel to Strip clusters ratio",
-  
+
   xlabel = "ratio",
   dimensions = 1,
-  
+
   specs = VPSet(
-    Specification().groupBy("PXAll").save(100, 0, 1), 
+    Specification().groupBy("PXAll").save(100, 0, 1),
     Specification().groupBy("PXAll/Lumisection")
-                   .reduce("MEAN") 
+                   .reduce("MEAN")
                    .groupBy("PXAll", "EXTEND_X")
                    .save(),
     Specification().groupBy("PXAll/BX")
-                   .reduce("MEAN") 
+                   .reduce("MEAN")
                    .groupBy("PXAll", "EXTEND_X")
                    .save(),
   )
@@ -239,6 +269,8 @@ hltSiPixelPhase1ClustersPixelToStripRatio = hltDefaultHistoDigiCluster.clone(
 
 hltSiPixelPhase1ClustersConf = cms.VPSet(
   hltSiPixelPhase1ClustersCharge,
+  hltSiPixelPhase1ClustersBigPixelCharge,
+  hltSiPixelPhase1ClustersNotBigPixelCharge,
   hltSiPixelPhase1ClustersSize,
   hltSiPixelPhase1ClustersSizeX,
   hltSiPixelPhase1ClustersSizeY,
@@ -271,8 +303,12 @@ hltSiPixelPhase1ClustersAnalyzer = DQMEDAnalyzer('SiPixelPhase1Clusters',
         triggerflag = hltSiPixelPhase1ClustersTriggers,
 )
 
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(hltSiPixelPhase1ClustersAnalyzer,
+                         pixelSrc = "hltSiPixelClustersAfterSplittingPPOnAA",
+                         stripSrc = "hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression")
+
 hltSiPixelPhase1ClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = hltSiPixelPhase1ClustersConf,
         geometry   = hltSiPixelPhase1Geometry
 )
-

@@ -47,6 +47,15 @@ mixSimHits = cms.PSet(
     #    'TotemHitsRP',
     #    'TotemHitsT1',
     #    'TotemHitsT2Gem')
+    pcrossingFrames = cms.untracked.vstring()
+)
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(mixSimHits,
+    pcrossingFrames = [
+        'MuonCSCHits',
+        'MuonDTHits',
+        'MuonRPCHits',
+    ]
 )
 
 # fastsim customs
@@ -55,7 +64,7 @@ fastSim.toModify(mixSimHits,
     input = ["MuonSimHits:MuonCSCHits", 
              "MuonSimHits:MuonDTHits", 
              "MuonSimHits:MuonRPCHits", 
-             "famosSimHits:TrackerHits"],
+             "fastSimProducer:TrackerHits"],
     subdets = ['MuonCSCHits', 
                'MuonDTHits', 
                'MuonRPCHits', 
@@ -89,10 +98,10 @@ mixCaloHits = cms.PSet(
 
 # fastsim customs
 fastSim.toModify(mixCaloHits,
-    input = ["famosSimHits:EcalHitsEB",
-             "famosSimHits:EcalHitsEE",
-             "famosSimHits:EcalHitsES",
-             "famosSimHits:HcalHits"],
+    input = ["fastSimProducer:EcalHitsEB",
+             "fastSimProducer:EcalHitsEE",
+             "fastSimProducer:EcalHitsES",
+             "fastSimProducer:HcalHits"],
     subdets = ['EcalHitsEB',
                'EcalHitsEE',
                'EcalHitsES',
@@ -112,8 +121,8 @@ mixSimVertices = cms.PSet(
 )
 
 # fastsim customs
-fastSim.toModify(mixSimTracks, input = ["famosSimHits"])
-fastSim.toModify(mixSimVertices, input = ["famosSimHits"])
+fastSim.toModify(mixSimTracks, input = ["fastSimProducer"])
+fastSim.toModify(mixSimVertices, input = ["fastSimProducer"])
     
 mixHepMCProducts = cms.PSet(
     makeCrossingFrame = cms.untracked.bool(True),
@@ -212,7 +221,7 @@ mixPCFHepMCProducts = cms.PSet(
     type = cms.string('HepMCProductPCrossingFrame')
 )
 
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigitizer
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toModify( theMixObjects,
@@ -220,6 +229,11 @@ run2_GEM_2017.toModify( theMixObjects,
         input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","MuonGEMHits") ],
         subdets = theMixObjects.mixSH.subdets + [ 'MuonGEMHits' ],
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonGEMHits' ]
+    )
+)
+(premix_stage1 & run2_GEM_2017).toModify(theMixObjects,
+    mixSH = dict(
+        pcrossingFrames = theMixObjects.mixSH.pcrossingFrames + [ 'MuonGEMHits' ]
     )
 )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
@@ -230,6 +244,11 @@ run3_GEM.toModify( theMixObjects,
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonGEMHits' ]
     )
 )
+(premix_stage1 & run3_GEM).toModify(theMixObjects,
+    mixSH = dict(
+        pcrossingFrames = theMixObjects.mixSH.pcrossingFrames + [ 'MuonGEMHits' ]
+    )
+)
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( theMixObjects,
     mixSH = dict(
@@ -238,13 +257,42 @@ phase2_muon.toModify( theMixObjects,
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonME0Hits' ]
     )
 )
+(premix_stage1 & phase2_muon).toModify(theMixObjects,
+    mixSH = dict(
+        pcrossingFrames = theMixObjects.mixSH.pcrossingFrames + [ 'MuonME0Hits' ]
+    )
+)
+
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toModify( theMixObjects,
+    mixSH = dict(
+        input = list(filter(lambda x: type(x) == type(cms.InputTag("","")) and x != cms.InputTag("g4SimHits","MuonME0Hits"), theMixObjects.mixSH.input)),
+        subdets = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.subdets)),
+        crossingFrames = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.crossingFrames))
+    )
+)
+(premix_stage1 & phase2_GE0).toModify(theMixObjects,
+    mixSH = dict(
+        pcrossingFrames = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.pcrossingFrames))
+    )
+)
+
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( theMixObjects,
     mixCH = dict(
         input = theMixObjects.mixCH.input + [ cms.InputTag("g4SimHits",hgceeDigitizer.hitCollection.value()),
-                                              cms.InputTag("g4SimHits",hgchefrontDigitizer.hitCollection.value()) ],
+                                              cms.InputTag("g4SimHits",hgchefrontDigitizer.hitCollection.value()),
+                                              cms.InputTag("g4SimHits",hgchebackDigitizer.hitCollection.value()) ],
         subdets = theMixObjects.mixCH.subdets + [ hgceeDigitizer.hitCollection.value(),
-                                                  hgchefrontDigitizer.hitCollection.value() ]
+                                                  hgchefrontDigitizer.hitCollection.value(),
+                                                  hgchebackDigitizer.hitCollection.value() ],
+    )
+)
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+phase2_hfnose.toModify( theMixObjects,
+    mixCH = dict(
+        input = theMixObjects.mixCH.input + [ cms.InputTag("g4SimHits",hfnoseDigitizer.hitCollection.value()) ],
+        subdets = theMixObjects.mixCH.subdets + [ hfnoseDigitizer.hitCollection.value() ],
     )
 )
 
@@ -254,5 +302,14 @@ phase2_timing_layer.toModify( theMixObjects,
         input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","FastTimerHitsBarrel"), cms.InputTag("g4SimHits","FastTimerHitsEndcap") ],
         subdets = theMixObjects.mixSH.subdets + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ],
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ]
+    )
+)
+
+from Configuration.Eras.Modifier_ctpps_2022_cff import ctpps_2022
+ctpps_2022.toModify( theMixObjects,
+    mixSH = dict(
+        input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","TotemHitsRP"),cms.InputTag("g4SimHits","CTPPSPixelHits") ],
+        subdets = theMixObjects.mixSH.subdets + [ 'TotemHitsRP', 'CTPPSPixelHits' ],
+        crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'TotemHitsRP' , 'CTPPSPixelHits']
     )
 )

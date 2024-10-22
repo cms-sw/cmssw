@@ -25,23 +25,20 @@ class Propagator;
 /* Class HLTMuonPtFilter Interface */
 
 class HLTMuonPtFilter : public HLTFilter {
+public:
+  /// Constructor
+  HLTMuonPtFilter(const edm::ParameterSet&);
 
-  public:
+  /// Destructorquer
+  ~HLTMuonPtFilter() override;
 
-/// Constructor
-    HLTMuonPtFilter(const edm::ParameterSet&) ;
+  /* Operations */
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-/// Destructorquer
-    ~HLTMuonPtFilter() override ;
-
-/* Operations */
-    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-
-  private:
-    std::string theSTAMuonLabel; // label of muons
-    double theMinPt;    // minimum pt required
-
-
+private:
+  std::string theSTAMuonLabel;  // label of muons
+  double theMinPt;              // minimum pt required
 };
-#endif // Muon_HLTMuonPtFilter_h
-
+#endif  // Muon_HLTMuonPtFilter_h

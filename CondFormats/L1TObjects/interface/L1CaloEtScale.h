@@ -4,7 +4,7 @@
 //
 // Package:     L1TObjects
 // Class  :     L1CaloEtScale
-// 
+//
 /**\class L1CaloEtScale L1CaloEtScale.h CondFormats/L1TObjects/interface/L1CaloEtScale.h
 
  Description: Class to handle non-linear scales in L1 calo trigger hardware, including, e/gamma rank, jet rank, Htmiss
@@ -17,19 +17,17 @@
 //
 // Author:      Jim Brooke
 // Created:     Wed Sep 27 17:18:27 CEST 2006
-// $Id: 
+// $Id:
 //
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <boost/cstdint.hpp>
 #include <vector>
 #include <ostream>
+#include <cstdint>
 
 class L1CaloEtScale {
-
- public:
-
+public:
   /// default constructor, for testing (out = in)
   L1CaloEtScale();
 
@@ -38,7 +36,10 @@ class L1CaloEtScale {
   L1CaloEtScale(const double linearLsbInGeV, const std::vector<double>& thresholdsInGeV);
 
   /// general case ctor that sets scale max values
-  L1CaloEtScale(const unsigned linScaleMax, const unsigned rankScaleMax, const double linearLsbInGeV, const std::vector<double>& thresholdsInGeV);
+  L1CaloEtScale(const unsigned linScaleMax,
+                const unsigned rankScaleMax,
+                const double linearLsbInGeV,
+                const std::vector<double>& thresholdsInGeV);
 
   // destructor
   ~L1CaloEtScale();
@@ -66,14 +67,12 @@ class L1CaloEtScale {
 
   void print(std::ostream& s) const;
 
- private:
-
+private:
   /// linear scale maximum
   uint16_t m_linScaleMax;
-  
+
   /// rank scale maximum
   uint16_t m_rankScaleMax;
-
 
   /// LSB of linear scale in GeV
   double m_linearLsb;
@@ -81,10 +80,9 @@ class L1CaloEtScale {
   /// thresholds associated with rank scale in GeV
   std::vector<double> m_thresholds;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-std::ostream& operator << (std::ostream& os, const L1CaloEtScale onj);
+std::ostream& operator<<(std::ostream& os, const L1CaloEtScale onj);
 
 #endif

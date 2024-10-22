@@ -1,64 +1,58 @@
 #ifndef GeneratorInterface_LHEInterface_LHEProxy_h
 #define GeneratorInterface_LHEInterface_LHEProxy_h
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace lhef {
 
-// forward declarations
-class LHEEvent;
-class LHERunInfo;
+  // forward declarations
+  class LHEEvent;
+  class LHERunInfo;
 
-class LHEProxy {
-    public:
-	typedef unsigned long ProxyID;
+  class LHEProxy {
+  public:
+    typedef unsigned long ProxyID;
 
-	~LHEProxy();
+    // not allowed and not implemented
+    LHEProxy(const LHEProxy &orig) = delete;
+    LHEProxy &operator=(const LHEProxy &orig) = delete;
 
-	const boost::shared_ptr<LHERunInfo> &getRunInfo() const
-	{ return runInfo; }
-	const boost::shared_ptr<LHEEvent> &getEvent() const
-	{ return event; }
+    ~LHEProxy();
 
-	boost::shared_ptr<LHERunInfo> releaseRunInfo()
-	{
-		boost::shared_ptr<LHERunInfo> result(runInfo);
-		runInfo.reset();
-		return result;
-	}
-	boost::shared_ptr<LHEEvent> releaseEvent()
-	{
-		boost::shared_ptr<LHEEvent> result(event);
-		event.reset();
-		return result;
-	}
+    const std::shared_ptr<LHERunInfo> &getRunInfo() const { return runInfo; }
+    const std::shared_ptr<LHEEvent> &getEvent() const { return event; }
 
-	void clearRunInfo() { runInfo.reset(); }
-	void clearEvent() { event.reset(); }
+    std::shared_ptr<LHERunInfo> releaseRunInfo() {
+      std::shared_ptr<LHERunInfo> result(runInfo);
+      runInfo.reset();
+      return result;
+    }
+    std::shared_ptr<LHEEvent> releaseEvent() {
+      std::shared_ptr<LHEEvent> result(event);
+      event.reset();
+      return result;
+    }
 
-	void loadRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo)
-	{ this->runInfo = runInfo; }
-	void loadEvent(const boost::shared_ptr<LHEEvent> &event)
-	{ this->event = event; }
+    void clearRunInfo() { runInfo.reset(); }
+    void clearEvent() { event.reset(); }
 
-	ProxyID getID() const { return id; }
+    void loadRunInfo(const std::shared_ptr<LHERunInfo> &runInfo) { this->runInfo = runInfo; }
+    void loadEvent(const std::shared_ptr<LHEEvent> &event) { this->event = event; }
 
-	static boost::shared_ptr<LHEProxy> create();
-	static boost::shared_ptr<LHEProxy> find(ProxyID id);
+    ProxyID getID() const { return id; }
 
-    private:
-	LHEProxy(ProxyID id);
+    static std::shared_ptr<LHEProxy> create();
+    static std::shared_ptr<LHEProxy> find(ProxyID id);
 
-	// not allowed and not implemented
-	LHEProxy(const LHEProxy &orig) = delete;
-	LHEProxy &operator = (const LHEProxy &orig) = delete;
+  private:
+    LHEProxy(ProxyID id);
 
-	const ProxyID			id;
+    const ProxyID id;
 
-	boost::shared_ptr<LHERunInfo>	runInfo;
-	boost::shared_ptr<LHEEvent>	event;
-};
+    std::shared_ptr<LHERunInfo> runInfo;
+    std::shared_ptr<LHEEvent> event;
+  };
 
-} // namespace lhef
+}  // namespace lhef
 
-#endif // GeneratorProxy_LHEInterface_LHEProxy_h
+#endif  // GeneratorProxy_LHEInterface_LHEProxy_h

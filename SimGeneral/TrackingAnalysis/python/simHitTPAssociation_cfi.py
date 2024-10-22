@@ -24,8 +24,11 @@ phase2_tracker.toModify(simHitTPAssocProducer, simHitSrc = ["g4SimHits:TrackerHi
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(simHitTPAssocProducer,
-    simHitSrc = ["famosSimHits:TrackerHits",
+    simHitSrc = ["fastSimProducer:TrackerHits",
                  "MuonSimHits:MuonCSCHits",
                  "MuonSimHits:MuonDTHits",
                  "MuonSimHits:MuonRPCHits"]
 )
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(simHitTPAssocProducer, trackingParticleSrc = "mixData:MergedTrackTruth")

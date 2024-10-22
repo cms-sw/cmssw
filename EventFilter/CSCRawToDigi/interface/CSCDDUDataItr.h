@@ -1,5 +1,5 @@
-#ifndef CSCDDUDataItr_h
-#define CSCDDUDataItr_h
+#ifndef EventFilter_CSCRawToDigi_CSCDDUDataItr_h
+#define EventFilter_CSCRawToDigi_CSCDDUDataItr_h
 
 /** a class to help users iterate over CSC chambers,
     without having to know about DDUs
@@ -8,7 +8,7 @@
 
 class CSCDDUEventData;
 class CSCEventData;
-#include<vector>
+#include <vector>
 
 class CSCDDUDataItr {
 public:
@@ -16,10 +16,10 @@ public:
   CSCDDUDataItr();
 
   /// construct from data buffer. so makes a new DDUEventData
-  CSCDDUDataItr(const char * buf);
+  CSCDDUDataItr(const char *buf);
 
   /// uses someone else's data, so doesn't delete
-  CSCDDUDataItr(const CSCDDUEventData * dduData);
+  CSCDDUDataItr(const CSCDDUEventData *dduData);
 
   ~CSCDDUDataItr();
 
@@ -29,15 +29,13 @@ public:
 
   bool next();
 
-  const CSCEventData & operator*();
+  const CSCEventData &operator*();
 
 private:
-
-  const CSCDDUEventData * theDDUData;
+  const CSCDDUEventData *theDDUData;
   int theCurrentCSC;
   int theNumberOfCSCs;
   bool theDataIsOwnedByMe;
 };
 
 #endif
-

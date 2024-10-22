@@ -6,4 +6,4 @@
 
 typedef HcalItemCollById<HFPhase1PMTData> HFPhase1PMTParams;
 
-#endif // CondFormats_HcalObjects_HFPhase1PMTParams_h
+#endif  // CondFormats_HcalObjects_HFPhase1PMTParams_h

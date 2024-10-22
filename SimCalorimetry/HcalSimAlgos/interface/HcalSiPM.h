@@ -19,35 +19,32 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class HcalSiPM {
- public:
+class HcalSiPM final {
+public:
   HcalSiPM(int nCells = 1, double tau = 15.);
 
-  virtual ~HcalSiPM();
+  ~HcalSiPM();
 
-  void resetSiPM() { std::fill(theSiPM.begin(), theSiPM.end(), -999.); }
-  virtual double hitCells(CLHEP::HepRandomEngine* , unsigned int pes, double tempDiff = 0.,
-			  double photonTime = 0.);
+  void resetSiPM() { std::fill(theSiPM.begin(), theSiPM.end(), -999.f); }
+  double hitCells(CLHEP::HepRandomEngine*, unsigned int pes, double tempDiff = 0., double photonTime = 0.);
 
+  double totalCharge() const { return totalCharge(theLastHitTime); }
+  double totalCharge(double time) const;
 
-  virtual double totalCharge() const { return totalCharge(theLastHitTime); }
-  virtual double totalCharge(double time) const;
-
-  int    getNCells()      const { return theCellCount; }
-  double getTau()         const { return theTau; }
-  double getCrossTalk()   const { return theCrossTalk; }
-  double getTempDep()     const { return theTempDep; }
+  int getNCells() const { return theCellCount; }
+  double getTau() const { return theTau; }
+  double getCrossTalk() const { return theCrossTalk; }
+  double getTempDep() const { return theTempDep; }
 
   void setNCells(int nCells);
   void setTau(double tau);
-  void setCrossTalk(double xtalk); //  Borel-Tanner "lambda"
+  void setCrossTalk(double xtalk);  //  Borel-Tanner "lambda"
   void setTemperatureDependence(double tempDep);
   void setSaturationPars(const std::vector<float>& pars);
 
- protected:
-
+protected:
   typedef std::pair<unsigned int, std::vector<double> > cdfpair;
-  typedef std::unordered_map< unsigned int, cdfpair > cdfmap;
+  typedef std::unordered_map<unsigned int, cdfpair> cdfmap;
 
   // void expRecover(double dt);
 
@@ -55,20 +52,19 @@ class HcalSiPM {
   unsigned int addCrossTalkCells(CLHEP::HepRandomEngine* engine, unsigned int in_pes);
 
   //numerical random generation from Borel-Tanner distribution
-  double Borel(unsigned int n, double lambda, unsigned int k);
   const cdfpair& BorelCDF(unsigned int k);
 
   unsigned int theCellCount;
-  std::vector< double > theSiPM;
+  std::vector<float> theSiPM;
   double theTau;
   double theTauInv;
   double theCrossTalk;
   double theTempDep;
   double theLastHitTime;
 
-  HcalSiPMnonlinearity *nonlin;
+  HcalSiPMnonlinearity* nonlin;
 
   cdfmap borelcdfs;
 };
 
-#endif //HcalSimAlgos_HcalSiPM_h
+#endif  //HcalSimAlgos_HcalSiPM_h

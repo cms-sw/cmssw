@@ -13,8 +13,7 @@ process.options = cms.untracked.PSet(
 process.maker = cms.EDProducer("DeleteEarlyProducer")
 
 process.reader = cms.EDAnalyzer("DeleteEarlyReader",
-                                tag = cms.untracked.InputTag("maker"),
-                                mightGet = cms.untracked.vstring("edmtestDeleteEarly_maker__TEST"))
+                                tag = cms.untracked.InputTag("maker"))
 
 process.tester = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",
                                 expectedValues = cms.untracked.vuint32(1,3,5))
@@ -25,8 +24,7 @@ process2 = cms.Process("SUB")
 process2.options = cms.untracked.PSet(
                                      canDeleteEarly = cms.untracked.vstring("edmtestDeleteEarly_maker__TEST"))
 process2.reader = cms.EDAnalyzer("DeleteEarlyReader",
-                                tag = cms.untracked.InputTag("maker"),
-                                mightGet = cms.untracked.vstring("edmtestDeleteEarly_maker__TEST"))
+                                tag = cms.untracked.InputTag("maker"))
 #NOTE: even though it was marked for early delete, the original process still has a shared pointer to the object
 # and therefore it doesn't get deleted
 process2.tester2 = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",

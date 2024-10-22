@@ -7,7 +7,7 @@ triggerTest = DQMEDHarvester("DTLocalTriggerTest",
     # run in online environment
     runOnline = cms.untracked.bool(True),
     # kind of trigger data processed by DTLocalTriggerTask
-    hwSources = cms.untracked.vstring('TM','DDU'),
+    hwSources = cms.untracked.vstring('TM'),
     # false if DTLocalTriggerTask used LTC digis
     localrun = cms.untracked.bool(True),                         
     # root folder for booking of histograms
@@ -18,14 +18,9 @@ triggerTest = DQMEDHarvester("DTLocalTriggerTest",
     # second fraction test tresholds
     secondFracError   = cms.untracked.double(0.95),
     secondFracWarning = cms.untracked.double(0.8),
-    # DDU-TM matching tests tresholds
-    matchingFracError     = cms.untracked.double(0.65),
-    matchingFracWarning   = cms.untracked.double(0.85),
     nEventsCert = cms.untracked.int32(1000)
                              
 
 )
 
-from Configuration.Eras.Modifier_run2_common_cff import run2_common
-run2_common.toModify( triggerTest, hwSources = cms.untracked.vstring('TM'))
 

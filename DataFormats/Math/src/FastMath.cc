@@ -9,21 +9,21 @@ namespace fastmath_details {
     // =====================================================================
     struct Initatan {
       Initatan() {
-	unsigned int ind;
-	for (ind = 0; ind <= 256; ind++) {
-	  double v = ind / 256.0;
-	  double asinv = ::asin(v);
-	  atanbuf_[ind * 2    ] = ::cos(asinv);
-	  atanbuf_[ind * 2 + 1] = asinv;
-	}
-	for (ind = 0; ind <= 512; ind++) {
-	  double v = ind / 512.0;
-	  double asinv = ::asin(v);
-	  datanbuf_[ind * 2    ] = ::cos(asinv);
-	  datanbuf_[ind * 2 + 1] = asinv;
-	}
+        unsigned int ind;
+        for (ind = 0; ind <= 256; ind++) {
+          double v = ind / 256.0;
+          double asinv = ::asin(v);
+          atanbuf_[ind * 2] = ::cos(asinv);
+          atanbuf_[ind * 2 + 1] = asinv;
+        }
+        for (ind = 0; ind <= 512; ind++) {
+          double v = ind / 512.0;
+          double asinv = ::asin(v);
+          datanbuf_[ind * 2] = ::cos(asinv);
+          datanbuf_[ind * 2 + 1] = asinv;
+        }
       }
     };
     Initatan initAtan;
-  }
-}
+  }  // namespace
+}  // namespace fastmath_details

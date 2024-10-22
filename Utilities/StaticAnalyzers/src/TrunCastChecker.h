@@ -4,20 +4,20 @@
 #include <clang/StaticAnalyzer/Core/Checker.h>
 #include <clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h>
 #include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
-#include "CmsException.h" 
+#include "CmsException.h"
 
 namespace clangcms {
 
-class TrunCastChecker: public clang::ento::Checker< clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
-public:
-     mutable std::unique_ptr<clang::ento::BugType> BT;
-     void checkASTDecl(const clang::CXXRecordDecl *D, clang::ento::AnalysisManager& Mgr, clang::ento::BugReporter &BR) const; 
+  class TrunCastChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
+  public:
+    void checkASTDecl(const clang::CXXRecordDecl *D,
+                      clang::ento::AnalysisManager &Mgr,
+                      clang::ento::BugReporter &BR) const;
 
-private:
-  CmsException m_exception;
+  private:
+    CmsException m_exception;
+  };
 
-};
-
-} 
+}  // namespace clangcms
 
 #endif

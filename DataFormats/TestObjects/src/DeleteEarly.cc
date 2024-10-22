@@ -2,7 +2,7 @@
 //
 // Package:     TestObjects
 // Class  :     DeleteEarly
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

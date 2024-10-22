@@ -1,53 +1,53 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('SIM')
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process('SIM',Phase2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('SimG4CMS.HGCalTestBeam.HGCalTB161Module8XML_cfi')
-process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
-process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
+#process.load('SimG4CMS.HGCalTestBeam.HGCalTB181Oct1XML_cfi')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTB181Oct0XML_cfi')
+process.load('Geometry.HGCalTBCommonData.hgcalTBNumberingInitialization_cfi')
+process.load('Geometry.HGCalTBCommonData.hgcalTBParametersInitialization_cfi')
+process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
+#process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTBCheckGunPosition_cfi')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTBAnalyzer_cfi')
-process.load('SimG4CMS.HGCalTestBeam.hgcalTBMBCERN_cfi')
+#process.load('SimG4CMS.HGCalTestBeam.hgcalTBMBCERN_cfi')
+#process.load('SimG4CMS.HGCalTestBeam.hgcalTBMBCERNBeam_cfi')
+#process.load('SimG4CMS.HGCalTestBeam.hgcalTBMBCERN18Oct0_cfi')
+process.load('SimG4CMS.HGCalTestBeam.hgcalTBMBCERNBeam18Oct0_cfi')
+#process.load('SimG4CMS.HGCalTestBeam.hgcalTBMBCERN18Oct1_cfi')
+#process.load('SimG4CMS.HGCalTestBeam.hgcalTBMBCERNBeam18Oct1_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1000)
 )
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HGCSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-    ),
-    categories = cms.untracked.vstring('HGCSim'),
-    destinations = cms.untracked.vstring('cout','cerr')
-)
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCSim=dict()
+
 
 # Input source
 process.source = cms.Source("EmptySource")
 
 process.options = cms.untracked.PSet(
-
 )
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('SingleElectronE1000_cfi nevts:10'),
+    annotation = cms.untracked.string('SingleNeutrinoE100_cfi nevts:1000'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -70,7 +70,12 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 
 # Additional output definition
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('TBGenSim.root')
+#                                  fileName = cms.string('TBCERNMB.root')
+#                                  fileName = cms.string('TBCERNBeamMB.root')
+#                                  fileName = cms.string('TBCERNOct0MB.root')
+                                   fileName = cms.string('TBCERNBeamOct0MB.root')
+#                                  fileName = cms.string('TBCERNOct1MB.root')
+#                                  fileName = cms.string('TBCERNBeamOct1MB.root')
                                    )
 
 # Other statements
@@ -81,27 +86,36 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     AddAntiParticle = cms.bool(False),
     PGunParameters = cms.PSet(
-        MinE = cms.double(9.99),
-        MaxE = cms.double(10.01),
+        MinE = cms.double(99.99),
+        MaxE = cms.double(100.01),
         MinTheta = cms.double(0.0),
         MaxTheta = cms.double(0.0),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
+#	MinTheta = cms.double(.011837),
+#	MaxTheta = cms.double(.011837),
+#	MinPhi = cms.double(3.649887),
+#	MaxPhi = cms.double(3.649887),
         PartID = cms.vint32(14)
     ),
     Verbosity = cms.untracked.int32(0),
     firstRun = cms.untracked.uint32(1),
-    psethack = cms.string('single muon E 100')
+    psethack = cms.string('single neutrino E 100')
 )
+
 process.VtxSmeared.MinZ = -800.0
 process.VtxSmeared.MaxZ = -800.0
 process.VtxSmeared.MinX = 0
 process.VtxSmeared.MaxX =  0
 process.VtxSmeared.MinY = 0
 process.VtxSmeared.MaxY =  0
-process.HGCalTBAnalyzer.DoDigis = False
-process.HGCalTBAnalyzer.DoRecHits = False
-
+process.HGCalTBAnalyzer.doDigis = False
+process.HGCalTBAnalyzer.doRecHits = False
+process.g4SimHits.StackingAction.TrackNeutrino = True
+process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
+                             'HGCSensitiveDetector',
+                             'HGCalTB1601SensitiveDetector',
+                             'HcalTB06BeamDetector']
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
@@ -112,7 +126,14 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.analysis_step,process.endjob_step,process.RAWSIMoutput_step)
+process.schedule = cms.Schedule(
+    process.generation_step,
+    process.genfiltersummary_step,
+    process.simulation_step,
+    process.analysis_step,
+    process.endjob_step,
+    process.RAWSIMoutput_step
+)
 
 # filter all path with the production filter sequence
 for path in process.paths:

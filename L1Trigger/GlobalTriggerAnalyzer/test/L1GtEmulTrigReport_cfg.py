@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to run L1 Global Trigger emulator on a file containing the output of the 
 # GCT system and GMT system ("digi"), followed by the L1 trigger report
@@ -12,10 +13,10 @@ import sys
 process = cms.Process("L1GtEmulTrigReport")
 
 # import number of events, sample and global tag 
-print '\n'
+print('\n')
 from L1Trigger.GlobalTriggerAnalyzer.UserOptions_cff import *
 if errorUserOptions == True :
-    print '\nError returned by UserOptions_cff\n'
+    print('\nError returned by UserOptions_cff\n')
     sys.exit()
 
 # L1 menu selection via L1Trigger_custom - expert choice, do it only if you know what you do
@@ -212,30 +213,22 @@ else :
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtEmulDigis', 'l1GtTrigReport']
-process.MessageLogger.categories.append('L1GlobalTrigger')
-process.MessageLogger.categories.append('L1GtTrigReport')
-process.MessageLogger.destinations = ['L1GtEmulTrigReport_errors', 
-                                      'L1GtEmulTrigReport_warnings', 
-                                      'L1GtEmulTrigReport_info', 
-                                      'L1GtEmulTrigReport'
-                                      ]
-process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
+process.MessageLogger.cerr.enable = False
 
-process.MessageLogger.L1GtEmulTrigReport_errors = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtEmulTrigReport_errors = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
         L1GlobalTrigger = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
        )
 
-process.MessageLogger.L1GtEmulTrigReport_warnings = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtEmulTrigReport_warnings = cms.untracked.PSet( 
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         L1GlobalTrigger = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtEmulTrigReport_info = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtEmulTrigReport_info = cms.untracked.PSet( 
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -243,7 +236,7 @@ process.MessageLogger.L1GtEmulTrigReport_info = cms.untracked.PSet(
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtEmulTrigReport = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtEmulTrigReport = cms.untracked.PSet( 
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),

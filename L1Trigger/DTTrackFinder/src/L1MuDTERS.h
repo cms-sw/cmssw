@@ -27,8 +27,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -40,41 +38,37 @@ class L1MuDTSEU;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTERS : public L1AbstractProcessor {
+class L1MuDTERS {
+public:
+  /// constructor
+  L1MuDTERS(const L1MuDTSEU&);
 
-  public:
+  /// destructor
+  ~L1MuDTERS();
 
-    /// constructor
-    L1MuDTERS(const L1MuDTSEU& );
+  /// run L1MuDTERS
+  void run();
 
-    /// destructor
-    ~L1MuDTERS() override;
+  /// reset ERS
+  void reset();
 
-    /// run L1MuDTERS
-    void run() override;
-    
-    /// reset ERS
-    void reset() override;
+  /// return extrapolation quality
+  inline unsigned int quality(int id) const { return m_quality[id]; }
 
-    /// return extrapolation quality
-    inline unsigned int quality(int id) const { return m_quality[id]; }
-   
-    /// return extrapolation address; (address = 15 indicates negative ext. result)
-    inline unsigned short int address(int id) const { return m_address[id]; }
-   
-    /// return pointer to start and target track segment
-    std::pair<const L1MuDTTrackSegPhi*, const L1MuDTTrackSegPhi*> ts(int id) const;
+  /// return extrapolation address; (address = 15 indicates negative ext. result)
+  inline unsigned short int address(int id) const { return m_address[id]; }
 
-  private:
+  /// return pointer to start and target track segment
+  std::pair<const L1MuDTTrackSegPhi*, const L1MuDTTrackSegPhi*> ts(int id) const;
 
-    const L1MuDTSEU& m_seu;
+private:
+  const L1MuDTSEU& m_seu;
 
-    unsigned short int m_quality[2];   //@@ 1 bit
-    unsigned short int m_address[2];   //@@ 4 bits
+  unsigned short int m_quality[2];  //@@ 1 bit
+  unsigned short int m_address[2];  //@@ 4 bits
 
-    const L1MuDTTrackSegPhi* m_start[2];
-    const L1MuDTTrackSegPhi* m_target[2];
- 
+  const L1MuDTTrackSegPhi* m_start[2];
+  const L1MuDTTrackSegPhi* m_target[2];
 };
 
 #endif

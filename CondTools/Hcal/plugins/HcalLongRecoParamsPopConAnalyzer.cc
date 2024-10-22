@@ -4,30 +4,26 @@
 
 //typedef popcon::PopConAnalyzer<HcalLongRecoParamsHandler> HcalLongRecoParamsPopConAnalyzer;
 
-class HcalLongRecoParamsPopConAnalyzer: public popcon::PopConAnalyzer<HcalLongRecoParamsHandler>
-{
+class HcalLongRecoParamsPopConAnalyzer : public popcon::PopConAnalyzer<HcalLongRecoParamsHandler> {
 public:
   typedef HcalLongRecoParamsHandler SourceHandler;
 
-  HcalLongRecoParamsPopConAnalyzer(const edm::ParameterSet& pset): 
-    popcon::PopConAnalyzer<HcalLongRecoParamsHandler>(pset),
-    m_populator(pset),
-    m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+  HcalLongRecoParamsPopConAnalyzer(const edm::ParameterSet& pset)
+      : popcon::PopConAnalyzer<HcalLongRecoParamsHandler>(pset),
+        m_populator(pset),
+        m_source(pset.getParameter<edm::ParameterSet>("Source")),
+        m_tok(esConsumes<HcalLongRecoParams, HcalLongRecoParamsRcd>()) {}
 
 private:
-  void endJob() override 
-  {
+  void endJob() override {
     m_source.initObject(myDBObject);
     write();
   }
 
-  void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override
-  {
+  void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override {
     //Using ES to get the data:
 
-    edm::ESHandle<HcalLongRecoParams> objecthandle;
-    esetup.get<HcalLongRecoParamsRcd>().get(objecthandle);
-    myDBObject = new HcalLongRecoParams(*objecthandle.product() );
+    myDBObject = new HcalLongRecoParams(esetup.getData(m_tok));
   }
 
   void write() { m_populator.write(m_source); }
@@ -35,6 +31,7 @@ private:
 private:
   popcon::PopCon m_populator;
   SourceHandler m_source;
+  edm::ESGetToken<HcalLongRecoParams, HcalLongRecoParamsRcd> m_tok;
 
   HcalLongRecoParams* myDBObject;
 };

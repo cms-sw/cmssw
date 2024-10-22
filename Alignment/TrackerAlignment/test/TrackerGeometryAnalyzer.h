@@ -10,127 +10,135 @@
 #include <sstream>
 
 // core framework functionality
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 // topology and geometry
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 // alignment
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 class Alignable;
 
-
-
-class TrackerGeometryAnalyzer : public edm::EDAnalyzer {
-
+class TrackerGeometryAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
   //========================== PUBLIC METHODS =================================
-  public: //===================================================================
+public:  //===================================================================
+  TrackerGeometryAnalyzer(const edm::ParameterSet&);
+  virtual ~TrackerGeometryAnalyzer() {}
 
-    TrackerGeometryAnalyzer(const edm::ParameterSet&);
-    virtual ~TrackerGeometryAnalyzer() {};
-
-    virtual void beginRun(const edm::Run&,   const edm::EventSetup&) override;
-    virtual void analyze (const edm::Event&, const edm::EventSetup&) override {};
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override {}
 
   //========================= PRIVATE METHODS =================================
-  private: //==================================================================
+private:  //==================================================================
+  void setTrackerTopology(const edm::EventSetup&);
+  void setTrackerGeometry(const edm::EventSetup&);
 
-    void setTrackerTopology(const edm::EventSetup&);
-    void setTrackerGeometry(const edm::EventSetup&);
+  void analyzeTrackerAlignables();
+  void analyzeAlignableDetUnits(Alignable*);
+  void analyzeCompositeAlignables(Alignable*);
+  int countCompositeAlignables(Alignable*);
+  void printAlignableStructure(Alignable*, std::ostringstream&, int indent);
 
-    void analyzeTrackerAlignables();
-    void analyzeAlignableDetUnits  (Alignable*);
-    void analyzeCompositeAlignables(Alignable*);
-    int countCompositeAlignables(Alignable*);
-    void printAlignableStructure(Alignable*, std::ostringstream&, int indent);
-
-    void analyzeTrackerGeometry();
-    void analyzeTrackerGeometryVersion(std::ostringstream&);
-    void analyzePXBDetUnit(DetId& detId, std::ostringstream&);
-    void analyzePXB();
-    void analyzePXEDetUnit(DetId& detId, std::ostringstream&);
-    void analyzePXE();
-    void analyzeTIBDetUnit(DetId& detId, std::ostringstream&);
-    void analyzeTIB();
-    void analyzeTIDDetUnit(DetId& detId, std::ostringstream&);
-    void analyzeTID();
-    void analyzeTOBDetUnit(DetId& detId, std::ostringstream&);
-    void analyzeTOB();
-    void analyzeTECDetUnit(DetId& detId, std::ostringstream&);
-    void analyzeTEC();
+  void analyzeTrackerGeometry();
+  void analyzeTrackerGeometryVersion(std::ostringstream&);
+  void analyzePXBDetUnit(DetId& detId, std::ostringstream&);
+  void analyzePXB();
+  void analyzePXEDetUnit(DetId& detId, std::ostringstream&);
+  void analyzePXE();
+  void analyzeTIBDetUnit(DetId& detId, std::ostringstream&);
+  void analyzeTIB();
+  void analyzeTIDDetUnit(DetId& detId, std::ostringstream&);
+  void analyzeTID();
+  void analyzeTOBDetUnit(DetId& detId, std::ostringstream&);
+  void analyzeTOB();
+  void analyzeTECDetUnit(DetId& detId, std::ostringstream&);
+  void analyzeTEC();
 
   //========================== PRIVATE DATA ===================================
   //===========================================================================
 
-    // config-file parameters
-    const bool analyzeAlignables_;
-    const bool printTrackerStructure_;
-    const int  maxPrintDepth_;
-    const bool analyzeGeometry_;
-    const bool analyzePXB_;
-    const bool analyzePXE_;
-    const bool analyzeTIB_;
-    const bool analyzeTID_;
-    const bool analyzeTOB_;
-    const bool analyzeTEC_;
+  // ESTokens
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptapToken_;
 
-    // topology and geometry
-    const TrackerTopology* trackerTopology;
-    const TrackerGeometry* trackerGeometry;
+  // config-file parameters
+  const bool analyzeAlignables_;
+  const bool printTrackerStructure_;
+  const int maxPrintDepth_;
+  const bool analyzeGeometry_;
+  const bool analyzePXB_;
+  const bool analyzePXE_;
+  const bool analyzeTIB_;
+  const bool analyzeTID_;
+  const bool analyzeTOB_;
+  const bool analyzeTEC_;
 
-    // alignable object ID provider
-    AlignableObjectId alignableObjectId_;
+  // topology and geometry
+  const TrackerTopology* trackerTopology;
+  const TrackerGeometry* trackerGeometry;
 
-    // counter for detUnits
-    int numPXBDetUnits = 0;
-    int numPXEDetUnits = 0;
-    int numTIBDetUnits = 0;
-    int numTIDDetUnits = 0;
-    int numTOBDetUnits = 0;
-    int numTECDetUnits = 0;
+  // alignable object ID provider
+  AlignableObjectId alignableObjectId_;
 
-    // PixelBarrel counters
-    std::set<unsigned int> pxbLayerIDs;
-    std::set<unsigned int> pxbLadderIDs;
-    std::set<unsigned int> pxbModuleIDs;
+  // counter for detUnits
+  int numPXBDetUnits = 0;
+  int numPXEDetUnits = 0;
+  int numTIBDetUnits = 0;
+  int numTIDDetUnits = 0;
+  int numTOBDetUnits = 0;
+  int numTECDetUnits = 0;
 
-    // PixelEndcap counters
-    std::set<unsigned int> pxeSideIDs;
-    std::set<unsigned int> pxeDiskIDs;
-    std::set<unsigned int> pxeBladeIDs;
-    std::set<unsigned int> pxePanelIDs;
-    std::set<unsigned int> pxeModuleIDs;
+  // PixelBarrel counters
+  std::set<unsigned int> pxbLayerIDs;
+  std::set<unsigned int> pxbLadderIDs;
+  std::set<unsigned int> pxbModuleIDs;
 
-    // TIB counters
-    std::set<unsigned int> tibSideIDs;
-    std::set<unsigned int> tibLayerIDs;
-    std::set<unsigned int> tibStringIDs;
-    std::set<unsigned int> tibModuleIDs;
+  // PixelEndcap counters
+  std::set<unsigned int> pxeSideIDs;
+  std::set<unsigned int> pxeDiskIDs;
+  std::set<unsigned int> pxeBladeIDs;
+  std::set<unsigned int> pxePanelIDs;
+  std::set<unsigned int> pxeModuleIDs;
 
-    // TID counters
-    std::set<unsigned int> tidSideIDs;
-    std::set<unsigned int> tidWheelIDs;
-    std::set<unsigned int> tidRingIDs;
-    std::set<unsigned int> tidModuleIDs;
+  // TIB counters
+  std::set<unsigned int> tibSideIDs;
+  std::set<unsigned int> tibLayerIDs;
+  std::set<unsigned int> tibStringIDs;
+  std::set<unsigned int> tibModuleIDs;
 
-    // TOB counters
-    std::set<unsigned int> tobLayerIDs;
-    std::set<unsigned int> tobSideIDs;
-    std::set<unsigned int> tobRodIDs;
-    std::set<unsigned int> tobModuleIDs;
+  // TID counters
+  std::set<unsigned int> tidSideIDs;
+  std::set<unsigned int> tidWheelIDs;
+  std::set<unsigned int> tidRingIDs;
+  std::set<unsigned int> tidModuleIDs;
 
-    // TEC counters
-    std::set<unsigned int> tecSideIDs;
-    std::set<unsigned int> tecWheelIDs;
-    std::set<unsigned int> tecPetalIDs;
-    std::set<unsigned int> tecRingIDs;
-    std::set<unsigned int> tecModuleIDs;
+  // TOB counters
+  std::set<unsigned int> tobLayerIDs;
+  std::set<unsigned int> tobSideIDs;
+  std::set<unsigned int> tobRodIDs;
+  std::set<unsigned int> tobModuleIDs;
 
+  // TEC counters
+  std::set<unsigned int> tecSideIDs;
+  std::set<unsigned int> tecWheelIDs;
+  std::set<unsigned int> tecPetalIDs;
+  std::set<unsigned int> tecRingIDs;
+  std::set<unsigned int> tecModuleIDs;
 };
 
 // define this as a plug-in

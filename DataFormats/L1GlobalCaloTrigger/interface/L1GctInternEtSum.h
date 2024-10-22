@@ -11,32 +11,30 @@
 /// \date June 2008
 ///
 
-
 class L1GctInternEtSum {
-
- public:
-
+public:
   /// et sum type - not clear this is required
-  enum L1GctInternEtSumType { null,
- 			      jet_tot_et,      // from jet_tot_et_and_ht in leaf output
-			      jet_tot_ht,      // from jet_tot_et_and_ht in leaf output
-			      jet_miss_et,     // leaf output
-			      total_et_or_ht,  // conc input, wheel input and output
-                              miss_etx_or_ety  // conc input, wheel input and output
+  enum L1GctInternEtSumType {
+    null,
+    jet_tot_et,      // from jet_tot_et_and_ht in leaf output
+    jet_tot_ht,      // from jet_tot_et_and_ht in leaf output
+    jet_miss_et,     // leaf output
+    total_et_or_ht,  // conc input, wheel input and output
+    miss_etx_or_ety  // conc input, wheel input and output
   };
 
   enum numberOfBits {
-    kTotEtOrHtNBits   = 12,
-    kJetMissEtNBits   = 17,
-    kMissExOrEyNBits  = 20,
-    kTotEtOrHtOFlowBit  = 1 << kTotEtOrHtNBits,
-    kJetMissEtOFlowBit  = 1 << kJetMissEtNBits,
+    kTotEtOrHtNBits = 12,
+    kJetMissEtNBits = 17,
+    kMissExOrEyNBits = 20,
+    kTotEtOrHtOFlowBit = 1 << kTotEtOrHtNBits,
+    kJetMissEtOFlowBit = 1 << kJetMissEtNBits,
     kMissExOrEyOFlowBit = 1 << kMissExOrEyNBits,
-    kTotEtOrHtMaxValue  = kTotEtOrHtOFlowBit  - 1,
-    kJetMissEtMaxValue  = kJetMissEtOFlowBit  - 1,
+    kTotEtOrHtMaxValue = kTotEtOrHtOFlowBit - 1,
+    kJetMissEtMaxValue = kJetMissEtOFlowBit - 1,
     kMissExOrEyMaxValue = kMissExOrEyOFlowBit - 1,
-    kTotEtOrHtRawCtorMask  = kTotEtOrHtOFlowBit  | kTotEtOrHtMaxValue,
-    kJetMissEtRawCtorMask  = kJetMissEtOFlowBit  | kJetMissEtMaxValue,
+    kTotEtOrHtRawCtorMask = kTotEtOrHtOFlowBit | kTotEtOrHtMaxValue,
+    kJetMissEtRawCtorMask = kJetMissEtOFlowBit | kJetMissEtMaxValue,
     kMissExOrEyRawCtorMask = kMissExOrEyOFlowBit | kMissExOrEyMaxValue
   };
 
@@ -44,48 +42,28 @@ class L1GctInternEtSum {
   L1GctInternEtSum();
 
   /// construct from individual quantities
-  L1GctInternEtSum(uint16_t capBlock,
-		   uint16_t capIndex,
-		   int16_t bx,
-		   uint32_t et,
-		   uint8_t oflow);
+  L1GctInternEtSum(uint16_t capBlock, uint16_t capIndex, int16_t bx, uint32_t et, uint8_t oflow);
 
   /// destructor
   ~L1GctInternEtSum();
 
   // named ctors
-  static L1GctInternEtSum fromJetTotEt(uint16_t capBlock,
-				       uint16_t capIndex,
-				       int16_t bx,
-				       uint32_t data);
+  static L1GctInternEtSum fromJetTotEt(uint16_t capBlock, uint16_t capIndex, int16_t bx, uint32_t data);
 
-  static L1GctInternEtSum fromJetTotHt(uint16_t capBlock,
-				       uint16_t capIndex,
-				       int16_t bx,
-				       uint32_t data);
-  
-  static L1GctInternEtSum fromJetMissEt(uint16_t capBlock,
-					uint16_t capIndex,
-					int16_t bx,
-					uint32_t data);
-  
+  static L1GctInternEtSum fromJetTotHt(uint16_t capBlock, uint16_t capIndex, int16_t bx, uint32_t data);
 
-  static L1GctInternEtSum fromTotalEtOrHt(uint16_t capBlock,
-                                          uint16_t capIndex,
-                                          int16_t bx,
-                                          uint32_t data);
+  static L1GctInternEtSum fromJetMissEt(uint16_t capBlock, uint16_t capIndex, int16_t bx, uint32_t data);
 
-  static L1GctInternEtSum fromMissEtxOrEty(uint16_t capBlock,
-                                          uint16_t capIndex,
-                                          int16_t bx,
-                                          uint32_t data);
+  static L1GctInternEtSum fromTotalEtOrHt(uint16_t capBlock, uint16_t capIndex, int16_t bx, uint32_t data);
+
+  static L1GctInternEtSum fromMissEtxOrEty(uint16_t capBlock, uint16_t capIndex, int16_t bx, uint32_t data);
 
   static L1GctInternEtSum fromEmulatorJetTotEt(unsigned totEt, bool overFlow, int16_t bx);
 
   static L1GctInternEtSum fromEmulatorJetTotHt(unsigned totHt, bool overFlow, int16_t bx);
-  
+
   static L1GctInternEtSum fromEmulatorJetMissEt(int missEtxOrEty, bool overFlow, int16_t bx);
-  
+
   static L1GctInternEtSum fromEmulatorTotalEtOrHt(unsigned totEtOrHt, bool overFlow, int16_t bx);
 
   static L1GctInternEtSum fromEmulatorMissEtxOrEty(int missEtxOrEty, bool overFlow, int16_t bx);
@@ -107,12 +85,11 @@ class L1GctInternEtSum {
   /// is the sum non-zero
   bool empty() const { return (data_ == 0); }
 
-
   /// get the actual bits
 
   /// get the raw data
   uint32_t raw() const { return data_; }
-  
+
   /// get value
   uint32_t value() const { return data_ & 0x7fffffff; }
 
@@ -123,8 +100,7 @@ class L1GctInternEtSum {
   uint32_t count() const { return value(); }
 
   /// get oflow
-  uint8_t oflow() const { return (data_>>31) & 0x1; }
-
+  uint8_t oflow() const { return (data_ >> 31) & 0x1; }
 
   // setters
 
@@ -152,18 +128,15 @@ class L1GctInternEtSum {
   /// set overflow bit
   void setOflow(uint8_t oflow);
 
-
   /// operators
 
   /// equality operator
   bool operator==(const L1GctInternEtSum& c) const;
-  
+
   /// inequality operator
   bool operator!=(const L1GctInternEtSum& c) const { return !(*this == c); }
-  
 
- private:
-
+private:
   // type of data
   L1GctInternEtSumType type_;
 
@@ -174,8 +147,7 @@ class L1GctInternEtSum {
 
   // the captured data
   uint32_t data_;
-
- };
+};
 
 std::ostream& operator<<(std::ostream& s, const L1GctInternEtSum& c);
 

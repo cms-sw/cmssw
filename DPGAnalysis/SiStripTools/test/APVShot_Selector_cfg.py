@@ -5,9 +5,9 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("APVShotAnalyzer")
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('APVShotAnalyzer',eras.Run2_2016)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process('APVShotAnalyzer',Run2_2016)
 
 #prepare options
 
@@ -47,7 +47,7 @@ process.source = cms.Source("PoolSource",
 
 #--------------------------------------
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_Data_cff")
 process.load('Configuration.StandardSequences.L1Reco_cff')

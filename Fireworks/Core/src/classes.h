@@ -21,7 +21,7 @@
 #include "Fireworks/Core/interface/FWEnumParameter.h"
 #include "Fireworks/Core/interface/FWEnumParameterSetter.h"
 #include "Fireworks/Core/interface/CSGAction.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
+#include "Fireworks/Core/interface/CmsShowMain.h"
 #include "Fireworks/Core/interface/FWTableView.h"
 #include "Fireworks/Core/interface/FWTriggerTableView.h"
 #include "Fireworks/Core/interface/FWModelId.h"
@@ -69,13 +69,13 @@
 #include "Fireworks/Core/interface/FWPartialConfig.h"
 
 namespace Fireworks_Core {
-   struct Fireworks_Core {
-      //add 'dummy' Wrapper variable for each class type you put into the Event
-      //FWDisplayEvent de;
-      FWBoolParameter bp;
-      FWDoubleParameter dp;
-      FWLongParameter lp;
-      FWStringParameter sp;
-      FWConfiguration::KeyValues kv;
-   };
-}
+  struct Fireworks_Core {
+    //add 'dummy' Wrapper variable for each class type you put into the Event
+    //FWDisplayEvent de;
+    FWBoolParameter bp;
+    FWDoubleParameter dp;
+    FWLongParameter lp;
+    FWStringParameter sp;
+    FWConfiguration::KeyValues kv;
+  };
+}  // namespace Fireworks_Core

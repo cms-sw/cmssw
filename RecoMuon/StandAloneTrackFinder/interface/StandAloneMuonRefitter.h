@@ -8,22 +8,26 @@
  *           D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */
 
-
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
-namespace edm {class ParameterSet;}
+namespace edm {
+  class ParameterSet;
+  class ConsumesCollector;
+}  // namespace edm
 class MuonServiceProxy;
 class TrajectoryFitter;
 class Trajectory;
 
 class StandAloneMuonRefitter {
- public:
+public:
   typedef std::pair<bool, Trajectory> RefitResult;
 
- public:
+public:
   /// Constructor
-  StandAloneMuonRefitter(const edm::ParameterSet& par, const MuonServiceProxy* service);
+  StandAloneMuonRefitter(const edm::ParameterSet& par, edm::ConsumesCollector col, const MuonServiceProxy* service);
 
   /// Destructor
   virtual ~StandAloneMuonRefitter();
@@ -35,15 +39,13 @@ class StandAloneMuonRefitter {
   RefitResult refit(const Trajectory&);
 
 protected:
-
 private:
   const MuonServiceProxy* theService;
+  const edm::ESGetToken<TrajectoryFitter, TrajectoryFitter::Record> theFitterToken;
   edm::ESHandle<TrajectoryFitter> theFitter;
-  std::string  theFitterName;
   unsigned int theNumberOfIterations;
   bool isForceAllIterations;
   double theMaxFractionOfLostHits;
   double errorRescale;
 };
 #endif
-

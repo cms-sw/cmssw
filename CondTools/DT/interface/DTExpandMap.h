@@ -15,11 +15,9 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
 
 //---------------
 // C++ Headers --
@@ -27,8 +25,7 @@
 #include <iostream>
 
 class DTExpandMap {
- public:
-  static void expandSteering( std::ifstream& file );
+public:
+  static void expandSteering(std::ifstream& file);
 };
 #endif
-

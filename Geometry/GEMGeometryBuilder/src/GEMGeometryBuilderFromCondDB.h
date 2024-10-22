@@ -9,27 +9,26 @@
  */
 
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
-#include <map>
-#include <list>
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-class GEMGeometry;
-class GEMDetId;
-class GEMEtaPartition;
-
-class GEMGeometryBuilderFromCondDB 
-{
- public:
-
+class GEMGeometryBuilderFromCondDB {
+public:
   GEMGeometryBuilderFromCondDB();
 
   ~GEMGeometryBuilderFromCondDB();
-  
-  void build(const std::shared_ptr<GEMGeometry>& theGeometry,
-	     const RecoIdealGeometry& rgeo );
-  
- private:
 
-  std::map<GEMDetId, std::list<GEMEtaPartition *> > m_chids;
+  void build(GEMGeometry& theGeometry, const RecoIdealGeometry& rgeo);
+
+private:
+  typedef ReferenceCountingPointer<BoundPlane> RCPBoundPlane;
+
+  GEMSuperChamber* buildSuperChamber(const RecoIdealGeometry& rgeo, unsigned int gid, GEMDetId detId) const;
+
+  GEMChamber* buildChamber(const RecoIdealGeometry& rgeo, unsigned int gid, GEMDetId detId) const;
+
+  GEMEtaPartition* buildEtaPartition(const RecoIdealGeometry& rgeo, unsigned int gid, GEMDetId detId) const;
+
+  RCPBoundPlane boundPlane(const RecoIdealGeometry& rgeo, unsigned int gid, GEMDetId detId) const;
 };
 
 #endif

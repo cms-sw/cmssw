@@ -2,7 +2,7 @@
 //
 // Package:     L1Geometry
 // Class  :     L1CaloGeometryRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

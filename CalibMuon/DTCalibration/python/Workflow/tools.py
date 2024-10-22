@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,sys,imp
 import subprocess
 import logging
@@ -11,7 +12,7 @@ def replaceTemplate(template,**opts):
     for item in opts:
          old = '@@%s@@'%item
          new = str(opts[item])
-         print "Replacing",old,"to",new
+         print("Replacing",old,"to",new)
          result = result.replace(old,new)
 
     return result
@@ -37,15 +38,13 @@ def listFilesLocal(paths, extension = '.root'):
                 file_paths.append( os.path.join( root, filename ) )
     return file_paths
 
-def haddLocal(localdir,result_file,extension = 'root'):
-    if not os.path.exists( localdir ):
-        raise ValueError("localdir for hadd operation does not exist" )
-
-    files = listFilesLocal([localdir],extension)
+def haddLocal(files,result_file,extension = 'root'):
+    log.info("hadd command: {}".format(" ".join(['hadd','-f', result_file] + files)))
     process = subprocess.Popen( ['hadd','-f', result_file] + files,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT)
     stdout = process.communicate()[0]
+    log.info(f"hadd output: {stdout}")
     return process.returncode
 
 def loadCmsProcessFile(psetName):
@@ -78,13 +77,13 @@ def stdinWait(text, default, time, timeoutDisplay = None, **kwargs):
     except (KeyboardInterrupt):
         printInterrupt = kwargs.get("printInterrupt", True)
         if printInterrupt:
-            print "Keyboard interrupt"
+            print("Keyboard interrupt")
         timeout = True # Do this so you don't mistakenly get input when there is none
         inp = default
     except:
         timeout = True
         if not timeoutDisplay is None:
-            print timeoutDisplay
+            print(timeoutDisplay)
         signal.alarm(0)
         inp = default
     return inp

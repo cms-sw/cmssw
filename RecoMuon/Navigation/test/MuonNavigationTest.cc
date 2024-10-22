@@ -4,9 +4,8 @@
  *  \author Chang Liu
  */
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -25,50 +24,43 @@
 //#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-class MuonNavigationTest : public edm::EDAnalyzer {
-   public:
-      explicit MuonNavigationTest( const edm::ParameterSet& );
-      ~MuonNavigationTest();
+class MuonNavigationTest : public edm::one::EDAnalyzer<> {
+public:
+  explicit MuonNavigationTest(const edm::ParameterSet&);
+  ~MuonNavigationTest() override;
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-   private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> geomToken_;
 };
 
 // constructor
 
-MuonNavigationTest::MuonNavigationTest( const edm::ParameterSet& iConfig )
-{
-      std::cout<<"Muon Navigation Printer Begin:"<<std::endl;
+MuonNavigationTest::MuonNavigationTest(const edm::ParameterSet& iConfig) {
+  geomToken_ = esConsumes();
+  std::cout << "Muon Navigation Printer Begin:" << std::endl;
 }
 
+MuonNavigationTest::~MuonNavigationTest() { std::cout << "Muon Navigation Printer End. " << std::endl; }
 
-MuonNavigationTest::~MuonNavigationTest()
-{
-       std::cout<<"Muon Navigation Printer End. "<<std::endl;
-}
+void MuonNavigationTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
+  //choose ONE and ONLY one to be true
+  bool testMuon = true;
+  //   bool testMuonTk = true;
+  //
+  // get Geometry
+  //
+  const MuonDetLayerGeometry& mm = iSetup.getData(geomToken_);
 
-void
-MuonNavigationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
-   using namespace edm;
-
-   //choose ONE and ONLY one to be true
-   bool testMuon = true;
-//   bool testMuonTk = true;
-   //
-   // get Geometry
-   //
-   edm::ESHandle<MuonDetLayerGeometry> muon;
-   iSetup.get<MuonRecoGeometryRecord>().get(muon);     
-   const MuonDetLayerGeometry * mm(&(*muon));
-
-   if ( testMuon ) {
-      MuonNavigationSchool school(mm);
-      MuonNavigationPrinter* printer = new MuonNavigationPrinter(mm, school );
-      delete printer;
-   }
-/*
+  if (testMuon) {
+    MuonNavigationSchool school(&mm);
+    MuonNavigationPrinter* printer = new MuonNavigationPrinter(&mm, school);
+    delete printer;
+  }
+  /*
    if ( testMuonTk ) {
      edm::ESHandle<GeometricSearchTracker> tracker;
      iSetup.get<TrackerRecoGeometryRecord>().get(tracker);
@@ -88,4 +80,3 @@ MuonNavigationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(MuonNavigationTest);
-

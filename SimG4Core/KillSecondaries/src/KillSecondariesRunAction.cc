@@ -6,15 +6,11 @@
 #include "G4Run.hh"
 #include "G4RunManagerKernel.hh"
 
-KillSecondariesRunAction::KillSecondariesRunAction(edm::ParameterSet const & p)
-    {}
+KillSecondariesRunAction::KillSecondariesRunAction(edm::ParameterSet const &p) {}
 
 KillSecondariesRunAction::~KillSecondariesRunAction() {}
- 
-void KillSecondariesRunAction::update(const BeginOfRun * r)
-{ 
-    std::cout << " Using KillSecondariesStackingAction!!! " << std::endl;
-    G4RunManagerKernel::GetRunManagerKernel()->GetEventManager()->
-	SetUserAction(new KillSecondariesStackingAction);
-}
 
+void KillSecondariesRunAction::update(const BeginOfRun *r) {
+  std::cout << " Using KillSecondariesStackingAction!!! " << std::endl;
+  G4RunManagerKernel::GetRunManagerKernel()->GetEventManager()->SetUserAction(new KillSecondariesStackingAction);
+}

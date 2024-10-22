@@ -16,21 +16,20 @@
 */
 
 class PatMuonAnalyzer : public edm::BasicAnalyzer {
-
- public:
+public:
   /// default constructor
   PatMuonAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fs);
   PatMuonAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fs, edm::ConsumesCollector&& iC);
   /// default destructor
-  ~PatMuonAnalyzer() override{};
+  ~PatMuonAnalyzer() override {}
   /// everything that needs to be done before the event loop
-  void beginJob() override{};
+  void beginJob() override {}
   /// everything that needs to be done after the event loop
-  void endJob() override{};
+  void endJob() override {}
   /// everything that needs to be done during the event loop
   void analyze(const edm::EventBase& event) override;
 
- private:
+private:
   /// input tag for mouns
   edm::InputTag muons_;
   edm::EDGetTokenT<std::vector<pat::Muon> > muonsToken_;

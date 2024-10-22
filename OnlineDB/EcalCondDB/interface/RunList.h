@@ -13,19 +13,19 @@
 
 typedef int run_t;
 
-class RunList  : public IDBObject {
- public:
+class RunList : public IDBObject {
+public:
   friend class EcalCondDBInterface;
 
   RunList();
   ~RunList() override;
 
   // Methods for user data
-  
+
   void setRunTag(const RunTag& tag);
   RunTag getRunTag() const;
-  std::vector<RunIOV> getRuns() ;
-  
+  std::vector<RunIOV> getRuns();
+
   // Methods from IUniqueDBObject
   void fetchRuns() noexcept(false);
   void fetchNonEmptyRuns() noexcept(false);
@@ -34,16 +34,14 @@ class RunList  : public IDBObject {
   void fetchNonEmptyGlobalRuns(int min_run, int max_run) noexcept(false);
   void fetchRuns(int min_run, int max_run) noexcept(false);
   void fetchRuns(int min_run, int max_run, bool withTriggers, bool withGlobalTriggers) noexcept(false);
-  void fetchLastNRuns( int max_run, int n_runs  ) noexcept(false);
-  void fetchRunsByLocation (int min_run, int max_run, const LocationDef& locDef )  noexcept(false);
-  void fetchGlobalRunsByLocation(int min_run, int max_run, const LocationDef& locDef )  noexcept(false);
+  void fetchLastNRuns(int max_run, int n_runs) noexcept(false);
+  void fetchRunsByLocation(int min_run, int max_run, const LocationDef& locDef) noexcept(false);
+  void fetchGlobalRunsByLocation(int min_run, int max_run, const LocationDef& locDef) noexcept(false);
 
-
- private:
+private:
   // User data for this IOV
   std::vector<RunIOV> m_vec_runiov;
   RunTag m_runTag;
-
 };
 
 #endif

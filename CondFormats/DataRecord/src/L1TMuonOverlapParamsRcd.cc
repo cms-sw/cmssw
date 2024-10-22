@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     L1TMuonOverlapParamsRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

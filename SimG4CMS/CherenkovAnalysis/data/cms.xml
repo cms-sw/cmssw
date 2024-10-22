@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<SolidSection label="cms">
+ <Box name="DREAM"   dx="2.0*m"  dy="0.3*m"  dz="2.0*m"/>
+ <Box name="Crystal" dx="9.0*cm" dy="1.1*cm" dz="1.1*cm"/>
+</SolidSection>
+
+<LogicalPartSection label="cms">
+ <LogicalPart name="OCMS" category="unspecified">
+  <rSolid name="DREAM"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="DREAM" category="unspecified">
+  <rSolid name="DREAM"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="Crystal" category="unspecified">
+  <rSolid name="Crystal"/>
+  <rMaterial name="materials:E_PbWO4"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="cms">
+ <PosPart copyNumber="1">
+   <rParent name="cms:OCMS"/>
+   <rChild name="cms:DREAM"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="cms:DREAM"/>
+   <rChild name="cms:Crystal"/>
+ </PosPart>
+</PosPartSection>
+
+</DDDefinition>

@@ -1,0 +1,11 @@
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/BTauReco"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="TrackingTools/IPTools"/>
+<use name="RecoBTag/TrackProbability"/>
+<use name="PhysicsTools/ONNXRuntime"/>
+<use name="json"/>
+<export>
+  <lib name="1"/>
+</export>

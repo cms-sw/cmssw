@@ -1,75 +1,93 @@
-#include "CondTools/SiStrip/plugins/SiStripFedCablingReader.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CalibTracker/Records/interface/SiStripFecCablingRcd.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// system includes
 #include <iostream>
 #include <sstream>
 
-// -----------------------------------------------------------------------------
-// 
-SiStripFedCablingReader::SiStripFedCablingReader( const edm::ParameterSet& pset ) :
-  printFecCabling_( pset.getUntrackedParameter<bool>("PrintFecCabling",false) ),
-  printDetCabling_( pset.getUntrackedParameter<bool>("PrintDetCabling",false) ),
-  printRegionCabling_( pset.getUntrackedParameter<bool>("PrintRegionCabling",false) )
-{;}
+// user includes
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibTracker/Records/interface/SiStripFecCablingRcd.h"
+#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+class SiStripFedCablingReader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+public:
+  SiStripFedCablingReader(const edm::ParameterSet&);
+  ~SiStripFedCablingReader() override = default;
+
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+
+private:
+  bool printFecCabling_;
+  bool printDetCabling_;
+  bool printRegionCabling_;
+  const edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  const edm::ESGetToken<SiStripFecCabling, SiStripFecCablingRcd> fecCablingToken_;
+  const edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  const edm::ESGetToken<SiStripRegionCabling, SiStripRegionCablingRcd> regionCablingToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+};
 
 // -----------------------------------------------------------------------------
-// 
-void SiStripFedCablingReader::beginRun( const edm::Run& run, 
-					const edm::EventSetup& setup ) {
+//
+SiStripFedCablingReader::SiStripFedCablingReader(const edm::ParameterSet& pset)
+    : printFecCabling_(pset.getUntrackedParameter<bool>("PrintFecCabling", false)),
+      printDetCabling_(pset.getUntrackedParameter<bool>("PrintDetCabling", false)),
+      printRegionCabling_(pset.getUntrackedParameter<bool>("PrintRegionCabling", false)),
+      fedCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      fecCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      detCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      regionCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      tTopoToken_(esConsumes<edm::Transition::BeginRun>()) {}
 
-  edm::eventsetup::EventSetupRecordKey FedRecordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("SiStripFedCablingRcd"));
-  edm::eventsetup::EventSetupRecordKey FecRecordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("SiStripFecCablingRcd"));
-  edm::eventsetup::EventSetupRecordKey DetRecordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("SiStripDetCablingRcd"));
-  edm::eventsetup::EventSetupRecordKey RegRecordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("SiStripRegionCablingRcd"));
-
-  bool FedRcdfound=setup.find(FedRecordKey) != nullptr?true:false;  
-  bool FecRcdfound=setup.find(FecRecordKey) != nullptr?true:false;  
-  bool DetRcdfound=setup.find(DetRecordKey) != nullptr?true:false;  
-  bool RegRcdfound=setup.find(RegRecordKey) != nullptr?true:false;  
+// -----------------------------------------------------------------------------
+//
+void SiStripFedCablingReader::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
+  auto const fedRec = setup.tryToGet<SiStripFedCablingRcd>();
+  auto const fecRec = setup.tryToGet<SiStripFecCablingRcd>();
+  auto const detRec = setup.tryToGet<SiStripDetCablingRcd>();
+  auto const regRec = setup.tryToGet<SiStripRegionCablingRcd>();
 
   edm::ESHandle<SiStripFedCabling> fed;
-  if(FedRcdfound){
-    edm::LogVerbatim("SiStripFedCablingReader") 
-      << "[SiStripFedCablingReader::" << __func__ << "]"
-      << " Retrieving FED cabling...";
-    setup.get<SiStripFedCablingRcd>().get( fed ); 
+  if (fedRec) {
+    edm::LogVerbatim("SiStripFedCablingReader") << "[SiStripFedCablingReader::" << __func__ << "]"
+                                                << " Retrieving FED cabling...";
+    fed = setup.getHandle(fedCablingToken_);
   }
 
   edm::ESHandle<SiStripFecCabling> fec;
-  if(FecRcdfound){
-    edm::LogVerbatim("SiStripFedCablingReader") 
-      << "[SiStripFedCablingReader::" << __func__ << "]"
-      << " Retrieving FEC cabling...";
-      setup.get<SiStripFecCablingRcd>().get( fec ); 
+  if (fecRec) {
+    edm::LogVerbatim("SiStripFedCablingReader") << "[SiStripFedCablingReader::" << __func__ << "]"
+                                                << " Retrieving FEC cabling...";
+    fec = setup.getHandle(fecCablingToken_);
   }
 
   edm::ESHandle<SiStripDetCabling> det;
-  if(DetRcdfound){
-    edm::LogVerbatim("SiStripFedCablingReader") 
-      << "[SiStripFedCablingReader::" << __func__ << "]"
-      << " Retrieving DET cabling...";
-    setup.get<SiStripDetCablingRcd>().get( det ); 
+  if (detRec) {
+    edm::LogVerbatim("SiStripFedCablingReader") << "[SiStripFedCablingReader::" << __func__ << "]"
+                                                << " Retrieving DET cabling...";
+    det = setup.getHandle(detCablingToken_);
   }
 
   edm::ESHandle<SiStripRegionCabling> region;
-  if(RegRcdfound){
-    edm::LogVerbatim("SiStripFedCablingReader") 
-      << "[SiStripFedCablingReader::" << __func__ << "]"
-      << " Retrieving REGION cabling...";
-    setup.get<SiStripRegionCablingRcd>().get( region ); 
+  if (regRec) {
+    edm::LogVerbatim("SiStripFedCablingReader") << "[SiStripFedCablingReader::" << __func__ << "]"
+                                                << " Retrieving REGION cabling...";
+    region = setup.getHandle(regionCablingToken_);
   }
 
-  if ( !fed.isValid() ) {
-    edm::LogError("SiStripFedCablingReader") 
-      << " Invalid handle to FED cabling object: ";
+  if (!fed.isValid()) {
+    edm::LogError("SiStripFedCablingReader") << " Invalid handle to FED cabling object: ";
     return;
   }
 
@@ -77,39 +95,45 @@ void SiStripFedCablingReader::beginRun( const edm::Run& run,
     std::stringstream ss;
     ss << "[SiStripFedCablingReader::" << __func__ << "]"
        << " VERBOSE DEBUG" << std::endl;
-    if(FedRcdfound) {
-      edm::ESHandle<TrackerTopology> tTopo;
-      setup.get<TrackerTopologyRcd>().get(tTopo);
-      fed->print(ss, tTopo.product());
+    if (fedRec) {
+      fed->print(ss, &setup.getData(tTopoToken_));
     }
     ss << std::endl;
-    if ( FecRcdfound && printFecCabling_ && fec.isValid() ) { fec->print( ss ); }
+    if (fecRec && printFecCabling_ && fec.isValid()) {
+      fec->print(ss);
+    }
     ss << std::endl;
-    if ( DetRcdfound && printDetCabling_ && det.isValid() ) { det->print( ss ); }
+    if (detRec && printDetCabling_ && det.isValid()) {
+      det->print(ss);
+    }
     ss << std::endl;
-    if ( RegRcdfound && printRegionCabling_ && region.isValid() ) { region->print( ss ); }
+    if (regRec && printRegionCabling_ && region.isValid()) {
+      region->print(ss);
+    }
     ss << std::endl;
     edm::LogVerbatim("SiStripFedCablingReader") << ss.str();
   }
-  
-  if(FedRcdfound){
+
+  if (fedRec) {
     std::stringstream ss;
     ss << "[SiStripFedCablingReader::" << __func__ << "]"
        << " TERSE DEBUG" << std::endl;
-    fed->terse( ss );
+    fed->terse(ss);
     ss << std::endl;
     edm::LogVerbatim("SiStripFedCablingReader") << ss.str();
   }
-  
-  if(FedRcdfound){
+
+  if (fedRec) {
     std::stringstream ss;
     ss << "[SiStripFedCablingReader::" << __func__ << "]"
        << " SUMMARY DEBUG" << std::endl;
-    edm::ESHandle<TrackerTopology> tTopo;
-    setup.get<TrackerTopologyRcd>().get(tTopo);
-    fed->summary(ss, tTopo.product());
+    fed->summary(ss, &setup.getData(tTopoToken_));
     ss << std::endl;
     edm::LogVerbatim("SiStripFedCablingReader") << ss.str();
   }
-  
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripFedCablingReader);

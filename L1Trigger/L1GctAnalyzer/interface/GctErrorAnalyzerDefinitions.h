@@ -17,9 +17,9 @@ struct GctErrorAnalyzerMBxInfo {
 };
 
 struct jetData {
- unsigned int et;
- unsigned int eta;
- unsigned int phi;
+  unsigned int et;
+  unsigned int eta;
+  unsigned int phi;
 };
 
 #endif

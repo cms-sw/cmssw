@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # L1 Pattern Generator
 # ====================
@@ -192,7 +193,7 @@ if globalTag.count('auto') :
     from Configuration.AlCa.autoCond import autoCond
     useGlobalTag = autoCond[globalTag.replace('auto:', '')]
 else :
-    useGlobalTag = globalTag+'::All'    
+    useGlobalTag = globalTag    
 process.GlobalTag.globaltag = useGlobalTag
 
 # Global Trigger unpacker - produce decision & regional muons from readout record
@@ -255,20 +256,13 @@ process.p = cms.Path(process.l1GtUnpack * process.l1GctHwDigis * process.gtDigis
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtPatternGenerator', 'gtDigis']
-process.MessageLogger.categories.append('L1GtPatternGenerator')
-process.MessageLogger.categories.append('L1GtTrigReport')
-process.MessageLogger.destinations = ['L1GtPatternGenerator_error', 
-                                      'L1GtPatternGenerator_warning', 
-                                      'L1GtPatternGenerator_info', 
-                                      'L1GtPatternGenerator_debug'
-                                      ]
 
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cerr.default.limit = 0
-process.MessageLogger.cerr.FwkJob.limit = 0
 process.MessageLogger.cerr.FwkReport.limit = 0
 process.MessageLogger.cerr.FwkSummary.limit = 0
 
-process.MessageLogger.L1GtPatternGenerator_debug = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtPatternGenerator_debug = cms.untracked.PSet( 
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -278,7 +272,7 @@ process.MessageLogger.L1GtPatternGenerator_debug = cms.untracked.PSet(
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(0) ) 
         )
 
-process.MessageLogger.L1GtPatternGenerator_info = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtPatternGenerator_info = cms.untracked.PSet( 
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -287,7 +281,7 @@ process.MessageLogger.L1GtPatternGenerator_info = cms.untracked.PSet(
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtPatternGenerator_warning = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtPatternGenerator_warning = cms.untracked.PSet( 
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -295,14 +289,14 @@ process.MessageLogger.L1GtPatternGenerator_warning = cms.untracked.PSet(
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(0) ) 
         )
 
-process.MessageLogger.L1GtPatternGenerator_error = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtPatternGenerator_error = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
         L1GtPatternGenerator = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
        )
 
-print "Setup complete."
+print("Setup complete.")
 
 ## output - disabled by default, the pattern generator writes to a text file
 #process.outputL1GtPatternGen = cms.OutputModule("PoolOutputModule",

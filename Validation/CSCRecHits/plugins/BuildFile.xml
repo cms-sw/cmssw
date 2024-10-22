@@ -1,6 +1,8 @@
-<library   file="Module.cc" name="ValidationCSCRecHitsPlugin">
-  <use   name="FWCore/Framework"/>
-  <use   name="Validation/CSCRecHits"/>
-  <use   name="clhep"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="ValidationCSCRecHitsPlugin">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="Validation/CSCRecHits"/>
+  <use name="SimMuon/MCTruth"/>
+  <use name="clhep"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

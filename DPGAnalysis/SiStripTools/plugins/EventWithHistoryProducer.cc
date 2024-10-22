@@ -2,7 +2,7 @@
 //
 // Package:    EventWithHistoryProducer
 // Class:      EventWithHistoryProducer
-// 
+//
 /**\class EventWithHistoryProducer EventWithHistoryProducer.cc DPGAnalysis/SiStripTools/plugins/EventWithHistoryProducer.cc
 
  Description: EDProducer of EventWithHistory which rely on the presence of the previous event in the analyzed dataset
@@ -17,13 +17,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,17 +37,15 @@
 // class decleration
 //
 
-class EventWithHistoryProducer : public edm::EDProducer {
-   public:
-      explicit EventWithHistoryProducer(const edm::ParameterSet&);
-      ~EventWithHistoryProducer() override;
+class EventWithHistoryProducer : public edm::stream::EDProducer<> {
+public:
+  explicit EventWithHistoryProducer(const edm::ParameterSet&);
+  ~EventWithHistoryProducer() override;
 
-   private:
-      void beginJob() override ;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
-      // ----------member data ---------------------------
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  // ----------member data ---------------------------
 
   const unsigned int _depth;
   EventWithHistory _prevHE;
@@ -58,7 +55,6 @@ class EventWithHistoryProducer : public edm::EDProducer {
 // constants, enums and typedefs
 //
 
-
 //
 // static data member definitions
 //
@@ -66,57 +62,35 @@ class EventWithHistoryProducer : public edm::EDProducer {
 //
 // constructors and destructor
 //
-EventWithHistoryProducer::EventWithHistoryProducer(const edm::ParameterSet& iConfig):
-  _depth(iConfig.getUntrackedParameter<unsigned int>("historyDepth")),
-  _prevHE() 
-{
-
+EventWithHistoryProducer::EventWithHistoryProducer(const edm::ParameterSet& iConfig)
+    : _depth(iConfig.getUntrackedParameter<unsigned int>("historyDepth")), _prevHE() {
   produces<EventWithHistory>();
 
-   //now do what ever other initialization is needed
-  
+  //now do what ever other initialization is needed
 }
 
-
-EventWithHistoryProducer::~EventWithHistoryProducer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+EventWithHistoryProducer::~EventWithHistoryProducer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-EventWithHistoryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
+void EventWithHistoryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::unique_ptr<EventWithHistory> heOut(new EventWithHistory(iEvent.id().event(),iEvent.orbitNumber(),iEvent.bunchCrossing()));
-  heOut->add(_prevHE,_depth);
+  std::unique_ptr<EventWithHistory> heOut(
+      new EventWithHistory(iEvent.id().event(), iEvent.orbitNumber(), iEvent.bunchCrossing()));
+  heOut->add(_prevHE, _depth);
 
-  if(*heOut < _prevHE) edm::LogInfo("EventsNotInOrder") << " Events not in order " << _prevHE._event;
+  if (*heOut < _prevHE)
+    edm::LogInfo("EventsNotInOrder") << " Events not in order " << _prevHE._event;
 
   _prevHE = *heOut;
   iEvent.put(std::move(heOut));
-  
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-EventWithHistoryProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-EventWithHistoryProducer::endJob() {
 }
 
 //define this as a plug-in

@@ -12,20 +12,21 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayToResResBuilder.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayConstrainedBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
 
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
-class BPHMassSelect;
-class BPHChi2Select;
-class BPHMassFitSelect;
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
@@ -37,77 +38,49 @@ class BPHMassFitSelect;
 //              -- Class Interface --
 //              ---------------------
 
-class BPHBsToJPsiPhiBuilder {
-
- public:
-
+class BPHBsToJPsiPhiBuilder
+    : public BPHDecayToResResBuilder<BPHRecoCandidate, BPHPlusMinusCandidate, BPHPlusMinusCandidate> {
+public:
   /** Constructor
    */
-  BPHBsToJPsiPhiBuilder( const edm::EventSetup& es,
-      const std::vector<BPHPlusMinusConstCandPtr>& jpsiCollection,
-      const std::vector<BPHPlusMinusConstCandPtr>&  phiCollection );
+  BPHBsToJPsiPhiBuilder(const BPHEventSetupWrapper& es,
+                        const std::vector<BPHPlusMinusConstCandPtr>& jpsiCollection,
+                        const std::vector<BPHPlusMinusConstCandPtr>& phiCollection)
+      : BPHDecayGenericBuilderBase(es, nullptr),
+        BPHDecayConstrainedBuilderBase("JPsi", BPHParticleMasses::jPsiMass, BPHParticleMasses::jPsiMWidth),
+        BPHDecayToResResBuilder(jpsiCollection, "Phi", phiCollection) {
+    setRes1MassRange(2.80, 3.40);
+    setRes2MassRange(1.005, 1.035);
+    setMassRange(3.50, 8.00);
+    setProbMin(0.02);
+    setMassFitRange(5.00, 6.00);
+    setConstr(true);
+  }
+
+  // deleted copy constructor and assignment operator
+  BPHBsToJPsiPhiBuilder(const BPHBsToJPsiPhiBuilder& x) = delete;
+  BPHBsToJPsiPhiBuilder& operator=(const BPHBsToJPsiPhiBuilder& x) = delete;
 
   /** Destructor
    */
-  virtual ~BPHBsToJPsiPhiBuilder();
+  ~BPHBsToJPsiPhiBuilder() override = default;
 
   /** Operations
    */
-  /// build Bs candidates
-  std::vector<BPHRecoConstCandPtr> build();
-
   /// set cuts
-  void setJPsiMassMin( double m  );
-  void setJPsiMassMax( double m  );
-  void setPhiMassMin ( double m  );
-  void setPhiMassMax ( double m  );
-  void setMassMin    ( double m  );
-  void setMassMax    ( double m  );
-  void setProbMin    ( double p  );
-  void setMassFitMin ( double m  );
-  void setMassFitMax ( double m  );
-  void setConstr     ( bool flag );
+  void setJPsiMassMin(double m) { setRes1MassMin(m); }
+  void setJPsiMassMax(double m) { setRes1MassMax(m); }
+  void setPhiMassMin(double m) { setRes2MassMin(m); }
+  void setPhiMassMax(double m) { setRes2MassMax(m); }
 
   /// get current cuts
-  double getJPsiMassMin() const;
-  double getJPsiMassMax() const;
-  double getPhiMassMin () const;
-  double getPhiMassMax () const;
-  double getMassMin    () const;
-  double getMassMax    () const;
-  double getProbMin    () const;
-  double getMassFitMin () const;
-  double getMassFitMax () const;
-  bool   getConstr     () const;
+  double getJPsiMassMin() const { return getRes1MassMin(); }
+  double getJPsiMassMax() const { return getRes1MassMax(); }
+  double getPhiMassMin() const { return getRes2MassMin(); }
+  double getPhiMassMax() const { return getRes2MassMax(); }
 
- private:
-
-  // private copy and assigment constructors
-  BPHBsToJPsiPhiBuilder           ( const BPHBsToJPsiPhiBuilder& x ) = delete;
-  BPHBsToJPsiPhiBuilder& operator=( const BPHBsToJPsiPhiBuilder& x ) = delete;
-
-  std::string jPsiName;
-  std::string  phiName;
-
-  const edm::EventSetup* evSetup;
-  const std::vector<BPHPlusMinusConstCandPtr>* jCollection;
-  const std::vector<BPHPlusMinusConstCandPtr>* pCollection;
-
-  BPHMassSelect   * jpsiSel;
-  BPHMassSelect   * mphiSel;
-
-  BPHMassSelect   * massSel;
-  BPHChi2Select   * chi2Sel;
-  BPHMassFitSelect* mFitSel;
-
-  bool massConstr;
-  float minPDiff;
-  bool updated;
-
-  std::vector<BPHRecoConstCandPtr> bsList;
-
+  /// setup parameters for BPHRecoBuilder
+  void setup(void* parameters) override {}
 };
 
-
 #endif
-

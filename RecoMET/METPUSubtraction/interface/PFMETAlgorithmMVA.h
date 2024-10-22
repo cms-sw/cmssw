@@ -11,9 +11,11 @@
  */
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/METReco/interface/MET.h"
@@ -21,19 +23,15 @@
 
 #include "RecoMET/METPUSubtraction/interface/MvaMEtUtilities.h"
 
-//#include <TMatrixD.h>
 #include <Math/SMatrix.h>
 
 #include <string>
 #include <vector>
 #include <ostream>
 
-class PFMETAlgorithmMVA 
-{
-  
- public:
-
-  PFMETAlgorithmMVA(const edm::ParameterSet& cfg);
+class PFMETAlgorithmMVA {
+public:
+  PFMETAlgorithmMVA(const edm::ParameterSet& cfg, edm::ConsumesCollector iC);
   ~PFMETAlgorithmMVA();
 
   void initialize(const edm::EventSetup&);
@@ -41,26 +39,25 @@ class PFMETAlgorithmMVA
   void setHasPhotons(bool hasPhotons) { hasPhotons_ = hasPhotons; }
 
   void setInput(const std::vector<reco::PUSubMETCandInfo>&,
-		const std::vector<reco::PUSubMETCandInfo>&,
-		const std::vector<reco::PUSubMETCandInfo>&,
-		const std::vector<reco::Vertex::Point>&);
+                const std::vector<reco::PUSubMETCandInfo>&,
+                const std::vector<reco::PUSubMETCandInfo>&,
+                const std::vector<reco::Vertex::Point>&);
 
   void evaluateMVA();
 
-  reco::Candidate::LorentzVector getMEt()    const { return mvaMEt_;    }
-  const reco::METCovMatrix&    getMEtCov() const { return mvaMEtCov_; }
+  reco::Candidate::LorentzVector getMEt() const { return mvaMEt_; }
+  const reco::METCovMatrix& getMEtCov() const { return mvaMEtCov_; }
 
-  double getU()     const { return mvaOutputU_;    }
-  double getDPhi()  const { return mvaOutputDPhi_;  }
+  double getU() const { return mvaOutputU_; }
+  double getDPhi() const { return mvaOutputDPhi_; }
   double getCovU1() const { return mvaOutputCovU1_; }
   double getCovU2() const { return mvaOutputCovU2_; }
-  
+
   void print(std::ostream&) const;
 
- private:
+private:
   const std::string updateVariableNames(std::string input);
   const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, const std::string& mvaName);
-  const GBRForest* loadMVAfromDB(const edm::EventSetup& es, const std::string& mvaName);
 
   const float evaluateU();
   const float evaluateDPhi();
@@ -68,27 +65,31 @@ class PFMETAlgorithmMVA
   const float evaluateCovU2();
 
   MvaMEtUtilities utils_;
-    
+
   std::string mvaNameU_;
   std::string mvaNameDPhi_;
   std::string mvaNameCovU1_;
   std::string mvaNameCovU2_;
 
-  int    mvaType_;
-  bool   hasPhotons_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaTokenU_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaTokenDPhi_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaTokenCovU1_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaTokenCovU2_;
+
+  int mvaType_;
+  bool hasPhotons_;
 
   double dZcut_;
   std::unique_ptr<float[]> createFloatVector(std::vector<std::string> variableNames);
-  const float GetResponse(const GBRForest *Reader, std::vector<std::string> &variableNames);
+  const float GetResponse(const GBRForest* Reader, std::vector<std::string>& variableNames);
   void computeMET();
   std::map<std::string, float> var_;
-
 
   float* mvaInputU_;
   float* mvaInputDPhi_;
   float* mvaInputCovU1_;
   float* mvaInputCovU2_;
-  
+
   float mvaOutputU_;
   float mvaOutputDPhi_;
   float mvaOutputCovU1_;
@@ -98,7 +99,6 @@ class PFMETAlgorithmMVA
   std::vector<std::string> varForDPhi_;
   std::vector<std::string> varForCovU1_;
   std::vector<std::string> varForCovU2_;
-
 
   double sumLeptonPx_;
   double sumLeptonPy_;

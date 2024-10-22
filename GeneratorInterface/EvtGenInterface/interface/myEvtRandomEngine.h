@@ -24,11 +24,8 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class myEvtRandomEngine : public EvtRandomEngine  
-{
-
+class myEvtRandomEngine : public EvtRandomEngine {
 public:
-  
   myEvtRandomEngine(CLHEP::HepRandomEngine* xx);
 
   ~myEvtRandomEngine() override;
@@ -40,7 +37,6 @@ public:
   CLHEP::HepRandomEngine* engine() const { return the_engine; }
 
 private:
-
   void throwNullPtr() const;
 
   CLHEP::HepRandomEngine* the_engine;

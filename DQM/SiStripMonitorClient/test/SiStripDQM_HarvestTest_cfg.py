@@ -37,7 +37,6 @@ process.maxEvents.input = -1
 
 process.source.processingMode = "RunsAndLumis"
 
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Online'
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.dqmEnvTr = DQMEDAnalyzer('DQMEventInfo',
@@ -48,7 +47,6 @@ process.dqmEnvTr = DQMEDAnalyzer('DQMEventInfo',
 
 #process.dqmSaver.workflow = '/GlobalCruzet4-A/CMSSW_2_1_X-Testing/RECO'
 
-process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 

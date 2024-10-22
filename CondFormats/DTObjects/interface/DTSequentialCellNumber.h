@@ -15,16 +15,13 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
-
 
 //              ---------------------
 //              -- Class Interface --
@@ -32,10 +29,8 @@
 
 class DTSequentialCellNumber {
 public:
-  static int id( int      wheel, int station, int sector,
-                 int superlayer, int   layer, int cell );
+  static int id(int wheel, int station, int sector, int superlayer, int layer, int cell);
   static int max();
 };
 
-
-#endif // DTSequentialCellNumber_H
+#endif  // DTSequentialCellNumber_H

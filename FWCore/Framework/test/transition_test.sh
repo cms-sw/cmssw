@@ -3,6 +3,7 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
+LOCAL_TEST_DIR="${CMSSW_BASE}/src/FWCore/Framework/test"
 (cmsRun ${LOCAL_TEST_DIR}/transition_test_cfg.py 0 ) || die 'Failure running cmsRun transition_test_cfg.py 0' $?
 (cmsRun ${LOCAL_TEST_DIR}/transition_test_cfg.py 1 ) || die 'Failure running cmsRun transition_test_cfg.py 1' $?
 (cmsRun ${LOCAL_TEST_DIR}/transition_test_cfg.py 2 ) || die 'Failure running cmsRun transition_test_cfg.py 2' $?

@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+from __future__ import print_function
 import os
 import argparse
 
@@ -35,7 +36,7 @@ def main(opts):
     if opts.verbose:
         plotting.verbose = True
 
-    val = SimpleValidation([sample], opts.outputDir)
+    val = SimpleValidation([sample], opts.outputDir, nProc=opts.jobs)
     htmlReport = val.createHtmlReport(validationName=opts.html_validation_name)
 
     limitProcessing = LimitTrackAlgo(opts.limit_tracking_algo, includePtCut=opts.ptcut)
@@ -46,9 +47,11 @@ def main(opts):
             "fromPV": limitProcessing,
             "fromPVAllTP": limitProcessing,
             "tpPtLess09": limitProcessing,
+            "tpEtaGreater2p7": limitProcessing,
             "seeding": limitProcessing,
             "building": limitProcessing,
             "bhadron": limitProcessing,
+            "displaced": limitProcessing,
         }
     }
     if opts.limit_relval:
@@ -59,8 +62,10 @@ def main(opts):
             "fromPV": ignore,
             "fromPVAllTP": ignore,
             "tpPtLess09": limitRelVal,
+            "tpEtaGreater2p7": limitRelVal,
             "seeding": ignore,
             "bhadron": limitRelVal,
+            "displaced": limitRelVal,
         }
 
     trk = [trackingPlots.plotter]
@@ -70,15 +75,15 @@ def main(opts):
         other.extend([vertexPlots.plotterExt, trackingPlots.plotterHLTExt])
     val.doPlots(trk, plotterDrawArgs=drawArgs, **kwargs_tracking)
     val.doPlots(other, plotterDrawArgs=drawArgs)
-    print
+    print()
     if opts.no_html:
-        print "Plots created into directory '%s'." % opts.outputDir
+        print("Plots created into directory '%s'." % opts.outputDir)
     else:
         htmlReport.write()
-        print "Plots and HTML report created into directory '%s'. You can just move it to some www area and access the pages via web browser" % opts.outputDir
+        print("Plots and HTML report created into directory '%s'. You can just move it to some www area and access the pages via web browser" % opts.outputDir)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Create standard set of tracking validation plots from one or more DQM files.")
+    parser = argparse.ArgumentParser(description="Create standard set of tracking validation plots from one or more DQM files.\nNote that for timing plots you have to include FastTimerService (typically it gets included via DQM/VALIDATION), and set\nprocess.FastTimerService.enableDQMbyPath = True")
     parser.add_argument("files", metavar="file", type=str, nargs="+",
                         help="DQM file to plot the validation plots from")
     parser.add_argument("-o", "--outputDir", type=str, default="plots",
@@ -105,6 +110,8 @@ if __name__ == "__main__":
                         help="Sample name for HTML page generation (default 'Sample')")
     parser.add_argument("--html-validation-name", default="",
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
+    parser.add_argument("--jobs", default=0, type=int,
+                        help="Number of jobs to run in parallel for generating plots. Default is 0 i.e. run number of cpu cores jobs.")
     parser.add_argument("--verbose", action="store_true",
                         help="Be verbose")
 
@@ -122,13 +129,13 @@ if __name__ == "__main__":
             parser.error("DQM file %s does not exist" % f)
 
     if opts.ignoreMissing:
-        print "--ignoreMissing is now the only operation mode, so you can stop using this parameter"
+        print("--ignoreMissing is now the only operation mode, so you can stop using this parameter")
 
     if opts.ratio:
-        print "--ratio is now the default, so you can stop using this parameter"
+        print("--ratio is now the default, so you can stop using this parameter")
 
     if opts.html:
-        print "--html is now the default, so you can stop using this parameter"
+        print("--html is now the default, so you can stop using this parameter")
 
     if opts.limit_tracking_algo is not None:
         if opts.limit_relval:
@@ -136,6 +143,6 @@ if __name__ == "__main__":
         opts.limit_tracking_algo = opts.limit_tracking_algo.split(",")
 
     if opts.limit_relval and opts.ptcut:
-        print "With --limit-relval enabled, --ptcut option does not have any effect"
+        print("With --limit-relval enabled, --ptcut option does not have any effect")
 
     main(opts)

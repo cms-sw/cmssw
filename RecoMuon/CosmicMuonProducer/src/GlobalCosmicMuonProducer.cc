@@ -21,7 +21,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
@@ -36,23 +35,23 @@
 //
 // constructors and destructor
 //
-GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iConfig)
-{
-
+GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iConfig) {
   edm::ParameterSet tbpar = iConfig.getParameter<edm::ParameterSet>("TrajectoryBuilderParameters");
-  theTrackCollectionToken =consumes<reco::TrackCollection>( iConfig.getParameter<edm::InputTag>("MuonCollectionLabel"));
+  theTrackCollectionToken = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("MuonCollectionLabel"));
 
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  
+
   // TrackLoader parameters
   edm::ParameterSet trackLoaderParameters = iConfig.getParameter<edm::ParameterSet>("TrackLoaderParameters");
-  
+
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
   edm::ConsumesCollector iC = consumesCollector();
-  theTrackFinder = new MuonTrackFinder(new GlobalCosmicMuonTrajectoryBuilder(tbpar,theService,iC),
-				       new MuonTrackLoader(trackLoaderParameters,iC, theService));
+  theTrackFinder = std::make_unique<MuonTrackFinder>(
+      std::make_unique<GlobalCosmicMuonTrajectoryBuilder>(tbpar, theService.get(), iC),
+      std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get()),
+      iC);
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -61,45 +60,34 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
   produces<TrajTrackAssociationCollection>();
 
   produces<reco::MuonTrackLinksCollection>();
-
 }
 
-
-GlobalCosmicMuonProducer::~GlobalCosmicMuonProducer()
-{
-  if (theService) delete theService;
-  if (theTrackFinder) delete theTrackFinder;
-}
-
+GlobalCosmicMuonProducer::~GlobalCosmicMuonProducer() {}
 
 // ------------ method called to produce the data  ------------
-void
-GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  const std::string metname = "Muon|RecoMuon|GlobalCosmicMuonProducer";  
-  LogTrace(metname)<<"Global Cosmic Muon Reconstruction started";  
-  
+void GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  const std::string metname = "Muon|RecoMuon|GlobalCosmicMuonProducer";
+  LogTrace(metname) << "Global Cosmic Muon Reconstruction started";
+
   edm::Handle<reco::TrackCollection> cosMuons;
-  iEvent.getByToken(theTrackCollectionToken,cosMuons);
+  iEvent.getByToken(theTrackCollectionToken, cosMuons);
   if (!cosMuons.isValid()) {
-    LogTrace(metname)<< "Muon Track collection is invalid!!!";
+    LogTrace(metname) << "Muon Track collection is invalid!!!";
     return;
   }
-  
+
   // Update the services
   theService->update(iSetup);
-  
+
   // Reconstruct the tracks in the tracker+muon system
-  LogTrace(metname)<<"Track Reconstruction";
+  LogTrace(metname) << "Track Reconstruction";
 
   std::vector<MuonTrajectoryBuilder::TrackCand> cosTrackCands;
-  for ( unsigned int position = 0; position != cosMuons->size(); ++position ) {
-    reco::TrackRef cosTrackRef(cosMuons,position);
-    MuonTrajectoryBuilder::TrackCand cosCand = MuonTrajectoryBuilder::TrackCand((Trajectory*)nullptr,cosTrackRef);
-    cosTrackCands.push_back(cosCand); 
+  for (unsigned int position = 0; position != cosMuons->size(); ++position) {
+    reco::TrackRef cosTrackRef(cosMuons, position);
+    MuonTrajectoryBuilder::TrackCand cosCand = MuonTrajectoryBuilder::TrackCand((Trajectory*)nullptr, cosTrackRef);
+    cosTrackCands.push_back(cosCand);
   }
-  theTrackFinder->reconstruct(cosTrackCands,iEvent,iSetup);
-  LogTrace(metname)<<"Event loaded";
-
+  theTrackFinder->reconstruct(cosTrackCands, iEvent, iSetup);
+  LogTrace(metname) << "Event loaded";
 }
-

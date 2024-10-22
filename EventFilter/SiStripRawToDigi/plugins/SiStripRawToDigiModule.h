@@ -4,14 +4,22 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "boost/cstdint.hpp"
+#include "FWCore/Utilities/interface/Visibility.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include <string>
+#include <cstdint>
 
-namespace sistrip { class RawToDigiModule; }
-namespace sistrip { class RawToDigiUnpacker; }
+namespace sistrip {
+  class RawToDigiModule;
+}
+namespace sistrip {
+  class RawToDigiUnpacker;
+}
 class SiStripFedCabling;
+class TrackerTopology;
 
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiModule.h
@@ -22,34 +30,32 @@ class SiStripFedCabling;
 */
 
 namespace sistrip {
-  
+
   class dso_hidden RawToDigiModule final : public edm::stream::EDProducer<> {
-    
   public:
-    
-    RawToDigiModule( const edm::ParameterSet& );
+    RawToDigiModule(const edm::ParameterSet&);
     ~RawToDigiModule() override;
-    
-    void beginRun( const edm::Run&, const edm::EventSetup& ) override;
-    void produce( edm::Event&, const edm::EventSetup& ) override;
-    
-  private: 
-    
-    void updateCabling( const edm::EventSetup& );
-    
+
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endStream() override;
+
+  private:
+    void updateCabling(const edm::EventSetup&);
+
     RawToDigiUnpacker* rawToDigi_;
     edm::EDGetTokenT<FEDRawDataCollection> token_;
-    const SiStripFedCabling* cabling_;
-    uint32_t cacheId_;
-    bool extractCm_;    
+    const SiStripFedCabling* cabling_ = nullptr;
+    bool extractCm_;
     bool doFullCorruptBufferChecks_;
 
     //March 2012: add flag for disabling APVe check in configuration
-    bool doAPVEmulatorCheck_; 
+    bool doAPVEmulatorCheck_;
 
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+    edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+    edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
   };
-  
-}
 
-#endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
+}  // namespace sistrip
 
+#endif  // EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H

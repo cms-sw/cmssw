@@ -3,42 +3,29 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
 #include <vector>
+#include <memory>
 #include <iostream>
 #include <cstdio>
 #include <cstring>
 #include <sstream>
-#include <iostream>
 #include <fstream>
 #include <string>
-#include <vector>
-#include <sstream>
 #include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TKey.h"
-#include "TObject.h"
-#include "TDirectory.h"
-#include "TMath.h"
-#include "TCanvas.h"
-#include "TStyle.h"
-#include "TClass.h"
 
 class SiStripHotStripAlgorithmFromClusterOccupancy;
 class SiStripBadAPVAlgorithmFromClusterOccupancy;
@@ -46,41 +33,35 @@ class SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy;
 class TrackerTopology;
 
 class SiStripQualityHotStripIdentifierRoot : public ConditionDBWriter<SiStripBadStrip> {
-
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
 
   explicit SiStripQualityHotStripIdentifierRoot(const edm::ParameterSet&);
   ~SiStripQualityHotStripIdentifierRoot() override;
 
 private:
-
   //Will be called at the beginning of each run in the job
-  void algoBeginRun(const edm::Run &, const edm::EventSetup &) override;
+  void algoBeginRun(const edm::Run&, const edm::EventSetup&) override;
   //Will be called at the beginning of each luminosity block in the run
-  void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override{  }
+  void algoBeginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override {}
   //Will be called at the end of the job
   void algoEndJob() override;
 
-
   //Will be called at every event
-  void algoAnalyze(const edm::Event&, const edm::EventSetup&) override{};
+  void algoAnalyze(const edm::Event&, const edm::EventSetup&) override {}
 
-  SiStripBadStrip* getNewObject() override;
+  std::unique_ptr<SiStripBadStrip> getNewObject() override;
 
   void bookHistos();
 
 private:
-  unsigned long long m_cacheID_;
-  std::string dataLabel_;
-  edm::ESHandle<SiStripQuality> SiStripQuality_;
   bool UseInputDB_;
   const edm::ParameterSet conf_;
-  edm::FileInPath fp_;
-  SiStripDetInfoFileReader* reader;
 
-  edm::ESHandle<TrackerGeometry> theTrackerGeom;
-  const TrackerGeometry* _tracker;
+  const TrackerGeometry* tracker_;
   const TrackerTopology* tTopo;
+  const SiStripQuality* SiStripQuality_;
 
   DQMStore* dqmStore_;
 
@@ -91,10 +72,14 @@ private:
   double MeanNumberOfCluster;
   uint32_t calibrationthreshold;
 
-  SiStrip::QualityHistosMap ClusterPositionHistoMap;
-  SiStripHotStripAlgorithmFromClusterOccupancy*          theIdentifier;
-  SiStripBadAPVAlgorithmFromClusterOccupancy*            theIdentifier2;
-  SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy* theIdentifier3;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
+  edm::ESWatcher<SiStripQualityRcd> stripQualityWatcher_;
 
+  SiStrip::QualityHistosMap ClusterPositionHistoMap;
+  SiStripHotStripAlgorithmFromClusterOccupancy* theIdentifier;
+  SiStripBadAPVAlgorithmFromClusterOccupancy* theIdentifier2;
+  SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy* theIdentifier3;
 };
 #endif

@@ -8,17 +8,24 @@
   <class name="edm::DetSetVector<TotemRPDigi>"/>
   <class name="edm::Wrapper<edm::DetSet<TotemRPDigi> >"/>
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPDigi> >"/>
-  
+
   <class name="TotemTriggerCounters" ClassVersion="2">
     <version ClassVersion="2" checksum="719923071"/>
   </class>
   <class name="edm::Wrapper<TotemTriggerCounters>"/>
 
-  <class name="TotemVFATStatus" ClassVersion="4">
-    <version ClassVersion="4" checksum="1562789855"/>
+  <class name="TotemVFATStatus" ClassVersion="5">
     <version ClassVersion="2" checksum="3003040825"/>
     <version ClassVersion="3" checksum="1439138260"/>
+    <version ClassVersion="4" checksum="1562789855"/>
+    <version ClassVersion="5" checksum="1998337285"/>
   </class>
+  <ioread sourceClass="TotemVFATStatus" version="[2-4]" targetClass="TotemVFATStatus" source="uint8_t chipPosition" target="chipPosition_">
+  <![CDATA[ chipPosition_ = onfile.chipPosition;]]>
+  </ioread>
+  <ioread sourceClass="TotemVFATStatus" version="[2-4]" targetClass="TotemVFATStatus" source="uint8_t numberOfClusters" target="numberOfClusters_">
+  <![CDATA[ numberOfClusters_ = onfile.numberOfClusters;]]>
+  </ioread>
   <class name="edm::DetSet<TotemVFATStatus>"/>
   <class name="std::vector<TotemVFATStatus>"/>
   <class name="std::vector<edm::DetSet<TotemVFATStatus> >"/>
@@ -28,17 +35,24 @@
 
   <class name="std::bitset<8>"/>
   <class name="edm::Wrapper<std::bitset<8> >"/>
-  
-  <class name="TotemFEDInfo" ClassVersion="2">
+
+  <class name="TotemFEDInfo" ClassVersion="3">
     <version ClassVersion="2" checksum="2844972317"/>
+    <version ClassVersion="3" checksum="3276964679"/>
   </class>
+  <ioread sourceClass="TotemFEDInfo" version="[2]" targetClass="TotemFEDInfo" source="int fedId" target="fedId_">
+  <![CDATA[ fedId_ = onfile.fedId;]]>
+  </ioread>
+  <ioread sourceClass="TotemFEDInfo" version="[2]" targetClass="TotemFEDInfo" source="uint32_t orbitCounter" target="orbitCounter_">
+  <![CDATA[ orbitCounter_ = onfile.orbitCounter;]]>
+  </ioread>
   <class name="std::vector<TotemFEDInfo>"/>
   <class name="edm::Wrapper<std::vector<TotemFEDInfo>>"/>
 
   <class name="CTPPSDiamondDigi" ClassVersion="3">
     <version ClassVersion="3" checksum="2494057280"/>
   </class>
-  
+
   <class name="edm::DetSet<CTPPSDiamondDigi>"/>
   <class name="std::vector<edm::DetSet<CTPPSDiamondDigi> >"/>
   <class name="std::vector<CTPPSDiamondDigi>"/>
@@ -46,10 +60,31 @@
   <class name="edm::Wrapper<edm::DetSet<CTPPSDiamondDigi> >"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondDigi> >"/>
 
+
+  <class name="TotemTimingDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="4151875064"/>
+  </class>
+  <class name="edm::DetSet<TotemTimingDigi>"/>
+  <class name="std::vector<edm::DetSet<TotemTimingDigi> >"/>
+  <class name="std::vector<TotemTimingDigi>"/>
+  <class name="edm::DetSetVector<TotemTimingDigi>"/>
+  <class name="edm::Wrapper<edm::DetSet<TotemTimingDigi> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemTimingDigi> >"/>
+
+  <class name="TotemTimingEventInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="3539649521"/>
+  </class>
+  <class name="edm::DetSet<TotemTimingEventInfo>"/>
+  <class name="std::vector<edm::DetSet<TotemTimingEventInfo> >"/>
+  <class name="std::vector<TotemTimingEventInfo>"/>
+  <class name="edm::DetSetVector<TotemTimingEventInfo>"/>
+  <class name="edm::Wrapper<edm::DetSet<TotemTimingEventInfo> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemTimingEventInfo> >"/>
+
   <class name="HPTDCErrorFlags" ClassVersion="3">
     <version ClassVersion="3" checksum="508529379"/>
   </class>
-  
+
   <class name="CTPPSPixelDigi" ClassVersion="3">
     <version ClassVersion="3" checksum="125589380"/>
   </class>

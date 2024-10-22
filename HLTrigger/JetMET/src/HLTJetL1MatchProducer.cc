@@ -1,108 +1,101 @@
-#include <string>
+#include <cmath>
+#include <memory>
 
-#include "HLTrigger/JetMET/interface/HLTJetL1MatchProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+#include "HLTrigger/JetMET/interface/HLTJetL1MatchProducer.h"
 
-template<typename T>
-HLTJetL1MatchProducer<T>::HLTJetL1MatchProducer(const edm::ParameterSet& iConfig)
-{
+template <typename T>
+HLTJetL1MatchProducer<T>::HLTJetL1MatchProducer(const edm::ParameterSet& iConfig) {
   jetsInput_ = iConfig.template getParameter<edm::InputTag>("jetsInput");
   L1TauJets_ = iConfig.template getParameter<edm::InputTag>("L1TauJets");
   L1CenJets_ = iConfig.template getParameter<edm::InputTag>("L1CenJets");
   L1ForJets_ = iConfig.template getParameter<edm::InputTag>("L1ForJets");
-  DeltaR_ = iConfig.template getParameter<double>("DeltaR");
+
+  // minimum delta-R^2 threshold with sign
+  auto const DeltaR = iConfig.template getParameter<double>("DeltaR");
+  DeltaR2_ = DeltaR * std::abs(DeltaR);
 
   typedef std::vector<T> TCollection;
   m_theJetToken = consumes<TCollection>(jetsInput_);
   m_theL1TauJetToken = consumes<l1extra::L1JetParticleCollection>(L1TauJets_);
   m_theL1CenJetToken = consumes<l1extra::L1JetParticleCollection>(L1CenJets_);
   m_theL1ForJetToken = consumes<l1extra::L1JetParticleCollection>(L1ForJets_);
-  produces<TCollection> ();
-
+  produces<TCollection>();
 }
 
-template<typename T>
-void HLTJetL1MatchProducer<T>::beginJob()
-{
+template <typename T>
+void HLTJetL1MatchProducer<T>::beginJob() {}
 
-}
-
-template<typename T>
+template <typename T>
 HLTJetL1MatchProducer<T>::~HLTJetL1MatchProducer() = default;
 
-template<typename T>
+template <typename T>
 void HLTJetL1MatchProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("jetsInput",edm::InputTag("hltAntiKT5PFJets"));
-  desc.add<edm::InputTag>("L1TauJets",edm::InputTag("hltL1extraParticles","Tau"));
-  desc.add<edm::InputTag>("L1CenJets",edm::InputTag("hltL1extraParticles","Central"));
-  desc.add<edm::InputTag>("L1ForJets",edm::InputTag("hltL1extraParticles","Forward"));
-  desc.add<double>("DeltaR",0.5);
+  desc.add<edm::InputTag>("jetsInput", edm::InputTag("hltAntiKT5PFJets"));
+  desc.add<edm::InputTag>("L1TauJets", edm::InputTag("hltL1extraParticles", "Tau"));
+  desc.add<edm::InputTag>("L1CenJets", edm::InputTag("hltL1extraParticles", "Central"));
+  desc.add<edm::InputTag>("L1ForJets", edm::InputTag("hltL1extraParticles", "Forward"));
+  desc.add<double>("DeltaR", 0.5);
   descriptions.add(defaultModuleLabel<HLTJetL1MatchProducer<T>>(), desc);
 }
 
-template<typename T>
-void HLTJetL1MatchProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+template <typename T>
+void HLTJetL1MatchProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  auto const& jets = iEvent.get(m_theJetToken);
 
-  typedef std::vector<T> TCollection;
+  auto result = std::make_unique<std::vector<T>>();
+  result->reserve(jets.size());
 
-  edm::Handle<TCollection> jets;
-  iEvent.getByToken(m_theJetToken, jets);
+  auto const& l1TauJets = iEvent.get(m_theL1TauJetToken);
+  auto const& l1CenJets = iEvent.get(m_theL1CenJetToken);
+  auto const& l1ForJets = iEvent.get(m_theL1ForJetToken);
 
-  std::unique_ptr<TCollection> result (new TCollection);
+  for (auto const& jet : jets) {
+    bool isMatched = false;
 
-
-  edm::Handle<l1extra::L1JetParticleCollection> l1TauJets;
-  iEvent.getByToken(m_theL1TauJetToken,l1TauJets);
-
-  edm::Handle<l1extra::L1JetParticleCollection> l1CenJets;
-  iEvent.getByToken(m_theL1CenJetToken,l1CenJets);
-
-  edm::Handle<l1extra::L1JetParticleCollection> l1ForJets;
-  iEvent.getByToken(m_theL1ForJetToken,l1ForJets);
-
-  typename TCollection::const_iterator jet_iter;
-  for (jet_iter = jets->begin(); jet_iter != jets->end(); ++jet_iter) {
-
-    bool isMatched=false;
-
-    //std::cout << "FL: l1TauJets.size  = " << l1TauJets->size() << std::endl;
-    for (unsigned int jetc=0;jetc<l1TauJets->size();++jetc)
-    {
-      const double deltaeta=jet_iter->eta()-(*l1TauJets)[jetc].eta();
-      const double deltaphi=deltaPhi(jet_iter->phi(),(*l1TauJets)[jetc].phi());
-      //std::cout << "FL: sqrt(2) = " << sqrt(2) << std::endl;
-      if (sqrt(deltaeta*deltaeta+deltaphi*deltaphi) < DeltaR_) isMatched=true;
+    for (auto const& l1t_obj : l1TauJets) {
+      if (reco::deltaR2(jet.eta(), jet.phi(), l1t_obj.eta(), l1t_obj.phi()) < DeltaR2_) {
+        isMatched = true;
+        break;
+      }
     }
 
-    for (unsigned int jetc=0;jetc<l1CenJets->size();++jetc)
-    {
-      const double deltaeta=jet_iter->eta()-(*l1CenJets)[jetc].eta();
-      const double deltaphi=deltaPhi(jet_iter->phi(),(*l1CenJets)[jetc].phi());
-      if (sqrt(deltaeta*deltaeta+deltaphi*deltaphi) < DeltaR_) isMatched=true;
+    if (isMatched) {
+      result->emplace_back(jet);
+      continue;
     }
 
-    for (unsigned int jetc=0;jetc<l1ForJets->size();++jetc)
-    {
-      const double deltaeta=jet_iter->eta()-(*l1ForJets)[jetc].eta();
-      const double deltaphi=deltaPhi(jet_iter->phi(),(*l1ForJets)[jetc].phi());
-      if (sqrt(deltaeta*deltaeta+deltaphi*deltaphi) < DeltaR_) isMatched=true;
+    for (auto const& l1t_obj : l1CenJets) {
+      if (reco::deltaR2(jet.eta(), jet.phi(), l1t_obj.eta(), l1t_obj.phi()) < DeltaR2_) {
+        isMatched = true;
+        break;
+      }
     }
 
+    if (isMatched) {
+      result->emplace_back(jet);
+      continue;
+    }
 
-    if (isMatched==true) result->push_back(*jet_iter);
+    for (auto const& l1t_obj : l1ForJets) {
+      if (reco::deltaR2(jet.eta(), jet.phi(), l1t_obj.eta(), l1t_obj.phi()) < DeltaR2_) {
+        isMatched = true;
+        break;
+      }
+    }
 
-  } // jet_iter
+    if (isMatched) {
+      result->emplace_back(jet);
+      continue;
+    }
+  }
 
   iEvent.put(std::move(result));
-
 }
-
-

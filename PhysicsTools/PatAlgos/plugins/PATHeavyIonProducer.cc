@@ -2,7 +2,7 @@
 //
 // Package:    PATHeavyIonProducer
 // Class:      PATHeavyIonProducer
-// 
+//
 /**\class PATHeavyIonProducer PATHeavyIonProducer.cc yetkin/PATHeavyIonProducer/src/PATHeavyIonProducer.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Thu Aug 13 08:39:51 EDT 2009
 //
 //
-
 
 // system include files
 #include <memory>
@@ -47,23 +46,21 @@ class PATHeavyIonProducer : public edm::global::EDProducer<> {
 public:
   explicit PATHeavyIonProducer(const edm::ParameterSet&);
   ~PATHeavyIonProducer() override;
-  
+
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   // ----------member data ---------------------------
-  
+
   const bool doMC_;
   const bool doReco_;
   const std::vector<std::string> hepmcSrc_;
   const edm::InputTag centSrc_;
   const edm::InputTag evtPlaneSrc_;
-
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -72,36 +69,27 @@ private:
 //
 // constructors and destructor
 //
-PATHeavyIonProducer::PATHeavyIonProducer(const edm::ParameterSet& iConfig) :
-  doMC_(iConfig.getParameter<bool>("doMC")),
-  doReco_(iConfig.getParameter<bool>("doReco")),
-  hepmcSrc_( doMC_ ? iConfig.getParameter<std::vector<std::string> >("generators") : std::vector<std::string>() ),
-  centSrc_( doReco_ ? iConfig.getParameter<edm::InputTag>("centrality") : edm::InputTag() ),
-  evtPlaneSrc_(doReco_ ? iConfig.getParameter<edm::InputTag>("evtPlane") : edm::InputTag() )
-{
-   //register your products
-   produces<pat::HeavyIon>();   
+PATHeavyIonProducer::PATHeavyIonProducer(const edm::ParameterSet& iConfig)
+    : doMC_(iConfig.getParameter<bool>("doMC")),
+      doReco_(iConfig.getParameter<bool>("doReco")),
+      hepmcSrc_(doMC_ ? iConfig.getParameter<std::vector<std::string> >("generators") : std::vector<std::string>()),
+      centSrc_(doReco_ ? iConfig.getParameter<edm::InputTag>("centrality") : edm::InputTag()),
+      evtPlaneSrc_(doReco_ ? iConfig.getParameter<edm::InputTag>("evtPlane") : edm::InputTag()) {
+  //register your products
+  produces<pat::HeavyIon>();
 }
 
-
-PATHeavyIonProducer::~PATHeavyIonProducer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+PATHeavyIonProducer::~PATHeavyIonProducer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-PATHeavyIonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-
-}
+void PATHeavyIonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PATHeavyIonProducer);

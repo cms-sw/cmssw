@@ -10,10 +10,11 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTB160XML_cfi')
-process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
-process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
-process.load('Geometry.CaloEventSetup.HGCalTopology_cfi')
-process.load('Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi')
+process.load('Geometry.HGCalTBCommonData.hgcalTBNumberingInitialization_cfi')
+process.load('Geometry.HGCalTBCommonData.hgcalTBParametersInitialization_cfi')
+process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
+process.load('Geometry.CaloEventSetup.HGCalTBTopology_cfi')
+process.load('Geometry.HGCalGeometry.HGCalTBGeometryESProducer_cfi')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('GeneratorInterface.Core.generatorSmeared_cfi')
@@ -91,7 +92,11 @@ process.VtxSmeared.MeanY  = 0.0
 process.VtxSmeared.SigmaY = 0.65
 process.VtxSmeared.MeanZ  = -3500.0
 process.VtxSmeared.SigmaZ = 0
-process.HGCalTBAnalyzer.DoRecHits = False
+process.HGCalTBAnalyzer.doRecHits = False
+process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
+                             'HGCSensitiveDetector',
+                             'HGCalTB1601SensitiveDetector',
+                             'HcalTB06BeamDetector']
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
@@ -108,7 +113,7 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
-for label, prod in process.producers_().iteritems():
+for label, prod in process.producers_().items():
         if prod.type_() == "OscarMTProducer":
             # ugly hack
             prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"

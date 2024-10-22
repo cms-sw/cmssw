@@ -7,21 +7,16 @@
 #include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"
 #include <vector>
 
-struct CombinedTauTagCalibration
-{
-  struct Entry
-  {
-   CombinedTauTagCategoryData category;
-   CalibratedHistogram histogram;
-  
+struct CombinedTauTagCalibration {
+  struct Entry {
+    CombinedTauTagCategoryData category;
+    CalibratedHistogram histogram;
+
+    COND_SERIALIZABLE;
+  };
+
+  std::vector<Entry> data;
+
   COND_SERIALIZABLE;
 };
-
- std::vector<Entry> data;
-  
-
- COND_SERIALIZABLE;
-};
-#endif //CombinedTauTagCalibration_h
-
-
+#endif  //CombinedTauTagCalibration_h

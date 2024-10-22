@@ -5,7 +5,7 @@ process = cms.Process("MyRawToDigi")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 
@@ -48,13 +48,18 @@ process.siPixelDigis.InputLabel = 'siPixelRawData'
 #process.siPixelDigis.InputLabel = 'source'
 #process.siPixelDigis.InputLabel = 'rawDataCollector'
 process.siPixelDigis.IncludeErrors = True
-process.siPixelDigis.Timing = False 
 #process.siPixelDigis.UseCablingTree = True 
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     debugModules = cms.untracked.vstring('siPixelDigis'),
-    destinations = cms.untracked.vstring('r2d'),
-    r2d = cms.untracked.PSet( threshold = cms.untracked.string('WARNING'))
+    files = cms.untracked.PSet(
+        r2d = cms.untracked.PSet(
+            threshold = cms.untracked.string('WARNING')
+        )
+    )
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

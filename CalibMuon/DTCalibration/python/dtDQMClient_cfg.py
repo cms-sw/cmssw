@@ -1,17 +1,17 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 class config: pass
 config.dqmAtRunEnd = False
 if config.dqmAtRunEnd: config.fileMode = 'FULLMERGE'
 else: config.fileMode = 'NOMERGE'
 
-process = cms.Process("DQMClient")
+process = cms.Process("DQMClient",eras.Run3)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = cms.untracked.vstring('')
-process.MessageLogger.destinations = cms.untracked.vstring('cerr')
-process.MessageLogger.categories.append('DTDQM')
-process.MessageLogger.categories.append('resolution')
+process.MessageLogger.DTDQM=dict()
+process.MessageLogger.resolution=dict()
 process.MessageLogger.cerr =  cms.untracked.PSet(
     threshold = cms.untracked.string('WARNING'),
     noLineBreaks = cms.untracked.bool(False),
@@ -27,8 +27,9 @@ process.options = cms.untracked.PSet(
     fileMode = cms.untracked.string(config.fileMode)
 )
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.GlobalTag.globaltag = ''
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run3_data']
 
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
@@ -52,7 +53,8 @@ process.eventInfoProvider = cms.EDFilter("EventCoordinatesSource",
     eventInfoFolder = cms.untracked.string('EventInfo/')
 )
 
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('CalibMuon/DTCalibration/data/QualityTests_ttrig.xml')
 )
@@ -75,17 +77,13 @@ process.resolutionTest.OutputMEsInRootFile = cms.bool(False)
 
 workflowName = '/Mu/Calibration-v1/DQM'
 if config.dqmAtRunEnd:
-    process.DQMStore.referenceFileName = ''
     process.dqmSaver.convention = 'Offline'
     process.dqmSaver.workflow = workflowName
-    process.DQMStore.collateHistograms = False
     process.EDMtoMEConverter.convertOnEndLumi = True
     process.EDMtoMEConverter.convertOnEndRun = True
 else:
-    process.DQMStore.referenceFileName = ''
     process.dqmSaver.convention = 'Offline'
     process.dqmSaver.workflow = workflowName
-    process.DQMStore.collateHistograms = True
     process.EDMtoMEConverter.convertOnEndLumi = True
     process.EDMtoMEConverter.convertOnEndRun = True
     process.dqmSaver.saveByRun = -1

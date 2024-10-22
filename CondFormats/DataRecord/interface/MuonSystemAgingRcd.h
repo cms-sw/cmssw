@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     MuonSystemAgingRcd
-// 
+//
 /**\class MuonSystemAgingRcd MuonSystemAgingRcd.h CondFormats/DataRecord/interface/MuonSystemAgingRcd.h
 
  Description: CondFormat implementing inefficiencies in muon stations to mimic aging effects 

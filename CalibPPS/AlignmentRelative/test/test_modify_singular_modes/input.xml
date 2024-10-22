@@ -1,0 +1,78 @@
+<!--
+Shifts in um, rotations in mrad.
+
+For more details see RPAlignmentCorrections::LoadXMLFile in
+TotemAlignment/RPDataFormats/src/RPAlignmentCorrectionsSequence.cc
+-->
+
+<xml DocumentType="AlignmentDescription">
+	<!-- pixel, RP 103 -->
+	<rp id="2031616000" sh_x="0" sh_y="+100" />
+	<!-- plane 0 --> <det id="2031616000" />
+	<!-- plane 1 --> <det id="2031681536" />
+	<!-- plane 2 --> <det id="2031747072" />
+	<!-- plane 3 --> <det id="2031812608" />
+	<!-- plane 4 --> <det id="2031878144" />
+	<!-- plane 5 --> <det id="2031943680" />
+
+	<!-- strip, RP 104  -->
+	<rp id="1998585856" sh_x="0" sh_y="+100" />
+	<!-- plane 0 --> <det id="1998585856" />
+	<!-- plane 1 --> <det id="1998618624" />
+	<!-- plane 2 --> <det id="1998651392" />
+	<!-- plane 3 --> <det id="1998684160" />
+	<!-- plane 4 --> <det id="1998716928" />
+	<!-- plane 5 --> <det id="1998749696" />
+	<!-- plane 6 --> <det id="1998782464" />
+	<!-- plane 7 --> <det id="1998815232" />
+	<!-- plane 8 --> <det id="1998848000" />
+	<!-- plane 9 --> <det id="1998880768" />
+
+	<!-- strip, RP 105 -->
+	<rp id="1999110144" sh_x="0" sh_y="+100" />
+	<!-- plane 0 --> <det id="1999110144" />
+	<!-- plane 1 --> <det id="1999142912" />
+	<!-- plane 2 --> <det id="1999175680" />
+	<!-- plane 3 --> <det id="1999208448" />
+	<!-- plane 4 --> <det id="1999241216" />
+	<!-- plane 5 --> <det id="1999273984" />
+	<!-- plane 6 --> <det id="1999306752" />
+	<!-- plane 7 --> <det id="1999339520" />
+	<!-- plane 8 --> <det id="1999372288" />
+	<!-- plane 9 --> <det id="1999405056" />
+
+	<!-- pixel, RP 123 -->
+	<rp id="2040004608" sh_x="0" sh_y="+100" />
+	<!-- plane 0 --> <det id="2040004608" />
+	<!-- plane 1 --> <det id="2040070144" />
+	<!-- plane 2 --> <det id="2040135680" />
+	<!-- plane 3 --> <det id="2040201216" />
+	<!-- plane 4 --> <det id="2040266752" />
+	<!-- plane 5 --> <det id="2040332288" />
+
+	<!-- strip, RP 124 -->
+	<rp id="2006974464" sh_x="0" sh_y="+100" />
+	<!-- plane 0 --> <det id="2006974464" />
+	<!-- plane 1 --> <det id="2007007232" />
+	<!-- plane 2 --> <det id="2007040000" />
+	<!-- plane 3 --> <det id="2007072768" />
+	<!-- plane 4 --> <det id="2007105536" />
+	<!-- plane 5 --> <det id="2007138304" />
+	<!-- plane 6 --> <det id="2007171072" />
+	<!-- plane 7 --> <det id="2007203840" />
+	<!-- plane 8 --> <det id="2007236608" />
+	<!-- plane 9 --> <det id="2007269376" />
+
+	<!-- strip, RP 125 -->
+	<rp id="2007498752" sh_x="0" sh_y="+100" />
+	<!-- plane 0 --> <det id="2007498752" />
+	<!-- plane 1 --> <det id="2007531520" />
+	<!-- plane 2 --> <det id="2007564288" />
+	<!-- plane 3 --> <det id="2007597056" />
+	<!-- plane 4 --> <det id="2007629824" />
+	<!-- plane 5 --> <det id="2007662592" />
+	<!-- plane 6 --> <det id="2007695360" />
+	<!-- plane 7 --> <det id="2007728128" />
+	<!-- plane 8 --> <det id="2007760896" />
+	<!-- plane 9 --> <det id="2007793664" />
+</xml>

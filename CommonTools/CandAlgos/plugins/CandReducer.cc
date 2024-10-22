@@ -16,21 +16,22 @@
  * $Id: CandReducer.cc,v 1.3 2009/09/27 22:26:55 hegner Exp $
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-class CandReducer : public edm::EDProducer {
+class CandReducer : public edm::global::EDProducer<> {
 public:
   /// constructor from parameter set
-  explicit CandReducer( const edm::ParameterSet& );
+  explicit CandReducer(const edm::ParameterSet&);
   /// destructor
-  ~CandReducer() override;
+  ~CandReducer() override = default;
+
 private:
   /// process one evevnt
-  void produce( edm::Event& evt, const edm::EventSetup& ) override;
+  void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   /// label of source candidate collection
-  edm::EDGetTokenT<reco::CandidateView> srcToken_;
+  const edm::EDGetTokenT<reco::CandidateView> srcToken_;
 };
 
 #include "FWCore/Framework/interface/Event.h"
@@ -41,25 +42,20 @@ private:
 using namespace reco;
 using namespace edm;
 
-CandReducer::CandReducer( const edm::ParameterSet& cfg ) :
-  srcToken_( consumes<reco::CandidateView>(cfg.getParameter<edm::InputTag>("src") ) ) {
+CandReducer::CandReducer(const edm::ParameterSet& cfg)
+    : srcToken_(consumes<reco::CandidateView>(cfg.getParameter<edm::InputTag>("src"))) {
   produces<CandidateCollection>();
 }
 
-CandReducer::~CandReducer() {
-}
-
-void CandReducer::produce( Event& evt, const EventSetup& ) {
-  Handle<reco::CandidateView> cands;
-  evt.getByToken( srcToken_, cands );
-  std::unique_ptr<CandidateCollection> comp( new CandidateCollection );
-  for( reco::CandidateView::const_iterator c = cands->begin(); c != cands->end(); ++c ) {
-    std::unique_ptr<Candidate> cand( new LeafCandidate( * c ) );
-    comp->push_back( cand.release() );
+void CandReducer::produce(edm::StreamID, edm::Event& evt, edm::EventSetup const&) const {
+  const Handle<reco::CandidateView> cands = evt.getHandle(srcToken_);
+  std::unique_ptr<CandidateCollection> comp(new CandidateCollection);
+  for (reco::CandidateView::const_iterator c = cands->begin(); c != cands->end(); ++c) {
+    std::unique_ptr<Candidate> cand(new LeafCandidate(*c));
+    comp->push_back(cand.release());
   }
   evt.put(std::move(comp));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-DEFINE_FWK_MODULE( CandReducer );
+DEFINE_FWK_MODULE(CandReducer);

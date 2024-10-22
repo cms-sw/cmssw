@@ -4,14 +4,13 @@
 #include <string>
 
 namespace gs {
-    std::string localFileURI(const char* filename);
+  std::string localFileURI(const char *filename);
 
-    std::string fileTail(const char* filename);
+  std::string fileTail(const char *filename);
 
-    std::string fileDirname(const char* filename);
+  std::string fileDirname(const char *filename);
 
-    std::string joinDir1WithName2(const char* fname1, const char* fname2);
-}
+  std::string joinDir1WithName2(const char *fname1, const char *fname2);
+}  // namespace gs
 
-#endif // GENERS_URIUTILS_HH_
-
+#endif  // GENERS_URIUTILS_HH_

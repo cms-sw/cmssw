@@ -2,8 +2,7 @@
 #include "GeneratorInterface/ExhumeInterface/interface/ExhumeHadronizer.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
-namespace gen
-{
+namespace gen {
   typedef edm::GeneratorFilter<gen::ExhumeHadronizer, gen::ExternalDecayDriver> ExhumeGeneratorFilter;
 }
 

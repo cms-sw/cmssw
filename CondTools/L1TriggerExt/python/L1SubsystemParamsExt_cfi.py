@@ -18,9 +18,9 @@ def initL1SubsystemsExt( tagBaseVec = [],
             key = cms.string(objectKey)
         ),
         cms.PSet(
-            record = cms.string('L1TGlobalPrescalesVetosO2ORcd'),
-            tag = cms.string('L1TGlobalPrescalesVetos_' + tagBaseVec[ L1CondEnumExt.L1TGlobalPrescalesVetos ]),
-            type = cms.string('L1TGlobalPrescalesVetos'),
+            record = cms.string('L1TGlobalPrescalesVetosFractO2ORcd'),
+            tag = cms.string('L1TGlobalPrescalesVetosFract_' + tagBaseVec[ L1CondEnumExt.L1TGlobalPrescalesVetosFract ]),
+            type = cms.string('L1TGlobalPrescalesVetosFract'),
             key = cms.string(objectKey)
         ),
         cms.PSet(
@@ -39,6 +39,12 @@ def initL1SubsystemsExt( tagBaseVec = [],
             record = cms.string('L1TMuonEndCapForestO2ORcd'),
             tag = cms.string('L1TMuonEndCapForest_' + tagBaseVec[ L1CondEnumExt.L1TMuonEndCapForest ]),
             type = cms.string('L1TMuonEndCapForest'),
+            key = cms.string(objectKey)
+        ),
+        cms.PSet(
+            record = cms.string('L1TMuonOverlapFwVersionO2ORcd'),
+            tag = cms.string('L1TMuonOverlapFwVersion_' + tagBaseVec[ L1CondEnumExt.L1TMuonOverlapFwVersion ]),
+            type = cms.string('L1TMuonOverlapFwVersion'),
             key = cms.string(objectKey)
         ),
         cms.PSet(

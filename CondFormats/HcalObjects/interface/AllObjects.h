@@ -18,6 +18,7 @@
 #include "CondFormats/HcalObjects/interface/HcalTimeCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalLUTCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCorrs.h"
+#include "CondFormats/HcalObjects/interface/HcalPFCuts.h"
 #include "CondFormats/HcalObjects/interface/HcalValidationCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
 #include "CondFormats/HcalObjects/interface/HcalDcsValues.h"
@@ -37,4 +38,5 @@
 #include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
 #include "CondFormats/HcalObjects/interface/HcalTPParameters.h"
 #include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
+#include "CondFormats/HcalObjects/interface/HcalPFCuts.h"
 #endif

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 
 
@@ -26,6 +27,14 @@ def setup(process, input_files, collection,
     process.AlignmentProducer.saveDeformationsToDB = False
 
 
+    # align calibrations to general settings
+    # --------------------------------------------------------------------------
+    for calib in process.AlignmentProducer.calibrations:
+        calib.saveToDB       = process.AlignmentProducer.saveToDB
+        calib.treeFile       = process.AlignmentProducer.algoConfig.treeFile
+        calib.mergeTreeFiles = process.AlignmentProducer.algoConfig.mergeTreeFiles
+
+
     # Track selection and refitting
     # --------------------------------------------------------------------------
     import Alignment.CommonAlignment.tools.trackselectionRefitting as trackRefitter
@@ -42,7 +51,7 @@ def setup(process, input_files, collection,
                       "ALCARECOTkAlCosmicsInCollisions"):
         process.load("Alignment.CommonAlignment.apvModeFilter_cfi")
         process.apvModeFilter.apvMode = "deco" if cosmics_deco_mode else "peak"
-        import helper
+        from . import helper
         helper.add_filter(process, process.apvModeFilter)
 
 

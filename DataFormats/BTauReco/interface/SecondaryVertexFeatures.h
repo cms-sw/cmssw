@@ -3,11 +3,13 @@
 
 namespace btagbtvdeep {
 
-class SecondaryVertexFeatures {
-
+  class SecondaryVertexFeatures {
   public:
-
     float pt;
+    float px;
+    float py;
+    float pz;
+    float ptrel;
     float mass;
 
     float deltaR;
@@ -19,12 +21,18 @@ class SecondaryVertexFeatures {
     float dxysig;
     float d3d;
     float d3dsig;
-    
+
     float costhetasvpv;
     float enratio;
 
-};
+    float etarel;
+    float phirel;
 
-}
+    float eta;
+    float phi;
+    float e;
+  };
 
-#endif //DataFormats_BTauReco_SecondaryVertexFeatures_h
+}  // namespace btagbtvdeep
+
+#endif  //DataFormats_BTauReco_SecondaryVertexFeatures_h

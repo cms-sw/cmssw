@@ -2,9 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CALIB")
 process.MessageLogger = cms.Service("MessageLogger",
-                                    out = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
-                                    destinations = cms.untracked.vstring('out')
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        out = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
+)
 
 process.source = cms.Source("EmptyIOVSource",
                             firstValue = cms.uint64(109574),
@@ -35,7 +41,6 @@ process.poolDBESSource = cms.ESSource(
                                       )
 
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.analysis = cms.EDAnalyzer("SiStripPlotGain")
 
 

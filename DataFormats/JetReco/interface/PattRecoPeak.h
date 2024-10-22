@@ -12,87 +12,90 @@
 #define DataFormats_JetReco_PattRecoPeak_h
 
 namespace reco {
-    template<class Real>
-    class PattRecoPeak
-    {
-    public:
-        inline PattRecoPeak()
-          : eta_(0),
-            phi_(0),
-            magnitude_(0),
-            speed_(-1),
-            magSpeed_(-5),
-            lifetime_(-1),
-            scale_(-1),
-            nearestD_(-1),
-            clusterRadius_(-1),
-	    clusterSeparation_(-1),
-	    splitTime_(-1),
-            mergeTime_(-1)
-        {
-            hessian_[0] = 0;
-            hessian_[1] = 0;
-            hessian_[2] = 0;
-        }
+  template <class Real>
+  class PattRecoPeak {
+  public:
+    inline PattRecoPeak()
+        : eta_(0),
+          phi_(0),
+          magnitude_(0),
+          speed_(-1),
+          magSpeed_(-5),
+          lifetime_(-1),
+          scale_(-1),
+          nearestD_(-1),
+          clusterRadius_(-1),
+          clusterSeparation_(-1),
+          splitTime_(-1),
+          mergeTime_(-1) {
+      hessian_[0] = 0;
+      hessian_[1] = 0;
+      hessian_[2] = 0;
+    }
 
-        inline PattRecoPeak(double eta, double phi, double mag,
-                            const double hessianIn[3], double driftSpeed,
-                            double magSpeed, double lifetime,
-                            double scale, double nearestDistance,
-                            double clusterRadius, double clusterSeparation,
-                            double splitT, double mergeT)
-          : eta_(eta),
-            phi_(phi),
-            magnitude_(mag),
-            speed_(driftSpeed),
-            magSpeed_(magSpeed),
-            lifetime_(lifetime),
-            scale_(scale),
-            nearestD_(nearestDistance),
-            clusterRadius_(clusterRadius),
-	    clusterSeparation_(clusterSeparation),
-	    splitTime_(splitT),
-	    mergeTime_(mergeT)
-        {
-            hessian_[0] = hessianIn[0];
-            hessian_[1] = hessianIn[1];
-            hessian_[2] = hessianIn[2];
-        }
+    inline PattRecoPeak(double eta,
+                        double phi,
+                        double mag,
+                        const double hessianIn[3],
+                        double driftSpeed,
+                        double magSpeed,
+                        double lifetime,
+                        double scale,
+                        double nearestDistance,
+                        double clusterRadius,
+                        double clusterSeparation,
+                        double splitT,
+                        double mergeT)
+        : eta_(eta),
+          phi_(phi),
+          magnitude_(mag),
+          speed_(driftSpeed),
+          magSpeed_(magSpeed),
+          lifetime_(lifetime),
+          scale_(scale),
+          nearestD_(nearestDistance),
+          clusterRadius_(clusterRadius),
+          clusterSeparation_(clusterSeparation),
+          splitTime_(splitT),
+          mergeTime_(mergeT) {
+      hessian_[0] = hessianIn[0];
+      hessian_[1] = hessianIn[1];
+      hessian_[2] = hessianIn[2];
+    }
 
-        inline Real eta() const {return eta_;}
-        inline Real phi() const {return phi_;}
-        inline Real magnitude() const {return magnitude_;}
-        inline Real driftSpeed() const {return speed_;}
-        inline Real magSpeed() const {return magSpeed_;}
-        inline Real lifetime() const {return lifetime_;}
-        inline Real splitTime() const {return splitTime_;}
-        inline Real mergeTime() const {return mergeTime_;}
-        inline Real scale() const {return scale_;}
-        inline Real nearestNeighborDistance() const {return nearestD_;}
-        inline Real clusterRadius() const {return clusterRadius_;}
-        inline Real clusterSeparation() const {return clusterSeparation_;}
-        inline void hessian(double hessianArray[3]) const
-        {
-            hessianArray[0] = hessian_[0];
-            hessianArray[1] = hessian_[1];
-            hessianArray[2] = hessian_[2];
-        }
+    inline Real eta() const { return eta_; }
+    inline Real phi() const { return phi_; }
+    inline Real magnitude() const { return magnitude_; }
+    inline Real driftSpeed() const { return speed_; }
+    inline Real magSpeed() const { return magSpeed_; }
+    inline Real lifetime() const { return lifetime_; }
+    inline Real splitTime() const { return splitTime_; }
+    inline Real mergeTime() const { return mergeTime_; }
+    inline Real scale() const { return scale_; }
+    inline Real nearestNeighborDistance() const { return nearestD_; }
+    inline Real clusterRadius() const { return clusterRadius_; }
+    inline Real clusterSeparation() const { return clusterSeparation_; }
+    inline void hessian(double hessianArray[3]) const {
+      hessianArray[0] = hessian_[0];
+      hessianArray[1] = hessian_[1];
+      hessianArray[2] = hessian_[2];
+    }
 
-    private:
-        Real eta_;
-        Real phi_;
-        Real magnitude_;
-        Real speed_;
-        Real magSpeed_;
-        Real lifetime_;
-        Real scale_;
-        Real nearestD_;
-        Real clusterRadius_;
-        Real clusterSeparation_;
-        Real hessian_[3];
-        Real splitTime_;
-        Real mergeTime_;
-    };
-}
+  private:
+    Real eta_;
+    Real phi_;
+    Real magnitude_;
+    Real speed_;
+    Real magSpeed_;
+    Real lifetime_;
+    Real scale_;
+    Real nearestD_;
+    Real clusterRadius_;
+    Real clusterSeparation_;
+    Real hessian_[3];
+    Real splitTime_;
+    Real mergeTime_;
+  };
+}  // namespace reco
 
-#endif // DataFormats_JetReco_PattRecoPeak_h
+#endif  // DataFormats_JetReco_PattRecoPeak_h

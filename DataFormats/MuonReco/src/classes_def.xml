@@ -8,7 +8,8 @@ not be used as version numbers. By convention, CMS will use 3 as the
 initial version number of a class which has never been stored before.
 -->
 <lcgdict>
-  <class name="reco::Muon" ClassVersion="19">
+  <class name="reco::Muon" ClassVersion="20">
+   <version ClassVersion="20" checksum="1015091642"/>
    <version ClassVersion="19" checksum="3201675353"/>
    <version ClassVersion="18" checksum="2257088106"/>
    <version ClassVersion="17" checksum="2296096670"/>
@@ -50,10 +51,16 @@ initial version number of a class which has never been stored before.
   <class name="edm::Wrapper<std::vector<reco::MuonTimeExtra> >"/>
   <class name="edm::Wrapper<reco::MuonTimeExtraMap>"/>
 
-  <class name="reco::MuonEnergy" ClassVersion="10">
+  <class name="reco::MuonEnergy" ClassVersion="11">
+   <version ClassVersion="11" checksum="1884744911"/>
    <version ClassVersion="10" checksum="1493325087"/>
   </class>
-  <class name="reco::MuonChamberMatch" ClassVersion="12">
+  <class name="reco::HcalMuonRecHit" ClassVersion="3">
+   <version ClassVersion="3" checksum="2031556424"/>
+  </class>
+  <class name="reco::MuonChamberMatch" ClassVersion="14">
+   <version ClassVersion="14" checksum="3579435038"/>
+   <version ClassVersion="13" checksum="2674954213"/>
    <version ClassVersion="12" checksum="2575855272"/>
    <version ClassVersion="11" checksum="541727491"/>
    <version ClassVersion="10" checksum="4050071853"/>
@@ -68,7 +75,12 @@ initial version number of a class which has never been stored before.
   <class name="std::vector<reco::MuonChamberMatch>"/>
   <class name="std::vector<reco::MuonSegmentMatch>"/>
   <class name="std::vector<reco::MuonRPCHitMatch>"/>
+  <class name="reco::MuonGEMHitMatch" ClassVersion="3">
+   <version ClassVersion="3" checksum="2026566570"/>
+  </class>
+  <class name="std::vector<reco::MuonGEMHitMatch>"/>
 
+  
   <class name="reco::MuonIsolation" ClassVersion="10">
    <version ClassVersion="10" checksum="2078425999"/>
   </class>
@@ -158,6 +170,12 @@ initial version number of a class which has never been stored before.
   </class>
   <class name="edm::Wrapper<edm::ValueMap<reco::MuonShower> >"/>
 
+  <class name="reco::MuonRecHitCluster" ClassVersion="3">
+    <version ClassVersion="3" checksum="2080298867"/>
+  </class>
+  <class name="std::vector<reco::MuonRecHitCluster>"/>
+  <class name="edm::Wrapper<std::vector<reco::MuonRecHitCluster>>"/>
+
   <class name="std::vector<reco::MuonRef>"/>
   <class name="std::vector<reco::MuonRef>::const_iterator"/>
   <class name="edm::ValueMap<reco::MuonRef>"/>
@@ -192,24 +210,6 @@ initial version number of a class which has never been stored before.
   <class name="edm::Wrapper<edm::Ptr<reco::Muon> >" />
   <class name="edm::PtrVector<reco::Muon>" />
   <class name="edm::Wrapper<edm::PtrVector<reco::Muon> >" />
-
-  <selection>
-    <class name="std::vector<EmulatedME0Segment>"/>
-    <class name="EmulatedME0Segment" ClassVersion="2">
-      <version ClassVersion="2" checksum="1065224607"/>
-    </class>
-    <class name="edm::Wrapper<std::vector<EmulatedME0Segment> >"/>
-    
-    <class name="edm::Ref<std::vector<EmulatedME0Segment>,EmulatedME0Segment,edm::refhelper::FindUsingAdvance<std::vector<EmulatedME0Segment>,EmulatedME0Segment> >"/>
-    
-    <class name="std::vector<reco::ME0Muon>"/>
-    <class name="reco::ME0Muon" ClassVersion="2">
-      <version ClassVersion="2" checksum="1314733101"/>
-    </class>
-    <class name="edm::Wrapper<std::vector<reco::ME0Muon> >"/>
-    
-    <class name="edm::Ref<std::vector<reco::ME0Muon>,reco::ME0Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::ME0Muon>,reco::ME0Muon> >"/>
-  </selection>
   
   <class name="reco::MuonSimInfo" ClassVersion="3">
    <version ClassVersion="3" checksum="2552652034"/>

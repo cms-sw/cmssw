@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Utilities
 // Class  :     TimingServiceBase
-// 
+//
 /**\class TimingServiceBase TimingServiceBase.h "TimingServiceBase.h"
 
  Description: Base class for Timing Services
@@ -19,19 +19,20 @@
 //
 
 // system include files
+#include <chrono>
 
 // user include files
 #include "FWCore/Utilities/interface/StreamID.h"
 
 // forward declarations
 namespace edm {
-  class TimingServiceBase
-  {
-    
+  class TimingServiceBase {
   public:
     TimingServiceBase();
+    TimingServiceBase(const TimingServiceBase&) = delete;                   // stop default
+    const TimingServiceBase& operator=(const TimingServiceBase&) = delete;  // stop default
     virtual ~TimingServiceBase();
-    
+
     // ---------- member functions ---------------------------
     ///Extra CPU time used by a job but not seen by cmsRun
     /// The value should be in seconds.
@@ -43,16 +44,12 @@ namespace edm {
     virtual double getTotalCPU() const = 0;
 
     static void jobStarted();
-    
-    static double jobStartTime() { return s_jobStartTime; }
-  private:
-    TimingServiceBase(const TimingServiceBase&) =delete; // stop default
-    
-    const TimingServiceBase& operator=(const TimingServiceBase&) =delete; // stop default
-    
-    static double s_jobStartTime;
-  };
-}
 
+    static std::chrono::steady_clock::time_point jobStartTime() { return s_jobStartTime; }
+
+  private:
+    static std::chrono::steady_clock::time_point s_jobStartTime;
+  };
+}  // namespace edm
 
 #endif

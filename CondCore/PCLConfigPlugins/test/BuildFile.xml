@@ -1,0 +1,5 @@
+<use name="CondCore/Utilities"/>
+<use name="FWCore/PluginManager"/>
+<use name="roothistpainter"/>
+<bin file="testAlignPCLThresholdsPayloadInspector.cpp" name="testAlignPCLThresholdsPayloadInspector">
+</bin>

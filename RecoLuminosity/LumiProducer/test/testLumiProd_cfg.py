@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-process.MessageLogger.categories.extend(["GetManyWithoutRegistration","GetByLabelWithoutRegistration"])
+
 _messageSettings = cms.untracked.PSet(
                 reportEvery = cms.untracked.int32(1),
-                            optionalPSet = cms.untracked.bool(True),
                             limit = cms.untracked.int32(10000000)
                         )
 process.MessageLogger.cerr.GetManyWithoutRegistration = _messageSettings

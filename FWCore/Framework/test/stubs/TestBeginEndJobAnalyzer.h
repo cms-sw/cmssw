@@ -4,7 +4,7 @@
 //
 // Package:     test
 // Class  :     TestBeginEndJobAnalyzer
-// 
+//
 /**\class TestBeginEndJobAnalyzer TestBeginEndJobAnalyzer.h Framework/test/interface/TestBeginEndJobAnalyzer.h
 
  Description: <one line class summary>
@@ -19,44 +19,38 @@
 //
 
 // system include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 // user include files
 
 // forward declarations
-class TestBeginEndJobAnalyzer : public edm::EDAnalyzer {
+class TestBeginEndJobAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
-   explicit TestBeginEndJobAnalyzer(const edm::ParameterSet&);
-   ~TestBeginEndJobAnalyzer();
-   
-   
-   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-   
-   virtual void beginJob() override;
-   virtual void endJob() override;
-   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  explicit TestBeginEndJobAnalyzer(const edm::ParameterSet&);
+  ~TestBeginEndJobAnalyzer();
 
-   
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-   struct Control {
-      bool beginJobCalled = false;
-      bool endJobCalled = false;
-      bool beginRunCalled = false;
-      bool endRunCalled = false;
-      bool beginLumiCalled = false;
-      bool endLumiCalled = false;
-      bool destructorCalled = false;
-   };
+  void beginJob() override;
+  void endJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-   static Control & control();
+  struct Control {
+    bool beginJobCalled = false;
+    bool endJobCalled = false;
+    bool beginRunCalled = false;
+    bool endRunCalled = false;
+    bool beginLumiCalled = false;
+    bool endLumiCalled = false;
+    bool destructorCalled = false;
+  };
 
+  static Control& control();
 
 private:
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 };
-
 
 #endif /* test_TestBeginEndJobAnalyzer_h */

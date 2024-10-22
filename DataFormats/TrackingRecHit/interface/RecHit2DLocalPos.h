@@ -5,27 +5,23 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
-
 class RecHit2DLocalPos : public TrackingRecHit {
 public:
-
   typedef GloballyPositioned<float>::LocalPoint LocalPoint;
-  
+
   RecHit2DLocalPos(DetId id) : TrackingRecHit(id) {}
-  RecHit2DLocalPos(TrackingRecHit::id_type id=0) : TrackingRecHit(id) {}
+  RecHit2DLocalPos(TrackingRecHit::id_type id = 0) : TrackingRecHit(id) {}
   ~RecHit2DLocalPos() override {}
-  
-  RecHit2DLocalPos * clone() const override = 0;
-  
+
+  RecHit2DLocalPos* clone() const override = 0;
+
   AlgebraicVector parameters() const override;
 
   AlgebraicSymMatrix parametersError() const override;
 
-  AlgebraicMatrix projectionMatrix() const override {
-    return theProjectionMatrix;
-  }
+  AlgebraicMatrix projectionMatrix() const override { return theProjectionMatrix; }
 
-  int dimension() const override { return 2;}
+  int dimension() const override { return 2; }
 
   LocalPoint localPosition() const override = 0;
 
@@ -36,7 +32,6 @@ public:
   std::vector<TrackingRecHit*> recHits() override;
 
 private:
-
   static const AlgebraicMatrix theProjectionMatrix;
 };
 

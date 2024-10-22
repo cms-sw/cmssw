@@ -1,0 +1,13 @@
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="SimG4Core/Geometry"/>
+<use name="SimG4Core/Notification"/>
+<use name="SimG4Core/Watcher"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/Records"/>
+<use name="geant4core"/>
+<use name="dd4hep"/>
+<use name="boost"/>
+<library file="*.cc" name="SimG4CorePrintGeomInfoPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

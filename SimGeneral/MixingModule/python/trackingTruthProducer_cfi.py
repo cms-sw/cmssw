@@ -46,10 +46,10 @@ fastSim.toModify(trackingParticles,
         muon = cms.VInputTag( cms.InputTag('MuonSimHits','MuonDTHits'),
                               cms.InputTag('MuonSimHits','MuonCSCHits'),
                               cms.InputTag('MuonSimHits','MuonRPCHits') ),
-        trackerAndPixel = cms.VInputTag( cms.InputTag('famosSimHits','TrackerHits') )
+        trackerAndPixel = cms.VInputTag( cms.InputTag('fastSimProducer','TrackerHits') )
     ),
-    simTrackCollection = 'famosSimHits',
-    simVertexCollection = 'famosSimHits'
+    simTrackCollection = 'fastSimProducer',
+    simVertexCollection = 'fastSimProducer'
 )
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
@@ -63,6 +63,11 @@ run3_GEM.toModify(trackingParticles, simHitCollections = dict(
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( trackingParticles, simHitCollections = dict(
         muon = trackingParticles.simHitCollections.muon+[cms.InputTag("g4SimHits","MuonME0Hits")]))
+
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toModify( trackingParticles, simHitCollections = dict(
+        muon = list(filter(lambda x: x != cms.InputTag("g4SimHits","MuonME0Hits"),
+                           trackingParticles.simHitCollections.muon))))
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify( trackingParticles, simHitCollections = dict( tracker = []) )

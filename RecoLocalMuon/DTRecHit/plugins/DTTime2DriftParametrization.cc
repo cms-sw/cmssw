@@ -15,250 +15,265 @@
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
 
-DTTime2DriftParametrization::DTTime2DriftParametrization(){}
+DTTime2DriftParametrization::DTTime2DriftParametrization() {}
 
-DTTime2DriftParametrization::~DTTime2DriftParametrization(){}
+DTTime2DriftParametrization::~DTTime2DriftParametrization() {}
 
-
-
-bool DTTime2DriftParametrization::computeDriftDistance_mode(double time,
-							    double alpha,
-							    double by,
-							    double bz,
-							    short interpolate,
-							    drift_distance* dx) const {
+bool DTTime2DriftParametrization::computeDriftDistance_mode(
+    double time, double alpha, double by, double bz, short interpolate, drift_distance *dx) const {
   // NOTE: This method takes care of convertion of the units in order to use the CMSSW conventions
 
   // The convention used by the parametrization for the reference frame are different
   // with respect to CMSSW
-  // X_par = X_CMSSW; Y_par=Z_CMSSW; Z_par = -Y_CMSSW 
-  float By_par = bz;  // Bnorm
-  float Bz_par = -by; // Bwire
- 
-  // Express alpha in degrees 
-  float alpha_par = alpha * 180./Geom::pi();
+  // X_par = X_CMSSW; Y_par=Z_CMSSW; Z_par = -Y_CMSSW
+  float By_par = bz;   // Bnorm
+  float Bz_par = -by;  // Bwire
+
+  // Express alpha in degrees
+  float alpha_par = alpha * 180. / Geom::pi();
 
   //--------------------------------------------------------------------
   // Calculate the drift distance and the resolution from the parametrization
-  unsigned short flag =
-    MB_DT_drift_distance(time, alpha_par, By_par, Bz_par, dx, interpolate);
+  unsigned short flag = MB_DT_drift_distance(time, alpha_par, By_par, Bz_par, dx, interpolate);
 
-  if(flag!=1)
+  if (flag != 1)
     return false;
 
   // Convert from mm (used by the parametrization) to cm (used by CMSSW)
-  dx->v_drift = dx->v_drift/10.;
-  dx->x_drift = dx->x_drift/10.;
-  dx->delta_x = dx->delta_x/10.;
-  dx->x_width_m = dx->x_width_m/10.;
-  dx->x_width_p = dx->x_width_p/10.;
+  dx->v_drift = dx->v_drift / 10.;
+  dx->x_drift = dx->x_drift / 10.;
+  dx->delta_x = dx->delta_x / 10.;
+  dx->x_width_m = dx->x_width_m / 10.;
+  dx->x_width_p = dx->x_width_p / 10.;
 
   return true;
+}
 
- }
-
-
-bool DTTime2DriftParametrization::computeDriftDistance_mean(double time,
-							    double alpha,
-							    double by,
-							    double bz,
-							    short interpolate,
-							    drift_distance* dx) const {
+bool DTTime2DriftParametrization::computeDriftDistance_mean(
+    double time, double alpha, double by, double bz, short interpolate, drift_distance *dx) const {
   // NOTE: This method takes care of convertion of the units in order to use the CMSSW conventions
 
   // The convention used by the parametrization for the reference frame are different
   // with respect to CMSSW
-  // X_par = X_CMSSW; Y_par=Z_CMSSW; Z_par = -Y_CMSSW 
-  float By_par = bz;  // Bnorm
-  float Bz_par = -by; // Bwire
- 
+  // X_par = X_CMSSW; Y_par=Z_CMSSW; Z_par = -Y_CMSSW
+  float By_par = bz;   // Bnorm
+  float Bz_par = -by;  // Bwire
+
   // Express alpha in degrees
-  float alpha_par = alpha * 180./Geom::pi();
+  float alpha_par = alpha * 180. / Geom::pi();
 
   //--------------------------------------------------------------------
   // Calculate the drift distance and the resolution from the parametrization
-  unsigned short flag =
-    MB_DT_drift_distance(time, alpha_par, By_par, Bz_par, dx, interpolate);
+  unsigned short flag = MB_DT_drift_distance(time, alpha_par, By_par, Bz_par, dx, interpolate);
 
-  if(flag!=1)
+  if (flag != 1)
     return false;
 
   // Convert from mm (used by the parametrization) to cm (used by CMSSW)
-  dx->v_drift = dx->v_drift/10.;
-  dx->x_drift = dx->x_drift/10.;
-  dx->delta_x = dx->delta_x/10.;
-  dx->x_width_m = dx->x_width_m/10.;
-  dx->x_width_p = dx->x_width_p/10.;
+  dx->v_drift = dx->v_drift / 10.;
+  dx->x_drift = dx->x_drift / 10.;
+  dx->delta_x = dx->delta_x / 10.;
+  dx->x_width_m = dx->x_width_m / 10.;
+  dx->x_width_p = dx->x_width_p / 10.;
 
   // Correct drift time for the difference between mode and mean
-  dx->x_drift = std::max(0.,dx->x_drift - (dx->x_width_p-dx->x_width_m)*sqrt(2./Geom::pi()));
+  dx->x_drift = std::max(0., dx->x_drift - (dx->x_width_p - dx->x_width_m) * sqrt(2. / Geom::pi()));
 
   return true;
-
- }
-
-unsigned short DTTime2DriftParametrization::MB_DT_drift_distance (double time,
-								  double alpha,
-								  double by,
-								  double bz,
-								  drift_distance *DX,
-								  short interpolate) const {
-      unsigned short i, j, n_func, ial, iby, ibz;
-      unsigned short i_alpha, i_By, i_Bz;
-      unsigned short j_alpha, j_By, j_Bz;
-
-      double OffSet;
-      double par_x[N_Par_x];
-      double par_sigma_t[N_Sigma_t];
-
-      double V_al[3], V_by[3], V_bz[3];
-
-      double DXV_v_drift  [N_Func];
-      double DXV_x_drift  [N_Func];
-      double DXV_delta_x  [N_Func];
-      double DXV_x_width_m[N_Func];
-      double DXV_x_width_p[N_Func];
-
-      DX->v_drift   = -1;
-      DX->x_drift   = -1;
-      DX->delta_x   = -1;
-      DX->x_width_m = -1;
-      DX->x_width_p = -1;
-
-/* Check 'interpolate' and initialize DXV */
-
-      switch(interpolate) {
-         case 1:  n_func = N_Func;
-                  for ( j=0 ; j<N_Func ; j++ ) {
-                     DXV_v_drift[j]   = -1;
-                     DXV_x_drift[j]   = -1;
-                     DXV_delta_x[j]   = -1;
-                     DXV_x_width_m[j] = -1;
-                     DXV_x_width_p[j] = -1;
-                  }
-                  break ;
-
-         case 0:  n_func = 1;
-                  break ;
-
-         default: printf ("*** ERROR, MB_DT_drift_distance:  invalid interpolate value = %d\n",interpolate);
-                  return (0);
-      }
-
-#ifdef MB_DT_DEBUG
-
-/* Dump input values */
-
-      printf ("\nMB_DT_drift_distance:  Function called with values:\n\n");
-      printf ("MB_DT_drift_distance:    time  = %f\n",time );
-      printf ("MB_DT_drift_distance:    alpha = %f\n",alpha);
-      printf ("MB_DT_drift_distance:    by    = %f\n",by   );
-      printf ("MB_DT_drift_distance:    bz    = %f\n",bz   );
-
-#endif
-
-/* Take into account the symmetries of the parametrisations */
-
-      by = fabs(by);         //  f-1 (By) = f-1 (-By)
-
-      if ( bz < 0 ) {        //  f-1 (alpha,Bz) = f-1 (-alpha, -Bz)
-         bz    = -bz;
-         alpha = -alpha;
-      }
-
-/* Check boundaries of the variables and take the closest values */
-
-      MB_DT_Check_boundaries (time, alpha, by, bz, -1) ;
-
-      MB_DT_Get_grid_points (alpha, by, bz, &i_alpha, &i_By, &i_Bz, &j_alpha, &j_By, &j_Bz) ;
-
-#ifdef MB_DT_DEBUG
-      printf("MB_DT_drift_distance:\n");
-      printf("MB_DT_drift_distance:  i_alpha j_alpha alpha_value's %d %d %.0f %.0f\n",i_alpha,j_alpha,alpha_value[i_alpha],alpha_value[j_alpha]);
-      printf("MB_DT_drift_distance:  i_By    j_By    By_value's    %d %d %.2f %.2f\n",i_By   ,j_By   ,   By_value[i_By]   ,   By_value[j_By]);
-      printf("MB_DT_drift_distance:  i_Bz    j_Bz    Bz_value's    %d %d %.2f %.2f\n",i_Bz   ,j_Bz   ,   Bz_value[i_Bz]   ,   Bz_value[j_Bz]);
-#endif
-
-/* Get the parametrisations for the different grid points */
-
-      for ( j=0 ; j<n_func ; j++ ) {
-
-         ial = (j&4) ? j_alpha : i_alpha;
-         iby = (j&2) ? j_By    : i_By   ;
-         ibz = (j&1) ? j_Bz    : i_Bz   ;
-
-         for ( i=0 ; i<N_Par_x   ; i++ ) par_x[i]       =       fun_x[ial][iby][ibz][i];
-         for ( i=0 ; i<N_Sigma_t ; i++ ) par_sigma_t[i] = fun_sigma_t[ial][iby][ibz][i];
-
-         OffSet = par_x[N_Par_x-1];
-
-         DXV_v_drift[j]   = par_x[0];                                                       // drift velocity
-         DXV_delta_x[j]   = MB_DT_delta_x (time, par_x);                                    // deviation from linearity
-         DXV_x_drift[j]   = MB_DT_dist (time, par_x) + DXV_delta_x[j] - OffSet*par_x[0];    // drift distance to the wire (signed)
-         DXV_x_width_m[j] = MB_DT_sigma_t_m (DXV_x_drift[j], par_sigma_t) * DXV_v_drift[j]; // distance width ~ vd * sigma_t(x)  (minus, left)
-         DXV_x_width_p[j] = MB_DT_sigma_t_p (DXV_x_drift[j], par_sigma_t) * DXV_v_drift[j]; // distance width ~ vd * sigma_t(x)  (plus, right)
-
-#ifdef MB_DT_DEBUG
-         printf("MB_DT_drift_LOOP: OffSet = %f\n",OffSet);
-         printf("MB_DT_drift_LOOP: time, v_drift, x_drift, lin, x_width_m, x_width_p = %f %f %f %f %f %f\n",
-                                   time, DXV_v_drift[j], DXV_x_drift[j], DXV_delta_x[j], DXV_x_width_m[j], DXV_x_width_p[j]) ;
-#endif
-      }
-
-/* Return interpolated or grid values */
-
-      if ( interpolate == 0 ) {
-
-         DX->v_drift   = DXV_v_drift[0];
-         DX->delta_x   = DXV_delta_x[0];
-         DX->x_drift   = DXV_x_drift[0];
-         DX->x_width_m = DXV_x_width_m[0];
-         DX->x_width_p = DXV_x_width_p[0];
-      }
-      else {
-
-         V_al[0] = alpha ; V_al[1] = alpha_value[i_alpha] ; V_al[2] = alpha_value[j_alpha];
-         V_by[0] = by    ; V_by[1] =    By_value[i_By]    ; V_by[2] =    By_value[j_By];
-         V_bz[0] = bz    ; V_bz[1] =    Bz_value[i_Bz]    ; V_bz[2] =    Bz_value[j_Bz];
-
-         DX->v_drift   = MB_DT_MLInterpolation (V_al, V_by, V_bz, DXV_v_drift  );
-         DX->delta_x   = MB_DT_MLInterpolation (V_al, V_by, V_bz, DXV_delta_x  );
-         DX->x_drift   = MB_DT_MLInterpolation (V_al, V_by, V_bz, DXV_x_drift  );
-         DX->x_width_m = MB_DT_MLInterpolation (V_al, V_by, V_bz, DXV_x_width_m);
-         DX->x_width_p = MB_DT_MLInterpolation (V_al, V_by, V_bz, DXV_x_width_p);
-      }
-
-#ifdef MB_DT_DEBUG
-      printf("MB_DT_drift_distance: time, v_drift, x_drift, lin, x_width_m, x_width_p = %f %f %f %f %f %f\n",
-                                    time, DX->v_drift, DX->x_drift, DX->delta_x, DX->x_width_m, DX->x_width_p) ;
-#endif
-
-      return (1);
 }
 
+unsigned short DTTime2DriftParametrization::MB_DT_drift_distance(
+    double time, double alpha, double by, double bz, drift_distance *DX, short interpolate) const {
+  unsigned short i, j, n_func, ial, iby, ibz;
+  unsigned short i_alpha, i_By, i_Bz;
+  unsigned short j_alpha, j_By, j_Bz;
 
-double DTTime2DriftParametrization::MB_DT_delta_x (double t, double *par) const {
-      double t2 = t*t;
+  double OffSet;
+  double par_x[N_Par_x];
+  double par_sigma_t[N_Sigma_t];
+
+  double V_al[3], V_by[3], V_bz[3];
+
+  double DXV_v_drift[N_Func];
+  double DXV_x_drift[N_Func];
+  double DXV_delta_x[N_Func];
+  double DXV_x_width_m[N_Func];
+  double DXV_x_width_p[N_Func];
+
+  DX->v_drift = -1;
+  DX->x_drift = -1;
+  DX->delta_x = -1;
+  DX->x_width_m = -1;
+  DX->x_width_p = -1;
+
+  /* Check 'interpolate' and initialize DXV */
+
+  switch (interpolate) {
+    case 1:
+      n_func = N_Func;
+      for (j = 0; j < N_Func; j++) {
+        DXV_v_drift[j] = -1;
+        DXV_x_drift[j] = -1;
+        DXV_delta_x[j] = -1;
+        DXV_x_width_m[j] = -1;
+        DXV_x_width_p[j] = -1;
+      }
+      break;
+
+    case 0:
+      n_func = 1;
+      break;
+
+    default:
+      printf("*** ERROR, MB_DT_drift_distance:  invalid interpolate value = %d\n", interpolate);
+      return (0);
+  }
 
 #ifdef MB_DT_DEBUG
-      printf("MB_DT_delta_x:  time = %f\n",t);
+
+  /* Dump input values */
+
+  printf("\nMB_DT_drift_distance:  Function called with values:\n\n");
+  printf("MB_DT_drift_distance:    time  = %f\n", time);
+  printf("MB_DT_drift_distance:    alpha = %f\n", alpha);
+  printf("MB_DT_drift_distance:    by    = %f\n", by);
+  printf("MB_DT_drift_distance:    bz    = %f\n", bz);
+
 #endif
 
-//
-// Now distances are in microns. Divide by 1000 to get mm.
-//
-      if ( t <= par[12] ) { return ( -0.001 * (par[1] + par[2] *t + par[3] *t2) ); }
-      if ( t <= par[13] ) { return ( -0.001 * (par[4] + par[5] *t + par[6] *t2 + par[7]*t2*t + par[8]*t2*t2) ); }
-                            return ( -0.001 * (par[9] + par[10]*t + par[11]*t2) );
+  /* Take into account the symmetries of the parametrisations */
+
+  by = fabs(by);  //  f-1 (By) = f-1 (-By)
+
+  if (bz < 0) {  //  f-1 (alpha,Bz) = f-1 (-alpha, -Bz)
+    bz = -bz;
+    alpha = -alpha;
+  }
+
+  /* Check boundaries of the variables and take the closest values */
+
+  MB_DT_Check_boundaries(time, alpha, by, bz, -1);
+
+  MB_DT_Get_grid_points(alpha, by, bz, &i_alpha, &i_By, &i_Bz, &j_alpha, &j_By, &j_Bz);
+
+#ifdef MB_DT_DEBUG
+  printf("MB_DT_drift_distance:\n");
+  printf("MB_DT_drift_distance:  i_alpha j_alpha alpha_value's %d %d %.0f %.0f\n",
+         i_alpha,
+         j_alpha,
+         alpha_value[i_alpha],
+         alpha_value[j_alpha]);
+  printf("MB_DT_drift_distance:  i_By    j_By    By_value's    %d %d %.2f %.2f\n",
+         i_By,
+         j_By,
+         By_value[i_By],
+         By_value[j_By]);
+  printf("MB_DT_drift_distance:  i_Bz    j_Bz    Bz_value's    %d %d %.2f %.2f\n",
+         i_Bz,
+         j_Bz,
+         Bz_value[i_Bz],
+         Bz_value[j_Bz]);
+#endif
+
+  /* Get the parametrisations for the different grid points */
+
+  for (j = 0; j < n_func; j++) {
+    ial = (j & 4) ? j_alpha : i_alpha;
+    iby = (j & 2) ? j_By : i_By;
+    ibz = (j & 1) ? j_Bz : i_Bz;
+
+    for (i = 0; i < N_Par_x; i++)
+      par_x[i] = fun_x[ial][iby][ibz][i];
+    for (i = 0; i < N_Sigma_t; i++)
+      par_sigma_t[i] = fun_sigma_t[ial][iby][ibz][i];
+
+    OffSet = par_x[N_Par_x - 1];
+
+    DXV_v_drift[j] = par_x[0];                    // drift velocity
+    DXV_delta_x[j] = MB_DT_delta_x(time, par_x);  // deviation from linearity
+    // drift distance to the wire (signed)
+    DXV_x_drift[j] = MB_DT_dist(time, par_x) + DXV_delta_x[j] - OffSet * par_x[0];
+    // distance width ~ vd * sigma_t(x)  (minus, left)
+    DXV_x_width_m[j] = MB_DT_sigma_t_m(DXV_x_drift[j], par_sigma_t) * DXV_v_drift[j];
+    // distance width ~ vd * sigma_t(x)  (plus, right)
+    DXV_x_width_p[j] = MB_DT_sigma_t_p(DXV_x_drift[j], par_sigma_t) * DXV_v_drift[j];
+
+#ifdef MB_DT_DEBUG
+    printf("MB_DT_drift_LOOP: OffSet = %f\n", OffSet);
+    printf("MB_DT_drift_LOOP: time, v_drift, x_drift, lin, x_width_m, x_width_p = %f %f %f %f %f %f\n",
+           time,
+           DXV_v_drift[j],
+           DXV_x_drift[j],
+           DXV_delta_x[j],
+           DXV_x_width_m[j],
+           DXV_x_width_p[j]);
+#endif
+  }
+
+  /* Return interpolated or grid values */
+
+  if (interpolate == 0) {
+    DX->v_drift = DXV_v_drift[0];
+    DX->delta_x = DXV_delta_x[0];
+    DX->x_drift = DXV_x_drift[0];
+    DX->x_width_m = DXV_x_width_m[0];
+    DX->x_width_p = DXV_x_width_p[0];
+  } else {
+    V_al[0] = alpha;
+    V_al[1] = alpha_value[i_alpha];
+    V_al[2] = alpha_value[j_alpha];
+    V_by[0] = by;
+    V_by[1] = By_value[i_By];
+    V_by[2] = By_value[j_By];
+    V_bz[0] = bz;
+    V_bz[1] = Bz_value[i_Bz];
+    V_bz[2] = Bz_value[j_Bz];
+
+    DX->v_drift = MB_DT_MLInterpolation(V_al, V_by, V_bz, DXV_v_drift);
+    DX->delta_x = MB_DT_MLInterpolation(V_al, V_by, V_bz, DXV_delta_x);
+    DX->x_drift = MB_DT_MLInterpolation(V_al, V_by, V_bz, DXV_x_drift);
+    DX->x_width_m = MB_DT_MLInterpolation(V_al, V_by, V_bz, DXV_x_width_m);
+    DX->x_width_p = MB_DT_MLInterpolation(V_al, V_by, V_bz, DXV_x_width_p);
+  }
+
+#ifdef MB_DT_DEBUG
+  printf("MB_DT_drift_distance: time, v_drift, x_drift, lin, x_width_m, x_width_p = %f %f %f %f %f %f\n",
+         time,
+         DX->v_drift,
+         DX->x_drift,
+         DX->delta_x,
+         DX->x_width_m,
+         DX->x_width_p);
+#endif
+
+  return (1);
 }
 
+double DTTime2DriftParametrization::MB_DT_delta_x(double t, double *par) const {
+  double t2 = t * t;
 
-double DTTime2DriftParametrization::MB_DT_dist (double time, double *par) const {
-      return ( time * par[0] );        // par[0] is the drift velocity, 'dist' is the linear part of the drift distance
+#ifdef MB_DT_DEBUG
+  printf("MB_DT_delta_x:  time = %f\n", t);
+#endif
+
+  //
+  // Now distances are in microns. Divide by 1000 to get mm.
+  //
+  if (t <= par[12]) {
+    return (-0.001 * (par[1] + par[2] * t + par[3] * t2));
+  }
+  if (t <= par[13]) {
+    return (-0.001 * (par[4] + par[5] * t + par[6] * t2 + par[7] * t2 * t + par[8] * t2 * t2));
+  }
+  return (-0.001 * (par[9] + par[10] * t + par[11] * t2));
 }
 
+double DTTime2DriftParametrization::MB_DT_dist(double time, double *par) const {
+  return (time * par[0]);  // par[0] is the drift velocity, 'dist' is the linear part of the drift distance
+}
 
 /*** Parameter values ***/
+// clang-format off
 const double DTTime2DriftParametrization::fun_x[N_alpha][N_By][N_Bz][N_Par_x] = {
   {
     {
@@ -668,3 +683,4 @@ const double DTTime2DriftParametrization::fun_x[N_alpha][N_By][N_Bz][N_Par_x] = 
     }
   }
 };
+// clang-format on

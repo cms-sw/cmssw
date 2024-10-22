@@ -1,0 +1,23 @@
+Runnumber 306171
+BeginTimeOfFit 2017.11.07 05:54:26 GMT 1510034066
+EndTimeOfFit 2017.11.07 05:56:12 GMT 1510034172
+LumiRange 497 - 497
+Type 2
+X0 0.0820524
+Y0 -0.029357
+Z0 0.975028
+sigmaZ0 3.71505
+dxdz 4.96284e-05
+dydz 4.20814e-05
+BeamWidthX 0.00307016
+BeamWidthY 0.00317594    
+Cov(0,j) 4.79157e-09 -1.43662e-10 0 0 0 0 0     
+Cov(1,j) -1.43662e-10 4.934e-09 0 0 0 0 0 
+Cov(2,j) 0 0 0.00818113 0 0 0 0 
+Cov(3,j) 0 0 0 0.00409049 0 0 0 
+Cov(4,j) 0 0 0 0 3.14283e-10 -1.12097e-11 0 
+Cov(5,j) 0 0 0 0 -1.12097e-11 3.3278e-10 0 
+Cov(6,j) 0 0 0 0 0 0 1.12526e-08
+EmittanceX 0
+EmittanceY 0
+BetaStar 0

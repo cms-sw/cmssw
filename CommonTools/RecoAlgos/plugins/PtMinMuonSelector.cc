@@ -11,9 +11,6 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
- typedef SingleObjectSelector<
-           reco::MuonCollection, 
-           PtMinSelector
-         > PtMinMuonSelector;
+typedef SingleObjectSelector<reco::MuonCollection, PtMinSelector> PtMinMuonSelector;
 
-DEFINE_FWK_MODULE( PtMinMuonSelector );
+DEFINE_FWK_MODULE(PtMinMuonSelector);

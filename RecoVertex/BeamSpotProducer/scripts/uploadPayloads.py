@@ -1,5 +1,6 @@
-#!/usr/bin/env python
-import sys,os,commands
+#!/usr/bin/env python3
+from __future__ import print_function
+import sys,os,subprocess
 from CommonMethods import *
 
 class FileObj:
@@ -13,13 +14,13 @@ class FileObj:
 def main():
     payloadDir = "./Payloads_Repro2010Nov09/"
     aCommand  = "ls " + payloadDir + " | grep BeamSpotObjects_2009_LumiBased_ | grep txt"           
-    output = commands.getstatusoutput( aCommand )
+    output = subprocess.getstatusoutput( aCommand )
     listOfFiles = output[1].split('\n')                                                                              
 #    print listOfFiles
     dropbox = "/DropBox"
     for fileName in listOfFiles:
         fileNameRoot = fileName[0:len(fileName)-4]
-        print fileNameRoot
+        print(fileNameRoot)
         uploadSqliteFile(payloadDir, fileNameRoot, dropbox)
             
 

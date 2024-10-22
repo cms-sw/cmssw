@@ -11,7 +11,6 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,7 +21,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-
 
 #include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDAQTowerStatusRcd.h"
@@ -37,39 +35,36 @@
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 namespace popcon {
-  class EcalDAQHandler : public popcon::PopConSourceHandler<EcalDAQTowerStatus>
-    {
-    public:
-      EcalDAQHandler(edm::ParameterSet const & );
-      ~EcalDAQHandler() override; 
+  class EcalDAQHandler : public popcon::PopConSourceHandler<EcalDAQTowerStatus> {
+  public:
+    EcalDAQHandler(edm::ParameterSet const&);
+    ~EcalDAQHandler() override;
 
-      void getNewObjects() override;
-      std::string id() const override { return m_name;}
-      EcalCondDBInterface* econn;
+    void getNewObjects() override;
+    std::string id() const override { return m_name; }
+    EcalCondDBInterface* econn;
 
-      int detIDToLogicID(int, int, int);
-      uint16_t OffDBStatus( uint16_t dbStatus , int pos ) ;
+    int detIDToLogicID(int, int, int);
+    uint16_t OffDBStatus(uint16_t dbStatus, int pos);
 
-    private:
-      unsigned long m_firstRun ;
-      unsigned long m_lastRun ;		
-      std::string m_sid;
-      std::string m_user;
-      std::string m_pass;
-      std::string m_name;
-      std::string m_location;
-      std::string m_runtype;
-      std::string m_gentag;
-      bool        m_debug;
-    };
-}
+  private:
+    unsigned long m_firstRun;
+    unsigned long m_lastRun;
+    std::string m_sid;
+    std::string m_user;
+    std::string m_pass;
+    std::string m_name;
+    std::string m_location;
+    std::string m_runtype;
+    std::string m_gentag;
+    bool m_debug;
+  };
+}  // namespace popcon
 #endif
-

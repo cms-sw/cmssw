@@ -1,26 +1,57 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHcalTopology_cfg.py type=2018
+#
+#   Options for type 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PROD")
+####################################################################
+### SETUP OPTIONS 
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "2018",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024")
+
+### get and parse the command line arguments
+options.parseArguments()
+
+geomFile = "Configuration.Geometry.GeometryExtended" + options.type + "Reco_cff"
+
+print(options)
+print("Geometry file: ", geomFile)
+
+####################################################################
+# Use the options
+
+if (options.type == "2015"):
+    from Configuration.Eras.Era_Run2_25ns_cff import Run2_25ns
+    process = cms.Process('TestHcalTopology',Run2_25ns)
+elif (options.type == "2016"):
+    from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+    process = cms.Process('TestHcalTopology',Run2_2016)
+elif (options.type == "2017"):
+    from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+    process = cms.Process('TestHcalTopology',Run2_2017)
+elif (options.type == "2018"):
+    from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+    process = cms.Process('TestHcalTopology',Run2_2018)
+else:
+    from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+    process = cms.Process('TestHcalTopology',Run3_DDD)
+
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+process.load(geomFile)
+process.load("Geometry.CaloTopology.hcalTopologyTester_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 
-process.load("Geometry.HcalCommonData.testGeometry17bXML_cfi")
-process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
-process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
-
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HCalGeom'),
-    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-)
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -46,6 +77,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prod = cms.EDAnalyzer("HcalTopologyTester")
-
-process.p1 = cms.Path(process.generator*process.prod)
+process.p1 = cms.Path(process.generator*process.hcalTopologyTester)

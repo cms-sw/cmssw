@@ -9,16 +9,15 @@
 #include "CalibMuon/CSCCalibration/interface/CSCIndexerRecord.h"
 
 class CSCIndexerESProducer : public edm::ESProducer {
-
- public:
+public:
   typedef std::unique_ptr<CSCIndexerBase> BSP_TYPE;
 
-  CSCIndexerESProducer(const edm::ParameterSet&);
+  CSCIndexerESProducer(const edm::ParameterSet &);
   ~CSCIndexerESProducer() override;
 
-  BSP_TYPE produce(const CSCIndexerRecord&);
+  BSP_TYPE produce(const CSCIndexerRecord &);
 
- private:
+private:
   std::string algoName;
 };
 

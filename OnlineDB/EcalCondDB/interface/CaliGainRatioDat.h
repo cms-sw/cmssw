@@ -10,11 +10,11 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class CaliGainRatioDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   CaliGainRatioDat();
   ~CaliGainRatioDat() override;
-  
+
   // User data methods
   inline std::string getTable() override { return "CALI_GAIN_RATIO_DAT"; }
 
@@ -27,24 +27,19 @@ class CaliGainRatioDat : public IDataItem {
   inline void setTaskStatus(bool s) { m_taskStatus = s; }
   inline bool getTaskStatus() const { return m_taskStatus; }
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
-  
-  void writeDB(const EcalLogicID* ecid, const CaliGainRatioDat* item, CaliIOV* iov)
-    noexcept(false);
-  
-  void fetchData(std::map< EcalLogicID, CaliGainRatioDat >* fillVec, CaliIOV* iov)
-    noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeArrayDB(const std::map< EcalLogicID, CaliGainRatioDat >* data, CaliIOV* iov)
-    noexcept(false);
-  
+  void writeDB(const EcalLogicID* ecid, const CaliGainRatioDat* item, CaliIOV* iov) noexcept(false);
+
+  void fetchData(std::map<EcalLogicID, CaliGainRatioDat>* fillVec, CaliIOV* iov) noexcept(false);
+
+  void writeArrayDB(const std::map<EcalLogicID, CaliGainRatioDat>* data, CaliIOV* iov) noexcept(false);
+
   // User data
   float m_g1_g12;
   float m_g6_g12;
   bool m_taskStatus;
-  
 };
 
 #endif

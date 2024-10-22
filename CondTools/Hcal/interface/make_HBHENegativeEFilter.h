@@ -6,4 +6,4 @@
 
 std::unique_ptr<HBHENegativeEFilter> make_HBHENegativeEFilter();
 
-#endif // CONDTOOLS_HCAL_MAKE_HBHENEGATIVEEFILTER_H_
+#endif  // CONDTOOLS_HCAL_MAKE_HBHENEGATIVEEFILTER_H_

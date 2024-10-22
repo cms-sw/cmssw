@@ -13,17 +13,12 @@
 #include <vector>
 
 namespace reco {
-  typedef 
-    edm::AssociationMap<edm::OneToOne<BasicClusterCollection, ClusterShapeCollection> > 
-    BasicClusterShapeAssociationCollection;
-  typedef 
-    BasicClusterShapeAssociationCollection::value_type BasicClusterShapeAssociation;
-  typedef 
-    edm::Ref<BasicClusterShapeAssociationCollection> BasicClusterShapeAssociationRef;
-  typedef 
-    edm::RefProd<BasicClusterShapeAssociationCollection> BasicClusterShapeAssociationRefProd;
-  typedef 
-    edm::RefVector<BasicClusterShapeAssociationCollection> BasicClusterShapeAssociationRefVector;  
-}
+  typedef edm::AssociationMap<edm::OneToOne<BasicClusterCollection, ClusterShapeCollection> >
+      BasicClusterShapeAssociationCollection;
+  typedef BasicClusterShapeAssociationCollection::value_type BasicClusterShapeAssociation;
+  typedef edm::Ref<BasicClusterShapeAssociationCollection> BasicClusterShapeAssociationRef;
+  typedef edm::RefProd<BasicClusterShapeAssociationCollection> BasicClusterShapeAssociationRefProd;
+  typedef edm::RefVector<BasicClusterShapeAssociationCollection> BasicClusterShapeAssociationRefVector;
+}  // namespace reco
 
 #endif

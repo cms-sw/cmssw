@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -19,6 +20,11 @@ options.register('fwVersion',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Firmware version for unpacker configuration")
+options.register('demuxFWVersion',
+                 268501079,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Firmware version for demux unpacker configuration")
 options.register('mpFramesPerEvent',
                  40,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -154,16 +160,16 @@ process.TFileService.fileName = cms.string('l1tCalo_2016_histos.root')
 
 
 # enable debug message logging for our modules
-process.MessageLogger.categories.append('L1TCaloEvents')
+process.MessageLogger.L1TCaloEvents=dict()
 
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 
 if (options.dump):
-    process.MessageLogger.infos.placeholder = cms.untracked.bool(False)
-    process.MessageLogger.infos.INFO = cms.untracked.PSet(limit = cms.untracked.int32(0))
-    process.MessageLogger.infos.L1TCaloEvents = cms.untracked.PSet(
-      optionalPSet = cms.untracked.bool(True),
-      limit = cms.untracked.int32(10000)
+    process.MessageLogger.files.infos = cms.untracked.PSet(
+                                                     INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                                     L1TCaloEvents = cms.untracked.PSet(
+                                                         limit = cms.untracked.int32(10000)
+                                                     )
     )
 
 if (options.debug):
@@ -189,7 +195,7 @@ for i in range (0,options.nMP):
     offset = options.mpOffset + (options.skipEvents / options.nMP)
     if (i < options.skipEvents % options.nMP):
         offset = offset + 1    
-    mpOffsets.append(offset)
+    mpOffsets.append(int(offset))
 
 mpLatencies = cms.untracked.vint32()
 for i in range (0,options.nMP):
@@ -202,18 +208,18 @@ boardOffset = options.skipEvents % options.nMP
 gtOffset = options.gtOffset + (options.skipEvents * options.gtFramesPerEvent)
 
 # print some debug info
-print "Job config :"
-print "maxEvents     = ", options.maxEvents
-print "skipEvents    = ", options.skipEvents
-print " "
+print("Job config :")
+print("maxEvents     = ", options.maxEvents)
+print("skipEvents    = ", options.skipEvents)
+print(" ")
 
 # MP config
 if (options.doMP):
-    print "MP config :"
-    print "nBoards       = ", options.nMP
-    print "mpBoardOffset = ", boardOffset
-    print "mpOffset      = ", mpOffsets
-    print " "
+    print("MP config :")
+    print("nBoards       = ", options.nMP)
+    print("mpBoardOffset = ", boardOffset)
+    print("mpOffset      = ", mpOffsets)
+    print(" ")
 
 mpBlock = cms.untracked.PSet(
     rxBlockLength    = cms.untracked.vint32(40,40,40,40, # q0 0-3
@@ -275,22 +281,24 @@ process.stage2MPRaw.fwVersion = cms.untracked.int32(options.fwVersion)
 
 # Demux config
 if (options.doDemux):
-    print "Demux config :"
-    print "dmOffset      = ", dmOffset
-    print "dmLatency     = ", options.dmLatency
-    print " "
+    print("Demux config :")
+    print("dmOffset      = ", dmOffset)
+    print("dmLatency     = ", options.dmLatency)
+    print(" ")
 
 process.stage2DemuxRaw.nFramesPerEvent    = cms.untracked.int32(options.dmFramesPerEvent)
 process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(dmOffset)
-process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency)
+# add 1 to demux latency to take account of header, match online definition of latency
+process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency+1)
 process.stage2DemuxRaw.rxFile = cms.untracked.string("demux_rx_summary.txt")
 process.stage2DemuxRaw.txFile = cms.untracked.string("demux_tx_summary.txt")
+process.stage2DemuxRaw.fwVersion = cms.untracked.int32(options.demuxFWVersion)
 
 # GT config
 if (options.doGT):
-    print "GT config :"
-    print "gtOffset      = ", gtOffset
-    print "gtLatency     = ", options.gtLatency
+    print("GT config :")
+    print("gtOffset      = ", gtOffset)
+    print("gtLatency     = ", options.gtLatency)
 
 process.stage2GTRaw.nFramesPerEvent    = cms.untracked.int32(options.gtFramesPerEvent)
 process.stage2GTRaw.nFramesOffset    = cms.untracked.vuint32(gtOffset)
@@ -315,6 +323,7 @@ process.load('EventFilter.L1TRawToDigi.caloStage2Digis_cfi')
 process.caloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 process.caloStage2Digis.debug      = cms.untracked.bool(options.debug)
 process.caloStage2Digis.FWId  = cms.uint32(options.fwVersion)
+process.caloStage2Digis.DmxFWId = cms.uint32(options.demuxFWVersion)
 process.caloStage2Digis.FWOverride = cms.bool(True)
 process.caloStage2Digis.TMTCheck   = cms.bool(False)
 

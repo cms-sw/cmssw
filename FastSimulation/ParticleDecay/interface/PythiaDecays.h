@@ -12,7 +12,8 @@ class RawParticle;
 
 namespace gen {
   class P8RndmEngine;
-}
+  typedef std::shared_ptr<P8RndmEngine> P8RndmEnginePtr;
+}  // namespace gen
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -23,20 +24,17 @@ namespace Pythia8 {
 }
 
 typedef std::vector<RawParticle> DaughterParticleList;
-typedef DaughterParticleList::const_iterator DaughterParticleIterator; 
+typedef DaughterParticleList::const_iterator DaughterParticleIterator;
 
-class PythiaDecays 
-{
- public:
-
+class PythiaDecays {
+public:
   PythiaDecays();
   ~PythiaDecays();
-  const DaughterParticleList & particleDaughters(ParticlePropagator& particle, CLHEP::HepRandomEngine*);
+  const DaughterParticleList& particleDaughters(ParticlePropagator& particle, CLHEP::HepRandomEngine*);
 
- private:
-
+private:
   DaughterParticleList theList;
-  std::auto_ptr<Pythia8::Pythia>   decayer; 
-  std::unique_ptr<gen::P8RndmEngine> p8RndmEngine;
+  std::unique_ptr<Pythia8::Pythia> decayer;
+  gen::P8RndmEnginePtr p8RndmEngine;
 };
 #endif

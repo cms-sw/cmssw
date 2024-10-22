@@ -4,4 +4,4 @@ import sys
 process = cms.Process("OLDREAD")
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring("file:"+sys.argv[2]))
+                            fileNames = cms.untracked.vstring("file:"+sys.argv[1]))

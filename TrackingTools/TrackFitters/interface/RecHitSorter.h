@@ -11,20 +11,16 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 class RecHitSorter {
-
 public:
-
-  typedef TransientTrackingRecHit::ConstRecHitContainer        RecHitContainer;
+  typedef TransientTrackingRecHit::ConstRecHitContainer RecHitContainer;
 
   RecHitSorter() {}
 
   ~RecHitSorter() {}
 
-  RecHitContainer sortHits(const RecHitContainer& hits, 
-			   const PropagationDirection& dir) const;
+  RecHitContainer sortHits(const RecHitContainer& hits, const PropagationDirection& dir) const;
 
 private:
-
 };
 
-#endif 
+#endif

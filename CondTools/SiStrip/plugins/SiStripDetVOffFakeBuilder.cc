@@ -2,105 +2,120 @@
 #include <memory>
 
 // user include files
-
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-
-
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+class SiStripDetVOffFakeBuilder : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripDetVOffFakeBuilder(const edm::ParameterSet& iConfig);
 
-#include "CondTools/SiStrip/plugins/SiStripDetVOffFakeBuilder.h"
+  ~SiStripDetVOffFakeBuilder() override;
+
+  virtual void initialize(const edm::EventSetup&);
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  bool printdebug_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  std::vector<uint32_t> detids;
+};
 
 using namespace std;
 using namespace cms;
 
-SiStripDetVOffFakeBuilder::SiStripDetVOffFakeBuilder( const edm::ParameterSet& iConfig ):
-  printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false)){}
+SiStripDetVOffFakeBuilder::SiStripDetVOffFakeBuilder(const edm::ParameterSet& iConfig)
+    : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)), tkGeomToken_(esConsumes()) {}
 
-SiStripDetVOffFakeBuilder::~SiStripDetVOffFakeBuilder(){}
+SiStripDetVOffFakeBuilder::~SiStripDetVOffFakeBuilder() = default;
 
+void SiStripDetVOffFakeBuilder::initialize(const edm::EventSetup& iSetup) {
+  const auto& tkGeom = iSetup.getData(tkGeomToken_);
+  edm::LogInfo("SiStripDetVOffFakeBuilder") << " There are " << tkGeom.detUnits().size() << " detectors" << std::endl;
 
-void SiStripDetVOffFakeBuilder::initialize( const edm::EventSetup& iSetup ) {
-
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
-  edm::LogInfo("SiStripDetVOffFakeBuilder") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
-  
-  for( const auto& it : pDD->detUnits()) {
-  
-    if( dynamic_cast<StripGeomDetUnit const*>(it)!=nullptr){
-      uint32_t detid=(it->geographicalId()).rawId();            
+  for (const auto& it : tkGeom.detUnits()) {
+    if (dynamic_cast<StripGeomDetUnit const*>(it) != nullptr) {
+      uint32_t detid = (it->geographicalId()).rawId();
       const StripTopology& p = dynamic_cast<StripGeomDetUnit const*>(it)->specificTopology();
       unsigned short Nstrips = p.nstrips();
-      if(Nstrips<1 || Nstrips>768 ) {
-	edm::LogError("SiStripDetVOffFakeBuilder")<<" Problem with Number of strips in detector.. "<< p.nstrips() <<" Exiting program"<<endl;
-	exit(1);
+      if (Nstrips < 1 || Nstrips > 768) {
+        edm::LogError("SiStripDetVOffFakeBuilder")
+            << " Problem with Number of strips in detector.. " << p.nstrips() << " Exiting program" << endl;
+        exit(1);
       }
       detids.push_back(detid);
       if (printdebug_)
-	edm::LogInfo("SiStripDetVOffFakeBuilder")<< "detid " << detid;
+        edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid " << detid;
     }
   }
 }
 
-void SiStripDetVOffFakeBuilder::analyze(const edm::Event& evt, const edm::EventSetup& iSetup)
-{
+void SiStripDetVOffFakeBuilder::analyze(const edm::Event& evt, const edm::EventSetup& iSetup) {
   initialize(iSetup);
 
-  unsigned int run=evt.id().run();
+  unsigned int run = evt.id().run();
 
-  edm::LogInfo("SiStripDetVOffFakeBuilder") << "... creating dummy SiStripDetVOff Data for Run " << run << "\n " << std::endl;
+  edm::LogInfo("SiStripDetVOffFakeBuilder")
+      << "... creating dummy SiStripDetVOff Data for Run " << run << "\n " << std::endl;
 
+  SiStripDetVOff SiStripDetVOff_;
 
+  // std::vector<uint32_t> TheDetIdHVVector;
 
-  SiStripDetVOff* SiStripDetVOff_ = new SiStripDetVOff();
-
-   // std::vector<uint32_t> TheDetIdHVVector;
-
-    for(std::vector<uint32_t>::const_iterator it = detids.begin(); it != detids.end(); it++){
-
+  for (std::vector<uint32_t>::const_iterator it = detids.begin(); it != detids.end(); it++) {
     //Generate HV and LV for each channel, if at least one of the two is off fill the value
-    int hv=rand() % 20;
-    int lv=rand() % 20;
-    if( hv<=2 ) {
-      edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " <<  *it << " HV\t OFF" << std::endl;
-      SiStripDetVOff_->put( *it, 1, -1 );
+    int hv = rand() % 20;
+    int lv = rand() % 20;
+    if (hv <= 2) {
+      edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " << *it << " HV\t OFF" << std::endl;
+      SiStripDetVOff_.put(*it, 1, -1);
       // TheDetIdHVVector.push_back(*it);
     }
-    if( lv<=2 ) {
-      edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " <<  *it << " LV\t OFF" << std::endl;
-      SiStripDetVOff_->put( *it, -1, 1 );
+    if (lv <= 2) {
+      edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " << *it << " LV\t OFF" << std::endl;
+      SiStripDetVOff_.put(*it, -1, 1);
       // TheDetIdHVVector.push_back(*it);
     }
-    if( lv<=2 || hv<=2 ) edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " <<  *it << " V\t OFF" << std::endl;
+    if (lv <= 2 || hv <= 2)
+      edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " << *it << " V\t OFF" << std::endl;
   }
 
-  // SiStripDetVOff_->put(TheDetIdHVVector);
-
-
+  // SiStripDetVOff_.put(TheDetIdHVVector);
 
   //End now write DetVOff data in DB
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
-  
-  if( mydbservice.isAvailable() ){
-    try{
-      if( mydbservice->isNewTagRequest("SiStripDetVOffRcd") ){
-	mydbservice->createNewIOV<SiStripDetVOff>(SiStripDetVOff_,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripDetVOffRcd");      
+
+  if (mydbservice.isAvailable()) {
+    try {
+      if (mydbservice->isNewTagRequest("SiStripDetVOffRcd")) {
+        mydbservice->createOneIOV<SiStripDetVOff>(SiStripDetVOff_, mydbservice->beginOfTime(), "SiStripDetVOffRcd");
       } else {
-	mydbservice->appendSinceTime<SiStripDetVOff>(SiStripDetVOff_,mydbservice->currentTime(),"SiStripDetVOffRcd");      
+        mydbservice->appendOneIOV<SiStripDetVOff>(SiStripDetVOff_, mydbservice->currentTime(), "SiStripDetVOffRcd");
       }
-    }catch(const cond::Exception& er){
-      edm::LogError("SiStripDetVOffFakeBuilder")<<er.what()<<std::endl;
-    }catch(const std::exception& er){
-      edm::LogError("SiStripDetVOffFakeBuilder")<<"caught std::exception "<<er.what()<<std::endl;
+    } catch (const cond::Exception& er) {
+      edm::LogError("SiStripDetVOffFakeBuilder") << er.what() << std::endl;
+    } catch (const std::exception& er) {
+      edm::LogError("SiStripDetVOffFakeBuilder") << "caught std::exception " << er.what() << std::endl;
     }
-  }else{
-    edm::LogError("SiStripDetVOffFakeBuilder")<<"Service is unavailable"<<std::endl;
+  } else {
+    edm::LogError("SiStripDetVOffFakeBuilder") << "Service is unavailable" << std::endl;
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripDetVOffFakeBuilder);

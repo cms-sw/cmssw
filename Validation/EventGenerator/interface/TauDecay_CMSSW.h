@@ -2,7 +2,7 @@
 //
 // Package:    TauNtuple
 // Class:      TauDecay_CMSSW
-// 
+//
 /**\class TauDecay TauDecay_CMSSW.cc TauDataFormat/TauNtuple/src/TauDecay_CMSSW.cc
 
  Description: Bridge class for TauDecay when using HepMC
@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// Original Author:  Ian Nugent  
+// Original Author:  Ian Nugent
 //         Created:  Fri Nov 18 13:49:02 CET 2011
 //
 //
@@ -33,19 +33,19 @@ public:
   ~TauDecay_CMSSW();
 
   //Function to analyze the tau
-  bool AnalyzeTau(HepMC::GenParticle *Tau,unsigned int &MODE_ID,unsigned int &TauBitMask,bool dores=true, bool dopi0=true);
+  bool AnalyzeTau(
+      HepMC::GenParticle *Tau, unsigned int &MODE_ID, unsigned int &TauBitMask, bool dores = true, bool dopi0 = true);
   // Functions to get results
-  std::vector<HepMC::GenParticle*> Get_TauDecayProducts(){return TauDecayProducts;}
-  std::vector<unsigned int> Get_MotherIdx(){return MotherIdx;}
+  std::vector<HepMC::GenParticle *> Get_TauDecayProducts() { return TauDecayProducts; }
+  std::vector<unsigned int> Get_MotherIdx() { return MotherIdx; }
 
 private:
   // recursive function to loop through tau decay products
-  void Analyze(HepMC::GenParticle *Particle,unsigned int midx,bool dores, bool dopi0);
-  void AddPi0Info(HepMC::GenParticle *Particle,unsigned int midx);
+  void Analyze(HepMC::GenParticle *Particle, unsigned int midx, bool dores, bool dopi0);
+  void AddPi0Info(HepMC::GenParticle *Particle, unsigned int midx);
   //varibles
-  std::vector<HepMC::GenParticle*> TauDecayProducts;
+  std::vector<HepMC::GenParticle *> TauDecayProducts;
   std::vector<unsigned int> MotherIdx;
   unsigned int MODE_ID, TauBitMask;
-
 };
 #endif

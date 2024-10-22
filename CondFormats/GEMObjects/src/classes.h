@@ -1,7 +1,5 @@
 #include "CondFormats/GEMObjects/src/headers.h"
 
 namespace CondFormats_GEMObjects {
-  struct dictionary {
-
-  };
-}
+  struct dictionary {};
+}  // namespace CondFormats_GEMObjects

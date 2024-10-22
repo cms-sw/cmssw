@@ -1,3 +1,4 @@
+from __future__ import print_function
 import itertools
 import ROOT
 try:
@@ -8,8 +9,8 @@ except AttributeError:
 try:
     ROOT.BTagEntry
 except AttributeError:
-    print 'ROOT.BTagEntry is needed! Please copy ' \
-          'BTagCalibrationStandalone.[h|cpp] to the working directory. Exit.'
+    print('ROOT.BTagEntry is needed! Please copy ' \
+          'BTagCalibrationStandalone.[h|cpp] to the working directory. Exit.')
     exit(-1)
 
 separate_by_op   = False
@@ -121,37 +122,37 @@ class DataLoader(object):
         self.discr_test_points = set(round(f, 5) for f in discr_test_points)
 
     def print_data(self):
-        print "\nFound operating points:"
-        print self.ops
+        print("\nFound operating points:")
+        print(self.ops)
 
-        print "\nFound jet flavors:"
-        print self.flavs
+        print("\nFound jet flavors:")
+        print(self.flavs)
 
-        print "\nFound sys types (need at least 'central', 'up', 'down'; " \
-              "also 'up_SYS'/'down_SYS' compatibility is checked):"
-        print self.syss
+        print("\nFound sys types (need at least 'central', 'up', 'down'; " \
+              "also 'up_SYS'/'down_SYS' compatibility is checked):")
+        print(self.syss)
 
-        print "\nFound eta ranges: (need everything covered from %g or 0. " \
-              "up to %g):" % (self.ETA_MIN, self.ETA_MAX)
-        print self.etas
+        print("\nFound eta ranges: (need everything covered from %g or 0. " \
+              "up to %g):" % (self.ETA_MIN, self.ETA_MAX))
+        print(self.etas)
 
-        print "\nFound pt ranges: (need everything covered from %g " \
-              "to %g):" % (self.PT_MIN, self.PT_MAX)
-        print self.pts
+        print("\nFound pt ranges: (need everything covered from %g " \
+              "to %g):" % (self.PT_MIN, self.PT_MAX))
+        print(self.pts)
 
-        print "\nFound discr ranges: (only needed for operatingPoint==3, " \
-              "covered from %g to %g):" % (self.DISCR_MIN, self.DISCR_MAX)
-        print self.discrs
+        print("\nFound discr ranges: (only needed for operatingPoint==3, " \
+              "covered from %g to %g):" % (self.DISCR_MIN, self.DISCR_MAX))
+        print(self.discrs)
 
-        print "\nTest points for eta (bounds +- epsilon):"
-        print self.eta_test_points
+        print("\nTest points for eta (bounds +- epsilon):")
+        print(self.eta_test_points)
 
-        print "\nTest points for pt (bounds +- epsilon):"
-        print self.pt_test_points
+        print("\nTest points for pt (bounds +- epsilon):")
+        print(self.pt_test_points)
 
-        print "\nTest points for discr (bounds +- epsilon):"
-        print self.discr_test_points
-        print ""
+        print("\nTest points for discr (bounds +- epsilon):")
+        print(self.discr_test_points)
+        print("")
 
 
 def get_data_csv(csv_data):
@@ -183,7 +184,7 @@ def get_data_csv(csv_data):
         for op in ops
         for fl in flavs
     )
-    lds = filter(lambda d: d.entries, lds)
+    lds = [d for d in lds if d.entries]
     return lds
 
 
@@ -191,7 +192,7 @@ def get_data(filename):
     with open(filename) as f:
         csv_data = f.readlines()
     if not (csv_data and "OperatingPoint" in csv_data[0]):
-        print "Data file does not contain typical header: %s. Exit" % filename
+        print("Data file does not contain typical header: %s. Exit" % filename)
         return False
     csv_data.pop(0)  # remove header
     return get_data_csv(csv_data)

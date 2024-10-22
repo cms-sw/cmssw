@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("read")
 process.load('CondCore.CondDB.CondDB_cfi')
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.threshold = "INFO"
+process.MessageLogger.cerr.WriteESAlignments = dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

@@ -21,39 +21,25 @@
 
 // system include files
 #include <memory>
-#include <iostream>
-#include <fstream>
 
 // FWCore
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // DQM
 #include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
 
 class CSCDcsInfo : public DQMEDHarvester {
+public:
+  explicit CSCDcsInfo(const edm::ParameterSet &);
+  ~CSCDcsInfo() override {}
 
-  public:
+protected:
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-    explicit CSCDcsInfo(const edm::ParameterSet&);
-    ~CSCDcsInfo() override { }
-
-  protected:
-    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
-
-  private:
-
-    std::map<std::string, MonitorElement*> mos;
-
+private:
+  std::map<std::string, MonitorElement *> mos;
 };
 
 #endif

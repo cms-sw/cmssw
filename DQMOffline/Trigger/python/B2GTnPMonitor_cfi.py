@@ -38,8 +38,8 @@ hcalPhi17Cut = cms.PSet(
 tagAndProbeConfigEle50CaloIdVTGsfTrkIdT = cms.PSet(
     trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
 
-    tagVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
-    probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
+    tagVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-tight"),
+    probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-tight"),
     sampleTrigRequirements = cms.PSet(
         hltInputTag = cms.InputTag("TriggerResults","","HLT"),
         hltPaths = cms.vstring("HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v*")
@@ -107,7 +107,7 @@ egammaStdHistConfigs = cms.VPSet(
 egammaStdFiltersToMonitor= cms.VPSet(
     cms.PSet(
         folderName = cms.string("HLT/B2G/HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165"),
-        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("55:99999")),),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges= ["55:99999"]),),
         filterName = cms.string("hltEle50CaloIdVTGsfTrkIdTCentralPFJet165EleCleaned"),
         histTitle = cms.string(""),
         tagExtraFilter = cms.string(""),
@@ -118,7 +118,8 @@ egammaStdFiltersToMonitor= cms.VPSet(
   
  
 
-B2GegHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+B2GegHLTDQMOfflineTnPSource = DQMEDAnalyzer("HLTEleTagAndProbeOfflineSource",
                                           tagAndProbeCollections = cms.VPSet(
         cms.PSet( 
             tagAndProbeConfigEle50CaloIdVTGsfTrkIdT,
@@ -133,13 +134,14 @@ B2GegHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
 
 from RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff import egmGsfElectronIDs
 
-B2GegmGsfElectronIDsForDQM = egmGsfElectronIDs.clone()
-B2GegmGsfElectronIDsForDQM.physicsObjectsIDs = cms.VPSet()
-B2GegmGsfElectronIDsForDQM.physicsObjectSrc == cms.InputTag('gedGsfElectrons')
+B2GegmGsfElectronIDsForDQM = egmGsfElectronIDs.clone(
+    physicsObjectsIDs = cms.VPSet(),
+    physicsObjectSrc = 'gedGsfElectrons'
+)
 #note: be careful here to when selecting new ids that the vid tools doesnt do extra setup for them
 #for example the HEEP cuts need an extra producer which vid tools automatically handles
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
-my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff']
+my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Winter22_122X_V1_cff']
 for id_module_name in my_id_modules: 
     idmod= __import__(id_module_name, globals(), locals(), ['idName','cutFlow'])
     for name in dir(idmod):

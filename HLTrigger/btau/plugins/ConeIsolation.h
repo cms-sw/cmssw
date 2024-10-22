@@ -9,34 +9,30 @@
  *  \author Simone Gennai
  */
 
-
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "ConeIsolationAlgorithm.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+class ConeIsolation : public edm::global::EDProducer<> {
+public:
+  explicit ConeIsolation(const edm::ParameterSet&);
 
-class ConeIsolation : public edm::EDProducer {
-   public:
-      explicit ConeIsolation(const edm::ParameterSet&);
-      ~ConeIsolation() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-   private:
-      edm::InputTag                                          jetTrackTag;
-      edm::EDGetTokenT<reco::JetTracksAssociationCollection> jetTrackToken;
-      edm::InputTag                                          vertexTag;
-      edm::EDGetTokenT<reco::VertexCollection>               vertexToken;
-      edm::InputTag                                          beamSpotTag;
-      edm::EDGetTokenT<reco::BeamSpot>                       beamSpotToken;
-      bool usingBeamSpot;
-      ConeIsolationAlgorithm* m_algo;
+private:
+  edm::InputTag jetTrackTag;
+  edm::EDGetTokenT<reco::JetTracksAssociationCollection> jetTrackToken;
+  edm::InputTag vertexTag;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken;
+  edm::InputTag beamSpotTag;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
+  bool usingBeamSpot;
+  ConeIsolationAlgorithm m_algo;
 };
 #endif
-

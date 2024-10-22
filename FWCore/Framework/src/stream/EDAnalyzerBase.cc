@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::stream::EDAnalyzerBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -34,18 +34,14 @@ using namespace edm::stream;
 //
 // constructors and destructor
 //
-EDAnalyzerBase::EDAnalyzerBase(): moduleDescriptionPtr_(nullptr)
-{
-}
+EDAnalyzerBase::EDAnalyzerBase() : moduleDescriptionPtr_(nullptr) {}
 
 // EDAnalyzerBase::EDAnalyzerBase(const EDAnalyzerBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-EDAnalyzerBase::~EDAnalyzerBase()
-{
-}
+EDAnalyzerBase::~EDAnalyzerBase() {}
 
 //
 // assignment operators
@@ -62,18 +58,14 @@ EDAnalyzerBase::~EDAnalyzerBase()
 //
 // member functions
 //
-void
-EDAnalyzerBase::callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+void EDAnalyzerBase::callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
   callWhenNewProductsRegistered_ = func;
 }
 
-void
-EDAnalyzerBase::registerProductsAndCallbacks(EDAnalyzerBase const*, ProductRegistry* reg) {
-  
+void EDAnalyzerBase::registerProductsAndCallbacks(EDAnalyzerBase const*, ProductRegistry* reg) {
   if (callWhenNewProductsRegistered_) {
-    
     reg->callForEachBranch(callWhenNewProductsRegistered_);
-    
+
     Service<ConstProductRegistry> regService;
     regService->watchProductAdditions(callWhenNewProductsRegistered_);
   }
@@ -86,21 +78,14 @@ EDAnalyzerBase::registerProductsAndCallbacks(EDAnalyzerBase const*, ProductRegis
 //
 // static member functions
 //
-void
-EDAnalyzerBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
+void EDAnalyzerBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
   ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
 
-void
-EDAnalyzerBase::prevalidate(ConfigurationDescriptions& iConfig) {
-  edmodule_mightGet_config(iConfig);
-}
+void EDAnalyzerBase::prevalidate(ConfigurationDescriptions& iConfig) { edmodule_mightGet_config(iConfig); }
 
 static const std::string kBaseType("EDAnalyzer");
 
-const std::string&
-EDAnalyzerBase::baseType() {
-  return kBaseType;
-}
+const std::string& EDAnalyzerBase::baseType() { return kBaseType; }

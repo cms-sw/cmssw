@@ -5,12 +5,11 @@ import logging
 import CondCore.Utilities.credentials as auth
 
 prod_db_service = ['cms_orcon_prod', 'cms_orcon_prod/cms_cond_general_w']
-dev_db_service = ['cms_orcoff_prep', 'cms_orcoff_prep/cms_test_conditions']
+dev_db_service = ['cms_orcoff_prep', 'cms_orcoff_prep/cms_cond_general_w']
 schema_dict = {'cms_orcon_prod':'cms_cond_o2o', 'cms_orcoff_prep':'cms_cond_strip'}
 sqlalchemy_tpl = 'oracle://%s:%s@%s'
 coral_tpl = 'oracle://%s/%s'
 private_db = 'sqlite:///post_o2o.db'
-authPathEnvVar = 'COND_AUTH_PATH'
 
 _Base = sqlalchemy.ext.declarative.declarative_base()
 
@@ -28,8 +27,8 @@ def make_dbtype(base_class, schema=None):
 
 
 class DbManager(object):
-    def __init__(self, db, authFile=None):
-        self.authFile = authFile
+    def __init__(self, db, authPath=None):
+        self.authPath = authPath
         if db == 'prod':
             self.db_service = prod_db_service
         elif db == 'dev':
@@ -50,7 +49,7 @@ class DbManager(object):
             authEntry = self.db_service[1]
             if force_schema and self.schema:
                 authEntry = '%s/%s' % (self.db_service[0], self.schema)
-            username, _, pwd = auth.get_credentials(authPathEnvVar, authEntry, self.authFile)
+            username, _, pwd = auth.get_credentials( authEntry, self.authPath)
             url = sqlalchemy_tpl % (username, pwd, self.db_service[0])
         return url
 

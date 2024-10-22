@@ -4,6 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTT0Handler> DTT0PopConAnalyzer;
 
-
 DEFINE_FWK_MODULE(DTT0PopConAnalyzer);
-

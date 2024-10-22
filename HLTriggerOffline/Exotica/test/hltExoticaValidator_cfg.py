@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os, sys
 import FWCore.ParameterSet.Config as cms
 
@@ -18,7 +19,7 @@ for i in range(0,len(sys.argv)):
     if str(sys.argv[i])=="_input" and len(sys.argv)>i+1:
         myinput = str(sys.argv[i+1])
         
-print "Using myinput="+myinput
+print("Using myinput="+myinput)
 
 if   myinput=="ZEE" :
     myfileNames = cms.untracked.vstring(
@@ -169,8 +170,8 @@ elif myinput=="ZpEE_f_PU50ns" :
 elif myinput=="ZpMM_f_PU50ns" :
     myfileNames = cms.untracked.vstring()
 
-print "### Files : "
-print myfileNames
+print("### Files : ")
+print(myfileNames)
 
 
 ##############################################################################
@@ -200,21 +201,19 @@ process.DQMStore = cms.Service("DQMStore")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-process.MessageLogger.destinations += ['ExoticaValidationMessages']
-process.MessageLogger.categories   += ['ExoticaValidation']
+
 #process.MessageLogger.debugModules += ['HLTExoticaValidator','HLTExoticaSubAnalysis','HLTExoticaPlotter']
 process.MessageLogger.debugModules += ['*']
-process.MessageLogger.ExoticaValidationMessages = cms.untracked.PSet(
+process.MessageLogger.files.ExoticaValidationMessages = cms.untracked.PSet(
     threshold       = cms.untracked.string('DEBUG'),
     default         = cms.untracked.PSet(limit = cms.untracked.int32(0)),
     ExoticaValidation = cms.untracked.PSet(limit = cms.untracked.int32(1000))
     )
 
-process.MessageLogger.categories.extend(["GetManyWithoutRegistration","GetByLabelWithoutRegistration"])
+
 
 _messageSettings = cms.untracked.PSet(
     reportEvery = cms.untracked.int32(1),
-    optionalPSet = cms.untracked.bool(True),
     limit = cms.untracked.int32(10000000)
     )
 

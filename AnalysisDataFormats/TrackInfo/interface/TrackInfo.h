@@ -20,45 +20,45 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 namespace reco {
-   class TrackInfo{
+  class TrackInfo {
   public:
     /// default constructor
-    typedef std::map<TrackingRecHitRef , TrackingRecHitInfo >  TrajectoryInfo;
+    typedef std::map<TrackingRecHitRef, TrackingRecHitInfo> TrajectoryInfo;
     typedef reco::StateType StateType;
 
     TrackInfo() {}
 
-    TrackInfo( const TrajectorySeed & seed_, const TrajectoryInfo & trajstate);
+    TrackInfo(const TrajectorySeed &seed_, const TrajectoryInfo &trajstate);
 
     //TrackRef track();
 
     const TrajectorySeed &seed() const;
 
-    const RecHitType  type(TrackingRecHitRef ) const;
-    
-    const PTrajectoryStateOnDet *stateOnDet(StateType,TrackingRecHitRef ) const;
+    const RecHitType type(TrackingRecHitRef) const;
 
-    const LocalVector localTrackMomentum(StateType,TrackingRecHitRef ) const;
+    const PTrajectoryStateOnDet *stateOnDet(StateType, TrackingRecHitRef) const;
 
-    const LocalVector localTrackMomentumOnMono(StateType,TrackingRecHitRef ) const;
+    const LocalVector localTrackMomentum(StateType, TrackingRecHitRef) const;
 
-    const LocalVector localTrackMomentumOnStereo(StateType,TrackingRecHitRef ) const;
+    const LocalVector localTrackMomentumOnMono(StateType, TrackingRecHitRef) const;
 
-    const LocalPoint localTrackPosition(StateType, TrackingRecHitRef ) const;
+    const LocalVector localTrackMomentumOnStereo(StateType, TrackingRecHitRef) const;
 
-    const LocalPoint localTrackPositionOnMono(StateType,TrackingRecHitRef ) const;
+    const LocalPoint localTrackPosition(StateType, TrackingRecHitRef) const;
 
-    const LocalPoint localTrackPositionOnStereo(StateType,TrackingRecHitRef ) const;
+    const LocalPoint localTrackPositionOnMono(StateType, TrackingRecHitRef) const;
+
+    const LocalPoint localTrackPositionOnStereo(StateType, TrackingRecHitRef) const;
 
     const TrajectoryInfo &trajStateMap() const;
 
     //    void add(PTrajectoryStateOnDet  state,const TrackingRecHitRef hitref);
 
   private:
-    TrajectorySeed  seed_ ;
-    TrajectoryInfo    trajstates_;
+    TrajectorySeed seed_;
+    TrajectoryInfo trajstates_;
   };
 
-}
+}  // namespace reco
 
 #endif

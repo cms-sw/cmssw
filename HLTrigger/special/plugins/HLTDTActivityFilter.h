@@ -6,13 +6,11 @@
 // Class:      HLTDTActivityFilter
 //
 
-
 /*
 
 Description: Filter to select events with activity in the muon barrel system
 
 */
-
 
 //
 // Original Author:  Carlo Battilana
@@ -20,23 +18,22 @@ Description: Filter to select events with activity in the muon barrel system
 //
 //
 
-
 // Fwk header files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 // c++ header files
-#include<bitset>
+#include <bitset>
 #include <string>
 
 class DTGeometry;
@@ -52,46 +49,46 @@ namespace edm {
 
 class HLTDTActivityFilter : public HLTFilter {
 public:
-
-  explicit HLTDTActivityFilter(const edm::ParameterSet&);
+  explicit HLTDTActivityFilter(const edm::ParameterSet &);
   ~HLTDTActivityFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event &,
+                 const edm::EventSetup &,
+                 trigger::TriggerFilterObjectWithRefs &filterproduct) const override;
 
   bool hasActivity(const std::bitset<4> &) const;
-  bool matchChamber(uint32_t rawId, L1MuRegionalCand const & rpcTrig, DTGeometry const * dtGeom) const;
+  bool matchChamber(uint32_t rawId, L1MuRegionalCand const &rpcTrig, DTGeometry const *dtGeom) const;
 
-  enum activityType { DCC=0, DDU=1, RPC=2, DIGI=3 };
-
+  enum activityType { DCC = 0, DDU = 1, RPC = 2, DIGI = 3 };
 
   // ----------member data ---------------------------
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> const muonGeometryRecordToken_;
 
   edm::InputTag inputTag_[4];
   bool process_[4];
   std::bitset<15> activeSecs_;
 
-  edm::EDGetTokenT<L1MuDTChambPhContainer>   inputDCCToken_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> inputDCCToken_;
   edm::EDGetTokenT<DTLocalTriggerCollection> inputDDUToken_;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> inputRPCToken_;
-  edm::EDGetTokenT<DTDigiCollection>         inputDigiToken_;
+  edm::EDGetTokenT<DTDigiCollection> inputDigiToken_;
 
-  bool  orTPG_;
-  bool  orRPC_;
-  bool  orDigi_;
+  bool orTPG_;
+  bool orRPC_;
+  bool orDigi_;
 
-  int   minQual_;
-  int   maxStation_;
-  int   minBX_[3];
-  int   maxBX_[3];
-  int   minActiveChambs_;
-  int   minChambLayers_;
+  int minQual_;
+  int maxStation_;
+  int minBX_[3];
+  int maxBX_[3];
+  int minActiveChambs_;
+  int minChambLayers_;
 
   float maxDeltaPhi_;
   float maxDeltaEta_;
-
 };
 
 #endif

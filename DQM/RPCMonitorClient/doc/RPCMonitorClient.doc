@@ -21,7 +21,6 @@
 <!-- List the classes that are provided for use in other packages (if any) -->
 
 - RPCBxTest
-- RPCChamberQuality
 - RPCClient
 - RPCClusterSizeTest
 - RPCDBHandler
@@ -31,9 +30,6 @@
 - RPCDcsInfoClient
 - RPCDeadChannelTest
 - RPCDqmClient
-- RPCEfficiencyPerRingLayer
-- RPCEfficiencySecond
-- RPCEfficiencyShiftHisto
 - RPCEventSummary
 - RPCFEDIntegrity
 - RPCLinkSynchroHistoMaker
@@ -75,10 +71,6 @@
 - SaveDQMFile
 - RPCDqmClient
 - RPCRecHitProbabilityClient
-- RPCChamberQuality
-- RPCEfficiencySecond
-- RPCEfficiencyShiftHisto
-- RPCEfficiencyPerRingLayer
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->

@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiPixelCalibConfTest")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
-process.CondDBCommon.connect = 'sqlite_file:siPixelCalibConfiguration.db'
-process.CondDBCommon.DBParameters.authenticationPath = '.'
-process.CondDBCommon.DBParameters.messageLevel = 0
+process.CondDB.connect = 'sqlite_file:siPixelCalibConfiguration.db'
+process.CondDB.DBParameters.authenticationPath = '.'
+process.CondDB.DBParameters.messageLevel = 0
 
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(1),
@@ -18,11 +18,16 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    )
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon,
+    process.CondDB,
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelCalibConfigurationRcd'),
         tag = cms.string('SiPixelCalibConfiguration_test')

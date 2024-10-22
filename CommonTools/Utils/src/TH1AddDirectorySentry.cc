@@ -2,7 +2,7 @@
 //
 // Package:     UtilAlgos
 // Class  :     TH1AddDirectorySentry
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -17,7 +17,6 @@
 // user include files
 #include "CommonTools/Utils/interface/TH1AddDirectorySentry.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -29,14 +28,6 @@
 //
 // constructors and destructor
 //
-TH1AddDirectorySentry::TH1AddDirectorySentry():
-   status_(TH1::AddDirectoryStatus())
-{
-   TH1::AddDirectory(true);
-}
+TH1AddDirectorySentry::TH1AddDirectorySentry() : status_(TH1::AddDirectoryStatus()) { TH1::AddDirectory(true); }
 
-TH1AddDirectorySentry::~TH1AddDirectorySentry()
-{
-   TH1::AddDirectory(status_);
-}
-
+TH1AddDirectorySentry::~TH1AddDirectorySentry() { TH1::AddDirectory(status_); }

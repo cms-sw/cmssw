@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 #Quick and dirty script to provide the necessary (ordered by timestamp list of logs in the) list.txt file used by the ExtractTrends.C root macro
+from __future__ import print_function
 import os
 import time
 
@@ -13,5 +14,5 @@ for log in ls:
 TimesLogs.sort()
 listfile=open("list.txt","w")
 for log in TimesLogs:
-    print log[1]
+    print(log[1])
     listfile.write(log[1]+"\n")

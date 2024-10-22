@@ -14,4 +14,3 @@
 typedef MuonDigiCollection<CSCDetId, CSCStripDigi> CSCStripDigiCollection;
 
 #endif
-

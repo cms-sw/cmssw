@@ -17,6 +17,10 @@ generalV0Candidates = cms.EDProducer("V0Producer",
    doKShorts = cms.bool(True),
    doLambdas = cms.bool(True),
 
+   # perform vertex fit (if false, the POCA is used in lieu of the point
+   # resulting from a fit)
+   doFit = cms.bool(True),
+
    # which vertex fitting algorithm to use
    # True -> KalmanVertexFitter (recommended)
    # False -> AdaptiveVertexFitter (not recommended)
@@ -42,12 +46,26 @@ generalV0Candidates = cms.EDProducer("V0Producer",
    vtxChi2Cut = cms.double(6.63),
    # XY decay distance significance >
    vtxDecaySigXYCut = cms.double(15.),
+   # XY decay distance >
+   vtxDecayXYCut = cms.double(-1.),
+   # XY decay distance for same-sign vertices >
+   ssVtxDecayXYCut = cms.double(-1.),
    # XYZ decay distance significance >
    vtxDecaySigXYZCut = cms.double(-1.),
 
    # -- miscellaneous cuts --
-   # POCA distance between tracks <
-   tkDCACut = cms.double(1.),
+   # allow same-sign pairs of tracks
+   allowSS = cms.bool(False),
+   # Threshold for inner/outer DCA cuts:
+   #    inner tracks = distance between POCA and z-axis <
+   #    outer tracks = distance between POCA and z-axis >=
+   innerOuterTkDCAThreshold = cms.double(5.),
+   # POCA distance between inner tracks <
+   innerTkDCACut = cms.double(1.),
+   # POCA distance between outer tracks <
+   outerTkDCACut = cms.double(1.),
+   # allow vertices where the angle between the tracks is more than 90 degrees
+   allowWideAngleVtx = cms.bool(False),
    # invariant mass of track pair - assuming both tracks are charged pions <
    mPiPiCut = cms.double(0.6),
    # check if either track has a hit radially inside the vertex position minus this number times the sigma of the vertex fit

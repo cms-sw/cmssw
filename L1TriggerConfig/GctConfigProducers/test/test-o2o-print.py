@@ -5,14 +5,14 @@ import os
 
 # arguments
 if (len(sys.argv)>1) :
-    key=str(sys.argv[2])
+    key=str(sys.argv[1])
 else :
     key='Default'
 
 # CMSSW config
 process = cms.Process("L1ConfigWritePayloadDummy")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cout.enable = cms.untracked.bool(True)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('l1GctConfigDump')
 

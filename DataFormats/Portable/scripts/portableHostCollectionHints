@@ -1,0 +1,33 @@
+#!/usr/bin/env python3
+
+import sys
+
+# Get collectionand SoAs names
+if len(sys.argv) < 3:
+  raise RuntimeError("Expecting at least one portable collection name and one layout name.")
+
+collectionName = sys.argv[1]
+layouts = sys.argv[2:]  
+for i in range(len(layouts)):
+  layouts[i] += "<128, false>"
+
+print("In <module>/src/classes_def.xml (with necessary includes in <module>/src/classes.h):\n")
+print("<lcgdict>")
+for l in layouts:
+  print("  <class name=\"%s\"/>"% l)
+print()
+if len(layouts) > 1:
+  print("  <!-- Recursive templates (with no data) ensuring we have one CollectionLeaf<index, type> for each layout in the collection -->")
+  for i in range(0, len(layouts)):
+    print("  <class name=\"portablecollection::CollectionImpl<%d"% i, end='')
+    for l in layouts[i:]:
+      print(", %s"%l, end='')
+    print(">\"/>")
+  print("\n  <!-- Recursive templates implementing the association of indices and layouts, and containing the data -->")
+  for i in range(0, len(layouts)):
+    print("  <class name=\"portablecollection::CollectionLeaf<%d, %s>\"/>" % (i, layouts[i]))
+  print("")
+print("  <!-- Collection declaration for dictionary -->")
+print("  <class name=\"%s\"/>"% collectionName)
+print("  <class name=\"edm::Wrapper<%s>\" splitLevel=\"0\"/>"% collectionName)
+print("</lcgdict>")

@@ -7,33 +7,26 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-SiStripNoiseBuilderFromDb::SiStripNoiseBuilderFromDb( const edm::ParameterSet& pset ) 
-  : SiStripNoiseESSource( pset )
-{
-  LogTrace(mlESSources_) 
-    << "[SiStripNoiseBuilderFromDb::" << __func__ << "]"
-    << " Constructing object...";
+SiStripNoiseBuilderFromDb::SiStripNoiseBuilderFromDb(const edm::ParameterSet& pset) : SiStripNoiseESSource(pset) {
+  LogTrace(mlESSources_) << "[SiStripNoiseBuilderFromDb::" << __func__ << "]"
+                         << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 SiStripNoiseBuilderFromDb::~SiStripNoiseBuilderFromDb() {
-  LogTrace(mlESSources_)
-    << "[SiStripNoiseBuilderFromDb::" << __func__ << "]"
-    << " Destructing object...";
+  LogTrace(mlESSources_) << "[SiStripNoiseBuilderFromDb::" << __func__ << "]"
+                         << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 SiStripNoises* SiStripNoiseBuilderFromDb::makeNoise() {
-  LogTrace(mlESSources_) 
-    << "[SiStripNoiseBuilderFromDb::" << __func__ << "]"
-    << " Constructing Noise object...";
-  
-  // Create Noise object 
+  LogTrace(mlESSources_) << "[SiStripNoiseBuilderFromDb::" << __func__ << "]"
+                         << " Constructing Noise object...";
+
+  // Create Noise object
   SiStripNoises* noise;
   condObjBuilder->getValue(noise);
   return noise;
-  
 }
-

@@ -1,0 +1,1 @@
+<test name="TestConfigurationApplicationsConfigBuilder" command="python3 ${LOCALTOP}/src/Configuration/Applications/test/ConfigBuilderTest.py"/>

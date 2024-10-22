@@ -1,3 +1,4 @@
+from __future__ import print_function
 from das_client import get_data
 import subprocess
 #from pdb import set_trace
@@ -5,7 +6,7 @@ import subprocess
 def query(query_str, verbose=False):
    'simple query function to interface with DAS, better than using Popen as everything is handled by python'
    if verbose:
-      print 'querying DAS with: "%s"' % query_str
+      print('querying DAS with: "%s"' % query_str)
    data = get_data(
       'https://cmsweb.cern.ch', 
       query_str,

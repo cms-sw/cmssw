@@ -66,7 +66,7 @@
     15, 29,  4, 10,  5,  2,  4, 18, 19, 11, 12, 13, 14,  3,  4,  3,  1,  0
   </Vector>
   <Vector name="Layer0Wt" type="numeric" nEntries="2">
-    1.2, 1.2
+    0.5, 1.2
   </Vector>
   <Vector name="HBGains" type="numeric" nEntries="4">
     117.0, 117.0, 117.0, 217.0

@@ -26,18 +26,15 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTPerformanceValidateHandler: public popcon::PopConSourceHandler<DTPerformance> {
-
- public:
-
+class DTPerformanceValidateHandler : public popcon::PopConSourceHandler<DTPerformance> {
+public:
   /** Constructor
    */
-  DTPerformanceValidateHandler( const edm::ParameterSet& ps );
+  DTPerformanceValidateHandler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -45,26 +42,17 @@ class DTPerformanceValidateHandler: public popcon::PopConSourceHandler<DTPerform
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects();
   std::string id() const;
 
- private:
-
+private:
   int firstRun;
-  int  lastRun;
+  int lastRun;
   std::string dataVersion;
   std::string dataFileName;
   std::string elogFileName;
-  void addNewObject( int runNumber );
-
+  void addNewObject(int runNumber);
 };
 
-
-#endif // DTPerformanceValidateHandler_H
-
-
-
-
-
-
+#endif  // DTPerformanceValidateHandler_H

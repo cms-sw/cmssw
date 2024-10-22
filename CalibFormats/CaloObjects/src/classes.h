@@ -7,4 +7,4 @@ namespace CalibFormats_CaloObjects {
     CaloSamplesCollection vcs;
     edm::Wrapper<CaloSamplesCollection> wcvs;
   };
-}
+}  // namespace CalibFormats_CaloObjects

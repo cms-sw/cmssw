@@ -14,6 +14,29 @@
   <class name="l1t::L1CandidateVectorRef"/>
   <class name="edm::Wrapper<l1t::L1CandidateVectorRef>"/>
 
+
+  <class name="l1t::P2GTCandidate::Optional<int>"/>
+  <class name="l1t::P2GTCandidate" ClassVersion="11">
+    <version ClassVersion="11" checksum="2947772579"/>
+    <version ClassVersion="10" checksum="2728416623"/>
+  </class>
+  <class name="l1t::P2GTCandidateCollection"/>
+  <class name="edm::Wrapper<l1t::P2GTCandidateCollection>"/>
+  <class name="l1t::P2GTCandidateRef"/>
+  <class name="edm::Wrapper<l1t::P2GTCandidateRef>"/>
+  <class name="l1t::P2GTCandidateRefVector"/>
+  <class name="edm::Wrapper<l1t::P2GTCandidateRefVector>"/>
+  <class name="l1t::P2GTCandidateVectorRef"/>
+  <class name="edm::Wrapper<l1t::P2GTCandidateVectorRef>"/>
+
+  <class name="l1t::P2GTAlgoBlock" ClassVersion="10">
+    <version ClassVersion="10" checksum="892944969"/>
+  </class>
+  <class name="l1t::P2GTAlgoBlockMap"/>
+  <class name="std::pair<const std::string, l1t::P2GTAlgoBlock>" />
+  <class name="edm::Wrapper<l1t::P2GTAlgoBlockMap>"/>
+
+
   <class name="l1t::Jet" ClassVersion="13">
    <version ClassVersion="13" checksum="3915457337"/>
    <version ClassVersion="12" checksum="380555501"/>
@@ -30,6 +53,13 @@
   <class name="l1t::JetVectorRef"/>
   <class name="edm::Wrapper<l1t::JetVectorRef>"/>
 
+  <class name="l1t::TkTripletWord" ClassVersion="5">
+    <version ClassVersion="5" checksum="3276366430"/>
+    <version ClassVersion="4" checksum="1974562134"/>
+    <version ClassVersion="3" checksum="3276366430"/>
+  </class>
+  <class name="std::vector<l1t::TkTripletWord>"/>
+  <class name="edm::Wrapper<std::vector<l1t::TkTripletWord> >"/>
 
   <class name="l1t::EGamma" ClassVersion="14">
    <version ClassVersion="14" checksum="1235149790"/>
@@ -56,6 +86,7 @@
   </class>
   <class name="l1t::EtSumBxCollection"/>
   <class name="std::vector<l1t::EtSum>"/>
+  <class name="edm::Wrapper<std::vector<l1t::EtSum>>"/>
   <class name="edm::Wrapper<l1t::EtSumBxCollection>"/>
   <class name="l1t::EtSumRef"/>
   <class name="edm::Wrapper<l1t::EtSumRef>"/>
@@ -63,6 +94,12 @@
   <class name="edm::Wrapper<l1t::EtSumRefVector>"/>
   <class name="l1t::EtSumVectorRef"/>
   <class name="edm::Wrapper<l1t::EtSumVectorRef>"/>
+  <class name="l1t::EtSumP2Ref"/>
+  <class name="edm::Wrapper<l1t::EtSumP2Ref>"/>
+  <class name="l1t::EtSumP2RefVector"/>
+  <class name="edm::Wrapper<l1t::EtSumP2RefVector>"/>
+  <class name="l1t::EtSumVectorP2Ref"/>
+  <class name="edm::Wrapper<l1t::EtSumVectorP2Ref>"/>
 
   <class name="l1t::Tau" ClassVersion="13">
    <version ClassVersion="13" checksum="3236083459"/>
@@ -80,7 +117,8 @@
   <class name="l1t::TauVectorRef"/>
   <class name="edm::Wrapper<l1t::TauVectorRef>"/>
 
-  <class name="l1t::Muon" ClassVersion="17">
+  <class name="l1t::Muon" ClassVersion="18">
+   <version ClassVersion="18" checksum="2723313197"/>
    <version ClassVersion="17" checksum="3946815604"/>
    <version ClassVersion="16" checksum="1302394108"/>
    <version ClassVersion="15" checksum="957467775"/>
@@ -90,6 +128,7 @@
    <version ClassVersion="11" checksum="2449295419"/>
    <version ClassVersion="10" checksum="1956355507"/>
   </class>
+  <class name="edm::Ptr<l1t::Muon>"/>
   <class name="l1t::MuonBxCollection"/>
   <class name="std::vector<l1t::Muon>"/>
   <class name="edm::Wrapper<l1t::MuonBxCollection>"/>
@@ -99,6 +138,23 @@
   <class name="edm::Wrapper<l1t::MuonRefVector>"/>
   <class name="l1t::MuonVectorRef"/>
   <class name="edm::Wrapper<l1t::MuonVectorRef>"/>
+
+  <class name="l1t::MuonShower" ClassVersion="13">
+   <version ClassVersion="13" checksum="39793345"/>
+   <version ClassVersion="12" checksum="2452991184"/>
+   <version ClassVersion="11" checksum="3610959089"/>
+   <version ClassVersion="10" checksum="3869296059"/>
+  </class>
+  <class name="edm::Ptr<l1t::MuonShower>"/>
+  <class name="l1t::MuonShowerBxCollection"/>
+  <class name="std::vector<l1t::MuonShower>"/>
+  <class name="edm::Wrapper<l1t::MuonShowerBxCollection>"/>
+  <class name="l1t::MuonShowerRef"/>
+  <class name="edm::Wrapper<l1t::MuonShowerRef>"/>
+  <class name="l1t::MuonShowerRefVector"/>
+  <class name="edm::Wrapper<l1t::MuonShowerRefVector>"/>
+  <class name="l1t::MuonShowerVectorRef"/>
+  <class name="edm::Wrapper<l1t::MuonShowerVectorRef>"/>
 
   <class name="l1t::CaloSpare" ClassVersion="13">
    <version ClassVersion="13" checksum="50826133"/>
@@ -213,6 +269,34 @@
   </class>
   <class name="edm::Wrapper<L1DataEmulRecord>"/>
 
+  <class name="l1t::EGammaRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::EGammaRefBxCollection>"/>
+  <class name="l1t::EGammaRefPair"/>
+  <class name="std::vector<l1t::EGammaRefPair>"/>
+  <class name="l1t::EGammaRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::EGammaRefPairBxCollection>"/>
+
+  <class name="l1t::TauRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::TauRefBxCollection>"/>
+  <class name="l1t::TauRefPair"/>
+  <class name="std::vector<l1t::TauRefPair>"/>
+  <class name="l1t::TauRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::TauRefPairBxCollection>"/>
+
+  <class name="l1t::JetRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::JetRefBxCollection>"/>
+  <class name="l1t::JetRefPair"/>
+  <class name="std::vector<l1t::JetRefPair>"/>
+  <class name="l1t::JetRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::JetRefPairBxCollection>"/>
+
+  <class name="l1t::EtSumRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::EtSumRefBxCollection>"/>
+  <class name="l1t::EtSumRefPair"/>
+  <class name="std::vector<l1t::EtSumRefPair>"/>
+  <class name="l1t::EtSumRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::EtSumRefPairBxCollection>"/>
+
   <class name="l1t::MuonRefBxCollection"/>
   <class name="edm::Wrapper<l1t::MuonRefBxCollection>"/>
   <class name="l1t::MuonRefPair"/>
@@ -232,5 +316,32 @@
   <class name="l1t::L1DataEmulResultBxCollection"/>
   <class name="std::vector<l1t::L1DataEmulResult>"/>
   <class name="edm::Wrapper<l1t::L1DataEmulResultBxCollection>"/>
+
+  <class name="edm::Ptr<l1t::L1Candidate>"/>
+
+  <class name="l1t::Vertex" ClassVersion="4">
+    <version ClassVersion="4" checksum="3366446278"/>
+    <version ClassVersion="3" checksum="514139083"/>
+  </class>
+  <class name="std::vector<l1t::Vertex>"/>
+  <class name="edm::Wrapper<std::vector<l1t::Vertex> >"/>
+
+  <class name="l1t::VertexWord" ClassVersion="3">
+    <version ClassVersion="3" checksum="3779192820"/>
+  </class>
+  <class name="std::vector<l1t::VertexWord>"/>
+  <class name="edm::Wrapper<std::vector<l1t::VertexWord> >"/>
+  <class name="l1t::VertexWord::VertexRef"/>
+  <class name="edm::Wrapper<l1t::VertexWordCollection>"/>
+  <class name="edm::Ref<l1t::VertexWordCollection>" />
+
+  <class name="l1t::TkJetWord" ClassVersion="4">
+    <version ClassVersion="4" checksum="2346039066"/>
+    <version ClassVersion="3" checksum="3521396532"/>
+  </class>
+  <class name="std::vector<l1t::TkJetWord>"/>
+  <class name="edm::Wrapper<std::vector<l1t::TkJetWord> >"/>
+  <class name="edm::Wrapper<l1t::TkJetWordCollection>"/>
+  <class name="std::bitset<70>"/>
 
 </lcgdict>

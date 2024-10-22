@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet(
 ####---Massage logger Services----####
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['dqmBeamMonitor']
-process.MessageLogger.categories = ['BeamMonitor']
+process.MessageLogger.BeamMonitor = dict()
 process.MessageLogger.cerr.threshold = "INFO"
 
 
@@ -219,6 +219,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.pp = cms.Path( process.scalersRawToDigi
+                      *process.onlineMetaDataDigis
                       *process.dqmTKStatus
                       *process.hltTriggerTypeFilter
                       *process.dqmcommon

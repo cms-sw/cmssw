@@ -1,0 +1,12 @@
+#ifndef CondFormats_HcalObjects_interface_HcalConvertedEffectivePedestalWidthsGPU_h
+#define CondFormats_HcalObjects_interface_HcalConvertedEffectivePedestalWidthsGPU_h
+
+#include "CondFormats/HcalObjects/interface/HcalConvertedPedestalWidthsGPU.h"
+
+// similar to converted effective pedestals
+class HcalConvertedEffectivePedestalWidthsGPU final : public HcalConvertedPedestalWidthsGPU {
+public:
+  using HcalConvertedPedestalWidthsGPU::HcalConvertedPedestalWidthsGPU;
+};
+
+#endif  // RecoLocalCalo_HcalRecAlgos_interface_HcalConvertedEffectivePedestalWidthsGPU_h

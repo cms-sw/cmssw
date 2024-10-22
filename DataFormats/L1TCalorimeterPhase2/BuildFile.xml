@@ -1,0 +1,9 @@
+<use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
+<use name="FWCore/MessageLogger"/>
+<use name="rootrflx"/>
+<use name="hls"/>
+<export>
+  <lib name="1"/>
+</export>

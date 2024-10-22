@@ -4,8 +4,8 @@
   <Vector name="vPars" type="numeric" nEntries="6">
     80, 52, 0, 0, 2, 8
   </Vector>
-  <Vector name="Subdetector1" type="numeric" nEntries="6">
-    20, 12, 2, 0xF, 0xFF, 0x3FF
+  <Vector name="Subdetector1" type="numeric" nEntries="8">
+    20, 12, 2, 0, 0xF, 0xFF, 0x3FF, 0x3
   </Vector>
   <Vector name="Subdetector2" type="numeric" nEntries="10">
     23, 18, 12, 10, 2, 0x3, 0xF, 0x3F, 0x3, 0xFF

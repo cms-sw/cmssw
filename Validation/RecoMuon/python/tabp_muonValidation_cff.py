@@ -7,9 +7,6 @@ from Validation.RecoMuon.selectors_cff import *
 from Validation.RecoMuon.associators_cff import *
 import Validation.RecoMuon.MuonTrackValidator_cfi
 
-from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
-from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
-
 trkMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 trkMuonTrackVTrackAssoc.associatormap = 'tpToTkmuTrackAssociation'
 trkMuonTrackVTrackAssoc.associators = ('trackAssociatorByHits',)

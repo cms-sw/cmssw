@@ -9,8 +9,6 @@
   <class name="edm::Ref<std::vector<PSimHit>,PSimHit,edm::refhelper::FindUsingAdvance<std::vector<PSimHit>,PSimHit> >"/>
 
   <class name="edm::reftobase::BaseHolder<PSimHit>"/>
-  <class name="edm::RefToBase<PSimHit>"/>
-  <class name="std::vector<edm::RefToBase<PSimHit> >"/>
   <class name="edm::reftobase::Holder<PSimHit,edm::Ref<std::vector<PSimHit>,PSimHit,edm::refhelper::FindUsingAdvance<std::vector<PSimHit>,PSimHit> > >"/>
 
 </lcgdict>

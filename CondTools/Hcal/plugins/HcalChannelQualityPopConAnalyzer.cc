@@ -4,30 +4,26 @@
 
 //typedef popcon::PopConAnalyzer<HcalChannelQualityHandler> HcalChannelQualityPopConAnalyzer;
 
-class HcalChannelQualityPopConAnalyzer: public popcon::PopConAnalyzer<HcalChannelQualityHandler>
-{
+class HcalChannelQualityPopConAnalyzer : public popcon::PopConAnalyzer<HcalChannelQualityHandler> {
 public:
   typedef HcalChannelQualityHandler SourceHandler;
 
-  HcalChannelQualityPopConAnalyzer(const edm::ParameterSet& pset): 
-    popcon::PopConAnalyzer<HcalChannelQualityHandler>(pset),
-    m_populator(pset),
-    m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+  HcalChannelQualityPopConAnalyzer(const edm::ParameterSet& pset)
+      : popcon::PopConAnalyzer<HcalChannelQualityHandler>(pset),
+        m_populator(pset),
+        m_source(pset.getParameter<edm::ParameterSet>("Source")),
+        m_tok(esConsumes<HcalChannelQuality, HcalChannelQualityRcd>()) {}
 
 private:
-  void endJob() override 
-  {
+  void endJob() override {
     m_source.initObject(myDBObject);
     write();
   }
 
-  void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override
-  {
+  void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override {
     //Using ES to get the data:
 
-    edm::ESHandle<HcalChannelQuality> objecthandle;
-    esetup.get<HcalChannelQualityRcd>().get("withTopo",objecthandle);
-    myDBObject = new HcalChannelQuality(*objecthandle.product() );
+    myDBObject = new HcalChannelQuality(esetup.getData(m_tok));
   }
 
   void write() { m_populator.write(m_source); }
@@ -35,6 +31,7 @@ private:
 private:
   popcon::PopCon m_populator;
   SourceHandler m_source;
+  edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> m_tok;
 
   HcalChannelQuality* myDBObject;
 };

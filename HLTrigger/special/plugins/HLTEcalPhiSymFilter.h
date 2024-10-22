@@ -5,7 +5,7 @@
 //
 // Package:    HLTEcalPhiSymFilter
 // Class:      HLTEcalPhiSymFilter
-// 
+//
 /**\class HLTEcalPhiSymFilter HLTEcalPhiSymFilter.cc Calibration/EcalAlCaRecoProducers/src/HLTEcalPhiSymFilter.cc
 
 * Description: Producer for EcalRecHits to be used for phi-symmetry ECAL 
@@ -25,7 +25,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -35,12 +34,14 @@
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -55,10 +56,13 @@ public:
   HLTEcalPhiSymFilter(const edm::ParameterSet&);
   ~HLTEcalPhiSymFilter() override;
 
-  bool filter(edm::StreamID, edm::Event & event, const edm::EventSetup & setup) const final;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  bool filter(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const final;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> const ecalChannelStatusRcdToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> const caloGeometryRecordToken_;
+
   const edm::EDGetTokenT<EBDigiCollection> barrelDigisToken_;
   const edm::EDGetTokenT<EEDigiCollection> endcapDigisToken_;
   const edm::EDGetTokenT<EcalUncalibratedRecHitCollection> barrelUncalibHitsToken_;
@@ -69,10 +73,10 @@ private:
   const std::string phiSymEndcapDigis_;
   const std::vector<double> ampCut_barlP_;
   const std::vector<double> ampCut_barlM_;
-  const std::vector<double> ampCut_endcP_; 
-  const std::vector<double> ampCut_endcM_; 
-  const uint32_t statusThreshold_; ///< accept channels with up to this status
-  const bool   useRecoFlag_;       ///< use recoflag instead of DB for bad channels
+  const std::vector<double> ampCut_endcP_;
+  const std::vector<double> ampCut_endcM_;
+  const uint32_t statusThreshold_;  ///< accept channels with up to this status
+  const bool useRecoFlag_;          ///< use recoflag instead of DB for bad channels
 };
 
 #endif

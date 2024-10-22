@@ -1,3 +1,4 @@
+from __future__ import print_function
 __author__="Aurelija"
 __date__ ="$2010-07-26 12.51.12$"
 
@@ -12,10 +13,10 @@ def createPickleFile(fileName, listRule, path = os.getcwd()):
     try:
         for filePath, lines in listRule:
            dict[filePath] = lines
-        file = open(join(path, fileName), 'w')
+        file = open(join(path, fileName), 'wb')
         pickle.dump(dict, file)
         file.close()
     except TypeError:
-        print 'Wrong types'
+        print('Wrong types')
     except IOError:
-        print 'Cannot open %s file'%fileName
+        print('Cannot open %s file'%fileName)

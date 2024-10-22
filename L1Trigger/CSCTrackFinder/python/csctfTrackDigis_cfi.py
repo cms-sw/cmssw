@@ -11,7 +11,7 @@ def _modifyCsctfTrackDigisForRun2( object ) :
 	object.SectorProcessor.initializeFromPSet = False 
 
 
-from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
+from L1Trigger.CSCTriggerPrimitives.CSCCommonTrigger_cfi import *
 csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 	DTproducer = cms.untracked.InputTag("dtTriggerPrimitiveDigis"),
 	DtDirectProd = cms.untracked.InputTag("csctfunpacker","DT"),

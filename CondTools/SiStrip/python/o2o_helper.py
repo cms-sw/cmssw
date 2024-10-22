@@ -47,7 +47,7 @@ def insert_to_file(template, target, replace_dict):
     with open(template, 'r') as input_file:
         config=input_file.read()
     with open(target, 'w') as output_file:
-        for key, value in replace_dict.iteritems():
+        for key, value in replace_dict.items():
             config = config.replace(key, value)
         output_file.write(config)
     return config

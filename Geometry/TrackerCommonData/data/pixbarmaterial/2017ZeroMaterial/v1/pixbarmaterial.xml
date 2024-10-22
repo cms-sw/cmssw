@@ -3,7 +3,7 @@
   <MaterialSection label="pixbarmaterial.xml">
     <CompositeMaterial name="SupplyTubeConn3_Upgrade" density="4.24e-08*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.640">
-        <rMaterial name="materials:micro_twisted_boundle" />
+        <rMaterial name="trackermaterial:micro_twisted_boundle" />
       </MaterialFraction>
       <MaterialFraction fraction="0.360">
         <rMaterial name="materials:CFK" />

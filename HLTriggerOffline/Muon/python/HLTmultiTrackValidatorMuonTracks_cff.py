@@ -5,8 +5,6 @@ hltMuonTrackValidator = hltMultiTrackValidator.clone(
     label = [
         "hltIter0HighPtTkMuPixelTracks",
         "hltIter0HighPtTkMuTrackSelectionHighPurity",
-        "hltIter2HighPtTkMuTrackSelectionHighPurity",
-        "hltIter2HighPtTkMuMerged",
     ],
     label_tp_effic           = "trackingParticlesMuon",
     label_tp_effic_refvector = True,
@@ -23,9 +21,12 @@ hltMuonTrackValidator = hltMultiTrackValidator.clone(
 
 from Validation.RecoTrack.TrackValidation_cff import trackingParticlesElectron
 trackingParticlesMuon = trackingParticlesElectron.clone(pdgId = [-13, 13])
-hltMultiTrackValidationMuonTracks = cms.Sequence(
+hltMultiTrackValidationMuonTracksTask = cms.Task(
     hltTPClusterProducer
-    + hltTrackAssociatorByHits
-    + cms.ignore(trackingParticlesMuon)
-    + hltMuonTrackValidator
+    , hltTrackAssociatorByHits
+    , trackingParticlesMuon
+)
+hltMultiTrackValidationMuonTracks = cms.Sequence(
+    hltMuonTrackValidator,
+    hltMultiTrackValidationMuonTracksTask
 )

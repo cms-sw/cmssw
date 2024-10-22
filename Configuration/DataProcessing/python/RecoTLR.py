@@ -1,22 +1,17 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 ##############################################################################
 # common utilities
 ##############################################################################
 def _swapOfflineBSwithOnline(process):
+    import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+    process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone(
+        timeThreshold = 999999 # for express allow >48h old payloads for replays. DO NOT CHANGE
+    )
+
     from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
     process.offlineBeamSpot = onlineBeamSpotProducer.clone()
-    return process
-
-def _addLumiProducer(process):
-    if not hasattr(process,'lumiProducer'):
-        #unscheduled.. 
-        from RecoLuminosity.LumiProducer.lumiProducer_cff import lumiProducer,LumiDBService
-        process.lumiProducer=lumiProducer
-    #if it's scheduled
-    if hasattr(process, 'reconstruction_step'):
-        process.reconstruction_step+=process.lumiProducer
-
     return process
 
 def _overridesFor50ns(process):
@@ -29,24 +24,14 @@ def _overridesFor50ns(process):
 # post-era customizations
 # these are here instead of generating Data-specific eras
 ##############################################################################
-def _hcalCustoms25ns(process):
-    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
-    return process
 
 def customisePostEra_Run2_25ns(process):
-    _hcalCustoms25ns(process)
     return process
 
 def customisePostEra_Run2_2016(process):
-    _hcalCustoms25ns(process)
     return process
 
 def customisePostEra_Run2_2017(process):
-    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
-    HcalRemoveAddSevLevel.RemoveFlag(process.hcalRecAlgos,"HFDigiTime")
     return process
 
 def customisePostEra_Run2_2017_express_trackingOnly(process):
@@ -84,6 +69,78 @@ def customisePostEra_Run2_2018_harvesting_trackingOnly(process):
     customisePostEra_Run2_2017_harvesting_trackingOnly(process)
     return process
 
+def customise_HI_PostEra_Run2_2018(process):
+    customisePostEra_Run2_2018(process)
+    return process
+
+def customisePostEra_Run2_2018_pp_on_AA(process):
+    customisePostEra_Run2_2018(process)
+    return process
+
+def customisePostEra_Run2_2018_pp_on_AA_express_trackingOnly(process):
+    customisePostEra_Run2_2018_express_trackingOnly(process)
+    from DQM.TrackingMonitorSource.PPonAATrackingOnly_custom import customise_PPonAATrackingOnlyDQM as _customise_PPonAATrackingOnlyDQM
+    _customise_PPonAATrackingOnlyDQM(process)
+    return process
+
+# Run3 equivalents
+
+def customisePostEra_Run3(process):
+    #start with a repeat of 2018
+    customisePostEra_Run2_2018(process)
+    return process
+
+def customisePostEra_Run3_2023(process):
+    #start with a repeat of Run3
+    customisePostEra_Run3(process)
+    return process
+
+def customisePostEra_Run3_2024(process):
+    #start with a repeat of 2023
+    customisePostEra_Run3(process)
+    return process
+
+def customisePostEra_Run3_express_trackingOnly(process):
+    #start with a repeat of 2018
+    customisePostEra_Run2_2018_express_trackingOnly(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_express_trackingOnly(process):
+    #start with repeat of 2018
+    customisePostEra_Run2_2018_pp_on_AA_express_trackingOnly(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb(process):
+    customisePostEra_Run3(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_2023(process):
+    customisePostEra_Run3_2023(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters(process):
+    customisePostEra_Run3_pp_on_PbPb(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters_2023(process):
+    customisePostEra_Run3_pp_on_PbPb_2023(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_2024(process):
+    customisePostEra_Run3_2024(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters_2024(process):
+    customisePostEra_Run3_pp_on_PbPb_2024(process)
+    return process
+
+def customisePostEra_Run3_2024_UPC(process):
+    customisePostEra_Run3_2024(process)
+    return process
+
+def customisePostEra_Run3_2024_ppRef(process):
+    customisePostEra_Run3_2024(process)
+    return process
 
 ##############################################################################
 def customisePPData(process):
@@ -110,8 +167,8 @@ def customiseCosmicMC(process):
         
 ##############################################################################
 def customiseVALSKIM(process):
-    print "WARNING"
-    print "this method is outdated, please use RecoTLR.customisePPData"
+    print("WARNING")
+    print("this method is outdated, please use RecoTLR.customisePPData")
     process= customisePPData(process)
     return process
 
@@ -125,7 +182,6 @@ def customiseExpress(process):
 ##############################################################################
 def customisePrompt(process):
     process= customisePPData(process)
-    process = _addLumiProducer(process)
 
     return process
 
@@ -146,8 +202,6 @@ def customiseExpressHI(process):
 ##############################################################################
 def customisePromptHI(process):
     process = customiseCommonHI(process)
-
-    process = _addLumiProducer(process)
 
     return process
 
@@ -193,8 +247,6 @@ def customiseDataRun2Common_withStage1(process):
 # common+ "25ns" Use this for data daking starting from runs in 2015C (>= 253256 )
 def customiseDataRun2Common_25ns(process):
     process = customiseDataRun2Common_withStage1(process)
-
-    _hcalCustoms25ns(process)
 
     from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_DQM_25ns
     if hasattr(process,'dqmoffline_step'):

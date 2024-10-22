@@ -14,7 +14,7 @@
  *
  */
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -22,67 +22,68 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <vector>
 #include <string>
 
-class DQMStore;
-class MonitorElement;
+class DTGeometry;
 class DetLayer;
 class DetId;
 
-class DTRunConditionVar : public DQMEDAnalyzer
-{
+class DTRunConditionVar : public DQMEDAnalyzer {
+public:
+  //Constructor
+  DTRunConditionVar(const edm::ParameterSet& pset);
 
-  public:
-    //Constructor
-    DTRunConditionVar(const edm::ParameterSet& pset) ;
+  //Destructor
+  ~DTRunConditionVar() override;
 
-    //Destructor
-    ~DTRunConditionVar() override ;
+  //BookHistograms
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-    //BookHistograms
-    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  //Operations
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
-    //Operations
-    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
-    void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+private:
+  void bookChamberHistos(DQMStore::IBooker&, const DTChamberId& dtCh, std::string histoType, int, float, float);
 
-  private:
+  bool debug;
+  int nMinHitsPhi;
+  double maxAnglePhiSegm;
 
-    void bookChamberHistos(DQMStore::IBooker &,const DTChamberId& dtCh, std::string histoType, int , float , float);
+  edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegmentsToken_;
 
-    bool debug;
-    int nMinHitsPhi;
-    double maxAnglePhiSegm;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* dtGeom;
 
-    edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegmentsToken_;
+  edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeToken_;
+  const DTMtime* mTimeMap_;  // legacy DB object
 
-    edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESGetToken<DTRecoConditions, DTRecoConditionsVdriftRcd> vDriftToken_;
+  const DTRecoConditions* vDriftMap_;  // DB object in new format
+  bool readLegacyVDriftDB;             // which one to use
 
-    edm::ESHandle<DTMtime> mTime;
-    const DTMtime* mTimeMap_;
+  std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
 
-    std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
-
-  protected:
-
-
+protected:
 };
 
 #endif
-
 
 /* Local Variables: */
 /* show-trailing-whitespace: t */

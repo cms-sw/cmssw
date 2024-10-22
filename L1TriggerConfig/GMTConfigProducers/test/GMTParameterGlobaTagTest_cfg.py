@@ -33,5 +33,10 @@ process.gmtDigis = cms.EDProducer("L1MuGlobalMuonTrigger",
 process.p = cms.Path(process.gmtDigis)
 
 process.MessageLogger = cms.Service("MessageLogger",
-   destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    )
 )

@@ -1,3 +1,1 @@
-#include "OnlineDB/EcalCondDB/interface/DataReducer.h" 
-
-
+#include "OnlineDB/EcalCondDB/interface/DataReducer.h"

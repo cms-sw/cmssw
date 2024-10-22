@@ -16,37 +16,36 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
-
 
 //
 // class declaration
 //
-template<typename T>
+template <typename T>
 class HLTAlphaTFilter : public HLTFilter {
+public:
+  explicit HLTAlphaTFilter(const edm::ParameterSet&);
+  ~HLTAlphaTFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-   public:
-      explicit HLTAlphaTFilter(const edm::ParameterSet&);
-      ~HLTAlphaTFilter() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+private:
+  edm::EDGetTokenT<std::vector<T>> m_theRecoJetToken;
+  edm::EDGetTokenT<std::vector<T>> m_theFastJetToken;
 
-   private:
-
-      edm::EDGetTokenT<std::vector<T>> m_theRecoJetToken;
-      edm::EDGetTokenT<std::vector<T>> m_theFastJetToken;
-
-      edm::InputTag inputJetTag_;           // input tag identifying jets
-      edm::InputTag inputJetTagFastJet_;    // input tag identifying a second collection of jets
-      std::vector<double> minPtJet_;
-      std::vector<double> etaJet_;
-      unsigned int maxNJets_;
-      double minHt_;
-      double minAlphaT_;
-      int triggerType_;
-      bool dynamicAlphaT_;
-      bool setDHtZero_;
+  edm::InputTag inputJetTag_;         // input tag identifying jets
+  edm::InputTag inputJetTagFastJet_;  // input tag identifying a second collection of jets
+  std::vector<double> minPtJet_;
+  std::vector<double> etaJet_;
+  unsigned int maxNJets_;
+  double minHt_;
+  double minAlphaT_;
+  int triggerType_;
+  bool dynamicAlphaT_;
+  bool setDHtZero_;
 };
 
-#endif // HLTrigger_JetMET_HLTAlphaTFilter_h
+#endif  // HLTrigger_JetMET_HLTAlphaTFilter_h

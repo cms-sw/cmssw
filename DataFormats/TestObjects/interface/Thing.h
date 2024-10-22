@@ -6,11 +6,12 @@
 namespace edmtest {
 
   struct Thing {
-    ~Thing() { }
-    Thing():a() { }
+    ~Thing() {}
+    Thing() : a() {}
+    explicit Thing(cms_int32_t v) : a{v} {}
     cms_int32_t a;
   };
 
-}
+}  // namespace edmtest
 
 #endif

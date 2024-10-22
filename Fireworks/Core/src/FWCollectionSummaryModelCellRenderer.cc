@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWCollectionSummaryModelCellRenderer
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -22,7 +22,6 @@
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -35,14 +34,13 @@ static const unsigned int kSeparation = 2;
 //
 // constructors and destructor
 //
-FWCollectionSummaryModelCellRenderer::FWCollectionSummaryModelCellRenderer(const TGGC* iGC, const TGGC* iSelectContext):
-FWTextTableCellRenderer(iGC,iSelectContext),
-m_colorBox( new FWColorBoxIcon(kIconSize)),
-m_checkBox( new FWCheckBoxIcon(kIconSize))
-{
-   GCValues_t t = *(iGC->GetAttributes());
-   m_colorContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&t,kTRUE);
-   m_colorBox->setColor(m_colorContext->GetGC());
+FWCollectionSummaryModelCellRenderer::FWCollectionSummaryModelCellRenderer(const TGGC* iGC, const TGGC* iSelectContext)
+    : FWTextTableCellRenderer(iGC, iSelectContext),
+      m_colorBox(new FWColorBoxIcon(kIconSize)),
+      m_checkBox(new FWCheckBoxIcon(kIconSize)) {
+  GCValues_t t = *(iGC->GetAttributes());
+  m_colorContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&t, kTRUE);
+  m_colorBox->setColor(m_colorContext->GetGC());
 }
 
 // FWCollectionSummaryModelCellRenderer::FWCollectionSummaryModelCellRenderer(const FWCollectionSummaryModelCellRenderer& rhs)
@@ -50,11 +48,10 @@ m_checkBox( new FWCheckBoxIcon(kIconSize))
 //    // do actual copying here;
 // }
 
-FWCollectionSummaryModelCellRenderer::~FWCollectionSummaryModelCellRenderer()
-{
-   delete m_colorBox;
-   delete m_checkBox;
-   gClient->GetResourcePool()->GetGCPool()->FreeGC(m_colorContext->GetGC());
+FWCollectionSummaryModelCellRenderer::~FWCollectionSummaryModelCellRenderer() {
+  delete m_colorBox;
+  delete m_checkBox;
+  gClient->GetResourcePool()->GetGCPool()->FreeGC(m_colorContext->GetGC());
 }
 
 //
@@ -72,43 +69,45 @@ FWCollectionSummaryModelCellRenderer::~FWCollectionSummaryModelCellRenderer()
 //
 // member functions
 //
-UInt_t 
-FWCollectionSummaryModelCellRenderer::width() const
-{
-   UInt_t w = FWTextTableCellRenderer::width();
-   return w+kIconSize+kIconSize+kSeparation+kSeparation;
+UInt_t FWCollectionSummaryModelCellRenderer::width() const {
+  UInt_t w = FWTextTableCellRenderer::width();
+  return w + kIconSize + kIconSize + kSeparation + kSeparation;
 }
 
-void 
-FWCollectionSummaryModelCellRenderer::draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)
-{
-   int dY = (iHeight-kIconSize)/2;
-   m_checkBox->draw(iID,graphicsContext()->GetGC(),iX,iY+dY);
-   m_colorBox->draw(iID,graphicsContext()->GetGC(),iX+kIconSize+kSeparation,iY+dY);
-   FWTextTableCellRenderer::draw(iID, iX+kIconSize+kIconSize+kSeparation+kSeparation, iY, 
-                                 iWidth-kIconSize-kIconSize-kSeparation-kSeparation, iHeight);
-   return ;
+void FWCollectionSummaryModelCellRenderer::draw(
+    Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) {
+  int dY = (iHeight - kIconSize) / 2;
+  m_checkBox->draw(iID, graphicsContext()->GetGC(), iX, iY + dY);
+  m_colorBox->draw(iID, graphicsContext()->GetGC(), iX + kIconSize + kSeparation, iY + dY);
+  FWTextTableCellRenderer::draw(iID,
+                                iX + kIconSize + kIconSize + kSeparation + kSeparation,
+                                iY,
+                                iWidth - kIconSize - kIconSize - kSeparation - kSeparation,
+                                iHeight);
+  return;
 }
 
-void 
-FWCollectionSummaryModelCellRenderer::setData(const FWEventItem* iItem, int iIndex)
-{
-   FWEventItem::ModelInfo mi = iItem->modelInfo(iIndex);
-   FWTextTableCellRenderer::setData(iItem->modelName(iIndex),mi.isSelected());
-   m_checkBox->setChecked(mi.displayProperties().isVisible());
-   m_colorContext->SetForeground(gVirtualX->GetPixel(mi.displayProperties().color()));
+void FWCollectionSummaryModelCellRenderer::setData(const FWEventItem* iItem, int iIndex) {
+  FWEventItem::ModelInfo mi = iItem->modelInfo(iIndex);
+  FWTextTableCellRenderer::setData(iItem->modelName(iIndex), mi.isSelected());
+  m_checkBox->setChecked(mi.displayProperties().isVisible());
+  m_colorContext->SetForeground(gVirtualX->GetPixel(mi.displayProperties().color()));
 }
 
 //
 // const member functions
 //
-FWCollectionSummaryModelCellRenderer::ClickHit 
-FWCollectionSummaryModelCellRenderer::clickHit(int iX, int iY) const
-{
-   if(iY < 0 || iY > static_cast<int>(kIconSize)) { return kMiss;}
-   if(iX>=0 && iX<=static_cast<int>(kIconSize)) {return kHitCheck;}
-   if(iX>=static_cast<int>(kIconSize+kSeparation) && iX <=static_cast<int>(kIconSize+kSeparation+kIconSize)) { return kHitColor;}
-   return kMiss;
+FWCollectionSummaryModelCellRenderer::ClickHit FWCollectionSummaryModelCellRenderer::clickHit(int iX, int iY) const {
+  if (iY < 0 || iY > static_cast<int>(kIconSize)) {
+    return kMiss;
+  }
+  if (iX >= 0 && iX <= static_cast<int>(kIconSize)) {
+    return kHitCheck;
+  }
+  if (iX >= static_cast<int>(kIconSize + kSeparation) && iX <= static_cast<int>(kIconSize + kSeparation + kIconSize)) {
+    return kHitColor;
+  }
+  return kMiss;
 }
 
 //

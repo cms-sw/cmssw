@@ -12,7 +12,7 @@
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
@@ -27,34 +27,28 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-class EcalTimeBiasCorrectionsFillInitial : public edm::EDAnalyzer {
- public:
+class EcalTimeBiasCorrectionsFillInitial : public edm::one::EDAnalyzer<> {
+public:
   explicit EcalTimeBiasCorrectionsFillInitial(const edm::ParameterSet &);
   ~EcalTimeBiasCorrectionsFillInitial();
 
   void analyze(const edm::Event &, const edm::EventSetup &);
   void endJob();
 
- private:
+private:
   std::vector<double> EBtimeCorrAmplitudeBins_;
   std::vector<double> EBtimeCorrShiftBins_;
   std::vector<double> EEtimeCorrAmplitudeBins_;
   std::vector<double> EEtimeCorrShiftBins_;
 
-  EcalTimeBiasCorrections *bias_;
+  EcalTimeBiasCorrections bias_;
 };
 
-EcalTimeBiasCorrectionsFillInitial::EcalTimeBiasCorrectionsFillInitial(
-    const edm::ParameterSet &ps) {
-
-  EBtimeCorrAmplitudeBins_ =
-      ps.getParameter<std::vector<double> >("EBtimeCorrAmplitudeBins");
-  EBtimeCorrShiftBins_ =
-      ps.getParameter<std::vector<double> >("EBtimeCorrShiftBins");
-  EEtimeCorrAmplitudeBins_ =
-      ps.getParameter<std::vector<double> >("EEtimeCorrAmplitudeBins");
-  EEtimeCorrShiftBins_ =
-      ps.getParameter<std::vector<double> >("EEtimeCorrShiftBins");
+EcalTimeBiasCorrectionsFillInitial::EcalTimeBiasCorrectionsFillInitial(const edm::ParameterSet &ps) {
+  EBtimeCorrAmplitudeBins_ = ps.getParameter<std::vector<double> >("EBtimeCorrAmplitudeBins");
+  EBtimeCorrShiftBins_ = ps.getParameter<std::vector<double> >("EBtimeCorrShiftBins");
+  EEtimeCorrAmplitudeBins_ = ps.getParameter<std::vector<double> >("EEtimeCorrAmplitudeBins");
+  EEtimeCorrShiftBins_ = ps.getParameter<std::vector<double> >("EEtimeCorrShiftBins");
 
   if (EBtimeCorrAmplitudeBins_.size() != EBtimeCorrShiftBins_.size()) {
     edm::LogError("EcalRecHitError") << "Size of EBtimeCorrAmplitudeBins "
@@ -66,30 +60,22 @@ EcalTimeBiasCorrectionsFillInitial::EcalTimeBiasCorrectionsFillInitial(
                                         "different from EEtimeCorrShiftBins.";
   }
 
-  bias_ = new EcalTimeBiasCorrections();
+  copy(EBtimeCorrAmplitudeBins_.begin(), EBtimeCorrAmplitudeBins_.end(), back_inserter(bias_.EBTimeCorrAmplitudeBins));
 
-  copy(EBtimeCorrAmplitudeBins_.begin(), EBtimeCorrAmplitudeBins_.end(),
-       back_inserter(bias_->EBTimeCorrAmplitudeBins));
+  copy(EBtimeCorrShiftBins_.begin(), EBtimeCorrShiftBins_.end(), back_inserter(bias_.EBTimeCorrShiftBins));
 
-  copy(EBtimeCorrShiftBins_.begin(), EBtimeCorrShiftBins_.end(),
-       back_inserter(bias_->EBTimeCorrShiftBins));
+  copy(EEtimeCorrAmplitudeBins_.begin(), EEtimeCorrAmplitudeBins_.end(), back_inserter(bias_.EETimeCorrAmplitudeBins));
 
-  copy(EEtimeCorrAmplitudeBins_.begin(), EEtimeCorrAmplitudeBins_.end(),
-       back_inserter(bias_->EETimeCorrAmplitudeBins));
-
-  copy(EEtimeCorrShiftBins_.begin(), EEtimeCorrShiftBins_.end(),
-       back_inserter(bias_->EETimeCorrShiftBins));
+  copy(EEtimeCorrShiftBins_.begin(), EEtimeCorrShiftBins_.end(), back_inserter(bias_.EETimeCorrShiftBins));
 }
 
 EcalTimeBiasCorrectionsFillInitial::~EcalTimeBiasCorrectionsFillInitial() {}
 
-void EcalTimeBiasCorrectionsFillInitial::analyze(
-    const edm::Event &iEvent, const edm::EventSetup &iSetup) {}
+void EcalTimeBiasCorrectionsFillInitial::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {}
 void EcalTimeBiasCorrectionsFillInitial::endJob() {
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne(this->bias_, poolDbService->beginOfTime(),
-                            "EcalTimeBiasCorrectionsRcd");
+    poolDbService->writeOneIOV(bias_, poolDbService->beginOfTime(), "EcalTimeBiasCorrectionsRcd");
   }
 }
 

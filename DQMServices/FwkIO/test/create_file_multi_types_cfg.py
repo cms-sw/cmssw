@@ -1,3 +1,4 @@
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 process =cms.Process("TEST")
 
@@ -9,7 +10,7 @@ process.source = cms.Source("EmptySource", numberEventsInRun = cms.untracked.uin
 elements = list()
 extensions = ["","2D"]
 for t in [0,1]:
-    for i in xrange(0,10):
+    for i in range(0,10):
         elements.append(cms.untracked.PSet(type = cms.untracked.uint32(t+1),
                                            lowX=cms.untracked.double(0),
                                            highX=cms.untracked.double(10),
@@ -21,7 +22,7 @@ for t in [0,1]:
                                            title=cms.untracked.string("Foo"+str(i)),
                                            value=cms.untracked.double(i)))
 
-process.filler = cms.EDAnalyzer("DummyFillDQMStore",
+process.filler = cms.EDProducer("DummyFillDQMStore",
                                 elements=cms.untracked.VPSet(*elements),
                                 fillRuns = cms.untracked.bool(True),
                                 fillLumis = cms.untracked.bool(True))

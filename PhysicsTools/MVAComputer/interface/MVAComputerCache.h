@@ -13,81 +13,45 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
 
 namespace PhysicsTools {
 
-/** \class MVAComputerCache
+  /** \class MVAComputerCache
  *
  * \short Creates and and MVAComputer from calibrations via EventSetup
  *
  ************************************************************/
-class MVAComputerCache {
-    public:
-	MVAComputerCache();
-	~MVAComputerCache();
+  class MVAComputerCache {
+  public:
+    MVAComputerCache();
+    ~MVAComputerCache();
 
-	bool update(const Calibration::MVAComputer *computer);
-	bool update(const Calibration::MVAComputerContainer *container,
-	            const char *calib);
+    bool update(const Calibration::MVAComputer *computer);
+    bool update(const Calibration::MVAComputerContainer *container, const char *calib);
 
-	template<class T>
-	bool update(const edm::EventSetup &es)
-	{
-		edm::ESHandle<Calibration::MVAComputer> handle;
-		es.get<T>().get(handle);
-		return update(handle.product());
-	}
+    operator bool() const { return computer.get(); }
 
-	template<class T>
-	bool update(const edm::EventSetup &es, const char *calib)
-	{
-		edm::ESHandle<Calibration::MVAComputerContainer> handle;
-		es.get<T>().get(handle);
-		return update(handle.product(), calib);
-	}
+    MVAComputer &operator*() { return *computer; }
+    const MVAComputer &operator*() const { return *computer; }
 
-	template<class T>
-	bool update(const char *label, const edm::EventSetup &es)
-	{
-		edm::ESHandle<Calibration::MVAComputer> handle;
-		es.get<T>().get(label, handle);
-		return update(handle.product());
-	}
+    MVAComputer *operator->() { return computer.get(); }
+    const MVAComputer *operator->() const { return computer.get(); }
 
-	template<class T>
-	bool update(const char *label, const edm::EventSetup &es,
-	            const char *calib)
-	{
-		edm::ESHandle<Calibration::MVAComputerContainer> handle;
-		es.get<T>().get(label, handle);
-		return update(handle.product(), calib);
-	}
+    MVAComputer *get() { return computer.get(); }
+    const MVAComputer *get() const { return computer.get(); }
 
-	operator bool() const { return computer.get(); }
+    std::unique_ptr<MVAComputer> release();
 
-	MVAComputer &operator * () { return *computer; }
-	const MVAComputer &operator * () const { return *computer; }
+    void reset() { computer.reset(); }
 
-	MVAComputer *operator -> () { return computer.get(); }
-	const MVAComputer *operator -> () const { return computer.get(); }
+  private:
+    Calibration::MVAComputerContainer::CacheId containerCacheId;
+    Calibration::MVAComputer::CacheId computerCacheId;
+    std::unique_ptr<MVAComputer> computer;
+  };
 
-	MVAComputer *get() { return computer.get(); }
-	const MVAComputer *get() const { return computer.get(); }
+}  // namespace PhysicsTools
 
-	std::auto_ptr<MVAComputer> release();
-
-	void reset() { computer.reset(); }
-
-    private:
-	Calibration::MVAComputerContainer::CacheId	containerCacheId;
-	Calibration::MVAComputer::CacheId		computerCacheId;
-	std::auto_ptr<MVAComputer>			computer;
-};
-
-} // namespace PhysicsTools
-
-#endif // PhysicsTools_MVAComputer_MVAComputerCache_h
+#endif  // PhysicsTools_MVAComputer_MVAComputerCache_h

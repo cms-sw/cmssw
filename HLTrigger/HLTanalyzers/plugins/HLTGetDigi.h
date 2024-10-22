@@ -13,7 +13,7 @@
  */
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -59,15 +59,16 @@
 // class declaration
 //
 
-class HLTGetDigi : public edm::EDAnalyzer {
-
- public:
+class HLTGetDigi : public edm::global::EDAnalyzer<> {
+public:
   explicit HLTGetDigi(const edm::ParameterSet&);
   ~HLTGetDigi() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
- private:
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  edm::ESGetToken<L1GtParameters, L1GtParametersRcd> const l1GtParamsToken_;
+
   edm::InputTag EBdigiCollection_;
   edm::EDGetTokenT<EBDigiCollection> EBdigiToken_;
   edm::InputTag EEdigiCollection_;
@@ -126,26 +127,25 @@ class HLTGetDigi : public edm::EDAnalyzer {
   edm::EDGetTokenT<std::vector<L1MuGMTCand> > GmtCandsToken_;
   edm::InputTag GmtReadoutCollection_;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> GmtReadoutToken_;
-   
-  bool getEcalDigis_ ; 
-  bool getEcalESDigis_ ; 
-  bool getHcalDigis_ ; 
-  bool getPixelDigis_ ; 
-  bool getStripDigis_ ; 
-  bool getCSCDigis_ ; 
-  bool getDTDigis_ ; 
-  bool getRPCDigis_ ; 
-  bool getL1Calo_ ; 
-  bool getGctEmDigis_ ; 
-  bool getGctJetDigis_ ; 
-  bool getGctJetCounts_ ; 
-  bool getGctEtDigis_ ; 
-  bool getGtEvmRR_ ; 
-  bool getGtObjectMap_ ; 
-  bool getGtRR_ ; 
-  bool getGmtCands_ ; 
-  bool getGmtRC_ ; 
 
+  bool getEcalDigis_;
+  bool getEcalESDigis_;
+  bool getHcalDigis_;
+  bool getPixelDigis_;
+  bool getStripDigis_;
+  bool getCSCDigis_;
+  bool getDTDigis_;
+  bool getRPCDigis_;
+  bool getL1Calo_;
+  bool getGctEmDigis_;
+  bool getGctJetDigis_;
+  bool getGctJetCounts_;
+  bool getGctEtDigis_;
+  bool getGtEvmRR_;
+  bool getGtObjectMap_;
+  bool getGtRR_;
+  bool getGmtCands_;
+  bool getGmtRC_;
 };
 
-#endif //HLTGetDigi_h
+#endif  //HLTGetDigi_h

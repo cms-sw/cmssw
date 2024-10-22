@@ -10,34 +10,26 @@
  *
  */
 
-
 #include "DTSpyHelper.h"
-
 
 class DTSpy : public DTCtcp {
 protected:
-   
-  char * spybuf;
+  char *spybuf;
   short givenonce;
-	 
-public:
 
-  char * lastpointer;	   
-  
-	   
+public:
+  char *lastpointer;
+
   DTSpy();
-  DTSpy(char *hostaddr,int port);
+  DTSpy(char *hostaddr, int port);
   ~DTSpy();
-	
+
   int getNextBuffer();
 
   int getBuffSize();
   int getRunNo();
-  const char * getEventPointer();
-  void setlastPointer(char * data);
-
+  const char *getEventPointer();
+  void setlastPointer(char *data);
 };
 
-
 #endif
-

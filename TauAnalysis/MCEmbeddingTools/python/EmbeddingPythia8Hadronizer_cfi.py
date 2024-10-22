@@ -18,10 +18,12 @@ generator = cms.EDFilter("Pythia8HadronizerFilter",
             HadHadCut = cms.string('Had1.Pt > 35 && Had2.Pt > 30'),
             MuHadCut = cms.string('Mu.Pt > 18 && Had.Pt > 25 && Mu.Eta < 2.1'),
             MuMuCut = cms.string('Mu1.Pt > 17 && Mu2.Pt > 8'),
-            Final_States = cms.vstring('ElEl','ElHad','ElMu','HadHad','MuHad','MuMu')
-    )
+            Final_States = cms.vstring('ElEl','ElHad','ElMu','HadHad','MuHad','MuMu'),
+            BosonPDGID = cms.int32(23),
+            IncludeDY = cms.bool(False)
+    ),
   ),
-  pythiaPylistVerbosity = cms.untracked.int32(0),
+  pythiaPylistVerbosity = cms.untracked.int32(1),
   filterEfficiency = cms.untracked.double(1.0),
   pythiaHepMCVerbosity = cms.untracked.bool(False),
   comEnergy = cms.double(13000.),
@@ -33,7 +35,8 @@ generator = cms.EDFilter("Pythia8HadronizerFilter",
         
         'JetMatching:merge = off',
         'Init:showChangedSettings = off', 
-        'Init:showChangedParticleData = off'
+        'Init:showChangedParticleData = off',
+        'ProcessLevel:all = off',
     ),
     parameterSets = cms.vstring('pythia8CommonSettings',
                                 'pythia8CUEP8M1Settings',

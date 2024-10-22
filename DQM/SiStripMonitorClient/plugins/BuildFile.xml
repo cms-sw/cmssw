@@ -1,0 +1,14 @@
+<use name="boost"/>
+<use name="root"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DQMServices/Core"/>
+<use name="DQM/SiStripCommon"/>
+<use name="DQM/SiStripMonitorClient"/>
+<use name="DQM/SiStripMonitorSummary"/>
+<use name="CalibTracker/SiStripQuality"/>
+<use name="CondFormats/RunInfo"/>
+<library file="*.cc" name="DQMSiStripMonitorClientPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

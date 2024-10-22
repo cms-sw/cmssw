@@ -1,19 +1,45 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/Utilities"/>
-<use   name="DataFormats/Candidate"/>
-<use   name="DataFormats/PatCandidates"/>
-<use   name="CommonTools/Utils"/>
-<use   name="RecoEgamma/EgammaTools"/>
-<use   name="PhysicsTools/JetMCUtils"/>
-<use   name="DataFormats/NanoAOD"/>
-<use   name="roothistmatrix"/>
-<use   name="RecoVertex/VertexTools"/>
-<use   name="RecoVertex/VertexPrimitives"/>
-<use   name="DataFormats/L1TGlobal"/>
-<use   name="IOPool/Provenance"/>
-<use   name="DQMServices/Core"/>
-<library   file="*.cc" name="PhysicsToolsNanoAODPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="fastjet"/>
+<use name="fastjet-contrib"/>
+<use name="roothistmatrix"/>
+<use name="tbb"/>
+<use name="tauolapp"/>
+<use name="CommonTools/Egamma"/>
+<use name="CondFormats/BTauObjects"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/L1TObjects"/>
+<use name="CondTools/BTau"/>
+<use name="CondTools/RunInfo"/>
+<use name="DQMServices/Core"/>
+<use name="DataFormats/CTPPSDetId"/>
+<use name="DataFormats/CTPPSReco"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/L1TGlobal"/>
+<use name="DataFormats/NanoAOD"/>
+<use name="DataFormats/OnlineMetaData"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/ProtonReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="IOPool/Provenance"/>
+<use name="PhysicsTools/PatAlgos"/>
+<use name="RecoVertex/VertexPrimitives"/>
+<use name="RecoVertex/VertexTools"/>
+<library file="*.cc" name="PhysicsToolsNanoAODPlugins">
+  <use name="DataFormats/VertexReco"/>
+  <use name="CommonTools/Utils"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="CommonTools/CandAlgos"/>
+  <use name="RecoBTag/FeatureTools"/>
+  <use name="RecoJets/JetAlgorithms"/>
+  <use name="TrackingTools/Records"/>
+  <use name="roottmva"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
+<!-- Disable RNuple plugin: https://github.com/cms-sw/cmsdist/pull/9451#issuecomment-2393861542
+<library file="rntuple/*.cc" name="PhysicsToolsNanoAODRNuplePlugins">
+  <use name="rootntuple"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+-->

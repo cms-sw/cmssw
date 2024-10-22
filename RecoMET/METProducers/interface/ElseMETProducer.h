@@ -29,23 +29,19 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 //____________________________________________________________________________||
-namespace cms
-{
-  class ElseMETProducer: public edm::stream::EDProducer<>
-    {
-    public:
-      explicit ElseMETProducer(const edm::ParameterSet&);
-      ~ElseMETProducer() override { }
-      void produce(edm::Event&, const edm::EventSetup&) override;
+namespace cms {
+  class ElseMETProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit ElseMETProducer(const edm::ParameterSet&);
+    ~ElseMETProducer() override {}
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
-    private:
+  private:
+    edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;
 
-      edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;
-
-      double globalThreshold_;
-
-    };
-}
+    double globalThreshold_;
+  };
+}  // namespace cms
 
 //____________________________________________________________________________||
-#endif // ElseMETProducer_h
+#endif  // ElseMETProducer_h

@@ -18,46 +18,41 @@
 
 namespace clangcms {
 
-class ClassDumper : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
+  class ClassDumper : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
+  public:
+    void checkASTDecl(const clang::CXXRecordDecl *CRD,
+                      clang::ento::AnalysisManager &mgr,
+                      clang::ento::BugReporter &BR,
+                      std::string tname) const;
 
-public:
-  void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR, std::string tname ) const ;
+    void checkASTDecl(const clang::CXXRecordDecl *RD,
+                      clang::ento::AnalysisManager &mgr,
+                      clang::ento::BugReporter &BR) const {
+      std::string pname = "classes.txt.dumperall.unsorted";
+      checkASTDecl(RD, mgr, BR, pname);
+    }
+  };
 
-  void checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR) const {
-     std::string pname = "classes.txt.dumperall.unsorted";
-     checkASTDecl(RD,mgr,BR,pname);
-}
+  class ClassDumperCT : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::ClassTemplateDecl> > {
+  public:
+    void checkASTDecl(const clang::ClassTemplateDecl *TD,
+                      clang::ento::AnalysisManager &mgr,
+                      clang::ento::BugReporter &BR) const;
+  };
 
-};
+  class ClassDumperFT : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::FunctionTemplateDecl> > {
+  public:
+    void checkASTDecl(const clang::FunctionTemplateDecl *TD,
+                      clang::ento::AnalysisManager &mgr,
+                      clang::ento::BugReporter &BR) const;
+  };
 
-class ClassDumperCT : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::ClassTemplateDecl> > {
+  class ClassDumperInherit : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
+  public:
+    void checkASTDecl(const clang::CXXRecordDecl *CRD,
+                      clang::ento::AnalysisManager &mgr,
+                      clang::ento::BugReporter &BR) const;
+  };
 
-public:
-
-  void checkASTDecl(const clang::ClassTemplateDecl *TD, clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR ) const ;
-
-};
-
-class ClassDumperFT : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::FunctionTemplateDecl> > {
-
-public:
-
-  void checkASTDecl(const clang::FunctionTemplateDecl *TD, clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR ) const ;
-
-};
-
-class ClassDumperInherit : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
-
-public:
-  void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR ) const ;
-
-};
-
-
-}
+}  // namespace clangcms
 #endif

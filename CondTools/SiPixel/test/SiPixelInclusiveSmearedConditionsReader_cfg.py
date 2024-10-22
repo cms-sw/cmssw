@@ -15,10 +15,10 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("histo.root")
                                    )
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'oracle://cms_orcoff_int2r/CMS_COND_PIXEL'
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-process.CondDBCommon.DBParameters.messageLevel = 3
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = 'oracle://cms_orcoff_int2r/CMS_COND_PIXEL'
+process.CondDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+process.CondDB.DBParameters.messageLevel = 3
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -36,7 +36,7 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 )
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
+    process.CondDB,
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelGainCalibrationOfflineRcd'),

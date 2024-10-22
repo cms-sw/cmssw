@@ -12,56 +12,32 @@ class DDCompactView;
 
 using namespace XERCES_CPP_NAMESPACE;
 
-FIPConfiguration::FIPConfiguration( DDCompactView& cpv )
-  : configHandler_( cpv ),
-    cpv_( cpv )
-{}
+FIPConfiguration::FIPConfiguration(DDCompactView& cpv) : configHandler_(cpv), cpv_(cpv) {}
 
-FIPConfiguration::~FIPConfiguration( void )
-{}
+FIPConfiguration::~FIPConfiguration(void) {}
 
-const std::vector<std::string>&
-FIPConfiguration::getFileList( void ) const
-{
-  return files_;
-}
+const std::vector<std::string>& FIPConfiguration::getFileList(void) const { return files_; }
 
-const std::vector<std::string>&
-FIPConfiguration::getURLList( void ) const
-{
-  return urls_;
-}
+const std::vector<std::string>& FIPConfiguration::getURLList(void) const { return urls_; }
 
-bool
-FIPConfiguration::doValidation( void ) const
-{
-  return configHandler_.doValidation();
-}
+bool FIPConfiguration::doValidation(void) const { return configHandler_.doValidation(); }
 
-std::string
-FIPConfiguration::getSchemaLocation( void ) const
-{
-  return configHandler_.getSchemaLocation();
-}
+std::string FIPConfiguration::getSchemaLocation(void) const { return configHandler_.getSchemaLocation(); }
 
-void
-FIPConfiguration::dumpFileList(void) const
-{
+void FIPConfiguration::dumpFileList(void) const {
   std::cout << "File List:" << std::endl;
   std::cout << "  number of files=" << files_.size() << std::endl;
-  for (const auto & file : files_)
+  for (const auto& file : files_)
     std::cout << file << std::endl;
 }
 
 //-----------------------------------------------------------------------
-//  Here the Xerces parser is used to process the content of the 
+//  Here the Xerces parser is used to process the content of the
 //  configuration file.
 //-----------------------------------------------------------------------
 
-int
-FIPConfiguration::readConfig( const std::string& filename, bool fullPath )
-{
-  std::string absoluteFileName (filename);
+int FIPConfiguration::readConfig(const std::string& filename, bool fullPath) {
+  std::string absoluteFileName(filename);
   if (!fullPath) {
     edm::FileInPath fp(filename);
     // config file
@@ -78,8 +54,7 @@ FIPConfiguration::readConfig( const std::string& filename, bool fullPath )
   size_t maxInd = vFiles.size();
   size_t ind = 0;
   // ea. file listed in the config
-  for(; ind < maxInd ; ++ind)
-  {
+  for (; ind < maxInd; ++ind) {
     edm::FileInPath fp(vURLs[ind] + "/" + vFiles[ind]);
     //    std::cout << "FileInPath says..." << fp.fullPath() << std::endl;
     files_.emplace_back(fp.fullPath());
@@ -93,8 +68,4 @@ FIPConfiguration::readConfig( const std::string& filename, bool fullPath )
   return 0;
 }
 
-int
-FIPConfiguration::readConfig( const std::string& filename )
-{
-  return readConfig( filename, false );
-}
+int FIPConfiguration::readConfig(const std::string& filename) { return readConfig(filename, false); }

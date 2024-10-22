@@ -1,7 +1,6 @@
 #ifndef DTChamberEfficiencyClient_H
 #define DTChamberEfficiencyClient_H
 
-
 /** \class DTChamberEfficiencyClient
  * *
  *  DQM Test Client
@@ -14,19 +13,19 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMEDHarvester.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <memory>
 #include <iostream>
@@ -39,40 +38,39 @@ class DTGeometry;
 class DTChamberId;
 class DTLayerId;
 
-class DTChamberEfficiencyClient: public DQMEDHarvester{
-
+class DTChamberEfficiencyClient : public DQMEDHarvester {
 public:
-
   /// Constructor
-  DTChamberEfficiencyClient(const edm::ParameterSet& ps);
-  
+  DTChamberEfficiencyClient(const edm::ParameterSet &ps);
+
   /// Destructor
   ~DTChamberEfficiencyClient() override;
 
 protected:
-
-  void beginRun(const edm::Run& , const edm::EventSetup&) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// book the report summary
 
   void bookHistos(DQMStore::IBooker &);
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;
 
 private:
-
   unsigned int nLumiSegs;
   int prescaleFactor;
 
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry *muonGeom;
 
   //an histogram of efficiency for each wheel, for each quality scenario
-  MonitorElement* summaryHistos[5][2];
-  MonitorElement* globalEffSummary;
- 
-  MonitorElement* globalEffDistr;
-  std::map<int, MonitorElement*> EffDistrPerWh;
+  MonitorElement *summaryHistos[5][2];
+  MonitorElement *globalEffSummary;
 
+  MonitorElement *globalEffDistr;
+  std::map<int, MonitorElement *> EffDistrPerWh;
 };
 
 #endif

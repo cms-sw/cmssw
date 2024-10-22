@@ -14,7 +14,7 @@
 #include <vector>
 
 class EcalTimeBiasCorrections {
- public:
+public:
   EcalTimeBiasCorrections();
   EcalTimeBiasCorrections(const EcalTimeBiasCorrections& aset);
   ~EcalTimeBiasCorrections();
@@ -28,7 +28,7 @@ class EcalTimeBiasCorrections {
 
   void print(std::ostream& o) const;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

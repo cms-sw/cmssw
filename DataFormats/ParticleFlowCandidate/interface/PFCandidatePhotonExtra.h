@@ -8,63 +8,63 @@
 #include <iosfwd>
 
 namespace reco {
-/** \class reco::PFCandidatePhotonExtra
+  /** \class reco::PFCandidatePhotonExtra
  *
  * extra information on the photon particle candidate from particle flow
  *
  */
-  class PFCandidatePhotonExtra { 
+  class PFCandidatePhotonExtra {
   public:
     /// constructor
     PFCandidatePhotonExtra();
     /// constructor
     PFCandidatePhotonExtra(const reco::SuperClusterRef&);
     /// destructor
-    ~PFCandidatePhotonExtra(){;}
+    ~PFCandidatePhotonExtra() { ; }
 
     // variables for the single conversion identification
 
     /// return a reference to the corresponding supercluster
-    reco::SuperClusterRef superClusterRef() const {return scRef_ ; }
+    reco::SuperClusterRef superClusterRef() const { return scRef_; }
 
-    /// add Single Leg Conversion TrackRef 
+    /// add Single Leg Conversion TrackRef
     void addSingleLegConvTrackRef(const reco::TrackRef& trackref);
 
-    /// return vector of Single Leg Conversion TrackRef from 
-    const std::vector<reco::TrackRef>& singleLegConvTrackRef() const {return assoSingleLegRefTrack_;}
+    /// return vector of Single Leg Conversion TrackRef from
+    const std::vector<reco::TrackRef>& singleLegConvTrackRef() const { return assoSingleLegRefTrack_; }
 
     /// add Single Leg Conversion mva
     void addSingleLegConvMva(float& mvasingleleg);
 
     /// return Single Leg Conversion mva
-    const std::vector<float>& singleLegConvMva() const {return assoSingleLegMva_;}
+    const std::vector<float>& singleLegConvMva() const { return assoSingleLegMva_; }
 
     /// add Conversions from PF
     void addConversionRef(const reco::ConversionRef& convref);
 
     /// return Conversions from PF
-    reco::ConversionRefVector conversionRef() const {return assoConversionsRef_;} 
+    reco::ConversionRefVector conversionRef() const { return assoConversionsRef_; }
 
     //from Mustache Id:
-    void setMustache_Et(float Must_Et){Mustache_Et_=Must_Et;}
-    void setExcludedClust(int excluded){Excluded_clust_=excluded;}
-    float Mustache_Et()const{ return Mustache_Et_;}
-    int ExcludedClust()const{ return Excluded_clust_;}
-    
-    //MVA Energy Regression:
-    void setMVAGlobalCorrE(float GCorr){GlobalCorr_=GCorr;}
-    float MVAGlobalCorrE()const{return GlobalCorr_;}
+    void setMustache_Et(float Must_Et) { Mustache_Et_ = Must_Et; }
+    void setExcludedClust(int excluded) { Excluded_clust_ = excluded; }
+    float Mustache_Et() const { return Mustache_Et_; }
+    int ExcludedClust() const { return Excluded_clust_; }
 
-    void setMVAGlobalCorrEError(float GCorr){GlobalCorrEError_=GCorr;}
-    float MVAGlobalCorrEError()const{return GlobalCorrEError_;}
+    //MVA Energy Regression:
+    void setMVAGlobalCorrE(float GCorr) { GlobalCorr_ = GCorr; }
+    float MVAGlobalCorrE() const { return GlobalCorr_; }
+
+    void setMVAGlobalCorrEError(float GCorr) { GlobalCorrEError_ = GCorr; }
+    float MVAGlobalCorrEError() const { return GlobalCorrEError_; }
 
     void addLCorrClusEnergy(float LCorrE);
-    const std::vector<float>& LCorrClusEnergy() const {return LocalCorr_;}
+    const std::vector<float>& LCorrClusEnergy() const { return LocalCorr_; }
 
-    void SetPFPhotonRes(float Res){MVAResolution_ = Res;}
-    float PFPhotonRes()const {return MVAResolution_;}
- private:
-    
+    void SetPFPhotonRes(float Res) { MVAResolution_ = Res; }
+    float PFPhotonRes() const { return MVAResolution_; }
+
+  private:
     /// Ref to supercluster
     reco::SuperClusterRef scRef_;
 
@@ -80,12 +80,12 @@ namespace reco {
     //for Mustache_Id
     float Mustache_Et_;
     int Excluded_clust_;
-    
+
     //for MVA Regression Energy
     std::vector<float> LocalCorr_;
     float GlobalCorr_;
     float GlobalCorrEError_;
     float MVAResolution_;
   };
-}
+}  // namespace reco
 #endif

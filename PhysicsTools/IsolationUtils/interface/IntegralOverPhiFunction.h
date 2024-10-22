@@ -5,7 +5,7 @@
 //
 // Package:    IntegralOverPhiFunction
 // Class:      IntegralOverPhiFunction
-// 
+//
 /**\class IntegralOverPhiFunction IntegralOverPhiFunction.cc PhysicsTools/IsolationUtils/src/IntegralOverPhiFunction.cc
 
  Description: auxialiary class for fixed area isolation cone computation
@@ -27,9 +27,8 @@
 // class declaration
 //
 
-class IntegralOverPhiFunction : public ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim>
-{
- public:
+class IntegralOverPhiFunction : public ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim> {
+public:
   IntegralOverPhiFunction();
   ~IntegralOverPhiFunction() override;
 
@@ -37,10 +36,10 @@ class IntegralOverPhiFunction : public ROOT::Math::ParamFunction<ROOT::Math::IPa
   void SetParameterPhi0(double phi0);
   void SetParameterAlpha(double alpha);
 
-  ROOT::Math::IGenFunction* Clone () const override { return new IntegralOverPhiFunction(*this); }
+  ROOT::Math::IGenFunction* Clone() const override { return new IntegralOverPhiFunction(*this); }
 
- private:
-  void SetParameters(double const * param) override;
+private:
+  void SetParameters(double const* param) override;
 
   double DoEval(double x) const override;
   double DoEvalPar(double x, const double* param) const override;
@@ -48,11 +47,11 @@ class IntegralOverPhiFunction : public ROOT::Math::ParamFunction<ROOT::Math::IPa
   double DoParameterDerivative(double, const double*, unsigned int) const override;
   void DoParameterGradient(double x, double* paramGradient) const;
 
-  mutable double theta0_; // polar angle of cone axis
-  mutable double phi0_; // azimuth angle of cone axis
-  mutable double alpha_; // opening angle of cone (measured from cone axis)
+  mutable double theta0_;  // polar angle of cone axis
+  mutable double phi0_;    // azimuth angle of cone axis
+  mutable double alpha_;   // opening angle of cone (measured from cone axis)
 
-// !!! ONLY FOR TESTING
+  // !!! ONLY FOR TESTING
   mutable unsigned int numSolutionMin1_;
   mutable unsigned int numSolutionMax1_;
   mutable unsigned int numSolutionMin2_;
@@ -61,7 +60,7 @@ class IntegralOverPhiFunction : public ROOT::Math::ParamFunction<ROOT::Math::IPa
   mutable unsigned int numSolutionMax3_;
   mutable unsigned int numSolutionMin4_;
   mutable unsigned int numSolutionMax4_;
-//     FOR TESTING ONLY !!!
+  //     FOR TESTING ONLY !!!
 
   static const unsigned int debugLevel_ = 0;
 };

@@ -51,17 +51,12 @@ public:
   uint32_t conscheck() const;
 
   /// Set all fields in the trailer
-  static void set(unsigned char* trailer,
-		  uint32_t lenght,
-		  uint16_t crc,
-		  uint8_t evt_stat,
-		  uint8_t tts,
-		  bool moreTrailers=false);
+  static void set(
+      unsigned char* trailer, uint32_t lenght, uint16_t crc, uint8_t evt_stat, uint8_t tts, bool moreTrailers = false);
 
   static const uint32_t length;
 
 private:
   const fedt_struct* theTrailer;
-
 };
-#endif // DataFormats_FEDRawData_FEDTrailer_h
+#endif  // DataFormats_FEDRawData_FEDTrailer_h

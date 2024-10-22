@@ -2,14 +2,23 @@ import FWCore.ParameterSet.Config as cms
 
 #### TrackAssociation
 import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi
+import SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi
 import SimTracker.TrackAssociatorProducers.trackAssociatorByPosition_cfi
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer as _tpClusterProducer
+from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import trackingParticleRecoTrackAsssociation as _trackingParticleRecoTrackAsssociation
 
 hltTPClusterProducer = _tpClusterProducer.clone(
     pixelClusterSrc = "hltSiPixelClusters",
 #    stripClusterSrc = "hltSiStripClusters",
     stripClusterSrc = "hltSiStripRawToClustersFacility",
 )
+
+def _modifyForPhase2(tpClusterProducer):
+    tpClusterProducer.pixelClusterSrc = "hltSiPixelClusters"
+    tpClusterProducer.phase2OTClusterSrc = "hltSiPhase2Clusters"
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(hltTPClusterProducer, _modifyForPhase2)
 
 hltTrackAssociatorByHits = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
 hltTrackAssociatorByHits.cluster2TPSrc            = cms.InputTag("hltTPClusterProducer")
@@ -22,124 +31,79 @@ hltTrackAssociatorByDeltaR.method             = cms.string('momdr')
 hltTrackAssociatorByDeltaR.QCut               = cms.double(0.5)
 hltTrackAssociatorByDeltaR.ConsiderAllSimHits = cms.bool(True)
 
-
 # Note: the TrackAssociatorEDProducers defined below, and
 # tpToHLTtracksAssociationSequence sequence, are not currently needed
 # to run MTV for HLT, as it is configured to produce the
 # track-TrackingParticle association on the fly. The configuration
 # snippets below are, however, kept for reference.
-tpToHLTpixelTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTpixelTrackAssociation = _trackingParticleRecoTrackAsssociation.clone(
     label_tr = cms.InputTag("hltPixelTracks"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
     associator = cms.InputTag('hltTrackAssociatorByHits'),
     ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter0tracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+phase2_tracker.toModify(tpToHLTpixelTrackAssociation, label_tr = "hltPhase2PixelTracks")
+
+tpToHLTiter0tracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter0PFlowCtfWithMaterialTracks"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
 #    associator = cms.InputTag('hltTrackAssociatorByDeltaR'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter0HPtracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTiter0HPtracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter0PFlowTrackSelectionHighPurity"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
 #    associator = cms.InputTag('hltTrackAssociatorByDeltaR'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter1tracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTiter1tracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter1PFlowCtfWithMaterialTracks"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter1HPtracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTiter1HPtracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter1PFlowTrackSelectionHighPurity"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter1MergedTracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTiter1MergedTracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter1Merged"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter2tracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTiter2tracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter2PFlowCtfWithMaterialTracks"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter2HPtracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTiter2HPtracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter2PFlowTrackSelectionHighPurity"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter2MergedTracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTiter2MergedTracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter2Merged"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter3tracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTiter3tracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter3PFlowCtfWithMaterialTracks"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter3HPtracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTiter3HPtracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter3PFlowTrackSelectionHighPurity"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter3MergedTracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTiter3MergedTracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter3Merged"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter4tracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTiter4tracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter4PFlowCtfWithMaterialTracks"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter4HPtracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTiter4HPtracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter4PFlowTrackSelectionHighPurity"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTiter4MergedTracksAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTiter4MergedTracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter4Merged"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
-tpToHLTgsfTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToHLTgsfTrackAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltEgammaGsfTracks"),
-    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    associator = cms.InputTag('hltTrackAssociatorByHits'),
-    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
 tpToHLTtracksAssociationSequence = cms.Sequence(

@@ -23,30 +23,27 @@
 ///
 
 class TEcnaParCout : public TObject {
-
- private:
-
+private:
   //..... Attributes
-  Int_t   fgMaxCar;   // Max nb of caracters for char*
-  Int_t   fCnew,        fCdelete;
+  Int_t fgMaxCar;  // Max nb of caracters for char*
+  Int_t fCnew, fCdelete;
   TString fTTBELL;
-  Int_t   fCnaCommand,  fCnaError;
+  Int_t fCnaCommand, fCnaError;
 
-
- public:
+public:
   //..... Public attributes
-  Int_t    fFlagPrint;
-  Int_t    fCodePrintComments, fCodePrintWarnings, fCodePrintAllComments, fCodePrintNoComment;
+  Int_t fFlagPrint;
+  Int_t fCodePrintComments, fCodePrintWarnings, fCodePrintAllComments, fCodePrintNoComment;
 
   //..... Methods
-           TEcnaParCout();
-           TEcnaParCout(TEcnaObject*);
-   ~TEcnaParCout() override;
+  TEcnaParCout();
+  TEcnaParCout(TEcnaObject*);
+  ~TEcnaParCout() override;
 
-  void     Init();
-  Int_t    GetCodePrint(const TString&);
+  void Init();
+  Int_t GetCodePrint(const TString&);
 
-ClassDefOverride(TEcnaParCout,1)// Parameter management for ECNA (Ecal Correlated Noises Analysis)
+  ClassDefOverride(TEcnaParCout, 1)  // Parameter management for ECNA (Ecal Correlated Noises Analysis)
 };
 
-#endif   //    ZTR_TEcnaParCout
+#endif  //    ZTR_TEcnaParCout

@@ -7,6 +7,7 @@
  *
  *  \author Nicola Pozzobon
  *  \date   2013, Jul 19
+ *  (tidy up: Ian Tomalin, 2020)
  *
  */
 
@@ -22,17 +23,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "L1Trigger/TrackTrigger/interface/classNameFinder.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTClusterAssociationMap.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
 
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm.h"
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithmRecord.h"
 
 #include "Geometry/CommonTopologies/interface/Topology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -40,46 +40,31 @@
 #include <map>
 #include <vector>
 
-template< typename T >
-class TTClusterAssociator : public edm::stream::EDProducer<>
-{
+template <typename T>
+class TTClusterAssociator : public edm::stream::EDProducer<> {
   /// NOTE since pattern hit correlation must be performed within a stacked module, one must store
   /// Clusters in a proper way, providing easy access to them in a detector/member-wise way
-  public:
-    /// Constructors
-    explicit TTClusterAssociator( const edm::ParameterSet& iConfig );
+public:
+  /// Constructors
+  explicit TTClusterAssociator(const edm::ParameterSet& iConfig);
 
-    /// Destructor
-    ~TTClusterAssociator() override;
+private:
+  /// Data members
+  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > thePixelDigiSimLinkHandle_;
+  edm::Handle<std::vector<TrackingParticle> > trackingParticleHandle_;
 
-  private:
-    /// Data members
-    edm::Handle< edm::DetSetVector< PixelDigiSimLink > >   thePixelDigiSimLinkHandle;
-    edm::Handle< edm::SimTrackContainer >                  theSimTrackHandle;
-    edm::Handle< std::vector< TrackingParticle > >         TrackingParticleHandle;
+  std::vector<edm::InputTag> ttClustersInputTags_;
 
-    std::vector< edm::InputTag > TTClustersInputTags;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > digisimLinkToken_;
+  edm::EDGetTokenT<std::vector<TrackingParticle> > tpToken_;
+  std::vector<edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<T> > > > ttClustersTokens_;
 
-    edm::EDGetTokenT< edm::DetSetVector< PixelDigiSimLink > >              digisimLinkToken;
-    edm::EDGetTokenT< edm::SimTrackContainer >                             simTrackToken;
-    edm::EDGetTokenT< std::vector< TrackingParticle > >                    tpToken;
-    //std::vector< edm::EDGetTokenT< edm::DetSetVector< TTCluster< T > > > > TTClustersTokens;
-    std::vector<edm::EDGetTokenT< edmNew::DetSetVector< TTCluster< T > > > > TTClustersTokens;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerGeometryToken_;
 
-    //    const StackedTrackerGeometry                           *theStackedTrackers;
-    //unsigned int                                           ADCThreshold;
+  /// Mandatory methods
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-
-    edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-    edm::ESHandle<TrackerTopology> theTrackerTopology;
-
-
-    /// Mandatory methods
-    void beginRun( const edm::Run& run, const edm::EventSetup& iSetup ) override;
-    void endRun( const edm::Run& run, const edm::EventSetup& iSetup ) override;
-    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
-
-}; /// Close class
+};  /// Close class
 
 /*! \brief   Implementation of methods
  *  \details Here, in the header file, the methods which do not depend
@@ -89,47 +74,28 @@ class TTClusterAssociator : public edm::stream::EDProducer<>
  */
 
 /// Constructors
-template< typename T >
-TTClusterAssociator< T >::TTClusterAssociator( const edm::ParameterSet& iConfig )
-{
-  simTrackToken = consumes< edm::SimTrackContainer >(iConfig.getParameter< edm::InputTag >( "simTrackHits" ));
-  digisimLinkToken = consumes< edm::DetSetVector< PixelDigiSimLink > >(iConfig.getParameter< edm::InputTag >( "digiSimLinks" ));
-  tpToken = consumes< std::vector< TrackingParticle >  >(iConfig.getParameter< edm::InputTag >( "trackingParts" ));
+template <typename T>
+TTClusterAssociator<T>::TTClusterAssociator(const edm::ParameterSet& iConfig) {
+  digisimLinkToken_ =
+      consumes<edm::DetSetVector<PixelDigiSimLink> >(iConfig.getParameter<edm::InputTag>("digiSimLinks"));
+  tpToken_ = consumes<std::vector<TrackingParticle> >(iConfig.getParameter<edm::InputTag>("trackingParts"));
 
+  ttClustersInputTags_ = iConfig.getParameter<std::vector<edm::InputTag> >("TTClusters");
 
-  TTClustersInputTags = iConfig.getParameter< std::vector< edm::InputTag > >( "TTClusters" );
+  for (const auto& iTag : ttClustersInputTags_) {
+    ttClustersTokens_.push_back(consumes<edmNew::DetSetVector<TTCluster<T> > >(iTag));
 
-  for ( auto iTag =  TTClustersInputTags.begin(); iTag!=  TTClustersInputTags.end(); iTag++ )
-  {
-    TTClustersTokens.push_back(consumes< edmNew::DetSetVector< TTCluster< T > > >(*iTag));
-
-    produces< TTClusterAssociationMap< T > >( (*iTag).instance() );
+    produces<TTClusterAssociationMap<T> >(iTag.instance());
   }
-}
 
-/// Destructor
-template< typename T >
-TTClusterAssociator< T >::~TTClusterAssociator(){}
-
-/// Begin run
-template< typename T >
-void TTClusterAssociator< T >::beginRun( const edm::Run& run, const edm::EventSetup& iSetup )
-{
-  /// Get the geometry
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-  iSetup.get<TrackerTopologyRcd>().get(theTrackerTopology);
+  theTrackerGeometryToken_ = esConsumes();
 
   /// Print some information when loaded
-  edm::LogInfo("TTClusterAssociator< ") << templateNameFinder< T >() << " > loaded.";
+  edm::LogInfo("TTClusterAssociator< ") << templateNameFinder<T>() << " > loaded.";
 }
 
-/// End run
-template< typename T >
-void TTClusterAssociator< T >::endRun( const edm::Run& run, const edm::EventSetup& iSetup ){}
-
 /// Implement the producer
-template< >
-void TTClusterAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+template <>
+void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 #endif
-

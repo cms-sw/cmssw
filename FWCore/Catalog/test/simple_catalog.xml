@@ -1,0 +1,7 @@
+<storage-mapping>
+  <lfn-to-pfn protocol="xrd"
+  path-match="/+store/(.*)" result="/storage/path/store/$1"/>
+  <pfn-to-lfn protocol="xrd"
+  path-match="^/+storage/path/store/(.*)" result="/store/$1"/>
+</storage-mapping>
+

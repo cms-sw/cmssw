@@ -1,0 +1,207 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="ahcal.xml" eval="true">
+  <Constant name="absorberThick" value="17.2*mm"/>
+  <Constant name="radiatorThick" value="17.2*mm"/>
+  <Constant name="airgapThick"   value="1.285*mm"/>
+  <Constant name="cassetteThick" value="0.5*mm"/>
+  <Constant name="cableThick"    value="1.5*mm"/>
+  <Constant name="pcbThick"      value="0.7*mm"/>
+  <Constant name="foilThick"     value="0.115*mm"/>
+  <Constant name="scintThick"    value="3.0*mm"/>
+  <Constant name="passiveHeight" value="72.0*cm"/>
+  <Constant name="passiveWidth"  value="72.0*cm"/>
+  <Constant name="activeHeight"  value="72.0*cm"/>
+  <Constant name="activeWidth"   value="72.0*cm"/>
+  <Constant name="tileGap"       value="30.0*mm"/>
+  <Constant name="tileHeight"    value="30*mm"/>
+  <Constant name="tileWidth"     value="30*mm"/>
+  <Constant name="tileEdge"      value="0.1*mm"/>
+</ConstantsSection>
+
+<MaterialSection label="ahcal.xml">
+  <CompositeMaterial name="Steel235" density="7.87*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.9843">
+      <rMaterial name="materials:Iron"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0017">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0140">
+      <rMaterial name="materials:Manganese"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="PCB" density="1.70*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.180774">
+      <rMaterial name="materials:Silicon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.405633">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.278042">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0684428">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0671091">
+      <rMaterial name="materials:Bromine"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Polystyrene" density="1.060*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.077418">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.922582">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="PVC" density="1.35*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.048384">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.384378">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.567238">
+      <rMaterial name="materials:Chlorine"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Polystyrole" density="1.065*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.077421">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.922579">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="CFM" density="0.120*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.009">
+      <rMaterial name="materials:Air"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.872">
+      <rMaterial name="ahcal:PVC"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.119">
+      <rMaterial name="ahcal:Polystyrole"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+
+
+<SolidSection label="ahcal.xml">
+  <Box name="AHcalTileSensitive" dx="[tileWidth]/2" dy="[tileHeight]/2"
+       dz="[scintThick]/2"/>
+</SolidSection>
+
+<LogicalPartSection label="ahcal.xml">
+  <LogicalPart name="AHcalTileSensitive" category="unspecified">
+    <rSolid name="AHcalTileSensitive"/>
+    <rMaterial name="ahcal:Polystyrene"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="ahcal.xml">
+  <Algorithm name="hgcal:DDAHcalModuleAlgo">
+    <rParent name="hgcal:HGCalAH"/>
+    <String name="TileName" value="ahcal:AHcalTileSensitive"/>
+    <Vector name="MaterialNames" type="string" nEntries="10">
+      ahcal:Steel235, materials:Air, ahcal:Steel235, ahcal:CFM, ahcal:PCB, 
+      ahcal:Polystyrole, ahcal:Polystyrene, ahcal:Steel235, ahcal:Steel235, 
+      materials:Air</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="10">
+      AHcalRadiator, AHcalAirGa1p, AHcalCassette, AHcalCable, AHcalPCB,
+      AHcalFoil, AHcalActive, AHcalAbsorber, AHcalAbsorberLastCover,
+      AHcalAirGap2</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="10">
+      [ahcal:radiatorThick], [ahcal:airgapThick], [ahcal:cassetteThick], 
+      [ahcal:cableThick], [ahcal:pcbThick], [ahcal:foilThick], 
+      [ahcal:scintThick], [ahcal:absorberThick], 5.0*mm,
+      9.0*mm</Vector>
+    <Vector name="Layers" type="numeric" nEntries="20"> 
+      20, 20, 20, 20, 20, 
+      20, 20, 20, 20, 20, 
+      20, 20, 20, 20, 20, 
+      20, 20, 20, 20, 19 
+    </Vector>
+    <Vector name="LayerThick" type="numeric" nEntries="20"> 
+      52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 
+      52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 
+      52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 
+      52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 140.485*mm
+      </Vector>
+    <Vector name="LayerType" type="numeric" nEntries="399"> 
+      7, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1,
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1,
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1,
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1,
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1,
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
+      0, 9, 0, 9, 0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 0, 9, 0
+    </Vector>
+    <Vector name="LayerSense" type="numeric" nEntries="399">
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0
+    </Vector>
+    <Vector name="Widths" type="numeric" nEntries="2">
+      [ahcal:passiveWidth], [ahcal:activeWidth] </Vector>
+    <Vector name="Heights" type="numeric" nEntries="2">
+      [ahcal:passiveHeight], [ahcal:activeHeight] </Vector>
+    <Vector name="TileN" type="numeric" nEntries="2">
+      24, 24 </Vector>
+    <Vector name="TileStep" type="numeric" nEntries="2">
+      [ahcal:tileGap], [ahcal:tileGap] </Vector>
+    <Numeric name="zMinBlock"   value="[hgcal:zminAH]"/>
+    <String name="RotNameSpace" value="hgcalmodule"/>
+  </Algorithm>
+</PosPartSection> 
+
+<SpecParSection label="ahcal.xml" eval="true">
+  <SpecPar name="AHcal">
+    <PartSelector path="//AHcalTileSensitive.*"/>
+    <Parameter name="Volume" value="AHcalTileSensitive" eval="false"/>
+    <Parameter name="SensitiveDetector" value="AHcalSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HcalHits" eval="false"/>
+  </SpecPar>
+  <SpecPar name="hgcProdCutsAHcal">
+    <PartSelector path="//HGCalAH"/>
+    <Parameter name="CMSCutsRegion" value="HGCalAHcalRegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForGamma"     value="1.0*mm"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

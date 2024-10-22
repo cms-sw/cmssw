@@ -19,15 +19,7 @@ onlineAnalyser = cms.EDAnalyzer("SiStripAnalyser",
     ),
 
 # Parameters for On Demand Monitoring   
-    MonitorSiStripPedestal      = OnDemandMonitoring.MonitorSiStripPedestal,
-    MonitorSiStripNoise         = OnDemandMonitoring.MonitorSiStripNoise,
-    MonitorSiStripQuality       = OnDemandMonitoring.MonitorSiStripQuality,
-    MonitorSiStripApvGain       = OnDemandMonitoring.MonitorSiStripApvGain,
-    MonitorSiStripLorentzAngle  = OnDemandMonitoring.MonitorSiStripLorentzAngle,
-
-    MonitorSiStripCabling        = OnDemandMonitoring.MonitorSiStripCabling,
-    MonitorSiStripLowThreshold   = OnDemandMonitoring.MonitorSiStripLowThreshold,
-    MonitorSiStripHighThreshold  = OnDemandMonitoring.MonitorSiStripHighThreshold,
+    MonitorSiStrip_PSet          = OnDemandMonitoring.MonitorSiStrip_PSet,
 
     FillConditions_PSet          = OnDemandMonitoring.FillConditions_PSet,     
 
@@ -82,4 +74,4 @@ SiStripOnlineDQMClient = cms.Sequence(onlineAnalyser)
 SiStripOfflineDQMClient = cms.Sequence(offlineAnalyser)
 
 # Services needed for TkHistoMap
-from CalibTracker.SiStripCommon.TkDetMap_cff import *
+from CalibTracker.SiStripCommon.TkDetMapESProducer_cfi import *

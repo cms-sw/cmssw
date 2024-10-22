@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("READ")
 
 process.source = cms.Source("DQMRootSource",
+                            reScope = cms.untracked.string(""),
                             fileNames = cms.untracked.vstring("file:dqm_file1.root","file:dqm_file2.root"))
 
 process.out = cms.OutputModule("DQMRootOutputModule",

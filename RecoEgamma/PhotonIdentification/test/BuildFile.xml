@@ -1,6 +1,8 @@
-<environment>
-  <bin   file="runtestRecoEgammaPhotonIdentification.cpp">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash RecoEgamma/PhotonIdentification/test runtests.sh"/>
-    <use   name="FWCore/Utilities"/>
-  </bin>
-</environment>
+<use name="catch2"/>
+<bin file="test_PhotonMvaXgb.cc" name="RecoEgammaPhotonIdentificationTest">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="RecoEgamma/PhotonIdentification"/>
+</bin>
+
+<test name="runtestRecoEgammaPhotonIdentification" command="runtests.sh"/>

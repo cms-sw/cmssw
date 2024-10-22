@@ -4,7 +4,7 @@
 //
 // Package:     Records
 // Class  :     EcalBarrelGeometryRecord
-// 
+//
 //
 // Author:      Brian Heltsley
 // Created:     Tue April 1, 2008
@@ -18,20 +18,15 @@
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
-
-class EcalBarrelGeometryRecord : 
-   public edm::eventsetup::DependentRecordImplementation<
-   EcalBarrelGeometryRecord,
-		boost::mpl::vector<
-                IdealGeometryRecord,
-		EBAlignmentRcd, 
-		EBAlignmentErrorRcd,
-                EBAlignmentErrorExtendedRcd,
-		GlobalPositionRcd,
-                PEcalBarrelRcd
-		> > {};
+class EcalBarrelGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<EcalBarrelGeometryRecord,
+                                                            edm::mpl::Vector<IdealGeometryRecord,
+                                                                             EBAlignmentRcd,
+                                                                             EBAlignmentErrorRcd,
+                                                                             EBAlignmentErrorExtendedRcd,
+                                                                             GlobalPositionRcd,
+                                                                             PEcalBarrelRcd> > {};
 
 #endif /* RECORDS_ECALBARRELGEOMETRYRECORD_H */
-

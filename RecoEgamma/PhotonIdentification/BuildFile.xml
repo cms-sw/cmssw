@@ -1,15 +1,28 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="DataFormats/HcalRecHit"/>
-<use   name="DataFormats/EgammaReco"/>
-<use   name="DataFormats/PatCandidates"/>
-<use   name="DataFormats/ParticleFlowCandidate"/>
-<use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="DataFormats/BeamSpot"/>
-<use   name="Geometry/CaloGeometry"/>
-<use   name="RecoEgamma/EgammaIsolationAlgos"/>
-<use   name="PhysicsTools/SelectorUtils"/>
-
+<use name="CommonTools/MVAUtils" />
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/EcalObjects"/>
+<use name="CondFormats/HcalObjects"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/EcalRecHit"/>
+<use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/HcalRecHit"/>
+<use name="DataFormats/TrackReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/Records"/>
+<use name="PhysicsTools/TensorFlow" />
+<use name="PhysicsTools/XGBoost" />
+<use name="RecoEcal/EgammaCoreTools"/>
+<use name="RecoEgamma/EgammaIsolationAlgos"/>
+<use name="RecoEgamma/EgammaTools"/>
+<use name="RecoLocalCalo/EcalRecAlgos"/>
+<use name="RecoLocalCalo/HcalRecAlgos"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

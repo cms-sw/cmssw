@@ -1,9 +1,10 @@
+from __future__ import print_function
 # to test the communication with DBS and produce the csctf configuration
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("QWE")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cout.enable = cms.untracked.bool(True)
 process.MessageLogger.cout.threshold = cms.untracked.string('INFO')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
@@ -38,7 +39,7 @@ options.parseArguments()
 
 # sanity checks
 if ( len(options.topKey) and len(options.systemKey) ) or ( len(options.topKey)==0 and len(options.systemKey)==0 ) :
-    print "Specify either the topKey (top-level tsc:rs key) or systemKey (system specific tsc:rs key), but not both"
+    print("Specify either the topKey (top-level tsc:rs key) or systemKey (system specific tsc:rs key), but not both")
     exit(1)
 
 # standard CMSSW stuff

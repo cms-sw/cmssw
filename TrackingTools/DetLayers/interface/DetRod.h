@@ -11,34 +11,29 @@
 class MeasurementEstimator;
 
 class DetRod : public GeometricSearchDet {
- public:
-
+public:
   using GeometricSearchDet::GeometricSearchDet;
 
   ~DetRod() override;
-  
- 
-  const BoundSurface& surface() const final {return *thePlane;}
 
+  const BoundSurface& surface() const final { return *thePlane; }
 
   //--- Extension of the interface
-  
-  /// Return the rod surface as a Plane
-  virtual const Plane& specificSurface() const final {return *thePlane;}
 
+  /// Return the rod surface as a Plane
+  virtual const Plane& specificSurface() const final { return *thePlane; }
 
 protected:
   /// Set the rod's plane
-  void setPlane( Plane* plane) { thePlane = plane;}
+  void setPlane(Plane* plane) { thePlane = plane; }
 
   //obsolete?
   // Return the range in Z to be checked for compatibility
   //float zError( const TrajectoryStateOnSurface& tsos,
   //		const MeasurementEstimator& est) const;
 
- private:
-  ReferenceCountingPointer<Plane>  thePlane;
-
+private:
+  ReferenceCountingPointer<Plane> thePlane;
 };
 
 #endif

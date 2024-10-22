@@ -3,11 +3,12 @@
 
 #include <map>
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "IORawData/HcalTBInputService/src/CDFRunInfo.h"
 
@@ -22,11 +23,13 @@ class CDFEventInfo;
   *
   * \author J. Mans - Minnesota
   */
-class HcalTBWriter : public edm::EDAnalyzer {
+class HcalTBWriter : public edm::one::EDAnalyzer<> {
 public:
-  HcalTBWriter(const edm::ParameterSet & pset);
+  explicit HcalTBWriter(const edm::ParameterSet& pset);
+  ~HcalTBWriter() override = default;
   void analyze(const edm::Event& e, const edm::EventSetup& es) override;
   void endJob() override;
+
 private:
   std::string namePattern_;
   // chunk naming...
@@ -37,7 +40,7 @@ private:
   TTree* tree_;
   CDFEventInfo* eventInfo_;
   CDFRunInfo ri_;
-  std::map<int,int> chunkMap_;
+  std::map<int, int> chunkMap_;
   CDFChunk* chunkList_[1024];
   int trigChunk_;
   edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;

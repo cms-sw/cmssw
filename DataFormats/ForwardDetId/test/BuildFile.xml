@@ -1,0 +1,6 @@
+<use name="DataFormats/ForwardDetId"/>
+<bin file="testHGCDetId.cc">
+</bin>
+
+<bin file="testHFNoseDetId.cc">
+</bin>

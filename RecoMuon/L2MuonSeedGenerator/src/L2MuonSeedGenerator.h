@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-// Data Formats 
+// Data Formats
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
@@ -45,26 +45,27 @@ class MeasurementEstimator;
 class TrajectorySeed;
 class TrajectoryStateOnSurface;
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class L2MuonSeedGenerator : public edm::stream::EDProducer<> {
- 
- public:
-  
+public:
   /// Constructor
-  explicit L2MuonSeedGenerator(const edm::ParameterSet&);
+  explicit L2MuonSeedGenerator(const edm::ParameterSet &);
 
   /// Destructor
   ~L2MuonSeedGenerator() override;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  
- private:
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
+private:
   edm::InputTag theSource;
   edm::InputTag theL1GMTReadoutCollection;
   edm::InputTag theOfflineSeedLabel;
-  std::string   thePropagatorName;
+  std::string thePropagatorName;
 
   edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtToken_;
   edm::EDGetTokenT<l1extra::L1MuonParticleCollection> muCollToken_;
@@ -77,14 +78,13 @@ class L2MuonSeedGenerator : public edm::stream::EDProducer<> {
   const bool useUnassociatedL1;
 
   /// the event setup proxy, it takes care the services update
-  MuonServiceProxy *theService;  
+  MuonServiceProxy *theService;
 
   MeasurementEstimator *theEstimator;
 
-  const TrajectorySeed* associateOfflineSeedToL1( edm::Handle<edm::View<TrajectorySeed> > &, 
-						  std::vector<int> &, 
-						  TrajectoryStateOnSurface &);
-
+  const TrajectorySeed *associateOfflineSeedToL1(edm::Handle<edm::View<TrajectorySeed> > &,
+                                                 std::vector<int> &,
+                                                 TrajectoryStateOnSurface &);
 };
 
 #endif

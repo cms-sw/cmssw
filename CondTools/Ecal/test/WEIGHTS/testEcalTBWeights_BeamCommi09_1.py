@@ -15,11 +15,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-process.MessageLogger=cms.Service("MessageLogger",
-                              destinations=cms.untracked.vstring("cout"),
-                              cout=cms.untracked.PSet(
-                              threshold=cms.untracked.string("INFO")
-                              )
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")

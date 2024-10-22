@@ -16,16 +16,16 @@ process.maxEvents = cms.untracked.PSet(
 # initialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('PATLayer0Summary')
+process.MessageLogger.PATLayer0Summary=dict()
 process.MessageLogger.cerr.INFO = cms.untracked.PSet(
     default          = cms.untracked.PSet( limit = cms.untracked.int32(0)  )
 )
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # Load geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('IDEAL_V9::All')
+process.GlobalTag.globaltag = cms.string( autoCond[ 'phase1_2022_realistic' ] )
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # input MC stuff

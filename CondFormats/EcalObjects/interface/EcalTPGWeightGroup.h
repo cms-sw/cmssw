@@ -5,22 +5,12 @@
 
 #include "CondFormats/EcalObjects/interface/EcalTPGGroups.h"
 
-/*
+class EcalTPGWeightGroup : public EcalTPGGroups {
+public:
+  EcalTPGWeightGroup();
+  ~EcalTPGWeightGroup();
 
-P.P.
-*/
-
-
-
-class EcalTPGWeightGroup : public EcalTPGGroups
-{
- public:
-
-  EcalTPGWeightGroup() ;
-  ~EcalTPGWeightGroup() ;
-
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

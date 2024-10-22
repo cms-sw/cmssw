@@ -1,10 +1,28 @@
 <lcgdict>
  <selection>
 
-  <class name="l1t::RegionalMuonCand"/>
+  <class name="l1t::RegionalMuonCand" ClassVersion="12">
+   <version ClassVersion="12" checksum="1761665561"/>
+    <version ClassVersion="11" checksum="2292293737"/>
+    <version ClassVersion="10" checksum="1070099328"/>
+  </class>
+  <ioread sourceClass="l1t::RegionalMuonCand" targetClass="l1t::RegionalMuonCand" version="[10]"  source="int m_hwPt2" target="m_hwPtUnconstrained">
+    <![CDATA[ m_hwPtUnconstrained = onfile.m_hwPt2; ]]>
+  </ioread>
+
   <class name="std::vector<l1t::RegionalMuonCand>"/>
   <class name="l1t::RegionalMuonCandBxCollection"/>
   <class name="edm::Wrapper<l1t::RegionalMuonCandBxCollection>"/>
+
+  <class name="l1t::RegionalMuonShower" ClassVersion="13">
+   <version ClassVersion="13" checksum="420598270"/>
+    <version ClassVersion="12" checksum="1591048325"/>
+    <version ClassVersion="11" checksum="376206249"/>
+    <version ClassVersion="10" checksum="3501434665"/>
+  </class>
+  <class name="std::vector<l1t::RegionalMuonShower>"/>
+  <class name="l1t::RegionalMuonShowerBxCollection"/>
+  <class name="edm::Wrapper<l1t::RegionalMuonShowerBxCollection>"/>
 
   <class name="l1t::MuonCaloSum"/>
   <class name="std::vector<l1t::MuonCaloSum>"/>
@@ -22,6 +40,8 @@
   <class name="l1t::emtf::MECollection"/>
   <class name="l1t::emtf::RPC"/>
   <class name="l1t::emtf::RPCCollection"/>
+  <class name="l1t::emtf::GEM"/>
+  <class name="l1t::emtf::GEMCollection"/>
   <class name="l1t::emtf::SP"/>
   <class name="l1t::emtf::SPCollection"/>
   <class name="l1t::emtf::EventTrailer"/>
@@ -39,6 +59,12 @@
   <class name="edm::Wrapper<l1t::EMTFTrackCollection>"/>
   <class name="l1t::EMTFPtLUT"/>
 
+  <class name="l1t::CPPFDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="1846750827"/>
+  </class>
+  <class name="l1t::CPPFDigiCollection"/>
+  <class name="edm::Wrapper<l1t::CPPFDigiCollection>"/>
+
   <class name="L1MuBMTrackSegPhi" ClassVersion="10">
     <version ClassVersion="10" checksum="3818011888"/>
   </class>
@@ -47,9 +73,28 @@
     <version ClassVersion="10" checksum="2263077996"/>
  </class>
 
-  <class name="L1MuBMTrack" ClassVersion="10">
+
+  <class name="L1MuKBMTCombinedStub"/>
+  <class name="L1MuKBMTCombinedStubCollection"/>
+  <class name="edm::Wrapper<L1MuKBMTCombinedStubCollection >"/>
+
+ <class name="edm::Ref<L1MuKBMTCombinedStubCollection>" splitLevel="0"/>
+ <class name="edm::Wrapper<edm::Ref<L1MuKBMTCombinedStubCollection > >"/>
+
+
+
+  <class name="L1MuBMTrack" ClassVersion="15">
+   <version ClassVersion="15" checksum="99482231"/>
+   <version ClassVersion="14" checksum="2164413511"/>
     <version ClassVersion="10" checksum="955528069"/>
+    <version ClassVersion="11" checksum="1941187557"/>
+    <version ClassVersion="12" checksum="4194061270"/>
+    <version ClassVersion="13" checksum="879964230"/>
   </class>
+
+
+  <class name="L1MuKBMTrack"/>
+
 
   <class name="L1MuBMSecProcId" ClassVersion="10">
     <version ClassVersion="10" checksum="3768381571"/>
@@ -64,10 +109,14 @@
   </class>
 
   <class name="L1MuBMTrackCollection"/>
+  <class name="L1MuKBMTrackCollection"/>
+  <class name="L1MuKBMTrackBxCollection"/>
   <class name="L1MuBMTrackSegPhiCollection"/>
   <class name="L1MuBMTrackSegEtaCollection"/>
 
   <class name="edm::Wrapper<L1MuBMTrackCollection >"/>
+  <class name="edm::Wrapper<L1MuKBMTrackBxCollection >"/>
+  <class name="edm::Wrapper<L1MuKBMTrackCollection >"/>
   <class name="edm::Wrapper<L1MuBMTrackSegPhiCollection >"/>
   <class name="edm::Wrapper<L1MuBMTrackSegEtaCollection >"/>
 

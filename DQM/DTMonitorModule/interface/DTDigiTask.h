@@ -9,27 +9,29 @@
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+//Records
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+#include "DataFormats/DTDigi/interface/DTDigi.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
-
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <memory>
@@ -46,13 +48,8 @@ class DTChamberId;
 class DTTtrig;
 class DTT0;
 
-class DQMStore;
-class MonitorElement;
-
-class DTDigiTask: public DQMEDAnalyzer{
-
+class DTDigiTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
-
   /// Constructor
   DTDigiTask(const edm::ParameterSet& ps);
 
@@ -60,21 +57,19 @@ public:
   ~DTDigiTask() override;
 
 protected:
-
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   // Book the histograms
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   /// Book the ME
-  void bookHistos(DQMStore::IBooker & ibooker, const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);
-  void bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& dtCh, std::string folder, std::string histoTag);
-  void bookHistos(DQMStore::IBooker & ibooker, const int wheelId, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& dtCh, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker& ibooker, const int wheelId, std::string folder, std::string histoTag);
 
   /// To reset the MEs
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)  override;
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) final {}
 
   /// To map real channels
   void channelsMap(const DTChamberId& dtCh, std::string histoTag);
@@ -82,12 +77,10 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-
   /// get the L1A source
   std::string triggerSource();
 
 private:
-
   std::string topFolder() const;
 
   int nevents;
@@ -103,18 +96,26 @@ private:
 
   //check for sync noise
 
-  std::map<DTChamberId,int> hitMap;
+  std::map<DTChamberId, int> hitMap;
   std::set<DTChamberId> syncNoisyChambers;
   int syncNumTot;
   int syncNum;
 
   edm::Handle<LTCDigiCollection> ltcdigis;
 
-  edm::ESHandle<DTGeometry> muonGeom;
-  edm::ESHandle<DTReadOutMapping> mapping;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
+  edm::ESGetToken<DTReadOutMapping, DTReadOutMappingRcd> readOutMapToken_;
+  const DTReadOutMapping* mapping;
 
-  edm::ESHandle<DTTtrig> tTrigMap;
-  edm::ESHandle<DTT0> t0Map;
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> TtrigToken_;
+  const DTTtrig* tTrigMap;
+  edm::ESGetToken<DTT0, DTT0Rcd> T0Token_;
+  const DTT0* t0Map;
+
+  // Status map (for noisy channels)
+  edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> statusMapToken_;
+  const DTStatusFlag* statusMap;
 
   std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
   std::map<std::string, std::map<int, MonitorElement*> > wheelHistos;
@@ -156,12 +157,13 @@ private:
   bool lookForSyncNoise;
   bool filterSyncNoise;
 
+  bool sliceTestMode;
+  int tdcPedestal;
+
   bool doLayerTimeBoxes;
 
   std::map<DTChamberId, int> nSynchNoiseEvents;
   MonitorElement* nEventMonitor;
-
-
 };
 
 #endif

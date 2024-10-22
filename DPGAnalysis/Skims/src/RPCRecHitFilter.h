@@ -1,14 +1,13 @@
 #ifndef RPCRecHitsFilter_h
 #define RPCRecHitsFilter_h
 
-// Orso Iorio, INFN Napoli 
+// Orso Iorio, INFN Napoli
 
 #include <string>
 #include <map>
 #include <fstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -33,8 +32,8 @@
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h" 
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h" 
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -42,7 +41,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "TDirectory.h"
 #include "TFile.h"
@@ -54,28 +54,30 @@ class Propagator;
 class GeomDet;
 class TrajectoryStateOnSurface;
 
-typedef std::vector<TrajectoryMeasurement>                  MeasurementContainer;
-typedef std::pair<const GeomDet*, TrajectoryStateOnSurface> DetWithState;
-typedef std::vector<Trajectory>                             Trajectories;
+typedef std::vector<TrajectoryMeasurement> MeasurementContainer;
+typedef std::pair<const GeomDet *, TrajectoryStateOnSurface> DetWithState;
+typedef std::vector<Trajectory> Trajectories;
 
-
-class RPCRecHitFilter : public edm::EDFilter {
-
+class RPCRecHitFilter : public edm::stream::EDFilter<> {
 public:
-
-  explicit RPCRecHitFilter(const edm::ParameterSet&);
-  ~RPCRecHitFilter() override { }
+  explicit RPCRecHitFilter(const edm::ParameterSet &);
+  ~RPCRecHitFilter() override {}
 
 private:
+  bool filter(edm::Event &, const edm::EventSetup &) override;
 
-  bool filter(edm::Event &, const edm::EventSetup&) override;
+  // es token
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeoToken_;
 
-  std::string RPCDataLabel;
-  
+  // event token
+  edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitToken_;
+
+  std::string RPCDataLabel_;
+
   int centralBX_, BXWindow_, minHits_, hitsInStations_;
-  
-  bool Verbose_, Debug_, Barrel_, EndcapPositive_, EndcapNegative_, cosmicsVeto_;
 
+  bool Verbose_, Debug_, Barrel_, EndcapPositive_, EndcapNegative_, cosmicsVeto_;
 };
 
-#endif // RPCRecHitsFilter_h
+#endif  // RPCRecHitsFilter_h

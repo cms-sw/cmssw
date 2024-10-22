@@ -2,7 +2,7 @@
 //
 // Package:    FFTJetProducers
 // Class:      FFTJetInterface
-// 
+//
 /**\class FFTJetInterface FFTJetInterface.h RecoJets/FFTJetProducers/interface/FFTJetInterface.hh
 
  Description: common facilities for the FFTJet interface code
@@ -28,7 +28,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
 
@@ -49,19 +49,21 @@
 // class declaration
 //
 namespace fftjetcms {
-  class FFTJetInterface : public edm::EDProducer
-  {
+  class FFTJetInterface : public edm::stream::EDProducer<> {
   public:
+    // Explicitly disable other ways to construct this object
+    FFTJetInterface() = delete;
+    FFTJetInterface(const FFTJetInterface&) = delete;
+    FFTJetInterface& operator=(const FFTJetInterface&) = delete;
     ~FFTJetInterface() override {}
 
   protected:
     explicit FFTJetInterface(const edm::ParameterSet&);
 
-    template<class Ptr>
-    void checkConfig(const Ptr& ptr, const char* message)
-    {
+    template <class Ptr>
+    void checkConfig(const Ptr& ptr, const char* message) {
       if (ptr.get() == nullptr)
-	throw cms::Exception("FFTJetBadConfig") << message << std::endl;
+        throw cms::Exception("FFTJetBadConfig") << message << std::endl;
     }
 
     void loadInputCollection(const edm::Event&);
@@ -69,7 +71,7 @@ namespace fftjetcms {
     double getEventScale() const;
     bool storeInSinglePrecision() const;
 
-    const reco::Particle::Point& vertexUsed() const {return vertex_;}
+    const reco::Particle::Point& vertexUsed() const { return vertex_; }
 
     // Label for the input collection
     const edm::InputTag inputLabel;
@@ -99,17 +101,12 @@ namespace fftjetcms {
     std::vector<unsigned> candidateIndex;
 
     // The energy discretization grid
-    std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> > energyFlow;
+    std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> > energyFlow;
 
     // The input handle for the collection of candidates
     edm::Handle<reco::CandidateView> inputCollection;
 
   private:
-    // Explicitly disable other ways to construct this object
-    FFTJetInterface() = delete;
-    FFTJetInterface(const FFTJetInterface&) = delete;
-    FFTJetInterface& operator=(const FFTJetInterface&) = delete;
-
     const bool insertCompleteEvent;
     const double completeEventScale;
     reco::Particle::Point vertex_;
@@ -117,6 +114,6 @@ namespace fftjetcms {
     edm::EDGetTokenT<reco::CandidateView> inputToken;
     edm::EDGetTokenT<reco::VertexCollection> srcPVsToken;
   };
-}
+}  // namespace fftjetcms
 
-#endif // RecoJets_FFTJetProducers_FFTJetInterface_h
+#endif  // RecoJets_FFTJetProducers_FFTJetInterface_h

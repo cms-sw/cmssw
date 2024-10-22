@@ -22,6 +22,6 @@ namespace reco {
 
   /// iterator over a vector of reference to PhotonCore objects
   typedef PhotonCoreRefVector::iterator photonCore_iterator;
-}
+}  // namespace reco
 
 #endif

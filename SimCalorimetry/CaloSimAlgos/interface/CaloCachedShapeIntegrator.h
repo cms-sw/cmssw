@@ -9,22 +9,18 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 #include <vector>
 
-class CaloCachedShapeIntegrator: public CaloVShape
-{
-   public:
+class CaloCachedShapeIntegrator : public CaloVShape {
+public:
+  CaloCachedShapeIntegrator(const CaloVShape *aShape);
 
-      CaloCachedShapeIntegrator( const CaloVShape* aShape ) ;
+  ~CaloCachedShapeIntegrator() override;
 
-      ~CaloCachedShapeIntegrator() override ;
+  double operator()(double startTime) const override;
+  double timeToRise() const override;
 
-      double operator () ( double startTime ) const override ;
-      double timeToRise()                     const override ;
-
-   private:
-
-      std::vector<double> v_;
-      double timeToRise_;
+private:
+  std::vector<double> v_;
+  double timeToRise_;
 };
 
 #endif
-

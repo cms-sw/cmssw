@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>DQM histogram comparison summary</title>
+	<style>
+		body {
+			font-family: arial, sans-serif;
+		}
+
+		p, h4, h3, h2 {
+			padding-left: 6px;
+		}
+
+		table {
+			border-collapse: collapse;
+		}
+
+		td,
+		th {
+			text-align: left;
+			padding: 6px;
+		}
+
+		tr:nth-child(even) {
+			background-color: #f1f1f1;
+		}
+
+		.removed {
+			color: #CB2431;
+			font-weight: bold;
+		}
+
+		.added {
+			color: #37BE4E;
+			font-weight: bold;
+			margin-left: 8px;
+		}
+
+		.changed {
+			color: #F5A623;
+			font-weight: bold;
+			margin-left: 8px;
+		}
+	</style>
+</head>
+
+<body>
+	<h3>PR(s) being tested:</h3>
+
+	<h4>$PR_LIST$</h4>
+
+	<h3>Total number of changes to DQM monitor elements made this PR/these PRs:</h3>
+
+	<h2 class="removed">$TOTAL_CHANGES$</h2>
+
+	<h3>URLs for each individual workflow ($NUMBER_OF_WORKFLOWS$):</h3>
+
+	<p><i>Baseline</i>, <i>pull request</i> and <i>overlay</i> links point to the DQM GUI. <br>
+		Some changes in DQM files might not be clearly displayed in the DQM GUI, like presence/absence of efficiency flag or changed QT result when the ME that was tested didn't change. <br>
+		For this reason, you can use <i>raw baseline</i> and <i>raw pull request</i> links to inspect ROOT files without interpreting them as DQM ROOT file.</p>
+
+	<table>
+		<tr>
+			<th>Baseline</th>
+			<th>Pull Request</th>
+			<th>Overlay (PR + base)</th>
+			<th>Raw baseline</th>
+			<th>Raw pull request</th>
+			<th>Removed, added and changed plots</th>
+		</tr>
+$PER_WORKFLOW_LIST$
+	</table>
+
+</body>
+
+</html>

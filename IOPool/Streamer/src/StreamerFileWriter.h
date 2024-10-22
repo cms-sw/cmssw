@@ -1,5 +1,5 @@
 #ifndef IOPool_Streamer_StreamerFileWriter_h
-#define IOPool_Streamer_StreamerFileWriter_h 
+#define IOPool_Streamer_StreamerFileWriter_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -16,34 +16,31 @@
 #include <memory>
 #include <string>
 
-namespace edm
-{
+namespace edm {
   class ParameterSetDescription;
-  class StreamerFileWriter 
-  {
-  public:
+  namespace streamer {
+    class StreamerFileWriter {
+    public:
+      explicit StreamerFileWriter(edm::ParameterSet const& ps);
+      explicit StreamerFileWriter(std::string const& fileName);
+      ~StreamerFileWriter();
 
-    explicit StreamerFileWriter(edm::ParameterSet const& ps);
-    explicit StreamerFileWriter(std::string const& fileName);
-    ~StreamerFileWriter();
+      static void fillDescription(ParameterSetDescription& desc);
 
-    static void fillDescription(ParameterSetDescription& desc);
+      void doOutputHeader(InitMsgBuilder const& init_message);
+      void doOutputHeader(InitMsgView const& init_message);
 
-    void doOutputHeader(InitMsgBuilder const& init_message);    
-    void doOutputHeader(InitMsgView const& init_message);    
+      void doOutputEvent(EventMsgBuilder const& msg);
+      void doOutputEvent(EventMsgView const& msg);
 
-    void doOutputEvent(EventMsgBuilder const& msg);
-    void doOutputEvent(EventMsgView const& msg);
+      void start() {}
+      void stop() {}
 
-    void start(){}
-    void stop(){};
+      uint32 get_adler32() const { return stream_writer_->adler32(); }
 
-    uint32 get_adler32() const { return stream_writer_->adler32();}
-
-  private:
-
-    edm::propagate_const<std::unique_ptr<StreamerOutputFile>> stream_writer_;
-
-  };
-}
+    private:
+      edm::propagate_const<std::unique_ptr<StreamerOutputFile>> stream_writer_;
+    };
+  }  // namespace streamer
+}  // namespace edm
 #endif

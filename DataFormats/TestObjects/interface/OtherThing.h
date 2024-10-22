@@ -15,17 +15,17 @@
 namespace edmtest {
 
   struct OtherThing {
-    cms_int32_t                     a;
-    edm::RefProd<ThingCollection>   refProd;
-    edm::Ref<ThingCollection>       ref;
+    cms_int32_t a;
+    edm::RefProd<ThingCollection> refProd;
+    edm::Ref<ThingCollection> ref;
     edm::RefVector<ThingCollection> refVec;
     edm::RefVector<ThingCollection> oneNullOneNot;
-    edm::RefToBase<Thing>           refToBase;
-    edm::RefToBaseProd<Thing>       refToBaseProd;
-    edm::Ptr<Thing>                 ptr;
-    edm::PtrVector<Thing>           ptrVec;
-    edm::PtrVector<Thing>           ptrOneNullOneNot;
+    edm::RefToBase<Thing> refToBase;
+    edm::RefToBaseProd<Thing> refToBaseProd;
+    edm::Ptr<Thing> ptr;
+    edm::PtrVector<Thing> ptrVec;
+    edm::PtrVector<Thing> ptrOneNullOneNot;
   };
-}
+}  // namespace edmtest
 
 #endif

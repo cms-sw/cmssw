@@ -11,35 +11,35 @@
  */
 
 // Base Class Headers
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 //#include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 namespace edm {
-class ParameterSet;
-class Event;
-class EventSetup;
-}
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class TFile;
 class TH1F;
 class TH2F;
+class MagneticField;
+class IdealMagneticFieldRecord;
 
 class PhysicsObjectsMonitor : public DQMEDAnalyzer {
- public:
+public:
   /// Constructor
   PhysicsObjectsMonitor(const edm::ParameterSet &pset);
   /// Destructor
   ~PhysicsObjectsMonitor() override;
   // Operations
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
- private:
+private:
   std::string theSTAMuonLabel;
   std::string theSeedCollectionLabel;
 
@@ -67,5 +67,6 @@ class PhysicsObjectsMonitor : public DQMEDAnalyzer {
 
   // define Token(-s)
   edm::EDGetTokenT<reco::TrackCollection> theSTAMuonToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFiledToken_;
 };
 #endif

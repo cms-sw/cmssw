@@ -10,7 +10,6 @@ conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended2015Fl
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended2015FlatPlus05Percent.db -t XMLFILE_Geometry_TagXX_Extended2015FlatPlus05Percent_mc -i XMLFILE_Geometry_TagXX_Extended2015FlatPlus05Percent_mc
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended2015FlatPlus10Percent.db -t XMLFILE_Geometry_TagXX_Extended2015FlatPlus10Percent_mc -i XMLFILE_Geometry_TagXX_Extended2015FlatPlus10Percent_mc
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKRECO_Geometry.db -t TKRECO_Geometry2015_TagXX -i TKRECO_Geometry2015_TagXX
-conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKExtra_Geometry.db -t TKExtra_Geometry2015_TagXX -i TKExtra_Geometry2015_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKParameters_Geometry.db -t TKParameters_Geometry2015_TagXX -i TKParameters_Geometry2015_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:EBRECO_Geometry.db -t EBRECO_Geometry2015_TagXX -i EBRECO_Geometry2015_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:EERECO_Geometry.db -t EERECO_Geometry2015_TagXX -i EERECO_Geometry2015_TagXX

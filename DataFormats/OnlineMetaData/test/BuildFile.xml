@@ -1,5 +1,6 @@
-<use   name="cppunit"/>
-<use   name="DataFormats/FEDRawData"/>
-<use   name="DataFormats/OnlineMetaData"/>
-<bin   name="testDataFormatsOnlineMetaData" file="testRunner.cpp,onlineMetaDataRecord_t.cpp">
+<use name="cppunit"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/OnlineMetaData"/>
+<use name="stdcxx-fs"/>
+<bin name="testDataFormatsOnlineMetaData" file="testRunner.cpp,onlineMetaDataRecord_t.cpp">
 </bin>

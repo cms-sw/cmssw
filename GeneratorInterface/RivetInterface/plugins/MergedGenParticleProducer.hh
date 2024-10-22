@@ -8,15 +8,15 @@
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include <vector>
 
-class MergedGenParticleProducer : public edm::stream::EDProducer<>
-{
- public:
+class MergedGenParticleProducer : public edm::stream::EDProducer<> {
+public:
   MergedGenParticleProducer(const edm::ParameterSet& pset);
-  ~MergedGenParticleProducer() {};
+  ~MergedGenParticleProducer() override {}
 
- private:
+private:
   void produce(edm::Event& event, const edm::EventSetup&) override;
   bool isPhotonFromPrunedHadron(const pat::PackedGenParticle& pk) const;
+  bool isLeptonFromPrunedPhoton(const reco::GenParticle& pk) const;
 
   edm::EDGetTokenT<edm::View<reco::GenParticle>> input_pruned_;
   edm::EDGetTokenT<edm::View<pat::PackedGenParticle>> input_packed_;

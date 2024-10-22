@@ -24,8 +24,7 @@ COND_SERIALIZABLE_POLYMORPHIC(PerformancePayloadFromTable)
 COND_SERIALIZABLE_POLYMORPHIC(PerformancePayloadFromTFormula)
 COND_SERIALIZABLE_POLYMORPHIC(PerformancePayloadFromBinnedTFormula)
 
-
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(PhysicsTools::Calibration::VarProcessor); 
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(PhysicsTools::Calibration::VarProcessor);
 
 COND_SERIALIZABLE_POLYMORPHIC(PhysicsTools::Calibration::VarProcessor)
 COND_SERIALIZABLE_POLYMORPHIC(PhysicsTools::Calibration::ProcOptional)

@@ -47,19 +47,25 @@ from RecoMET.Configuration.GenMETParticles_cff import *
 #   }
 # }
 
+GeneInfoTask = cms.Task(genParticles)
+genJetMETTask = cms.Task(genJetParticlesTask, recoGenJetsTask, genMETParticlesTask, recoGenMETTask)
 
 VertexSmearing = cms.Sequence(cms.SequencePlaceholder("VtxSmeared"))
 GenSmeared = cms.Sequence(generatorSmeared)
-GeneInfo = cms.Sequence(genParticles)
-genJetMET = cms.Sequence(genJetParticles*recoGenJets+genMETParticles*recoGenMET)
+GeneInfo = cms.Sequence(GeneInfoTask)
+genJetMET = cms.Sequence(genJetMETTask)
 
-pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GenSmeared+GeneInfo+genJetMET)
+from SimPPS.Configuration.GenPPS_cff import *
+pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GenSmeared+GeneInfo+genJetMET, PPSTransportTask)
 
 # sequence for bare generator result only, without vertex smearing and analysis objects added
-
 pgen_genonly = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer"))
 
-fixGenInfo = cms.Sequence(GeneInfo * genJetMET)
+# only vertex smearing and analysis objects
+pgen_smear = cms.Sequence(VertexSmearing+GenSmeared+GeneInfo+genJetMET, PPSTransportTask)
+
+fixGenInfoTask = cms.Task(GeneInfoTask, genJetMETTask)
+fixGenInfo = cms.Sequence(fixGenInfoTask)
 
 
 import HLTrigger.HLTfilters.triggerResultsFilter_cfi

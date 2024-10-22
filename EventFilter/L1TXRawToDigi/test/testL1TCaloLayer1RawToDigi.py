@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import EventFilter.L1TXRawToDigi.util as util
@@ -18,7 +19,7 @@ def formatLumis(lumistring, run) :
     runlumis = (['%d:%s' % (run,lumi) for lumi in lrange] for lrange in lumis)
     return ['-'.join(l) for l in runlumis]
 
-print 'Getting files for run %d...' % options.runNumber
+print('Getting files for run %d...' % options.runNumber)
 if len(options.inputFiles) is 0 and options.inputFileList is '' :
     inputFiles = util.getFilesForRun(options.runNumber, options.dataStream)
 elif len(options.inputFileList) > 0 :
@@ -28,7 +29,7 @@ else :
     inputFiles = cms.untracked.vstring(options.inputFiles)
 if len(inputFiles) is 0 :
     raise Exception('No files found for dataset %s run %d' % (options.dataStream, options.runNumber))
-print 'Ok, time to analyze'
+print('Ok, time to analyze')
 
 process = cms.Process("L1TCaloLayer1Test")
 
@@ -49,7 +50,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 'keep *_*_*_L1TCaloLayer1Test')
 )
 
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = '74X_dataRun2_Express_v1'
 
 process.p = cms.Path(process.l1tCaloLayer1Digis)

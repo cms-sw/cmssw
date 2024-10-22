@@ -9,22 +9,8 @@ To dump the G4 particle table one needs to:
     edm::LogInfo("SimG4CoreApplication") << "Output of G4ParticleTable DumpTable:";
     G4ParticleTable::GetParticleTable()->DumpTable("ALL");
 2-Edit the Validation/Performance/python/TimeMemoryG4Info.py customise fragment (or you could create your own):
-  a-Add SimG4CoreApplication to the message logger categories:
-    process.MessageLogger.categories=cms.untracked.vstring('FwkJob'
-                                                         ,'FwkReport'
-                                                         ,'FwkSummary'
-                                                         ,'Root_NoDictionary'
-                                                         ,'TimeReport'
-                                                         ,'TimeModule'
-                                                         ,'TimeEvent'
-                                                         ,'MemoryCheck'
-                                                         ,'PhysicsList'
-                                                         ,'G4cout'
-                                                         ,'G4cerr'
-                                                         ,'SimG4CoreApplication'
-                                                         )
-  b-Configure the output (in this case to the file G4msg.log) to include SimG4CoreApplication:
-    process.MessageLogger.G4msg =  cms.untracked.PSet(
+  a-Configure the output (in this case to the file G4msg.log) to include SimG4CoreApplication:
+    process.MessageLogger.files = dict(G4msg =  cms.untracked.PSet(
       noTimeStamps = cms.untracked.bool(True)
       #First eliminate unneeded output
       ,threshold = cms.untracked.string('INFO')
@@ -47,6 +33,7 @@ To dump the G4 particle table one needs to:
       ,G4cerr = cms.untracked.PSet(limit = cms.untracked.int32(-1))
       ,SimG4CoreApplication = cms.untracked.PSet(limit = cms.untracked.int32(-1))
       )
+    )
 3-Run any cmsDriver.py commands that entail simulation, e.g.(in CMSSW_3_1_0_pre4):
   cmsDriver.py MinBias.cfi -n 1 --step GEN,SIM --customise=Validation/Performance/TimeMemoryG4Info.py --eventcontent FEVTDEBUG --conditions FrontierConditions_GlobalTag,IDEAL_30X::All > & ! MinBias.log &
 The resulting file G4msg.log contains the dump of the G4 Particle Table. We run on it, extract the information we are interested in and we store it in 2 dictionaries:
@@ -134,10 +121,10 @@ for record in G4msg:
                 decaytable=False
                 ParticleInfoDict.update({'G4 Decay Table':decaytable})
         elif record[0:5]=='%MSG ': #Notice the space
-            #print 'G4 message ended'
+            #print('G4 message ended')
             G4cout=False
     if record[0:13]=='%MSG-i G4cout':
-        #print 'G4 message started'
+        #print('G4 message started')
         G4cout=True 
 import os
 import math
@@ -148,7 +135,7 @@ for record in open(os.environ.data['CMSSW_RELEASE_BASE']+'/src/SimGeneral/HepPDT
         pass
     else:
         tokens = record.split()
-        #print tokens
+        #print(tokens)
         if len(tokens)==6: #There is an empty line at the end of the file
             #Note the different conventions (Particle names are different, charge is reported in units of 1/3e originally in HepPDT, lifetime expressed in ctau in cm)
             HepPdtTable.update({tokens[1]:{'Particle Name':tokens[1],'PDG ID':int(tokens[0]),'Charge [e]': float(tokens[2])/3, 'Mass [GeV/c2]':float(tokens[3]), 'ctau [mm]':float(tokens[5])}})
@@ -157,31 +144,31 @@ for record in open(os.environ.data['CMSSW_RELEASE_BASE']+'/src/SimGeneral/HepPDT
 #A few consistency checks on the dictionaries
 #G4ParticleTables
 #Quick and dirty removal of empty first element of G4ParticleTable ('':{}) should really fix the code, but for now it's OK...
-print 'Popping the first empty element of G4ParticleTable: %s '%G4ParticleTable.pop('')
-print 'G4ParticleTable contains ',len(G4ParticleTable),'elements'
-print 'G4ParticleTablePDG contains ',len(G4ParticleTablePDG),'elements'
+print('Popping the first empty element of G4ParticleTable: %s '%G4ParticleTable.pop(''))
+print('G4ParticleTable contains ',len(G4ParticleTable),'elements')
+print('G4ParticleTablePDG contains ',len(G4ParticleTablePDG),'elements')
 if len(G4ParticleTable)>len(G4ParticleTablePDG):
-    print "The following values were in the G4ParticleTable dictionary but not in the G4ParticleTablePDG one (multiple entries with different names but the same PDG code):"
+    print("The following values were in the G4ParticleTable dictionary but not in the G4ParticleTablePDG one (multiple entries with different names but the same PDG code):")
     for value in G4ParticleTable.values():
         if value not in G4ParticleTablePDG.values():
-            print value
+            print(value)
 elif len(G4ParticleTablePDG)>len(G4ParticleTable):
-    print "The following values were in the G4ParticleTablePDG dictionary but not in the G4ParticleTable one (multiple entries with different PDG codes but the same Particle Name):"
+    print("The following values were in the G4ParticleTablePDG dictionary but not in the G4ParticleTable one (multiple entries with different PDG codes but the same Particle Name):")
     for value in G4ParticleTablePDG.values():
         if value not in G4ParticleTable.values():
-            print value
-print 'HepPdtTable contains ',len(HepPdtTable),'elements'
-print 'HepPdtTablePDG contains ',len(HepPdtTablePDG),'elements'
+            print(value)
+print('HepPdtTable contains ',len(HepPdtTable),'elements')
+print('HepPdtTablePDG contains ',len(HepPdtTablePDG),'elements')
 if len(HepPdtTable)>len(HepPdtTablePDG):
-    print "The following values were in the HepPdtTable dictionary but not in the HepPdtTablePDG one (multiple entries with different names but the same PDG code):"
+    print("The following values were in the HepPdtTable dictionary but not in the HepPdtTablePDG one (multiple entries with different names but the same PDG code):")
     for value in HepPdtTable.values():
         if value not in HepPdtTablePDG.values():
-            print value
+            print(value)
 elif len(HepPdtTablePDG)>len(HepPdtTable):
-    print "The following values were in the HepPdtTablePDG dictionary but not in the HepPdtTable one (multiple entries with different PDG codes but the same Particle Name):"
+    print("The following values were in the HepPdtTablePDG dictionary but not in the HepPdtTable one (multiple entries with different PDG codes but the same Particle Name):")
     for value in HepPdtTablePDG.values():
         if value not in HepPdtTable.values():
-            print value
+            print(value)
 
 #Comparison via dictionaries!
         
@@ -222,7 +209,7 @@ for pdgcode in HepPdtTablePDG.keys():
         #Check that G4 has decay tables for particles with ctau>10 mm:
         if G4ParticleTablePDG[pdgcode]['ctau [mm]']>10.0 or HepPdtTablePDG[pdgcode]['ctau [mm]']>10.0:
             if not G4ParticleTablePDG[pdgcode]['G4 Decay Table']:
-                print "****Uh Oh No G4 Decay Table for ", G4ParticleTablePDG[pdgcode]['Particle Name']
+                print("****Uh Oh No G4 Decay Table for ", G4ParticleTablePDG[pdgcode]['Particle Name'])
             else:
                 WriteOutHtml(MatchingPDGDecayFileHtml,[pdgcode,HepPdtTablePDG[pdgcode]['Particle Name'],G4ParticleTablePDG[pdgcode]['Particle Name'],HepPdtTablePDG[pdgcode]['ctau [mm]'],G4ParticleTablePDG[pdgcode]['ctau [mm]'],HepPdtTablePDG[pdgcode]['Mass [GeV/c2]'],G4ParticleTablePDG[pdgcode]['Mass [GeV/c2]'],G4ParticleTablePDG[pdgcode]['G4 Decay Table']])
         #Since we are here also compare ctaus
@@ -247,14 +234,14 @@ for pdgcode in HepPdtTablePDG.keys():
             MassDiff=HepPdtTablePDG[pdgcode]['Mass [GeV/c2]']-G4ParticleTablePDG[pdgcode]['Mass [GeV/c2]']
             MassDiffPercent=math.fabs(MassDiff/HepPdtTablePDG[pdgcode]['Mass [GeV/c2]']*100)
             MassDiffPercentList+=[(abs(MassDiffPercent),pdgcode,MassDiff,MassDiffPercent)]
-            print pdgcode,HepPdtTablePDG[pdgcode]['Particle Name'],G4ParticleTablePDG[pdgcode]['Particle Name'],' Mass:',HepPdtTablePDG[pdgcode]['Mass [GeV/c2]'],' Mass:',G4ParticleTablePDG[pdgcode]['Mass [GeV/c2]'],MassDiff,MassDiffPercent
+            print(pdgcode,HepPdtTablePDG[pdgcode]['Particle Name'],G4ParticleTablePDG[pdgcode]['Particle Name'],' Mass:',HepPdtTablePDG[pdgcode]['Mass [GeV/c2]'],' Mass:',G4ParticleTablePDG[pdgcode]['Mass [GeV/c2]'],MassDiff,MassDiffPercent)
             #WriteOutHtml(MatchingPDGMassFileHtml,[pdgcode,HepPdtTablePDG[pdgcode]['Particle Name'],G4ParticleTablePDG[pdgcode]['Particle Name'],HepPdtTablePDG[pdgcode]['Mass [GeV/c2]'],G4ParticleTablePDG[pdgcode]['Mass [GeV/c2]'],MassDiff,MassDiffPercent])
         else:
             #Save the PDG code and Mass matching particles Particle Name in MatchingPDGMass list
             MatchingPDGMass+=[HepPdtTablePDG[pdgcode]['Particle Name']]
         #Check Charge
         if HepPdtTablePDG[pdgcode]['Charge [e]']!=G4ParticleTablePDG[pdgcode]['Charge [e]']:
-            print pdgcode,HepPdtTablePDG[pdgcode]['Particle Name'],G4ParticleTablePDG[pdgcode]['Particle Name'],' Charge [e]:',HepPdtTablePDG[pdgcode]['Charge [e]'],' Charge [e]:',G4ParticleTablePDG[pdgcode]['Charge [e]']
+            print(pdgcode,HepPdtTablePDG[pdgcode]['Particle Name'],G4ParticleTablePDG[pdgcode]['Particle Name'],' Charge [e]:',HepPdtTablePDG[pdgcode]['Charge [e]'],' Charge [e]:',G4ParticleTablePDG[pdgcode]['Charge [e]'])
             WriteOutHtml(MatchingPDGChargeFileHtml,[pdgcode,HepPdtTablePDG[pdgcode]['Particle Name'],G4ParticleTablePDG[pdgcode]['Particle Name'],HepPdtTablePDG[pdgcode]['Charge [e]'],G4ParticleTablePDG[pdgcode]['Charge [e]']])
     else:
         #########################################################################################
@@ -274,7 +261,7 @@ for element in MassDiffPercentList:
     MassDiff=element[2]
     MassDiffPercent=element[3]
     WriteOutHtml(MatchingPDGMassSortedFileHtml,[pdgcode,HepPdtTablePDG[pdgcode]['Particle Name'],G4ParticleTablePDG[pdgcode]['Particle Name'],HepPdtTablePDG[pdgcode]['Mass [GeV/c2]'],G4ParticleTablePDG[pdgcode]['Mass [GeV/c2]'],MassDiff,MassDiffPercent,G4ParticleTablePDG[pdgcode]['ctau [mm]']])
-#    print element[0],element[1]
+#    print(element[0],element[1])
 
 MatchingPDGctauSortedFileHtml=open('MatchingPDGctauSorted.html','w')
 MatchingPDGctauSortedFileHtml.writelines(['<html>\n','<body>\n','<table align="center", border=2>\n'])

@@ -9,16 +9,16 @@ class TFile;
 class TTree;
 
 namespace edm {
-  
-  TFile* openFileHdl(const std::string& fname) ;
+
+  TFile *openFileHdl(const std::string &fname);
   void printTrees(TFile *hdl);
-  Long64_t numEntries(TFile *hdl, const std::string& trname);
+  Long64_t numEntries(TFile *hdl, const std::string &trname);
   void printBranchNames(TTree *tree);
   void longBranchPrint(TTree *tr);
   std::string getUuid(TTree *uuidTree);
   void printUuids(TTree *uuidTree);
   void printEventLists(TFile *tfl);
-  void printEventsInLumis(TFile* tfl);
-}
+  void printEventsInLumis(TFile *tfl);
+}  // namespace edm
 
 #endif

@@ -9,6 +9,9 @@ SiPixelPhase1SummaryOnline = DQMEDHarvester("SiPixelPhase1Summary",
     TopFolderName = cms.string('PixelPhase1/Phase1_MechanicalView/'),
     RunOnEndLumi = cms.bool(True),
     RunOnEndJob = cms.bool(True),
+    # schedule this module to run *after* the QTests.
+    inputGeneration = cms.untracked.string('DQMGenerationQTest'),
+    outputGeneration = cms.untracked.string('DQMGenerationSummary'),
     SummaryMaps = cms.VPSet(
         cms.PSet(
             MapName = cms.string("Digi"),
@@ -30,13 +33,19 @@ SiPixelPhase1SummaryOnline = DQMEDHarvester("SiPixelPhase1Summary",
             MapName = cms.string("Charge"),
             MapHist = cms.string("mean_charge")
             )
-        )
+        ),
+    # Number of dead ROCs required to generate an error. Order must be layers 1-4, ring1, ring2.
+    DeadROCErrorThreshold = cms.vdouble(0.2,0.2,0.2,0.2,0.2,0.2),
+    DeadROCWarningThreshold = cms.vdouble(0.1,0.1,0.1,0.1,0.1,0.1)
 )
 
 SiPixelPhase1SummaryOffline = DQMEDHarvester("SiPixelPhase1Summary",
     TopFolderName = cms.string('PixelPhase1/Phase1_MechanicalView/'),
     RunOnEndLumi = cms.bool(False),
     RunOnEndJob = cms.bool(True),
+    # schedule this module to run *after* the QTests.
+    inputGeneration = cms.untracked.string('DQMGenerationQTest'),
+    outputGeneration = cms.untracked.string('DQMGenerationSummary'),
     SummaryMaps = cms.VPSet(
         cms.PSet(
             MapName = cms.string("Digi"),
@@ -58,13 +67,18 @@ SiPixelPhase1SummaryOffline = DQMEDHarvester("SiPixelPhase1Summary",
             MapName = cms.string("Charge"),
             MapHist = cms.string("mean_charge")
             )
-        )
+        ),
+        DeadROCErrorThreshold = cms.vdouble(0.2,0.2,0.2,0.2,0.2,0.2),
+        DeadROCWarningThreshold = cms.vdouble(0.1,0.1,0.1,0.1,0.1,0.1)
 )
 
 SiPixelPhase1SummaryCosmics = DQMEDHarvester("SiPixelPhase1Summary",
     TopFolderName = cms.string('PixelPhase1/Phase1_MechanicalView/'),
     RunOnEndLumi = cms.bool(False),
     RunOnEndJob = cms.bool(True),
+    # schedule this module to run *after* the QTests.
+    inputGeneration = cms.untracked.string('DQMGenerationQTest'),
+    outputGeneration = cms.untracked.string('DQMGenerationSummary'),
     SummaryMaps = cms.VPSet(
         cms.PSet(
             MapName = cms.string("Digi"),
@@ -78,10 +92,13 @@ SiPixelPhase1SummaryCosmics = DQMEDHarvester("SiPixelPhase1Summary",
             MapName = cms.string("Charge"),
             MapHist = cms.string("mean_charge")
             )
-        )
+        ),
+        DeadROCErrorThreshold = cms.vdouble(0.2,0.2,0.2,0.2,0.2,0.2),
+        DeadROCWarningThreshold = cms.vdouble(0.1,0.1,0.1,0.1,0.1,0.1)
 )
 
-ADCQTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+ADCQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_adc_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -90,7 +107,7 @@ ADCQTester = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-ADCQTester_offline = cms.EDAnalyzer("QualityTester",
+ADCQTester_offline = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_adc_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -99,7 +116,7 @@ ADCQTester_offline = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-NumClustersQTester = cms.EDAnalyzer("QualityTester",
+NumClustersQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_clusters_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -108,7 +125,7 @@ NumClustersQTester = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-NumClustersQTester_offline = cms.EDAnalyzer("QualityTester",
+NumClustersQTester_offline = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_clusters_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -117,7 +134,7 @@ NumClustersQTester_offline = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-NumDigisQTester = cms.EDAnalyzer("QualityTester",
+NumDigisQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_digis_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -126,7 +143,7 @@ NumDigisQTester = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-NumDigisQTester_offline = cms.EDAnalyzer("QualityTester",
+NumDigisQTester_offline = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_digis_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -135,7 +152,7 @@ NumDigisQTester_offline = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-NumDigisQTester_cosmics = cms.EDAnalyzer("QualityTester",
+NumDigisQTester_cosmics = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_digis_qualitytest_config_cosmics.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -144,7 +161,7 @@ NumDigisQTester_cosmics = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-SizeQTester = cms.EDAnalyzer("QualityTester",
+SizeQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_size_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -153,7 +170,7 @@ SizeQTester = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-SizeQTester_offline = cms.EDAnalyzer("QualityTester",
+SizeQTester_offline = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_size_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -162,7 +179,7 @@ SizeQTester_offline = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-SizeQTester_cosmics = cms.EDAnalyzer("QualityTester",
+SizeQTester_cosmics = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_size_qualitytest_config_cosmics.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -171,7 +188,7 @@ SizeQTester_cosmics = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-ChargeQTester = cms.EDAnalyzer("QualityTester",
+ChargeQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_charge_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -180,7 +197,7 @@ ChargeQTester = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-ChargeQTester_offline = cms.EDAnalyzer("QualityTester",
+ChargeQTester_offline = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_charge_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -189,7 +206,7 @@ ChargeQTester_offline = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-ChargeQTester_cosmics = cms.EDAnalyzer("QualityTester",
+ChargeQTester_cosmics = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_charge_qualitytest_config_cosmics.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),

@@ -9,6 +9,7 @@ from DQMOffline.Muon.muonEnergyDepositAnalyzer_cfi import *
 from DQMOffline.Muon.segmentTrackAnalyzer_cfi import *
 from DQMOffline.Muon.muonSeedsAnalyzer_cfi import *
 from DQMOffline.Muon.muonPFAnalyzer_cfi import *
+from DQMOffline.Muon.triggerMatchMonitor_cfi import *
 
 muonAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
                             muonSeedsAnalyzer*
@@ -17,24 +18,9 @@ muonAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
                             staMuonSegmentAnalyzer*
                             muonKinVsEtaAnalyzer*
                             diMuonHistos*
-                            LooseMuonEfficiencyAnalyzer*
-                            MediumMuonEfficiencyAnalyzer*
-                            TightMuonEfficiencyAnalyzer*
+                            EfficiencyAnalyzer*
                             muonPFsequence*
                             muonRecoOneHLT)
-from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-
-from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-phase2_muon.toReplaceWith(muonAnalyzer, muonAnalyzer.copyAndExclude([ # FIXME
-    muonEnergyDepositAnalyzer
-]))
-
-muonAnalyzer_miniAOD = cms.Sequence(muonRecoAnalyzer_miniAOD* 
-                                    muonKinVsEtaAnalyzer_miniAOD*
-                                    diMuonHistos_miniAOD*
-                                    LooseMuonEfficiencyAnalyzer_miniAOD*
-                                    MediumMuonEfficiencyAnalyzer_miniAOD*
-                                    TightMuonEfficiencyAnalyzer_miniAOD)
 
 muonAnalyzer_noHLT = cms.Sequence(muonEnergyDepositAnalyzer*
                                   muonSeedsAnalyzer*
@@ -43,7 +29,14 @@ muonAnalyzer_noHLT = cms.Sequence(muonEnergyDepositAnalyzer*
                                   staMuonSegmentAnalyzer*
                                   muonKinVsEtaAnalyzer*
                                   diMuonHistos*
-                                  LooseMuonEfficiencyAnalyzer*
-                                  MediumMuonEfficiencyAnalyzer*
-                                  TightMuonEfficiencyAnalyzer*                                
+                                  EfficiencyAnalyzer* 
                                   muonPFsequence)
+
+muonAnalyzer_miniAOD = cms.Sequence(muonRecoAnalyzer_miniAOD*
+                                    muonKinVsEtaAnalyzer_miniAOD*
+                                    diMuonHistos_miniAOD*
+                                    EfficiencyAnalyzer_miniAOD*
+                                    triggerMatchMonitor_miniAOD)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(muonAnalyzer_miniAOD, muonAnalyzer_miniAOD.copyAndExclude([triggerMatchMonitor_miniAOD]))

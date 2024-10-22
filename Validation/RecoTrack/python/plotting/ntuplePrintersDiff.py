@@ -1,3 +1,4 @@
+from builtins import range
 import re
 import sys
 import math
@@ -75,7 +76,7 @@ class _TracksByHitsMatcher(object):
                 tracks[ot] += 1
 
         best = (None, 0)
-        for t, ncommon in tracks.iteritems():
+        for t, ncommon in tracks.items():
             if ncommon > best[1]:
                 best = (t, ncommon)
         return best
@@ -150,7 +151,7 @@ class _DiffResult(object):
                 yield line
 
     def __str__(self):
-        return "\n".join(filter(lambda s: s != "", (str(item) for item in self._diff)))
+        return "\n".join([s for s in (str(item) for item in self._diff) if s != ""])
 
     def __len__(self):
         return len(self._diff)
@@ -484,7 +485,7 @@ def _associateTracksByTrackingParticlesAndHits(lst1, lst2):
 
     # merge results
     # any good way to avoid copy-past?
-    for ind, assoc in trkAssoc1.iteritems():
+    for ind, assoc in trkAssoc1.items():
         for t1 in assoc.trks1():
             a = trkAssoc1[t1.index()]
             assoc.merge(a)
@@ -493,7 +494,7 @@ def _associateTracksByTrackingParticlesAndHits(lst1, lst2):
             a = trkAssoc2[t2.index()]
             assoc.merge(a)
             a.merge(assoc)
-    for ind, assoc in trkAssoc2.iteritems():
+    for ind, assoc in trkAssoc2.items():
         for t2 in assoc.trks2():
             a = trkAssoc2[t2.index()]
             assoc.merge(a)
@@ -503,7 +504,7 @@ def _associateTracksByTrackingParticlesAndHits(lst1, lst2):
             assoc.merge(a)
             a.merge(assoc)
 
-    for ind, assoc in itertools.chain(trkAssoc1.iteritems(), trkAssoc2.iteritems()):
+    for ind, assoc in itertools.chain(trkAssoc1.items(), trkAssoc2.items()):
         #if ind in [437, 1101]:
         #    print "----"
         #    print ind, [t.index() for t in assoc.trks1()], [t.index() for t in assoc.trks2()]
@@ -616,7 +617,7 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2, ignoreAdditionalLst2=False):
     return diff
 
 def _formatHitDiffForTwiki(diffHits, prefix):
-    line_re = re.compile("(?P<sign>[ \-+])\s+(?P<det>[a-zA-Z]+)(?P<lay>\d+)\D*?(\((?P<missing>missing|inactive)\))?\s+\d+")
+    line_re = re.compile("(?P<sign>[ \\-+])\\s+(?P<det>[a-zA-Z]+)(?P<lay>\\d+)\\D*?(\\((?P<missing>missing|inactive)\\))?\\s+\\d+")
 
     summary = []
     prevdet = ""
@@ -912,7 +913,7 @@ class TrackPrinter(_RecHitPrinter):
         oriAlgo = track.originalAlgo()
         algos = []
         algoMask = track.algoMask()
-        for i in xrange(Algo.algoSize):
+        for i in range(Algo.algoSize):
             if algoMask & 1:
                 algos.append(Algo.toString(i))
             algoMask = algoMask >> 1

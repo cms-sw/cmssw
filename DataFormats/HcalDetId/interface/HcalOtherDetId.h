@@ -25,17 +25,17 @@ public:
   HcalOtherDetId(const DetId& id);
   /** Assignment from a generic cell id */
   HcalOtherDetId& operator=(const DetId& id);
-  
+
   /// get the category
-  HcalOtherSubdetector subdet() const { return HcalOtherSubdetector((id_>>20)&0x1F); }
+  HcalOtherSubdetector subdet() const { return HcalOtherSubdetector((id_ >> 20) & 0x1F); }
 
 protected:
   /** Constructor of a null id */
   HcalOtherDetId();
   /** Constructor from a raw value */
-  explicit HcalOtherDetId(uint32_t rawid);  
+  explicit HcalOtherDetId(uint32_t rawid);
   /** \brief Constructor from signed ieta, iphi plus composite type and composite data */
   HcalOtherDetId(HcalOtherSubdetector subdet);
 };
 
-#endif // HcalOtherDetId_h_included
+#endif  // HcalOtherDetId_h_included

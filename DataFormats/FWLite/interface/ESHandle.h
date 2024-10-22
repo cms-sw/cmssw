@@ -4,7 +4,7 @@
 //
 // Package:     FWLite
 // Class  :     ESHandle
-// 
+//
 /**\class ESHandle ESHandle.h DataFormats/FWLite/interface/ESHandle.h
 
  Description: Used with fwlite::Record to retrieve conditions information
@@ -29,57 +29,50 @@
 
 // forward declarations
 namespace fwlite {
-   class Record;
-   
-   std::shared_ptr<cms::Exception> eshandle_not_set_exception();
-   
-template <class T>
-class ESHandle
-{
-   friend class fwlite::Record;
-   
-   public:
-      ESHandle(): m_data(nullptr), m_exception(eshandle_not_set_exception()) {}
+  class Record;
 
-      // ---------- const member functions ---------------------
-      bool isValid() const { return nullptr != m_data;}
+  std::shared_ptr<cms::Exception> eshandle_not_set_exception();
 
-      const T& operator*() const {
-         if(nullptr != m_exception.get()) {
-            throw *m_exception;
-         }
-         return *m_data;
+  template <class T>
+  class ESHandle {
+    friend class fwlite::Record;
+
+  public:
+    ESHandle() : m_data(nullptr), m_exception(eshandle_not_set_exception()) {}
+
+    // ---------- const member functions ---------------------
+    bool isValid() const { return nullptr != m_data; }
+
+    const T& operator*() const {
+      if (nullptr != m_exception.get()) {
+        throw *m_exception;
       }
-      
-      const T* operator->() const {
-         if(nullptr != m_exception.get()) {
-            throw *m_exception;
-         }
-         return m_data;
-         
+      return *m_data;
+    }
+
+    const T* operator->() const {
+      if (nullptr != m_exception.get()) {
+        throw *m_exception;
       }
-      
-      const std::type_info& typeInfo() const {
-         return typeid(T);
-      }
-      // ---------- static member functions --------------------
+      return m_data;
+    }
 
-      // ---------- member functions ---------------------------
+    const std::type_info& typeInfo() const { return typeid(T); }
+    // ---------- static member functions --------------------
 
-   private:
-      ESHandle(const void* iData) :
-         m_data(static_cast<const T*>(iData)),
-         m_exception() {}
-      ESHandle(cms::Exception* iException) :
-         m_data(nullptr), m_exception(iException) {}
-      //ESHandle(const ESHandle&); // stop default
+    // ---------- member functions ---------------------------
 
-      //const ESHandle& operator=(const ESHandle&); // stop default
+  private:
+    ESHandle(const void* iData) : m_data(static_cast<const T*>(iData)), m_exception() {}
+    ESHandle(cms::Exception* iException) : m_data(nullptr), m_exception(iException) {}
+    //ESHandle(const ESHandle&); // stop default
 
-      // ---------- member data --------------------------------
-      const T* m_data;
-      std::shared_ptr<cms::Exception const> m_exception;
-};
+    //const ESHandle& operator=(const ESHandle&); // stop default
 
-}
+    // ---------- member data --------------------------------
+    const T* m_data;
+    std::shared_ptr<cms::Exception const> m_exception;
+  };
+
+}  // namespace fwlite
 #endif

@@ -27,5 +27,5 @@ DTREADOUTMAPPING (this is a simulation of tagging the data from online)
    cmscond_build_iov_byquery -i -q "CELL_MAP_VERSION='cmssw_ROB' AND ROB_MAP_VERSION='cmssw_ROS'" -u user -p pass -d CondFormatsDTObjects -t DTREADOUTMAPPING -o DTReadOutMapping -c sqlite_file:testfile.db cmssw_version
 
 step 6: read data back from cmsRun. Note the tag value (this is a simulation of offline CMSSW job)
-   cmsRun -p load_test_myversion.cfg
-   cmsRun -p load_test_cmsswversion.cfg
+   cmsRun load_test_myversion.cfg
+   cmsRun load_test_cmsswversion.cfg

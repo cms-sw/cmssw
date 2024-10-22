@@ -16,15 +16,13 @@
  */
 
 class L1CaloRegionDetId : public DetId {
-
- public:
-
+public:
   static const unsigned N_PHI = 18;
   static const unsigned N_ETA = 22;
 
   /// create null id
   L1CaloRegionDetId();
-  
+
   /// create id from raw data (0=invalid code?)
   L1CaloRegionDetId(uint32_t rawid);
 
@@ -36,13 +34,13 @@ class L1CaloRegionDetId : public DetId {
   L1CaloRegionDetId(unsigned icrate, unsigned icard, unsigned irgn);
 
   /// global eta index (0-21)
-  unsigned ieta() const { return id_&0x1f; }
+  unsigned ieta() const { return id_ & 0x1f; }
 
   /// global phi index (0-17)
-  unsigned iphi() const { return (id_>>5)&0x1f; }
+  unsigned iphi() const { return (id_ >> 5) & 0x1f; }
 
   /// return central or forward type
-  bool isHf() const { return (ieta()<4 || ieta()>17); }
+  bool isHf() const { return (ieta() < 4 || ieta() > 17); }
 
   /// return RCT crate number (0-17)
   unsigned rctCrate() const;
@@ -54,11 +52,10 @@ class L1CaloRegionDetId : public DetId {
   unsigned rctRegion() const;
 
   /// return local RCT eta index (0-10)
-  unsigned rctEta() const { return (ieta()<11 ? 10-ieta() : ieta()-11); }
+  unsigned rctEta() const { return (ieta() < 11 ? 10 - ieta() : ieta() - 11); }
 
   /// return local RCT phi index (0-1)
-  unsigned rctPhi() const { return (iphi()%2); }
-
+  unsigned rctPhi() const { return (iphi() % 2); }
 };
 
 #endif

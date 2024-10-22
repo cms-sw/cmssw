@@ -26,51 +26,45 @@
  * The printSummary and printDebug method return both the full list of parameters. <br>
  */
 
-class ConfObject
-{
- public:
+class ConfObject {
+public:
   ConfObject() {}
 
   template <class valueType>
-  bool put( const std::string & name, const valueType & inputValue )
-  {
+  bool put(const std::string& name, const valueType& inputValue) {
     std::stringstream ss;
     ss << inputValue;
-    if( parameters.insert(std::make_pair(name, ss.str())).second ) return true;
+    if (parameters.insert(std::make_pair(name, ss.str())).second)
+      return true;
     return false;
   }
 
   template <class valueType>
-  valueType get( const std::string & name ) const
-  {
+  valueType get(const std::string& name) const {
     valueType returnValue;
     parMap::const_iterator it = parameters.find(name);
     std::stringstream ss;
-    if( it != parameters.end() ) {
+    if (it != parameters.end()) {
       ss << it->second;
       ss >> returnValue;
-    }
-    else {
+    } else {
       std::cout << "WARNING: parameter " << name << " not found. Returning default value" << std::endl;
     }
     return returnValue;
   }
 
-  bool isParameter( const std::string & name ) const
-  {
-    return( parameters.find(name) != parameters.end() );
-  }
+  bool isParameter(const std::string& name) const { return (parameters.find(name) != parameters.end()); }
 
   /// Prints the full list of parameters
-  void printSummary(std::stringstream & ss) const;
+  void printSummary(std::stringstream& ss) const;
   /// Prints the full list of parameters
-  void printDebug(std::stringstream & ss) const;
+  void printDebug(std::stringstream& ss) const;
 
   typedef std::map<std::string, std::string> parMap;
 
   parMap parameters;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

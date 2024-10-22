@@ -4,9 +4,7 @@
 
 namespace edm {
 
-  const unsigned int RunIndex::invalidValue_ = std::numeric_limits<unsigned int>::max();    
+  const unsigned int RunIndex::invalidValue_ = std::numeric_limits<unsigned int>::max();
 
-  RunIndex RunIndex::invalidRunIndex() {
-    return RunIndex(invalidValue_);
-  }
-}
+  RunIndex RunIndex::invalidRunIndex() { return RunIndex(invalidValue_); }
+}  // namespace edm

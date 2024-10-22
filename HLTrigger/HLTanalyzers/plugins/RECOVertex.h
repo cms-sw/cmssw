@@ -5,12 +5,11 @@
 
 #include <TChain.h>
 
-#include "DataFormats/VertexReco/interface/Vertex.h" 
-#include "DataFormats/VertexReco/interface/VertexFwd.h" 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 
 /** \class RECOVertex
   *  
@@ -19,27 +18,25 @@
   */
 class RECOVertex {
 public:
-  RECOVertex(); 
+  RECOVertex();
   ~RECOVertex();
 
-  void setup(const edm::ParameterSet& pSet, TTree* tree, std::string vertexType);
+  void setup(const edm::ParameterSet &pSet, TTree *tree, std::string vertexType);
   void clear(void);
 
   /** Analyze the Data */
-  void analyze(edm::Handle<reco::VertexCollection> recoVertexs, TTree* tree);
+  void analyze(edm::Handle<reco::VertexCollection> recoVertexs, TTree *tree);
 
 private:
-
   // Tree variables
-  int   NVrtx;
+  int NVrtx;
   float *VertexCand_x, *VertexCand_y, *VertexCand_z;
-  int   *VertexCand_tracks;
+  int *VertexCand_tracks;
   float *VertexCand_chi2;
   float *VertexCand_ndof;
 
   // input variables
   bool _Debug;
-
 };
 
 #endif

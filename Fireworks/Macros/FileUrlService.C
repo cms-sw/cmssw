@@ -192,7 +192,7 @@ void FileUrlBase::SendString(TSocket& socket, TString& str, const TString& eh)
 
 void FileUrlBase::ReceiveString(TSocket& socket, TString& str, const TString& eh)
 {
-   std::auto_ptr<TMessage> msg(ReceiveMessage(socket, gkStringMT, eh));
+   std::unique_ptr<TMessage> msg(ReceiveMessage(socket, gkStringMT, eh));
    str.Streamer(*msg);
 }
 
@@ -207,7 +207,7 @@ void FileUrlBase::SendRequest(TSocket& socket, FileUrlRequest& request, const TS
 
 void FileUrlBase::ReceiveRequest(TSocket& socket, FileUrlRequest& request, const TString& eh)
 {
-   std::auto_ptr<TMessage> msg(ReceiveMessage(socket, gkUrlRequestMT, eh));
+   std::unique_ptr<TMessage> msg(ReceiveMessage(socket, gkUrlRequestMT, eh));
    request.Streamer(*msg);
 }
 
@@ -347,7 +347,7 @@ FileUrlServer::~FileUrlServer()
    delete fServerThread;
 
    {
-      std::auto_ptr<TList> socks(fMonitor->GetListOfActives());
+      std::unique_ptr<TList> socks(fMonitor->GetListOfActives());
       while ( ! socks->IsEmpty())
       {
          TObject *obj = socks->First();
@@ -661,7 +661,7 @@ public:
 
 TSocket* FileUrlClient::OpenSocket(const TString& eh)
 {
-   std::auto_ptr<TSocket> s(new TSocket(fHost, fPort));
+   std::unique_ptr<TSocket> s(new TSocket(fHost, fPort));
 
    if (!s->IsValid())
    {
@@ -690,7 +690,7 @@ void FileUrlClient::GetNextFile(Bool_t loop)
       return;
    }
 
-   std::auto_ptr<TSocket> s(OpenSocket(_eh));
+   std::unique_ptr<TSocket> s(OpenSocket(_eh));
 
    fRequest.fMode = FileUrlRequest::kPullNext;
 
@@ -721,7 +721,7 @@ void FileUrlClient::GetLastFile()
       return;
    }
 
-   std::auto_ptr<TSocket> s(OpenSocket(_eh));
+   std::unique_ptr<TSocket> s(OpenSocket(_eh));
 
    fRequest.fMode = FileUrlRequest::kPullLast;
 
@@ -748,7 +748,7 @@ void FileUrlClient::BeginServerPushMode()
 
    try
    {
-      std::auto_ptr<TSocket> s(OpenSocket(_eh));
+      std::unique_ptr<TSocket> s(OpenSocket(_eh));
       fRequest.fMode = FileUrlRequest::kServerPush;
       SendRequest(*s, fRequest, _eh);
       fSocket = s.release();

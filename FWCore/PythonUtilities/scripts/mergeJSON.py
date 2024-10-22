@@ -1,10 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
-import optparse
+from argparse import ArgumentParser
 import re
 from FWCore.PythonUtilities.LumiList import LumiList
-
 
 def filterRuns (lumiList, minRun, maxRun):
     allRuns = lumiList.getRuns()
@@ -15,23 +14,20 @@ def filterRuns (lumiList, minRun, maxRun):
         if maxRun and int(run) > maxRun:
             runsToRemove.append (run)
     lumiList.removeRuns (runsToRemove)
-    
-
 
 if __name__ == '__main__':
     
-    parser = optparse.OptionParser ("Usage: %prog alpha1.json [alpha2.json:142300-145900]")
-    parser.add_option ('--output', dest='output', type='string',
-                       help='Save output to file OUTPUT')
+    parser = ArgumentParser()
+    parser.add_argument('--output', dest='output', type=str,
+                        help='Save output to file OUTPUT')
+    parser.add_argument("alpha_json", metavar="alpha.json[:142300-145900]", type=str, nargs='+')
     # required parameters
-    (options, args) = parser.parse_args()
-    if not len (args):
-        raise RuntimeError("Must provide at least one input file")
+    options = parser.parse_args()
 
     minMaxRE = re.compile (r'(\S+):(\d+)-(\d*)')
 
     finalList = LumiList()
-    for filename in args:
+    for filename in options.alpha_json:
         minRun = maxRun = 0
         match = minMaxRE.search (filename)
         if match:
@@ -50,4 +46,4 @@ if __name__ == '__main__':
     if options.output:
         finalList.writeJSON (options.output)
     else:
-        print finalList
+        print(finalList)

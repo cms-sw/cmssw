@@ -12,12 +12,11 @@ from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderP5_cff import *
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import *
 # Navigation School
 from RecoTracker.TkNavigation.NavigationSchoolESProducer_cff import *
-import copy
 from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
 # generate CTF track candidates ############
-ckfTrackCandidatesP5 = copy.deepcopy(ckfTrackCandidates)
-ckfTrackCandidatesP5.NavigationSchool = 'CosmicNavigationSchool'
-ckfTrackCandidatesP5.TrajectoryBuilderPSet.refToPSet_ = 'GroupedCkfTrajectoryBuilderP5'
-#replace ckfTrackCandidatesP5.TrajectoryBuilder        = "CkfTrajectoryBuilderP5"
-ckfTrackCandidatesP5.src = cms.InputTag('combinatorialcosmicseedfinderP5')
-
+ckfTrackCandidatesP5 = ckfTrackCandidates.clone(
+    NavigationSchool      = 'CosmicNavigationSchool',
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'GroupedCkfTrajectoryBuilderP5'),
+    #replace ckfTrackCandidatesP5.TrajectoryBuilder        = "CkfTrajectoryBuilderP5"
+    src                   = 'combinatorialcosmicseedfinderP5'
+)

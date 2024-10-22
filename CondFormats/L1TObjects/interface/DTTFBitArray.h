@@ -7,14 +7,12 @@
 //
 //   Author List:
 //   C. Grandi
-//   Modifications: 
+//   Modifications:
 //
 //
 //--------------------------------------------------
 #ifndef BIT_ARRAY_H_
 #define BIT_ARRAY_H_
-
-
 
 //---------------
 // C++ Headers --
@@ -26,15 +24,14 @@
 //              -- Class Interface --
 //              ---------------------
 
-template<int N>
+template <int N>
 class DTTFBitArray {
-
- public:
+public:
   class refToBit;
   friend class refToBit;
 
   // reference to bit class
-  class refToBit{
+  class refToBit {
     friend class DTTFBitArray;
 
     //refToBit();
@@ -48,61 +45,60 @@ class DTTFBitArray {
     ~refToBit() {}
 
     refToBit& operator=(const int val) {
-      if(val) {
-	*_word |= getPosMask(_pos);
+      if (val) {
+        *_word |= getPosMask(_pos);
       } else {
-	*_word &= ~(getPosMask(_pos));
+        *_word &= ~(getPosMask(_pos));
       }
       return *this;
     }
 
     refToBit& operator=(const refToBit& rtb) {
-      if( (*(rtb._word) & getPosMask(rtb._pos)) ) {
-	*_word |= getPosMask(_pos);
-      } else { 
-	*_word &= ~getPosMask(_pos);
+      if ((*(rtb._word) & getPosMask(rtb._pos))) {
+        *_word |= getPosMask(_pos);
+      } else {
+        *_word &= ~getPosMask(_pos);
       }
       return *this;
     }
 
-    int operator~() const { return ((*_word)&getPosMask(_pos))==0; }
+    int operator~() const { return ((*_word) & getPosMask(_pos)) == 0; }
 
-    operator int() const { return ((*_word)&getPosMask(_pos))!=0; }
+    operator int() const { return ((*_word) & getPosMask(_pos)) != 0; }
 
     refToBit& flip() {
-      *_word^=getPosMask(_pos);
+      *_word ^= getPosMask(_pos);
       return *this;
     }
-    
+
   private:
     unsigned* _word;
     int _pos;
-
   };
 
-  DTTFBitArray() {this->zero();}
+  DTTFBitArray() { this->zero(); }
 
   DTTFBitArray(const DTTFBitArray<N>& br) {
-    for (int i=0;i<this->nWords();i++) {
-      _data[i] = br._data[i];         
+    for (int i = 0; i < this->nWords(); i++) {
+      _data[i] = br._data[i];
     }
     this->cleanUnused();
   }
-  DTTFBitArray(const char* str) { 
-    this->zero(); 
-    this->assign(0,this->nBits(),str); 
+  DTTFBitArray(const char* str) {
+    this->zero();
+    this->assign(0, this->nBits(), str);
     this->cleanUnused();
   }
   DTTFBitArray(const char* str, const int p, const int n) {
-    this->zero(); 
+    this->zero();
     this->assign(p, n, str);
   }
-  DTTFBitArray(const unsigned i) { 
+  DTTFBitArray(const unsigned i) {
     this->zero();
-    _data[0] = i;                 // the nBit least sign. bits are considered
+    _data[0] = i;  // the nBit least sign. bits are considered
     this->cleanUnused();
   }
-/*
+  /*
   DTTFBitArray(const unsigned long i) { 
     this->zero();
     unsigned j = i&static_cast<unsigned long>(0xffffffff);
@@ -114,171 +110,170 @@ class DTTFBitArray {
     this->cleanUnused();
   }
 */
-  //  Destructor 
+  //  Destructor
   // ~DTTFBitArray() {}
-  
+
   // Return number of bits
   inline int nBits() const { return N; }
   inline int size() const { return this->nBits(); }
-  
+
   // Return number of words
-  inline int nWords() const { return N/32+1; }
-  
+  inline int nWords() const { return N / 32 + 1; }
+
   // Return a data word
   unsigned dataWord(const int i) const {
-    assert(i>=0 && i<this->nWords());
+    assert(i >= 0 && i < this->nWords());
     return _data[i];
   }
-  unsigned & dataWord(const int i) {
-    assert(i>=0 && i<this->nWords());
+  unsigned& dataWord(const int i) {
+    assert(i >= 0 && i < this->nWords());
     return _data[i];
   }
 
   // Return the dataword which contains bit in position
-  unsigned & getWord(const int pos) {
-    assert(pos>=0&& pos<this->nBits());
-    return _data[pos/32];
+  unsigned& getWord(const int pos) {
+    assert(pos >= 0 && pos < this->nBits());
+    return _data[pos / 32];
   }
   unsigned getWord(const int pos) const {
-    assert(pos>=0&& pos<this->nBits());
-    return _data[pos/32];
+    assert(pos >= 0 && pos < this->nBits());
+    return _data[pos / 32];
   }
 
   // Return the position inside a word given the position in bitArray
   static int getPosInWord(const int pos) {
     // assert(pos>=0&& pos<this->nBits());
-    return pos%32;
+    return pos % 32;
   }
-  
+
   // Return the word mask for a given bit
-  static unsigned getPosMask(const int pos) {
-    return static_cast<unsigned>(1)<<getPosInWord(pos);
-  }
+  static unsigned getPosMask(const int pos) { return static_cast<unsigned>(1) << getPosInWord(pos); }
 
   // how many bits are not used (most significative bits of last word)
   int unusedBits() const {
-    if(this->nBits()==0)return 32;
-    return 31-((this->nBits()-1)%32);
-  }
- 
-  // mask to get rid of last word unused bits
-  unsigned lastWordMask() const {
-    return static_cast<unsigned>(0xffffffff)>>(this->unusedBits());
+    if (this->nBits() == 0)
+      return 32;
+    return 31 - ((this->nBits() - 1) % 32);
   }
 
+  // mask to get rid of last word unused bits
+  unsigned lastWordMask() const { return static_cast<unsigned>(0xffffffff) >> (this->unusedBits()); }
+
   // set unused bits to 0
-  void cleanUnused() {
-    _data[this->nWords()-1] &= (this->lastWordMask());
-  }
- 
+  void cleanUnused() { _data[this->nWords() - 1] &= (this->lastWordMask()); }
+
   // count non 0 bits
   int count() const {
-    int n=0;
-    for(int i=0;i<this->nBits();i++) {
-      if(this->element(i))n++;
+    int n = 0;
+    for (int i = 0; i < this->nBits(); i++) {
+      if (this->element(i))
+        n++;
     }
     return n;
   }
- 
+
   // true if any bit == 1
   int any() {
     int nw = this->nWords();
     int ub = unusedBits();
-    if(this->dataWord(nw-1)<<ub!=0)return 1;
-    if(nw>1){
-      for (int iw=0;iw<nw-1;iw++){
-	if(this->dataWord(iw)!=0) return 1;
+    if (this->dataWord(nw - 1) << ub != 0)
+      return 1;
+    if (nw > 1) {
+      for (int iw = 0; iw < nw - 1; iw++) {
+        if (this->dataWord(iw) != 0)
+          return 1;
       }
     }
     return 0;
-  }    
- 
+  }
+
   // true if any bit == 0
   int none() {
     int nw = this->nWords();
     int ub = unusedBits();
-    if(this->dataWord(nw-1)<<ub!=0xffffffff)return 1;
-    if(nw>1){
-      for (int iw=0;iw<nw-1;iw++){
-	if(this->dataWord(iw)!=0xffffffff) return 1;
+    if (this->dataWord(nw - 1) << ub != 0xffffffff)
+      return 1;
+    if (nw > 1) {
+      for (int iw = 0; iw < nw - 1; iw++) {
+        if (this->dataWord(iw) != 0xffffffff)
+          return 1;
       }
     }
     return 0;
-  }    
- 
-  // Return i^th elemnet
-  int element(const int pos) const {
-    return (getWord(pos)&getPosMask(pos))!=static_cast<unsigned>(0);
   }
+
+  // Return i^th elemnet
+  int element(const int pos) const { return (getWord(pos) & getPosMask(pos)) != static_cast<unsigned>(0); }
   inline int test(const int i) const { return element(i); }
 
   // Set/unset all elements
   void zero() {
-    for (int i=0;i<this->nWords();i++) {
-      _data[i] = 0x0;                // set to 0
+    for (int i = 0; i < this->nWords(); i++) {
+      _data[i] = 0x0;  // set to 0
     }
   }
   inline void reset() { zero(); }
 
   void one() {
-    for (int i=0;i<this->nWords();i++) {
-      _data[i] = 0xffffffff;       // set to 1
+    for (int i = 0; i < this->nWords(); i++) {
+      _data[i] = 0xffffffff;  // set to 1
     }
   }
-  
+
   // Set/unset i^th element
-  void set(const int i)  { getWord(i) |= getPosMask(i); }
+  void set(const int i) { getWord(i) |= getPosMask(i); }
   void unset(const int i) { getWord(i) &= ~getPosMask(i); }
   inline void reset(const int i) { this->unset(i); }
-  
+
   // Set the i^th element to a given value
-  inline void set(const int i, const int val) { this->assign(i,1,val); }
-  inline void set(const int i, const char* str) { this->assign(i,1,str); }
+  inline void set(const int i, const int val) { this->assign(i, 1, val); }
+  inline void set(const int i, const char* str) { this->assign(i, 1, str); }
 
   // Set/unset many bits to a given integer/bitArray/string
   void assign(const int p, const int n, const int val) {
-    assert(p>=0 && p+n<=this->nBits());  
+    assert(p >= 0 && p + n <= this->nBits());
     // only the n least significant bits of val are considered
-    for(int i=0; i<n;i++){
-      if(val>>i&1) {
-	this->set(p+i);
+    for (int i = 0; i < n; i++) {
+      if (val >> i & 1) {
+        this->set(p + i);
       } else {
-	this->unset(p+i);
+        this->unset(p + i);
       }
     }
   }
   void assign(const int p, const int n, const DTTFBitArray<N>& val) {
-    assert(p>=0 && p+n<=this->nBits());  
+    assert(p >= 0 && p + n <= this->nBits());
     // only the n least significant bits of val are considered
-    for(int i=0; i<n;i++){
-      if(val.element(i)) {
-	this->set(p+i);
+    for (int i = 0; i < n; i++) {
+      if (val.element(i)) {
+        this->set(p + i);
       } else {
-	this->unset(p+i);
+        this->unset(p + i);
       }
     }
   }
   void assign(const int p, const int n, const char* str) {
-    assert(p>=0 && p+n<=this->nBits());  
+    assert(p >= 0 && p + n <= this->nBits());
     // only the n least significant bits of val are considered
-    for(int i=0; i<n;i++){
-      assert(str[i]=='1'||str[i]=='0');  
-      if(str[i]=='1') {
-	this->set(p+n-i-1);   // reading a string from left to right 
-      } else {                // --> most significative bit is the one 
-	this->unset(p+n-i-1); // with lower string index
+    for (int i = 0; i < n; i++) {
+      assert(str[i] == '1' || str[i] == '0');
+      if (str[i] == '1') {
+        this->set(p + n - i - 1);    // reading a string from left to right
+      } else {                       // --> most significative bit is the one
+        this->unset(p + n - i - 1);  // with lower string index
       }
     }
   }
-      
-  // Read a given range in an unsigned integer 
+
+  // Read a given range in an unsigned integer
   unsigned read(const int p, const int n) const {
-    assert(p>=0 && p+n<=this->nBits());  
-    assert(n<=32); // the output must fit in a 32 bit word
+    assert(p >= 0 && p + n <= this->nBits());
+    assert(n <= 32);  // the output must fit in a 32 bit word
     // only the n least significant bits of val are considered
-    unsigned out=0x0;
-    for(int i=0; i<n;i++){
-      if(this->test(p+i)) out |= 1<<i;
+    unsigned out = 0x0;
+    for (int i = 0; i < n; i++) {
+      if (this->test(p + i))
+        out |= 1 << i;
     }
     return out;
   }
@@ -286,31 +281,31 @@ class DTTFBitArray {
   // Read DTTFBitArray in bytes. Returns a DTTFBitArray<8>
   DTTFBitArray<8> byte(const int i) const {
     DTTFBitArray<8> out;
-    if(i>=0&&i<4*this->nWords()){
-      unsigned k=(_data[i/4]>>8*(i%4))&0xff;
-      out=k;
+    if (i >= 0 && i < 4 * this->nWords()) {
+      unsigned k = (_data[i / 4] >> 8 * (i % 4)) & 0xff;
+      out = k;
     }
     return out;
   }
   // Assignment
   DTTFBitArray<N>& operator=(const DTTFBitArray<N>& a) {
-    if(this != &a) {
-      for (int i=0;i<this->nWords();i++) {
-	_data[i] = a._data[i];
+    if (this != &a) {
+      for (int i = 0; i < this->nWords(); i++) {
+        _data[i] = a._data[i];
       }
     }
     this->cleanUnused();
     return *this;
   }
-  
+
   // Conversion from unsigned
   DTTFBitArray<N>& operator=(const unsigned i) {
     this->zero();
-    _data[0] = i;                 // the nBit least sign. bits are considered
+    _data[0] = i;  // the nBit least sign. bits are considered
     this->cleanUnused();
     return *this;
   }
-/*    
+  /*    
   // Conversion from unsigned long
   DTTFBitArray<N>& operator=(const unsigned long i) {
     this->zero();
@@ -323,200 +318,209 @@ class DTTFBitArray {
     this->cleanUnused();
     return *this;
   }
-*/    
+*/
   // Conversion from char
   DTTFBitArray<N>& operator=(const char* str) {
     this->zero();
-    for(int i=0; i<this->nBits();i++){
-      assert(str[i]=='1'||str[i]=='0');  
-      if(str[i]=='1') {
-	this->set(this->nBits()-i-1);   // reading a string from left to right 
-      } else if(str[i]=='0') {    // --> most significative bit is the one 
-	this->unset(this->nBits()-i-1); // with lower string index
+    for (int i = 0; i < this->nBits(); i++) {
+      assert(str[i] == '1' || str[i] == '0');
+      if (str[i] == '1') {
+        this->set(this->nBits() - i - 1);    // reading a string from left to right
+      } else if (str[i] == '0') {            // --> most significative bit is the one
+        this->unset(this->nBits() - i - 1);  // with lower string index
       } else {
-        break;                    // exit when find a char which is not 0 or 1
+        break;  // exit when find a char which is not 0 or 1
       }
     }
     this->cleanUnused();
     return *this;
   }
-    
+
   // Print
-  std::ostream & print(std::ostream& o=std::cout) const {
-    for(int i = this->nBits()-1; i>=0; i--){
+  std::ostream& print(std::ostream& o = std::cout) const {
+    for (int i = this->nBits() - 1; i >= 0; i--) {
       o << this->element(i);
     }
     return o;
   }
-  
+
   // direct access to set/read elements
-  refToBit operator[](const int pos) { return refToBit(*this,pos); }
+  refToBit operator[](const int pos) { return refToBit(*this, pos); }
   int operator[](const int pos) const { return element(pos); }
-  
+
   // logical operators ==
   bool operator==(const DTTFBitArray<N>& a) const {
-   int nw = this->nWords();
+    int nw = this->nWords();
     int ub = this->unusedBits();
-    if(this->dataWord(nw-1)<<ub!=         // check last word
-           a.dataWord(nw-1)<<ub)return false;
-    if(nw>1){
-      for (int iw=0;iw<nw-1;iw++){
-	if(this->dataWord(iw)!=a.dataWord(iw)) return false;
+    if (this->dataWord(nw - 1) << ub !=  // check last word
+        a.dataWord(nw - 1) << ub)
+      return false;
+    if (nw > 1) {
+      for (int iw = 0; iw < nw - 1; iw++) {
+        if (this->dataWord(iw) != a.dataWord(iw))
+          return false;
       }
     }
     return true;
   }
-  
+
   // logical operators <
   bool operator<(const DTTFBitArray<N>& a) const {
     int nw = this->nWords();
     int ub = this->unusedBits();
-    unsigned aaa = this->dataWord(nw-1)<<ub; // ignore unused bits
-    unsigned bbb =     a.dataWord(nw-1)<<ub; // in both operands
-    if        (aaa<bbb) {
+    unsigned aaa = this->dataWord(nw - 1) << ub;  // ignore unused bits
+    unsigned bbb = a.dataWord(nw - 1) << ub;      // in both operands
+    if (aaa < bbb) {
       return true;
-    } else if (aaa>bbb) {
+    } else if (aaa > bbb) {
       return false;
     }
-    if(nw>1){
-      for (int iw=nw-2;iw>=0;iw--){
-	if        (this->dataWord(iw)<a.dataWord(iw)) {
-	  return true;
-	} else if (this->dataWord(iw)>a.dataWord(iw)) {
-	  return false;
-	}
+    if (nw > 1) {
+      for (int iw = nw - 2; iw >= 0; iw--) {
+        if (this->dataWord(iw) < a.dataWord(iw)) {
+          return true;
+        } else if (this->dataWord(iw) > a.dataWord(iw)) {
+          return false;
+        }
       }
     }
     return false;
   }
-  
+
   // logical operators !=
-  bool operator!=(const DTTFBitArray<N>& a) const { return !(a==*this); }
-  
+  bool operator!=(const DTTFBitArray<N>& a) const { return !(a == *this); }
+
   // logical operators >=
-  bool operator>=(const DTTFBitArray<N>& a) const{ return !(*this<a); }
-  
+  bool operator>=(const DTTFBitArray<N>& a) const { return !(*this < a); }
+
   // logical operators >
-  bool operator>(const DTTFBitArray<N>& a) const { return !(*this<a||*this==a); }
-  
+  bool operator>(const DTTFBitArray<N>& a) const { return !(*this < a || *this == a); }
+
   // logical operators <=
-  bool operator<=(const DTTFBitArray<N>& a) const { return !(*this>a); }
-  
+  bool operator<=(const DTTFBitArray<N>& a) const { return !(*this > a); }
+
   // non-const bit by bit negation
-  DTTFBitArray<N>& flip () {
-    for(int i=0;i<this->nWords();i++) {
+  DTTFBitArray<N>& flip() {
+    for (int i = 0; i < this->nWords(); i++) {
       _data[i] = ~_data[i];
     }
     return *this;
   }
 
   // const bit by bit negation
-  DTTFBitArray<N> operator~ () const { return DTTFBitArray<N> (*this).flip(); }
+  DTTFBitArray<N> operator~() const { return DTTFBitArray<N>(*this).flip(); }
 
   // bit by bit AND and assignment
-  DTTFBitArray<N>& operator&= (const DTTFBitArray<N>& a) {
-    for(int i = 0;i<this->nWords();i++) {
+  DTTFBitArray<N>& operator&=(const DTTFBitArray<N>& a) {
+    for (int i = 0; i < this->nWords(); i++) {
       this->dataWord(i) &= a.dataWord(i);
     }
     return *this;
-  }    
+  }
 
   // bit by bit AND
-  DTTFBitArray<N> operator&(const DTTFBitArray<N>& a) {return DTTFBitArray<N> (*this)&=a; }
-  
+  DTTFBitArray<N> operator&(const DTTFBitArray<N>& a) { return DTTFBitArray<N>(*this) &= a; }
+
   // bit by bit OR and assignment
   DTTFBitArray<N>& operator|=(const DTTFBitArray<N>& a) {
-    for(int i = 0;i<this->nWords();i++) {
+    for (int i = 0; i < this->nWords(); i++) {
       this->dataWord(i) |= a.dataWord(i);
     }
     return *this;
-  }    
+  }
 
   // bit by bit AND
-  DTTFBitArray<N> operator|(const DTTFBitArray<N>& a) {return DTTFBitArray<N> (*this)|=a;}
-  
+  DTTFBitArray<N> operator|(const DTTFBitArray<N>& a) { return DTTFBitArray<N>(*this) |= a; }
+
   // bit by bit XOR and assignment
   DTTFBitArray<N>& operator^=(const DTTFBitArray<N>& a) {
-    for(int i = 0;i<this->nWords();i++) {
+    for (int i = 0; i < this->nWords(); i++) {
       this->dataWord(i) ^= a.dataWord(i);
     }
     return *this;
-  }    
+  }
 
   // bit by bit XOR
-  DTTFBitArray<N> operator^(const DTTFBitArray<N>& a) {return DTTFBitArray<N> (*this)^=a; }
-  
+  DTTFBitArray<N> operator^(const DTTFBitArray<N>& a) { return DTTFBitArray<N>(*this) ^= a; }
+
   // left shift and assignment
   DTTFBitArray<N>& operator<<=(const int n) {
-    assert(n>=0&&n<this->nBits());
-    if(n==0)return *this;
-    int i=0;
-    for(i=this->nBits()-1;i>=n;i--) this->set(i,this->element(i-n));
-    for(i=n-1;i>=0;i--) this->unset(i);
+    assert(n >= 0 && n < this->nBits());
+    if (n == 0)
+      return *this;
+    int i = 0;
+    for (i = this->nBits() - 1; i >= n; i--)
+      this->set(i, this->element(i - n));
+    for (i = n - 1; i >= 0; i--)
+      this->unset(i);
     return *this;
   }
 
-  // left shift 
-  DTTFBitArray<N> operator<<(const int n) { return DTTFBitArray<N> (*this)<<=n; }
+  // left shift
+  DTTFBitArray<N> operator<<(const int n) { return DTTFBitArray<N>(*this) <<= n; }
 
   // right shift and assignment
   DTTFBitArray<N>& operator>>=(const int n) {
-    assert(n>=0&&n<this->nBits());
-    if(n==0)return *this;
-    int i=0;
-    for(i=0;i<this->nBits()-n;i++) this->set(i,this->element(i+n));
-    for(i=this->nBits()-n;i<this->nBits();i++) this->unset(i);
+    assert(n >= 0 && n < this->nBits());
+    if (n == 0)
+      return *this;
+    int i = 0;
+    for (i = 0; i < this->nBits() - n; i++)
+      this->set(i, this->element(i + n));
+    for (i = this->nBits() - n; i < this->nBits(); i++)
+      this->unset(i);
     return *this;
   }
 
   // right shift
-  DTTFBitArray<N> operator>>(const int n) { return DTTFBitArray<N> (*this)>>=n; }
+  DTTFBitArray<N> operator>>(const int n) { return DTTFBitArray<N>(*this) >>= n; }
 
   // sum and assignment
   DTTFBitArray<N>& operator+=(const DTTFBitArray<N>& a) {
-    int rep=0;
-    int sum=0;
-    for(int i=0;i<this->nBits();i++) {
-      sum=this->element(i)^rep;
-      rep=this->element(i)&rep;
-      this->set(i,sum^a.element(i));
-      rep|=(sum&a.element(i));
+    int rep = 0;
+    int sum = 0;
+    for (int i = 0; i < this->nBits(); i++) {
+      sum = this->element(i) ^ rep;
+      rep = this->element(i) & rep;
+      this->set(i, sum ^ a.element(i));
+      rep |= (sum & a.element(i));
     }
     return *this;
   }
 
   // sum
-  DTTFBitArray<N> operator+(const DTTFBitArray<N>& a) {return DTTFBitArray<N> (*this)+=a; }
+  DTTFBitArray<N> operator+(const DTTFBitArray<N>& a) { return DTTFBitArray<N>(*this) += a; }
 
   // postfix increment
   DTTFBitArray<N>& operator++(int) {
     int i = 0;
-    while(i<this->nBits()&&this->element(i)==1) { this->unset(i); i++; }
-    if(i<this->nBits())this->set(i);
+    while (i < this->nBits() && this->element(i) == 1) {
+      this->unset(i);
+      i++;
+    }
+    if (i < this->nBits())
+      this->set(i);
     return *this;
   }
 
   // const 2 complement
-  DTTFBitArray<N> twoComplement() const { return DTTFBitArray<N> (~*this)++; }
+  DTTFBitArray<N> twoComplement() const { return DTTFBitArray<N>(~*this)++; }
 
   // non-const 2 complement
-  DTTFBitArray<N>& twoComplement() { 
+  DTTFBitArray<N>& twoComplement() {
     (*this).flip();
     (*this)++;
     return *this;
   }
 
   // subtract and assignment
-  DTTFBitArray<N>& operator-=(const DTTFBitArray<N>& a) {
-    return *this+=a.twoComplement();
-  }
+  DTTFBitArray<N>& operator-=(const DTTFBitArray<N>& a) { return *this += a.twoComplement(); }
 
   // subtract
-  DTTFBitArray<N> operator-(const DTTFBitArray<N>& a) {return DTTFBitArray<N> (*this)-=a; }
+  DTTFBitArray<N> operator-(const DTTFBitArray<N>& a) { return DTTFBitArray<N>(*this) -= a; }
 
 private:
-  
-  unsigned _data[N/32+1];
+  unsigned _data[N / 32 + 1];
 };
 
 /*

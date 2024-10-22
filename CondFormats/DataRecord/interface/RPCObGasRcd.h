@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     RPCObGasRcd
-// 
+//
 /**\class RPCObGasRcd RPCObGasRcd.h CondFormats/DataRecord/interface/RPCObGasRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Fri Oct 10 09:56:32 CEST 2008
 // $Id$
 //

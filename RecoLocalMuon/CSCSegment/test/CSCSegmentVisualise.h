@@ -8,7 +8,7 @@
  * performance of segment reconstruction
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
@@ -19,6 +19,8 @@
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCRangeMapAccessor.h>
+#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
@@ -30,37 +32,39 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-class CSCSegmentVisualise : public edm::EDAnalyzer {
- public:
-
+class CSCSegmentVisualise : public edm::one::EDAnalyzer<> {
+public:
   /// Constructor
-  explicit CSCSegmentVisualise(const edm::ParameterSet& pset);
+  explicit CSCSegmentVisualise(const edm::ParameterSet &pset);
 
   /// Destructor
   virtual ~CSCSegmentVisualise();
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup);
 
+private:
+  std::string filename;
+  TH2F *hxvsz[100];
+  TH2F *hyvsz[100];
+  TH2F *hxvszE[100];
+  TH2F *hyvszE[100];
+  TH2F *hxvszSeg[100];
+  TH2F *hyvszSeg[100];
+  TH2F *hxvszSegP[100];
+  TH2F *hyvszSegP[100];
 
-private: 
+  TFile *file;
 
-    std::string filename;
-    TH2F *hxvsz[100];
-    TH2F *hyvsz[100];
-    TH2F *hxvszE[100];
-    TH2F *hyvszE[100];
-    TH2F *hxvszSeg[100];
-    TH2F *hyvszSeg[100];
-    TH2F *hxvszSegP[100];
-    TH2F *hyvszSegP[100];
-    
-    TFile* file;  
-    int idxHisto;
-    int minRechitChamber;
-    int maxRechitChamber;
-    //    double maxPhi, maxTheta;
-    int ievt;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken_;
+  edm::EDGetTokenT<CSCRecHit2DCollection> recHitsToken_;
+  edm::EDGetTokenT<CSCSegmentCollection> segmentsToken_;
+
+  int idxHisto;
+  int minRechitChamber;
+  int maxRechitChamber;
+  //    double maxPhi, maxTheta;
+  int ievt;
 };
 
 #endif
-

@@ -21,35 +21,35 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 #process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2000))
 #process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100000))
 
-process.load("Alignment.CommonAlignmentProducer.GlobalTrackerMuonAlignment_cfi")
+process.load("Alignment.CommonAlignmentProducer.globalTrackerMuonAlignment_cfi")
 
 ### debug  isolated/cosmic  refit
-#process.GlobalTrackerMuonAlignment.debug = cms.untracked.bool(True)
-process.GlobalTrackerMuonAlignment.cosmics = cms.bool(True)
-#process.GlobalTrackerMuonAlignment.isolated = cms.bool(True)
-process.GlobalTrackerMuonAlignment.writeDB = cms.untracked.bool(True)
-process.GlobalTrackerMuonAlignment.refitmuon = cms.bool(True)
-process.GlobalTrackerMuonAlignment.refittrack = cms.bool(True)
+#process.globalTrackerMuonAlignment.debug = True
+process.globalTrackerMuonAlignment.cosmics = True
+#process.globalTrackerMuonAlignment.isolated = True
+process.globalTrackerMuonAlignment.writeDB = True
+process.globalTrackerMuonAlignment.refitmuon = True
+process.globalTrackerMuonAlignment.refittrack = True
 
 # cosmic muon
-process.GlobalTrackerMuonAlignment.tracks = cms.InputTag("ALCARECOMuAlGlobalCosmics:TrackerOnly")
-process.GlobalTrackerMuonAlignment.muons = cms.InputTag("ALCARECOMuAlGlobalCosmics:StandAlone")
-process.GlobalTrackerMuonAlignment.gmuons = cms.InputTag("ALCARECOMuAlGlobalCosmics:GlobalMuon")
-process.GlobalTrackerMuonAlignment.smuons = cms.InputTag("ALCARECOMuAlGlobalCosmics:SelectedMuons")
+process.globalTrackerMuonAlignment.tracks = cms.InputTag("ALCARECOMuAlGlobalCosmics:TrackerOnly")
+process.globalTrackerMuonAlignment.muons = cms.InputTag("ALCARECOMuAlGlobalCosmics:StandAlone")
+process.globalTrackerMuonAlignment.gmuons = cms.InputTag("ALCARECOMuAlGlobalCosmics:GlobalMuon")
+process.globalTrackerMuonAlignment.smuons = cms.InputTag("ALCARECOMuAlGlobalCosmics:SelectedMuons")
 # isolated muon 
-#process.GlobalTrackerMuonAlignment.tracks = cms.InputTag("ALCARECOMuAlCalIsolatedMu:TrackerOnly")
-#process.GlobalTrackerMuonAlignment.muons = cms.InputTag("ALCARECOMuAlCalIsolatedMu:StandAlone")
-#process.GlobalTrackerMuonAlignment.gmuons = cms.InputTag("ALCARECOMuAlCalIsolatedMu:GlobalMuon")
-#process.GlobalTrackerMuonAlignment.smuons = cms.InputTag("ALCARECOMuAlCalIsolatedMu:SelectedMuons")
+#process.globalTrackerMuonAlignment.tracks = cms.InputTag("ALCARECOMuAlCalIsolatedMu:TrackerOnly")
+#process.globalTrackerMuonAlignment.muons = cms.InputTag("ALCARECOMuAlCalIsolatedMu:StandAlone")
+#process.globalTrackerMuonAlignment.gmuons = cms.InputTag("ALCARECOMuAlCalIsolatedMu:GlobalMuon")
+#process.globalTrackerMuonAlignment.smuons = cms.InputTag("ALCARECOMuAlCalIsolatedMu:SelectedMuons")
 
-process.GlobalTrackerMuonAlignment.Propagator = cms.string("SteppingHelixPropagator")
+process.globalTrackerMuonAlignment.propagator = "SteppingHelixPropagator"
 # propagator really not used now
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagator_cfi")
 
-process.p = cms.Path(process.GlobalTrackerMuonAlignment)
+process.p = cms.Path(process.globalTrackerMuonAlignment)
 
 #process.dump=cms.EDAnalyzer('EventContentAnalyzer')
-#process.p = cms.Path(process.GlobalTrackerMuonAlignment*process.dump)
+#process.p = cms.Path(process.globalTrackerMuonAlignment*process.dump)
 
 # initialize magnetic field
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -98,8 +98,9 @@ process.GlobalTag.globaltag = "GR10_P_V5::All"
 #process.GlobalTag.globaltag = 'GR10_P_V3COS::All'
 
 ### write global Rcd to DB
+from CondCore.CondDB.CondDB_cfi import *
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBSetup,
+    #process.CondDB,
     ### Writing to oracle needs the following shell variable setting (in zsh):
     ### export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
     ### string connect = "oracle://cms_orcoff_int2r/CMS_COND_ALIGNMENT"
@@ -111,7 +112,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         tag = cms.string('IdealGeometry')
     ))
 )
-process.CondDBSetup.DBParameters.messageLevel = 2
+process.CondDB.DBParameters.messageLevel = 2
 
 ###  read GlobalPositionRcd
 #process.GlobalTag.toGet = cms.VPSet(

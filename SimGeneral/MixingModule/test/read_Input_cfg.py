@@ -11,6 +11,8 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(1)
 )
 
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.InputAnalyzer = dict()
 process.Analyzer = cms.EDAnalyzer("InputAnalyzer",
      dataStep2 = cms.bool(False),
      collSimTrack = cms.InputTag("g4SimHits")

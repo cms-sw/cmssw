@@ -27,140 +27,93 @@
 
 //   base class
 
-
 // forward declarations
 
 // constructors
-CaloTemplate::CaloTemplate()
-        : GlobalCondition()
-{
+CaloTemplate::CaloTemplate() : GlobalCondition() { m_condCategory = l1t::CondCalo; }
 
-    m_condCategory = l1t::CondCalo;
-
-}
-
-CaloTemplate::CaloTemplate(const std::string& cName)
-        : GlobalCondition(cName)
-{
-
-    m_condCategory = l1t::CondCalo;
-
-}
+CaloTemplate::CaloTemplate(const std::string& cName) : GlobalCondition(cName) { m_condCategory = l1t::CondCalo; }
 
 CaloTemplate::CaloTemplate(const std::string& cName, const l1t::GtConditionType& cType)
-        : GlobalCondition(cName, l1t::CondCalo, cType)
-{
+    : GlobalCondition(cName, l1t::CondCalo, cType) {
+  int nObjects = nrObjects();
 
-    int nObjects = nrObjects();
+  if (nObjects > 0) {
+    m_objectParameter.reserve(nObjects);
 
-    if (nObjects > 0) {
-        m_objectParameter.reserve(nObjects);
-
-        m_objectType.reserve(nObjects);
-    }
-
+    m_objectType.reserve(nObjects);
+  }
 }
 
 // copy constructor
-CaloTemplate::CaloTemplate(const CaloTemplate& cp)
-        : GlobalCondition(cp.m_condName)
-{
-    copy(cp);
-}
+CaloTemplate::CaloTemplate(const CaloTemplate& cp) : GlobalCondition(cp.m_condName) { copy(cp); }
 
 // destructor
-CaloTemplate::~CaloTemplate()
-{
-    // empty now
+CaloTemplate::~CaloTemplate() {
+  // empty now
 }
 
 // assign operator
-CaloTemplate& CaloTemplate::operator= (const CaloTemplate& cp)
-{
-
-    copy(cp);
-    return *this;
+CaloTemplate& CaloTemplate::operator=(const CaloTemplate& cp) {
+  copy(cp);
+  return *this;
 }
-
 
 // setConditionParameter - set the parameters of the condition
-void CaloTemplate::setConditionParameter(
-    const std::vector<ObjectParameter>& objParameter,
-    const CorrelationParameter& corrParameter)
-{
-
-    m_objectParameter = objParameter;
-    m_correlationParameter = corrParameter;
-
+void CaloTemplate::setConditionParameter(const std::vector<ObjectParameter>& objParameter,
+                                         const CorrelationParameter& corrParameter) {
+  m_objectParameter = objParameter;
+  m_correlationParameter = corrParameter;
 }
 
-void CaloTemplate::print(std::ostream& myCout) const
-{
+void CaloTemplate::print(std::ostream& myCout) const {
+  myCout << "\n  CaloTemplate print..." << std::endl;
 
-    myCout << "\n  CaloTemplate print..." << std::endl;
+  GlobalCondition::print(myCout);
 
-    GlobalCondition::print(myCout);
+  int nObjects = nrObjects();
 
-    int nObjects = nrObjects();
+  for (int i = 0; i < nObjects; i++) {
+    myCout << std::endl;
+    myCout << "  Template for object " << i << " [ hex ]" << std::endl;
+    myCout << "    etThreshold       = " << std::hex << m_objectParameter[i].etLowThreshold << "  "
+           << m_objectParameter[i].etHighThreshold << std::endl;
+    myCout << "    indexLow       = " << std::hex << m_objectParameter[i].indexLow << std::endl;
+    myCout << "    indexHigh      = " << std::hex << m_objectParameter[i].indexHigh << std::endl;
+    myCout << "    etaRange          = " << std::hex << m_objectParameter[i].etaRange << std::endl;
+    myCout << "    phiRange          = " << std::hex << m_objectParameter[i].phiRange << std::endl;
+    myCout << "    isolationLUT      = " << std::hex << m_objectParameter[i].isolationLUT << std::endl;
+    myCout << "    qualityLUT      = " << std::hex << m_objectParameter[i].qualityLUT << std::endl;
+  }
 
-    for (int i = 0; i < nObjects; i++) {
-        myCout << std::endl;
-        myCout << "  Template for object " << i << " [ hex ]" << std::endl;
-        myCout << "    etThreshold       = "
-        << std::hex << m_objectParameter[i].etLowThreshold << "  " << m_objectParameter[i].etHighThreshold << std::endl;
-        myCout << "    indexLow       = "
-        << std::hex << m_objectParameter[i].indexLow << std::endl;
-        myCout << "    indexHigh      = "
-        << std::hex << m_objectParameter[i].indexHigh << std::endl;
-        myCout << "    etaRange          = "
-        << std::hex << m_objectParameter[i].etaRange << std::endl;
-        myCout << "    phiRange          = "
-        << std::hex << m_objectParameter[i].phiRange << std::endl;
-        myCout << "    isolationLUT      = "
-        << std::hex << m_objectParameter[i].isolationLUT << std::endl;
-        myCout << "    qualityLUT      = "
-        << std::hex << m_objectParameter[i].qualityLUT << std::endl;	
-    }
+  if (wsc()) {
+    myCout << "  Correlation parameters "
+           << "[ hex ]" << std::endl;
 
-    if ( wsc() ) {
+    myCout << "    deltaEtaRange     = " << std::hex << m_correlationParameter.deltaEtaRange << std::endl;
+    myCout << "    deltaPhiRange     = " << std::hex << m_correlationParameter.deltaPhiRange << std::endl;
+    myCout << "    deltaPhiMaxbits   = " << std::hex << m_correlationParameter.deltaPhiMaxbits << std::endl;
+  }
 
-        myCout << "  Correlation parameters " << "[ hex ]" <<  std::endl;
-
-        myCout << "    deltaEtaRange     = "
-        << std::hex << m_correlationParameter.deltaEtaRange << std::endl;
-        myCout << "    deltaPhiRange     = "
-        << std::hex << m_correlationParameter.deltaPhiRange << std::endl;
-        myCout << "    deltaPhiMaxbits   = "
-        << std::hex << m_correlationParameter.deltaPhiMaxbits << std::endl;
-    }
-
-    // reset to decimal output
-    myCout << std::dec << std::endl;
+  // reset to decimal output
+  myCout << std::dec << std::endl;
 }
 
-void CaloTemplate::copy(const CaloTemplate& cp)
-{
+void CaloTemplate::copy(const CaloTemplate& cp) {
+  m_condName = cp.condName();
+  m_condCategory = cp.condCategory();
+  m_condType = cp.condType();
+  m_objectType = cp.objectType();
+  m_condGEq = cp.condGEq();
+  m_condChipNr = cp.condChipNr();
+  m_condRelativeBx = cp.condRelativeBx();
 
-    m_condName     = cp.condName();
-    m_condCategory = cp.condCategory();
-    m_condType     = cp.condType();
-    m_objectType   = cp.objectType();
-    m_condGEq      = cp.condGEq();
-    m_condChipNr   = cp.condChipNr();
-    m_condRelativeBx = cp.condRelativeBx();
-
-    m_objectParameter = *(cp.objectParameter());
-    m_correlationParameter = *(cp.correlationParameter());
-
+  m_objectParameter = *(cp.objectParameter());
+  m_correlationParameter = *(cp.correlationParameter());
 }
 
 // output stream operator
-std::ostream& operator<<(std::ostream& os, const CaloTemplate& result)
-{
-    result.print(os);
-    return os;
-
+std::ostream& operator<<(std::ostream& os, const CaloTemplate& result) {
+  result.print(os);
+  return os;
 }
-
-
-

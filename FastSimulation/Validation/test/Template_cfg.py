@@ -53,8 +53,6 @@ process.load("FastSimulation.Configuration.HLT_cff")
 process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
 
 # Schedule the HLT paths
-process.schedule = cms.Schedule()
-process.schedule.extend(process.HLTSchedule)
 
 # If uncommented : All events are reconstructed, including those rejected at L1/HLT
 process.reconstruction = cms.Path(process.reconstructionWithFamos)
@@ -63,8 +61,11 @@ process.schedule.append(process.reconstruction)
 # Simulation sequence
 process.simulation = cms.Sequence(process.simulationWithFamos)
 # You many not want to simulate everything
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
+process.fastSimProducer.SimulateCalorimetry = True
+for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
 # Parameterized magnetic field
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # Number of pileup events per crossing
@@ -75,15 +76,15 @@ process.GlobalTag.globaltag = "IDEAL_31X::All"
 
 
 # Set the early collions 10TeV parameters (as in the standard RelVals)
-process.famosSimHits.VertexGenerator.SigmaZ=cms.double(3.8)
-process.famosSimHits.VertexGenerator.Emittance = cms.double(7.03e-08)
-process.famosSimHits.VertexGenerator.BetaStar = cms.double(300.0)
+process.fastSimProducer.VertexGenerator.SigmaZ=cms.double(3.8)
+process.fastSimProducer.VertexGenerator.Emittance = cms.double(7.03e-08)
+process.fastSimProducer.VertexGenerator.BetaStar = cms.double(300.0)
 
 # Apply ECAL and HCAL miscalibration 
 process.caloRecHits.RecHitsFactory.doMiscalib = False
 
 # Apply Tracker misalignment
-process.famosSimHits.ApplyAlignment = True
+process.fastSimProducer.detectorDefinition.trackerAlignmentLabel = cms.untracked.string("MisAligned")
 process.misalignedTrackerGeometry.applyAlignment = True
 
 # Apply HCAL miscalibration (not ideal in that case).

@@ -1,4 +1,6 @@
-from cStringIO import StringIO
+from builtins import range
+from io import StringIO
+from io import BytesIO
 from pycurl import *
 
 class RequestManager:
@@ -46,7 +48,7 @@ object as it's created and queued to the idle connection list."""
     self.request_error = request_error or self._request_error
     self.request_init = request_init or self._request_init
     self.cm = CurlMulti()
-    self.handles = [Curl() for i in xrange(0, num_connections)]
+    self.handles = [Curl() for i in range(0, num_connections)]
     self.free = [c for c in self.handles]
     self.queue = []
 
@@ -102,7 +104,7 @@ processed before returning."""
       while self.queue and self.free:
         c = self.free.pop()
         c.task = self.queue.pop(0)
-        c.buffer = b = StringIO()
+        c.buffer = b = BytesIO()
         c.setopt(WRITEFUNCTION, b.write)
         self.request_init(c, *c.task)
         self.cm.add_handle(c)

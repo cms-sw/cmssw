@@ -17,6 +17,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.RPCGeometry=dict()
+
 process.source = cms.Source("EmptySource"
     # replace 'myfile.root' with the source file you want to use
 )

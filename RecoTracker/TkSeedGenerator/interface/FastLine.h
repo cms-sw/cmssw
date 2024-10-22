@@ -13,40 +13,33 @@
  */
 
 class FastLine {
-
 public:
-  
-  FastLine(const GlobalPoint& outerHit,
-	   const GlobalPoint& innerHit);
+  FastLine(const GlobalPoint& outerHit, const GlobalPoint& innerHit);
 
-  FastLine(const GlobalPoint& outerHit,
-	   const GlobalPoint& innerHit,
-	   double rho);
-  
+  FastLine(const GlobalPoint& outerHit, const GlobalPoint& innerHit, double rho);
+
   ~FastLine() {}
-  
-  double n1() const {return theN1;}
-  
-  double n2() const {return theN2;}
-  
-  double c() const {return theC;}
 
-  bool isValid() const {return theValid;}
-    
+  double n1() const { return theN1; }
+
+  double n2() const { return theN2; }
+
+  double c() const { return theC; }
+
+  bool isValid() const { return theValid; }
+
 private:
-
-  GlobalPoint theOuterHit; 
-  GlobalPoint theInnerHit; 
+  GlobalPoint theOuterHit;
+  GlobalPoint theInnerHit;
   double theRho;
-  
+
   double theN1;
   double theN2;
   double theC;
-  
+
   bool theValid;
-  
+
   void createLineParameters();
-  
 };
 
-#endif //TR_FastLine_H_
+#endif  //TR_FastLine_H_

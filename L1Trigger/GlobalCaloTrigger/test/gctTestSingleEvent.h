@@ -18,10 +18,8 @@
 
 class L1CaloRegion;
 
-class gctTestSingleEvent
-{
+class gctTestSingleEvent {
 public:
-
   // structs and typedefs
 
   // Constructor and destructor
@@ -31,7 +29,6 @@ public:
   std::vector<L1CaloRegion> loadEvent(const std::string &fileName, const int16_t bx);
 
 private:
-
 };
 
 #endif /*GCTTEST_H_*/

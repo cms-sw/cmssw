@@ -1,4 +1,7 @@
 VtxSmeared = {
+    'DBdesign':                      'IOMC.EventVertexGenerators.VtxSmearedDesign_cfi',
+    'DBrealistic':                   'IOMC.EventVertexGenerators.VtxSmearedRealistic_cfi',
+    'DBrealisticHLLHC':              'IOMC.EventVertexGenerators.VtxSmearedRealisticHLLHC_cfi',
     'NoSmear':                       'Configuration.StandardSequences.VtxSmearedNoSmear_cff',              
     'BetafuncEarlyCollision':        'IOMC.EventVertexGenerators.VtxSmearedBetafuncEarlyCollision_cfi',    
     'BeamProfile':                   'IOMC.EventVertexGenerators.VtxSmearedBeamProfile_cfi',               
@@ -37,10 +40,9 @@ VtxSmeared = {
     'RealisticPbPBoost5TeV2016Collision':  'GeneratorInterface.HiGenCommon.VtxSmearedPbP5TeVBoost_cff',
     'RealisticPPbBoost8TeV2016Collision':  'GeneratorInterface.HiGenCommon.VtxSmearedPPb8TeVBoost_cff',
     'RealisticPbPBoost8TeV2016Collision':  'GeneratorInterface.HiGenCommon.VtxSmearedPbP8TeVBoost_cff',
+    'HGCALCloseBy'  :                'IOMC.EventVertexGenerators.VtxSmearedHGCALCloseBy_cfi',
     'HLLHC'  :                       'IOMC.EventVertexGenerators.VtxSmearedHLLHC_cfi',
     'HLLHC14TeV'  :                  'IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi',
-    'HLLHC_CK'  :                    'IOMC.EventVertexGenerators.VtxSmearedHLLHCCrabKissing_cfi',
-    'HLLHC_CK14TeV'  :               'IOMC.EventVertexGenerators.VtxSmearedHLLHCCrabKissing14TeV_cfi',
     'ShiftedCollision2015'  :        'IOMC.EventVertexGenerators.VtxSmearedShiftedCollision2015_cfi',
     'Shifted5mmCollision2015'  :     'IOMC.EventVertexGenerators.VtxSmearedShifted5mmCollision2015_cfi',
     'Shifted15mmCollision2015'  :    'IOMC.EventVertexGenerators.VtxSmearedShifted15mmCollision2015_cfi',
@@ -53,11 +55,24 @@ VtxSmeared = {
     'Realistic50ns13TeVCollision': 'IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi',
     'Nominal5TeVpp2015Collision':    'IOMC.EventVertexGenerators.VtxSmearedNominal5TeVpp2015Collision_cfi',
     'Realistic5TeVppCollision2017':    'IOMC.EventVertexGenerators.VtxSmearedRealistic5TeVppCollision2017_cfi',
+    'Fixed_EmitRealistic5TeVppCollision2017':    'IOMC.EventVertexGenerators.VtxSmearedFixed_EmitRealistic5TeVppCollision2017_cfi',
     'Realistic25ns13TeV2016Collision':    'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13TeV2016Collision_cfi',
     'Realistic100ns13TeVCollisionBetaStar90m' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic100ns13TeVCollisionBetaStar90m_cfi',
     'Realistic100ns13TeVCollisionBetaStar90mLowBunches' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic100ns13TeVCollisionBetaStar90mLowBunches_cfi',
     'Realistic25ns13TeVEarly2017Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13TeVEarly2017Collision_cfi',
-
+    'Realistic25ns13TeVEarly2018Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13TeVEarly2018Collision_cfi',
+    'RealisticPbPbCollision2018' : 'IOMC.EventVertexGenerators.VtxSmearedRealisticPbPbCollision2018_cfi',
+    'Run3RoundOptics25ns13TeVLowSigmaZ'  : 'IOMC.EventVertexGenerators.VtxSmearedRun3RoundOptics25ns13TeVLowSigmaZ_cfi',
+    'Run3RoundOptics25ns13TeVHighSigmaZ' : 'IOMC.EventVertexGenerators.VtxSmearedRun3RoundOptics25ns13TeVHighSigmaZ_cfi',
+    'Run3FlatOpticsGaussSigmaZ4p2cm'     : 'IOMC.EventVertexGenerators.VtxSmearedRun3FlatOpticsGaussSigmaZ4p2cm_cfi',
+    'Run3FlatOpticsGaussSigmaZ5p3cm'     : 'IOMC.EventVertexGenerators.VtxSmearedRun3FlatOpticsGaussSigmaZ5p3cm_cfi',
+    'Realistic25ns900GeV2021Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns900GeV2021Collision_cfi',
+    'Realistic25ns13p6TeVEarly2022Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13p6TeVEarly2022Collision_cfi',
+    'Realistic25ns13p6TeVEOY2022Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13p6TeVEOY2022Collision_cfi',
+    'Realistic25ns13p6TeVEarly2023Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13p6TeVEarly2023Collision_cfi',
+    'Nominal2022PbPbCollision' : 'IOMC.EventVertexGenerators.VtxSmearedNominal2022PbPbCollision_cfi',
+    'Realistic2022PbPbCollision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic2022PbPbCollision_cfi',
+    'Realistic2023PbPbCollision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic2023PbPbCollision_cfi',
 }
 VtxSmearedDefaultKey='Realistic50ns13TeVCollision'
-VtxSmearedHIDefaultKey='RealisticHICollision2015'
+VtxSmearedHIDefaultKey='RealisticPbPbCollision2018'

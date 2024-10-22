@@ -1,0 +1,10 @@
+<lcgdict>
+  <class name="SiPixelClustersSoA"/>
+  <class name="SiPixelClustersSoA::View"/>
+  <class name="PortableHostCollection<SiPixelClustersSoA>"/>
+
+  <class name="SiPixelClustersHost" ClassVersion="3">
+    <version ClassVersion="3" checksum="3089948089"/>
+  </class>
+  <class name="edm::Wrapper<SiPixelClustersHost>" splitLevel="0"/>
+</lcgdict>

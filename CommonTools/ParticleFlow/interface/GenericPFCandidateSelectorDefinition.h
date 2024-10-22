@@ -20,31 +20,25 @@
 namespace pf2pat {
 
   struct GenericPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition {
+    GenericPFCandidateSelectorDefinition(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+        : selector_(cfg.getParameter<std::string>("cut")) {}
 
-    GenericPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
-      selector_( cfg.getParameter< std::string >( "cut" ) ) { }
-
-    void select( const HandleToCollection & hc,
-		 const edm::Event & e,
-		 const edm::EventSetup& s) {
+    void select(const HandleToCollection& hc, const edm::Event& e, const edm::EventSetup& s) {
       selected_.clear();
 
-      unsigned key=0;
-      for( collection::const_iterator pfc = hc->begin();
-	   pfc != hc->end(); ++pfc, ++key) {
-
-	if( selector_(*pfc) ) {
-	  selected_.push_back( reco::PFCandidate(*pfc) );
-	  reco::PFCandidatePtr ptrToMother( hc, key );
-	  selected_.back().setSourceCandidatePtr( ptrToMother );
-
-	}
+      unsigned key = 0;
+      for (collection::const_iterator pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
+        if (selector_(*pfc)) {
+          selected_.push_back(reco::PFCandidate(*pfc));
+          reco::PFCandidatePtr ptrToMother(hc, key);
+          selected_.back().setSourceCandidatePtr(ptrToMother);
+        }
       }
     }
 
-    private:
+  private:
     StringCutObjectSelector<reco::PFCandidate> selector_;
   };
-}
+}  // namespace pf2pat
 
 #endif

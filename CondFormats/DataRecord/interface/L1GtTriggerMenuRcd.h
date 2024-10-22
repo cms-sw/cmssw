@@ -18,7 +18,7 @@
  */
 
 // system include files
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 // user include files
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
@@ -30,11 +30,9 @@
 
 // class declaration - record depends on L1GtStableParametersRcd
 class L1GtTriggerMenuRcd : public edm::eventsetup::DependentRecordImplementation<
-            L1GtTriggerMenuRcd, boost::mpl::vector<L1GtStableParametersRcd,L1TriggerKeyListRcd,L1TriggerKeyRcd> >
-{
-
-    // empty
-
+                               L1GtTriggerMenuRcd,
+                               edm::mpl::Vector<L1GtStableParametersRcd, L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+  // empty
 };
 
 #endif

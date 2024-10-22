@@ -6,73 +6,79 @@
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
+struct ESIntLSCache {
+  int ievtLS_;
+  int DIErrorsByLS_[2][2][40][40];
+};
 
-class ESIntegrityTask : public DQMEDAnalyzer {
+class ESIntegrityTask : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<ESIntLSCache>> {
+public:
+  ESIntegrityTask(const edm::ParameterSet& ps);
+  ~ESIntegrityTask() override {}
 
-   public:
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-      ESIntegrityTask(const edm::ParameterSet& ps);
-      ~ESIntegrityTask() override {}
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-   protected:
+  /// EndJob
+  void endJob(void) override;
 
-      void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  /// EndRun
+  void dqmEndRun(const edm::Run& r, const edm::EventSetup& c) override;
 
-      /// Analyze
-      void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  /// Begin Lumi
+  std::shared_ptr<ESIntLSCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                           const edm::EventSetup& c) const override;
 
-      /// EndJob
-      void endJob(void);
+  /// End Lumi
+  void globalEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
 
-      /// EndRun
-      void endRun(const edm::Run & r, const edm::EventSetup & c) override;
+  /// Calculate Data Integrity Fraction
+  void calculateDIFraction(const edm::LuminosityBlock& lumi, const edm::EventSetup& c);
 
-      /// Begin Lumi
-      void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup & c) override;
+private:
+  int ievt_;
 
-      /// End Lumi
-      void endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup & c) override;
+  std::string prefixME_;
 
-      /// Calculate Data Integrity Fraction
-      void calculateDIFraction(void);
+  edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
+  edm::EDGetTokenT<ESLocalRawDataCollection> kchipCollections_;
 
-   private:
+  MonitorElement* meGain_;
+  MonitorElement* meFED_;
+  MonitorElement* meSLinkCRCErr_;
+  MonitorElement* meSLinkCRCErrByLS_;
+  MonitorElement* meDCCErr_;
+  MonitorElement* meDCCCRCErr_;
+  MonitorElement* meDCCCRCErrByLS_;
+  MonitorElement* meOptoRX_;
+  MonitorElement* meOptoBC_;
+  MonitorElement* meOptoBCByLS_;
+  MonitorElement* meFiberBadStatus_;
+  MonitorElement* meFiberErrCode_;
+  MonitorElement* meFiberErrCodeByLS_;
+  MonitorElement* meFiberOff_;
+  MonitorElement* meFiberOffByLS_;
+  MonitorElement* meEVDR_;
+  MonitorElement* meKF1_;
+  MonitorElement* meKF2_;
+  MonitorElement* meKBC_;
+  MonitorElement* meKEC_;
+  MonitorElement* meDIErrors_[2][2];
+  MonitorElement* meDIErrorsByLS_[2][2];
+  MonitorElement* meDIFraction_;
 
-      int ievt_;
+  edm::FileInPath lookup_;
 
-      std::string prefixME_;
-
-      edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
-      edm::EDGetTokenT<ESLocalRawDataCollection> kchipCollections_;
-
-      MonitorElement* meGain_;
-      MonitorElement* meFED_;
-      MonitorElement* meSLinkCRCErr_;
-      MonitorElement* meDCCErr_;
-      MonitorElement* meDCCCRCErr_;
-      MonitorElement* meOptoRX_;
-      MonitorElement* meOptoBC_;
-      MonitorElement* meFiberBadStatus_;
-      MonitorElement* meFiberErrCode_;
-      MonitorElement* meFiberOff_;
-      MonitorElement* meEVDR_;
-      MonitorElement* meKF1_;
-      MonitorElement* meKF2_;
-      MonitorElement* meKBC_;
-      MonitorElement* meKEC_;
-      MonitorElement* meDIErrors_[2][2];
-      MonitorElement* meDIErrorsLS_[2][2];
-      MonitorElement* meDIFraction_;
-
-      edm::FileInPath lookup_;
-
-      int runNum_, eCount_, runtype_, seqtype_, dac_, gain_, precision_;
-      int firstDAC_, nDAC_, isPed_, vDAC_[5]; 
-      int fed_[2][2][40][40], kchip_[2][2][40][40], fiber_[2][2][40][40];
-      bool doLumiAnalysis_;
+  int runNum_, eCount_, runtype_, seqtype_, dac_, gain_, precision_;
+  int firstDAC_, nDAC_, isPed_, vDAC_[5];
+  int fed_[2][2][40][40], kchip_[2][2][40][40], fiber_[2][2][40][40];
+  bool doLumiAnalysis_;
 };
 
 #endif

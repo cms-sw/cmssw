@@ -8,14 +8,13 @@
  *
 */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
-
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <string>
 #include <map>
@@ -25,20 +24,18 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class DTGeometry;
 class TFile;
 class TH2F;
 class TH1F;
 
-class DTNoiseComputation: public edm::EDAnalyzer{
-  
- public:
-  
+class DTNoiseComputation : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+public:
   /// Constructor
   DTNoiseComputation(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   ~DTNoiseComputation() override;
 
@@ -49,45 +46,45 @@ class DTNoiseComputation: public edm::EDAnalyzer{
 
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
 
+  void endRun(const edm::Run&, const edm::EventSetup& setup) override {}
+
   /// Endjob
   void endJob() override;
 
-
 protected:
-
 private:
-
   bool debug;
   int counter;
   int MaxEvents;
   bool fastAnalysis;
-  
+
   // Get the DT Geometry
   edm::ESHandle<DTGeometry> dtGeom;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 
   // The file which contain the occupancy plot and the digi event plot
-  TFile *theFile;
-  
+  TFile* theFile;
+
   // The file which will contain the occupancy plot and the digi event plot
-  TFile *theNewFile;
+  TFile* theNewFile;
 
   // Map of label to compute the average noise per layer
-  std::map<DTLayerId , bool> toComputeNoiseAverage;
+  std::map<DTLayerId, bool> toComputeNoiseAverage;
 
   // Map of the average noise per layer
-  std::map<DTWireId , double>  theAverageNoise;
+  std::map<DTWireId, double> theAverageNoise;
 
-   // Map of the histograms with the number of events per evt per wire
+  // Map of the histograms with the number of events per evt per wire
   std::map<DTLayerId, std::vector<TH2F*> > theEvtMap;
 
   // map of histos with the distance of event per wire
   std::map<DTWireId, TH1F*> theHistoEvtDistancePerWire;
-  
+
   // Map of label for analysis histos
-  std::map<DTWireId , bool> toDel;
+  std::map<DTWireId, bool> toDel;
 
   // Map of the Time Constants per wire
-  std::map<DTWireId , double> theTimeConstant;
+  std::map<DTWireId, double> theTimeConstant;
 
   /// Get the name of the layer
   std::string getLayerName(const DTLayerId& lId) const;
@@ -97,7 +94,7 @@ private:
 
   /// Get the name of the chamber
   std::string getChamberName(const DTLayerId& lId) const;
-  
+
   // map of histos with the average noise per chamber
   std::map<DTChamberId, TH1F*> AvNoisePerChamber;
 
@@ -112,15 +109,14 @@ private:
 
   // get the maximum bin number
   int getMaxNumBins(const DTChamberId& chId) const;
-  
+
   // get the Y axis maximum
   double getYMaximum(const DTSuperLayerId& slId) const;
 
   // map of noisy cell occupancy
-  std::map< std::pair<int,int> , TH1F*> noisyC;
+  std::map<std::pair<int, int>, TH1F*> noisyC;
 
   // map of somehow noisy cell occupancy
-  std::map< std::pair<int,int> , TH1F*> someHowNoisyC;
-
+  std::map<std::pair<int, int>, TH1F*> someHowNoisyC;
 };
 #endif

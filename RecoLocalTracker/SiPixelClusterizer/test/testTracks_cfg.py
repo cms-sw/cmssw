@@ -14,16 +14,13 @@ process.maxEvents = cms.untracked.PSet(
 )
        
 process.MessageLogger = cms.Service("MessageLogger",
-#    debugModules = cms.untracked.vstring('TestPixTracks'),
-    destinations = cms.untracked.vstring('cout'),
-#    destinations = cms.untracked.vstring("log","cout"),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG')
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('ERROR')
     )
-#    log = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG')
-#    )
 )
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt

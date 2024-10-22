@@ -5,7 +5,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoBTag/SecondaryVertex/interface/TemplatedSimpleSecondaryVertexComputer.h"
 
+typedef TemplatedSimpleSecondaryVertexComputer<reco::TrackIPTagInfo, reco::Vertex> SimpleSecondaryVertexComputer;
 
-typedef TemplatedSimpleSecondaryVertexComputer<reco::TrackIPTagInfo,reco::Vertex> SimpleSecondaryVertexComputer;
-
-#endif // RecoBTag_SecondaryVertex_SimpleSecondaryVertexComputer_h
+#endif  // RecoBTag_SecondaryVertex_SimpleSecondaryVertexComputer_h

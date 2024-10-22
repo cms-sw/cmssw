@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+from __future__ import print_function
 '''CMS Conditions DB Serialization generator.
 
 Generates the non-intrusive serialization code required for the classes
@@ -113,7 +114,7 @@ def get_statement(node):
     end = node.extent.end.offset
 
     with open(filename, 'rb') as fd:
-        source = fd.read()
+        source = fd.read().decode('latin-1')
 
     return source[start:source.find(';', end)]
 
@@ -172,8 +173,8 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
             if only_from_path is not None \
                 and child.location.file is not None \
                 and not child.location.file.name.startswith(only_from_path):
-                    logging.debug('Skipping since it is an external of this package: %s', child.spelling)
-                    continue
+                logging.debug('Skipping since it is an external of this package: %s', child.spelling)
+                continue
 
             serializable = is_serializable_class(child)
             if serializable:
@@ -216,8 +217,8 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
                 # Template non-type parameters (e.g. <int N>)
                 elif member.kind == clang.cindex.CursorKind.TEMPLATE_NON_TYPE_PARAMETER:
                     type_string = get_type_string(member)
-		    if not type_string: 
-		       type_string = get_basic_type_string(member)
+                    if not type_string: 
+                        type_string = get_basic_type_string(member)
                     logging.info('    Found template non-type parameter: %s %s', type_string, member.spelling)
                     template_types.append((type_string, member.spelling))
 
@@ -351,7 +352,7 @@ def get_clang_version():
         return clang_version
     command = "clang --version | grep 'clang version' | sed 's/clang version//'"
     logging.debug("Running: {0}".format(command))
-    (clang_version_major, clang_version_minor, clang_version_patchlevel) = subprocess.check_output(command, shell=True).splitlines()[0].strip().split('.', 3)
+    (clang_version_major, clang_version_minor, clang_version_patchlevel) = subprocess.check_output(command, shell=True).splitlines()[0].decode('ascii').strip().split(" ")[0].split('.', 3)
     clang_version = (int(clang_version_major), int(clang_version_minor), int(clang_version_patchlevel))
     logging.debug("Detected Clang version: {0}".format(clang_version))
     return clang_version
@@ -388,7 +389,7 @@ def get_default_gcc_search_paths(gcc = 'g++', language = 'c++'):
 
     paths = []
     in_list = False
-    for line in subprocess.check_output(command, shell=True).splitlines():
+    for line in [l.decode("ascii") for l in subprocess.check_output(command, shell=True).splitlines()]:
         if in_list:
             if line == 'End of search list.':
                 break
@@ -449,12 +450,12 @@ class SerializationCodeGenerator(object):
         product_name = '%s%s' % (self.split_path[1], self.split_path[2])
         logging.debug('product_name = %s', product_name)
 
-	if not scramFlags:
-	   cpp_flags = get_flags(product_name, 'CPPFLAGS')
-           cxx_flags = get_flags(product_name, 'CXXFLAGS')
-	else:
-	   cpp_flags = self.cleanFlags( scramFlags )
-	   cxx_flags = []
+        if not scramFlags:
+            cpp_flags = get_flags(product_name, 'CPPFLAGS')
+            cxx_flags = get_flags(product_name, 'CXXFLAGS')
+        else:
+            cpp_flags = self.cleanFlags( scramFlags )
+            cxx_flags = []
 
         # We are using libClang, thus we have to follow Clang include paths
         std_flags = get_default_gcc_search_paths(gcc='clang++')
@@ -510,15 +511,15 @@ class SerializationCodeGenerator(object):
         return os.path.join(self.cmssw_base, self.split_path[0], self.split_path[1], self.split_path[2], *path)
 
     def cleanFlags(self, flagsIn):
-        flags = [ flag for flag in flagsIn if not flag.startswith(('-march', '-mtune', '-fdebug-prefix-map', '-ax', '-wd')) ]
+        flags = [ flag for flag in flagsIn if not flag.startswith(('-march', '-mtune', '-fdebug-prefix-map', '-ax', '-wd', '-fsanitize=')) ]
         blackList = ['--', '-fipa-pta', '-xSSE3', '-fno-crossjumping', '-fno-aggressive-loop-optimizations']
         return [x for x in flags if x not in blackList]
 
     def generate(self, outFileName):
 
-    	filename = outFileName
-	if not filename:  # in case we're not using scram, this may not be set, use the default then, assuming we're in the package dir ...
-	   filename = self._join_package_path('src', 'Serialization.cc')
+        filename = outFileName
+        if not filename:  # in case we're not using scram, this may not be set, use the default then, assuming we're in the package dir ...
+            filename = self._join_package_path('src', 'Serialization.cc')
 
         n_serializable_classes = 0
 
@@ -563,13 +564,13 @@ class SerializationCodeGenerator(object):
             source += '#include "%s/%s/src/SerializationManual.h"\n' % (self.split_path[1], self.split_path[2])
 
         logging.info('Writing serialization code for %s classes in %s ...', n_serializable_classes, filename)
-        with open(filename, 'wb') as fd:
+        with open(filename, 'w') as fd:
             fd.write(source)
 
 
 def main():
     parser = argparse.ArgumentParser(description='CMS Condition DB Serialization generator.')
-    parser.add_argument('--verbose', '-v', action='count', help='Verbosity level. -v reports debugging information.')
+    parser.add_argument('--verbose', '-v', action='count', help='Verbosity level. -v reports debugging information.', default=0)
     parser.add_argument('--output' , '-o', action='store', help='Specifies the path to the output file written. Default: src/Serialization.cc')
     parser.add_argument('--package', '-p', action='store', help='Specifies the path to the package to be processed. Default: the actual package')
 
@@ -577,10 +578,10 @@ def main():
 
     logLevel = logging.INFO
     if opts.verbose < 1 and opts.output and opts.package:   # assume we're called by scram and reduce logging - but only if no verbose is requested
-       logLevel = logging.WARNING
+        logLevel = logging.WARNING
 
     if opts.verbose >= 1: 
-       logLevel = logging.DEBUG
+        logLevel = logging.DEBUG
 
     logging.basicConfig(
         format = '[%(asctime)s] %(levelname)s: %(message)s',
@@ -589,13 +590,13 @@ def main():
 
     if opts.package:  # we got a directory name to process, assume it's from scram and remove the last ('/src') dir from the path
         pkgDir = opts.package
-	if pkgDir.endswith('/src') :
-	    pkgDir, srcDir = os.path.split( opts.package )
+        if pkgDir.endswith('/src') :
+            pkgDir, srcDir = os.path.split( opts.package )
         os.chdir( pkgDir )
-	logging.info("Processing package in %s " % pkgDir)
+        logging.info("Processing package in %s " % pkgDir)
 
     if opts.output:
-       logging.info("Writing serialization code to %s " % opts.output)
+        logging.info("Writing serialization code to %s " % opts.output)
 
     SerializationCodeGenerator( scramFlags=args[1:] ).generate( opts.output )
 

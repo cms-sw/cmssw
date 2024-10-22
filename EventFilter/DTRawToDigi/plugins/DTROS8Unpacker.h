@@ -16,27 +16,24 @@
 class DTReadOutMapping;
 
 class DTROS8Unpacker : public DTUnpacker {
-
 public:
-  
   /// Constructor
-  DTROS8Unpacker(const edm::ParameterSet& ps): pset(ps) {}
+  DTROS8Unpacker(const edm::ParameterSet& ps) : pset(ps) {}
 
   /// Destructor
   ~DTROS8Unpacker() override {}
 
   // Unpacking method
-  void interpretRawData(const unsigned int* index, int datasize,
-				int dduID,
-				edm::ESHandle<DTReadOutMapping>& mapping, 
-				std::unique_ptr<DTDigiCollection>& product,
-                                std::unique_ptr<DTLocalTriggerCollection>& product2,
-				uint16_t rosList = 0) override;
+  void interpretRawData(const unsigned int* index,
+                        int datasize,
+                        int dduID,
+                        edm::ESHandle<DTReadOutMapping>& mapping,
+                        std::unique_ptr<DTDigiCollection>& product,
+                        std::unique_ptr<DTLocalTriggerCollection>& product2,
+                        uint16_t rosList = 0) override;
 
 private:
-
   const edm::ParameterSet pset;
-
 };
 
 #endif

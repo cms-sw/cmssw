@@ -44,7 +44,7 @@ def customiseKinksAndBows(process):
 # Event source and run selection
 ###################################################################
 if (useFileList):
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Reading local input files list"
+     print("############ testPVValidation_cfg.py: msg%-i: Reading local input files list")
      readFiles = cms.untracked.vstring()
      readFiles.extend(FILESOURCETEMPLATE)
      process.source = cms.Source("PoolSource",
@@ -52,7 +52,7 @@ if (useFileList):
                                  duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
                                  )
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Reading from configuration fragment"
+     print("############ testPVValidation_cfg.py: msg%-i: Reading from configuration fragment")
      process.load("Alignment.OfflineValidation.DATASETTEMPLATE")
 
 ###################################################################
@@ -66,12 +66,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(MAXEVENTSTEM
 # JSON Filtering
 ###################################################################
 if isMC:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is simulation!"
+     print("############ testPVValidation_cfg.py: msg%-i: This is simulation!")
      runboundary = 1
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is real DATA!"
+     print("############ testPVValidation_cfg.py: msg%-i: This is real DATA!")
      if ('LUMILISTTEMPLATE'):
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: JSON filtering with: LUMILISTTEMPLATE"
+          print("############ testPVValidation_cfg.py: msg%-i: JSON filtering with: LUMILISTTEMPLATE")
           import FWCore.PythonUtilities.LumiList as LumiList
           process.source.lumisToProcess = LumiList.LumiList(filename ='LUMILISTTEMPLATE').getVLuminosityBlockRange()
 
@@ -79,7 +79,6 @@ else:
 # Messages
 ###################################################################
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 ####################################################################
@@ -110,7 +109,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'GLOBALTAGTEMPLATE', '')
 
 if allFromGT:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT"
+     print("############ testPVValidation_cfg.py: msg%-i: All is taken from GT")
 else:
      ####################################################################
      # Get Alignment and APE constants
@@ -121,16 +120,16 @@ else:
      # Kinks and Bows (optional)
      ####################################################################
      if applyBows:
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!"
+          print("############ testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!")
           process=customiseKinksAndBows(process)
      else:
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!"
+          print("############ testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!")
 
           ####################################################################
           # Extra corrections not included in the GT
           ####################################################################
           if applyExtraConditions:
-               print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying extra calibration constants!"
+               print("############ testPVValidation_cfg.py: msg%-i: Applying extra calibration constants!")
 
                import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 
@@ -138,7 +137,7 @@ else:
                ##### END OF EXTRA CONDITIONS
                
           else:
-               print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!"
+               print("############ testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!")
                
      
 ####################################################################
@@ -194,91 +193,76 @@ process.TrackRefitter.NavigationSchool = ''
 process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
 
 ####################################################################
+# Load .SiPixelTemplateStoreESProducer
+####################################################################
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
+
+####################################################################
 # Output file
 ####################################################################
 process.TFileService = cms.Service("TFileService",
                                    fileName=cms.string("OUTFILETEMPLATE")
-                                  )                                    
+                                   )
 
 ####################################################################
-# Deterministic annealing clustering
+# Imports of parameters
 ####################################################################
-if isDA:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!"
-     process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
-                                           TrackCollectionTag = cms.InputTag("TrackRefitter"),
-                                           VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"),  
-                                           Debug = cms.bool(False),
-                                           storeNtuple = cms.bool(False),
-                                           useTracksFromRecoVtx = cms.bool(False),
-                                           isLightNtuple = cms.bool(True),
-                                           askFirstLayerHit = cms.bool(False),
-                                           probePt = cms.untracked.double(PTCUTTEMPLATE),
-                                           runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
-                                           runControlNumber = cms.untracked.vuint32(int(runboundary)),
-                                           
-                                           TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                           
-                                                                         maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 5                  
-                                                                         minPixelLayersWithHits = cms.int32(2),                      # PX hits > 2                       
-                                                                         minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5  
-                                                                         maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)     
-                                                                         minPt = cms.double(0.0),                                    # better for softish events                        
-                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
-                                                                         trackQuality = cms.string("any")
-                                                                         ),
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices
+## modify the parameters which differ
+FilteringParams = offlinePrimaryVertices.TkFilterParameters.clone(
+     maxNormalizedChi2 = 5.0,  # chi2ndof < 5
+     maxD0Significance = 5.0,  # fake cut (requiring 1 PXB hit)
+     maxEta = 5.0,             # as per recommendation in PR #18330
+)
 
-                                           ## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
-                                           TkClusParameters=cms.PSet(algorithm=cms.string('DA_vect'),
-                                                                     TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.6),  # moderate annealing speed
-                                                                                                   Tmin = cms.double(2.0),           # end of vertex splitting
-                                                                                                   Tpurge = cms.double(2.0),         # cleaning 
-                                                                                                   Tstop = cms.double(0.5),          # end of annealing
-                                                                                                   vertexSize = cms.double(0.006),   # added in quadrature to track-z resolutions
-                                                                                                   d0CutOff = cms.double(3.),        # downweight high IP tracks
-                                                                                                   dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)   
-                                                                                                   zmerge = cms.double(1e-2),        # merge intermediat clusters separated by less than zmerge
-                                                                                                   uniquetrkweight = cms.double(0.8) # require at least two tracks with this weight at T=Tpurge
-                                                                                                   )
-                                                                     )
-                                           )
+## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import DA_vectParameters
+DAClusterizationParams = DA_vectParameters.clone()
+
+GapClusterizationParams = cms.PSet(algorithm   = cms.string('gap'),
+                                   TkGapClusParameters = cms.PSet(zSeparation = cms.double(0.2))  # 0.2 cm max separation betw. clusters
+                                   )
 
 ####################################################################
-# GAP clustering
+# Deterministic annealing clustering or Gap clustering
 ####################################################################
-else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!"
-     process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
-                                           TrackCollectionTag = cms.InputTag("TrackRefitter"),
-                                           VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"), 
-                                           Debug = cms.bool(False),
-                                           isLightNtuple = cms.bool(True),
-                                           storeNtuple = cms.bool(False),
-                                           useTracksFromRecoVtx = cms.bool(False),
-                                           askFirstLayerHit = cms.bool(False),
-                                           probePt = cms.untracked.double(PTCUTTEMPLATE),
-                                           runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
-                                           runControlNumber = cms.untracked.vuint32(int(runboundary)),
-                                           
-                                           TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                             
-                                                                         maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 20                  
-                                                                         minPixelLayersWithHits=cms.int32(2),                        # PX hits > 2                   
-                                                                         minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5                   
-                                                                         maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)
-                                                                         minPt = cms.double(0.0),                                    # better for softish events     
-                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
-                                                                         trackQuality = cms.string("any")
-                                                                         ),
-                                        
-                                           TkClusParameters = cms.PSet(algorithm   = cms.string('gap'),
-                                                                       TkGapClusParameters = cms.PSet(zSeparation = cms.double(0.2)  # 0.2 cm max separation betw. clusters
-                                                                                                      ) 
-                                                                       )
-                                           )
+def switchClusterizerParameters(da):
+     if da:
+          print("############ testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
+          return DAClusterizationParams
+     else:
+          print("############ testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
+          return GapClusterizationParams
+
+####################################################################
+# Configure the PVValidation Analyzer module
+####################################################################
+process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
+                                      TrackCollectionTag = cms.InputTag("TrackRefitter"),
+                                      VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"),
+                                      Debug = cms.bool(False),
+                                      storeNtuple = cms.bool(False),
+                                      useTracksFromRecoVtx = cms.bool(False),
+                                      isLightNtuple = cms.bool(True),
+                                      askFirstLayerHit = cms.bool(False),
+                                      forceBeamSpot = cms.untracked.bool(False),
+                                      probePt = cms.untracked.double(PTCUTTEMPLATE),
+                                      runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
+                                      runControlNumber = cms.untracked.vuint32(int(runboundary)),
+                                      TkFilterParameters = FilteringParams,
+                                      TkClusParameters = switchClusterizerParameters(isDA)
+                                      )
+
+####################################################################
+# Refitting Sequence
+####################################################################
+process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
+                                        process.TrackRefitter,
+                                        cms.Task(process.SiPixelTemplateStoreESProducer))
 
 ####################################################################
 # Path
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
-                     process.offlineBeamSpot*
-                     process.TrackRefitter*
+                     process.seqTrackselRefit*
                      process.PVValidation)

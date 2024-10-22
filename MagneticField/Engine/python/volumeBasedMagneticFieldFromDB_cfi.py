@@ -1,3 +1,8 @@
+# This cfi sets a field map configured based on the run and GT.
+#
+# PLEASE DO NOT USE THIS cfi DIRECTLY
+# Always use the standard sequence Configuration.StandardSequences.MagneticField_cff
+
 import FWCore.ParameterSet.Config as cms
 
 VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESProducerFromDB",

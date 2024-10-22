@@ -17,10 +17,10 @@ diMuonHistos = DQMEDAnalyzer('DiMuonHistograms',
                               etaECMin = cms.double(0.9),
                               etaECMax = cms.double(2.4),
                               
-                              LowMassMin = cms.double(2.0),
-                              LowMassMax = cms.double(12.0),
-                              HighMassMin = cms.double(70.0),
-                              HighMassMax = cms.double(110.0),
+                              lowMassMin = cms.double(2.0),
+                              lowMassMax = cms.double(12.0),
+                              highMassMin = cms.double(70.0),
+                              highMassMax = cms.double(110.0),
                               folder = cms.string("Muons/diMuonHistograms")
                               )
 diMuonHistos_miniAOD = DQMEDAnalyzer('DiMuonHistograms',
@@ -37,10 +37,10 @@ diMuonHistos_miniAOD = DQMEDAnalyzer('DiMuonHistograms',
                                       etaECMin = cms.double(0.9),
                                       etaECMax = cms.double(2.4),
                                       
-                                      LowMassMin = cms.double(2.0),
-                                      LowMassMax = cms.double(12.0),
-                                      HighMassMin = cms.double(70.0),
-                                      HighMassMax = cms.double(110.0),
+                                      lowMassMin = cms.double(2.0),
+                                      lowMassMax = cms.double(12.0),
+                                      highMassMin = cms.double(70.0),
+                                      highMassMax = cms.double(110.0),
                                       folder = cms.string("Muons_miniAOD/diMuonHistograms")
                                       )
 
@@ -50,8 +50,8 @@ pA_2016.toModify(diMuonHistos,
     etaBBin = 350, 
     etaEBin = 350, 
 
-    LowMassMin = 2.0, 
-    LowMassMax = 51.0, 
-    HighMassMin = 55.0, 
-    HighMassMax = 125.0
+    lowMassMin = 2.0, 
+    lowMassMax = 51.0, 
+    highMassMin = 55.0, 
+    highMassMax = 125.0
     )

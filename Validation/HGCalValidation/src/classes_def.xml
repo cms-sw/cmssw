@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="ValidHit" />
+  <class name="std::vector<ValidHit>" />
+  <class name="edm::Wrapper<std::vector<ValidHit> >" />
+</lcgdict>

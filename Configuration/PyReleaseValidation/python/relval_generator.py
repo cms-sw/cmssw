@@ -24,8 +24,7 @@ workflows[506]=['',['WToLNu_13TeV_pythia8','HARVESTGEN']]
 workflows[511]=['',['QCD_Pt-30_13TeV_aMCatNLO_herwig7','HARVESTGEN']]
 
 # Matrix Element Generations & Hadronization (LHE Generation + Hadronization)
-workflows[512]=['DYTollJets_LO_Mad_13TeV_py8',['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8','HARVESTGEN2']]
-
+workflows[512]=['DYTollJets_LO_Mad_13TeV_py8',['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV','Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8','HARVESTGEN2']]
 # Matrix Element Generations & Hadronization (Sherpa)
 
 # External Decays
@@ -34,10 +33,8 @@ workflows[512]=['DYTollJets_LO_Mad_13TeV_py8',['DYToll01234Jets_5f_LO_MLM_Madgra
 workflows[531]=['',['ReggeGribovPartonMC_EposLHC_5TeV_pPb','HARVESTGEN']]
 
 # B-physics
-workflows[541]=['',['BuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1','HARVESTGEN']]
+workflows[541]=['',['BuToKstarJPsiToMuMu_forSTEAM_13TeV','HARVESTGEN']]
 #workflows[542]=['',['Upsilon4swithBuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1','HARVESTGEN']]
 #workflows[543]=['',['Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUETP8M1','HARVESTGEN']]
 #workflows[544]=['',['LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1','HARVESTGEN']]
-workflows[545]=['',['BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1','HARVESTGEN']]
-
-# Miscellaneous
+workflows[545]=['',['BsToMuMu_forSTEAM_13TeV','HARVESTGEN']]

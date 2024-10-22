@@ -1,11 +1,24 @@
 ### AUTO-GENERATED CMSRUN CONFIGURATION FOR ECAL DQM ###
 import FWCore.ParameterSet.Config as cms
+from EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi import * # To monitor LHC status, e.g. to mask trigger primitives quality alarm during Cosmics
+import sys
 
-process = cms.Process("process")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("process", Run3)
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
 
 ### Load cfis ###
 
-process.load("DQM.Integration.config.inputsource_cfi")
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
+else:
+    process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options, set_BeamSplashRun_settings
+
 process.load("DQM.Integration.config.environment_cfi")
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -39,69 +52,103 @@ process.load("DQM.EcalMonitorClient.EcalMonitorClient_cfi")
 
 ### Individual module setups ###
 
+# Use the ratio timing method for the online DQM
+process.ecalMultiFitUncalibRecHitCPU.algoPSet.timealgo = "RatioMethod"
+process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain12pEB = 5.
+process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain12mEB = 5.
+process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain61pEB = 5.
+process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain61mEB = 5.
+process.ecalMultiFitUncalibRecHitCPU.algoPSet.timeCalibTag = ':'
+process.ecalMultiFitUncalibRecHitCPU.algoPSet.timeOffsetTag = ':'
+process.ecalRecHit.cpu.timeCalibTag = ':'
+process.ecalRecHit.cpu.timeOffsetTag = ':'
+
 process.ecalPhysicsFilter = cms.EDFilter("EcalMonitorPrescaler",
     cosmics = cms.untracked.uint32(1),
     physics = cms.untracked.uint32(1),
     EcalRawDataCollection = cms.InputTag("ecalDigis")
 )
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        EcalLaserDbService = cms.untracked.PSet(
-            limit = cms.untracked.int32(10)
-        ),
-        noTimeStamps = cms.untracked.bool(True),
-        threshold = cms.untracked.string('WARNING'),
-        noLineBreaks = cms.untracked.bool(True)
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.cerr = cms.untracked.PSet(
+    default = cms.untracked.PSet(
+        limit = cms.untracked.int32(-1)
     ),
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalDQM = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        threshold = cms.untracked.string('INFO')
+    EcalLaserDbService = cms.untracked.PSet(
+        limit = cms.untracked.int32(10)
     ),
-    categories = cms.untracked.vstring('EcalDQM', 
-        'EcalLaserDbService'),
-    destinations = cms.untracked.vstring('cerr', 
-        'cout')
+    noTimeStamps = cms.untracked.bool(True),
+    threshold = cms.untracked.string('WARNING'),
+    noLineBreaks = cms.untracked.bool(True)
+)
+process.MessageLogger.cout = cms.untracked.PSet(
+    default = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    EcalDQM = cms.untracked.PSet(
+        limit = cms.untracked.int32(-1)
+    ),
+    threshold = cms.untracked.string('INFO')
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
+if not unitTest:
+  if options.BeamSplashRun:
+      set_BeamSplashRun_settings( process.source )
+      process.ecalMonitorTask.workerParameters.TimingTask.params.splashSwitch = True
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeMap.zaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeMap.zaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeMapByLS.zaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeMapByLS.zaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeAll.xaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeAll.xaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.Time1D.xaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.Time1D.xaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeAllMap.zaxis.high = cms.untracked.double(25.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeAllMap.zaxis.low = cms.untracked.double(-25.)
+      process.ecalMonitorTask.workerParameters.TimingTask.params.chi2ThresholdEE = cms.untracked.double(1000.)
+      process.ecalMonitorTask.workerParameters.TimingTask.params.chi2ThresholdEB = cms.untracked.double(1000.)
+
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.FwdvBkwd.yaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.FwdvBkwd.yaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.FwdvBkwd.xaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.FwdvBkwd.xaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.FwdBkwdDiff.xaxis.high = cms.untracked.double(25.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.FwdBkwdDiff.xaxis.low = cms.untracked.double(-25.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.MeanSM.xaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.MeanSM.xaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.MeanAll.xaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.MeanAll.xaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.params.minChannelEntries = cms.untracked.int32(0)
 
 process.ecalMonitorClient.verbosity = 0
-process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
+process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'MLClient', 'SummaryClient']
 process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
 process.ecalMonitorClient.commonParameters.onlineMode = True
 
-process.GlobalTag.toGet = cms.VPSet(cms.PSet(
-    record = cms.string('EcalDQMChannelStatusRcd'),
-    tag = cms.string('EcalDQMChannelStatus_v1_hlt'),
-), 
-    cms.PSet(
-        record = cms.string('EcalDQMTowerStatusRcd'),
-        tag = cms.string('EcalDQMTowerStatus_v1_hlt'),
-    ))
-
 process.preScaler.prescaleFactor = 1
 
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecal_reference.root"
+process.tcdsDigis = tcdsRawToDigi.clone(
+  InputLabel = "rawDataCollector"
+)
 
-process.dqmEnv.subSystemFolder = cms.untracked.string('Ecal')
-process.dqmSaver.tag = cms.untracked.string('Ecal')
+###### For OnlineLuminosityRecord to get the PU/luminosity info ######
+process.load('EventFilter.OnlineMetaDataRawToDigi.onlineMetaDataRawToDigi_cfi')
+process.onlineMetaDataDigis = cms.EDProducer('OnlineMetaDataRawToDigi')
+
+process.dqmEnv.subSystemFolder = 'Ecal'
+process.dqmSaver.tag = 'Ecal'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'Ecal'
+process.dqmSaverPB.runNumber = options.runNumber
 
 process.simEcalTriggerPrimitiveDigis.InstanceEB = "ebDigis"
 process.simEcalTriggerPrimitiveDigis.InstanceEE = "eeDigis"
 process.simEcalTriggerPrimitiveDigis.Label = "ecalDigis"
 
-process.ecalMonitorTask.workers = ['ClusterTask', 'EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TimingTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask']
+process.ecalMonitorTask.workers = ['ClusterTask', 'EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TimingTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask', 'PiZeroTask']
 process.ecalMonitorTask.verbosity = 0
 process.ecalMonitorTask.collectionTags.EESuperCluster = "multi5x5SuperClusters:multi5x5EndcapSuperClusters"
 process.ecalMonitorTask.collectionTags.EBBasicCluster = "hybridSuperClusters:hybridBarrelBasicClusters"
@@ -112,6 +159,7 @@ process.ecalMonitorTask.collectionTags.TrigPrimEmulDigi = "simEcalTriggerPrimiti
 process.ecalMonitorTask.workerParameters.TrigPrimTask.params.runOnEmul = True
 process.ecalMonitorTask.commonParameters.willConvertToEDM = False
 process.ecalMonitorTask.commonParameters.onlineMode = True
+process.ecalMonitorTask.workerParameters.OccupancyTask.params.lumiCheck = True
 
 ### Sequences ###
 
@@ -122,11 +170,11 @@ process.hybridClusteringSequence = cms.Sequence(process.cleanedHybridSuperCluste
 
 ### Paths ###
 
-process.ecalMonitorPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalRecoSequence+process.ecalMonitorTask)
+process.ecalMonitorPath = cms.Path(process.onlineMetaDataDigis+process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalRecoSequence+process.tcdsDigis+process.ecalMonitorTask)
 process.ecalClientPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalMonitorClient)
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv)
-process.dqmOutputPath = cms.EndPath(process.dqmSaver)
+process.dqmOutputPath = cms.EndPath(process.dqmSaver + process.dqmSaverPB)
 
 ### Schedule ###
 
@@ -134,26 +182,23 @@ process.schedule = cms.Schedule(process.ecalMonitorPath,process.ecalClientPath,p
 
 ### Run type specific ###
 
-referenceFileName = process.DQMStore.referenceFileName.pythonValue()
 runTypeName = process.runType.getRunTypeName()
 if (runTypeName == 'pp_run' or runTypeName == 'pp_run_stage1'):
-    process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_pp.root')
+    pass
 elif (runTypeName == 'cosmic_run' or runTypeName == 'cosmic_run_stage1'):
-    process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_cosmic.root')
 #    process.dqmEndPath.remove(process.dqmQTest)
-    process.ecalMonitorTask.workers = ['EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TimingTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask']
-    process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
+    process.ecalMonitorTask.workers = ['EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TimingTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask', 'PiZeroTask']
+    process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'MLClient', 'SummaryClient']
     process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
     process.ecalMonitorTask.workerParameters.PresampleTask.params.doPulseMaxCheck = False 
 elif runTypeName == 'hi_run':
-    process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_hi.root')
     process.ecalMonitorTask.collectionTags.Source = "rawDataRepacker"
-    process.ecalDigis.InputLabel = cms.InputTag('rawDataRepacker')
+    process.ecalDigisCPU.InputLabel = 'rawDataRepacker'
 elif runTypeName == 'hpu_run':
-    process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_hpu.root')
-    process.source.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('*'))
-
+    if not unitTest:
+        process.source.SelectEvents = cms.untracked.vstring("*")
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
+print("Final Source settings:", process.source)
 process = customise(process)

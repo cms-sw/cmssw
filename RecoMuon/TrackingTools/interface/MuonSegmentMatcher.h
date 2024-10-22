@@ -16,48 +16,49 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-namespace edm {class Event; class EventSetup;}
-namespace reco {class TransientTrack;}
+namespace edm {
+  class Event;
+  class EventSetup;
+}  // namespace edm
+namespace reco {
+  class TransientTrack;
+}
 
 class MuonServiceProxy;
 
-class MuonSegmentMatcher { 
-
-  public:
-
-    /// constructor with Parameter Set and MuonServiceProxy
+class MuonSegmentMatcher {
+public:
+  /// constructor with Parameter Set and MuonServiceProxy
   MuonSegmentMatcher(const edm::ParameterSet&, edm::ConsumesCollector& iC);
-          
-    /// destructor
-    virtual ~MuonSegmentMatcher();
 
-    /// perform the matching
-    std::vector<const DTRecSegment4D*> matchDT (const reco::Track& muon, const edm::Event& event);
-   
-    std::vector<const CSCSegment*>     matchCSC(const reco::Track& muon, const edm::Event& event);
+  /// destructor
+  virtual ~MuonSegmentMatcher();
 
-    std::vector<const RPCRecHit*>     matchRPC(const reco::Track& muon, const edm::Event& event);
-  
-  protected:
+  /// perform the matching
+  std::vector<const DTRecSegment4D*> matchDT(const reco::Track& muon, const edm::Event& event);
 
-  private:
-	const MuonServiceProxy* theService;
-	const edm::Event* theEvent;
-	
-	edm::InputTag TKtrackTags_;
-	edm::InputTag trackTags_; //used to select what tracks to read from configuration file
-	edm::InputTag DTSegmentTags_;
-	edm::InputTag CSCSegmentTags_;
-	edm::InputTag RPCHitTags_;
+  std::vector<const CSCSegment*> matchCSC(const reco::Track& muon, const edm::Event& event);
 
-	edm::EDGetTokenT<DTRecSegment4DCollection> dtRecHitsToken;
-	edm::EDGetTokenT<CSCSegmentCollection> allSegmentsCSCToken;
-	edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken;
+  std::vector<const RPCRecHit*> matchRPC(const reco::Track& muon, const edm::Event& event);
 
-	double dtRadius_;
-	
-	bool dtTightMatch;
-	bool cscTightMatch;
+protected:
+private:
+  const MuonServiceProxy* theService;
+  const edm::Event* theEvent;
 
+  edm::InputTag TKtrackTags_;
+  edm::InputTag trackTags_;  //used to select what tracks to read from configuration file
+  edm::InputTag DTSegmentTags_;
+  edm::InputTag CSCSegmentTags_;
+  edm::InputTag RPCHitTags_;
+
+  edm::EDGetTokenT<DTRecSegment4DCollection> dtRecHitsToken;
+  edm::EDGetTokenT<CSCSegmentCollection> allSegmentsCSCToken;
+  edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken;
+
+  double dtRadius_;
+
+  bool dtTightMatch;
+  bool cscTightMatch;
 };
 #endif

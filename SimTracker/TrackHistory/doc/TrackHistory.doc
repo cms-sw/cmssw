@@ -25,7 +25,6 @@
 - JetVetoedTracksAssociatorDRVertex
 - TrackCategories
 - TrackClassifier
-- TrackClassifierByProxy
 - TrackHistory
 - TrackQuality
 - Utils

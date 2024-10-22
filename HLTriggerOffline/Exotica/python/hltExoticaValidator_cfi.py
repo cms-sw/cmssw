@@ -23,12 +23,14 @@ from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtElectron_cff    import Hi
 from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtElectron_cff     import LowPtElectronPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtPhoton_cff      import HighPtPhotonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaDiPhoton_cff          import DiPhotonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedDiPhoton_cff import DisplacedDiPhotonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaPFHT_cff              import PFHTPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaCaloHT_cff            import CaloHTPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaJetNoBptx_cff         import JetNoBptxPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMuonNoBptx_cff        import MuonNoBptxPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedMuEG_cff     import DisplacedMuEGPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedDimuon_cff   import DisplacedDimuonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedL2Dimuon_cff import DisplacedL2DimuonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaPureMET_cff           import PureMETPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMETplusTrack_cff      import METplusTrackPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMonojet_cff           import MonojetPSet
@@ -41,7 +43,8 @@ from HLTriggerOffline.Exotica.analyses.hltExoticaDSTJets_cff           import DS
 from HLTriggerOffline.Exotica.analyses.hltExoticaDSTMuons_cff          import DSTMuonsPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaTracklessJets_cff     import TracklessJetsPSet
 
-hltExoticaValidator = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltExoticaValidator = DQMEDAnalyzer(
 
     "HLTExoticaValidator",
 		
@@ -60,6 +63,7 @@ hltExoticaValidator = cms.EDAnalyzer(
         "LowPtElectron",
         "HighPtPhoton",
         "DiPhoton",
+        "DisplacedDiPhoton",
         "SingleMuon",
         "JetNoBptx",
         "MuonNoBptx",
@@ -67,6 +71,7 @@ hltExoticaValidator = cms.EDAnalyzer(
         "CaloHT",
         "DisplacedMuEG",
         "DisplacedDimuon",
+        "DisplacedL2Dimuon",
         "PureMET",
         "METplusTrack",
         "Monojet",
@@ -186,9 +191,6 @@ hltExoticaValidator = cms.EDAnalyzer(
     hltMET_genCut   = cms.string("pt > 75"),
     hltMET_recCut   = cms.string("pt > 75"),  
    
-    l1MET_genCut    = cms.string("pt > 75"),
-    l1MET_recCut    = cms.string("pt > 75"),  
-   
     # The specific parameters per analysis: the name of the parameter set has to be 
     # the same as the defined ones in the 'analysis' datamember. Each analysis is a PSet
     # with the mandatory attributes:
@@ -213,11 +215,13 @@ hltExoticaValidator = cms.EDAnalyzer(
     LowPtElectron    = LowPtElectronPSet,
     HighPtPhoton     = HighPtPhotonPSet,                                 
     DiPhoton         = DiPhotonPSet,                                 
+    DisplacedDiPhoton = DisplacedDiPhotonPSet,
     SingleMuon       = SingleMuonPSet,
     JetNoBptx        = JetNoBptxPSet,
     MuonNoBptx       = MuonNoBptxPSet,
     DisplacedMuEG    = DisplacedMuEGPSet,
     DisplacedDimuon  = DisplacedDimuonPSet,
+    DisplacedL2Dimuon = DisplacedL2DimuonPSet,
     PureMET          = PureMETPSet,                                 
     METplusTrack     = METplusTrackPSet,                                 
     Monojet          = MonojetPSet,

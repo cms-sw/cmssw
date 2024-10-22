@@ -4,7 +4,7 @@
 //
 // Package:     Common
 // Class  :     BoolCache
-// 
+//
 /**\class BoolCache BoolCache.h DataFormats/Common/interface/BoolCache.h
 
  Description: ROOT safe cache flag
@@ -25,15 +25,19 @@
 
 // forward declarations
 namespace edm {
-class BoolCache {
-public:
-  BoolCache() : isCached_(false) {}
-  BoolCache(bool iValue) : isCached_(iValue) {}
-  operator bool() { return isCached_; }
-  BoolCache & operator=( bool b ) { isCached_ = b; return *this; }
-private:
-  bool isCached_;
-};
+  class BoolCache {
+  public:
+    BoolCache() : isCached_(false) {}
+    BoolCache(bool iValue) : isCached_(iValue) {}
+    operator bool() { return isCached_; }
+    BoolCache& operator=(bool b) {
+      isCached_ = b;
+      return *this;
+    }
 
-}
+  private:
+    bool isCached_;
+  };
+
+}  // namespace edm
 #endif

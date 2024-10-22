@@ -1,3 +1,4 @@
+from __future__ import print_function
 # The MIT License (MIT)
 #
 # Copyright (c) 19 March 2009 Created by Raymond Hettinger (MIT)
@@ -23,9 +24,9 @@
 # Copied from URL http://code.activestate.com/recipes/576694-orderedset/
 # on 15 November 2016
 
-import collections
+import collections.abc
 
-class OrderedSet(collections.MutableSet):
+class OrderedSet(collections.abc.MutableSet):
 
     def __init__(self, iterable=None):
         self.end = end = [] 
@@ -85,8 +86,15 @@ class OrderedSet(collections.MutableSet):
 
             
 if __name__ == '__main__':
-    s = OrderedSet('abracadaba')
-    t = OrderedSet('simsalabim')
-    print(s | t)
-    print(s & t)
-    print(s - t)
+    import unittest
+    class TestModuleCommand(unittest.TestCase):
+        def setUp(self):
+            """Nothing to do """
+            pass
+        def testSetOperations(self):
+            s = OrderedSet('abracadaba')
+            t = OrderedSet('simsalabim')
+            self.assertEqual(str((s | t)), "OrderedSet(['a', 'b', 'r', 'c', 'd', 's', 'i', 'm', 'l'])")
+            self.assertEqual(str((s & t)), "OrderedSet(['a', 'b'])")
+            self.assertEqual(str(s - t),"OrderedSet(['r', 'c', 'd'])")
+    unittest.main()

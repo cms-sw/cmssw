@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoEgamma.EgammaIsolationAlgos.egammaHBHERecHitThreshold_cff import egammaHBHERecHit
 
 isolationSumsCalculator = cms.PSet(
     #required inputs
@@ -7,8 +8,12 @@ isolationSumsCalculator = cms.PSet(
 
     barrelEcalRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEB'),
     endcapEcalRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEE'),
-    HcalRecHitCollection = cms.InputTag('towerMaker'),
-    
+
+    HBHERecHitCollection = egammaHBHERecHit.hbheRecHits,
+    recHitEThresholdHB = egammaHBHERecHit.recHitEThresholdHB,
+    recHitEThresholdHE = egammaHBHERecHit.recHitEThresholdHE,
+    maxHcalRecHitSeverity = egammaHBHERecHit.maxHcalRecHitSeverity,
+
     # Photon will be marked as being near phi module boundary if
     #  it is closer than this.  Currently half a crystal.
     #  1 Ecal Crystal = 0.0174 radians = 1 degree
@@ -51,26 +56,13 @@ isolationSumsCalculator = cms.PSet(
     EcalRecHitEtaSliceB_Barrel      = cms.double(2.5),
     EcalRecHitThreshEB_Barrel       = cms.double(0.095),
     EcalRecHitThreshEtB_Barrel      = cms.double(0.0),
-    #Hcal towers
-    HcalTowerInnerRadiusA_Barrel    = cms.double(0.15),
-    HcalTowerOuterRadiusA_Barrel    = cms.double(0.4),
-    HcalTowerThreshEA_Barrel        = cms.double(0.0),
-    HcalDepth1TowerInnerRadiusA_Barrel = cms.double(0.15),
-    HcalDepth1TowerOuterRadiusA_Barrel = cms.double(0.4),
-    HcalDepth1TowerThreshEA_Barrel     = cms.double(0.0),
-    HcalDepth2TowerInnerRadiusA_Barrel = cms.double(0.15),
-    HcalDepth2TowerOuterRadiusA_Barrel = cms.double(0.4),
-    HcalDepth2TowerThreshEA_Barrel     = cms.double(0.0),
-#
-    HcalTowerInnerRadiusB_Barrel       = cms.double(0.15),
-    HcalTowerOuterRadiusB_Barrel       = cms.double(0.3),
-    HcalTowerThreshEB_Barrel           = cms.double(0.0),
-    HcalDepth1TowerInnerRadiusB_Barrel = cms.double(0.15),
-    HcalDepth1TowerOuterRadiusB_Barrel = cms.double(0.3),
-    HcalDepth1TowerThreshEB_Barrel     = cms.double(0.0),
-    HcalDepth2TowerInnerRadiusB_Barrel = cms.double(0.15),
-    HcalDepth2TowerOuterRadiusB_Barrel = cms.double(0.3),
-    HcalDepth2TowerThreshEB_Barrel     = cms.double(0.0),
+
+    # hcal rechits
+    HcalRecHitInnerRadiusA_Barrel = cms.vdouble(0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15),
+    HcalRecHitOuterRadiusA_Barrel = cms.vdouble(0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4),
+
+    HcalRecHitInnerRadiusB_Barrel = cms.vdouble(0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15),
+    HcalRecHitOuterRadiusB_Barrel = cms.vdouble(0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3),
 
 #### ENDCAP
     #tracks
@@ -105,26 +97,12 @@ isolationSumsCalculator = cms.PSet(
     #spikeIdString = cms.string('kSwissCrossBordersIncluded'),
     #spikeIdThreshold = cms.double(0.95),
 
-    #Hcal towers
-    HcalTowerInnerRadiusA_Endcap       = cms.double(0.15),
-    HcalTowerOuterRadiusA_Endcap       = cms.double(0.4),
-    HcalTowerThreshEA_Endcap           = cms.double(0.0),
-    HcalDepth1TowerInnerRadiusA_Endcap = cms.double(0.15),
-    HcalDepth1TowerOuterRadiusA_Endcap = cms.double(0.4),
-    HcalDepth1TowerThreshEA_Endcap     = cms.double(0.0),
-    HcalDepth2TowerInnerRadiusA_Endcap = cms.double(0.15),
-    HcalDepth2TowerOuterRadiusA_Endcap = cms.double(0.4),
-    HcalDepth2TowerThreshEA_Endcap     = cms.double(0.0),
-#
-    HcalTowerInnerRadiusB_Endcap       = cms.double(0.15),
-    HcalTowerOuterRadiusB_Endcap       = cms.double(0.3),
-    HcalTowerThreshEB_Endcap           = cms.double(0.0),
-    HcalDepth1TowerInnerRadiusB_Endcap = cms.double(0.15),
-    HcalDepth1TowerOuterRadiusB_Endcap = cms.double(0.3),
-    HcalDepth1TowerThreshEB_Endcap     = cms.double(0.0),
-    HcalDepth2TowerInnerRadiusB_Endcap = cms.double(0.15),
-    HcalDepth2TowerOuterRadiusB_Endcap = cms.double(0.3),
-    HcalDepth2TowerThreshEB_Endcap     = cms.double(0.0),
+    # Hcal rechits
+    HcalRecHitInnerRadiusA_Endcap = cms.vdouble(0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15),
+    HcalRecHitOuterRadiusA_Endcap = cms.vdouble(0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4),
+
+    HcalRecHitInnerRadiusB_Endcap = cms.vdouble(0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15),
+    HcalRecHitOuterRadiusB_Endcap = cms.vdouble(0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3),
 
     #recHitFlagsToBeExcluded = cms.vstring(
     #    'kFaultyHardware',

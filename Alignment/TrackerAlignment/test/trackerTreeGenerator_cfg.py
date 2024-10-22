@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import os
@@ -16,7 +17,7 @@ process = cms.Process("TrackerTreeGeneration")
 ##
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('TrackerTreeGenerator')
+process.MessageLogger.TrackerTreeGenerator=dict()
 process.MessageLogger.cerr.INFO.limit = 0
 process.MessageLogger.cerr.default.limit = -1
 process.MessageLogger.cerr.TrackerTreeGenerator = cms.untracked.PSet(limit = cms.untracked.int32(-1))
@@ -59,7 +60,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 #~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
-print "Using global tag "+process.GlobalTag.globaltag._value
+print("Using global tag "+process.GlobalTag.globaltag._value)
 
 
 ##

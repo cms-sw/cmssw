@@ -4,60 +4,50 @@
 #include "Alignment/Geners/interface/IOPtr.hh"
 
 namespace gs {
-    template <class T>
-    struct IOIsIOPtr
-    {
-        enum {value = 0};
-    };
+  template <class T>
+  struct IOIsIOPtr {
+    enum { value = 0 };
+  };
 
-    template <class T>
-    struct IOIsIOPtr<IOPtr<T> >
-    {
-        enum {value = 1};
-    };
+  template <class T>
+  struct IOIsIOPtr<IOPtr<T>> {
+    enum { value = 1 };
+  };
 
-    template <class T>
-    struct IOIsIOPtr<const IOPtr<T> >
-    {
-        enum {value = 1};
-    };
+  template <class T>
+  struct IOIsIOPtr<const IOPtr<T>> {
+    enum { value = 1 };
+  };
 
-    template <class T>
-    struct IOIsIOPtr<volatile IOPtr<T> >
-    {
-        enum {value = 1};
-    };
+  template <class T>
+  struct IOIsIOPtr<volatile IOPtr<T>> {
+    enum { value = 1 };
+  };
 
-    template <class T>
-    struct IOIsIOPtr<const volatile IOPtr<T> >
-    {
-        enum {value = 1};
-    };
+  template <class T>
+  struct IOIsIOPtr<const volatile IOPtr<T>> {
+    enum { value = 1 };
+  };
 
-    template <class T>
-    struct IOIsIOPtr<IOProxy<T> >
-    {
-        enum {value = 1};
-    };
+  template <class T>
+  struct IOIsIOPtr<IOProxy<T>> {
+    enum { value = 1 };
+  };
 
-    template <class T>
-    struct IOIsIOPtr<const IOProxy<T> >
-    {
-        enum {value = 1};
-    };
+  template <class T>
+  struct IOIsIOPtr<const IOProxy<T>> {
+    enum { value = 1 };
+  };
 
-    template <class T>
-    struct IOIsIOPtr<volatile IOProxy<T> >
-    {
-        enum {value = 1};
-    };
+  template <class T>
+  struct IOIsIOPtr<volatile IOProxy<T>> {
+    enum { value = 1 };
+  };
 
-    template <class T>
-    struct IOIsIOPtr<const volatile IOProxy<T> >
-    {
-        enum {value = 1};
-    };
-}
+  template <class T>
+  struct IOIsIOPtr<const volatile IOProxy<T>> {
+    enum { value = 1 };
+  };
+}  // namespace gs
 
-#endif // GENERS_IOISIOPTR_HH_
-
+#endif  // GENERS_IOISIOPTR_HH_

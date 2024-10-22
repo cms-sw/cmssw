@@ -7,15 +7,15 @@
 #include <vector>
 #include <string>
 
-class SensitiveCaloDetector : public SensitiveDetector
-{
+class SensitiveCaloDetector : public SensitiveDetector {
 public:
-  explicit SensitiveCaloDetector(const std::string & iname, const DDCompactView & cpv,
-				 const SensitiveDetectorCatalog & clg,
-				 edm::ParameterSet const & p) :
-  SensitiveDetector(iname,cpv,clg,p) {}
+  explicit SensitiveCaloDetector(const std::string& iname,
+                                 const SensitiveDetectorCatalog& clg,
+                                 const std::string& newcollname = "")
+      : SensitiveDetector(iname, clg, true, newcollname) {}
 
-  virtual void fillHits(edm::PCaloHitContainer &, const std::string& hname) = 0;
+  virtual void fillHits(edm::PCaloHitContainer&, const std::string& hname) = 0;
+  virtual void reset() {}
 };
 
 #endif

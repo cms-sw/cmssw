@@ -1,4 +1,4 @@
-<library file="*.cc" name="L1TriggerL1TMuonOverlapPlugins"> 
+<library file="*.cc" name="L1TriggerL1TMuonOverlapPlugins">
   <use name="L1Trigger/L1TMuonOverlap"/>
   <use name="CondFormats/L1TObjects"/>
   <use name="CondFormats/DataRecord"/>

@@ -1,0 +1,10 @@
+<iftool name="cuda">
+  <use name="cuda"/>
+  <use name="cuda-nvml"/>
+  <use name="eigen"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/MessageLogger"/>
+  <export>
+    <lib name="1"/>
+  </export>
+</iftool>

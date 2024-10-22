@@ -38,7 +38,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQMOffline.L1Trigger.L1TMuonDQMOffline_cfi import ptQualCuts, ptQualCuts_HI
 
 l1tMuonDQMEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs = cms.untracked.vstring("L1T/L1TMuon/"),
+    subDirs = cms.untracked.vstring("L1T/L1TObjects/L1TMuon/L1TriggerVsReco/"),
     efficiency = cms.vstring(),
     efficiencyProfile = cms.untracked.vstring(generateEfficiencyStrings(ptQualCuts)),
     resolution = cms.vstring(),
@@ -46,9 +46,17 @@ l1tMuonDQMEfficiency = DQMEDHarvester("DQMGenericClient",
     verbose = cms.untracked.uint32(0)
 )
 
+# emulator efficiency
+l1tMuonDQMEmuEfficiency = l1tMuonDQMEfficiency.clone(
+    subDirs = ["L1TEMU/L1TObjects/L1TMuon/L1TriggerVsReco/"]
+)
+
 # modifications for the pp reference run
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 ppRef_2017.toModify(l1tMuonDQMEfficiency,
+    efficiencyProfile = cms.untracked.vstring(generateEfficiencyStrings(ptQualCuts_HI))
+)
+ppRef_2017.toModify(l1tMuonDQMEmuEfficiency,
     efficiencyProfile = cms.untracked.vstring(generateEfficiencyStrings(ptQualCuts_HI))
 )
 

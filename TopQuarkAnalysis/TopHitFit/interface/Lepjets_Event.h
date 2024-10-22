@@ -17,7 +17,6 @@
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 //
 
-
 /**
     @file Lepjets_Event.h
 
@@ -42,17 +41,14 @@
 #ifndef HITFIT_LEPJETS_EVENT_H
 #define HITFIT_LEPJETS_EVENT_H
 
-
 #include "TopQuarkAnalysis/TopHitFit/interface/Lepjets_Event_Jet.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/Lepjets_Event_Lep.h"
 #include <vector>
 #include <iosfwd>
 
-
 namespace hitfit {
 
-
-/**
+  /**
     @class Lepjets_Event
 
     @brief Represent a simple event consisting of lepton(s) and jet(s).
@@ -63,190 +59,189 @@ namespace hitfit {
     -  \f$ z- \f$ vertex (Irrelevant for non-D0 experiment)
     - Run and event number (Irrelevant for non-D0 experiment)
  */
-class Lepjets_Event
-//
-// Purpose: Represent a simple `event' consisting of leptons and jets.
-//
-{
-public:
-
-  // Constructor.
-  /**
+  class Lepjets_Event
+  //
+  // Purpose: Represent a simple `event' consisting of leptons and jets.
+  //
+  {
+  public:
+    // Constructor.
+    /**
       @brief Constructor.
 
       @param runnum The run number.
 
       @param evnum The event number.
    */
-  Lepjets_Event (int runnum, int evnum);
+    Lepjets_Event(int runnum, int evnum);
 
-  // Get the run and event number.
+    // Get the run and event number.
 
-  /**
+    /**
      @brief Return a constant reference to the run number.
    */
-  const int& runnum () const;
+    const int& runnum() const;
 
-  /**
+    /**
      @brief Return a reference to the run number.
    */
-  int& runnum();
+    int& runnum();
 
-  /**
+    /**
      @brief Return a constant reference to the event number.
    */
-  const int& evnum () const;
+    const int& evnum() const;
 
-  /**
+    /**
      @brief Return a reference to the event number.
    */
-  int& evnum();
+    int& evnum();
 
-  // Get the length of the lepton and jet lists.
-  /**
+    // Get the length of the lepton and jet lists.
+    /**
      @brief Return the number of leptons in the event.
    */
-  std::vector<Lepjets_Event_Lep>::size_type nleps () const;
+    std::vector<Lepjets_Event_Lep>::size_type nleps() const;
 
-  /**
+    /**
      @brief Return the number of jets in the event.
    */
-  std::vector<Lepjets_Event_Jet>::size_type njets () const;
+    std::vector<Lepjets_Event_Jet>::size_type njets() const;
 
-  // Access leptons and jets.
+    // Access leptons and jets.
 
-  /**
+    /**
      @brief Return a reference to lepton at index position <i>i</i>.
 
      @param i The lepton index position.
    */
-  Lepjets_Event_Lep& lep (std::vector<Lepjets_Event_Lep>::size_type i);
+    Lepjets_Event_Lep& lep(std::vector<Lepjets_Event_Lep>::size_type i);
 
-  /**
+    /**
      @brief Return a reference to jet at index position <i>i</i>.
 
      @param i The jet index position.
    */
-  Lepjets_Event_Jet& jet (std::vector<Lepjets_Event_Jet>::size_type i);
+    Lepjets_Event_Jet& jet(std::vector<Lepjets_Event_Jet>::size_type i);
 
-  /**
+    /**
      @brief Return a constant reference to lepton at index position <i>i</i>.
 
      @param i The lepton index position.
    */
-  const Lepjets_Event_Lep& lep (std::vector<Lepjets_Event_Lep>::size_type i) const;
+    const Lepjets_Event_Lep& lep(std::vector<Lepjets_Event_Lep>::size_type i) const;
 
-  /**
+    /**
      @brief Return a constant reference to jet at index position <i>i</i>.
 
      @param i The jet index position.
    */
-  const Lepjets_Event_Jet& jet (std::vector<Lepjets_Event_Jet>::size_type i) const;
+    const Lepjets_Event_Jet& jet(std::vector<Lepjets_Event_Jet>::size_type i) const;
 
-  // Access missing Et.
-  /**
+    // Access missing Et.
+    /**
      @brief Return a reference to the missing transverse energy.
    */
-  Fourvec& met ();
+    Fourvec& met();
 
-  /**
+    /**
      @brief Return a constant reference to the missing transverse energy.
    */
-  const Fourvec& met () const;
+    const Fourvec& met() const;
 
-  // Access kt resolution.
+    // Access kt resolution.
 
-  /**
+    /**
      @brief Return a reference to the  \f$ k_{T} \f$  resolution.
    */
-  Resolution& kt_res ();
+    Resolution& kt_res();
 
-  /**
+    /**
      @brief Return a const reference to the  \f$ k_{T} \f$  resolution.
    */
-  const Resolution& kt_res () const;
+    const Resolution& kt_res() const;
 
-  // Access the z-vertex.
+    // Access the z-vertex.
 
-  /**
+    /**
      @brief Return the value of z-vertex.
    */
-  double zvertex () const;
+    double zvertex() const;
 
-  /**
+    /**
      @brief Return a reference to the value of z-vertex.
    */
-  double& zvertex ();
+    double& zvertex();
 
-  // Access the isMC flag.
-  /**
+    // Access the isMC flag.
+    /**
      @brief Return the Monte Carlo flag.
    */
-  bool isMC () const;
+    bool isMC() const;
 
-  /**
+    /**
      @brief Set the Monte Carlo flag.
    */
-  void setMC (bool isMC);
+    void setMC(bool isMC);
 
-  // Access the discriminants.
-  /**
+    // Access the discriminants.
+    /**
      @brief Return a reference to the value of low-bias (LB) discriminant
      (Irrelevant for non-D0 experiment).
    */
-  double& dlb ();
+    double& dlb();
 
-  /**
+    /**
      @brief Return the value of low-bias (LB) discriminant
      (Irrelevant for non-D0 experiment).
    */
-  double dlb () const;
+    double dlb() const;
 
-  /**
+    /**
      @brief Return a reference to the value of neural network (NN) discriminant
      (Irrelevant for non-D0 experiment).
    */
-  double& dnn ();
+    double& dnn();
 
-  /**
+    /**
      @brief Return a the value of neural network (NN) discriminant
      (Irrelevant for non-D0 experiment).
    */
-  double dnn () const;
+    double dnn() const;
 
-  // Sum all objects (leptons or jets) with type TYPE.
-  /**
+    // Sum all objects (leptons or jets) with type TYPE.
+    /**
      @brief Return the sum of all objects' four-momentum which have
      a particular type.
 
      @param type The type code of the objects to be summed up.
    */
-  Fourvec sum (int type) const;
+    Fourvec sum(int type) const;
 
-  // Calculate kt --- sum of all objects plus missing Et.
-  /**
+    // Calculate kt --- sum of all objects plus missing Et.
+    /**
      @brief Return the sum of all objects' four-momentum and
      missing transverse energy.
    */
-  Fourvec kt () const;
+    Fourvec kt() const;
 
-  // Add new objects to the event.
-  /**
+    // Add new objects to the event.
+    /**
      @brief Add a new lepton to the event.
 
      @param lep The lepton to be added.
    */
-  void add_lep (const Lepjets_Event_Lep& lep);
+    void add_lep(const Lepjets_Event_Lep& lep);
 
-  /**
+    /**
      @brief Add a new jet to the event.
 
      @param jet The jet to be added.
    */
-  void add_jet (const Lepjets_Event_Jet& jet);
+    void add_jet(const Lepjets_Event_Jet& jet);
 
-  // Smear the objects in the event according to their resolutions.
-  /**
+    // Smear the objects in the event according to their resolutions.
+    /**
      @brief Smear the objects in the event according to their resolutions.
 
      @param engine The underlying random number generator.
@@ -254,29 +249,29 @@ public:
      @param smear_dir If <b>TRUE</b>, also smear the object's direction.<br>
      If <b>FALSE</b>, then only smear the magnitude of three-momentum.
    */
-  void smear (CLHEP::HepRandomEngine& engine, bool smear_dir = false);
+    void smear(CLHEP::HepRandomEngine& engine, bool smear_dir = false);
 
-  // Sort according to pt.
-  /**
+    // Sort according to pt.
+    /**
      @brief Sort objects in the event according to their transverse momentum
       \f$ p_{T} \f$ .
    */
-  void sort ();
+    void sort();
 
-  // Get jet types
-  /**
+    // Get jet types
+    /**
      @brief Return the jet types in the event.
    */
-  std::vector<int> jet_types() const;
+    std::vector<int> jet_types() const;
 
-  // Set jet types
-  /**
+    // Set jet types
+    /**
      @brief Set the jet types in the event.
    */
-  bool set_jet_types(const std::vector<int>&);
+    bool set_jet_types(const std::vector<int>&);
 
-  // Remove objects failing pt and eta cuts.
-  /**
+    // Remove objects failing pt and eta cuts.
+    /**
      @brief Remove leptons which fail transverse momentum  \f$ p_{T} \f$ 
      and pseudorapidity  \f$ \eta \f$  cut.
 
@@ -286,9 +281,9 @@ public:
      @param eta_cut Remove leptons which have absolute
      pseudorapidity  \f$ |\eta| \f$  more than this value.
    */
-  int cut_leps (double pt_cut, double eta_cut);
+    int cut_leps(double pt_cut, double eta_cut);
 
-  /**
+    /**
      @brief Remove jets which fail transverse momentum  \f$ p_{T} \f$
      and pseudorapidity  \f$ \eta \f$  cut.
 
@@ -298,18 +293,18 @@ public:
      @param eta_cut Remove jetss which have absolute
      pseudorapidity  \f$ |\eta| \f$  more than this value.
    */
-  int cut_jets (double pt_cut, double eta_cut);
+    int cut_jets(double pt_cut, double eta_cut);
 
-  // Remove all but the first N jets.
-  /**
+    // Remove all but the first N jets.
+    /**
      @brief Remove all but the first <i>n</i> jets.
 
      @param n The number of jets to keep.
    */
-  void trimjets (std::vector<Lepjets_Event_Jet>::size_type n);
+    void trimjets(std::vector<Lepjets_Event_Jet>::size_type n);
 
-  // Dump this object.
-  /**
+    // Dump this object.
+    /**
      @brief Print the content of this object.
 
      @param s The output stream to which to write
@@ -319,9 +314,9 @@ public:
      If <b>FALSE</b>, print partial information about this instance
      of Lepjets_Event.
    */
-  std::ostream& dump (std::ostream& s, bool full = false) const;
+    std::ostream& dump(std::ostream& s, bool full = false) const;
 
-  /**
+    /**
      @brief Return a string representing the jet permutation. The following
      notation is used for each type of jet:
      - g ISR/gluon.
@@ -331,71 +326,66 @@ public:
      - H  \f$ b- \f$ jet from Higgs boson.
      - ? Unknown.
    */
-  std::string jet_permutation() const;
+    std::string jet_permutation() const;
 
-private:
-  // The lepton and jet lists.
+  private:
+    // The lepton and jet lists.
 
-  /**
+    /**
      The list of leptons in the event.
    */
-  std::vector<Lepjets_Event_Lep> _leps;
+    std::vector<Lepjets_Event_Lep> _leps;
 
-  /**
+    /**
      The list of jets in the event.
    */
-  std::vector<Lepjets_Event_Jet> _jets;
+    std::vector<Lepjets_Event_Jet> _jets;
 
-  // Other event state.
-  /**
+    // Other event state.
+    /**
      Missing transverse energy.
    */
-  Fourvec _met;
+    Fourvec _met;
 
-  /**
+    /**
      The  \f$ k_{T} \f$  resolution.
    */
-  Resolution _kt_res;
+    Resolution _kt_res;
 
-  /**
+    /**
      The  \f$ z- \f$ vertex of the event.
    */
-  double _zvertex;
+    double _zvertex;
 
-  /**
+    /**
      The Monte Calro flag.
    */
-  bool _isMC;
+    bool _isMC;
 
-  /**
+    /**
      The run number.
    */
-  int _runnum;
+    int _runnum;
 
-  /**
+    /**
      The event number.
    */
-  int _evnum;
+    int _evnum;
 
-  /**
+    /**
      The low-bias (LB) discriminant.
    */
-  double _dlb;
+    double _dlb;
 
-  /**
+    /**
      The neural network (NN) discriminant.
    */
-  double _dnn;
-};
+    double _dnn;
+  };
 
+  // Print the object.
+  std::ostream& operator<<(std::ostream& s, const Lepjets_Event& ev);
 
-// Print the object.
-std::ostream& operator<< (std::ostream& s, const Lepjets_Event& ev);
+}  // namespace hitfit
 
-
-
-} // namespace hitfit
-
-
-#endif // not HITFIT_LEPJETS_EVENT_H
-
+#endif  // not HITFIT_LEPJETS_EVENT_H

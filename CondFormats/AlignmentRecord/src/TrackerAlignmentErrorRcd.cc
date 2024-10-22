@@ -2,7 +2,7 @@
 //
 // Package:     TrackerGeometry
 // Class  :     TrackerAlignmentErrorRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

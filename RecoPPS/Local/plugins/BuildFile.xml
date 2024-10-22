@@ -1,0 +1,14 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/CTPPSDetId"/>
+<use name="DataFormats/CTPPSDigi"/>
+<use name="DataFormats/CTPPSReco"/>
+<use name="CondFormats/DataRecord"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
+<use name="RecoPPS/Local"/>
+<library name="RecoPPSLocalPlugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>

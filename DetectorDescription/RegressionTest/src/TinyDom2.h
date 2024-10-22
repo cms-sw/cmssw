@@ -16,7 +16,7 @@ using AttList2 = std::map<TagName, TagName>;
 using Node2 = std::pair<TagName, AttList2>;
 using TinyDom2 = math::Graph<Node2, AnotherDummy2>;
 using TinyDom2Walker = math::GraphWalker<Node2, AnotherDummy2>;
-  
+
 void TinyDom2PrettyPrint(std::ostream &, const TinyDom2 &);
 
 #endif

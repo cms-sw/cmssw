@@ -22,12 +22,13 @@ public:
   inline UInt_t getBunchNumber() const { return fBunchNumber; }
   /// setter routine
   void Set(UInt_t runNo, const char* seqid, ULong64_t eventNo, UInt_t l1aNo, ULong64_t orbitNo, UInt_t bunchNo) {
-    fRunNumber=runNo; fRunNumberSequenceId=seqid;
-    fEventNumber=eventNo;
-    fL1ANumber=l1aNo;
-    fOrbitNumber=orbitNo;
-    fBunchNumber=bunchNo;
-    fCDFRevision=9.0f;
+    fRunNumber = runNo;
+    fRunNumberSequenceId = seqid;
+    fEventNumber = eventNo;
+    fL1ANumber = l1aNo;
+    fOrbitNumber = orbitNo;
+    fBunchNumber = bunchNo;
+    fCDFRevision = 9.0f;
   }
   /// Get the revision of the CDFROOT library which this file was written with
   inline float getCDFRevisionEvent() const { return fCDFRevision; }
@@ -35,14 +36,14 @@ public:
   // static float getCDFRevisionLibrary() { return CDFLibraryVersion; }
 private:
   //  static const float CDFLibraryVersion;
-  UInt_t fRunNumber; // Run number
-  TString fRunNumberSequenceId; // whose run number is this?
-  ULong64_t fEventNumber; // Event number
-  UInt_t fL1ANumber; // L1A number
-  ULong64_t fOrbitNumber; // Orbit number
-  UInt_t fBunchNumber; // Bunch number
-  Float_t fCDFRevision; // file revision
-  ClassDef(CDFEventInfo,2)
+  UInt_t fRunNumber;             // Run number
+  TString fRunNumberSequenceId;  // whose run number is this?
+  ULong64_t fEventNumber;        // Event number
+  UInt_t fL1ANumber;             // L1A number
+  ULong64_t fOrbitNumber;        // Orbit number
+  UInt_t fBunchNumber;           // Bunch number
+  Float_t fCDFRevision;          // file revision
+  ClassDef(CDFEventInfo, 2)
 };
 
-#endif // CDFEventInfo_hh_included
+#endif  // CDFEventInfo_hh_included

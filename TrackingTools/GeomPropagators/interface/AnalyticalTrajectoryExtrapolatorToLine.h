@@ -26,40 +26,34 @@ class MagneticField;
  */
 
 class AnalyticalTrajectoryExtrapolatorToLine {
-
 public:
   /// constructor with default geometrical propagator
-  AnalyticalTrajectoryExtrapolatorToLine (const MagneticField* field);
+  AnalyticalTrajectoryExtrapolatorToLine(const MagneticField* field);
 
   /// constructor with alternative propagator
-  AnalyticalTrajectoryExtrapolatorToLine (const Propagator&);
+  AnalyticalTrajectoryExtrapolatorToLine(const Propagator&);
 
   /// extrapolation from FreeTrajectoryState
-  TrajectoryStateOnSurface extrapolate (const FreeTrajectoryState& fts,
-					const Line & L) const;
+  TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState& fts, const Line& L) const;
 
   /// extrapolation from TrajectoryStateOnSurface
-  TrajectoryStateOnSurface extrapolate (const TrajectoryStateOnSurface tsos,
-					const Line & L) const;
+  TrajectoryStateOnSurface extrapolate(const TrajectoryStateOnSurface tsos, const Line& L) const;
 
 private:
   /// extrapolation of (multi) TSOS
-  TrajectoryStateOnSurface extrapolateFullState (const TrajectoryStateOnSurface tsos, 
-						 const Line& line) const dso_internal;
+  TrajectoryStateOnSurface extrapolateFullState(const TrajectoryStateOnSurface tsos,
+                                                const Line& line) const dso_internal;
   /// extrapolation of (single) FTS
-  TrajectoryStateOnSurface extrapolateSingleState (const FreeTrajectoryState& fts, 
-						   const Line& line) const dso_internal;
+  TrajectoryStateOnSurface extrapolateSingleState(const FreeTrajectoryState& fts, const Line& line) const dso_internal;
   /// the actual propagation to a new point & momentum vector
-  bool propagateWithHelix (const IterativeHelixExtrapolatorToLine& extrapolator, 
-			   const Line& line,
-			   GlobalPoint& x, GlobalVector& p, double& s) const dso_internal;
+  bool propagateWithHelix(const IterativeHelixExtrapolatorToLine& extrapolator,
+                          const Line& line,
+                          GlobalPoint& x,
+                          GlobalVector& p,
+                          double& s) const dso_internal;
 
 private:
   DeepCopyPointerByClone<Propagator> thePropagator;
 };
 
 #endif
-
-
-
-

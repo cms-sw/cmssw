@@ -14,12 +14,12 @@ generator = cms.EDFilter("PyquenGeneratorFilter",
                          angularSpectrumSelector = cms.int32(0), ## angular emitted gluon spectrum :
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
                          PythiaParameters = cms.PSet(pyquenPythiaDefaultBlock,
-                                                     parameterSets = cms.vstring('pythiaUESettings','ppJets','pythiaPromptPhotons','kinematics'),
+                                                     parameterSets = cms.vstring('pyquenMain','pythiaUESettings','ppJets','pythiaPromptPhotons','kinematics'),
                                                      kinematics = cms.vstring('CKIN(3) = 50','CKIN(4) = 80')
                                                      ),
                          qgpProperTimeFormation = cms.double(0.1), ## proper time of QGP formation; allowed range [0.01,10.0]fm/c;
                          # Center of mass energy
-                         comEnergy = cms.double(2800.0),
+                         comEnergy = cms.double(5020.0),
 
                          qgpNumQuarkFlavor = cms.int32(0), ## number of active quark flavors in qgp; allowed values: 0,1,2,3
                          cFlag = cms.int32(0), ## centrality flag
@@ -28,8 +28,8 @@ generator = cms.EDFilter("PyquenGeneratorFilter",
                          maxEventsToPrint = cms.untracked.int32(0), ## events to print if pythiaPylistVerbosit
                          aBeamTarget = cms.double(208.0), ## beam/target atomic number
                          doCollisionalEnLoss = cms.bool(False), ## if true, perform partonic collisional en loss
-                         embeddingMode = cms.bool(False)
-                         
+                         embeddingMode = cms.int32(0),
+                         signalVtx = cms.untracked.vdouble(0.,0.,0.,0.)
                          )
 
 

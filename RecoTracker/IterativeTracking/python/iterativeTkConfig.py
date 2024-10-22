@@ -46,8 +46,13 @@ _iterations_trackingPhase1 = [
     "MixedTripletStep",
     "PixelLessStep",
     "TobTecStep",
-    "JetCoreRegionalStep",
 ]
+
+from Configuration.ProcessModifiers.displacedTracking_cff import displacedTracking
+displacedTracking.toModify(_iterations_trackingPhase1, func=lambda x: x.append('DisplacedGeneralStep'))
+
+_iterations_trackingPhase1.append('JetCoreRegionalStep')
+
 _iterations_trackingPhase2PU140 = [
     "InitialStep",
     "HighPtTripletStep",
@@ -56,7 +61,13 @@ _iterations_trackingPhase2PU140 = [
     "DetachedQuadStep",
     "PixelPairStep",
 ]
+from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
+vectorHits.toModify(_iterations_trackingPhase2PU140, func=lambda x: x.append('PixelLessStep'))
 _iterations_muonSeeded = [
+    "MuonSeededStepInOut",
+    "MuonSeededStepOutIn",
+]
+_iterations_muonSeeded_trackingPhase1 = [
     "MuonSeededStepInOut",
     "MuonSeededStepOutIn",
 ]
@@ -77,6 +88,10 @@ _multipleSeedProducers_trackingPhase1 = {
     "MixedTripletStep": ["A", "B"],
     "TobTecStep": ["Pair", "Tripl"],
 }
+from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
+seedingDeepCore.toModify(_multipleSeedProducers_trackingPhase1, func=lambda x: x.update({"JetCoreRegionalStep": ["Barrel","Endcap"]}))
+
+
 _multipleSeedProducers_trackingPhase2PU140 = {}
 _oldStyleHasSelector = set([
     "InitialStep",
@@ -88,6 +103,10 @@ _oldStyleHasSelector = set([
     "TobTecStep",
 ])
 
+from Configuration.ProcessModifiers.displacedRegionalTracking_cff import displacedRegionalTracking
+displacedRegionalTracking.toModify(_iterations_muonSeeded_trackingPhase1, func=lambda x: x.append('DisplacedRegionalStep'))
+displacedRegionalTracking.toModify(_multipleSeedProducers_trackingPhase1, func=lambda x: x.update({'DisplacedRegionalStep': ['Pair', 'Tripl']}))
+
 from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
 _trackClusterRemoverBase = _trackClusterRemover.clone(
     maxChi2                                  = 9.0,
@@ -96,6 +115,10 @@ _trackClusterRemoverBase = _trackClusterRemover.clone(
     TrackQuality                             = 'highPurity',
     minNumberOfLayersWithMeasBeforeFiltering = 0,
 )
+
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+(pp_on_AA & (~trackdnn) ).toModify(_trackClusterRemoverBase, TrackQuality = 'tight')
 
 #Phase2 : configuring the phase2 track Cluster Remover
 from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import phase2trackClusterRemover as _phase2trackClusterRemover
@@ -162,7 +185,10 @@ def _seedOrTrackProducers(postfix, typ):
             ret.append(seeder)
 
     for i in globals().get("_iterations_muonSeeded"+postfix, _iterations_muonSeeded):
-        ret.append(_modulePrefix(i).replace("Step", typ))
+        if _modulePrefix(i).endswith("Step"):
+            ret.append(_modulePrefix(i)+typ)
+        else:
+            ret.append(_modulePrefix(i).replace("Step", typ))
 
     return ret
 
@@ -180,7 +206,9 @@ def clusterRemoverForIter(iteration, eraName="", postfix="", module=None):
 
     iters = globals()["_iterations"+postfix]
     try:
-        ind = iters.index(iteration)
+        # DisplacedRegionalStep is a special case because it comes after the
+        # usual muon-seeded steps
+        ind = iters.index(iteration) if iteration != "DisplacedRegionalStep" else len(iters)
     except ValueError:
         # if the iteration is not active in era, just return the same
         return module
@@ -188,6 +216,10 @@ def clusterRemoverForIter(iteration, eraName="", postfix="", module=None):
     if ind == 0:
         raise Exception("Iteration %s is the first iteration in era %s, asking cluster remover configuration does not make sense" % (iteration, eraName))
     prevIter = iters[ind-1]
+    # JetCoreRegionalStep uses all clusters, so if that is the previous
+    # iteration, use the one before that for cluster removal
+    if prevIter == "JetCoreRegionalStep":
+        prevIter = iters[ind-2]
 
     customize = dict(
         trajectories          = _tracks(prevIter),

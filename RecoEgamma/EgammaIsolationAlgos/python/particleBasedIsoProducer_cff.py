@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cfi import *
+from RecoEgamma.EgammaIsolationAlgos.particleBasedIsolation_cfi import *
 
-particleBasedIsolationSequence = cms.Sequence(particleBasedIsolation) 
+particleBasedIsolationTask = cms.Task(particleBasedIsolation) 
+particleBasedIsolationSequence = cms.Sequence(particleBasedIsolationTask) 

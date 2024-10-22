@@ -1,29 +1,27 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 from FWCore.PythonUtilities.XML2Python import xml2obj
 from FWCore.PythonUtilities.LumiList   import LumiList
 from pprint import pprint
 
 import ast
-import optparse
+from argparse import ArgumentParser
 import sys
-
 
 if __name__ == '__main__':
 
-    parser = optparse.OptionParser ("Usage: %prog [--options] job1.fjr [job2.fjr...]")
-    parser.add_option ('--output', dest='output', type='string',
-                       help='Save output to file OUTPUT')
-    (options, args) = parser.parse_args()
-    if not args:
-        raise RuntimeError("Must provide at least one input file")
+    parser = ArgumentParser()
+    parser.add_argument('--output', dest='output', type=str,
+                        help='Save output to file OUTPUT')
+    parser.add_argument("job_fjr", metavar="job.fjr", nargs='+', type=str)
+    options = parser.parse_args()
 
     runsLumisDict = {}
-    for fjr in args:
+    for fjr in options.job_fjr:
         try:
             obj = xml2obj (filename=fjr)
         except:
-            print "'%s' is not an framework job report.  Skipping." % fjr
+            print("'%s' is not an framework job report.  Skipping." % fjr)
             continue
         for inputFile in obj.InputFile:
             try: # Regular XML version, assume only one of these
@@ -36,7 +34,7 @@ if __name__ == '__main__':
                         runList.append (lumi)
             except:
                 try: # JSON-like version in CRAB XML files, runObjects is usually a list
-                    if isinstance(inputFile.Runs, basestring):
+                    if isinstance(inputFile.Runs, str):
                         runObjects = [inputFile.Runs]
                     else:
                         runObjects = inputFile.Runs
@@ -44,18 +42,18 @@ if __name__ == '__main__':
                     for runObject in runObjects:
                         try:
                             runs = ast.literal_eval(runObject)
-                            for (run, lumis) in runs.iteritems():
+                            for (run, lumis) in runs.items():
                                 runList = runsLumisDict.setdefault (int(run), [])
                                 runList.extend(lumis)
                         except ValueError: # Old style handled above
                             pass
                 except:
-                    print "Run missing in '%s'.  Skipping." % fjr
+                    print("Run missing in '%s'.  Skipping." % fjr)
                 continue
 
     jsonList = LumiList (runsAndLumis = runsLumisDict)
     if options.output:
         jsonList.writeJSON (options.output)
     else:
-        print jsonList
+        print(jsonList)
 

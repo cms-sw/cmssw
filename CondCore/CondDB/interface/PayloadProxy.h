@@ -1,8 +1,14 @@
 #ifndef CondCore_CondDB_PayloadProxy_h
 #define CondCore_CondDB_PayloadProxy_h
 
+#include "CondCore/CondDB/interface/Exception.h"
+#include "CondCore/CondDB/interface/IOVProxy.h"
 #include "CondCore/CondDB/interface/Session.h"
-#include "CondCore/CondDB/interface/Time.h"
+#include "CondCore/CondDB/interface/Types.h"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace cond {
 
@@ -13,120 +19,90 @@ namespace cond {
      */
     class CondGetter {
     public:
-      virtual ~CondGetter(){}
-      virtual IOVProxy get(std::string name) const=0;
-      
+      virtual ~CondGetter() {}
+      virtual IOVProxy get(std::string name) const = 0;
     };
-    
+
     // implements the not templated part...
     class BasePayloadProxy {
     public:
-      
-      // 
-      BasePayloadProxy();
+      //
+      BasePayloadProxy(Iov_t const* mostRecentCurrentIov,
+                       Session const* mostRecentSession,
+                       std::shared_ptr<std::vector<Iov_t>> const* mostRecentRequests);
 
-      void setUp( Session dbSession );
-      
-      void loadTag( const std::string& tag );
-
-      void loadTag( const std::string& tag, const boost::posix_time::ptime& snapshotTime );
-      
-      void reload();
-      
       virtual ~BasePayloadProxy();
 
-      virtual void make()=0;
-      
-      virtual void invalidateCache()=0;
-      
-      // current cached object token
-      const Hash& payloadId() const { return m_currentIov.payloadId;}
-      
-      // this one had the loading in a separate function in the previous impl
-      ValidityInterval setIntervalFor( Time_t target, bool loadPayload=false );
-      
-      bool isValid() const;
-      
-      TimeType timeType() const { return m_iovProxy.timeType();}
-      
-      virtual void loadMore(CondGetter const &){
-      }
+      virtual void make() = 0;
 
-      IOVProxy iov();
-      
-      const std::vector<Iov_t>& requests() const {
-	return m_requests;
-      }
-    
+      bool isValid() const;
+
+      virtual void loadMore(CondGetter const&) {}
+
+      void initializeForNewIOV();
+
     private:
-      virtual void loadPayload() = 0;   
-      
-    
+      virtual void loadPayload() = 0;
+
     protected:
-      IOVProxy m_iovProxy;
-      Iov_t m_currentIov;
+      Iov_t m_iovAtInitialization;
       Session m_session;
-      std::vector<Iov_t> m_requests;
-      
+      std::shared_ptr<std::vector<Iov_t>> m_requests;
+
+      Iov_t const* m_mostRecentCurrentIov;
+      Session const* m_mostRecentSession;
+      std::shared_ptr<std::vector<Iov_t>> const* m_mostRecentRequests;
     };
-    
 
     /* proxy to the payload valid at a given time...
-       
+
     */
-    template<typename DataT>
+    template <typename DataT>
     class PayloadProxy : public BasePayloadProxy {
     public:
-      
-      explicit PayloadProxy( const char * source=nullptr ) :
-	BasePayloadProxy() {}
-      
-      ~PayloadProxy() override{}
-      
-      // dereference 
-      const DataT & operator()() const {
-	if( !m_data ) {
-	  throwException( "The Payload has not been loaded.","PayloadProxy::operator()");
-	}
-	return (*m_data); 
+      explicit PayloadProxy(Iov_t const* mostRecentCurrentIov,
+                            Session const* mostRecentSession,
+                            std::shared_ptr<std::vector<Iov_t>> const* mostRecentRequests,
+                            const char* source = nullptr)
+          : BasePayloadProxy(mostRecentCurrentIov, mostRecentSession, mostRecentRequests) {}
+
+      ~PayloadProxy() override {}
+
+      void initKeyList(PayloadProxy const&) {}
+
+      // dereference
+      const DataT& operator()() const {
+        if (!m_data) {
+          throwException("The Payload has not been loaded.", "PayloadProxy::operator()");
+        }
+        return (*m_data);
       }
 
-      void make() override{
-	if( isValid() ){
-	  if( m_currentIov.payloadId == m_currentPayloadId ) return;
-	  m_session.transaction().start(true);
-	  loadPayload();
-	  m_session.transaction().commit();
-	}
-      }
-
-      virtual void invalidateTransientCache() {
-	m_data.reset();
-        m_currentPayloadId.clear();
-      }
-      
-      void invalidateCache() override {
-	m_data.reset();
-	m_currentPayloadId.clear();
-	m_currentIov.clear();
-	m_requests.clear();
+      void make() override {
+        if (isValid()) {
+          if (m_iovAtInitialization.payloadId == m_currentPayloadId)
+            return;
+          m_session.transaction().start(true);
+          loadPayload();
+          m_session.transaction().commit();
+        }
       }
 
     protected:
       void loadPayload() override {
-	if( m_currentIov.payloadId.empty() ){
-	  throwException( "Can't load payload: no valid IOV found.","PayloadProxy::loadPayload" );
-	}
-	m_data = m_session.fetchPayload<DataT>( m_currentIov.payloadId );
-	m_currentPayloadId = m_currentIov.payloadId;	  
-	m_requests.push_back( m_currentIov );
+        if (m_iovAtInitialization.payloadId.empty()) {
+          throwException("Can't load payload: no valid IOV found.", "PayloadProxy::loadPayload");
+        }
+        m_data = m_session.fetchPayload<DataT>(m_iovAtInitialization.payloadId);
+        m_currentPayloadId = m_iovAtInitialization.payloadId;
+        m_requests->push_back(m_iovAtInitialization);
       }
-      
+
     private:
-      std::shared_ptr<DataT> m_data;
+      std::unique_ptr<DataT> m_data;
       Hash m_currentPayloadId;
     };
-    
-  }
-}
-#endif // CondCore_CondDB_PayloadProxy_h
+
+  }  // namespace persistency
+}  // namespace cond
+#endif  // CondCore_CondDB_PayloadProxy_h

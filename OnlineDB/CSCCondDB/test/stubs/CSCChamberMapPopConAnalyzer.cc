@@ -5,4 +5,3 @@
 typedef popcon::PopConAnalyzer<popcon::CSCChamberMapImpl> CSCChamberMapPopConAnalyzer;
 
 DEFINE_FWK_MODULE(CSCChamberMapPopConAnalyzer);
-

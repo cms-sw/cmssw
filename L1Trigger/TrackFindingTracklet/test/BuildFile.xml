@@ -1,0 +1,21 @@
+<library   file="*.cc" name="TrackFindingTrackletTests">
+  <flags   EDM_PLUGIN="1"/>
+  <flags   SKIP_FILES="fpga.cc"/>
+  <flags   CXXFLAGS="-DUSEHYBRID"/>
+  <use name="heppdt"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="CondFormats/Alignment"/>
+  <use name="DataFormats/Common"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="PhysicsTools/UtilAlgos"/>
+  <use name="SimTracker/TrackerHitAssociation"/>
+  <use name="RecoLocalTracker/SiPixelRecHits"/>
+  <use name="SimDataFormats/Associations"/>
+  <use name="SimDataFormats/Vertex"/>
+  <use name="SimDataFormats/TrackingHit"/>
+  <use name="SimDataFormats/CrossingFrame"/>
+  <use name="SimTracker/TrackTriggerAssociation"/>
+  <use name="TrackingTools/TrackAssociator"/>
+  <use name="TrackingTools/TrajectoryState"/>
+  <use name="L1Trigger/TrackFindingTracklet"/>
+</library>

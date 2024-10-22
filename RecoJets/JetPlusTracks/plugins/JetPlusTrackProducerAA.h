@@ -2,7 +2,7 @@
 //
 // Package:    JetPlusTracks
 // Class:      JetPlusTrackProducerAA
-// 
+//
 /**\class JetPlusTrackProducerAA JetPlusTrackProducerAA.cc JetPlusTrackProducerAA.cc
 
  Description: [one line class summary]
@@ -16,13 +16,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -53,40 +52,36 @@
 // class declaration
 //
 
-class JetPlusTrackProducerAA : public edm::EDProducer {
-   public:
-      explicit JetPlusTrackProducerAA(const edm::ParameterSet&);
-      ~JetPlusTrackProducerAA() override;
-      void beginJob() override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override;
-////     reco::TrackRefVector calculateBGtracksJet(reco::JPTJetCollection&, std::vector <reco::TrackRef>&);
+class JetPlusTrackProducerAA : public edm::stream::EDProducer<> {
+public:
+  explicit JetPlusTrackProducerAA(const edm::ParameterSet&);
+  ~JetPlusTrackProducerAA() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      reco::TrackRefVector calculateBGtracksJet(reco::JPTJetCollection&, std::vector <reco::TrackRef>&,  
-                                                 edm::Handle <std::vector<reco::TrackExtrapolation> >&,
-                                                                                 reco::TrackRefVector&);
+  reco::TrackRefVector calculateBGtracksJet(reco::JPTJetCollection&,
+                                            std::vector<reco::TrackRef>&,
+                                            edm::Handle<std::vector<reco::TrackExtrapolation> >&,
+                                            reco::TrackRefVector&);
 
- private:
+private:
+  // ---------- private data members ---------------------------
+  JetPlusTrackCorrector* mJPTalgo;
+  ZSPJPTJetCorrector* mZSPalgo;
+  edm::InputTag src;
+  edm::InputTag srcPVs_;
+  std::string alias;
+  bool vectorial_;
+  bool useZSP;
+  edm::InputTag mTracks;
+  double mConeSize;
+  reco::TrackBase::TrackQuality trackQuality_;
 
-    // ---------- private data members ---------------------------      
-      JetPlusTrackCorrector*        mJPTalgo;
-      ZSPJPTJetCorrector*              mZSPalgo; 
-      edm::InputTag                 src;
-      edm::InputTag                 srcPVs_;
-      std::string                   alias;
-      bool                          vectorial_;  
-      bool                          useZSP;
-      edm::InputTag                 mTracks;
-      double                        mConeSize;
-      reco::TrackBase::TrackQuality trackQuality_;
+  //=>
+  edm::InputTag mExtrapolations;
+  //=>
 
-//=>
-      edm::InputTag mExtrapolations;
-//=>
-
-      edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jets_token_;
-      edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;  
-      edm::EDGetTokenT<reco::TrackCollection> input_tracks_token_;
-      edm::EDGetTokenT<std::vector<reco::TrackExtrapolation> > input_extrapolations_token_;
-
+  edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jets_token_;
+  edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
+  edm::EDGetTokenT<reco::TrackCollection> input_tracks_token_;
+  edm::EDGetTokenT<std::vector<reco::TrackExtrapolation> > input_extrapolations_token_;
 };

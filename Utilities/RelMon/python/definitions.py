@@ -23,7 +23,7 @@ test_codes={"EMPTY":-101,
             "NO_HIST":-105,
             "FEW_BINS":-105}
 #-------------------------------------------------------------------------------  
-relmon_mainpage="https://cms-pdmv.cern.ch/relmon"
+relmon_mainpage="https://cms-pdmv-prod.web.cern.ch/relmon"
 
 #-------------------------------------------------------------------------------  
 
@@ -39,7 +39,7 @@ url_encode_dict={"/":"%2F",
 cat_names={FAIL:"Failing",
             NULL:"Null",
             SUCCESS:"Successful",
-            SKIPED: "Skiped"}
+            SKIPED: "Skipped"}
 # Names used internally
 cat_states={FAIL:-1,
             NULL:0,
@@ -49,7 +49,7 @@ cat_states={FAIL:-1,
 cat_classes={FAIL:"fail",
              NULL:"null",
              SUCCESS:"succes",
-             SKIPED: "skiped"}     # 1s to avoid conflicts with blueoprint
+             SKIPED: "skipped"}     # 1s to avoid conflicts with blueoprint
 
 #-------------------------------------------------------------------------------                                 
 # Aggregation of names for the global directory
@@ -75,8 +75,10 @@ original=[\
 
 ('B Tagging' , ['Btag']),
 
+('Particle Flow', ['ParticleFlow']),
+
 ('Miscellanea: Simulation',['Generator','GlobalDigisV','GlobalHitsV','GlobalRecHitsV','MixingV','NoiseRatesV']),
-('Miscellanea',['Info','MessageLogger','ParticleFlow','Physics'])]
+('Miscellanea',['Info','MessageLogger','Physics'])]
 
 # designed for the Reconstruction
 reco_aggr=[\
@@ -100,12 +102,13 @@ reco_aggr=[\
 ('MET',['JetMET/MET','JetMET/METv','ParticleFlow/PFMETValidation']),
 ('B Tagging' , ['Btag']),
 ('Tau' , ['RecoTauV']),
+('Particle Flow', ['ParticleFlow']),
 
 # Other
 ('Castor Calorimeter', ['Castor']),
 ('Level 1 Trigger',['L1T', 'L1TEMU']),
 ('Miscellanea: Sim.',['Generator','GlobalDigisV','GlobalHitsV','GlobalRecHitsV','MixingV','NoiseRatesV']),
-('Miscellanea',['Info','MessageLogger','ParticleFlow','Physics'])]
+('Miscellanea',['Info','MessageLogger','Physics'])]
 
 # Designed for the HLT
 hlt_aggr=[\
@@ -193,4 +196,12 @@ data_pattern_blist_pairs=(\
           ("!(wzEG20+|electron20+|photon20+|run20+)","Egamma@1"),
           ("!(mu20+|wzMu20+|jet20+)","Btag@1"))
 data_pattern_blist_pairs=()
+
+## colors for gauge
+from  matplotlib.colors import LinearSegmentedColormap
+gauge_cmap=LinearSegmentedColormap.from_list('rg',["r", "orange","y","lime"], N=256) 
+
+## cms logo
+cms_logo_url = "https://cms-docdb.cern.ch/cgi-bin/PublicDocDB/RetrieveFile?docid=3045&amp;filename=CMSlogo_color_label_1024_May2014.png&amp;version=3"
+
 

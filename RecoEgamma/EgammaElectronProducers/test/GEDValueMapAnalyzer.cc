@@ -1,77 +1,72 @@
 #include "FWCore/Framework/interface/Event.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include <iostream>
 
-class GEDValueMapAnalyzer : public edm::EDAnalyzer
-{
-public: 
+class GEDValueMapAnalyzer : public edm::one::EDAnalyzer<> {
+public:
   GEDValueMapAnalyzer(const edm::ParameterSet&);
-  ~GEDValueMapAnalyzer();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void analyze(const edm::Event & iEvent,const edm::EventSetup & c);
+  ~GEDValueMapAnalyzer() override = default;
+
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& c) override;
 
 private:
-  edm::InputTag inputTagValueMapElectrons_;
-  edm::InputTag inputTagPFCandidates_;
-  
+  const edm::InputTag inputTagPFCandidates_;
+  const edm::InputTag inputTagValueMapElectrons_;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> pfCandToken_;
+  const edm::EDGetTokenT<edm::ValueMap<reco::GsfElectronRef> > electronToken_;
 };
 
-GEDValueMapAnalyzer::GEDValueMapAnalyzer(const edm::ParameterSet& iConfig) {
-  inputTagPFCandidates_ = iConfig.getParameter<edm::InputTag>("PFCandidates");
-  inputTagValueMapElectrons_ = iConfig.getParameter<edm::InputTag>("ElectronValueMap"); 
-}
+GEDValueMapAnalyzer::GEDValueMapAnalyzer(const edm::ParameterSet& iConfig)
+    : inputTagPFCandidates_(iConfig.getParameter<edm::InputTag>("PFCandidates")),
+      inputTagValueMapElectrons_(iConfig.getParameter<edm::InputTag>("ElectronValueMap")),
+      pfCandToken_(consumes<reco::PFCandidateCollection>(inputTagPFCandidates_)),
+      electronToken_(consumes<edm::ValueMap<reco::GsfElectronRef> >(inputTagValueMapElectrons_)) {}
 
-GEDValueMapAnalyzer::~GEDValueMapAnalyzer() {;}
-
-void GEDValueMapAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& ){;}
-
-
-void GEDValueMapAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup & c) {
-  edm::Handle<reco::PFCandidateCollection> pfCandidatesH;
-  bool found=iEvent.getByLabel(inputTagPFCandidates_,pfCandidatesH);
-  if(!found ) {
+void GEDValueMapAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {
+  const edm::Handle<reco::PFCandidateCollection>& pfCandidatesH = iEvent.getHandle(pfCandToken_);
+  if (!pfCandidatesH.isValid()) {
     std::ostringstream err;
-    err<<" cannot get PFCandidates: "
-       <<inputTagPFCandidates_<<std::endl;
-    edm::LogError("PFIsoReader")<<err.str();
-    throw cms::Exception( "MissingProduct", err.str());
+    err << " cannot get PFCandidates: " << inputTagPFCandidates_ << std::endl;
+    edm::LogError("PFIsoReader") << err.str();
+    throw cms::Exception("MissingProduct", err.str());
   }
 
   // Get the value maps
 
-  edm::Handle<edm::ValueMap<reco::GsfElectronRef> > electronValMapH;
-  found = iEvent.getByLabel(inputTagValueMapElectrons_,electronValMapH);
-  const edm::ValueMap<reco::GsfElectronRef> & myElectronValMap(*electronValMapH);
-  
-  std::cout << " Read Electron Value Map " << myElectronValMap.size() << std::endl;
+  const edm::Handle<edm::ValueMap<reco::GsfElectronRef> > electronValMapH = iEvent.getHandle(electronToken_);
+  const edm::ValueMap<reco::GsfElectronRef>& myElectronValMap(*electronValMapH);
 
+  edm::LogVerbatim("GEDValueMapAnalyer") << " Read Electron Value Map " << myElectronValMap.size();
 
-  unsigned ncandidates=pfCandidatesH->size();
-  for(unsigned ic=0 ; ic < ncandidates ; ++ic) {
+  unsigned ncandidates = pfCandidatesH->size();
+  for (unsigned ic = 0; ic < ncandidates; ++ic) {
     // check if it has a GsfTrack
-    const reco::PFCandidate & cand((*pfCandidatesH)[ic]);
-    if(!cand.gsfTrackRef().isNonnull()) continue;
-    
-    reco::PFCandidateRef pfRef(pfCandidatesH,ic);
+    const reco::PFCandidate& cand((*pfCandidatesH)[ic]);
+    if (!cand.gsfTrackRef().isNonnull())
+      continue;
+
+    reco::PFCandidateRef pfRef(pfCandidatesH, ic);
     // get the GsfElectronRef from the ValueMap
-    reco::GsfElectronRef gsfRef=myElectronValMap[pfRef];
-    
+    reco::GsfElectronRef gsfRef = myElectronValMap[pfRef];
+
     //basic check
-    std::cout << " Comparing GsfTrackRef from GsfElectron and PFCandidate " ;
-    if(gsfRef->gsfTrack()==cand.gsfTrackRef()) std::cout << " OK " << std::endl;
+    std::ostringstream st1;
+    st1 << " Comparing GsfTrackRef from GsfElectron and PFCandidate ";
+    if (gsfRef->gsfTrack() == cand.gsfTrackRef())
+      st1 << " OK ";
     else
-      std::cout << " Problem different Ref" << std::endl;
+      st1 << " Problem different Ref";
+    edm::LogVerbatim("GEDValueMapAnalyer") << st1.str();
   }
-
 }
-
 
 DEFINE_FWK_MODULE(GEDValueMapAnalyzer);

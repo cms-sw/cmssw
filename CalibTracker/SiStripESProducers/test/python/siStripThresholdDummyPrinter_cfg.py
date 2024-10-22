@@ -9,14 +9,21 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Reader")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring(''),
     ThresholdReader = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
+    ),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('ThresholdReader.log')
+    debugModules = cms.untracked.vstring(''),
+    files = cms.untracked.PSet(
+        ThresholdReader = cms.untracked.PSet(
+
+        )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

@@ -26,32 +26,24 @@ namespace edm {
 
   class ParentContext {
   public:
+    enum class Type { kGlobal, kInternal, kModule, kPlaceInPath, kStream, kInvalid };
 
-    enum class Type {
-      kGlobal,
-      kInternal,
-      kModule,
-      kPlaceInPath,
-      kStream,
-      kInvalid
-    };
+    ParentContext() noexcept;
+    ParentContext(GlobalContext const*) noexcept;
+    ParentContext(InternalContext const*) noexcept;
+    ParentContext(ModuleCallingContext const*) noexcept;
+    ParentContext(PlaceInPathContext const*) noexcept;
+    ParentContext(StreamContext const*) noexcept;
 
-    ParentContext();
-    ParentContext(GlobalContext const*);
-    ParentContext(InternalContext const*);
-    ParentContext(ModuleCallingContext const*);
-    ParentContext(PlaceInPathContext const*);
-    ParentContext(StreamContext const*);
+    [[nodiscard]] Type type() const noexcept { return type_; }
 
-    Type type() const { return type_; }
+    bool isAtEndTransition() const noexcept;
 
-    bool isAtEndTransition() const;
-    
-    GlobalContext const* globalContext() const;
-    InternalContext const* internalContext() const;
-    ModuleCallingContext const* moduleCallingContext() const;
-    PlaceInPathContext const* placeInPathContext() const;
-    StreamContext const* streamContext() const;
+    GlobalContext const* globalContext() const noexcept(false);
+    InternalContext const* internalContext() const noexcept(false);
+    ModuleCallingContext const* moduleCallingContext() const noexcept(false);
+    PlaceInPathContext const* placeInPathContext() const noexcept(false);
+    StreamContext const* streamContext() const noexcept(false);
 
   private:
     Type type_;
@@ -66,5 +58,5 @@ namespace edm {
   };
 
   std::ostream& operator<<(std::ostream&, ParentContext const&);
-}
+}  // namespace edm
 #endif

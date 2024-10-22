@@ -2,7 +2,7 @@
 //
 // Package:     L1Geometry
 // Class  :     ES_L1CaloGeometry
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

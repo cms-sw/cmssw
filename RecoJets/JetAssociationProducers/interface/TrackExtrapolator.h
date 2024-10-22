@@ -5,7 +5,7 @@
 //
 // Package:    TrackExtrapolator
 // Class:      TrackExtrapolator
-// 
+//
 /**\class TrackExtrapolator TrackExtrapolator.cc RecoTracker/TrackExtrapolator/src/TrackExtrapolator.cc
 
  Description: Extrapolates tracks to Calo Face. Migrating this functionality from 
@@ -24,7 +24,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -34,7 +33,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/JetReco/interface/TrackExtrapolation.h"
@@ -48,7 +46,9 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"
 
 //
@@ -56,36 +56,32 @@
 //
 
 class TrackExtrapolator : public edm::stream::EDProducer<> {
-   public:
-      explicit TrackExtrapolator(const edm::ParameterSet&);
-      ~TrackExtrapolator() override;
+public:
+  explicit TrackExtrapolator(const edm::ParameterSet&);
+  ~TrackExtrapolator() override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-      edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;    /// Input tracks
-      reco::TrackBase::TrackQuality trackQuality_; /// track quality of the tracks we care about
+  const edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;  /// Input tracks
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> fieldToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  const edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> ecalDetIdAssociatorToken_;
+  const reco::TrackBase::TrackQuality trackQuality_;  /// track quality of the tracks we care about
 
+  // ----------internal functions ---------------------------
 
-      // ----------internal functions ---------------------------
-
-      /// Propagate a track to a given radius, given the magnetic
-      /// field and the propagator. Store the resulting
-      /// position, momentum, and direction. 
-      bool propagateTrackToVolume( const reco::Track& fTrack,
-				   const MagneticField& fField,
-				   const Propagator& fPropagator,
-				   const FiducialVolume& volume,
-				   reco::TrackBase::Point & resultPos,
-				   reco::TrackBase::Vector & resultMom
-				   );
-
-      
-
+  /// Propagate a track to a given radius, given the magnetic
+  /// field and the propagator. Store the resulting
+  /// position, momentum, and direction.
+  bool propagateTrackToVolume(const reco::Track& fTrack,
+                              const MagneticField& fField,
+                              const Propagator& fPropagator,
+                              const FiducialVolume& volume,
+                              reco::TrackBase::Point& resultPos,
+                              reco::TrackBase::Vector& resultMom);
 };
-
 
 #endif

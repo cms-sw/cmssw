@@ -17,6 +17,9 @@ modules on path p:
   testView1
   testStreamingProducer
   testStreamingAnalyzer
+  intProducerBeginProcessBlock
+  intProducerEndProcessBlock
+  processBlockTest1
 modules on path p2:
   intProducer
   a1
@@ -34,6 +37,7 @@ modules on end path e:
 modules on end path p1ep2:
 All modules and modules in the current process whose products they consume:
 (This does not include modules from previous processes or the source)
+(Exclusively considers Event products, not Run, Lumi, or ProcessBlock products)
   IntProducer/'intProducerA'
   IntProducer/'intProducerF'
   IntProducer/'intProducerG'
@@ -55,6 +59,9 @@ All modules and modules in the current process whose products they consume:
   IntProducer/'testStreamingProducer'
   ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes products from these modules:
     IntProducer/'testStreamingProducer'
+  IntProducerBeginProcessBlock/'intProducerBeginProcessBlock'
+  IntProducerEndProcessBlock/'intProducerEndProcessBlock'
+  TestFindProduct/'processBlockTest1'
   IntProducer/'intProducerB'
   IntProducer/'intProducerC'
   IntProducer/'intProducerD'
@@ -78,7 +85,7 @@ All modules and modules in the current process whose products they consume:
   EndPathStatusInserter/'p1ep2'
 All modules (listed by class and label) and all their consumed products.
 Consumed products are listed by type, label, instance, process.
-For products not in the event, 'run' or 'lumi' is added to indicate the TTree they are from.
+For products not in the event, 'processBlock', 'run' or 'lumi' is added to indicate the TTree they are from.
 For products that are declared with mayConsume, 'may consume' is added.
 For products consumed for Views, 'element type' is added
 For products only read from previous processes, 'skip current process' is added
@@ -107,17 +114,29 @@ For products only read from previous processes, 'skip current process' is added
   IntProducer/'testStreamingProducer'
   ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes:
     edmtest::IntProduct 'testStreamingProducer' '' '', may consume
+  IntProducerBeginProcessBlock/'intProducerBeginProcessBlock'
+  IntProducerEndProcessBlock/'intProducerEndProcessBlock'
+  TestFindProduct/'processBlockTest1' consumes:
+    edmtest::IntProduct 'intProducerBeginProcessBlock' '' '', processBlock
+    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' '' '', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
   IntProducer/'intProducerB'
   IntProducer/'intProducerC'
   IntProducer/'intProducerD'
   IntProducer/'intProducerE'
   ConsumingIntProducer/'testManyConsumingProducer' consumes:
     edm::TriggerResults 'TriggerResults' '' ''
-    edm::TriggerResults '' '' ''
+    edm::TriggerResults 'TriggerResults' '' 'PROD1'
   PoolOutputModule/'out' consumes:
     edm::TriggerResults 'TriggerResults' '' 'PROD1'
     edmtest::IntProduct 'aliasForInt' '' 'PROD1'
     edmtest::IntProduct 'intProducer' '' 'PROD1'
+    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' 'four' 'PROD1', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' 'three' 'PROD1', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' 'two' 'PROD1', processBlock
     edmtest::IntProduct 'intProducerU' '' 'PROD1'
     edmtest::IntProduct 'source' '' 'PROD1'
     edmtest::IntProduct 'testManyConsumingProducer' '' 'PROD1'
@@ -140,6 +159,7 @@ modules on path path1:
   intProducerD
 All modules and modules in the current process whose products they consume:
 (This does not include modules from previous processes or the source)
+(Exclusively considers Event products, not Run, Lumi, or ProcessBlock products)
   IntProducer/'intProducerF'
   IntProducer/'intProducerH'
   IntProducer/'intProducerB'
@@ -148,7 +168,7 @@ All modules and modules in the current process whose products they consume:
   PathStatusInserter/'path1'
 All modules (listed by class and label) and all their consumed products.
 Consumed products are listed by type, label, instance, process.
-For products not in the event, 'run' or 'lumi' is added to indicate the TTree they are from.
+For products not in the event, 'processBlock', 'run' or 'lumi' is added to indicate the TTree they are from.
 For products that are declared with mayConsume, 'may consume' is added.
 For products consumed for Views, 'element type' is added
 For products only read from previous processes, 'skip current process' is added
@@ -164,9 +184,11 @@ paths:
   p3
   path1
   path2
+  path3
 end paths:
   ep1
   ep2
+  endPath
 modules on path p3:
   intVectorProducer
   test
@@ -206,12 +228,19 @@ modules on path path2:
   a23
   a24
   a25
+modules on path path3:
+  intProducerBeginProcessBlock
+  intProducerEndProcessBlock
+  processBlockTest1
 modules on end path ep1:
   intVectorProducer
   testManyConsumingProducer
 modules on end path ep2:
+modules on end path endPath:
+  testOneOutput
 All modules and modules in the current process whose products they consume:
 (This does not include modules from previous processes or the source)
+(Exclusively considers Event products, not Run, Lumi, or ProcessBlock products)
   IntProducer/'intProducerF'
   IntProducer/'intProducerG'
   IntVectorProducer/'intVectorProducer'
@@ -265,17 +294,31 @@ All modules and modules in the current process whose products they consume:
     IntProducer/'intProducerC'
     IntProducer/'intProducerF'
     IntProducer/'intProducerG'
+  IntProducerBeginProcessBlock/'intProducerBeginProcessBlock'
+  IntProducerEndProcessBlock/'intProducerEndProcessBlock'
+  TestFindProduct/'processBlockTest1'
   ConsumingIntProducer/'testManyConsumingProducer' consumes products from these modules:
     TriggerResultInserter/'TriggerResults'
+  TestOneOutput/'testOneOutput' consumes products from these modules:
+    TriggerResultInserter/'TriggerResults'
+    IntProducer/'intProducerB'
+    IntProducer/'intProducerC'
+    IntProducer/'intProducerF'
+    IntProducer/'intProducerG'
+    ConsumingIntProducer/'testManyConsumingProducer'
+    IntProducer/'testStreamingProducer'
+    IntVectorProducer/'intVectorProducer'
   TriggerResultInserter/'TriggerResults'
   PathStatusInserter/'p3'
   PathStatusInserter/'path1'
   PathStatusInserter/'path2'
+  PathStatusInserter/'path3'
   EndPathStatusInserter/'ep1'
   EndPathStatusInserter/'ep2'
+  EndPathStatusInserter/'endPath'
 All modules (listed by class and label) and all their consumed products.
 Consumed products are listed by type, label, instance, process.
-For products not in the event, 'run' or 'lumi' is added to indicate the TTree they are from.
+For products not in the event, 'processBlock', 'run' or 'lumi' is added to indicate the TTree they are from.
 For products that are declared with mayConsume, 'may consume' is added.
 For products consumed for Views, 'element type' is added
 For products only read from previous processes, 'skip current process' is added
@@ -286,6 +329,12 @@ For products only read from previous processes, 'skip current process' is added
   ThingWithMergeProducer/'thingWithMergeProducer'
   TestMergeResults/'testMergeResults' consumes:
     edmtest::Thing 'thingWithMergeProducer' 'event' 'PROD'
+    edmtest::Thing 'thingWithMergeProducer' 'beginRun' 'PROD', run
+    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginRun' 'PROD', run
+    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginRun' 'PROD', run
+    edmtest::Thing 'thingWithMergeProducer' 'beginRun' '', run
+    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginRun' '', run
+    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginRun' '', run
     edmtest::Thing 'thingWithMergeProducer' 'endRun' 'PROD', run
     edmtest::ThingWithMerge 'thingWithMergeProducer' 'endRun' 'PROD', run
     edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endRun' 'PROD', run
@@ -298,6 +347,12 @@ For products only read from previous processes, 'skip current process' is added
     edmtest::Thing 'thingWithMergeProducer' 'endLumi' '', lumi
     edmtest::ThingWithMerge 'thingWithMergeProducer' 'endLumi' '', lumi
     edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endLumi' '', lumi
+    edmtest::Thing 'thingWithMergeProducer' 'beginLumi' 'PROD', lumi
+    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginLumi' 'PROD', lumi
+    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginLumi' 'PROD', lumi
+    edmtest::Thing 'thingWithMergeProducer' 'beginLumi' '', lumi
+    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginLumi' '', lumi
+    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginLumi' '', lumi
   TestFindProduct/'testView1' consumes:
     int 'intVectorProducer' '' 'PROD1', element type
   TestFindProduct/'testView2' consumes:
@@ -367,21 +422,93 @@ For products only read from previous processes, 'skip current process' is added
     edmtest::IntProduct 'intProducerE' '' 'COPY'
     edmtest::IntProduct 'intProducerH' '' 'COPY'
     edmtest::IntProduct 'intProducerQ' 'INSTANCE' 'DOESNOTEXIST'
+  IntProducerBeginProcessBlock/'intProducerBeginProcessBlock'
+  IntProducerEndProcessBlock/'intProducerEndProcessBlock'
+  TestFindProduct/'processBlockTest1' consumes:
+    edmtest::IntProduct 'intProducerBeginProcessBlock' '' '', processBlock
+    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'COPY', processBlock
+    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
+    edmtest::IntProduct 'intProducerBeginProcessBlock' '' '', processBlock
+    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'COPY', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' '' '', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'COPY', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'COPY', processBlock
   ConsumingIntProducer/'testManyConsumingProducer' consumes:
     edm::TriggerResults 'TriggerResults' '' ''
-    edm::TriggerResults '' '' ''
+    edm::TriggerResults 'TriggerResults' '' 'COPY'
+    edm::TriggerResults 'TriggerResults' '' 'PROD1'
+    edm::TriggerResults 'TriggerResults' '' 'PROD2'
+  TestOneOutput/'testOneOutput' consumes:
+    edm::TriggerResults 'TriggerResults' '' 'COPY'
+    edm::TriggerResults 'TriggerResults' '' 'PROD1'
+    edm::TriggerResults 'TriggerResults' '' 'PROD2'
+    edmtest::IntProduct 'aliasForInt' '' 'PROD1'
+    edmtest::IntProduct 'intProducer' '' 'PROD1'
+    edmtest::IntProduct 'intProducerB' '' 'COPY'
+    edmtest::IntProduct 'intProducerB' '' 'PROD1'
+    edmtest::IntProduct 'intProducerB' '' 'PROD2'
+    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'COPY', processBlock
+    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
+    edmtest::IntProduct 'intProducerC' '' 'COPY'
+    edmtest::IntProduct 'intProducerC' '' 'PROD1'
+    edmtest::IntProduct 'intProducerD' '' 'PROD1'
+    edmtest::IntProduct 'intProducerD' '' 'PROD2'
+    edmtest::IntProduct 'intProducerE' '' 'PROD1'
+    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'COPY', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' 'four' 'COPY', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' 'four' 'PROD1', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' 'three' 'COPY', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' 'three' 'PROD1', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' 'two' 'COPY', processBlock
+    edmtest::IntProduct 'intProducerEndProcessBlock' 'two' 'PROD1', processBlock
+    edmtest::IntProduct 'intProducerF' '' 'COPY'
+    edmtest::IntProduct 'intProducerF' '' 'PROD1'
+    edmtest::IntProduct 'intProducerF' '' 'PROD2'
+    edmtest::IntProduct 'intProducerG' '' 'COPY'
+    edmtest::IntProduct 'intProducerG' '' 'PROD1'
+    edmtest::IntProduct 'intProducerH' '' 'PROD1'
+    edmtest::IntProduct 'intProducerH' '' 'PROD2'
+    edmtest::IntProduct 'intProducerI' '' 'PROD1'
+    edmtest::IntProduct 'intProducerU' '' 'PROD1'
+    edmtest::IntProduct 'source' '' 'PROD1'
+    edmtest::IntProduct 'testManyConsumingProducer' '' 'COPY'
+    edmtest::IntProduct 'testManyConsumingProducer' '' 'PROD1'
+    edmtest::IntProduct 'testStreamingProducer' '' 'COPY'
+    edmtest::IntProduct 'testStreamingProducer' '' 'PROD1'
+    edmtest::Thing 'thingWithMergeProducer' 'beginLumi' 'COPY', lumi
+    edmtest::Thing 'thingWithMergeProducer' 'beginRun' 'COPY', run
+    edmtest::Thing 'thingWithMergeProducer' 'endLumi' 'COPY', lumi
+    edmtest::Thing 'thingWithMergeProducer' 'endRun' 'COPY', run
+    edmtest::Thing 'thingWithMergeProducer' 'event' 'COPY'
+    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginLumi' 'COPY', lumi
+    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginRun' 'COPY', run
+    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endLumi' 'COPY', lumi
+    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endRun' 'COPY', run
+    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'event' 'COPY'
+    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginLumi' 'COPY', lumi
+    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginRun' 'COPY', run
+    edmtest::ThingWithMerge 'thingWithMergeProducer' 'endLumi' 'COPY', lumi
+    edmtest::ThingWithMerge 'thingWithMergeProducer' 'endRun' 'COPY', run
+    edmtest::ThingWithMerge 'thingWithMergeProducer' 'event' 'COPY'
+    std::vector<int> 'intVectorProducer' '' 'COPY'
+    std::vector<int> 'intVectorProducer' '' 'PROD1'
   TriggerResultInserter/'TriggerResults'
   PathStatusInserter/'p3'
   PathStatusInserter/'path1'
   PathStatusInserter/'path2'
+  PathStatusInserter/'path3'
   EndPathStatusInserter/'ep1'
   EndPathStatusInserter/'ep2'
+  EndPathStatusInserter/'endPath'
 
 TestFindProduct sum = 12
 TestFindProduct sum = 300
 TestFindProduct sum = 300
 TestFindProduct sum = 300
 TestFindProduct sum = 33
+TestFindProduct sum = 220000
 TestFindProduct sum = 33
 TestFindProduct sum = 36
 TestFindProduct sum = 36
@@ -410,3 +537,4 @@ TestFindProduct sum = 9015
 TestFindProduct sum = 0
 TestFindProduct sum = 0
 TestFindProduct sum = 45057
+TestFindProduct sum = 450034

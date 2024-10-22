@@ -1,4 +1,4 @@
-from FWCore.GuiBrowsers.ConfigToolBase import *
+from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 
@@ -216,7 +216,7 @@ class MakePATTrackCandidates(ConfigToolBase):
         process.load( 'TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff' )
         # MC
         from PhysicsTools.PatAlgos.tools.helpers import MassSearchParamVisitor
-        if(type(mcAs) != type(None)):
+        if(not isinstance(mcAs, type(None))):
             findMatch= []
             findMatch.append(getattr(process, mcAs+'Match'))
 

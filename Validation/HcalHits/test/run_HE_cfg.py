@@ -4,10 +4,13 @@ process = cms.Process("CaloTest")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+process.load('Configuration.StandardSequences.Generator_cff')
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Geometry.CMSCommonData.ecalhcalGeometryXML_cfi")
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
+process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
@@ -15,49 +18,39 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.load("Validation.HcalHits.HcalHitValidation_cfi")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalHitValid = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-    categories = cms.untracked.vstring('HcalHitValid'),
-    destinations = cms.untracked.vstring('cout')
-)
+process.load("FWCore.MessageService.MessageLogger_cfi")
+#if 'MessageLogger' in process.__dict__:
+#    process.MessageLogger.HcalHitValid=dict()
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(5000)
 )
 
 process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/3_1_X/mc_pi50_etaphi-+244.root') 
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/12_X/mc_pi50_etaphi-+244.root') 
 )
 
-process.Timing = cms.Service("Timing")
+#process.Timing = cms.Service("Timing")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
+process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.USER = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('simevent_HE.root')
 )
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.hcalHitValid)
+process.p1 = cms.Path(process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.hcalHitValid)
 process.outpath = cms.EndPath(process.USER)
 process.VtxSmeared.SigmaX = 0.00001
 process.VtxSmeared.SigmaY = 0.00001
 process.VtxSmeared.SigmaZ = 0.00001
 process.g4SimHits.UseMagneticField = False
+process.g4SimHits.OnlySDs = ['EcalSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector']
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     SimG4HcalValidation = cms.PSet(
         TimeLowLimit = cms.double(0.0),
@@ -81,7 +74,5 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     ),
     type = cms.string('SimG4HcalValidation')
 ))
-process.DQM.collectorHost = ''
+#process.DQM.collectorHost = ''
 process.hcalHitValid.outputFile = 'valid_HE.root'
-
-

@@ -11,6 +11,6 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "RecoLocalMuon/GEMSegment/plugins/GEMSegmentAlgorithmBase.h"
 
-typedef edmplugin::PluginFactory<GEMSegmentAlgorithmBase *(const edm::ParameterSet&)> GEMSegmentBuilderPluginFactory;
+typedef edmplugin::PluginFactory<GEMSegmentAlgorithmBase *(const edm::ParameterSet &)> GEMSegmentBuilderPluginFactory;
 
 #endif

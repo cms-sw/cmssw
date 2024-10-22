@@ -1,0 +1,7 @@
+<ifarch value="x86_64">
+  <test name="SiStripDCS_O2O_test" command="testSiStripDCSO2O.sh"/>
+  <test name="SiStripDAQ_O2O_test" command="testSiStripDAQO2O.sh"/>
+</ifarch>
+
+<test name="testCondToolsSiStripBuildersReaders" command="testBuildersReaders.sh"/>
+<test name="testSiStripGainsManinpulation" command="testSiStripGainManipulation.sh"/>

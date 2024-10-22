@@ -1,10 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoParticleFlow.PFProducer.pfGsfElectronMVASelector_cfi import *
+from RecoEgamma.ElectronIdentification.electronIdMVABased_cfi import *
 
-pfGsfElectronMVASelectionSequence = cms.Sequence(
-    electronsWithPresel+
-    mvaElectrons
-    )
+electronsWithPresel = cms.EDFilter("GsfElectronSelector",
+                                   src = cms.InputTag("ecalDrivenGsfElectrons"),
+                                   cut = cms.string("pt > 5 && ecalDrivenSeed && passingCutBasedPreselection"),
+                                   )
 
+mvaElectrons.electronTag = 'electronsWithPresel'
 
+pfGsfElectronMVASelectionTask = cms.Task(
+               electronsWithPresel,
+               mvaElectrons    )
+pfGsfElectronMVASelectionSequence = cms.Sequence(pfGsfElectronMVASelectionTask)

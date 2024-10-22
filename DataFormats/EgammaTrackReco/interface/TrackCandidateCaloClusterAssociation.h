@@ -11,15 +11,12 @@
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-
-
 namespace reco {
 
   // association map
   typedef edm::ValueMap<reco::CaloClusterPtr> TrackCandidateCaloClusterPtrAssociation;
   typedef edm::ValueMap<reco::CaloClusterPtrVector> TrackCandidateCaloClusterPtrVectorAssociation;
 
-
-}
+}  // namespace reco
 
 #endif

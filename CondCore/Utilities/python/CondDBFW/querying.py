@@ -12,9 +12,9 @@ from sqlalchemy import create_engine, text, or_
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 import datetime
-from data_sources import json_data_node
+from .data_sources import json_data_node
 from copy import deepcopy
-import models
+from . import models
 import traceback
 import os
 import netrc
@@ -44,7 +44,7 @@ class connection(object):
 		self.regexp = models.RegExp
 		self.regexp.connection_object = self
 
-		if type(connection_data) in [str, unicode]:
+		if type(connection_data) in [str, str]:
 			# if we've been given a connection string, process it
 			self.connection_data = new_connection_dictionary(connection_data, secrets=secrets, mode=mode)
 			self.schema = self.connection_data.get("schema") if self.connection_data.get("schema") != None else ""
@@ -69,7 +69,7 @@ class connection(object):
 			self.radius.database_type = db_type
 			self.regexp.database_type = db_type
 
-		import models as ms
+		from . import models as ms
 		self.models = ms.generate(map_blobs)
 		#self.base = self.models["Base"]
 
@@ -95,7 +95,7 @@ class connection(object):
 			if self.models[key].__class__ == sqlalchemy.ext.declarative.api.DeclarativeMeta\
 			   and str(self.models[key].__name__) != "Base":
 
-			   	if type(self.connection_data) == dict:
+				if type(self.connection_data) == dict:
 			   		# we can only extract the secrets and schema individuall
 			   		# if we were given a dictionary...  if we were given an engine
 			   		# we can't do this without parsing the connection string from the engine
@@ -127,8 +127,8 @@ class connection(object):
 		"""
 		Get database string for frontier.
 		"""
-		import urllib
-		return 'oracle+frontier://@%s/%s' % (urllib.quote_plus(connection._get_CMS_frontier_connection_string(database)), schema)
+		import urllib.request, urllib.parse, urllib.error
+		return 'oracle+frontier://@%s/%s' % (urllib.parse.quote_plus(connection._get_CMS_frontier_connection_string(database)), schema)
 
 	@staticmethod
 	def _cms_oracle_string(user, pwd, db_name):
@@ -211,6 +211,9 @@ class connection(object):
 
 	def tag(self, **pkargs):
 		return self.factory.object("tag", **pkargs)
+
+	def tag_authorization(self, **pkargs):
+		return self.factory.object("tagauthorization", **pkargs)
 
 	def iov(self, **pkargs):
 		return self.factory.object("iov", **pkargs)
@@ -301,8 +304,8 @@ class factory():
 	# pkargs is a dictionary of keyword arguments used as primary key values
 	# this dictionary will be used to populate the object of type name class_name
 	def object(self, class_name, **pkargs):
-		from data_sources import json_list
-		from models import apply_filters
+		from .data_sources import json_list
+		from .models import apply_filters
 		# get the class that self.connection holds from the class name
 		model = self.connection.model(class_name)
 
@@ -311,10 +314,10 @@ class factory():
 
 		# query for the ORM object, and return the appropriate object (None, CondDBFW object, or json_list)
 		model_data = self.connection.session.query(model)
-		if len(pkargs.items()) != 0:
+		if len(list(pkargs.items())) != 0:
 			# apply the filters defined in **kwargs
 			model_data = apply_filters(model_data, model, **pkargs)
-			amount = pkargs["amount"] if "amount" in pkargs.keys() else None
+			amount = pkargs["amount"] if "amount" in list(pkargs.keys()) else None
 			model_data = model_data.limit(amount)
 			if model_data.count() > 1:
 				# if we have multiple objects, return a json_list
@@ -342,7 +345,7 @@ def _get_netrc_data(netrc_file, key):
 			raise Exception("netrc file must contain key '%s'." % key)
 	except:
 		raise Exception("Couldn't get credentials from netrc file.")
-	return dict(zip(headers, authenticator_tuple))
+	return dict(list(zip(headers, authenticator_tuple)))
 
 def new_connection_dictionary(connection_data, secrets=None, mode="r"):
 	"""
@@ -353,7 +356,7 @@ def new_connection_dictionary(connection_data, secrets=None, mode="r"):
 	#sqlite_file_str_length = len("sqlite_file://")
 	oracle_str_length = len("oracle://")
 
-	if type(connection_data) in [str, unicode] and connection_data[0:frontier_str_length] == "frontier://":
+	if type(connection_data) in [str, str] and connection_data[0:frontier_str_length] == "frontier://":
 		"""
 		frontier://database_name/schema
 		"""
@@ -364,7 +367,7 @@ def new_connection_dictionary(connection_data, secrets=None, mode="r"):
 		connection_data["schema"] = schema
 		connection_data["host"] = "frontier"
 		connection_data["secrets"] = None
-	elif type(connection_data) in [str, unicode] and connection_data[0:sqlite_str_length] == "sqlite://":
+	elif type(connection_data) in [str, str] and connection_data[0:sqlite_str_length] == "sqlite://":
 		"""
 		sqlite://database_file_name
 		"""
@@ -376,7 +379,7 @@ def new_connection_dictionary(connection_data, secrets=None, mode="r"):
 		connection_data["schema"] = schema
 		connection_data["host"] = "sqlite"
 		connection_data["secrets"] = None
-	elif type(connection_data) in [str, unicode] and connection_data[0:oracle_str_length] == "oracle://":
+	elif type(connection_data) in [str, str] and connection_data[0:oracle_str_length] == "oracle://":
 		"""
 		oracle://account:password@database_name
 		or
@@ -396,8 +399,8 @@ def new_connection_dictionary(connection_data, secrets=None, mode="r"):
 			database_name = new_connection_string[0:new_connection_string.index("/")]
 			schema_name = new_connection_string[new_connection_string.index("/")+1:]
 			if secrets == None:
-				username = str(raw_input("Enter the username you want to connect to the schema '%s' with: " % (schema_name)))
-				password = str(raw_input("Enter the password for the user '%s' in database '%s': " % (username, database_name)))
+				username = str(input("Enter the username you want to connect to the schema '%s' with: " % (schema_name)))
+				password = str(input("Enter the password for the user '%s' in database '%s': " % (username, database_name)))
 			else:
 				if type(secrets) == str:
 					netrc_key = "%s/%s/%s" % (database_name, schema_name, mode_to_netrc_key_suffix[mode])

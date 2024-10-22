@@ -1,0 +1,6 @@
+plugins/BuildFile.xml
+plugins/EDProducer.cc
+python
+test/test_catch2_EDProducer.cc
+test/test_catch2_main.cc
+test/testBuildFile.xml

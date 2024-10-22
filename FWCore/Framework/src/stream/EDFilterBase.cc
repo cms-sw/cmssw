@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::stream::EDFilterBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -31,18 +31,14 @@ using namespace edm::stream;
 //
 // constructors and destructor
 //
-EDFilterBase::EDFilterBase(): moduleDescriptionPtr_(nullptr)
-{
-}
+EDFilterBase::EDFilterBase() : moduleDescriptionPtr_(nullptr) {}
 
 // EDFilterBase::EDFilterBase(const EDFilterBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-EDFilterBase::~EDFilterBase()
-{
-}
+EDFilterBase::~EDFilterBase() {}
 
 //
 // assignment operators
@@ -67,21 +63,14 @@ EDFilterBase::~EDFilterBase()
 //
 // static member functions
 //
-void
-EDFilterBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
+void EDFilterBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
   ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
 
-void
-EDFilterBase::prevalidate(ConfigurationDescriptions& iConfig) {
-  edmodule_mightGet_config(iConfig);
-}
+void EDFilterBase::prevalidate(ConfigurationDescriptions& iConfig) { edmodule_mightGet_config(iConfig); }
 
 static const std::string kBaseType("EDFilter");
 
-const std::string&
-EDFilterBase::baseType() {
-  return kBaseType;
-}
+const std::string& EDFilterBase::baseType() { return kBaseType; }

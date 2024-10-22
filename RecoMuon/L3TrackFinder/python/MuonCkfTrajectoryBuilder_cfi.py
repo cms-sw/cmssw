@@ -8,7 +8,6 @@ MuonCkfTrajectoryBuilder = cms.PSet(
     intermediateCleaning = cms.bool(False),
     #would skip the first layer to search for measurement if bare TrajectorySeed
     useSeedLayer = cms.bool(False),
-    MeasurementTrackerName = cms.string(''),
     estimator = cms.string('Chi2'),
     TTRHBuilder = cms.string('WithTrackAngle'),
     #propagator used only if useSeedLayer=true
@@ -20,6 +19,8 @@ MuonCkfTrajectoryBuilder = cms.PSet(
     rescaleErrorIfFail = cms.double(1.0),
     propagatorOpposite = cms.string('PropagatorWithMaterialOpposite'),
     lostHitPenalty = cms.double(30.0),
+    foundHitBonus = cms.double(0.0),
+    minHitForDoubleBonus = cms.int32(9999),
     #this is present in HLT config, appears to be dummy
 #    appendToDataLabel = cms.string( "" ),
     #safety cone size

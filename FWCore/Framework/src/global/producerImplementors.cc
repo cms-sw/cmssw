@@ -2,7 +2,7 @@
 //
 // Package:     Package
 // Class  :     producerImplementors
-// 
+//
 // Implementation:
 //     Explicitly instantiate implementor templates for EDProducerBase
 //
@@ -19,11 +19,14 @@
 namespace edm {
   namespace global {
     namespace impl {
+      template class WatchProcessBlock<edm::global::EDProducerBase>;
+      template class BeginProcessBlockProducer<edm::global::EDProducerBase>;
+      template class EndProcessBlockProducer<edm::global::EDProducerBase>;
       template class BeginRunProducer<edm::global::EDProducerBase>;
       template class EndRunProducer<edm::global::EDProducerBase>;
       template class BeginLuminosityBlockProducer<edm::global::EDProducerBase>;
       template class EndLuminosityBlockProducer<edm::global::EDProducerBase>;
       template class ExternalWork<edm::global::EDProducerBase>;
-    }
-  }
-}
+    }  // namespace impl
+  }  // namespace global
+}  // namespace edm

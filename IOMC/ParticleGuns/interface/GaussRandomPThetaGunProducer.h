@@ -6,24 +6,21 @@
 namespace edm {
 
   class GaussRandomPThetaGunProducer : public FlatBaseThetaGunProducer {
-  
   public:
     GaussRandomPThetaGunProducer(const ParameterSet &);
     ~GaussRandomPThetaGunProducer() override;
 
   private:
-   
-    void produce(Event &e, const EventSetup& es) override;
-    
-  protected :
-  
+    void produce(Event &e, const EventSetup &es) override;
+
+  protected:
     // data members
-    
-    double            fMeanP     ;
-    double            fSigmaP    ;
-    double            fMeanTheta ;
-    double            fSigmaTheta;
+
+    double fMeanP;
+    double fSigmaP;
+    double fMeanTheta;
+    double fSigmaTheta;
   };
-} 
+}  // namespace edm
 
 #endif

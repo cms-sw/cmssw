@@ -1,9 +1,10 @@
 /** \file
- * 
+ *
  *
  * \author M.Schmitt, Northwestern
  */
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <algorithm>
@@ -12,26 +13,22 @@
 using namespace std;
 
 // Constructors
-CSCComparatorDigi::CSCComparatorDigi( int strip, int comparator, int timeBinWord )
-  : strip_( strip ), comparator_( comparator ), timeBinWord_( timeBinWord ) {
-}
+CSCComparatorDigi::CSCComparatorDigi(int strip, int comparator, int timeBinWord)
+    : strip_(strip), comparator_(comparator), timeBinWord_(timeBinWord) {}
 
-
-CSCComparatorDigi::CSCComparatorDigi() 
-  : strip_( 0 ), comparator_( 0 ), timeBinWord_( 0 ) {
-}
-
+CSCComparatorDigi::CSCComparatorDigi() : strip_(0), comparator_(0), timeBinWord_(0) {}
 
 // Comparison
 
-bool
-CSCComparatorDigi::operator == (const CSCComparatorDigi& digi) const {
-  if ( getStrip() != digi.getStrip() ) return false;
-  if ( getComparator() != digi.getComparator() ) return false;
-  if ( getTimeBinWord() != digi.getTimeBinWord() ) return false;
+bool CSCComparatorDigi::operator==(const CSCComparatorDigi& digi) const {
+  if (getStrip() != digi.getStrip())
+    return false;
+  if (getComparator() != digi.getComparator())
+    return false;
+  if (getTimeBinWord() != digi.getTimeBinWord())
+    return false;
   return true;
 }
-
 
 //@@ If one wanted to order comparator digis how would one want op< to behave?
 // I don't know...
@@ -41,84 +38,81 @@ CSCComparatorDigi::operator == (const CSCComparatorDigi& digi) const {
 // ii) strip(LHS) .lt. strip(RHS)
 // But I don't see how this can be useful.
 
-bool 
-CSCComparatorDigi::operator<(const CSCComparatorDigi& digi) const {
+bool CSCComparatorDigi::operator<(const CSCComparatorDigi& digi) const {
   bool result = false;
-  if(getTimeBin() == digi.getTimeBin()) {
+  if (getTimeBin() == digi.getTimeBin()) {
     result = (getStrip() < digi.getStrip());
   }
   return result;
 }
 
-
 // Getters
 
 int CSCComparatorDigi::getTimeBin() const {
   // Find first bin which fired, counting from 0
-  uint16_t tbit=1;
-  int tbin=-1;
-  for(int i=0;i<16;++i) {
-    if(tbit & timeBinWord_) {
-      tbin=i;
+  uint16_t tbit = 1;
+  int tbin = -1;
+  for (int i = 0; i < 16; ++i) {
+    if (tbit & timeBinWord_) {
+      tbin = i;
       break;
     }
-    tbit=tbit<<1;
+    tbit = tbit << 1;
   }
   return tbin;
 }
 
+/// Get the distrip number. Counts from 0.
+// originally defined in EventFilter/CSCRawToDigi/src/CSCComparatorData.cc
+int CSCComparatorDigi::getDiStrip() const { return ((strip_ - 1) % CSCConstants::NUM_STRIPS_PER_CFEB) / 2; }
+
+/// Get the CFEB number. Counts from 0.
+// originally defined in EventFilter/CSCRawToDigi/src/CSCComparatorData.cc
+int CSCComparatorDigi::getCFEB() const { return (strip_ - 1) / CSCConstants::NUM_STRIPS_PER_CFEB; }
+
 // This definition is consistent with the one used in
-// the function CSCCLCTData::add() in EventFilter/CSCRawToDigi
+// the function CSCComparatorData::add() in EventFilter/CSCRawToDigi
 // The halfstrip counts from 0!
-int CSCComparatorDigi::getHalfStrip() const {
-  return (getStrip() - 1) * 2 + getComparator();
-}
+int CSCComparatorDigi::getHalfStrip() const { return (getStrip() - 1) * 2 + getComparator(); }
 
 // Return the fractional half-strip
-float CSCComparatorDigi::getFractionalStrip() const {
-  return getStrip() + getComparator() * 0.5f - 0.75f;
-}
+float CSCComparatorDigi::getFractionalStrip() const { return getStrip() + getComparator() * 0.5f - 0.75f; }
 
 std::vector<int> CSCComparatorDigi::getTimeBinsOn() const {
   std::vector<int> tbins;
   uint16_t tbit = timeBinWord_;
-  const uint16_t one=1;
-  for(int i=0;i<16;++i) {
-    if(tbit & one) tbins.push_back(i);
-    tbit=tbit>>1;
-    if(tbit==0) break; // end already if no more bits set
+  const uint16_t one = 1;
+  for (int i = 0; i < 16; ++i) {
+    if (tbit & one)
+      tbins.push_back(i);
+    tbit = tbit >> 1;
+    if (tbit == 0)
+      break;  // end already if no more bits set
   }
-  return tbins;                                  
+  return tbins;
 }
 
 // Setters
 //@@ No way to set time word?
 
-void CSCComparatorDigi::setStrip(int strip) {
-  strip_ = strip;
-}
-void CSCComparatorDigi::setComparator(int comparator) {
-  comparator_ = comparator;
-}
+void CSCComparatorDigi::setStrip(int strip) { strip_ = strip; }
+void CSCComparatorDigi::setComparator(int comparator) { comparator_ = comparator; }
 
 // Output
 
-void
-CSCComparatorDigi::print() const {
+void CSCComparatorDigi::print() const {
   std::ostringstream ost;
-  ost << "CSCComparatorDigi | strip " << getStrip()
-      << " | comparator " << getComparator() 
-      << " | first time bin "  << getTimeBin() << " | time bins on ";
-  std::vector<int> tbins=getTimeBinsOn();
-  for(unsigned int i=0; i<tbins.size();i++) {ost << tbins[i] << " ";}
+  ost << "CSCComparatorDigi | strip " << getStrip() << " | comparator " << getComparator() << " | first time bin "
+      << getTimeBin() << " | time bins on ";
+  std::vector<int> tbins = getTimeBinsOn();
+  std::copy(tbins.begin(), tbins.end(), std::ostream_iterator<int>(ost, " "));
   edm::LogVerbatim("CSCDigi") << ost.str();
 }
 
-//@@ Doesn't print all time bins
-std::ostream & operator<<(std::ostream & o, const CSCComparatorDigi& digi) {
-  return o << " " << digi.getStrip()
-	   << " " << digi.getComparator()
-	   << " " << digi.getTimeBin();
-}  
-
-
+std::ostream& operator<<(std::ostream& o, const CSCComparatorDigi& digi) {
+  o << "CSCComparatorDigi Strip:" << digi.getStrip() << ", Comparator: " << digi.getComparator()
+    << ", First Time Bin On: " << digi.getTimeBin() << ", Time Bins On: ";
+  std::vector<int> tbins = digi.getTimeBinsOn();
+  std::copy(tbins.begin(), tbins.end(), std::ostream_iterator<int>(o, " "));
+  return o;
+}

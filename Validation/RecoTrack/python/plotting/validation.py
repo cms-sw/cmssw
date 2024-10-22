@@ -1,15 +1,20 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import os
 import re
 import sys
+import time
 import shutil
 import subprocess
+import urllib.request
+import multiprocessing
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-import plotting
-import html
+from . import plotting
+from . import html
 
 # Mapping from releases to GlobalTags
 _globalTags = {
@@ -361,7 +366,7 @@ def _getGlobalTag(sample, release):
     release -- CMSSW release string
     """
     if not release in _globalTags:
-        print "Release %s not found from globaltag map in validation.py" % release
+        print("Release %s not found from globaltag map in validation.py" % release)
         sys.exit(1)
     gtmap = _globalTags[release]
     selectedGT = None
@@ -447,13 +452,13 @@ _doBHadronSamples = [
 
 def _getRelValUrl(release):
     """Get RelVal download URL for a given release."""
-    version_re = re.compile("CMSSW_(?P<X>\d+)_(?P<Y>\d+)")
+    version_re = re.compile("CMSSW_(?P<X>\\d+)_(?P<Y>\\d+)")
     m = version_re.search(release)
     if not m:
         raise Exception("Regex %s does not match to release version %s" % (version_re.pattern, release))
     version = "%s_%s_X" % (m.group("X"), m.group("Y"))
     if not version in _relvalUrls:
-        print "No RelVal URL for version %s, please update _relvalUrls" % version
+        print("No RelVal URL for version %s, please update _relvalUrls" % version)
         sys.exit(1)
     return _relvalUrls[version]
 
@@ -694,8 +699,8 @@ class Validation:
         try:
             self._newRelease = os.environ["CMSSW_VERSION"]
         except KeyError:
-            print >>sys.stderr, 'Error: CMSSW environment variables are not available.'
-            print >>sys.stderr, '       Please run cmsenv'
+            print('Error: CMSSW environment variables are not available.', file=sys.stderr)
+            print('       Please run cmsenv', file=sys.stderr)
             sys.exit()
 
         self._fullsimSamples = fullsimSamples
@@ -717,33 +722,33 @@ class Validation:
         """Download DQM files. Requires grid certificate and asks your password for it."""
         filenames = [s.filename(self._newRelease) for s in self._fullsimSamples+self._fastsimSamples]
         if self._newFileModifier is not None:
-            filenames = map(self._newFileModifier, filenames)
-        filenames = filter(lambda f: not os.path.exists(f), filenames)
+            filenames = list(map(self._newFileModifier, filenames))
+        filenames = [f for f in filenames if not os.path.exists(f)]
         if len(filenames) == 0:
-            print "All files already downloaded"
+            print("All files already downloaded")
             return
 
         relvalUrl = _getRelValUrl(self._newRelease)
         urls = [relvalUrl+f for f in filenames]
         certfile = os.path.join(os.environ["HOME"], ".globus", "usercert.pem")
         if not os.path.exists(certfile):
-            print "Certificate file {certfile} does not exist, unable to download RelVal files from {url}".format(certfile=certfile, url=relvalUrl)
+            print("Certificate file {certfile} does not exist, unable to download RelVal files from {url}".format(certfile=certfile, url=relvalUrl))
             sys.exit(1)
         keyfile = os.path.join(os.environ["HOME"], ".globus", "userkey.pem")
         if not os.path.exists(certfile):
-            print "Private key file {keyfile} does not exist, unable to download RelVal files from {url}".format(keyfile=keyfile, url=relvalUrl)
+            print("Private key file {keyfile} does not exist, unable to download RelVal files from {url}".format(keyfile=keyfile, url=relvalUrl))
             sys.exit(1)
-        
+
         # curl --cert-type PEM --cert $HOME/.globus/usercert.pem --key $HOME/.globus/userkey.pem -k -O <url> -O <url>
         cmd = ["curl", "--cert-type", "PEM", "--cert", certfile, "--key", keyfile, "-k"]
         for u in urls:
             cmd.extend(["-O", u])
-        print "Downloading %d files from RelVal URL %s:" % (len(filenames), relvalUrl)
-        print " "+"\n ".join(filenames)
-        print "Please provide your private key pass phrase when curl asks it"
+        print("Downloading %d files from RelVal URL %s:" % (len(filenames), relvalUrl))
+        print(" "+"\n ".join(filenames))
+        print("Please provide your private key pass phrase when curl asks it")
         ret = subprocess.call(cmd)
         if ret != 0:
-            print "Downloading failed with exit code %d" % ret
+            print("Downloading failed with exit code %d" % ret)
             sys.exit(1)
 
         # verify
@@ -752,10 +757,10 @@ class Validation:
             p = subprocess.Popen(["file", f], stdout=subprocess.PIPE)
             stdout = p.communicate()[0]
             if p.returncode != 0:
-                print "file command failed with exit code %d" % p.returncode
+                print("file command failed with exit code %d" % p.returncode)
                 sys.exit(1)
             if not "ROOT" in stdout:
-                print "File {f} is not ROOT, please check the correct version, GlobalTag etc. from {url}".format(f=f, url=relvalUrl)
+                print("File {f} is not ROOT, please check the correct version, GlobalTag etc. from {url}".format(f=f, url=relvalUrl))
                 allFine = False
                 if os.path.exists(f):
                     os.remove(f)
@@ -786,7 +791,7 @@ class Validation:
             # Check that the new DQM file exists
             harvestedFile = sample.filename(self._newRelease)
             if not os.path.exists(harvestedFile):
-                print "Harvested file %s does not exist!" % harvestedFile
+                print("Harvested file %s does not exist!" % harvestedFile)
                 sys.exit(1)
 
             plotterInstance = plotter.readDirs(harvestedFile)
@@ -825,7 +830,7 @@ class Validation:
                 else:
                     raise Exception("Got multiple compatible FullSim samples for FastSim sample %s %s" % (fast.name(), fast.pileup()))
             if correspondingFull is None:
-                print "WARNING: Did not find compatible FullSim sample for FastSim sample %s %s, omitting FastSim vs. FullSim comparison" % (fast.name(), fast.pileup())
+                print("WARNING: Did not find compatible FullSim sample for FastSim sample %s %s, omitting FastSim vs. FullSim comparison" % (fast.name(), fast.pileup()))
                 continue
 
             # If we reach here, the harvestedFile must exist
@@ -908,10 +913,10 @@ class Validation:
         if refValFile is None:
             if len(triedRefValFiles) == 1:
                 if plotting.verbose:
-                    print "Reference file %s not found" % triedRefValFiles[0]
+                    print("Reference file %s not found" % triedRefValFiles[0])
             else:
                 if plotting.verbose:
-                    print "None of the possible reference files %s not found" % ",".join(triedRefValFiles)
+                    print("None of the possible reference files %s not found" % ",".join(triedRefValFiles))
 
         return (refValFile, refSelection)
 
@@ -951,9 +956,9 @@ class Validation:
 
         # Do the plots
         if plotting.verbose:
-            print "Comparing ref and new {sim} {sample} {translatedFolder}".format(
+            print("Comparing ref and new {sim} {sample} {translatedFolder}".format(
             sim="FullSim" if not sample.fastsim() else "FastSim",
-            sample=sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
+            sample=sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else ""))
         rootFiles = [refValFile, newValFile]
         legendLabels = [
             "%s, %s %s" % (sample.name(), _stripRelease(self._refRelease), refSelection) if self._refRelease is not None else "dummy",
@@ -974,17 +979,18 @@ class Validation:
             refValFile.Close()
 
         if len(fileList) == 0:
+            print("No object found in %s" % plotterFolder.getName())
             return []
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
-            print "Plotter produced multiple files with names", ", ".join(dups)
-            print "Typically this is a naming problem in the plotter configuration"
+            print("Plotter produced multiple files with names", ", ".join(dups))
+            print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
         # Move plots to new directory
-        print "Created plots and %s in %s" % (valname, newdir)
-        return map(lambda n: n.replace(newdir, newsubdir), fileList)
+        print("Created plots and %s in %s" % (valname, newdir))
+        return list(map(lambda n: n.replace(newdir, newsubdir), fileList))
 
     def _doPlotsFastFull(self, fastSample, fullSample, plotterFolder, dqmSubFolder, htmlReport):
         """Do the real plotting work for FastSim vs. FullSim for a given algorithm, quality flag, and sample."""
@@ -1012,18 +1018,18 @@ class Validation:
         valname = "val.{sample}.root".format(sample=fastSample.name())
         fastValFilePath = os.path.join(fastdir, valname)
         if not os.path.exists(fastValFilePath) and plotting.verbose:
-            print "FastSim file %s not found" % fastValFilePath
+            print("FastSim file %s not found" % fastValFilePath)
         fullValFilePath = os.path.join(fulldir, valname)
         if not os.path.exists(fullValFilePath) and plotting.verbose:
-            print "FullSim file %s not found" % fullValFilePath
+            print("FullSim file %s not found" % fullValFilePath)
 
         fastValFile = ROOT.TFile.Open(fastValFilePath)
         fullValFile = ROOT.TFile.Open(fullValFilePath)
 
         # Do plots
         if plotting.verbose:
-            print "Comparing FullSim and FastSim {sample} {translatedFolder}".format(
-            sample=fastSample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
+            print("Comparing FullSim and FastSim {sample} {translatedFolder}".format(
+            sample=fastSample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else ""))
         rootFiles = [fullValFile, fastValFile]
         legendLabels = [
             "FullSim %s, %s %s" % (fullSample.name(), _stripRelease(self._newRelease), fullSelection),
@@ -1040,17 +1046,18 @@ class Validation:
         fastValFile.Close()
 
         if len(fileList) == 0:
+            print("No object found in %s" % plotterFolder.getName())
             return []
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
-            print "Plotter produced multiple files with names", ", ".join(dups)
-            print "Typically this is a naming problem in the plotter configuration"
+            print("Plotter produced multiple files with names", ", ".join(dups))
+            print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
         # Move plots to new directory
-        print "Created plots in %s" % (newdir)
-        return map(lambda n: n.replace(newdir, newsubdir), fileList)
+        print("Created plots in %s" % (newdir))
+        return list(map(lambda n: n.replace(newdir, newsubdir), fileList))
 
     def _doPlotsPileup(self, pu140Sample, pu200Sample, plotterFolder, dqmSubFolder, htmlReport):
         """Do the real plotting work for two pileup scenarios for a given algorithm, quality flag, and sample."""
@@ -1076,12 +1083,12 @@ class Validation:
         pu140ValFilePath = os.path.join(pu140dir, valname)
         if not os.path.exists(pu140ValFilePath):
             if plotting.verbose:
-                print "PU140 file %s not found" % pu140ValFilePath
+                print("PU140 file %s not found" % pu140ValFilePath)
             return []
         pu200ValFilePath = os.path.join(pu200dir, valname)
         if not os.path.exists(pu200ValFilePath):
             if plotting.verbose:
-                print "PU200 file %s not found" % pu200ValFilePath
+                print("PU200 file %s not found" % pu200ValFilePath)
             return []
 
         pu140ValFile = ROOT.TFile.Open(pu140ValFilePath)
@@ -1089,8 +1096,8 @@ class Validation:
 
         # Do plots
         if plotting.verbose:
-            print "Comparing PU140 and PU200 {sample} {translatedFolder}".format(
-            sample=pu200Sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
+            print("Comparing PU140 and PU200 {sample} {translatedFolder}".format(
+            sample=pu200Sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else ""))
         rootFiles = [pu140ValFile, pu200ValFile]
         legendLabels = [
             "%s, %s %s" % (pu140Sample.name(), _stripRelease(self._newRelease), pu140Selection),
@@ -1107,17 +1114,18 @@ class Validation:
         pu140ValFile.Close()
 
         if len(fileList) == 0:
+            print("No object found in %s" % plotterFolder.getName())
             return []
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
-            print "Plotter produced multiple files with names", ", ".join(dups)
-            print "Typically this is a naming problem in the plotter configuration"
+            print("Plotter produced multiple files with names", ", ".join(dups))
+            print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
         # Move plots to new directory
-        print "Created plots in %s" % (newdir)
-        return map(lambda n: n.replace(newdir, newsubdir), fileList)
+        print("Created plots in %s" % (newdir))
+        return list(map(lambda n: n.replace(newdir, newsubdir), fileList))
 
 
 def _copySubDir(oldfile, newfile, basenames, dirname):
@@ -1179,6 +1187,39 @@ def _findDuplicates(lst):
             found.add(x)
     return list(found2)
 
+def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
+    plottingProcess = self._nProc
+    if plottingProcess<=0: plottingProcess = os.cpu_count()
+    plotterInstance = plotter.readDirs(*self._openFiles)
+    manager = multiprocessing.Manager()
+    return_dict = manager.dict()
+    proc = []
+    iProc = 0
+    active_proc = []
+
+    for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
+        if sample is not None and not _processPlotsForSample(plotterFolder, sample):
+            continue
+        newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
+        newdir = os.path.join(self._newdir, newsubdir)
+        if not os.path.exists(newdir):
+            os.makedirs(newdir, exist_ok=True)
+
+        plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
+        while len(active_proc)>=plottingProcess:
+          time.sleep(0.1)
+          active_proc = [p for p in active_proc if p.is_alive()]
+        p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict))
+        proc.append((plotterFolder, dqmSubFolder, p))
+        active_proc.append(p)
+        p.start()
+        iProc += 1
+
+    for i in range(iProc):
+        proc[i][2].join()
+        if len(return_dict[i]) > 0:
+            self._htmlReport.addPlots(proc[i][0], proc[i][1], return_dict[i])
+
 class SimpleSample:
     def __init__(self, label, name, fileLegends, pileup=True, customPileupLabel=""):
         self._label = label
@@ -1223,9 +1264,10 @@ class SimpleSample:
         return True
 
 class SimpleValidation:
-    def __init__(self, samples, newdir):
+    def __init__(self, samples, newdir, nProc=0):
         self._samples = samples
         self._newdir = newdir
+        self._nProc = nProc
         if not os.path.exists(newdir):
             os.makedirs(newdir)
 
@@ -1250,46 +1292,115 @@ class SimpleValidation:
                 if os.path.exists(f):
                     self._openFiles.append(ROOT.TFile.Open(f))
                 else:
-                    print "File %s not found (from sample %s), ignoring it" % (f, sample.name())
+                    print("File %s not found (from sample %s), ignoring it" % (f, sample.name()))
                     self._openFiles.append(None)
 
             for plotter in plotters:
-                self._doPlotsForPlotter(plotter, sample, **kwargs)
+                _doPlotsForPlotter(self, plotter, sample, **kwargs)
 
             for tf in self._openFiles:
                 if tf is not None:
                     tf.Close()
             self._openFiles = []
 
-    def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
-        plotterInstance = plotter.readDirs(*self._openFiles)
-        for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
-            if sample is not None and not _processPlotsForSample(plotterFolder, sample):
-                continue
-            plotFiles = self._doPlots(plotterFolder, dqmSubFolder)
-            if len(plotFiles) > 0:
-                self._htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
-
-    def _doPlots(self, plotterFolder, dqmSubFolder):
-        plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
-        newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
-        newdir = os.path.join(self._newdir, newsubdir)
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
+    def _doPlots(self, plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict):
         fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
+
+        if len(fileList) == 0:
+            print("No object found in %s" % plotterFolder.getName())
 
         for tableCreator in plotterFolder.getTableCreators():
             self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
 
-
-        if len(fileList) == 0:
-            return fileList
-
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
-            print "Plotter produced multiple files with names", ", ".join(dups)
-            print "Typically this is a naming problem in the plotter configuration"
+            print("Plotter produced multiple files with names", ", ".join(dups))
+            print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
-        print "Created plots in %s" % newdir
-        return map(lambda n: n.replace(newdir, newsubdir), fileList)
+        if self._plotterDrawArgs.get("separate", False):
+            if not os.path.exists("%s/res"%newdir):
+              os.makedirs("%s/res"%newdir)
+            downloadables = ["index.php", "res/jquery-ui.js", "res/jquery.js", "res/style.css", "res/style.js", "res/theme.css"]
+            for d in downloadables:
+                if not os.path.exists("%s/%s" % (newdir,d)):
+                    urllib.request.urlretrieve("https://raw.githubusercontent.com/musella/php-plots/master/%s"%d, "%s/%s"%(newdir,d))
+
+        print("Created plots in %s" % newdir)
+        return_dict[iProc] = list(map(lambda n: n.replace(newdir, newsubdir), fileList))
+
+class SeparateValidation:
+    #Similar to the SimpleValidation
+    #To be used only if `--separate` option is on
+    def __init__(self, samples, newdir, nProc=0):
+        self._samples = samples
+        self._newdir = newdir
+        self._nProc = nProc
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
+
+        self._htmlReport = html.HtmlReportDummy()
+
+    def createHtmlReport(self, validationName=""):
+        if hasattr(self._htmlReport, "write"):
+            raise Exception("HTML report object already created. There is probably some logic error in the calling code.")
+        self._htmlReport = html.HtmlReport(validationName, self._newdir)
+        return self._htmlReport
+
+    def doPlots(self, plotters, plotterDrawArgs={}, **kwargs):
+        self._plotterDrawArgs = plotterDrawArgs
+
+        for sample in self._samples:
+            self._subdirprefix = sample.label()
+            self._labels = sample.legendLabels()
+            self._htmlReport.beginSample(sample)
+
+            self._openFiles = []
+            for f in sample.files():
+                if os.path.exists(f):
+                    self._openFiles.append(ROOT.TFile.Open(f))
+                else:
+                    print("File %s not found (from sample %s), ignoring it" % (f, sample.name()))
+                    self._openFiles.append(None)
+
+            for plotter in plotters:
+                _doPlotsForPlotter(self, plotter, sample, **kwargs)
+
+            for tf in self._openFiles:
+                if tf is not None:
+                    tf.Close()
+            self._openFiles = []
+
+    def _doPlots(self, plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict):
+        fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
+
+        # check if plots are produced
+        if len(fileList) == 0:
+            print("No object found in %s" % plotterFolder.getName())
+
+        # check if there are duplicated plot
+        dups = _findDuplicates(fileList)
+        if len(dups) > 0:
+            print("Plotter produced multiple files with names", ", ".join(dups))
+            print("Typically this is a naming problem in the plotter configuration")
+            sys.exit(1)
+
+        linkList = []
+        for f in fileList:
+            if f[:f.rfind("/")] not in linkList :
+                if str(f[:f.rfind("/")]) != str(newdir) :
+                    linkList.append(f[:f.rfind("/")])
+
+        for tableCreator in plotterFolder.getTableCreators():
+            self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
+
+        for link in linkList :
+            if not os.path.exists("%s/res"%link):
+              os.makedirs("%s/res"%link)
+            downloadables = ["index.php", "res/jquery-ui.js", "res/jquery.js", "res/style.css", "res/style.js", "res/theme.css"]
+            for d in downloadables:
+                if not os.path.exists("%s/%s" % (link,d)):
+                    urllib.request.urlretrieve("https://raw.githubusercontent.com/rovere/php-plots/master/%s"%d, "%s/%s"%(link,d))
+
+        print("Created separated plots in %s" % newdir)
+        return_dict[iProc] = list(map(lambda n: n.replace(newdir, newsubdir), linkList))

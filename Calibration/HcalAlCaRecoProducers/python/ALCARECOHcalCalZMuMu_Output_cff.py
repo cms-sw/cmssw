@@ -7,6 +7,7 @@ OutALCARECOHcalCalZMuMu_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring(
         'keep *_ALCARECOHcalCalZMuMu_*_*', 
+        'keep HcalNoiseSummary_hcalnoise_*_*',
         'keep *_horeco_*_*')
 )
 

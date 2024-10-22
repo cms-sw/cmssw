@@ -1,4 +1,3 @@
-<use   name="FWCore/ParameterSet"/>
-<use   name="CondFormats/Calibration"/>
-<use   name="FWCore/Framework"/>
-<use   name="CondFormats/DataRecord"/>
+<bin file="condRecordToDataProduct.cc" name="condRecordToDataProduct">
+  <use name="CondCore/ESSources"/>
+</bin>

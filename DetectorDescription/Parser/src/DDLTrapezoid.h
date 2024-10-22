@@ -20,12 +20,10 @@ class DDLElementRegistry;
  * Trapezoid processor processes Trapezoid and Trd1 DDL elements.
  *
  */
-class DDLTrapezoid final : public DDLSolid
-{
- public:
+class DDLTrapezoid final : public DDLSolid {
+public:
+  DDLTrapezoid(DDLElementRegistry* myreg);
 
-  DDLTrapezoid( DDLElementRegistry* myreg );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 #endif

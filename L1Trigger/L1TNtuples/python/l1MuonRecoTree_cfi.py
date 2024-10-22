@@ -13,15 +13,10 @@ l1MuonRecoTree = cms.EDAnalyzer("L1Muon2RecoTreeProducer",
   # trigger to match to, may use regexp wildcard as supported by ROOT's 
   # TString; up to now the first found match (per run) is used.
   isoTriggerNames = cms.vstring(
-        "HLT_IsoMu18_v*",
-        "HLT_IsoMu20_v*",
-        "HLT_IsoMu22_v*",
-        "HLT_IsoMu24_v*",
         "HLT_IsoMu27_v*",
+        "HLT_IsoMu30_v*",
         ),
   triggerNames = cms.vstring(
-        "HLT_Mu30_v*",
-        "HLT_Mu40_v*",
         "HLT_Mu50_v*",
         "HLT_Mu55_v*",
         # pA triggers
@@ -42,7 +37,13 @@ l1MuonRecoTree = cms.EDAnalyzer("L1Muon2RecoTreeProducer",
         useTrack = cms.string("tracker"),  # 'none' to use Candidate P4; or 'tracker', 'muon', 'global'
         useState = cms.string("atVertex"), # 'innermost' and 'outermost' require the TrackExtra
         useSimpleGeometry = cms.bool(True),
-        useStation2 = cms.bool(False),
+	useStation2 = cms.bool(False),
+        fallbackToME1 = cms.bool(False),
+        cosmicPropagationHypothesis = cms.bool(False),
+        useMB2InOverlap = cms.bool(False),
+        propagatorAlong = cms.ESInputTag("", "SteppingHelixPropagatorAlong"),
+        propagatorAny = cms.ESInputTag("", "SteppingHelixPropagatorAny"),
+        propagatorOpposite = cms.ESInputTag("", "SteppingHelixPropagatorOpposite")
   ),
   # muon track extrapolation to 2nd station
   muProp2nd = cms.PSet(
@@ -51,6 +52,11 @@ l1MuonRecoTree = cms.EDAnalyzer("L1Muon2RecoTreeProducer",
         useSimpleGeometry = cms.bool(True),
         useStation2 = cms.bool(True),
         fallbackToME1 = cms.bool(False),
+        cosmicPropagationHypothesis = cms.bool(False),
+        useMB2InOverlap = cms.bool(False),
+        propagatorAlong = cms.ESInputTag("", "SteppingHelixPropagatorAlong"),
+        propagatorAny = cms.ESInputTag("", "SteppingHelixPropagatorAny"),
+        propagatorOpposite = cms.ESInputTag("", "SteppingHelixPropagatorOpposite")
   ),
 )
 

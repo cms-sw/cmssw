@@ -8,7 +8,6 @@ process.GlobalTag.globaltag = 'START72_V1::All'
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 # suppress printout of error messages on every event when a collection is missing in the event
-process.MessageLogger.categories.append("EmDQMInvalidRefs")
 process.MessageLogger.cerr.EmDQMInvalidRefs = cms.untracked.PSet(limit = cms.untracked.int32(5))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )

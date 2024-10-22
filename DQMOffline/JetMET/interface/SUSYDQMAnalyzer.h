@@ -7,8 +7,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,17 +20,16 @@
 
 #include <string>
 
-
-class SUSYDQMAnalyzer: public DQMEDAnalyzer {
- public:
+class SUSYDQMAnalyzer : public DQMEDAnalyzer {
+public:
   explicit SUSYDQMAnalyzer(const edm::ParameterSet&);
   ~SUSYDQMAnalyzer() override;
- 
- private:
+
+private:
   edm::ParameterSet iConfig;
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event& , const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<reco::PFMETCollection> thePFMETCollectionToken;
   edm::EDGetTokenT<std::vector<reco::PFJet> > thePFJetCollectionToken;
@@ -59,15 +56,14 @@ class SUSYDQMAnalyzer: public DQMEDAnalyzer {
   MonitorElement* hCaloMET;
   MonitorElement* hPFMET;
   //MonitorElement* hTCMET;
-  
+
   MonitorElement* hCaloMHT;
   //MonitorElement* hJPTMHT;
-  MonitorElement* hPFMHT;  
+  MonitorElement* hPFMHT;
 
   MonitorElement* hCaloAlpha_T;
   //MonitorElement* hJPTAlpha_T;
   MonitorElement* hPFAlpha_T;
-  
 };
 
 #endif

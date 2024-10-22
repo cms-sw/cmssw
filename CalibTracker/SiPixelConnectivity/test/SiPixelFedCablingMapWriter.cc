@@ -3,7 +3,7 @@
 #include <sstream>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -19,91 +19,78 @@ using namespace std;
 using namespace edm;
 using namespace sipixelobjects;
 
-class SiPixelFedCablingMapWriter : public edm::EDAnalyzer {
- public:
-  explicit SiPixelFedCablingMapWriter( const edm::ParameterSet& cfg);
+class SiPixelFedCablingMapWriter : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiPixelFedCablingMapWriter(const edm::ParameterSet& cfg);
   ~SiPixelFedCablingMapWriter();
   virtual void beginJob();
-  virtual void endJob( );
-  virtual void analyze(const edm::Event& , const edm::EventSetup&);
- private:
-  SiPixelFedCablingTree * cabling;
+  virtual void endJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+private:
+  SiPixelFedCablingTree* cabling;
   string record_;
   //string pixelToFedAssociator_;
   string fileName_;
   //bool phase1_;
 };
 
-SiPixelFedCablingMapWriter::SiPixelFedCablingMapWriter( 
-    const edm::ParameterSet& cfg ) 
-  : 
-    record_(cfg.getParameter<std::string>("record")), 
-    //pixelToFedAssociator_(cfg.getUntrackedParameter<std::string>("associator","PixelToFEDAssociateFromAscii")), 
-    //phase1_(cfg.getUntrackedParameter<bool>("phase1",false)), 
-    fileName_(cfg.getUntrackedParameter<std::string>("fileName","pixelToLNK.ascii")) 
-{
-  
+SiPixelFedCablingMapWriter::SiPixelFedCablingMapWriter(const edm::ParameterSet& cfg)
+    : record_(cfg.getParameter<std::string>("record")),
+      //pixelToFedAssociator_(cfg.getUntrackedParameter<std::string>("associator","PixelToFEDAssociateFromAscii")),
+      //phase1_(cfg.getUntrackedParameter<bool>("phase1",false)),
+      fileName_(cfg.getUntrackedParameter<std::string>("fileName", "pixelToLNK.ascii")) {
   stringstream out;
   out << " record:          " << record_ << endl;
-  out << " input file name "  << fileName_ << endl;
+  out << " input file name " << fileName_ << endl;
   //out << " phase " << phase1_ << endl;
-  LogInfo("initialisation: ")<<out.str();
-
+  LogInfo("initialisation: ") << out.str();
 
   //::putenv(const_cast<char*>(std::string("CORAL_AUTH_USER=me").c_str()));
-  //::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD=none").c_str())); 
+  //::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD=none").c_str()));
 }
 
+SiPixelFedCablingMapWriter::~SiPixelFedCablingMapWriter() = default;
 
-SiPixelFedCablingMapWriter::~SiPixelFedCablingMapWriter(){
-//  delete cabling;
-}
-
-
-void SiPixelFedCablingMapWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  static int first(1); 
+void SiPixelFedCablingMapWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  static int first(1);
   if (1 == first) {
-    first = 0; 
+    first = 0;
     //std::cout << "-------HERE-----------" << endl;
     //cabling = SiPixelFedCablingMapBuilder(pixelToFedAssociator_).produce(iSetup);
     //cabling = SiPixelFedCablingMapBuilder(fileName_,phase1_).produce(iSetup);
-    cabling = SiPixelFedCablingMapBuilder(fileName_).produce(iSetup);
+    cabling = SiPixelFedCablingMapBuilder(consumesCollector(), fileName_).produce(iSetup);
     //std::cout << "-------Print Map ----------- DOES NOT WORK for phase1 " << endl;
     edm::LogInfo("PRINTING MAP (Does not work for phase1: ") << cabling->print(3);
   }
 }
 
-void SiPixelFedCablingMapWriter::beginJob() {
-}
+void SiPixelFedCablingMapWriter::beginJob() {}
 
-void SiPixelFedCablingMapWriter::endJob( ) {
-  SiPixelFedCablingMap * result = new SiPixelFedCablingMap(cabling);
+void SiPixelFedCablingMapWriter::endJob() {
+  SiPixelFedCablingMap result(cabling);
   LogInfo("Now NEW writing to DB");
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
-  if( !mydbservice.isAvailable() ){
+  if (!mydbservice.isAvailable()) {
     edm::LogInfo("db service unavailable");
     //std::cout<<"db service unavailable"<<std::endl;
     return;
-  } else { 
-    //std::cout<<"OK"<<std::endl; 
+  } else {
+    //std::cout<<"OK"<<std::endl;
     edm::LogInfo("Writing finished ");
   }
 
   try {
-    if( mydbservice->isNewTagRequest(record_) ){
-      mydbservice->createNewIOV<SiPixelFedCablingMap>( result, 
-						       mydbservice->beginOfTime(),
-						       mydbservice->endOfTime(), 
-						       record_);
-    }else{
-      mydbservice->appendSinceTime<SiPixelFedCablingMap>( 
-          result, 
-	  mydbservice->currentTime(), 
-	  record_);
+    if (mydbservice->isNewTagRequest(record_)) {
+      mydbservice->createOneIOV<SiPixelFedCablingMap>(result, mydbservice->beginOfTime(), record_);
+    } else {
+      mydbservice->appendOneIOV<SiPixelFedCablingMap>(result, mydbservice->currentTime(), record_);
     }
-  } 
-  catch (std::exception &e) { LogError("std::exception:  ") << e.what(); }
-  catch (...) { LogError("Unknown error caught "); }
+  } catch (std::exception& e) {
+    LogError("std::exception:  ") << e.what();
+  } catch (...) {
+    LogError("Unknown error caught ");
+  }
   LogInfo("... all done, end");
 }
 

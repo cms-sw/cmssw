@@ -6,34 +6,39 @@
 #include <vector>
 #include <map>
 
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CommonTools/Utils/interface/TMVAEvaluator.h"
+#include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 
 class CombinedMVAV2JetTagComputer : public JetTagComputer {
-    public:
-        CombinedMVAV2JetTagComputer(const edm::ParameterSet &parameters);
-        ~CombinedMVAV2JetTagComputer() override;
+public:
+  struct Tokens {
+    Tokens(const edm::ParameterSet &parameters, edm::ESConsumesCollector &&cc);
+    edm::ESGetToken<GBRForest, GBRWrapperRcd> gbrForest_;
+    std::vector<edm::ESGetToken<JetTagComputer, JetTagComputerRecord> > computers_;
+  };
 
-        void initialize(const JetTagComputerRecord & record) override;
+  CombinedMVAV2JetTagComputer(const edm::ParameterSet &parameters, Tokens tokens);
+  ~CombinedMVAV2JetTagComputer() override;
 
-        float discriminator(const TagInfoHelper &info) const override;
+  void initialize(const JetTagComputerRecord &record) override;
 
-    private:
-        std::vector<const JetTagComputer*> computers;
+  float discriminator(const TagInfoHelper &info) const override;
 
-        const std::vector<std::string> inputComputerNames;
-        const std::string mvaName; 
-        const std::vector<std::string> variables;
-        const std::vector<std::string> spectators;
-        const bool useCondDB;
-        const std::string gbrForestLabel;
-        const edm::FileInPath weightFile;
-        const bool useGBRForest;
-        const bool useAdaBoost;
-        
-        std::unique_ptr<TMVAEvaluator> mvaID;
+private:
+  std::vector<const JetTagComputer *> computers;
+
+  const std::string mvaName;
+  const std::vector<std::string> variables;
+  const std::vector<std::string> spectators;
+  const edm::FileInPath weightFile;
+  const bool useGBRForest;
+  const bool useAdaBoost;
+  const Tokens tokens;
+
+  std::unique_ptr<TMVAEvaluator> mvaID;
 };
 
-#endif // RecoBTau_JetTagComputer_CombinedMVAV2JetTagComputer_h
+#endif  // RecoBTau_JetTagComputer_CombinedMVAV2JetTagComputer_h

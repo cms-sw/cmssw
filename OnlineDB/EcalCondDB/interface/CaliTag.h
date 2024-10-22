@@ -11,7 +11,7 @@
  *   Tag for Run information
  */
 class CaliTag : public ITag {
- public:
+public:
   friend class CaliIOV;  // needs permission to write
   friend class EcalCondDBInterface;
 
@@ -30,25 +30,20 @@ class CaliTag : public ITag {
 
   std::string getVersion() const;
   void setVersion(std::string version);
-  
+
   std::string getDataType() const;
   void setDataType(std::string dataType);
-
 
   // Methods using ID
   int fetchID() noexcept(false) override;
   void setByID(int id) noexcept(false) override;
 
   // Operators
-  inline bool operator==(const CaliTag &t) const 
-    { 
-      return (m_genTag == t.m_genTag &&
-	      m_locDef == t.m_locDef);
-    }
+  inline bool operator==(const CaliTag& t) const { return (m_genTag == t.m_genTag && m_locDef == t.m_locDef); }
 
-  inline bool operator!=(const CaliTag &t) const { return !(*this == t); }
+  inline bool operator!=(const CaliTag& t) const { return !(*this == t); }
 
- private:
+private:
   // User data for this tag
   std::string m_genTag;
   LocationDef m_locDef;
@@ -61,8 +56,7 @@ class CaliTag : public ITag {
   void fetchParentIDs(int* locId) noexcept(false);
 
   // Public access methods
-  void fetchAllTags( std::vector<CaliTag>* fillVec) noexcept(false);
-
+  void fetchAllTags(std::vector<CaliTag>* fillVec) noexcept(false);
 };
 
 #endif

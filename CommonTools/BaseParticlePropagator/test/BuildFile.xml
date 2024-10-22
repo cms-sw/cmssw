@@ -1,0 +1,4 @@
+<bin file="makeMuon_catch2.cc" name="TestCommonToolsBaseParticlePropagator">
+  <use name="catch2"/>
+  <use name="CommonTools/BaseParticlePropagator"/>
+</bin>

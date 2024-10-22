@@ -12,17 +12,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 namespace reco {
-  typedef edm::AssociationMap<
-            edm::OneToOne<reco::CandidateCollection, 
-                          reco::CandidateCollection
-            > 
-          > CandMatchMap;
+  typedef edm::AssociationMap<edm::OneToOne<reco::CandidateCollection, reco::CandidateCollection> > CandMatchMap;
 
-  typedef edm::AssociationMap<
-            edm::OneToOneGeneric<reco::CandidateView, 
-                                 reco::CandidateView
-            > 
-          > CandViewMatchMap;
-}
+  typedef edm::AssociationMap<edm::OneToOneGeneric<reco::CandidateView, reco::CandidateView> > CandViewMatchMap;
+}  // namespace reco
 
 #endif

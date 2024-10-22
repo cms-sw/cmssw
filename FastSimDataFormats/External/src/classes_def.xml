@@ -11,27 +11,6 @@
   <version ClassVersion="11" checksum="325524572"/>
   <version ClassVersion="10" checksum="2829380995"/>
  </class>
- <class name="std::vector<FastTrackerCluster*>"/>
- <class name="edm::OwnVector<FastTrackerCluster,edm::ClonePolicy<FastTrackerCluster> >"/>
-
- <class name="edm::RangeMap <unsigned int, 
-edm::OwnVector<FastTrackerCluster,
-edm::ClonePolicy<FastTrackerCluster> >,
-edm::ClonePolicy<FastTrackerCluster> >" />
-
- <class name="edm::Wrapper< edm::RangeMap <unsigned int, 
-edm::OwnVector<FastTrackerCluster, 
-edm::ClonePolicy<FastTrackerCluster> >,
-edm::ClonePolicy<FastTrackerCluster> > > " />
-
-<class name="edm::Ref<edm::RangeMap<unsigned int,edm::OwnVector<FastTrackerCluster,edm::ClonePolicy<FastTrackerCluster> >,
-edm::ClonePolicy<FastTrackerCluster> >,FastTrackerCluster,
-edm::refhelper::FindUsingAdvance<edm::RangeMap<unsigned int,edm::OwnVector<FastTrackerCluster,edm::ClonePolicy<FastTrackerCluster> >,
-edm::ClonePolicy<FastTrackerCluster> >,FastTrackerCluster> >" />
-
 
 </selection>
-
-
-
 </lcgdict>

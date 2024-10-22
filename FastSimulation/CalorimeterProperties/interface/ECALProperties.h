@@ -10,17 +10,13 @@
  *
  * \author Patrick Janot
  * \date: 25-Jan-2004
- */ 
+ */
 
-class ECALProperties : public CalorimeterProperties 
-{
+class ECALProperties : public CalorimeterProperties {
+public:
+  ECALProperties() : scaleEnergy_(0.0212) {}
 
- public:
-
-  ECALProperties() : scaleEnergy_(0.0212){ } 
-
-  ~ECALProperties() override {
-  }
+  ~ECALProperties() override {}
 
   /// Effective A: 170.87 for Standard ECAL
   inline double theAeff() const override { return Aeff_; }
@@ -33,18 +29,18 @@ class ECALProperties : public CalorimeterProperties
 
   /// Radiation length in cm
   //  inline double radLenIncm()  const { return radiationLengthIncm(); }: 0.89 for Standard ECAL
-  inline double radLenIncm()  const override { return radLenIncm_; }
+  inline double radLenIncm() const override { return radLenIncm_; }
 
-  /// Radiation length in cm but static 
+  /// Radiation length in cm but static
   // This is needed in Calorimetry/CrystalSegment. Patrick, if you don't like it, give
-  // me an other solution to access the ECALProperties efficiently. 
+  // me an other solution to access the ECALProperties efficiently.
   // static inline double radiationLengthIncm() { return 0.89; }
 
   /// Radiation length in g/cm^2: 7.37  for Standard ECAL
   inline double radLenIngcm2() const override { return radLenIngcm2_; }
 
   /// Moliere Radius in cm : 2.190 for Standard ECAL
-  inline   double moliereRadius() const override { return moliereRadius_; }
+  inline double moliereRadius() const override { return moliereRadius_; }
 
   /// Critical energy in GeV (2.66E-3*(x0*Z/A)^1.1): 8.74E-3 for Standard ECAL
   inline double criticalEnergy() const override { return criticalEnergy_; }
@@ -67,21 +63,19 @@ class ECALProperties : public CalorimeterProperties
   /// the width of the passive layer in the case of the homogeneous detector
   inline double dp() const { return dp_; }
 
-
   /// a rough estimate of ECAL resolution sigma/E = resE/sqrt(E)
   inline bool isHom() const { return bHom_; }
 
- ///Photostatistics (photons/GeV) in the homegeneous material
-  virtual double photoStatistics() const=0;
+  ///Photostatistics (photons/GeV) in the homegeneous material
+  virtual double photoStatistics() const = 0;
 
-  ///Light Collection efficiency 
-  virtual double lightCollectionEfficiency() const=0;
+  ///Light Collection efficiency
+  virtual double lightCollectionEfficiency() const = 0;
 
   ///Light Collection uniformity
-  virtual double lightCollectionUniformity() const=0;
+  virtual double lightCollectionUniformity() const = 0;
 
- protected:
-
+protected:
   double lightColl_;
   double lightCollUnif_;
   double photoStatistics_;
@@ -100,7 +94,7 @@ class ECALProperties : public CalorimeterProperties
   double Fs_;
   double ehat_;
   double resE_;
-  
+
   double da_;
   double dp_;
 
@@ -108,7 +102,6 @@ class ECALProperties : public CalorimeterProperties
 
   //Es=sqrt(4*Pi/alphaEM)*me*c^2=0.0212 GeV used for Moliere Radius calculation
   const double scaleEnergy_;
-
 };
 
 #endif

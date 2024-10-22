@@ -8,7 +8,8 @@
  *  one with a smaller number of components.
  */
 
-template <unsigned int N> class MultiGaussianStateMerger {
+template <unsigned int N>
+class MultiGaussianStateMerger {
 public:
   typedef SingleGaussianState<N> SingleState;
   typedef MultiGaussianState<N> MultiState;
@@ -19,10 +20,8 @@ public:
   virtual MultiGaussianStateMerger* clone() const = 0;
 
 protected:
-
   MultiGaussianStateMerger() {}
   typedef std::vector<SingleState> SGSVector;
-
-};  
+};
 
 #endif

@@ -11,39 +11,36 @@
 * that wasn't set to anything, i.e.: 0x00000000
 *  
 * \author Robert Frazier
-*/ 
+*/
 
 // ************************************************************************
-// ***  THE TRANSLATION PROCESS MUST NEVER THROW ANY KIND OF EXCEPTION! *** 
+// ***  THE TRANSLATION PROCESS MUST NEVER THROW ANY KIND OF EXCEPTION! ***
 // ************************************************************************
 
-class GctFormatTranslateMCLegacy : public GctFormatTranslateBase
-{
+class GctFormatTranslateMCLegacy : public GctFormatTranslateBase {
 public:
-
   /* PUBLIC METHODS */
 
   /// Constructor.
   /*! \param hltMode - set true to unpack only BX zero and GCT output data (i.e. to run as quick as possible).
    *  \param unpackSharedRegions - this is a commissioning option to unpack the shared RCT calo regions. */
   explicit GctFormatTranslateMCLegacy(bool hltMode = false, bool unpackSharedRegions = false);
-  
-  ~GctFormatTranslateMCLegacy() override; ///< Destructor.
+
+  ~GctFormatTranslateMCLegacy() override;  ///< Destructor.
 
   /// Generate a block header from four 8-bit values.
-  GctBlockHeader generateBlockHeader(const unsigned char * data) const override;
-  
-  /// Get digis from the block - will return true if it succeeds, false otherwise.
-  bool convertBlock(const unsigned char * d, const GctBlockHeader& hdr) override;
+  GctBlockHeader generateBlockHeader(const unsigned char* data) const override;
 
+  /// Get digis from the block - will return true if it succeeds, false otherwise.
+  bool convertBlock(const unsigned char* d, const GctBlockHeader& hdr) override;
 
   /* ------------------------------ */
   /* Public Block Packing Functions */
   /* ------------------------------ */
-  
+
   /// Writes GCT output EM and energy sums block into an unsigned char array, starting at the position pointed to by d.
   /*! \param d must be pointing at the position where the EM Output block header should be written! */
-  void writeGctOutEmAndEnergyBlock(unsigned char * d,
+  void writeGctOutEmAndEnergyBlock(unsigned char* d,
                                    const L1GctEmCandCollection* iso,
                                    const L1GctEmCandCollection* nonIso,
                                    const L1GctEtTotalCollection* etTotal,
@@ -52,111 +49,110 @@ public:
 
   /// Writes GCT output jet cands and counts into an unsigned char array, starting at the position pointed to by d.
   /*! \param d must be pointing at the position where the Jet Output block header should be written! */
-  void writeGctOutJetBlock(unsigned char * d, 
+  void writeGctOutJetBlock(unsigned char* d,
                            const L1GctJetCandCollection* cenJets,
-                           const L1GctJetCandCollection* forJets, 
-                           const L1GctJetCandCollection* tauJets, 
+                           const L1GctJetCandCollection* forJets,
+                           const L1GctJetCandCollection* tauJets,
                            const L1GctHFRingEtSumsCollection* hfRingSums,
                            const L1GctHFBitCountsCollection* hfBitCounts,
                            const L1GctHtMissCollection* htMiss);
 
   /// Writes the 4 RCT EM Candidate blocks.
-  void writeRctEmCandBlocks(unsigned char * d, const L1CaloEmCollection * rctEm);
+  void writeRctEmCandBlocks(unsigned char* d, const L1CaloEmCollection* rctEm);
 
   /// Writes the giant hack that is the RCT Calo Regions block.
-  void writeAllRctCaloRegionBlock(unsigned char * d, const L1CaloRegionCollection * rctCalo);
-
+  void writeAllRctCaloRegionBlock(unsigned char* d, const L1CaloRegionCollection* rctCalo);
 
 protected:
-  
   /* PROTECTED METHODS */
 
   /* Static data member access methods */
-  const BlockLengthMap& blockLengthMap() const final { return m_blockLength; } ///< get the static block ID to block-length map.
-  
+  const BlockLengthMap& blockLengthMap() const final {
+    return m_blockLength;
+  }  ///< get the static block ID to block-length map.
+
   const BlockNameMap& blockNameMap() const final { return m_blockName; }  ///< get the static block ID to blockname map.
-  
-  const BlkToRctCrateMap& rctEmCrateMap() const final { return m_rctEmCrate; }  ///< get static the block ID to RCT crate map for electrons.
- 
-  const BlkToRctCrateMap& rctJetCrateMap() const final { return m_rctJetCrate; }  ///< get the static block ID to RCT crate map for jets
 
-  const BlockIdToEmCandIsoBoundMap& internEmIsoBounds() const final { return m_internEmIsoBounds; }  ///< get the static intern EM cand isolated boundary map.
+  const BlkToRctCrateMap& rctEmCrateMap() const final {
+    return m_rctEmCrate;
+  }  ///< get static the block ID to RCT crate map for electrons.
 
+  const BlkToRctCrateMap& rctJetCrateMap() const final {
+    return m_rctJetCrate;
+  }  ///< get the static block ID to RCT crate map for jets
+
+  const BlockIdToEmCandIsoBoundMap& internEmIsoBounds() const final {
+    return m_internEmIsoBounds;
+  }  ///< get the static intern EM cand isolated boundary map.
 
   /* Other general methods */
   /// Returns a raw 32-bit header word generated from the blockId, number of time samples, bunch-crossing and event IDs.
   uint32_t generateRawHeader(const uint32_t blockId,
-                                     const uint32_t nSamples,
-                                     const uint32_t bxId,
-                                     const uint32_t eventId) const override;
-
+                             const uint32_t nSamples,
+                             const uint32_t bxId,
+                             const uint32_t eventId) const override;
 
 private:
-
   /* PRIVATE TYPES & TYPEDEFS */
- 
+
   /// Function pointer typdef to a block unpack function.
-  typedef void (GctFormatTranslateMCLegacy::*PtrToUnpackFn)(const unsigned char *, const GctBlockHeader&);
+  typedef void (GctFormatTranslateMCLegacy::*PtrToUnpackFn)(const unsigned char*, const GctBlockHeader&);
   /// Typedef for a block ID to unpack function map.
   typedef std::map<unsigned int, PtrToUnpackFn> BlockIdToUnpackFnMap;
 
-
   /* PRIVATE MEMBER DATA */
-  
+
   /// Map to translate block number to fundamental size of a block (i.e. for 1 time-sample).
   static const BlockLengthMap m_blockLength;
-  
+
   /// Map to hold a description for each block number.
   static const BlockNameMap m_blockName;
-  
+
   /// Map to relate capture block ID to the RCT crate the data originated from (for electrons).
   static const BlkToRctCrateMap m_rctEmCrate;
 
   /// Map to relate capture block ID to the RCT crate the data originated from (for jets).
   static const BlkToRctCrateMap m_rctJetCrate;
-  
+
   /*! A map of Block IDs to IsoBoundaryPairs for storing the location of the isolated
-   *  Internal EM cands in the pipeline, as this differs with Block ID. */ 
+   *  Internal EM cands in the pipeline, as this differs with Block ID. */
   static const BlockIdToEmCandIsoBoundMap m_internEmIsoBounds;
 
   /// Block ID to unpack function map.
   static const BlockIdToUnpackFnMap m_blockUnpackFn;
-  
 
   /* PRIVATE METHODS */
-  
+
   /* --------------------------------- */
   /* Private Block Unpacking Functions */
   /* --------------------------------- */
-  
+
   /// unpack GCT EM Candidates and energy sums.
-  void blockToGctEmCandsAndEnergySums(const unsigned char * d, const GctBlockHeader& hdr);
-  
+  void blockToGctEmCandsAndEnergySums(const unsigned char* d, const GctBlockHeader& hdr);
+
   /// Unpack GCT Jet Candidates and jet counts.
-  void blockToGctJetCandsAndCounts(const unsigned char * d, const GctBlockHeader& hdr);
+  void blockToGctJetCandsAndCounts(const unsigned char* d, const GctBlockHeader& hdr);
 
   /// unpack RCT EM Candidates
-  void blockToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr);
+  void blockToRctEmCand(const unsigned char* d, const GctBlockHeader& hdr);
 
   /// unpack Fibres
-  void blockToFibres(const unsigned char * d, const GctBlockHeader& hdr);
-  
+  void blockToFibres(const unsigned char* d, const GctBlockHeader& hdr);
+
   /// unpack Fibres and RCT EM Candidates
-  void blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr);
+  void blockToFibresAndToRctEmCand(const unsigned char* d, const GctBlockHeader& hdr);
 
   /// Unpack All RCT Calo Regions ('orrible hack for DigiToRaw use)
-  void blockToAllRctCaloRegions(const unsigned char * d, const GctBlockHeader& hdr);
-
+  void blockToAllRctCaloRegions(const unsigned char* d, const GctBlockHeader& hdr);
 
   /* ----------------------------- */
   /* Miscellaneous Private Methods */
   /* ----------------------------- */
-    
-  /// Template function (used in packing) that will find the offset to first item in a collection vector where bx=0.
-  /*! Returns false if fails to find any item in the collection with bx=0 */  
-  template <typename Collection> 
-  bool findBx0OffsetInCollection(unsigned& bx0Offset, const Collection* coll);
 
+  /// Template function (used in packing) that will find the offset to first item in a collection vector where bx=0.
+  /*! Returns false if fails to find any item in the collection with bx=0 */
+  template <typename Collection>
+  bool findBx0OffsetInCollection(unsigned& bx0Offset, const Collection* coll);
 };
 
 #endif

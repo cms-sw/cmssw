@@ -1,34 +1,41 @@
 #ifndef MaxHitsTrajectoryFilter_H
 #define MaxHitsTrajectoryFilter_H
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
 class MaxHitsTrajectoryFilter final : public TrajectoryFilter {
 public:
+  explicit MaxHitsTrajectoryFilter(int maxHits = 10000) : theMaxHits(maxHits) {}
 
-  explicit MaxHitsTrajectoryFilter( int maxHits=10000): theMaxHits( maxHits) {}
-    
-  explicit MaxHitsTrajectoryFilter(const edm::ParameterSet & pset, edm::ConsumesCollector& iC):
-    theMaxHits( pset.getParameter<int>("maxNumberOfHits")) {if (theMaxHits<0) theMaxHits=10000;  }
+  explicit MaxHitsTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC)
+      : theMaxHits(pset.getParameter<int>("maxNumberOfHits")) {
+    if (theMaxHits < 0)
+      theMaxHits = 10000;
+  }
 
-  bool qualityFilter( const Trajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }
-  bool qualityFilter( const TempTrajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) { iDesc.add<int>("maxNumberOfHits", 100); }
 
-  bool toBeContinued( TempTrajectory& traj) const override {return TBC<TempTrajectory>(traj);}
-  bool toBeContinued( Trajectory& traj) const override { return TBC<Trajectory>(traj);}
+  bool qualityFilter(const Trajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }
+  bool qualityFilter(const TempTrajectory& traj) const override {
+    return TrajectoryFilter::qualityFilterIfNotContributing;
+  }
 
-  std::string name() const override {return "MaxHitsTrajectoryFilter";}
+  bool toBeContinued(TempTrajectory& traj) const override { return TBC<TempTrajectory>(traj); }
+  bool toBeContinued(Trajectory& traj) const override { return TBC<Trajectory>(traj); }
 
- protected:
+  std::string name() const override { return "MaxHitsTrajectoryFilter"; }
 
-  template<class T> bool TBC(T & traj) const{
-    bool ret = traj.foundHits() < theMaxHits ;
-    if (!ret) traj.setStopReason(StopReason::MAX_HITS);
+protected:
+  template <class T>
+  bool TBC(T& traj) const {
+    bool ret = traj.foundHits() < theMaxHits;
+    if (!ret)
+      traj.setStopReason(StopReason::MAX_HITS);
     return ret;
   }
 
   int theMaxHits;
-
 };
 
 #endif

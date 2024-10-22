@@ -21,23 +21,19 @@
 namespace pat {
 
   class CaloJetSelector {
-
-
   public:
-    CaloJetSelector( const JetSelection& config ) : config_( config ) {}
+    CaloJetSelector(const JetSelection& config) : config_(config) {}
     ~CaloJetSelector() {}
 
     /// Returns 0 if Jet matches criteria, a flag otherwise.
     /// Criteria depend on the selector's configuration.
-    const ParticleStatus
-    filter( const reco::CaloJet& Jet ) const;
+    const ParticleStatus filter(const reco::CaloJet& Jet) const;
 
   private:
-
     JetSelection config_;
-    
-  }; // class
-  
-} // namespace
+
+  };  // class
+
+}  // namespace pat
 
 #endif

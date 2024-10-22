@@ -17,6 +17,6 @@ namespace reco {
   typedef edm::RefVector<GsfTrackExtraCollection> GsfTrackExtraRefVector;
   /// iterator over a vector of references to GsfTrackExtra in the same collection
   typedef GsfTrackExtraRefVector::iterator gsfTrackExtra_iterator;
-}
+}  // namespace reco
 
 #endif

@@ -1,12 +1,14 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("Calibration")
+process = cms.Process("Calibration",eras.Run3)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 
 process.load("CalibMuon.DTCalibration.dt_offlineAnalysis_common_cff")
-process.GlobalTag.globaltag = ''
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run3_data']
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()

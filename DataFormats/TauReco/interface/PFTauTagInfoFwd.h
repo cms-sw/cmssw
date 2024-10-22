@@ -17,6 +17,6 @@ namespace reco {
   typedef edm::RefVector<PFTauTagInfoCollection> PFTauTagInfoRefVector;
   /// iterator over a vector of references to PFTauTagInfo objects all in the same collection
   typedef PFTauTagInfoRefVector::iterator pftautaginfo_iterator;
-}
+}  // namespace reco
 
 #endif

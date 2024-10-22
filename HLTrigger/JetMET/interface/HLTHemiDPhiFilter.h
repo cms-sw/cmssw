@@ -2,12 +2,12 @@
 #define HLTHemiDPhiFilter_h
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include<vector>
+#include <vector>
 #include "TVector3.h"
 #include "TLorentzVector.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 //
@@ -15,23 +15,21 @@ namespace edm {
 //
 
 class HLTHemiDPhiFilter : public HLTFilter {
+public:
+  explicit HLTHemiDPhiFilter(const edm::ParameterSet&);
+  ~HLTHemiDPhiFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-   public:
+private:
+  edm::EDGetTokenT<std::vector<math::XYZTLorentzVector>> m_theHemiToken;
+  static double deltaPhi(double, double);  //helper function
 
-      explicit HLTHemiDPhiFilter(const edm::ParameterSet&);
-      ~HLTHemiDPhiFilter() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-
-
-   private:
-      edm::EDGetTokenT<std::vector<math::XYZTLorentzVector>> m_theHemiToken;
-      static double deltaPhi(double, double); //helper function
-
-      edm::InputTag inputTag_; // input tag identifying product
-      double min_dphi_;          // minimum dphi value
-      bool accept_NJ_;         // accept or reject events with high NJ
-
+  edm::InputTag inputTag_;  // input tag identifying product
+  double min_dphi_;         // minimum dphi value
+  bool accept_NJ_;          // accept or reject events with high NJ
 };
 
-#endif //HLTHemiDPhiFilter_h
+#endif  //HLTHemiDPhiFilter_h

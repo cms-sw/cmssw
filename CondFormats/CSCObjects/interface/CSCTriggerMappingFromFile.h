@@ -11,21 +11,19 @@
 #include <string>
 
 class CSCTriggerMappingFromFile : public CSCTriggerSimpleMapping {
- public:
-
+public:
   /// Constructor
-   explicit CSCTriggerMappingFromFile( std::string filename );
-   CSCTriggerMappingFromFile() {}
+  explicit CSCTriggerMappingFromFile(std::string filename);
+  CSCTriggerMappingFromFile() {}
 
   /// Destructor
-   ~CSCTriggerMappingFromFile() override;
+  ~CSCTriggerMappingFromFile() override;
 
   /// Fill mapping store
-   void fill( void ) override;
+  void fill(void) override;
 
- private: 
-   std::string filename_;
-
+private:
+  std::string filename_;
 };
 
 #endif

@@ -4,18 +4,18 @@
 //
 // Package:    Alignment/CocoaFit
 // Class:      CocoaDBMgr
-// 
+//
 /*
 
  Description: 
 */
 //
 
-
 #include <stdexcept>
 #include <string>
 #include <iostream>
 #include <map>
+#include <memory>
 
 class Event;
 class EventSetup;
@@ -33,34 +33,31 @@ class AlignTransformErrorExtended;
 
 class OpticalObject;
 
-
-class CocoaDBMgr
-{
+class CocoaDBMgr {
 private:
   CocoaDBMgr();
 
- public:
+public:
   static CocoaDBMgr* getInstance();
-  
-  ~CocoaDBMgr() { }
-  
- public:
-  bool DumpCocoaResults(); 
 
- private:
-  OpticalAlignments* BuildOpticalAlignments();
-  double GetEntryError( const Entry* entry );
-  double GetEntryError( const Entry* entry1, const Entry* entry2 );
+  ~CocoaDBMgr() {}
 
-  OpticalAlignInfo GetOptAlignInfoFromOptO( OpticalObject* opto );
+public:
+  bool DumpCocoaResults();
 
-  std::pair< Alignments*,AlignmentErrorsExtended*> BuildAlignments(bool bDT);
-  AlignTransform* GetAlignInfoFromOptO( OpticalObject* opto);
-  AlignTransformErrorExtended* GetAlignInfoErrorFromOptO( OpticalObject* opto);
+private:
+  std::unique_ptr<OpticalAlignments> BuildOpticalAlignments();
+  double GetEntryError(const Entry* entry);
+  double GetEntryError(const Entry* entry1, const Entry* entry2);
 
- private:
+  OpticalAlignInfo GetOptAlignInfoFromOptO(OpticalObject* opto);
+
+  std::pair<std::unique_ptr<Alignments>, std::unique_ptr<AlignmentErrorsExtended> > BuildAlignments(bool bDT);
+  AlignTransform* GetAlignInfoFromOptO(OpticalObject* opto);
+  AlignTransformErrorExtended* GetAlignInfoErrorFromOptO(OpticalObject* opto);
+
+private:
   static CocoaDBMgr* instance;
-
 };
 
 #endif

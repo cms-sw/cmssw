@@ -33,3 +33,19 @@ l1tGmtClient.runInEndLumi = False
 
 # GCT client
 l1tGctClient.runInEndLumi = False
+
+# stage 2
+from DQM.L1TMonitorClient.L1TStage2MonitorClient_cff import *
+l1tStage2MonitorClientOffline = cms.Sequence(l1tStage2MonitorClient)
+
+l1tStage1Layer2Client.runInEndLumi = False
+
+from DQM.L1TMonitorClient.L1TStage2EMTFEventInfoClient_cfi import *
+l1tStage2EMTFEventInfoClient.runInEndLumi = False
+
+from DQM.L1TMonitorClient.L1TStage2EventInfoClient_cfi import *
+l1tStage2EventInfoClient.runInEndLumi = False
+
+from DQM.L1TMonitorClient.L1TStage2EmulatorEventInfoClient_cfi import *
+l1tStage2EmulatorEventInfoClient.runInEndLumi = False
+

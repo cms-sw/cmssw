@@ -1,0 +1,11 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/MessageLogger"/>
+<use name="CondCore/DBOutputService"/>
+<use name="CondFormats/Common"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/SiPhase2TrackerObjects"/>
+<use name="CondFormats/SiStripObjects"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<flags EDM_PLUGIN="1"/>

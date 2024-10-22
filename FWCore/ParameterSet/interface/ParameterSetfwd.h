@@ -14,7 +14,6 @@ namespace edm {
   class FileInPath;
   class ParameterSetDescription;
   class ConfigurationDescriptions;
-}
+}  // namespace edm
 
 #endif
-

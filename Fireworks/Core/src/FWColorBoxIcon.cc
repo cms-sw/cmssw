@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWColorBoxIcon
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -16,7 +16,6 @@
 // user include files
 #include "Fireworks/Core/src/FWColorBoxIcon.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -28,11 +27,7 @@
 //
 // constructors and destructor
 //
-FWColorBoxIcon::FWColorBoxIcon(unsigned int iEdgeLength) :
-FWBoxIconBase(iEdgeLength),
-m_colorContext(0)
-{
-}
+FWColorBoxIcon::FWColorBoxIcon(unsigned int iEdgeLength) : FWBoxIconBase(iEdgeLength), m_colorContext(0) {}
 
 // FWColorBoxIcon::FWColorBoxIcon(const FWColorBoxIcon& rhs)
 // {
@@ -62,10 +57,8 @@ m_colorContext(0)
 //
 // const member functions
 //
-void 
-FWColorBoxIcon::drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const
-{
-   gVirtualX->FillRectangle(iID, m_colorContext, iX+1, iY+1, iSize-2, iSize-2);
+void FWColorBoxIcon::drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const {
+  gVirtualX->FillRectangle(iID, m_colorContext, iX + 1, iY + 1, iSize - 2, iSize - 2);
 }
 
 //

@@ -5,16 +5,15 @@
 
 namespace reco {
   namespace modules {
-    
-    template<>
+
+    template <>
     struct ParameterAdapter<DeltaRMinPairSelector> {
-      static DeltaRMinPairSelector make( const edm::ParameterSet & cfg ) {
-	return DeltaRMinPairSelector( cfg.getParameter<double>( "deltaRMin" ) );
+      static DeltaRMinPairSelector make(const edm::ParameterSet& cfg) {
+        return DeltaRMinPairSelector(cfg.getParameter<double>("deltaRMin"));
       }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-

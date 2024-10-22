@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<PosPartSection label="hgcalEE.xml">
+  <Algorithm name="hgcal:DDHGCalSiliconRotatedModule">
+    <rParent name="hgcal:HGCalEE"/>
+    <Numeric name="WaferTypes"       value="3"/>
+    <Numeric name="FacingTypes"      value="2"/>
+    <Numeric name="OrientationTypes" value="6"/>
+    <Numeric name="PlaceOffset"      value="0"/>
+    <Numeric name="FirstLayer"       value="1"/>
+    <Numeric name="AbsorberMode"     value="0"/>
+    <Numeric name="SensitiveMode"    value="0"/>
+    <Numeric name="zMinBlock"        value="[hgcal:zHGCalEE1]"/>
+    <Numeric name="waferSize"        value="[hgcal:WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[hgcal:SensorSeparation]"/>
+    <Numeric name="Sectors"          value="36"/>
+    <Numeric name="Cassettes"        value="6"/>
+    <String  name="LayerRotation"    value="0"/>
+    <Vector name="WaferNamesFull" type="string" nEntries="36">
+      hgcalwafer:HGCalEEWafer00Fine,    hgcalwafer:HGCalEEWafer01Fine,
+      hgcalwafer:HGCalEEWafer02Fine,    hgcalwafer:HGCalEEWafer03Fine,
+      hgcalwafer:HGCalEEWafer04Fine,    hgcalwafer:HGCalEEWafer05Fine,
+      hgcalwafer:HGCalEEWafer06Fine,    hgcalwafer:HGCalEEWafer07Fine,
+      hgcalwafer:HGCalEEWafer08Fine,    hgcalwafer:HGCalEEWafer09Fine,
+      hgcalwafer:HGCalEEWafer10Fine,    hgcalwafer:HGCalEEWafer11Fine,
+      hgcalwafer:HGCalEEWafer00Coarse1, hgcalwafer:HGCalEEWafer01Coarse1,
+      hgcalwafer:HGCalEEWafer02Coarse1, hgcalwafer:HGCalEEWafer03Coarse1,
+      hgcalwafer:HGCalEEWafer04Coarse1, hgcalwafer:HGCalEEWafer05Coarse1,
+      hgcalwafer:HGCalEEWafer06Coarse1, hgcalwafer:HGCalEEWafer07Coarse1,
+      hgcalwafer:HGCalEEWafer08Coarse1, hgcalwafer:HGCalEEWafer09Coarse1,
+      hgcalwafer:HGCalEEWafer10Coarse1, hgcalwafer:HGCalEEWafer11Coarse1,
+      hgcalwafer:HGCalEEWafer00Coarse2, hgcalwafer:HGCalEEWafer01Coarse2,
+      hgcalwafer:HGCalEEWafer02Coarse2, hgcalwafer:HGCalEEWafer03Coarse2,
+      hgcalwafer:HGCalEEWafer04Coarse2, hgcalwafer:HGCalEEWafer05Coarse2,
+      hgcalwafer:HGCalEEWafer06Coarse2, hgcalwafer:HGCalEEWafer07Coarse2,
+      hgcalwafer:HGCalEEWafer08Coarse2, hgcalwafer:HGCalEEWafer09Coarse2,
+      hgcalwafer:HGCalEEWafer10Coarse2, hgcalwafer:HGCalEEWafer11Coarse2</Vector>
+    <Vector name="WaferNamesPartial" type="string" nEntries="204">
+      hgcalwafer:HGCalEEWafer00FineHD1,    hgcalwafer:HGCalEEWafer01FineHD1,
+      hgcalwafer:HGCalEEWafer02FineHD1,    hgcalwafer:HGCalEEWafer03FineHD1,
+      hgcalwafer:HGCalEEWafer04FineHD1,    hgcalwafer:HGCalEEWafer05FineHD1,
+      hgcalwafer:HGCalEEWafer06FineHD1,    hgcalwafer:HGCalEEWafer07FineHD1,
+      hgcalwafer:HGCalEEWafer08FineHD1,    hgcalwafer:HGCalEEWafer09FineHD1,
+      hgcalwafer:HGCalEEWafer10FineHD1,    hgcalwafer:HGCalEEWafer11FineHD1,
+      hgcalwafer:HGCalEEWafer00FineHD2,    hgcalwafer:HGCalEEWafer01FineHD2,
+      hgcalwafer:HGCalEEWafer02FineHD2,    hgcalwafer:HGCalEEWafer03FineHD2,
+      hgcalwafer:HGCalEEWafer04FineHD2,    hgcalwafer:HGCalEEWafer05FineHD2,
+      hgcalwafer:HGCalEEWafer06FineHD2,    hgcalwafer:HGCalEEWafer07FineHD2,
+      hgcalwafer:HGCalEEWafer08FineHD2,    hgcalwafer:HGCalEEWafer09FineHD2,
+      hgcalwafer:HGCalEEWafer10FineHD2,    hgcalwafer:HGCalEEWafer11FineHD2,
+      hgcalwafer:HGCalEEWafer00FineHD3,    hgcalwafer:HGCalEEWafer01FineHD3,
+      hgcalwafer:HGCalEEWafer02FineHD3,    hgcalwafer:HGCalEEWafer03FineHD3,
+      hgcalwafer:HGCalEEWafer04FineHD3,    hgcalwafer:HGCalEEWafer05FineHD3,
+      hgcalwafer:HGCalEEWafer06FineHD3,    hgcalwafer:HGCalEEWafer07FineHD3,
+      hgcalwafer:HGCalEEWafer08FineHD3,    hgcalwafer:HGCalEEWafer09FineHD3,
+      hgcalwafer:HGCalEEWafer10FineHD3,    hgcalwafer:HGCalEEWafer11FineHD3,
+      hgcalwafer:HGCalEEWafer00FineHD4,    hgcalwafer:HGCalEEWafer01FineHD4,
+      hgcalwafer:HGCalEEWafer02FineHD4,    hgcalwafer:HGCalEEWafer03FineHD4,
+      hgcalwafer:HGCalEEWafer04FineHD4,    hgcalwafer:HGCalEEWafer05FineHD4,
+      hgcalwafer:HGCalEEWafer06FineHD4,    hgcalwafer:HGCalEEWafer07FineHD4,
+      hgcalwafer:HGCalEEWafer08FineHD4,    hgcalwafer:HGCalEEWafer09FineHD4,
+      hgcalwafer:HGCalEEWafer10FineHD4,    hgcalwafer:HGCalEEWafer11FineHD4,
+      hgcalwafer:HGCalEEWafer00FineHD5,    hgcalwafer:HGCalEEWafer01FineHD5,
+      hgcalwafer:HGCalEEWafer02FineHD5,    hgcalwafer:HGCalEEWafer03FineHD5,
+      hgcalwafer:HGCalEEWafer04FineHD5,    hgcalwafer:HGCalEEWafer05FineHD5,
+      hgcalwafer:HGCalEEWafer06FineHD5,    hgcalwafer:HGCalEEWafer07FineHD5,
+      hgcalwafer:HGCalEEWafer08FineHD5,    hgcalwafer:HGCalEEWafer09FineHD5,
+      hgcalwafer:HGCalEEWafer10FineHD5,    hgcalwafer:HGCalEEWafer11FineHD5,
+      hgcalwafer:HGCalEEWafer00Coarse1LD1, hgcalwafer:HGCalEEWafer01Coarse1LD1,
+      hgcalwafer:HGCalEEWafer02Coarse1LD1, hgcalwafer:HGCalEEWafer03Coarse1LD1,
+      hgcalwafer:HGCalEEWafer04Coarse1LD1, hgcalwafer:HGCalEEWafer05Coarse1LD1,
+      hgcalwafer:HGCalEEWafer06Coarse1LD1, hgcalwafer:HGCalEEWafer07Coarse1LD1,
+      hgcalwafer:HGCalEEWafer08Coarse1LD1, hgcalwafer:HGCalEEWafer09Coarse1LD1,
+      hgcalwafer:HGCalEEWafer10Coarse1LD1, hgcalwafer:HGCalEEWafer11Coarse1LD1,
+      hgcalwafer:HGCalEEWafer00Coarse1LD2, hgcalwafer:HGCalEEWafer01Coarse1LD2,
+      hgcalwafer:HGCalEEWafer02Coarse1LD2, hgcalwafer:HGCalEEWafer03Coarse1LD2,
+      hgcalwafer:HGCalEEWafer04Coarse1LD2, hgcalwafer:HGCalEEWafer05Coarse1LD2,
+      hgcalwafer:HGCalEEWafer06Coarse1LD2, hgcalwafer:HGCalEEWafer07Coarse1LD2,
+      hgcalwafer:HGCalEEWafer08Coarse1LD2, hgcalwafer:HGCalEEWafer09Coarse1LD2,
+      hgcalwafer:HGCalEEWafer10Coarse1LD2, hgcalwafer:HGCalEEWafer11Coarse1LD2,
+      hgcalwafer:HGCalEEWafer00Coarse1LD3, hgcalwafer:HGCalEEWafer01Coarse1LD3,
+      hgcalwafer:HGCalEEWafer02Coarse1LD3, hgcalwafer:HGCalEEWafer03Coarse1LD3,
+      hgcalwafer:HGCalEEWafer04Coarse1LD3, hgcalwafer:HGCalEEWafer05Coarse1LD3,
+      hgcalwafer:HGCalEEWafer06Coarse1LD3, hgcalwafer:HGCalEEWafer07Coarse1LD3,
+      hgcalwafer:HGCalEEWafer08Coarse1LD3, hgcalwafer:HGCalEEWafer09Coarse1LD3,
+      hgcalwafer:HGCalEEWafer10Coarse1LD3, hgcalwafer:HGCalEEWafer11Coarse1LD3,
+      hgcalwafer:HGCalEEWafer00Coarse1LD4, hgcalwafer:HGCalEEWafer01Coarse1LD4,
+      hgcalwafer:HGCalEEWafer02Coarse1LD4, hgcalwafer:HGCalEEWafer03Coarse1LD4,
+      hgcalwafer:HGCalEEWafer04Coarse1LD4, hgcalwafer:HGCalEEWafer05Coarse1LD4,
+      hgcalwafer:HGCalEEWafer06Coarse1LD4, hgcalwafer:HGCalEEWafer07Coarse1LD4,
+      hgcalwafer:HGCalEEWafer08Coarse1LD4, hgcalwafer:HGCalEEWafer09Coarse1LD4,
+      hgcalwafer:HGCalEEWafer10Coarse1LD4, hgcalwafer:HGCalEEWafer11Coarse1LD4,
+      hgcalwafer:HGCalEEWafer00Coarse1LD5, hgcalwafer:HGCalEEWafer01Coarse1LD5,
+      hgcalwafer:HGCalEEWafer02Coarse1LD5, hgcalwafer:HGCalEEWafer03Coarse1LD5,
+      hgcalwafer:HGCalEEWafer04Coarse1LD5, hgcalwafer:HGCalEEWafer05Coarse1LD5,
+      hgcalwafer:HGCalEEWafer06Coarse1LD5, hgcalwafer:HGCalEEWafer07Coarse1LD5,
+      hgcalwafer:HGCalEEWafer08Coarse1LD5, hgcalwafer:HGCalEEWafer09Coarse1LD5,
+      hgcalwafer:HGCalEEWafer10Coarse1LD5, hgcalwafer:HGCalEEWafer11Coarse1LD5,
+      hgcalwafer:HGCalEEWafer00Coarse1LD6, hgcalwafer:HGCalEEWafer01Coarse1LD6,
+      hgcalwafer:HGCalEEWafer02Coarse1LD6, hgcalwafer:HGCalEEWafer03Coarse1LD6,
+      hgcalwafer:HGCalEEWafer04Coarse1LD6, hgcalwafer:HGCalEEWafer05Coarse1LD6,
+      hgcalwafer:HGCalEEWafer06Coarse1LD6, hgcalwafer:HGCalEEWafer07Coarse1LD6,
+      hgcalwafer:HGCalEEWafer08Coarse1LD6, hgcalwafer:HGCalEEWafer09Coarse1LD6,
+      hgcalwafer:HGCalEEWafer10Coarse1LD6, hgcalwafer:HGCalEEWafer11Coarse1LD6,
+      hgcalwafer:HGCalEEWafer00Coarse2LD1, hgcalwafer:HGCalEEWafer01Coarse2LD1,
+      hgcalwafer:HGCalEEWafer02Coarse2LD1, hgcalwafer:HGCalEEWafer03Coarse2LD1,
+      hgcalwafer:HGCalEEWafer04Coarse2LD1, hgcalwafer:HGCalEEWafer05Coarse2LD1,
+      hgcalwafer:HGCalEEWafer06Coarse2LD1, hgcalwafer:HGCalEEWafer07Coarse2LD1,
+      hgcalwafer:HGCalEEWafer08Coarse2LD1, hgcalwafer:HGCalEEWafer09Coarse2LD1,
+      hgcalwafer:HGCalEEWafer10Coarse2LD1, hgcalwafer:HGCalEEWafer11Coarse2LD1,
+      hgcalwafer:HGCalEEWafer00Coarse2LD2, hgcalwafer:HGCalEEWafer01Coarse2LD2,
+      hgcalwafer:HGCalEEWafer02Coarse2LD2, hgcalwafer:HGCalEEWafer03Coarse2LD2,
+      hgcalwafer:HGCalEEWafer04Coarse2LD2, hgcalwafer:HGCalEEWafer05Coarse2LD2,
+      hgcalwafer:HGCalEEWafer06Coarse2LD2, hgcalwafer:HGCalEEWafer07Coarse2LD2,
+      hgcalwafer:HGCalEEWafer08Coarse2LD2, hgcalwafer:HGCalEEWafer09Coarse2LD2,
+      hgcalwafer:HGCalEEWafer10Coarse2LD2, hgcalwafer:HGCalEEWafer11Coarse2LD2,
+      hgcalwafer:HGCalEEWafer00Coarse2LD3, hgcalwafer:HGCalEEWafer01Coarse2LD3,
+      hgcalwafer:HGCalEEWafer02Coarse2LD3, hgcalwafer:HGCalEEWafer03Coarse2LD3,
+      hgcalwafer:HGCalEEWafer04Coarse2LD3, hgcalwafer:HGCalEEWafer05Coarse2LD3,
+      hgcalwafer:HGCalEEWafer06Coarse2LD3, hgcalwafer:HGCalEEWafer07Coarse2LD3,
+      hgcalwafer:HGCalEEWafer08Coarse2LD3, hgcalwafer:HGCalEEWafer09Coarse2LD3,
+      hgcalwafer:HGCalEEWafer10Coarse2LD3, hgcalwafer:HGCalEEWafer11Coarse2LD3,
+      hgcalwafer:HGCalEEWafer00Coarse2LD4, hgcalwafer:HGCalEEWafer01Coarse2LD4,
+      hgcalwafer:HGCalEEWafer02Coarse2LD4, hgcalwafer:HGCalEEWafer03Coarse2LD4,
+      hgcalwafer:HGCalEEWafer04Coarse2LD4, hgcalwafer:HGCalEEWafer05Coarse2LD4,
+      hgcalwafer:HGCalEEWafer06Coarse2LD4, hgcalwafer:HGCalEEWafer07Coarse2LD4,
+      hgcalwafer:HGCalEEWafer08Coarse2LD4, hgcalwafer:HGCalEEWafer09Coarse2LD4,
+      hgcalwafer:HGCalEEWafer10Coarse2LD4, hgcalwafer:HGCalEEWafer11Coarse2LD4,
+      hgcalwafer:HGCalEEWafer00Coarse2LD5, hgcalwafer:HGCalEEWafer01Coarse2LD5,
+      hgcalwafer:HGCalEEWafer02Coarse2LD5, hgcalwafer:HGCalEEWafer03Coarse2LD5,
+      hgcalwafer:HGCalEEWafer04Coarse2LD5, hgcalwafer:HGCalEEWafer05Coarse2LD5,
+      hgcalwafer:HGCalEEWafer06Coarse2LD5, hgcalwafer:HGCalEEWafer07Coarse2LD5,
+      hgcalwafer:HGCalEEWafer08Coarse2LD5, hgcalwafer:HGCalEEWafer09Coarse2LD5,
+      hgcalwafer:HGCalEEWafer10Coarse2LD5, hgcalwafer:HGCalEEWafer11Coarse2LD5,
+      hgcalwafer:HGCalEEWafer00Coarse2LD6, hgcalwafer:HGCalEEWafer01Coarse2LD6,
+      hgcalwafer:HGCalEEWafer02Coarse2LD6, hgcalwafer:HGCalEEWafer03Coarse2LD6,
+      hgcalwafer:HGCalEEWafer04Coarse2LD6, hgcalwafer:HGCalEEWafer05Coarse2LD6,
+      hgcalwafer:HGCalEEWafer06Coarse2LD6, hgcalwafer:HGCalEEWafer07Coarse2LD6,
+      hgcalwafer:HGCalEEWafer08Coarse2LD6, hgcalwafer:HGCalEEWafer09Coarse2LD6,
+      hgcalwafer:HGCalEEWafer10Coarse2LD6, hgcalwafer:HGCalEEWafer11Coarse2LD6</Vector>
+    <Vector name="MaterialNames" type="string" nEntries="3">
+      materials:Copper, materials:Air, materials:Air</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="3">
+      HGCalEECoolingPlate, HGCalEELayerF, HGCalEELayerB</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="3">
+      6.05*mm, [hgcal:ModuleThicknessEE], [hgcal:ModuleThicknessEE] </Vector>
+    <Vector name="Layers" type="numeric" nEntries="1"> 
+      2 </Vector>
+    <Vector name="LayerThick" type="numeric" nEntries="1"> 
+      9.45*mm </Vector>
+    <Vector name="LayerType" type="numeric" nEntries="2"> 
+      1, 0 </Vector>
+    <Vector name="LayerSense" type="numeric" nEntries="2">
+       1, 0 </Vector>
+    <Vector name="SlopeBottom" type="numeric" nEntries="2">
+      0, 0 </Vector>
+    <Vector name="ZFrontBottom" type="numeric" nEntries="2">
+      [hgcal:zHGCalEE1], [hgcal:zHGCalEE2] </Vector>
+    <Vector name="RMinFront" type="numeric" nEntries="2">
+      0*mm, 0*mm </Vector>
+    <Vector name="SlopeTop" type="numeric" nEntries="2">
+      0, 0 </Vector>
+    <Vector name="ZFrontTop" type="numeric" nEntries="2">
+      [hgcal:zHGCalEE1], [hgcal:zHGCalEE2]</Vector>
+    <Vector name="RMaxFront" type="numeric" nEntries="2">
+      [hgcal:rMaxHGCalEE1], [hgcal:rMaxHGCalEE1]</Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="1">
+       0 </Vector>
+    <Vector name="WaferIndex" type="numeric" nEntries="1">
+        262144 </Vector>
+    <Vector name="WaferProperties" type="numeric" nEntries="1">
+        1 </Vector>
+    <Vector name="WaferLayerStart" type="numeric" nEntries="1">
+         0 </Vector>
+    <Vector name="CassetteShift" type="numeric" nEntries="1">
+         0*mm </Vector>
+  </Algorithm>
+</PosPartSection> 
+
+</DDDefinition>

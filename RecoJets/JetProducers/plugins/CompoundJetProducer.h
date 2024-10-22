@@ -31,43 +31,32 @@ Modifications:
 
  ************************************************************/
 
-
 #include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
 
 #include "RecoJets/JetAlgorithms/interface/CompoundPseudoJet.h"
 
-namespace cms
-{
-  class CompoundJetProducer : public VirtualJetProducer
-  {
+namespace cms {
+  class CompoundJetProducer : public VirtualJetProducer {
   public:
-
     CompoundJetProducer(const edm::ParameterSet& ps);
 
     ~CompoundJetProducer() override {}
-    
-  protected:
-    std::vector<CompoundPseudoJet> fjCompoundJets_; /// compound fastjet::PseudoJets
 
   protected:
+    std::vector<CompoundPseudoJet> fjCompoundJets_;  /// compound fastjet::PseudoJets
 
-    // overridden inputTowers method. Resets fjCompoundJets_ and 
+  protected:
+    // overridden inputTowers method. Resets fjCompoundJets_ and
     // calls VirtualJetProducer::inputTowers
     void inputTowers() override;
 
     /// Overridden output method. For the compound jet producer, this will
-    /// call the "writeCompoundJets" function template. 
-    void output( edm::Event & iEvent, edm::EventSetup const& iSetup ) override;
-    template< typename T >
-    void writeCompoundJets( edm::Event & iEvent, edm::EventSetup const& iSetup);
-
-
+    /// call the "writeCompoundJets" function template.
+    void output(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
+    template <typename T>
+    void writeCompoundJets(edm::Event& iEvent, edm::EventSetup const& iSetup);
   };
 
-
-
-  
-}
-
+}  // namespace cms
 
 #endif

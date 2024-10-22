@@ -24,16 +24,17 @@ elPFIsoDepositGamma= cms.EDProducer("CandIsoDepositProducer",
                                             DepositLabel = cms.untracked.string('')
                                             )
                                     )
-elPFIsoDepositCharged.ExtractorPSet.DR_Veto = cms.double(0)
-elPFIsoDepositChargedAll.ExtractorPSet.DR_Veto = cms.double(0)
-elPFIsoDepositNeutral.ExtractorPSet.DR_Veto = cms.double(0)
-elPFIsoDepositPU.ExtractorPSet.DR_Veto = cms.double(0)
+elPFIsoDepositCharged.ExtractorPSet.DR_Veto    = 0
+elPFIsoDepositChargedAll.ExtractorPSet.DR_Veto = 0
+elPFIsoDepositNeutral.ExtractorPSet.DR_Veto    = 0
+elPFIsoDepositPU.ExtractorPSet.DR_Veto         = 0
 
 
-electronPFIsolationDepositsSequence = cms.Sequence(
-    elPFIsoDepositCharged+
-    elPFIsoDepositChargedAll+
-    elPFIsoDepositGamma+
-    elPFIsoDepositNeutral+
+electronPFIsolationDepositsTask = cms.Task(
+    elPFIsoDepositCharged,
+    elPFIsoDepositChargedAll,
+    elPFIsoDepositGamma,
+    elPFIsoDepositNeutral,
     elPFIsoDepositPU
     )
+electronPFIsolationDepositsSequence = cms.Sequence(electronPFIsolationDepositsTask)

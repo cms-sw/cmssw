@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+    <!--debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_materials/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/-->
+  </debug>
+
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/trackermaterial/2021/v2/trackermaterial.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/pixfwdMaterials.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v3/pixbarmaterial.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull0.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladder.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer0.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/testDDPixBarLayerUpgradeAlgorithm.xml"/>
+  </IncludeSection>
+
+</DDDefinition>

@@ -1,0 +1,8 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
+<use name="dd4hep"/>
+<use name="rootmath"/>
+<use name="rootgeom"/>
+<export>
+  <lib name="1"/>
+</export>

@@ -58,9 +58,7 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
 process.HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + process.hltTrigReport )
-process.HLTSchedule.append(process.HLTAnalyzerEndpath)
-process.schedule = cms.Schedule()
-process.schedule.extend(process.HLTSchedule)
+process.schedule.append(process.HLTAnalyzerEndpath)
 
 # If uncommented : All events are reconstructed, including those rejected at L1/HLT
 # process.reconstruction = cms.Path(process.reconstructionWithFamos)
@@ -72,15 +70,18 @@ process.source = cms.Source("EmptySource")
 process.simulation = cms.Sequence(process.generator*process.simulationWithFamos)
 
 # You many not want to simulate everything
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
+process.fastSimProducer.SimulateCalorimetry = True
+for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
 # Parameterized magnetic field
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # Number of pileup events per crossing
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
-process.famosSimHits.VertexGenerator.BetaStar = 0.00001
-process.famosSimHits.VertexGenerator.SigmaZ = 0.00001
+process.fastSimProducer.VertexGenerator.BetaStar = 0.00001
+process.fastSimProducer.VertexGenerator.SigmaZ = 0.00001
 
 # Get frontier conditions   - not applied in the HCAL, see below
 # from Configuration.AlCa.autoCond import autoCond
@@ -94,7 +95,7 @@ process.horeco.doMiscalib = True
 process.hfreco.doMiscalib = True
 
 # Apply Tracker misalignment
-process.famosSimHits.ApplyAlignment = True
+process.fastSimProducer.detectorDefinition.trackerAlignmentLabel = cms.untracked.string("MisAligned")
 process.misalignedTrackerGeometry.applyAlignment = True
 process.misalignedDTGeometry.applyAlignment = True
 process.misalignedCSCGeometry.applyAlignment = True
@@ -130,10 +131,10 @@ process.schedule.append(process.outpath)
 # Keep the logging output to a nice level #
 # process.Timing =  cms.Service("Timing")
 process.load("FWCore/MessageService/MessageLogger_cfi")
-process.MessageLogger.categories.append('L1GtTrigReport')
-process.MessageLogger.categories.append('HLTrigReport')
+process.MessageLogger.L1GtTrigReport=dict()
+process.MessageLogger.HLTrigReport=dict()
 #process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt","cout")
-#process.MessageLogger.categories.append("FamosManager")
+#
 #process.MessageLogger.cout = cms.untracked.PSet(threshold=cms.untracked.string("INFO"),
 #                                                default=cms.untracked.PSet(limit=cms.untracked.int32(0)),
 #                                                FamosManager=cms.untracked.PSet(limit=cms.untracked.int32(100000)))

@@ -1,20 +1,21 @@
 ## Dump  10  events in CSC rechit & segment builders - Tim Cox - 08.11.2012
 ## This version runs in 6_0_1_PostLS1 on a simulated data DIGI sample.
+## Change Geometry_cff to GeometryDB_cff and update GT July.2022
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-process.load("Configuration/StandardSequences/Geometry_cff")
-process.load("Configuration/StandardSequences/MagneticField_cff")
-process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-##process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+##process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
 
 # --- MATCH GT TO RELEASE AND DATA SAMPLE
-
-process.GlobalTag.globaltag = "POSTLS161_V11::All"
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
 # --- NUMBER OF EVENTS
 
@@ -50,17 +51,12 @@ process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStrip
 # LogTrace output goes to cout; all other output to "junk.log"
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-##process.MessageLogger.categories.append("CSCGeometry")
-process.MessageLogger.categories.append("CSCRecHit")
-process.MessageLogger.categories.append("CSCSegAlgoST")
-##process.MessageLogger.categories.append("CSCRecHitDBuilder")
-##process.MessageLogger.categories.append("CSCMake2DRecHit")
-## process.MessageLogger.categories.append("CSCHitFromStripOnly")
-## process.MessageLogger.categories.append("CSCRecoConditions")
 # module label is something like "muonCSCDigis"...
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
+process.MessageLogger.files.junk = dict()
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
     threshold = cms.untracked.string("DEBUG"),
     default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) )

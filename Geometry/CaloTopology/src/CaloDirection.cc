@@ -1,10 +1,8 @@
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 #include <iostream>
 
-std::ostream & operator<<(std::ostream& o,const CaloDirection& d)
-{
-  switch(d)
-    {
+std::ostream& operator<<(std::ostream& o, const CaloDirection& d) {
+  switch (d) {
     case NONE:
       o << "NONE";
       break;
@@ -89,7 +87,7 @@ std::ostream & operator<<(std::ostream& o,const CaloDirection& d)
     default:
       //o << static_cast<int>(d);
       break;
-    }
- 
+  }
+
   return o;
 }

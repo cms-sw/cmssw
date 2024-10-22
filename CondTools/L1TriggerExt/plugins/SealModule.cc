@@ -1,25 +1,20 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CondTools/L1TriggerExt/plugins/L1CondDBPayloadWriterExt.h"
 #include "CondTools/L1TriggerExt/plugins/L1CondDBIOVWriterExt.h"
 #include "CondTools/L1TriggerExt/plugins/L1TriggerKeyDummyProdExt.h"
 #include "CondTools/L1TriggerExt/plugins/L1TriggerKeyListDummyProdExt.h"
 #include "CondTools/L1TriggerExt/plugins/L1SubsystemKeysOnlineProdExt.h"
 #include "CondTools/L1TriggerExt/plugins/L1TriggerKeyOnlineProdExt.h"
 
-
 using namespace l1t;
 
-DEFINE_FWK_MODULE(L1CondDBPayloadWriterExt);
 DEFINE_FWK_MODULE(L1CondDBIOVWriterExt);
 DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyDummyProdExt);
 DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyListDummyProdExt);
 DEFINE_FWK_EVENTSETUP_MODULE(L1SubsystemKeysOnlineProdExt);
 DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyOnlineProdExt);
 
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "CondCore/ESSources/interface/registration_macros.h"
 #include "CondTools/L1Trigger/interface/WriterProxy.h"
-
-
 
 // Central L1 records
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
@@ -44,6 +39,11 @@ REGISTER_L1_WRITER(L1TUtmTriggerMenuO2ORcd, L1TUtmTriggerMenu);
 
 REGISTER_L1_WRITER(L1TGlobalPrescalesVetosO2ORcd, L1TGlobalPrescalesVetos);
 
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetosFract.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosFractO2ORcd.h"
+
+REGISTER_L1_WRITER(L1TGlobalPrescalesVetosFractO2ORcd, L1TGlobalPrescalesVetosFract);
+
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"
 
@@ -59,6 +59,11 @@ REGISTER_L1_WRITER(L1TMuonEndCapParamsO2ORcd, L1TMuonEndCapParams);
 
 REGISTER_L1_WRITER(L1TMuonEndCapForestO2ORcd, L1TMuonEndCapForest);
 
+#include "CondFormats/L1TObjects/interface/L1TMuonOverlapFwVersion.h"
+#include "CondFormats/DataRecord/interface/L1TMuonOverlapFwVersionO2ORcd.h"
+
+REGISTER_L1_WRITER(L1TMuonOverlapFwVersionO2ORcd, L1TMuonOverlapFwVersion);
+
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsO2ORcd.h"
 
@@ -73,4 +78,3 @@ REGISTER_L1_WRITER(L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams);
 #include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
 using namespace l1t;
 REGISTER_L1_WRITER(L1TCaloParamsO2ORcd, CaloParams);
-

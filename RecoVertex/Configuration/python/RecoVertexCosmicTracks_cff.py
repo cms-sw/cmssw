@@ -7,5 +7,5 @@ from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesFromCosmicTracks_cfi
 offlinePrimaryVertices = RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesFromCosmicTracks_cfi.offlinePrimaryVerticesFromCosmicTracks.clone()
 
-vertexrecoCosmics = cms.Sequence(offlinePrimaryVertices)
+vertexrecoCosmicsTask = cms.Task(offlinePrimaryVertices)
 

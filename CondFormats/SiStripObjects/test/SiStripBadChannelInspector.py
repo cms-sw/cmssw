@@ -1,3 +1,4 @@
+from __future__ import print_function
 import DLFCN, sys, os
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 import pluginCondDBPyInterface as condDB
@@ -16,7 +17,7 @@ payload = Plug.Object(db)
 listOfIovElem= [iovElem for iovElem in iov.elements]
 
 if len(sys.argv) < 2:
-    print "Please specify the IOV (run number)"
+    print("Please specify the IOV (run number)")
     sys.exit()
 
 runNumber = int(sys.argv[1])
@@ -26,9 +27,9 @@ for elem in iov.elements:
     # print elem.till()
     if runNumber >= elem.since() and runNumber <= elem.till():
         theIOV = payload.load(elem)
-        print "since =", elem.since(), ", till =", elem.till()
+        print("since =", elem.since(), ", till =", elem.till())
         if theIOV:
             # print payload.summary()
-            print payload.summary()
-            print payload.dump()
+            print(payload.summary())
+            print(payload.dump())
 db.commitTransaction()

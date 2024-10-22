@@ -7,24 +7,29 @@
   *  \author Josh Bendavid, MIT, 2011
   */
 
-
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 
 class CaloGeometry;
 
-class EcalClusterLocal {
-        public:
-          EcalClusterLocal();
-          ~EcalClusterLocal();
+namespace egammaTools {
 
-          void localCoordsEB( const reco::CaloCluster &bclus, const edm::EventSetup &es, float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt) const;
-          void localCoordsEE( const reco::CaloCluster &bclus, const edm::EventSetup &es, float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt) const;
+  void localEcalClusterCoordsEB(const reco::CaloCluster &bclus,
+                                const CaloGeometry &geom,
+                                float &etacry,
+                                float &phicry,
+                                int &ieta,
+                                int &iphi,
+                                float &thetatilt,
+                                float &phitilt);
+  void localEcalClusterCoordsEE(const reco::CaloCluster &bclus,
+                                const CaloGeometry &geom,
+                                float &xcry,
+                                float &ycry,
+                                int &ix,
+                                int &iy,
+                                float &thetatilt,
+                                float &phitilt);
 
-	  void localCoordsEB( const reco::CaloCluster &bclus, const CaloGeometry & geom, float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt) const;
-          void localCoordsEE( const reco::CaloCluster &bclus, const CaloGeometry & geom, float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt) const;
-
-};
+};  // namespace egammaTools
 
 #endif

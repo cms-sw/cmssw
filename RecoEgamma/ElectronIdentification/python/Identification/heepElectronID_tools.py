@@ -135,15 +135,24 @@ class HEEP_WorkingPoint_V2:
 # Define individual cut configurations used by complete cut sets
 # ==============================================================
 
-# The mininum pt cut is set to 5 GeV
-def psetMinPtCut():
+# The mininum pt cut is set to 35 GeV
+def psetMinPtCut(cutValue=35.):
     return cms.PSet( 
         cutName = cms.string("MinPtCut"),
-        minPt = cms.double(35.0),
+        minPt = cms.double(cutValue),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False) 
         )
 
+# The mininum pt cut is set to 5 GeV
+def psetMinEcalEtCut(cutValue=5.):
+    return cms.PSet( 
+        cutName = cms.string("GsfEleMinEcalEtCut"),
+        minEt = cms.double(cutValue),
+        needsAdditionalProducts = cms.bool(False),
+        isIgnored = cms.bool(False) 
+        )
+                
 # Take all particles in the eta ranges 0-ebMax and eeMin-2.5
 def psetGsfEleSCEtaMultiRangeCut():
     return cms.PSet( 
@@ -162,10 +171,10 @@ def psetGsfEleSCEtaMultiRangeCut():
 # Configure the cut on the dEtaIn for the seed
 def psetGsfEleDEtaInSeedCut(wpEB, wpEE):
     return cms.PSet( 
-        cutName = cms.string('GsfEleDEtaInSeedCut'),
-        dEtaInSeedCutValueEB = cms.double( wpEB.dEtaInSeedCut ),
-        dEtaInSeedCutValueEE = cms.double( wpEE.dEtaInSeedCut ),
-        barrelCutOff = cms.double(ebCutOff),
+        cutName = cms.string('GsfEleEBEECut'),
+        cutString = cms.string("abs(deltaEtaSeedClusterTrackAtVtx)"),
+        cutValueEB = cms.double( wpEB.dEtaInSeedCut ),
+        cutValueEE = cms.double( wpEE.dEtaInSeedCut ),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
@@ -173,10 +182,10 @@ def psetGsfEleDEtaInSeedCut(wpEB, wpEE):
 # Configure the cut on the dPhiIn
 def psetGsfEleDPhiInCut(wpEB, wpEE):
     return cms.PSet( 
-        cutName = cms.string('GsfEleDPhiInCut'),
-        dPhiInCutValueEB = cms.double( wpEB.dPhiInCut ),
-        dPhiInCutValueEE = cms.double( wpEE.dPhiInCut ),
-        barrelCutOff = cms.double(ebCutOff),
+        cutName = cms.string('GsfEleEBEECut'),
+        cutString = cms.string("abs(deltaPhiSuperClusterTrackAtVtx)"),
+        cutValueEB = cms.double( wpEB.dPhiInCut ),
+        cutValueEE = cms.double( wpEE.dPhiInCut ),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
@@ -184,10 +193,10 @@ def psetGsfEleDPhiInCut(wpEB, wpEE):
 # Confugure the full 5x5 sigmaIEtaIEta cut
 def psetGsfEleFull5x5SigmaIEtaIEtaCut(wpEB, wpEE):
     return cms.PSet( 
-        cutName = cms.string('GsfEleFull5x5SigmaIEtaIEtaCut'),
-        full5x5SigmaIEtaIEtaCutValueEB = cms.double( wpEB.full5x5SigmaIEtaIEtaCut ),
-        full5x5SigmaIEtaIEtaCutValueEE = cms.double( wpEE.full5x5SigmaIEtaIEtaCut ),
-        barrelCutOff = cms.double(ebCutOff),
+        cutName = cms.string('GsfEleEBEECut'),
+        cutString = cms.string("full5x5_sigmaIetaIeta"),
+        cutValueEB = cms.double( wpEB.full5x5SigmaIEtaIEtaCut ),
+        cutValueEE = cms.double( wpEE.full5x5SigmaIEtaIEtaCut ),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
@@ -249,7 +258,7 @@ def psetGsfEleHadronicOverEMLinearCut(wpEB, wpEE) :
         )
 
 # Configure the cut on the tracker isolation
-def psetGsfEleTrkPtIsoCut(wpEB, wpEE):
+def psetGsfEleTrkPtIsoCut(wpEB, wpEE, useHEEPIso = False):
     return cms.PSet( 
         cutName = cms.string('GsfEleTrkPtIsoCut'),
         # Three constants for the GsfEleTrkPtIsoCut
@@ -261,6 +270,7 @@ def psetGsfEleTrkPtIsoCut(wpEB, wpEE):
         slopeStartEE = cms.double( wpEE.trkIsoSlopeStart ),
         constTermEB = cms.double( wpEB.trkIsoConstTerm ),
         constTermEE = cms.double( wpEE.trkIsoConstTerm ),
+        useHEEPIso = cms.bool(useHEEPIso),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
@@ -330,7 +340,7 @@ def psetGsfEleTrkPtFall16IsoCut(wpEB, wpEE):
         isIgnored = cms.bool(False)
         )
 # Configure the cut on the EM + Had_depth_1 isolation with rho correction
-def psetGsfEleEmHadD1IsoRhoCut(wpEB, wpEE):
+def psetGsfEleEmHadD1IsoRhoCut(wpEB, wpEE,energyType="EcalTrk"):
     return cms.PSet(
         cutName = cms.string('GsfEleEmHadD1IsoRhoCut'),
         slopeTermEB = cms.double( wpEB.ehIsoSlopeTerm ),
@@ -339,6 +349,7 @@ def psetGsfEleEmHadD1IsoRhoCut(wpEB, wpEE):
         slopeStartEE = cms.double( wpEE.ehIsoSlopeStart ),
         constTermEB = cms.double( wpEB.ehIsoConstTerm ),
         constTermEE = cms.double( wpEE.ehIsoConstTerm ),
+        energyType = cms.string( energyType ),
         rhoConstant = cms.double( wpEB.effAreaForEHIso), # expected to be the same for EB and EE
         rho = cms.InputTag("fixedGridRhoFastjetAll"),
         needsAdditionalProducts = cms.bool(True),
@@ -391,7 +402,7 @@ def configureHEEPElectronID_V51(wpEB, wpEE):
     parameterSet = cms.PSet(
         idName = cms.string("heepElectronID-HEEPV51"),
         cutFlow = cms.VPSet(
-            psetMinPtCut(),                               #0
+            psetMinPtCut(cutValue=35.),                   #0
             psetGsfEleSCEtaMultiRangeCut(),               #1
             psetGsfEleDEtaInSeedCut(wpEB,wpEE),           #2
             psetGsfEleDPhiInCut(wpEB,wpEE),               #3
@@ -416,7 +427,7 @@ def configureHEEPElectronID_V60(wpEB, wpEE):
     parameterSet = cms.PSet(
         idName = cms.string("heepElectronID-HEEPV60"),
         cutFlow = cms.VPSet(
-            psetMinPtCut(),                               #0
+            psetMinPtCut(cutValue=35.),                   #0
             psetGsfEleSCEtaMultiRangeCut(),               #1
             psetGsfEleDEtaInSeedCut(wpEB,wpEE),           #2
             psetGsfEleDPhiInCut(wpEB,wpEE),               #3
@@ -442,15 +453,40 @@ def configureHEEPElectronID_V70(idName, wpEB, wpEE):
     parameterSet = cms.PSet(
         idName = cms.string(idName),
         cutFlow = cms.VPSet(
-            psetMinPtCut(),                               #0
+            psetMinPtCut(cutValue=35.),                   #0
             psetGsfEleSCEtaMultiRangeCut(),               #1
             psetGsfEleDEtaInSeedCut(wpEB,wpEE),           #2
             psetGsfEleDPhiInCut(wpEB,wpEE),               #3
             psetGsfEleFull5x5SigmaIEtaIEtaWithSatCut(wpEB,wpEE), #4
             psetGsfEleFull5x5E2x5OverE5x5WithSatCut(wpEB,wpEE),  #5
             psetGsfEleHadronicOverEMLinearCut(wpEB,wpEE), #6 
-            psetGsfEleTrkPtFall16IsoCut(wpEB,wpEE),    #7
+            psetGsfEleTrkPtIsoCut(wpEB,wpEE,useHEEPIso=True),#7
             psetGsfEleEmHadD1IsoRhoCut(wpEB,wpEE),        #8
+            psetGsfEleDxyCut(wpEB,wpEE),                  #9
+            psetGsfEleMissingHitsCut(wpEB,wpEE),          #10,
+            psetGsfEleEcalDrivenCut(wpEB,wpEE)            #11
+            )
+        )
+    return parameterSet
+
+def configureHEEPElectronID_V71(idName, wpEB, wpEE,minEt):
+    """
+    This function configures the full cms.PSet for a VID ID and returns it.
+    The inputs: two objects of the type HEEP_WorkingPoint_V1, one
+    containing the cuts for the Barrel (EB) and the other one for the Endcap (EE).
+    """
+    parameterSet = cms.PSet(
+        idName = cms.string(idName),
+        cutFlow = cms.VPSet(
+            psetMinEcalEtCut(cutValue=minEt),             #0
+            psetGsfEleSCEtaMultiRangeCut(),               #1
+            psetGsfEleDEtaInSeedCut(wpEB,wpEE),           #2
+            psetGsfEleDPhiInCut(wpEB,wpEE),               #3
+            psetGsfEleFull5x5SigmaIEtaIEtaWithSatCut(wpEB,wpEE), #4
+            psetGsfEleFull5x5E2x5OverE5x5WithSatCut(wpEB,wpEE),  #5
+            psetGsfEleHadronicOverEMLinearCut(wpEB,wpEE), #6 
+            psetGsfEleTrkPtIsoCut(wpEB,wpEE,useHEEPIso=True),#7
+            psetGsfEleEmHadD1IsoRhoCut(wpEB,wpEE,energyType="Ecal"),  #8
             psetGsfEleDxyCut(wpEB,wpEE),                  #9
             psetGsfEleMissingHitsCut(wpEB,wpEE),          #10,
             psetGsfEleEcalDrivenCut(wpEB,wpEE)            #11
@@ -468,7 +504,7 @@ def configureHEEPElectronID_V60_80XAOD(idName, wpEB, wpEE):
     parameterSet = cms.PSet(
         idName = cms.string(idName),
         cutFlow = cms.VPSet(
-            psetMinPtCut(),                               #0
+            psetMinPtCut(cutValue=35.),                   #0
             psetGsfEleSCEtaMultiRangeCut(),               #1
             psetGsfEleDEtaInSeedCut(wpEB,wpEE),           #2
             psetGsfEleDPhiInCut(wpEB,wpEE),               #3
@@ -493,7 +529,7 @@ def configureHEEPElectronID_V61(wpEB, wpEE):
     parameterSet = cms.PSet(
         idName = cms.string("heepElectronID-HEEPV61"),
         cutFlow = cms.VPSet(
-            psetMinPtCut(),                               #0
+            psetMinPtCut(cutValue=35.),                   #0
             psetGsfEleSCEtaMultiRangeCut(),               #1
             psetGsfEleDEtaInSeedCut(wpEB,wpEE),           #2
             psetGsfEleDPhiInCut(wpEB,wpEE),               #3
@@ -509,8 +545,7 @@ def configureHEEPElectronID_V61(wpEB, wpEE):
         )
     return parameterSet
 
-def addHEEPProducersToSeq(process,seq,useMiniAOD, task=None):
-
+def addHEEPVMProducerToSeq(process,seq,useMiniAOD, task=None):
     newTask = cms.Task()
     seq.associate(newTask)
     if task is not None:
@@ -537,3 +572,9 @@ def addHEEPProducersToSeq(process,seq,useMiniAOD, task=None):
                     process.offlineSlimmedPrimaryVertices,
                     process.packedCandsForTkIso,
                     process.lostTracksForTkIso)
+
+def addHEEPProducersToSeq(process,seq,useMiniAOD, task=None):
+    '''currently no additional products are needed to run the HEEP ID so this 
+    function simply remains as a placeholder
+    '''
+    return

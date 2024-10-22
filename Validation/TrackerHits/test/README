@@ -1,2 +1,2 @@
-cmsRun -p runP.cfg
+cmsRun runP.cfg
 eval `scramv1 ru -csh`

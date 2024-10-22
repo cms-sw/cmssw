@@ -45,7 +45,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
 # local RP reconstruction chain with standard settings
-process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
+process.load("RecoPPS.Configuration.recoCTPPS_cff")
 
 # CTPPS DQM modules
 process.load("DQM.CTPPS.ctppsDQM_cff")

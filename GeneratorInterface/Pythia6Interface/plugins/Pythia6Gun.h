@@ -17,7 +17,7 @@
 #include "HepMC/GenEvent.h"
 
 // #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
@@ -31,56 +31,52 @@ namespace CLHEP {
 namespace edm {
   class EventSetup;
   class LuminosityBlock;
-}
+}  // namespace edm
 
-namespace gen
-{
-  
-// class Pythia6Service;
-  
-  class Pythia6Gun : public edm::EDProducer
-  {
-  
+namespace gen {
+
+  // class Pythia6Service;
+
+  class Pythia6Gun
+      : public edm::one::EDProducer<edm::one::WatchLuminosityBlocks, edm::one::WatchRuns, edm::one::SharedResources> {
   public:
-
-    Pythia6Gun( const edm::ParameterSet& );
+    Pythia6Gun(const edm::ParameterSet&);
     ~Pythia6Gun() override;
     void beginJob() override;
     void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    void beginRun( edm::Run const&, edm::EventSetup const& ) override;
-    void endRun( edm::Run const&, edm::EventSetup const& ) override;
-    void produce( edm::Event&, const edm::EventSetup& ) override;
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
   protected:
-   
     void attachPy6DecaysToGenEvent();
-    void loadEvent( edm::Event& );
+    void loadEvent(edm::Event&);
     virtual void generateEvent(CLHEP::HepRandomEngine*) = 0;
-    HepMC::GenParticle* addAntiParticle( int&, int&, double&, double&, double& ); 
-    
-    Pythia6Service*  fPy6Service;
-    
+    HepMC::GenParticle* addAntiParticle(int&, int&, double&, double&, double&);
+
+    Pythia6Service* fPy6Service;
+
     // gun particle(s) characteristics
     //
-    std::vector<int> fPartIDs ;
-    double           fMinPhi ;
-    double           fMaxPhi ;
-        
+    std::vector<int> fPartIDs;
+    double fMinPhi;
+    double fMaxPhi;
+
     // the event format itself
     //
     HepMC::GenEvent* fEvt;
 
-    // HepMC/HepPDT related things 
+    // HepMC/HepPDT related things
     // (for particle/event construction)
     //
     // edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
-            	    	
-    bool             fHepMCVerbosity ;
-    int              fPylistVerbosity;
-    int              fMaxEventsToPrint ;
-        
+
+    bool fHepMCVerbosity;
+    int fPylistVerbosity;
+    int fMaxEventsToPrint;
   };
 
-}  // end namespace
+}  // namespace gen
 
 #endif

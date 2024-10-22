@@ -10,7 +10,6 @@ from RecoEcal.EgammaClusterProducers.hybridClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.islandClusteringSequence_cff import *
 from Geometry.CaloEventSetup.CaloGeometry_cfi import *
 # sequence to make si-strip based electrons
-from RecoEgamma.EgammaElectronProducers.electronSequence_cff import *
 from Calibration.EcalAlCaRecoProducers.alCaIsolatedElectrons_cfi import *
 electronFilter = cms.EDFilter("EtaPtMinGsfElectronFullCloneSelector",
     filter = cms.bool(True),
@@ -20,10 +19,5 @@ electronFilter = cms.EDFilter("EtaPtMinGsfElectronFullCloneSelector",
     ptMin = cms.double(5.0)
 )
 
-#  sequence alcastreamElectron = {hybridClusteringSequence, islandClusteringSequence,electronSequence, alCaIsolatedElectrons}
-# this is the full path if you start from uncalibrated RecHits
-#  path	alcastreamElectron = {hybridClusteringSequence, islandClusteringSequence,electronSequence, alCaIsolatedElectrons}
-# use this if siStripElectrons are already present
-#  path	alcastreamElectron = {alCaIsolatedElectrons}
 seqAlcastreamElectron = cms.Sequence(electronFilter*alCaIsolatedElectrons)
 

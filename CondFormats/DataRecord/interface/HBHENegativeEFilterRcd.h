@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     HBHENegativeEFilterRcd
-// 
+//
 /**\class HBHENegativeEFilterRcd HBHENegativeEFilterRcd.h CondFormats/DataRecord/interface/HBHENegativeEFilterRcd.h
 
  Description: record for storing HCAL negative energy filter data
@@ -22,5 +22,4 @@
 
 class HBHENegativeEFilterRcd : public edm::eventsetup::EventSetupRecordImplementation<HBHENegativeEFilterRcd> {};
 
-#endif // CondFormats_HBHENegativeEFilterRcd_h
-
+#endif  // CondFormats_HBHENegativeEFilterRcd_h

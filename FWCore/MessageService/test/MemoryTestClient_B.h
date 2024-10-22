@@ -2,7 +2,7 @@
 #define FWCore_MessageService_test_MemoryTestClient_B_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <vector>
@@ -14,36 +14,22 @@ namespace edm {
   class ParameterSet;
 }
 
+namespace edmtest {
 
-namespace edmtest
-{
+  class MemoryTestClient_B : public edm::one::EDAnalyzer<> {
+  public:
+    explicit MemoryTestClient_B(edm::ParameterSet const&);
 
-class MemoryTestClient_B
-  : public edm::EDAnalyzer
-{
-public:
-  explicit
-    MemoryTestClient_B( edm::ParameterSet const & );
+    void analyze(edm::Event const& e, edm::EventSetup const& c) final;
 
-  virtual
-    ~MemoryTestClient_B()
-  { }
-
-  virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
-                );
-
-private:
-  static int nevent;
-  std::vector<double> memoryPattern;
-  void initializeMemoryPattern(int pattern);
-  double vsize;
-  edm::propagate_const<char*> last_Allocation;
-};
-
+  private:
+    static int nevent;
+    std::vector<double> memoryPattern;
+    void initializeMemoryPattern(int pattern);
+    double vsize;
+    edm::propagate_const<char*> last_Allocation;
+  };
 
 }  // namespace edmtest
-
 
 #endif  // FWCore_MessageService_test_MemoryTestClient_B_h

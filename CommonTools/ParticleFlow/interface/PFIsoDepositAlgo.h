@@ -22,44 +22,38 @@
 */
 
 namespace pf2pat {
-  
+
   class PFIsoDepositAlgo {
   public:
-    
     // can be a template parameter (IsoDeposits from GenParticles? )
-    typedef reco::PFCandidate   Particle;
-    typedef std::vector< Particle > ParticleCollection;
-    
+    typedef reco::PFCandidate Particle;
+    typedef std::vector<Particle> ParticleCollection;
+
     // random access to the IsoDeposit corresponding to a given particle
-    typedef std::vector< reco::IsoDeposit > IsoDeposits;
+    typedef std::vector<reco::IsoDeposit> IsoDeposits;
 
     explicit PFIsoDepositAlgo(const edm::ParameterSet&);
 
     ~PFIsoDepositAlgo();
-    
+
     /// all the filtering is done before
-    /// could gain in performance by having a single loop, and 
+    /// could gain in performance by having a single loop, and
     /// by producing all isodeposits at the same time?
     /// however, would not gain in ease of maintenance, and in flexibility.
-    const IsoDeposits&  produce(const ParticleCollection& toBeIsolated,
-				const ParticleCollection& forIsolation );
-    
-  private:    
-    
-    /// build the IsoDeposit for "particle"
-    reco::IsoDeposit buildIsoDeposit( const Particle& particle, 
-				      const ParticleCollection& forIsolation ) const; 
-    
-    /// checks if the 2 particles are in fact the same
-    bool sameParticle( const Particle& particle1,
-		       const Particle& particle2 ) const;
+    const IsoDeposits& produce(const ParticleCollection& toBeIsolated, const ParticleCollection& forIsolation);
 
-    
+  private:
+    /// build the IsoDeposit for "particle"
+    reco::IsoDeposit buildIsoDeposit(const Particle& particle, const ParticleCollection& forIsolation) const;
+
+    /// checks if the 2 particles are in fact the same
+    bool sameParticle(const Particle& particle1, const Particle& particle2) const;
+
     /// IsoDeposits computed in the produce function
-    IsoDeposits  isoDeposits_;
+    IsoDeposits isoDeposits_;
 
     bool verbose_;
   };
-}
+}  // namespace pf2pat
 
 #endif

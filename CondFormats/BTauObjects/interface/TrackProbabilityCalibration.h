@@ -8,22 +8,17 @@
 
 #include <vector>
 
-struct TrackProbabilityCalibration
-{
-  struct Entry
-  {
-   TrackProbabilityCategoryData category;
+struct TrackProbabilityCalibration {
+  struct Entry {
+    TrackProbabilityCategoryData category;
     PhysicsTools::Calibration::HistogramF histogram;
-  
+
+    COND_SERIALIZABLE;
+  };
+
+  std::vector<Entry> data;
+
   COND_SERIALIZABLE;
 };
 
- std::vector<Entry> data;
-  
-
- COND_SERIALIZABLE;
-};
-
-#endif //TrackProbabilityCalibration_h
-
-
+#endif  //TrackProbabilityCalibration_h

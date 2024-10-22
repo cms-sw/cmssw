@@ -7,24 +7,6 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include <vector>
 
-namespace DataFormats_Phase2TrackerDigi {
-  struct dictionary {
-    
-    edm::Wrapper<Phase2TrackerDigi> zs0;
-    edm::Wrapper< std::vector<Phase2TrackerDigi>  > zs1;
-    edm::Wrapper< edm::DetSet<Phase2TrackerDigi> > zs2;
-    edm::Wrapper< std::vector<edm::DetSet<Phase2TrackerDigi> > > zs3;
-    edm::Wrapper< edm::DetSetVector<Phase2TrackerDigi> > zs4;
-    
-  };
-}
-
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerCommissioningDigi.h"
-namespace DataFormats_Phase2TrackerDigi {
-  struct dictionary4 {
-    edm::Wrapper<Phase2TrackerCommissioningDigi > pcom0;
-    edm::Wrapper<edm::DetSet<Phase2TrackerCommissioningDigi> > pcom1;
-  };
-}
 
-#endif // PHASE2TRACKERDIGI_CLASSES_H
+#endif  // PHASE2TRACKERDIGI_CLASSES_H

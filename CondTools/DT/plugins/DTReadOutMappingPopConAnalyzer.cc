@@ -4,6 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTReadOutMappingHandler> DTReadOutMappingPopConAnalyzer;
 
-
 DEFINE_FWK_MODULE(DTReadOutMappingPopConAnalyzer);
-

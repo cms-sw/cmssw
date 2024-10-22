@@ -15,12 +15,10 @@
 // Constructors --
 //----------------
 
-CSCL1TPParameters::CSCL1TPParameters() {
-}
+CSCL1TPParameters::CSCL1TPParameters() {}
 
 //----------------
 //  Destructor  --
 //----------------
 
-CSCL1TPParameters::~CSCL1TPParameters() {
-}
+CSCL1TPParameters::~CSCL1TPParameters() {}

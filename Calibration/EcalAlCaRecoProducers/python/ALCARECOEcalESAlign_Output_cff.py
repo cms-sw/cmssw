@@ -6,9 +6,7 @@ OutALCARECOEcalESAlign_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOEcalESAlign')
     ),
     outputCommands = cms.untracked.vstring(
-        'keep ESDCCHeaderBlocksSorted_ecalPreshowerDigis_*_*',
         'keep ESDigiCollection_ecalPreshowerDigis_*_*',
-        'keep ESKCHIPBlocksSorted_ecalPreshowerDigis_*_*',
         'keep SiPixelClusteredmNewDetSetVector_ecalAlCaESAlignTrackReducer_*_*',
         'keep SiStripClusteredmNewDetSetVector_ecalAlCaESAlignTrackReducer_*_*',
         'keep TrackingRecHitsOwned_ecalAlCaESAlignTrackReducer_*_*',

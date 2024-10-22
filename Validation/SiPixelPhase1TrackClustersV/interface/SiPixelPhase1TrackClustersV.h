@@ -1,7 +1,7 @@
-#ifndef SiPixelPhase1TrackClustersV_h 
-#define SiPixelPhase1TrackClustersV_h 
+#ifndef SiPixelPhase1TrackClustersV_h
+#define SiPixelPhase1TrackClustersV_h
 // -*- C++ -*-
-// 
+//
 // Package:     SiPixelPhase1TrackClustersV
 // Class  :     SiPixelPhase1TrackClustersV
 //
@@ -11,7 +11,6 @@
 
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 class SiPixelPhase1TrackClustersV : public SiPixelPhase1Base {
   enum {
@@ -20,14 +19,12 @@ class SiPixelPhase1TrackClustersV : public SiPixelPhase1Base {
     SIZE_Y,
   };
 
-  public:
-  explicit SiPixelPhase1TrackClustersV(const edm::ParameterSet& conf);
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+public:
+  explicit SiPixelPhase1TrackClustersV(const edm::ParameterSet &conf);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  private:
-  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clustersToken_;
-  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+private:
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> clustersToken_;
 };
 
 #endif
-

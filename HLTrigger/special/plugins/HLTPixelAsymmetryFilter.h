@@ -1,7 +1,6 @@
 #ifndef HLTPixelAsymmetryFilter_h
 #define HLTPixelAsymmetryFilter_h
 
-
 ///////////////////////////////////////////////////////
 //
 // HLTPixelAsymmetryFilter
@@ -44,28 +43,28 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
 class HLTPixelAsymmetryFilter : public HLTFilter {
- public:
+public:
   explicit HLTPixelAsymmetryFilter(const edm::ParameterSet&);
   ~HLTPixelAsymmetryFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+private:
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > inputToken_;
-  edm::InputTag inputTag_; // input tag identifying product containing pixel clusters
-  double  min_asym_;       // minimum asymmetry
-  double  max_asym_;       // maximum asymmetry
-  double  clus_thresh_;    // minimum charge for a cluster to be selected (in e-)
-  double  bmincharge_;     // minimum average charge in the barrel (bpix, in e-)
-
+  edm::InputTag inputTag_;  // input tag identifying product containing pixel clusters
+  double min_asym_;         // minimum asymmetry
+  double max_asym_;         // maximum asymmetry
+  double clus_thresh_;      // minimum charge for a cluster to be selected (in e-)
+  double bmincharge_;       // minimum average charge in the barrel (bpix, in e-)
 };
 
 #endif
-

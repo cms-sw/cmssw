@@ -2,7 +2,7 @@
 //
 // Package:     FWLite
 // Class  :     ErrorThrower
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -23,63 +23,57 @@ using namespace fwlite;
 // constants, enums and typedefs
 //
 namespace {
-   class NoProductErrorThrower : public ErrorThrower {
-   public:
-      NoProductErrorThrower(const std::type_info& iType, const char*iModule, const char*iInstance, const char*iProcess):
-      type_(&iType), module_(iModule), instance_(iInstance), process_(iProcess) {}
-      
-      void throwIt() const override {
+  class NoProductErrorThrower : public ErrorThrower {
+  public:
+    NoProductErrorThrower(const std::type_info& iType, const char* iModule, const char* iInstance, const char* iProcess)
+        : type_(&iType), module_(iModule), instance_(iInstance), process_(iProcess) {}
 
-         edm::TypeID type(*type_);
-         throw edm::Exception(edm::errors::ProductNotFound)<<"A branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<module_
-         <<"'\n  productInstance='"<<((nullptr != instance_)?instance_:"")<<"'\n  process='"<<((nullptr != process_)?process_:"")<<"'\n"
-         "but no data is available for this Event";
-      }
-      ErrorThrower* clone() const override {
-         return new NoProductErrorThrower(*this);
-      }
+    void throwIt() const override {
+      edm::TypeID type(*type_);
+      throw edm::Exception(edm::errors::ProductNotFound)
+          << "A branch was found for \n  type ='" << type.className() << "'\n  module='" << module_
+          << "'\n  productInstance='" << ((nullptr != instance_) ? instance_ : "") << "'\n  process='"
+          << ((nullptr != process_) ? process_ : "")
+          << "'\n"
+             "but no data is available for this Event";
+    }
+    ErrorThrower* clone() const override { return new NoProductErrorThrower(*this); }
 
-   private:
-      const std::type_info* type_;
-      const char* module_;
-      const char* instance_;
-      const char* process_;
-   };
-   
-   class NoBranchErrorThrower : public ErrorThrower {
-   public:
-      NoBranchErrorThrower(const std::type_info& iType, const char*iModule, const char*iInstance, const char*iProcess):
-      type_(&iType), module_(iModule), instance_(iInstance), process_(iProcess) {}
-      
-      void throwIt() const override {
-         
-         edm::TypeID type(*type_);
-         throw edm::Exception(edm::errors::ProductNotFound)<<"No branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<module_
-         <<"'\n  productInstance='"<<((nullptr != instance_)?instance_:"")<<"'\n  process='"<<((nullptr != process_)?process_:"")<<"'";
-      }
-      
-      ErrorThrower* clone() const override {
-         return new NoBranchErrorThrower(*this);
-      }
-      
-   private:
-      const std::type_info* type_;
-      const char* module_;
-      const char* instance_;
-      const char* process_;
-   };
-   
-   class UnsetErrorThrower : public ErrorThrower {
-      void throwIt() const override {
-         throw cms::Exception("UnsetHandle")<<"The fwlite::Handle was never set";
-      }
-      
-      ErrorThrower* clone() const override {
-         return new UnsetErrorThrower(*this);
-      }
-      
-   };
-}
+  private:
+    const std::type_info* type_;
+    const char* module_;
+    const char* instance_;
+    const char* process_;
+  };
+
+  class NoBranchErrorThrower : public ErrorThrower {
+  public:
+    NoBranchErrorThrower(const std::type_info& iType, const char* iModule, const char* iInstance, const char* iProcess)
+        : type_(&iType), module_(iModule), instance_(iInstance), process_(iProcess) {}
+
+    void throwIt() const override {
+      edm::TypeID type(*type_);
+      throw edm::Exception(edm::errors::ProductNotFound)
+          << "No branch was found for \n  type ='" << type.className() << "'\n  module='" << module_
+          << "'\n  productInstance='" << ((nullptr != instance_) ? instance_ : "") << "'\n  process='"
+          << ((nullptr != process_) ? process_ : "") << "'";
+    }
+
+    ErrorThrower* clone() const override { return new NoBranchErrorThrower(*this); }
+
+  private:
+    const std::type_info* type_;
+    const char* module_;
+    const char* instance_;
+    const char* process_;
+  };
+
+  class UnsetErrorThrower : public ErrorThrower {
+    void throwIt() const override { throw cms::Exception("UnsetHandle") << "The fwlite::Handle was never set"; }
+
+    ErrorThrower* clone() const override { return new UnsetErrorThrower(*this); }
+  };
+}  // namespace
 //
 // static data member definitions
 //
@@ -87,18 +81,14 @@ namespace {
 //
 // constructors and destructor
 //
-ErrorThrower::ErrorThrower()
-{
-}
+ErrorThrower::ErrorThrower() {}
 
 // ErrorThrower::ErrorThrower(const ErrorThrower& rhs)
 // {
 //    // do actual copying here;
 // }
 
-ErrorThrower::~ErrorThrower()
-{
-}
+ErrorThrower::~ErrorThrower() {}
 
 //
 // assignment operators
@@ -123,17 +113,18 @@ ErrorThrower::~ErrorThrower()
 //
 // static member functions
 //
-ErrorThrower* 
-ErrorThrower::unsetErrorThrower() {
-   return new UnsetErrorThrower();
+ErrorThrower* ErrorThrower::unsetErrorThrower() { return new UnsetErrorThrower(); }
+
+ErrorThrower* ErrorThrower::errorThrowerBranchNotFoundException(const std::type_info& iType,
+                                                                const char* iModule,
+                                                                const char* iInstance,
+                                                                const char* iProcess) {
+  return new NoBranchErrorThrower(iType, iModule, iInstance, iProcess);
 }
 
-ErrorThrower* 
-ErrorThrower::errorThrowerBranchNotFoundException(const std::type_info& iType, const char* iModule, const char* iInstance, const char* iProcess){
-   return new NoBranchErrorThrower(iType,iModule,iInstance,iProcess);
-}
-
-ErrorThrower* 
-ErrorThrower::errorThrowerProductNotFoundException(const std::type_info& iType, const char* iModule, const char* iInstance, const char* iProcess){
-   return new NoProductErrorThrower(iType,iModule,iInstance,iProcess);
+ErrorThrower* ErrorThrower::errorThrowerProductNotFoundException(const std::type_info& iType,
+                                                                 const char* iModule,
+                                                                 const char* iInstance,
+                                                                 const char* iProcess) {
+  return new NoProductErrorThrower(iType, iModule, iInstance, iProcess);
 }

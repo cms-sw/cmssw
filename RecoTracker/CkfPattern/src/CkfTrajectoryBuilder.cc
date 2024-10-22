@@ -1,6 +1,7 @@
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -15,8 +16,6 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
-
-#include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "RecoTracker/CkfPattern/interface/TrajCandLess.h"
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -24,218 +23,149 @@
 #include "RecoTracker/CkfPattern/interface/IntermediateTrajectoryCleaner.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 
 using namespace std;
 
-CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
-  CkfTrajectoryBuilder(conf,
-                       BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC))
-{}
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
+    : CkfTrajectoryBuilder(conf,
+                           iC,
+                           BaseCkfTrajectoryBuilder::createTrajectoryFilter(
+                               conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC)) {}
 
-CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, TrajectoryFilter *filter):
-  BaseCkfTrajectoryBuilder(conf, filter)
-{
-  theMaxCand              = conf.getParameter<int>("maxCand");
-  theLostHitPenalty       = conf.getParameter<double>("lostHitPenalty");
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                                           edm::ConsumesCollector iC,
+                                           std::unique_ptr<TrajectoryFilter> filter)
+    : BaseCkfTrajectoryBuilder(conf, iC, std::move(filter)) {
+  theMaxCand = conf.getParameter<int>("maxCand");
+  theLostHitPenalty = conf.getParameter<double>("lostHitPenalty");
+  theFoundHitBonus = conf.getParameter<double>("foundHitBonus");
+  theMinHitForDoubleBonus = conf.getParameter<int>("minHitForDoubleBonus");
   theIntermediateCleaning = conf.getParameter<bool>("intermediateCleaning");
   theAlwaysUseInvalidHits = conf.getParameter<bool>("alwaysUseInvalidHits");
-  /*
-    theSharedSeedCheck = conf.getParameter<bool>("SharedSeedCheck");
-    std::stringstream ss;
-    ss<<"CkfTrajectoryBuilder_"<<conf.getParameter<std::string>("ComponentName")<<"_"<<this;
-    theUniqueName = ss.str();
-    LogDebug("CkfPattern")<<"my unique name is: "<<theUniqueName;
-  */
 }
 
-/*
-  void CkfTrajectoryBuilder::setEvent(const edm::Event& event) const
-  {
-  theMeasurementTracker->update(event);
-  }
-*/
+void CkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  BaseCkfTrajectoryBuilder::fillPSetDescription(iDesc);
+  iDesc.add<int>("maxCand", 5);
+  iDesc.add<double>("lostHitPenalty", 30.);
+  iDesc.add<double>("foundHitBonus", 0.);
+  iDesc.add<int>("minHitForDoubleBonus", 8888);
+  iDesc.add<bool>("intermediateCleaning", true);
+  iDesc.add<bool>("alwaysUseInvalidHits", true);
 
-void CkfTrajectoryBuilder::setEvent_(const edm::Event& event, const edm::EventSetup& iSetup) {  
+  edm::ParameterSetDescription psdTF;
+  psdTF.addNode(edm::PluginDescription<TrajectoryFilterFactory>("ComponentType", true));
+  iDesc.add<edm::ParameterSetDescription>("trajectoryFilter", psdTF);
 }
 
-CkfTrajectoryBuilder::TrajectoryContainer 
-CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed) const
-{  
+void CkfTrajectoryBuilder::setEvent_(const edm::Event& event, const edm::EventSetup& iSetup) {}
+
+CkfTrajectoryBuilder::TrajectoryContainer CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed) const {
   TrajectoryContainer result;
   result.reserve(5);
   trajectories(seed, result);
   return result;
 }
 
-/*
-  void CkfTrajectoryBuilder::rememberSeedAndTrajectories(const TrajectorySeed& seed,
-  CkfTrajectoryBuilder::TrajectoryContainer &result) const
-  {
-  
-  //result ----> theCachedTrajectories
-  //every first iteration on event. forget about everything that happened before
-  if (edm::Service<UpdaterService>()->checkOnce(theUniqueName)) 
-  theCachedTrajectories.clear();
-  
-  if (seed.nHits()==0) return;
-  
-  //then remember those trajectories
-  for (TrajectoryContainer::iterator traj=result.begin();
-  traj!=result.end(); ++traj) {
-  theCachedTrajectories.insert(std::make_pair(seed.recHits().first->geographicalId(),*traj));
-  }  
-  }
-  
-  bool CkfTrajectoryBuilder::sharedSeed(const TrajectorySeed& s1,const TrajectorySeed& s2) const{
-  //quit right away on nH=0
-  if (s1.nHits()==0 || s2.nHits()==0) return false;
-  //quit right away if not the same number of hits
-  if (s1.nHits()!=s2.nHits()) return false;
-  TrajectorySeed::range r1=s1.recHits();
-  TrajectorySeed::range r2=s2.recHits();
-  TrajectorySeed::const_iterator i1,i2;
-  TrajectorySeed::const_iterator & i1_e=r1.second,&i2_e=r2.second;
-  TrajectorySeed::const_iterator & i1_b=r1.first,&i2_b=r2.first;
-  //quit right away if first detId does not match. front exist because of ==0 ->quit test
-  if(i1_b->geographicalId() != i2_b->geographicalId()) return false;
-  //then check hit by hit if they are the same
-  for (i1=i1_b,i2=i2_b;i1!=i1_e,i2!=i2_e;++i1,++i2){
-  if (!i1->sharesInput(&(*i2),TrackingRecHit::all)) return false;
-  }
-  return true;
-  }
-  bool CkfTrajectoryBuilder::seedAlreadyUsed(const TrajectorySeed& seed,
-  CkfTrajectoryBuilder::TempTrajectoryContainer &candidates) const
-  {
-  //theCachedTrajectories ---> candidates
-  if (seed.nHits()==0) return false;
-  bool answer=false;
-  pair<SharedTrajectory::const_iterator, SharedTrajectory::const_iterator> range = 
-  theCachedTrajectories.equal_range(seed.recHits().first->geographicalId());
-  SharedTrajectory::const_iterator trajP;
-  for (trajP = range.first; trajP!=range.second;++trajP){
-  //check whether seeds are identical     
-  if (sharedSeed(trajP->second.seed(),seed)){
-  candidates.push_back(trajP->second);
-  answer=true;
-  }//already existing trajectory shares the seed.   
-  }//loop already made trajectories      
-  
-  return answer;
-  }
-*/
-
-void
-CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed, CkfTrajectoryBuilder::TrajectoryContainer &result) const
-{  
-  // analyseSeed( seed);
-  /*
-    if (theSharedSeedCheck){
-    TempTrajectoryContainer candidates;
-    if (seedAlreadyUsed(seed,candidates))
-    {
-    //start with those candidates already made before
-    limitedCandidates(candidates,result);
-    //and quit
-    return;
-    }
-    }
-  */
-
+void CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed,
+                                        CkfTrajectoryBuilder::TrajectoryContainer& result) const {
   unsigned int tmp;
   buildTrajectories(seed, result, tmp, nullptr);
 }
 
-TempTrajectory CkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed&seed,
-							TrajectoryContainer &result,
-							unsigned int& nCandPerSeed,
-							const TrajectoryFilter*) const {
+void CkfTrajectoryBuilder::buildTrajectories(const TrajectorySeed& seed,
+                                             TrajectoryContainer& result,
+                                             unsigned int& nCandPerSeed,
+                                             const TrajectoryFilter*) const {
   if (theMeasurementTracker == nullptr) {
-      throw cms::Exception("LogicError") << "Asking to create trajectories to an un-initialized CkfTrajectoryBuilder.\nYou have to call clone(const MeasurementTrackerEvent *data) and then call trajectories on it instead.\n";
+    throw cms::Exception("LogicError")
+        << "Asking to create trajectories to an un-initialized CkfTrajectoryBuilder.\nYou have to call clone(const "
+           "MeasurementTrackerEvent *data) and then call trajectories on it instead.\n";
   }
- 
-  TempTrajectory && startingTraj = createStartingTrajectory( seed );
-  
-  /// limitedCandidates( startingTraj, regionalCondition, result);
-  /// FIXME: restore regionalCondition
+
+  TempTrajectory startingTraj = createStartingTrajectory(seed);
+
   nCandPerSeed = limitedCandidates(seed, startingTraj, result);
-  
-  return startingTraj;
-
-  /*
-  //and remember what you just did
-  if (theSharedSeedCheck)  rememberSeedAndTrajectories(seed,result);
-  */
-  
-  // analyseResult(result);
 }
 
-unsigned int CkfTrajectoryBuilder::
-limitedCandidates(const TrajectorySeed&seed, TempTrajectory& startingTraj,
-		   TrajectoryContainer& result) const
-{
+unsigned int CkfTrajectoryBuilder::limitedCandidates(const TrajectorySeed& seed,
+                                                     TempTrajectory& startingTraj,
+                                                     TrajectoryContainer& result) const {
   TempTrajectoryContainer candidates;
-  candidates.push_back( startingTraj);
-  boost::shared_ptr<const TrajectorySeed>  sharedSeed(new TrajectorySeed(seed));
-  return limitedCandidates(sharedSeed, candidates,result);
+  candidates.push_back(startingTraj);
+  std::shared_ptr<const TrajectorySeed> sharedSeed(new TrajectorySeed(seed));
+  return limitedCandidates(sharedSeed, candidates, result);
 }
 
-unsigned int CkfTrajectoryBuilder::
-limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, TempTrajectoryContainer &candidates,
-		   TrajectoryContainer& result) const
-{
-  unsigned int nIter=1;
-  unsigned int nCands=0; // ignore startingTraj
-  unsigned int prevNewCandSize=0;
-  TempTrajectoryContainer newCand; // = TrajectoryContainer();
-  newCand.reserve(2*theMaxCand);
+unsigned int CkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<const TrajectorySeed>& sharedSeed,
+                                                     TempTrajectoryContainer& candidates,
+                                                     TrajectoryContainer& result) const {
+  unsigned int nIter = 1;
+  unsigned int nCands = 0;  // ignore startingTraj
+  unsigned int prevNewCandSize = 0;
+  TempTrajectoryContainer newCand;  // = TrajectoryContainer();
+  newCand.reserve(theMaxCand);
 
-  
-  auto trajCandLess = [&](TempTrajectory const & a, TempTrajectory const & b) {
-    return  (a.chiSquared() + a.lostHits()*theLostHitPenalty)  <
-    (b.chiSquared() + b.lostHits()*theLostHitPenalty);
+  auto score = [&](TempTrajectory const& a) {
+    auto bonus = theFoundHitBonus;
+    bonus += a.foundHits() > theMinHitForDoubleBonus ? bonus : 0;
+    return a.chiSquared() + a.lostHits() * theLostHitPenalty - bonus * a.foundHits();
   };
-  
- 
-  while ( !candidates.empty()) {
 
+  auto trajCandLess = [&](TempTrajectory const& a, TempTrajectory const& b) { return score(a) < score(b); };
+
+  while (!candidates.empty()) {
     newCand.clear();
-    for (auto traj=candidates.begin(); traj!=candidates.end(); traj++) {
+    bool full = 0;
+    for (auto traj = candidates.begin(); traj != candidates.end(); traj++) {
       std::vector<TM> meas;
       findCompatibleMeasurements(*sharedSeed, *traj, meas);
 
       // --- method for debugging
-      if(!analyzeMeasurementsDebugger(*traj,meas,
-				      theMeasurementTracker,
-				      forwardPropagator(*sharedSeed),theEstimator,
-				      theTTRHBuilder)) return nCands;
+      if (!analyzeMeasurementsDebugger(
+              *traj, meas, theMeasurementTracker, forwardPropagator(*sharedSeed), theEstimator, theTTRHBuilder))
+        return nCands;
       // ---
 
-      if ( meas.empty()) {
-	addToResult(sharedSeed, *traj, result);
-      }
-      else {
-	std::vector<TM>::const_iterator last;
-	if ( theAlwaysUseInvalidHits) last = meas.end();
-	else {
-	  if (meas.front().recHit()->isValid()) {
-	    last = find_if( meas.begin(), meas.end(), RecHitIsInvalid());
-	  }
-	  else last = meas.end();
-	}
+      if (meas.empty()) {
+        addToResult(sharedSeed, *traj, result);
+      } else {
+        std::vector<TM>::const_iterator last;
+        if (theAlwaysUseInvalidHits)
+          last = meas.end();
+        else {
+          if (meas.front().recHit()->isValid()) {
+            last = find_if(meas.begin(), meas.end(), [](auto const& meas) { return !meas.recHit()->isValid(); });
+          } else
+            last = meas.end();
+        }
 
-	for(auto itm = meas.begin(); itm != last; itm++) {
-	  TempTrajectory newTraj = *traj;
-	  updateTrajectory( newTraj, std::move(*itm));
+        for (auto itm = meas.begin(); itm != last; itm++) {
+          TempTrajectory newTraj = *traj;
+          updateTrajectory(newTraj, std::move(*itm));
 
-	  if ( toBeContinued(newTraj)) {
-	    newCand.push_back(std::move(newTraj));  std::push_heap(newCand.begin(),newCand.end(),trajCandLess);
-	  }
-	  else {
-	    addToResult(sharedSeed, newTraj, result);
-	    //// don't know yet
-	  }
-	}
+          if (toBeContinued(newTraj)) {
+            if (full) {
+              bool better = trajCandLess(newTraj, newCand.front());
+              if (better) {
+                // replace worst
+                std::pop_heap(newCand.begin(), newCand.end(), trajCandLess);
+                newCand.back().swap(newTraj);
+                std::push_heap(newCand.begin(), newCand.end(), trajCandLess);
+              }  // else? no need to add it just to remove it later!
+            } else {
+              newCand.push_back(std::move(newTraj));
+              full = (int)newCand.size() == theMaxCand;
+              if (full)
+                std::make_heap(newCand.begin(), newCand.end(), trajCandLess);
+            }
+          } else {
+            addToResult(sharedSeed, newTraj, result);
+            //// don't know yet
+          }
+        }
       }
 
       // account only new candidates, i.e.
@@ -244,158 +174,102 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
       nCands += newCand.size() - prevNewCandSize;
       prevNewCandSize = newCand.size();
 
-      /*
-      auto trajVal = [&](TempTrajectory const & a) {
-      	return  a.chiSquared() + a.lostHits()*theLostHitPenalty;
-      };
+      assert((int)newCand.size() <= theMaxCand);
+      if (full)
+        assert((int)newCand.size() == theMaxCand);
+    }  // end loop on candidates
 
-      // safe (stable?) logig: always sort, kill exceeding only if worse than last to keep
-      // if ((int)newCand.size() > theMaxCand) std::cout << "TrajVal " << theMaxCand  << ' ' << newCand.size() << ' ' <<  trajVal(newCand.front());
-      int toCut = int(newCand.size()) - int(theMaxCand);
-      if (toCut>0) {
-        // move largest "toCut" to the end
-        for (int i=0; i<toCut; ++i)
-          std::pop_heap(newCand.begin(),newCand.end()-i,trajCandLess);
-        auto fval = trajVal(newCand.front());
-        // remove till equal to highest to keep
-        for (int i=0; i<toCut; ++i) {
-           if (fval==trajVal(newCand.back())) break;
-           newCand.pop_back();
-        }
-	//assert((int)newCand.size() >= theMaxCand);
-	//std::cout << "; " << newCand.size() << ' ' << trajVal(newCand.front())  << " " << trajVal(newCand.back());
-
-	// std::make_heap(newCand.begin(),newCand.end(),trajCandLess);
-        // push_heap again the one left
-        for (auto iter = newCand.begin()+theMaxCand+1; iter<=newCand.end(); ++iter  )
-	  std::push_heap(newCand.begin(),iter,trajCandLess);
-
-	// std::cout << "; " << newCand.size() << ' ' << trajVal(newCand.front())  << " " << trajVal(newCand.back()) << std::endl;
-      }
-
-      */
-
-      
-      // intermedeate login: always sort,  kill all exceeding
-      while ((int)newCand.size() > theMaxCand) {
-	std::pop_heap(newCand.begin(),newCand.end(),trajCandLess);
-	// if ((int)newCand.size() == theMaxCand+1) std::cout << " " << trajVal(newCand.front())  << " " << trajVal(newCand.back()) << std::endl;
-	newCand.pop_back();
-       }
-      
-      /*
-      //   original logic: sort only if > theMaxCand, kill all exceeding
-      if ((int)newCand.size() > theMaxCand) {
-	std::sort( newCand.begin(), newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
-	// std::partial_sort( newCand.begin(), newCand.begin()+theMaxCand, newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
-	std::cout << "TrajVal " << theMaxCand  << ' ' << newCand.size() << ' '
-	<< trajVal(newCand.back()) << ' ' << trajVal(newCand[theMaxCand-1]) << ' ' << trajVal(newCand[theMaxCand])  << std::endl;
-	newCand.resize(theMaxCand);
-      }
-      */
-
-    } // end loop on candidates
-
-    std::sort_heap(newCand.begin(),newCand.end(),trajCandLess);
-    if (theIntermediateCleaning) IntermediateTrajectoryCleaner::clean(newCand);
+    // no reason to sort  (no sorting in Grouped version!)
+    if (theIntermediateCleaning)
+      IntermediateTrajectoryCleaner::clean(newCand);
 
     candidates.swap(newCand);
-    
-    LogDebug("CkfPattern") <<result.size()<<" candidates after "<<nIter++<<" CKF iteration: \n"
-			   <<PrintoutHelper::dumpCandidates(result)
-			   <<"\n "<<candidates.size()<<" running candidates are: \n"
-			   <<PrintoutHelper::dumpCandidates(candidates);
 
+    LogDebug("CkfPattern") << result.size() << " candidates after " << nIter++ << " CKF iteration: \n"
+                           << PrintoutHelper::dumpCandidates(result) << "\n " << candidates.size()
+                           << " running candidates are: \n"
+                           << PrintoutHelper::dumpCandidates(candidates);
   }
   return nCands;
 }
 
-
-
-void CkfTrajectoryBuilder::updateTrajectory( TempTrajectory& traj,
-					     TM && tm) const
-{
-  auto && predictedState = tm.predictedState();
-  auto  && hit = tm.recHit();
-  if ( hit->isValid()) {
-    auto && upState = theUpdator->update( predictedState, *hit);
-    traj.emplace( std::move(predictedState), std::move(upState),
-		 std::move(hit), tm.estimate(), tm.layer()); 
-  }
-  else {
-    traj.emplace( std::move(predictedState), std::move(hit), 0, tm.layer());
+void CkfTrajectoryBuilder::updateTrajectory(TempTrajectory& traj, TM&& tm) const {
+  auto&& predictedState = tm.predictedState();
+  auto&& hit = tm.recHit();
+  if (hit->isValid()) {
+    auto&& upState = theUpdator->update(predictedState, *hit);
+    traj.emplace(predictedState, std::move(upState), hit, tm.estimate(), tm.layer());
+  } else {
+    traj.emplace(predictedState, hit, 0, tm.layer());
   }
 }
 
-
-void 
-CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
-						 const TempTrajectory& traj, 
-						 std::vector<TrajectoryMeasurement> & result) const
-{
+void CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed& seed,
+                                                      const TempTrajectory& traj,
+                                                      std::vector<TrajectoryMeasurement>& result) const {
   int invalidHits = 0;
   //Use findStateAndLayers which handles the hitless seed use case
-  std::pair<TSOS,std::vector<const DetLayer*> > && stateAndLayers = findStateAndLayers(seed,traj);
-  if (stateAndLayers.second.empty()) return;
+  std::pair<TSOS, std::vector<const DetLayer*> >&& stateAndLayers = findStateAndLayers(seed, traj);
+  if (stateAndLayers.second.empty())
+    return;
 
   auto layerBegin = stateAndLayers.second.begin();
-  auto layerEnd  = stateAndLayers.second.end();
-  LogDebug("CkfPattern")<<"looping on "<< stateAndLayers.second.size()<<" layers.";
-  const Propagator *fwdPropagator = forwardPropagator(seed);
-  for (auto il = layerBegin;  il != layerEnd; il++) {
-
-    LogDebug("CkfPattern")<<"looping on a layer in findCompatibleMeasurements.\n last layer: "<<traj.lastLayer()<<" current layer: "<<(*il);
+  auto layerEnd = stateAndLayers.second.end();
+  LogDebug("CkfPattern") << "looping on " << stateAndLayers.second.size() << " layers.";
+  const Propagator* fwdPropagator = forwardPropagator(seed);
+  for (auto il = layerBegin; il != layerEnd; il++) {
+    LogDebug("CkfPattern") << "looping on a layer in findCompatibleMeasurements.\n last layer: " << traj.lastLayer()
+                           << " current layer: " << (*il);
 
     TSOS stateToUse = stateAndLayers.first;
     //Added protection before asking for the lastLayer on the trajectory
-    if unlikely (!traj.empty() && (*il)==traj.lastLayer()) {
-	LogDebug("CkfPattern")<<" self propagating in findCompatibleMeasurements.\n from: \n"<<stateToUse;
-	//self navigation case
-	// go to a middle point first
-	TransverseImpactPointExtrapolator middle;
-	GlobalPoint center(0,0,0);
-	stateToUse = middle.extrapolate(stateToUse, center, *fwdPropagator);
-	
-	if (!stateToUse.isValid()) continue;
-	LogDebug("CkfPattern")<<"to: "<<stateToUse;
-      }
-    
+    if UNLIKELY (!traj.empty() && (*il) == traj.lastLayer()) {
+      LogDebug("CkfPattern") << " self propagating in findCompatibleMeasurements.\n from: \n" << stateToUse;
+      //self navigation case
+      // go to a middle point first
+      TransverseImpactPointExtrapolator middle;
+      GlobalPoint center(0, 0, 0);
+      stateToUse = middle.extrapolate(stateToUse, center, *fwdPropagator);
+
+      if (!stateToUse.isValid())
+        continue;
+      LogDebug("CkfPattern") << "to: " << stateToUse;
+    }
+
     LayerMeasurements layerMeasurements(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
-    std::vector<TrajectoryMeasurement> && tmp = layerMeasurements.measurements((**il),stateToUse, *fwdPropagator, *theEstimator);
-    
-    if ( !tmp.empty()) {
-      if ( result.empty()) result.swap(tmp);
+    std::vector<TrajectoryMeasurement>&& tmp =
+        layerMeasurements.measurements((**il), stateToUse, *fwdPropagator, *theEstimator);
+
+    if (!tmp.empty()) {
+      if (result.empty())
+        result.swap(tmp);
       else {
-	// keep one dummy TM at the end, skip the others
-	result.insert( result.end()-invalidHits, 
-		       std::make_move_iterator(tmp.begin()), std::make_move_iterator(tmp.end()));
+        // keep one dummy TM at the end, skip the others
+        result.insert(
+            result.end() - invalidHits, std::make_move_iterator(tmp.begin()), std::make_move_iterator(tmp.end()));
       }
       invalidHits++;
     }
   }
 
   // sort the final result, keep dummy measurements at the end
-  if ( result.size() > 1) {
-    std::sort( result.begin(), result.end()-invalidHits, TrajMeasLessEstim());
+  if (result.size() > 1) {
+    std::sort(result.begin(), result.end() - invalidHits, TrajMeasLessEstim());
   }
 
-  LogDebug("CkfPattern")<<"starting from:\n"
-			<<"x: "<<stateAndLayers.first.globalPosition()<<"\n"
-			<<"p: "<<stateAndLayers.first.globalMomentum()<<"\n"
-			<<PrintoutHelper::dumpMeasurements(result);
+  LogDebug("CkfPattern") << "starting from:\n"
+                         << "x: " << stateAndLayers.first.globalPosition() << "\n"
+                         << "p: " << stateAndLayers.first.globalMomentum() << "\n"
+                         << PrintoutHelper::dumpMeasurements(result);
 
 #ifdef DEBUG_INVALID
   bool afterInvalid = false;
-  for (vector<TM>::const_iterator i=result.begin();
-       i!=result.end(); i++) {
-    if ( ! i->recHit().isValid()) afterInvalid = true;
+  for (vector<TM>::const_iterator i = result.begin(); i != result.end(); i++) {
+    if (!i->recHit().isValid())
+      afterInvalid = true;
     if (afterInvalid && i->recHit().isValid()) {
-      edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: valid hit after invalid!" ;
+      edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: valid hit after invalid!";
     }
   }
 #endif
-
-  //analyseMeasurements( result, traj);
-
 }
-

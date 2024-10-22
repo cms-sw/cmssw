@@ -4,8 +4,10 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+
+class TrackerTopology;
 
 /**
  * This class calculates the number of tracker layers, pixel layers,
@@ -43,17 +45,14 @@
  */
 class TrackingParticleNumberOfLayers {
 public:
-  TrackingParticleNumberOfLayers(const edm::Event& iEvent, const std::vector<edm::EDGetTokenT<std::vector<PSimHit> > >& simHitTokens);
+  TrackingParticleNumberOfLayers(const edm::Event &iEvent,
+                                 const std::vector<edm::EDGetTokenT<std::vector<PSimHit>>> &simHitTokens);
 
-  enum {
-    nTrackerLayers = 0,
-    nPixelLayers = 1,
-    nStripMonoAndStereoLayers = 2
-  };
+  enum { nTrackerLayers = 0, nPixelLayers = 1, nStripMonoAndStereoLayers = 2 };
   std::tuple<std::unique_ptr<edm::ValueMap<unsigned int>>,
              std::unique_ptr<edm::ValueMap<unsigned int>>,
              std::unique_ptr<edm::ValueMap<unsigned int>>>
-  calculate(const edm::Handle<TrackingParticleCollection>& tps, const edm::EventSetup& iSetup) const;
+  calculate(const edm::Handle<TrackingParticleCollection> &tps, const TrackerTopology &tTopo) const;
 
 private:
   // used as multimap, but faster

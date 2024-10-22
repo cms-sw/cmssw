@@ -18,7 +18,7 @@ plots = {
 
 allEfficiencyPlots = []
 add_plot = allEfficiencyPlots.append
-for variable, thresholds in variables.iteritems():
+for variable, thresholds in variables.items():
     for plot in plots[variable]:
         for threshold in thresholds:
             plotName = '{0}_threshold_{1}'.format(plot, threshold)
@@ -45,10 +45,10 @@ from DQMOffline.L1Trigger.L1TDiffHarvesting_cfi import l1tDiffHarvesting
 l1tTauEmuDiff = l1tDiffHarvesting.clone(
     plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(  # EMU comparison
-            dir1=cms.untracked.string("L1T/L1TTau"),
-            dir2=cms.untracked.string("L1TEMU/L1TTau"),
+            dir1=cms.untracked.string("L1T/L1TObjects/L1TTau/L1TriggerVsReco"),
+            dir2=cms.untracked.string("L1TEMU/L1TObjects/L1TTau/L1TriggerVsReco"),
             outputDir=cms.untracked.string(
-                "L1TEMU/L1TTau/Comparison"),
+                "L1TEMU/L1TObjects/L1TTau/L1TriggerVsReco/Comparison"),
             plots=cms.untracked.vstring(allPlots)
         ),
     )

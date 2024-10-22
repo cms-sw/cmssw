@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "description": "A few test corrections",
+  "corrections": [
+    { "name": "test corr",
+      "description": null,
+      "version": 2,
+      "inputs": [
+        { "name": "pt",
+          "type": "real",
+          "description": null
+        },
+        { "name": "syst",
+          "type": "string",
+          "description": null
+        }
+      ],
+      "output": {
+        "name": "a scale",
+        "type": "real",
+        "description": null
+      },
+      "generic_formulas": null,
+      "data": {
+        "nodetype": "binning",
+        "input": "pt",
+        "edges": [ 0.0, 20.0, 40.0, Infinity ],
+        "content": [
+          { "nodetype": "category",
+            "input": "syst",
+            "content": [
+              { "key": "blah", "value": 1.1 },
+              { "key": "blah2", "value": 2.2 }
+            ],
+            "default": null
+          },
+          { "nodetype": "category",
+            "input": "syst",
+            "content": [
+              { "key": "blah2", "value": 1.3 },
+              { "key": "blah3",
+                "value": {
+                  "nodetype": "formula",
+                  "expression": "0.25*x + exp([0])",
+                  "parser": "TFormula",
+                  "variables": [ "pt" ],
+                  "parameters": [ 3.1 ]
+                }
+              }
+            ],
+            "default": null
+          },
+          1.0
+        ],
+        "flow": "error"
+      }
+    }
+  ],
+  "compound_corrections": null
+}

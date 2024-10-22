@@ -1,0 +1,13 @@
+<iftool name="rocm">
+  <bin file="testHipCheck.cpp" name="testHipCheck">
+    <use name="catch2"/>
+    <use name="rocm"/>
+    <use name="HeterogeneousCore/ROCmUtilities"/>
+  </bin>
+
+  <bin file="testRequireROCmDevices.cpp" name="testRequireROCmDevices">
+    <use name="catch2"/>
+    <use name="rocm"/>
+    <use name="HeterogeneousCore/ROCmUtilities"/>
+  </bin>
+</iftool>

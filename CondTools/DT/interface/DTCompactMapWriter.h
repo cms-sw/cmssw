@@ -15,7 +15,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -38,54 +37,39 @@ class DTROSChannelCompare;
 #include <iostream>
 #include <fstream>
 
-
 class DTCompactMapWriter {
- public:
-  static void buildSteering( std::istream& jobDesc );
- private:
-  static void fillTDCMap( const std::string& map_file,
-                          int wheel, int sector,
-                          std::map<DTROBCardId,
-                                   int,
-                                   DTROBCardCompare>& tdc_idm,
-                          int stationId, // int robId,
-                          int map_count, bool& write );
-  static void fillROSMap( const std::string& map_file,
-                          int   ddu, int    ros,
-                          int whdef, int secdef,
-                          std::map<DTROSChannelId,
-                                   DTROBCardId,
-                                   DTROSChannelCompare>& ddu_map,
-                          std::map<DTROSChannelId,
-                                   DTROBCardId,
-                                   DTROSChannelCompare>& ros_map,
-                          int map_count,
-                          bool& write );
-  static void cloneROS(   std::map<DTROSChannelId,
-                                   DTROBCardId,
-                                   DTROSChannelCompare>& ros_m,
-                          std::map<DTROSChannelId,
-                                   DTROBCardId,
-                                   DTROSChannelCompare>& ros_a,
-                          int ddu_o, int ros_o,
-                          int ddu_f, int ros_f );
-  static void appendROS(  std::map<DTROSChannelId,
-                                   DTROBCardId,
-                                   DTROSChannelCompare>& ros_m,
-                          std::map<DTROSChannelId,
-                                   DTROBCardId,
-                                   DTROSChannelCompare>& ros_a );
-  static void fillReadOutMap( int ros_count,
-                              std::map<DTROBCardId,
-                                       int,
-                                       DTROBCardCompare>& tdc_idm,
-                              std::map<DTROSChannelId,
-                                       DTROBCardId,
-                                       DTROSChannelCompare>& ddu_map,
-                              std::map<DTROSChannelId,
-                                       DTROBCardId,
-                                       DTROSChannelCompare>& ros_map );
+public:
+  static void buildSteering(std::istream& jobDesc);
+
+private:
+  static void fillTDCMap(const std::string& map_file,
+                         int wheel,
+                         int sector,
+                         std::map<DTROBCardId, int, DTROBCardCompare>& tdc_idm,
+                         int stationId,  // int robId,
+                         int map_count,
+                         bool& write);
+  static void fillROSMap(const std::string& map_file,
+                         int ddu,
+                         int ros,
+                         int whdef,
+                         int secdef,
+                         std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>& ddu_map,
+                         std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>& ros_map,
+                         int map_count,
+                         bool& write);
+  static void cloneROS(std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>& ros_m,
+                       std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>& ros_a,
+                       int ddu_o,
+                       int ros_o,
+                       int ddu_f,
+                       int ros_f);
+  static void appendROS(std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>& ros_m,
+                        std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>& ros_a);
+  static void fillReadOutMap(int ros_count,
+                             std::map<DTROBCardId, int, DTROBCardCompare>& tdc_idm,
+                             std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>& ddu_map,
+                             std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>& ros_map);
 };
 
 #endif
-

@@ -27,21 +27,20 @@
 
 #ifdef DQMGLOBAL
 
-#define LOG_DEBUG       ((!edm::MessageDrop::instance()->debugEnabled) ? \
-                        cscdqm::LogDebugger(false) : cscdqm::LogDebugger())
+#define LOG_DEBUG ((!edm::MessageDrop::instance()->debugEnabled) ? cscdqm::LogDebugger(false) : cscdqm::LogDebugger())
 
 #endif
 
 #ifdef DQMLOCAL
 
-#define LOG_DEBUG       cscdqm::LogDebugger()
+#define LOG_DEBUG cscdqm::LogDebugger()
 
 #endif
 
-#define LOG_ERROR       cscdqm::LogError()
-#define LOG_WARN        cscdqm::LogWarn()
-#define LOG_INFO        cscdqm::LogInfo()
-#define LOG_COUT        cscdqm::LogCout()
+#define LOG_ERROR cscdqm::LogError()
+#define LOG_WARN cscdqm::LogWarn()
+#define LOG_INFO cscdqm::LogInfo()
+#define LOG_COUT cscdqm::LogCout()
 
 namespace cscdqm {
 
@@ -49,7 +48,7 @@ namespace cscdqm {
    * @class Logger
    * @brief Base Logger Object (empty)
    */
-  class Logger { };
+  class Logger {};
 
   /**
    * @class LogInfo
@@ -58,9 +57,11 @@ namespace cscdqm {
    */
   class LogInfo : public edm::LogInfo, public Logger {
 #ifdef DQMGLOBAL
-    public: LogInfo() : edm::LogInfo("") { }
+  public:
+    LogInfo() : edm::LogInfo("") {}
 #else
-    public: LogInfo() : edm::LogInfo() { }
+  public:
+    LogInfo() : edm::LogInfo() {}
 #endif
   };
 
@@ -71,9 +72,11 @@ namespace cscdqm {
    */
   class LogWarn : public edm::LogWarning, public Logger {
 #ifdef DQMGLOBAL
-    public: LogWarn() : edm::LogWarning("") { }
+  public:
+    LogWarn() : edm::LogWarning("") {}
 #else
-    public: LogWarn() : edm::LogWarning() { }
+  public:
+    LogWarn() : edm::LogWarning() {}
 #endif
   };
 
@@ -84,9 +87,11 @@ namespace cscdqm {
    */
   class LogError : public edm::LogError, public Logger {
 #ifdef DQMGLOBAL
-    public: LogError() : edm::LogError("") { }
+  public:
+    LogError() : edm::LogError("") {}
 #else
-    public: LogError() : edm::LogError() { }
+  public:
+    LogError() : edm::LogError() {}
 #endif
   };
 
@@ -98,9 +103,9 @@ namespace cscdqm {
    * "x = " << x;
    */
   class LogDebugger : public edm::LogDebug_, public Logger {
-    public: 
-      LogDebugger() : edm::LogDebug_("", __FILE__, __LINE__) { }
-      LogDebugger(const bool empty) : edm::LogDebug_() { }
+  public:
+    LogDebugger() : edm::LogDebug_("", __FILE__, __LINE__) {}
+    LogDebugger(const bool empty) : edm::LogDebug_() {}
   };
 
 #endif
@@ -113,8 +118,8 @@ namespace cscdqm {
    * "x = " << x;
    */
   class LogDebugger : public edm::LogDebug, public Logger {
-    public: 
-      LogDebugger() : edm::LogDebug() { }
+  public:
+    LogDebugger() : edm::LogDebug() {}
   };
 
 #endif
@@ -125,29 +130,27 @@ namespace cscdqm {
    * instead, i.e. LOG_COUT << "x = " << x;
    */
   class LogCout : public Logger {
-    public:
+  public:
+    LogCout() {}
+    ~LogCout() { std::cout << std::endl; }
 
-      LogCout() { }
-      ~LogCout() { std::cout << std::endl; }
+    template <class T>
+    LogCout& operator<<(T const& t) {
+      std::cout << t;
+      return *this;
+    }
 
-      template< class T >
-      LogCout& operator<< (T const & t) { 
-        std::cout << t;
-        return *this; 
-      }
+    LogCout& operator<<(std::ostream& (*f)(std::ostream&)) {
+      std::cout << f;
+      return *this;
+    }
 
-      LogCout& operator<< (std::ostream&(*f)(std::ostream&)) { 
-        std::cout << f;
-        return *this; 
-      }
-
-      LogCout& operator<< (std::ios_base&(*f)(std::ios_base&) ) { 
-        std::cout << f;
-        return *this; 
-      }     
-
+    LogCout& operator<<(std::ios_base& (*f)(std::ios_base&)) {
+      std::cout << f;
+      return *this;
+    }
   };
 
-}
+}  // namespace cscdqm
 
 #endif

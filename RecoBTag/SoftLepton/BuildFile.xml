@@ -1,8 +1,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/BTauReco"/>
 <use name="RecoBTau/JetTagComputer"/>
-<use name="CommonTools/Utils"/>
-<use name="roottmva"/>
+<use name="CommonTools/MVAUtils"/>
 <export>
   <lib name="1"/>
 </export>

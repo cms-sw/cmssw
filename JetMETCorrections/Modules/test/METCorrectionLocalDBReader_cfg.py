@@ -6,18 +6,19 @@ process = cms.Process("metdbreader")
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations   = cms.untracked.vstring(
-      'myDebugOutputFile'
-      ),
-    myDebugOutputFile       = cms.untracked.PSet(
-      threshold = cms.untracked.string('DEBUG'),
-      default = cms.untracked.PSet(
-	limit = cms.untracked.int32(-1)
-	),
-      ),
-    debugModules = cms.untracked.vstring(
-      'demo1')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring('demo1'),
+    files = cms.untracked.PSet(
+        myDebugOutputFile = cms.untracked.PSet(
+            default = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            threshold = cms.untracked.string('DEBUG')
+        )
     )
+)
 
 #process.load('Configuration.StandardSequences.Services_cff')
 #process.load("CondCore.DBCommon.CondDBCommon_cfi")

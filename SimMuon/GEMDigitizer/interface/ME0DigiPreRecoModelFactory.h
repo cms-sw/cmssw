@@ -7,7 +7,7 @@
  */
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-namespace edm{
+namespace edm {
   class ParameterSet;
 }
 

@@ -1,3 +1,4 @@
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "PhysicsTools/UtilAlgos/interface/NTupler.h"
 
 #include "PhysicsTools/UtilAlgos/interface/StringBasedNTupler.h"
@@ -5,15 +6,16 @@
 //#include "PhysicsTools/UtilAlgos/interface/AdHocNTupler.h"
 
 class CompleteNTupler : public NTupler {
- public:
-  CompleteNTupler(const edm::ParameterSet& iConfig){
+public:
+  CompleteNTupler(const edm::ParameterSet& iConfig) {
     sN = new StringBasedNTupler(iConfig);
     if (iConfig.exists("variablesPSet"))
       if (!iConfig.getParameter<edm::ParameterSet>("variablesPSet").empty())
-	vN = new VariableNTupler(iConfig);
-      else vN=nullptr;
+        vN = new VariableNTupler(iConfig);
+      else
+        vN = nullptr;
     else
-      vN=nullptr;
+      vN = nullptr;
 
     /*    if (iConfig.exists("AdHocNPSet"))
       if (!iConfig.getParameter<edm::ParameterSet>("AdHocNPSet").empty())
@@ -23,17 +25,17 @@ class CompleteNTupler : public NTupler {
       aN=0;
     */
   }
-  
-  uint registerleaves(edm::ProducerBase * producer) override{
-    uint nLeaves=0;
-    nLeaves+=sN->registerleaves(producer);
+
+  uint registerleaves(edm::ProducesCollector producesCollector) override {
+    uint nLeaves = 0;
+    nLeaves += sN->registerleaves(producesCollector);
     if (vN)
-      nLeaves+=vN->registerleaves(producer);
+      nLeaves += vN->registerleaves(producesCollector);
     //    if (aN)
-    //      nLeaves+=aN->registerleaves(producer);
+    //      nLeaves+=aN->registerleaves(producesCollector);
     return nLeaves;
   }
-  void fill(edm::Event& iEvent) override{
+  void fill(edm::Event& iEvent) override {
     sN->fill(iEvent);
     if (vN)
       vN->fill(iEvent);
@@ -47,10 +49,8 @@ class CompleteNTupler : public NTupler {
     //      aN->callBack();
   }
 
- private:
-  StringBasedNTupler * sN;
-  VariableNTupler * vN;  
+private:
+  StringBasedNTupler* sN;
+  VariableNTupler* vN;
   //  AdHocNTupler * aN;
-
 };
-

@@ -1,0 +1,9 @@
+<environment>
+  <test name="testSSTGainPCL_fromRECO" command="testSSTGain_PCL_FromRECO.sh"/>
+  <bin name="checkMultiRunHarvestingOutput" file="checkMultiRunHarvesting.cpp">
+    <flags PRE_TEST="testSSTGainPCL_fromRECO"/>
+    <use name="rootmath"/>
+    <use name="roothistmatrix"/>
+  </bin>
+  <test name="testSSTGainPCL_fromCalibTree" command="testSSTGain_PCL_FromCalibTree.sh"/>
+</environment>

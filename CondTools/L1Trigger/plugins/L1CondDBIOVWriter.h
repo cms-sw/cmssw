@@ -4,7 +4,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1CondDBIOVWriter
-// 
+//
 /**\class L1CondDBIOVWriter L1CondDBIOVWriter.h CondTools/L1Trigger/interface/L1CondDBIOVWriter.h
 
  Description: <one line class summary>
@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,39 +34,40 @@
 #include "CondTools/L1Trigger/interface/DataWriter.h"
 
 // forward declarations
+class L1TriggerKey;
+class L1TriggerKeyRcd;
+class L1CondDBIOVWriter : public edm::one::EDAnalyzer<> {
+public:
+  explicit L1CondDBIOVWriter(const edm::ParameterSet&);
+  ~L1CondDBIOVWriter() override;
 
-class L1CondDBIOVWriter : public edm::EDAnalyzer {
-   public:
-      explicit L1CondDBIOVWriter(const edm::ParameterSet&);
-      ~L1CondDBIOVWriter() override;
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
+  // ----------member data ---------------------------
+  l1t::DataWriter m_writer;
+  std::string m_tscKey;
 
-   private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+  // List of record@type, used only for objects not tied to TSC key.
+  // Otherwise, list of records comes from L1TriggerKey.
+  std::vector<std::string> m_recordTypes;
 
-      // ----------member data ---------------------------
-      l1t::DataWriter m_writer ;
-      std::string m_tscKey ;
+  // When true, set IOVs for objects not tied to the TSC key.  The records
+  // and objects to be updated are given in the toPut parameter, and
+  // m_tscKey is taken to be a common key for all the toPut objects, not
+  // the TSC key.  The IOV for L1TriggerKey is not updated when
+  // m_ignoreTriggerKey = true.
+  bool m_ignoreTriggerKey;
 
-      // List of record@type, used only for objects not tied to TSC key.
-      // Otherwise, list of records comes from L1TriggerKey.
-      std::vector< std::string > m_recordTypes ;
+  bool m_logKeys;
 
-      // When true, set IOVs for objects not tied to the TSC key.  The records
-      // and objects to be updated are given in the toPut parameter, and
-      // m_tscKey is taken to be a common key for all the toPut objects, not
-      // the TSC key.  The IOV for L1TriggerKey is not updated when
-      // m_ignoreTriggerKey = true.
-      bool m_ignoreTriggerKey ;
+  bool m_logTransactions;
 
-      bool m_logKeys ;
+  bool m_forceUpdate;
 
-      bool m_logTransactions ;
-
-      bool m_forceUpdate ;
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> l1TriggerKeyToken_;
 };
-
 
 #endif

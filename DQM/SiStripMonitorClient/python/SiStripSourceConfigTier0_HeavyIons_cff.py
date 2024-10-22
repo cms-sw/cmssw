@@ -18,6 +18,7 @@ SiStripMonitorCluster.ClusterHisto = True
 SiStripMonitorCluster.PixelDCSfilter = cms.PSet(
     andOr         = cms.bool( False ),
     dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+    dcsRecordInputTag = cms.InputTag( "onlineMetaDataDigis" ),
     dcsPartitions = cms.vint32 ( 28, 29),
     andOrDcs      = cms.bool( False ),
     errorReplyDcs = cms.bool( True ),
@@ -25,6 +26,7 @@ SiStripMonitorCluster.PixelDCSfilter = cms.PSet(
 SiStripMonitorCluster.StripDCSfilter = cms.PSet(
     andOr         = cms.bool( False ),
     dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+    dcsRecordInputTag = cms.InputTag( "onlineMetaDataDigis" ),
     dcsPartitions = cms.vint32 ( 24, 25, 26, 27 ),
     andOrDcs      = cms.bool( False ),
     errorReplyDcs = cms.bool( True ),
@@ -32,18 +34,18 @@ SiStripMonitorCluster.StripDCSfilter = cms.PSet(
 
 # SiStripMonitorTrack ####
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
-SiStripMonitorTrack_hi  = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrack_hi.TrackProducer = "hiGeneralTracks"
-SiStripMonitorTrack_hi.Mod_On        = False
+SiStripMonitorTrack_hi  = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
+    TrackProducer = "hiGeneralTracks",
+    Mod_On = False
+)
 
 # TrackerMonitorTrack ####
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-MonitorTrackResiduals_hi = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResiduals_hi.Tracks              = 'hiGeneralTracks'
-MonitorTrackResiduals_hi.trajectoryInput     = "hiGeneralTracks"
-MonitorTrackResiduals_hi.Mod_On              = False
-
-
+MonitorTrackResiduals_hi = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone(
+    Tracks = 'hiGeneralTracks',
+    trajectoryInput = "hiGeneralTracks",
+    Mod_On = False
+)
 
 SiStripDQMTier0_hi = cms.Sequence(APVPhases * consecutiveHEs *
                                   siStripFEDCheck * siStripFEDMonitor *

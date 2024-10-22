@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Auto generated configuration file
 # using:
 # Revision: 1.19
@@ -7,7 +8,6 @@ import FWCore.ParameterSet.Config as cms
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
-from Configuration.StandardSequences.Eras import eras
 
 options = VarParsing ('analysis')
 options.register('inputFile',
@@ -84,7 +84,8 @@ if options.sample == 'TTbar_PU25':
 if options.inputFile is not None:
   input_file = options.inputFile
 
-process = cms.Process('MATERIAL',eras.Run2_2016)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process('MATERIAL',Run2_2016)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -93,7 +94,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 if options.fromLocalXML:
-  print "Loading material from local XMLs"
+  print("Loading material from local XMLs")
   process.load('Configuration.Geometry.GeometryExtended2016Reco_cff')
 else:
   process.load('Configuration.StandardSequences.GeometryRecoDB_cff')

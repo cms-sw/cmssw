@@ -9,11 +9,15 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Reader")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring(''),
-    QualityReader = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    destinations = cms.untracked.vstring('QualityReader')
+    debugModules = cms.untracked.vstring(''),
+    files = cms.untracked.PSet(
+        QualityReader = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -64,11 +68,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         ))
 )
 
-
-process.reader = cms.EDAnalyzer("SiStripQualityStatistics",
-                              dataLabel = cms.untracked.string(""),
-                              TkMapFileName = cms.untracked.string("")
-                              )
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+process.reader = siStripQualityStatistics.clone()
 
 process.siStripBadStripFromQualityDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
 process.p1 = cms.Path(process.reader*process.siStripBadStripFromQualityDummyDBWriter)

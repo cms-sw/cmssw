@@ -16,32 +16,31 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 class MuonSeedPtExtractor;
 
-class MuonSeedFromRecHits 
-{
+class MuonSeedFromRecHits {
 public:
   MuonSeedFromRecHits();
   virtual ~MuonSeedFromRecHits() {}
 
-  void setBField(const MagneticField * field) {theField = field;}
-  void setPtExtractor(const MuonSeedPtExtractor * extractor) {thePtExtractor = extractor;}
+  void setBField(const MagneticField* field) { theField = field; }
+  void setPtExtractor(const MuonSeedPtExtractor* extractor) { thePtExtractor = extractor; }
 
   void add(MuonTransientTrackingRecHit::MuonRecHitPointer hit) { theRhits.push_back(hit); }
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstRecHit() const { return theRhits.front(); }
-  unsigned int nrhit() const { return  theRhits.size(); }
-  void clear() {theRhits.clear();}
+  unsigned int nrhit() const { return theRhits.size(); }
+  void clear() { theRhits.clear(); }
 
-  TrajectorySeed createSeed(float ptmean, float sptmean,
-			    MuonTransientTrackingRecHit::ConstMuonRecHitPointer last) const;
-  
-  protected:
+  TrajectorySeed createSeed(float ptmean,
+                            float sptmean,
+                            MuonTransientTrackingRecHit::ConstMuonRecHitPointer last) const;
+
+protected:
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
   typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
   typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
 
   MuonTransientTrackingRecHit::MuonRecHitContainer theRhits;
-  const MagneticField * theField;
-  const MuonSeedPtExtractor * thePtExtractor;
-
+  const MagneticField* theField;
+  const MuonSeedPtExtractor* thePtExtractor;
 };
 
 #endif

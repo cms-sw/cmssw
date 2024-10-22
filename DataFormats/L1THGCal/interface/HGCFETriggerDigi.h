@@ -35,73 +35,70 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
-namespace l1t {  
+namespace l1t {
   constexpr unsigned char hgcal_bad_codec(0xff);
   class HGCFETriggerDigi {
   public:
-    
     typedef std::vector<bool> data_payload;
-    typedef uint32_t key_type; 
+    typedef uint32_t key_type;
 
-    HGCFETriggerDigi() : codec_((unsigned char)0xffff) {
-      detid_ = 0;
-    }
+    HGCFETriggerDigi() : codec_((unsigned char)0xffff) { detid_ = 0; }
     ~HGCFETriggerDigi() {}
-    
+
     //detector id information
-    uint32_t id() const { return detid_; } // for edm::SortedCollection
-    template<typename IDTYPE>
-    IDTYPE getDetId() const { return IDTYPE(detid_); }
-    template<typename IDTYPE>
-    void   setDetId(const IDTYPE& id) { detid_ = id.rawId(); }
+    uint32_t id() const { return detid_; }  // for edm::SortedCollection
+    template <typename IDTYPE>
+    IDTYPE getDetId() const {
+      return IDTYPE(detid_);
+    }
+    template <typename IDTYPE>
+    void setDetId(const IDTYPE& id) {
+      detid_ = id.rawId();
+    }
 
     // encoding and decoding
     unsigned char getWhichCodec() const { return codec_; }
-    
-    template<typename CODEC,typename DATA>
+
+    template <typename CODEC, typename DATA>
     void encode(const CODEC& codec, const DATA& data) {
-      if( codec_ != hgcal_bad_codec ) {
-         throw cms::Exception("HGCTriggerAlreadyEncoded")
-           << "HGC Codec and data already set with codec: " 
-           << std::hex << codec_ << std::dec;
+      if (codec_ != hgcal_bad_codec) {
+        throw cms::Exception("HGCTriggerAlreadyEncoded")
+            << "HGC Codec and data already set with codec: " << std::hex << codec_ << std::dec;
       }
       codec_ = codec.getCodecType();
       data_ = codec.encode(data);
     }
 
-    template<typename CODEC, typename DATA>
+    template <typename CODEC, typename DATA>
     void decode(const CODEC& codec, DATA& data) const {
-      if( codec_ != codec.getCodecType() ){
+      if (codec_ != codec.getCodecType()) {
         throw cms::Exception("HGCTriggerWrongCodec")
-          << "Wrong HGC codec: " << std::hex << codec.getCodecType() 
-          << " given to data encoded with HGC codec type: " 
-          << codec_ << std::dec;
+            << "Wrong HGC codec: " << std::hex << codec.getCodecType()
+            << " given to data encoded with HGC codec type: " << codec_ << std::dec;
       }
       data = codec.decode(data_, detid_);
     }
- 
+
     void print(std::ostream& out) const;
-    template<typename CODEC>
+    template <typename CODEC>
     void print(const CODEC& codec, std::ostream& out) const;
 
   private:
-    uint32_t detid_;      // save in the abstract form
-    unsigned char codec_; // 0xff is special and means no encoder
-    data_payload  data_;    
-  };  
+    uint32_t detid_;       // save in the abstract form
+    unsigned char codec_;  // 0xff is special and means no encoder
+    data_payload data_;
+  };
 
-  template<typename CODEC>
+  template <typename CODEC>
   void HGCFETriggerDigi::print(const CODEC& codec, std::ostream& out) const {
-    if( codec_ != codec.getCodecType() ){
+    if (codec_ != codec.getCodecType()) {
       throw cms::Exception("HGCTriggerWrongCodec")
-        << "Wrong HGC codec: " << codec.getCodecType() 
-        << " given to data encoded with HGC codec type: " 
-        << codec_;
+          << "Wrong HGC codec: " << codec.getCodecType() << " given to data encoded with HGC codec type: " << codec_;
     }
     out << codec.decode(data_, detid_);
     out << std::endl << " decoded from: " << std::endl;
     this->print(out);
   }
-}
+}  // namespace l1t
 
 #endif

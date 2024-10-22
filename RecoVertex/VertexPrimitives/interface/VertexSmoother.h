@@ -1,9 +1,7 @@
 #ifndef _VertexSmoother_H_
 #define _VertexSmoother_H_
 
-
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
-
 
 /**
  * Pure abstract base class for vertex smoothers 
@@ -13,22 +11,19 @@
 
 template <unsigned int N>
 class VertexSmoother {
-
 public:
-
   VertexSmoother() {}
   virtual ~VertexSmoother() {}
-  
+
   /**
    *  Smoothing method
    */
-  virtual CachingVertex<N> smooth(const CachingVertex<N> & vertex) const = 0;
+  virtual CachingVertex<N> smooth(const CachingVertex<N>& vertex) const = 0;
 
   /**
    * Clone method 
    */
-  virtual VertexSmoother * clone() const = 0; 
-
+  virtual VertexSmoother* clone() const = 0;
 };
 
 #endif

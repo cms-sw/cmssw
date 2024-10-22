@@ -1,8 +1,6 @@
 #ifndef TkDetLayers_PixelBarrelLayer_h
 #define TkDetLayers_PixelBarrelLayer_h
 
-
-
 #include "TBPLayer.h"
 
 /** A concrete implementation for PixelBarrel layer 
@@ -13,4 +11,4 @@
 using PixelBarrelLayer = TBPLayer;
 
 #pragma GCC visibility pop
-#endif 
+#endif

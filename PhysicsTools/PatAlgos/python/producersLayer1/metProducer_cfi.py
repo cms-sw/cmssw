@@ -50,6 +50,7 @@ patMETs = cms.EDProducer("PATMETProducer",
     computeMETSignificance  = cms.bool(False),
     # significance computation parameters, not used
     # if the significance is not computed
+    srcWeights = cms.InputTag(""),
     srcJets = cms.InputTag("cleanedPatJets"),
     srcPFCands =  cms.InputTag("particleFlow"),
     srcLeptons = cms.VInputTag("selectedPatElectrons", "selectedPatMuons", "selectedPatPhotons"),

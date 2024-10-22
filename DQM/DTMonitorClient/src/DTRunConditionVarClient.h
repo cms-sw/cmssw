@@ -1,7 +1,6 @@
 #ifndef DTMonitorClient_DTRunConditionVarClient_H
 #define DTMonitorClient_DTRunConditionVarClient_H
 
-
 /** \class DTRunConditionVarClient
  *
  * Description:
@@ -18,21 +17,22 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMEDHarvester.h>
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <memory>
 #include <iostream>
@@ -44,68 +44,79 @@
 class DTGeometry;
 class DTChamberId;
 class DTLayerId;
+class DTMtime;
+class DTRecoConditions;
 
-class DTRunConditionVarClient: public DQMEDHarvester{
+class DTRunConditionVarClient : public DQMEDHarvester {
+public:
+  /// Constructor
+  DTRunConditionVarClient(const edm::ParameterSet& ps);
 
-  public:
-
-    /// Constructor
-    DTRunConditionVarClient(const edm::ParameterSet& ps);
-
-    /// Destructor
-    ~DTRunConditionVarClient() override;
+  /// Destructor
+  ~DTRunConditionVarClient() override;
 
   void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
-  protected:
+protected:
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  /// book the report summary
 
-    /// book the report summary
+  void bookWheelHistos(DQMStore::IBooker&,
+                       std::string histoType,
+                       std::string subfolder,
+                       int wh,
+                       int nbins,
+                       float min,
+                       float max,
+                       bool isVDCorr = false,
+                       bool makeRings = false);
 
-    void bookWheelHistos(DQMStore::IBooker &,std::string histoType, std::string subfolder, 
-                         int wh, int nbins, float min, float max, bool isVDCorr=false);
-
-    /// DQM Client Diagnostic
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
-
+  /// DQM Client Diagnostic
+  void dqmEndLuminosityBlock(DQMStore::IBooker&,
+                             DQMStore::IGetter&,
+                             edm::LuminosityBlock const&,
+                             edm::EventSetup const&) override;
 
   float varQuality(float var, float maxGood, float minBad);
   void percDevVDrift(DTChamberId indexCh, float meanVD, float sigmaVD, float& devVD, float& errdevVD);
 
-  private:
+private:
+  MonitorElement* getChamberHistos(DQMStore::IGetter&, const DTChamberId&, std::string);
 
-    MonitorElement* getChamberHistos(DQMStore::IGetter & ,const DTChamberId&, std::string);
+  int nevents;
 
-    int nevents;      
+  float minRangeVDrift;
+  float maxRangeVDrift;
+  float minRangeT0;
+  float maxRangeT0;
 
-    float minRangeVDrift;
-    float maxRangeVDrift; 
-    float minRangeT0;
-    float maxRangeT0;
+  float maxGoodVDriftDev;
+  float minBadVDriftDev;
+  float maxGoodT0;
+  float minBadT0;
 
-    float maxGoodVDriftDev;
-    float minBadVDriftDev; 
-    float maxGoodT0;       
-    float minBadT0;       
+  float maxGoodVDriftSigma;
+  float minBadVDriftSigma;
+  float maxGoodT0Sigma;
+  float minBadT0Sigma;
 
-    float maxGoodVDriftSigma;
-    float minBadVDriftSigma;
-    float maxGoodT0Sigma;
-    float minBadT0Sigma;
+  edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeMapToken_;
+  const DTMtime* mTimeMap_;  // legacy DB object
 
-    edm::ESHandle<DTMtime> mTime;
-    const DTMtime* mTimeMap_;
+  edm::ESGetToken<DTRecoConditions, DTRecoConditionsVdriftRcd> vDriftToken_;
+  const DTRecoConditions* vDriftMap_;  // DB object in new format
+  bool readLegacyVDriftDB;             // which one to use
 
   bool bookingdone;
 
-    MonitorElement* glbVDriftSummary;
-    MonitorElement* glbT0Summary;
+  MonitorElement* glbVDriftSummary;
+  MonitorElement* glbT0Summary;
 
-    std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
-    std::map<std::string, MonitorElement *> summaryHistos;
-    std::map<std::string, MonitorElement *> allwheelHistos;
-
+  std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
+  std::map<int, std::map<int, std::map<std::string, MonitorElement*> > > wheelRingHistos;
+  std::map<std::string, MonitorElement*> summaryHistos;
+  std::map<std::string, MonitorElement*> allwheelHistos;
 };
 
 #endif

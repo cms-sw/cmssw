@@ -3,11 +3,16 @@ import os
 
 process = cms.Process("plot")
 
-process.MessageLogger = cms.Service( "MessageLogger",
-                                     debugModules = cms.untracked.vstring( "*" ),
-                                     cout = cms.untracked.PSet( threshold = cms.untracked.string( "DEBUG" ) ),
-                                     destinations = cms.untracked.vstring( "cout" )
-                                     )
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
+    ),
+    debugModules = cms.untracked.vstring('*')
+)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -17,7 +22,7 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1)
 )
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load('Configuration.Geometry.GeometryExtended2018_cff')
 
 process.load("CondCore.CondDB.CondDB_cfi")
 process.tkVoltageTrend = cms.EDAnalyzer( "SiStripDetVOffTrendPlotter",

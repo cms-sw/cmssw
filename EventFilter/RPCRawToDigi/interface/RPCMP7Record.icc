@@ -1,0 +1,128 @@
+#ifndef EventFilter_RPCRawToDigi_RPCMP7Record_icc
+#define EventFilter_RPCRawToDigi_RPCMP7Record_icc
+
+#include "EventFilter/RPCRawToDigi/interface/RPCMP7Record.h"
+
+namespace rpcmp7 {
+
+  inline void Header::reset() {
+    record_[0] = 0x0;
+    record_[1] = (std::uint64_t(l1a_type_) << event_type_offset_);
+  }
+
+  inline unsigned int Header::getEventType() const { return (record_[1] & event_type_mask_) >> event_type_offset_; }
+
+  inline void Header::setEventType(unsigned int event_type) {
+    record_[1] &= ~event_type_mask_;
+    record_[1] |= (((std::uint64_t)(event_type) << event_type_offset_) & event_type_mask_);
+  }
+
+  inline void SubHeader::set(std::uint64_t const record) { record_ = record; }
+
+  inline void SubHeader::reset() { record_ = 0x0; }
+
+  inline std::uint64_t const& SubHeader::getRecord() const { return record_; }
+
+  inline unsigned int SubHeader::getAlgoVersion() const { return ((record_ & algo_rev_mask_) >> algo_rev_offset_); }
+
+  inline unsigned int SubHeader::getFirmwareVersion() const { return ((record_ & fw_rev_mask_) >> fw_rev_offset_); }
+
+  inline void SubHeader::setAlgoVersion(unsigned int algo_rev) {
+    record_ &= ~algo_rev_mask_;
+    record_ |= (((std::uint64_t)(algo_rev) << algo_rev_offset_) & algo_rev_mask_);
+  }
+
+  inline void SubHeader::setFirmwareVersion(unsigned int fw_rev) {
+    record_ &= ~fw_rev_mask_;
+    record_ |= (((std::uint64_t)(fw_rev) << fw_rev_offset_) & fw_rev_mask_);
+  }
+
+  inline void BlockHeader::set(std::uint32_t const record) { record_ = record; }
+
+  inline void BlockHeader::reset() { record_ = 0x0; }
+
+  inline std::uint32_t const& BlockHeader::getRecord() const { return record_; }
+
+  inline unsigned int BlockHeader::getId() const { return (record_ & id_mask_) >> id_offset_; }
+
+  inline unsigned int BlockHeader::getLength() const { return (record_ & length_mask_) >> length_offset_; }
+
+  inline unsigned int BlockHeader::getCaptionId() const { return (record_ & caption_id_mask_) >> caption_id_offset_; }
+
+  inline bool BlockHeader::hasZeroSuppressionPerBX() const { return ((record_ & zs_per_bx_mask_) ? true : false); }
+
+  inline bool BlockHeader::isZeroSuppressed() const { return ((record_ & is_zs_mask_) ? true : false); }
+
+  inline bool BlockHeader::isZeroSuppressionInverted() const {
+    return (hasZeroSuppressionPerBX() && isZeroSuppressed());
+  }
+
+  inline void BlockHeader::setId(unsigned int id) {
+    record_ &= ~id_mask_;
+    record_ |= (((std::uint32_t)(id) << id_offset_) & id_mask_);
+  }
+
+  inline void BlockHeader::setLength(unsigned int length) {
+    record_ &= ~length_mask_;
+    record_ |= (((std::uint32_t)(length) << length_offset_) & length_mask_);
+  }
+
+  inline void BlockHeader::setCaptionId(unsigned int caption_id) {
+    record_ &= ~caption_id_mask_;
+    record_ |= (((std::uint32_t)(caption_id) << caption_id_offset_) & caption_id_mask_);
+  }
+
+  inline void BlockHeader::setZeroSuppressionPerBX(bool zs_per_bx) {
+    if (zs_per_bx)
+      record_ |= zs_per_bx_mask_;
+    else
+      record_ &= ~(zs_per_bx_mask_);
+  }
+
+  inline void BlockHeader::setZeroSuppressed(bool is_zs) {
+    if (is_zs)
+      record_ |= is_zs_mask_;
+    else
+      record_ &= ~(is_zs_mask_);
+  }
+
+  inline void BlockHeader::setZeroSuppressionInverted(bool zs_inverted) { setZeroSuppressed(zs_inverted); }
+
+  inline void BXHeader::set(std::uint32_t const record) { record_ = record; }
+
+  inline void BXHeader::reset() { record_ = 0x0; }
+
+  inline std::uint32_t const& BXHeader::getRecord() const { return record_; }
+
+  inline unsigned int BXHeader::getFirstWord() const { return (record_ & first_word_mask_) >> first_word_offset_; }
+
+  inline unsigned int BXHeader::getTotalLength() const {
+    return (record_ & total_length_mask_) >> total_length_offset_;
+  }
+
+  inline bool BXHeader::isZeroSuppressed() const { return ((record_ & is_zs_mask_) ? true : false); }
+
+  inline unsigned int BXHeader::getBXId() const { return getFirstWord() / 6; }
+
+  inline unsigned int BXHeader::getTotalBX() const { return getTotalLength() / 6; }
+
+  inline void BXHeader::setFirstWord(unsigned int first_word) {
+    record_ &= ~first_word_mask_;
+    record_ |= (((std::uint32_t)(first_word) << first_word_offset_) & first_word_mask_);
+  }
+
+  inline void BXHeader::setTotalLength(unsigned int total_length) {
+    record_ &= ~total_length_mask_;
+    record_ |= (((std::uint32_t)(total_length) << total_length_offset_) & total_length_mask_);
+  }
+
+  inline void BXHeader::setZeroSuppressed(bool is_zs) {
+    if (is_zs)
+      record_ |= is_zs_mask_;
+    else
+      record_ &= ~(is_zs_mask_);
+  }
+
+}  // namespace rpcmp7
+
+#endif  // EventFilter_RPCRawToDigi_RPCMP7Record_icc

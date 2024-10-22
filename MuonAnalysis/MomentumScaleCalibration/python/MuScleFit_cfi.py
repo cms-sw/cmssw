@@ -3,7 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # This line is only necessary when running on fastSim
-SimTracksCollection = cms.untracked.InputTag("famosSimHits"),
+SimTracksCollection = cms.untracked.InputTag("fastSimProducer"),
 # This must be set to true when using events generated with Sherpa
 Sherpa = cms.untracked.bool(True),
 

@@ -15,73 +15,73 @@ process.source = cms.Source("PoolSource",
 )
 
 process.prodD = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("prodC"),
+    labels = cms.VInputTag("prodC"),
     onlyGetOnEvent = cms.untracked.uint32(1)
 )
 
 process.prodE = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("prodD"),
+    labels = cms.VInputTag("prodD"),
     onlyGetOnEvent = cms.untracked.uint32(2)
 )
 
 process.K1 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring()
+    labels = cms.VInputTag()
 )
 
 process.K2 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring()
+    labels = cms.VInputTag()
 )
 
 process.NK1 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("K1", "K2")
+    labels = cms.VInputTag("K1", "K2")
 )
 
 process.NK2 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("NK1")
+    labels = cms.VInputTag("NK1")
 )
 
 process.NK3 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("NK2")
+    labels = cms.VInputTag("NK2")
 )
 
 process.K3 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring()
+    labels = cms.VInputTag()
 )
 
 process.K4 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring()
+    labels = cms.VInputTag()
 )
 
 process.NK4 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("K3", "K4")
+    labels = cms.VInputTag("K3", "K4")
 )
 
 process.NK5 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("NK4")
+    labels = cms.VInputTag("NK4")
 )
 
 process.K5 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("NK5")
+    labels = cms.VInputTag("NK5")
 )
 
 process.NK6 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("K4")
+    labels = cms.VInputTag("K4")
 )
 
 process.NK7 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("NK6")
+    labels = cms.VInputTag("NK6")
 )
 
 process.NK8 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("NK6")
+    labels = cms.VInputTag("NK6")
 )
 
 process.K103 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("A101")
+    labels = cms.VInputTag("A101")
 )
 
 process.K203 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring("K201")
+    labels = cms.VInputTag("K201")
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

@@ -4,9 +4,17 @@
   </class>
   <class name="std::vector<DetId>"/>
   <class name="edm::EDCollection<DetId>"/>
+  <class name="std::map<DetId,DetId>"/>
+  <class name="edm::Wrapper<std::vector<DetId> >"/>
   <class name="edm::Wrapper<edm::EDCollection<DetId> >"/>
   <class name="std::vector<std::pair<DetId,float> >"/>  
   <class name="std::pair<DetId,float>"/>               
   <class name="std::map<DetId, std::pair<unsigned int, unsigned int> >"/>
   <class name="std::map<DetId, std::pair<unsigned long, unsigned long> >"/>
+  <class name="std::pair<const DetId,float>"/>
+  <class name="std::map<DetId,float>"/>
+  <class name="edm::Wrapper<std::map<DetId,float> >"/>
+  <class name="std::unordered_map<DetId,const unsigned int>" persistent="false"/>
+  <class name="edm::Wrapper<std::unordered_map<DetId, const unsigned int>>" persistent="false"/>
+  <class name="std::pair<const DetId, const unsigned int>" persistent="false"/>
 </lcgdict>

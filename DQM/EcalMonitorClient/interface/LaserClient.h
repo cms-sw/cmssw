@@ -3,12 +3,11 @@
 
 #include "DQWorkerClient.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class LaserClient : public DQWorkerClient {
   public:
     LaserClient();
-    ~LaserClient() {}
+    ~LaserClient() override {}
 
     void producePlots(ProcessType) override;
 
@@ -20,6 +19,7 @@ namespace ecaldqm
     int minChannelEntries_;
     std::vector<float> expectedAmplitude_;
     float toleranceAmplitudeLo_;
+    float toleranceAmplitudeFwdLo_;
     float toleranceAmplitudeHi_;
     float toleranceAmpRMSRatio_;
     std::vector<float> expectedTiming_;
@@ -30,6 +30,6 @@ namespace ecaldqm
     float tolerancePNRMSRatio_;
     float forwardFactor_;
   };
-}
+}  // namespace ecaldqm
 
 #endif

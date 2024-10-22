@@ -20,16 +20,19 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "EventFilter/HcalRawToDigi/interface/HcalPacker.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
-class HcalDigiToRaw : public edm::global::EDProducer<>
-{
+class HcalDigiToRaw : public edm::global::EDProducer<> {
 public:
   explicit HcalDigiToRaw(const edm::ParameterSet& ps);
   ~HcalDigiToRaw() override;
   void produce(edm::StreamID id, edm::Event& e, const edm::EventSetup& c) const override;
+
 private:
   HcalPacker packer_;
   const edm::InputTag hbheTag_, hoTag_, hfTag_, zdcTag_, calibTag_, trigTag_;
@@ -39,6 +42,7 @@ private:
   const edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
   const edm::EDGetTokenT<ZDCDigiCollection> tok_zdc_;
   const edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_htp_;
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbService_;
 };
 
 #endif

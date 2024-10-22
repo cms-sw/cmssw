@@ -1,5 +1,5 @@
-#ifndef CSCChamberDataItr_h
-#define CSCChamberDataItr_h
+#ifndef EventFilter_CSCRawToDigi_CSCChamberDataItr_h
+#define EventFilter_CSCRawToDigi_CSCChamberDataItr_h
 
 /** a class to help users iterate over CSC chambers,
     without having to know about DCCs and DDUs
@@ -10,18 +10,18 @@
 class CSCDCCEventData;
 class CSCDDUEventData;
 class CSCEventData;
-#include<vector>
+#include <vector>
 
 class CSCChamberDataItr {
 public:
   /// construct from data buffer.  Will figure out whether it's
   /// DCC or DDU
-  CSCChamberDataItr(const char * buf);
+  CSCChamberDataItr(const char *buf);
   ~CSCChamberDataItr();
 
   bool next();
 
-  const CSCEventData & operator*();
+  const CSCEventData &operator*();
 
 private:
   /// for DCC data.
@@ -36,11 +36,10 @@ private:
   /// own theDCCData, in which case the DDUs points inside it,
   //  or if there's no DCC, it will
   /// make a new vector of DDUs (length 1).
-  const CSCDCCEventData * theDCCData;
-  CSCDDUDataItr * theDDUItr;
+  const CSCDCCEventData *theDCCData;
+  CSCDDUDataItr *theDDUItr;
   unsigned theCurrentDDU;
   unsigned theNumberOfDDUs;
 };
 
 #endif
-

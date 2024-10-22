@@ -2,8 +2,8 @@
 //
 //   \class L1MuGMTHWFileReader
 //
-//   Description: Puts the GMT input information from 
-//                a GMT ascii HW testfile into the Event   
+//   Description: Puts the GMT input information from
+//                a GMT ascii HW testfile into the Event
 //
 //
 //
@@ -37,10 +37,8 @@
 //---------------------
 
 class L1MuGMTHWFileReader : public edm::ProducerSourceFromFiles {
-
- public:
-  explicit L1MuGMTHWFileReader(edm::ParameterSet const&,
-                               edm::InputSourceDescription const&);
+public:
+  explicit L1MuGMTHWFileReader(edm::ParameterSet const&, edm::InputSourceDescription const&);
 
   ~L1MuGMTHWFileReader() override;
 
@@ -48,13 +46,14 @@ class L1MuGMTHWFileReader : public edm::ProducerSourceFromFiles {
   //returns an event with run and event number zero when no more events
   void readNextEvent();
 
+private:
+  bool setRunAndEventInfo(edm::EventID& id,
+                          edm::TimeValue_t& time,
+                          edm::EventAuxiliary::ExperimentType& eType) override;
+  void produce(edm::Event&) override;
 
- private:
-   bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType) override;
-   void produce(edm::Event&) override;
-
-   std::ifstream m_in;
-   L1MuGMTInputEvent m_evt;
+  std::ifstream m_in;
+  L1MuGMTInputEvent m_evt;
 };
 
-#endif // L1TriggerGlobalMuonTrigger_L1MuGMTHWFileReader_h
+#endif  // L1TriggerGlobalMuonTrigger_L1MuGMTHWFileReader_h

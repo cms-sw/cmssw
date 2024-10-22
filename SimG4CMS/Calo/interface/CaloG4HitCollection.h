@@ -11,4 +11,3 @@
 typedef G4THitsCollection<CaloG4Hit> CaloG4HitCollection;
 
 #endif
-

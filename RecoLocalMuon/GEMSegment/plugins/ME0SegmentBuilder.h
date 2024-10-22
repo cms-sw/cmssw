@@ -23,8 +23,7 @@
 class ME0SegmentAlgorithmBase;
 
 class ME0SegmentBuilder {
- public:
-   
+public:
   /** Configure the algorithm via ctor.
    * Receives ParameterSet percolated down from EDProducer
    * which owns this Builder.
@@ -42,9 +41,9 @@ class ME0SegmentBuilder {
    */
   void setGeometry(const ME0Geometry* g);
 
- private:
+private:
   std::unique_ptr<ME0SegmentAlgorithmBase> algo;
-  const ME0Geometry* geom_; 
+  const ME0Geometry* geom_;
 };
 
 #endif

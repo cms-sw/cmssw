@@ -1,0 +1,11 @@
+<library file="*.cc" name="CondToolsJetMETPlugins">
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/JetMETObjects"/>
+<use name="CondCore/DBOutputService"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="JetMETCorrections/Objects"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

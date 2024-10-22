@@ -1,11 +1,10 @@
 #ifndef RecoBTag_CTagging_CharmTagger_h
 #define RecoBTag_CTagging_CharmTagger_h
 
+#include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CommonTools/Utils/interface/TMVAEvaluator.h"
+#include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
-#include <mutex>
-#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVSoftLeptonComputer.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
@@ -19,34 +18,38 @@
 
 class CharmTagger : public JetTagComputer {
 public:
-  /// explicit ctor 
-	CharmTagger(const edm::ParameterSet & );
-	~CharmTagger() override;//{}
-  float discriminator(const TagInfoHelper & tagInfo) const override;
-	void initialize(const JetTagComputerRecord & record) override;
-	
-	typedef std::vector<edm::ParameterSet> vpset;
-	
-	struct MVAVar {
-		std::string name;
-		reco::btau::TaggingVariableName id;
-		size_t index;
-		bool has_index;
-		float default_value;
-	};
+  struct Tokens {
+    Tokens(const edm::ParameterSet& configuration, edm::ESConsumesCollector&& cc);
+    edm::ESGetToken<GBRForest, GBRWrapperRcd> gbrForest_;
+  };
+
+  /// explicit ctor
+  CharmTagger(const edm::ParameterSet&, Tokens);
+  ~CharmTagger() override;  //{}
+  float discriminator(const TagInfoHelper& tagInfo) const override;
+  void initialize(const JetTagComputerRecord& record) override;
+
+  typedef std::vector<edm::ParameterSet> vpset;
+
+  struct MVAVar {
+    std::string name;
+    reco::btau::TaggingVariableName id;
+    size_t index;
+    bool has_index;
+    float default_value;
+  };
 
 private:
-	std::unique_ptr<TMVAEvaluator> mvaID_;
-	CombinedSVSoftLeptonComputer sl_computer_;
-	std::vector<MVAVar> variables_;
+  std::unique_ptr<TMVAEvaluator> mvaID_;
+  CombinedSVSoftLeptonComputer sl_computer_;
+  std::vector<MVAVar> variables_;
 
-	std::string mva_name_;
-  bool use_condDB_;
-	std::string gbrForest_label_;
-	edm::FileInPath weight_file_;
+  std::string mva_name_;
+  edm::FileInPath weight_file_;
   bool use_GBRForest_;
   bool use_adaBoost_;
   bool defaultValueNoTracks_;
+  Tokens tokens_;
 };
 
 #endif

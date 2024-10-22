@@ -17,30 +17,32 @@
 #include <string>
 
 namespace reco {
-  class DiscretizedEnergyFlow
-  {
+  class DiscretizedEnergyFlow {
   public:
-    inline DiscretizedEnergyFlow() 
-        : title_(""), etaMin_(0.0), etaMax_(0.0), phiBin0Edge_(0.0),
-          nEtaBins_(0), nPhiBins_(0) {}
+    inline DiscretizedEnergyFlow()
+        : title_(""), etaMin_(0.0), etaMax_(0.0), phiBin0Edge_(0.0), nEtaBins_(0), nPhiBins_(0) {}
 
-    DiscretizedEnergyFlow(const double* data, const char* title,
-                          double etaMin, double etaMax,
-                          double phiBin0Edge, unsigned nEtaBins,
+    DiscretizedEnergyFlow(const double* data,
+                          const char* title,
+                          double etaMin,
+                          double etaMax,
+                          double phiBin0Edge,
+                          unsigned nEtaBins,
                           unsigned nPhiBins);
 
-    inline const double* data() const
-    {
-        if (data_.empty()) return nullptr;
-        else return &data_[0];
+    inline const double* data() const {
+      if (data_.empty())
+        return nullptr;
+      else
+        return &data_[0];
     }
-    inline const char* title() const {return title_.c_str();}
-    inline double etaMin() const {return etaMin_;}
-    inline double etaMax() const {return etaMax_;}
-    inline double phiBin0Edge() const {return phiBin0Edge_;}
-    inline unsigned nEtaBins() const {return nEtaBins_;}
-    inline unsigned nPhiBins() const {return nPhiBins_;}
-    
+    inline const char* title() const { return title_.c_str(); }
+    inline double etaMin() const { return etaMin_; }
+    inline double etaMax() const { return etaMax_; }
+    inline double phiBin0Edge() const { return phiBin0Edge_; }
+    inline unsigned nEtaBins() const { return nEtaBins_; }
+    inline unsigned nPhiBins() const { return nPhiBins_; }
+
   private:
     std::vector<double> data_;
     std::string title_;
@@ -50,6 +52,6 @@ namespace reco {
     unsigned nEtaBins_;
     unsigned nPhiBins_;
   };
-}
+}  // namespace reco
 
-#endif // DataFormats_FFTJetAlgorithms_DiscretizedEnergyFlow_h
+#endif  // DataFormats_FFTJetAlgorithms_DiscretizedEnergyFlow_h

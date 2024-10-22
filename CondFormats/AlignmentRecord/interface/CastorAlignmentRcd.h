@@ -5,5 +5,4 @@
 
 class CastorAlignmentRcd : public edm::eventsetup::EventSetupRecordImplementation<CastorAlignmentRcd> {};
 
-#endif 
-
+#endif

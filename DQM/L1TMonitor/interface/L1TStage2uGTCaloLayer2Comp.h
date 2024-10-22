@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,7 +23,7 @@
  * collections of jets, e/g, tau and sum objects as they come out of CaloLayer2
  * and are unpacked by uGT. The purpose of the comparisions is to identify
  * issues with the data transmission links or the unpacking process in the uGT
- * FPGA firmare.
+ * FPGA firmare. The module is also used to compare the inputs of all uGT boards.
  *
  * Summary differentiates between different types of errors and errors with
  * different objects in attempt to identify issues with specific links. In the
@@ -32,8 +32,7 @@
  * types of objects and their properties for the current implementation.
  */
 class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
-
- public:
+public:
   /**
    * Class constructor
    *
@@ -47,11 +46,9 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    *
    * @param edm::ParamterSet & ps A pointer to the parameter set used
    */
-  L1TStage2uGTCaloLayer2Comp (const edm::ParameterSet & ps);
+  L1TStage2uGTCaloLayer2Comp(const edm::ParameterSet& ps);
 
-
- protected:
-
+protected:
   /**
    * Method to declare or "book" all histograms that will be part of module
    *
@@ -70,9 +67,7 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    *
    * @return void
    */
-  void bookHistograms (DQMStore::IBooker&,
-			       const edm::Run&,
-			       const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
 
   /**
    * Main method where the analysis code resides, executed once for each run
@@ -86,10 +81,9 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    *
    * @return void
    */
-  void analyze (const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   /**
    * Encapsulates the code required for performing a comparison of
    * the jets contained in a given event.
@@ -100,15 +94,14 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    * the same positions within the calol2/ugt collections. The number and type
    * of discrepancies are accumulated in different bins of a summary histogram.
    *
-   * @param edm::Handle<l1t::JetBXCollection>& calol2Col Reference to jet
-   *    collection from CaloLayer2
-   * @param edm::Handle<l1t::JetBXCollection>& uGTCol Reference to jet
-   *    collection from uGT
+   * @param edm::Handle<l1t::JetBXCollection>& col1 Reference to jet
+   *    collection 1
+   * @param edm::Handle<l1t::JetBXCollection>& col2 Reference to jet
+   *    collection 2
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareJets(const edm::Handle<l1t::JetBxCollection> & calol2Col,
-                   const edm::Handle<l1t::JetBxCollection> & uGTCol);
+  bool compareJets(const edm::Handle<l1t::JetBxCollection>& col1, const edm::Handle<l1t::JetBxCollection>& col2);
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -120,15 +113,14 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    * the same positions within the calol2/ugt collections. The number and type
    * of discrepancies are accumulated in different bins of a summary histogram.
    *
-   * @param edm::Handle<l1t::EGammaBXCollection>& calol2Col Reference to e/gamma
-   *    collection from CaloLayer2
-   * @param edm::Handle<l1t::EGammaBXCollection>& uGTCol Reference to e/gamma
-   *    collection from uGT
+   * @param edm::Handle<l1t::EGammaBXCollection>& col1 Reference to e/gamma
+   *    collection 1
+   * @param edm::Handle<l1t::EGammaBXCollection>& col2 Reference to e/gamma
+   *    collection 2
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareEGs(const edm::Handle<l1t::EGammaBxCollection> & calol2Col,
-                  const edm::Handle<l1t::EGammaBxCollection> & uGTCol);
+  bool compareEGs(const edm::Handle<l1t::EGammaBxCollection>& col1, const edm::Handle<l1t::EGammaBxCollection>& col2);
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -139,15 +131,14 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    * if the size of collections is the same and when so, compares the taus in
    * the same positions within the calol2/ugt collections. The number and type
    *
-   * @param edm::Handle<l1t::TauBXCollection>& calol2Col Reference to tau
-   *    collection from CaloLayer2
-   * @param edm::Handle<l1t::TauBXCollection>& uGTCol Reference to tau
-   *    collection from uGT
+   * @param edm::Handle<l1t::TauBXCollection>& col1 Reference to tau
+   *    collection 1
+   * @param edm::Handle<l1t::TauBXCollection>& col2 Reference to tau
+   *    collection 2
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareTaus(const edm::Handle<l1t::TauBxCollection> & calol2Col,
-                   const edm::Handle<l1t::TauBxCollection> & uGTCol);
+  bool compareTaus(const edm::Handle<l1t::TauBxCollection>& col1, const edm::Handle<l1t::TauBxCollection>& col2);
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -158,69 +149,72 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    * over the collection and depending of the their type
    * sums are compared separately but all sum errors are accumulated together.
    *
-   * @param edm::Handle<l1t::TauBXCollection>& calol2Col Reference to sum
-   *    collection from CaloLayer2
-   * @param edm::Handle<l1t::TauBXCollection>& uGTCol Reference to sum
-   *    collection from uGT
+   * @param edm::Handle<l1t::TauBXCollection>& col1 Reference to sum
+   *    collection 1
+   * @param edm::Handle<l1t::TauBXCollection>& col2 Reference to sum
+   *    collection 2
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareSums(const edm::Handle<l1t::EtSumBxCollection> & calol2Col,
-                   const edm::Handle<l1t::EtSumBxCollection> & uGTCol);
+  bool compareSums(const edm::Handle<l1t::EtSumBxCollection>& col1, const edm::Handle<l1t::EtSumBxCollection>& col2);
 
   // Holds the name of directory in DQM where module hostograms will be shown.
   // Value is taken from python configuration file (passed in class constructor)
   std::string monitorDir;
 
-  // collections to hold entities reconstructed from calol2 and ugt
-  edm::EDGetTokenT<l1t::JetBxCollection> calol2JetCollection;
-  edm::EDGetTokenT<l1t::JetBxCollection> uGTJetCollection;
-  edm::EDGetTokenT<l1t::EGammaBxCollection> calol2EGammaCollection;
-  edm::EDGetTokenT<l1t::EGammaBxCollection> uGTEGammaCollection;
-  edm::EDGetTokenT<l1t::TauBxCollection> calol2TauCollection;
-  edm::EDGetTokenT<l1t::TauBxCollection> uGTTauCollection;
-  edm::EDGetTokenT<l1t::EtSumBxCollection> calol2EtSumCollection;
-  edm::EDGetTokenT<l1t::EtSumBxCollection> uGTEtSumCollection;
+  // names of calol2 or ugt collections that are being compared
+  std::string collection1Title;
+  std::string collection2Title;
+
+  // collections to hold entities reconstructed from calol2 or ugt
+  edm::EDGetTokenT<l1t::JetBxCollection> JetCollection1;
+  edm::EDGetTokenT<l1t::JetBxCollection> JetCollection2;
+  edm::EDGetTokenT<l1t::EGammaBxCollection> EGammaCollection1;
+  edm::EDGetTokenT<l1t::EGammaBxCollection> EGammaCollection2;
+  edm::EDGetTokenT<l1t::TauBxCollection> TauCollection1;
+  edm::EDGetTokenT<l1t::TauBxCollection> TauCollection2;
+  edm::EDGetTokenT<l1t::EtSumBxCollection> EtSumCollection1;
+  edm::EDGetTokenT<l1t::EtSumBxCollection> EtSumCollection2;
 
   enum numeratorBins {
-    EVENTBAD = 1,   // number of (no.) bad events (where an error was found)
-    EVENTBADJETCOL, // no. events with a jet collection size difference
-    EVENTBADEGCOL,  // no. events with a eg collection size difference
-    EVENTBADTAUCOL, // no. events with a tau collection size difference
-    EVENTBADSUMCOL, // no. events with a sum collection size difference
-    JETBADET,       // no. jets with bad Et
-    JETBADETA,      // no. jets with bad eta
-    JETBADPHI,      // no. jets with bad phi
-    EGBADET,        // no. egs with bad Et
-    EGBADETA,       // no. egs with bad phi
-    EGBADPHI,       // no. egs with bad eta
-    TAUBADET,       // no. tau with bad Et
-    TAUBADETA,      // no. tau with bad eta
-    TAUBADPHI,      // no. tau with bad phi
-    BADSUM          // no. sums with any disagreement
+    EVENTBAD = 1,    // number of (no.) bad events (where an error was found)
+    EVENTBADJETCOL,  // no. events with a jet collection size difference
+    EVENTBADEGCOL,   // no. events with a eg collection size difference
+    EVENTBADTAUCOL,  // no. events with a tau collection size difference
+    EVENTBADSUMCOL,  // no. events with a sum collection size difference
+    JETBADET,        // no. jets with bad Et
+    JETBADETA,       // no. jets with bad eta
+    JETBADPHI,       // no. jets with bad phi
+    EGBADET,         // no. egs with bad Et
+    EGBADETA,        // no. egs with bad phi
+    EGBADPHI,        // no. egs with bad eta
+    TAUBADET,        // no. tau with bad Et
+    TAUBADETA,       // no. tau with bad eta
+    TAUBADPHI,       // no. tau with bad phi
+    BADSUM           // no. sums with any disagreement
   };
 
   enum denumBins {
-    EVENTS1 = 1, // total no. events (used for taking a ratio) x5
+    EVENTS1 = 1,  // total no. events (used for taking a ratio) x5
     EVENTS2,
     EVENTS3,
     EVENTS4,
     EVENTS5,
-    JETS1,       // total no. jets x3
+    JETS1,  // total no. jets x3
     JETS2,
     JETS3,
-    EGS1,        // total no. egs x3
+    EGS1,  // total no. egs x3
     EGS2,
     EGS3,
-    TAUS1,       // total no. taus x3
+    TAUS1,  // total no. taus x3
     TAUS2,
     TAUS3,
-    SUMS         // total no. sums
+    SUMS  // total no. sums
   };
 
   // objects to represent individual plots shown in DQM
-  MonitorElement * comparisonNum;
-  MonitorElement * comparisonDenum;
+  MonitorElement* comparisonNum;
+  MonitorElement* comparisonDenum;
   bool verbose;
 };
 

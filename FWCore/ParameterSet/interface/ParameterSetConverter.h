@@ -7,7 +7,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "boost/utility.hpp"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,15 +37,21 @@ namespace edm {
   // Class ParameterSetConverter
 
   typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
-  class ParameterSetConverter : private boost::noncopyable {
+  class ParameterSetConverter {
   public:
     typedef std::list<std::string> StringList;
     typedef std::map<std::string, std::string> StringMap;
     typedef std::list<std::pair<std::string, ParameterSetID> > StringWithIDList;
     typedef std::map<ParameterSetID, ParameterSetID> ParameterSetIdConverter;
-    ParameterSetConverter(ParameterSetMap const& psetMap, ParameterSetIdConverter& idConverter, bool alreadyByReference);
+    ParameterSetConverter(ParameterSetMap const& psetMap,
+                          ParameterSetIdConverter& idConverter,
+                          bool alreadyByReference);
     ~ParameterSetConverter();
-    ParameterSetIdConverter const& parameterSetIdConverter() const {return parameterSetIdConverter_;}
+    ParameterSetConverter(const ParameterSetConverter&) = delete;
+    ParameterSetConverter& operator=(const ParameterSetConverter&) = delete;
+
+    ParameterSetIdConverter const& parameterSetIdConverter() const { return parameterSetIdConverter_; }
+
   private:
     void convertParameterSets();
     void noConvertParameterSets();
@@ -56,5 +61,5 @@ namespace edm {
     StringMap replace_;
     ParameterSetIdConverter& parameterSetIdConverter_;
   };
-}
+}  // namespace edm
 #endif

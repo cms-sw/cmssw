@@ -10,9 +10,9 @@
  *   Def for monitoring run outcomes
  */
 class MonRunOutcomeDef : public IDef {
-  public:
+public:
   friend class EcalCondDBInterface;
-  
+
   MonRunOutcomeDef();
   ~MonRunOutcomeDef() override;
 
@@ -30,12 +30,12 @@ class MonRunOutcomeDef : public IDef {
   inline bool operator==(const MonRunOutcomeDef &d) const { return m_shortDesc == d.m_shortDesc; }
   inline bool operator!=(const MonRunOutcomeDef &d) const { return m_shortDesc != d.m_shortDesc; }
 
- protected:
+protected:
   // User data for this def
   std::string m_shortDesc;
   std::string m_longDesc;
 
-  void fetchAllDefs( std::vector<MonRunOutcomeDef>* fillVec) noexcept(false);
+  void fetchAllDefs(std::vector<MonRunOutcomeDef> *fillVec) noexcept(false);
 };
 
 #endif

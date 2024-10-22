@@ -14,21 +14,13 @@
 #include <string>
 
 class EcalLaserAPDPNRatiosXMLTranslator {
-
 public:
+  static int readXML(const std::string& filename, EcalCondHeader& header, EcalLaserAPDPNRatios& record);
 
-  static int readXML  (const std::string& filename,
-		       EcalCondHeader& header,
-		       EcalLaserAPDPNRatios& record);
-
-  static int writeXML (const std::string& filename,
-		       const EcalCondHeader& header,
-		       const EcalLaserAPDPNRatios& record);
+  static int writeXML(const std::string& filename, const EcalCondHeader& header, const EcalLaserAPDPNRatios& record);
 
 private:
-  
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalLaserAPDPNRatios& record);
+  static std::string dumpXML(const EcalCondHeader& header, const EcalLaserAPDPNRatios& record);
 };
 
-#endif // __EcalLaserAPDPNRatiosXMLTranslator_h_
+#endif  // __EcalLaserAPDPNRatiosXMLTranslator_h_

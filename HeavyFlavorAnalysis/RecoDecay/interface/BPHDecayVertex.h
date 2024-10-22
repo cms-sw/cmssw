@@ -14,6 +14,8 @@
 //----------------------
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHDecayMomentum.h"
 
+class BPHEventSetupWrapper;
+
 namespace edm {
   class EventSetup;
 }
@@ -21,12 +23,13 @@ namespace edm {
 namespace reco {
   class TransientTrack;
   class Vertex;
-}
+}  // namespace reco
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexFitter.h"
 
 //---------------
 // C++ Headers --
@@ -39,13 +42,14 @@ namespace reco {
 //              -- Class Interface --
 //              ---------------------
 
-class BPHDecayVertex: public virtual BPHDecayMomentum {
-
- public:
-
-  /** Constructor is protected
+class BPHDecayVertex : public virtual BPHDecayMomentum {
+public:
+  /** Constructors are protected
    *  this object can exist only as part of a derived class
    */
+  // deleted copy constructor and assignment operator
+  BPHDecayVertex(const BPHDecayVertex& x) = delete;
+  BPHDecayVertex& operator=(const BPHDecayVertex& x) = delete;
 
   /** Destructor
    */
@@ -59,68 +63,77 @@ class BPHDecayVertex: public virtual BPHDecayMomentum {
   virtual bool validVertex() const;
 
   /// get reconstructed vertex
-  virtual const reco::Vertex& vertex() const;
+  virtual const reco::Vertex& vertex(VertexFitter<5>* fitter = nullptr,
+                                     const reco::BeamSpot* bs = nullptr,
+                                     const GlobalPoint* priorPos = nullptr,
+                                     const GlobalError* priorError = nullptr) const;
 
   /// get list of Tracks
   const std::vector<const reco::Track*>& tracks() const;
 
   /// get Track for a daughter
-  const reco::Track* getTrack( const reco::Candidate* cand ) const;
+  const reco::Track* getTrack(const reco::Candidate* cand) const;
+
+  /// get Track mode for a daughter
+  char getTMode(const reco::Candidate* cand) const;
 
   /// get list of TransientTracks
   const std::vector<reco::TransientTrack>& transientTracks() const;
 
   /// get TransientTrack for a daughter
-  reco::TransientTrack* getTransientTrack( const reco::Candidate* cand ) const;
+  reco::TransientTrack* getTransientTrack(const reco::Candidate* cand) const;
+
+  /// retrieve EventSetup
+  const BPHEventSetupWrapper* getEventSetup() const;
 
   /// retrieve track search list
-  const std::string& getTrackSearchList( const reco::Candidate* cand ) const;
+  const std::string& getTrackSearchList(const reco::Candidate* cand) const;
 
- protected:
-
+protected:
   // constructor
-  BPHDecayVertex( const edm::EventSetup* es );
+  BPHDecayVertex(const BPHEventSetupWrapper* es, int daugNum = 2, int compNum = 2);
   // pointer used to retrieve informations from other bases
-  BPHDecayVertex( const BPHDecayVertex* ptr,
-                  const edm::EventSetup* es );
+  BPHDecayVertex(const BPHDecayVertex* ptr, const BPHEventSetupWrapper* es);
 
-  /// add a simple particle giving it a name and specifying an option list 
-  /// to search for the associated track
-  virtual void addV( const std::string& name,
-                     const reco::Candidate* daug, 
-                     const std::string& searchList,
-                     double mass );
-  /// add a previously reconstructed particle giving it a name
-  virtual void addV( const std::string& name,
-                     const BPHRecoConstCandPtr& comp );
+  // add a simple particle giving it a name and specifying an option list
+  // to search for the associated track
+  virtual void addV(const std::string& name, const reco::Candidate* daug, const std::string& searchList, double mass);
+  // add a previously reconstructed particle giving it a name
+  virtual void addV(const std::string& name, const BPHRecoConstCandPtr& comp);
 
   // utility function used to cash reconstruction results
   void setNotUpdated() const override;
 
- private:
-
+private:
   // EventSetup needed to build TransientTrack
-  const edm::EventSetup* evSetup;
+  const BPHEventSetupWrapper* evSetup;
 
   // map linking particles to associated track search list
-  std::map<const reco::Candidate*,std::string> searchMap;
+  std::map<const reco::Candidate*, std::string> searchMap;
 
   // reconstruction results cache
   mutable bool oldTracks;
+  mutable bool oldTTracks;
   mutable bool oldVertex;
   mutable bool validTks;
-  mutable std::vector<const    reco::Track*> rTracks;
+  mutable std::vector<const reco::Track*> rTracks;
   mutable std::vector<reco::TransientTrack> trTracks;
-  mutable std::map<const reco::Candidate*,const    reco::Track*> tkMap;
-  mutable std::map<const reco::Candidate*,reco::TransientTrack*> ttMap;
+  mutable std::map<const reco::Candidate*, const reco::Track*> tkMap;
+  mutable std::map<const reco::Candidate*, char> tmMap;
+  mutable std::map<const reco::Candidate*, reco::TransientTrack*> ttMap;
   mutable reco::Vertex fittedVertex;
+  mutable VertexFitter<5>* savedFitter;
+  mutable const reco::BeamSpot* savedBS;
+  mutable const GlobalPoint* savedPP;
+  mutable const GlobalError* savedPE;
 
   // create TransientTrack and fit vertex
-  virtual void tTracks() const;
-  virtual void fitVertex() const;
-
+  virtual void fTracks() const;
+  virtual void fTTracks() const;
+  virtual void fitVertex(VertexFitter<5>* fitter,
+                         const reco::BeamSpot* bs,
+                         const GlobalPoint* priorPos,
+                         const GlobalError* priorError) const;
 };
 
-
 #endif
-

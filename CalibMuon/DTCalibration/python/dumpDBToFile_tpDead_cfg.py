@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("DumpDBToFile")
+process = cms.Process("DumpDBToFile",eras.Run3)
 
 process.load("CondCore.CondDB.CondDB_cfi")
 

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <SpecParSection label="regions.xml" eval="true">
+    <SpecPar name="zdcProdCutsPar">
+      <PartSelector path="//ZDC"/>
+      <PartSelector path="//RPD"/>
+      <Parameter name="CMSCutsRegion" value="ZDCRegion" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="1*mm"/>
+      <Parameter name="ProdCutsForGamma" value="1*mm"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

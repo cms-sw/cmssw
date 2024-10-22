@@ -105,7 +105,7 @@ class sqlite_schema(data_source):
 				sql_query = "select %s from %s" % (column_string, table)
 				results = cursor.execute(sql_query).fetchall()
 				for n in range(0, len(results)):
-					results[n] = dict(zip(table_to_columns[table], map(str, results[n])))
+					results[n] = dict(list(zip(table_to_columns[table], list(map(str, results[n])))))
 				table_to_data[str(table)] = results
 			self._data = json_data_node.make(table_to_data)
 		else:
@@ -196,7 +196,7 @@ class json_list(json_data_node):
 	def __iter__(self):
 		return self
 
-	def next(self):
+	def __next__(self):
 		if self.iterator_index > len(self._data)-1:
 			self.reset()
 			raise StopIteration
@@ -225,13 +225,13 @@ class json_list(json_data_node):
 
 	def get_members(self, member_name):
 		# assume self.data() is a list
-		if not(type(member_name) in [str, unicode]):
+		if not(type(member_name) in [str, str]):
 			raise TypeError("Value given for member name must be a string.")
 		type_of_first_item = self.data()[0].__class__
 		for item in self.data():
 			if item.__class__ != type_of_first_item:
 				return None
-		return json_data_node.make(map(lambda item : getattr(item, member_name), self.data()))
+		return json_data_node.make([getattr(item, member_name) for item in self.data()])
 
 	# format methods
 
@@ -243,7 +243,7 @@ class json_list(json_data_node):
 
 		if self.get(0).data().__class__.__name__ in ["GlobalTag", "GlobalTagMap", "Tag", "IOV", "Payload"]:
 			# copy data
-			new_data = map(lambda item : item.as_dicts(convert_timestamps=convert_timestamps), [item for item in self.data()])
+			new_data = [item.as_dicts(convert_timestamps=convert_timestamps) for item in [item for item in self.data()]]
 			return new_data
 		else:
 			print("Data in json_list was not the correct type.")
@@ -259,17 +259,17 @@ class json_list(json_data_node):
 			print("\nNo data to draw table with.\n")
 			return
 
-		import models
+		from . import models
 		models_dict = models.generate()
 
 		# if the list contains ORM objects, then convert them all to dictionaries,
 		# otherwise, leave the list as it is - assume it is already a list of dictionaries
 		if self.get(0).data().__class__.__name__ in ["GlobalTag", "GlobalTagMap", "GlobalTagMapRequest", "Tag", "IOV", "Payload"]:
 
-			from data_formats import _objects_to_dicts
+			from .data_formats import _objects_to_dicts
 			data = _objects_to_dicts(self.data()).data()
 
-			from querying import connection
+			from .querying import connection
 			table_name = models.class_name_to_column(self.get(0).data().__class__).upper()
 			# set headers to those found in ORM models
 			# do it like this so we copy the headers
@@ -279,7 +279,7 @@ class json_list(json_data_node):
 			table_name = None
 			data = self.data()
 			# gets headers stored in first dictionary
-			headers = data[0].keys()
+			headers = list(data[0].keys())
 
 		if columns != None:
 			headers = columns
@@ -296,7 +296,7 @@ class json_list(json_data_node):
 
 		if col_width == None:
 			import subprocess
-			table_width = int(0.95*int(subprocess.check_output(["stty", "size"]).split(" ")[1]))
+			table_width = int(0.95*int(subprocess.check_output([b'stty', b'size']).split(b' ')[1]))
 			col_width = int(table_width/len(headers))
 
 		if hide != None:
@@ -333,7 +333,7 @@ class json_list(json_data_node):
 			for column in fit:
 
 				if not(column in headers):
-					print("'%s' is not a valid column." % column)
+					print(("'%s' is not a valid column." % column))
 					return
 
 				column_to_width[column] = max_width_of_column(column, data)
@@ -365,7 +365,7 @@ class json_list(json_data_node):
 		#ascii_string += "\n"
 		ascii_string += horizontal_border
 		ascii_string += "Showing %d rows\n\n" % len(data)
-		print ascii_string
+		print(ascii_string)
 
 class json_dict(json_data_node):
 

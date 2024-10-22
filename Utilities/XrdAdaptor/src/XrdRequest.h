@@ -4,7 +4,6 @@
 #include <future>
 #include <vector>
 
-#include <boost/utility.hpp>
 #include <XrdCl/XrdClXRootDResponses.hh>
 
 #include "Utilities/StorageFactory/interface/Storage.h"
@@ -14,82 +13,66 @@
 
 namespace XrdAdaptor {
 
-class Source;
+  class Source;
 
-class RequestManager;
+  class RequestManager;
 
-class XrdReadStatistics;
+  class XrdReadStatistics;
 
-class ClientRequest : boost::noncopyable, public XrdCl::ResponseHandler {
+  class ClientRequest : public XrdCl::ResponseHandler {
+    friend class Source;
 
-friend class Source;
+  public:
+    using IOPosBuffer = edm::storage::IOPosBuffer;
+    using IOSize = edm::storage::IOSize;
+    using IOOffset = edm::storage::IOOffset;
 
-public:
+    ClientRequest(const ClientRequest &) = delete;
+    ClientRequest &operator=(const ClientRequest &) = delete;
 
     ClientRequest(RequestManager &manager, void *into, IOSize size, IOOffset off)
-        : m_failure_count(0),
-          m_into(into),
-          m_size(size),
-          m_off(off),
-          m_iolist(nullptr),
-          m_manager(manager)
-    {
-    }
+        : m_failure_count(0), m_into(into), m_size(size), m_off(off), m_iolist(nullptr), m_manager(manager) {}
 
-    ClientRequest(RequestManager &manager, std::shared_ptr<std::vector<IOPosBuffer> > iolist, IOSize size=0)
-        : m_failure_count(0),
-          m_into(nullptr),
-          m_size(size),
-          m_off(0),
-          m_iolist(iolist),
-          m_manager(manager)
-    {
-        if (!m_iolist->empty() && !m_size)
-        {
-            for (IOPosBuffer const & buf : *m_iolist)
-            {
-                m_size += buf.size();
-            }
+    ClientRequest(RequestManager &manager, std::shared_ptr<std::vector<IOPosBuffer>> iolist, IOSize size = 0)
+        : m_failure_count(0), m_into(nullptr), m_size(size), m_off(0), m_iolist(iolist), m_manager(manager) {
+      if (!m_iolist->empty() && !m_size) {
+        for (edm::storage::IOPosBuffer const &buf : *m_iolist) {
+          m_size += buf.size();
         }
+      }
     }
 
-    void setStatistics(std::shared_ptr<XrdReadStatistics> stats)
-    {
-        m_stats = stats;
-    }
+    void setStatistics(std::shared_ptr<XrdReadStatistics> stats) { m_stats = stats; }
 
     ~ClientRequest() override;
 
-    std::future<IOSize> get_future()
-    {
-        return m_promise.get_future();
-    }
+    std::future<edm::storage::IOSize> get_future() { return m_promise.get_future(); }
 
     /**
      * Handle the response from the Xrootd server.
      */
     void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override;
 
-    IOSize getSize() const {return m_size;}
+    edm::storage::IOSize getSize() const { return m_size; }
 
-    size_t getCount() const {return m_into ? 1 : m_iolist->size();}
+    size_t getCount() const { return m_into ? 1 : m_iolist->size(); }
 
     /**
      * Returns a pointer to the current source; may be nullptr
      * if there is no outstanding IO
      */
-    std::shared_ptr<Source const> getCurrentSource() const {return get_underlying_safe(m_source);}
-    std::shared_ptr<Source>& getCurrentSource() {return get_underlying_safe(m_source);}
+    std::shared_ptr<Source const> getCurrentSource() const { return get_underlying_safe(m_source); }
+    std::shared_ptr<Source> &getCurrentSource() { return get_underlying_safe(m_source); }
 
-private:
-    std::shared_ptr<ClientRequest const> self_reference() const {return get_underlying_safe(m_self_reference);}
-    std::shared_ptr<ClientRequest>& self_reference() {return get_underlying_safe(m_self_reference);}
+  private:
+    std::shared_ptr<ClientRequest const> self_reference() const { return get_underlying_safe(m_self_reference); }
+    std::shared_ptr<ClientRequest> &self_reference() { return get_underlying_safe(m_self_reference); }
 
     unsigned m_failure_count;
     void *m_into;
-    IOSize m_size;
-    IOOffset m_off;
-    edm::propagate_const<std::shared_ptr<std::vector<IOPosBuffer>>> m_iolist;
+    edm::storage::IOSize m_size;
+    edm::storage::IOOffset m_off;
+    edm::propagate_const<std::shared_ptr<std::vector<edm::storage::IOPosBuffer>>> m_iolist;
     RequestManager &m_manager;
     edm::propagate_const<std::shared_ptr<Source>> m_source;
     edm::propagate_const<std::shared_ptr<XrdReadStatistics>> m_stats;
@@ -101,11 +84,11 @@ private:
     // ourself to prevent the object from being unexpectedly deleted.
     edm::propagate_const<std::shared_ptr<ClientRequest>> m_self_reference;
 
-    std::promise<IOSize> m_promise;
+    std::promise<edm::storage::IOSize> m_promise;
 
     QualityMetricWatch m_qmw;
-};
+  };
 
-}
+}  // namespace XrdAdaptor
 
 #endif

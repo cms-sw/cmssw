@@ -9,11 +9,9 @@
 
 #include "CondCore/PopCon/interface/PopConAnalyzer.h"
 
-
 DEFINE_FWK_MODULE(StoreEcalCondition);
 DEFINE_FWK_MODULE(StoreESCondition);
 DEFINE_FWK_MODULE(EcalDBCopy);
 DEFINE_FWK_MODULE(ESDBCopy);
 DEFINE_FWK_MODULE(EcalTestDevDB);
 DEFINE_FWK_MODULE(EcalGetLaserData);
-

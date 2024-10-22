@@ -5,6 +5,4 @@ reco::CastorCell::CastorCell(const double energy, const ROOT::Math::XYZPoint& po
   energy_ = energy;
 }
 
-reco::CastorCell::~CastorCell() {
-
-}
+reco::CastorCell::~CastorCell() {}

@@ -18,28 +18,19 @@
     \brief solves at best the matrix invertion for calibration 
 
 */
-struct BlockSolver
-{
-  int operator () (const CLHEP::HepMatrix & matrix, 
-                   const CLHEP::HepVector & vector,
-                   CLHEP::HepVector & result) ;
+struct BlockSolver {
+  int operator()(const CLHEP::HepMatrix& matrix, const CLHEP::HepVector& vector, CLHEP::HepVector& result);
 
-  private :
-
-   //! eliminate empty columns and rows                
-   void shrink (const CLHEP::HepMatrix & matrix,
-                CLHEP::HepMatrix & solution,
-                const CLHEP::HepVector & result,
-                CLHEP::HepVector & input,
-                const std::vector<int> & where) ;
-   //! pour results in bigger vector             
-   void pour (CLHEP::HepVector & result,
-              const CLHEP::HepVector & output,
-              const std::vector<int> & where) ;
-  
-} ;
-
+private:
+  //! eliminate empty columns and rows
+  void shrink(const CLHEP::HepMatrix& matrix,
+              CLHEP::HepMatrix& solution,
+              const CLHEP::HepVector& result,
+              CLHEP::HepVector& input,
+              const std::vector<int>& where);
+  //! pour results in bigger vector
+  void pour(CLHEP::HepVector& result, const CLHEP::HepVector& output, const std::vector<int>& where);
+};
 
 #endif
 #endif
-

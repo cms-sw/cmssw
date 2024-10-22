@@ -1,7 +1,7 @@
 #ifndef RecoAlgos_TrackToCandidate_h
 #define RecoAlgos_TrackToCandidate_h
-#include "CommonTools/RecoAlgos/src/MassiveCandidateConverter.h"
-#include "CommonTools/RecoAlgos/src/CandidateProducer.h"
+#include "CommonTools/RecoAlgos/interface/MassiveCandidateConverter.h"
+#include "CommonTools/RecoAlgos/interface/CandidateProducer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
@@ -13,11 +13,9 @@ namespace converter {
     typedef reco::Track value_type;
     typedef reco::TrackCollection Components;
     typedef reco::RecoChargedCandidate Candidate;
-    TrackToCandidate(const edm::ParameterSet & cfg) :
-      MassiveCandidateConverter(cfg) {
-    }
-    void convert(reco::TrackRef trkRef, reco::RecoChargedCandidate & c) const {
-      const reco::Track & trk = * trkRef;
+    TrackToCandidate(const edm::ParameterSet& cfg, edm::ConsumesCollector iC) : MassiveCandidateConverter(cfg, iC) {}
+    void convert(reco::TrackRef trkRef, reco::RecoChargedCandidate& c) const {
+      const reco::Track& trk = *trkRef;
       c.setCharge(trk.charge());
       c.setVertex(trk.vertex());
       const reco::Track::Vector& p = trk.momentum();
@@ -29,12 +27,12 @@ namespace converter {
   };
 
   namespace helper {
-    template<>
+    template <>
     struct CandConverter<reco::Track> {
       typedef TrackToCandidate type;
     };
-  }
+  }  // namespace helper
 
-}
+}  // namespace converter
 
 #endif

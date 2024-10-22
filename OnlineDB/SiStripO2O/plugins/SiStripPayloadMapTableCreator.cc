@@ -1,48 +1,41 @@
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+// system includes
 #include <iostream>
 
+// user includes
 #include "CondCore/CondDB/interface/ConnectionPool.h"
-
-#include "RelationalAccess/ITransaction.h"
-#include "RelationalAccess/ISessionProxy.h"
-#include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ITable.h"
-#include "RelationalAccess/TableDescription.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/TimeStamp.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "RelationalAccess/ISchema.h"
+#include "RelationalAccess/ISessionProxy.h"
+#include "RelationalAccess/ITable.h"
+#include "RelationalAccess/ITransaction.h"
+#include "RelationalAccess/TableDescription.h"
 
-
-class SiStripPayloadMapTableCreator : public edm::EDAnalyzer {
+class SiStripPayloadMapTableCreator : public edm::one::EDAnalyzer<> {
 public:
-  explicit SiStripPayloadMapTableCreator(const edm::ParameterSet& iConfig );
-  ~SiStripPayloadMapTableCreator() override;
-  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
-  void endJob() override;
+  explicit SiStripPayloadMapTableCreator(const edm::ParameterSet& iConfig);
+  ~SiStripPayloadMapTableCreator() override = default;
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
 private:
   cond::persistency::ConnectionPool m_connectionPool;
   std::string m_configMapDb;
 };
 
-
-SiStripPayloadMapTableCreator::SiStripPayloadMapTableCreator(const edm::ParameterSet& iConfig):
-  m_connectionPool(),
-  m_configMapDb( iConfig.getParameter< std::string >("configMapDatabase") ){
-  m_connectionPool.setParameters( iConfig.getParameter<edm::ParameterSet>("DBParameters")  );
+SiStripPayloadMapTableCreator::SiStripPayloadMapTableCreator(const edm::ParameterSet& iConfig)
+    : m_connectionPool(), m_configMapDb(iConfig.getParameter<std::string>("configMapDatabase")) {
+  m_connectionPool.setParameters(iConfig.getParameter<edm::ParameterSet>("DBParameters"));
   m_connectionPool.configure();
 }
 
-SiStripPayloadMapTableCreator::~SiStripPayloadMapTableCreator() {
-}
-
-void SiStripPayloadMapTableCreator::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup ) {
-  std::shared_ptr<coral::ISessionProxy> cmDbSession = m_connectionPool.createCoralSession( m_configMapDb, true );
+void SiStripPayloadMapTableCreator::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
+  std::shared_ptr<coral::ISessionProxy> cmDbSession = m_connectionPool.createCoralSession(m_configMapDb, true);
   coral::TableDescription mapTable;
   mapTable.setName("STRIP_CONFIG_TO_PAYLOAD_MAP");
   mapTable.insertColumn("CONFIG_HASH", coral::AttributeSpecification::typeNameForType<std::string>());
@@ -57,12 +50,9 @@ void SiStripPayloadMapTableCreator::analyze( const edm::Event& evt, const edm::E
   mapTable.setNotNullConstraint("CONFIG_STRING");
   mapTable.setNotNullConstraint("INSERTION_TIME");
 
-  cmDbSession->transaction().start( false );
+  cmDbSession->transaction().start(false);
   cmDbSession->nominalSchema().createTable(mapTable);
   cmDbSession->transaction().commit();
-}
-
-void SiStripPayloadMapTableCreator::endJob() {
 }
 
 // ------

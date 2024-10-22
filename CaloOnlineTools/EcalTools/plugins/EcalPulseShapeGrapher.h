@@ -2,7 +2,7 @@
 //
 // Package:    EcalPulseShapeGrapher
 // Class:      EcalPulseShapeGrapher
-// 
+//
 /**\class EcalPulseShapeGrapher EcalPulseShapeGrapher.cc EcalPulseShapeGrapher.h
 
  Description: <one line class summary>
@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -43,37 +43,36 @@
 // class decleration
 //
 
-class EcalPulseShapeGrapher : public edm::EDAnalyzer {
-   public:
-      explicit EcalPulseShapeGrapher(const edm::ParameterSet&);
-      ~EcalPulseShapeGrapher() override;
+class EcalPulseShapeGrapher : public edm::one::EDAnalyzer<> {
+public:
+  explicit EcalPulseShapeGrapher(const edm::ParameterSet&);
+  ~EcalPulseShapeGrapher() override = default;
 
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-   private:
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+  std::string intToString(int);
 
-      std::string intToString(int);
+  const edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EBUncalibratedRecHitCollection_;
+  const edm::EDGetTokenT<EBDigiCollection> EBDigis_;
+  const edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EEUncalibratedRecHitCollection_;
+  const edm::EDGetTokenT<EEDigiCollection> EEDigis_;
 
-      edm::InputTag EBUncalibratedRecHitCollection_;
-      edm::InputTag EBDigis_;
-      edm::InputTag EEUncalibratedRecHitCollection_;
-      edm::InputTag EEDigis_;
+  int abscissa[10];
+  int ordinate[10];
+  std::vector<int> listChannels_;
+  std::map<int, TH1F*> ampHistMap_;
+  std::map<int, TH2F*> pulseShapeHistMap_;
+  std::map<int, TH1F*> firstSampleHistMap_;
+  std::map<int, TH2F*> rawPulseShapeHistMap_;
+  std::map<int, TH1F*> cutAmpHistMap_;
 
-      int abscissa[10];
-      int ordinate[10];
-      std::vector<int> listChannels_;
-      std::map<int,TH1F*> ampHistMap_;
-      std::map<int,TH2F*> pulseShapeHistMap_;
-      std::map<int,TH1F*> firstSampleHistMap_;
-      std::map<int,TH2F*> rawPulseShapeHistMap_;
-      std::map<int,TH1F*> cutAmpHistMap_;
-      
-      int ampCut_;
-      std::string rootFilename_;
+  int ampCut_;
+  std::string rootFilename_;
 
-      TFile* file_;
-         
-      EcalFedMap* fedMap_;
-      // ----------member data ---------------------------
+  TFile* file_;
+
+  EcalFedMap* fedMap_;
+  // ----------member data ---------------------------
 };

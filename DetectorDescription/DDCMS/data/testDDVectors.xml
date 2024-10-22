@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<DDDefinition>
+ <ConstantsSection  label="trackerParameters.xml" eval="true">
+   <Constant name="Rmin" value="1*cm"/>
+   <Constant name="Rmin1" value="[Rmin]"/>
+   <Constant name="Rmin2" value="2*[Rmin1]"/>
+   <Constant name="Rmin3" value="[Rmin]+[Rmin2]"/>
+   <Constant name="Rmin4" value="4*[Rmin3] - [Rmin1] + 2*cm"/>
+   <Vector name="RadiiTest" type="numeric" nEntries="5">
+     [testDDVectors:Rmin], [testDDVectors:Rmin1], [testDDVectors:Rmin2], [testDDVectors:Rmin3], [testDDVectors:Rmin4]
+   </Vector>
+   <Vector name="RadiusMixBoundary" type="numeric" nEntries="16">
+     [hgcal:radMixL0], [hgcal:radMixL1], [hgcal:radMixL2], [hgcal:radMixL3],
+     [hgcal:radMixL4], [hgcal:radMixL5], [hgcal:radMixL6], [hgcal:radMixL7],
+     [hgcal:radMixL8], [hgcal:radMixL9], [hgcal:radMixL10],[hgcal:radMixL11],
+     [hgcal:radMixL12],[hgcal:radMixL13],[hgcal:radMixL14],[hgcal:radMixL15]
+   </Vector>
+   <Vector name="vPars" type="numeric" nEntries="6">
+     80, 52, 1, 2, 0, 0
+   </Vector>
+   <Vector name="Subdetector1" type="numeric" nEntries="6">
+     16, 8, 2, 0xF, 0xFF, 0x3F
+   </Vector>
+   <Vector name="Subdetector2" type="numeric" nEntries="10">
+     23, 16, 10, 8, 2, 0x3, 0xF, 0x3F, 0x3, 0x3F
+   </Vector>
+   <Vector name="Subdetector3" type="numeric" nEntries="12">
+     14, 12, 10, 4, 2, 0, 0x7, 0x3, 0x3, 0x3F, 0x3, 0x3
+   </Vector>
+   <Vector name="Subdetector4" type="numeric" nEntries="12">
+     13, 11, 9, 7, 2, 0, 0x3, 0x3, 0x3, 0x3, 0x1F, 0x3
+   </Vector>
+   <Vector name="Subdetector5" type="numeric" nEntries="10">
+     14, 12, 5, 2, 0, 0x7, 0x3, 0x7F, 0x7, 0x3
+   </Vector>
+   <Vector name="Subdetector6" type="numeric" nEntries="14">
+     18, 14, 12, 8, 5, 2, 0, 0x3, 0xF, 0x3, 0xF, 0x7, 0x7, 0x3
+   </Vector>
+   <Vector name="detIdShifts" type="numeric" nEntries="36">
+     -1, 23, -1,
+     13, -1, 18,
+     
+     16, 16, 14,
+     11, 14, 14,
+     
+     8,  8,  4,
+     9,  5,  8,
+     
+     2,  2,  2,
+     2,  2,  5,
+     
+     0,  0,  0,
+     0,  0,  2,
+     
+     -1, -1, -1,
+     -1, -1,  0
+   </Vector>
+ </ConstantsSection>
+ <Algorithm name="test:DDTestVectorAlgo">
+    <Vector name="WaferNames" type="string" nEntries="6">
+     hfnoseWafer:HFNoseWafer0Fine, hfnoseWafer:HFNoseWafer0Fine,
+     hfnoseWafer:HFNoseWafer0Fine, hfnoseWafer:HFNoseWafer1Fine,
+     hfnoseWafer:HFNoseWafer1Fine, hfnoseWafer:HFNoseWafer1Fine
+   </Vector>
+   <Vector name="MaterialNames" type="string" nEntries="7">
+     materials:Polyethylene, materials:StainlessSteel, materials:Lead, 
+     materials:Copper,  materials:M_NEMA FR4 plate, materials:Silicon,
+     materials:StainlessSteel
+   </Vector>
+   <Vector name="VolumeNames" type="string" nEntries="7">
+     HFNoseModerator, HFNoseAbsorberCover, HFNoseAbsorber1, HFNoseHeatShield,
+     HFNosePCB, HGCalHFNoseSensitive, HFNoseAbsorber2
+   </Vector>
+  </Algorithm>
+</DDDefinition>

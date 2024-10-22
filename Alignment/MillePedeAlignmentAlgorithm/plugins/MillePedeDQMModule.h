@@ -11,85 +11,140 @@
  * @brief     DQM Plotter for PCL-Alignment
  */
 
-
-
 /*** system includes ***/
 #include <array>
 #include <memory>
 
 /*** core framework functionality ***/
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+/*** Geometry ***/
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+/*** Thresholds from DB ***/
+#include "CondFormats/DataRecord/interface/AlignPCLThresholdsHGRcd.h"
+
+/*** Quality from DB ***/
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 
 /*** DQM ***/
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 /*** Records for ESWatcher ***/
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 /*** MillePede ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeFileReader.h"
 
-
-
-
 class MillePedeDQMModule : public DQMEDHarvester {
-
   //========================== PUBLIC METHODS ==================================
-  public: //====================================================================
+public:  //====================================================================
+  MillePedeDQMModule(const edm::ParameterSet&);
+  ~MillePedeDQMModule() override = default;
 
-    MillePedeDQMModule(const edm::ParameterSet&);
-    ~MillePedeDQMModule() override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
-    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &)  override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  enum { SIZE_LG_STRUCTS = 6, SIZE_HG_STRUCTS = 820, SIZE_INDEX = 8 };
 
   //========================= PRIVATE METHODS ==================================
-  private: //===================================================================
+private:  //===================================================================
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&);
 
-    void bookHistograms(DQMStore::IBooker&);
+  void fillStatusHisto(MonitorElement* statusHisto);
 
-    void fillExpertHistos();
+  void fillStatusHistoHG(MonitorElement* statusHisto);
 
-    void fillExpertHisto(MonitorElement* histo,
-			 const std::array<double,6>& cut, 
-			 const std::array<double,6>& sigCut, 
-			 const std::array<double,6>& maxMoveCut, 
-			 const std::array<double,6>& maxErrorCut,
-                         const std::array<double,6>& obs,
-                         const std::array<double,6>& obsErr);
+  void fillExpertHistos();
 
-    bool setupChanged(const edm::EventSetup&);
-    int getIndexFromString(const std::string& alignableId);
+  void fillExpertHistos_HG();
 
-    //========================== PRIVATE DATA ====================================
-    //============================================================================
+  void fillExpertHisto(MonitorElement* histo,
+                       const std::array<double, SIZE_INDEX>& cut,
+                       const std::array<double, SIZE_INDEX>& sigCut,
+                       const std::array<double, SIZE_INDEX>& maxMoveCut,
+                       const std::array<double, SIZE_INDEX>& maxErrorCut,
+                       const std::array<double, SIZE_LG_STRUCTS>& obs,
+                       const std::array<double, SIZE_LG_STRUCTS>& obsErr);
 
-    const edm::ParameterSet mpReaderConfig_;
-    std::unique_ptr<AlignableTracker> tracker_;
-    std::unique_ptr<MillePedeFileReader> mpReader_;
+  void fillExpertHisto_HG(std::map<std::string, MonitorElement*>& histo_map,
+                          const std::array<double, SIZE_INDEX>& cut,
+                          const std::array<double, SIZE_INDEX>& sigCut,
+                          const std::array<double, SIZE_INDEX>& maxMoveCut,
+                          const std::array<double, SIZE_INDEX>& maxErrorCut,
+                          const std::array<double, SIZE_HG_STRUCTS>& obs,
+                          const std::array<double, SIZE_HG_STRUCTS>& obsErr);
 
-    edm::ESWatcher<TrackerTopologyRcd> watchTrackerTopologyRcd_;
-    edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd_;
-    edm::ESWatcher<PTrackerParametersRcd> watchPTrackerParametersRcd_;
+  bool setupChanged(const edm::EventSetup&);
+  int getIndexFromString(const std::string& alignableId);
 
-    // Histograms
-    MonitorElement* h_xPos;
-    MonitorElement* h_xRot;
-    MonitorElement* h_yPos;
-    MonitorElement* h_yRot;
-    MonitorElement* h_zPos;
-    MonitorElement* h_zRot;
+  //========================== PRIVATE DATA ====================================
+  //============================================================================
 
+  // esConsumes
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> gDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
+  const edm::ESGetToken<AlignPCLThresholdsHG, AlignPCLThresholdsHGRcd> aliThrToken_;
+  const edm::ESGetToken<SiPixelQuality, SiPixelQualityFromDbRcd> siPixelQualityToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+
+  const std::string outputFolder_;
+  const edm::ParameterSet mpReaderConfig_;
+  std::unique_ptr<AlignableTracker> tracker_;
+  std::unique_ptr<MillePedeFileReader> mpReader_;
+  std::shared_ptr<PixelTopologyMap> pixelTopologyMap_;
+  std::shared_ptr<SiPixelQuality> pixelQuality_;
+
+  std::vector<std::pair<std::string, int>> layerVec;
+
+  edm::ESWatcher<TrackerTopologyRcd> watchTrackerTopologyRcd_;
+  edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd_;
+  edm::ESWatcher<PTrackerParametersRcd> watchPTrackerParametersRcd_;
+
+  // Histograms
+  MonitorElement* h_xPos;
+  MonitorElement* h_xRot;
+  MonitorElement* h_yPos;
+  MonitorElement* h_yRot;
+  MonitorElement* h_zPos;
+  MonitorElement* h_zRot;
+
+  std::map<std::string, MonitorElement*> h_xPos_HG;
+  std::map<std::string, MonitorElement*> h_xRot_HG;
+  std::map<std::string, MonitorElement*> h_yPos_HG;
+  std::map<std::string, MonitorElement*> h_yRot_HG;
+  std::map<std::string, MonitorElement*> h_zPos_HG;
+  std::map<std::string, MonitorElement*> h_zRot_HG;
+
+  MonitorElement* statusResults;
+  MonitorElement* binariesAvalaible;
+  MonitorElement* exitCode;
+  MonitorElement* isVetoed;
+
+  bool isHG_;
 };
 
 // define this as a plug-in

@@ -19,10 +19,10 @@ Machine parameters:  mode = NOMERGE
 	shouldWeStop
 	endLumi 1/1
 	writeLumi 1/1
-	deleteLumiFromCache 1/1
+	clearLumiPrincipal 1/1
 	endRun 1
 	writeRun 1
-	deleteRunFromCache 1
+	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -35,7 +35,7 @@ Machine parameters:  mode = NOMERGE
 	beginRun 2
 	throwing
 	endRun 2 global failed
-	deleteRunFromCache 2
+	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -68,15 +68,15 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Run 2 ***
 	endLumi 1/1
 	writeLumi 1/1
-	deleteLumiFromCache 1/1
+	clearLumiPrincipal 1/1
 	endRun 1
 	writeRun 1
-	deleteRunFromCache 1
+	clearRunPrincipal 1
 	readRun 2
 	beginRun 2
 	throwing
 	endRun 2 global failed
-	deleteRunFromCache 2
+	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles

@@ -16,148 +16,127 @@
 #include "RecoBTag/SecondaryVertex/interface/V0Filter.h"
 #include "RecoBTag/SecondaryVertex/interface/VertexFilter.h"
 #include "RecoVertex/VertexTools/interface/SharedTracks.h"
-using namespace reco; 
+using namespace reco;
 
+VertexFilter::VertexFilter(const edm::ParameterSet &params)
+    : useTrackWeights(params.getParameter<bool>("useTrackWeights")),
+      minTrackWeight(params.getParameter<double>("minimumTrackWeight")),
+      massMax(params.getParameter<double>("massMax")),
+      fracPV(params.getParameter<double>("fracPV")),
+      multiplicityMin(params.getParameter<unsigned int>("multiplicityMin")),
+      distVal2dMin(params.getParameter<double>("distVal2dMin")),
+      distVal2dMax(params.getParameter<double>("distVal2dMax")),
+      distVal3dMin(params.getParameter<double>("distVal3dMin")),
+      distVal3dMax(params.getParameter<double>("distVal3dMax")),
+      distSig2dMin(params.getParameter<double>("distSig2dMin")),
+      distSig2dMax(params.getParameter<double>("distSig2dMax")),
+      distSig3dMin(params.getParameter<double>("distSig3dMin")),
+      distSig3dMax(params.getParameter<double>("distSig3dMax")),
+      maxDeltaRToJetAxis(params.getParameter<double>("maxDeltaRToJetAxis")),
+      v0Filter(params.getParameter<edm::ParameterSet>("v0Filter")) {}
 
-VertexFilter::VertexFilter(const edm::ParameterSet &params) :
-	useTrackWeights(params.getParameter<bool>("useTrackWeights")),
-	minTrackWeight(params.getParameter<double>("minimumTrackWeight")),
-	massMax(params.getParameter<double>("massMax")),
-	fracPV(params.getParameter<double>("fracPV")),
-	multiplicityMin(params.getParameter<unsigned int>("multiplicityMin")),
-	distVal2dMin(params.getParameter<double>("distVal2dMin")),
-	distVal2dMax(params.getParameter<double>("distVal2dMax")),
-	distVal3dMin(params.getParameter<double>("distVal3dMin")),
-	distVal3dMax(params.getParameter<double>("distVal3dMax")),
-	distSig2dMin(params.getParameter<double>("distSig2dMin")),
-	distSig2dMax(params.getParameter<double>("distSig2dMax")),
-	distSig3dMin(params.getParameter<double>("distSig3dMin")),
-	distSig3dMax(params.getParameter<double>("distSig3dMax")),
-	maxDeltaRToJetAxis(params.getParameter<double>("maxDeltaRToJetAxis")),
-	v0Filter(params.getParameter<edm::ParameterSet>("v0Filter"))
-{
+bool VertexFilter::operator()(const Vertex &pv,
+                              const TemplatedSecondaryVertex<reco::Vertex> &sv,
+                              const GlobalVector &direction) const {
+  std::vector<TrackRef> svTracks;
+  for (std::vector<TrackBaseRef>::const_iterator iter = sv.tracks_begin(); iter != sv.tracks_end(); iter++)
+    if (sv.trackWeight(*iter) >= minTrackWeight)
+      svTracks.push_back(iter->castTo<TrackRef>());
+
+  // minimum number of tracks at vertex
+
+  if (svTracks.size() < multiplicityMin)
+    return false;
+
+  // invalid errors
+
+  if (sv.dist2d().error() < 0 || sv.dist3d().error() < 0)
+    return false;
+
+  // flight distance limits (value and significance, 2d and 3d)
+
+  if (sv.dist2d().value() < distVal2dMin || sv.dist2d().value() > distVal2dMax || sv.dist3d().value() < distVal3dMin ||
+      sv.dist3d().value() > distVal3dMax || sv.dist2d().significance() < distSig2dMin ||
+      sv.dist2d().significance() > distSig2dMax || sv.dist3d().significance() < distSig3dMin ||
+      sv.dist3d().significance() > distSig3dMax)
+    return false;
+
+  // SV direction filter
+
+  if (Geom::deltaR(sv.position() - pv.position(), (maxDeltaRToJetAxis > 0) ? direction : -direction) >
+      std::abs(maxDeltaRToJetAxis))
+    return false;
+
+  // compute fourvector sum of tracks as vertex and cut on inv. mass
+
+  TrackKinematics kin(sv);
+
+  double mass = useTrackWeights ? kin.weightedVectorSum().M() : kin.vectorSum().M();
+
+  if (mass > massMax)
+    return false;
+
+  // find shared tracks between PV and SV
+
+  if (fracPV < 1.0) {
+    double fractionSharedTracks = vertexTools::computeSharedTracks(pv, svTracks, minTrackWeight);
+    if (fractionSharedTracks > fracPV)
+      return false;
+  }
+
+  // check for V0 vertex
+
+  if (sv.hasRefittedTracks())
+    return v0Filter(sv.refittedTracks());
+  else
+    return v0Filter(svTracks);
 }
+bool VertexFilter::operator()(const reco::Vertex &pv,
+                              const TemplatedSecondaryVertex<reco::VertexCompositePtrCandidate> &sv,
+                              const GlobalVector &direction) const {
+  const std::vector<CandidatePtr> &svTracks = sv.daughterPtrVector();
 
-bool VertexFilter::operator () (const Vertex &pv,
-                                const TemplatedSecondaryVertex<reco::Vertex> &sv,
-                                const GlobalVector &direction) const
-{
-	std::vector<TrackRef> svTracks;
-	for(std::vector<TrackBaseRef>::const_iterator iter = sv.tracks_begin();
-	    iter != sv.tracks_end(); iter++)
-		if (sv.trackWeight(*iter) >= minTrackWeight)
-			svTracks.push_back(iter->castTo<TrackRef>());
+  // minimum number of tracks at vertex
 
-	// minimum number of tracks at vertex
+  if (svTracks.size() < multiplicityMin)
+    return false;
 
-	if (svTracks.size() < multiplicityMin)
-		return false;
+  // invalid errors
 
-	// invalid errors
+  if (sv.dist2d().error() < 0 || sv.dist3d().error() < 0)
+    return false;
 
-	if (sv.dist2d().error() < 0 || sv.dist3d().error() < 0)
-		return false;
+  // flight distance limits (value and significance, 2d and 3d)
 
-	// flight distance limits (value and significance, 2d and 3d)
+  if (sv.dist2d().value() < distVal2dMin || sv.dist2d().value() > distVal2dMax || sv.dist3d().value() < distVal3dMin ||
+      sv.dist3d().value() > distVal3dMax || sv.dist2d().significance() < distSig2dMin ||
+      sv.dist2d().significance() > distSig2dMax || sv.dist3d().significance() < distSig3dMin ||
+      sv.dist3d().significance() > distSig3dMax)
+    return false;
 
-	if (sv.dist2d().value()        < distVal2dMin ||
-	    sv.dist2d().value()        > distVal2dMax ||
-	    sv.dist3d().value()        < distVal3dMin ||
-	    sv.dist3d().value()        > distVal3dMax ||
-	    sv.dist2d().significance() < distSig2dMin ||
-	    sv.dist2d().significance() > distSig2dMax ||
-	    sv.dist3d().significance() < distSig3dMin ||
-	    sv.dist3d().significance() > distSig3dMax)
-		return false;
+  // SV direction filter
 
-	// SV direction filter
+  if (Geom::deltaR(sv.vertex() - pv.position(), (maxDeltaRToJetAxis > 0) ? direction : -direction) >
+      std::abs(maxDeltaRToJetAxis))
+    return false;
+  // compute fourvector sum of tracks as vertex and cut on inv. mass
 
-	if (Geom::deltaR(sv.position() - pv.position(),
-	                 (maxDeltaRToJetAxis > 0) ? direction : -direction)
-						> std::abs(maxDeltaRToJetAxis))
-		return false;
+  TrackKinematics kin(sv);
 
-	// compute fourvector sum of tracks as vertex and cut on inv. mass
+  double mass = useTrackWeights ? kin.weightedVectorSum().M() : kin.vectorSum().M();
 
-	TrackKinematics kin(sv);
+  if (mass > massMax)
+    return false;
 
-	double mass = useTrackWeights ? kin.weightedVectorSum().M()
-	                              : kin.vectorSum().M();
+  // find shared tracks between PV and SV
 
-	if (mass > massMax)
-		return false;
+  if (fracPV < 1.0) {
+    double fractionSharedTracks = vertexTools::computeSharedTracks(pv, svTracks, minTrackWeight);
+    if (fractionSharedTracks > fracPV)
+      return false;
+  }
 
-	// find shared tracks between PV and SV
+  // check for V0 vertex
 
-	if (fracPV < 1.0) {
-		double fractionSharedTracks =
-			vertexTools::computeSharedTracks(pv, svTracks, minTrackWeight);
-		if (fractionSharedTracks > fracPV)
-			return false;
-	}
-
-	// check for V0 vertex
-
-	if (sv.hasRefittedTracks())
-		return v0Filter(sv.refittedTracks());
-	else
-		return v0Filter(svTracks);
+  return v0Filter(svTracks);
 }
-bool VertexFilter::operator () (const reco::Vertex &pv, 
-				const TemplatedSecondaryVertex<reco::VertexCompositePtrCandidate> &sv,
-	                        const GlobalVector &direction) const {
-
-	const std::vector<CandidatePtr> & svTracks = sv.daughterPtrVector();
-
-	// minimum number of tracks at vertex
-
-	if (svTracks.size() < multiplicityMin)
-		return false;
-
-	// invalid errors
-
-	if (sv.dist2d().error() < 0 || sv.dist3d().error() < 0)
-		return false;
-
-	// flight distance limits (value and significance, 2d and 3d)
-
-	if (sv.dist2d().value()        < distVal2dMin ||
-			sv.dist2d().value()        > distVal2dMax ||
-			sv.dist3d().value()        < distVal3dMin ||
-			sv.dist3d().value()        > distVal3dMax ||
-			sv.dist2d().significance() < distSig2dMin ||
-			sv.dist2d().significance() > distSig2dMax ||
-			sv.dist3d().significance() < distSig3dMin ||
-			sv.dist3d().significance() > distSig3dMax)
-		return false;
-
-	// SV direction filter
-
-	if (Geom::deltaR(sv.vertex() - pv.position(),
-				(maxDeltaRToJetAxis > 0) ? direction : -direction)
-			> std::abs(maxDeltaRToJetAxis))
-		return false;
-	// compute fourvector sum of tracks as vertex and cut on inv. mass
-
-	TrackKinematics kin(sv);
-
-	double mass = useTrackWeights ? kin.weightedVectorSum().M()
-		: kin.vectorSum().M();
-
-	if (mass > massMax)
-		return false;
-
-	// find shared tracks between PV and SV
-
-	if (fracPV < 1.0) {
-		double fractionSharedTracks =
-			vertexTools::computeSharedTracks(pv, svTracks, minTrackWeight);
-		if (fractionSharedTracks  > fracPV)
-			return false;
-	}
-
-	// check for V0 vertex
-
-	return v0Filter(svTracks);
-}
-

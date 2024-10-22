@@ -36,52 +36,50 @@ class TEveCaloLego;
 class TEveCaloLegoOverlay;
 class TEveCaloDataHist;
 
-class FWLegoViewBase : public FWEveView
-{
+class FWLegoViewBase : public FWEveView {
 public:
-   FWLegoViewBase(TEveWindowSlot*, FWViewType::EType);
-   ~FWLegoViewBase() override;
+  FWLegoViewBase(TEveWindowSlot*, FWViewType::EType);
+  ~FWLegoViewBase() override;
 
-   void setFrom(const FWConfiguration&) override;
+  void setFrom(const FWConfiguration&) override;
 
-   void setContext(const fireworks::Context&) override;
+  void setContext(const fireworks::Context&) override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   void addTo(FWConfiguration&) const override;
-   void populateController(ViewerParameterGUI&) const override;
+  void addTo(FWConfiguration&) const override;
+  void populateController(ViewerParameterGUI&) const override;
 
-   TEveCaloViz* getEveCalo() const override;
+  TEveCaloViz* getEveCalo() const override;
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
 protected:
-   TEveCaloLego*        m_lego;
-   TEveCaloLegoOverlay* m_overlay;
+  TEveCaloLego* m_lego;
+  TEveCaloLegoOverlay* m_overlay;
 
 private:
-   FWLegoViewBase(const FWLegoViewBase&);    // stop default
+  FWLegoViewBase(const FWLegoViewBase&);  // stop default
 
-   const FWLegoViewBase& operator=(const FWLegoViewBase&);    // stop default
+  const FWLegoViewBase& operator=(const FWLegoViewBase&);  // stop default
 
-   void setCameras();
-   void setAutoRebin();
-   void setPixelsPerBin();
-   void setFontSizein2D();
-   void autoScale();
-   void showOverlay();
-   void setProjectionMode();
-   void setCell2DMode();
-   
-   // ---------- member data --------------------------------
-   
-   FWBoolParameter   m_autoRebin;
-   FWDoubleParameter m_pixelsPerBin;
-   FWEnumParameter   m_projectionMode; 
-   FWEnumParameter   m_cell2DMode;
-   FWLongParameter   m_drawValuesIn2D;
-   FWBoolParameter   m_showOverlay;
+  void setCameras();
+  void setAutoRebin();
+  void setPixelsPerBin();
+  void setFontSizein2D();
+  void autoScale();
+  void showOverlay();
+  void setProjectionMode();
+  void setCell2DMode();
+
+  // ---------- member data --------------------------------
+
+  FWBoolParameter m_autoRebin;
+  FWDoubleParameter m_pixelsPerBin;
+  FWEnumParameter m_projectionMode;
+  FWEnumParameter m_cell2DMode;
+  FWLongParameter m_drawValuesIn2D;
+  FWBoolParameter m_showOverlay;
 };
-
 
 #endif

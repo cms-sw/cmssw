@@ -5,106 +5,138 @@
 
 #include <cmath>
 #include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/HcalAlgo/plugins/DDHCalForwardAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
-DDHCalForwardAlgo::DDHCalForwardAlgo(): number(0),size(0),type(0) {
-  LogDebug("HCalGeom") << "DDHCalForwardAlgo info: Creating an instance";
+//#define EDM_ML_DEBUG
+
+class DDHCalForwardAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDHCalForwardAlgo();  //const std::string & name);
+  ~DDHCalForwardAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  std::string cellMat;                 //Cell material
+  double cellDx, cellDy, cellDz;       //Cell size
+  double startY;                       //Starting Y for Cell
+  std::vector<std::string> childName;  //Children name
+  std::vector<int> number;             //Number of cells
+  std::vector<int> size;               //Number of children
+  std::vector<int> type;               //First child
+
+  std::string idNameSpace;  //Namespace for aLL sub-parts
+};
+
+DDHCalForwardAlgo::DDHCalForwardAlgo() : number(0), size(0), type(0) {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: Creating an instance";
+#endif
 }
 
 DDHCalForwardAlgo::~DDHCalForwardAlgo() {}
 
+void DDHCalForwardAlgo::initialize(const DDNumericArguments& nArgs,
+                                   const DDVectorArguments& vArgs,
+                                   const DDMapArguments&,
+                                   const DDStringArguments& sArgs,
+                                   const DDStringVectorArguments& vsArgs) {
+  cellMat = sArgs["CellMaterial"];
+  cellDx = nArgs["CellDx"];
+  cellDy = nArgs["CellDy"];
+  cellDz = nArgs["CellDz"];
+  startY = nArgs["StartY"];
 
-void DDHCalForwardAlgo::initialize(const DDNumericArguments & nArgs,
-				   const DDVectorArguments & vArgs,
-				   const DDMapArguments & ,
-				   const DDStringArguments & sArgs,
-				   const DDStringVectorArguments & vsArgs) {
+  childName = vsArgs["Child"];
+  number = dbl_to_int(vArgs["Number"]);
+  size = dbl_to_int(vArgs["Size"]);
+  type = dbl_to_int(vArgs["Type"]);
 
-  cellMat     = sArgs["CellMaterial"];
-  cellDx      = nArgs["CellDx"];
-  cellDy      = nArgs["CellDy"];
-  cellDz      = nArgs["CellDz"];
-  startY      = nArgs["StartY"];
-
-  childName   = vsArgs["Child"];
-  number      = dbl_to_int(vArgs["Number"]);
-  size        = dbl_to_int(vArgs["Size"]);
-  type        = dbl_to_int(vArgs["Type"]);
-
-  LogDebug("HCalGeom") << "DDHCalForwardAlgo debug: Cell material " << cellMat
-		       << "\tCell Size "  << cellDx << ", " << cellDy << ", "
-		       << cellDz << "\tStarting Y " << startY << "\tChildren "
-		       << childName[0] << ", " << childName[1] << "\n"
-		       << "                         Cell positioning done for "
-		       << number.size() << " times";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: Cell material " << cellMat << "\tCell Size " << cellDx << ", "
+                               << cellDy << ", " << cellDz << "\tStarting Y " << startY << "\tChildren " << childName[0]
+                               << ", " << childName[1] << "\n               "
+                               << "          Cell positioning done for " << number.size() << " times";
   for (unsigned int i = 0; i < number.size(); i++)
-    LogDebug("HCalGeom") << "\t" << i << " Number of children " << size[i] 
-			 << " occurence " << number[i] << " first child index "
-			 << type[i];
-
+    edm::LogVerbatim("HCalGeom") << "\t" << i << " Number of children " << size[i] << " occurence " << number[i]
+                                 << " first child index " << type[i];
+#endif
   idNameSpace = DDCurrentNamespace::ns();
-  DDName parentName = parent().name(); 
-  LogDebug("HCalGeom") << "DDHCalForwardAlgo debug: Parent " << parentName
-		       << " NameSpace " << idNameSpace;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo debug: Parent " << parent().name() << " NameSpace " << idNameSpace;
+#endif
 }
 
 void DDHCalForwardAlgo::execute(DDCompactView& cpv) {
-  
-  LogDebug("HCalGeom") << "==>> Constructing DDHCalForwardAlgo...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "==>> Constructing DDHCalForwardAlgo...";
+#endif
+  DDName parentName = parent().name();
+  double ypos = startY;
+  int box = 0;
 
-  DDName parentName = parent().name(); 
-  double ypos       = startY;
-  int    box        = 0;
-
-  for (unsigned int i=0; i<number.size(); i++) {
-    double dx   = cellDx*size[i];
-    int    indx = type[i];
-    for (int j=0; j<number[i]; j++) {
+  for (unsigned int i = 0; i < number.size(); i++) {
+    double dx = cellDx * size[i];
+    int indx = type[i];
+    for (int j = 0; j < number[i]; j++) {
       box++;
-      string name = parentName.name() + std::to_string(box);
-      DDSolid solid = DDSolidFactory::box(DDName(name, idNameSpace),
-					  dx, cellDy, cellDz);
-      LogDebug("HCalGeom") << "DDHCalForwardAlgo test: " 
-			   << DDName(name, idNameSpace) << " Box made of " 
-			   << cellMat << " of Size " << dx << ", " << cellDy
-			   << ", " << cellDz;
-  
-      DDName matname(DDSplit(cellMat).first, DDSplit(cellMat).second); 
+      std::string name = parentName.name() + std::to_string(box);
+      DDSolid solid = DDSolidFactory::box(DDName(name, idNameSpace), dx, cellDy, cellDz);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: " << DDName(name, idNameSpace) << " Box made of " << cellMat
+                                   << " of Size " << dx << ", " << cellDy << ", " << cellDz;
+#endif
+      DDName matname(DDSplit(cellMat).first, DDSplit(cellMat).second);
       DDMaterial matter(matname);
       DDLogicalPart genlogic(solid.ddname(), matter, solid);
 
       DDTranslation r0(0.0, ypos, 0.0);
       DDRotation rot;
       cpv.position(solid.ddname(), parentName, box, r0, rot);
-      LogDebug("HCalGeom") << "DDHCalForwardAlgo test: " << solid.ddname() 
-			   << " number " << box << " positioned in " 
-			   << parentName << " at " << r0 << " with " << rot;
-  
-      DDName child(DDSplit(childName[indx]).first, 
-		   DDSplit(childName[indx]).second); 
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: " << solid.ddname() << " number " << box << " positioned in "
+                                   << parentName << " at " << r0 << " with " << rot;
+#endif
+      DDName child(DDSplit(childName[indx]).first, DDSplit(childName[indx]).second);
       double xpos = -dx + cellDx;
-      ypos       += 2*cellDy;
-      indx        = 1 - indx;
+      ypos += 2 * cellDy;
+      indx = 1 - indx;
 
-      for (int k=0; k<size[i]; k++) {
-	DDTranslation r1(xpos, 0.0, 0.0);
-	cpv.position(child, solid.ddname(), k+1, r1, rot);
-	LogDebug("HCalGeom") << "DDHCalForwardAlgo test: " << child 
-			     << " number " << k+1 << " positioned in " 
-			     << solid.ddname() << " at " << r1 << " with "
-			     << rot;
-	xpos += 2*cellDx;
+      for (int k = 0; k < size[i]; k++) {
+        DDTranslation r1(xpos, 0.0, 0.0);
+        cpv.position(child, solid.ddname(), k + 1, r1, rot);
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: " << child << " number " << k + 1 << " positioned in "
+                                     << solid.ddname() << " at " << r1 << " with " << rot;
+#endif
+        xpos += 2 * cellDx;
       }
-    }  
+    }
   }
-  LogDebug("HCalGeom") << "<<== End of DDHCalForwardAlgo construction ...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "<<== End of DDHCalForwardAlgo construction";
+#endif
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalForwardAlgo, "hcal:DDHCalForwardAlgo");

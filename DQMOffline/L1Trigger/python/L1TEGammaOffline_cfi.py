@@ -1,14 +1,15 @@
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 from DQMOffline.L1Trigger.L1THistDefinitions_cff import histDefinitions
 
 electronEfficiencyThresholds = [34, 36, 38, 40, 42]
 
 electronEfficiencyBins = []
-electronEfficiencyBins.extend(list(xrange(2, 42, 2)))
-electronEfficiencyBins.extend(list(xrange(42, 45, 3)))
-electronEfficiencyBins.extend(list(xrange(45, 50, 5)))
-electronEfficiencyBins.extend(list(xrange(50, 70, 10)))
-electronEfficiencyBins.extend(list(xrange(70, 101, 30)))
+electronEfficiencyBins.extend(list(range(2, 42, 2)))
+electronEfficiencyBins.extend(list(range(42, 45, 3)))
+electronEfficiencyBins.extend(list(range(45, 50, 5)))
+electronEfficiencyBins.extend(list(range(50, 70, 10)))
+electronEfficiencyBins.extend(list(range(70, 101, 30)))
 
 # additional efficiency vs eta, phi and # vertices plots will
 # be created for the following probe electron pT thresholds
@@ -22,7 +23,8 @@ probeToL1Offset = 10
 photonEfficiencyThresholds = electronEfficiencyThresholds
 photonEfficiencyBins = electronEfficiencyBins
 
-l1tEGammaOfflineDQM = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tEGammaOfflineDQM = DQMEDAnalyzer(
     "L1TEGammaOffline",
     electronCollection=cms.InputTag("gedGsfElectrons"),
     photonCollection=cms.InputTag("photons"),
@@ -41,7 +43,7 @@ l1tEGammaOfflineDQM = cms.EDAnalyzer(
 
     stage2CaloLayer2EGammaSource=cms.InputTag("caloStage2Digis", "EGamma"),
 
-    histFolder=cms.string('L1T/L1TEGamma'),
+    histFolder=cms.string('L1T/L1TObjects/L1TEGamma/L1TriggerVsReco'),
 
     electronEfficiencyThresholds=cms.vdouble(electronEfficiencyThresholds),
     electronEfficiencyBins=cms.vdouble(electronEfficiencyBins),
@@ -50,9 +52,14 @@ l1tEGammaOfflineDQM = cms.EDAnalyzer(
 
     photonEfficiencyThresholds=cms.vdouble(photonEfficiencyThresholds),
     photonEfficiencyBins=cms.vdouble(photonEfficiencyBins),
+    maxDeltaRForL1Matching=cms.double(0.3),
+    maxDeltaRForHLTMatching=cms.double(0.3),
+    recoToL1TThresholdFactor=cms.double(1.25),
 
     histDefinitions=cms.PSet(
-        nVertex = histDefinitions.nVertex.clone(),
+        nVertex=histDefinitions.nVertex.clone(),
+        ETvsET=histDefinitions.ETvsET.clone(),
+        PHIvsPHI=histDefinitions.PHIvsPHI.clone(),
     ),
 )
 
@@ -61,12 +68,12 @@ electronEfficiencyThresholds_HI = [5, 10, 15, 21]
 deepInspectionElectronThresholds_HI = [15]
 
 electronEfficiencyBins_HI = []
-electronEfficiencyBins_HI.extend(list(xrange(1, 26, 1)))
-electronEfficiencyBins_HI.extend(list(xrange(26, 42, 2)))
-electronEfficiencyBins_HI.extend(list(xrange(42, 45, 3)))
-electronEfficiencyBins_HI.extend(list(xrange(45, 50, 5)))
-electronEfficiencyBins_HI.extend(list(xrange(50, 70, 10)))
-electronEfficiencyBins_HI.extend(list(xrange(70, 101, 30)))
+electronEfficiencyBins_HI.extend(list(range(1, 26, 1)))
+electronEfficiencyBins_HI.extend(list(range(26, 42, 2)))
+electronEfficiencyBins_HI.extend(list(range(42, 45, 3)))
+electronEfficiencyBins_HI.extend(list(range(45, 50, 5)))
+electronEfficiencyBins_HI.extend(list(range(50, 70, 10)))
+electronEfficiencyBins_HI.extend(list(range(70, 101, 30)))
 
 photonEfficiencyThresholds_HI = electronEfficiencyThresholds_HI
 photonEfficiencyBins_HI = electronEfficiencyBins_HI
@@ -85,7 +92,6 @@ ppRef_2017.toModify(
 
 # emulator module
 l1tEGammaOfflineDQMEmu = l1tEGammaOfflineDQM.clone(
-    stage2CaloLayer2EGammaSource=cms.InputTag("simCaloStage2Digis"),
-
-    histFolder=cms.string('L1TEMU/L1TEGamma'),
+    stage2CaloLayer2EGammaSource = "simCaloStage2Digis",
+    histFolder = 'L1TEMU/L1TObjects/L1TEGamma/L1TriggerVsReco'
 )

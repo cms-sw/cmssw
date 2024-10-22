@@ -15,21 +15,18 @@
 
 template <unsigned int N>
 class KalmanVertexTrackUpdator : public VertexTrackUpdator<N> {
-
 public:
-
   typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef typename VertexTrack<N>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
   typedef typename VertexTrack<N>::RefCountedRefittedTrackState RefCountedRefittedTrackState;
-
 
   /**
    *  Default constructor
    */
 
-  KalmanVertexTrackUpdator(){}
+  KalmanVertexTrackUpdator() {}
 
-  ~KalmanVertexTrackUpdator() override{}
+  ~KalmanVertexTrackUpdator() override {}
 
   /**
    *   Refit of the track with the vertex constraint.
@@ -39,22 +36,17 @@ public:
    *		the track-to-vertex covariance.
    */
 
-  RefCountedVertexTrack update(const CachingVertex<N> & vertex,
-                               RefCountedVertexTrack track) const override;
-
+  RefCountedVertexTrack update(const CachingVertex<N>& vertex, RefCountedVertexTrack track) const override;
 
   /**
    *  Clone method
    */
 
-  KalmanVertexTrackUpdator<N> * clone() const override
-  {
-    return new KalmanVertexTrackUpdator(*this);
-  }
+  KalmanVertexTrackUpdator<N>* clone() const override { return new KalmanVertexTrackUpdator(*this); }
 
-  typedef ROOT::Math::SMatrix<double,3,N-2,ROOT::Math::MatRepStd<double,3,N-2> > AlgebraicMatrix3M;
-  typedef ROOT::Math::SMatrix<double,N+1,N+1,ROOT::Math::MatRepSym<double,N+1> > AlgebraicSymMatrixOO;
-  typedef std::pair< RefCountedRefittedTrackState, AlgebraicSymMatrixOO > trackMatrixPair; 
+  typedef ROOT::Math::SMatrix<double, 3, N - 2, ROOT::Math::MatRepStd<double, 3, N - 2> > AlgebraicMatrix3M;
+  typedef ROOT::Math::SMatrix<double, N + 1, N + 1, ROOT::Math::MatRepSym<double, N + 1> > AlgebraicSymMatrixOO;
+  typedef std::pair<RefCountedRefittedTrackState, AlgebraicSymMatrixOO> trackMatrixPair;
 
   /**
    *   Refit of the track with the vertex constraint.
@@ -63,12 +55,11 @@ public:
    *   \return	The refitted state with the track-to-vertex covariance.
    */
 
-  trackMatrixPair trackRefit(const VertexState & vertex,
-		RefCountedLinearizedTrackState linTrackState,
-		float weight) const;
+  trackMatrixPair trackRefit(const VertexState& vertex,
+                             RefCountedLinearizedTrackState linTrackState,
+                             float weight) const;
 
 private:
-
   VertexTrackFactory<N> theVTFactory;
   KVFHelper<N> helper;
   KalmanVertexUpdator<N> updator;

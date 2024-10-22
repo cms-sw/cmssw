@@ -4,4 +4,3 @@
 #include "L1TriggerConfig/GMTConfigProducers/interface/L1MuGMTParametersProducer.h"
 
 DEFINE_FWK_EVENTSETUP_MODULE(L1MuGMTParametersProducer);
-

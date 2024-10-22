@@ -8,21 +8,25 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESConsumesCollector.h"
 
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
 
 class L1TriggerKeyOnlineProdExt : public edm::ESProducer {
-   public:
-      L1TriggerKeyOnlineProdExt(const edm::ParameterSet&);
-      ~L1TriggerKeyOnlineProdExt() override;
+public:
+  L1TriggerKeyOnlineProdExt(const edm::ParameterSet&);
+  ~L1TriggerKeyOnlineProdExt() override;
 
-      typedef std::shared_ptr<L1TriggerKeyExt> ReturnType;
+  using ReturnType = std::unique_ptr<L1TriggerKeyExt>;
 
-      ReturnType produce(const L1TriggerKeyExtRcd&);
-   private:
-      // ----------member data ---------------------------
-      std::vector< std::string > m_subsystemLabels ;
+  ReturnType produce(const L1TriggerKeyExtRcd&);
+
+private:
+  // ----------member data ---------------------------
+  edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> L1TriggerKeyExt_token;
+  std::vector<edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd>> m_subsystemTokens;
+  std::vector<std::string> m_subsystemLabels;
 };
 
 #endif

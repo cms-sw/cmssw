@@ -1,0 +1,13 @@
+<library file="*.cc" name="ValidationMuonHitsPlugin">
+  <use name="DQMServices/Core"/>
+  <use name="Geometry/CSCGeometry"/>
+  <use name="Geometry/DTGeometry"/>
+  <use name="Geometry/RPCGeometry"/>
+  <use name="Geometry/Records"/>
+  <use name="SimDataFormats/GeneratorProducts"/>
+  <use name="SimDataFormats/TrackingHit"/>
+  <use name="SimDataFormats/Vertex"/>
+  <use name="Validation/MuonHits"/>
+  <use name="root"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

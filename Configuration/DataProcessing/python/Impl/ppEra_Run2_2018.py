@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 _ppEra_Run2_2018_
 
@@ -20,7 +20,6 @@ class ppEra_Run2_2018(pp):
         pp.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
-        self.addEI=True
         self.eras=Run2_2018
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018' ]
         self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018' ]

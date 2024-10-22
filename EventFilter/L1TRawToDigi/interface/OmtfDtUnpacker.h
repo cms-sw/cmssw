@@ -3,23 +3,22 @@
 
 #include <string>
 
-
 #include "DataFormats/L1TMuon/interface/OMTF/OmtfDataWord64.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 
 namespace omtf {
 
-class DtDataWord64;
+  class DtDataWord64;
 
-class DtUnpacker {
+  class DtUnpacker {
+  public:
+    void unpack(unsigned int fed,
+                unsigned int amc,
+                const DtDataWord64 &raw,
+                std::vector<L1MuDTChambPhDigi> &phi_Container,
+                std::vector<L1MuDTChambThDigi> &the_Container);
+  };
 
-public:
-
-  void unpack(unsigned int fed, unsigned int amc, const DtDataWord64 &raw, std::vector<L1MuDTChambPhDigi> & phi_Container, std::vector<L1MuDTChambThDigi> & the_Container);
-
-};
-
-}
+}  // namespace omtf
 #endif
-

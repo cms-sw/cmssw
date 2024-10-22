@@ -10,7 +10,6 @@
  *
  */
 
-
 /* Base Class Headers */
 #include <functional>
 
@@ -27,4 +26,4 @@
 
 typedef edm::RangeMap<DTSuperLayerId, edm::OwnVector<DTSLRecSegment2D> > DTRecSegment2DCollection;
 
-#endif // DTRecHit_DTRecSegment2DCollection_h
+#endif  // DTRecHit_DTRecSegment2DCollection_h

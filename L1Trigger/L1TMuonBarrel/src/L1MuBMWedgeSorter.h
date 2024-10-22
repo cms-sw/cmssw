@@ -28,8 +28,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -42,52 +40,47 @@ class L1MuBMSecProcId;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuBMWedgeSorter : public L1AbstractProcessor {
+class L1MuBMWedgeSorter {
+public:
+  /// constructor
+  L1MuBMWedgeSorter(const L1MuBMTrackFinder&, int id);
 
-  public:
+  /// destructor
+  ~L1MuBMWedgeSorter();
 
-    /// constructor
-    L1MuBMWedgeSorter(const L1MuBMTrackFinder&, int id );
+  /// return Wedge Sorter identifier (0-11)
+  inline int id() const { return m_wsid; }
 
-    /// destructor
-    ~L1MuBMWedgeSorter() override;
+  /// run Wedge Sorter
+  void run();
 
-    /// return Wedge Sorter identifier (0-11)
-    inline int id() const { return m_wsid; }
+  /// reset Wedge Sorter
+  void reset();
 
-    /// run Wedge Sorter
-    void run() override;
+  /// print results after sorting
+  void print() const;
 
-    /// reset Wedge Sorter
-    void reset() override;
+  /// return vector of muon candidates
+  inline const std::vector<const L1MuBMTrack*>& tracks() const { return m_TrackCands; }
 
-    /// print results after sorting
-    void print() const;
+  /// return number of muon candidates
+  inline bool anyMuonCands() const { return anyTrack(); }
 
-    /// return vector of muon candidates
-    inline const std::vector<const L1MuBMTrack*>& tracks() const { return m_TrackCands; }
+private:
+  /// run the Cancel Out Logic of the wedge sorter
+  void runCOL(std::vector<L1MuBMTrack*>&) const;
 
-    /// return number of muon candidates
-    inline bool anyMuonCands() const { return anyTrack(); }
+  /// are there any non-empty muon candidates in the Wedge Sorter?
+  bool anyTrack() const;
 
-  private:
+  /// find out if two Sector Processors are neighbours in the same wedge
+  static bool neighbour(const L1MuBMSecProcId& spid1, const L1MuBMSecProcId& spid2);
 
-    /// run the Cancel Out Logic of the wedge sorter
-    void runCOL(std::vector<L1MuBMTrack*>&) const;
+private:
+  const L1MuBMTrackFinder& m_tf;
+  int m_wsid;
 
-    /// are there any non-empty muon candidates in the Wedge Sorter?
-    bool anyTrack() const;
-
-    /// find out if two Sector Processors are neighbours in the same wedge
-    static bool neighbour(const L1MuBMSecProcId& spid1, const L1MuBMSecProcId& spid2);
-
-  private:
-
-    const L1MuBMTrackFinder&        m_tf;
-    int                             m_wsid;
-
-    std::vector<const L1MuBMTrack*> m_TrackCands;
-
+  std::vector<const L1MuBMTrack*> m_TrackCands;
 };
 
 #endif

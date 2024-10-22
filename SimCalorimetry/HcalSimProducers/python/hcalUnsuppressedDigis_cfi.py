@@ -45,10 +45,21 @@ hcalSimBlock = cms.PSet(
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify( hcalSimBlock, hitsProducer=cms.string('famosSimHits') )
+fastSim.toModify( hcalSimBlock, hitsProducer=cms.string('fastSimProducer') )
 
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(hcalSimBlock,
+    doNoise = False,
+    doEmpty = False,
+    doIonFeedback = False,
+    doThermalNoise = False,
+    doTimeSlew = False,
+    HcalPreMixStage1 = True,
+)
+
+# test numbering not used in fastsim
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-run2_HCAL_2017.toModify( hcalSimBlock, TestNumbering = cms.bool(True) )
+(run2_HCAL_2017 & ~fastSim).toModify( hcalSimBlock, TestNumbering = cms.bool(True) )
 
 # remove HE processing for phase 2, completely put in HGCal land
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal

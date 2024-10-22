@@ -5,21 +5,17 @@
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 
 #include "L1AnalysisL1HODataFormat.h"
-namespace L1Analysis
-{
-  class L1AnalysisL1HO 
-  {
+namespace L1Analysis {
+  class L1AnalysisL1HO {
   public:
     L1AnalysisL1HO();
     ~L1AnalysisL1HO();
-    void Reset() {l1ho_.Reset();}
-    void SetHO (const edm::SortedCollection<HODataFrame>& hoDataFrame);
-    L1AnalysisL1HODataFormat * getData() {return &l1ho_;}
+    void Reset() { l1ho_.Reset(); }
+    void SetHO(const edm::SortedCollection<HODataFrame>& hoDataFrame);
+    L1AnalysisL1HODataFormat* getData() { return &l1ho_; }
 
-  private :
+  private:
     L1AnalysisL1HODataFormat l1ho_;
-  }; 
-}
+  };
+}  // namespace L1Analysis
 #endif
-
-

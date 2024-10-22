@@ -1,15 +1,14 @@
-<use   name="DQMServices/Core"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/Catalog"/>
-<use   name="EventFilter/Utilities"/>
-<use   name="boost"/>
-<use   name="boost_iostreams"/>
-<use   name="boost_filesystem"/>
-
-<library  file="*.cc" name="DQMServicesFileIOPlugins">
-  <flags   EDM_PLUGIN="1" />
-  <flags   CXXFLAGS="-lboost_iostreams" />
+<use name="DQMServices/Core"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="EventFilter/Utilities"/>
+<use name="Utilities/OpenSSL"/>
+<use name="stdcxx-fs"/>
+<use name="boost"/>
+<use name="boost_iostreams"/>
+<library file="*.cc" name="DQMServicesFileIOPlugins">
+  <flags EDM_PLUGIN="1"/>
+  <flags CXXFLAGS="-lboost_iostreams"/>
 </library>

@@ -49,4 +49,21 @@ ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.acoplanarDistance = 1 ##radian
 ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.numberOfCandidates = 1 	 
 
-seqALCARECOTkAlJpsiMuMu = cms.Sequence(ALCARECOTkAlJpsiMuMuHLT+ALCARECOTkAlJpsiMuMuDCSFilter+ALCARECOTkAlJpsiMuMuGoodMuons+ALCARECOTkAlJpsiMuMu)
+## for the GEN level information
+TkAlJpsiMuMuGenMuonSelector = cms.EDFilter("GenParticleSelector",
+                                           src = cms.InputTag("genParticles"),
+                                           cut = cms.string("abs(pdgId) == 13"), # Select only muons
+                                           filter = cms.bool(False),
+                                           throwOnMissing = cms.untracked.bool(False))
+
+seqALCARECOTkAlJpsiMuMu = cms.Sequence(ALCARECOTkAlJpsiMuMuHLT+ALCARECOTkAlJpsiMuMuDCSFilter+ALCARECOTkAlJpsiMuMuGoodMuons+ALCARECOTkAlJpsiMuMu+TkAlJpsiMuMuGenMuonSelector)
+
+## customizations for the pp_on_AA eras
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+(pp_on_XeXe_2017 | pp_on_AA).toModify(ALCARECOTkAlJpsiMuMuHLT,
+                                      eventSetupPathsKey='TkAlJpsiMuMuHI'
+)
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(ALCARECOTkAlJpsiMuMu, etaMin = -4, etaMax = 4)

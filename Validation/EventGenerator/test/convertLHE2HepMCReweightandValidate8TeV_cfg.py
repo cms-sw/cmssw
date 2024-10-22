@@ -1,15 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("convertLHE2HepMC")
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories=cms.untracked.vstring('FwkJob'
-                                                           ,'FwkReport'
-                                                           ,'FwkSummary'
-                                                           ,'Root_NoDictionary'
-                                                           ,'Generator'
-                                                           ,'LHEInterface'
-                                                           )
-    
+process.load("FWCore.MessageLogger.MessageLogger_cfi")    
 
 process.MessageLogger.cerr.INFO = cms.untracked.PSet(limit = cms.untracked.int32(-1))
 process.MessageLogger.cerr.Generator = cms.untracked.PSet(limit = cms.untracked.int32(0))

@@ -19,7 +19,9 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
     HOThresholdMinus2 = cms.double(3.5),
     HBGrid = cms.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
     # Energy threshold for HB cell inclusion [GeV]
-    HBThreshold = cms.double(0.7),
+    HBThreshold1 = cms.double(0.7), # depth 1
+    HBThreshold2 = cms.double(0.7), # depth 2
+    HBThreshold = cms.double(0.7), # depths 3-4
     EEWeights = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0),
     # Energy threshold for long-fiber HF readout inclusion [GeV]
     HF1Threshold = cms.double(0.5),
@@ -136,30 +138,49 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
      UseRejectedRecoveredHcalHits = cms.bool(True),
      UseRejectedRecoveredEcalHits = cms.bool(False),
 
+#    If Hcal is masked, and Ecal is present, pretend Hcal = (this factor) * Ecal
+    missingHcalRescaleFactorForEcal = cms.double(0),
+
 
 # flag to allow/disallow missing inputs
     AllowMissingInputs = cms.bool(False),
 	
 # specify hcal upgrade phase - 0, 1, 2	
-	HcalPhase = cms.int32(0)
-    
+    HcalPhase = cms.int32(0),
+
+# Read HBHE thresholds from Global Tag
+    usePFThresholdsFromDB = cms.bool(False),
+# Read ECAL thresholds from Global Tag
+    EcalRecHitThresh = cms.bool(False)
 )
 
 from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
 run2_HE_2018.toModify(calotowermaker, 
-                      HcalPhase = cms.int32(1),
-                      HESThreshold1 = cms.double(0.1),
-                      HESThreshold  = cms.double(0.2),
-                      HEDThreshold1 = cms.double(0.1),
-                      HEDThreshold  = cms.double(0.2)
+                      HcalPhase = 1,
+                      HESThreshold1 = 0.1,
+                      HESThreshold  = 0.2,
+                      HEDThreshold1 = 0.1,
+                      HEDThreshold  = 0.2
 )
 
 # needed to handle inner/outer assignment
 from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
 run2_HECollapse_2018.toModify(calotowermaker,
-    HcalPhase = cms.int32(0),
-    HESThreshold1 = cms.double(0.8),
-    HESThreshold  = cms.double(0.8),
-    HEDThreshold1 = cms.double(0.8),
-    HEDThreshold  = cms.double(0.8)
+    HcalPhase = 0,
+    HESThreshold1 = 0.8,
+    HESThreshold  = 0.8,
+    HEDThreshold1 = 0.8,
+    HEDThreshold  = 0.8
 )
+
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+run3_HB.toModify(calotowermaker,
+    HBThreshold1 = 0.1,
+    HBThreshold2 = 0.2,
+    HBThreshold = 0.3,
+)
+
+#--- Use DB conditions for HBHE thresholds for Run3 and phase2
+from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
+hcalPfCutsFromDB.toModify( calotowermaker,
+                           usePFThresholdsFromDB = True)

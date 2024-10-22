@@ -4,70 +4,34 @@
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetRcdMapper.h"
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetCorrectorSequenceTypes.h"
 
-class FFTBasicJetCorrectorSequenceLoader :
-    public DefaultFFTJetRcdMapper<FFTBasicJetCorrectorSequence>
-{
-    typedef DefaultFFTJetRcdMapper<FFTBasicJetCorrectorSequence> Base;
-    friend class StaticFFTJetRcdMapper<FFTBasicJetCorrectorSequenceLoader>;
-    FFTBasicJetCorrectorSequenceLoader();
+struct FFTBasicJetCorrectorSequenceLoader : public DefaultFFTJetRcdMapper<FFTBasicJetCorrectorSequence> {
+  typedef DefaultFFTJetRcdMapper<FFTBasicJetCorrectorSequence> Base;
+  FFTBasicJetCorrectorSequenceLoader();
 };
 
-typedef StaticFFTJetRcdMapper<FFTBasicJetCorrectorSequenceLoader>
-StaticFFTBasicJetCorrectorSequenceLoader;
-
-class FFTCaloJetCorrectorSequenceLoader :
-    public DefaultFFTJetRcdMapper<FFTCaloJetCorrectorSequence>
-{
-    typedef DefaultFFTJetRcdMapper<FFTCaloJetCorrectorSequence> Base;
-    friend class StaticFFTJetRcdMapper<FFTCaloJetCorrectorSequenceLoader>;
-    FFTCaloJetCorrectorSequenceLoader();
+struct FFTCaloJetCorrectorSequenceLoader : public DefaultFFTJetRcdMapper<FFTCaloJetCorrectorSequence> {
+  typedef DefaultFFTJetRcdMapper<FFTCaloJetCorrectorSequence> Base;
+  FFTCaloJetCorrectorSequenceLoader();
 };
 
-typedef StaticFFTJetRcdMapper<FFTCaloJetCorrectorSequenceLoader>
-StaticFFTCaloJetCorrectorSequenceLoader;
-
-class FFTGenJetCorrectorSequenceLoader :
-    public DefaultFFTJetRcdMapper<FFTGenJetCorrectorSequence>
-{
-    typedef DefaultFFTJetRcdMapper<FFTGenJetCorrectorSequence> Base;
-    friend class StaticFFTJetRcdMapper<FFTGenJetCorrectorSequenceLoader>;
-    FFTGenJetCorrectorSequenceLoader();
+struct FFTGenJetCorrectorSequenceLoader : public DefaultFFTJetRcdMapper<FFTGenJetCorrectorSequence> {
+  typedef DefaultFFTJetRcdMapper<FFTGenJetCorrectorSequence> Base;
+  FFTGenJetCorrectorSequenceLoader();
 };
 
-typedef StaticFFTJetRcdMapper<FFTGenJetCorrectorSequenceLoader>
-StaticFFTGenJetCorrectorSequenceLoader;
-
-class FFTPFJetCorrectorSequenceLoader :
-    public DefaultFFTJetRcdMapper<FFTPFJetCorrectorSequence>
-{
-    typedef DefaultFFTJetRcdMapper<FFTPFJetCorrectorSequence> Base;
-    friend class StaticFFTJetRcdMapper<FFTPFJetCorrectorSequenceLoader>;
-    FFTPFJetCorrectorSequenceLoader();
+struct FFTPFJetCorrectorSequenceLoader : public DefaultFFTJetRcdMapper<FFTPFJetCorrectorSequence> {
+  typedef DefaultFFTJetRcdMapper<FFTPFJetCorrectorSequence> Base;
+  FFTPFJetCorrectorSequenceLoader();
 };
 
-typedef StaticFFTJetRcdMapper<FFTPFJetCorrectorSequenceLoader>
-StaticFFTPFJetCorrectorSequenceLoader;
-
-class FFTTrackJetCorrectorSequenceLoader :
-    public DefaultFFTJetRcdMapper<FFTTrackJetCorrectorSequence>
-{
-    typedef DefaultFFTJetRcdMapper<FFTTrackJetCorrectorSequence> Base;
-    friend class StaticFFTJetRcdMapper<FFTTrackJetCorrectorSequenceLoader>;
-    FFTTrackJetCorrectorSequenceLoader();
+struct FFTTrackJetCorrectorSequenceLoader : public DefaultFFTJetRcdMapper<FFTTrackJetCorrectorSequence> {
+  typedef DefaultFFTJetRcdMapper<FFTTrackJetCorrectorSequence> Base;
+  FFTTrackJetCorrectorSequenceLoader();
 };
 
-typedef StaticFFTJetRcdMapper<FFTTrackJetCorrectorSequenceLoader>
-StaticFFTTrackJetCorrectorSequenceLoader;
-
-class FFTJPTJetCorrectorSequenceLoader :
-    public DefaultFFTJetRcdMapper<FFTJPTJetCorrectorSequence>
-{
-    typedef DefaultFFTJetRcdMapper<FFTJPTJetCorrectorSequence> Base;
-    friend class StaticFFTJetRcdMapper<FFTJPTJetCorrectorSequenceLoader>;
-    FFTJPTJetCorrectorSequenceLoader();
+struct FFTJPTJetCorrectorSequenceLoader : public DefaultFFTJetRcdMapper<FFTJPTJetCorrectorSequence> {
+  typedef DefaultFFTJetRcdMapper<FFTJPTJetCorrectorSequence> Base;
+  FFTJPTJetCorrectorSequenceLoader();
 };
 
-typedef StaticFFTJetRcdMapper<FFTJPTJetCorrectorSequenceLoader>
-StaticFFTJPTJetCorrectorSequenceLoader;
-
-#endif // JetMETCorrections_FFTJetObjects_FFTJetCorrectorSequenceLoader_h
+#endif  // JetMETCorrections_FFTJetObjects_FFTJetCorrectorSequenceLoader_h

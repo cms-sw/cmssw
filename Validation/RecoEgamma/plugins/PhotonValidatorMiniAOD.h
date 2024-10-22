@@ -1,6 +1,5 @@
 #ifndef PhotonValidatorMiniAOD_H
 #define PhotonValidatorMiniAOD_H
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -17,9 +16,7 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
 
 //
 #include <map>
@@ -33,9 +30,10 @@
  **
  ***/
 
-
 // forward declarations
-namespace edm {class HepMCProduct;}
+namespace edm {
+  class HepMCProduct;
+}
 class TFile;
 class TH1F;
 class TH2F;
@@ -44,30 +42,20 @@ class TTree;
 class SimVertex;
 class SimTrack;
 
-
-
-class PhotonValidatorMiniAOD : public DQMEDAnalyzer
-{
-
- public:
-
+class PhotonValidatorMiniAOD : public DQMEDAnalyzer {
+public:
   //
-  explicit PhotonValidatorMiniAOD( const edm::ParameterSet& ) ;
+  explicit PhotonValidatorMiniAOD(const edm::ParameterSet&);
   ~PhotonValidatorMiniAOD() override;
 
-
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   //  virtual void beginJob();
-  void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) override;
-  void endRun (edm::Run const& r, edm::EventSetup const & es) override;
-  void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
- private:
-
+private:
   std::string outputFileName_;
   edm::EDGetTokenT<edm::View<pat::Photon> > photonToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> genpartToken_;
-
 
   std::string fName_;
 
@@ -103,26 +91,10 @@ class PhotonValidatorMiniAOD : public DQMEDAnalyzer
   MonitorElement* h_nHadIso_[3];
   MonitorElement* h_phoIso_[3];
 
-
-
-
-class  sortPhotons
-{
+  class sortPhotons {
   public:
-    bool operator () (const pat::PhotonRef& lhs, const pat::PhotonRef & rhs)
-    {
-        return lhs->et() > rhs->et();
-    }
+    bool operator()(const pat::PhotonRef& lhs, const pat::PhotonRef& rhs) { return lhs->et() > rhs->et(); }
+  };
 };
-
-
-
-};
-
-
-
-
-
-
 
 #endif

@@ -81,16 +81,17 @@ options.parseArguments()
 
 # Input source
 DQMStreamerReader = cms.Source("DQMStreamerReader",
-    SelectEvents = cms.untracked.vstring("*"),
+    # DQMFileIterator
     runNumber = cms.untracked.uint32(options.runNumber),
     runInputDir = cms.untracked.string(options.runInputDir),
     streamLabel = cms.untracked.string(options.streamLabel),
     scanOnce = cms.untracked.bool(options.scanOnce),
     datafnPosition = cms.untracked.uint32(options.datafnPosition),
-
-    minEventsPerLumi = cms.untracked.int32(options.minEventsPerLumi),
     delayMillis = cms.untracked.uint32(options.delayMillis),
     nextLumiTimeoutMillis = cms.untracked.int32(options.nextLumiTimeoutMillis),
+    # DQMStreamerReader
+    SelectEvents = cms.untracked.vstring("*"),
+    minEventsPerLumi = cms.untracked.int32(options.minEventsPerLumi),
     skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
     deleteDatFiles = cms.untracked.bool(options.deleteDatFiles),
     endOfRunKills  = cms.untracked.bool(options.endOfRunKills),

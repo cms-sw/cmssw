@@ -7,16 +7,14 @@ namespace cond {
 
   class IOVProvenance {
   public:
-    IOVProvenance(){}
-    virtual ~ IOVProvenance(){}
-    virtual IOVProvenance * clone() const { return new  IOVProvenance(*this);}
+    IOVProvenance() {}
+    virtual ~IOVProvenance() {}
+    virtual IOVProvenance* clone() const { return new IOVProvenance(*this); }
 
   private:
-  
-  COND_SERIALIZABLE;
-};
+    COND_SERIALIZABLE;
+  };
 
-
-}
+}  // namespace cond
 
 #endif

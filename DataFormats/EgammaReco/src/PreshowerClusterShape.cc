@@ -5,19 +5,15 @@
 
 using namespace reco;
 
-PreshowerClusterShape::~PreshowerClusterShape() { }
+PreshowerClusterShape::~PreshowerClusterShape() {}
 
-
-PreshowerClusterShape::PreshowerClusterShape(const std::vector<float>& stripEnergies,
-				   const int plane)
-{
+PreshowerClusterShape::PreshowerClusterShape(const std::vector<float>& stripEnergies, const int plane) {
   stripEnergies_ = stripEnergies;
   plane_ = plane;
 }
 
-PreshowerClusterShape::PreshowerClusterShape(const PreshowerClusterShape &b) 
-{
+PreshowerClusterShape::PreshowerClusterShape(const PreshowerClusterShape& b) {
   stripEnergies_ = b.stripEnergies_;
   plane_ = b.plane_;
-  sc_ref_=b.sc_ref_;
+  sc_ref_ = b.sc_ref_;
 }

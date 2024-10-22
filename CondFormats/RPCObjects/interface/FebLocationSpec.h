@@ -10,7 +10,6 @@
  */
 
 struct FebLocationSpec {
-
   char cmsEtaPartition;
   char positionInCmsEtaPartition;
   char localEtaPartition;

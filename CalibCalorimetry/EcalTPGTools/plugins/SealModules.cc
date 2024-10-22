@@ -4,8 +4,6 @@
 #include "testEcalTPGScale.h"
 #include "EcalTPGDBCopy.h"
 
-
 DEFINE_FWK_MODULE(EcalTPGParamBuilder);
 DEFINE_FWK_MODULE(EcalTPGDBCopy);
 DEFINE_FWK_MODULE(testEcalTPGScale);
-

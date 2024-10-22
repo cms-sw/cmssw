@@ -2,7 +2,7 @@
 //
 // Package:     L1Trigger
 // Class  :     Exception
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -16,7 +16,6 @@
 // user include files
 #include "CondTools/L1Trigger/interface/Exception.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -28,30 +27,18 @@
 //
 // constructors and destructor
 //
-l1t::DataAlreadyPresentException::DataAlreadyPresentException(
-  const std::string& message )
-  : cond::Exception( message )
-{
-}
+l1t::DataAlreadyPresentException::DataAlreadyPresentException(const std::string& message) : cond::Exception(message) {}
 
 // DataAlreadyPresentException::DataAlreadyPresentException(const DataAlreadyPresentException& rhs)
 // {
 //    // do actual copying here;
 // }
 
-l1t::DataAlreadyPresentException::~DataAlreadyPresentException() throw()
-{
-}
+l1t::DataAlreadyPresentException::~DataAlreadyPresentException() throw() {}
 
-l1t::DataInvalidException::DataInvalidException(
-  const std::string& message )
-  : cond::Exception( message )
-{
-}
+l1t::DataInvalidException::DataInvalidException(const std::string& message) : cond::Exception(message) {}
 
-l1t::DataInvalidException::~DataInvalidException() throw()
-{
-}
+l1t::DataInvalidException::~DataInvalidException() throw() {}
 
 //
 // assignment operators

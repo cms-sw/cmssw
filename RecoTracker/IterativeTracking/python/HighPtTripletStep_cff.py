@@ -1,12 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+
+# for dnn classifier
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
+
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
 
 ### high-pT triplets ###
 
 # NEW CLUSTERS (remove previously used clusters)
-highPtTripletStepClusters = _cfg.clusterRemoverForIter("HighPtTripletStep")
+highPtTripletStepClusters = _cfg.clusterRemoverForIter('HighPtTripletStep')
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
-    _era.toReplaceWith(highPtTripletStepClusters, _cfg.clusterRemoverForIter("HighPtTripletStep", _eraName, _postfix))
+    _era.toReplaceWith(highPtTripletStepClusters, _cfg.clusterRemoverForIter('HighPtTripletStep', _eraName, _postfix))
 
 
 # SEEDING LAYERS
@@ -56,73 +64,96 @@ trackingPhase2PU140.toModify(highPtTripletStepSeedLayers,
 # TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
 highPtTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(RegionPSet = dict(
-    ptMin = 0.55,
+    ptMin        = 0.55,
     originRadius = 0.02,
-    nSigmaZ = 4.0
+    nSigmaZ      = 4.0
 ))
 trackingPhase2PU140.toModify(highPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.7, originRadius = 0.02))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toReplaceWith(highPtTripletStepTrackingRegions, 
-                    _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-                fixedError = 0.2,
-                ptMin = 0.6,
-                originRadius = 0.02
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(highPtTripletStepTrackingRegions, 
+                _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+                    fixedError   = 0.2,
+                    ptMin        = 0.7,
+                    originRadius = 0.02
                 )
                                                                       )
 )
+from Configuration.Eras.Modifier_highBetaStar_cff import highBetaStar
+highBetaStar.toModify(highPtTripletStepTrackingRegions,RegionPSet = dict(
+     ptMin        = 0.05,
+     originRadius = 0.2
+))
 
 
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 highPtTripletStepHitDoublets = _hitPairEDProducer.clone(
-    seedingLayers = "highPtTripletStepSeedLayers",
-    trackingRegions = "highPtTripletStepTrackingRegions",
-    layerPairs = [0,1], # layer pairs (0,1), (1,2)
-    maxElement = 0,
+    seedingLayers   = 'highPtTripletStepSeedLayers',
+    trackingRegions = 'highPtTripletStepTrackingRegions',
+    layerPairs      = [0,1], # layer pairs (0,1), (1,2)
+    maxElement      = 50000000,
     produceIntermediateHitDoublets = True,
 )
-from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
+from RecoTracker.PixelSeeding.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
+from RecoTracker.PixelSeeding.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+import RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 highPtTripletStepHitTriplets = _caHitTripletEDProducer.clone(
-    doublets = "highPtTripletStepHitDoublets",
+    doublets = 'highPtTripletStepHitDoublets',
     extraHitRPhitolerance = _pixelTripletHLTEDProducer.extraHitRPhitolerance,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
+    SeedComparitorPSet = RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
     maxChi2 = dict(
         pt1    = 0.8, pt2    = 8,
         value1 = 100, value2 = 6,
     ),
     useBendingCorrection = True,
-    CAThetaCut = 0.004,
-    CAPhiCut = 0.07,
-    CAHardPtCut = 0.3,
+    CAThetaCut           = 0.004,
+    CAPhiCut             = 0.07,
+    CAHardPtCut          = 0.3,
 )
+
 trackingPhase2PU140.toModify(highPtTripletStepHitTriplets,CAThetaCut = 0.003,CAPhiCut = 0.06,CAHardPtCut = 0.5)
+highBetaStar.toModify(highPtTripletStepHitTriplets,CAThetaCut = 0.008,CAPhiCut = 0.14,CAHardPtCut = 0)
 
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 highPtTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
-    seedingHitSets = "highPtTripletStepHitTriplets",
+    seedingHitSets = 'highPtTripletStepHitTriplets',
 )
+
+#For FastSim phase1 tracking 
+import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
+_fastSim_highPtTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
+    trackingRegions = 'highPtTripletStepTrackingRegions',
+    hitMasks        = cms.InputTag('highPtTripletStepMasks'),
+    seedFinderSelector = dict( CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(highPtTripletStepHitTriplets),
+                               layerList = highPtTripletStepSeedLayers.layerList.value(),
+                               #new parameters required for phase1 seeding
+                               BPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
+                               FPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
+                               layerPairs = highPtTripletStepHitDoublets.layerPairs.value()
+                               ))
+
+_fastSim_highPtTripletStepSeeds.seedFinderSelector.CAHitTripletGeneratorFactory.SeedComparitorPSet.ComponentName = 'none'
+fastSim.toReplaceWith(highPtTripletStepSeeds,_fastSim_highPtTripletStepSeeds)
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff
 _highPtTripletStepTrajectoryFilterBase = _TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     minimumNumberOfHits = 3,
-    minPt = 0.2,
+    minPt               = 0.2,
 )
 highPtTripletStepTrajectoryFilterBase = _highPtTripletStepTrajectoryFilterBase.clone(
-    maxCCCLostHits = 0,
+    maxCCCLostHits     = 0,
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
 )
 trackingPhase2PU140.toReplaceWith(highPtTripletStepTrajectoryFilterBase, _highPtTripletStepTrajectoryFilterBase)
 
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(highPtTripletStepTrajectoryFilterBase, minPt=0.7)
+(pp_on_XeXe_2017 | pp_on_AA).toModify(highPtTripletStepTrajectoryFilterBase, minPt=0.7)
+highBetaStar.toModify(highPtTripletStepTrajectoryFilterBase, minPt=0.05)
 
 highPtTripletStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFilter_block.clone(
     filters = [cms.PSet(refToPSet_ = cms.string('highPtTripletStepTrajectoryFilterBase'))]
@@ -134,89 +165,145 @@ trackingPhase2PU140.toModify(highPtTripletStepTrajectoryFilter,
 
 
 highPtTripletStepTrajectoryFilterInOut = highPtTripletStepTrajectoryFilterBase.clone(
-    minPt = 0.4,
+    minPt               = 0.4,
     minimumNumberOfHits = 4,
-    seedExtension = 1,
+    seedExtension       = 1,
     strictSeedExtension = False, # allow inactive
-    pixelSeedExtension = False,
+    pixelSeedExtension  = False,
 )
-
+highBetaStar.toModify(highPtTripletStepTrajectoryFilterInOut, minPt=0.05)
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 highPtTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = 'highPtTripletStepChi2Est',
-    nSigma = 3.0,
-    MaxChi2 = 30.0,
+    nSigma        = 3.0,
+    MaxChi2       = 30.0,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutLoose'),
     pTChargeCutThreshold = 15.
 )
 trackingPhase2PU140.toModify(highPtTripletStepChi2Est,
-    clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone"),
-    MaxChi2 = cms.double(20.0)
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
+    MaxChi2 = 20.0
 )
 
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi as _GroupedCkfTrajectoryBuilder_cfi
-highPtTripletStepTrajectoryBuilder = _GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    trajectoryFilter = dict(refToPSet_ = 'highPtTripletStepTrajectoryFilter'),
+highPtTripletStepTrajectoryBuilder = _GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilderIterativeDefault.clone(
+    trajectoryFilter     = dict(refToPSet_ = 'highPtTripletStepTrajectoryFilter'),
     alwaysUseInvalidHits = True,
-    maxCand = 3,
-    estimator = 'highPtTripletStepChi2Est',
-    maxDPhiForLooperReconstruction = cms.double(2.0),
+    maxCand              = 3,
+    estimator            = 'highPtTripletStepChi2Est',
+    maxDPhiForLooperReconstruction = 2.0,
     # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
     # of the outermost Tracker barrel layer (with B=3.8T)
-    maxPtForLooperReconstruction = cms.double(0.7)
+    maxPtForLooperReconstruction = 0.7,
 )
+trackingNoLoopers.toModify(highPtTripletStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 trackingPhase2PU140.toModify(highPtTripletStepTrajectoryBuilder,
-    inOutTrajectoryFilter = dict(refToPSet_ = "highPtTripletStepTrajectoryFilterInOut"),
+    inOutTrajectoryFilter = dict(refToPSet_ = 'highPtTripletStepTrajectoryFilterInOut'),
     useSameTrajFilter = False,
     maxCand = 3,
 )
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi as _CkfTrackCandidates_cfi
-highPtTripletStepTrackCandidates = _CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+highPtTripletStepTrackCandidates = _CkfTrackCandidates_cfi.ckfTrackCandidatesIterativeDefault.clone(
     src = 'highPtTripletStepSeeds',
-    clustersToSkip = cms.InputTag('highPtTripletStepClusters'),
+    clustersToSkip = 'highPtTripletStepClusters',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
     TrajectoryBuilderPSet = dict(refToPSet_ = 'highPtTripletStepTrajectoryBuilder'),
     doSeedingRegionRebuilding = True,
-    useHitsSplitting = True
+    useHitsSplitting = True,
 )
+
+from Configuration.ProcessModifiers.trackingMkFitHighPtTripletStep_cff import trackingMkFitHighPtTripletStep
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+highPtTripletStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'highPtTripletStepSeeds',
+)
+highPtTripletStepTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    ComponentName = 'highPtTripletStepTrackCandidatesMkFitConfig',
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-highPtTripletStep.json',
+)
+highPtTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'highPtTripletStepTrackCandidatesMkFitSeeds',
+    config = ('', 'highPtTripletStepTrackCandidatesMkFitConfig'),
+    clustersToSkip = 'highPtTripletStepClusters',
+)
+trackingMkFitHighPtTripletStep.toReplaceWith(highPtTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'highPtTripletStepSeeds',
+    mkFitSeeds = 'highPtTripletStepTrackCandidatesMkFitSeeds',
+    tracks = 'highPtTripletStepTrackCandidatesMkFit',
+    candMVASel = True,
+    candWP = -0.3,
+))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(highPtTripletStepTrackCandidatesMkFitConfig, minPt=0.7)
 
 # For Phase2PU140
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits as _trajectoryCleanerBySharedHits
 highPtTripletStepTrajectoryCleanerBySharedHits = _trajectoryCleanerBySharedHits.clone(
-    ComponentName = 'highPtTripletStepTrajectoryCleanerBySharedHits',
-    fractionShared = 0.16,
+    ComponentName       = 'highPtTripletStepTrajectoryCleanerBySharedHits',
+    fractionShared      = 0.16,
     allowSharedFirstHit = True
 )
 trackingPhase2PU140.toModify(highPtTripletStepTrackCandidates, 
-    TrajectoryCleaner = 'highPtTripletStepTrajectoryCleanerBySharedHits', 
-    clustersToSkip = None,
-    phase2clustersToSkip = cms.InputTag("highPtTripletStepClusters")
+    TrajectoryCleaner    = 'highPtTripletStepTrajectoryCleanerBySharedHits', 
+    clustersToSkip       = '',
+    phase2clustersToSkip = 'highPtTripletStepClusters'
 )
+
+#For FastSim phase1 tracking 
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+_fastSim_highPtTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
+    src                      = 'highPtTripletStepSeeds',
+    MinNumberOfCrossedLayers = 3,
+    hitMasks                 = cms.InputTag('highPtTripletStepMasks')
+)
+fastSim.toReplaceWith(highPtTripletStepTrackCandidates,_fastSim_highPtTripletStepTrackCandidates)
 
 # TRACK FITTING
-import RecoTracker.TrackProducer.TrackProducer_cfi
-highPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    src = 'highPtTripletStepTrackCandidates',
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+highPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducerIterativeDefault.clone(
+    src           = 'highPtTripletStepTrackCandidates',
     AlgorithmName = 'highPtTripletStep',
-    Fitter = 'FlexibleKFFittingSmoother',
+    Fitter        = 'FlexibleKFFittingSmoother',
 )
+fastSim.toModify(highPtTripletStepTracks,TTRHBuilder = 'WithoutRefit')
 
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(highPtTripletStepTracks, TrajectoryInEvent = True)
 
 # Final selection
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 highPtTripletStep = TrackMVAClassifierPrompt.clone(
-    src	= 'highPtTripletStepTracks',
-    mva = dict(GBRForestLabel = 'MVASelectorHighPtTripletStep_Phase1'),
-    qualityCuts	= [0.2,0.3,0.4],
+     mva         = dict(GBRForestLabel = 'MVASelectorHighPtTripletStep_Phase1'),
+     src         = 'highPtTripletStepTracks',
+     qualityCuts = [0.2,0.3,0.4]
+)
+pp_on_AA.toModify(highPtTripletStep, 
+        mva = dict(GBRForestLabel = 'HIMVASelectorHighPtTripletStep_Phase1'),
+        qualityCuts = [-0.9, -0.3, 0.85],
 )
 
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(highPtTripletStep, trackTfClassifier.clone(
+    src = 'highPtTripletStepTracks',
+    qualityCuts = qualityCutDictionary.HighPtTripletStep.value()
+))
+highBetaStar.toModify(highPtTripletStep,qualityCuts = [-0.2,0.3,0.4])
+
+fastSim.toModify(highPtTripletStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
+
+(pp_on_AA & trackdnn).toModify(highPtTripletStep, qualityCuts =  [-0.5, 0.5, 0.94] )
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -251,6 +338,8 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'highPtTripletStep',
             preFilterName = 'highPtTripletStepTight',
+            min_eta = -4.1,
+            max_eta = 4.1,
             chi2n_par = 0.8,
             res_par = ( 0.003, 0.001 ),
             min_nhits = 4,
@@ -265,6 +354,9 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
     ] #end of vpset
 ) #end of clone
 
+from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
+vectorHits.toModify(highPtTripletStepSelector.trackSelectors[2], minNumberLayers = 3, minNumber3DLayers = 3, d0_par1 = ( 0.5, 4.0 ), dz_par1 = ( 0.6, 4.0 ))
+
 # Final sequence
 HighPtTripletStepTask = cms.Task(highPtTripletStepClusters,
                                  highPtTripletStepSeedLayers,
@@ -274,10 +366,26 @@ HighPtTripletStepTask = cms.Task(highPtTripletStepClusters,
                                  highPtTripletStepSeeds,
                                  highPtTripletStepTrackCandidates,
                                  highPtTripletStepTracks,
-#                                 highPtTripletStepClassifier1,highPtTripletStepClassifier2,highPtTripletStepClassifier3*
                                  highPtTripletStep)
 HighPtTripletStep = cms.Sequence(HighPtTripletStepTask)
+
+_HighPtTripletStepTask_trackingMkFit = HighPtTripletStepTask.copy()
+_HighPtTripletStepTask_trackingMkFit.add(highPtTripletStepTrackCandidatesMkFitSeeds, highPtTripletStepTrackCandidatesMkFit, highPtTripletStepTrackCandidatesMkFitConfig)
+trackingMkFitHighPtTripletStep.toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_trackingMkFit)
+
 _HighPtTripletStepTask_Phase2PU140 = HighPtTripletStepTask.copy()
 _HighPtTripletStepTask_Phase2PU140.replace(highPtTripletStep, highPtTripletStepSelector)
 _HighPtTripletStep_Phase2PU140 = cms.Sequence(_HighPtTripletStepTask_Phase2PU140)
 trackingPhase2PU140.toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_Phase2PU140)
+
+# fast tracking mask producer 
+from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
+highPtTripletStepMasks = maskProducerFromClusterRemover(highPtTripletStepClusters)
+fastSim.toReplaceWith(HighPtTripletStepTask,
+                      cms.Task(highPtTripletStepMasks
+                               ,highPtTripletStepTrackingRegions
+                               ,highPtTripletStepSeeds
+                               ,highPtTripletStepTrackCandidates
+                               ,highPtTripletStepTracks
+                               ,highPtTripletStep
+                               ) )

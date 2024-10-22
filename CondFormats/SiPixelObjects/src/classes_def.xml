@@ -54,6 +54,9 @@
   <class name="SiPixelPedestals" id="5bfc61c7aebd27b50882b745cb0d5365" class_version="0"/>
 
   <class name="SiPixelLorentzAngle" class_version="0"/>
+  
+  <class name="SiPixelVCal" class_version="0"/>
+  <class name="SiPixelVCal::VCal"/> 
 
   <class name="SiPixelDynamicInefficiency" class_version="0"/>
 
@@ -67,8 +70,21 @@
   <class name="SiPixelQuality::disabledModuleType"/>
   <class name="std::vector<SiPixelQuality::disabledModuleType>"/>  
 
-  <class pattern="PixelDCSObject<*>"/> 
-  <class pattern="PixelDCSObject<*>::Item"/> 
-  <class pattern="PixelDCSObject<*>::Type"/> 
+  <class name="SiPixelFEDChannelContainer" class_version="0"/>
+  <class name="std::map<std::string,SiPixelFEDChannelContainer::SiPixelFEDChannelCollection>"/>
+
+  <class name="SiPixelQualityProbabilities" class_version="0"/>
+  <class name="SiPixelQualityProbabilities::probabilityVec"/>
+  <class name="std::map<unsigned int,SiPixelQualityProbabilities::probabilityVec>"/>
+
+  <class name="CaenChannel"/>
+  <class name="PixelDCSObject<CaenChannel>"/>
+  <class name="PixelDCSObject<CaenChannel>::Item"/>
+
+  <class name="PixelDCSObject<bool>"/>
+  <class name="PixelDCSObject<bool>::Item"/>
+
+  <class name="PixelDCSObject<float>"/>
+  <class name="PixelDCSObject<float>::Item"/>
 
 </lcgdict>   

@@ -1,20 +1,18 @@
 #ifndef Geometry_TrackerNumberingBuilder_CmsTrackerDiskBuilder_H
-# define Geometry_TrackerNumberingBuilder_CmsTrackerDiskBuilder_H
+#define Geometry_TrackerNumberingBuilder_CmsTrackerDiskBuilder_H
 
-# include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLevelBuilder.h"
-# include "FWCore/ParameterSet/interface/types.h"
-# include <string>
+#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLevelBuilder.h"
+#include "FWCore/ParameterSet/interface/types.h"
+#include <string>
 
 /**
  * Class which contructs PixelForward/Disk.
  */
-class CmsTrackerDiskBuilder : public CmsTrackerLevelBuilder
-{
-  
+template <class FilteredView>
+class CmsTrackerDiskBuilder : public CmsTrackerLevelBuilder<FilteredView> {
 private:
-  void sortNS( DDFilteredView& , GeometricDet* ) override;
-  void buildComponent( DDFilteredView& , GeometricDet*, std::string ) override;
-
+  void sortNS(FilteredView&, GeometricDet*) override;
+  void buildComponent(FilteredView&, GeometricDet*, const std::string&) override;
 };
 
 #endif

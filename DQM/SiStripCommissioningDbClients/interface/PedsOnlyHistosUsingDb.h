@@ -6,24 +6,20 @@
 #include "DQM/SiStripCommissioningClients/interface/PedsOnlyHistograms.h"
 
 class PedsOnlyHistosUsingDb : public CommissioningHistosUsingDb, public PedsOnlyHistograms {
-  
- public:
+public:
+  PedsOnlyHistosUsingDb(const edm::ParameterSet& pset,
+                        DQMStore*,
+                        SiStripConfigDb* const,
+                        edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken);
 
-  PedsOnlyHistosUsingDb( const edm::ParameterSet & pset,
-                         DQMStore*,
-                         SiStripConfigDb* const );
-  
   ~PedsOnlyHistosUsingDb() override;
- 
+
   void uploadConfigurations() override;
-  
- private:
 
-  void update( SiStripConfigDb::FedDescriptionsRange );
+private:
+  void update(SiStripConfigDb::FedDescriptionsRange);
 
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
-
+  void create(SiStripConfigDb::AnalysisDescriptionsV&, Analysis) override;
 };
 
-#endif // DQM_SiStripCommissioningClients_PedsOnlyHistosUsingDb_H
-
+#endif  // DQM_SiStripCommissioningClients_PedsOnlyHistosUsingDb_H

@@ -5,9 +5,16 @@
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
-namespace gen
-{
-   typedef edm::GeneratorFilter<gen::PyquenHadronizer, gen::ExternalDecayDriver> PyquenGeneratorFilter;
+namespace edm {
+  template <>
+  inline GeneratorFilter<gen::PyquenHadronizer, gen::ExternalDecayDriver>::GeneratorFilter(ParameterSet const& ps)
+      : hadronizer_(ps, consumesCollector()) {
+    init(ps);
+  }
+}  // namespace edm
+
+namespace gen {
+  typedef edm::GeneratorFilter<gen::PyquenHadronizer, gen::ExternalDecayDriver> PyquenGeneratorFilter;
 }
 
 #endif

@@ -1,0 +1,5 @@
+<bin file="testAlcaBeamMonitor.cc">
+  <use name="FWCore/TestProcessor"/>
+  <use name="catch2"/>
+</bin>
+<test name="testOnlineBeamMonitor" command="testOnlineBeamMonitor.sh"/>

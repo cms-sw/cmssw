@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalEE.xml" eval="true">
+  <Constant name="rMinFine"   value="0.0*fm"/>
+  <Constant name="rMaxFine"   value="0.0*cm"/>
+  <Constant name="rMaxMiddle" value="120.0*cm"/>
+  <Constant name="rMaxCoarse" value="2000.0*cm"/>
+  <Constant name="rMin"       value="0.0*fm"/>
+  <Constant name="rMax"       value="[hgcal:rmaxEE]"/>
+  <Constant name="rMaxB"      value="[hgcal:rmaxEEF]"/>
+  <Constant name="absorbW"    value="0.5*[hgcal:WaferW]"/>
+  <Constant name="absorbH"    value="[hgcal:WaferW]*[hgcal:tan30deg]"/>
+</ConstantsSection>
+
+<PosPartSection label="hgcalEE.xml">
+  <Algorithm name="hgcal:DDHGCalTBModuleX">
+    <rParent name="hgcal:HGCalEE"/>
+    <String name="GeneralMaterial" value="materials:Air"/>
+    <Vector name="WaferName" type="string" nEntries="2">
+      hgcalwafer:HGCalEEWaferFine, hgcalwafer:HGCalEEWaferCoarse</Vector>
+    <Vector name="CoverName" type="string" nEntries="11">
+      hgcal:HGCalEESensitive,        hgcal:HGCalEEPCB,            
+      hgcal:HGCalEEKapton,           hgcal:HGCalEEAbsorber, 
+      hgcal:HGCalEECuAbsorber,       hgcal:HGCalEEAbsorber48To63, 
+      hgcal:HGCalEEAbsorber52To70,   hgcal:HGCalEEAbsorber59To62, 
+      hgcal:HGCalEEAbsorber68To74,   hgcal:HGCalEECuKapton,
+      hgcal:HGCalEECuPCB</Vector>
+    <Vector name="MaterialNames" type="string" nEntries="29">
+      materials:Air,       materials:Air,    materials:Air, 
+      materials:Air,       materials:Air,    materials:Air,
+      materials:Air,       materials:Air,    materials:StainlessSteel, 
+      materials:Lead,      materials:Copper, materials:Air, 
+      materials:Aluminium, materials:Air,    materials:Air,   
+      materials:Air,       materials:Air,    materials:Air,
+      materials:Air,       materials:Air,    materials:Air,
+      materials:Air,       materials:Air,    materials:Air,
+      materials:Iron,      materials:Air,    materials:Air,
+      materials:Air,       materials:Aluminium</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="29">
+      EEPCB,             EEKapton,          EECuWShield, 
+      EECuShield,        EECuWShield48To63, EECuWShield52To70,
+      EECuWShield59To62, EECuWShield68To74, EEFeAbsorber, 
+      EEPbAbsorber,      EECuHeatShield,    EESensitive, 
+      EEAlcase,          EEgap1,            EEgap2,      
+      EEgap3,            EEgap4,            EEgap5,      
+      EEgap6,            EEgap7,            EEgap8,      
+      EEgap9,            EEgap10,           EEgap11,      
+      EEFHAbs,           EECuKapton,        EECuPCB,
+      EEgap12,           EEMCPAl</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="29">
+      [hgcal:thPCB],         [hgcal:thKapton],      [hgcal:thAbsEE], 
+      [hgcal:thAbsCuEE],     [hgcal:thAbsEE48To63], [hgcal:thAbsEE52To70],
+      [hgcal:thAbsEE59To62], [hgcal:thAbsEE68To74], 0.3*mm,        
+      4.9*mm,                6.0*mm,                [hgcal:thSilicon],
+      2.1*mm,                3.095*mm,              3.145*mm, 
+      3.7*mm,                4.7*mm,                5.5*mm,
+      6.7*mm,                7.7*mm,                8.7*mm,
+      9.5*mm,                10.09*mm,              119.7*mm,
+      40.0*mm,               [hgcal:thCuKapton],    [hgcal:thCuPCB],
+      44.0*mm,               5.0*mm</Vector>
+    <Vector name="BlockThick" type="numeric" nEntries="15"> 
+      144.15*mm, 29.05*mm,  29.05*mm, 
+      30.05*mm,  30.05*mm,  30.05*mm, 
+      28.05*mm,  28.05*mm,  28.05*mm, 
+      28.05*mm,  32.25*mm,  35.05*mm, 
+      30.295*mm, 30.835*mm, 86.10*mm
+    </Vector>
+    <Numeric name="InOut"   value="1"/>
+    <Vector name="LayerFrontIn" type="numeric" nEntries="15"> 
+       0, 23, 45, 67, 89,111,133,155,177,199,221,245,269,293,317</Vector>
+    <Vector name="LayerBackIn" type="numeric" nEntries="15"> 
+      22, 44, 66, 88,110,132,154,176,198,220,244,268,292,316,319</Vector>
+    <Vector name="LayerType" type="numeric" nEntries="320"> 
+      12, 23, 8, 9, 8, 16, 0, 26, 11, 11, 11, 25, 1, 2, 10, 2, 1, 25, 11, 11, 11, 26, 0,
+      19, 8, 9, 8, 15, 0, 26, 11, 11, 11, 25, 1, 2, 10, 2, 1, 25, 11, 11, 11, 26, 0,
+      19, 8, 9, 8, 15, 0, 26, 11, 11, 11, 25, 1, 2, 10, 2, 1, 25, 11, 11, 11, 26, 0,
+      20, 8, 9, 8, 15, 0, 26, 11, 11, 11, 25, 1, 2, 10, 2, 1, 25, 11, 11, 11, 26, 0,
+      20, 8, 9, 8, 15, 0, 26, 11, 11, 11, 25, 1, 2, 10, 2, 1, 25, 11, 11, 11, 26, 0,
+      20, 8, 9, 8, 15, 0, 26, 11, 11, 11, 25, 1, 2, 10, 2, 1, 25, 11, 11, 11, 26, 0,
+      18, 8, 9, 8, 15, 0, 26, 11, 11, 11, 25, 1, 2, 10, 2, 1, 25, 11, 11, 11, 26, 0,
+      18, 8, 9, 8, 15, 0, 26, 11, 11, 11, 25, 1, 2, 10, 2, 1, 25, 11, 11, 11, 26, 0,
+      18, 8, 9, 8, 15, 0, 26, 11, 11, 11, 25, 1, 2, 10, 2, 1, 25, 11, 11, 11, 26, 0,
+      18, 8, 9, 8, 15, 0, 26, 11, 11, 11, 25, 1, 2, 10, 2, 1, 25, 11, 11, 11, 26, 0,
+      18, 8, 9, 8, 17, 0, 26, 11, 11, 11, 25, 1, 3, 2, 10, 2, 3, 1, 25, 11, 11, 11, 26, 0,
+      21, 8, 9, 8, 17, 0, 26, 11, 11, 11, 25, 1, 3, 2, 10, 2, 3, 1, 25, 11, 11, 11, 26, 0,
+      21, 8, 9, 8, 14, 0, 26, 11, 11, 11, 25, 1, 5, 5, 10, 5, 5, 1, 25, 11, 11, 11, 26, 0,
+      22, 8, 9, 8, 13, 0, 26, 11, 11, 11, 25, 1, 5, 5, 10, 5, 5, 1, 25, 11, 11, 11, 26, 0,
+      24, 27, 12
+    </Vector>
+    <Vector name="LayerSense" type="numeric" nEntries="320">
+      0, 0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 4, 0, 4, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 4, 0, 4, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 4, 0, 4, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 4, 0, 4, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 4, 0, 4, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 4, 0, 4, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 4, 0, 4, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 4, 0, 4, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 4, 0, 4, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 4, 0, 4, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 5, 4, 0, 4, 5, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 5, 4, 0, 4, 5, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 7, 7, 0, 7, 7, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0, 0, 0, 2, 11, 1, 1, 1, 10, 3, 7, 7, 0, 7, 7, 3, 10, 1, 1, 1, 11, 2,
+      0, 0, 0
+    </Vector>
+    <Vector name="MaxModule" nEntries="320">
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0
+    </Vector>
+    <Numeric name="zMinBlock"   value="[hgcal:zminEE]"/>
+    <Numeric name="rMaxFine"    value="[rMaxFine]"/>
+    <Numeric name="waferW"      value="[hgcal:WaferW]"/>
+    <Numeric name="waferGap"    value="0.0*fm"/>
+    <Numeric name="absorberW"   value="[hgcalEE:absorbW]"/>
+    <Numeric name="absorberH"   value="[hgcalEE:absorbH]"/>
+    <Numeric name="rMax"        value="[rMax]"/>
+    <Numeric name="rMaxB"       value="[rMaxB]"/>
+  </Algorithm>
+</PosPartSection> 
+
+<SpecParSection label="hgcalEE.xml" eval="true">
+  <SpecPar name="HGCalEE">
+    <PartSelector path="//HGCalEESensitive.*"/>    
+    <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon" eval="false"/>
+    <Parameter name="RadiusBound"  value="[rMinFine]"/>
+    <Parameter name="RadiusBound"  value="[rMaxFine]"/>
+    <Parameter name="RadiusBound"  value="[rMaxMiddle]"/>
+    <Parameter name="RadiusBound"  value="[rMaxCoarse]"/>
+    <Parameter name="RadiusLimits" value="[rMin]"/>
+    <Parameter name="RadiusLimits" value="[rMax]"/>
+    <Parameter name="LevelTop"     value="99"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

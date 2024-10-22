@@ -13,16 +13,15 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 class CSCSlantedWireGeometry : public CSCWireGeometry {
- public:
+public:
   ~CSCSlantedWireGeometry() override {}
 
   /**
    * Constructor from wire spacing and wire angle
    */
-  CSCSlantedWireGeometry( double wireSpacing, double yOfFirstWire, 
-         double narrow, double wide, double length,
-         float wireAngle );
- 
+  CSCSlantedWireGeometry(
+      double wireSpacing, double yOfFirstWire, double narrow, double wide, double length, float wireAngle);
+
   /**
    * The angle of the wires w.r.t local x axis (in radians)
    */
@@ -37,22 +36,19 @@ class CSCSlantedWireGeometry : public CSCWireGeometry {
   /**
    * Local y of a given wire 'number' (float) at given x
    */
-  float yOfWire(float wire, float x=0.) const override;
+  float yOfWire(float wire, float x = 0.) const override;
 
   /**
    * Clone to handle correct copy of component objects referenced
    * by base class pointer.
    */
-  CSCWireGeometry* clone() const override {
-    return new CSCSlantedWireGeometry(*this);
-  }
+  CSCWireGeometry* clone() const override { return new CSCSlantedWireGeometry(*this); }
 
- private:
+private:
   float theWireAngle;
   float cosWireAngle;
   float sinWireAngle;
-  float theWireOffset; // local y of first wire * cos(wire angle)
-
+  float theWireOffset;  // local y of first wire * cos(wire angle)
 };
 
 #endif

@@ -19,6 +19,8 @@ OutALCARECOMuAlGlobalCosmics_noDrop = cms.PSet(
 	'keep *_dt4DSegments_*_*',
 	'keep *_csc2DRecHits_*_*',
 	'keep *_cscSegments_*_*',
+        'keep *_gemRecHits_*_*',
+        'keep *_gemSegments_*_*',
 	'keep *_rpcRecHits_*_*',
 	'keep L1AcceptBunchCrossings_*_*_*',
 	'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',

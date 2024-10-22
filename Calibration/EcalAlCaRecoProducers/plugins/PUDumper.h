@@ -2,7 +2,7 @@
 #define PUDumper_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -16,39 +16,27 @@
 
 #include "TTree.h"
 
-
-class PUDumper : public edm::EDAnalyzer
-{
- public:
-  
+class PUDumper : public edm::one::EDAnalyzer<> {
+public:
   //! ctor
   explicit PUDumper(const edm::ParameterSet&);
-  
-  //! dtor 
+
+  //! dtor
   ~PUDumper() override;
-  
-  
-  
- private:
-  
-  //! the actual analyze method 
+
+private:
+  //! the actual analyze method
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  
-  
-  
- private:
 
-  edm::EDGetTokenT< std::vector<PileupSummaryInfo> > pileupSummaryToken_;
+private:
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryToken_;
 
-  //edm::InputTag MCPileupTag_;
-  
   TTree* PUTree_;
 
-  Int_t     	runNumber;   ///< 
-  Long64_t      eventNumber; ///<
-  Int_t         lumiBlock;   ///< lumi section
-  //UInt_t 	runTime;     ///< unix time
-  
+  Int_t runNumber;       ///<
+  Long64_t eventNumber;  ///<
+  Int_t lumiBlock;       ///< lumi section
+
   Int_t nBX;
   Int_t BX_[100];
   Int_t nPUtrue_;

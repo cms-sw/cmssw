@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -15,48 +15,43 @@
 #include <string>
 
 class HcalCellSizeCheck : public edm::one::EDAnalyzer<> {
-
 public:
-  explicit HcalCellSizeCheck(const edm::ParameterSet& );
-  ~HcalCellSizeCheck( void ) override {}
-    
+  explicit HcalCellSizeCheck(const edm::ParameterSet&);
+  ~HcalCellSizeCheck(void) override {}
+
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
 
 private:
-  edm::ParameterSet ps0_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
 };
 
-HcalCellSizeCheck::HcalCellSizeCheck( const edm::ParameterSet& iConfig ) :
-  ps0_(iConfig) { }
+HcalCellSizeCheck::HcalCellSizeCheck(const edm::ParameterSet& iConfig) {
+  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>();
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+}
 
-void HcalCellSizeCheck::analyze(const edm::Event& /*iEvent*/, 
-				 const edm::EventSetup& iSetup) {
+void HcalCellSizeCheck::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
+  const HcalDDDRecConstants hcons = iSetup.getData(tok_ddrec_);
+  const HcalTopology topology = iSetup.getData(tok_htopo_);
 
-  edm::ESHandle<HcalDDDRecConstants> hDRCons;
-  iSetup.get<HcalRecNumberingRecord>().get(hDRCons);
-  const HcalDDDRecConstants hcons = (*hDRCons);
+  HcalFlexiHardcodeGeometryLoader m_loader;
+  CaloSubdetectorGeometry* geom = m_loader.load(topology, hcons);
 
-  edm::ESHandle<HcalTopology> topologyHandle;
-  iSetup.get<HcalRecNumberingRecord>().get(topologyHandle);
-  const HcalTopology topology = (*topologyHandle);
-
-  HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
-  CaloSubdetectorGeometry*  geom = m_loader.load(topology, hcons);
-
-  const std::vector<DetId>& idsb=geom->getValidDetIds(DetId::Hcal,HcalBarrel);
+  const std::vector<DetId>& idsb = geom->getValidDetIds(DetId::Hcal, HcalBarrel);
   for (auto id : idsb) {
     HcalDetId hid(id.rawId());
-    std::pair<double,double> rz = hcons.getRZ(hid);
-    std::cout << hid << " Front " << rz.first << " Back " << rz.second << "\n";
+    std::pair<double, double> rz = hcons.getRZ(hid);
+    edm::LogVerbatim("HCalGeom") << hid << " Front " << rz.first << " Back " << rz.second;
   }
-  
-  const std::vector<DetId>& idse=geom->getValidDetIds(DetId::Hcal,HcalEndcap);
+
+  const std::vector<DetId>& idse = geom->getValidDetIds(DetId::Hcal, HcalEndcap);
   for (auto id : idse) {
     HcalDetId hid(id.rawId());
-    std::pair<double,double> rz = hcons.getRZ(hid);
-    std::cout << hid << " Front " << rz.first << " Back " << rz.second << "\n";
+    std::pair<double, double> rz = hcons.getRZ(hid);
+    edm::LogVerbatim("HCalGeom") << hid << " Front " << rz.first << " Back " << rz.second;
   }
 }
 

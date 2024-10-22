@@ -2,4 +2,4 @@
 
 using namespace reco;
 
-Candidate::~Candidate() { }
+Candidate::~Candidate() {}

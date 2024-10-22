@@ -1,3 +1,4 @@
+from __future__ import print_function
 # This customise file provides an example (in the form of holes in
 # BPix L1-L2 and L3-L3) on how to select a subset of generalTracks
 # (e.g. by phi and eta) and setup various MTV instances for those
@@ -21,8 +22,8 @@ def customiseMTVForBPix123Holes(process):
         minRapidity = -0.9, maxRapidity = 2,
         minPhi=_minPhi+_binPhi*33, maxPhi=_minPhi+_binPhi + 2*math.pi) # ~2.6 .. ~3.3
     
-    print "L1L2 %f %f" % (process.generalTracksL1L2.minPhi.value(), process.generalTracksL1L2.maxPhi.value())
-    print "L2L3 %f %f" % (process.generalTracksL2L3.minPhi.value(), process.generalTracksL2L3.maxPhi.value())
+    print("L1L2 %f %f" % (process.generalTracksL1L2.minPhi.value(), process.generalTracksL1L2.maxPhi.value()))
+    print("L2L3 %f %f" % (process.generalTracksL2L3.minPhi.value(), process.generalTracksL2L3.maxPhi.value()))
     
     from CommonTools.RecoAlgos.trackingParticleRefSelector_cfi import trackingParticleRefSelector as _trackingParticleRefSelector
     process.trackingParticlesL1L2 = _trackingParticleRefSelector.clone(

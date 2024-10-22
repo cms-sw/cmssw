@@ -5,47 +5,35 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-TrackSplitMonitor = DQMEDAnalyzer('TrackSplittingMonitor',
-                 
-    FolderName = cms.string('TrackSplitMonitoring'),
-	
-	splitTrackCollection = cms.InputTag("splittedTracksP5"),
-	splitMuonCollection = cms.InputTag("splitMuons"),
-	ifPlotMuons = cms.bool(True),
-	
-	pixelHitsPerLeg = cms.int32( 1 ),
-	totalHitsPerLeg = cms.int32( 6 ),	
-	d0Cut = cms.double( 12.0 ),
-	dzCut = cms.double( 25.0 ),	
-	ptCut = cms.double( 4.0 ),
-	norchiCut = cms.double( 100.0 ),
-	
-    ddxyBin = cms.int32(100),
-    ddxyMin = cms.double(-200.0),
-    ddxyMax = cms.double(200.0),
-
-    ddzBin = cms.int32(100),
-    ddzMin = cms.double(-400.0),
-    ddzMax = cms.double(400.0),
-
-    dphiBin = cms.int32(100),
-    dphiMin = cms.double(-0.01),
-    dphiMax = cms.double(0.01),
-
-    dthetaBin = cms.int32(100),
-    dthetaMin = cms.double(-0.01),
-    dthetaMax = cms.double(0.01),
-
-    dptBin = cms.int32(100),
-    dptMin = cms.double(-5.0),
-    dptMax = cms.double(5.0),
-
-    dcurvBin = cms.int32(100),
-    dcurvMin = cms.double(-0.005),
-    dcurvMax = cms.double(0.005),
-
-    normBin = cms.int32(100),
-    normMin = cms.double(-5.0),
-    normMax = cms.double(5.0)
-)
+from DQM.TrackingMonitor.trackSplittingMonitor_cfi import trackSplittingMonitor
+TrackSplitMonitor = trackSplittingMonitor.clone(FolderName = cms.string('TrackSplitMonitoring'),
+                                                splitTrackCollection = "splittedTracksP5",
+                                                splitMuonCollection = "splitMuons",
+                                                ifPlotMuons = True,
+                                                pixelHitsPerLeg = 1,
+                                                totalHitsPerLeg = 6 ,
+                                                d0Cut = 12.0 ,
+                                                dzCut = 25.0 ,
+                                                ptCut = 4.0 ,
+                                                norchiCut = 100.0 ,
+                                                ddxyBin = 100 ,
+                                                ddxyMin = -200.0 ,
+                                                ddxyMax = 200.0 ,
+                                                ddzBin = 100,
+                                                ddzMin = -400.0,
+                                                ddzMax = 400.0,
+                                                dphiBin = 100,
+                                                dphiMin = -0.01,
+                                                dphiMax = 0.01,
+                                                dthetaBin = 100,
+                                                dthetaMin = -0.01,
+                                                dthetaMax = 0.01,
+                                                dptBin = 100,
+                                                dptMin = -5.0,
+                                                dptMax = 5.0,
+                                                dcurvBin = 100,
+                                                dcurvMin = -0.005,
+                                                dcurvMax = 0.005,
+                                                normBin = 100,
+                                                normMin = -5.0,
+                                                normMax = 5.0)

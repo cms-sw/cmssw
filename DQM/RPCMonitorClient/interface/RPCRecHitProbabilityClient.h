@@ -1,36 +1,25 @@
 #ifndef RPCRecHitProbabilityClient_H
 #define RPCRecHitProbabilityClient_H
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
+#include <string>
 
-class RPCRecHitProbabilityClient:public  DQMEDHarvester{
-
+class RPCRecHitProbabilityClient : public DQMEDHarvester {
 public:
+  RPCRecHitProbabilityClient(const edm::ParameterSet &ps);
+  ~RPCRecHitProbabilityClient() override = default;
 
-  /// Constructor
-  RPCRecHitProbabilityClient(const edm::ParameterSet& ps);
-  
-  /// Destructor
-  ~ RPCRecHitProbabilityClient() override;
-  
-  
 protected:
   void beginJob() override;
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override; //performed in the endLumi
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;       //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
- 
-
-
- private:
-
-    std::string  globalFolder_;
-  
- 
-  
+private:
+  std::string globalFolder_;
 };
 #endif

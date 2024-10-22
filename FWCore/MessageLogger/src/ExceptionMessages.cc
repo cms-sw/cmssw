@@ -9,33 +9,28 @@
 #include <iomanip>
 
 namespace edm {
-  void 
-  printCmsException(cms::Exception& e, edm::JobReport * jobRep, int rc) try {
+  void printCmsException(cms::Exception& e, edm::JobReport* jobRep, int rc) try {
     std::string shortDesc("Fatal Exception");
     std::ostringstream longDesc;
     longDesc << e.explainSelf();
-    LogAbsolute(shortDesc)
-      << "----- Begin " << shortDesc << " "
-      << std::setprecision(0) << TimeOfDay()
-      << "-----------------------\n"
-      << longDesc.str()
-      << "----- End " << shortDesc << " -------------------------------------------------";
-    if(jobRep) jobRep->reportError(shortDesc, longDesc.str(), rc);
-  } catch(...) {
+    LogAbsolute(shortDesc) << "----- Begin " << shortDesc << " " << std::setprecision(0) << TimeOfDay()
+                           << "-----------------------\n"
+                           << longDesc.str() << "----- End " << shortDesc
+                           << " -------------------------------------------------";
+    if (jobRep)
+      jobRep->reportError(shortDesc, longDesc.str(), rc);
+  } catch (...) {
   }
 
-  void
-  printCmsExceptionWarning(char const* behavior, cms::Exception const& e) try {
+  void printCmsExceptionWarning(char const* behavior, cms::Exception const& e) try {
     std::string shortDesc(behavior);
     shortDesc += " Exception";
     std::ostringstream longDesc;
     longDesc << e.explainSelf();
-    LogPrint(shortDesc)
-      << "----- Begin " << shortDesc << " "
-      << std::setprecision(0) << TimeOfDay()
-      << "-----------------------\n"
-      << longDesc.str()
-      << "----- End " << shortDesc << " -------------------------------------------------";
-  } catch(...) {
+    LogPrint(shortDesc) << "----- Begin " << shortDesc << " " << std::setprecision(0) << TimeOfDay()
+                        << "-----------------------\n"
+                        << longDesc.str() << "----- End " << shortDesc
+                        << " -------------------------------------------------";
+  } catch (...) {
   }
-}
+}  // namespace edm

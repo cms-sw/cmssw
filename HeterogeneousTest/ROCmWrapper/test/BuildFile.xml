@@ -1,0 +1,10 @@
+<iftool name="rocm">
+  <bin file="testDeviceAdditionWrapper.cc" name="testRocmDeviceAdditionWrapper">
+    <use name="catch2"/>
+    <use name="rocm"/>
+    <use name="HeterogeneousTest/ROCmWrapper"/>
+    <use name="HeterogeneousCore/ROCmUtilities"/>
+  </bin>
+
+  <test name="testROCmTestWrapperAdditionModule" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/ROCmWrapper/test/testROCmTestWrapperAdditionModule.py"/>
+</iftool>

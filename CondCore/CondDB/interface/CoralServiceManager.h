@@ -6,7 +6,7 @@
 //
 // Package:     CondCore/CondDB
 // Class  :     CoralServiceManager
-// 
+//
 /**\class CoralServiceManager CoralServiceManager.h CondCore/CondDB/interface/CoralServiceManager.h
 
  Description: This is a bridge that implement coral::IPluginManager interface and internally uses edm plugin factory to create plugins of type coral::Service. 
@@ -14,20 +14,20 @@
  Usage: the plugin managed by this class must inherit from coral::Service interface. The pointer of CoralServiceManager should be passed to the coral::Context
 */
 //
-// Original Author:  Zhen Xie 
+// Original Author:  Zhen Xie
 //         Created:  Wed Nov 12 10:48:50 CET 2008
 // $Id $
 //
-namespace coral{
+namespace coral {
   class ILoadableComponent;
 }
-namespace cond{
-  class CoralServiceManager : public coral::IPluginManager{
+namespace cond {
+  class CoralServiceManager : public coral::IPluginManager {
   public:
-    coral::ILoadableComponent* newComponent( const std::string& componentName ) override;
+    coral::ILoadableComponent* newComponent(const std::string& componentName) override;
     /// Returns the list of known components
     std::set<std::string> knownPlugins() const override;
-    ~CoralServiceManager() override{}
+    ~CoralServiceManager() override {}
   };
-}
+}  // namespace cond
 #endif

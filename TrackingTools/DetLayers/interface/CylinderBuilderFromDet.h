@@ -22,14 +22,14 @@ public:
   typedef Surface::RotationType RotationType;
   typedef PositionType::BasicVectorType Vector;
 
-  CylinderBuilderFromDet() : 
-    rmin(std::numeric_limits<float>::max()), 
-    rmax(0.0),
-    zmin(std::numeric_limits<float>::max()),
-    zmax(std::numeric_limits<float>::min()){}
-  
-  BoundCylinder* operator()( std::vector<const Det*>::const_iterator first,
-			     std::vector<const Det*>::const_iterator last) const;
+  CylinderBuilderFromDet()
+      : rmin(std::numeric_limits<float>::max()),
+        rmax(0.0),
+        zmin(std::numeric_limits<float>::max()),
+        zmax(std::numeric_limits<float>::min()) {}
+
+  BoundCylinder* operator()(std::vector<const Det*>::const_iterator first,
+                            std::vector<const Det*>::const_iterator last) const;
 
   void operator()(const Det& det);
 
@@ -40,7 +40,6 @@ private:
   float rmax;
   float zmin;
   float zmax;
-
 };
 
 #endif

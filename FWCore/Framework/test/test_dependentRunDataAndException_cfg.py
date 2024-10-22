@@ -11,4 +11,5 @@ process.consumer = cms.EDAnalyzer("edmtest::IntFromRunConsumingAnalyzer",
 
 process.p = cms.Path(process.consumer,cms.Task(process.intMaker))
 
-process.options = cms.untracked.PSet(numberOfThreads = cms.untracked.uint32(2))
+process.options = cms.untracked.PSet(numberOfThreads = cms.untracked.uint32(2),
+                                     numberOfStreams = cms.untracked.uint32(1))

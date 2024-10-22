@@ -52,7 +52,8 @@ process.TrackerInteractionGeometryESProducer.TrackerMaterial.TrackerMaterialVers
 
 
 #process.testME = cms.EDFilter(
-process.testME = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.testME = DQMEDAnalyzer(
    "testMaterialEffects",
 
     # Full, Fast radii and lengths for plots
@@ -182,5 +183,6 @@ process.p = cms.Path(
 
 # Keep the logging output to a nice level #
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['detailedInfo.txt']
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.detailedInfo= dict(extension='.txt')
 

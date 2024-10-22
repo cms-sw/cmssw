@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     RPCObGasmapRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Thu Feb 26 10:36:36 CET 2009
 // $Id$
 

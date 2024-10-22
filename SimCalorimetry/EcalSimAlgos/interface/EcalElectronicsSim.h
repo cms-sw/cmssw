@@ -1,14 +1,11 @@
 #ifndef EcalSimAlgos_EcalElectronicsSim_h
-#define EcalSimAlgos_EcalElectronicsSim_h 1
+#define EcalSimAlgos_EcalElectronicsSim_h
 
-
-#include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
+#include "CLHEP/Random/RandGaussQ.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 
-
-class EcalCoder           ;
-class EcalDataFrame       ;
-class EcalSimParameterMap ;
+class EcalSimParameterMap;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -19,44 +16,50 @@ namespace CLHEP {
  * 
  */
 
-class EcalElectronicsSim
-{
-   public:
+template <typename CoderType, typename SamplesType, typename DataFrameType>
+class EcalElectronicsSim {
+public:
+  EcalElectronicsSim(const EcalSimParameterMap* parameterMap,
+                     CoderType* coder,
+                     bool applyConstantTerm,
+                     double rmsConstantTerm)
+      : m_simMap(parameterMap), m_theCoder(coder), m_thisCT(rmsConstantTerm), m_applyConstantTerm(applyConstantTerm) {}
 
-      typedef CaloTSamples<float,10> EcalSamples ;
+  /// from EcalSamples to EcalDataFrame
 
-      EcalElectronicsSim( const EcalSimParameterMap* parameterMap      , 
-			  EcalCoder*                 coder             , 
-			  bool                       applyConstantTerm , 
-			  double                     rmsConstantTerm     ) ;
+  void analogToDigital(CLHEP::HepRandomEngine* engine, SamplesType& clf, DataFrameType& df) const {
+    // input signal is in pe.  Converted in GeV
+    amplify(clf, engine);
+    m_theCoder->analogToDigital(engine, clf, df);
+  }
 
-      ~EcalElectronicsSim() ;
+  void newEvent() {}
 
-      /// from EcalSamples to EcalDataFrame
-      void analogToDigital( CLHEP::HepRandomEngine*, EcalSamples& clf, EcalDataFrame& df ) const ;
+  void setNoiseSignalGenerator(const CaloVNoiseSignalGenerator* noiseSignalGenerator) {
+    theNoiseSignalGenerator = noiseSignalGenerator;
+  }
 
-      void newEvent() {}
+private:
+  /// input signal is in pe.  Converted in GeV
+  void amplify(SamplesType& clf, CLHEP::HepRandomEngine* engine) const {
+    const double fac(m_simMap->simParameters(clf.id()).photoelectronsToAnalog());
+    if (m_applyConstantTerm) {
+      clf *= fac * CLHEP::RandGaussQ::shoot(engine, 1.0, m_thisCT);
+    } else {
+      clf *= fac;
+    }
+  }
 
-      void setNoiseSignalGenerator(const CaloVNoiseSignalGenerator * noiseSignalGenerator) {
-	theNoiseSignalGenerator = noiseSignalGenerator;
-      }
+  /// map of parameters
 
-   private:
+  const EcalSimParameterMap* m_simMap;
 
-      /// input signal is in pe.  Converted in GeV
-      void amplify( EcalSamples& clf, CLHEP::HepRandomEngine* ) const ;
+  const CaloVNoiseSignalGenerator* theNoiseSignalGenerator;
 
-      /// map of parameters
+  CoderType* m_theCoder;
 
-      const EcalSimParameterMap* m_simMap ;
-
-      const CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
-
-      EcalCoder*                 m_theCoder ;
-
-      const double               m_thisCT;
-      const bool                 m_applyConstantTerm;
-} ;
-
+  const double m_thisCT;
+  const bool m_applyConstantTerm;
+};
 
 #endif

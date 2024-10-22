@@ -1,0 +1,215 @@
+#ifndef EventFilter_RPCRawToDigi_RPCAMC13Record_icc
+#define EventFilter_RPCRawToDigi_RPCAMC13Record_icc
+
+#include "EventFilter/RPCRawToDigi/interface/RPCAMC13Record.h"
+
+namespace rpcamc13 {
+
+  inline void Header::set(std::uint64_t const record) { record_ = record; }
+
+  inline void Header::reset() { record_ = 0x0; }
+
+  inline std::uint64_t const& Header::getRecord() const { return record_; }
+
+  inline unsigned int Header::getFirmwareVersion() const { return (record_ & ufov_mask_) >> ufov_offset_; }
+
+  inline unsigned int Header::getNAMC() const { return (record_ & n_amc_mask_) >> n_amc_offset_; }
+
+  inline unsigned int Header::getOrbitCounter() const {
+    return (record_ & orbit_counter_mask_) >> orbit_counter_offset_;
+  }
+
+  inline void Header::setFirmwareVersion(unsigned int ufov) {
+    record_ &= ~ufov_mask_;
+    record_ |= (((std::uint64_t)(ufov) << ufov_offset_) & ufov_mask_);
+  }
+
+  inline void Header::setNAMC(unsigned int n_amc) {
+    record_ &= ~n_amc_mask_;
+    record_ |= (((std::uint64_t)(n_amc) << n_amc_offset_) & n_amc_mask_);
+  }
+
+  inline void Header::setOrbitCounter(unsigned int orbit_counter) {
+    record_ &= ~orbit_counter_mask_;
+    record_ |= (((std::uint64_t)(orbit_counter) << orbit_counter_offset_) & orbit_counter_mask_);
+  }
+
+  inline void Trailer::set(std::uint64_t const record) { record_ = record; }
+
+  inline void Trailer::reset() { record_ = 0x0; }
+
+  inline std::uint64_t const& Trailer::getRecord() const { return record_; }
+
+  inline std::uint32_t Trailer::getCRC() const { return (record_ & crc_mask_) >> crc_offset_; }
+
+  inline unsigned int Trailer::getBlockNumber() const { return (record_ & block_number_mask_) >> block_number_offset_; }
+
+  inline unsigned int Trailer::getEventCounter() const {
+    return (record_ & event_counter_mask_) >> event_counter_offset_;
+  }
+
+  inline unsigned int Trailer::getBXCounter() const { return (record_ & bx_counter_mask_) >> bx_counter_offset_; }
+
+  inline void Trailer::setCRC(std::uint32_t crc) {
+    record_ &= ~crc_mask_;
+    record_ |= (((std::uint64_t)(crc) << crc_offset_) & crc_mask_);
+  }
+
+  inline void Trailer::setBlockNumber(unsigned int block_number) {
+    record_ &= ~block_number_mask_;
+    record_ |= (((std::uint64_t)(block_number) << block_number_offset_) & block_number_mask_);
+  }
+
+  inline void Trailer::setEventCounter(unsigned int event_counter) {
+    record_ &= ~event_counter_mask_;
+    record_ |= (((std::uint64_t)(event_counter) << event_counter_offset_) & event_counter_mask_);
+  }
+
+  inline void Trailer::setBXCounter(unsigned int bx_counter) {
+    record_ &= ~bx_counter_mask_;
+    record_ |= (((std::uint64_t)(bx_counter) << bx_counter_offset_) & bx_counter_mask_);
+  }
+
+  inline void AMCHeader::set(std::uint64_t const record) { record_ = record; }
+
+  inline void AMCHeader::reset() { record_ = enabled_mask_ | present_mask_ | valid_mask_ | crc_ok_mask_; }
+
+  inline std::uint64_t const& AMCHeader::getRecord() const { return record_; }
+
+  inline bool AMCHeader::isLengthCorrect() const { return ((record_ & length_incorrect_mask_) ? false : true); }
+
+  inline bool AMCHeader::isLastBlock() const { return ((record_ & more_blocks_mask_) ? false : true); }
+
+  inline bool AMCHeader::isFirstBlock() const { return ((record_ & segmented_mask_) ? false : true); }
+
+  inline bool AMCHeader::isEnabled() const { return ((record_ & enabled_mask_) ? true : false); }
+
+  inline bool AMCHeader::isPresent() const { return ((record_ & present_mask_) ? true : false); }
+
+  inline bool AMCHeader::isValid() const { return ((record_ & valid_mask_) ? true : false); }
+
+  inline bool AMCHeader::isCRCOk() const {
+    if (isLastBlock()) {
+      return ((record_ & crc_ok_mask_) ? true : false);
+    }
+    return true;
+  }
+
+  inline unsigned int AMCHeader::getSize() const { return (record_ & size_mask_) >> size_offset_; }
+
+  inline unsigned int AMCHeader::getSizeInBlock() const {
+    unsigned int size(getSize());
+    if ((record_ & more_blocks_mask_) == more_blocks_mask_) {
+      return size_max_;
+    }
+    return size;
+  }
+
+  inline bool AMCHeader::hasTotalSize() const {
+    return ((record_ & segmented_mask_) == 0x0         // first block
+            && (record_ & size_mask_) != size_mask_);  // and it's set
+  }
+
+  inline unsigned int AMCHeader::getBlockNumber() const {
+    return (record_ & block_number_mask_) >> block_number_offset_;
+  }
+
+  inline unsigned int AMCHeader::getAMCNumber() const { return (record_ & amc_number_mask_) >> amc_number_offset_; }
+
+  inline unsigned int AMCHeader::getBoardId() const { return (record_ & board_id_mask_) >> board_id_offset_; }
+
+  inline void AMCHeader::setLengthCorrect(bool length_correct) {
+    if (!length_correct)
+      record_ |= length_incorrect_mask_;
+    else
+      record_ &= ~(length_incorrect_mask_);
+  }
+
+  inline void AMCHeader::setLastBlock(bool last_block) {
+    if (!last_block)
+      record_ |= more_blocks_mask_;
+    else
+      record_ &= ~(more_blocks_mask_);
+  }
+
+  inline void AMCHeader::setFirstBlock(bool first_block) {
+    if (!first_block)
+      record_ |= segmented_mask_;
+    else
+      record_ &= ~(segmented_mask_);
+  }
+
+  inline void AMCHeader::setEnabled(bool enabled) {
+    if (enabled)
+      record_ |= enabled_mask_;
+    else
+      record_ &= ~(enabled_mask_);
+  }
+
+  inline void AMCHeader::setPresent(bool present) {
+    if (present)
+      record_ |= present_mask_;
+    else
+      record_ &= ~(present_mask_);
+  }
+
+  inline void AMCHeader::setValid(bool valid) {
+    if (valid)
+      record_ |= valid_mask_;
+    else
+      record_ &= ~(valid_mask_);
+  }
+
+  inline void AMCHeader::setCRCOk(bool crc_ok) {
+    if (crc_ok)
+      record_ |= crc_ok_mask_;
+    else
+      record_ &= ~(crc_ok_mask_);
+  }
+
+  inline void AMCHeader::setSize(unsigned int size) {
+    record_ &= ~size_mask_;
+    record_ |= (((std::uint64_t)(size) << size_offset_) & size_mask_);
+  }
+
+  inline void AMCHeader::setBlockNumber(unsigned int block_number) {
+    record_ &= ~block_number_mask_;
+    record_ |= (((std::uint64_t)(block_number) << block_number_offset_) & block_number_mask_);
+  }
+
+  inline void AMCHeader::setAMCNumber(unsigned int amc_number) {
+    record_ &= ~amc_number_mask_;
+    record_ |= (((std::uint64_t)(amc_number) << amc_number_offset_) & amc_number_mask_);
+  }
+
+  inline void AMCHeader::setBoardId(unsigned int board_id) {
+    record_ &= ~board_id_mask_;
+    record_ |= (((std::uint64_t)(board_id) << board_id_offset_) & board_id_mask_);
+  }
+
+  inline bool AMCPayload::isValid() const { return valid_; }
+
+  inline AMCHeader const& AMCPayload::getAMCHeader() const { return amc_header_; }
+
+  inline AMCHeader& AMCPayload::getAMCHeader() { return amc_header_; }
+
+  inline std::vector<std::uint64_t> const& AMCPayload::getData() const { return data_; }
+
+  inline std::vector<std::uint64_t>& AMCPayload::getData() { return data_; }
+
+  inline void AMCPayload::setValid(bool valid) { valid_ = valid; }
+
+  inline void AMCPayload::setAMCHeader(AMCHeader const& word) { amc_header_ = word; }
+
+  inline void AMCPayload::insert(std::uint64_t const* word_begin, unsigned int size) {
+    if (size) {
+      data_.reserve(data_.size() + size);
+      data_.insert(data_.end(), word_begin, word_begin + size);
+    }
+  }
+
+  inline void AMCPayload::clear() { data_.clear(); }
+
+}  // namespace rpcamc13
+
+#endif  // EventFilter_RPCRawToDigi_RPCAMC13Record_icc

@@ -4,9 +4,9 @@
 #include "TrackingTools/GsfTools/interface/MultiGaussianState.h"
 
 namespace GaussianStateConversions {
-  MultiGaussianState<5> multiGaussianStateFromTSOS (const TrajectoryStateOnSurface & tsos);
-  TrajectoryStateOnSurface tsosFromMultiGaussianState (const MultiGaussianState<5>& multiState,
-							  const TrajectoryStateOnSurface & refTsos);
-}
+  MultiGaussianState<5> multiGaussianStateFromTSOS(const TrajectoryStateOnSurface& tsos);
+  TrajectoryStateOnSurface tsosFromMultiGaussianState(const MultiGaussianState<5>& multiState,
+                                                      const TrajectoryStateOnSurface& refTsos);
+}  // namespace GaussianStateConversions
 
 #endif

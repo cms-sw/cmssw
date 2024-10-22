@@ -1,0 +1,13 @@
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/TrackerNumberingBuilder"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="FWCore/Framework"/>
+
+<library file="StandaloneTrackerTopologyTest.cc" name="StandaloneTrackerTopologyTest">
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="Geometry/Records"/>
+  <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<test name="CalibTrackerStandaloneTrackerTopologyTestDriver" command="testStandaloneTrackerTopology.sh"/>

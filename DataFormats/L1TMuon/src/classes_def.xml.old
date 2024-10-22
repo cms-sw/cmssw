@@ -1,0 +1,76 @@
+<lcgdict>
+ <selection>
+
+  <class name="l1t::RegionalMuonCand"/>
+  <class name="std::vector<l1t::RegionalMuonCand>"/>
+  <class name="l1t::RegionalMuonCandBxCollection"/>
+  <class name="edm::Wrapper<l1t::RegionalMuonCandBxCollection>"/>
+
+  <class name="l1t::MuonCaloSum"/>
+  <class name="std::vector<l1t::MuonCaloSum>"/>
+  <class name="l1t::MuonCaloSumBxCollection"/>
+  <class name="edm::Wrapper<l1t::MuonCaloSumBxCollection>"/>
+
+  <class name="l1t::EMTFDaqOut"/>
+  <class name="l1t::EMTFDaqOutCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFDaqOutCollection>"/>
+  <class name="l1t::emtf::AMC13Header"/>
+  <class name="l1t::emtf::MTF7Header"/>
+  <class name="l1t::emtf::EventHeader"/>
+  <class name="l1t::emtf::Counters"/>
+  <class name="l1t::emtf::ME"/>
+  <class name="l1t::emtf::MECollection"/>
+  <class name="l1t::emtf::RPC"/>
+  <class name="l1t::emtf::RPCCollection"/>
+  <class name="l1t::emtf::SP"/>
+  <class name="l1t::emtf::SPCollection"/>
+  <class name="l1t::emtf::EventTrailer"/>
+  <class name="l1t::emtf::MTF7Trailer"/>
+  <class name="l1t::emtf::AMC13Trailer"/>
+
+  <class name="l1t::EMTFHit"/>
+  <class name="l1t::EMTFHitCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFHitCollection>"/>
+  <class name="l1t::EMTFRoad"/>
+  <class name="l1t::EMTFRoadCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFRoadCollection>"/>
+  <class name="l1t::EMTFTrack"/>
+  <class name="l1t::EMTFTrackCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFTrackCollection>"/>
+  <class name="l1t::EMTFPtLUT"/>
+
+  <class name="L1MuBMTrackSegPhi" ClassVersion="10">
+    <version ClassVersion="10" checksum="3818011888"/>
+  </class>
+
+  <class name="L1MuBMTrackSegEta" ClassVersion="10">
+    <version ClassVersion="10" checksum="2263077996"/>
+ </class>
+
+  <class name="L1MuBMTrack" ClassVersion="10">
+    <version ClassVersion="11" checksum="1941187557"/>
+    <version ClassVersion="10" checksum="955528069"/>
+  </class>
+
+  <class name="L1MuBMSecProcId" ClassVersion="10">
+    <version ClassVersion="10" checksum="3768381571"/>
+  </class>
+
+  <class name="L1MuBMAddressArray" ClassVersion="10">
+    <version ClassVersion="10" checksum="1391538870"/>
+  </class>
+
+  <class name="L1MuBMTrackSegLoc" ClassVersion="10">
+    <version ClassVersion="10" checksum="1894920440"/>
+  </class>
+
+  <class name="L1MuBMTrackCollection"/>
+  <class name="L1MuBMTrackSegPhiCollection"/>
+  <class name="L1MuBMTrackSegEtaCollection"/>
+
+  <class name="edm::Wrapper<L1MuBMTrackCollection >"/>
+  <class name="edm::Wrapper<L1MuBMTrackSegPhiCollection >"/>
+  <class name="edm::Wrapper<L1MuBMTrackSegEtaCollection >"/>
+
+ </selection>
+</lcgdict>

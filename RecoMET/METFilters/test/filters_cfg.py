@@ -1,3 +1,4 @@
+from __future__ import print_function
 ##____________________________________________________________________________||
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
@@ -28,7 +29,7 @@ options.register('dataTier', 'AOD', VarParsing.VarParsing.multiplicity.singleton
 options.parseArguments()
 options._tagOrder =[]
 
-print options
+print(options)
 
 #-- Message Logger ------------------------------------------------------------
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
@@ -76,12 +77,12 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
 
 postfix = "PFlow"
 jetAlgo="AK5"
-print "====> Configuring usePF2PAT : using AK5PFchs ..."
-print "See https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JetEnCorPFnoPU"
+print("====> Configuring usePF2PAT : using AK5PFchs ...")
+print("See https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JetEnCorPFnoPU")
 usePF2PAT(process, runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=options.mcInfo, postfix=postfix, jetCorrections=('AK5PFchs', options.jetCorrections))
-getattr(process,"pfPileUp"+postfix).Enable = True
+getattr(process,"pfPileUp"+postfix).enable = True
 getattr(process,"pfPileUp"+postfix).Vertices = 'goodOfflinePrimaryVertices'
-getattr(process,"pfPileUp"+postfix).checkClosestZVertex = cms.bool(False)
+getattr(process,"pfPileUp"+postfix).checkClosestZVertex = False
 getattr(process,"pfJets"+postfix).doAreaFastjet = True
 getattr(process,"pfJets"+postfix).doRhoFastjet = False
 getattr(process,"patJetCorrFactors"+postfix).rho = cms.InputTag("kt6PFJets", "rho")
@@ -96,8 +97,7 @@ getattr(process,"pfNoElectron"+postfix).enable = True
 getattr(process,"pfNoTau"+postfix).enable = False
 getattr(process,"pfNoJet"+postfix).enable = True
 
-# verbose flags for the PF2PAT modules
-getattr(process,"pfNoMuon"+postfix).verbose = False
+# verbose flags for the PF2PAT modules, if any:
 
 # Add the PV selector and KT6 producer to the sequence
 getattr(process,"patPF2PATSequence"+postfix).replace(

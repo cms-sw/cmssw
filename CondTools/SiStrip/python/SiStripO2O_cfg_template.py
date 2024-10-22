@@ -24,7 +24,10 @@ process.SiStripConfigDb.Partitions = cms.untracked.PSet(
 _CFGLINES_
 )
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+if 'CONFDB' not in os.environ:
+    import CondCore.Utilities.credentials as auth
+    user, _, passwd = auth.get_credentials('cms_omds_adg/cms_trk_r')
+    process.SiStripConfigDb.ConfDb = '{user}/{passwd}@{path}'.format(user=user, passwd=passwd, path='cms_omds_adg')
 
 process.load("OnlineDB.SiStripO2O.SiStripO2OCalibrationFactors_cfi")
 process.SiStripCondObjBuilderFromDb = cms.Service( "SiStripCondObjBuilderFromDb",
@@ -33,6 +36,7 @@ process.SiStripCondObjBuilderFromDb = cms.Service( "SiStripCondObjBuilderFromDb"
 process.SiStripCondObjBuilderFromDb.UseFED = True
 process.SiStripCondObjBuilderFromDb.UseFEC = True
 process.SiStripCondObjBuilderFromDb.UseAnalysis = _USEANALYSIS_
+process.SiStripCondObjBuilderFromDb.SiStripDetInfoFile = cms.FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")
 process.SiStripCondObjBuilderFromDb.SkippedDevices = cms.untracked.VPSet(
 _SKIPPED_
 )

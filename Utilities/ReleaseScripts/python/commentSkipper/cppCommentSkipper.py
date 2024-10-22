@@ -1,3 +1,4 @@
+from builtins import range
 __author__="Aurelija"
 __date__ ="$2010-07-13 12.17.20$"
 
@@ -11,8 +12,11 @@ def filterFiles(fileList):
     return files
 
 def filterFile(file): #ifstream& input)
-
-    lines = open(file).readlines()
+    try:
+        lines = open(file).readlines()
+    except UnicodeDecodeError as e:
+        print("CppCommentSkipper: WARNING: Invalid UTF-8 sequence in {0}".format(file))
+        lines = open(file, errors='replace').readlines()
     commentStage = False
 
     for i in range(len(lines)):
@@ -31,29 +35,29 @@ def filterFile(file): #ifstream& input)
                     j += 1
                 #comment //  why !commentStage? because, can be a variant of this example: /*....//.....*/
                 elif not commentStage and (lines[i][j+1] == '/'):
-                    lines[i] = string.replace(lines[i], lines[i][j:],'\n', 1)
+                    lines[i] = lines[i].replace(lines[i][j:],'\n', 1)
                     break
             #char "
             elif char == '"':
                 if not commentStage:
-                    next = string.find(lines[i][j+1:], '"') #next "
-                    lines[i] = string.replace(lines[i], lines[i][j:j+next+2], '', 1) # clear string in ""
+                    next = lines[i][j+1:].find('"') #next "
+                    lines[i] = lines[i].replace(lines[i][j:j+next+2], '', 1) # clear string in ""
             #char '
             elif char == '\'':
                 if not commentStage:
-                    next = string.find(lines[i][j+1:], '\'') #next '
-                    lines[i] = string.replace(lines[i], lines[i][j:j+next+2], '', 1) # clear string in ''
+                    next = lines[i][j+1:].find('\'') #next '
+                    lines[i] = lines[i].replace(lines[i][j:j+next+2], '', 1) # clear string in ''
             #char *
             elif char == '*':
                 if (commentStage and (lines[i][j+1] == '/')):
                     commentStage = False;
                     if commentStartLine != i:
-                        lines[i] = string.replace(lines[i], lines[i][:j+2],'', 1) # comment */ [..code]
+                        lines[i] = lines[i].replace(lines[i][:j+2],'', 1) # comment */ [..code]
                         j = -1 #because of j+=1 at the end
                     else:
-                        lines[i] = string.replace(lines[i], lines[i][commentStartColumn:j+2], '', 1) # [code..] /*comment*/ [.. code]
+                        lines[i] = lines[i].replace(lines[i][commentStartColumn:j+2], '', 1) # [code..] /*comment*/ [.. code]
                         j = commentStartColumn - 1 #because of j+=1 at the ends
-            if j != len(lines[i]) - 1:
+            if j < len(lines[i]) - 1:
                 j += 1
             else:
                 j = 0

@@ -5,32 +5,26 @@
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 
 class CSCTightHalo2015Filter : public edm::global::EDFilter<> {
+public:
+  explicit CSCTightHalo2015Filter(const edm::ParameterSet& iConfig);
+  ~CSCTightHalo2015Filter() override {}
 
-  public:
+private:
+  bool filter(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
-    explicit CSCTightHalo2015Filter(const edm::ParameterSet & iConfig);
-    ~CSCTightHalo2015Filter() override {}
-
-  private:
-
-  bool filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
-
-    const bool taggingMode_;
-    edm::EDGetTokenT<reco::BeamHaloSummary> beamHaloSummaryToken_;
+  const bool taggingMode_;
+  edm::EDGetTokenT<reco::BeamHaloSummary> beamHaloSummaryToken_;
 };
 
-CSCTightHalo2015Filter::CSCTightHalo2015Filter(const edm::ParameterSet & iConfig)
-  : taggingMode_     (iConfig.getParameter<bool> ("taggingMode"))
-  , beamHaloSummaryToken_(consumes<reco::BeamHaloSummary>(edm::InputTag("BeamHaloSummary")))
-{
-
+CSCTightHalo2015Filter::CSCTightHalo2015Filter(const edm::ParameterSet& iConfig)
+    : taggingMode_(iConfig.getParameter<bool>("taggingMode")),
+      beamHaloSummaryToken_(consumes<reco::BeamHaloSummary>(edm::InputTag("BeamHaloSummary"))) {
   produces<bool>();
 }
 
-bool CSCTightHalo2015Filter::filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
-
+bool CSCTightHalo2015Filter::filter(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<reco::BeamHaloSummary> beamHaloSummary;
-  iEvent.getByToken(beamHaloSummaryToken_ , beamHaloSummary);
+  iEvent.getByToken(beamHaloSummaryToken_, beamHaloSummary);
 
   const bool pass = !beamHaloSummary->CSCTightHaloId2015();
 

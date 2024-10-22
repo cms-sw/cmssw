@@ -2,19 +2,8 @@
   <selection>
     <class name="reco::parser::ExpressionBase" persistent="false" />
     <class name="reco::parser::SelectorBase" persistent="false" />
-    <class name="reco::parser::ExpressionPtr" persistent="false" />
-    <class name="reco::parser::SelectorPtr" persistent="false" />
-    <class name="reco::parser::ExpressionPtrs" persistent="false" />
-    <class name="reco::parser::SelectorPtrs" persistent="false" />
     <class name="helper::Parser" persistent="false" />
     <class name="helper::ScannerBase" persistent="false" />
   </selection>
-  <exclusion>
-    <class name="boost::shared_ptr<reco::parser::ExpressionBase>">
-      <method name="[]" />
-    </class>
-    <class name="boost::shared_ptr<reco::parser::SelectorBase>">
-      <method name="[]" />
-    </class>
-  </exclusion>
+
 </lcgdict>

@@ -1,0 +1,1534 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <ConstantsSection label="btl.xml" eval="true">
+    <Constant name="BTLrmin" value="1140.5*mm"/>
+    <Constant name="BTLrmax" value="1191.1*mm"/>
+    <Constant name="BTLz" value="2910.0*mm"/>
+  </ConstantsSection>
+
+  <RotationSection label="btl.xml">
+    <RotationByAxis name="X90" axis="x" angle="90*deg"/>
+    <RotationByAxis name="Z180" axis="z" angle="180*deg"/>
+  </RotationSection>
+
+  <SolidSection label="btl.xml">
+
+    <!-- BTL volume -->
+    <Polycone name="BarrelTimingLayer" startPhi="0*deg" deltaPhi="360*deg">
+      <ZSection z="-[BTLz]"         rMin="[BTLrmin]"          rMax="[BTLrmax]" />
+      <ZSection z="[BTLz]"          rMin="[BTLrmin]"          rMax="[BTLrmax]" />
+    </Polycone>
+
+    <!-- BTL timing layer -->
+    <Tubs name="Layer1Timing" rMin="1140.51*mm" rMax="1191.09*mm" dz="2909.99*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+
+    <!-- Trays -->
+    <Box name="TrayZpos" dx="92.01*mm" dy="10.26*mm" dz="1240.41*mm"/>
+    <Box name="TrayZneg" dx="92.01*mm" dy="10.26*mm" dz="1240.41*mm"/>
+
+    <!-- Readout Units -->
+    <Box name="ReadoutUnit1" dx="92.0*mm" dy="10.25*mm" dz="206.65*mm"/>
+    <Box name="ReadoutUnit2" dx="92.0*mm" dy="10.25*mm" dz="206.65*mm"/>
+    <Box name="ReadoutUnit3" dx="92.0*mm" dy="10.25*mm" dz="206.65*mm"/>
+
+    <Box name="ConcentratorCard" dx="75.0*mm" dy="0.80840580*mm" dz="140.0*mm"/>
+    <Box name="PowerControlCard" dx="29.5*mm" dy="0.80840580*mm" dz="28.75*mm"/>
+    <Box name="CoolingPlate" dx="92*mm" dy="1.5301247*mm" dz="206.65*mm"/>
+    <Box name="FrontEndCard" dx="26.0*mm" dy="0.8*mm" dz="205.45*mm"/>
+    <Box name="InnerCover" dx="92*mm" dy="1.5*mm" dz="206.5*mm"/>
+
+    <!-- Crystal modules -->
+    <Box name="BTLModule1" dx="27.61*mm" dy="25.6*mm" dz="1.885*mm"/>
+    <Box name="BTLModule2" dx="27.61*mm" dy="25.6*mm" dz="1.51*mm"/>
+    <Box name="BTLModule3" dx="27.61*mm" dy="25.6*mm" dz="1.21*mm"/>
+
+    <Box name="BTLCrystal1" dx="27.6*mm" dy="1.56*mm" dz="1.875*mm"/>
+    <Box name="BTLCrystal2" dx="27.6*mm" dy="1.56*mm" dz="1.5*mm"/>
+    <Box name="BTLCrystal3" dx="27.6*mm" dy="1.56*mm" dz="1.2*mm"/>
+
+    <!-- SiPM package -->
+    <Box name="SiPMPackage" dx="0.6*mm" dy="3.25*mm" dz="205.85*mm"/>
+
+    <!-- Crystal module housing -->
+    <Box name="ModuleHousing1" dx="91.5*mm" dy="0.25*mm" dz="206.1*mm"/>
+    <Box name="ModuleHousing2" dx="0.25*mm" dy="4.89*mm" dz="206.1*mm"/>
+
+    <!-- Readout unit cover -->
+    <Tubs name="OuterCover" rMin="1180.25*mm" rMax="1180.75*mm" dz="1240.4*mm" startPhi="-94.155786*deg" deltaPhi="8.3115710*deg"/>
+
+    <!-- Outer insulation -->
+    <Tubs name="OuterInsulation" rMin="1182.25*mm" rMax="1188.25" dz="2572*mm" startPhi="4.7368421*deg" deltaPhi="170.52632*deg"/>
+
+    <!-- Tracker-BTL interface -->
+    <Tubs name="InnerInterface_1" rMin="1147.175*mm" rMax="1147.375*mm" dz="1203.5*mm" startPhi="4.7368421*deg" deltaPhi="170.52632*deg"/>
+    <Tubs name="InnerInterface_2" rMin="1145.375*mm" rMax="1147.375*mm" dz="40*mm" startPhi="4.7368421*deg" deltaPhi="170.52632*deg"/>
+    <Tubs name="InnerInterface_3" rMin="1146.875*mm" rMax="1147.375*mm" dz="76.5*mm" startPhi="4.7368421*deg" deltaPhi="170.52632*deg"/>
+    <Tubs name="InnerInterface_4" rMin="1145.375*mm" rMax="1147.375*mm" dz="30*mm" startPhi="4.7368421*deg" deltaPhi="170.52632*deg"/>
+    <Tubs name="InnerInterface_5" rMin="1146.875*mm" rMax="1147.375*mm" dz="206*mm" startPhi="4.7368421*deg" deltaPhi="170.52632*deg"/>
+    <Tubs name="InnerInterface_6" rMin="1145.375*mm" rMax="1147.375*mm" dz="132.5*mm" startPhi="4.7368421*deg" deltaPhi="170.52632*deg"/>
+
+    <!-- Tray cables -->
+    <Trapezoid name="cableZpos1" dz="1125.1*mm" theta="0*deg" phi="0*deg" h1="0.455*mm" bl1="0.65*mm" tl1="0.65*mm" alp1="0*deg" h2="0.455*mm" bl2="65.25*mm" tl2="65.25*mm" alp2="0*deg"/>
+    <Trapezoid name="cableZneg1" dz="1125.1*mm" theta="0*deg" phi="0*deg" h1="0.455*mm" bl1="65.25*mm" tl1="65.25*mm" alp1="0*deg" h2="0.455*mm" bl2="0.65*mm" tl2="0.65*mm" alp2="0*deg"/>
+    <Trapezoid name="cableZpos2" dz="53.225*mm" theta="0*deg" phi="0*deg" h1="0.52*mm" bl1="65.25*mm" tl1="65.25*mm" alp1="0*deg" h2="0.52*mm" bl2="28.26*mm" tl2="28.26*mm" alp2="0*deg"/>
+    <Trapezoid name="cableZneg2" dz="53.225*mm" theta="0*deg" phi="0*deg" h1="0.52*mm" bl1="28.26*mm" tl1="28.26*mm" alp1="0*deg" h2="0.52*mm" bl2="65.25*mm" tl2="65.25*mm" alp2="0*deg"/>
+    <Box name="cable_box" dx="70.0*mm" dy="10.0*mm" dz="1200.0*mm"/>
+    <IntersectionSolid name="TrayCablesZposR1" firstSolid="btl:cableZpos1" secondSolid="btl:cable_box">
+      <Translation x="-70.*mm" y="0.0*mm" z="0.0*mm"/>
+    </IntersectionSolid>
+    <IntersectionSolid name="TrayCablesZposL1" firstSolid="btl:cableZpos1" secondSolid="btl:cable_box">
+      <Translation x="70.*mm" y="0.0*mm" z="0.0*mm"/>
+    </IntersectionSolid>
+    <IntersectionSolid name="TrayCablesZposR2" firstSolid="btl:cableZpos2" secondSolid="btl:cable_box">
+      <Translation x="-70.*mm" y="0.0*mm" z="0.0*mm"/>
+    </IntersectionSolid>
+    <IntersectionSolid name="TrayCablesZposL2" firstSolid="btl:cableZpos2" secondSolid="btl:cable_box">
+      <Translation x="70.*mm" y="0.0*mm" z="0.0*mm"/>
+    </IntersectionSolid>
+    <IntersectionSolid name="TrayCablesZnegR1" firstSolid="btl:cableZneg1" secondSolid="btl:cable_box">
+      <Translation x="-70.*mm" y="0.0*mm" z="0.0*mm"/>
+    </IntersectionSolid>
+    <IntersectionSolid name="TrayCablesZnegL1" firstSolid="btl:cableZneg1" secondSolid="btl:cable_box">
+      <Translation x="70.*mm" y="0.0*mm" z="0.0*mm"/>
+    </IntersectionSolid>
+    <IntersectionSolid name="TrayCablesZnegR2" firstSolid="btl:cableZneg2" secondSolid="btl:cable_box">
+      <Translation x="-70.*mm" y="0.0*mm" z="0.0*mm"/>
+    </IntersectionSolid>
+    <IntersectionSolid name="TrayCablesZnegL2" firstSolid="btl:cableZneg2" secondSolid="btl:cable_box">
+      <Translation x="70.*mm" y="0.0*mm" z="0.0*mm"/>
+    </IntersectionSolid>
+
+    <!-- Support rails -->
+    <Box name="Rail1" dx="12.5*mm" dy="1*mm" dz="1240*mm"/>
+    <Box name="Rail2" dx="1*mm" dy="11.65*mm" dz="1240*mm"/> 
+    <Box name="Rail3" dx="8.5*mm" dy="2.1154744*mm" dz="1286*mm"/>
+
+    <!-- BTL seals -->
+    <Tubs name="Seal" rMin="1145.0*mm" rMax="1191.0*mm" dz="2.0*mm" startPhi="4.7*deg" deltaPhi="170.288*deg"/>
+
+  </SolidSection>
+
+
+  <LogicalPartSection label="btl.xml">
+
+    <!-- BTL volume -->
+    <LogicalPart name="BarrelTimingLayer" category="unspecified">
+      <rSolid name="BarrelTimingLayer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+
+    <!-- BTL timing layer -->
+    <LogicalPart name="Layer1Timing" category="unspecified">
+      <rSolid name="btl:Layer1Timing"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+
+    <!-- Trays -->
+    <LogicalPart name="TrayZpos" category="unspecified">
+      <rSolid name="btl:TrayZpos"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="TrayZneg" category="unspecified">
+      <rSolid name="btl:TrayZneg"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+
+    <!-- Readout Units -->
+    <LogicalPart name="ReadoutUnit1" category="unspecified">
+      <rSolid name="btl:ReadoutUnit1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="ReadoutUnit2" category="unspecified">
+      <rSolid name="btl:ReadoutUnit2"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="ReadoutUnit3" category="unspecified">
+      <rSolid name="btl:ReadoutUnit3"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="ConcentratorCard" category="unspecified">
+      <rSolid name="btl:ConcentratorCard"/>
+      <rMaterial name="mtdMaterial:FR4"/>
+    </LogicalPart>
+    <LogicalPart name="PowerControlCard" category="unspecified">
+      <rSolid name="btl:PowerControlCard"/>
+      <rMaterial name="mtdMaterial:FR4"/>
+    </LogicalPart>
+    <LogicalPart name="CoolingPlate" category="unspecified">
+      <rSolid name="btl:CoolingPlate"/>
+      <rMaterial name="mtdMaterial:AW5083"/>
+    </LogicalPart>
+    <LogicalPart name="FrontEndCard" category="unspecified">
+      <rSolid name="btl:FrontEndCard"/>
+      <rMaterial name="mtdMaterial:FR4"/>
+    </LogicalPart>
+    <LogicalPart name="InnerCover" category="unspecified">
+      <rSolid name="btl:InnerCover"/>
+      <rMaterial name="mtdMaterial:GlassFiberS2"/>
+    </LogicalPart>
+
+    <!-- Crystal modules -->
+    <LogicalPart name="BTLModule1" category="unspecified">
+      <rSolid name="btl:BTLModule1"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BTLModule2" category="unspecified">
+      <rSolid name="btl:BTLModule2"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="BTLModule3" category="unspecified">
+      <rSolid name="btl:BTLModule3"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+
+    <LogicalPart name="BTLCrystal1" category="unspecified">
+      <rSolid name="btl:BTLCrystal1"/>
+      <rMaterial name="mtdMaterial:LYSO-Ce"/>
+    </LogicalPart>
+    <LogicalPart name="BTLCrystal2" category="unspecified">
+      <rSolid name="btl:BTLCrystal2"/>
+      <rMaterial name="mtdMaterial:LYSO-Ce"/>
+    </LogicalPart>
+    <LogicalPart name="BTLCrystal3" category="unspecified">
+      <rSolid name="btl:BTLCrystal3"/>
+      <rMaterial name="mtdMaterial:LYSO-Ce"/>
+    </LogicalPart>
+
+    <!-- SiPM Package -->
+    <LogicalPart name="SiPMPackage" category="unspecified">
+      <rSolid name="btl:SiPMPackage"/>
+      <rMaterial name="mtdMaterial:FR4"/>
+    </LogicalPart>
+
+    <!-- Crystal module housing -->
+    <LogicalPart name="ModuleHousing1" category="unspecified">
+      <rSolid name="btl:ModuleHousing1"/>
+      <rMaterial name="materials:Copper"/>
+    </LogicalPart>
+    <LogicalPart name="ModuleHousing2" category="unspecified">
+      <rSolid name="btl:ModuleHousing2"/>
+      <rMaterial name="materials:Copper"/>
+    </LogicalPart>
+
+    <!-- Readout unit cover -->
+    <LogicalPart name="OuterCover" category="unspecified">
+      <rSolid name="btl:OuterCover"/>
+      <rMaterial name="materials:Peek"/>
+    </LogicalPart>
+
+    <!-- Outer insulation -->
+    <LogicalPart name="OuterInsulation" category="unspecified">
+      <rSolid name="btl:OuterInsulation"/>
+      <rMaterial name="mtdMaterial:Airex"/>
+    </LogicalPart>
+
+    <!-- Tracker-BTL interface -->
+    <LogicalPart name="InnerInterface_1" category="unspecified">
+      <rSolid name="btl:InnerInterface_1"/>
+      <rMaterial name="materials:Mylar"/>
+    </LogicalPart>
+    <LogicalPart name="InnerInterface_2" category="unspecified">
+      <rSolid name="btl:InnerInterface_2"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="InnerInterface_3" category="unspecified">
+      <rSolid name="btl:InnerInterface_3"/>
+      <rMaterial name="mtdMaterial:CarbonFiber"/>
+    </LogicalPart>
+    <LogicalPart name="InnerInterface_4" category="unspecified">
+      <rSolid name="btl:InnerInterface_4"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="InnerInterface_5" category="unspecified">
+      <rSolid name="btl:InnerInterface_5"/>
+      <rMaterial name="mtdMaterial:CarbonFiber"/>
+    </LogicalPart>
+    <LogicalPart name="InnerInterface_6" category="unspecified">
+      <rSolid name="btl:InnerInterface_6"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+
+    <!-- Tray cables -->
+    <LogicalPart name="TrayCablesZposR1" category="unspecified">
+      <rSolid name="btl:TrayCablesZposR1"/>
+      <rMaterial name="materials:Copper"/>
+    </LogicalPart>
+    <LogicalPart name="TrayCablesZposL1" category="unspecified">
+      <rSolid name="btl:TrayCablesZposL1"/>
+      <rMaterial name="materials:Copper"/>
+    </LogicalPart>
+    <LogicalPart name="TrayCablesZposR2" category="unspecified">
+      <rSolid name="btl:TrayCablesZposR2"/>
+      <rMaterial name="materials:Copper"/>
+    </LogicalPart>
+    <LogicalPart name="TrayCablesZposL2" category="unspecified">
+      <rSolid name="btl:TrayCablesZposL2"/>
+      <rMaterial name="materials:Copper"/>
+    </LogicalPart>
+    <LogicalPart name="TrayCablesZnegR1" category="unspecified">
+      <rSolid name="btl:TrayCablesZnegR1"/>
+      <rMaterial name="materials:Copper"/>
+    </LogicalPart>
+    <LogicalPart name="TrayCablesZnegL1" category="unspecified">
+      <rSolid name="btl:TrayCablesZnegL1"/>
+      <rMaterial name="materials:Copper"/>
+    </LogicalPart>
+    <LogicalPart name="TrayCablesZnegR2" category="unspecified">
+      <rSolid name="btl:TrayCablesZnegR2"/>
+      <rMaterial name="materials:Copper"/>
+    </LogicalPart>
+    <LogicalPart name="TrayCablesZnegL2" category="unspecified">
+      <rSolid name="btl:TrayCablesZnegL2"/>
+      <rMaterial name="materials:Copper"/>
+    </LogicalPart>
+
+    <!-- Support Rails -->
+    <LogicalPart name="Rail1" category="unspecified">
+      <rSolid name="btl:Rail1"/>
+      <rMaterial name="mtdMaterial:GlassFiberS2"/>
+    </LogicalPart>
+    <LogicalPart name="Rail2" category="unspecified">
+      <rSolid name="btl:Rail2"/>
+      <rMaterial name="mtdMaterial:GlassFiberS2"/>
+    </LogicalPart>
+    <LogicalPart name="Rail3" category="unspecified">
+      <rSolid name="btl:Rail3"/>
+      <rMaterial name="mtdMaterial:GlassFiberS2"/>
+    </LogicalPart>
+
+    <!-- BTL seals -->
+    <LogicalPart name="Seal" category="unspecified">
+      <rSolid name="btl:Seal"/>
+      <rMaterial name="materials:Peek"/>
+    </LogicalPart>
+
+  </LogicalPartSection>
+
+
+  <PosPartSection label="btl.xml">
+
+    <!-- Position the BTL volume inside the tracker volume -->
+    <PosPart copyNumber="1">
+      <rParent name="tracker:Tracker"/>
+      <rChild name="btl:BarrelTimingLayer"/>
+    </PosPart>
+
+    <!-- Position the timing layer inside the BTL volume -->
+    <PosPart copyNumber="1">
+      <rParent name="btl:BarrelTimingLayer"/>
+      <rChild name="btl:Layer1Timing"/>
+    </PosPart>
+
+    <!-- Assemble the LYSO crystal arrays -->
+    <Algorithm name="track:DDTrackerXYZPosAlgo">
+      <rParent name="btl:BTLModule1"/>
+      <String name="ChildName" value="btl:BTLCrystal1"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+      <Vector name="XPositions" type="numeric" nEntries="16">
+	0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm,
+	0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm
+      </Vector>
+      <Vector name="YPositions" type="numeric" nEntries="16">
+	-24.0*mm, -20.8*mm, -17.6*mm, -14.4*mm, -11.2*mm, -8.0*mm, -4.8*mm, -1.6*mm,
+	  1.6*mm,   4.8*mm,   8.0*mm,  11.2*mm,  14.4*mm, 17.6*mm, 20.8*mm, 24.0*mm
+      </Vector>
+      <Vector name="ZPositions" type="numeric" nEntries="16">
+	0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm,
+	0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm
+      </Vector>
+      <Vector name="Rotations" type="string" nEntries="16">
+	rotations:NULL, rotations:NULL, rotations:NULL, rotations:NULL,
+	rotations:NULL, rotations:NULL, rotations:NULL, rotations:NULL,
+	rotations:NULL, rotations:NULL, rotations:NULL, rotations:NULL,
+	rotations:NULL, rotations:NULL, rotations:NULL, rotations:NULL
+      </Vector>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerXYZPosAlgo">
+      <rParent name="btl:BTLModule2"/>
+      <String name="ChildName" value="btl:BTLCrystal2"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+      <Vector name="XPositions" type="numeric" nEntries="16">
+	0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm,
+	0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm
+      </Vector>
+      <Vector name="YPositions" type="numeric" nEntries="16">
+	-24.0*mm, -20.8*mm, -17.6*mm, -14.4*mm, -11.2*mm, -8.0*mm, -4.8*mm, -1.6*mm,
+	  1.6*mm,   4.8*mm,   8.0*mm,  11.2*mm,  14.4*mm, 17.6*mm, 20.8*mm, 24.0*mm
+      </Vector>
+      <Vector name="ZPositions" type="numeric" nEntries="16">
+	0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm,
+	0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm
+      </Vector>
+      <Vector name="Rotations" type="string" nEntries="16">
+	rotations:NULL, rotations:NULL, rotations:NULL, rotations:NULL,
+	rotations:NULL, rotations:NULL, rotations:NULL, rotations:NULL,
+	rotations:NULL, rotations:NULL, rotations:NULL, rotations:NULL,
+	rotations:NULL, rotations:NULL, rotations:NULL, rotations:NULL
+      </Vector>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerXYZPosAlgo">
+      <rParent name="btl:BTLModule3"/>
+      <String name="ChildName" value="btl:BTLCrystal3"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+      <Vector name="XPositions" type="numeric" nEntries="16">
+	0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm,
+	0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm
+      </Vector>
+      <Vector name="YPositions" type="numeric" nEntries="16">
+	-24.0*mm, -20.8*mm, -17.6*mm, -14.4*mm, -11.2*mm, -8.0*mm, -4.8*mm, -1.6*mm,
+	  1.6*mm,   4.8*mm,   8.0*mm,  11.2*mm,  14.4*mm, 17.6*mm, 20.8*mm, 24.0*mm
+      </Vector>
+      <Vector name="ZPositions" type="numeric" nEntries="16">
+	0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm,
+	0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm, 0.0*mm
+      </Vector>
+      <Vector name="Rotations" type="string" nEntries="16">
+	rotations:NULL, rotations:NULL, rotations:NULL, rotations:NULL,
+	rotations:NULL, rotations:NULL, rotations:NULL, rotations:NULL,
+	rotations:NULL, rotations:NULL, rotations:NULL, rotations:NULL,
+	rotations:NULL, rotations:NULL, rotations:NULL, rotations:NULL
+      </Vector>
+    </Algorithm>
+
+    <!-- Assemble the Readout Units -->
+
+    <!-- Concentrator card -->
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:ConcentratorCard"/>
+      <Translation x="0.0*mm" y="-8.9584058*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:ConcentratorCard"/>
+      <Translation x="0.0*mm" y="-8.9584058*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:ConcentratorCard"/>
+      <Translation x="0.0*mm" y="-8.9584058*mm" z="0.0*mm"/>
+    </PosPart>
+
+    <!-- Power control cards -->
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:PowerControlCard"/>
+      <Translation x="0.0*mm" y="-8.9584058*mm" z="169.35*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:PowerControlCard"/>
+      <Translation x="0.0*mm" y="-8.9584058*mm" z="-169.35*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:PowerControlCard"/>
+      <Translation x="0.0*mm" y="-8.9584058*mm" z="169.35*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:PowerControlCard"/>
+      <Translation x="0.0*mm" y="-8.9584058*mm" z="-169.35*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:PowerControlCard"/>
+      <Translation x="0.0*mm" y="-8.9584058*mm" z="169.35*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:PowerControlCard"/>
+      <Translation x="0.0*mm" y="-8.9584058*mm" z="-169.35*mm"/>
+    </PosPart>
+
+    <!-- Cooling plate -->
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:CoolingPlate"/>
+      <Translation x="0.0*mm" y="-5.10*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:CoolingPlate"/>
+      <Translation x="0.0*mm" y="-5.10*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:CoolingPlate"/>
+      <Translation x="0.0*mm" y="-5.10*mm" z="0.0*mm"/>
+    </PosPart>
+
+    <!-- Frontend cards -->
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:FrontEndCard"/>
+      <Translation x="0.0*mm" y="-0.25*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:FrontEndCard"/>
+      <Translation x="61.0*mm" y="-0.25*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:FrontEndCard"/>
+      <Translation x="-61.0*mm" y="-0.25*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:FrontEndCard"/>
+      <Translation x="0.0*mm" y="-0.25*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:FrontEndCard"/>
+      <Translation x="61.0*mm" y="-0.25*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:FrontEndCard"/>
+      <Translation x="-61.0*mm" y="-0.25*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:FrontEndCard"/>
+      <Translation x="0.0*mm" y="-0.25*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:FrontEndCard"/>
+      <Translation x="61.0*mm" y="-0.25*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:FrontEndCard"/>
+      <Translation x="-61.0*mm" y="-0.25*mm" z="0.0*mm"/>
+    </PosPart>
+
+    <!-- Crystal modules -->
+    <Algorithm name="track:DDTrackerXYZPosAlgo">
+      <rParent name="btl:ReadoutUnit1"/>
+      <String name="ChildName" value="btl:BTLModule1"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+      <Vector name="XPositions" type="numeric" nEntries="24">
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm
+      </Vector>
+      <Vector name="YPositions" type="numeric" nEntries="24">
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm
+      </Vector>
+      <Vector name="ZPositions" type="numeric" nEntries="24">
+	-180.6*mm, -180.6*mm, -180.6*mm,
+	-129.0*mm, -129.0*mm, -129.0*mm,
+	 -77.4*mm,  -77.4*mm,  -77.4*mm,
+	 -25.8*mm,  -25.8*mm,  -25.8*mm,
+	  25.8*mm,   25.8*mm,   25.8*mm,
+	  77.4*mm,   77.4*mm,   77.4*mm,
+	 129.0*mm,  129.0*mm,  129.0*mm,
+	 180.6*mm,  180.6*mm,  180.6*mm
+      </Vector>
+      <Vector name="Rotations" type="string" nEntries="24">
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90
+      </Vector>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerXYZPosAlgo">
+      <rParent name="btl:ReadoutUnit2"/>
+      <String name="ChildName" value="btl:BTLModule2"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+      <Vector name="XPositions" type="numeric" nEntries="24">
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm
+      </Vector>
+      <Vector name="YPositions" type="numeric" nEntries="24">
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm
+      </Vector>
+      <Vector name="ZPositions" type="numeric" nEntries="24">
+	-180.6*mm, -180.6*mm, -180.6*mm,
+	-129.0*mm, -129.0*mm, -129.0*mm,
+	 -77.4*mm,  -77.4*mm,  -77.4*mm,
+	 -25.8*mm,  -25.8*mm,  -25.8*mm,
+	  25.8*mm,   25.8*mm,   25.8*mm,
+	  77.4*mm,   77.4*mm,   77.4*mm,
+	 129.0*mm,  129.0*mm,  129.0*mm,
+	 180.6*mm,  180.6*mm,  180.6*mm
+      </Vector>
+      <Vector name="Rotations" type="string" nEntries="24">
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90
+      </Vector>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerXYZPosAlgo">
+      <rParent name="btl:ReadoutUnit3"/>
+      <String name="ChildName" value="btl:BTLModule3"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+      <Vector name="XPositions" type="numeric" nEntries="24">
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm,
+	-61.0*mm, 0.0*mm, 61.0*mm
+      </Vector>
+      <Vector name="YPositions" type="numeric" nEntries="24">
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm,
+	4.225*mm, 4.225*mm, 4.225*mm
+      </Vector>
+      <Vector name="ZPositions" type="numeric" nEntries="24">
+	-180.6*mm, -180.6*mm, -180.6*mm,
+	-129.0*mm, -129.0*mm, -129.0*mm,
+	 -77.4*mm,  -77.4*mm,  -77.4*mm,
+	 -25.8*mm,  -25.8*mm,  -25.8*mm,
+	  25.8*mm,   25.8*mm,   25.8*mm,
+	  77.4*mm,   77.4*mm,   77.4*mm,
+	 129.0*mm,  129.0*mm,  129.0*mm,
+	 180.6*mm,  180.6*mm,  180.6*mm
+      </Vector>
+      <Vector name="Rotations" type="string" nEntries="24">
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90,
+	btl:X90, btl:X90, btl:X90, btl:X90
+      </Vector>
+    </Algorithm>
+
+    <!-- SiPM Packages -->
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="-89.25*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="-32.75*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="-28.25*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="28.25*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="32.75*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="89.25*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="-89.25*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="-32.75*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="-28.25*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="28.25*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="32.75*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="89.25*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="-89.25*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="-32.75*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="-28.25*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="28.25*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="32.75*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:SiPMPackage"/>
+      <Translation x="89.25*mm" y="2.95*mm" z="0.0*mm"/>
+    </PosPart>
+
+    <!-- Crystal module housing -->
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:ModuleHousing1"/>
+      <Translation x="0.0*mm" y="-2.80*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="-91.25*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="-30.755*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="-30.245*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="30.245*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="30.755*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="91.25*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:ModuleHousing1"/>
+      <Translation x="0.0*mm" y="-2.80*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="-91.25*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="-30.755*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="-30.245*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="30.245*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="30.755*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="91.25*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:ModuleHousing1"/>
+      <Translation x="0.0*mm" y="-2.80*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="-91.25*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="-30.755*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="-30.245*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="30.245*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="30.755*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:ModuleHousing2"/>
+      <Translation x="91.25*mm" y="2.35*mm" z="0.0*mm"/>
+    </PosPart>
+
+    <!-- Inner cover -->
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit1"/>
+      <rChild name="btl:InnerCover"/>
+      <Translation x="0.0*mm" y="8.75*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit2"/>
+      <rChild name="btl:InnerCover"/>
+      <Translation x="0.0*mm" y="8.75*mm" z="0.0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:ReadoutUnit3"/>
+      <rChild name="btl:InnerCover"/>
+      <Translation x="0.0*mm" y="8.75*mm" z="0.0*mm"/>
+    </PosPart>
+
+    <!-- Position the readout units in the trays -->
+    <PosPart copyNumber="1">
+      <rParent name="btl:TrayZpos"/>
+      <rChild name="btl:ReadoutUnit1"/>
+      <Translation x="0.0*mm" y="0.0*mm" z="-1033.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:TrayZpos"/>
+      <rChild name="btl:ReadoutUnit1"/>
+      <Translation x="0.0*mm" y="0.0*mm" z="-620.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:TrayZpos"/>
+      <rChild name="btl:ReadoutUnit2"/>
+      <Translation x="0.0*mm" y="0.0*mm" z="-206.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:TrayZpos"/>
+      <rChild name="btl:ReadoutUnit2"/>
+      <Translation x="0.0*mm" y="0.0*mm" z="206.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:TrayZpos"/>
+      <rChild name="btl:ReadoutUnit3"/>
+      <Translation x="0.0*mm" y="0.0*mm" z="620.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:TrayZpos"/>
+      <rChild name="btl:ReadoutUnit3"/>
+      <Translation x="0.0*mm" y="0.0*mm" z="1033.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:TrayZneg"/>
+      <rChild name="btl:ReadoutUnit1"/>
+      <rRotation name="rotations:180D"/>
+      <Translation x="0.0*mm" y="0.0*mm" z="1033.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:TrayZneg"/>
+      <rChild name="btl:ReadoutUnit1"/>
+      <rRotation name="rotations:180D"/>
+      <Translation x="0.0*mm" y="0.0*mm" z="620.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:TrayZneg"/>
+      <rChild name="btl:ReadoutUnit2"/>
+      <rRotation name="rotations:180D"/>
+      <Translation x="0.0*mm" y="0.0*mm" z="206.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:TrayZneg"/>
+      <rChild name="btl:ReadoutUnit2"/>
+      <rRotation name="rotations:180D"/>
+      <Translation x="0.0*mm" y="0.0*mm" z="-206.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:TrayZneg"/>
+      <rChild name="btl:ReadoutUnit3"/>
+      <rRotation name="rotations:180D"/>
+      <Translation x="0.0*mm" y="0.0*mm" z="-620.25*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:TrayZneg"/>
+      <rChild name="btl:ReadoutUnit3"/>
+      <rRotation name="rotations:180D"/>
+      <Translation x="0.0*mm" y="0.0*mm" z="-1033.75*mm"/>
+    </PosPart>
+
+    <!-- Position the trays in the timing layer -->
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayZpos"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="9.4736842*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1160.25*mm"/>
+      <Numeric name="RadiusOut" value="1160.25*mm"/>
+      <Numeric name="ZPosition" value="1240.41*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayZpos"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="189.47400*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1160.25*mm"/>
+      <Numeric name="RadiusOut" value="1160.25*mm"/>
+      <Numeric name="ZPosition" value="1240.41*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="19"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayZneg"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="9.4736842*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1160.25*mm"/>
+      <Numeric name="RadiusOut" value="1160.25*mm"/>
+      <Numeric name="ZPosition" value="-1240.41*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayZneg"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="189.47400*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1160.25*mm"/>
+      <Numeric name="RadiusOut" value="1160.25*mm"/>
+      <Numeric name="ZPosition" value="-1240.41*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="19"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+
+    <!-- Position the readout unit covers in the timing layer -->
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:OuterCover"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="9.4736842*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="0*mm"/>
+      <Numeric name="RadiusOut" value="0*mm"/>
+      <Numeric name="ZPosition" value="1240.4*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:OuterCover"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="189.47400*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="0*mm"/>
+      <Numeric name="RadiusOut" value="0*mm"/>
+      <Numeric name="ZPosition" value="1240.4*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="19"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:OuterCover"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="9.4736842*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="0*mm"/>
+      <Numeric name="RadiusOut" value="0*mm"/>
+      <Numeric name="ZPosition" value="-1240.4*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="37"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:OuterCover"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="189.47400*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="0*mm"/>
+      <Numeric name="RadiusOut" value="0*mm"/>
+      <Numeric name="ZPosition" value="-1240.4*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="55"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+
+    <!-- Position the outer insulation in the timing layer -->
+    <PosPart copyNumber="1">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:OuterInsulation"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:OuterInsulation"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+
+    <!-- Position the tracker-BTL interface in the timing layer -->
+    <PosPart copyNumber="1">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_1"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_1"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_2"/>
+      <Translation x="0.*mm" y="0.0*mm" z="1243.51*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_2"/>
+      <Translation x="0.*mm" y="0.0*mm" z="1243.51*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_2"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-1243.51*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_2"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-1243.51*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_3"/>
+      <Translation x="0.*mm" y="0.0*mm" z="1361*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_3"/>
+      <Translation x="0.*mm" y="0.0*mm" z="1361*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_3"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-1361*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_3"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-1361*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_4"/>
+      <Translation x="0.*mm" y="0.0*mm" z="1468.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_4"/>
+      <Translation x="0.*mm" y="0.0*mm" z="1468.5*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_4"/>
+      <Translation x="0.*mm" y="0.0*mm" z="1941.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_4"/>
+      <Translation x="0.*mm" y="0.0*mm" z="1941.75*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_4"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-1468.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_4"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-1468.5*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_4"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-1941.75*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_4"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-1941.75*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_5"/>
+      <Translation x="0.*mm" y="0.0*mm" z="1705.125*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_5"/>
+      <Translation x="0.*mm" y="0.0*mm" z="1705.125*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_5"/>
+      <Translation x="0.*mm" y="0.0*mm" z="2178.375*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_5"/>
+      <Translation x="0.*mm" y="0.0*mm" z="2178.375*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="5">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_5"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-1705.125*mm"/>
+    </PosPart>
+    <PosPart copyNumber="6">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_5"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-1705.125*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="7">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_5"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-2178.375*mm"/>
+    </PosPart>
+    <PosPart copyNumber="8">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_5"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-2178.375*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_6"/>
+      <Translation x="0.*mm" y="0.0*mm" z="2517.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_6"/>
+      <Translation x="0.*mm" y="0.0*mm" z="2517.5*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_6"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-2517.5*mm"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="btl:Layer1Timing"/>
+      <rChild name="btl:InnerInterface_6"/>
+      <Translation x="0.*mm" y="0.0*mm" z="-2517.5*mm"/>
+      <rRotation name="btl:Z180"/>
+    </PosPart>
+
+    <!-- Position the tray cables in the timing layer -->
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZposR1"/>
+      <Numeric name="Tilt" value="2*deg"/>
+      <Numeric name="StartAngle" value="12.925*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="1249.24*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZposR2"/>
+      <Numeric name="Tilt" value="2*deg"/>
+      <Numeric name="StartAngle" value="12.925*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="2427.575*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZposR1"/>
+      <Numeric name="Tilt" value="2*deg"/>
+      <Numeric name="StartAngle" value="192.925*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="1249.24*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="19"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZposR2"/>
+      <Numeric name="Tilt" value="2*deg"/>
+      <Numeric name="StartAngle" value="192.925*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="2427.575*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="19"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZposL1"/>
+      <Numeric name="Tilt" value="-2*deg"/>
+      <Numeric name="StartAngle" value="6.0223684*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="1249.24*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZposL2"/>
+      <Numeric name="Tilt" value="-2*deg"/>
+      <Numeric name="StartAngle" value="6.0223684*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="2427.575*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZposL1"/>
+      <Numeric name="Tilt" value="-2*deg"/>
+      <Numeric name="StartAngle" value="186.0223684*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="1249.24*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="19"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZposL2"/>
+      <Numeric name="Tilt" value="-2*deg"/>
+      <Numeric name="StartAngle" value="186.0223684*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="2427.575*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="19"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZnegR1"/>
+      <Numeric name="Tilt" value="2*deg"/>
+      <Numeric name="StartAngle" value="12.925*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="-1249.24*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZnegR2"/>
+      <Numeric name="Tilt" value="2*deg"/>
+      <Numeric name="StartAngle" value="12.925*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="-2427.575*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZnegR1"/>
+      <Numeric name="Tilt" value="2*deg"/>
+      <Numeric name="StartAngle" value="192.925*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="-1249.24*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="19"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZnegR2"/>
+      <Numeric name="Tilt" value="2*deg"/>
+      <Numeric name="StartAngle" value="192.925*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="-2427.575*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="19"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZnegL1"/>
+      <Numeric name="Tilt" value="-2*deg"/>
+      <Numeric name="StartAngle" value="6.0223684*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="-1249.24*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZnegL2"/>
+      <Numeric name="Tilt" value="-2*deg"/>
+      <Numeric name="StartAngle" value="6.0223684*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="-2427.575*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZnegL1"/>
+      <Numeric name="Tilt" value="-2*deg"/>
+      <Numeric name="StartAngle" value="186.0223684*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="-1249.24*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="19"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:TrayCablesZnegL2"/>
+      <Numeric name="Tilt" value="-2*deg"/>
+      <Numeric name="StartAngle" value="186.0223684*deg"/>
+      <Numeric name="RangeAngle" value="161.05263*deg"/>
+      <Numeric name="RadiusIn" value="1178.0*mm"/>
+      <Numeric name="RadiusOut" value="1178.0*mm"/>
+      <Numeric name="ZPosition" value="-2427.575*mm"/>
+      <Numeric name="Number" value="18"/>
+      <Numeric name="StartCopyNo" value="19"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+
+    <!-- Position the support rails in the timing layer -->
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:Rail1"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="4.7368421*deg"/>
+      <Numeric name="RangeAngle" value="350.52632*deg"/>
+      <Numeric name="RadiusIn" value="1149*mm"/>
+      <Numeric name="RadiusOut" value="1149*mm"/>
+      <Numeric name="ZPosition" value="1240.0*mm"/>
+      <Numeric name="Number" value="38"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:Rail1"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="4.7368421*deg"/>
+      <Numeric name="RangeAngle" value="350.52632*deg"/>
+      <Numeric name="RadiusIn" value="1149*mm"/>
+      <Numeric name="RadiusOut" value="1149*mm"/>
+      <Numeric name="ZPosition" value="-1240.0*mm"/>
+      <Numeric name="Number" value="38"/>
+      <Numeric name="StartCopyNo" value="39"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:Rail2"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="4.7368421*deg"/>
+      <Numeric name="RangeAngle" value="350.52632*deg"/>
+      <Numeric name="RadiusIn" value="1161.65*mm"/>
+      <Numeric name="RadiusOut" value="1161.65*mm"/>
+      <Numeric name="ZPosition" value="1240.0*mm"/>
+      <Numeric name="Number" value="38"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:Rail2"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="4.7368421*deg"/>
+      <Numeric name="RangeAngle" value="350.52632*deg"/>
+      <Numeric name="RadiusIn" value="1161.65*mm"/>
+      <Numeric name="RadiusOut" value="1161.65*mm"/>
+      <Numeric name="ZPosition" value="-1240.0*mm"/>
+      <Numeric name="Number" value="38"/>
+      <Numeric name="StartCopyNo" value="39"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:Rail3"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="4.7368421*deg"/>
+      <Numeric name="RangeAngle" value="350.52632*deg"/>
+      <Numeric name="RadiusIn" value="1176.25*mm"/>
+      <Numeric name="RadiusOut" value="1176.25*mm"/>
+      <Numeric name="ZPosition" value="1286*mm"/>
+      <Numeric name="Number" value="38"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:Rail3"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="4.7368421*deg"/>
+      <Numeric name="RangeAngle" value="350.52632*deg"/>
+      <Numeric name="RadiusIn" value="1176.25*mm"/>
+      <Numeric name="RadiusOut" value="1176.25*mm"/>
+      <Numeric name="ZPosition" value="-1286*mm"/>
+      <Numeric name="Number" value="38"/>
+      <Numeric name="StartCopyNo" value="39"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+
+    <!-- Position the BTL seals in the timing layer -->
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:Seal"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="-90.0*deg"/>
+      <Numeric name="RangeAngle" value="180.0*deg"/>
+      <Numeric name="RadiusIn" value="0*mm"/>
+      <Numeric name="RadiusOut" value="0*mm"/>
+      <Numeric name="ZPosition" value="2652.0*mm"/>
+      <Numeric name="Number" value="2"/>
+      <Numeric name="StartCopyNo" value="1"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerPhiAltAlgo">
+      <rParent name="btl:Layer1Timing"/>
+      <String name="ChildName" value="btl:Seal"/>
+      <Numeric name="Tilt" value="0*deg"/>
+      <Numeric name="StartAngle" value="-90.0*deg"/>
+      <Numeric name="RangeAngle" value="180.0*deg"/>
+      <Numeric name="RadiusIn" value="0*mm"/>
+      <Numeric name="RadiusOut" value="0*mm"/>
+      <Numeric name="ZPosition" value="-2652.0*mm"/>
+      <Numeric name="Number" value="2"/>
+      <Numeric name="StartCopyNo" value="3"/>
+      <Numeric name="IncrCopyNo" value="1"/>
+    </Algorithm>
+
+   </PosPartSection>
+
+</DDDefinition>

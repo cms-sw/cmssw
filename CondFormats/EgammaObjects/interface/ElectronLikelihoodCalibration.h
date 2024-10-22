@@ -5,24 +5,21 @@
 
 #include "CondFormats/EgammaObjects/interface/ElectronLikelihoodCategoryData.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
+
 #include <vector>
+#include <atomic>
 
-struct ElectronLikelihoodCalibration 
-{
-
+struct ElectronLikelihoodCalibration {
   struct Entry {
-    
     ElectronLikelihoodCategoryData category;
     PhysicsTools::Calibration::HistogramF histogram;
 
-  
-  COND_SERIALIZABLE;
-};
+    COND_SERIALIZABLE;
+  };
 
   std::vector<Entry> data;
-  
 
   COND_SERIALIZABLE;
 };
 
-#endif //ElectronLikelihoodCalibration_h
+#endif  //ElectronLikelihoodCalibration_h

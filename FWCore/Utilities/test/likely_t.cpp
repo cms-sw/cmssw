@@ -6,16 +6,16 @@
 namespace {
   bool test(int n) {
     bool ret=true;
-    if (likely(n>1)) ret&=true; 
+    if (LIKELY(n>1)) ret&=true; 
     else
       ret=false;
     
-    if (unlikely(n>1)) ret&=true;
+    if (UNLIKELY(n>1)) ret&=true;
     else
       ret =false;
 
-    ret &=likely(n>1);
-    ret &=unlikely(n>1);
+    ret &=LIKELY(n>1);
+    ret &=UNLIKELY(n>1);
     return ret;
   }
 }

@@ -18,10 +18,10 @@
  */
 
 class L1GctEmLeafCard : public L1GctProcessor {
- public:
+public:
   static const unsigned N_SORTERS;
 
- public:
+public:
   /// construct with ID
   L1GctEmLeafCard(int id);
   ///
@@ -35,7 +35,7 @@ class L1GctEmLeafCard : public L1GctProcessor {
   void fetchInput() override;
   ///
   /// process the event
-  void process() override;	
+  void process() override;
   ///
   /// define the bunch crossing range to process
   void setBxRange(const int firstBx, const int numberOfBx);
@@ -53,15 +53,14 @@ class L1GctEmLeafCard : public L1GctProcessor {
   std::vector<L1GctEmCand> getOutputNonIsoEmCands(int fpga);
   ///
   /// overload of cout operator
-  friend std::ostream& operator<<(std::ostream& s,const L1GctEmLeafCard& card);
+  friend std::ostream& operator<<(std::ostream& s, const L1GctEmLeafCard& card);
 
-  L1GctElectronSorter* getIsoElectronSorterU1()    { return m_sorters.at(0); }
+  L1GctElectronSorter* getIsoElectronSorterU1() { return m_sorters.at(0); }
   L1GctElectronSorter* getNonIsoElectronSorterU1() { return m_sorters.at(1); }
-  L1GctElectronSorter* getIsoElectronSorterU2()    { return m_sorters.at(2); }
+  L1GctElectronSorter* getIsoElectronSorterU2() { return m_sorters.at(2); }
   L1GctElectronSorter* getNonIsoElectronSorterU2() { return m_sorters.at(3); }
 
- protected:
-
+protected:
   /// Separate reset methods for the processor itself and any data stored in pipelines
   void resetProcessor() override {}
   void resetPipelines() override {}
@@ -72,11 +71,10 @@ class L1GctEmLeafCard : public L1GctProcessor {
 private:
   /// card ID (0 or 1)
   int m_id;
-  ///  
+  ///
   /// processing - 0,2 are iso sorters, 1,3 are non-iso
   std::vector<L1GctElectronSorter*> m_sorters;
-  
 };
 
-std::ostream& operator<<(std::ostream& s,const L1GctEmLeafCard& card);
+std::ostream& operator<<(std::ostream& s, const L1GctEmLeafCard& card);
 #endif /*L1GCTELECTRONLEAFCARD_H_*/

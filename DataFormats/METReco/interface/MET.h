@@ -35,46 +35,51 @@
 #include <Math/SVector.h>
 
 //____________________________________________________________________________||
-namespace reco
-{
-  typedef ROOT::Math::SMatrix<double,2> METCovMatrix;
-  
-  class MET : public RecoCandidate
-  {
+namespace reco {
+  typedef ROOT::Math::SMatrix<double, 2> METCovMatrix;
+
+  class MET : public RecoCandidate {
   public:
-
     MET();
-    MET( const LorentzVector& p4_, const Point& vtx_ );
-    MET( double sumet_, const LorentzVector& p4_, const Point& vtx_ );
-    MET( double sumet_, const std::vector<CorrMETData>& corr_,
-	 const LorentzVector& p4_, const Point& vtx_ );
+    MET(const LorentzVector& p4_, const Point& vtx_, bool isWeighted = false);
+    MET(double sumet_, const LorentzVector& p4_, const Point& vtx_, bool isWeighted = false);
+    MET(double sumet_,
+        const std::vector<CorrMETData>& corr_,
+        const LorentzVector& p4_,
+        const Point& vtx_,
+        bool isWeighted = false);
 
-    MET * clone() const override;
+    MET* clone() const override;
 
     //________________________________________________________________________||
     //scalar sum of transverse energy over all objects
     double sumEt() const { return sumet; }
     //MET Significance = MET / std::sqrt(SumET)
-    double mEtSig() const { return ( sumet ? (this->et() / std::sqrt(sumet)) : (0.0) ); }
+    double mEtSig() const { return (sumet ? (this->et() / std::sqrt(sumet)) : (0.0)); }
     //real MET significance
     double significance() const;
     //longitudinal component of the vector sum of energy over all object
     //(useful for data quality monitoring)
-    double e_longitudinal() const {return elongit; }
+    double e_longitudinal() const { return elongit; }
 
     //________________________________________________________________________||
     //Define different methods for the corrections to individual MET elements
-    std::vector<double> dmEx() const ;
-    std::vector<double> dmEy() const ;
-    std::vector<double> dsumEt() const ;
+    std::vector<double> dmEx() const;
+    std::vector<double> dmEy() const;
+    std::vector<double> dsumEt() const;
     std::vector<CorrMETData> mEtCorr() const { return corr; }
 
     //________________________________________________________________________||
     void setSignificanceMatrix(const reco::METCovMatrix& matrix);
     reco::METCovMatrix getSignificanceMatrix(void) const;
 
+    ///  Set boolean if weights were applied by algorithm (e.g. PUPPI weights)
+    void setIsWeighted(bool isWeighted) { mIsWeighted = isWeighted; }
+    ///  boolean if weights were applied by algorithm (e.g. PUPPI weights)
+    int isWeighted() const { return mIsWeighted; }
+
   private:
-    bool overlap( const Candidate & ) const override;
+    bool overlap(const Candidate&) const override;
     double sumet;
     double elongit;
     // bookkeeping for the significance
@@ -83,8 +88,9 @@ namespace reco
     double signif_dyx;
     double signif_dxy;
     std::vector<CorrMETData> corr;
+    bool mIsWeighted;
   };
-}
+}  // namespace reco
 
 //____________________________________________________________________________||
-#endif // METRECO_MET_H
+#endif  // METRECO_MET_H

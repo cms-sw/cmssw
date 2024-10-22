@@ -37,6 +37,7 @@ pfRecoTauDiscriminationAgainstElectron2 = cms.EDProducer("PFRecoTauDiscriminatio
     GammaEtaMom_endcap_max = cms.double(1.5),
     GammaPhiMom_endcap_max = cms.double(1.5),
     GammaEnFrac_endcap_max = cms.double(0.2),
+    verbosity = cms.int32(0)
 )
 
 

@@ -1,4 +1,4 @@
-// \class JetTracksAssociatorAtVertex JetTracksAssociatorAtVertex.cc 
+// \class JetTracksAssociatorAtVertex JetTracksAssociatorAtVertex.cc
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
@@ -17,21 +17,21 @@
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRVertexAssigned.h"
 
 class JetTracksAssociatorAtVertex : public edm::stream::EDProducer<> {
-   public:
-      JetTracksAssociatorAtVertex(const edm::ParameterSet&);
-      ~JetTracksAssociatorAtVertex() override;
+public:
+  JetTracksAssociatorAtVertex(const edm::ParameterSet&);
+  ~JetTracksAssociatorAtVertex() override;
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-   private:
-     edm::EDGetTokenT<edm::View <reco::Jet>> mJets;
-     edm::EDGetTokenT<reco::TrackCollection> mTracks;
+private:
+  edm::EDGetTokenT<edm::View<reco::Jet>> mJets;
+  edm::EDGetTokenT<reco::TrackCollection> mTracks;
 
-     int mTrackQuality;
-     JetTracksAssociationDRVertex mAssociator;
-     JetTracksAssociationDRVertexAssigned mAssociatorAssigned;
-     bool useAssigned;   /// if true, use the track/jet association with vertex assignment to tracks
-     edm::EDGetTokenT<reco::VertexCollection> pvSrc; /// if useAssigned, will read this PV collection. 
+  int mTrackQuality;
+  JetTracksAssociationDRVertex mAssociator;
+  JetTracksAssociationDRVertexAssigned mAssociatorAssigned;
+  bool useAssigned;  /// if true, use the track/jet association with vertex assignment to tracks
+  edm::EDGetTokenT<reco::VertexCollection> pvSrc;  /// if useAssigned, will read this PV collection.
 };
 
 #endif

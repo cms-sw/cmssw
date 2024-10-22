@@ -2,65 +2,73 @@ import FWCore.ParameterSet.Config as cms
 
 # TrackingMonitor ####
 # Clone for Cosmic Track Finder
-import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
-TrackMon_cosmicTk = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
-TrackMon_cosmicTk.TrackProducer                    = 'cosmictrackfinderP5'
-TrackMon_cosmicTk.AlgoName                         = 'CosmicTk'
-TrackMon_cosmicTk.FolderName                       = 'Tracking/TrackParameters'
-TrackMon_cosmicTk.doSeedParameterHistos            = True
+from DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi import *
+TrackMon_cosmicTk = TrackerCosmicTrackMon.clone(
+    TrackProducer = 'cosmictrackfinderP5',
+    AlgoName = 'CosmicTk',
+    FolderName = 'Tracking/TrackParameters',
+    doSeedParameterHistos = True
+)
 
 # Clone for CKF Tracks
-import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
-TrackMon_ckf = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
-TrackMon_ckf.TrackProducer                         = 'ctfWithMaterialTracksP5'
-TrackMon_ckf.AlgoName                              = 'CKFTk'
-TrackMon_ckf.FolderName                            = 'Tracking/TrackParameters'
-TrackMon_ckf.doSeedParameterHistos                 = True
+from DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi import *
+TrackMon_ckf = TrackerCosmicTrackMon.clone(
+    TrackProducer = 'ctfWithMaterialTracksP5',
+    AlgoName = 'CKFTk',
+    FolderName = 'Tracking/TrackParameters',
+    doSeedParameterHistos = True
+)
 
 # Clone for Road Search  Tracks
-#import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
-#TrackMon_rs = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
-#TrackMon_rs.TrackProducer                          = 'rsWithMaterialTracksP5'
-#TrackMon_rs.AlgoName                               = 'RSTk'
-#TrackMon_rs.FolderName                             = 'Tracking/TrackParameters'
-#TrackMon_rs.doSeedParameterHistos                  = True
+from DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi import *
+TrackMon_rs = TrackerCosmicTrackMon.clone(
+    TrackProducer = 'rsWithMaterialTracksP5',
+    AlgoName = 'RSTk',
+    FolderName = 'Tracking/TrackParameters',
+    doSeedParameterHistos = True
+)
 
 # Clone for Beam Halo Muon Tracks
-import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
-TrackMon_bhmuon = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
-TrackMon_bhmuon.TrackProducer                      = 'ctfWithMaterialTracksBeamHaloMuon'
-TrackMon_bhmuon.AlgoName                           = 'BHMuonTk'
-TrackMon_bhmuon.FolderName                         = 'Tracking/TrackParameters'
-TrackMon_bhmuon.doSeedParameterHistos              = True
+# from DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi import *
+# TrackMon_bhmuon = TrackerCosmicTrackMon.clone(
+#     TrackProducer = 'ctfWithMaterialTracksBeamHaloMuon',
+#     AlgoName = 'BHMuonTk',
+#     FolderName = 'Tracking/TrackParameters',
+#     doSeedParameterHistos = True
+# )
 
 # Tracking Efficiency
 # Clone for Cosmic Tracks
-import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
-TrackEffMon_cosmicTk = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
-TrackEffMon_cosmicTk.TKTrackCollection             = 'cosmictrackfinderP5'
-TrackEffMon_cosmicTk.AlgoName                      = 'CosmicTk'
-TrackEffMon_cosmicTk.FolderName                    = 'Tracking/TrackParameters/TrackEfficiency'
+from DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi import *
+TrackEffMon_cosmicTk = TrackEffMon.clone( 
+    TKTrackCollection = 'cosmictrackfinderP5',
+    AlgoName = 'CosmicTk',
+    FolderName = 'Tracking/TrackParameters/TrackEfficiency'
+)
 
 # Clone for CKF Tracks
-import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
-TrackEffMon_ckf = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
-TrackEffMon_ckf.TKTrackCollection                  = 'ctfWithMaterialTracksP5'
-TrackEffMon_ckf.AlgoName                           = 'CKFTk'
-TrackEffMon_ckf.FolderName                         = 'Tracking/TrackParameters/TrackEfficiency'
+from DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi import *
+TrackEffMon_ckf = TrackEffMon.clone( 
+    TKTrackCollection = 'ctfWithMaterialTracksP5',
+    AlgoName = 'CKFTk',
+    FolderName = 'Tracking/TrackParameters/TrackEfficiency'
+)
 
 # Clone for RS Tracks
-#import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
-#TrackEffMon_rs = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
-#TrackEffMon_rs.TKTrackCollection                   = 'rsWithMaterialTracksP5'
-#TrackEffMon_rs.AlgoName                            = 'RSTk'
-#TrackEffMon_rs.FolderName                          = 'Tracking/TrackParameters/TrackEfficiency'
+# from DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi import *
+# TrackEffMon_rs = TrackEffMon.clone( 
+#     TKTrackCollection = 'rsWithMaterialTracksP5',
+#     AlgoName = 'RSTk',
+#     FolderName = 'Tracking/TrackParameters/TrackEfficiency'
+# )
 
 # Clone for Beam Halo  Tracks
-import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
-TrackEffMon_bhmuon = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
-TrackEffMon_bhmuon.TKTrackCollection               = 'ctfWithMaterialTracksBeamHaloMuon'
-TrackEffMon_bhmuon.AlgoName                        = 'BHMuonTk'
-TrackEffMon_bhmuon.FolderName                      = 'Tracking/TrackParameters/TrackEfficiency'
+from DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi import *
+TrackEffMon_bhmuon = TrackEffMon.clone( 
+    TKTrackCollection = 'ctfWithMaterialTracksBeamHaloMuon',
+    AlgoName = 'BHMuonTk',
+    FolderName = 'Tracking/TrackParameters/TrackEfficiency'
+)
 
 # Split Tracking
 from  DQM.TrackingMonitor.TrackSplittingMonitor_cfi import *
@@ -75,10 +83,11 @@ from DQM.TrackingMonitorSource.LogMessageMonitor_cff import *
 
 for module in selectedModules4cosmics :
     label = str(module)+'LogMessageMon'
-    locals()[label] = LogMessageMonCommon.clone()
-    locals()[label].pluginsMonName = pluginsMonName[module]
-    locals()[label].modules        = modulesLabel[module]
-    locals()[label].categories     = categories[module]
+    locals()[label] = LogMessageMonCommon.clone(
+        pluginsMonName = pluginsMonName[module],
+        modules = modulesLabel[module],
+        categories = categories[module]
+    )
     locals()[label].setLabel(label)
 
 # DQM Services

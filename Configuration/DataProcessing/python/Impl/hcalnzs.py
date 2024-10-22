@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 _hcalnzs_
 
@@ -16,7 +16,6 @@ class hcalnzs(pp):
         pp.__init__(self)
         self.recoSeq=':reconstruction_HcalNZS'
         self.cbSc='pp'
-        self.addEI=True
     """
     _hcalnzs_
 

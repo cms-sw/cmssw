@@ -1,28 +1,18 @@
 #include "Geometry/GEMGeometry/interface/GEMRing.h"
 #include "Geometry/GEMGeometry/interface/GEMSuperChamber.h"
 
-GEMRing::GEMRing(int region, int station, int ring) : 
-  region_(region),
-  station_(station),
-  ring_(ring)
-{}
+GEMRing::GEMRing(int region, int station, int ring) : region_(region), station_(station), ring_(ring) {}
 
-GEMRing::~GEMRing(){}
+GEMRing::~GEMRing() {}
 
-std::vector<GEMDetId> GEMRing::ids() const {
-  return detIds_;
-}
+std::vector<GEMDetId> GEMRing::ids() const { return detIds_; }
 
 bool GEMRing::operator==(const GEMRing& ri) const {
-  return ( region_ == ri.region() && 
-	   station_ == ri.station() &&
-	   ring_ == ri.ring() );
+  return (region_ == ri.region() && station_ == ri.station() && ring_ == ri.ring());
 }
 
-void GEMRing::add(GEMSuperChamber* sch) {
-  superChambers_.emplace_back(sch);
-}
-  
+void GEMRing::add(GEMSuperChamber* sch) { superChambers_.emplace_back(sch); }
+
 std::vector<const GeomDet*> GEMRing::components() const {
   std::vector<const GeomDet*> result;
   for (auto sch : superChambers_) {
@@ -32,12 +22,11 @@ std::vector<const GeomDet*> GEMRing::components() const {
   return result;
 }
 
-const GeomDet* GEMRing::component(DetId id) const {
-  return superChamber(GEMDetId(id.rawId()));
-}
+const GeomDet* GEMRing::component(DetId id) const { return superChamber(GEMDetId(id.rawId())); }
 
 const GEMSuperChamber* GEMRing::superChamber(GEMDetId id) const {
-  if (id.region()!=region_ || id.station()!=station_ || id.ring()!=ring_) return nullptr; // not in this station
+  if (id.region() != region_ || id.station() != station_ || id.ring() != ring_)
+    return nullptr;  // not in this station
   return superChamber(id.chamber());
 }
 
@@ -49,23 +38,13 @@ const GEMSuperChamber* GEMRing::superChamber(int isch) const {
   }
   return nullptr;
 }
-  
-const std::vector<const GEMSuperChamber*>& GEMRing::superChambers() const {
-  return superChambers_;
-}
 
-int GEMRing::nSuperChambers() const {
-  return superChambers_.size();
-}
+const std::vector<const GEMSuperChamber*>& GEMRing::superChambers() const { return superChambers_; }
 
-int GEMRing::region() const {
-  return region_;
-}
-  
-int GEMRing::station() const {
-  return station_;
-}
-  
-int GEMRing::ring() const {
-  return ring_;
-}
+int GEMRing::nSuperChambers() const { return superChambers_.size(); }
+
+int GEMRing::region() const { return region_; }
+
+int GEMRing::station() const { return station_; }
+
+int GEMRing::ring() const { return ring_; }

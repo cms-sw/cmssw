@@ -4,7 +4,7 @@
 //
 // Package:     HcalDbProducer
 // Class  :     HcalDbRecord
-// 
+//
 /**\class HcalDbRecord HcalDbRecord.h CalibFormats/HcalDbProducer/interface/HcalDbRecord.h
 
  Description: <one line class summary>
@@ -14,10 +14,10 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Tue Aug  9 19:10:36 CDT 2005
 //
-#include "boost/mpl/vector/vector30.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 // #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
@@ -27,11 +27,31 @@
 
 // class HcalDbRecord : public edm::eventsetup::EventSetupRecordImplementation<HcalDbRecord> {};
 
-class HcalDbRecord : public edm::eventsetup::DependentRecordImplementation <HcalDbRecord,  
-  boost::mpl::vector23<HcalRecNumberingRecord, IdealGeometryRecord, HcalPedestalsRcd, HcalPedestalWidthsRcd, HcalGainsRcd, HcalGainWidthsRcd, 
-  HcalQIEDataRcd, HcalQIETypesRcd, HcalChannelQualityRcd, HcalZSThresholdsRcd, HcalRespCorrsRcd, 
-  HcalL1TriggerObjectsRcd, HcalElectronicsMapRcd, HcalTimeCorrsRcd, HcalLUTCorrsRcd, HcalPFCorrsRcd,
-  HcalFrontEndMapRcd, HcalSiPMCharacteristicsRcd, HcalSiPMParametersRcd, HcalTPParametersRcd, HcalTPChannelParametersRcd,
-  HcalLutMetadataRcd, HcalMCParamsRcd > > {}; 
+class HcalDbRecord : public edm::eventsetup::DependentRecordImplementation<HcalDbRecord,
+                                                                           edm::mpl::Vector<HcalRecNumberingRecord,
+                                                                                            IdealGeometryRecord,
+                                                                                            HcalPedestalsRcd,
+                                                                                            HcalPedestalWidthsRcd,
+                                                                                            HcalGainsRcd,
+                                                                                            HcalGainWidthsRcd,
+                                                                                            HcalQIEDataRcd,
+                                                                                            HcalQIETypesRcd,
+                                                                                            HcalChannelQualityRcd,
+                                                                                            HcalZSThresholdsRcd,
+                                                                                            HcalRespCorrsRcd,
+                                                                                            HcalL1TriggerObjectsRcd,
+                                                                                            HcalElectronicsMapRcd,
+                                                                                            HcalTimeCorrsRcd,
+                                                                                            HcalLUTCorrsRcd,
+                                                                                            HcalPFCorrsRcd,
+                                                                                            HcalFrontEndMapRcd,
+                                                                                            HcalSiPMCharacteristicsRcd,
+                                                                                            HcalSiPMParametersRcd,
+                                                                                            HcalTPParametersRcd,
+                                                                                            HcalTPChannelParametersRcd,
+                                                                                            HcalLutMetadataRcd,
+                                                                                            HcalMCParamsRcd,
+                                                                                            HcalRecoParamsRcd,
+                                                                                            HcalTimeSlewRecord> > {};
 
 #endif /* HCALDBPRODUCER_HCALDBRECORD_H */

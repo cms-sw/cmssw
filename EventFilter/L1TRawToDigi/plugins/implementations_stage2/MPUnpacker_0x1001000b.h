@@ -7,12 +7,13 @@ namespace l1t {
   namespace stage2 {
     class MPUnpacker_0x1001000b : public Unpacker {
     public:
-      enum { BLK_TOT_POS=123, BLK_X_POS=121, BLK_Y_POS=127, BLK_TOT_NEG=125, BLK_X_NEG=131, BLK_Y_NEG=129};
-      bool unpack(const Block& block, UnpackerCollections *coll) override;
+      enum { BLK_TOT_POS = 123, BLK_X_POS = 121, BLK_Y_POS = 127, BLK_TOT_NEG = 125, BLK_X_NEG = 131, BLK_Y_NEG = 129 };
+      bool unpack(const Block& block, UnpackerCollections* coll) override;
+
     private:
       int etaSign(int blkId);
     };
-  }
-}
+  }  // namespace stage2
+}  // namespace l1t
 
 #endif

@@ -1,36 +1,38 @@
 #ifndef STORAGE_FACTORY_LOCAL_FILE_SYSTEM_H
-# define STORAGE_FACTORY_LOCAL_FILE_SYSTEM_H
-# include <vector>
-# include <string>
+#define STORAGE_FACTORY_LOCAL_FILE_SYSTEM_H
+#include <vector>
+#include <string>
 #include <utility>
 
 struct stat;
 struct statfs;
 struct mntent;
 
-class LocalFileSystem
-{
-  struct FSInfo;
-public:
-  LocalFileSystem(void);
-  ~LocalFileSystem(void);
+namespace edm::storage {
+  class LocalFileSystem {
+    struct FSInfo;
 
-  bool		isLocalPath(const std::string &path) const;
-  std::pair<std::string, std::string>	findCachePath(const std::vector<std::string> &paths, double minFreeSpace) const;
+  public:
+    LocalFileSystem(void);
 
-private:
-  int		readFSTypes(void);
-  FSInfo *	initFSInfo(void *p);
-  int		initFSList(void);
-  int		statFSInfo(FSInfo *i) const;
-  FSInfo *	findMount(const char *path, struct statfs *sfs, struct stat *s, std::vector<std::string> &) const;
+    // undefined, no semantics
+    LocalFileSystem(LocalFileSystem &) = delete;
+    void operator=(LocalFileSystem &) = delete;
 
-  std::vector<FSInfo *> fs_;
-  std::vector<std::string> fstypes_;
+    ~LocalFileSystem(void);
 
-  // undefined, no semantics
-  LocalFileSystem(LocalFileSystem &) = delete;
-  void operator=(LocalFileSystem &) = delete;
-};
+    bool isLocalPath(const std::string &path) const;
+    std::pair<std::string, std::string> findCachePath(const std::vector<std::string> &paths, double minFreeSpace) const;
 
-#endif // STORAGE_FACTORY_LOCAL_FILE_SYSTEM_H
+  private:
+    int readFSTypes(void);
+    FSInfo *initFSInfo(void *p);
+    int initFSList(void);
+    int statFSInfo(FSInfo *i) const;
+    FSInfo *findMount(const char *path, struct statfs *sfs, struct stat *s, std::vector<std::string> &) const;
+
+    std::vector<FSInfo *> fs_;
+    std::vector<std::string> fstypes_;
+  };
+}  // namespace edm::storage
+#endif  // STORAGE_FACTORY_LOCAL_FILE_SYSTEM_H

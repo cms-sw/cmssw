@@ -7,19 +7,15 @@
  *  General-purpose detector related functions
  */
 class EcalCommon {
-
   /******************\
   -  public methods  -
   \******************/
 
- public:
-
+public:
   /**
    *  Convert a supermodule crystal number to a trigger tower number
    */
-  static int crystalToTriggerTower( int xtal )
-    noexcept(false);
-
+  static int crystalToTriggerTower(int xtal) noexcept(false);
 };
 
 #endif

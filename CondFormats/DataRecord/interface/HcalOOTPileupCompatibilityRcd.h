@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     HcalOOTPileupCompatibilityRcd
-// 
+//
 /**\class HcalOOTPileupCompatibilityRcd HcalOOTPileupCompatibilityRcd.h CondFormats/DataRecord/interface/HcalOOTPileupCompatibilityRcd.h
 
  Description: record for storing OOT pileup mitigation parameters
@@ -20,7 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class HcalOOTPileupCompatibilityRcd : public edm::eventsetup::EventSetupRecordImplementation<HcalOOTPileupCompatibilityRcd> {};
+class HcalOOTPileupCompatibilityRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<HcalOOTPileupCompatibilityRcd> {};
 
-#endif // CondFormats_HcalOOTPileupCompatibilityRcd_h
-
+#endif  // CondFormats_HcalOOTPileupCompatibilityRcd_h

@@ -9,21 +9,20 @@
 contains one response correction factor value + corresponding DetId
 */
 
-class HcalRespCorr
-{
- public:
-  HcalRespCorr(): mId(0), mValue(0) {}
-  HcalRespCorr(unsigned long fid, float value): mId(fid), mValue(value) {}
+class HcalRespCorr {
+public:
+  HcalRespCorr() : mId(0), mValue(0) {}
+  HcalRespCorr(unsigned long fid, float value) : mId(fid), mValue(value) {}
 
-  uint32_t rawId() const {return mId;}
+  uint32_t rawId() const { return mId; }
 
-  float getValue() const {return mValue;}
+  float getValue() const { return mValue; }
 
- private:
+private:
   uint32_t mId;
   float mValue;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

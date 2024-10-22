@@ -2,7 +2,7 @@
 //
 // Package:     CommonTools/Utils
 // Class  :     reco::formula::ConstantEvaluator
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,11 +15,14 @@
 // user include files
 #include "formulaConstantEvaluator.h"
 
-
 namespace reco {
   namespace formula {
     double ConstantEvaluator::evaluate(double const* /*iVariables*/, double const* /*iParameters*/) const {
       return m_value;
     }
-  }
-}
+
+    std::vector<std::string> ConstantEvaluator::abstractSyntaxTree() const {
+      return std::vector<std::string>{1, std::to_string(m_value)};
+    }
+  }  // namespace formula
+}  // namespace reco

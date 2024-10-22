@@ -1,0 +1,227 @@
+========================================================================================================= AMT RGSM readme:
+Algorithm:
+---------
+1. Use local LED runs taken during p-p collisions of 2016 and 2017;
+2. For each run and each HE ijk-channel (i=depth, j=eta, k=phi) 
+     use <Aijk> - Ampitude averaged over events of run,
+where Amplitude: adcCounts collected either over 4 TSs(-1,max,+1,+2) or 
+                                                    over all TSs(for x-check), w/o pedestal subtraction;
+3. Use root files produced by RMT, where these Amplitudes are available in histoes;
+4. Criteria for run selection: 
+ - runs or/and channels with abnormal behavior are rejected;
+(abnormal behavior means:
+for channels: <Aijk> within some limits; for runs: R(see below)  within some limits; )
+5. averaging over depthes: <Aijk>  -->    <Ajk>_depth 
+6. Define R = <Ajk>_depth / <Ajk_ref>_depth
+7. Plots: R vs t (days)
+8 Runs selected:
+Use 
+=========================================================================================================  !!! how to see last local runs taken:
+ssh lxplus
+cd /eos/cms/store/group/dpg_hcal/comm_hcal/USC
+ls -latr run309573
+ls -latr
+=========================================================================================================  !!! how can remove dirs in CMT DIRECTLY!!!
+ssh lxplus
+cd /eos/cms/store/group/dpg_hcal/comm_hcal
+ll
+cd /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT
+cd /afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMweb/histos/   *root  files
+/afs/cern.ch/work/k/kodolova/public/RDMweb    directories
+/afs/cern.ch/work/k/kodolova/public/RDMweb/histos
+cd /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/
+
+posle zapuska RMT dlya sozdaniya root files:
+cd /afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMweb/histos/
+ll > /afs/cern.ch/work/z/zhokin/hcal/soc7/CMSSW_10_4_0/src/RecoHcal/HcalPromptAnalysis/test/SHIFTER_VALIDATION/Cscripts/zzzlist.010319RDMweb
+
+posle zapuska scriptov postroeniya plotov RMT:
+cd /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/RMT/
+ll > /afs/cern.ch/work/z/zhokin/hcal/soc7/CMSSW_10_4_0/src/RecoHcal/HcalPromptAnalysis/test/SHIFTER_VALIDATION/Cscripts/zzzlist.010319
+
+
+
+
+======= selected are:
+2016 : 81 runs since 10.05.2016 up to 15.11.2016
+(1st run 272946 in the list below is a reference run)
+"272946","272947","273117","273234","273316","273455","273557","273604","273616","273648", "273757","273763","273770","273894","273961","274752","274890","275013","275265","275430", "275457","275697","275807","275864","276081","276402","276416","276461","276462","276463", "276476","276520","276531","276554","276600","276678","277132","277172","277336","277511", "278596","278897","279058","279096", "279723", "279908","280200","280262","280379","281059","281362","281458","281645","281735","282462", "282726","282775","282776","282847","283010","283013","283098","283099","283101","283102", "283103","283104","283111","283296","283370","283398","283440","283442","283536","284124", "284184","284188", "284878","285101","285224","285349"
+and 81 corresponding days:
+1., 1., 2., 3., 5., 7., 10., 11., 11., 11., 15., 15., 15., 16., 17., 31., 35., 39., 41., 46., 46., 49., 51., 53., 55., 60., 60., 62., 62., 62., 62., 63., 64., 65., 66., 67., 77., 78., 80., 82., 96., 102., 105., 106., 115., 119., 123., 124., 125., 135., 139., 140., 143., 145., 153., 156., 157., 157., 158., 159., 159., 160., 160., 160., 160., 160., 160., 160., 162., 164., 164., 165., 165., 166., 175., 176., 176., 186., 188., 191., 193.
+(for reference run the day is equal 1)
+
+2017 : 22 runs since 28.05.2017 up to 07.11.2017
+(1st run 295401 in the list below is a reference run)
+"295401","295675","296185","296808","297082","297522","297571","297630","297687","298863", "299468","302183","302246","302585","304276","304432","304526","305142","305485","305711", "305886","306249"
+and 22 corresponding days:
+1., 4., 10., 18., 21., 30., 31., 32., 33., 46., 54., 97., 98., 106., 128., 130., 132., 142., 149., 152., 156., 164. 
+
+ 2018 : 73 runs since 07.05.2018 up to 02.12.2018
+(1st run 315812 in the list below is a reference run)
+"315812","315984","316826","317116","317193","317268","317271","317273","317363","317444","317606","317607","317609","317610","317611","317612","317613","317617","317785","318758","319198","319401","319517","319519","319520", "319564","319612","319734","319771","319774","319857","319969","320117","320158","320203","320205","320348","320579","320873","320892","320952","321019","321036","321187","321339","321359","321371","321447","321514","321853", "321874","322781","322782","323314","323502","323579","323613","323742","324030","324032","324138","324225","324296","324919","325141","325787","326234","326780","326875","327288","327438","327552","327579"
+and  73 corresponding days:
+(for reference run the day is equal 1)
+0., 2., 17., 22., 23., 24., 24., 24., 27., 29., 32., 32., 32., 32., 32., 32., 32., 32., 38., 51., 58., 63., 65., 65., 65., 66., 68., 70., 71., 71., 72., 74., 77., 78., 79., 79., 80., 85., 90., 91., 92., 93., 93., 98., 101., 101., 101., 104., 106., 112., 112., 129., 129., 138., 141., 142., 143., 146., 150., 150., 151., 153., 155., 165., 169., 179., 183., 193., 195., 203., 205., 208., 209. 
+
+
+
+
+9. Use AMT to provide visualization:
+https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/AMT/HE.html
+Summary:
+
+
+----------------------------------------------------------------------------------------
+
+========================================================================================================= AMT RADDAM readme:
+// see V.Epshteyn plots:
+acroread /afs/cern.ch/user/z/zhokin/public/html/RADDAM/Note_draft_v2.pdf 
+acroread ~/zppt/HE_RadDam_Oct_12_2018.pdf
+
+readme:
+======
+cd roc4/Cscripts
+setenv SCRAM_ARCH slc6_amd64_gcc530
+cmsenv
+voms-proxy-init -voms cms
+
+ln -s /afs/cern.ch/work/z/zhokin/hcal/roc4/CMSSW_9_2_14/src/RecoHcal/HcalPromptAnalysis/test/SHIFTER_VALIDATION/Cscripts raddam
+
+cd raddam
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!================================    latest info: see ~/zppt/zzzhcal42.pdf with results (/afs/cern.ch/user/z/zhokin/private/talk_gsm110218  )
+------------------------------------------------
+
+
+for RADDAM:
+------------------------------------------------ HE:
+Latest script for RADDAM is zamt5raddam.cc
+emacs Readme zamt5raddam.cc  &
+zamt5raddam.cc   znegamt5raddam.cc
+
+
+for GSM:
+------------------------------------------------ HE:
+zamt6raddam.cc for HPD channels 2017                              DONE  testamt6
+zamt6raddamHEP17.cc for HEP17 SiPM 2017                           DONE  testamt6HEP17
+zamt6raddamHEP178.cc for HEP17new & SiPM 20178                    DONE  testamt6HEP178
+
+zamt9gsm2018.cc      for SiPM 20178 shunt1 led-low-intensity      DONE  testamt9gsm2018
+zamtshunt6gsm2018.cc for SiPM 20178 shunt6 led                    DONE  testamtshunt6gsm2018            
+zamt0shunt6gsm2018.cc for SiPM 2018 shunt6 led                    DONE  testamt0shunt6gsm2018   last          
+
+zamt7raddam.cc for HPD channels 2016                              DONE
+zamt8raddam.cc for HPD channels 2016+2017                         DONE  testamt8
+------------------------------------------------
+zamt9raddam.cc for HPD channels 2016+2017 + between               NOT DONE, no sense
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  HB:
+for GSM:
+zamt5GSMHB.cc for HPD channels 2018                         DONE
+zamt6GSMHB.cc for HPD channels 2017                         DONE
+zamt7GSMHB.cc for HPD channels 2016                         DONE
+zamt8GSMHB.cc for HPD channels 2016+2017                    DONE
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  HO:
+for GSM:
+zamt5GSMHO.cc for HPD channels 2018                         DONE
+zamt6GSMHO.cc for HPD channels 2017                         DONE
+zamt7GSMHO.cc for HPD channels 2016                         DONE
+zamt8GSMHO.cc for HPD channels 2016+2017                    DONE
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  HF:
+for GSM:
+zamt5GSMHF.cc for HPD channels 2018                         DONE
+zamt5GSMHF.cc for HPD channels 2018                         DONE
+zamt6GSMHF.cc for HPD channels 2017                         DONE
+zamt7GSMHF.cc for HPD channels 2016                         DONE
+zamt8GSMHF.cc for HPD channels 2016+2017                    DONE
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!================================
+ln -s /afs/cern.ch/work/z/zhokin/hcal/soc7/CMSSW_10_4_0/src/RecoHcal/HcalPromptAnalysis/test/SHIFTER_VALIDATION/Cscripts raddam
+latest, 8.8.2019
+/afs/cern.ch/work/z/zhokin/hcal/soc7/CMSSW_10_4_0/src/RecoHcal/HcalPromptAnalysis/test/SHIFTER_VALIDATION/Cscripts
+zamt2019raddam.cc  2018
+dir. with PLOTs: amt2019raddam
+
+to start:
+./compile.csh zamt5raddam.cc
+./zamt5raddam.cc.exe
+
+plots to be copied into /afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/AMTweb/2016, 2016lin are here:
+cd raddam/testamt5
+
+zamt5raddam.cc allows to change flags: 
+
+1.flagcutamplitude - to reject channels with Aijk or with Mean-RMS of <Aijk> 
+ = 0 Acut    =1 (mean_with_kfactor +  cutMinA)       =2 (mean_with_k2factor*RMS +cutMinA)   <--- all works good; plots are perfect for flagcutamplitude=2 (default now)
+
+2. flaglumiuse - to select X-scale eirther days or Lumi.
+
+3. flaggaincorrections - to use gain corrections(now stable - no need to play)
+
+Produce plots as for HEP and HEM at the same time, and in adddition some control plots.
+(Est' varianty ispol'zovaniya A, A12, A12withPedestalSubtraction(in each TS), but default is A12, kak u V.Epshtejna)
+
+Script znegamt5raddam.cc - just for checks only HEP or HEM (not at the same time, change massive by hands)
+
+Visualization is in:
+/afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/AMTweb/
+/afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/AMTweb/2016, 2016lin
+
+cp *png /afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/AMTweb/2017/*
+
+
+
+
+Algorithm:
+1. Use local LASER runs during Stable Operation(protons only) of 2016
+[see CMS Fill Report:
+https://cmswbmoff.web.cern.ch/cmswbmoff/cmsdb/servlet/FillReport?N=12&BYLASTFILLS=TRUE&STABLE=TRUE
+https://cmswbm.cern.ch/cmsdb/servlet/FillReport?N=12&BYLASTFILLS=TRUE&STABLE=TRUE
+]
+
+2. For each run and each HE channel use Ampitude averaged over events of run (<Aijk>).
+Amplitude: adcCounts collected over 4 TSs(-1,max,+1,+2) w/o pedestal subtraction.
+Use RMT root files, where these Amplitudes are available.
+
+3. Apply gain corrections for <Aijk>: LED runs 272847(ref.) and 285349
+
+4. Choose reference runs(10.05.2016) for HEP and HEM (272957 and 272967)
+
+5. Define Rijk =  <Aijk> /  <Aijk>_ref and reject bad channels: Rijk < 40.
+
+6. phi-averaging: Rijk  -->    <Rij>_phi
+
+7. Define Rr = <Rij>_phi / <R_3_16>_phi
+
+8. Plots: Rr vs t (days, Lumi)
+
+9. Use AMT to provide visualization:
+[
+https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/AMT/HE.html
+]
+
+* to specify runlist:
+cd /afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMweb/histos/
+//ls *LASER*root > ~/raddam/zzzlist.61117
+ls *LASER*root > ~/raddam/zzzlist.71117
+ll *LASER*root |less
+ll *LED*root |less
+ls *LED*root > ~/raddam/zzzlist.200218
+
+//date=`cat zzzlist.61117 | awk '{print $7" "$8}'`
+date=`cat zzzlist.61117 | awk '{print $7" "$8}'`
+cat zzzlist.61117 | awk '{print $7" "$8}' > zzzlist.61117-1
+
+ls *LED*root > ~/raddam/zzzlist.120218
+date=`cat zzzlist.120218 | awk '{print $7" "$8}'`
+cat zzzlist.120218 | awk '{print $7" "$8}' > zzzlist.120218-1
+
+use emacs  rektangle
+select rektangle C-probel move strelki, a zatem:
+C-x r k  -ubit' rektangle
+
+========================================================================================================= 
+
+
+
+
+

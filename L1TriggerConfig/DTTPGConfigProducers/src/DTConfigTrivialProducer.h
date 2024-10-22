@@ -5,8 +5,9 @@
 //
 // Package:     DTTPGConfigProducers
 // Class:       DTConfigTrivialProducer
-// 
-/**\class  DTConfigTrivialProducer  DTConfigTrivialProducer.h L1TriggerConfig/DTTPGConfigProducers/interface/DTConfigTrivialProducer.h
+//
+/**\class  DTConfigTrivialProducer  DTConfigTrivialProducer.h
+ L1TriggerConfig/DTTPGConfigProducers/interface/DTConfigTrivialProducer.h
 
  Description: A Producer for the DT config available via EventSetup
 
@@ -19,14 +20,13 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -40,31 +40,28 @@
 
 class DTConfigTrivialProducer : public edm::ESProducer {
 public:
-  
   //! Constructor
-  DTConfigTrivialProducer(const edm::ParameterSet&);
+  DTConfigTrivialProducer(const edm::ParameterSet &);
 
   //! destructor
   ~DTConfigTrivialProducer() override;
 
   //! ES produce method
-  std::unique_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);
+  std::unique_ptr<DTConfigManager> produce(const DTConfigManagerRcd &);
 
 private:
-
   //! Build Config Manager
   void buildManager();
 
   //! Build Config Pedestals
   DTConfigPedestals buildTrivialPedestals();
 
-  std::string mapEntryName(const DTChamberId & chambid) const;
+  std::string mapEntryName(const DTChamberId &chambid) const;
 
   bool m_debug;
   edm::ParameterSet m_ps;
-  DTConfigManager* m_manager;
-  DTTPGParameters* m_tpgParams;
-
+  DTConfigManager *m_manager;
+  DTTPGParameters *m_tpgParams;
 };
 
 #endif

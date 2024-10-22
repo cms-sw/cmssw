@@ -20,13 +20,11 @@ class DDLElementRegistry;
  * PseudoTrap processor processes PseudoTrap element.
  *
  */
-class DDLPseudoTrap final : public DDLSolid
-{
- public:
+class DDLPseudoTrap final : public DDLSolid {
+public:
+  DDLPseudoTrap(DDLElementRegistry* myreg);
 
-  DDLPseudoTrap( DDLElementRegistry* myreg );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif

@@ -1,7 +1,8 @@
 ### AUTO-GENERATED CMSRUN CONFIGURATION FOR ECAL DQM ###
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("process")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("process", Run3)
 
 ### Load cfis ###
 
@@ -23,6 +24,7 @@ process.load("DQM.Integration.config.environment_cfi")
 process.load("FWCore.Modules.preScaler_cfi")
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.load("DQM.Integration.config.inputsource_cfi")
+from DQM.Integration.config.inputsource_cfi import options
 
 ### Individual module setups ###
 
@@ -157,11 +159,8 @@ process.preScaler.prescaleFactor = 1
 
 process.source.streamLabel = "streamDQMCalibration"
 
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecalcalib_reference.root"
-
 process.ecalPedestalMonitorTask.verbosity = 0
 process.ecalPedestalMonitorTask.commonParameters.onlineMode = True
-
 
 process.ecalLaserLedMonitorTask.verbosity = 0
 process.ecalLaserLedMonitorTask.collectionTags.EBLaserLedUncalibRecHit = "ecalLaserLedUncalibRecHit:EcalUncalibRecHitsEB"
@@ -182,12 +181,17 @@ process.ecalTestPulseMonitorTask.commonParameters.onlineMode = True
 
 process.ecalRecHit.EEuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEE"
 process.ecalRecHit.EBuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEB"
+process.ecalRecHit.timeCalibTag = ':'
+process.ecalRecHit.timeOffsetTag = ':'
 
 process.ecalPNDiodeMonitorTask.verbosity = 0
 process.ecalPNDiodeMonitorTask.commonParameters.onlineMode = True
 
-process.dqmEnv.subSystemFolder = cms.untracked.string('EcalCalibration')
-process.dqmSaver.tag = cms.untracked.string('EcalCalibration')
+process.dqmEnv.subSystemFolder = 'EcalCalibration'
+process.dqmSaver.tag = 'EcalCalibration'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'EcalCalibration'
+process.dqmSaverPB.runNumber = options.runNumber
 
 ### Sequences ###
 
@@ -202,7 +206,7 @@ process.ecalPedestalPath = cms.Path(process.preScaler+process.ecalPreRecoSequenc
 process.ecalClientPath = cms.Path(process.ecalCalibMonitorClient)
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv)
-process.dqmOutputPath = cms.EndPath(process.dqmSaver)
+process.dqmOutputPath = cms.EndPath(process.dqmSaver + process.dqmSaverPB)
 
 ### Schedule ###
 
@@ -210,4 +214,5 @@ process.schedule = cms.Schedule(process.ecalLaserLedPath,process.ecalTestPulsePa
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
+print("Final Source settings:", process.source)
 process = customise(process)

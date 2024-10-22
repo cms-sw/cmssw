@@ -1,0 +1,18 @@
+# This file contains the Effective Area (EA) constants for computing
+# PU-corrections for the variable charged hadron isolation (IsoC)
+#
+# https://indico.cern.ch/event/1204275/#5-update-on-run3-photon-cut-ba
+# https://indico.cern.ch/event/1204277/#5-update-on-run3-photon-cut-ba
+#
+# The corrections are made by fitting degree 2 polynomials and
+# hence, each correction has two EA constants.
+#
+#
+# |eta| min   |eta| max      EA for IsoC (linear quadratic)
+0.0            1.0               0.0342898 -0.000103508
+1.0            1.479             0.0281424 -3.1494e-05
+1.479          2.0               0.0288533 -6.66148e-05
+2.0            2.2               0.028789 -6.84993e-05
+2.2            2.3               0.0264064 -8.89189e-05
+2.3            2.4               0.025587 -5.90178e-05
+2.4            2.5               0.0224817 -4.22712e-05

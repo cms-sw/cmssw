@@ -51,8 +51,10 @@
 #include "CondFormats/L1TObjects/interface/CaloConfig.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonOverlapFwVersion.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonBarrelKalmanParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 
@@ -67,43 +69,46 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
 #include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetosFract.h"
 
 namespace CondFormats_L1TObjects {
   struct dictionary {
-    
     std::vector<l1t::CaloParams::Node> dummy1a;
     l1t::CaloParams dummy1b;
     l1t::LUT dummy1c;
 
     l1t::CaloConfig dummy2;
 
-    std::vector<L1MuDTExtLut::LUT> dummy3 ;
-    std::vector<L1GtMuonTemplate> dummy4 ;
-    std::vector<L1GtCaloTemplate> dummy5 ;
-    std::vector<L1GtEnergySumTemplate> dummy6 ;
-    std::vector<L1GtJetCountsTemplate> dummy7 ;
-    std::vector<L1GtCorrelationTemplate> dummy8 ;
-    std::vector<L1GtCastorTemplate> dummy8a ;
-    std::vector<L1GtHfBitCountsTemplate> dummy8b ;
-    std::vector<L1GtHfRingEtSumsTemplate> dummy8c ;
-    std::vector<L1GtBptxTemplate> dummy8d ;
-    std::vector<L1GtExternalTemplate> dummy8e ;
-    std::map< std::string, L1GtAlgorithm > dummy9 ;
-    std::pair< std::string, L1GtAlgorithm > dummy9a ;
-    std::pair<short,L1MuDTEtaPattern> dummy11 ;
-    std::pair<int, std::vector<L1GtObject> > dummy13 ;
-//    std::vector<L1RPCConeDefinition::TLPSize> dummy15;
-//    std::vector<L1RPCConeDefinition::TRingToTower> dummy15a;
-//    std::vector<L1RPCConeDefinition::TRingToLP> dummy15b;
+    std::vector<L1MuDTExtLut::LUT> dummy3;
+    std::vector<L1GtMuonTemplate> dummy4;
+    std::vector<L1GtCaloTemplate> dummy5;
+    std::vector<L1GtEnergySumTemplate> dummy6;
+    std::vector<L1GtJetCountsTemplate> dummy7;
+    std::vector<L1GtCorrelationTemplate> dummy8;
+    std::vector<L1GtCastorTemplate> dummy8a;
+    std::vector<L1GtHfBitCountsTemplate> dummy8b;
+    std::vector<L1GtHfRingEtSumsTemplate> dummy8c;
+    std::vector<L1GtBptxTemplate> dummy8d;
+    std::vector<L1GtExternalTemplate> dummy8e;
+    std::map<std::string, L1GtAlgorithm> dummy9;
+    std::pair<std::string, L1GtAlgorithm> dummy9a;
+    std::pair<short, L1MuDTEtaPattern> dummy11;
+    std::pair<int, std::vector<L1GtObject> > dummy13;
+    //    std::vector<L1RPCConeDefinition::TLPSize> dummy15;
+    //    std::vector<L1RPCConeDefinition::TRingToTower> dummy15a;
+    //    std::vector<L1RPCConeDefinition::TRingToLP> dummy15b;
+    L1TMuonOverlapFwVersion dummy15;
+
     L1TMuonGlobalParams dummy16;
     std::vector<L1TMuonGlobalParams::Node> dummy16a;
 
-
     L1TMuonOverlapParams dummy17;
-    std::vector< L1TMuonOverlapParams::Node> dummy17a;
+    std::vector<L1TMuonOverlapParams::Node> dummy17a;
 
     L1TMuonBarrelParams dummy18;
     std::vector<L1TMuonBarrelParams::Node> dummy18a;
+    L1TMuonBarrelKalmanParams dummy18b;
+    std::vector<L1TMuonBarrelKalmanParams::Node> dummy18c;
 
     L1TMuonEndCapParams dummy19;
 
@@ -123,8 +128,8 @@ namespace CondFormats_L1TObjects {
     L1TUtmTriggerMenu dummy21h;
 
     L1TGlobalPrescalesVetos dummy22;
+    L1TGlobalPrescalesVetosFract dummy22a;
 
     L1TGlobalParameters dummy23;
-
   };
-}
+}  // namespace CondFormats_L1TObjects

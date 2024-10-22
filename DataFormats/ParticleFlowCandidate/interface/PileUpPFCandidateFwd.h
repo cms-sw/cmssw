@@ -11,24 +11,24 @@ namespace reco {
   /// collection of PileUpPFCandidates
   typedef std::vector<reco::PileUpPFCandidate> PileUpPFCandidateCollection;
 
-  /// iterator 
+  /// iterator
   typedef PileUpPFCandidateCollection::const_iterator PileUpPFCandidateConstIterator;
 
-  /// iterator 
+  /// iterator
   typedef PileUpPFCandidateCollection::iterator PileUpPFCandidateIterator;
 
   /// persistent reference to a PileUpPFCandidate
   typedef edm::Ref<PileUpPFCandidateCollection> PileUpPFCandidateRef;
 
   /// persistent reference to a PileUpPFCandidate
-  typedef edm::Ptr<PileUpPFCandidate> PileUpPFCandidatePtr;  
+  typedef edm::Ptr<PileUpPFCandidate> PileUpPFCandidatePtr;
 
   /// persistent reference to a PileUpPFCandidates collection
   typedef edm::RefProd<PileUpPFCandidateCollection> PileUpPFCandidateRefProd;
 
   /// vector of reference to GenParticleCandidate in the same collection
   typedef edm::RefVector<PileUpPFCandidateCollection> PileUpPFCandidateRefVector;
-  
-}
+
+}  // namespace reco
 
 #endif

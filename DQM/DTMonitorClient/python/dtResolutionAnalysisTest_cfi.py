@@ -8,7 +8,7 @@ dtResolutionAnalysisTest = DQMEDHarvester("DTResolutionAnalysisTest",
                                           maxGoodSigmaValue = cms.untracked.double(0.05),
                                           minBadSigmaValue = cms.untracked.double(0.08),
                                           # top folder for the histograms in DQMStore
-                                          topHistoFolder = cms.untracked.string("DT/02-Segments")
+                                          topHistoFolder = cms.untracked.string('DT/02-Segments')
                                           )
 
 

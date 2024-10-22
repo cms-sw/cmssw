@@ -38,7 +38,7 @@ process.load("RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi
 process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+process.load("RecoVertex.Configuration.RecoPixelVertexing_cff")
 process.load("RecoTracker.Configuration.RecoTracker_cff")
   
 process.load("DQM.SiPixelMonitorRawData.SiPixelMonitorRawData_cfi")
@@ -116,7 +116,6 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(100)
 )
 process.DQMStore = cms.Service("DQMStore",
-  referenceFileName = cms.untracked.string(''),
   verbose = cms.untracked.int32(0)
 )
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")

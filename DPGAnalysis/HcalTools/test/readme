@@ -1,0 +1,17 @@
+#
+# eoscms ls -l /eos/cms/store/group/dpg_hcal/comm_hcal/USC/
+# choose run in /store/group/dpg_hcal/comm_hcal/USC/
+#
+# for Run2:
+# with GT: 104X_dataRun2_v1
+# how to run: cmsRun remoteMonitoring_LED_eraTEST2019_cfg.py 320117 /store/group/dpg_hcal/comm_hcal/USC/ /your_working_dir 
+#             cmsRun remoteMonitoring_LED_eraTEST2019_cfg.py 320117 /store/group/dpg_hcal/comm_hcal/USC/ /afs/cern.ch/work/z/zhokin/public/ &
+#
+# with GT: 106X_dataRun3_HLT_v3
+#how to run: cmsRun remoteMonitoring_LED_eraTEST2019_cfg.py 331370 /store/group/dpg_hcal/comm_hcal/USC/ /your_working_dir
+#
+# for Run3:
+# for next py-file use Calibration dir. once we use RecoCollections:
+#  cmsRun remoteMonitoring_LED_eraTEST2021_cfg.py 339246 /store/group/dpg_hcal/comm_hcal/USC/ /afs/cern.ch/work/z/zhokin/public/ &
+
+

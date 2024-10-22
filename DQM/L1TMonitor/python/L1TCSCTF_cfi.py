@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tCsctf = cms.EDAnalyzer("L1TCSCTF",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tCsctf = DQMEDAnalyzer("L1TCSCTF",
     gmtProducer = cms.InputTag("l1GtUnpack"),
 
     statusProducer = cms.InputTag("csctfDigis"),

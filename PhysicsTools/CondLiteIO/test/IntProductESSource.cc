@@ -2,7 +2,7 @@
 //
 // Package:     Integration
 // Class  :     IntProductESSource
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -20,87 +20,75 @@
 #include "PhysicsTools/CondLiteIO/test/IntProductRecord.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
-
 namespace edmtest {
-class IntProductESSource :
-   public edm::EventSetupRecordIntervalFinder, 
-   public edm::ESProducer
-{
-   
-public:
-   IntProductESSource(const edm::ParameterSet&);
-   
-   std::unique_ptr<edmtest::IntProduct> produce(const IntProductRecord&) ;
-   
-protected:
-   
-   virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                const edm::IOVSyncValue& iTime, 
+  class IntProductESSource : public edm::EventSetupRecordIntervalFinder, public edm::ESProducer {
+  public:
+    IntProductESSource(const edm::ParameterSet&);
+
+    std::unique_ptr<edmtest::IntProduct> produce(const IntProductRecord&);
+
+  protected:
+    virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                                const edm::IOVSyncValue& iTime,
                                 edm::ValidityInterval& iInterval);
-   
-private:
-   IntProductESSource(const IntProductESSource&); // stop default
-   
-   const IntProductESSource& operator=(const IntProductESSource&); // stop default
-   
-   // ---------- member data --------------------------------
-   unsigned int nCalls_;
-};
 
-//
-// constants, enums and typedefs
-//
+  private:
+    IntProductESSource(const IntProductESSource&);  // stop default
 
-//
-// static data member definitions
-//
+    const IntProductESSource& operator=(const IntProductESSource&);  // stop default
 
-//
-// constructors and destructor
-//
-IntProductESSource::IntProductESSource(const edm::ParameterSet&)
-: nCalls_(0) {
-   this->findingRecord<IntProductRecord>();
-   setWhatProduced(this);
-}
+    // ---------- member data --------------------------------
+    unsigned int nCalls_;
+  };
 
-//IntProductESSource::~IntProductESSource()
-//{
-//}
+  //
+  // constants, enums and typedefs
+  //
 
-//
-// member functions
-//
+  //
+  // static data member definitions
+  //
 
-std::unique_ptr<edmtest::IntProduct> 
-IntProductESSource::produce(const IntProductRecord&) {
-   auto data = std::make_unique<edmtest::IntProduct>();
-   data->value = nCalls_;
-   ++nCalls_;
-   return std::move(data);
-}
+  //
+  // constructors and destructor
+  //
+  IntProductESSource::IntProductESSource(const edm::ParameterSet&) : nCalls_(0) {
+    this->findingRecord<IntProductRecord>();
+    setWhatProduced(this);
+  }
 
+  //IntProductESSource::~IntProductESSource()
+  //{
+  //}
 
-void 
-IntProductESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                const edm::IOVSyncValue& iTime, 
-                                edm::ValidityInterval& iInterval) {
-   //Be valid for 3 runs 
-   edm::EventID newTime = edm::EventID(1, 0, 0);
-   edm::EventID endTime = edm::EventID(4,0,0);
-   iInterval = edm::ValidityInterval(edm::IOVSyncValue(newTime),
-                                      edm::IOVSyncValue(endTime));
-}
+  //
+  // member functions
+  //
 
-//
-// const member functions
-//
+  std::unique_ptr<edmtest::IntProduct> IntProductESSource::produce(const IntProductRecord&) {
+    auto data = std::make_unique<edmtest::IntProduct>();
+    data->value = nCalls_;
+    ++nCalls_;
+    return data;
+  }
 
-//
-// static member functions
-//
-}
+  void IntProductESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                                          const edm::IOVSyncValue& iTime,
+                                          edm::ValidityInterval& iInterval) {
+    //Be valid for 3 runs
+    edm::EventID newTime = edm::EventID(1, 0, 0);
+    edm::EventID endTime = edm::EventID(4, 0, 0);
+    iInterval = edm::ValidityInterval(edm::IOVSyncValue(newTime), edm::IOVSyncValue(endTime));
+  }
+
+  //
+  // const member functions
+  //
+
+  //
+  // static member functions
+  //
+}  // namespace edmtest
 using namespace edmtest;
 
 DEFINE_FWK_EVENTSETUP_SOURCE(IntProductESSource);
-

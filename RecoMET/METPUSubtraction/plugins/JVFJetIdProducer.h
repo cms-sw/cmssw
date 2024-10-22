@@ -18,22 +18,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
-#include "DataFormats/JetReco/interface/PileupJetIdentifier.h" 
+#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 
 #include "RecoMET/METPUSubtraction/interface/NoPileUpMEtAuxFunctions.h"
 
-class JVFJetIdProducer : public edm::stream::EDProducer<>
-{
- public:
-  
+class JVFJetIdProducer : public edm::stream::EDProducer<> {
+public:
   JVFJetIdProducer(const edm::ParameterSet&);
   ~JVFJetIdProducer() override;
-  
- private:
-  
+
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
-  edm::EDGetTokenT<reco::PFJetCollection > srcJets_;
+
+  edm::EDGetTokenT<reco::PFJetCollection> srcJets_;
 
   edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidates_;
   edm::EDGetTokenT<PFCandToVertexAssMap> srcPFCandToVertexAssociations_;
@@ -44,7 +41,7 @@ class JVFJetIdProducer : public edm::stream::EDProducer<>
   double JVFcut_;
 
   int neutralJetOption_;
-  
+
   int verbosity_;
 };
 

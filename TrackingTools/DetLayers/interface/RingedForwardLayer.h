@@ -10,6 +10,5 @@
 class ForwardDetRing;
 class ForwardDetRingBuilder;
 
-using  RingedForwardLayer = ForwardDetLayer;
+using RingedForwardLayer = ForwardDetLayer;
 #endif
-

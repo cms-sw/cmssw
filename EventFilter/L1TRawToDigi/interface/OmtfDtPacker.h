@@ -10,13 +10,11 @@
 
 namespace omtf {
 
-class DtPacker {
+  class DtPacker {
+  public:
+    void pack(const L1MuDTChambPhContainer* phCont, const L1MuDTChambThContainer* thCont, FedAmcRawsMap& raws);
 
-public:
-
-  void pack(const L1MuDTChambPhContainer* phCont, const L1MuDTChambThContainer* thCont, FedAmcRawsMap & raws);
-
-private:
-};
-}
+  private:
+  };
+}  // namespace omtf
 #endif

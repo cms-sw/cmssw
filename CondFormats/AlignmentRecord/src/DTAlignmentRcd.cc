@@ -2,7 +2,7 @@
 //
 // Package:     DTGeometry
 // Class  :     DTAlignmentRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

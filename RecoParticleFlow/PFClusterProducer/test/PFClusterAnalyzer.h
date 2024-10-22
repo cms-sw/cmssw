@@ -8,7 +8,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -20,41 +20,33 @@
 \brief test analyzer for PFClusters
 */
 
-
-
-
-class PFClusterAnalyzer : public edm::EDAnalyzer {
- public:
-
+class PFClusterAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+public:
   explicit PFClusterAnalyzer(const edm::ParameterSet&);
 
-  ~PFClusterAnalyzer() override;
-  
+  ~PFClusterAnalyzer() override = default;
+
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  void beginRun(const edm::Run & r, const edm::EventSetup & c) override;
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override {}
 
- private:
-  
-  void 
-    fetchCandidateCollection(edm::Handle<reco::PFClusterCollection>& c, 
-			     const edm::InputTag& tag, 
-			     const edm::Event& iSetup) const;
+private:
+  void fetchCandidateCollection(edm::Handle<reco::PFClusterCollection>& c,
+                                const edm::EDGetTokenT<reco::PFClusterCollection>& token,
+                                const edm::Event& iSetup) const;
 
-/*   void printElementsInBlocks(const reco::PFCluster& cluster, */
-/* 			     std::ostream& out=std::cout) const; */
+  /*   void printElementsInBlocks(const reco::PFCluster& cluster, */
+  /* 			     std::ostream& out=std::cout) const; */
 
+  /// PFClusters in which we'll look for pile up particles
+  const edm::EDGetTokenT<reco::PFClusterCollection> inputTokenPFClusters_;
 
-  
-  /// PFClusters in which we'll look for pile up particles 
-  edm::InputTag   inputTagPFClusters_;
-  
   /// verbose ?
-  bool   verbose_;
+  const bool verbose_;
 
   /// print the blocks associated to a given candidate ?
-  bool   printBlocks_;
-
+  const bool printBlocks_;
 };
 
 #endif

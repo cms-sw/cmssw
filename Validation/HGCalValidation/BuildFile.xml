@@ -1,0 +1,15 @@
+<use name="DataFormats/ForwardDetId"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="DQMServices/Core"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="SimDataFormats/CaloAnalysis"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="RecoLocalCalo/HGCalRecProducers"/>
+<use name="clhep"/>
+<use name="hepmc"/>
+<export>
+  <lib name="ValidationHGCalValidation"/>
+</export>

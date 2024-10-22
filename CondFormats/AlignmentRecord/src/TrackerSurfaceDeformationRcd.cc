@@ -2,7 +2,7 @@
 //
 // Package:     TrackerGeometry
 // Class  :     TrackerSurfaceDeformationRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

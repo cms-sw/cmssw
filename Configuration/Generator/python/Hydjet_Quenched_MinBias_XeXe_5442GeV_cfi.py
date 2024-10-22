@@ -12,23 +12,22 @@ generator = cms.EDFilter("HydjetGeneratorFilter",
                          doRadiativeEnLoss = cms.bool(True), ## if true, perform partonic radiative en loss
                          doCollisionalEnLoss = cms.bool(True),
                          qgpNumQuarkFlavor = cms.int32(0),  ## number of active quark flavors in qgp; allowed values: 0,1,2,3
-                         numQuarkFlavor = cms.int32(0), ## to be removed
-                          sigmaInelNN = cms.double(70),
+                         sigmaInelNN = cms.double(70),
                          shadowingSwitch = cms.int32(1),
-                         nMultiplicity = cms.int32(9000),
+                         nMultiplicity = cms.int32(18545),
                          fracSoftMultiplicity = cms.double(1.),
-                         maxLongitudinalRapidity = cms.double(2.3),
-                         maxTransverseRapidity = cms.double(1.15),
-                          angularSpectrumSelector = cms.int32(1),
+                         maxLongitudinalRapidity = cms.double(3.75),
+                         maxTransverseRapidity = cms.double(1.16),
+                         angularSpectrumSelector = cms.int32(1),
                          rotateEventPlane = cms.bool(True),
                          allowEmptyEvents = cms.bool(False),
-                         embeddingMode = cms.bool(False),
+                         embeddingMode = cms.int32(0),
                          hydjetMode = cms.string('kHydroQJets'),
                          
                          PythiaParameters = cms.PSet(
                             pythiaUESettingsBlock,
                             hydjetPythiaDefault = cms.vstring('MSEL=0   ! user processes',
-                                                              'CKIN(3)=8.15',# ! ptMin
+                                                              'CKIN(3)=9.2',# ! ptMin
                                                               'MSTP(81)=1'
                                                              ),
                             myParameters = cms.vstring('MDCY(310,1)=0'),

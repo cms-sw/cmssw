@@ -2,7 +2,7 @@
 //
 // Package:    OverlapProblemTSOSPositionFilter
 // Class:      OverlapProblemTSOSPositionFilter
-// 
+//
 /**\class OverlapProblemTSOSPositionFilter OverlapProblemTSOSPositionFilter.cc DebugTools/OverlapProblem/plugins/OverlapProblemTSOSPositionFilter.cc
 
  Description: <one line class summary>
@@ -17,7 +17,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <numeric>
@@ -25,11 +24,10 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -57,25 +55,23 @@
 
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "TH1F.h"
 //
 // class decleration
 //
 
-
-class OverlapProblemTSOSPositionFilter : public edm::EDFilter {
+class OverlapProblemTSOSPositionFilter : public edm::global::EDFilter<> {
 public:
   explicit OverlapProblemTSOSPositionFilter(const edm::ParameterSet&);
   ~OverlapProblemTSOSPositionFilter() override;
-  
+
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  
-      // ----------member data ---------------------------
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  const bool m_validOnly; 
+  // ----------member data ---------------------------
+
+  const bool m_validOnly;
   edm::EDGetTokenT<TrajTrackAssociationCollection> m_ttacollToken;
-
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_tTopoToken;
 };
 
 //
@@ -89,80 +85,72 @@ private:
 //
 // constructors and destructor
 //
-OverlapProblemTSOSPositionFilter::OverlapProblemTSOSPositionFilter(const edm::ParameterSet& iConfig):
-  m_validOnly(iConfig.getParameter<bool>("onlyValidRecHit")),
-  m_ttacollToken(consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajTrackAssoCollection")))
+OverlapProblemTSOSPositionFilter::OverlapProblemTSOSPositionFilter(const edm::ParameterSet& iConfig)
+    : m_validOnly(iConfig.getParameter<bool>("onlyValidRecHit")),
+      m_ttacollToken(
+          consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajTrackAssoCollection"))),
+      m_tTopoToken(esConsumes())
 
 {
-   //now do what ever initialization is needed
-
-
-
+  //now do what ever initialization is needed
 }
 
-
-OverlapProblemTSOSPositionFilter::~OverlapProblemTSOSPositionFilter()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+OverlapProblemTSOSPositionFilter::~OverlapProblemTSOSPositionFilter() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-bool
-OverlapProblemTSOSPositionFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+bool OverlapProblemTSOSPositionFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   // loop on trajectories and plot TSOS local coordinate
-  
-  TrajectoryStateCombiner tsoscomb;
-  
-  // Trajectory Handle
-  
-  Handle<TrajTrackAssociationCollection> ttac;
-  iEvent.getByToken(m_ttacollToken,ttac);
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
-  
-  for(TrajTrackAssociationCollection::const_iterator pair=ttac->begin();pair!=ttac->end();++pair) {
-    
-    const edm::Ref<std::vector<Trajectory> > & traj = pair->key;
+  TrajectoryStateCombiner tsoscomb;
+
+  // Trajectory Handle
+
+  Handle<TrajTrackAssociationCollection> ttac;
+  iEvent.getByToken(m_ttacollToken, ttac);
+
+  const auto& tTopo = iSetup.getData(m_tTopoToken);
+
+  for (TrajTrackAssociationCollection::const_iterator pair = ttac->begin(); pair != ttac->end(); ++pair) {
+    const edm::Ref<std::vector<Trajectory> >& traj = pair->key;
     //    const reco::TrackRef & trk = pair->val;
-    const std::vector<TrajectoryMeasurement> & tmcoll = traj->measurements();
-    
-    for(std::vector<TrajectoryMeasurement>::const_iterator meas = tmcoll.begin() ; meas!= tmcoll.end() ; ++meas) {
-      
-      if(!meas->updatedState().isValid()) continue;
-      
+    const std::vector<TrajectoryMeasurement>& tmcoll = traj->measurements();
+
+    for (std::vector<TrajectoryMeasurement>::const_iterator meas = tmcoll.begin(); meas != tmcoll.end(); ++meas) {
+      if (!meas->updatedState().isValid())
+        continue;
+
       TrajectoryStateOnSurface tsos = tsoscomb(meas->forwardPredictedState(), meas->backwardPredictedState());
       TransientTrackingRecHit::ConstRecHitPointer hit = meas->recHit();
-      
-      if(!hit->isValid() && m_validOnly) continue;
 
-      if(hit->geographicalId().det() != DetId::Tracker) continue;
-      
-      if(hit->geographicalId().subdetId() != StripSubdetector::TEC) continue;
+      if (!hit->isValid() && m_validOnly)
+        continue;
 
-      if(tTopo->tecRing(hit->geographicalId()) != 6) continue;
+      if (hit->geographicalId().det() != DetId::Tracker)
+        continue;
 
-      if(tsos.localPosition().y() < 6.) continue; 
+      if (hit->geographicalId().subdetId() != StripSubdetector::TEC)
+        continue;
+
+      if (tTopo.tecRing(hit->geographicalId()) != 6)
+        continue;
+
+      if (tsos.localPosition().y() < 6.)
+        continue;
 
       return true;
-      
     }
-    
   }
-  
-  return false;
 
+  return false;
 }
 
 //define this as a plug-in

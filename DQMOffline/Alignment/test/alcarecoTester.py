@@ -1,8 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+from __future__ import print_function
 import os
 import sys
-import ConfigParser
+import configparser as ConfigParser
 import optparse
 import datetime
 
@@ -61,7 +62,6 @@ process.source = cms.Source("PoolSource",
 )
 
 process.p1 = cms.Path(process.EDMtoMEConverter*process.dqmSaver)
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/ConverterTester/Test/RECO'
 """
@@ -172,7 +172,7 @@ def getCommandOutput2(command):
  
 def runJob(jobName, script, config):
    jobMode = config.get("general","jobMode")
-   print "> Testing "+jobName
+   print("> Testing "+jobName)
    if jobMode == "interactive":
        getCommandOutput2( script )
    if jobMode.split(",")[0] == "lxBatch":

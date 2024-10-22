@@ -17,7 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 //
@@ -26,16 +26,14 @@ namespace edm {
 
 class HLTBool : public edm::global::EDFilter<> {
 public:
-  explicit HLTBool(const edm::ParameterSet&);
+  explicit HLTBool(const edm::ParameterSet &);
   ~HLTBool() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   bool filter(edm::StreamID, edm::Event &, edm::EventSetup const &) const final;
 
 private:
-
   /// boolean result
   bool result_;
-
 };
 
-#endif //HLTBool_h
+#endif  //HLTBool_h

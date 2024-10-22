@@ -3,9 +3,9 @@
 
 #include "HistoData.h"
 
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
 
 #ifndef HTML1D
 #define HTML1D
@@ -16,11 +16,15 @@ class TH1;
 
 class PlotCompareUtility {
 public:
-
-  // BasePath = the path to data in the DQM root file (eg., "DQMData/METTask/ECAL/data")
-  // Prefix = the prefix common to all histograms in area (eg., "METTask_" or "")
-  PlotCompareUtility(std::string Reference, std::string New, std::string NewBasePath,
-    std::string NewPrefix = "", std::string RefBasePath = "", std::string RefPrefix = "");
+  // BasePath = the path to data in the DQM root file (eg.,
+  // "DQMData/METTask/ECAL/data") Prefix = the prefix common to all histograms
+  // in area (eg., "METTask_" or "")
+  PlotCompareUtility(std::string Reference,
+                     std::string New,
+                     std::string NewBasePath,
+                     std::string NewPrefix = "",
+                     std::string RefBasePath = "",
+                     std::string RefPrefix = "");
   virtual ~PlotCompareUtility();
 
   // Axis Conventions (For Specifying Profiles, Projections, etc.)
@@ -30,14 +34,15 @@ public:
   std::vector<HistoData> *getHistos() { return &histos; }
   std::vector<HistoData> *getProjectionsX(HistoData *HD) { return &projectionsX[HD]; }
   std::vector<HistoData> *getProjectionsY(HistoData *HD) { return &projectionsY[HD]; }
-  int getNumHistos() const { return histos.size(); } 
-  //int getNumProjectionsX(HistoData *HD) const { return projectionsX[HD].size(); }
-  //int getNumProjectionsY(HistoData *HD) const { return projectionsY[HD].size(); }
+  int getNumHistos() const { return histos.size(); }
+  // int getNumProjectionsX(HistoData *HD) const { return
+  // projectionsX[HD].size(); } int getNumProjectionsY(HistoData *HD) const {
+  // return projectionsY[HD].size(); }
 
   // Getters for Statistical Comparisons
   double getKSThreshold() const { return ksThreshold; }
   double getChi2Threshold() const { return chi2Threshold; }
-  double getThreshold() const; // the lowest non-zero test threshold
+  double getThreshold() const;  // the lowest non-zero test threshold
   bool getFinalResult() const { return finalResult; }
 
   // Getters for Drawing Options
@@ -90,9 +95,11 @@ public:
 
   // Add HistoData Objects for Comparison
   HistoData *addHistoData(std::string NewName, std::string RefName, int PlotType);
-  HistoData *addHistoData(std::string Name, int PlotType) { return addHistoData(Name,Name,PlotType); }
-  HistoData *addProjectionXData(HistoData *Parent, std::string Name, int PlotType, int Bin, TH1* NewHisto, TH1* RefHisto);
-  HistoData *addProjectionYData(HistoData *Parent, std::string Name, int PlotType, int Bin, TH1* NewHisto, TH1* RefHisto);
+  HistoData *addHistoData(std::string Name, int PlotType) { return addHistoData(Name, Name, PlotType); }
+  HistoData *addProjectionXData(
+      HistoData *Parent, std::string Name, int PlotType, int Bin, TH1 *NewHisto, TH1 *RefHisto);
+  HistoData *addProjectionYData(
+      HistoData *Parent, std::string Name, int PlotType, int Bin, TH1 *NewHisto, TH1 *RefHisto);
   void clearHistos() { histos.clear(); }
   void clearProjectionsX(HistoData *Parent) { projectionsX[Parent].clear(); }
   void clearProjectionsY(HistoData *Parent) { projectionsY[Parent].clear(); }
@@ -105,18 +112,17 @@ public:
   void makeSummary(std::string Name);
   void makeSummaryPlot(std::string Name);
   void makeSummaryHTML(std::string Name);
-  //void makeProjectionsSummary();
-  //void makeProjectionsSummaryPlots();
-  //void makeProjectionsSummaryHTML();
+  // void makeProjectionsSummary();
+  // void makeProjectionsSummaryPlots();
+  // void makeProjectionsSummaryHTML();
   bool isValid() const;
   void dump();
 
 private:
-
   // data holders for histogram types
   std::vector<HistoData> histos;
-  std::map<HistoData *,std::vector<HistoData> > projectionsX;
-  std::map<HistoData *,std::vector<HistoData> > projectionsY;
+  std::map<HistoData *, std::vector<HistoData>> projectionsX;
+  std::map<HistoData *, std::vector<HistoData>> projectionsY;
 
   // file pointers and file organization
   TFile *refFile;
@@ -131,15 +137,18 @@ private:
   double chi2Threshold;
 
   // private (implementation/helper) functions
-  template <int PlotType> bool compare(HistoData *);
-  template <int PlotType> void makePlots(HistoData *);
-  template <int PlotType> void makeHTML(HistoData *);
+  template <int PlotType>
+  bool compare(HistoData *);
+  template <int PlotType>
+  void makePlots(HistoData *);
+  template <int PlotType>
+  void makeHTML(HistoData *);
   void centerRebin(TH1 *, TH1 *);
   void renormalize(TH1 *, TH1 *);
 
   // summary settings
-  int summaryWidth; // user defined
-  int summaryHeight; // set by plotter
+  int summaryWidth;   // user defined
+  int summaryHeight;  // set by plotter
   int summaryBarsThickness;
   int summaryTopMargin;
   int summaryLeftMargin;
@@ -147,8 +156,8 @@ private:
   int summaryBottomMargin;
 
   // 2d projections summary settings
-  int projectionsWidth; // set by plotter
-  int projectionsHeight; // user defined
+  int projectionsWidth;   // set by plotter
+  int projectionsHeight;  // user defined
   int projectionsBarsThickness;
   int projectionsTopMargin;
   int projectionsLeftMargin;
@@ -156,8 +165,8 @@ private:
   int projectionsBottomMargin;
 
   // 1d distribution plots settings
-  int plotsWidth; // user defined
-  int plotsHeight; // user defined
+  int plotsWidth;   // user defined
+  int plotsHeight;  // user defined
   int plotsTopMargin;
   int plotsLeftMargin;
   int plotsRightMargin;
@@ -165,7 +174,6 @@ private:
 
   // true if all run tests pass, false if any fail
   bool finalResult;
-
 };
 
-#endif // PLOT_COMPARE_UTILITY__H
+#endif  // PLOT_COMPARE_UTILITY__H

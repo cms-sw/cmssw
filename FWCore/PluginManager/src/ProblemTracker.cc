@@ -6,43 +6,34 @@
 
 #include <string>
 
-namespace edm
-{
+namespace edm {
 
   // -----------------------------------------------
 
   //edmplugin::DebugAids::AssertHook ProblemTracker::old_assert_hook_ = 0;
 
-  ProblemTracker::ProblemTracker()
-  {
+  ProblemTracker::ProblemTracker() {
     //old_assert_hook_ = edmplugin::DebugAids::failHook(&failure);
-    if(not edmplugin::PluginManager::isAvailable()) {
+    if (not edmplugin::PluginManager::isAvailable()) {
       edmplugin::PluginManager::Config config(edmplugin::standard::config());
 
       edmplugin::PluginManager::configure(config);
     }
   }
 
-  ProblemTracker::~ProblemTracker()
-  {
+  ProblemTracker::~ProblemTracker() {
     // since this is a singleton, we will not restore the old handle
   }
 
-  ProblemTracker const* ProblemTracker::instance()
-  {
+  ProblemTracker const* ProblemTracker::instance() {
     static ProblemTracker const pt;
     return &pt;
   }
 
   // ---------------------------------------------
 
-  AssertHandler::AssertHandler():pt_(ProblemTracker::instance())
-  {
-  }
+  AssertHandler::AssertHandler() : pt_(ProblemTracker::instance()) {}
 
-  AssertHandler::~AssertHandler()
-  {
-  }
+  AssertHandler::~AssertHandler() {}
 
-
-}
+}  // namespace edm

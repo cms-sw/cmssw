@@ -37,6 +37,6 @@ namespace reco {
   typedef edm::RefProd<CandidateCollection> CandidateRefProd;
   /// vector of references to objects in the same collection of Candidate objects via base type
   typedef edm::RefToBaseProd<Candidate> CandidateBaseRefProd;
-}
+}  // namespace reco
 
 #endif

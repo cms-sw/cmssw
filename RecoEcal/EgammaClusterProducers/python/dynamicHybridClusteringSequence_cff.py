@@ -8,5 +8,6 @@ from RecoEcal.EgammaClusterProducers.dynamicHybridSuperClusters_cfi import *
 # Producer for energy corrections
 from RecoEcal.EgammaClusterProducers.correctedDynamicHybridSuperClusters_cfi import *
 # hybrid clustering sequence
-dynamicHybridClusteringSequence = cms.Sequence(dynamicHybridSuperClusters*correctedDynamicHybridSuperClusters)
+dynamicHybridClusteringTask = cms.Task(dynamicHybridSuperClusters, correctedDynamicHybridSuperClusters)
+dynamicHybridClusteringSequence = cms.Sequence(dynamicHybridClusteringTask)
 

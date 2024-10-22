@@ -13,7 +13,7 @@
 #define BUFSIZE 200;
 
 class ODTCCEEConfig : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODTCCEEConfig();
   ~ODTCCEEConfig() override;
@@ -49,16 +49,14 @@ class ODTCCEEConfig : public IODConfig {
   inline void setSLBClob(unsigned char* x) { m_slb_clob = x; }
   inline unsigned char* getSLBClob() const { return m_slb_clob; }
 
-  void setParameters(const std::map<std::string,std::string>& my_keys_map);
+  void setParameters(const std::map<std::string, std::string>& my_keys_map);
 
-  
- private:
-  void prepareWrite()  noexcept(false) override;
-  void writeDB()       noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
+  void writeDB() noexcept(false);
   void clear();
-  void fetchData(ODTCCEEConfig * result)     noexcept(false);
-  int fetchID()  noexcept(false);
-
+  void fetchData(ODTCCEEConfig* result) noexcept(false);
+  int fetchID() noexcept(false);
 
   int fetchNextId() noexcept(false);
 
@@ -67,13 +65,13 @@ class ODTCCEEConfig : public IODConfig {
   unsigned char* m_tcc_ee_clob;
   unsigned char* m_lut_clob;
   unsigned char* m_slb_clob;
-  std::string  m_tcc_ee_file;
-  std::string  m_lut_file;
-  std::string  m_slb_file;
-  std::string  m_test_url;
-  int  m_ntest;
-  int  m_trigpos;
-  int  m_slb;
+  std::string m_tcc_ee_file;
+  std::string m_lut_file;
+  std::string m_slb_file;
+  std::string m_test_url;
+  int m_ntest;
+  int m_trigpos;
+  int m_slb;
   unsigned int m_size;
 };
 

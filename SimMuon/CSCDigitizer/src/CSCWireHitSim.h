@@ -7,12 +7,12 @@
  * \author Tim Cox
  */
 
-#include <vector>
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
+#include <vector>
 
 class CSCDriftSim;
 class CSCLayer;
@@ -24,29 +24,26 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class CSCWireHitSim
-{
+class CSCWireHitSim {
 public:
-  explicit CSCWireHitSim(CSCDriftSim* driftSim, const edm::ParameterSet & p);
+  explicit CSCWireHitSim(CSCDriftSim *driftSim, const edm::ParameterSet &p);
   ~CSCWireHitSim();
 
   // makes wire hits from the given g3hits
-  std::vector<CSCDetectorHit> & simulate(const CSCLayer * layer, 
-                                         const edm::PSimHitContainer & simHits,
-                                         CLHEP::HepRandomEngine*);
+  std::vector<CSCDetectorHit> &simulate(const CSCLayer *layer,
+                                        const edm::PSimHitContainer &simHits,
+                                        CLHEP::HepRandomEngine *);
 
-  void setParticleDataTable(const ParticleDataTable * pdt);
+  void setParticleDataTable(const ParticleDataTable *pdt);
 
 private:
   // Helper functions
-  std::vector<Local3DPoint> getIonizationClusters(const PSimHit & hit, 
-                                                  const CSCLayer *,
-                                                  CLHEP::HepRandomEngine*);
+  std::vector<Local3DPoint> getIonizationClusters(const PSimHit &hit, const CSCLayer *, CLHEP::HepRandomEngine *);
   CSCDetectorHit driftElectronsToWire();
 
   // member data
-  CSCDriftSim*  theDriftSim;
-  CSCGasCollisions* theGasIonizer;
+  CSCDriftSim *theDriftSim;
+  CSCGasCollisions *theGasIonizer;
   std::vector<CSCDetectorHit> theNewWireHits;
 };
 

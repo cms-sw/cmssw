@@ -3,6 +3,7 @@
 r'''
 The Wrapper for makeSkim.py, the general config for cmsRun.
 '''
+from __future__ import print_function
 
 import optparse
 import os
@@ -57,13 +58,13 @@ metaconfig_file.write(metaconfig_content)
 metaconfig_file.close()
 
 # print it to screen!
-print _green('\nThe Metaconfiguration:\n')
-print metaconfig_content
+print(_green('\nThe Metaconfiguration:\n'))
+print(metaconfig_content)
 
 
 # and now execute!
 command='cmsRun ./makeSkim.py'
-print _green('\nAnd now run %s ...\n' %command)
+print(_green('\nAnd now run %s ...\n' %command))
 os.environ['PYTHONPATH']+=':./' # to find the metaconfig..
 os.system(command)
 

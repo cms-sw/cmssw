@@ -17,34 +17,29 @@ class MagneticField;
  */
 
 class JacobianCurvilinearToLocal {
-
- public:
-
+public:
   /** Constructor from local trajectory parameters and surface defining the local frame. 
    *  NB!! No default constructor exists!
    */
-  
-  JacobianCurvilinearToLocal(const Surface& surface, 
-			     const LocalTrajectoryParameters& localParameters,
-			     const MagneticField& magField);
-  
-  JacobianCurvilinearToLocal(const Surface& surface, 
-			     const LocalTrajectoryParameters& localParameters,
-			     const GlobalTrajectoryParameters& globalParameters,
-			     const MagneticField& magField);
+
+  JacobianCurvilinearToLocal(const Surface& surface,
+                             const LocalTrajectoryParameters& localParameters,
+                             const MagneticField& magField);
+
+  JacobianCurvilinearToLocal(const Surface& surface,
+                             const LocalTrajectoryParameters& localParameters,
+                             const GlobalTrajectoryParameters& globalParameters,
+                             const MagneticField& magField);
 
   /** Access to Jacobian.
    */
-  
-  const AlgebraicMatrix55& jacobian() const { return  theJacobian; }
 
+  const AlgebraicMatrix55& jacobian() const { return theJacobian; }
 
- private:
-
-  void compute(Surface::RotationType const & rot, GlobalVector  const & tn, GlobalVector const & qh, double lz)  dso_internal;  
+private:
+  void compute(Surface::RotationType const& rot, GlobalVector const& tn, GlobalVector const& qh, double lz) dso_internal;
 
   AlgebraicMatrix55 theJacobian;
+};
 
-};  
-
-#endif //JacobianCurvilinearToLocal_H
+#endif  //JacobianCurvilinearToLocal_H

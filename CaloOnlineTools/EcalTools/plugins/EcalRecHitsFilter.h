@@ -5,13 +5,12 @@
 //
 //class EcalRecHitsFilter EcalRecHitsFilter.cc
 //
-// Original Author:  
+// Original Author:
 //         Created:  We May 14 10:10:52 CEST 2008
 //
 
 #ifndef EcalRecHitsFilter_H
 #define EcalRecHitsFilter_H
-
 
 // system include files
 #include <memory>
@@ -22,13 +21,13 @@
 // user include files
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -44,24 +43,23 @@
 // class declaration
 //
 
-class EcalRecHitsFilter : public edm::EDFilter {
-   public:
-      explicit EcalRecHitsFilter(const edm::ParameterSet &);
-      ~EcalRecHitsFilter() override;
+class EcalRecHitsFilter : public edm::one::EDFilter<> {
+public:
+  explicit EcalRecHitsFilter(const edm::ParameterSet&);
+  ~EcalRecHitsFilter() override;
 
-   private:
-      void beginJob() override ;
-      bool filter ( edm::Event &, const edm::EventSetup &) override;
-      void endJob() override ;
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-      double EnergyCut;  
-      int NumBadXtalsThreshold_; 
-      edm::InputTag EBRecHitCollection_;
-    
+  const int NumBadXtalsThreshold_;
+  const edm::EDGetTokenT<EcalRecHitCollection> EBRecHitCollection_;
+  const double EnergyCut;
 
-      TH1F* nRecHitsGreater1GevPerEvent_hist;
-      TH2F* nRecHitsGreater1GevPerEvent_hist_MAP;
-      TFile* file;
+  TH1F* nRecHitsGreater1GevPerEvent_hist;
+  TH2F* nRecHitsGreater1GevPerEvent_hist_MAP;
+  TFile* file;
 };
 
 #endif

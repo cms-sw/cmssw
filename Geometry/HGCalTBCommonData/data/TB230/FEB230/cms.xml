@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="cms.xml" eval="true">
+  <Constant name="zCaloFront" value="2500.0*cm"/>
+</ConstantsSection>
+
+<SolidSection label="cms.xml" eval="true">
+  <Tubs name="OCMS" rMin="0.0*fm" rMax="1.0*m" dz="0.50*m" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="CMSE" rMin="0.0*fm" rMax="1.0*m" dz="0.50*m" startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="cms.xml">
+  <LogicalPart name="World" category="unspecified">
+    <rSolid name="OCMS"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="OCMS" category="unspecified">
+    <rSolid name="OCMS"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="CMSE" category="unspecified">
+    <rSolid name="CMSE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="CMSE" category="unspecified">
+    <rSolid name="CMSE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="CALO" category="unspecified">
+    <rSolid name="CMSE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="CALOEC" category="unspecified">
+    <rSolid name="CMSE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="CALOECRear" category="unspecified">
+    <rSolid name="CMSE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="cms.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:World"/>
+    <rChild name="cms:OCMS"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:OCMS"/>
+    <rChild name="cms:CMSE"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="cms:CALO"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CALO"/>
+    <rChild name="cms:CALOEC"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CALOEC"/>
+    <rChild name="cms:CALOECRear"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

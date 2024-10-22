@@ -15,9 +15,8 @@
 
 /* class MBAChBenchCalPlate; */
 
-
 class MBAChBenchCalPlateData {
- public:
+public:
   int plate_;
   std::string side_;
   int object_;
@@ -26,19 +25,19 @@ class MBAChBenchCalPlateData {
   float posZ_;
   long long measDateTime_;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 /**
    Description: Class for MBAChBenchCalPlate for use as calibration.
  **/
 class MBAChBenchCalPlate {
- public:
+public:
   MBAChBenchCalPlate() {}
   virtual ~MBAChBenchCalPlate() {}
   std::vector<MBAChBenchCalPlateData> mbaChBenchCalPlate_;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-#endif // MBAChBenchCalPlate_H
+#endif  // MBAChBenchCalPlate_H

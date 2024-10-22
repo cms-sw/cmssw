@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+<!-- 
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_shapes/>
+    <debug_includes/>
+    <debug_materials/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/>
+    <debug_materials/>
+    <debug_visattr/>
+-->
+  </debug>
+  
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v3/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/extend/v3/cmsextent.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cms/2021/v3/cms.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cmsMother.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/eta3/etaMax.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/pixfwdCommon.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/pixfwd/2021/v1/pixfwd.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/totemt2/2021/v1/totemt2.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/forwardshield/2021/v1/forwardshield.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/bhm.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/pltbcm/2021/v1/pltbcm.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/bcm1f/2021/v1/bcm1f.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/plt/2021/v1/plt.xml"/>
+    <Include ref="Geometry/ForwardSimData/data/bcm1fsens.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/lumimaterials.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/zdcrotations.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/lumirotations.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/zdc/2021/v1/zdc.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/cmszdc.xml"/>
+    <Include ref="Geometry/ForwardSimData/data/pltsens.xml"/>
+    <Include ref="Geometry/ForwardSimData/data/bcm1fsens.xml"/>
+    <Include ref="Geometry/ForwardSimData/data/totemsensT2/2021/totemsensT2.xml"/>
+    <Include ref="Geometry/ForwardSimData/data/zdcsens.xml"/>
+    <Include ref="Geometry/ForwardSimData/data/bhmProdCuts/2021/v1/bhmProdCuts.xml"/>
+    <Include ref="Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml"/>
+    <Include ref="Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/FieldParameters.xml"/>
+  </IncludeSection>
+  
+</DDDefinition>

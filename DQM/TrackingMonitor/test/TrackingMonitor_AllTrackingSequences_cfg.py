@@ -44,7 +44,6 @@ process.load("DQM.TrackingMonitor.TrackingMonitorAllTrackingSequences_cff")
 # DQM Store 
 #-------------------------------------------------
 process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0)
 )
 

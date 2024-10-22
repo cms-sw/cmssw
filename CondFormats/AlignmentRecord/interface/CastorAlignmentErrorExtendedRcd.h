@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class CastorAlignmentErrorExtendedRcd : public edm::eventsetup::EventSetupRecordImplementation<CastorAlignmentErrorExtendedRcd> {};
+class CastorAlignmentErrorExtendedRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<CastorAlignmentErrorExtendedRcd> {};
 
 #endif

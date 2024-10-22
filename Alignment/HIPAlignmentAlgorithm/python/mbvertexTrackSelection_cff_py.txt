@@ -1,6 +1,6 @@
 import Alignment.CommonAlignment.tools.trackselectionRefitting as TrackRefitterSequencer
 
-strTBDConstrainer=None
+strTrackConstrainer=None
 strtbdsel=""
 if hasattr(optpy,"TBDsel"):
    strtbdsel=optpy.TBDsel
@@ -17,7 +17,7 @@ if (hasattr(optpy, "TBDconstraint") and strtbdsel!=""):
          process.TwoBodyDecayMomConstraint.primaryWidth = cms.double(1.4)
       process.TwoBodyDecayMomConstraint.rescaleError = cms.double(1.0)
       process.TwoBodyDecayMomConstraint.chi2Cut = cms.double(99999.)
-      strTBDConstrainer="TwoBodyDecayMomConstraint,momentum"
+      strTrackConstrainer="TwoBodyDecayMomConstraint,momentum"
 
    elif "fullconstr" in strtbdconstr:
       process.load("RecoTracker.TrackProducer.TwoBodyDecayConstraintProducer_cff")
@@ -30,7 +30,30 @@ if (hasattr(optpy, "TBDconstraint") and strtbdsel!=""):
          process.TwoBodyDecayConstraint.primaryWidth = cms.double(1.4)
       process.TwoBodyDecayConstraint.rescaleError = cms.double(1.0)
       process.TwoBodyDecayConstraint.chi2Cut = cms.double(99999.)
-      strTBDConstrainer="TwoBodyDecayConstraint,trackParameters"
+      strTrackConstrainer="TwoBodyDecayConstraint,trackParameters"
+elif hasattr(optpy, "applyPVConstraint"):
+   # Existence of PVtype is guaranteed in the option parser
+   strpvtype=optpy.PVtype
+   process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+   process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
+   process.offlinePrimaryVertices.TrackLabel=cms.InputTag("AlignmentTrackSelector")
+   if strpvtype=="withbs":
+      process.goodOfflinePrimaryVertices=cms.EDFilter("VertexSelector",
+                                            src = cms.InputTag("offlinePrimaryVertices","WithBS"),
+                                            cut = cms.string("!isFake && ndof >= 4.0 && abs(z) <= 24.0 && abs(position.Rho) <= 2.0"),
+                                            filter = cms.bool(True)
+                                         )
+   else:
+      process.goodOfflinePrimaryVertices=cms.EDFilter("VertexSelector",
+                                            src = cms.InputTag("offlinePrimaryVertices"),
+                                            cut = cms.string("!isFake && ndof >= 4.0 && abs(z) <= 24.0 && abs(position.Rho) <= 2.0"),
+                                            filter = cms.bool(True)
+                                         )
+   process.load("RecoTracker.TrackProducer.VertexConstraintProducer_cfi")
+   process.vertexConstraint.srcTrk = "AlignmentTrackSelector"
+   process.vertexConstraint.srcVtx = "goodOfflinePrimaryVertices"
+   strTrackConstrainer="vertexConstraint,vertex"
+
 
 process.TrackRefitterSequence = TrackRefitterSequencer.getSequence(
    process,
@@ -40,12 +63,12 @@ process.TrackRefitterSequence = TrackRefitterSequencer.getSequence(
    openMassWindow = False,
    cosmicsDecoMode = False,
    cosmicsZeroTesla = False,
-   momentumConstraint = strTBDConstrainer, # Should be a momentum constraint object
+   momentumConstraint = strTrackConstrainer, # Should be a momentum constraint object
    cosmicTrackSplitting = False,
    use_d0cut = True
    )
 
-if strTBDConstrainer is not None:
+if (strTrackConstrainer is not None and strtbdsel!=""):
    process.AlignmentTrackSelector.TwoBodyDecaySelector.daughterMass = 0.0 # Causes tiny bias in mass, but should not be very important
    if "y1ssel" in strtbdsel:
       process.AlignmentTrackSelector.ptMin   = 3.0

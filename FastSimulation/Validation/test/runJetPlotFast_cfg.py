@@ -4,7 +4,7 @@ process = cms.Process("PROD")
 # Include the RandomNumberGeneratorService definition
 process.load("IOMC.RandomEngine.IOMC_cff")
 
-process.load("FastSimulation.Configuration.QCDpt50_120_cfi")
+process.load("Configuration.Generator.QCD_Pt_50_80_cfi")
 
 #  include "FastSimulation/Configuration/data/QCDpt600-800.cfi"
 # Generate Minimum Bias Events
@@ -16,8 +16,6 @@ process.load("FastSimulation.Configuration.QCDpt50_120_cfi")
 # include "FastSimulation/Configuration/data/DiElectrons.cfi"
 # Famos sequences (no HLT here)
 process.load("FastSimulation.Configuration.CommonInputsFake_cff")
-
-process.load("FastSimulation.Configuration.FamosSequences_cff")
 
 #  
 # module o1 = PoolOutputModule { 
@@ -37,7 +35,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.jetComp = cms.EDAnalyzer("JetComparison",
     MinEnergy = cms.double(50.0),
-    outputFile = cms.untracked.string('fastjet50-120_fast.root')
+)
+
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('fastjet50-120_fast.root')
 )
 
 process.Timing = cms.Service("Timing")
@@ -47,8 +48,12 @@ process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
-process.MessageLogger.destinations = ['detailedInfo.txt']
+process.fastSimProducer.SimulateCalorimetry = True
+for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.detailedInfo = dict(extension = '.txt')
 
 

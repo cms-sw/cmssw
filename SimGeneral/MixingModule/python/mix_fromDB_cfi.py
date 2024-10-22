@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 # here we define part of the configuration of MixingModule
@@ -30,7 +31,7 @@ mix = cms.EDProducer("MixingModule",
 
     input = cms.SecSource("EmbeddedRootSource",
         type = cms.string('readDB'),
-	sequential = cms.untracked.bool(False),                          
+        sequential = cms.untracked.bool(False),                          
         fileNames = FileNames 
     ),
 
@@ -57,8 +58,8 @@ mix = cms.EDProducer("MixingModule",
 
 
 if mix.readDB == cms.bool(True):
-    print ' '
-    print 'MixingModule will be configured from db; this is mix.readDB : ',mix.readDB
+    print(' ')
+    print('MixingModule will be configured from db; this is mix.readDB : ',mix.readDB)
 else :
-    print ' '
-    print 'MixingModule is NOT going to be configured from db; this is mix.readDB : ',mix.readDB
+    print(' ')
+    print('MixingModule is NOT going to be configured from db; this is mix.readDB : ',mix.readDB)

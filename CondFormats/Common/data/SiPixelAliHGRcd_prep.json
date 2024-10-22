@@ -1,0 +1,10 @@
+{
+    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
+    "destinationTags": {
+        "SiPixelAliHG_PCL_v0_hlt": {}, 
+        "SiPixelAliHG_PCL_v0_prompt": {}
+    }, 
+    "inputTag": "SiPixelAliHG_pcl", 
+    "since": null, 
+    "userText": "T0 PCL Upload for SiPixel HG Ali. (prep)"
+}

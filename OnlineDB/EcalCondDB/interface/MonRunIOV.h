@@ -12,14 +12,14 @@
 typedef int subrun_t;
 
 class MonRunIOV : public IIOV {
- public:
+public:
   friend class EcalCondDBInterface;
 
   MonRunIOV();
   ~MonRunIOV() override;
 
   void setID(int id);
-  int getID(){ return m_ID;} ;
+  int getID() { return m_ID; };
 
   // Methods for user data
   void setMonRunTag(const MonRunTag& tag);
@@ -38,18 +38,14 @@ class MonRunIOV : public IIOV {
   void setByID(int id) noexcept(false) override;
 
   // Operators
-  inline bool operator==(const MonRunIOV &m) const
-    {
-      return ( m_monRunTag   == m.m_monRunTag &&
-	       m_runIOV      == m.m_runIOV &&
-	       m_subRunNum   == m.m_subRunNum &&
-	       m_subRunStart == m.m_subRunStart &&
-	       m_subRunEnd   == m.m_subRunEnd );
-    }
+  inline bool operator==(const MonRunIOV& m) const {
+    return (m_monRunTag == m.m_monRunTag && m_runIOV == m.m_runIOV && m_subRunNum == m.m_subRunNum &&
+            m_subRunStart == m.m_subRunStart && m_subRunEnd == m.m_subRunEnd);
+  }
 
-  inline bool operator!=(const MonRunIOV &m) const { return !(*this == m); }
+  inline bool operator!=(const MonRunIOV& m) const { return !(*this == m); }
 
- private:
+private:
   // User data for this IOV
   MonRunTag m_monRunTag;
   RunIOV m_runIOV;

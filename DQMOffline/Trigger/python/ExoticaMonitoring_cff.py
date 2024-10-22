@@ -7,17 +7,21 @@ from DQMOffline.Trigger.HTMonitor_cff import *
 from DQMOffline.Trigger.METplusTrackMonitor_cff import *
 from DQMOffline.Trigger.MuonMonitor_cff import *
 from DQMOffline.Trigger.DisplacedJet_Monitor_cff import *
+from DQMOffline.Trigger.DiDispStaMuonMonitor_cff import *
+from DQMOffline.Trigger.DisplacedVertices_Monitor_cff import *
 
 exoticaMonitorHLT = cms.Sequence(
     exoHLTMETmonitoring
   + exoHLTNoBPTXmonitoring
+  + exoHLTdispStaMuonMonitoring
+  + exoHLTPhotonmonitoring
+  + exoHLTHTmonitoring
+  + exoHLTMETplusTrackMonitoring
+  + exoHLTMuonmonitoring
+  + exoHLTDisplacedJetmonitoring
+  + exoHLTDisplacedVerticesmonitoring
 )
 
 
 exoHLTDQMSourceExtra = cms.Sequence(
-  exoHLTPhotonmonitoring
-  + exoHLTHTmonitoring
-# + exoHLTMETplusTrackMonitoring    # disabled pending the review of METplusTrackMonitor.cc
-  + exoHLTMuonmonitoring
-  + exoHLTDisplacedJetmonitoring
 )

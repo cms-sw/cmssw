@@ -11,10 +11,6 @@
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
- typedef SingleObjectSelector<
-           reco::CaloJetCollection,
-           EtMinSelector,
-           reco::CaloJetRefVector
-         > EtMinCaloJetRefSelector;
+typedef SingleObjectSelector<reco::CaloJetCollection, EtMinSelector, reco::CaloJetRefVector> EtMinCaloJetRefSelector;
 
-DEFINE_FWK_MODULE( EtMinCaloJetRefSelector );
+DEFINE_FWK_MODULE(EtMinCaloJetRefSelector);

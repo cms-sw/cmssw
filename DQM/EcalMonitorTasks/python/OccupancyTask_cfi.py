@@ -2,12 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 tpThreshold = 4.
 recHitThreshold = 0.5
+lumiCheck = False
 
 ecalOccupancyTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
         recHitThreshold = cms.untracked.double(recHitThreshold),
-        tpThreshold = cms.untracked.double(tpThreshold)
-    ),
+        tpThreshold = cms.untracked.double(tpThreshold),
+        metadata = cms.InputTag('onlineMetaDataDigis'),
+	lumiCheck = cms.untracked.bool(lumiCheck)
+    ), 
     MEs = cms.untracked.PSet(
         TrendNTPDigi = cms.untracked.PSet(
             path = cms.untracked.string('Ecal/Trends/OccupancyTask %(prefix)s number of filtered TP digis'),
@@ -232,6 +235,72 @@ ecalOccupancyTask = cms.untracked.PSet(
             btype = cms.untracked.string('User'),
             path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT rec hit thr occupancy z+(far) - z-(near)'),
             description = cms.untracked.string('Filtered rechit occupancy difference.')
+        ),
+	LaserCorrProjEta = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/%(prefix)sOT Laser Transparency correction from DB %(suffix)s eta projection'),
+            kind = cms.untracked.string('TProfile'),
+	    yaxis = cms.untracked.PSet(
+		title= cms.untracked.string('Laser transparency correction')
+	    ),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('ProjEta'),
+            description = cms.untracked.string('Projection of average laser transparency correction from DB.')
+        ),
+        TrendEventsperLumi = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/Number of Events per Lumisection'),
+            kind = cms.untracked.string('TProfile'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('Trend'),
+            description = cms.untracked.string('Trend of the number of events per lumisection')
+        ),
+        TrendPUperLumi = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/PU per Lumisection'),
+            kind = cms.untracked.string('TProfile'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('Trend'),
+            description = cms.untracked.string('Trend of the pile up per lumisection')
+        ),
+        AELoss = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT AE Loss%(suffix)s'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('SuperCrystal'),
+            description = cms.untracked.string('AE Loss from inference')
+        ),
+	AEReco = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT AE Reco%(suffix)s'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('SuperCrystal'),
+            description = cms.untracked.string('AE Reco')
+        ),
+        PU = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/EventInfo/PU in the lumi'),
+            kind = cms.untracked.string('REAL'),
+            otype = cms.untracked.string('None'),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Pile up in this lumisection')
+        ),
+        NEvents = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/EventInfo/Number of events in the lumi'),
+            kind = cms.untracked.string('REAL'),
+            otype = cms.untracked.string('None'),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Number of events in this lumisection')
+        ),
+        BadTowerCount = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT ML bad tower count%(suffix)s'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('SuperCrystal'),
+            description = cms.untracked.string('Count of bad towers flagged by the ML model.')
+        ),
+        BadTowerCountNorm = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT ML bad tower count normalized%(suffix)s'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('SuperCrystal'),
+            description = cms.untracked.string('Count of bad towers flagged by the ML model normalized by the no.of LS')
         )
 #        TPDigiProjPhi = cms.untracked.PSet(
 #            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT TP digi occupancy%(suffix)s projection phi'),

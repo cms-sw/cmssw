@@ -1,0 +1,8 @@
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="DataFormats/GEMDigi"/>
+<export>
+  <lib name="1"/>
+</export>

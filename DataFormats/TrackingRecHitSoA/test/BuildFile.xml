@@ -1,0 +1,6 @@
+<use name="eigen"/>
+<bin file="alpaka/Hits_test.cc alpaka/Hits_test.dev.cc" name="Hits_test">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
