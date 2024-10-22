@@ -3,7 +3,7 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 l1tCaloLayer1Summary = DQMEDAnalyzer("L1TCaloLayer1Summary",
     caloLayer1CICADAScore = cms.InputTag("caloLayer1Digis", "CICADAScore"),
-    gtCICADAScore = cms.InputTag("gtTestcrateStage2Digis", "CICADAScore"),
+    gtCICADAScore = cms.InputTag("gtStage2Digis", "CICADAScore"),
     simCICADAScore = cms.InputTag("simCaloStage2Layer1Summary", "CICADAScore"),
     caloLayer1Regions = cms.InputTag("caloLayer1Digis", ""),
     simRegions = cms.InputTag("simCaloStage2Layer1Digis", ""),
