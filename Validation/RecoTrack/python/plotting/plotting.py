@@ -1995,7 +1995,7 @@ class Plot:
             h.SetMarkerStyle(msty)
             h.SetMarkerColor(col)
             h.SetMarkerSize(0.7)
-            h.SetLineColor(1)
+            h.SetLineColor(col)
             h.SetLineWidth(1)
 
         def _styleHist(h, msty, col):
