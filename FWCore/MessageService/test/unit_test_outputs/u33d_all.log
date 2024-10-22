@@ -104,30 +104,30 @@ T1 analyze info with identifier 22 event 1
 
 MessageLogger Summary
 
- type     category        sev    module        subroutine        count    total
- ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 cat_A                -d UTC_Vd1:ssm_1b                         2        2
-    2 cat_BJ               -d UTC_Vd1:ssm_1b@b                       1        1
-    3 cat_BJ               -d UTC_Vd1:ssm_1b@b                       1        1
-    4 cat_BL               -d UTC_Vd1:ssm_1b@b                       1        1
-    5 cat_A                -i UTC_Vd1:ssm_1a                         2        2
-    6 cat_A                -i UTC_Vd1:ssm_1b                         2        2
-    7 cat_A                -i UTC_Vd2:ssm_2b                         2        2
-    8 cat_BR               -i UTC_Vd1:ssm_1a@b                       1        1
-    9 cat_BR               -i UTC_Vd1:ssm_1b@b                       1        1
-   10 FwkReport            -f AfterSource                            2        2
-   11 cat_A                -w UTC_Vd1:ssm_1a                         2        2
-   12 cat_A                -w UTC_Vd1:ssm_1b                         2        2
-   13 cat_A                -w UTC_Vd2:ssm_2a                         2        2
-   14 cat_A                -w UTC_Vd2:ssm_2b                         2        2
-   15 cat_BJ               -w UTC_Vd1:ssm_1a@b                       1        1
-   16 cat_BJ               -w UTC_Vd1:ssm_1b@b                       1        1
-   17 cat_BL               -w UTC_Vd1:ssm_1a@b                       1        1
-   18 cat_BL               -w UTC_Vd1:ssm_1b@b                       1        1
-   19 cat_A                -e UTC_Vd1:ssm_1a                         2        2
-   20 cat_A                -e UTC_Vd1:ssm_1b                         2        2
-   21 cat_A                -e UTC_Vd2:ssm_2a                         2        2
-   22 cat_A                -e UTC_Vd2:ssm_2b                         2        2
+ type     category        sev          module                subroutine         count   total
+ ---- -------------------- -- ------------------------- ---------------------   -----   -----
+    1 cat_A                -d UTC_Vd1:ssm_1b                                       2        2
+    2 cat_BJ               -d UTC_Vd1:ssm_1b@beginJob                              1        1
+    3 cat_BJ               -d UTC_Vd1:ssm_1b@beginRun                              1        1
+    4 cat_BL               -d UTC_Vd1:ssm_1b@beginLumi                             1        1
+    5 cat_A                -i UTC_Vd1:ssm_1a                                       2        2
+    6 cat_A                -i UTC_Vd1:ssm_1b                                       2        2
+    7 cat_A                -i UTC_Vd2:ssm_2b                                       2        2
+    8 cat_BR               -i UTC_Vd1:ssm_1a@beginRun                              1        1
+    9 cat_BR               -i UTC_Vd1:ssm_1b@beginRun                              1        1
+   10 FwkReport            -f AfterSource                                          2        2
+   11 cat_A                -w UTC_Vd1:ssm_1a                                       2        2
+   12 cat_A                -w UTC_Vd1:ssm_1b                                       2        2
+   13 cat_A                -w UTC_Vd2:ssm_2a                                       2        2
+   14 cat_A                -w UTC_Vd2:ssm_2b                                       2        2
+   15 cat_BJ               -w UTC_Vd1:ssm_1a@beginJob                              1        1
+   16 cat_BJ               -w UTC_Vd1:ssm_1b@beginJob                              1        1
+   17 cat_BL               -w UTC_Vd1:ssm_1a@beginLumi                             1        1
+   18 cat_BL               -w UTC_Vd1:ssm_1b@beginLumi                             1        1
+   19 cat_A                -e UTC_Vd1:ssm_1a                                       2        2
+   20 cat_A                -e UTC_Vd1:ssm_1b                                       2        2
+   21 cat_A                -e UTC_Vd2:ssm_2a                                       2        2
+   22 cat_A                -e UTC_Vd2:ssm_2b                                       2        2
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
