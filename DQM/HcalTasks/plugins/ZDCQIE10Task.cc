@@ -11,12 +11,8 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
   _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagQIE10", edm::InputTag("hcalDigis", "ZDC"));
   _tokQIE10 = consumes<QIE10DigiCollection>(_tagQIE10);
 
-  //const edm::EDGetTokenT<l1t::EtSumBxCollection> sumZDCToken_;
-
   sumTag = ps.getUntrackedParameter<edm::InputTag>("etSumTag", edm::InputTag("etSumZdcProducer", ""));
-  //sumTag = ps.getParameter<edm::InputTag>("etSumTag");
   sumToken_ = consumes<l1t::EtSumBxCollection>(sumTag);
-  //sumZDCToken_ = consumes<l1t::EtSumBxCollection>(ps.getUntrackedParameter<edm::InputTag>("sumZDCToken"));
 
   htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
   paramsToken_ = esConsumes<HcalLongRecoParams, HcalLongRecoParamsRcd>();
