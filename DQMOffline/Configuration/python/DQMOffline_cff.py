@@ -129,7 +129,8 @@ DQMOfflineTracking = cms.Sequence( TrackingDQMSourceTier0 *
                                    DQMOfflineVertex *
                                    materialDumperAnalyzer )
 
-DQMOfflineMUO = cms.Sequence(muonMonitors)
+DQMOfflineMUO = cms.Sequence(muonMonitors
+                             *cscMonitor)
 muonRecoAnalyzer.doMVA =         cms.bool( True )
 muonRecoAnalyzer_miniAOD.doMVA = cms.bool( True )
 
@@ -158,7 +159,7 @@ DQMOfflinePrePOG = cms.Sequence( DQMOfflineTracking *
 
 
 DQMOfflinePrePOGExpress = cms.Sequence( DQMOfflineTracking *
-                                 DQMOfflineMUO *
+                                 #DQMOfflineMUO *
                                  #DQMOfflineJetMET *
                                  #DQMOfflineEGamma *
                                  DQMOfflineTrigger *
