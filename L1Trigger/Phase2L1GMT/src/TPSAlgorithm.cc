@@ -147,8 +147,6 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop2_coord2 = {
       {lt_prop2_coord2_0, lt_prop2_coord2_1, lt_prop2_coord2_2, lt_prop2_coord2_3, lt_prop2_coord2_4}};
 
-
-
   static const std::array<const ap_uint<BITSPROPSIGMACOORD_A>*, 5> lt_res0_coord1 = {
       {lt_res0_coord1_0, lt_res0_coord1_1, lt_res0_coord1_2, lt_res0_coord1_3, lt_res0_coord1_4}};
   static const std::array<const ap_uint<BITSPROPSIGMACOORD_B>*, 5> lt_res1_coord1 = {
@@ -198,7 +196,7 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   res0_eta2 = lt_res0_eta2[layer][reducedAbsEta];
   is_barrel = reducedAbsEta < barrellimit[layer] ? 1 : 0;
 
-  //try inflating res0's 
+  //try inflating res0's
   //res0_coord1 = 2 * res0_coord1;
   //res0_coord2 = 2 * res0_coord2;
 
@@ -215,19 +213,18 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   if (track.curvature() < 0) {
     absK = ap_uint<BITSTTCURV - 1>(-track.curvature());
     negativeCurv = 1;
-  }
-  else {
+  } else {
     absK = ap_uint<BITSTTCURV - 1>(track.curvature());
     negativeCurv = 0;
   }
 
   ap_uint<BITSPROPCOORD + BITSTTCURV - 1> c1kFull = prop1_coord1 * absK;
-  ap_uint<BITSPROPCOORD + BITSTTCURV - 13> c1k = (c1kFull) >> 12; // 1024;
+  ap_uint<BITSPROPCOORD + BITSTTCURV - 13> c1k = (c1kFull) >> 12;  // 1024;
   //ap_int<BITSPHI> coord1 = phi - c1k;
 
-  ap_uint<BITSPROPCOORD + 2*BITSTTCURV - 2> d1kabsKFull = prop2_coord1 * absK * absK;
-  ap_uint<BITSPROPCOORD + 2*BITSTTCURV - 28> d1kabsK = (d1kabsKFull) >> 26; // 16777216;
-  
+  ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 2> d1kabsKFull = prop2_coord1 * absK * absK;
+  ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 28> d1kabsK = (d1kabsKFull) >> 26;  // 16777216;
+
   absDphiOverflow = c1k + d1kabsK;
   if (absDphiOverflow > PROPMAX)
     dphi = PROPMAX;
@@ -241,11 +238,11 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   out.coord1 = (phi - dphi) / PHIDIVIDER;
 
   ap_uint<BITSPROPCOORD + BITSTTCURV - 1> c2kFull = prop1_coord2 * absK;
-  ap_uint<BITSPROPCOORD + BITSTTCURV - 13> c2k = (c2kFull) >> 12; // 1024;
+  ap_uint<BITSPROPCOORD + BITSTTCURV - 13> c2k = (c2kFull) >> 12;  // 1024;
 
-  ap_uint<BITSPROPCOORD + 2*BITSTTCURV - 2> d2kabsKFull = prop2_coord2 * absK * absK;
-  ap_uint<BITSPROPCOORD + 2*BITSTTCURV - 28> d2kabsK = (d2kabsKFull) >> 26; // 16777216;
-  
+  ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 2> d2kabsKFull = prop2_coord2 * absK * absK;
+  ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 28> d2kabsK = (d2kabsKFull) >> 26;  // 16777216;
+
   absDphiOverflow = c2k + d2kabsK;
   if (absDphiOverflow > PROPMAX)
     dphi = PROPMAX;
@@ -282,7 +279,6 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   out.sigma_eta1 = ap_uint<BITSSIGMAETA>(sigma_eta1);
   ap_ufixed<BITSSIGMAETA, BITSSIGMAETA, AP_TRN_ZERO, AP_SAT_SYM> sigma_eta2 = res0_eta2 + resetak;
   out.sigma_eta2 = ap_uint<BITSSIGMAETA>(sigma_eta2);
-
 
   ap_uint<BITSPROPSIGMACOORD_B + BITSTTCURV - 1> s1kFull = res1_coord1 * absK;
   ap_uint<BITSPROPSIGMACOORD_B + BITSTTCURV - 1 - 10> s1k = res0_coord1 + (s1kFull >> 10);
@@ -543,7 +539,7 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track, co
   }
 
   //printouts
- /* 
+  /* 
   fstream outfile("/uscms/home/hancelin/testing/CMSSW_14_1_0_pre3/src/matching_printouts.txt", ios::app);
   outfile << "Input converted track: ";
   //q, pt, phi, eta, z0, d0, quality
