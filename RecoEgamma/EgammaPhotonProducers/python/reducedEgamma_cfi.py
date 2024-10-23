@@ -77,3 +77,6 @@ run2_miniAOD_pp_on_AA_103X.toModify(
     photonsPFValMap = "pfEGammaToCandidateRemapperCleaned:photons",
     gsfElectronsPFValMap = "pfEGammaToCandidateRemapperCleaned:electrons"
 )
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(reducedEgamma, keepPfSuperclusterPtMin = 1.0, keepPhotons = "", slimRelinkPhotons = "", relinkPhotons = "", relinkGsfElectrons = "")
