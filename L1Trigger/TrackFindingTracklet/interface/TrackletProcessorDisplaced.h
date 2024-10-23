@@ -40,17 +40,10 @@ namespace trklet {
 
   private:
     int iTC_;
-    int iAllStub_;
-    unsigned int maxStep_;
-    int count_;
-    unsigned int layerdisk_;
 
-    int layer1_;
-    int layer2_;
-    int layer3_;
-    int disk1_;
-    int disk2_;
-    int disk3_;
+    unsigned int layerdisk1_;
+    unsigned int layerdisk2_;
+    unsigned int layerdisk3_;
 
     int firstphibits_;
     int secondphibits_;
@@ -59,20 +52,11 @@ namespace trklet {
     int nbitszfinebintable_;
     int nbitsrfinebintable_;
 
-    TrackletLUT innerTable_;         //projection to next layer/disk
-    TrackletLUT innerOverlapTable_;  //projection to disk from layer
-    TrackletLUT innerThirdTable_;    //projection to disk1 for extended - iseed=10
+    TrackletLUT innerTable_;       //projection to next layer/disk
+    TrackletLUT innerThirdTable_;  //projection to third disk/layer
 
-    std::vector<StubPairsMemory*> stubpairs_;
-    /* std::vector<StubTripletsMemory*> stubtriplets_; */
     std::vector<VMStubsTEMemory*> innervmstubs_;
     std::vector<VMStubsTEMemory*> outervmstubs_;
-
-    StubTripletsMemory* stubtriplets_;
-
-    std::map<std::string, std::vector<std::vector<std::string> > > tmpSPTable_;
-    std::map<std::string, std::vector<std::map<std::string, unsigned> > > spTable_;
-    std::vector<bool> table_;
   };
 
 };  // namespace trklet
