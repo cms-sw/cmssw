@@ -23,14 +23,14 @@
 namespace {
   class MonitorAdaptor : public cms::perftools::AllocMonitorBase {
   public:
-    void allocCalled(size_t iRequested, size_t iActual) final {
+    void allocCalled(size_t iRequested, size_t iActual, void const*) final {
       auto& a = allocRequested_[bin(iRequested)];
       a.fetch_add(1, std::memory_order_acq_rel);
 
       auto& u = allocUsed_[bin(iActual)];
       u.fetch_add(1, std::memory_order_acq_rel);
     }
-    void deallocCalled(size_t iActual) final {
+    void deallocCalled(size_t iActual, void const*) final {
       auto& u = deallocUsed_[bin(iActual)];
       u.fetch_add(1, std::memory_order_acq_rel);
     }
