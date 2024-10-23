@@ -46,7 +46,9 @@ void HGCalVFECompressionImpl::compressSingle(const uint64_t value,
   const uint32_t floatval = (exponent << mantissaBits_) | mantissa;
 
   // we will never want to round up maximum code here
-  if (!rounding_ || floatval == saturationCode_) {
+  // Also, rounding doesn't apply if exponent==1 since there is no actual compression
+  // from the conversion to floating point in that case
+  if (!rounding_ || floatval == saturationCode_ || exponent <= 1) {
     compressedCode = floatval;
     compressedValue = ((1ULL << mantissaBits_) | mantissa) << (exponent - 1);
   } else {
