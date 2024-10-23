@@ -81,6 +81,7 @@ private:
   void returnEmptyCollections(edm::Event& e, const int lcSize);
   std::string detector_;
   const bool doNose_ = false;
+  const bool doBarrel_ = false;
   const bool computeLocalTime_;
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
@@ -112,6 +113,7 @@ DEFINE_FWK_MODULE(SimTrackstersProducer);
 SimTrackstersProducer::SimTrackstersProducer(const edm::ParameterSet& ps)
     : detector_(ps.getParameter<std::string>("detector")),
       doNose_(detector_ == "HFNose"),
+      doBarrel_(detector_ == "Barrel"),
       computeLocalTime_(ps.getParameter<bool>("computeLocalTime")),
       clusters_token_(consumes(ps.getParameter<edm::InputTag>("layer_clusters"))),
       clustersTime_token_(consumes(ps.getParameter<edm::InputTag>("time_layerclusters"))),
@@ -425,14 +427,20 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                               layerClustersTimes,
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(doNose_)).z(),
                               rhtools_,
-                              computeLocalTime_);
+                              computeLocalTime_,
+                              true,
+                              false,
+                              doBarrel_);
   result->shrink_to_fit();
   ticl::assignPCAtoTracksters(*result_fromCP,
                               layerClusters,
                               layerClustersTimes,
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(doNose_)).z(),
                               rhtools_,
-                              computeLocalTime_);
+                              computeLocalTime_,
+                              true,
+                              false,
+                              doBarrel_);
 
   makePUTrackster(inputClusterMask, *output_mask, *resultPU, caloParticles_h.id(), 0);
 
