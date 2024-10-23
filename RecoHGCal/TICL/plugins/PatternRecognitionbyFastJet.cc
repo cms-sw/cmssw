@@ -138,12 +138,24 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
   // Collect the jet from the other side wrt to the one taken care of inside the main loop above.
   buildJetAndTracksters(fjInputs, result);
 
+  double limit_em = 0.f;
+  if (isBarrel) {
+    auto x2 = std::pow(rhtools_.getPositionLayer(1, false, true).x(), 2);
+    auto y2 = std::pow(rhtools_.getPositionLayer(1, false, true).y(), 2);
+    limit_em = std::sqrt(x2 + y2);
+  } else {
+    limit_em = rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z();
+  }
+
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
                               input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z(),
+                              limit_em,
                               rhtools_,
-                              computeLocalTime_);
+                              computeLocalTime_,
+                              true,
+                              false,
+                              isBarrel);
 
   // run energy regression and ID
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic) {

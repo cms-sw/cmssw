@@ -26,6 +26,7 @@ namespace ticl {
                              bool computeLocalTime = false,
                              bool energyWeight = true,
                              bool clean = false,
+                             bool isBarrel = false,
                              int minLayer = 10,
                              int maxLayer = 10);
   std::pair<float, float> computeLocalTracksterTime(const Trackster &trackster,
