@@ -123,7 +123,7 @@ _Electron_Run2_plots.extend([
     Plot1D('dEscaleDown', 'dEscaleDown', 100, -0.01, 0.01, '#Delta E scaleDown'),
     Plot1D('dEsigmaUp', 'dEsigmaUp', 100, -0.1, 0.1, '#Delta E sigmaUp'),
     Plot1D('dEsigmaDown', 'dEsigmaDown', 100, -0.1, 0.1, '#Delta E sigmaDown'),
-    Plot1D('eCorr', 'eCorr', 20, 0.8, 1.2, 'ratio of the calibrated energy/miniaod energy'),
+    Plot1D('ptPreCorr', 'ptPreCorr', 100, 0., 500., 'Pt before scale & smearing energy corrections'),
 ])
 run2_egamma.toModify(
      nanoDQM.vplots.Electron,
@@ -146,7 +146,7 @@ _Photon_Run2_plots.extend([
     Plot1D('dEscaleDown', 'dEscaleDown', 100, -0.01, 0.01, '#Delta E scaleDown'),
     Plot1D('dEsigmaUp', 'dEsigmaUp', 100, -0.1, 0.1, '#Delta E sigmaUp'),
     Plot1D('dEsigmaDown', 'dEsigmaDown', 100, -0.1, 0.1, '#Delta E sigmaDown'),
-    Plot1D('eCorr', 'eCorr', 20, 0.8, 1.2, 'ratio of the calibrated energy/miniaod energy'),
+    Plot1D('ptPreCorr', 'ptPreCorr', 100, 0., 500., 'Pt before scale & smearing energy corrections'),
 ])
 run2_egamma.toModify(
      nanoDQM.vplots.Photon,
