@@ -87,21 +87,23 @@ from RecoTracker.FinalTrackSelectors.trackListMerger_cfi import trackListMerger 
 trackingPhase2PU140.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
     TrackProducers =['initialStepTracks',
                      'highPtTripletStepTracks',
+                     'jetCoreRegionalStepTracks',
                      'lowPtQuadStepTracks',
                      'lowPtTripletStepTracks',
                      'detachedQuadStepTracks',
                      'pixelPairStepTracks',
                     ],
-    hasSelector = [1,1,1,1,1,1],
-    indivShareFrac = [1.0,0.16,0.095,0.09,0.09,0.09],
+    hasSelector = [1,1,1,1,1,1,1],
+    indivShareFrac = [1.0,0.16,1.0,0.095,0.09,0.09,0.09],
     selectedTrackQuals = ['initialStepSelector:initialStep',
                           'highPtTripletStepSelector:highPtTripletStep',
+                          'jetCoreRegionalStepSelector:jetCoreRegionalStep',
                           'lowPtQuadStepSelector:lowPtQuadStep',
                           'lowPtTripletStepSelector:lowPtTripletStep',
                           'detachedQuadStep',
                           'pixelPairStepSelector:pixelPairStep',
                           ],
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5), pQual=cms.bool(True) ) 
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True) )
 	),
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False)
