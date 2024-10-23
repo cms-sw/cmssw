@@ -50,7 +50,7 @@ namespace {
               << " which is equal to numeric_limits::max which implies it was not filled correctly.\nWhile this is "
                  "valid for the matching variables as it can signal the failure to find a postive or negative seed "
                  "trajectory,\nit is not valid for the layer number as that is always known.\nThus there is a logic "
-                 "error in the code or possible corupt data";
+                 "error in the code or possible corrupt data";
         } else {
           throw cms::Exception("InvalidData") << "The layerOrDiskNr of hitnr " << hitNr << " is " << layerOrDiskNr
                                               << " and is not in the range of 1<=x<=4 which implies a new pixel "
