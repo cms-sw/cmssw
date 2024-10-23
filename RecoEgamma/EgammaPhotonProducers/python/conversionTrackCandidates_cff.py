@@ -12,3 +12,6 @@ conversionTrackCandidates.RecHitSeverityToBeExcludedEB = cleanedHybridSuperClust
 conversionTrackCandidates.RecHitFlagToBeExcludedEE = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded
 conversionTrackCandidates.RecHitSeverityToBeExcludedEE = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded
 conversionTrackCandidates.TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('TrajectoryBuilderForConversions'))
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(conversionTrackCandidates, minSCEt = 1.0, bcEtCut = 0.5)
