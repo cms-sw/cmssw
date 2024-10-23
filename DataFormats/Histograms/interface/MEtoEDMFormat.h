@@ -16,6 +16,7 @@
 #include <TH2F.h>
 #include <TH2S.h>
 #include <TH2D.h>
+#include <TH2Poly.h>
 #include <TH3F.h>
 #include <TProfile.h>
 #include <TProfile2D.h>
