@@ -23,10 +23,10 @@ namespace edm {
   public:
     HepMC3Product() : isVtxGenApplied_(false), isVtxBoostApplied_(false), isPBoostApplied_(false) {}
 
-    explicit HepMC3Product(HepMC3::GenEvent *evt);
+    explicit HepMC3Product(const HepMC3::GenEvent *evt);
     ~HepMC3Product();
 
-    void addHepMCData(HepMC3::GenEvent *evt);
+    void addHepMCData(const HepMC3::GenEvent *evt);
 
     void applyVtxGen(HepMC3::FourVector const *vtxShift) { applyVtxGen(*vtxShift); }
     void applyVtxGen(HepMC3::FourVector const &vtxShift);
