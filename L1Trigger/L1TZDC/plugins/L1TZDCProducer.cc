@@ -125,7 +125,7 @@ void L1TZDCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       for (int ibx = 0; ibx < nSamples; ibx++) {
         if (ibx >= nPresamples + bxFirst_ && ibx <= nPresamples + bxLast_) {
           HcalTriggerPrimitiveSample hcalTpSample = hcalTp.sample(ibx);
-          int ietIn = hcalTpSample.compressedEt();
+          int ietIn = hcalTpSample.raw();
 
           l1t::EtSum tempEt = l1t::EtSum();
           tempEt.setHwPt(ietIn);
