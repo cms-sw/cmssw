@@ -3093,7 +3093,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2024',
         'Era' : 'Run3_2024',
         'BeamSpot': 'DBrealistic',
-        'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
+        'ScenToRun' : ['GenSim','Digi','RecoNanoFakeHLT','HARVESTNanoFakeHLT','ALCA'],
     },
     '2024HLTOnDigi' : {
         'Geom' : 'DB:Extended',
@@ -3101,7 +3101,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2024',
         'Era' : 'Run3',
         'BeamSpot': 'DBrealistic',
-        'ScenToRun' : ['GenSim','DigiNoHLT','HLTOnly','RecoNano','HARVESTNano','ALCA'],
+        'ScenToRun' : ['GenSim','DigiNoHLT','HLTOnly','RecoNanoFakeHLT','HARVESTNanoFakeHLT','ALCA'],
     },
     '2021FS' : {
         'Geom' : 'DB:Extended',
@@ -3172,7 +3172,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2024',
         'Era' : 'Run3',
         'BeamSpot': 'DBrealistic',
-        'ScenToRun' : ['Gen','Sim','Digi','RecoNano','HARVESTNano','ALCA'],
+        'ScenToRun' : ['Gen','Sim','Digi','RecoNanoFakeHLT','HARVESTNanoFakeHLT','ALCA'],
     },
     '2024FS' : {
         'Geom' : 'DB:Extended',
