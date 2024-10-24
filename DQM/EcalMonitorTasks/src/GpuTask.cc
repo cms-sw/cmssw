@@ -96,10 +96,18 @@ namespace ecaldqm {
       MEs_.erase(std::string("RecHitCpuEnergy"));
       MEs_.erase(std::string("RecHitCpuTime"));
       MEs_.erase(std::string("RecHitCpuFlags"));
+      MEs_.erase(std::string("RecHitCpuChi2"));
+      MEs_.erase(std::string("RecHitCpuEnergyError"));
+      MEs_.erase(std::string("RecHitCpuTimeError"));
+      MEs_.erase(std::string("RecHitCpuNonCorrectedTime"));
       MEs_.erase(std::string("RecHitGpuCpu"));
       MEs_.erase(std::string("RecHitGpuCpuEnergy"));
       MEs_.erase(std::string("RecHitGpuCpuTime"));
       MEs_.erase(std::string("RecHitGpuCpuFlags"));
+      MEs_.erase(std::string("RecHitGpuCpuChi2"));
+      MEs_.erase(std::string("RecHitGpuCpuEnergyError"));
+      MEs_.erase(std::string("RecHitGpuCpuTimeError"));
+      MEs_.erase(std::string("RecHitGpuCpuNonCorrectedTime"));
     }
     if (!digi1D_) {
       MEs_.erase(std::string("DigiGpu"));
@@ -121,6 +129,10 @@ namespace ecaldqm {
       MEs_.erase(std::string("RecHitGpuEnergy"));
       MEs_.erase(std::string("RecHitGpuTime"));
       MEs_.erase(std::string("RecHitGpuFlags"));
+      MEs_.erase(std::string("RecHitGpuChi2"));
+      MEs_.erase(std::string("RecHitGpuEnergyError"));
+      MEs_.erase(std::string("RecHitGpuTimeError"));
+      MEs_.erase(std::string("RecHitGpuNonCorrectedTime"));
     }
     if (!digi2D_) {
       MEs_.erase(std::string("Digi2D"));
@@ -142,6 +154,10 @@ namespace ecaldqm {
       MEs_.erase(std::string("RecHit2DEnergy"));
       MEs_.erase(std::string("RecHit2DTime"));
       MEs_.erase(std::string("RecHit2DFlags"));
+      MEs_.erase(std::string("RecHit2DChi2"));
+      MEs_.erase(std::string("RecHit2DEnergyError"));
+      MEs_.erase(std::string("RecHit2DTimeError"));
+      MEs_.erase(std::string("RecHit2DNonCorrectedTime"));
     }
   }
 
@@ -469,6 +485,10 @@ namespace ecaldqm {
     MESet& meRecHitCpuEnergy(MEs_.at("RecHitCpuEnergy"));
     MESet& meRecHitCpuTime(MEs_.at("RecHitCpuTime"));
     MESet& meRecHitCpuFlags(MEs_.at("RecHitCpuFlags"));
+    MESet& meRecHitCpuChi2(MEs_.at("RecHitCpuChi2"));
+    MESet& meRecHitCpuEnergyError(MEs_.at("RecHitCpuEnergyError"));
+    MESet& meRecHitCpuTimeError(MEs_.at("RecHitCpuTimeError"));
+    MESet& meRecHitCpuNonCorrectedTime(MEs_.at("RecHitCpuNonCorrectedTime"));
 
     int iSubdet(collection == kEBCpuRecHit ? EcalBarrel : EcalEndcap);
 
@@ -485,10 +505,18 @@ namespace ecaldqm {
       float cpuEnergy(cpuHit.energy());
       float cpuTime(cpuHit.time());
       uint32_t cpuFlags(cpuHit.flagsBits());
+      float cpuChi2(cpuHit.chi2());
+      float cpuEnergyError(cpuHit.energyError());
+      float cpuTimeError(cpuHit.timeError());
+      float cpuNonCorrectedTime(cpuHit.nonCorrectedTime());
 
       meRecHitCpuEnergy.fill(getEcalDQMSetupObjects(), iSubdet, cpuEnergy);
       meRecHitCpuTime.fill(getEcalDQMSetupObjects(), iSubdet, cpuTime);
       meRecHitCpuFlags.fill(getEcalDQMSetupObjects(), iSubdet, cpuFlags);
+      meRecHitCpuChi2.fill(getEcalDQMSetupObjects(), iSubdet, cpuChi2);
+      meRecHitCpuEnergyError.fill(getEcalDQMSetupObjects(), iSubdet, cpuEnergyError);
+      meRecHitCpuTimeError.fill(getEcalDQMSetupObjects(), iSubdet, cpuTimeError);
+      meRecHitCpuNonCorrectedTime.fill(getEcalDQMSetupObjects(), iSubdet, cpuNonCorrectedTime);
     }
   }
 
@@ -497,6 +525,10 @@ namespace ecaldqm {
     MESet& meRecHitGpuCpuEnergy(MEs_.at("RecHitGpuCpuEnergy"));
     MESet& meRecHitGpuCpuTime(MEs_.at("RecHitGpuCpuTime"));
     MESet& meRecHitGpuCpuFlags(MEs_.at("RecHitGpuCpuFlags"));
+    MESet& meRecHitGpuCpuChi2(MEs_.at("RecHitGpuCpuChi2"));
+    MESet& meRecHitGpuCpuEnergyError(MEs_.at("RecHitGpuCpuEnergyError"));
+    MESet& meRecHitGpuCpuTimeError(MEs_.at("RecHitGpuCpuTimeError"));
+    MESet& meRecHitGpuCpuNonCorrectedTime(MEs_.at("RecHitGpuCpuNonCorrectedTime"));
 
     int iSubdet(collection == kEBGpuRecHit ? EcalBarrel : EcalEndcap);
 
@@ -536,33 +568,61 @@ namespace ecaldqm {
       float gpuEnergy(gpuHit.energy());
       float gpuTime(gpuHit.time());
       uint32_t gpuFlags(gpuHit.flagsBits());
+      float gpuChi2(gpuHit.chi2());
+      float gpuEnergyError(gpuHit.energyError());
+      float gpuTimeError(gpuHit.timeError());
+      float gpuNonCorrectedTime(gpuHit.nonCorrectedTime());
 
       float cpuEnergy(cpuItr->energy());
       float cpuTime(cpuItr->time());
       uint32_t cpuFlags(cpuItr->flagsBits());
+      float cpuChi2(cpuItr->chi2());
+      float cpuEnergyError(cpuItr->energyError());
+      float cpuTimeError(cpuItr->timeError());
+      float cpuNonCorrectedTime(cpuItr->nonCorrectedTime());
 
       meRecHitGpuCpuEnergy.fill(getEcalDQMSetupObjects(), iSubdet, gpuEnergy - cpuEnergy);
       meRecHitGpuCpuTime.fill(getEcalDQMSetupObjects(), iSubdet, gpuTime - cpuTime);
       meRecHitGpuCpuFlags.fill(getEcalDQMSetupObjects(), iSubdet, gpuFlags - cpuFlags);
+      meRecHitGpuCpuChi2.fill(getEcalDQMSetupObjects(), iSubdet, gpuChi2 - cpuChi2);
+      meRecHitGpuCpuEnergyError.fill(getEcalDQMSetupObjects(), iSubdet, gpuEnergyError - cpuEnergyError);
+      meRecHitGpuCpuTimeError.fill(getEcalDQMSetupObjects(), iSubdet, gpuTimeError - cpuTimeError);
+      meRecHitGpuCpuNonCorrectedTime.fill(getEcalDQMSetupObjects(), iSubdet, gpuNonCorrectedTime - cpuNonCorrectedTime);
 
       if (rechit1D_) {
         MESet& meRecHitGpuEnergy(MEs_.at("RecHitGpuEnergy"));
         MESet& meRecHitGpuTime(MEs_.at("RecHitGpuTime"));
         MESet& meRecHitGpuFlags(MEs_.at("RecHitGpuFlags"));
+        MESet& meRecHitGpuChi2(MEs_.at("RecHitGpuChi2"));
+        MESet& meRecHitGpuEnergyError(MEs_.at("RecHitGpuEnergyError"));
+        MESet& meRecHitGpuTimeError(MEs_.at("RecHitGpuTimeError"));
+        MESet& meRecHitGpuNonCorrectedTime(MEs_.at("RecHitGpuNonCorrectedTime"));
 
         meRecHitGpuEnergy.fill(getEcalDQMSetupObjects(), iSubdet, gpuEnergy);
         meRecHitGpuTime.fill(getEcalDQMSetupObjects(), iSubdet, gpuTime);
         meRecHitGpuFlags.fill(getEcalDQMSetupObjects(), iSubdet, gpuFlags);
+        meRecHitGpuChi2.fill(getEcalDQMSetupObjects(), iSubdet, gpuChi2);
+        meRecHitGpuEnergyError.fill(getEcalDQMSetupObjects(), iSubdet, gpuEnergyError);
+        meRecHitGpuTimeError.fill(getEcalDQMSetupObjects(), iSubdet, gpuTimeError);
+        meRecHitGpuNonCorrectedTime.fill(getEcalDQMSetupObjects(), iSubdet, gpuNonCorrectedTime);
       }
 
       if (rechit2D_) {
         MESet& meRecHit2DEnergy(MEs_.at("RecHit2DEnergy"));
         MESet& meRecHit2DTime(MEs_.at("RecHit2DTime"));
         MESet& meRecHit2DFlags(MEs_.at("RecHit2DFlags"));
+        MESet& meRecHit2DChi2(MEs_.at("RecHit2DChi2"));
+        MESet& meRecHit2DEnergyError(MEs_.at("RecHit2DEnergyError"));
+        MESet& meRecHit2DTimeError(MEs_.at("RecHit2DTimeError"));
+        MESet& meRecHit2DNonCorrectedTime(MEs_.at("RecHit2DNonCorrectedTime"));
 
         meRecHit2DEnergy.fill(getEcalDQMSetupObjects(), iSubdet, cpuEnergy, gpuEnergy);
         meRecHit2DTime.fill(getEcalDQMSetupObjects(), iSubdet, cpuTime, gpuTime);
         meRecHit2DFlags.fill(getEcalDQMSetupObjects(), iSubdet, cpuFlags, gpuFlags);
+        meRecHit2DChi2.fill(getEcalDQMSetupObjects(), iSubdet, cpuChi2, gpuChi2);
+        meRecHit2DEnergyError.fill(getEcalDQMSetupObjects(), iSubdet, cpuEnergyError, gpuEnergyError);
+        meRecHit2DTimeError.fill(getEcalDQMSetupObjects(), iSubdet, cpuTimeError, gpuTimeError);
+        meRecHit2DNonCorrectedTime.fill(getEcalDQMSetupObjects(), iSubdet, cpuNonCorrectedTime, gpuNonCorrectedTime);
       }
     }
   }

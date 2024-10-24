@@ -127,4 +127,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit
 
+//
+// ECAL Rechit producer
+//
+
+namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
+
+  // parameters that are read from the configuration file for rechit producer
+  struct ConfigurationParameters {
+    bool killDeadChannels;
+
+    bool recoverEBIsolatedChannels;
+    bool recoverEEIsolatedChannels;
+    bool recoverEBVFE;
+    bool recoverEEVFE;
+    bool recoverEBFE;
+    bool recoverEEFE;
+
+    float EBLaserMIN;
+    float EELaserMIN;
+    float EBLaserMAX;
+    float EELaserMAX;
+
+    uint32_t flagmask;
+  };
+
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit
+
 #endif  // RecoLocalCalo_EcalRecProducers_plugins_alpaka_DeclsForKernels_h

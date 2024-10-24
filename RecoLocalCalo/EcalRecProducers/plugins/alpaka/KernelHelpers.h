@@ -14,6 +14,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::reconstruction {
 
   ALPAKA_FN_ACC int32_t laserMonitoringRegionEE(uint32_t id);
 
+  ALPAKA_FN_ACC int32_t rechitSetMasked(uint32_t value, uint32_t x, uint32_t offset, uint32_t width);
+
+  ALPAKA_FN_ACC int32_t rechitGetPower10(float e);
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::reconstruction
 
 #endif  // RecoLocalCalo_EcalRecProducers_plugins_alpaka_KernelHelpers_h
