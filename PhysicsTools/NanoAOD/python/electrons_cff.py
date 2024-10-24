@@ -273,7 +273,7 @@ electronPROMPTMVA= cms.EDProducer("EleBaseMVAValueMapProducer",
     variables = cms.VPSet(
         cms.PSet( name = cms.string("LepGood_pt"), expr = cms.string("pt")),
         cms.PSet( name = cms.string("LepGood_eta"), expr = cms.string("eta")),
-        cms.PSet( name = cms.string("LepGood_pfRelIso03_all"), expr = cms.string("(pfIsolationR03().sumChargedHadronPt + max(pfIsolationR03().sumNeutralHadronEt + pfIsolationR03().sumPhotonEt - pfIsolationR03().sumPUPt/2,0.0))/pt")),
+        cms.PSet( name = cms.string("LepGood_pfRelIso03_all"), expr = cms.string("userFloat('PFIsoAll')/pt")),
         cms.PSet( name = cms.string("LepGood_miniRelIsoCharged"), expr = cms.string("userFloat('miniIsoChg_Fall17V2')/pt")),
         cms.PSet( name = cms.string("LepGood_miniRelIsoNeutral"), expr = cms.string("(userFloat('miniIsoAll_Fall17V2')-userFloat('miniIsoChg_Fall17V2'))/pt")),
         cms.PSet( name = cms.string("LepGood_jetNDauChargedMVASel"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0")),
