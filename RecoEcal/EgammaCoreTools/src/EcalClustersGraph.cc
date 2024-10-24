@@ -143,10 +143,6 @@ void EcalClustersGraph::initWindows() {
 
     // The graph associated to each seed includes only other seeds if they have a smaller energy.
     // This is imposed to be consistent with the current trained model, which has been training on "non-overalapping windows".
-    // The effect of connecting all the seeds, and not only the smaller energy ones has been already tested: the reconstruction
-    // differences are negligible (tested with Cascade collection algo).
-    // In the next version of the training this requirement will be relaxed to have a model that fully matches the reconstruction
-    // mechanism in terms of overlapping seeds.
     for (uint icl = is + 1; icl < nCls_; icl++) {
       if (is == icl)
         continue;
@@ -201,8 +197,7 @@ std::vector<std::vector<float>> EcalClustersGraph::fillHits(const CaloCluster* c
   return out;
 }
 
-DeepSCInputs::FeaturesMap EcalClustersGraph::computeVariables(const CaloCluster* seed,
-                                                              const CaloCluster* cluster) const {
+DeepSCInputs::FeaturesMap EcalClustersGraph::computeVariables(const CaloCluster* seed, const CaloCluster* cluster) {
   DeepSCInputs::FeaturesMap clFeatures;
   const auto& clusterLocal = clusterPosition(cluster);
   double cl_energy = cluster->energy();
@@ -212,7 +207,9 @@ DeepSCInputs::FeaturesMap EcalClustersGraph::computeVariables(const CaloCluster*
   double seed_eta = seed->eta();
   double seed_phi = seed->phi();
   clFeatures["cl_energy"] = cl_energy;                                                                //cl_energy
+  clFeatures["cl_energy_log"] = std::log(cl_energy);                                                  //cl_energy_log
   clFeatures["cl_et"] = cl_energy / std::cosh(cl_eta);                                                //cl_et
+  clFeatures["cl_et_log"] = std::log(clFeatures["cl_et"]);                                            //cl_et_log
   clFeatures["cl_eta"] = cl_eta;                                                                      //cl_eta
   clFeatures["cl_phi"] = cl_phi;                                                                      //cl_phi
   clFeatures["cl_ieta"] = clusterLocal[0];                                                            //cl_ieta/ix
@@ -223,6 +220,9 @@ DeepSCInputs::FeaturesMap EcalClustersGraph::computeVariables(const CaloCluster*
   clFeatures["cl_seed_dEnergy"] = seed_energy - cl_energy;                                            //cl_dEnergy
   clFeatures["cl_seed_dEt"] = (seed_energy / std::cosh(seed_eta)) - (cl_energy / std::cosh(cl_eta));  //cl_dEt
   clFeatures["cl_nxtals"] = cluster->hitsAndFractions().size();                                       // nxtals
+  //Add shower shapes
+  computeShowerShapes(cluster, clFeatures, true);   // full5x5
+  computeShowerShapes(cluster, clFeatures, false);  // not full5x5
   return clFeatures;
 }
 
@@ -295,9 +295,9 @@ std::pair<double, double> EcalClustersGraph::computeCovariances(const CaloCluste
   return std::make_pair(etaWidth, phiWidth);
 }
 
-std::vector<double> EcalClustersGraph::computeShowerShapes(const CaloCluster* cluster, bool full5x5 = false) {
-  std::vector<double> showerVars_;
-  showerVars_.resize(8);
+void EcalClustersGraph::computeShowerShapes(const CaloCluster* cluster,
+                                            DeepSCInputs::FeaturesMap& fmap,
+                                            bool full5x5 = false) {
   widths_ = computeCovariances(cluster);
   float e1 = 1.;
   float e4 = 0.;
@@ -341,16 +341,24 @@ std::vector<double> EcalClustersGraph::computeShowerShapes(const CaloCluster* cl
       r9 = EcalClusterTools::e3x3(*cluster, recHitsEE_, topology_) / cluster->energy();
     }
   }
-  showerVars_[0] = r9;
-  showerVars_[1] = sqrt(locCov_[0]);                                      //sigmaietaieta
-  showerVars_[2] = locCov_[1];                                            //sigmaietaiphi
-  showerVars_[3] = (!edm::isFinite(locCov_[2])) ? 0. : sqrt(locCov_[2]);  //sigmaiphiiphi
-  showerVars_[4] = (e1 != 0.) ? 1. - e4 / e1 : -999.;                     //swiss_cross
-  showerVars_[5] = cluster->hitsAndFractions().size();                    //nXtals
-  showerVars_[6] = widths_.first;                                         //etaWidth
-  showerVars_[7] = widths_.second;                                        //phiWidth
 
-  return showerVars_;
+  if (full5x5) {
+    fmap["cl_f5_r9"] = r9;                                                               // R9
+    fmap["cl_f5_sigmaIetaIeta"] = sqrt(locCov_[0]);                                      //sigmaietaieta
+    fmap["cl_f5_sigmaIetaIphi"] = locCov_[1];                                            //sigmaietaiphi
+    fmap["cl_f5_sigmaIphiIphi"] = (!edm::isFinite(locCov_[2])) ? 0. : sqrt(locCov_[2]);  //sigmaiphiiphi
+    fmap["cl_f5_swissCross"] = (e1 != 0.) ? 1. - e4 / e1 : -999.;                        //swiss_cross
+    fmap["cl_etaWidth"] = widths_.first;                                                 //etaWidth
+    fmap["cl_phiWidth"] = widths_.second;                                                //phiWidth
+  } else {
+    fmap["cl_r9"] = r9;                                                               // R9
+    fmap["cl_sigmaIetaIeta"] = sqrt(locCov_[0]);                                      //sigmaietaieta
+    fmap["cl_sigmaIetaIphi"] = locCov_[1];                                            //sigmaietaiphi
+    fmap["cl_sigmaIphiIphi"] = (!edm::isFinite(locCov_[2])) ? 0. : sqrt(locCov_[2]);  //sigmaiphiiphi
+    fmap["cl_swissCross"] = (e1 != 0.) ? 1. - e4 / e1 : -999.;                        //swiss_cross
+    fmap["cl_etaWidth"] = widths_.first;                                              //etaWidth
+    fmap["cl_phiWidth"] = widths_.second;                                             //phiWidth
+  }
 }
 
 void EcalClustersGraph::fillVariables() {
@@ -361,9 +369,11 @@ void EcalClustersGraph::fillVariables() {
   inputs_.hitsX.reserve(nSeeds_);
   inputs_.windowX.reserve(nSeeds_);
   inputs_.isSeed.reserve(nSeeds_);
+  inputs_.maxNRechits.reserve(nSeeds_);
 
   // Looping on all the seeds (window)
   for (uint is = 0; is < nSeeds_; is++) {
+    LogDebug("EcalClustersGraph") << "Getting out edges for seed: " << is;
     const auto seedPointer = (clusters_[is]).ptr().get();
     std::vector<DeepSCInputs::FeaturesMap> unscaledClusterFeatures;
     const auto& outEdges = graphMap_.getOutEdges(is);
@@ -373,24 +383,27 @@ void EcalClustersGraph::fillVariables() {
     inputs_.hitsX[is].reserve(ncls);
     inputs_.isSeed[is].reserve(ncls);
     unscaledClusterFeatures.reserve(ncls);
+    size_t maxNRechits_ = 0;
     // Loop on all the clusters
     for (const auto ic : outEdges) {
       LogTrace("EcalClustersGraph") << "seed: " << is << ", out edge --> " << ic;
       const auto clPointer = (clusters_[ic]).ptr().get();
       const auto& clusterFeatures = computeVariables(seedPointer, clPointer);
-      for (const auto& [key, val] : clusterFeatures) {
-        LogTrace("EcalCluster") << key << "=" << val;
-      }
       unscaledClusterFeatures.push_back(clusterFeatures);
       // Select and scale only the requested variables for the tensorflow model input
       inputs_.clustersX[is].push_back(deepSCEval->getScaledInputs(clusterFeatures, deepSCEval->inputFeaturesClusters));
       // The scaling and feature selection on hits is performed inside the function for each hit
-      inputs_.hitsX[is].push_back(fillHits(clPointer));
+      auto hits = fillHits(clPointer);
+      auto nhits = hits.size();
+      inputs_.hitsX[is].push_back(hits);
+      if (nhits > maxNRechits_)
+        maxNRechits_ = nhits;
       inputs_.isSeed[is].push_back(ic == is);
     }
     // For window we need the unscaled cluster features and then we select them
     inputs_.windowX[is] =
         deepSCEval->getScaledInputs(computeWindowVariables(unscaledClusterFeatures), deepSCEval->inputFeaturesWindows);
+    inputs_.maxNRechits[is] = maxNRechits_;
   }
   LogTrace("EcalClustersGraph") << "N. Windows: " << inputs_.clustersX.size();
 }
@@ -405,8 +418,14 @@ void EcalClustersGraph::evaluateScores() {
       // Fill the scores from seed --> node (i --> j)
       // Not symmetrically, in order to save multiple values for seeds in other
       // seeds windows.
-      graphMap_.setAdjMatrix(i, j, scores[i][k]);
-      LogTrace("EcalClustersGraph") << "\t" << i << "-->" << j << ": " << scores[i][k];
+      // Put the seed self-link score to 1 to make sure that the window is always including the seed
+      // itself.
+      if (j == i)
+        graphMap_.setAdjMatrix(i, j, 1.);
+      else
+        graphMap_.setAdjMatrix(i, j, scores[i][k]);
+      LogTrace("EcalClustersGraph") << "\t" << i << "-->" << j << ": "
+                                    << " score: " << scores[i][k] << " adjmatrix:" << graphMap_.getAdjMatrix(i, j);
       k++;
     }
   }
@@ -420,15 +439,19 @@ void EcalClustersGraph::setThresholds() {
 void EcalClustersGraph::selectClusters() {
   // Collect the final superClusters as subgraphs
   graphMap_.collectNodes(strategy_, threshold_);
+  LogDebug("EcalClustersGraph") << "End of nodes collection";
 }
 
 EcalClustersGraph::EcalGraphOutput EcalClustersGraph::getGraphOutput() {
   EcalClustersGraph::EcalGraphOutput finalWindows_;
   const auto& finalSuperClusters_ = graphMap_.getGraphOutput();
+  LogTrace("EcalClustersGraph") << "Final SuperClusters";
   for (const auto& [is, cls] : finalSuperClusters_) {
+    LogTrace("EcalClustersGraph") << "seed: " << is << ": ";
     CalibratedPFCluster seed = clusters_[is];
     CalibratedPFClusterVector clusters_inWindow;
     for (const auto& ic : cls) {
+      LogTrace("EcalClustersGraph") << "\t\tcl: " << ic;
       clusters_inWindow.push_back(clusters_[ic]);
     }
     finalWindows_.push_back({seed, clusters_inWindow});
