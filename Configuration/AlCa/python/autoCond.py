@@ -105,6 +105,12 @@ autoCond = {
     'phase2_realistic'             :    '141X_mcRun4_realistic_v3'
 }
 
+### 2025 conditions copy of 2024 conditions on 17/10/2024
+### to be updated when 2025 conditions come
+cond_list = ["design","realistic"]
+for c in cond_list:
+    autoCond['phase1_2025_' + c ] = autoCond['phase1_2024_' + c ]
+
 aliases = {
     'MAINGT' : 'FT_P_V42D|AN_V4',
     'BASEGT' : 'BASE1_V1|BASE2_V1'
