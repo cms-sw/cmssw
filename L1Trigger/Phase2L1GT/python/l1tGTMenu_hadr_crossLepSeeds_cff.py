@@ -15,6 +15,8 @@ from L1Trigger.Phase2L1GT.l1tGTQuadObjectCond_cfi import l1tGTQuadObjectCond
 
 from L1Trigger.Phase2L1GT.l1tGTAlgoBlockProducer_cff import algorithms
 
+from L1Trigger.Phase2L1GT.menuConstants import *
+
 TkMuonPuppiHT6320 = l1tGTDoubleObjectCond.clone( #needs z0 with the puppivertex
     collection1 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "GMTTkMuons"),
@@ -22,13 +24,13 @@ TkMuonPuppiHT6320 = l1tGTDoubleObjectCond.clone( #needs z0 with the puppivertex
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds=cms.vdouble(0,0.83,1.24),
         regionsMinPt=cms.vdouble(6,6,6),
+        qualityFlags = getObjectIDs("L1gmtTkMuon","Loose"),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0) 
-        qualityFlags = cms.uint32(0b0001)
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2HtSum"),
-        minScalarSumPt = cms.double(251) 
+        minScalarSumPt = getObjectThrs(320, "L1puppiJetSC4sums","HT"),
     ),
 )
 pTkMuonPuppiHT6_320 = cms.Path(TkMuonPuppiHT6320)
@@ -41,31 +43,31 @@ TkMuTriPuppiJetdRMaxDoubleJetdEtaMax = l1tGTQuadObjectCond.clone( #needs z0 betw
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds=cms.vdouble(0,0.83,1.24),
-        regionsMinPt=cms.vdouble(10,10,11), 
+        regionsMinPt = getObjectThrs(12, "L1gmtTkMuon","VLoose"),
+        qualityFlags = getObjectIDs("L1gmtTkMuon","VLoose"),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
-        qualityFlags = cms.uint32(0b0001),
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
-        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5),
-        regionsMinPt=cms.vdouble(25,25), #safety cut, actually 15 and 16
+        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5,2.4),
+        regionsMinPt=cms.vdouble(25,25), #safety cut
     ),
     collection3 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
-        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5),
-        regionsMinPt=cms.vdouble(25,25), #safety cut, actually 15 and 16regionsMinPt=cms.vdouble(25.0,25.0)
+        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5,2.4),
+        regionsMinPt=cms.vdouble(25,25), #safety cut
     ),
     collection4 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
-        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5),
-        regionsMinPt=cms.vdouble(25,25), #safety cut, actually 15 and 16
+        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5,2.4),
+        regionsMinPt=cms.vdouble(25,25), #safety cut
     ),
     correl12 = cms.PSet(
         maxDR = cms.double(0.4),
@@ -73,11 +75,8 @@ TkMuTriPuppiJetdRMaxDoubleJetdEtaMax = l1tGTQuadObjectCond.clone( #needs z0 betw
     correl34 = cms.PSet(
         maxDEta = cms.double(1.6)
     ),
-
-
 )
 pTkMuTriPuppiJet_12_40_dRMax_DoubleJet_dEtaMax = cms.Path(TkMuTriPuppiJetdRMaxDoubleJetdEtaMax)
-
 algorithms.append(cms.PSet(expression=cms.string("pTkMuTriPuppiJet_12_40_dRMax_DoubleJet_dEtaMax")))
 
 TkMuPuppiJetPuppiMet = l1tGTTripleObjectCond.clone( #needs z0 between muon and puppivertex
@@ -87,25 +86,23 @@ TkMuPuppiJetPuppiMet = l1tGTTripleObjectCond.clone( #needs z0 between muon and p
         maxEta = cms.double(2.1),
         regionsAbsEtaLowerBounds=cms.vdouble(0,0.83,1.24),
         regionsMinPt=cms.vdouble(3,3,3),
+        qualityFlags = getObjectIDs("L1gmtTkMuon","Loose"),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
-        qualityFlags = cms.uint32(0b0001)
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
-        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5),
-        regionsMinPt=cms.vdouble(69,50)
+        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5,2.4),
+        regionsMinPt = getObjectThrs(110, "L1puppiJetSC4","default"),
     ),
     collection3 = cms.PSet(
-        tag = cms.InputTag("l1tGTProducer", "CL2EtSum"),        
-        minPt = cms.double(38)
+        tag = cms.InputTag("l1tGTProducer", "CL2EtSum"),
+        minPt = getObjectThrs(120, "L1puppiMET","default"),
     ),
-    
 )
 pTkMuPuppiJetPuppiMet_3_110_120 = cms.Path(TkMuPuppiJetPuppiMet)
-
 algorithms.append(cms.PSet(expression=cms.string("pTkMuPuppiJetPuppiMet_3_110_120")))
 
 
@@ -116,9 +113,9 @@ DoubleTkMuPuppiJetPuppiMet = l1tGTQuadObjectCond.clone( #needs z0 between puppiv
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds=cms.vdouble(0,0.83,1.24),
         regionsMinPt=cms.vdouble(3,3,3),
+        qualityFlags = getObjectIDs("L1gmtTkMuon","Loose"),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
-        qualityFlags = cms.uint32(0b0001)
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "GMTTkMuons"),
@@ -126,27 +123,26 @@ DoubleTkMuPuppiJetPuppiMet = l1tGTQuadObjectCond.clone( #needs z0 between puppiv
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds=cms.vdouble(0,0.83,1.24),
         regionsMinPt=cms.vdouble(3,3,3),
+        qualityFlags = getObjectIDs("L1gmtTkMuon","Loose"),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
-        qualityFlags = cms.uint32(0b0001)
     ),
     collection3 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
-        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5),
-        regionsMinPt=cms.vdouble(30,25)
+        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5,2.4),
+        regionsMinPt = getObjectThrs(60, "L1puppiJetSC4","default"),
     ),
     collection4 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2EtSum"),        
-        minPt = cms.double(45)
+        minPt = getObjectThrs(130, "L1puppiMET","default"),
     ),
     correl12 = cms.PSet(
         minDR = cms.double(0),
     )
 )
 pDoubleTkMuPuppiJetPuppiMet_3_3_60_130 = cms.Path(DoubleTkMuPuppiJetPuppiMet)
-
 algorithms.append(cms.PSet(expression=cms.string("pDoubleTkMuPuppiJetPuppiMet_3_3_60_130")))
 
 
@@ -159,7 +155,7 @@ DoubleTkMuPuppiHT = l1tGTTripleObjectCond.clone( #needs z0 between puppivertex a
         regionsMinPt=cms.vdouble(3,3,3),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
-        qualityFlags = cms.uint32(0b0001)
+        qualityFlags = getObjectIDs("L1gmtTkMuon","Loose"),
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "GMTTkMuons"),
@@ -169,11 +165,11 @@ DoubleTkMuPuppiHT = l1tGTTripleObjectCond.clone( #needs z0 between puppivertex a
         regionsMinPt=cms.vdouble(3,3,3),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
-        qualityFlags = cms.uint32(0b0001)
+        qualityFlags = getObjectIDs("L1gmtTkMuon","Loose"),
     ),
     collection3 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2HtSum"),
-        minScalarSumPt = cms.double(232) 
+        minScalarSumPt = getObjectThrs(300, "L1puppiJetSC4sums","HT"),
     ),
     correl12 = cms.PSet(
         minDR = cms.double(0),
@@ -190,8 +186,8 @@ DoubleTkElePuppiHT = l1tGTTripleObjectCond.clone( #needs z0 between puppivertex 
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds=cms.vdouble(0,1.479),
-        regionsMinPt=cms.vdouble(6,6),
-        regionsQualityFlags=cms.vuint32(0b0010,0b0000),
+        regionsMinPt = getObjectThrs(8, "L1tkElectron","NoIso"),
+        regionsQualityFlags = getObjectIDs("L1tkElectron","NoIsoLowPt"),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
     ),
@@ -200,14 +196,14 @@ DoubleTkElePuppiHT = l1tGTTripleObjectCond.clone( #needs z0 between puppivertex 
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds=cms.vdouble(0,1.479),
-        regionsMinPt=cms.vdouble(6,6),
-        regionsQualityFlags=cms.vuint32(0b0010,0b0000), 
+        regionsMinPt = getObjectThrs(8, "L1tkElectron","NoIso"),
+        regionsQualityFlags = getObjectIDs("L1tkElectron","NoIsoLowPt"),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
     ),
     collection3 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2HtSum"),
-        minScalarSumPt = cms.double(316) 
+        minScalarSumPt = getObjectThrs(390, "L1puppiJetSC4sums","HT"),
     ),
 )
 pDoubleTkElePuppiHT_8_8_390 = cms.Path(DoubleTkElePuppiHT)
@@ -221,14 +217,14 @@ TkEleIsoPuppiHT = l1tGTDoubleObjectCond.clone( #missing z0 between electron and 
         minEta = cms.double(-2.1),
         maxEta = cms.double(2.1),
         regionsAbsEtaLowerBounds=cms.vdouble(0,1.479),
-        regionsMinPt=cms.vdouble(21,20), #no qualities as online cut below 25 in the endcap
-        regionsMaxRelIsolationPt = cms.vdouble(0.13,0.28),
+        regionsMinPt = getObjectThrs(26, "L1tkElectron","Iso"),
+        regionsMaxRelIsolationPt = getObjectISOs("L1tkElectron","Iso"),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
     ),
     collection2 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2HtSum"),
-        minScalarSumPt = cms.double(131) 
+        minScalarSumPt = getObjectThrs(190, "L1puppiJetSC4sums","HT"),
     ),
 )
 pTkEleIsoPuppiHT_26_190 = cms.Path(TkEleIsoPuppiHT)
@@ -241,8 +237,8 @@ TkElePuppiJetMinDR = l1tGTDoubleObjectCond.clone( #missing z0 between electron a
         minEta = cms.double(-2.1),
         maxEta = cms.double(2.1),
         regionsAbsEtaLowerBounds=cms.vdouble(0,1.479),
-        regionsMinPt=cms.vdouble(23,22),
-        regionsQualityFlags=cms.vuint32(0b0010,0b0000),
+        regionsMinPt = getObjectThrs(28, "L1tkElectron","NoIso"),
+        regionsQualityFlags = getObjectIDs("L1tkElectron","NoIso"),
         maxPrimVertDz = cms.double(1), # in cm
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
     ),
@@ -250,8 +246,8 @@ TkElePuppiJetMinDR = l1tGTDoubleObjectCond.clone( #missing z0 between electron a
         tag = cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
-        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5),
-        regionsMinPt=cms.vdouble(25,25), #safety cut, actually 15,16
+        regionsAbsEtaLowerBounds=cms.vdouble(0,1.5,2.4),
+        regionsMinPt=cms.vdouble(25,25), #safety cut
     ),
     minDR = cms.double(0.3)
 )
@@ -267,12 +263,12 @@ NNPuppiTauPuppiMet = l1tGTDoubleObjectCond.clone(
         minEta = cms.double(-2.172),
         maxEta = cms.double(2.172),
         regionsAbsEtaLowerBounds=cms.vdouble(0,1.5),
-        regionsMinPt=cms.vdouble(30,22),
-        minQualityScore = cms.uint32(225),
+        regionsMinPt = getObjectThrs(55, "L1nnPuppiTau","default"),
+        minQualityScore = getObjectIDs("L1nnPuppiTau","default")
     ),
     collection2 = cms.PSet(
-        tag = cms.InputTag("l1tGTProducer", "CL2EtSum"),        
-        minPt = cms.double(86)
+        tag = cms.InputTag("l1tGTProducer", "CL2EtSum"),
+        minPt = getObjectThrs(190, "L1puppiMET","default"),
     ),
     
 )
