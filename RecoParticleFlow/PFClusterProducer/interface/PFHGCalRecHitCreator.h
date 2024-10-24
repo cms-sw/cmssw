@@ -71,7 +71,7 @@ public:
         continue;
       }
 
-      reco::PFRecHit rh(thisCell, detid.rawId(), Layer, energy);
+      reco::PFRecHit rh(thisCell.releaseToShared(), detid.rawId(), Layer, energy);
 
       bool rcleaned = false;
       bool keep = true;

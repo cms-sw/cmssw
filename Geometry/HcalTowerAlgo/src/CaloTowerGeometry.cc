@@ -52,10 +52,10 @@ void CaloTowerGeometry::newCell(
   m_dins.emplace_back(di);
 }
 
-const CaloCellGeometry* CaloTowerGeometry::getGeometryRawPtr(uint32_t index) const {
+CaloCellGeometryPtr CaloTowerGeometry::getGeometryRawPtr(uint32_t index) const {
   // Modify the RawPtr class
-  const CaloCellGeometry* cell(&m_cellVec[index]);
-  return (m_cellVec.size() < index || nullptr == cell->param() ? nullptr : cell);
+  return CaloCellGeometryPtr(m_cellVec.size() <= index || nullptr == m_cellVec[index].param() ? nullptr
+                                                                                              : &m_cellVec[index]);
 }
 
 void CaloTowerGeometry::getSummary(CaloSubdetectorGeometry::TrVec& tVec,
