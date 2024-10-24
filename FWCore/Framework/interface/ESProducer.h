@@ -72,6 +72,7 @@ Example: two algorithms each creating only one objects
 #include <memory>
 #include <string>
 #include <optional>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
@@ -88,10 +89,15 @@ Example: two algorithms each creating only one objects
 
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
+#include "FWCore/ServiceRegistry/interface/EventSetupConsumesInfo.h"
+
 // forward declarations
 namespace edm {
   namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
+    class EventSetupProvider;
+
     //used by ESProducer to create the proper Decorator based on the
     //  argument type passed.  The default it to just 'pass through'
     //  the argument as the decorator itself
@@ -153,6 +159,12 @@ namespace edm {
     }
 
     SerialTaskQueueChain& queue() { return acquirer_.serialQueueChain(); }
+
+    void esModulesWhoseProductsAreConsumed(eventsetup::EventSetupProvider const& eventSetupProvider,
+                                           std::vector<eventsetup::ComponentDescription const*>& esModules) const;
+
+    std::vector<std::vector<EventSetupConsumesInfo>> eventSetupConsumesInfo(
+        eventsetup::EventSetupProvider const& eventSetupProvider) const;
 
   protected:
     /** Specify the names of the shared resources used by this ESProducer */

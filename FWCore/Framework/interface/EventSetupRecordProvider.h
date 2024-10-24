@@ -159,6 +159,9 @@ namespace edm {
 
       IntervalStatus intervalStatus() const { return intervalStatus_; }
 
+      void fillAllESProductResolverProviders(std::vector<ESProductResolverProvider const*>&,
+                                             std::set<unsigned int>& componentIDs) const;
+
       void updateLookup(ESRecordsToProductResolverIndices const&);
 
     protected:

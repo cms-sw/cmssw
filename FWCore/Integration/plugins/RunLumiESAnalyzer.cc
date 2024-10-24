@@ -12,6 +12,7 @@
 // Original Author:  W. David Dagenhart
 //         Created:  18 April 2019
 
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,9 +24,11 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <memory>
 
@@ -74,18 +77,33 @@ namespace edmtest {
                       const char* functionName) const;
 
     edm::ESGetToken<IOVTestInfo, ESTestRecordC> const esToken_;
+    edm::ESGetToken<IOVTestInfo, ESTestRecordC> const esTokenNonEmptyLabel_;
     edm::ESGetToken<IOVTestInfo, ESTestRecordC> const tokenBeginRun_;
     edm::ESGetToken<IOVTestInfo, ESTestRecordC> const tokenBeginLumi_;
     edm::ESGetToken<IOVTestInfo, ESTestRecordC> const tokenEndLumi_;
     edm::ESGetToken<IOVTestInfo, ESTestRecordC> const tokenEndRun_;
+
+    bool checkDataProductContents_;
+    bool getIntProduct_;
+
+    edm::EDGetTokenT<IntProduct> token_;
   };
 
-  RunLumiESAnalyzer::RunLumiESAnalyzer(edm::ParameterSet const&)
-      : esToken_{esConsumes(edm::ESInputTag("", ""))},
-        tokenBeginRun_{esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", ""))},
-        tokenBeginLumi_{esConsumes<edm::Transition::BeginLuminosityBlock>(edm::ESInputTag("", ""))},
-        tokenEndLumi_{esConsumes<edm::Transition::EndLuminosityBlock>(edm::ESInputTag("", ""))},
-        tokenEndRun_{esConsumes<edm::Transition::EndRun>(edm::ESInputTag("", ""))} {}
+  RunLumiESAnalyzer::RunLumiESAnalyzer(edm::ParameterSet const& pset)
+      : esToken_{esConsumes(pset.getParameter<edm::ESInputTag>("esInputTag"))},
+        esTokenNonEmptyLabel_{esConsumes(edm::ESInputTag("", "nonEmptyLabel"))},
+        tokenBeginRun_{esConsumes<edm::Transition::BeginRun>(pset.getParameter<edm::ESInputTag>("esInputTag"))},
+        tokenBeginLumi_{
+            esConsumes<edm::Transition::BeginLuminosityBlock>(pset.getParameter<edm::ESInputTag>("esInputTag"))},
+        tokenEndLumi_{
+            esConsumes<edm::Transition::EndLuminosityBlock>(pset.getParameter<edm::ESInputTag>("esInputTag"))},
+        tokenEndRun_{esConsumes<edm::Transition::EndRun>(pset.getParameter<edm::ESInputTag>("esInputTag"))},
+        checkDataProductContents_(pset.getParameter<bool>("checkDataProductContents")),
+        getIntProduct_(pset.getParameter<bool>("getIntProduct")) {
+    if (getIntProduct_) {
+      token_ = consumes<IntProduct>(edm::InputTag("intProducer", ""));
+    }
+  }
 
   std::unique_ptr<UnsafeCache> RunLumiESAnalyzer::beginStream(edm::StreamID iID) const {
     return std::make_unique<UnsafeCache>();
@@ -99,10 +117,12 @@ namespace edmtest {
     ESTestRecordC recordC = eventSetup.get<ESTestRecordC>();
     edm::ValidityInterval iov = recordC.validityInterval();
 
-    if (iovTestInfo->iovStartRun_ != run || iovTestInfo->iovEndRun_ != run ||
-        iovTestInfo->iovStartLumi_ != lumiNumber || iovTestInfo->iovEndLumi_ != lumiNumber) {
-      throw cms::Exception("TestFailure")
-          << functionName << ": values read from EventSetup do not agree with auxiliary";
+    if (checkDataProductContents_) {
+      if (iovTestInfo->iovStartRun_ != run || iovTestInfo->iovEndRun_ != run ||
+          iovTestInfo->iovStartLumi_ != lumiNumber || iovTestInfo->iovEndLumi_ != lumiNumber) {
+        throw cms::Exception("TestFailure")
+            << functionName << ": values read from EventSetup do not agree with auxiliary";
+      }
     }
 
     if (iov.first().eventID().run() != run || iov.last().eventID().run() != run ||
@@ -181,10 +201,21 @@ namespace edmtest {
     auto lumiNumber = event.eventAuxiliary().luminosityBlock();
     edm::ESHandle<IOVTestInfo> iovTestInfo = eventSetup.getHandle(esToken_);
     checkIOVInfo(eventSetup, run, lumiNumber, iovTestInfo, "RunLumiESAnalyzer::analyzer");
+
+    {
+      edm::ESHandle<IOVTestInfo> iovTestInfo = eventSetup.getHandle(esTokenNonEmptyLabel_);
+      checkIOVInfo(eventSetup, run, lumiNumber, iovTestInfo, "RunLumiESAnalyzer::analyzer");
+    }
+    if (getIntProduct_) {
+      event.get(token_);
+    }
   }
 
   void RunLumiESAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
+    desc.add<edm::ESInputTag>("esInputTag", edm::ESInputTag());
+    desc.add<bool>("checkDataProductContents", true);
+    desc.add<bool>("getIntProduct", false);
     descriptions.addDefault(desc);
   }
 }  // namespace edmtest

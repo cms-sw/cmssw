@@ -298,6 +298,14 @@ namespace edm {
 
   void SubProcess::doEndJob(ExceptionCollector& collector) { endJob(collector); }
 
+  void SubProcess::initializePathsAndConsumes() {
+    pathsAndConsumesOfModules_.initializeForEventSetup(*esp_);
+    actReg_->lookupInitializationCompleteSignal_(pathsAndConsumesOfModules_, processContext_);
+    for (auto& subProcess : subProcesses_) {
+      subProcess.initializePathsAndConsumes();
+    }
+  }
+
   void SubProcess::beginJob() {
     // If event selection is being used, the SubProcess class reads TriggerResults
     // object(s) in the parent process from the event. This next call is needed for

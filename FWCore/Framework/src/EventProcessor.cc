@@ -762,6 +762,12 @@ namespace edm {
       std::rethrow_exception(firstException);
     }
 
+    pathsAndConsumesOfModules_.initializeForEventSetup(*esp_);
+    actReg_->lookupInitializationCompleteSignal_(pathsAndConsumesOfModules_, processContext_);
+    for (auto& subProcess : subProcesses_) {
+      subProcess.initializePathsAndConsumes();
+    }
+
     beginJobSucceeded_ = true;
     beginStreams();
   }

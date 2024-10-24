@@ -11,21 +11,22 @@
 //
 
 // system include files
-#include <array>
 #include <algorithm>
-#include <cassert>
 #include <cstring>
 #include <set>
-#include <utility>
+#include <string_view>
 
 // user include files
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordImpl.h"
+#include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
@@ -173,8 +174,10 @@ void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProductResolverIndices 
       for (auto& itemIndex : items) {
         if (itemIndex.value() == negIndex) {
           itemIndex = indexInRecord;
-          esRecordsToGetFromTransition_[&items - &esItemsToGetFromTransition_.front()][&itemIndex - &items.front()] =
-              iPI.recordIndexFor(it->m_record);
+          ResolverIndexContainer::size_type transitionIndex = &items - &esItemsToGetFromTransition_.front();
+          std::vector<ESResolverIndex>::size_type indexToItemInTransition = &itemIndex - &items.front();
+          esRecordsToGetFromTransition_[transitionIndex][indexToItemInTransition] = iPI.recordIndexFor(it->m_record);
+          consumesIndexToTransitionAndTokenIndex_.emplace_back(transitionIndex, indexToItemInTransition);
           negIndex = 1;
           break;
         }
@@ -520,6 +523,34 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(
   }
 }
 
+void EDConsumerBase::esModulesWhoseProductsAreConsumed(
+    eventsetup::EventSetupProvider const& eventSetupProvider,
+    std::array<std::vector<eventsetup::ComponentDescription const*>*,
+               static_cast<unsigned int>(Transition::NumberOfEventSetupTransitions)>& esModules) const {
+  std::array<std::set<std::string>, static_cast<unsigned int>(Transition::NumberOfEventSetupTransitions)> alreadyFound;
+
+  unsigned int index = 0;
+  auto itResolver = m_esTokenInfo.begin<kESResolverIndex>();
+  for (auto it = m_esTokenInfo.begin<kESLookupInfo>(); it != m_esTokenInfo.end<kESLookupInfo>();
+       ++it, ++itResolver, ++index) {
+    eventsetup::EventSetupRecordProvider const* eventSetupRecordProvider =
+        eventSetupProvider.tryToGetRecordProvider(it->m_record);
+    if (eventSetupRecordProvider) {
+      eventsetup::EventSetupRecordImpl const& eventSetupRecordImpl = eventSetupRecordProvider->firstRecordImpl();
+      eventsetup::ComponentDescription const* componentDescription =
+          eventSetupRecordImpl.componentDescription(*itResolver);
+      if (componentDescription) {
+        std::string const& moduleLabel =
+            componentDescription->label_.empty() ? componentDescription->type_ : componentDescription->label_;
+        ResolverIndexContainer::size_type transitionIndex = consumesIndexToTransitionAndTokenIndex_[index].first;
+        if (alreadyFound[transitionIndex].insert(moduleLabel).second) {
+          esModules[transitionIndex]->push_back(componentDescription);
+        }
+      }
+    }
+  }
+}
+
 void EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) {
   frozen_ = true;
 
@@ -589,6 +620,53 @@ std::vector<ConsumesInfo> EDConsumerBase::consumesInfo() const {
                         *itKind,
                         *itAlways,
                         itInfo->m_index.skipCurrentProcess());
+  }
+  return result;
+}
+
+std::vector<EventSetupConsumesInfo> EDConsumerBase::eventSetupConsumesInfo(
+    eventsetup::EventSetupProvider const& eventSetupProvider) const {
+  std::vector<EventSetupConsumesInfo> result;
+
+  EventSetupConsumesInfo info;
+
+  unsigned int index = 0;
+  auto itResolver = m_esTokenInfo.begin<kESResolverIndex>();
+  for (auto it = m_esTokenInfo.begin<kESLookupInfo>(); it != m_esTokenInfo.end<kESLookupInfo>();
+       ++it, ++itResolver, ++index) {
+    info.eventSetupRecordType_ = it->m_record.name();
+    info.productType_ = it->m_key.type().name();
+    info.productLabel_ = it->m_key.name().value();
+    info.requestedModuleLabel_ = &(m_tokenLabels[it->m_startOfComponentName]);
+    info.transitionOfConsumer_ = consumesIndexToTransitionAndTokenIndex_[index].first;
+    info.moduleLabelMismatch_ = *itResolver == ESResolverIndex::moduleLabelDoesNotMatch();
+
+    // Initial values used in the case where there isn't an EventSetup
+    // module to produce the requested data. Test whether moduleType
+    // is empty to identify this case because it will be empty if and
+    // only if this is true.
+    info.moduleType_ = {};
+    info.moduleLabel_ = {};
+    info.transitionOfProducer_ = 0;
+    info.isSource_ = false;
+    info.isLooper_ = false;
+
+    eventsetup::EventSetupRecordProvider const* eventSetupRecordProvider =
+        eventSetupProvider.tryToGetRecordProvider(it->m_record);
+    if (eventSetupRecordProvider) {
+      eventsetup::EventSetupRecordImpl const& eventSetupRecordImpl = eventSetupRecordProvider->firstRecordImpl();
+      eventsetup::ComponentDescription const* componentDescription =
+          eventSetupRecordImpl.componentDescription(*itResolver);
+      if (componentDescription) {
+        info.moduleType_ = componentDescription->type_;
+        info.moduleLabel_ =
+            componentDescription->label_.empty() ? componentDescription->type_ : componentDescription->label_;
+        info.transitionOfProducer_ = eventSetupRecordImpl.transitionID(*itResolver);
+        info.isSource_ = componentDescription->isSource_;
+        info.isLooper_ = componentDescription->isLooper_;
+      }
+    }
+    result.push_back(info);
   }
   return result;
 }

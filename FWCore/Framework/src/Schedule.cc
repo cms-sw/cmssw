@@ -1372,6 +1372,35 @@ namespace edm {
     }
   }
 
+  void Schedule::fillESModuleAndConsumesInfo(
+      eventsetup::EventSetupProvider const& eventSetupProvider,
+      std::array<std::vector<std::vector<eventsetup::ComponentDescription const*>>,
+                 static_cast<unsigned int>(Transition::NumberOfEventSetupTransitions)>&
+          esModulesWhoseProductsAreConsumedBy) const {
+    for (auto& item : esModulesWhoseProductsAreConsumedBy) {
+      item.clear();
+      item.resize(allWorkers().size());
+    }
+    unsigned int i = 0;
+    for (auto const& worker : allWorkers()) {
+      std::array<std::vector<eventsetup::ComponentDescription const*>*,
+                 static_cast<unsigned int>(Transition::NumberOfEventSetupTransitions)>
+          esModules;
+      for (auto transition = 0U; transition < static_cast<unsigned int>(Transition::NumberOfEventSetupTransitions);
+           ++transition) {
+        esModules[transition] = &esModulesWhoseProductsAreConsumedBy[transition].at(i);
+      }
+      try {
+        worker->esModulesWhoseProductsAreConsumed(eventSetupProvider, esModules);
+      } catch (cms::Exception& ex) {
+        ex.addContext("Calling Worker::esModulesWhoseProductsAreConsumed() for module " +
+                      worker->description()->moduleLabel());
+        throw;
+      }
+      ++i;
+    }
+  }
+
   void Schedule::getTriggerReport(TriggerReport& rep) const {
     rep.eventSummary.totalEvents = 0;
     rep.eventSummary.totalEventsPassed = 0;

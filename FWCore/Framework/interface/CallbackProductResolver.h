@@ -75,6 +75,8 @@ namespace edm::eventsetup {
     CallbackProductResolver(const CallbackProductResolver&) = delete;
     const CallbackProductResolver& operator=(const CallbackProductResolver&) = delete;
 
+    unsigned int transitionID() const final { return callback_->transitionID(); }
+
   private:
     DataT data_{};
     edm::propagate_const<std::shared_ptr<CallbackT>> callback_;

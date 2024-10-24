@@ -239,6 +239,8 @@ namespace edm {
       for_all(subProcesses_, [](auto& subProcess) { subProcess.clearCounters(); });
     }
 
+    void initializePathsAndConsumes();
+
   private:
     void beginJob();
     void endJob(ExceptionCollector&);

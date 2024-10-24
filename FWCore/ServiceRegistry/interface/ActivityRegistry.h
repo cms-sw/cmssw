@@ -197,6 +197,16 @@ namespace edm {
     void watchPostEndJob(PostEndJob::slot_type const& iSlot) { postEndJobSignal_.connect_front(iSlot); }
     AR_WATCH_USING_METHOD_0(watchPostEndJob)
 
+    typedef signalslot::Signal<void(PathsAndConsumesOfModulesBase const&, ProcessContext const&)>
+        LookupInitializationComplete;
+    ///signal is emitted after all lookup objects have been initialized
+    LookupInitializationComplete lookupInitializationCompleteSignal_;
+    ///convenience function for attaching to signal
+    void watchLookupInitializationComplete(LookupInitializationComplete::slot_type const& iSlot) {
+      lookupInitializationCompleteSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchLookupInitializationComplete)
+
     typedef signalslot::Signal<void(StreamContext const&)> PreBeginStream;
     PreBeginStream preBeginStreamSignal_;
     void watchPreBeginStream(PreBeginStream::slot_type const& iSlot) { preBeginStreamSignal_.connect(iSlot); }

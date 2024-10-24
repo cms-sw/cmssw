@@ -12,6 +12,8 @@
 
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
@@ -67,6 +69,7 @@ namespace edm {
       void postBeginJob();
       void preEndJob();
       void postEndJob();
+      void lookupInitializationComplete(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
 
       void preBeginStream(StreamContext const&);
       void postBeginStream(StreamContext const&);
@@ -226,6 +229,26 @@ namespace edm {
       void preESModuleAcquire(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
       void postESModuleAcquire(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
 
+      void printPaths(LogAbsolute& out, PathsAndConsumesOfModulesBase const& pathsAndConsumes) const;
+
+      void printEDModulesWithDependentModules(LogAbsolute& out,
+                                              std::vector<ModuleDescription const*> const& allModules,
+                                              PathsAndConsumesOfModulesBase const& pathsAndConsumes) const;
+
+      void printESModulesWithDependentModules(
+          LogAbsolute& out,
+          std::vector<eventsetup::ESProductResolverProvider const*> const& allEventSetupModules,
+          PathsAndConsumesOfModulesBase const& pathsAndConsumes) const;
+
+      void printEDModulesWithConsumes(LogAbsolute& out,
+                                      std::vector<ModuleDescription const*> const& allModules,
+                                      PathsAndConsumesOfModulesBase const& pathsAndConsumes) const;
+
+      void printESModulesWithConsumes(
+          LogAbsolute& out,
+          std::vector<eventsetup::ESProductResolverProvider const*> const& allEventSetupModules,
+          PathsAndConsumesOfModulesBase const& pathsAndConsumes) const;
+
     private:
       std::string indention_;
       std::set<std::string> dumpContextForLabels_;
@@ -277,6 +300,7 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPostBeginJob(this, &Tracer::postBeginJob);
   iRegistry.watchPreEndJob(this, &Tracer::preEndJob);
   iRegistry.watchPostEndJob(this, &Tracer::postEndJob);
+  iRegistry.watchLookupInitializationComplete(this, &Tracer::lookupInitializationComplete);
 
   iRegistry.watchPreBeginStream(this, &Tracer::preBeginStream);
   iRegistry.watchPostBeginStream(this, &Tracer::postBeginStream);
@@ -525,96 +549,11 @@ void Tracer::preallocate(service::SystemBounds const& bounds) {
 void Tracer::preBeginJob(PathsAndConsumesOfModulesBase const& pathsAndConsumes, ProcessContext const& pc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_) << indention_ << " starting: begin job";
-  if (dumpPathsAndConsumes_) {
-    out << "\n"
-        << "Process name = " << pc.processName() << "\n";
-    out << "paths:\n";
-    std::vector<std::string> const& paths = pathsAndConsumes.paths();
-    for (auto const& path : paths) {
-      out << "  " << path << "\n";
-    }
-    out << "end paths:\n";
-    std::vector<std::string> const& endpaths = pathsAndConsumes.endPaths();
-    for (auto const& endpath : endpaths) {
-      out << "  " << endpath << "\n";
-    }
-    for (unsigned int j = 0; j < paths.size(); ++j) {
-      std::vector<ModuleDescription const*> const& modulesOnPath = pathsAndConsumes.modulesOnPath(j);
-      out << "modules on path " << paths.at(j) << ":\n";
-      for (auto const& desc : modulesOnPath) {
-        out << "  " << desc->moduleLabel() << "\n";
-      }
-    }
-    for (unsigned int j = 0; j < endpaths.size(); ++j) {
-      std::vector<ModuleDescription const*> const& modulesOnEndPath = pathsAndConsumes.modulesOnEndPath(j);
-      out << "modules on end path " << endpaths.at(j) << ":\n";
-      for (auto const& desc : modulesOnEndPath) {
-        out << "  " << desc->moduleLabel() << "\n";
-      }
-    }
-    std::vector<ModuleDescription const*> const& allModules = pathsAndConsumes.allModules();
-    out << "All modules and modules in the current process whose products they consume:\n";
-    out << "(This does not include modules from previous processes or the source)\n";
-    out << "(Exclusively considers Event products, not Run, Lumi, or ProcessBlock products)\n";
-    for (auto const& module : allModules) {
-      out << "  " << module->moduleName() << "/\'" << module->moduleLabel() << "\'";
-      unsigned int moduleID = module->id();
-      if (pathsAndConsumes.moduleDescription(moduleID) != module) {
-        throw cms::Exception("TestFailure") << "Tracer::preBeginJob, moduleDescription returns incorrect value";
-      }
-      std::vector<ModuleDescription const*> const& modulesWhoseProductsAreConsumedBy =
-          pathsAndConsumes.modulesWhoseProductsAreConsumedBy(moduleID);
-      if (!modulesWhoseProductsAreConsumedBy.empty()) {
-        out << " consumes products from these modules:\n";
-        for (auto const& producingModule : modulesWhoseProductsAreConsumedBy) {
-          out << "    " << producingModule->moduleName() << "/\'" << producingModule->moduleLabel() << "\'\n";
-        }
-      } else {
-        out << "\n";
-      }
-    }
-    out << "All modules (listed by class and label) and all their consumed products.\n";
-    out << "Consumed products are listed by type, label, instance, process.\n";
-    out << "For products not in the event, \'processBlock\', \'run\' or \'lumi\' is added to indicate the TTree they "
-           "are from.\n";
-    out << "For products that are declared with mayConsume, \'may consume\' is added.\n";
-    out << "For products consumed for Views, \'element type\' is added\n";
-    out << "For products only read from previous processes, \'skip current process\' is added\n";
-    for (auto const* module : allModules) {
-      out << "  " << module->moduleName() << "/\'" << module->moduleLabel() << "\'";
-      std::vector<ConsumesInfo> consumesInfo = pathsAndConsumes.consumesInfo(module->id());
-      if (!consumesInfo.empty()) {
-        out << " consumes:\n";
-        for (auto const& info : consumesInfo) {
-          out << "    " << info.type() << " \'" << info.label() << "\' \'" << info.instance();
-          out << "\' \'" << info.process() << "\'";
-          if (info.branchType() == InLumi) {
-            out << ", lumi";
-          } else if (info.branchType() == InRun) {
-            out << ", run";
-          } else if (info.branchType() == InProcess) {
-            out << ", processBlock";
-          }
-          if (!info.alwaysGets()) {
-            out << ", may consume";
-          }
-          if (info.kindOfType() == ELEMENT_TYPE) {
-            out << ", element type";
-          }
-          if (info.skipCurrentProcess()) {
-            out << ", skip current process";
-          }
-          out << "\n";
-        }
-      } else {
-        out << "\n";
-      }
-    }
-  }
 }
 
 void Tracer::postBeginJob() {
-  LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " finished: begin job";
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_) << indention_ << " finished: begin job";
 }
 
 void Tracer::preEndJob() {
@@ -623,6 +562,293 @@ void Tracer::preEndJob() {
 
 void Tracer::postEndJob() {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " finished: end job";
+}
+
+void Tracer::lookupInitializationComplete(PathsAndConsumesOfModulesBase const& pathsAndConsumes,
+                                          ProcessContext const& pc) {
+  if (dumpPathsAndConsumes_) {
+    LogAbsolute out("Tracer");
+    out << TimeStamper(printTimestamps_) << indention_ << " lookupInitializationComplete";
+    out << "\n"
+        << "Process name = " << pc.processName() << "\n";
+    std::vector<ModuleDescription const*> const& allModules = pathsAndConsumes.allModules();
+    std::vector<eventsetup::ESProductResolverProvider const*> const& allEventSetupModules =
+        pathsAndConsumes.allESProductResolverProviders();
+
+    printPaths(out, pathsAndConsumes);
+    printEDModulesWithDependentModules(out, allModules, pathsAndConsumes);
+    printESModulesWithDependentModules(out, allEventSetupModules, pathsAndConsumes);
+    printEDModulesWithConsumes(out, allModules, pathsAndConsumes);
+    printESModulesWithConsumes(out, allEventSetupModules, pathsAndConsumes);
+  }
+}
+
+void Tracer::printPaths(LogAbsolute& out, PathsAndConsumesOfModulesBase const& pathsAndConsumes) const {
+  out << "paths:\n";
+  std::vector<std::string> const& paths = pathsAndConsumes.paths();
+  if (paths.empty()) {
+    out << "  --- there are no paths ---\n";
+  }
+  for (auto const& path : paths) {
+    out << "  " << path << "\n";
+  }
+  out << "end paths:\n";
+  std::vector<std::string> const& endpaths = pathsAndConsumes.endPaths();
+  if (endpaths.empty()) {
+    out << "  --- there are no endpaths ---\n";
+  }
+  for (auto const& endpath : endpaths) {
+    out << "  " << endpath << "\n";
+  }
+  for (unsigned int j = 0; j < paths.size(); ++j) {
+    std::vector<ModuleDescription const*> const& modulesOnPath = pathsAndConsumes.modulesOnPath(j);
+    out << "modules on path " << paths.at(j) << ":\n";
+    if (modulesOnPath.empty()) {
+      out << "  --- there are no modules on this path ---\n";
+    }
+    for (auto const& desc : modulesOnPath) {
+      out << "  " << desc->moduleLabel() << "\n";
+    }
+  }
+  for (unsigned int j = 0; j < endpaths.size(); ++j) {
+    std::vector<ModuleDescription const*> const& modulesOnEndPath = pathsAndConsumes.modulesOnEndPath(j);
+    out << "modules on endpath " << endpaths.at(j) << ":\n";
+    if (modulesOnEndPath.empty()) {
+      out << "  --- there are no modules on this endpath ---\n";
+    }
+    for (auto const& desc : modulesOnEndPath) {
+      out << "  " << desc->moduleLabel() << "\n";
+    }
+  }
+}
+
+void Tracer::printEDModulesWithDependentModules(LogAbsolute& out,
+                                                std::vector<ModuleDescription const*> const& allModules,
+                                                PathsAndConsumesOfModulesBase const& pathsAndConsumes) const {
+  out << "All modules and modules in the current process whose products they consume:\n"
+         "(This does not include modules from previous processes or the source)\n"
+         "(Exclusively considers consumed Event and EventSetup products, not Run, Lumi, or ProcessBlock products)\n";
+  if (allModules.empty()) {
+    out << "  --- there are no modules ---\n";
+  }
+  for (auto const& module : allModules) {
+    out << "  " << module->moduleName() << "/'" << module->moduleLabel() << "'\n";
+    unsigned int moduleID = module->id();
+    if (pathsAndConsumes.moduleDescription(moduleID) != module) {
+      throw cms::Exception("TestFailure")
+          << "Tracer::printEDModulesWithDependentModules, moduleDescription returns incorrect value";
+    }
+    std::vector<ModuleDescription const*> const& modulesWhoseProductsAreConsumedBy =
+        pathsAndConsumes.modulesWhoseProductsAreConsumedBy(moduleID);
+    if (!modulesWhoseProductsAreConsumedBy.empty()) {
+      out << "    consumes products from these modules:\n";
+      for (auto const& producingModule : modulesWhoseProductsAreConsumedBy) {
+        out << "      " << producingModule->moduleName() << "/'" << producingModule->moduleLabel() << "'\n";
+      }
+    }
+
+    for (unsigned int i = 0; i < static_cast<unsigned int>(Transition::NumberOfEventSetupTransitions); ++i) {
+      Transition transition = static_cast<Transition>(i);
+      std::vector<eventsetup::ComponentDescription const*> const& esModulesWhoseProductsAreConsumedBy =
+          pathsAndConsumes.esModulesWhoseProductsAreConsumedBy(moduleID, transition);
+      if (!esModulesWhoseProductsAreConsumedBy.empty()) {
+        const char* transitionString = "Event";
+        if (transition == Transition::BeginLuminosityBlock) {
+          transitionString = "BeginLuminosityBlock";
+        } else if (transition == Transition::EndLuminosityBlock) {
+          transitionString = "EndLuminosityBlock";
+        } else if (transition == Transition::BeginRun) {
+          transitionString = "BeginRun";
+        } else if (transition == Transition::EndRun) {
+          transitionString = "EndRun";
+        }
+        out << "    consumes products during " << transitionString << " from these EventSetup modules:\n";
+        for (auto const& component : esModulesWhoseProductsAreConsumedBy) {
+          std::string moduleBaseType("ESProducer");
+          if (component->isSource_) {
+            moduleBaseType = "ESSource";
+          } else if (component->isLooper_) {
+            moduleBaseType = "Looper producing EventSetup data";
+          }
+          out << "      " << component->type_ << "/'" << component->label_ << "' " << moduleBaseType << "\n";
+        }
+      }
+    }
+  }
+}
+
+void Tracer::printESModulesWithDependentModules(
+    LogAbsolute& out,
+    std::vector<eventsetup::ESProductResolverProvider const*> const& allEventSetupModules,
+    PathsAndConsumesOfModulesBase const& pathsAndConsumes) const {
+  out << "All EventSetup modules:\n";
+  std::vector<std::vector<eventsetup::ComponentDescription const*>> const& esModules =
+      pathsAndConsumes.esModulesWhoseProductsAreConsumedByESModule();
+  auto it = esModules.begin();
+  if (allEventSetupModules.empty()) {
+    out << "  --- there are no EventSetup modules ---\n";
+  }
+  for (auto const& provider : allEventSetupModules) {
+    eventsetup::ComponentDescription const& componentDescription = provider->description();
+    out << "  " << componentDescription.type_ << "/'"
+        << (componentDescription.label_.empty() ? componentDescription.type_ : componentDescription.label_) << "'\n";
+    if (!it->empty()) {
+      out << "    consumes products from these EventSetup modules:\n";
+      for (auto const& consumedComponentDescription : *it) {
+        out << "      " << consumedComponentDescription->type_ << "/'"
+            << (consumedComponentDescription->label_.empty() ? consumedComponentDescription->type_
+                                                             : consumedComponentDescription->label_)
+            << "'\n";
+      }
+    }
+    ++it;
+  }
+}
+
+void Tracer::printEDModulesWithConsumes(LogAbsolute& out,
+                                        std::vector<ModuleDescription const*> const& allModules,
+                                        PathsAndConsumesOfModulesBase const& pathsAndConsumes) const {
+  out << "All modules (listed by class and label) and all their consumed products.\n"
+         "Consumed products are listed by type, label, instance, process.\n"
+         "For products not in the event, 'processBlock', 'run' or 'lumi' is added to indicate the TTree they "
+         "are from.\n"
+         "For products that are declared with mayConsume, 'may consume' is added.\n"
+         "For products consumed for Views, 'element type' is added\n"
+         "For products only read from previous processes, 'skip current process' is added\n"
+         "Consumed EventSetup products are listed by record type, data type, product label,\n"
+         "transition of request, whether module is ESSource, ESProducer, or ESProducerLooper,\n"
+         "and the module type and module label of the EventSetup module producing the product.\n"
+         "Next is the transitionID (counts setWhatProduced calls in ESProducers, otherwise 0).\n"
+         "If the requested module label was specified, then there is a remark in parentheses\n"
+         "stating whether it matched the actual module label of the producer.\n";
+  if (allModules.empty()) {
+    out << "  --- there are no modules ---\n";
+  }
+  for (auto const* module : allModules) {
+    out << "  " << module->moduleName() << "/'" << module->moduleLabel() << "'\n";
+    std::vector<ConsumesInfo> consumesInfo = pathsAndConsumes.consumesInfo(module->id());
+    if (!consumesInfo.empty()) {
+      out << "    consumes:\n";
+      for (auto const& info : consumesInfo) {
+        out << "      " << info.type() << " '" << info.label() << "' '" << info.instance();
+        out << "' '" << info.process() << "'";
+        if (info.branchType() == InLumi) {
+          out << ", lumi";
+        } else if (info.branchType() == InRun) {
+          out << ", run";
+        } else if (info.branchType() == InProcess) {
+          out << ", processBlock";
+        }
+        if (!info.alwaysGets()) {
+          out << ", may consume";
+        }
+        if (info.kindOfType() == ELEMENT_TYPE) {
+          out << ", element type";
+        }
+        if (info.skipCurrentProcess()) {
+          out << ", skip current process";
+        }
+        out << "\n";
+      }
+    }
+    std::vector<EventSetupConsumesInfo> eventSetupConsumesInfo = pathsAndConsumes.eventSetupConsumesInfo(module->id());
+    if (!eventSetupConsumesInfo.empty()) {
+      out << "    consumes from EventSetup:\n";
+      for (auto const& info : eventSetupConsumesInfo) {
+        out << "      " << info.eventSetupRecordType_ << " " << info.productType_ << " '" << info.productLabel_ << "'";
+        const char* transitionString = "Event";
+        Transition transition = static_cast<Transition>(info.transitionOfConsumer_);
+        if (transition == Transition::BeginLuminosityBlock) {
+          transitionString = "BeginLuminosityBlock";
+        } else if (transition == Transition::EndLuminosityBlock) {
+          transitionString = "EndLuminosityBlock";
+        } else if (transition == Transition::BeginRun) {
+          transitionString = "BeginRun";
+        } else if (transition == Transition::EndRun) {
+          transitionString = "EndRun";
+        }
+        out << " " << transitionString;
+        if (info.moduleLabelMismatch_) {
+          out << ", EventSetup module label mismatch, requested '" << info.requestedModuleLabel_ << "'";
+        } else if (info.moduleType_.empty()) {
+          out << ", No EventSetup module configured to produce this data.";
+        } else {
+          out << " " << info.moduleBaseType() << " " << info.moduleType_ << "/'" << info.moduleLabel_ << "' "
+              << info.transitionOfProducer_;
+          if (!info.requestedModuleLabel_.empty()) {
+            assert(info.requestedModuleLabel_ == info.moduleLabel_);
+            out << " (module label matches requested label)";
+          }
+        }
+        out << "\n";
+      }
+    }
+  }
+}
+
+void Tracer::printESModulesWithConsumes(
+    LogAbsolute& out,
+    std::vector<eventsetup::ESProductResolverProvider const*> const& allEventSetupModules,
+    PathsAndConsumesOfModulesBase const& pathsAndConsumes) const {
+  out << "All EventSetup modules (listed by class and label) and all their consumed products.\n"
+         "These modules can only consume EventSetup products. These are listed by record type,\n"
+         "data type, product label, whether the module is ESSource, ESProducer, or ESProducerLooper,\n"
+         "and the module type and module label of the EventSetup module producing the product.\n"
+         "Next is the transitionID (counts setWhatProduced calls in ESProducers, otherwise 0).\n"
+         "If the requested module label was specified, then there is a remark in parentheses\n"
+         "stating whether it matched the actual module label of the producer.\n";
+  if (allEventSetupModules.empty()) {
+    out << "  --- there are no EventSetup modules ---\n";
+  }
+  for (auto const& provider : allEventSetupModules) {
+    eventsetup::ComponentDescription const& componentDescription = provider->description();
+    out << "  " << componentDescription.type_ << "/'"
+        << (componentDescription.label_.empty() ? componentDescription.type_ : componentDescription.label_) << "'\n";
+    ESProducer const* esProducer = dynamic_cast<ESProducer const*>(provider);
+    if (esProducer) {
+      std::vector<std::vector<EventSetupConsumesInfo>> eventSetupConsumesInfos =
+          pathsAndConsumes.eventSetupConsumesInfo(*esProducer);
+      unsigned int transition = 0;
+      for (auto const& infosForOneTransition : eventSetupConsumesInfos) {
+        out << "    Consumed products for consumer transition: " << transition << "\n";
+        if (infosForOneTransition.empty()) {
+          out << "      --- no products consumed ---\n";
+        }
+        for (auto const& info : infosForOneTransition) {
+          if (info.mayConsumes_) {
+            if (info.mayConsumesFirstEntry_) {
+              out << "      " << info.eventSetupRecordType_ << " " << info.productType_ << "\n"
+                  << "        May Consumes, available products that might be consumed (they match record type and "
+                     "product type):\n";
+            }
+            if (info.mayConsumesNoProducts_) {
+              out << "          --- no available products that match ---\n";
+            } else {
+              out << "          '" << info.productLabel_ << "' " << info.moduleBaseType() << " " << info.moduleType_
+                  << "/'" << info.moduleLabel_ << "' " << info.transitionOfProducer_ << "\n";
+            }
+          } else {
+            out << "      " << info.eventSetupRecordType_ << " " << info.productType_ << " '" << info.productLabel_
+                << "'";
+            if (info.moduleLabelMismatch_) {
+              out << ", EventSetup module label mismatch, requested '" << info.requestedModuleLabel_ << "'";
+            } else if (info.moduleType_.empty()) {
+              out << ", No EventSetup module configured to produce this data.";
+            } else {
+              out << " " << info.moduleBaseType() << " " << info.moduleType_ << "/'" << info.moduleLabel_ << "' "
+                  << info.transitionOfProducer_;
+              if (!info.requestedModuleLabel_.empty()) {
+                assert(info.requestedModuleLabel_ == info.moduleLabel_);
+                out << " (module label matches requested label)";
+              }
+            }
+            out << "\n";
+          }
+        }
+        ++transition;
+      }
+    }
+  }
 }
 
 void Tracer::preBeginStream(StreamContext const& sc) {

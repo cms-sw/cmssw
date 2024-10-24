@@ -32,6 +32,7 @@ namespace edmtest {
     RunLumiESSource(edm::ParameterSet const&);
 
     std::unique_ptr<IOVTestInfo> produce(ESTestRecordC const&);
+    std::unique_ptr<IOVTestInfo> produceNonEmptyLabel(ESTestRecordC const&);
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -46,6 +47,7 @@ namespace edmtest {
   RunLumiESSource::RunLumiESSource(edm::ParameterSet const&) {
     findingRecord<ESTestRecordC>();
     setWhatProduced(this);
+    setWhatProduced(this, &edmtest::RunLumiESSource::produceNonEmptyLabel, edm::es::Label("nonEmptyLabel"));
   }
 
   std::unique_ptr<IOVTestInfo> RunLumiESSource::produce(ESTestRecordC const& record) {
@@ -54,6 +56,24 @@ namespace edmtest {
     edm::ValidityInterval iov = record.validityInterval();
     edm::LogAbsolute("RunLumiESSource") << "RunLumiESSource::produce startIOV = " << iov.first().eventID().run() << ":"
                                         << iov.first().luminosityBlockNumber()
+                                        << " endIOV = " << iov.last().eventID().run() << ":"
+                                        << iov.last().luminosityBlockNumber() << " IOV index = " << record.iovIndex()
+                                        << " cache identifier = " << record.cacheIdentifier();
+    data->iovStartRun_ = iov.first().eventID().run();
+    data->iovStartLumi_ = iov.first().luminosityBlockNumber();
+    data->iovEndRun_ = iov.last().eventID().run();
+    data->iovEndLumi_ = iov.last().luminosityBlockNumber();
+    data->iovIndex_ = record.iovIndex();
+    data->cacheIdentifier_ = record.cacheIdentifier();
+    return data;
+  }
+
+  std::unique_ptr<IOVTestInfo> RunLumiESSource::produceNonEmptyLabel(ESTestRecordC const& record) {
+    auto data = std::make_unique<IOVTestInfo>();
+
+    edm::ValidityInterval iov = record.validityInterval();
+    edm::LogAbsolute("RunLumiESSource") << "RunLumiESSource::produceNonEmptyLabel startIOV = "
+                                        << iov.first().eventID().run() << ":" << iov.first().luminosityBlockNumber()
                                         << " endIOV = " << iov.last().eventID().run() << ":"
                                         << iov.last().luminosityBlockNumber() << " IOV index = " << record.iovIndex()
                                         << " cache identifier = " << record.cacheIdentifier();

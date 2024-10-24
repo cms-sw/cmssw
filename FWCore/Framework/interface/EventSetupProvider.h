@@ -122,6 +122,9 @@ namespace edm {
       void fillKeys(std::set<EventSetupRecordKey>& keys) const;
 
       EventSetupRecordProvider* tryToGetRecordProvider(const EventSetupRecordKey& iKey);
+      EventSetupRecordProvider const* tryToGetRecordProvider(const EventSetupRecordKey& iKey) const;
+
+      void fillAllESProductResolverProviders(std::vector<ESProductResolverProvider const*>&) const;
 
     private:
       std::shared_ptr<EventSetupRecordProvider>& recordProvider(const EventSetupRecordKey& iKey);
