@@ -9,26 +9,9 @@
  */
 
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
-#include "DQM/HcalTasks/interface/DigiTask.h"
 #include "DQM/HcalCommon/interface/DQTask.h"
-#include "DQM/HcalCommon/interface/Utilities.h"
-#include "DQM/HcalCommon/interface/HashFilter.h"
-#include "DQM/HcalCommon/interface/Container1D.h"
-#include "DQM/HcalCommon/interface/Container2D.h"
-#include "DQM/HcalCommon/interface/ContainerProf1D.h"
-#include "DQM/HcalCommon/interface/ContainerProf2D.h"
-#include "DQM/HcalCommon/interface/ContainerSingle1D.h"
-#include "DQM/HcalCommon/interface/ContainerSingle2D.h"
-#include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
-#include "DQM/HcalCommon/interface/Constants.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
