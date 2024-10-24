@@ -185,7 +185,11 @@ namespace edm {
 
     std::filesystem::path const SiteLocalConfigService::storageDescriptionPath(
         edm::CatalogAttributes const &aDataCatalog) const {
-      std::string siteconfig_path = std::string(std::getenv("SITECONFIG_PATH"));
+      char *tmp = std::getenv("SITECONFIG_PATH");
+      if (tmp == nullptr) {
+        throw cms::Exception("SiteLocalConfigService") << "SITECONFIG_PATH is not set!";
+      }
+      std::string siteconfig_path = std::string(tmp);
       std::filesystem::path filename_storage;
       //not a cross site use local path given in SITECONFIG_PATH
       if (aDataCatalog.site == aDataCatalog.storageSite) {
