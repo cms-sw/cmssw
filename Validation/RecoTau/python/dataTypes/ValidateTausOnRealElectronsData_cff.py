@@ -7,22 +7,25 @@ import PhysicsTools.PatAlgos.tools.helpers as helpers
 
 ElPrimaryVertexFilter = cms.EDFilter(
     "VertexSelector",
-    src = cms.InputTag("offlinePrimaryVertices"),
+    #src = cms.InputTag("offlinePrimaryVertices"),
+    src = cms.InputTag("offlineSlimmedPrimaryVertices"),
     cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
     filter = cms.bool(False)
-    )
+)
 
 ElBestPV = cms.EDProducer( 
     "HighestSumP4PrimaryVertexSelector",
     src = cms.InputTag("ElPrimaryVertexFilter")
-	)
+)
 
 selectedElectrons = cms.EDFilter(
-    "TauValElectronSelector",
-    src = cms.InputTag('gedGsfElectrons'),
+    #"TauValElectronSelector",
+    "TauValPatElectronSelector",
+    #src = cms.InputTag('gedGsfElectrons'),
+    src = cms.InputTag('slimmedElectrons'),
     cut = cms.string("pt > 25.0 && abs(eta) < 2.4 && isElectron"),
     filter = cms.bool(False)
-	)
+)
 
 ElectronsFromPV = cms.EDProducer(
     "GsfElectronFromPVSelector",
@@ -30,38 +33,43 @@ ElectronsFromPV = cms.EDProducer(
     srcVertex   = cms.InputTag("ElBestPV"),
     max_dxy     = cms.double(0.01),
     max_dz      = cms.double(0.1)
-    )
+)
 
 idElectrons = cms.EDFilter(
-    "TauValElectronSelector",
+    #"TauValElectronSelector",
+    "TauValPatElectronSelector",
     src = cms.InputTag('ElectronsFromPV'),
     cut = cms.string('ecalDrivenSeed & isGsfCtfScPixChargeConsistent & isGsfScPixChargeConsistent & isGsfCtfChargeConsistent & !isEBEEGap & (isEB & sigmaIetaIeta<0.01 & abs(deltaPhiSuperClusterTrackAtVtx)<0.06 & abs(deltaEtaSuperClusterTrackAtVtx)<0.006 & hadronicOverEm<0.04 | isEE & sigmaIetaIeta<0.03 & abs(deltaPhiSuperClusterTrackAtVtx)<0.04 & abs(deltaEtaSuperClusterTrackAtVtx)<0.007 & hadronicOverEm<0.025)'),
     filter = cms.bool(False)
 )
 
 trackElectrons = cms.EDFilter(
-    "TauValElectronSelector",
+    #"TauValElectronSelector",
+    "TauValPatElectronSelector",
     src = cms.InputTag('idElectrons'),
     cut = cms.string('gsfTrack.isNonnull  && 0.7 < eSuperClusterOverP < 1.5'),
-#    cut = cms.string('gsfTrack.isNonnull && gsfTrack.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\') = 0 && 0.7 < eSuperClusterOverP < 1.5'),
+    #cut = cms.string('gsfTrack.isNonnull && gsfTrack.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\') = 0 && 0.7 < eSuperClusterOverP < 1.5'),
     filter = cms.bool(False)
 )
 
 isolatedElectrons = cms.EDFilter(
-    "TauValElectronSelector",
+    #"TauValElectronSelector",
+    "TauValPatElectronSelector",
     src = cms.InputTag('trackElectrons'),
     cut = cms.string("(isEB & (dr04TkSumPt/pt + max(0.,dr04EcalRecHitSumEt-2.)/pt + dr04HcalTowerSumEt/pt < 0.10)) | (isEE & (dr04TkSumPt/pt + dr04EcalRecHitSumEt/pt + dr04HcalTowerSumEt/pt < 0.09))"),
     filter = cms.bool(False)
-	)
+)
 
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
 ElGoodTracks = cms.EDFilter(
-    "TrackSelector",
-    src = cms.InputTag("generalTracks"), 
+    #"TrackSelector",
+    "PFTrackSelector",
+    #src = cms.InputTag("generalTracks"),
+    src = cms.InputTag("packedPFCandidates"),
     cut = cms.string("pt > 5 && abs(eta) < 2.5"),
     filter = cms.bool(False)
-	)
+)
 
 ElIsoTracks = cms.EDProducer(
     "IsoTracks",
@@ -73,32 +81,35 @@ ElIsoTracks = cms.EDProducer(
 ElTrackFromPV = cms.EDProducer(
     "TrackFromPVSelector",
     srcTrack   = cms.InputTag("ElIsoTracks"),
+    #srcTrack   = cms.InputTag("packedPFCandidates"),
     srcVertex  = cms.InputTag("ElBestPV"),
     max_dxy    = cms.double(0.01),
     max_dz     = cms.double(0.1)
-    )
+)
 
-ElTrackCands  = cms.EDProducer(
-    "ConcreteChargedCandidateProducer", 
-    src  = cms.InputTag("ElTrackFromPV"),      
-    particleType = cms.string("e+")     # this is needed to define a mass do not trust the sign, it is dummy
-	)
+#ElTrackCands  = cms.EDProducer(
+#    #"ConcreteChargedCandidateProducer",
+#    "ConcreteChargedPFCandidateProducer",
+#    src  = cms.InputTag("ElTrackFromPV"),
+#    particleType = cms.string("e+")     # this is needed to define a mass do not trust the sign, it is dummy
+#)
 
 ZeeCandElectronTrack = cms.EDProducer(
     "CandViewShallowCloneCombiner",
-    decay = cms.string("isolatedElectrons@+ ElTrackCands@-"), # it takes opposite sign collection, no matter if +- or -+
+    #decay = cms.string("isolatedElectrons@+ ElTrackCands@-"), # it takes opposite sign collection, no matter if +- or -+
+    decay = cms.string("isolatedElectrons@+ ElTrackFromPV@-"), # it takes opposite sign collection, no matter if +- or -+
     cut   = cms.string("80 < mass < 100")
-	)
+)
 
 BestZee = cms.EDProducer(
     "BestMassZArbitrationProducer", # returns the Z with mass closest to 91.18 GeV
 	ZCandidateCollection = cms.InputTag("ZeeCandElectronTrack")
-	)
+)
 
 ElZLegs  = cms.EDProducer(
     "CollectionFromZLegProducer", 
     ZCandidateCollection  = cms.InputTag("BestZee"),      
-	)
+)
 
 procAttributes = dir(proc) #Takes a snapshot of what there in the process
 helpers.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominator, 'RealElectronsData') #clones the sequence inside the process with RealElectronsData postfix
@@ -145,13 +156,23 @@ newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.fi
 for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
-produceDenominatorRealElectronsData = cms.Sequence( cms.ignore(ElPrimaryVertexFilter) * ElBestPV *
-                                                    ( (cms.ignore(selectedElectrons) * ElectronsFromPV * cms.ignore(idElectrons) * cms.ignore(trackElectrons) * cms.ignore(isolatedElectrons)) +
-                                                      (cms.ignore(ElGoodTracks) * ElIsoTracks * ElTrackFromPV * ElTrackCands) ) *
-                                                    ZeeCandElectronTrack *
-                                                    BestZee *
-                                                    ElZLegs 
-                                                  )
+produceDenominatorRealElectronsData = cms.Sequence(
+    cms.ignore(ElPrimaryVertexFilter)
+    * ElBestPV
+    * ( (cms.ignore(selectedElectrons)
+         * ElectronsFromPV
+         * cms.ignore(idElectrons)
+         * cms.ignore(trackElectrons)
+         * cms.ignore(isolatedElectrons))
+        + (
+            cms.ignore(ElGoodTracks)
+            * ElIsoTracks
+            * ElTrackFromPV ))
+#            * ElTrackCands ))
+    * ZeeCandElectronTrack
+    * BestZee
+    * ElZLegs 
+)
 
 produceDenominator = cms.Sequence(produceDenominatorRealElectronsData)
 
