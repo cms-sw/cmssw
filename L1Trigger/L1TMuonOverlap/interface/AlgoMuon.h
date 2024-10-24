@@ -35,6 +35,7 @@ public:
         m_bx(bx),
         m_pt(pt),
         m_charge(charge),
+        m_phiRHit(9999),
         m_patNumb(999),
         m_rhitNumb(999) {}
 

@@ -12,6 +12,7 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include <cassert>
 #include <vector>
 
 namespace {
@@ -54,7 +55,7 @@ namespace {
                                      3.750,
                                      4.250,
                                      4.750};
-    if (etaIndex < 11) {
+    if (0 <= etaIndex && etaIndex < 11) {
       return -rgnEtaValues[-(etaIndex - 10)];  // 0-10 are negative eta values
     } else if (etaIndex < 22) {
       return rgnEtaValues[etaIndex - 11];  // 11-21 are positive eta values
