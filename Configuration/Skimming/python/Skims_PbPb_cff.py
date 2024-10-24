@@ -63,3 +63,16 @@ SKIMStreamPbPbZMu = cms.FilteredStream(
     )
 
 #####################      
+
+from Configuration.Skimming.PbPb_HighPtJets_cff import *
+HighPtJetsSkimPathPbPb = cms.Path( pbpbHighPtJetSkimSequence )
+SKIMStreamPbPbHighPtJets = cms.FilteredStream(
+    responsible = 'HI PAG',
+    name = 'PbPbHighPtJets',
+    paths = (HighPtJetsSkimPathPbPb),
+    content = skimFEVTContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+#####################      
