@@ -2,6 +2,8 @@
 #define PHASE2TRACKERDIGI_CLASSES_H
 
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+#include "DataFormats/Phase2TrackerDigi/interface/ROCBitStream.h"
+#include "DataFormats/Phase2TrackerDigi/interface/QCore.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
