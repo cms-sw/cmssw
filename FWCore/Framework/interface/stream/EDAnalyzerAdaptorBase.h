@@ -25,14 +25,14 @@
 #include <vector>
 
 // user include files
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
@@ -58,8 +58,9 @@ namespace edm {
   }
 
   namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
-  }
+  }  // namespace eventsetup
 
   namespace stream {
     class EDAnalyzerBase;
@@ -114,6 +115,8 @@ namespace edm {
 
       void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
       void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&);
+      void releaseMemoryPostLookupSignal();
+
       virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
 
       const EDConsumerBase* consumer() const;
@@ -124,9 +127,15 @@ namespace edm {
                                            std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                            std::string const& processName) const;
 
+      void esModulesWhoseProductsAreConsumed(
+          std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
+          eventsetup::ESRecordsToProductResolverIndices const&) const;
+
       void convertCurrentProcessAlias(std::string const& processName);
 
-      std::vector<ConsumesInfo> consumesInfo() const;
+      std::vector<ModuleConsumesInfo> moduleConsumesInfos() const;
+      std::vector<ModuleConsumesESInfo> moduleConsumesESInfos(
+          eventsetup::ESRecordsToProductResolverIndices const&) const;
 
       void deleteModulesEarly();
 

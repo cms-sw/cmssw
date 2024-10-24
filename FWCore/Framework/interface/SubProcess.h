@@ -6,7 +6,6 @@
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
-#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/PrincipalCache.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
@@ -41,6 +40,7 @@ namespace edm {
   class MergeableRunProductMetadata;
   class ModuleTypeResolverMaker;
   class ParameterSet;
+  class PathsAndConsumesOfModules;
   class Principal;
   class ProcessBlockTransitionInfo;
   class ProductRegistry;
@@ -239,6 +239,8 @@ namespace edm {
       for_all(subProcesses_, [](auto& subProcess) { subProcess.clearCounters(); });
     }
 
+    void initializePathsAndConsumes();
+
   private:
     void beginJob();
     void endJob(ExceptionCollector&);
@@ -280,7 +282,7 @@ namespace edm {
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ProcessContext processContext_;
-    PathsAndConsumesOfModules pathsAndConsumesOfModules_;
+    std::unique_ptr<PathsAndConsumesOfModules> pathsAndConsumesOfModules_;
     //We require 1 history for each Run, Lumi and Stream
     // The vectors first hold Stream info, then Lumi then Run
     unsigned int historyLumiOffset_;

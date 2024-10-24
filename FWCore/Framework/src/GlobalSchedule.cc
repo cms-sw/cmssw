@@ -194,6 +194,12 @@ namespace edm {
     }
   }
 
+  void GlobalSchedule::releaseMemoryPostLookupSignal() {
+    unsigned int const managerIndex =
+        numberOfConcurrentLumis_ + numberOfConcurrentRuns_ + numberOfConcurrentProcessBlocks_;
+    workerManagers_[managerIndex].releaseMemoryPostLookupSignal();
+  }
+
   std::vector<ModuleDescription const*> GlobalSchedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
     result.reserve(allWorkers().size());

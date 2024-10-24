@@ -118,6 +118,8 @@ namespace edm {
       ///there is a 1-to-1 correspondence between elements returned and the elements returned from fillRegisteredDataKey.
       std::vector<ComponentDescription const*> componentsForRegisteredDataKeys() const;
 
+      std::vector<unsigned int> produceMethodIDsForRegisteredDataKeys() const;
+
       // The following member functions should only be used by EventSetupRecordProvider
       bool add(DataKey const& iKey, ESProductResolver* iResolver);
       void clearResolvers();

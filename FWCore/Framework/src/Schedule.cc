@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -29,7 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
@@ -461,7 +462,7 @@ namespace edm {
         Service<RandomNumberGenerator> rng;
         if (rng.isAvailable()) {
           rng->consumes(consumesCollector());
-          for (auto const& consumesInfo : this->consumesInfo()) {
+          for (auto const& consumesInfo : this->moduleConsumesInfos()) {
             typesConsumed.emplace(consumesInfo.type());
           }
         }
@@ -668,7 +669,7 @@ namespace edm {
       std::set<TypeID> elementTypesConsumed;
       // Loop over all modules
       for (auto const& worker : allWorkers()) {
-        for (auto const& consumesInfo : worker->consumesInfo()) {
+        for (auto const& consumesInfo : worker->moduleConsumesInfos()) {
           if (consumesInfo.kindOfType() == PRODUCT_TYPE) {
             productTypesConsumed.emplace(consumesInfo.type());
           } else {
@@ -1300,6 +1301,8 @@ namespace edm {
     }
   }
 
+  void Schedule::releaseMemoryPostLookupSignal() { globalSchedule_->releaseMemoryPostLookupSignal(); }
+
   void Schedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {
     streamSchedules_[0]->availablePaths(oLabelsToFill);
   }
@@ -1368,6 +1371,31 @@ namespace edm {
         worker->modulesWhoseProductsAreConsumed(modules, modulesInPreviousProcesses, preg, labelToDesc);
       } catch (cms::Exception& ex) {
         ex.addContext("Calling Worker::modulesWhoseProductsAreConsumed() for module " +
+                      worker->description()->moduleLabel());
+        throw;
+      }
+      ++i;
+    }
+  }
+
+  void Schedule::fillESModuleAndConsumesInfo(
+      std::array<std::vector<std::vector<eventsetup::ComponentDescription const*>>, kNumberOfEventSetupTransitions>&
+          esModulesWhoseProductsAreConsumedBy,
+      eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
+    for (auto& item : esModulesWhoseProductsAreConsumedBy) {
+      item.clear();
+      item.resize(allWorkers().size());
+    }
+    unsigned int i = 0;
+    for (auto const& worker : allWorkers()) {
+      std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions> esModules;
+      for (auto transition = 0U; transition < kNumberOfEventSetupTransitions; ++transition) {
+        esModules[transition] = &esModulesWhoseProductsAreConsumedBy[transition].at(i);
+      }
+      try {
+        worker->esModulesWhoseProductsAreConsumed(esModules, iPI);
+      } catch (cms::Exception& ex) {
+        ex.addContext("Calling Worker::esModulesWhoseProductsAreConsumed() for module " +
                       worker->description()->moduleLabel());
         throw;
       }

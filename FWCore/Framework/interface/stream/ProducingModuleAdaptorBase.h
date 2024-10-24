@@ -26,21 +26,22 @@
 #include <unordered_map>
 
 // user include files
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
+#include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 
 // forward declarations
 
@@ -64,8 +65,9 @@ namespace edm {
   }
 
   namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
-  }
+  }  // namespace eventsetup
 
   namespace stream {
     template <typename T>
@@ -108,6 +110,7 @@ namespace edm {
 
       void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
       void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&);
+      void releaseMemoryPostLookupSignal();
       virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
 
       void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
@@ -116,9 +119,15 @@ namespace edm {
                                            std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                            std::string const& processName) const;
 
+      void esModulesWhoseProductsAreConsumed(
+          std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
+          eventsetup::ESRecordsToProductResolverIndices const&) const;
+
       void convertCurrentProcessAlias(std::string const& processName);
 
-      std::vector<ConsumesInfo> consumesInfo() const;
+      std::vector<ModuleConsumesInfo> moduleConsumesInfos() const;
+      std::vector<ModuleConsumesESInfo> moduleConsumesESInfos(
+          eventsetup::ESRecordsToProductResolverIndices const&) const;
 
       using ModuleToResolverIndicies =
           std::unordered_multimap<std::string, std::tuple<edm::TypeID const*, const char*, edm::ProductResolverIndex>>;
