@@ -13,7 +13,7 @@ StripCPEfromTrackAngle::StripCPEfromTrackAngle(edm::ParameterSet& conf,
                                                const SiStripLatency& latency)
     : StripCPE(conf, mag, geom, lorentz, backPlaneCorrection, confObj, latency),
       useLegacyError(conf.existsAs<bool>("useLegacyError") ? conf.getParameter<bool>("useLegacyError") : true),
-      maxChgOneMIP(conf.existsAs<float>("maxChgOneMIP") ? conf.getParameter<double>("maxChgOneMIP") : -6000.),
+      maxChgOneMIP(conf.existsAs<double>("maxChgOneMIP") ? conf.getParameter<double>("maxChgOneMIP") : -6000.),
       m_algo(useLegacyError ? Algo::legacy : (maxChgOneMIP < 0 ? Algo::mergeCK : Algo::chargeCK)) {
   mLC_P[0] = conf.existsAs<double>("mLC_P0") ? conf.getParameter<double>("mLC_P0") : -.326;
   mLC_P[1] = conf.existsAs<double>("mLC_P1") ? conf.getParameter<double>("mLC_P1") : .618;
