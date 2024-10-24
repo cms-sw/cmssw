@@ -1,3 +1,6 @@
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/HGCalObjects"/>
+<use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/HGCalDigi"/>
 <use name="FWCore/ParameterSet"/>
 <use name="clhep"/>
