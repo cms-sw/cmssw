@@ -25,8 +25,6 @@ Phase2OTHarvestTrackingParticles::Phase2OTHarvestTrackingParticles(const edm::Pa
 
 Phase2OTHarvestTrackingParticles::~Phase2OTHarvestTrackingParticles() {}
 
-// ------------ method called once each job just after ending the event loop
-// ------------
 void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
   using namespace edm;
 
@@ -38,65 +36,160 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
 
   if (dbe) {
     // Find all monitor elements for histograms
-    MonitorElement *meN_eta = dbe->get(topFolderName_ + "/Efficiency/match_tp_eta");
-    MonitorElement *meD_eta = dbe->get(topFolderName_ + "/Efficiency/tp_eta");
-    MonitorElement *meN_pt = dbe->get(topFolderName_ + "/Efficiency/match_tp_pt");
-    MonitorElement *meD_pt = dbe->get(topFolderName_ + "/Efficiency/tp_pt");
-    MonitorElement *meN_pt_zoom = dbe->get(topFolderName_ + "/Efficiency/match_tp_pt_zoom");
-    MonitorElement *meD_pt_zoom = dbe->get(topFolderName_ + "/Efficiency/tp_pt_zoom");
-    MonitorElement *meN_d0 = dbe->get(topFolderName_ + "/Efficiency/match_tp_d0");
-    MonitorElement *meD_d0 = dbe->get(topFolderName_ + "/Efficiency/tp_d0");
-    MonitorElement *meN_VtxR = dbe->get(topFolderName_ + "/Efficiency/match_tp_VtxR");
-    MonitorElement *meD_VtxR = dbe->get(topFolderName_ + "/Efficiency/tp_VtxR");
-    MonitorElement *meN_VtxZ = dbe->get(topFolderName_ + "/Efficiency/match_tp_VtxZ");
-    MonitorElement *meD_VtxZ = dbe->get(topFolderName_ + "/Efficiency/tp_VtxZ");
+    MonitorElement *meN_clus = dbe->get(topFolderName_ + "/EfficiencyIngredients/gen_clusters_if_stub");
+    MonitorElement *meD_clus = dbe->get(topFolderName_ + "/EfficiencyIngredients/gen_clusters");
+    MonitorElement *meN_clus_zoom = dbe->get(topFolderName_ + "/EfficiencyIngredients/gen_clusters_if_stub_zoom");
+    MonitorElement *meD_clus_zoom = dbe->get(topFolderName_ + "/EfficiencyIngredients/gen_clusters_zoom");
+    MonitorElement *meN_eta = dbe->get(topFolderName_ + "/EfficiencyIngredients/match_tp_eta");
+    MonitorElement *meD_eta = dbe->get(topFolderName_ + "/EfficiencyIngredients/tp_eta");
+    MonitorElement *meN_pt = dbe->get(topFolderName_ + "/EfficiencyIngredients/match_tp_pt");
+    MonitorElement *meD_pt = dbe->get(topFolderName_ + "/EfficiencyIngredients/tp_pt");
+    MonitorElement *meN_pt_zoom = dbe->get(topFolderName_ + "/EfficiencyIngredients/match_tp_pt_zoom");
+    MonitorElement *meD_pt_zoom = dbe->get(topFolderName_ + "/EfficiencyIngredients/tp_pt_zoom");
+    MonitorElement *meN_d0 = dbe->get(topFolderName_ + "/EfficiencyIngredients/match_tp_d0");
+    MonitorElement *meD_d0 = dbe->get(topFolderName_ + "/EfficiencyIngredients/tp_d0");
+    MonitorElement *meN_VtxR = dbe->get(topFolderName_ + "/EfficiencyIngredients/match_tp_VtxR");
+    MonitorElement *meD_VtxR = dbe->get(topFolderName_ + "/EfficiencyIngredients/tp_VtxR");
+    MonitorElement *meN_VtxZ = dbe->get(topFolderName_ + "/EfficiencyIngredients/match_tp_VtxZ");
+    MonitorElement *meD_VtxZ = dbe->get(topFolderName_ + "/EfficiencyIngredients/tp_VtxZ");
 
-    MonitorElement *merespt_eta0to0p7_pt2to3 = dbe->get(topFolderName_ + "/Resolution/respt_eta0to0p7_pt2to3");
-    MonitorElement *merespt_eta0p7to1_pt2to3 = dbe->get(topFolderName_ + "/Resolution/respt_eta0p7to1_pt2to3");
-    MonitorElement *merespt_eta1to1p2_pt2to3 = dbe->get(topFolderName_ + "/Resolution/respt_eta1to1p2_pt2to3");
-    MonitorElement *merespt_eta1p2to1p6_pt2to3 = dbe->get(topFolderName_ + "/Resolution/respt_eta1p2to1p6_pt2to3");
-    MonitorElement *merespt_eta1p6to2_pt2to3 = dbe->get(topFolderName_ + "/Resolution/respt_eta1p6to2_pt2to3");
-    MonitorElement *merespt_eta2to2p4_pt2to3 = dbe->get(topFolderName_ + "/Resolution/respt_eta2to2p4_pt2to3");
-    MonitorElement *merespt_eta0to0p7_pt3to8 = dbe->get(topFolderName_ + "/Resolution/respt_eta0to0p7_pt3to8");
-    MonitorElement *merespt_eta0p7to1_pt3to8 = dbe->get(topFolderName_ + "/Resolution/respt_eta0p7to1_pt3to8");
-    MonitorElement *merespt_eta1to1p2_pt3to8 = dbe->get(topFolderName_ + "/Resolution/respt_eta1to1p2_pt3to8");
-    MonitorElement *merespt_eta1p2to1p6_pt3to8 = dbe->get(topFolderName_ + "/Resolution/respt_eta1p2to1p6_pt3to8");
-    MonitorElement *merespt_eta1p6to2_pt3to8 = dbe->get(topFolderName_ + "/Resolution/respt_eta1p6to2_pt3to8");
-    MonitorElement *merespt_eta2to2p4_pt3to8 = dbe->get(topFolderName_ + "/Resolution/respt_eta2to2p4_pt3to8");
-    MonitorElement *merespt_eta0to0p7_pt8toInf = dbe->get(topFolderName_ + "/Resolution/respt_eta0to0p7_pt8toInf");
-    MonitorElement *merespt_eta0p7to1_pt8toInf = dbe->get(topFolderName_ + "/Resolution/respt_eta0p7to1_pt8toInf");
-    MonitorElement *merespt_eta1to1p2_pt8toInf = dbe->get(topFolderName_ + "/Resolution/respt_eta1to1p2_pt8toInf");
-    MonitorElement *merespt_eta1p2to1p6_pt8toInf = dbe->get(topFolderName_ + "/Resolution/respt_eta1p2to1p6_pt8toInf");
-    MonitorElement *merespt_eta1p6to2_pt8toInf = dbe->get(topFolderName_ + "/Resolution/respt_eta1p6to2_pt8toInf");
-    MonitorElement *merespt_eta2to2p4_pt8toInf = dbe->get(topFolderName_ + "/Resolution/respt_eta2to2p4_pt8toInf");
+    MonitorElement *merespt_eta0to0p7_pt2to3 =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta0to0p7_pt2to3");
+    MonitorElement *merespt_eta0p7to1_pt2to3 =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta0p7to1_pt2to3");
+    MonitorElement *merespt_eta1to1p2_pt2to3 =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta1to1p2_pt2to3");
+    MonitorElement *merespt_eta1p2to1p6_pt2to3 =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta1p2to1p6_pt2to3");
+    MonitorElement *merespt_eta1p6to2_pt2to3 =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta1p6to2_pt2to3");
+    MonitorElement *merespt_eta2to2p4_pt2to3 =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta2to2p4_pt2to3");
+    MonitorElement *merespt_eta0to0p7_pt3to8 =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta0to0p7_pt3to8");
+    MonitorElement *merespt_eta0p7to1_pt3to8 =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta0p7to1_pt3to8");
+    MonitorElement *merespt_eta1to1p2_pt3to8 =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta1to1p2_pt3to8");
+    MonitorElement *merespt_eta1p2to1p6_pt3to8 =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta1p2to1p6_pt3to8");
+    MonitorElement *merespt_eta1p6to2_pt3to8 =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta1p6to2_pt3to8");
+    MonitorElement *merespt_eta2to2p4_pt3to8 =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta2to2p4_pt3to8");
+    MonitorElement *merespt_eta0to0p7_pt8toInf =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta0to0p7_pt8toInf");
+    MonitorElement *merespt_eta0p7to1_pt8toInf =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta0p7to1_pt8toInf");
+    MonitorElement *merespt_eta1to1p2_pt8toInf =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta1to1p2_pt8toInf");
+    MonitorElement *merespt_eta1p2to1p6_pt8toInf =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta1p2to1p6_pt8toInf");
+    MonitorElement *merespt_eta1p6to2_pt8toInf =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta1p6to2_pt8toInf");
+    MonitorElement *merespt_eta2to2p4_pt8toInf =
+        dbe->get(topFolderName_ + "/ResolutionIngredients/respt_eta2to2p4_pt8toInf");
 
-    MonitorElement *mereseta_eta0to0p7 = dbe->get(topFolderName_ + "/Resolution/reseta_eta0to0p7");
-    MonitorElement *mereseta_eta0p7to1 = dbe->get(topFolderName_ + "/Resolution/reseta_eta0p7to1");
-    MonitorElement *mereseta_eta1to1p2 = dbe->get(topFolderName_ + "/Resolution/reseta_eta1to1p2");
-    MonitorElement *mereseta_eta1p2to1p6 = dbe->get(topFolderName_ + "/Resolution/reseta_eta1p2to1p6");
-    MonitorElement *mereseta_eta1p6to2 = dbe->get(topFolderName_ + "/Resolution/reseta_eta1p6to2");
-    MonitorElement *mereseta_eta2to2p4 = dbe->get(topFolderName_ + "/Resolution/reseta_eta2to2p4");
+    MonitorElement *mereseta_eta0to0p7 = dbe->get(topFolderName_ + "/ResolutionIngredients/reseta_eta0to0p7");
+    MonitorElement *mereseta_eta0p7to1 = dbe->get(topFolderName_ + "/ResolutionIngredients/reseta_eta0p7to1");
+    MonitorElement *mereseta_eta1to1p2 = dbe->get(topFolderName_ + "/ResolutionIngredients/reseta_eta1to1p2");
+    MonitorElement *mereseta_eta1p2to1p6 = dbe->get(topFolderName_ + "/ResolutionIngredients/reseta_eta1p2to1p6");
+    MonitorElement *mereseta_eta1p6to2 = dbe->get(topFolderName_ + "/ResolutionIngredients/reseta_eta1p6to2");
+    MonitorElement *mereseta_eta2to2p4 = dbe->get(topFolderName_ + "/ResolutionIngredients/reseta_eta2to2p4");
 
-    MonitorElement *meresphi_eta0to0p7 = dbe->get(topFolderName_ + "/Resolution/resphi_eta0to0p7");
-    MonitorElement *meresphi_eta0p7to1 = dbe->get(topFolderName_ + "/Resolution/resphi_eta0p7to1");
-    MonitorElement *meresphi_eta1to1p2 = dbe->get(topFolderName_ + "/Resolution/resphi_eta1to1p2");
-    MonitorElement *meresphi_eta1p2to1p6 = dbe->get(topFolderName_ + "/Resolution/resphi_eta1p2to1p6");
-    MonitorElement *meresphi_eta1p6to2 = dbe->get(topFolderName_ + "/Resolution/resphi_eta1p6to2");
-    MonitorElement *meresphi_eta2to2p4 = dbe->get(topFolderName_ + "/Resolution/resphi_eta2to2p4");
+    MonitorElement *meresphi_eta0to0p7 = dbe->get(topFolderName_ + "/ResolutionIngredients/resphi_eta0to0p7");
+    MonitorElement *meresphi_eta0p7to1 = dbe->get(topFolderName_ + "/ResolutionIngredients/resphi_eta0p7to1");
+    MonitorElement *meresphi_eta1to1p2 = dbe->get(topFolderName_ + "/ResolutionIngredients/resphi_eta1to1p2");
+    MonitorElement *meresphi_eta1p2to1p6 = dbe->get(topFolderName_ + "/ResolutionIngredients/resphi_eta1p2to1p6");
+    MonitorElement *meresphi_eta1p6to2 = dbe->get(topFolderName_ + "/ResolutionIngredients/resphi_eta1p6to2");
+    MonitorElement *meresphi_eta2to2p4 = dbe->get(topFolderName_ + "/ResolutionIngredients/resphi_eta2to2p4");
 
-    MonitorElement *meresVtxZ_eta0to0p7 = dbe->get(topFolderName_ + "/Resolution/resVtxZ_eta0to0p7");
-    MonitorElement *meresVtxZ_eta0p7to1 = dbe->get(topFolderName_ + "/Resolution/resVtxZ_eta0p7to1");
-    MonitorElement *meresVtxZ_eta1to1p2 = dbe->get(topFolderName_ + "/Resolution/resVtxZ_eta1to1p2");
-    MonitorElement *meresVtxZ_eta1p2to1p6 = dbe->get(topFolderName_ + "/Resolution/resVtxZ_eta1p2to1p6");
-    MonitorElement *meresVtxZ_eta1p6to2 = dbe->get(topFolderName_ + "/Resolution/resVtxZ_eta1p6to2");
-    MonitorElement *meresVtxZ_eta2to2p4 = dbe->get(topFolderName_ + "/Resolution/resVtxZ_eta2to2p4");
+    MonitorElement *meresVtxZ_eta0to0p7 = dbe->get(topFolderName_ + "/ResolutionIngredients/resVtxZ_eta0to0p7");
+    MonitorElement *meresVtxZ_eta0p7to1 = dbe->get(topFolderName_ + "/ResolutionIngredients/resVtxZ_eta0p7to1");
+    MonitorElement *meresVtxZ_eta1to1p2 = dbe->get(topFolderName_ + "/ResolutionIngredients/resVtxZ_eta1to1p2");
+    MonitorElement *meresVtxZ_eta1p2to1p6 = dbe->get(topFolderName_ + "/ResolutionIngredients/resVtxZ_eta1p2to1p6");
+    MonitorElement *meresVtxZ_eta1p6to2 = dbe->get(topFolderName_ + "/ResolutionIngredients/resVtxZ_eta1p6to2");
+    MonitorElement *meresVtxZ_eta2to2p4 = dbe->get(topFolderName_ + "/ResolutionIngredients/resVtxZ_eta2to2p4");
 
-    MonitorElement *meresd0_eta0to0p7 = dbe->get(topFolderName_ + "/Resolution/resd0_eta0to0p7");
-    MonitorElement *meresd0_eta0p7to1 = dbe->get(topFolderName_ + "/Resolution/resd0_eta0p7to1");
-    MonitorElement *meresd0_eta1to1p2 = dbe->get(topFolderName_ + "/Resolution/resd0_eta1to1p2");
-    MonitorElement *meresd0_eta1p2to1p6 = dbe->get(topFolderName_ + "/Resolution/resd0_eta1p2to1p6");
-    MonitorElement *meresd0_eta1p6to2 = dbe->get(topFolderName_ + "/Resolution/resd0_eta1p6to2");
-    MonitorElement *meresd0_eta2to2p4 = dbe->get(topFolderName_ + "/Resolution/resd0_eta2to2p4");
+    MonitorElement *meresd0_eta0to0p7 = dbe->get(topFolderName_ + "/ResolutionIngredients/resd0_eta0to0p7");
+    MonitorElement *meresd0_eta0p7to1 = dbe->get(topFolderName_ + "/ResolutionIngredients/resd0_eta0p7to1");
+    MonitorElement *meresd0_eta1to1p2 = dbe->get(topFolderName_ + "/ResolutionIngredients/resd0_eta1to1p2");
+    MonitorElement *meresd0_eta1p2to1p6 = dbe->get(topFolderName_ + "/ResolutionIngredients/resd0_eta1p2to1p6");
+    MonitorElement *meresd0_eta1p6to2 = dbe->get(topFolderName_ + "/ResolutionIngredients/resd0_eta1p6to2");
+    MonitorElement *meresd0_eta2to2p4 = dbe->get(topFolderName_ + "/ResolutionIngredients/resd0_eta2to2p4");
+
+    MonitorElement *meN_fake_stubs = dbe->get(topFolderName_ + "/FakeRateIngredients/FakeStubs");
+    MonitorElement *meD_total_stubs = dbe->get(topFolderName_ + "/FakeRateIngredients/TotalStubs");
+    MonitorElement *meN_fake_stubs_L1 = dbe->get(topFolderName_ + "/FakeRateIngredients/FakeStubs_L1");
+    MonitorElement *meD_total_stubs_L1 = dbe->get(topFolderName_ + "/FakeRateIngredients/TotalStubs_L1");
+    MonitorElement *meN_fake_stubs_L2 = dbe->get(topFolderName_ + "/FakeRateIngredients/FakeStubs_L2");
+    MonitorElement *meD_total_stubs_L2 = dbe->get(topFolderName_ + "/FakeRateIngredients/TotalStubs_L2");
+    MonitorElement *meN_fake_stubs_L3 = dbe->get(topFolderName_ + "/FakeRateIngredients/FakeStubs_L3");
+    MonitorElement *meD_total_stubs_L3 = dbe->get(topFolderName_ + "/FakeRateIngredients/TotalStubs_L3");
+    MonitorElement *meN_fake_stubs_L4 = dbe->get(topFolderName_ + "/FakeRateIngredients/FakeStubs_L4");
+    MonitorElement *meD_total_stubs_L4 = dbe->get(topFolderName_ + "/FakeRateIngredients/TotalStubs_L4");
+    MonitorElement *meN_fake_stubs_L5 = dbe->get(topFolderName_ + "/FakeRateIngredients/FakeStubs_L5");
+    MonitorElement *meD_total_stubs_L5 = dbe->get(topFolderName_ + "/FakeRateIngredients/TotalStubs_L5");
+    MonitorElement *meN_fake_stubs_L6 = dbe->get(topFolderName_ + "/FakeRateIngredients/FakeStubs_L6");
+    MonitorElement *meD_total_stubs_L6 = dbe->get(topFolderName_ + "/FakeRateIngredients/TotalStubs_L6");
+
+    if (meN_clus && meD_clus) {
+      // Get the numerator and denominator histograms
+      TH1F *numerator = meN_clus->getTH1F();
+      TH1F *denominator = meD_clus->getTH1F();
+      numerator->Sumw2();
+      denominator->Sumw2();
+
+      // Set the current directory
+      dbe->setCurrentFolder(topFolderName_ + "/Efficiency");
+
+      // Book the new histogram to contain the results
+      MonitorElement *me_effic_clus = ibooker.book1D("StubEfficiency",
+                                                     "Stub Efficiency",
+                                                     numerator->GetNbinsX(),
+                                                     numerator->GetXaxis()->GetXmin(),
+                                                     numerator->GetXaxis()->GetXmax());
+
+      // Calculate the efficiency
+      me_effic_clus->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
+      me_effic_clus->setAxisTitle("tracking particle pT [GeV]");
+      me_effic_clus->getTH1F()->GetYaxis()->SetTitle("Efficiency");
+      me_effic_clus->getTH1F()->SetMaximum(1.1);
+      me_effic_clus->getTH1F()->SetMinimum(0.0);
+      me_effic_clus->getTH1F()->SetStats(false);
+    }  // if ME found
+    else {
+      edm::LogWarning("DataNotFound") << "Monitor elements for eta efficiency cannot be found!\n";
+    }
+
+    if (meN_clus_zoom && meD_clus_zoom) {
+      // Get the numerator and denominator histograms
+      TH1F *numerator_zoom = meN_clus_zoom->getTH1F();
+      TH1F *denominator_zoom = meD_clus_zoom->getTH1F();
+      numerator_zoom->Sumw2();
+      denominator_zoom->Sumw2();
+
+      // Set the current directory
+      dbe->setCurrentFolder(topFolderName_ + "/Efficiency");
+
+      // Book the new histogram to contain the results
+      MonitorElement *me_effic_clus_zoom = ibooker.book1D("StubEfficiency_zoom",
+                                                          "Stub Efficiency",
+                                                          numerator_zoom->GetNbinsX(),
+                                                          numerator_zoom->GetXaxis()->GetXmin(),
+                                                          numerator_zoom->GetXaxis()->GetXmax());
+
+      // Calculate the efficiency
+      me_effic_clus_zoom->getTH1F()->Divide(numerator_zoom, denominator_zoom, 1., 1., "B");
+      me_effic_clus_zoom->setAxisTitle("tracking particle pT [GeV]");
+      me_effic_clus_zoom->getTH1F()->GetYaxis()->SetTitle("Efficiency");
+      me_effic_clus_zoom->getTH1F()->SetMaximum(1.1);
+      me_effic_clus_zoom->getTH1F()->SetMinimum(0.0);
+      me_effic_clus_zoom->getTH1F()->SetStats(false);
+    }  // if ME found
+    else {
+      edm::LogWarning("DataNotFound") << "Monitor elements for eta efficiency cannot be found!\n";
+    }
 
     if (meN_eta && meD_eta) {
       // Get the numerator and denominator histograms
@@ -106,7 +199,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
       denominator->Sumw2();
 
       // Set the current directory
-      dbe->setCurrentFolder(topFolderName_ + "/FinalEfficiency");
+      dbe->setCurrentFolder(topFolderName_ + "/Efficiency");
 
       // Book the new histogram to contain the results
       MonitorElement *me_effic_eta = ibooker.book1D("EtaEfficiency",
@@ -135,7 +228,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
       denominator2->Sumw2();
 
       // Set the current directory
-      dbe->setCurrentFolder(topFolderName_ + "/FinalEfficiency");
+      dbe->setCurrentFolder(topFolderName_ + "/Efficiency");
 
       // Book the new histogram to contain the results
       MonitorElement *me_effic_pt = ibooker.book1D("PtEfficiency",
@@ -164,7 +257,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
       denominator2_zoom->Sumw2();
 
       // Set the current directory
-      dbe->setCurrentFolder(topFolderName_ + "/FinalEfficiency");
+      dbe->setCurrentFolder(topFolderName_ + "/Efficiency");
 
       // Book the new histogram to contain the results
       MonitorElement *me_effic_pt_zoom = ibooker.book1D("PtEfficiency_zoom",
@@ -193,7 +286,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
       denominator5->Sumw2();
 
       // Set the current directory
-      dbe->setCurrentFolder(topFolderName_ + "/FinalEfficiency");
+      dbe->setCurrentFolder(topFolderName_ + "/Efficiency");
 
       // Book the new histogram to contain the results
       MonitorElement *me_effic_d0 = ibooker.book1D("d0Efficiency",
@@ -222,7 +315,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
       denominator6->Sumw2();
 
       // Set the current directory
-      dbe->setCurrentFolder(topFolderName_ + "/FinalEfficiency");
+      dbe->setCurrentFolder(topFolderName_ + "/Efficiency");
 
       // Book the new histogram to contain the results
       MonitorElement *me_effic_VtxR = ibooker.book1D("VtxREfficiency",
@@ -251,7 +344,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
       denominator7->Sumw2();
 
       // Set the current directory
-      dbe->setCurrentFolder(topFolderName_ + "/FinalEfficiency");
+      dbe->setCurrentFolder(topFolderName_ + "/Efficiency");
 
       // Book the new histogram to contain the results
       MonitorElement *me_effic_VtxZ = ibooker.book1D("VtxZEfficiency",
@@ -275,7 +368,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
     if (merespt_eta0to0p7_pt2to3 && merespt_eta0p7to1_pt2to3 && merespt_eta1to1p2_pt2to3 &&
         merespt_eta1p2to1p6_pt2to3 && merespt_eta1p6to2_pt2to3 && merespt_eta2to2p4_pt2to3) {
       // Set the current directoy
-      dbe->setCurrentFolder(topFolderName_ + "/FinalResolution");
+      dbe->setCurrentFolder(topFolderName_ + "/Resolution");
 
       // Grab the histograms
       TH1F *resPt1a = merespt_eta0to0p7_pt2to3->getTH1F();
@@ -307,7 +400,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
     if (merespt_eta0to0p7_pt3to8 && merespt_eta0p7to1_pt3to8 && merespt_eta1to1p2_pt3to8 &&
         merespt_eta1p2to1p6_pt3to8 && merespt_eta1p6to2_pt3to8 && merespt_eta2to2p4_pt3to8) {
       // Set the current directoy
-      dbe->setCurrentFolder(topFolderName_ + "/FinalResolution");
+      dbe->setCurrentFolder(topFolderName_ + "/Resolution");
 
       // Grab the histograms
       TH1F *resPt1b = merespt_eta0to0p7_pt3to8->getTH1F();
@@ -339,7 +432,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
     if (merespt_eta0to0p7_pt8toInf && merespt_eta0p7to1_pt8toInf && merespt_eta1to1p2_pt8toInf &&
         merespt_eta1p2to1p6_pt8toInf && merespt_eta1p6to2_pt8toInf && merespt_eta2to2p4_pt8toInf) {
       // Set the current directoy
-      dbe->setCurrentFolder(topFolderName_ + "/FinalResolution");
+      dbe->setCurrentFolder(topFolderName_ + "/Resolution");
 
       // Grab the histograms
       TH1F *resPt1c = merespt_eta0to0p7_pt8toInf->getTH1F();
@@ -371,7 +464,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
     if (mereseta_eta0to0p7 && mereseta_eta0p7to1 && mereseta_eta1to1p2 && mereseta_eta1p2to1p6 && mereseta_eta1p6to2 &&
         mereseta_eta2to2p4) {
       // Set the current directoy
-      dbe->setCurrentFolder(topFolderName_ + "/FinalResolution");
+      dbe->setCurrentFolder(topFolderName_ + "/Resolution");
 
       // Grab the histograms
       TH1F *resEta1 = mereseta_eta0to0p7->getTH1F();
@@ -402,7 +495,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
     if (meresphi_eta0to0p7 && meresphi_eta0p7to1 && meresphi_eta1to1p2 && meresphi_eta1p2to1p6 && meresphi_eta1p6to2 &&
         meresphi_eta2to2p4) {
       // Set the current directoy
-      dbe->setCurrentFolder(topFolderName_ + "/FinalResolution");
+      dbe->setCurrentFolder(topFolderName_ + "/Resolution");
 
       // Grab the histograms
       TH1F *resPhi1 = meresphi_eta0to0p7->getTH1F();
@@ -433,7 +526,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
     if (meresVtxZ_eta0to0p7 && meresVtxZ_eta0p7to1 && meresVtxZ_eta1to1p2 && meresVtxZ_eta1p2to1p6 &&
         meresVtxZ_eta1p6to2 && meresVtxZ_eta2to2p4) {
       // Set the current directoy
-      dbe->setCurrentFolder(topFolderName_ + "/FinalResolution");
+      dbe->setCurrentFolder(topFolderName_ + "/Resolution");
 
       // Grab the histograms
       TH1F *resVtxZ_1 = meresVtxZ_eta0to0p7->getTH1F();
@@ -464,7 +557,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
     if (meresd0_eta0to0p7 && meresd0_eta0p7to1 && meresd0_eta1to1p2 && meresd0_eta1p2to1p6 && meresd0_eta1p6to2 &&
         meresd0_eta2to2p4) {
       // Set the current directoy
-      dbe->setCurrentFolder(topFolderName_ + "/FinalResolution");
+      dbe->setCurrentFolder(topFolderName_ + "/Resolution");
 
       // Grab the histograms
       TH1F *resd0_1 = meresd0_eta0to0p7->getTH1F();
@@ -492,11 +585,192 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
       edm::LogWarning("DataNotFound") << "Monitor elements for d0 resolution cannot be found!\n";
     }
 
+    if (meN_fake_stubs && meD_total_stubs) {
+      TH1F *numerator = meN_fake_stubs->getTH1F();
+      TH1F *denominator = meD_total_stubs->getTH1F();
+      numerator->Sumw2();
+      denominator->Sumw2();
+
+      // Setting the current directory
+      ibooker.setCurrentFolder(topFolderName_ + "/FakeRate");
+
+      MonitorElement *me_fake_rate = ibooker.book1D("StubFakeRate",
+                                                    "Stub Fake Rate",
+                                                    numerator->GetNbinsX(),
+                                                    numerator->GetXaxis()->GetXmin(),
+                                                    numerator->GetXaxis()->GetXmax());
+
+      // Calculate the fake rate: fake stubs / total stubs
+      me_fake_rate->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
+      me_fake_rate->setAxisTitle("stub bend [full strip units]", 1);
+      me_fake_rate->getTH1F()->GetYaxis()->SetTitle("Fake Rate");
+      me_fake_rate->getTH1F()->SetMaximum(1.1);
+      me_fake_rate->getTH1F()->SetMinimum(0.0);
+      me_fake_rate->getTH1F()->SetStats(false);
+    } else {
+      edm::LogWarning("DataNotFound") << "Monitor elements for stub fake rate cannot be found!\n";
+    }
+
+    if (meN_fake_stubs_L1 && meD_total_stubs_L1) {
+      TH1F *numerator = meN_fake_stubs_L1->getTH1F();
+      TH1F *denominator = meD_total_stubs_L1->getTH1F();
+      numerator->Sumw2();
+      denominator->Sumw2();
+
+      // Setting the current directory
+      ibooker.setCurrentFolder(topFolderName_ + "/FakeRate");
+
+      MonitorElement *me_fake_rate_L1 = ibooker.book1D("StubFakeRateL1",
+                                                       "Stub Fake Rate L1",
+                                                       numerator->GetNbinsX(),
+                                                       numerator->GetXaxis()->GetXmin(),
+                                                       numerator->GetXaxis()->GetXmax());
+
+      // Calculate the fake rate: fake stubs / total stubs
+      me_fake_rate_L1->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
+      me_fake_rate_L1->setAxisTitle("stub bend [full strip units]", 1);
+      me_fake_rate_L1->getTH1F()->GetYaxis()->SetTitle("Fake Rate");
+      me_fake_rate_L1->getTH1F()->SetMaximum(1.1);
+      me_fake_rate_L1->getTH1F()->SetMinimum(0.0);
+      me_fake_rate_L1->getTH1F()->SetStats(false);
+    } else {
+      edm::LogWarning("DataNotFound") << "Monitor elements for stub fake rate L1 cannot be found!\n";
+    }
+
+    if (meN_fake_stubs_L2 && meD_total_stubs_L2) {
+      TH1F *numerator = meN_fake_stubs_L2->getTH1F();
+      TH1F *denominator = meD_total_stubs_L2->getTH1F();
+      numerator->Sumw2();
+      denominator->Sumw2();
+
+      // Setting the current directory
+      ibooker.setCurrentFolder(topFolderName_ + "/FakeRate");
+
+      MonitorElement *me_fake_rate_L2 = ibooker.book1D("StubFakeRateL2",
+                                                       "Stub Fake Rate L2",
+                                                       numerator->GetNbinsX(),
+                                                       numerator->GetXaxis()->GetXmin(),
+                                                       numerator->GetXaxis()->GetXmax());
+
+      // Calculate the fake rate: fake stubs / total stubs
+      me_fake_rate_L2->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
+      me_fake_rate_L2->setAxisTitle("stub bend [full strip units]", 1);
+      me_fake_rate_L2->getTH1F()->GetYaxis()->SetTitle("Fake Rate");
+      me_fake_rate_L2->getTH1F()->SetMaximum(1.1);
+      me_fake_rate_L2->getTH1F()->SetMinimum(0.0);
+      me_fake_rate_L2->getTH1F()->SetStats(false);
+    } else {
+      edm::LogWarning("DataNotFound") << "Monitor elements for stub fake rate L2 cannot be found!\n";
+    }
+
+    if (meN_fake_stubs_L3 && meD_total_stubs_L3) {
+      TH1F *numerator = meN_fake_stubs_L3->getTH1F();
+      TH1F *denominator = meD_total_stubs_L3->getTH1F();
+      numerator->Sumw2();
+      denominator->Sumw2();
+
+      // Setting the current directory
+      ibooker.setCurrentFolder(topFolderName_ + "/FakeRate");
+
+      MonitorElement *me_fake_rate_L3 = ibooker.book1D("StubFakeRateL3",
+                                                       "Stub Fake Rate L3",
+                                                       numerator->GetNbinsX(),
+                                                       numerator->GetXaxis()->GetXmin(),
+                                                       numerator->GetXaxis()->GetXmax());
+
+      // Calculate the fake rate: fake stubs / total stubs
+      me_fake_rate_L3->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
+      me_fake_rate_L3->setAxisTitle("stub bend [full strip units]", 1);
+      me_fake_rate_L3->getTH1F()->GetYaxis()->SetTitle("Fake Rate");
+      me_fake_rate_L3->getTH1F()->SetMaximum(1.1);
+      me_fake_rate_L3->getTH1F()->SetMinimum(0.0);
+      me_fake_rate_L3->getTH1F()->SetStats(false);
+    } else {
+      edm::LogWarning("DataNotFound") << "Monitor elements for stub fake rate L3 cannot be found!\n";
+    }
+
+    if (meN_fake_stubs_L4 && meD_total_stubs_L4) {
+      TH1F *numerator = meN_fake_stubs_L4->getTH1F();
+      TH1F *denominator = meD_total_stubs_L4->getTH1F();
+      numerator->Sumw2();
+      denominator->Sumw2();
+
+      // Setting the current directory
+      ibooker.setCurrentFolder(topFolderName_ + "/FakeRate");
+
+      MonitorElement *me_fake_rate_L4 = ibooker.book1D("StubFakeRateL4",
+                                                       "Stub Fake Rate L4",
+                                                       numerator->GetNbinsX(),
+                                                       numerator->GetXaxis()->GetXmin(),
+                                                       numerator->GetXaxis()->GetXmax());
+
+      // Calculate the fake rate: fake stubs / total stubs
+      me_fake_rate_L4->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
+      me_fake_rate_L4->setAxisTitle("stub bend [full strip units]", 1);
+      me_fake_rate_L4->getTH1F()->GetYaxis()->SetTitle("Fake Rate");
+      me_fake_rate_L4->getTH1F()->SetMaximum(1.1);
+      me_fake_rate_L4->getTH1F()->SetMinimum(0.0);
+      me_fake_rate_L4->getTH1F()->SetStats(false);
+    } else {
+      edm::LogWarning("DataNotFound") << "Monitor elements for stub fake rate L4 cannot be found!\n";
+    }
+
+    if (meN_fake_stubs_L5 && meD_total_stubs_L5) {
+      TH1F *numerator = meN_fake_stubs_L5->getTH1F();
+      TH1F *denominator = meD_total_stubs_L5->getTH1F();
+      numerator->Sumw2();
+      denominator->Sumw2();
+
+      // Setting the current directory
+      ibooker.setCurrentFolder(topFolderName_ + "/FakeRate");
+
+      MonitorElement *me_fake_rate_L5 = ibooker.book1D("StubFakeRateL5",
+                                                       "Stub Fake Rate L5",
+                                                       numerator->GetNbinsX(),
+                                                       numerator->GetXaxis()->GetXmin(),
+                                                       numerator->GetXaxis()->GetXmax());
+
+      // Calculate the fake rate: fake stubs / total stubs
+      me_fake_rate_L5->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
+      me_fake_rate_L5->setAxisTitle("stub bend [full strip units]", 1);
+      me_fake_rate_L5->getTH1F()->GetYaxis()->SetTitle("Fake Rate");
+      me_fake_rate_L5->getTH1F()->SetMaximum(1.1);
+      me_fake_rate_L5->getTH1F()->SetMinimum(0.0);
+      me_fake_rate_L5->getTH1F()->SetStats(false);
+    } else {
+      edm::LogWarning("DataNotFound") << "Monitor elements for stub fake rate L5 cannot be found!\n";
+    }
+
+    if (meN_fake_stubs_L6 && meD_total_stubs_L6) {
+      TH1F *numerator = meN_fake_stubs_L6->getTH1F();
+      TH1F *denominator = meD_total_stubs_L6->getTH1F();
+      numerator->Sumw2();
+      denominator->Sumw2();
+
+      // Setting the current directory
+      ibooker.setCurrentFolder(topFolderName_ + "/FakeRate");
+
+      MonitorElement *me_fake_rate_L6 = ibooker.book1D("StubFakeRateL6",
+                                                       "Stub Fake Rate L6",
+                                                       numerator->GetNbinsX(),
+                                                       numerator->GetXaxis()->GetXmin(),
+                                                       numerator->GetXaxis()->GetXmax());
+
+      // Calculate the fake rate: fake stubs / total stubs
+      me_fake_rate_L6->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
+      me_fake_rate_L6->setAxisTitle("stub bend [full strip units]", 1);
+      me_fake_rate_L6->getTH1F()->GetYaxis()->SetTitle("Fake Rate");
+      me_fake_rate_L6->getTH1F()->SetMaximum(1.1);
+      me_fake_rate_L6->getTH1F()->SetMinimum(0.0);
+      me_fake_rate_L6->getTH1F()->SetStats(false);
+    } else {
+      edm::LogWarning("DataNotFound") << "Monitor elements for stub fake rate L6 cannot be found!\n";
+    }
   }  // if dbe found
   else {
     edm::LogWarning("DataNotFound") << "Cannot find valid DQM back end \n";
   }
-}  // end dqmEndJob
+}
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
