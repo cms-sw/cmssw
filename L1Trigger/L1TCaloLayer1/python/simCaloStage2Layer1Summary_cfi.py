@@ -53,5 +53,6 @@ simCaloStage2Layer1Summary = cms.EDProducer('L1TCaloSummary_CICADA_vXp1p2',
     CICADAModelVersion = cms.string("CICADAModel_v2p1p2"),
     useTestPatterns = cms.bool(False),
     testPatterns = standardCICADATestPatterns,
-    caloLayer1Regions = cms.InputTag("simCaloStage2Layer1Digis", "")
+    caloLayer1Regions = cms.InputTag("simCaloStage2Layer1Digis", ""),
+    backupRegionToken = cms.InputTag("simCaloStage2Layer1Digis", "")
 )

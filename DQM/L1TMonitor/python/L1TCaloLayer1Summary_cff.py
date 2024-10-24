@@ -6,7 +6,8 @@ from L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi import *
 from DQM.L1TMonitor.L1TCaloLayer1Summary_cfi import *
 
 dqmSimCaloStage2Layer1Summary = simCaloStage2Layer1Summary.clone(
-    caloLayer1Regions = cms.InputTag("caloLayer1Digis", ""),
+    caloLayer1Regions = "caloLayer1Digis",
+    backupRegionToken = 'dqmSimCaloStage2Layer1Digis',
 )
 dqmSimCaloStage2Layer1Digis = simCaloStage2Layer1Digis.clone(
     ecalToken = cms.InputTag("ecalDigis", "EcalTriggerPrimitives"),
