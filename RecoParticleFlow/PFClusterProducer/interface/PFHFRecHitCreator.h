@@ -60,10 +60,10 @@ public:
       auto energy = erh.energy();
       auto time = erh.time();
 
-      std::shared_ptr<const CaloCellGeometry> thisCell = hcalGeo->getGeometry(detid);
-      auto zp = dynamic_cast<IdealZPrism const*>(thisCell.get());
+      auto thisCellTemp = hcalGeo->getGeometry(detid);
+      auto zp = dynamic_cast<IdealZPrism const*>(thisCellTemp.get());
       assert(zp);
-      thisCell = zp->forPF();
+      auto thisCell = zp->forPF();
 
       // find rechit geometry
       if (!thisCell) {

@@ -59,7 +59,7 @@ public:
                const DetId& detId) override;
 
   /// Get the cell geometry of a given detector id.  Should return false if not found.
-  std::shared_ptr<const CaloCellGeometry> getGeometry(const DetId& id) const override;
+  CaloCellGeometryMayOwnPtr getGeometry(const DetId& id) const override;
 
   bool present(const DetId& id) const override;
 
@@ -115,9 +115,9 @@ protected:
   unsigned int sizeForDenseIndex() const;
 
   // Modify the RawPtr class
-  const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const override;
+  CaloCellGeometryPtr getGeometryRawPtr(uint32_t index) const override;
 
-  std::shared_ptr<const CaloCellGeometry> cellGeomPtr(uint32_t index) const override;
+  CaloCellGeometryPtr cellGeomPtr(uint32_t index) const override;
 
   void addValidID(const DetId& id);
   unsigned int getClosestCellIndex(const GlobalPoint& r) const;
@@ -125,7 +125,7 @@ protected:
 private:
   template <class T>
   unsigned int getClosestCellIndex(const GlobalPoint& r, const std::vector<T>& vec) const;
-  std::shared_ptr<const CaloCellGeometry> cellGeomPtr(uint32_t index, const GlobalPoint& p) const;
+  CaloCellGeometryMayOwnPtr cellGeomPtr(uint32_t index, const GlobalPoint& p) const;
   DetId getGeometryDetId(DetId detId) const;
 
   static constexpr double k_half = 0.5;

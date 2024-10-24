@@ -184,7 +184,7 @@ void HcalDDDGeometry::newCellFast(
   m_validIds.emplace_back(detId);
 }
 
-const CaloCellGeometry* HcalDDDGeometry::getGeometryRawPtr(uint32_t din) const {
+CaloCellGeometryPtr HcalDDDGeometry::getGeometryRawPtr(uint32_t din) const {
   // Modify the RawPtr class
   const CaloCellGeometry* cell(nullptr);
   if (m_hbCellVec.size() > din) {
@@ -200,7 +200,7 @@ const CaloCellGeometry* HcalDDDGeometry::getGeometryRawPtr(uint32_t din) const {
     cell = (&m_hfCellVec[ind]);
   }
 
-  return ((nullptr == cell || nullptr == cell->param()) ? nullptr : cell);
+  return CaloCellGeometryPtr((nullptr == cell || nullptr == cell->param()) ? nullptr : cell);
 }
 
 void HcalDDDGeometry::increaseReserve(unsigned int extra) { m_validIds.reserve(m_validIds.size() + extra); }

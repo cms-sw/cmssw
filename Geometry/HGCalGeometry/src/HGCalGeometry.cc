@@ -184,9 +184,9 @@ void HGCalGeometry::newCell(
 #endif
 }
 
-std::shared_ptr<const CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& detId) const {
+CaloCellGeometryMayOwnPtr HGCalGeometry::getGeometry(const DetId& detId) const {
   if (detId == DetId())
-    return nullptr;  // nothing to get
+    return CaloCellGeometryMayOwnPtr();  // nothing to get
   DetId geomId = getGeometryDetId(detId);
   const uint32_t cellIndex(m_topology.detId2denseGeomId(geomId));
   const GlobalPoint pos = (detId != geomId) ? getPosition(detId, false) : GlobalPoint();
@@ -663,63 +663,62 @@ unsigned int HGCalGeometry::indexFor(const DetId& detId) const {
 
 unsigned int HGCalGeometry::sizeForDenseIndex() const { return m_topology.totalGeomModules(); }
 
-const CaloCellGeometry* HGCalGeometry::getGeometryRawPtr(uint32_t index) const {
+CaloCellGeometryPtr HGCalGeometry::getGeometryRawPtr(uint32_t index) const {
   // Modify the RawPtr class
   if (m_det == DetId::HGCalHSc) {
     if (m_cellVec2.size() < index)
-      return nullptr;
+      return CaloCellGeometryPtr();
     const CaloCellGeometry* cell(&m_cellVec2[index]);
-    return (nullptr == cell->param() ? nullptr : cell);
+    return CaloCellGeometryPtr(nullptr == cell->param() ? nullptr : cell);
   } else {
     if (m_cellVec.size() < index)
-      return nullptr;
+      return CaloCellGeometryPtr();
     const CaloCellGeometry* cell(&m_cellVec[index]);
-    return (nullptr == cell->param() ? nullptr : cell);
+    return CaloCellGeometryPtr(nullptr == cell->param() ? nullptr : cell);
   }
 }
 
-std::shared_ptr<const CaloCellGeometry> HGCalGeometry::cellGeomPtr(uint32_t index) const {
+CaloCellGeometryPtr HGCalGeometry::cellGeomPtr(uint32_t index) const {
   if ((index >= m_cellVec.size() && m_det != DetId::HGCalHSc) ||
       (index >= m_cellVec2.size() && m_det == DetId::HGCalHSc) || (m_validGeomIds[index].rawId() == 0))
-    return nullptr;
-  static const auto do_not_delete = [](const void*) {};
+    return CaloCellGeometryPtr();
   if (m_det == DetId::HGCalHSc) {
-    auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec2[index], do_not_delete);
+    auto cell = &m_cellVec2[index];
     if (nullptr == cell->param())
-      return nullptr;
-    return cell;
+      return CaloCellGeometryPtr();
+    return CaloCellGeometryPtr(cell);
   } else {
-    auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec[index], do_not_delete);
+    auto cell = &m_cellVec[index];
     if (nullptr == cell->param())
-      return nullptr;
-    return cell;
+      return CaloCellGeometryPtr(nullptr);
+    return CaloCellGeometryPtr(cell);
   }
 }
 
-std::shared_ptr<const CaloCellGeometry> HGCalGeometry::cellGeomPtr(uint32_t index, const GlobalPoint& pos) const {
+CaloCellGeometryMayOwnPtr HGCalGeometry::cellGeomPtr(uint32_t index, const GlobalPoint& pos) const {
   if ((index >= m_cellVec.size() && m_det != DetId::HGCalHSc) ||
       (index >= m_cellVec2.size() && m_det == DetId::HGCalHSc) || (m_validGeomIds[index].rawId() == 0))
-    return nullptr;
+    return CaloCellGeometryMayOwnPtr();
   if (pos == GlobalPoint())
-    return cellGeomPtr(index);
+    return CaloCellGeometryMayOwnPtr(cellGeomPtr(index));
   if (m_det == DetId::HGCalHSc) {
-    auto cell = std::make_shared<FlatTrd>(m_cellVec2[index]);
+    auto cell = std::make_unique<FlatTrd>(m_cellVec2[index]);
     cell->setPosition(pos);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "cellGeomPtr " << index << ":" << cell;
 #endif
     if (nullptr == cell->param())
-      return nullptr;
-    return cell;
+      return CaloCellGeometryMayOwnPtr();
+    return CaloCellGeometryMayOwnPtr(std::move(cell));
   } else {
-    auto cell = std::make_shared<FlatHexagon>(m_cellVec[index]);
+    auto cell = std::make_unique<FlatHexagon>(m_cellVec[index]);
     cell->setPosition(pos);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "cellGeomPtr " << index << ":" << cell;
 #endif
     if (nullptr == cell->param())
-      return nullptr;
-    return cell;
+      return CaloCellGeometryMayOwnPtr();
+    return CaloCellGeometryMayOwnPtr(std::move(cell));
   }
 }
 
