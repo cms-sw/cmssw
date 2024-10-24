@@ -4,6 +4,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
@@ -40,6 +43,7 @@ public:
   HLTTrackClusterRemoverNew(const edm::ParameterSet &iConfig);
   ~HLTTrackClusterRemoverNew() override;
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
@@ -134,14 +138,12 @@ void HLTTrackClusterRemoverNew::readPSet(
 HLTTrackClusterRemoverNew::HLTTrackClusterRemoverNew(const ParameterSet &iConfig)
     : tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       doTracks_(iConfig.exists("trajectories")),
-      doStrip_(iConfig.existsAs<bool>("doStrip") ? iConfig.getParameter<bool>("doStrip") : true),
-      doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
+      doStrip_(iConfig.getParameter<bool>("doStrip")),
+      doPixel_(iConfig.getParameter<bool>("doPixel")),
       mergeOld_(false),
       makeProducts_(true),
-      doStripChargeCheck_(
-          iConfig.existsAs<bool>("doStripChargeCheck") ? iConfig.getParameter<bool>("doStripChargeCheck") : false),
-      doPixelChargeCheck_(
-          iConfig.existsAs<bool>("doPixelChargeCheck") ? iConfig.getParameter<bool>("doPixelChargeCheck") : false)
+      doStripChargeCheck_(iConfig.getParameter<bool>("doStripChargeCheck")),
+      doPixelChargeCheck_(iConfig.getParameter<bool>("doPixelChargeCheck"))
 
 {
   if (iConfig.exists("oldClusterRemovalInfo")) {
@@ -455,6 +457,15 @@ void HLTTrackClusterRemoverNew::produce(Event &iEvent, const EventSetup &iSetup)
 
   collectedRegStrips_.clear();
   collectedPixels_.clear();
+}
+
+void HLTTrackClusterRemoverNew::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("doStrip", true);
+  desc.add<bool>("doPixel", true);
+  desc.add<bool>("doStripChargeCheck", false);
+  desc.add<bool>("doPixelChargeCheck", false);
+  descriptions.add("HLTTrackClusterRemoverNew", desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
