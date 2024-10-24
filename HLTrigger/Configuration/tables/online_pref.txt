@@ -162,9 +162,12 @@ PhysicsPPRefDoubleMuon3Output  # CMSHLT-2883, CMSHLT-2904
 PhysicsPPRefHardProbes0Output  # CMSHLT-2883, CMSHLT-2904
 PhysicsPPRefHardProbes1Output  # CMSHLT-2883, CMSHLT-2904
 PhysicsPPRefHardProbes2Output  # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefHardProbes3Output  # CMSHLT-2883, CMSHLT-2904, CMSGLT-3373
+PhysicsPPRefHardProbes4Output  # CMSHLT-2883, CMSHLT-2904, CMSHLT-3373
 PhysicsPPRefSingleMuon0Output  # CMSHLT-2883, CMSHLT-2904
 PhysicsPPRefSingleMuon1Output  # CMSHLT-2883, CMSHLT-2904
 PhysicsPPRefSingleMuon2Output  # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefSingleMuon3Output  # CMSHLT-2883, CMSHLT-2904, CMSHLT-3373
 PhysicsPPRefZeroBiasPlusForward0Output    # CMSHLT-3325
 PhysicsPPRefZeroBiasPlusForward1Output    # CMSHLT-3325
 PhysicsPPRefZeroBiasPlusForward2Output    # CMSHLT-3325
@@ -175,6 +178,21 @@ PhysicsPPRefZeroBiasPlusForward6Output    # CMSHLT-3325
 PhysicsPPRefZeroBiasPlusForward7Output    # CMSHLT-3325
 PhysicsPPRefZeroBiasPlusForward8Output    # CMSHLT-3325
 PhysicsPPRefZeroBiasPlusForward9Output    # CMSHLT-3325
+PhysicsPPRefZeroBiasPlusForward10Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward11Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward12Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward13Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward14Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward15Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward16Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward17Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward18Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward19Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward20Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward21Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward22Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward23Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward24Output   # CMSHLT-3373
 PhysicsSpecialRandom0Output # CMSHLT-3363
 PhysicsSpecialRandom1Output # CMSHLT-3363
 PhysicsSpecialRandom2Output # CMSHLT-3363

@@ -17,6 +17,8 @@ DST_Physics_v*                          #       CMSHLT-2860
 DST_ZeroBias_v*                         #       CMSHLT-2860
 HLT_L1SingleMuOpen_v*                   #       CMSHLT-2860
 HLT_L1SingleMuCosmics_v*  #       CMSHLT-2860
+HLT_L1SingleMuCosmics_CosmicTracking_v*         # CMSHLT-3364
+HLT_L1SingleMuCosmics_PointingCosmicTracking_v* # CMSHLT-3364
 HLT_L1SingleMuOpen_DT_v*  #       CMSHLT-2860
 HLT_L1SingleMu3_v*        #       CMSHLT-2860
 HLT_L1SingleMu5_v*        #       CMSHLT-2860
