@@ -31,8 +31,11 @@ autoNANO = {
     # L1 flavours: add tables through customize, supposed to be combined with PHYS
     'L1': {'customize': 'PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomize'},
     'L1FULL': {'customize': 'PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomizeFull'},
-    # scouting nano
-    'Scout': {'sequence': 'PhysicsTools/NanoAOD/custom_run3scouting_cff'},
+    # Scouting nano
+    'Scout' : {'sequence': 'PhysicsTools/NanoAOD/custom_run3scouting_cff.scoutingNanoSequence',
+               'customize': 'PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNano'},
+    'ScoutFromMini' : {'sequence': 'PhysicsTools/NanoAOD/custom_run3scouting_cff.scoutingNanoSequence',
+                       'customize': 'PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNanoFromMini'},
     # JME nano
     'JME': {'sequence': '@PHYS',
             'customize': '@PHYS+PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD'},
