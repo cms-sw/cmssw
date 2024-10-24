@@ -81,6 +81,7 @@ HLT_HIUPC_SingleEG3_NotMBHF2OR_SinglePixelTrack_MaxPixelTrack_v*           # CMS
 HLT_HIUPC_SingleEG3_NotMBHF2OR_v*                                          # CMSHLT-2471
 HLT_HIUPC_SingleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMSHLT-2471
 HLT_HIUPC_SingleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
+HLT_HIUPC_SingleEG4_NotMBHF2AND_v*                                         # CMSHLT-3379
 HLT_HIUPC_SingleEG5_NotMBHF2AND_v*                                         # CMSHLT-2471
 HLT_HIUPC_SingleMuCosmic_BptxAND_MaxPixelCluster1000_v*                    # CMSHLT-2926
 HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_MaxPixelCluster1000_v*                # CMSHLT-2926
@@ -362,6 +363,34 @@ PhysicsHIPhysicsRawPrime28Output # CMSHLT-2882, CMSHLT-2913
 PhysicsHIPhysicsRawPrime29Output # CMSHLT-2882, CMSHLT-2913
 PhysicsHIPhysicsRawPrime30Output # CMSHLT-2882, CMSHLT-2913
 PhysicsHIPhysicsRawPrime31Output # CMSHLT-2882, CMSHLT-2913
+PhysicsHIPhysicsRawPrime32Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime33Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime34Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime35Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime36Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime37Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime38Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime39Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime40Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime41Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime42Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime43Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime44Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime45Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime46Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime47Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime48Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime49Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime50Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime51Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime52Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime53Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime54Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime55Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime56Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime57Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime58Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime59Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
 PhysicsHITrackerNZSOutput
 NanoDSTOutput
 RPCMONOutput
