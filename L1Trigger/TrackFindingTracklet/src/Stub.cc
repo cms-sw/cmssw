@@ -57,7 +57,7 @@ Stub::Stub(L1TStub& stub, Settings const& settings, Globals& globals) : settings
   int newphi = phibits.to_ulong();
 
   int newalpha = alphabits.to_ulong();
-  if (newalpha >= (1 << (nalphabits - 1)))
+  if (nalphabits > 0 && newalpha >= (1 << (nalphabits - 1)))
     newalpha = newalpha - (1 << nalphabits);
 
   l1tstub_ = &stub;
