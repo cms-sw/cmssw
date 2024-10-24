@@ -308,7 +308,7 @@ run2_egamma_2016.toModify(
     variables = _legacy_electron_BDT_variable
 )
 
-(run2_egamma_2016 | run2_egamma_2018).toModify(
+(run2_egamma_2017 | run2_egamma_2018).toModify(
     electronPROMPTMVA,
     weightFile = "PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml",
     variables = _legacy_electron_BDT_variable
