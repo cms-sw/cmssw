@@ -124,7 +124,7 @@ process.emulTPDigisNoTDCCut = process.emulTPDigis.clone(
 	TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
      )
 )
-process.HcalTPGCoderULUT.LUTGenerationMode = True
+process.HcalTPGCoderULUT.LUTGenerationMode = False
 
 # For sent-received comparison
 process.load("L1Trigger.Configuration.L1TRawToDigi_cff")
