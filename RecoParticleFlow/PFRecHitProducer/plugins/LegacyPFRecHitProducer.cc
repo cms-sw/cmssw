@@ -58,11 +58,11 @@ void LegacyPFRecHitProducer::produce(edm::Event& event, const edm::EventSetup& s
   if (alpakaPfRecHits.metadata().size() != 0) {
     out.reserve(alpakaPfRecHits.size());
     for (size_t i = 0; i < alpakaPfRecHits.size(); i++) {
-      reco::PFRecHit& pfrh =
-          out.emplace_back(caloGeo_.at(alpakaPfRecHits[i].layer())->getGeometry(alpakaPfRecHits[i].detId()),
-                           alpakaPfRecHits[i].detId(),
-                           alpakaPfRecHits[i].layer(),
-                           alpakaPfRecHits[i].energy());
+      reco::PFRecHit& pfrh = out.emplace_back(
+          caloGeo_.at(alpakaPfRecHits[i].layer())->getGeometry(alpakaPfRecHits[i].detId()).releaseToShared(),
+          alpakaPfRecHits[i].detId(),
+          alpakaPfRecHits[i].layer(),
+          alpakaPfRecHits[i].energy());
       pfrh.setTime(alpakaPfRecHits[i].time());
       pfrh.setDepth(alpakaPfRecHits[i].depth());
 
