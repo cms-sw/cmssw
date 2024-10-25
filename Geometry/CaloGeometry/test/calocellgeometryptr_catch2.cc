@@ -65,7 +65,6 @@ TEST_CASE("Test CaloCellGeometryMayOwnPtr", "[CaloCellGeometryPtr]") {
     CaloCellGeometryMayOwnPtr ptr;
     CHECK(ptr.get() == nullptr);
     CHECK(static_cast<CaloCellGeometry const*>(ptr) == nullptr);
-    CHECK(ptr.releaseToShared().get() == nullptr);
   }
   SECTION("From CaloCellGeometryPtr") {
     {
@@ -80,15 +79,6 @@ TEST_CASE("Test CaloCellGeometryMayOwnPtr", "[CaloCellGeometryPtr]") {
         CHECK(&(*ptr) == &dummy);
       }
       REQUIRE(DummyCell::nLive == 1);
-      SECTION("releaseToShared") {
-        {
-          CaloCellGeometryMayOwnPtr ptr(p);
-          CHECK(ptr.releaseToShared().get() == &dummy);
-          REQUIRE(DummyCell::nLive == 1);
-          CHECK(ptr.get() == nullptr);
-        }
-        REQUIRE(DummyCell::nLive == 1);
-      }
     }
     REQUIRE(DummyCell::nLive == 0);
   }
@@ -106,17 +96,6 @@ TEST_CASE("Test CaloCellGeometryMayOwnPtr", "[CaloCellGeometryPtr]") {
         CHECK(&(*ptr) == dummyAddress);
       }
       REQUIRE(DummyCell::nLive == 0);
-      SECTION("releaseToShared") {
-        {
-          auto dummy = std::make_unique<DummyCell>();
-          auto dummyAddress = dummy.get();
-          REQUIRE(DummyCell::nLive == 1);
-          CaloCellGeometryMayOwnPtr ptr(std::move(dummy));
-          CHECK(ptr.releaseToShared().get() == dummyAddress);
-          REQUIRE(DummyCell::nLive == 0);
-          CHECK(ptr.get() == nullptr);
-        }
-      }
     }
   }
 
@@ -156,6 +135,49 @@ TEST_CASE("Test CaloCellGeometryMayOwnPtr", "[CaloCellGeometryPtr]") {
         }
         REQUIRE(DummyCell::nLive == 0);
       }
+    }
+  }
+
+  SECTION("copy constructor") {
+    SECTION("non-owning") {
+      DummyCell dummy;
+      REQUIRE(DummyCell::nLive == 1);
+      {
+        CaloCellGeometryPtr p(&dummy);
+        {
+          CaloCellGeometryMayOwnPtr from(p);
+          {
+            CaloCellGeometryMayOwnPtr ptr(from);
+            CHECK(from.get() == &dummy);
+            CHECK(ptr.get() == &dummy);
+            CHECK(static_cast<CaloCellGeometry const*>(ptr) == &dummy);
+            CHECK(ptr.operator->() == &dummy);
+            CHECK(&(*ptr) == &dummy);
+            REQUIRE(DummyCell::nLive == 1);
+          }
+          REQUIRE(DummyCell::nLive == 1);
+        }
+        REQUIRE(DummyCell::nLive == 1);
+      }
+      REQUIRE(DummyCell::nLive == 1);
+    }
+    SECTION("owning") {
+      auto dummy = std::make_unique<DummyCell>();
+      auto dummyAddress = dummy.get();
+      REQUIRE(DummyCell::nLive == 1);
+      {
+        CaloCellGeometryMayOwnPtr from(std::move(dummy));
+        {
+          CaloCellGeometryMayOwnPtr ptr(from);
+          CHECK(from.get() == dummyAddress);
+          CHECK(ptr.get() == dummyAddress);
+          CHECK(static_cast<CaloCellGeometry const*>(ptr) == dummyAddress);
+          CHECK(ptr.operator->() == dummyAddress);
+          CHECK(&(*ptr) == dummyAddress);
+        }
+        REQUIRE(DummyCell::nLive == 1);
+      }
+      REQUIRE(DummyCell::nLive == 0);
     }
   }
 
@@ -208,9 +230,6 @@ TEST_CASE("Test CaloCellGeometryMayOwnPtr", "[CaloCellGeometryPtr]") {
         REQUIRE(DummyCell::nLive == 1);
       }
     }
-  }
-
-  SECTION("move assignment") {
     SECTION("from owning") {
       SECTION("to non-owning") {
         auto oldDummy = std::make_unique<DummyCell>();
@@ -264,5 +283,131 @@ TEST_CASE("Test CaloCellGeometryMayOwnPtr", "[CaloCellGeometryPtr]") {
         REQUIRE(DummyCell::nLive == 0);
       }
     }
+  }
+
+  SECTION("copy assignment") {
+    SECTION("from non-owning") {
+      DummyCell oldDummy;
+      CaloCellGeometryPtr p(&oldDummy);
+      REQUIRE(DummyCell::nLive == 1);
+      SECTION("to non-owning") {
+        DummyCell dummy;
+        REQUIRE(DummyCell::nLive == 2);
+        {
+          CaloCellGeometryMayOwnPtr ptr(p);
+          CaloCellGeometryPtr p(&dummy);
+          {
+            CaloCellGeometryMayOwnPtr from(p);
+            {
+              ptr = from;
+              CHECK(from.get() == &dummy);
+              CHECK(ptr.get() == &dummy);
+              CHECK(static_cast<CaloCellGeometry const*>(ptr) == &dummy);
+              CHECK(ptr.operator->() == &dummy);
+              CHECK(&(*ptr) == &dummy);
+            }
+            REQUIRE(DummyCell::nLive == 2);
+          }
+          REQUIRE(DummyCell::nLive == 2);
+        }
+        REQUIRE(DummyCell::nLive == 2);
+      }
+      SECTION("to owning") {
+        {
+          CaloCellGeometryMayOwnPtr ptr(p);
+          auto dummy = std::make_unique<DummyCell>();
+          auto dummyAddress = dummy.get();
+          REQUIRE(DummyCell::nLive == 2);
+          {
+            CaloCellGeometryMayOwnPtr from(std::move(dummy));
+            {
+              ptr = from;
+              CHECK(from.get() == dummyAddress);
+              CHECK(ptr.get() == dummyAddress);
+              CHECK(static_cast<CaloCellGeometry const*>(ptr) == dummyAddress);
+              CHECK(ptr.operator->() == dummyAddress);
+              CHECK(&(*ptr) == dummyAddress);
+            }
+          }
+          REQUIRE(DummyCell::nLive == 2);
+        }
+        REQUIRE(DummyCell::nLive == 1);
+      }
+    }
+    SECTION("from owning") {
+      SECTION("to non-owning") {
+        auto oldDummy = std::make_unique<DummyCell>();
+        REQUIRE(DummyCell::nLive == 1);
+        DummyCell dummy;
+        REQUIRE(DummyCell::nLive == 2);
+        {
+          CaloCellGeometryMayOwnPtr ptr(std::move(oldDummy));
+          CaloCellGeometryPtr p(&dummy);
+          {
+            CaloCellGeometryMayOwnPtr from(p);
+            {
+              REQUIRE(DummyCell::nLive == 2);
+              ptr = from;
+              REQUIRE(DummyCell::nLive == 1);
+              CHECK(from.get() == &dummy);
+              CHECK(ptr.get() == &dummy);
+              CHECK(static_cast<CaloCellGeometry const*>(ptr) == &dummy);
+              CHECK(ptr.operator->() == &dummy);
+              CHECK(&(*ptr) == &dummy);
+            }
+          }
+          REQUIRE(DummyCell::nLive == 1);
+        }
+        REQUIRE(DummyCell::nLive == 1);
+      }
+      SECTION("to owning") {
+        REQUIRE(DummyCell::nLive == 0);
+        {
+          auto oldDummy = std::make_unique<DummyCell>();
+          REQUIRE(DummyCell::nLive == 1);
+          CaloCellGeometryMayOwnPtr ptr(std::move(oldDummy));
+          auto dummy = std::make_unique<DummyCell>();
+          auto dummyAddress = dummy.get();
+          REQUIRE(DummyCell::nLive == 2);
+          {
+            CaloCellGeometryMayOwnPtr from(std::move(dummy));
+            {
+              REQUIRE(DummyCell::nLive == 2);
+              ptr = from;
+              REQUIRE(DummyCell::nLive == 1);
+              CHECK(from.get() == dummyAddress);
+              CHECK(ptr.get() == dummyAddress);
+              CHECK(static_cast<CaloCellGeometry const*>(ptr) == dummyAddress);
+              CHECK(ptr.operator->() == dummyAddress);
+              CHECK(&(*ptr) == dummyAddress);
+            }
+          }
+          REQUIRE(DummyCell::nLive == 1);
+        }
+        REQUIRE(DummyCell::nLive == 0);
+      }
+    }
+  }
+  SECTION("reference counting") {
+    auto dummy = std::make_unique<DummyCell>();
+    auto dummyAddress = dummy.get();
+    REQUIRE(DummyCell::nLive == 1);
+    {
+      CaloCellGeometryMayOwnPtr ptr1;
+      {
+        CaloCellGeometryMayOwnPtr ptr2(std::move(dummy));
+        REQUIRE(DummyCell::nLive == 1);
+        ptr1 = ptr2;
+        REQUIRE(DummyCell::nLive == 1);
+        CHECK(ptr1.get() == dummyAddress);
+        {
+          CaloCellGeometryMayOwnPtr ptr3(ptr1);
+          CHECK(ptr3.get() == dummyAddress);
+        }
+        REQUIRE(DummyCell::nLive == 1);
+      }
+      REQUIRE(DummyCell::nLive == 1);
+    }
+    REQUIRE(DummyCell::nLive == 0);
   }
 }
