@@ -17,3 +17,12 @@ allTrackstersToSimTrackstersAssociationsByLCs = AllTracksterToSimTracksterAssoci
       cms.InputTag('ticlSimTracksters','fromCPs')
     ),
 )
+
+### Barrel associator
+allBarrelTrackstersToSimTrackstersAssociationsByLCs = AllTracksterToSimTracksterAssociatorsByLCsProducer.clone(
+    layerClusterToTracksterMap = cms.string("allBarrelLayerClusterToTracksterAssociations"),
+    tracksterCollections = cms.VInputTag(['ticlBarrelTracksters']),
+    layerClusters = cms.InputTag('filteredLayerClustersCLUE3DBarrel'),
+    simTracksterCollections = cms.VInputTag(['ticlBarrelSimTracksters', 'ticlBarrelSimTracksters:fromCPs'])
+)
+
