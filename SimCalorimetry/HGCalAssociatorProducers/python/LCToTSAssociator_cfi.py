@@ -23,6 +23,19 @@ layerClusterToSimTracksterFromCPsAssociation = LCToTSAssociatorProducer.clone(
     tracksters = cms.InputTag("ticlSimTracksters", "fromCPs")
 )
 
+## Barrel
+barrelLayerClusterToTracksterAssociation = LCToTSAssociatorProducer.clone(
+    tracksters = cms.InputTag('ticlBarrelTracksters')
+)
+
+barrelLayerClusterToSimTracksterAssociation = LCToTSAssociatorProducer.clone(
+    tracksters = cms.InputTag('ticlBarrelSimTracksters')
+)
+
+barrelLayerClusterToSimTracksterFromCPsAssociation = LCToTSAssociatorProducer.clone(
+    tracksters = cms.InputTag('ticlBarrelSimTracksters', 'fromCPs')
+)
+
 from SimCalorimetry.HGCalAssociatorProducers.AllLayerClusterToTracksterAssociatorsProducer_cfi import AllLayerClusterToTracksterAssociatorsProducer
 from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet
 
@@ -34,3 +47,7 @@ allLayerClusterToTracksterAssociations = AllLayerClusterToTracksterAssociatorsPr
     )
 )
 
+allBarrelLayerClusterToTracksterAssociations = AllLayerClusterToTracksterAssociatorsProducer.clone(
+    layer_clusters = cms.InputTag("filteredLayerClustersCLUE3DBarrel"),
+    tracksterCollections = cms.VInputTag(cms.InputTag("ticlBarrelTracksters"), cms.InputTag("ticlBarrelSimTracksters"), cms.InputTag("ticlBarrelSimTracksters", "fromCPs"))
+)
