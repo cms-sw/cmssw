@@ -14,5 +14,10 @@ DEFINE_EDM_VALIDATED_PLUGIN(PatternRecognitionFactory, ticl::PatternRecognitionb
 DEFINE_EDM_VALIDATED_PLUGIN(PatternRecognitionFactory, ticl::PatternRecognitionbyCLUE3D<TICLLayerTiles>, "CLUE3D");
 DEFINE_EDM_VALIDATED_PLUGIN(PatternRecognitionFactory, ticl::PatternRecognitionbyFastJet<TICLLayerTiles>, "FastJet");
 DEFINE_EDM_VALIDATED_PLUGIN(PatternRecognitionFactory, ticl::PatternRecognitionbyRecovery<TICLLayerTiles>, "Recovery");
+
+// Barrel
+DEFINE_EDM_VALIDATED_PLUGIN(PatternRecognitionBarrelFactory, ticl::PatternRecognitionbyCLUE3D<TICLLayerTilesBarrel>, "CLUE3D");
 DEFINE_EDM_VALIDATED_PLUGIN(PatternRecognitionBarrelFactory, ticl::PatternRecognitionbyFastJet<TICLLayerTilesBarrel>, "FastJet");
+
+// HFNose
 DEFINE_EDM_VALIDATED_PLUGIN(PatternRecognitionHFNoseFactory, ticl::PatternRecognitionbyCA<TICLLayerTilesHFNose>, "CA");

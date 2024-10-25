@@ -138,6 +138,8 @@ namespace ticl {
     const std::vector<int> filter_on_categories_;
     const bool computeLocalTime_;
     const bool usePCACleaning_;
+
+    static constexpr bool isBarrel_ = std::is_same<TILES, TICLLayerTilesBarrel>::value;
   };
 
 }  // namespace ticl
