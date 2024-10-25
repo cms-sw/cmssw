@@ -208,7 +208,8 @@ def AddVariablesForMuon(proc):
     # tuneP_ptErr is now moved to standard NanoAODs
     proc.muonTable.variables.tuneP_eta = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().eta(): -99", float, doc="tunePMuonBestTrack Eta")
     proc.muonTable.variables.tuneP_phi = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().phi(): -99", float, doc="tunePMuonBestTrack Phi")
-    proc.muonTable.variables.tuneP_charge = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().charge(): -99", float, doc="tunePMuonBestTrack() charge")
+    #proc.muonTable.variables.tuneP_charge = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().charge(): -99", float, doc="tunePMuonBestTrack() charge")
+    #tuneP_charge is moved to standard NanoAODs
     proc.muonTable.variables.tuneP_muonHits = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().hitPattern().numberOfValidMuonHits() : -99", int, doc="No of valid muon hists from tunePMuonBestTrack")
 
     # tpfms Track
