@@ -7,7 +7,7 @@ from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import pa
 
 PbPbZMuHLTFilter = copy.deepcopy(hltHighLevel)
 PbPbZMuHLTFilter.throw = cms.bool(False)
-PbPbZMuHLTFilter.HLTPaths = ["HLT_HIL2SingleMu7*","HLT_HIL2SingleMu12*"]
+PbPbZMuHLTFilter.HLTPaths = ["HLT_HIL2SingleMu*","HLT_HIL3SingleMu*"]
 
 # selection of valid vertex
 primaryVertexFilterForPbPbZMuSkim = cms.EDFilter("VertexSelector",
