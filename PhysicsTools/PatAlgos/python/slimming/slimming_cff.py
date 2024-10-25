@@ -66,6 +66,7 @@ slimmingTask = cms.Task(
     slimmedLambdaVertices,
     slimmedMETs,
     metFilterPathsTask,
+    superClusterMerger,
     reducedEgamma,
     slimmedHcalRecHits,
     bunchSpacingProducer,
