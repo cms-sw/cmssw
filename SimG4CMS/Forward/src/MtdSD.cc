@@ -1,4 +1,4 @@
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 #include "SimG4CMS/Forward/interface/MtdSD.h"
 
@@ -108,10 +108,10 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
 #endif
     if (rname == "FastTimerRegionSensBTL") {
       theID = trkInfo->mcTruthID();
-      if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering()) {
-        theID = PSimHit::addTrackIdOffset(theID, k_idsecOffset);
-      } else if (trkInfo->isInTrkFromBackscattering()) {
-        theID = PSimHit::addTrackIdOffset(theID, k_idFromCaloOffset);
+      if (trkInfo->isInTrkFromBackscattering()) {
+       theID = PSimHit::addTrackIdOffset(trkInfo->getIDonCaloSurface(), k_idFromCaloOffset);
+      } else if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering()) {
+       theID = PSimHit::addTrackIdOffset(theID, k_idsecOffset);
       } else if (trkInfo->isBTLlooper()) {
         theID = PSimHit::addTrackIdOffset(theID, k_idloopOffset);
       }
