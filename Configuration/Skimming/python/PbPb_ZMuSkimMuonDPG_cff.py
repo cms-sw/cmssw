@@ -22,7 +22,7 @@ primaryVertexFilterForPbPbZMuSkim = cms.EDFilter("VertexSelector",
 ###create a track collection with generic kinematic cuts
 looseMuonsForPbPbZMuSkim = cms.EDFilter("TrackSelector",
                              src = cms.InputTag("generalTracks"),
-                             cut = cms.string('pt > 5 && abs(eta)<2.4 && (charge!=0)'),
+                             cut = cms.string('pt > 10 && abs(eta)<2.4 && (charge!=0)'),
                              filter = cms.bool(True)                                
                              )
 
@@ -103,7 +103,7 @@ tightMuonsForPbPbZMuSkim = cms.EDFilter("MuonSelector",
 # build Z-> MuMu candidates
 dimuonsForPbPbZMuSkim = cms.EDProducer("CandViewShallowCloneCombiner",
                          checkCharge = cms.bool(False),
-                         cut = cms.string('(mass > 60) && (charge=0)'),       
+                         cut = cms.string('(mass > 60)'),       
                          decay = cms.string("tightMuonsForPbPbZMuSkim looseMuonsForPbPbZMuSkim")
                          )                                    
 
