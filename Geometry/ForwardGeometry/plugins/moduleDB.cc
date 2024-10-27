@@ -32,7 +32,8 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>::produceAligned(const typena
   dins = pG.getDenseIndices();
   //*********************************************************************************************
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ZDCGeometry") << "ZDCGeometry sizes " << tvec.size() << ":" << dvec.size() << ":" << ivec.size() << ":" << dins.size();
+  edm::LogVerbatim("ZDCGeometry") << "ZDCGeometry sizes " << tvec.size() << ":" << dvec.size() << ":" << ivec.size()
+                                  << ":" << dins.size();
 #endif
   const auto& zdcTopology = iRecord.get(additionalTokens_.topology);
 
@@ -62,8 +63,8 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>::produceAligned(const typena
       DimVec::const_iterator dsrc(dvec.begin() + ivec[indx] * nPerShape);
 
       for (unsigned int j(0); j != nPerShape; ++j) {
-	dims.emplace_back(*dsrc);
-	++dsrc;
+        dims.emplace_back(*dsrc);
+        ++dsrc;
       }
 
       const CCGFloat* myParm(CaloCellGeometry::getParmPtr(dims, ptr->parMgr(), ptr->parVecVec()));
@@ -99,14 +100,16 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>::produceAligned(const typena
       const unsigned int jj(i * nTrParm);
       Tr3D tr;
       const ROOT::Math::Translation3D tl(tvec[jj], tvec[jj + 1], tvec[jj + 2]);
-      const ROOT::Math::EulerAngles ea(6 == nTrParm ? ROOT::Math::EulerAngles(tvec[jj + 3], tvec[jj + 4], tvec[jj + 5]) : ROOT::Math::EulerAngles());
+      const ROOT::Math::EulerAngles ea(6 == nTrParm ? ROOT::Math::EulerAngles(tvec[jj + 3], tvec[jj + 4], tvec[jj + 5])
+                                                    : ROOT::Math::EulerAngles());
       const ROOT::Math::Transform3D rt(ea, tl);
       double xx, xy, xz, dx, yx, yy, yz, dy, zx, zy, zz, dz;
       rt.GetComponents(xx, xy, xz, dx, yx, yy, yz, dy, zx, zy, zz, dz);
       tr = Tr3D(CLHEP::HepRep3x3(xx, xy, xz, yx, yy, yz, zx, zy, zz), CLHEP::Hep3Vector(dx, dy, dz));
-      
+
       // now prepend alignment(s) for final transform
-      const Tr3D atr(nullptr == at ? tr : (nullptr == gt ? at->transform() * tr : at->transform() * gt->transform() * tr));
+      const Tr3D atr(nullptr == at ? tr
+                                   : (nullptr == gt ? at->transform() * tr : at->transform() * gt->transform() * tr));
       //--------------------------------- done making transform  ---------------
 
       const Pt3D gRef(atr * lRef);
@@ -117,7 +120,7 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>::produceAligned(const typena
       const GlobalPoint fCor(gCor.x(), gCor.y(), gCor.z());
 
       assert(zdcTopology.detId2denseId(id) == dins[i]);
-    
+
       ptr->newCell(fCtr, fBck, fCor, myParm, id);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("ZDCGeometry") << "ZDCGeometry Insert cell " << i << ":" << HcalZDCDetId(id);
@@ -180,14 +183,16 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>::produceAligned(const typena
       const unsigned int jj(i * nTrParm);
       Tr3D tr;
       const ROOT::Math::Translation3D tl(tvec[jj], tvec[jj + 1], tvec[jj + 2]);
-      const ROOT::Math::EulerAngles ea(6 == nTrParm ? ROOT::Math::EulerAngles(tvec[jj + 3], tvec[jj + 4], tvec[jj + 5]) : ROOT::Math::EulerAngles());
+      const ROOT::Math::EulerAngles ea(6 == nTrParm ? ROOT::Math::EulerAngles(tvec[jj + 3], tvec[jj + 4], tvec[jj + 5])
+                                                    : ROOT::Math::EulerAngles());
       const ROOT::Math::Transform3D rt(ea, tl);
       double xx, xy, xz, dx, yx, yy, yz, dy, zx, zy, zz, dz;
       rt.GetComponents(xx, xy, xz, dx, yx, yy, yz, dy, zx, zy, zz, dz);
       tr = Tr3D(CLHEP::HepRep3x3(xx, xy, xz, yx, yy, yz, zx, zy, zz), CLHEP::Hep3Vector(dx, dy, dz));
-      
+
       // now prepend alignment(s) for final transform
-      const Tr3D atr(nullptr == at ? tr : (nullptr == gt ? at->transform() * tr : at->transform() * gt->transform() * tr));
+      const Tr3D atr(nullptr == at ? tr
+                                   : (nullptr == gt ? at->transform() * tr : at->transform() * gt->transform() * tr));
       //--------------------------------- done making transform  ---------------
 
       const Pt3D gRef(atr * lRef);
@@ -196,12 +201,12 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>::produceAligned(const typena
       const GlobalPoint fBck(gBck.x(), gBck.y(), gBck.z());
       const Pt3D gCor(atr * lCor);
       const GlobalPoint fCor(gCor.x(), gCor.y(), gCor.z());
-    
+
       ptr->newCell(fCtr, fBck, fCor, myParm, id);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("ZDCGeometry") << "ZDCGeometry Insert cell " << i << ":" << HcalZDCDetId(id);
 #endif
-     }
+    }
   }
   ptr->initializeParms();  // initializations; must happen after cells filled
 
