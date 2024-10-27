@@ -457,8 +457,11 @@ double L1TOccupancyClient::xySymmetry(const ParameterSet& ps,
       cout << "statsup= " << statsup << ", statslow= " << statslow << endl;
     }
 
-    if (nActualStrips > 0)
+    if (nActualStrips > 0) {
       enoughStats = TMath::MinElement(nActualStrips, maxAvgs.get()) > TMath::Max(statsup, statslow);
+    } else if (verbose_) {
+      cout << "No valid strips found, insufficient statistics." << endl;
+    }
     if (verbose_) {
       cout << "stats: " << TMath::MinElement(nActualStrips, maxAvgs.get())
            << ", statsAvg: " << diffHist->GetEntries() / hservice_->getNBinsHistogram(iTestName)
@@ -541,8 +544,11 @@ double L1TOccupancyClient::xySymmetry(const ParameterSet& ps,
     if (verbose_) {
       cout << "statsup= " << statsup << ", statslow= " << statslow << endl;
     }
-    if (nActualStrips > 0)
+    if (nActualStrips > 0) {
       enoughStats = TMath::MinElement(nActualStrips, maxAvgs.get()) > TMath::Max(statsup, statslow);
+    } else if (verbose_) {
+      cout << "No valid strips found, insufficient statistics." << endl;
+    }
     if (verbose_) {
       cout << "stats: " << TMath::MinElement(nActualStrips, maxAvgs.get())
            << ", statsAvg: " << diffHist->GetEntries() / hservice_->getNBinsHistogram(iTestName)
