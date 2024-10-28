@@ -58,15 +58,8 @@
 namespace edm {
   namespace service {
     struct smapsInfo {
-      smapsInfo() : private_(), pss_() {}
-      smapsInfo(double private_sz, double pss_sz) : private_(private_sz), pss_(pss_sz) {}
-
-      bool operator==(const smapsInfo& p) const { return private_ == p.private_ && pss_ == p.pss_; }
-
-      bool operator>(const smapsInfo& p) const { return private_ > p.private_ || pss_ > p.pss_; }
-
-      double private_;  // in MB
-      double pss_;      // in MB
+      double private_ = 0;  // in MB
+      double pss_ = 0;      // in MB
     };
 
     class SimpleMemoryCheck {
@@ -143,25 +136,16 @@ namespace edm {
 
       // Event summary statistics 				changeLog 1
       struct SignificantEvent {
-        int count;
-        double vsize;
-        double deltaVsize;
-        double rss;
-        double deltaRss;
-        bool monitorPssAndPrivate;
-        double privateSize;
-        double pss;
+        int count = 0;
+        double vsize = 0;
+        double deltaVsize = 0;
+        double rss = 0;
+        double deltaRss = 0;
+        bool monitorPssAndPrivate = 0;
+        double privateSize = 0;
+        double pss = 0;
         edm::EventID event;
-        SignificantEvent()
-            : count(0),
-              vsize(0),
-              deltaVsize(0),
-              rss(0),
-              deltaRss(0),
-              monitorPssAndPrivate(false),
-              privateSize(0),
-              pss(0),
-              event() {}
+        SignificantEvent() = default;
         void set(double deltaV, double deltaR, edm::EventID const& e, SimpleMemoryCheck* t) {
           count = t->count_;
           vsize = t->current_->vsize;
@@ -293,8 +277,6 @@ namespace edm {
 
     smapsInfo SimpleMemoryCheck::fetchSmaps() {
       smapsInfo ret;
-      ret.private_ = 0;
-      ret.pss_ = 0;
 #ifdef LINUX
       fseek(smapsFile_, 0, SEEK_SET);
       ssize_t read;
@@ -334,8 +316,7 @@ namespace edm {
           b_(),
           current_(&a_),
           previous_(&b_),
-          pg_size_(sysconf(_SC_PAGESIZE))  // getpagesize()
-          ,
+          pg_size_(sysconf(_SC_PAGESIZE)),  // getpagesize()
           num_to_skip_(iPS.getUntrackedParameter<int>("ignoreTotal")),
           showMallocInfo_(iPS.getUntrackedParameter<bool>("showMallocInfo")),
           oncePerEventMode_(iPS.getUntrackedParameter<bool>("oncePerEventMode")),
@@ -357,6 +338,8 @@ namespace edm {
 
       openFiles();
 
+      iReg.watchPostEndJob(this, &SimpleMemoryCheck::postEndJob);
+
       if (sampleEveryNSeconds_ > 0) {
         if (oncePerEventMode_) {
           throw edm::Exception(edm::errors::Configuration)
@@ -368,10 +351,11 @@ namespace edm {
         }
         iReg.watchPostBeginJob(this, &SimpleMemoryCheck::startSamplingThread);
         iReg.watchPreEndJob(this, &SimpleMemoryCheck::stopSamplingThread);
-        iReg.watchPostEndJob(this, &SimpleMemoryCheck::postEndJob);
         iReg.watchPreEvent([this](auto const& iContext) { mostRecentlyStartedEvent_.store(iContext.eventID()); });
         return;
       }
+
+      iReg.watchPostEvent(this, &SimpleMemoryCheck::postEvent);
 
       if (!oncePerEventMode_) {  // default, prints on increases
         iReg.watchPreSourceConstruction(this, &SimpleMemoryCheck::preSourceConstruction);
@@ -379,13 +363,8 @@ namespace edm {
         iReg.watchPostSourceEvent(this, &SimpleMemoryCheck::postSourceEvent);
         iReg.watchPostModuleConstruction(this, &SimpleMemoryCheck::postModuleConstruction);
         iReg.watchPostModuleBeginJob(this, &SimpleMemoryCheck::postModuleBeginJob);
-        iReg.watchPostEvent(this, &SimpleMemoryCheck::postEvent);
         iReg.watchPostModuleEvent(this, &SimpleMemoryCheck::postModule);
         iReg.watchPostBeginJob(this, &SimpleMemoryCheck::postBeginJob);
-        iReg.watchPostEndJob(this, &SimpleMemoryCheck::postEndJob);
-      } else {
-        iReg.watchPostEvent(this, &SimpleMemoryCheck::postEvent);
-        iReg.watchPostEndJob(this, &SimpleMemoryCheck::postEndJob);
       }
       if (moduleSummaryRequested_) {  // changelog 2
         iReg.watchPreModuleEvent(this, &SimpleMemoryCheck::preModule);
@@ -544,7 +523,6 @@ namespace edm {
             << eventDeltaRssT3_ << "\n"
             << eventDeltaRssT2_ << "\n"
             << eventDeltaRssT1_;
-        ;
       }
       if (moduleSummaryRequested_ and not jobReportOutputOnly_) {  // changelog 1
         LogAbsolute mmr("ModuleMemoryReport");                     // at end of if block, mmr
@@ -905,30 +883,23 @@ namespace edm {
         if (count_ >= num_to_skip_) {
           double deltaVSIZE = current_->vsize - max_.vsize;
           double deltaRSS = current_->rss - max_.rss;
-          if (!showMallocInfo_) {  // default
-            LogWarning("MemoryCheck") << "MemoryCheck: " << type << " " << mdname << ":" << mdlabel << " VSIZE "
-                                      << current_->vsize << " " << deltaVSIZE << " RSS " << current_->rss << " "
-                                      << deltaRSS;
-          } else {
+
+          LogWarning log("MemoryCheck");
+          // default
+          log << "MemoryCheck: " << type << " " << mdname << ":" << mdlabel << " VSIZE " << current_->vsize << " "
+              << deltaVSIZE << " RSS " << current_->rss << " " << deltaRSS;
+          if (showMallocInfo_) {
 #ifdef __linux__
 #if (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 33)
             struct mallinfo2 minfo = mallinfo2();
 #else
             struct mallinfo minfo = mallinfo();
 #endif
+            log << " HEAP-ARENA [ SIZE-BYTES " << minfo.arena << " N-UNUSED-CHUNKS " << minfo.ordblks
+                << " TOP-FREE-BYTES " << minfo.keepcost << " ]"
+                << " HEAP-MAPPED [ SIZE-BYTES " << minfo.hblkhd << " N-CHUNKS " << minfo.hblks << " ]"
+                << " HEAP-USED-BYTES " << minfo.uordblks << " HEAP-UNUSED-BYTES " << minfo.fordblks;
 #endif
-            LogWarning("MemoryCheck") << "MemoryCheck: " << type << " " << mdname << ":" << mdlabel << " VSIZE "
-                                      << current_->vsize << " " << deltaVSIZE << " RSS " << current_->rss << " "
-                                      << deltaRSS
-#ifdef __linux__
-                                      << " HEAP-ARENA [ SIZE-BYTES " << minfo.arena << " N-UNUSED-CHUNKS "
-                                      << minfo.ordblks << " TOP-FREE-BYTES " << minfo.keepcost << " ]"
-                                      << " HEAP-MAPPED [ SIZE-BYTES " << minfo.hblkhd << " N-CHUNKS " << minfo.hblks
-                                      << " ]"
-                                      << " HEAP-USED-BYTES " << minfo.uordblks << " HEAP-UNUSED-BYTES "
-                                      << minfo.fordblks
-#endif
-                ;
           }
         }
       }
