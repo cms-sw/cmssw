@@ -18,10 +18,13 @@ public:
   void getNewObjects() override;
   std::string id() const override;
 
-  static constexpr unsigned int kLumisectionsQueryLimit = 4000;
-
 private:
+  void populateIovs();
+  void filterInvalidPayloads();
+  bool isPayloadValid(const LHCInfoPerLS& payload) const;
   void addEmptyPayload(cond::Time_t iov);
+  void addDefaultPayload(cond::Time_t iov, unsigned short fill, const cond::OMSService& oms);
+  void addDefaultPayload(cond::Time_t iov, unsigned short fill, int run, unsigned short lumi);
   bool makeFillPayload(std::unique_ptr<LHCInfoPerLS>& targetPayload, const cond::OMSServiceResult& queryResult);
   void addPayloadToBuffer(cond::OMSServiceResultRef& row);
   size_t bufferAllLS(const cond::OMSServiceResult& queryResult);
@@ -39,14 +42,27 @@ private:
   boost::posix_time::ptime m_endTime;
   bool m_endFillMode = true;
   std::string m_name;
-  //for reading from relational database source
+  // for reading from relational database source
   std::string m_connectionString;
   std::string m_authpath;
   std::string m_omsBaseUrl;
-  //Allows for basic test of durigFill mode when there is no Stable Beams in LHC
-  //makes duringFill interpret the fills as ongoing fills and writing their last LS
-  // (disabling the check if the last LS is in stable beams, although still only fill with stable beams are being processed)
+  // Allows for basic test of durigFill mode when there is no Stable Beams in LHC
+  // makes duringFill interpret fills as ongoing fill and writing their last LS
+  // (disabling the check if the last LS is in stable beams,
+  // although still only fills with stable beams are being processed
+  // also, still only up to one payload will be written)
   const bool m_debugLogic;
+  // values for the default payload which is inserted after the last processed fill
+  // has ended and there's no ongoing stable beam yet:
+  float m_defaultCrossingAngleX;
+  float m_defaultCrossingAngleY;
+  float m_defaultBetaStarX;
+  float m_defaultBetaStarY;
+  float m_minBetaStar;       // meters
+  float m_maxBetaStar;       // meters
+  float m_minCrossingAngle;  // urad
+  float m_maxCrossingAngle;  // urad
+
   std::unique_ptr<LHCInfoPerLS> m_fillPayload;
   std::shared_ptr<LHCInfoPerLS> m_prevPayload;
   cond::Time_t m_startFillTime;
@@ -57,8 +73,9 @@ private:
   cond::Time_t m_endStableBeamTime;
   std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>> m_tmpBuffer;
   bool m_lastPayloadEmpty = false;
-  //mapping of lumisections IDs (pairs of runnumber an LS number) found in OMS to the IDs they've been assignd from PPS DB
-  //value pair(-1, -1) means lumisection corresponding to the key exists in OMS but no lumisection was matched from PPS
+  // mapping of lumisections IDs (pairs of runnumber an LS number) found in OMS to
+  // the IDs they've been assignd from PPS DB value pair(-1, -1) means lumisection
+  // corresponding to the key exists in OMS but no lumisection was matched from PPS
   std::map<std::pair<cond::Time_t, unsigned int>, std::pair<cond::Time_t, unsigned int>> m_lsIdMap;
 };
 

@@ -122,6 +122,14 @@ LHCInfoPerLSPopConSourceHandler::LHCInfoPerLSPopConSourceHandler(edm::ParameterS
       m_authpath(pset.getUntrackedParameter<std::string>("authenticationPath", "")),
       m_omsBaseUrl(pset.getUntrackedParameter<std::string>("omsBaseUrl", "")),
       m_debugLogic(pset.getUntrackedParameter<bool>("debugLogic", false)),
+      m_defaultCrossingAngleX(pset.getUntrackedParameter<double>("defaultCrossingAngleX", 0)),
+      m_defaultCrossingAngleY(pset.getUntrackedParameter<double>("defaultCrossingAngleY", 0)),
+      m_defaultBetaStarX(pset.getUntrackedParameter<double>("defaultBetaStarX", 0)),
+      m_defaultBetaStarY(pset.getUntrackedParameter<double>("defaultBetaStarY", 0)),
+      m_minBetaStar(pset.getUntrackedParameter<double>("minBetaStar", 0.1)),
+      m_maxBetaStar(pset.getUntrackedParameter<double>("maxBetaStar", 100.)),
+      m_minCrossingAngle(pset.getUntrackedParameter<double>("minCrossingAngle", 10.)),
+      m_maxCrossingAngle(pset.getUntrackedParameter<double>("maxCrossingAngle", 500.)),
       m_fillPayload(),
       m_prevPayload(),
       m_tmpBuffer() {
@@ -143,6 +151,46 @@ LHCInfoPerLSPopConSourceHandler::LHCInfoPerLSPopConSourceHandler(edm::ParameterS
 LHCInfoPerLSPopConSourceHandler::~LHCInfoPerLSPopConSourceHandler() = default;
 
 void LHCInfoPerLSPopConSourceHandler::getNewObjects() {
+  populateIovs();
+  if (!m_endFillMode) {  // duringFill mode
+    filterInvalidPayloads();
+  }
+}
+
+void LHCInfoPerLSPopConSourceHandler::filterInvalidPayloads() {
+  // note: at the moment used only in duringFill mode so the m_iovs is quaranteed to have size() <= 1
+  // but iterating through the whole map is implemented just in case the way it's used changes
+  auto it = m_iovs.begin();
+  while (it != m_iovs.end()) {
+    std::stringstream payloadData;
+    payloadData << "LS = " << it->second->lumiSection() << ", run = " << it->second->runNumber() << ", "
+                << "xAngleX = " << it->second->crossingAngleX() << " urad, "
+                << "xAngleY = " << it->second->crossingAngleY() << " urad, "
+                << "beta*X = " << it->second->betaStarX() << " m, "
+                << "beta*Y = " << it->second->betaStarY() << " m";
+    if (!isPayloadValid(*(it->second))) {
+      edm::LogWarning(m_name) << "Skipping upload of payload with invalid values: " << payloadData.str();
+      m_iovs.erase(it++);  // note: post-increment necessary to avoid using invalidated iterators
+    } else {
+      edm::LogInfo(m_name) << "Payload to be uploaded: " << payloadData.str();
+      ++it;
+    }
+  }
+}
+
+bool LHCInfoPerLSPopConSourceHandler::isPayloadValid(const LHCInfoPerLS& payload) const {
+  if ((payload.crossingAngleX() == 0. && payload.crossingAngleY() == 0.) ||
+      (payload.crossingAngleX() != 0. && payload.crossingAngleY() != 0.))
+    return false;
+  auto non0CrossingAngle = payload.crossingAngleX() != 0. ? payload.crossingAngleX() : payload.crossingAngleY();
+  if ((non0CrossingAngle < m_minCrossingAngle || m_maxCrossingAngle < non0CrossingAngle) ||
+      (payload.betaStarX() < m_minBetaStar || m_maxBetaStar < payload.betaStarX()) ||
+      (payload.betaStarX() < m_minBetaStar || m_maxBetaStar < payload.betaStarX()))
+    return false;
+  return true;
+}
+
+void LHCInfoPerLSPopConSourceHandler::populateIovs() {
   //if a new tag is created, transfer fake fill from 1 to the first fill for the first time
   if (tagInfo().size == 0) {
     edm::LogInfo(m_name) << "New tag " << tagInfo().name << "; from " << m_name << "::getNewObjects";
@@ -161,6 +209,12 @@ void LHCInfoPerLSPopConSourceHandler::getNewObjects() {
     if (m_endFillMode) {
       addEmptyPayload(1);
       lastSince = 1;
+    } else {  //duringFill mode
+      edm::LogInfo(m_name) << "Empty or new tag: uploading a default payload and ending the job";
+      cond::OMSService oms;
+      oms.connect(m_omsBaseUrl);
+      addDefaultPayload(1, 1, 1, 1);
+      return;
     }
   } else {
     edm::LogInfo(m_name) << "The last Iov in tag " << tagInfo().name << " valid since " << lastSince << "from "
@@ -270,11 +324,19 @@ void LHCInfoPerLSPopConSourceHandler::getNewObjects() {
       else
         query->filterEQ("end_time", cond::OMSServiceQuery::SNULL);
 
-      bool foundFill = query->execute();
-      if (foundFill)
-        foundFill = makeFillPayload(m_fillPayload, query->result());
+      bool querySuccess = query->execute();
+      if (!querySuccess) {
+        edm::LogError(m_name) << "OMS fill query failed (http status not 200 nor 201). Request URL:\n" << query->url();
+      }
+      bool foundFill = querySuccess ? makeFillPayload(m_fillPayload, query->result()) : false;
+
       if (!foundFill) {
-        edm::LogInfo(m_name) << "No fill found - END of job.";
+        if (m_endFillMode) {
+          edm::LogInfo(m_name) << "No fill found - END of job.";
+        } else {  //duringFill mode
+          edm::LogInfo(m_name) << "No ongoing fill found.";
+          addDefaultPayload(1, m_prevPayload->fillNumber(), oms);  //IOV doesn't matter here in duringFill mode
+        }
         break;
       }
     }
@@ -319,8 +381,8 @@ void LHCInfoPerLSPopConSourceHandler::getNewObjects() {
               << "The buffered payload has the same data as the previous payload in the tag. It will not be written.";
         }
       } else if (m_tmpBuffer.empty()) {
-        addEmptyPayload(
-            cond::lhcInfoHelper::getFillLastLumiIOV(oms, lhcFill));  //the IOV doesn't matter when using OnlinePopCon
+        // note: the IOV doesn't matter when using OnlinePopCon:
+        addDefaultPayload(1, lhcFill, oms);
       }
     }
 
@@ -368,6 +430,37 @@ void LHCInfoPerLSPopConSourceHandler::addEmptyPayload(cond::Time_t iov) {
     m_prevStartFillTime = 0;
     edm::LogInfo(m_name) << "Added empty payload with IOV" << iov << " ( "
                          << boost::posix_time::to_iso_extended_string(cond::time::to_boost(iov)) << " )";
+  }
+}
+
+void LHCInfoPerLSPopConSourceHandler::addDefaultPayload(cond::Time_t iov,
+                                                        unsigned short fill,
+                                                        const cond::OMSService& oms) {
+  auto defaultPayload = std::make_shared<LHCInfoPerLS>();
+  defaultPayload->setFillNumber(fill);
+  auto [lastRun, lastLumi] = cond::lhcInfoHelper::getFillLastRunAndLS(oms, fill);
+  addDefaultPayload(iov, fill, lastRun, lastLumi);
+}
+
+void LHCInfoPerLSPopConSourceHandler::addDefaultPayload(cond::Time_t iov,
+                                                        unsigned short fill,
+                                                        int run,
+                                                        unsigned short lumi) {
+  auto defaultPayload = std::make_shared<LHCInfoPerLS>();
+  defaultPayload->setFillNumber(fill);
+  defaultPayload->setRunNumber(run);
+  defaultPayload->setLumiSection(lumi);
+  defaultPayload->setCrossingAngleX(m_defaultCrossingAngleX);
+  defaultPayload->setCrossingAngleY(m_defaultCrossingAngleY);
+  defaultPayload->setBetaStarX(m_defaultBetaStarX);
+  defaultPayload->setBetaStarY(m_defaultBetaStarY);
+
+  if (m_prevPayload && theLHCInfoPerLSImpl::comparePayloads(*defaultPayload, *m_prevPayload)) {
+    edm::LogInfo(m_name)
+        << "The default payload has the same data as the previous payload in the tag. It will not be written.";
+  } else {
+    m_iovs.insert(make_pair(iov, defaultPayload));
+    edm::LogInfo(m_name) << "Uploading the default payload.";
   }
 }
 
@@ -424,7 +517,7 @@ size_t LHCInfoPerLSPopConSourceHandler::getLumiData(const cond::OMSService& oms,
   query->addOutputVars({"start_time", "run_number", "beams_stable", "lumisection_number"});
   query->filterEQ("fill_number", fillId);
   query->filterGT("start_time", beginFillTime).filterLT("start_time", endFillTime);
-  query->limit(kLumisectionsQueryLimit);
+  query->limit(cond::lhcInfoHelper::kLumisectionsQueryLimit);
   size_t nlumi = 0;
   if (query->execute()) {
     auto queryResult = query->result();

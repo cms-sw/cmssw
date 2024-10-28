@@ -57,6 +57,25 @@ options.register( 'endTime'
                      default to empty string which sets no restriction"""
                   )
 
+options.register( 'sourceConnection'
+                , "oracle://cms_orcon_adg/CMS_RUNTIME_LOGGER"
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.string
+                , """beam data source connection string (aka PPS db)"""
+                  )
+options.register( 'ecalConnection'
+                , "oracle://cms_orcon_adg/CMS_DCS_ENV_PVSS_COND"
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.string
+                , """ecal data source connection string"""
+                  )
+options.register( 'oms'
+                , "http://vocms0184.cern.ch/agg/api/v1"
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.string
+                , """OMS base URL"""
+                  )
+
 #duringFill mode specific:
 options.register( 'lastLumiFile'
                 , ''
@@ -137,7 +156,7 @@ else:
         tag = cms.string( options.tag ),
         onlyAppendUpdatePolicy = cms.untracked.bool(True)
     )),
-    frontierKey = cms.untracked.string('wrong-key')
+    frontierKey = cms.untracked.string(options.frontierKey)
 )
 
 
@@ -150,9 +169,9 @@ process.Test1 = cms.EDAnalyzer("LHCInfoPerFillPopConAnalyzer" if options.mode ==
                                    endTime = cms.untracked.string(options.endTime),
                                    endFill = cms.untracked.bool(options.mode == "endFill"),
                                    name = cms.untracked.string("LHCInfoPerFillPopConSourceHandler"),
-                                   connectionString = cms.untracked.string("oracle://cms_orcon_adg/CMS_RUNTIME_LOGGER"),
-                                   ecalConnectionString = cms.untracked.string("oracle://cms_orcon_adg/CMS_DCS_ENV_PVSS_COND"),
-                                   omsBaseUrl = cms.untracked.string("http://vocms0184.cern.ch/agg/api/v1"),
+                                   connectionString = cms.untracked.string(options.sourceConnection),
+                                   ecalConnectionString = cms.untracked.string(options.ecalConnection),
+                                   omsBaseUrl = cms.untracked.string(options.oms),
                                    authenticationPath = cms.untracked.string(options.authenticationPath),
                                    debug=cms.untracked.bool(False)
                                ),
