@@ -9,6 +9,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/CachedBufAlloc.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 
 namespace cms::alpakatools {
