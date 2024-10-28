@@ -32,7 +32,7 @@ namespace cms::alpakatools {
 #elif not defined ALPAKA_DISABLE_ASYNC_ALLOCATOR
       AllocatorPolicy::Asynchronous;
 #else
-          AllocatorPolicy::Synchronous;
+      AllocatorPolicy::Synchronous;
 #endif
 #endif  // ALPAKA_ACC_GPU_CUDA_ENABLED
 
