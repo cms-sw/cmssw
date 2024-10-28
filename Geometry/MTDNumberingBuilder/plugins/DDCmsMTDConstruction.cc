@@ -22,23 +22,40 @@ using angle_units::operators::convertRadToDeg;
 
 class DDNameFilter : public DDFilter {
 public:
+  void addNS(const std::string& addNS) { allowedNS_.emplace_back(addNS); }
   void add(const std::string& add) { allowed_.emplace_back(add); }
   void veto(const std::string& veto) { veto_.emplace_back(veto); }
 
   bool accept(const DDExpandedView& ev) const final {
-    std::string currentName(ev.logicalPart().name().fullname());
-    for (const auto& test : veto_) {
-      if (currentName.find(test) != std::string::npos)
-        return false;
+    if (allowedNS_.size() == 0 && allowed_.size() == 0 && veto_.size() == 0) {
+      return true;
     }
-    for (const auto& test : allowed_) {
-      if (currentName.find(test) != std::string::npos)
-        return true;
+    bool out(false);
+    std::string_view currentNSName(ev.logicalPart().name().ns());
+    for (const auto& test : allowedNS_) {
+      if (currentNSName.find(test) != std::string::npos) {
+        out = true;
+        if (allowed_.size() > 0 || veto_.size() > 0) {
+          std::string_view currentName(ev.logicalPart().name().name());
+          for (const auto& test : veto_) {
+            if (currentName.find(test) != std::string::npos) {
+              return false;
+            }
+          }
+          for (const auto& test : allowed_) {
+            if (currentName.find(test) != std::string::npos) {
+              return true;
+            }
+          }
+        }
+        break;
+      }
     }
-    return false;
+    return out;
   }
 
 private:
+  std::vector<std::string> allowedNS_;
   std::vector<std::string> allowed_;
   std::vector<std::string> veto_;
 };
@@ -46,14 +63,9 @@ private:
 std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDCompactView& cpv) {
   std::string attribute{"CMSCutsRegion"};
   DDNameFilter filter;
-  filter.add("mtd:");
-  filter.add("btl:");
-  filter.add("etl:");
-
-  std::vector<std::string> volnames = {"FSide", "SupportPlate"};
-  for (auto const& theVol : volnames) {
-    filter.veto(theVol);
-  }
+  filter.addNS("mtd");
+  filter.addNS("btl");
+  filter.addNS("etl");
 
   DDFilteredView fv(cpv, filter);
 
