@@ -50,7 +50,6 @@ FTLUncalibratedRecHit ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataF
   const std::array<double, 1> time_over_threshold_V = {{time_over_threshold}};
 
   unsigned char flag = 0;
-  std::cout << "[ETLUncalibRecHitAlgo::makeRecHit] " << double(sample.toa()) * toaLSBToNS_ << " " << time_over_threshold << std::endl;
 
   LogDebug("ETLUncalibRecHit") << "ADC+: set the charge to: " << time_over_threshold << ' ' << sample.tot() << ' '
                                << toaLSBToNS_;
