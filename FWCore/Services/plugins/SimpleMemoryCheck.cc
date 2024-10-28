@@ -58,8 +58,9 @@
 namespace edm {
   namespace service {
     struct smapsInfo {
-      double private_ = 0;  // in MB
-      double pss_ = 0;      // in MB
+      double private_ = 0;        // in MB
+      double pss_ = 0;            // in MB
+      double anonHugePages_ = 0;  // in MB
     };
 
     class SimpleMemoryCheck {
@@ -83,6 +84,8 @@ namespace edm {
       void preModule(StreamContext const&, ModuleCallingContext const&);
       void postModule(StreamContext const&, ModuleCallingContext const&);
 
+      void earlyTermination();
+
       void postEndJob();
 
       void startSamplingThread();
@@ -95,6 +98,10 @@ namespace edm {
       double averageGrowthRate(double current, double past, int count);
       void update();
       void updateMax();
+      void andPrintAlways(const std::string& type,
+                          const std::string& mdlabel,
+                          const std::string& mdname,
+                          bool includeSmaps = false) const;
       void andPrint(const std::string& type, const std::string& mdlabel, const std::string& mdname) const;
       void updateAndPrint(const std::string& type, const std::string& mdlabel, const std::string& mdname);
       void openFiles();
@@ -126,7 +133,7 @@ namespace edm {
       std::atomic<edm::EventID> mostRecentlyStartedEvent_;
 
       //smaps
-      edm::propagate_const<FILE*> smapsFile_;
+      edm::propagate_const<FILE*> smapsFile_ = nullptr;
       edm::propagate_const<char*> smapsLineBuffer_;
       size_t smapsLineBufferLen_;
 
@@ -144,6 +151,7 @@ namespace edm {
         bool monitorPssAndPrivate = 0;
         double privateSize = 0;
         double pss = 0;
+        double anonHugePages = 0;
         edm::EventID event;
         SignificantEvent() = default;
         void set(double deltaV, double deltaR, edm::EventID const& e, SimpleMemoryCheck* t) {
@@ -156,6 +164,7 @@ namespace edm {
           if (monitorPssAndPrivate) {
             privateSize = t->currentSmaps_.private_;
             pss = t->currentSmaps_.pss_;
+            anonHugePages = t->currentSmaps_.anonHugePages_;
           }
           event = e;
         }
@@ -287,6 +296,7 @@ namespace edm {
        Private_Dirty:       72 kB
        Swap:                 0 kB
        Pss:                 72 kB
+       AnonHugePages:    10240 kB
        */
 
       while ((read = getline(&smapsLineBuffer(), &smapsLineBufferLen_, smapsFile_)) != -1) {
@@ -300,6 +310,9 @@ namespace edm {
             unsigned int value = atoi(smapsLineBuffer_ + 4);
             //Convert from kB to MB
             ret.pss_ += static_cast<double>(value) / 1024.;
+          } else if (0 == strncmp("AnonHugePages:", smapsLineBuffer_, 14)) {
+            unsigned int value = atoi(smapsLineBuffer_ + 14);
+            ret.anonHugePages_ += static_cast<double>(value) / 1024.;
           }
         }
       }
@@ -336,9 +349,16 @@ namespace edm {
       // pg_size = (double)getpagesize();
       std::ostringstream ost;
 
-      openFiles();
+      if (monitorPssAndPrivate_) {
+        openFiles();
+      }
 
       iReg.watchPostEndJob(this, &SimpleMemoryCheck::postEndJob);
+      // A possible source for early termination is a signal from WM
+      // when the job's memory use exceeds their limit
+      iReg.watchPreSourceEarlyTermination([this](TerminationOrigin) { earlyTermination(); });
+      iReg.watchPreGlobalEarlyTermination([this](GlobalContext const&, TerminationOrigin) { earlyTermination(); });
+      iReg.watchPreStreamEarlyTermination([this](StreamContext const&, TerminationOrigin) { earlyTermination(); });
 
       if (sampleEveryNSeconds_ > 0) {
         if (oncePerEventMode_) {
@@ -420,12 +440,10 @@ namespace edm {
 
     void SimpleMemoryCheck::openFiles() {
 #ifdef LINUX
-      if (monitorPssAndPrivate_) {
-        std::ostringstream smapsNameOst;
-        smapsNameOst << "/proc/" << getpid() << "/smaps";
-        if ((smapsFile_ = fopen(smapsNameOst.str().c_str(), "r")) == nullptr) {
-          throw Exception(errors::Configuration) << "Failed to open smaps file " << smapsNameOst.str() << std::endl;
-        }
+      std::ostringstream smapsNameOst;
+      smapsNameOst << "/proc/" << getpid() << "/smaps";
+      if ((smapsFile_ = fopen(smapsNameOst.str().c_str(), "r")) == nullptr) {
+        throw Exception(errors::Configuration) << "Failed to open smaps file " << smapsNameOst.str() << std::endl;
       }
 #endif
     }
@@ -478,6 +496,24 @@ namespace edm {
             nullptr, [this](void const*) { measurementUnderway_.store(false, std::memory_order_release); });
         updateAndPrint("beginJob", md.moduleLabel(), md.moduleName());
       }
+    }
+
+    void SimpleMemoryCheck::earlyTermination() {
+      bool expected = false;
+      while (not measurementUnderway_.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
+        expected = false;
+      }
+      std::shared_ptr<void> guard(
+          nullptr, [this](void const*) { measurementUnderway_.store(false, std::memory_order_release); });
+      if (not smapsFile_) {
+        openFiles();
+      }
+      if (smapsFile_) {
+        currentSmaps_ = fetchSmaps();
+      }
+      update();
+      andPrintAlways("earlyTermination", "", "", true);
+      updateMax();
     }
 
     void SimpleMemoryCheck::startSamplingThread() {
@@ -876,31 +912,42 @@ namespace edm {
       }
     }  // updateEventStats
 
+    void SimpleMemoryCheck::andPrintAlways(std::string const& type,
+                                           std::string const& mdlabel,
+                                           std::string const& mdname,
+                                           bool includeSmaps) const {
+      double deltaVSIZE = current_->vsize - max_.vsize;
+      double deltaRSS = current_->rss - max_.rss;
+
+      LogWarning log("MemoryCheck");
+      // default
+      log << "MemoryCheck: " << type << " " << mdname << ":" << mdlabel << " VSIZE " << current_->vsize << " "
+          << deltaVSIZE << " RSS " << current_->rss << " " << deltaRSS;
+      if (showMallocInfo_) {
+#ifdef __linux__
+#if (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 33)
+        struct mallinfo2 minfo = mallinfo2();
+#else
+        struct mallinfo minfo = mallinfo();
+#endif
+        log << " HEAP-ARENA [ SIZE-BYTES " << minfo.arena << " N-UNUSED-CHUNKS " << minfo.ordblks << " TOP-FREE-BYTES "
+            << minfo.keepcost << " ]"
+            << " HEAP-MAPPED [ SIZE-BYTES " << minfo.hblkhd << " N-CHUNKS " << minfo.hblks << " ]"
+            << " HEAP-USED-BYTES " << minfo.uordblks << " HEAP-UNUSED-BYTES " << minfo.fordblks;
+#endif
+      }
+      if (includeSmaps and smapsFile_) {
+        log << " PSS " << currentSmaps_.pss_ << " PRIVATE " << currentSmaps_.private_ << " ANONHUGEPAGES "
+            << currentSmaps_.anonHugePages_;
+      }
+    }
+
     void SimpleMemoryCheck::andPrint(std::string const& type,
                                      std::string const& mdlabel,
                                      std::string const& mdname) const {
       if (not jobReportOutputOnly_ && ((*current_ > max_) || printEachTime_)) {
         if (count_ >= num_to_skip_) {
-          double deltaVSIZE = current_->vsize - max_.vsize;
-          double deltaRSS = current_->rss - max_.rss;
-
-          LogWarning log("MemoryCheck");
-          // default
-          log << "MemoryCheck: " << type << " " << mdname << ":" << mdlabel << " VSIZE " << current_->vsize << " "
-              << deltaVSIZE << " RSS " << current_->rss << " " << deltaRSS;
-          if (showMallocInfo_) {
-#ifdef __linux__
-#if (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 33)
-            struct mallinfo2 minfo = mallinfo2();
-#else
-            struct mallinfo minfo = mallinfo();
-#endif
-            log << " HEAP-ARENA [ SIZE-BYTES " << minfo.arena << " N-UNUSED-CHUNKS " << minfo.ordblks
-                << " TOP-FREE-BYTES " << minfo.keepcost << " ]"
-                << " HEAP-MAPPED [ SIZE-BYTES " << minfo.hblkhd << " N-CHUNKS " << minfo.hblks << " ]"
-                << " HEAP-USED-BYTES " << minfo.uordblks << " HEAP-UNUSED-BYTES " << minfo.fordblks;
-#endif
-          }
+          andPrintAlways(type, mdlabel, mdname);
         }
       }
     }
