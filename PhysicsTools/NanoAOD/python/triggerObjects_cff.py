@@ -60,8 +60,9 @@ triggerObjectTable = triggerObjectTableProducer.clone(
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet(
                 mksel("filter('*CaloIdLTrackIdLIsoVL*TrackIso*Filter')","CaloIdL_TrackIdL_IsoVL"),
-                mksel("filter('hltEle*WPTight*TrackIsoFilter*')","1e (WPTight)"),
+                mksel("filter('hltEle*WPTight*TrackIsoFilter*')","1e (WPTight with possibile contribution from Xtriggers besides singleElectron)"),
                 mksel("filter('hltEle*WPLoose*TrackIsoFilter')","1e (WPLoose)"),
+                mksel("filter('hltEle30WPTightGsfTrackIsoFilter')","1e (HLT30WPTightGSfTrackIso)"),
                 mksel("filter('*OverlapFilter*IsoEle*PFTau*')","OverlapFilter PFTau"),
                 mksel("filter('hltEle*Ele*CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter')","2e (Leg 1)"),
                 mksel("filter('hltEle*Ele*CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter')","2e (Leg 2)"),
