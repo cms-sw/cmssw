@@ -7,7 +7,7 @@ namespace cms::alpakatools {
 
   // Which memory allocator to use
   //   - Synchronous:   (device and host) cudaMalloc/hipMalloc and cudaMallocHost/hipMallocHost
-  //   - Asynchronous:  (device only)     cudaMallocAsync (requires CUDA >= 11.2)
+  //   - Asynchronous:  (device only)     cudaMallocAsync/hipMallocAsync (requires CUDA >= 11.2 or ROCm >= 5.6)
   //   - Caching:       (device and host) caching allocator
   enum class AllocatorPolicy { Synchronous = 0, Asynchronous = 1, Caching = 2 };
 
