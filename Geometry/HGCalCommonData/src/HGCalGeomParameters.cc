@@ -1787,8 +1787,8 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
         for (const auto& i : it.second)
           tileProperty.emplace_back(std::round(i));
       } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "NPhiLayer")) {
-	for (const auto& i : it.second)
-	  php.nPhiLayer_.emplace_back(std::round(i));
+        for (const auto& i : it.second)
+          php.nPhiLayer_.emplace_back(std::round(i));
       } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileHEX1")) {
         for (const auto& i : it.second)
           tileHEX1.emplace_back(std::round(i));
@@ -2361,14 +2361,14 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     //Ring radii for each partition
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Mode " << php.mode_ << ":"
-				  << HGCalGeometryMode::TrapezoidFineCell << " Sizes " << php.tileRingFineR_.size()
-				  << ":" << php.tileRingR_.size();
+                                  << HGCalGeometryMode::TrapezoidFineCell << " Sizes " << php.tileRingFineR_.size()
+                                  << ":" << php.tileRingR_.size();
 #endif
     for (unsigned int k = 0; k < 2; ++k) {
       bool fine = ((k == 0) && (php.mode_ == HGCalGeometryMode::TrapezoidFineCell));
       unsigned int sizeR = (fine) ? php.tileRingFineR_.size() : php.tileRingR_.size();
       for (unsigned int kk = 0; kk < sizeR; ++kk) {
-	if (fine)
+        if (fine)
           php.radiusLayer_[k].emplace_back(php.tileRingFineR_[kk].first);
         else
           php.radiusLayer_[k].emplace_back(php.tileRingR_[kk].first);
@@ -2388,8 +2388,8 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     // Minimum and maximum radius index for each layer
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Till Ring Range size " << php.tileRingFineRange_.size() << ":"
-				  << php.tileRingRange_.size() << ":" << php.nPhiBinBH_.size() << ":"
-				  << php.zLayerHex_.size() << ":" << php.nPhiLayer_.size();
+                                  << php.tileRingRange_.size() << ":" << php.nPhiBinBH_.size() << ":"
+                                  << php.zLayerHex_.size() << ":" << php.nPhiLayer_.size();
 #endif
     unsigned int k1(0), k2(0);
     for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
