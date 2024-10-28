@@ -29,31 +29,50 @@
 
 class CaloCellGeometryMayOwnPtr {
 public:
-  explicit CaloCellGeometryMayOwnPtr(CaloCellGeometry const* iPtr, bool iOwn) noexcept : ptr_{iPtr}, own_{iOwn} {}
   explicit CaloCellGeometryMayOwnPtr(std::unique_ptr<CaloCellGeometry const> iPtr) noexcept
-      : ptr_{iPtr.release()}, own_{true} {}
+      : ptr_{iPtr.release()}, own_{ptr_ != nullptr} {
+    if (own_) {
+      ptr_->increment();
+    }
+  }
   explicit CaloCellGeometryMayOwnPtr(CaloCellGeometryPtr const& iPtr) noexcept : ptr_{iPtr.get()}, own_{false} {}
 
   ~CaloCellGeometryMayOwnPtr() noexcept {
-    if (own_) {
+    if (own_ and ptr_->decrement()) {
       delete ptr_;
     }
   }
   CaloCellGeometryMayOwnPtr() noexcept = default;
-  CaloCellGeometryMayOwnPtr(const CaloCellGeometryMayOwnPtr&) noexcept = delete;
+  CaloCellGeometryMayOwnPtr(const CaloCellGeometryMayOwnPtr& iPtr) noexcept : ptr_{iPtr.ptr_}, own_{iPtr.own_} {
+    if (own_) {
+      ptr_->increment();
+    }
+  }
   CaloCellGeometryMayOwnPtr(CaloCellGeometryMayOwnPtr&& iPtr) noexcept : ptr_{iPtr.ptr_}, own_{iPtr.own_} {
     iPtr.ptr_ = nullptr;
     iPtr.own_ = false;
   }
-  CaloCellGeometryMayOwnPtr& operator=(CaloCellGeometryMayOwnPtr const&) noexcept = delete;
-  CaloCellGeometryMayOwnPtr& operator=(CaloCellGeometryMayOwnPtr&& iPtr) noexcept {
+  CaloCellGeometryMayOwnPtr& operator=(CaloCellGeometryMayOwnPtr const& iPtr) noexcept {
+    //Even if someone does `foo = foo` this will work
+    auto tmpPtr = iPtr.ptr_;
+    auto tmpOwn = iPtr.own_;
+    CaloCellGeometryMayOwnPtr temp(std::move(*this));
+    ptr_ = tmpPtr;
+    own_ = tmpOwn;
     if (own_) {
-      delete ptr_;
+      ptr_->increment();
     }
-    ptr_ = iPtr.ptr_;
-    own_ = iPtr.own_;
-    iPtr.ptr_ = nullptr;
-    iPtr.own_ = false;
+    return *this;
+  }
+  CaloCellGeometryMayOwnPtr& operator=(CaloCellGeometryMayOwnPtr&& iPtr) noexcept {
+    if (&iPtr != this) {
+      CaloCellGeometryMayOwnPtr temp(std::move(*this));
+
+      ptr_ = iPtr.ptr_;
+      own_ = iPtr.own_;
+      iPtr.ptr_ = nullptr;
+      iPtr.own_ = false;
+    }
     return *this;
   }
 
@@ -62,17 +81,6 @@ public:
   CaloCellGeometry const& operator*() const { return *ptr_; }
 
   operator CaloCellGeometry const*() const { return ptr_; }
-
-  //transfers ownership to a shared_ptr
-  std::shared_ptr<CaloCellGeometry const> releaseToShared() {
-    auto p = ptr_;
-    ptr_ = nullptr;
-    if (own_) {
-      own_ = false;
-      return std::shared_ptr<CaloCellGeometry const>(p);
-    }
-    return std::shared_ptr<CaloCellGeometry const>(p, no_delete());
-  }
 
 private:
   struct no_delete {

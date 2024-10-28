@@ -77,7 +77,7 @@ public:
           throw cms::Exception("PFEcalEndcapRecHitCreator") << "detid " << detid.rawId() << "not found in geometry";
         }
 
-        out->emplace_back(thisCell.releaseToShared(), detid.rawId(), PFLayer::ECAL_ENDCAP, energy);
+        out->emplace_back(std::move(thisCell), detid.rawId(), PFLayer::ECAL_ENDCAP, energy);
       }
       auto& rh = out->back();
 
