@@ -1695,10 +1695,13 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
       if (php.cassettes_ > 0)
         php.nphiCassette_ = php.nCellsCoarse_ / php.cassettes_;
       cassetteShift = fv.vector("CassetteShiftHE");
-      rescale(cassetteShift, HGCalParameters::k_ScaleFromDDD);
     }
 
-    php.cassetteShiftTile_ = cassetteShift;
+    rescale(cassetteShift, HGCalParameters::k_ScaleFromDDD);
+    if (php.waferMaskMode_ == scintillatorFineCell)
+      php.cassetteShiftTile_ = cassetteShift;
+    else
+      php.cassetteShift_ = cassetteShift;
     loadSpecParsTrapezoid(php,
                           tileIndx,
                           tileProperty,
@@ -1784,8 +1787,8 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
         for (const auto& i : it.second)
           tileProperty.emplace_back(std::round(i));
       } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "NPhiLayer")) {
-        for (const auto& i : it.second)
-          php.nPhiLayer_.emplace_back(std::round(i));
+	for (const auto& i : it.second)
+	  php.nPhiLayer_.emplace_back(std::round(i));
       } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileHEX1")) {
         for (const auto& i : it.second)
           tileHEX1.emplace_back(std::round(i));
@@ -1858,7 +1861,10 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
     }
 
     rescale(cassetteShift, HGCalParameters::k_ScaleFromDD4hep);
-    php.cassetteShiftTile_ = cassetteShift;
+    if (php.waferMaskMode_ == scintillatorFineCell)
+      php.cassetteShiftTile_ = cassetteShift;
+    else
+      php.cassetteShift_ = cassetteShift;
     loadSpecParsTrapezoid(php,
                           tileIndx,
                           tileProperty,
@@ -2350,20 +2356,19 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
                                   << php.zLayerHex_[k];
 #endif
   // Find the radius of each eta-partitions
-
   if ((php.mode_ == HGCalGeometryMode::TrapezoidFile) || (php.mode_ == HGCalGeometryMode::TrapezoidModule) ||
       (php.mode_ == HGCalGeometryMode::TrapezoidCassette) || (php.mode_ == HGCalGeometryMode::TrapezoidFineCell)) {
     //Ring radii for each partition
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Mode " << php.mode_ << ":"
-                                  << HGCalGeometryMode::TrapezoidFineCell << " Sizes " << php.tileRingFineR_.size()
-                                  << ":" << php.tileRingR_.size();
+				  << HGCalGeometryMode::TrapezoidFineCell << " Sizes " << php.tileRingFineR_.size()
+				  << ":" << php.tileRingR_.size();
 #endif
     for (unsigned int k = 0; k < 2; ++k) {
       bool fine = ((k == 0) && (php.mode_ == HGCalGeometryMode::TrapezoidFineCell));
       unsigned int sizeR = (fine) ? php.tileRingFineR_.size() : php.tileRingR_.size();
       for (unsigned int kk = 0; kk < sizeR; ++kk) {
-        if (fine)
+	if (fine)
           php.radiusLayer_[k].emplace_back(php.tileRingFineR_[kk].first);
         else
           php.radiusLayer_[k].emplace_back(php.tileRingR_[kk].first);
@@ -2383,8 +2388,8 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     // Minimum and maximum radius index for each layer
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Till Ring Range size " << php.tileRingFineRange_.size() << ":"
-                                  << php.tileRingRange_.size() << ":" << php.nPhiBinBH_.size() << ":"
-                                  << php.zLayerHex_.size() << ":" << php.nPhiLayer_.size();
+				  << php.tileRingRange_.size() << ":" << php.nPhiBinBH_.size() << ":"
+				  << php.zLayerHex_.size() << ":" << php.nPhiLayer_.size();
 #endif
     unsigned int k1(0), k2(0);
     for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
