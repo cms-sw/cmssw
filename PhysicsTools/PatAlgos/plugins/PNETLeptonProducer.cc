@@ -97,19 +97,21 @@ void PNETLeptonProducer<LeptonType>::produce(edm::Event &iEvent, const edm::Even
   edm::Handle<edm::View<LeptonType>> leps;
   iEvent.getByToken(leps_, leps);
 
-  assert(src->size() == leps->size());
+  std::vector<std::vector<float>> mvaScores(flav_names_.size(), std::vector<float>(leps->size(), -1));
 
-  std::vector<std::vector<float>> mvaScores(flav_names_.size(), std::vector<float>(src->size(), -1));
-
-  for (size_t ilep = 0; ilep < src->size(); ilep++) {
-    const auto &taginfo = (*src)[ilep];
-    make_inputs(taginfo);
-    auto outputs = globalCache()->run(input_names_, data_, input_shapes_)[0];
-    // std::cout<<"outputs.size(): "<<outputs.size()<<std::endl;
-    // std::cout<<"flav_names_.size(): "<<flav_names_.size()<<std::endl;
-    assert(outputs.size() == flav_names_.size());
-    for (unsigned int iflav = 0; iflav < flav_names_.size(); ++iflav) {
-      mvaScores[iflav][ilep] = outputs.at(iflav);
+  // tagInfo src could be empty if the event has no PV
+  if (!src->empty()) {
+    assert(src->size() == leps->size());
+    for (size_t ilep = 0; ilep < src->size(); ilep++) {
+      const auto &taginfo = (*src)[ilep];
+      make_inputs(taginfo);
+      auto outputs = globalCache()->run(input_names_, data_, input_shapes_)[0];
+      // std::cout<<"outputs.size(): "<<outputs.size()<<std::endl;
+      // std::cout<<"flav_names_.size(): "<<flav_names_.size()<<std::endl;
+      assert(outputs.size() == flav_names_.size());
+      for (unsigned int iflav = 0; iflav < flav_names_.size(); ++iflav) {
+        mvaScores[iflav][ilep] = outputs.at(iflav);
+      }
     }
   }
 
