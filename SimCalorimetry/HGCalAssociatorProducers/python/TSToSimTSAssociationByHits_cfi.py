@@ -19,3 +19,14 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(allTrackstersToSimTrackstersAssociationsByHits,
     caloParticles = "mixData:MergedCaloTruth",
 )
+
+## Barrel
+from SimCalorimetry.HGCalAssociatorProducers.AllBarrelTracksterToSimTracksterAssociatorsByHitsProducer_cfi import AllBarrelTracksterToSimTracksterAssociatorsByHitsProducer
+
+allBarrelTrackstersToSimTrackstersAssociationsByHits = AllBarrelTracksterToSimTracksterAssociatorsByHitsProducer.clone(
+    tracksterCollections = cms.VInputTag('ticlBarrelTracksters'),
+    simTracksterCollections = cms.VInputTag(
+        'ticlBarrelSimTracksters',
+        'ticlBarrelSimTracksters:fromCPs'
+    )
+)
