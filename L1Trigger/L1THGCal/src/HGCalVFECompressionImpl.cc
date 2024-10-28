@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include "L1Trigger/L1THGCal/interface/HGCalVFECompressionImpl.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -40,6 +42,7 @@ void HGCalVFECompressionImpl::compressSingle(const uint64_t value,
 
   // build exponent and mantissa
   const uint32_t exponent = bitlen - mantissaBits_;
+  assert(exponent - 1 < 64);
   const uint64_t mantissa = (shifted_value >> (exponent - 1)) & ~(1ULL << mantissaBits_);
 
   // assemble floating-point
