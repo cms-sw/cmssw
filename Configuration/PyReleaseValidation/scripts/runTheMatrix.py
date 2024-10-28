@@ -116,16 +116,18 @@ if __name__ == '__main__':
                     139.001,    # Run2021  MinimumBias                  Commissioning2021   
                     
                     # 2022
-                    2022.222005,    # Run2022C ZeroBias
+                    2022.002001,    # Run2022C ZeroBias
+                    2022.000001,    # Run2022C JetHT
 
                     # 2023
-                    2023.211005,    # Run2023D ZeroBias
+                    2023.002001,    # Run2023D ZeroBias
+                    2023.002001,    # Run2023D MuonEG
 
                     # 2024
-                    2024.014005,      # Run2024B ZeroBias
-                    2024.100005,      # Run2024C BTagMu 
-                    2024.204005,      # Run2024D JetMET0
-                    2024.301005,      # Run2024E RunDisplacedJet
+                    2024.000001,      # Run2024B ZeroBias
+                    2024.101001,      # Run2024C BTagMu 
+                    2024.202001,      # Run2024D JetMET0
+                    2024.303001,      # Run2024E DisplacedJet
                     
                     ###### Heavy Ions
                     ## Data
