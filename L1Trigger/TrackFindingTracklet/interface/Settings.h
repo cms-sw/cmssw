@@ -268,10 +268,10 @@ namespace trklet {
     bool extended() const { return extended_; }
     void setExtended(bool extended) { extended_ = extended; }
     bool duplicateMPs() const { return duplicateMPs_; }
-    std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedEqualProjBalance() const {
+    const std::array<bool, N_LAYER + N_DISK>& layersDisksDuplicatedEqualProjBalance() const {
       return layersDisksDuplicatedEqualProjBalance_;
     }
-    std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedWeightedProjBalance() const {
+    const std::array<bool, N_LAYER + N_DISK>& layersDisksDuplicatedWeightedProjBalance() const {
       return layersDisksDuplicatedWeightedProjBalance_;
     }
     bool combined() const { return combined_; }
