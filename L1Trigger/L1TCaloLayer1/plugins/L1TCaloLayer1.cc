@@ -74,16 +74,16 @@ private:
   edm::EDPutTokenT<L1CaloRegionCollection> regionPutToken;
   const L1TCaloLayer1FetchLUTsTokens lutsTokens;
 
-  std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > ecalLUT;
-  std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > hcalLUT;
-  std::vector<std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> > hfLUT;
+  std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins>> ecalLUT;
+  std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins>> hcalLUT;
+  std::vector<std::array<std::array<uint32_t, nEtBins>, nHfEtaBins>> hfLUT;
   std::vector<unsigned long long int> hcalFBLUT;
 
   std::vector<unsigned int> ePhiMap;
   std::vector<unsigned int> hPhiMap;
   std::vector<unsigned int> hfPhiMap;
 
-  std::vector<UCTTower*> twrList;
+  std::vector<std::shared_ptr<UCTTower>> twrList;
 
   bool useLSB;
   bool useCalib;
@@ -140,7 +140,7 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig)
     for (uint32_t crd = 0; crd < cards.size(); crd++) {
       vector<UCTRegion*> regions = cards[crd]->getRegions();
       for (uint32_t rgn = 0; rgn < regions.size(); rgn++) {
-        vector<UCTTower*> towers = regions[rgn]->getTowers();
+        vector<std::shared_ptr<UCTTower>> towers = regions[rgn]->getTowers();
         for (uint32_t twr = 0; twr < towers.size(); twr++) {
           twrList.push_back(towers[twr]);
         }
@@ -150,7 +150,7 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig)
 
   // This sort corresponds to the sort condition on
   // the output CaloTowerBxCollection
-  std::sort(twrList.begin(), twrList.end(), [](UCTTower* a, UCTTower* b) {
+  std::sort(twrList.begin(), twrList.end(), [](std::shared_ptr<UCTTower> a, std::shared_ptr<UCTTower> b) {
     return CaloTools::caloTowerHash(a->caloEta(), a->caloPhi()) < CaloTools::caloTowerHash(b->caloEta(), b->caloPhi());
   });
 }
