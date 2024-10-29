@@ -45,6 +45,12 @@ public:
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
+  template <typename T>
+  void fillL1TrgObjsCollection(std::unique_ptr<HcalL1TriggerObjects>& l1TrgObjsCol,
+                               const HcalDbService* conditions,
+                               const HcalTopology* topo,
+                               T cell);
+
   std::string tagName_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
 };
@@ -54,6 +60,31 @@ WriteL1TriggerObjectsTxt::WriteL1TriggerObjectsTxt(const edm::ParameterSet& iCon
       tok_dbservice_(esConsumes<HcalDbService, HcalDbRecord>()) {}
 
 WriteL1TriggerObjectsTxt::~WriteL1TriggerObjectsTxt() {}
+
+template <typename T>
+void WriteL1TriggerObjectsTxt::fillL1TrgObjsCollection(std::unique_ptr<HcalL1TriggerObjects>& l1TrgObjsCol,
+                                                       const HcalDbService* conditions,
+                                                       const HcalTopology* topo,
+                                                       T cell) {
+  const HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
+
+  float gain = 0.0;
+  float ped = 0.0;
+
+  for (auto i : {0, 1, 2, 3}) {
+    gain += calibrations.LUTrespcorrgain(i);
+    ped += calibrations.effpedestal(i);
+  }
+
+  gain /= 4.;
+  ped /= 4.;
+
+  const HcalChannelStatus* channelStatus = conditions->getHcalChannelStatus(cell);
+  uint32_t status = channelStatus->getValue();
+  HcalL1TriggerObject l1object(cell, ped, gain, status);
+  l1TrgObjsCol->setTopo(topo);
+  l1TrgObjsCol->addValues(l1object);
+}
 
 void WriteL1TriggerObjectsTxt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
@@ -67,64 +98,26 @@ void WriteL1TriggerObjectsTxt::analyze(const edm::Event& iEvent, const edm::Even
 
   for (const auto& id : metadata->getAllChannels()) {
     if (id.det() == DetId::Hcal and topo->valid(id)) {
-        std::cout << "HCAL: " << id.det() << std::endl;
       HcalDetId cell(id);
       HcalSubdetector subdet = cell.subdet();
       if (subdet != HcalBarrel and subdet != HcalEndcap and subdet != HcalForward)
         continue;
 
-      HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
+      fillL1TrgObjsCollection(HcalL1TrigObjCol, conditions, topo, cell);
 
-      float gain = 0.0;
-      float ped = 0.0;
-
-      for (auto i : {0, 1, 2, 3}) {
-        gain += calibrations.LUTrespcorrgain(i);
-        ped += calibrations.effpedestal(i);
-      }
-
-      gain /= 4.;
-      ped /= 4.;
-
-      const HcalChannelStatus* channelStatus = conditions->getHcalChannelStatus(cell);
-      uint32_t status = channelStatus->getValue();
-      HcalL1TriggerObject l1object(cell, ped, gain, status);
-      HcalL1TrigObjCol->setTopo(topo);
-      HcalL1TrigObjCol->addValues(l1object);
     } else if (id.det() == DetId::Calo && id.subdetId() == HcalZDCDetId::SubdetectorId) {
-        std::cout << "ZDC: " << id.det() << std::endl;
-
       HcalZDCDetId cell(id.rawId());
 
-      if (cell.section() != HcalZDCDetId::EM && cell.section() != HcalZDCDetId::HAD)
+      if (cell.section() != HcalZDCDetId::EM && cell.section() != HcalZDCDetId::HAD &&
+          cell.section() != HcalZDCDetId::LUM)
         continue;
-        std::cout << "ZDC section: " << cell.section() << std::endl;
 
-      HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
-
-      float gain = 0.0;
-      float ped = 0.0;
-
-      for (auto i : {0, 1, 2, 3}) {
-        gain += calibrations.LUTrespcorrgain(i);
-        ped += calibrations.effpedestal(i);
-      }
-
-      gain /= 4.;
-      ped /= 4.;
-
-      const HcalChannelStatus* channelStatus = conditions->getHcalChannelStatus(cell);
-      uint32_t status = channelStatus->getValue();
-      HcalL1TriggerObject l1object(cell, ped, gain, status);
-      HcalL1TrigObjCol->setTopo(topo);
-      HcalL1TrigObjCol->addValues(l1object);
-    } else {
-        std::cout << "WE HARE FOR: " << id.det() << std::endl;
+      fillL1TrgObjsCollection(HcalL1TrigObjCol, conditions, topo, cell);
     }
   }
 
   HcalL1TrigObjCol->setTagString(tagName_);
-  HcalL1TrigObjCol->setAlgoString("A 2-TS Peak Finder");
+  HcalL1TrigObjCol->setAlgoString("TP algo determined by HcalTPChannelParameter auxi params");
   std::string outfilename = "Gen_L1TriggerObjects_";
   outfilename += tagName_;
   outfilename += ".txt";
