@@ -347,7 +347,7 @@ void GlobalParticleTransformerAK8TagInfoProducer::fillParticleFeatures(DeepBoost
 
   TrackInfoBuilder trkinfo(track_builder_);
 
-  std::map<reco::CandidatePtr::key_type, float> puppi_wgt_cache;
+  std::map<reco::CandidatePtr, float> puppi_wgt_cache;
   auto puppiWgt = [&](const reco::CandidatePtr &cand) {
     const auto *pack_cand = dynamic_cast<const pat::PackedCandidate *>(&(*cand));
     const auto *reco_cand = dynamic_cast<const reco::PFCandidate *>(&(*cand));
@@ -364,12 +364,12 @@ void GlobalParticleTransformerAK8TagInfoProducer::fillParticleFeatures(DeepBoost
       throw edm::Exception(edm::errors::InvalidReference) << "Cannot convert to either pat::PackedCandidate or "
                                                              "reco::PFCandidate";
     }
-    puppi_wgt_cache[cand.key()] = wgt;
+    puppi_wgt_cache[cand] = wgt;
     return wgt;
   };
 
   std::vector<reco::CandidatePtr> cpfPtrs, npfPtrs;
-  std::map<reco::CandidatePtr::key_type, bool> isLostTrackMap;
+  std::map<reco::CandidatePtr, bool> isLostTrackMap;
 
   for (const auto &dau : jet.daughterPtrVector()) {
     // remove particles w/ extremely low puppi weights
@@ -389,7 +389,7 @@ void GlobalParticleTransformerAK8TagInfoProducer::fillParticleFeatures(DeepBoost
     }
     if (cand->charge() != 0) {
       cpfPtrs.push_back(cand);
-      isLostTrackMap[cand.key()] = false;
+      isLostTrackMap[cand] = false;
     } else {
       npfPtrs.push_back(cand);
     }
@@ -399,8 +399,8 @@ void GlobalParticleTransformerAK8TagInfoProducer::fillParticleFeatures(DeepBoost
     auto cand = lts_->ptrAt(i);
     if (reco::deltaR(*cand, jet) < jet_radius_) {
       cpfPtrs.push_back(cand);
-      isLostTrackMap[cand.key()] = true;
-      puppi_wgt_cache[cand.key()] = 1.;  // set puppi weight to 1 for lost tracks
+      isLostTrackMap[cand] = true;
+      puppi_wgt_cache[cand] = 1.;  // set puppi weight to 1 for lost tracks
     }
   }
 
@@ -425,11 +425,11 @@ void GlobalParticleTransformerAK8TagInfoProducer::fillParticleFeatures(DeepBoost
       // sort by Puppi-weighted pt
       std::sort(
           cpfPtrs.begin(), cpfPtrs.end(), [&puppi_wgt_cache](const reco::CandidatePtr &a, const reco::CandidatePtr &b) {
-            return puppi_wgt_cache.at(a.key()) * a->pt() > puppi_wgt_cache.at(b.key()) * b->pt();
+            return puppi_wgt_cache.at(a) * a->pt() > puppi_wgt_cache.at(b) * b->pt();
           });
       std::sort(
           npfPtrs.begin(), npfPtrs.end(), [&puppi_wgt_cache](const reco::CandidatePtr &a, const reco::CandidatePtr &b) {
-            return puppi_wgt_cache.at(a.key()) * a->pt() > puppi_wgt_cache.at(b.key()) * b->pt();
+            return puppi_wgt_cache.at(a) * a->pt() > puppi_wgt_cache.at(b) * b->pt();
           });
     } else {
       // sort by original pt (not Puppi-weighted)
@@ -458,7 +458,7 @@ void GlobalParticleTransformerAK8TagInfoProducer::fillParticleFeatures(DeepBoost
 
     const float ip_sign = flip_ip_sign_ ? -1 : 1;
 
-    auto candP4 = use_puppiP4_ ? puppi_wgt_cache.at(cand.key()) * cand->p4() : cand->p4();
+    auto candP4 = use_puppiP4_ ? puppi_wgt_cache.at(cand) * cand->p4() : cand->p4();
     if (packed_cand) {
       float hcal_fraction = 0.;
       if (packed_cand->pdgId() == 1 || packed_cand->pdgId() == 130) {
@@ -476,7 +476,7 @@ void GlobalParticleTransformerAK8TagInfoProducer::fillParticleFeatures(DeepBoost
       fts.fill("cpfcandlt_isEl", std::abs(packed_cand->pdgId()) == 11);
       fts.fill("cpfcandlt_isMu", std::abs(packed_cand->pdgId()) == 13);
       fts.fill("cpfcandlt_isChargedHad", std::abs(packed_cand->pdgId()) == 211);
-      fts.fill("cpfcandlt_isLostTrack", isLostTrackMap[cand.key()]);
+      fts.fill("cpfcandlt_isLostTrack", isLostTrackMap[cand]);
 
       // impact parameters
       fts.fill("cpfcandlt_dz", ip_sign * packed_cand->dz());
@@ -506,7 +506,7 @@ void GlobalParticleTransformerAK8TagInfoProducer::fillParticleFeatures(DeepBoost
       fts.fill("cpfcandlt_isEl", std::abs(reco_cand->pdgId()) == 11);
       fts.fill("cpfcandlt_isMu", std::abs(reco_cand->pdgId()) == 13);
       fts.fill("cpfcandlt_isChargedHad", std::abs(reco_cand->pdgId()) == 211);
-      fts.fill("cpfcandlt_isLostTrack", isLostTrackMap[cand.key()]);
+      fts.fill("cpfcandlt_isLostTrack", isLostTrackMap[cand]);
 
       // impact parameters
       const auto *trk = reco_cand->bestTrack();
@@ -524,7 +524,7 @@ void GlobalParticleTransformerAK8TagInfoProducer::fillParticleFeatures(DeepBoost
     fts.fill("cpfcandlt_pz", candP4.pz());
     fts.fill("cpfcandlt_energy", candP4.energy());
 
-    fts.fill("cpfcandlt_puppiw", puppi_wgt_cache.at(cand.key()));
+    fts.fill("cpfcandlt_puppiw", puppi_wgt_cache.at(cand));
     fts.fill("cpfcandlt_phirel", reco::deltaPhi(candP4, jet));
     fts.fill("cpfcandlt_etarel", etasign * (candP4.eta() - jet.eta()));
     fts.fill("cpfcandlt_deltaR", reco::deltaR(candP4, jet));
@@ -634,7 +634,7 @@ void GlobalParticleTransformerAK8TagInfoProducer::fillParticleFeatures(DeepBoost
         ((packed_cand && !packed_cand->hasTrackDetails()) || (reco_cand && !useTrackProperties(reco_cand))))
       continue;
 
-    auto candP4 = use_puppiP4_ ? puppi_wgt_cache.at(cand.key()) * cand->p4() : cand->p4();
+    auto candP4 = use_puppiP4_ ? puppi_wgt_cache.at(cand) * cand->p4() : cand->p4();
     if (packed_cand) {
       float hcal_fraction = 0.;
       if (packed_cand->pdgId() == 1 || packed_cand->pdgId() == 130) {
@@ -661,7 +661,7 @@ void GlobalParticleTransformerAK8TagInfoProducer::fillParticleFeatures(DeepBoost
     fts.fill("npfcand_pz", candP4.pz());
     fts.fill("npfcand_energy", candP4.energy());
 
-    fts.fill("npfcand_puppiw", puppi_wgt_cache.at(cand.key()));
+    fts.fill("npfcand_puppiw", puppi_wgt_cache.at(cand));
     fts.fill("npfcand_phirel", reco::deltaPhi(candP4, jet));
     fts.fill("npfcand_etarel", etasign * (candP4.eta() - jet.eta()));
     fts.fill("npfcand_deltaR", reco::deltaR(candP4, jet));
