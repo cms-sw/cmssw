@@ -15,10 +15,10 @@ LogError was used to send this other message
 
 MessageLogger Summary
 
- type     category        sev    module        subroutine        count    total
- ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 cat_A                -e UnitTestClient_A                       2        2
-    2 cat_B                -e UnitTestClient_A                       2        2
+ type     category        sev          module                subroutine         count   total
+ ---- -------------------- -- ------------------------- ---------------------   -----   -----
+    1 cat_A                -e UnitTestClient_Ad:sendSom                            2        2
+    2 cat_B                -e UnitTestClient_Ad:sendSom                            2        2
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------

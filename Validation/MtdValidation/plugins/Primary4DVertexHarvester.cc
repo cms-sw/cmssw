@@ -22,6 +22,7 @@ protected:
 
 private:
   void computeEfficiency1D(MonitorElement* num, MonitorElement* den, MonitorElement* result);
+  void scaleby(MonitorElement* h, double scale);
 
   void incrementME(MonitorElement* base, MonitorElement* toBeAdded);
 
@@ -111,6 +112,17 @@ void Primary4DVertexHarvester::computeEfficiency1D(MonitorElement* num, MonitorE
   }
 }
 
+void Primary4DVertexHarvester::scaleby(MonitorElement* h, double scale) {
+  double ent = h->getEntries();
+  for (int ibin = 1; ibin <= h->getNbinsX(); ibin++) {
+    double eff = h->getBinContent(ibin) * scale;
+    double bin_err = h->getBinError(ibin) * scale;
+    h->setBinContent(ibin, eff);
+    h->setBinError(ibin, bin_err);
+  }
+  h->setEntries(ent);
+}
+
 // auxiliary method to add 1D MonitorElement toBeAdded to a base ME
 void Primary4DVertexHarvester::incrementME(MonitorElement* base, MonitorElement* toBeAdded) {
   for (int ibin = 1; ibin <= base->getNbinsX(); ibin++) {
@@ -130,27 +142,32 @@ void Primary4DVertexHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
   MonitorElement* meTrackEffEtaTot = igetter.get(folder_ + "EffEtaTot");
   MonitorElement* meTrackMatchedTPEffEtaTot = igetter.get(folder_ + "MatchedTPEffEtaTot");
   MonitorElement* meTrackMatchedTPEffEtaMtd = igetter.get(folder_ + "MatchedTPEffEtaMtd");
-  MonitorElement* meRecoVtxVsLineDensity = igetter.get(folder_ + "RecoVtxVsLineDensity");
   MonitorElement* meRecVerNumber = igetter.get(folder_ + "RecVerNumber");
+  MonitorElement* meRecVerZ = igetter.get(folder_ + "recPVZ");
+  MonitorElement* meRecVerT = igetter.get(folder_ + "recPVT");
+  MonitorElement* meSimVerNumber = igetter.get(folder_ + "SimVerNumber");
+  MonitorElement* meSimVerZ = igetter.get(folder_ + "simPVZ");
+  MonitorElement* meSimVerT = igetter.get(folder_ + "simPVT");
 
   if (!meTrackEffPtTot || !meTrackMatchedTPEffPtTot || !meTrackMatchedTPEffPtMtd || !meTrackEffEtaTot ||
-      !meTrackMatchedTPEffEtaTot || !meTrackMatchedTPEffEtaMtd || !meRecoVtxVsLineDensity || !meRecVerNumber) {
+      !meTrackMatchedTPEffEtaTot || !meTrackMatchedTPEffEtaMtd || !meRecVerNumber || !meRecVerZ || !meRecVerT ||
+      !meSimVerNumber || !meSimVerZ || !meSimVerT) {
     edm::LogError("Primary4DVertexHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
   }
 
-  // Normalize line density plot
-  double nEvt = meRecVerNumber->getEntries();
-  if (nEvt > 0.) {
-    nEvt = 1. / nEvt;
-    double nEntries = meRecoVtxVsLineDensity->getEntries();
-    for (int ibin = 1; ibin <= meRecoVtxVsLineDensity->getNbinsX(); ibin++) {
-      double cont = meRecoVtxVsLineDensity->getBinContent(ibin) * nEvt;
-      double bin_err = meRecoVtxVsLineDensity->getBinError(ibin) * nEvt;
-      meRecoVtxVsLineDensity->setBinContent(ibin, cont);
-      meRecoVtxVsLineDensity->setBinError(ibin, bin_err);
-    }
-    meRecoVtxVsLineDensity->setEntries(nEntries);
+  // Normalize z,time multiplicty plots to get correct line densities
+  double scale = meRecVerNumber->getTH1F()->Integral();
+  scale = (scale > 0.) ? 1. / scale : 0.;
+  if (scale > 0.) {
+    scaleby(meRecVerZ, scale);
+    scaleby(meRecVerT, scale);
+  }
+  scale = meSimVerNumber->getTH1F()->Integral();
+  scale = (scale > 0.) ? 1. / scale : 0.;
+  if (scale > 0.) {
+    scaleby(meSimVerZ, scale);
+    scaleby(meSimVerT, scale);
   }
 
   // --- Book  histograms

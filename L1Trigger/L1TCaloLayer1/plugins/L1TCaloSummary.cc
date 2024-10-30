@@ -143,7 +143,8 @@ L1TCaloSummary<INPUT, OUTPUT>::L1TCaloSummary(const edm::ParameterSet& iConfig)
       verbose(iConfig.getParameter<bool>("verbose")),
       fwVersion(iConfig.getParameter<int>("firmwareVersion")),
       regionToken(consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("caloLayer1Regions"))),
-      backupRegionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))),
+      //backupRegionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))),
+      backupRegionToken(consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("backupRegionToken"))),
       loader(hls4mlEmulator::ModelLoader(iConfig.getParameter<string>("CICADAModelVersion"))),
       overwriteWithTestPatterns(iConfig.getParameter<bool>("useTestPatterns")),
       testPatterns(iConfig.getParameter<std::vector<edm::ParameterSet>>("testPatterns")) {

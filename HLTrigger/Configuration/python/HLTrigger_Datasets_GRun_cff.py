@@ -2401,13 +2401,7 @@ streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.triggerConditio
     'DST_PFScouting_JetHT_v6',
     'DST_PFScouting_SingleMuon_v6',
     'DST_PFScouting_SinglePhotonEB_v3',
-    'DST_PFScouting_ZeroBias_v4',
-    'HLT_Ele115_CaloIdVT_GsfTrkIdT_v25',
-    'HLT_Ele35_WPTight_Gsf_v19',
-    'HLT_IsoMu27_v28',
-    'HLT_Mu50_v25',
-    'HLT_PFHT1050_v30',
-    'HLT_Photon200_v24'
+    'DST_PFScouting_ZeroBias_v4'
 )
 
 

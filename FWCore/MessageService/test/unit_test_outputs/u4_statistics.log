@@ -3,12 +3,12 @@
 
 MessageLogger Summary
 
- type     category        sev    module        subroutine        count    total
- ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 cat_A                -w UnitTestClient_A                       3*       3
-    2 cat_B                -w UnitTestClient_A                       3*       3
-    3 cat_A                -e UnitTestClient_A                       3        3
-    4 cat_B                -e UnitTestClient_A                       3        3
+ type     category        sev          module                subroutine         count   total
+ ---- -------------------- -- ------------------------- ---------------------   -----   -----
+    1 cat_A                -w UnitTestClient_A:sendSome                            3*       3
+    2 cat_B                -w UnitTestClient_A:sendSome                            3*       3
+    3 cat_A                -e UnitTestClient_A:sendSome                            3        3
+    4 cat_B                -e UnitTestClient_A:sendSome                            3        3
 
 * Some occurrences of this message were suppressed in all logs, due to limits.
 

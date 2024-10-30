@@ -249,6 +249,7 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
         capid1 = 0;
     }
     h2digierr->Fill(module, sector, err);
+    assert(digi.size() > 0);
     h2repsum->Fill(module, sector, 1. - err2 / digi.size());
   }  // end for(CastorDigiCollection::const_iterator ...
 

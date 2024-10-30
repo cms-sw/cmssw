@@ -217,6 +217,18 @@
       "Tracker"
     ]
   },
+  "DQM_Random_v": {
+    "online?": true,
+    "owners": [
+      "TSG"
+    ]
+  },
+  "DQM_ZeroBias_v": {
+    "online?": true,
+    "owners": [
+      "TSG"
+    ]
+  },
   "DST_PFScouting_AXOLoose_v": {
     "online?": true,
     "owners": [
@@ -3333,6 +3345,12 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleEG4_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_SingleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v": {
     "online?": true,
     "owners": [
@@ -5053,10 +5071,22 @@
       "TSG"
     ]
   },
+  "HLT_L1SingleMuCosmics_CosmicTracking_v": {
+    "online?": true,
+    "owners": [
+      "TSG"
+    ]
+  },
   "HLT_L1SingleMuCosmics_EMTF_v": {
     "online?": true,
     "owners": [
       "LUM"
+    ]
+  },
+  "HLT_L1SingleMuCosmics_PointingCosmicTracking_v": {
+    "online?": true,
+    "owners": [
+      "TSG"
     ]
   },
   "HLT_L1SingleMuCosmics_v": {

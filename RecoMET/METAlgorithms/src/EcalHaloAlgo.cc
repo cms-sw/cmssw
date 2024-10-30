@@ -68,7 +68,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry,
     // Get EB geometry
     const CaloSubdetectorGeometry* TheSubGeometry = TheCaloGeometry.getSubdetectorGeometry(DetId::Ecal, 1);
     EBDetId EcalID(id.rawId());
-    auto cell = (TheSubGeometry) ? (TheSubGeometry->getGeometry(id)) : nullptr;
+    auto cell = (TheSubGeometry) ? (TheSubGeometry->getGeometry(id)) : decltype(TheSubGeometry->getGeometry(id))();
 
     if (cell) {
       // GlobalPoint globalpos = cell->getPosition();

@@ -22,10 +22,19 @@ TrackingParticleSelectionForEfficiency = cms.PSet(
 def _modifyForPhase1(pset):
     pset.minRapidityTP = -3
     pset.maxRapidityTP = 3
+
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(TrackingParticleSelectionForEfficiency, _modifyForPhase1)
+
+def _modifyForPhase2(pset):
+    pset.minRapidityTP = -4.5
+    pset.maxRapidityTP = 4.5
+
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(TrackingParticleSelectionForEfficiency, minRapidityTP = -4.5, maxRapidityTP = 4.5)
+phase2_tracker.toModify(TrackingParticleSelectionForEfficiency, _modifyForPhase2)
+
+def _modifyForFastSim(pset):
+    pset.stableOnlyTP = True
+
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(TrackingParticleSelectionForEfficiency, stableOnlyTP = True)
-    
+fastSim.toModify(TrackingParticleSelectionForEfficiency, _modifyForFastSim)

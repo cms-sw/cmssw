@@ -262,7 +262,7 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
     // Tracker global position
     const Alignments& globalAlignments = iSetup.getData(gprToken_);
-    const AlignTransform& globalCoordinates = align::DetectorGlobalPosition(globalAlignments, DetId(DetId::Tracker));
+    const AlignTransform globalCoordinates = align::DetectorGlobalPosition(globalAlignments, DetId(DetId::Tracker));
     GlobalVector globalTkPosition(
         globalCoordinates.translation().x(), globalCoordinates.translation().y(), globalCoordinates.translation().z());
 
