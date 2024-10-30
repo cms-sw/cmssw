@@ -2,8 +2,8 @@
 #define FWCore_Version_GetReleaseVersion_h
 
 #include <string>
-
+using namespace std;
 namespace edm {
-  std::string getReleaseVersion();
+  string getReleaseVersion();
 }
 #endif
