@@ -2,12 +2,13 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-from DQMOffline.RecoB.bTagMiniDQMDeepFlavour import *
-from DQMOffline.RecoB.bTagMiniDQMDeepCSV import *
+from DQMOffline.RecoB.bTagMiniDQMTaggers import DeepCSVDiscriminators
+from DQMOffline.RecoB.bTagMiniDQMTaggers import DeepFlavourDiscriminators
+from DQMOffline.RecoB.bTagMiniDQMTaggers import ParticleNetPuppiCentralDiscriminators
+from DQMOffline.RecoB.bTagMiniDQMTaggers import ParticleNetPuppiForwardDiscriminators
+from DQMOffline.RecoB.bTagMiniDQMTaggers import UParTDiscriminators
 
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff import patJets
-
-
 
 # add jets with pfSecondaryVertexTagInfos
 patJetsSVInfo = patJets.clone(
@@ -17,25 +18,28 @@ patJetsSVInfo = patJets.clone(
 patJetsSVInfoTask = cms.Task(patJetsSVInfo)
 
 
-bTagSVDQM = DQMEDAnalyzer('MiniAODSVAnalyzer',
-                          cms.PSet(JetTag = cms.InputTag('patJetsSVInfo'),
-                                   svTagInfo = cms.string('pfSecondaryVertex'),
-                                   ptMin = cms.double(30.),
-                                   etaMax = cms.double(2.5),
-                                   )
-                          )
-
+bTagSVDQM = DQMEDAnalyzer('MiniAODSVAnalyzer', cms.PSet(
+    JetTag = cms.InputTag('patJetsSVInfo'),
+    svTagInfo = cms.string('pfSecondaryVertex'),
+    ptMin = cms.double(30.),
+    etaMax = cms.double(2.5),
+   )
+)
 
 bTagMiniDQMGlobal = cms.PSet(
-    JetTag = cms.InputTag('slimmedJets'),
+    JetTag = cms.InputTag('slimmedJetsPuppi'),
     MClevel = cms.int32(0),
     differentialPlots = cms.bool(True),
-
     ptActive = cms.bool(False),
     ptMin = cms.double(30.),
     ptMax = cms.double(40000.),
 )
-
+bTagMiniValidationGlobal = bTagMiniDQMGlobal.clone(
+    MClevel = 1 # produce flavour plots for b, c ,light (dusg)
+)
+bTagMiniValidationGlobalUParT = bTagMiniDQMGlobal.clone(
+    MClevel = 4 # produce flavour plots for b, c ,light (dusg)
+)
 
 # Eta regions
 Etaregions = {
@@ -44,13 +48,11 @@ Etaregions = {
         etaMin = cms.double(0.),
         etaMax = cms.double(2.5),
     ),
-
     'Barrel': cms.PSet(
         etaActive = cms.bool(True),
         etaMin = cms.double(0.),
         etaMax = cms.double(1.4),
     ),
-
     'Endcap': cms.PSet(
         etaActive = cms.bool(True),
         etaMin = cms.double(1.4),
@@ -70,52 +72,63 @@ def addSequences(Analyzer, Harvester, discriminators, regions, globalPSet, label
             Analyzer.insert(-1, globals()[name + 'Analyzer'])
             Harvester.insert(-1, globals()[name + 'Harvester'])
 
+#
+#
+#
+taggersToAnalyze = {
+    'bTagDeepFlavour': {
+        'discriminators': DeepFlavourDiscriminators,
+        'regions':Etaregions
+    },
+    'bTagDeepCSV': {
+        'discriminators': DeepCSVDiscriminators,
+        'regions':Etaregions
+    },
+    'bTagParticleNetCentral': {
+        'discriminators': ParticleNetPuppiCentralDiscriminators,
+        'regions': Etaregions
+    },
+    'bTagParticleNetForward': {
+        'discriminators': ParticleNetPuppiForwardDiscriminators,
+        'regions': {
+            'Forward': cms.PSet(
+                etaActive = cms.bool(True),
+                etaMin = cms.double(2.5),
+                etaMax = cms.double(5.0),
+            ),
+        },
+    },
+    'bTagUParT': {
+        'discriminators': UParTDiscriminators,
+        'regions': Etaregions
+    }
+}
 
-
+# For DQM
 bTagMiniDQMSource = cms.Sequence(bTagSVDQM, patJetsSVInfoTask)
 bTagMiniDQMHarvesting = cms.Sequence()
 
-addSequences(bTagMiniDQMSource,
-             bTagMiniDQMHarvesting,
-             discriminators=DeepFlavourDiscriminators,
-             regions=Etaregions,
-             globalPSet=bTagMiniDQMGlobal,
-             label='bTagDeepFlavourDQM')
-
-addSequences(bTagMiniDQMSource,
-             bTagMiniDQMHarvesting,
-             discriminators=DeepCSVDiscriminators,
-             regions=Etaregions,
-             globalPSet=bTagMiniDQMGlobal,
-             label='bTagDeepCSVDQM')
-
-
-
-# Validation addSequences
-
-bTagMiniValidationGlobal = bTagMiniDQMGlobal.clone(
-    MClevel = 1 # produce flavour plots for b, c ,light (dusg)
-)
-
+# For Validation
 bTagMiniValidationSource = cms.Sequence(bTagSVDQM, patJetsSVInfoTask)
 bTagMiniValidationHarvesting = cms.Sequence()
 
+for tagger in taggersToAnalyze:
 
-addSequences(bTagMiniValidationSource,
-             bTagMiniValidationHarvesting,
-             discriminators=DeepFlavourDiscriminators,
-             regions={'Global': Etaregions['Global']}, # only for global Eta range
-             globalPSet=bTagMiniValidationGlobal,
-             label='bTagDeepFlavourValidation')
+    # DQM
+    addSequences(bTagMiniDQMSource,
+                 bTagMiniDQMHarvesting,
+                 discriminators=taggersToAnalyze[tagger]['discriminators'],
+                 regions=taggersToAnalyze[tagger]['regions'],
+                 globalPSet=bTagMiniDQMGlobal,
+                 label=tagger+'DQM')
 
-addSequences(bTagMiniValidationSource,
-             bTagMiniValidationHarvesting,
-             discriminators=DeepCSVDiscriminators,
-             regions={'Global': Etaregions['Global']}, # only for global Eta range
-             globalPSet=bTagMiniValidationGlobal,
-             label='bTagDeepCSVValidation')
-
-
+    # Validation
+    addSequences(bTagMiniValidationSource,
+                 bTagMiniValidationHarvesting,
+                 discriminators=taggersToAnalyze[tagger]['discriminators'],
+                 regions=taggersToAnalyze[tagger]['regions'],
+                 globalPSet=bTagMiniValidationGlobalUParT if "UParT" in tagger else bTagMiniValidationGlobal,
+                 label=tagger+'Validation')
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from Configuration.ProcessModifiers.miniAOD_skip_trackExtras_cff import miniAOD_skip_trackExtras
