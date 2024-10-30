@@ -20,6 +20,7 @@ AlCa_EcalPi0EEonlyForHI_v*
 AlCa_EcalEtaEBonlyForHI_v*
 AlCa_EcalEtaEEonlyForHI_v*
 HLT_HICentrality30100_FirstCollisionAfterAbortGap_v*
+HLT_HICentrality50100MinimumBiasHF1AND_Beamspot_v*      # CMSHLT-3388
 HLT_HIZeroBias_v*
 HLT_HIZeroBias_HighRate_v*                              # CMSHLT-2944
 HLT_HIZeroBias_FirstCollisionAfterAbortGap_v*
@@ -64,6 +65,8 @@ HLT_HIL1UnpairedBunchBptxPlus_v*
 HLT_HIUPC_DoubleEG2_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMSHLT-2471
 HLT_HIUPC_DoubleEG2_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
 HLT_HIUPC_DoubleEG2_NotMBHF2AND_v*                                         # CMSHLT-2471
+HLT_HIUPC_DoubleEG3_NotMBHF2AND_v*                                         # CMSHLT-3393
+HLT_HIUPC_DoubleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-3393
 HLT_HIUPC_DoubleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMSHLT-2471
 HLT_HIUPC_DoubleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
 HLT_HIUPC_DoubleEG5_NotMBHF2AND_v*                                         # CMSHLT-2471
@@ -273,13 +276,10 @@ HLT_HIEphemeralZeroBias_v* # CMSHLT-2915
 
 HLT_HIMinimumBiasHF1AND_v*                 # CMSHLT-2521, CMSHLT-2914
 HLT_HIMinimumBiasHF1AND_copy_v*            # CMSHLT-2939
-HLT_HIMinimumBiasHF1AND_Beamspot_v*        # CMSHLT-2914
 HLT_HIMinimumBiasHF1ANDZDC1nOR_v*          # CMSHLT-2956
 HLT_HIMinimumBiasHF1ANDZDC2nOR_v*          # CMSHLT-2914
 HLT_HIMinimumBiasHF1ANDZDC1nOR_copy_v*     # CMSHLT-2956
 HLT_HIMinimumBiasHF1ANDZDC2nOR_copy_v*     # CMSHLT-2939
-HLT_HIMinimumBiasHF1ANDZDC1nOR_Beamspot_v* # CMSHLT-2956
-HLT_HIMinimumBiasHF1ANDZDC2nOR_Beamspot_v* # CMSHLT-2914
 
 HLT_HIZeroBias_HighRateRAW_v*		   # CMSHLT-2963
 HLT_HIUPC_Random_HighRate_v*		   # CMSHLT-2963
