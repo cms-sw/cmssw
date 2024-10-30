@@ -95,7 +95,7 @@ private:
 
   std::shared_ptr<UCTObject> HT;
   std::shared_ptr<UCTObject> MHT;
-  
+
   uint32_t cardSummary;
 
   // Pileup subtraction LUT based on multiplicity of regions > threshold
