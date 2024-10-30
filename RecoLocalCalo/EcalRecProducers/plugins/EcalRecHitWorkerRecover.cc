@@ -278,7 +278,7 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
       float tpEt = ecalScale.getTPGInGeV(tp->compressedEt(), tp->id());
       float tpEtThreshEB = logWarningEtThreshold_EB_FE_;
       if (tpEt > tpEtThreshEB) {
-        edm::LogWarning("EnergyInDeadEB_FE") << "TP energy in the dead TT = " << tpEt << " at " << ttDetId;
+        edm::LogInfo("EnergyInDeadEB_FE") << "TP energy in the dead TT = " << tpEt << " at " << ttDetId;
       }
       if (!killDeadChannels_ || recoverEBFE_) {
         // democratic energy sharing
@@ -432,7 +432,7 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
     float scEt = totE;
     float scEtThreshEE = logWarningEtThreshold_EE_FE_;
     if (scEt > scEtThreshEE) {
-      edm::LogWarning("EnergyInDeadEE_FE") << "TP energy in the dead TT = " << scEt << " at " << sc;
+      edm::LogInfo("EnergyInDeadEE_FE") << "TP energy in the dead TT = " << scEt << " at " << sc;
     }
 
     // assign the energy to the SC crystals
