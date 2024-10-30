@@ -37,6 +37,7 @@ HLT_HIL1NotBptxORForPPRef_v*                # CMSHLT-1673
 HLT_HIHT80_Beamspot_ppRef5TeV_v*            # CMSHLT-1676
 
 HLT_PPRefZeroBias_v*             # CMSHLT-2883
+HLT_PPRefZeroBias_FirstCollisionInTrain_v* # CMSHLT-3382
 
 HLT_AK4CaloJet40_v*              # CMSHLT-2883
 HLT_AK4CaloJet60_v*              # CMSHLT-2883
