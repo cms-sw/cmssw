@@ -145,6 +145,73 @@ run2_muon_2016.toModify(
     variables = _legacy_muon_BDT_variable
 )
 
+from PhysicsTools.PatAlgos.muonTagInfos_cfi import muonTagInfos as _muonTagInfos
+muonPNetVariables = _muonTagInfos.clone(
+    src = cms.InputTag("linkedObjects","muons"),
+    leptonVars = cms.PSet(
+        MuonSelected_LepGood_pt = cms.string("pt"),
+        MuonSelected_LepGood_eta = cms.string("eta"),
+        MuonSelected_LepGood_jetNDauChargedMVASel = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0"),
+        MuonSelected_LepGood_miniRelIsoCharged = cms.string("userFloat('miniIsoChg')/pt"),
+        MuonSelected_LepGood_miniRelIsoNeutral = cms.string("(userFloat('miniIsoAll')-userFloat('miniIsoChg'))/pt"),
+        MuonSelected_LepGood_jetPtRelv2 = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0"),
+        MuonSelected_LepGood_jetDF = cms.string("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probbb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:problepb'),0.0):0.0"),
+        MuonSelected_LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt)"),
+        MuonSelected_dxy = cms.string("log(abs(dB('PV2D')))"),
+        MuonSelected_sip3d = cms.string("abs(dB('PV3D')/edB('PV3D'))"),
+        MuonSelected_dz = cms.string("log(abs(dB('PVDZ')))"),
+        MuonSelected_LepGood_dz = cms.string("log(abs(dB('PVDZ')))"),
+        MuonSelected_segmentComp = cms.string("segmentCompatibility"),
+        MuonSelected_global_muon = cms.string("isGlobalMuon"),
+        MuonSelected_validFraction = cms.string("?innerTrack.isNonnull?innerTrack().validFraction:-99"),
+        MuonSelected_local_chi2 = cms.string("combinedQuality().chi2LocalPosition"),
+        MuonSelected_kink = cms.string("combinedQuality().trkKink"),
+        MuonSelected_n_MatchedStations = cms.string("numberOfMatchedStations()"),
+        MuonSelected_Valid_pixel = cms.string("?innerTrack.isNonnull()?innerTrack().hitPattern().numberOfValidPixelHits():-99"),
+        MuonSelected_tracker_layers = cms.string("?innerTrack.isNonnull()?innerTrack().hitPattern().trackerLayersWithMeasurement():-99"),
+        MuonSelected_mvaId=cms.string("userFloat('mvaIDMuon')"),
+    ),
+    leptonVarsExt = cms.PSet(
+        MuonSelected_mvaTTH=cms.InputTag("muonPROMPTMVA"),
+    ),
+    pfVars = cms.PSet(
+        PF_pt=cms.string("pt"),
+        PF_charge=cms.string("charge"),
+        PF_isElectron=cms.string("?abs(pdgId)==11?1:0"),
+        PF_isMuon=cms.string("?abs(pdgId)==13?1:0"),
+        PF_isNeutralHadron=cms.string("?abs(pdgId)==130?1:0"),
+        PF_isPhoton=cms.string("?abs(pdgId)==22?1:0"),
+        PF_isChargedHadron=cms.string("?abs(pdgId)==211?1:0"),
+        PF_puppiWeightNoLep=cms.string("puppiWeightNoLep"),
+        PF_fromPV=cms.string("fromPV"),
+        PF_numberOfPixelHits=cms.string("numberOfPixelHits"),
+        PF_dzSig=cms.string("?hasTrackDetails?dz/max(dzError,1.e-6):0"),
+        PF_dxySig=cms.string("?hasTrackDetails?dxy/max(dxyError,1.e-6):0"),
+        PF_hcalFraction=cms.string("hcalFraction"),
+        PF_trackerLayersWithMeasurement=cms.string("?hasTrackDetails?bestTrack().hitPattern().trackerLayersWithMeasurement:0"),
+        PF_mask=cms.string("1"),
+    ),
+    svVars = cms.PSet(
+        SV_eta=cms.string("eta"),
+        SV_phi=cms.string("phi"),
+        SV_pt=cms.string("pt"),
+        SV_ndof=cms.string("vertexNdof"),
+        SV_chi2=cms.string("vertexChi2"),
+        SV_nTracks=cms.string("numberOfDaughters"),
+        SV_mass=cms.string("mass"),
+        SV_mask=cms.string("1"),
+    ),
+)
+
+from PhysicsTools.PatAlgos.muonPNetTags_cfi import muonPNetTags as _muonPNetTags
+muonPNetScores = _muonPNetTags.clone(
+    src = cms.InputTag("muonPNetVariables"),
+    srcLeps = cms.InputTag("linkedObjects", "muons"),
+    model_path = 'PhysicsTools/NanoAOD/data/PNetMuonId/model.onnx',
+    preprocess_json = 'PhysicsTools/NanoAOD/data/PNetMuonId/preprocess.json',
+    flav_names = cms.vstring(["light", "prompt", "tau", "heavy"]),
+)
+
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 muonBSConstrain = cms.EDProducer("MuonBeamspotConstraintValueMapProducer",
     src = cms.InputTag("linkedObjects","muons"),
@@ -213,6 +280,10 @@ muonTable = simplePATMuonFlatTableProducer.clone(
     externalVariables = cms.PSet(
         promptMVA = ExtVar(cms.InputTag("muonPROMPTMVA"),float, doc="Prompt MVA lepton ID score. Corresponds to the previous mvaTTH",precision=14),
         mvaLowPt = ExtVar(cms.InputTag("muonMVALowPt"),float, doc="Low pt muon ID score",precision=14),
+        pnScore_prompt = ExtVar(cms.InputTag("muonPNetScores:prompt"),float, doc="PNet muon ID score for lepton from W/Z/H bosons", precision=14),
+        pnScore_heavy = ExtVar(cms.InputTag("muonPNetScores:heavy"),float, doc="PNet muon ID score for lepton from B or D hadrons", precision=14),
+        pnScore_light = ExtVar(cms.InputTag("muonPNetScores:light"),float, doc="PNet muon ID score for lepton from hadrons w/o b or c quarks OR w/o generator matching", precision=14),
+        pnScore_tau = ExtVar(cms.InputTag("muonPNetScores:tau"),float, doc="PNet muon ID score for decay of tau to light leptons (mu)", precision=14),
         fsrPhotonIdx = ExtVar(cms.InputTag("leptonFSRphotons:muFsrIndex"), "int16", doc="Index of the lowest-dR/ET2 among associated FSR photons"),
         bsConstrainedPt = ExtVar(cms.InputTag("muonBSConstrain:muonBSConstrainedPt"),float, doc="pT with beamspot constraint",precision=-1),
         bsConstrainedPtErr = ExtVar(cms.InputTag("muonBSConstrain:muonBSConstrainedPtErr"),float, doc="pT error with beamspot constraint ",precision=6),
@@ -252,7 +323,6 @@ muonMCTable = cms.EDProducer("CandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 muons"),
 )
 
-muonTask = cms.Task(slimmedMuonsUpdated,isoForMu,ptRatioRelForMu,slimmedMuonsWithUserData,finalMuons,finalLooseMuons )
+muonTask = cms.Task(slimmedMuonsUpdated,isoForMu,ptRatioRelForMu,slimmedMuonsWithUserData,finalMuons,finalLooseMuons)
 muonMCTask = cms.Task(muonsMCMatchForTable,muonMCTable)
-muonTablesTask = cms.Task(muonPROMPTMVA,muonMVALowPt,muonBSConstrain,muonTable,muonMVAID)
-
+muonTablesTask = cms.Task(muonPROMPTMVA,muonMVALowPt,muonBSConstrain,muonTable,muonMVAID,muonPNetVariables,muonPNetScores)
