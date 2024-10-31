@@ -54,6 +54,13 @@
 
 #include <cstdio>
 #include <atomic>
+#include <optional>
+
+// for jemalloc queries
+#include <dlfcn.h>
+extern "C" {
+typedef int (*mallctl_t)(const char* name, void* oldp, size_t* oldlenp, void* newp, size_t newlen);
+}
 
 namespace edm {
   namespace service {
@@ -61,6 +68,13 @@ namespace edm {
       double private_ = 0;        // in MB
       double pss_ = 0;            // in MB
       double anonHugePages_ = 0;  // in MB
+    };
+    struct JemallocInfo {
+      double allocated = 0;  // in MB
+      double active = 0;     // in MB
+      double resident = 0;   // in MB
+      double mapped = 0;     // in MB
+      double metadata = 0;   // in MB
     };
 
     class SimpleMemoryCheck {
@@ -94,6 +108,7 @@ namespace edm {
     private:
       ProcInfo fetch();
       smapsInfo fetchSmaps();
+      JemallocInfo fetchJemalloc() const;
       double pageSize() const { return pg_size_; }
       double averageGrowthRate(double current, double past, int count);
       void update();
@@ -101,7 +116,7 @@ namespace edm {
       void andPrintAlways(const std::string& type,
                           const std::string& mdlabel,
                           const std::string& mdname,
-                          bool includeSmaps = false) const;
+                          bool includeSmapsAndJe = false) const;
       void andPrint(const std::string& type, const std::string& mdlabel, const std::string& mdname) const;
       void updateAndPrint(const std::string& type, const std::string& mdlabel, const std::string& mdname);
       void openFiles();
@@ -122,6 +137,7 @@ namespace edm {
       int num_to_skip_;
       //options
       bool showMallocInfo_;
+      bool showJemallocInfo_;
       bool oncePerEventMode_;
       bool printEachTime_;
       bool jobReportOutputOnly_;
@@ -131,6 +147,8 @@ namespace edm {
       std::optional<std::thread> samplingThread_;
       std::atomic<bool> stopThread_ = false;
       std::atomic<edm::EventID> mostRecentlyStartedEvent_;
+
+      mallctl_t je_mallctl = nullptr;
 
       //smaps
       edm::propagate_const<FILE*> smapsFile_ = nullptr;
@@ -143,16 +161,17 @@ namespace edm {
 
       // Event summary statistics 				changeLog 1
       struct SignificantEvent {
-        int count = 0;
+        edm::EventID event;
         double vsize = 0;
         double deltaVsize = 0;
         double rss = 0;
         double deltaRss = 0;
-        bool monitorPssAndPrivate = 0;
         double privateSize = 0;
         double pss = 0;
         double anonHugePages = 0;
-        edm::EventID event;
+        std::optional<JemallocInfo> jemalloc;
+        int count = 0;
+        bool monitorPssAndPrivate = false;
         SignificantEvent() = default;
         void set(double deltaV, double deltaR, edm::EventID const& e, SimpleMemoryCheck* t) {
           count = t->count_;
@@ -165,6 +184,9 @@ namespace edm {
             privateSize = t->currentSmaps_.private_;
             pss = t->currentSmaps_.pss_;
             anonHugePages = t->currentSmaps_.anonHugePages_;
+          }
+          if (t->showJemallocInfo_) {
+            jemalloc = t->fetchJemalloc();
           }
           event = e;
         }
@@ -320,6 +342,43 @@ namespace edm {
       return ret;
     }
 
+    JemallocInfo SimpleMemoryCheck::fetchJemalloc() const {
+      JemallocInfo info;
+      if (je_mallctl) {
+        // refresh stats
+        uint64_t epoch = 1;
+        size_t e_len = sizeof(uint64_t);
+        if (je_mallctl("epoch", &epoch, &e_len, &epoch, e_len) != 0) {
+          return info;
+        }
+
+        // query values
+        size_t allocated, active, resident, mapped, metadata;
+        size_t len = sizeof(size_t);
+        if (je_mallctl("stats.allocated", &allocated, &len, 0, 0) != 0) {
+          return info;
+        }
+        if (je_mallctl("stats.active", &active, &len, 0, 0) != 0) {
+          return info;
+        }
+        if (je_mallctl("stats.resident", &resident, &len, 0, 0) != 0) {
+          return info;
+        }
+        if (je_mallctl("stats.mapped", &mapped, &len, 0, 0) != 0) {
+          return info;
+        }
+        if (je_mallctl("stats.metadata", &metadata, &len, 0, 0) != 0) {
+          return info;
+        }
+        info.allocated = allocated / 1024.0 / 1024.0;
+        info.active = active / 1024.0 / 1024.0;
+        info.resident = resident / 1024.0 / 1024.0;
+        info.mapped = mapped / 1024.0 / 1024.0;
+        info.metadata = metadata / 1024.0 / 1024.0;
+      }
+      return info;
+    }
+
     double SimpleMemoryCheck::averageGrowthRate(double current, double past, int count) {
       return (current - past) / (double)count;
     }
@@ -332,6 +391,7 @@ namespace edm {
           pg_size_(sysconf(_SC_PAGESIZE)),  // getpagesize()
           num_to_skip_(iPS.getUntrackedParameter<int>("ignoreTotal")),
           showMallocInfo_(iPS.getUntrackedParameter<bool>("showMallocInfo")),
+          showJemallocInfo_(iPS.getUntrackedParameter<bool>("showJemallocInfo")),
           oncePerEventMode_(iPS.getUntrackedParameter<bool>("oncePerEventMode")),
           printEachTime_(oncePerEventMode_ or iPS.getUntrackedParameter<bool>("printEachSample")),
           jobReportOutputOnly_(iPS.getUntrackedParameter<bool>("jobReportOutputOnly")),
@@ -401,6 +461,14 @@ namespace edm {
       //       &SimpleMemoryCheck::preEventProcessing);
       //  iReg.watchPreModule(this,
       //       &SimpleMemoryCheck::preModule);
+
+      if (showJemallocInfo_) {
+        // jemalloc's mallctl(), if we use jemalloc
+        je_mallctl = reinterpret_cast<mallctl_t>(::dlsym(RTLD_DEFAULT, "mallctl"));
+        if (je_mallctl == nullptr) {
+          showJemallocInfo_ = false;
+        }
+      }
     }
 
     SimpleMemoryCheck::~SimpleMemoryCheck() {
@@ -426,6 +494,10 @@ namespace edm {
       desc.addUntracked<bool>("printEachSample", false)
           ->setComment("If sampling on, print each sample taken else will print only when sample is the largest seen.");
       desc.addUntracked<bool>("showMallocInfo", false);
+      desc.addUntracked<bool>("showJemallocInfo", true)
+          ->setComment(
+              "If enabled and jemalloc is being used, print high-level jemalloc statistics at the early termination "
+              "and endJob printouts as well as for the peak VSIZE and RSS -using records.");
       desc.addUntracked<bool>("oncePerEventMode", false)
           ->setComment(
               "Only check memory at the end of each event. Not as useful in multi-threaded job as other running events "
@@ -539,10 +611,17 @@ namespace edm {
 
     void SimpleMemoryCheck::postEndJob() {
       if (not jobReportOutputOnly_) {
-        LogAbsolute("MemoryReport")  // changelog 1
-            << "MemoryReport> Peak virtual size " << eventT1_.vsize << " Mbytes"
-            << "\n"
-            << " Key events increasing vsize: \n"
+        LogAbsolute log("MemoryReport");
+        auto logJemalloc = [&log](std::optional<JemallocInfo> const& info) {
+          if (info.has_value()) {
+            log << "\n Jemalloc allocated " << info->allocated << " active " << info->active << " resident "
+                << info->resident << " mapped " << info->mapped << " metadata " << info->metadata;
+          }
+        };
+
+        log << "MemoryReport> Peak virtual size " << eventT1_.vsize << " Mbytes (RSS " << eventT1_.rss << ")";
+        logJemalloc(eventT1_.jemalloc);
+        log << "\n Key events increasing vsize: \n"
             << eventL2_ << "\n"
             << eventL1_ << "\n"
             << eventM_ << "\n"
@@ -550,9 +629,11 @@ namespace edm {
             << eventR2_ << "\n"
             << eventT3_ << "\n"
             << eventT2_ << "\n"
-            << eventT1_ << "\nMemoryReport> Peak rss size " << eventRssT1_.rss
-            << " Mbytes"
-               "\n Key events increasing rss:\n"
+            << eventT1_ << "\nMemoryReport> Peak rss size " << eventRssT1_.rss << " Mbytes (VSIZE " << eventRssT1_.vsize
+            << ")";
+        ;
+        logJemalloc(eventRssT1_.jemalloc);
+        log << "\n Key events increasing rss:\n"
             << eventRssT3_ << "\n"
             << eventRssT2_ << "\n"
             << eventRssT1_ << "\n"
@@ -915,7 +996,7 @@ namespace edm {
     void SimpleMemoryCheck::andPrintAlways(std::string const& type,
                                            std::string const& mdlabel,
                                            std::string const& mdname,
-                                           bool includeSmaps) const {
+                                           bool includeSmapsAndJe) const {
       double deltaVSIZE = current_->vsize - max_.vsize;
       double deltaRSS = current_->rss - max_.rss;
 
@@ -936,9 +1017,16 @@ namespace edm {
             << " HEAP-USED-BYTES " << minfo.uordblks << " HEAP-UNUSED-BYTES " << minfo.fordblks;
 #endif
       }
-      if (includeSmaps and smapsFile_) {
-        log << " PSS " << currentSmaps_.pss_ << " PRIVATE " << currentSmaps_.private_ << " ANONHUGEPAGES "
-            << currentSmaps_.anonHugePages_;
+      if (includeSmapsAndJe) {
+        if (smapsFile_) {
+          log << " PSS " << currentSmaps_.pss_ << " PRIVATE " << currentSmaps_.private_ << " ANONHUGEPAGES "
+              << currentSmaps_.anonHugePages_;
+        }
+        if (je_mallctl) {
+          auto info = fetchJemalloc();
+          log << " JeMalloc allocated " << info.allocated << " active " << info.active << " resident " << info.resident
+              << " mapped " << info.mapped << " metadata " << info.metadata;
+        }
       }
     }
 
@@ -1052,6 +1140,9 @@ namespace edm {
 
       if (se.monitorPssAndPrivate) {
         os << " private = " << se.privateSize << " pss = " << se.pss;
+      }
+      if (se.jemalloc.has_value()) {
+        os << " allocated = " << se.jemalloc->allocated << " active = " << se.jemalloc->active;
       }
       return os;
     }
