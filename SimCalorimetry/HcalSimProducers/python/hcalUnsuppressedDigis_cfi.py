@@ -10,6 +10,7 @@ hcalSimBlock = cms.PSet(
     # whether cells with MC signal get noise added
     doNoise = cms.bool(True),
     killHE = cms.bool(False),
+    doZDCDigi = cms.bool(True),
     HcalPreMixStage1 = cms.bool(False),
     HcalPreMixStage2 = cms.bool(False),
     # whether cells with no MC signal get an empty signal created
@@ -64,3 +65,7 @@ from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 # remove HE processing for phase 2, completely put in HGCal land
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(hcalSimBlock, killHE = cms.bool(True) )
+
+# remove HE processing for phase 2, completely put in HGCal land
+from Configuration.Eras.Modifier_zdcNoDigi_cff import zdcNoDigi
+zdcNoDigi.toModify(hcalSimBlock, doZDCDigi = cms.bool(False) )
