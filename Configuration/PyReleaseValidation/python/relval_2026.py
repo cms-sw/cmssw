@@ -35,6 +35,7 @@ numWFIB.extend([30434.0]) #2026D112
 numWFIB.extend([30834.0]) #2026D113
 numWFIB.extend([31234.0]) #2026D114
 numWFIB.extend([32034.0]) #2026D115
+numWFIB.extend([32434.0]) #2026D116
 
 #Additional sample for short matrix and IB
 #Default Phase-2 Det NoPU
