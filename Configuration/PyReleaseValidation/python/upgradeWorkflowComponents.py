@@ -1838,6 +1838,11 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
             stepDict[stepName][k] = None
         elif 'Nano'==step:
             stepDict[stepName][k] = merge([{'--filein':'file:step4.root','-s':'NANO','--datatier':'NANOAODSIM','--eventcontent':'NANOEDMAODSIM'}, stepDict[step][k]])
+    def setupPU_(self, step, stepName, stepDict, k, properties):
+        # No need for PU replay for ProdLike
+        if "Digi" not in step and stepDict[stepName][k] is not None and '--pileup' in stepDict[stepName][k]:
+            stepDict[stepName][k].pop('--pileup', None)
+            stepDict[stepName][k].pop('--pileup_input', None)
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key or '2023' in key or '2024' in key)
 upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
@@ -1909,7 +1914,7 @@ class UpgradeWorkflow_ProdLikeRunningPU(UpgradeWorkflow_ProdLike):
         self.__fixedPU = fixedPU
     def setupPU_(self, step, stepName, stepDict, k, properties):
         #  change PU skipping ALCA and HARVEST
-        if stepDict[stepName][k] is not None and '--pileup' in stepDict[stepName][k]:
+        if stepDict[stepName][k] is not None and '--pileup' in stepDict[stepName][k] and "Digi" in step:
             stepDict[stepName][k]['--pileup'] = 'AVE_' + str(self.__fixedPU) + '_BX_25ns'
     def condition(self, fragment, stepList, key, hasHarvest):
         # lower PUs for Run3
