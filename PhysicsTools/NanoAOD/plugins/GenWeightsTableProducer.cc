@@ -262,6 +262,7 @@ public:
         lheWeightPrecision_(params.getParameter<int32_t>("lheWeightPrecision")),
         maxPdfWeights_(params.getParameter<uint32_t>("maxPdfWeights")),
         keepAllPSWeights_(params.getParameter<bool>("keepAllPSWeights")),
+        allowedNumScaleWeights_(params.getParameter<std::vector<uint32_t>>("allowedNumScaleWeights")),
         debug_(params.getUntrackedParameter<bool>("debug", false)),
         debugRun_(debug_.load()),
         hasIssuedWarning_(false),
@@ -620,10 +621,14 @@ public:
         for (unsigned int iLine = 0, nLines = lines.size(); iLine < nLines; ++iLine) {
           if (lheDebug)
             std::cout << lines[iLine];
-          if (std::regex_search(lines[iLine], groups, ismg26x ? weightgroupmg26x : weightgroup)) {
-            std::string groupname = groups.str(2);
-            if (ismg26x)
-              groupname = groups.str(1);
+          auto foundWeightGroup = std::regex_search(lines[iLine], groups, ismg26x ? weightgroupmg26x : weightgroup);
+          if (foundWeightGroup || isFirstGroup) {
+            std::string groupname;
+            if (foundWeightGroup) {
+              groupname = groups.str(2);
+              if (ismg26x)
+                groupname = groups.str(1);
+            }
             if (lheDebug)
               std::cout << ">>> Looks like the beginning of a weight group for '" << groupname << "'" << std::endl;
             if (groupname.find("scale_variation") == 0 || groupname == "Central scale variation" || isFirstGroup) {
@@ -631,7 +636,9 @@ public:
                 std::cout << ">>> First weight is not scale variation, but assuming is the Central Weight" << std::endl;
               else if (lheDebug)
                 std::cout << ">>> Looks like scale variation for theory uncertainties" << std::endl;
-              isFirstGroup = false;
+              if (foundWeightGroup) {
+                isFirstGroup = false;
+              }
               for (++iLine; iLine < nLines; ++iLine) {
                 if (lheDebug) {
                   std::cout << "    " << lines[iLine];
@@ -928,7 +935,16 @@ public:
             break;
         }
       }
+      // check the number of scale variations
+      if (!allowedNumScaleWeights_.empty()) {
+        auto it = std::find(allowedNumScaleWeights_.begin(), allowedNumScaleWeights_.end(), scaleVariationIDs.size());
+        if (it == allowedNumScaleWeights_.end()) {
+          throw cms::Exception("LogicError")
+              << "Number of scale variations found (" << scaleVariationIDs.size() << ") is invalid.";
+        }
+      }
     }
+
     return weightChoice;
   }
 
@@ -1171,6 +1187,9 @@ public:
     desc.add<int32_t>("lheWeightPrecision")->setComment("Number of bits in the mantissa for LHE weights");
     desc.add<uint32_t>("maxPdfWeights")->setComment("Maximum number of PDF weights to save (to crop NN replicas)");
     desc.add<bool>("keepAllPSWeights")->setComment("Store all PS weights found");
+    desc.add<std::vector<uint32_t>>("allowedNumScaleWeights")
+        ->setComment(
+            "Allowed numbers of scale weights parsed from the header. Empty list means any number is allowed.");
     desc.addOptionalUntracked<bool>("debug")->setComment("dump out all LHE information for one event");
     descriptions.add("genWeightsTable", desc);
   }
@@ -1189,6 +1208,7 @@ protected:
   int lheWeightPrecision_;
   unsigned int maxPdfWeights_;
   bool keepAllPSWeights_;
+  std::vector<uint32_t> allowedNumScaleWeights_;
 
   mutable std::atomic<bool> debug_, debugRun_, hasIssuedWarning_, psWeightWarning_;
 };
