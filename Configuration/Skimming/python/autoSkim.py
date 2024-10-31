@@ -41,8 +41,12 @@ autoSkim = {
 }
 
 # For 2024 PbPb skims
+for i_split in range(20):
+    autoSkim[f'HIForward{i_split}'] = 'UPCMonopole+LogError+LogErrorMonitor'
+
+# For 2023 PbPb skims
 for i_split in range(60):
-    autoSkim[f'HIPhysicsRawPrime{i_split}'] = 'PbPbEMu+PbPbZEE+PbPbZMu+LogError+LogErrorMonitor'
+    autoSkim[f'HIPhysicsRawPrime{i_split}'] = 'PbPbEMu+PbPbZEE+PbPbZMu+PbPbHighPtJets+LogError+LogErrorMonitor'
 
 autoSkimRunII = {
  'BTagCSV' : 'LogError+LogErrorMonitor',

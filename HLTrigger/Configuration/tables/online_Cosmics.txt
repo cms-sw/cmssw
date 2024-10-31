@@ -26,6 +26,8 @@ AlCa_RPCMuonNormalisation_v*
 HLT_L1SingleMuOpen_v*
 HLT_L1SingleMuOpen_DT_v*
 HLT_L1SingleMuCosmics_v*
+HLT_L1SingleMuCosmics_CosmicTracking_v*         # CMSHLT-3364
+HLT_L1SingleMuCosmics_PointingCosmicTracking_v* # CMSHLT-3364
 HLT_L1SingleMu3_v*
 HLT_L1SingleMu5_v*
 HLT_L1SingleMu7_v*
@@ -51,6 +53,7 @@ PhysicsCommissioningOutput
 ExpressCosmicsOutput
 CalibrationOutput
 EcalCalibrationOutput
+HLTMonitorOutput		      # CMSHLT-3364
 RPCMONOutput
 
 DQMOutput
