@@ -358,7 +358,7 @@ electronTable = simplePATElectronFlatTableProducer.clone(
         mvaHZZIso = Var("userFloat('mvaHZZIso')", float,doc="HZZ MVA Iso ID score"),
         mvaIso_WPHZZ = Var("userInt('mvaIso_WPHZZ')",bool,doc="MVA Iso ID WPHZZ, Winter22V1"),
 
-        cutBased = Var("userInt('cutBasedID_veto')+userInt('cutBasedID_loose')+userInt('cutBasedID_medium')+userInt('cutBasedID_tight')", "uint8", doc="cut-based ID RunIII Winter22 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
+        cutBased = Var("userInt('cutBasedID_veto')+userInt('cutBasedID_loose')+userInt('cutBasedID_medium')+userInt('cutBasedID_tight')", "uint8", doc="cut-based ID RunIII Winter22: fail ==0, veto >=1 (to veto, ask for <1), loose >=2, medium >=3, tight >=4"),
         vidNestedWPBitmap = Var("userInt('VIDNestedWPBitmap')", int, doc=_bitmapVIDForEle_docstring),
         vidNestedWPBitmapHEEP = Var("userInt('VIDNestedWPBitmapHEEP')", int, doc=_bitmapVIDForEleHEEP_docstring),
         cutBased_HEEP = Var("userInt('cutBasedID_HEEP')",bool,doc="cut-based HEEP ID"),
@@ -473,7 +473,7 @@ _eleVarsExtra = cms.PSet(
         mvaIso_WPHZZ = None,
         mvaNoIso_WP90 = Var("userInt('mvaNoIso_Fall17V2_WP90')",bool,doc="MVA noIso ID WP90, Fall17V2"),
         mvaNoIso_WPL = Var("userInt('mvaNoIso_Fall17V2_WPL')",bool,doc="MVA noIso ID loose WP, Fall17V2"),
-        cutBased = Var("userInt('cutBasedID_Fall17V2_veto')+userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')", "uint8", doc="cut-based ID Fall17V2 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
+        cutBased = Var("userInt('cutBasedID_Fall17V2_veto')+userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')", "uint8", doc="cut-based ID Fall17V2: fail ==0, veto >=1 (to veto, ask for <1), loose >=2, medium >=3, tight >=4"),
         vidNestedWPBitmap = Var("userInt('VIDNestedWPBitmap_Fall17V2')", int, doc=_bitmapVIDForEleFall17V2_docstring),
         miniPFRelIso_chg = Var("userFloat('miniIsoChg_Fall17V2')/pt",float,doc="mini PF relative isolation, charged component in Run2"),
         miniPFRelIso_all = Var("userFloat('miniIsoAll_Fall17V2')/pt",float,doc="mini PF relative isolation, total (with scaled rho*EA Fall17V2 PU corrections) in Run2"),
