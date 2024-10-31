@@ -4,7 +4,7 @@
 #
 #   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
 #                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
-#                        D114, D115
+#                        D114, D115, D116
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -18,7 +18,7 @@ options.register('geometry',
                  "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115")
+                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115 D116")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -51,8 +51,9 @@ print("Base file Name:     ", baseName)
 process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-#if hasattr(process,'MessageLogger'):
-#    process.MessageLogger.HGCalGeom=dict()
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.EBGeom=dict()
+    process.MessageLogger.EBGeomX=dict()
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)
