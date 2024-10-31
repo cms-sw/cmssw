@@ -106,16 +106,16 @@ public:
   int getClusSizeByIndex(const int mod) const { return clusSize.at(mod); }
   float getClusChargeByIndex(const int mod) const { return clusCharge.at(mod); }
 
-  int getNClus(const CMSTracker mod) const {
-    int pos = getModuleLocation(mod);
+  int getNClus(const CMSTracker mod, bool warn = true) const {
+    int pos = getModuleLocation(mod, warn);
     return pos < 0 ? 0. : nClus[pos];
   }
-  int getClusSize(const CMSTracker mod) const {
-    int pos = getModuleLocation(mod);
+  int getClusSize(const CMSTracker mod, bool warn = true) const {
+    int pos = getModuleLocation(mod, warn);
     return pos < 0 ? 0. : clusSize[pos];
   }
-  float getClusCharge(const CMSTracker mod) const {
-    int pos = getModuleLocation(mod);
+  float getClusCharge(const CMSTracker mod, bool warn = true) const {
+    int pos = getModuleLocation(mod, warn);
     return pos < 0 ? 0. : clusCharge[pos];
   }
 
@@ -127,9 +127,15 @@ public:
   void addClusSizeByIndex(const int mod, const int val) { clusSize.at(mod) += val; }
   void addClusChargeByIndex(const int mod, const float val) { clusCharge.at(mod) += val; }
 
-  void addNClus(const CMSTracker mod, const int val) { nClus.at(getModuleLocation(mod)) += val; }
-  void addClusSize(const CMSTracker mod, const int val) { clusSize.at(getModuleLocation(mod)) += val; }
-  void addClusCharge(const CMSTracker mod, const float val) { clusCharge.at(getModuleLocation(mod)) += val; }
+  void addNClus(const CMSTracker mod, const int val, bool warn = true) {
+    nClus.at(getModuleLocation(mod, warn)) += val;
+  }
+  void addClusSize(const CMSTracker mod, const int val, bool warn = true) {
+    clusSize.at(getModuleLocation(mod, warn)) += val;
+  }
+  void addClusCharge(const CMSTracker mod, const float val, bool warn = true) {
+    clusCharge.at(getModuleLocation(mod, warn)) += val;
+  }
 
   const std::vector<int>& getModules() const { return modules; }
   // Return the location of desired module within modules_. If warn is set to true, a warnign will be outputed in case no module was found
