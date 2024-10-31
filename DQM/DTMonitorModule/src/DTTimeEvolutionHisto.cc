@@ -166,7 +166,7 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
       }
 
       // Set only labels which can be seen in the plot without zooming
-      if (binLabelCounter % ((int)(nBookedBins / 25)) == 0)  //around 25 labels fit in a full size hist
+      if (nBookedBins >= 25 && binLabelCounter % (nBookedBins / 25) == 0)  //around 25 labels fit in a full size hist
         histo->setBinLabel(nBookedBins, binLabel.str(), 1);
       //first label, LS=1 ideally, is guaranteed by setting binLabelCounter=-1 in constructor
 

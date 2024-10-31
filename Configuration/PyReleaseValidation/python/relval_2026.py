@@ -48,7 +48,7 @@ numWFIB.extend([prefixDet+96.0])   #CloseByPGun CE_E_Front_120um
 numWFIB.extend([prefixDet+100.0])  #CloseByPGun CE_H_Coarse_Scint
 numWFIB.extend([prefixDet+61.0])   #Nu Gun
 numWFIB.extend([prefixDet+34.75])  #Timing menu
-#numWFIB.extend([prefixDet+151.85]) #Heavy ion reconstruction
+numWFIB.extend([prefixDet+151.85]) #Heavy ion reconstruction
 #Default Phase-2 Det PU
 numWFIB.extend([prefixDet+261.97])   #premixing stage1 (NuGun+PU)
 numWFIB.extend([prefixDet+234.99])   #premixing combined stage1+stage2 ttbar+PU200

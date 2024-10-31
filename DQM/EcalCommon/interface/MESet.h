@@ -146,7 +146,9 @@ namespace ecaldqm {
       }
     }
 
-    void throw_(std::string const &_message) const { throw cms::Exception("EcalDQM") << path_ << ": " << _message; }
+    [[noreturn]] void throw_(std::string const &_message) const {
+      throw cms::Exception("EcalDQM") << path_ << ": " << _message;
+    }
 
     mutable std::vector<MonitorElement *> mes_;
 

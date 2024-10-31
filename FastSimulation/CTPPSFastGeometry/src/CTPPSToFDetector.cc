@@ -1,4 +1,5 @@
 #include "FastSimulation/CTPPSFastGeometry/interface/CTPPSToFDetector.h"
+#include <algorithm>
 #include <cmath>
 
 CTPPSToFDetector::CTPPSToFDetector(
@@ -81,27 +82,21 @@ void CTPPSToFDetector::AddHit(double x, double y, double tof) {
   nADC_[cellid].push_back(1);
 }
 int CTPPSToFDetector::findCellId(double x, double y) {
-  int y_idx, x_idx;
-  // first, get the row number
-  unsigned int i;
-  unsigned int start_idx = 0;
-  unsigned int end_idx = cellRow_.size();
-  for (i = 0; i < cellRow_.size(); i++) {
-    if (y >= cellRow_.at(i).first && y <= cellRow_.at(i).second)
-      break;
-  }
-  if (i >= cellRow_.size())
+  auto it = std::find_if(
+      cellRow_.begin(), cellRow_.end(), [y](const auto& cell) { return y >= cell.first && y <= cell.second; });
+
+  if (it == cellRow_.end())
     return 0;
-  y_idx = i + 1;
-  start_idx = 0;
-  end_idx = cellColumn_.size();
-  for (i = start_idx; i < end_idx; i++) {
-    if (x <= cellColumn_.at(i).first && x > cellColumn_.at(i).second)
-      break;
-  }
-  if (i >= end_idx)
+
+  unsigned int y_idx = std::distance(cellRow_.begin(), it) + 1;
+
+  it = std::find_if(
+      cellColumn_.begin(), cellColumn_.end(), [x](const auto& cell) { return x <= cell.first && x > cell.second; });
+
+  if (it == cellColumn_.end())
     return 0;
-  x_idx = i + 1 - start_idx;
+
+  unsigned int x_idx = std::distance(cellColumn_.begin(), it) + 1;
   return 100 * y_idx + x_idx;
 }
 bool CTPPSToFDetector::get_CellCenter(int cell_id, double& x, double& y) {

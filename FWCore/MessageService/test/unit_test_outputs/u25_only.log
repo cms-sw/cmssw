@@ -94,11 +94,11 @@ B 6146
 
 MessageLogger Summary
 
- type     category        sev    module        subroutine        count    total
- ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 FwkReport            -f AfterSource                            1        1
-    2 cat_A                -e UnitTestClient_R                   10000*   10000
-    3 cat_B                -e UnitTestClient_R                   10000*   10000
+ type     category        sev          module                subroutine         count   total
+ ---- -------------------- -- ------------------------- ---------------------   -----   -----
+    1 FwkReport            -f AfterSource                                          1        1
+    2 cat_A                -e UnitTestClient_R:sendSome                        10000*   10000
+    3 cat_B                -e UnitTestClient_R:sendSome                        10000*   10000
 
 * Some occurrences of this message were suppressed in all logs, due to limits.
 

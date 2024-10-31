@@ -51,8 +51,8 @@ public:
                const CCGFloat* parm,
                const DetId& detId) override;
 
-  std::shared_ptr<const CaloCellGeometry> getGeometry(const DetId& id) const override {
-    return cellGeomPtr(m_cttopo->denseIndex(id));
+  CaloCellGeometryMayOwnPtr getGeometry(const DetId& id) const override {
+    return CaloCellGeometryMayOwnPtr(cellGeomPtr(m_cttopo->denseIndex(id)));
   }
 
   void getSummary(CaloSubdetectorGeometry::TrVec& trVector,
@@ -65,7 +65,7 @@ protected:
   unsigned int sizeForDenseIndex(const DetId& id) const override { return m_cttopo->sizeForDenseIndexing(); }
 
   // Modify the RawPtr class
-  const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const override;
+  CaloCellGeometryPtr getGeometryRawPtr(uint32_t index) const override;
 
 private:
   const CaloTowerTopology* m_cttopo;

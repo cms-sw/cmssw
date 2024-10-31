@@ -205,6 +205,7 @@ public:
   std::vector<std::pair<int, int> > tileRingRange_;
   std::vector<std::pair<double, double> > tileRingFineR_;
   std::vector<std::pair<int, int> > tileRingFineRange_;
+  std::vector<int> nPhiLayer_;
   int cassettes_ = 0;
   int nphiCassette_ = 0;
   int nphiFineCassette_ = 0;

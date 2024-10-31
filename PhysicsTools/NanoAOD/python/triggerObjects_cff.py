@@ -60,7 +60,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet(
                 mksel("filter('*CaloIdLTrackIdLIsoVL*TrackIso*Filter')","CaloIdL_TrackIdL_IsoVL"),
-                mksel("filter('hltEle*WPTight*TrackIsoFilter*')","1e (WPTight)"),
+                mksel("filter('hltEle*WPTight*TrackIsoFilter*')","1e (WPTight with possibile contribution from Xtriggers besides singleElectron)"),
                 mksel("filter('hltEle*WPLoose*TrackIsoFilter')","1e (WPLoose)"),
                 mksel("filter('*OverlapFilter*IsoEle*PFTau*')","OverlapFilter PFTau"),
                 mksel("filter('hltEle*Ele*CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter')","2e (Leg 1)"),
@@ -76,7 +76,8 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel(["hltEG175HEFilter","hltEG200HEFilter"],"1e (Photon175_OR_Photon200)"),
                 mksel("filter('hltEle*CaloIdLMWPMS2Filter')","2e (CaloIdL_MW seeded)"),
                 mksel("filter('hltDiEle*CaloIdLMWPMS2UnseededFilter')","2e (CaloIdL_MW unseeded)"),
-                mksel("filter('hlt*OverlapFilterIsoEle*ETau*PNet*Tau*')", "1e-1tau PNet")
+                mksel("filter('hlt*OverlapFilterIsoEle*ETau*PNet*Tau*')", "1e-1tau PNet"),
+                mksel("filter('hltEle30WPTightGsfTrackIsoFilter')","1e (HLT30WPTightGSfTrackIso)")
                 )
         ),
         Photon = cms.PSet(

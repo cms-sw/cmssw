@@ -134,7 +134,7 @@ if __name__ == '__main__':
     if web_fallback:
         cert_url = base_cert_url + cert_type + "/"
         json_list = get_url_clean(cert_url).split("\n")
-        json_list = [c for c in json_list if "Golden" in c and "era" not in c]
+        json_list = [c for c in json_list if "Golden" in c and "era" not in c and "Cert_C" in c]
         json_list = [[cc for cc in c.split(" ") if cc.startswith("Cert_C") and cc.endswith("json")][0] for c in json_list]
 
     # the larger the better, assuming file naming schema 

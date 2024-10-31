@@ -717,6 +717,8 @@ upgradeWFs['ticl_v5'].step4 = {'--procModifiers': 'ticl_v5'}
 
 class UpgradeWorkflow_ticl_v5_superclustering(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
+        if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step):
+            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
         if 'RecoGlobal' in step:
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         if 'HARVESTGlobal' in step:
@@ -725,16 +727,21 @@ class UpgradeWorkflow_ticl_v5_superclustering(UpgradeWorkflow):
         return (fragment=="ZEE_14" or 'Eta1p7_2p7' in fragment) and '2026' in key
 upgradeWFs['ticl_v5_superclustering_mustache_ticl'] = UpgradeWorkflow_ticl_v5_superclustering(
     steps = [
+        'HLTOnly',
+        'DigiTrigger',
         'RecoGlobal',
         'HARVESTGlobal'
     ],
     PU = [
+        'HLTOnly',
+        'DigiTrigger',
         'RecoGlobal',
         'HARVESTGlobal'
     ],
     suffix = '_ticl_v5_mustache',
     offset = 0.204,
 )
+upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step2 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_ticl'}
 upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step3 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_ticl'}
 upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step4 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_ticl'}
 
@@ -1831,6 +1838,11 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
             stepDict[stepName][k] = None
         elif 'Nano'==step:
             stepDict[stepName][k] = merge([{'--filein':'file:step4.root','-s':'NANO','--datatier':'NANOAODSIM','--eventcontent':'NANOEDMAODSIM'}, stepDict[step][k]])
+    def setupPU_(self, step, stepName, stepDict, k, properties):
+        # No need for PU replay for ProdLike
+        if "Digi" not in step and stepDict[stepName][k] is not None and '--pileup' in stepDict[stepName][k]:
+            stepDict[stepName][k].pop('--pileup', None)
+            stepDict[stepName][k].pop('--pileup_input', None)
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key or '2023' in key or '2024' in key)
 upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
@@ -1902,7 +1914,7 @@ class UpgradeWorkflow_ProdLikeRunningPU(UpgradeWorkflow_ProdLike):
         self.__fixedPU = fixedPU
     def setupPU_(self, step, stepName, stepDict, k, properties):
         #  change PU skipping ALCA and HARVEST
-        if stepDict[stepName][k] is not None and '--pileup' in stepDict[stepName][k]:
+        if stepDict[stepName][k] is not None and '--pileup' in stepDict[stepName][k] and "Digi" in step:
             stepDict[stepName][k]['--pileup'] = 'AVE_' + str(self.__fixedPU) + '_BX_25ns'
     def condition(self, fragment, stepList, key, hasHarvest):
         # lower PUs for Run3
@@ -2436,6 +2448,52 @@ upgradeWFs['Aging3000'] = deepcopy(upgradeWFs['Aging1000'])
 upgradeWFs['Aging3000'].suffix = 'Aging3000'
 upgradeWFs['Aging3000'].offset = 0.103
 upgradeWFs['Aging3000'].lumi = '3000'
+
+class UpgradeWorkflow_PixelClusterSplitting(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'splitClustersInPhase2Pixel'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2026' in key
+
+upgradeWFs['PixelClusterSplitting'] = UpgradeWorkflow_PixelClusterSplitting(
+    steps = [
+        'RecoLocal',
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+    ],
+    PU = [
+        'RecoLocal',
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+    ],
+    suffix = '_ClusterSplittingInPixel',
+    offset = 0.19001,
+)
+
+class UpgradeWorkflow_JetCore(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'splitClustersInPhase2Pixel,jetCoreInPhase2'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2026' in key
+
+upgradeWFs['JetCore'] = UpgradeWorkflow_JetCore(
+    steps = [
+        'RecoLocal',
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+    ],
+    PU = [
+        'RecoLocal',
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+    ],
+    suffix = '_JetCore',
+    offset = 0.19002,
+)
 
 #
 # Simulates Bias Rail in Phase-2 OT PS modules and X% random bad Strips

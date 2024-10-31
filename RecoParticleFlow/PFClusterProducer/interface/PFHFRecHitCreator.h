@@ -60,10 +60,10 @@ public:
       auto energy = erh.energy();
       auto time = erh.time();
 
-      std::shared_ptr<const CaloCellGeometry> thisCell = hcalGeo->getGeometry(detid);
-      auto zp = dynamic_cast<IdealZPrism const*>(thisCell.get());
+      auto thisCellTemp = hcalGeo->getGeometry(detid);
+      auto zp = dynamic_cast<IdealZPrism const*>(thisCellTemp.get());
       assert(zp);
-      thisCell = zp->forPF();
+      CaloCellGeometryPtr thisCell{zp->forPF()};
 
       // find rechit geometry
       if (!thisCell) {
@@ -74,7 +74,7 @@ public:
 
       PFLayer::Layer layer = depth == 1 ? PFLayer::HF_EM : PFLayer::HF_HAD;
 
-      reco::PFRecHit rh(thisCell, detid.rawId(), layer, energy);
+      reco::PFRecHit rh(CaloCellGeometryMayOwnPtr(thisCell), detid.rawId(), layer, energy);
       rh.setTime(time);
       rh.setDepth(depth);
 
