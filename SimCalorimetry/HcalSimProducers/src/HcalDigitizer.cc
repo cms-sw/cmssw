@@ -646,7 +646,7 @@ void HcalDigitizer::updateGeometry(const edm::EventSetup &eventSetup) {
   // std::vector<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo,
   // HcalCastorDetId::SubdetectorId);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalSim") <<"HcalDigitizer::CheckGeometry number of cells: " << zdcCells.size();
+  edm::LogVerbatim("HcalSim") << "HcalDigitizer::CheckGeometry number of cells: " << zdcCells.size();
 #endif
   if (zdcCells.empty())
     zdcgeo = false;
