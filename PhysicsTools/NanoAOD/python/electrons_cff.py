@@ -266,11 +266,28 @@ finalElectrons = cms.EDFilter("PATElectronRefSelector",
 ################################################electronPROMPTMVA#####################
 electronPROMPTMVA= cms.EDProducer("EleBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","electrons"),
-    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml"),
+    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/el_BDTG_2022.weights.xml"),
     name = cms.string("electronPROMPTMVA"),
     backend = cms.string("TMVA"),
     isClassifier = cms.bool(True),
     variables = cms.VPSet(
+        cms.PSet( name = cms.string("LepGood_pt"), expr = cms.string("pt")),
+        cms.PSet( name = cms.string("LepGood_eta"), expr = cms.string("eta")),
+        cms.PSet( name = cms.string("LepGood_pfRelIso03_all"), expr = cms.string("userFloat('PFIsoAll')/pt")),
+        cms.PSet( name = cms.string("LepGood_miniRelIsoCharged"), expr = cms.string("userFloat('miniIsoChg_Fall17V2')/pt")),
+        cms.PSet( name = cms.string("LepGood_miniRelIsoNeutral"), expr = cms.string("(userFloat('miniIsoAll_Fall17V2')-userFloat('miniIsoChg_Fall17V2'))/pt")),
+        cms.PSet( name = cms.string("LepGood_jetNDauChargedMVASel"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0")),
+        cms.PSet( name = cms.string("LepGood_jetPtRelv2"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0")),
+        cms.PSet( name = cms.string("LepGood_jetDF"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probbb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:problepb'),0.0):0.0")),
+        cms.PSet( name = cms.string("LepGood_jetPtRatio"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+userFloat('PFIsoAll04_Fall17V2')/pt)")),
+        cms.PSet( name = cms.string("LepGood_sip3d"), expr = cms.string("abs(dB('PV3D')/edB('PV3D'))")),
+        cms.PSet( name = cms.string("LepGood_dxy"), expr = cms.string("log(abs(dB('PV2D')))")),
+        cms.PSet( name = cms.string("LepGood_dz"), expr = cms.string("log(abs(dB('PVDZ')))")),
+        cms.PSet( name = cms.string("LepGood_mvaIso"), expr = cms.string("userFloat('mvaIso')")),
+    )
+)
+
+_legacy_electron_BDT_variable = cms.VPSet(
         cms.PSet( name = cms.string("LepGood_pt"), expr = cms.string("pt")),
         cms.PSet( name = cms.string("LepGood_eta"), expr = cms.string("eta")),
         cms.PSet( name = cms.string("LepGood_jetNDauChargedMVASel"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0")),
@@ -283,11 +300,18 @@ electronPROMPTMVA= cms.EDProducer("EleBaseMVAValueMapProducer",
         cms.PSet( name = cms.string("LepGood_sip3d"), expr = cms.string("abs(dB('PV3D')/edB('PV3D'))")),
         cms.PSet( name = cms.string("LepGood_dz"), expr = cms.string("log(abs(dB('PVDZ')))")),
         cms.PSet( name = cms.string("LepGood_mvaFall17V2noIso"), expr = cms.string("userFloat('mvaNoIso_Fall17V2')")),
-    )
 )
+
 run2_egamma_2016.toModify(
     electronPROMPTMVA,
     weightFile = "PhysicsTools/NanoAOD/data/el_BDTG_2016.weights.xml",
+    variables = _legacy_electron_BDT_variable
+)
+
+(run2_egamma_2017 | run2_egamma_2018).toModify(
+    electronPROMPTMVA,
+    weightFile = "PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml",
+    variables = _legacy_electron_BDT_variable
 )
 ################################################electronPROMPTMVA end#####################
 
