@@ -62,4 +62,17 @@ SKIMStreamPbPbZMu = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
-#####################      
+#####################
+
+from Configuration.Skimming.PbPb_UPC_Monopole_cff import *
+upcMonopoleSkimPath = cms.Path( upcMonopoleSkimSequence )
+SKIMStreamUPCMonopole = cms.FilteredStream(
+    responsible = 'HI PAG',
+    name = 'UPCMonopole',
+    paths = (upcMonopoleSkimPath),
+    content = upcMonopoleSkimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
+    )
+
+#####################
