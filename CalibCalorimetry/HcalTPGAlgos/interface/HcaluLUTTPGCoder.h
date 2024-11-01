@@ -32,7 +32,6 @@ class HcalDbService;
 class HcaluLUTTPGCoder : public HcalTPGCoder {
 public:
   static const float lsb_;
-  static const float zdc_lsb_;
 
   HcaluLUTTPGCoder();
   HcaluLUTTPGCoder(const HcalTopology* topo, const HcalTimeSlew* delay);
