@@ -106,7 +106,8 @@
                       "vertexcollection": "offlinePrimaryVertices",
                       "magneticfield": "true",
                       "maxevents": "1",
-                      "maxtracks": "1"
+                      "maxtracks": "1",
+		      "maxEntriesPerModuleForDmr":100
                  }
              },
              "merge": {
@@ -117,7 +118,10 @@
                       "singles": ["TestSingleMC"],
                       "usefit": "true",
                       "minimum": "15",
-                      "customrighttitle": "IOV"
+                      "customrighttitle": "IOV",
+		      "moduleFilterFile": "",
+                      "maxBadLumiPixel": 0.5,
+                      "maxBadLumiStrip": 7.0
                  }
              },
              "trends": {
