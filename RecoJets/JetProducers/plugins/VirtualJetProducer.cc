@@ -685,7 +685,7 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
   if (!fjJets_.empty()) {
     // Distance between jet centers and overlap area -- for disk-based area calculation
     using RIJ = std::pair<double, double>;
-    std::vector<RIJ> rijStorage(fjJets_.size() * (fjJets_.size() / 2));
+    std::vector<RIJ> rijStorage(fjJets_.size() == 1 ? 1 : fjJets_.size() * (fjJets_.size() >> 1));
     std::vector<RIJ*> rij(fjJets_.size());
     unsigned int k = 0;
     for (unsigned int ijet = 0; ijet < fjJets_.size(); ++ijet) {
