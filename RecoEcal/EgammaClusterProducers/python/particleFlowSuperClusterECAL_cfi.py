@@ -24,6 +24,12 @@ pp_on_AA.toModify(particleFlowSuperClusterECAL, useDynamicDPhiWindow = False,
 
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
 egamma_lowPt_exclusive.toModify(particleFlowSuperClusterECAL,
+                                regressionConfig = dict(
+                                    regressionKeyEB  = 'pfscecal_ebCorrection_offline_v2',
+                                    uncertaintyKeyEB = 'pfscecal_ebUncertainty_offline_v2',
+                                    regressionKeyEE  = 'pfscecal_eeCorrection_offline_v2',
+                                    uncertaintyKeyEE = 'pfscecal_eeUncertainty_offline_v2'
+                                ),
                                 thresh_SCEt = 1.0,
                                 thresh_PFClusterSeedBarrel = 0.5,
                                 thresh_PFClusterSeedEndcap = 0.5)
