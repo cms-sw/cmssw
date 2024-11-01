@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <memory>
 
 #include "UCTGeometryExtended.hh"
 
@@ -12,7 +13,7 @@ class UCTRegion;
 
 class UCTSummaryCard {
 public:
-  UCTSummaryCard(const std::vector<std::vector<std::vector<uint32_t> > >* l,
+  UCTSummaryCard(const std::vector<std::vector<std::vector<uint32_t>>>* l,
                  uint32_t jetSeedIn = 10,
                  uint32_t tauSeedIn = 10,
                  double tauIsolationFactorIn = 0.3,
@@ -27,7 +28,7 @@ public:
 
   const UCTSummaryCard& operator=(const UCTSummaryCard&) = delete;
 
-  virtual ~UCTSummaryCard();
+  virtual ~UCTSummaryCard() = default;
 
   // To set up event data before processing
 
@@ -38,24 +39,24 @@ public:
   bool clearEvent();
   bool clearRegions();
   bool setRegionData(
-      std::vector<UCTRegion*> inputRegions);  // Use when the region collection is available and no direct access to TPGs
+      std::vector<UCTRegion> inputRegions);  // Use when the region collection is available and no direct access to TPGs
   bool process();
 
   // Access to data
 
-  const std::list<UCTObject*>& getEMObjs() { return emObjs; }
-  const std::list<UCTObject*>& getIsoEMObjs() { return isoEMObjs; }
-  const std::list<UCTObject*>& getTauObjs() { return tauObjs; }
-  const std::list<UCTObject*>& getIsoTauObjs() { return isoTauObjs; }
-  const std::list<UCTObject*>& getCentralJetObjs() { return centralJetObjs; }
-  const std::list<UCTObject*>& getForwardJetObjs() { return forwardJetObjs; }
-  const std::list<UCTObject*>& getBoostedJetObjs() { return boostedJetObjs; }
+  const std::list<std::shared_ptr<UCTObject>>& getEMObjs() { return emObjs; }
+  const std::list<std::shared_ptr<UCTObject>>& getIsoEMObjs() { return isoEMObjs; }
+  const std::list<std::shared_ptr<UCTObject>>& getTauObjs() { return tauObjs; }
+  const std::list<std::shared_ptr<UCTObject>>& getIsoTauObjs() { return isoTauObjs; }
+  const std::list<std::shared_ptr<UCTObject>>& getCentralJetObjs() { return centralJetObjs; }
+  const std::list<std::shared_ptr<UCTObject>>& getForwardJetObjs() { return forwardJetObjs; }
+  const std::list<std::shared_ptr<UCTObject>>& getBoostedJetObjs() { return boostedJetObjs; }
 
-  const UCTObject* getET() { return ET; }
-  const UCTObject* getMET() { return MET; }
+  const std::shared_ptr<UCTObject> getET() { return ET; }
+  const std::shared_ptr<UCTObject> getMET() { return MET; }
 
-  const UCTObject* getHT() { return HT; }
-  const UCTObject* getMHT() { return MHT; }
+  const std::shared_ptr<UCTObject> getHT() { return HT; }
+  const std::shared_ptr<UCTObject> getMHT() { return MHT; }
 
   void print();
 
@@ -67,7 +68,7 @@ private:
   // Parameters specified at constructor level
 
   //  const UCTLayer1 *uctLayer1;
-  const std::vector<std::vector<std::vector<uint32_t> > >* pumLUT;
+  const std::vector<std::vector<std::vector<uint32_t>>>* pumLUT;
   uint32_t jetSeed;
   uint32_t tauSeed;
   double tauIsolationFactor;
@@ -76,24 +77,24 @@ private:
 
   // Owned card level data
 
-  std::vector<UCTRegion*> regions;
+  std::vector<UCTRegion> regions;
 
   double sinPhi[73];  // Make one extra so caloPhi : 1-72 can be used as index directly
   double cosPhi[73];
 
-  std::list<UCTObject*> emObjs;
-  std::list<UCTObject*> isoEMObjs;
-  std::list<UCTObject*> tauObjs;
-  std::list<UCTObject*> isoTauObjs;
-  std::list<UCTObject*> centralJetObjs;
-  std::list<UCTObject*> forwardJetObjs;
-  std::list<UCTObject*> boostedJetObjs;
+  std::list<std::shared_ptr<UCTObject>> emObjs;
+  std::list<std::shared_ptr<UCTObject>> isoEMObjs;
+  std::list<std::shared_ptr<UCTObject>> tauObjs;
+  std::list<std::shared_ptr<UCTObject>> isoTauObjs;
+  std::list<std::shared_ptr<UCTObject>> centralJetObjs;
+  std::list<std::shared_ptr<UCTObject>> forwardJetObjs;
+  std::list<std::shared_ptr<UCTObject>> boostedJetObjs;
 
-  UCTObject* ET;
-  UCTObject* MET;
+  std::shared_ptr<UCTObject> ET;
+  std::shared_ptr<UCTObject> MET;
 
-  UCTObject* HT;
-  UCTObject* MHT;
+  std::shared_ptr<UCTObject> HT;
+  std::shared_ptr<UCTObject> MHT;
 
   uint32_t cardSummary;
 

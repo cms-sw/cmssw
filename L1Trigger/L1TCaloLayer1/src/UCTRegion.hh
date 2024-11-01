@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <memory>
 
 #include "UCTTower.hh"
 
@@ -30,19 +31,19 @@ public:
 
   UCTRegion() = delete;
 
-  // No copy constructor is needed
-
-  UCTRegion(const UCTRegion&) = delete;
+  //copy constructor helps gettting around some memory leakage
+  // and ownership problems in the summary card emulation
+  UCTRegion(const UCTRegion&);
 
   // No equality operator is needed
 
   const UCTRegion& operator=(const UCTRegion&) = delete;
 
-  virtual ~UCTRegion();
+  virtual ~UCTRegion() = default;
 
   // To setData for towers before processing
 
-  const std::vector<UCTTower*>& getTowers() { return towers; }
+  const std::vector<std::shared_ptr<UCTTower>>& getTowers() { return towers; }
 
   // To process event
 
@@ -92,14 +93,14 @@ public:
 
   const bool isNegativeEta() const { return negativeEta; }
 
-  const UCTTower* getTower(UCTTowerIndex t) const { return getTower(t.first, t.second); }
+  const std::shared_ptr<UCTTower> getTower(UCTTowerIndex t) const { return getTower(t.first, t.second); }
 
   friend std::ostream& operator<<(std::ostream&, const UCTRegion&);
 
 protected:
   // Helper functions
 
-  const UCTTower* getTower(uint32_t caloEta, uint32_t caloPhi) const;
+  const std::shared_ptr<UCTTower> getTower(uint32_t caloEta, uint32_t caloPhi) const;
 
   // Region location definition
 
@@ -110,7 +111,7 @@ protected:
 
   // Owned region level data
 
-  std::vector<UCTTower*> towers;
+  std::vector<std::shared_ptr<UCTTower>> towers;
 
   uint32_t regionSummary;
 
