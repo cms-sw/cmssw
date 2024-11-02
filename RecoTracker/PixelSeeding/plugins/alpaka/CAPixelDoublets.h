@@ -61,12 +61,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     CellNeighborsVector<TrackerTraits>* cellNeighbors,
                                     CellTracksVector<TrackerTraits>* cellTracks,
                                     HitsConstView<TrackerTraits> hh,
+                                    PhiBinner<TrackerTraits>* phiBinner,
                                     OuterHitOfCell<TrackerTraits>* isOuterHitOfCell,
                                     uint32_t nActualPairs,
                                     const uint32_t maxNumOfDoublets,
                                     CellCutsT<TrackerTraits> cuts) const {
         doubletsFromHisto<TrackerTraits>(
-            acc, nActualPairs, maxNumOfDoublets, cells, nCells, cellNeighbors, cellTracks, hh, *isOuterHitOfCell, cuts);
+            acc, nActualPairs, maxNumOfDoublets, cells, nCells, cellNeighbors, cellTracks, hh, phiBinner, *isOuterHitOfCell, cuts);
       }
     };
 

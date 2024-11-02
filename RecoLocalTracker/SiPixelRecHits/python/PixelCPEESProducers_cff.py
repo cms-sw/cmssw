@@ -21,6 +21,7 @@ def _addProcessCPEsAlpaka(process):
     process.load("RecoLocalTracker.SiPixelRecHits.pixelCPEFastParamsESProducerAlpakaPhase1_cfi")
     process.load("RecoLocalTracker.SiPixelRecHits.pixelCPEFastParamsESProducerAlpakaPhase2_cfi")
     process.load("RecoLocalTracker.SiPixelRecHits.pixelCPEFastParamsESProducerAlpakaHIonPhase1_cfi")
+    process.load("RecoLocalTracker.ClusterParameterEstimator.frameSoAESProducerPhase1_cfi")
 
 modifyConfigurationForAlpakaCPEs_ = alpaka.makeProcessModifier(_addProcessCPEsAlpaka)
 
