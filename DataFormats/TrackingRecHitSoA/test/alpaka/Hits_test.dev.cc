@@ -29,7 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
 
         soa[i].iphi() = i % 10;
-        soa.hitsLayerStart()[j] = j;
+        soa.hitsModuleStart()[j] = j;
       }
     };
 
@@ -39,7 +39,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (cms::alpakatools::once_per_grid(acc)) {
           printf("offsetBPIX = %d\n", soa.offsetBPIX2());
           printf("nHits = %d\n", soa.metadata().size());
-          //printf("hitsModuleStart[28] = %d\n", soa[28].hitsModuleStart());
+          printf("hitsModuleStart[28] = %d\n", soa.hitsModuleStart()[28]);
         }
 
         // can be increased to soa.nHits() for debugging

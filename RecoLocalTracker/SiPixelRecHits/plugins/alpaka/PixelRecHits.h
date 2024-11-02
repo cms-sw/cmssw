@@ -43,25 +43,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for (uint32_t module : cms::alpakatools::independent_groups(acc, nonEmptyModules)) {
           // This is necessary only once - consider moving it somewhere else.
           // Copy the average geometry corrected by the beamspot.
-          if (0 == module) {
-            auto& agc = hits.averageGeometry();
-            auto const& ag = cpeParams->averageGeometry();
-            auto nLadders = TrackerTraits::numberOfLaddersInBarrel;
+          // if (0 == module) {
+          //   // auto& agc = hits.averageGeometry();
+          //   auto const& ag = cpeParams->averageGeometry();
+          //   auto nLadders = TrackerTraits::numberOfLaddersInBarrel;
 
-            for (uint32_t il : cms::alpakatools::independent_group_elements(acc, nLadders)) {
-              agc.ladderZ[il] = ag.ladderZ[il] - bs->z;
-              agc.ladderX[il] = ag.ladderX[il] - bs->x;
-              agc.ladderY[il] = ag.ladderY[il] - bs->y;
-              agc.ladderR[il] = sqrt(agc.ladderX[il] * agc.ladderX[il] + agc.ladderY[il] * agc.ladderY[il]);
-              agc.ladderMinZ[il] = ag.ladderMinZ[il] - bs->z;
-              agc.ladderMaxZ[il] = ag.ladderMaxZ[il] - bs->z;
-            }
+          //   for (uint32_t il : cms::alpakatools::independent_group_elements(acc, nLadders)) {
+          //     agc.ladderZ[il] = ag.ladderZ[il] - bs->z;
+          //     agc.ladderX[il] = ag.ladderX[il] - bs->x;
+          //     agc.ladderY[il] = ag.ladderY[il] - bs->y;
+          //     agc.ladderR[il] = sqrt(agc.ladderX[il] * agc.ladderX[il] + agc.ladderY[il] * agc.ladderY[il]);
+          //     agc.ladderMinZ[il] = ag.ladderMinZ[il] - bs->z;
+          //     agc.ladderMaxZ[il] = ag.ladderMaxZ[il] - bs->z;
+          //   }
 
-            if (cms::alpakatools::once_per_block(acc)) {
-              agc.endCapZ[0] = ag.endCapZ[0] - bs->z;
-              agc.endCapZ[1] = ag.endCapZ[1] - bs->z;
-            }
-          }
+          //   if (cms::alpakatools::once_per_block(acc)) {
+          //     agc.endCapZ[0] = ag.endCapZ[0] - bs->z;
+          //     agc.endCapZ[1] = ag.endCapZ[1] - bs->z;
+          //   }
+          // }
 
           // to be moved in common namespace...
           using pixelClustering::invalidModuleId;

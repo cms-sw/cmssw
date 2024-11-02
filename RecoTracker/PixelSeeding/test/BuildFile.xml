@@ -36,3 +36,12 @@
   <use name="boost"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
 </bin>
+
+<bin file="alpaka/CAParams_t.cpp">
+<flags ALPAKA_BACKENDS="1"/>  
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoTracker/PixelSeeding"/>
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="boost"/>
+</bin>
