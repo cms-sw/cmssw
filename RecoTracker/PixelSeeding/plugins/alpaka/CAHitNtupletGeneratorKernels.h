@@ -215,7 +215,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     using HitsView = TrackingRecHitSoAView<TrackerTraits>;
     using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
-    using TkSoAView = reco::TrackSoAView<TrackerTraits>;
+    using TkSoAView = ::reco::TrackSoAView<TrackerTraits>;
 
     using HitToTuple = caStructures::template HitToTupleT<TrackerTraits>;
     using HitToTupleView = typename HitToTuple::View;
@@ -233,7 +233,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using CACell = CACellT<TrackerTraits>;
     
     using Quality = ::pixelTrack::Quality;
-    using HitContainer = typename reco::TrackSoA<TrackerTraits>::HitContainer;
+    using HitContainer = typename ::reco::TrackSoA<TrackerTraits>::HitContainer;
     using hindex_type = typename TrackerTraits::hindex_type;
     using PhiBinner = cms::alpakatools::HistoContainer<int16_t,
                                                      256,

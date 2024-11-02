@@ -40,7 +40,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     using TmpTuple = cms::alpakatools::VecArray<uint32_t, TrackerTraits::maxDepth>;
 
-    using HitContainer = typename reco::TrackSoA<TrackerTraits>::HitContainer;
+    using HitContainer = typename ::reco::TrackSoA<TrackerTraits>::HitContainer;
     using Quality = ::pixelTrack::Quality;
     static constexpr auto bad = ::pixelTrack::Quality::bad;
 

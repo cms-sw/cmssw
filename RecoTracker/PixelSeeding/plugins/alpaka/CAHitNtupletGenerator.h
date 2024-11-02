@@ -40,7 +40,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using CACell = CACellT<TrackerTraits>;
     using TkSoAHost = TracksHost<TrackerTraits>;
     using TkSoADevice = TracksSoACollection<TrackerTraits>;
-    using HitContainer = typename reco::TrackSoA<TrackerTraits>::HitContainer;
+    using HitContainer = typename ::reco::TrackSoA<TrackerTraits>::HitContainer;
     using Tuple = HitContainer;
 
     using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
