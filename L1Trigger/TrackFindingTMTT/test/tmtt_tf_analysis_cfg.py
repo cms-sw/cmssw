@@ -15,8 +15,8 @@ GEOMETRY = "D88"
 
 if GEOMETRY == "D88": 
     print("using geometry " + GEOMETRY + " (tilted)")
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D88Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D88_cff')
 else:
     print("this is not a valid geometry!!!")
 

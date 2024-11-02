@@ -10,7 +10,7 @@ options.register('Scenario',
                  _settings.DEFAULT_VERSION, # default value
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.string, # string, int, or float
-                 "geometry version to use: 2026DXXX")
+                 "geometry version to use: Run4DXXX")
 options.parseArguments()
 
 ###################################################################
@@ -25,7 +25,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # Choose Tracker Geometry
 if(options.Scenario == _settings.DEFAULT_VERSION):
     print("Loading default scenario: ", _settings.DEFAULT_VERSION)
-    process.load('Configuration.Geometry.GeometryDD4hepExtended2026DefaultReco_cff')
+    process.load('Configuration.Geometry.GeometryDD4hepExtendedRun4DefaultReco_cff')
 else:
     process.load('Configuration.Geometry.GeometryDD4hepExtended'+options.Scenario+'Reco_cff')
 

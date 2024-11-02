@@ -29,11 +29,11 @@ print(options)
 if (options.geometry == "D105"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process("HcalParametersTest",Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D105Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D105Reco_cff')
 elif (options.geometry == "D110"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process("HcalParametersTest",Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
 else:
     from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
     process = cms.Process("HcalParametersTest",Run3_DDD)

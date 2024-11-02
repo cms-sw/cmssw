@@ -19,7 +19,7 @@ process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
 process.load("Geometry.HGCalGeometry.hgcalGeometryDump_cfi")
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D71.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometryRun4D71.xml'),
                                             appendToDataLabel = cms.string('')
 )
 

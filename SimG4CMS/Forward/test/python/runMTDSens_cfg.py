@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
 
-process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
