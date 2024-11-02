@@ -16,6 +16,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "RecoTracker/PixelSeeding/interface/CAParamsSoA.h"
 
 #include "CACell.h"
 #include "CAPixelDoublets.h"
@@ -29,7 +30,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const uint32_t minHitsForSharingCut_;
       const bool useRiemannFit_;
       const bool fitNas4_;
-      const bool includeJumpingForwardDoublets_;
       const bool earlyFishbone_;
       const bool lateFishbone_;
       const bool doStats_;
@@ -74,7 +74,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <typename TrackerTraits>
     struct CAParamsT<TrackerTraits, pixelTopology::isPhase2Topology<TrackerTraits>> : public CACommon {
-      const bool includeFarForwards_;
       /// Is is a starting layer pair?
       ALPAKA_FN_ACC ALPAKA_FN_INLINE bool startingLayerPair(int16_t pid) const {
         return pid < 33;  // in principle one could remove 5,6,7 23, 28 and 29
@@ -129,21 +128,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                          12.0  // |Zip| < 12.0 cm
                                      }};
       const CAParams caParams_;
-      /// Compute the number of pairs
-      inline uint32_t nPairs() const {
-        // take all layer pairs into account
-        uint32_t nActualPairs = TT::nPairs;
-        if (not includeJumpingForwardDoublets_) {
-          // exclude forward "jumping" layer pairs
-          nActualPairs = TT::nPairsForTriplets;
-        }
-        if (caParams_.minHitsPerNtuplet_ > 3) {
-          // for quadruplets, exclude all "jumping" layer pairs
-          nActualPairs = TT::nPairsForQuadruplets;
-        }
+      // /// Compute the number of pairs
+      // inline uint32_t nPairs() const {
+      //   // take all layer pairs into account
+      //   uint32_t nActualPairs = TT::nPairs;
+      //   if (not includeJumpingForwardDoublets_) {
+      //     // exclude forward "jumping" layer pairs
+      //     nActualPairs = TT::nPairsForTriplets;
+      //   }
+      //   if (caParams_.minHitsPerNtuplet_ > 3) {
+      //     // for quadruplets, exclude all "jumping" layer pairs
+      //     nActualPairs = TT::nPairsForQuadruplets;
+      //   }
 
-        return nActualPairs;
-      }
+      //   return nActualPairs;
+      // }
 
     };  // Params Phase1
 
@@ -165,20 +164,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const QualityCuts qualityCuts_{5.0f, /*chi2*/ 0.9f, /* pT in Gev*/ 0.4f, /*zip in cm*/ 12.0f /*tip in cm*/};
       const CAParams caParams_;
 
-      inline uint32_t nPairs() const {
-        // take all layer pairs into account
-        uint32_t nActualPairs = TT::nPairsMinimal;
-        if (caParams_.includeFarForwards_) {
-          // considera far forwards (> 11 & > 23)
-          nActualPairs = TT::nPairsFarForwards;
-        }
-        if (includeJumpingForwardDoublets_) {
-          // include jumping forwards
-          nActualPairs = TT::nPairs;
-        }
+      // inline uint32_t nPairs() const {
+      //   // take all layer pairs into account
+      //   uint32_t nActualPairs = TT::nPairsMinimal;
+      //   if (caParams_.includeFarForwards_) {
+      //     // considera far forwards (> 11 & > 23)
+      //     nActualPairs = TT::nPairsFarForwards;
+      //   }
+      //   if (includeJumpingForwardDoublets_) {
+      //     // include jumping forwards
+      //     nActualPairs = TT::nPairs;
+      //   }
 
-        return nActualPairs;
-      }
+      //   return nActualPairs;
+      // }
 
     };  // Params Phase1
 
@@ -215,14 +214,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     using HitsView = TrackingRecHitSoAView<TrackerTraits>;
     using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
-    using TkSoAView = reco::TrackSoAView<TrackerTraits>;
+    using TkSoAView = ::reco::TrackSoAView<TrackerTraits>;
 
     using HitToTuple = caStructures::template HitToTupleT<TrackerTraits>;
     using HitToTupleView = typename HitToTuple::View;
     using TupleMultiplicity = caStructures::template TupleMultiplicityT<TrackerTraits>;
-    struct Testttt {
-      TupleMultiplicity tm;
-    };
+
     using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
     using CellNeighbors = caStructures::CellNeighborsT<TrackerTraits>;
     using CellTracksVector = caStructures::CellTracksVectorT<TrackerTraits>;
@@ -233,7 +230,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using CACell = CACellT<TrackerTraits>;
     
     using Quality = ::pixelTrack::Quality;
-    using HitContainer = typename reco::TrackSoA<TrackerTraits>::HitContainer;
+    using HitContainer = typename ::reco::TrackSoA<TrackerTraits>::HitContainer;
     using hindex_type = typename TrackerTraits::hindex_type;
     using PhiBinner = cms::alpakatools::HistoContainer<int16_t,
                                                      256,
@@ -249,11 +246,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     TupleMultiplicity const* tupleMultiplicity() const { return device_tupleMultiplicity_.data(); }
 
+    void prepareHits(const HitsConstView& hh, const ::reco::CALayersSoAConstView& ll, Queue& queue);
+
     void launchKernels(const HitsConstView& hh, uint32_t offsetBPIX2, TkSoAView& track_view, Queue& queue);
 
     void classifyTuples(const HitsConstView& hh, TkSoAView& track_view, Queue& queue);
 
-    void buildDoublets(const HitsConstView& hh, uint32_t offsetBPIX2, Queue& queue);
+    void buildDoublets(const HitsConstView& hh, const ::reco::CACellsSoAConstView& cc, uint32_t offsetBPIX2, Queue& queue);
 
     static void printCounters();
 
@@ -269,6 +268,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::alpakatools::device_buffer<Device, PhiBinner> device_hitPhiHist_;
     PhiBinnerView device_hitPhiView_;
     cms::alpakatools::device_buffer<Device, PhiBinnerStorageType[]> device_phiBinnerStorage_;
+    cms::alpakatools::device_buffer<Device, hindex_type[]> device_layerStarts_;
 
     HitToTupleView device_hitToTupleView_;
     cms::alpakatools::device_buffer<Device, TupleMultiplicity> device_tupleMultiplicity_;

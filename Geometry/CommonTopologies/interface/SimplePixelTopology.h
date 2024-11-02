@@ -131,7 +131,7 @@ namespace phase1PixelTopology {
   using pixelTopology::phi0p06;
   using pixelTopology::phi0p07;
 
-  constexpr uint32_t numberOfLayers = 28;
+  constexpr uint32_t numberOfLayers = 10;
   constexpr int nPairs = 13 + 2 + 4;
   constexpr uint16_t numberOfModules = 1856;
 

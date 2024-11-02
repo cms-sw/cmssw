@@ -23,6 +23,9 @@
 #include "RecoLocalTracker/Records/interface/FrameSoARecord.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/alpaka/FrameSoACollection.h"
 
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/PixelSeeding/interface/alpaka/CAParamsSoACollection.h"
+
 #include "CAHitNtupletGenerator.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -45,7 +48,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenField_;
-    const device::ESGetToken<FrameSoACollection, FrameSoARecord> frameToken_; 
+    const device::ESGetToken<FrameSoACollection, FrameSoARecord> frameToken_;
+    const device::ESGetToken<reco::CAParamsSoACollection, TrackerRecoGeometryRecord> paramsSoA_;  
     const device::EDGetToken<HitsOnDevice> tokenHit_;
     const device::EDPutToken<TkSoADevice> tokenTrack_;
 
@@ -56,6 +60,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   CAHitNtupletAlpaka<TrackerTraits>::CAHitNtupletAlpaka(const edm::ParameterSet& iConfig)
       : tokenField_(esConsumes()),
         frameToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("frameSoA")))),
+        paramsSoA_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("caParams")))),
         tokenHit_(consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
         tokenTrack_(produces()),
         deviceAlgo_(iConfig) {}
@@ -65,6 +70,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ParameterSetDescription desc;
 
     desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
+    desc.add<std::string>("caParams", std::string("caParams"));
 
     std::string frame = "FrameSoA";
     frame += TrackerTraits::nameModifier;
@@ -79,10 +85,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto bf = 1. / es.getData(tokenField_).inverseBzAtOriginInGeV();
 
     auto const& frame = es.getData(frameToken_);
+    auto const& params = es.getData(paramsSoA_);
 
     auto const& hits = iEvent.get(tokenHit_);
 
-    iEvent.emplace(tokenTrack_, deviceAlgo_.makeTuplesAsync(hits, frame, bf, iEvent.queue()));
+    iEvent.emplace(tokenTrack_, deviceAlgo_.makeTuplesAsync(hits, frame, params, bf, iEvent.queue()));
   }
 
   using CAHitNtupletAlpakaPhase1 = CAHitNtupletAlpaka<pixelTopology::Phase1>;

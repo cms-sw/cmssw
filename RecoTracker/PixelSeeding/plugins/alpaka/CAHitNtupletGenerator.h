@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/alpaka/FrameSoACollection.h"
+#include "RecoTracker/PixelSeeding/interface/alpaka/CAParamsSoACollection.h"
 
 #include "CACell.h"
 #include "CAHitNtupletGeneratorKernels.h"
@@ -40,7 +41,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using CACell = CACellT<TrackerTraits>;
     using TkSoAHost = TracksHost<TrackerTraits>;
     using TkSoADevice = TracksSoACollection<TrackerTraits>;
-    using HitContainer = typename reco::TrackSoA<TrackerTraits>::HitContainer;
+    using HitContainer = typename ::reco::TrackSoA<TrackerTraits>::HitContainer;
     using Tuple = HitContainer;
 
     using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
@@ -53,7 +54,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using Counters = caHitNtupletGenerator::Counters;
 
     using FrameOnDevice = FrameSoACollection;
-
+    using CAParamsOnDevice = reco::CAParamsSoACollection;
   public:
     CAHitNtupletGenerator(const edm::ParameterSet& cfg);
 
@@ -69,11 +70,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     TkSoADevice makeTuplesAsync(HitsOnDevice const& hits_d,
                                 FrameOnDevice const& frame_d,
+                                CAParamsOnDevice const& params_d,
                                 float bfield,
                                 Queue& queue) const;
 
   private:
-    void buildDoublets(const HitsConstView& hh, Queue& queue) const;
+    void prepareHits(const HitsConstView& hh, const ::reco::CALayersSoAConstView& ll, Queue& queue) const;
+
+    void buildDoublets(const HitsConstView& hh, const ::reco::CACellsSoAConstView& cc, uint32_t offsetBPIX2, Queue& queue) const;
 
     void hitNtuplets(const HitsConstView& hh, const edm::EventSetup& es, bool useRiemannFit, Queue& queue);
 

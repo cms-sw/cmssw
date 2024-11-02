@@ -70,6 +70,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
   using Counters = caHitNtupletGenerator::Counters;
 
+  using namespace cms::alpakatools;
+  class setHitsLayerStart {
+  public:
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+                                  uint32_t const* __restrict__ hitsModuleStart,
+                                  const reco::CALayersSoAConstView& ll,
+                                  uint32_t* __restrict__ hitsLayerStart) const {
+      ALPAKA_ASSERT_ACC(0 == hitsModuleStart[0]);
+      
+      for (int32_t i : cms::alpakatools::uniform_elements(acc, ll.metadata().size())) {
+        hitsLayerStart[i] = hitsModuleStart[ll.layerStarts()[i]];
+// #ifdef GPU_DEBUG
+        int old = i == 0 ? 0 : hitsModuleStart[ll.layerStarts()[i - 1]];
+        printf("LayerStart %d/%d at module %d: %d - %d\n",
+               i,
+               ll.metadata().size(),
+               ll.layerStarts()[i],
+               hitsLayerStart[i],
+               hitsLayerStart[i] - old);
+// #endif
+      }
+    }
+  };
+
   template <typename TrackerTraits>
   class Kernel_checkOverflows {
   public:
@@ -781,6 +806,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   HitsConstView<TrackerTraits> hh,
+                                  uint32_t const* __restrict__ layerStarts,
                                   TkSoAView<TrackerTraits> tracks_view,
                                   int nmin,
                                   bool dupPassThrough,
@@ -792,7 +818,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
       auto &hitToTuple = *phitToTuple;
 
-      uint32_t l1end = hh.hitsLayerStart()[1];
+      uint32_t l1end =layerStarts[1];
 
       for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple.nOnes())) {
         if (hitToTuple.size(idx) < 2)
