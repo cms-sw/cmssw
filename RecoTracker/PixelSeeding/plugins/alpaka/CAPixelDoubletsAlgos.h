@@ -40,6 +40,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   using HitsConstView = typename CACellT<TrackerTraits>::HitsConstView;
 
   template <typename TrackerTraits>
+  using PhiBinner = cms::alpakatools::HistoContainer<int16_t,
+                                                    256,
+                                                    -1, 
+                                                    8 * sizeof(int16_t),
+                                                    typename TrackerTraits::hindex_type,
+                                                    TrackerTraits::numberOfLayers>; 
+
+  template <typename TrackerTraits>
   struct CellCutsT {
     using H = HitsConstView<TrackerTraits>;
     using T = TrackerTraits;
@@ -147,6 +155,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       CellNeighborsVector<TrackerTraits>* cellNeighbors,
       CellTracksVector<TrackerTraits>* cellTracks,
       HitsConstView<TrackerTraits> hh,
+      PhiBinner<TrackerTraits>* phiBinner,
       OuterHitOfCell<TrackerTraits> isOuterHitOfCell,
       CellCutsT<TrackerTraits> const& cuts) {  // ysize cuts (z in the barrel)  times 8
                                                // these are used if doClusterCut is true
@@ -161,9 +170,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
     const float minRadius = hardPtCut * 87.78f;
     const float minRadius2T4 = 4.f * minRadius * minRadius;
 
-    using PhiBinner = typename TrackingRecHitSoA<TrackerTraits>::PhiBinner;
-
-    auto const& __restrict__ phiBinner = hh.phiBinner();
+    using PhiHisto = PhiBinner<TrackerTraits>;
     uint32_t const* __restrict__ offsets = hh.hitsLayerStart().data();
     ALPAKA_ASSERT_ACC(offsets);
 
@@ -207,7 +214,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       uint8_t outer = TrackerTraits::layerPairs[2 * pairLayerId + 1];
       ALPAKA_ASSERT_ACC(outer > inner);
 
-      auto hoff = PhiBinner::histOff(outer);
+      auto hoff = PhiHisto::histOff(outer);
       auto i = (0 == pairLayerId) ? j : j - innerLayerCumulativeSize[pairLayerId - 1];
       i += offsets[inner];
 
@@ -252,9 +259,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
       auto iphicut = cuts.phiCuts[pairLayerId];
 
-      auto kl = PhiBinner::bin(int16_t(mep - iphicut));
-      auto kh = PhiBinner::bin(int16_t(mep + iphicut));
-      auto incr = [](auto& k) { return k = (k + 1) % PhiBinner::nbins(); };
+      auto kl = PhiHisto::bin(int16_t(mep - iphicut));
+      auto kh = PhiHisto::bin(int16_t(mep + iphicut));
+      auto incr = [](auto& k) { return k = (k + 1) % PhiHisto::nbins(); };
 
 #ifdef GPU_DEBUG
       int tot = 0;
@@ -267,10 +274,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       for (auto kk = kl; kk != khh; incr(kk)) {
 #ifdef GPU_DEBUG
         if (kk != kl && kk != kh)
-          nmin += phiBinner.size(kk + hoff);
+          nmin += phiBinner->size(kk + hoff);
 #endif
-        auto const* __restrict__ p = phiBinner.begin(kk + hoff);
-        auto const* __restrict__ e = phiBinner.end(kk + hoff);
+        auto const* __restrict__ p = phiBinner->begin(kk + hoff);
+        auto const* __restrict__ e = phiBinner->end(kk + hoff);
         auto const maxpIndex = e - p;
 
         // innermost parallel loop, using the block elements along the faster dimension (X or 1 in a 2D grid)

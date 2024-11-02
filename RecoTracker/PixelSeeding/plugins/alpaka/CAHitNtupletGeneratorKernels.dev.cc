@@ -24,8 +24,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   CAHitNtupletGeneratorKernels<TrackerTraits>::CAHitNtupletGeneratorKernels(Params const &params,
-                                                                            uint32_t nhits,
-                                                                            uint32_t offsetBPIX2,
+                                                                            const HitsConstView &hh,
                                                                             Queue &queue)
       : m_params(params),
         //////////////////////////////////////////////////////////
@@ -36,7 +35,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // workspace
         device_hitToTuple_{cms::alpakatools::make_device_buffer<HitToTuple>(queue)},
         device_hitToTupleStorage_{
-            cms::alpakatools::make_device_buffer<typename HitToTuple::Counter[]>(queue, nhits + 1)},
+            cms::alpakatools::make_device_buffer<typename HitToTuple::Counter[]>(queue, hh.metadata().size() + 1)},
+        device_hitPhiHist_{cms::alpakatools::make_device_buffer<PhiBinner>(queue)},
+        device_phiBinnerStorage_{cms::alpakatools::make_device_buffer<typename PhiBinner::index_type[]>(queue, hh.metadata().size())},  
         device_tupleMultiplicity_{cms::alpakatools::make_device_buffer<TupleMultiplicity>(queue)},
 
         // NB: In legacy, device_theCells_ and device_isOuterHitOfCell_ were allocated inside buildDoublets
@@ -44,7 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             cms::alpakatools::make_device_buffer<CACell[]>(queue, m_params.caParams_.maxNumberOfDoublets_)},
         // in principle we can use "nhits" to heuristically dimension the workspace...
         device_isOuterHitOfCell_{
-            cms::alpakatools::make_device_buffer<OuterHitOfCellContainer[]>(queue, std::max(1u, nhits - offsetBPIX2))},
+            cms::alpakatools::make_device_buffer<OuterHitOfCellContainer[]>(queue, std::max(1, int(hh.metadata().size() - hh.offsetBPIX2())))},
         isOuterHitOfCell_{cms::alpakatools::make_device_buffer<OuterHitOfCell>(queue)},
 
         device_theCellNeighbors_{cms::alpakatools::make_device_buffer<CellNeighborsVector>(queue)},
@@ -67,7 +68,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         device_nCells_{
             cms::alpakatools::make_device_view(queue, *reinterpret_cast<uint32_t *>(device_storage_.data() + 2))} {
 #ifdef GPU_DEBUG
-    std::cout << "Allocation for tuple building. N hits " << nhits << std::endl;
+    std::cout << "Allocation for tuple building. N hits " << hh.metadata().size() << std::endl;
 #endif
 
     alpaka::memset(queue, counters_, 0);
@@ -87,10 +88,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     device_hitToTupleView_.assoc = device_hitToTuple_.data();
     device_hitToTupleView_.offStorage = device_hitToTupleStorage_.data();
-    device_hitToTupleView_.offSize = nhits + 1;
+    device_hitToTupleView_.offSize = hh.metadata().size() + 1;
 
     HitToTuple::template launchZero<Acc1D>(device_hitToTupleView_, queue);
+
+    device_hitPhiView_.assoc = device_hitPhiHist_.data();
+    device_hitPhiView_.offSize = -1;
+    device_hitPhiView_.offStorage = nullptr;
+    device_hitPhiView_.contentSize = hh.metadata().size();
+    device_hitPhiView_.contentStorage = device_phiBinnerStorage_.data();
+
+    cms::alpakatools::fillManyFromVector<Acc1D>(device_hitPhiHist_.data(),
+                                                      device_hitPhiView_,
+                                                      TrackerTraits::numberOfLayers,
+                                                      hh.iphi(),
+                                                      hh.hitsLayerStart().data(),
+                                                      hh.metadata().size(),
+                                                      (uint32_t)256,
+                                                      queue);
+
 #ifdef GPU_DEBUG
+    alpaka::wait(queue);
     std::cout << "Allocations for CAHitNtupletGeneratorKernels: done!" << std::endl;
 #endif
   }
@@ -350,6 +368,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         this->device_theCellNeighbors_.data(),
                         this->device_theCellTracks_.data(),
                         hh,
+                        this->device_hitPhiHist_.data(),
                         this->isOuterHitOfCell_.data(),
                         nActualPairs,
                         this->m_params.caParams_.maxNumberOfDoublets_,

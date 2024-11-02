@@ -37,7 +37,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     struct ShowKernel {
       ALPAKA_FN_ACC void operator()(Acc1D const& acc, TrackingRecHitSoAConstView<TrackerTraits> soa) const {
         if (cms::alpakatools::once_per_grid(acc)) {
-          printf("nbins = %d\n", soa.phiBinner().nbins());
           printf("offsetBPIX = %d\n", soa.offsetBPIX2());
           printf("nHits = %d\n", soa.metadata().size());
           //printf("hitsModuleStart[28] = %d\n", soa[28].hitsModuleStart());

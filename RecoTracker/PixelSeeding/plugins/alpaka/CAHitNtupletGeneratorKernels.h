@@ -218,6 +218,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using TkSoAView = reco::TrackSoAView<TrackerTraits>;
 
     using HitToTuple = caStructures::template HitToTupleT<TrackerTraits>;
+    using HitToTupleView = typename HitToTuple::View;
     using TupleMultiplicity = caStructures::template TupleMultiplicityT<TrackerTraits>;
     struct Testttt {
       TupleMultiplicity tm;
@@ -230,11 +231,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using OuterHitOfCell = caStructures::OuterHitOfCellT<TrackerTraits>;
 
     using CACell = CACellT<TrackerTraits>;
-
+    
     using Quality = ::pixelTrack::Quality;
     using HitContainer = typename reco::TrackSoA<TrackerTraits>::HitContainer;
+    using hindex_type = typename TrackerTraits::hindex_type;
+    using PhiBinner = cms::alpakatools::HistoContainer<int16_t,
+                                                     256,
+                                                     -1, 
+                                                     8 * sizeof(int16_t),
+                                                     hindex_type,
+                                                     TrackerTraits::numberOfLayers>; 
+    using PhiBinnerStorageType = typename PhiBinner::index_type;
+    using PhiBinnerView = typename PhiBinner::View;
 
-    CAHitNtupletGeneratorKernels(Params const& params, uint32_t nhits, uint32_t offsetBPIX2, Queue& queue);
+    CAHitNtupletGeneratorKernels(Params const& params, const HitsConstView &hh, Queue& queue);
     ~CAHitNtupletGeneratorKernels() = default;
 
     TupleMultiplicity const* tupleMultiplicity() const { return device_tupleMultiplicity_.data(); }
@@ -255,7 +265,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // workspace
     cms::alpakatools::device_buffer<Device, HitToTuple> device_hitToTuple_;
     cms::alpakatools::device_buffer<Device, uint32_t[]> device_hitToTupleStorage_;
-    typename HitToTuple::View device_hitToTupleView_;
+
+    cms::alpakatools::device_buffer<Device, PhiBinner> device_hitPhiHist_;
+    PhiBinnerView device_hitPhiView_;
+    cms::alpakatools::device_buffer<Device, PhiBinnerStorageType[]> device_phiBinnerStorage_;
+
+    HitToTupleView device_hitToTupleView_;
     cms::alpakatools::device_buffer<Device, TupleMultiplicity> device_tupleMultiplicity_;
     cms::alpakatools::device_buffer<Device, CACell[]> device_theCells_;
     cms::alpakatools::device_buffer<Device, OuterHitOfCellContainer[]> device_isOuterHitOfCell_;
