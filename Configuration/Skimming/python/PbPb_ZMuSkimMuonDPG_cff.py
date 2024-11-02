@@ -29,9 +29,9 @@ looseMuonsForPbPbZMuSkim = cms.EDFilter("TrackSelector",
 
 
 ###cloning the previous collection into a collection of candidates
-ConcretelooseMuonsForPbPbZMuSkim = cms.EDProducer("ConcreteChargedCandidateProducer",
+concreteLooseMuonsForPbPbZMuSkim = cms.EDProducer("ConcreteChargedCandidateProducer",
                                               src = cms.InputTag("looseMuonsForPbPbZMuSkim"),
-                                              particleType = cms.string("mu+")
+                                              particleType = cms.string("mu+") # the sign is dummy
                                               )
 
 
@@ -104,7 +104,7 @@ tightMuonsForPbPbZMuSkim = cms.EDFilter("MuonSelector",
 dimuonsForPbPbZMuSkim = cms.EDProducer("CandViewShallowCloneCombiner",
                          checkCharge = cms.bool(False),
                          cut = cms.string('(mass > 60)'),       
-                         decay = cms.string("tightMuonsForPbPbZMuSkim looseMuonsForPbPbZMuSkim")
+                         decay = cms.string("tightMuonsForPbPbZMuSkim concreteLooseMuonsForPbPbZMuSkim")
                          )                                    
 
 
@@ -120,7 +120,7 @@ diMuonSelSeqForPbPbZMuSkim = cms.Sequence(
                             PbPbZMuHLTFilter *
                             primaryVertexFilterForPbPbZMuSkim *
                             looseMuonsForPbPbZMuSkim *
-                            #ConcretelooseMuonsForPbPbZMuSkim *
+                            concreteLooseMuonsForPbPbZMuSkim *
                             #tkIsoDepositTkForPbPbZMuSkim *
                             #allPatTracksForPbPbZMuSkim *
                             #looseIsoMuonsForPbPbZMuSkim * 
