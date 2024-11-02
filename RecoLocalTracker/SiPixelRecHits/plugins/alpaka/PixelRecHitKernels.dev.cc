@@ -37,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       for (int32_t i : cms::alpakatools::uniform_elements(acc, TrackerTraits::numberOfLayers + 1)) {
         hitsLayerStart[i] = hitsModuleStart[cpeParams->layerGeometry().layerStart[i]];
-#ifdef GPU_DEBUG
+// #ifdef GPU_DEBUG
         int old = i == 0 ? 0 : hitsModuleStart[cpeParams->layerGeometry().layerStart[i - 1]];
         printf("LayerStart %d/%d at module %d: %d - %d\n",
                i,
@@ -45,7 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                cpeParams->layerGeometry().layerStart[i],
                hitsLayerStart[i],
                hitsLayerStart[i] - old);
-#endif
+// #endif
       }
     }
   };
@@ -92,7 +92,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::wait(queue);
 #endif
 
-        // assuming full warp of threads is better than a smaller number...
+//         // assuming full warp of threads is better than a smaller number...
         if (nHits) {
           const auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(1, 32);
           alpaka::exec<Acc1D>(queue,
@@ -101,25 +101,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               clusters_d->clusModuleStart(),
                               cpeParams,
                               hits_d.view().hitsLayerStart().data());
-          constexpr auto nLayers = TrackerTraits::numberOfLayers;
+          // constexpr auto nLayers = TrackerTraits::numberOfLayers;
 
-          // Use a view since it's runtime sized and can't use the implicit definition
-          // see HeterogeneousCore/AlpakaInterface/interface/OneToManyAssoc.h:100
-          typename TrackingRecHitSoA<TrackerTraits>::PhiBinnerView hrv_d;
-          hrv_d.assoc = &(hits_d.view().phiBinner());
-          hrv_d.offSize = -1;
-          hrv_d.offStorage = nullptr;
-          hrv_d.contentSize = nHits;
-          hrv_d.contentStorage = hits_d.view().phiBinnerStorage();
+//           // Use a view since it's runtime sized and can't use the implicit definition
+//           // see HeterogeneousCore/AlpakaInterface/interface/OneToManyAssoc.h:100
+//           typename TrackingRecHitSoA<TrackerTraits>::PhiBinnerView hrv_d;
+//           hrv_d.assoc = &(hits_d.view().phiBinner());
+//           hrv_d.offSize = -1;
+//           hrv_d.offStorage = nullptr;
+//           hrv_d.contentSize = nHits;
+//           hrv_d.contentStorage = hits_d.view().phiBinnerStorage();
 
-          cms::alpakatools::fillManyFromVector<Acc1D>(&(hits_d.view().phiBinner()),
-                                                      hrv_d,
-                                                      nLayers,
-                                                      hits_d.view().iphi(),
-                                                      hits_d.view().hitsLayerStart().data(),
-                                                      nHits,
-                                                      (uint32_t)256,
-                                                      queue);
+//           cms::alpakatools::fillManyFromVector<Acc1D>(&(hits_d.view().phiBinner()),
+//                                                       hrv_d,
+//                                                       nLayers,
+//                                                       hits_d.view().iphi(),
+//                                                       hits_d.view().hitsLayerStart().data(),
+//                                                       nHits,
+//                                                       (uint32_t)256,
+//                                                       queue);
 
 #ifdef GPU_DEBUG
           alpaka::wait(queue);

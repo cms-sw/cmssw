@@ -301,9 +301,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ->setComment("Cuts in phi for cells");
   }
 
-  template <typename TrackerTraits>
+template <typename TrackerTraits>
   TracksSoACollection<TrackerTraits> CAHitNtupletGenerator<TrackerTraits>::makeTuplesAsync(
-      HitsOnDevice const& hits_d, ParamsOnDevice const* cpeParams, float bfield, Queue& queue) const {
+      HitsOnDevice const& hits_d, FrameOnDevice const& frame, float bfield, Queue& queue) const {
     using HelixFit = HelixFit<TrackerTraits>;
     using TrackSoA = TracksSoACollection<TrackerTraits>;
     using GPUKernels = CAHitNtupletGeneratorKernels<TrackerTraits>;
@@ -317,7 +317,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       alpaka::memset(queue, ntracks_d, 0);
       return tracks;
     }
-    GPUKernels kernels(m_params, hits_d.view().metadata().size(), hits_d.offsetBPIX2(), queue);
+    GPUKernels kernels(m_params, hits_d.view(), queue);
 
     kernels.buildDoublets(hits_d.view(), hits_d.offsetBPIX2(), queue);
     kernels.launchKernels(hits_d.view(), hits_d.offsetBPIX2(), tracks.view(), queue);
@@ -326,10 +326,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     fitter.allocate(kernels.tupleMultiplicity(), tracks.view());
     if (m_params.useRiemannFit_) {
       fitter.launchRiemannKernels(
-          hits_d.view(), cpeParams, hits_d.view().metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
+          hits_d.view(), frame.view(), hits_d.view().metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
     } else {
       fitter.launchBrokenLineKernels(
-          hits_d.view(), cpeParams, hits_d.view().metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
+          hits_d.view(), frame.view(), hits_d.view().metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
     }
     kernels.classifyTuples(hits_d.view(), tracks.view(), queue);
 #ifdef GPU_DEBUG

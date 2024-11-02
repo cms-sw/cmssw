@@ -39,8 +39,99 @@ def customiseForOffline(process):
 
     return process
 
-def customizeHLTfor47378(process):
-    """Needed following the migration of the online beam spot arbitration to the edproducer"""
+
+def customizeHLTfor46935(process):
+    """Changes parameter names of EcalUncalibRecHitSoAToLegacy producer"""
+    for prod in producers_by_type(process, 'EcalUncalibRecHitSoAToLegacy'):
+        if hasattr(prod, 'uncalibRecHitsPortableEB'):
+            prod.inputCollectionEB = prod.uncalibRecHitsPortableEB
+            delattr(prod, 'uncalibRecHitsPortableEB')
+        if hasattr(prod, 'uncalibRecHitsPortableEE'):
+            prod.inputCollectionEE = prod.uncalibRecHitsPortableEE
+            delattr(prod, 'uncalibRecHitsPortableEE')
+        if hasattr(prod, 'recHitsLabelCPUEB'):
+            prod.outputLabelEB = prod.recHitsLabelCPUEB
+            delattr(prod, 'recHitsLabelCPUEB')
+        if hasattr(prod, 'recHitsLabelCPUEE'):
+            prod.outputLabelEE = prod.recHitsLabelCPUEE
+            delattr(prod, 'recHitsLabelCPUEE')
+    return process
+
+def customiseHLTFor46647(process):
+    for prod in producers_by_type(process, 'CtfSpecialSeedGenerator'):
+        if hasattr(prod, "DontCountDetsAboveNClusters"):
+            value = prod.DontCountDetsAboveNClusters.value()
+            delattr(prod, "DontCountDetsAboveNClusters")
+            # Replace it with cms.uint32
+            prod.DontCountDetsAboveNClusters = cms.uint32(value)
+
+
+def customizeHLTfor47017(process):
+    """Remove unneeded parameters from the HLT menu"""
+    for prod in producers_by_type(process, 'MaskedMeasurementTrackerEventProducer'):
+        if hasattr(prod, 'OnDemand'):
+            delattr(prod, 'OnDemand')
+
+    for prod in producers_by_type(process, 'HcalHaloDataProducer'):
+        if hasattr(prod, 'HcalMaxMatchingRadiusParam'):
+            delattr(prod, 'HcalMaxMatchingRadiusParam')
+        if hasattr(prod, 'HcalMinMatchingRadiusParam'):
+            delattr(prod, 'HcalMinMatchingRadiusParam')
+
+    for prod in producers_by_type(process, 'SiPixelRecHitConverter'):
+        if hasattr(prod, 'VerboseLevel'):
+            delattr(prod, 'VerboseLevel')
+
+def customizeHLTforXXX(process):
+    if not hasattr(process, 'HLTRecoPixelTracksSequence'):
+        return process
+
+    process.frameSoAESProducerPhase1 = cms.ESProducer('FrameSoAESProducerPhase1@alpaka',
+      ComponentName = cms.string('FrameSoAPhase1'),
+      appendToDataLabel = cms.string(''),
+      alpaka = cms.untracked.PSet(
+        backend = cms.untracked.string('')
+      )
+    )
+
+    for producer in producers_by_type(process, "CAHitNtupletAlpakaPhase1@alpaka"):
+        #print("entered the producers loop")
+        if hasattr(producer, "CPE"):
+            print("found CPE stuff")
+            delattr(producer, "CPE")
+        if not hasattr(producer, 'frameSoA'):
+            setattr(producer, 'frameSoA', cms.string('FrameSoAPhase1'))
+
+    for producer in producers_by_type(process, "alpaka_serial_sync::CAHitNtupletAlpakaPhase1"):
+        #print("entered the producers loop")
+        if hasattr(producer, "CPE"):
+            print("found CPE stuff")
+            delattr(producer, "CPE")
+        if not hasattr(producer, 'frameSoA'):
+            setattr(producer, 'frameSoA', cms.string('FrameSoAPhase1'))
+    
+    return process
+
+
+def customizeHLTfor47079(process):
+    """Remove unneeded parameters from the HLT menu"""
+    for filt in filters_by_type(process, 'PrimaryVertexObjectFilter'):
+        if hasattr(filt, 'filterParams') and hasattr(filt.filterParams, 'pvSrc'):
+            del filt.filterParams.pvSrc  # Remove the pvSrc parameter
+
+    for prod in producers_by_type(process, 'HcalHitReconstructor'):
+        # Remove useless parameters
+        if hasattr(prod,'setHSCPFlags'):
+            delattr(prod,'setHSCPFlags')
+
+        if hasattr(prod,'setPulseShapeFlags'):
+            delattr(prod,'setPulseShapeFlags')
+                    
+    return process
+
+def customizeHLTfor47047(process):
+    """Migrates many ESProducers to MoveToDeviceCache"""
+>>>>>>> 82c6e3e3d74 (Moving histo out of hits and new FrameSoA)
     import copy
     for esprod in list(esproducers_by_type(process, "OnlineBeamSpotESProducer")):
         delattr(process, esprod.label())
@@ -59,6 +150,8 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
     process = customizeHLTfor47378(process)
-    
+    process = customizeHLTforXXX(process)
+   
     return process
