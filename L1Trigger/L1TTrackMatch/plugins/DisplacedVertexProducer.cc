@@ -208,26 +208,38 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
   //Simulation track selection loop
   for (iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++) {
     edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> l1track_ptr(TTTrackHandle, this_l1track);
+    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> l1track_GTTptr(TTTrackGTTHandle, this_l1track);
     this_l1track++;
 
     float pt = l1track_ptr->momentum().perp();
+    //float pt = FloatPtFromBits(*l1track_GTTptr);
     float eta = l1track_ptr->momentum().eta();
+    //float eta = FloatEtaFromBits(*l1track_GTTptr);
     float phi = l1track_ptr->momentum().phi();
+    //float phi = FloatPhiFromBits(*l1track_GTTptr);
     float z0 = l1track_ptr->z0();  //cm
+    //float z0 = l1track_GTTptr->getZ0();
     float x0 = l1track_ptr->POCA().x();
     float y0 = l1track_ptr->POCA().y();
     float d0 = -x0 * sin(phi) + y0 * cos(phi);
+    //float d0 = l1track_GTTptr->getD0();
     float rinv = l1track_ptr->rInv();
-    float chi2 = l1track_ptr->chi2Red();
+    //int charge = ChargeFromBits(*l1track_GTTptr);
+    //float rho = charge*convertPtToR(pt);
     float chi2rphi = l1track_ptr->chi2XYRed();
+    //float chi2rphi = l1track_GTTptr->getChi2RPhi();
     float chi2rz = l1track_ptr->chi2ZRed();
+    //float chi2rz = l1track_GTTptr->getChi2RZ();
     float bendchi2 = l1track_ptr->stubPtConsistency();
+    //float bendchi2 = l1track_GTTptr->getBendChi2();
     float MVA1 = l1track_ptr->trkMVA1();
+    //float MVA1 = l1track_GTTptr->getMVAQuality()+0.005;
     
     //float MVA2 = l1track_ptr->trkMVA2();
     std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
         stubRefs = l1track_ptr->getStubRefs();
     int nstub = (int)stubRefs.size();
+    //int nstub = l1track_GTTptr->getNStubs();
     //std::cout<<"simulation track pt: "<<pt<<" eta: "<<eta<<" phi: "<<phi<<" z0: "<<z0<<" d0: "<<d0<<" rinv: "<<rinv<<" chi2rphi: "<<chi2rphi<<" chi2rz: "<<chi2rz<<" bendchi2: "<<bendchi2<<" MVA: "<<MVA1<<" nstub: "<<nstub<<" rho: "<<(1/rinv)<<std::endl;
     
     if (chi2rz < chi2rzMax_ && MVA1 > promptMVAMin_ && pt > ptMin_ && fabs(eta) < etaMax_) {
@@ -286,7 +298,6 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
     float x0Sim = l1track_ptr->POCA().x();
     float y0Sim = l1track_ptr->POCA().y();
     float d0Sim = -x0Sim * sin(phiSim) + y0Sim * cos(phiSim);
-    float d0SimAlt = l1track_ptr->d0();
     int chargeSim = (int)(l1track_ptr->rInv() / fabs(l1track_ptr->rInv()));
     float chi2Sim = l1track_ptr->chi2Red();
     float chi2rphiSim = l1track_ptr->chi2XYRed();
@@ -297,7 +308,7 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
         stubRefsSim = l1track_ptr->getStubRefs();
     int nstubSim = (int)stubRefsSim.size();
 
-    //std::cout<<"simulation track pt: "<<ptSim<<" eta: "<<etaSim<<" phi: "<<phiSim<<" z0: "<<z0Sim<<" d0: "<<d0Sim<<" charge: "<<chargeSim<<" chi2rphi: "<<chi2rphiSim<<" chi2rz: "<<chi2rzSim<<" bendchi2: "<<bendchi2Sim<<" MVA: "<<MVA1Sim<<" nstub: "<<nstubSim<<" d0 alt: "<<d0SimAlt<<std::endl;
+    //std::cout<<"simulation track pt: "<<ptSim<<" eta: "<<etaSim<<" phi: "<<phiSim<<" z0: "<<z0Sim<<" d0: "<<d0Sim<<" charge: "<<chargeSim<<" chi2rphi: "<<chi2rphiSim<<" chi2rz: "<<chi2rzSim<<" bendchi2: "<<bendchi2Sim<<" MVA: "<<MVA1Sim<<" nstub: "<<nstubSim<<std::endl;
 #endif
     
     float pt = FloatPtFromBits(*l1track_ptr);
@@ -417,8 +428,8 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
       float minD0 = vertex.a.d0;
       if (fabs(vertex.b.d0) < fabs(minD0))
         minD0 = vertex.b.d0;
-      std::vector<float> Transformed_features = {selectedTracksWithTruth[i].first.pt,
-                                                 selectedTracksWithTruth[j].first.pt,
+      std::vector<float> Transformed_features = {float(selectedTracksWithTruth[i].first.pt*0.25),
+	                                         float(selectedTracksWithTruth[j].first.pt*0.25),
                                                  selectedTracksWithTruth[i].first.eta,
                                                  selectedTracksWithTruth[j].first.eta,
                                                  selectedTracksWithTruth[i].first.phi,
@@ -427,22 +438,22 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
                                                  selectedTracksWithTruth[j].first.d0,
                                                  selectedTracksWithTruth[i].first.z0,
                                                  selectedTracksWithTruth[j].first.z0,
-                                                 selectedTracksWithTruth[i].first.chi2rz,
-                                                 selectedTracksWithTruth[j].first.chi2rz,
-                                                 selectedTracksWithTruth[i].first.bendchi2,
-                                                 selectedTracksWithTruth[j].first.bendchi2,
-                                                 selectedTracksWithTruth[i].first.MVA1,
-                                                 selectedTracksWithTruth[j].first.MVA1,
+                                                 float(selectedTracksWithTruth[i].first.chi2rz+0.07),
+                                                 float(selectedTracksWithTruth[j].first.chi2rz+0.07),
+                                                 float(selectedTracksWithTruth[i].first.bendchi2+0.07),
+                                                 float(selectedTracksWithTruth[j].first.bendchi2+0.07),
+                                                 float(selectedTracksWithTruth[i].first.MVA1+0.07),
+                                                 float(selectedTracksWithTruth[j].first.MVA1+0.07),
                                                  vertex.d_T,
                                                  vertex.R_T,
                                                  vertex.cos_T,
-                                                 vertex.delta_z};
+                                                 float(vertex.delta_z*0.125)};
  
       //std::vector<float> TransformedFloat_features;
       //for(auto feature: Transformed_features){
       //TransformedFloat_features.push_back(feature);
       //}
-      
+#if 0
       if(isReal){
 	std::cout<<"simulation features: "<<std::endl;
 	for(auto feature: Transformed_features){
@@ -450,14 +461,12 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
 	}
 	std::cout<<std::endl;
       }
-
-
-      
-      conifer::BDT<float, float> bdt(this->model_);
+#endif 
+      conifer::BDT<float,float> bdt(this->model_);
       std::vector<float> output = bdt.decision_function(Transformed_features);
       //outputVertex.setScore(1. / (1. + exp(-output.at(0))));
-      outputVertex.setScore(1. / (1. + exp(-output.at(0))));
-      if(isReal) std::cout<<"vertex true position: "<<tp_i->vx()<<" "<<tp_i->vy()<<" "<<tp_i->vz()<<" score: "<<(1. / (1. + exp(-output.at(0))))<<" raw score: "<<output.at(0)<<std::endl;
+      outputVertex.setScore(output.at(0));
+      //if(isReal) std::cout<<"vertex true position: "<<tp_i->vx()<<" "<<tp_i->vy()<<" "<<tp_i->vz()<<" score: "<<(1. / (1. + exp(-output.at(0))))<<" raw score: "<<output.at(0)<<std::endl;
       product->emplace_back(outputVertex);
       //numVertices++;
     }
@@ -524,8 +533,8 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
       if (fabs(vertex.b.d0) < fabs(minD0))
         minD0 = vertex.b.d0;
       //std::cout<<"first pt: "<<selectedTracksEmulationWithTruth[i].first.pt<<" first eta: "<<selectedTracksEmulationWithTruth[i].first.eta<<" first phi: "<<selectedTracksEmulationWithTruth[i].first.phi<<" first d0: "<<selectedTracksEmulationWithTruth[i].first.d0<<" first z0: "<<selectedTracksEmulationWithTruth[i].first.z0<<" first chi2rz: "<<selectedTracksEmulationWithTruth[i].first.chi2rz<<" first bendchi2: "<<selectedTracksEmulationWithTruth[i].first.bendchi2<<" first MVA: "<<selectedTracksEmulationWithTruth[i].first.MVA1<<" d_T: "<<vertex.d_T<<" R_T: "<<vertex.R_T<<" cos_T: "<<vertex.cos_T<<" delta_z: "<<vertex.delta_z<<std::endl;
-      std::vector<ap_fixed<32,16,AP_RND_CONV, AP_SAT>> Transformed_features = {selectedTracksEmulationWithTruth[i].first.pt,
-                                                 selectedTracksEmulationWithTruth[j].first.pt,
+      std::vector<ap_fixed<13,8,AP_RND_CONV, AP_SAT>> Transformed_features = {selectedTracksEmulationWithTruth[i].first.pt*0.25,
+                                                 selectedTracksEmulationWithTruth[j].first.pt*0.25,
                                                  selectedTracksEmulationWithTruth[i].first.eta,
                                                  selectedTracksEmulationWithTruth[j].first.eta,
                                                  selectedTracksEmulationWithTruth[i].first.phi,
@@ -534,16 +543,17 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
                                                  selectedTracksEmulationWithTruth[j].first.d0,
                                                  selectedTracksEmulationWithTruth[i].first.z0,
                                                  selectedTracksEmulationWithTruth[j].first.z0,
-                                                 selectedTracksEmulationWithTruth[i].first.chi2rz,
-                                                 selectedTracksEmulationWithTruth[j].first.chi2rz,
-                                                 selectedTracksEmulationWithTruth[i].first.bendchi2,
-                                                 selectedTracksEmulationWithTruth[j].first.bendchi2,
-                                                 selectedTracksEmulationWithTruth[i].first.MVA1,
-                                                 selectedTracksEmulationWithTruth[j].first.MVA1,
+                                                 selectedTracksEmulationWithTruth[i].first.chi2rz+0.07,
+                                                 selectedTracksEmulationWithTruth[j].first.chi2rz+0.07,
+                                                 selectedTracksEmulationWithTruth[i].first.bendchi2+0.07,
+                                                 selectedTracksEmulationWithTruth[j].first.bendchi2+0.07,
+                                                 selectedTracksEmulationWithTruth[i].first.MVA1+0.07,
+                                                 selectedTracksEmulationWithTruth[j].first.MVA1+0.07,
                                                  vertex.d_T,
                                                  vertex.R_T,
                                                  vertex.cos_T,
-                                                 vertex.delta_z};
+                                                 vertex.delta_z*0.125};
+#if 0
       if(isReal){
 	std::cout<<"emulation features: "<<std::endl;
 	for(auto feature: Transformed_features){
@@ -551,13 +561,14 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
 	}
 	std::cout<<std::endl;
       }
-      conifer::BDT<ap_fixed<32,16,AP_RND_CONV, AP_SAT>, ap_fixed<32,16,AP_RND_CONV, AP_SAT>, true> bdt(this->model_);
-      std::vector<ap_fixed<32,16,AP_RND_CONV, AP_SAT>> output = bdt.decision_function(Transformed_features);
+#endif
+      conifer::BDT<ap_fixed<13,8,AP_RND_CONV, AP_SAT>, ap_fixed<13,8,AP_RND_CONV, AP_SAT>> bdt(this->model_);
+      std::vector<ap_fixed<13,8,AP_RND_CONV, AP_SAT>> output = bdt.decision_function(Transformed_features);
       //std::cout<<"transformed first pt: "<<Transformed_features[0]<<" transformed first eta: "<<Transformed_features[2]<<" transformed first phi: "<<Transformed_features[4]<<" transformed first d0: "<<Transformed_features[6]<<" transformed first z0: "<<Transformed_features[8]<<" transformed first chi2rz: "<<Transformed_features[10]<<" transformed first bendchi2: "<<Transformed_features[12]<<" transformed first MVA: "<<Transformed_features[14]<<" transformed d_T: "<<Transformed_features[16]<<" transformed R_T: "<<Transformed_features[17]<<" transformed cos_T: "<<Transformed_features[18]<<" transformed delta_z: "<<Transformed_features[19]<<std::endl;
       //std::cout<<"transformed second pt: "<<Transformed_features[1]<<" transformed second eta: "<<Transformed_features[3]<<" transformed second phi: "<<Transformed_features[5]<<" transformed second d0: "<<Transformed_features[7]<<" transformed second z0: "<<Transformed_features[9]<<" transformed second chi2rz: "<<Transformed_features[11]<<" transformed second bendchi2: "<<Transformed_features[13]<<" transformed second MVA: "<<Transformed_features[15]<<" transformed d_T: "<<Transformed_features[16]<<" transformed R_T: "<<Transformed_features[17]<<" transformed cos_T: "<<Transformed_features[18]<<" transformed delta_z: "<<Transformed_features[19]<<std::endl;
-      outputVertex.setScore(1. / (1. + exp(-output.at(0).to_float())));
+      outputVertex.setScore(output.at(0).to_float());
       outputVertex.setScoreEmu(output.at(0));
-      if(isReal) std::cout<<"emulation vertex true position: "<<tp_i->vx()<<" "<<tp_i->vy()<<" "<<tp_i->vz()<<" score: "<<(1. / (1. + exp(-output.at(0).to_float())))<<" raw score: "<<output.at(0).to_float()<<std::endl;
+      //if(isReal) std::cout<<"emulation vertex true position: "<<tp_i->vx()<<" "<<tp_i->vy()<<" "<<tp_i->vz()<<" score: "<<(1. / (1. + exp(-output.at(0).to_float())))<<" raw score: "<<output.at(0).to_float()<<std::endl;
       productEmulation->emplace_back(outputVertex);
       //numVerticesEmu++;
     }

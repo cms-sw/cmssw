@@ -2751,10 +2751,10 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       float tmp_dvEmu_cos_T = dispVertEmulationIter->cos_T();
       float tmp_dvEmu_del_Z = dispVertEmulationIter->del_Z();
       
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_dvEmuFixed_d_T = tmp_dvEmu_d_T;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_dvEmuFixed_R_T = tmp_dvEmu_R_T;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_dvEmuFixed_cos_T = tmp_dvEmu_cos_T;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_dvEmuFixed_del_Z = tmp_dvEmu_del_Z;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_dvEmuFixed_d_T = tmp_dvEmu_d_T;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_dvEmuFixed_R_T = tmp_dvEmu_R_T;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_dvEmuFixed_cos_T = tmp_dvEmu_cos_T;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_dvEmuFixed_del_Z = tmp_dvEmu_del_Z;
 	
       m_dvEmu_d_T->push_back(tmp_dvEmu_d_T);
       m_dvEmu_R_T->push_back(tmp_dvEmu_R_T);
@@ -3162,14 +3162,14 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       float tmp_trkEmu_MVA = l1track_ref->getMVAQuality();
       int tmp_trkEmu_nstub = l1track_ref->getNStubs();
 
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_pt = tmp_trkEmu_pt;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_eta = tmp_trkEmu_eta;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_phi = tmp_trkEmu_phi;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_z0 = tmp_trkEmu_z0;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_d0 = tmp_trkEmu_d0;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_chi2rz = tmp_trkEmu_chi2rz;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_bendchi2 = tmp_trkEmu_bendchi2;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_MVA = tmp_trkEmu_MVA;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_pt = tmp_trkEmu_pt;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_eta = tmp_trkEmu_eta;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_phi = tmp_trkEmu_phi;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_z0 = tmp_trkEmu_z0;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_d0 = tmp_trkEmu_d0;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_chi2rz = tmp_trkEmu_chi2rz;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_bendchi2 = tmp_trkEmu_bendchi2;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_trkEmuFixed_MVA = tmp_trkEmu_MVA;
 
       // ----------------------------------------------------------------------------------------------
       // loop over stubs on tracks
@@ -3871,14 +3871,14 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       float tmp_matchtrkExtEmu_MVA = -999;
       int tmp_matchtrkExtEmu_nstub = -999;
 
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_pt = -999;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_eta = -999;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_phi = -999;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_d0 = -999;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_z0 = -999;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_chi2rz = -999;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_bendchi2 = -999;
-      ap_fixed<12, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_MVA = -999;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_pt = -999;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_eta = -999;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_phi = -999;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_d0 = -999;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_z0 = -999;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_chi2rz = -999;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_bendchi2 = -999;
+      ap_fixed<13, 8, AP_RND_CONV, AP_SAT> tmp_matchtrkExtEmuFixed_MVA = -999;
       
       if (nMatch > 1 && DebugMode)
         edm::LogVerbatim("Tracklet") << "WARNING *** 2 or more matches to genuine L1 tracks ***";
