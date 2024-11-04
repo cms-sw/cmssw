@@ -54,6 +54,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (TTbar FastSim, TTbar FastSim PU, MinBiasFS for mixing))
 #        (ZEE)
 #        (Nu Gun)
+#   2025 (TTbar, TTbar PU)
 
 numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009.0,10059.0,10071.0,
            10042.0,10024.0,10025.0,10026.0,10023.0,10224.0,10225.0,10424.0,
@@ -101,7 +102,9 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            12834.402, 12834.412,
            16434.0, 16634.0, 16440.303,
            12846.0,
-           12861.0]
+           12861.0,
+           # 2025
+           16834.0, 17034.0,]
 
 for numWF in numWFIB:
     if not numWF in _upgrade_workflows:

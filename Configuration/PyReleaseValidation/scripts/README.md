@@ -321,10 +321,12 @@ MC workflows for pp collisions:
 | 11634.0 	| TTbar_14TeV 	| phase1_2022_realistic 	| Run3 	|  	|  	
 | 13234.0 	| RelValTTbar_14TeV 	| phase1_2022_realistic 	| Run3_FastSim 	| *FastSim*  |  	
 | 12434.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023 	|  	|  	
-| 12834.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2024 	|  	| 
+| 12834.0 	| RelValTTbar_14TeV 	| phase1_2024_realistic 	| Run3_2024 	|  	| 
 | 12846.0 	| RelValZEE_14 	| phase1_2023_realistic 	| Run3_2024 	|  	|  	
-| 13034.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2024 	|  Run3_Flat55To75_PoissonOOTPU 	|  	
-| 12834.7 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2024 	| mkFit 	|  	
+| 13034.0 	| RelValTTbar_14TeV 	| phase1_2024_realistic 	| Run3_2024 	|  Run3_Flat55To75_PoissonOOTPU 	|  	
+| 12834.7 	| RelValTTbar_14TeV 	| phase1_2024_realistic 	| Run3_2024 	| mkFit 	|  	
+| 12834.0 	| RelValTTbar_14TeV 	| phase1_2024_realistic 	| Run3_2024 	|  	| 
+| 16834.0 	| RelValTTbar_14TeV 	| phase1_2025_realistic 	| Run3_2025 	|  	| 
 | 14034.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	|  	*FastSim* |  	
 | 14234.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	| *FastSim*  Run3_Flat55To75_PoissonOOTPU 	|  	
 | 2500.201 	| RelValTTbar_14TeV 	| phase1_2022_realistic 	| Run3 	| NanoAOD from existing MINI 	|  	
@@ -365,14 +367,14 @@ pp Data reRECO workflows:
 | 2021 	|  	|  	|  	|  	|  	
 | 139.001 	| Run2021 	MinimumBias 	| run3_hlt_relval 	| Run3 	| HLT@relval2022 (Commissioning2021) |	
 | 2022 	|  	|  	|  	|  	|  	
-| 140.023 	| Run2022B ZeroBias 	|  	run3_hlt_relval |  	Run3 |  	HLT:@relval2022 |  	
-| 140.043 	| Run2022C ZeroBias 	|  	run3_hlt_relval |  	Run3 |  	HLT:@relval2022 |  	
-| 140.063 	| Run2022D ZeroBias 	|  	run3_hlt_relval |  	Run3 |  	HLT:@relval2022 |  	
-| 2023 	|  	|  	|  	|  	|  	
-| 141.044 	| Run2023D JetMET0 	| run3_hlt_relval 	| Run3_2023 	| HLT@relval2024 	|  
-| 141.042 	| Run2023D ZeroBias 	| run3_hlt_relval 	| Run3_2023 	| HLT@relval2024 	|  	
-| 141.046 	| Run2023D EGamma0 	| run3_hlt_relval 	| Run3_2023 	| HLT@relval2024 	|  	
-
+| 2022.002001 	| Run2022D ZeroBias 	|  	run3_hlt_relval + run3_data_relval |  	Run3 |  	HLT:@relval2022 | 
+| 2022.000001 	| Run2022D JetHT 	|  	run3_hlt_relval + run3_data_relval |  	Run3 |  	HLT:@relval2022 |  	
+| 2023.002001 	| Run2023D ZeroBias 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2023 |  	HLT:@relval2023 | 
+| 2023.000001 	| Run2023D MuonEG 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2023 |  	HLT:@relval2023 | 
+| 2024.000001 	| Run2024B ZeroBias 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2023 |  
+| 2024.101001 	| Run2024C BTagMu 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
+| 2024.202001 	| Run2024D JetMET0 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
+| 2024.303001 	| Run2024E RunDisplacedJet 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
 
 And Heavy Ion workflows:
 
