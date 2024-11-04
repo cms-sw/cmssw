@@ -579,7 +579,7 @@ for e_n,era in enumerate(['Run2024D','Run2024C']):
         wf_number = wf_number + offset_pd * p_n
         wf_number = wf_number + 0.0001 * 0.01 
         wf_number = round(wf_number,6)
-        step_name = "Run" + pd + era.split("Run")[1] + "_10k"
+	step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_" + e_key
         workflows[wf_number] = ['',[step_name,'HLTDR3_2024','AODNANORUN3_reHLT_2024','HARVESTRUN3_2024']]
 
 # 2023
@@ -591,7 +591,7 @@ for e_n,era in enumerate(['Run2023C', 'Run2023D']):
         wf_number = wf_number + offset_pd * p_n
         wf_number = wf_number + 0.0001 * 0.01
         wf_number = round(wf_number,6)
-        step_name = "Run" + pd + era.split("Run")[1] + "_10k"
+        step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_" + e_key 
         workflows[wf_number] = ['',[step_name,'HLTDR3_2023','AODNANORUN3_reHLT_2023','HARVESTRUN3_2023']]
 
 # 2022
