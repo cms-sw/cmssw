@@ -75,7 +75,7 @@ public:
           throw cms::Exception("PFEcalBarrelRecHitCreator") << "detid " << detid.rawId() << "not found in geometry";
         }
 
-        out->emplace_back(thisCell.releaseToShared(), detid.rawId(), PFLayer::ECAL_BARREL, energy, flags);
+        out->emplace_back(std::move(thisCell), detid.rawId(), PFLayer::ECAL_BARREL, energy, flags);
       }
       auto& rh = out->back();
 

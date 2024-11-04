@@ -2,6 +2,7 @@
 #define UCTLayer1_hh
 
 #include <vector>
+#include <memory>
 
 class UCTCrate;
 class UCTRegion;
@@ -36,7 +37,7 @@ public:
 
   std::vector<UCTCrate*>& getCrates() { return crates; }
   const UCTRegion* getRegion(UCTRegionIndex r) const { return getRegion(r.first, r.second); }
-  const UCTTower* getTower(UCTTowerIndex t) const { return getTower(t.first, t.second); }
+  const std::shared_ptr<UCTTower> getTower(UCTTowerIndex t) const { return getTower(t.first, t.second); }
 
   // To zero out event in case of selective tower filling
   bool clearEvent();
@@ -58,7 +59,7 @@ private:
   // Helper functions
 
   const UCTRegion* getRegion(int regionEtaIndex, uint32_t regionPhiIndex) const;
-  const UCTTower* getTower(int caloEtaIndex, int caloPhiIndex) const;
+  const std::shared_ptr<UCTTower> getTower(int caloEtaIndex, int caloPhiIndex) const;
 
   //Private data
 

@@ -56,7 +56,7 @@ void print(UCTLayer1& uct) {
     for (uint32_t crd = 0; crd < cards.size(); crd++) {
       vector<UCTRegion*> regions = cards[crd]->getRegions();
       for (uint32_t rgn = 0; rgn < regions.size(); rgn++) {
-        vector<UCTTower*> towers = regions[rgn]->getTowers();
+        auto const& towers = regions[rgn]->getTowers();
         for (uint32_t twr = 0; twr < towers.size(); twr++) {
           if (towers[twr]->et() != 0)
             std::cout << *towers[twr] << std::endl;
