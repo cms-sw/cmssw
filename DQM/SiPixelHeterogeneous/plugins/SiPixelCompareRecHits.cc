@@ -99,20 +99,19 @@ void SiPixelCompareRecHits<T>::analyzeSeparate(U tokenRef, V tokenTar, const edm
   const auto& rhsoaHandleRef = iEvent.getHandle(tokenRef);
   const auto& rhsoaHandleTar = iEvent.getHandle(tokenTar);
 
-  if (not rhsoaHandleRef or not rhsoaHandleTar) {
+  // Exit early if any handle is invalid
+  if (!rhsoaHandleRef || !rhsoaHandleTar) {
     edm::LogWarning out("SiPixelCompareRecHits");
-    if (not rhsoaHandleRef) {
+    if (!rhsoaHandleRef)
       out << "reference rechits not found; ";
-    }
-    if (not rhsoaHandleTar) {
+    if (!rhsoaHandleTar)
       out << "target rechits not found; ";
-    }
     out << "the comparison will not run.";
     return;
   }
 
-  auto const& rhsoaRef = *rhsoaHandleRef;
-  auto const& rhsoaTar = *rhsoaHandleTar;
+  const auto& rhsoaRef = *rhsoaHandleRef;
+  const auto& rhsoaTar = *rhsoaHandleTar;
 
   auto const& soa2dRef = rhsoaRef.const_view();
   auto const& soa2dTar = rhsoaTar.const_view();
@@ -121,15 +120,28 @@ void SiPixelCompareRecHits<T>::analyzeSeparate(U tokenRef, V tokenTar, const edm
   uint32_t nHitsTar = soa2dTar.metadata().size();
 
   hnHits_->Fill(nHitsRef, nHitsTar);
+
+  // Map detector indices to target hits for quick access
+  std::unordered_map<uint16_t, std::vector<size_t>> detectorIndexMap;
+  detectorIndexMap.reserve(nHitsTar);
+  for (size_t j = 0; j < nHitsTar; ++j) {
+    detectorIndexMap[soa2dTar[j].detectorIndex()].push_back(j);
+  }
+
   auto detIds = tkGeom_->detUnitIds();
+
+  // Loop through reference hits
   for (uint32_t i = 0; i < nHitsRef; i++) {
     float minD = mind2cut_;
     uint32_t matchedHit = invalidHit_;
     uint16_t indRef = soa2dRef[i].detectorIndex();
     float xLocalRef = soa2dRef[i].xLocal();
     float yLocalRef = soa2dRef[i].yLocal();
-    for (uint32_t j = 0; j < nHitsTar; j++) {
-      if (soa2dTar.detectorIndex(j) == indRef) {
+
+    // Look up hits in target with matching detector index
+    auto it = detectorIndexMap.find(indRef);
+    if (it != detectorIndexMap.end()) {
+      for (auto j : it->second) {
         float dx = xLocalRef - soa2dTar[j].xLocal();
         float dy = yLocalRef - soa2dTar[j].yLocal();
         float distance = dx * dx + dy * dy;
@@ -139,22 +151,29 @@ void SiPixelCompareRecHits<T>::analyzeSeparate(U tokenRef, V tokenTar, const edm
         }
       }
     }
+
+    // Gather reference hit properties
     DetId id = detIds[indRef];
     uint32_t chargeRef = soa2dRef[i].chargeAndStatus().charge;
-    int16_t sizeXRef = std::ceil(float(std::abs(soa2dRef[i].clusterSizeX()) / 8.));
-    int16_t sizeYRef = std::ceil(float(std::abs(soa2dRef[i].clusterSizeY()) / 8.));
+    int16_t sizeXRef = (soa2dRef[i].clusterSizeX() + 7) / 8;
+    int16_t sizeYRef = (soa2dRef[i].clusterSizeY() + 7) / 8;
+
+    // Initialize target hit properties
     uint32_t chargeTar = 0;
     int16_t sizeXTar = -99;
     int16_t sizeYTar = -99;
     float xLocalTar = -999.;
     float yLocalTar = -999.;
+
     if (matchedHit != invalidHit_) {
       chargeTar = soa2dTar[matchedHit].chargeAndStatus().charge;
-      sizeXTar = std::ceil(float(std::abs(soa2dTar[matchedHit].clusterSizeX()) / 8.));
-      sizeYTar = std::ceil(float(std::abs(soa2dTar[matchedHit].clusterSizeY()) / 8.));
+      sizeXTar = (soa2dTar[matchedHit].clusterSizeX() + 7) / 8;
+      sizeYTar = (soa2dTar[matchedHit].clusterSizeY() + 7) / 8;
       xLocalTar = soa2dTar[matchedHit].xLocal();
       yLocalTar = soa2dTar[matchedHit].yLocal();
     }
+
+    // Populate histograms based on subdetector type
     switch (id.subdetId()) {
       case PixelSubdetector::PixelBarrel:
         hBchargeL_[tTopo_->pxbLayer(id) - 1]->Fill(chargeRef, chargeTar);
