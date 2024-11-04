@@ -37,7 +37,7 @@ namespace l1t {
 
   class DisplacedTrackVertex {
   public:
-    typedef ap_fixed<12,8> score_t;
+    typedef ap_fixed<13,8,AP_RND_CONV, AP_SAT> score_t;
     
   public:
     DisplacedTrackVertex(int firstIndexTrk,

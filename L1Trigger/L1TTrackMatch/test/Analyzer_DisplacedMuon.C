@@ -809,7 +809,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
     tree->SetBranchAddress("trkExtEmu_eta", &trk_eta, &b_trk_eta);
     tree->SetBranchAddress("trkExtEmu_phi", &trk_phi, &b_trk_phi);
     tree->SetBranchAddress("trkExtEmu_d0", &trk_d0, &b_trk_d0);
-    tree->SetBranchAddress("trkExtEmu_rinv", &trk_rinv, &b_trk_rinv);
+    tree->SetBranchAddress("trkExtEmu_rho", &trk_rinv, &b_trk_rinv);
     tree->SetBranchAddress("trkExtEmu_z0", &trk_z0, &b_trk_z0);
     tree->SetBranchAddress("trkExtEmu_chi2rphi", &trk_chi2rphi, &b_trk_chi2rphi);
     tree->SetBranchAddress("trkExtEmu_chi2rz", &trk_chi2rz, &b_trk_chi2rz);
@@ -879,7 +879,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
     tree->SetBranchAddress("matchtrkExtEmu_phi", &matchtrk_phi, &b_matchtrk_phi);
     tree->SetBranchAddress("matchtrkExtEmu_z0", &matchtrk_z0, &b_matchtrk_z0);
     tree->SetBranchAddress("matchtrkExtEmu_d0", &matchtrk_d0, &b_matchtrk_d0);
-    tree->SetBranchAddress("matchtrkExtEmu_rinv", &matchtrk_rinv, &b_matchtrk_rinv);
+    tree->SetBranchAddress("matchtrkExtEmu_rho", &matchtrk_rinv, &b_matchtrk_rinv);
     tree->SetBranchAddress("matchtrkExtEmu_chi2rphi", &matchtrk_chi2rphi, &b_matchtrk_chi2rphi);
     tree->SetBranchAddress("matchtrkExtEmu_chi2rz", &matchtrk_chi2rz, &b_matchtrk_chi2rz);
     tree->SetBranchAddress("matchtrkExtEmu_bendchi2", &matchtrk_bendchi2, &b_matchtrk_bendchi2);
@@ -1117,11 +1117,11 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
 
   //vertex cuts and plots definitions
   std::vector<std::unique_ptr<Cut>> vertCuts;
-  std::unique_ptr<TypedCut<float>> vertCut0(new TypedCut<float>("minR_T_Res","min R_{T} #sigma_{d0}",&trkVert_R_T,d0_res,true));
+  std::unique_ptr<TypedCut<float>> vertCut0(new TypedCut<float>("minR_T_Res","min R_{T} #sigma_{d0}",&trkVert_R_T,d0_res,false));
   vertCuts.push_back(std::move(vertCut0));
-  std::unique_ptr<TypedCut<float>> vertCut1(new TypedCut<float>("maxR_T","max R_{T}",&trkVert_R_T,20.0,true));
+  std::unique_ptr<TypedCut<float>> vertCut1(new TypedCut<float>("maxR_T","max R_{T}",&trkVert_R_T,20.0,false));
   vertCuts.push_back(std::move(vertCut1));
-  std::unique_ptr<TypedCut<float>> vertCut2(new TypedCut<float>("max_trk_sumCharge","max #Sigma q",&trk_rinv,0,true));
+  std::unique_ptr<TypedCut<float>> vertCut2(new TypedCut<float>("max_trk_sumCharge","max #Sigma q",&trk_rinv,0,false));
   vertCuts.push_back(std::move(vertCut2));
   std::unique_ptr<TypedCut<float>> vertCut3(new TypedCut<float>("min_trk_sumCharge","min #Sigma q",&trk_rinv,0,true));
   vertCuts.push_back(std::move(vertCut3));
@@ -1144,7 +1144,6 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
   vertCuts.push_back(std::move(vertCut11));
   std::unique_ptr<TypedCut<float>> vertCut12(new TypedCut<float>("min_trk_highD0","min d_{0}",&trk_d0,0.3,true));
   vertCuts.push_back(std::move(vertCut12));
-#endif
 
   //std::unique_ptr<TypedCut<float>> vertCut3p1(new TypedCut<float>("min_score0p68","score>0.68",&trkVert_score,0.68,true));
   //vertCuts.push_back(std::move(vertCut3p1));
@@ -1170,7 +1169,6 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
   vertCuts.push_back(std::move(vertCut54));
   std::unique_ptr<TypedCut<float>> vertCut6(new TypedCut<float>("min_score0p95","score>0.95",&trkVert_score,0.95,true));
   vertCuts.push_back(std::move(vertCut6));
-
   std::unique_ptr<TypedCut<float>> vertCut7(new TypedCut<float>("min_score0p96","score>0.96",&trkVert_score,0.96,true));
   vertCuts.push_back(std::move(vertCut7));
   std::unique_ptr<TypedCut<float>> vertCut8(new TypedCut<float>("min_score0p97","score>0.97",&trkVert_score,0.97,true));
@@ -1179,16 +1177,27 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
   vertCuts.push_back(std::move(vertCut9));
   std::unique_ptr<TypedCut<float>> vertCut10(new TypedCut<float>("min_score0p99","score>0.99",&trkVert_score,0.99,true));
   vertCuts.push_back(std::move(vertCut10));
-#if 0
-  std::unique_ptr<TypedCut<float>> vertCut11(new TypedCut<float>("min_score0p992","score>0.992",&trkVert_score,0.992,true));
-  vertCuts.push_back(std::move(vertCut11));
-  std::unique_ptr<TypedCut<float>> vertCut12(new TypedCut<float>("min_score0p994","score>0.994",&trkVert_score,0.994,true));
-  vertCuts.push_back(std::move(vertCut12));
-  std::unique_ptr<TypedCut<float>> vertCut13(new TypedCut<float>("min_score0p996","score>0.996",&trkVert_score,0.996,true));
-  vertCuts.push_back(std::move(vertCut13));
-  std::unique_ptr<TypedCut<float>> vertCut14(new TypedCut<float>("min_score0p998","score>0.998",&trkVert_score,0.998,true));
-  vertCuts.push_back(std::move(vertCut14));
 #endif
+
+  std::unique_ptr<TypedCut<float>> vertCut10(new TypedCut<float>("min_score4p0","score>4.0",&trkVert_score,4.0,false));
+  vertCuts.push_back(std::move(vertCut10));
+  std::unique_ptr<TypedCut<float>> vertCut11(new TypedCut<float>("min_score4p5","score>4.5",&trkVert_score,4.5,false));
+  vertCuts.push_back(std::move(vertCut11));
+  std::unique_ptr<TypedCut<float>> vertCut12(new TypedCut<float>("min_score5p0","score>5.0",&trkVert_score,5.0,false));
+  vertCuts.push_back(std::move(vertCut12));
+  std::unique_ptr<TypedCut<float>> vertCut13(new TypedCut<float>("min_score5p1","score>5.1",&trkVert_score,5.1,false));
+  vertCuts.push_back(std::move(vertCut13));
+  std::unique_ptr<TypedCut<float>> vertCut14(new TypedCut<float>("min_score5p2","score>5.2",&trkVert_score,5.2,false));
+  vertCuts.push_back(std::move(vertCut14));
+  std::unique_ptr<TypedCut<float>> vertCut15(new TypedCut<float>("min_score5p3","score>5.3",&trkVert_score,5.3,false));
+  vertCuts.push_back(std::move(vertCut15));
+  std::unique_ptr<TypedCut<float>> vertCut16(new TypedCut<float>("min_score5p4","score>5.4",&trkVert_score,5.4,false));
+  vertCuts.push_back(std::move(vertCut16));
+  std::unique_ptr<TypedCut<float>> vertCut17(new TypedCut<float>("min_score5p5","score>5.5",&trkVert_score,5.5,true));
+  vertCuts.push_back(std::move(vertCut17));
+  std::unique_ptr<TypedCut<float>> vertCut18(new TypedCut<float>("min_score5p55","score>5.55",&trkVert_score,5.55,true));
+  vertCuts.push_back(std::move(vertCut18));
+  
   std::vector<std::unique_ptr<Plot>> vertCutFlows;
   std::unique_ptr<TypedPlot<float>> vertPlot0(new TypedPlot<float>("x","cm",&trkVert_x,100,-5.0,5.0));
   vertCutFlows.push_back(std::move(vertPlot0));
