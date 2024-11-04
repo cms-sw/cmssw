@@ -9,7 +9,7 @@ _correctionFile2018UL        = "EgammaAnalysis/ElectronTools/data/ScalesSmearing
 
 calibratedEgammaSettings = cms.PSet(minEtToCalibrate = cms.double(5.0),
                                     semiDeterministic = cms.bool(True),
-                                    correctionFile = cms.string(_correctionFile2017Nov17),
+                                    correctionFile = cms.string(_correctionFile2017UL),
                                     recHitCollectionEB = cms.InputTag('reducedEcalRecHitsEB'),
                                     recHitCollectionEE = cms.InputTag('reducedEcalRecHitsEE'),
                                     produceCalibratedObjs = cms.bool(True)
