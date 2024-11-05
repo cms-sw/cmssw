@@ -62,7 +62,7 @@ const UCTRegion* UCTLayer1::getRegion(int regionEtaIndex, uint32_t regionPhiInde
   return region;
 }
 
-const UCTTower* UCTLayer1::getTower(int caloEta, int caloPhi) const {
+const std::shared_ptr<UCTTower> UCTLayer1::getTower(int caloEta, int caloPhi) const {
   if (caloPhi < 0) {
     LOG_ERROR << "UCT::getTower - Negative caloPhi is unacceptable -- bailing" << std::endl;
     exit(1);
@@ -71,7 +71,7 @@ const UCTTower* UCTLayer1::getTower(int caloEta, int caloPhi) const {
   UCTTowerIndex twr = UCTTowerIndex(caloEta, caloPhi);
   const UCTRegionIndex rgn = g.getUCTRegionIndex(twr);
   const UCTRegion* region = getRegion(rgn);
-  const UCTTower* tower = region->getTower(twr);
+  const std::shared_ptr<UCTTower> tower = region->getTower(twr);
   return tower;
 }
 

@@ -1298,9 +1298,11 @@ def RecomputePuppiWeightsMETAK8(proc):
   from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs as pfParticleNetMassRegressionOutputs
   from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassCorrelatedJetTagsAll as pfParticleNetMassCorrelatedJetTagsAll
   from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import _pfParticleNetFromMiniAODAK8JetTagsAll as pfParticleNetFromMiniAODAK8JetTagsAll
+  from RecoBTag.ONNXRuntime.pfGlobalParticleTransformerAK8_cff import _pfGlobalParticleTransformerAK8JetTagsAll as pfGlobalParticleTransformerAK8JetTagsAll
 
   btagDiscriminatorsAK8 = cms.PSet(names = cms.vstring(
       pfParticleNetMassCorrelatedJetTagsAll+
+      pfGlobalParticleTransformerAK8JetTagsAll+
       pfParticleNetFromMiniAODAK8JetTagsAll+
       pfParticleNetJetTagsAll+
       pfParticleNetMassRegressionOutputs

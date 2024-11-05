@@ -657,6 +657,18 @@ void testEventsetup::getDataWithESGetTokenTest() {
       provider.add(dummyProv);
     }
     {
+      edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "", 100, false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test22");
+      ps.addParameter<std::string>("appendToDataLabel", "blahblah");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kGood);
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    {
       edm::eventsetup::ComponentDescription description("ConsumesProducer", "consumes", 2, false);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "consumes");
@@ -735,6 +747,32 @@ void testEventsetup::getDataWithESGetTokenTest() {
       description.pid_ = ps.id();
       auto dummyProv = std::make_shared<SetMayConsumeProducer>(
           true, "testTwo", "doesNotExist", "productLabelForProducerWithProductLabelThatDoesntExist");
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description(
+          "SetMayConsumeProducer", "setMayConsumeWithUnlabeledModuleLabel", 101, false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "thisIsNotUsed");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<SetMayConsumeProducer>(
+          true, "DummyESProductResolverProvider", "blahblah", "productLabelForProducerWithMayConsumesUnlabeledCase");
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description(
+          "SetMayConsumeProducer", "setMayConsumeWithUnlabeledModuleLabel", 102, false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "thisIsNotUsed");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<SetMayConsumeProducer>(
+          true, "doesNotExist", "blahblah", "productLabelForProducerWithMayConsumesUnlabeledCaseNonexistent");
       dummyProv->setDescription(description);
       dummyProv->setAppendToDataLabel(ps);
       provider.add(dummyProv);
@@ -874,6 +912,24 @@ void testEventsetup::getDataWithESGetTokenTest() {
 
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "productLabelForProducerWithProductLabelThatDoesntExist")};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      CPPUNIT_ASSERT_THROW(consumer.prefetch(provider.eventSetupImpl()), edm::eventsetup::NoProductResolverException);
+    }
+
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("", "productLabelForProducerWithMayConsumesUnlabeledCase")};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      EventSetup eventSetup{provider.eventSetupImpl(),
+                            static_cast<unsigned int>(edm::Transition::Event),
+                            consumer.esGetTokenIndices(edm::Transition::Event),
+                            pc};
+      const DummyData& data = eventSetup.getData(consumer.m_token);
+      CPPUNIT_ASSERT(kGood.value_ == data.value_);
+    }
+
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("", "productLabelForProducerWithMayConsumesUnlabeledCaseNonexistent")};
       consumer.updateLookup(provider.recordsToResolverIndices());
       CPPUNIT_ASSERT_THROW(consumer.prefetch(provider.eventSetupImpl()), edm::eventsetup::NoProductResolverException);
     }

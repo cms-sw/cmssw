@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cmath>
 #include <string>
+#include <algorithm>
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
@@ -29,7 +30,6 @@
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 
 const float HcaluLUTTPGCoder::lsb_ = 1. / 16;
-const float HcaluLUTTPGCoder::zdc_lsb_ = 50.;
 
 const int HcaluLUTTPGCoder::QIE8_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
@@ -595,10 +595,21 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
       const HcalLutMetadatum* meta = metadata->getValues(cell);
 
       auto tpParam = conditions.getHcalTPChannelParameter(cell, false);
-      int weight = tpParam->getauxi1();
+      const int weight = tpParam->getauxi1();
+      int factorGeVPerCount = tpParam->getauxi2();
+      if (factorGeVPerCount == 0) {
+        edm::LogWarning("HcaluLUTTPGCoder")
+            << "WARNING: ZDC trigger spacing factor, taken from auxi2 field of HCALTPChannelParameters for the cell "
+               "with (zside, section, channel) =  ("
+            << cell.zside() << " , " << cell.section() << " , " << cell.channel()
+            << ") is set to the "
+               "default value of 0, which is an incompatible value for a spacing factor. Setting the value to 50 and "
+               "continuing.";
+        factorGeVPerCount = 50;
+      }
 
-      int lutId = getLUTId(cell);
-      int lutId_ootpu = lutId + sizeZDC_;
+      const int lutId = getLUTId(cell);
+      const int lutId_ootpu = lutId + sizeZDC_;
       Lut& lut = inputLUT_[lutId];
       Lut& lut_ootpu = inputLUT_[lutId_ootpu];
       float ped = 0;
@@ -656,9 +667,9 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             lut[adc] = 0;
             lut_ootpu[adc] = 0;
           } else {
-            lut[adc] = std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib / zdc_lsb_)), MASK);
-            lut_ootpu[adc] =
-                std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * weight / (zdc_lsb_ * 256))), MASK);
+            auto lut_term = (adc2fC(adc) - ped) * gain * rcalib / factorGeVPerCount;
+            lut[adc] = std::clamp(int(lut_term), 0, MASK);
+            lut_ootpu[adc] = std::clamp(int(lut_term * weight / 256), 0, MASK);
           }
         }
       }
