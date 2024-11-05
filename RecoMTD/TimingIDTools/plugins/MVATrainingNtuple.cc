@@ -59,7 +59,6 @@ private:
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> theTTBToken;
   TrackFilterForPVFindingBase* theTrackFilter;
 
-  static constexpr unsigned int NOT_MATCHED = 66666;
   static constexpr double simUnit_ = 1e9;     //sim time in s while reco time in ns
   static constexpr double c_ = 2.99792458e1;  //c in cm/ns
   std::string fileName_;
