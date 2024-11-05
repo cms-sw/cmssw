@@ -78,7 +78,7 @@ def main():
             raise KeyError(tree_name)
 
         if(args.list_branches):
-            list_branches(tree, folder=folder)
+            list_branches(tree, folder_name=folder)
             return 0
 
         rdf = ROOT.RDataFrame(tree)
