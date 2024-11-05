@@ -54,8 +54,8 @@ process.source = cms.Source("EmptyIOVSource",
 # Input data
 ###################################################################
 if(options.fromESSource): 
-    process.load("Configuration.Geometry.GeometryExtended2026Default_cff")
-    process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
+    process.load("Configuration.Geometry.GeometryExtendedRun4Default_cff")
+    process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     from Configuration.AlCa.GlobalTag import GlobalTag
     process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, '')

@@ -4,7 +4,7 @@ from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 process = cms.Process("PROD",Phase2C11)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Configuration.Geometry.GeometryExtended2026D110Reco_cff")
+process.load("Configuration.Geometry.GeometryExtendedRun4D110Reco_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')

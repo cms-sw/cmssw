@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Geometry.GeometryDD4hep_cff import *
-DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/HcalCommonData/data/dd4hep/cmsExtendedGeometry2026D99.xml")
+DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/HcalCommonData/data/dd4hep/cmsExtendedGeometryRun4D99.xml")
 
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *
 from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *

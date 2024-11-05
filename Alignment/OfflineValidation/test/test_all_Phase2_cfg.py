@@ -81,7 +81,7 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 # Standard loads
 ###################################################################
 #process.load("Configuration.Geometry.GeometryRecoDB_cff")
-process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
 
 ####################################################################
 # Get the BeamSpot

@@ -16,17 +16,17 @@ fi
 # Get the TAG from the command-line argument
 TAG=$1
 
-# Function to extract the available versions for 2026
-get_2026_versions() {
-  local files=($(ls ${GEOMETRY_DIR}/GeometryExtended2026D*Reco*))
+# Function to extract the available versions for Run4
+get_Run4_versions() {
+  local files=($(ls ${GEOMETRY_DIR}/GeometryExtendedRun4D*Reco*))
   if [ ${#files[@]} -eq 0 ]; then
-    echo "No files found for 2026 versions."
+    echo "No files found for Run4 versions."
     exit 1
   fi
 
   local versions=()
   for file in "${files[@]}"; do
-    local version=$(basename "$file" | sed -n 's/.*GeometryExtended2026D\([0-9]\{1,3\}\).*/\1/p')
+    local version=$(basename "$file" | sed -n 's/.*GeometryExtendedRun4D\([0-9]\{1,3\}\).*/\1/p')
     if [[ "$version" =~ ^[0-9]{1,3}$ ]]; then
       versions+=("D${version}")
     fi
@@ -52,13 +52,13 @@ run_cmsrun() {
   done
 }
 
-# Check if the tag is 2026
-if [ "$TAG" == "2026" ]; then
-  # Get all the versions for 2026
-  VERSIONS=($(get_2026_versions))
+# Check if the tag is Run4
+if [ "$TAG" == "Run4" ]; then
+  # Get all the versions for Run4
+  VERSIONS=($(get_Run4_versions))
   for VERSION in "${VERSIONS[@]}"; do
-    echo "Running for 2026 with version $VERSION"
-    run_cmsrun "2026" "$VERSION"  || die "Failure running dumpRecoGeometry_cfg.py tag=$TAG" $?
+    echo "Running for Run4 with version $VERSION"
+    run_cmsrun "Run4" "$VERSION"  || die "Failure running dumpRecoGeometry_cfg.py tag=$TAG" $?
   done
 
   # Wait for all background jobs to finish

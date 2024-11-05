@@ -42,17 +42,17 @@ fileInput = "file:step3.root"
 if (options.geometry == "D105"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('HGCalMTReco',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D105Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D105Reco_cff')
     outputFile = 'file:recoutputD105.root'
 elif (options.geometry == "D114"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('HGCalMTReco',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D114Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D114Reco_cff')
     outputFile = 'file:recoutputD114.root'
 elif (options.geometry == "D110"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('HGCalMTReco',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
     outputFile = 'file:recoutputD110.root'
 else:
     print("Please select a valid geometry version e.g. D105, D110, D114....")
