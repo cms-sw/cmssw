@@ -34,8 +34,7 @@ class MVATrainingNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources>
           y(y1),
           z(z1),
           t(t1),
-	  key(k1),
-	  LV_distance_z(-1.){};
+	  key(k1){};
     double x, y, z, t;
     int key;
     int eventId;
@@ -43,7 +42,6 @@ class MVATrainingNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources>
     TrackingVertexRef sim_vertex;
     int OriginalIndex = -1;
     bool is_LV;
-    double LV_distance_z;
 
   };	
 	
@@ -80,18 +78,17 @@ private:
   // cuts for BDT training input
   static constexpr double BDT_track_eta_cut = 3.0;
   static constexpr double BDT_track_pt_cut = 0.5;
-  static constexpr double BDT_track_dz_cut = 1.0; // 1cm cut for BDT training sample
 
   const reco::RecoToSimCollection* r2s_;
   const reco::SimToRecoCollection* s2r_;
 
   // GNN input variables
-  std::vector<double> gnn_pt, gnn_eta, gnn_phi, gnn_z_pca, gnn_dz, gnn_t_Pi, gnn_t_K, gnn_t_P, gnn_t0safe, gnn_t0pid, gnn_sigma_t0safe, gnn_mtdTime, gnn_sigma_tmtd, gnn_mva_qual, gnn_btlMatchChi2, gnn_btlMatchTimeChi2, gnn_etlMatchChi2, gnn_etlMatchTimeChi2, gnn_pathLength, gnn_probPi, gnn_probK, gnn_probP, gnn_trk_chi2, gnn_trk_ndof, gnn_sigma_tof_Pi, gnn_sigma_tof_K, gnn_sigma_tof_P, gnn_sim_vertex_z, gnn_sim_vertex_t, gnn_sim_vertex_LV_dz, gnn_tp_tEst, gnn_outermostHitPosition;
+  std::vector<double> gnn_pt, gnn_eta, gnn_phi, gnn_z_pca, gnn_dz, gnn_t_Pi, gnn_t_K, gnn_t_P, gnn_t0safe, gnn_t0pid, gnn_sigma_t0safe, gnn_mtdTime, gnn_sigma_tmtd, gnn_mva_qual, gnn_btlMatchChi2, gnn_btlMatchTimeChi2, gnn_etlMatchChi2, gnn_etlMatchTimeChi2, gnn_pathLength, gnn_probPi, gnn_probK, gnn_probP, gnn_trk_chi2, gnn_trk_ndof, gnn_sigma_tof_Pi, gnn_sigma_tof_K, gnn_sigma_tof_P, gnn_sim_vertex_z, gnn_sim_vertex_t, gnn_tp_tEst, gnn_outermostHitPosition;
   std::vector<int> gnn_npixBarrel, gnn_npixEndcap, gnn_sim_vertex_evID, gnn_sim_vertex_BX, gnn_sim_vertex_index, gnn_tp_pdgId, gnn_trk_validhits;
   std::vector<bool> gnn_is_matched_tp, gnn_sim_vertex_isLV; 
 
   // BDT input variables
-  std::vector<double> Ttrack_pt, Ttrack_eta, Ttrack_phi, Ttrack_dz, Ttrack_dxy, Ttrack_chi2, Ttrack_BTLchi2, Ttrack_BTLtime_chi2, Ttrack_ETLchi2, Ttrack_ETLtime_chi2, Ttrack_t0, Ttrack_sigmat0, Ttrack_Tmtd, Ttrack_sigmaTmtd, Ttrack_lenght, Ttrack_MtdMVA, TtrackTP_pt, TtrackTP_eta, TtrackTP_phi, Ttrack_CluTime1, Ttrack_CluTime2;
+  std::vector<double> Ttrack_pt, Ttrack_eta, Ttrack_phi, Ttrack_dz, Ttrack_dxy, Ttrack_chi2, Ttrack_BTLchi2, Ttrack_BTLtime_chi2, Ttrack_ETLchi2, Ttrack_ETLtime_chi2, Ttrack_t0, Ttrack_sigmat0, Ttrack_Tmtd, Ttrack_sigmaTmtd, Ttrack_lenght, Ttrack_MtdMVA, Ttrack_lHitPos, TtrackTP_pt, TtrackTP_eta, TtrackTP_phi, Ttrack_CluTime1, Ttrack_CluTime2;
   std::vector<int> Ttrack_ndof, Ttrack_nValidHits, Ttrack_npixBarrelValidHits, Ttrack_npixEndcapValidHits, TtrackTP_nValidHits, Ttrack_det, Ttrack_subdet, Ttrack_subdetmtd,Ttrack_nSimClust;
   std::vector<bool> Ttrack_Signal, Ttrack_Associated, Ttrack_HasTP, Ttrack_TPHasSimClu, Ttrack_TPSimCluDirect, Ttrack_hitMTD, Ttrack_hit, Ttrack_hitMatchMTD, Ttrack_hasRecoClu, Ttrack_RecoSimLink, Ttrack_FullMatch;
 
@@ -239,30 +236,32 @@ bool MVATrainingNtuple::isSameCluster(const FTLCluster& clu1, const FTLCluster& 
 std::vector<MVATrainingNtuple::simPrimaryVertex> MVATrainingNtuple::getSimPVs(
     const edm::Handle<TrackingVertexCollection>& tVC) {
   std::vector<MVATrainingNtuple::simPrimaryVertex> simpv;
-  std::set<std::pair<int, int>> processedEvents;  // Set to store (event ID, bunch crossing) pairs
 
+  int current_event = -1;
   int s = -1;
   for (TrackingVertexCollection::const_iterator v = tVC->begin(); v != tVC->end(); ++v) {
 
+    // LV is the first vertex in each event, keep only at BX=0
     int eventId = v->eventId().event();
     int bunchCrossing = v->eventId().bunchCrossing();
-    bool is_LV = true;
-    std::pair<unsigned int, int> eventBunchPair = std::make_pair(eventId, bunchCrossing);
 
-    // Skip the vertex if this event ID and bunch crossing pair has already been processed
-    if (processedEvents.find(eventBunchPair) != processedEvents.end()) {
+    if(bunchCrossing != 0)
+      continue;
+
+    bool is_LV = true;
+    if(eventId != current_event){
+      current_event = eventId;
+    }else{
       is_LV = false;
     }
-
-    // Mark this event ID and bunch crossing pair as processed
-    processedEvents.insert(eventBunchPair);
     s++;
+
 
     // could be a new vertex, check  all primaries found so far to avoid multiple entries
     int key = std::distance(tVC->begin(), v);
     simPrimaryVertex sv(v->position().x(), v->position().y(), v->position().z(), v->position().t(), key);
-    sv.eventId = v->eventId().event();
-    sv.bunchCrossing = v->eventId().bunchCrossing();
+    sv.eventId = eventId;
+    sv.bunchCrossing = bunchCrossing;
     sv.sim_vertex = TrackingVertexRef(tVC, key);
     sv.OriginalIndex = s;
     sv.is_LV = is_LV;
@@ -278,7 +277,6 @@ std::vector<MVATrainingNtuple::simPrimaryVertex> MVATrainingNtuple::getSimPVs(
     if (!vp) {
       // this is a new vertex, add it to the list of sim-vertices
       simpv.push_back(sv);
-      vp = &simpv.back();
     }
 
   }  // End of for loop on tracking vertices
@@ -286,11 +284,6 @@ std::vector<MVATrainingNtuple::simPrimaryVertex> MVATrainingNtuple::getSimPVs(
   // In case of no simulated vertices, break here
   if (simpv.empty())
     return simpv;
-
-  // Calculate distance of vertices from LV of the same eventId and BX
-  for (unsigned int iev = 0; iev < simpv.size(); iev++) {
-    simpv.at(iev).LV_distance_z = std::abs(simpv.at(0).z - simpv.at(iev).z);
-  }
 
   return simpv;
 }
@@ -422,7 +415,6 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
     GNNtree->Branch("gnn_sim_vertex_index", &gnn_sim_vertex_index);
     GNNtree->Branch("gnn_sim_vertex_z", &gnn_sim_vertex_z);
     GNNtree->Branch("gnn_sim_vertex_t", &gnn_sim_vertex_t);
-    GNNtree->Branch("gnn_sim_vertex_LV_dz", &gnn_sim_vertex_LV_dz);
     GNNtree->Branch("gnn_sim_vertex_isLV", &gnn_sim_vertex_isLV);
 
     gnn_pt.clear();
@@ -464,7 +456,6 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
     gnn_sim_vertex_index.clear();
     gnn_sim_vertex_z.clear();
     gnn_sim_vertex_t.clear();
-    gnn_sim_vertex_LV_dz.clear();
     gnn_sim_vertex_isLV.clear();
 
     // build TransientTracks
@@ -475,7 +466,7 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
    
     for (std::vector<reco::TransientTrack>::const_iterator itk = seltks.begin(); itk != seltks.end(); itk++) {
         reco::TrackBaseRef trackref = (*itk).trackBaseRef();
-
+ 
         gnn_pt.push_back((*itk).track().pt());
         gnn_eta.push_back((*itk).track().eta());
         gnn_phi.push_back((*itk).track().phi());
@@ -519,8 +510,10 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	   TrackingVertexRef parentVertexRef = (*anytp_info)->parentVertex();
 
 	   // Loop on TV Collection to retrive info on sim vertices
+	   bool vertex_match = false;
            for (const auto& vsim : simpv) {
                if (vsim.sim_vertex == parentVertexRef) {
+		   vertex_match = true;
                    // Found the matching simPrimaryVertex
 		   gnn_sim_vertex_z.push_back(vsim.z);
                    gnn_sim_vertex_t.push_back(vsim.t * simUnit_);
@@ -528,12 +521,27 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
                    gnn_sim_vertex_BX.push_back(vsim.bunchCrossing);
                    gnn_sim_vertex_index.push_back(vsim.key);
 		   gnn_sim_vertex_isLV.push_back(vsim.is_LV);
-                   gnn_sim_vertex_LV_dz.push_back(vsim.LV_distance_z);
                }
            }
+	   if(vertex_match == false){
+               gnn_sim_vertex_z.push_back(-999.);
+               gnn_sim_vertex_t.push_back(-999.);
+               gnn_sim_vertex_evID.push_back(-999);
+               gnn_sim_vertex_BX.push_back(-999);
+               gnn_sim_vertex_index.push_back(-999);
+	       gnn_sim_vertex_isLV.push_back(false);
+	   }
 
 	}else{
            gnn_is_matched_tp.push_back(false);
+	   gnn_tp_tEst.push_back(-999.);
+           gnn_tp_pdgId.push_back(-999);
+	   gnn_sim_vertex_z.push_back(-999.);
+           gnn_sim_vertex_t.push_back(-999.);
+           gnn_sim_vertex_evID.push_back(-999);
+           gnn_sim_vertex_BX.push_back(-999);
+           gnn_sim_vertex_index.push_back(-999);
+           gnn_sim_vertex_isLV.push_back(false);
         }
 
     } // loop on sel tracks
@@ -573,6 +581,7 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
     BDTtree->Branch("Track_sigmat0",&Ttrack_sigmat0);
     BDTtree->Branch("Track_Tmtd",&Ttrack_Tmtd);
     BDTtree->Branch("Track_MtdMVA",&Ttrack_MtdMVA);
+    BDTtree->Branch("Track_lHitPos",&Ttrack_lHitPos);
     BDTtree->Branch("Track_sigmaTmtd",&Ttrack_sigmaTmtd);
     BDTtree->Branch("Track_lenght",&Ttrack_lenght);
     BDTtree->Branch("Track_HasTP",&Ttrack_HasTP);
@@ -616,6 +625,7 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
     Ttrack_sigmat0.clear();
     Ttrack_Tmtd.clear();
     Ttrack_MtdMVA.clear();
+    Ttrack_lHitPos.clear();
     Ttrack_sigmaTmtd.clear();
     Ttrack_lenght.clear();
     Ttrack_HasTP.clear();
@@ -635,17 +645,6 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
     Ttrack_CluTime2.clear();
     
 
-    // additional check for PV 
-    reco::Vertex Vtx_chosen;
-    // ~1% of cases, the 1st vertex is the "good" one, instead of 0th.
-    for (int iVtx = 0; iVtx < (int)vertices.size(); iVtx++) {
-      const reco::Vertex& vertex = vertices.at(iVtx);
-      if (!vertex.isFake() && vertex.ndof() >= 4) {
-        Vtx_chosen = vertex;
-        break;
-      }
-    }
-
     unsigned int index = 0;
     for (const auto& trackGen : *tracksH) {
       const reco::TrackRef trackref(iEvent.getHandle(RecTrackToken_), index);
@@ -659,8 +658,7 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
       const reco::TrackRef mtdTrackref = reco::TrackRef(iEvent.getHandle(RecMTDTrackToken_), trackAssoc[trackref]);
       const reco::Track& track = *mtdTrackref;
 
-      double track_vtx_dz_check = std::abs(trackGen.dz(Vtx_chosen.position()));
-      if(std::abs(trackGen.eta()) < BDT_track_eta_cut && trackGen.pt() > BDT_track_pt_cut && track_vtx_dz_check < BDT_track_dz_cut){
+      if(std::abs(trackGen.eta()) < BDT_track_eta_cut && trackGen.pt() > BDT_track_pt_cut){
 
         bool good_association = false;
 
@@ -673,8 +671,8 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  Ttrack_pt.push_back(trackGen.pt());
 	  Ttrack_phi.push_back(trackGen.phi());
           Ttrack_eta.push_back(trackGen.eta());
-          Ttrack_dz.push_back(std::abs(trackGen.dz(Vtx_chosen.position())));
-          Ttrack_dxy.push_back(std::abs(trackGen.dxy(Vtx_chosen.position())));
+          Ttrack_dz.push_back(std::abs(trackGen.dz()));
+          Ttrack_dxy.push_back(std::abs(trackGen.dxy(beamSpot.position())));
           Ttrack_chi2.push_back(trackGen.chi2());
           Ttrack_ndof.push_back(trackGen.ndof());
           Ttrack_nValidHits.push_back(trackGen.numberOfValidHits());
@@ -692,6 +690,7 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
           Ttrack_sigmaTmtd.push_back(sigmatimemtd[trackref]);
           Ttrack_lenght.push_back(pathLength[trackref]);
           Ttrack_MtdMVA.push_back(mtdQualMVA[trackref]);
+          Ttrack_lHitPos.push_back(outermostHitPosition[trackref]);
 
 	  const auto& tp = (found->val)[0]; // almost all tracks have just one TP, a few have 2.  (can scan through with "for(const auto& tp : found->val)")
 
@@ -825,7 +824,7 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 	} // Found TP that is matched to the GTrack
 
-      } // basic track eta/pT/dz cuts
+      } // basic track eta/pT cuts
 
     } // Loop on reco tracks 
 
