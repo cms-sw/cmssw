@@ -172,18 +172,6 @@ run2_egamma_2018.toModify(calibratedPatElectronsNano,
     correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_29Sep2020_RunFineEtaR9Gain")
 )
 
-run2_miniAOD_80XLegacy.toModify(calibratedPatElectronsNano,
-                                correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc")
-                            )
-
-for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify(calibratedPatElectronsNano, 
-        correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc")
-    )
-
-run2_nanoAOD_102Xv1.toModify(calibratedPatElectronsNano,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_Step2Closure_CoarseEtaR9Gain_v2")
-)
 ##############################end calibratedPatElectronsNano############################
 
 slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
