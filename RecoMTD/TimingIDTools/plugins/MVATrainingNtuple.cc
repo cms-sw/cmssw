@@ -663,7 +663,7 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
           Ttrack_pt.push_back(trackGen.pt());
           Ttrack_phi.push_back(trackGen.phi());
           Ttrack_eta.push_back(trackGen.eta());
-          Ttrack_dz.push_back(std::abs(trackGen.dz()));
+          Ttrack_dz.push_back(std::abs(trackGen.dz(beamSpot.position())));
           Ttrack_dxy.push_back(std::abs(trackGen.dxy(beamSpot.position())));
           Ttrack_chi2.push_back(trackGen.chi2());
           Ttrack_ndof.push_back(trackGen.ndof());
