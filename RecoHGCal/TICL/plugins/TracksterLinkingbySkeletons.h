@@ -70,7 +70,6 @@ namespace ticl {
       iDesc.add<double>("cylinder_radius_sqr_split", 9.);
       iDesc.add<double>("proj_distance_split", 5.);
       iDesc.add<double>("track_time_quality_threshold", 0.5);
-      iDesc.add<double>("wind", 0.036);
       iDesc.add<unsigned int>("min_num_lcs", 7);
       iDesc.add<double>("min_trackster_energy", 10.);
       iDesc.add<double>("pca_quality_th", 0.85);
@@ -110,7 +109,6 @@ namespace ticl {
     float cylinder_radius_sqr_split_;
     float proj_distance_split_;
     float timing_quality_threshold_;
-    float del_;
     float min_trackster_energy_;
     float pca_quality_th_;
     float dot_prod_th_;

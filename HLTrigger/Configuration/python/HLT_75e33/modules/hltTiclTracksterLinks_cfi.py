@@ -9,7 +9,6 @@ hltTiclTracksterLinks = cms.EDProducer("TracksterLinksProducer",
       cylinder_radius_sqr_split = cms.double(9),
       proj_distance_split = cms.double(5),
       track_time_quality_threshold = cms.double(0.5),
-      wind = cms.double(0.072),
       min_num_lcs = cms.uint32(15),
       min_trackster_energy = cms.double(20),
       pca_quality_th = cms.double(0.85),
@@ -29,14 +28,14 @@ hltTiclTracksterLinks = cms.EDProducer("TracksterLinksProducer",
       ),
       lower_distance_projective_sqr = cms.vdouble(
         30,
-        30
+        60
       ),
       min_distance_z = cms.vdouble(
         35,
         35
       ),
       upper_distance_projective_sqr_closest_points = cms.vdouble(
-        10,
+        5,
         30
       ),
       lower_distance_projective_sqr_closest_points = cms.vdouble(
