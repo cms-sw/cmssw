@@ -137,8 +137,9 @@ void Phase2DAQProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         }
     }
 
-    int i = 1;
+    int i = 6;
 
+    std::cout << "[packing] converting only DTC i = " << i << std::endl;
     // for (int i = 1; i == 1; ++i)
     // {
 
@@ -150,9 +151,9 @@ void Phase2DAQProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         std::vector<std::vector<Cluster>> SLink3 = DTC_0.getClustersOnSLink(3);
         
         DTC_0.convertToRawData(0);
-//         DTC_0.convertToRawData(1);
-//         DTC_0.convertToRawData(2);
-//         DTC_0.convertToRawData(3);
+        DTC_0.convertToRawData(1);
+        DTC_0.convertToRawData(2);
+        DTC_0.convertToRawData(3);
 
         // std::cout << (int)DTC_0.getDTCType() << std::endl;
         
@@ -172,7 +173,7 @@ void Phase2DAQProducer::processClusters(TrackerGeometry::ModuleType moduleType,
                                            unsigned int dtc_id, unsigned int slink_id, unsigned int slink_id_within,
                                            DTCAssembly& dtcAssembly)
 {
-    std::cout << "[packing] assigning clusters to dtc_id : " << dtc_id << std::endl;
+    std::cout << "[packing] assigning " << DetectorClusterCollection.size() << " clusters to dtc_id : " << dtc_id << std::endl;
     for (const auto& cluster : DetectorClusterCollection)
     {
         DTCUnit& assignedDtcUnit = dtcAssembly.GetDTCUnit(dtc_id);
@@ -181,7 +182,15 @@ void Phase2DAQProducer::processClusters(TrackerGeometry::ModuleType moduleType,
         unsigned int x = cluster.center();
 //         std::cout << "[packing] cluster x/y: " << x <<  std::endl;
         unsigned int width = cluster.size();
-        unsigned int chipId = x % 127;
+        // original 
+        // unsigned int chipId = x % 8;
+        // and later, sclusterAddress = std::div(x, 127).quot;
+        // end original
+        // my original fix
+        // unsigned int chipId = x % 127;
+        // and later, sclusterAddress = std::div(x, 127).quot;
+
+        unsigned int chipId = std::div(x, 127).quot;
         unsigned int sclusterAddress = 0;
         unsigned int mipbit = 0;
         unsigned int cicId = 0;
@@ -190,7 +199,8 @@ void Phase2DAQProducer::processClusters(TrackerGeometry::ModuleType moduleType,
         else if (moduleType == TrackerGeometry::ModuleType::Ph2PSS || moduleType == TrackerGeometry::ModuleType::Ph2SS) {cicId = z;}
 
         if (moduleType == TrackerGeometry::ModuleType::Ph2PSP || moduleType == TrackerGeometry::ModuleType::Ph2PSS) {sclusterAddress = std::div(x, 120).quot;}
-        else if (moduleType == TrackerGeometry::ModuleType::Ph2SS) {sclusterAddress = std::div(x, 127).quot;}
+//         else if (moduleType == TrackerGeometry::ModuleType::Ph2SS) {sclusterAddress = std::div(x, 127).quot;}
+        else if (moduleType == TrackerGeometry::ModuleType::Ph2SS) {sclusterAddress = std::div(x, 127).rem;}
 
         Cluster newCluster(z, x, width, chipId, sclusterAddress, mipbit, cicId, moduleType);
         assignedDtcUnit.getClustersOnSLink(slink_id).at(slink_id_within).push_back(newCluster);
