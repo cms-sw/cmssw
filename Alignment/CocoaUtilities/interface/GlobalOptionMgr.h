@@ -17,11 +17,11 @@ class ALIFileIn;
 
 class GlobalOptionMgr {
 private:
-  GlobalOptionMgr(){};
+  GlobalOptionMgr() {}
 
 public:
   //---------- Constructors / Destructor
-  ~GlobalOptionMgr(){};
+  ~GlobalOptionMgr() {}
   static GlobalOptionMgr* getInstance();
 
 public:

@@ -65,7 +65,7 @@ private:
     std::map<uint32_t, float> tc_pts_;
 
   public:
-    SuperTriggerCell() : sumPt_(0), sumMipPt_(0), maxMipPt_(0), fracsum_(0), sumHwPt_(0), maxId_(0), stcId_(0){};
+    SuperTriggerCell() : sumPt_(0), sumMipPt_(0), maxMipPt_(0), fracsum_(0), sumHwPt_(0), maxId_(0), stcId_(0) {}
 
     void add(const l1t::HGCalTriggerCell& c, uint32_t stcId) {
       sumPt_ += c.pt();

@@ -520,7 +520,7 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
                     fedList_.push_back(hitFED);
                 }
               }  // end endcap
-            }    // end loop on SC hit
+            }  // end loop on SC hit
 
             // check HCAL behind each hit
             if (dumpSelectedHCALFed_) {
@@ -552,7 +552,7 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
                 }
               }
             }  // End Hcal
-          }    // End Ecal
+          }  // End Ecal
 
           // get the electron track
           if (!dumpAllTrackerFed_) {
@@ -635,10 +635,10 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
               }
             }
           }  // end tracker analysis
-        }    // end loop on the electron candidate
-      }      // end loop on the electron collection collection
-    }        // end loop on the recoEcal candidate
-  }          // end loop on the recoEcal candidate collection
+        }  // end loop on the electron candidate
+      }  // end loop on the electron collection collection
+    }  // end loop on the recoEcal candidate
+  }  // end loop on the recoEcal candidate collection
   // add a set of chosen FED
   for (unsigned int iFed = 0; iFed < addThisSelectedFEDs_.size(); iFed++) {
     if (addThisSelectedFEDs_.at(iFed) == -1)

@@ -134,7 +134,7 @@ void ODWeightsDat::fetchData(ODWeightsDat* p) noexcept(false) {
       }
       std::vector<float> dccwei(m_wei, m_wei + 6);
       dccw.push_back(dccwei);  // vector vector
-    }                          // loop on all rows in the table
+    }  // loop on all rows in the table
     std::cout << " table " << getTable() << " total nb of rows " << row << std::endl;
 
   } catch (SQLException& e) {

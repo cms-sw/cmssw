@@ -98,25 +98,23 @@ void HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   worker_->set(es);
 
-  // loop over uncalibrated rechits to make calibrated ones
-  for (auto it = eeUncalibRecHits->begin(); it != eeUncalibRecHits->end(); ++it) {
-    worker_->run(evt, *it, *eeRecHits);
-  }
+  // reserve for the expected size of the vectors
+  eeRecHits->reserve(eeUncalibRecHits->size());
+  hefRecHits->reserve(hefUncalibRecHits->size());
+  hebRecHits->reserve(hebUncalibRecHits->size());
 
   // loop over uncalibrated rechits to make calibrated ones
-  for (auto it = hefUncalibRecHits->begin(); it != hefUncalibRecHits->end(); ++it) {
-    worker_->run(evt, *it, *hefRecHits);
-  }
+  worker_->run(evt, *eeUncalibRecHits, *eeRecHits);
 
   // loop over uncalibrated rechits to make calibrated ones
-  for (auto it = hebUncalibRecHits->begin(); it != hebUncalibRecHits->end(); ++it) {
-    worker_->run(evt, *it, *hebRecHits);
-  }
+  worker_->run(evt, *hefUncalibRecHits, *hefRecHits);
 
-  // sort collections before attempting recovery, to avoid insertion of double recHits
-  eeRecHits->sort();
-  hefRecHits->sort();
-  hebRecHits->sort();
+  // loop over uncalibrated rechits to make calibrated ones
+  worker_->run(evt, *hebUncalibRecHits, *hebRecHits);
+
+  std::sort(eeRecHits->begin(), eeRecHits->end());
+  std::sort(hefRecHits->begin(), hefRecHits->end());
+  std::sort(hebRecHits->begin(), hebRecHits->end());
 
   // put the collection of recunstructed hits in the event
   LogInfo("HGCalRecHitInfo") << "total # HGCee calibrated rechits: " << eeRecHits->size();
@@ -130,10 +128,9 @@ void HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // do the same for HFNose hits
   if (pHGChfnoseUncalibRecHits.isValid()) {
     auto hfnoseRecHits = std::make_unique<HGChfnoseRecHitCollection>();
-    for (auto it = hfnoseUncalibRecHits->begin(); it != hfnoseUncalibRecHits->end(); ++it) {
-      worker_->run(evt, *it, *hfnoseRecHits);
-    }
-    hfnoseRecHits->sort();
+    hfnoseRecHits->reserve(hfnoseUncalibRecHits->size());
+    worker_->run(evt, *hfnoseUncalibRecHits, *hfnoseRecHits);
+    std::sort(hfnoseRecHits->begin(), hfnoseRecHits->end());
     LogInfo("HGCalRecHitInfo") << "total # HGChfnose calibrated rechits: " << hfnoseRecHits->size();
     evt.put(std::move(hfnoseRecHits), hfnoseRechitCollection_);
   }

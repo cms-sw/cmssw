@@ -51,7 +51,7 @@ public:
       : seedThresholdPt_(seedObjectPt),
         growthParameterSquared_(growthParameter * growthParameter),
         maxSizeSquared_(maxSize * maxSize),
-        minSizeSquared_(minSize * minSize){};
+        minSizeSquared_(minSize * minSize) {}
 
   /// Build from input candidate collection
   void run(const std::vector<fastjet::PseudoJet>& fInput, std::vector<fastjet::PseudoJet>& fOutput);

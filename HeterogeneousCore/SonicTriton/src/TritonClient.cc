@@ -66,8 +66,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   const auto& server =
       ts->serverInfo(options_[0].model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
   serverType_ = server.type;
-  if (verbose_)
-    edm::LogInfo(fullDebugName_) << "Using server: " << server.url;
+  edm::LogInfo("TritonDiscovery") << debugName_ << " assigned server: " << server.url;
   //enforce sync mode for fallback CPU server to avoid contention
   //todo: could enforce async mode otherwise (unless mode was specified by user?)
   if (serverType_ == TritonServerType::LocalCPU)
@@ -99,7 +98,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   //get fixed parameters from local config
   inference::ModelConfig localModelConfig;
   {
-    const std::string& localModelConfigPath(params.getParameter<edm::FileInPath>("modelConfigPath").fullPath());
+    const std::string localModelConfigPath(params.getParameter<edm::FileInPath>("modelConfigPath").fullPath());
     int fileDescriptor = open(localModelConfigPath.c_str(), O_RDONLY);
     if (fileDescriptor < 0)
       throw TritonException("LocalFailure")
@@ -264,8 +263,8 @@ unsigned TritonClient::batchSize() const { return batchMode_ == TritonBatchMode:
 bool TritonClient::setBatchSize(unsigned bsize) {
   if (batchMode_ == TritonBatchMode::Rectangular) {
     if (bsize > maxOuterDim_) {
-      edm::LogWarning(fullDebugName_) << "Requested batch size " << bsize << " exceeds server-specified max batch size "
-                                      << maxOuterDim_ << ". Batch size will remain as " << outerDim_;
+      throw TritonException("LocalFailure")
+          << "Requested batch size " << bsize << " exceeds server-specified max batch size " << maxOuterDim_ << ".";
       return false;
     } else {
       outerDim_ = bsize;

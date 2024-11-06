@@ -21,7 +21,7 @@ namespace l1t {
   public:
     virtual void processEvent(const std::vector<l1t::CaloTower>& inTowers, std::vector<l1t::CaloTower>& outTowers) = 0;
 
-    virtual ~Stage2TowerCompressAlgorithm(){};
+    virtual ~Stage2TowerCompressAlgorithm() {}
   };
 
 }  // namespace l1t

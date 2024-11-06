@@ -9,11 +9,15 @@
 /*** core framework functionality ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 /*** Alignment ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
 #include "CondFormats/PCLConfig/interface/AlignPCLThresholdsHG.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
+
+/*** Quality ****/
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 
 struct mpPCLresults {
 private:
@@ -65,9 +69,12 @@ public:  //====================================================================
   explicit MillePedeFileReader(const edm::ParameterSet&,
                                const std::shared_ptr<const PedeLabelerBase>&,
                                const std::shared_ptr<const AlignPCLThresholdsHG>&,
-                               const std::shared_ptr<const PixelTopologyMap>&);
+                               const std::shared_ptr<const PixelTopologyMap>&,
+                               const std::shared_ptr<const SiPixelQuality>&);
 
   virtual ~MillePedeFileReader() = default;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
   void read();
   bool storeAlignments();
@@ -148,6 +155,7 @@ private:
   std::string getStringFromHLS(PclHLS HLS);
   int getIndexForHG(align::ID id, PclHLS HLS);
   void initializeIndexHelper();
+  bool isAlignableActive(const Alignable* alignable, const std::shared_ptr<const SiPixelQuality>& pixelQual);
 
   //========================== PRIVATE DATA ====================================
   //============================================================================
@@ -160,6 +168,12 @@ private:
 
   // PixelTopologyMap
   const std::shared_ptr<const PixelTopologyMap> pixelTopologyMap_;
+
+  // switch to ignor inactive alignables when vetoing
+  const bool ignoreInactiveAlignables_;
+
+  // SiPixelQuality
+  const std::shared_ptr<const SiPixelQuality> quality_;
 
   // input directory name
   std::string dirName_;

@@ -192,6 +192,11 @@ namespace edm {
 
       activityRegistry.watchPreallocate(this, &RandomNumberGeneratorService::preallocate);
 
+      activityRegistry.watchPreBeginJob(this, &RandomNumberGeneratorService::preBeginJob);
+      activityRegistry.watchPostBeginJob(this, &RandomNumberGeneratorService::postBeginJob);
+      activityRegistry.watchPreEndJob(this, &RandomNumberGeneratorService::preEndJob);
+      activityRegistry.watchPostEndJob(this, &RandomNumberGeneratorService::postEndJob);
+
       if (enableChecking_) {
         activityRegistry.watchPreModuleBeginStream(this, &RandomNumberGeneratorService::preModuleBeginStream);
         activityRegistry.watchPostModuleBeginStream(this, &RandomNumberGeneratorService::postModuleBeginStream);
@@ -222,11 +227,11 @@ namespace edm {
 
     CLHEP::HepRandomEngine& RandomNumberGeneratorService::getEngine(StreamID const& streamID) {
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
-      if (mcc == nullptr) {
+      if (mcc == nullptr || beginJobEndJobActive_) {
         throw Exception(errors::LogicError)
             << "RandomNumberGeneratorService::getEngine\n"
                "Requested a random number engine from the RandomNumberGeneratorService\n"
-               "when no module was active. ModuleCallingContext is null\n";
+               "while ModuleCallingContext is null or during beginJob or endJob transitions.\n";
       }
       unsigned int moduleID = mcc->moduleDescription()->id();
 
@@ -256,11 +261,11 @@ namespace edm {
 
     CLHEP::HepRandomEngine& RandomNumberGeneratorService::getEngine(LuminosityBlockIndex const& lumiIndex) {
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
-      if (mcc == nullptr) {
+      if (mcc == nullptr || beginJobEndJobActive_) {
         throw Exception(errors::LogicError)
             << "RandomNumberGeneratorService::getEngine\n"
                "Requested a random number engine from the RandomNumberGeneratorService\n"
-               "when no module was active. ModuleCallingContext is null\n";
+               "while ModuleCallingContext is null or during beginJob or endJob transitions.\n";
       }
       unsigned int moduleID = mcc->moduleDescription()->id();
 
@@ -302,11 +307,11 @@ namespace edm {
     std::uint32_t RandomNumberGeneratorService::mySeed() const {
       std::string label;
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
-      if (mcc == nullptr) {
+      if (mcc == nullptr || beginJobEndJobActive_) {
         throw Exception(errors::LogicError)
-            << "RandomNumberGeneratorService::getEngine()\n"
-               "Requested a random number engine from the RandomNumberGeneratorService\n"
-               "from an unallowed transition. ModuleCallingContext is null\n";
+            << "RandomNumberGeneratorService::mySeed()\n"
+               "Requested a random number seed from the RandomNumberGeneratorService\n"
+               "while ModuleCallingContext is null or during beginJob or endJob transitions.\n";
       } else {
         label = mcc->moduleDescription()->moduleLabel();
       }
@@ -422,6 +427,16 @@ namespace edm {
         print(std::cout);
       }
     }
+
+    void RandomNumberGeneratorService::preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&) {
+      beginJobEndJobActive_ = true;
+    }
+
+    void RandomNumberGeneratorService::postBeginJob() { beginJobEndJobActive_ = false; }
+
+    void RandomNumberGeneratorService::preEndJob() { beginJobEndJobActive_ = true; }
+
+    void RandomNumberGeneratorService::postEndJob() { beginJobEndJobActive_ = false; }
 
     void RandomNumberGeneratorService::preBeginLumi(LuminosityBlock const& lumi) {
       if (!restoreStateTag_.label().empty()) {
@@ -1116,7 +1131,7 @@ namespace edm {
           }
           moduleIDVector.emplace_back(&engines.back(), moduleID);
         }  // if moduleID valid
-      }    // loop over seedsAndMap
+      }  // loop over seedsAndMap
       std::sort(moduleIDVector.begin(), moduleIDVector.end());
     }
 

@@ -484,7 +484,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
                         << std::endl;
           }
         }  // end loop over ieta
-      }    // end loop over iphi
+      }  // end loop over iphi
 
       // endcap
       for (int ix = 1; ix < 21; ix++) {
@@ -504,9 +504,9 @@ void popcon::EcalDAQHandler::getNewObjects() {
               std::cout << "endcap side " << k << " x " << ix << " y " << iy << " status " << dbStatus << std::endl;
           }
         }  // end loop over iy
-      }    // end loop over ix
-    }      // end loop over k (side)
-  }        // check if there is already a payload
+      }  // end loop over ix
+    }  // end loop over k (side)
+  }  // check if there is already a payload
   else {
     if (m_debug)
       std::cout << " No db found : set default values " << std::endl;
@@ -524,8 +524,8 @@ void popcon::EcalDAQHandler::getNewObjects() {
             oldEBStatus[iphi - 1][ieta - 1][k] = dbStatus;
             daq_temp->setValue(ebid, dbStatus);
           }  // valid Id
-        }    // end loop over ieta
-      }      // end loop over iphi
+        }  // end loop over ieta
+      }  // end loop over iphi
       // endcap
       for (int ix = 1; ix < 21; ix++) {
         for (int iy = 1; iy < 21; iy++) {
@@ -535,10 +535,10 @@ void popcon::EcalDAQHandler::getNewObjects() {
             oldEEStatus[ix - 1][iy - 1][k] = dbStatus;
             daq_temp->setValue(eeid, dbStatus);
           }  // valid Id
-        }    // end loop over iy
-      }      // end loop over ix
-    }        // end loop over k (side)
-  }          //  no payload set default values
+        }  // end loop over iy
+      }  // end loop over ix
+    }  // end loop over k (side)
+  }  //  no payload set default values
 
   // now read the actual status from the online DB
 
@@ -691,8 +691,8 @@ void popcon::EcalDAQHandler::getNewObjects() {
                   }
                 }
               }  // loop over all possible SC in a sector
-            }    // not read out sector
-      }          // not all FED are read out
+            }  // not read out sector
+      }  // not all FED are read out
 
       typedef std::map<EcalLogicID, RunFEConfigDat>::const_iterator feConfIter;
       //      EcalLogicID ecid_xt;
@@ -869,7 +869,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
                 daq_pop->setValue(ebid, dbStatus);
               }
             }  // end loop over ieta
-          }    // end loop over iphi
+          }  // end loop over iphi
 
           // endcap
           for (int ix = 1; ix < 21; ix++) {
@@ -885,8 +885,8 @@ void popcon::EcalDAQHandler::getNewObjects() {
                 daq_pop->setValue(eeid, dbStatus);
               }
             }  // end loop over iy
-          }    // end loop over ix
-        }      // end loop over k (side)
+          }  // end loop over ix
+        }  // end loop over k (side)
 
         std::cout << "Generating popcon record for run " << irun << std::endl;
 
@@ -904,7 +904,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 
       // hlt    } // check on number of already transferred runs
     }  // loop over runs
-  }    // check on run number > 0
+  }  // check on run number > 0
 
   // disconnect from DB
   delete econn;

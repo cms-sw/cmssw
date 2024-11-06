@@ -264,9 +264,19 @@ void MuonPathSLFitter::analyze(MuonPathPtr &inMPath,
 
       // obtention of global coordinates using luts
       int pos = (int)(10 * (pos_sl_f - shiftinfo_[wireId.rawId()]) * INCREASED_RES_POS_POW);
-      int slope = (int)(-slope_f * INCREASED_RES_SLOPE_POW);
 
-      auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), sl + 1, pos, slope);
+      LogDebug("MuonPathSLFitter")
+          << "========================= SUPERLAYER PRIMITIVE =================================";
+      LogDebug("MuonPathSLFitter") << "WHEEL = " << ChId.wheel();
+      LogDebug("MuonPathSLFitter") << "SECTOR = " << ChId.sector();
+      LogDebug("MuonPathSLFitter") << "STATION = " << ChId.station();
+      LogDebug("MuonPathSLFitter") << "SUPERLAYER = " << sl;
+      LogDebug("MuonPathSLFitter") << "QUALITY = " << quality;
+      LogDebug("MuonPathSLFitter") << "POSITION = " << (double)fit_common_out.position;
+      LogDebug("MuonPathSLFitter") << "SLOPE = " << (double)fit_common_out.slope;
+
+      auto global_coords = globalcoordsobtainer_->get_global_coordinates(
+          ChId.rawId(), sl + 1, fit_common_out.position, fit_common_out.slope);
       float phi = global_coords[0];
       float phiB = global_coords[1];
 
@@ -427,7 +437,7 @@ void MuonPathSLFitter::analyze(MuonPathPtr &inMPath,
                                                    -1}));
       }
     }  // (fit_common_out.valid_fit == 1)
-  }    // loop in lat_combs
+  }  // loop in lat_combs
   return;
 }
 

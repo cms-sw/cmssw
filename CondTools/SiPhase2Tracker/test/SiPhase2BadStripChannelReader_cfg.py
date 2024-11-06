@@ -3,7 +3,13 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("TEST")
+###################################################################
+# Set default phase-2 settings
+###################################################################
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+
+process = cms.Process("TEST", _PH2_ERA)
 options = VarParsing.VarParsing('analysis')
 options.register('fromESSource',
                  False, # default value
@@ -48,16 +54,16 @@ process.source = cms.Source("EmptyIOVSource",
 # Input data
 ###################################################################
 if(options.fromESSource): 
-    process.load("Configuration.Geometry.GeometryExtended2026D88_cff")
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+    process.load("Configuration.Geometry.GeometryExtendedRun4Default_cff")
+    process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     from Configuration.AlCa.GlobalTag import GlobalTag
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+    process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, '')
     #process.load("SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff") # already included
     #process.SiPhase2OTFakeBadStripsESSource.printDebug = cms.untracked.bool(True)    # this makes it verbose 
     process.SiPhase2OTFakeBadStripsESSource.badComponentsFraction = cms.double(0.05)   # bad components fraction is 5%
 else:
-    tag = 'SiStripBadStripPhase2_T21'
+    tag = 'SiStripBadStripPhase2_T33'
     suffix = 'v0'
     inFile = tag+'_'+suffix+'.db'
     inDB = 'sqlite_file:'+inFile

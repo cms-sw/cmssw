@@ -135,7 +135,7 @@ void SiStripGainPayloadCopyAndExclude::analyze(const edm::Event& iEvent, const e
       }
 
     }  // loop over APVs
-  }    // loop over DetIds
+  }  // loop over DetIds
 
   std::unique_ptr<SiStripApvGain> theAPVGains = this->getNewObject(theMap);
 

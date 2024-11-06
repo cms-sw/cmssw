@@ -123,7 +123,7 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
     aDisplacement = dispI;                                                     /// In HALF-STRIP units!
     anOffset = offsetI;                                                        /// In HALF-STRIP units!
     anHardBend = this->degradeBend(isPS, window, (aDisplacement - anOffset));  // In strips units
-  }                                                                            /// End of stub is accepted
+  }  /// End of stub is accepted
 }
 
 //--- Does the actual work of degrading the bend. (based on I.Tomalin's code)

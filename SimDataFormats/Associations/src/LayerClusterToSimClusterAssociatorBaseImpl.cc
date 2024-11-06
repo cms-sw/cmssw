@@ -3,8 +3,8 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociatorBaseImpl.h"
 
 namespace ticl {
-  LayerClusterToSimClusterAssociatorBaseImpl::LayerClusterToSimClusterAssociatorBaseImpl(){};
-  LayerClusterToSimClusterAssociatorBaseImpl::~LayerClusterToSimClusterAssociatorBaseImpl(){};
+  LayerClusterToSimClusterAssociatorBaseImpl::LayerClusterToSimClusterAssociatorBaseImpl() {}
+  LayerClusterToSimClusterAssociatorBaseImpl::~LayerClusterToSimClusterAssociatorBaseImpl() {}
 
   ticl::RecoToSimCollectionWithSimClusters LayerClusterToSimClusterAssociatorBaseImpl::associateRecoToSim(
       const edm::Handle<reco::CaloClusterCollection> &cCCH, const edm::Handle<SimClusterCollection> &sCCH) const {

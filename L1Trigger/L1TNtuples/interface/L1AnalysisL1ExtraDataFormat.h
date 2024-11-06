@@ -13,7 +13,7 @@
 namespace L1Analysis {
   struct L1AnalysisL1ExtraDataFormat {
     L1AnalysisL1ExtraDataFormat() { Reset(); };
-    ~L1AnalysisL1ExtraDataFormat(){};
+    ~L1AnalysisL1ExtraDataFormat() {}
 
     void Reset() {
       nIsoEm = 0;

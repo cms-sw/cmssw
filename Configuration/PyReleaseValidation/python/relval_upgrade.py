@@ -44,6 +44,9 @@ for year in upgradeKeys:
                             step = 'GenSimHLBeamSpotHGCALCloseBy'
                     stepMaker = makeStepNameSim
                 elif 'Gen' in step:
+                    if 'HLBeamSpot' in step:
+                        if '14TeV' in frag:
+                            step = 'GenHLBeamSpot14'
                     stepMaker = makeStepNameSim
                 
                 if 'HARVEST' in step: hasHarvest = True
@@ -68,8 +71,8 @@ for year in upgradeKeys:
                                 stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','HLT75e33'),specialWF.suffix))
                         # similar hacks for premixing
                         if 'PMX' in specialType:
-                            if 'GenSim' in step:
-                                s = step.replace('GenSim','Premix')+'PU' # later processing requires to have PU here
+                            if 'GenSim' in step or 'Gen' in step:
+                                s = step.replace('GenSim','Premix').replace('Gen','Premix')+'PU' # later processing requires to have PU here
                                 if step in specialWF.PU:
                                     stepMade = stepMaker(key,'PREMIX',s,specialWF.suffix)
                                     # append for combined

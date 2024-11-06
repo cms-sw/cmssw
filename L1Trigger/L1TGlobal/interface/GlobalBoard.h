@@ -84,7 +84,9 @@ namespace l1t {
     void receiveMuonObjectData(const edm::Event&,
                                const edm::EDGetTokenT<BXVector<l1t::Muon>>&,
                                const bool receiveMu,
-                               const int nrL1Mu);
+                               const int nrL1Mu,
+                               const std::vector<l1t::Muon>* muonVec_bxm2,
+                               const std::vector<l1t::Muon>* muonVec_bxm1);
 
     void receiveMuonShowerObjectData(const edm::Event&,
                                      const edm::EDGetTokenT<BXVector<l1t::MuonShower>>&,

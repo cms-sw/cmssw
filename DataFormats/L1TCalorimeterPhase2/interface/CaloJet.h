@@ -11,10 +11,10 @@ namespace l1tp2 {
 
   class CaloJet : public l1t::L1Candidate {
   public:
-    CaloJet() : l1t::L1Candidate(), calibratedPt_(0.), hovere_(0.), iso_(0.), puCorrPt_(0.){};
+    CaloJet() : l1t::L1Candidate(), calibratedPt_(0.), hovere_(0.), iso_(0.), puCorrPt_(0.) {}
 
     CaloJet(const PolarLorentzVector& p4, float calibratedPt, float hovere, float iso, float puCorrPt = 0.)
-        : l1t::L1Candidate(p4), calibratedPt_(calibratedPt), hovere_(hovere), iso_(iso), puCorrPt_(puCorrPt){};
+        : l1t::L1Candidate(p4), calibratedPt_(calibratedPt), hovere_(hovere), iso_(iso), puCorrPt_(puCorrPt) {}
 
     inline float calibratedPt() const { return calibratedPt_; };
     inline float hovere() const { return hovere_; };

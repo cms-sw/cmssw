@@ -23,7 +23,7 @@ namespace trklet {
 
   struct VMStubsTEPHICM {
     VMStubsTEPHICM(unsigned int seednumber_, std::vector<VMStubsTEMemory*> vmstubmem_)
-        : seednumber(seednumber_), vmstubmem(vmstubmem_){};
+        : seednumber(seednumber_), vmstubmem(vmstubmem_) {}
 
     unsigned int seednumber;                  //seed number [0,11]
     std::vector<VMStubsTEMemory*> vmstubmem;  // m_vmstubmem[n] is the VMStubsTEMemory for the nth copy

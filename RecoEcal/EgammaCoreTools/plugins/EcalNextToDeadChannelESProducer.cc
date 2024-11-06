@@ -75,7 +75,7 @@ void EcalNextToDeadChannelESProducer::setupNextToDeadChannels(const EcalChannelS
         };
       }
     }  // for phi
-  }    // for eta
+  }  // for eta
 
   // endcap
 
@@ -97,7 +97,7 @@ void EcalNextToDeadChannelESProducer::setupNextToDeadChannels(const EcalChannelS
         };
       }
     }  // for iy
-  }    // for ix
+  }  // for ix
 }
 
 //define this as a plug-in

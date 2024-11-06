@@ -5688,7 +5688,7 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
           PTsolv = pt - 0.5 * step;
           break;
         }  // lpt = 0 between lpt1 and lpt2 => maximum pt_solv is a solution of the likelihood
-           /*
+        /*
                       if(pt == 140.){
                             v[0] = 200;
                             lpt2_1 = Likelihood2(par_phi12, par1, par_sig1, v);
@@ -5715,9 +5715,9 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
         }
         pt = pt - step;
       }  // end while
-         //*********** end solve equation for muon plus
-         //************* solve equation dLog(Likelihood)/dpt = 0 for muon minus ;
-         // for one station method we know sing of muon: dphi > 0 for muon minus!!! => dphi = -dphi < 0
+      //*********** end solve equation for muon plus
+      //************* solve equation dLog(Likelihood)/dpt = 0 for muon minus ;
+      // for one station method we know sing of muon: dphi > 0 for muon minus!!! => dphi = -dphi < 0
       dphi = -dphi;
       pt = 140;
       dpt = 0.1;
@@ -5749,7 +5749,7 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
           PTsolvMinus = pt - 0.5 * step;
           break;
         }  // lpt = 0 between lpt1 and lpt2 => maximum pt_solv is a solution of the likelihood
-           /*
+        /*
                       if(pt == 140.){
                             v[0] = 200;
                             lpt2_1 = Likelihood2(par_phi12, par1, par_sig1, v);
@@ -5777,9 +5777,9 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
         }
         pt = pt - step;
       }  // end while
-         //          }// if(fabs(dphi) >= 0.002)
-         //          else
-         //          {PTsolv = 137.5;}
+      //          }// if(fabs(dphi) >= 0.002)
+      //          else
+      //          {PTsolv = 137.5;}
 
       //*********** end solve equation for muon minus
       PTsolv = (PTsolv > PTsolvMinus) ? PTsolv
@@ -5794,7 +5794,7 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
       dphi = -dphi;  //return to correct sing dphi
 
     }  //if(fabs(eta_TracMy)
-  }    //end "for by iETA"
+  }  //end "for by iETA"
 
   float Pt = PTsolv;
   if (Pt > 10 && fabs(dphi) >= 0.1)
@@ -6276,7 +6276,7 @@ float CSCTFPtMethods::Pt2Stn2011(int type, float eta, float dphi, int fr, int me
           PTsolv = pt - 0.5 * step;
           break;
         }  // lpt = 0 between lpt1 and lpt2 => maximum pt_solv is a solution of the likelihood
-           /*
+        /*
                       if(pt == 140.){
                             v[0] = 200;
                             lpt2_1 = Likelihood2_2011(par_phi12, par1, par_sig1, v);
@@ -6303,9 +6303,9 @@ float CSCTFPtMethods::Pt2Stn2011(int type, float eta, float dphi, int fr, int me
         }
         pt = pt - step;
       }  // end while
-         //*********** end solve equation for muon plus
-         //************* solve equation dLog(Likelihood)/dpt = 0 for muon minus ;
-         // for one station method we know sing of muon: dphi > 0 for muon minus!!! => dphi = -dphi < 0
+      //*********** end solve equation for muon plus
+      //************* solve equation dLog(Likelihood)/dpt = 0 for muon minus ;
+      // for one station method we know sing of muon: dphi > 0 for muon minus!!! => dphi = -dphi < 0
       dphi = -dphi;
       pt = 140;
       dpt = 0.1;
@@ -6337,7 +6337,7 @@ float CSCTFPtMethods::Pt2Stn2011(int type, float eta, float dphi, int fr, int me
           PTsolvMinus = pt - 0.5 * step;
           break;
         }  // lpt = 0 between lpt1 and lpt2 => maximum pt_solv is a solution of the likelihood
-           /*
+        /*
                       if(pt == 140.){
                             v[0] = 200;
                             lpt2_1 = Likelihood2_2011(par_phi12, par1, par_sig1, v);
@@ -6365,9 +6365,9 @@ float CSCTFPtMethods::Pt2Stn2011(int type, float eta, float dphi, int fr, int me
         }
         pt = pt - step;
       }  // end while
-         //          }// if(fabs(dphi) >= 0.002)
-         //          else
-         //          {PTsolv = 137.5;}
+      //          }// if(fabs(dphi) >= 0.002)
+      //          else
+      //          {PTsolv = 137.5;}
 
       //*********** end solve equation for muon minus
       PTsolv = (PTsolv > PTsolvMinus) ? PTsolv
@@ -6381,7 +6381,7 @@ float CSCTFPtMethods::Pt2Stn2011(int type, float eta, float dphi, int fr, int me
       dphi = -dphi;  //return to correct sing dphi
 
     }  //if(fabs(eta_TracMy)
-  }    //end "for by iETA"
+  }  //end "for by iETA"
 
   float Pt = PTsolv;
 
@@ -6699,7 +6699,7 @@ float CSCTFPtMethods::Pt3Stn2010(int type, float eta, float dphi1, float dphi2, 
             PTsolv = pt - 0.5 * step;
             break;
           }  // lpt = 0 between lpt1 and lpt2 => maximum pt_solv is a solution of the likelihood
-             /*
+          /*
                       if(pt == 140.){
                            v[0] = 200.;
                            lpt2_1 = Likelihood(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
@@ -6727,9 +6727,9 @@ float CSCTFPtMethods::Pt3Stn2010(int type, float eta, float dphi1, float dphi2, 
           }
           pt = pt - step;
         }  // end while
-           //*********** end solve equation for muon plus
-           //************* solve equation dLog(Likelihood)/dpt = 0 for muon minus ;
-           // for one station method we know sing of muon: dphi1 > 0 for muon minus!!! => dphi1 = -dphi1 < 0
+        //*********** end solve equation for muon plus
+        //************* solve equation dLog(Likelihood)/dpt = 0 for muon minus ;
+        // for one station method we know sing of muon: dphi1 > 0 for muon minus!!! => dphi1 = -dphi1 < 0
         dphi1 = -dphi1;
         dphi2 = -dphi2;
         pt = 140;
@@ -6792,7 +6792,7 @@ float CSCTFPtMethods::Pt3Stn2010(int type, float eta, float dphi1, float dphi2, 
           }
           pt = pt - step;
         }  // end while
-           //*********** end solve equation for muon minus
+        //*********** end solve equation for muon minus
         PTsolv = (PTsolv > PTsolvMinus)
                      ? PTsolv
                      : PTsolvMinus;  // select Maximum solution from muon plus and moun minus hypotesis
@@ -7286,9 +7286,9 @@ float CSCTFPtMethods::Pt3Stn2011(int type, float eta, float dphi1, float dphi2, 
           }
           pt = pt - step;
         }  // end while
-           //*********** end solve equation for muon plus
-           //************* solve equation dLog(Likelihood)/dpt = 0 for muon minus ;
-           // for one station method we know sing of muon: dphi1 > 0 for muon minus!!! => dphi1 = -dphi1 < 0
+        //*********** end solve equation for muon plus
+        //************* solve equation dLog(Likelihood)/dpt = 0 for muon minus ;
+        // for one station method we know sing of muon: dphi1 > 0 for muon minus!!! => dphi1 = -dphi1 < 0
         dphi1 = -dphi1;
         dphi2 = -dphi2;
         pt = 140;
@@ -7332,7 +7332,7 @@ float CSCTFPtMethods::Pt3Stn2011(int type, float eta, float dphi1, float dphi2, 
           }
           pt = pt - step;
         }  // end while
-           //*********** end solve equation for muon minus
+        //*********** end solve equation for muon minus
         PTsolv = (PTsolv > PTsolvMinus)
                      ? PTsolv
                      : PTsolvMinus;  // select Maximum solution from muon plus and moun minus hypotesis
@@ -7653,7 +7653,7 @@ float CSCTFPtMethods::Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, f
       dphi = -dphi;  //return to correct sing dphi
 
     }  //if(fabs(eta_TracMy)
-  }    //end "for by iETA"
+  }  //end "for by iETA"
 
   float Pt = PTsolv;
   if (Pt > 10 && fabs(dphi) >= 0.1)
@@ -9142,7 +9142,7 @@ float CSCTFPtMethods::Pt2Stn2012_DT(
       dphi = -dphi;  //return to correct sing dphi
 
     }  //if(fabs(eta_TracMy)
-  }    //end "for by iETA"
+  }  //end "for by iETA"
 
   float Pt = PTsolv;
 

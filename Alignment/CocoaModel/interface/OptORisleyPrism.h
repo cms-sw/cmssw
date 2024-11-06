@@ -18,10 +18,10 @@ class LightRay;
 class OptORisleyPrism : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptORisleyPrism(){};
+  OptORisleyPrism() {}
   OptORisleyPrism(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data){};
-  ~OptORisleyPrism() override{};
+      : OpticalObject(parent, type, name, copy_data) {}
+  ~OptORisleyPrism() override {}
 
   //---------- Propagate light for measurement meas
   void participateInMeasurement(LightRay& lightray, Measurement& meas, const ALIstring& behav) override;

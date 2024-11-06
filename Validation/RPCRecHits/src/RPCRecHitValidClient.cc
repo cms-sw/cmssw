@@ -19,18 +19,6 @@ void RPCRecHitValidClient::dqmEndJob(DQMStore::IBooker &booker, DQMStore::IGette
       booker.book1D("RollEfficiencyBarrel_eff", "Roll efficiency in Barrel;Efficiency [%]", 50 + 2, -2, 100 + 2);
   MEP me_rollEfficiencyEndcap_eff =
       booker.book1D("RollEfficiencyEndcap_eff", "Roll efficiency in Endcap;Efficiency [%]", 50 + 2, -2, 100 + 2);
-  MEP me_rollEfficiencyStatCutOffBarrel_eff =
-      booker.book1D("RollEfficiencyCutOffBarrel_eff",
-                    "Roll efficiency in Barrel without low stat chamber;Efficiency [%]",
-                    50 + 2,
-                    -2,
-                    100 + 2);
-  MEP me_rollEfficiencyStatCutOffEndcap_eff =
-      booker.book1D("RollEfficiencyCutOffEndcap_eff",
-                    "Roll efficiency in Endcap without low stat chamber;Efficiency [%]",
-                    50 + 2,
-                    -2,
-                    100 + 2);
 
   const double maxNoise = 1e-7;
   MEP me_rollNoiseBarrel_noise = booker.book1D("RollNoiseBarrel_noise",
@@ -60,8 +48,6 @@ void RPCRecHitValidClient::dqmEndJob(DQMStore::IBooker &booker, DQMStore::IGette
       const double eff = nRef ? nRec / nRef * 100 : -1;
 
       me_rollEfficiencyBarrel_eff->Fill(eff);
-      if (nRef >= 20)
-        me_rollEfficiencyStatCutOffBarrel_eff->Fill(eff);
     }
   }
 
@@ -76,17 +62,15 @@ void RPCRecHitValidClient::dqmEndJob(DQMStore::IBooker &booker, DQMStore::IGette
       const double eff = nRef ? nRec / nRef * 100 : -1;
 
       me_rollEfficiencyEndcap_eff->Fill(eff);
-      if (nRef >= 20)
-        me_rollEfficiencyStatCutOffEndcap_eff->Fill(eff);
     }
   }
 
   MEP me_eventCount = getter.get(subDir_ + "/Occupancy/EventCount");
   const double nEvent = me_eventCount ? me_eventCount->getTH1()->GetBinContent(1) : 1;
-  MEP me_noiseOccupancyBarrel_detId = getter.get(subDir_ + "/Occupancy/NoiseOccupancyBarrel_detId");
+  MEP me_allOccupancyBarrel_detId = getter.get(subDir_ + "/Occupancy/OccupancyBarrel_detId");
   MEP me_rollAreaBarrel_detId = getter.get(subDir_ + "/Occupancy/RollAreaBarrel_detId");
-  if (me_noiseOccupancyBarrel_detId and me_rollAreaBarrel_detId) {
-    TH1 *h_noiseOccupancyBarrel_detId = me_noiseOccupancyBarrel_detId->getTH1();
+  if (me_allOccupancyBarrel_detId and me_rollAreaBarrel_detId) {
+    TH1 *h_noiseOccupancyBarrel_detId = me_allOccupancyBarrel_detId->getTH1();
     TH1 *h_rollAreaBarrel_detId = me_rollAreaBarrel_detId->getTH1();
 
     for (int bin = 1, nBin = h_noiseOccupancyBarrel_detId->GetNbinsX(); bin <= nBin; ++bin) {
@@ -100,10 +84,10 @@ void RPCRecHitValidClient::dqmEndJob(DQMStore::IBooker &booker, DQMStore::IGette
     }
   }
 
-  MEP me_noiseOccupancyEndcap_detId = getter.get(subDir_ + "/Occupancy/NoiseOccupancyEndcap_detId");
+  MEP me_allOccupancyEndcap_detId = getter.get(subDir_ + "/Occupancy/OccupancyEndcap_detId");
   MEP me_rollAreaEndcap_detId = getter.get(subDir_ + "/Occupancy/RollAreaEndcap_detId");
-  if (me_noiseOccupancyEndcap_detId and me_rollAreaEndcap_detId) {
-    TH1 *h_noiseOccupancyEndcap_detId = me_noiseOccupancyEndcap_detId->getTH1();
+  if (me_allOccupancyEndcap_detId and me_rollAreaEndcap_detId) {
+    TH1 *h_noiseOccupancyEndcap_detId = me_allOccupancyEndcap_detId->getTH1();
     TH1 *h_rollAreaEndcap_detId = me_rollAreaEndcap_detId->getTH1();
 
     for (int bin = 1, nBin = h_noiseOccupancyEndcap_detId->GetNbinsX(); bin <= nBin; ++bin) {

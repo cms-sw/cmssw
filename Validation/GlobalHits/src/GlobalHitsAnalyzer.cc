@@ -995,7 +995,7 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event &iEvent, const edm::EventSetup
                                     << sdPxlBrl << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
     }  // end detector type check
-  }    // end loop through PxlBrl Hits
+  }  // end loop through PxlBrl Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of Pixel Barrel Hits collected:..... ";
@@ -1069,7 +1069,7 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event &iEvent, const edm::EventSetup
                                     << sdPxlFwd << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
     }  // end detector type check
-  }    // end loop through PxlFwd Hits
+  }  // end loop through PxlFwd Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of Pixel Forward Hits collected:.... ";
@@ -1167,7 +1167,7 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event &iEvent, const edm::EventSetup
                                     << subdetector << ")";
       continue;
     }  // end detector type check
-  }    // end loop through SiBrl Hits
+  }  // end loop through SiBrl Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of Silicon Barrel Hits collected:... ";
@@ -1259,7 +1259,7 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event &iEvent, const edm::EventSetup
                                     << subdetector << ")";
       continue;
     }  // end check detector type
-  }    // end loop through SiFwd Hits
+  }  // end loop through SiFwd Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of Silicon Forward Hits collected:.. ";
@@ -1352,7 +1352,7 @@ void GlobalHitsAnalyzer::fillMuon(const edm::Event &iEvent, const edm::EventSetu
                                       << ")";
         continue;
       }  // end detector type check
-    }    // end loop through CSC Hits
+    }  // end loop through CSC Hits
 
     if (verbosity > 1) {
       eventout += "\n          Number of CSC muon Hits collected:......... ";
@@ -1427,7 +1427,7 @@ void GlobalHitsAnalyzer::fillMuon(const edm::Event &iEvent, const edm::EventSetu
                                       << sdMuonDT << "); value returned is: (" << detector << "," << subdetector << ")";
         continue;
       }  // end detector type check
-    }    // end loop through DT Hits
+    }  // end loop through DT Hits
 
     if (verbosity > 1) {
       eventout += "\n          Number of DT muon Hits collected:.......... ";
@@ -1529,7 +1529,7 @@ void GlobalHitsAnalyzer::fillMuon(const edm::Event &iEvent, const edm::EventSetu
                                       << ")";
         continue;
       }  // end detector type check
-    }    // end loop through RPC Hits
+    }  // end loop through RPC Hits
 
     if (verbosity > 1) {
       eventout += "\n          Number of RPC muon Hits collected:......... ";
@@ -1640,7 +1640,7 @@ void GlobalHitsAnalyzer::fillECal(const edm::Event &iEvent, const edm::EventSetu
                                     << subdetector << ")";
       continue;
     }  // end detector type check
-  }    // end loop through ECal Hits
+  }  // end loop through ECal Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of ECal Hits collected:............. ";
@@ -1707,7 +1707,7 @@ void GlobalHitsAnalyzer::fillECal(const edm::Event &iEvent, const edm::EventSetu
                                       << sdEcalPS << "); value returned is: (" << detector << "," << subdetector << ")";
         continue;
       }  // end detector type check
-    }    // end loop through PreShower Hits
+    }  // end loop through PreShower Hits
 
     if (verbosity > 1) {
       eventout += "\n          Number of PreSh Hits collected:............ ";
@@ -1809,7 +1809,7 @@ void GlobalHitsAnalyzer::fillHCal(const edm::Event &iEvent, const edm::EventSetu
                                       << "); value returned is: (" << detector << "," << subdetector << ")";
         continue;
       }  // end detector type check
-    }    // end loop through HCal Hits
+    }  // end loop through HCal Hits
 
     if (verbosity > 1) {
       eventout += "\n          Number of HCal Hits collected:............. ";

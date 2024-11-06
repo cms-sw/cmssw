@@ -43,8 +43,8 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
   void endJob() override;
-  void beginRun(const edm::Run& r, const edm::EventSetup& iSetup) override{};
-  void endRun(const edm::Run& r, const edm::EventSetup& iSetup) override{};
+  void beginRun(const edm::Run& r, const edm::EventSetup& iSetup) override {}
+  void endRun(const edm::Run& r, const edm::EventSetup& iSetup) override {}
 
 private:
   // ----------member data ---------------------------

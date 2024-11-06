@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Geometry.HcalCommonData.cmsExtendedGeometry2026D99XML_cfi import *
+from Geometry.HcalCommonData.cmsExtendedGeometryRun4D99XML_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *
 from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *
 from Geometry.EcalCommonData.ecalSimulationParameters_cff import *

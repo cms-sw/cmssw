@@ -731,7 +731,7 @@ void CSCEfficiency::fillLCT_info(edm::Handle<CSCALCTDigiCollection> &alcts,
         allALCT[id.endcap() - 1][id.station() - 1][id.ring() - 1][id.chamber() - FirstCh] = true;
       }
     }  // for digis in layer
-  }    // end of for (j=...
+  }  // end of for (j=...
   ALCTPerEvent->Fill(nSize);
   //---- CLCTDigis
   nSize = 0;

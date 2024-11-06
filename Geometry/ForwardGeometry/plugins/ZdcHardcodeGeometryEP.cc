@@ -17,17 +17,18 @@
 #include "Geometry/Records/interface/ZDCGeometryRecord.h"
 #include "Geometry/ForwardGeometry/plugins/ZdcHardcodeGeometryEP.h"
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
+#include "Geometry/ForwardGeometry/interface/ZdcTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ZdcHardcodeGeometryEP::ZdcHardcodeGeometryEP(const edm::ParameterSet& ps)
     : m_loader(nullptr),
-      m_topology(),
       m_applyAlignment(ps.getParameter<bool>("applyAlignment")),
       m_zdcAddRPD(ps.getParameter<bool>("zdcAddRPD")) {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this, ZdcGeometry::producerTag());
-
+  //auto cc = setWhatProduced(this, &ZdcHardcodeGeometryEP::produce, ZdcGeometry::producerTag());
+  auto cc = setWhatProduced(this, ZdcGeometry::producerTag());
+  m_zdcTopoToken = cc.consumesFrom<ZdcTopology, HcalRecNumberingRecord>(edm::ESInputTag{});
   // disable
   //   setWhatProduced( this,
   //		    &ZdcHardcodeGeometryEP::produceIdeal,
@@ -44,6 +45,7 @@ ZdcHardcodeGeometryEP::~ZdcHardcodeGeometryEP() {}
 
 ZdcHardcodeGeometryEP::ReturnType ZdcHardcodeGeometryEP::produce(const ZDCGeometryRecord& iRecord) {
   //   ZdcHardcodeGeometryLoader loader ( m_topology ) ;
+  const ZdcTopology& m_topology = iRecord.get(m_zdcTopoToken);
   m_loader = std::make_unique<ZdcHardcodeGeometryLoader>(m_topology);
   m_loader->setAddRPD(m_zdcAddRPD);
   return ReturnType(m_loader->load());

@@ -16,6 +16,7 @@ namespace l1t {
       auto etsumzdctag = cfg.getParameter<edm::InputTag>("EtSumZDCInputTag");
       auto muontag = cfg.getParameter<edm::InputTag>("MuonInputTag");
       auto muonshowertag = cfg.getParameter<edm::InputTag>("ShowerInputLabel");
+      auto cicadascoretag = cfg.getParameter<edm::InputTag>("CICADAScoreInputTag");
 
       //cout << "DEBUG:  GmtInputTag" <<  muontag << "\n";
 
@@ -28,6 +29,7 @@ namespace l1t {
       tauToken_ = cc.consumes<TauBxCollection>(tautag);
       algToken_ = cc.consumes<GlobalAlgBlkBxCollection>(gttag);
       extToken_ = cc.consumes<GlobalExtBlkBxCollection>(exttag);
+      cicadaToken_ = cc.consumes<CICADABxCollection>(cicadascoretag);
     }
   }  // namespace stage2
 }  // namespace l1t

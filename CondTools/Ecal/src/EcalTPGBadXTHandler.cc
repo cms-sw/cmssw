@@ -294,7 +294,7 @@ void popcon::EcalTPGBadXTHandler::getNewObjects() {
       }
 
     }  //end for over kr (nr of runs)
-  }    //end if
+  }  //end if
 
   delete econn;
 

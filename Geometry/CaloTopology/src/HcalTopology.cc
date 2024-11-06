@@ -64,7 +64,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
   } else {
     nEtaHE_ = (lastHERing_ - firstHERing_ + 1);
   }
-  if (mode_ == HcalTopologyMode::LHC) {
+  if (phase1()) {
     topoVersion_ = 0;         //DL
     HBSize_ = kHBSizePreLS1;  // qie-per-fiber * fiber/rm * rm/rbx * rbx/barrel * barrel/hcal
     HESize_ = kHESizePreLS1;  // qie-per-fiber * fiber/rm * rm/rbx * rbx/endcap * endcap/hcal
@@ -72,7 +72,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
     HFSize_ = kHFSizePreLS1;  // ieta * iphi * depth * 2
     CALIBSize_ = kCALIBSizePreLS1;
     numberOfShapes_ = 87;
-  } else if (mode_ == HcalTopologyMode::SLHC) {  // need to know more eventually
+  } else {  // need to know more eventually
     topoVersion_ = 10;
     HBSize_ = nEtaHB_ * IPHI_MAX * maxDepthHB_ * 2;
     HESize_ = nEtaHE_ * maxPhiHE_ * maxDepthHE_ * 2;
@@ -155,71 +155,12 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
                                << " " << maxDepthHB_ << ":" << maxDepthHE_ << " " << nEtaHB_ << ":" << nEtaHE_ << " "
                                << etaHE2HF_ << ":" << etaHF2HE_ << " " << maxPhiHE_;
 #endif
-}
 
-HcalTopology::HcalTopology(HcalTopologyMode::Mode mode,
-                           int maxDepthHB,
-                           int maxDepthHE,
-                           HcalTopologyMode::TriggerMode tmode)
-    : hcons_(nullptr),
-      mergePosition_(false),
-      excludeHB_(false),
-      excludeHE_(false),
-      excludeHO_(false),
-      excludeHF_(false),
-      mode_(mode),
-      triggerMode_(tmode),
-      firstHBRing_(1),
-      lastHBRing_(16),
-      firstHERing_(16),
-      lastHERing_(29),
-      firstHFRing_(29),
-      lastHFRing_(41),
-      firstHORing_(1),
-      lastHORing_(15),
-      firstHEDoublePhiRing_((mode == HcalTopologyMode::H2 || mode == HcalTopologyMode::H2HE) ? (22) : (21)),
-      firstHEQuadPhiRing_(999),
-      firstHFQuadPhiRing_(40),
-      firstHETripleDepthRing_((mode == HcalTopologyMode::H2 || mode == HcalTopologyMode::H2HE) ? (24) : (27)),
-      singlePhiBins_(IPHI_MAX),
-      doublePhiBins_(36),
-      maxDepthHB_(maxDepthHB),
-      maxDepthHE_(maxDepthHE),
-      maxDepthHF_(2),
-      etaHE2HF_(30),
-      etaHF2HE_(29),
-      maxPhiHE_(IPHI_MAX),
-      HBSize_(kHBSizePreLS1),
-      HESize_(kHESizePreLS1),
-      HOSize_(kHOSizePreLS1),
-      HFSize_(kHFSizePreLS1),
-      HTSize_(kHTSizePreLS1),
-      CALIBSize_(kCALIBSizePreLS1),
-      numberOfShapes_((mode == HcalTopologyMode::SLHC) ? 500 : 87) {
-  if (mode_ == HcalTopologyMode::LHC) {
-    topoVersion_ = 0;                            //DL
-    HBSize_ = kHBSizePreLS1;                     // qie-per-fiber * fiber/rm * rm/rbx * rbx/barrel * barrel/hcal
-    HESize_ = kHESizePreLS1;                     // qie-per-fiber * fiber/rm * rm/rbx * rbx/endcap * endcap/hcal
-    HOSize_ = kHOSizePreLS1;                     // ieta * iphi * 2
-    HFSize_ = kHFSizePreLS1;                     // phi * eta * depth * pm
-  } else if (mode_ == HcalTopologyMode::SLHC) {  // need to know more eventually
-    HBSize_ = maxDepthHB * 16 * IPHI_MAX * 2;
-    HESize_ = maxDepthHE * (29 - 16 + 1) * maxPhiHE_ * 2;
-    HOSize_ = 15 * IPHI_MAX * 2;                // ieta * iphi * 2
-    HFSize_ = IPHI_MAX * 13 * maxDepthHF_ * 2;  // phi * eta * depth * pm
-    CALIBSize_ = kOffCalibHFX_;
-    topoVersion_ = 10;
-  }
-  nEtaHB_ = (lastHBRing_ - firstHBRing_ + 1);
-  nEtaHE_ = (lastHERing_ - firstHERing_ + 1);
-  if (triggerMode_ == HcalTopologyMode::TriggerMode_2009) {
-    HTSize_ = kHTSizePreLS1;
-  } else {
-    HTSize_ = kHTSizePhase1;
-  }
-
-  edm::LogWarning("HCalGeom") << "This is an incomplete constructor of HcalTopology - be warned that many "
-                              << "functionalities will not be there - revert from this - get from EventSetup";
+  // Now redfine some of the sizes
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "Redefined sizes could be for HB:" << ncells(HcalBarrel)
+                               << " HE:" << ncells(HcalEndcap) << " HF: " << ncells(HcalForward);
+#endif
 }
 
 bool HcalTopology::valid(const DetId& id) const {
@@ -229,7 +170,7 @@ bool HcalTopology::valid(const DetId& id) const {
 
 bool HcalTopology::validHcal(const HcalDetId& id) const {
   // check the raw rules
-  return validRaw(id) && !isExcluded(id);
+  return validRaw(id, false) && !isExcluded(id);
 }
 
 bool HcalTopology::validDetId(HcalSubdetector subdet, int ieta, int iphi, int depth) const {
@@ -500,7 +441,7 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
     for (int iphi = iphi_l; iphi <= iphi_h; iphi++)
       for (int depth = depth_l; depth <= depth_h; depth++) {
         HcalDetId id(subdet, ieta, iphi, depth);
-        if (validRaw(id)) {  // use 'validRaw' to include check validity in "uncut" detector
+        if (validRaw(id, false)) {  // use 'validRaw' to include check validity in "uncut" detector
           exclude(id);
           n++;
         }
@@ -553,7 +494,12 @@ bool HcalTopology::validDetIdPreLS1(const HcalDetId& id) const {
 }
 
 /** Is this a valid cell id? */
-bool HcalTopology::validRaw(const HcalDetId& id) const {
+bool HcalTopology::validRaw(const HcalDetId& id,
+#ifdef EDM_ML_DEBUG
+                            const bool debug) const {
+#else
+                            const bool) const {
+#endif
   bool ok = true;
   int ieta = id.ieta();
   int aieta = id.ietaAbs();
@@ -567,16 +513,23 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
 
   if (ok) {
     if (subdet == HcalBarrel) {
-      if (mode_ == HcalTopologyMode::SLHC || mode_ == HcalTopologyMode::H2HE) {
+      if (phase1()) {
+        if (aieta > lastHBRing() || depth > 2 || (aieta <= 14 && depth > 1))
+          ok = false;
+      } else {
         if ((aieta > lastHBRing()) || (depth > hcons_->getMaxDepth(0, aieta, iphi, zside)) ||
             (depth < hcons_->getMinDepth(0, aieta, iphi, zside)))
           ok = false;
-      } else {
-        if (aieta > lastHBRing() || depth > 2 || (aieta <= 14 && depth > 1))
-          ok = false;
       }
     } else if (subdet == HcalEndcap) {
-      if (mode_ == HcalTopologyMode::SLHC || mode_ == HcalTopologyMode::H2HE) {
+      if (phase1A()) {
+        if (depth > hcons_->getMaxDepth(1, aieta, iphi, zside) || aieta < firstHERing() || aieta > lastHERing() ||
+            (aieta == firstHERing() && depth != hcons_->getDepthEta16(2, iphi, zside)) ||
+            (aieta == 17 && depth != 1 && mode_ != HcalTopologyMode::H2) ||  // special case at H2
+            (((aieta >= 17 && aieta < firstHETripleDepthRing()) || aieta == lastHERing()) && depth > 2) ||
+            (aieta >= firstHEDoublePhiRing() && (iphi % 2) == 0))
+          ok = false;
+      } else {
         if ((depth > hcons_->getMaxDepth(1, aieta, iphi, zside)) ||
             (depth < hcons_->getMinDepth(1, aieta, iphi, zside)) || (aieta < firstHERing()) || (aieta > lastHERing())) {
           ok = false;
@@ -598,13 +551,6 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
             }
           }
         }
-      } else {
-        if (depth > hcons_->getMaxDepth(1, aieta, iphi, zside) || aieta < firstHERing() || aieta > lastHERing() ||
-            (aieta == firstHERing() && depth != hcons_->getDepthEta16(2, iphi, zside)) ||
-            (aieta == 17 && depth != 1 && mode_ != HcalTopologyMode::H2) ||  // special case at H2
-            (((aieta >= 17 && aieta < firstHETripleDepthRing()) || aieta == lastHERing()) && depth > 2) ||
-            (aieta >= firstHEDoublePhiRing() && (iphi % 2) == 0))
-          ok = false;
       }
     } else if (subdet == HcalOuter) {
       if (aieta > lastHORing() || iphi > IPHI_MAX || depth != 4)
@@ -621,6 +567,16 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
       ok = false;
     }
   }
+#ifdef EDM_ML_DEBUG
+  if (debug)
+    edm::LogVerbatim("HCalGeom") << "HcalValdRaw ID: " << subdet << ":" << aieta << ":" << depth << ":" << iphi << ":"
+                                 << zside << " Mode " << mode_ << ":" << phase1() << ":" << phase1A() << ":"
+                                 << phase1B() << ":" << phase2() << " Limits HB " << lastHBRing() << " HE "
+                                 << firstHERing() << ":" << lastHERing() << ":" << firstHEDoublePhiRing() << ":"
+                                 << firstHEQuadPhiRing() << " Depth " << hcons_->getMaxDepth(0, aieta, iphi, zside)
+                                 << ":" << hcons_->getMinDepth(0, aieta, iphi, zside) << ":"
+                                 << hcons_->getDepthEta16(2, iphi, zside) << " OK " << ok;
+#endif
   return ok;
 }
 
@@ -817,14 +773,7 @@ int HcalTopology::decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
 void HcalTopology::depthBinInformation(
     HcalSubdetector subdet, int etaRing, int iphi, int zside, int& nDepthBins, int& startingBin) const {
   if (subdet == HcalBarrel) {
-    if (mode_ == HcalTopologyMode::SLHC || mode_ == HcalTopologyMode::H2HE) {
-      startingBin = hcons_->getMinDepth(0, etaRing, iphi, zside);
-      if (etaRing == lastHBRing()) {
-        nDepthBins = hcons_->getDepthEta16(1, iphi, zside) - startingBin + 1;
-      } else {
-        nDepthBins = hcons_->getMaxDepth(0, etaRing, iphi, zside) - startingBin + 1;
-      }
-    } else {
+    if (phase1() || (mode_ == HcalTopologyMode::H2)) {
       if (etaRing <= 14) {
         nDepthBins = 1;
         startingBin = 1;
@@ -832,16 +781,16 @@ void HcalTopology::depthBinInformation(
         nDepthBins = 2;
         startingBin = 1;
       }
+    } else {
+      startingBin = hcons_->getMinDepth(0, etaRing, iphi, zside);
+      if (etaRing == lastHBRing()) {
+        nDepthBins = hcons_->getDepthEta16(1, iphi, zside) - startingBin + 1;
+      } else {
+        nDepthBins = hcons_->getMaxDepth(0, etaRing, iphi, zside) - startingBin + 1;
+      }
     }
   } else if (subdet == HcalEndcap) {
-    if (mode_ == HcalTopologyMode::SLHC || mode_ == HcalTopologyMode::H2HE) {
-      if (etaRing == firstHERing()) {
-        startingBin = hcons_->getDepthEta16(2, iphi, zside);
-      } else {
-        startingBin = hcons_->getMinDepth(1, etaRing, iphi, zside);
-      }
-      nDepthBins = hcons_->getMaxDepth(1, etaRing, iphi, zside) - startingBin + 1;
-    } else {
+    if (phase1A()) {
       if (etaRing == firstHERing()) {
         nDepthBins = 1;
         startingBin = 3;
@@ -855,6 +804,13 @@ void HcalTopology::depthBinInformation(
         nDepthBins = (etaRing >= firstHETripleDepthRing()) ? 3 : 2;
         startingBin = 1;
       }
+    } else {
+      if (etaRing == firstHERing()) {
+        startingBin = hcons_->getDepthEta16(2, iphi, zside);
+      } else {
+        startingBin = hcons_->getMinDepth(1, etaRing, iphi, zside);
+      }
+      nDepthBins = hcons_->getMaxDepth(1, etaRing, iphi, zside) - startingBin + 1;
     }
   } else if (subdet == HcalForward) {
     nDepthBins = maxDepthHF_;
@@ -887,15 +843,20 @@ bool HcalTopology::incrementDepth(HcalDetId& detId) const {
       depth = 4;
     } else if (subdet == HcalBarrel && etaRing == lastHBRing()) {
       // overlap
-      subdet = HcalEndcap;
-      if (mode_ == HcalTopologyMode::SLHC || mode_ == HcalTopologyMode::H2HE)
-        depth = hcons_->getDepthEta16(2, iphi, zside);
-    } else if (subdet == HcalEndcap && etaRing == lastHERing() - 1 && mode_ != HcalTopologyMode::SLHC) {
+      if (phase2()) {  // No more chance
+        detId = HcalDetId();
+        return false;
+      } else {
+        subdet = HcalEndcap;
+        if (phase1B())
+          depth = hcons_->getDepthEta16(2, iphi, zside);
+      }
+    } else if ((subdet == HcalEndcap) && (etaRing == lastHERing() - 1) && !phase1B()) {
       // guard ring HF29 is behind HE 28
       subdet = HcalForward;
       (ieta > 0) ? ++ieta : --ieta;
       depth = 1;
-    } else if (subdet == HcalEndcap && etaRing == lastHERing() && mode_ != HcalTopologyMode::SLHC) {
+    } else if ((subdet == HcalEndcap) && (etaRing == lastHERing()) && !phase1B()) {
       // split cells go to bigger granularity.  Ring 29 -> 28
       (ieta > 0) ? --ieta : ++ieta;
     } else {
@@ -928,8 +889,8 @@ bool HcalTopology::decrementDepth(HcalDetId& detId) const {
         break;
       }
     }
-  } else if (subdet == HcalEndcap && etaRing == lastHERing() && depth == hcons_->getDepthEta29(iphi, zside, 0) &&
-             mode_ != HcalTopologyMode::SLHC) {
+  } else if ((subdet == HcalEndcap) && (etaRing == lastHERing()) && (depth == hcons_->getDepthEta29(iphi, zside, 0)) &&
+             !phase1B()) {
     (ieta > 0) ? --ieta : ++ieta;
   } else if (depth <= 0) {
     if (subdet == HcalForward && etaRing == firstHFRing()) {
@@ -1122,17 +1083,18 @@ double HcalTopology::etaMax(HcalSubdetector subdet) const {
   }
   return eta;
 }
+
 std::pair<double, double> HcalTopology::etaRange(HcalSubdetector subdet, int keta) const {
   int ieta = (keta > 0) ? keta : -keta;
   if (subdet == HcalForward) {
     if (ieta >= firstHFRing_) {
-      unsigned int ii = (unsigned int)(ieta - firstHFRing_);
+      unsigned int ii = static_cast<unsigned int>(ieta - firstHFRing_);
       if (ii + 1 < etaTableHF.size())
         return std::pair<double, double>(etaTableHF[ii], etaTableHF[ii + 1]);
     }
   } else {
-    int ietal = (mode_ == HcalTopologyMode::LHC && ieta == lastHERing_ - 1) ? (ieta + 1) : ieta;
-    if ((ietal < (int)(etaTable.size())) && (ieta > 0))
+    int ietal = (phase1() && ieta == lastHERing_ - 1) ? (ieta + 1) : ieta;
+    if ((ietal < static_cast<int>(etaTable.size())) && (ieta > 0))
       return std::pair<double, double>(etaTable[ieta - 1], etaTable[ietal]);
   }
   return std::pair<double, double>(0, 0);
@@ -1689,5 +1651,19 @@ DetId HcalTopology::denseId2detId(unsigned int denseid) const {
 }
 
 unsigned int HcalTopology::ncells() const { return HBSize_ + HESize_ + HOSize_ + HFSize_; }
+
+unsigned int HcalTopology::ncells(int subdet) const {
+  unsigned int ncell(0);
+  for (int eta = -maxEta_; eta <= maxEta_; eta++) {
+    for (unsigned int phi = 1; phi <= maxPhi_; phi++) {
+      for (int depth = 1; depth <= 7; depth++) {
+        HcalDetId cell((HcalSubdetector)subdet, eta, phi, depth);
+        if (validRaw(cell, true))
+          ++ncell;
+      }
+    }
+  }
+  return ncell;
+}
 
 int HcalTopology::topoVersion() const { return topoVersion_; }

@@ -60,7 +60,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet(
                 mksel("filter('*CaloIdLTrackIdLIsoVL*TrackIso*Filter')","CaloIdL_TrackIdL_IsoVL"),
-                mksel("filter('hltEle*WPTight*TrackIsoFilter*')","1e (WPTight)"),
+                mksel("filter('hltEle*WPTight*TrackIsoFilter*')","1e (WPTight with possibile contribution from Xtriggers besides singleElectron)"),
                 mksel("filter('hltEle*WPLoose*TrackIsoFilter')","1e (WPLoose)"),
                 mksel("filter('*OverlapFilter*IsoEle*PFTau*')","OverlapFilter PFTau"),
                 mksel("filter('hltEle*Ele*CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter')","2e (Leg 1)"),
@@ -76,7 +76,8 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel(["hltEG175HEFilter","hltEG200HEFilter"],"1e (Photon175_OR_Photon200)"),
                 mksel("filter('hltEle*CaloIdLMWPMS2Filter')","2e (CaloIdL_MW seeded)"),
                 mksel("filter('hltDiEle*CaloIdLMWPMS2UnseededFilter')","2e (CaloIdL_MW unseeded)"),
-                mksel("filter('hlt*OverlapFilterIsoEle*ETau*PNet*Tau*')", "1e-1tau PNet")
+                mksel("filter('hlt*OverlapFilterIsoEle*ETau*PNet*Tau*')", "1e-1tau PNet"),
+                mksel("filter('hltEle30WPTightGsfTrackIsoFilter')","1e (HLT30WPTightGSfTrackIso)")
                 )
         ),
         Photon = cms.PSet(
@@ -370,6 +371,9 @@ _run2_2018_jet_filters[2] = mksel(["hltPFJetFilterTwoC30"])
 _run2_2018_jet_filters.append(mksel(["hltBTagPFDeepCSV1p5Single"])) # 22
 run2_HLTconditions_2018.toModify(triggerObjectTable.selections.Jet, qualityBits = cms.VPSet(_run2_2018_jet_filters))
 
+_run2_2017_muon_filters = copy.deepcopy(triggerObjectTable.selections.Muon.qualityBits)
+_run2_2017_muon_filters.append(mksel(["hltIterL3MuonCandidates"], "2Mu filter Bit for 2017")) #14
+run2_HLTconditions_2017.toModify(triggerObjectTable.selections.Muon, qualityBits = cms.VPSet(_run2_2017_muon_filters))
 
 from PhysicsTools.PatUtils.L1PrefiringWeightProducer_cff import prefiringweight
 #Next lines are for UL2016 maps

@@ -34,13 +34,13 @@ public:
     * Prepare the calibrated object for a calibration run.
     * E.g. clear the right data members.
     */
-  virtual void startCalibration(){};
+  virtual void startCalibration() {}
 
   /** This function has to be implemented in derived class.
     * Calibration is finished. Prepare for writing.
     * E.g. fit histogram, normalize, compute averages, whatever...
     */
-  virtual void finishCalibration(){};
+  virtual void finishCalibration() {}
 
   /** 
     * You have to impelement a different updateCalibration(CalibrationInput) in the derived class for each 

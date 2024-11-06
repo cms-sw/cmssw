@@ -1,0 +1,14 @@
+{
+ "edm::Wrapper<edmtest::reflection::IntObject>": {
+  "checksum": 536952283,
+  "version": 4
+ },
+ "edmtest::reflection::IntObject": {
+  "checksum": 427917710,
+  "version": 3
+ },
+ "edmtest::reflection::Another": {
+  "checksum": 427917711,
+  "version": 3
+ }
+}

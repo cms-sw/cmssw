@@ -129,7 +129,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection &digis, CLHEP::HepRa
         // skip over all the time bins used for this digi
         ibin = lastbin;
       }  // if over threshold
-    }    // loop over time bins in signal
+    }  // loop over time bins in signal
 
     // Only create a wire digi if there is a wire hit within [-6 bx, +9 bx]
     if (timeWord != 0) {

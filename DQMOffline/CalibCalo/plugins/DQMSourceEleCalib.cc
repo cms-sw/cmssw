@@ -176,7 +176,7 @@ void DQMSourceEleCalib::analyze(const edm::Event &iEvent, const edm::EventSetup 
       EBDetId id(itb->id());
       OccupancyEB_->Fill(id.iphi(), id.ieta());
     }  // Eb rechits
-  }    // is Valid
+  }  // is Valid
   if (rhEE.isValid()) {
     numberOfHits += rhEE->size();
     for (itb = rhEE->begin(); itb != rhEE->end(); ++itb) {
@@ -189,7 +189,7 @@ void DQMSourceEleCalib::analyze(const edm::Event &iEvent, const edm::EventSetup 
       }  // zside<0
 
     }  // EE reChit
-  }    // is Valid
+  }  // is Valid
   if (numberOfElectrons)
     recHitsPerElectron_->Fill((double)numberOfHits / ((double)numberOfElectrons));
   if (numberOfHits)

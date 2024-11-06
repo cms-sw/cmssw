@@ -143,7 +143,7 @@ DOMNode* xuti::getChildNode(DOMNode* node, const std::string& nodename) {
       if (foundName == nodename)
         return childNode;
     }  // if element
-  }    // for child
+  }  // for child
 
   return nullptr;
 }

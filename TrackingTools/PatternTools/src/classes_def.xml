@@ -10,11 +10,6 @@
   <class name="edm::Wrapper<std::vector<MomentumConstraint> >" persistent="false"/>
   <class name="edm::RefProd<std::vector<MomentumConstraint> >"/>
 
-  <class name="VertexConstraint"/>
-  <class name="std::vector<VertexConstraint>"/>
-  <class name="edm::Wrapper<std::vector<VertexConstraint> >" persistent="false"/>
-  <class name="edm::RefProd<std::vector<VertexConstraint> >"/>
-
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short > >" >
     <field name="transientMap_" transient="true"/>
   </class>
@@ -25,13 +20,22 @@
     <field name="transientMap_" transient="true"/>
   </class>
 
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short> > >" persistent="false" />
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<MomentumConstraint>,unsigned int> > >" />
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<VertexConstraint>,unsigned int> > >"/>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short> > >" persistent="false"/>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<MomentumConstraint>,unsigned int> > >" persistent="false"/>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<VertexConstraint>,unsigned int> > >" persistent="false"/>
 
-  <class pattern="edm::Ref<edm::AssociationMap<*>"/>
-  <class pattern="edm::RefProd<edm::AssociationMap<*>"/>
-  <class pattern="edm::RefVector<edm::AssociationMap<*>"/>
+  <class name="edm::Ref<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short> > >"/>
+  <class name="edm::Ref<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<MomentumConstraint>,unsigned int> > >"/>
+  <class name="edm::Ref<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<VertexConstraint>,unsigned int> > >"/>
+
+  <class name="edm::RefProd<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short> > >"/>
+  <class name="edm::RefProd<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<MomentumConstraint>,unsigned int> > >"/>
+  <class name="edm::RefProd<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<VertexConstraint>,unsigned int> > >"/>
+
+  <class name="edm::RefVector<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short> > >"/>
+  <class name="edm::RefVector<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<MomentumConstraint>,unsigned int> > >"/>
+  <class name="edm::RefVector<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<VertexConstraint>,unsigned int> > >"/>
+
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<Trajectory> >,edm::RefProd<std::vector<reco::Track> > >"/>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<MomentumConstraint> > >"/>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<VertexConstraint> > >"/>
@@ -57,9 +61,6 @@
   <class name="edm::helpers::KeyVal<edm::Ref<vector<Trajectory>,Trajectory,edm::refhelper::FindUsingAdvance<vector<Trajectory>,Trajectory> >,edm::Ref<vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<vector<reco::Track>,reco::Track> > >"/>
 
   <class name="TrajAnnealing"/>
-  <class name="std::vector<TrajAnnealing>" persistent="false"/>
+  <class name="std::vector<TrajAnnealing>"/>
   <class name="edm::Wrapper<std::vector<TrajAnnealing> >" persistent="false"/>
-
-  <!-- This next spec should not really be here, but it is a workaround for a ROOT6 problem (Danilo Piparo).-->
-  <class name="GlobalErrorBase<double,ErrorMatrixTag>" />
 </lcgdict>

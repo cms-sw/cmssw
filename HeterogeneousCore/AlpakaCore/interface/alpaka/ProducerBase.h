@@ -93,6 +93,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         return Base::template produces<TToken, Tr>(std::move(instanceName));
       } else {
         edm::EDPutTokenT<TToken> token = Base::template produces<TToken, Tr>(instanceName);
+        using CopyT = cms::alpakatools::CopyToHost<TProduct>;
         this->registerTransformAsync(
             token,
             [](TToken const& deviceProduct, edm::WaitingTaskWithArenaHolder holder) {
@@ -103,7 +104,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               TProduct const& productOnDevice =
                   deviceProduct.template getSynchronized<EDMetadata>(*metadataPtr, tryReuseQueue);
 
-              using CopyT = cms::alpakatools::CopyToHost<TProduct>;
               auto productOnHost = CopyT::copyAsync(metadataPtr->queue(), productOnDevice);
 
               // Need to keep the EDMetadata object from sentry.finish()
@@ -112,7 +112,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               // Wrap possibly move-only type into a copyable type
               return std::make_shared<TplType>(std::move(productOnHost), sentry.finish());
             },
-            [](auto tplPtr) { return std::move(std::get<0>(*tplPtr)); },
+            [](auto tplPtr) {
+              auto& productOnHost = std::get<0>(*tplPtr);
+              if constexpr (requires { CopyT::postCopy(productOnHost); }) {
+                CopyT::postCopy(productOnHost);
+              }
+              return std::move(productOnHost);
+            },
             std::move(instanceName));
         return token;
       }

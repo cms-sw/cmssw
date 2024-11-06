@@ -59,12 +59,12 @@ void PixelTrackDumpAlpakaT<TrackerTraits>::analyze(edm::StreamID streamID,
   assert(tracks.view().nTracks());
 
   auto const& vertices = iEvent.get(tokenSoAVertex_);
-  assert(vertices.view().idv());
+  assert(vertices.view<reco::ZVertexTracksSoA>().idv());
   assert(vertices.view().zv());
   assert(vertices.view().wv());
   assert(vertices.view().chi2());
   assert(vertices.view().ptv2());
-  assert(vertices.view().ndof());
+  assert(vertices.view<reco::ZVertexTracksSoA>().ndof());
   assert(vertices.view().sortInd());
   assert(vertices.view().nvFinal());
 }

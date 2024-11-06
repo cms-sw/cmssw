@@ -161,7 +161,7 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
       if (layerMEs_[key].poserrY)
         layerMEs_[key].poserrY->Fill(eta, million * rechit.localPositionError().yy());
     }  //end loop over rechits of a detId
-  }    //End loop over DetSetVector
+  }  //End loop over DetSetVector
 
   //fill nRecHits per event
   numberRecHits_->Fill(nTotrechitsinevt);

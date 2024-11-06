@@ -83,7 +83,7 @@ void RPCHitCleaner::run() {
       strip_n1 = digi->strip();
       bx_n1 = digi->bx();
     }  ///for digicout
-  }    ///for chamber
+  }  ///for chamber
   vcluster_size.push_back(cluster_size);
 
   for (auto chamber = m_inrpcDigis.begin(); chamber != m_inrpcDigis.end(); ++chamber) {
@@ -131,5 +131,5 @@ void RPCHitCleaner::run() {
       RPCDigi digi_out(digi->strip(), digi->bx());
       m_outrpcDigis.insertDigi(detid, digi_out);
     }  ///for digicout
-  }    ///for chamber
+  }  ///for chamber
 }

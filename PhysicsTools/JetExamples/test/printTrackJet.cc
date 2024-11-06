@@ -23,7 +23,7 @@ using namespace edm;
 class printTrackJet : public edm::one::EDAnalyzer<> {
 public:
   explicit printTrackJet(const edm::ParameterSet&);
-  ~printTrackJet(){};
+  ~printTrackJet() {}
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:

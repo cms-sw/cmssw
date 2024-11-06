@@ -64,7 +64,7 @@ public:
     produces<edm::ValueMap<int>>("vtxNtrk");
     produces<edm::ValueMap<float>>("ptD");
   }
-  ~BJetEnergyRegressionVarProducer() override{};
+  ~BJetEnergyRegressionVarProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

@@ -37,24 +37,6 @@ run2_nanoAOD_ANY.toModify(
 )
 bTagDiscriminatorsForAK4 = bTagDiscriminatorsForAK4.foo.value()
 
-from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll
-from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll
-
-btagHbb = ['pfBoostedDoubleSecondaryVertexAK8BJetTags']
-btagDDX = [
-  'pfDeepDoubleBvLJetTags:probHbb',
-  'pfDeepDoubleCvLJetTags:probHcc',
-  'pfDeepDoubleCvBJetTags:probHcc',
-  'pfMassIndependentDeepDoubleBvLJetTags:probHbb',
-  'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
-  'pfMassIndependentDeepDoubleCvBJetTags:probHcc'
-]
-btagDDXV2 = [
-  'pfMassIndependentDeepDoubleBvLV2JetTags:probHbb',
-  'pfMassIndependentDeepDoubleCvLV2JetTags:probHcc',
-  'pfMassIndependentDeepDoubleCvBV2JetTags:probHcc'
-]
-
 #
 # By default, these collections are saved in NanoAODs:
 # - ak4gen (GenJet in NanoAOD), slimmedGenJets in MiniAOD
@@ -202,11 +184,14 @@ UNIFIEDPARTAK4VARS = cms.PSet(
   btagUParTAK4B = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll'):-1",float,precision=10,doc="UnifiedParTAK4 b vs. udscg"),
   btagUParTAK4CvL = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL'):-1",float,precision=10,doc="UnifiedParTAK4 c vs. udsg"),
   btagUParTAK4CvB = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB'):-1",float,precision=10,doc="UnifiedParTAK4 c vs. b"),
-  btagUParTAK4QvG = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG'):-1",float,precision=10,doc="UnifiedParTAK4 q (udsbc) vs. g"),
+  btagUParTAK4SvCB  = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:SvsBC')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:SvsBC'):-1",float,precision=10,doc="UnifiedParTAK4 s vs. bc"),
+  btagUParTAK4SvUDG = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:SvsUDG')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:SvsUDG'):-1",float,precision=10,doc="UnifiedParTAK4 s vs. udg"),
+  btagUParTAK4UDG = Var("?pt>15? bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probu')+bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probd')+bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probg'):-1",float,precision=10,doc="UnifiedParTAK4 u+d+g raw score"),
+  btagUParTAK4QvG = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG'):-1",float,precision=10,doc="UnifiedParTAK4 q (uds) vs. g"),
   btagUParTAK4TauVJet = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:TauVsJet')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:TauVsJet'):-1",float,precision=10,doc="UnifiedParTAK4 tau vs. jet"),
-  UParTAK4RegPtRawCorr = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptcorr')>0?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptcorr'):-1",float,precision=10,doc="UnifiedParTAK4 universal flavor-aware visible pT regression (no neutrinos), correction relative to raw jet pT"),
-  UParTAK4RegPtRawCorrNeutrino = Var("?pt>15 && bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptnu')>0?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptnu'):-1",float,precision=10,doc="UnifiedParTAK4 universal flavor-aware pT regression neutrino correction, relative to visible. To apply full regression, multiply raw jet pT by both UParTAK4RegPtRawCorr and UParTAK4RegPtRawCorrNeutrino."),
-  UParTAK4RegPtRawRes = Var("?pt>15 && 0.5*(bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreshigh')-bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreslow')) > 0?0.5*(bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreshigh')-bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreslow')):-1",float,precision=10,doc="UnifiedParTAK4 universal flavor-aware jet pT resolution estimator, (q84 - q16)/2"),
+  UParTAK4RegPtRawCorr = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptcorr')>0?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptcorr'):-1",float,precision=10,doc="UnifiedParTAK4 universal flavor-aware visible pT regression (no neutrinos), correction relative to raw jet pT"),
+  UParTAK4RegPtRawCorrNeutrino = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptnu')>0?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptnu'):-1",float,precision=10,doc="UnifiedParTAK4 universal flavor-aware pT regression neutrino correction, relative to visible. To apply full regression, multiply raw jet pT by both UParTAK4RegPtRawCorr and UParTAK4RegPtRawCorrNeutrino."),
+  UParTAK4RegPtRawRes = Var("?0.5*(bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreshigh')-bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreslow')) > 0?0.5*(bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreshigh')-bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreslow')):-1",float,precision=10,doc="UnifiedParTAK4 universal flavor-aware jet pT resolution estimator, (q84 - q16)/2"),
 )
 PARTICLENETAK4VARS = cms.PSet(
   particleNetAK4_B = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:BvsAll'):-1",float,doc="ParticleNetAK4 tagger b vs all (udsg, c) discriminator",precision=10),
@@ -231,75 +216,6 @@ CALOJETVARS = cms.PSet(P4Vars,
 #
 #
 #******************************************
-def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
-  """
-  Setup modules to calculate PF jet ID
-  """
-
-  isPUPPIJet = True if "PUPPI" in jetName.upper() else False
-
-  looseJetId = "looseJetId{}".format(jetName)
-  setattr(proc, looseJetId, proc.looseJetId.clone(
-      src = jetSrc,
-      filterParams = proc.looseJetId.filterParams.clone(
-        version = "WINTER16"
-      ),
-    )
-  )
-
-  tightJetId = "tightJetId{}".format(jetName)
-  setattr(proc, tightJetId, proc.tightJetId.clone(
-      src = jetSrc,
-      filterParams = proc.tightJetId.filterParams.clone(
-        version = "RUN3WINTER22{}".format("PUPPI" if isPUPPIJet else "CHS")
-      ),
-    )
-  )
-
-  tightJetIdLepVeto = "tightJetIdLepVeto{}".format(jetName)
-  setattr(proc, tightJetIdLepVeto, proc.tightJetIdLepVeto.clone(
-      src = jetSrc,
-      filterParams = proc.tightJetIdLepVeto.filterParams.clone(
-        version = "RUN3WINTER22{}".format("PUPPI" if isPUPPIJet else "CHS")
-      ),
-    )
-  )
-
-  run3_jme_Winter22runsBCDEprompt.toModify(
-    getattr(proc, tightJetId).filterParams, version = "RUN3WINTER22{}runsBCDEprompt".format("PUPPI" if isPUPPIJet else "CHS")
-  ).toModify(
-    getattr(proc, tightJetIdLepVeto).filterParams, version = "RUN3WINTER22{}runsBCDEprompt".format("PUPPI" if isPUPPIJet else "CHS")
-  )
-
-  (run2_jme_2017 | run2_jme_2018 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    getattr(proc, tightJetId).filterParams, version = "RUN2UL{}".format("PUPPI" if isPUPPIJet else "CHS")
-  ).toModify(
-    getattr(proc, tightJetIdLepVeto).filterParams, version = "RUN2UL{}".format("PUPPI" if isPUPPIJet else "CHS")
-  )
-
-  run2_jme_2016.toModify(
-    getattr(proc, tightJetId).filterParams, version = "RUN2UL16{}".format("PUPPI" if isPUPPIJet else "CHS")
-  ).toModify(
-    getattr(proc, tightJetIdLepVeto).filterParams, version = "RUN2UL16{}".format("PUPPI" if isPUPPIJet else "CHS")
-  )
-
-  #
-  # Save variables as userInts in each jet
-  #
-  patJetWithUserData = "{}WithUserData".format(jetSrc)
-  getattr(proc, patJetWithUserData).userInts.tightId = cms.InputTag(tightJetId)
-  getattr(proc, patJetWithUserData).userInts.tightIdLepVeto = cms.InputTag(tightJetIdLepVeto)
-
-  #
-  # Specfiy variables in the jetTable to save in NanoAOD
-  #
-  getattr(proc, jetTableName).variables.jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')",int,doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto")
-
-  getattr(proc,jetTaskName).add(getattr(proc, tightJetId))
-  getattr(proc,jetTaskName).add(getattr(proc, tightJetIdLepVeto))
-
-  return proc
-
 def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
   """
   Setup modules to calculate pileup jet ID input variables for PF jet
@@ -454,6 +370,10 @@ def AddUnifiedParTAK4Scores(proc, jetTableName=""):
   getattr(proc, jetTableName).variables.btagUParTAK4B = UNIFIEDPARTAK4VARS.btagUParTAK4B
   getattr(proc, jetTableName).variables.btagUParTAK4CvL = UNIFIEDPARTAK4VARS.btagUParTAK4CvL
   getattr(proc, jetTableName).variables.btagUParTAK4CvB = UNIFIEDPARTAK4VARS.btagUParTAK4CvB
+  getattr(proc, jetTableName).variables.btagUParTAK4SvCB = UNIFIEDPARTAK4VARS.btagUParTAK4SvCB
+  getattr(proc, jetTableName).variables.btagUParTAK4SvUDG = UNIFIEDPARTAK4VARS.btagUParTAK4SvUDG
+  getattr(proc, jetTableName).variables.btagUParTAK4UDG = UNIFIEDPARTAK4VARS.btagUParTAK4UDG
+  getattr(proc, jetTableName).variables.btagUParTAK4QvG = UNIFIEDPARTAK4VARS.btagUParTAK4QvG
   getattr(proc, jetTableName).variables.btagUParTAK4TauVJet = UNIFIEDPARTAK4VARS.btagUParTAK4TauVJet
   getattr(proc, jetTableName).variables.UParTAK4RegPtRawCorr = UNIFIEDPARTAK4VARS.UParTAK4RegPtRawCorr
   getattr(proc, jetTableName).variables.UParTAK4RegPtRawCorrNeutrino = UNIFIEDPARTAK4VARS.UParTAK4RegPtRawCorrNeutrino
@@ -626,7 +546,6 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
   # Schedule plugins to calculate Jet ID, PileUp Jet ID input variables, and Quark-Gluon Likehood input variables.
   #
   if doPF:
-    proc = AddJetID(proc, jetName=jetName, jetSrc=srcJets, jetTableName=jetTableName, jetTaskName=jetTaskName)
     if doPUIDVar:
       proc = AddPileUpJetIDVars(proc, jetName=jetName, jetSrc=srcJets, jetTableName=jetTableName, jetTaskName=jetTaskName)
     if doQGL:
@@ -667,15 +586,6 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
 
   jetName = recoJetInfo.jetUpper
   patJetFinalColl = recoJetInfo.patJetFinalCollection
-
-  #
-  # Set the jetID for UL 16 era
-  #
-  run2_jme_2016.toModify(
-    proc.tightJetPuppiId.filterParams, version = "RUN2UL16PUPPI"
-  ).toModify(
-    proc.tightJetIdLepVeto.filterParams, version = "RUN2UL16PUPPI"
-  )
 
   #
   # Change the input jet source for jetCorrFactorsNano
@@ -734,9 +644,69 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   proc.jetPuppiTable.variables.phoMultiplicity   = PFJETVARS.phoMultiplicity
 
   #
-  # Add variables for pileup jet ID studies.
+  #
   #
 
+  from PhysicsTools.NanoAOD.patJetPFConstituentVarProducer_cfi import patJetPFConstituentVarProducer
+  jetPFConstituentVarName = "jetPFConstituentVar{}".format(jetName)
+  setattr(proc, jetPFConstituentVarName, patJetPFConstituentVarProducer.clone(
+      jets = "updatedJetsPuppi",
+      puppi_value_map = 'packedpuppi',
+      fallback_puppi_weight = False,
+    )
+  )
+  proc.jetPuppiTask.add(getattr(proc, jetPFConstituentVarName))
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstNeHadEF = cms.InputTag(jetPFConstituentVarName+':leadConstNeHadEF')
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstChHadEF = cms.InputTag(jetPFConstituentVarName+':leadConstChHadEF')
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstPhotonEF = cms.InputTag(jetPFConstituentVarName+':leadConstPhotonEF')
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstElectronEF = cms.InputTag(jetPFConstituentVarName+':leadConstElectronEF')
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstMuonEF = cms.InputTag(jetPFConstituentVarName+':leadConstMuonEF')
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstHFHADEF = cms.InputTag(jetPFConstituentVarName+':leadConstHFHADEF')
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstHFEMEF = cms.InputTag(jetPFConstituentVarName+':leadConstHFEMEF')
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstNeHadPuppiWeight = cms.InputTag(jetPFConstituentVarName+':leadConstNeHadPuppiWeight')
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstChHadPuppiWeight = cms.InputTag(jetPFConstituentVarName+':leadConstChHadPuppiWeight')
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstPhotonPuppiWeight = cms.InputTag(jetPFConstituentVarName+':leadConstPhotonPuppiWeight')
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstElectronPuppiWeight = cms.InputTag(jetPFConstituentVarName+':leadConstElectronPuppiWeight')
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstMuonPuppiWeight = cms.InputTag(jetPFConstituentVarName+':leadConstMuonPuppiWeight')
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstHFHADPuppiWeight = cms.InputTag(jetPFConstituentVarName+':leadConstHFHADPuppiWeight')
+  proc.updatedJetsPuppiWithUserData.userFloats.leadConstHFEMPuppiWeight = cms.InputTag(jetPFConstituentVarName+':leadConstHFEMPuppiWeight')
+  proc.jetPuppiTable.variables.leadConstNeHadEF = Var("userFloat('leadConstNeHadEF')",float,doc="Leading PF neutral hadron constituent energy fraction w.r.t jet raw energy",precision=10)
+  proc.jetPuppiTable.variables.leadConstChHadEF = Var("userFloat('leadConstChHadEF')",float,doc="Leading PF charged hadron constituent energy fraction w.r.t jet raw energy",precision=10)
+  proc.jetPuppiTable.variables.leadConstPhotonEF = Var("userFloat('leadConstPhotonEF')",float,doc="Leading PF photon constituent energy fraction w.r.t jet raw energy",precision=10)
+  proc.jetPuppiTable.variables.leadConstElectronEF = Var("userFloat('leadConstElectronEF')",float,doc="Leading PF electron constituent energy fraction w.r.t jet raw energy",precision=10)
+  proc.jetPuppiTable.variables.leadConstMuonEF = Var("userFloat('leadConstMuonEF')",float,doc="Leading PF muon constituent energy fraction w.r.t jet raw energy",precision=10)
+  proc.jetPuppiTable.variables.leadConstHFHADEF = Var("userFloat('leadConstHFHADEF')",float,doc="Leading PF HF HAD constituent energy fraction w.r.t jet raw energy",precision=10)
+  proc.jetPuppiTable.variables.leadConstHFEMEF = Var("userFloat('leadConstHFEMEF')",float,doc="Leading PF HF EM constituent energy fraction w.r.t jet raw energy",precision=10)
+  proc.jetPuppiTable.variables.leadConstNeHadPuppiWeight = Var("userFloat('leadConstNeHadPuppiWeight')",float,doc="Leading PF neutral hadron constituent puppi weight",precision=10)
+  proc.jetPuppiTable.variables.leadConstChHadPuppiWeight = Var("userFloat('leadConstChHadPuppiWeight')",float,doc="Leading PF charged hadron constituent puppi weight",precision=10)
+  proc.jetPuppiTable.variables.leadConstPhotonPuppiWeight = Var("userFloat('leadConstPhotonPuppiWeight')",float,doc="Leading PF photon constituent puppi weight",precision=10)
+  proc.jetPuppiTable.variables.leadConstElectronPuppiWeight = Var("userFloat('leadConstElectronPuppiWeight')",float,doc="Leading PF electron constituent puppi weight",precision=10)
+  proc.jetPuppiTable.variables.leadConstMuonPuppiWeight = Var("userFloat('leadConstMuonPuppiWeight')",float,doc="Leading PF muon constituent puppi weight",precision=10)
+  proc.jetPuppiTable.variables.leadConstHFHADPuppiWeight = Var("userFloat('leadConstHFHADPuppiWeight')",float,doc="Leading PF HF HAD constituent puppi weight",precision=10)
+  proc.jetPuppiTable.variables.leadConstHFEMPuppiWeight = Var("userFloat('leadConstHFEMPuppiWeight')",float,doc="Leading PF HF EM constituent puppi weight",precision=10)
+
+
+  #
+  # Add Pileup Jet ID for Puppi jets
+  #
+  from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdPuppi
+  pileupJetIdName = "pileupJetId{}".format(jetName)
+  setattr(proc, pileupJetIdName, pileupJetIdPuppi.clone(
+      jets = "updatedJetsPuppi",
+      srcConstituentWeights = "packedpuppi",
+      vertexes  = "offlineSlimmedPrimaryVertices",
+      inputIsCorrected=True,
+      applyJec=False
+    )
+  )
+  proc.jetPuppiTask.add(getattr(proc, pileupJetIdName))
+  proc.updatedJetsPuppiWithUserData.userFloats.puIdDisc = cms.InputTag(pileupJetIdName+':fullDiscriminant')
+  proc.jetPuppiTable.variables.puIdDisc = Var("userFloat('puIdDisc')", float, doc="Pileup ID BDT discriminant with 133X Winter24 PuppiV18 training",precision=10)
+
+
+  #
+  # Add variables for pileup jet ID studies.
+  #
   proc = AddPileUpJetIDVars(proc,
     jetName = jetName,
     jetSrc = "updatedJetsPuppi",
@@ -778,6 +748,10 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   proc.jetPuppiTable.variables.btagUParTAK4B = UNIFIEDPARTAK4VARS.btagUParTAK4B
   proc.jetPuppiTable.variables.btagUParTAK4CvL = UNIFIEDPARTAK4VARS.btagUParTAK4CvL
   proc.jetPuppiTable.variables.btagUParTAK4CvB = UNIFIEDPARTAK4VARS.btagUParTAK4CvB
+  proc.jetPuppiTable.variables.btagUParTAK4SvCB = UNIFIEDPARTAK4VARS.btagUParTAK4SvCB
+  proc.jetPuppiTable.variables.btagUParTAK4SvUDG = UNIFIEDPARTAK4VARS.btagUParTAK4SvUDG
+  proc.jetPuppiTable.variables.btagUParTAK4UDG = UNIFIEDPARTAK4VARS.btagUParTAK4UDG
+  proc.jetPuppiTable.variables.btagUParTAK4QvG = UNIFIEDPARTAK4VARS.btagUParTAK4QvG
   proc.jetPuppiTable.variables.btagUParTAK4TauVJet = UNIFIEDPARTAK4VARS.btagUParTAK4TauVJet
   proc.jetPuppiTable.variables.UParTAK4RegPtRawCorr = UNIFIEDPARTAK4VARS.UParTAK4RegPtRawCorr
   proc.jetPuppiTable.variables.UParTAK4RegPtRawCorrNeutrino = UNIFIEDPARTAK4VARS.UParTAK4RegPtRawCorrNeutrino
@@ -919,6 +893,12 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   #
   for varNames in proc.jetTable.variables.parameterNames_():
     if "btagDeepFlav" in varNames or "btagRobustParT" in varNames or "btagUParT" in varNames:
+      delattr(proc.jetTable.variables, varNames)
+    if "UParTAK4Reg" in varNames:
+      delattr(proc.jetTable.variables, varNames)
+    if "svIdx" in varNames or "muonIdx" in varNames:
+      delattr(proc.jetTable.variables, varNames)
+    if "nElectrons" in varNames or "nMuons" in varNames or "nSVs" in varNames:
       delattr(proc.jetTable.variables, varNames)
 
   proc.jetTable.variables.btagPNetB = Var("?pt>15 && bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:BvsAll')>0?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:BvsAll'):-1",float,precision=10,doc="ParticleNet b vs. udscg")
@@ -1288,12 +1268,67 @@ def RecomputePuppiMET(proc):
   )
   return proc
 
+#===========================================================================
+#
+# Functions to setup recomputation of Puppi weights and recluster PuppiMET
+# and AK8 Puppi jets (slimmedJetsAK8)
+#
+#===========================================================================
 def RecomputePuppiWeightsAndMET(proc):
   """
-  Recompute Puppi weights PuppiMET.
+  Recompute Puppi weights and PuppiMET.
   """
+
   proc = RecomputePuppiWeights(proc)
   proc = RecomputePuppiMET(proc)
+
+  return proc
+
+def RecomputePuppiWeightsMETAK8(proc):
+  """
+  Recompute Puppi weights and PuppiMET and rebuild slimmedJetsAK8.
+  """
+  runOnMC=True
+  if hasattr(proc,"NANOEDMAODoutput") or hasattr(proc,"NANOAODoutput"):
+    runOnMC = False
+
+  proc = RecomputePuppiWeightsAndMET(proc)
+
+  from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
+  from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs as pfParticleNetMassRegressionOutputs
+  from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassCorrelatedJetTagsAll as pfParticleNetMassCorrelatedJetTagsAll
+  from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import _pfParticleNetFromMiniAODAK8JetTagsAll as pfParticleNetFromMiniAODAK8JetTagsAll
+  from RecoBTag.ONNXRuntime.pfGlobalParticleTransformerAK8_cff import _pfGlobalParticleTransformerAK8JetTagsAll as pfGlobalParticleTransformerAK8JetTagsAll
+
+  btagDiscriminatorsAK8 = cms.PSet(names = cms.vstring(
+      pfParticleNetMassCorrelatedJetTagsAll+
+      pfGlobalParticleTransformerAK8JetTagsAll+
+      pfParticleNetFromMiniAODAK8JetTagsAll+
+      pfParticleNetJetTagsAll+
+      pfParticleNetMassRegressionOutputs
+    )
+  )
+
+  btagDiscriminatorsAK8Subjets = cms.PSet(names = cms.vstring(
+      'pfDeepFlavourJetTags:probb',
+      'pfDeepFlavourJetTags:probbb',
+      'pfDeepFlavourJetTags:problepb',
+      'pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll'
+    )
+  )
+
+  run3_nanoAOD_pre142X.toModify(btagDiscriminatorsAK8Subjets,
+    names = cms.vstring('pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb')
+  )
+
+  from PhysicsTools.PatAlgos.tools.puppiJetMETReclusteringFromMiniAOD_cff import setupPuppiAK4AK8METReclustering
+  proc = setupPuppiAK4AK8METReclustering(proc, runOnMC=runOnMC, useExistingWeights=False,
+    reclusterAK4MET=False, # Already setup to recluster AK4 Puppi jets and PuppiMET
+    reclusterAK8=True,
+    btagDiscriminatorsAK8=btagDiscriminatorsAK8,
+    btagDiscriminatorsAK8Subjets=btagDiscriminatorsAK8Subjets
+  )
+
   return proc
 
 #===========================================================================

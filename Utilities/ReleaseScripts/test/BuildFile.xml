@@ -11,3 +11,5 @@
   </test>
   <bin name="test-valgrind-memleak" file="test-valgrind-memleak.cpp"/>
 </ifrelease>
+
+<test name="TestUtilitiesReleaseScriptsCheckDictionaryUpdate" command="run_checkDictionaryUpdate.sh"/>

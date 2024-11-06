@@ -1,12 +1,33 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+###################################################################
+# Setup 'standard' options
+###################################################################
+options = VarParsing.VarParsing()
+options.register('Scenario',
+                 _settings.DEFAULT_VERSION, # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.string, # string, int, or float
+                 "geometry version to use: Run4DXXX")
+options.parseArguments()
 
-process = cms.Process("GeometryTest", Run3_dd4hep)
+###################################################################
+# get Global Tag and ERA
+###################################################################
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(options.Scenario)
+
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+process = cms.Process("GeometryTest", ERA, dd4hep)
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # Choose Tracker Geometry
-process.load('Configuration.Geometry.GeometryDD4hepExtended2026D100Reco_cff')
+if(options.Scenario == _settings.DEFAULT_VERSION):
+    print("Loading default scenario: ", _settings.DEFAULT_VERSION)
+    process.load('Configuration.Geometry.GeometryDD4hepExtendedRun4DefaultReco_cff')
+else:
+    process.load('Configuration.Geometry.GeometryDD4hepExtended'+options.Scenario+'Reco_cff')
 
 process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
                                                       fromDDD = cms.bool( False ),

@@ -241,8 +241,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
       alpaka::syncBlockThreads(acc);  // all threads call sync
-    } while (notDone);                // shared variable condition ensures synchronization is well defined
-    if (once_per_block(acc)) {        // Cluster is finalized, assign cluster information to te SoA
+    } while (notDone);  // shared variable condition ensures synchronization is well defined
+    if (once_per_block(acc)) {  // Cluster is finalized, assign cluster information to te SoA
       int rhIdx =
           pfClusteringVars[pfClusteringVars[topoId].topoSeedOffsets()].topoSeedList();  // i is the seed rechit index
       int seedIdx = pfClusteringVars[rhIdx].rhIdxToSeedIdx();
@@ -526,7 +526,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
       alpaka::syncBlockThreads(acc);  // all threads call sync
-    } while (notDone);                // shared variable condition ensures synchronization is well defined
+    } while (notDone);  // shared variable condition ensures synchronization is well defined
     if (once_per_block(acc))
       // Fill PFCluster-level info
       if (tid < nSeeds) {
@@ -801,7 +801,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
       alpaka::syncBlockThreads(acc);  // all threads call sync
-    } while (notDone);                // shared variable ensures synchronization is well defined
+    } while (notDone);  // shared variable ensures synchronization is well defined
     if (once_per_block(acc))
       for (int s = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]; s < nSeeds; s += stride) {
         int rhIdx = pfClusteringVars[s + pfClusteringVars[topoId].topoSeedOffsets()].topoSeedList();
@@ -1068,7 +1068,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
       alpaka::syncBlockThreads(acc);  // all threads call sync
-    } while (notDone);                // shared variable ensures synchronization is well defined
+    } while (notDone);  // shared variable ensures synchronization is well defined
     if (once_per_block(acc))
       for (int s = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]; s < nSeeds; s += stride) {
         int rhIdx = pfClusteringVars[s + pfClusteringVars[topoId].topoSeedOffsets()].topoSeedList();
@@ -1090,7 +1090,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
                                   const reco::PFRecHitHostCollection::ConstView pfRecHits,
                                   reco::PFClusterDeviceCollection::View clusterView,
-                                  reco::PFRecHitFractionDeviceCollection::View fracView,
                                   uint32_t* __restrict__ nSeeds) const {
       const int nRH = pfRecHits.size();
 
@@ -1199,7 +1198,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const reco::PFRecHitHostCollection::ConstView pfRecHits,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusterDeviceCollection::View clusterView,
-                                  uint32_t* __restrict__ nSeeds) const {
+                                  uint32_t* __restrict__ nSeeds,
+                                  uint32_t* __restrict__ nRHF) const {
       const int nRH = pfRecHits.size();
       int& totalSeedOffset = alpaka::declareSharedVar<int, __COUNTER__>(acc);
       int& totalSeedFracOffset = alpaka::declareSharedVar<int, __COUNTER__>(acc);
@@ -1302,6 +1302,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         pfClusteringVars.pcrhFracSize() = totalSeedFracOffset;
         pfClusteringVars.nRHFracs() = totalSeedFracOffset;
         clusterView.nRHFracs() = totalSeedFracOffset;
+        *nRHF = totalSeedFracOffset;
         clusterView.nSeeds() = *nSeeds;
         clusterView.nTopos() = pfClusteringVars.nTopos();
 
@@ -1381,11 +1382,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             clusterView[seedIdx].z() = pfRecHits[rhIdx].z();
           }
           // singleSeed and multiSeedParallel functions work only for GPU backend
-        } else if ((not std::is_same_v<Device, alpaka::DevCpu>)&&nSeeds == 1) {
+        } else if ((not std::is_same_v<Device, alpaka::DevCpu>) && nSeeds == 1) {
           // Single seed cluster
           hcalFastCluster_singleSeed(
               acc, pfClusParams, topology, topoId, nRHTopo, pfRecHits, pfClusteringVars, clusterView, fracView);
-        } else if ((not std::is_same_v<Device, alpaka::DevCpu>)&&nSeeds <= 100 &&
+        } else if ((not std::is_same_v<Device, alpaka::DevCpu>) && nSeeds <= 100 &&
                    nRHTopo - nSeeds < threadsPerBlockForClustering) {
           hcalFastCluster_multiSeedParallel(
               acc, pfClusParams, topology, topoId, nSeeds, nRHTopo, pfRecHits, pfClusteringVars, clusterView, fracView);
@@ -1467,14 +1468,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memset(queue, nSeeds, 0x00);  // Reset nSeeds
   }
 
-  void PFClusterProducerKernel::execute(Queue& queue,
-                                        const reco::PFClusterParamsDeviceCollection& params,
-                                        const reco::PFRecHitHCALTopologyDeviceCollection& topology,
-                                        reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
-                                        reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
-                                        const reco::PFRecHitHostCollection& pfRecHits,
-                                        reco::PFClusterDeviceCollection& pfClusters,
-                                        reco::PFRecHitFractionDeviceCollection& pfrhFractions) {
+  void PFClusterProducerKernel::seedTopoAndContract(Queue& queue,
+                                                    const reco::PFClusterParamsDeviceCollection& params,
+                                                    const reco::PFRecHitHCALTopologyDeviceCollection& topology,
+                                                    reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
+                                                    reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
+                                                    const reco::PFRecHitHostCollection& pfRecHits,
+                                                    reco::PFClusterDeviceCollection& pfClusters,
+                                                    uint32_t* __restrict__ nRHF) {
     const int nRH = pfRecHits->size();
     const int threadsPerBlock = 256;
     const int blocks = divide_up_by(nRH, threadsPerBlock);
@@ -1488,7 +1489,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         topology.view(),
                         pfRecHits.view(),
                         pfClusters.view(),
-                        pfrhFractions.view(),
                         nSeeds.data());
     // prepareTopoInputs
     alpaka::exec<Acc1D>(queue,
@@ -1524,7 +1524,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         pfRecHits.view(),
                         pfClusteringVars.view(),
                         pfClusters.view(),
-                        nSeeds.data());
+                        nSeeds.data(),
+                        nRHF);
+  }
+
+  void PFClusterProducerKernel::cluster(Queue& queue,
+                                        const reco::PFClusterParamsDeviceCollection& params,
+                                        const reco::PFRecHitHCALTopologyDeviceCollection& topology,
+                                        reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
+                                        reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
+                                        const reco::PFRecHitHostCollection& pfRecHits,
+                                        reco::PFClusterDeviceCollection& pfClusters,
+                                        reco::PFRecHitFractionDeviceCollection& pfrhFractions) {
+    const int nRH = pfRecHits->size();
 
     // fillRhfIndex
     alpaka::exec<Acc2D>(queue,

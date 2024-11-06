@@ -88,7 +88,7 @@ public:
   /// process one event
   void produce(edm::StreamID, edm::Event& e, const edm::EventSetup&) const override;
   std::shared_ptr<IDto3Charge> globalBeginRun(const edm::Run&, const edm::EventSetup&) const override;
-  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override{};
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {}
 
   bool convertParticle(reco::GenParticle& cand, const HepMC::GenParticle* part, const IDto3Charge& id2Charge) const;
   bool fillDaughters(reco::GenParticleCollection& cand,

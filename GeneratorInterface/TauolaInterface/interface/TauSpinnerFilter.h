@@ -22,7 +22,7 @@
 class TauSpinnerFilter : public edm::stream::EDFilter<> {
 public:
   TauSpinnerFilter(const edm::ParameterSet&);
-  ~TauSpinnerFilter() override{};
+  ~TauSpinnerFilter() override {}
 
   bool filter(edm::Event& e, edm::EventSetup const& es) override;
   void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }

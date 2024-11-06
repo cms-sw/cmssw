@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
+#include "FWCore/Framework/interface/NoProductResolverException.h"
 #include "FWCore/Framework/interface/RecordDependencyRegister.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
@@ -33,6 +34,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Concurrency/interface/FinalWaitingTask.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 
 #include <memory>
 #include "oneapi/tbb/task_arena.h"
@@ -60,7 +62,6 @@ namespace eventsetuprecord_t {
 using eventsetuprecord_t::Dummy;
 using eventsetuprecord_t::DummyRecord;
 typedef edm::eventsetup::MakeDataException ExceptionType;
-typedef edm::eventsetup::NoDataException<Dummy> NoDataExceptionType;
 
 class testEventsetupRecord : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testEventsetupRecord);
@@ -73,7 +74,7 @@ class testEventsetupRecord : public CppUnit::TestFixture {
   CPPUNIT_TEST(introspectionTest);
   CPPUNIT_TEST(transientTest);
 
-  CPPUNIT_TEST_EXCEPTION(getNodataExpTest, NoDataExceptionType);
+  CPPUNIT_TEST_EXCEPTION(getNodataExpTest, NoProductResolverException);
   CPPUNIT_TEST_EXCEPTION(doGetExepTest, ExceptionType);
 
   CPPUNIT_TEST_SUITE_END();
@@ -188,12 +189,12 @@ namespace {
     explicit DummyDataConsumer(ESInputTag const& iTag) : m_token{esConsumes(iTag)} {}
 
     void prefetch(eventsetup::EventSetupRecordImpl const& iRec) const {
-      auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
-      for (size_t i = 0; i != proxies.size(); ++i) {
+      auto const& resolvers = this->esGetTokenIndicesVector(edm::Transition::Event);
+      for (size_t i = 0; i != resolvers.size(); ++i) {
         oneapi::tbb::task_group group;
         edm::FinalWaitingTask waitTask{group};
         edm::ServiceToken token;
-        iRec.prefetchAsync(WaitingTaskHolder(group, &waitTask), proxies[i], nullptr, token, edm::ESParentContext{});
+        iRec.prefetchAsync(WaitingTaskHolder(group, &waitTask), resolvers[i], nullptr, token, edm::ESParentContext{});
         waitTask.wait();
       }
     }
@@ -206,12 +207,12 @@ namespace {
         : m_token{esConsumes<>(eventsetup::EventSetupRecordKey::makeKey<DummyRecord>(), iKey)} {}
 
     void prefetch(eventsetup::EventSetupRecordImpl const& iRec) const {
-      auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
-      for (size_t i = 0; i != proxies.size(); ++i) {
+      auto const& resolvers = this->esGetTokenIndicesVector(edm::Transition::Event);
+      for (size_t i = 0; i != resolvers.size(); ++i) {
         oneapi::tbb::task_group group;
         edm::FinalWaitingTask waitTask{group};
         edm::ServiceToken token;
-        iRec.prefetchAsync(WaitingTaskHolder(group, &waitTask), proxies[i], nullptr, token, edm::ESParentContext{});
+        iRec.prefetchAsync(WaitingTaskHolder(group, &waitTask), resolvers[i], nullptr, token, edm::ESParentContext{});
         waitTask.wait();
       }
     }
@@ -228,7 +229,7 @@ namespace {
     edm::EventSetupImpl& eventSetupImpl_;
     CONSUMER& consumer;
     //we need the DataKeys to stick around since references are being kept to them
-    std::vector<std::pair<edm::eventsetup::DataKey, edm::eventsetup::ESProductResolver*>> proxies;
+    std::vector<std::pair<edm::eventsetup::DataKey, edm::eventsetup::ESProductResolver*>> resolvers;
     // same for ESParentContext
     ESParentContext pc_;
 
@@ -236,12 +237,12 @@ namespace {
                  EventSetupRecordKey const& iKey,
                  EventSetupImpl& iEventSetup,
                  ActivityRegistry* iRegistry,
-                 std::vector<std::pair<edm::eventsetup::DataKey, edm::eventsetup::ESProductResolver*>> iProxies)
+                 std::vector<std::pair<edm::eventsetup::DataKey, edm::eventsetup::ESProductResolver*>> iResolvers)
         : dummyRecordImpl(iKey, iRegistry),
           eventSetupImpl_(iEventSetup),
           consumer(iConsumer),
-          proxies(std::move(iProxies)) {
-      for (auto const& d : proxies) {
+          resolvers(std::move(iResolvers)) {
+      for (auto const& d : resolvers) {
         dummyRecordImpl.add(d.first, d.second);
       }
 
@@ -282,7 +283,7 @@ void testEventsetupRecord::getHandleTest() {
     CPPUNIT_ASSERT(not dummyPtr.isValid());
     CPPUNIT_ASSERT(not dummyPtr);
     CPPUNIT_ASSERT(dummyPtr.failedToGet());
-    CPPUNIT_ASSERT_THROW(*dummyPtr, NoDataExceptionType);
+    CPPUNIT_ASSERT_THROW(*dummyPtr, NoProductResolverException);
     CPPUNIT_ASSERT_THROW(makeESValid(dummyPtr), cms::Exception);
   }
 
@@ -387,7 +388,7 @@ void testEventsetupRecord::getWithTokenTest() {
 
     DummyRecord dummyRecord = sr.makeRecord();
 
-    CPPUNIT_ASSERT_THROW(dummyRecord.get(consumer.m_token), NoDataExceptionType);
+    CPPUNIT_ASSERT_THROW(dummyRecord.get(consumer.m_token), NoProductResolverException);
   }
 
   {
@@ -475,14 +476,12 @@ void testEventsetupRecord::getNodataExpTest() {
   edm::ESConsumesInfo consumesInfo;
   edm::ESConsumesCollectorT<DummyRecord> cc(&consumesInfo, static_cast<unsigned int>(edm::Transition::Event));
   auto token = cc.consumes<Dummy>();
-  std::vector<edm::ESResolverIndex> getTokenIndices{
-      eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex()};
+  std::vector<edm::ESResolverIndex> getTokenIndices{ESResolverIndex::noResolverConfigured()};
 
   EventSetupRecordImpl recImpl(DummyRecord::keyForClass(), &activityRegistry);
   DummyRecord dummyRecord;
   ESParentContext pc;
   dummyRecord.setImpl(&recImpl, 0, getTokenIndices.data(), &eventSetupImpl_, &pc);
-  FailingDummyResolver dummyResolver;
 
   ESHandle<Dummy> dummyPtr = dummyRecord.getHandle(token);
   *dummyPtr;
@@ -659,7 +658,7 @@ void testEventsetupRecord::introspectionTest() {
   CPPUNIT_ASSERT(referencedComponents.size() == 4);
   CPPUNIT_ASSERT(find(referencedDataKeys, referencedComponents, workingDataKey4) == &cd4);
 
-  dummyRecordImpl.clearProxies();
+  dummyRecordImpl.clearResolvers();
   dummyRecord.fillRegisteredDataKeys(keys);
   CPPUNIT_ASSERT(0 == keys.size());
 }
@@ -717,7 +716,7 @@ void testEventsetupRecord::resolverResetTest() {
   wdProv->createKeyedResolvers(DummyRecord::keyForClass(), 1);
   dummyProvider->add(wdProv);
 
-  //this causes the proxies to actually be placed in the Record
+  //this causes the resolvers to actually be placed in the Record
   edm::eventsetup::EventSetupRecordProvider::DataToPreferredProviderMap pref;
   dummyProvider->usePreferred(pref);
 
@@ -734,7 +733,7 @@ void testEventsetupRecord::resolverResetTest() {
   CPPUNIT_ASSERT(!workingResolver->invalidateCalled());
   CPPUNIT_ASSERT(!workingResolver->invalidateTransientCalled());
 
-  dummyProvider->resetProxies();
+  dummyProvider->resetResolvers();
   CPPUNIT_ASSERT(workingResolver->invalidateCalled());
   CPPUNIT_ASSERT(workingResolver->invalidateTransientCalled());
   consumer.prefetch(sr.dummyRecordImpl);
@@ -772,7 +771,7 @@ void testEventsetupRecord::transientTest() {
   wdProv->createKeyedResolvers(DummyRecord::keyForClass(), 1);
   dummyProvider->add(wdProv);
 
-  //this causes the proxies to actually be placed in the Record
+  //this causes the resolvers to actually be placed in the Record
   edm::eventsetup::EventSetupRecordProvider::DataToPreferredProviderMap pref;
   dummyProvider->usePreferred(pref);
 
@@ -785,7 +784,7 @@ void testEventsetupRecord::transientTest() {
   CPPUNIT_ASSERT(workingResolver->invalidateCalled() == false);
   CPPUNIT_ASSERT(workingResolver->invalidateTransientCalled() == false);
 
-  nonConstDummyRecordImpl.resetIfTransientInProxies();
+  nonConstDummyRecordImpl.resetIfTransientInResolvers();
   CPPUNIT_ASSERT(workingResolver->invalidateCalled());
   CPPUNIT_ASSERT(workingResolver->invalidateTransientCalled());
 
@@ -798,7 +797,7 @@ void testEventsetupRecord::transientTest() {
 
   hDummy = dummyRecord.getHandleImpl<edm::ESHandle>(token);
   CPPUNIT_ASSERT(&myDummy2 == &(*hDummy));
-  nonConstDummyRecordImpl.resetIfTransientInProxies();
+  nonConstDummyRecordImpl.resetIfTransientInResolvers();
   CPPUNIT_ASSERT(workingResolver->invalidateCalled() == false);
   CPPUNIT_ASSERT(workingResolver->invalidateTransientCalled() == false);
 
@@ -807,13 +806,13 @@ void testEventsetupRecord::transientTest() {
   hDummy = dummyRecord.getHandleImpl<edm::ESHandle>(token);
   hTDummy = dummyRecord.getHandleImpl<edm::ESTransientHandle>(token);
 
-  nonConstDummyRecordImpl.resetIfTransientInProxies();
+  nonConstDummyRecordImpl.resetIfTransientInResolvers();
   CPPUNIT_ASSERT(workingResolver->invalidateCalled() == false);
   CPPUNIT_ASSERT(workingResolver->invalidateTransientCalled() == false);
 
   //Ask for a transient then a non transient to be sure we don't have an ordering problem
   {
-    dummyProvider->resetProxies();
+    dummyProvider->resetResolvers();
     Dummy myDummy3;
     workingResolver->set(&myDummy3);
 
@@ -823,7 +822,7 @@ void testEventsetupRecord::transientTest() {
 
     CPPUNIT_ASSERT(&myDummy3 == &(*hDummy));
     CPPUNIT_ASSERT(&myDummy3 == &(*hTDummy));
-    nonConstDummyRecordImpl.resetIfTransientInProxies();
+    nonConstDummyRecordImpl.resetIfTransientInResolvers();
     CPPUNIT_ASSERT(workingResolver->invalidateCalled() == false);
     CPPUNIT_ASSERT(workingResolver->invalidateTransientCalled() == false);
   }

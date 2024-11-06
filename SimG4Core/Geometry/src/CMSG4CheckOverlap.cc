@@ -237,11 +237,6 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout,
              << "\n";
         fout << "### Check overlaps for G4Region Node[" << ii << "] : " << nodeNames[ii] << "\n";
         G4Region* reg = regStore->GetRegion((G4String)nodeNames[ii]);
-        if (!reg) {
-          fout << "### NO G4Region found - EXIT"
-               << "\n";
-          return;
-        }
         std::vector<G4LogicalVolume*>::iterator rootLVItr = reg->GetRootLogicalVolumeIterator();
         unsigned int numRootLV = reg->GetNumberOfRootVolumes();
         fout << "      " << numRootLV << " Root Logical Volumes in this region"

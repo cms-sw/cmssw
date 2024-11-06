@@ -42,7 +42,7 @@ namespace RPCPatGen {
   // Quality
   struct TQualityStruct {
     TQualityStruct(const std::string &str, short int qual, short int tabNum)
-        : m_qualStr(str), m_qual(qual), m_tabNum(tabNum){};
+        : m_qualStr(str), m_qual(qual), m_tabNum(tabNum) {}
     std::string m_qualStr;
     short int m_qual;
     short int m_tabNum;

@@ -273,21 +273,5 @@ namespace mkfit {
 
   void print(std::string_view label, const MeasurementState& s);
 
-  struct DeadRegion {
-    float phi1, phi2, q1, q2;
-    DeadRegion(float a1, float a2, float b1, float b2) : phi1(a1), phi2(a2), q1(b1), q2(b2) {}
-  };
-  typedef std::vector<DeadRegion> DeadVec;
-
-  struct BeamSpot {
-    float x = 0, y = 0, z = 0;
-    float sigmaZ = 5;
-    float beamWidthX = 5e-4, beamWidthY = 5e-4;
-    float dxdz = 0, dydz = 0;
-
-    BeamSpot() = default;
-    BeamSpot(float ix, float iy, float iz, float is, float ibx, float iby, float idxdz, float idydz)
-        : x(ix), y(iy), z(iz), sigmaZ(is), beamWidthX(ibx), beamWidthY(iby), dxdz(idxdz), dydz(idydz) {}
-  };
 }  // end namespace mkfit
 #endif

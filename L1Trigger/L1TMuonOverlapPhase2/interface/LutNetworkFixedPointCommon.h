@@ -40,7 +40,7 @@ namespace lutNN {
 
   class LutNetworkFixedPointRegressionBase {
   public:
-    virtual ~LutNetworkFixedPointRegressionBase(){};
+    virtual ~LutNetworkFixedPointRegressionBase() {}
 
     virtual void save(const std::string& filename) = 0;
     virtual void load(const std::string& filename) = 0;

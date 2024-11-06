@@ -212,7 +212,7 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
             }
           }
         }  //end loop over PSimhitcontainers
-      }    //end loop over simHits
+      }  //end loop over simHits
 
       if (!closestSimHit)
         continue;

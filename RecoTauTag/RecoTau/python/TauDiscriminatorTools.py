@@ -32,7 +32,7 @@ def subParameterSets(pSet):
 
 # For RECO type taus, where the tau producer is [tauType]Producer 
 import re
-recoTauTypeMapperRegex = re.compile("(\w*)Producer")
+recoTauTypeMapperRegex = re.compile("(\\w*)Producer")
 def recoTauTypeMapper(tauProducer):
    return recoTauTypeMapperRegex.match(tauProducer).group(1)
 

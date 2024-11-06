@@ -270,7 +270,7 @@ public:
           mPset.insert(true, "title", e);
           insertedHisto.push_back(new ConfigurableHisto(t, name + slabel, mPset));
         }  //loop on slots
-      }    //loop on splitters
+      }  //loop on splitters
 
     }  //if splitters exists
     else {

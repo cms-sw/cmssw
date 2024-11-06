@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("L1TStage2DQM", Run3)
+from Configuration.Eras.Era_Run3_2024_cff import Run3_2024
+process = cms.Process("L1TStage2DQM", Run3_2024)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -127,6 +127,8 @@ if process.runType.getRunType() == process.runType.cosmic_run:
 if process.runType.getRunType() == process.runType.hi_run:
     process.hltFatEventFilter.HLTPaths.append('HLT_HIPhysics_v*')
     rawDataRepackerLabel = 'rawDataRepacker'
+    process.l1tStage2uGTTiming.firstBXInTrainAlgo=cms.untracked.string("L1_FirstBunchInTrain_50ns")
+    process.l1tStage2uGTTiming.lastBXInTrainAlgo=cms.untracked.string("L1_LastBunchInTrain_50ns")
     process.onlineMetaDataDigis.onlineMetaDataInputLabel = rawDataRepackerLabel
     process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = rawDataRepackerLabel
     process.castorDigis.InputLabel = rawDataRepackerLabel

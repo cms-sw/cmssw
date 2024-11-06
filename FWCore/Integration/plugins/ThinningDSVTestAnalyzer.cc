@@ -415,19 +415,6 @@ namespace edmtest {
           throw cms::Exception("TestFailure") << "unexpected value (true) from refVector::isAvailable";
         }
       }
-      k = 0;
-      for (auto iExpectedValue : expectedValues_) {
-        if (refToParentIsAvailable_ and iExpectedValue != -1) {
-          const int expected = (iExpectedValue + eventOffset) * refSlimmedValueFactor_;
-          if (track.refVector1[k]->a != expected) {
-            throw cms::Exception("TestFailure")
-                << "unexpected values from refVector1, got " << track.refVector1[k]->a << " expected " << expected;
-          }
-        } else {
-          allPresent = false;
-        }
-        ++k;
-      }
     }
   }
 

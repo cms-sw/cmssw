@@ -13,7 +13,7 @@ namespace fireworks {
     bool whiteBg;
     FWColorManager::EPalette id;
     PaletteExtraTopBottomIndices(float (*iColors)[3], bool iIsWhiteBg, FWColorManager::EPalette iId)
-        : colVals(iColors), whiteBg(iIsWhiteBg), id(iId){};
+        : colVals(iColors), whiteBg(iIsWhiteBg), id(iId) {}
 
     void set(int i, Color_t cidx) {
       if (whiteBg) {

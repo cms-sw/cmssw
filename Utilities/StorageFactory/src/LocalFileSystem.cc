@@ -168,7 +168,7 @@ LocalFileSystem::FSInfo *LocalFileSystem::initFSInfo(void *arg) {
   i->fsname = static_cast<char *>(memcpy(p += infolen, m->mnt_fsname, fslen));
   i->type = static_cast<char *>(memcpy(p += fslen, m->mnt_type, typelen));
   i->dir = static_cast<char *>(memcpy(p += typelen, m->mnt_dir, dirlen));
-  i->origin = static_cast<char *>(memcpy(p += dirlen, m->mnt_fsname, originlen));
+  i->origin = static_cast<char *>(memcpy(p + dirlen, m->mnt_fsname, originlen));
   i->dev = -1;
   i->fstype = -1;
   i->freespc = 0;
@@ -338,29 +338,27 @@ LocalFileSystem::FSInfo *LocalFileSystem::findMount(const char *path,
   if (best && best->bind && best->origin) {
     struct stat s2;
     struct statfs sfs2;
-    char *fullpath = realpath(best->origin, nullptr);
+    std::unique_ptr<char, decltype(std::free) *> fullpath{realpath(best->origin, nullptr), std::free};
 
     if (!fullpath)
-      fullpath = strdup(best->origin);
+      fullpath.reset(strdup(best->origin));
 
-    if (lstat(fullpath, &s2) < 0) {
+    if (lstat(fullpath.get(), &s2) < 0) {
       int nerr = errno;
-      edm::LogWarning("LocalFileSystem::findMount()") << "Cannot lstat('" << fullpath << "' alias '" << path
+      edm::LogWarning("LocalFileSystem::findMount()") << "Cannot lstat('" << fullpath.get() << "' alias '" << path
                                                       << "'): " << strerror(nerr) << " (error " << nerr << ")";
-      free(fullpath);
       return best;
     }
 
-    if (statfs(fullpath, &sfs2) < 0) {
+    if (statfs(fullpath.get(), &sfs2) < 0) {
       int nerr = errno;
-      edm::LogWarning("LocalFileSystem::findMount()") << "Cannot statfs('" << fullpath << "' alias '" << path
+      edm::LogWarning("LocalFileSystem::findMount()") << "Cannot statfs('" << fullpath.get() << "' alias '" << path
                                                       << "'): " << strerror(nerr) << " (error " << nerr << ")";
-      free(fullpath);
       return best;
     }
 
     prev_paths.push_back(path);
-    LocalFileSystem::FSInfo *new_best = findMount(fullpath, &sfs2, &s2, prev_paths);
+    LocalFileSystem::FSInfo *new_best = findMount(fullpath.get(), &sfs2, &s2, prev_paths);
     return new_best ? new_best : best;
   }
 
@@ -379,31 +377,27 @@ LocalFileSystem::FSInfo *LocalFileSystem::findMount(const char *path,
 bool LocalFileSystem::isLocalPath(const std::string &path) const {
   struct stat s;
   struct statfs sfs;
-  char *fullpath = realpath(path.c_str(), nullptr);
+  std::unique_ptr<char, decltype(std::free) *> fullpath{realpath(path.c_str(), nullptr), std::free};
 
   if (!fullpath)
-    fullpath = strdup(path.c_str());
+    fullpath.reset(strdup(path.c_str()));
 
-  if (lstat(fullpath, &s) < 0) {
+  if (lstat(fullpath.get(), &s) < 0) {
     int nerr = errno;
-    edm::LogWarning("LocalFileSystem::isLocalPath()")
-        << "Cannot lstat('" << fullpath << "' alias '" << path << "'): " << strerror(nerr) << " (error " << nerr << ")";
-    free(fullpath);
+    edm::LogWarning("LocalFileSystem::isLocalPath()") << "Cannot lstat('" << fullpath.get() << "' alias '" << path
+                                                      << "'): " << strerror(nerr) << " (error " << nerr << ")";
     return false;
   }
 
-  if (statfs(fullpath, &sfs) < 0) {
+  if (statfs(fullpath.get(), &sfs) < 0) {
     int nerr = errno;
-    edm::LogWarning("LocalFileSystem::isLocalPath()") << "Cannot statfs('" << fullpath << "' alias '" << path
+    edm::LogWarning("LocalFileSystem::isLocalPath()") << "Cannot statfs('" << fullpath.get() << "' alias '" << path
                                                       << "'): " << strerror(nerr) << " (error " << nerr << ")";
-    free(fullpath);
     return false;
   }
 
   std::vector<std::string> prev_paths;
-  FSInfo *m = findMount(fullpath, &sfs, &s, prev_paths);
-  free(fullpath);
-
+  FSInfo *m = findMount(fullpath.get(), &sfs, &s, prev_paths);
   return m ? m->local : false;
 }
 
@@ -433,7 +427,6 @@ std::pair<std::string, std::string> LocalFileSystem::findCachePath(const std::ve
   warningst << "Cannot use lazy-download because:\n";
 
   for (size_t i = 0, e = paths.size(); i < e; ++i) {
-    char *fullpath;
     const char *inpath = paths[i].c_str();
     const char *path = inpath;
 
@@ -445,61 +438,58 @@ std::pair<std::string, std::string> LocalFileSystem::findCachePath(const std::ve
         path = "/tmp";
     }
 
-    if (!(fullpath = realpath(path, nullptr)))
-      fullpath = strdup(path);
+    std::unique_ptr<char, decltype(std::free) *> fullpath{realpath(path, nullptr), std::free};
+    if (!fullpath)
+      fullpath.reset(strdup(path));
 
 #if 0
     std::cerr /* edm::LogInfo("LocalFileSystem") */
-      << "Checking if '" << fullpath << "', from '"
+      << "Checking if '" << fullpath.get() << "', from '"
       << inpath << "' is valid cache path with "
       << minFreeSpace << " free space" << std::endl;
 #endif
 
-    if (lstat(fullpath, &s) < 0) {
+    if (lstat(fullpath.get(), &s) < 0) {
       int nerr = errno;
       if (nerr != ENOENT && nerr != EACCES)
-        edm::LogWarning("LocalFileSystem::findCachePath()") << "Cannot lstat('" << fullpath << "', from '" << inpath
-                                                            << "'): " << strerror(nerr) << " (error " << nerr << ")";
-      free(fullpath);
+        edm::LogWarning("LocalFileSystem::findCachePath()")
+            << "Cannot lstat('" << fullpath.get() << "', from '" << inpath << "'): " << strerror(nerr) << " (error "
+            << nerr << ")";
       continue;
     }
 
-    if (statfs(fullpath, &sfs) < 0) {
+    if (statfs(fullpath.get(), &sfs) < 0) {
       int nerr = errno;
-      edm::LogWarning("LocalFileSystem::findCachePath()") << "Cannot statfs('" << fullpath << "', from '" << inpath
-                                                          << "'): " << strerror(nerr) << " (error " << nerr << ")";
-      free(fullpath);
+      edm::LogWarning("LocalFileSystem::findCachePath()")
+          << "Cannot statfs('" << fullpath.get() << "', from '" << inpath << "'): " << strerror(nerr) << " (error "
+          << nerr << ")";
       continue;
     }
 
     std::vector<std::string> prev_paths;
-    FSInfo *m = findMount(fullpath, &sfs, &s, prev_paths);
+    FSInfo *m = findMount(fullpath.get(), &sfs, &s, prev_paths);
 #if 0
     std::cerr /* edm::LogInfo("LocalFileSystem") */
-      << "Candidate '" << fullpath << "': "
+      << "Candidate '" << fullpath.get() << "': "
       << "found=" << (m ? 1 : 0)
       << " local=" << (m && m->local)
       << " free=" << (m ? m->freespc : 0)
-      << " access=" << access(fullpath, W_OK)
+      << " access=" << access(fullpath.get(), W_OK)
       << std::endl;
 #endif
 
-    if (m && m->local && m->freespc >= minFreeSpace && access(fullpath, W_OK) == 0) {
-      std::string result(fullpath);
-      free(fullpath);
-      return std::make_pair(result, std::string());
+    if (m && m->local && m->freespc >= minFreeSpace && access(fullpath.get(), W_OK) == 0) {
+      return std::make_pair(std::string(fullpath.get()), std::string());
     } else if (m) {
       if (!m->local) {
-        warningst << "- The mount " << fullpath << " is not local.\n";
+        warningst << "- The mount " << fullpath.get() << " is not local.\n";
       } else if (m->freespc < minFreeSpace) {
-        warningst << " - The mount at " << fullpath << " has only " << m->freespc << " GB free; a minumum of "
+        warningst << " - The mount at " << fullpath.get() << " has only " << m->freespc << " GB free; a minumum of "
                   << minFreeSpace << " GB is required.\n";
-      } else if (access(fullpath, W_OK)) {
-        warningst << " - The process has no permission to write into " << fullpath << "\n";
+      } else if (access(fullpath.get(), W_OK)) {
+        warningst << " - The process has no permission to write into " << fullpath.get() << "\n";
       }
     }
-
-    free(fullpath);
   }
 
   std::string warning_str = warningst.str();

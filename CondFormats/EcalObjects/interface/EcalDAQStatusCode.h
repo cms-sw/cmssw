@@ -15,7 +15,7 @@ class EcalDAQStatusCode {
 public:
   EcalDAQStatusCode();
   EcalDAQStatusCode(const EcalDAQStatusCode& codeStatus);
-  EcalDAQStatusCode(const uint16_t& encodedStatus) : status_(encodedStatus){};
+  EcalDAQStatusCode(const uint16_t& encodedStatus) : status_(encodedStatus) {}
   ~EcalDAQStatusCode();
 
   //get Methods to be defined according to the final definition

@@ -30,5 +30,5 @@ namespace edm {
       template class BeginLuminosityBlockProducer<edm::one::EDProducerBase>;
       template class EndLuminosityBlockProducer<edm::one::EDProducerBase>;
     }  // namespace impl
-  }    // namespace one
+  }  // namespace one
 }  // namespace edm

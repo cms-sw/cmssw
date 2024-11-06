@@ -16,7 +16,8 @@
 
 
   <class name="l1t::P2GTCandidate::Optional<int>"/>
-  <class name="l1t::P2GTCandidate" ClassVersion="10">
+  <class name="l1t::P2GTCandidate" ClassVersion="11">
+    <version ClassVersion="11" checksum="2947772579"/>
     <version ClassVersion="10" checksum="2728416623"/>
   </class>
   <class name="l1t::P2GTCandidateCollection"/>
@@ -59,7 +60,6 @@
   </class>
   <class name="std::vector<l1t::TkTripletWord>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkTripletWord> >"/>
-  <class name="edm::Wrapper<l1t::TkTripletWordCollection>"/>
 
   <class name="l1t::EGamma" ClassVersion="14">
    <version ClassVersion="14" checksum="1235149790"/>

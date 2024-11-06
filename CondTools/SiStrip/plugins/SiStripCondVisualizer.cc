@@ -99,7 +99,7 @@ public:
 
 private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override{};
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   bool isDetIdSelected(const uint32_t detid);
   HistoMap bookModuleHistograms(const TrackerTopology* tTopo, const SiStripCondTypes::condformat& type);
   std::tuple<std::string, int, int, int> setTopoInfo(uint32_t detId, const TrackerTopology* tTopo);
@@ -208,7 +208,7 @@ void SiStripCondVisualizer::fillTheQualityMap(const SiStripQuality* obj, HistoMa
         theMap[detid]->SetBinContent(istrip_, quant_);
       }
     }  // loop on the strips
-  }    // loop on the active detids
+  }  // loop on the active detids
   return;
 }
 
@@ -248,7 +248,7 @@ void SiStripCondVisualizer::fillTheHistoMap(const Payload* obj, HistoMap& theMap
         theMap[detid]->SetBinContent(istrip_, quant_);
       }
     }  // loop on the strips
-  }    // loop on the active detids
+  }  // loop on the active detids
 }
 
 // ------------ method called for each event  ------------
@@ -301,7 +301,7 @@ void SiStripCondVisualizer::beginRun(const edm::Run& iRun, edm::EventSetup const
         }
       }
     }  // loop on the bitset of plotted conditions
-  }    // loop on modules
+  }  // loop on modules
 
   if (doNoise_) {
     LOGINFO("SiStripCondVisualizer") << "@SUB=SiStripCondVisualizer::beginRun() \n Before booking NoisMap_.size(): "

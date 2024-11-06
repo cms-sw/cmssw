@@ -12,8 +12,8 @@ public:
   typedef std::map<uint32_t, EcalEBPhase2TPGAmplWeights> EcalEBPhase2TPGAmplWeightMap;
   typedef std::map<uint32_t, EcalEBPhase2TPGAmplWeights>::const_iterator EcalEBPhase2TPGAmplWeightMapItr;
 
-  EcalEBPhase2TPGAmplWeightIdMap(){};
-  ~EcalEBPhase2TPGAmplWeightIdMap(){};
+  EcalEBPhase2TPGAmplWeightIdMap() {}
+  ~EcalEBPhase2TPGAmplWeightIdMap() {}
 
   const EcalEBPhase2TPGAmplWeightMap& getMap() const { return map_; }
   void setValue(const uint32_t& id, const EcalEBPhase2TPGAmplWeights& value);

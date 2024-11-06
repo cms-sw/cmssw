@@ -64,8 +64,8 @@ namespace edm {
       e.getByToken(SiStripInputTok_, hSSD);
       digicollection_ = hSSD.product();
     }  // else {
-       // std::cout << "you shouldn't be here" << std::endl;
-       //}
+    // std::cout << "you shouldn't be here" << std::endl;
+    //}
 
   }  // end of addSiStripSignals
 

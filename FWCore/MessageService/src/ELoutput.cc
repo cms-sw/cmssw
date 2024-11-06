@@ -113,7 +113,7 @@ namespace {
 #endif
 
     return std::string(ts);  // Change log 7
-  }                          // formatTime()
+  }  // formatTime()
 }  // namespace
 
 using namespace edm::messagelogger;

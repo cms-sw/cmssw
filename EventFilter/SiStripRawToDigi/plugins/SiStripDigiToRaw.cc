@@ -224,7 +224,7 @@ namespace sistrip {
               (bufferGenerator_.feHeader())
                   .setChannelStatus(iFE, iFEUnitChannel, fedFeHeader->getChannelStatus(iFE, iFEUnitChannel));
             }  //loop on channels
-          }    //loop on fe units
+          }  //loop on fe units
           bufferGenerator_.setFEUnitEnables(feEnabledVec);
 
           if (edm::isDebugEnabled()) {
@@ -431,8 +431,8 @@ namespace sistrip {
                                          << debugStream.str();
           }
         }  //loop on feds
-      }    //end if-else for copying header
-    }      //try
+      }  //end if-else for copying header
+    }  //try
     catch (const std::exception& e) {
       if (edm::isDebugEnabled()) {
         edm::LogWarning("DigiToRaw") << "DigiToRaw::createFedBuffers] "

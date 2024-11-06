@@ -322,9 +322,8 @@ void CTPPSCompositeESSource::buildOptics(const edm::ParameterSet &profile, Profi
   std::vector<FileInfo> fileInfo;
 
   for (const auto &pset : ctppsOpticalFunctions.getParameter<std::vector<edm::ParameterSet>>("opticalFunctions")) {
-    const double &xangle = pset.getParameter<double>("xangle");
-    const std::string &fileName = pset.getParameter<edm::FileInPath>("fileName").fullPath();
-    fileInfo.push_back({xangle, fileName});
+    fileInfo.emplace_back(pset.getParameter<double>("xangle"),
+                          pset.getParameter<edm::FileInPath>("fileName").fullPath());
   }
 
   struct RPInfo {
@@ -335,11 +334,8 @@ void CTPPSCompositeESSource::buildOptics(const edm::ParameterSet &profile, Profi
   std::unordered_map<unsigned int, RPInfo> rpInfo;
 
   for (const auto &pset : ctppsOpticalFunctions.getParameter<std::vector<edm::ParameterSet>>("scoringPlanes")) {
-    const unsigned int rpId = pset.getParameter<unsigned int>("rpId");
-    const std::string dirName = pset.getParameter<std::string>("dirName");
-    const double z = pset.getParameter<double>("z");
-    const RPInfo entry = {dirName, z};
-    rpInfo.emplace(rpId, entry);
+    rpInfo.emplace(pset.getParameter<unsigned int>("rpId"),
+                   RPInfo{pset.getParameter<std::string>("dirName"), pset.getParameter<double>("z")});
   }
 
   for (const auto &fi : fileInfo) {
@@ -412,11 +408,10 @@ void CTPPSCompositeESSource::buildLHCInfo(const edm::ParameterSet &profile, Prof
     for (int y = 1; y <= h_xangle_beta_star->GetNbinsY(); ++y) {
       const double w = h_xangle_beta_star->GetBinContent(h_xangle_beta_star->GetBin(x, y)) / sum;
       if (w > 0.) {
-        pData.xangleBetaStarBins.push_back(
-            {cw,
-             cw + w,
-             std::pair<double, double>(h_xangle_beta_star->GetXaxis()->GetBinCenter(x),
-                                       h_xangle_beta_star->GetYaxis()->GetBinCenter(y))});
+        pData.xangleBetaStarBins.emplace_back(cw,
+                                              cw + w,
+                                              std::make_pair(h_xangle_beta_star->GetXaxis()->GetBinCenter(x),
+                                                             h_xangle_beta_star->GetYaxis()->GetBinCenter(y)));
         cw += w;
       }
     }

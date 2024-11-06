@@ -12,16 +12,18 @@
   <Constant name="GuardRingOffset"       value="0.90*mm"/>
   <Constant name="MouseBite"             value="5.00*mm"/>
   <Constant name="UseOffset"             value="1"/>
-  <Constant name="ModuleThicknessEE"     value="9.325*mm"/>
-  <Constant name="ModuleThicknessHE"     value="8.70*mm"/>
+  <Constant name="ModuleThicknessEE"     value="8.485*mm"/>
+  <Constant name="ModuleThicknessHE"     value="8.135*mm"/>
   <Constant name="CellThicknessFine"     value="0.12*mm"/>
   <Constant name="CellThicknessCoarse1"  value="0.20*mm"/>
   <Constant name="CellThicknessCoarse2"  value="0.30*mm"/>
   <Constant name="ScintillatorThickness" value="3.0*mm"/>
   <Constant name="NumberOfCellsFine"     value="12"/>
   <Constant name="NumberOfCellsCoarse"   value="8"/>
+  <Constant name="NPhiBinBHFine"         value="432"/>
   <Constant name="NPhiBinBH"             value="288"/>
   <Constant name="FirstMixedLayer"       value="8"/>
+  <Constant name="FirstMixedCoarseLayer" value="12"/>
   <Constant name="LayerRotation"         value="-30*deg"/>
   <Constant name="CalibCellRHD"          value="2.04*mm"/>
   <Constant name="CalibCellRLD"          value="3.05*mm"/>
@@ -69,7 +71,7 @@
   <Constant name="cslope3"               value="sqrt([slope3]*[slope3]+1.0)"/>
   <Constant name="zHGCal0"               value="[caloBase:ZposV0]"/>
   <Constant name="zHGCal1"               value="[zPosV0]"/>
-  <Constant name="zHGCal2"               value="3619.71*mm"/>
+  <Constant name="zHGCal2"               value="3620.96*mm"/>
   <Constant name="zHGCal3"               value="[caloBase:Zpos31]"/>
   <Constant name="zHGCal4"               value="[caloBase:Zpos32]"/>
   <Constant name="zHGCal5"               value="[zPosV1]"/>
@@ -134,16 +136,32 @@
   <Constant name="rMaxHGCalHEmix3"       value="[rMaxHGCal8]"/>
   <Constant name="rMaxHGCalHEmix4"       value="[rMaxHGCal10]"/>
   <Constant name="rMaxHGCalHEmix5"       value="[rMaxHGCal12]"/>
-  <Constant name="thickEEModule1"        value="28.37*mm"/>
+  <Constant name="thickEEModule1"        value="28.87*mm"/>
   <Constant name="thickEEModule2"        value="30.57*mm"/>
   <Constant name="thickEEModule3"        value="33.82*mm"/>
-  <Constant name="thickEEAbsorber1"      value="3.67*mm"/>
-  <Constant name="thickEEAbsorber2"      value="5.87*mm"/>
-  <Constant name="thickEEAbsorber3"      value="9.12*mm"/>
+  <Constant name="thickEEModule4"        value="34.82*mm"/>
+  <Constant name="thickEEAbsorber1"      value="3.10*mm"/>
+  <Constant name="thickEEAbsorber2"      value="4.80*mm"/>
+  <Constant name="thickEEAbsorber3"      value="8.10*mm"/>
   <Constant name="thickEECooling"        value="6.05*mm"/>
   <Constant name="nEEModule1"            value="1"/>
   <Constant name="nEEModule2"            value="8"/>
   <Constant name="nEEModule3"            value="4"/>
+  <Constant name="thickHEModule1"        value="66.55*mm"/>
+  <Constant name="thickHEModule2"        value="63.05*mm"/>
+  <Constant name="thickHEModule3"        value="82.25*mm"/>
+  <Constant name="thickHEAbsorber1"      value="45.0*mm"/>
+  <Constant name="thickHEAbsorber2"      value="41.5*mm"/>
+  <Constant name="thickHEAbsorber3"      value="60.7*mm"/>
+  <Constant name="thickHEAirGap"         value="4.02*mm"/>
+  <Constant name="thickHESteelCover"     value="2.0*mm"/>
+  <Constant name="thickHEService"        value="5.06*mm"/>
+  <Constant name="thickHEShift1"         value="([thickHEAbsorber1] + [thickHEAirGap])"/>
+  <Constant name="thickHEShift2"         value="([thickHEAbsorber2] + [thickHEAirGap])"/>
+  <Constant name="thickHEShift3"         value="([thickHEAbsorber3] + [thickHEAirGap])"/>
+  <Constant name="thickHECooling"        value="6.35*mm"/>
+  <Constant name="nHEModule1"            value="1"/>
+  <Constant name="nHEModule2"            value="4"/>
 </ConstantsSection>
 
 <RotationSection label="hgcal.xml">
@@ -176,8 +194,8 @@
     <ZSection z="[zHGCal8]"   rMin="[rMinHGCal7]"   rMax="[rMaxHGCal8]"/>
     <ZSection z="[zHGCal10]"  rMin="[rMinHGCal7]"   rMax="[rMaxHGCal10]"/>
     <ZSection z="[zHGCal11]"  rMin="[rMinHGCal7]"   rMax="[rMaxHGCal10]"/>
-    <ZSection z="[zHGCal11]"  rMin="[rMinHGCal7]"   rMax="[rMaxHGCal12]"/>
-    <ZSection z="[zHGCal13]"  rMin="[rMinHGCal7]"   rMax="[rMaxHGCal12]"/>
+    <ZSection z="[zHGCal11]"  rMin="[rMinHGCal7]"   rMax="[rMaxHGCal11]"/>
+    <ZSection z="[zHGCal13]"  rMin="[rMinHGCal7]"   rMax="[rMaxHGCal11]"/>
   </Polycone>
   <Polycone name="HGCalEE" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="[zHGCalEE1]" rMin="[rMinHGCalEE1]"  rMax="[rMaxHGCalEE1]"/>

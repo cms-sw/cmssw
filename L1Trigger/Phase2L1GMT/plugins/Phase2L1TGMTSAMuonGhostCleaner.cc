@@ -81,7 +81,7 @@ std::vector<l1t::SAMuon> Phase2L1TGMTSAMuonGhostCleaner::prodMuons(std::vector<l
     bstart = wordconcat<wordtype>(word, bstart, m.hwZ0(), BITSSAZ0);
     bstart = wordconcat<wordtype>(word, bstart, m.hwD0(), BITSSAD0);
     bstart = wordconcat<wordtype>(word, bstart, m.hwCharge(), 1);
-    bstart = wordconcat<wordtype>(word, bstart, m.hwQual(), BITSSAQUAL);
+    wordconcat<wordtype>(word, bstart, m.hwQual(), BITSSAQUAL);
     m.setWord(word);
     finalMuons.push_back(m);
   }

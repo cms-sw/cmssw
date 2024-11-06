@@ -99,6 +99,11 @@ namespace edm {
     size_t key() const;
 
     template <class REF>
+      requires requires {
+        typename REF::value_type;
+        requires std::is_same_v<T, typename REF::value_type> or std::is_base_of_v<T, typename REF::value_type> or
+                     std::is_base_of_v<typename REF::value_type, T>;
+      }
     REF castTo() const;
 
     bool isNull() const;
@@ -228,42 +233,19 @@ namespace edm {
     return holder_->key();
   }
 
-  namespace {
-    // If the template parameters are classes or structs they should be
-    // related by inheritance, otherwise they should be the same type.
-    template <typename T, typename U>
-    typename std::enable_if<std::is_class<T>::value>::type checkTypeCompatibility() {
-      static_assert(std::is_base_of<T, U>::value || std::is_base_of<U, T>::value,
-                    "RefToBase::castTo error element types are not related by inheritance");
-    }
-
-    template <typename T, typename U>
-    typename std::enable_if<!std::is_class<T>::value>::type checkTypeCompatibility() {
-      static_assert(std::is_same<T, U>::value, "RefToBase::castTo error non-class element types are not the same");
-    }
-
-    // Convert the pointer types, use dynamic_cast if they are classes
-    template <typename T, typename OUT>
-    typename std::enable_if<std::is_class<T>::value, OUT const*>::type convertTo(T const* t) {
-      return dynamic_cast<OUT const*>(t);
-    }
-
-    template <typename T, typename OUT>
-    typename std::enable_if<!std::is_class<T>::value, OUT const*>::type convertTo(T const* t) {
-      return t;
-    }
-  }  // namespace
-
   template <class T>
   template <class REF>
+    requires requires {
+      typename REF::value_type;
+      requires std::is_same_v<T, typename REF::value_type> or std::is_base_of_v<T, typename REF::value_type> or
+                   std::is_base_of_v<typename REF::value_type, T>;
+    }
   REF RefToBase<T>::castTo() const {
     if (!holder_) {
       Exception::throwThis(errors::InvalidReference,
                            "attempting to cast a null RefToBase;\n"
                            "You should check for nullity before casting.");
     }
-
-    checkTypeCompatibility<T, typename REF::value_type>();
 
     // If REF is type edm::Ref<C,T,F>, then it is impossible to
     // check the container type C here. We just have to assume
@@ -278,7 +260,12 @@ namespace edm {
     if (value == nullptr) {
       return REF(id());
     }
-    typename REF::value_type const* newValue = convertTo<T, typename REF::value_type>(value);
+    typename REF::value_type const* newValue;
+    if constexpr (std::is_same_v<T, typename REF::value_type> or std::is_base_of_v<typename REF::value_type, T>) {
+      newValue = value;
+    } else {
+      newValue = dynamic_cast<typename REF::value_type const*>(value);
+    }
     if (newValue) {
       return REF(id(), newValue, key(), isTransient());
     }

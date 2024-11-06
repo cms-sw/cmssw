@@ -5,84 +5,35 @@
   <class name="edm::Wrapper<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float>,ROOT::Math::DefaultCoordinateSystemTag> >"/>
   <class name="edm::Wrapper<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > > >"/>
   <class name="std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >"/>
-<selection>
-  <class pattern="ROOT::Math::SMatrix<*>" />
-  <class pattern="ROOT::Math::MatRepStd<*>" />
-  <class pattern="ROOT::Math::RowOffsets<*>" />
-  <class pattern="ROOT::Math::SVector<*>" />
-  <class pattern="std::vector<ROOT::Math::SMatrix<*>>" />
-  <class pattern="std::vector<std::pair<ROOT::Math::PositionVector3D<*>,float> >"/>
+
+  <class name="ROOT::Math::MatRepStd<double,10,10>"/>
+  <class name="ROOT::Math::MatRepStd<double,10u,10u>"/>
+  <class name="ROOT::Math::MatRepStd<double,2,3>"/>
+  <class name="ROOT::Math::MatRepStd<double,2u,3u>"/>
+  <class name="ROOT::Math::MatRepStd<double,3,10>"/>
+  <class name="ROOT::Math::MatRepStd<double,3u,10u>"/>
+
+  <class name="ROOT::Math::SMatrix<double,10,10,ROOT::Math::MatRepStd<double,10,10> >"/>
+  <class name="ROOT::Math::SMatrix<double,10u,10u,ROOT::Math::MatRepStd<double,10u,10u> >"/>
+  <class name="ROOT::Math::SMatrix<double,2,3,ROOT::Math::MatRepStd<double,2,3> >"/>
+  <class name="ROOT::Math::SMatrix<double,2u,3u,ROOT::Math::MatRepStd<double,2u,3u> >"/>
+  <class name="ROOT::Math::SMatrix<double,3,10,ROOT::Math::MatRepStd<double,3,10> >"/>
+  <class name="ROOT::Math::SMatrix<double,3u,10u,ROOT::Math::MatRepStd<double,3u,10u> >"/>
+
+  <class name="std::vector<ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > >"/>
+  <class name="std::vector<ROOT::Math::SMatrix<double,2u,2u,ROOT::Math::MatRepSym<double,2u> > >"/>
+  <class name="std::vector<ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > >"/>
+  <class name="std::vector<ROOT::Math::SMatrix<double,3u,3u,ROOT::Math::MatRepSym<double,3u> > >"/>
+  <class name="std::vector<ROOT::Math::SMatrix<double,4,4,ROOT::Math::MatRepSym<double,4> > >"/>
+  <class name="std::vector<ROOT::Math::SMatrix<double,4u,4u,ROOT::Math::MatRepSym<double,4u> > >"/>
+  <class name="std::vector<ROOT::Math::SMatrix<double,5,5,ROOT::Math::MatRepSym<double,5> > >"/>
+  <class name="std::vector<ROOT::Math::SMatrix<double,5u,5u,ROOT::Math::MatRepSym<double,5u> > >"/>
+  <class name="std::vector<ROOT::Math::SMatrix<double,6,6,ROOT::Math::MatRepSym<double,6> > >"/>
+  <class name="std::vector<ROOT::Math::SMatrix<double,6u,6u,ROOT::Math::MatRepSym<double,6u> > >"/>
+  <class name="std::vector<ROOT::Math::SMatrix<double,7,7,ROOT::Math::MatRepSym<double,7> > >"/>
+  <class name="std::vector<ROOT::Math::SMatrix<double,7u,7u,ROOT::Math::MatRepSym<double,7u> > >"/>
+
+  <class name="std::vector<std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> >"/>
+
   <class name="MiniFloatConverter::ReduceMantissaToNbitsRounding"/>
-</selection>
-<exclusion>
-  <!-- Excluded to avoid duplicate warnings because these dictionaries are defined in ROOT -->
-  <class pattern="std::pair<ROOT::Math::PositionVector3D<*>,float>"/>
-  <class name= "ROOT::Math::MatRepSym<double,2>"/>
-  <class name= "ROOT::Math::MatRepSym<double,3>"/>
-  <class name= "ROOT::Math::MatRepSym<double,4>"/>
-  <class name= "ROOT::Math::MatRepSym<double,5>"/>
-  <class name= "ROOT::Math::MatRepSym<double,6>"/>
-  <class name= "ROOT::Math::MatRepSym<double,7>"/>
-  <class name= "ROOT::Math::MatRepSym<float,2>"/>
-  <class name= "ROOT::Math::MatRepSym<float,3>"/>
-  <class name= "ROOT::Math::MatRepSym<float,4>"/>
-  <class name= "ROOT::Math::MatRepSym<float,5>"/>
-  <class name= "ROOT::Math::MatRepSym<float,6>"/>
-  <class name= "ROOT::Math::MatRepSym<float,7>"/>
-  <class name= "ROOT::Math::RowOffsets<2>"/>
-  <class name= "ROOT::Math::RowOffsets<3>"/>
-  <class name= "ROOT::Math::RowOffsets<4>"/>
-  <class name= "ROOT::Math::RowOffsets<5>"/>
-  <class name= "ROOT::Math::RowOffsets<6>"/>
-  <class name= "ROOT::Math::RowOffsets<7>"/>
-  <class name= "ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> >"/>
-  <class name= "ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> >"/>
-  <class name= "ROOT::Math::SMatrix<double,4,4,ROOT::Math::MatRepSym<double,4> >"/>
-  <class name= "ROOT::Math::SMatrix<double,5,5,ROOT::Math::MatRepSym<double,5> >"/>
-  <class name= "ROOT::Math::SMatrix<double,6,6,ROOT::Math::MatRepSym<double,6> >"/>
-  <class name= "ROOT::Math::SMatrix<double,7,7,ROOT::Math::MatRepSym<double,7> >"/>
-  <class name= "ROOT::Math::SMatrix<float,2,2,ROOT::Math::MatRepSym<float,2> >"/>
-  <class name= "ROOT::Math::SMatrix<float,3,3,ROOT::Math::MatRepSym<float,3> >"/>
-  <class name= "ROOT::Math::SMatrix<float,4,4,ROOT::Math::MatRepSym<float,4> >"/>
-  <class name= "ROOT::Math::SMatrix<float,5,5,ROOT::Math::MatRepSym<float,5> >"/>
-  <class name= "ROOT::Math::SMatrix<float,6,6,ROOT::Math::MatRepSym<float,6> >"/>
-  <class name= "ROOT::Math::SMatrix<float,7,7,ROOT::Math::MatRepSym<float,7> >"/>
-  <class name="ROOT::Math::MatRepStd<double,3,4>"/>
-  <class name="ROOT::Math::MatRepStd<double,3u,4u>"/>
-  <class name="ROOT::Math::MatRepStd<double,4,3>"/>
-  <class name="ROOT::Math::MatRepStd<double,4u,3u>"/>
-  <class name="ROOT::Math::MatRepStd<double,9,7>"/>
-  <class name="ROOT::Math::MatRepStd<double,9u,7u>"/>
-  <class name="ROOT::Math::MatRepStd<float,3,4>"/>
-  <class name="ROOT::Math::MatRepStd<float,3u,4u>"/>
-  <class name="ROOT::Math::MatRepStd<float,4,3>"/>
-  <class name="ROOT::Math::MatRepStd<float,4u,3u>"/>
-  <class name="ROOT::Math::MatRepStd<float,9,7>"/>
-  <class name="ROOT::Math::MatRepStd<float,9u,7u>"/>
-  <class name="ROOT::Math::SMatrix<double,3,4,ROOT::Math::MatRepStd<double,3,4> >"/>
-  <class name="ROOT::Math::SMatrix<double,3u,4u,ROOT::Math::MatRepStd<double,3u,4u> >"/>
-  <class name="ROOT::Math::SMatrix<double,4,3,ROOT::Math::MatRepStd<double,4,3> >"/>
-  <class name="ROOT::Math::SMatrix<double,4u,3u,ROOT::Math::MatRepStd<double,4u,3u> >"/>
-  <class name="ROOT::Math::SMatrix<double,9,7,ROOT::Math::MatRepStd<double,9,7> >"/>
-  <class name="ROOT::Math::SMatrix<double,9u,7u,ROOT::Math::MatRepStd<double,9u,7u> >"/>
-  <class name="ROOT::Math::SMatrix<float,3,4,ROOT::Math::MatRepStd<float,3,4> >"/>
-  <class name="ROOT::Math::SMatrix<float,3u,4u,ROOT::Math::MatRepStd<float,3u,4u> >"/>
-  <class name="ROOT::Math::SMatrix<float,4,3,ROOT::Math::MatRepStd<float,4,3> >"/>
-  <class name="ROOT::Math::SMatrix<float,4u,3u,ROOT::Math::MatRepStd<float,4u,3u> >"/>
-  <class name="ROOT::Math::SMatrix<float,9,7,ROOT::Math::MatRepStd<float,9,7> >"/>
-  <class name="ROOT::Math::SMatrix<float,9u,7u,ROOT::Math::MatRepStd<float,9u,7u> >"/>
-  <class name= "ROOT::Math::SVector<double,2>"/>
-  <class name= "ROOT::Math::SVector<double,3>"/>
-  <class name= "ROOT::Math::SVector<double,4>"/>
-  <class name= "ROOT::Math::SVector<double,5>"/>
-  <class name= "ROOT::Math::SVector<double,6>"/>
-  <class name= "ROOT::Math::SVector<double,7>"/>
-  <class name= "ROOT::Math::SVector<double,7u>"/>
-  <class name= "ROOT::Math::SVector<float,2>"/>
-  <class name= "ROOT::Math::SVector<float,3>"/>
-  <class name= "ROOT::Math::SVector<float,4>"/>
-  <class name= "ROOT::Math::SVector<float,5>"/>
-  <class name= "ROOT::Math::SVector<float,6>"/>
-  <class name= "ROOT::Math::SVector<float,7>"/>
-</exclusion>
 </lcgdict>

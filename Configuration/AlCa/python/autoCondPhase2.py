@@ -88,20 +88,20 @@ allTags["TkAlignment"] = {
     'T21' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T21_design_v0' ,TkAlRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
     'T25' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T25_design_v0' ,TkAlRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
     'T30' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T30_design_v0' ,TkAlRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
-    'T33' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T33_design_v0' ,TkAlRecord, connectionString, "", "2023-06-07 21:00:00"] ), ),
-    'T36' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T36_design_v0' ,TkAlRecord, connectionString, "", "2024-04-14 15:19:00"] ), ),
-    'T37' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T37_design_v0' ,TkAlRecord, connectionString, "", "2024-04-14 15:19:00"] ), ),
-    'T38' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T38_design_v0' ,TkAlRecord, connectionString, "", "2024-04-14 15:19:00"] ), ),
+    'T33' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T33_design_v1' ,TkAlRecord, connectionString, "", "2024-09-12 15:37:00"] ), ),
+    'T36' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T36_design_v1' ,TkAlRecord, connectionString, "", "2024-09-12 15:37:00"] ), ),
+    'T37' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T37_design_v1' ,TkAlRecord, connectionString, "", "2024-09-12 15:37:00"] ), ),
+    'T38' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T38_design_v1' ,TkAlRecord, connectionString, "", "2024-09-12 15:37:00"] ), ),
 }
 
 allTags["TkAPE"] = {
     'T21' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T21_design_v0' ,TkAPERecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
     'T25' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T25_design_v0' ,TkAPERecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
     'T30' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T30_design_v0' ,TkAPERecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
-    'T33' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T33_design_v0' ,TkAPERecord, connectionString, "", "2023-06-07 21:00:00"] ), ),
-    'T36' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T36_design_v0' ,TkAPERecord, connectionString, "", "2024-04-14 13:10:00"] ), ),
-    'T37' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T36_design_v0' ,TkAPERecord, connectionString, "", "2024-04-14 13:10:00"] ), ),
-    'T38' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T36_design_v0' ,TkAPERecord, connectionString, "", "2024-04-14 13:10:00"] ), ),
+    'T33' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T33_design_v1' ,TkAPERecord, connectionString, "", "2024-09-12 15:37:00"] ), ),
+    'T36' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T36_design_v1' ,TkAPERecord, connectionString, "", "2024-09-12 15:37:00"] ), ),
+    'T37' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T36_design_v1' ,TkAPERecord, connectionString, "", "2024-09-12 15:37:00"] ), ),
+    'T38' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T36_design_v1' ,TkAPERecord, connectionString, "", "2024-09-12 15:37:00"] ), ),
 }
 
 allTags["TkSurf"] = {

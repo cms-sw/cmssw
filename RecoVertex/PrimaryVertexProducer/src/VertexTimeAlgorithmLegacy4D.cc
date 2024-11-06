@@ -17,7 +17,7 @@ void VertexTimeAlgorithmLegacy4D::fillPSetDescription(edm::ParameterSetDescripti
   VertexTimeAlgorithmBase::fillPSetDescription(iDesc);
 }
 
-void VertexTimeAlgorithmLegacy4D::setEvent(edm::Event& iEvent, edm::EventSetup const&){};
+void VertexTimeAlgorithmLegacy4D::setEvent(edm::Event& iEvent, edm::EventSetup const&) {}
 
 bool VertexTimeAlgorithmLegacy4D::vertexTime(float& vtxTime, float& vtxTimeError, const TransientVertex& vtx) const {
   const auto num_track = vtx.originalTracks().size();

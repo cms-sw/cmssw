@@ -73,7 +73,7 @@ void testDTDigis::testDigiCollectionPut() {
       //       CPPUNIT_ASSERT((*digiIt)==digi2);
 
     }  // for digis in layer
-  }    // for layers
+  }  // for layers
 }
 
 void testDTDigis::testDigiCollectionInsert() {
@@ -105,7 +105,7 @@ void testDTDigis::testDigiCollectionInsert() {
 
       count++;
     }  // for digis in layer
-  }    // for layers
+  }  // for layers
 
   CPPUNIT_ASSERT(count != 0);
 }

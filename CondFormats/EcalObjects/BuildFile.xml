@@ -11,7 +11,11 @@
 <use name="boost_serialization"/>
 <use name="rootmath"/>
 <use name="clhep"/>
-<use name="cuda"/>
+<iftool name="cuda">
+  <use name="cuda"/>
+<else/>
+  <flags SKIP_FILES="%GPU.cc"/>
+</iftool>
 <use name="HeterogeneousCore/AlpakaInterface"/>
 <flags ALPAKA_BACKENDS="!serial"/>
 <export>

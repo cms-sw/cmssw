@@ -827,7 +827,6 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       }
     }
     nCha->Fill(nChaTra, weight);
-    binW = dNchdSpt->getTH1()->GetBinWidth(1);
     dNchdSpt->Fill(sptTra, 1.);
     //how do one apply weights to a profile? MonitorElement doesn't allow to
     nChaDenLpt->Fill(hepmcGPCollection[iMax]->momentum().perp(), nChaTra / 4. / CLHEP::twopi);

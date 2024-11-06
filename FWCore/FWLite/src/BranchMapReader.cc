@@ -595,6 +595,9 @@ namespace fwlite {
     edm::FileFormatVersion v;
     edm::FileFormatVersion* pV = &v;
     TBranch* bVer = metaDataTree->GetBranch(edm::poolNames::fileFormatVersionBranchName().c_str());
+    if (nullptr == bVer) {
+      return 0;
+    }
     bVer->SetAddress(&pV);
     bVer->GetEntry(0);
     fileVersion_ = v.value();

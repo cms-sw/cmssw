@@ -1182,8 +1182,8 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, const edm::EventSetup& i
           }
         }
       }  // end matched emtpy
-    }    // <-----end rechit loop
-  }      // <------ end detunit loop
+    }  // <-----end rechit loop
+  }  // <------ end detunit loop
 
   if (verbosity > 1) {
     eventout += "\n          Number of BrlPixelRecHits collected:...... ";
@@ -2121,7 +2121,7 @@ int GlobalRecHitsProducer::compute(const DTGeometry* dtGeom,
       DTSHD.push_back(simHitWireDist);
 
     }  // find rechits
-  }    // loop over simhits
+  }  // loop over simhits
 
   return nDt;
 }

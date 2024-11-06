@@ -193,9 +193,9 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
 
           nObj++;
         }  //end loop over EG in bx
-      }    //end loop over bx
-    }      //end if over valid EG data
-  }        //end if ReceiveEG data
+      }  //end loop over bx
+    }  //end if over valid EG data
+  }  //end if ReceiveEG data
 
   if (receiveTau) {
     edm::Handle<BXVector<l1t::Tau>> tauData;
@@ -227,9 +227,9 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
           nObj++;
 
         }  //end loop over tau in bx
-      }    //end loop over bx
-    }      //end if over valid tau data
-  }        //end if ReceiveTau data
+      }  //end loop over bx
+    }  //end if over valid tau data
+  }  //end if ReceiveTau data
 
   if (receiveJet) {
     edm::Handle<BXVector<l1t::Jet>> jetData;
@@ -260,9 +260,9 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
                                 << "  Qual " << jet->hwQual() << "  Iso " << jet->hwIso();
           nObj++;
         }  //end loop over jet in bx
-      }    //end loop over bx
-    }      //end if over valid jet data
-  }        //end if ReceiveJet data
+      }  //end loop over bx
+    }  //end if over valid jet data
+  }  //end if ReceiveJet data
 
   if (receiveEtSums) {
     edm::Handle<BXVector<l1t::EtSum>> etSumData;
@@ -322,7 +322,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
 */
 
         }  //end loop over EtSum objects in bx
-      }    //end loop over Bx
+      }  //end loop over Bx
     }
   }
 
@@ -376,7 +376,9 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
 void l1t::GlobalBoard::receiveMuonObjectData(const edm::Event& iEvent,
                                              const edm::EDGetTokenT<BXVector<l1t::Muon>>& muInputToken,
                                              const bool receiveMu,
-                                             const int nrL1Mu) {
+                                             const int nrL1Mu,
+                                             const std::vector<l1t::Muon>* muonVec_bxm2,
+                                             const std::vector<l1t::Muon>* muonVec_bxm1) {
   if (m_verbosity) {
     LogDebug("L1TGlobal") << "\n**** GlobalBoard receiving muon data = ";
     //<< "\n     from input tag " << muInputTag << "\n"
@@ -403,20 +405,49 @@ void l1t::GlobalBoard::receiveMuonObjectData(const edm::Event& iEvent,
 
         //Loop over Muons in this bx
         int nObj = 0;
-        for (std::vector<l1t::Muon>::const_iterator mu = muonData->begin(i); mu != muonData->end(i); ++mu) {
-          if (nObj < nrL1Mu) {
-            (*m_candL1Mu).push_back(i, &(*mu));
-          } else {
-            edm::LogWarning("L1TGlobal") << " Too many Muons (" << nObj << ") for uGT Configuration maxMu =" << nrL1Mu;
-          }
+        if (i == -2) {
+          for (std::vector<l1t::Muon>::const_iterator mu = muonVec_bxm2->begin(); mu != muonVec_bxm2->end(); ++mu) {
+            if (nObj < nrL1Mu) {
+              (*m_candL1Mu).push_back(i, &(*mu));
+            } else {
+              edm::LogWarning("L1TGlobal")
+                  << " Too many Muons (" << nObj << ") for uGT Configuration maxMu =" << nrL1Mu;
+            }
 
-          LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " EtaAtVtx  " << mu->hwEtaAtVtx() << " PhiAtVtx "
-                                << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() << "  Iso " << mu->hwIso();
-          nObj++;
+            LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " EtaAtVtx  " << mu->hwEtaAtVtx() << " PhiAtVtx "
+                                  << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() << "  Iso " << mu->hwIso();
+            nObj++;
+          }
+        } else if (i == -1) {
+          for (std::vector<l1t::Muon>::const_iterator mu = muonVec_bxm1->begin(); mu != muonVec_bxm1->end(); ++mu) {
+            if (nObj < nrL1Mu) {
+              (*m_candL1Mu).push_back(i, &(*mu));
+            } else {
+              edm::LogWarning("L1TGlobal")
+                  << " Too many Muons (" << nObj << ") for uGT Configuration maxMu =" << nrL1Mu;
+            }
+
+            LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " EtaAtVtx  " << mu->hwEtaAtVtx() << " PhiAtVtx "
+                                  << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() << "  Iso " << mu->hwIso();
+            nObj++;
+          }
+        } else {
+          for (std::vector<l1t::Muon>::const_iterator mu = muonData->begin(i); mu != muonData->end(i); ++mu) {
+            if (nObj < nrL1Mu) {
+              (*m_candL1Mu).push_back(i, &(*mu));
+            } else {
+              edm::LogWarning("L1TGlobal")
+                  << " Too many Muons (" << nObj << ") for uGT Configuration maxMu =" << nrL1Mu;
+            }
+
+            LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " EtaAtVtx  " << mu->hwEtaAtVtx() << " PhiAtVtx "
+                                  << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() << "  Iso " << mu->hwIso();
+            nObj++;
+          }
         }  //end loop over muons in bx
-      }    //end loop over bx
-    }      //end if over valid muon data
-  }        //end if ReceiveMuon data
+      }  //end loop over bx
+    }  //end if over valid muon data
+  }  //end if ReceiveMuon data
 }
 
 // receive muon shower data from Global Muon Trigger
@@ -478,9 +509,9 @@ void l1t::GlobalBoard::receiveMuonShowerObjectData(const edm::Event& iEvent,
           }
           nObj++;
         }  //end loop over muon showers in bx
-      }    //end loop over bx
-    }      //end if over valid muon shower data
-  }        //end if ReceiveMuonShower data
+      }  //end loop over bx
+    }  //end if over valid muon shower data
+  }  //end if ReceiveMuonShower data
 }
 
 // receive data from Global External Conditions
@@ -515,9 +546,9 @@ void l1t::GlobalBoard::receiveExternalData(const edm::Event& iEvent,
         for (std::vector<GlobalExtBlk>::const_iterator ext = extData->begin(i); ext != extData->end(i); ++ext) {
           (*m_candL1External).push_back(i, &(*ext));
         }  //end loop over ext in bx
-      }    //end loop over bx
-    }      //end if over valid ext data
-  }        //end if ReceiveExt data
+      }  //end loop over bx
+    }  //end if over valid ext data
+  }  //end if ReceiveExt data
 }
 
 // fill axo score value per bx in event
@@ -1121,7 +1152,7 @@ void l1t::GlobalBoard::runFDL(const edm::Event& iEvent,
               // change bit to false in prescaled word and final decision word
               m_uGtAlgBlk.setAlgoDecisionInterm(iBit, false);
             }  //if Prescale counter reached zero
-          }    //if prescale factor is not 1 (ie. no prescale)
+          }  //if prescale factor is not 1 (ie. no prescale)
           else {
             temp_algPrescaledOr = true;
           }
@@ -1131,7 +1162,7 @@ void l1t::GlobalBoard::runFDL(const edm::Event& iEvent,
           edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= prescaleFactorsAlgoTrig.size() in bx " << iBxInEvent;
         }
       }  //if algo bit is set true
-    }    //loop over alg bits
+    }  //loop over alg bits
 
     m_algPrescaledOr = temp_algPrescaledOr;  //temp
 

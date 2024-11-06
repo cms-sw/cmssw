@@ -4,14 +4,15 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <memory>
 
 template <class FilteredView>
 void CmsDetConstruction<FilteredView>::buildSmallDetsforGlued(FilteredView& fv,
                                                               GeometricDet* mother,
                                                               const std::string& attribute) {
-  GeometricDet* det = new GeometricDet(&fv,
-                                       CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
-                                           ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)));
+  auto det = std::make_unique<GeometricDet>(&fv,
+                                            CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                                ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)));
   if (det->stereo()) {
     uint32_t temp = 1;
     det->setGeographicalID(DetId(temp));
@@ -20,16 +21,16 @@ void CmsDetConstruction<FilteredView>::buildSmallDetsforGlued(FilteredView& fv,
     det->setGeographicalID(DetId(temp));
   }
 
-  mother->addComponent(det);
+  mother->addComponent(det.release());
 }
 
 template <class FilteredView>
 void CmsDetConstruction<FilteredView>::buildSmallDetsforStack(FilteredView& fv,
                                                               GeometricDet* mother,
                                                               const std::string& attribute) {
-  GeometricDet* det = new GeometricDet(&fv,
-                                       CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
-                                           ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)));
+  auto det = std::make_unique<GeometricDet>(&fv,
+                                            CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                                ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)));
 
   if (det->isLowerSensor()) {
     uint32_t temp = 1;
@@ -40,16 +41,16 @@ void CmsDetConstruction<FilteredView>::buildSmallDetsforStack(FilteredView& fv,
   } else {
     edm::LogError("DetConstruction") << " module defined in a Stack but not upper either lower!? ";
   }
-  mother->addComponent(det);
+  mother->addComponent(det.release());
 }
 
 template <class FilteredView>
 void CmsDetConstruction<FilteredView>::buildSmallDetsfor3D(FilteredView& fv,
                                                            GeometricDet* mother,
                                                            const std::string& attribute) {
-  GeometricDet* det = new GeometricDet(&fv,
-                                       CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
-                                           ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)));
+  auto det = std::make_unique<GeometricDet>(&fv,
+                                            CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                                ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)));
 
   if (det->isFirstSensor()) {
     uint32_t temp = 1;
@@ -60,7 +61,7 @@ void CmsDetConstruction<FilteredView>::buildSmallDetsfor3D(FilteredView& fv,
   } else {
     edm::LogError("DetConstruction") << " module defined in a 3D module but not first or second sensor!? ";
   }
-  mother->addComponent(det);
+  mother->addComponent(det.release());
 }
 
 /*
@@ -79,7 +80,7 @@ void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv,
   const GeometricDet::GDEnumType& myTopologicalType =
       CmsTrackerLevelBuilder<DDFilteredView>::theCmsTrackerStringToEnum.type(myTopologicalNameInXMLs);
 
-  GeometricDet* det = new GeometricDet(&fv, myTopologicalType);
+  auto det = std::make_unique<GeometricDet>(&fv, myTopologicalType);
 
   const bool isPhase1ModuleWith2Sensors = (myTopologicalType == GeometricDet::mergedDet);
   const bool isPhase2ModuleWith2Sensors = (myTopologicalType == GeometricDet::OTPhase2Stack);
@@ -92,13 +93,13 @@ void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv,
     while (dodets) {
       // PHASE 1 (MERGEDDET)
       if (isPhase1ModuleWith2Sensors) {
-        buildSmallDetsforGlued(fv, det, attribute);
+        buildSmallDetsforGlued(fv, det.get(), attribute);
       }
       // PHASE 2 (STACKDET)
       else if (isPhase2ModuleWith2Sensors) {
-        buildSmallDetsforStack(fv, det, attribute);
+        buildSmallDetsforStack(fv, det.get(), attribute);
       } else if (isPhase2BarrelModuleWith2Sensors) {
-        buildSmallDetsfor3D(fv, det, attribute);
+        buildSmallDetsfor3D(fv, det.get(), attribute);
       }
 
       dodets = fv.nextSibling();
@@ -111,7 +112,7 @@ void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv,
   // Indeed, we are not going to sort sensors within module, if there is only 1 sensor!
 
   // ALL CASES: add sensor to its mother volume (module or ladder).
-  mother->addComponent(det);
+  mother->addComponent(det.release());
 }
 
 /*
@@ -129,7 +130,7 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
   const std::string& myTopologicalNameInXMLs = ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
   const GeometricDet::GDEnumType& myTopologicalType =
       CmsTrackerLevelBuilder<cms::DDFilteredView>::theCmsTrackerStringToEnum.type(myTopologicalNameInXMLs);
-  GeometricDet* det = new GeometricDet(&fv, myTopologicalType);
+  auto det = std::make_unique<GeometricDet>(&fv, myTopologicalType);
 
   const bool isPhase1ModuleWith2Sensors = (myTopologicalType == GeometricDet::mergedDet);
   const bool isPhase2ModuleWith2Sensors = (myTopologicalType == GeometricDet::OTPhase2Stack);
@@ -150,13 +151,13 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
     while (fv.level() == sensorHierarchyLevel) {
       // PHASE 1 (MERGEDDET)
       if (isPhase1ModuleWith2Sensors) {
-        buildSmallDetsforGlued(fv, det, attribute);
+        buildSmallDetsforGlued(fv, det.get(), attribute);
       }
       // PHASE 2 (STACKDET)
       else if (isPhase2ModuleWith2Sensors) {
-        buildSmallDetsforStack(fv, det, attribute);
+        buildSmallDetsforStack(fv, det.get(), attribute);
       } else if (isPhase2BarrelModuleWith2Sensors) {
-        buildSmallDetsfor3D(fv, det, attribute);
+        buildSmallDetsfor3D(fv, det.get(), attribute);
       }
 
       // Go to the next volume in FilteredView.
@@ -174,5 +175,5 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
   }
 
   // ALL CASES: add sensor to its mother volume (module or ladder).
-  mother->addComponent(det);
+  mother->addComponent(det.release());
 }

@@ -14,7 +14,7 @@ public:
   enum EPickAction { kPnt1, kPnt2, kNone };
 
   FW3DViewDistanceMeasureTool();
-  virtual ~FW3DViewDistanceMeasureTool(){};
+  virtual ~FW3DViewDistanceMeasureTool() {}
 
   void resetAction();
 

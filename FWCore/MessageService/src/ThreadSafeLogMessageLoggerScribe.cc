@@ -497,7 +497,7 @@ namespace edm {
         if (dest_default_limit < 0)
           dest_default_limit = 2000000000;
         dest_ctrl->setLimit("*", dest_default_limit);
-      }                                                      // change log 1b, 2a, 2b
+      }  // change log 1b, 2a, 2b
       if (dest_default_interval != defaults.NO_VALUE_SET) {  // change log 6
         dest_ctrl->setInterval("*", dest_default_interval);
       }

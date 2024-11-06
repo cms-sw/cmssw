@@ -258,8 +258,6 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
   }
 
   // second object
-  reqObjResult = false;
-
   switch (cond1Categ) {
     case CondMuon: {
       corrMuon = static_cast<const MuonTemplate*>(m_gtCond1);
@@ -337,8 +335,6 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
   }
 
   // third object (used for overlap removal)
-  reqObjResult = false;
-
   switch (cond2Categ) {
     case CondMuon: {
       corrMuon = static_cast<const MuonTemplate*>(m_gtCond2);
@@ -779,7 +775,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             }
 
           }  //check it is the EtSum we want
-        }    // loop over Etsums
+        }  // loop over Etsums
 
       }  // end case CondEnergySum
       break;
@@ -1072,7 +1068,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               }
 
             }  //check it is the EtSum we want
-          }    // loop over Etsums
+          }  // loop over Etsums
 
         }  // end case EnergySum
         break;
@@ -1609,7 +1605,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                 }
 
               }  //check it is the EtSum we want
-            }    // loop over Etsums
+            }  // loop over Etsums
 
           }  // end case CondEnerySum
           break;

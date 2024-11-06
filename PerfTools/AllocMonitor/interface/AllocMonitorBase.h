@@ -43,8 +43,8 @@ namespace cms::perftools {
     AllocMonitorBase& operator=(AllocMonitorBase&&) = delete;       // stop default
 
     // ---------- member functions ---------------------------
-    virtual void allocCalled(size_t iRequestedSize, size_t iActualSize) = 0;
-    virtual void deallocCalled(size_t iActualSize) = 0;
+    virtual void allocCalled(size_t iRequestedSize, size_t iActualSize, void const* iAddress) = 0;
+    virtual void deallocCalled(size_t iActualSize, void const* iAddress) = 0;
   };
 }  // namespace cms::perftools
 #endif

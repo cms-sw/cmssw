@@ -28,6 +28,8 @@
 #include "cpu_features/cpuinfo_aarch64.h"
 #elif defined(CPU_FEATURES_ARCH_PPC)
 #include "cpu_features/cpuinfo_ppc.h"
+#elif defined(CPU_FEATURES_ARCH_RISCV)
+#include "cpu_features/cpuinfo_riscv.h"
 #endif
 
 #include <cstdlib>
@@ -253,6 +255,9 @@ namespace edm {
 #elif defined(CPU_FEATURES_ARCH_PPC)
       const auto strings{GetPPCPlatformStrings()};
       model = strings.machine;
+#elif defined(CPU_FEATURES_ARCH_RISCV)
+      const auto info{GetRiscvInfo()};
+      model = fmt::format("riscv64 {} {}", info.vendor, info.uarch);
 #endif
       return model;
     }

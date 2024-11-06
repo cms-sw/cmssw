@@ -32,7 +32,7 @@ public:
   // constructes an overlap from 2 hits and a track. Hits are internally sorted inside-out
   explicit SiStripOverlapHit(TrajectoryMeasurement const& measA, TrajectoryMeasurement const& measB);
   // destructor
-  virtual ~SiStripOverlapHit(){};
+  virtual ~SiStripOverlapHit() {}
 
   // access to indivitual hits and to the trajectory state
   inline ConstRecHitPointer const& hitA() const { return measA_.recHit(); }

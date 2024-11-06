@@ -82,7 +82,7 @@ namespace {
     double r() const { return mR; }
 
   private:
-    CaloPointZ(){};
+    CaloPointZ() {}
     double mZ;
     double mR;
   };

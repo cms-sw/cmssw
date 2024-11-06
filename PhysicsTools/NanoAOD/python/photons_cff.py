@@ -96,18 +96,17 @@ seedGainPho = cms.EDProducer("PhotonSeedGainProducer", src = cms.InputTag("slimm
 import RecoEgamma.EgammaTools.calibratedEgammas_cff
 
 calibratedPatPhotonsNano = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatPhotons.clone(
-    produceCalibratedObjs = False,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain"),
+    produceCalibratedObjs = False
 )
 
 (run2_egamma_2016 & tracker_apv_vfp30_2016).toModify(
     calibratedPatPhotonsNano,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain")
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain_v3")
 )
 
 (run2_egamma_2016 & ~tracker_apv_vfp30_2016).toModify(
     calibratedPatPhotonsNano,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_postVFP_RunFineEtaR9Gain"),
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_postVFP_RunFineEtaR9Gain_v1"),
 )
 
 run2_egamma_2017.toModify(
@@ -204,7 +203,7 @@ photonTable = simplePATPhotonFlatTableProducer.clone(
         cutBased = Var(
             "userInt('cutBasedID_loose')+userInt('cutBasedID_medium')+userInt('cutBasedID_tight')",
             "uint8",
-            doc="cut-based ID bitmap, RunIIIWinter22V1, (0:fail, 1:loose, 2:medium, 3:tight)",
+            doc="cut-based ID bitmap, RunIIIWinter22V1: fail ==0, loose >=1 , medium >=2, tight >=3",
         ),
         vidNestedWPBitmap = Var(
             "userInt('VIDNestedWPBitmap')",
@@ -252,8 +251,9 @@ _phoVarsExtra = cms.PSet(
     rawPreshowerEnergy = Var("superCluster.preshowerEnergy",float,doc="energy deposited in preshower",precision=10),
     seedClusEnergy = Var("superCluster.seed.energy",float,doc="seed cluster energy",precision=10),
     e5x5 = Var("full5x5_showerShapeVariables.e5x5",float,doc="energy in 5x5",precision=10),
-    dEtaSeedClusSuperClus = Var("superCluster.seed.eta-superCluster.position.Eta",float,doc="dEta(seed,SC)",precision=10),
-    dPhiSeedClusSuperClus = Var("deltaPhi(superCluster.seed.phi,superCluster.position.Phi)",float,doc="dPhi(seed,SC)",precision=10),
+    superclusterPhi = Var("superCluster().phi()",float,doc="supercluster phi",precision=10),
+    seedClusterEta = Var("superCluster().seed().eta()",float,doc="seed cluster eta",precision=10),
+    seedClusterPhi = Var("superCluster().seed().phi()",float,doc="seed cluster phi",precision=10),
     sigmaIphiIphiFull5x5 = Var("full5x5_showerShapeVariables().sigmaIphiIphi",float,doc="Full5x5 sigmaIPhiIPhi",precision=10),
     eMax = Var("full5x5_maxEnergyXtal()",float,doc="Emax",precision=10),
     e2nd = Var("full5x5_showerShapeVariables.e2nd",float,doc="E2nd",precision=10),
@@ -283,11 +283,11 @@ run2_egamma.toModify(
     photonTable.variables,
     pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
     energyErr = Var("userFloat('ecalEnergyErrPostCorrNew')",float,doc="energy error of the cluster from regression",precision=6),
-    eCorr = Var("userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')",float,doc="ratio of the calibrated energy/miniaod energy"),
+    ptPreCorr = Var("pt",float,doc="pt of the photon before energy corrections"),
     cutBased = Var(
             "userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')",
             "uint8",
-            doc="cut-based ID bitmap, Fall17V2, (0:fail, 1:loose, 2:medium, 3:tight)",
+            doc="cut-based ID bitmap, Fall17V2: fail ==0, loose >=1 , medium >=2, tight >=3",
         ),
     vidNestedWPBitmap = Var(
             "userInt('VIDNestedWPBitmapFall17V2')",

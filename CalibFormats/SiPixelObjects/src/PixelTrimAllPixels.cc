@@ -74,7 +74,7 @@ PixelTrimAllPixels::PixelTrimAllPixels(std::vector<std::vector<std::string> > &t
     tmp.read(rocid, base64_decode(tableMat[r][colM["TRIM_BITS"]]));
     trimbits_.push_back(tmp);
   }  //end for r
-     //std::cout<<trimbits_.size()<<std::endl;
+  //std::cout<<trimbits_.size()<<std::endl;
 }  //end contructor with databasa table
 
 PixelTrimAllPixels::PixelTrimAllPixels(std::string filename) : PixelTrimBase("", "", "") {

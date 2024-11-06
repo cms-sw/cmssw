@@ -33,7 +33,7 @@ class logger:
             file = castortools.castorToLFN(file)
             
         if castortools.isLFN( file ):
-            tgzPattern = re.compile('.*\.tgz$')
+            tgzPattern = re.compile('.*\\.tgz$')
             m = tgzPattern.match( file )
             if m:
                 return True

@@ -116,7 +116,7 @@ void SiStripApvGainRescaler::analyze(const edm::Event& iEvent, const edm::EventS
       }
 
     }  // loop over APVs
-  }    // loop over DetIds
+  }  // loop over DetIds
 
   std::unique_ptr<SiStripApvGain> theAPVGains = this->getNewObject(theMap);
 

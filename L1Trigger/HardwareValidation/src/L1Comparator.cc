@@ -436,8 +436,8 @@ void L1Comparator::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSe
   edm::Handle<L1MuGMTCandCollection> gmt_emul;
   edm::Handle<L1MuGMTReadoutCollection> gmt_rdt_data_;
   edm::Handle<L1MuGMTReadoutCollection> gmt_rdt_emul_;
-  L1MuRegionalCandCollection const* gmt_rdt_data(new L1MuRegionalCandCollection);
-  L1MuRegionalCandCollection const* gmt_rdt_emul(new L1MuRegionalCandCollection);
+  L1MuRegionalCandCollection const* gmt_rdt_data = nullptr;
+  L1MuRegionalCandCollection const* gmt_rdt_emul = nullptr;
   //tbd: may compare extended candidates
   L1MuGMTCandCollection const* gmt_can_data(new L1MuGMTCandCollection);
   L1MuGMTCandCollection const* gmt_can_emul(new L1MuGMTCandCollection);

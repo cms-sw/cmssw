@@ -247,7 +247,7 @@ void AlignableTrackerBuilder ::buildStripDetectorAlignable(
       buildPixelDetectorAlignable(geomDet, subdetId, aliDets, aliDetUnits, update);
     }
   }  // no else: glued components of AlignableDet constructed within
-     // AlignableSiStripDet -> AlignableDet, see above
+  // AlignableSiStripDet -> AlignableDet, see above
 }
 
 //_____________________________________________________________________________
@@ -293,7 +293,7 @@ void AlignableTrackerBuilder ::buildOuterTrackerDetectorAlignable(
     }
     numDetUnits += nAddedUnits;
   }  // no else: stacked components of AlignableDet constructed within
-     // AlignableStackDet -> AlignableDet, see above
+  // AlignableStackDet -> AlignableDet, see above
 }
 
 //_____________________________________________________________________________

@@ -177,9 +177,9 @@ process.simGtStage2Digis.EGammaInputTag      = cms.InputTag("gtStage2Digis", "EG
 process.simGtStage2Digis.TauInputTag         = cms.InputTag("gtStage2Digis", "Tau")
 process.simGtStage2Digis.JetInputTag         = cms.InputTag("gtStage2Digis", "Jet")
 process.simGtStage2Digis.EtSumInputTag       = cms.InputTag("gtStage2Digis", "EtSum")
-process.simGtStage2Digis.EtSumZdcInputTag    = cms.InputTag("etSumZdcProducer")
+process.simGtStage2Digis.EtSumZdcInputTag    = cms.InputTag("l1tZDCEtSums")
 process.simGtStage2Digis.EmulateBxInEvent    = cms.int32(1)
-    
+
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                                       egInputTag       = cms.InputTag("gtStage2Digis", "EGamma"),
 		                      muInputTag       = cms.InputTag("gtStage2Digis", "Muon"),

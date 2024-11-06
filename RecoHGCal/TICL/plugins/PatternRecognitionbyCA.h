@@ -20,6 +20,11 @@ namespace ticl {
                         std::vector<Trackster>& result,
                         std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
+    void filter(std::vector<Trackster>& output,
+                const std::vector<Trackster>& inTracksters,
+                const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
+                std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
+
     void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters,
                                const tensorflow::Session*,
                                std::vector<Trackster>& result);
@@ -58,16 +63,10 @@ namespace ticl {
     const std::string eidInputName_;
     const std::string eidOutputNameEnergy_;
     const std::string eidOutputNameId_;
-    const float eidMinClusterEnergy_;
-    const int eidNLayers_;
-    const int eidNClusters_;
     const bool computeLocalTime_;
 
     hgcal::RecHitTools rhtools_;
-    tensorflow::Session* eidSession_;
     const std::vector<double> siblings_maxRSquared_;
-
-    static const int eidNFeatures_ = 3;
   };
 
 }  // namespace ticl

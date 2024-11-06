@@ -119,6 +119,8 @@ DTTSCand *DTTSS::sortTSS1() {
   std::vector<DTTSCand *>::iterator p;
   for (p = _tctrig[0].begin(); p != _tctrig[0].end(); p++) {
     DTTSCand *curr = (*p) ? (*p) : nullptr;
+    if (curr == nullptr)
+      continue;
     // SM sector collector Set bits for tss
     curr->setBitsTss();
     if (curr->dataword() == 0x1ff)

@@ -46,7 +46,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTLFSortRankEtaPhiLUT() override{};
+  ~L1MuGMTLFSortRankEtaPhiLUT() override {}
 
   /// specific lookup function for rank_etaphi
   unsigned SpecificLookup_rank_etaphi(int idx, unsigned eta, unsigned phi) const {

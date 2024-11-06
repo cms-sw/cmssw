@@ -56,6 +56,11 @@ WORKING_POINTS_v2p5 = {
     }
 }
 
+WORKING_POINTS_BOOSTED_v2p0 = {
+    "e":   {},
+    "mu":  {},
+    "jet": {}
+}
 WORKING_POINTS_PHASEII_v2p5 = {
     "e": {
         "VVVLoose": 0.2376,

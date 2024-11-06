@@ -18,8 +18,8 @@ typedef std::bitset<kNTrigObjectBit> TriggerObjectBits;
 
 class TriggerTools {
 public:
-  TriggerTools(){};
-  ~TriggerTools(){};
+  TriggerTools() {}
+  ~TriggerTools() {}
 
   void readEvent(const edm::Event &iEvent);
 

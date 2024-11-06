@@ -20,7 +20,7 @@ public:
   //    PerformancePayload(int stride_, std::string columns_,std::vector<float> table) : PhysicsPerformancePayload(stride_, columns_, table) {}
 
   PerformancePayload() {}
-  virtual ~PerformancePayload(){};
+  virtual ~PerformancePayload() {}
 
   virtual void initialize() {}
 

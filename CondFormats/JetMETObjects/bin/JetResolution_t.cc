@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "CondFormats/JetMETObjects/interface/JetResolution.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <TROOT.h>
 #include <TApplication.h>
@@ -61,20 +62,12 @@ int main(int argc, char** argv) {
   cout << "nevts:    " << nevts << endl;
   cout << "gaussian: " << doGaussian << endl << endl;
 
-  string cmssw_base(std::getenv("CMSSW_BASE"));
-  string cmssw_release_base(std::getenv("CMSSW_RELEASE_BASE"));
-  string path = cmssw_base + "/src/CondFormats/JetMETObjects/data";
-  struct stat st;
-  if (stat(path.c_str(), &st) != 0)
-    path = cmssw_release_base + "/src/CondFormats/JetMETObjects/data";
-  if (stat(path.c_str(), &st) != 0) {
-    cerr << "ERROR: tried to set path but failed, abort." << endl;
-    return 0;
-  }
-
-  string ptFileName = path + "/" + era + "_PtResolution_" + alg + ".txt";
-  string etaFileName = path + "/" + era + "_EtaResolution_" + alg + ".txt";
-  string phiFileName = path + "/" + era + "_PhiResolution_" + alg + ".txt";
+  string ptFileName =
+      edm::FileInPath("CondFormats/JetMETObjects/data/" + era + "_PtResolution_" + alg + ".txt").fullPath();
+  string etaFileName =
+      edm::FileInPath("CondFormats/JetMETObjects/data/" + era + "_EtaResolution_" + alg + ".txt").fullPath();
+  string phiFileName =
+      edm::FileInPath("CondFormats/JetMETObjects/data/" + era + "_PhiResolution_" + alg + ".txt").fullPath();
 
   cout << ptFileName << endl;
   cout << etaFileName << endl;

@@ -216,11 +216,6 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
 
       LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
     }
-
-    // set convertScale to false to avoid executing the conversion
-    // more than once - in case the scales change it will be set to true
-    // in the cache check
-    convertScale = false;
   }
 
   // loop over condition maps (one map per condition chip)

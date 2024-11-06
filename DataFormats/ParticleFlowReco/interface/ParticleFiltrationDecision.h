@@ -23,8 +23,8 @@ namespace pftools {
  */
   class ParticleFiltrationDecision {
   public:
-    ParticleFiltrationDecision(){};
-    virtual ~ParticleFiltrationDecision(){};
+    ParticleFiltrationDecision() {}
+    virtual ~ParticleFiltrationDecision() {}
 
     /* Bit field to contain user-defined vetos */
     char vetosPassed_;

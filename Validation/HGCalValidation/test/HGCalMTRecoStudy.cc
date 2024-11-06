@@ -824,8 +824,8 @@ void HGCalMTRecoStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &
         }  //Silicon or scintillator
 
       }  //invalid topology
-    }    //loop over iterator
-  }      //is Valid container
+    }  //loop over iterator
+  }  //is Valid container
 
   for (int i = 0; i < 47; i++) {
     if (ElossLayer0[i] > 0.0)

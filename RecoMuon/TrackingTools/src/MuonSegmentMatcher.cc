@@ -154,7 +154,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track& muo
               (fabs(pointLocal.y() - segLocal.y()) < ZCutParameter))
             countAgreeingHits++;
         }  //End Segment Hit Iteration
-      }    //End Muon Hit Iteration
+      }  //End Muon Hit Iteration
 
       matchRatioZ = countMuonDTHits == 0 ? 0 : countAgreeingHits / countMuonDTHits;
       if (nhitsZ)
@@ -208,14 +208,14 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track& muo
               (fabs(pointLocal.y() - segLocal.y()) < PhiCutParameter))
             countAgreeingHits++;
         }  // End Segment Hit Iteration
-      }    // End Muon Hit Iteration
+      }  // End Muon Hit Iteration
 
       matchRatioPhi = countMuonDTHits != 0 ? countAgreeingHits / countMuonDTHits : 0;
       if (nhitsPhi)
         if (countAgreeingHits / nhitsPhi > matchRatioPhi)
           matchRatioPhi = countAgreeingHits / nhitsPhi;
     }  // End HasPhi Check
-       //    DTChamberId chamberSegId2((rechit->geographicalId()).rawId());
+    //    DTChamberId chamberSegId2((rechit->geographicalId()).rawId());
     if (dtTightMatch && nhitsPhi && nhitsZ) {
       if ((matchRatioPhi > 0.9) && (matchRatioZ > 0.9)) {
         //	cout<<"Making a tight match in Chamber "<<chamberSegId2<<endl;
@@ -318,7 +318,7 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
           //		  cout << "   Matched." << endl;
         }
       }  //End 2D rechit iteration
-    }    //End muon hit iteration
+    }  //End muon hit iteration
 
     matchRatioCSC = countMuonCSCHits == 0 ? 0 : CSCcountAgreeingHits / countMuonCSCHits;
 

@@ -23,7 +23,6 @@
   <class name="edm::RefProd<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> > >"/>
 
   <class name="edm::Wrapper<std::vector<HGCRecHit>>"/>
-  <class name="edm::Wrapper<HGCRecHitCollection>"/>
  
   <class name="edm::DetSet<HGCRecHit>"/>
   <class name="edm::DetSetVector<HGCRecHit>"/>

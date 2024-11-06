@@ -113,8 +113,8 @@ void GeometryInfoDump::dumpInfo(
           }
           lpStore.insert(ddcurLP);
         }  // iterate over children
-      }    // if (children)
-    }      // iterate over graph nodes
+      }  // if (children)
+    }  // iterate over graph nodes
     dump.close();
   }
 }

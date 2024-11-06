@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+
+import sys
+import json
+import argparse
+
+import FWCore.Reflection.ClassesDefXmlUtils as ClassesDefUtils
+
+def main(args):
+    ClassesDefUtils.initROOT(args.library)
+    
+    ClassesDefUtils.initCheckClass()
+    try:
+        p = ClassesDefUtils.XmlParser(args.xmlfile, includeNonVersionedClasses=True, normalizeClassNames=False)
+    except RuntimeError as e:
+        print(f"Parsing {args.xmlfile} failed: {e}")
+        sys.exit(1)
+
+    out = {}
+    for name, info in p.classes.items():
+        try:
+            (error, version, checksum) = ClassesDefUtils.checkClass(name, 0, {})
+        except RuntimeError as e:
+            print(f"Ignoring class {name} as could not get its version and checksum, because: {e}")
+            continue
+        out[name] = dict(
+            version = version,
+            checksum = checksum
+        )
+    out_js = json.dumps(out, sort_keys=True, indent=1)
+    if args.output is None:
+        print(out_js)
+    else:
+        with open(args.output, "w") as f:
+            f.write(out_js)
+    return 0
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+                                     description="Extracts class versions and checksums, in JSON format, for all non-transient clases defined in a given classes_def.xml file")
+    parser.add_argument("-l","--lib", dest="library", type=str,
+                         help="specify the library to load. If not set classes are found using the PluginManager")
+    parser.add_argument("-x","--xml_file", dest="xmlfile",default="./classes_def.xml", type=str,
+                         help="the classes_def.xml file to read")
+    parser.add_argument("-o", "--output", type=str, default=None,
+                        help="File to save the output. If no file is specified, the JSON document is printed in stdout")
+
+    args = parser.parse_args()
+    sys.exit(main(args))

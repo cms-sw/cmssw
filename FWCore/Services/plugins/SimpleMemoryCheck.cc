@@ -56,9 +56,6 @@
 #include <atomic>
 
 namespace edm {
-  class EventID;
-  class Timestamp;
-
   namespace service {
     struct smapsInfo {
       smapsInfo() : private_(), pss_() {}
@@ -95,6 +92,9 @@ namespace edm {
 
       void postEndJob();
 
+      void startSamplingThread();
+      void stopSamplingThread();
+
     private:
       ProcInfo fetch();
       smapsInfo fetchSmaps();
@@ -123,9 +123,14 @@ namespace edm {
       //options
       bool showMallocInfo_;
       bool oncePerEventMode_;
+      bool printEachTime_;
       bool jobReportOutputOnly_;
       bool monitorPssAndPrivate_;
       std::atomic<int> count_;
+      unsigned int sampleEveryNSeconds_;
+      std::optional<std::thread> samplingThread_;
+      std::atomic<bool> stopThread_ = false;
+      std::atomic<edm::EventID> mostRecentlyStartedEvent_;
 
       //smaps
       edm::propagate_const<FILE*> smapsFile_;
@@ -334,9 +339,11 @@ namespace edm {
           num_to_skip_(iPS.getUntrackedParameter<int>("ignoreTotal")),
           showMallocInfo_(iPS.getUntrackedParameter<bool>("showMallocInfo")),
           oncePerEventMode_(iPS.getUntrackedParameter<bool>("oncePerEventMode")),
+          printEachTime_(oncePerEventMode_ or iPS.getUntrackedParameter<bool>("printEachSample")),
           jobReportOutputOnly_(iPS.getUntrackedParameter<bool>("jobReportOutputOnly")),
           monitorPssAndPrivate_(iPS.getUntrackedParameter<bool>("monitorPssAndPrivate")),
           count_(),
+          sampleEveryNSeconds_(iPS.getUntrackedParameter<unsigned int>("sampleEveryNSeconds")),
           smapsFile_(nullptr),
           smapsLineBuffer_(nullptr),
           smapsLineBufferLen_(0),
@@ -349,6 +356,22 @@ namespace edm {
       std::ostringstream ost;
 
       openFiles();
+
+      if (sampleEveryNSeconds_ > 0) {
+        if (oncePerEventMode_) {
+          throw edm::Exception(edm::errors::Configuration)
+              << "'sampleEventNSeconds' and 'oncePerEventMode' cannot be used together";
+        }
+        if (moduleSummaryRequested_) {
+          throw edm::Exception(edm::errors::Configuration)
+              << "'sampleEventNSeconds' and 'moduleSummaryRequested' cannot be used together";
+        }
+        iReg.watchPostBeginJob(this, &SimpleMemoryCheck::startSamplingThread);
+        iReg.watchPreEndJob(this, &SimpleMemoryCheck::stopSamplingThread);
+        iReg.watchPostEndJob(this, &SimpleMemoryCheck::postEndJob);
+        iReg.watchPreEvent([this](auto const& iContext) { mostRecentlyStartedEvent_.store(iContext.eventID()); });
+        return;
+      }
 
       if (!oncePerEventMode_) {  // default, prints on increases
         iReg.watchPreSourceConstruction(this, &SimpleMemoryCheck::preSourceConstruction);
@@ -395,13 +418,24 @@ namespace edm {
 
     void SimpleMemoryCheck::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;
-      desc.addUntracked<int>("ignoreTotal", 1);
+      desc.addUntracked<int>("ignoreTotal", 1)
+          ->setComment("Number of events/samples to finish before starting measuring and reporting.");
+      desc.addUntracked<unsigned int>("sampleEveryNSeconds", 0)
+          ->setComment(
+              "Use a special thread to sample memory at the set rate. A value of 0 means no sampling. This option "
+              "cannot be used with 'oncePerEventMode' or 'moduleMemorySummary'.");
+      desc.addUntracked<bool>("printEachSample", false)
+          ->setComment("If sampling on, print each sample taken else will print only when sample is the largest seen.");
       desc.addUntracked<bool>("showMallocInfo", false);
-      desc.addUntracked<bool>("oncePerEventMode", false);
+      desc.addUntracked<bool>("oncePerEventMode", false)
+          ->setComment(
+              "Only check memory at the end of each event. Not as useful in multi-threaded job as other running events "
+              "contribute.");
       desc.addUntracked<bool>("jobReportOutputOnly", false);
       desc.addUntracked<bool>("monitorPssAndPrivate", false);
-      desc.addUntracked<bool>("moduleMemorySummary", false);
-      desc.addUntracked<bool>("dump", false);
+      desc.addUntracked<bool>("moduleMemorySummary", false)
+          ->setComment(
+              "Track significant memory events for each module. This does not work well in multi-threaded jobs.");
       descriptions.add("SimpleMemoryCheck", desc);
     }
 
@@ -465,6 +499,27 @@ namespace edm {
             nullptr, [this](void const*) { measurementUnderway_.store(false, std::memory_order_release); });
         updateAndPrint("beginJob", md.moduleLabel(), md.moduleName());
       }
+    }
+
+    void SimpleMemoryCheck::startSamplingThread() {
+      samplingThread_ = std::thread{[this]() {
+        while (not stopThread_) {
+          std::this_thread::sleep_for(std::chrono::duration<unsigned int>(sampleEveryNSeconds_));
+          ++count_;
+          update();
+          if (monitorPssAndPrivate_) {
+            currentSmaps_ = fetchSmaps();
+          }
+          auto e = mostRecentlyStartedEvent_.load();
+          andPrint("sampling", "", "");
+          updateEventStats(e);
+          updateMax();
+        }
+      }};
+    }
+    void SimpleMemoryCheck::stopSamplingThread() {
+      stopThread_ = true;
+      samplingThread_->join();
     }
 
     void SimpleMemoryCheck::postEndJob() {
@@ -846,7 +901,7 @@ namespace edm {
     void SimpleMemoryCheck::andPrint(std::string const& type,
                                      std::string const& mdlabel,
                                      std::string const& mdname) const {
-      if (not jobReportOutputOnly_ && ((*current_ > max_) || oncePerEventMode_)) {
+      if (not jobReportOutputOnly_ && ((*current_ > max_) || printEachTime_)) {
         if (count_ >= num_to_skip_) {
           double deltaVSIZE = current_->vsize - max_.vsize;
           double deltaRSS = current_->rss - max_.rss;

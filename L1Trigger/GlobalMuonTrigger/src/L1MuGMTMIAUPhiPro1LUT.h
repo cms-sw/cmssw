@@ -51,7 +51,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTMIAUPhiPro1LUT() override{};
+  ~L1MuGMTMIAUPhiPro1LUT() override {}
 
   /// specific lookup function for cphi_fine
   unsigned SpecificLookup_cphi_fine(int idx, unsigned phi_fine, unsigned eta, unsigned pt, unsigned charge) const {

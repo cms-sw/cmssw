@@ -589,7 +589,7 @@ void L1TSync_Offline::getBeamConfOffline(const Event& iEvent) {
       }
       // End fill beam status with BPTX fires
     }  // End loop on FDL
-  }    // End if readout is valid
+  }  // End if readout is valid
 }
 
 //_____________________________________________________________________

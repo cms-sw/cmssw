@@ -11,7 +11,7 @@
 #include "TICLGraph.h"
 
 namespace {
-  bool isRoundTrackster(std::array<ticl::Vector, 3> skeleton) { return (skeleton[0].Z() == skeleton[2].Z()); }
+  bool isRoundTrackster(std::array<ticl::Vector, 3> const &skeleton) { return (skeleton[0].Z() == skeleton[2].Z()); }
 
   bool isGoodTrackster(const ticl::Trackster &trackster,
                        const std::array<ticl::Vector, 3> &skeleton,
@@ -50,7 +50,9 @@ namespace {
 
 using namespace ticl;
 
-TracksterLinkingbySkeletons::TracksterLinkingbySkeletons(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
+TracksterLinkingbySkeletons::TracksterLinkingbySkeletons(const edm::ParameterSet &conf,
+                                                         edm::ConsumesCollector iC,
+                                                         cms::Ort::ONNXRuntime const *onnxRuntime)
     : TracksterLinkingAlgoBase(conf, iC),
       timing_quality_threshold_(conf.getParameter<double>("track_time_quality_threshold")),
       del_(conf.getParameter<double>("wind")),
@@ -302,7 +304,7 @@ bool TracksterLinkingbySkeletons::areCompatible(const ticl::Trackster &myTrackst
           LogDebug("TracksterLinkingbySkeletons") << "Distance between closest point " << d << " Distance in z "
                                                   << max_z_distance_closest_points_[isEE] << std::endl;
           bool isInCyl = isInCylinder(mySkeleton, otherSkeleton, cylinder_radius_sqr_[isEE]);
-          LogDebug("TracksterLinkingbySkeletons") << "Two Points are in Cylinder  " << isInCylinder << std::endl;
+          LogDebug("TracksterLinkingbySkeletons") << "Two Points are in Cylinder  " << isInCyl << std::endl;
           if (isInCyl) {
             LogDebug("TracksterLinkingbySkeletons") << "\t\t\t Linked! " << d << std::endl;
           }

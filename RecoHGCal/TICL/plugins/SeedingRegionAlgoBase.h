@@ -23,7 +23,7 @@ namespace ticl {
   public:
     SeedingRegionAlgoBase(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
         : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
-    virtual ~SeedingRegionAlgoBase(){};
+    virtual ~SeedingRegionAlgoBase() {}
 
     virtual void initialize(const edm::EventSetup& es) = 0;
 

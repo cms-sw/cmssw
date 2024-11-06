@@ -137,7 +137,7 @@ namespace {
       unsigned int PUbin(0);
       auto paramValues = PlotBase::inputParamValues();
       auto ip = paramValues.find("PU bin");
-      if (ip != paramValues.end()) {
+      if (ip != paramValues.end() && !ip->second.empty()) {
         PUbin = std::stoul(ip->second);
       } else {
         edm::LogWarning("SiPixelQualityProbabilityDensityPerPUbin")
@@ -193,7 +193,7 @@ namespace {
             probVec.emplace_back(pair.first, average);
           }
         }  // if the first PU bin is not 0
-      }    // if we're asking for all the PU bins
+      }  // if we're asking for all the PU bins
 
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();

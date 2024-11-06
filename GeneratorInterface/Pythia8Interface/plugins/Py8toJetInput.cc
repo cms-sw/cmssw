@@ -108,8 +108,8 @@ const std::vector<fastjet::PseudoJet> Py8toJetInput::fillJetAlgoInput(const Even
         idx = event[idx].mother1();
 
       }  // if (iType)
-    }    // while (true)
-  }      // for (i)
+    }  // while (true)
+  }  // for (i)
 
   // For jetMatch = 2, insert ghost particles corresponding to
   // each hard parton in the original process

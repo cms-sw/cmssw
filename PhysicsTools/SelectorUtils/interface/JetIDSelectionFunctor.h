@@ -399,11 +399,11 @@ public:  // interface
               tight_emf = false;
 
           }  // end if HF
-        }    // end if outside HBHE
+        }  // end if outside HBHE
         if (ignoreCut(index_TIGHT_EMF_) || tight_emf)
           passCut(ret, index_TIGHT_EMF_);
       }  // end if tight
-    }    // end if loose or tight
+    }  // end if loose or tight
 
     setIgnored(ret);
 

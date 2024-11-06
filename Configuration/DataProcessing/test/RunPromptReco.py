@@ -109,7 +109,7 @@ class RunPromptReco:
                     kwds['repacked'] = self.isRepacked
 
                 if self.nThreads:
-                    kwds['nThreads'] = self.nThreads
+                    kwds['nThreads'] = int(self.nThreads)
 
             process = scenario.promptReco(self.globalTag, **kwds)
 

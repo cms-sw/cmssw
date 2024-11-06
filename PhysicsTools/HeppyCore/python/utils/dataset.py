@@ -285,7 +285,7 @@ class Dataset( BaseDataset ):
         self.bad_files = {}
         self.good_files = []
 
-        file_mask = castortools.matchingFiles(self.castorDir, '^%s_.*\.txt$' % mask)
+        file_mask = castortools.matchingFiles(self.castorDir, '^%s_.*\\.txt$' % mask)
         if file_mask:
             # here to avoid circular dependency
             from .edmIntegrityCheck import PublishToFileSystem

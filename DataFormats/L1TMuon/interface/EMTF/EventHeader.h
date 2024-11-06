@@ -37,9 +37,9 @@ namespace l1t {
             gem(-99),
             gem_crc(-99),
             format_errors(0),
-            dataword(-99){};
+            dataword(-99) {}
 
-      virtual ~EventHeader(){};
+      virtual ~EventHeader() {}
 
       void set_l1a(int bits) { l1a = bits; }
       void set_l1a_BXN(int bits) { l1a_BXN = bits; }
@@ -127,7 +127,7 @@ namespace l1t {
       uint64_t dataword;
 
     };  // End of class EventHeader
-  }     // End of namespace emtf
+  }  // End of namespace emtf
 }  // End of namespace l1t
 
 #endif /* define __l1t_emtf_EventHeader_h__ */

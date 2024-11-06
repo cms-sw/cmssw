@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.nano_eras_cff import run3_nanoAOD_124
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 from PhysicsTools.NanoAOD.simpleGenParticleFlatTableProducer_cfi import simpleGenParticleFlatTableProducer
 from PhysicsTools.NanoAOD.simplePATTauFlatTableProducer_cfi import simplePATTauFlatTableProducer
@@ -18,12 +17,7 @@ from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p5
 
 finalTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTaus"),
-    cut = cms.string("pt > 18 && ((tauID('decayModeFindingNewDMs') > 0.5 && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet') || tauID('byVVVLooseDeepTau2018v2p5VSjet'))) || (?isTauIDAvailable('byUTagCHSVSjetraw')?tauID('byUTagCHSVSjetraw'):-1) > {} || (?isTauIDAvailable('byUTagPUPPIVSjetraw')?tauID('byUTagPUPPIVSjetraw'):-1) > {})".format(0.05, 0.05))
-)
-
-run3_nanoAOD_124.toModify(
-    finalTaus,
-    cut = cms.string("pt > 18 && ((tauID('decayModeFindingNewDMs') > 0.5 && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet') || (tauID('byDeepTau2018v2p5VSjetraw') > {}))) || (?isTauIDAvailable('byUTagCHSVSjetraw')?tauID('byUTagCHSVSjetraw'):-1) > {} || (?isTauIDAvailable('byUTagPUPPIVSjetraw')?tauID('byUTagPUPPIVSjetraw'):-1) > {})".format(WORKING_POINTS_v2p5["jet"]["VVVLoose"], 0.05, 0.05))
+    cut = cms.string("pt > 18 && ((tauID('decayModeFindingNewDMs') > 0.5 && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2018v2p5VSjet'))) || (?isTauIDAvailable('byUTagCHSVSjetraw')?tauID('byUTagCHSVSjetraw'):-1) > {} || (?isTauIDAvailable('byUTagPUPPIVSjetraw')?tauID('byUTagPUPPIVSjetraw'):-1) > {})".format(0.05, 0.05))
 )
 
 ##################### Tables for final output and docs ##########################
@@ -85,20 +79,6 @@ _tauVarsBase = cms.PSet(P4Vars,
 
 )
 
-_deepTauVars2017v2p1 = cms.PSet(
-    rawDeepTau2017v2p1VSe = Var("?isTauIDAvailable('byDeepTau2017v2p1VSeraw')?tauID('byDeepTau2017v2p1VSeraw'):-1", float, doc="byDeepTau2017v2p1VSe raw output discriminator (deepTau2017v2p1)", precision=10),
-    rawDeepTau2017v2p1VSmu = Var("?isTauIDAvailable('byDeepTau2017v2p1VSmuraw')?tauID('byDeepTau2017v2p1VSmuraw'):-1", float, doc="byDeepTau2017v2p1VSmu raw output discriminator (deepTau2017v2p1)", precision=10),
-    rawDeepTau2017v2p1VSjet = Var("?isTauIDAvailable('byDeepTau2017v2p1VSjetraw')?tauID('byDeepTau2017v2p1VSjetraw'):-1", float, doc="byDeepTau2017v2p1VSjet raw output discriminator (deepTau2017v2p1)", precision=10),
-    idDeepTau2017v2p1VSe = _tauIdWPMask("by%sDeepTau2017v2p1VSe",
-                                            choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),
-                                            doc="byDeepTau2017v2p1VSe ID working points (deepTau2017v2p1)"),
-    idDeepTau2017v2p1VSmu = _tauIdWPMask("by%sDeepTau2017v2p1VSmu",
-                                            choices=("VLoose", "Loose", "Medium", "Tight"),
-                                            doc="byDeepTau2017v2p1VSmu ID working points (deepTau2017v2p1)"),
-    idDeepTau2017v2p1VSjet = _tauIdWPMask("by%sDeepTau2017v2p1VSjet",
-                                            choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),
-                                            doc="byDeepTau2017v2p1VSjet ID working points (deepTau2017v2p1)"),
-)
 _deepTauVars2018v2p5 = cms.PSet(
     rawDeepTau2018v2p5VSe = Var("?isTauIDAvailable('byDeepTau2018v2p5VSeraw')?tauID('byDeepTau2018v2p5VSeraw'):-1", float, doc="byDeepTau2018v2p5VSe raw output discriminator (deepTau2018v2p5)", precision=10),
     rawDeepTau2018v2p5VSmu = Var("?isTauIDAvailable('byDeepTau2018v2p5VSmuraw')?tauID('byDeepTau2018v2p5VSmuraw'):-1", float, doc="byDeepTau2018v2p5VSmu raw output discriminator (deepTau2018v2p5)", precision=10),
@@ -144,29 +124,12 @@ _UTagPUPPI = cms.PSet(
 
 _variablesMiniV2 = cms.PSet(
     _tauVarsBase,
-    _deepTauVars2017v2p1,
     _deepTauVars2018v2p5,
     _UTagCHS,
     _UTagPUPPI
 )
 
 tauTable.variables = _variablesMiniV2
-
-run3_nanoAOD_124.toModify(
-    tauTable.variables,
-    idDeepTau2018v2p5VSe = _tauIdWPMask("byDeepTau2018v2p5VSeraw",
-                 choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),
-                 doc="byDeepTau2018v2p5VSe ID working points (deepTau2018v2p5)",
-                 from_raw=True, wp_thrs=WORKING_POINTS_v2p5["e"]),
-    idDeepTau2018v2p5VSmu = _tauIdWPMask("byDeepTau2018v2p5VSmuraw",
-                 choices=("VLoose", "Loose", "Medium", "Tight"),
-                 doc="byDeepTau2018v2p5VSmu ID working points (deepTau2018v2p5)",
-                 from_raw=True, wp_thrs=WORKING_POINTS_v2p5["mu"]),
-    idDeepTau2018v2p5VSjet = _tauIdWPMask("byDeepTau2018v2p5VSjetraw",
-                 choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),
-                 doc="byDeepTau2018v2p5VSjet ID working points (deepTau2018v2p5)",
-                 from_raw=True, wp_thrs=WORKING_POINTS_v2p5["jet"])
-)
 
 tauSignalCands = patTauSignalCandidatesProducer.clone(
     src = tauTable.src,

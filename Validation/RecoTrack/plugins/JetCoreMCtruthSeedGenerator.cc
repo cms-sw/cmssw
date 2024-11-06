@@ -297,8 +297,8 @@ void JetCoreMCtruthSeedGenerator::produce(edm::Event& iEvent, const edm::EventSe
         }
 
       }  //bigcluster
-    }    //jet > pt
-  }      //jet
+    }  //jet > pt
+  }  //jet
   iEvent.put(std::move(result));
   iEvent.put(std::move(resultTracks));
 }

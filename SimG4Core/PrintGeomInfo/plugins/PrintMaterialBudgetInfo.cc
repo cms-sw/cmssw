@@ -46,7 +46,7 @@ public:
   ~PrintMaterialBudgetInfo() override;
 
 private:
-  void update(const BeginOfJob* job) override{};
+  void update(const BeginOfJob* job) override {}
   void update(const BeginOfRun* run) override;
   void dumpHeader(std::ostream& out = G4cout);
   void dumpLaTeXHeader(std::ostream& out = G4cout);
@@ -104,7 +104,7 @@ PrintMaterialBudgetInfo::PrintMaterialBudgetInfo(const edm::ParameterSet& p) {
 PrintMaterialBudgetInfo::~PrintMaterialBudgetInfo() {}
 
 void PrintMaterialBudgetInfo::update(const BeginOfRun* run) {
-  G4Random::setTheEngine(new CLHEP::RanecuEngine);
+  [[clang::suppress]] G4Random::setTheEngine(new CLHEP::RanecuEngine);
   // Physical Volume
   G4VPhysicalVolume* theTopPV =
       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();

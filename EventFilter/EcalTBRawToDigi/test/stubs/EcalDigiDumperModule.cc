@@ -130,7 +130,7 @@ protected:
         std::cout << "channel: dccNum= " << id.dccId() << "\t tower= " << id.towerId()
                   << "\t channelNum= " << id.channelId() << " has problems in the gain bits" << std::endl;
       }  // end of loop on gain errors in the mem
-    }    // end if
+    }  // end if
 
     if (MemId->size() && memErrors) {
       std::cout << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  Size of collection of mem tt_block_id errors is: "
@@ -142,7 +142,7 @@ protected:
         std::cout << "tower_block: dccNum= " << id.dccId() << "\t tower= " << id.towerId() << " has ID problems "
                   << std::endl;
       }  // end of loop tower_block_id errors in the mem
-    }    // end if
+    }  // end if
 
     short dumpCounter = 0;
 

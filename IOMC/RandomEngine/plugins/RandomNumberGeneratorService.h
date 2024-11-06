@@ -11,6 +11,7 @@
   (originally in FWCore/Services)
 */
 
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
@@ -91,6 +92,11 @@ namespace edm {
       void postEventRead(Event const& event) override;
       void setLumiCache(LuminosityBlockIndex, std::vector<RandomEngineState> const& iStates) override;
       void setEventCache(StreamID, std::vector<RandomEngineState> const& iStates) override;
+
+      void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
+      void postBeginJob();
+      void preEndJob();
+      void postEndJob();
 
       /// These next 12 functions are only used to check that random numbers are not
       /// being generated in these methods when enable checking is configured on.
@@ -270,6 +276,7 @@ namespace edm {
       bool enableChecking_;
 
       std::uint32_t eventSeedOffset_;
+      bool beginJobEndJobActive_ = false;
 
       bool verbose_;
 

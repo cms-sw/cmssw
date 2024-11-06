@@ -32,8 +32,8 @@ enum FitQuality { FQsmallDistanceToMinimum, FQbigDistanceToMinimum, FQchiSquareW
 class Fit {
 public:
   //----- Constructor / Destructor
-  Fit(){};
-  ~Fit(){};
+  Fit() {}
+  ~Fit() {}
 
   //----- Gets the only instance of this class
   static Fit& getInstance();

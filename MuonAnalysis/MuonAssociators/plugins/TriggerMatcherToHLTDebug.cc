@@ -397,13 +397,13 @@ void TriggerMatcherToHLTDebug::produce(Event &event, const EventSetup &eventSetu
                   hasL3MuonFiltered[i]++;
 
                 }  //L3MUON FILTERED ASSOCIATO TROVATO
-              }    //L3MUON LOOP
-            }      // L3 TRACKS
-          }        // L3 SEEDS
-        }          //T L2 MUONS
-      }            // L2 SEEDS
-    }              //L1 MUONS
-  }                // RECO MUONS
+              }  //L3MUON LOOP
+            }  // L3 TRACKS
+          }  // L3 SEEDS
+        }  //T L2 MUONS
+      }  // L2 SEEDS
+    }  //L1 MUONS
+  }  // RECO MUONS
   storeValueMap<int>(event, muons, propagatesToM2, "propagatesToM2");
   storeValueMap<int>(event, muons, hasL1Particle, "hasL1Particle");
   storeValueMap<int>(event, muons, hasL1Filtered, "hasL1Filtered");

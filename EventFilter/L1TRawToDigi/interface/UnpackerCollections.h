@@ -8,8 +8,8 @@ namespace edm {
 namespace l1t {
   class UnpackerCollections {
   public:
-    UnpackerCollections(edm::Event& e) : event_(e){};
-    virtual ~UnpackerCollections(){};
+    UnpackerCollections(edm::Event& e) : event_(e) {}
+    virtual ~UnpackerCollections() {}
 
   protected:
     edm::Event& event_;

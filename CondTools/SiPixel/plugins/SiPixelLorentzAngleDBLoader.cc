@@ -223,8 +223,8 @@ void SiPixelLorentzAngleDBLoader::analyze(const edm::Event& e, const edm::EventS
             } else
               LogError("SiPixelLorentzAngleDBLoader") << " ERROR!: detid already exists";
           }  // end loop on FPixParameters_
-        }    // condition to read from config
-      }      // end on being barrel or endcap
+        }  // condition to read from config
+      }  // end on being barrel or endcap
     }
   }
 

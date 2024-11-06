@@ -20,8 +20,8 @@
 
 class MuonBaseNumber {
 public:
-  MuonBaseNumber(){};
-  ~MuonBaseNumber(){};
+  MuonBaseNumber() {}
+  ~MuonBaseNumber() {}
 
   void addBase(const int level, const int super, const int base);
   void addBase(const LevelBaseNumber&);

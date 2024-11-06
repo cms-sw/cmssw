@@ -24,7 +24,7 @@ namespace muonisolation {
 
   class CaloExtractor : public reco::isodeposit::IsoDepositExtractor {
   public:
-    CaloExtractor(){};
+    CaloExtractor() {}
     CaloExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC);
 
     ~CaloExtractor() override {}

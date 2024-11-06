@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class TOBRodBuilder {
 public:
-  TOBRodBuilder(){};
+  TOBRodBuilder() {}
   TOBRod* build(const GeometricDet* negTOBRod, const GeometricDet* posTOBRod, const TrackerGeometry* theGeomDetGeometry)
       __attribute__((cold));
 };

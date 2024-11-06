@@ -1447,7 +1447,7 @@ void ZToMuMuGammaAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& e
                 h_dRPhoPFcand_Pho_Cleaned_[iDet]->Fill(dR);
               }
             }  // dr=0.4
-          }    // loop over all PF Candidates
+          }  // loop over all PF Candidates
 
           h_SumPtOverPhoPt_ChHad_Cleaned_[0]->Fill(SumPtIsoValCleanCh / aPho->pt());
           h_SumPtOverPhoPt_NeuHad_Cleaned_[0]->Fill(SumPtIsoValCleanNh / aPho->pt());
@@ -1529,7 +1529,7 @@ void ZToMuMuGammaAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& e
       h_nPho_[1]->Fill(float(nPhoBarrel));
       h_nPho_[2]->Fill(float(nPhoEndcap));
     }  //end inner muon loop
-  }    //end outer muon loop
+  }  //end outer muon loop
 }  //End of Analyze method
 
 bool ZToMuMuGammaAnalyzer::basicMuonSelection(const reco::Muon& mu) {

@@ -13,7 +13,9 @@ namespace ticl {
 
   class TracksterLinkingbyFastJet : public TracksterLinkingAlgoBase {
   public:
-    TracksterLinkingbyFastJet(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
+    TracksterLinkingbyFastJet(const edm::ParameterSet& conf,
+                              edm::ConsumesCollector iC,
+                              cms::Ort::ONNXRuntime const* onnxRuntime = nullptr)
         : TracksterLinkingAlgoBase(conf, iC), radius_(conf.getParameter<double>("radius")) {
       // Cluster tracksters into jets using FastJet with configurable algorithm
       auto algo = conf.getParameter<int>("jet_algorithm");
@@ -43,7 +45,7 @@ namespace ticl {
     void initialize(const HGCalDDDConstants* hgcons,
                     const hgcal::RecHitTools rhtools,
                     const edm::ESHandle<MagneticField> bfieldH,
-                    const edm::ESHandle<Propagator> propH) override{};
+                    const edm::ESHandle<Propagator> propH) override {};
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
       iDesc.add<int>("algo_verbosity", 0);

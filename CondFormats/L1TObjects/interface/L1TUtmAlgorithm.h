@@ -29,7 +29,7 @@ public:
         index_(),
         module_id_(),
         module_index_(),
-        version(0){};
+        version(0) {}
   L1TUtmAlgorithm(std::string name,
                   std::string expression,
                   std::string expression_in_condition,
@@ -45,7 +45,7 @@ public:
         index_(index),
         module_id_(module_id),
         module_index_(module_index),
-        version(ver){};
+        version(ver) {}
 
   L1TUtmAlgorithm(const tmeventsetup::esAlgorithm& esAlg)
       : L1TUtmAlgorithm(esAlg.getName(),
@@ -56,7 +56,7 @@ public:
                         esAlg.getModuleId(),
                         esAlg.getModuleIndex(),
                         0  //There is no version retrieval in esAlgorithm. However, it seems pretty hard coded to 0
-        ){};
+        ) {};
 
   virtual ~L1TUtmAlgorithm() = default;
 

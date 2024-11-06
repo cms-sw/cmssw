@@ -62,7 +62,7 @@ void IMACalibBlock::complete() {
       aft = (j * m_numberOfElements + i);
       m_kaliMatrix.at(aft) = m_kaliMatrix.at(bef);
     }  //LP second loop over xtals
-  }    //LP first loop over xtals
+  }  //LP first loop over xtals
 
   return;
 }

@@ -110,7 +110,7 @@ protected:
 
   virtual void modelChanges(const FWModelIds&, Product*);
 
-  virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc){};
+  virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) {}
 
   FWProxyBuilderBase(const FWProxyBuilderBase&);                   // stop default
   const FWProxyBuilderBase& operator=(const FWProxyBuilderBase&);  // stop default

@@ -846,7 +846,7 @@ public:
                              TString* parname,
                              const T& parResol,
                              const std::vector<int>& parResolOrder,
-                             const int muonType){};
+                             const int muonType) {};
   virtual void setParameters(double* Start,
                              double* Step,
                              double* Mini,

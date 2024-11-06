@@ -265,7 +265,7 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
               break;
           };
         }  // end if not double precision
-      }    // end if modon
+      }  // end if modon
 
       if (ladon && barrel) {
         if (errorType == 32 || errorType == 33 || errorType == 34) {
@@ -869,8 +869,8 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
               (*meMapFEDs)["meFedETypeNErr_"][id_]->Fill(messageType);
           }
         }  // end if not 30 || notReset
-      }    // end if
-    }      // end for
+      }  // end if
+    }  // end for
     if (numberOfSeriousErrors > 0)
       ((*meMapFEDs)["meNErrors_"][id_])->Fill((float)numberOfSeriousErrors);
   }  // end if not an empty iterator

@@ -18,7 +18,7 @@ private:
   const DetLayer* getDetLayer(const TM& tm) const;
 
 public:
-  explicit MeasurementByLayerGrouper(const GeometricSearchTracker* search = nullptr) : theGeomSearch(search){};
+  explicit MeasurementByLayerGrouper(const GeometricSearchTracker* search = nullptr) : theGeomSearch(search) {}
 
   std::vector<std::pair<const DetLayer*, std::vector<TM> > > operator()(const std::vector<TM>&) const;
 

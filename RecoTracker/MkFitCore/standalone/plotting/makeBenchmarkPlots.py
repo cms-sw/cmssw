@@ -26,7 +26,7 @@ def run():
     elif arch == 'SNB' :
         vuvals.append('8int')
     else :
-        print arch,'is not a valid architecture! Exiting...'
+        print(arch,'is not a valid architecture! Exiting...')
         sys.exit(0)
 
     # call the make plots function
@@ -50,7 +50,7 @@ def run():
         nvu = '16int'
         thvals = ['1','2','4','8','16','32','48','64']
     else :
-        print arch,'is not a valid architecture! Exiting...'
+        print(arch,'is not a valid architecture! Exiting...')
         sys.exit(0)
     
     # call the make plots function
@@ -67,11 +67,11 @@ def makeplots(arch,sample,build,vals,nC,text):
     elif build == 'CE'  : pos = 14 
     elif build == 'FV'  : pos = 17
     else :
-        print build,'is not a valid test! Exiting...'
+        print(build,'is not a valid test! Exiting...')
         sys.exit(0)
 
     # time    
-    print arch,sample,build,text
+    print(arch,sample,build,text)
 
     # define tgraphs vs absolute time and speedup
     g_time    = ROOT.TGraphErrors(len(vals)-1)
@@ -98,7 +98,7 @@ def makeplots(arch,sample,build,vals,nC,text):
         if   text is 'VU' : os.system('grep Matriplex log_'+arch+'_'+sample+'_'+build+'_NVU'+val+'_NTH'+nC +'.txt >& log_'+arch+'_'+sample+'_'+build+'_'+text+'.txt')
         elif text is 'TH' : os.system('grep Matriplex log_'+arch+'_'+sample+'_'+build+'_NVU'+nC +'_NTH'+val+'.txt >& log_'+arch+'_'+sample+'_'+build+'_'+text+'.txt')
         else :
-            print 'VU or TH are the only options for extra text! Exiting...'
+            print('VU or TH are the only options for extra text! Exiting...')
             exit
 
         # open temp file, store event times into yvals
@@ -130,7 +130,7 @@ def makeplots(arch,sample,build,vals,nC,text):
             emean = 0
 
         # Printout value for good measure
-        print val,mean,'+/-',emean
+        print(val,mean,'+/-',emean)
 
         # store intrinsics val into separate plot
         if 'int' not in val :

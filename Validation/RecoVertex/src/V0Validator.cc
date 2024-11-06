@@ -260,7 +260,7 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection& co
                 firstDauTP = tpref;
               }
             }  // parent vertex is null
-          }    // check on associated tp size zero
+          }  // check on associated tp size zero
         } else {
           CandidateStatus = 5;
         }
@@ -287,7 +287,7 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection& co
       candidateFakeVsEta_denom_[v0_type]->Fill(CandidateEta);
       candidateFakeVsPt_denom_[v0_type]->Fill(CandidatepT);
     }  // Loop on candidates
-  }    // check on presence of candidate's collection in the event
+  }  // check on presence of candidate's collection in the event
   nCandidates_[v0_type]->Fill((float)numCandidateFound);
 }
 
@@ -371,10 +371,10 @@ void V0Validator::doEfficiencies(const TrackingVertexCollection& gen_vertices,
               candidateEffVsR_num_[v0_type]->Fill(candidateGenR);
             }
           }  // Check that daughters are inside the desired kinematic region
-        }    // Check decay products of the current generatex vertex
-      }      // Check pdgId of the source of the current generated vertex
-    }        // Loop over all sources of the current generated vertex
-  }          // Loop over all generated vertices
+        }  // Check decay products of the current generatex vertex
+      }  // Check pdgId of the source of the current generated vertex
+    }  // Loop over all sources of the current generated vertex
+  }  // Loop over all generated vertices
 }
 
 void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

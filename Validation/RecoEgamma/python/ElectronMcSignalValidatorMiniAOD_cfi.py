@@ -48,7 +48,7 @@ electronMcSignalValidatorMiniAOD = DQMEDAnalyzer('ElectronMcSignalValidatorMiniA
     DeltaR=cms.double(0.05),
     MaxAbsEta=cms.double(2.5),
     MatchingID=cms.vint32(11, -11),
-    MatchingMotherID=cms.vint32(23, 24, -24, 32),
+    MatchingMotherID=cms.vint32(23, 24, -24, 32, 990),
     histosCfg=cms.PSet(electronMcSignalHistosCfg),
     isolationCfg=cms.PSet(electronPFIsolationCfg),
 )
@@ -64,5 +64,6 @@ phase2_hgcal.toModify(
         Nbineta2D=60,
         Etamin=-3.0,
         Etamax=3.0,
+        NbinELE = 100, ELE_min = -0.5, ELE_max = 99.5,
     ),
 )

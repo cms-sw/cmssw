@@ -13,7 +13,7 @@ public:
   // Each pair contains uHTR group 0 LUT bits 12-15, TDC, and ADC of the cell in that depth of the trigger tower
   typedef std::array<std::pair<std::pair<int, bool>, std::pair<int, int>>, 7> TowerTDC;
 
-  HcalFinegrainBit(int version) : version_(version){};
+  HcalFinegrainBit(int version) : version_(version) {}
 
   std::bitset<2> compute(const Tower&) const;
   std::bitset<6> compute(const TowerTDC&, const HcalTrigTowerDetId&) const;

@@ -213,7 +213,7 @@ def trace_python(prog_argv, path):
       # now turn on the traceing
       sys.settrace(tracefunc)
       try:
-        exec code in globals, globals
+        exec(code, globals, globals)
       finally:
         sys.settrace(None)
 

@@ -122,7 +122,7 @@ namespace Phase2L1GMT {
       bstart = wordconcat<wordtype>(w, bstart, phi_, BITSPHI);
       bstart = wordconcat<wordtype>(w, bstart, eta_, BITSETA);
       bstart = wordconcat<wordtype>(w, bstart, z0_, BITSZ0);
-      bstart = wordconcat<wordtype>(w, bstart, d0_, BITSD0);
+      wordconcat<wordtype>(w, bstart, d0_, BITSD0);
       return w.to_int();
     }
 
@@ -137,7 +137,7 @@ namespace Phase2L1GMT {
       bstart = wordconcat<wordtype>(w2, bstart, isGlobal_, 1);
       bstart = wordconcat<wordtype>(w2, bstart, beta_, BITSMUONBETA);
       bstart = wordconcat<wordtype>(w2, bstart, quality_, BITSMATCHQUALITY);
-      bstart = wordconcat<wordtype>(w2, bstart, valid_, 1);
+      wordconcat<wordtype>(w2, bstart, valid_, 1);
 
       return w2.to_int();
     }

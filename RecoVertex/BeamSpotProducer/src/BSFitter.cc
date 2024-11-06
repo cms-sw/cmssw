@@ -10,7 +10,6 @@
 
 ________________________________________________________________**/
 
-#include "Minuit2/VariableMetricMinimizer.h"
 #include "Minuit2/FunctionMinimum.h"
 #include "Minuit2/MnPrint.h"
 #include "Minuit2/MnMigrad.h"
@@ -71,11 +70,6 @@ BSFitter::BSFitter(const std::vector<BSTrkParameters> &BSvector) {
   thePDF = new BSpdfsFcn();
 
   //}
-  //if (theFitter == 0 ) {
-
-  theFitter = new VariableMetricMinimizer();
-
-  //}
 
   fapplyd0cut = false;
   fapplychi2cut = false;
@@ -95,7 +89,6 @@ BSFitter::BSFitter(const std::vector<BSTrkParameters> &BSvector) {
 BSFitter::~BSFitter() {
   //delete fBSvector;
   delete thePDF;
-  delete theFitter;
 }
 
 //______________________________________________________________________
@@ -271,7 +264,6 @@ reco::BeamSpot BSFitter::Fit_z_likelihood(double *inipar) {
   thePDF->SetData(fBSvector);
   //std::cout << "data loaded"<< std::endl;
 
-  //FunctionMinimum fmin = theFitter->Minimize(*theGausszFcn, par, err, 1, 500, 0.1);
   MnUserParameters upar;
   upar.Add("X0", 0., 0.);
   upar.Add("Y0", 0., 0.);

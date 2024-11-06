@@ -144,6 +144,7 @@ void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& i
   infoString_ += "\"date & time\":\"" + timeString + "\",";
 
   // CMSSW version
+  [[clang::suppress]]
   std::string cmsswVersion = std::getenv("CMSSW_VERSION");
   infoString_ += std::string("\"CMSSW release\":\"") + cmsswVersion + "\",";
 

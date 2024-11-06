@@ -1,7 +1,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternEtSum.h"
 #include <cstdint>
 
-L1GctInternEtSum::L1GctInternEtSum() {}
+L1GctInternEtSum::L1GctInternEtSum() : data_(0) {}
 
 /// construct from individual quantities
 L1GctInternEtSum::L1GctInternEtSum(uint16_t capBlock, uint16_t capIndex, int16_t bx, uint32_t et, uint8_t oflow)

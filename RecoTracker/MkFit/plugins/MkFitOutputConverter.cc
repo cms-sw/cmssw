@@ -5,6 +5,8 @@
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
+
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -13,6 +15,7 @@
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -52,13 +55,13 @@
 
 namespace {
   template <typename T>
-  bool isBarrel(T subdet) {
+  bool isPhase1Barrel(T subdet) {
     return subdet == PixelSubdetector::PixelBarrel || subdet == StripSubdetector::TIB ||
            subdet == StripSubdetector::TOB;
   }
 
   template <typename T>
-  bool isEndcap(T subdet) {
+  bool isPhase1Endcap(T subdet) {
     return subdet == PixelSubdetector::PixelEndcap || subdet == StripSubdetector::TID ||
            subdet == StripSubdetector::TEC;
   }
@@ -83,6 +86,7 @@ private:
                                              const Propagator& propagatorAlong,
                                              const Propagator& propagatorOpposite,
                                              const MkFitGeometry& mkFitGeom,
+                                             const TrackerTopology& tTopo,
                                              const TkClonerImpl& hitCloner,
                                              const std::vector<const DetLayer*>& detLayers,
                                              const mkfit::TrackVec& mkFitSeeds,
@@ -95,6 +99,7 @@ private:
                                                                   const Propagator& propagatorAlong,
                                                                   const Propagator& propagatorOpposite,
                                                                   const TkClonerImpl& hitCloner,
+                                                                  const bool isPhase1,
                                                                   bool lastHitWasInvalid,
                                                                   bool lastHitWasChanged) const;
 
@@ -122,6 +127,7 @@ private:
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
   const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhBuilderToken_;
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const edm::EDPutTokenT<TrackCandidateCollection> putTrackCandidateToken_;
   const edm::EDPutTokenT<std::vector<SeedStopInfo>> putSeedStopInfoToken_;
 
@@ -159,6 +165,7 @@ MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
       ttrhBuilderToken_{esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(
           iConfig.getParameter<edm::ESInputTag>("ttrhBuilder"))},
       mkFitGeomToken_{esConsumes<MkFitGeometry, TrackerRecoGeometryRecord>()},
+      tTopoToken_{esConsumes<TrackerTopology, TrackerTopologyRcd>()},
       putTrackCandidateToken_{produces<TrackCandidateCollection>()},
       putSeedStopInfoToken_{produces<std::vector<SeedStopInfo>>()},
       qualityMaxInvPt_{float(iConfig.getParameter<double>("qualityMaxInvPt"))},
@@ -221,7 +228,6 @@ void MkFitOutputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const 
     throw cms::Exception("LogicError") << "TTRHBuilder must be of type TkTransientTrackingRecHitBuilder";
   }
   const auto& mkFitGeom = iSetup.getData(mkFitGeomToken_);
-
   // primary vertices under the algo_ because in initialStepPreSplitting there are no firstStepPrimaryVertices
   // beamspot as well since the producer can be used in hlt
   const reco::VertexCollection* vertices = nullptr;
@@ -246,6 +252,7 @@ void MkFitOutputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const 
                                    iSetup.getData(propagatorAlongToken_),
                                    iSetup.getData(propagatorOppositeToken_),
                                    iSetup.getData(mkFitGeomToken_),
+                                   iSetup.getData(tTopoToken_),
                                    tkBuilder->cloner(),
                                    mkFitGeom.detLayers(),
                                    mkfitSeeds.seeds(),
@@ -266,6 +273,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
                                                                  const Propagator& propagatorAlong,
                                                                  const Propagator& propagatorOpposite,
                                                                  const MkFitGeometry& mkFitGeom,
+                                                                 const TrackerTopology& tTopo,
                                                                  const TkClonerImpl& hitCloner,
                                                                  const std::vector<const DetLayer*>& detLayers,
                                                                  const mkfit::TrackVec& mkFitSeeds,
@@ -346,7 +354,9 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     edm::OwnVector<TrackingRecHit> recHits;
     // nTotalHits() gives sum of valid hits (nFoundHits()) and invalid/missing hits.
     const int nhits = cand.nTotalHits();
+    //std::cout << candIndex << ": " << nhits << " " << cand.nFoundHits() << std::endl;
     bool lastHitInvalid = false;
+    const auto isPhase1 = mkFitGeom.isPhase1();
     for (int i = 0; i < nhits; ++i) {
       const auto& hitOnTrack = cand.getHitOnTrack(i);
       LogTrace("MkFitOutputConverter") << " hit on layer " << hitOnTrack.layer << " index " << hitOnTrack.index;
@@ -374,7 +384,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
         auto const& hits = isPixel ? pixelClusterIndexToHit.hits() : stripClusterIndexToHit.hits();
 
         auto const& thit = static_cast<BaseTrackerRecHit const&>(*hits[hitOnTrack.index]);
-        if (mkFitGeom.isPhase1()) {
+        if (isPhase1) {
           if (thit.firstClusterRef().isPixel() || thit.detUnit()->type().isEndcap()) {
             recHits.push_back(hits[hitOnTrack.index]->clone());
           } else {
@@ -385,7 +395,15 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
                 thit.firstClusterRef()));
           }
         } else {
-          recHits.push_back(hits[hitOnTrack.index]->clone());
+          if (thit.firstClusterRef().isPixel()) {
+            recHits.push_back(hits[hitOnTrack.index]->clone());
+          } else if (thit.firstClusterRef().isPhase2()) {
+            recHits.push_back(std::make_unique<Phase2TrackerRecHit1D>(
+                thit.localPosition(),
+                LocalError(thit.localPositionError().xx(), 0.f, std::numeric_limits<float>::max()),
+                *thit.det(),
+                thit.firstClusterRef().cluster_phase2OT()));
+          }
         }
         LogTrace("MkFitOutputConverter") << "  pos " << recHits.back().globalPosition().x() << " "
                                          << recHits.back().globalPosition().y() << " "
@@ -397,24 +415,57 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     }
 
     const auto lastHitId = recHits.back().geographicalId();
-
     // MkFit hits are *not* in the order of propagation, sort by 3D radius for now (as we don't have loopers)
     // TODO: Improve the sorting (extract keys? maybe even bubble sort would work well as the hits are almost in the correct order)
-    recHits.sort([](const auto& a, const auto& b) {
-      const auto asub = a.geographicalId().subdetId();
-      const auto bsub = b.geographicalId().subdetId();
-      if (asub != bsub) {
-        // Subdetector order (BPix, FPix, TIB, TID, TOB, TEC) corresponds also the navigation
-        return asub < bsub;
+    recHits.sort([&tTopo, &isPhase1](const auto& a, const auto& b) {
+      //const GeomDetEnumerators::SubDetector asub = a.det()->subDetector();
+      //const GeomDetEnumerators::SubDetector bsub = b.det()->subDetector();
+      //const auto& apos = a.globalPosition();
+      //const auto& bpos = b.globalPosition();
+      // For Phase-1, can rely on subdetector index
+      if (isPhase1) {
+        const auto asub_ph1 = a.geographicalId().subdetId();
+        const auto bsub_ph1 = b.geographicalId().subdetId();
+        const auto& apos_ph1 = a.globalPosition();
+        const auto& bpos_ph1 = b.globalPosition();
+        if (asub_ph1 != bsub_ph1) {
+          // Subdetector order (BPix, FPix, TIB, TID, TOB, TEC) corresponds also the navigation
+          return asub_ph1 < bsub_ph1;
+        } else {
+          //if (GeomDetEnumerators::isBarrel(asub)) {
+          if (isPhase1Barrel(asub_ph1)) {
+            return apos_ph1.perp2() < bpos_ph1.perp2();
+          } else {
+            return std::abs(apos_ph1.z()) < std::abs(bpos_ph1.z());
+          }
+        }
       }
 
+      // For Phase-2, can not rely uniquely on subdetector index
+      const GeomDetEnumerators::SubDetector asub = a.det()->subDetector();
+      const GeomDetEnumerators::SubDetector bsub = b.det()->subDetector();
       const auto& apos = a.globalPosition();
       const auto& bpos = b.globalPosition();
-
-      if (isBarrel(asub)) {
-        return apos.perp2() < bpos.perp2();
+      const auto aid = a.geographicalId().rawId();
+      const auto bid = b.geographicalId().rawId();
+      const auto asubid = a.geographicalId().subdetId();
+      const auto bsubid = b.geographicalId().subdetId();
+      if (GeomDetEnumerators::isBarrel(asub) || GeomDetEnumerators::isBarrel(bsub)) {
+        // For barrel tilted modules, or in case (only) one of the two modules is barrel, use 3D position
+        if ((asubid == StripSubdetector::TOB && tTopo.tobSide(aid) < 3) ||
+            (bsubid == StripSubdetector::TOB && tTopo.tobSide(bid) < 3) ||
+            !(GeomDetEnumerators::isBarrel(asub) && GeomDetEnumerators::isBarrel(bsub))) {
+          return apos.mag2() < bpos.mag2();
+        }
+        // For fully barrel comparisons and no tilt, use 2D position
+        else {
+          return apos.perp2() < bpos.perp2();
+        }
       }
-      return std::abs(apos.z()) < std::abs(bpos.z());
+      // For fully endcap comparisons, use z position
+      else {
+        return std::abs(apos.z()) < std::abs(bpos.z());
+      }
     });
 
     const bool lastHitChanged = (recHits.back().geographicalId() != lastHitId);  // TODO: make use of the bools
@@ -429,10 +480,16 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     // otherwise, candidates undergo backwardFit where error is already rescaled
     if (mkFitOutput.propagatedToFirstLayer() && doErrorRescale_)
       fts.rescaleError(100.);
-    auto tsosDet =
-        mkFitOutput.propagatedToFirstLayer()
-            ? convertInnermostState(fts, recHits, propagatorAlong, propagatorOpposite)
-            : backwardFit(fts, recHits, propagatorAlong, propagatorOpposite, hitCloner, lastHitInvalid, lastHitChanged);
+    auto tsosDet = mkFitOutput.propagatedToFirstLayer()
+                       ? convertInnermostState(fts, recHits, propagatorAlong, propagatorOpposite)
+                       : backwardFit(fts,
+                                     recHits,
+                                     propagatorAlong,
+                                     propagatorOpposite,
+                                     hitCloner,
+                                     isPhase1,
+                                     lastHitInvalid,
+                                     lastHitChanged);
     if (!tsosDet.first.isValid()) {
       edm::LogInfo("MkFitOutputConverter")
           << "Backward fit of candidate " << candIndex << " failed, ignoring the candidate";
@@ -480,6 +537,7 @@ std::pair<TrajectoryStateOnSurface, const GeomDet*> MkFitOutputConverter::backwa
     const Propagator& propagatorAlong,
     const Propagator& propagatorOpposite,
     const TkClonerImpl& hitCloner,
+    const bool isPhase1,
     bool lastHitWasInvalid,
     bool lastHitWasChanged) const {
   // First filter valid hits as in TransientInitialStateEstimator
@@ -505,14 +563,23 @@ std::pair<TrajectoryStateOnSurface, const GeomDet*> MkFitOutputConverter::backwa
                                      << lastHitWasInvalid << " or lastHitWasChanged? " << lastHitWasChanged;
     std::swap(tryFirst, trySecond);
   } else {
-    const auto lastHitSubdet = firstHits.front()->geographicalId().subdetId();
+    bool doSwitch = false;
     const auto& surfacePos = lastHitSurface.position();
     const auto& lastHitPos = firstHits.front()->globalPosition();
-    bool doSwitch = false;
-    if (isBarrel(lastHitSubdet)) {
-      doSwitch = (surfacePos.perp2() < lastHitPos.perp2());
+    if (isPhase1) {
+      const auto lastHitSubdet = firstHits.front()->geographicalId().subdetId();
+      if (isPhase1Barrel(lastHitSubdet)) {
+        doSwitch = (surfacePos.perp2() < lastHitPos.perp2());
+      } else {
+        doSwitch = (surfacePos.z() < lastHitPos.z());
+      }
     } else {
-      doSwitch = (surfacePos.z() < lastHitPos.z());
+      const auto lastHitSubdet = firstHits.front()->det()->subDetector();
+      if (GeomDetEnumerators::isBarrel(lastHitSubdet)) {
+        doSwitch = (surfacePos.perp2() < lastHitPos.perp2());
+      } else {
+        doSwitch = (surfacePos.z() < lastHitPos.z());
+      }
     }
     if (doSwitch) {
       LogTrace("MkFitOutputConverter")

@@ -3,16 +3,20 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/GetEnvironmentVariable.h"
 
 #include "grpc_client.h"
 #include "grpc_service.pb.h"
 
+#include <algorithm>
+#include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
@@ -25,6 +29,7 @@ namespace tc = triton::client;
 
 const std::string TritonService::Server::fallbackName{"fallback"};
 const std::string TritonService::Server::fallbackAddress{"0.0.0.0"};
+const std::string TritonService::Server::siteconfName{"SONIC_LOCAL_BALANCER"};
 
 namespace {
   std::pair<std::string, int> execSys(const std::string& cmd) {
@@ -53,6 +58,18 @@ namespace {
     int rv = pclose(pipe);
     return std::make_pair(result, rv);
   }
+
+  //extract specific info from log
+  std::string extractFromLog(const std::string& output, const std::string& indicator) {
+    //find last instance in log (in case of multiple)
+    auto pos = output.rfind(indicator);
+    if (pos != std::string::npos) {
+      auto pos2 = pos + indicator.size();
+      auto pos3 = output.find('\n', pos2);
+      return output.substr(pos2, pos3 - pos2);
+    } else
+      return "";
+  }
 }  // namespace
 
 TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistry& areg)
@@ -74,25 +91,25 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
   areg.watchPreBeginJob(this, &TritonService::preBeginJob);
   areg.watchPostEndJob(this, &TritonService::postEndJob);
 
-  //include fallback server in set if enabled
-  if (fallbackOpts_.enable) {
-    auto serverType = TritonServerType::Remote;
-    if (!fallbackOpts_.useGPU)
-      serverType = TritonServerType::LocalCPU;
-#ifdef TRITON_ENABLE_GPU
-    else
-      serverType = TritonServerType::LocalGPU;
-#endif
+  //check for server specified in SITECONF
+  //(temporary solution, to be replaced with entry in site-local-config.xml or similar)
+  std::string siteconf_address(edm::getEnvironmentVariable(Server::siteconfName + "_HOST"));
+  std::string siteconf_port(edm::getEnvironmentVariable(Server::siteconfName + "_PORT"));
+  if (!siteconf_address.empty() and !siteconf_port.empty()) {
+    servers_.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(Server::siteconfName),
+        std::forward_as_tuple(Server::siteconfName, siteconf_address + ":" + siteconf_port, TritonServerType::Remote));
+    if (verbose_)
+      edm::LogInfo("TritonDiscovery") << "Obtained server from SITECONF: "
+                                      << servers_.find(Server::siteconfName)->second.url;
+  } else if (siteconf_address.empty() != siteconf_port.empty()) {  //xor
+    edm::LogWarning("TritonDiscovery") << "Incomplete server information from SITECONF: HOST = " << siteconf_address
+                                       << ", PORT = " << siteconf_port;
+  } else
+    edm::LogWarning("TritonDiscovery") << "No server information from SITECONF";
 
-    servers_.emplace(std::piecewise_construct,
-                     std::forward_as_tuple(Server::fallbackName),
-                     std::forward_as_tuple(Server::fallbackName, Server::fallbackAddress, serverType));
-  }
-
-  //loop over input servers: check which models they have
-  std::string msg;
-  if (verbose_)
-    msg = "List of models for each server:\n";
+  //finally, populate list of servers from config input
   for (const auto& serverPset : pset.getUntrackedParameterSetVector("servers")) {
     const std::string& serverName(serverPset.getUntrackedParameter<std::string>("name"));
     //ensure uniqueness
@@ -100,8 +117,13 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
     if (!unique)
       throw cms::Exception("DuplicateServer")
           << "TritonService: Not allowed to specify more than one server with same name (" << serverName << ")";
-    auto& server(sit->second);
+  }
 
+  //loop over all servers: check which models they have
+  std::string msg;
+  if (verbose_)
+    msg = "List of models for each server:\n";
+  for (auto& [serverName, server] : servers_) {
     std::unique_ptr<tc::InferenceServerGrpcClient> client;
     TRITON_THROW_IF_ERROR(
         tc::InferenceServerGrpcClient::Create(&client, server.url, false, server.useSsl, server.sslOptions),
@@ -110,37 +132,46 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
 
     if (verbose_) {
       inference::ServerMetadataResponse serverMetaResponse;
-      TRITON_THROW_IF_ERROR(client->ServerMetadata(&serverMetaResponse),
-                            "TritonService(): unable to get metadata for " + serverName + " (" + server.url + ")",
-                            false);
-      edm::LogInfo("TritonService") << "Server " << serverName << ": url = " << server.url
-                                    << ", version = " << serverMetaResponse.version();
+      auto err = client->ServerMetadata(&serverMetaResponse);
+      if (err.IsOk())
+        edm::LogInfo("TritonService") << "Server " << serverName << ": url = " << server.url
+                                      << ", version = " << serverMetaResponse.version();
+      else
+        edm::LogInfo("TritonService") << "unable to get metadata for " + serverName + " (" + server.url + ")";
     }
 
+    //if this query fails, it indicates that the server is nonresponsive or saturated
+    //in which case it should just be skipped
     inference::RepositoryIndexResponse repoIndexResponse;
-    TRITON_THROW_IF_ERROR(client->ModelRepositoryIndex(&repoIndexResponse),
-                          "TritonService(): unable to get repository index for " + serverName + " (" + server.url + ")",
-                          false);
+    auto err = client->ModelRepositoryIndex(&repoIndexResponse);
 
     //servers keep track of models and vice versa
     if (verbose_)
       msg += serverName + ": ";
-    for (const auto& modelIndex : repoIndexResponse.models()) {
-      const auto& modelName = modelIndex.name();
-      auto mit = models_.find(modelName);
-      if (mit == models_.end())
-        mit = models_.emplace(modelName, "").first;
-      auto& modelInfo(mit->second);
-      modelInfo.servers.insert(serverName);
-      server.models.insert(modelName);
+    if (err.IsOk()) {
+      for (const auto& modelIndex : repoIndexResponse.models()) {
+        const auto& modelName = modelIndex.name();
+        auto mit = models_.find(modelName);
+        if (mit == models_.end())
+          mit = models_.emplace(modelName, "").first;
+        auto& modelInfo(mit->second);
+        modelInfo.servers.insert(serverName);
+        server.models.insert(modelName);
+        if (verbose_)
+          msg += modelName + ", ";
+      }
+    } else {
       if (verbose_)
-        msg += modelName + ", ";
+        msg += "unable to get repository index";
+      else
+        edm::LogWarning("TritonFailure") << "TritonService(): unable to get repository index for " + serverName + " (" +
+                                                server.url + ")";
     }
     if (verbose_)
       msg += "\n";
   }
   if (verbose_)
-    edm::LogInfo("TritonService") << msg;
+    edm::LogInfo("TritonDiscovery") << msg;
 }
 
 void TritonService::preallocate(edm::service::SystemBounds const& bounds) {
@@ -217,6 +248,14 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   if (!fallbackOpts_.enable or unservedModels_.empty())
     return;
 
+  //include fallback server in set
+  auto serverType = TritonServerType::LocalCPU;
+  if (fallbackOpts_.device == "gpu")
+    serverType = TritonServerType::LocalGPU;
+  servers_.emplace(std::piecewise_construct,
+                   std::forward_as_tuple(Server::fallbackName),
+                   std::forward_as_tuple(Server::fallbackName, Server::fallbackAddress, serverType));
+
   std::string msg;
   if (verbose_)
     msg = "List of models for fallback server: ";
@@ -230,18 +269,16 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
       msg += modelName + ", ";
   }
   if (verbose_)
-    edm::LogInfo("TritonService") << msg;
+    edm::LogInfo("TritonDiscovery") << msg;
 
   //assemble server start command
   fallbackOpts_.command = "cmsTriton -P -1 -p " + pid_;
+  fallbackOpts_.command += " -g " + fallbackOpts_.device;
+  fallbackOpts_.command += " -d " + fallbackOpts_.container;
   if (fallbackOpts_.debug)
     fallbackOpts_.command += " -c";
   if (fallbackOpts_.verbose)
     fallbackOpts_.command += " -v";
-  if (fallbackOpts_.useDocker)
-    fallbackOpts_.command += " -d";
-  if (fallbackOpts_.useGPU)
-    fallbackOpts_.command += " -g";
   if (!fallbackOpts_.instanceName.empty())
     fallbackOpts_.command += " -n " + fallbackOpts_.instanceName;
   if (fallbackOpts_.retries >= 0)
@@ -282,22 +319,42 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   if (rv != 0) {
     edm::LogError("TritonService") << output;
     printFallbackServerLog<edm::LogError>();
-    throw cms::Exception("FallbackFailed")
+    throw edm::Exception(edm::errors::ExternalFailure)
         << "TritonService: Starting the fallback server failed with exit code " << rv;
   } else if (verbose_)
     edm::LogInfo("TritonService") << output;
+
+  //get the chosen device
+  std::string chosenDevice(fallbackOpts_.device);
+  if (chosenDevice == "auto") {
+    chosenDevice = extractFromLog(output, "CMS_TRITON_CHOSEN_DEVICE: ");
+    if (!chosenDevice.empty()) {
+      if (chosenDevice == "cpu")
+        server.type = TritonServerType::LocalCPU;
+      else if (chosenDevice == "gpu")
+        server.type = TritonServerType::LocalGPU;
+      else
+        throw edm::Exception(edm::errors::ExternalFailure)
+            << "TritonService: unsupported device choice " << chosenDevice << " for fallback server, log follows:\n"
+            << output;
+    } else
+      throw edm::Exception(edm::errors::ExternalFailure)
+          << "TritonService: unknown device choice for fallback server, log follows:\n"
+          << output;
+  }
+  //print server info
+  std::transform(chosenDevice.begin(), chosenDevice.end(), chosenDevice.begin(), toupper);
+  if (verbose_)
+    edm::LogInfo("TritonDiscovery") << "Fallback server started: " << chosenDevice;
+
   //get the port
-  const std::string& portIndicator("CMS_TRITON_GRPC_PORT: ");
-  //find last instance in log in case multiple ports were tried
-  auto pos = output.rfind(portIndicator);
-  if (pos != std::string::npos) {
-    auto pos2 = pos + portIndicator.size();
-    auto pos3 = output.find('\n', pos2);
-    const auto& portNum = output.substr(pos2, pos3 - pos2);
+  const auto& portNum = extractFromLog(output, "CMS_TRITON_GRPC_PORT: ");
+  if (!portNum.empty())
     server.url += ":" + portNum;
-  } else
-    throw cms::Exception("FallbackFailed") << "TritonService: Unknown port for fallback server, log follows:\n"
-                                           << output;
+  else
+    throw edm::Exception(edm::errors::ExternalFailure)
+        << "TritonService: Unknown port for fallback server, log follows:\n"
+        << output;
 }
 
 void TritonService::notifyCallStatus(bool status) const {
@@ -378,8 +435,10 @@ void TritonService::fillDescriptions(edm::ConfigurationDescriptions& description
   fallbackDesc.addUntracked<bool>("enable", false);
   fallbackDesc.addUntracked<bool>("debug", false);
   fallbackDesc.addUntracked<bool>("verbose", false);
-  fallbackDesc.addUntracked<bool>("useDocker", false);
-  fallbackDesc.addUntracked<bool>("useGPU", false);
+  fallbackDesc.ifValue(edm::ParameterDescription<std::string>("container", "apptainer", false),
+                       edm::allowedValues<std::string>("apptainer", "docker", "podman"));
+  fallbackDesc.ifValue(edm::ParameterDescription<std::string>("device", "auto", false),
+                       edm::allowedValues<std::string>("auto", "cpu", "gpu"));
   fallbackDesc.addUntracked<int>("retries", -1);
   fallbackDesc.addUntracked<int>("wait", -1);
   fallbackDesc.addUntracked<std::string>("instanceBaseName", "triton_server_instance");

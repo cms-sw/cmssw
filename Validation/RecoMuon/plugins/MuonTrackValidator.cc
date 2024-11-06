@@ -350,7 +350,7 @@ void MuonTrackValidator::bookHistograms(DQMEDAnalyzer::DQMStore::IBooker& ibooke
       }
 
     }  //for (unsigned int www=0;www<label.size();www++)
-  }    //for (unsigned int ww=0;ww<associators.size();ww++)
+  }  //for (unsigned int ww=0;ww<associators.size();ww++)
 }
 
 void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -795,7 +795,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
           //association chi2
           double assocChi2 = -tp.begin()->second;  //in association map is stored -chi2
           h_assochi2[www]->Fill(assocChi2);
-          h_assochi2_prob[www]->Fill(TMath::Prob((assocChi2)*5, 5));
+          h_assochi2_prob[www]->Fill(TMath::Prob((assocChi2) * 5, 5));
         } else if (associators[ww] == "trackAssociatorByHits") {
           double fraction = tp.begin()->second;
           h_assocFraction[www]->Fill(fraction);
@@ -943,5 +943,5 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
                                              << "Total Fakes: " << rT - at << "\n";
       w++;
     }  // End of for (unsigned int www=0;www<label.size();www++){
-  }    //END of for (unsigned int ww=0;ww<associators.size();ww++){
+  }  //END of for (unsigned int ww=0;ww<associators.size();ww++){
 }

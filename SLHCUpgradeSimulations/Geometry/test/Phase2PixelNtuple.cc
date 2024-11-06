@@ -403,7 +403,7 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es) 
               closest_simhit = &m;
             }
           }  // end of simhit loop
-        }    // end matched emtpy
+        }  // end matched emtpy
         unsigned int subid = detId.subdetId();
         int detid_db = detId.rawId();
         int layer_num = -99, ladder_num = -99, module_num = -99, disk_num = -99, blade_num = -99, panel_num = -99,
@@ -444,8 +444,8 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es) 
           pixeltree_->Fill();
         }
       }  // end of rechit loop
-    }    // end of detid loop
-  }      // end of loop test on recHitColl size
+    }  // end of detid loop
+  }  // end of loop test on recHitColl size
 
   // Now loop over recotracks
   edm::Handle<View<reco::Track>> trackCollection;
@@ -538,7 +538,7 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es) 
                 closest_simhit = &m;
               }
             }  // end of simhit loop
-          }    // end matched emtpy
+          }  // end matched emtpy
 
           int num_simhit = matched.size();
 
@@ -584,10 +584,10 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es) 
                         tsos);
             pixeltreeOnTrack_->Fill();
           }  // if ( (subid==1)||(subid==2) )
-        }    // if cast is possible to SiPixelHit
-      }      //end of loop on tracking rechits
-    }        // end of loop on recotracks
-  }          // else track collection is valid
+        }  // if cast is possible to SiPixelHit
+      }  //end of loop on tracking rechits
+    }  // end of loop on recotracks
+  }  // else track collection is valid
 }  // end analyze function
 
 // Function for filling in all the rechits

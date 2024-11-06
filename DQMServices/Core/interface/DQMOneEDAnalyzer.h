@@ -66,7 +66,7 @@ public:
 
   // Subsystems could safely override this, but any changes to MEs would not be
   // noticeable since the product was made already.
-  void endRun(edm::Run const&, edm::EventSetup const&) final{};
+  void endRun(edm::Run const&, edm::EventSetup const&) final {}
 
 protected:
   // methods to be implemented by the user, in order of invocation
@@ -116,7 +116,7 @@ public:
 
   // Subsystems could safely override this, but any changes to MEs would not be
   // noticeable since the product was made already.
-  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final{};
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final {}
 
 protected:
   // methods to be implemented by the user, in order of invocation

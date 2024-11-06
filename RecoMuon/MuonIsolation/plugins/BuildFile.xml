@@ -15,6 +15,7 @@
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>
   <use name="Geometry/CaloGeometry"/>
+  <use name="Geometry/CaloTopology"/>
   <use name="Geometry/Records"/>
   <use name="MagneticField/Engine"/>
   <use name="MagneticField/Records"/>
@@ -24,5 +25,10 @@
   <use name="TrackingTools/TrackAssociator"/>
   <use name="TrackingTools/TransientTrack"/>
   <use name="DataFormats/PatCandidates"/>
+  <use name="CondFormats/EcalObjects"/>
+  <use name="CondFormats/HcalObjects"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondTools/Hcal"/>
+  <use name="RecoLocalCalo/HcalRecAlgos"/>
   <flags EDM_PLUGIN="1"/>
 </library>

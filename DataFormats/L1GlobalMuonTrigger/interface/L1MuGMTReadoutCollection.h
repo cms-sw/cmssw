@@ -38,10 +38,10 @@
 
 class L1MuGMTReadoutCollection {
 public:
-  L1MuGMTReadoutCollection(){};
-  L1MuGMTReadoutCollection(int nbx) { m_Records.reserve(nbx); };
+  L1MuGMTReadoutCollection() {}
+  L1MuGMTReadoutCollection(int nbx) { m_Records.reserve(nbx); }
 
-  virtual ~L1MuGMTReadoutCollection(){};
+  virtual ~L1MuGMTReadoutCollection() {}
 
   void reset() {
     for (unsigned int i = 0; i < m_Records.size(); i++)

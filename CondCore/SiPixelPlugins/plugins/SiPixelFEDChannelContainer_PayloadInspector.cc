@@ -215,8 +215,8 @@ namespace {
           else {
             throw cms::Exception("LogicError") << "Unknown Pixel SubDet ID " << std::endl;
           }  // else nonsense
-        }    // loop on the channels
-      }      // loop on the scenarios
+        }  // loop on the channels
+      }  // loop on the scenarios
 
       gStyle->SetOptStat(0);
       //=========================
@@ -379,8 +379,8 @@ namespace {
           else {
             throw cms::Exception("LogicError") << "Unknown Pixel SubDet ID " << std::endl;
           }  // else nonsense
-        }    // loop on the channels
-      }      // loop on the scenarios
+        }  // loop on the channels
+      }  // loop on the scenarios
 
       gStyle->SetOptStat(0);
       //=========================
@@ -602,8 +602,8 @@ namespace {
           else {
             throw cms::Exception("LogicError") << "Unknown Pixel SubDet ID " << std::endl;
           }  // else nonsense
-        }    // loop on the channels
-      }      // loop on the scenarios
+        }  // loop on the channels
+      }  // loop on the scenarios
 
       gStyle->SetOptStat(0);
       //=========================
@@ -708,7 +708,7 @@ namespace {
             int local_bad_rocs = ch.roc_last - ch.roc_first;
             badRocCount += local_bad_rocs;
           }  // loop on the channels
-        }    // loop on the DetSetVector
+        }  // loop on the DetSetVector
 
         h1->SetBinContent(scenarioIndex, badRocCount);
       }  // loop on scenarios

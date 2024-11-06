@@ -9,11 +9,7 @@
 #include <cstdint>
 
 /// Shift and select
-int CSCCFEBStatusDigi::ShiftSel(int nmb, int nshift, int nsel) const {
-  int tmp = nmb;
-  tmp = tmp >> nshift;
-  return tmp = tmp & nsel;
-}
+int CSCCFEBStatusDigi::ShiftSel(int nmb, int nshift, int nsel) const { return (nmb >> nshift) & nsel; }
 /// Get SCA Full Condition
 std::vector<uint16_t> CSCCFEBStatusDigi::getSCAFullCond() const {
   /*    std::vector<int> vec(4,0);

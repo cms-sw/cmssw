@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "SimTracker/TrackTriggerAssociation/interface/TTTypes.h"
+#include "SimDataFormats/Associations/interface/TTTypes.h"
 #include "SimTracker/TrackTriggerAssociation/interface/StubAssociation.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 

@@ -46,9 +46,9 @@ namespace l1t {
             nn_pt_valid(-99),
             pt_LUT_addr(-99),
             format_errors(0),
-            dataword(-99){};
+            dataword(-99) {}
 
-      virtual ~SP(){};
+      virtual ~SP() {}
 
       void set_hl(int bits) { hl = bits; }
       void set_c(int bits) { c = bits; }

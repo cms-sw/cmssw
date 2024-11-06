@@ -72,7 +72,7 @@ void TTTrack_TrackWord::setTrackWord(unsigned int valid,
   float rPhi = localPhi(momentum.phi(), sector);  // this needs to be phi relative to the center of the sector
   float rTanl = momentum.z() / momentum.perp();
   float rZ0 = POCA.z();
-  float rD0 = POCA.perp();
+  float rD0 = POCA.x() * sin(momentum.phi()) - POCA.y() * cos(momentum.phi());
 
   // bin and convert to integers
   valid_t valid_ = valid;

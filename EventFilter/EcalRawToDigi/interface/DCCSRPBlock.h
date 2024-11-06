@@ -38,7 +38,7 @@ public:
   unsigned short srFlag(unsigned int feChannel) { return srFlags_[feChannel - 1]; }
 
 protected:
-  virtual void addSRFlagToCollection(){};
+  virtual void addSRFlagToCollection() {}
 
   virtual bool checkSrpIdAndNumbSRFlags() { return true; };
 

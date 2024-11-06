@@ -77,8 +77,14 @@
   <class name="SiPixelQualityProbabilities::probabilityVec"/>
   <class name="std::map<unsigned int,SiPixelQualityProbabilities::probabilityVec>"/>
 
-  <class pattern="PixelDCSObject<*>"/> 
-  <class pattern="PixelDCSObject<*>::Item"/> 
-  <class pattern="PixelDCSObject<*>::Type"/> 
+  <class name="CaenChannel"/>
+  <class name="PixelDCSObject<CaenChannel>"/>
+  <class name="PixelDCSObject<CaenChannel>::Item"/>
+
+  <class name="PixelDCSObject<bool>"/>
+  <class name="PixelDCSObject<bool>::Item"/>
+
+  <class name="PixelDCSObject<float>"/>
+  <class name="PixelDCSObject<float>::Item"/>
 
 </lcgdict>   

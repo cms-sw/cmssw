@@ -123,7 +123,7 @@ _Electron_Run2_plots.extend([
     Plot1D('dEscaleDown', 'dEscaleDown', 100, -0.01, 0.01, '#Delta E scaleDown'),
     Plot1D('dEsigmaUp', 'dEsigmaUp', 100, -0.1, 0.1, '#Delta E sigmaUp'),
     Plot1D('dEsigmaDown', 'dEsigmaDown', 100, -0.1, 0.1, '#Delta E sigmaDown'),
-    Plot1D('eCorr', 'eCorr', 20, 0.8, 1.2, 'ratio of the calibrated energy/miniaod energy'),
+    Plot1D('ptPreCorr', 'ptPreCorr', 100, 0., 500., 'Pt before scale & smearing energy corrections'),
 ])
 run2_egamma.toModify(
      nanoDQM.vplots.Electron,
@@ -146,7 +146,7 @@ _Photon_Run2_plots.extend([
     Plot1D('dEscaleDown', 'dEscaleDown', 100, -0.01, 0.01, '#Delta E scaleDown'),
     Plot1D('dEsigmaUp', 'dEsigmaUp', 100, -0.1, 0.1, '#Delta E sigmaUp'),
     Plot1D('dEsigmaDown', 'dEsigmaDown', 100, -0.1, 0.1, '#Delta E sigmaDown'),
-    Plot1D('eCorr', 'eCorr', 20, 0.8, 1.2, 'ratio of the calibrated energy/miniaod energy'),
+    Plot1D('ptPreCorr', 'ptPreCorr', 100, 0., 500., 'Pt before scale & smearing energy corrections'),
 ])
 run2_egamma.toModify(
      nanoDQM.vplots.Photon,
@@ -188,20 +188,6 @@ _FatJet_Run2_plots.extend([
     Plot1D('particleNetLegacy_QCD', 'particleNetLegacy_QCD', 20, 0, 1, 'ParticleNet Legacy Run-2 QCD score'),
 ])
 
-_FatJet_EarlyRun3_plots = cms.VPSet()
-for plot in _FatJet_Run2_plots:
-    if 'particleNet_' not in plot.name.value() and 'btagCSVV2' not in plot.name.value() \
-    and 'Multiplicity' not in plot.name.value() and 'EF' not in plot.name.value():
-        _FatJet_EarlyRun3_plots.append(plot)
-_FatJet_EarlyRun3_plots.extend([
-    Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
-    Plot1D('btagHbb', 'btagHbb', 20, -1, 1, 'Higgs to BB tagger discriminator'),
-    Plot1D('btagCMVA', 'btagCMVA', 20, -1, 1, 'CMVA V2 btag discriminator'),
-    Plot1D('btagDDBvLV2', 'btagDDBvLV2', 20, 0, 1, 'DeepDoubleX V2(mass-decorrelated) discriminator for H(Z)->bb vs QCD'),
-    Plot1D('btagDDCvBV2', 'btagDDCvBV2', 20, 0, 1, 'DeepDoubleX V2 (mass-decorrelated) discriminator for H(Z)->cc vs H(Z)->bb'),
-    Plot1D('btagDDCvLV2', 'btagDDCvLV2', 20, 0, 1, 'DeepDoubleX V2 (mass-decorrelated) discriminator for H(Z)->cc vs QCD'),
-])
-
 _Jet_Run2_plots = cms.VPSet()
 for plot in nanoDQM.vplots.Jet.plots:
     _Jet_Run2_plots.append(plot)
@@ -215,13 +201,10 @@ _Jet_Run2_plots.extend([
     Plot1D('btagDeepCvB', 'btagDeepCvB', 20, -1, 1, 'DeepCSV c vs b+bb discriminator'),
     Plot1D('btagDeepCvL', 'btagDeepCvL', 20, -1, 1, 'DeepCSV c vs udsg discriminator')
 ])
-
-_Jet_EarlyRun3_plots = cms.VPSet()
+_Jet_pre142X_plots = cms.VPSet()
 for plot in nanoDQM.vplots.Jet.plots:
-    if 'PNet' not in plot.name.value() and 'Multiplicity' not in plot.name.value() \
-    and 'hfHEF' not in plot.name.value() and 'hfEmEF' not in plot.name.value():
-        _Jet_EarlyRun3_plots.append(plot)
-
+    if 'puIdDisc' not in plot.name.value():
+        _Jet_pre142X_plots.append(plot)
 
 _SubJet_Run2_plots = cms.VPSet()
 for plot in nanoDQM.vplots.SubJet.plots:
@@ -229,10 +212,14 @@ for plot in nanoDQM.vplots.SubJet.plots:
 _SubJet_Run2_plots.extend([
     Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
 ])
-_SubJet_EarlyRun3_plots = cms.VPSet()
+
+_SubJet_pre142X_plots = cms.VPSet()
 for plot in nanoDQM.vplots.SubJet.plots:
-    if 'area' not in plot.name.value():
-        _SubJet_EarlyRun3_plots.append(plot)
+    if 'btagDeepFlavB' not in plot.name.value() and 'btagUParTAK4B' not in plot.name.value():
+        _SubJet_pre142X_plots.append(plot)
+_SubJet_pre142X_plots.extend([
+    Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
+])
 
 run2_nanoAOD_ANY.toModify(
     nanoDQM.vplots.FatJet,
@@ -244,25 +231,20 @@ run2_nanoAOD_ANY.toModify(
     nanoDQM.vplots.SubJet,
     plots = _SubJet_Run2_plots
 )
-
-(run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    nanoDQM.vplots.FatJet,
-    plots = _FatJet_EarlyRun3_plots
-).toModify(
+run3_nanoAOD_pre142X.toModify(
     nanoDQM.vplots.Jet,
-    plots = _Jet_EarlyRun3_plots
+    plots = _Jet_pre142X_plots
 ).toModify(
     nanoDQM.vplots.SubJet,
-    plots = _SubJet_EarlyRun3_plots
+    plots = _SubJet_pre142X_plots
 )
-
 
 _Pileup_pre13X_plots = cms.VPSet()
 for plot in nanoDQM.vplots.Pileup.plots:
     if 'pthatmax' not in plot.name.value():
         _Pileup_pre13X_plots.append(plot)
 
-(run2_nanoAOD_ANY | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+(run2_nanoAOD_ANY).toModify(
     nanoDQM.vplots.Pileup,
     plots = _Pileup_pre13X_plots
 )

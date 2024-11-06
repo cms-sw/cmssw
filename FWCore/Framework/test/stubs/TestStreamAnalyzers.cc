@@ -13,6 +13,7 @@ for testing purposes only.
 #include <tuple>
 #include <unistd.h>
 #include <vector>
+#include <chrono>
 
 #include "FWCore/Framework/interface/CacheHandle.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
@@ -570,7 +571,7 @@ namespace edmtest {
         }
         // Force events to be processed concurrently
         if (sleepTime_ > 0) {
-          usleep(sleepTime_);
+          std::this_thread::sleep_for(std::chrono::microseconds(sleepTime_));
         }
       }
 
@@ -721,7 +722,7 @@ namespace edmtest {
 
         // Force events to be processed concurrently
         if (testGlobalCache->sleepTime_ > 0) {
-          usleep(testGlobalCache->sleepTime_);
+          std::this_thread::sleep_for(std::chrono::microseconds(testGlobalCache->sleepTime_));
         }
       }
 

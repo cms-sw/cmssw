@@ -33,7 +33,7 @@ public:
     produces<nanoaod::FlatTable>();
   }
 
-  ~GenJetFlavourTableProducer() override{};
+  ~GenJetFlavourTableProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;

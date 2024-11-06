@@ -120,7 +120,7 @@ namespace cms {
                                     ContextState& state)
           : ScopedContextGetterBase(data), holderHelper_{std::move(waitingTaskHolder)}, contextState_{&state} {}
 
-      ~ScopedContextAcquire();
+      ~ScopedContextAcquire() noexcept(false);
 
       template <typename F>
       void pushNextTask(F&& f) {
@@ -237,7 +237,7 @@ namespace cms {
                                                })});
       }
     }  // namespace impl
-  }    // namespace cuda
+  }  // namespace cuda
 }  // namespace cms
 
 #endif

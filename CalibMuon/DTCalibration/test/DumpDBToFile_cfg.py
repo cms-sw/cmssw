@@ -34,12 +34,17 @@ options.register('inputtag',
                  VarParsing.VarParsing.varType.string,
                  "Read payload from tag in frontier instead than GT")
 
+options.register('label',
+                 '', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Label of the payload to read (e.g.: 'cosmics', 'ph2',  ...)")
+
 options.register('run',
                  999999, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Run number (determines IOV to be read)")
-
 
 options.parseArguments()
 
@@ -48,6 +53,7 @@ TYPE      = options.type
 INPUTFILE = options.inputfile
 INPUTTAG  = options.inputtag
 GLOBALTAG = options.GT
+LABEL     = options.label
 RUN       = options.run
 
 
@@ -167,7 +173,7 @@ print('Writing to file: ', OUTPUTFILE, '\n')
 
 process.dumpT0ToFile = cms.EDAnalyzer("DumpDBToFile",
     dbToDump = cms.untracked.string('TZeroDB'),
-    dbLabel = cms.untracked.string(''),
+    dbLabel = cms.untracked.string(LABEL),
     calibFileConfig = cms.untracked.PSet(
         nFields = cms.untracked.int32(8),
         calibConstGranularity = cms.untracked.string('byWire')
@@ -177,7 +183,7 @@ process.dumpT0ToFile = cms.EDAnalyzer("DumpDBToFile",
 
 process.dumpTTrigToFile = cms.EDAnalyzer("DumpDBToFile",
     dbToDump = cms.untracked.string('TTrigDB'),
-    dbLabel = cms.untracked.string(''),
+    dbLabel = cms.untracked.string(LABEL),
     dbFormat = cms.untracked.string(DBFORMAT),
     calibFileConfig = cms.untracked.PSet(
         nFields = cms.untracked.int32(8),
@@ -189,7 +195,7 @@ process.dumpTTrigToFile = cms.EDAnalyzer("DumpDBToFile",
 
 process.dumpVdToFile = cms.EDAnalyzer("DumpDBToFile",
     dbToDump = cms.untracked.string('VDriftDB'),
-    dbLabel = cms.untracked.string(''),
+    dbLabel = cms.untracked.string(LABEL),
     dbFormat = cms.untracked.string(DBFORMAT),
     calibFileConfig = cms.untracked.PSet(
         nFields = cms.untracked.int32(8),
@@ -201,7 +207,7 @@ process.dumpVdToFile = cms.EDAnalyzer("DumpDBToFile",
 
 process.dumpUncertToFile = cms.EDAnalyzer("DumpDBToFile",
     dbToDump = cms.untracked.string('RecoUncertDB'),
-    dbLabel = cms.untracked.string(''),
+    dbLabel = cms.untracked.string(LABEL),
     dbFormat = cms.untracked.string(DBFORMAT),
     calibFileConfig = cms.untracked.PSet(
         nFields = cms.untracked.int32(8),
@@ -212,7 +218,7 @@ process.dumpUncertToFile = cms.EDAnalyzer("DumpDBToFile",
 
 process.dumpNoiseToFile = cms.EDAnalyzer("DumpDBToFile",
     dbToDump = cms.untracked.string('NoiseDB'),
-    dbLabel = cms.untracked.string(''),
+    dbLabel = cms.untracked.string(LABEL),
     dbFormat = cms.untracked.string(DBFORMAT),
     calibFileConfig = cms.untracked.PSet(
         nFields = cms.untracked.int32(8),
@@ -223,7 +229,7 @@ process.dumpNoiseToFile = cms.EDAnalyzer("DumpDBToFile",
 
 process.dumpDeadToFile = cms.EDAnalyzer("DumpDBToFile",
     dbToDump = cms.untracked.string('DeadDB'),
-    dbLabel = cms.untracked.string(''),
+    dbLabel = cms.untracked.string(LABEL),
     dbFormat = cms.untracked.string(DBFORMAT),
     calibFileConfig = cms.untracked.PSet(
         nFields = cms.untracked.int32(8),
@@ -234,7 +240,7 @@ process.dumpDeadToFile = cms.EDAnalyzer("DumpDBToFile",
 
 process.dumpChannelsToFile = cms.EDAnalyzer("DumpDBToFile",
     dbToDump = cms.untracked.string('ChannelsDB'),
-    dbLabel = cms.untracked.string(''),
+    dbLabel = cms.untracked.string(LABEL),
     dbFormat = cms.untracked.string(DBFORMAT),
     calibFileConfig = cms.untracked.PSet(
         nFields = cms.untracked.int32(8),

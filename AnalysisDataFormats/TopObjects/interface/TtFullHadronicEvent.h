@@ -25,9 +25,9 @@ namespace TtFullHadDaughter {
 class TtFullHadronicEvent : public TtEvent {
 public:
   /// empty constructor
-  TtFullHadronicEvent(){};
+  TtFullHadronicEvent() {}
   /// default destructor
-  ~TtFullHadronicEvent() override{};
+  ~TtFullHadronicEvent() override {}
 
   /// get top of the given hypothesis
   const reco::Candidate* top(const std::string& key, const unsigned& cmb = 0) const {

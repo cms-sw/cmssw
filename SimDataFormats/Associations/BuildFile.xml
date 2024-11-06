@@ -1,10 +1,13 @@
 <use name="DataFormats/CaloRecHit"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/HGCalReco"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/L1TrackTrigger"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/MuonReco"/>
+<use name="DataFormats/Phase2TrackerDigi"/>
 <use name="DataFormats/TrackCandidate"/>
 <use name="DataFormats/TrackingRecHit"/>
 <use name="DataFormats/TrajectorySeed"/>
@@ -12,6 +15,7 @@
 <use name="SimDataFormats/CaloAnalysis"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
+<use name="SimDataFormats/TrackingHit"/>
 <use name="SimDataFormats/Vertex"/>
 <use name="DataFormats/ParticleFlowReco"/>
 <use name="clhep"/>

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 import argparse
+from IOPool.Input.fixReading_12_4_X_Files import fixReading_12_4_X_Files
 
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test Run 3 Scouting data formats')
 
@@ -9,9 +10,14 @@ parser.add_argument("--photonVersion", type=int, help="photon data format versio
 parser.add_argument("--vertexVersion", type=int, help="photon data format version (default: 4)", default=4)
 parser.add_argument("--inputFile", type=str, help="Input file name (default: testRun3Scouting.root)", default="testRun3Scouting.root")
 parser.add_argument("--outputFileName", type=str, help="Output file name (default: testRun3Scouting2.root)", default="testRun3Scouting2.root")
+parser.add_argument("-f", "--fixStreamerInfo", action="store_true")
 args = parser.parse_args()
 
 process = cms.Process("READ")
+
+if args.fixStreamerInfo:
+    process = fixReading_12_4_X_Files(process)
+    print("FixingStreamerInfos")
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+args.inputFile))
 
@@ -108,7 +114,8 @@ process.testReadRun3Scouting = cms.EDAnalyzer("TestReadRun3Scouting",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string(args.outputFileName)
+    fileName = cms.untracked.string(args.outputFileName),
+    fastCloning = cms.untracked.bool(False)
 )
 
 process.path = cms.Path(process.testReadRun3Scouting)

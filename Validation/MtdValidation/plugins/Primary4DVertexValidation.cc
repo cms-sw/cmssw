@@ -293,7 +293,6 @@ private:
   const double minProbHeavy_;
   const double trackweightTh_;
   const double mvaTh_;
-  const std::vector<double> lineDensityPar_;
   const reco::RecoToSimCollection* r2s_;
   const reco::SimToRecoCollection* s2r_;
 
@@ -371,7 +370,17 @@ private:
   MonitorElement* meRecVerNumber_;
   MonitorElement* meRecPVZ_;
   MonitorElement* meRecPVT_;
+  MonitorElement* meSimVerNumber_;
   MonitorElement* meSimPVZ_;
+  MonitorElement* meSimPVT_;
+  MonitorElement* meSimPVTvsZ_;
+
+  MonitorElement* meVtxTrackMult_;
+  MonitorElement* meVtxTrackW_;
+  MonitorElement* meVtxTrackWnt_;
+  MonitorElement* meVtxTrackRecLVMult_;
+  MonitorElement* meVtxTrackRecLVW_;
+  MonitorElement* meVtxTrackRecLVWnt_;
 
   MonitorElement* mePUTrackMult_;
   MonitorElement* mePUTrackRelMult_;
@@ -521,7 +530,6 @@ Primary4DVertexValidation::Primary4DVertexValidation(const edm::ParameterSet& iC
       minProbHeavy_(iConfig.getParameter<double>("minProbHeavy")),
       trackweightTh_(iConfig.getParameter<double>("trackweightTh")),
       mvaTh_(iConfig.getParameter<double>("mvaTh")),
-      lineDensityPar_(iConfig.getParameter<std::vector<double>>("lineDensityPar")),
       pdtToken_(esConsumes<HepPDT::ParticleDataTable, edm::DefaultRecord>()) {
   vecPileupSummaryInfoToken_ = consumes<std::vector<PileupSummaryInfo>>(edm::InputTag(std::string("addPileupInfo")));
   trackingParticleCollectionToken_ =
@@ -652,10 +660,10 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                    50,
                    -0.5,
                    0.5);
-  meTimeRes_ = ibook.book1D("TimeRes", "t_{rec} - t_{sim} ;t_{rec} - t_{sim} [ns] ", 40, -0.2, 0.2);
+  meTimeRes_ = ibook.book1D("TimeRes", "t_{rec} - t_{sim} ;t_{rec} - t_{sim} [ns] ", 100, -0.2, 0.2);
   meTimePull_ = ibook.book1D("TimePull", "Pull; t_{rec} - t_{sim}/#sigma_{t rec}", 100, -10., 10.);
   meTimeSignalRes_ =
-      ibook.book1D("TimeSignalRes", "t_{rec} - t_{sim} for signal ;t_{rec} - t_{sim} [ns] ", 40, -0.2, 0.2);
+      ibook.book1D("TimeSignalRes", "t_{rec} - t_{sim} for signal ;t_{rec} - t_{sim} [ns] ", 50, -0.1, 0.1);
   meTimeSignalPull_ =
       ibook.book1D("TimeSignalPull", "Pull for signal; t_{rec} - t_{sim}/#sigma_{t rec}", 100, -10., 10.);
   mePUvsRealV_ =
@@ -689,12 +697,21 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                    20,
                    0,
                    20);
-  meRecoVtxVsLineDensity_ =
-      ibook.book1D("RecoVtxVsLineDensity", "#Reco vertices/mm/event; line density [#vtx/mm/event]", 160, 0., 4.);
   meRecVerNumber_ = ibook.book1D("RecVerNumber", "RECO Vertex Number: Number of vertices", 50, 0, 250);
-  meRecPVZ_ = ibook.book1D("recPVZ", "Weighted #Rec vertices/mm", 400, -20., 20.);
-  meRecPVT_ = ibook.book1D("recPVT", "#Rec vertices/10 ps", 200, -1., 1.);
-  meSimPVZ_ = ibook.book1D("simPVZ", "Weighted #Sim vertices/mm", 400, -20., 20.);
+  meSimVerNumber_ = ibook.book1D("SimVerNumber", "SIM Vertex Number: Number of vertices", 50, 0, 250);
+  meRecPVZ_ = ibook.book1D("recPVZ", "#Rec vertices/10 mm", 30, -15., 15.);
+  meRecPVT_ = ibook.book1D("recPVT", "#Rec vertices/50 ps", 30, -0.75, 0.75);
+  meSimPVZ_ = ibook.book1D("simPVZ", "#Sim vertices/10 mm", 30, -15., 15.);
+  meSimPVT_ = ibook.book1D("simPVT", "#Sim vertices/50 ps", 30, -0.75, 0.75);
+  meSimPVTvsZ_ = ibook.bookProfile("simPVTvsZ", "PV Time vs Z", 30, -15., 15., 30, -0.75, 0.75);
+
+  meVtxTrackMult_ = ibook.book1D("VtxTrackMult", "Log10(Vertex track multiplicity)", 80, 0.5, 2.5);
+  meVtxTrackW_ = ibook.book1D("VtxTrackW", "Vertex track weight (all)", 50, 0., 1.);
+  meVtxTrackWnt_ = ibook.book1D("VtxTrackWnt", "Vertex track Wnt", 50, 0., 1.);
+  meVtxTrackRecLVMult_ =
+      ibook.book1D("VtxTrackRecLVMult", "Log10(Vertex track multiplicity) for matched LV", 80, 0.5, 2.5);
+  meVtxTrackRecLVW_ = ibook.book1D("VtxTrackRecLVW", "Vertex track weight for matched LV (all)", 50, 0., 1.);
+  meVtxTrackRecLVWnt_ = ibook.book1D("VtxTrackRecLVWnt", "Vertex track Wnt for matched LV", 50, 0., 1.);
 
   mePUTrackRelMult_ = ibook.book1D(
       "PUTrackRelMult", "Relative multiplicity of PU tracks for matched vertices; #PUTrks/#Trks", 50, 0., 1.);
@@ -1707,7 +1724,7 @@ std::vector<Primary4DVertexValidation::recoPrimaryVertex> Primary4DVertexValidat
       }
 
     }  // End of for loop on daughters reconstructed tracks
-  }    // End of for loop on tracking vertices
+  }  // End of for loop on tracking vertices
 
   // In case of no reco vertices, break here
   if (recopv.empty())
@@ -1859,7 +1876,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
         simpv.at(iev).matchQuality = rank;
       }
     }  // iev
-  }    // rank
+  }  // rank
 
   // Reco vertices that are not necessarily dominated by a sim vertex, or whose dominating sim-vertex
   // has been matched already to another overlapping reco vertex, can still be associated to a specific
@@ -2087,6 +2104,14 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             continue;
           }
 
+          // monitor all track weights associated to a vertex before selection on it
+          if (selectedVtxMatching) {
+            meVtxTrackW_->Fill(vertex->trackWeight(*iTrack));
+            if (selectedLV) {
+              meVtxTrackRecLVW_->Fill(vertex->trackWeight(*iTrack));
+            }
+          }
+
           if (vertex->trackWeight(*iTrack) < trackweightTh_)
             continue;
           bool noCrack = std::abs((*iTrack)->eta()) < trackMaxBtlEta_ || std::abs((*iTrack)->eta()) > trackMinEtlEta_;
@@ -2122,6 +2147,10 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             massVector.push_back(mass);
             recotracks.push_back(**iTrack);
             getWosWnt(*vertex, *iTrack, sigmat0Safe, mtdQualMVA, BeamSpotH, wos, wnt);
+            meVtxTrackWnt_->Fill(wnt);
+            if (selectedLV) {
+              meVtxTrackRecLVWnt_->Fill(wnt);
+            }
             // reco track matched to any TP
             if (tp_info != nullptr) {
 #ifdef EDM_ML_DEBUG
@@ -2421,8 +2450,9 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
               }
             }
           }  // if tp_info != nullptr && MatchCategory == 0
-        }    // loop on reco tracks
+        }  // loop on reco tracks
         if (selectedVtxMatching) {
+          meVtxTrackMult_->Fill(log10(nt));
           mePUTrackRelMult_->Fill(static_cast<double>(PUnt) / nt);
           meFakeTrackRelMult_->Fill(static_cast<double>(Fakent) / nt);
           mePUTrackRelSumWnt_->Fill(PUsumWnt / sumWnt);
@@ -2494,6 +2524,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                                            (sumPzJets - sumPzJetsnoPU) / sumPzJets);
           }
           if (selectedLV) {
+            meVtxTrackRecLVMult_->Fill(log10(nt));
             mePUTrackRecLVRelMult_->Fill(static_cast<double>(PUnt) / nt);
             meFakeTrackRecLVRelMult_->Fill(static_cast<double>(Fakent) / nt);
             mePUTrackRecLVRelSumWnt_->Fill(PUsumWnt / sumWnt);
@@ -2562,31 +2593,22 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
           }
         }
       }  // loop on simpv
-    }    // ndof
-  }      // loop on recopv
+    }  // ndof
+  }  // loop on recopv
 
   int real = 0;
   int fake = 0;
   int other_fake = 0;
   int split = 0;
 
-  auto puLineDensity = [&](double z) {
-    // gaussian parameterization of line density vs z, z in cm, parameters in mm
-    double argl = (z * 10. - lineDensityPar_[1]) / lineDensityPar_[2];
-    return lineDensityPar_[0] * exp(-0.5 * argl * argl);
-  };
-
   meRecVerNumber_->Fill(recopv.size());
   for (unsigned int ir = 0; ir < recopv.size(); ir++) {
     if (recopv.at(ir).ndof > selNdof_) {
-      meRecoVtxVsLineDensity_->Fill(puLineDensity(recopv.at(ir).z));
-      meRecPVZ_->Fill(recopv.at(ir).z, 1. / puLineDensity(recopv.at(ir).z));
+      meRecPVZ_->Fill(recopv.at(ir).z);
       if (recopv.at(ir).recVtx->tError() > 0.) {
         meRecPVT_->Fill(recopv.at(ir).recVtx->t());
       }
       LogTrace("Primary4DVertexValidation") << "************* IR: " << ir;
-      LogTrace("Primary4DVertexValidation")
-          << "z: " << recopv.at(ir).z << " corresponding to line density: " << puLineDensity(recopv.at(ir).z);
       LogTrace("Primary4DVertexValidation") << "is_real: " << recopv.at(ir).is_real();
       LogTrace("Primary4DVertexValidation") << "is_fake: " << recopv.at(ir).is_fake();
       LogTrace("Primary4DVertexValidation") << "is_signal: " << recopv.at(ir).is_signal();
@@ -2617,12 +2639,11 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
   mePUvsSplitV_->Fill(simpv.size(), split);
 
   // fill vertices histograms here in a new loop
+  meSimVerNumber_->Fill(simpv.size());
   for (unsigned int is = 0; is < simpv.size(); is++) {
-    // protect against particle guns with very displaced vertices
-    if (edm::isNotFinite(1. / puLineDensity(simpv.at(is).z))) {
-      continue;
-    }
-    meSimPVZ_->Fill(simpv.at(is).z, 1. / puLineDensity(simpv.at(is).z));
+    meSimPVZ_->Fill(simpv.at(is).z);
+    meSimPVT_->Fill(simpv.at(is).t * simUnit_);
+    meSimPVTvsZ_->Fill(simpv.at(is).z, simpv.at(is).t * simUnit_);
     if (is == 0 && optionalPlots_) {
       meSimPosInSimOrigCollection_->Fill(simpv.at(is).OriginalIndex);
     }
@@ -2759,14 +2780,6 @@ void Primary4DVertexValidation::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<double>("trackweightTh", 0.5);
   desc.add<double>("mvaTh", 0.8);
   desc.add<double>("minProbHeavy", 0.75);
-
-  //lineDensity parameters have been obtained by fitting the distribution of the z position of the vertices,
-  //using a 200k single mu ptGun sample (gaussian fit)
-  std::vector<double> lDP;
-  lDP.push_back(1.87);
-  lDP.push_back(0.);
-  lDP.push_back(42.5);
-  desc.add<std::vector<double>>("lineDensityPar", lDP);
   descriptions.add("vertices4DValid", desc);
 }
 

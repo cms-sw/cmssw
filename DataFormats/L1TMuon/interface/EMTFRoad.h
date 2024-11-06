@@ -19,9 +19,9 @@ namespace l1t {
           straightness(-99),
           layer_code(-99),
           quality_code(-99),
-          winner(-99){};
+          winner(-99) {}
 
-    virtual ~EMTFRoad(){};
+    virtual ~EMTFRoad() {}
 
     void set_endcap(int bits) { endcap = bits; }
     void set_sector(int bits) { sector = bits; }

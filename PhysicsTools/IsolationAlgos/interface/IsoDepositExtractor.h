@@ -24,7 +24,7 @@ namespace reco {
     class IsoDepositExtractor {
     public:
       //! Destructor
-      virtual ~IsoDepositExtractor(){};
+      virtual ~IsoDepositExtractor() {}
 
       //! fill vetoes: to exclude deposits at IsoDeposit creation stage
       //! check concrete extractors if it's no-op !

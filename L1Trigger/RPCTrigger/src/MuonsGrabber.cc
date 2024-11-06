@@ -220,8 +220,8 @@ void MuonsGrabber::writeDataForRelativeBX(int bx) {
         }  // muons iter
         // } // segment
       }  // PAC
-    }    // TB
-  }      // TC
+    }  // TB
+  }  // TC
 
   for (int level = 3; level <= 4; ++level) {
     for (int half = 0; half <= 1; ++half) {
@@ -265,9 +265,9 @@ void MuonsGrabber::writeDataForRelativeBX(int bx) {
           it = m_muons.erase(it);
 
         }  // muons iter
-      }    // be iter
-    }      //half iteration
-  }        // lvl iteration
+      }  // be iter
+    }  //half iteration
+  }  // lvl iteration
 
   if (!m_muons.empty()) {
     throw cms::Exception("RPCMuonsGrabber") << " There are still some muons in muons vec" << std::endl;

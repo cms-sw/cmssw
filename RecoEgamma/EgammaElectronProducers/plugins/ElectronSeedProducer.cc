@@ -250,6 +250,7 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   psd4.add<edm::InputTag>("HGCEEInput", {"HGCalRecHit", "HGCEERecHits"});
   psd4.add<edm::InputTag>("HGCFHInput", {"HGCalRecHit", "HGCHEFRecHits"});
   psd4.add<edm::InputTag>("HGCBHInput", {"HGCalRecHit", "HGCHEBRecHits"});
+  psd4.add<edm::InputTag>("hgcalHitMap", {"recHitMapProducer", "hgcalRecHitMap"});
   desc.add<edm::ParameterSetDescription>("HGCalConfig", psd4);
 
   // r/z windows

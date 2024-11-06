@@ -134,7 +134,7 @@ if __name__ == '__main__':
             mean_pileup = bunch_del_lumi * parameters.orbitLength / parameters.lumiSectionLength
             if mean_pileup > 100:
                 print("mean number of pileup events > 100 for run %d, lum %d : m %f l %f" % \
-                      (runNumber, lumi_section, mean_pileup, bunch_del_lumi))
+                      (run, lumi_section, mean_pileup, bunch_del_lumi))
                 #print "mean number of pileup events for lum %d: m %f idx %d l %f" % (lumi_section, mean_pileup, bxid, bunch_rec_lumi)
 
             total_int2 += bunch_rec_lumi*(mean_pileup-mean_int)*(mean_pileup-mean_int)

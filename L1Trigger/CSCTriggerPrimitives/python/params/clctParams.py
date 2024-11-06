@@ -44,13 +44,11 @@ clctPhase2 = clctPhase1.clone(
     useDeadTimeZoning = True,
 
     # Width (in #HS) of a fixed dead zone around a key HS:
-    clctStateMachineZone = cms.uint32(4),
+    clctStateMachineZone = cms.uint32(5),
 
     # Pretrigger HS +- clctPretriggerTriggerZone sets the trigger matching zone
     # which defines how far from pretrigger HS the TMB may look for a trigger HS
-    # (it becomes important to do so with localized dead-time zoning):
-    # not implemented yet, 2018-10-18, Tao Huang
-    clctPretriggerTriggerZone = cms.uint32(224),
+    clctPretriggerTriggerZone = cms.uint32(5),
 )
 
 # CLCT threshold still set to 4 for now

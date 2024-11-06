@@ -89,6 +89,6 @@ namespace cond {
       bool m_debug;
 
     };  //OnlineDBOutputService
-  }     // namespace service
+  }  // namespace service
 }  // namespace cond
 #endif

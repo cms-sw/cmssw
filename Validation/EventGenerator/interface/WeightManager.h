@@ -21,7 +21,7 @@ namespace edm {
 class WeightManager {
 public:
   WeightManager(const edm::ParameterSet&, edm::ConsumesCollector iC);
-  ~WeightManager(){};
+  ~WeightManager() {}
 
   double weight(const edm::Event&);
   std::vector<std::vector<double>> weightsCollection(const edm::Event&);

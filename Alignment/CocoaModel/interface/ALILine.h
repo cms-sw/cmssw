@@ -15,8 +15,8 @@ class ALIPlane;
 
 class ALILine {
 public:
-  ALILine(){};
-  ~ALILine(){};
+  ALILine() {}
+  ~ALILine() {}
   ALILine(const CLHEP::Hep3Vector& point, const CLHEP::Hep3Vector& direction);
   // Next 1 line was added with 22 Mar 2001
   //  CLHEP::Hep3Vector ALILine( const ALILine& l2, bool notParallel = 0);

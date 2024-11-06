@@ -37,7 +37,7 @@ autoNANO = {
     'JME': {'sequence': '@PHYS',
             'customize': '@PHYS+PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD'},
     'JMErePuppi': {'sequence': '@PHYS',
-                   'customize': '@PHYS+@JME+PhysicsTools/NanoAOD/custom_jme_cff.RecomputePuppiWeightsAndMET'},
+                   'customize': '@PHYS+@JME+PhysicsTools/NanoAOD/custom_jme_cff.RecomputePuppiWeightsMETAK8'},
     # L1 DPG (standalone with full calo TP info, L1T reemulation customization)
     'L1DPG' : {'sequence': 'DPGAnalysis/L1TNanoAOD/l1tNano_cff.l1tNanoSequence',
                'customize': ','.join(['PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomizeFull',
@@ -54,7 +54,7 @@ autoNANO = {
     # HCAL flavors:
     'HCAL': {'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask'},
     'HCALCalib': {'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask',
-                  'customize': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.customiseHcalCalib'},
+                  'customize': 'DPGAnalysis/HcalNanoAOD/customiseHcalCalib_cff.customiseHcalCalib'},
     # EGM flavours: add variables through customize
     'EGM': {'sequence': '@PHYS',
             'customize': '@PHYS+PhysicsTools/NanoAOD/egamma_custom_cff.addExtraEGammaVarsCustomize'},

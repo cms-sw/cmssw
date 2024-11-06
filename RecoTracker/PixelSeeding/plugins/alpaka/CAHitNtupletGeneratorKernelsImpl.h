@@ -21,6 +21,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/AtomicPairCounter.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 // local includes
 #include "CACell.h"
@@ -377,7 +378,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
             oc.setStatusBits(Cell::StatusBit::kUsed);
           }
         }  // loop on inner cells
-      }    // loop on outer cells
+      }  // loop on outer cells
     }
   };
   template <typename TrackerTraits>
@@ -522,7 +523,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         // if the fit has any invalid parameters, mark it as bad
         bool isNaN = false;
         for (int i = 0; i < 5; ++i) {
-          isNaN |= std::isnan(tracks_view[it].state()(i));
+          isNaN |= edm::isNotFinite(tracks_view[it].state()(i));
         }
         if (isNaN) {
 #ifdef NTUPLE_DEBUG

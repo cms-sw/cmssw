@@ -28,6 +28,7 @@
 #include <netdb.h>
 
 #include <cstring>
+#include <cassert>
 
 namespace HCAL_HLX {
 
@@ -121,7 +122,7 @@ namespace HCAL_HLX {
         memset(BigBuffer, 0, bytesToReceive);
 
         usleep(10000);
-
+        assert(tcpSocket >= 0);
         while ((totalBytesRcvd < bytesToReceive) && (errorCode == 0)) {
           SetupFDSets(fdsRead, fdsWrite, fdsExcept, -1, tcpSocket);
 

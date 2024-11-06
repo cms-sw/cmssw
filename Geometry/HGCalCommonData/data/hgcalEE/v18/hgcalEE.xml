@@ -13,6 +13,7 @@
     <Numeric name="FirstLayer"       value="1"/>
     <Numeric name="AbsorberMode"     value="0"/>
     <Numeric name="SensitiveMode"    value="0"/>
+    <Numeric name="PassiveMode"      value="0"/>
     <Numeric name="zMinBlock"        value="[hgcal:zHGCalEE1]"/>
     <Numeric name="waferSize"        value="[hgcal:WaferSize]"/>
     <Numeric name="SensorSeparation" value="[hgcal:SensorSeparation]"/>

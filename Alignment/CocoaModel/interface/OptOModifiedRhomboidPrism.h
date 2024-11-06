@@ -18,10 +18,10 @@ class LightRay;
 class OptOModifiedRhomboidPrism : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOModifiedRhomboidPrism(){};
+  OptOModifiedRhomboidPrism() {}
   OptOModifiedRhomboidPrism(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data){};
-  ~OptOModifiedRhomboidPrism() override{};
+      : OpticalObject(parent, type, name, copy_data) {}
+  ~OptOModifiedRhomboidPrism() override {}
 
   //---------- Fast simulation of deviation of the light ray (reflection, shift, ...)
   void fastDeviatesLightRay(LightRay& lightray) override;

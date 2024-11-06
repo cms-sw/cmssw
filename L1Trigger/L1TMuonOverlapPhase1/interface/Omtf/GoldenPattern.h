@@ -35,7 +35,7 @@ public:
     reset();
   }
 
-  ~GoldenPattern() override{};
+  ~GoldenPattern() override {}
 
   virtual void setMeanDistPhi(const meanDistPhiArrayType& aMeanDistPhi) { meanDistPhi = aMeanDistPhi; }
 
@@ -120,7 +120,7 @@ public:
   GoldenPatternWithThresh(const Key& aKey, const OMTFConfiguration* omtfConfig)
       : GoldenPattern(aKey, omtfConfig), thresholds(myOmtfConfig->nRefLayers(), 0) {}
 
-  ~GoldenPatternWithThresh() override{};
+  ~GoldenPatternWithThresh() override {}
 
   PdfValueType getThreshold(unsigned int iRefLayer) const { return thresholds.at(iRefLayer); }
 

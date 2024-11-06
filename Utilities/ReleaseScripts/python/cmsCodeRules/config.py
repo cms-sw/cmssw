@@ -35,7 +35,7 @@ Configuration[ruleName]['description'] = 'Search for "using namespace" or "using
 Configuration[ruleName]['filesToMatch'] = ['*.h']
 Configuration[ruleName]['exceptPaths'] = ['HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h']
 Configuration[ruleName]['skip']  = [comment, function]
-Configuration[ruleName]['filter'] = '(\susing|\Ausing)\s+(namespace|std::)' #should be regular expression
+Configuration[ruleName]['filter'] = '(\\susing|\\Ausing)\\s+(namespace|std::)' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
 
 # --------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ Configuration[ruleName]['description'] = 'Search for CXXFLAGS flags that are set
 Configuration[ruleName]['filesToMatch'] = ['BuildFile', 'BuildFile.xml']
 Configuration[ruleName]['exceptPaths'] = []
 Configuration[ruleName]['skip']  = [comment]
-Configuration[ruleName]['filter'] = '\s(CXXFLAGS|CPPFLAGS)(\+|=|\w|\"|\'|-|\s)*(-g|-O0)(\s|\'|\")' #should be regular expression
+Configuration[ruleName]['filter'] = '\\s(CXXFLAGS|CPPFLAGS)(\\+|=|\\w|\"|\'|-|\\s)*(-g|-O0)(\\s|\'|\")' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
 
 # --------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ Configuration[ruleName]['description'] = 'Search for "catch(...)" statements in 
 Configuration[ruleName]['filesToMatch'] = ['*.cc', '*.cxx']
 Configuration[ruleName]['exceptPaths'] = ['FWCore/*', 'EventFilter/*', '*/*/test/*', '*/*/bin/*']
 Configuration[ruleName]['skip']  = [comment]
-Configuration[ruleName]['filter'] = 'catch\s*\(\s*\.\.\.\s*\)' #should be regular expression
+Configuration[ruleName]['filter'] = 'catch\\s*\\(\\s*\\.\\.\\.\\s*\\)' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
 # --------------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ Configuration[ruleName]['exceptPaths'] = [
                                            'PhysicsTools/JetMCUtils/interface/combination.h',
                                          ] #could be file name, dir, fileName:line. But path should be only from that directory in which we are searching
 Configuration[ruleName]['skip']  = []
-Configuration[ruleName]['filter'] = '(\A|\W)(c|C)(o|O)(p|P)(y|Y)(r|R)(i|I)(g|G)(h|H)(t|T)\W(\+|=|\w|\"|\'|-|\s)*(\((c|C)\)|\d{4})' #should be regular expression
+Configuration[ruleName]['filter'] = '(\\A|\\W)(c|C)(o|O)(p|P)(y|Y)(r|R)(i|I)(g|G)(h|H)(t|T)\\W(\\+|=|\\w|\"|\'|-|\\s)*(\\((c|C)\\)|\\d{4})' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
 
 # --------------------------------------------------------------------------------
@@ -107,9 +107,9 @@ Configuration[ruleName]['description'] = 'Search for "pragma" statement in *.c, 
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
 Configuration[ruleName]['exceptPaths'] = ['*/*LinkDef.h',
                                           'FWCore/Utilities/interface/tinyxml.h',
-                                          'Utilities/StorageFactory/src/LocalFileSystem.cc:.*:#\s*pragma\s+GCC\s+diagnostic\s+ignored',
+                                          'Utilities/StorageFactory/src/LocalFileSystem.cc:.*:#\\s*pragma\\s+GCC\\s+diagnostic\\s+ignored',
                                           'RecoVertex/BeamSpotProducer/test/scripts/BSVectorDict.h',
-                                          'FWCore/Utilities/*/*:.*:#\s*pragma\s+GCC\s+visibility\s+(push\\(default\\)|pop)\s*$',
+                                          'FWCore/Utilities/*/*:.*:#\\s*pragma\\s+GCC\\s+visibility\\s+(push\\(default\\)|pop)\\s*$',
                                           'CondFormats/JetMETObjects/interface/Linkdef.h',
                                           'DataFormats/GeometryVector/interface/Basic3DVectorLD.h',
                                           'DataFormats/Scalers/interface/ScalersRaw.h',
@@ -161,7 +161,7 @@ Configuration[ruleName]['exceptPaths'] = ['*/*LinkDef.h',
                                           'RecoTracker/TkDetLayers/src/TIDRing.h',
                                          ]#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
 Configuration[ruleName]['skip']  = [comment]
-Configuration[ruleName]['filter'] = '#\s*pragma\s' #should be regular expression
+Configuration[ruleName]['filter'] = '#\\s*pragma\\s' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
 # --------------------------------------------------------------------------------
 # configuration for rule 6
@@ -183,10 +183,10 @@ Configuration[ruleName]['exceptPaths'] = ['Utilities/RFIOAdaptor/*BuildFile.xml:
                                           'L1Trigger/CSCTrackFinder/BuildFile.xml:.*:ADD_SUBDIR=',
                                           'MagneticField/Interpolation/BuildFile.xml:.*:="-Wno-format"',
                                           'MagneticField/Interpolation/test/BuildFile.xml:.*:="-Wno-format"',
-                                          'GeneratorInterface/Pythia6Interface/plugins/BuildFile.xml:.*:LDFLAGS="\$\(PYTHIA6_BASE\)/lib/pydata.o"',
+                                          'GeneratorInterface/Pythia6Interface/plugins/BuildFile.xml:.*:LDFLAGS="\\$\\(PYTHIA6_BASE\\)/lib/pydata.o"',
 					 ]
 Configuration[ruleName]['skip']  = [comment]
-Configuration[ruleName]['filter'] = '<\s*(f|F)(l|L)(a|A)(g|G)(s|S)\s+' #should be regular expression
+Configuration[ruleName]['filter'] = '<\\s*(f|F)(l|L)(a|A)(g|G)(s|S)\\s+' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = ['EDM_PLUGIN','RIVET_PLUGIN', 'GENREFLEX_ARGS', 'TEST_RUNNER_ARGS', 'INSTALL_SCRIPTS', 'NO_TESTRUN', 'NO_EXPORT']
 # --------------------------------------------------------------------------------
 

@@ -268,8 +268,8 @@ namespace lowptgsfeleid {
           sc_clus1_nxtal = (int)sc_clus1_nxtal;
 
         }  // sc.isNonnull()
-      }    // gsf.isNonnull()
-    }      // clusters
+      }  // gsf.isNonnull()
+    }  // clusters
 
     // Out-of-range
     eid_rho = std::clamp(eid_rho, 0.f, 100.f);
@@ -499,8 +499,8 @@ namespace lowptgsfeleid {
                                sc_clus2_E_ov_p);
 
         }  // sc.isNonnull()
-      }    // gsf.isNonnull()
-    }      // clusters
+      }  // gsf.isNonnull()
+    }  // clusters
 
     // Out-of-range
     eid_sc_eta = std::clamp(eid_sc_eta, -5.f, 5.f);

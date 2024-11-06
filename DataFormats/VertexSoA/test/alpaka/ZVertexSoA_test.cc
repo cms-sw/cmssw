@@ -18,7 +18,6 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include "DataFormats/VertexSoA/interface/ZVertexDevice.h"
 #include "DataFormats/VertexSoA/interface/ZVertexHost.h"
 #include "DataFormats/VertexSoA/interface/alpaka/ZVertexSoACollection.h"
 #include "FWCore/Utilities/interface/stringize.h"
@@ -30,6 +29,10 @@
 #include "ZVertexSoA_test.h"
 
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
+
+// Run 3 values, used for testing
+constexpr uint32_t maxTracks = 32 * 1024;
+constexpr uint32_t maxVertices = 1024;
 
 int main() {
   // Get the list of devices on the current platform
@@ -48,15 +51,19 @@ int main() {
     {
       // Instantiate vertices on device. PortableCollection allocates
       // SoA on device automatically.
-      ZVertexSoACollection zvertex_d(queue);
-      testZVertexSoAT::runKernels(zvertex_d.view(), queue);
+      ZVertexSoACollection zvertex_d({{maxTracks, maxVertices}}, queue);
+      testZVertexSoAT::runKernels(zvertex_d.view(), zvertex_d.view<reco::ZVertexTracksSoA>(), queue);
 
-      // Instantate vertices on host. This is where the data will be
-      // copied to from device.
-      ZVertexHost zvertex_h(queue);
-      std::cout << zvertex_h.view().metadata().size() << std::endl;
-      alpaka::memcpy(queue, zvertex_h.buffer(), zvertex_d.const_buffer());
+      // If the device is actually the host, use the collection as-is.
+      // Otherwise, copy the data from the device to the host.
+      ZVertexHost zvertex_h;
+#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
+      zvertex_h = std::move(zvertex_d);
+#else
+      zvertex_h = cms::alpakatools::CopyToHost<ZVertexSoACollection>::copyAsync(queue, zvertex_d);
+#endif
       alpaka::wait(queue);
+      std::cout << zvertex_h.view().metadata().size() << std::endl;
 
       // Print results
       std::cout << "idv\t"
@@ -68,11 +75,13 @@ int main() {
                 << "sortInd\t"
                 << "nvFinal\n";
 
+      auto vtx_v = zvertex_h.view<reco::ZVertexSoA>();
+      auto trk_v = zvertex_h.view<reco::ZVertexTracksSoA>();
       for (int i = 0; i < 10; ++i) {
-        std::cout << (int)zvertex_h.view()[i].idv() << '\t' << zvertex_h.view()[i].zv() << '\t'
-                  << zvertex_h.view()[i].wv() << '\t' << zvertex_h.view()[i].chi2() << '\t'
-                  << zvertex_h.view()[i].ptv2() << '\t' << (int)zvertex_h.view()[i].ndof() << '\t'
-                  << (int)zvertex_h.view()[i].sortInd() << '\t' << (int)zvertex_h.view().nvFinal() << '\n';
+        auto vi = vtx_v[i];
+        auto ti = trk_v[i];
+        std::cout << (int)ti.idv() << "\t" << vi.zv() << "\t" << vi.wv() << "\t" << vi.chi2() << "\t" << vi.ptv2()
+                  << "\t" << (int)ti.ndof() << "\t" << vi.sortInd() << "\t" << (int)vtx_v.nvFinal() << std::endl;
       }
     }
   }

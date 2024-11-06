@@ -20,18 +20,22 @@ typedef CaloSubdetectorGeometry::CCGFloat CCGFloat;
 //#define EDM_ML_DEBUG
 
 ZdcGeometry::ZdcGeometry()
-    : theTopology(new ZdcTopology),
+    : k_NumberOfCellsForCornersN(HcalZDCDetId::kSizeForDenseIndexingRun1),
+      theTopology(nullptr),
       lastReqDet_(DetId::Detector(0)),
       lastReqSubdet_(0),
       m_ownsTopology(true),
-      m_cellVec(k_NumberOfCellsForCorners) {}
+      m_cellVec(k_NumberOfCellsForCornersN) {
+  edm::LogWarning("HCalGeom") << "ZdcGeometry::Wrong constructor called";
+}
 
 ZdcGeometry::ZdcGeometry(const ZdcTopology* topology)
-    : theTopology(topology),
+    : k_NumberOfCellsForCornersN(topology->kSizeForDenseIndexing()),
+      theTopology(topology),
       lastReqDet_(DetId::Detector(0)),
       lastReqSubdet_(0),
       m_ownsTopology(false),
-      m_cellVec(k_NumberOfCellsForCorners) {}
+      m_cellVec(k_NumberOfCellsForCornersN) {}
 
 ZdcGeometry::~ZdcGeometry() {
   if (m_ownsTopology)
@@ -81,18 +85,18 @@ void ZdcGeometry::newCell(const GlobalPoint& f1,
 #endif
   assert(cgid.isZDC());
 
-  const unsigned int di(cgid.denseIndex());
+  const unsigned int di(theTopology->detId2DenseIndex(detId));
 
   m_cellVec[di] = IdealZDCTrapezoid(f1, cornersMgr(), parm);
   addValidID(detId);
 }
 
-const CaloCellGeometry* ZdcGeometry::getGeometryRawPtr(uint32_t index) const {
+CaloCellGeometryPtr ZdcGeometry::getGeometryRawPtr(uint32_t index) const {
   // Modify the RawPtr class
-  if (m_cellVec.size() < index)
-    return nullptr;
+  if (m_cellVec.size() <= index)
+    return CaloCellGeometryPtr();
   const CaloCellGeometry* cell(&m_cellVec[index]);
-  return (((cell == nullptr) || (nullptr == cell->param())) ? nullptr : cell);
+  return CaloCellGeometryPtr(((cell == nullptr) || (nullptr == cell->param())) ? nullptr : cell);
 }
 
 void ZdcGeometry::getSummary(CaloSubdetectorGeometry::TrVec& tVec,
@@ -111,7 +115,7 @@ void ZdcGeometry::getSummary(CaloSubdetectorGeometry::TrVec& tVec,
 
   for (uint32_t i(0); i != m_validIds.size(); ++i) {
     Tr3D tr;
-    std::shared_ptr<const CaloCellGeometry> ptr(cellGeomPtr(i));
+    auto ptr = cellGeomPtr(i);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ZDCGeom") << "ZDCGeometry:Summary " << i << ":" << HcalZDCDetId::kSizeForDenseIndexingRun1
                                 << " Pointer " << ptr << ":" << (nullptr != ptr);

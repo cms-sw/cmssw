@@ -16,7 +16,7 @@ namespace l1t {
     void fillDescription(edm::ParameterSetDescription&) const;
 
   private:
-    PackingSetupFactory(){};
+    PackingSetupFactory() {}
     static const PackingSetupFactory instance_;
   };
 }  // namespace l1t

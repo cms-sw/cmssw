@@ -88,7 +88,7 @@ public:
 
 protected:
   // Modify the RawPtr class
-  const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const override;
+  CaloCellGeometryPtr getGeometryRawPtr(uint32_t index) const override;
 
 private:
   const CCGFloat m_xWidWaf;

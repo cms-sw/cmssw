@@ -8,9 +8,9 @@
 class dso_hidden ConversionRegion {
 public:
   ConversionRegion(GlobalPoint& convPoint, GlobalPoint& pvtxPoint, float& cotTheta, double errTheta, int charge)
-      : _convPoint(convPoint), _pvtxPoint(pvtxPoint), _cotTheta(cotTheta), _errTheta(errTheta), _charge(charge){};
+      : _convPoint(convPoint), _pvtxPoint(pvtxPoint), _cotTheta(cotTheta), _errTheta(errTheta), _charge(charge) {}
 
-  ~ConversionRegion(){};
+  ~ConversionRegion() {}
 
   GlobalPoint convPoint() const { return _convPoint; }
   GlobalPoint pvtxPoint() const { return _pvtxPoint; }

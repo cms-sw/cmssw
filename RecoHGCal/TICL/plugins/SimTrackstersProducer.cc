@@ -212,7 +212,7 @@ void SimTrackstersProducer::addTrackster(
   tmpTrackster.vertex_multiplicity().reserve(lcVec.size());
   for (auto const& [lc, energyScorePair] : lcVec) {
     if (inputClusterMask[lc.index()] > 0) {
-      double fraction = energyScorePair.first / lc->energy();
+      float fraction = energyScorePair.first / lc->energy();
       if (fraction < fractionCut_)
         continue;
       tmpTrackster.vertices().push_back(lc.index());
@@ -369,12 +369,14 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                               layerClusters,
                               layerClustersTimes,
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(doNose_)).z(),
+                              rhtools_,
                               computeLocalTime_);
   result->shrink_to_fit();
   ticl::assignPCAtoTracksters(*result_fromCP,
                               layerClusters,
                               layerClustersTimes,
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(doNose_)).z(),
+                              rhtools_,
                               computeLocalTime_);
 
   makePUTrackster(inputClusterMask, *output_mask, *resultPU, caloParticles_h.id(), 0);

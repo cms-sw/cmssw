@@ -5,17 +5,16 @@ from PhysicsTools.NanoAOD.simplePATTauFlatTableProducer_cfi import simplePATTauF
 
 ##################### Import reusable funtions and objects from std taus ########
 from PhysicsTools.NanoAOD.taus_cff import _tauIdWPMask, tausMCMatchLepTauForTable, tausMCMatchHadTauForTable,tauMCTable
-
 ##################### User floats producers, selectors ##########################
 
 
 finalBoostedTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTausBoosted"),
-    cut = cms.string("pt > 40 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2DBnewDMwLT'))")
+    cut = cms.string("pt > 25 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2DBnewDMwLT') || tauID('byBoostedDeepTau20161718v2p0VSjetraw') > {})".format(0.82))
 )
 run2_nanoAOD_106Xv2.toModify(
     finalBoostedTaus,
-    cut = "pt > 40 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2DBoldDMdR0p3wLT') || tauID('byVVLooseIsolationMVArun2DBnewDMwLT'))"
+    cut = "pt > 25 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2DBoldDMdR0p3wLT') || tauID('byVVLooseIsolationMVArun2DBnewDMwLT') || tauID('byBoostedDeepTau20161718v2p0VSjetraw') > {})".format(0.82)
 )
 
 boostedTauTable = simplePATTauFlatTableProducer.clone(
@@ -59,16 +58,25 @@ _boostedTauVarsAntiEleMVA = cms.PSet(
        idAntiEle2018 = _tauIdWPMask("againstElectron%sMVA6", choices=("VLoose","Loose","Medium","Tight","VTight"), doc= "Anti-electron MVA discriminator V6 (2018)")
 )
 
+#DeepBoostedTau ID raw score branches 
+_boostedDeepTauRunIIv2p0Vars = cms.PSet(
+    rawBoostedDeepTauRunIIv2p0VSe = Var("tauID('byBoostedDeepTau20161718v2p0VSeraw')", float, doc="BoostedDeepTau(v2p0) tagger for boostedTaus raw scores Vs e", precision=10),
+    rawBoostedDeepTauRunIIv2p0VSmu = Var("tauID('byBoostedDeepTau20161718v2p0VSmuraw')", float, doc="BoostedDeepTau(v2p0) tagger for boostedTaus raw scores Vs mu", precision=10),
+    rawBoostedDeepTauRunIIv2p0VSjet = Var("tauID('byBoostedDeepTau20161718v2p0VSjetraw')", float, doc="BoostedDeepTau(v2p0) tagger for boostedTaus raw scores Vs jet", precision=10)
+)
+
 boostedTauTable.variables = cms.PSet(
     _boostedTauVarsBase,
     _boostedTauVarsMVAIso,
-    _boostedTauVarsAntiEleMVA
+    _boostedTauVarsAntiEleMVA,
+    _boostedDeepTauRunIIv2p0Vars
 )
 _boostedTauVarsWithDr03 = cms.PSet(
     _boostedTauVarsBase,
     _boostedTauVarsMVAIso,
     _boostedTauVarsMVAIsoDr03,
-    _boostedTauVarsAntiEleMVA
+    _boostedTauVarsAntiEleMVA,
+    _boostedDeepTauRunIIv2p0Vars
 )
 run2_nanoAOD_106Xv2.toModify(
     boostedTauTable,
@@ -95,12 +103,3 @@ boostedTauMCTable = tauMCTable.clone(
 boostedTauTask = cms.Task(finalBoostedTaus)
 boostedTauTablesTask = cms.Task(boostedTauTable)
 boostedTauMCTask = cms.Task(boostedTausMCMatchLepTauForTable,boostedTausMCMatchHadTauForTable,boostedTauMCTable)
-
-#remove boosted tau from previous eras
-(run3_nanoAOD_122).toReplaceWith(
-    boostedTauTask,cms.Task()
-).toReplaceWith(
-    boostedTauTablesTask,cms.Task()
-).toReplaceWith(
-    boostedTauMCTask,cms.Task()
-)

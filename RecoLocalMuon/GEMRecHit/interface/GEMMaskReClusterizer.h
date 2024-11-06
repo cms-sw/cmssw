@@ -10,8 +10,8 @@
 
 class GEMMaskReClusterizer {
 public:
-  GEMMaskReClusterizer(){};
-  ~GEMMaskReClusterizer(){};
+  GEMMaskReClusterizer() {}
+  ~GEMMaskReClusterizer() {}
   GEMClusterContainer doAction(const GEMDetId& id,
                                GEMClusterContainer& initClusters,
                                const EtaPartitionMask& mask) const;

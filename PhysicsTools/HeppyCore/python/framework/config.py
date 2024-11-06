@@ -44,7 +44,7 @@ class CFG(object):
                                           name=self.name)
         varlines = ['\t{var:<15}:   {value}'.format(var=var, value=value) \
                     for var,value in sorted(vars(self.items())) \
-                    if var is not 'name']
+                    if var != 'name']
         all = [ header ]
         all.extend(varlines)
         return '\n'.join( all )

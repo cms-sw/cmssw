@@ -204,8 +204,6 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
   }
 
   // second object
-  reqObjResult = false;
-
   switch (cond1Categ) {
     case CondMuon: {
       corrMuon = static_cast<const MuonTemplate*>(m_gtCond1);
@@ -674,7 +672,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             }
 
           }  //check it is the EtSum we want
-        }    // loop over Etsums
+        }  // loop over Etsums
 
       } break;
 
@@ -970,7 +968,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
               }
 
             }  //check it is the EtSum we want
-          }    // loop over Etsums
+          }  // loop over Etsums
 
         } break;
         default: {
@@ -1368,8 +1366,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                                   << (long long)(corrPar.maxMassCutValue * pow(10, preShift)) << "]" << std::endl;
             reqResult = false;
           }  //Done with Invariant Mass Cut
-        }    //Done with choice of Invariant Mass Cut vs InvMass/dR
-      }      //Done with any type of Mass Cut
+        }  //Done with choice of Invariant Mass Cut vs InvMass/dR
+      }  //Done with any type of Mass Cut
 
       // For Muon-Muon Correlation Check the Charge Correlation if requested
       bool chrgCorrel = true;

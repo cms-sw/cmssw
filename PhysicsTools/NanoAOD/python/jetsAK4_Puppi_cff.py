@@ -26,38 +26,6 @@ updatedJetsPuppi = updatedPatJets.clone(
     jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetPuppiCorrFactorsNano") ),
 )
 
-tightJetPuppiId = cms.EDProducer("PatJetIDValueMapProducer",
-    filterParams=cms.PSet(
-        version = cms.string('RUN3PUPPIruns2022FGruns2023CD'),
-        quality = cms.string('TIGHT'),
-    ),
-    src = cms.InputTag("updatedJetsPuppi")
-)
-tightJetPuppiIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
-    filterParams=cms.PSet(
-        version = cms.string('RUN3PUPPIruns2022FGruns2023CD'),
-        quality = cms.string('TIGHTLEPVETO'),
-    ),
-    src = cms.InputTag("updatedJetsPuppi")
-)
-
-run2_jme_2016.toModify(
-    tightJetPuppiId.filterParams, version = "RUN2UL16PUPPI"
-).toModify(
-    tightJetPuppiIdLepVeto.filterParams, version = "RUN2UL16PUPPI"
-)
-
-(run2_jme_2017 | run2_jme_2018 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    tightJetPuppiId.filterParams, version = "RUN2ULPUPPI"
-).toModify(
-    tightJetPuppiIdLepVeto.filterParams, version = "RUN2ULPUPPI"
-)
-
-run3_jme_Winter22runsBCDEprompt.toModify(
-    tightJetPuppiId.filterParams, version = "RUN3PUPPIruns2022BCDEprompt"
-).toModify(
-    tightJetPuppiIdLepVeto.filterParams, version = "RUN3PUPPIruns2022BCDEprompt"
-)
 
 #HF shower shape recomputation
 from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
@@ -70,8 +38,6 @@ updatedJetsPuppiWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
         hfsigmaPhiPhi = cms.InputTag('hfJetPuppiShowerShapeforNanoAOD:sigmaPhiPhi'),
     ),
     userInts = cms.PSet(
-        tightId = cms.InputTag("tightJetPuppiId"),
-        tightIdLepVeto = cms.InputTag("tightJetPuppiIdLepVeto"),
         hfcentralEtaStripSize = cms.InputTag('hfJetPuppiShowerShapeforNanoAOD:centralEtaStripSize'),
         hfadjacentEtaStripsSize = cms.InputTag('hfJetPuppiShowerShapeforNanoAOD:adjacentEtaStripsSize'),
     ),
@@ -116,12 +82,17 @@ jetPuppiTable = simplePATJetFlatTableProducer.clone(
         btagUParTAK4CvL = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsL'):-1",float,precision=10,doc="UnifiedParT c vs. udsg"),
         btagUParTAK4CvB = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:CvsB'):-1",float,precision=10,doc="UnifiedParT c vs. b"),
         btagUParTAK4CvNotB = Var("?((bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probb')+bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probbb')+bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:problepb')))>0?((bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probc'))/(1.-bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probb')-bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probbb')-bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:problepb'))):-1",float,precision=10,doc="UnifiedParT c vs. not b"),
-        btagUParTAK4QvG = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG'):-1",float,precision=10,doc="UnifiedParT q (udsbc) vs. g"),
+        btagUParTAK4SvCB  = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:SvsBC')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:SvsBC'):-1",float,precision=10,doc="UnifiedParT s vs. bc"),
+        btagUParTAK4SvUDG = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:SvsUDG')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:SvsUDG'):-1",float,precision=10,doc="UnifiedParT s vs. udg"),
+        btagUParTAK4UDG = Var("bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probu')+bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probd')+bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probg')",float,precision=10,doc="UnifiedParT u+d+g raw score"),
+        btagUParTAK4QvG = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG'):-1",float,precision=10,doc="UnifiedParT q (uds) vs. g"),
         btagUParTAK4TauVJet = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:TauVsJet')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:TauVsJet'):-1",float,precision=10,doc="UnifiedParT tau vs. jet"),
+        btagUParTAK4Ele = Var("bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probele')",float,precision=10,doc="UnifiedParT electron raw score"),
+        btagUParTAK4Mu = Var("bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probmu')",float,precision=10,doc="UnifiedParT muon raw score"),
         UParTAK4RegPtRawCorr = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptcorr')>0?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptcorr'):-1",float,precision=10,doc="UnifiedParT universal flavor-aware visible pT regression (no neutrinos), correction relative to raw jet pT"),
         UParTAK4RegPtRawCorrNeutrino = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptnu')>0?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptnu'):-1",float,precision=10,doc="UnifiedParT universal flavor-aware pT regression neutrino correction, relative to visible. To apply full regression, multiply raw jet pT by both UParTAK4RegPtRawCorr and UParTAK4RegPtRawCorrNeutrino."),
         UParTAK4RegPtRawRes = Var("?(bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreshigh')+bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreslow'))>0?0.5*(bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreshigh')-bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreslow')):-1",float,precision=10,doc="UnifiedParT universal flavor-aware jet pT resolution estimator, (q84 - q16)/2"),
-        jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')", "uint8",doc="Jet ID flag: bit2 is tight, bit3 is tightLepVeto"),
+        puIdDisc = Var("userFloat('pileupJetIdPuppi:fullDiscriminant')", float,doc="Pileup ID BDT discriminant with 133X Winter24 PuppiV18 training",precision=10),
         hfsigmaEtaEta = Var("userFloat('hfsigmaEtaEta')",float,doc="sigmaEtaEta for HF jets (noise discriminating variable)",precision=10),
         hfsigmaPhiPhi = Var("userFloat('hfsigmaPhiPhi')",float,doc="sigmaPhiPhi for HF jets (noise discriminating variable)",precision=10),
         hfcentralEtaStripSize = Var("userInt('hfcentralEtaStripSize')", int, doc="eta size of the central tower strip in HF (noise discriminating variable)"),
@@ -130,13 +101,13 @@ jetPuppiTable = simplePATJetFlatTableProducer.clone(
         chMultiplicity = Var("chargedMultiplicity()","uint8",doc="(Puppi-weighted) Number of charged particles in the jet"),
         neMultiplicity = Var("neutralMultiplicity()","uint8",doc="(Puppi-weighted) Number of neutral particles in the jet"),
         rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
-        chHEF = Var("chargedHadronEnergyFraction()", float, doc="charged Hadron Energy Fraction", precision= 6),
-        neHEF = Var("neutralHadronEnergyFraction()", float, doc="neutral Hadron Energy Fraction", precision= 6),
-        chEmEF = Var("chargedEmEnergyFraction()", float, doc="charged Electromagnetic Energy Fraction", precision= 6),
-        neEmEF = Var("neutralEmEnergyFraction()", float, doc="neutral Electromagnetic Energy Fraction", precision= 6),
-        hfHEF = Var("HFHadronEnergyFraction()",float,doc="hadronic Energy Fraction in HF",precision= 6),
-        hfEmEF = Var("HFEMEnergyFraction()",float,doc="electromagnetic Energy Fraction in HF",precision= 6),
-        muEF = Var("muonEnergyFraction()", float, doc="muon Energy Fraction", precision= 6),
+        chHEF = Var("chargedHadronEnergyFraction()", float, doc="charged Hadron Energy Fraction", precision=10),
+        neHEF = Var("neutralHadronEnergyFraction()", float, doc="neutral Hadron Energy Fraction", precision=10),
+        chEmEF = Var("chargedEmEnergyFraction()", float, doc="charged Electromagnetic Energy Fraction", precision=10),
+        neEmEF = Var("neutralEmEnergyFraction()", float, doc="neutral Electromagnetic Energy Fraction", precision=10),
+        hfHEF = Var("HFHadronEnergyFraction()",float,doc="hadronic Energy Fraction in HF",precision=10),
+        hfEmEF = Var("HFEMEnergyFraction()",float,doc="electromagnetic Energy Fraction in HF",precision=10),
+        muEF = Var("muonEnergyFraction()", float, doc="muon Energy Fraction", precision=10),
     )
 )
 
@@ -148,23 +119,11 @@ run2_nanoAOD_ANY.toModify(
     btagDeepCvB = Var("?bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')):-1",float,doc="DeepCSV c vs b+bb discriminator",precision=10)
 )
 
-(run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+run3_nanoAOD_pre142X.toModify(
     jetPuppiTable.variables,
-    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
-    btagPNetB = None,
-    btagPNetCvL = None,
-    btagPNetCvB = None,
-    btagPNetQvG = None,
-    btagPNetTauVJet = None,
-    PNetRegPtRawCorr = None,
-    PNetRegPtRawCorrNeutrino = None,
-    PNetRegPtRawRes = None,
-    # Remove for V11 and earlier Run3 versions
-    chMultiplicity = None,
-    neMultiplicity = None,
-    hfHEF = None,
-    hfEmEF = None
+    puIdDisc = None,
 )
+
 
 #jets are not as precise as muons
 jetPuppiTable.variables.pt.precision=10
@@ -240,10 +199,11 @@ corrT1METJetPuppiTable = simplePATJetFlatTableProducer.clone(
     doc  = cms.string("Additional low-pt ak4 Puppi jets for Type-1 MET re-correction"),
     variables = cms.PSet(
         rawPt = Var("pt()*jecFactor('Uncorrected')",float,precision=10),
+        rawMass = Var("mass()*jecFactor('Uncorrected')",float,precision=10),
         eta  = Var("eta",  float,precision=12),
         phi = Var("phi", float, precision=12),
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
-        EmEF = Var("chargedEmEnergyFraction()+neutralEmEnergyFraction()", float, doc="charged+neutral Electromagnetic Energy Fraction", precision=6),
+        EmEF = Var("chargedEmEnergyFraction()+neutralEmEnergyFraction()", float, doc="charged+neutral Electromagnetic Energy Fraction", precision=10),
     )
 )
 
@@ -253,7 +213,7 @@ jetPuppiTable.variables.muonSubtrFactor = Var("1-userFloat('muonSubtrRawPt')/(pt
 jetPuppiForMETTask =  cms.Task(basicJetsPuppiForMetForT1METNano,corrT1METJetPuppiTable)
 
 #before cross linking
-jetPuppiUserDataTask = cms.Task(tightJetPuppiId, tightJetPuppiIdLepVeto, hfJetPuppiShowerShapeforNanoAOD)
+jetPuppiUserDataTask = cms.Task(hfJetPuppiShowerShapeforNanoAOD)
 
 #before cross linking
 jetPuppiTask = cms.Task(jetPuppiCorrFactorsNano,updatedJetsPuppi,jetPuppiUserDataTask,updatedJetsPuppiWithUserData,finalJetsPuppi)

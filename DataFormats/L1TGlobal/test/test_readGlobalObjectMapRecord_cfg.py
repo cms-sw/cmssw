@@ -24,7 +24,8 @@ process.testReadGlobalObjectMapRecord = cms.EDAnalyzer("TestReadGlobalObjectMapR
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testGlobalObjectMapRecord2.root')
+    fileName = cms.untracked.string('testGlobalObjectMapRecord2.root'),
+    fastCloning = cms.untracked.bool(False)
 )
 
 process.path = cms.Path(process.testReadGlobalObjectMapRecord)

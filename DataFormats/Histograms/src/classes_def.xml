@@ -33,21 +33,21 @@
  <class name="MEtoEDM<int>"/>
  <class name="MEtoEDM<long long>"/>
  <class name="MEtoEDM<TString>"/>
- <class name="MEtoEDM<TH1F>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH1S>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH1D>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH1I>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH2F>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH2S>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH2D>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH2I>::MEtoEDMObject"/>
- <class name="MEtoEDM<TH3F>::MEtoEDMObject"/>
- <class name="MEtoEDM<TProfile>::MEtoEDMObject"/>
- <class name="MEtoEDM<TProfile2D>::MEtoEDMObject"/>
- <class name="MEtoEDM<double>::MEtoEDMObject"/>
- <class name="MEtoEDM<int>::MEtoEDMObject"/>
- <class name="MEtoEDM<long long>::MEtoEDMObject"/>
- <class name="MEtoEDM<TString>::MEtoEDMObject"/>
+ <class name="MEtoEDM<TH1F>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH1S>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH1D>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH1I>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH2F>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH2S>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH2D>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH2I>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH3F>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TProfile>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TProfile2D>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<double>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<int>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<long long>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TString>::MEtoEDMObject" rntupleSplit="false"/>
  <class name="std::vector<MEtoEDM<TH1F>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH1S>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH1D>::MEtoEDMObject>"/>

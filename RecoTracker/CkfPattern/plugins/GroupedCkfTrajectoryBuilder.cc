@@ -666,7 +666,7 @@ bool GroupedCkfTrajectoryBuilder::advanceOneLayer(const TrajectorySeed& seed,
         moveToResult(std::move(newTraj), result, inOut);
       }
     }  // loop over segs
-  }    // loop over layers
+  }  // loop over layers
 
   if (!foundSegments) {
     LogDebug("CkfPattern") << "GCTB: adding input trajectory to result";
@@ -826,8 +826,8 @@ void GroupedCkfTrajectoryBuilder::groupedIntermediaryClean(TempTrajectoryContain
         break;
       }
     }  // second
-  }    // first
-       /*
+  }  // first
+  /*
   for (TempTrajectoryContainer::const_iterator it = theTrajectories.begin();
        it != theTrajectories.end(); it++) {
     if(it->isValid()) result.push_back( *it);

@@ -55,8 +55,8 @@ public:
   }
 
 private:
-  EcalErrorDictionary(){};   // Hidden to force static use
-  ~EcalErrorDictionary(){};  // Hidden to force static use
+  EcalErrorDictionary() {}   // Hidden to force static use
+  ~EcalErrorDictionary() {}  // Hidden to force static use
 
   const static unsigned int DICTSIZE = 55;
 

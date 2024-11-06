@@ -51,6 +51,20 @@ _ak4puppiplots.extend([
     Plot1D('particleNetAK4_QvsG','particleNetAK4_QvsG',20, -1, 1,"ParticleNetAK4 tagger uds vs g discriminator"),
     Plot1D('particleNetAK4_G','particleNetAK4_G',20, -1, 1, "ParticleNetAK4 tagger g raw score"),
     Plot1D('particleNetAK4_puIdDisc','particleNetAK4_puIdDisc',20, -1, 1,"ParticleNetAK4 tagger pileup jet discriminator"),
+    Plot1D('leadConstNeHadEF','leadConstNeHadEF',10, 0, 1,"Leading PF neutral hadron constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstChHadEF','leadConstChHadEF',10, 0, 1,"Leading PF charged hadron constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstPhotonEF','leadConstPhotonEF',10, 0, 1,"Leading PF photon constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstElectronEF','leadConstElectronEF',10, 0, 1,"Leading PF electron constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstMuonEF','leadConstMuonEF',10, 0, 1,"Leading PF muon constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstHFHADEF','leadConstHFHADEF',10, 0, 1,"Leading PF HF HAD constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstHFEMEF','leadConstHFEMEF',10, 0, 1,"Leading PF HF EM constituent energy fraction w.r.t jet raw energy"),
+    Plot1D('leadConstNeHadPuppiWeight','leadConstNeHadPuppiWeight',10, 0, 1,"Leading PF neutral hadron constituent puppi weight"),
+    Plot1D('leadConstChHadPuppiWeight','leadConstChHadPuppiWeight',10, 0, 1,"Leading PF charged hadron constituent puppi weight"),
+    Plot1D('leadConstPhotonPuppiWeight','leadConstPhotonPuppiWeight',10, 0, 1,"Leading PF photon constituent puppi weight"),
+    Plot1D('leadConstElectronPuppiWeight','leadConstElectronPuppiWeight',10, 0, 1,"Leading PF electron constituent puppi weight"),
+    Plot1D('leadConstMuonPuppiWeight','leadConstMuonPuppiWeight',10, 0, 1,"Leading PF muon constituent puppi weight"),
+    Plot1D('leadConstHFHADPuppiWeight','leadConstHFHADPuppiWeight',10, 0, 1,"Leading PF HF HAD constituent puppi weight"),
+    Plot1D('leadConstHFEMPuppiWeight','leadConstHFEMPuppiWeight',10, 0, 1,"Leading PF HF EM constituent puppi weight"),
 ])
 
 #============================================
@@ -119,7 +133,6 @@ nanojmeDQM.vplots.FatJetForJEC = cms.PSet(
         Count1D('_size', 20, -0.5, 19.5, 'AK8 PF Puppi jets with JECs applied. Reclustered for JEC studies so only minimal info stored.'),
         Plot1D('area', 'area', 20, 0.2, 0.8, 'jet catchment area, for JECs'),
         Plot1D('eta', 'eta', 20, -6, 6, 'eta'),
-        Plot1D('jetId', 'jetId', 8, -0.5, 7.5, 'Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto'),
         Plot1D('mass', 'mass', 20, 0, 200, 'mass'),
         Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
         Plot1D('pt', 'pt', 20, 0, 400, 'pt'),

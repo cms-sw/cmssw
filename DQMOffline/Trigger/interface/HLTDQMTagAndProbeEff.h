@@ -250,8 +250,8 @@ void HLTDQMTagAndProbeEff<TagType, TagCollType, ProbeType, ProbeCollType>::fill(
           filterHist.fillHists(*tagRef, *probeRef, event, setup, *trigEvtHandle);
         }
       }  //end of t&p pair cuts
-    }    //end of probe loop
-  }      //end of tag loop
+    }  //end of probe loop
+  }  //end of tag loop
 }
 
 //yo dawg, I heard you like templates...

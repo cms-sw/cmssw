@@ -459,7 +459,7 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
         #In the case of tracksters. We want to split the results.
         if opt.OBJ == 'tracksters':
            for tracksterCollection in trackstersIters:
-               processCmd('mkdir -p HGCValid_Tracksters_Plots/plots_%s_%s HGCValid_Test-TICL_Plots/plots_%s_%s HGCValid_TICL-patternRecognition_Plots/plots_%s_%s' %(samplename,tracksterCollection,samplename,tracksterCollection,samplename,tracksterCollection) )
+               processCmd('mkdir -p HGCValid_Tracksters_Plots/plots_%s_%s HGCValid_TICL-Linking_Plots/plots_%s_%s HGCValid_TICL-patternRecognition_Plots/plots_%s_%s' %(samplename,tracksterCollection,samplename,tracksterCollection,samplename,tracksterCollection) )
 
         inputpathRef = ""
         if RefRelease != None: inputpathRef = RefRepository +'/' + RefRelease +'/'
@@ -512,23 +512,23 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
                 
             if opt.OBJ == 'tracksters':
                 processCmd('mv HGCValid_%s_Plots/plots_%s_Tracksters.html HGCValid_Tracksters_Plots/index.html'%(opt.HTMLVALNAME,samplename))
-                processCmd('mv HGCValid_%s_Plots/plots_%s_Test-TICL.html HGCValid_Test-TICL_Plots/index.html'%(opt.HTMLVALNAME,samplename))
+                processCmd('mv HGCValid_%s_Plots/plots_%s_TICL-Linking.html HGCValid_TICL-Linking_Plots/index.html'%(opt.HTMLVALNAME,samplename))
                 processCmd('mv HGCValid_%s_Plots/plots_%s_TICL-patternRecognition.html HGCValid_TICL-patternRecognition_Plots/index.html'%(opt.HTMLVALNAME,samplename))
                 processCmd('awk \'NR>=6&&NR<=135\' HGCValid_Tracksters_Plots/index.html > HGCValid_Tracksters_Plots/index_%s.html ' %(samplename))
-                processCmd('awk \'NR>=6&&NR<=117\' HGCValid_Test-TICL_Plots/index.html > HGCValid_Test-TICL_Plots/index_%s.html '% (samplename))
+                processCmd('awk \'NR>=6&&NR<=117\' HGCValid_TICL-Linking_Plots/index.html > HGCValid_TICL-Linking_Plots/index_%s.html '% (samplename))
                 processCmd('awk \'NR>=6&&NR<=117\' HGCValid_TICL-patternRecognition_Plots/index.html > HGCValid_TICL-patternRecognition_Plots/index_%s.html '% (samplename))
                 processCmd('echo "  <br/>" >> HGCValid_Tracksters_Plots/index_%s.html '%(samplename) )
-                processCmd('echo "  <br/>" >> HGCValid_Test-TICL_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <br/>" >> HGCValid_TICL-Linking_Plots/index_%s.html '%(samplename) )
                 processCmd('echo "  <br/>" >> HGCValid_TICL-patternRecognition_Plots/index_%s.html '%(samplename) )
                 processCmd('echo "  <hr>" >> HGCValid_Tracksters_Plots/index_%s.html '%(samplename) )
-                processCmd('echo "  <hr>" >> HGCValid_Test-TICL_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <hr>" >> HGCValid_TICL-Linking_Plots/index_%s.html '%(samplename) )
                 processCmd('echo "  <hr>" >> HGCValid_TICL-patternRecognition_Plots/index_%s.html '%(samplename) )
                 #Now move the plots also to the relevant folders
                 for tracksterCollection in trackstersIters:
                     #Linking
-                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*_Link HGCValid_Test-TICL_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
-                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*CaloParticle*Trackster* HGCValid_Test-TICL_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
-                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*Trackster*CaloParticle* HGCValid_Test-TICL_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*_Link HGCValid_TICL-Linking_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*CaloParticle*Trackster* HGCValid_TICL-Linking_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*Trackster*CaloParticle* HGCValid_TICL-Linking_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
                     #Pattern recognition
                     processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*_PR HGCValid_TICL-patternRecognition_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
                     processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*SimTrackster*Trackster* HGCValid_TICL-patternRecognition_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
@@ -559,7 +559,7 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
             fragments.append( 'HGCValid_CaloParticles_Plots/index_%s.html'% (samplename) )
         elif opt.OBJ == 'tracksters':
             fragments.append( 'HGCValid_Tracksters_Plots/index_%s.html'% (samplename) )
-            fragments.append( 'HGCValid_Test-TICL_Plots/index_%s.html'% (samplename) )
+            fragments.append( 'HGCValid_TICL-Linking_Plots/index_%s.html'% (samplename) )
             fragments.append( 'HGCValid_TICL-patternRecognition_Plots/index_%s.html'% (samplename) )
         else:
             fragments.append( 'HGCValid_%s_Plots/index_%s.html'% (opt.HTMLVALNAME, samplename) )
@@ -570,7 +570,7 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
     if opt.OBJ == 'simulation': 
         indexfiles = ["SimClusters","CaloParticles"]
     elif opt.OBJ == 'tracksters':
-        indexfiles = ["Tracksters","Test-TICL","TICL-patternRecognition"]
+        indexfiles = ["Tracksters","TICL-Linking","TICL-patternRecognition"]
     else: 
         indexfiles = [opt.HTMLVALNAME]
 
@@ -905,7 +905,7 @@ if (opt.GATHER != None) :
                     #print(df[obj][ind])          
                     print(j)
                     #index_file.write(' <li><a href="plots_%s_%s">%s</a></li>   \n' %(samplename, df[obj][ind], df[obj][ind].partition("/")[2] ))
-                    if "Tracksters" in j or "Test-TICL" in j or "TICL-patternRecognition" in j:
+                    if "Tracksters" in j or "TICL-Linking" in j or "TICL-patternRecognition" in j:
                         index_file.write(' <li><a href="../HGCValid_%s_Plots/plots_%s_%s">%s</a></li>   \n' %(j, samplename, column, column.replace("ticlTracksters","") ))
                     else:
                         index_file.write(' <li><a href="../HGCValid_%s_Plots/plots_%s_%s">%s</a></li>   \n' %(j, samplename, column, column.partition("/")[2] ))

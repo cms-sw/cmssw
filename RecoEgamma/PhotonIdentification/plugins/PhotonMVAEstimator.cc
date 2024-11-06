@@ -17,7 +17,7 @@ class PhotonMVAEstimator : public AnyMVAEstimatorRun2Base {
 public:
   // Constructor and destructor
   PhotonMVAEstimator(const edm::ParameterSet& conf);
-  ~PhotonMVAEstimator() override{};
+  ~PhotonMVAEstimator() override {}
 
   // Calculation of the MVA value
   float mvaValue(const reco::Candidate* candPtr, std::vector<float> const& auxVars, int& iCategory) const override;

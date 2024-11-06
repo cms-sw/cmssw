@@ -154,7 +154,7 @@ namespace {
               if (val > rEBmax[2])
                 rEBmax[2] = val;
             }  // iphi
-          }    // ieta
+          }  // ieta
 
           for (int ix = 0; ix < IX_MAX; ix++) {
             for (int iy = 0; iy < IY_MAX; iy++) {
@@ -217,9 +217,9 @@ namespace {
                 rEEmax[2] = val;
               //	      fout << " x " << ix << " y " << " val " << val << std::endl;
             }  // iy
-          }    // ix
-        }      // side
-      }        // if payload.get()
+          }  // ix
+        }  // side
+      }  // if payload.get()
       else
         return false;
       //      std::cout << " min " << rEEmin[2] << " max " << rEEmax[2] << std::endl;
@@ -510,7 +510,7 @@ namespace {
                     rEBmax[2] = dr;
                 }
               }  // iphi
-            }    // ieta
+            }  // ieta
 
             for (int ix = 0; ix < IX_MAX; ix++) {
               for (int iy = 0; iy < IY_MAX; iy++) {
@@ -664,9 +664,9 @@ namespace {
                 }
                 //	      fout << " x " << ix << " y " << " dr " << dr << std::endl;
               }  // iy
-            }    // ix
-          }      // side
-        }        //  if payload.get()
+            }  // ix
+          }  // side
+        }  //  if payload.get()
         else
           return false;
       }  // loop over IOVs
@@ -727,7 +727,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalPedestalsDiffBase
+  };  // class EcalPedestalsDiffBase
   using EcalTPGLinearizationConstDiffOneTag = EcalTPGLinearizationConstBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
   using EcalTPGLinearizationConstDiffTwoTags = EcalTPGLinearizationConstBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
   using EcalTPGLinearizationConstRatioOneTag = EcalTPGLinearizationConstBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;

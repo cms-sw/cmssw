@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import PixelLayerTriplets
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 from RecoTracker.PixelSeeding.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
 from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
@@ -123,6 +124,7 @@ phase1Pixel.toModify(hiConformalPixelTracks,
 
 hiConformalPixelTracksTask = cms.Task(
     hiTrackingRegionWithVertex ,
+    PixelLayerTriplets ,
     hiConformalPixelTracksHitDoublets ,
     hiConformalPixelTracksHitTriplets ,
     pixelFitterByConformalMappingAndLine ,
@@ -216,8 +218,10 @@ pixelNtupletFit.toReplaceWith(hiConformalPixelTracksTaskPhase1, cms.Task(
     hiConformalPixelTracksTaskPhase1.copy()
 ))
 
-hiConformalPixelTracksSequencePhase1 = cms.Sequence(hiConformalPixelTracksTaskPhase1)
+phase1Pixel.toReplaceWith(hiConformalPixelTracksTask, hiConformalPixelTracksTaskPhase1)
 
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 run3_upc.toModify(hiConformalPixelTracksPhase1TrackingRegions.RegionPSet, ptMin = 0.05)
 run3_upc.toModify(hiConformalPixelTracksPhase1Filter, ptMin = 0.05)
+run3_upc.toModify(hiTrackingRegionWithVertex.RegionPSet, VertexCollection = "offlinePrimaryVertices", ptMin = 0.05)
+run3_upc.toModify(hiConformalPixelFilter, VertexCollection = "offlinePrimaryVertices", ptMin = 0.05)

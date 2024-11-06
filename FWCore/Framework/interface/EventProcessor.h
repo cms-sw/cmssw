@@ -35,6 +35,8 @@ configured in the user's main() function, and is set running.
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
+#include "oneapi/tbb/task_group.h"
+
 #include <atomic>
 #include <map>
 #include <memory>
@@ -46,6 +48,7 @@ configured in the user's main() function, and is set running.
 
 namespace edm {
 
+  class ExceptionCollector;
   class ExceptionToActionTable;
   class BranchIDListHelper;
   class MergeableRunProductMetadata;
@@ -119,6 +122,10 @@ namespace edm {
        the first time 'run' is called
        */
     void beginJob();
+
+    void beginStreams();
+
+    void endStreams(ExceptionCollector&) noexcept;
 
     /**This should be called before the EventProcessor is destroyed
        throws if any module's endJob throws an exception.
@@ -351,6 +358,8 @@ namespace edm {
     std::shared_ptr<std::recursive_mutex> sourceMutex_;
     PrincipalCache principalCache_;
     bool beginJobCalled_;
+    bool beginJobStartedModules_ = false;
+    bool beginJobSucceeded_ = false;
     bool shouldWeStop_;
     bool fileModeNoMerge_;
     std::string exceptionMessageFiles_;

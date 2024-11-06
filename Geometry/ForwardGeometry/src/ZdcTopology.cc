@@ -5,8 +5,9 @@
 #include <iostream>
 #include <algorithm>
 
-ZdcTopology::ZdcTopology()
-    : excludeEM_(false),
+ZdcTopology::ZdcTopology(const HcalDDDRecConstants* hcons)
+    : hcons_(hcons),
+      excludeEM_(false),
       excludeHAD_(false),
       excludeLUM_(false),
       excludeRPD_(false),
@@ -19,7 +20,12 @@ ZdcTopology::ZdcTopology()
       firstLUMModule_(1),
       lastLUMModule_(HcalZDCDetId::kDepLUM),
       firstRPDModule_(1),
-      lastRPDModule_(HcalZDCDetId::kDepRPD) {}
+      lastRPDModule_(HcalZDCDetId::kDepRPD) {
+  mode_ = (HcalTopologyMode::Mode)(hcons_->getTopoMode());
+  excludeRPD_ = ((mode_ != HcalTopologyMode::Mode::Run3) && (mode_ != HcalTopologyMode::Mode::Run4));
+  edm::LogVerbatim("ForwardGeom") << "ZdcTopology : Mode " << mode_ << ":" << HcalTopologyMode::Mode::Run3
+                                  << " ExcludeRPD " << excludeRPD_;
+}
 
 bool ZdcTopology::valid(const HcalZDCDetId& id) const {
   // check the raw rules
@@ -46,7 +52,7 @@ bool ZdcTopology::isExcluded(const HcalZDCDetId& id) const {
       exed = excludeRPD_;
       break;
     default:
-      exed = false;
+      exed = true;
   }
 
   // check the entire list
@@ -162,8 +168,7 @@ bool ZdcTopology::validRaw(const HcalZDCDetId& id) const {
   else if (id.channel() <= 0)
     ok = false;
   else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD ||
-             id.section() == HcalZDCDetId::LUM))
-    //else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD || id.section()== HcalZDCDetId::LUM || id.section()== HcalZDCDetId::RPD))
+             id.section() == HcalZDCDetId::LUM || id.section() == HcalZDCDetId::RPD))
     ok = false;
   else if (id.section() == HcalZDCDetId::EM && id.channel() > HcalZDCDetId::kDepEM)
     ok = false;
@@ -172,6 +177,8 @@ bool ZdcTopology::validRaw(const HcalZDCDetId& id) const {
   else if (id.section() == HcalZDCDetId::LUM && id.channel() > HcalZDCDetId::kDepLUM)
     ok = false;
   else if (id.section() == HcalZDCDetId::RPD && id.channel() > HcalZDCDetId::kDepRPD)
+    ok = false;
+  else if (id.section() == HcalZDCDetId::Unknown)
     ok = false;
   return ok;
 }
@@ -355,4 +362,46 @@ int ZdcTopology::lastCell(HcalZDCDetId::Section section) const {
       break;
   }
   return lastCell;
+}
+
+uint32_t ZdcTopology::kSizeForDenseIndexing() const {
+  return (mode_ >= HcalTopologyMode::Mode::Run3 ? HcalZDCDetId::kSizeForDenseIndexingRun3
+                                                : HcalZDCDetId::kSizeForDenseIndexingRun1);
+}
+
+DetId ZdcTopology::denseId2detId(uint32_t di) const {
+  if (validDenseIndex(di)) {
+    bool lz(false);
+    uint32_t dp(0);
+    HcalZDCDetId::Section se(HcalZDCDetId::Unknown);
+    if (di >= 2 * HcalZDCDetId::kDepRun1) {
+      lz = (di >= (HcalZDCDetId::kDepRun1 + HcalZDCDetId::kDepTot));
+      se = HcalZDCDetId::RPD;
+      dp = 1 + ((di - 2 * HcalZDCDetId::kDepRun1) % HcalZDCDetId::kDepRPD);
+    } else {
+      lz = (di >= HcalZDCDetId::kDepRun1);
+      uint32_t in = (di % HcalZDCDetId::kDepRun1);
+      se = (in < HcalZDCDetId::kDepEM
+                ? HcalZDCDetId::EM
+                : (in < HcalZDCDetId::kDepEM + HcalZDCDetId::kDepHAD ? HcalZDCDetId::HAD : HcalZDCDetId::LUM));
+      dp = (se == HcalZDCDetId::EM ? in + 1
+                                   : (se == HcalZDCDetId::HAD ? in - HcalZDCDetId::kDepEM + 1
+                                                              : in - HcalZDCDetId::kDepEM - HcalZDCDetId::kDepHAD + 1));
+    }
+    return static_cast<DetId>(HcalZDCDetId(se, lz, dp));
+  }
+  return DetId();
+}
+
+uint32_t ZdcTopology::detId2DenseIndex(const DetId& id) const {
+  HcalZDCDetId detId(id);
+  const int32_t se(detId.section());
+  uint32_t di = (detId.channel() - 1 +
+                 (se == HcalZDCDetId::RPD
+                      ? 2 * HcalZDCDetId::kDepRun1 + (detId.zside() < 0 ? 0 : HcalZDCDetId::kDepRPD)
+                      : ((detId.zside() < 0 ? 0 : HcalZDCDetId::kDepRun1) +
+                         (se == HcalZDCDetId::HAD
+                              ? HcalZDCDetId::kDepEM
+                              : (se == HcalZDCDetId::LUM ? HcalZDCDetId::kDepEM + HcalZDCDetId::kDepHAD : 0)))));
+  return di;
 }

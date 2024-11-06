@@ -1,22 +1,19 @@
-#ifndef PrimaryVertexMonitor_H
-#define PrimaryVertexMonitor_H
-
-#include "FWCore/Utilities/interface/EDGetToken.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/Common/interface/Association.h"
+#ifndef DQMOffline_RecoB_PrimaryVertexMonitor_H
+#define DQMOffline_RecoB_PrimaryVertexMonitor_H
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 /** \class PrimaryVertexMonitor
  *
@@ -26,8 +23,9 @@
 class PrimaryVertexMonitor : public DQMEDAnalyzer {
 public:
   explicit PrimaryVertexMonitor(const edm::ParameterSet &pSet);
-
   ~PrimaryVertexMonitor() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
@@ -35,33 +33,39 @@ public:
   struct IPMonitoring {
     std::string varname_;
     float pTcut_;
-    dqm::reco::MonitorElement *IP_, *IPErr_;
+    dqm::reco::MonitorElement *IP_, *IPErr_, *IPPull_;
     dqm::reco::MonitorElement *IPVsPhi_, *IPVsEta_;
     dqm::reco::MonitorElement *IPErrVsPhi_, *IPErrVsEta_;
     dqm::reco::MonitorElement *IPVsEtaVsPhi_, *IPErrVsEtaVsPhi_;
 
     void bookIPMonitor(DQMStore::IBooker &, const edm::ParameterSet &);
+
+  private:
+    int PhiBin_, EtaBin_;
+    double PhiMin_, PhiMax_, EtaMin_, EtaMax_;
   };
 
 private:
   void pvTracksPlots(const reco::Vertex &v);
   void vertexPlots(const reco::Vertex &v, const reco::BeamSpot &beamSpot, int i);
 
-  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-  edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
+  // event data
+
+  const edm::InputTag vertexInputTag_;
+  const edm::InputTag beamSpotInputTag_;
+  const edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   using VertexScore = edm::ValueMap<float>;
-  edm::EDGetTokenT<VertexScore> scoreToken_;
+  const edm::EDGetTokenT<VertexScore> scoreToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
 
-  edm::InputTag vertexInputTag_, beamSpotInputTag_;
+  // configuration
 
-  edm::ParameterSet conf_;
-
-  std::string dqmLabel;
-
-  std::string TopFolderName_;
-  std::string AlignmentLabel_;
-  int ndof_;
-  bool useHPfoAlignmentPlots_;
+  const edm::ParameterSet conf_;
+  const std::string dqmLabel;
+  const std::string TopFolderName_;
+  const std::string AlignmentLabel_;
+  const int ndof_;
+  const bool useHPfoAlignmentPlots_;
   bool errorPrinted_;
 
   static constexpr int cmToUm = 10000;

@@ -507,7 +507,7 @@ Bool_t SiStripSpyDisplayModule::MakeRawDigiHist_(const edm::Handle<edm::DetSetVe
   for (; idigi != digis_it->data.end(); ++idigi) {
     count++;
     hist->SetBinContent(count, static_cast<int>((*idigi).adc()));
-  }             // end of loop over the digis
+  }  // end of loop over the digis
   return true;  // Success! (Probably.)
 }
 
@@ -542,7 +542,7 @@ Bool_t SiStripSpyDisplayModule::MakeProcessedRawDigiHist_(
   for (; idigi != digis_it->data.end(); ++idigi) {
     count++;
     hist->SetBinContent(count, static_cast<float>((*idigi).adc()));
-  }             // end of loop over the digis
+  }  // end of loop over the digis
   return true;  // Success! (Probably.)
 }
 

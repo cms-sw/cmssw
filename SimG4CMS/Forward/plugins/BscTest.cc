@@ -952,7 +952,7 @@ void BscTest::update(const EndOfEvent* evt) {
       }
       */
     }  // MI or no MI or all  - end
-  }    // primary end
+  }  // primary end
 
   if (verbosity > 0) {
     edm::LogVerbatim("BscTest") << "BscTest:  END OF Event " << (*evt)()->GetEventID();

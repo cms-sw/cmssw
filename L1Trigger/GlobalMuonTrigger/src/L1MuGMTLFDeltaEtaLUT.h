@@ -46,7 +46,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTLFDeltaEtaLUT() override{};
+  ~L1MuGMTLFDeltaEtaLUT() override {}
 
   /// specific lookup function for delta_eta
   unsigned SpecificLookup_delta_eta(int idx, unsigned eta_dtcsc, unsigned eta_rpc) const {
