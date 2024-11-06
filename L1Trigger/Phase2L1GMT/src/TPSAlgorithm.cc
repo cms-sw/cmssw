@@ -1,5 +1,4 @@
 #include "L1Trigger/Phase2L1GMT/interface/TPSAlgorithm.h"
-//#include <fstream>
 
 using namespace Phase2L1GMT;
 
@@ -538,71 +537,6 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track, co
     edm::LogInfo("TPSAlgo") << std::endl;
   }
 
-  //printouts
-  /* 
-  fstream outfile("/uscms/home/hancelin/testing/CMSSW_14_1_0_pre3/src/matching_printouts.txt", ios::app);
-  outfile << "Input converted track: ";
-  //q, pt, phi, eta, z0, d0, quality
-  outfile << "q=" + to_string(ap_uint<1>(track.charge())) + ", ";
-  outfile << "pt=" + to_string(ap_uint<BITSPT>(track.pt())) + ", ";
-  outfile << "phi=" + to_string(ap_int<BITSPHI>(track.phi())) + ", ";
-  outfile << "eta=" + to_string(ap_int<BITSETA>(track.eta())) + ", ";
-  outfile << "z0=" + to_string(ap_int<BITSZ0>(track.z0())) + ", ";
-  outfile << "d0=" + to_string(ap_int<BITSD0>(track.d0())) + ", ";
-  outfile << "quality=" + to_string(ap_uint<1>(track.quality())) + ", ";
-
-  outfile << "\n";
-
-  outfile << "Input stubs:\n";
-  //layer, coord1, coord2, eta1, eta2, phiQuality, etaQuality, id (time???)
-  for (const auto& stub : stubs) {
-      outfile << "    ";
-      outfile << "layer=" + to_string(stub->tfLayer()) + ", ";
-      outfile << "coord1=" + to_string(stub->coord1()) + ", ";
-      outfile << "coord2=" + to_string(stub->coord2()) + ", ";
-      outfile << "eta1=" + to_string(stub->eta1()) + ", ";
-      outfile << "eta2=" + to_string(stub->eta2()) + ", ";
-      outfile << "quality=" + to_string(stub->quality()) + ", ";
-      outfile << "etaQuality=" + to_string(stub->etaQuality()) + ", ";
-      outfile << "id=" + to_string(stub->id()) + ", ";
-      outfile << "\n";
-  }
-  outfile << "End stubs\n";
-  
-  outfile << "Output PreTrackMatchedMuon: ";
-  outfile << "valid=" + to_string(muon.valid()) + ", ";
-  outfile << "q=" + to_string(muon.charge()) + ", ";
-  outfile << "pt=" + to_string(muon.pt()) + ", ";
-  outfile << "phi=" + to_string(muon.phi()) + ", ";
-  outfile << "eta=" + to_string(muon.eta()) + ", ";
-  outfile << "z0=" + to_string(muon.z0()) + ", ";
-  outfile << "d0=" + to_string(muon.d0()) + ", ";
-  outfile << "isGlobalMuon=" + to_string(muon.isGlobalMuon()) + ", ";
-  outfile << "beta=" + to_string(muon.beta()) + ", ";
-  outfile << "quality=" + to_string(muon.quality()) + ", ";
-
-  outfile << "\n";
-
-  outfile << "Output PreTrackMatchedMuon matched stubs:\n";
-  for (const auto& stub : muon.stubs()) {
-      match_t tempmatch = propagateAndMatch(track, stub, 0); //want to verify details of match as well as stub
-      outfile << "    ";
-      outfile << "layer=" + to_string(stub->tfLayer()) + ", ";
-      outfile << "coord1=" + to_string(stub->coord1()) + ", ";
-      outfile << "coord2=" + to_string(stub->coord2()) + ", ";
-      outfile << "eta1=" + to_string(stub->eta1()) + ", ";
-      outfile << "eta2=" + to_string(stub->eta2()) + ", ";
-      outfile << "phiQuality=" + to_string(stub->quality()) + ", ";
-      outfile << "etaQuality=" + to_string(stub->etaQuality()) + ", ";
-      outfile << "id=" + to_string(stub->id()) + ", ";
-      outfile << "quality=" + to_string(tempmatch.quality) + ", ";
-      outfile << "valid=" + to_string(tempmatch.valid) + ", ";
-      outfile << "\n";
-  }
-  outfile << "End stubs\n\n";
-
-  outfile.close();
-  */
   return muon;
 }
 
