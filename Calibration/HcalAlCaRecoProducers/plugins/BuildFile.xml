@@ -26,7 +26,6 @@
 <use name="TrackPropagation/SteppingHelixPropagator"/>
 <use name="rootphysics"/>
 <use name="boost"/>
-<use name="hls"/>
 <use name="clhep"/>
 <use name="root"/>
 <library file="*.cc" name="CalibrationHcalAlCaRecoProducersPlugins">
