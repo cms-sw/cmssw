@@ -1,6 +1,6 @@
 #######################################################9########################
 # Way to use this:
-#   cmsRun runMaterialBudgetInfo2026_cfg.py type=DDD geometry=D110 detector=Tracker
+#   cmsRun runMaterialBudgetInfoRun4_cfg.py type=DDD geometry=D110 detector=Tracker
 #
 #   Options for type DDD, DD4hep
 #   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
@@ -90,9 +90,9 @@ else:
         process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
 
 if (options.type == "DDD"):
-    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 else:
-    geomFile = "Configuration.Geometry.GeometryDD4hepExtended2026" + options.geometry + "Reco_cff"
+    geomFile = "Configuration.Geometry.GeometryDD4hepExtendedRun4" + options.geometry + "Reco_cff"
 
 print("Geometry file Name: ", geomFile)
 print("Detector          : ", options.detector)

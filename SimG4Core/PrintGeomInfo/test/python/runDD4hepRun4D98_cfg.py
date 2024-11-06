@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runDD4hep2026_cfg.py type=Tracker
+#   cmsRun runDD4hepRun4D98_cfg.py type=Tracker
 #
 #   Options for type Tracker, Calo, MTD, Muon
 #
@@ -30,7 +30,7 @@ from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('G4PrintGeometry',Phase2C17I13M9,dd4hep)
 
-geomFile = "Geometry.CMSCommonData.GeometryDD4hepExtended2026D98" + options.type + "Reco_cff"
+geomFile = "Geometry.CMSCommonData.GeometryDD4hepExtendedRun4D98" + options.type + "Reco_cff"
 materialFileName = "matfileD98" + options.type + "DD4hep.txt"
 solidFileName    = "solidfileD98" + options.type + "DD4hep.txt"
 lvFileName       = "lvfileD98" + options.type + "DD4hep.txt"
