@@ -18,7 +18,7 @@ from ..modules.hltHgcalSoARecHitsProducer_cfi import *
 from ..modules.hltHgcalSoARecHitsLayerClustersProducer_cfi import *
 from ..modules.hltHgcalSoALayerClustersProducer_cfi import *
 from ..modules.hltHgcalLayerClustersFromSoAProducer_cfi import *
-from ..modules.hltTiclTracksterLinksUnseeded_cfi import *
+from ..modules.hltTiclTracksterLinks_cfi import *
 
 _HgcalLocalRecoUnseededSequence = cms.Sequence(hltHgcalDigis+hltHGCalUncalibRecHit+hltHGCalRecHit+hltParticleFlowRecHitHGC+hltHgcalLayerClustersEE+hltHgcalLayerClustersHSci+hltHgcalLayerClustersHSi+hltHgcalMergeLayerClusters)
 _HgcalTICLPatternRecognitionUnseededSequence = cms.Sequence(hltFilteredLayerClustersCLUE3DHigh+hltTiclSeedingGlobal+hltTiclLayerTileProducer+hltTiclTrackstersCLUE3DHigh)
@@ -49,7 +49,7 @@ alpaka.toModify(hltHgcalMergeLayerClusters,
 )
 
 # Use EGammaSuperClusterProducer at HLT in ticl v5
-hltTiclTracksterLinksSuperclusteringDNNUnseeded = hltTiclTracksterLinksUnseeded.clone(
+hltTiclTracksterLinksSuperclusteringDNNUnseeded = hltTiclTracksterLinks.clone(
     linkingPSet = cms.PSet(
         type=cms.string("SuperClusteringDNN"),
         algo_verbosity=cms.int32(0),
@@ -59,7 +59,7 @@ hltTiclTracksterLinksSuperclusteringDNNUnseeded = hltTiclTracksterLinksUnseeded.
     tracksters_collections = [cms.InputTag("hltTiclTrackstersCLUE3DHigh")], # to be changed to ticlTrackstersCLUE3DEM once separate CLUE3D iterations are introduced
 )
 
-hltTiclTracksterLinksSuperclusteringMustacheUnseeded = hltTiclTracksterLinksUnseeded.clone(
+hltTiclTracksterLinksSuperclusteringMustacheUnseeded = hltTiclTracksterLinks.clone(
     linkingPSet = cms.PSet(
         type=cms.string("SuperClusteringMustache"),
         algo_verbosity=cms.int32(0)

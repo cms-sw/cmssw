@@ -74,7 +74,6 @@ TracksterLinkingbySkeletons::TracksterLinkingbySkeletons(const edm::ParameterSet
       cylinder_radius_sqr_split_(conf.getParameter<double>("cylinder_radius_sqr_split")),
       proj_distance_split_(conf.getParameter<double>("proj_distance_split")),
       timing_quality_threshold_(conf.getParameter<double>("track_time_quality_threshold")),
-      del_(conf.getParameter<double>("wind")),
       min_trackster_energy_(conf.getParameter<double>("min_trackster_energy")),
       pca_quality_th_(conf.getParameter<double>("pca_quality_th")),
       dot_prod_th_(conf.getParameter<double>("dot_prod_th")),
