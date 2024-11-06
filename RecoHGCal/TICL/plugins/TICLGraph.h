@@ -18,7 +18,7 @@ namespace ticl {
     inline const unsigned int getId() const { return index_; }
     const std::vector<unsigned int>& getOuterNeighbours() const { return outerNeighboursId_; }
     const std::vector<unsigned int>& getInnerNeighbours() const { return innerNeighboursId_; }
-    void findSubComponents(std::vector<Node>& graph, std::vector<unsigned int>& subComponent, std::string tabs);
+    void findSubComponents(std::vector<Node>& graph, std::vector<unsigned int>& subComponent);
 
     inline bool isInnerNeighbour(const unsigned int tid) {
       auto findInner = std::find(innerNeighboursId_.begin(), innerNeighboursId_.end(), tid);

@@ -24,7 +24,7 @@ namespace {
       if (trackster.raw_energy() > min_trackster_energy) {
         auto const &eigenvalues = trackster.eigenvalues();
         auto const sum = std::accumulate(std::begin(eigenvalues), std::end(eigenvalues), 0.f);
-        float pcaQuality = eigenvalues[0] / sum;
+        float pcaQuality = sum > 0.f ? eigenvalues[0] / sum : 0.f;
         if (pcaQuality > pca_quality_th) {
           isGood = true;
         }
@@ -32,7 +32,7 @@ namespace {
     } else {
       auto const &eigenvalues = trackster.eigenvalues();
       auto const sum = std::accumulate(std::begin(eigenvalues), std::end(eigenvalues), 0.f);
-      float pcaQuality = eigenvalues[0] / sum;
+      float pcaQuality = sum > 0.f ? eigenvalues[0] / sum : 0.f;
       if (pcaQuality > pca_quality_th) {
         isGood = true;
       }
@@ -121,10 +121,16 @@ void TracksterLinkingbySkeletons::initialize(const HGCalDDDConstants *hgcons,
 
   //define LUT for eta windows
   // eta windows obtained with a deltaR of 4cm at z = 400 cm
+  float etaStep = (TileConstants::maxEta - TileConstants::minEta) / TileConstants::nEtaBins;
+  float expNeg2DeltaRxy = deltaRxy_ * std::exp(-2.f);
+
   for (int i = 0; i < TileConstants::nEtaBins; ++i) {
-    float eta = TileConstants::minEta + i * (TileConstants::maxEta - TileConstants::minEta) / TileConstants::nEtaBins;
-    float R = z_surface * 2.f * std::exp(-eta) / (1.f - std::exp(-2.f * eta));
-    eta_windows_[i] = abs(atan(deltaRxy_ / R));
+    float eta = TileConstants::minEta + i * etaStep;
+
+    float expNegEta = std::exp(-eta);
+    float R = z_surface * 2.f * expNegEta / (1.f - expNeg2DeltaRxy * expNegEta);
+
+    eta_windows_[i] = std::abs(atan(deltaRxy_ / R));
   }
 }
 
@@ -227,6 +233,9 @@ inline bool isInCylinder(const std::array<ticl::Vector, 3> &mySkeleton,
 }
 
 inline float computeParameter(float energy, float en_th_low, float cut1, float en_th_high, float cut2) {
+  if (en_th_low == en_th_high) {  //protect if the thresholds are equal
+    return (energy <= en_th_low) ? cut1 : cut2;
+  }
   if (energy < en_th_low) {
     return cut1;
   } else if (energy >= en_th_low && energy <= en_th_high) {
@@ -527,20 +536,6 @@ void TracksterLinkingbySkeletons::linkTracksters(
     }
   }
 
-  LogDebug("TracksterLinkingbySkeletons") << "****************  FINAL GRAPH **********************" << std::endl;
-  //  for (auto const &node : allNodes) {
-  //    if (isRootTracksters[node.getId()]) {
-  //      LogDebug("TracksterLinkingbySkeletons")
-  //          << "ISROOT "
-  //          << " Node " << node.getId() << " position " << tracksters[node.getId()].barycenter() << " energy "
-  //          << tracksters[node.getId()].raw_energy() << std::endl;
-  //    } else {
-  //      LogDebug("TracksterLinkingbySkeletons")
-  //          << "Node " << node.getId() << " position " << tracksters[node.getId()].barycenter() << " energy "
-  //          << tracksters[node.getId()].raw_energy() << std::endl;
-  //    }
-  //  }
-  LogDebug("TracksterLinkingbySkeletons") << "********************************************************" << std::endl;
   TICLGraph graph(allNodes);
   auto sortedRootNodes = graph.getRootNodes();
   std::sort(sortedRootNodes.begin(), sortedRootNodes.end(), [&tracksters](const ticl::Node &n1, const ticl::Node &n2) {
@@ -548,13 +543,6 @@ void TracksterLinkingbySkeletons::linkTracksters(
     unsigned int n2Id = n2.getId();
     return tracksters[n1Id].raw_energy() > tracksters[n2Id].raw_energy();
   });
-  //  for(auto const& n : sortedRootNodes) {
-  //    if(n.getOuterNeighbours().size() > 0){
-  //      LogDebug("TracksterLinkingbySkeletons") << "Sorted " << n.getId() << " " << tracksters[n.getId()].raw_energy() << std::endl;
-  //    }
-  //  }
-
-  //assert(graph.isGraphOk() == true && "Graph is not ok");
 
   int ic = 0;
   auto const &components = graph.findSubComponents(sortedRootNodes);
