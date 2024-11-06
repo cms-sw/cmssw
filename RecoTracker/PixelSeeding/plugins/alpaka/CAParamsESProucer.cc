@@ -91,19 +91,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     
     int n_layers = layerStarts_.size();
     int n_pairs = pairGraph_.size() / 2;
-    int n_regions = regionStarts_.size();
+    // int n_regions = regionStarts_.size();
 
     assert(int(n_pairs) == int(minZ_.size())); 
 
-    reco::CAParamsHost product{{{n_layers,n_pairs,n_regions}}, cms::alpakatools::host()};
+    reco::CAParamsHost product{{{n_layers,n_pairs}}, cms::alpakatools::host()};
     // auto product = std::make_unique<reco::CAParamsHost>({{n_layers,n_pairs,n_regions}},cms::alpakatools::host());
 
     auto layerSoA = product.view();
     auto cellSoA = product.view<::reco::CACellsSoA>();
-    auto regionSoA = product.view<::reco::CARegionsSoA>();
+    // auto regionSoA = product.view<::reco::CARegionsSoA>();
 
     for (int i = 0; i < n_layers; ++i)
-        layerSoA[i] = layerStarts_[i];
+        layerSoA.layerStarts()[i] = layerStarts_[i];
     
     for (int i = 0; i < n_pairs; ++i)
     {
@@ -118,12 +118,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cellSoA.doClusterCut() = doClusterCut_;
     cellSoA.idealConditions() = idealConditions_;
     
-    for (int i = 0; i < n_regions; i++)
-    {
-        regionSoA.regionStarts()[i] = regionStarts_[i];
-        regionSoA.caThetaCut()[i] = caThetaCut_[i];
-        regionSoA.caDCACut()[i] = caDCACut_[i];
-    }
+    // for (int i = 0; i < n_regions; i++)
+    // {
+    //     regionSoA.regionStarts()[i] = regionStarts_[i];
+    //     regionSoA.caThetaCut()[i] = caThetaCut_[i];
+    //     regionSoA.caDCACut()[i] = caDCACut_[i];
+    // }
     
     return product;
 

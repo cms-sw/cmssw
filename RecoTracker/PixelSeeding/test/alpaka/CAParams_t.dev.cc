@@ -59,7 +59,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testParamsSoA {
 
   void runKernels(reco::CALayersSoAView layers_view,
                                   reco::CACellsSoAView pairs_view,
-                                  reco::CARegionsSoAView regions_view, Queue& queue) {
+                                  Queue& queue) {
     uint32_t items = 64;
     uint32_t groups = cms::alpakatools::divide_up_by(CAParams_view.metadata().size(), items);
     // auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, items);

@@ -236,6 +236,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return std::abs(eq.dca0()) < region_origin_radius_plus_tolerance * std::abs(eq.curvature());
     }
 
+    /*
+    // These functions have never been used in production
+    // They need an AverageGeometry to be filled 
+    // Commenting for the moment since they are the only reason we 
+    // fill the AverageGeometry and attach to the hit SoA
+    // keeping them commented for future usage and memory
+
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool hole0(const HitsConstView& hh, CACellT const& innerCell) const {
       using namespace phase1PixelTopology;
 
@@ -279,6 +286,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto holeN = z4 < hh.averageGeometry().ladderMinZ[il] && z4 > hh.averageGeometry().endCapZ[1];
       return gap || holeP || holeN;
     }
+    */
 
     // trying to free the track building process from hardcoded layers, leaving
     // the visit of the graph based on the neighborhood connections between cells.

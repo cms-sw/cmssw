@@ -10,6 +10,6 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace reco {
-    using CAParamsHost = PortableHostMultiCollection<CALayersSoA, CACellsSoA, CARegionsSoA>;
+    using CAParamsHost = PortableHostMultiCollection<CALayersSoA, CACellsSoA>;
 }
 #endif  // DataFormats_VertexSoA_CAParamsHost_H

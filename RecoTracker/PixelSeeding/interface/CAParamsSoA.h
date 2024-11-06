@@ -12,7 +12,9 @@ namespace reco {
     using GraphNode = std::array<uint32_t, 2>;
 
     GENERATE_SOA_LAYOUT(CALayersLayout, 
-                    SOA_COLUMN(uint32_t, layerStarts)
+                    SOA_COLUMN(uint32_t, layerStarts),
+                    SOA_COLUMN(float, caThetaCut),
+                    SOA_COLUMN(float, caDCACut)
                     )
 
     GENERATE_SOA_LAYOUT(CACellsLayout, 
@@ -27,11 +29,11 @@ namespace reco {
                     SOA_SCALAR(bool, idealConditions)
                     )
 
-    GENERATE_SOA_LAYOUT(CARegionsLayout, 
-                    SOA_COLUMN(uint32_t, regionStarts),
-                    SOA_COLUMN(float, caThetaCut),
-                    SOA_COLUMN(float, caDCACut)
-                    )
+    // GENERATE_SOA_LAYOUT(CARegionsLayout, 
+    //                 SOA_COLUMN(uint32_t, regionStarts),
+    //                 SOA_COLUMN(float, caThetaCut),
+    //                 SOA_COLUMN(float, caDCACut)
+    //                 )
     
   using CALayersSoA = CALayersLayout<>;
   using CALayersSoAView = CALayersSoA::View;
@@ -41,9 +43,9 @@ namespace reco {
   using CACellsSoAView = CACellsSoA::View;
   using CACellsSoAConstView = CACellsSoA::ConstView;
 
-  using CARegionsSoA = CARegionsLayout<>;
-  using CARegionsSoAView = CARegionsSoA::View;
-  using CARegionsSoAConstView = CARegionsSoA::ConstView;
+  // using CARegionsSoA = CARegionsLayout<>;
+  // using CARegionsSoAView = CARegionsSoA::View;
+  // using CARegionsSoAConstView = CARegionsSoA::ConstView;
 
 }
 #endif  // RecoTracker_PixelSeeding_interface_CAParams_h

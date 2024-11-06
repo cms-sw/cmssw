@@ -89,7 +89,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto const& hits = iEvent.get(tokenHit_);
 
-    iEvent.emplace(tokenTrack_, deviceAlgo_.makeTuplesAsync(hits, frame, bf, iEvent.queue()));
+    iEvent.emplace(tokenTrack_, deviceAlgo_.makeTuplesAsync(hits, frame, params, bf, iEvent.queue()));
   }
 
   using CAHitNtupletAlpakaPhase1 = CAHitNtupletAlpaka<pixelTopology::Phase1>;

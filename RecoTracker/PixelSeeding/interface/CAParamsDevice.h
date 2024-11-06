@@ -11,6 +11,6 @@
 
 namespace reco {
     template <typename TDev>
-    using CAParamsDevice = PortableDeviceMultiCollection<TDev, CALayersSoA, CACellsSoA, CARegionsSoA>;
+    using CAParamsDevice = PortableDeviceMultiCollection<TDev, CALayersSoA, CACellsSoA>;
 }
 #endif  // DataFormats_VertexSoA_CAParamsDevice_H
