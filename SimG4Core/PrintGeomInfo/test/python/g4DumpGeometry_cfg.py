@@ -1,25 +1,48 @@
+###############################################################################
+# Way to use this:
+#   cmsRun g4DumpGeometry_cfg.py geometry=Run4D110
+#
+#   Options for geometry 2015, 2017, 2018, Run4D110, Run4D116
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, importlib, re
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "Run4D110",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: 2015, 2017, 2018, Run4D110, Run4D116")
+
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+#####p###############################################################
+# Use the options
+
+geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "Reco_cff"
+outFile = options.geometry
+print("Geometry file Name:    ", geomFile)
+print("Output Base file Name: ", outFile)
 
 process = cms.Process("G4PrintGeometry")
 
-#process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtendedRun4D77Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtendedRun4D83Reco_cff')
+process.load(geomFile)
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)
-
-process.MessageLogger.cerr.enable = False
-process.MessageLogger.files.Ecal2017 = dict(extension ="info")
 
 # enable Geant4 overlap check 
 process.g4SimHits.CheckGeometry = cms.bool(True)
 
 # Geant4 geometry check 
-process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string("2017")
-#process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string("2026D77")
+process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string(outFile)
 process.g4SimHits.G4CheckOverlap.OverlapFlag = cms.bool(False)
 process.g4SimHits.G4CheckOverlap.Tolerance  = cms.double(0.0)
 process.g4SimHits.G4CheckOverlap.Resolution = cms.int32(10000)
