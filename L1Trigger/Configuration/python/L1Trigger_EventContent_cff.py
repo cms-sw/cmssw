@@ -108,11 +108,11 @@ def _appendCICADAInformation(obj):
     ]
     obj.outputCommands += cicadaDataRegions
 # Make CICADA available in AOD and miniAOD from 2024 on
-from Configuration.Eras.Modifier_run3_2024_L1T_cff import run3_2024_L1T
-run3_2024_L1T.toModify(L1TriggerAOD, func=_appendCICADAInformation)
+from Configuration.Eras.Modifier_stage2L1Trigger_2024_cff import stage2L1Trigger_2024
+stage2L1Trigger_2024.toModify(L1TriggerAOD, func=_appendCICADAInformation)
 from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MicroEventContent, MicroEventContentMC
-run3_2024_L1T.toModify(MicroEventContent, func=_appendCICADAInformation)
-run3_2024_L1T.toModify(MicroEventContentMC, func=_appendCICADAInformation)
+stage2L1Trigger_2024.toModify(MicroEventContent, func=_appendCICADAInformation)
+stage2L1Trigger_2024.toModify(MicroEventContentMC, func=_appendCICADAInformation)
 
 def _appendStage2Digis(obj):
     l1Stage2Digis = [
