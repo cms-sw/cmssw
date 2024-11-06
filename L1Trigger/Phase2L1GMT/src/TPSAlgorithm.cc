@@ -139,7 +139,6 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop2_coord2 = {
       {lt_prop2_coord2_0, lt_prop2_coord2_1, lt_prop2_coord2_2, lt_prop2_coord2_3, lt_prop2_coord2_4}};
 
-
   static const std::array<const ap_uint<BITSPROPSIGMACOORD_A>*, 5> lt_res0_coord1 = {
       {lt_res0_coord1_0, lt_res0_coord1_1, lt_res0_coord1_2, lt_res0_coord1_3, lt_res0_coord1_4}};
   static const std::array<const ap_uint<BITSPROPSIGMACOORD_B>*, 5> lt_res1_coord1 = {
