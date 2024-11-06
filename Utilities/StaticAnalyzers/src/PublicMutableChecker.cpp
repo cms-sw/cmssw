@@ -1,26 +1,23 @@
-//== MutableMemberChecker.cpp - Checks for mutable members --------------*- C++ -*--==//
-//
-// by Thomas Hauth [ Thomas.Hauth@cern.ch ]
-//
-//===----------------------------------------------------------------------===//
+#include <clang/AST/ASTContext.h>
+#include <clang/AST/DeclCXX.h>
+#include <clang/StaticAnalyzer/Core/Checker.h>
+#include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
+#include <clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h>
+#include "PublicMutableChecker.h"
+#include "CmsSupport.h"
 
-#include "MutableMemberChecker.h"
-#include <clang/AST/Attr.h>
-using namespace clang;
-using namespace ento;
-using namespace llvm;
 namespace clangcms {
-
-  void MutableMemberChecker::checkASTDecl(const clang::FieldDecl *D,
+  void PublicMutableChecker::checkASTDecl(const clang::FieldDecl *D,
                                           clang::ento::AnalysisManager &Mgr,
                                           clang::ento::BugReporter &BR) const {
-    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>() || D->hasAttr<CMSSaAllowAttr>())
+    if (D->hasAttr<clang::CMSThreadGuardAttr>() || D->hasAttr<clang::CMSThreadSafeAttr>() ||
+        D->hasAttr<clang::CMSSaAllowAttr>())
       return;
-    if (D->isMutable() && D->getDeclContext()->isRecord()) {
+    if (D->isMutable() && D->getDeclContext()->isRecord() && D->getAccess() != clang::AS_private) {
       clang::QualType t = D->getType();
       clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::create(D, BR.getSourceManager());
 
-      if (!m_exception.reportMutableMember(t, DLoc, BR))
+      if (!m_exception.reportMutableMember(DLoc, BR))
         return;
       std::string mname = t.getCanonicalType().getAsString();
       if (support::isSafeClassName(mname))
@@ -28,11 +25,10 @@ namespace clangcms {
       std::string buf;
       llvm::raw_string_ostream os(buf);
       std::string pname = D->getParent()->getQualifiedNameAsString();
-      os << "Mutable member '" << D->getQualifiedNameAsString() << "' in class '" << pname
-         << "', might be thread-unsafe when accessing via a const pointer.";
+      os << "Class '" << pname << "' has publically-accessible mutable member '" << D->getQualifiedNameAsString()
+         << "', this is not allowed.";
       if (!BT)
-        BT = std::make_unique<clang::ento::BugType>(
-            this, "mutable member if accessed via const pointer", "ConstThreadSafety");
+        BT = std::make_unique<clang::ento::BugType>(this, "public mutable member", "ConstThreadSafety");
       std::unique_ptr<clang::ento::BasicBugReport> R =
           std::make_unique<clang::ento::BasicBugReport>(*BT, llvm::StringRef(os.str()), DLoc);
       R->setDeclWithIssue(D);
@@ -43,5 +39,4 @@ namespace clangcms {
       support::writeLog(ostring, tname);
     }
   }
-
-}  // namespace clangcms
+};  // namespace clangcms
