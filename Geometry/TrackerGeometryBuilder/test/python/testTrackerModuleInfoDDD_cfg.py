@@ -25,7 +25,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # Choose Tracker Geometry
 if(options.Scenario == _settings.DEFAULT_VERSION):
     print("Loading default scenario: ", _settings.DEFAULT_VERSION)
-    process.load('Configuration.Geometry.GeometryExtended2026Default_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4Default_cff')
 else:
     process.load('Configuration.Geometry.GeometryExtended'+options.Scenario+'_cff')
 

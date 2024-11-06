@@ -37,57 +37,57 @@ print(options)
 if (options.geometry == "2026D102"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D102Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D102Reco_cff')
     baseName = 'Hcal2026D102'
 elif (options.geometry == "2026D103"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D103Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D103Reco_cff')
     baseName = 'Hcal2026D103'
 elif (options.geometry == "2026D104"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D104Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D104Reco_cff')
     baseName = 'Hcal2026D104'
 elif (options.geometry == "2026D108"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D108Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
     baseName = 'Hcal2026D108'
 elif (options.geometry == "2026D109"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D109Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D109Reco_cff')
     baseName = 'Hcal2026D109'
 elif (options.geometry == "2026D110"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D108Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
     baseName = 'Hcal2026D110'
 elif (options.geometry == "2026D111"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D108Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
     baseName = 'Hcal2026D111'
 elif (options.geometry == "2026D112"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D108Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
     baseName = 'Hcal2026D112'
 elif (options.geometry == "2026D113"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D108Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
     baseName = 'Hcal2026D113'
 elif (options.geometry == "2026D114"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D108Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
     baseName = 'Hcal2026D114'
 elif (options.geometry == "2026D115"):
     from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
     process = cms.Process('G4PrintGeometry',Phase2C20I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D108Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
     baseName = 'Hcal2026D115'
 elif (options.geometry == "2016"):
     from Configuration.Eras.Era_Run2_2016_cff import Run2_2016

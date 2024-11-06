@@ -9,7 +9,7 @@ runTheMatrix.py --what upgrade -n
 
 To make an upgrade workflow visible to the regular matrix, add it to:
 * [relval_2017.py](./python/relval_2017.py) (for Run 2 and Run 3)
-* [relval_2026.py](./python/relval_2026.py) (for Phase 2)
+* [relval_Run4.py](./python/relval_Run4.py) (for Phase 2)
 
 All workflows in the regular matrix can be run in IB tests,
 so this should only be done for fully functional workflows.

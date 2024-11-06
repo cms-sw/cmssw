@@ -4,7 +4,7 @@ from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
 process = cms.Process('PROD',Phase2C20I13M9)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load('Configuration.Geometry.GeometryExtended2026D115Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D115Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.RawToDigi_cff')

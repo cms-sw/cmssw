@@ -1006,7 +1006,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         gemChamberPartition[hist_index]->Fill(chamber, Hit->Partition());
         gemHitOccupancy->Fill(chamber_bin(1, 1, chamber), (endcap > 0) ? 1.5 : 0.5);  // follow CSC convention
         //Added plots 07-21-22 ***
-        gemVFATBXPerChamber[chamber - 1][hist_index][layer]->Fill(Hit->BX(), vfat);
+        gemVFATBXPerChamber[chamber - 1][hist_index][layer - 1]->Fill(Hit->BX(), vfat);
         //indexed plots by BX 07-21-22
         gemChamberVFATBX[hist_index][Hit->BX() + 3]->Fill(chamber_bin(1, 1, chamber), vfat);
       }
