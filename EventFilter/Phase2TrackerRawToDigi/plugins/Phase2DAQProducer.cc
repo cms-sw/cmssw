@@ -187,10 +187,7 @@ void Phase2DAQProducer::processClusters(TrackerGeometry::ModuleType moduleType,
         // and later, sclusterAddress = std::div(x, 127).quot;
         // end original
         // my original fix
-        // unsigned int chipId = x % 127;
-        // and later, sclusterAddress = std::div(x, 127).quot;
-
-        unsigned int chipId = std::div(x, 127).quot;
+        unsigned int chipId = x % 127;
         unsigned int sclusterAddress = 0;
         unsigned int mipbit = 0;
         unsigned int cicId = 0;
@@ -198,10 +195,11 @@ void Phase2DAQProducer::processClusters(TrackerGeometry::ModuleType moduleType,
         if (moduleType == TrackerGeometry::ModuleType::Ph2PSP) {cicId = (z > 15);} 
         else if (moduleType == TrackerGeometry::ModuleType::Ph2PSS || moduleType == TrackerGeometry::ModuleType::Ph2SS) {cicId = z;}
 
-        if (moduleType == TrackerGeometry::ModuleType::Ph2PSP || moduleType == TrackerGeometry::ModuleType::Ph2PSS) {sclusterAddress = std::div(x, 120).quot;}
-//         else if (moduleType == TrackerGeometry::ModuleType::Ph2SS) {sclusterAddress = std::div(x, 127).quot;}
-        else if (moduleType == TrackerGeometry::ModuleType::Ph2SS) {sclusterAddress = std::div(x, 127).rem;}
-
+        if (moduleType == TrackerGeometry::ModuleType::Ph2PSP || moduleType == TrackerGeometry::ModuleType::Ph2PSS) 
+        {sclusterAddress = std::div(x, 120).quot;}
+        else if (moduleType == TrackerGeometry::ModuleType::Ph2SS) 
+        {sclusterAddress = std::div(x, 127).quot;}
+        
         Cluster newCluster(z, x, width, chipId, sclusterAddress, mipbit, cicId, moduleType);
         assignedDtcUnit.getClustersOnSLink(slink_id).at(slink_id_within).push_back(newCluster);
         
