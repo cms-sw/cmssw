@@ -21,6 +21,13 @@
 
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Cluster.h"
 
+// namespace to be added
+
+constexpr uint16_t N_BYTES = 4;
+constexpr int LINE_LENGTH = 32;
+constexpr int CLUSTER_LENGTH = 14;
+constexpr int N_STRIPS_CBC = 127;
+
 // temporary definition of other classes
 class TrackerHeader {
 public:
@@ -90,6 +97,7 @@ public:
     void beginRun(const edm::Run&, const edm::EventSetup&) override;
     
     int getLineIndex(int channelIdx, unsigned int iline);
+    uint32_t readLine(const unsigned char* dataPtr, int lineIdx);
 
 
 private:
@@ -101,7 +109,7 @@ private:
     const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
     edm::EDGetTokenT<Phase2TrackerCluster1DCollectionNew> OutputClusterCollectionToken_;
     
-    const int nBytes = 4;
+//     const int nBytes = 4;
 
     const TrackerDetToDTCELinkCablingMap* cablingMap_ = nullptr;
     const TrackerGeometry* trackerGeometry_ = nullptr;
@@ -160,8 +168,6 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     TrackerHeader theHeader;
     ChannelsOffset theOffsets;
 
-    int lineLength = 32;
-    int clusterWordLength = 14;
 
     if (!fedRawDataCollection.isValid()) 
     {
@@ -183,15 +189,10 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
         
         // read the header  
         std::vector<uint32_t> headerWords;
-        for (size_t i = 0; i < 16; i += nBytes)  // Read 4 bytes (32 bits) at a time
+        for (size_t i = 0; i < 16; i += N_BYTES)  // Read 4 bytes (32 bits) at a time
         {
           // Extract 4 bytes (32 bits) and pack them into a uint32_t word
-          uint32_t word = (static_cast<uint32_t>(dataPtr[i]) << 24) | 
-                          (static_cast<uint32_t>(dataPtr[i + 1]) << 16) | 
-                          (static_cast<uint32_t>(dataPtr[i + 2]) << 8) | 
-                          (static_cast<uint32_t>(dataPtr[i + 3]));
-                            
-          headerWords.push_back(word);
+          headerWords.push_back(readLine(dataPtr, i));
         }
         theHeader.setValue(headerWords);
         theHeader.printValues() ;
@@ -200,14 +201,10 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
         // they start from the fifth line (4 * (5-1))
         // until line 22nd (4 * 22-1)
         std::vector<uint32_t> offsetWords;
-        for (size_t i = 16; i < 84; i += nBytes)  // Read 4 bytes (32 bits) at a time
+        for (size_t i = 16; i < 84; i += N_BYTES)  // Read 4 bytes (32 bits) at a time
         {
-            // Extract 4 bytes (32 bits) and pack them into a uint32_t word
-          uint32_t word = (static_cast<uint32_t>(dataPtr[i]) << 24) | 
-                          (static_cast<uint32_t>(dataPtr[i + 1]) << 16) | 
-                          (static_cast<uint32_t>(dataPtr[i + 2]) << 8) | 
-                          (static_cast<uint32_t>(dataPtr[i + 3]));
-          offsetWords.push_back(word)      ;          
+          // Extract 4 bytes (32 bits) and pack them into a uint32_t word
+          offsetWords.push_back(readLine(dataPtr, i));          
         }
         theOffsets.setValue(offsetWords);
   //       theOffsets.printMap();
@@ -225,12 +222,9 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
         {
           // find the channel offset
           // theOffsets.printValue(iChannel);
-          int idx = 88 + theOffsets.getOffsetForChannel(iChannel) * nBytes;
+          int idx = 88 + theOffsets.getOffsetForChannel(iChannel) * N_BYTES;
           // get the channel header
-          uint32_t headerWord = (static_cast<uint32_t>(dataPtr[idx]) << 24) | 
-                                (static_cast<uint32_t>(dataPtr[idx + 1]) << 16) | 
-                                (static_cast<uint32_t>(dataPtr[idx + 2]) << 8) | 
-                                (static_cast<uint32_t>(dataPtr[idx + 3]));
+          uint32_t headerWord = readLine(dataPtr, idx);
           
           unsigned long eventID = (headerWord >> 23) & 0x1FF;       // eventID is a 9-bit field
           int channelErrors = (headerWord >> 14) & 0x1FF;           // channelErrors is a 9-bit field
@@ -238,7 +232,7 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
           // we'll have separated num strip and num pixel clusters for PS modules, when ready
           // other 7 bits are missing for this line
           
-          unsigned int nLines = numClusters > 0 ? int(numClusters * clusterWordLength / lineLength) + 1 : 0;
+          unsigned int nLines = numClusters > 0 ? int(numClusters * CLUSTER_LENGTH / LINE_LENGTH) + 1 : 0;
           if (numClusters > 0){
             std::cout << "channel " << iChannel << "\t header: " << std::bitset<32>(headerWord) <<  std::endl;
             std::cout << "\t n clusters = " << numClusters ;
@@ -254,11 +248,7 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
           for (unsigned int iline = 0; iline < nLines; iline++)
           {
             int lineIdx = getLineIndex(idx, iline);
-            uint32_t lineWord = (static_cast<uint32_t>(dataPtr[lineIdx]) << 24) | 
-                                (static_cast<uint32_t>(dataPtr[lineIdx + 1]) << 16) | 
-                                (static_cast<uint32_t>(dataPtr[lineIdx + 2]) << 8) | 
-                                (static_cast<uint32_t>(dataPtr[lineIdx + 3]));
-            lines.push_back(lineWord);
+            lines.push_back(readLine(dataPtr, lineIdx));
           }        
           if ( lines.size() != nLines) 
             std::cout << "warning, something went wrong when storing lines " << std::endl;
@@ -266,27 +256,26 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   
           // then create groups of 14 bits, joining consecutive lines if needed
           // each cluster payload consists in 3bits for chipID, 8 bits for address, 3 bits for width = 14 bits
-          int nAvailableBits = lineLength;
-          int iline = 0;
+          int nAvailableBits = LINE_LENGTH;
+          int iLine = 0;
           int bitsToRead = 0;
           int nFullClusters = 0;
           for (unsigned int icluster = 0; icluster < numClusters; icluster++)
           {
-            if (nAvailableBits >= clusterWordLength)
+            if (nAvailableBits >= CLUSTER_LENGTH)
             {
               // calculate the shift 
-              int shift = lineLength - bitsToRead - (nFullClusters + 1) * clusterWordLength;
+              int shift = LINE_LENGTH - bitsToRead - (nFullClusters + 1) * CLUSTER_LENGTH;
               std::cout << "\t\t cluster " << icluster  << "  shift by " << shift;
-//               uint16_t cluster_tmp = (lines[iline] >> shift) & 0x3FFF;
-              clustersWords[icluster] = (lines[iline] >> shift) & 0x3FFF;
-              std::cout << "\t clusterword " << std::bitset<14>(clustersWords[icluster]) <<  std::endl;
+              clustersWords[icluster] = (lines[iLine] >> shift) & 0x3FFF;
+              std::cout << "\t clusterword " << std::bitset<CLUSTER_LENGTH>(clustersWords[icluster]) <<  std::endl;
               // and update available bits and number of full clusters from this line
-              nAvailableBits -= clusterWordLength;
+              nAvailableBits -= CLUSTER_LENGTH;
               nFullClusters++;
 //               std::cout << "\t\t\t remaining bits " << nAvailableBits <<  std::endl;
               if (nAvailableBits == 0) {
-                  iline++;
-                  nAvailableBits = lineLength;
+                  iLine++;
+                  nAvailableBits = LINE_LENGTH;
                   nFullClusters = 0;
                   bitsToRead = 0;
               }
@@ -296,25 +285,25 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
               for (int i = 0; i < nAvailableBits; i ++) { 
                 nMask |= (1 << i);
               }          
-              uint16_t wordLeft = (lines[iline]) & nMask; 
+              uint16_t wordLeft = (lines[iLine]) & nMask; 
   
               // create mask for next line
               int nMask_newLine = 0;
-              bitsToRead = clusterWordLength - nAvailableBits;
+              bitsToRead = CLUSTER_LENGTH - nAvailableBits;
               for (int i = 0; i < bitsToRead; i ++) { 
                 nMask_newLine |= (1 << i);
               }
               // shift and mask
-              uint16_t wordRight = (lines[iline+1] >> (lineLength - bitsToRead)) & nMask_newLine; 
+              uint16_t wordRight = (lines[iLine+1] >> (LINE_LENGTH - bitsToRead)) & nMask_newLine; 
               // compose the full cluster word
               clustersWords[icluster] = ((wordLeft << bitsToRead) | wordRight);  
-              std::cout << "\t\t cluster " << icluster << "  on 2 lines \t clusterword " << std::bitset<14>(clustersWords[icluster]) <<  std::endl;
+              std::cout << "\t\t cluster " << icluster << "  on 2 lines \t clusterword " << std::bitset<CLUSTER_LENGTH>(clustersWords[icluster]) <<  std::endl;
               
               // reset n available bits
-              nAvailableBits = lineLength - bitsToRead ;
+              nAvailableBits = LINE_LENGTH - bitsToRead ;
 //               std::cout << "\t\t\t remaining bits " << nAvailableBits <<  std::endl;
               // advance by one line and re-init the number of complete clusters read from this line
-              iline++;
+              iLine++;
               nFullClusters = 0;
             }
           } // end loop storing cluster words
@@ -331,7 +320,7 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
             // FIXME: currently using random y value of 1
             // 127 is valid only for 2S modules, that is what we have for now
             // for the position, probably need different unpacking logic for 2S and PS
-            unsigned int x = 127 * sclusterAddress + chipID;
+            unsigned int x = N_STRIPS_CBC * sclusterAddress + chipID;
             unsigned int y = iChannel%2 == 0 ? 0 : 1;
             std::cout << "\t\t cluster#" << count_clusters << "\t x y width : " << x << " " << y << " " << width;
 
@@ -374,7 +363,17 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 }
 
 int Phase2ClusterProducer::getLineIndex(int channelIdx, unsigned int iline){
-  return channelIdx + nBytes + iline * nBytes; 
+    return channelIdx + N_BYTES + iline * N_BYTES; 
 }
+
+uint32_t Phase2ClusterProducer::readLine(const unsigned char* dataPtr, int lineIdx){
+    uint32_t line = (static_cast<uint32_t>(dataPtr[lineIdx]) << 24) | 
+                    (static_cast<uint32_t>(dataPtr[lineIdx + 1]) << 16) | 
+                    (static_cast<uint32_t>(dataPtr[lineIdx + 2]) << 8) | 
+                    (static_cast<uint32_t>(dataPtr[lineIdx + 3]));
+
+    return line;                                
+}                                
+
 
 DEFINE_FWK_MODULE(Phase2ClusterProducer);
