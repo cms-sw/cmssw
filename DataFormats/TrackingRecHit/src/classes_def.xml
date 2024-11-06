@@ -27,7 +27,7 @@
    <version ClassVersion="10" checksum="1295706057"/>
   </class>
   <class name="std::vector<TrackingRecHit*>"/>
-  <class name="edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >" rntupleSplit="false"/>
+  <class name="edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >" rntupleStreamerMode="true"/>
   <class name="edm::ClonePolicy<TrackingRecHit>"/> <!-- Root6 -->
   <class name="edm::Ref<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit> >"/>
   <class name="edm::RefVectorIterator<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit> >"/>

@@ -1,6 +1,6 @@
 <lcgdict>
 
-  <class name="edm::RefToBase<reco::CaloCluster>"  rntupleSplit="false"/>
+  <class name="edm::RefToBase<reco::CaloCluster>"  rntupleStreamerMode="true"/>
   <class name="edm::reftobase::BaseHolder<reco::CaloCluster>"/>
   <class name="edm::reftobase::IndirectHolder<reco::CaloCluster>" />
 

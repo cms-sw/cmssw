@@ -8,7 +8,7 @@
   <version ClassVersion="11" checksum="2247759761"/>
   <version ClassVersion="10" checksum="2702412727"/>
  </class>
- <class name="edm::RefCore" ClassVersion="11" rntupleSplit="false">
+ <class name="edm::RefCore" ClassVersion="11" rntupleStreamerMode="true">
   <version ClassVersion="10" checksum="641105393"/>
   <version ClassVersion="11" checksum="3425324092"/>
    <field name="cachePtr_" transient = "true"/>
@@ -20,7 +20,7 @@
      edm::refcoreimpl::setCacheIsProductGetter(cachePtr_, getter);
       ]]>
  </ioread>
-  <class name="edm::RefCoreWithIndex" ClassVersion="11" rntupleSplit="false">
+  <class name="edm::RefCoreWithIndex" ClassVersion="11" rntupleStreamerMode="true">
     <version ClassVersion="11" checksum="2602044085"/>
     <field name="cachePtr_" transient = "true"/>
   </class>

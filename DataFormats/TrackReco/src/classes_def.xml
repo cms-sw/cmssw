@@ -439,7 +439,7 @@
 
 
      <!-- RefToBase<reco::Track> -->
-     <class name="edm::RefToBase<reco::Track>" rntupleSplit="false"/>
+     <class name="edm::RefToBase<reco::Track>" rntupleStreamerMode="true"/>
      <class name="edm::reftobase::IndirectHolder<reco::Track>"/>
      <class name="edm::reftobase::BaseHolder<reco::Track>"/>
      <class name="edm::reftobase::RefHolder<reco::TrackRef>"/>

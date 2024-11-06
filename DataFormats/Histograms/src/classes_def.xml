@@ -33,21 +33,21 @@
  <class name="MEtoEDM<int>"/>
  <class name="MEtoEDM<long long>"/>
  <class name="MEtoEDM<TString>"/>
- <class name="MEtoEDM<TH1F>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<TH1S>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<TH1D>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<TH1I>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<TH2F>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<TH2S>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<TH2D>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<TH2I>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<TH3F>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<TProfile>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<TProfile2D>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<double>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<int>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<long long>::MEtoEDMObject" rntupleSplit="false"/>
- <class name="MEtoEDM<TString>::MEtoEDMObject" rntupleSplit="false"/>
+ <class name="MEtoEDM<TH1F>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<TH1S>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<TH1D>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<TH1I>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<TH2F>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<TH2S>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<TH2D>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<TH2I>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<TH3F>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<TProfile>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<TProfile2D>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<double>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<int>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<long long>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<TString>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="std::vector<MEtoEDM<TH1F>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH1S>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH1D>::MEtoEDMObject>"/>

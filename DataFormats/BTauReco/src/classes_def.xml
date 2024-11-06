@@ -392,7 +392,7 @@
   <class name="edm::ValueMap<edm::Ptr<reco::BaseTagInfo> >" />
   <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > >" />
   <class name="std::vector<reco::BaseTagInfo *>" />
-  <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >" rntupleSplit="false"/>
+  <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >" rntupleStreamerMode="true"/>
  <exclusion>
   <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >">
    <method name="sort" />

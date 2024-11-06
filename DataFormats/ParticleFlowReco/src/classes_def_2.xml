@@ -149,7 +149,7 @@
   </class>
   <class name="std::map<reco::PFBlockElement::Type,reco::PFMultiLinksTC>" />
   <class name="std::vector<reco::PFBlockElement *>" />
-  <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >" rntupleSplit="false"/>
+  <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >" rntupleStreamerMode="true"/>
   <class name="edm::Wrapper<edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> > >" />
 
   <class name="reco::PFBlockElementTrack" ClassVersion="16">

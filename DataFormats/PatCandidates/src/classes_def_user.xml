@@ -6,7 +6,7 @@
    <version ClassVersion="10" checksum="85383148"/>
   </class>
   <class name="std::vector<pat::UserData *>" />
-  <class name="pat::UserDataCollection"  rntupleSplit="false"/>
+  <class name="pat::UserDataCollection"  rntupleStreamerMode="true"/>
   <!-- UserData: Standalone UserData in the event. Needed? -->
   <class name="edm::Wrapper<pat::UserDataCollection>" />
   <class name="edm::Ptr<pat::UserData>" />
