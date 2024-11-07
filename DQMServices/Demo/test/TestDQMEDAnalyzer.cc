@@ -34,6 +34,7 @@ public:
       mes_2D.push_back(ibooker.book2D("th2f" + num, "2D Float Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
       mes_2D.push_back(ibooker.book2S("th2s" + num, "2D Short Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
       mes_2D.push_back(ibooker.book2DD("th2d" + num, "2D Double Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
+      mes_2D.push_back(ibooker.book2DPoly("th2poly" + num, "2D Polygonal Double Histogram " + num, -0.5, 100.5, -0.5, 10.5));
       mes_2D.push_back(ibooker.book2I("th2i" + num, "2D Integer Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
       mes_2D.push_back(
           ibooker.bookProfile("tprofile" + num, "1D Profile Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
@@ -57,6 +58,7 @@ public:
         mes_2D.push_back(ibooker.book2D("th2f" + num, "2D Float Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
         mes_2D.push_back(ibooker.book2S("th2s" + num, "2D Short Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
         mes_2D.push_back(ibooker.book2DD("th2d" + num, "2D Double Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
+        mes_2D.push_back(ibooker.book2DPoly("th2poly" + num, "2D Polygonal Double Histogram " + num, -0.5, 100.5, -0.5, 10.5));
         mes_2D.push_back(ibooker.book2I("th2i" + num, "2D Integer Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
         mes_2D.push_back(
             ibooker.bookProfile("tprofile" + num, "1D Profile Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
