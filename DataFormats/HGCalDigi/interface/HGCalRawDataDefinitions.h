@@ -8,14 +8,14 @@ namespace hgcal {
     namespace ToTStatus {
       constexpr uint8_t ZeroSuppressed = 0x0, noZeroSuppressed_TOASuppressed = 0x1, invalid = 0x2, AutomaticFull = 0x3;
     }  // namespace ToTStatus
-  }    // namespace econd
+  }  // namespace econd
 
   namespace backend {
     namespace ECONDPacketStatus {
       constexpr uint8_t Normal = 0x0, PayloadTooLarge = 0x1, PayloadCRCError = 0x2, EventIDMismatch = 0x3,
                         EBTimeout = 0x4, BCIDOrbitIDMismatch = 0x5, MainBufferOverflow = 0x6, InactiveECOND = 0x7;
     }  // namespace ECONDPacketStatus
-  }    // namespace backend
+  }  // namespace backend
 
   namespace ECOND_FRAME {
     constexpr uint32_t HEADER_POS = 23, HEADER_MASK = 0x1ff, PAYLOAD_POS = 14, PAYLOAD_MASK = 0x1ff, BITP_POS = 13,
