@@ -13,16 +13,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
-#include "L1Trigger/TrackTrigger/interface/SensorModule.h"
-#include "L1Trigger/TrackerDTC/interface/LayerEncoding.h"
 
-
-#include <typeinfo>
-#include <chrono>
-#include <map>
-#include <fstream>
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
@@ -35,15 +26,14 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "EventFilter/Phase2TrackerRawToDigi/interface/DTCAssembly.h"
-#include <unordered_map>
 
+#include "EventFilter/Phase2TrackerRawToDigi/interface/DTCAssembly.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Cluster.h"
 
-class Phase2DAQProducer : public edm::one::EDProducer<> {
+class ClusterToRawProducer : public edm::one::EDProducer<> {
 public:
-    explicit Phase2DAQProducer(const edm::ParameterSet&);
-    ~Phase2DAQProducer() override;
+    explicit ClusterToRawProducer(const edm::ParameterSet&);
+    ~ClusterToRawProducer() override;
 
 private:
     void produce(edm::Event&, const edm::EventSetup&) override;
@@ -52,9 +42,6 @@ private:
     const edm::ESGetToken<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd> cablingMapToken_;
     const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
     const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
-    
-    // const unsigned int Positive_Modules[108];
-    // const unsigned int Negative_Modules[108];
 
     uint32_t assignNumber(const uint32_t& N);
     void processClusters(TrackerGeometry::ModuleType moduleType,
@@ -63,23 +50,21 @@ private:
                                            DTCAssembly& dtcAssembly);
 };
 
-Phase2DAQProducer::Phase2DAQProducer(const edm::ParameterSet& iConfig)
+ClusterToRawProducer::ClusterToRawProducer(const edm::ParameterSet& iConfig)
     : ClusterCollectionToken_(consumes<Phase2TrackerCluster1DCollectionNew>(iConfig.getParameter<edm::InputTag>("Phase2Clusters"))),
       cablingMapToken_(esConsumes()),
       trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>())
-    //   Positive_Modules{30, 42, 54, 66, 78, 90, 102, 6, 18, /*...*/},
-    //   Negative_Modules{138, 150, 162, 174, 186, 198, 210, 114, /*...*/}
 {
     produces<FEDRawDataCollection>();
 }
 
-Phase2DAQProducer::~Phase2DAQProducer() 
+ClusterToRawProducer::~ClusterToRawProducer() 
 {
 
 }
 
-void Phase2DAQProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
+void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
     // Retrieve TrackerGeometry and TrackerTopology from EventSetup
     const TrackerGeometry& trackerGeometry = iSetup.getData(trackerGeometryToken_);
@@ -181,7 +166,7 @@ void Phase2DAQProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     // }
 }
 
-void Phase2DAQProducer::processClusters(TrackerGeometry::ModuleType moduleType,
+void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleType,
                                            const Phase2TrackerCluster1DCollectionNew::DetSet& DetectorClusterCollection,
                                            unsigned int dtc_id, unsigned int slink_id, unsigned int slink_id_within,
                                            DTCAssembly& dtcAssembly)
@@ -230,7 +215,7 @@ void Phase2DAQProducer::processClusters(TrackerGeometry::ModuleType moduleType,
     }
 }
 
-uint32_t Phase2DAQProducer::assignNumber(const uint32_t& N) 
+uint32_t ClusterToRawProducer::assignNumber(const uint32_t& N) 
 {
     int R = N % 4;
     if (R == 1 || R == 2) {
@@ -240,4 +225,4 @@ uint32_t Phase2DAQProducer::assignNumber(const uint32_t& N)
     }
 }
 
-DEFINE_FWK_MODULE(Phase2DAQProducer);
+DEFINE_FWK_MODULE(ClusterToRawProducer);
