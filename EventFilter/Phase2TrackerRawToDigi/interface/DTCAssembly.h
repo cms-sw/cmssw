@@ -17,7 +17,7 @@ class DTCAssembly
 
     public:
 
-        DTCAssembly(unsigned int& event) : DTCUnits(216, DTCUnit(event)), EventID(event) {}
+        DTCAssembly(unsigned int& event) : dtcUnits_(216, DTCUnit(event)), eventId_(event) {}
 
         /** Get Methods **/
         DTCUnit& GetDTCUnit(const unsigned int& DTCUnitID) 
@@ -29,19 +29,16 @@ class DTCAssembly
             }
             else
             {
-                return DTCUnits[DTCUnitID - 1]; 
+                return dtcUnits_[DTCUnitID - 1]; 
             }
         }
 
-        std::vector<DTCUnit>& GetDTCUnits() { return DTCUnits; }
-
-        /** Other Methods **/
-        // void Clear() { for (auto& element : DTCUnits) { element = DTCUnit(); } }
+        std::vector<DTCUnit>& GetDTCUnits() { return dtcUnits_; }
 
     private:
 
-        std::vector<DTCUnit> DTCUnits;
-        unsigned int EventID;
+        std::vector<DTCUnit> dtcUnits_;
+        unsigned int eventId_;
 
 };
 
