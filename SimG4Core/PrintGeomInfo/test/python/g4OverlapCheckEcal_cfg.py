@@ -2,9 +2,9 @@
 # Way to use this:
 #   cmsRun g4OverlapCheckEcal_cfg.py geometry=2021 tol=0.1
 #
-#   Options for geometry 2016, 2017, 2021, 2026D102, 2026D103, 2026D104,
-#                        2026D108, 2026D109, 2026D110, 2026D111, 2026D112, 
-#                        2026D113, 2026D114, 2026D115
+#   Options for geometry 2016, 2017, 2021, Run4D102, Run4D103, Run4D104,
+#                        Run4D108, Run4D109, Run4D110, Run4D111, Run4D112, 
+#                        Run4D113, Run4D114, Run4D115
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -18,7 +18,7 @@ options.register('geometry',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2016, 2017, 2021, 2026D102, 2026D103, 2026D104, 2026D108, 2026D109, 2026D110, 2026D111, 2026D112, 2026D113, 2026D114, 2026D115")
+                  "geometry of operations: 2016, 2017, 2021, Run4D102, Run4D103, Run4D104, Run4D108, Run4D109, Run4D110, Run4D111, Run4D112, Run4D113, Run4D114, Run4D115")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -34,61 +34,66 @@ print(options)
 ####################################################################
 # Use the options
 
-if (options.geometry == "2026D102"):
+if (options.geometry == "Run4D102"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
     process.load('Configuration.Geometry.GeometryExtendedRun4D102Reco_cff')
-    baseName = 'Hcal2026D102'
-elif (options.geometry == "2026D103"):
+    baseName = 'EcalRun4D102'
+elif (options.geometry == "Run4D103"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
     process.load('Configuration.Geometry.GeometryExtendedRun4D103Reco_cff')
-    baseName = 'Hcal2026D103'
-elif (options.geometry == "2026D104"):
+    baseName = 'EcalRun4D103'
+elif (options.geometry == "Run4D104"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
     process.load('Configuration.Geometry.GeometryExtendedRun4D104Reco_cff')
-    baseName = 'Hcal2026D104'
-elif (options.geometry == "2026D108"):
+    baseName = 'EcalRun4D104'
+elif (options.geometry == "Run4D108"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
     process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D108'
-elif (options.geometry == "2026D109"):
+    baseName = 'EcalRun4D108'
+elif (options.geometry == "Run4D109"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
     process.load('Configuration.Geometry.GeometryExtendedRun4D109Reco_cff')
-    baseName = 'Hcal2026D109'
-elif (options.geometry == "2026D110"):
+    baseName = 'EcalRun4D109'
+elif (options.geometry == "Run4D110"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D110'
-elif (options.geometry == "2026D111"):
+    process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+    baseName = 'EcalRun4D110'
+elif (options.geometry == "Run4D111"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D111'
-elif (options.geometry == "2026D112"):
+    process.load('Configuration.Geometry.GeometryExtendedRun4D111Reco_cff')
+    baseName = 'EcalRun4D111'
+elif (options.geometry == "Run4D112"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D112'
-elif (options.geometry == "2026D113"):
+    process.load('Configuration.Geometry.GeometryExtendedRun4D112Reco_cff')
+    baseName = 'EcalRun4D112'
+elif (options.geometry == "Run4D113"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D113'
-elif (options.geometry == "2026D114"):
+    process.load('Configuration.Geometry.GeometryExtendedRun4D113Reco_cff')
+    baseName = 'EcalRun4D113'
+elif (options.geometry == "Run4D114"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D114'
-elif (options.geometry == "2026D115"):
+    process.load('Configuration.Geometry.GeometryExtendedRun4D114Reco_cff')
+    baseName = 'EcalRun4D114'
+elif (options.geometry == "Run4D115"):
     from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
     process = cms.Process('G4PrintGeometry',Phase2C20I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D115'
+    process.load('Configuration.Geometry.GeometryExtendedRun4D115Reco_cff')
+    baseName = 'EcalRun4D115'
+elif (options.geometry == "Run4D116"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtendedRun4D116Reco_cff')
+    baseName = 'EcalRun4D110'
 elif (options.geometry == "2016"):
     from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
     process = cms.Process('G4PrintGeometry',Run2_2016)

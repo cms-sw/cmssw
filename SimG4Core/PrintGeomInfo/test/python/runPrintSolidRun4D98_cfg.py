@@ -1,6 +1,6 @@
 #######################################################9########################
 # Way to use this:
-#   cmsRun runPrintSolid2026D98_cfg.py type=DDD detector=Tracker
+#   cmsRun runPrintSolidRun4D98_cfg.py type=DDD detector=Tracker
 #
 #   Options for type DDD, DD4hep
 #   Options for detector Tracker, Calo, MTD, Muon
@@ -41,7 +41,7 @@ if (options.type == "DDD"):
 else:
     from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9,dd4hep)
-    geomFile = "Geometry.CMSCommonData.GeometryDD4hepExtended2026D98" + options.detector + "Reco_cff"
+    geomFile = "Geometry.CMSCommonData.GeometryDD4hepExtendedRun4D98" + options.detector + "Reco_cff"
     process.load(geomFile)
 
 print("Geometry file Name: ", geomFile)
