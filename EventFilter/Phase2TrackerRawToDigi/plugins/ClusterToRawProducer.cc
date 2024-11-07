@@ -136,33 +136,22 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     // for (int i = 1; i == 1; ++i)
     // {
 
-        DTCUnit& DTC_0 = dtcAssembly.GetDTCUnit(i); // dtc unit
+        DTCUnit& dtc_0 = dtcAssembly.GetDTCUnit(i); // dtc unit
         
-        std::vector<std::vector<Cluster>> SLink0 = DTC_0.getClustersOnSLink(0);
-        std::vector<std::vector<Cluster>> SLink1 = DTC_0.getClustersOnSLink(1);
-        std::vector<std::vector<Cluster>> SLink2 = DTC_0.getClustersOnSLink(2);
-        std::vector<std::vector<Cluster>> SLink3 = DTC_0.getClustersOnSLink(3);
+        dtc_0.convertToRawData(0);
+        dtc_0.convertToRawData(1);
+        dtc_0.convertToRawData(2);
+        dtc_0.convertToRawData(3);
         
-        DTC_0.convertToRawData(0);
-        DTC_0.convertToRawData(1);
-        DTC_0.convertToRawData(2);
-        DTC_0.convertToRawData(3);
-
-        // std::cout << (int)DTC_0.getDTCType() << std::endl;
-        
-        fedRawDataCollection.get()->FEDData( 0 + 4 * (i - 1) + 0 ) = DTC_0.GetSLink(0);
-        fedRawDataCollection.get()->FEDData( 1 + 4 * (i - 1) + 0 ) = DTC_0.GetSLink(1);
-        fedRawDataCollection.get()->FEDData( 2 + 4 * (i - 1) + 0 ) = DTC_0.GetSLink(2);
-        fedRawDataCollection.get()->FEDData( 3 + 4 * (i - 1) + 0 ) = DTC_0.GetSLink(3);
+        fedRawDataCollection.get()->FEDData( 0 + 4 * (i - 1) + 0 ) = dtc_0.GetSLink(0);
+        fedRawDataCollection.get()->FEDData( 1 + 4 * (i - 1) + 0 ) = dtc_0.GetSLink(1);
+        fedRawDataCollection.get()->FEDData( 2 + 4 * (i - 1) + 0 ) = dtc_0.GetSLink(2);
+        fedRawDataCollection.get()->FEDData( 3 + 4 * (i - 1) + 0 ) = dtc_0.GetSLink(3);
 
     // }
 
     iEvent.put(std::move(fedRawDataCollection));
 
-    // for (auto& cluster : SLink0.at(0))
-    // {
-    //     std::cout << cluster.getX() << ", " << cluster.getZ() << ", " << cluster.getChipId() << ", " << cluster.getSclusterAddress() << ", " << cluster.getWidth() << std::endl;
-    // }
 }
 
 void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleType,
