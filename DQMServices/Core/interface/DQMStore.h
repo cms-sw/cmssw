@@ -274,6 +274,18 @@ namespace dqm {
         });
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
+      MonitorElement* book2DPoly(TString const& name, TH2Poly* object, FUNC onbooking = NOOP()) {
+        return bookME(
+            name,
+            MonitorElementData::Kind::TH2Poly,
+            [=]() {
+              auto th2 = static_cast<TH2Poly*>(object->Clone(name));
+              onbooking(th2);
+              return th2;
+            },
+            /* forceReplace */ true);
+      }
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2S(TString const& name,
                              TString const& title,
                              int nchX,

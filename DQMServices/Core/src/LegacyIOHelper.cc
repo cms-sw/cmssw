@@ -253,6 +253,13 @@ bool LegacyIOHelper::readdir(TDirectory *dir, const std::string &toppath) {
           getMEName<TH2I>(h, toppath, meName);
           data_.insert(dbe_->book2I(meName, h));
         }
+      } else if (cl->InheritsFrom("TH2Poly")) {
+        TH2Poly *h = dynamic_cast<TH2Poly *>(key->ReadObject<TH2Poly>()->Clone());
+        h->SetDirectory(nullptr);
+        if (h) {
+          getMEName<TH2Poly>(h, toppath, meName);
+          data_.insert(dbe_->book2DPoly(meName, h));
+        }
       } else if (cl->InheritsFrom("TH3F")) {
         TH3F *h = dynamic_cast<TH3F *>(key->ReadObject<TH3F>()->Clone());
         h->SetDirectory(nullptr);
