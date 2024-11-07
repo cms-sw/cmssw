@@ -105,6 +105,12 @@ void Phase2DAQProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         auto output = cablingMap.detIdToDTCELinkId(assignNumber(DetectorClusterCollection.detId()));
 
         // Retrieve DTC ID and GBT ID
+
+        if (output.first == output.second) 
+        {
+            continue;
+        }
+
         unsigned int dtc_id, gbt_id, slink_id, slink_id_within;
         for (auto it = output.first; it != output.second; ++it) 
         {
@@ -144,7 +150,7 @@ void Phase2DAQProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         }
     }
 
-    int i = 1;
+    int i = 81;
 
     // for (int i = 1; i == 1; ++i)
     // {
@@ -172,6 +178,10 @@ void Phase2DAQProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     iEvent.put(std::move(fedRawDataCollection));
 
+    // for (auto& cluster : SLink0.at(0))
+    // {
+    //     std::cout << cluster.getX() << ", " << cluster.getZ() << ", " << cluster.getChipId() << ", " << cluster.getSclusterAddress() << ", " << cluster.getWidth() << std::endl;
+    // }
 }
 
 void Phase2DAQProducer::processClusters(TrackerGeometry::ModuleType moduleType,
@@ -184,20 +194,38 @@ void Phase2DAQProducer::processClusters(TrackerGeometry::ModuleType moduleType,
         DTCUnit& assignedDtcUnit = dtcAssembly.GetDTCUnit(dtc_id);
 
         unsigned int z = cluster.column();
-        unsigned int x = cluster.center();
+        double x = cluster.center();
+
+        // info that goes into the DAQ payload        
         unsigned int width = cluster.size();
-        unsigned int chipId = x % 127;
+        unsigned int chipId = 0;
         unsigned int sclusterAddress = 0;
         unsigned int mipbit = 0;
         unsigned int cicId = 0;
+        // ------------------------------ //
 
-        if (moduleType == TrackerGeometry::ModuleType::Ph2PSP) {cicId = (z > 15);} 
-        else if (moduleType == TrackerGeometry::ModuleType::Ph2PSS || moduleType == TrackerGeometry::ModuleType::Ph2SS) {cicId = z;}
+        if (moduleType == TrackerGeometry::ModuleType::Ph2PSP) 
+        {
+            cicId = (z > 15);
+        } 
+        
+        else if (moduleType == TrackerGeometry::ModuleType::Ph2PSS || moduleType == TrackerGeometry::ModuleType::Ph2SS) 
+        {
+            cicId = z;
+        }
 
         if (moduleType == TrackerGeometry::ModuleType::Ph2PSP || moduleType == TrackerGeometry::ModuleType::Ph2PSS) 
-        {sclusterAddress = std::div(x, 120).quot;}
+        {
+            chipId = std::div(x * 2.0, 120).quot;
+            sclusterAddress = std::div(x * 2.0, 120).rem;
+            mipbit = cluster.threshold();
+        }
+
         else if (moduleType == TrackerGeometry::ModuleType::Ph2SS) 
-        {sclusterAddress = std::div(x, 127).quot;}
+        {
+            chipId = std::div(x * 2.0, 254).quot;
+            sclusterAddress = std::div(x * 2.0, 254).rem;
+        }
 
         Cluster newCluster(z, x, width, chipId, sclusterAddress, mipbit, cicId, moduleType);
         assignedDtcUnit.getClustersOnSLink(slink_id).at(slink_id_within).push_back(newCluster);

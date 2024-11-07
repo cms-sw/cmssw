@@ -52,7 +52,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '133X_mcRun4_realistic_v1', '')
 # process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 DatasetDatabase = "/home/hep/am2023/cmssw_el9_amd64_gcc12/CMSSW_14_0_0_pre2/src/Datasets/Phase2Spring23Track1GeVL1TFix.list"
