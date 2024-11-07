@@ -19,6 +19,8 @@ namespace Phase2TrackerSpecifications
     static const int MODULES_PER_SLINK = 18;
     static const int CICs_PER_SLINK = 36;
 
+    static const int CIC_Z_BOUNDARY = 15;
+
 };
 
 #endif

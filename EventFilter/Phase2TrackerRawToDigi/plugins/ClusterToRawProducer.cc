@@ -187,7 +187,7 @@ void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleTyp
 
         if (moduleType == TrackerGeometry::ModuleType::Ph2PSP) 
         {
-            cicId = (z > 15);
+            cicId = (z > Phase2TrackerSpecifications::CIC_Z_BOUNDARY) ? 1 : 0;
         } 
         
         else if (moduleType == TrackerGeometry::ModuleType::Ph2PSS || moduleType == TrackerGeometry::ModuleType::Ph2SS) 
