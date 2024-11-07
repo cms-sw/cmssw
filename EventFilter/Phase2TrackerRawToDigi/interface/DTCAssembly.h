@@ -6,6 +6,12 @@
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerSpecifications.h"
 #include "./DTCUnit.h"
 
+/**
+ * @class DTCAssembly
+ * @brief Class to represent a collection of DTCs for the phase 2 tracker,
+ * a collection of interface/DTCUnit.h objects
+ */
+
 class DTCAssembly
 {
 

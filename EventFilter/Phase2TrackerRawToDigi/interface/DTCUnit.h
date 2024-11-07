@@ -7,6 +7,11 @@
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Cluster.h"
 #include <fstream>
 
+/**
+ * @class DTCUnit
+ * @brief Class to represent a single DTC unit for the phase 2 tracker
+ */
+
 class DTCUnit
 {
     public:

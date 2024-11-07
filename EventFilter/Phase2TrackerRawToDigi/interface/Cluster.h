@@ -3,6 +3,11 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+/**
+ * @class Cluster
+ * @brief Class to represent a single cluster in the phase 2 tracker
+ */
+
 class Cluster
 {
     private:
