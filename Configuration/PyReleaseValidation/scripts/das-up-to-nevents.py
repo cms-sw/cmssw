@@ -237,7 +237,7 @@ if __name__ == '__main__':
     files = df.file
     
     if lumis is not None:
-        lumi_ranges = { int(r) : list(get_lumi_ranges(np.sort(np.concatenate(df.loc[df["run"]==r,"lumis"].values).ravel()).tolist())) for r in np.unique(df.run.values)}
+        lumi_ranges = { int(r) : list(get_lumi_ranges(np.sort(np.concatenate(df.loc[df["run"]==r,"lumis"].values).ravel()).tolist())) for r in np.unique(df.run.values).tolist()}
         
         with open(lumis, 'w') as fp:
             json.dump(lumi_ranges, fp)
