@@ -117,7 +117,7 @@ void Phase2DAQProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             std::cout << "\t\t dtc_id: " << unsigned(dtc_id) << "  gbt_id: " << unsigned(gbt_id) << std::endl;
         }
         slink_id = std::div(gbt_id, 18).quot;
-        slink_id_within = std::div(gbt_id, 18).rem;
+        slink_id_within = std::div(gbt_id, 18).rem; // is this the channel number???
     
         if (detUnit)
         {
@@ -145,7 +145,7 @@ void Phase2DAQProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         }
     }
 
-    int i = 12;
+    int i = 180;
 
     std::cout << "[packing] converting only DTC i = " << i << std::endl;
     // for (int i = 1; i == 1; ++i)
@@ -190,11 +190,6 @@ void Phase2DAQProducer::processClusters(TrackerGeometry::ModuleType moduleType,
         unsigned int x = cluster.center();
         unsigned int width = cluster.size();
 //         std::cout << "[packing] cluster x/width: " << x <<  " / " << width <<  std::endl;
-        // original 
-        // unsigned int chipId = x % 8;
-        // and later, sclusterAddress = std::div(x, 127).quot;
-        // end original
-        // my original fix
         unsigned int chipId = x % 127;
         unsigned int sclusterAddress = 0;
         unsigned int mipbit = 0;

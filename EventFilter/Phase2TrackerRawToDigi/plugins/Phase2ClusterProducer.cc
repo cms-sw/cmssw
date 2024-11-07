@@ -176,7 +176,7 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     }
 
     // Read one entire DTC (#dtcID), as per the producer logic
-    unsigned int dtcID = 12;  
+    unsigned int dtcID = 180;  
     // read the 4 slinks
     for (unsigned int iSlink = 0; iSlink < 4; iSlink++)
     {
@@ -341,15 +341,18 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
           // put the filler here, for the output collection
           // need the detid of this module
           // first I need to construct the DTCElinkId object ## dtc_id, gbtlink_id, elink_id
-          unsigned int gbt_id = iSlink * 18 + iChannel;
+          // to get the gbt_id I should reverse what is done in the DTCUnit.convertToRawData function,
+          // where clusters from channel X are split into 2*i and 2*i+1 based on being from CIC0 or CIC1
+          unsigned int gbt_id = iSlink * 18 + (iChannel/2);
           DTCELinkId thisDTCElinkId(dtcID, gbt_id, 0);
           // then pass it to the map to get the detid
-          std::cout << "\tiDTC: " << unsigned(dtcID) << " \tiGBT:  " <<  unsigned(iChannel) << " \tielink: " <<  unsigned(0);
+          std::cout << "\tslink: " << iSlink <<  "\tiDTC: " << unsigned(dtcID) << " \tiGBT:  " <<  unsigned(gbt_id) << " \tielink: " <<  unsigned(0);
           if (cablingMap_->knowsDTCELinkId(thisDTCElinkId))
           {
             auto possibleDetIds = cablingMap_->dtcELinkIdToDetId(thisDTCElinkId); // this returns an uint32_t
             std::cout << "\t -> detId:" <<  possibleDetIds->second << std::endl;
-            // Store clusters of this channel.
+            // Store clusters of this channel
+            // FIXME: we should split them by top and bottom sensors (to detIDs)
             std::vector<Phase2TrackerCluster1D>::iterator it;
             {
               // outer detid is defined as inner detid + 1 or module detid + 2
