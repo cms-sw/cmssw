@@ -38,10 +38,10 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Phase2RawToDigi/Phase2DAQProducer/interface/DTCAssembly.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/DTCAssembly.h"
 #include <unordered_map>
 
-#include "Phase2RawToDigi/Phase2DAQProducer/interface/Cluster.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Cluster.h"
 
 class Phase2DAQProducer : public edm::one::EDProducer<> {
 public:

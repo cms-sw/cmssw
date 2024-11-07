@@ -11,5 +11,3 @@ If you have a personal branch of this code, and wish to update it with changes m
 
 git cms-checkout-topic -u  tomalin:masterP2TrackerUnpackers
 git cms-rebase-topic -u myFork:myBranch
-
-check

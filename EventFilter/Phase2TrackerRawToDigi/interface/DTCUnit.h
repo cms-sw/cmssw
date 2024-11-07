@@ -4,7 +4,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-#include "Phase2RawToDigi/Phase2DAQProducer/interface/Cluster.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Cluster.h"
 #include <fstream>
 
 class DTCUnit
