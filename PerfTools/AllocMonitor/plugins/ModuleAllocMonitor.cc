@@ -59,11 +59,12 @@ namespace {
     ThreadTracker() {
       //put a value which will not match the % used when looking up the entry
       entry_type entry = 0;
-      for (auto& v : extra_threads_) {
-        v = kUnusedEntry;
-      }
       for (auto& v : hashed_threads_) {
         v = ++entry;
+      }
+      //assume kUsedEntry is not a valid thread-id
+      for (auto& v : extra_threads_) {
+        v = kUnusedEntry;
       }
     }
 
