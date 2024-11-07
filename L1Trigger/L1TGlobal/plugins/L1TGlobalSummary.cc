@@ -185,11 +185,11 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     LogDebug("l1t|Global") << "retrieved L1 data from GT Util" << endl;
 
     // grab the map for the final decisions
-    const std::vector<std::pair<std::string, bool>> initialDecisions = gtUtil_->decisionsInitial();
-    const std::vector<std::pair<std::string, bool>> intermDecisions = gtUtil_->decisionsInterm();
-    const std::vector<std::pair<std::string, bool>> finalDecisions = gtUtil_->decisionsFinal();
-    const std::vector<std::pair<std::string, double>> prescales = gtUtil_->prescales();
-    const std::vector<std::pair<std::string, std::vector<int>>> masks = gtUtil_->masks();
+    const auto& initialDecisions = gtUtil_->decisionsInitial();
+    const auto& intermDecisions = gtUtil_->decisionsInterm();
+    const auto& finalDecisions = gtUtil_->decisionsFinal();
+    const auto& prescales = gtUtil_->prescales();
+    const auto& masks = gtUtil_->masks();
 
     if ((decisionCount_.size() != gtUtil_->decisionsInitial().size()) ||
         (intermCount_.size() != gtUtil_->decisionsInterm().size()) ||
@@ -211,7 +211,7 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
     for (unsigned int i = 0; i < initialDecisions.size(); i++) {
       // get the name and trigger result
-      std::string name = (initialDecisions.at(i)).first;
+      std::string name{(initialDecisions.at(i)).first};
       if (name == "NULL")
         continue;
 

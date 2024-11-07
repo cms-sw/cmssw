@@ -169,7 +169,7 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup, bool is
        itAlgo != m_algorithmMap->end();
        itAlgo++) {
     // Get the algorithm name
-    std::string algName = itAlgo->first;
+    std::string_view algName = itAlgo->first;
     int algBit = (itAlgo->second).getIndex();  //algoBitNumber();
 
     (m_prescales[algBit]).first = algName;
@@ -251,7 +251,7 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent,
            itAlgo != m_algorithmMap->end();
            itAlgo++) {
         // Get the algorithm name
-        std::string algName = itAlgo->first;
+        std::string_view algName = itAlgo->first;
         int algBit = (itAlgo->second).getIndex();  //algoBitNumber();
 
         bool decisionInitial = algBlk->getAlgoDecisionInitial(algBit);
@@ -465,7 +465,7 @@ const bool l1t::L1TGlobalUtil::getAlgBitFromName(const std::string& algName, int
   return false;  //did not find anything by that name
 }
 
-const bool l1t::L1TGlobalUtil::getAlgNameFromBit(int& bit, std::string& algName) const {
+const bool l1t::L1TGlobalUtil::getAlgNameFromBit(int& bit, std::string_view& algName) const {
   // since we are just looking up the name, doesn't matter which vector we get it from
   if ((m_decisionsInitial[bit]).first != "NULL") {
     algName = (m_decisionsInitial[bit]).first;
