@@ -5,6 +5,8 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Cluster.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerSpecifications.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2DAQFormatSpecification.h"
 #include <fstream>
 
 /**
@@ -18,8 +20,8 @@ class DTCUnit
 
         enum DTCType { PS, S2, Unknown };
 
-        // initialize SLinkCollection with 4 FEDRawData objects
-        DTCUnit(unsigned int& event) : ClusterCollection(4, std::vector<std::vector<Cluster>>(18)), SLinkCollection(4), Type(DTCType::Unknown), EventID(event) 
+        // initialize sLinkCollection_ with 4 FEDRawData objects
+        DTCUnit(unsigned int& event) : clusterCollection_(4, std::vector<std::vector<Cluster>>(18)), sLinkCollection_(4), Type(DTCType::Unknown), eventId_(event) 
         {
             
         }
@@ -36,23 +38,23 @@ class DTCUnit
         FEDRawData& GetSLink(const unsigned int& SLinkID) 
         {
             // if SLinkID is out of range [0, 4], throw cms exception
-            if (SLinkID > 3)
+            if (SLinkID > Phase2TrackerSpecifications::MAX_SLINKS_PER_DTC - 1)
             {
                 throw cms::Exception("DTCUnit") << "SLinkID " << SLinkID << " is out of range [0, 4)";
             }
             else
             {
-                return SLinkCollection[SLinkID];
+                return sLinkCollection_[SLinkID];
             }
         }
 
         ~DTCUnit() {}
 
-        // Method to determine DTCType based on ClusterCollection
+        // Method to determine DTCType based on clusterCollection_
         DTCType getDTCType() 
         {
-            // Iterate over the ClusterCollection to find the first matching cluster type
-            for (auto& clusterVector : ClusterCollection)
+            // Iterate over the clusterCollection_ to find the first matching cluster type
+            for (auto& clusterVector : clusterCollection_)
             {
                 for (auto& cluster_ : clusterVector)
                 {
@@ -79,18 +81,21 @@ class DTCUnit
 
         std::vector<std::vector<Cluster>>& getClustersOnSLink(const int& index)
         {
-            return ClusterCollection[index];
+            return clusterCollection_[index];
         }
 
         std::vector<FEDRawData>& getSLinks()
         {
-            return SLinkCollection;
+            return sLinkCollection_;
         }
 
         void convertToRawData(const std::size_t index)
         {
-            std::vector<std::vector<Cluster>>& SLinks_0 = ClusterCollection[index];
-            std::vector<std::vector<Cluster>> newClusterCollection(36);
+
+            using namespace Phase2TrackerSpecifications;
+
+            std::vector<std::vector<Cluster>>& SLinks_0 = clusterCollection_[index];
+            std::vector<std::vector<Cluster>> newclusterCollection_(36);
 
             // Organize clusters into CIC-0 and CIC-1 clusters
             for (size_t i = 0; i < SLinks_0.size(); ++i) {
@@ -106,41 +111,40 @@ class DTCUnit
                     }
                 }
 
-                newClusterCollection[2 * i] = cicId_0_clusters;
-                newClusterCollection[2 * i + 1] = cicId_1_clusters;
+                newclusterCollection_[2 * i] = cicId_0_clusters;
+                newclusterCollection_[2 * i + 1] = cicId_1_clusters;
             }
 
             // We will store the final 32-bit words (both offset map and payload)
             std::vector<uint32_t> words;
 
             // fill the first 4 words with the header with all 1s
-            words.push_back(0xFFFFFFFF);
-            words.push_back(0xFFFFFFFF);
-            words.push_back(0xFFFFFFFF);
-            words.push_back(0xFFFFFFFF);
+            words.push_back(DTC_DAQ_HEADER);
+            words.push_back(DTC_DAQ_HEADER);
+            words.push_back(DTC_DAQ_HEADER);
+            words.push_back(DTC_DAQ_HEADER);
 
             // --- Step 1: Create the offset map ---
-            std::vector<uint16_t> offsetMap(36, 0);  // 36 channels, initially 0
+            std::vector<uint16_t> offsetMap(CICs_PER_SLINK, 0);  // 36 channels, initially 0
             uint32_t currentOffset = 0;              // Start after the 4 words of the header
 
             // --- Step 2: Build the payload ---
             std::vector<uint32_t> payload;
 
             // Iterate through each channel and prepare the payload
-            for (size_t channel_index = 0; channel_index < newClusterCollection.size(); ++channel_index) 
+            for (size_t channel_index = 0; channel_index < newclusterCollection_.size(); ++channel_index) 
             {
-                std::vector<Cluster>& clusters = newClusterCollection[channel_index];
-                // if (clusters.empty()) continue;
+                std::vector<Cluster>& clusters = newclusterCollection_[channel_index];
 
                 // Create the 32-bit header word for the channel
-                uint32_t eventID = EventID & 0x1FF;  // EventID (9 bits)
+                uint32_t eventID = eventId_ & L1ID_MAX_VALUE;  // eventId_ (9 bits)
                 uint32_t channelErrors = 0;          // 9 bits for errors, set to 0
                 uint32_t numClusters = clusters.size();
 
-                // std::cout << index << ", " << numClusters << std::endl;
-
                 // Build the channel header
-                uint32_t header = (eventID << 23) | (channelErrors << 14) | (numClusters << 7);
+                uint32_t header = (eventID << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS)) | 
+                                  (channelErrors << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) | 
+                                  (numClusters << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - NCLUSTERS_BITS));
 
                 // Push the header into the payload
                 payload.push_back(header);
@@ -157,23 +161,24 @@ class DTCUnit
                 {
                     // cluster info 
 
-                    uint32_t chipID = cluster.getChipId() & 0x7;              // 3 bits
-                    uint32_t sclusterAddress = cluster.getSclusterAddress() & 0xFF;  // 8 bits
-                    uint32_t width = cluster.getWidth() & 0x7;                // 3 bits
+                    uint32_t chipID = cluster.getChipId() & CHIP_ID_MAX_VALUE;       // 3 bits
+                    uint32_t sclusterAddress = cluster.getSclusterAddress() & SCLUSTER_ADDRESS_MAX_VALUE;  // 8 bits
+                    uint32_t width = cluster.getWidth() & WIDTH_MAX_VALUE;                       // 3 bits
 
-                    uint32_t clusterData = (chipID << 11) | (sclusterAddress << 3) | width;
+                    uint32_t clusterData = (chipID << (SS_CLUSTER_BITS - CHIP_ID_BITS)) | 
+                                            (sclusterAddress << (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS)) | width;
 
-                    if (bitsFilled + 14 <= 32) {
-                        currentWord |= clusterData << (32 - bitsFilled - 14);
-                        bitsFilled += 14;
+                    if (bitsFilled + SS_CLUSTER_BITS <= NUMBER_OF_BITS_PER_WORD) {
+                        currentWord |= clusterData << (NUMBER_OF_BITS_PER_WORD - bitsFilled - SS_CLUSTER_BITS);
+                        bitsFilled += SS_CLUSTER_BITS;
                     } else {
-                        int bitsLeft = 32 - bitsFilled;
-                        currentWord |= clusterData >> (14 - bitsLeft);
+                        int bitsLeft = NUMBER_OF_BITS_PER_WORD - bitsFilled;
+                        currentWord |= clusterData >> (SS_CLUSTER_BITS - bitsLeft);
                         payload.push_back(currentWord);  // Push full word
                         currentOffset++;
 
-                        currentWord = clusterData << (32 - (14 - bitsLeft));
-                        bitsFilled = 14 - bitsLeft;
+                        currentWord = clusterData << (NUMBER_OF_BITS_PER_WORD - (SS_CLUSTER_BITS - bitsLeft));
+                        bitsFilled = SS_CLUSTER_BITS - bitsLeft;
                     }
                 }
 
@@ -184,27 +189,29 @@ class DTCUnit
             }
 
             // --- Step 3: Combine the offset map into 32-bit words ---
-            for (size_t idx = 0; idx < offsetMap.size(); idx += 2) {
-                uint32_t word = (offsetMap[idx + 1] << 16) | offsetMap[idx];
+            for (size_t idx = 0; idx < offsetMap.size(); idx += 2) 
+            {
+                uint32_t word = (offsetMap[idx + 1] << NUMBER_OF_BITS_PER_WORD / 2) | offsetMap[idx];
                 words.push_back(word);  // Push offset map word
             }
 
             // --- Step 4: Add payload words ---
-            for (auto& word : payload) {
+            for (auto& word : payload) 
+            {
                 words.push_back(word);
             }
 
             // --- Step 5: Fill `data_ptr` with the computed 32-bit words ---
-            FEDRawData& RawDataOnSLink = SLinkCollection[index];
-            RawDataOnSLink.resize(words.size() * 4, 4);  // Resize the buffer to fit all 32-bit words
+            FEDRawData& RawDataOnSLink = sLinkCollection_[index];
+            RawDataOnSLink.resize(words.size() * NUMBER_OF_BYTES_PER_WORD, NUMBER_OF_BYTES_PER_WORD);  // Resize the buffer to fit all 32-bit words
             unsigned char *data_ptr = RawDataOnSLink.data();
 
             for (size_t word_index = 0; word_index < words.size(); ++word_index) {
                 insertHexWordAt(data_ptr, word_index, words[word_index]);
             }
 
-            size_t actual_used_bytes = words.size() * 4;  // Total size used
-            RawDataOnSLink.resize(actual_used_bytes, 4);  
+            size_t actual_used_bytes = words.size() * NUMBER_OF_BYTES_PER_WORD;  // Total size used
+            RawDataOnSLink.resize(actual_used_bytes, NUMBER_OF_BYTES_PER_WORD);  
         }
 
 
@@ -212,11 +219,11 @@ class DTCUnit
         // Each SLink handles 18 Modules (36 CICs) and each DTC has 4 of those
         // So, each DTC handles 72 Modules (144 CICs)
 
-        std::vector<std::vector<std::vector<Cluster>>> ClusterCollection;
-        std::vector<FEDRawData> SLinkCollection;
+        std::vector<std::vector<std::vector<Cluster>>> clusterCollection_;
+        std::vector<FEDRawData> sLinkCollection_;
 
         DTCType Type;
-        unsigned int EventID;
+        unsigned int eventId_;
 };
 
 #endif

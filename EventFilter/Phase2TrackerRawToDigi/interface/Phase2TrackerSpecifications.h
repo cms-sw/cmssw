@@ -10,6 +10,8 @@ namespace Phase2TrackerSpecifications
     static const int MAX_MPA_PER_PS_MODULE = 16;
     static const int MAX_CBC_PER_2S_MODULE = 16;
 
+    static const int MAX_SLINKS_PER_DTC = 4;
+
     static const int STRIPS_PER_CBC = 127;
     static const int CHANNELS_PER_CBC = 254;
 

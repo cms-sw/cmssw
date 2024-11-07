@@ -4,4 +4,24 @@
 namespace Phase2TrackerSpecifications
 {
     static const int DTC_DAQ_HEADER = 0xFFFFFFFF;
+    static const int NUMBER_OF_BITS_PER_WORD = 32;
+    static const int NUMBER_OF_BYTES_PER_WORD = 4;
+    
+    static const int L1ID_MAX_VALUE = 0x1FF;
+    static const int L1ID_BITS = 9;
+    
+    
+    static const int CIC_ERROR_BITS = 9;
+    static const int NCLUSTERS_BITS = 7;
+
+    static const int CHIP_ID_MAX_VALUE = 0x7;
+    static const int CHIP_ID_BITS = 3;
+
+    static const int SCLUSTER_ADDRESS_MAX_VALUE = 0xFF;
+    static const int SCLUSTER_ADDRESS_BITS = 8;
+
+    static const int WIDTH_MAX_VALUE = 0x7;
+    static const int SS_CLUSTER_BITS = 14;
 };
+
+#endif
