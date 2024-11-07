@@ -176,7 +176,7 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     }
 
     // Read one entire DTC (#dtcID), as per the producer logic
-    unsigned int dtcID = 6;  
+    unsigned int dtcID = 12;  
     // read the 4 slinks
     for (unsigned int iSlink = 0; iSlink < 4; iSlink++)
     {
@@ -195,7 +195,7 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
           headerWords.push_back(readLine(dataPtr, i));
         }
         theHeader.setValue(headerWords);
-        theHeader.printValues() ;
+//         theHeader.printValues() ;
   
         // read the offsets 
         // they start from the fifth line (4 * (5-1))
@@ -235,8 +235,8 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
           unsigned int nLines = numClusters > 0 ? int(numClusters * CLUSTER_LENGTH / LINE_LENGTH) + 1 : 0;
           if (numClusters > 0){
             std::cout << "channel " << iChannel << "\t header: " << std::bitset<32>(headerWord) <<  std::endl;
-            std::cout << "\t n clusters = " << numClusters ;
-            std::cout << " -> n lines = " << nLines <<  std::endl;
+//             std::cout << "\t n clusters = " << numClusters ;
+//             std::cout << " -> n lines = " << nLines <<  std::endl;
           }  
           
           std::vector<uint16_t> clustersWords;
@@ -266,9 +266,9 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
             {
               // calculate the shift 
               int shift = LINE_LENGTH - bitsToRead - (nFullClusters + 1) * CLUSTER_LENGTH;
-              std::cout << "\t\t cluster " << icluster  << "  shift by " << shift;
+//               std::cout << "\t\t cluster " << icluster  << "  shift by " << shift;
               clustersWords[icluster] = (lines[iLine] >> shift) & 0x3FFF;
-              std::cout << "\t clusterword " << std::bitset<CLUSTER_LENGTH>(clustersWords[icluster]) <<  std::endl;
+//               std::cout << "\t clusterword " << std::bitset<CLUSTER_LENGTH>(clustersWords[icluster]) <<  std::endl;
               // and update available bits and number of full clusters from this line
               nAvailableBits -= CLUSTER_LENGTH;
               nFullClusters++;
@@ -297,7 +297,7 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
               uint16_t wordRight = (lines[iLine+1] >> (LINE_LENGTH - bitsToRead)) & nMask_newLine; 
               // compose the full cluster word
               clustersWords[icluster] = ((wordLeft << bitsToRead) | wordRight);  
-              std::cout << "\t\t cluster " << icluster << "  on 2 lines \t clusterword " << std::bitset<CLUSTER_LENGTH>(clustersWords[icluster]) <<  std::endl;
+//               std::cout << "\t\t cluster " << icluster << "  on 2 lines \t clusterword " << std::bitset<CLUSTER_LENGTH>(clustersWords[icluster]) <<  std::endl;
               
               // reset n available bits
               nAvailableBits = LINE_LENGTH - bitsToRead ;
@@ -314,9 +314,14 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
           // now create the Phase2TrackerCluster1D object 
           int count_clusters = 0;
           for (auto icluster : clustersWords){
-            unsigned int chipID = (unsigned int)((icluster >> 11) & 0x7);
-            unsigned int sclusterAddress = (unsigned int)((icluster >> 3) & 0xFF);
-            unsigned int width = (unsigned int)((icluster &  0x7));
+            uint32_t chipID = (icluster >> 11) & 0x7;
+            uint32_t sclusterAddress = (icluster >> 3) & 0xFF;
+            uint32_t width = icluster &  0x7;
+
+//             std::cout << "[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<3>(chipID) <<   std::endl;
+//             std::cout << "[unpacking] address : " << (sclusterAddress) << "\t " << std::bitset<8>(sclusterAddress) <<   std::endl;
+//             std::cout << "[unpacking] width : " << (width)   << "\t " << std::bitset<3>(width) <<   std::endl;
+//             std::cout <<  std::endl;
             // FIXME: currently using random y value of 1
             // 127 is valid only for 2S modules, that is what we have for now
             // for the position, probably need different unpacking logic for 2S and PS
@@ -336,12 +341,13 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
           // put the filler here, for the output collection
           // need the detid of this module
           // first I need to construct the DTCElinkId object ## dtc_id, gbtlink_id, elink_id
-          DTCELinkId thisDTCElinkId(dtcID, iChannel, 0);
+          unsigned int gbt_id = iSlink * 18 + iChannel;
+          DTCELinkId thisDTCElinkId(dtcID, gbt_id, 0);
           // then pass it to the map to get the detid
           std::cout << "\tiDTC: " << unsigned(dtcID) << " \tiGBT:  " <<  unsigned(iChannel) << " \tielink: " <<  unsigned(0);
           if (cablingMap_->knowsDTCELinkId(thisDTCElinkId))
           {
-            auto possibleDetIds = cablingMap_->dtcELinkIdToDetId(thisDTCElinkId);
+            auto possibleDetIds = cablingMap_->dtcELinkIdToDetId(thisDTCElinkId); // this returns an uint32_t
             std::cout << "\t -> detId:" <<  possibleDetIds->second << std::endl;
             // Store clusters of this channel.
             std::vector<Phase2TrackerCluster1D>::iterator it;

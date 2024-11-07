@@ -97,7 +97,16 @@ void Phase2DAQProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     for (const auto& DetectorClusterCollection : iEvent.get(ClusterCollectionToken_)) 
     {
-        auto output = cablingMap.detIdToDTCELinkId(assignNumber(DetectorClusterCollection.detId()));
+        DetId detId = DetectorClusterCollection.detId();
+        const GeomDetUnit* detUnit = trackerGeometry.idToDetUnit(detId);
+
+        // tmp sara
+        bool is2SModule      = trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2SS;
+        if (!is2SModule) continue; 
+        std::cout << "[packing] detId rawId: " << detId.rawId() << std::endl;
+        std::cout << "\t det cluster size for this detId " << DetectorClusterCollection.size() << std::endl;
+        
+        auto output = cablingMap.detIdToDTCELinkId(assignNumber(detId));
 
         unsigned int dtc_id, gbt_id, slink_id, slink_id_within;
         for (auto it = output.first; it != output.second; ++it) 
@@ -105,15 +114,11 @@ void Phase2DAQProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             DTCELinkId dtcELinkId = it->second;
             dtc_id = dtcELinkId.dtc_id();
             gbt_id = dtcELinkId.gbtlink_id();
+            std::cout << "\t\t dtc_id: " << unsigned(dtc_id) << "  gbt_id: " << unsigned(gbt_id) << std::endl;
         }
-
-//         std::cout << "[packing] processing dtc_id : " << dtc_id << std::endl;
         slink_id = std::div(gbt_id, 18).quot;
         slink_id_within = std::div(gbt_id, 18).rem;
     
-        DetId detId = DetectorClusterCollection.detId();
-        const GeomDetUnit* detUnit = trackerGeometry.idToDetUnit(detId);
-
         if (detUnit)
         {
             
@@ -123,21 +128,24 @@ void Phase2DAQProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
             if (isPSModuleStrip)
             {
+                std::cout << "\t\tisPSModuleStrip"  << std::endl;
                 processClusters(TrackerGeometry::ModuleType::Ph2PSS, DetectorClusterCollection, dtc_id, slink_id, slink_id_within, dtcAssembly);
             }
             else if (isPSModulePixel)
             {
+                std::cout << "\t\tisPSModulePixel"  << std::endl;
                 processClusters(TrackerGeometry::ModuleType::Ph2PSP, DetectorClusterCollection, dtc_id, slink_id, slink_id_within, dtcAssembly);
             }
             else if (is2SModule)
             {
+                std::cout << "\t\tis2SModule"  << std::endl;
                 processClusters(TrackerGeometry::ModuleType::Ph2SS, DetectorClusterCollection, dtc_id, slink_id, slink_id_within, dtcAssembly);
             }
 
         }
     }
 
-    int i = 6;
+    int i = 12;
 
     std::cout << "[packing] converting only DTC i = " << i << std::endl;
     // for (int i = 1; i == 1; ++i)
@@ -173,15 +181,15 @@ void Phase2DAQProducer::processClusters(TrackerGeometry::ModuleType moduleType,
                                            unsigned int dtc_id, unsigned int slink_id, unsigned int slink_id_within,
                                            DTCAssembly& dtcAssembly)
 {
-    std::cout << "[packing] assigning " << DetectorClusterCollection.size() << " clusters to dtc_id : " << dtc_id << std::endl;
+//     std::cout << "[packing] assigning " << DetectorClusterCollection.size() << " clusters to dtc_id : " << dtc_id << std::endl;
     for (const auto& cluster : DetectorClusterCollection)
     {
         DTCUnit& assignedDtcUnit = dtcAssembly.GetDTCUnit(dtc_id);
 
         unsigned int z = cluster.column();
         unsigned int x = cluster.center();
-//         std::cout << "[packing] cluster x/y: " << x <<  std::endl;
         unsigned int width = cluster.size();
+//         std::cout << "[packing] cluster x/width: " << x <<  " / " << width <<  std::endl;
         // original 
         // unsigned int chipId = x % 8;
         // and later, sclusterAddress = std::div(x, 127).quot;
