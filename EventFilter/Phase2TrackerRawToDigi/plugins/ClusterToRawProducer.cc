@@ -131,24 +131,19 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         }
     }
 
-    int i = 81;
+    int i = 81; // a single 2s module for unpacking tests
 
-    // for (int i = 1; i == 1; ++i)
-    // {
-
-        DTCUnit& dtc_0 = dtcAssembly.GetDTCUnit(i); // dtc unit
-        
-        dtc_0.convertToRawData(0);
-        dtc_0.convertToRawData(1);
-        dtc_0.convertToRawData(2);
-        dtc_0.convertToRawData(3);
-        
-        fedRawDataCollection.get()->FEDData( 0 + 4 * (i - 1) + 0 ) = dtc_0.GetSLink(0);
-        fedRawDataCollection.get()->FEDData( 1 + 4 * (i - 1) + 0 ) = dtc_0.GetSLink(1);
-        fedRawDataCollection.get()->FEDData( 2 + 4 * (i - 1) + 0 ) = dtc_0.GetSLink(2);
-        fedRawDataCollection.get()->FEDData( 3 + 4 * (i - 1) + 0 ) = dtc_0.GetSLink(3);
-
-    // }
+    DTCUnit& dtc_0 = dtcAssembly.GetDTCUnit(i); // dtc unit
+    
+    dtc_0.convertToRawData(0);
+    dtc_0.convertToRawData(1);
+    dtc_0.convertToRawData(2);
+    dtc_0.convertToRawData(3);
+    
+    fedRawDataCollection.get()->FEDData( 0 + 4 * (i - 1) + 0 ) = dtc_0.GetSLink(0);
+    fedRawDataCollection.get()->FEDData( 1 + 4 * (i - 1) + 0 ) = dtc_0.GetSLink(1);
+    fedRawDataCollection.get()->FEDData( 2 + 4 * (i - 1) + 0 ) = dtc_0.GetSLink(2);
+    fedRawDataCollection.get()->FEDData( 3 + 4 * (i - 1) + 0 ) = dtc_0.GetSLink(3);
 
     iEvent.put(std::move(fedRawDataCollection));
 
