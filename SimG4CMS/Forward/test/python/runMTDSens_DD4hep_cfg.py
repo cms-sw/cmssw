@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-process = cms.Process('G4PrintGeometry',Phase2C17I13M9,dd4hep)
+process = cms.Process('G4PrintGeometry',_PH2_ERA,dd4hep)
 
-process.load('Configuration.Geometry.GeometryDD4hepExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryDD4hepExtendedRun4DefaultReco_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
