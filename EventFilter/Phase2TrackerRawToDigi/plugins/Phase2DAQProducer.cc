@@ -17,11 +17,8 @@
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackTrigger/interface/SensorModule.h"
 #include "L1Trigger/TrackerDTC/interface/LayerEncoding.h"
-#include <TFile.h>
-#include <TH1D.h>
-#include <TH2D.h>
-#include <TProfile.h>
-#include <TTree.h>
+
+
 #include <typeinfo>
 #include <chrono>
 #include <map>
