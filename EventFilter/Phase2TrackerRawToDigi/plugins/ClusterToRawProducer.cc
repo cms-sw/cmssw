@@ -7,8 +7,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
@@ -29,6 +27,7 @@
 
 #include "EventFilter/Phase2TrackerRawToDigi/interface/DTCAssembly.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Cluster.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerSpecifications.h"
 
 class ClusterToRawProducer : public edm::one::EDProducer<> {
 public:
@@ -101,8 +100,8 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             gbt_id = dtcELinkId.gbtlink_id();
         }
 
-        slink_id = std::div(gbt_id, 18).quot;
-        slink_id_within = std::div(gbt_id, 18).rem;
+        slink_id = std::div(gbt_id, Phase2TrackerSpecifications::MODULES_PER_SLINK).quot;
+        slink_id_within = std::div(gbt_id, Phase2TrackerSpecifications::MODULES_PER_SLINK).rem;
     
 
         // Example usage of TrackerGeometry
@@ -198,15 +197,15 @@ void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleTyp
 
         if (moduleType == TrackerGeometry::ModuleType::Ph2PSP || moduleType == TrackerGeometry::ModuleType::Ph2PSS) 
         {
-            chipId = std::div(x * 2.0, 120).quot;
-            sclusterAddress = std::div(x * 2.0, 120).rem;
+            chipId = std::div(x * 2.0, Phase2TrackerSpecifications::CHANNELS_PER_SSA).quot;
+            sclusterAddress = std::div(x * 2.0, Phase2TrackerSpecifications::CHANNELS_PER_SSA).rem;
             mipbit = cluster.threshold();
         }
 
         else if (moduleType == TrackerGeometry::ModuleType::Ph2SS) 
         {
-            chipId = std::div(x * 2.0, 254).quot;
-            sclusterAddress = std::div(x * 2.0, 254).rem;
+            chipId = std::div(x * 2.0, Phase2TrackerSpecifications::CHANNELS_PER_CBC).quot;
+            sclusterAddress = std::div(x * 2.0, Phase2TrackerSpecifications::CHANNELS_PER_CBC).rem;
         }
 
         Cluster newCluster(z, x, width, chipId, sclusterAddress, mipbit, cicId, moduleType);

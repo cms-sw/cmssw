@@ -91,7 +91,7 @@ process.Experimental = cms.EDProducer("ClusterToRawProducer",
     Phase2Clusters = cms.InputTag("ClustersFromPhase2TrackerDigis"),
 )
 
-process.Analyzer = cms.EDAnalyzer("Phase2DAQAnalyzer",
+process.Analyzer = cms.EDAnalyzer("RawAnalyzer",
     fedRawDataCollection = cms.InputTag("Experimental"),
 )
 

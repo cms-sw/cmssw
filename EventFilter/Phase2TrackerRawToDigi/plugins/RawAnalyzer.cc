@@ -1,4 +1,3 @@
-// Phase2DAQAnalyzer.cc
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -7,16 +6,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "TH1F.h"
-#include "TFile.h"
-#include <fstream>
+
 #include <iostream>
 #include <bitset>
 
-class Phase2DAQAnalyzer : public edm::one::EDAnalyzer<> {
+class RawAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit Phase2DAQAnalyzer(const edm::ParameterSet&);
-  ~Phase2DAQAnalyzer() override = default;
+  explicit RawAnalyzer(const edm::ParameterSet&);
+  ~RawAnalyzer() override = default;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
@@ -25,17 +22,17 @@ private:
   edm::EDGetTokenT<FEDRawDataCollection> fedRawDataToken_;
 };
 
-Phase2DAQAnalyzer::Phase2DAQAnalyzer(const edm::ParameterSet& iConfig) :
+RawAnalyzer::RawAnalyzer(const edm::ParameterSet& iConfig) :
     fedRawDataToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("fedRawDataCollection")))
 { }
 
-void Phase2DAQAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void RawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<FEDRawDataCollection> fedRawDataCollection;
   iEvent.getByToken(fedRawDataToken_, fedRawDataCollection);
 
   if (!fedRawDataCollection.isValid()) 
   {
-    edm::LogError("Phase2DAQAnalyzer") << "No FEDRawDataCollection found!";
+    edm::LogError("RawAnalyzer") << "No FEDRawDataCollection found!";
     return;
   }
 
@@ -67,10 +64,10 @@ void Phase2DAQAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
 }
 
-void Phase2DAQAnalyzer::endJob() 
+void RawAnalyzer::endJob() 
 {
 
 }
 
 // Define this as a plug-in
-DEFINE_FWK_MODULE(Phase2DAQAnalyzer);
+DEFINE_FWK_MODULE(RawAnalyzer);
