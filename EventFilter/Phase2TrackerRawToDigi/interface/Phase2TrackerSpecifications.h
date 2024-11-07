@@ -21,6 +21,8 @@ namespace Phase2TrackerSpecifications
 
     static const int CIC_Z_BOUNDARY = 15;
 
+    static const int MAX_DTCs = 216;
+
 };
 
 #endif

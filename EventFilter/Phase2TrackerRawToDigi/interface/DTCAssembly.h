@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerSpecifications.h"
 #include "./DTCUnit.h"
 
 class DTCAssembly
@@ -16,7 +17,7 @@ class DTCAssembly
         DTCUnit& GetDTCUnit(const unsigned int& DTCUnitID) 
         { 
             // if DTCUnitID is out of range [0, 216], throw cms exception
-            if (DTCUnitID > 216) 
+            if (DTCUnitID > Phase2TrackerSpecifications::MAX_DTCs) 
             {
                 throw cms::Exception("DTCAssembly") << "DTCUnitID " << DTCUnitID << " is out of range [1, 216]";
             }
