@@ -24,11 +24,7 @@ ALCARECOSiPixelCalSingleMuonTightDCSFilter = DPGAnalysis.Skims.skim_detstatus_cf
 ##################################################################
 # Isolated muons Track selector
 ##################################################################
-import Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi
-ALCARECOSiPixelCalSingleMuonTightGoodMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlGoodIdMuonSelector.clone()
-ALCARECOSiPixelCalSingleMuonTightRelCombIsoMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlRelCombIsoMuonSelector.clone(
-    src = 'ALCARECOSiPixelCalSingleMuonTightGoodMuons'
-)
+from Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi import *
 
 ##################################################################
 # Basic Track selection
@@ -46,7 +42,7 @@ ALCARECOSiPixelCalSingleMuonTight = Alignment.CommonAlignmentProducer.AlignmentT
 ##################################################################
 # Muon selection
 ##################################################################
-ALCARECOSiPixelCalSingleMuonTight.GlobalSelector.muonSource = 'ALCARECOSiPixelCalSingleMuonTightRelCombIsoMuons'
+ALCARECOSiPixelCalSingleMuonTight.GlobalSelector.muonSource = 'TkAlRelCombIsoMuonSelector'
 # Isolation is shifted to the muon preselection, and then applied intrinsically if applyGlobalMuonFilter = True
 ALCARECOSiPixelCalSingleMuonTight.GlobalSelector.applyIsolationtest = False
 ALCARECOSiPixelCalSingleMuonTight.GlobalSelector.minJetDeltaR = 0.1
@@ -91,8 +87,7 @@ trackDistances = TrackDistanceValueMap.TrackDistanceValueMapProducer.clone(muonT
 seqALCARECOSiPixelCalSingleMuonTight = cms.Sequence(offlineBeamSpot+
                                                     ALCARECOSiPixelCalSingleMuonTightHLTFilter+
                                                     ALCARECOSiPixelCalSingleMuonTightDCSFilter+
-                                                    ALCARECOSiPixelCalSingleMuonTightGoodMuons+
-                                                    ALCARECOSiPixelCalSingleMuonTightRelCombIsoMuons+
+                                                    seqALCARECOTkAlRelCombIsoMuons+
                                                     ALCARECOSiPixelCalSingleMuonTight+
                                                     trackDistances +
                                                     ALCARECOSiPixelCalSingleMuonTightOffTrackClusters)

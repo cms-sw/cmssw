@@ -168,6 +168,7 @@ int l1t::Stage1Layer2EtSumAlgorithmImpPP::DiJetPhi(const std::vector<l1t::Jet>* 
 uint16_t l1t::Stage1Layer2EtSumAlgorithmImpPP::MHToverHT(uint16_t num, uint16_t den) const {
   uint16_t result;
   uint32_t numerator(num), denominator(den);
+  assert(den != 0);
 
   if (numerator == denominator)
     result = 0x7f;

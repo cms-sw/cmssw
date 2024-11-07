@@ -8,7 +8,7 @@ _PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_V
 
 process = cms.Process("ICALIB",_PH2_ERA)
 process.load("Configuration.StandardSequences.Services_cff")
-process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 
 process.trackerGeometry.applyAlignment = cms.bool(False)
 

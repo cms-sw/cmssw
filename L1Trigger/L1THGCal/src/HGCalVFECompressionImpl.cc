@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include "L1Trigger/L1THGCal/interface/HGCalVFECompressionImpl.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -40,13 +42,16 @@ void HGCalVFECompressionImpl::compressSingle(const uint64_t value,
 
   // build exponent and mantissa
   const uint32_t exponent = bitlen - mantissaBits_;
+  assert(exponent - 1 < 64);
   const uint64_t mantissa = (shifted_value >> (exponent - 1)) & ~(1ULL << mantissaBits_);
 
   // assemble floating-point
   const uint32_t floatval = (exponent << mantissaBits_) | mantissa;
 
   // we will never want to round up maximum code here
-  if (!rounding_ || floatval == saturationCode_) {
+  // Also, rounding doesn't apply if exponent==1 since there is no actual compression
+  // from the conversion to floating point in that case
+  if (!rounding_ || floatval == saturationCode_ || exponent <= 1) {
     compressedCode = floatval;
     compressedValue = ((1ULL << mantissaBits_) | mantissa) << (exponent - 1);
   } else {

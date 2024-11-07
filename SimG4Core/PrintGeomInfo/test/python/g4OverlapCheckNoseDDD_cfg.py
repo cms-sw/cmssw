@@ -36,8 +36,8 @@ from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
 process = cms.Process('OverlapCheck',Phase2C20I13M9)
 
 
-baseName = "cms2026" + options.geometry + "DDD"
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+baseName = "cmsRun4" + options.geometry + "DDD"
+geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 
 
 print("Geometry file Name: ", geomFile)

@@ -85,19 +85,20 @@ if __name__ == '__main__':
                     12846.0,    # RelValZEE_13                  2024
                     13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
                     12834.7,    # RelValTTbar_14TeV             2024 mkFit
+                    16834.0,    # RelValTTbar_14TeV             2025
                     14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim 
                     14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
                     2500.201,   # RelValTTbar_14TeV             NanoAOD from existing MINI
 
                     # Phase2
-                    29634.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        Extended2026D110         (Phase-2 baseline)
+                    29634.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline)
                     24834.911,  # Previous DD4hep baseline for monitoring the stability of DD4hep workflow
-                    29634.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T33        DD4hepExtended2026D110   DD4Hep (HLLHC14TeV BeamSpot) 
-                    29834.999,  # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        Extended2026D110         AVE_50_BX_25ns_m3p3     
-                    29696.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        Extended2026D110
-                    29700.0,    # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T33        Extended2026D110  
+                    29634.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T33        DD4hepExtendedRun4D110   DD4Hep (HLLHC14TeV BeamSpot) 
+                    29834.999,  # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        ExtendedRun4D110         AVE_50_BX_25ns_m3p3     
+                    29696.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        ExtendedRun4D110
+                    29700.0,    # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T33        ExtendedRun4D110  
                     #23234.0,   # Need new workflow with HFNose
-                    29634.75,   # RelValTTbar_14TeV                     phase2_realistic_T33        Extended2026D110         (Phase-2 baseline -  but using timing menu, and only up to step 2)
+                    29634.75,   # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline -  but using timing menu, and only up to step 2)
 
                     ###### pp Data
                     ## Run1
@@ -115,24 +116,26 @@ if __name__ == '__main__':
                     139.001,    # Run2021  MinimumBias                  Commissioning2021   
                     
                     # 2022
-                    140.023,    # Run2022B ZeroBias 
-                    140.043,    # Run2022C ZeroBias 
-                    140.063,    # Run2022D ZeroBias 
+                    2022.002001,    # Run2022C ZeroBias
+                    2022.000001,    # Run2022C JetHT
 
                     # 2023
-                    141.044,    # Run2023D JetMET0
-                    141.042,    # Run2023D ZeroBias
-                    141.046,    # Run2023D EGamma0
+                    2023.002001,    # Run2023D ZeroBias
+                    2023.002001,    # Run2023D MuonEG
 
+                    # 2024
+                    2024.000001,      # Run2024B ZeroBias
+                    2024.101001,      # Run2024C BTagMu 
+                    2024.202001,      # Run2024D JetMET0
+                    2024.303001,      # Run2024E DisplacedJet
+                    
                     ###### Heavy Ions
                     ## Data
                     # Run2   
                     140.56,    # HIRun2018A HIHardProbes                    Run2_2018_pp_on_AA 
                     ## MC
-                    # Run3
-                    312.0,     # Pyquen_ZeemumuJets_pt10_2760GeV            2022    PU : HiMixGEN
-                    322.0,     # Pyquen_ZeemumuJets_pt10_5362GeV_2023       2023    PU : HiMixGEN
-                    332.0,     # Pyquen_ZeemumuJets_pt10_5362GeV_2024       2024    PU : HiMixGEN
+                    312.0,     # Pyquen_ZeemumuJets_pt10_2760GeV            PU : HiMixGEN 
+
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC

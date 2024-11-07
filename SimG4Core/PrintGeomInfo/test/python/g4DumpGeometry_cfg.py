@@ -5,8 +5,8 @@ process = cms.Process("G4PrintGeometry")
 #process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 #process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtendedRun4D77Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtendedRun4D83Reco_cff')
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)

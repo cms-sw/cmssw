@@ -128,6 +128,8 @@ private:
 
     TH1* LocalX;
     TH1* LocalY;
+
+    unsigned int EntriesInt;
   };
 
   // container struct to organize collection of histograms during endJob
@@ -373,7 +375,7 @@ private:
 
   unsigned long long nTracks_;
   const unsigned long long maxTracks_;
-
+  const unsigned int maxEntriesPerModuleForDmr_;
   TrackerValidationVariables avalidator_;
 };
 
@@ -489,6 +491,7 @@ TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iCon
       chargeCut_(parSet_.getParameter<int>("chargeCut")),
       nTracks_(0),
       maxTracks_(parSet_.getParameter<unsigned long long>("maxTracks")),
+      maxEntriesPerModuleForDmr_(parSet_.getParameter<unsigned int>("maxEntriesPerModuleForDmr")),
       avalidator_(iConfig, consumesCollector()) {
   usesResource(TFileService::kSharedResource);
 }
@@ -509,6 +512,7 @@ void TrackerOfflineValidation::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<std::string>("moduleDirectoryInOutput", {});
   desc.add<int>("chargeCut", 0);
   desc.add<unsigned long long>("maxTracks", 0);
+  desc.add<unsigned int>("maxEntriesPerModuleForDmr", 0);
 
   // fill in the residuals details
   std::vector<std::string> listOfResidualsPSets = {"TH1XResPixelModules",
@@ -1325,6 +1329,9 @@ void TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::Even
 
         if (moduleLevelProfiles_ && itH->inside) {
           float tgalpha = tan(itH->localAlpha);
+          histStruct.EntriesInt = histStruct.LocalX->GetEntries();
+          if (maxEntriesPerModuleForDmr_ > 0 && histStruct.EntriesInt >= maxEntriesPerModuleForDmr_)
+            continue;
           if (fabs(tgalpha) != 0) {
             histStruct.LocalX->Fill(itH->localXnorm, tgalpha * tgalpha);
             histStruct.LocalY->Fill(itH->localYnorm, tgalpha * tgalpha);

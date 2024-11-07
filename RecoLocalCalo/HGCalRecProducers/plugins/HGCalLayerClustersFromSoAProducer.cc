@@ -66,6 +66,12 @@ public:
     std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>);
     clusters->reserve(deviceData->metadata().size());
 
+    // Create a vector of <clusters> locations, where each location holds a
+    // vector of <nCells> floats. These vectors are used to compute the time for
+    // each cluster.
+    std::vector<std::vector<float>> times(deviceData->metadata().size());
+    std::vector<std::vector<float>> timeErrors(deviceData->metadata().size());
+
     for (int i = 0; i < deviceData->metadata().size(); ++i) {
       std::vector<std::pair<DetId, float>> thisCluster;
       thisCluster.reserve(deviceView.cells(i));
@@ -75,20 +81,14 @@ public:
                              std::move(thisCluster),
                              algoId_);
       clusters->back().setSeed(deviceView.seed(i));
+      times[i].reserve(deviceView.cells(i));
+      timeErrors[i].reserve(deviceView.cells(i));
     }
 
     // Populate hits and fractions required to compute the cluster's time.
     // This procedure is complex and involves two SoAs: the original RecHits
     // SoA and the clustering algorithm's output SoA. Both SoAs have the same
     // cardinality, and crucially, the output SoA includes the cluster index.
-
-    // Create a vector of <clusters> locations, where each location holds a
-    // vector of 16 floats. These vectors are used to compute the time for
-    // each cluster. The size of 16 is a heuristic to minimize memory
-    // reallocation and the associated overhead when the vector's capacity
-    // needs to be extended.
-    std::vector<std::vector<float>> times(clusters->size(), std::vector<float>(16, 0.0f));
-    std::vector<std::vector<float>> timeErrors(clusters->size(), std::vector<float>(16, 0.0f));
     for (int32_t i = 0; i < soaRecHitsExtra_v.metadata().size(); ++i) {
       if (soaRecHitsExtra_v[i].clusterIndex() == -1) {
         continue;
@@ -105,6 +105,7 @@ public:
 
     // Finally, compute and assign the time to each cluster.
     std::vector<std::pair<float, float>> cluster_times;
+    cluster_times.reserve(clusters->size());
     hgcalsimclustertime::ComputeClusterTime timeEstimator;
     for (unsigned i = 0; i < clusters->size(); ++i) {
       if (detector_ != "BH") {

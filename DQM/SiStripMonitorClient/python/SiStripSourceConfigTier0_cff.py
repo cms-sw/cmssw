@@ -74,18 +74,19 @@ stage2L1Trigger.toModify(SiStripMonitorClusterBPTX,
                              stage2 = cms.bool(True),
                              l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
                              l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
-                             ReadPrescalesFromFile = cms.bool(True)
+                             ReadPrescalesFromFile = cms.bool(False)
                          ),
                          PixelDCSfilter = dict(
                              stage2 = cms.bool(True),
                              l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
                              l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
-                             ReadPrescalesFromFile = cms.bool(True)),
+                             ReadPrescalesFromFile = cms.bool(False)
+                         ),
                          StripDCSfilter = dict(
                              stage2 = cms.bool(True),
                              l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
                              l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
-                             ReadPrescalesFromFile = cms.bool(True)
+                             ReadPrescalesFromFile = cms.bool(False)
                          )
                         )
 

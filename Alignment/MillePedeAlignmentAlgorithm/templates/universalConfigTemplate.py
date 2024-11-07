@@ -34,10 +34,6 @@
 #        process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryWidth = ...
 #        if primaryWidth<=0.0 it has no effect at all.
 
-
-import FWCore.ParameterSet.Config as cms
-process = cms.Process("Alignment")
-
 ################################################################################
 # Variables edited by mps_alisetup.py. Used in functions below.
 # You can change them manually as well.
@@ -46,9 +42,20 @@ setupGlobaltag        = "placeholder_globaltag"
 setupCollection       = "placeholder_collection"
 setupCosmicsDecoMode  = False
 setupCosmicsZeroTesla = False
+setupRecoGeometry     = "placeholder_recogeometry"
 setupPrimaryWidth     = -1.0
 setupJson             = "placeholder_json"
 setupRunStartGeometry = -1
+
+import FWCore.ParameterSet.Config as cms
+if not setupRecoGeometry:  # empty string defaults to DB
+    from Configuration.Eras.Era_Run3_cff import Run3
+    process = cms.Process("Alignment", Run3)
+else:
+    import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+    # need to remove "Extended from the setupRecoGeometry because of defaultPhase2ConditionsEra interface"
+    _PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(setupRecoGeometry.replace("Extended", ""))
+    process = cms.Process("Alignment",_PH2_ERA)
 
 ################################################################################
 # Variables edited by MPS (mps_setup and mps_merge). Be careful.
@@ -69,7 +76,7 @@ readFiles = cms.untracked.vstring()
 # General setup
 # ------------------------------------------------------------------------------
 import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.GeneralSetup as generalSetup
-generalSetup.setup(process, setupGlobaltag, setupCosmicsZeroTesla)
+generalSetup.setup(process, setupGlobaltag, setupCosmicsZeroTesla, setupRecoGeometry)
 
 
 ################################################################################

@@ -203,7 +203,7 @@ photonTable = simplePATPhotonFlatTableProducer.clone(
         cutBased = Var(
             "userInt('cutBasedID_loose')+userInt('cutBasedID_medium')+userInt('cutBasedID_tight')",
             "uint8",
-            doc="cut-based ID bitmap, RunIIIWinter22V1, (0:fail, 1:loose, 2:medium, 3:tight)",
+            doc="cut-based ID bitmap, RunIIIWinter22V1: fail ==0, loose >=1 , medium >=2, tight >=3",
         ),
         vidNestedWPBitmap = Var(
             "userInt('VIDNestedWPBitmap')",
@@ -287,7 +287,7 @@ run2_egamma.toModify(
     cutBased = Var(
             "userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')",
             "uint8",
-            doc="cut-based ID bitmap, Fall17V2, (0:fail, 1:loose, 2:medium, 3:tight)",
+            doc="cut-based ID bitmap, Fall17V2: fail ==0, loose >=1 , medium >=2, tight >=3",
         ),
     vidNestedWPBitmap = Var(
             "userInt('VIDNestedWPBitmapFall17V2')",

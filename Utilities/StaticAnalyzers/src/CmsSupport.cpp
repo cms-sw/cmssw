@@ -38,6 +38,8 @@ bool clangcms::support::isCmsLocalFile(const char *file) {
     if (LocalDir != nullptr)
       DirLen = strlen(LocalDir);
   }
+  if (strncmp(file, "src/", 4) == 0)
+    return true;
   if ((DirLen == 0) || (strncmp(file, LocalDir, DirLen) != 0) || (strncmp(&file[DirLen], "/src/", 5) != 0))
     return false;
   return true;

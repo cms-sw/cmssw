@@ -29,7 +29,7 @@ process = cms.Process("HGCalCornerTest",Phase2C17I13M9)
 
 ####################################################################
 # Use the options
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 print("Geometry file: ", geomFile)
 
 process.load(geomFile)
