@@ -48,7 +48,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto modIndexer = iRecord.get(moduleIndexTkn_);
 
         // load dense indexing
-        const uint32_t size = modIndexer.maxModulesIdx_;
+        const uint32_t size = modIndexer.maxModulesIndex();
         HGCalMappingModuleParamHost moduleParams(size, cms::alpakatools::host());
         for (size_t i = 0; i < size; i++)
           moduleParams.view()[i].valid() = false;

@@ -110,11 +110,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // loop over ECON eRx blocks to fill columns for gain-dependent calibration parameters
           for (std::size_t iroc = 0; iroc < nrocs; ++iroc) {
-            const uint32_t i_gain =
-                config.feds[ifed]
-                    .econds[imod]
-                    .rocs[iroc]
-                    .gain;  // index of JSON array corresponding to (index,gain) = (0,80fC), (1,160fC), (2,320fC)
             const uint32_t offset_arr = iroc * nchans;        // dense index offset for JSON array (input to SoA)
             const uint32_t offset_soa = offset + offset_arr;  // dense index offset for SoA
             //std::cout << "HGCalCalibrationESProducer::produce:   iroc=" << iroc << ", nchans=" << nchans
@@ -125,21 +120,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   << " > " << nrows << " = nchannels ";
             }
             fill_SoA_column<float>(
-                product.view().ADCtofC(), calib_data[module]["ADCtofC"][i_gain], offset_soa, nchans, offset_arr);
+                product.view().ADC_ped(), calib_data[module]["ADC_ped"], offset_soa, nchans, offset_arr);
+            fill_SoA_column<float>(product.view().Noise(), calib_data[module]["Noise"], offset_soa, nchans, offset_arr);
             fill_SoA_column<float>(
-                product.view().ADC_ped(), calib_data[module]["ADC_ped"][i_gain], offset_soa, nchans, offset_arr);
+                product.view().CM_slope(), calib_data[module]["CM_slope"], offset_soa, nchans, offset_arr);
             fill_SoA_column<float>(
-                product.view().Noise(), calib_data[module]["Noise"][i_gain], offset_soa, nchans, offset_arr);
+                product.view().CM_ped(), calib_data[module]["CM_ped"], offset_soa, nchans, offset_arr);
             fill_SoA_column<float>(
-                product.view().CM_slope(), calib_data[module]["CM_slope"][i_gain], offset_soa, nchans, offset_arr);
-            fill_SoA_column<float>(
-                product.view().CM_ped(), calib_data[module]["CM_ped"][i_gain], offset_soa, nchans, offset_arr);
-            fill_SoA_column<float>(
-                product.view().BXm1_slope(), calib_data[module]["BXm1_slope"][i_gain], offset_soa, nchans, offset_arr);
+                product.view().BXm1_slope(), calib_data[module]["BXm1_slope"], offset_soa, nchans, offset_arr);
           }
-
           // fill columns for gain-independent calibration parameters
-          fill_SoA_column<float>(product.view().TOTtofC(), calib_data[module]["TOTtofC"], offset, nrows);
+          fill_SoA_column<float>(product.view().TOTtoADC(), calib_data[module]["TOTtoADC"], offset, nrows);
           fill_SoA_column<float>(product.view().TOT_ped(), calib_data[module]["TOT_ped"], offset, nrows);
           fill_SoA_column<float>(product.view().TOT_lin(), calib_data[module]["TOT_lin"], offset, nrows);
           fill_SoA_column<float>(product.view().TOT_P0(), calib_data[module]["TOT_P0"], offset, nrows);

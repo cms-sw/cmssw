@@ -133,13 +133,13 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
   //module mapping
   auto modulesIdx = iSetup.getData(moduleIndexTkn_);
   printf("[HGCalMappingIndexESSourceTester][analyze] Module indexer has FEDs=%d Types in sequences=%ld max idx=%d\n",
-         modulesIdx.nfeds_,
-         modulesIdx.globalTypesCounter_.size(),
-         modulesIdx.maxModulesIdx_);
+         modulesIdx.fedCount(),
+         modulesIdx.getGlobalTypesCounter().size(),
+         modulesIdx.maxModulesIndex());
   printf("[HGCalMappingIndexESSourceTester][analyze] FED Readout sequence\n");
   std::unordered_set<uint32_t> unique_modOffsets, unique_erxOffsets, unique_chDataOffsets;
   uint32_t totalmods(0);
-  for (const auto& frs : modulesIdx.fedReadoutSequences_) {
+  for (const auto& frs : modulesIdx.getFEDReadoutSequences()) {
     std::copy(
         frs.modOffsets_.begin(), frs.modOffsets_.end(), std::inserter(unique_modOffsets, unique_modOffsets.end()));
     std::copy(
@@ -163,7 +163,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
 
   //get the module mapper SoA
   auto const& modules = iSetup.getData(moduleTkn_);
-  int nmodules = modulesIdx.maxModulesIdx_;
+  int nmodules = modulesIdx.maxModulesIndex();
   int validModules = 0;
   assert(nmodules == modules.view().metadata().size());  //check for consistent size
   printf("[HGCalMappingIndexESSourceTester][analyze] Module mapping contents\n");

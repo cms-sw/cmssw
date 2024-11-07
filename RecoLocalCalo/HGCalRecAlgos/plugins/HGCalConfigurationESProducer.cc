@@ -131,9 +131,9 @@ public:
     for (std::size_t fedid = 0; fedid < moduleMap.getMaxFEDSize(); ++fedid) {
       // sanity checks
       //std::cout << "HGCalConfigurationESProducer::produce:   fed=" << fedid << std::endl;
-      if (moduleMap.fedReadoutSequences_[fedid].readoutTypes_.size() == 0)  // check if FED exists (non-empty)
-        continue;                                                           // skip non-existent FED
-      std::string sfedid = std::to_string(fedid);                           // key in JSON dictionary must be string
+      if (moduleMap.getFEDReadoutSequences()[fedid].readoutTypes_.size() == 0)  // check if FED exists (non-empty)
+        continue;                                                               // skip non-existent FED
+      std::string sfedid = std::to_string(fedid);                               // key in JSON dictionary must be string
       if (!fed_config_data.contains(sfedid))
         edm::LogWarning("HGCalConfigurationESProducer")
             << " Did not find FED index " << sfedid << " in JSON file " << fedjson_ << "...";

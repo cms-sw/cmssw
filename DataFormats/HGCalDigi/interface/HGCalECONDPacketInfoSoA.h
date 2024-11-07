@@ -13,7 +13,7 @@
 namespace hgcaldigi {
 
   // use Matrix for common modes
-  using Matrix = Eigen :: Matrix < uint16_t , 12 , 2 >;
+  using Matrix = Eigen ::Matrix<uint16_t, 12, 2>;
   // enum for getting ECONDFlag
   namespace ECONDFlag {
     constexpr uint8_t BITT_POS = 0, BITM_POS = 1, EBO_POS = 2, EBO_MASK = 0b11, HT_POS = 4, HT_MASK = 0b11,

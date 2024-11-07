@@ -44,23 +44,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   HGCalDigiDevice::View digis,
                                   HGCalRecHitDevice::View recHits,
                                   HGCalCalibParamDevice::ConstView calibs) const {
-      auto adc_to_fC = [&](uint32_t adc,
-                           uint32_t cm,
-                           uint32_t adcm1,
-                           float adc_ped,
-                           float cm_slope,
-                           float cm_ped,
-                           float bxm1_slope,
-                           float adc2fC) {
-        float cmf = cm_slope * (0.5 * float(cm) - cm_ped);
-        return adc2fC * ((adc - adc_ped) - cmf - bxm1_slope * (adcm1 - adc_ped - cmf));
-      };
+      auto adc_denoise =
+          [&](uint32_t adc, uint32_t cm, uint32_t adcm1, float adc_ped, float cm_slope, float cm_ped, float bxm1_slope) {
+            float cmf = cm_slope * (0.5 * float(cm) - cm_ped);
+            return ((adc - adc_ped) - cmf - bxm1_slope * (adcm1 - adc_ped - cmf));
+          };
 
-      auto tot_to_fC =
-          [&](uint32_t tot, float tot_lin, float tot_ped, float tot2fC, float tot_p0, float tot_p1, float tot_p2) {
+      auto tot_linearization =
+          [&](uint32_t tot, float tot_lin, float tot2adc, float tot_ped, float tot_p0, float tot_p1, float tot_p2) {
             bool isLin(tot > tot_lin);
             bool isNotLin(!isLin);
-            return isLin * (tot2fC * (tot - tot_ped)) + isNotLin * (tot_p0 + tot_p1 * tot + tot_p2 * tot * tot);
+            return isLin * (tot2adc * (tot - tot_ped)) + isNotLin * (tot_p0 + tot_p1 * tot + tot_p2 * tot * tot);
           };
 
       for (auto idx : uniform_elements(acc, digis.metadata().size())) {
@@ -72,21 +66,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          (calibvalid > 0));
         bool useTOT((digi.tctp() == 3) && isAvailable);
         bool useADC(!useTOT && isAvailable);
-        recHits[idx].energy() = useADC * adc_to_fC(digi.adc(),
-                                                   digi.cm(),
-                                                   digi.adcm1(),
-                                                   calib.ADC_ped(),
-                                                   calib.CM_slope(),
-                                                   calib.CM_ped(),
-                                                   calib.BXm1_slope(),
-                                                   calib.ADCtofC()) +
-                                useTOT * tot_to_fC(digi.tot(),
-                                                   calib.TOT_lin(),
-                                                   calib.TOTtofC(),
-                                                   calib.TOT_ped(),
-                                                   calib.TOT_P0(),
-                                                   calib.TOT_P1(),
-                                                   calib.TOT_P2());
+        recHits[idx].energy() = useADC * adc_denoise(digi.adc(),
+                                                     digi.cm(),
+                                                     digi.adcm1(),
+                                                     calib.ADC_ped(),
+                                                     calib.CM_slope(),
+                                                     calib.CM_ped(),
+                                                     calib.BXm1_slope()) +
+                                useTOT * tot_linearization(digi.tot(),
+                                                           calib.TOT_lin(),
+                                                           calib.TOTtoADC(),
+                                                           calib.TOT_ped(),
+                                                           calib.TOT_P0(),
+                                                           calib.TOT_P1(),
+                                                           calib.TOT_P2());
+
+        //after denoising/linearization apply the MIP scale
+        recHits[idx].energy() *= calib.MIPS_scale();
       }
     }
   };
