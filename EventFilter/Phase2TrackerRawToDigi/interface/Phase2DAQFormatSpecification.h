@@ -22,6 +22,8 @@ namespace Phase2TrackerSpecifications
 
     static const int WIDTH_MAX_VALUE = 0x7;
     static const int SS_CLUSTER_BITS = 14;
+
+    static const int CMSSW_TRACKER_ID = 0;
 };
 
 #endif

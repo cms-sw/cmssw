@@ -35,7 +35,7 @@ class DTCUnit
         }
 
         // GetSLink Method
-        FEDRawData& GetSLink(const unsigned int& SLinkID) 
+        FEDRawData& getSLink(const unsigned int& SLinkID) 
         {
             // if SLinkID is out of range [0, 4], throw cms exception
             if (SLinkID > Phase2TrackerSpecifications::MAX_SLINKS_PER_DTC - 1)
@@ -212,6 +212,14 @@ class DTCUnit
 
             size_t actual_used_bytes = words.size() * NUMBER_OF_BYTES_PER_WORD;  // Total size used
             RawDataOnSLink.resize(actual_used_bytes, NUMBER_OF_BYTES_PER_WORD);  
+        }
+
+        void convertToRawData()
+        {
+            for (size_t i = 0; i < sLinkCollection_.size(); ++i)
+            {
+                convertToRawData(i);
+            }
         }
 
 
