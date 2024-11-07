@@ -44,7 +44,7 @@ private:
 
     uint32_t assignNumber(const uint32_t& N);
     void processClusters(TrackerGeometry::ModuleType moduleType,
-                                           const Phase2TrackerCluster1DCollectionNew::DetSet& DetectorClusterCollection,
+                                           const Phase2TrackerCluster1DCollectionNew::DetSet& detector_cluster_collection,
                                            unsigned int dtc_id, unsigned int slink_id, unsigned int slink_id_within,
                                            DTCAssembly& dtcAssembly);
 };
@@ -81,19 +81,19 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     auto fedRawDataCollection = std::make_unique<FEDRawDataCollection>();
 
     // Iterate through Cluster Collection
-    for (const auto& DetectorClusterCollection : iEvent.get(ClusterCollectionToken_)) 
+    for (const auto& detector_cluster_collection : iEvent.get(ClusterCollectionToken_)) 
     {
-        auto output = cablingMap.detIdToDTCELinkId(assignNumber(DetectorClusterCollection.detId()));
+        auto cable_map = cablingMap.detIdToDTCELinkId(assignNumber(detector_cluster_collection.detId()));
 
         // Retrieve DTC ID and GBT ID
 
-        if (output.first == output.second) 
+        if (cable_map.first == cable_map.second) 
         {
             continue;
         }
 
         unsigned int dtc_id, gbt_id, slink_id, slink_id_within;
-        for (auto it = output.first; it != output.second; ++it) 
+        for (auto it = cable_map.first; it != cable_map.second; ++it) 
         {
             DTCELinkId dtcELinkId = it->second;
             dtc_id = dtcELinkId.dtc_id();
@@ -105,7 +105,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     
 
         // Example usage of TrackerGeometry
-        DetId detId = DetectorClusterCollection.detId();
+        DetId detId = detector_cluster_collection.detId();
         const GeomDetUnit* detUnit = trackerGeometry.idToDetUnit(detId);
 
         if (detUnit)
@@ -117,15 +117,15 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
             if (isPSModuleStrip)
             {
-                processClusters(TrackerGeometry::ModuleType::Ph2PSS, DetectorClusterCollection, dtc_id, slink_id, slink_id_within, dtcAssembly);
+                processClusters(TrackerGeometry::ModuleType::Ph2PSS, detector_cluster_collection, dtc_id, slink_id, slink_id_within, dtcAssembly);
             }
             else if (isPSModulePixel)
             {
-                processClusters(TrackerGeometry::ModuleType::Ph2PSP, DetectorClusterCollection, dtc_id, slink_id, slink_id_within, dtcAssembly);
+                processClusters(TrackerGeometry::ModuleType::Ph2PSP, detector_cluster_collection, dtc_id, slink_id, slink_id_within, dtcAssembly);
             }
             else if (is2SModule)
             {
-                processClusters(TrackerGeometry::ModuleType::Ph2SS, DetectorClusterCollection, dtc_id, slink_id, slink_id_within, dtcAssembly);
+                processClusters(TrackerGeometry::ModuleType::Ph2SS, detector_cluster_collection, dtc_id, slink_id, slink_id_within, dtcAssembly);
             }
 
         }
@@ -166,11 +166,11 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleType,
-                                           const Phase2TrackerCluster1DCollectionNew::DetSet& DetectorClusterCollection,
+                                           const Phase2TrackerCluster1DCollectionNew::DetSet& detector_cluster_collection,
                                            unsigned int dtc_id, unsigned int slink_id, unsigned int slink_id_within,
                                            DTCAssembly& dtcAssembly)
 {
-    for (const auto& cluster : DetectorClusterCollection)
+    for (const auto& cluster : detector_cluster_collection)
     {
         DTCUnit& assignedDtcUnit = dtcAssembly.GetDTCUnit(dtc_id);
 
