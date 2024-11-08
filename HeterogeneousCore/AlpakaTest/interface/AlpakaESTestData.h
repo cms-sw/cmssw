@@ -14,6 +14,8 @@ namespace cms::alpakatest {
   using AlpakaESTestDataCHost = PortableHostCollection<AlpakaESTestSoAC>;
   using AlpakaESTestDataDHost = PortableHostCollection<AlpakaESTestSoAD>;
 
+  using AlpakaESTestDataACMultiHost = PortableHostMultiCollection<AlpakaESTestSoAA, AlpakaESTestSoAC>;
+
   // Template-over-device model
   template <typename TDev>
   class AlpakaESTestDataB {
