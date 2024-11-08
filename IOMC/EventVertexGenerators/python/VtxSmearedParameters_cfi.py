@@ -1071,6 +1071,19 @@ Realistic2023PbPbCollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.3064731)
 )
 
+# From 2024 ppRef data run 387590-387721
+Realistic2024ppRefCollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(310),
+    Emittance = cms.double(8.636e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.82376),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.0244619),
+    Y0 = cms.double(-0.0169181),
+    Z0 = cms.double(0.3513597)
+)
+
 # Parameters for HL-LHC operation at 13TeV
 HLLHCVtxSmearingParameters = cms.PSet(
     MeanXIncm = cms.double(0.),
