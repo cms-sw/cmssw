@@ -6,3 +6,6 @@
 </library>
 
 <test name="TestDQMServicesDemo" command="runtests.sh"/>
+<test name="TestDQMGUIUpload" command="test_dqmgui_upload.sh">
+  <flags PRE_TEST="TestDQMServicesDemo"/>  
+</test>
