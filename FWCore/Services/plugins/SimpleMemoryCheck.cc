@@ -41,6 +41,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
+#include <array>
 #include <cstring>
 #include <iostream>
 #include <memory>
@@ -64,10 +65,23 @@ typedef int (*mallctl_t)(const char* name, void* oldp, size_t* oldlenp, void* ne
 
 namespace edm {
   namespace service {
+    enum class SmapsSection {
+      kSharedObject = 0,
+      kPcm = 1,
+      kOtherFile = 2,
+      kStack = 3,
+      kMmap = 4,
+      kOther = 5,
+      kSize = 6
+    };
     struct smapsInfo {
       double private_ = 0;        // in MB
       double pss_ = 0;            // in MB
       double anonHugePages_ = 0;  // in MB
+
+      static constexpr auto sectionsSize_ = static_cast<unsigned>(SmapsSection::kSize);
+      std::array<double, sectionsSize_> sectionRss_{};    // in MB
+      std::array<double, sectionsSize_> sectionVSize_{};  // in MB
     };
     struct JemallocInfo {
       double allocated = 0;  // in MB
@@ -119,6 +133,10 @@ namespace edm {
                           bool includeSmapsAndJe = false) const;
       void andPrint(const std::string& type, const std::string& mdlabel, const std::string& mdname) const;
       void updateAndPrint(const std::string& type, const std::string& mdlabel, const std::string& mdname);
+
+      // Upon success returns an optional without value
+      // Upon failure returns the name of the file the function attempted to open
+      std::optional<std::string> openFilesNoThrow();
       void openFiles();
 
       char const* smapsLineBuffer() const { return get_underlying_safe(smapsLineBuffer_); }
@@ -311,6 +329,7 @@ namespace edm {
 #ifdef LINUX
       fseek(smapsFile_, 0, SEEK_SET);
       ssize_t read;
+      SmapsSection section = SmapsSection::kOther;
 
       /*
        The format of the report is
@@ -323,6 +342,35 @@ namespace edm {
 
       while ((read = getline(&smapsLineBuffer(), &smapsLineBufferLen_, smapsFile_)) != -1) {
         if (read > 14) {
+          // Are we in a line that defines a mapping?
+          // (a character following ':' is not a space)
+          if (char const* ret = strchr(smapsLineBuffer_, ':'); ret != nullptr and *(ret + 1) != ' ') {
+            ret = strrchr(smapsLineBuffer_, ' ');
+            if (ret == nullptr) {
+              // shouldn't happen, but let's protect anyway
+              section = SmapsSection::kOther;
+            } else if (*(ret + 1) == '\n') {
+              // no "path" element
+              section = SmapsSection::kMmap;
+            } else if (*(ret + 1) == '/') {
+              // "path" starts with '/', assume it's file
+              // differentiate shared object and .pcm files
+              auto len = strlen(ret);
+              if (0 == strncmp(ret + len - 5, ".pcm", 4)) {
+                section = SmapsSection::kPcm;
+              } else if (strstr(ret, ".so") != nullptr) {
+                section = SmapsSection::kSharedObject;
+              } else {
+                section = SmapsSection::kOtherFile;
+              }
+            } else if (0 == strncmp("[stack]", ret + 1, 7)) {
+              section = SmapsSection::kStack;
+            } else {
+              section = SmapsSection::kOther;
+            }
+            continue;
+          }
+
           //Private
           if (0 == strncmp("Private_", smapsLineBuffer_, 8)) {
             unsigned int value = atoi(smapsLineBuffer_ + 14);
@@ -335,6 +383,14 @@ namespace edm {
           } else if (0 == strncmp("AnonHugePages:", smapsLineBuffer_, 14)) {
             unsigned int value = atoi(smapsLineBuffer_ + 14);
             ret.anonHugePages_ += static_cast<double>(value) / 1024.;
+          } else if (0 == strncmp("Rss:", smapsLineBuffer_, 4)) {
+            unsigned int value = atoi(smapsLineBuffer_ + 4);
+            //Convert from kB to MB
+            ret.sectionRss_[static_cast<unsigned>(section)] += static_cast<double>(value) / 1024.;
+          } else if (0 == strncmp("Size:", smapsLineBuffer_, 5)) {
+            unsigned int value = atoi(smapsLineBuffer_ + 5);
+            //Convert from kB to MB
+            ret.sectionVSize_[static_cast<unsigned>(section)] += static_cast<double>(value) / 1024.;
           }
         }
       }
@@ -510,14 +566,23 @@ namespace edm {
       descriptions.add("SimpleMemoryCheck", desc);
     }
 
-    void SimpleMemoryCheck::openFiles() {
+    std::optional<std::string> SimpleMemoryCheck::openFilesNoThrow() {
 #ifdef LINUX
       std::ostringstream smapsNameOst;
       smapsNameOst << "/proc/" << getpid() << "/smaps";
-      if ((smapsFile_ = fopen(smapsNameOst.str().c_str(), "r")) == nullptr) {
-        throw Exception(errors::Configuration) << "Failed to open smaps file " << smapsNameOst.str() << std::endl;
+      auto smapsName = smapsNameOst.str();
+      if ((smapsFile_ = fopen(smapsName.c_str(), "r")) == nullptr) {
+        return smapsName;
       }
 #endif
+      return {};
+    }
+
+    void SimpleMemoryCheck::openFiles() {
+      auto smapsFileNameIfFailed = openFilesNoThrow();
+      if (smapsFileNameIfFailed.has_value()) {
+        throw Exception(errors::Configuration) << "Failed to open smaps file " << *smapsFileNameIfFailed << std::endl;
+      }
     }
 
     void SimpleMemoryCheck::postBeginJob() {
@@ -578,7 +643,7 @@ namespace edm {
       std::shared_ptr<void> guard(
           nullptr, [this](void const*) { measurementUnderway_.store(false, std::memory_order_release); });
       if (not smapsFile_) {
-        openFiles();
+        openFilesNoThrow();
       }
       if (smapsFile_) {
         currentSmaps_ = fetchSmaps();
@@ -612,6 +677,41 @@ namespace edm {
     void SimpleMemoryCheck::postEndJob() {
       if (not jobReportOutputOnly_) {
         LogAbsolute log("MemoryReport");
+
+        update();
+        log << "MemoryReport> EndJob: virtual size " << current_->vsize << " Mbytes, RSS " << current_->rss
+            << " Mbytes";
+        // extract smaps information if file open succeeded
+        if (not smapsFile_) {
+          openFilesNoThrow();
+        }
+        if (smapsFile_) {
+          currentSmaps_ = fetchSmaps();
+          auto soRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kSharedObject)];
+          auto pcmRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kPcm)];
+          auto otherFileRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kOtherFile)];
+          auto mmapRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kMmap)];
+          auto soVSize = currentSmaps_.sectionVSize_[static_cast<unsigned>(SmapsSection::kSharedObject)];
+          auto pcmVSize = currentSmaps_.sectionVSize_[static_cast<unsigned>(SmapsSection::kPcm)];
+          auto otherFileVSize = currentSmaps_.sectionVSize_[static_cast<unsigned>(SmapsSection::kOtherFile)];
+          auto mmapVSize = currentSmaps_.sectionVSize_[static_cast<unsigned>(SmapsSection::kMmap)];
+          log << ", PSS " << currentSmaps_.pss_ << " MBytes, Private " << currentSmaps_.private_ << "\n AnonHugePages "
+              << currentSmaps_.anonHugePages_ << " Mbytes\n"
+              << " mmapped memory pages " << mmapVSize << " Mbytes (VSize), " << mmapRss << " MBytes (RSS)\n"
+              << " mmapped file pages " << (soVSize + pcmVSize + otherFileVSize) << " Mbytes (VSize), "
+              << (soRss + pcmRss + otherFileRss) << " MBytes (RSS)\n"
+              << "  of which .so's " << soVSize << " Mbytes (VSize), " << soRss << " MBytes (RSS)\n"
+              << "  of which PCM's " << pcmVSize << " Mbytes (VSize), " << pcmRss << " MBytes (RSS)\n"
+              << "  of which other " << otherFileVSize << " Mbytes (VSize), " << otherFileRss << " MBytes (RSS)";
+        }
+        if (showJemallocInfo_) {
+          auto info = fetchJemalloc();
+          log << "\n Jemalloc allocated " << info.allocated << " MBytes, active " << info.active
+              << " MBytes\n  resident " << info.resident << " Mbytes, mapped " << info.mapped << " Mbytes\n  metadata "
+              << info.metadata << " Mbytes";
+        }
+        log << "\n";
+
         auto logJemalloc = [&log](std::optional<JemallocInfo> const& info) {
           if (info.has_value()) {
             log << "\n Jemalloc allocated " << info->allocated << " active " << info->active << " resident "
