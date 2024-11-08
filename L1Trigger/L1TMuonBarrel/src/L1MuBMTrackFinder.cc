@@ -31,14 +31,12 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/Event.h>
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcMap.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMEtaProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMWedgeSorter.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMMuonSorter.h"
 
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
@@ -57,7 +55,7 @@ using namespace std;
 //----------------
 //:
 L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC)
-    : _cache0(144, -9, 8), _cache(36, -9, 8), m_config(ps) {
+    : _cache0(144, -9, 8), _cache(36, -9, 8), m_ms(*this), m_config(ps) {
   if (config().Debug(1))
     cout << endl;
   if (config().Debug(1))
@@ -67,7 +65,6 @@ L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet& ps, edm::ConsumesC
 
   m_epvec.reserve(12);
   m_wsvec.reserve(12);
-  m_ms = nullptr;
 
   m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(config().getBMDigiInputTag());
   m_mbParamsToken = iC.esConsumes();
@@ -77,23 +74,7 @@ L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet& ps, edm::ConsumesC
 // Destructor --
 //--------------
 
-L1MuBMTrackFinder::~L1MuBMTrackFinder() {
-  vector<L1MuBMEtaProcessor*>::iterator it_ep = m_epvec.begin();
-  while (it_ep != m_epvec.end()) {
-    delete (*it_ep);
-    it_ep++;
-  }
-  m_epvec.clear();
-
-  vector<L1MuBMWedgeSorter*>::iterator it_ws = m_wsvec.begin();
-  while (it_ws != m_wsvec.end()) {
-    delete (*it_ws);
-    it_ws++;
-  }
-  m_wsvec.clear();
-
-  delete m_ms;
-}
+L1MuBMTrackFinder::~L1MuBMTrackFinder() {}
 
 //--------------
 // Operations --
@@ -118,29 +99,24 @@ void L1MuBMTrackFinder::setup(edm::ConsumesCollector&& iC) {
       continue;
     for (int sc = 0; sc < 12; sc++) {
       L1MuBMSecProcId tmpspid(wh, sc);
-      L1MuBMSectorProcessor* sp = new L1MuBMSectorProcessor(*this, tmpspid, std::move(iC));
+      auto sp = std::make_unique<L1MuBMSectorProcessor>(*this, tmpspid, std::move(iC));
       if (config().Debug(2))
         cout << "creating " << tmpspid << endl;
-      m_spmap->insert(tmpspid, sp);
+      m_spmap.insert(tmpspid, std::move(sp));
     }
   }
 
   // create new eta processors and wedge sorters
   for (int sc = 0; sc < 12; sc++) {
-    L1MuBMEtaProcessor* ep = new L1MuBMEtaProcessor(*this, sc, std::move(iC));
+    auto ep = std::make_unique<L1MuBMEtaProcessor>(*this, sc, std::move(iC));
     if (config().Debug(2))
       cout << "creating Eta Processor " << sc << endl;
-    m_epvec.push_back(ep);
-    L1MuBMWedgeSorter* ws = new L1MuBMWedgeSorter(*this, sc);
+    m_epvec.push_back(std::move(ep));
+    auto ws = std::make_unique<L1MuBMWedgeSorter>(*this, sc);
     if (config().Debug(2))
       cout << "creating Wedge Sorter " << sc << endl;
-    m_wsvec.push_back(ws);
+    m_wsvec.push_back(std::move(ws));
   }
-
-  // create new muon sorter
-  if (config().Debug(2))
-    cout << "creating BM Muon Sorter " << endl;
-  m_ms = new L1MuBMMuonSorter(*this);
 }
 
 //
@@ -179,36 +155,31 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     reset();
 
     // run sector processors
-    L1MuBMSecProcMap::SPmap_iter it_sp = m_spmap->begin();
-    while (it_sp != m_spmap->end()) {
+    for (auto& sp : m_spmap) {
       if (config().Debug(2))
-        cout << "running " << (*it_sp).second->id() << endl;
-      if ((*it_sp).second)
-        (*it_sp).second->run(bx, e, c);
-      if (config().Debug(2) && (*it_sp).second)
-        (*it_sp).second->print();
-      it_sp++;
+        cout << "running " << sp.second->id() << endl;
+      if (sp.second)
+        sp.second->run(bx, e, c);
+      if (config().Debug(2) && sp.second)
+        sp.second->print();
     }
 
     // run eta processors
-    vector<L1MuBMEtaProcessor*>::iterator it_ep = m_epvec.begin();
-    while (it_ep != m_epvec.end()) {
-      if (config().Debug(2))
-        cout << "running Eta Processor " << (*it_ep)->id() << endl;
-      if (*it_ep)
-        (*it_ep)->run(bx, e, c);
-      if (config().Debug(2) && *it_ep)
-        (*it_ep)->print();
-      it_ep++;
+    for (auto& ep : m_epvec) {
+      if (config().Debug(2) && ep)
+        cout << "running Eta Processor " << ep->id() << endl;
+      if (ep)
+        ep->run(bx, e, c);
+      if (config().Debug(2) && ep)
+        ep->print();
     }
 
     // read sector processors
-    it_sp = m_spmap->begin();
-    while (it_sp != m_spmap->end()) {
+    for (auto& sp : m_spmap) {
       if (config().Debug(2))
-        cout << "reading " << (*it_sp).second->id() << endl;
+        cout << "reading " << sp.second->id() << endl;
       for (int number = 0; number < 2; number++) {
-        const L1MuBMTrack& cand = (*it_sp).second->tracK(number);
+        const L1MuBMTrack& cand = sp.second->tracK(number);
 
         if (!cand.empty()) {
           l1t::RegionalMuonCand rmc;
@@ -249,22 +220,20 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
           _cache3.insert(std::end(_cache3), std::begin(cand.getTSeta()), std::end(cand.getTSeta()));
         }
       }
-      it_sp++;
     }
 
     // run wedge sorters
-    vector<L1MuBMWedgeSorter*>::iterator it_ws = m_wsvec.begin();
-    while (it_ws != m_wsvec.end()) {
+    for (auto& ws : m_wsvec) {
       if (config().Debug(2))
-        cout << "running Wedge Sorter " << (*it_ws)->id() << endl;
-      if (*it_ws)
-        (*it_ws)->run();
-      if (config().Debug(2) && *it_ws)
-        (*it_ws)->print();
+        cout << "running Wedge Sorter " << ws->id() << endl;
+      if (ws)
+        ws->run();
+      if (config().Debug(2) && ws)
+        ws->print();
 
       // store found track candidates in container (cache)
-      if ((*it_ws)->anyMuonCands()) {
-        const vector<const L1MuBMTrack*>& mttf_cont = (*it_ws)->tracks();
+      if (ws->anyMuonCands()) {
+        const vector<const L1MuBMTrack*>& mttf_cont = ws->tracks();
 
         vector<const L1MuBMTrack*>::const_iterator iter;
         for (iter = mttf_cont.begin(); iter != mttf_cont.end(); iter++) {
@@ -308,20 +277,17 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
           }
         }
       }
-
-      it_ws++;
-
     }  //end wedge sorting
 
     /*    // run muon sorter
     if ( config().Debug(2) ) cout << "running BM Muon Sorter" << endl;
-    if ( m_ms ) m_ms->run();
-    if ( config().Debug(2) && m_ms ) m_ms->print();
+    if ( m_ms ) m_ms.run();
+    if ( config().Debug(2) && m_ms ) m_ms.print();
 
 
     // store found track candidates in container (cache)
-    if ( m_ms->numberOfTracks() > 0 ) {
-      const vector<const L1MuBMTrack*>&  mttf_cont = m_ms->tracks();
+    if ( m_ms.numberOfTracks() > 0 ) {
+      const vector<const L1MuBMTrack*>&  mttf_cont = m_ms.tracks();
       vector<const L1MuBMTrack*>::const_iterator iter;
       for ( iter = mttf_cont.begin(); iter != mttf_cont.end(); iter++ ) {
 
@@ -366,36 +332,32 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 // reset MTTF
 //
 void L1MuBMTrackFinder::reset() {
-  L1MuBMSecProcMap::SPmap_iter it_sp = m_spmap->begin();
-  while (it_sp != m_spmap->end()) {
-    if ((*it_sp).second)
-      (*it_sp).second->reset();
-    it_sp++;
+  for (auto& sp : m_spmap) {
+    if (sp.second) {
+      sp.second->reset();
+    }
   }
 
-  vector<L1MuBMEtaProcessor*>::iterator it_ep = m_epvec.begin();
-  while (it_ep != m_epvec.end()) {
-    if (*it_ep)
-      (*it_ep)->reset();
-    it_ep++;
+  for (auto& ep : m_epvec) {
+    if (ep) {
+      ep->reset();
+    }
   }
 
-  vector<L1MuBMWedgeSorter*>::iterator it_ws = m_wsvec.begin();
-  while (it_ws != m_wsvec.end()) {
-    if (*it_ws)
-      (*it_ws)->reset();
-    it_ws++;
+  for (auto& ws : m_wsvec) {
+    if (ws) {
+      ws->reset();
+    }
   }
 
-  if (m_ms)
-    m_ms->reset();
+  m_ms.reset();
 }
 
 //
 // return Sector Processor container
 //
-const L1MuBMSectorProcessor* L1MuBMTrackFinder::sp(const L1MuBMSecProcId& id) const { return m_spmap->sp(id); }
-L1MuBMSectorProcessor* L1MuBMTrackFinder::sp(const L1MuBMSecProcId& id) { return m_spmap->sp(id); }
+const L1MuBMSectorProcessor* L1MuBMTrackFinder::sp(const L1MuBMSecProcId& id) const { return m_spmap.sp(id); }
+L1MuBMSectorProcessor* L1MuBMTrackFinder::sp(const L1MuBMSecProcId& id) { return m_spmap.sp(id); }
 
 //
 // return number of muon candidates found by the barrel MTTF

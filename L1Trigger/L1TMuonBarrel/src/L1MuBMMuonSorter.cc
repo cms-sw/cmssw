@@ -16,7 +16,7 @@
 // This Class's Header --
 //-----------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMMuonSorter.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMMuonSorter.h"
 
 //---------------
 // C++ Headers --

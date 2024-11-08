@@ -19,6 +19,7 @@
 //---------------
 
 #include <map>
+#include <memory>
 
 //----------------------
 // Base Class Headers --
@@ -38,20 +39,17 @@ class L1MuBMSectorProcessor;
 
 class L1MuBMSecProcMap {
 public:
-  typedef std::map<L1MuBMSecProcId, L1MuBMSectorProcessor*, std::less<L1MuBMSecProcId> > SPmap;
+  typedef std::map<L1MuBMSecProcId, std::unique_ptr<L1MuBMSectorProcessor>, std::less<L1MuBMSecProcId> > SPmap;
   typedef SPmap::iterator SPmap_iter;
 
   /// constructor
   L1MuBMSecProcMap();
 
-  /// destructor
-  virtual ~L1MuBMSecProcMap();
-
   /// return pointer to Sector Processor
   L1MuBMSectorProcessor* sp(const L1MuBMSecProcId&) const;
 
   /// insert a Sector Processor into the container
-  void insert(const L1MuBMSecProcId&, L1MuBMSectorProcessor* sp);
+  void insert(const L1MuBMSecProcId&, std::unique_ptr<L1MuBMSectorProcessor> sp);
 
   /// return number of entries present in the container
   inline int size() const { return m_map.size(); }

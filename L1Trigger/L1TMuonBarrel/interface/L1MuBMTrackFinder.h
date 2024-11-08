@@ -52,13 +52,13 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMSecProcMap.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMMuonSorter.h"
 
-class L1MuBMSecProcMap;
 class L1MuBMSecProcId;
 class L1MuBMSectorProcessor;
 class L1MuBMEtaProcessor;
 class L1MuBMWedgeSorter;
-class L1MuBMMuonSorter;
 class L1MuRegionalCand;
 class L1MuDTTrack;
 class L1MuDTTrackSegPhi;
@@ -96,13 +96,13 @@ public:
   L1MuBMSectorProcessor* sp(const L1MuBMSecProcId&);
 
   /// get a pointer to an Eta Processor, index [0-11]
-  inline const L1MuBMEtaProcessor* ep(int id) const { return m_epvec[id]; }
+  inline const L1MuBMEtaProcessor* ep(int id) const { return m_epvec[id].get(); }
 
   /// get a pointer to a Wedge Sorter, index [0-11]
-  inline const L1MuBMWedgeSorter* ws(int id) const { return m_wsvec[id]; }
+  inline const L1MuBMWedgeSorter* ws(int id) const { return m_wsvec[id].get(); }
 
   /// get a pointer to the BM Muon Sorter
-  inline const L1MuBMMuonSorter* ms() const { return m_ms; }
+  inline const L1MuBMMuonSorter& ms() const { return m_ms; }
 
   /// get number of muon candidates found by the barrel MTTF
   int numberOfTracks();
@@ -139,10 +139,10 @@ private:
   L1MuBMTrackSegPhiCollection _cache2;
   L1MuBMTrackSegEtaCollection _cache3;
 
-  L1MuBMSecProcMap* m_spmap;                 ///< Sector Processors
-  std::vector<L1MuBMEtaProcessor*> m_epvec;  ///< Eta Processors
-  std::vector<L1MuBMWedgeSorter*> m_wsvec;   ///< Wedge Sorters
-  L1MuBMMuonSorter* m_ms;                    ///< BM Muon Sorter
+  L1MuBMSecProcMap m_spmap;                                  ///< Sector Processors
+  std::vector<std::unique_ptr<L1MuBMEtaProcessor>> m_epvec;  ///< Eta Processors
+  std::vector<std::unique_ptr<L1MuBMWedgeSorter>> m_wsvec;   ///< Wedge Sorters
+  L1MuBMMuonSorter m_ms;                                     ///< BM Muon Sorter
 
   L1MuBMTFConfig m_config;  ///< Track Finder configuration
 
