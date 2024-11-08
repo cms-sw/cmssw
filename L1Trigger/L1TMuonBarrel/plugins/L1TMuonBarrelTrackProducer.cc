@@ -14,7 +14,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
@@ -30,7 +30,7 @@
 #include <iostream>
 #include <iomanip>
 
-class L1TMuonBarrelTrackProducer : public edm::one::EDProducer<edm::one::SharedResources> {
+class L1TMuonBarrelTrackProducer : public edm::stream::EDProducer<> {
 public:
   /// Constructor
   L1TMuonBarrelTrackProducer(const edm::ParameterSet& pset);
@@ -40,24 +40,28 @@ public:
 
 private:
   L1MuBMTrackFinder dtbx_;
+
+  edm::EDPutTokenT<l1t::RegionalMuonCandBxCollection> regionToken_;
+  edm::EDPutTokenT<l1t::RegionalMuonCandBxCollection> unsortRegionToken_;
+  edm::EDPutTokenT<vector<L1MuBMTrack>> trackToken_;
+  edm::EDPutTokenT<vector<L1MuBMTrackSegPhi>> segPhiToken_;
+  edm::EDPutTokenT<vector<L1MuBMTrackSegEta>> segEtaToken_;
 };
 
 using namespace std;
 
 L1TMuonBarrelTrackProducer::L1TMuonBarrelTrackProducer(const edm::ParameterSet& pset)
     : dtbx_(pset, consumesCollector()) {
-  produces<l1t::RegionalMuonCandBxCollection>("BMTF");
-  produces<l1t::RegionalMuonCandBxCollection>("UnsortedBMTF");
-  produces<vector<L1MuBMTrack> >("BMTF");
-  produces<vector<L1MuBMTrackSegPhi> >("BMTF");
-  produces<vector<L1MuBMTrackSegEta> >("BMTF");
-
-  usesResource("L1TMuonBarrelTrackProducer");
+  regionToken_ = produces<l1t::RegionalMuonCandBxCollection>("BMTF");
+  unsortRegionToken_ = produces<l1t::RegionalMuonCandBxCollection>("UnsortedBMTF");
+  trackToken_ = produces<vector<L1MuBMTrack>>("BMTF");
+  segPhiToken_ = produces<vector<L1MuBMTrackSegPhi>>("BMTF");
+  segEtaToken_ = produces<vector<L1MuBMTrackSegEta>>("BMTF");
+  //without clearing before the first call things fail
+  dtbx_.clear();
 }
 
 void L1TMuonBarrelTrackProducer::produce(edm::Event& e, const edm::EventSetup& c) {
-  dtbx_.clear();
-
   if (dtbx_.config().Debug(1))
     cout << endl;
   if (dtbx_.config().Debug(1))
@@ -69,32 +73,26 @@ void L1TMuonBarrelTrackProducer::produce(edm::Event& e, const edm::EventSetup& c
   if (dtbx_.config().Debug(1))
     cout << "Number of muons found by the L1 BBMX TRIGGER : " << ndt << endl;
 
-  std::unique_ptr<l1t::RegionalMuonCandBxCollection> tra_product(new l1t::RegionalMuonCandBxCollection);
-  std::unique_ptr<l1t::RegionalMuonCandBxCollection> vec_product(new l1t::RegionalMuonCandBxCollection);
-  unique_ptr<vector<L1MuBMTrack> > vec_L1MuBMTrack(new vector<L1MuBMTrack>);
-  unique_ptr<vector<L1MuBMTrackSegPhi> > vec_L1MuBMTrackSegPhi(new vector<L1MuBMTrackSegPhi>);
-  unique_ptr<vector<L1MuBMTrackSegEta> > vec_L1MuBMTrackSegEta(new vector<L1MuBMTrackSegEta>);
-
   ///Muons before muon sorter
-  l1t::RegionalMuonCandBxCollection dtTracks = dtbx_.getcache0();
-  *tra_product = dtTracks;
+  auto tra_product = dtbx_.getcache0();
 
   ///Muons after muon sorter, for uGMT
-  l1t::RegionalMuonCandBxCollection BMTracks = dtbx_.getcache();
-  *vec_product = BMTracks;
+  auto vec_product = dtbx_.getcache();
 
-  *vec_L1MuBMTrack = dtbx_.getcache1();
-  *vec_L1MuBMTrackSegPhi = dtbx_.getcache2();
-  *vec_L1MuBMTrackSegEta = dtbx_.getcache3();
+  auto vec_L1MuBMTrack = dtbx_.getcache1();
+  auto vec_L1MuBMTrackSegPhi = dtbx_.getcache2();
+  auto vec_L1MuBMTrackSegEta = dtbx_.getcache3();
 
   //for (int ibx = BMTracks.getFirstBX(); ibx  <= BMTracks.getLastBX(); ibx++){
   //cout << "DEBUG:  BMTF size at bx " << ibx << " " << BMTracks.size(ibx) << "\n";
   //}
-  e.put(std::move(tra_product), "UnsortedBMTF");
-  e.put(std::move(vec_product), "BMTF");
-  e.put(std::move(vec_L1MuBMTrack), "BMTF");
-  e.put(std::move(vec_L1MuBMTrackSegPhi), "BMTF");
-  e.put(std::move(vec_L1MuBMTrackSegEta), "BMTF");
+  e.emplace(unsortRegionToken_, std::move(tra_product));
+  e.emplace(regionToken_, std::move(vec_product));
+  e.emplace(trackToken_, std::move(vec_L1MuBMTrack));
+  e.emplace(segPhiToken_, std::move(vec_L1MuBMTrackSegPhi));
+  e.emplace(segEtaToken_, std::move(vec_L1MuBMTrackSegEta));
+
+  dtbx_.clear();
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
