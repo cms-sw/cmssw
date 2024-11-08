@@ -29,6 +29,9 @@ The monitor is owned by the registry and should not be deleted by any other code
 of the monitor, one can call `cms::perftools::AllocMonitorRegistry::deregisterMonitor` to have the monitor removed from
 the callback list and be deleted (again, without the deallocation causing any callbacks).
 
+NOTE: Experience has shown that using thread_local within a call to `allocCalled` or `deallocCalled` can lead to unexpected behavior. Therefore if per thread information must be gathered it is recommended to make a system that uses thread ids.
+An example of such code can be found in the implementation of ModuleAllocMonitor.
+
 ## General usage
 
 To use the facility, one needs to use LD_PRELOAD to load in the memory proxies before the application runs, e.g.
@@ -99,3 +102,16 @@ The output file contains the following information on each line
 - Number of calls made to deallocation functions
 
 This service is multi-thread safe. Note that when run multi-threaded the maximum reported value will vary from job to job.
+
+### ModuleAllocMonitor
+This service registers a monitor when the service is created (after python parsing is finished but before any modules
+have been loaded into cmsRun) and writes module related information to the specified file. The file name, an optional
+list of module names, and  an optional number of initial events to skip are specified by setting parameters of the
+service in the configuration. The parameters are
+- filename: name of file to which to write reports
+- moduleNames: list of modules which should have their information added to the file. An empty list specifies all modules should be included.
+- nEventsToSkip: the number of initial events that must be processed before reporting happens.
+
+The beginning of the file contains a description of the structure and contents of the file.
+
+This service is multi-thread safe.
