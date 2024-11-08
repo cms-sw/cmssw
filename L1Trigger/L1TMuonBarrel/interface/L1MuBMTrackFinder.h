@@ -146,6 +146,7 @@ private:
 
   L1MuBMTFConfig m_config;  ///< Track Finder configuration
 
+  unsigned long long m_recordCache = 0;
   edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
   edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> m_mbParamsToken;
 };

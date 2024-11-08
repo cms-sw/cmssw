@@ -123,7 +123,11 @@ void L1MuBMTrackFinder::setup(edm::ConsumesCollector&& iC) {
 // run MTTF
 //
 void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
-  m_config.setDefaultsES(c.getData(m_mbParamsToken));
+  auto presentCacheID = c.get<L1TMuonBarrelParamsRcd>().cacheIdentifier();
+  if (m_recordCache != presentCacheID) {
+    m_recordCache = presentCacheID;
+    m_config.setDefaultsES(c.getData(m_mbParamsToken));
+  }
   int bx_min = config().getBxMin();
   int bx_max = config().getBxMax();
 
