@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include <type_traits>
+#include <oneapi/tbb/concurrent_unordered_map.h>
 
 //
 // class declaration
@@ -74,10 +75,10 @@ public:
   unsigned int moduleIndex(const std::string& trigger, const std::string& module) const;
 
   /// C++ class name of module
-  const std::string moduleType(const std::string& module) const;
+  const std::string& moduleType(const std::string& module) const;
 
   /// C++ base class name of module
-  const std::string moduleEDMType(const std::string& module) const;
+  const std::string& moduleEDMType(const std::string& module) const;
 
   /// ParameterSet of process
   const edm::ParameterSet& processPSet() const;
@@ -151,6 +152,10 @@ public:
   edm::ParameterSetID id() const;
 
 private:
+  inline std::string canonicalModuleName(const std::string& module) const {
+    return module.front() != '-' ? module : module.substr(1);
+  }
+
   const edm::ParameterSet* processPSet_;
 
   std::string processName_;
@@ -178,6 +183,17 @@ private:
   trigger::HLTPrescaleTable hltPrescaleTable_;
   std::map<std::string, std::vector<double>> hltPrescaleTableValuesDouble_;
   std::map<std::string, std::vector<FractionalPrescale>> hltPrescaleTableValuesFractional_;
+  struct ModuleInfo {
+    ModuleInfo(edm::ParameterSet const* iPSet, const std::string& iClass, const std::string& iType)
+        : pset_(iPSet), class_(iClass), edmType_(iType) {}
+
+    edm::ParameterSet const* pset_ = nullptr;
+    std::string class_;
+    std::string edmType_;
+  };
+
+  const ModuleInfo& moduleInfoFor(const std::string& iModule) const;
+  mutable oneapi::tbb::concurrent_unordered_map<std::string, ModuleInfo> modulesInfo_;
 };
 
 template <typename T>
