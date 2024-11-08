@@ -16,7 +16,7 @@
 // This Class's Header --
 //-----------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 
@@ -42,11 +42,6 @@ using namespace std;
 //----------------
 
 L1MuBMTFConfig::L1MuBMTFConfig(const edm::ParameterSet& ps) { setDefaults(ps); }
-
-//--------------
-// Destructor --
-//--------------
-L1MuBMTFConfig::~L1MuBMTFConfig() {}
 
 //--------------
 // Operations --
@@ -168,25 +163,3 @@ void L1MuBMTFConfig::setDefaultsES(const L1TMuonBarrelParams& bmParams) {
   if (Debug(1))
     cout << "L1 barrel Track Finder : # of bits used for phib (phi-assignment) : " << m_NbitsPhiPhib << endl;
 }
-
-// static data members
-
-edm::InputTag L1MuBMTFConfig::m_BMDigiInputTag = edm::InputTag();
-edm::InputTag L1MuBMTFConfig::m_BMThetaDigiInputTag = edm::InputTag();
-
-bool L1MuBMTFConfig::m_debug = false;
-int L1MuBMTFConfig::m_dbgLevel = -1;
-int L1MuBMTFConfig::m_BxMin = -9;
-int L1MuBMTFConfig::m_BxMax = 7;
-int L1MuBMTFConfig::m_extTSFilter = 1;
-bool L1MuBMTFConfig::m_openLUTs = false;
-bool L1MuBMTFConfig::m_useEX21 = false;
-bool L1MuBMTFConfig::m_etaTF = true;
-bool L1MuBMTFConfig::m_TSOutOfTimeFilter = false;
-int L1MuBMTFConfig::m_TSOutOfTimeWindow = 1;
-int L1MuBMTFConfig::m_NbitsExtPhi = 8;
-int L1MuBMTFConfig::m_NbitsExtPhib = 8;
-int L1MuBMTFConfig::m_NbitsPtaPhi = 12;
-int L1MuBMTFConfig::m_NbitsPtaPhib = 10;
-int L1MuBMTFConfig::m_NbitsPhiPhi = 10;
-int L1MuBMTFConfig::m_NbitsPhiPhib = 10;

@@ -51,8 +51,8 @@
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
 
-class L1MuBMTFConfig;
 class L1MuBMSecProcMap;
 class L1MuBMSecProcId;
 class L1MuBMSectorProcessor;
@@ -117,7 +117,7 @@ public:
   int numberOfTracks(int bx);
 
   /// return configuration
-  const L1MuBMTFConfig& config() const { return *m_config; }
+  const L1MuBMTFConfig& config() const { return m_config; }
 
   l1t::RegionalMuonCandBxCollection& getcache() { return _cache; }
   l1t::RegionalMuonCandBxCollection& getcache0() { return _cache0; }
@@ -144,7 +144,7 @@ private:
   std::vector<L1MuBMWedgeSorter*> m_wsvec;   ///< Wedge Sorters
   L1MuBMMuonSorter* m_ms;                    ///< BM Muon Sorter
 
-  static std::shared_ptr<L1MuBMTFConfig> m_config;  ///< Track Finder configuration
+  L1MuBMTFConfig m_config;  ///< Track Finder configuration
 
   edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
   edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> m_mbParamsToken;

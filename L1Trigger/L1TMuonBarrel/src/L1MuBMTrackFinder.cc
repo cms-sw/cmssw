@@ -34,7 +34,6 @@
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcMap.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMEtaProcessor.h"
@@ -58,14 +57,7 @@ using namespace std;
 //----------------
 //:
 L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC)
-    : _cache0(144, -9, 8), _cache(36, -9, 8) {
-  // set configuration parameters
-  if (not m_config) {
-    auto temp = std::make_shared<L1MuBMTFConfig>(ps);
-    std::shared_ptr<L1MuBMTFConfig> empty;
-    std::atomic_compare_exchange_strong(&m_config, &empty, temp);
-  }
-
+    : _cache0(144, -9, 8), _cache(36, -9, 8), m_config(ps) {
   if (config().Debug(1))
     cout << endl;
   if (config().Debug(1))
@@ -73,7 +65,6 @@ L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet& ps, edm::ConsumesC
   if (config().Debug(1))
     cout << endl;
 
-  m_spmap = new L1MuBMSecProcMap();
   m_epvec.reserve(12);
   m_wsvec.reserve(12);
   m_ms = nullptr;
@@ -87,8 +78,6 @@ L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet& ps, edm::ConsumesC
 //--------------
 
 L1MuBMTrackFinder::~L1MuBMTrackFinder() {
-  delete m_spmap;
-
   vector<L1MuBMEtaProcessor*>::iterator it_ep = m_epvec.begin();
   while (it_ep != m_epvec.end()) {
     delete (*it_ep);
@@ -158,7 +147,7 @@ void L1MuBMTrackFinder::setup(edm::ConsumesCollector&& iC) {
 // run MTTF
 //
 void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
-  m_config->setDefaultsES(c.getData(m_mbParamsToken));
+  m_config.setDefaultsES(c.getData(m_mbParamsToken));
   int bx_min = config().getBxMin();
   int bx_max = config().getBxMax();
 
@@ -525,7 +514,3 @@ int L1MuBMTrackFinder::setAdd(int ust, int rel_add) {
   }
   return rel_add;
 }
-
-// static data members
-
-std::shared_ptr<L1MuBMTFConfig> L1MuBMTrackFinder::m_config;

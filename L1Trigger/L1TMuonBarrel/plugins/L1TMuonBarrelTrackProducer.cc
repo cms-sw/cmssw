@@ -24,7 +24,7 @@
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
 #include <FWCore/Framework/interface/ConsumesCollector.h>
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFSetup.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
 
