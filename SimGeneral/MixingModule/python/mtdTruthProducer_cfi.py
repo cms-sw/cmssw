@@ -7,7 +7,6 @@ mtdTruth = cms.PSet(
     premixStage1 = cms.bool(False),
     maximumPreviousBunchCrossing = cms.uint32(0),
     maximumSubsequentBunchCrossing = cms.uint32(0),
-    bunchspace = cms.uint32(25), #ns
 
     simHitCollections = cms.PSet(
         mtdCollections = cms.VInputTag(

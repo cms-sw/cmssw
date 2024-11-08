@@ -58,6 +58,8 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
+#include <CLHEP/Units/SystemOfUnits.h>
+
 namespace {
   using Index_t = unsigned;
   using Barcode_t = int;
@@ -105,8 +107,6 @@ private:
       maximumPreviousBunchCrossing_ parameter).
   */
   const unsigned int maximumSubsequentBunchCrossing_;
-
-  const unsigned int bunchSpacing_;
 
   const edm::InputTag simTrackLabel_;
   const edm::InputTag simVertexLabel_;
@@ -257,7 +257,6 @@ MtdTruthAccumulator::MtdTruthAccumulator(const edm::ParameterSet &config,
     : messageCategory_("MtdTruthAccumulator"),
       maximumPreviousBunchCrossing_(config.getParameter<unsigned int>("maximumPreviousBunchCrossing")),
       maximumSubsequentBunchCrossing_(config.getParameter<unsigned int>("maximumSubsequentBunchCrossing")),
-      bunchSpacing_(config.getParameter<unsigned int>("bunchspace")),
       simTrackLabel_(config.getParameter<edm::InputTag>("simTrackCollection")),
       simVertexLabel_(config.getParameter<edm::InputTag>("simVertexCollection")),
       collectionTags_(),
@@ -619,7 +618,8 @@ void MtdTruthAccumulator::accumulateEvent(const T &event,
   DecayChain decay;
 
   for (uint32_t i = 0; i < vertices.size(); i++) {
-    vertex_time_map[i] = vertices[i].position().t() * 1e9 + event.bunchCrossing() * static_cast<int>(bunchSpacing_);
+    // Geant4 time is in seconds, convert to ns (CLHEP::s = 1e9)
+    vertex_time_map[i] = vertices[i].position().t() * CLHEP::s;
   }
 
   IfLogDebug(DEBUG, messageCategory_) << " TRACKS" << std::endl;
