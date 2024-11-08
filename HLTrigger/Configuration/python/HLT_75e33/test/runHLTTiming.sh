@@ -37,7 +37,7 @@ ALL_FILES="${ALL_FILES%?}"
 echo "Discovered files: $ALL_FILES"
 
 cmsDriver.py Phase2 -s L1P2GT,HLT:75e33_timing --processName=HLTX \
-  --conditions auto:phase2_realistic_T33 --geometry Extended2026D110 \
+  --conditions auto:phase2_realistic_T33 --geometry ExtendedRun4D110 \
   --era Phase2C17I13M9 \
   --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 \
   --eventcontent FEVTDEBUGHLT \
