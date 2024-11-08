@@ -67,7 +67,7 @@ L1MuBMEtaProcessor::L1MuBMEtaProcessor(L1MuBMTrackFinder& tf, int id, edm::Consu
       m_foundPattern(0),
       m_tseta(15),
       m_bmtfParamsToken(iC.esConsumes()),
-      m_DTDigiToken(iC.consumes<L1MuDTChambThContainer>(L1MuBMTFConfig::getBMThetaDigiInputTag())) {
+      m_DTDigiToken(iC.consumes<L1MuDTChambThContainer>(tf.config().getBMThetaDigiInputTag())) {
   m_tseta.reserve(15);
 }
 
@@ -86,7 +86,7 @@ L1MuBMEtaProcessor::~L1MuBMEtaProcessor() {}
 //
 void L1MuBMEtaProcessor::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
   auto const& params = c.getData(m_bmtfParamsToken);
-  if (L1MuBMTFConfig::getEtaTF()) {
+  if (m_tf.config().getEtaTF()) {
     receiveData(bx, e, params);
     runEtaTrackFinder(params);
   }

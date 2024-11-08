@@ -66,11 +66,11 @@ L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet& ps, edm::ConsumesC
     std::atomic_compare_exchange_strong(&m_config, &empty, temp);
   }
 
-  if (L1MuBMTFConfig::Debug(1))
+  if (config().Debug(1))
     cout << endl;
-  if (L1MuBMTFConfig::Debug(1))
+  if (config().Debug(1))
     cout << "**** entering L1MuBMTrackFinder ****" << endl;
-  if (L1MuBMTFConfig::Debug(1))
+  if (config().Debug(1))
     cout << endl;
 
   m_spmap = new L1MuBMSecProcMap();
@@ -78,7 +78,7 @@ L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet& ps, edm::ConsumesC
   m_wsvec.reserve(12);
   m_ms = nullptr;
 
-  m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(L1MuBMTFConfig::getBMDigiInputTag());
+  m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(config().getBMDigiInputTag());
   m_mbParamsToken = iC.esConsumes();
 }
 
@@ -116,11 +116,11 @@ L1MuBMTrackFinder::~L1MuBMTrackFinder() {
 void L1MuBMTrackFinder::setup(edm::ConsumesCollector&& iC) {
   // build the barrel Muon Trigger Track Finder
 
-  if (L1MuBMTFConfig::Debug(1))
+  if (config().Debug(1))
     cout << endl;
-  if (L1MuBMTFConfig::Debug(1))
+  if (config().Debug(1))
     cout << "**** L1MuBMTrackFinder building ****" << endl;
-  if (L1MuBMTFConfig::Debug(1))
+  if (config().Debug(1))
     cout << endl;
 
   // create new sector processors
@@ -130,7 +130,7 @@ void L1MuBMTrackFinder::setup(edm::ConsumesCollector&& iC) {
     for (int sc = 0; sc < 12; sc++) {
       L1MuBMSecProcId tmpspid(wh, sc);
       L1MuBMSectorProcessor* sp = new L1MuBMSectorProcessor(*this, tmpspid, std::move(iC));
-      if (L1MuBMTFConfig::Debug(2))
+      if (config().Debug(2))
         cout << "creating " << tmpspid << endl;
       m_spmap->insert(tmpspid, sp);
     }
@@ -139,17 +139,17 @@ void L1MuBMTrackFinder::setup(edm::ConsumesCollector&& iC) {
   // create new eta processors and wedge sorters
   for (int sc = 0; sc < 12; sc++) {
     L1MuBMEtaProcessor* ep = new L1MuBMEtaProcessor(*this, sc, std::move(iC));
-    if (L1MuBMTFConfig::Debug(2))
+    if (config().Debug(2))
       cout << "creating Eta Processor " << sc << endl;
     m_epvec.push_back(ep);
     L1MuBMWedgeSorter* ws = new L1MuBMWedgeSorter(*this, sc);
-    if (L1MuBMTFConfig::Debug(2))
+    if (config().Debug(2))
       cout << "creating Wedge Sorter " << sc << endl;
     m_wsvec.push_back(ws);
   }
 
   // create new muon sorter
-  if (L1MuBMTFConfig::Debug(2))
+  if (config().Debug(2))
     cout << "creating BM Muon Sorter " << endl;
   m_ms = new L1MuBMMuonSorter(*this);
 }
@@ -159,8 +159,8 @@ void L1MuBMTrackFinder::setup(edm::ConsumesCollector&& iC) {
 //
 void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
   m_config->setDefaultsES(c.getData(m_mbParamsToken));
-  int bx_min = L1MuBMTFConfig::getBxMin();
-  int bx_max = L1MuBMTFConfig::getBxMax();
+  int bx_min = config().getBxMin();
+  int bx_max = config().getBxMax();
 
   //Resize the bx range according to the config file
   _cache0.setBXRange(bx_min, bx_max);
@@ -172,18 +172,18 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
   if (dttrig->getContainer()->empty())
     return;
 
-  if (L1MuBMTFConfig::Debug(2))
+  if (config().Debug(2))
     cout << endl;
-  if (L1MuBMTFConfig::Debug(2))
+  if (config().Debug(2))
     cout << "**** L1MuBMTrackFinder processing ------****" << endl;
-  if (L1MuBMTFConfig::Debug(2))
+  if (config().Debug(2))
     cout << endl;
 
   for (int bx = bx_min; bx <= bx_max; bx++) {
     if (dttrig->bxEmpty(bx))
       continue;
 
-    if (L1MuBMTFConfig::Debug(2))
+    if (config().Debug(2))
       cout << "L1MuBMTrackFinder processing bunch-crossing : " << bx << endl;
 
     // reset MTTF
@@ -192,11 +192,11 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     // run sector processors
     L1MuBMSecProcMap::SPmap_iter it_sp = m_spmap->begin();
     while (it_sp != m_spmap->end()) {
-      if (L1MuBMTFConfig::Debug(2))
+      if (config().Debug(2))
         cout << "running " << (*it_sp).second->id() << endl;
       if ((*it_sp).second)
         (*it_sp).second->run(bx, e, c);
-      if (L1MuBMTFConfig::Debug(2) && (*it_sp).second)
+      if (config().Debug(2) && (*it_sp).second)
         (*it_sp).second->print();
       it_sp++;
     }
@@ -204,11 +204,11 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     // run eta processors
     vector<L1MuBMEtaProcessor*>::iterator it_ep = m_epvec.begin();
     while (it_ep != m_epvec.end()) {
-      if (L1MuBMTFConfig::Debug(2))
+      if (config().Debug(2))
         cout << "running Eta Processor " << (*it_ep)->id() << endl;
       if (*it_ep)
         (*it_ep)->run(bx, e, c);
-      if (L1MuBMTFConfig::Debug(2) && *it_ep)
+      if (config().Debug(2) && *it_ep)
         (*it_ep)->print();
       it_ep++;
     }
@@ -216,7 +216,7 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     // read sector processors
     it_sp = m_spmap->begin();
     while (it_sp != m_spmap->end()) {
-      if (L1MuBMTFConfig::Debug(2))
+      if (config().Debug(2))
         cout << "reading " << (*it_sp).second->id() << endl;
       for (int number = 0; number < 2; number++) {
         const L1MuBMTrack& cand = (*it_sp).second->tracK(number);
@@ -266,11 +266,11 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     // run wedge sorters
     vector<L1MuBMWedgeSorter*>::iterator it_ws = m_wsvec.begin();
     while (it_ws != m_wsvec.end()) {
-      if (L1MuBMTFConfig::Debug(2))
+      if (config().Debug(2))
         cout << "running Wedge Sorter " << (*it_ws)->id() << endl;
       if (*it_ws)
         (*it_ws)->run();
-      if (L1MuBMTFConfig::Debug(2) && *it_ws)
+      if (config().Debug(2) && *it_ws)
         (*it_ws)->print();
 
       // store found track candidates in container (cache)
@@ -325,9 +325,9 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     }  //end wedge sorting
 
     /*    // run muon sorter
-    if ( L1MuBMTFConfig::Debug(2) ) cout << "running BM Muon Sorter" << endl;
+    if ( config().Debug(2) ) cout << "running BM Muon Sorter" << endl;
     if ( m_ms ) m_ms->run();
-    if ( L1MuBMTFConfig::Debug(2) && m_ms ) m_ms->print();
+    if ( config().Debug(2) && m_ms ) m_ms->print();
 
 
     // store found track candidates in container (cache)

@@ -82,7 +82,7 @@ void L1MuBMERS::run() {
       m_target[1] = (*second_max)->ts().second;
     }
 
-    if (L1MuBMTFConfig::Debug(4)) {
+    if (m_seu.config().Debug(4)) {
       cout << "ERS : " << endl;
       cout << "\t first  : " << m_address[0] << '\t' << m_quality[0] << endl;
       cout << "\t second : " << m_address[1] << '\t' << m_quality[1] << endl;

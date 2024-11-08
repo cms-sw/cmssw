@@ -125,8 +125,8 @@ void L1MuBMAssignmentUnit::PhiAU(const L1TMuonBarrelParams& bmtfParams) {
   thePhiLUTs = new L1MuBMLUTHandler(bmtfParams);  ///< phi-assignment look-up tables
   //thePhiLUTs->print();
   // calculate phi at station 2 using 8 bits (precision = 0.625 degrees)
-  int sh_phi = 12 - L1MuBMTFConfig::getNbitsPhiPhi();
-  int sh_phib = 10 - L1MuBMTFConfig::getNbitsPhiPhib();
+  int sh_phi = 12 - m_sp.config().getNbitsPhiPhi();
+  int sh_phib = 10 - m_sp.config().getNbitsPhiPhib();
 
   const L1MuBMTrackSegPhi* second = getTSphi(2);  // track segment at station 2
   const L1MuBMTrackSegPhi* first = getTSphi(1);   // track segment at station 1
@@ -839,11 +839,6 @@ int L1MuBMAssignmentUnit::getPt2Address(L1MuBMLUTHandler::PtAssMethod method) co
 // default is 12 bits for phi and 10 bits for phib
 //
 void L1MuBMAssignmentUnit::setPrecision() {
-  nbit_phi = L1MuBMTFConfig::getNbitsPtaPhi();
-  nbit_phib = L1MuBMTFConfig::getNbitsPtaPhib();
+  nbit_phi = m_sp.config().getNbitsPtaPhi();
+  nbit_phib = m_sp.config().getNbitsPtaPhib();
 }
-
-// static data members
-
-unsigned short int L1MuBMAssignmentUnit::nbit_phi = 12;
-unsigned short int L1MuBMAssignmentUnit::nbit_phib = 10;

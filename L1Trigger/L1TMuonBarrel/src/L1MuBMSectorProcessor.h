@@ -67,6 +67,9 @@ public:
   /// reset the Sector Processor
   void reset();
 
+  /// access configuration
+  const L1MuBMTFConfig& config() const;
+
   /// print muon candidates found by the Sector Processor
   void print() const;
 

@@ -93,7 +93,7 @@ void L1MuBMSectorProcessor::run(int bx, const edm::Event& e, const edm::EventSet
   m_SectorReceiver.run(bx, e, c);
 
   // check content of data buffer
-  if (L1MuBMTFConfig::Debug(4) && m_DataBuffer.numberTSphi() > 0) {
+  if (config().Debug(4) && m_DataBuffer.numberTSphi() > 0) {
     cout << "Phi track segments received by " << m_spid << " : " << endl;
     m_DataBuffer.printTSphi();
   }
@@ -103,7 +103,7 @@ void L1MuBMSectorProcessor::run(int bx, const edm::Event& e, const edm::EventSet
   if (m_DataBuffer.numberTSphi() > 1) {
     m_EU.run(c);
     n_ext = m_EU.numberOfExt();
-    if (L1MuBMTFConfig::Debug(3) && n_ext > 0) {
+    if (config().Debug(3) && n_ext > 0) {
       //    if ( print_flag && n_ext > 0  ) {
       cout << "Number of successful extrapolations : " << n_ext << endl;
       m_EU.print();
@@ -116,7 +116,7 @@ void L1MuBMSectorProcessor::run(int bx, const edm::Event& e, const edm::EventSet
   // perform track assembling
   if (n_ext > 0) {
     m_TA.run();
-    if (L1MuBMTFConfig::Debug(3))
+    if (config().Debug(3))
       m_TA.print();
   }
 
@@ -246,3 +246,5 @@ bool L1MuBMSectorProcessor::anyTrack() const {
 
   return false;
 }
+
+const L1MuBMTFConfig& L1MuBMSectorProcessor::config() const { return m_tf.config(); }

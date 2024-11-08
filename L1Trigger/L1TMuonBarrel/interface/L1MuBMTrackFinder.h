@@ -117,7 +117,7 @@ public:
   int numberOfTracks(int bx);
 
   /// return configuration
-  static const L1MuBMTFConfig* config() { return m_config.get(); }
+  const L1MuBMTFConfig& config() const { return *m_config; }
 
   l1t::RegionalMuonCandBxCollection& getcache() { return _cache; }
   l1t::RegionalMuonCandBxCollection& getcache0() { return _cache0; }

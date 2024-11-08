@@ -47,18 +47,18 @@ L1TMuonBarrelTrackProducer::L1TMuonBarrelTrackProducer(const edm::ParameterSet& 
 L1TMuonBarrelTrackProducer::~L1TMuonBarrelTrackProducer() {}
 
 void L1TMuonBarrelTrackProducer::produce(edm::Event& e, const edm::EventSetup& c) {
-  if (L1MuBMTFConfig::Debug(1))
-    cout << endl;
-  if (L1MuBMTFConfig::Debug(1))
-    cout << "**** L1MuonBMTFTrigger processing event  ****" << endl;
-
   L1MuBMTrackFinder* dtbx = setup1->TrackFinder();
   dtbx->clear();
+
+  if (dtbx->config().Debug(1))
+    cout << endl;
+  if (dtbx->config().Debug(1))
+    cout << "**** L1MuonBMTFTrigger processing event  ****" << endl;
 
   dtbx->run(e, c);
 
   int ndt = dtbx->numberOfTracks();
-  if (L1MuBMTFConfig::Debug(1))
+  if (dtbx->config().Debug(1))
     cout << "Number of muons found by the L1 BBMX TRIGGER : " << ndt << endl;
 
   std::unique_ptr<l1t::RegionalMuonCandBxCollection> tra_product(new l1t::RegionalMuonCandBxCollection);

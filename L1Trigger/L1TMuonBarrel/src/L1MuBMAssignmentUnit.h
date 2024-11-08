@@ -73,7 +73,7 @@ public:
   unsigned int Quality();
 
   /// set precision of phi and phib
-  static void setPrecision();
+  void setPrecision();
 
 private:
   /// Track Segment Router
@@ -109,10 +109,10 @@ private:
   std::vector<const L1MuBMTrackSegPhi*> m_TSphi;
   L1MuBMLUTHandler::PtAssMethod m_ptAssMethod;
 
-  L1MuBMLUTHandler* thePtaLUTs;     ///< pt-assignment look-up tables
-  L1MuBMLUTHandler* thePhiLUTs;     ///< phi-assignment look-up tables
-  static unsigned short nbit_phi;   ///< # of bits used for pt-assignment
-  static unsigned short nbit_phib;  ///< # of bits used for pt-assignment
+  L1MuBMLUTHandler* thePtaLUTs;   ///< pt-assignment look-up tables
+  L1MuBMLUTHandler* thePhiLUTs;   ///< phi-assignment look-up tables
+  unsigned short nbit_phi = 12;   ///< # of bits used for pt-assignment
+  unsigned short nbit_phib = 10;  ///< # of bits used for pt-assignment
 };
 
 #endif

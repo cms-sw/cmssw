@@ -433,9 +433,9 @@ void L1MuBMTrackAssembler::run() {
 
   if ((s2_2 == 15 && s3_2 == 15 && s4_2 == 15) || (s1_2 == 15 && s3_2 == 15 && s4_2 == 15) ||
       (s1_2 == 15 && s2_2 == 15 && s4_2 == 15) || (s1_2 == 15 && s2_2 == 15 && s3_2 == 15)) {
-    if (L1MuBMTFConfig::Debug(5))
+    if (m_sp.config().Debug(5))
       cout << "L1MuBMTrackAssembler: second track has been cancelled" << endl;
-    if (L1MuBMTFConfig::Debug(5))
+    if (m_sp.config().Debug(5))
       print();
 
     m_theTCs[1] = UNDEF;
@@ -445,8 +445,8 @@ void L1MuBMTrackAssembler::run() {
 
   /*
   if ( m_theBitMaps[1].to_ulong() != tc2bitmap(m_theTCs[1]) ) {
-    if ( L1MuBMTFConfig::Debug(5) ) cout << "L1MuBMTrackAssembler: second track has been cancelled" << endl;
-    if ( L1MuBMTFConfig::Debug(5) ) print();
+    if ( m_sp.config().Debug(5) ) cout << "L1MuBMTrackAssembler: second track has been cancelled" << endl;
+    if ( m_sp.config().Debug(5) ) print();
 
     m_theTCs[1] = UNDEF;
     m_theAddresses[1].reset();

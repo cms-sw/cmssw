@@ -83,7 +83,7 @@ L1MuBMSEU::~L1MuBMSEU() {
 // run SEU
 //
 void L1MuBMSEU::run(const L1TMuonBarrelParams& params) {
-  if (L1MuBMTFConfig::Debug(3))
+  if (m_sp.config().Debug(3))
     cout << "Run SEU " << m_ext << " " << m_startTS_Id << endl;
 
   pair<int, int> ext_pair = L1MuBMExtrapolationUnit::which_ext(m_ext);
@@ -127,7 +127,7 @@ void L1MuBMSEU::run(const L1TMuonBarrelParams& params) {
     }
   }
 
-  if (L1MuBMTFConfig::Debug(3)) {
+  if (m_sp.config().Debug(3)) {
     int n_ext = numberOfExt();
     if (n_ext > 0)
       cout << "number of successful EUX : " << n_ext << endl;
@@ -180,3 +180,5 @@ int L1MuBMSEU::numberOfExt() const {
 
   return number;
 }
+
+const L1MuBMTFConfig& L1MuBMSEU::config() const { return m_sp.config(); }
