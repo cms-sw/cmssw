@@ -11,6 +11,8 @@ import numpy as np
 import os
 import json
 import sys
+import itertools
+import json
 
 ## Helpers
 base_cert_url = "https://cms-service-dqmdc.web.cern.ch/CAF/certification/"
@@ -26,6 +28,13 @@ def get_url_clean(url):
     c.close()
     
     return BeautifulSoup(buffer.getvalue(), "lxml").text
+
+def get_lumi_ranges(i):
+    result = []
+    for _, b in itertools.groupby(enumerate(i), lambda pair: pair[1] - pair[0]):
+        b = list(b)
+        result.append([b[0][1],b[-1][1]]) 
+    return result
 
 def das_do_command(cmd):
     out = subprocess.check_output(cmd, shell=True, executable="/bin/bash").decode('utf8')
@@ -90,6 +99,7 @@ if __name__ == '__main__':
     parser.add_argument('--pandas', '-pd',action='store_true',help="Store the whole dataset (no event or threshold cut) in a csv") 
     parser.add_argument('--proxy','-p', help='Allow to parse a x509 proxy if needed', type=str, default=None)
     parser.add_argument('--site','-s', help='Only data at specific site', type=str, default=None)
+    parser.add_argument('--lumis','-l', help='Output file for lumi ranges for the selected files (if black no lumiranges calculated)', type=str, default=None)
     parser.add_argument('--precheck','-pc', action='store_true', help='Check run per run before building the dataframes, to avoid huge caching.')
     args = parser.parse_args()
 
@@ -106,6 +116,7 @@ if __name__ == '__main__':
     threshold = args.threshold
     outfile   = args.outfile
     site      = args.site
+    lumis     = args.lumis
 
     ## get the greatest golden json
     year = dataset.split("Run")[1][2:4] # from 20XX to XX
@@ -222,8 +233,14 @@ if __name__ == '__main__':
         df = df[df["events"] <= events] #jump too big files
         df.loc[:,"sum_evs"] = df.loc[:,"events"].cumsum()
         df = df[df["sum_evs"] < events]
-            
+        
     files = df.file
+    
+    if lumis is not None:
+        lumi_ranges = { int(r) : list(get_lumi_ranges(np.sort(np.concatenate(df.loc[df["run"]==r,"lumis"].values).ravel()).tolist())) for r in np.unique(df.run.values).tolist()}
+        
+        with open(lumis, 'w') as fp:
+            json.dump(lumi_ranges, fp)
 
     if outfile is not None:
         with open(outfile, 'w') as f:

@@ -583,11 +583,12 @@ for e_n,era in enumerate(['Run2024B','Run2024C','Run2024D','Run2024E']):
         wf_number = wf_number + offset_pd * p_n
         wf_number = wf_number + 0.0001 * 0.01 
         wf_number = round(wf_number,6)
-        step_name = "Run" + pd + era.split("Run")[1] + "_10k"
+
+        step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_10k"
         y = str(base_wf)
         suff = "ZB_" if "ZeroBias" in step_name else ""
         workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
-     
+
 # 2023
 base_wf = 2023
 for e_n,era in enumerate(['Run2023D']):
@@ -597,11 +598,11 @@ for e_n,era in enumerate(['Run2023D']):
         wf_number = wf_number + offset_pd * p_n
         wf_number = wf_number + 0.0001 * 0.01
         wf_number = round(wf_number,6)
-        step_name = "Run" + pd + era.split("Run")[1] + "_10k"
+
+        step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_10k"
         y = str(base_wf) + "B" if "2023B" in era else str(base_wf)
         suff = "ZB_" if "ZeroBias" in step_name else ""
         workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
-        
 
 # 2022
 base_wf = 2022

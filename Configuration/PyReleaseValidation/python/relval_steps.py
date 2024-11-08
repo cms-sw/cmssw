@@ -45,8 +45,8 @@ step1Up2024HiProdDefaults = merge ([{'--conditions':'auto:phase1_2024_realistic_
 steps = Steps()
 
 #### Event to runs
-event_steps = [0.01,0.05,0.15,0.25,0.5,1] #in millions
-event_steps_k = ["10k","50k","150k","250k","500k","1M"]
+event_steps = [0.01,0.05,0.1,0.15,0.25,0.5,1] #in millions
+event_steps_k = ["10k","50k","100k","150k","250k","500k","1M"] ##TODO add an helper to convert the numbers to strings
 event_steps_dict = dict(zip(event_steps_k,event_steps))
 #### Production test section ####
 steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_pythia8_TuneCUETP8M1_cff','--relval':'9000,300'},step1Defaults])
@@ -653,7 +653,7 @@ for era in eras_2024:
     for pd in pds_2024:
         dataset = "/" + pd + "/" + era + "-v1/RAW"
         for e_key,evs in event_steps_dict.items():
-            step_name = "Run" + pd + era.split("Run")[1] + "_" + e_key
+            step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_" + e_key
             steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
 
 ###2023 
@@ -665,7 +665,7 @@ for era in eras_2023:
     for pd in pds_2023:
         dataset = "/" + pd + "/" + era + "-v1/RAW"
         for e_key,evs in event_steps_dict.items():
-            step_name = "Run" + pd + era.split("Run")[1] + "_" + e_key
+            step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_" + e_key
             steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
 
 ###2022 
