@@ -84,39 +84,39 @@ void L1MuBMTFConfig::setDefaults(const edm::ParameterSet& ps) {
 void L1MuBMTFConfig::setDefaultsES(const L1TMuonBarrelParams& bmParams) {
   // L1TMuonBarrelParams *bmtfParams = new L1TMuonBarrelParams();
   // bmtfParams = new L1TMuonBarrelParams(*bmtfParamsHandle.product());
-  L1TMuonBarrelParamsAllPublic* bmtfParams = new L1TMuonBarrelParamsAllPublic(bmParams);
+  L1TMuonBarrelParamsAllPublic bmtfParams{bmParams};
 
   // set min and max bunch crossing
-  m_BxMin = bmtfParams->get_BX_min();
-  m_BxMax = bmtfParams->get_BX_max();
+  m_BxMin = bmtfParams.get_BX_min();
+  m_BxMax = bmtfParams.get_BX_max();
 
   // set Filter for Extrapolator
-  m_extTSFilter = bmtfParams->get_Extrapolation_Filter();
+  m_extTSFilter = bmtfParams.get_Extrapolation_Filter();
 
   // set switch for open LUTs usage
-  m_openLUTs = bmtfParams->get_Open_LUTs();
+  m_openLUTs = bmtfParams.get_Open_LUTs();
 
   // set switch for EX21 usage
-  m_useEX21 = bmtfParams->get_Extrapolation_21();
+  m_useEX21 = bmtfParams.get_Extrapolation_21();
 
   // set switch for eta track finder usage
-  m_etaTF = bmtfParams->get_EtaTrackFinder();
+  m_etaTF = bmtfParams.get_EtaTrackFinder();
 
   // set Filter for Out-of-time Track Segments
-  m_TSOutOfTimeFilter = bmtfParams->get_OutOfTime_Filter();
-  m_TSOutOfTimeWindow = bmtfParams->get_OutOfTime_Filter_Window();
+  m_TSOutOfTimeFilter = bmtfParams.get_OutOfTime_Filter();
+  m_TSOutOfTimeWindow = bmtfParams.get_OutOfTime_Filter_Window();
 
   // set precision for extrapolation
-  m_NbitsExtPhi = bmtfParams->get_Extrapolation_nbits_Phi();
-  m_NbitsExtPhib = bmtfParams->get_Extrapolation_nbits_PhiB();
+  m_NbitsExtPhi = bmtfParams.get_Extrapolation_nbits_Phi();
+  m_NbitsExtPhib = bmtfParams.get_Extrapolation_nbits_PhiB();
 
   // set precision for pt-assignment
-  m_NbitsPtaPhi = bmtfParams->get_PT_Assignment_nbits_Phi();
-  m_NbitsPtaPhib = bmtfParams->get_PT_Assignment_nbits_PhiB();
+  m_NbitsPtaPhi = bmtfParams.get_PT_Assignment_nbits_Phi();
+  m_NbitsPtaPhib = bmtfParams.get_PT_Assignment_nbits_PhiB();
 
   // set precision for phi-assignment look-up tables
-  m_NbitsPhiPhi = bmtfParams->get_PHI_Assignment_nbits_Phi();
-  m_NbitsExtPhib = bmtfParams->get_PHI_Assignment_nbits_PhiB();
+  m_NbitsPhiPhi = bmtfParams.get_PHI_Assignment_nbits_Phi();
+  m_NbitsExtPhib = bmtfParams.get_PHI_Assignment_nbits_PhiB();
 
   if (Debug(1))
     cout << "L1 barrel Track Finder : minimal bunch-crossing : " << m_BxMin << endl;
@@ -167,8 +167,6 @@ void L1MuBMTFConfig::setDefaultsES(const L1TMuonBarrelParams& bmParams) {
     cout << "L1 barrel Track Finder : # of bits used for phi  (phi-assignment) : " << m_NbitsPhiPhi << endl;
   if (Debug(1))
     cout << "L1 barrel Track Finder : # of bits used for phib (phi-assignment) : " << m_NbitsPhiPhib << endl;
-
-  delete bmtfParams;
 }
 
 // static data members

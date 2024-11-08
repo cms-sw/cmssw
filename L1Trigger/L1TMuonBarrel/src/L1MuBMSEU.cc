@@ -118,7 +118,7 @@ void L1MuBMSEU::run(const L1TMuonBarrelParams& params) {
     if (nextWheel && (reladr / 2) % 2 == 0)
       continue;
 
-    const L1MuBMTrackSegPhi* target_ts = m_sp.data()->getTSphi(target, reladr);
+    const L1MuBMTrackSegPhi* target_ts = m_sp.data().getTSphi(target, reladr);
     if (target_ts && !target_ts->empty()) {
       m_EUXs[reladr]->load(m_startTS, target_ts);
       m_EUXs[reladr]->run(params);

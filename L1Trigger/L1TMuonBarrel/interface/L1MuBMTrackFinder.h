@@ -93,6 +93,7 @@ public:
 
   /// get a pointer to a Sector Processor
   const L1MuBMSectorProcessor* sp(const L1MuBMSecProcId&) const;
+  L1MuBMSectorProcessor* sp(const L1MuBMSecProcId&);
 
   /// get a pointer to an Eta Processor, index [0-11]
   inline const L1MuBMEtaProcessor* ep(int id) const { return m_epvec[id]; }

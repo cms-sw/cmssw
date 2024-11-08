@@ -219,26 +219,26 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
       if (L1MuBMTFConfig::Debug(2))
         cout << "reading " << (*it_sp).second->id() << endl;
       for (int number = 0; number < 2; number++) {
-        const L1MuBMTrack* cand = (*it_sp).second->tracK(number);
+        const L1MuBMTrack& cand = (*it_sp).second->tracK(number);
 
-        if (cand && !cand->empty()) {
+        if (!cand.empty()) {
           l1t::RegionalMuonCand rmc;
 
           // max value in LUTs is 117
-          if (cand->hwEta() > -117 || cand->hwEta() < 117)
-            rmc.setHwEta(cand->hwEta());
+          if (cand.hwEta() > -117 || cand.hwEta() < 117)
+            rmc.setHwEta(cand.hwEta());
           else
             rmc.setHwEta(-1000);
 
-          rmc.setHwPt(cand->pt());
-          int abs_add_1 = setAdd(1, cand->address(1));
-          int abs_add_2 = setAdd(2, cand->address(2));
-          int abs_add_3 = setAdd(3, cand->address(3));
-          int abs_add_4 = setAdd(4, cand->address(4));
+          rmc.setHwPt(cand.pt());
+          int abs_add_1 = setAdd(1, cand.address(1));
+          int abs_add_2 = setAdd(2, cand.address(2));
+          int abs_add_3 = setAdd(3, cand.address(3));
+          int abs_add_4 = setAdd(4, cand.address(4));
 
-          rmc.setTrackSubAddress(l1t::RegionalMuonCand::kWheelSide, cand->spid().wheel() < 0);  // this has to be set!
+          rmc.setTrackSubAddress(l1t::RegionalMuonCand::kWheelSide, cand.spid().wheel() < 0);  // this has to be set!
           rmc.setTrackSubAddress(l1t::RegionalMuonCand::kWheelNum,
-                                 abs(cand->spid().wheel()) - 1);  // this has to be set!
+                                 abs(cand.spid().wheel()) - 1);  // this has to be set!
           rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat1, abs_add_1);
           rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat2, abs_add_2);
           rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat3, abs_add_3);
@@ -247,17 +247,17 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
           rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat2, 0);
           rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat3, 0);
           rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat4, 0);
-          rmc.setHwHF(cand->hwHF());
+          rmc.setHwHF(cand.hwHF());
 
-          rmc.setHwPhi(cand->hwPhi());
-          rmc.setHwSign(cand->hwSign() == 1 ? 0 : 1);
-          rmc.setHwSignValid(cand->hwSignValid());
-          rmc.setHwQual(cand->hwQual());
-          rmc.setTFIdentifiers(cand->spid().sector(), l1t::tftype::bmtf);
+          rmc.setHwPhi(cand.hwPhi());
+          rmc.setHwSign(cand.hwSign() == 1 ? 0 : 1);
+          rmc.setHwSignValid(cand.hwSignValid());
+          rmc.setHwQual(cand.hwQual());
+          rmc.setTFIdentifiers(cand.spid().sector(), l1t::tftype::bmtf);
 
-          _cache0.push_back(cand->bx(), rmc);
-          _cache2.insert(std::end(_cache2), std::begin(cand->getTSphi()), std::end(cand->getTSphi()));
-          _cache3.insert(std::end(_cache3), std::begin(cand->getTSeta()), std::end(cand->getTSeta()));
+          _cache0.push_back(cand.bx(), rmc);
+          _cache2.insert(std::end(_cache2), std::begin(cand.getTSphi()), std::end(cand.getTSphi()));
+          _cache3.insert(std::end(_cache3), std::begin(cand.getTSeta()), std::end(cand.getTSeta()));
         }
       }
       it_sp++;
@@ -406,6 +406,7 @@ void L1MuBMTrackFinder::reset() {
 // return Sector Processor container
 //
 const L1MuBMSectorProcessor* L1MuBMTrackFinder::sp(const L1MuBMSecProcId& id) const { return m_spmap->sp(id); }
+L1MuBMSectorProcessor* L1MuBMTrackFinder::sp(const L1MuBMSecProcId& id) { return m_spmap->sp(id); }
 
 //
 // return number of muon candidates found by the barrel MTTF

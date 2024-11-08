@@ -104,7 +104,7 @@ void L1MuBMExtrapolationUnit::run(const edm::EventSetup& c) {
     const L1MuBMTrackSegPhi* ts = nullptr;
 
     //get start track segment
-    ts = m_sp.data()->getTSphi(start, ((*iter).second)->tsId());
+    ts = m_sp.data().getTSphi(start, ((*iter).second)->tsId());
 
     if (ts != nullptr && !ts->empty()) {
       ((*iter).second)->load(ts);

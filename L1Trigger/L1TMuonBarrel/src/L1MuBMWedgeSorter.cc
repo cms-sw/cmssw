@@ -75,22 +75,22 @@ void L1MuBMWedgeSorter::run() {
       continue;
     L1MuBMSecProcId tmpspid(wheel, sector);
     for (int number = 0; number < 2; number++) {
-      const L1MuBMTrack* cand = m_tf.sp(tmpspid)->track(number);
-      if (cand && !cand->empty()) {
+      const L1MuBMTrack& cand = m_tf.sp(tmpspid)->track(number);
+      if (!cand.empty()) {
         // remove tracks which where found in wheel 0 and
         // which didn't cross wheel boundaries (SP -1)
         bool reject = false;
         if (wheel == -1) {
           reject = true;
           for (int stat = 2; stat <= 4; stat++) {
-            int adr = cand->address(stat);
+            int adr = cand.address(stat);
             // check addresses : 0,1,4,5,8,9 (own wheel)
             if (adr != 15)
               reject &= ((adr / 2) % 2 == 0);
           }
         }
         if (!reject)
-          wedgecands.push_back(const_cast<L1MuBMTrack*>(cand));
+          wedgecands.push_back(const_cast<L1MuBMTrack*>(&cand));
       }
     }
   }

@@ -215,7 +215,7 @@ void L1MuBMSectorReceiver::receiveBBMXData(int bx, const edm::Event& e) {
             }*/
           L1MuBMTrackSegPhi tmpts(
               wheel, sector, station, phi, phib, static_cast<L1MuBMTrackSegPhi::TSQuality>(qual), tag, bx - bx_offset);
-          m_sp.data()->addTSphi(address - 1, tmpts);
+          m_sp.data().addTSphi(address - 1, tmpts);
         }
       }
     }
