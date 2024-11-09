@@ -32,7 +32,19 @@ struct TrackingRecHitSoA {
                       SOA_COLUMN(uint16_t, detectorIndex),
                       SOA_SCALAR(int32_t, offsetBPIX2),
                       SOA_SCALAR(HitModuleStartArray, hitsModuleStart));
-
+                      
+  #ifdef CA_TRIPLETS_HOLE
+  GENERATE_SOA_LAYOUT(AverageGeometryLayout,
+    SOA_COLUMN(float, ladderZ),
+    SOA_COLUMN(float, ladderX),
+    SOA_COLUMN(float, ladderY),
+    SOA_COLUMN(float, ladderR),
+    SOA_COLUMN(float, ladderMinZ),
+    SOA_COLUMN(float, ladderMaxZ),
+    SOA_SCALAR(int32_t, endCapZPos),
+    SOA_SCALAR(int32_t, endCapZNeg)
+  )
+  #endif
   // GENERATE_SOA_LAYOUT(ModulesLayout,
   //                     SOA_COLUMN(uint32_t, hitsModuleStart));
 

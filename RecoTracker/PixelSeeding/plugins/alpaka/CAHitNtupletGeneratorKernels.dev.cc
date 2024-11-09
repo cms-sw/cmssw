@@ -145,6 +145,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using namespace caHitNtupletGeneratorKernels;
 
     // zero tuples
+    HitContainer::template launchZero<Acc1D>(&(this->device_hitContainer_), queue);
+
     HitContainer::template launchZero<Acc1D>(&(tracks_view.hitIndices()), queue);
 
     uint32_t nhits = hh.metadata().size();
@@ -211,6 +213,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         Kernel_find_ntuplets<TrackerTraits>{},
                         hh,
                         tracks_view,
+                        &(tracks_view.hitIndices()),
                         this->device_theCells_.data(),
                         this->device_nCells_.data(),
                         this->device_theCellTracks_.data(),

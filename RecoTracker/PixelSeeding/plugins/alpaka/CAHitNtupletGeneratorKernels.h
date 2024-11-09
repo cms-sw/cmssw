@@ -230,8 +230,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using CACell = CACellT<TrackerTraits>;
     
     using Quality = ::pixelTrack::Quality;
-    using HitContainer = typename ::reco::TrackSoA<TrackerTraits>::HitContainer;
-    using hindex_type = typename TrackerTraits::hindex_type;
+    static constexpr int32_t S = TrackerTraits::maxNumberOfTuples;
+    static constexpr int32_t H = TrackerTraits::avgHitsPerTrack;
+    using hindex_type = uint32_t;//typename TrackerTraits::hindex_type;
+    using HitContainer = cms::alpakatools::OneToManyAssocSequential<hindex_type, S + 1, H * S>;
+
     using PhiBinner = cms::alpakatools::HistoContainer<int16_t,
                                                      256,
                                                      -1, 
@@ -265,10 +268,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::alpakatools::device_buffer<Device, HitToTuple> device_hitToTuple_;
     cms::alpakatools::device_buffer<Device, uint32_t[]> device_hitToTupleStorage_;
 
+    // Hits 
     cms::alpakatools::device_buffer<Device, PhiBinner> device_hitPhiHist_;
     PhiBinnerView device_hitPhiView_;
     cms::alpakatools::device_buffer<Device, PhiBinnerStorageType[]> device_phiBinnerStorage_;
     cms::alpakatools::device_buffer<Device, hindex_type[]> device_layerStarts_;
+
+    // Tracks
+    HitContainer device_hitContainer_;
 
     HitToTupleView device_hitToTupleView_;
     cms::alpakatools::device_buffer<Device, TupleMultiplicity> device_tupleMultiplicity_;

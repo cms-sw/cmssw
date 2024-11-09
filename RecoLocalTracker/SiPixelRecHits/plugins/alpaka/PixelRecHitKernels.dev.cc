@@ -26,29 +26,6 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
-  template <typename TrackerTraits>
-  class setHitsLayerStart {
-  public:
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                  uint32_t const* __restrict__ hitsModuleStart,
-                                  pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const* __restrict__ cpeParams,
-                                  uint32_t* __restrict__ hitsLayerStart) const {
-      ALPAKA_ASSERT_ACC(0 == hitsModuleStart[0]);
-
-      for (int32_t i : cms::alpakatools::uniform_elements(acc, TrackerTraits::numberOfLayers + 1)) {
-        hitsLayerStart[i] = hitsModuleStart[cpeParams->layerGeometry().layerStart[i]];
-// #ifdef GPU_DEBUG
-        int old = i == 0 ? 0 : hitsModuleStart[cpeParams->layerGeometry().layerStart[i - 1]];
-        printf("LayerStart %d/%d at module %d: %d - %d\n",
-               i,
-               TrackerTraits::numberOfLayers,
-               cpeParams->layerGeometry().layerStart[i],
-               hitsLayerStart[i],
-               hitsLayerStart[i] - old);
-// #endif
-      }
-    }
-  };
 
   namespace pixelgpudetails {
 
