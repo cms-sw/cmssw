@@ -47,16 +47,11 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   LogDebug("PixelCPEFastParamsHost") << "thickness " << buffer_->commonParams().theThicknessB << ' '
                                      << buffer_->commonParams().theThicknessE;
 
-  // zero average geometry
-  memset(&buffer_->averageGeometry(), 0, sizeof(pixelTopology::AverageGeometryT<TrackerTraits>));
-  // zero layer geometry
-  memset(&buffer_->layerGeometry(), 0, sizeof(pixelCPEforDevice::LayerGeometryT<TrackerTraits>));
-
-  uint32_t nLayers = 0;
   uint32_t oldLayer = 0;
   uint32_t oldLadder = 0;
   float rl = 0;
   float zl = 0;
+  //#ifdef CA_TRIPLETS_HOLE
   float miz = 500, mxz = 0;
   float pl = 0;
   int nl = 0;
@@ -91,10 +86,6 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
                                          << g.layer << " starting at " << g.rawId << '\n'
                                          << "old layer had " << nl << " ladders";
       nl = 0;
-
-      assert(nLayers <= TrackerTraits::numberOfLayers);
-      buffer_->layerGeometry().layerStart[nLayers] = i;
-      ++nLayers;
     }
     if (oldLadder != ladder) {
       oldLadder = ladder;
@@ -295,9 +286,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     }
   }  // loop over det
 
-  // store last module
-  buffer_->layerGeometry().layerStart[nLayers] = m_DetParams.size();
-
+  #ifdef CA_TRIPLETS_HOLE
   constexpr int numberOfModulesInLadder = TrackerTraits::numberOfModulesInLadder;
   constexpr int numberOfLaddersInBarrel = TrackerTraits::numberOfLaddersInBarrel;
   constexpr int numberOfModulesInBarrel = TrackerTraits::numberOfModulesInBarrel;
@@ -354,12 +343,8 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   }
   LogDebug("PixelCPEFastParamsHost") << aveGeom.endCapZ[0] << ' ' << aveGeom.endCapZ[1];
 #endif  // EDM_ML_DEBUG
+#endif
 
-  // fill ladders geometry
-  memcpy(buffer_->layerGeometry().layer,
-         pixelTopology::layer<TrackerTraits>.data(),
-         pixelTopology::layer<TrackerTraits>.size());
-  buffer_->layerGeometry().maxModuleStride = pixelTopology::maxModuleStride<TrackerTraits>;
 }
 
 template <typename TrackerTraits>
