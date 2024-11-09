@@ -43,8 +43,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
 
         // can be increased to soa.nHits() for debugging
-        for (uint32_t i : cms::alpakatools::uniform_elements(acc, 10)) {
+        for (uint32_t i : cms::alpakatools::uniform_elements(acc, soa.metadata().size())) {
           printf("iPhi %d -> %d\n", i, soa[i].iphi());
+          printf("x %d -> %.2f \n",i,soa[i].xLocal());
         }
       }
     };

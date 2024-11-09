@@ -100,12 +100,6 @@ namespace pixelCPEforDevice {
     Frame frame;
   };
 
-  template <typename TrackerTopology>
-  struct LayerGeometryT {
-    uint32_t layerStart[TrackerTopology::numberOfLayers + 1];
-    uint8_t layer[pixelTopology::layerIndexSize<TrackerTopology>];
-    uint16_t maxModuleStride;
-  };
 
   constexpr int32_t MaxHitsInIter = pixelClustering::maxHitsInIter();
   using ClusParams = ClusParamsT<MaxHitsInIter>;
@@ -409,26 +403,21 @@ namespace pixelCPEforDevice {
 
   template <typename TrackerTopology>
   struct ParamsOnDeviceT {
-    using LayerGeometry = LayerGeometryT<TrackerTopology>;
     using AverageGeometry = pixelTopology::AverageGeometryT<TrackerTopology>;
 
     CommonParams m_commonParams;
     // Will contain an array of DetParams instances
     DetParams m_detParams[TrackerTopology::numberOfModules];
-    LayerGeometry m_layerGeometry;
     AverageGeometry m_averageGeometry;
 
     constexpr CommonParams const& __restrict__ commonParams() const { return m_commonParams; }
     constexpr DetParams const& __restrict__ detParams(int i) const { return m_detParams[i]; }
-    constexpr LayerGeometry const& __restrict__ layerGeometry() const { return m_layerGeometry; }
     constexpr AverageGeometry const& __restrict__ averageGeometry() const { return m_averageGeometry; }
 
     CommonParams& commonParams() { return m_commonParams; }
     DetParams& detParams(int i) { return m_detParams[i]; }
-    LayerGeometry& layerGeometry() { return m_layerGeometry; }
     AverageGeometry& averageGeometry() { return m_averageGeometry; }
 
-    constexpr uint8_t layer(uint16_t id) const { return m_layerGeometry.layer[id / TrackerTopology::maxModuleStride]; };
   };
 
 }  // namespace pixelCPEforDevice
