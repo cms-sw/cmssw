@@ -48,6 +48,14 @@ def customiseForOffline(process):
 
     return process
 
+def customiseForXXXX(process):
+    for prod in producers_by_type(process, 'CtfSpecialSeedGenerator'):
+        if hasattr(prod, "DontCountDetsAboveNClusters"):
+            value = prod.DontCountDetsAboveNClusters.value()
+            delattr(prod, "DontCountDetsAboveNClusters")
+            # Replace it with cms.uint32
+            prod.DontCountDetsAboveNClusters = cms.uint32(value)
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -57,4 +65,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
+    process = customiseForXXXX(process)
+    
     return process
