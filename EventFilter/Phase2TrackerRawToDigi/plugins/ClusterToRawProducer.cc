@@ -111,21 +111,17 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         if (detUnit)
         {
             
-            bool isPSModulePixel = trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP;
-            bool isPSModuleStrip = trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSS;
-            bool is2SModule      = trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2SS;
+            TrackerGeometry::ModuleType moduleType = trackerGeometry.getDetectorType(detId);
 
-            if (isPSModuleStrip)
+            switch (moduleType) 
             {
-                processClusters(TrackerGeometry::ModuleType::Ph2PSS, detector_cluster_collection, dtc_id, slink_id, slink_id_within, dtcAssembly);
-            }
-            else if (isPSModulePixel)
-            {
-                processClusters(TrackerGeometry::ModuleType::Ph2PSP, detector_cluster_collection, dtc_id, slink_id, slink_id_within, dtcAssembly);
-            }
-            else if (is2SModule)
-            {
-                processClusters(TrackerGeometry::ModuleType::Ph2SS, detector_cluster_collection, dtc_id, slink_id, slink_id_within, dtcAssembly);
+                case TrackerGeometry::ModuleType::Ph2PSS:
+                case TrackerGeometry::ModuleType::Ph2PSP:
+                case TrackerGeometry::ModuleType::Ph2SS:
+                    processClusters(moduleType, detector_cluster_collection, dtc_id, slink_id, slink_id_within, dtcAssembly);
+                    break;
+                default:
+                    break;
             }
 
         }
