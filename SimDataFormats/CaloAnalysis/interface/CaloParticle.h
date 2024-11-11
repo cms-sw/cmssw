@@ -193,7 +193,7 @@ public:
   }
 
   /** @brief add vertex time to the caloparticle */
-  void addSimTime(const float time) { time_ = time; }
+  void setSimTime(const float time) { time_ = time; }
 
 protected:
   uint64_t nsimhits_{0};
