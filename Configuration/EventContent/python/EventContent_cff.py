@@ -670,6 +670,12 @@ FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
 
+from Configuration.ProcessModifiers.hltClusterSplitting_cff import hltClusterSplitting
+hltClusterSplitting.toModify(FEVTDEBUGHLTEventContent,
+                              outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+                                  'keep *_hltPixelVertices_*_*'
+                              ])
+
 approxSiStripClusters.toModify(FEVTDEBUGHLTEventContent,
                               outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
                                   'keep *_hltSiStripClusters2ApproxClusters_*_*',

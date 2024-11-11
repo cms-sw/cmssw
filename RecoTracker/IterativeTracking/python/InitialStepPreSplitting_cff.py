@@ -221,6 +221,12 @@ ak4CaloJetsForTrkPreSplitting = ak4CaloJetsForTrk.clone(
     src    = 'caloTowerForTrkPreSplitting',
     srcPVs = 'firstStepPrimaryVerticesPreSplitting'
 )
+
+from Configuration.ProcessModifiers.hltClusterSplitting_cff import hltClusterSplitting
+hltClusterSplitting.toModify(ak4CaloJetsForTrkPreSplitting,
+    srcPVs = 'hltPixelVertices'
+)
+
 jetsForCoreTrackingPreSplitting = jetsForCoreTracking.clone(
     src    = 'ak4CaloJetsForTrkPreSplitting'
 )
@@ -232,6 +238,8 @@ siPixelClusters = jetCoreClusterSplitter.clone(
     vertices      = 'firstStepPrimaryVerticesPreSplitting',
     cores         = 'jetsForCoreTrackingPreSplitting'
 )
+
+
 
 # Final sequence
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import siPixelRecHits
@@ -254,6 +262,21 @@ InitialStepPreSplittingTask = cms.Task(trackerClusterCheckPreSplitting,
                                        siPixelRecHits,
                                        MeasurementTrackerEvent,
                                        siPixelClusterShapeCache)
+
+hltClusterSplitting.toModify(siPixelClusters,
+    vertices = cms.InputTag("hltPixelVertices") 
+)
+
+InitialStepPreSplittingFromHLTTask = cms.Task(
+                                       caloTowerForTrkPreSplitting,
+                                       ak4CaloJetsForTrkPreSplitting,
+                                       jetsForCoreTrackingPreSplitting,
+                                       siPixelClusters,
+                                       siPixelRecHits,
+                                       MeasurementTrackerEvent,
+                                       siPixelClusterShapeCache)
+hltClusterSplitting.toReplaceWith(InitialStepPreSplittingTask, InitialStepPreSplittingFromHLTTask)
+
 InitialStepPreSplitting = cms.Sequence(InitialStepPreSplittingTask)
 _InitialStepPreSplittingTask_trackingPhase1 = InitialStepPreSplittingTask.copy()
 _InitialStepPreSplittingTask_trackingPhase1.replace(initialStepHitTripletsPreSplitting, cms.Task(initialStepHitTripletsPreSplitting,initialStepHitQuadrupletsPreSplitting))
