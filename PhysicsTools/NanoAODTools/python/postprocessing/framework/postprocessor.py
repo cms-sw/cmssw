@@ -105,11 +105,11 @@ class PostProcessor:
                 (algo, level) = self.compression.split(":")
                 compressionLevel = int(level)
                 if algo == "LZMA":
-                    compressionAlgo = ROOT.ROOT.kLZMA
+                    compressionAlgo = ROOT.RCompressionSetting.EAlgorithm.kLZMA
                 elif algo == "ZLIB":
-                    compressionAlgo = ROOT.ROOT.kZLIB
+                    compressionAlgo = ROOT.RCompressionSetting.EAlgorithm.kZLIB
                 elif algo == "LZ4":
-                    compressionAlgo = ROOT.ROOT.kLZ4
+                    compressionAlgo = ROOT.RCompressionSetting.EAlgorithm.kLZ4
                 else:
                     raise RuntimeError("Unsupported compression %s" % algo)
             else:
