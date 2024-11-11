@@ -91,7 +91,6 @@ void SiPixelMonitorRecHitsSoAAlpaka<T>::analyze(const edm::Event& iEvent, const 
   auto const& soa2d = rhsoa.const_view();
 
   uint32_t nHits_ = soa2d.metadata().size();
-  std::cout << "nHits_ = " << nHits_ << std::endl;
   hnHits->Fill(nHits_);
   auto detIds = tkGeom_->detUnitIds();
   for (uint32_t i = 0; i < nHits_; i++) {
