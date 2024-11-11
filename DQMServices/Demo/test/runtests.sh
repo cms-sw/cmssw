@@ -127,13 +127,10 @@ cmsRun ${SCRAM_TEST_PATH}/run_harvesters_cfg.py inputFiles=part1.root inputFiles
 [ 2 = $(rootlist DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root | grep  -c '<runsummary>s=beginRun(1) endLumi(1,1) endLumi(1,2) endLumi(1,3) endRun(1) </runsummary>') ]
 
 # 11. Try MEtoEDM and EDMtoME.
-echo "ISSUE related to MEtoEDMConverter arises."
 cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py outfile=metoedm.root numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100 metoedmoutput=True
 cmsRun ${SCRAM_TEST_PATH}/run_harvesters_cfg.py outfile=edmtome.root inputFiles=metoedm.root nomodules=True metoedminput=True
-echo '[ 72 = $(dqmiolistmes.py edmtome.root -r 1 | wc -l) ]'
-echo $(dqmiolistmes.py edmtome.root -r 1 | wc -l)
-echo '[ 72 = $(dqmiolistmes.py edmtome.root -r 1 -l 1 | wc -l) ]'
-echo $(dqmiolistmes.py edmtome.root -r 1 -l 1 | wc -l)
+[ 78 = $(dqmiolistmes.py edmtome.root -r 1 | wc -l) ]
+[ 78 = $(dqmiolistmes.py edmtome.root -r 1 -l 1 | wc -l) ]
 # again, no legacy module (run) output here due to JOB scope for legacy modules
 [ "0: 7, 0.0: 1, 1: 10, 100: 30, 200: 10, 5: 15, 5.0: 5" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 --summary)" ]
 [ "0: 6, 1: 26, 1.0: 6, 20: 40" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 -l 1 --summary)" ]
