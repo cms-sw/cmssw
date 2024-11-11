@@ -161,7 +161,7 @@ void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleTyp
         if (moduleType == TrackerGeometry::ModuleType::Ph2PSP) 
         {
             cicId = (z > Phase2TrackerSpecifications::CIC_Z_BOUNDARY) ? 1 : 0;
-        } 
+        }
         
         else if (moduleType == TrackerGeometry::ModuleType::Ph2PSS || moduleType == TrackerGeometry::ModuleType::Ph2SS) 
         {
@@ -181,7 +181,7 @@ void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleTyp
             sclusterAddress = std::div(x * 2.0, Phase2TrackerSpecifications::CHANNELS_PER_CBC).rem;
         }
 
-        // sclusterAddress = (is_seed_sensor << 7) | (sclusterAddress & 0x7F);
+        sclusterAddress = (is_seed_sensor << 7) | (sclusterAddress & 0x7F);
 
         Cluster newCluster(z, x, width, chipId, sclusterAddress, mipbit, cicId, moduleType);
         assignedDtcUnit.getClustersOnSLink(slink_id).at(slink_id_within).push_back(newCluster);
