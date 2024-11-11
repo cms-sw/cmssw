@@ -1,16 +1,7 @@
 <lcgdict>
   <!-- <class name="alpaka_rocm_async::PortableDeviceMultiCollection<reco::TrackLayout<pixelTopology::Phase1>, reco::TrackHitLayout<pixelTopology::Phase1>>" persistent="false"/> -->
-  <class name="alpaka_rocm_async::pixelTrack::TracksSoACollectionPhase1" persistent="false"/>
-  <class name="edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TracksSoACollectionPhase1>" persistent="false"/>
-  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TracksSoACollectionPhase1>>" persistent="false"/>
-
-  <!-- <class name="alpaka_rocm_async::PortableDeviceMultiCollection<reco::TrackLayout<pixelTopology::HIonPhase1>, reco::TrackHitLayout<pixelTopology::HIonPhase1>>" persistent="false"/> -->
-  <class name="alpaka_rocm_async::pixelTrack::TracksSoACollectionHIonPhase1" persistent="false"/>
-  <class name="edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TracksSoACollectionHIonPhase1>" persistent="false"/>
-  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TracksSoACollectionHIonPhase1>>" persistent="false"/>
-
-  <!-- <class name="alpaka_rocm_async::PortableDeviceMultiCollection<reco::TrackLayout<pixelTopology::Phase2>, reco::TrackHitLayout<pixelTopology::Phase2>>" persistent="false"/> -->
-  <class name="alpaka_rocm_async::pixelTrack::TracksSoACollectionPhase2" persistent="false"/>
-  <class name="edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TracksSoACollectionPhase2>" persistent="false"/>
-  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TracksSoACollectionPhase2>>" persistent="false"/>
+  <class name="alpaka_rocm_async::reco::TracksSoACollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::reco::TracksSoACollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::reco::TracksSoACollection>>" persistent="false"/>
+  
 </lcgdict>

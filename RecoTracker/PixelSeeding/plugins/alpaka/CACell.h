@@ -39,8 +39,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static constexpr auto invalidHitId = std::numeric_limits<hindex_type>::max();
 
     using TmpTuple = cms::alpakatools::VecArray<uint32_t, TrackerTraits::maxDepth>;
+    using HitContainer = caStructures::HitContainerT<TrackerTraits>;
 
-    using HitContainer = typename ::reco::TrackSoA<TrackerTraits>::HitContainer;
     using Quality = ::pixelTrack::Quality;
     static constexpr auto bad = ::pixelTrack::Quality::bad;
 

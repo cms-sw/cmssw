@@ -31,7 +31,7 @@
 #include "TrackSoAHeterogeneous_test.h"
 
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
-using namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelTrack;
+using namespace ALPAKA_ACCELERATOR_NAMESPACE::reco;
 
 int main() {
   // Get the list of devices on the current platform
@@ -50,12 +50,15 @@ int main() {
     {
       // Instantiate tracks on device. PortableDeviceCollection allocates
       // SoA on device automatically.
-      TracksSoACollection<pixelTopology::Phase1> tracks_d(queue);
+      constexpr auto nTracks = 1000;
+      constexpr auto nHits = nTracks *  5;
+
+      TracksSoACollection tracks_d({{nTracks,nHits}},queue);
       testTrackSoA::runKernels<pixelTopology::Phase1>(tracks_d.view(), queue);
 
       // Instantate tracks on host. This is where the data will be
       // copied to from device.
-      TracksHost<pixelTopology::Phase1> tracks_h(queue);
+      ::reco::TracksHost tracks_h({{nTracks,nHits}},queue);
 
       std::cout << tracks_h.view().metadata().size() << std::endl;
       alpaka::memcpy(queue, tracks_h.buffer(), tracks_d.const_buffer());
@@ -77,7 +80,7 @@ int main() {
       for (int i = 0; i < 10; ++i) {
         std::cout << tracks_h.view()[i].pt() << "\t" << tracks_h.view()[i].eta() << "\t" << tracks_h.view()[i].chi2()
                   << "\t" << (int)tracks_h.view()[i].quality() << "\t" << (int)tracks_h.view()[i].nLayers() << "\t"
-                  << tracks_h.view().hitIndices().off[i] << std::endl;
+                  << tracks_h.view()[i].hitOffsets() << std::endl;
       }
     }
   }

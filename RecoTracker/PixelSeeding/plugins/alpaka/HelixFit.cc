@@ -3,8 +3,8 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
-  void HelixFit<TrackerTraits>::allocate(TupleMultiplicity const *tupleMultiplicity, OutputSoAView &helix_fit_results) {
-    tuples_ = &helix_fit_results.hitIndices();
+  void HelixFit<TrackerTraits>::allocate(TupleMultiplicity const *tupleMultiplicity, OutputSoAView &helix_fit_results, Tuples const *__restrict__ foundNtuplets) {
+    tuples_ = foundNtuplets;
     tupleMultiplicity_ = tupleMultiplicity;
     outputSoa_ = helix_fit_results;
 
