@@ -12,9 +12,9 @@
 
 using namespace std;
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
-#define DEBUGLEVEL 5
+#define DEBUGLEVEL 0
 #endif
 
 DAClusterizerInZ_vect::DAClusterizerInZ_vect(const edm::ParameterSet& conf) {
@@ -197,7 +197,6 @@ DAClusterizerInZ_vect::track_t DAClusterizerInZ_vect::fill(const vector<reco::Tr
       continue;
     if (d0CutOff_ > 0) {
       Measurement1D atIP = (*it).stateAtBeamLine().transverseImpactParameter();  // error contains beamspot
-      printf("Fill, %1.5f, %1.5f, %1.5f, %1.5f\n", t_z, atIP.value(),  atIP.error(), d0CutOff_);
       t_tkwt = 1. / (1. + local_exp(std::pow(atIP.value() / atIP.error(), 2) -
                                     std::pow(d0CutOff_, 2)));  // reduce weight for high ip tracks
       if (edm::isNotFinite(t_tkwt) || t_tkwt < std::numeric_limits<double>::epsilon()) {
@@ -402,7 +401,6 @@ double DAClusterizerInZ_vect::update(
     double delta = 0;
     // does not vectorize
     for (unsigned int ivertex = 0; ivertex < nv; ++ivertex) {
-      printf("Vertex %i, se=%1.5f, sw=%1.5f, swz=%1.5f, swE=%1.5f\n",ivertex, vertices.se[ivertex], vertices.sw[ivertex], vertices.swz[ivertex], vertices.swE[ivertex]);
       if (vertices.sw[ivertex] > 0) {
         auto znew = vertices.swz[ivertex] / vertices.sw[ivertex];
         // prevents from vectorizing if
@@ -615,9 +613,7 @@ double DAClusterizerInZ_vect::beta0(double betamax, track_t const& tks, vertex_t
       double w = tks.tkwt[i] * tks.dz2[i];
       sumwz += w * tks.zpca[i];
       sumw += w;
-      printf("%u %1.3f %1.3f %1.3f\n", i, tks.tkwt[i], tks.dz2[i], tks.zpca[i]); 
     }
-    printf("zsum, wsum %1.3f, %1.3f\n", sumwz, sumw);
     y.zvtx[k] = sumwz / sumw;
 
     // estimate Tcrit
@@ -628,7 +624,6 @@ double DAClusterizerInZ_vect::beta0(double betamax, track_t const& tks, vertex_t
       a += w * std::pow(dx, 2) * tks.dz2[i];
       b += w;
     }
-    printf("zsum, wsum %1.3f, %1.3f\n", a, b);
 
     double Tc = 2. * a / b;  // the critical temperature of this vertex
     if (Tc > T0)
