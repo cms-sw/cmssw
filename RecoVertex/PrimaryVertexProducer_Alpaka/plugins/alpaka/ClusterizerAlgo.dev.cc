@@ -9,52 +9,71 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class clusterizeKernel {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,  portablevertex::TrackDeviceCollection::View tracks, portablevertex::VertexDeviceCollection::View vertices, const portablevertex::ClusterParamsHostCollection::ConstView cParams, double *beta_, double *osumtkwt_) const{ 
-      // This has the core of the clusterization algorithm
-      // First, declare beta=1/T
-      printf("initialize start\n");
-      initialize(acc, tracks, vertices, cParams);
-      printf("initialize end\n");
-      int blockSize = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
+    ALPAKA_FN_ACC void operator()(const TAcc& acc,  portablevertex::TrackDeviceCollection::View tracks, portablevertex::VertexDeviceCollection::View vertices, const portablevertex::ClusterParamsHostCollection::ConstView cParams, double *beta_, double *osumtkwt_, int trackBlockSize) const{ 
+      // Core of the clusterization algorithm
+      // Produces set of clusters for input set of block-overlapped tracks
+      // tracks contains input track parameters and includes the track-vertex assignment modified during this kernel
+      // vertices is filled up by this kernel with protocluster properties
+      // beta_ and osumtkwt_ are used to pass the final values of _beta and _osumtkwt on each block to the next kernel
+      int blockSize = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]; // In GPU blockSize and trackBlockSize should be identical from how the kernel is called, in CPU not
       int threadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]; // Thread number inside block
       int blockIdx  = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]; // Block number inside grid
-
-      double& _beta = alpaka::declareSharedVar<double, __COUNTER__>(acc);
-      double& osumtkwt = alpaka::declareSharedVar<double, __COUNTER__>(acc);
-      for (int itrack = threadIdx+blockIdx*blockSize; itrack < threadIdx+(blockIdx+1)*blockSize ; itrack += blockSize){ // TODO:Saving and reading in the tracks dataformat might be a bit too much?
-	double temp_weight = static_cast<double>(tracks[itrack].weight());      
-        //alpaka::atomicAdd(acc, &osumtkwt, static_cast<double&>(tracks[itrack].weight()), alpaka::hierarchy::Threads{});
-	alpaka::atomicAdd(acc, &osumtkwt, temp_weight, alpaka::hierarchy::Threads{});
+      #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_CLUSTERIZERALGO
+        if (once_per_block(acc)){
+          printf("[ClusterizerAlgo::operator()] Start clustering block %i\n",blockIdx);
+          printf("[ClusterizerAlgo::operator()] Parameters blockSize %i, trackBlockSize %i\n", blockSize, trackBlockSize);
+        }
+      #endif
+      double& _beta = alpaka::declareSharedVar<double, __COUNTER__>(acc); // 1/T in the annealing loop, shared in the block
+      double& _osumtkwt = alpaka::declareSharedVar<double, __COUNTER__>(acc); // Sum of all track weights for normalization of probabilities, shared in the block
+      for (int itrack = threadIdx+blockIdx*trackBlockSize; itrack < threadIdx+(blockIdx+1)*trackBlockSize ; itrack += blockSize){
+	double temp_weight = static_cast<double>(tracks[itrack].weight());
+	alpaka::atomicAdd(acc, &_osumtkwt, temp_weight, alpaka::hierarchy::Threads{});
       }
+      alpaka::syncBlockThreads(acc);
+      if  (once_per_block(acc)){
+        _osumtkwt=1./_osumtkwt;
+      }
+      #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_CLUSTERIZERALGO
+        if (once_per_block(acc)){ printf("[ClusterizerAlgo::operator()] BlockIdx %i, _osumtkwt=%1.3f \n",blockIdx, _osumtkwt);}
+      #endif 
       alpaka::syncBlockThreads(acc);     
       // In each block, initialize to a single vertex with all tracks
-      initialize(acc, tracks, vertices, cParams);
+      initialize(acc, tracks, vertices, cParams, trackBlockSize);
+      #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_CLUSTERIZERALGO
+        if (once_per_block(acc)){ printf("[ClusterizerAlgo::operator()] BlockIdx %i, vertices initialized\n",blockIdx);}
+      #endif
       alpaka::syncBlockThreads(acc);
-      printf("Reinitialize\n");
       // First estimation of critical temperature
-      getBeta0(acc, tracks, vertices, cParams, _beta);
+      getBeta0(acc, tracks, vertices, cParams, _beta, trackBlockSize);
       alpaka::syncBlockThreads(acc);
-      printf("Beta0\n");
-      // Cool down to beta0 with rho = 0.0 (no regularization term)
-      thermalize(acc, tracks, vertices, cParams, osumtkwt, _beta, cParams.delta_highT(), 0.0);
-      alpaka::syncBlockThreads(acc);
-      printf("Thermalize\n");
+      #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_CLUSTERIZERALGO
+        if (once_per_block(acc)){ printf("[ClusterizerAlgo::operator()] BlockIdx %i, first estimation of TC _beta=%1.3f \n",blockIdx, _beta);}
+      #endif      
+      // Cool down to betamax with rho = 0.0 (no regularization term)
+      thermalize(acc, tracks, vertices, cParams, _osumtkwt, _beta, cParams.delta_highT(), 0.0, trackBlockSize);
+      #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_CLUSTERIZERALGO
+        if (once_per_block(acc)){ printf("[ClusterizerAlgo::operator()] BlockIdx %i, first thermalization ended\n",blockIdx);}
+      #endif
       // Now the cooling loop
-      coolingWhileSplitting(acc, tracks, vertices, cParams, osumtkwt, _beta);
-      alpaka::syncBlockThreads(acc);
-      printf("Cooling\n");
+      coolingWhileSplitting(acc, tracks, vertices, cParams, _osumtkwt, _beta, trackBlockSize);
+      #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_CLUSTERIZERALGO
+        if (once_per_block(acc)){ printf("[ClusterizerAlgo::operator()] BlockIdx %i, cooling ended, T at stop _beta=%1.3f\n",blockIdx, _beta);}
+      #endif
       // After cooling, merge closeby vertices
-      reMergeTracks(acc,tracks, vertices,cParams, osumtkwt, _beta);
-      alpaka::syncBlockThreads(acc);
-      printf("Merge\n");
+      reMergeTracks(acc,tracks, vertices,cParams, _osumtkwt, _beta, trackBlockSize);
+      #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_CLUSTERIZERALGO
+        if (once_per_block(acc)){ printf("[ClusterizerAlgo::operator()] BlockIdx %i, merge, last merging step done\n",blockIdx);}
+      #endif
       if (once_per_block(acc)){
         beta_[blockIdx]     = _beta;
-        osumtkwt_[blockIdx] = osumtkwt;
+        osumtkwt_[blockIdx] = _osumtkwt;
       }
-      alpaka::syncBlockThreads(acc); 
-      printf("End\n");
+      #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_CLUSTERIZERALGO
+        if (once_per_block(acc)){ printf("[ClusterizerAlgo::operator()] BlockIdx %i end\n",blockIdx);}
+      #endif
     }
-  }; // class kernel
+  }; // clusterizeKernel
  
   ClusterizerAlgo::ClusterizerAlgo(Queue& queue, int32_t bSize) : 
 	  beta_(cms::alpakatools::make_device_buffer<double[]>(queue, bSize)),
@@ -72,7 +91,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 			deviceVertex.view(),
 			cParams->view(),
                         beta_.data(),
-                        osumtkwt_.data()
+                        osumtkwt_.data(),
+			blockSize
                         );			
   } // ClusterizerAlgo::clusterize
 } // namespace ALPAKA_ACCELERATOR_NAMESPACE

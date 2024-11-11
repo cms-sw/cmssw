@@ -93,15 +93,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       blockKernel_.createBlocks(iEvent.queue(), inputtracks, tracksInBlocks, blockSize, blockOverlap);
       // Need to have the blocks created before launching the next step
       alpaka::wait(iEvent.queue());
-      printf("Blocks created\n");
       //// Then run the clusterizer per blocks
       ClusterizerAlgo clusterizerKernel_{iEvent.queue(), blockSize}; 
       clusterizerKernel_.clusterize(iEvent.queue(), tracksInBlocks, deviceVertex, cParams, nBlocks, blockSize);
-      //
       clusterizerKernel_.resplit_tracks(iEvent.queue(), tracksInBlocks, deviceVertex, cParams, nBlocks, blockSize);
-      //
       clusterizerKernel_.reject_outliers(iEvent.queue(), tracksInBlocks, deviceVertex, cParams, nBlocks, blockSize);
-      printf("Clusterizer run\n");
       // Need to have all vertex before arbitrating and deciding what we keep
       alpaka::wait(iEvent.queue());
       clusterizerKernel_.arbitrate(iEvent.queue(), tracksInBlocks, deviceVertex, cParams, nBlocks, blockSize);
@@ -109,7 +105,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //// And then fit
       FitterAlgo fitterKernel_{iEvent.queue(), deviceVertex.view().metadata().size(), fitterParams};
       fitterKernel_.fit(iEvent.queue(), tracksInBlocks, deviceVertex, beamSpot);
-      printf("Fitter run\n");
       // Put the vertices in the event as a portable collection
       iEvent.emplace(devicePutToken_, std::move(deviceVertex));
     }

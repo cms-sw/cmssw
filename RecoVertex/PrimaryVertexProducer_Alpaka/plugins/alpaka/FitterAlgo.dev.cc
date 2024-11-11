@@ -5,7 +5,7 @@
 
 #include "RecoVertex/PrimaryVertexProducer_Alpaka/plugins/alpaka/FitterAlgo.h"
 
-#define DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_FITTERALGO 1
+//#define DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_FITTERALGO 1
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools; 
@@ -218,7 +218,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   } // FitterAlgo::FitterAlgo
   
   void FitterAlgo::fit(Queue& queue, const portablevertex::TrackDeviceCollection& deviceTrack, portablevertex::VertexDeviceCollection& deviceVertex, const portablevertex::BeamSpotDeviceCollection& deviceBeamSpot){
-    const int nVertexToFit = 512; // TODO:: Right now it executes for all 512 vertex, even if vertex collection is empty (in which case the kernel passes). Can we make this dynamic to vertex size?
+    const int nVertexToFit = 512; // Right now it executes for all 512 vertex, even if vertex collection is empty (in which case the kernel passes). Can we make this dynamic to vertex size?
     const int threadsPerBlock = 32;
     const int blocks = divide_up_by(nVertexToFit, threadsPerBlock);
     alpaka::exec<Acc1D>(queue,

@@ -159,14 +159,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       weight = 1.;
       if (fParams.d0CutOff > 0){
         // significance is measured in the transverse plane
-	double significance = in.stateAtBeamLine().transverseImpactParameter().significance();
-        // weight is based on transverse displacement of the track	
-        weight = 1 + exp(significance*significance + fParams.d0CutOff * fParams.d0CutOff);
+	double significance = in.stateAtBeamLine().transverseImpactParameter().value()/in.stateAtBeamLine().transverseImpactParameter().error();
+        // weight is based on transverse displacement of the track
+        weight = 1./(1. + exp(std::pow(significance,2) - std::pow(fParams.d0CutOff,2)));
       }
       // Just fill up variables
-      out.x() = in.stateAtBeamLine().trackStateAtPCA().position().x();;
-      out.y() = in.stateAtBeamLine().trackStateAtPCA().position().y();;
-      out.z() = in.stateAtBeamLine().trackStateAtPCA().position().z();;
+      out.x() = in.stateAtBeamLine().trackStateAtPCA().position().x();
+      out.y() = in.stateAtBeamLine().trackStateAtPCA().position().y();
+      out.z() = in.stateAtBeamLine().trackStateAtPCA().position().z();
       out.px() = in.stateAtBeamLine().trackStateAtPCA().momentum().x();
       out.py() = in.stateAtBeamLine().trackStateAtPCA().momentum().y();
       out.pz() = in.stateAtBeamLine().trackStateAtPCA().momentum().z();
@@ -176,7 +176,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       out.dz2() = std::pow(in.track().dzError(),2);
       // Modified dz2 to account correlations and vertex size for clusterizer 
       // dz^2 + (bs*pt)^2*pz^2/pt^2 + vertexSize^2
-      double oneoverdz2 = (out.dz2()) + ((bs.BeamWidthX()*bs.BeamWidthX()*out.px()*out.px()) + (bs.BeamWidthY()*bs.BeamWidthY()*out.py()*out.py()))*out.pz()*out.pz()/(in.stateAtBeamLine().trackStateAtPCA().momentum().perp2()) + fParams.vertexSize*fParams.vertexSize;
+      double oneoverdz2 = (out.dz2()) + ((std::pow(bs.BeamWidthX()*out.px(),2)) + (std::pow(bs.BeamWidthY()*out.py(),2)))*std::pow(out.pz(),2)/std::pow(in.stateAtBeamLine().trackStateAtPCA().momentum().perp2(),2) + std::pow(fParams.vertexSize,2);
       oneoverdz2 = 1./oneoverdz2;
       out.oneoverdz2() = oneoverdz2;
       out.dxy2AtIP() = std::pow(in.track().dxyError(),2);
@@ -188,7 +188,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       out.kmax() = 1; // maximum vertex identifier, will loop from kmin to kmax-1. At the start only one vertex
       out.aux1() = 0; // for storing various things in between kernels
       out.aux2() = 0; // for storing various things in between kernels
-      out.isGood() = true; // if we are here, we are to keep this track*/
+      out.isGood() = true; // if we are here, we are to keep this track
     }
     return weight;
   }
