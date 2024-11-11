@@ -84,7 +84,7 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<std::string>("mixLabel", "mix");
 
   desc.add<double>("signalPropagationSpeed", 0.66);
-  desc.add<double>("timeResolution", 18.);
+  desc.add<double>("timeResolution", 10.);
   desc.add<double>("timeJitter", 1.0);
   desc.add<double>("averageShapingTime", 50.0);
   desc.add<double>("averageEfficiency", 0.98);
