@@ -20,6 +20,7 @@ from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import 
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
+from Configuration.ProcessModifiers.hltClusterSplitting_cff import hltClusterSplitting
 
 ### First define the stuff for the standard validation sequence
 ## Track selectors
@@ -47,8 +48,8 @@ _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "displacedRegionalStepSeeds",
                                  "muonSeededSeedsInOut",
                                  "muonSeededSeedsOutIn"]
-
 _seedProducers_fastSim = [ x for x in _seedProducers if x not in _removeForFastSimSeedProducers]
+_seedProducers_hltSplit = [ x for x in _seedProducers if x not in ["initialStepSeedsPreSplitting"]]
 
 _removeForFastTrackProducers = ["initialStepTracksPreSplitting",
                                 "jetCoreRegionalStepTracks",
@@ -56,6 +57,7 @@ _removeForFastTrackProducers = ["initialStepTracksPreSplitting",
                                 "muonSeededTracksInOut",
                                 "muonSeededTracksOutIn"]
 _trackProducers_fastSim = [ x for x in _trackProducers if x not in _removeForFastTrackProducers]
+_trackProducers_hltSplit = [ x for x in _trackProducers if x not in ["initialStepTracksPreSplitting"]]
 
 def _algoToSelector(algo):
     sel = ""
@@ -813,6 +815,10 @@ fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
     trackValidatorGsfTracks,
 ]))
 
+hltClusterSplitting.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
+    trackValidatorBuildingPreSplitting,
+]))
+
 ### Then define stuff for standalone mode (i.e. MTV with RECO+DIGI input)
 
 # Select by originalAlgo and algoMask
@@ -1016,6 +1022,12 @@ fastSim.toReplaceWith(trackValidatorsTrackingOnly, trackValidatorsTrackingOnly.c
     trackValidatorConversionTrackingOnly,
     trackValidatorBHadronTrackingOnly
 ]))
+
+hltClusterSplitting.toReplaceWith(trackValidatorsTrackingOnly, trackValidatorsTrackingOnly.copyAndExclude([
+    trackValidatorBuildingPreSplitting,
+    trackValidatorSeedingPreSplittingTrackingOnly,
+]))
+
 tracksValidationTrackingOnly = cms.Sequence(
     trackValidatorsTrackingOnly,
     tracksPreValidationTrackingOnly,
