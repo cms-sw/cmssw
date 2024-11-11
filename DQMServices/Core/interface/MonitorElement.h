@@ -57,7 +57,7 @@ namespace dqm {
     static const int STATUS_OK = 100;   //< Test was succesful.
     static const int WARNING = 200;     //< Test had some problems.
     static const int ERROR = 300;       //< Test has failed.
-  }                                     // namespace qstatus
+  }  // namespace qstatus
 
   namespace me_util {
     using Channel = DQMChannel;

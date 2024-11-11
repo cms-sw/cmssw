@@ -36,7 +36,7 @@ namespace dqm {
       virtual ~NavigatorBase() {}
 
     protected:
-      NavigatorBase(){};
+      NavigatorBase() {};
       std::string cwd_ = "";
     };
 
