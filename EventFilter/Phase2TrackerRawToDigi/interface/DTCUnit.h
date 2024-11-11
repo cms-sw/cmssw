@@ -89,7 +89,8 @@ class DTCUnit
             std::vector<std::vector<Cluster>> newClusterCollection(36);
 
             // Organize clusters into CIC-0 and CIC-1 clusters
-            for (size_t i = 0; i < SLinks_0.size(); ++i) {
+            for (size_t i = 0; i < SLinks_0.size(); ++i) 
+            {
                 std::vector<Cluster>& clusters = SLinks_0[i];
                 std::vector<Cluster> cicId_0_clusters;
                 std::vector<Cluster> cicId_1_clusters;
@@ -205,7 +206,8 @@ class DTCUnit
             RawDataOnSLink.resize(words.size() * 4, 4);  // Resize the buffer to fit all 32-bit words
             unsigned char *data_ptr = RawDataOnSLink.data();
 
-            for (size_t word_index = 0; word_index < words.size(); ++word_index) {
+            for (size_t word_index = 0; word_index < words.size(); ++word_index) 
+            {
                 insertHexWordAt(data_ptr, word_index, words[word_index]);
             }
 
