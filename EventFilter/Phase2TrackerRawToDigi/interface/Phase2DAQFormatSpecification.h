@@ -5,7 +5,7 @@ namespace Phase2DAQFormatSpecification
 {
     static const int DTC_DAQ_HEADER = 0xFFFFFFFF;
     static const int N_BITS_PER_WORD = 32;
-    static const int NUMBER_OF_BYTES_PER_WORD = 4;
+    static const int N_BYTES_PER_WORD = 4;
     
     // Channel Header Information (Payload)
     static const int L1ID_MAX_VALUE = 0x1FF;
@@ -35,6 +35,10 @@ namespace Phase2DAQFormatSpecification
     static const int CMSSW_TRACKER_ID = 0;
 
     typedef std::bitset<32> Word32Bits;
+    
+    static const int HEADER_N_LINES =  4; // number of 32b lines of the tracker header
+    static const int CLUSTER_LENGTH = 14; // length of the cluster word
+    static const int OFFSET_LENGTH = 16;  // length of the offset word
 };
 
 #endif

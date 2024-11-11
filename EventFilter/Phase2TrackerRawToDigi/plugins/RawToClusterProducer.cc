@@ -28,8 +28,6 @@
 using namespace Phase2TrackerSpecifications;
 
 // namespace to be added
-constexpr int CLUSTER_LENGTH = 14;
-
 
 
 class RawToClusterProducer : public edm::stream::EDProducer<> {
@@ -98,6 +96,7 @@ void RawToClusterProducer::beginRun(const edm::Run& iRun, const edm::EventSetup&
     }  // end loop on detunits
 }
 
+
 void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
     auto outputClusterCollection = std::make_unique<Phase2TrackerCluster1DCollectionNew>();
@@ -129,7 +128,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         
         // read the header  
         std::vector<uint32_t> headerWords;
-        for (size_t i = 0; i < 16; i += NUMBER_OF_BYTES_PER_WORD)  // Read 4 bytes (32 bits) at a time
+        for (size_t i = 0; i < HEADER_N_LINES*N_BYTES_PER_WORD; i += N_BYTES_PER_WORD)  // Read 4 bytes (32 bits) at a time
         {
           // Extract 4 bytes (32 bits) and pack them into a uint32_t word
           headerWords.push_back(readLine(dataPtr, i));
@@ -138,14 +137,14 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 //         theHeader.printValues() ;
   
         // read the offsets 
-        // they start from the fifth line (4 * (5-1))
-        // until line 22nd (4 * 22-1)
+        // they start from the fifth line (4 * (5-1)) until line 22nd (4 * 22-1)
         std::vector<uint32_t> offsetWords;
-        for (size_t i = 16; i < 84; i += NUMBER_OF_BYTES_PER_WORD)  // Read 4 bytes (32 bits) at a time
-        {
-          // Extract 4 bytes (32 bits) and pack them into a uint32_t word
+        size_t nOffsetsLines = OFFSET_LENGTH * CICs_PER_SLINK / N_BITS_PER_WORD;
+        size_t initByte = HEADER_N_LINES*N_BYTES_PER_WORD;
+        size_t endByte = (nOffsetsLines-1)*N_BYTES_PER_WORD + initByte;  // -1 because we only need the starting i of the line
+
+        for (size_t i = initByte; i < endByte; i += N_BYTES_PER_WORD)  // Read 4 bytes (32 bits) at a time
           offsetWords.push_back(readLine(dataPtr, i));          
-        }
         theOffsets.setValue(offsetWords);
   //       theOffsets.printMap();
         // then there are 2 reserved lines
@@ -158,11 +157,11 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         
         // now read the payload (channel header + clusters)
         // assuming all channel headers are there, even if 0 clusters are found
-        for (unsigned int iChannel = 0; iChannel < 36; iChannel++)
+        for (unsigned int iChannel = 0; iChannel < CICs_PER_SLINK; iChannel++)
         {
           // find the channel offset
           // theOffsets.printValue(iChannel);
-          int idx = 88 + theOffsets.getOffsetForChannel(iChannel) * NUMBER_OF_BYTES_PER_WORD;
+          int idx = 88 + theOffsets.getOffsetForChannel(iChannel) * N_BYTES_PER_WORD;
           // get the channel header
           uint32_t headerWord = readLine(dataPtr, idx);
           
@@ -257,22 +256,14 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             uint32_t chipID = (icluster >> 11) & CHIP_ID_MAX_VALUE;
             uint32_t sclusterAddress = (icluster >> 3) & SCLUSTER_ADDRESS_MAX_VALUE;
             uint32_t width = icluster &  WIDTH_MAX_VALUE;
-
 //             std::cout << "[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<3>(chipID) <<   std::endl;
 //             std::cout << "[unpacking] address : " << (sclusterAddress) << "\t " << std::bitset<8>(sclusterAddress) <<   std::endl;
 //             std::cout << "[unpacking] width : " << (width)   << "\t " << std::bitset<3>(width) <<   std::endl;
 //             std::cout <<  std::endl;
-            // FIXME: currently using random y value of 1
-            // 127 is valid only for 2S modules, that is what we have for now
-            // for the position, probably need different unpacking logic for 2S and PS
-//             unsigned int x = STRIPS_PER_CBC * sclusterAddress + chipID;
-//             unsigned int y = iChannel%2 == 0 ? 0 : 1;
             
             // now, rebasing to PR3
             unsigned int x = CHANNELS_PER_CBC * chipID / 2 + sclusterAddress;
             unsigned int y = iChannel%2 == 0 ? 0 : 1;
-//             CHANNELS_PER_CBC
-            
             std::cout << "\t\t cluster#" << count_clusters << "\t x y width : " << x << " " << y << " " << width;
 
             Phase2TrackerCluster1D thisCluster = Phase2TrackerCluster1D(x, y, width);
@@ -318,7 +309,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 int RawToClusterProducer::getLineIndex(int channelIdx, unsigned int iline){
-    return channelIdx + NUMBER_OF_BYTES_PER_WORD + iline * NUMBER_OF_BYTES_PER_WORD; 
+    return channelIdx + N_BYTES_PER_WORD + iline * N_BYTES_PER_WORD; 
 }
 
 uint32_t RawToClusterProducer::readLine(const unsigned char* dataPtr, int lineIdx){
