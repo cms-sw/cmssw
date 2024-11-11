@@ -128,17 +128,17 @@ void Phase2DAQProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
             if (isPSModuleStrip)
             {
-                std::cout << "\t\tisPSModuleStrip"  << std::endl;
+//                 std::cout << "\t\tisPSModuleStrip"  << std::endl;
                 processClusters(TrackerGeometry::ModuleType::Ph2PSS, DetectorClusterCollection, dtc_id, slink_id, slink_id_within, dtcAssembly);
             }
             else if (isPSModulePixel)
             {
-                std::cout << "\t\tisPSModulePixel"  << std::endl;
+//                 std::cout << "\t\tisPSModulePixel"  << std::endl;
                 processClusters(TrackerGeometry::ModuleType::Ph2PSP, DetectorClusterCollection, dtc_id, slink_id, slink_id_within, dtcAssembly);
             }
             else if (is2SModule)
             {
-                std::cout << "\t\tis2SModule"  << std::endl;
+//                 std::cout << "\t\tis2SModule"  << std::endl;
                 processClusters(TrackerGeometry::ModuleType::Ph2SS, DetectorClusterCollection, dtc_id, slink_id, slink_id_within, dtcAssembly);
             }
 

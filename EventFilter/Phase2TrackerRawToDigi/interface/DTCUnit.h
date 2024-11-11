@@ -84,6 +84,7 @@ class DTCUnit
 
         void convertToRawData(const std::size_t index)
         {
+            std::cout << "[packing] converting to raw from slink " << unsigned(index) << std::endl;
             std::vector<std::vector<Cluster>>& SLinks_0 = ClusterCollection[index];
             std::vector<std::vector<Cluster>> newClusterCollection(36);
 
@@ -158,10 +159,10 @@ class DTCUnit
                     uint32_t sclusterAddress = cluster.getSclusterAddress() & 0xFF;  // 8 bits
                     uint32_t width = cluster.getWidth() & 0x7;                // 3 bits
 
-                    std::cout << "[packing] chipID : " <<  cluster.getChipId() <<  std::endl;
-                    std::cout << "[packing] address : " << cluster.getSclusterAddress() <<  std::endl;
-                    std::cout << "[packing] width : " << cluster.getWidth()  <<  std::endl;
-                    std::cout <<  std::endl;
+//                     std::cout << "[packing] chipID : " <<  (chipID) << "\t " << std::bitset<3>(chipID) <<   std::endl;
+//                     std::cout << "[packing] address : " << (sclusterAddress) << "\t " << std::bitset<8>(sclusterAddress) <<   std::endl;
+//                     std::cout << "[packing] width : " << (width)   << "\t " << std::bitset<3>(width) <<   std::endl;
+//                     std::cout <<  std::endl;
 
                     uint32_t clusterData = (chipID << 11) | (sclusterAddress << 3) | width;
 

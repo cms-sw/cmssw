@@ -40,7 +40,11 @@ void Phase2DAQAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
 
   // Read only the 0th FED position as per the producer logic
-  const FEDRawData& fedData = fedRawDataCollection->FEDData(0);  // FED ID 0
+  unsigned int dtcID = 6;  
+  unsigned int iSlink = 0;
+  unsigned totID = iSlink + 4 * (dtcID - 1) + 0 ;
+
+  const FEDRawData& fedData = fedRawDataCollection->FEDData(totID);  // FED ID 0
  
 
   // ** Below is the logic to read out the 32bit words from the fedRawData object.
