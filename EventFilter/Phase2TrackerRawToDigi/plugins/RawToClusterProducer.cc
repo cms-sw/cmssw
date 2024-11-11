@@ -26,15 +26,15 @@
 // namespace to be added
 
 constexpr uint16_t N_BYTES = 4;
-constexpr int LINE_LENGTH = 32;
+// constexpr int LINE_LENGTH = 32;
 constexpr int CLUSTER_LENGTH = 14;
 constexpr int N_STRIPS_CBC = 127;
 
 
-class Phase2ClusterProducer : public edm::stream::EDProducer<> {
+class RawToClusterProducer : public edm::stream::EDProducer<> {
 public:
-    explicit Phase2ClusterProducer(const edm::ParameterSet&);
-    ~Phase2ClusterProducer() override;
+    explicit RawToClusterProducer(const edm::ParameterSet&);
+    ~RawToClusterProducer() override;
     void beginRun(const edm::Run&, const edm::EventSetup&) override;
     
     int getLineIndex(int channelIdx, unsigned int iline);
@@ -59,7 +59,7 @@ private:
 
 
 
-Phase2ClusterProducer::Phase2ClusterProducer(const edm::ParameterSet& iConfig) : 
+RawToClusterProducer::RawToClusterProducer(const edm::ParameterSet& iConfig) : 
       fedRawDataToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("fedRawDataCollection"))),
       cablingMapToken_(esConsumes<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd, edm::Transition::BeginRun>()),
       trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
@@ -68,12 +68,12 @@ Phase2ClusterProducer::Phase2ClusterProducer(const edm::ParameterSet& iConfig) :
     produces<Phase2TrackerCluster1DCollectionNew>();
 }
 
-Phase2ClusterProducer::~Phase2ClusterProducer() 
+RawToClusterProducer::~RawToClusterProducer() 
 {
 
 }
 
-void Phase2ClusterProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void RawToClusterProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     // get cabling from event setup
     cablingMap_ = &iSetup.getData(cablingMapToken_);
 
@@ -97,7 +97,7 @@ void Phase2ClusterProducer::beginRun(const edm::Run& iRun, const edm::EventSetup
     }  // end loop on detunits
 }
 
-void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
+void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
     auto outputClusterCollection = std::make_unique<Phase2TrackerCluster1DCollectionNew>();
 
@@ -310,11 +310,11 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
 }
 
-int Phase2ClusterProducer::getLineIndex(int channelIdx, unsigned int iline){
+int RawToClusterProducer::getLineIndex(int channelIdx, unsigned int iline){
     return channelIdx + N_BYTES + iline * N_BYTES; 
 }
 
-uint32_t Phase2ClusterProducer::readLine(const unsigned char* dataPtr, int lineIdx){
+uint32_t RawToClusterProducer::readLine(const unsigned char* dataPtr, int lineIdx){
     uint32_t line = (static_cast<uint32_t>(dataPtr[lineIdx]) << 24) | 
                     (static_cast<uint32_t>(dataPtr[lineIdx + 1]) << 16) | 
                     (static_cast<uint32_t>(dataPtr[lineIdx + 2]) << 8) | 
@@ -324,4 +324,4 @@ uint32_t Phase2ClusterProducer::readLine(const unsigned char* dataPtr, int lineI
 }                                
 
 
-DEFINE_FWK_MODULE(Phase2ClusterProducer);
+DEFINE_FWK_MODULE(RawToClusterProducer);

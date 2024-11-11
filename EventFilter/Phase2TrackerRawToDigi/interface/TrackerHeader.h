@@ -1,6 +1,8 @@
 #ifndef EventFilter_Phase2TrackerRawToDigi_TrackerHeader_H
 #define EventFilter_Phase2TrackerRawToDigi_TrackerHeader_H
 
+// Class to store the (outer) tracker header for each event, read the FedRawData collection
+// as from the current tracker data format
 
 class TrackerHeader {
     public:

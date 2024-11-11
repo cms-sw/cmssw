@@ -72,16 +72,18 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring("/store/relval/CMSSW_14_0_0_pre2/RelValDisplacedSingleMuFlatPt1p5To8/GEN-SIM-DIGI-RAW/133X_mcRun4_realistic_v1_STD_2026D98_noPU_RV229-v1/2580000/3ce31040-55a5-4469-8ee2-16d050bb6ade.root")
  )
 
+## in case of local file
+# process.load("CondCore.CondDB.CondDB_cfi")
+# process.CondDB.connect = 'sqlite_file:/afs/cern.ch/work/f/fiorendi/private/l1tt/unpacker_retry/CMSSW_14_1_0_pre7/src/Phase2RawToDigi/Phase2DAQProducer/python/OTandITDTCCablingMap_T33.db'
 process.load("CondCore.CondDB.CondDB_cfi")
-# input database (in this case the local sqlite file)
-process.CondDB.connect = 'sqlite_file:/afs/cern.ch/work/f/fiorendi/private/l1tt/unpacker_retry/CMSSW_14_1_0_pre7/src/Phase2RawToDigi/Phase2DAQProducer/python/OTandITDTCCablingMap_T33.db'
+process.CondDB.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDB,
-    DumpStat=cms.untracked.bool(True),
+    DumpStat = cms.untracked.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('TrackerDetToDTCELinkCablingMapRcd'),
-        tag = cms.string("DTCCablingMapProducerUserRun")
+        tag = cms.string("TrackerDetToDTCELinkCablingMap__OT800_IT711__T33__OTOnly"),
     )),
 )
 
@@ -98,7 +100,7 @@ process.Experimental = cms.EDProducer("Phase2DAQProducer",
 process.Analyzer = cms.EDAnalyzer("Phase2DAQAnalyzer",
     fedRawDataCollection = cms.InputTag("Experimental"),
 )
-process.Unpacker = cms.EDProducer("Phase2ClusterProducer",
+process.Unpacker = cms.EDProducer("RawToClusterProducer",
     fedRawDataCollection = cms.InputTag("Experimental"),
 )
 
@@ -127,5 +129,6 @@ process.Timing = cms.Service("Timing",
 
 process.dtc = cms.Path(process.ClustersFromPhase2TrackerDigis * process.Experimental * process.Unpacker)
 process.output = cms.EndPath(process.out)
+# process.dtc = cms.Path(process.ClustersFromPhase2TrackerDigis * process.Experimental * process.Analyzer)
 # process.dtc = cms.Path(process.ClustersFromPhase2TrackerDigis * process.Experimental * process.Analyzer * process.Unpacker)
 
