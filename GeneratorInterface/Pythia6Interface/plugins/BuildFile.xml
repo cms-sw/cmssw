@@ -1,3 +1,4 @@
+<flags REM_LDFLAGS="-Wl,--as-needed"/>
 <use name="GeneratorInterface/Pythia6Interface"/>
 <architecture name="osx">
   <use name="pydata"/>

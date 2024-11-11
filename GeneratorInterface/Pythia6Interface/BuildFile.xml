@@ -4,6 +4,7 @@
 <use name="pythia6"/>
 <use name="f77compiler"/>
 <use name="hepmc"/>
+<flags REM_LDFLAGS="-Wl,--as-needed"/>
 <export>
   <lib name="1"/>
 </export>
