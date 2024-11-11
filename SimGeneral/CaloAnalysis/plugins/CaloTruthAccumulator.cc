@@ -195,7 +195,7 @@ namespace {
         if (selector_(edge_property)) {
           IfLogDebug(DEBUG, messageCategoryGraph_) << "Adding CaloParticle: " << edge_property.simTrack->trackId();
           output_.pCaloParticles->emplace_back(*(edge_property.simTrack));
-          output_.pCaloParticles->back().addSimTime(vertex_time_map_[(edge_property.simTrack)->vertIndex()]);
+          output_.pCaloParticles->back().setSimTime(vertex_time_map_[(edge_property.simTrack)->vertIndex()]);
           caloParticles_.sc_start_.push_back(output_.pSimClusters->size());
         }
       }
