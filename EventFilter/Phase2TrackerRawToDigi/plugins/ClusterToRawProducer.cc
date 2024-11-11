@@ -45,7 +45,7 @@ private:
     uint32_t assignNumber(const uint32_t& N);
     void processClusters(TrackerGeometry::ModuleType moduleType,
                                            const Phase2TrackerCluster1DCollectionNew::DetSet& detector_cluster_collection,
-                                           unsigned int dtc_id, unsigned int slink_id, unsigned int slink_id_within,
+                                           unsigned int dtc_id, unsigned int slink_id, unsigned int slink_id_within, bool is_seed_sensor,
                                            DTCAssembly& dtcAssembly);
 };
 
@@ -83,7 +83,9 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     // Iterate through Cluster Collection
     for (const auto& detector_cluster_collection : iEvent.get(ClusterCollectionToken_)) 
     {
-        auto cable_map = cablingMap.detIdToDTCELinkId(assignNumber(detector_cluster_collection.detId()));
+        const unsigned int detId = detector_cluster_collection.detId();
+        const unsigned int cable_map_module_id = assignNumber(detId);
+        auto cable_map = cablingMap.detIdToDTCELinkId(cable_map_module_id);
 
         // Retrieve DTC ID and GBT ID
 
@@ -103,9 +105,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         slink_id = std::div(gbt_id, Phase2TrackerSpecifications::MODULES_PER_SLINK).quot;
         slink_id_within = std::div(gbt_id, Phase2TrackerSpecifications::MODULES_PER_SLINK).rem;
     
-
-        // Example usage of TrackerGeometry
-        DetId detId = detector_cluster_collection.detId();
+        const bool is_seed_sensor = ((detId - cable_map_module_id == 1) ? 1 : 0);
         const GeomDetUnit* detUnit = trackerGeometry.idToDetUnit(detId);
 
         if (detUnit)
@@ -118,7 +118,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
                 case TrackerGeometry::ModuleType::Ph2PSS:
                 case TrackerGeometry::ModuleType::Ph2PSP:
                 case TrackerGeometry::ModuleType::Ph2SS:
-                    processClusters(moduleType, detector_cluster_collection, dtc_id, slink_id, slink_id_within, dtcAssembly);
+                    processClusters(moduleType, detector_cluster_collection, dtc_id, slink_id, slink_id_within, is_seed_sensor, dtcAssembly);
                     break;
                 default:
                     break;
@@ -140,7 +140,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleType,
                                            const Phase2TrackerCluster1DCollectionNew::DetSet& detector_cluster_collection,
-                                           unsigned int dtc_id, unsigned int slink_id, unsigned int slink_id_within,
+                                           unsigned int dtc_id, unsigned int slink_id, unsigned int slink_id_within, bool is_seed_sensor,
                                            DTCAssembly& dtcAssembly)
 {
     for (const auto& cluster : detector_cluster_collection)
@@ -180,6 +180,8 @@ void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleTyp
             chipId = std::div(x * 2.0, Phase2TrackerSpecifications::CHANNELS_PER_CBC).quot;
             sclusterAddress = std::div(x * 2.0, Phase2TrackerSpecifications::CHANNELS_PER_CBC).rem;
         }
+
+        // sclusterAddress = (is_seed_sensor << 7) | (sclusterAddress & 0x7F);
 
         Cluster newCluster(z, x, width, chipId, sclusterAddress, mipbit, cicId, moduleType);
         assignedDtcUnit.getClustersOnSLink(slink_id).at(slink_id_within).push_back(newCluster);
