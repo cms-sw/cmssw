@@ -163,7 +163,9 @@ class UpgradeWorkflow(object):
     def workflow_(self, workflows, num, fragment, stepList, key):
         fragmentTmp = [fragment, key]
         if len(self.suffix)>0: fragmentTmp.append(self.suffix)
-        workflows[num+self.offset] = [ fragmentTmp, stepList ]
+        # avoid spurious workflows (no steps modified)
+        if self.offset==0 or workflows[num][1]!=stepList:
+            workflows[num+self.offset] = [ fragmentTmp, stepList ]
     def condition(self, fragment, stepList, key, hasHarvest):
         return False
     def preventReuse(self, stepName, stepDict, k):
@@ -529,7 +531,7 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
 
 # WeightedMeanFitter vertexing workflows
 class UpgradeWorkflow_weightedVertex(UpgradeWorkflow):
-    def __init__(self, reco = {}, harvest = {}, **kwargs):
+    def __init__(self, **kwargs):
         # adapt the parameters for the UpgradeWorkflow init method
         super(UpgradeWorkflow_weightedVertex, self).__init__(
             steps = [
@@ -557,8 +559,6 @@ class UpgradeWorkflow_weightedVertex(UpgradeWorkflow):
                 'HARVESTNanoFakeHLT',
             ],
             **kwargs)
-        self.__reco = reco
-        self.__harvest = harvest
 
     def setup_(self, step, stepName, stepDict, k, properties):
         # temporarily remove trigger & downstream steps
@@ -2156,7 +2156,7 @@ class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
             stepDict[stepName][k] = None
 
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ('2021' in key or '2023' in key or '2026' in key)
+        return fragment=="TTbar_14TeV" and ('2021' in key or '2023' in key or '2026' in key)
 
 upgradeWFs['ECALComponent'] = UpgradeWorkflow_ECalComponent(
     suffix = '_ecalComponent',
@@ -2412,27 +2412,30 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
         # just copy steps
         stepDict[stepName][k] = merge([stepDict[step][k]])
     def setupPU_(self, step, stepName, stepDict, k, properties):
-        # setup for stage 1
-        if "GenSim" in stepName:
-            stepNamePmx = stepName.replace('GenSim','Premix')
-            if not stepNamePmx in stepDict: stepDict[stepNamePmx] = {}
-            stepDict[stepNamePmx][k] = merge([
-                {
-                    '-s': 'GEN,SIM,DIGI:pdigi_valid',
-                    '--datatier': 'PREMIX',
-                    '--eventcontent': 'PREMIX',
-                    '--procModifiers': 'premix_stage1'
-                },
-                stepDict[stepName][k]
-            ])
-            if "ProdLike" in self.suffix:
-                stepDict[stepNamePmx][k] = merge([{'-s': 'GEN,SIM,DIGI'},stepDict[stepNamePmx][k]])
-        # setup for stage 2
-        elif "Digi" in step or "Reco" in step:
-            # go back to non-PU step version
-            d = merge([stepDict[self.getStepName(step)][k]])
-            if d is None: return
-            if "Digi" in step:
+        # fastsim version
+        if 'FS' in k:
+            # setup for stage 1 fastsim
+            if "Gen" in stepName:
+                stepNamePmx = stepName.replace('Gen','Premix')
+                if not stepNamePmx in stepDict: stepDict[stepNamePmx] = {}
+                stepDict[stepNamePmx][k] = merge([
+                    {
+                        '-s': 'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid',
+                        '--fast':'',
+                        '--datatier': 'PREMIX',
+                        '--eventcontent': 'PREMIX',
+                        '--procModifiers': 'premix_stage1'
+                    },
+                    stepDict[stepName][k]
+                ])
+                if "ProdLike" in self.suffix:
+                    # todo
+                    pass
+            # setup for stage 2 fastsim
+            elif "FastSimRun3" in step:
+                # go back to non-PU step version
+                d = merge([stepDict[self.getStepName(step)][k]])
+                if d is None: return
                 tmpsteps = []
                 for s in d["-s"].split(","):
                     if s == "DIGI" or "DIGI:" in s:
@@ -2440,30 +2443,72 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
                     else:
                         tmpsteps.append(s)
                 d = merge([{"-s"             : ",".join(tmpsteps),
-                            "--datamix"      : "PreMix",
-                            "--procModifiers": "premix_stage2"},
+                            "--datamix"      : "PreMix"},
                            d])
-                # for combined stage1+stage2
-                if "_PMXS1S2" in self.suffix:
-                    d = merge([digiPremixLocalPileup, d])
-            elif "Reco" in step:
                 if "--procModifiers" in d:
                     d["--procModifiers"] += ",premix_stage2"
                 else:
                     d["--procModifiers"] = "premix_stage2"
-            stepDict[stepName][k] = d
-        # Increase the input file step number by one for Nano in combined stage1+stage2
-        elif "Nano"==step:
-            # go back to non-PU step version
-            d = merge([stepDict[self.getStepName(step)][k]])
-            if "--filein" in d:
-                filein = d["--filein"]
-                m = re.search("step(?P<ind>\d+)_", filein)
-                if m:
-                    d["--filein"] = filein.replace(m.group(), "step%d_"%(int(m.group("ind"))+1))
-            stepDict[stepName][k] = d
-            # run2/3 WFs use Nano (not NanoPU) in PU WF
-            stepDict[self.getStepName(step)][k] = merge([d])
+                # for combined stage1+stage2
+                if "_PMXS1S2" in self.suffix:
+                    d = merge([digiPremixLocalPileup, d])
+                stepDict[stepName][k] = d
+            elif "HARVESTFastRun3" in step:
+                # increment input step number
+                stepDict[stepName][k] = merge([{'--filein':'file:step3_inDQM.root'},stepDict[stepName][k]])
+        else:
+            # setup for stage 1
+            if "GenSim" in stepName:
+                stepNamePmx = stepName.replace('GenSim','Premix')
+                if not stepNamePmx in stepDict: stepDict[stepNamePmx] = {}
+                stepDict[stepNamePmx][k] = merge([
+                    {
+                        '-s': 'GEN,SIM,DIGI:pdigi_valid',
+                        '--datatier': 'PREMIX',
+                        '--eventcontent': 'PREMIX',
+                        '--procModifiers': 'premix_stage1'
+                    },
+                    stepDict[stepName][k]
+                ])
+                if "ProdLike" in self.suffix:
+                    stepDict[stepNamePmx][k] = merge([{'-s': 'GEN,SIM,DIGI'},stepDict[stepNamePmx][k]])
+            # setup for stage 2
+            elif "Digi" in step or "Reco" in step:
+                # go back to non-PU step version
+                d = merge([stepDict[self.getStepName(step)][k]])
+                if d is None: return
+                if "Digi" in step:
+                    tmpsteps = []
+                    for s in d["-s"].split(","):
+                        if s == "DIGI" or "DIGI:" in s:
+                            tmpsteps.extend([s, "DATAMIX"])
+                        else:
+                            tmpsteps.append(s)
+                    d = merge([{"-s"             : ",".join(tmpsteps),
+                                "--datamix"      : "PreMix",
+                                "--procModifiers": "premix_stage2"},
+                               d])
+                    # for combined stage1+stage2
+                    if "_PMXS1S2" in self.suffix:
+                        d = merge([digiPremixLocalPileup, d])
+                elif "Reco" in step:
+                    if "--procModifiers" in d:
+                        d["--procModifiers"] += ",premix_stage2"
+                    else:
+                        d["--procModifiers"] = "premix_stage2"
+                stepDict[stepName][k] = d
+            # separate nano step now only used in ProdLike workflows for Run3/Phase2
+            elif "Nano"==step:
+                # go back to non-PU step version
+                d = merge([stepDict[self.getStepName(step)][k]])
+                if "_PMXS1S2" in self.suffix and "--filein" in d:
+                    filein = d["--filein"]
+                    m = re.search("step(?P<ind>\\d+)", filein)
+                    if m:
+                        d["--filein"] = filein.replace(m.group(), "step%d"%(int(m.group("ind"))+1))
+                stepDict[stepName][k] = d
+                # run2/3 WFs use Nano (not NanoPU) in PU WF
+                stepDict[self.getStepName(step)][k] = merge([d])
     def condition(self, fragment, stepList, key, hasHarvest):
         if not 'PU' in key:
             return False
@@ -2482,6 +2527,7 @@ upgradeWFs['PMXS1'] = UpgradeWorkflowPremix(
     steps = [
     ],
     PU = [
+        'Gen',
         'GenSim',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
@@ -2502,6 +2548,8 @@ upgradeWFs['PMXS2'] = UpgradeWorkflowPremix(
         'RecoNano',
         'RecoNanoFakeHLT',
         'Nano',
+        'FastSimRun3',
+        'HARVESTFastRun3',
     ],
     suffix = '_PMXS2',
     offset = 0.98,
@@ -2510,6 +2558,7 @@ upgradeWFs['PMXS2'] = UpgradeWorkflowPremix(
 upgradeWFs['PMXS1S2'] = UpgradeWorkflowPremix(
     steps = [],
     PU = [
+        'Gen',
         'GenSim',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
@@ -2522,6 +2571,8 @@ upgradeWFs['PMXS1S2'] = UpgradeWorkflowPremix(
         'RecoNano',
         'RecoNanoFakeHLT',
         'Nano',
+        'FastSimRun3',
+        'HARVESTFastRun3',
     ],
     suffix = '_PMXS1S2',
     offset = 0.99,
@@ -2575,8 +2626,6 @@ class UpgradeWorkflowPremixProdLike(UpgradeWorkflowPremix,UpgradeWorkflow_ProdLi
                         "--eventcontent": "PREMIXRAW"},
                        d])
             stepDict[stepName][k] = d
-        if 'Nano'==step:
-            stepDict[stepName][k] = merge([{'--filein':'file:step5.root','-s':'NANO','--datatier':'NANOAODSIM','--eventcontent':'NANOEDMAODSIM'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         # use both conditions
         return UpgradeWorkflowPremix.condition(self, fragment, stepList, key, hasHarvest) and UpgradeWorkflow_ProdLike.condition(self, fragment, stepList, key, hasHarvest)
@@ -2642,7 +2691,7 @@ class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ('2021FS' in key or '2023FS' in key)
+        return fragment=="TTbar_14TeV" and ('2021FS' in key or '2023FS' in key)
 upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
     steps = [
         'Gen',
@@ -2684,17 +2733,12 @@ upgradeWFs['Run3FSMBMixing'] = UpgradeWorkflow_Run3FSMBMixing(
 
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Run3' in stepDict[step][k]['--era'] and 'Fast' not in stepDict[step][k]['--era']:
-            if '2023' in stepDict[step][k]['--conditions']:
-                stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2023'}, stepDict[step][k]])
-            else:
-                stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2021'}, stepDict[step][k]])
-        elif 'Phase2' in stepDict[step][k]['--era']:
+        if 'Phase2' in stepDict[step][k]['--era']:
             dd4hepGeom="DD4hep"
             dd4hepGeom+=stepDict[step][k]['--geometry']
             stepDict[stepName][k] = merge([{'--geometry' : dd4hepGeom, '--procModifiers': 'dd4hep'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ('2021' in key or '2023' in key or '2026' in key) and ('FS' not in key)
+        return ('2026' in key) and ('FS' not in key)
 upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
     steps = [
         'GenSim',
@@ -2727,7 +2771,7 @@ class UpgradeWorkflow_DD4hepDB(UpgradeWorkflow):
         if 'Run3' in stepDict[step][k]['--era'] and 'Fast' not in stepDict[step][k]['--era']:
             stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2022_realistic', '--geometry': 'DB:Extended'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key and 'FS' not in key
+        return fragment=="TTbar_14TeV" and '2021' in key and 'FS' not in key
 upgradeWFs['DD4hepDB'] = UpgradeWorkflow_DD4hepDB(
     steps = [
         'GenSim',
@@ -2763,7 +2807,7 @@ class UpgradeWorkflow_DDDDB(UpgradeWorkflow):
             tmp_eras = ','.join(tmp_eras)
             stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2022_realistic_ddd', '--geometry': 'DB:Extended', '--era': tmp_eras}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key and 'FS' not in key
+        return fragment=="TTbar_14TeV" and '2021' in key and 'FS' not in key
 upgradeWFs['DDDDB'] = UpgradeWorkflow_DDDDB(
     steps = [
         'GenSim',
