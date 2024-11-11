@@ -4,8 +4,12 @@
 // Class to store the payload offsets of the various channels in the FedRawData collection
 // as from the current outer tracker data format
 
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2DAQFormatSpecification.h"
+
 constexpr int N_CHANNELS = 36;
-constexpr int LINE_LENGTH = 32;
+
+
+using namespace Phase2TrackerSpecifications;
 
 class ChannelsOffset {
 public:
@@ -19,11 +23,11 @@ public:
     
     void printValues() const {
       for (size_t i = 0; i < values_.size(); ++i) {
-        std::cout << "ChannelsOffset[" << i << "]: " << values_[i] << "   " << std::bitset<LINE_LENGTH>(values_[i]) <<  std::endl;
+        std::cout << "ChannelsOffset[" << i << "]: " << values_[i] << "   " << std::bitset<N_BITS_PER_WORD>(values_[i]) <<  std::endl;
       }
     }   
     void printValue(size_t i) const {
-      std::cout << "ChannelsOffset[" << i << "]: " << values_[i] << "   " << std::bitset<LINE_LENGTH>(values_[i]) <<  std::endl;
+      std::cout << "ChannelsOffset[" << i << "]: " << values_[i] << "   " << std::bitset<N_BITS_PER_WORD>(values_[i]) <<  std::endl;
     }   
     
     void fillOffsetMap(){
