@@ -20,6 +20,8 @@
 #include <unordered_map>
 
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Cluster.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/TrackerHeader.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/ChannelsOffset.h"
 
 // namespace to be added
 
@@ -28,67 +30,6 @@ constexpr int LINE_LENGTH = 32;
 constexpr int CLUSTER_LENGTH = 14;
 constexpr int N_STRIPS_CBC = 127;
 
-// temporary definition of other classes
-class TrackerHeader {
-public:
-    std::vector<uint32_t> values_{std::vector<uint32_t>(4,0)};
-
-    void setValue(std::vector<uint32_t>& newValues) {
-      values_ = newValues;
-    }
-
-    void printValues() const {
-      for (size_t i = 0; i < values_.size(); ++i) {
-        std::cout << "TrackerHeader[" << i << "]: " << values_[i] << "   " << std::bitset<32>(values_[i]) <<  std::endl;
-      }
-    }   
-    void printValue(size_t i) const {
-      std::cout << "TrackerHeader[" << i << "]: " << values_[i] << "   " << std::bitset<32>(values_[i]) <<  std::endl;
-    }   
-};
-
-class ChannelsOffset {
-public:
-    std::vector<uint32_t> values_;
-    std::vector<uint16_t> offsetMap_{std::vector<uint16_t>(36,0)};
-
-    void setValue(std::vector<uint32_t>& newValues) {
-      values_ = newValues;
-      fillOffsetMap();
-    }
-    
-    void printValues() const {
-      for (size_t i = 0; i < values_.size(); ++i) {
-        std::cout << "ChannelsOffset[" << i << "]: " << values_[i] << "   " << std::bitset<32>(values_[i]) <<  std::endl;
-      }
-    }   
-    void printValue(size_t i) const {
-      std::cout << "ChannelsOffset[" << i << "]: " << values_[i] << "   " << std::bitset<32>(values_[i]) <<  std::endl;
-    }   
-    
-    void fillOffsetMap(){
-      for (size_t i = 0; i < 18; ++i) {
-// //       for (size_t i = 0; i < values_.size(); ++i) {
-        // extract the lower 16 bits by masking with 0xFFFF
-       offsetMap_[i*2] = static_cast<uint16_t>(values_[i] & 0xFFFF);
-        // extract the upper 16 bits by shifting right by 16
-        offsetMap_[i*2+1] =  static_cast<uint16_t>(values_[i] >> 16) ; 
-      }
-    }
-
-    uint16_t getOffsetForChannel(unsigned int iChannel){
-      if (iChannel > 35) {
-        throw cms::Exception("Phase2TClusterProducer") << " iChannel " << iChannel << " too high";
-      }
-      return offsetMap_[iChannel];
-    }
-
-    void printMap() const {
-      for (size_t i = 0; i < offsetMap_.size(); ++i) {
-        std::cout << "offsetMap[" << i << "]: " << offsetMap_[i] << std::endl;
-     }
-    }   
-};
 
 class Phase2ClusterProducer : public edm::stream::EDProducer<> {
 public:
@@ -109,8 +50,6 @@ private:
     const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
     edm::EDGetTokenT<Phase2TrackerCluster1DCollectionNew> OutputClusterCollectionToken_;
     
-//     const int nBytes = 4;
-
     const TrackerDetToDTCELinkCablingMap* cablingMap_ = nullptr;
     const TrackerGeometry* trackerGeometry_ = nullptr;
     const TrackerTopology* trackerTopology_ = nullptr;
@@ -229,7 +168,7 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
           unsigned long eventID = (headerWord >> 23) & 0x1FF;       // eventID is a 9-bit field
           int channelErrors = (headerWord >> 14) & 0x1FF;           // channelErrors is a 9-bit field
           unsigned int numClusters = (headerWord >> 7) & 0x7F;      // numClusters is a 7-bit field
-          // we'll have separated num strip and num pixel clusters for PS modules, when ready
+          // we'll have separate num strip and num pixel clusters for PS modules, when ready
           // other 7 bits are missing for this line
           
           unsigned int nLines = numClusters > 0 ? int(numClusters * CLUSTER_LENGTH / LINE_LENGTH) + 1 : 0;
@@ -343,13 +282,13 @@ void Phase2ClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
           // first I need to construct the DTCElinkId object ## dtc_id, gbtlink_id, elink_id
           // to get the gbt_id I should reverse what is done in the DTCUnit.convertToRawData function,
           // where clusters from channel X are split into 2*i and 2*i+1 based on being from CIC0 or CIC1
-          unsigned int gbt_id = iSlink * 18 + (iChannel/2);
+          unsigned int gbt_id = iSlink * 18 + std::div(iChannel, 2).quot;
           DTCELinkId thisDTCElinkId(dtcID, gbt_id, 0);
           // then pass it to the map to get the detid
           std::cout << "\tslink: " << iSlink <<  "\tiDTC: " << unsigned(dtcID) << " \tiGBT:  " <<  unsigned(gbt_id) << " \tielink: " <<  unsigned(0);
           if (cablingMap_->knowsDTCELinkId(thisDTCElinkId))
           {
-            auto possibleDetIds = cablingMap_->dtcELinkIdToDetId(thisDTCElinkId); // this returns an uint32_t
+            auto possibleDetIds = cablingMap_->dtcELinkIdToDetId(thisDTCElinkId); // this returns a pair, detid will be an uint32_t (not a DetId)
             std::cout << "\t -> detId:" <<  possibleDetIds->second << std::endl;
             // Store clusters of this channel
             // FIXME: we should split them by top and bottom sensors (to detIDs)
