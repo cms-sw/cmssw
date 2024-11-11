@@ -27,6 +27,10 @@ namespace caStructures {
   using TupleMultiplicityT = cms::alpakatools::OneToManyAssocRandomAccess<typename TrackerTraits::tindex_type,
                                                                           TrackerTraits::maxHitsOnTrack + 1,
                                                                           TrackerTraits::maxNumberOfTuples>;
+                                                                          
+  template <typename TrackerTraits>
+  using HitContainerT = cms::alpakatools::OneToManyAssocSequential<uint32_t, TrackerTraits::maxNumberOfTuples + 1, 
+                                        TrackerTraits::avgHitsPerTrack * TrackerTraits::maxNumberOfTuples>;
 
   template <typename TrackerTraits>
   using HitToTupleT =

@@ -42,14 +42,15 @@
  * objects from the output of SoA CA.
  */
 
-//#define GPU_DEBUG
+#define GPU_DEBUG
 
 template <typename TrackerTraits>
 class PixelTrackProducerFromSoAAlpaka : public edm::global::EDProducer<> {
-  using TrackSoAHost = TracksHost<TrackerTraits>;
-  using TracksHelpers = TracksUtilities<TrackerTraits>;
+  using TrackSoAHost = reco::TracksHost;
   using HMSstorage = std::vector<uint32_t>;
   using IndToEdm = std::vector<uint32_t>;
+  using TrackHitSoA = reco::TrackHitSoA;
+
 
 public:
   explicit PixelTrackProducerFromSoAAlpaka(const edm::ParameterSet &iConfig);
@@ -168,7 +169,9 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
 
   auto const &tsoa = iEvent.get(tokenTrack_);
   auto const *quality = tsoa.view().quality();
-  auto const &hitIndices = tsoa.view().hitIndices();
+  auto const *hitOffs = tsoa.view().hitOffsets();
+  auto const *hitIdxs = tsoa.template view<TrackHitSoA>().id();
+  // auto const &hitIndices = tsoa.view().hitIndices();
   auto nTracks = tsoa.view().nTracks();
 
   tracks.reserve(nTracks);
@@ -189,7 +192,8 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
   //store the index of the SoA: indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
   indToEdm.resize(sortIdxs.size(), -1);
   for (const auto &it : sortIdxs) {
-    auto nHits = TracksHelpers::nHits(tsoa.view(), it);
+    std::cout << it << std::endl;
+    auto nHits = reco::nHits(tsoa.view(), it);
     assert(nHits >= 3);
     auto q = quality[it];
 
@@ -201,17 +205,19 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
     ++nt;
 
     hits.resize(nHits);
-    auto b = hitIndices.begin(it);
-    for (int iHit = 0; iHit < nHits; ++iHit)
-      hits[iHit] = hitmap[*(b + iHit)];
+    auto start = (it==0)? 0 : hitOffs[it-1];
+    auto end = hitOffs[it];
 
+    for (auto iHit = start; iHit < end; ++iHit)
+      hits[iHit - start] = hitmap[hitIdxs[start]];
+  
     // mind: this values are respect the beamspot!
     float chi2 = tsoa.view()[it].chi2();
     float phi = reco::phi(tsoa.view(), it);
 
     riemannFit::Vector5d ipar, opar;
     riemannFit::Matrix5d icov, ocov;
-    TracksHelpers::template copyToDense<riemannFit::Vector5d, riemannFit::Matrix5d>(tsoa.view(), ipar, icov, it);
+    reco::copyToDense<riemannFit::Vector5d, riemannFit::Matrix5d>(tsoa.view(), ipar, icov, it);
     riemannFit::transformToPerigeePlane(ipar, icov, opar, ocov);
 
     LocalTrajectoryParameters lpar(opar(0), opar(1), opar(2), opar(3), opar(4), 1.);

@@ -289,13 +289,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
 template <typename TrackerTraits>
-  TracksSoACollection<TrackerTraits> CAHitNtupletGenerator<TrackerTraits>::makeTuplesAsync(
+  reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::makeTuplesAsync(
       HitsOnDevice const& hits_d, FrameOnDevice const& frame, CAParamsOnDevice const& params_d, float bfield, Queue& queue) const {
     using HelixFit = HelixFit<TrackerTraits>;
-    using TrackSoA = TracksSoACollection<TrackerTraits>;
     using GPUKernels = CAHitNtupletGeneratorKernels<TrackerTraits>;
+    using TrackHitSoA = ::reco::TrackHitSoA;
+    using HitContainer = caStructures::HitContainerT<TrackerTraits>;
+    static constexpr int32_t S = TrackerTraits::maxNumberOfTuples; 
+    static constexpr int32_t H = TrackerTraits::avgHitsPerTrack;
 
-    TrackSoA tracks(queue);
+    reco::TracksSoACollection tracks({{S,H*S}},queue);
 
     // Don't bother if less than 2 this
     if (hits_d.view().metadata().size() < 2) {
@@ -304,14 +307,14 @@ template <typename TrackerTraits>
       alpaka::memset(queue, ntracks_d, 0);
       return tracks;
     }
-    GPUKernels kernels(m_params, hits_d.view(), queue);
+    GPUKernels kernels(m_params, hits_d.view(), params_d.view().metadata().size(), queue);
 
     kernels.prepareHits(hits_d.view(), params_d.view(),queue);
     kernels.buildDoublets(hits_d.view(), params_d.view<::reco::CACellsSoA>(), hits_d.offsetBPIX2(), queue);
-    kernels.launchKernels(hits_d.view(), hits_d.offsetBPIX2(), tracks.view(), queue);
+    kernels.launchKernels(hits_d.view(), hits_d.offsetBPIX2(), params_d.view().metadata().size(), tracks.view(), tracks. template view<TrackHitSoA>(), queue);
 
     HelixFit fitter(bfield, m_params.fitNas4_);
-    fitter.allocate(kernels.tupleMultiplicity(), tracks.view());
+    fitter.allocate(kernels.tupleMultiplicity(), tracks.view(), kernels.hitContainer());
     if (m_params.useRiemannFit_) {
       fitter.launchRiemannKernels(
           hits_d.view(), frame.view(), hits_d.view().metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);

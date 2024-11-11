@@ -13,9 +13,8 @@
 #include "CAStructures.h"
 
 template <typename TrackerTraits>
-using Tuples = typename reco::TrackSoA<TrackerTraits>::HitContainer;
-template <typename TrackerTraits>
-using OutputSoAView = reco::TrackSoAView<TrackerTraits>;
+using Tuples = caStructures::HitContainerT<TrackerTraits>;
+using OutputSoAView = reco::TrackSoAView;
 template <typename TrackerTraits>
 using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
 
@@ -145,7 +144,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
                                   uint32_t nHits,
                                   double bField,
-                                  OutputSoAView<TrackerTraits> results_view,
+                                  OutputSoAView results_view,
                                   double *__restrict__ phits,
                                   float *__restrict__ phits_ge,
                                   double *__restrict__ pfast_fit_input,
@@ -174,7 +173,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         riemannFit::fromCircleToPerigee(acc, circle_fit[local_idx]);
 
-        TracksUtilities<TrackerTraits>::copyFromCircle(results_view,
+        reco::copyFromCircle(results_view,
                                                        circle_fit[local_idx].par,
                                                        circle_fit[local_idx].cov,
                                                        line_fit.par,

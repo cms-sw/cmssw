@@ -214,7 +214,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     using HitsView = TrackingRecHitSoAView<TrackerTraits>;
     using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
-    using TkSoAView = ::reco::TrackSoAView<TrackerTraits>;
+    using TkSoAView = ::reco::TrackSoAView;
+    using TkHitsSoAView = ::reco::TrackHitSoAView;
 
     using HitToTuple = caStructures::template HitToTupleT<TrackerTraits>;
     using HitToTupleView = typename HitToTuple::View;
@@ -244,20 +245,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using PhiBinnerStorageType = typename PhiBinner::index_type;
     using PhiBinnerView = typename PhiBinner::View;
 
-    CAHitNtupletGeneratorKernels(Params const& params, const HitsConstView &hh, Queue& queue);
+    CAHitNtupletGeneratorKernels(Params const& params, const HitsConstView &hh, uint16_t nLayers, Queue& queue);
     ~CAHitNtupletGeneratorKernels() = default;
 
     TupleMultiplicity const* tupleMultiplicity() const { return device_tupleMultiplicity_.data(); }
+    HitContainer const* hitContainer() const { return device_hitContainer_.data(); }
 
     void prepareHits(const HitsConstView& hh, const ::reco::CALayersSoAConstView& ll, Queue& queue);
 
-    void launchKernels(const HitsConstView& hh, uint32_t offsetBPIX2, TkSoAView& track_view, Queue& queue);
+    void launchKernels(const HitsConstView& hh, uint32_t offsetBPIX2, uint16_t nLayers, TkSoAView& track_view, TkHitsSoAView& track_hits_view, Queue& queue);
 
     void classifyTuples(const HitsConstView& hh, TkSoAView& track_view, Queue& queue);
 
     void buildDoublets(const HitsConstView& hh, const ::reco::CACellsSoAConstView& cc, uint32_t offsetBPIX2, Queue& queue);
 
     static void printCounters();
+
+    
 
   private:
     // params
@@ -275,7 +279,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::alpakatools::device_buffer<Device, hindex_type[]> device_layerStarts_;
 
     // Tracks
-    HitContainer device_hitContainer_;
+    cms::alpakatools::device_buffer<Device, HitContainer> device_hitContainer_;
 
     HitToTupleView device_hitToTupleView_;
     cms::alpakatools::device_buffer<Device, TupleMultiplicity> device_tupleMultiplicity_;

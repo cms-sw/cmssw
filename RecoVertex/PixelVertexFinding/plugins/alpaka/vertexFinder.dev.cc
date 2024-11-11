@@ -29,17 +29,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     class LoadTracks {
     public:
       ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                    reco::TrackSoAConstView<TrackerTraits> tracks_view,
+                                    ::reco::TrackSoAConstView tracks_view,
                                     VtxSoAView data,
                                     TrkSoAView trkdata,
                                     WsSoAView ws,
                                     float ptMin,
                                     float ptMax) const {
         auto const* quality = tracks_view.quality();
-        using helper = TracksUtilities<TrackerTraits>;
 
         for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.nTracks())) {
-          [[maybe_unused]] auto nHits = helper::nHits(tracks_view, idx);
+          [[maybe_unused]] auto nHits = reco::nHits(tracks_view, idx);
           ALPAKA_ASSERT_ACC(nHits >= 3);
 
           // initialize the track data
@@ -127,7 +126,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <typename TrackerTraits>
     ZVertexSoACollection Producer<TrackerTraits>::makeAsync(Queue& queue,
-                                                            reco::TrackSoAConstView<TrackerTraits> const& tracks_view,
+                                                            ::reco::TrackSoAConstView const& tracks_view,
                                                             int maxVertices,
                                                             float ptMin,
                                                             float ptMax) const {

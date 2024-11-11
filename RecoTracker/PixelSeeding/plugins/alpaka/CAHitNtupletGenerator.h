@@ -6,6 +6,8 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
+#include "DataFormats/TrackSoA/interface/TracksHost.h"
+#include "DataFormats/TrackSoA/interface/TracksDevice.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -39,9 +41,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using OuterHitOfCell = caStructures::OuterHitOfCellT<TrackerTraits>;
 
     using CACell = CACellT<TrackerTraits>;
-    using TkSoAHost = TracksHost<TrackerTraits>;
-    using TkSoADevice = TracksSoACollection<TrackerTraits>;
-    using HitContainer = typename ::reco::TrackSoA<TrackerTraits>::HitContainer;
+    using TkSoADevice = reco::TracksSoACollection;
+    using HitContainer = caStructures::HitContainerT<TrackerTraits>;
     using Tuple = HitContainer;
 
     using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;

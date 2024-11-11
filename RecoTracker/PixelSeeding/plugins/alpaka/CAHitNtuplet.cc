@@ -35,8 +35,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using HitsOnDevice = TrackingRecHitsSoACollection<TrackerTraits>;
     using HitsOnHost = TrackingRecHitHost<TrackerTraits>;
 
-    using TkSoAHost = TracksHost<TrackerTraits>;
-    using TkSoADevice = TracksSoACollection<TrackerTraits>;
+    using TkSoAHost = ::reco::TracksHost;
+    using TkSoADevice = reco::TracksSoACollection;
 
     using Algo = CAHitNtupletGenerator<TrackerTraits>;
 
