@@ -23,7 +23,7 @@
 
 // Each test binary is built for a single Alpaka backend.
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
-
+using namespace ALPAKA_ACCELERATOR_NAMESPACE::reco;
 int main() {
   // Get the list of devices on the current platform.
   auto const& devices = cms::alpakatools::devices<Platform>();
@@ -39,7 +39,7 @@ int main() {
 
     // Inner scope to deallocate memory before destroying the stream.
     {
-      TracksSoACollection<pixelTopology::Phase1> tracks_d(queue);
+      TracksSoACollection tracks_d({{1000,5000}},queue);
 
       test::testTrackSoA<pixelTopology::Phase1>(queue, tracks_d.view());
 
