@@ -222,7 +222,6 @@ private:
 
   // DNN for PFID photon enabled
   bool dnnPFidEnabled_;
-  std::vector<tensorflow::Session*> tfSessions_;
 
   double ecaldrMax_;
   double ecaldrVetoBarrel_;
@@ -477,9 +476,6 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
 
   const auto& pset_dnn = config.getParameter<edm::ParameterSet>("PhotonDNNPFid");
   dnnPFidEnabled_ = pset_dnn.getParameter<bool>("enabled");
-  if (dnnPFidEnabled_) {
-    tfSessions_ = gcache->photonDNNEstimator->getSessions();
-  }
 }
 
 std::unique_ptr<CacheData> GEDPhotonProducer::initializeGlobalCache(const edm::ParameterSet& config) {
@@ -487,11 +483,7 @@ std::unique_ptr<CacheData> GEDPhotonProducer::initializeGlobalCache(const edm::P
   return std::make_unique<CacheData>(config);
 }
 
-void GEDPhotonProducer::endStream() {
-  for (auto session : tfSessions_) {
-    tensorflow::closeSession(session);
-  }
-}
+void GEDPhotonProducer::endStream() {}
 
 void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eventSetup) {
   using namespace edm;
@@ -1041,7 +1033,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
   if (dnnPFidEnabled_) {
     // Here send the list of photons to the PhotonDNNEstimator and get back the values for all the photons in one go
     LogDebug("GEDPhotonProducer") << "Getting DNN PFId for photons";
-    const auto& dnn_photon_pfid = globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection, tfSessions_);
+    const auto& dnn_photon_pfid = globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection);
     size_t ipho = 0;
     for (auto& photon : outputPhotonCollection) {
       const auto& [iModel, values] = dnn_photon_pfid[ipho];

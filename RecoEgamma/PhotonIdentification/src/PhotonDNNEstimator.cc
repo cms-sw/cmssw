@@ -29,8 +29,6 @@ PhotonDNNEstimator::PhotonDNNEstimator(const egammaTools::DNNConfiguration& cfg,
                  PhotonDNNEstimator::dnnAvaibleInputs),
       useEBModelInGap_(useEBModelInGap) {}
 
-std::vector<tensorflow::Session*> PhotonDNNEstimator::getSessions() const { return dnnHelper_.getSessions(); };
-
 const std::vector<std::string> PhotonDNNEstimator::dnnAvaibleInputs = {{"pt",
                                                                         "eta",
                                                                         "hadTowOverEm",
@@ -67,12 +65,12 @@ std::map<std::string, float> PhotonDNNEstimator::getInputsVars(const reco::Photo
 }
 
 std::vector<std::pair<uint, std::vector<float>>> PhotonDNNEstimator::evaluate(
-    const reco::PhotonCollection& photons, const std::vector<tensorflow::Session*>& sessions) const {
+    const reco::PhotonCollection& photons) const {
   // Collect the map of variables for each candidate and call the dnnHelper
   // Scaling, model selection and running is performed in the helper
   std::vector<std::map<std::string, float>> inputs;
   for (const auto& photon : photons) {
     inputs.push_back(getInputsVars(photon));
   }
-  return dnnHelper_.evaluate(inputs, sessions);
+  return dnnHelper_.evaluate(inputs);
 }
