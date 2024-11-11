@@ -49,16 +49,13 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuBMLUTHandler::L1MuBMLUTHandler(const L1TMuonBarrelParams &l1params) {
-  // l1tbmparams = &l1params;
-  l1tbmparams = new L1TMuonBarrelParamsAllPublic(l1params);
-}
+L1MuBMLUTHandler::L1MuBMLUTHandler(const L1TMuonBarrelParams& l1params) { l1tbmparams = &l1params; }
 
 //--------------
 // Destructor --
 //--------------
 
-L1MuBMLUTHandler::~L1MuBMLUTHandler() { delete l1tbmparams; }
+L1MuBMLUTHandler::~L1MuBMLUTHandler() {}
 
 //--------------
 // Operations --
@@ -97,7 +94,7 @@ void L1MuBMLUTHandler::print_pta_lut() const {
     for (int i = 0; i < maxbits; i++)
       cout << '-';
     cout << "-------------------------" << endl;
-    std::vector<L1TMuonBarrelParams::LUT> pta_lut = l1tbmparams->pta_lut();
+    std::vector<L1TMuonBarrelParams::LUT> const& pta_lut = l1tbmparams->pta_lut();
 
     L1TMuonBarrelParams::LUT::const_iterator iter = pta_lut[pam].begin();
     while (iter != pta_lut[pam].end()) {
@@ -129,7 +126,7 @@ void L1MuBMLUTHandler::print_pta_lut() const {
 // get pt value for a given address
 //
 int L1MuBMLUTHandler::getPt(int pta_ind, int address) const {
-  std::vector<L1TMuonBarrelParams::LUT> pta_lut = l1tbmparams->pta_lut();
+  std::vector<L1TMuonBarrelParams::LUT> const& pta_lut = l1tbmparams->pta_lut();
 
   L1TMuonBarrelParams::LUT::const_iterator iter = pta_lut[pta_ind].find(address);
   if (iter != pta_lut[pta_ind].end()) {
@@ -146,7 +143,7 @@ int L1MuBMLUTHandler::getPt(int pta_ind, int address) const {
 // get pt-assignment LUT threshold
 //
 int L1MuBMLUTHandler::getPtLutThreshold(int pta_ind) const {
-  std::vector<int> pta_threshold = l1tbmparams->pta_threshold();
+  std::vector<int> const& pta_threshold = l1tbmparams->pta_threshold();
   if (pta_ind >= 0 && pta_ind < L1MuBMLUTHandler::MAX_PTASSMETH / 2) {
     return pta_threshold[pta_ind];
   } else {
@@ -159,7 +156,7 @@ int L1MuBMLUTHandler::getPtLutThreshold(int pta_ind) const {
 // get delta-phi value for a given address
 //
 int L1MuBMLUTHandler::getDeltaPhi(int idx, int address) const {
-  std::vector<L1TMuonBarrelParams::LUT> phi_lut = l1tbmparams->phi_lut();
+  std::vector<L1TMuonBarrelParams::LUT> const& phi_lut = l1tbmparams->phi_lut();
   L1TMuonBarrelParams::LUT::const_iterator iter = phi_lut[idx].find(address);
   if (iter != phi_lut[idx].end()) {
     return (*iter).second;
@@ -210,7 +207,7 @@ void L1MuBMLUTHandler::print_phi_lut() const {
     for (int i = 0; i < nbit_phi + nbit_phib; i++)
       cout << '-';
     cout << "----------------------" << endl;
-    std::vector<L1TMuonBarrelParams::LUT> phi_lut = l1tbmparams->phi_lut();
+    std::vector<L1TMuonBarrelParams::LUT> const& phi_lut = l1tbmparams->phi_lut();
 
     L1TMuonBarrelParams::LUT::const_iterator iter = phi_lut[idx].begin();
     while (iter != phi_lut[idx].end()) {
@@ -245,7 +242,7 @@ void L1MuBMLUTHandler::print_phi_lut() const {
 // get low_value for a given address
 //
 int L1MuBMLUTHandler::getLow(int ext_ind, int address) const {
-  std::vector<L1TMuonBarrelParams::LUTParams::extLUT> ext_lut = l1tbmparams->ext_lut();
+  std::vector<L1TMuonBarrelParams::LUTParams::extLUT> const& ext_lut = l1tbmparams->ext_lut();
   L1TMuonBarrelParams::LUT::const_iterator iter = ext_lut[ext_ind].low.find(address);
   if (iter != ext_lut[ext_ind].low.end()) {
     return (*iter).second;
@@ -259,7 +256,7 @@ int L1MuBMLUTHandler::getLow(int ext_ind, int address) const {
 // get high_value for a given address
 //
 int L1MuBMLUTHandler::getHigh(int ext_ind, int address) const {
-  std::vector<L1TMuonBarrelParams::LUTParams::extLUT> ext_lut = l1tbmparams->ext_lut();
+  std::vector<L1TMuonBarrelParams::LUTParams::extLUT> const& ext_lut = l1tbmparams->ext_lut();
   L1TMuonBarrelParams::LUT::const_iterator iter = ext_lut[ext_ind].high.find(address);
   if (iter != ext_lut[ext_ind].high.end()) {
     return (*iter).second;
@@ -300,7 +297,7 @@ void L1MuBMLUTHandler::print_ext_lut() const {
     for (int i = 0; i < 2 * nbit_phi + nbit_phib; i++)
       cout << '-';
     cout << "---------------------------------" << endl;
-    std::vector<L1TMuonBarrelParams::LUTParams::extLUT> ext_lut = l1tbmparams->ext_lut();
+    std::vector<L1TMuonBarrelParams::LUTParams::extLUT> const& ext_lut = l1tbmparams->ext_lut();
     L1TMuonBarrelParams::LUT::const_iterator iter = ext_lut[ext].low.begin();
     L1TMuonBarrelParams::LUT::const_iterator iter1;
     while (iter != ext_lut[ext].low.end()) {

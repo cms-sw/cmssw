@@ -76,11 +76,7 @@ void L1MuBMTFConfig::setDefaults(const edm::ParameterSet& ps) {
     cout << "L1 barrel Track Finder : debug level: " << m_dbgLevel << endl;
 }
 
-void L1MuBMTFConfig::setDefaultsES(const L1TMuonBarrelParams& bmParams) {
-  // L1TMuonBarrelParams *bmtfParams = new L1TMuonBarrelParams();
-  // bmtfParams = new L1TMuonBarrelParams(*bmtfParamsHandle.product());
-  L1TMuonBarrelParamsAllPublic bmtfParams{bmParams};
-
+void L1MuBMTFConfig::setDefaultsES(const L1TMuonBarrelParams& bmtfParams) {
   // set min and max bunch crossing
   m_BxMin = bmtfParams.get_BX_min();
   m_BxMax = bmtfParams.get_BX_max();

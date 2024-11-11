@@ -27,7 +27,6 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsAllPublic.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"

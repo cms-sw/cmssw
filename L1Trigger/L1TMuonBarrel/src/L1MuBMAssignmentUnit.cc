@@ -196,8 +196,7 @@ void L1MuBMAssignmentUnit::PhiAU(const L1TMuonBarrelParams& bmtfParams) {
 //
 // assign pt with 5 bit precision
 //
-void L1MuBMAssignmentUnit::PtAU(const L1TMuonBarrelParams& bmtfParams1) {
-  const L1TMuonBarrelParamsAllPublic bmtfParams(bmtfParams1);
+void L1MuBMAssignmentUnit::PtAU(const L1TMuonBarrelParams& bmtfParams) {
   thePtaLUTs = new L1MuBMLUTHandler(bmtfParams);  ///< pt-assignment look-up tables
   //thePtaLUTs->print();
   // get pt-assignment method as function of track class and TS phib values
