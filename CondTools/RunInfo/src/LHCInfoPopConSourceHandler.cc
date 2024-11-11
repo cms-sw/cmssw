@@ -10,11 +10,11 @@
 #include "CoralBase/TimeStamp.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ISessionProxy.h"
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <utility>
@@ -455,7 +455,7 @@ bool LHCInfoPopConSourceHandler::getEcalData(cond::persistency::Session& session
         dipVal = dipValAttribute.data<std::string>();
         elementNr = elementNrAttribute.data<unsigned int>();
         value = valueNumberAttribute.data<float>();
-        if (std::isnan(value))
+        if (edm::isNotFinite(value))
           value = 0.;
         if (filter.process(iovTime)) {
           iovMap.insert(std::make_pair(changeTime, filter.current()->first));
