@@ -68,6 +68,7 @@ L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet& ps, edm::ConsumesC
 
   m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(config().getBMDigiInputTag());
   m_mbParamsToken = iC.esConsumes();
+  setup(std::move(iC));
 }
 
 //--------------
