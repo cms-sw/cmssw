@@ -121,11 +121,11 @@ void CMSG4CheckOverlap::makeReportForMaterials(std::ofstream& fout) {
        << "\n";
   fout << "ElementsDump:"
        << "\n";
-  G4ElementTable* elmtab = G4Element::GetElementTable();
+  const auto elmtab = G4Element::GetElementTable();
   fout << *elmtab;
   fout << "====================================================================="
        << "\n";
-  G4MaterialTable* mattab = G4Material::GetMaterialTable();
+  const auto mattab = G4Material::GetMaterialTable();
   fout << "MaterialsDump:"
        << "\n";
   //fout << *mattab << "\n";
