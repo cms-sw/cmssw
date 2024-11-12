@@ -6,7 +6,7 @@ cat << EOF
 examples:
     ./genLUT.sh dumpAll card=cardPhysics.sh
     ./genLUT.sh generate card=cardPhysics.sh
-    ./genLUT.sh diff conditions/newtag/newtag.xml conditions/oldtag/oldtag.xml
+    ./genLUT.sh diff card=cardPhysics.sh conditions/newtag/newtag.xml conditions/oldtag/oldtag.xml
     ./genLUT.sh validate card=cardPhysics.sh
 
 EOF
@@ -141,6 +141,7 @@ then
     -e "s#__CONDDIR__#$BaseDir/$CondDir#g" \
     -e "s#__GlobalTag__#$GlobalTag#g" \
     -e "s#__HO_master_file__#$HOAsciiInput#g" \
+    -e "s#__ERA__#$Era#g" \
     $templatefile > $Tag.py
 
     echo "genLUT.sh::generate: Running..."
@@ -274,19 +275,21 @@ then
 	exit 1
     fi
 
-    CheckFile $2
+    source $card
+
+    lutFile1="$BaseDir/$3"
+    lutFile2="$BaseDir/$4"
     CheckFile $3
-    echo $BaseDir/$2,$BaseDir/$3
+    CheckFile $4
+    echo $lutFile1,$lutFile2
 
     if [[ -z $verbosity ]]
     then
 	verbosity=0
     fi
 
-    hcalLUT diff inputFiles=$BaseDir/$2,$BaseDir/$3 section=$verbosity
+    cmsRun DiffLUT.py globaltag=$GlobalTag run=$Run lutXML1=$lutFile1 lutXML2=$lutFile2 verbosity=$verbosity 
 
 else
     dumpHelpAndExit
 fi
-
-

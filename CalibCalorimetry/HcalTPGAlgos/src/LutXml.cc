@@ -23,6 +23,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcalEmap.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 
 using namespace std;
@@ -32,7 +33,6 @@ LutXml::Config::_Config() {
   infotype = "LUT";
   ieta = -1000;
   iphi = -1000;
-  depth = -1;
   crate = -1;
   slot = -1;
   topbottom = -1;
@@ -314,28 +314,18 @@ int LutXml::test_access(std::string filename) {
   return 0;
 }
 
-HcalSubdetector LutXml::subdet_from_crate(int crate_, int slot, int fiber) {
-  // HBHE: 0,1,4,5,10,11,14,15,17 (+20)
-  // HF: 2,9,12  (+20)
-  // HO: 3,6,7,13,18  (+20)
-  int crate = crate_ < 20 ? crate_ : crate_ - 20;
-  if (crate == 2 || crate == 9 || crate == 12)
-    return HcalForward;
-  else if (crate == 3 || crate == 6 || crate == 7 || crate == 13 || crate == 18)
-    return HcalOuter;
-  else if (crate == 0 || crate == 1 || crate == 4 || crate == 5 || crate == 10 || crate == 11 || crate == 14 ||
-           crate == 15 || crate == 17) {
-    if (slot % 3 == 1)
-      return HcalBarrel;
-    else if (slot % 3 == 0)
-      return HcalEndcap;
-    else if (fiber < 12)
-      return HcalBarrel;
-    else
-      return HcalEndcap;
+DetId LutXml::detid_from_crate(
+    int crate, int slot, int fiber, int fiberch, bool isTrigger, const HcalElectronicsMap *emap) {
+  HcalElectronicsId electronicsId = HcalElectronicsId(crate, slot, fiber, fiberch, isTrigger);
+
+  DetId detId = emap->lookup(electronicsId);
+  if (detId.null()) {
+    edm::LogWarning("LutXml") << "Invalid electronics ID or no mapping found for crate: " << crate << " slot: " << slot
+                              << " fiber: " << fiber << " fiberch: " << fiberch << std::endl;
+    return 0;
+  } else {
+    return detId;
   }
-  edm::LogWarning("LutXml::subdet_from_crate") << "crate " << crate_ << " is not accounted for";
-  return HcalEmpty;
 }
 
 int LutXml::a_to_i(char *inbuf) {
@@ -345,11 +335,7 @@ int LutXml::a_to_i(char *inbuf) {
 }
 
 // organize all LUTs in XML into a map for fast access
-//
-// FIXME: uses hardcoded CRATE-to-subdetector mapping
-// FIXME: it would be better to use some official map
-//
-int LutXml::create_lut_map(void) {
+int LutXml::create_lut_map(const HcalElectronicsMap *emap) {
   //delete lut_map;
   lut_map.clear();
   //lut_map = new std::map<uint32_t,std::vector<unsigned int> >();
@@ -364,13 +350,12 @@ int LutXml::create_lut_map(void) {
       int n_of_par = par_list->getLength();
       int ieta = -99;
       int iphi = -99;
-      int depth = -99;
       int crate = -99;
       int slot = -99;
       int fiber = -99;
-      int lut_type = -99;
+      int fiberch = -99;
       int slb = -99;
-      HcalSubdetector subdet;
+      int lut_type = -99;
       for (int j = 0; j != n_of_par; j++) {
         DOMElement *aPar = (DOMElement *)(par_list->item(j));
         char *aName = XMLString::transcode(aPar->getAttribute(XMLProcessor::_toXMLCh("name")));
@@ -378,20 +363,20 @@ int LutXml::create_lut_map(void) {
           ieta = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
         if (strcmp(aName, "IPHI") == 0)
           iphi = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
-        if (strcmp(aName, "DEPTH") == 0)
-          depth = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
         if (strcmp(aName, "CRATE") == 0)
           crate = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
         if (strcmp(aName, "SLOT") == 0)
           slot = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
+        if (strcmp(aName, "FIBERCHAN") == 0)
+          fiberch = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
         if (strcmp(aName, "FIBER") == 0)
           fiber = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
-        if (strcmp(aName, "LUT_TYPE") == 0)
-          lut_type = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
         if (strcmp(aName, "SLB") == 0)
           slb = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
+        if (strcmp(aName, "LUT_TYPE") == 0)
+          lut_type = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
       }
-      subdet = subdet_from_crate(crate, slot, fiber);
+
       DOMElement *_data = (DOMElement *)(aBrick->getElementsByTagName(XMLString::transcode("Data"))->item(0));
       char *_str = XMLString::transcode(_data->getFirstChild()->getNodeValue());
 
@@ -437,11 +422,18 @@ int LutXml::create_lut_map(void) {
           }
         }
       }
+
       // filling the map
       uint32_t _key = 0;
       if (lut_type == 1) {
-        HcalDetId _id(subdet, ieta, iphi, depth);
-        _key = _id.rawId();
+        DetId detId = detid_from_crate(crate, slot, fiber, fiberch, false, emap);
+        if (detId.det() == DetId::Hcal) {
+          HcalDetId _id(detId);
+          _key = _id.rawId();
+        } else if (detId.det() == DetId::Calo && detId.subdetId() == HcalZDCDetId::SubdetectorId) {
+          HcalZDCDetId _id(detId);
+          _key = _id.rawId();
+        }
       } else if (lut_type == 2) {
         int version = (abs(ieta) > 29 && slb != 12 && crate > 20) ? 1 : 0;
         HcalTrigTowerDetId _id(ieta, iphi, 10 * version);
