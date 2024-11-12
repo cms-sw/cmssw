@@ -1574,7 +1574,7 @@ class ConfigBuilder(object):
                 if objType == cms.Path:
                     triggerPaths.append(objName)
         
-        triggerScheduleList = [getattr(self.process, name) for name in triggerPaths] #get the actual paths to put in the schedule
+        triggerScheduleList = [getattr(self.process, name) for name in sorted(triggerPaths)] #get the actual paths to put in the schedule
         self.schedule.extend(triggerScheduleList) #put them in the schedule for later
     
     # create the L1 GT step
