@@ -51,11 +51,11 @@ if (options.type == "DD4hep"):
     elif (options.geometry == "D104"):
         from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
         process = cms.Process('SingleMuonSim',Phase2C22I13M9,dd4hep)
-        geomFile = "Configuration.Geometry.Geometry" + options.type +"Extended2026" + options.geometry + "Reco_cff"
+        geomFile = "Configuration.Geometry.Geometry" + options.type +"ExtendedRun4" + options.geometry + "Reco_cff"
     else:
         from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
         process = cms.Process('SingleMuonSim',Phase2C17I13M9,dd4hep)
-        geomFile = "Configuration.Geometry.Geometry" + options.type +"Extended2026" + options.geometry + "Reco_cff"
+        geomFile = "Configuration.Geometry.Geometry" + options.type +"ExtendedRun4" + options.geometry + "Reco_cff"
 else:
     if (options.geometry == "V17Shift"):
         from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
@@ -64,11 +64,11 @@ else:
     elif (options.geometry == "D104"):
         from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
         process = cms.Process('SingleMuonSim',Phase2C22I13M9)
-        geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+        geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
     else:
         from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
         process = cms.Process('SingleMuonSim',Phase2C17I13M9)
-        geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+        geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 globalTag = "auto:phase2_realistic_T33"
 inFile = "file:step2" + options.type + options.geometry + options.data + ".root"
 outFile = "file:step3" + options.type + options.geometry + options.data  + ".root"
