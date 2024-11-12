@@ -165,6 +165,9 @@ public:
   /** @brief Gives the total number of SimHits, in the cluster */
   int numberOfRecHits() const { return hits_.size(); }
 
+  /** @brief returns the time in ns of the caloparticle */
+  float simTime() const { return time_; }
+
   /** @brief add rechit with fraction */
   void addRecHitAndFraction(uint32_t hit, float fraction) {
     hits_.emplace_back(hit);
@@ -189,12 +192,16 @@ public:
     ++nsimhits_;
   }
 
+  /** @brief add vertex time to the caloparticle */
+  void addSimTime(const float time) { time_ = time; }
+
 protected:
   uint64_t nsimhits_{0};
   EncodedEventId event_;
 
   uint32_t particleId_{0};
   float simhit_energy_{0.f};
+  float time_{std::numeric_limits<float>::lowest()};
   std::vector<uint32_t> hits_;
   std::vector<float> fractions_;
 
