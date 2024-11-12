@@ -66,11 +66,11 @@ DeepCSVDiscriminators = {
 # DeepFlavour (aka DeepJet)
 #
 ############################################################
-# recommendation for UL18: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation106XUL18
+# Summer23BPix Working points
 deepFlavourWP = {
-    'BvsAll': 0.0490, # loose
-    'CvsL':   0.099,  # medium
-    'CvsB':   0.325,  # medium
+    'BvsAll': 0.048, # loose
+    'CvsL':   0.102,  # medium
+    'CvsB':   0.328,  # medium
 }
 
 DeepFlavourDiscriminators = {
@@ -143,12 +143,18 @@ for meta_tagger in pfParticleNetFromMiniAODAK4PuppiCentralJetTagsMetaDiscr:
             commonTaggerConfig,
             bTagGenericAnalysisBlock
         )
+        if "BvsAll" in discr:
+            ParticleNetPuppiCentralDiscriminators[discr].discrCut = cms.double(0.0359)#Summer23BPix Loose WP
     elif "Cvs" in discr:
         ParticleNetPuppiCentralDiscriminators[discr] = cms.PSet(
             commonTaggerConfig,
             cTagGenericAnalysisBlock,
         )
         ParticleNetPuppiCentralDiscriminators[discr].CTagPlots = True
+        if "CvsB" in discr:
+            ParticleNetPuppiCentralDiscriminators[discr].discrCut = cms.double(0.358)#Summer23BPix Medium WP
+        if "CvsL" in discr:
+            ParticleNetPuppiCentralDiscriminators[discr].discrCut = cms.double(0.149)#Summer23BPix Medium WP
     elif "TauVs" in discr:
         ParticleNetPuppiCentralDiscriminators[discr] = cms.PSet(
             commonTaggerConfig,
