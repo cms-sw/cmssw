@@ -56,6 +56,11 @@ private:
   float clusterGlobalX_;
   float clusterGlobalY_;
   float clusterGlobalZ_;
+
+   bool isPSModulePixel_ ;
+   bool isPSModuleStrip_ ;
+   bool is2SModule_      ;
+  
 };
 
 Phase2TrackerDumpDigi::Phase2TrackerDumpDigi(const edm::ParameterSet& pset)
@@ -68,6 +73,9 @@ Phase2TrackerDumpDigi::Phase2TrackerDumpDigi(const edm::ParameterSet& pset)
     tree_ = new TTree("ClusterTree", "Cluster data from Phase2 Tracker");
     
     tree_->Branch("detId", &detId_, "detId/i");
+    tree_->Branch("isPSModulePixel", &isPSModulePixel_, "isPSModulePixel/O");
+    tree_->Branch("isPSModuleStrip", &isPSModuleStrip_, "isPSModuleStrip/O");
+    tree_->Branch("is2SModule", &is2SModule_, "is2SModule/O");
     tree_->Branch("clusterR", &clusterR_, "clusterR/F");
     tree_->Branch("clusterZ", &clusterZ_, "clusterZ/F");
     tree_->Branch("clusterCenter", &clusterCenter_, "clusterCenter/F");
@@ -118,8 +126,13 @@ void Phase2TrackerDumpDigi::analyze(const edm::Event& event, const edm::EventSet
       continue;
 
     detId_ = detId.rawId();
-    output << "detId: " << detId.rawId() << std::endl;
-
+    isPSModulePixel_ = tGeom_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP;
+    isPSModuleStrip_ = tGeom_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSS;
+    is2SModule_      = tGeom_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2SS;
+    output << "detId: " << detId.rawId() << "  " ;
+    output << (isPSModulePixel_ ? "isPSModulePixel_" : (isPSModuleStrip_ ? "isPSModuleStrip_" : "is2SModule_")); 
+    output << std::endl;
+    
     for (const auto& clusterItr : DSVItr) {
       clusterCenter_ = clusterItr.center();
       clusterSize_ = clusterItr.size();
