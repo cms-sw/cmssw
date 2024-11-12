@@ -10,6 +10,7 @@
 <use name="GeneratorInterface/ExternalDecays"/>
 <use name="pyquen"/>
 <use name="hepmc"/>
+<flags REM_LDFLAGS="-Wl,--as-needed"/>
 <export>
   <lib name="1"/>
 </export>

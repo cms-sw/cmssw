@@ -1,3 +1,4 @@
+<flags REM_LDFLAGS="-Wl,--as-needed"/>
 <use name="GeneratorInterface/PyquenInterface"/>
 <use name="pydata"/>
 <library file="*.cc" name="GeneratorInterfacePyquenInterfacePlugins">
