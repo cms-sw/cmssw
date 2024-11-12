@@ -1,12 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-# BTagPerformanceAnalyzer configuration                                                                                                                                              
-from DQMOffline.RecoB.bTagGenericAnalysis_cff import bTagGenericAnalysisBlock
-from DQMOffline.RecoB.cTagGenericAnalysis_cff import cTagGenericAnalysisBlock
-from DQMOffline.RecoB.bTagTrackIPAnalysis_cff import bTagTrackIPAnalysisBlock
-from DQMOffline.RecoB.bTagTrackProbabilityAnalysis_cff import bTagProbabilityAnalysisBlock
-
-
+# BTagPerformanceAnalyzer configuration
+from DQMOffline.RecoB.tagGenericAnalysis_cff import bTagGenericAnalysisBlock
+from DQMOffline.RecoB.tagGenericAnalysis_cff import cTagGenericAnalysisBlock
+from DQMOffline.RecoB.tagGenericAnalysis_cff import bTagTrackIPAnalysisBlock
+from DQMOffline.RecoB.tagGenericAnalysis_cff import bTagProbabilityAnalysisBlock
 
 bTagCommonBlock = cms.PSet(
     # use pre-computed jet flavour identification
