@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-geom=Extended2026D110
+geom=ExtendedRun4D110
 VGEO_DIR=${CMSSW_BASE}/src/Validation/Geometry/test
 TEST_DIR=.
 
