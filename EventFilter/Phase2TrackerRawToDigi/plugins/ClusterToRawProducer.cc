@@ -89,10 +89,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
         // Retrieve DTC ID and GBT ID
 
-        if (cable_map.first == cable_map.second) 
-        {
-            continue;
-        }
+        if (cable_map.first == cable_map.second) { continue; }
 
         unsigned int dtc_id, gbt_id, slink_id, slink_id_within;
         for (auto it = cable_map.first; it != cable_map.second; ++it) 
@@ -148,9 +145,9 @@ void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleTyp
         DTCUnit& assignedDtcUnit = dtcAssembly.GetDTCUnit(dtc_id);
 
         unsigned int z = cluster.column();
-        double x = cluster.center();
+        double x = cluster.firstStrip();
 
-        // info that goes into the DAQ payload        
+        // info that goes into the DAQ payload
         unsigned int width = cluster.size();
         unsigned int chipId = 0;
         unsigned int sclusterAddress = 0;
@@ -177,11 +174,11 @@ void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleTyp
 
         else if (moduleType == TrackerGeometry::ModuleType::Ph2SS) 
         {
-            chipId = std::div(x * 2.0, Phase2TrackerSpecifications::CHANNELS_PER_CBC).quot;
-            sclusterAddress = std::div(x * 2.0, Phase2TrackerSpecifications::CHANNELS_PER_CBC).rem;
+            chipId = std::div(x, Phase2TrackerSpecifications::STRIPS_PER_CBC).quot;
+            sclusterAddress = std::div(x, Phase2TrackerSpecifications::STRIPS_PER_CBC).rem;
         }
 
-        sclusterAddress = (is_seed_sensor << 7) | (sclusterAddress & 0x7F);
+        sclusterAddress = ((sclusterAddress & 0x7F) << 1) | (is_seed_sensor & 0x1);
 
         Cluster newCluster(z, x, width, chipId, sclusterAddress, mipbit, cicId, moduleType);
         assignedDtcUnit.getClustersOnSLink(slink_id).at(slink_id_within).push_back(newCluster);
