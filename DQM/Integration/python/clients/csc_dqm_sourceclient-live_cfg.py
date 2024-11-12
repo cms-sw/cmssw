@@ -63,8 +63,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder    = "CSC"
 process.dqmSaver.tag = "CSC"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "CSC"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "CSC"
+# process.dqmSaverPB.runNumber = options.runNumber
 
 
 #process.DQM.collectorHost = 'pccmsdqm02.cern.ch'
@@ -173,8 +173,8 @@ MessageLogger = cms.Service("MessageLogger",
 # Sequences
 #--------------------------
 
-#process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver+process.dqmSaverPB)
-process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
+#process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver)#+process.dqmSaverPB)
+process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver )#+ process.dqmSaverPB)
 
 
 process.castorDigis.InputLabel = "rawDataCollector"

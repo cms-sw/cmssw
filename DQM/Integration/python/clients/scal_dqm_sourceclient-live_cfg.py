@@ -31,8 +31,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'Scal'
 process.dqmSaver.tag = 'Scal'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'Scal'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'Scal'
+# process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 process.load("DQMServices.Components.DQMScalInfo_cfi")
 
@@ -73,7 +73,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.dump = cms.EDAnalyzer('EventContentAnalyzer')
 
 # DQM Modules
-process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
+process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver )#+ process.dqmSaverPB)
 process.evfDQMmodulesPath = cms.Path(
                               process.l1GtUnpack*
 			      process.gtDigis*

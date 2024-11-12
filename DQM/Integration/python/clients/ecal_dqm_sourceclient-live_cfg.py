@@ -141,8 +141,8 @@ process.onlineMetaDataDigis = cms.EDProducer('OnlineMetaDataRawToDigi')
 process.dqmEnv.subSystemFolder = 'Ecal'
 process.dqmSaver.tag = 'Ecal'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'Ecal'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'Ecal'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 process.simEcalTriggerPrimitiveDigis.InstanceEB = "ebDigis"
 process.simEcalTriggerPrimitiveDigis.InstanceEE = "eeDigis"
@@ -174,7 +174,7 @@ process.ecalMonitorPath = cms.Path(process.onlineMetaDataDigis+process.preScaler
 process.ecalClientPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalMonitorClient)
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv)
-process.dqmOutputPath = cms.EndPath(process.dqmSaver + process.dqmSaverPB)
+process.dqmOutputPath = cms.EndPath(process.dqmSaver )#+ process.dqmSaverPB)
 
 ### Schedule ###
 

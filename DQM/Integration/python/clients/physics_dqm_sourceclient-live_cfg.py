@@ -31,8 +31,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'Physics'
 process.dqmSaver.tag = 'Physics'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'Physics'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'Physics'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 # 0=random, 1=physics, 2=calibration, 3=technical
 process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
@@ -58,8 +58,8 @@ process.p = cms.Path(
 #    process.dump *
     process.qcdLowPtDQM *
     process.dqmEnv *
-    process.dqmSaver *
-    process.dqmSaverPB
+    process.dqmSaver # *
+    # process.dqmSaverPB
 )
 
 process.siPixelDigis.cpu.InputLabel = "rawDataCollector"

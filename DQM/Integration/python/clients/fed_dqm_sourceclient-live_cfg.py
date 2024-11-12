@@ -34,8 +34,8 @@ else:
 process.dqmEnv.subSystemFolder = 'FED'
 process.dqmSaver.tag = 'FED'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'FED'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'FED'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 # Subsystem sequences
 
@@ -153,7 +153,7 @@ process.FEDModulesPath = cms.Path(
 process.DQMmodulesPath = cms.Path(
                                     process.dqmEnv
                                   + process.dqmSaver
-                                  + process.dqmSaverPB
+                                  #+ process.dqmSaverPB
                                  )
 
 process.schedule = cms.Schedule(

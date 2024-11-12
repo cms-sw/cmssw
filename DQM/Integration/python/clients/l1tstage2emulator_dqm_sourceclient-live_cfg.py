@@ -39,13 +39,13 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "L1TEMU"
 process.dqmSaver.tag = "L1TEMU"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "L1TEMU"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "L1TEMU"
+# process.dqmSaverPB.runNumber = options.runNumber
 
 process.dqmEndPath = cms.EndPath(
     process.dqmEnv *
-    process.dqmSaver *
-    process.dqmSaverPB
+    process.dqmSaver # *
+    # process.dqmSaverPB
 )
 
 #--------------------------------------------------

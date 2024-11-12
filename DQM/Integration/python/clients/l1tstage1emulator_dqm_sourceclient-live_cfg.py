@@ -32,8 +32,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'L1TEMUStage1'
 process.dqmSaver.tag = 'L1TEMUStage1'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'L1TEMUStage1'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'L1TEMUStage1'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 #
 # no references needed
@@ -92,7 +92,7 @@ process.stage1UnpackerPath = cms.Path(process.caloStage1Digis+process.caloStage1
 process.l1EmulatorMonitorClientPath = cms.Path(process.l1EmulatorMonitorClient)
 
 #
-process.l1EmulatorMonitorEndPath = cms.EndPath(process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
+process.l1EmulatorMonitorEndPath = cms.EndPath(process.dqmEnv*process.dqmSaver)#*process.dqmSaverPB)
 
 #
 
