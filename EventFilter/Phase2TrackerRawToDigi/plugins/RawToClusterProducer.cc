@@ -180,7 +180,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           
           std::vector<uint16_t> clustersWords;
           clustersWords.resize(numClusters);
-          std::vector<Phase2TrackerCluster1D> thisChannel1DClusters;
+          std::vector<Phase2TrackerCluster1D> thisChannel1DSeedClusters, thisChannel1DCorrClusters;
   
           // first retrieve all lines filled with clusters
           std::vector<uint32_t> lines;
@@ -254,7 +254,9 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           int count_clusters = 0;
           for (auto icluster : clustersWords){
             uint32_t chipID = (icluster >> 11) & CHIP_ID_MAX_VALUE;
-            uint32_t sclusterAddress = (icluster >> 3) & SCLUSTER_ADDRESS_MAX_VALUE;
+
+            uint32_t sclusterAddress = (icluster >> 3) & SCLUSTER_ADDRESS_BITS;
+            bool isSeedSensor = (icluster >> 10) & IS_SEED_SENSOR_BITS;
             uint32_t width = icluster &  WIDTH_MAX_VALUE;
 //             std::cout << "[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<3>(chipID) <<   std::endl;
 //             std::cout << "[unpacking] address : " << (sclusterAddress) << "\t " << std::bitset<8>(sclusterAddress) <<   std::endl;
@@ -264,11 +266,14 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             // now, rebasing to PR3
             unsigned int x = CHANNELS_PER_CBC * chipID / 2 + sclusterAddress;
             unsigned int y = iChannel%2 == 0 ? 0 : 1;
-            std::cout << "\t\t cluster#" << count_clusters << "\t x y width : " << x << " " << y << " " << width;
+            std::cout << "\t\t cluster#" << count_clusters << "\t x y width : " << x << " " << y << " " << width << "  is seed:" << isSeedSensor;
 
             Phase2TrackerCluster1D thisCluster = Phase2TrackerCluster1D(x, y, width);
             std::cout << "\t\t check: width from Phase2TrackerCluster1D: " << thisCluster.size() << std::endl;
-            thisChannel1DClusters.push_back(thisCluster);
+            if (isSeedSensor)
+              thisChannel1DSeedClusters.push_back(thisCluster);
+            else  
+              thisChannel1DCorrClusters.push_back(thisCluster);
             count_clusters++;
             
           } // end loop on cluster words 
@@ -292,10 +297,19 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             // FIXME: we should split them by top and bottom sensors (to detIDs)
             std::vector<Phase2TrackerCluster1D>::iterator it;
             {
-              // outer detid is defined as inner detid + 1 or module detid + 2
-              edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spct(*outputClusterCollection, stackMap_[possibleDetIds->second].second);
-              for (it = thisChannel1DClusters.begin(); it != thisChannel1DClusters.end(); it++) {
-                spct.push_back(*it);
+              // inner detid is defined as module detid + 1. First int in the pair from the map
+              std::cout << "\t\t -> detId:" <<  possibleDetIds->second+1 << "  from map: " << stackMap_[possibleDetIds->second].first << std::endl;
+              edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcs(*outputClusterCollection, stackMap_[possibleDetIds->second].first);
+              for (it = thisChannel1DSeedClusters.begin(); it != thisChannel1DSeedClusters.end(); it++) {
+                spcs.push_back(*it);
+              }
+            }
+            {
+              // outer detid is defined as inner detid + 1 or module detid + 2. Second int in the pair from the map
+              std::cout << "\t\t -> detId:" <<  possibleDetIds->second+2 << "  from map: " << stackMap_[possibleDetIds->second].second << std::endl;
+              edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcc(*outputClusterCollection, stackMap_[possibleDetIds->second].second);
+              for (it = thisChannel1DCorrClusters.begin(); it != thisChannel1DCorrClusters.end(); it++) {
+                spcc.push_back(*it);
               }
             }
           }// if detId is found 
