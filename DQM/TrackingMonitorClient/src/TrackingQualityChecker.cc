@@ -304,6 +304,10 @@ void TrackingQualityChecker::fillTrackingStatus(DQMStore::IBooker& ibooker, DQMS
     std::string MEname = it->second.HistoName;
 
     std::vector<MonitorElement*> tmpMEvec = igetter.getContents(ibooker.pwd() + "/" + localMEdirpath);
+    //SeedNStrip and SeedNPixel DQM plots are in SiStrip folder (not inside Tracking folder)
+    if (it->first == "SeedNStrip" or it->first == "SeedNPixel") {
+      tmpMEvec = igetter.getContents(localMEdirpath);
+    }
     if (verbose_)
       edm::LogInfo("TrackingQualityChecker") << "fillTrackingStatus tmpMEvec: " << tmpMEvec.size() << std::endl;
     MonitorElement* me = nullptr;
@@ -410,6 +414,7 @@ void TrackingQualityChecker::fillTrackingStatus(DQMStore::IBooker& ibooker, DQMS
                   << "fillTrackingStatus qt_reports: " << qt_reports.size() << std::endl;
             // loop on possible QTs
             for (auto iQT : qt_reports) {
+              tmp_status = 0;  // reset status
               tmp_status += iQT->getQTresult();
               if (verbose_)
                 edm::LogInfo("TrackingQualityChecker") << "fillTrackingStatus iQT: " << iQT->getQRName() << std::endl;
