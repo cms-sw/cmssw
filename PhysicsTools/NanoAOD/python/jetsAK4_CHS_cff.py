@@ -463,6 +463,8 @@ basicJetsForMetForT1METNano = cms.EDProducer("PATJetCleanerForType1MET",
 )
 
 updatedJetsWithUserData.userFloats.muonSubtrRawPt = cms.InputTag("basicJetsForMetForT1METNano:MuonSubtrRawPt")
+updatedJetsWithUserData.userFloats.muonSubtrRawEta = cms.InputTag("basicJetsForMetForT1METNano:MuonSubtrRawEta")
+updatedJetsWithUserData.userFloats.muonSubtrRawPhi = cms.InputTag("basicJetsForMetForT1METNano:MuonSubtrRawPhi")
 
 corrT1METJetTable = simplePATJetFlatTableProducer.clone(
     src = finalJets.src,
@@ -480,7 +482,11 @@ corrT1METJetTable = simplePATJetFlatTableProducer.clone(
 )
 
 corrT1METJetTable.variables.muonSubtrFactor = Var("1-userFloat('muonSubtrRawPt')/(pt()*jecFactor('Uncorrected'))",float,doc="1-(muon-subtracted raw pt)/(raw pt)",precision=6)
+corrT1METJetTable.variables.muonSubtrDeltaEta = Var("userFloat('muonSubtrRawEta') - eta()",float,doc="muon-subtracted raw eta - eta",precision=10)
+corrT1METJetTable.variables.muonSubtrDeltaPhi = Var("userFloat('muonSubtrRawPhi') - phi()",float,doc="muon-subtracted raw phi - phi",precision=10)
 jetTable.variables.muonSubtrFactor = Var("1-userFloat('muonSubtrRawPt')/(pt()*jecFactor('Uncorrected'))",float,doc="1-(muon-subtracted raw pt)/(raw pt)",precision=6)
+jetTable.variables.muonSubtrDeltaEta = Var("userFloat('muonSubtrRawEta') - eta()",float,doc="muon-subtracted raw eta - eta",precision=10)
+jetTable.variables.muonSubtrDeltaPhi = Var("userFloat('muonSubtrRawPhi') - phi()",float,doc="muon-subtracted raw phi - phi",precision=10)
 
 jetForMETTask =  cms.Task(basicJetsForMetForT1METNano,corrT1METJetTable)
 
