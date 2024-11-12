@@ -95,7 +95,7 @@ public:
     calcMuonSubtrRawPtAsValueMap_ = cfg.getParameter<bool>("calcMuonSubtrRawPtAsValueMap");
 
     produces<std::vector<T>>();
-    if (calcMuonSubtrRawPtAsValueMap_){
+    if (calcMuonSubtrRawPtAsValueMap_) {
       produces<edm::ValueMap<float>>("MuonSubtrRawPt");
       produces<edm::ValueMap<float>>("MuonSubtrRawEta");
       produces<edm::ValueMap<float>>("MuonSubtrRawPhi");
@@ -184,7 +184,7 @@ private:
         continue;
 
       cleanedJets->push_back(jet);
-      if (calcMuonSubtrRawPtAsValueMap_){
+      if (calcMuonSubtrRawPtAsValueMap_) {
         muonSubtrRawPt[jetIndex] = rawJetP4.Pt();
         muonSubtrRawEta[jetIndex] = rawJetP4.Eta();
         muonSubtrRawPhi[jetIndex] = rawJetP4.Phi();
