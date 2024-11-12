@@ -141,10 +141,15 @@ def customiseScoutingNano(process):
     
     return process
 
-def customiseScoutingNanoFromMini(process):
-    # normal customise for ScoutingNano
-    process = customiseScoutingNano(process)
+#####################
+### Customisation ###
+#####################
+# these function are designed to be used with --customise flag in cmsDriver.py
+# e.g. --customise PhysicsTools/NanoAOD/python/custom_run3scouting_cff.addScoutingPFCandidate
 
+# reconfigure for running with ScoutingPFMonitor/MiniAOD inputs alone
+# should be used with default customiseScoutingNano
+def customiseScoutingNanoFromMini(process):
     # remove L1TRawToDigi
     process.scoutingTriggerSequence.remove(process.L1TRawToDigi)
 
@@ -162,12 +167,6 @@ def customiseScoutingNanoFromMini(process):
     process.l1EtSumScoutingTable.src = cms.InputTag("caloStage2Digis", "EtSum")
 
     return process
-
-#####################
-### Customisation ###
-#####################
-# these function are designed to be used with --customise flag in cmsDriver.py
-# e.g. --customise PhysicsTools/NanoAOD/python/custom_run3scouting_cff.addScoutingPFCandidate
 
 def addScoutingTrack(process):
     process.scoutingNanoSequence.associate(cms.Task(scoutingTrackTable))
