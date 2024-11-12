@@ -172,6 +172,17 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
     }
   });
 
+  std::vector<std::string_view> filterName;
+  for (auto const& t : specs) {
+    for (auto const& kl : t.second->spars) {
+      if (kl.first == attribute) {
+        for (auto const& it : t.second->paths) {
+          filterName.emplace_back(it);
+        }
+      }
+    }
+  }
+
   DDFilteredView fv(pDD.product(), pDD.product()->description()->worldVolume());
   fv.mergedSpecifics(specs);
   fv.firstChild();
@@ -219,16 +230,10 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
 
       bool isSens = false;
 
-      for (auto const& t : specs) {
-        for (auto const& kl : t.second->spars) {
-          if (kl.first == attribute) {
-            for (auto const& it : t.second->paths) {
-              if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(fv.name()), dd4hep::dd::realTopName(it))) {
-                isSens = true;
-                break;
-              }
-            }
-          }
+      for (auto const& it : filterName) {
+        if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(fv.name()), dd4hep::dd::realTopName(it))) {
+          isSens = true;
+          break;
         }
       }
 
