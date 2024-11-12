@@ -67,7 +67,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 {
     // Retrieve TrackerGeometry and TrackerTopology from EventSetup
     const TrackerGeometry& trackerGeometry = iSetup.getData(trackerGeometryToken_);
-    // const TrackerTopology& trackerTopology = iSetup.getData(trackerTopologyToken_);
+    const TrackerTopology& trackerTopology = iSetup.getData(trackerTopologyToken_);
     
     // Retrieve the CablingMap
     const auto& cablingMap = iSetup.getData(cablingMapToken_);
@@ -105,7 +105,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         slink_id = std::div(gbt_id, Phase2TrackerSpecifications::MODULES_PER_SLINK).quot;
         slink_id_within = std::div(gbt_id, Phase2TrackerSpecifications::MODULES_PER_SLINK).rem;
     
-        const bool is_seed_sensor = ((detId - cable_map_module_id == 1) ? 1 : 0);
+        const bool is_seed_sensor = trackerTopology.isLower(detId);
         const GeomDetUnit* detUnit = trackerGeometry.idToDetUnit(detId);
 
         if (detUnit)
