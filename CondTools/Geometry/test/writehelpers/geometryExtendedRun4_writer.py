@@ -4,16 +4,16 @@ process = cms.Process("GeometryWriter")
 
 process.load('CondCore.CondDB.CondDB_cfi')
 #
-# FIXME: the command "./createExtended2026Payloads.sh 113YV12" (i.e 113YV12 is a tag just for test) creates a problem related to:  
-# 1) Tracker, if Configuration.Geometry.GeometryExtended2026D49_cff is used (Scenario2026D49 has to be set in DD4hep_GeometrySimPhase2_cff)  
-# 2) GEM, if Configuration.Geometry.GeometryExtended2026D77_cff is used (Scenario2026D77 has to be set in DD4hep_GeometrySimPhase2_cff)  
-# Please add the right Scenario (D49 or D77 or ..) also in geometryExtended2026_xmlwriter.py and in splitExtended2026Database.sh 
+# FIXME: the command "./createExtendedRun4Payloads.sh 113YV12" (i.e 113YV12 is a tag just for test) creates a problem related to:  
+# 1) Tracker, if Configuration.Geometry.GeometryExtendedRun4D110_cff is used (ScenarioRun4D110 has to be set in DD4hep_GeometrySimPhase2_cff)  
+# 2) GEM, if Configuration.Geometry.GeometryExtendedRun4D77_cff is used (ScenarioRun4D77 has to be set in DD4hep_GeometrySimPhase2_cff)  
+# Please add the right Scenario (D110 or ..) also in geometryExtendedRun4_xmlwriter.py and in splitExtendedRun4Database.sh 
 #
-process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load('Configuration.StandardSequences.DD4hep_GeometrySimPhase2_cff')
-process.load('Geometry.CaloEventSetup.CaloGeometry2026DBWriter_cfi')
+process.load('Geometry.CaloEventSetup.CaloGeometryRun4DBWriter_cfi')
 process.load('CondTools.Geometry.HcalParametersWriter_cff')
 
 process.source = cms.Source("EmptyIOVSource",
@@ -51,7 +51,7 @@ process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'), tag = cms.string('XMLFILE_Geometry_TagXX_Extended2026D41_mc')),
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'), tag = cms.string('XMLFILE_Geometry_TagXX_ExtendedRun4D110_mc')),
                                                             cms.PSet(record = cms.string('IdealGeometryRecord'), tag = cms.string('TKRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PTrackerParametersRcd'), tag = cms.string('TKParameters_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PTrackerAdditionalParametersPerDetRcd'), tag = cms.string('TKAdditionalParametersPerDet_Geometry_TagXX')),

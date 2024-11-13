@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process("CaloGeometryWriter",Phase2C17I13M9)
 process.load('CondCore.CondDB.CondDB_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D110_cff')
-process.load('Geometry.CaloEventSetup.CaloGeometry2026DBWriter_cfi')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
+process.load('Geometry.CaloEventSetup.CaloGeometryRun4DBWriter_cfi')
 process.load('CondTools.Geometry.HcalParametersWriter_cff')
 
 process.source = cms.Source("EmptyIOVSource",
