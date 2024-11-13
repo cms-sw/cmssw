@@ -40,7 +40,8 @@ AllLayerClusterToTracksterAssociatorsProducer::AllLayerClusterToTracksterAssocia
 
   // Produce separate association maps for each trackster collection using the trackster label
   for (const auto& tracksterToken : tracksterCollectionTokens_) {
-    produces<ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>(
+    produces<
+        ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>(
         tracksterToken.first);
   }
 }
@@ -59,7 +60,7 @@ void AllLayerClusterToTracksterAssociatorsProducer::produce(edm::StreamID,
 
     // Create association map
     auto lcToTracksterMap = std::make_unique<
-        ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>(
+        ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>(
         layer_clusters, tracksters, iEvent);
 
     // Loop over tracksters
