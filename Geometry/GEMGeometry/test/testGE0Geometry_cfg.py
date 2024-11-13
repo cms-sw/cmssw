@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
 
-process.load('GeometryExtended2026GE0Test_cff')
-process.load('GeometryExtended2026GE0TestReco_cff')
+process.load('GeometryExtendedRun4GE0Test_cff')
+process.load('GeometryExtendedRun4GE0TestReco_cff')
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
