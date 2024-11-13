@@ -1,4 +1,4 @@
 <use name="alpaka"/>
 <use name="rootcling"/>
 <use name="FWCore/Utilities/" source_only="1"/>
-<use name="HeterogeneousCore/AlpakaInterface" source_only="1"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
