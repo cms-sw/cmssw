@@ -5,6 +5,8 @@ using namespace Pythia8;
 
 //--------------------------------------------------------------------------
 bool ResonanceDecayFilterHook::initAfterBeams() {
+  counter_event_ = 0;
+  counter_total_ = 0;
   filter_ = settingsPtr->flag("ResonanceDecayFilter:filter");
   exclusive_ = settingsPtr->flag("ResonanceDecayFilter:exclusive");
   eMuAsEquivalent_ = settingsPtr->flag("ResonanceDecayFilter:eMuAsEquivalent");
@@ -51,6 +53,10 @@ bool ResonanceDecayFilterHook::initAfterBeams() {
 bool ResonanceDecayFilterHook::checkVetoResonanceDecays(const Event &process) {
   if (!filter_)
     return false;
+
+  //count the number of times hook is called.
+  counter_event_++;
+  counter_total_++;
 
   observedDaughters_.clear();
 
@@ -116,4 +122,8 @@ bool ResonanceDecayFilterHook::checkVetoResonanceDecays(const Event &process) {
 
   //all criteria satisfied, don't veto
   return false;
+}
+
+void ResonanceDecayFilterHook::resetEventCounter() {
+  counter_event_ = 0;
 }

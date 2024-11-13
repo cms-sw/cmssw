@@ -41,6 +41,7 @@ using namespace Pythia8;
 
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
+#include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterCounter.h"
 
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/PTFilterHook.h"
@@ -531,6 +532,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
   }
 
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
+  ResonanceDecayFilterCounter::getInstance().setFilterBool(resonanceDecayFilter);
   if (resonanceDecayFilter) {
     fResonanceDecayFilterHook.reset(new ResonanceDecayFilterHook);
     (fUserHooksVector->hooks).push_back(fResonanceDecayFilterHook);
@@ -698,6 +700,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
   }
 
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
+  ResonanceDecayFilterCounter::getInstance().setFilterBool(resonanceDecayFilter);
   if (resonanceDecayFilter) {
     fResonanceDecayFilterHook.reset(new ResonanceDecayFilterHook);
     (fUserHooksVector->hooks).push_back(fResonanceDecayFilterHook);
@@ -781,6 +784,16 @@ void Pythia8Hadronizer::statistics() {
   xsec *= 1.0e9;                              // translate to pb (CMS/Gen "convention" as of May 2009)
   double err = fMasterGen->info.sigmaErr();   // cross section err in mb
   err *= 1.0e9;                               // translate to pb (CMS/Gen "convention" as of May 2009)
+  if (fMasterGen->settings.flag("ResonanceDecayFilter:filter")) {
+    double ResonanceDecayFilterEff = (double) fMasterGen->info.getCounter(4) / (double) fResonanceDecayFilterHook->returnTotalCounter();
+    double ResonanceDecayFilterErr = sqrt((1 - ResonanceDecayFilterEff) * ResonanceDecayFilterEff / (double) fResonanceDecayFilterHook->returnTotalCounter());
+    edm::LogPrint("Pythia8Interface") << "\n *-------  PYTHIA Resonance Decay Filter Statistics  --------------------*";
+    edm::LogPrint("Pythia8Interface") << "   Number of tried events:            " << fMasterGen->info.getCounter(4);
+    edm::LogPrint("Pythia8Interface") << "   Number of accepted events:         " << fResonanceDecayFilterHook->returnTotalCounter();
+    edm::LogPrint("Pythia8Interface") << "   Resonance Decay Filter Efficiency: " << std::scientific << std::setprecision(3) 
+                                      << ResonanceDecayFilterEff << " +- " << ResonanceDecayFilterErr;
+    edm::LogPrint("Pythia8Interface") << " *-------  End PYTHIA Resonance Decay Filter Statistics  ----------------*";
+  }
   runInfo().setInternalXSec(GenRunInfoProduct::XSec(xsec, err));
 }
 
@@ -969,6 +982,14 @@ bool Pythia8Hadronizer::hadronize() {
       double wgt = fMasterGen->info.weight(i);
       event()->weights().push_back(wgt);
     }
+  }
+
+  if (fMasterGen->settings.flag("ResonanceDecayFilter:filter")) {
+    int eventCounterValue = fResonanceDecayFilterHook->returnEventCounter();
+    int totalCounterValue = fResonanceDecayFilterHook->returnTotalCounter();
+    ResonanceDecayFilterCounter::getInstance().setEventCounter(eventCounterValue);
+    ResonanceDecayFilterCounter::getInstance().setTotalCounter(totalCounterValue);
+    fResonanceDecayFilterHook->resetEventCounter();
   }
 
   return true;

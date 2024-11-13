@@ -13,6 +13,9 @@ public:
   bool canVetoResonanceDecays() override { return true; }
   bool doVetoResonanceDecays(Pythia8::Event& process) override { return checkVetoResonanceDecays(process); }
   bool checkVetoResonanceDecays(const Pythia8::Event& process);
+  unsigned long int returnEventCounter() {return counter_event_;};
+  unsigned long int returnTotalCounter() {return counter_total_;};
+  void resetEventCounter();
 
   //--------------------------------------------------------------------------
 
@@ -25,6 +28,8 @@ private:
   bool udscAsEquivalent_;
   bool udscbAsEquivalent_;
   bool wzAsEquivalent_;
+  unsigned long int counter_event_;
+  unsigned long int counter_total_;
   std::set<int> mothers_;
   std::vector<int> daughters_;
 
