@@ -30,12 +30,12 @@ if (options.geometry == "D105"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
     process = cms.Process("HcalParametersTest",Phase2C17I13M9,dd4hep)
-    process.load('Configuration.Geometry.GeometryDD4hepExtended2026D105Reco_cff')
+    process.load('Configuration.Geometry.GeometryDD4hepExtendedRun4D105Reco_cff')
 elif (options.geometry == "D110"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
     process = cms.Process("HcalParametersTest",Phase2C17I13M9,dd4hep)
-    process.load('Configuration.Geometry.GeometryDD4hepExtended2026D110Reco_cff')
+    process.load('Configuration.Geometry.GeometryDD4hepExtendedRun4D110Reco_cff')
 else:
     from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
     process = cms.Process("HcalParametersTest",Run3_dd4hep)

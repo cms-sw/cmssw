@@ -3,7 +3,8 @@
 #   cmsRun runHGCalDD4hep_cfg.py geometry=D110
 #
 #   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104, D105,
-#                        D106, D107, D108, D109, D110, D111, D112, D113, D114
+#                        D106, D107, D108, D109, D110, D111, D112, D113, D114,
+#                        D115, D116
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -17,7 +18,7 @@ options.register('geometry',
                  "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114")
+                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -30,7 +31,7 @@ from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 process = cms.Process('SIM',Phase2C17I13M9,dd4hep)
 
-geomFile = "Configuration.Geometry.GeometryDD4hepExtended2026" + options.geometry + "Reco_cff"
+geomFile = "Configuration.Geometry.GeometryDD4hepExtendedRun4" + options.geometry + "Reco_cff"
 
 print("Geometry file: ", geomFile)
 
