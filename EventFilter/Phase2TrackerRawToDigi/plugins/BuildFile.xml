@@ -1,5 +1,7 @@
 <library file="*.cc" name="Phase2RawToDigiProducers">
   <use name="L1Trigger/TrackerDTC"/>
   <use name="root"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="PhysicsTools/UtilAlgos"/>
   <flags EDM_PLUGIN="1"/>
 </library>

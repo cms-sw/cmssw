@@ -23,7 +23,7 @@ namespace Phase2DAQFormatSpecification
     static const int SCLUSTER_ADDRESS_PS_MAX_VALUE = 0x7F;
     static const int SCLUSTER_ADDRESS_BITS_PS = 7;
 
-    static const int SCLUSTER_ADDRESS_BITS = 0x7F;
+    static const int SCLUSTER_ADDRESS_BITS_HEX = 0x7F;
     static const int IS_SEED_SENSOR_BITS = 0x01;
 
     static const int WIDTH_MAX_VALUE = 0x7;

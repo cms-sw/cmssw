@@ -15,8 +15,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "TFile.h"
 #include "TTree.h"
 #include "TROOT.h"
 
@@ -35,6 +36,8 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
+  virtual void beginJob();
+  virtual void endJob();
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
   const edm::EDGetTokenT<Phase2TrackerCluster1DCollectionNew> token_;
@@ -42,8 +45,8 @@ private:
   const TrackerGeometry* tGeom_ = nullptr;
   std::map<int, std::pair<int, int>> stackMap_;
 
-  TFile* file_;
-  TTree* tree_;
+  edm::Service<TFileService> fs_;
+  TTree* outTree_;
   ofstream logfile_;
   
   float clusterR_;
@@ -68,41 +71,45 @@ Phase2TrackerDumpDigi::Phase2TrackerDumpDigi(const edm::ParameterSet& pset)
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
       token_(consumes<Phase2TrackerCluster1DCollectionNew>(pset.getParameter<edm::InputTag>("ProductLabel"))) {
 
-    // Initialize TFile and TTree
-    file_ = new TFile("Phase2TrackerDumpDigi_redigi.root", "RECREATE");
-    tree_ = new TTree("ClusterTree", "Cluster data from Phase2 Tracker");
-    
-    tree_->Branch("detId", &detId_, "detId/i");
-    tree_->Branch("isPSModulePixel", &isPSModulePixel_, "isPSModulePixel/O");
-    tree_->Branch("isPSModuleStrip", &isPSModuleStrip_, "isPSModuleStrip/O");
-    tree_->Branch("is2SModule", &is2SModule_, "is2SModule/O");
-    tree_->Branch("clusterR", &clusterR_, "clusterR/F");
-    tree_->Branch("clusterZ", &clusterZ_, "clusterZ/F");
-    tree_->Branch("clusterCenter", &clusterCenter_, "clusterCenter/F");
-    tree_->Branch("clusterSize", &clusterSize_, "clusterSize/I");
-    tree_->Branch("clusterLocalX", &clusterLocalX_, "clusterLocalX/F");
-    tree_->Branch("clusterLocalY", &clusterLocalY_, "clusterLocalY/F");
-    tree_->Branch("clusterGlobalX", &clusterGlobalX_, "clusterGlobalX/F");
-    tree_->Branch("clusterGlobalY", &clusterGlobalY_, "clusterGlobalY/F");
-    tree_->Branch("clusterGlobalZ", &clusterGlobalZ_, "clusterGlobalZ/F");
-
     // Initialize the log file
     logfile_.open("Phase2TrackerDumpDigi_output.txt");
+//     logfile_.open("Phase2TrackerDumpDigi_original_output.txt");
     if (!logfile_.is_open()) {
         throw cms::Exception("OutputFileError") << "Failed to open log file for writing.";
     }
 }
 
 Phase2TrackerDumpDigi::~Phase2TrackerDumpDigi() {
-    // Write the TTree to the file and close the file
-    file_->cd();
-    tree_->Write();
-    file_->Close();
-    delete file_;
 
     // Close the log file
     logfile_.close();
 }
+
+void Phase2TrackerDumpDigi::beginJob ()
+{
+    outTree_ = fs_->make<TTree>("ClusterTree","ClusterTree");
+
+    outTree_->Branch("detId", &detId_, "detId/i");
+    outTree_->Branch("isPSModulePixel", &isPSModulePixel_, "isPSModulePixel/O");
+    outTree_->Branch("isPSModuleStrip", &isPSModuleStrip_, "isPSModuleStrip/O");
+    outTree_->Branch("is2SModule", &is2SModule_, "is2SModule/O");
+    outTree_->Branch("clusterR", &clusterR_, "clusterR/F");
+    outTree_->Branch("clusterZ", &clusterZ_, "clusterZ/F");
+    outTree_->Branch("clusterCenter", &clusterCenter_, "clusterCenter/F");
+    outTree_->Branch("clusterSize", &clusterSize_, "clusterSize/I");
+    outTree_->Branch("clusterLocalX", &clusterLocalX_, "clusterLocalX/F");
+    outTree_->Branch("clusterLocalY", &clusterLocalY_, "clusterLocalY/F");
+    outTree_->Branch("clusterGlobalX", &clusterGlobalX_, "clusterGlobalX/F");
+    outTree_->Branch("clusterGlobalY", &clusterGlobalY_, "clusterGlobalY/F");
+    outTree_->Branch("clusterGlobalZ", &clusterGlobalZ_, "clusterGlobalZ/F");
+
+}
+void Phase2TrackerDumpDigi::endJob ()
+{
+//     outTree_->GetDirectory()->cd();
+    outTree_->Write();
+}
+
 
 void Phase2TrackerDumpDigi::beginRun(edm::Run const& run, edm::EventSetup const& es) {
     tGeom_ = &es.getData(geomToken_);
@@ -154,7 +161,7 @@ void Phase2TrackerDumpDigi::analyze(const edm::Event& event, const edm::EventSet
       output << "\t cluster r position: " << globalPosCluster.perp() << std::endl;
       output << "\t cluster global z position: " << globalPosCluster.z() << std::endl;
 
-      tree_->Fill();  // Fill the tree with current cluster data
+      outTree_->Fill();  // Fill the tree with current cluster data
     }
   }
 
