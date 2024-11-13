@@ -44,7 +44,7 @@ print(options)
 ####################################################################
 # Use the options
 
-loadFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+loadFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 inputFile = "file:step1" + options.geometry + options.type + ".root"
 outputFile = "file:geantoutput" + options.geometry + options.type + ".root"
 
