@@ -1,17 +1,15 @@
-#include "RecoTracker/SpecialSeedGenerators/interface/CtfSpecialSeedGenerator.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-#include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
-
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
-#include "RecoTracker/TkSeedingLayers/interface/OrderedSeedingHits.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/CtfSpecialSeedGenerator.h"
+#include "RecoTracker/TkSeedingLayers/interface/OrderedSeedingHits.h"
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
+#include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 
 using namespace ctfseeding;
 
@@ -47,8 +45,6 @@ CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf)
     theGenerators.emplace_back(OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, *iPSet, iC));
   }
 }
-
-CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator() = default;
 
 void CtfSpecialSeedGenerator::endRun(edm::Run const&, edm::EventSetup const&) { theSeedBuilder.reset(); }
 
@@ -277,4 +273,72 @@ bool CtfSpecialSeedGenerator::postCheck(const TrajectorySeed& seed) {
       << "scintillator not crossed in bounds: position on Upper scintillator " << positionUpper.second
       << " position on Lower scintillator " << positionLower.second;
   return false;
+}
+
+void CtfSpecialSeedGenerator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  // Top-level parameters
+  desc.add<double>("SeedMomentum", 5.0);
+  desc.add<double>("ErrorRescaling", 50.0);
+  desc.add<bool>("UseScintillatorsConstraint", true);
+  desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
+  desc.add<bool>("SeedsFromPositiveY", true);
+  desc.add<bool>("SeedsFromNegativeY", false);
+  desc.add<bool>("CheckHitsAreOnDifferentLayers", false);
+  desc.add<bool>("SetMomentum", true);
+  desc.add<bool>("requireBOFF", false);
+  desc.add<int32_t>("maxSeeds", 10000);
+
+  // call the cluster checker to insert directly the configuration
+  ClusterChecker::fillDescriptions(desc);
+
+  // Vector parameters
+  desc.add<std::vector<int>>("Charges", {-1});
+
+  // RegionFactoryPSet (nested PSet)
+  {
+    edm::ParameterSetDescription ps_RegionFactoryPSet;
+    ps_RegionFactoryPSet.add<std::string>("ComponentName", "GlobalRegionProducer");
+
+    edm::ParameterSetDescription ps_RegionPSet;
+    ps_RegionPSet.setAllowAnything();
+    ps_RegionFactoryPSet.add("RegionPSet", ps_RegionPSet)->setComment("");
+    desc.add<edm::ParameterSetDescription>("RegionFactoryPSet", ps_RegionFactoryPSet);
+  }
+
+  // UpperScintillatorParameters (nested PSet)
+  {
+    edm::ParameterSetDescription ps_UpperScintillatorParameters;
+    ps_UpperScintillatorParameters.add<double>("LenghtInZ", 100.0);
+    ps_UpperScintillatorParameters.add<double>("GlobalX", 0.0);
+    ps_UpperScintillatorParameters.add<double>("GlobalY", 300.0);
+    ps_UpperScintillatorParameters.add<double>("GlobalZ", 50.0);
+    ps_UpperScintillatorParameters.add<double>("WidthInX", 100.0);
+    desc.add<edm::ParameterSetDescription>("UpperScintillatorParameters", ps_UpperScintillatorParameters);
+  }
+
+  // LowerScintillatorParameters (nested PSet)
+  {
+    edm::ParameterSetDescription ps_LowerScintillatorParameters;
+    ps_LowerScintillatorParameters.add<double>("LenghtInZ", 100.0);
+    ps_LowerScintillatorParameters.add<double>("GlobalX", 0.0);
+    ps_LowerScintillatorParameters.add<double>("GlobalY", -100.0);
+    ps_LowerScintillatorParameters.add<double>("GlobalZ", 50.0);
+    ps_LowerScintillatorParameters.add<double>("WidthInX", 100.0);
+    desc.add<edm::ParameterSetDescription>("LowerScintillatorParameters", ps_LowerScintillatorParameters);
+  }
+
+  // OrderedHitsFactoryPSets (VPSet)
+  {
+    edm::ParameterSetDescription ps_OrderedHitsFactoryPSet;
+    ps_OrderedHitsFactoryPSet.setAllowAnything();
+    std::vector<edm::ParameterSet> default_OrderedHitsFactoryPSet(1);
+
+    // Add the VPSet (OrderedHitsFactoryPSets) to the top-level description
+    desc.addVPSet("OrderedHitsFactoryPSets", ps_OrderedHitsFactoryPSet, default_OrderedHitsFactoryPSet);
+  }
+
+  // Add the top-level description to the descriptions
+  descriptions.addWithDefaultLabel(desc);
 }
