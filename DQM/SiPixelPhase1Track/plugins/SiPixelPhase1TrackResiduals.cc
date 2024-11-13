@@ -40,21 +40,19 @@ namespace {
 
   private:
     TrackerValidationVariables validator;
-    edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
-
-    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
-
-    bool applyVertexCut_;
+    const bool applyVertexCut_;
+    const edm::InputTag vertexInputTag_;
+    const edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
+    const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   };
 
   SiPixelPhase1TrackResiduals::SiPixelPhase1TrackResiduals(const edm::ParameterSet& iConfig)
-      : SiPixelPhase1Base(iConfig), validator(iConfig, consumesCollector()) {
-    applyVertexCut_ = iConfig.getUntrackedParameter<bool>("VertexCut", true);
-
-    offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
-
-    trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
-  }
+      : SiPixelPhase1Base(iConfig),
+        validator(iConfig, consumesCollector()),
+        applyVertexCut_(iConfig.getUntrackedParameter<bool>("VertexCut", true)),
+        vertexInputTag_(iConfig.getParameter<edm::InputTag>("vertices")),
+        offlinePrimaryVerticesToken_(consumes<reco::VertexCollection>(vertexInputTag_)),
+        trackerGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {}
 
   void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if (!checktrigger(iEvent, iSetup, DCS))
@@ -66,8 +64,17 @@ namespace {
     edm::Handle<reco::VertexCollection> vertices;
     if (applyVertexCut_) {
       iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
-      if (!vertices.isValid() || vertices->empty())
+      if (!vertices.isValid()) {
+        edm::LogWarning("SiPixelPhase1TrackResiduals")
+            << "Vertex collection: " << vertexInputTag_ << " is not valid! Skipping the event.";
         return;
+      }
+
+      if (vertices->empty()) {
+        edm::LogWarning("SiPixelPhase1TrackResiduals")
+            << "Size of vertex collection: " << vertexInputTag_ << " is zero! Skipping the event.";
+        return;
+      }
     }
 
     std::vector<TrackerValidationVariables::AVTrackStruct> vtracks;
@@ -85,7 +92,7 @@ namespace {
     for (auto& track : vtracks) {
       for (auto& it : track.hits) {
         auto id = DetId(it.rawDetId);
-        auto isPixel = id.subdetId() == 1 || id.subdetId() == 2;
+        auto isPixel = id.subdetId() == PixelSubdetector::PixelBarrel || id.subdetId() == PixelSubdetector::PixelEndcap;
         if (!isPixel)
           continue;
 
