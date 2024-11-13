@@ -1,0 +1,10 @@
+<lcgdict>
+  <class name="LSTPixelSeedInput" persistent="false"/>
+  <class name="edm::Wrapper<LSTPixelSeedInput>" persistent="false"/>
+
+  <class name="LSTPhase2OTHitsInput" persistent="false"/>
+  <class name="edm::Wrapper<LSTPhase2OTHitsInput>" persistent="false"/>
+
+  <class name="LSTOutput" persistent="false"/>
+  <class name="edm::Wrapper<LSTOutput>" persistent="false"/>
+</lcgdict>
