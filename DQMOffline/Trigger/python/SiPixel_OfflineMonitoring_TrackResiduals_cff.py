@@ -142,6 +142,10 @@ hltSiPixelPhase1TrackResidualsAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackResidu
         VertexCut = cms.untracked.bool(True)
 )
 
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(hltSiPixelPhase1TrackResidualsAnalyzer,
+                         vertices = 'hltPixelVerticesPPOnAA')
+
 hltSiPixelPhase1TrackResidualsHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = hltSiPixelPhase1TrackResidualsConf,
         geometry = hltSiPixelPhase1Geometry
