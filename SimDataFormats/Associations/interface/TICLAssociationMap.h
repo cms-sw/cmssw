@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <type_traits>
 #include <iostream>
+#include <cassert>
 
 // CMSSW specific includes
 #include "DataFormats/Common/interface/Ref.h"
@@ -15,23 +16,142 @@
 
 namespace ticl {
 
-  // Define the possible map types
-  using mapWithFraction = std::vector<std::vector<std::pair<unsigned int, float>>>;
-  using mapWithFractionAndScore = std::vector<std::vector<std::pair<unsigned int, std::pair<float, float>>>>;
-  using oneToOneMapWithFraction = std::vector<std::pair<unsigned int, float>>;
-  using oneToOneMapWithFractionAndScore = std::vector<std::pair<unsigned int, std::pair<float, float>>>;
+  // Define wrapper types to differentiate between fraction and shared energy
+  struct FractionType {
+    float value;
+    FractionType(float v = 0.0f) : value(v) {}
+    FractionType& operator+=(float v) {
+      value += v;
+      return *this;
+    }
+  };
 
+  struct SharedEnergyType {
+    float value;
+    SharedEnergyType(float v = 0.0f) : value(v) {}
+    SharedEnergyType& operator+=(float v) {
+      value += v;
+      return *this;
+    }
+  };
+
+  // AssociationElement class to store index and value, and provide methods directly
+  template <typename V>
+  class AssociationElement {
+  public:
+    using value_type = V;
+
+    AssociationElement(unsigned int idx = 0, V val = V()) : index_(idx), value_(val) {}
+
+    unsigned int index() const { return index_; }
+
+    // Enable fraction() if ValueType is FractionType
+    template <typename T = V, typename std::enable_if_t<std::is_same_v<T, FractionType>, int> = 0>
+    float fraction() const {
+      return value_.value;
+    }
+
+    // Enable sharedEnergy() if ValueType is SharedEnergyType
+    template <typename T = V, typename std::enable_if_t<std::is_same_v<T, SharedEnergyType>, int> = 0>
+    float sharedEnergy() const {
+      return value_.value;
+    }
+
+    // Enable fraction() and score() if ValueType is std::pair<FractionType, float>
+    template <typename T = V, typename std::enable_if_t<std::is_same_v<T, std::pair<FractionType, float>>, int> = 0>
+    float fraction() const {
+      return value_.first.value;
+    }
+    template <typename T = V, typename std::enable_if_t<std::is_same_v<T, std::pair<FractionType, float>>, int> = 0>
+    float score() const {
+      return value_.second;
+    }
+
+    // Enable sharedEnergy() and score() if ValueType is std::pair<SharedEnergyType, float>
+    template <typename T = V, typename std::enable_if_t<std::is_same_v<T, std::pair<SharedEnergyType, float>>, int> = 0>
+    float sharedEnergy() const {
+      return value_.first.value;
+    }
+    template <typename T = V, typename std::enable_if_t<std::is_same_v<T, std::pair<SharedEnergyType, float>>, int> = 0>
+    float score() const {
+      return value_.second;
+    }
+
+    // Method to accumulate values
+    void accumulate(const V& other_value) {
+      if constexpr (std::is_same_v<V, FractionType> || std::is_same_v<V, SharedEnergyType>) {
+        value_.value += other_value.value;
+      } else if constexpr (std::is_same_v<V, std::pair<FractionType, float>> ||
+                           std::is_same_v<V, std::pair<SharedEnergyType, float>>) {
+        value_.first.value += other_value.first.value;
+        value_.second += other_value.second;
+      }
+    }
+
+  private:
+    unsigned int index_;
+    V value_;
+  };
+
+  // Type traits to differentiate between one-to-one and one-to-many maps
+  template <typename T>
+  struct MapTraits;
+
+  template <typename V>
+  struct MapTraits<std::vector<AssociationElement<V>>> {
+    static constexpr bool is_one_to_one = true;
+    using AssociationElementType = AssociationElement<V>;
+    using ValueType = V;
+  };
+
+  template <typename V>
+  struct MapTraits<std::vector<std::vector<AssociationElement<V>>>> {
+    static constexpr bool is_one_to_one = false;
+    using AssociationElementType = AssociationElement<V>;
+    using ValueType = V;
+  };
+
+  // Trait to check if V is a std::pair (i.e., has a score)
+  template <typename T>
+  struct IsValueTypeWithScore : std::false_type {};
+
+  template <typename First, typename Second>
+  struct IsValueTypeWithScore<std::pair<First, Second>> : std::true_type {};
+
+  // Define map types using AssociationElement and container types
+  using mapWithFraction = std::vector<std::vector<AssociationElement<FractionType>>>;
+  using mapWithFractionAndScore = std::vector<std::vector<AssociationElement<std::pair<FractionType, float>>>>;
+  using oneToOneMapWithFraction = std::vector<AssociationElement<FractionType>>;
+  using oneToOneMapWithFractionAndScore = std::vector<AssociationElement<std::pair<FractionType, float>>>;
+
+  using mapWithSharedEnergy = std::vector<std::vector<AssociationElement<SharedEnergyType>>>;
+  using mapWithSharedEnergyAndScore = std::vector<std::vector<AssociationElement<std::pair<SharedEnergyType, float>>>>;
+  using oneToOneMapWithSharedEnergy = std::vector<AssociationElement<SharedEnergyType>>;
+  using oneToOneMapWithSharedEnergyAndScore = std::vector<AssociationElement<std::pair<SharedEnergyType, float>>>;
+
+  // AssociationMap class templated on MapType
   template <typename MapType, typename Collection1 = void, typename Collection2 = void>
   class AssociationMap {
   private:
+    MapType map_;
+
     // Type alias for conditionally including collectionRefProds
     using CollectionRefProdType =
         typename std::conditional_t<std::is_void_v<Collection1> || std::is_void_v<Collection2>,
                                     std::monostate,
                                     std::pair<edm::RefProd<Collection1>, edm::RefProd<Collection2>>>;
 
+    CollectionRefProdType collectionRefProds;
+
+    // Traits to deduce AssociationElementType and ValueType
+    using Traits = MapTraits<MapType>;
+    using AssociationElementType = typename Traits::AssociationElementType;
+    using V = typename Traits::ValueType;
+    static constexpr bool is_one_to_one = Traits::is_one_to_one;
+
   public:
     AssociationMap() : collectionRefProds() {}
+
     // Constructor for generic use
     template <typename C1 = Collection1,
               typename C2 = Collection2,
@@ -85,44 +205,28 @@ namespace ticl {
       return collectionRefProds;
     }
 
-    void insert(unsigned int index1, unsigned int index2, float fraction, float score = 0.0f) {
-      if constexpr (std::is_same<MapType, mapWithFraction>::value) {
-        if (index1 >= map_.size()) {
-          map_.resize(index1 + 1);
-        }
+    void insert(unsigned int index1, unsigned int index2, float fraction_or_energy, float score = 0.0f) {
+      assert(index1 < map_.size());
+      V value;
+      if constexpr (IsValueTypeWithScore<V>::value) {
+        using FirstType = typename V::first_type;
+        value = V(FirstType(fraction_or_energy), score);
+      } else {
+        value = V(fraction_or_energy);
+      }
+      AssociationElementType element(index2, value);
+
+      if constexpr (is_one_to_one) {
+        map_[index1] = element;
+      } else {
         auto& vec = map_[index1];
-        auto it = std::find_if(vec.begin(), vec.end(), [&](const auto& pair) { return pair.first == index2; });
+        auto it =
+            std::find_if(vec.begin(), vec.end(), [&](const AssociationElementType& e) { return e.index() == index2; });
         if (it != vec.end()) {
-          it->second += fraction;
+          // Accumulate value
+          it->accumulate(value);
         } else {
-          vec.emplace_back(index2, fraction);
-        }
-      } else if constexpr (std::is_same<MapType, mapWithFractionAndScore>::value) {
-        if (index1 >= map_.size()) {
-          map_.resize(index1 + 1);
-        }
-        auto& vec = map_[index1];
-        auto it = std::find_if(vec.begin(), vec.end(), [&](const auto& pair) { return pair.first == index2; });
-        if (it != vec.end()) {
-          it->second.first += fraction;
-          it->second.second += score;
-        } else {
-          vec.emplace_back(index2, std::make_pair(fraction, score));
-        }
-      } else if constexpr (std::is_same<MapType, oneToOneMapWithFraction>::value) {
-        auto it = std::find_if(map_.begin(), map_.end(), [&](const auto& pair) { return pair.first == index1; });
-        if (it != map_.end()) {
-          it->second += fraction;
-        } else {
-          map_.emplace_back(index1, fraction);
-        }
-      } else if constexpr (std::is_same<MapType, oneToOneMapWithFractionAndScore>::value) {
-        auto it = std::find_if(map_.begin(), map_.end(), [&](const auto& pair) { return pair.first == index1; });
-        if (it != map_.end()) {
-          it->second.first += fraction;
-          it->second.second += score;
-        } else {
-          map_.emplace_back(index1, std::make_pair(fraction, score));
+          vec.push_back(element);
         }
       }
     }
@@ -131,49 +235,43 @@ namespace ticl {
     template <typename C1 = Collection1,
               typename C2 = Collection2,
               typename std::enable_if_t<!std::is_void_v<C1> && !std::is_void_v<C2>, int> = 0>
-    void insert(const edm::Ref<C1>& ref1, const edm::Ref<C2>& ref2, float fraction, float score = 0.0f) {
-      insert(ref1.key(), ref2.key(), fraction, score);
+    void insert(const edm::Ref<C1>& ref1, const edm::Ref<C2>& ref2, float fraction_or_energy, float score = 0.0f) {
+      insert(ref1.key(), ref2.key(), fraction_or_energy, score);
     }
 
     void sort(bool byScore = false) {
-      static_assert(!std::is_same_v<MapType, oneToOneMapWithFraction> &&
-                        !std::is_same_v<MapType, oneToOneMapWithFractionAndScore>,
-                    "Sort is not applicable for one-to-one maps");
-
-      if constexpr (std::is_same_v<MapType, mapWithFraction>) {
-        for (auto& vec : map_) {
-          std::sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
-        }
-      } else if constexpr (std::is_same_v<MapType, mapWithFractionAndScore>) {
+      if constexpr (is_one_to_one) {
+        // Sorting not applicable for one-to-one maps
+      } else {
         for (auto& vec : map_) {
           if (byScore) {
-            std::sort(
-                vec.begin(), vec.end(), [](const auto& a, const auto& b) { return a.second.second > b.second.second; });
+            std::sort(vec.begin(), vec.end(), [](const AssociationElementType& a, const AssociationElementType& b) {
+              return a.score() > b.score();
+            });
           } else {
-            std::sort(
-                vec.begin(), vec.end(), [](const auto& a, const auto& b) { return a.second.first > b.second.first; });
+            if constexpr (std::is_same_v<V, FractionType> || std::is_same_v<V, std::pair<FractionType, float>>) {
+              std::sort(vec.begin(), vec.end(), [](const AssociationElementType& a, const AssociationElementType& b) {
+                return a.fraction() > b.fraction();
+              });
+            } else {
+              std::sort(vec.begin(), vec.end(), [](const AssociationElementType& a, const AssociationElementType& b) {
+                return a.sharedEnergy() > b.sharedEnergy();
+              });
+            }
           }
         }
       }
     }
 
-    auto& operator[](unsigned int index1) { return map_[index1]; }
-
+    // Access methods
     const auto& operator[](unsigned int index1) const { return map_[index1]; }
 
-    const auto& at(unsigned int index1) const {
-      if (index1 >= map_.size()) {
-        throw std::out_of_range("Index out of range");
-      }
-      return map_[index1];
-    }
+    auto& operator[](unsigned int index1) { return map_[index1]; }
 
-    auto& at(unsigned int index1) {
-      if (index1 >= map_.size()) {
-        throw std::out_of_range("Index out of range");
-      }
-      return map_[index1];
-    }
+    const auto& at(unsigned int index1) const { return map_.at(index1); }
+
+    auto& at(unsigned int index1) { return map_.at(index1); }
+
     // CMSSW-specific resize method
     template <typename C1 = Collection1,
               typename C2 = Collection2,
@@ -181,7 +279,8 @@ namespace ticl {
     void resize(const edm::Event& event) {
       map_.resize(collectionRefProds.first->size());
     }
-    // Constructor for generic use
+
+    // Generic resize method
     template <typename C1 = Collection1,
               typename C2 = Collection2,
               typename std::enable_if_t<std::is_void_v<C1> && std::is_void_v<C2>, int> = 0>
@@ -193,23 +292,44 @@ namespace ticl {
     void print(std::ostream& os) const {
       for (size_t i = 0; i < map_.size(); ++i) {
         os << "Index " << i << ":\n";
-        for (const auto& pair : map_[i]) {
-          os << "  (" << pair.first << ", ";
-          if constexpr (std::is_same<MapType, mapWithFractionAndScore>::value ||
-                        std::is_same<MapType, oneToOneMapWithFractionAndScore>::value) {
-            os << pair.second.first << ", " << pair.second.second;
+        if constexpr (is_one_to_one) {
+          const auto& elem = map_[i];
+          os << "  (" << elem.index() << ", ";
+          if constexpr (IsValueTypeWithScore<V>::value) {
+            if constexpr (std::is_same_v<typename V::first_type, FractionType>) {
+              os << "Fraction: " << elem.fraction() << ", Score: " << elem.score();
+            } else {
+              os << "SharedEnergy: " << elem.sharedEnergy() << ", Score: " << elem.score();
+            }
           } else {
-            os << pair.second;
+            if constexpr (std::is_same_v<V, FractionType>) {
+              os << "Fraction: " << elem.fraction();
+            } else if constexpr (std::is_same_v<V, SharedEnergyType>) {
+              os << "SharedEnergy: " << elem.sharedEnergy();
+            }
           }
           os << ")\n";
+        } else {
+          for (const auto& elem : map_[i]) {
+            os << "  (" << elem.index() << ", ";
+            if constexpr (IsValueTypeWithScore<V>::value) {
+              if constexpr (std::is_same_v<typename V::first_type, FractionType>) {
+                os << "Fraction: " << elem.fraction() << ", Score: " << elem.score();
+              } else {
+                os << "SharedEnergy: " << elem.sharedEnergy() << ", Score: " << elem.score();
+              }
+            } else {
+              if constexpr (std::is_same_v<V, FractionType>) {
+                os << "Fraction: " << elem.fraction();
+              } else if constexpr (std::is_same_v<V, SharedEnergyType>) {
+                os << "SharedEnergy: " << elem.sharedEnergy();
+              }
+            }
+            os << ")\n";
+          }
         }
       }
     }
-
-  private:
-    // For CMSSW-specific use
-    CollectionRefProdType collectionRefProds;
-    MapType map_;  // Store the map directly
   };
 
 }  // namespace ticl
