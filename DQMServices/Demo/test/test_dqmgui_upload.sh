@@ -7,12 +7,44 @@
 set -x
 set -e
 
+force=0
+
+function usage() {
+    echo "Usage: $0 [--help] [--force]"
+}
+
+# Parse args, if any.
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+    --force)
+        force=1
+        shift
+        ;;
+    --help)
+        usage
+        exit 0
+        ;;
+    *)
+        echo "Unknown parameter passed: $1"
+        usage
+        exit 1
+        ;;
+    esac
+done
+
+# Don't run the test unless it's run by the bot for PRs or IBs.
+# The user may force it by adding --force
+if [ -z "$CMSBOT_CI_TESTS" ] && [ "$force" -ne 1 ]; then
+    echo "Non-automated test environment, skipping test."
+    exit 0
+fi
+
 DEV_DQMGUI_URL="https://cmsweb.cern.ch/dqm/dev"
 # Create a unique fake "Era", so that different executions of this test
 # produce differently named files. This is required, because this test might pass
 # if it's checking a file that was successfully uploaded during a previous
 # instance of the same test.
-UNIQUE_ERA_ID=$(date -u +%Y%m%d%M%S%N)
+UNIQUE_ERA_ID=$(date -u +%Y%m%d%H%M%S%N)
 OLD_FILENAME=DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root
 NEW_FILENAME=${OLD_FILENAME/DQMTests/DQMTests${UNIQUE_ERA_ID}}
 
