@@ -115,7 +115,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }
 
     // Read one entire DTC (#dtcID), as per the producer logic
-    unsigned int dtcID = 180;  
+    unsigned int dtcID = 180; // 180 for single mu displ
     // read the 4 slinks
     for (unsigned int iSlink = 0; iSlink < MAX_SLINKS_PER_DTC; iSlink++)
     {
@@ -157,8 +157,17 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         
         // now read the payload (channel header + clusters)
         // assuming all channel headers are there, even if 0 clusters are found
+        // this is not really the channel number, as in the rawToData conversion is channel is split in CIC0_CIC1
+        // NOTE: I need to save into the Phase2TrackerCluster1D collection two "channels" at the time 
+        // in order to get all the clusters from the same lpGBT and fill them once at the end
+        std::vector<Phase2TrackerCluster1D> thisChannel1DSeedClusters, thisChannel1DCorrClusters;
         for (unsigned int iChannel = 0; iChannel < CICs_PER_SLINK; iChannel++)
         {
+          // clear the collection if iChannel is even
+          if (iChannel%2==0){
+            thisChannel1DSeedClusters.clear();
+            thisChannel1DCorrClusters.clear();
+          }  
           // find the channel offset
           // theOffsets.printValue(iChannel);
           int idx = 88 + theOffsets.getOffsetForChannel(iChannel) * N_BYTES_PER_WORD;
@@ -180,7 +189,6 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           
           std::vector<uint16_t> clustersWords;
           clustersWords.resize(numClusters);
-          std::vector<Phase2TrackerCluster1D> thisChannel1DSeedClusters, thisChannel1DCorrClusters;
   
           // first retrieve all lines filled with clusters
           std::vector<uint32_t> lines;
@@ -255,17 +263,25 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           for (auto icluster : clustersWords){
             uint32_t chipID = (icluster >> 11) & CHIP_ID_MAX_VALUE;
 
-            uint32_t sclusterAddress = (icluster >> 3) & SCLUSTER_ADDRESS_BITS;
-            bool isSeedSensor = (icluster >> 10) & IS_SEED_SENSOR_BITS;
+            uint32_t sclusterAddress = (icluster >> 4) & SCLUSTER_ADDRESS_BITS_HEX;
+            bool isSeedSensor = (icluster >> 3) & IS_SEED_SENSOR_BITS;
             uint32_t width = icluster &  WIDTH_MAX_VALUE;
+            // cluster width is truncated during packing (3 bits)
+            // since width = 0 is unphysical, we can at least recover cluster with width == 8 
+            // by assuming that clusters packed with width == 0 had in reality width = 8
+            // this is a tmp fix, we should maybe think about how to properly do this.
+            // also, for original widths > 8: again, due to truncation, they get an incorrect width of 
+            // cluster.getWidth() & WIDTH_MAX_VALUE. should be probably fixed in the packer 
+            // (e.g. if width > 8, pack with width = 0) 
+            if (width == 0) width = 8;
 //             std::cout << "[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<3>(chipID) <<   std::endl;
 //             std::cout << "[unpacking] address : " << (sclusterAddress) << "\t " << std::bitset<8>(sclusterAddress) <<   std::endl;
 //             std::cout << "[unpacking] width : " << (width)   << "\t " << std::bitset<3>(width) <<   std::endl;
 //             std::cout <<  std::endl;
             
             // now, rebasing to PR3
-            unsigned int x = CHANNELS_PER_CBC * chipID / 2 + sclusterAddress;
-            unsigned int y = iChannel%2 == 0 ? 0 : 1;
+            unsigned int x = STRIPS_PER_CBC * chipID + sclusterAddress;
+            unsigned int y = iChannel%2 == 0 ? 0 : 1; 
             std::cout << "\t\t cluster#" << count_clusters << "\t x y width : " << x << " " << y << " " << width << "  is seed:" << isSeedSensor;
 
             Phase2TrackerCluster1D thisCluster = Phase2TrackerCluster1D(x, y, width);
@@ -281,6 +297,10 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           if (count_clusters == 0 ) continue;
   
           // put the filler here, for the output collection
+          // fill every 2 channels are read
+          if (iChannel%2 != 1) 
+            continue;
+          
           // need the detid of this module
           // first I need to construct the DTCElinkId object ## dtc_id, gbtlink_id, elink_id
           // to get the gbt_id I should reverse what is done in the DTCUnit.convertToRawData function,
@@ -298,7 +318,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             std::vector<Phase2TrackerCluster1D>::iterator it;
             {
               // inner detid is defined as module detid + 1. First int in the pair from the map
-              std::cout << "\t\t -> detId:" <<  possibleDetIds->second+1 << "  from map: " << stackMap_[possibleDetIds->second].first << std::endl;
+//               std::cout << "\t\t -> detId:" <<  possibleDetIds->second << "  from map: " << stackMap_[possibleDetIds->second].first << std::endl;
               edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcs(*outputClusterCollection, stackMap_[possibleDetIds->second].first);
               for (it = thisChannel1DSeedClusters.begin(); it != thisChannel1DSeedClusters.end(); it++) {
                 spcs.push_back(*it);
@@ -306,7 +326,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             }
             {
               // outer detid is defined as inner detid + 1 or module detid + 2. Second int in the pair from the map
-              std::cout << "\t\t -> detId:" <<  possibleDetIds->second+2 << "  from map: " << stackMap_[possibleDetIds->second].second << std::endl;
+//               std::cout << "\t\t -> detId:" <<  possibleDetIds->second << "  from map: " << stackMap_[possibleDetIds->second].second << std::endl;
               edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcc(*outputClusterCollection, stackMap_[possibleDetIds->second].second);
               for (it = thisChannel1DCorrClusters.begin(); it != thisChannel1DCorrClusters.end(); it++) {
                 spcc.push_back(*it);
