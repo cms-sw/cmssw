@@ -1116,6 +1116,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
   }
 
   //vertex cuts and plots definitions
+  //Note: vertCut0 needs to be set to true when making fakeEff plots
   std::vector<std::unique_ptr<Cut>> vertCuts;
   std::unique_ptr<TypedCut<float>> vertCut0(new TypedCut<float>("minR_T_Res","min R_{T} #sigma_{d0}",&trkVert_R_T,d0_res,false));
   vertCuts.push_back(std::move(vertCut0));
@@ -1189,13 +1190,13 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
   vertCuts.push_back(std::move(vertCut13));
   std::unique_ptr<TypedCut<float>> vertCut14(new TypedCut<float>("min_score5p2","score>5.2",&trkVert_score,5.2,false));
   vertCuts.push_back(std::move(vertCut14));
-  std::unique_ptr<TypedCut<float>> vertCut15(new TypedCut<float>("min_score5p3","score>5.3",&trkVert_score,5.3,false));
+  std::unique_ptr<TypedCut<float>> vertCut15(new TypedCut<float>("min_score5p3","score>5.3",&trkVert_score,5.3,true));
   vertCuts.push_back(std::move(vertCut15));
-  std::unique_ptr<TypedCut<float>> vertCut16(new TypedCut<float>("min_score5p4","score>5.4",&trkVert_score,5.4,false));
+  std::unique_ptr<TypedCut<float>> vertCut16(new TypedCut<float>("min_score5p35","score>5.35",&trkVert_score,5.35,false));
   vertCuts.push_back(std::move(vertCut16));
-  std::unique_ptr<TypedCut<float>> vertCut17(new TypedCut<float>("min_score5p5","score>5.5",&trkVert_score,5.5,true));
+  std::unique_ptr<TypedCut<float>> vertCut17(new TypedCut<float>("min_score5p4","score>5.4",&trkVert_score,5.4,false));
   vertCuts.push_back(std::move(vertCut17));
-  std::unique_ptr<TypedCut<float>> vertCut18(new TypedCut<float>("min_score5p55","score>5.55",&trkVert_score,5.55,true));
+  std::unique_ptr<TypedCut<float>> vertCut18(new TypedCut<float>("min_score5p45","score>5.45",&trkVert_score,5.45,true));
   vertCuts.push_back(std::move(vertCut18));
   
   std::vector<std::unique_ptr<Plot>> vertCutFlows;
@@ -1287,50 +1288,68 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
   std::vector<TString> vertType = {"matched","unmatched"};
   std::vector<TString> vertTypeTP = {"matched","all"};
   std::vector<TString> vertPlotTPModifiers = {"","_oneMatch"};
-
-  TH1F* vertexCutFlows[vertCutFlows.size()][vertType.size()][vertCuts.size()];
-  TH1F* vertexCutFlowsMatchTP[vertCutFlowsTP.size()][vertCuts.size()][vertPlotTPModifiers.size()];
+  uint vertCutsSize = 0;
+  for(uint i=0; i<vertCuts.size(); i++){
+    if(vertCuts[i]->getDoPlot()) vertCutsSize++;
+  }
+  
+  TH1F* vertexCutFlows[vertCutFlows.size()][vertType.size()][vertCutsSize];
+  TH1F* vertexCutFlowsMatchTP[vertCutFlowsTP.size()][vertCutsSize][vertPlotTPModifiers.size()];
   TH1F* vertexCutFlowsTP[vertCutFlowsTP.size()][vertPlotTPModifiers.size()];
   TH1F* vertexNumVertices[vertCuts.size()];
   TH1F* fiducialNumVertices[vertCuts.size()];
 
   for(uint i=0; i<vertCutFlows.size(); ++i){
     for(uint j=0; j<vertType.size(); ++j){
+      uint i_plot = -1;
       for(uint k=0; k<vertCuts.size(); ++k){
+	if(vertCuts[k]->getDoPlot()){
+	  i_plot++;
+	}
+	else{
+	  continue;
+	}
 	TString name = "h_trackVertex_"+vertCutFlows[i]->getVarName()+"_"+vertType[j]+"_"+vertCuts[k]->getCutName()+"Cut";
 	if(vertCutFlows[i]->getMaxBin()==vertCutFlows[i]->getMinBin()){
 	  TString labels = name+"; Track Vertex "+vertCutFlows[i]->getVarName()+" ("+vertCutFlows[i]->getUnit()+") ; Events ";
 	  std::vector<float> bins = vertCutFlows[i]->getBins();
 	  TH1F* hist = new TH1F(name,labels,vertCutFlows[i]->getNumBins(),bins.data());
-	  vertexCutFlows[i][j][k] = hist;
+	  vertexCutFlows[i][j][i_plot] = hist;
 	}
 	else{
 	  float binWidth = (vertCutFlows[i]->getMaxBin() - vertCutFlows[i]->getMinBin()) / vertCutFlows[i]->getNumBins();
 	  TString binLabel = std::to_string(binWidth);
 	  TString labels = name+"; Track Vertex "+vertCutFlows[i]->getVarName()+" ("+vertCutFlows[i]->getUnit()+") ; Events / "+binLabel+" "+vertCutFlows[i]->getUnit();
 	  TH1F* hist = new TH1F(name,labels,vertCutFlows[i]->getNumBins(),vertCutFlows[i]->getMinBin(),vertCutFlows[i]->getMaxBin());
-	  vertexCutFlows[i][j][k] = hist;
+	  vertexCutFlows[i][j][i_plot] = hist;
 	}
       }
     }
   }
 
   for(uint i=0; i<vertCutFlowsTP.size(); ++i){
+    uint i_plot = -1;
     for(uint k=0; k<vertCuts.size(); ++k){
+      if(vertCuts[k]->getDoPlot()){
+	i_plot++;
+      }
+      else{
+	continue;
+      }
       for(uint m=0; m<vertPlotTPModifiers.size(); ++m){
 	TString name = "h_trueVertex_"+vertCutFlowsTP[i]->getVarName()+"_"+vertTypeTP[0]+"_"+vertCuts[k]->getCutName()+"Cut"+vertPlotTPModifiers[m];
 	if(vertCutFlowsTP[i]->getMaxBin()==vertCutFlowsTP[i]->getMinBin()){
 	  TString labels = name+"; True Vertex "+vertCutFlowsTP[i]->getVarName()+" ("+vertCutFlowsTP[i]->getUnit()+") ; Events ";
 	  std::vector<float> bins = vertCutFlowsTP[i]->getBins();
 	  TH1F* hist = new TH1F(name,labels,vertCutFlowsTP[i]->getNumBins(),bins.data());
-	  vertexCutFlowsMatchTP[i][k][m] = hist;
+	  vertexCutFlowsMatchTP[i][i_plot][m] = hist;
 	}
 	else{
 	  float binWidth = (vertCutFlowsTP[i]->getMaxBin() - vertCutFlowsTP[i]->getMinBin()) / vertCutFlowsTP[i]->getNumBins();
 	  TString binLabel = std::to_string(binWidth);
 	  TString labels = name+"; True Vertex "+vertCutFlowsTP[i]->getVarName()+" ("+vertCutFlowsTP[i]->getUnit()+") ; Events / "+binLabel+" "+vertCutFlowsTP[i]->getUnit();
 	  TH1F* hist = new TH1F(name,labels,vertCutFlowsTP[i]->getNumBins(),vertCutFlowsTP[i]->getMinBin(),vertCutFlowsTP[i]->getMaxBin());
-	  vertexCutFlowsMatchTP[i][k][m] = hist;
+	  vertexCutFlowsMatchTP[i][i_plot][m] = hist;
 	}
       }
     } 
@@ -1437,6 +1456,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
   if (tree == 0) return;
   Long64_t nevt = tree->GetEntries();
   Long64_t n_findableEvent = 0;
+  Long64_t n_trueVertexEvent = 0;
   //nevt = 100;
   Vertex_Parameters geomTrackVertex;
   Vertex_Parameters geomTrueVertex;
@@ -1462,6 +1482,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
     int maxPT_i = 0;
     bool oneMatch = false;
     bool findableEvent = false;
+    bool trueVertexEvent = false;
     std::valarray<float> trkMET = {0.0,0.0};
     float trkH_T = 0.0;
 
@@ -1692,7 +1713,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
     // --------------------------------------------------------------------------------------------
     //         Vertex finding in Tracking Particles
     // --------------------------------------------------------------------------------------------
-    if (!(selectedTracks.size() >= 2)) continue;
+    //if (!(selectedTracks.size() >= 2)) continue;
     double_t x_dv = -9999.0;// (tp_x->at((*selectedTPs)[0]->index));//+tp_x->at((*selectedTPs)[1]->index))/2.0;
     double_t y_dv = -9999.0;// (tp_y->at((*selectedTPs)[0]->index));//+tp_y->at((*selectedTPs)[1]->index))/2.0;
     double_t z_dv = -9999.0;// (tp_z->at((*selectedTPs)[0]->index));//+tp_z->at((*selectedTPs)[1]->index))/2.0;
@@ -1763,6 +1784,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
 	h_trueVertex_charge_vs_numTPs->Fill(trueVertices[i].tracks.size(),netCharge);
 
 	if(netCharge==0){
+	  trueVertexEvent = true;
 	  float chargeOfFirstTrack = 0.0;
 	  for(uint itrack=0; itrack<trueVertices[i].tracks.size(); itrack++){
 	    int itp = trueVertices[i].tracks[itrack].index;
@@ -1910,12 +1932,14 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
     end = std::chrono::steady_clock::now();
     matchLoopTime += std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
     begin = std::chrono::steady_clock::now();
-    bool filledOneMatch[vertCuts.size()];
-    bool isMatchedVec[trueVertices.size()][vertCuts.size()];
+    bool filledOneMatch[vertCutsSize];
+    bool isMatchedVec[trueVertices.size()][vertCutsSize];
     uint numVertices[vertCuts.size()];
     for(uint i = 0; i<vertCuts.size(); i++){
-      filledOneMatch[i] = false;
       numVertices[i] = 0;
+    }
+    for(uint i = 0; i<vertCutsSize; i++){
+      filledOneMatch[i] = false;
       for(uint j = 0; j<trueVertices.size(); j++){
 	isMatchedVec[j][i] = false;
       }
@@ -1923,7 +1947,11 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
     //std::cout<<"fill vertex plots"<<std::endl;
     // fill vertex plots
     for(int it = 0; it < (int)trkVert_x->size(); it++){
+      uint i_plot = -1;
       for(uint i=0; i<vertCuts.size(); i++){
+	if(vertCuts[i]->getDoPlot()){
+	  i_plot++;
+	}
 	TString cutName = vertCuts[i]->getCutName();
 	float cutValue = vertCuts[i]->getCutValue();
 	//std::cout<<"cutName: "<<cutName<<" vertex track indices: "<<trkVert_firstIndexTrk->at(it)<<" "<<trkVert_secondIndexTrk->at(it)<<std::endl;
@@ -1967,6 +1995,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
 	if(cutName.Contains("max") && param>cutValue) break;
 	if(cutName.Contains("min") && param<cutValue) break;
 	numVertices[i]++;
+	if(!vertCuts[i]->getDoPlot()) continue;
 	for(uint j=0; j<vertType.size(); j++){
 	  //if(vertType[j]=="matched" && (trkVert_indexMatch[it]==-1 || isMatchedVec[trkVert_indexMatch[it]][i])) continue;
 	  if(vertType[j]=="matched" && trkVert_indexMatch[it]==-1) continue;
@@ -2006,19 +2035,19 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
 	    else{
 	      param = vertCutFlows[k]->getParam(it);
 	    }
-	    vertexCutFlows[k][j][i]->Fill(param);
+	    vertexCutFlows[k][j][i_plot]->Fill(param);
 	  }
 	  if(vertType[j]=="matched"){
 	    for(uint k=0; k<vertPlotTPModifiers.size(); k++){
 	      int jt = trkVert_indexMatch[it];
-	      if(vertPlotTPModifiers[k].Contains("oneMatch") && filledOneMatch[i]) continue;
+	      if(vertPlotTPModifiers[k].Contains("oneMatch") && filledOneMatch[i_plot]) continue;
 	      if(vertPlotTPModifiers[k].Contains("oneMatch")){
 		jt = maxPT_i;
-		filledOneMatch[i] = true;
+		filledOneMatch[i_plot] = true;
 	      }
 	      else{
-		if(isMatchedVec[jt][i]) continue;
-		isMatchedVec[jt][i] = true;
+		if(isMatchedVec[jt][i_plot]) continue;
+		isMatchedVec[jt][i_plot] = true;
 	      }
 	      
 	      //resolution plot
@@ -2037,7 +2066,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
 		  for(uint iTP=1; iTP<tpVert_indexTPs[jt].size(); ++iTP){
 		    float param2 = vertCutFlowsTP[m]->getParam(tpVert_indexTPs[jt][iTP]);
 		    param = fabs(param1 - param2);
-		    vertexCutFlowsMatchTP[m][i][k]->Fill(param);
+		    vertexCutFlowsMatchTP[m][i_plot][k]->Fill(param);
 		  }
 		  continue;
 		}
@@ -2061,7 +2090,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
 		else{
 		  param = vertCutFlowsTP[m]->getParam(jt);
 		}
-		vertexCutFlowsMatchTP[m][i][k]->Fill(param);
+		vertexCutFlowsMatchTP[m][i_plot][k]->Fill(param);
 	      }
 	    }
 	    break;
@@ -2079,6 +2108,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
       if(findableEvent) fiducialNumVertices[i]->Fill(numVertices[i]);
     }
     if(findableEvent) n_findableEvent++;
+    if(trueVertexEvent) n_trueVertexEvent++;
       
     delete tpVert_d_T;
     delete tpVert_R_T;
@@ -2452,9 +2482,9 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
     for(uint j=0; j<vertCutFlowsTP.size(); j++){
       //if(vertPlotTPModifiers[i].Contains("oneMatch") && vertCutFlowsTP[j]->getVarName().Contains("highPt")) std::cout<<"onematch entries: "<<vertexCutFlowsTP[j][i]->GetEntries()<<" "<<vertexCutFlowsMatchTP[j][vertCuts.size()-1][i]->GetEntries()<<std::endl;
       removeFlows(vertexCutFlowsTP[j][i]);
-      removeFlows(vertexCutFlowsMatchTP[j][vertCuts.size()-1][i]);
-      TH1F* h_eff = (TH1F*)vertexCutFlowsMatchTP[j][vertCuts.size()-1][i]->Clone();
-      h_eff->Divide(vertexCutFlowsMatchTP[j][vertCuts.size()-1][i],vertexCutFlowsTP[j][i],1.0,1.0,"B");
+      removeFlows(vertexCutFlowsMatchTP[j][vertCutsSize-1][i]);
+      TH1F* h_eff = (TH1F*)vertexCutFlowsMatchTP[j][vertCutsSize-1][i]->Clone();
+      h_eff->Divide(vertexCutFlowsMatchTP[j][vertCutsSize-1][i],vertexCutFlowsTP[j][i],1.0,1.0,"B");
       raiseMax(h_eff);
       h_eff->SetStats(0);
       h_eff->SetAxisRange(0, 1.1, "Y");
@@ -2467,10 +2497,17 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
   for(uint i=0; i<vertCutFlowsTP.size(); i++){
     removeFlows(vertexCutFlowsTP[i][0]);
     l->Clear();
+    uint i_plot = -1;
     for(uint j=0; j<vertCuts.size(); j++){
-      removeFlows(vertexCutFlowsMatchTP[i][j][0]);
-      TH1F* h_findEff = (TH1F*)vertexCutFlowsMatchTP[i][j][0]->Clone();
-      h_findEff->Divide(vertexCutFlowsMatchTP[i][j][0],vertexCutFlowsTP[i][0],1.0,1.0,"B");
+      if(vertCuts[j]->getDoPlot()){
+	i_plot++;
+      }
+      else{
+	continue;
+      }
+      removeFlows(vertexCutFlowsMatchTP[i][i_plot][0]);
+      TH1F* h_findEff = (TH1F*)vertexCutFlowsMatchTP[i][i_plot][0]->Clone();
+      h_findEff->Divide(vertexCutFlowsMatchTP[i][i_plot][0],vertexCutFlowsTP[i][0],1.0,1.0,"B");
       h_findEff->SetStats(0);
       if(j!=9){
 	h_findEff->SetLineColor(j+1);
@@ -2504,7 +2541,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
 	std::cout<<"binErrors: "<<binErrors<<std::endl;
 	std::cout<<"binCenters: "<<binCenters<<std::endl;
       }
-      if(j==0){
+      if(i_plot==0){
 	raiseMax(h_findEff);
 	h_findEff->SetAxisRange(0, 1.1, "Y");
 	h_findEff->Draw();
@@ -2517,14 +2554,22 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
     l->Draw();
     c.SaveAs(VERTDIR + "/h_findEff_trueVertex_" + vertCutFlowsTP[i]->getVarName() + ".pdf");
   }
+#if 0
   std::cout<<"fakeEff_trackVertex"<<std::endl;
   for(uint i=0; i<vertCutFlows.size(); i++){
     removeFlows(vertexCutFlows[i][1][0]);
     l->Clear();
+    uint i_plot = 0;
     for(uint j=1; j<vertCuts.size(); j++){
-      removeFlows(vertexCutFlows[i][1][j]);
-      TH1F* h_fakeEff = (TH1F*)vertexCutFlows[i][1][j]->Clone();
-      h_fakeEff->Divide(vertexCutFlows[i][1][j],vertexCutFlows[i][1][0],1.0,1.0,"B");
+      if(vertCuts[j]->getDoPlot()){
+	i_plot++;
+      }
+      else{
+	continue;
+      }
+      removeFlows(vertexCutFlows[i][1][i_plot]);
+      TH1F* h_fakeEff = (TH1F*)vertexCutFlows[i][1][i_plot]->Clone();
+      h_fakeEff->Divide(vertexCutFlows[i][1][i_plot],vertexCutFlows[i][1][0],1.0,1.0,"B");
       h_fakeEff->SetStats(0);
       if(j!=10){
 	h_fakeEff->SetLineColor(j);
@@ -2535,7 +2580,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
 	h_fakeEff->SetMarkerColor(40);
       }
       l->AddEntry(h_fakeEff,vertCuts[j]->getCutLabel(),"lp");
-      if(j==1){
+      if(i_plot==1){
 	raiseMax(h_fakeEff);
 	h_fakeEff->Draw();
       }
@@ -2545,44 +2590,53 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
     }
     mySmallText(0.3, 0.9, 1, ctxt);
     l->Draw();
+    std::cout<<"h_fakeEff_trackVertex_" + vertCutFlows[i]->getVarName()<<std::endl;
     c.SaveAs(VERTDIR + "/h_fakeEff_trackVertex_" + vertCutFlows[i]->getVarName() + ".pdf");
   }
+#endif
   std::cout<<"correctVsFalse"<<std::endl;
   for(uint i=0; i<vertCutFlows.size(); i++){
+    uint i_plot = -1;
     for(uint j=0; j<vertCuts.size(); j++){
+      if(vertCuts[j]->getDoPlot()){
+	i_plot++;
+      }
+      else{
+	continue;
+      }
       l->Clear();
       for(uint k=0; k<vertType.size(); k++){
-	removeFlows(vertexCutFlows[i][k][j]);
-	vertexCutFlows[i][k][j]->SetStats(0);
-	vertexCutFlows[i][k][j]->Scale(1./vertexCutFlows[i][k][j]->Integral());
+	removeFlows(vertexCutFlows[i][k][i_plot]);
+	vertexCutFlows[i][k][i_plot]->SetStats(0);
+	vertexCutFlows[i][k][i_plot]->Scale(1./vertexCutFlows[i][k][i_plot]->Integral());
 	TString varString = vertCutFlows[i]->getVarName();
 	if(varString.Contains("score") || varString.Contains("R_T")){
 	  std::cout<<"/h_correctVsFalse_" + vertCutFlows[i]->getVarName() + "_" + vertCuts[j]->getCutName() + "Cut.pdf"<<std::endl;
 	  std::cout<<"vertType: "<<vertType[k]<<std::endl;
 	  std::string binValues = "[";
-	  for(int ibin=1; ibin<(vertexCutFlows[i][k][j]->GetNbinsX()+1); ibin++){
-	    binValues+=to_string(vertexCutFlows[i][k][j]->GetBinContent(ibin)) + ", ";
+	  for(int ibin=1; ibin<(vertexCutFlows[i][k][i_plot]->GetNbinsX()+1); ibin++){
+	    binValues+=to_string(vertexCutFlows[i][k][i_plot]->GetBinContent(ibin)) + ", ";
 	  }
 	  binValues+="]";
 	  std::cout<<"binValues: "<<binValues<<std::endl;
 	}
 	if(k!=9){
-	  vertexCutFlows[i][k][j]->SetLineColor(k+1);
-	  vertexCutFlows[i][k][j]->SetMarkerColor(k+1);
+	  vertexCutFlows[i][k][i_plot]->SetLineColor(k+1);
+	  vertexCutFlows[i][k][i_plot]->SetMarkerColor(k+1);
 	}
 	else{
-	  vertexCutFlows[i][k][j]->SetLineColor(40);
-	  vertexCutFlows[i][k][j]->SetMarkerColor(40);
+	  vertexCutFlows[i][k][i_plot]->SetLineColor(40);
+	  vertexCutFlows[i][k][i_plot]->SetMarkerColor(40);
 	}
-	l->AddEntry(vertexCutFlows[i][k][j],vertType[k],"l");
+	l->AddEntry(vertexCutFlows[i][k][i_plot],vertType[k],"l");
 	if(k==0){
-	  removeFlows(vertexCutFlows[i][k+1][j]);
-	  vertexCutFlows[i][k+1][j]->Scale(1./vertexCutFlows[i][k+1][j]->Integral());
-	  raiseMax(vertexCutFlows[i][k][j],vertexCutFlows[i][k+1][j]);
-	  vertexCutFlows[i][k][j]->Draw("HIST");
+	  removeFlows(vertexCutFlows[i][k+1][i_plot]);
+	  vertexCutFlows[i][k+1][i_plot]->Scale(1./vertexCutFlows[i][k+1][i_plot]->Integral());
+	  raiseMax(vertexCutFlows[i][k][i_plot],vertexCutFlows[i][k+1][i_plot]);
+	  vertexCutFlows[i][k][i_plot]->Draw("HIST");
 	}
 	else{
-	  vertexCutFlows[i][k][j]->Draw("HIST,SAME");
+	  vertexCutFlows[i][k][i_plot]->Draw("HIST,SAME");
 	}
       }
       mySmallText(0.3, 0.9, 1, ctxt);
@@ -2988,6 +3042,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
   }
 
   std::cout<<"fiducial triggerEff"<<std::endl;
+  std::cout<<"trueVertex events fraction of total events: "<<(float)n_trueVertexEvent/(float)nevt<<std::endl;
   std::cout<<"findable events: "<<n_findableEvent<<" fraction of total events: "<<(float)n_findableEvent/(float)nevt<<std::endl;
   TH1F *h_fiducialTriggerEff = new TH1F("h_fiducialTriggerEff","h_fiducialTriggerEff; Cut Name; Percentage of Findable Events Triggered",vertCuts.size(),0,vertCuts.size());
   for(uint i=0; i<vertCuts.size(); i++){
@@ -2996,7 +3051,7 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
     for(int j=2; j<(fiducialNumVertices[i]->GetNbinsX()+1); j++){
       numTriggers += fiducialNumVertices[i]->GetBinContent(j);
     }
-    //std::cout<<"i cut: "<<i<<" numTriggers: "<<numTriggers<<std::endl;
+    std::cout<<"cut: "<<vertCuts[i]->getCutName()<<" trigger efficiency of total events: "<<numTriggers/(float)nevt<<std::endl;
     h_fiducialTriggerEff->SetBinContent(i,numTriggers/n_findableEvent);
     h_fiducialTriggerEff->GetXaxis()->SetBinLabel(i,vertCuts[i]->getCutName());
   }
@@ -3302,13 +3357,13 @@ void Analyzer_DisplacedMuon(TString inputFilePath,
   }
   for(uint i=0; i<vertCutFlows.size(); i++){
     for(uint j=0; j<vertType.size(); j++){
-      for(uint k=0; k<vertCuts.size(); k++){
+      for(uint k=0; k<vertCutsSize; k++){
 	delete vertexCutFlows[i][j][k];
       }
     }
   }
   for(uint i=0; i<vertCutFlowsTP.size(); i++){
-    for(uint j=0; j<vertCuts.size(); j++){
+    for(uint j=0; j<vertCutsSize; j++){
       for(uint k=0; k<vertPlotTPModifiers.size(); k++){
 	delete vertexCutFlowsMatchTP[i][j][k];
       }
