@@ -63,6 +63,13 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   options_.emplace_back(params.getParameter<std::string>("modelName"));
   //get appropriate server for this model
   edm::Service<TritonService> ts;
+
+  // We save the token to be able to notify the service in case of an exception in the evaluate method.
+  // The evaluate method can be called outside the frameworks TBB threadpool in the case of a retry. In
+  // this case the context is not setup to access the service registry, we need the service token to
+  // create the context.
+  token_ = edm::ServiceRegistry::instance().presentToken();
+
   const auto& server =
       ts->serverInfo(options_[0].model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
   serverType_ = server.type;
@@ -363,6 +370,9 @@ void TritonClient::getResults(const std::vector<std::shared_ptr<tc::InferResult>
 void TritonClient::evaluate() {
   //undo previous signal from TritonException
   if (tries_ > 0) {
+    // If we are retrying then the evaluate method is called outside the frameworks TBB thread pool.
+    // So we need to setup the service token for the current thread to access the service registry.
+    edm::ServiceRegistry::Operate op(token_);
     edm::Service<TritonService> ts;
     ts->notifyCallStatus(true);
   }
