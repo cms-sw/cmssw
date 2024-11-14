@@ -23,6 +23,7 @@ DEFINE_FWK_MODULE(EcalHaloDataProducer);
 DEFINE_FWK_MODULE(GlobalHaloDataProducer);
 DEFINE_FWK_MODULE(ParticleFlowForChargedMETProducer);
 
+// test comment
 #include "RecoMET/METProducers/interface/MuonMETValueMapProducer.h"
 using cms::MuonMETValueMapProducer;
 DEFINE_FWK_MODULE(MuonMETValueMapProducer);
