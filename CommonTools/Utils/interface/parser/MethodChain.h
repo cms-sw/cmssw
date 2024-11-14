@@ -16,14 +16,14 @@
 
 namespace reco {
   namespace parser {
-    
+
     /// Based on Expression, but its value method returns an edm::ObjectWithDict instead of a double
     class MethodChainBase {
-    public: // Public Methods
+    public:  // Public Methods
       virtual ~MethodChainBase() {}
-      virtual edm::ObjectWithDict value(const edm::ObjectWithDict&) const = 0; 
+      virtual edm::ObjectWithDict value(const edm::ObjectWithDict&) const = 0;
     };
-    
+
     /// Shared ptr to MethodChainBase
     typedef std::shared_ptr<MethodChainBase> MethodChainPtr;
 
@@ -41,7 +41,6 @@ namespace reco {
       void returnObjects(Objects&&) const;
 
     public:  // Public Static Methods
-
       /// allocate an object to hold the result of a given member (if needed)
       /// this method is used also from the LazyInvoker code
       /// returns true if objects returned from this will require a destructor

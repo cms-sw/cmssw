@@ -28,14 +28,9 @@ MethodChain::Objects MethodChain::initObjects_() const {
   return objects;
 }
 
-MethodChain::MethodChain(const vector<MethodInvoker>& methods)
-    : methods_(methods) {
-  returnObjects(initObjects_());
-}
+MethodChain::MethodChain(const vector<MethodInvoker>& methods) : methods_(methods) { returnObjects(initObjects_()); }
 
-MethodChain::MethodChain(const MethodChain& rhs) : methods_(rhs.methods_) {
-  returnObjects(initObjects_());
-}
+MethodChain::MethodChain(const MethodChain& rhs) : methods_(rhs.methods_) { returnObjects(initObjects_()); }
 
 MethodChain::Objects MethodChain::borrowObjects() const {
   Objects objects;

@@ -24,12 +24,13 @@ struct TypedStringObjectMethodCaller {
       }
     } catch (reco::parser::BaseException& e) {
       throw edm::Exception(edm::errors::Configuration)
-        << "MethodChainGrammer parse error:" << reco::parser::baseExceptionWhat(e) << " (char " << e.where - startingFrom << ")\n";
+          << "MethodChainGrammer parse error:" << reco::parser::baseExceptionWhat(e) << " (char "
+          << e.where - startingFrom << ")\n";
     }
   }
 
-  R operator()(const T &t) const {
-    edm::ObjectWithDict o(type_, const_cast<T *>(&t));
+  R operator()(const T& t) const {
+    edm::ObjectWithDict o(type_, const_cast<T*>(&t));
     edm::ObjectWithDict ret = methodchain_->value(o);
     return *static_cast<R*>(ret.address());
   }

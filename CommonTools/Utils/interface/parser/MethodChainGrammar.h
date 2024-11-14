@@ -25,14 +25,14 @@
 namespace reco {
   namespace parser {
     struct MethodChainGrammar : public boost::spirit::classic::grammar<MethodChainGrammar> {
-      MethodChainPtr *methchain_;
-      bool lazy_; 
+      MethodChainPtr* methchain_;
+      bool lazy_;
       mutable MethodStack methStack;
       mutable LazyMethodStack lazyMethStack;
       mutable MethodArgumentStack methArgStack;
       mutable TypeStack typeStack;
 
-      MethodChainGrammar(MethodChainPtr &methchain, const edm::TypeWithDict& iType, bool lazy = false)
+      MethodChainGrammar(MethodChainPtr& methchain, const edm::TypeWithDict& iType, bool lazy = false)
           : methchain_(&methchain), lazy_(lazy) {
         typeStack.push_back(iType);
       }
@@ -59,10 +59,10 @@ namespace reco {
           metharg = (strict_real_p[methodArg_s]) | (int_p[methodArg_s]) |
                     (ch_p('"') >> *(~ch_p('"')) >> ch_p('"'))[methodArg_s] |
                     (ch_p('\'') >> *(~ch_p('\'')) >> ch_p('\''))[methodArg_s];
-          method = // alnum_p doesn't accept underscores, so we use chset<>; lexeme_d needed to avoid whitespace skipping within method names
-                   (lexeme_d[alpha_p >> *chset<>("a-zA-Z0-9_")] >> ch_p('(') >> metharg >> *(ch_p(',') >> metharg) >>
-                    expectParenthesis(ch_p(')')))[method_s] |
-                   ((lexeme_d[alpha_p >> *chset<>("a-zA-Z0-9_")])[method_s] >> !(ch_p('(') >> ch_p(')')));
+          method =  // alnum_p doesn't accept underscores, so we use chset<>; lexeme_d needed to avoid whitespace skipping within method names
+              (lexeme_d[alpha_p >> *chset<>("a-zA-Z0-9_")] >> ch_p('(') >> metharg >> *(ch_p(',') >> metharg) >>
+               expectParenthesis(ch_p(')')))[method_s] |
+              ((lexeme_d[alpha_p >> *chset<>("a-zA-Z0-9_")])[method_s] >> !(ch_p('(') >> ch_p(')')));
           arrayAccess = (ch_p('[') >> metharg >> *(ch_p(',') >> metharg) >> expectParenthesis(ch_p(']')))[method_s];
           methodchain = (method >> *(arrayAccess | (ch_p('.') >> expect(method))))[methodchain_s];
         }
@@ -70,7 +70,7 @@ namespace reco {
         rule const& start() const { return methodchain; }
       };
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif
