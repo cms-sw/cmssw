@@ -25,7 +25,7 @@ for e_n,era in enumerate(eras_2024):
             wf_number = round(wf_number,6)
 
             step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_" + e_key
-            y = str(base_wf)
+            y = str(int(base_wf))
             suff = "ZB_" if "ZeroBias" in step_name else ""
             workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
 
@@ -43,7 +43,7 @@ for e_n,era in enumerate(eras_2023):
             wf_number = round(wf_number,6)
 
             step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_" + e_key
-            y = str(base_wf) + "B" if "2023B" in era else str(base_wf)
+            y = str(int(base_wf)) + "B" if "2023B" in era else str(int(base_wf))
             suff = "ZB_" if "ZeroBias" in step_name else ""
             workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
 
@@ -60,7 +60,7 @@ for e_n,era in enumerate(eras_2022_1):
             wf_number = wf_number + offset_events * evs
             wf_number = round(wf_number,6)
             step_name = "Run" + pd + era.split("Run")[1] + "_10k"
-            y = str(base_wf)
+            y = str(int(base_wf))
             suff = "ZB_" if "ZeroBias" in step_name else ""
             workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
 
@@ -70,12 +70,12 @@ for e_n,era in enumerate(eras_2022_2):
         for e_key,evs in event_steps_dict.items():
             if "10k" == e_key: # already defined in relval_standard
                 continue   
-            wf_number = base_wf_number_2022
+            wf_number = base_wf
             wf_number = wf_number + offset_era * (e_n + len(eras_2022_1))
             wf_number = wf_number + offset_pd * (p_n + len(pds_2022_1))
             wf_number = wf_number + offset_events * evs 
             wf_number = round(wf_number,6)
             step_name = "Run" + pd + era.split("Run")[1] + "_" + e_key
-            y = str(base_wf)
+            y = str(int(base_wf))
             suff = "ZB_" if "ZeroBias" in step_name else ""
             workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]] 
