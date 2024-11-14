@@ -32,6 +32,32 @@ def appendDTChamberMaskerAtUnpacking(process):
 
     return process
 
+def appendDTChamberMaskerAtSim(process):
+
+    if hasattr(process,'simMuonDTDigis') and hasattr(process,'pdigiTask'):
+        
+        sys.stderr.write("[appendDTChamberMasker] : Found simMuonDTDigis, applying filter\n")
+
+        process.preDtDigis = process.simMuonDTDigis.clone()
+        process.simMuonDTDigis = _dtChamberMasker.clone()
+
+        process.simMuonDTDigis.digiTag = cms.InputTag('preDtDigis') 
+
+        process.pdigiTask.replace(process.simMuonDTDigis,process.preDtDigis)
+        process.pdigiTask.add(process.simMuonDTDigis)
+
+        if hasattr(process,"RandomNumberGeneratorService") :
+            process.RandomNumberGeneratorService.preDtDigis = cms.PSet(
+                initialSeed = cms.untracked.uint32(789342)
+                )
+        else :
+            process.RandomNumberGeneratorService = cms.Service(
+                "RandomNumberGeneratorService",
+                preDtDigis = cms.PSet(initialSeed = cms.untracked.uint32(789342))
+                )
+
+    return process
+
 def appendDTChamberMaskerAtHLT(process):
 
     if hasattr(process,'hltMuonDTDigis') and \
@@ -47,10 +73,8 @@ def appendDTChamberMaskerAtHLT(process):
 
         process.filteredHltDtDigiSequence = cms.Sequence(process.preHltDtDigis + process.hltMuonDTDigis)
         if hasattr(process,'HLTMuonLocalRecoSequence') :
-            print("1")
             process.HLTMuonLocalRecoSequence.replace(process.hltMuonDTDigis, process.filteredHltDtDigiSequence)
         if hasattr(process,'HLTMuonLocalRecoMeanTimerSequence') :
-            print("2")
             process.HLTMuonLocalRecoMeanTimerSequence.replace(process.hltMuonDTDigis, process.filteredHltDtDigiSequence)
 
         process.globalReplace("hltMuonDTDigis",filteredHltDtDigiSequence)
