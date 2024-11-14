@@ -16,6 +16,7 @@
 #include "Hits_test.h"
 
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
+using namespace ALPAKA_ACCELERATOR_NAMESPACE::reco;
 
 int main() {
   // Get the list of devices on the current platform
@@ -49,7 +50,7 @@ int main() {
       auto moduleStartD = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, pixelTopology::Phase1::numberOfModules + 1);
       alpaka::memcpy(queue, moduleStartD, moduleStartH);
 
-      TrackingRecHitsSoACollection<pixelTopology::Phase1> tkhit(queue, nHits, offset, moduleStartD.data());
+      TrackingRecHitsSoACollection tkhit(queue, nHits, offset, moduleStartD.data());
       
       // exercise the copy of a full column (on device)
       auto hitXD = cms::alpakatools::make_device_view<float>(queue, tkhit.view().xLocal(), nHits);
@@ -62,7 +63,7 @@ int main() {
       auto constYGV_v = cms::alpakatools::make_host_view<float>(constXV.data(),nHits);
       alpaka::memcpy(queue, hitYD, constYGV_v);
 
-      testTrackingRecHitSoA::runKernels<pixelTopology::Phase1>(tkhit.view(), queue);
+      testTrackingRecHitSoA::runKernels(tkhit.view(), tkhit.view<::reco::HitModuleSoA>(), queue);
       tkhit.updateFromDevice(queue);
 
       
@@ -71,17 +72,17 @@ int main() {
 #if defined ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED or defined ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
       // requires c++23 to make cms::alpakatools::CopyToHost compile using if constexpr
       // see https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2593r0.html
-      TrackingRecHitHost<pixelTopology::Phase1> const& host_collection = tkhit;
+      ::reco::TrackingRecHitHost const& host_collection = tkhit;
 #else
-      TrackingRecHitHost<pixelTopology::Phase1> host_collection =
-          cms::alpakatools::CopyToHost<TrackingRecHitDevice<pixelTopology::Phase1, Device> >::copyAsync(queue, tkhit);
+      ::reco::TrackingRecHitHost host_collection =
+          cms::alpakatools::CopyToHost<::reco::TrackingRecHitDevice<Device> >::copyAsync(queue, tkhit);
 #endif
       
       alpaka::wait(queue);
 
       alpaka::QueueCpuBlocking queue_host{cms::alpakatools::host()};
     
-      TrackingRecHitHost<pixelTopology::Phase1> host_collection_2(cms::alpakatools::host(), nHits);
+      ::reco::TrackingRecHitHost host_collection_2(cms::alpakatools::host(), nHits);
 
       // exercise the memset of a colum (on host)
       auto hitLYH = cms::alpakatools::make_host_view<float>(host_collection_2.view().yLocal(), nHits);

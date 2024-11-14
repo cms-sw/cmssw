@@ -19,8 +19,8 @@ template <typename TrackerTraits>
 using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
 
 // #define BL_DUMP_HITS
-
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
+
   template <int N, typename TrackerTraits>
   class Kernel_BLFastFit {
   public:
@@ -28,7 +28,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
                                   TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
-                                  TrackingRecHitSoAConstView<TrackerTraits> hh,
+                                  ::reco::TrackingRecHitConstView hh,
                                   FrameSoAConstView fr,
                                   typename TrackerTraits::tindex_type *__restrict__ ptkids,
                                   double *__restrict__ phits,
@@ -243,7 +243,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   void HelixFit<TrackerTraits>::launchBrokenLineKernels(
-      const TrackingRecHitSoAConstView<TrackerTraits> &hv,
+      const ::reco::TrackingRecHitConstView &hv,
       const FrameSoAConstView &fr,
       uint32_t hitsInFit,
       uint32_t maxNumberOfTuples,

@@ -8,15 +8,11 @@
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 
-template <typename TrackerTraits>
-struct TrackingRecHitSoA {
-  using hindex_type = typename TrackerTraits::hindex_type;
+namespace reco {
   
-  using AverageGeometry = pixelTopology::AverageGeometryT<TrackerTraits>;
-  // using HitLayerStartArray = std::array<hindex_type, TrackerTraits::numberOfLayers + 1>;
-  using HitModuleStartArray = std::array<hindex_type, TrackerTraits::numberOfModules + 1>;
+  using HitModuleStartArray = std::array<uint32_t, 4000>;
 
-  GENERATE_SOA_LAYOUT(Layout,
+  GENERATE_SOA_LAYOUT(TrackingHitsLayout,
                       SOA_COLUMN(float, xLocal),
                       SOA_COLUMN(float, yLocal),
                       SOA_COLUMN(float, xerrLocal),
@@ -34,7 +30,7 @@ struct TrackingRecHitSoA {
                       SOA_SCALAR(HitModuleStartArray, hitsModuleStart));
 
   GENERATE_SOA_LAYOUT(HitModulesLayout,
-               SOA_COLUMN(uint32_t, hitsModuleStart)
+               SOA_COLUMN(uint32_t, moduleStart)
   );
                
   #ifdef CA_TRIPLETS_HOLE
@@ -49,16 +45,15 @@ struct TrackingRecHitSoA {
     SOA_SCALAR(int32_t, endCapZNeg)
   )
   #endif
-  // GENERATE_SOA_LAYOUT(ModulesLayout,
-  //                     SOA_COLUMN(uint32_t, hitsModuleStart));
+
+  using TrackingRecHitSoA = TrackingHitsLayout<>;
+  using TrackingRecHitView = TrackingRecHitSoA::View;
+  using TrackingRecHitConstView = TrackingRecHitSoA::ConstView;
+
+  using HitModuleSoA = HitModulesLayout<>;
+  using HitModuleSoAView = HitModuleSoA::View;
+  using HitModuleSoAConstView = HitModuleSoA::ConstView;
 
 };
-
-template <typename TrackerTraits>
-using TrackingRecHitLayout = typename TrackingRecHitSoA<TrackerTraits>::template Layout<>;
-template <typename TrackerTraits>
-using TrackingRecHitSoAView = typename TrackingRecHitSoA<TrackerTraits>::template Layout<>::View;
-template <typename TrackerTraits>
-using TrackingRecHitSoAConstView = typename TrackingRecHitSoA<TrackerTraits>::template Layout<>::ConstView;
 
 #endif

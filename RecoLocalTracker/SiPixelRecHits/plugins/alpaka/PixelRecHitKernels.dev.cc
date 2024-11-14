@@ -27,20 +27,20 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
 
+  using namespace ALPAKA_ACCELERATOR_NAMESPACE::reco;
+
   namespace pixelgpudetails {
 
     template <typename TrackerTraits>
-    TrackingRecHitsSoACollection<TrackerTraits> PixelRecHitKernel<TrackerTraits>::makeHitsAsync(
+    TrackingRecHitsSoACollection PixelRecHitKernel<TrackerTraits>::makeHitsAsync(
         SiPixelDigisSoACollection const& digis_d,
         SiPixelClustersSoACollection const& clusters_d,
         BeamSpotPOD const* bs_d,
         pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const* cpeParams,
         Queue queue) const {
       using namespace pixelRecHits;
-      auto nHits = clusters_d.nClusters();
-      auto offsetBPIX2 = clusters_d.offsetBPIX2();
 
-      TrackingRecHitsSoACollection<TrackerTraits> hits_d(queue, nHits, offsetBPIX2, clusters_d->clusModuleStart());
+      TrackingRecHitsSoACollection hits_d(queue, clusters_d);
 
       int activeModulesWithDigis = digis_d.nModules();
 

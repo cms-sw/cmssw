@@ -30,11 +30,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class CAHitNtupletGenerator {
   public:
-    using HitsView = TrackingRecHitSoAView<TrackerTraits>;
-    using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
-    using HitsOnDevice = TrackingRecHitsSoACollection<TrackerTraits>;
-    using HitsOnHost = TrackingRecHitHost<TrackerTraits>;
-    using hindex_type = typename TrackingRecHitSoA<TrackerTraits>::hindex_type;
+    using HitsView = ::reco::TrackingRecHitView;
+    using HitsConstView = ::reco::TrackingRecHitConstView;
+    using HitsOnDevice = reco::TrackingRecHitsSoACollection;
+    using HitsOnHost = ::reco::TrackingRecHitHost;
+    using hindex_type = uint32_t;//typename TrackingRecHitSoA<TrackerTraits>::hindex_type;
 
     using HitToTuple = caStructures::HitToTupleT<TrackerTraits>;
     using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;

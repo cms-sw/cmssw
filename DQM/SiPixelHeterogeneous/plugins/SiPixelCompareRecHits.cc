@@ -20,10 +20,9 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // TODO: change class name to SiPixelCompareRecHitsSoA when CUDA code is removed
-template <typename T>
 class SiPixelCompareRecHits : public DQMEDAnalyzer {
 public:
-  using HitsSoA = TrackingRecHitHost<T>;
+  using HitsSoA = reco::TrackingRecHitHost;
 
   explicit SiPixelCompareRecHits(const edm::ParameterSet&);
   ~SiPixelCompareRecHits() override = default;
@@ -75,8 +74,8 @@ private:
 //
 // constructors
 //
-template <typename T>
-SiPixelCompareRecHits<T>::SiPixelCompareRecHits(const edm::ParameterSet& iConfig)
+
+SiPixelCompareRecHits::SiPixelCompareRecHits(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
       tokenSoAHitsReference_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsReferenceSoA"))),
@@ -87,15 +86,15 @@ SiPixelCompareRecHits<T>::SiPixelCompareRecHits(const edm::ParameterSet& iConfig
 //
 // Begin Run
 //
-template <typename T>
-void SiPixelCompareRecHits<T>::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+
+void SiPixelCompareRecHits::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
   tTopo_ = &iSetup.getData(topoToken_);
 }
 
-template <typename T>
+
 template <typename U, typename V>
-void SiPixelCompareRecHits<T>::analyzeSeparate(U tokenRef, V tokenTar, const edm::Event& iEvent) {
+void SiPixelCompareRecHits::analyzeSeparate(U tokenRef, V tokenTar, const edm::Event& iEvent) {
   const auto& rhsoaHandleRef = iEvent.getHandle(tokenRef);
   const auto& rhsoaHandleTar = iEvent.getHandle(tokenTar);
 
@@ -206,8 +205,8 @@ void SiPixelCompareRecHits<T>::analyzeSeparate(U tokenRef, V tokenTar, const edm
 //
 // -- Analyze
 //
-template <typename T>
-void SiPixelCompareRecHits<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+void SiPixelCompareRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // The default use case is to use vertices from Alpaka reconstructed on CPU and GPU;
   // The function is left templated if any other cases need to be added
   analyzeSeparate(tokenSoAHitsReference_, tokenSoAHitsTarget_, iEvent);
@@ -216,8 +215,8 @@ void SiPixelCompareRecHits<T>::analyze(const edm::Event& iEvent, const edm::Even
 //
 // -- Book Histograms
 //
-template <typename T>
-void SiPixelCompareRecHits<T>::bookHistograms(DQMStore::IBooker& iBook,
+
+void SiPixelCompareRecHits::bookHistograms(DQMStore::IBooker& iBook,
                                               edm::Run const& iRun,
                                               edm::EventSetup const& iSetup) {
   iBook.cd();
@@ -259,8 +258,8 @@ void SiPixelCompareRecHits<T>::bookHistograms(DQMStore::IBooker& iBook,
   hFposYDiff_ = iBook.book1D("rechitsposYDiffFpix","y-position difference of rechits in FPix; rechit y-pos difference (Reference - Target)", 1000, -10, 10);
 }
 
-template<typename T>
-void SiPixelCompareRecHits<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+void SiPixelCompareRecHits::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelRecHitsSoAAlpaka
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelHitsReferenceSoA", edm::InputTag("siPixelRecHitsPreSplittingAlpakaSerial"));
@@ -270,12 +269,15 @@ void SiPixelCompareRecHits<T>::fillDescriptions(edm::ConfigurationDescriptions& 
   descriptions.addWithDefaultLabel(desc);
 }
 
-using SiPixelPhase1CompareRecHits = SiPixelCompareRecHits<pixelTopology::Phase1>;
-using SiPixelPhase2CompareRecHits = SiPixelCompareRecHits<pixelTopology::Phase2>;
-using SiPixelHIonPhase1CompareRecHits = SiPixelCompareRecHits<pixelTopology::HIonPhase1>;
+using SiPixelCompareRecHits = SiPixelCompareRecHits;
+// keeping the old names to allow a smooth HLT migration
+using SiPixelPhase1CompareRecHits = SiPixelCompareRecHits;
+using SiPixelPhase2CompareRecHits = SiPixelCompareRecHits;
+using SiPixelHIonPhase1CompareRecHits = SiPixelCompareRecHits;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 // TODO: change module names to SiPixel*CompareRecHitsSoA when CUDA code is removed
+DEFINE_FWK_MODULE(SiPixelCompareRecHits);
 DEFINE_FWK_MODULE(SiPixelPhase1CompareRecHits);
 DEFINE_FWK_MODULE(SiPixelPhase2CompareRecHits);
 DEFINE_FWK_MODULE(SiPixelHIonPhase1CompareRecHits);

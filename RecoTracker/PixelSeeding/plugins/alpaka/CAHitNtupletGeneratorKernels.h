@@ -212,8 +212,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using CAParams = caHitNtupletGenerator::CAParamsT<TrackerTraits>;
     using Counters = caHitNtupletGenerator::Counters;
 
-    using HitsView = TrackingRecHitSoAView<TrackerTraits>;
-    using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
+    using HitsView = ::reco::TrackingRecHitView;
+    using HitModulesConstView = ::reco::HitModuleSoAConstView;
+    using HitsConstView = ::reco::TrackingRecHitConstView;
     using TkSoAView = ::reco::TrackSoAView;
     using TkHitsSoAView = ::reco::TrackHitSoAView;
 
@@ -251,7 +252,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     TupleMultiplicity const* tupleMultiplicity() const { return device_tupleMultiplicity_.data(); }
     HitContainer const* hitContainer() const { return device_hitContainer_.data(); }
 
-    void prepareHits(const HitsConstView& hh, const ::reco::CALayersSoAConstView& ll, Queue& queue);
+    void prepareHits(const HitsConstView& hh, const HitModulesConstView &mm, const ::reco::CALayersSoAConstView& ll, Queue& queue);
 
     void launchKernels(const HitsConstView& hh, uint32_t offsetBPIX2, uint16_t nLayers, TkSoAView& track_view, TkHitsSoAView& track_hits_view, Queue& queue);
 
