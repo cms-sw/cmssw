@@ -12,10 +12,6 @@ public:
     eventCounter_ = eventCounter;
   }
 
-  void setTotalCounter(int totalCounter) {
-    totalCounter_ = totalCounter;
-  }
-
   void setFilterBool(bool filterBool) {
     filterBool_ = filterBool;
   }
@@ -24,18 +20,13 @@ public:
     return eventCounter_;
   }
 
-  int getTotalCounter() const {
-    return totalCounter_;
-  }
-
   bool getFilterBool() const {
     return filterBool_;
   }
 
 private:
-  ResonanceDecayFilterCounter() : eventCounter_(0), totalCounter_(0), filterBool_(false) {}
+  ResonanceDecayFilterCounter() : eventCounter_(0), filterBool_(false) {}
   int eventCounter_;
-  int totalCounter_;
   bool filterBool_;
 };
 

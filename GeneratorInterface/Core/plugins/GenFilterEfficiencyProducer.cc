@@ -135,25 +135,25 @@ void GenFilterEfficiencyProducer::produce(edm::StreamID, edm::Event& iEvent, con
       atomic_sum_double(sums->sumpass_w2_, weight * weight);
 
       atomic_sum_double(sums->sumtotal_w_, weight * eventCounterValue);
-      atomic_sum_double(sums->sumtotal_w2_, weight * weight * eventCounterValue * eventCounterValue);
+      atomic_sum_double(sums->sumtotal_w2_, weight * weight * eventCounterValue);
 
       if (weight > 0) {
         sums->numEventsPassPos_++;
-        sums->numEventsTotalPos_ = sums->numEventsTotalPos_ + eventCounterValue;
+        sums->numEventsTotalPos_++;
       } else {
         sums->numEventsPassNeg_++;
-        sums->numEventsTotalNeg_ = sums->numEventsTotalNeg_ + eventCounterValue;
+        sums->numEventsTotalNeg_++;
       }
 
     } else  // if fail the filter
     {
       atomic_sum_double(sums->sumtotal_w_, weight * eventCounterValue);
-      atomic_sum_double(sums->sumtotal_w2_, weight * weight * eventCounterValue * eventCounterValue);
+      atomic_sum_double(sums->sumtotal_w2_, weight * weight * eventCounterValue);
 
       if (weight > 0)
-        sums->numEventsTotalPos_ = sums->numEventsTotalPos_ + eventCounterValue;
+        sums->numEventsTotalPos_++;
       else
-        sums->numEventsTotalNeg_ = sums->numEventsTotalNeg_ + eventCounterValue;
+        sums->numEventsTotalNeg_++;
     }
     //    std::cout << "Total events = " << numEventsTotal << " passed = " << numEventsPassed << std::endl;
   }
