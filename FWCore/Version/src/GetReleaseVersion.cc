@@ -8,4 +8,4 @@ namespace edm {
     static std::string const releaseVersion(STRINGIFY(PROJECT_VERSION));
     return releaseVersion;
   }
-}  // namespace edm
+}  // namespace edm end
