@@ -20,6 +20,7 @@
 #include "CAStructures.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
+
   template <typename TrackerTraits>
   class CACellT {
   public:
@@ -33,7 +34,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
     using CellTracksVector = caStructures::CellTracksVectorT<TrackerTraits>;
 
-    using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
+    using HitsConstView = ::reco::TrackingRecHitConstView;
     using hindex_type = typename TrackerTraits::hindex_type;
     using tindex_type = typename TrackerTraits::tindex_type;
     static constexpr auto invalidHitId = std::numeric_limits<hindex_type>::max();

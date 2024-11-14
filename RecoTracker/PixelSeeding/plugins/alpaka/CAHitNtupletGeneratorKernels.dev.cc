@@ -112,6 +112,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   void CAHitNtupletGeneratorKernels<TrackerTraits>::prepareHits(const HitsConstView &hh,
+                                                                const HitModulesConstView &mm,
                                                                 const reco::CALayersSoAConstView& ll,
                                                                 Queue &queue)
     {
@@ -121,7 +122,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::exec<Acc1D>(queue,
                             workDiv1D,
                             setHitsLayerStart{},
-                            hh.hitsModuleStart().data(),
+                            mm,
                             ll,
                             this->device_layerStarts_.data());
         

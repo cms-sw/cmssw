@@ -309,7 +309,7 @@ template <typename TrackerTraits>
     }
     GPUKernels kernels(m_params, hits_d.view(), params_d.view().metadata().size(), queue);
 
-    kernels.prepareHits(hits_d.view(), params_d.view(),queue);
+    kernels.prepareHits(hits_d.view(), hits_d.view<::reco::HitModuleSoA>(),  params_d.view(),queue);
     kernels.buildDoublets(hits_d.view(), params_d.view<::reco::CACellsSoA>(), hits_d.offsetBPIX2(), queue);
     kernels.launchKernels(hits_d.view(), hits_d.offsetBPIX2(), params_d.view().metadata().size(), tracks.view(), tracks. template view<TrackHitSoA>(), queue);
 
