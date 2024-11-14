@@ -36,8 +36,6 @@ namespace l1t {
   typedef std::vector<DisplacedTrueVertex> DisplacedTrueVertexCollection;
 
   class DisplacedTrackVertex {
-  public:
-    typedef ap_fixed<13,8,AP_RND_CONV, AP_SAT> score_t;
     
   public:
     DisplacedTrackVertex(int firstIndexTrk,
@@ -69,7 +67,6 @@ namespace l1t {
     DisplacedTrackVertex() {}
     ~DisplacedTrackVertex() {}
     void setScore(float score) { score_ = score; }
-    void setScoreEmu(score_t scoreEmu) { scoreEmu_ = scoreEmu; }
     float d_T() const { return d_T_; }
     float R_T() const { return R_T_; }
     float cos_T() const { return cos_T_; }
@@ -84,7 +81,6 @@ namespace l1t {
     float del_Z() const { return del_Z_; }
     bool isReal() const { return isReal_; }
     float score() const { return score_; }
-    score_t scoreEmu() const { return scoreEmu_; }
 
   private:
     int firstIndexTrk_;
@@ -101,7 +97,6 @@ namespace l1t {
     float parentPt_;
     bool isReal_;
     float score_;
-    score_t scoreEmu_;
   };
 
   typedef std::vector<DisplacedTrackVertex> DisplacedTrackVertexCollection;
