@@ -20,6 +20,56 @@
  *
  */
 
+namespace pvMonitor {
+  // same logic used for the MTV:
+  // cf https://github.com/cms-sw/cmssw/blob/master/Validation/RecoTrack/src/MTVHistoProducerAlgoForTracker.cc
+  typedef dqm::reco::DQMStore DQMStore;
+
+  void setBinLog(TAxis *axis) {
+    int bins = axis->GetNbins();
+    float from = axis->GetXmin();
+    float to = axis->GetXmax();
+    float width = (to - from) / bins;
+    std::vector<float> new_bins(bins + 1, 0);
+    for (int i = 0; i <= bins; i++) {
+      new_bins[i] = TMath::Power(10, from + i * width);
+    }
+    axis->Set(bins, new_bins.data());
+  }
+
+  void setBinLogX(TH1 *h) {
+    TAxis *axis = h->GetXaxis();
+    setBinLog(axis);
+  }
+  void setBinLogY(TH1 *h) {
+    TAxis *axis = h->GetYaxis();
+    setBinLog(axis);
+  }
+
+  template <typename... Args>
+  dqm::reco::MonitorElement *makeProfileIfLog(DQMStore::IBooker &ibook, bool logx, bool logy, Args &&...args) {
+    auto prof = std::make_unique<TProfile>(std::forward<Args>(args)...);
+    if (logx)
+      setBinLogX(prof.get());
+    if (logy)
+      setBinLogY(prof.get());
+    const auto &name = prof->GetName();
+    return ibook.bookProfile(name, prof.release());
+  }
+
+  template <typename... Args>
+  dqm::reco::MonitorElement *makeTH1IfLog(DQMStore::IBooker &ibook, bool logx, bool logy, Args &&...args) {
+    auto h1 = std::make_unique<TH1F>(std::forward<Args>(args)...);
+    if (logx)
+      setBinLogX(h1.get());
+    if (logy)
+      setBinLogY(h1.get());
+    const auto &name = h1->GetName();
+    return ibook.book1D(name, h1.release());
+  }
+
+}  // namespace pvMonitor
+
 class PrimaryVertexMonitor : public DQMEDAnalyzer {
 public:
   explicit PrimaryVertexMonitor(const edm::ParameterSet &pSet);
@@ -34,15 +84,15 @@ public:
     std::string varname_;
     float pTcut_;
     dqm::reco::MonitorElement *IP_, *IPErr_, *IPPull_;
-    dqm::reco::MonitorElement *IPVsPhi_, *IPVsEta_;
-    dqm::reco::MonitorElement *IPErrVsPhi_, *IPErrVsEta_;
+    dqm::reco::MonitorElement *IPVsPhi_, *IPVsEta_, *IPVsPt_;
+    dqm::reco::MonitorElement *IPErrVsPhi_, *IPErrVsEta_, *IPErrVsPt_;
     dqm::reco::MonitorElement *IPVsEtaVsPhi_, *IPErrVsEtaVsPhi_;
 
     void bookIPMonitor(DQMStore::IBooker &, const edm::ParameterSet &);
 
   private:
-    int PhiBin_, EtaBin_;
-    double PhiMin_, PhiMax_, EtaMin_, EtaMax_;
+    int PhiBin_, EtaBin_, PtBin_;
+    double PhiMin_, PhiMax_, EtaMin_, EtaMax_, PtMin_, PtMax_;
   };
 
 private:
@@ -81,6 +131,7 @@ private:
   MonitorElement *bsX, *bsY, *bsZ, *bsSigmaZ, *bsDxdz, *bsDydz, *bsBeamWidthX, *bsBeamWidthY, *bsType;
 
   MonitorElement *sumpt, *ntracks, *weight, *chi2ndf, *chi2prob;
+  MonitorElement *trackpt;
   MonitorElement *phi_pt1, *eta_pt1;
   MonitorElement *phi_pt10, *eta_pt10;
 
