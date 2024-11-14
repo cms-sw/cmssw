@@ -54,8 +54,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class HelixFit {
   public:
 
-    using HitView = TrackingRecHitSoAView<TrackerTraits>;
-    using HitConstView = TrackingRecHitSoAConstView<TrackerTraits>;
+    using HitView = ::reco::TrackingRecHitView;
+    using HitConstView = ::reco::TrackingRecHitConstView;
     using Tuples = caStructures::HitContainerT<TrackerTraits>;
     using OutputSoAView = ::reco::TrackSoAView;
     using OutputHitSoAView = ::reco::TrackHitSoAView;
