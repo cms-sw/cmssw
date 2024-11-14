@@ -70,7 +70,7 @@ for e_n,era in enumerate(eras_2022_2):
         for e_key,evs in event_steps_dict.items():
             if "10k" == e_key: # already defined in relval_standard
                 continue   
-            wf_number = base_wf
+            wf_number = base_wf_number_2022
             wf_number = wf_number + offset_era * (e_n + len(eras_2022_1))
             wf_number = wf_number + offset_pd * (p_n + len(pds_2022_1))
             wf_number = wf_number + offset_events * evs 
