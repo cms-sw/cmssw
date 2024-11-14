@@ -2524,8 +2524,8 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
     const auto productID = simTS.seedID();
     if (productID == cPHandle_id) {
       return simTS.seedIndex();
-    } else {  // SimTrackster from SimCluster
-      return int(scToCpMap[simTS.seedIndex()].first);
+    } else {
+      return int(scToCpMap.at(simTS.seedIndex()).index());
     }
   };
 
@@ -2539,7 +2539,6 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
     float iTS_phi = trackster.barycenter().phi();
     float iTS_en = trackster.raw_energy();
     float iTS_pt = trackster.raw_pt();
-
     histograms.h_denom_trackster_eta[valType][count]->Fill(iTS_eta);
     histograms.h_denom_trackster_phi[valType][count]->Fill(iTS_phi);
     histograms.h_denom_trackster_en[valType][count]->Fill(iTS_en);
@@ -2547,8 +2546,8 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
 
     // loop over trackstersToSimTrackstersMap[tracksterIndex] by index
     for (unsigned int i = 0; i < trackstersToSimTrackstersMap[tracksterIndex].size(); ++i) {
-      const auto& [sts_id, sharedEnergyScorePair] = trackstersToSimTrackstersMap[tracksterIndex][i];
-      const auto& [sharedEnergy, score] = sharedEnergyScorePair;
+      auto sharedEnergy = trackstersToSimTrackstersMap[tracksterIndex][i].sharedEnergy();
+      auto score = trackstersToSimTrackstersMap[tracksterIndex][i].score();
       float sharedEnergyFraction = sharedEnergy / trackster.raw_energy();
       if (i == 0) {
         histograms.h_score_trackster2bestCaloparticle[valType][count]->Fill(score);
@@ -2590,10 +2589,9 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
   // only to the selected caloParaticles.
   for (unsigned int simTracksterIndex = 0; simTracksterIndex < nSimTracksters; ++simTracksterIndex) {
     const auto& simTrackster = *(simTrackstersToTrackstersMap.getRefFirst(simTracksterIndex));
-    const auto& cpId = getCPId(simTrackster, cPHandle_id, scToCpMap);
+    const auto cpId = getCPId(simTrackster, cPHandle_id, scToCpMap);
     if (std::find(cPSelectedIndices.begin(), cPSelectedIndices.end(), cpId) == cPSelectedIndices.end())
       continue;
-
     const auto sts_eta = simTrackster.barycenter().eta();
     const auto sts_phi = simTrackster.barycenter().phi();
     const auto sts_en = simTrackster.raw_energy();
@@ -2613,11 +2611,9 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
     bool sts_considered_pure = false;
 
     for (unsigned int i = 0; i < simTrackstersToTrackstersMap[simTracksterIndex].size(); ++i) {
-      const auto& [tracksterId, sharedEnergyScorePair] = simTrackstersToTrackstersMap[simTracksterIndex][i];
-      const auto& [sharedEnergy, score] = sharedEnergyScorePair;
-
+      const auto sharedEnergy = simTrackstersToTrackstersMap[simTracksterIndex][i].sharedEnergy();
+      const auto score = simTrackstersToTrackstersMap[simTracksterIndex][i].score();
       float sharedEnergyFraction = sharedEnergy * inv_simtrackster_energy;
-
       if (i == 0) {
         histograms.h_scorePur_caloparticle2trackster[valType][count]->Fill(score);
         histograms.h_sharedenergy_caloparticle2trackster_assoc[valType][count]->Fill(sharedEnergyFraction);
