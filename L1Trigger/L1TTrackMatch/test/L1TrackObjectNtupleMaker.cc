@@ -363,7 +363,6 @@ private:
   std::vector<float>* m_dvEmu_del_Z;
   std::vector<bool>* m_dvEmu_isReal;
   std::vector<float>* m_dvEmu_score;
-  std::vector<float>* m_dvEmu_scoreEmu;
 
   std::vector<float>* m_dvEmuFixed_d_T;
   std::vector<float>* m_dvEmuFixed_R_T;
@@ -1086,7 +1085,6 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_dvEmu_del_Z;
   delete m_dvEmu_isReal;
   delete m_dvEmu_score;
-  delete m_dvEmu_scoreEmu;
 
   delete m_dvEmuFixed_d_T;
   delete m_dvEmuFixed_R_T;
@@ -1565,7 +1563,6 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_dvEmu_del_Z = new std::vector<float>;
   m_dvEmu_isReal = new std::vector<bool>;
   m_dvEmu_score = new std::vector<float>;
-  m_dvEmu_scoreEmu = new std::vector<float>;
 
   m_dvEmuFixed_d_T = new std::vector<float>;
   m_dvEmuFixed_R_T = new std::vector<float>;
@@ -2017,7 +2014,6 @@ void L1TrackObjectNtupleMaker::beginJob() {
     eventTree->Branch("dvEmu_del_Z", &m_dvEmu_del_Z);
     eventTree->Branch("dvEmu_isReal", &m_dvEmu_isReal);
     eventTree->Branch("dvEmu_score", &m_dvEmu_score);
-    eventTree->Branch("dvEmu_scoreEmu", &m_dvEmu_scoreEmu);
 
     eventTree->Branch("dvEmuFixed_d_T", &m_dvEmuFixed_d_T);
     eventTree->Branch("dvEmuFixed_R_T", &m_dvEmuFixed_R_T);
@@ -2333,7 +2329,6 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     m_dvEmu_del_Z->clear();
     m_dvEmu_isReal->clear();
     m_dvEmu_score->clear();
-    m_dvEmu_scoreEmu->clear();
 
     m_dvEmuFixed_d_T->clear();
     m_dvEmuFixed_R_T->clear();
@@ -2770,7 +2765,6 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       m_dvEmu_del_Z->push_back(tmp_dvEmu_del_Z);
       m_dvEmu_isReal->push_back(dispVertEmulationIter->isReal());
       m_dvEmu_score->push_back(dispVertEmulationIter->score());
-      m_dvEmu_scoreEmu->push_back(dispVertEmulationIter->scoreEmu().to_float());
 
       m_dvEmuFixed_d_T->push_back(tmp_dvEmuFixed_d_T.to_float());
       m_dvEmuFixed_R_T->push_back(tmp_dvEmuFixed_R_T.to_float());

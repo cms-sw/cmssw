@@ -10,7 +10,6 @@ DisplacedVertexProducer = cms.EDProducer('DisplacedVertexProducer',
   runEmulation = cms.bool(True),                                  
   cutSet = cms.PSet(
       chi2rzMax = cms.double(3.0), # chi2rz value for all tracks must be less than this
-      dispMVAMin = cms.double(0.2), # displaced track quality MVA score for all tracks must be greater than this
       promptMVAMin = cms.double(0.2), # prompt track quality MVA score for all tracks must be greater than this
       ptMin = cms.double(3.0), # pt value for all tracks must be greater than this [GeV]
       etaMax = cms.double(2.4), # eta value for all tracks must be less than this

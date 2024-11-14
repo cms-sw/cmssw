@@ -28,18 +28,12 @@ class Track_Parameters {
 public:
   float pt;
   float d0;
-  float dxy = -99999;
   float z0;
   float eta;
   float phi;
   float charge;
   float rho;
   int index;
-  int pdgid = -99999;
-  float vx;
-  float vy;
-  float vz;
-  Track_Parameters* tp;
   float x0;
   float y0;
   int nstubs;
@@ -61,13 +55,8 @@ public:
                    float z0_in,
                    float eta_in,
                    float phi_in,
-                   int pdgid_in,
-                   float vx_in,
-                   float vy_in,
-                   float vz_in,
                    float rho_in = 0,
                    int index_in = -1,
-                   Track_Parameters* tp_in = nullptr,
                    int nstubs_in = 0,
                    float chi2rphi_in = 0,
                    float chi2rz_in = 0,
@@ -86,11 +75,6 @@ public:
       charge = 0;
     }
     index = index_in;
-    pdgid = pdgid_in;
-    vx = vx_in;
-    vy = vy_in;
-    vz = vz_in;
-    tp = tp_in;
     rho = fabs(rho_in);
     x0 = (rho + charge * d0) * TMath::Cos(phi - (charge * TMath::Pi() / 2));
     y0 = (rho + charge * d0) * TMath::Sin(phi - (charge * TMath::Pi() / 2));
@@ -122,42 +106,28 @@ public:
   Double_t x_dv;
   Double_t y_dv;
   Double_t z_dv;
-  float score;
   Track_Parameters a;
   Track_Parameters b;
-  int inTraj;
-  bool matched = false;
   std::vector<Track_Parameters> tracks = {};
   float p_mag;
   float p2_mag;
   float openingAngle = -999.0;
   float R_T;
   float cos_T = -999.0;
-  float alpha_T = -999.0;
   float d_T;
-  float chi2rphidofSum;
-  float chi2rzdofSum;
-  float bendchi2Sum;
-  float MVA1Sum;
-  int numStubsSum;
   float delta_z;
-  float delta_eta;
   float phi;
   Vertex_Parameters(Double_t x_dv_in,
                     Double_t y_dv_in,
                     Double_t z_dv_in,
                     Track_Parameters a_in,
-                    Track_Parameters b_in,
-                    float score_in = -1,
-                    int inTraj_in = 4)
+                    Track_Parameters b_in)
       : a(a_in), b(b_in) {
     x_dv = x_dv_in;
     y_dv = y_dv_in;
     z_dv = z_dv_in;
-    score = score_in;
     tracks.push_back(a_in);
     tracks.push_back(b_in);
-    inTraj = inTraj_in;
     std::valarray<float> p_trk_1 = calcPVec(a_in, x_dv_in, y_dv_in);
     std::valarray<float> p_trk_2 = calcPVec(b_in, x_dv_in, y_dv_in);
     std::valarray<float> p_tot = p_trk_1 + p_trk_2;
@@ -170,26 +140,11 @@ public:
     R_T = TMath::Sqrt(pow(x_dv_in, 2) + pow(y_dv_in, 2));
     if ((R_T != 0.0) && ((p_tot[0] != 0.0) || (p_tot[1] != 0.0))) {
       cos_T = (p_tot[0] * x_dv_in + p_tot[1] * y_dv_in) / (R_T * TMath::Sqrt(pow(p_tot[0], 2) + pow(p_tot[1], 2)));
-      alpha_T = acos(cos_T);
     }
     phi = atan2(p_tot[1], p_tot[0]);
     d_T = fabs(cos(phi) * y_dv_in - sin(phi) * x_dv_in);
-    int ndof_1 = 2 * a_in.nstubs - 5;
-    float chi2rphidof_1 = a_in.chi2rphi / ndof_1;
-    float chi2rzdof_1 = a_in.chi2rz / ndof_1;
-    float bendchi2_1 = a_in.bendchi2;
-    int ndof_2 = 2 * b_in.nstubs - 5;
-    float chi2rphidof_2 = b_in.chi2rphi / ndof_2;
-    float chi2rzdof_2 = b_in.chi2rz / ndof_2;
-    float bendchi2_2 = b_in.bendchi2;
-    chi2rphidofSum = chi2rphidof_1 + chi2rphidof_2;
-    chi2rzdofSum = chi2rzdof_1 + chi2rzdof_2;
-    bendchi2Sum = bendchi2_1 + bendchi2_2;
-    MVA1Sum = a_in.MVA1 + b_in.MVA1;
-    numStubsSum = a_in.nstubs + b_in.nstubs;
     p2_mag = pow(a_in.pt, 2) + pow(b_in.pt, 2);
     delta_z = fabs(a_in.z(x_dv_in, y_dv_in) - b_in.z(x_dv_in, y_dv_in));
-    delta_eta = fabs(a_in.eta - b_in.eta);
   }
 
   Vertex_Parameters(){};
@@ -217,11 +172,10 @@ private:
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackGTTToken_;
   const std::string outputTrackCollectionName_;
   const std::string outputTrackEmulationCollectionName_;
-  const std::string qualityAlgorithm_;
   const std::string model_;
   const bool runEmulation_;
   const edm::ParameterSet cutSet_;
-  const double chi2rzMax_, dispMVAMin_, promptMVAMin_, ptMin_, etaMax_, dispD0Min_, promptMVADispTrackMin_,
+  const double chi2rzMax_, promptMVAMin_, ptMin_, etaMax_, dispD0Min_, promptMVADispTrackMin_,
       overlapEtaMin_, overlapEtaMax_;
   const int overlapNStubsMin_;
   const double diskEtaMin_, diskD0Min_, barrelD0Min_, RTMin_, RTMax_;
