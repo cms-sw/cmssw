@@ -129,7 +129,7 @@ std::vector<l1t::TrackerMuon> TPSAlgorithm::sort(std::vector<l1t::TrackerMuon>& 
   return out;
 }
 
-propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer) {
+propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer) const{
   static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop1_coord1 = {
       {lt_prop1_coord1_0, lt_prop1_coord1_1, lt_prop1_coord1_2, lt_prop1_coord1_3, lt_prop1_coord1_4}};
   static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop1_coord2 = {
