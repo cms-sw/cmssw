@@ -1,5 +1,6 @@
 <library file="BCVEGPY/*.F,BCVEGPY/*.f" name="GeneratorInterfaceBCVEGPY">
   <use name="pythia6"/>
+  <use name="pythia6_pdfdummy"/>
   <use name="f77compiler"/>
 </library>
 
