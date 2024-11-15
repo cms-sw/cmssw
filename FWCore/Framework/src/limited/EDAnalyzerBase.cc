@@ -53,9 +53,9 @@ namespace edm {
     bool EDAnalyzerBase::doEvent(EventTransitionInfo const& info,
                                  ActivityRegistry* act,
                                  ModuleCallingContext const* mcc) {
+      EventSignalsSentry sentry(act, mcc);
       Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
-      EventSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
           info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};

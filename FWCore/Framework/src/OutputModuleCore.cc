@@ -298,9 +298,9 @@ namespace edm {
                                     ActivityRegistry* act,
                                     ModuleCallingContext const* mcc) {
       {
+        EventSignalsSentry sentry(act, mcc);
         EventForOutput e(info, moduleDescription_, mcc);
         e.setConsumer(this);
-        EventSignalsSentry sentry(act, mcc);
         write(e);
       }
       //remainingEvents_ is decremented by inheriting classes
