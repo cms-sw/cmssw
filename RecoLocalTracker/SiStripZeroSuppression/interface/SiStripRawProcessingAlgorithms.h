@@ -21,7 +21,8 @@ public:
   void initialize(const edm::EventSetup&);
   void initialize(const edm::EventSetup&, const edm::Event&);
 
-  uint16_t suppressHybridData(const edm::DetSet<SiStripDigi>& inDigis,
+  uint16_t suppressHybridData(const uint16_t maxStrip,
+                              const edm::DetSet<SiStripDigi>& inDigis,
                               edm::DetSet<SiStripDigi>& suppressedDigis,
                               uint16_t firstAPV = 0);
 
