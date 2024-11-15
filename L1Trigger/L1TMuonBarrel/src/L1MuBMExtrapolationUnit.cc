@@ -29,7 +29,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSEU.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMEUX.h"
@@ -66,7 +66,7 @@ L1MuBMExtrapolationUnit::L1MuBMExtrapolationUnit(const L1MuBMSectorProcessor& sp
       for (unsigned int startAddress = 0; startAddress < maxaddr; startAddress++) {
         SEUId id = make_pair(ext, startAddress);
         m_SEUs[id] = new L1MuBMSEU(sp, ext, startAddress);
-        if (L1MuBMTFConfig::Debug(6))
+        if (m_sp.config().Debug(6))
           cout << "  creating SEU " << ext << " " << startAddress << endl;
       }
     }
@@ -104,7 +104,7 @@ void L1MuBMExtrapolationUnit::run(const edm::EventSetup& c) {
     const L1MuBMTrackSegPhi* ts = nullptr;
 
     //get start track segment
-    ts = m_sp.data()->getTSphi(start, ((*iter).second)->tsId());
+    ts = m_sp.data().getTSphi(start, ((*iter).second)->tsId());
 
     if (ts != nullptr && !ts->empty()) {
       ((*iter).second)->load(ts);
@@ -116,7 +116,7 @@ void L1MuBMExtrapolationUnit::run(const edm::EventSetup& c) {
   // use EX21 to cross-check EX12
   //
   bool run_21 = pars.get_soc_run_21(m_sp.id().wheel(), m_sp.id().sector());
-  if (L1MuBMTFConfig::getUseEX21() || run_21) {
+  if (m_sp.config().getUseEX21() || run_21) {
     // search for EX12 + EX21 single extrapolation units
     for (unsigned int startAdr = 0; startAdr < 2; startAdr++) {
       bitset<12> extab12 = this->getEXTable(EX12, startAdr);
@@ -125,7 +125,7 @@ void L1MuBMExtrapolationUnit::run(const edm::EventSetup& c) {
       for (int eux = 0; eux < 12; eux++) {
         if (extab12.test(eux) && !extab21.test(eux)) {
           reset(EX12, startAdr, eux);
-          if (L1MuBMTFConfig::Debug(6)) {
+          if (m_sp.config().Debug(6)) {
             SEUId seuid = make_pair(EX12, startAdr);
             L1MuBMSEU* SEU12 = m_SEUs[seuid];
             cout << "  EX12 - EX21 mismatch : "

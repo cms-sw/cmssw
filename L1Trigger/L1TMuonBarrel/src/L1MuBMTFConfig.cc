@@ -16,7 +16,7 @@
 // This Class's Header --
 //-----------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 
@@ -42,11 +42,6 @@ using namespace std;
 //----------------
 
 L1MuBMTFConfig::L1MuBMTFConfig(const edm::ParameterSet& ps) { setDefaults(ps); }
-
-//--------------
-// Destructor --
-//--------------
-L1MuBMTFConfig::~L1MuBMTFConfig() {}
 
 //--------------
 // Operations --
@@ -81,42 +76,38 @@ void L1MuBMTFConfig::setDefaults(const edm::ParameterSet& ps) {
     cout << "L1 barrel Track Finder : debug level: " << m_dbgLevel << endl;
 }
 
-void L1MuBMTFConfig::setDefaultsES(const L1TMuonBarrelParams& bmParams) {
-  // L1TMuonBarrelParams *bmtfParams = new L1TMuonBarrelParams();
-  // bmtfParams = new L1TMuonBarrelParams(*bmtfParamsHandle.product());
-  L1TMuonBarrelParamsAllPublic* bmtfParams = new L1TMuonBarrelParamsAllPublic(bmParams);
-
+void L1MuBMTFConfig::setDefaultsES(const L1TMuonBarrelParams& bmtfParams) {
   // set min and max bunch crossing
-  m_BxMin = bmtfParams->get_BX_min();
-  m_BxMax = bmtfParams->get_BX_max();
+  m_BxMin = bmtfParams.get_BX_min();
+  m_BxMax = bmtfParams.get_BX_max();
 
   // set Filter for Extrapolator
-  m_extTSFilter = bmtfParams->get_Extrapolation_Filter();
+  m_extTSFilter = bmtfParams.get_Extrapolation_Filter();
 
   // set switch for open LUTs usage
-  m_openLUTs = bmtfParams->get_Open_LUTs();
+  m_openLUTs = bmtfParams.get_Open_LUTs();
 
   // set switch for EX21 usage
-  m_useEX21 = bmtfParams->get_Extrapolation_21();
+  m_useEX21 = bmtfParams.get_Extrapolation_21();
 
   // set switch for eta track finder usage
-  m_etaTF = bmtfParams->get_EtaTrackFinder();
+  m_etaTF = bmtfParams.get_EtaTrackFinder();
 
   // set Filter for Out-of-time Track Segments
-  m_TSOutOfTimeFilter = bmtfParams->get_OutOfTime_Filter();
-  m_TSOutOfTimeWindow = bmtfParams->get_OutOfTime_Filter_Window();
+  m_TSOutOfTimeFilter = bmtfParams.get_OutOfTime_Filter();
+  m_TSOutOfTimeWindow = bmtfParams.get_OutOfTime_Filter_Window();
 
   // set precision for extrapolation
-  m_NbitsExtPhi = bmtfParams->get_Extrapolation_nbits_Phi();
-  m_NbitsExtPhib = bmtfParams->get_Extrapolation_nbits_PhiB();
+  m_NbitsExtPhi = bmtfParams.get_Extrapolation_nbits_Phi();
+  m_NbitsExtPhib = bmtfParams.get_Extrapolation_nbits_PhiB();
 
   // set precision for pt-assignment
-  m_NbitsPtaPhi = bmtfParams->get_PT_Assignment_nbits_Phi();
-  m_NbitsPtaPhib = bmtfParams->get_PT_Assignment_nbits_PhiB();
+  m_NbitsPtaPhi = bmtfParams.get_PT_Assignment_nbits_Phi();
+  m_NbitsPtaPhib = bmtfParams.get_PT_Assignment_nbits_PhiB();
 
   // set precision for phi-assignment look-up tables
-  m_NbitsPhiPhi = bmtfParams->get_PHI_Assignment_nbits_Phi();
-  m_NbitsExtPhib = bmtfParams->get_PHI_Assignment_nbits_PhiB();
+  m_NbitsPhiPhi = bmtfParams.get_PHI_Assignment_nbits_Phi();
+  m_NbitsExtPhib = bmtfParams.get_PHI_Assignment_nbits_PhiB();
 
   if (Debug(1))
     cout << "L1 barrel Track Finder : minimal bunch-crossing : " << m_BxMin << endl;
@@ -167,28 +158,4 @@ void L1MuBMTFConfig::setDefaultsES(const L1TMuonBarrelParams& bmParams) {
     cout << "L1 barrel Track Finder : # of bits used for phi  (phi-assignment) : " << m_NbitsPhiPhi << endl;
   if (Debug(1))
     cout << "L1 barrel Track Finder : # of bits used for phib (phi-assignment) : " << m_NbitsPhiPhib << endl;
-
-  delete bmtfParams;
 }
-
-// static data members
-
-edm::InputTag L1MuBMTFConfig::m_BMDigiInputTag = edm::InputTag();
-edm::InputTag L1MuBMTFConfig::m_BMThetaDigiInputTag = edm::InputTag();
-
-bool L1MuBMTFConfig::m_debug = false;
-int L1MuBMTFConfig::m_dbgLevel = -1;
-int L1MuBMTFConfig::m_BxMin = -9;
-int L1MuBMTFConfig::m_BxMax = 7;
-int L1MuBMTFConfig::m_extTSFilter = 1;
-bool L1MuBMTFConfig::m_openLUTs = false;
-bool L1MuBMTFConfig::m_useEX21 = false;
-bool L1MuBMTFConfig::m_etaTF = true;
-bool L1MuBMTFConfig::m_TSOutOfTimeFilter = false;
-int L1MuBMTFConfig::m_TSOutOfTimeWindow = 1;
-int L1MuBMTFConfig::m_NbitsExtPhi = 8;
-int L1MuBMTFConfig::m_NbitsExtPhib = 8;
-int L1MuBMTFConfig::m_NbitsPtaPhi = 12;
-int L1MuBMTFConfig::m_NbitsPtaPhib = 10;
-int L1MuBMTFConfig::m_NbitsPhiPhi = 10;
-int L1MuBMTFConfig::m_NbitsPhiPhib = 10;

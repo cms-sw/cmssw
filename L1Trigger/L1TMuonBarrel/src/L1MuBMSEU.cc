@@ -28,7 +28,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMDataBuffer.h"
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackSegLoc.h"
@@ -83,7 +83,7 @@ L1MuBMSEU::~L1MuBMSEU() {
 // run SEU
 //
 void L1MuBMSEU::run(const L1TMuonBarrelParams& params) {
-  if (L1MuBMTFConfig::Debug(3))
+  if (m_sp.config().Debug(3))
     cout << "Run SEU " << m_ext << " " << m_startTS_Id << endl;
 
   pair<int, int> ext_pair = L1MuBMExtrapolationUnit::which_ext(m_ext);
@@ -118,7 +118,7 @@ void L1MuBMSEU::run(const L1TMuonBarrelParams& params) {
     if (nextWheel && (reladr / 2) % 2 == 0)
       continue;
 
-    const L1MuBMTrackSegPhi* target_ts = m_sp.data()->getTSphi(target, reladr);
+    const L1MuBMTrackSegPhi* target_ts = m_sp.data().getTSphi(target, reladr);
     if (target_ts && !target_ts->empty()) {
       m_EUXs[reladr]->load(m_startTS, target_ts);
       m_EUXs[reladr]->run(params);
@@ -127,7 +127,7 @@ void L1MuBMSEU::run(const L1TMuonBarrelParams& params) {
     }
   }
 
-  if (L1MuBMTFConfig::Debug(3)) {
+  if (m_sp.config().Debug(3)) {
     int n_ext = numberOfExt();
     if (n_ext > 0)
       cout << "number of successful EUX : " << n_ext << endl;
@@ -180,3 +180,5 @@ int L1MuBMSEU::numberOfExt() const {
 
   return number;
 }
+
+const L1MuBMTFConfig& L1MuBMSEU::config() const { return m_sp.config(); }

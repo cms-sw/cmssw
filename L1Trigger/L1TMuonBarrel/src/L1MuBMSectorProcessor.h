@@ -39,12 +39,14 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
-class L1MuBMSectorReceiver;
-class L1MuBMDataBuffer;
-class L1MuBMExtrapolationUnit;
-class L1MuBMTrackAssembler;
-class L1MuBMAssignmentUnit;
-class L1MuBMTrackFinder;
+
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorReceiver.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMDataBuffer.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMExtrapolationUnit.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackAssembler.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMAssignmentUnit.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
+
 class L1MuBMTrack;
 class L1TMuonBarrelParams;
 class L1TMuonBarrelParamsRcd;
@@ -56,16 +58,17 @@ class L1TMuonBarrelParamsRcd;
 class L1MuBMSectorProcessor {
 public:
   /// constructor
+  L1MuBMSectorProcessor() = delete;
   L1MuBMSectorProcessor(const L1MuBMTrackFinder&, const L1MuBMSecProcId&, edm::ConsumesCollector&&);
 
-  /// destructor
-  virtual ~L1MuBMSectorProcessor();
-
   /// run the Sector Processor
-  virtual void run(int bx, const edm::Event& e, const edm::EventSetup& c);
+  void run(int bx, const edm::Event& e, const edm::EventSetup& c);
 
   /// reset the Sector Processor
-  virtual void reset();
+  void reset();
+
+  /// access configuration
+  const L1MuBMTFConfig& config() const;
 
   /// print muon candidates found by the Sector Processor
   void print() const;
@@ -85,24 +88,26 @@ public:
   /// is it an overlap region Sector Processor?
   inline bool ovl() const { return m_spid.ovl(); }
 
-  /// return pointer to Data Buffer
-  inline const L1MuBMDataBuffer* data() const { return m_DataBuffer; }
-  inline L1MuBMDataBuffer* data() { return m_DataBuffer; }
+  /// return Data Buffer
+  inline const L1MuBMDataBuffer& data() const { return m_DataBuffer; }
+  inline L1MuBMDataBuffer& data() { return m_DataBuffer; }
 
-  /// return pointer to Extrapolation Unit
-  inline const L1MuBMExtrapolationUnit* EU() const { return m_EU; }
+  /// return Extrapolation Unit
+  inline const L1MuBMExtrapolationUnit& EU() const { return m_EU; }
 
-  /// return pointer to Track Assembler
-  inline const L1MuBMTrackAssembler* TA() const { return m_TA; }
+  /// return Track Assembler
+  inline const L1MuBMTrackAssembler& TA() const { return m_TA; }
 
-  /// return pointer to Assignment Unit, index [0,1]
-  inline const L1MuBMAssignmentUnit* AU(int id) const { return m_AUs[id]; }
+  /// return Assignment Unit, index [0,1]
+  inline const L1MuBMAssignmentUnit& AU(int id) const { return m_AUs[id]; }
 
-  /// return pointer to muon candidate, index [0,1]
-  inline L1MuBMTrack* track(int id) const { return m_TrackCands[id]; }
+  /// return muon candidate, index [0,1]
+  inline L1MuBMTrack const& track(int id) const { return m_TrackCands[id]; }
+  inline L1MuBMTrack& track(int id) { return m_TrackCands[id]; }
 
-  /// return pointer to muon candidate, index [0,1]
-  inline L1MuBMTrack* tracK(int id) const { return m_TracKCands[id]; }
+  /// return muon candidate, index [0,1]
+  inline L1MuBMTrack const& tracK(int id) const { return m_TracKCands[id]; }
+  inline L1MuBMTrack& tracK(int id) { return m_TracKCands[id]; }
 
 private:
   /// are there any non-empty muon candidates?
@@ -112,15 +117,15 @@ private:
   const L1MuBMTrackFinder& m_tf;
   L1MuBMSecProcId m_spid;
 
-  L1MuBMSectorReceiver* m_SectorReceiver;
-  L1MuBMDataBuffer* m_DataBuffer;
-  L1MuBMExtrapolationUnit* m_EU;
-  L1MuBMTrackAssembler* m_TA;
+  L1MuBMSectorReceiver m_SectorReceiver;
+  L1MuBMDataBuffer m_DataBuffer;
+  L1MuBMExtrapolationUnit m_EU;
+  L1MuBMTrackAssembler m_TA;
   const edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> m_bmtfParamsToken;
-  std::vector<L1MuBMAssignmentUnit*> m_AUs;
+  std::vector<L1MuBMAssignmentUnit> m_AUs;
 
-  std::vector<L1MuBMTrack*> m_TrackCands;
-  std::vector<L1MuBMTrack*> m_TracKCands;
+  std::vector<L1MuBMTrack> m_TrackCands;
+  std::vector<L1MuBMTrack> m_TracKCands;
 };
 
 #endif

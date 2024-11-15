@@ -27,7 +27,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSEU.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
@@ -58,9 +58,9 @@ L1MuBMEUX::L1MuBMEUX(const L1MuBMSectorProcessor& sp, const L1MuBMSEU& seu, int 
       m_address(15),
       m_start(nullptr),
       m_target(nullptr),
-      theExtFilter(L1MuBMTFConfig::getExtTSFilter()),
-      nbit_phi(L1MuBMTFConfig::getNbitsExtPhi()),
-      nbit_phib(L1MuBMTFConfig::getNbitsExtPhib()) {}
+      theExtFilter(m_sp.config().getExtTSFilter()),
+      nbit_phi(m_sp.config().getNbitsExtPhi()),
+      nbit_phib(m_sp.config().getNbitsExtPhib()) {}
 
 //--------------
 // Destructor --
@@ -94,15 +94,15 @@ void L1MuBMEUX::run(const L1TMuonBarrelParams& bmtfParams) {
   pars = bmtfParams.l1mudttfparams;
   theExtLUTs = new L1MuBMLUTHandler(bmtfParams);  ///< ext look-up tables
 
-  if (L1MuBMTFConfig::Debug(4))
+  if (m_sp.config().Debug(4))
     cout << "Run EUX " << m_id << endl;
-  if (L1MuBMTFConfig::Debug(4))
+  if (m_sp.config().Debug(4))
     cout << "start :  " << *m_start << endl;
-  if (L1MuBMTFConfig::Debug(4))
+  if (m_sp.config().Debug(4))
     cout << "target : " << *m_target << endl;
 
   if (m_start == nullptr || m_target == nullptr) {
-    if (L1MuBMTFConfig::Debug(4))
+    if (m_sp.config().Debug(4))
       cout << "Error: EUX has no data loaded" << endl;
     delete theExtLUTs;
     return;
@@ -133,7 +133,7 @@ void L1MuBMEUX::run(const L1TMuonBarrelParams& bmtfParams) {
     }
   }
 
-  if (L1MuBMTFConfig::Debug(5))
+  if (m_sp.config().Debug(5))
     cout << "EUX : using look-up table : " << static_cast<Extrapolation>(lut_idx) << endl;
 
   // Extrapolation TS quality filter
@@ -196,7 +196,7 @@ void L1MuBMEUX::run(const L1TMuonBarrelParams& bmtfParams) {
   }
   // is phi-difference within the extrapolation window?
   bool openlut = pars.get_soc_openlut_extr(m_sp.id().wheel(), m_sp.id().sector());
-  if ((diff >= low && diff <= high) || L1MuBMTFConfig::getopenLUTs() || openlut) {
+  if ((diff >= low && diff <= high) || m_sp.config().getopenLUTs() || openlut) {
     m_result = true;
     int qual_st = m_start->quality();
     int qual_ta = m_target->quality();
@@ -208,7 +208,7 @@ void L1MuBMEUX::run(const L1TMuonBarrelParams& bmtfParams) {
     m_address = m_id;
   }
   delete theExtLUTs;
-  if (L1MuBMTFConfig::Debug(5))
+  if (m_sp.config().Debug(5))
     cout << "diff : " << low << " " << diff << " " << high << " : " << m_result << " " << endl;
 }
 
