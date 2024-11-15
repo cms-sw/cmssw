@@ -5,10 +5,12 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingFactory.h"
 #include "FWCore/Utilities/interface/transform.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include <memory>
 
 SiStripZeroSuppression::SiStripZeroSuppression(edm::ParameterSet const& conf)
@@ -151,8 +153,11 @@ inline void SiStripZeroSuppression::processHybrid(const edm::DetSetVector<SiStri
   for (const auto& inDigis : input) {
     edm::DetSet<SiStripDigi> suppressedDigis(inDigis.id);
 
+    unsigned int detId = inDigis.id;
+    uint16_t maxNStrips = SiStripDetId(detId).numberOfAPVs() * 128;
+
     uint16_t nAPVflagged = 0;
-    nAPVflagged = algorithms->suppressHybridData(inDigis, suppressedDigis);
+    nAPVflagged = algorithms->suppressHybridData(maxNStrips, inDigis, suppressedDigis);
 
     storeExtraOutput(inDigis.id, nAPVflagged);
     if (!suppressedDigis.empty())
