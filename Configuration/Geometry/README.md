@@ -33,7 +33,8 @@ Calorimeters:
 Muon system:
 * M1: 2021 baseline with additional chambers in GE21 and iRPC31/41
 * M2: 2023 GE21 shifted in position
-* M3: 2024 with additional chambers in GE21 and iRPC31
+* M4: 2024 with additional chambers in GE21 and iRPC31
+* M5: 2025 with additional chambers in GE21 and iRPC
 
 PPS:
 * P7: 2021 baseline (after removing overlaps and using common materials whenever possible)
