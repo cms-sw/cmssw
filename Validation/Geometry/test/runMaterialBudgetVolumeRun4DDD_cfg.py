@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runMaterialBudgetVolume2026DDD_cfg.py geometry=D110
+#   cmsRun runMaterialBudgetVolumeRun4DDD_cfg.py geometry=D110
 #
 #   Options for geometry D98, D99, D103, D104, D105, D106, D107, D108, D109
 #                        D110, D111, D112, D113, D114, D115
@@ -33,7 +33,7 @@ else:
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('MaterialBudgetVolume',Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 fileName = "matbdg" + options.geometry + "DDD" + ".root"
 
 print("Geometry file Name: ", geomFile)
