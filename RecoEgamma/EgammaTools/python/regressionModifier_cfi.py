@@ -266,5 +266,22 @@ regressionModifierRun3 = regressionModifierRun2.clone(
 from Configuration.Eras.Modifier_run3_egamma_cff import run3_egamma
 run3_egamma.toReplaceWith(regressionModifier,regressionModifierRun3)
 
+from Configuration.Eras.Era_Run3_2023_UPC_cff import Run3_2023_UPC
+from Configuration.Eras.Modifier_run3_egamma_2023_cff import run3_egamma_2023
+(run3_egamma_2023 & Run3_2023_UPC).toModify(regressionModifier103XLowPtPho,
+    eleRegs = dict(
+        ecalOnlyMean = dict(
+            rangeMinHighEt = 0.2,
+            rangeMaxHighEt = 2.0
+        )
+    ),
+    phoRegs = dict(
+        ecalOnlyMean = dict(
+            rangeMinHighEt = 0.2,
+            rangeMaxHighEt = 2.0
+        )
+    )
+)
+
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
 egamma_lowPt_exclusive.toReplaceWith(regressionModifier,regressionModifier103XLowPtPho)
