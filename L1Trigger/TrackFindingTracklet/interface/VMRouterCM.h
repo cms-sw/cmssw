@@ -22,11 +22,18 @@ namespace trklet {
   class VMStubsTEMemory;
 
   struct VMStubsTEPHICM {
-    VMStubsTEPHICM(unsigned int seednumber_, std::vector<VMStubsTEMemory*> vmstubmem_)
-        : seednumber(seednumber_), vmstubmem(vmstubmem_) {}
+    VMStubsTEPHICM(unsigned int seednumber_,
+                   unsigned int stubposition_,
+                   const std::vector<std::vector<VMStubsTEMemory*> >& vmstubmem_)
+        : seednumber(seednumber_), stubposition(stubposition_), vmstubmem(vmstubmem_) {};
 
-    unsigned int seednumber;                  //seed number [0,11]
-    std::vector<VMStubsTEMemory*> vmstubmem;  // m_vmstubmem[n] is the VMStubsTEMemory for the nth copy
+    unsigned int seednumber;    //seed number [0,11]
+    unsigned int stubposition;  //stub position in the seed (only used by triplet seeds)
+
+    // The first index in the following 2D vector is only used in the case of
+    // the triplet seeds.
+    std::vector<std::vector<VMStubsTEMemory*> >
+        vmstubmem;  // m_vmstubmem[iVM][n] is the VMStubsTEMemory for iVM and the nth copy
   };
 
   class VMRouterCM : public ProcessBase {
@@ -56,6 +63,14 @@ namespace trklet {
 
     TrackletLUT meTable_;    //used for ME and outer TE barrel
     TrackletLUT diskTable_;  //outer disk used by D1, D2, and D4
+
+    // The following tables are only used to replicate the behavior of the old
+    // VMRouter in the case of the triplet seeds.
+    TrackletLUT meTableOld_;         //used for ME and outer TE barrel
+    TrackletLUT diskTableOld_;       //outer disk used by D1, D2, and D4
+    TrackletLUT innerTable_;         //projection to next layer/disk
+    TrackletLUT innerOverlapTable_;  //projection to disk from layer
+    TrackletLUT innerThirdTable_;    //projection to disk1 for extended - iseed=10
 
     //The input stub memories
     std::vector<InputLinkMemory*> stubinputs_;

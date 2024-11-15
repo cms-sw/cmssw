@@ -25,13 +25,14 @@ using namespace tt;
 namespace trklet {
 
   /*! \class  trklet::ProducerKFout
-   *  \brief  Converts KF output into TFP output
+   *  \brief  Converts KF output into tttrack collection and TFP output
    *  A bit accurate emulation of the track transformation, the 
    *  eta routing and splitting of the 96-bit track words into 64-bit 
    *  packets. Also run is a bit accurate emulation of the track quality
    *  BDT, whose output is also added to the track word.
    *  \author Christopher Brown
    *  \date   2021, Aug
+   *  \update 2024, June by Claire Savard
    */
   class ProducerKFout : public stream::EDProducer<> {
   public:
@@ -47,10 +48,10 @@ namespace trklet {
     EDGetTokenT<StreamsStub> edGetTokenStubs_;
     // ED input token of kf tracks
     EDGetTokenT<StreamsTrack> edGetTokenTracks_;
-    // ED input token of kf input to kf output TTTrack map
-    EDGetTokenT<TTTrackRefMap> edGetTokenTTTrackRefMap_;
     // ED output token for accepted kfout tracks
     EDPutTokenT<StreamsTrack> edPutTokenAccepted_;
+    // ED output token for TTTracks
+    EDPutTokenT<TTTracks> edPutTokenTTTracks_;
     // ED output token for truncated kfout tracks
     EDPutTokenT<StreamsTrack> edPutTokenLost_;
     // Setup token
@@ -68,14 +69,12 @@ namespace trklet {
     vector<double> dZBins_;
 
     std::unique_ptr<L1TrackQuality> trackQualityModel_;
-    vector<int> tqBins_;
     double tqTanlScale_;
     double tqZ0Scale_;
     static constexpr double ap_fixed_rescale = 32.0;
 
     // For convenience and keeping readable code, accessed many times
     int numWorkers_;
-
     int partialTrackWordBits_;
 
     // Helper function to convert floating value to bin
@@ -93,15 +92,15 @@ namespace trklet {
 
   ProducerKFout::ProducerKFout(const ParameterSet& iConfig) : iConfig_(iConfig) {
     const string& labelKF = iConfig.getParameter<string>("LabelKF");
-    const string& labelAS = iConfig.getParameter<string>("LabelAS");
     const string& branchStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
     const string& branchTracks = iConfig.getParameter<string>("BranchAcceptedTracks");
+    const string& branchTTTracks = iConfig.getParameter<string>("BranchAcceptedTTTracks");
     const string& branchLost = iConfig.getParameter<string>("BranchLostTracks");
     // book in- and output ED products
     edGetTokenStubs_ = consumes<StreamsStub>(InputTag(labelKF, branchStubs));
     edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(labelKF, branchTracks));
-    edGetTokenTTTrackRefMap_ = consumes<TTTrackRefMap>(InputTag(labelAS, branchTracks));
     edPutTokenAccepted_ = produces<StreamsTrack>(branchTracks);
+    edPutTokenTTTracks_ = produces<TTTracks>(branchTTTracks);
     edPutTokenLost_ = produces<StreamsTrack>(branchLost);
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
@@ -112,7 +111,6 @@ namespace trklet {
 
     trackQualityModel_ = std::make_unique<L1TrackQuality>(iConfig.getParameter<edm::ParameterSet>("TrackQualityPSet"));
     edm::ParameterSet trackQualityPSset = iConfig.getParameter<edm::ParameterSet>("TrackQualityPSet");
-    tqBins_ = trackQualityPSset.getParameter<vector<int>>("tqemu_bins");
     tqTanlScale_ = trackQualityPSset.getParameter<double>("tqemu_TanlScale");
     tqZ0Scale_ = trackQualityPSset.getParameter<double>("tqemu_Z0Scale");
   }
@@ -129,7 +127,6 @@ namespace trklet {
     dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
 
     // Calculate 1/dz**2 and 1/dphi**2 bins for v0 and v1 weightings
-
     float temp_dphi = 0.0;
     float temp_dz = 0.0;
     for (int i = 0;
@@ -165,72 +162,48 @@ namespace trklet {
       Handle<StreamsTrack> handleTracks;
       iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
       const StreamsTrack& streamsTracks = *handleTracks.product();
-      Handle<TTTrackRefMap> handleTTTrackRefMap;
-      iEvent.getByToken<TTTrackRefMap>(edGetTokenTTTrackRefMap_, handleTTTrackRefMap);
-      const TTTrackRefMap& ttTrackRefMap = *handleTTTrackRefMap.product();
-      // 18 Output Links (First Vector) each has a vector of tracks per event (second vector) each track is 3 32 bit TTBV partial tracks
-      vector<vector<TTBV>> sortedPartialTracks(setup_->numRegions() * setup_->tfpNumChannel(), vector<TTBV>(0));
 
-      TrackKFOutSAPtrCollectionss inTrackStreams;
-      TrackKFOutSAPtrCollectionss outTrackStreams;
-
-      // Setup empty collections for input tracks to be routed
-      for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++) {
-        TrackKFOutSAPtrCollections temp_collection;
-        for (int iLink = 0; iLink < setup_->tfpNumChannel(); iLink++) {
-          TrackKFOutSAPtrCollection temp;
-          for (int iTrack = 0; iTrack < setup_->numFramesIO(); iTrack++)
-            temp.emplace_back(std::make_shared<TrackKFOut>());
-          temp_collection.push_back(temp);
-        }
-        outTrackStreams.push_back(temp_collection);
-      }
-
-      // Setup empty collections for output tracks from routing
-      for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++) {
-        TrackKFOutSAPtrCollections temp_collection;
-        for (int iLink = 0; iLink < numWorkers_; iLink++) {
-          TrackKFOutSAPtrCollection temp;
-          for (int iTrack = 0; iTrack < setup_->numFramesIO(); iTrack++)
-            temp.emplace_back(std::make_shared<TrackKFOut>());
-          temp_collection.push_back(temp);
-        }
-        inTrackStreams.push_back(temp_collection);
-      }
-
-      StreamsTrack outputStreamsTracks(setup_->numRegions() * setup_->tfpNumChannel());
+      // Setup KFout track collection
+      TrackKFOutSAPtrCollection KFoutTracks;
 
       // Setup containers for track quality
       float tempTQMVAPreSig = 0.0;
       // Due to ap_fixed implementation in CMSSW this 10,5 must be specified at compile time, TODO make this a changeable parameter
       std::vector<ap_fixed<10, 5>> trackQuality_inputs = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
+      // calculate track quality and fill TTTracks
+      TTTracks ttTracks;
+      int nTracks(0);
+      for (const StreamTrack& stream : streamsTracks)
+        nTracks += accumulate(stream.begin(), stream.end(), 0, [](int sum, const FrameTrack& frame) {
+          return sum + (frame.first.isNonnull() ? 1 : 0);
+        });
+      ttTracks.reserve(nTracks);
       for (int iLink = 0; iLink < (int)streamsTracks.size(); iLink++) {
         for (int iTrack = 0; iTrack < (int)streamsTracks[iLink].size(); iTrack++) {
           const auto& track = streamsTracks[iLink].at(iTrack);
           TrackKF inTrack(track, dataFormats_);
 
           double temp_z0 = inTrack.zT() - ((inTrack.cot() * setup_->chosenRofZ()));
-
           // Correction to Phi calcuation depending if +ve/-ve phi sector
           const double baseSectorCorr = inTrack.sectorPhi() ? -setup_->baseSector() : setup_->baseSector();
-
           double temp_phi0 = inTrack.phiT() - ((inTrack.inv2R()) * setup_->hybridChosenRofPhi()) + baseSectorCorr;
-
           double temp_tanL = inTrack.cotGlobal();
 
           TTBV hitPattern(0, setup_->numLayers());
-
           double tempchi2rphi = 0;
           double tempchi2rz = 0;
-
           int temp_nstub = 0;
           int temp_ninterior = 0;
           bool counter = false;
 
-          for (int iStub = 0; iStub < setup_->numLayers() - 1; iStub++) {
+          vector<StubKF> stubs;
+          stubs.reserve(setup_->numLayers());
+          for (int iStub = 0; iStub < setup_->numLayers(); iStub++) {
             const auto& stub = streamsStubs[setup_->numLayers() * iLink + iStub].at(iTrack);
             StubKF inStub(stub, dataFormats_, iStub);
+            if (stub.first.isNonnull())
+              stubs.emplace_back(stub, dataFormats_, iStub);
 
             if (!stub.first.isNonnull()) {
               if (counter)
@@ -257,7 +230,7 @@ namespace trklet {
             tempchi2rz += tempRz;
           }  // Iterate over track stubs
 
-          // Create bit vectors for eacch output, including digitisation of chi2
+          // Create bit vectors for each output, including digitisation of chi2
           // TODO implement extraMVA, bendChi2, d0
           TTBV trackValid(1, TTTrack_TrackWord::TrackBitWidths::kValidSize, false);
           TTBV extraMVA(0, TTTrack_TrackWord::TrackBitWidths::kMVAOtherSize, false);
@@ -285,11 +258,16 @@ namespace trklet {
                     true);
           invR.resize(TTTrack_TrackWord::TrackBitWidths::kRinvSize);
 
+          // conversion to tttrack to calculate bendchi2
+          // temporary fix for MVA1 while bendchi2 not implemented
+          TTTrack temp_tttrack = inTrack.ttTrack(stubs);
+          double tempbendchi2 = temp_tttrack.chi2BendRed();
+
           // Create input vector for BDT
           trackQuality_inputs = {
               (std::trunc(tanL.val() / tqTanlScale_)) / ap_fixed_rescale,
               (std::trunc(z0.val() / tqZ0Scale_)) / ap_fixed_rescale,
-              0,
+              digitise(TTTrack_TrackWord::bendChi2Bins, tempbendchi2, 1.),
               temp_nstub,
               temp_ninterior,
               digitise(TTTrack_TrackWord::chi2RPhiBins, tempchi2rphi, (double)setup_->kfoutchi2rphiConv()),
@@ -311,87 +289,89 @@ namespace trklet {
           TTBV partialTrack1((trackValid + invR + phi0 + chi2rphi), partialTrackWordBits_, false);
 
           int sortKey = (inTrack.sectorEta() < (int)(setup_->numSectorsEta() / 2)) ? 0 : 1;
+          int nonantId = iLink / setup_->kfNumWorker();
           // Set correct bit to valid for track valid
           TrackKFOut temp_track(partialTrack1.set((partialTrackWordBits_ - 1)),
                                 partialTrack2,
                                 partialTrack3,
                                 sortKey,
+                                nonantId,
                                 track,
                                 iTrack,
                                 iLink,
                                 true);
+          KFoutTracks.push_back(std::make_shared<TrackKFOut>(temp_track));
 
-          inTrackStreams[iLink / setup_->kfNumWorker()][iLink % setup_->kfNumWorker()][iTrack] =
-              (std::make_shared<TrackKFOut>(temp_track));
+          // add MVA to tttrack and add tttrack to collection
+          temp_tttrack.settrkMVA1(1. / (1. + exp(tempTQMVAPreSig)));
+          temp_tttrack.setTrackWordBits();
+          ttTracks.emplace_back(temp_tttrack);
         }  // Iterate over Tracks
       }  // Iterate over Links
-      // Route Tracks in eta based on their sort key
-      for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++) {
-        int buffered_tracks[] = {0, 0};
-        for (int iTrack = 0; iTrack < setup_->numFramesIO() * ((double)TTBV::S_ / TTTrack_TrackWord::kTrackWordSize);
-             iTrack++) {
-          for (int iWorker = 0; iWorker < setup_->kfNumWorker(); iWorker++) {
-            for (int iLink = 0; iLink < setup_->tfpNumChannel(); iLink++) {
-              if ((inTrackStreams[iRegion][iWorker][iTrack]->sortKey() == iLink) &&
-                  (inTrackStreams[iRegion][iWorker][iTrack]->dataValid() == true)) {
-                outTrackStreams[iRegion][iLink][buffered_tracks[iLink]] = inTrackStreams[iRegion][iWorker][iTrack];
-                buffered_tracks[iLink] = buffered_tracks[iLink] + 1;
-              }
-            }
-          }
+      const OrphanHandle<tt::TTTracks> orphanHandleTTTracks = iEvent.emplace(edPutTokenTTTracks_, std::move(ttTracks));
+
+      // sort partial KFout tracks into 18 separate links (nonant idx * eta idx) with tttrack ref info
+      // 0th index order: [nonant 0 + negative eta, nonant 0 + positive eta, nonant 1 + negative eta, ...]
+      struct kfoTrack_info {
+        TTBV partialBits;
+        TTTrackRef trackRef;
+      };
+      vector<vector<kfoTrack_info>> sortedPartialTracks(setup_->numRegions() * setup_->tfpNumChannel(),
+                                                        vector<kfoTrack_info>(0));
+      for (int i = 0; i < (int)KFoutTracks.size(); i++) {
+        auto& kfoTrack = KFoutTracks.at(i);
+        if (kfoTrack->dataValid()) {
+          sortedPartialTracks[kfoTrack->nonantId() * setup_->tfpNumChannel() + kfoTrack->sortKey()].push_back(
+              {kfoTrack->PartialTrack1(), TTTrackRef(orphanHandleTTTracks, i)});
+          sortedPartialTracks[kfoTrack->nonantId() * setup_->tfpNumChannel() + kfoTrack->sortKey()].push_back(
+              {kfoTrack->PartialTrack2(), TTTrackRef(orphanHandleTTTracks, i)});
+          sortedPartialTracks[kfoTrack->nonantId() * setup_->tfpNumChannel() + kfoTrack->sortKey()].push_back(
+              {kfoTrack->PartialTrack3(), TTTrackRef(orphanHandleTTTracks, i)});
         }
+      }
+      // fill remaining tracks allowed on each link (setup_->numFramesIO()) with null info
+      kfoTrack_info nullTrack_info;
+      for (int i = 0; i < (int)sortedPartialTracks.size(); i++) {
+        // will not fill if any additional tracks if already above limit
+        while ((int)sortedPartialTracks.at(i).size() < setup_->numFramesIO() * 2)
+          sortedPartialTracks.at(i).push_back(nullTrack_info);
       }
 
-      // Pack output of router onto each link, with correct partial tracks in correct places
-      for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++) {
-        for (int iLink = 0; iLink < setup_->tfpNumChannel(); iLink++) {
-          for (int iTrack = 0; iTrack < (int)outTrackStreams[iRegion][iLink].size(); iTrack++) {
-            sortedPartialTracks[2 * iRegion + iLink].push_back(
-                outTrackStreams[iRegion][iLink][iTrack]->PartialTrack1());
-            sortedPartialTracks[2 * iRegion + iLink].push_back(
-                outTrackStreams[iRegion][iLink][iTrack]->PartialTrack2());
-            sortedPartialTracks[2 * iRegion + iLink].push_back(
-                outTrackStreams[iRegion][iLink][iTrack]->PartialTrack3());
-            outputStreamsTracks[2 * iRegion + iLink].emplace_back(outTrackStreams[iRegion][iLink][iTrack]->track());
-          }
-        }
-      }
-      // Fill products and match up tracks
-      // store products
-      const TTBV nullBitTrack(0, partialTrackWordBits_, false);
-      for (int iLink = 0; iLink < (int)outputStreamsTracks.size(); iLink++) {
-        // Iterate through partial tracks
-        int numLinkTracks = (int)outputStreamsTracks[iLink].size();
-        if (numLinkTracks == 0)
-          continue;  // Don't fill links if no tracks
-        if ((numLinkTracks % 2 != 0)) {
-          sortedPartialTracks[iLink].push_back(nullBitTrack);  //Pad out final set of bits
-          outputStreamsTracks[iLink].emplace_back(
-              outputStreamsTracks[iLink][numLinkTracks++]);  //Pad out with final repeated track
-        }  //If there is an odd number of tracks
-        for (int iTrack = 0; iTrack < (int)(sortedPartialTracks[iLink].size()); iTrack++) {
-          if (iTrack % 2 != 1)  // Write to links every other partial track, 3 partial tracks per full TTTrack
-            continue;
-          TTTrackRef trackRef;
-          for (auto& it : ttTrackRefMap) {  //Iterate through ttTrackRefMap to find TTTrackRef Key by a TTTrack Value
-            if (it.second == outputStreamsTracks[iLink][(int)(iTrack - 1) / 3].first)
-              trackRef = it.first;
-          }
-          if ((int)iTrack / 3 <= setup_->numFramesIO() * ((double)TTBV::S_ / TTTrack_TrackWord::kTrackWordSize))
+      // combine sorted partial tracks into proper format:
+      // < TTTrackRef A, first 64 A bits >
+      // < TTTrackRef B, last 32 A bits + first 32 B bits >
+      // < TTTrackRef null, last 64 B bits >
+      // ... repeat for next tracks
+      const TTBV nullPartialBits(0, partialTrackWordBits_, false);
+      const TTTrackRef nullTrackRef;
+      int partialFactor = TTBV::S_ / partialTrackWordBits_;  //how many partial track words to combine in an output
+      for (int iLink = 0; iLink < (int)sortedPartialTracks.size(); iLink++) {
+        for (int iTrack = 0; iTrack < (int)sortedPartialTracks[iLink].size(); iTrack += partialFactor) {
+          // if a partial track has no pair, pair it with null partial track
+          if (iTrack + 1 == (int)sortedPartialTracks[iLink].size())
+            sortedPartialTracks[iLink].push_back({nullPartialBits, nullTrackRef});
+          // keep TTTrackRef null every third (96 bits / 32 partial bits) output packet
+          TTTrackRef fillTrackRef;
+          if ((iTrack / partialFactor + 1) % (TTTrack_TrackWord::kTrackWordSize / partialTrackWordBits_) != 0)
+            fillTrackRef = sortedPartialTracks[iLink][iTrack + 1].trackRef;
+
+          // if there are too many output packets, truncate and put remaining outputs in lost collection
+          if (iTrack / partialFactor < setup_->numFramesIO())
             accepted[iLink].emplace_back(
-                std::make_pair(trackRef,
-                               (sortedPartialTracks[iLink][iTrack - 1].slice(partialTrackWordBits_) +
-                                sortedPartialTracks[iLink][iTrack].slice(partialTrackWordBits_))
+                std::make_pair(fillTrackRef,
+                               (sortedPartialTracks[iLink][iTrack].partialBits.slice(partialTrackWordBits_) +
+                                sortedPartialTracks[iLink][iTrack + 1].partialBits.slice(partialTrackWordBits_))
                                    .bs()));
           else
             lost[iLink].emplace_back(
-                std::make_pair(trackRef,
-                               (sortedPartialTracks[iLink][iTrack - 1].slice(partialTrackWordBits_) +
-                                sortedPartialTracks[iLink][iTrack].slice(partialTrackWordBits_))
+                std::make_pair(fillTrackRef,
+                               (sortedPartialTracks[iLink][iTrack].partialBits.slice(partialTrackWordBits_) +
+                                sortedPartialTracks[iLink][iTrack + 1].partialBits.slice(partialTrackWordBits_))
                                    .bs()));
-        }  //Iterate through sorted partial tracks
-      }  // Iterate through links
+        }
+      }
     }  // Config Supported
+
     // store products
     iEvent.emplace(edPutTokenAccepted_, std::move(accepted));
     iEvent.emplace(edPutTokenLost_, std::move(lost));

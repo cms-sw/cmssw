@@ -116,6 +116,43 @@ void ProcessBase::initLayerDisksandISeed(unsigned int& layerdisk1, unsigned int&
   }
 }
 
+void ProcessBase::initLayerDisksandISeedDisp(unsigned int& layerdisk1,
+                                             unsigned int& layerdisk2,
+                                             unsigned int& layerdisk3,
+                                             unsigned int& iSeed) {
+  layerdisk1 = 99;
+  layerdisk2 = 99;
+  layerdisk3 = 99;
+
+  if (name_.substr(0, 4) == "TPD_") {
+    if (name_[4] == 'L')
+      layerdisk1 = name_[5] - '1';
+    else if (name_[4] == 'D')
+      layerdisk1 = N_LAYER + name_[5] - '1';
+    if (name_[6] == 'L')
+      layerdisk2 = name_[7] - '1';
+    else if (name_[6] == 'D')
+      layerdisk2 = N_LAYER + name_[7] - '1';
+    if (name_[8] == 'L')
+      layerdisk3 = name_[9] - '1';
+    else if (name_[8] == 'D')
+      layerdisk3 = N_LAYER + name_[9] - '1';
+  }
+
+  if (layerdisk1 == LayerDisk::L3 && layerdisk2 == LayerDisk::L4 && layerdisk3 == LayerDisk::L2)
+    iSeed = Seed::L2L3L4;
+  else if (layerdisk1 == LayerDisk::L5 && layerdisk2 == LayerDisk::L6 && layerdisk3 == LayerDisk::L4)
+    iSeed = Seed::L4L5L6;
+  else if (layerdisk1 == LayerDisk::L2 && layerdisk2 == LayerDisk::L3 && layerdisk3 == LayerDisk::D1)
+    iSeed = Seed::L2L3D1;
+  else if (layerdisk1 == LayerDisk::D1 && layerdisk2 == LayerDisk::D2 && layerdisk3 == LayerDisk::L2)
+    iSeed = Seed::D1D2L2;
+  else {
+    throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " layerdisk1 " << layerdisk1 << " layerdisk2 "
+                                       << layerdisk2 << " layerdisk3 " << layerdisk3;
+  }
+}
+
 unsigned int ProcessBase::getISeed(const std::string& name) {
   std::size_t pos = name.find('_');
   std::string name1 = name.substr(pos + 1);

@@ -267,6 +267,13 @@ namespace trklet {
 
     bool extended() const { return extended_; }
     void setExtended(bool extended) { extended_ = extended; }
+    bool duplicateMPs() const { return duplicateMPs_; }
+    const std::array<bool, N_LAYER + N_DISK>& layersDisksDuplicatedEqualProjBalance() const {
+      return layersDisksDuplicatedEqualProjBalance_;
+    }
+    const std::array<bool, N_LAYER + N_DISK>& layersDisksDuplicatedWeightedProjBalance() const {
+      return layersDisksDuplicatedWeightedProjBalance_;
+    }
     bool combined() const { return combined_; }
     void setCombined(bool combined) { combined_ = combined; }
     bool reduced() const { return reduced_; }
@@ -890,6 +897,7 @@ namespace trklet {
         {"TB", 108},
         {"MP", 108},
         {"TP", 108},
+        {"TPD", 108},
         {"TRE", 108},
         {"DR", 108}};  //Specifies how many tracks allowed per bin in DR
 
@@ -1028,11 +1036,33 @@ namespace trklet {
     bool reduced_{false};        // use reduced (Summer Chain) config
     bool inventStubs_{false};    // invent seeding stub coordinates based on tracklet traj
 
-    // Use combined TP (TE+TC) and MP (PR+ME+MC) configuration (with prompt tracking)
-    bool combined_{false};
-    // N.B. To use combined modules with extended tracking, edit
-    // Tracklet_cfi.py to refer to *_hourglassExtendedCombined.dat,
-    // but leave combined_=false.
+    // Use combined TP (TE+TC) & MP (PR+ME+MC) config (with prompt tracking)
+    bool combined_{true};
+    // N.B. For extended tracking, this combined_ is overridden by python cfg
+    // to false, but combined modules are nonetheless used by default.
+    // If you don't want them, edit l1tTTTracksFromTrackletEmulation_cfi.py
+    // to refer to *_hourglassExtended.dat .
+
+    // Use chain with duplicated MPs for L3,L4 to reduce truncation issue
+    // Balances load from projections roughly in half for each of the two MPs
+    bool duplicateMPs_{false};
+
+    // Determines which layers, disks the MatchProcessor is duplicated for
+    // (note: in TCB by default always duplicated for phi B, C as truncation is significantly worse than A, D)
+    // All layers, disks disabled by default, also is overwritten by above duplicateMPs bool
+
+    // EqualProjBalancing is for layers for which the projections to each duplicated MP are split in half sequentially
+    std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedEqualProjBalance_{
+        {false, false, false, false, false, false, false, false, false, false, false}};
+
+    // Weighted proj balancing is for specifically L4, L5 where the split of the projections is weighted to account for
+    // Higher occupancy in the L1L2 seed to minimize truncation
+    std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedWeightedProjBalance_{
+        {false, false, false, false, false, false, false, false, false, false, false}};
+
+    // Example use where for L3, L4, L5, D2, D3, the layers/disks where truncation is worst
+    //std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedEqualProjBalance_{{0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0}};
+    //std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedWeightedProjBalance_{{0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0}};
 
     std::string skimfile_{""};  //if not empty events will be written out in ascii format to this file
 
