@@ -49,7 +49,6 @@
 <test name="import-future" command="python3 -c 'import future'"/>
 <test name="import-concurrent.futures" command="python3 -c 'import concurrent.futures'"/>
 <test name="import-h5py" command="python3 -c 'import h5py'"/>
-<test name="import-histbook" command="python3 -c 'import histbook'"/>
 <test name="import-html5lib" command="python3 -c 'import html5lib'"/>
 <test name="import-idna" command="python3 -c 'import idna'"/>
 <test name="import-ipykernel" command="python3 -c 'import ipykernel'"/>
