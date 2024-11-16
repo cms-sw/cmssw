@@ -30,7 +30,7 @@
 #include <boost/foreach.hpp>
 #include <memory>
 
-#define EDM_ML_DEBUG
+// #define EDM_ML_DEBUG
 
 HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector &iC)
     : conditionsToken_(iC.esConsumes()),
