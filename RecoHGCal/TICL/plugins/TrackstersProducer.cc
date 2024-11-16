@@ -202,21 +202,20 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       inferenceAlgo_->runInference(*initialResult);
       myAlgo_->filter(*result, *initialResult, input, seedToTrackstersAssociation);
     }
-    // Now update the global mask and put it into the event
-    output_mask->reserve(original_layerclusters_mask.size());
-    // Copy over the previous state
-    std::copy(std::begin(original_layerclusters_mask),
-              std::end(original_layerclusters_mask),
-              std::back_inserter(*output_mask));
+  }
+  // Now update the global mask and put it into the event
+  output_mask->reserve(original_layerclusters_mask.size());
+  // Copy over the previous state
+  std::copy(
+      std::begin(original_layerclusters_mask), std::end(original_layerclusters_mask), std::back_inserter(*output_mask));
 
-    for (auto& trackster : *result) {
-      trackster.setIteration(iterIndex_);
-      // Mask the used elements, accordingly
-      for (auto const v : trackster.vertices()) {
-        // TODO(rovere): for the moment we mask the layer cluster completely. In
-        // the future, properly compute the fraction of usage.
-        (*output_mask)[v] = 0.;
-      }
+  for (auto& trackster : *result) {
+    trackster.setIteration(iterIndex_);
+    // Mask the used elements, accordingly
+    for (auto const v : trackster.vertices()) {
+      // TODO(rovere): for the moment we mask the layer cluster completely. In
+      // the future, properly compute the fraction of usage.
+      (*output_mask)[v] = 0.;
     }
   }
 
