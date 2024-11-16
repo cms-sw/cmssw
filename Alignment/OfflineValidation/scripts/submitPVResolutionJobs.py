@@ -302,11 +302,11 @@ def main():
     runs.sort()
     print("\n\n Will run on the following runs: \n",runs)
 
-    if(not os.path.exists("cfg")):
-        os.system("mkdir cfg")
-        os.system("mkdir BASH")
-        os.system("mkdir harvest")
-        os.system("mkdir out")
+    # List of directories to create
+    directories = ["cfg", "BASH", "harvest", "out"]
+
+    for directory in directories:
+        os.makedirs(directory, exist_ok=True)
 
     cwd = os.getcwd()
     bashdir = os.path.join(cwd,"BASH")
@@ -412,10 +412,25 @@ def main():
                 key = key.split(":", 1)[1]
                 print("dealing with",key)
 
-            os.system("cp "+input_CMSSW_BASE+"/src/Alignment/OfflineValidation/test/PrimaryVertexResolution_templ_cfg.py ./cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
-            os.system("sed -i 's|XXX_FILES_XXX|"+listOfFiles+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
-            os.system("sed -i 's|XXX_RUN_XXX|"+run+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
-            os.system("sed -i 's|YYY_KEY_YYY|"+key+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
+            # Paths and variables
+            template_file = os.path.join(input_CMSSW_BASE, "src/Alignment/OfflineValidation/test/PrimaryVertexResolution_templ_cfg.py")
+            output_file = f"./cfg/PrimaryVertexResolution_{key}_{run}_cfg.py"
+
+            # Copy the template file to the destination
+            shutil.copy(template_file, output_file)
+
+            # Read and replace placeholders in the copied file
+            with open(output_file, 'r') as file:
+                content = file.read()
+
+            # Replace placeholders with actual values
+            content = content.replace("XXX_FILES_XXX", listOfFiles)
+            content = content.replace("XXX_RUN_XXX", run)
+            content = content.replace("YYY_KEY_YYY", key)
+
+            # Write the modified content back to the file
+            with open(output_file, 'w') as file:
+                file.write(content)
 
             scriptFileName = os.path.join(bashdir,"batchHarvester_"+key+"_"+str(count-1)+".sh")
             scriptFile = open(scriptFileName,'w')
