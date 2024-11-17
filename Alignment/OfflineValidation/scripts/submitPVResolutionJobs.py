@@ -210,7 +210,9 @@ fi
 cd $LXBATCH_DIR 
 cp -pr {CFGDIR}/PrimaryVertexResolution_{KEY}_{runindex}_cfg.py .
 cmsRun PrimaryVertexResolution_{KEY}_{runindex}_cfg.py TrackCollection={TRKS} GlobalTag={GT} lumi={LUMITORUN} {REC} {EXT} >& log_{KEY}_run{runindex}.out
-ls -lh . 
+# Print the contents of the current directory using $PWD and echo
+echo "Contents of the current directory ($PWD):"
+echo "$(ls -lh "$PWD")"
 """.format(CMSSW_BASE_DIR=theCMSSW_BASE,
            CFGDIR=cfgdir,
            runindex=runindex,

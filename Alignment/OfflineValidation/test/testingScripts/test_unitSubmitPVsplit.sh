@@ -30,5 +30,17 @@ cd "${testdir}/testExecution" || exit 1
 # Execute the script and handle errors
 $PWD/"${scriptName}" || die "Failure running PVSplit script" $?
 
-# Dump to screen the content of the log file
-cat log*.out
+# Dump to screen the content of the log file(s) with clear headers
+log_files=(log*.out)
+if [[ ${#log_files[@]} -gt 0 ]]; then
+    echo "Displaying content of log files:"
+    for log_file in "${log_files[@]}"; do
+        echo "========================================"
+        echo "Content of $log_file:"
+        echo "========================================"
+        cat "$log_file"
+        echo # Add an extra blank line for separation
+    done
+else
+    echo "No log files found matching 'log*.out'."
+fi
