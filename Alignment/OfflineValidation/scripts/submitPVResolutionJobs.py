@@ -190,16 +190,23 @@ def batchScriptCERN(theCMSSW_BASE, cfgdir, runindex, eosdir, lumiToRun, key, con
 #######################################################
     '''prepare the batch script, to run on HTCondor'''
     script = """#!/bin/bash
-#source /afs/cern.ch/cms/caf/setup.sh
 CMSSW_DIR={CMSSW_BASE_DIR}/src/Alignment/OfflineValidation/test
-echo "the mother directory is $CMSSW_DIR"
+echo "The mother directory is $CMSSW_DIR"
 export X509_USER_PROXY=$CMSSW_DIR/.user_proxy
 #OUT_DIR=$CMSSW_DIR/harvest ## for local storage
 OUT_DIR={MYDIR}
 LOG_DIR=$CMSSW_DIR/out
-LXBATCH_DIR=`pwd`  
-cd $CMSSW_DIR
-eval `scram runtime -sh`
+LXBATCH_DIR=$PWD
+# Check if CMSSW environment is set by checking CMSSW_BASE or other variables
+if [[ -z "$CMSSW_BASE" || -z "$CMSSW_VERSION" || -z "$SCRAM_ARCH" ]]; then
+    echo "CMSSW environment not detected. Sourcing scramv1 runtime..."
+    cd $CMSSW_DIR
+    # Assuming you have a valid CMSSW release environment to source
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scramv1 runtime -sh)  # This sets the CMSSW environment
+else
+    echo "CMSSW environment is already set. Continuing..."
+fi
 cd $LXBATCH_DIR 
 cp -pr {CFGDIR}/PrimaryVertexResolution_{KEY}_{runindex}_cfg.py .
 cmsRun PrimaryVertexResolution_{KEY}_{runindex}_cfg.py TrackCollection={TRKS} GlobalTag={GT} lumi={LUMITORUN} {REC} {EXT} >& log_{KEY}_run{runindex}.out

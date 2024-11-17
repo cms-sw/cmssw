@@ -11,12 +11,13 @@ echo -e "\n\n TESTING Primary Vertex Split script execution ..."
 scriptName="batchHarvester_Prompt_0.sh"
 
 # Create directory if it doesn't exist
-mkdir -p "./testExecution"
+testdir=$PWD
+mkdir ${testdir}/"testExecution"
 
 # Check if the script exists and is a regular file
-if [ -f "./BASH/${scriptName}" ]; then
+if [ -f "${testdir}/BASH/${scriptName}" ]; then
     # Copy script to the test execution directory
-    cp -pr "./BASH/${scriptName}" "./testExecution/"
+    cp "${testdir}/BASH/${scriptName}" "${testdir}/testExecution/"
 else
     # Emit a warning if the script doesn't exist or is not a regular file
     echo "Warning: Script '${scriptName}' not found or is not a regular file. Skipping excution of further tests."
@@ -24,10 +25,10 @@ else
 fi
 
 # Change directory to the test execution directory
-cd "./testExecution" || exit 1
+cd "${testdir}/testExecution" || exit 1
 
 # Execute the script and handle errors
-./"${scriptName}" || die "Failure running PVSplit script" $?
+$PWD/"${scriptName}" || die "Failure running PVSplit script" $?
 
 # Dump to screen the content of the log file
 cat log*.out
