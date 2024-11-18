@@ -27,7 +27,9 @@ namespace cms::alpakatools {
     template <typename TQueue>
     static auto copyAsync(TQueue& queue, ::reco::TrackingRecHitDevice<TDevice> const& deviceData) {
       auto deviceHitView = deviceData.template view<reco::TrackingRecHitSoA>();
-      reco::TrackingRecHitHost hostData(queue, deviceHitView.metadata().size());
+      auto moduleHitsView = deviceData.template view<reco::HitModuleSoA>();
+
+      reco::TrackingRecHitHost hostData(queue, deviceHitView.metadata().size(), moduleHitsView.metadata().size());
       
       // Don't bother if zero hits
       if (deviceHitView.metadata().size() == 0) {
@@ -43,6 +45,7 @@ namespace cms::alpakatools {
       printf("TrackingRecHitsSoACollection: I'm copying to host.\n");
       alpaka::wait(queue);
       assert(deviceData.nHits() == hostData.nHits());
+      assert(deviceData.nModules() == hostData.nModules());
       assert(deviceData.offsetBPIX2() == hostData.offsetBPIX2());
 #endif
 

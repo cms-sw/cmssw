@@ -38,6 +38,7 @@ public:
 private:
   void produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
+  const uint32_t maxHitsInModules_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::EDGetTokenT<HitsOnHost> hitsToken_;                      // Alpaka hits
   const edm::EDGetTokenT<SiPixelClusterCollectionNew> clusterToken_;  // legacy clusters
@@ -47,7 +48,8 @@ private:
 
 
 SiPixelRecHitFromSoAAlpaka::SiPixelRecHitFromSoAAlpaka(const edm::ParameterSet& iConfig)
-    : geomToken_(esConsumes()),
+    : maxHitsInModules_(iConfig.getParameter<uint32_t>("maxHitsInModules")),
+      geomToken_(esConsumes()),
       hitsToken_(consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
       clusterToken_(consumes(iConfig.getParameter<edm::InputTag>("src"))),
       rechitsPutToken_(produces()),
@@ -56,6 +58,7 @@ SiPixelRecHitFromSoAAlpaka::SiPixelRecHitFromSoAAlpaka(const edm::ParameterSet& 
 
 void SiPixelRecHitFromSoAAlpaka::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<uint32_t>("maxHitsInModules", phase1PixelTopology::maxNumClustersPerModules)->setComment("Max number of hits in a single module");
   desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelClustersPreSplitting"));
   descriptions.addWithDefaultLabel(desc);
@@ -100,8 +103,6 @@ void SiPixelRecHitFromSoAAlpaka::produce(edm::StreamID streamID,
 
   auto const hclusters = iEvent.getHandle(clusterToken_);
 
-  constexpr uint32_t maxHitsInModule = TrackerTraits::maxHitsInModule;
-
   int numberOfDetUnits = 0;
   int numberOfClusters = 0;
   for (auto const& dsv : *hclusters) {
@@ -120,14 +121,14 @@ void SiPixelRecHitFromSoAAlpaka::produce(edm::StreamID streamID,
     assert(lc > fc);
     LogDebug("SiPixelRecHitFromSoAAlpaka") << "in det " << gind << ": conv " << nhits << " hits from " << dsv.size()
                                            << " legacy clusters" << ' ' << fc << ',' << lc << "\n";
-    if (nhits > maxHitsInModule)
+    if (nhits > maxHitsInModules_)
       edm::LogWarning("SiPixelRecHitFromSoAAlpaka")
           .format("Too many clusters {} in module {}. Only the first {} hits will be converted",
                   nhits,
                   gind,
-                  maxHitsInModule);
+                  maxHitsInModules_);
 
-    nhits = std::min(nhits, maxHitsInModule);
+    nhits = std::min(nhits, maxHitsInModules_);
 
     LogDebug("SiPixelRecHitFromSoAAlpaka") << "in det " << gind << "conv " << nhits << " hits from " << dsv.size()
                                            << " legacy clusters" << ' ' << lc << ',' << fc;

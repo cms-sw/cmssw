@@ -27,21 +27,6 @@ namespace reco
 
     TrackingRecHitDevice() = default;
 
-    // Constructor which specifies the SoA size, number of BPIX1 hits, and the modules entry points
-    template <typename TQueue>
-    explicit TrackingRecHitDevice(TQueue queue, uint32_t nHits, int32_t offsetBPIX2, uint32_t const* hitsModuleStart)
-        : HitPortableCollectionDevice<TDev>({{int(nHits),10}}, queue), offsetBPIX2_{offsetBPIX2} {
-      auto hitsView = this->template view<TrackingRecHitSoA>();
-      auto start_h = cms::alpakatools::make_device_view(queue, hitsModuleStart, phase1PixelTopology::numberOfModules + 1);
-      auto start_d =
-          cms::alpakatools::make_device_view(queue, hitsView.hitsModuleStart().data(), phase1PixelTopology::numberOfModules + 1);
-      alpaka::memcpy(queue, start_d, start_h);
-
-      auto off_h = cms::alpakatools::make_host_view(offsetBPIX2_);
-      auto off_d = cms::alpakatools::make_device_view(queue, hitsView.offsetBPIX2());
-      alpaka::memcpy(queue, off_d, off_h);
-    }
-
     // Constructor from clusters
     template <typename TQueue>
     explicit TrackingRecHitDevice(TQueue queue, SiPixelClustersDevice<TDev> const &clusters)
@@ -63,6 +48,7 @@ namespace reco
     }
 
     uint32_t nHits() const { return this->template view<TrackingRecHitSoA>().metadata().size(); }
+    uint32_t nModules() const { return this->template view<HitModuleSoA>().metadata().size(); }
 
     int32_t offsetBPIX2() const { return offsetBPIX2_; }
 

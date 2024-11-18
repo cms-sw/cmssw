@@ -27,18 +27,10 @@ namespace reco
 
     // Constructor which specifies only the SoA size, to be used when copying the results from the device to the host
     template <typename TQueue>
-    explicit TrackingRecHitHost(TQueue queue, uint32_t nHits)
-        : HitPortableCollectionHost({{int(nHits),10}}, queue) {}
+    explicit TrackingRecHitHost(TQueue queue, uint32_t nHits, uint32_t nModules)
+        : HitPortableCollectionHost({{int(nHits),int(nModules)}}, queue) {}
 
-    // Constructor which specifies the SoA size, number of BPIX1 hits, and the modules entry points
-    template <typename TQueue> 
-    explicit TrackingRecHitHost(TQueue queue, uint32_t nHits, int32_t offsetBPIX2, uint32_t const* hitsModuleStart)
-        : HitPortableCollectionHost({{int(nHits),10}}, queue) {
-      auto hitsView = this->template view<TrackingRecHitSoA>();
-      std::copy(hitsModuleStart, hitsModuleStart + phase1PixelTopology::numberOfModules + 1, hitsView.hitsModuleStart().data());
-      hitsView.offsetBPIX2() = offsetBPIX2;
-    }
-
+    // Constructor from clusters
     template <typename TQueue>
     explicit TrackingRecHitHost(TQueue queue, SiPixelClustersHost const &clusters)
         : PortableHostMultiCollection({{int(clusters.nClusters()),clusters.view().metadata().size()}}, queue)  {
@@ -53,13 +45,11 @@ namespace reco
 
       alpaka::memcpy(queue, hits_m, clusters_m);
 
-      for(int i = 0; i < nModules; i++)
-        printf("%d - %d - %d \n",i,clusters_m[i],hits_m[i]);
-
       hitsView.offsetBPIX2() = clusters.offsetBPIX2();
     }
 
     uint32_t nHits() const { return this->template view<TrackingRecHitSoA>().metadata().size(); }
+    uint32_t nModules() const { return this->template view<HitModuleSoA>().metadata().size(); }
 
     int32_t offsetBPIX2() const { return this->template view<TrackingRecHitSoA>().offsetBPIX2(); }
 
