@@ -122,6 +122,4 @@ bool ResonanceDecayFilterHook::checkVetoResonanceDecays(const Event &process) {
   return false;
 }
 
-void ResonanceDecayFilterHook::resetEventCounter() {
-  counter_event_ = 0;
-}
+void ResonanceDecayFilterHook::resetEventCounter() { counter_event_ = 0; }

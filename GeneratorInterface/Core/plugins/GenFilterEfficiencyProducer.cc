@@ -121,7 +121,9 @@ void GenFilterEfficiencyProducer::produce(edm::StreamID, edm::Event& iEvent, con
     return;
   double weight = genEventScale->weight();
 
-  int eventCounterValue = ResonanceDecayFilterCounter::getInstance().getFilterBool() ? ResonanceDecayFilterCounter::getInstance().getEventCounter() : 1;
+  int eventCounterValue = ResonanceDecayFilterCounter::getInstance().getFilterBool()
+                              ? ResonanceDecayFilterCounter::getInstance().getEventCounter()
+                              : 1;
 
   auto sums = luminosityBlockCache(iEvent.getLuminosityBlock().index());
 

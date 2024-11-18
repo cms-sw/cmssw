@@ -1,5 +1,5 @@
-#ifndef RESONANCE_DECAY_FILTER_COUNTER_H
-#define RESONANCE_DECAY_FILTER_COUNTER_H
+#ifndef GeneratorInterface_Pythia8Interface_ResonanceDecayFilterCounter_h
+#define GeneratorInterface_Pythia8Interface_ResonanceDecayFilterCounter_h
 
 class ResonanceDecayFilterCounter {
 public:
@@ -8,21 +8,13 @@ public:
     return instance;
   }
 
-  void setEventCounter(int eventCounter) {
-    eventCounter_ = eventCounter;
-  }
+  void setEventCounter(int eventCounter) { eventCounter_ = eventCounter; }
 
-  void setFilterBool(bool filterBool) {
-    filterBool_ = filterBool;
-  }
+  void setFilterBool(bool filterBool) { filterBool_ = filterBool; }
 
-  int getEventCounter() const {
-    return eventCounter_;
-  }
+  int getEventCounter() const { return eventCounter_; }
 
-  bool getFilterBool() const {
-    return filterBool_;
-  }
+  bool getFilterBool() const { return filterBool_; }
 
 private:
   ResonanceDecayFilterCounter() : eventCounter_(0), filterBool_(false) {}
@@ -30,4 +22,4 @@ private:
   bool filterBool_;
 };
 
-#endif // RESONANCE_DECAY_FILTER_COUNTER_H
+#endif  // GeneratorInterface_Pythia8Interface_ResonanceDecayFilterCounter_h
