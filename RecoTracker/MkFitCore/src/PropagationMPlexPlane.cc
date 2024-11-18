@@ -2,6 +2,7 @@
 #include "RecoTracker/MkFitCore/interface/PropagationConfig.h"
 #include "RecoTracker/MkFitCore/interface/Config.h"
 #include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
+#include "RecoTracker/MkFitCore/interface/cms_common_macros.h"
 
 #include "PropagationMPlex.h"
 
@@ -489,7 +490,7 @@ namespace {
                   << " std::isfinite(s[n])=" << std::isfinite(s[n]) << " std::isnormal(s[n])=" << std::isnormal(s[n])
                   << std::endl;
 #endif
-      if ((std::abs(sl[n]) > std::abs(s[n])) || std::isnormal(s[n]) == false)
+      if (0)  //(mkfit::isFinite(s[n])==false && mkfit::isFinite(sl[n])) // needs more checks because it looks worse
         s[n] = sl[n];
     }
 
