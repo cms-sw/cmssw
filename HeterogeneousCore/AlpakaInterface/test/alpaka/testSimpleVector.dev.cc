@@ -46,6 +46,7 @@ int main() {
   for (auto const& device : devices) {
     Queue queue(device);
     auto maxN = 10000;
+    auto vec_vec_h = make_host_buffer<cms::alpakatools::SimpleVector<cms::alpakatools::SimpleVector<int>>>(queue);
     auto vec_h = make_host_buffer<cms::alpakatools::SimpleVector<int>>(queue);
     auto vec_d = make_device_buffer<cms::alpakatools::SimpleVector<int>>(queue);
     auto data_h = make_host_buffer<int[]>(queue, maxN);

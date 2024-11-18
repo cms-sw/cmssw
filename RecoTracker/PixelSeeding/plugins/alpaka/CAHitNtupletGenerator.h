@@ -76,14 +76,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                 Queue& queue) const;
 
   private:
-    void prepareHits(const HitsConstView& hh, const ::reco::CALayersSoAConstView& ll, Queue& queue) const;
-
-    void buildDoublets(const HitsConstView& hh, const ::reco::CACellsSoAConstView& cc, uint32_t offsetBPIX2, Queue& queue) const;
-
-    void hitNtuplets(const HitsConstView& hh, const edm::EventSetup& es, bool useRiemannFit, Queue& queue);
-
-    void launchKernels(const HitsConstView& hh, bool useRiemannFit, Queue& queue) const;
-
+  
     Params m_params;
   };
 
