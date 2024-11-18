@@ -63,9 +63,12 @@ struct KDTreeNodes {
   void clear() {
     for (auto &dim : dims) {
       dim.clear();
+      dim.shrink_to_fit();
     }
     right.clear();
+    right.shrink_to_fit();
     data.clear();
+    data.shrink_to_fit();
     poolSize = -1;
     poolPos = -1;
   }
