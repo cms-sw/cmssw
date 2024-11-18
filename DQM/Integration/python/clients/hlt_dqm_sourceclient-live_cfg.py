@@ -35,8 +35,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'HLT'
 process.dqmSaver.tag = 'HLT'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'HLT'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'HLT'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -135,7 +135,7 @@ process.load("DQM.HLTEvF.HLTObjectMonitor_Client_cff")
 
 #process.p = cms.EndPath(process.hlts+process.hltsClient)
 
-process.pp = cms.Path(process.dqmEnv+process.dqmSaver+process.dqmSaverPB)
+process.pp = cms.Path(process.dqmEnv+process.dqmSaver)#+process.dqmSaverPB)
 #process.hltResults.plotAll = True
 
 

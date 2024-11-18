@@ -48,8 +48,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "PixelLumi"
 process.dqmSaver.tag = "PixelLumi"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "PixelLumi"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "PixelLumi"
+# process.dqmSaverPB.runNumber = options.runNumber
 
 if not unitTest:
     process.source.SelectEvents = cms.untracked.vstring("HLT_ZeroBias*","HLT_L1AlwaysTrue*", "HLT_PAZeroBias*", "HLT_PAL1AlwaysTrue*")
