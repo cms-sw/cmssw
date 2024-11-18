@@ -35,8 +35,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'DT'
 process.dqmSaver.tag = "DT"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "DT"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "DT"
+# process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 
 #Enable HLT*Mu* filtering to monitor on Muon events
@@ -60,7 +60,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'))
                                     )
 
-process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
+process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver )#+ process.dqmSaverPB)
 
 process.dtDQMPathPhys = cms.Path(process.unpackers + process.dqmmodules + process.physicsEventsFilter *  process.dtDQMPhysSequence)
 

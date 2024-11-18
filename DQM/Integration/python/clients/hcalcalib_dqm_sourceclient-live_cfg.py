@@ -48,8 +48,8 @@ process.source.streamLabel = cms.untracked.string("streamDQMCalibration")
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = subsystem
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = subsystem
+# process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 if not useFileInput:
   if not options.BeamSplashRun : 
@@ -232,7 +232,7 @@ process.p = cms.Path(
 					*process.harvestingSequence
                     *process.dqmEnv
                     *process.dqmSaver
-		    *process.dqmSaverPB)
+		    )#*process.dqmSaverPB)
 
 #-------------------------------------
 #	Scheduling

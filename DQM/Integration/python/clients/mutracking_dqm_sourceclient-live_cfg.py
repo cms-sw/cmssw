@@ -61,11 +61,11 @@ process.dqmSaver.tag = 'Muons'
 
 # process.dqmSaver.path = '.'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'Muons'
-# process.dqmSaverPB.path = './pb'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'Muons'
+# # process.dqmSaverPB.path = './pb'
+# process.dqmSaverPB.runNumber = options.runNumber
 
-process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
+process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver )#+ process.dqmSaverPB)
 
 # Imports
 

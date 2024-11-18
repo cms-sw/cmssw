@@ -65,8 +65,8 @@ if not options.inputFiles:
 process.dqmEnv.subSystemFolder = 'Ecal'
 process.dqmSaver.tag = 'EcalGPU'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'EcalGPU'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'EcalGPU'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 process.ecalGpuTask.params.runGpuTask = True
 process.ecalGpuTask.params.enableRecHit = False
@@ -95,7 +95,7 @@ process.ecalMonitorTask.collectionTags.EEGpuUncalibRecHit = cms.untracked.InputT
 
 process.ecalMonitorPath = cms.Path(process.preScaler+process.ecalMonitorTask)
 process.dqmEndPath = cms.EndPath(process.dqmEnv)
-process.dqmOutputPath = cms.EndPath(process.dqmSaver + process.dqmSaverPB)
+process.dqmOutputPath = cms.EndPath(process.dqmSaver )#+ process.dqmSaverPB)
 
 ### Schedule ###
 
