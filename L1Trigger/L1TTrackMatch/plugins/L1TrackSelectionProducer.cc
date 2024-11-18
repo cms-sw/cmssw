@@ -180,39 +180,6 @@ private:
   private:
     double nStubsMin_;
   };
-  struct TTTrackNStubsMinEtaOverlapSelector {
-    TTTrackNStubsMinEtaOverlapSelector(double nStubsMinEtaOverlap) : nStubsMinEtaOverlap_(nStubsMinEtaOverlap) {}
-    TTTrackNStubsMinEtaOverlapSelector(const edm::ParameterSet& cfg)
-        : nStubsMinEtaOverlap_(cfg.template getParameter<double>("nStubsMinEtaOverlap")) {}
-    bool operator()(const L1Track& t) const {
-      if ((std::abs(t.momentum().eta()) < 1.7) && (std::abs(t.momentum().eta()) > 1.1)) {
-        return (t.getStubRefs().size() >= nStubsMinEtaOverlap_);
-      } else {
-        return true;
-      }
-    }
-
-  private:
-    double nStubsMinEtaOverlap_;
-  };
-  struct TTTrackWordNStubsMinEtaOverlapSelector {
-    TTTrackWordNStubsMinEtaOverlapSelector(double nStubsMinEtaOverlap) : nStubsMinEtaOverlap_(nStubsMinEtaOverlap) {}
-    TTTrackWordNStubsMinEtaOverlapSelector(const edm::ParameterSet& cfg)
-        : nStubsMinEtaOverlap_(cfg.template getParameter<double>("nStubsMinEtaOverlap")) {}
-    bool operator()(const L1Track& t) const {
-      TTTrack_TrackWord::tanl_t etaEmulationBits = t.getTanlWord();
-      ap_fixed<TrackBitWidths::kEtaSize, TrackBitWidths::kEtaMagSize> etaEmulation;
-      etaEmulation.V = etaEmulationBits.range();
-      if ((std::abs(etaEmulation.to_double()) < 1.7) && (std::abs(etaEmulation.to_double()) > 1.1)) {
-        return (t.getNStubs() >= nStubsMinEtaOverlap_);
-      } else {
-        return true;
-      }
-    }
-
-  private:
-    double nStubsMinEtaOverlap_;
-  };
   struct TTTrackNPSStubsMinSelector {
     TTTrackNPSStubsMinSelector(double nStubsMin, const TrackerTopology& tTopo)
         : nPSStubsMin_(nStubsMin), tTopo_(tTopo) {}
@@ -254,58 +221,6 @@ private:
 
   private:
     double promptMVAMin_;
-  };
-  struct TTTrackPromptMVAMinD0Min1Selector {
-    TTTrackPromptMVAMinD0Min1Selector(double promptMVAMinD0Min1) : promptMVAMinD0Min1_(promptMVAMinD0Min1) {}
-    TTTrackPromptMVAMinD0Min1Selector(const edm::ParameterSet& cfg)
-        : promptMVAMinD0Min1_(cfg.template getParameter<double>("promptMVAMinD0Min1")) {}
-    bool operator()(const L1Track& t) const {
-      if (std::abs(t.d0()) > 1.0) {
-        return (t.trkMVA1() > promptMVAMinD0Min1_);
-      } else {
-        return true;
-      }
-    }
-
-  private:
-    double promptMVAMinD0Min1_;
-  };
-  struct TTTrackWordPromptMVAMinD0Min1Selector {
-    TTTrackWordPromptMVAMinD0Min1Selector(double promptMVAMinD0Min1) : promptMVAMinD0Min1_(promptMVAMinD0Min1) {}
-    TTTrackWordPromptMVAMinD0Min1Selector(const edm::ParameterSet& cfg)
-        : promptMVAMinD0Min1_(cfg.template getParameter<double>("promptMVAMinD0Min1")) {}
-    bool operator()(const L1Track& t) const {
-      double floatD0 = t.undigitizeSignedValue(
-          t.getD0Bits(), TTTrack_TrackWord::TrackBitWidths::kD0Size, TTTrack_TrackWord::stepD0, 0.0);
-      if (std::abs(floatD0) > 1.0) {
-        return t.trkMVA1() >= promptMVAMinD0Min1_;
-      } else {
-        return true;
-      }
-    }  //change when mva bins in word are set
-
-  private:
-    double promptMVAMinD0Min1_;
-  };
-  struct TTTrackDisplacedMVAMinSelector {
-    TTTrackDisplacedMVAMinSelector(double displacedMVAMin) : displacedMVAMin_(displacedMVAMin) {}
-    TTTrackDisplacedMVAMinSelector(const edm::ParameterSet& cfg)
-        : displacedMVAMin_(cfg.template getParameter<double>("displacedMVAMin")) {}
-    bool operator()(const L1Track& t) const { return t.trkMVA2() >= displacedMVAMin_; }
-
-  private:
-    double displacedMVAMin_;
-  };
-  struct TTTrackWordDisplacedMVAMinSelector {
-    TTTrackWordDisplacedMVAMinSelector(double displacedMVAMin) : displacedMVAMin_(displacedMVAMin) {}
-    TTTrackWordDisplacedMVAMinSelector(const edm::ParameterSet& cfg)
-        : displacedMVAMin_(cfg.template getParameter<double>("displacedMVAMin")) {}
-    bool operator()(const L1Track& t) const {
-      return t.trkMVA2() >= displacedMVAMin_;
-    }  //change when mva bins in word are set
-
-  private:
-    double displacedMVAMin_;
   };
   struct TTTrackBendChi2MaxSelector {
     TTTrackBendChi2MaxSelector(double bendChi2Max) : bendChi2Max_(bendChi2Max) {}
@@ -452,53 +367,12 @@ private:
     double reducedBendChi2MaxNstub5_;
   };
 
-  struct TTTrackAbsD0MinEtaSelector {
-    TTTrackAbsD0MinEtaSelector(double absD0MinEtaMin0p95, double absD0MinEtaMax0p95)
-        : absD0MinEtaMin0p95_(absD0MinEtaMin0p95), absD0MinEtaMax0p95_(absD0MinEtaMax0p95) {}
-    TTTrackAbsD0MinEtaSelector(const edm::ParameterSet& cfg)
-        : absD0MinEtaMin0p95_(cfg.template getParameter<double>("absD0MinEtaMin0p95")),
-          absD0MinEtaMax0p95_(cfg.template getParameter<double>("absD0MinEtaMax0p95")) {}
-    bool operator()(const L1Track& t) const {
-      return (((std::abs(t.d0()) > absD0MinEtaMin0p95_) && (std::abs(t.momentum().eta()) > 0.95)) ||
-              ((std::abs(t.d0()) > absD0MinEtaMax0p95_) && (std::abs(t.momentum().eta()) <= 0.95)));
-    }
-
-  private:
-    double absD0MinEtaMin0p95_;
-    double absD0MinEtaMax0p95_;
-  };
-  struct TTTrackWordAbsD0MinEtaSelector {
-    TTTrackWordAbsD0MinEtaSelector(double absD0MinEtaMin0p95, double absD0MinEtaMax0p95)
-        : absD0MinEtaMin0p95_(absD0MinEtaMin0p95), absD0MinEtaMax0p95_(absD0MinEtaMax0p95) {}
-    TTTrackWordAbsD0MinEtaSelector(const edm::ParameterSet& cfg)
-        : absD0MinEtaMin0p95_(cfg.template getParameter<double>("absD0MinEtaMin0p95")),
-          absD0MinEtaMax0p95_(cfg.template getParameter<double>("absD0MinEtaMax0p95")) {}
-    bool operator()(const L1Track& t) const {
-      double floatD0 = t.undigitizeSignedValue(
-          t.getD0Bits(), TTTrack_TrackWord::TrackBitWidths::kD0Size, TTTrack_TrackWord::stepD0, 0.0);
-      TTTrack_TrackWord::tanl_t etaEmulationBits = t.getTanlWord();
-      ap_fixed<TrackBitWidths::kEtaSize, TrackBitWidths::kEtaMagSize> etaEmulation;
-      etaEmulation.V = etaEmulationBits.range();
-      return (((std::abs(floatD0) > absD0MinEtaMin0p95_) && (std::abs(etaEmulation.to_double()) > 0.95)) ||
-              ((std::abs(floatD0) > absD0MinEtaMax0p95_) && (std::abs(etaEmulation.to_double()) <= 0.95)));
-    }
-
-  private:
-    double absD0MinEtaMin0p95_;
-    double absD0MinEtaMax0p95_;
-  };
-
-  typedef AndSelector<TTTrackPtMinSelector,
-                      TTTrackAbsEtaMaxSelector,
-                      TTTrackAbsZ0MaxSelector,
-                      TTTrackNStubsMinSelector,
-                      TTTrackNStubsMinEtaOverlapSelector>
+  typedef AndSelector<TTTrackPtMinSelector, TTTrackAbsEtaMaxSelector, TTTrackAbsZ0MaxSelector, TTTrackNStubsMinSelector>
       TTTrackPtMinEtaMaxZ0MaxNStubsMinSelector;
   typedef AndSelector<TTTrackWordPtMinSelector,
                       TTTrackWordAbsEtaMaxSelector,
                       TTTrackWordAbsZ0MaxSelector,
-                      TTTrackWordNStubsMinSelector,
-                      TTTrackWordNStubsMinEtaOverlapSelector>
+                      TTTrackWordNStubsMinSelector>
       TTTrackWordPtMinEtaMaxZ0MaxNStubsMinSelector;
   typedef AndSelector<TTTrackBendChi2MaxSelector, TTTrackChi2RZMaxSelector, TTTrackChi2RPhiMaxSelector>
       TTTrackBendChi2Chi2RZChi2RPhiMaxSelector;
@@ -510,23 +384,16 @@ private:
                       TTTrackWordChi2RPhiMaxNstubSelector,
                       TTTrackWordBendChi2MaxNstubSelector>
       TTTrackWordChi2MaxNstubSelector;
-  typedef AndSelector<TTTrackPromptMVAMinSelector, TTTrackPromptMVAMinD0Min1Selector, TTTrackDisplacedMVAMinSelector>
-      TTTrackMVAMinSelector;
-  typedef AndSelector<TTTrackWordPromptMVAMinSelector,
-                      TTTrackWordPromptMVAMinD0Min1Selector,
-                      TTTrackWordDisplacedMVAMinSelector>
-      TTTrackWordMVAMinSelector;
 
   // ----------member data ---------------------------
   const edm::EDGetTokenT<TTTrackCollection> l1TracksToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const std::string outputCollectionName_;
   const edm::ParameterSet cutSet_;
-  const double ptMin_, absEtaMax_, absZ0Max_, promptMVAMin_, promptMVAMinD0Min1_, displacedMVAMin_, bendChi2Max_,
-      reducedChi2RZMax_, reducedChi2RPhiMax_;
+  const double ptMin_, absEtaMax_, absZ0Max_, promptMVAMin_, bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_;
   const double reducedChi2RZMaxNstub4_, reducedChi2RZMaxNstub5_, reducedChi2RPhiMaxNstub4_, reducedChi2RPhiMaxNstub5_,
-      reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_, absD0MinEtaMin0p95_, absD0MinEtaMax0p95_;
-  const int nStubsMin_, nStubsMinEtaOverlap_, nPSStubsMin_;
+      reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_;
+  const int nStubsMin_, nPSStubsMin_;
   bool processSimulatedTracks_, processEmulatedTracks_;
   int debug_;
 };
@@ -544,8 +411,6 @@ L1TrackSelectionProducer::L1TrackSelectionProducer(const edm::ParameterSet& iCon
       absEtaMax_(cutSet_.getParameter<double>("absEtaMax")),
       absZ0Max_(cutSet_.getParameter<double>("absZ0Max")),
       promptMVAMin_(cutSet_.getParameter<double>("promptMVAMin")),
-      promptMVAMinD0Min1_(cutSet_.getParameter<double>("promptMVAMinD0Min1")),
-      displacedMVAMin_(cutSet_.getParameter<double>("displacedMVAMin")),
       bendChi2Max_(cutSet_.getParameter<double>("reducedBendChi2Max")),
       reducedChi2RZMax_(cutSet_.getParameter<double>("reducedChi2RZMax")),
       reducedChi2RPhiMax_(cutSet_.getParameter<double>("reducedChi2RPhiMax")),
@@ -555,10 +420,7 @@ L1TrackSelectionProducer::L1TrackSelectionProducer(const edm::ParameterSet& iCon
       reducedChi2RPhiMaxNstub5_(cutSet_.getParameter<double>("reducedChi2RPhiMaxNstub5")),
       reducedBendChi2MaxNstub4_(cutSet_.getParameter<double>("reducedBendChi2MaxNstub4")),
       reducedBendChi2MaxNstub5_(cutSet_.getParameter<double>("reducedBendChi2MaxNstub5")),
-      absD0MinEtaMin0p95_(cutSet_.getParameter<double>("absD0MinEtaMin0p95")),
-      absD0MinEtaMax0p95_(cutSet_.getParameter<double>("absD0MinEtaMax0p95")),
       nStubsMin_(cutSet_.getParameter<int>("nStubsMin")),
-      nStubsMinEtaOverlap_(cutSet_.getParameter<int>("nStubsMinEtaOverlap")),
       nPSStubsMin_(cutSet_.getParameter<int>("nPSStubsMin")),
       processSimulatedTracks_(iConfig.getParameter<bool>("processSimulatedTracks")),
       processEmulatedTracks_(iConfig.getParameter<bool>("processEmulatedTracks")),
@@ -676,35 +538,31 @@ void L1TrackSelectionProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     vTTTrackEmulationOutput->reserve(nOutputApproximate);
   }
 
-  TTTrackPtMinEtaMaxZ0MaxNStubsMinSelector kinSel(ptMin_, absEtaMax_, absZ0Max_, nStubsMin_, nStubsMinEtaOverlap_);
-  TTTrackWordPtMinEtaMaxZ0MaxNStubsMinSelector kinSelEmu(
-      ptMin_, absEtaMax_, absZ0Max_, nStubsMin_, nStubsMinEtaOverlap_);
+  TTTrackPtMinEtaMaxZ0MaxNStubsMinSelector kinSel(ptMin_, absEtaMax_, absZ0Max_, nStubsMin_);
+  TTTrackWordPtMinEtaMaxZ0MaxNStubsMinSelector kinSelEmu(ptMin_, absEtaMax_, absZ0Max_, nStubsMin_);
   TTTrackBendChi2Chi2RZChi2RPhiMaxSelector chi2Sel(bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_);
   TTTrackWordBendChi2Chi2RZChi2RPhiMaxSelector chi2SelEmu(bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_);
   TTTrackNPSStubsMinSelector nPSStubsSel(nPSStubsMin_, tTopo);
-  TTTrackMVAMinSelector mvaSel(promptMVAMin_, promptMVAMinD0Min1_, displacedMVAMin_);
-  TTTrackWordMVAMinSelector mvaSelEmu(promptMVAMin_, promptMVAMinD0Min1_, displacedMVAMin_);
+  TTTrackPromptMVAMinSelector mvaSel(promptMVAMin_);
+  TTTrackWordPromptMVAMinSelector mvaSelEmu(promptMVAMin_);
   TTTrackChi2MaxNstubSelector chi2NstubSel({reducedChi2RZMaxNstub4_, reducedChi2RZMaxNstub5_},
                                            {reducedChi2RPhiMaxNstub4_, reducedChi2RPhiMaxNstub5_},
                                            {reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_});
   TTTrackWordChi2MaxNstubSelector chi2NstubSelEmu({reducedChi2RZMaxNstub4_, reducedChi2RZMaxNstub5_},
                                                   {reducedChi2RPhiMaxNstub4_, reducedChi2RPhiMaxNstub5_},
                                                   {reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_});
-  TTTrackAbsD0MinEtaSelector d0Sel(absD0MinEtaMin0p95_, absD0MinEtaMax0p95_);
-  TTTrackWordAbsD0MinEtaSelector d0SelEmu(absD0MinEtaMin0p95_, absD0MinEtaMax0p95_);
 
   for (size_t i = 0; i < nOutputApproximate; i++) {
     const auto& track = l1TracksHandle->at(i);
 
     // Select tracks based on the floating point TTTrack
     if (processSimulatedTracks_ && kinSel(track) && nPSStubsSel(track) && chi2Sel(track) && mvaSel(track) &&
-        d0Sel(track) && chi2NstubSel(track)) {
+        chi2NstubSel(track)) {
       vTTTrackOutput->push_back(TTTrackRef(l1TracksHandle, i));
     }
 
     // Select tracks based on the bitwise accurate TTTrack_TrackWord
-    if (processEmulatedTracks_ && kinSelEmu(track) && chi2SelEmu(track) && mvaSelEmu(track) && d0SelEmu(track) &&
-        chi2NstubSelEmu(track)) {
+    if (processEmulatedTracks_ && kinSelEmu(track) && chi2SelEmu(track) && mvaSelEmu(track) && chi2NstubSelEmu(track)) {
       vTTTrackEmulationOutput->push_back(TTTrackRef(l1TracksHandle, i));
     }
   }
@@ -734,15 +592,10 @@ void L1TrackSelectionProducer::fillDescriptions(edm::ConfigurationDescriptions& 
     descCutSet.add<double>("absEtaMax", 2.4)->setComment("absolute value of eta must be less than this value");
     descCutSet.add<double>("absZ0Max", 15.0)->setComment("z0 must be less than this value, [cm]");
     descCutSet.add<int>("nStubsMin", 4)->setComment("number of stubs must be greater than or equal to this value");
-    descCutSet.add<int>("nStubsMinEtaOverlap", 4)
-        ->setComment("number of stubs must be greater than or equal to this value for tracks with 1.1<|eta|<1.7");
     descCutSet.add<int>("nPSStubsMin", 0)
         ->setComment("number of stubs in the PS Modules must be greater than or equal to this value");
 
     descCutSet.add<double>("promptMVAMin", -1.0)->setComment("MVA must be greater than this value");
-    descCutSet.add<double>("promptMVAMinD0Min1", -1.0)
-        ->setComment("MVA for tracks with |d0|>1cm must be greater than this value");
-    descCutSet.add<double>("displacedMVAMin", -1.0)->setComment("Displaced MVA must be greater than this value");
     descCutSet.add<double>("reducedBendChi2Max", 2.25)->setComment("bend chi2 must be less than this value");
     descCutSet.add<double>("reducedChi2RZMax", 5.0)->setComment("chi2rz/dof must be less than this value");
     descCutSet.add<double>("reducedChi2RPhiMax", 20.0)->setComment("chi2rphi/dof must be less than this value");
@@ -758,10 +611,6 @@ void L1TrackSelectionProducer::fillDescriptions(edm::ConfigurationDescriptions& 
         ->setComment("bend chi2 must be less than this value in nstub==4");
     descCutSet.add<double>("reducedBendChi2MaxNstub5", 999.9)
         ->setComment("bend chi2 must be less than this value in nstub>4");
-    descCutSet.add<double>("absD0MinEtaMin0p95", -1.0)
-        ->setComment("absolute value of d0 must be greater than this value for tracks with |eta|>0.95");
-    descCutSet.add<double>("absD0MinEtaMax0p95", -1.0)
-        ->setComment("absolute value of d0 must be greater than this value for tracks with |eta|<=0.95");
 
     desc.add<edm::ParameterSetDescription>("cutSet", descCutSet);
   }

@@ -22,7 +22,6 @@ l1tTTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                # Quality Flag and Quality params
                                                TrackQuality = cms.bool(True),
                                                TrackQualityPSet = cms.PSet(TrackQualityParams),
-                                               TrackQualityDispPSet = cms.PSet(TrackQualityDispParams),
                                                Fakefit = cms.bool(False), # True causes Tracklet reco to output TTTracks before DR & KF
                                                StoreTrackBuilderOutput = cms.bool(False), # if True EDProducts for TrackBuilder tracks and stubs will be filled
                                                RemovalType = cms.string("merge"), # Duplicate track removal
@@ -38,6 +37,5 @@ l1tTTTracksFromExtendedTrackletEmulation = l1tTTTracksFromTrackletEmulation.clon
                                                tableTREFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/table_TRE/table_TRE_D1AD2A_1.txt'),
                                                # Quality Flag and Quality params
                                                TrackQuality = cms.bool(True),
-                                               TrackQualityPSet = cms.PSet(TrackQualityParams),
-                                               TrackQualityDispPSet = cms.PSet(TrackQualityDispParams)
+                                               TrackQualityPSet = cms.PSet(TrackQualityParams)
     )
