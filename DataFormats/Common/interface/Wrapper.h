@@ -7,15 +7,20 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/WrapperDetail.h"
+#include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
 #include <algorithm>
 #include <cassert>
+#include <concepts>
 #include <memory>
 #include <string>
 #include <typeinfo>
@@ -70,6 +75,7 @@ namespace edm {
     bool isProductEqual_(WrapperBase const* newProduct) const override;
     bool hasSwap_() const override;
     void swapProduct_(WrapperBase* newProduct) override;
+    void moveFrom_(void* ptr, std::type_info const& type) override;
 
     void do_fillView(ProductID const& id,
                      std::vector<void const*>& pointers,
@@ -80,6 +86,9 @@ namespace edm {
                           std::vector<void const*>& oPtr) const override;
 
     std::shared_ptr<soa::TableExaminerBase> tableExaminer_() const override;
+
+    // call post_insert only if the underlying type has such a method
+    void call_post_insert_if_available();
 
   private:
     T obj;
@@ -168,6 +177,37 @@ namespace edm {
     }
   }
 
+  template <typename T>
+  inline void Wrapper<T>::moveFrom_(void* ptr, std::type_info const& type) {
+    present = false;
+    if (ptr == nullptr) {
+      throw edm::Exception(errors::NullPointerError) << "Wrapper::moveFrom() was called with a null pointer argument";
+    }
+    if (type != typeid(T)) {
+      throw cms::Exception("TypeMismatch") << "Wrapper::moveFrom() was passed " << typeDemangle(type.name())
+                                           << " but was expecting " << typeDemangle(typeid(T).name());
+    }
+    if constexpr (std::movable<T>) {
+      obj = std::move(*reinterpret_cast<T*>(ptr));
+    } else if constexpr (std::copyable<T>) {
+      obj = *reinterpret_cast<T*>(ptr);
+    } else {
+      throw cms::Exception("TypeMismatch")
+          << "Wrapper::moveFrom() was called for a non-movable, non-copyable type " << typeDemangle(typeid(T).name());
+    }
+    present = true;
+
+    // call post_insert only if the underlying type has such a method
+    call_post_insert_if_available();
+  }
+
+  template <typename T>
+  inline void Wrapper<T>::call_post_insert_if_available() {
+    if constexpr (not std::derived_from<T, DoNotSortUponInsertion> and requires(T& p) { p.post_insert(); }) {
+      obj.post_insert();
+    }
+  }
+
   namespace soa {
     template <class T>
     struct MakeTableExaminer {
@@ -176,6 +216,7 @@ namespace edm {
       }
     };
   }  // namespace soa
+
   template <typename T>
   inline std::shared_ptr<edm::soa::TableExaminerBase> Wrapper<T>::tableExaminer_() const {
     return soa::MakeTableExaminer<T>::make(&obj);
