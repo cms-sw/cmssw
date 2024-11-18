@@ -40,9 +40,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // Layers params
     const std::vector<int> layerStarts_;
+    const std::vector<double> caThetaCuts_;
+    const std::vector<double> caDCACuts_;
 
     // Cells params
     const std::vector<int> pairGraph_;
+    const std::vector<int> startingPairs_;
     const std::vector<int> phiCuts_;
     const std::vector<double> minZ_;
     const std::vector<double> maxZ_;
@@ -51,18 +54,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const double cellPtCut_;
     const bool doClusterCut_;
     const bool idealConditions_;
-    
-    // Regions params
-    const std::vector<int> regionStarts_;
-    const std::vector<double> caThetaCut_;
-    const std::vector<double> caDCACut_;
 
   };
 
   CAParamsESProducer::CAParamsESProducer(const edm::ParameterSet& iConfig)
       : ESProducer(iConfig),
         layerStarts_(iConfig.getParameter<std::vector<int>>("layerStarts")),
+        caThetaCuts_(iConfig.getParameter<std::vector<double>>("caThetaCuts")),
+        caDCACuts_(iConfig.getParameter<std::vector<double>>("caDCACuts")),
         pairGraph_(iConfig.getParameter<std::vector<int>>("pairGraph")),
+        startingPairs_(iConfig.getParameter<std::vector<int>>("startingPairs")),
         phiCuts_(iConfig.getParameter<std::vector<int>>("phiCuts")),
         minZ_(iConfig.getParameter<std::vector<double>>("minZ")),
         maxZ_(iConfig.getParameter<std::vector<double>>("maxZ")),
@@ -70,10 +71,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         cellZ0Cut_(iConfig.getParameter<double>("cellZ0Cut")),
         cellPtCut_(iConfig.getParameter<double>("cellPtCut")),
         doClusterCut_(iConfig.getParameter<bool>("doClusterCut")),
-        idealConditions_(iConfig.getParameter<bool>("idealConditions")),
-        regionStarts_(iConfig.getParameter<std::vector<int>>("regionStarts")),
-        caThetaCut_(iConfig.getParameter<std::vector<double>>("caThetaCut")),
-        caDCACut_(iConfig.getParameter<std::vector<double>>("caDCACut"))
+        idealConditions_(iConfig.getParameter<bool>("idealConditions"))
  {
     setWhatProduced(this);    
   }
@@ -85,25 +83,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     assert(minZ_.size() == maxR_.size()); 
     assert(minZ_.size() == phiCuts_.size()); 
 
-    assert(regionStarts_.size() == regionStarts_.size()); 
-    assert(caThetaCut_.size() == caThetaCut_.size()); 
-    assert(caDCACut_.size() == caDCACut_.size()); 
+    assert(caThetaCuts_.size() == caDCACuts_.size()); 
     
     int n_layers = layerStarts_.size();
     int n_pairs = pairGraph_.size() / 2;
-    // int n_regions = regionStarts_.size();
 
     assert(int(n_pairs) == int(minZ_.size())); 
+    assert(*std::max_element(startingPairs_.begin(), startingPairs_.end()) < n_pairs);
 
     reco::CAParamsHost product{{{n_layers,n_pairs}}, cms::alpakatools::host()};
-    // auto product = std::make_unique<reco::CAParamsHost>({{n_layers,n_pairs,n_regions}},cms::alpakatools::host());
 
     auto layerSoA = product.view();
     auto cellSoA = product.view<::reco::CACellsSoA>();
-    // auto regionSoA = product.view<::reco::CARegionsSoA>();
 
     for (int i = 0; i < n_layers; ++i)
-        layerSoA.layerStarts()[i] = layerStarts_[i];
+    {
+      layerSoA.layerStarts()[i] = layerStarts_[i];
+      layerSoA.caThetaCut()[i] = caThetaCuts_[i];
+      layerSoA.caDCACut()[i] = caDCACuts_[i];
+      std::cout << i << " - > " << caDCACuts_[i] << std::endl;
+    }
     
     for (int i = 0; i < n_pairs; ++i)
     {
@@ -112,18 +111,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         cellSoA.minz()[i] = minZ_[i];
         cellSoA.maxz()[i] = maxZ_[i];
         cellSoA.maxr()[i] = maxR_[i];
+        cellSoA.startingPair()[i] = false;
     }
+
+    for (const int& i : startingPairs_)
+      cellSoA.startingPair()[i] = true;
+
     cellSoA.cellPtCut() = cellPtCut_;
     cellSoA.cellZ0Cut() = cellZ0Cut_;
     cellSoA.doClusterCut() = doClusterCut_;
     cellSoA.idealConditions() = idealConditions_;
-    
-    // for (int i = 0; i < n_regions; i++)
-    // {
-    //     regionSoA.regionStarts()[i] = regionStarts_[i];
-    //     regionSoA.caThetaCut()[i] = caThetaCut_[i];
-    //     regionSoA.caDCACut()[i] = caDCACut_[i];
-    // }
     
     return product;
 
@@ -137,23 +134,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ParameterSetDescription desc;
 
     // layers params
-    desc.add<std::vector<int>>("layerStarts", std::vector<int>(std::begin(layerStart), std::end(layerStart))) ->setComment("Layer module start");
+    desc.add<std::vector<int>>("layerStarts", std::vector<int>(std::begin(layerStart), std::end(layerStart))) ->setComment("Layer module start.");
+    desc.add<std::vector<double>>("caDCACuts", {0.15f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f}) ->setComment("Cut on RZ alignement. One per layer, the layer being the midelle one for a triplet.");
+    desc.add<std::vector<double>>("caThetaCuts", {0.002f,0.002f,0.002f,0.002f,0.003f,0.003f,0.003f,0.003f,0.003f,0.003f}) ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
+    desc.add<std::vector<int>>("startingPairs",{0,1,2}) ->setComment("The list of the ids of pairs from which the CA ntuplets building may start."); //TODO could be parsed via an expression
     // cells params
     desc.add<std::vector<int>>("pairGraph", std::vector<int>(std::begin(layerPairs), std::end(layerPairs))) ->setComment("CA graph");
     desc.add<std::vector<int>>("phiCuts", std::vector<int>(std::begin(phicuts), std::end(phicuts))) ->setComment("Cuts in phi for cells");
     desc.add<std::vector<double>>("minZ", std::vector<double>(std::begin(minz), std::end(minz))) ->setComment("Cuts in min z (on inner hit) for cells");
     desc.add<std::vector<double>>("maxZ", std::vector<double>(std::begin(maxz), std::end(maxz))) ->setComment("Cuts in max z (on inner hit) for cells");
     desc.add<std::vector<double>>("maxR", std::vector<double>(std::begin(maxr), std::end(maxr))) ->setComment("Cuts in max r for cells");
-    desc.add<double>("cellZ0Cut", 12.0) ->setComment("Z0 cut for cells");
-    desc.add<double>("cellPtCut", 0.5) ->setComment("Preliminary pT cut on "); 
+    desc.add<double>("cellZ0Cut", 12.0f) ->setComment("Z0 cut for cells");
+    desc.add<double>("cellPtCut", 0.5f) ->setComment("Preliminary pT cut on "); 
     desc.add<bool>("doClusterCut", true);
     desc.add<bool>("idealConditions", true);
-    // region params
-    desc.add<std::vector<int>>("regionStarts", {0,100}) ->setComment("Layer module start");
-    desc.add<std::vector<double>>("caThetaCut", {0,100}) ->setComment("Layer module start");
-    desc.add<std::vector<double>>("caDCACut", {0,100}) ->setComment("Layer module start");
-
-
 
     descriptions.addWithDefaultLabel(desc);
   }

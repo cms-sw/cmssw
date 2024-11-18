@@ -3,9 +3,11 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersSoACollection.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsDevice.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsHost.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
+
 #include "FWCore/Utilities/interface/stringize.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -35,10 +37,15 @@ int main() {
     {
       uint32_t nHits = 2000;
       int32_t offset = 100;
+      uint32_t nModules = 200;
+
+      SiPixelClustersSoACollection clusters(nModules, queue);
+      clusters.setNClusters(nHits,offset);
+
       auto moduleStartH =
-          cms::alpakatools::make_host_buffer<uint32_t[]>(queue, pixelTopology::Phase1::numberOfModules + 1);
+          cms::alpakatools::make_host_buffer<uint32_t[]>(queue, nModules + 1);
      
-      for (size_t i = 0; i < pixelTopology::Phase1::numberOfModules + 1; ++i) {
+      for (size_t i = 0; i < nModules + 1; ++i) {
         moduleStartH[i] = i * 2;
       }
 
@@ -47,10 +54,10 @@ int main() {
         hitsX[i] = float(i) * 2;
       }
 
-      auto moduleStartD = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, pixelTopology::Phase1::numberOfModules + 1);
+      auto moduleStartD = cms::alpakatools::make_device_view<uint32_t>(queue, clusters.view().clusModuleStart(), nHits);
       alpaka::memcpy(queue, moduleStartD, moduleStartH);
 
-      TrackingRecHitsSoACollection tkhit(queue, nHits, offset, moduleStartD.data());
+      TrackingRecHitsSoACollection tkhit(queue, clusters);
       
       // exercise the copy of a full column (on device)
       auto hitXD = cms::alpakatools::make_device_view<float>(queue, tkhit.view().xLocal(), nHits);
@@ -82,7 +89,7 @@ int main() {
 
       alpaka::QueueCpuBlocking queue_host{cms::alpakatools::host()};
     
-      ::reco::TrackingRecHitHost host_collection_2(cms::alpakatools::host(), nHits);
+      ::reco::TrackingRecHitHost host_collection_2(cms::alpakatools::host(), nHits, nModules);
 
       // exercise the memset of a colum (on host)
       auto hitLYH = cms::alpakatools::make_host_view<float>(host_collection_2.view().yLocal(), nHits);

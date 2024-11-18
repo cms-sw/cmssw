@@ -19,6 +19,7 @@ namespace reco {
 
     GENERATE_SOA_LAYOUT(CACellsLayout, 
                     SOA_COLUMN(GraphNode, graph),
+                    SOA_COLUMN(bool, startingPair),
                     SOA_COLUMN(int16_t, phiCuts),
                     SOA_COLUMN(float, minz),
                     SOA_COLUMN(float, maxz),
@@ -28,13 +29,7 @@ namespace reco {
                     SOA_SCALAR(bool, doClusterCut),
                     SOA_SCALAR(bool, idealConditions)
                     )
-
-    // GENERATE_SOA_LAYOUT(CARegionsLayout, 
-    //                 SOA_COLUMN(uint32_t, regionStarts),
-    //                 SOA_COLUMN(float, caThetaCut),
-    //                 SOA_COLUMN(float, caDCACut)
-    //                 )
-    
+                    
   using CALayersSoA = CALayersLayout<>;
   using CALayersSoAView = CALayersSoA::View;
   using CALayersSoAConstView = CALayersSoA::ConstView;
@@ -42,10 +37,6 @@ namespace reco {
   using CACellsSoA = CACellsLayout<>;
   using CACellsSoAView = CACellsSoA::View;
   using CACellsSoAConstView = CACellsSoA::ConstView;
-
-  // using CARegionsSoA = CARegionsLayout<>;
-  // using CARegionsSoAView = CARegionsSoA::View;
-  // using CARegionsSoAConstView = CARegionsSoA::ConstView;
 
 }
 #endif  // RecoTracker_PixelSeeding_interface_CAParams_h

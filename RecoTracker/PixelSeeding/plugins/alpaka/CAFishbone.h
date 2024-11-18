@@ -19,6 +19,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
+  using namespace ::caStructures;
   template <typename TrackerTraits>
   using CellNeighbors = caStructures::CellNeighborsT<TrackerTraits>;
   template <typename TrackerTraits>
@@ -29,15 +30,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   using CellTracksVector = caStructures::CellTracksVectorT<TrackerTraits>;
   template <typename TrackerTraits>
   using OuterHitOfCell = caStructures::OuterHitOfCellT<TrackerTraits>;
-  template <typename TrackerTraits>
-  using HitsConstView = typename CACellT<TrackerTraits>::HitsConstView;
+
 
   template <typename TrackerTraits>
   class CAFishbone {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
-                                  HitsConstView<TrackerTraits> hh,
+                                  HitsConstView hh,
                                   CACellT<TrackerTraits>* cells,
                                   uint32_t const* __restrict__ nCells,
                                   OuterHitOfCell<TrackerTraits> const* isOuterHitOfCellWrap,

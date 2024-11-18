@@ -7,12 +7,64 @@
 
 namespace caStructures {
 
+  using Quality = ::pixelTrack::Quality;
+
+
+  //Configuration params common to all topologies, for the algorithms
+  struct AlgoParams {
+
+    uint32_t maxNumberOfDoublets_;
+    uint32_t minHitsPerNtuplet_;
+    uint32_t minHitsForSharingCut_;
+    float ptmin_;
+    float hardCurvCut_;
+    bool useRiemannFit_;
+    bool fitNas4_;
+    bool earlyFishbone_;
+    bool lateFishbone_;
+    bool doStats_;
+    bool doSharedHitCut_;
+    bool dupPassThrough_;
+    bool useSimpleTripletCleaner_;
+    // bool idealConditions_;
+    //move back idealConditions here
+  };
+
+  // Hits data formats
+  using HitsView = ::reco::TrackingRecHitView;
+  using HitModulesConstView = ::reco::HitModuleSoAConstView;
+  using HitsConstView = ::reco::TrackingRecHitConstView;
+
+  //Tracks data formats
+  using TkSoAView = ::reco::TrackSoAView;
+  using TkHitsSoAView = ::reco::TrackHitSoAView;
+
+  //Indices for hits and tracks
+  using hindex_type = uint32_t; // TrackerTraits::hindex_type
+  using tindex_type = uint32_t; // TrackerTraits::tindex_type
+  using cindex_type = uint32_t;
+
+  // template <typename TrackerTraits>
+  // struct CAContainers
+  // {
+  //   //Max constants
+  //   static constexpr int32_t S = TrackerTraits::maxNumberOfTuples;
+  //   static constexpr int32_t H = TrackerTraits::avgHitsPerTrack;
+  //   static constexpr uint32_t CT = TrackerTraits::maxCellTracks;
+  //   static constexpr uint32_t CN = TrackerTraits::maxCellNeighbors;
+
+  //   using CellNeighbors = cms::alpakatools::VecArray<typename TrackerTraits::cindex_type, TrackerTraits::maxCellNeighbors>;
+  // }
+
+  using CellContainer = cms::alpakatools::OneToManyAssocRandomAccess<hindex_type, -1, -1>;
+
+
   template <typename TrackerTraits>
   using CellNeighborsT =
       cms::alpakatools::VecArray<typename TrackerTraits::cindex_type, TrackerTraits::maxCellNeighbors>;
 
   template <typename TrackerTraits>
-  using CellTracksT = cms::alpakatools::VecArray<typename TrackerTraits::tindex_type, TrackerTraits::maxCellTracks>;
+  using CellTracksT = cms::alpakatools::VecArray<tindex_type, TrackerTraits::maxCellTracks>;
 
   template <typename TrackerTraits>
   using CellNeighborsVectorT = cms::alpakatools::SimpleVector<CellNeighborsT<TrackerTraits>>;
@@ -24,19 +76,21 @@ namespace caStructures {
   using OuterHitOfCellContainerT = cms::alpakatools::VecArray<uint32_t, TrackerTraits::maxCellsPerHit>;
 
   template <typename TrackerTraits>
-  using TupleMultiplicityT = cms::alpakatools::OneToManyAssocRandomAccess<typename TrackerTraits::tindex_type,
+  using TupleMultiplicityT = cms::alpakatools::OneToManyAssocRandomAccess<tindex_type,
                                                                           TrackerTraits::maxHitsOnTrack + 1,
                                                                           TrackerTraits::maxNumberOfTuples>;
-                                                                          
+  
   template <typename TrackerTraits>
   using HitContainerT = cms::alpakatools::OneToManyAssocSequential<uint32_t, TrackerTraits::maxNumberOfTuples + 1, 
                                         TrackerTraits::avgHitsPerTrack * TrackerTraits::maxNumberOfTuples>;
-
+                                          
   template <typename TrackerTraits>
   using HitToTupleT =
-      cms::alpakatools::OneToManyAssocRandomAccess<typename TrackerTraits::tindex_type,
+      cms::alpakatools::OneToManyAssocRandomAccess<tindex_type,
                                                    -1,
-                                                   TrackerTraits::maxHitsForContainers>;  // 3.5 should be enough
+                                                   TrackerTraits::maxNumberOfTuples*TrackerTraits::avgHitsPerTrack>;  // 3.5 should be enough
+  
+  
 
   template <typename TrackerTraits>
   using TuplesContainerT = cms::alpakatools::OneToManyAssocRandomAccess<typename TrackerTraits::hindex_type,
