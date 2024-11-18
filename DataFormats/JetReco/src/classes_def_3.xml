@@ -106,7 +106,7 @@
   <class name="edm::RefToBaseProd<reco::Jet>" >
      <!-- <field name="view_" transient="true" /> -->
   </class>
-  <class name="edm::RefToBase<reco::Jet>" rntupleSplit="false"/>
+  <class name="edm::RefToBase<reco::Jet>" rntupleStreamerMode="true"/>
   <class name="edm::reftobase::BaseHolder<reco::Jet>" />
   <class name="edm::reftobase::IndirectHolder<reco::Jet>" />
   <class name="edm::reftobase::IndirectVectorHolder<reco::Jet>" />

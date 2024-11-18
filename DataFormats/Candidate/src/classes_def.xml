@@ -203,8 +203,8 @@
   <class name="std::vector<reco::Particle>" />
   <class name="std::vector<reco::Candidate *>" />
   <class name="std::vector<reco::LeafCandidate>" />
-  <class name="reco::CandidateCollection"  rntupleSplit="false"/>
-  <class name="reco::CandidateBaseRef"  rntupleSplit="false"/>
+  <class name="reco::CandidateCollection"  rntupleStreamerMode="true"/>
+  <class name="reco::CandidateBaseRef"  rntupleStreamerMode="true"/>
 
   <class name="edm::Wrapper<reco::CandidateCollection>" />
   <class name="edm::Wrapper<std::vector<reco::Particle> >" />

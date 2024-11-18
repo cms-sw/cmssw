@@ -13,7 +13,7 @@
   <class name="std::map<CSCDetId,std::pair<unsigned long,unsigned long> >"/>
   <class name="std::pair<CSCDetId,std::pair<unsigned int,unsigned int> >"/>  <!-- Root6 -->
   <class name="std::pair<CSCDetId,std::pair<unsigned long,unsigned long> >"/><!-- Root6 -->
-  <class name="edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >"  rntupleSplit="false" />
+  <class name="edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >"  rntupleStreamerMode="true" />
   <class name="edm::ClonePolicy<CSCRecHit2D>"/> <!-- Root6 -->
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> >"/>
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> > >"/>
@@ -24,7 +24,7 @@
    <version ClassVersion="11" checksum="160361831"/>
    <version ClassVersion="10" checksum="3002485899"/>
   </class>
-  <class name="edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >"  rntupleSplit="false" />
+  <class name="edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >"  rntupleStreamerMode="true" />
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >"/>
   <class name="edm::ClonePolicy<CSCSegment>"/> <!-- Root6 -->
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> > >"/>

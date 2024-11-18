@@ -114,7 +114,7 @@
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::RecoEcalCandidateRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::RecoEcalCandidateRefVector>" />
 
-  <class name="reco::IsoDeposit" ClassVersion="10" rntupleSplit="false">
+  <class name="reco::IsoDeposit" ClassVersion="10">
    <version ClassVersion="10" checksum="2477314412"/>
   </class>
   <class name="reco::IsoDeposit::const_iterator" ClassVersion="10">
