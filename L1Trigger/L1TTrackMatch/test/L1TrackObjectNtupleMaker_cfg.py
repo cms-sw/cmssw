@@ -156,17 +156,10 @@ if (L1TRKALGO == 'HYBRID'):
 elif (L1TRKALGO == 'HYBRID_DISPLACED'):
     process.TTTracksEmu = cms.Path(process.L1TExtendedHybridTracks)
     process.TTTracksEmuWithTruth = cms.Path(process.L1TExtendedHybridTracksWithAssociators)
-    if(runDispVert):
-        process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer *
-                                             process.l1tTrackSelectionProducerExtended *
-                                             process.l1tTrackSelectionProducerExtendedForJets *
-                                             process.l1tTrackSelectionProducerExtendedForEtMiss *
-                                             process.l1tTrackSelectionProducerExtendedForDispVert)
-    else:
-        process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer *
-                                             process.l1tTrackSelectionProducerExtended *
-                                             process.l1tTrackSelectionProducerExtendedForJets *
-                                             process.l1tTrackSelectionProducerExtendedForEtMiss)
+    process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer *
+                                         process.l1tTrackSelectionProducerExtended *
+                                         process.l1tTrackSelectionProducerExtendedForJets *
+                                         process.l1tTrackSelectionProducerExtendedForEtMiss)
     process.pL1TrackVertexAssociation = cms.Path(process.l1tTrackVertexAssociationProducerExtended *
                                                  process.l1tTrackVertexAssociationProducerExtendedForJets *
                                                  process.l1tTrackVertexAssociationProducerExtendedForEtMiss)
@@ -185,15 +178,9 @@ elif (L1TRKALGO == 'HYBRID_DISPLACED'):
 elif (L1TRKALGO == 'HYBRID_PROMPTANDDISP'):
     process.TTTracksEmu = cms.Path(process.L1TPromptExtendedHybridTracks)
     process.TTTracksEmuWithTruth = cms.Path(process.L1TPromptExtendedHybridTracksWithAssociators)
-    if(runDispVert):
-        process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer * process.l1tTrackSelectionProducerExtended *
-                                             process.l1tTrackSelectionProducerForJets * process.l1tTrackSelectionProducerExtendedForJets *
-                                             process.l1tTrackSelectionProducerForEtMiss * process.l1tTrackSelectionProducerExtendedForEtMiss *
-                                             process.l1tTrackSelectionProducerExtendedForDispVert)
-    else:
-        process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer * process.l1tTrackSelectionProducerExtended *
-                                             process.l1tTrackSelectionProducerForJets * process.l1tTrackSelectionProducerExtendedForJets *
-                                             process.l1tTrackSelectionProducerForEtMiss * process.l1tTrackSelectionProducerExtendedForEtMiss)
+    process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer * process.l1tTrackSelectionProducerExtended *
+                                         process.l1tTrackSelectionProducerForJets * process.l1tTrackSelectionProducerExtendedForJets *
+                                         process.l1tTrackSelectionProducerForEtMiss * process.l1tTrackSelectionProducerExtendedForEtMiss)
     process.pL1TrackVertexAssociation = cms.Path(VertexAssociator * process.l1tTrackVertexAssociationProducerExtended *
                                                  process.l1tTrackVertexAssociationProducerForJets * process.l1tTrackVertexAssociationProducerExtendedForJets *
                                                  process.l1tTrackVertexAssociationProducerForEtMiss * process.l1tTrackVertexAssociationProducerExtendedForEtMiss)
@@ -299,6 +286,7 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackObjectNtupleMaker',
         RecoVertexInputTag=cms.InputTag("l1tVertexFinder", "L1Vertices"),
         RecoVertexEmuInputTag=cms.InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"),
         DisplacedVertexInputTag = cms.InputTag("DisplacedVertexProducer","dispVertices"),
+        DisplacedVertexEmulationInputTag = cms.InputTag("DisplacedVertexProducer","dispVerticesEmulation"),
         runDispVert = cms.bool(runDispVert)
 )
 

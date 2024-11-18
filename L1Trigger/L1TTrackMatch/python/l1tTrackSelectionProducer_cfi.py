@@ -8,12 +8,9 @@ l1tTrackSelectionProducer = cms.EDProducer('L1TrackSelectionProducer',
                     absEtaMax = cms.double(2.4), # absolute value of eta must be less than this value
                     absZ0Max = cms.double(15.0), # z0 must be less than this value, [cm]
                     nStubsMin = cms.int32(4), # number of stubs must be greater than or equal to this value
-                    nStubsMinEtaOverlap = cms.int32(4), # number of stubs must be greater than or equal to this value for tracks with 1.1<|eta|<1.7
                     nPSStubsMin = cms.int32(0), # the number of stubs in the PS Modules must be greater than or equal to this value
 
                     promptMVAMin = cms.double(-1.0), # MVA must be greater than this value
-                    promptMVAMinD0Min1 = cms.double(-1.0), # MVA for tracks with |d0|>1cm must be greater than this value
-                    displacedMVAMin = cms.double(-1.0), # Displaced MVA must be greater than this value
                     reducedBendChi2Max = cms.double(2.25), # bend chi2 must be less than this value
                     reducedChi2RZMax = cms.double(5.0), # chi2rz/dof must be less than this value
                     reducedChi2RPhiMax = cms.double(20.0), # chi2rphi/dof must be less than this value
@@ -23,8 +20,6 @@ l1tTrackSelectionProducer = cms.EDProducer('L1TrackSelectionProducer',
                     reducedChi2RPhiMaxNstub5 = cms.double(999.9), # chi2rphi/dof with nstub>4 must be less than this value
                     reducedBendChi2MaxNstub4 = cms.double(999.9), # bend chi2 with nstub==4 must be less than this value
                     reducedBendChi2MaxNstub5 = cms.double(999.9), # bend chi2 with nstub>4 must be less than this value
-                    absD0MinEtaMin0p95 = cms.double(-1.0), #absolute value of d0 must be greater than this value for tracks with |eta|>0.95
-                    absD0MinEtaMax0p95 = cms.double(-1.0), #absolute value of d0 must be greater than this value for tracks with |eta|<=0.95 
                     ),
   processSimulatedTracks = cms.bool(True), # return selected tracks after cutting on the floating point values
   processEmulatedTracks = cms.bool(True), # return selected tracks after cutting on the bitwise emulated values
@@ -39,12 +34,9 @@ l1tTrackSelectionProducerExtended = l1tTrackSelectionProducer.clone(
                     absEtaMax = 2.4, # absolute value of eta must be less than this value
                     absZ0Max = 15.0, # z0 must be less than this value, [cm]
                     nStubsMin = 4, # number of stubs must be greater than or equal to this value
-                    nStubsMinEtaOverlap = 4, # number of stubs must be greater than or equal to this value for tracks with 1.1<|eta|<1.7
                     nPSStubsMin = 0, # the number of stubs in the PS Modules must be greater than or equal to this value
 
-                    promptMVAMin = -1.0, # MVA must be greater than this value
-                    promptMVAMinD0Min1 = -1.0, # MVA for tracks with |d0|>1cm must be greater than this value
-                    displacedMVAMin = -1.0, # Displaced MVA must be greater than this value
+                    promptMVAMin = -1.0, # MVA must be greater than this value 
                     reducedBendChi2Max = 2.4, # bend chi2 must be less than this value
                     reducedChi2RZMax = 10.0, # chi2rz/dof must be less than this value
                     reducedChi2RPhiMax = 40.0, # chi2rphi/dof must be less than this value
@@ -53,9 +45,7 @@ l1tTrackSelectionProducerExtended = l1tTrackSelectionProducer.clone(
                     reducedChi2RPhiMaxNstub4 = cms.double(999.9), # chi2rphi/dof with nstub==4 must be less than this value
                     reducedChi2RPhiMaxNstub5 = cms.double(999.9), # chi2rphi/dof with nstub>4 must be less than this value
                     reducedBendChi2MaxNstub4 = 999.9, # bend chi2 with nstub==4 must be less than this value
-                    reducedBendChi2MaxNstub5 = 999.9, # bend chi2 with nstub>4 must be less than this value
-                    absD0MinEtaMin0p95 = -1.0, #absolute value of d0 must be greater than this value for tracks with |eta|>0.95
-                    absD0MinEtaMax0p95 = -1.0, #absolute value of d0 must be greater than this value for tracks with |eta|<=0.95 
+                    reducedBendChi2MaxNstub5 = 999.9, # bend chi2 with nstub>4 must be less than this value 
                     ),
   processSimulatedTracks = cms.bool(True), # return selected tracks after cutting on the floating point values
   processEmulatedTracks = cms.bool(True), # return selected tracks after cutting on the bitwise emulated values
@@ -107,31 +97,4 @@ l1tTrackSelectionProducerForEtMiss = l1tTrackSelectionProducer.clone()
 
 l1tTrackSelectionProducerExtendedForEtMiss = l1tTrackSelectionProducerExtended.clone()
 
-l1tTrackSelectionProducerExtendedForDispVert = l1tTrackSelectionProducerExtended.clone(
-    l1TracksInputTag = ("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
-    outputCollectionName = "Level1TTTracksSelected",
-    cutSet = dict(
-                    ptMin = 3.0, # pt must be greater than this value, [GeV]
-                    absEtaMax = 2.4, # absolute value of eta must be less than this value
-                    absZ0Max = 999.9, # z0 must be less than this value, [cm]
-                    nStubsMin = 0, # number of stubs must be greater than or equal to this value
-                    nStubsMinEtaOverlap = 5, # number of stubs must be greater than or equal to this value for tracks with 1.1<|eta|<1.7
-                    nPSStubsMin = 0, # the number of stubs in the PS Modules must be greater than or equal to this value
-                    promptMVAMin = 0.2, # MVA must be greater than this value
-                    promptMVAMinD0Min1 = 0.5, # MVA for tracks with |d0|>1cm must be greater than this value
-                    displacedMVAMin = 0.2, # Displaced MVA must be greater than this value
-                    reducedBendChi2Max = 999.9, # bend chi2 must be less than this value
-                    reducedChi2RZMax = 3.0, # chi2rz/dof must be less than this value
-                    reducedChi2RPhiMax = 999.9, # chi2rphi/dof must be less than this value
-                    reducedChi2RZMaxNstub4 = cms.double(999.9), # chi2rz/dof with nstub==4 must be less than this value
-                    reducedChi2RZMaxNstub5 = cms.double(999.9), # chi2rz/dof with nstub>4 must be less than this value
-                    reducedChi2RPhiMaxNstub4 = cms.double(999.9), # chi2rphi/dof with nstub==4 must be less than this value
-                    reducedChi2RPhiMaxNstub5 = cms.double(999.9), # chi2rphi/dof with nstub>4 must be less than this value
-                    reducedBendChi2MaxNstub4 = 999.9, # bend chi2 with nstub==4 must be less than this value
-                    reducedBendChi2MaxNstub5 = 999.9, # bend chi2 with nstub>4 must be less than this value
-                    absD0MinEtaMin0p95 = 0.08, #absolute value of d0 must be greater than this value for tracks with |eta|>0.95
-                    absD0MinEtaMax0p95 = 0.06, #absolute value of d0 must be greater than this value for tracks with |eta|<=0.95 
-        ),
-    processSimulatedTracks = cms.bool(True), # return selected tracks after cutting on the floating point values
-    processEmulatedTracks = cms.bool(False), # return selected tracks after cutting on the bitwise emulated values
-    )
+

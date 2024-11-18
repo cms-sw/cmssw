@@ -61,7 +61,6 @@ std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDig
   float tmp_trk_phi = aTrack.phi();
   float tmp_trk_eta = aTrack.eta();
   float tmp_trk_tanl = aTrack.tanL();
-  float tmp_trk_d0 = aTrack.d0();
 
   // -------- fill the feature map ---------
 
@@ -75,7 +74,6 @@ std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDig
   feature_map["chi2rphi_bin"] = tmp_trk_chi2rphi_bin;
   feature_map["chi2rz_bin"] = tmp_trk_chi2rz_bin;
   feature_map["tanl"] = tmp_trk_tanl;
-  feature_map["d0"] = tmp_trk_d0;
 
   // fill tensor with track params
   transformedFeatures.reserve(featureNames.size());
@@ -93,7 +91,6 @@ void L1TrackQuality::setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) 
   std::vector<float> inputs = featureTransform(aTrack, this->featureNames_);
   std::vector<float> output = bdt.decision_function(inputs);
   aTrack.settrkMVA1(1. / (1. + exp(-output.at(0))));
-
 }
 
 float L1TrackQuality::runEmulatedTQ(std::vector<ap_fixed<10, 5>> inputFeatures) {
