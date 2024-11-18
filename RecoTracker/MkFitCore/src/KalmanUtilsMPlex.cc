@@ -1255,7 +1255,7 @@ namespace mkfit {
     if (propToHit) {
       MPlexLS propErr;
       MPlexLV propPar;
-      propagateHelixToPlaneMPlex(psErr, psPar, Chg, msPar, plNrm, propErr, propPar, outFailFlag, N_proc, propFlags);
+      propagateHelixToPlaneMPlex(psErr, psPar, Chg, plPnt, plNrm, propErr, propPar, outFailFlag, N_proc, propFlags);
 
       kalmanOperationPlaneLocal(KFO_Update_Params | KFO_Local_Cov,
                                 propErr,
@@ -1337,7 +1337,7 @@ namespace mkfit {
     propPar = psPar;
     if (propToHit) {
       MPlexLS propErr;
-      propagateHelixToPlaneMPlex(psErr, psPar, inChg, msPar, plNrm, propErr, propPar, outFailFlag, N_proc, propFlags);
+      propagateHelixToPlaneMPlex(psErr, psPar, inChg, plPnt, plNrm, propErr, propPar, outFailFlag, N_proc, propFlags);
 
       kalmanOperationPlaneLocal(KFO_Calculate_Chi2,
                                 propErr,
