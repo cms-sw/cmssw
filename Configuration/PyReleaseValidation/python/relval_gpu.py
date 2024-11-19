@@ -72,6 +72,8 @@ numWFIB = [
            # Run4, Alpaka-based noPU
            29634.402, 29634.403, 29634.404, 29634.406,
            29661.402,
+           # Run4, Alpaka-based noPU GPU LST tracking D98
+           24834.704,
 
            # Run4, Alpaka-based PU
            29834.402, 29834.403, 29834.404
