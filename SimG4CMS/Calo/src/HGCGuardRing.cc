@@ -11,10 +11,10 @@ HGCGuardRing::HGCGuardRing(const HGCalDDDConstants& hgc)
       modeUV_(hgcons_.geomMode()),
       v17OrLess_(hgcons_.v17OrLess()),
       waferSize_(hgcons_.waferSize(false)),
-      sensorSizeOffset_(hgcons_.getParameter()->sensorSizeOffset_),
-      guardRingOffset_(hgcons_.getParameter()->guardRingOffset_) {
-  offset_ = sensorSizeOffset_ + 2.0 * guardRingOffset_;
-  xmax_ = 0.5 * (waferSize_ - offset_);
+      sensorSizeOffset_(hgcons_.sensorSizeOffset(false)),
+      guardRingOffset_(hgcons_.guardRingOffset(false)) {
+  offset_ = sensorSizeOffset_ + guardRingOffset_;
+  xmax_ = 0.5 * waferSize_ - offset_;
   ymax_ = xmax_ / sqrt3_;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "Creating HGCGuardRing with wafer size " << waferSize_ << ", Offsets "
