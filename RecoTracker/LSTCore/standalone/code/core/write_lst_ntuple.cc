@@ -134,6 +134,23 @@ void createOptionalOutputBranches() {
   ana.tx->createBranch<std::vector<float>>("t5_rzChiSquared");
   ana.tx->createBranch<std::vector<float>>("t5_nonAnchorChiSquared");
 
+  // Occupancy branches
+  ana.tx->createBranch<std::vector<int>>("module_layers");
+  ana.tx->createBranch<std::vector<int>>("module_subdets");
+  ana.tx->createBranch<std::vector<int>>("module_rings");
+  ana.tx->createBranch<std::vector<int>>("module_rods");
+  ana.tx->createBranch<std::vector<int>>("module_modules");
+  ana.tx->createBranch<std::vector<bool>>("module_isTilted");
+  ana.tx->createBranch<std::vector<float>>("module_eta");
+  ana.tx->createBranch<std::vector<float>>("module_r");
+  ana.tx->createBranch<std::vector<int>>("md_occupancies");
+  ana.tx->createBranch<std::vector<int>>("sg_occupancies");
+  ana.tx->createBranch<std::vector<int>>("t3_occupancies");
+  ana.tx->createBranch<int>("tc_occupancies");
+  ana.tx->createBranch<std::vector<int>>("t5_occupancies");
+  ana.tx->createBranch<int>("pT3_occupancies");
+  ana.tx->createBranch<int>("pT5_occupancies");
+
 #endif
 }
 
@@ -284,8 +301,71 @@ void setOptionalOutputBranches(LSTEvent* event) {
   setPixelQuintupletOutputBranches(event);
   setQuintupletOutputBranches(event);
   setPixelTripletOutputBranches(event);
+  setOccupancyBranches(event);
 
 #endif
+}
+
+//________________________________________________________________________________________________________________________________
+void setOccupancyBranches(LSTEvent* event) {
+  auto modules = event->getModules<ModulesSoA>();
+  auto miniDoublets = event->getMiniDoublets<MiniDoubletsOccupancySoA>();
+  auto segments = event->getSegments<SegmentsOccupancySoA>();
+  auto triplets = event->getTriplets<TripletsOccupancySoA>();
+  auto quintuplets = event->getQuintuplets<QuintupletsOccupancySoA>();
+  auto pixelQuintuplets = event->getPixelQuintuplets();
+  auto pixelTriplets = event->getPixelTriplets();
+  auto trackCandidates = event->getTrackCandidates();
+
+  std::vector<int> moduleLayer;
+  std::vector<int> moduleSubdet;
+  std::vector<int> moduleRing;
+  std::vector<int> moduleRod;
+  std::vector<int> moduleModule;
+  std::vector<float> moduleEta;
+  std::vector<float> moduleR;
+  std::vector<bool> moduleIsTilted;
+  std::vector<int> trackCandidateOccupancy;
+  std::vector<int> tripletOccupancy;
+  std::vector<int> segmentOccupancy;
+  std::vector<int> mdOccupancy;
+  std::vector<int> quintupletOccupancy;
+
+  for (unsigned int lowerIdx = 0; lowerIdx <= modules.nLowerModules(); lowerIdx++) {
+    //layer = 0, subdet = 0 => pixel module
+    moduleLayer.push_back(modules.layers()[lowerIdx]);
+    moduleSubdet.push_back(modules.subdets()[lowerIdx]);
+    moduleRing.push_back(modules.rings()[lowerIdx]);
+    moduleRod.push_back(modules.rods()[lowerIdx]);
+    moduleEta.push_back(modules.eta()[lowerIdx]);
+    moduleR.push_back(modules.r()[lowerIdx]);
+    bool isTilted = (modules.subdets()[lowerIdx] == 5 and modules.sides()[lowerIdx] != 3);
+    moduleIsTilted.push_back(isTilted);
+    moduleModule.push_back(modules.modules()[lowerIdx]);
+    segmentOccupancy.push_back(segments.totOccupancySegments()[lowerIdx]);
+    mdOccupancy.push_back(miniDoublets.totOccupancyMDs()[lowerIdx]);
+
+    if (lowerIdx < modules.nLowerModules()) {
+      quintupletOccupancy.push_back(quintuplets.totOccupancyQuintuplets()[lowerIdx]);
+      tripletOccupancy.push_back(triplets.totOccupancyTriplets()[lowerIdx]);
+    }
+  }
+
+  ana.tx->setBranch<std::vector<int>>("module_layers", moduleLayer);
+  ana.tx->setBranch<std::vector<int>>("module_subdets", moduleSubdet);
+  ana.tx->setBranch<std::vector<int>>("module_rings", moduleRing);
+  ana.tx->setBranch<std::vector<int>>("module_rods", moduleRod);
+  ana.tx->setBranch<std::vector<int>>("module_modules", moduleModule);
+  ana.tx->setBranch<std::vector<bool>>("module_isTilted", moduleIsTilted);
+  ana.tx->setBranch<std::vector<float>>("module_eta", moduleEta);
+  ana.tx->setBranch<std::vector<float>>("module_r", moduleR);
+  ana.tx->setBranch<std::vector<int>>("md_occupancies", mdOccupancy);
+  ana.tx->setBranch<std::vector<int>>("sg_occupancies", segmentOccupancy);
+  ana.tx->setBranch<std::vector<int>>("t3_occupancies", tripletOccupancy);
+  ana.tx->setBranch<int>("tc_occupancies", trackCandidates.nTrackCandidates());
+  ana.tx->setBranch<int>("pT3_occupancies", pixelTriplets.totOccupancyPixelTriplets());
+  ana.tx->setBranch<std::vector<int>>("t5_occupancies", quintupletOccupancy);
+  ana.tx->setBranch<int>("pT5_occupancies", pixelQuintuplets.totOccupancyPixelQuintuplets());
 }
 
 //________________________________________________________________________________________________________________________________
