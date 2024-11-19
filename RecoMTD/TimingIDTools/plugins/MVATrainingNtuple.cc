@@ -61,6 +61,7 @@ private:
 
   static constexpr double simUnit_ = 1e9;     //sim time in s while reco time in ns
   static constexpr double c_ = 2.99792458e1;  //c in cm/ns
+  static constexpr double BTL_eta_cut = 1.5;
   std::string fileName_;
 
   bool saveNtupleforBDT_;
@@ -705,7 +706,7 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
                       hit);  // Why I can't I access the mtdcluster info directly from TrackingRecHit?
                   const FTLCluster& hit_cluster_check = mtdhit1->mtdCluster();
 
-                  if (abs(track.eta()) < 1.5) {                          // Should be a BTL cluster
+                  if (abs(track.eta()) < BTL_eta_cut) {                  // Should be a BTL cluster
                     for (const auto& DetSetCluBTL : *btlRecCluHandle) {  // BTL check
                       if (good_association)
                         break;
