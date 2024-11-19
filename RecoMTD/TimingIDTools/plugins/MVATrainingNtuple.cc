@@ -90,8 +90,7 @@ private:
       Ttrack_sigmaTmtd, Ttrack_lenght, Ttrack_MtdMVA, Ttrack_lHitPos, TtrackTP_pt, TtrackTP_eta, TtrackTP_phi;
   std::vector<int> Ttrack_ndof, Ttrack_nValidHits, Ttrack_npixBarrelValidHits, Ttrack_npixEndcapValidHits,
       TtrackTP_nValidHits;
-  std::vector<bool> Ttrack_Signal, Ttrack_Associated, Ttrack_TPHasSimClu, Ttrack_TPSimCluDirect, Ttrack_hasRecoClu,
-      Ttrack_RecoSimLink, Ttrack_FullMatch;
+  std::vector<bool> Ttrack_Signal, Ttrack_Associated;
 
   edm::EDGetTokenT<edm::ValueMap<float>> btlMatchChi2Token_;
   edm::EDGetTokenT<edm::ValueMap<float>> btlMatchTimeChi2Token_;
@@ -580,11 +579,6 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
     BDTtree->Branch("Track_lHitPos", &Ttrack_lHitPos);
     BDTtree->Branch("Track_sigmaTmtd", &Ttrack_sigmaTmtd);
     BDTtree->Branch("Track_lenght", &Ttrack_lenght);
-    BDTtree->Branch("Track_TPHasSimClu", &Ttrack_TPHasSimClu);
-    BDTtree->Branch("Track_TPSimCluDirect", &Ttrack_TPSimCluDirect);
-    BDTtree->Branch("Track_hasRecoClu", &Ttrack_hasRecoClu);
-    BDTtree->Branch("Track_RecoSimLink", &Ttrack_RecoSimLink);
-    BDTtree->Branch("Track_FullMatch", &Ttrack_FullMatch);
 
     Ttrack_pt.clear();
     Ttrack_eta.clear();
@@ -613,11 +607,6 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
     Ttrack_lHitPos.clear();
     Ttrack_sigmaTmtd.clear();
     Ttrack_lenght.clear();
-    Ttrack_TPHasSimClu.clear();
-    Ttrack_TPSimCluDirect.clear();
-    Ttrack_hasRecoClu.clear();
-    Ttrack_RecoSimLink.clear();
-    Ttrack_FullMatch.clear();
 
     unsigned int index = 0;
     for (const auto& trackGen : *tracksH) {
@@ -637,11 +626,6 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
         auto found = r2s_->find(trkrefb);  // Find TP!
         if (found != r2s_->end()) {
           bool good_association = false;
-          bool is_hasRecoClu = false;
-          bool is_RecoSimLink = false;
-          bool is_FullMatch = false;
-          bool is_TPHasSimClu = false;
-          bool is_TPSimCluDirect = false;
 
           Ttrack_pt.push_back(trackGen.pt());
           Ttrack_phi.push_back(trackGen.phi());
@@ -686,10 +670,8 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
           if (withMTD) {  // TP link to MTDsimCluster
 
             // In test file, all TPs had only 1 simCluster linked to them
-            is_TPHasSimClu = true;
             const auto& SimCluRefs = (simClustersRefs->val)[0];
             if ((*SimCluRefs).trackIdOffset() == 0) {  // SimCluster linked to TP is from DirectHit!!!
-              is_TPSimCluDirect = true;
 
               for (const auto& hit : track.recHits()) {  // Extended track with MTD
                 if (good_association)
@@ -715,7 +697,6 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
                           break;
                         if (isSameCluster(hit_cluster_check,
                                           clusterBTL)) {  // find the reco Cluster inside the recoCluster collections
-                          is_hasRecoClu = true;
 
                           edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster> clusterRefBTL = edmNew::makeRefTo(
                               btlRecCluHandle,
@@ -724,7 +705,6 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
                           if (itp.first != itp.second) {                            // find the linked simCluster
                             std::vector<MtdSimLayerClusterRef> simClustersRefs_RecoMatchBTL =
                                 (*itp.first).second;  // the range of itp.first, itp.second should be always 1
-                            is_RecoSimLink = true;
 
                             for (unsigned int i = 0; i < simClustersRefs_RecoMatchBTL.size(); i++) {
                               auto simClusterRef_RecoMatchBTL = simClustersRefs_RecoMatchBTL[i];
@@ -733,7 +713,6 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
                                   (*SimCluRefs)
                                       .simLCTime()) {  // check if the sim cluster linked to reco cluster is the same as the one linked to TP.
                                 good_association = true;
-                                is_FullMatch = true;
                                 break;
                               }
                             }
@@ -751,22 +730,18 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
                         if (good_association)
                           break;
                         if (isSameCluster(hit_cluster_check, clusterETL)) {
-                          is_hasRecoClu = true;
-
                           edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster> clusterRefETL =
                               edmNew::makeRefTo(etlRecCluHandle, &clusterETL);
                           auto itp = r2sAssociationMap.equal_range(clusterRefETL);
                           if (itp.first != itp.second) {
                             std::vector<MtdSimLayerClusterRef> simClustersRefs_RecoMatchETL =
                                 (*itp.first).second;  // the range of itp.first, itp.second should be always 1
-                            is_RecoSimLink = true;
 
                             for (unsigned int i = 0; i < simClustersRefs_RecoMatchETL.size(); i++) {
                               auto simClusterRef_RecoMatchETL = simClustersRefs_RecoMatchETL[i];
 
                               if ((*simClusterRef_RecoMatchETL).simLCTime() == (*SimCluRefs).simLCTime()) {
                                 good_association = true;
-                                is_FullMatch = true;
                                 break;
                               }
                             }
@@ -793,11 +768,6 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
           }
 
           Ttrack_Associated.push_back(good_association);
-          Ttrack_hasRecoClu.push_back(is_hasRecoClu);
-          Ttrack_RecoSimLink.push_back(is_RecoSimLink);
-          Ttrack_FullMatch.push_back(is_FullMatch);
-          Ttrack_TPHasSimClu.push_back(is_TPHasSimClu);
-          Ttrack_TPSimCluDirect.push_back(is_TPSimCluDirect);
 
           // Found TP that is matched to the GTrack
         }
