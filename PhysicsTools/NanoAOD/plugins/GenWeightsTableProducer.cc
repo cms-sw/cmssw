@@ -560,7 +560,7 @@ public:
       std::vector<ScaleVarWeight> scaleVariationIDs;
       std::vector<PDFSetWeights> pdfSetWeightIDs;
       std::vector<std::string> lheReweighingIDs;
-      bool isFirstGroup = true;
+      bool preScaleVariationGroup = true;
 
       std::regex weightgroupmg26x("<weightgroup\\s+(?:name|type)=\"(.*)\"\\s+combine=\"(.*)\"\\s*>");
       std::regex weightgroup("<weightgroup\\s+combine=\"(.*)\"\\s+(?:name|type)=\"(.*)\"\\s*>");
@@ -592,9 +592,20 @@ public:
           "\\s*(?:PDF=(\\d+)\\s*MemberID=(\\d+))?\\s*(?:\\s.*)?</"
           "weight>");
 
+      std::regex mgVerRegex(R"(VERSION\s+(\d+)\.(\d+)\.(\d+))");
+      bool isMGVer2x = false;
+
       std::regex rwgt("<weight\\s+id=\"(.+)\">(.+)?(</weight>)?");
       std::smatch groups;
       for (auto iter = lheInfo->headers_begin(), end = lheInfo->headers_end(); iter != end; ++iter) {
+        if (iter->tag() == "MG5ProcCard") {
+          for (const auto& line : iter->lines()) {
+            if (std::regex_search(line, groups, mgVerRegex)) {
+              isMGVer2x = (groups[1].str() == "2");
+              break;
+            }
+          }
+        }
         if (iter->tag() != "initrwgt") {
           if (lheDebug)
             std::cout << "Skipping LHE header with tag" << iter->tag() << std::endl;
@@ -622,22 +633,24 @@ public:
           if (lheDebug)
             std::cout << lines[iLine];
           auto foundWeightGroup = std::regex_search(lines[iLine], groups, ismg26x ? weightgroupmg26x : weightgroup);
-          if (foundWeightGroup || isFirstGroup) {
+          if (foundWeightGroup || preScaleVariationGroup) {
             std::string groupname;
             if (foundWeightGroup) {
-              groupname = groups.str(2);
-              if (ismg26x)
-                groupname = groups.str(1);
+              groupname = ismg26x ? groups.str(1) : groups.str(2);
+            } else {
+              // rewind by one line and check later in the inner loop
+              --iLine;
             }
             if (lheDebug)
               std::cout << ">>> Looks like the beginning of a weight group for '" << groupname << "'" << std::endl;
-            if (groupname.find("scale_variation") == 0 || groupname == "Central scale variation" || isFirstGroup) {
+            if (groupname.find("scale_variation") == 0 || groupname == "Central scale variation" ||
+                preScaleVariationGroup) {
               if (lheDebug && groupname.find("scale_variation") != 0 && groupname != "Central scale variation")
                 std::cout << ">>> First weight is not scale variation, but assuming is the Central Weight" << std::endl;
               else if (lheDebug)
                 std::cout << ">>> Looks like scale variation for theory uncertainties" << std::endl;
-              if (foundWeightGroup) {
-                isFirstGroup = false;
+              if (groupname.find("scale_variation") == 0 || groupname == "Central scale variation") {
+                preScaleVariationGroup = false;
               }
               for (++iLine; iLine < nLines; ++iLine) {
                 if (lheDebug) {
@@ -936,7 +949,7 @@ public:
         }
       }
       // check the number of scale variations
-      if (!allowedNumScaleWeights_.empty()) {
+      if (isMGVer2x && !allowedNumScaleWeights_.empty()) {
         auto it = std::find(allowedNumScaleWeights_.begin(), allowedNumScaleWeights_.end(), scaleVariationIDs.size());
         if (it == allowedNumScaleWeights_.end()) {
           throw cms::Exception("LogicError")
