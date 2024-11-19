@@ -46,5 +46,6 @@ ConvertedTTTrack TrackConverter::convert(const edm::Ptr<TTTrack<Ref_Phase2Tracke
   if (verbose_)
     convertedTrack.print();
   convertedTrack.setTrkPtr(track);
+
   return convertedTrack;
 }
