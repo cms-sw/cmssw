@@ -5,6 +5,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <string_view>
 #include <array>
 
 namespace cms {
@@ -48,9 +49,12 @@ namespace cms {
   public:
     Digest();
     explicit Digest(std::string const& s);
+    explicit Digest(std::string_view);
+    explicit Digest(const char*);
 
     void append(std::string const& s);
     void append(const char* data, size_t size);
+    void append(std::string_view v);
 
     MD5Result digest();
 
