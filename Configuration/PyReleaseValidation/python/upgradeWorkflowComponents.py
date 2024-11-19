@@ -490,6 +490,56 @@ upgradeWFs['trackingMkFitPhase2'].step3 = {
     '--procModifiers': 'trackingMkFitCommon,trackingMkFitInitialStep'
 }
 
+# LST on CPU, initialStep+highPtTripletStep-only tracking-only
+class UpgradeWorkflow_lstOnCPUIters01TrackingOnly(UpgradeWorkflowTracking):
+    def setup__(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
+        elif 'ALCA' in step: stepDict[stepName][k] = None
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return ('Run4' in key)
+upgradeWFs['lstOnCPUIters01TrackingOnly'] = UpgradeWorkflow_lstOnCPUIters01TrackingOnly(
+    steps = [
+        'RecoGlobal',
+        'HARVESTGlobal',
+        # Add ALCA steps explicitly, so that they can be properly removed
+        'ALCA',
+        'ALCAPhase2'
+    ],
+    PU = [],
+    suffix = '_lstOnCPUIters01TrackingOnly',
+    offset = 0.703,
+)
+upgradeWFs['lstOnCPUIters01TrackingOnly'].step3 = upgradeWFs['trackingOnly'].step3 | {
+    '--procModifiers': 'trackingIters01,trackingLST',
+    '--accelerators' : 'cpu'
+}
+
+# LST on GPU, initialStep+highPtTripletStep-only tracking-only
+class UpgradeWorkflow_lstOnGPUIters01TrackingOnly(UpgradeWorkflowTracking):
+    def setup__(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
+        elif 'ALCA' in step: stepDict[stepName][k] = None
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return ('Run4' in key)
+upgradeWFs['lstOnGPUIters01TrackingOnly'] = UpgradeWorkflow_lstOnGPUIters01TrackingOnly(
+    steps = [
+        'RecoGlobal',
+        'HARVESTGlobal',
+        # Add ALCA steps explicitly, so that they can be properly removed
+        'ALCA',
+        'ALCAPhase2'
+    ],
+    PU = [],
+    suffix = '_lstOnGPUIters01TrackingOnly',
+    offset = 0.704,
+)
+upgradeWFs['lstOnGPUIters01TrackingOnly'].step3 = upgradeWFs['trackingOnly'].step3 | {
+    '--procModifiers': 'trackingIters01,trackingLST',
+    '--accelerators' : 'gpu-*'
+}
+
 #DeepCore seeding for JetCore iteration workflow
 class UpgradeWorkflow_seedingDeepCore(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):

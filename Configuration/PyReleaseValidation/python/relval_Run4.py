@@ -36,6 +36,9 @@ numWFIB.extend([30834.0]) #Run4D113
 numWFIB.extend([31234.0]) #Run4D114
 numWFIB.extend([32034.0]) #Run4D115
 
+# Temporary placement for LST workflow to workaround PR conflicts - to be formatted and placed in an upcoming PR
+numWFIB.extend([24834.703]) #Run4D98 LST tracking (initialStep+HighPtTripletStep only)
+
 #Additional sample for short matrix and IB
 #Default Phase-2 Det NoPU
 numWFIB.extend([prefixDet+34.911]) #DD4hep XML
