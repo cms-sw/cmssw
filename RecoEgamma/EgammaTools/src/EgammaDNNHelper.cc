@@ -12,39 +12,20 @@ EgammaDNNHelper::EgammaDNNHelper(const DNNConfiguration& cfg,
     : cfg_(cfg),
       modelSelector_(modelSelector),
       nModels_(cfg_.modelsFiles.size()),
-      graphDefs_(cfg_.modelsFiles.size()),
-      sessions_(cfg_.modelsFiles.size()) {
-  initTensorFlowGraphs();
+      tf_sessions_cache_(cfg_.modelsFiles.size()) {
   initTensorFlowSessions();
   initScalerFiles(availableVars);
 }
 
-EgammaDNNHelper::~EgammaDNNHelper() {
-  // Closing the sessions when the helper is destroyed at the end of the job.
-  for (const auto& session : sessions_) {
-    auto status = session->Close();
-  }
-}
-
-void EgammaDNNHelper::initTensorFlowGraphs() {
+void EgammaDNNHelper::initTensorFlowSessions() {
   // load the graph definition
-  LogDebug("EgammaDNNHelper") << "Loading " << nModels_ << " graphs";
+  LogDebug("EgammaDNNHelper") << "Loading " << nModels_ << " graphs and sessions";
   size_t i = 0;
   for (auto& model_file : cfg_.modelsFiles) {
-    graphDefs_[i] =
-        std::unique_ptr<tensorflow::GraphDef>(tensorflow::loadGraphDef(edm::FileInPath(model_file).fullPath()));
+    tf_sessions_cache_[i] = std::make_unique<tensorflow::SessionCache>(edm::FileInPath(model_file).fullPath());
     i++;
   }
-}
-
-void EgammaDNNHelper::initTensorFlowSessions() {
-  LogDebug("EgammaDNNHelper") << "Starting " << nModels_ << " TF sessions";
-  size_t i = 0;
-  for (const auto& graphDef : graphDefs_) {
-    sessions_[i] = std::unique_ptr<tensorflow::Session>(tensorflow::createSession(graphDef.get()));
-    i++;
-  }
-  LogDebug("EgammaDNNHelper") << "TF sessions started";
+  LogDebug("EgammaDNNHelper") << "TF sessions initialized";
 }
 
 void EgammaDNNHelper::initScalerFiles(const std::vector<std::string>& availableVars) {
@@ -172,7 +153,10 @@ std::vector<std::pair<uint, std::vector<float>>> EgammaDNNHelper::evaluate(
       continue;  //Skip model witout inputs
     std::vector<tensorflow::Tensor> output;
     LogDebug("EgammaDNNHelper") << "Run model: " << m << " with " << counts[m] << "objects";
-    tensorflow::run(sessions_[m].get(), {{cfg_.inputTensorName, input_tensors[m]}}, {cfg_.outputTensorName}, &output);
+    tensorflow::run(tf_sessions_cache_[m]->getSession(),
+                    {{cfg_.inputTensorName, input_tensors[m]}},
+                    {cfg_.outputTensorName},
+                    &output);
     // Get the output and save the ElectronDNNEstimator::outputDim numbers along with the ele index
     const auto& r = output[0].tensor<float, 2>();
     // Iterate on the list of elements in the batch --> many electrons
