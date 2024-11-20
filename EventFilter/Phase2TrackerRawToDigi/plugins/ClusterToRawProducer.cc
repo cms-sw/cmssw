@@ -80,58 +80,109 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     // Create FEDRawDataCollection to store the output
     auto fedRawDataCollection = std::make_unique<FEDRawDataCollection>();
 
-    // Iterate through Cluster Collection
-    for (const auto& detector_cluster_collection : iEvent.get(ClusterCollectionToken_)) 
+    for (int dtc_id = 1; dtc_id < 217; dtc_id++)
     {
-        const unsigned int detId = detector_cluster_collection.detId();
-        const unsigned int cable_map_module_id = assignNumber(detId);
-        auto cable_map = cablingMap.detIdToDTCELinkId(cable_map_module_id);
-
-        // Retrieve DTC ID and GBT ID
-
-        if (cable_map.first == cable_map.second) { continue; }
-
-        unsigned int dtc_id, gbt_id, slink_id, slink_id_within;
-        for (auto it = cable_map.first; it != cable_map.second; ++it) 
+        std::cout << "DTC #" << dtc_id << std::endl;
+        for (int slink_id = 0; slink_id < 4; slink_id++)
         {
-            DTCELinkId dtcELinkId = it->second;
-            dtc_id = dtcELinkId.dtc_id();
-            gbt_id = dtcELinkId.gbtlink_id();
-        }
+            std::cout << "SLink #" << slink_id << std::endl;
+            int index_first = slink_id * 18;
+            int index_last = (slink_id + 1) * 18;
 
-        slink_id = std::div(gbt_id, Phase2TrackerSpecifications::MODULES_PER_SLINK).quot;
-        slink_id_within = std::div(gbt_id, Phase2TrackerSpecifications::MODULES_PER_SLINK).rem;
-    
-        const bool is_seed_sensor = trackerTopology.isLower(detId);
-        const GeomDetUnit* detUnit = trackerGeometry.idToDetUnit(detId);
-
-        if (detUnit)
-        {
-            
-            TrackerGeometry::ModuleType moduleType = trackerGeometry.getDetectorType(detId);
-
-            switch (moduleType) 
+            for (int module_id = index_first; module_id < index_last; module_id++) 
             {
-                case TrackerGeometry::ModuleType::Ph2PSS:
-                case TrackerGeometry::ModuleType::Ph2PSP:
-                case TrackerGeometry::ModuleType::Ph2SS:
-                    processClusters(moduleType, detector_cluster_collection, dtc_id, slink_id, slink_id_within, is_seed_sensor, dtcAssembly);
-                    break;
-                default:
-                    break;
+                DTCELinkId cms_link_id = DTCELinkId(dtc_id, module_id, 0);
+                try 
+                {
+                    auto f = cablingMap.dtcELinkIdToDetId(cms_link_id);
+                    const DTCELinkId& o = f->first;
+
+                    std::cout << " (Module Id, Optical Fibre Id, DTC Id) - (" << (uint32_t)f->second << ", " << static_cast<unsigned int>(o.gbtlink_id()) << ", " << dtc_id << ")" << std::endl;
+
+                    edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator 
+                                    det_seed = iEvent.get(ClusterCollectionToken_).find(f->second + 1);
+                    edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator 
+                                    det_corr = iEvent.get(ClusterCollectionToken_).find(f->second + 2);
+
+                    std::cout << " | Seed Sensor Id: " << (uint32_t)det_seed->detId() << std::endl;
+                    std::cout << "    --> # of Clusters: " << det_seed->size() << std::endl;
+                    std::cout << " | Corr Sensor Id: " << (uint32_t)det_corr->detId() << std::endl;
+                    std::cout << "    --> # of Clusters: " << det_corr->size() << std::endl;
+
+                    for (const auto& cluster : *det)
+                    {
+                        unsigned int z = cluster.column();
+                        double x = cluster.firstStrip();
+                        
+                        std::cout << " | " <<  x << ", " << z << std::endl;
+                    }
+
+                    // std::cout << o.dtc_id() << ", " << static_cast<unsigned int>(o.gbtlink_id()) << ", "
+                    //         << static_cast<unsigned int>(o.elink_id()) << " < -- > "
+                    //         << static_cast<uint32_t>(f->second) << std::endl;
+
+                } 
+                catch (const cms::Exception& e) { continue; }
             }
 
         }
     }
 
-    int i = 81; // a single 2s module for unpacking tests
+    // Iterate through Cluster Collection
+    // for (const auto& detector_cluster_collection : iEvent.get(ClusterCollectionToken_)) 
+    // {
+    //     const unsigned int detId = detector_cluster_collection.detId();
+    //     const unsigned int cable_map_module_id = assignNumber(detId);
+    //     auto cable_map = cablingMap.detIdToDTCELinkId(cable_map_module_id);
 
-    DTCUnit& dtc_0 = dtcAssembly.GetDTCUnit(i); // dtc unit
-    dtc_0.convertToRawData(); // convert to raw data
-    for (int j = 0; j < 4; j++)
-    { fedRawDataCollection.get()->FEDData( j + 4 * (i - 1) + 0 ) = dtc_0.getSLink(j); }
+    //     // Retrieve DTC ID and GBT ID
 
-    iEvent.put(std::move(fedRawDataCollection));
+    //     if (cable_map.first == cable_map.second) { continue; }
+
+    //     unsigned int dtc_id, gbt_id, slink_id, slink_id_within, elink_id;
+    //     for (auto it = cable_map.first; it != cable_map.second; ++it) 
+    //     {
+    //         DTCELinkId dtcELinkId = it->second;
+    //         dtc_id = dtcELinkId.dtc_id();
+    //         gbt_id = dtcELinkId.gbtlink_id();
+    //         elink_id = dtcELinkId.elink_id();
+
+    //         std::cout << dtc_id << ", " << gbt_id << ", " << elink_id << std::endl;
+    //     }
+
+    //     slink_id = std::div(gbt_id, Phase2TrackerSpecifications::MODULES_PER_SLINK).quot;
+    //     slink_id_within = std::div(gbt_id, Phase2TrackerSpecifications::MODULES_PER_SLINK).rem;
+    
+    //     const bool is_seed_sensor = trackerTopology.isLower(detId);
+    //     const GeomDetUnit* detUnit = trackerGeometry.idToDetUnit(detId);
+
+    //     if (detUnit)
+    //     {
+            
+    //         TrackerGeometry::ModuleType moduleType = trackerGeometry.getDetectorType(detId);
+
+    //         switch (moduleType) 
+    //         {
+    //             case TrackerGeometry::ModuleType::Ph2PSS:
+    //             case TrackerGeometry::ModuleType::Ph2PSP:
+    //             case TrackerGeometry::ModuleType::Ph2SS:
+    //                 processClusters(moduleType, detector_cluster_collection, dtc_id, slink_id, slink_id_within, is_seed_sensor, dtcAssembly);
+    //                 break;
+    //             default:
+    //                 break;
+    //         }
+
+    //     }
+    // }
+
+    // int i = 81; // a single 2s module for unpacking tests
+
+    // DTCUnit& dtc_0 = dtcAssembly.GetDTCUnit(i); // dtc unit
+    // dtc_0.convertToRawData(); // convert to raw data
+    // for (int j = 0; j < 4; j++)
+    // { fedRawDataCollection.get()->FEDData( j + 4 * (i - 1) + 0 ) = dtc_0.getSLink(j); }
+
+    // iEvent.put(std::move(fedRawDataCollection));
 
 }
 
