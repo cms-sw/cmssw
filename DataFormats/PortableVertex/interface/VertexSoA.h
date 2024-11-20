@@ -105,11 +105,6 @@ namespace portablevertex {
 
   using TrackSoA = TrackSoALayout<>;
 
-  GENERATE_SOA_LAYOUT(
-      BeamSpotSoALayout, SOA_SCALAR(float, x), SOA_SCALAR(float, y), SOA_SCALAR(float, sx), SOA_SCALAR(float, sy))
-
-  using BeamSpotSoA = BeamSpotSoALayout<>;
-
   GENERATE_SOA_LAYOUT(ClusterParams,
                       SOA_SCALAR(float, d0CutOff),
                       SOA_SCALAR(float, TMin),

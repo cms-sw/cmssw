@@ -1,6 +1,7 @@
 #ifndef RecoVertex_PrimaryVertexProducer_Alpaka_plugins_alpaka_FitterAlgo_h
 #define RecoVertex_PrimaryVertexProducer_Alpaka_plugins_alpaka_FitterAlgo_h
 
+#include "DataFormats/BeamSpot/interface/alpaka/BeamSpotDevice.h"
 #include "DataFormats/PortableVertex/interface/alpaka/VertexDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
@@ -19,7 +20,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void fit(Queue& queue,
              const portablevertex::TrackDeviceCollection& deviceTrack,
              portablevertex::VertexDeviceCollection& deviceVertex,
-             const portablevertex::BeamSpotDeviceCollection& deviceBeamSpot);  // The actual fitting
+             const BeamSpotDevice& deviceBeamSpot);  // The actual fitting
   private:
     cms::alpakatools::device_buffer<Device, bool> useBeamSpotConstraint;
   };

@@ -5,9 +5,6 @@
   <class name="alpaka_cuda_async::portablevertex::TrackDeviceCollection" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_cuda_async::portablevertex::TrackDeviceCollection>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portablevertex::TrackDeviceCollection>>" persistent="false"/>
-  <class name="alpaka_cuda_async::portablevertex::BeamSpotDeviceCollection" persistent="false"/>
-  <class name="edm::DeviceProduct<alpaka_cuda_async::portablevertex::BeamSpotDeviceCollection>" persistent="false"/>
-  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portablevertex::BeamSpotDeviceCollection>>" persistent="false"/>
   <class name="alpaka_cuda_async::portablevertex::ClusterParamsDeviceCollection" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_cuda_async::portablevertex::ClusterParamsDeviceCollection>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portablevertex::ClusterParamsDeviceCollection>>" persistent="false"/>

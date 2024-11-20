@@ -1,5 +1,6 @@
 #include "DataFormats/PortableVertex/interface/alpaka/VertexDeviceCollection.h"
 #include "DataFormats/PortableVertex/interface/VertexHostCollection.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotHost.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -86,7 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) {
       const portablevertex::TrackDeviceCollection& inputtracks = iEvent.get(trackToken_);
-      const portablevertex::BeamSpotDeviceCollection& beamSpot = iEvent.get(beamSpotToken_);
+      const BeamSpotDevice& beamSpot = iEvent.get(beamSpotToken_);
       int32_t nT = inputtracks.view().metadata().size();
       int32_t nBlocks = nT > blockSize ? int32_t((nT - 1) / (blockOverlap * blockSize))
                                        : 1;  // If the block size is big enough we process everything at once
@@ -150,7 +151,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     device::EDGetToken<portablevertex::TrackDeviceCollection> trackToken_;
-    device::EDGetToken<portablevertex::BeamSpotDeviceCollection> beamSpotToken_;
+    device::EDGetToken<BeamSpotDevice> beamSpotToken_;
     device::EDPutToken<portablevertex::VertexDeviceCollection> devicePutToken_;
     int32_t blockSize;
     double blockOverlap;

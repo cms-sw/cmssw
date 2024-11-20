@@ -3,8 +3,6 @@
   <class name="portablevertex::VertexSoA::View"/>
   <class name="portablevertex::TrackSoA"/>
   <class name="portablevertex::TrackSoA::View"/>
-  <class name="portablevertex::BeamSpotSoA"/>
-  <class name="portablevertex::BeamSpotSoA::View"/>
   <class name="portablevertex::ClusterParamsSoA"/>
   <class name="portablevertex::ClusterParamsSoA::View"/>
 
@@ -34,19 +32,6 @@
   ]]>
   </read>
   <class name="edm::Wrapper<portablevertex::TrackHostCollection>" splitLevel="0"/>
-  <class name="portablevertex::BeamSpotHostCollection"/>
-  <read
-    sourceClass="portablevertex::BeamSpotHostCollection"
-    targetClass="portablevertex::BeamSpotHostCollection"
-    version="[1-]"
-    source="portablevertex::BeamSpotSoA layout_;"
-    target="buffer_,layout_,view_"
-    embed="false">
-  <![CDATA[
-    portablevertex::BeamSpotHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
-  ]]>
-  </read>
-  <class name="edm::Wrapper<portablevertex::BeamSpotHostCollection>" splitLevel="0"/>
   <class name="portablevertex::ClusterParamsHostCollection"/>
   <read
     sourceClass="portablevertex::ClusterParamsHostCollection"

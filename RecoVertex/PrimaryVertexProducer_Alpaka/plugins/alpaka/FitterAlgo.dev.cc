@@ -16,7 +16,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   const portablevertex::TrackDeviceCollection::ConstView tracks,
                                   portablevertex::VertexDeviceCollection::View vertices,
-                                  const portablevertex::BeamSpotDeviceCollection::ConstView beamSpot,
+                                  BeamSpotPOD const* beamSpot,
                                   bool* useBeamSpotConstraint) const {
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_FITTERALGO
       if (once_per_block(acc)) {
@@ -48,10 +48,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       float bsx = 0.;
       float bsy = 0.;
       if (*useBeamSpotConstraint) {
-        bserrx = beamSpot.sx() < precisionsq ? 1. / (precisionsq) : 1. / (beamSpot.sx());
-        bserry = beamSpot.sy() < precisionsq ? 1. / (precisionsq) : 1. / (beamSpot.sy());
-        bsx = beamSpot.x();
-        bsy = beamSpot.y();
+        bserrx = beamSpot->beamWidthX < precisionsq ? 1. / (precisionsq) : 1. / (beamSpot->beamWidthX);
+        bserry = beamSpot->beamWidthY < precisionsq ? 1. / (precisionsq) : 1. / (beamSpot->beamWidthY);
+        bsx = beamSpot->x;
+        bsy = beamSpot->y;
         corr_x = 1.0;
       }
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_FITTERALGO
@@ -307,19 +307,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void FitterAlgo::fit(Queue& queue,
                        const portablevertex::TrackDeviceCollection& deviceTrack,
                        portablevertex::VertexDeviceCollection& deviceVertex,
-                       const portablevertex::BeamSpotDeviceCollection& deviceBeamSpot) {
+                       const BeamSpotDevice& deviceBeamSpot) {
     const int nVertexToFit =
         512;  // Right now it executes for all 512 vertex, even if vertex collection is empty (in which case the kernel passes). Can we make this dynamic to vertex size?
     const int threadsPerBlock = 32;
     const int blocks = divide_up_by(nVertexToFit, threadsPerBlock);
-    alpaka::exec<Acc1D>(
-        queue,
-        make_workdiv<Acc1D>(blocks, threadsPerBlock),
-        fitVertices{},
-        deviceTrack
-            .view(),  // TODO:: Maybe we can optimize the compiler by not making this const? Tracks would not be modified
-        deviceVertex.view(),
-        deviceBeamSpot.view(),  // TODO:: Same as for tracks
-        useBeamSpotConstraint.data());
+    alpaka::exec<Acc1D>(queue,
+                        make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                        fitVertices{},
+                        deviceTrack.view(),
+                        deviceVertex.view(),
+                        deviceBeamSpot.data(),
+                        useBeamSpotConstraint.data());
   }  // FitterAlgo::fit
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
