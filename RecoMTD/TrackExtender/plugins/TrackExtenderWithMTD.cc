@@ -1004,9 +1004,15 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
 #endif
         npixBarrel.push_back(backtrack.hitPattern().numberOfValidPixelBarrelHits());
         npixEndcap.push_back(backtrack.hitPattern().numberOfValidPixelEndcapHits());
-        outermostHitPosition.push_back(
-            mBTL.hit ? (float)(*track).outerRadius()
-                     : (float)(*track).outerZ());  // save R of the outermost hit for BTL, z for ETL.
+
+        if (mBTL.hit || mETL.hit) {
+          outermostHitPosition.push_back(
+              mBTL.hit ? (float)(*track).outerRadius()
+                       : (float)(*track).outerZ());  // save R of the outermost hit for BTL, z for ETL.
+        } else {
+          outermostHitPosition.push_back(std::abs(track->eta()) < 1.48 ? (float)(*track).outerRadius()
+                                                                       : (float)(*track).outerZ());
+        }
 
         LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: tmtd " << tmtdMap << " +/- " << sigmatmtdMap
                                          << " t0 " << t0Map << " +/- " << sigmat0Map << " tof pi/K/p " << tofpiMap
