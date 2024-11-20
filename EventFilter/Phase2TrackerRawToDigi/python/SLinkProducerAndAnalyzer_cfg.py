@@ -1,11 +1,9 @@
-#!/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_2_0_pre3/external/el9_amd64_gcc12/bin/python3
-## Stub Occupancy Script
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import FWCore.Utilities.FileUtils as FileUtils
 import os
 
-process = cms.Process("L1TrackNtuple")
+process = cms.Process("Phase2DAQProducer")
 
 def get_input_mc_line(dataset_database, line_number):
     with open(dataset_database, 'r') as file:

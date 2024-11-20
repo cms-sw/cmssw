@@ -149,6 +149,9 @@ void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleTyp
 
         // info that goes into the DAQ payload
         unsigned int width = cluster.size();
+
+        if (width > 8) {continue;}
+
         unsigned int chipId = 0;
         unsigned int sclusterAddress = 0;
         unsigned int mipbit = 0;
