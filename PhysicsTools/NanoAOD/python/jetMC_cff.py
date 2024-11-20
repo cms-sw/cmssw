@@ -133,6 +133,10 @@ trackGenJetAK4Table = genJetTable.clone(
     variables = cms.PSet(P3Vars)
 )
 
+trackGenJetAK4Table.variables.pt.precision = 10
+trackGenJetAK4Table.variables.eta.precision = 8
+trackGenJetAK4Table.variables.phi.precision = 8
+
 jetMCTaskak4 = cms.Task(jetMCTable,genJetTable,patJetPartonsNano,genJetFlavourTable,genParticlesForJetsCharged,ak4GenJetsChargedOnly,trackGenJetAK4Table)
 jetMCTaskak8 = cms.Task(genJetAK8Table,genJetAK8FlavourAssociation,genJetAK8FlavourTable,fatJetMCTable,genSubJetAK8Table,subjetMCTable)
 jetMCTask = jetMCTaskak4.copyAndAdd(jetMCTaskak8)
