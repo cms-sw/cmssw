@@ -10,25 +10,25 @@
 
 namespace {
   std::string geometryDataDir() {
-    const char* path_lst_base = std::getenv("LST_BASE");
+    std::string path_str, path;
     const char* path_tracklooperdir = std::getenv("TRACKLOOPERDIR");
-    std::string path_str;
-    if (path_lst_base != nullptr) {
-      path_str = path_lst_base;
-    } else if (path_tracklooperdir != nullptr) {
-      path_str = path_tracklooperdir;
-      path_str += "/../";
-    } else {
-      std::stringstream search_path(std::getenv("CMSSW_SEARCH_PATH"));
-      std::string path;
-      while (std::getline(search_path, path, ':')) {
-        if (std::filesystem::exists(path + "/RecoTracker/LSTCore/data")) {
-          path_str = path;
-          break;
-        }
+    std::stringstream search_path;
+    search_path << std::getenv("CMSSW_SEARCH_PATH");
+
+    while (std::getline(search_path, path, ':')) {
+      if (std::filesystem::exists(path + "/RecoTracker/LSTCore/data")) {
+        path_str = path;
+        break;
       }
+    }
+
+    if (path_str.empty()) {
+      path_str = path_tracklooperdir;
+      path_str += "/..";
+    } else {
       path_str += "/RecoTracker/LSTCore";
     }
+
     return path_str;
   }
 
