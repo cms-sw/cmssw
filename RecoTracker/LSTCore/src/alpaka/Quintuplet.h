@@ -1547,16 +1547,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float sdIn_alpha_max = __H2F(segments.dPhiChangeMaxs()[innerSegmentIndex]);
     float sdOut_alpha = sdIn_alpha;
 
-    float sdOut_alphaOut = phi_mpi_pi(acc,
-                                      phi(acc,
-                                          mds.anchorX()[fourthMDIndex] - mds.anchorX()[thirdMDIndex],
-                                          mds.anchorY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]) -
-                                          mds.anchorPhi()[fourthMDIndex]);
+    float sdOut_dPhiPos = phi_mpi_pi(acc, mds.anchorPhi()[fourthMDIndex] - mds.anchorPhi()[thirdMDIndex]);
 
-    float sdOut_alphaOut_min = phi_mpi_pi(
-        acc, __H2F(segments.dPhiChangeMins()[outerSegmentIndex]) - __H2F(segments.dPhiMins()[outerSegmentIndex]));
-    float sdOut_alphaOut_max = phi_mpi_pi(
-        acc, __H2F(segments.dPhiChangeMaxs()[outerSegmentIndex]) - __H2F(segments.dPhiMaxs()[outerSegmentIndex]));
+    float sdOut_dPhiChange = __H2F(segments.dPhiChanges()[outerSegmentIndex]);
+    float sdOut_dPhiChange_min = __H2F(segments.dPhiChangeMins()[outerSegmentIndex]);
+    float sdOut_dPhiChange_max = __H2F(segments.dPhiChangeMaxs()[outerSegmentIndex]);
+
+    float sdOut_alphaOutRHmin = phi_mpi_pi(acc, sdOut_dPhiChange_min - sdOut_dPhiPos);
+    float sdOut_alphaOutRHmax = phi_mpi_pi(acc, sdOut_dPhiChange_max - sdOut_dPhiPos);
+    float sdOut_alphaOut = phi_mpi_pi(acc, sdOut_dPhiChange - sdOut_dPhiPos);
 
     float tl_axis_x = mds.anchorX()[fourthMDIndex] - mds.anchorX()[firstMDIndex];
     float tl_axis_y = mds.anchorY()[fourthMDIndex] - mds.anchorY()[firstMDIndex];
@@ -1578,8 +1577,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       betaInRHmax = betaIn - sdIn_alpha_max + sdIn_alpha;
     }
 
-    betaOutRHmin = betaOut - sdOut_alphaOut_min + sdOut_alphaOut;
-    betaOutRHmax = betaOut - sdOut_alphaOut_max + sdOut_alphaOut;
+    betaOutRHmin = betaOut - sdOut_alphaOutRHmin + sdOut_alphaOut;
+    betaOutRHmax = betaOut - sdOut_alphaOutRHmax + sdOut_alphaOut;
 
     float swapTemp;
     if (alpaka::math::abs(acc, betaOutRHmin) > alpaka::math::abs(acc, betaOutRHmax)) {
