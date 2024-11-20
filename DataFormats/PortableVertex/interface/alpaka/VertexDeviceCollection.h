@@ -8,17 +8,17 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::portablevertex {
 
-    // make the names from the top-level portablevertex namespace visible for unqualified lookup
-    // inside the ALPAKA_ACCELERATOR_NAMESPACE::portablevertex namespace
-    using ::portablevertex::VertexHostCollection;
-    using ::portablevertex::TrackHostCollection;
-    using ::portablevertex::BeamSpotHostCollection;
-    using ::portablevertex::ClusterParamsHostCollection;
+  // make the names from the top-level portablevertex namespace visible for unqualified lookup
+  // inside the ALPAKA_ACCELERATOR_NAMESPACE::portablevertex namespace
+  using ::portablevertex::BeamSpotHostCollection;
+  using ::portablevertex::ClusterParamsHostCollection;
+  using ::portablevertex::TrackHostCollection;
+  using ::portablevertex::VertexHostCollection;
 
-    using VertexDeviceCollection = PortableCollection<::portablevertex::VertexSoA>;
-    using TrackDeviceCollection = PortableCollection<::portablevertex::TrackSoA>;
-    using BeamSpotDeviceCollection = PortableCollection<::portablevertex::BeamSpotSoA>;
-    using ClusterParamsDeviceCollection = PortableCollection<::portablevertex::ClusterParamsSoA>;
+  using VertexDeviceCollection = PortableCollection<::portablevertex::VertexSoA>;
+  using TrackDeviceCollection = PortableCollection<::portablevertex::TrackSoA>;
+  using BeamSpotDeviceCollection = PortableCollection<::portablevertex::BeamSpotSoA>;
+  using ClusterParamsDeviceCollection = PortableCollection<::portablevertex::ClusterParamsSoA>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::portablevertex
 

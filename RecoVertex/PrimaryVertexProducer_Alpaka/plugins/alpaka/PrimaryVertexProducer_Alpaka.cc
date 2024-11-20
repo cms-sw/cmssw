@@ -20,8 +20,6 @@
 #include "ClusterizerAlgo.h"
 #include "FitterAlgo.h"
 
-
-
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   /**
    * This class does vertexing by
@@ -32,39 +30,47 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
    */
   class PrimaryVertexProducer_Alpaka : public stream::EDProducer<> {
   public:
-    PrimaryVertexProducer_Alpaka(edm::ParameterSet const& config){
-      trackToken_     = consumes(config.getParameter<edm::InputTag>("TrackLabel"));
-      beamSpotToken_  = consumes(config.getParameter<edm::InputTag>("BeamSpotLabel"));
+    PrimaryVertexProducer_Alpaka(edm::ParameterSet const& config) {
+      trackToken_ = consumes(config.getParameter<edm::InputTag>("TrackLabel"));
+      beamSpotToken_ = consumes(config.getParameter<edm::InputTag>("BeamSpotLabel"));
       devicePutToken_ = produces();
-      blockSize       = config.getParameter<int32_t>("blockSize"); 
-      blockOverlap    = config.getParameter<double>("blockOverlap");
+      blockSize = config.getParameter<int32_t>("blockSize");
+      blockOverlap = config.getParameter<double>("blockOverlap");
       fitterParams = {
-        .chi2cutoff            = config.getParameter<edm::ParameterSet>("TkFitterParameters").getParameter<double>("chi2cutoff"), // not used?
-        .minNdof               = config.getParameter<edm::ParameterSet>("TkFitterParameters").getParameter<double>("minNdof"),  // not used?
-        .useBeamSpotConstraint  = config.getParameter<edm::ParameterSet>("TkFitterParameters").getParameter<bool>("useBeamSpotConstraint"),
-        .maxDistanceToBeam     = config.getParameter<edm::ParameterSet>("TkFitterParameters").getParameter<double>("maxDistanceToBeam") //not used?
+          .chi2cutoff = config.getParameter<edm::ParameterSet>("TkFitterParameters")
+                            .getParameter<double>("chi2cutoff"),  // not used?
+          .minNdof =
+              config.getParameter<edm::ParameterSet>("TkFitterParameters").getParameter<double>("minNdof"),  // not used?
+          .useBeamSpotConstraint =
+              config.getParameter<edm::ParameterSet>("TkFitterParameters").getParameter<bool>("useBeamSpotConstraint"),
+          .maxDistanceToBeam = config.getParameter<edm::ParameterSet>("TkFitterParameters")
+                                   .getParameter<double>("maxDistanceToBeam")  //not used?
       };
       clusterParams = {
-        .Tmin   = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("Tmin"),
-        .Tpurge = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("Tpurge"),
-        .Tstop  = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("Tstop"),
-        .vertexSize = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("vertexSize"),
-        .coolingFactor = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("coolingFactor"),
-        .d0CutOff = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("d0CutOff"),
-        .dzCutOff = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("dzCutOff"),
-        .uniquetrkweight = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("uniquetrkweight"),
-        .uniquetrkminp = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("uniquetrkminp"),
-        .zmerge = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("zmerge"),
-        .sel_zrange = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("zrange"),
-        .convergence_mode = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<int>("convergence_mode"),
-        .delta_lowT = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("delta_lowT"),
-        .delta_highT = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("delta_highT")
-      };
+          .Tmin = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("Tmin"),
+          .Tpurge = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("Tpurge"),
+          .Tstop = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("Tstop"),
+          .vertexSize = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("vertexSize"),
+          .coolingFactor =
+              config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("coolingFactor"),
+          .d0CutOff = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("d0CutOff"),
+          .dzCutOff = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("dzCutOff"),
+          .uniquetrkweight =
+              config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("uniquetrkweight"),
+          .uniquetrkminp =
+              config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("uniquetrkminp"),
+          .zmerge = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("zmerge"),
+          .sel_zrange = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("zrange"),
+          .convergence_mode =
+              config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<int>("convergence_mode"),
+          .delta_lowT = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("delta_lowT"),
+          .delta_highT =
+              config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("delta_highT")};
       cParams = std::make_shared<portablevertex::ClusterParamsHostCollection>(1, cms::alpakatools::host());
       auto cpview = cParams->view();
-      cpview.TMin()   = clusterParams.Tmin;
+      cpview.TMin() = clusterParams.Tmin;
       cpview.Tpurge() = clusterParams.Tpurge;
-      cpview.Tstop()  = clusterParams.Tstop;
+      cpview.Tstop() = clusterParams.Tstop;
       cpview.vertexSize() = clusterParams.vertexSize;
       cpview.coolingFactor() = clusterParams.coolingFactor;
       cpview.d0CutOff() = clusterParams.d0CutOff;
@@ -79,22 +85,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) {
-      const portablevertex::TrackDeviceCollection& inputtracks   = iEvent.get(trackToken_);
-      const portablevertex::BeamSpotDeviceCollection& beamSpot     = iEvent.get(beamSpotToken_);
+      const portablevertex::TrackDeviceCollection& inputtracks = iEvent.get(trackToken_);
+      const portablevertex::BeamSpotDeviceCollection& beamSpot = iEvent.get(beamSpotToken_);
       int32_t nT = inputtracks.view().metadata().size();
-      int32_t nBlocks = nT > blockSize ? int32_t ((nT-1)/(blockOverlap*blockSize)) : 1; // If the block size is big enough we process everything at once
+      int32_t nBlocks = nT > blockSize ? int32_t((nT - 1) / (blockOverlap * blockSize))
+                                       : 1;  // If the block size is big enough we process everything at once
       // Now the device collections we still need
-      portablevertex::TrackDeviceCollection tracksInBlocks{nBlocks*blockSize, iEvent.queue()}; // As high as needed
-      portablevertex::VertexDeviceCollection deviceVertex{512, iEvent.queue()}; // Hard capped to 512, though we might want to restrict it for low PU cases
+      portablevertex::TrackDeviceCollection tracksInBlocks{nBlocks * blockSize, iEvent.queue()};  // As high as needed
+      portablevertex::VertexDeviceCollection deviceVertex{
+          512, iEvent.queue()};  // Hard capped to 512, though we might want to restrict it for low PU cases
 
       // run the algorithm
       //// First create the individual blocks
-      BlockAlgo blockKernel_{}; 
+      BlockAlgo blockKernel_{};
       blockKernel_.createBlocks(iEvent.queue(), inputtracks, tracksInBlocks, blockSize, blockOverlap);
       // Need to have the blocks created before launching the next step
       alpaka::wait(iEvent.queue());
       //// Then run the clusterizer per blocks
-      ClusterizerAlgo clusterizerKernel_{iEvent.queue(), blockSize}; 
+      ClusterizerAlgo clusterizerKernel_{iEvent.queue(), blockSize};
       clusterizerKernel_.clusterize(iEvent.queue(), tracksInBlocks, deviceVertex, cParams, nBlocks, blockSize);
       clusterizerKernel_.resplit_tracks(iEvent.queue(), tracksInBlocks, deviceVertex, cParams, nBlocks, blockSize);
       clusterizerKernel_.reject_outliers(iEvent.queue(), tracksInBlocks, deviceVertex, cParams, nBlocks, blockSize);
@@ -120,7 +128,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       parf0.add<double>("minNdof", 0.0);
       parf0.add<bool>("useBeamSpotConstraint", true);
       parf0.add<double>("maxDistanceToBeam", 1.0);
-      desc.add<edm::ParameterSetDescription>("TkFitterParameters",parf0);
+      desc.add<edm::ParameterSetDescription>("TkFitterParameters", parf0);
       edm::ParameterSetDescription parc0;
       parc0.add<double>("d0CutOff", 3.0);
       parc0.add<double>("Tmin", 2.0);
@@ -136,7 +144,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       parc0.add<double>("uniquetrkweight", 0.8);
       parc0.add<double>("uniquetrkminp", 0.0);
       parc0.add<double>("zrange", 4.0);
-      desc.add<edm::ParameterSetDescription>("TkClusParameters",parc0);
+      desc.add<edm::ParameterSetDescription>("TkClusParameters", parc0);
       descriptions.addWithDefaultLabel(desc);
     }
 

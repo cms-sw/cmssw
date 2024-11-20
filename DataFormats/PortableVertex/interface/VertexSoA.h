@@ -42,7 +42,6 @@ namespace portablevertex {
                       SOA_COLUMN(bool, isGood),
                       SOA_COLUMN(int, order),
 
-
                       SOA_COLUMN(float, sw),
                       SOA_COLUMN(float, se),
                       SOA_COLUMN(float, swz),
@@ -50,14 +49,12 @@ namespace portablevertex {
                       SOA_COLUMN(float, exp),
                       SOA_COLUMN(float, exparg),
 
-
                       // Use entries for blocks
                       SOA_COLUMN(int32_t, nV))
 
   using VertexSoA = VertexSoALayout<>;
 
-
-  using TrackToVertex = Eigen::Vector<float, 512>; // 512 is the max vertex allowed
+  using TrackToVertex = Eigen::Vector<float, 512>;  // 512 is the max vertex allowed
   GENERATE_SOA_LAYOUT(TrackSoALayout,
                       // columns: one value per element
                       SOA_COLUMN(float, dxy2),
@@ -108,19 +105,16 @@ namespace portablevertex {
 
   using TrackSoA = TrackSoALayout<>;
 
-  GENERATE_SOA_LAYOUT(BeamSpotSoALayout,
-		      SOA_SCALAR(float, x),
-		      SOA_SCALAR(float, y),
-		      SOA_SCALAR(float, sx),
-		      SOA_SCALAR(float, sy))
+  GENERATE_SOA_LAYOUT(
+      BeamSpotSoALayout, SOA_SCALAR(float, x), SOA_SCALAR(float, y), SOA_SCALAR(float, sx), SOA_SCALAR(float, sy))
 
   using BeamSpotSoA = BeamSpotSoALayout<>;
 
   GENERATE_SOA_LAYOUT(ClusterParams,
-		      SOA_SCALAR(float, d0CutOff),
-		      SOA_SCALAR(float, TMin),
-		      SOA_SCALAR(float, delta_lowT),
-		      SOA_SCALAR(float, zmerge),
+                      SOA_SCALAR(float, d0CutOff),
+                      SOA_SCALAR(float, TMin),
+                      SOA_SCALAR(float, delta_lowT),
+                      SOA_SCALAR(float, zmerge),
                       SOA_SCALAR(float, dzCutOff),
                       SOA_SCALAR(float, Tpurge),
                       SOA_SCALAR(int, convergence_mode),
@@ -133,7 +127,7 @@ namespace portablevertex {
                       SOA_SCALAR(float, zrange))
 
   using ClusterParamsSoA = ClusterParams<>;
-		      
+
 }  // namespace portablevertex
 
 #endif  // DataFormats_PortableVertex_interface_VertexSoA_h
