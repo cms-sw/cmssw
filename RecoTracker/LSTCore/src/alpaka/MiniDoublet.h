@@ -106,35 +106,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float moduleGapSize(ModulesConst modules, uint16_t moduleIndex) {
-    float miniDeltaTilted[3] = {0.26f, 0.26f, 0.26f};
-    float miniDeltaFlat[6] = {0.26f, 0.16f, 0.16f, 0.18f, 0.18f, 0.18f};
-    float miniDeltaLooseTilted[3] = {0.4f, 0.4f, 0.4f};
-    float miniDeltaEndcap[5][15];
-
-    for (size_t i = 0; i < 5; i++) {
-      for (size_t j = 0; j < 15; j++) {
-        if (i == 0 || i == 1) {
-          if (j < 10) {
-            miniDeltaEndcap[i][j] = 0.4f;
-          } else {
-            miniDeltaEndcap[i][j] = 0.18f;
-          }
-        } else if (i == 2 || i == 3) {
-          if (j < 8) {
-            miniDeltaEndcap[i][j] = 0.4f;
-          } else {
-            miniDeltaEndcap[i][j] = 0.18f;
-          }
-        } else {
-          if (j < 9) {
-            miniDeltaEndcap[i][j] = 0.4f;
-          } else {
-            miniDeltaEndcap[i][j] = 0.18f;
-          }
-        }
-      }
-    }
-
     unsigned int iL = modules.layers()[moduleIndex] - 1;
     unsigned int iR = modules.rings()[moduleIndex] - 1;
     short subdet = modules.subdets()[moduleIndex];
@@ -143,14 +114,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float moduleSeparation = 0;
 
     if (subdet == Barrel and side == Center) {
-      moduleSeparation = miniDeltaFlat[iL];
+      moduleSeparation = kMiniDeltaFlat[iL];
     } else if (isTighterTiltedModules(modules, moduleIndex)) {
-      moduleSeparation = miniDeltaTilted[iL];
+      moduleSeparation = kMiniDeltaTilted[iL];
     } else if (subdet == Endcap) {
-      moduleSeparation = miniDeltaEndcap[iL][iR];
+      moduleSeparation = kMiniDeltaEndcap[iL][iR];
     } else  //Loose tilted modules
     {
-      moduleSeparation = miniDeltaLooseTilted[iL];
+      moduleSeparation = kMiniDeltaLooseTilted[iL];
     }
 
     return moduleSeparation;
