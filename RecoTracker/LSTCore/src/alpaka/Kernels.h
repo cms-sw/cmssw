@@ -217,15 +217,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
           for (unsigned int ix1 = 0; ix1 < nQuintuplets_lowmod1; ix1 += 1) {
             unsigned int ix = quintupletModuleIndices_lowmod1 + ix1;
-            if (quintuplets.partOfPT5()[ix] || (quintuplets.isDup()[ix] & 1))
+            if (quintuplets.isDup()[ix] & 1)
               continue;
+
+            bool isPT5_ix = quintuplets.partOfPT5()[ix];
 
             for (unsigned int jx1 = 0; jx1 < nQuintuplets_lowmod2; jx1++) {
               unsigned int jx = quintupletModuleIndices_lowmod2 + jx1;
               if (ix == jx)
                 continue;
 
-              if (quintuplets.partOfPT5()[jx] || (quintuplets.isDup()[jx] & 1))
+              if (quintuplets.isDup()[jx] & 1)
+                continue;
+
+              bool isPT5_jx = quintuplets.partOfPT5()[jx];
+
+              if (isPT5_ix && isPT5_jx)
                 continue;
 
               float eta1 = __H2F(quintuplets.eta()[ix]);
@@ -249,9 +256,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               int nMatched = checkHitsT5(ix, jx, quintuplets);
               const int minNHitsForDup_T5 = 5;
               if (dR2 < 0.001f || nMatched >= minNHitsForDup_T5) {
-                if (score_rphisum1 > score_rphisum2) {
+                if (isPT5_jx || score_rphisum1 > score_rphisum2) {
                   rmQuintupletFromMemory(quintuplets, ix, true);
-                } else if (score_rphisum1 < score_rphisum2) {
+                } else if (isPT5_ix || score_rphisum1 < score_rphisum2) {
                   rmQuintupletFromMemory(quintuplets, jx, true);
                 } else {
                   rmQuintupletFromMemory(quintuplets, (ix < jx ? ix : jx), true);
