@@ -2,6 +2,7 @@
 #define RecoTracker_LSTCore_src_alpaka_Quintuplet_h
 
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
@@ -413,9 +414,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         float solz2 = alpaka::math::asin(acc, sol2) / rou * Pz / p + z_init;
         float diffz1 = (solz1 - zsi) * 100;
         float diffz2 = (solz2 - zsi) * 100;
-        if (alpaka::math::isnan(acc, diffz1))
+        if (edm::isNotFinite(diffz1))
           diffz = diffz2;
-        else if (alpaka::math::isnan(acc, diffz2))
+        else if (edm::isNotFinite(diffz2))
           diffz = diffz1;
         else {
           diffz = (alpaka::math::abs(acc, diffz1) < alpaka::math::abs(acc, diffz2)) ? diffz1 : diffz2;
@@ -460,7 +461,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
     // for set rzchi2 cut
     // if the 5 points are linear, helix calculation gives nan
-    if (inner_pt > 100 || alpaka::math::isnan(acc, rzChiSquared)) {
+    if (inner_pt > 100 || edm::isNotFinite(rzChiSquared)) {
       float slope;
       if (moduleType1 == 0 and moduleType2 == 0 and moduleType3 == 1)  //PSPS2S
       {
