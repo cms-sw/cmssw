@@ -5,8 +5,8 @@ process = cms.Process("G4PrintGeometry")
 #process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 #process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtendedRun4D77Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtendedRun4D83Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)
@@ -19,7 +19,7 @@ process.g4SimHits.CheckGeometry = cms.bool(True)
 
 # Geant4 geometry check 
 process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string("2017")
-#process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string("2026D77")
+#process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string("Run4D110")
 process.g4SimHits.G4CheckOverlap.OverlapFlag = cms.bool(False)
 process.g4SimHits.G4CheckOverlap.Tolerance  = cms.double(0.0)
 process.g4SimHits.G4CheckOverlap.Resolution = cms.int32(10000)
