@@ -42,8 +42,8 @@ process.MessageLogger.TrackTriggerHPH = dict(limit = -1)
 
 if GEOMETRY == "D88" or GEOMETRY == 'D98':
     print("using geometry " + GEOMETRY + " (tilted)")
-    process.load('Configuration.Geometry.GeometryExtended2026' + GEOMETRY + 'Reco_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026' + GEOMETRY +'_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4' + GEOMETRY + 'Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4' + GEOMETRY +'_cff')
 else:
     print("this is not a valid geometry!!!")
 
