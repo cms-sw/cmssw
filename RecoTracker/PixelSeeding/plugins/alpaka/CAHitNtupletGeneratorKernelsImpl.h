@@ -67,6 +67,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   using Counters = caHitNtupletGenerator::Counters;
   
   using namespace cms::alpakatools;
+
+   // standard initialization for a generic one to many assoc map
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static void initGenericContainer(GenericContainerView &view,
+                                                                                 GenericContainer *histo,
+                                                                                 GenericContainer::Counter *offsets,
+                                                                                 GenericContainer::Counter *storage,
+                                                                                 uint32_t n_ones,
+                                                                                 uint32_t n_many) {
+    view.assoc = histo;
+    view.offSize = n_ones + 1;
+    view.offStorage = offsets;
+    view.contentSize = n_many;
+    view.contentStorage = storage;
+  }
+
   class setHitsLayerStart {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
@@ -354,8 +369,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   CACellT<TrackerTraits> *cells,
                                   uint32_t *nCells,
                                   CellNeighborsVector<TrackerTraits> *cellNeighbors,
-                                  OuterHitOfCell<TrackerTraits> const *isOuterHitOfCell,
-                                  CellContainer* __restrict__ histo,
+                                  OuterHitOfCell<TrackerTraits> *isOuterHitOfCell,
+                                  // GenericContainer* __restrict__ histo,
                                   AlgoParams const& params) const {
       using Cell = CACellT<TrackerTraits>;
       // using CellStack = cms::alpakatools::SimpleVector<uint16_t>; //could
@@ -366,14 +381,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       }  // ready for next kernel
 
       // loop on outer cells
-      for (uint32_t idx : cms::alpakatools::uniform_elements_y(acc, *nCells)) {
-        auto cellIndex = idx;
-        auto &thisCell = cells[idx];
+      for (uint32_t cellIndex : cms::alpakatools::uniform_elements_y(acc, *nCells)) {
+        auto &thisCell = cells[cellIndex];
         auto innerHitId = thisCell.inner_hit_id();
         if (int(innerHitId) < isOuterHitOfCell->offset)
           continue;
-
+        
         uint32_t numberOfPossibleNeighbors = (*isOuterHitOfCell)[innerHitId].size();
+        printf("numberOfPossibleNeighbors;%d;%d;\n",thisCell.innerLayer(),numberOfPossibleNeighbors);
         auto vi = (*isOuterHitOfCell)[innerHitId].data();
         auto ri = thisCell.inner_r(hh);
         auto zi = thisCell.inner_z(hh);
@@ -388,7 +403,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           auto r1 = oc.inner_r(hh);
           auto z1 = oc.inner_z(hh);
           auto dcaCut = ll[oc.innerLayer()].caDCACut();
-          printf("%d %d .%2f -> %.2f \n",oc.innerLayer(),thisCell.innerLayer(),thetaCut,dcaCut);
+          // printf("%d %d .%2f -> %.2f \n",oc.innerLayer(),thisCell.innerLayer(),thetaCut,dcaCut);
           bool aligned = Cell::areAlignedRZ(
               r1,
               z1,
@@ -403,15 +418,53 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                               oc,
                               dcaCut,
                               params.hardCurvCut_)) { 
+            printf("filling cell: %d -> %d\n",otherCell,cellIndex);
             oc.addOuterNeighbor(acc, cellIndex, *cellNeighbors);
-            histo->fill(acc,cellIndex,otherCell);
+            // histo->count(acc,otherCell);
             thisCell.setStatusBits(Cell::StatusBit::kUsed);
             oc.setStatusBits(Cell::StatusBit::kUsed);
+            
+          } else
+          { 
+            printf("discarding cell: %d -> %d\n",otherCell,cellIndex);
+            // (*isOuterHitOfCell)[innerHitId][j] = std::numeric_limits<uint32_t>::max(); // not a good match
           }
         }  // loop on inner cells
       }  // loop on outer cells
     }
   };
+
+  template <typename TrackerTraits>
+  class Kernel_connectFill {
+  public:
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_ACC void operator()(TAcc const &acc,
+                                  HitsConstView hh,
+                                  CACellT<TrackerTraits> *cells,
+                                  uint32_t *nCells,
+                                  OuterHitOfCell<TrackerTraits> const* isOuterHitOfCell,
+                                  GenericContainer* __restrict__ histo) const {
+  
+  for (uint32_t cellIndex : cms::alpakatools::uniform_elements_y(acc, *nCells)) {
+        auto &thisCell = cells[cellIndex];
+        auto innerHitId = thisCell.inner_hit_id();
+        if (int(innerHitId) < isOuterHitOfCell->offset)
+          continue;
+        
+        uint32_t numberOfPossibleNeighbors = (*isOuterHitOfCell)[innerHitId].size();
+        auto vi = (*isOuterHitOfCell)[innerHitId].data();
+        for (uint32_t j : cms::alpakatools::independent_group_elements_x(acc, numberOfPossibleNeighbors)) {
+          auto otherCell = (vi[j]);
+          if(vi[j]==std::numeric_limits<uint32_t>::max())
+            continue;
+          histo->fill(acc,otherCell,cellIndex);
+          printf("filling histo: %d -> %d\n",otherCell,cellIndex);
+        }
+
+    }
+   }
+  };
+  
   template <typename TrackerTraits>
   class Kernel_find_ntuplets {
   public:
@@ -421,6 +474,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   const ::reco::CACellsSoAConstView &cc,
                                   TkSoAView tracks_view,
                                   HitContainer<TrackerTraits> *foundNtuplets,
+                                  // GenericContainer const *__restrict__ cellNeighborsHisto,
                                   CACellT<TrackerTraits> *__restrict__ cells,
                                   uint32_t const *nCells,
                                   CellTracksVector<TrackerTraits> *cellTracks,
@@ -459,6 +513,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                                           cells,
                                                           *cellTracks,
                                                           *foundNtuplets,
+                                                          // cellNeighborsHisto,
                                                           *apc,
                                                           tracks_view.quality(),
                                                           stack,
