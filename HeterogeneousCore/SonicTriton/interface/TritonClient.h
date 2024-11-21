@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "HeterogeneousCore/SonicCore/interface/SonicClient.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonData.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonService.h"
@@ -86,6 +87,7 @@ protected:
   std::unique_ptr<triton::client::InferenceServerGrpcClient> client_;
   //stores timeout, model name and version
   std::vector<triton::client::InferOptions> options_;
+  edm::ServiceToken token_;
 
 private:
   friend TritonInputData;
