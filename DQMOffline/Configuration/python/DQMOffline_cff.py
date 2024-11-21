@@ -117,7 +117,7 @@ from DQMOffline.Muon.muonMonitors_cff import *
 from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
 from DQMOffline.EGamma.egammaDQMOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
-from DQMOffline.RecoB.dqmAnalyzer_cff import *
+from DQMOffline.RecoB.bTagMiniDQM_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitor_cff import *
 from DQM.Physics.DQMPhysics_cff import *
 from DQM.Physics.heavyFlavorDQMFirstStep_cff import *
@@ -140,7 +140,7 @@ DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineTrigger = cms.Sequence( triggerOfflineDQMSource )
 
-DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
+DQMOfflineBTag = cms.Sequence( bTagMiniDQMSource )
 
 DQMOfflineBeam = cms.Sequence( alcaBeamMonitor )
 
