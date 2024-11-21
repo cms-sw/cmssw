@@ -28,6 +28,7 @@
 #include "EventFilter/Phase2TrackerRawToDigi/interface/DTCAssembly.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Cluster.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerSpecifications.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2DAQFormatSpecification.h"
 
 class ClusterToRawProducer : public edm::one::EDProducer<> {
 public:
@@ -58,10 +59,7 @@ ClusterToRawProducer::ClusterToRawProducer(const edm::ParameterSet& iConfig)
     produces<FEDRawDataCollection>();
 }
 
-ClusterToRawProducer::~ClusterToRawProducer() 
-{
-
-}
+ClusterToRawProducer::~ClusterToRawProducer() { }
 
 void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
@@ -80,49 +78,77 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     // Create FEDRawDataCollection to store the output
     auto fedRawDataCollection = std::make_unique<FEDRawDataCollection>();
 
-    for (int dtc_id = 1; dtc_id < 217; dtc_id++)
+    using namespace Phase2TrackerSpecifications;
+    using namespace Phase2DAQFormatSpecification;
+
+    for (int dtc_id = MIN_DTC_ID; dtc_id < MAX_DTC_ID + 1; dtc_id++)
     {
-        std::cout << "DTC #" << dtc_id << std::endl;
-        for (int slink_id = 0; slink_id < 4; slink_id++)
+        for (int slink_id = MIN_SLINK_ID; slink_id < MAX_SLINK_ID + 1; slink_id++)
         {
-            std::cout << "SLink #" << slink_id << std::endl;
-            int index_first = slink_id * 18;
-            int index_last = (slink_id + 1) * 18;
+            int index_first = slink_id * MODULES_PER_SLINK;
+            int index_last = (slink_id + 1) * MODULES_PER_SLINK;
+
+            FEDRawData slink_daq_stream;
+
+            std::vector<Word32Bits> daq_packet;
+            std::vector<Word32Bits> offset_map;
+            std::vector<Word32Bits> payload;
+
+            for (int i = 0; i < 3; ++i) { daq_packet.push_back( Word32Bits(DTC_DAQ_HEADER) ); }
 
             for (int module_id = index_first; module_id < index_last; module_id++) 
             {
                 DTCELinkId cms_link_id = DTCELinkId(dtc_id, module_id, 0);
                 try 
                 {
-                    auto f = cablingMap.dtcELinkIdToDetId(cms_link_id);
-                    const DTCELinkId& o = f->first;
-
-                    std::cout << " (Module Id, Optical Fibre Id, DTC Id) - (" << (uint32_t)f->second << ", " << static_cast<unsigned int>(o.gbtlink_id()) << ", " << dtc_id << ")" << std::endl;
+                    
+                    auto                    link_to_det_association = cablingMap.dtcELinkIdToDetId(cms_link_id);
+                    const DTCELinkId&       link_id = link_to_det_association->first;
+                    const DetId&            det_id = link_to_det_association->second;
 
                     edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator 
-                                    det_seed = iEvent.get(ClusterCollectionToken_).find(f->second + 1);
+                                    det_seed = iEvent.get(ClusterCollectionToken_).find(det_id + 1);
+
+                    TrackerGeometry::ModuleType seed_sensor_type = trackerGeometry.getDetectorType( det_seed->detId() );
+
+
                     edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator 
-                                    det_corr = iEvent.get(ClusterCollectionToken_).find(f->second + 2);
+                                    det_corr = iEvent.get(ClusterCollectionToken_).find(det_id + 2);
 
-                    std::cout << " | Seed Sensor Id: " << (uint32_t)det_seed->detId() << std::endl;
-                    std::cout << "    --> # of Clusters: " << det_seed->size() << std::endl;
-                    std::cout << " | Corr Sensor Id: " << (uint32_t)det_corr->detId() << std::endl;
-                    std::cout << "    --> # of Clusters: " << det_corr->size() << std::endl;
+                    TrackerGeometry::ModuleType corr_sensor_type = trackerGeometry.getDetectorType( det_corr->detId() );
 
-                    for (const auto& cluster : *det)
+                    for (const auto& cluster : *det_seed)
                     {
-                        unsigned int z = cluster.column();
-                        double x = cluster.firstStrip();
                         
-                        std::cout << " | " <<  x << ", " << z << std::endl;
                     }
 
-                    // std::cout << o.dtc_id() << ", " << static_cast<unsigned int>(o.gbtlink_id()) << ", "
-                    //         << static_cast<unsigned int>(o.elink_id()) << " < -- > "
-                    //         << static_cast<uint32_t>(f->second) << std::endl;
+                    for (const auto& cluster : *det_corr)
+                    {
+                        
+                    }
 
                 } 
-                catch (const cms::Exception& e) { continue; }
+                catch (const cms::Exception& e) 
+                {
+                    // exception here means that the link is not connected to a detector
+
+                    uint32_t eventID = EventID & L1ID_MAX_VALUE;    // eventId_ (9 bits)
+                    uint32_t channelErrors = 0;                     // 9 bits for errors, all set to 0
+                    uint32_t numClusters = 0;                       // no clusters here.
+
+                    // Build the channel header 
+                    uint32_t header = (eventID << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS)) | 
+                                    (channelErrors << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) | 
+                                    (numClusters << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - NCLUSTERS_BITS));
+
+                    // Push the header into the payload
+                    payload.push_back(header);
+
+                    continue; 
+                }
+
+                // fedRawDataCollection.get()->FEDData( slink_id + SLINKS_PER_DTC * (dtc_id - 1) + TRACKER_HEADER ) = dtc_0.getSLink(j);
+
             }
 
         }

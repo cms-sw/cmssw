@@ -1,7 +1,7 @@
 #ifndef Phase2DAQFormatSpecification_H
 #define Phase2DAQFormatSpecification_H
 
-namespace Phase2TrackerSpecifications
+namespace Phase2DAQFormatSpecification
 {
     static const int DTC_DAQ_HEADER = 0xFFFFFFFF;
     static const int NUMBER_OF_BITS_PER_WORD = 32;
@@ -24,6 +24,8 @@ namespace Phase2TrackerSpecifications
     static const int SS_CLUSTER_BITS = 14;
 
     static const int CMSSW_TRACKER_ID = 0;
+
+    typedef std::bitset<32> Word32Bits;
 };
 
 #endif
