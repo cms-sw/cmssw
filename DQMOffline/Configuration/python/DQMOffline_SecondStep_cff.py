@@ -99,7 +99,7 @@ DQMOffline_SecondStepEGamma = cms.Sequence( egammaPostProcessing )
 DQMOffline_SecondStepTrigger = cms.Sequence( triggerOfflineDQMClient *
 						hltOfflineDQMClient )
 
-DQMOffline_SecondStepBTag = cms.Sequence( bTagCollectorSequenceDATA )
+DQMOffline_SecondStepBTag = cms.Sequence( bTagMiniDQMHarvesting )
 
 DQMOffline_SecondStepBeam = cms.Sequence( alcaBeamMonitorClient )
 
@@ -155,7 +155,7 @@ DQMOffline_SecondStep_FakeHLT = cms.Sequence( DQMOffline_SecondStep )
 DQMOffline_SecondStep_FakeHLT.remove( HLTMonitoringClient )
 DQMOffline_SecondStep_FakeHLT.remove( DQMOffline_SecondStepTrigger )
 
-DQMOffline_SecondStep_PrePOGMC = cms.Sequence( bTagCollectorSequenceDATA )
+DQMOffline_SecondStep_PrePOGMC = cms.Sequence( bTagMiniDQMHarvesting )
 
 DQMOffline_SecondStepPOGMC = cms.Sequence( DQMOffline_SecondStep_PrePOGMC *
                                            DQMMessageLoggerClientSeq )
@@ -269,7 +269,6 @@ DQMHarvestBTag = cms.Sequence( bTagMiniDQMHarvesting )
 
 from PhysicsTools.NanoAOD.nanoDQM_cff import *
 from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import *
-from DQMOffline.RecoB.bTagMiniDQM_cff import *
 
 DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD * DQMHarvestPF * bTagMiniDQMHarvesting)
 DQMHarvestNanoAOD = cms.Sequence( nanoHarvest )
