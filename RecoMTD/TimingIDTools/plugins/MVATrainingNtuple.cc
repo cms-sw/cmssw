@@ -27,7 +27,7 @@ class MVATrainingNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources>
 
   // auxiliary class holding simulated vertices (originally from Primary4DVertexValidation)
   struct simPrimaryVertex {
-    simPrimaryVertex(double x1, double y1, double z1, double t1, int k1) : x(x1), y(y1), z(z1), t(t1), key(k1){};
+    simPrimaryVertex(double x1, double y1, double z1, double t1, int k1) : x(x1), y(y1), z(z1), t(t1), key(k1) {};
     double x, y, z, t;
     int key;
     int eventId;
@@ -719,9 +719,9 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
                           }
                         } else {
                           continue;
-                        }                                                // mtd hit matched to btl reco cluster
-                      }                                                  // loop through BTL reco clusters
-                    }                                                    // loop thorugh set of BTL reco clusters
+                        }  // mtd hit matched to btl reco cluster
+                      }  // loop through BTL reco clusters
+                    }  // loop thorugh set of BTL reco clusters
                   } else {                                               // Should be an ETL cluster
                     for (const auto& DetSetCluETL : *etlRecCluHandle) {  // ETL check
                       if (good_association)
@@ -749,14 +749,14 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
                         } else {
                           continue;
                         }  // mtd hit matched to etl reco cluster
-                      }    // loop through ETL reco clusters
-                    }      // loop thorugh set of ETL reco clusters
-                  }        // BTL/ETL cluster search split
+                      }  // loop through ETL reco clusters
+                    }  // loop thorugh set of ETL reco clusters
+                  }  // BTL/ETL cluster search split
 
                 } else {  // trackingRecHit is a hit in MTD
                   continue;
                 }  // Hits in MTD
-              }    // Loop through trackHits
+              }  // Loop through trackHits
             }
           }  // TP link to MTDsimCluster
 
