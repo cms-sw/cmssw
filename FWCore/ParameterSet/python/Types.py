@@ -3,12 +3,12 @@ from .Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, 
 from .Mixins import _ValidatingParameterListBase, specialImportRegistry
 from .Mixins import saveOrigin
 from .ExceptionHandling import format_typename, format_outerframe
-from past.builtins import long
 import codecs
 import copy
 import math
 import builtins
 
+long = int
 _builtin_bool = bool
 
 class _Untracked(object):
