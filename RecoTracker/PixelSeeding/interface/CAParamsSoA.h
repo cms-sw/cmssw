@@ -9,6 +9,22 @@
 
 namespace reco {
 
+    // struct RZMap
+    // {
+    //   // in cm
+    //   static constexpr float rmin = 0.f;
+    //   static constexpr float rmax = 120.f;
+    //   static constexpr float zlim = 300.f;
+    //   static constexpr float zran = 600.f;
+
+    //   static constexpr uint16_t binr = uint16_t(rmax) * 5; 
+    //   static constexpr uint16_t binz = uint16_t(zlim) * 5; 
+
+    //   static constexpr uint16_t binz = uint16_t(zlim) * 5;
+
+    //   // bin = 1 + int (fNbins*(x-fXmin)/(fXmax-fXmin) );
+    // }
+
     using GraphNode = std::array<uint32_t, 2>;
 
     GENERATE_SOA_LAYOUT(CALayersLayout, 
