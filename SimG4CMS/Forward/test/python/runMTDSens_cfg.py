@@ -1,10 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
 
-process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
+process = cms.Process('G4PrintGeometry', _PH2_ERA)
+
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')

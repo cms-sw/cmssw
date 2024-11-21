@@ -498,4 +498,3 @@ ecalClusterTask = cms.untracked.PSet(
         )
     )
 )
-

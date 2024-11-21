@@ -48,7 +48,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
 ###################################################################
 # Ideal geometry producer and standard includes
 ###################################################################
-process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 process.trackerGeometry.applyAlignment = True
 
 ###################################################################

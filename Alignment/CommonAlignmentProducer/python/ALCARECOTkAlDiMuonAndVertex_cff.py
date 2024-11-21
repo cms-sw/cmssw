@@ -3,13 +3,12 @@ import FWCore.ParameterSet.Config as cms
 ##################################################################
 # Exact same configuration as TkAlZMuMu: extract mumu pairs
 #################################################################
+from Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi import *
 import Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_cff as confALCARECOTkAlZMuMu
 ALCARECOTkAlDiMuonHLT = confALCARECOTkAlZMuMu.ALCARECOTkAlZMuMuHLT.clone()
 ALCARECOTkAlDiMuonDCSFilter = confALCARECOTkAlZMuMu.ALCARECOTkAlZMuMuDCSFilter.clone()
-ALCARECOTkAlDiMuonGoodMuons = confALCARECOTkAlZMuMu.ALCARECOTkAlZMuMuGoodMuons.clone()
-ALCARECOTkAlDiMuonRelCombIsoMuons = confALCARECOTkAlZMuMu.ALCARECOTkAlZMuMuRelCombIsoMuons.clone(src = 'ALCARECOTkAlDiMuonGoodMuons')
 ALCARECOTkAlDiMuon = confALCARECOTkAlZMuMu.ALCARECOTkAlZMuMu.clone()
-ALCARECOTkAlDiMuon.GlobalSelector.muonSource = 'ALCARECOTkAlDiMuonRelCombIsoMuons'
+ALCARECOTkAlDiMuon.GlobalSelector.muonSource = 'TkAlRelCombIsoMuonSelector'
 
 ##################################################################
 # Tracks from the selected vertex
@@ -31,8 +30,7 @@ TkAlDiMuonAndVertexGenMuonSelector = cms.EDFilter("GenParticleSelector",
 #################################################################
 seqALCARECOTkAlDiMuonAndVertex = cms.Sequence(ALCARECOTkAlDiMuonHLT+
                                               ALCARECOTkAlDiMuonDCSFilter+
-                                              ALCARECOTkAlDiMuonGoodMuons+
-                                              ALCARECOTkAlDiMuonRelCombIsoMuons+
+                                              seqALCARECOTkAlRelCombIsoMuons+
                                               ALCARECOTkAlDiMuon+
                                               ALCARECOTkAlDiMuonVertexTracks+
                                               TkAlDiMuonAndVertexGenMuonSelector)

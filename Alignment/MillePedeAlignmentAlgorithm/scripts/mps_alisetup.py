@@ -255,6 +255,7 @@ class SetupAlignment(object):
         gt_regex = re.compile('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']')
         sg_regex = re.compile("setupRunStartGeometry\s*\=\s*.*$", re.M)
         collection_regex = re.compile('setupCollection\s*\=\s*[\"\'](.*?)[\"\']')
+        recogeom_regex = re.compile('setupRecoGeometry\s*\=\s*[\"\'](.*?)[\"\']')
         czt_regex = re.compile('setupCosmicsZeroTesla\s*\=\s*.*$', re.M)
         cdm_regex = re.compile('setupCosmicsDecoMode\s*\=\s*.*$', re.M)
         pw_regex = re.compile('setupPrimaryWidth\s*\=\s*.*$', re.M)
@@ -274,6 +275,9 @@ class SetupAlignment(object):
 
             tmpFile = re.sub(gt_regex,
                              'setupGlobaltag = \"'+dataset["globaltag"]+'\"',
+                             tmpFile)
+            tmpFile = re.sub(recogeom_regex,
+                             'setupRecoGeometry = \"'+dataset["recogeometry"]+'\"',
                              tmpFile)
             tmpFile = re.sub(sg_regex,
                              "setupRunStartGeometry = "+
@@ -353,6 +357,7 @@ class SetupAlignment(object):
                 print("cosmicsDecoMode:   ", dataset["cosmicsDecoMode"])
                 print("cosmicsZeroTesla:  ", dataset["cosmicsZeroTesla"])
             print("Globaltag:         ", dataset["globaltag"])
+            print("RecoGeometry:      ", dataset["recogeometry"])
             print("Number of jobs:    ", dataset["njobs"])
             print("Inputfilelist:     ", dataset["inputFileList"])
             if dataset["json"] != "":
@@ -465,6 +470,9 @@ class SetupAlignment(object):
 
         tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
                          'setupGlobaltag = \"'+self._global_tag+'\"',
+                         tmpFile)
+        tmpFile = re.sub('setupRecoGeometry\s*\=\s*[\"\'](.*?)[\"\']',
+                         'setupRecoGeometry = \"'+self._reco_geometry+'\"',
                          tmpFile)
         tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
                          'setupCollection = \"'+collection+'\"',
@@ -651,6 +659,7 @@ class SetupAlignment(object):
         config = mpsv_iniparser.ConfigData()
         config.jobDataPath = "."    # current directory
         config.globalTag = self._global_tag
+        #config.recoGeometry = self._reco_geometry
         config.firstRun = self._first_run
         self._tracker_tree_path = mpsv_trackerTree.check(config)
 
@@ -671,7 +680,7 @@ class SetupAlignment(object):
     def _fetch_defaults(self):
         """Fetch default general options from config file."""
 
-        for var in ("globaltag", "configTemplate", "json", "massStorageDir",
+        for var in ("globaltag", "recogeometry", "configTemplate", "json", "massStorageDir",
                     "testMode"):
             try:
                 self._general_options[var] = self._config.get("general", var)
@@ -681,7 +690,7 @@ class SetupAlignment(object):
 
         for dataset in self._external_datasets.values():
             dataset["general"] = {}
-            for var in ("globaltag", "configTemplate", "json"):
+            for var in ("globaltag", "recogeometry", "configTemplate", "json"):
                 try:
                     dataset["general"][var] = dataset["config"].get("general", var)
                 except (ConfigParser.NoSectionError,ConfigParser.NoOptionError):
@@ -771,6 +780,23 @@ class SetupAlignment(object):
                     # get globaltag and configTemplate. If none in section, try to get
                     # default from [general] section.
                     for var in ("configTemplate", "globaltag"):
+                        try:
+                            self._datasets[name][var] = config["config"].get(section, var)
+                        except (ConfigParser.NoSectionError,ConfigParser.NoOptionError):
+                            try:
+                                self._datasets[name][var] = config["general"][var]
+                            except KeyError:
+                                try:
+                                    self._datasets[name][var] \
+                                        = all_configs["main"]["general"][var]
+                                except KeyError:
+                                    print("No",var,"found in ["+section+"]", end=' ')
+                                    print("and no default in [general] section.")
+                                    sys.exit(1)
+
+                    # get recogeometry and configTemplate. If none in section, try to get
+                    # default from [general] section.
+                    for var in ("configTemplate", "recogeometry"):
                         try:
                             self._datasets[name][var] = config["config"].get(section, var)
                         except (ConfigParser.NoSectionError,ConfigParser.NoOptionError):
@@ -885,7 +911,7 @@ class SetupAlignment(object):
             sys.exit(1)
 
         self._global_tag = self._datasets[name]["globaltag"]
-
+        self._reco_geometry = self._datasets[name]["recogeometry"]
 
 ################################################################################
 if __name__ == "__main__":

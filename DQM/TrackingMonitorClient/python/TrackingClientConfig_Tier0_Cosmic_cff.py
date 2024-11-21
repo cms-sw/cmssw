@@ -22,6 +22,16 @@ trackingOfflineAnalyser = DQMEDHarvester("TrackingOfflineDQM",
              dir        = cms.string("TrackParameters/HitProperties"),
              name       = cms.string("NumberOfRecHitsPerTrack_"),
          ),
+         cms.PSet(
+             QT         = cms.string("SeedNStrip"),
+             dir        = cms.string("SiStrip/MechanicalView"),
+             name       = cms.string("NumberOfClustersInStrip"),
+         ),
+         cms.PSet(
+             QT         = cms.string("SeedNPixel"),
+             dir        = cms.string("SiStrip/MechanicalView"),
+             name       = cms.string("NumberOfClustersInPixel"),
+         )
     ),
     TrackingLSQualityPSets = cms.VPSet(
          cms.PSet(

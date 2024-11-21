@@ -100,7 +100,7 @@ void SiPixelRecHitFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID streamID,
 
   auto const hclusters = iEvent.getHandle(clusterToken_);
 
-  constexpr uint32_t maxHitsInModule = pixelClustering::maxHitsInModule();
+  constexpr uint32_t maxHitsInModule = TrackerTraits::maxHitsInModule;
 
   int numberOfDetUnits = 0;
   int numberOfClusters = 0;

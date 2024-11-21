@@ -607,8 +607,9 @@ class DMRplotter:
                     elif obj['type'] == "DATA":
                         obj['hist'].SetMarkerColor(self.args['colors'][self.args['objects'].index(objName)])
                         obj['hist'].SetLineColor(self.args['colors'][self.args['objects'].index(objName)])
+                        obj['hist'].SetLineWidth(3)
                         obj['hist'].SetMarkerStyle(self.args['styles'][self.args['objects'].index(objName)])
-                        obj['hist'].SetMarkerSize(1.5)  
+                        obj['hist'].SetMarkerSize(1.5) 
 
         #set general style for DMRs
         tStyle = ROOT.TStyle("StyleCMS","Style CMS")

@@ -34,8 +34,8 @@ print(options)
 
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
-baseName = "HGCal2026" + options.geometry
+geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
+baseName = "HGCalRun4" + options.geometry
 
 print("Geometry file Name: ", geomFile)
 print("Base file Name:     ", baseName)

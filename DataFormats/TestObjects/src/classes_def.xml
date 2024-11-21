@@ -120,11 +120,11 @@
  <class name="std::vector<edmtest::Thing>"/>
  <class name="std::vector<edmtest::OtherThing>"/>
  <class name="edm::RefProd<std::vector<edmtest::Thing> >"/>
- <class name="edm::RefToBaseProd<edmtest::Thing>" rntupleSplit="false"/>
+ <class name="edm::RefToBaseProd<edmtest::Thing>" rntupleStreamerMode="true"/>
  <class name="edm::reftobase::BaseHolder<edmtest::Thing>"/>
  <class name="edm::reftobase::Holder<edmtest::Thing,edm::Ref<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> > >"/>
- <class name="edm::RefToBase<edmtest::Thing>" rntupleSplit="false"/>
- <class name="edm::RefToBaseVector<edmtest::Thing>" rntupleSplit="false"/>
+ <class name="edm::RefToBase<edmtest::Thing>" rntupleStreamerMode="true"/>
+ <class name="edm::RefToBaseVector<edmtest::Thing>" rntupleStreamerMode="true"/>
  <class name="edm::reftobase::BaseVectorHolder<edmtest::Thing>"/>
  <class name="edm::reftobase::VectorHolder<edmtest::Thing, edm::RefVector<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> > >"/>
  <class name="edm::Ptr<edmtest::Thing>"/>

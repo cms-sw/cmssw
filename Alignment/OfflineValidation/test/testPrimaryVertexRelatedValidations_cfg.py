@@ -109,7 +109,7 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 # Standard loads
 ###################################################################
 if(options.isPhase2):
-     process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
+     process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 else:
      process.load("Configuration.Geometry.GeometryRecoDB_cff")
 

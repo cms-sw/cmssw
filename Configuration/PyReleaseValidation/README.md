@@ -9,7 +9,7 @@ runTheMatrix.py --what upgrade -n
 
 To make an upgrade workflow visible to the regular matrix, add it to:
 * [relval_2017.py](./python/relval_2017.py) (for Run 2 and Run 3)
-* [relval_2026.py](./python/relval_2026.py) (for Phase 2)
+* [relval_Run4.py](./python/relval_Run4.py) (for Phase 2)
 
 All workflows in the regular matrix can be run in IB tests,
 so this should only be done for fully functional workflows.
@@ -65,6 +65,8 @@ The offsets currently in use are:
 * 0.7: trackingMkFit modifier
 * 0.701: DisplacedRegionalStep tracking iteration for Run-3
 * 0.702: trackingMkFit modifier for Phase-2 (initialStep only)
+* 0.703: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
+* 0.704: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU
 * 0.75: HLT phase-2 timing menu
 * 0.751: HLT phase-2 timing menu Alpaka variant
 * 0.752: HLT phase-2 timing menu ticl_v5 variant

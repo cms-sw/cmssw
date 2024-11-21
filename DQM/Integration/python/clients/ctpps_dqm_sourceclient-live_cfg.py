@@ -37,12 +37,12 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'CTPPS'
 process.dqmSaver.tag = 'CTPPS'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'CTPPS'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'CTPPS'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 if test:
   process.dqmSaver.path = "."
-  process.dqmSaverPB.path = "./pb"
+  # process.dqmSaverPB.path = "./pb"
 
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 
@@ -94,8 +94,8 @@ process.path = cms.Path(
   #process.dqmModulesCalibration *
 
   process.dqmEnv *
-  process.dqmSaver *
-  process.dqmSaverPB
+  process.dqmSaver # *
+  # process.dqmSaverPB
 )
 
 process.schedule = cms.Schedule(process.path)

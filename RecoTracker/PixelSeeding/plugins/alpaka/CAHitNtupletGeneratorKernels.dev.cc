@@ -9,8 +9,6 @@
 // CMSSW headers
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 

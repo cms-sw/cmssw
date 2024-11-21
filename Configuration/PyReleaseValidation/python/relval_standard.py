@@ -559,6 +559,10 @@ workflows[142.0] = ['',['RunHIPhysicsRawPrime2023A','HLTDR3_HI2023ARawprime','RE
 workflows[142.901] = ['',['RunUPC2023','RECODR3_2024_UPC','HARVESTDPROMPTR3']]
 workflows[142.902] = ['',['RunUPC2023','RECODR3_2024_HIN','HARVESTDPROMPTR3']]
 
+### run3-2024 skim (2024 HI MC temp)
+workflows[143.201] = ['',['HydjetQ_B12_5362GeV_2024','DIGIHI2024','SKIMHIFORWARDRUN3_2024','HARVESTHI2024']]
+workflows[143.202] = ['',['HydjetQ_MinBias_5362GeV_2024','DIGIHI2024','RAWPRIMESIMHI18','SKIMHIPHYSICSRAWPRIMERUN3_2024','HARVESTHI2024S4']]
+
 ### run2-2016 (2024 PA UPC rereco data)
 workflows[142.903] = ['',['RunUPC2016PA','RECODR2_2016_UPC','HARVEST2016']]
 
@@ -571,40 +575,49 @@ offset_era = 0.1 # less than 10 eras per year
 offset_pd = 0.001 # less than 100 pds per year
 
 # 2024
-base_wf_number_2024 = 2024.0
-for e_n,era in enumerate(['Run2024D','Run2024C']):
-    for p_n,pd in enumerate(['JetMET0','ZeroBias']):
-        wf_number = base_wf_number_2024
+base_wf = 2024
+for e_n,era in enumerate(['Run2024B','Run2024C','Run2024D','Run2024E']):
+    for p_n,pd in enumerate(['ZeroBias','BTagMu','JetMET0','DisplacedJet']):
+        wf_number = base_wf
         wf_number = wf_number + offset_era * e_n
         wf_number = wf_number + offset_pd * p_n
         wf_number = wf_number + 0.0001 * 0.01 
         wf_number = round(wf_number,6)
-        step_name = "Run" + pd + era.split("Run")[1] + "_10k"
-        workflows[wf_number] = ['',[step_name,'HLTDR3_2024','AODNANORUN3_reHLT_2024','HARVESTRUN3_2024']]
+
+        step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_10k"
+        y = str(base_wf)
+        suff = "ZB_" if "ZeroBias" in step_name else ""
+        workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
 
 # 2023
-base_wf_number_2023 = 2023.0
-for e_n,era in enumerate(['Run2023C', 'Run2023D']):
-    for p_n,pd in enumerate(['MuonEG','DisplacedJet']):
-        wf_number = base_wf_number_2023
+base_wf = 2023
+for e_n,era in enumerate(['Run2023D']):
+    for p_n,pd in enumerate(['MuonEG','DisplacedJet','ZeroBias']):
+        wf_number = base_wf
         wf_number = wf_number + offset_era * e_n
         wf_number = wf_number + offset_pd * p_n
         wf_number = wf_number + 0.0001 * 0.01
         wf_number = round(wf_number,6)
-        step_name = "Run" + pd + era.split("Run")[1] + "_10k"
-        workflows[wf_number] = ['',[step_name,'HLTDR3_2023','AODNANORUN3_reHLT_2023','HARVESTRUN3_2023']]
+
+        step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_10k"
+        y = str(base_wf) + "B" if "2023B" in era else str(base_wf)
+        suff = "ZB_" if "ZeroBias" in step_name else ""
+        workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
 
 # 2022
-base_wf_number_2022 = 2022.0
-for e_n,era in enumerate(['Run2022B', 'Run2022C']):
-    for p_n,pd in enumerate(['JetHT','EGamma']):
-        wf_number = base_wf_number_2022
+base_wf = 2022
+for e_n,era in enumerate(['Run2022C']):
+    for p_n,pd in enumerate(['JetHT','EGamma','ZeroBias']):
+        wf_number = base_wf
         wf_number = wf_number + offset_era * e_n
         wf_number = wf_number + offset_pd * p_n
         wf_number = wf_number + 0.0001 * 0.01 
         wf_number = round(wf_number,6)
         step_name = "Run" + pd + era.split("Run")[1] + "_10k"
-        workflows[wf_number] = ['',[step_name,'HLTDR3_2022','AODNANORUN3_reHLT_2022','HARVESTRUN3_2022']]
+        y = str(base_wf)
+        suff = "ZB_" if "ZeroBias" in step_name else ""
+        workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
+
 ##################################################################
 
 ### fastsim ###

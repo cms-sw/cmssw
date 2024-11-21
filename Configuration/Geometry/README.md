@@ -10,7 +10,7 @@ vi python/dict2021Geometry.py
 python3 ./scripts/generate2021Geometry.py -D 2021
 ```
 Note:
-* For Phase-2, use [generate2026Geometry.py](./scripts/generate2026Geometry.py) and [dict2026Geometry.py](./python/dict2026Geometry.py) instead.
+* For Phase-2, use [generateRun4Geometry.py](./scripts/generateRun4Geometry.py) and [dictRun4Geometry.py](./python/dictRun4Geometry.py) instead.
 * For the list of geometries, see below.
 
 # Run 3 Geometries
@@ -68,7 +68,7 @@ Several detector combinations have been generated:
 
 # Phase 2 Geometries
 
-The Phase 2 geometries are automatically created using the script [generate2026Geometry.py](./scripts/generate2026Geometry.py).
+The Phase 2 geometries are automatically created using the script [generateRun4Geometry.py](./scripts/generateRun4Geometry.py).
 
 Different versions of various subdetectors can be combined. The available versions are:
 
@@ -91,21 +91,21 @@ Tracker:
 * T39: Same as T35 but introducing BigPixels in InnerTracker (1x2 planar and 2x2 planar modules)
 
 Calorimeters:
-* C9: HGCal (v11 post TDR HGCal Geometry w/ corner centering for HE part) + Phase2 HCAL and EB + Tracker cables (used in 2026D49)
-* C10: HGCal (as in C9) + HFNose with corrected wafer size + Phase2 HCAL and EB (used in 2026D60)
-* C11: HGCal (v12 post TDR HGCal Geometry same as C9 + modified support structure + full list of masked wafers) + Phase2 HCAL and EB + Tracker cables (used in 2026D68)
-* C13: HGCal (v13 version which reads the input from the flat file, uses these for checks and makes provision to be used downstream) + Phase2 HCAL and EB (used in 2026D70, 2026D84)
-* C14: HGCal (v14 version reading the input from the flat file and uses it to create geometry, still using masking to define partial wafers) + Phase2 HCAL and EB (used in 2026D76-81, 2026D85, 2026D87)
-* C15: HGCal (as in C14) + HFNose with corrected wafer size  + Phase2 HCAL and EB (used in 2026D82)
-* C16: HGCal (v15 version of HGCal geometry created using real full and partial silicon modules using the constants of the flat file) + Phase2 HCAL and EB (used in 2026D83)
-* C17: HGCal (v16 version of HGCal geometry created with new longitudinal structure having 47 layers and new definition of partial wafers iusing the constants of the flat file) + Phase2 HCAL and EB (used in 2026D86, 2025D88)
-* C18: HGCal (v17 version of HGCal geometry created for a new flat file for silicon having 47 layers, ideas of cassettes, new orientation indices for full and partial wafers) + Phase2 HCAL and EB (used in 2026D92)
-* C19: HGCal (v17 version of HGCal geometry as in C18 but without internal cells in the Geant4 geometry definition) + Phase2 HCAL and EB (used in 2026D93)
-* C20: HGCal (v17 version of HGCal geometry as in C18) + HFNose with corrected wafer size + Phase2 HCAL and EB (used in 2026D93)
-* C21: HGCal (v17 version of HGCal geometry as in C19 but turning off all dead areas and gaps) + Phase2 HCAL and EB (used in 2026D101)
-* C22: HGCal (v18 version of HGCal geometry as in C18 with calibration cells, nonzero cssette retraction, correct mousebite, guard ring, proper cell size) + Phase2 HCAL and EB (used in 2026D104)
-* C23: HGCal (same as the v18 version which is in C22 but without internal cells in the Geant4 geometry defintiion) + Phase2 HCAL and EB (used in 2026D106)
-* C24: HGCal (v18 version of HGCal geometry as in C122 but turning off all dead areas and gaps) + Phase2 HCAL and EB (used in 2026D109)
+* C9: HGCal (v11 post TDR HGCal Geometry w/ corner centering for HE part) + Phase2 HCAL and EB + Tracker cables (used in Run4D49)
+* C10: HGCal (as in C9) + HFNose with corrected wafer size + Phase2 HCAL and EB (used in Run4D60)
+* C11: HGCal (v12 post TDR HGCal Geometry same as C9 + modified support structure + full list of masked wafers) + Phase2 HCAL and EB + Tracker cables (used in Run4D68)
+* C13: HGCal (v13 version which reads the input from the flat file, uses these for checks and makes provision to be used downstream) + Phase2 HCAL and EB (used in Run4D70, Run4D84)
+* C14: HGCal (v14 version reading the input from the flat file and uses it to create geometry, still using masking to define partial wafers) + Phase2 HCAL and EB (used in Run4D76-81, Run4D85, Run4D87)
+* C15: HGCal (as in C14) + HFNose with corrected wafer size  + Phase2 HCAL and EB (used in Run4D82)
+* C16: HGCal (v15 version of HGCal geometry created using real full and partial silicon modules using the constants of the flat file) + Phase2 HCAL and EB (used in Run4D83)
+* C17: HGCal (v16 version of HGCal geometry created with new longitudinal structure having 47 layers and new definition of partial wafers iusing the constants of the flat file) + Phase2 HCAL and EB (used in Run4D86, Run4D88)
+* C18: HGCal (v17 version of HGCal geometry created for a new flat file for silicon having 47 layers, ideas of cassettes, new orientation indices for full and partial wafers) + Phase2 HCAL and EB (used in Run4D92)
+* C19: HGCal (v17 version of HGCal geometry as in C18 but without internal cells in the Geant4 geometry definition) + Phase2 HCAL and EB (used in Run4D93)
+* C20: HGCal (v17 version of HGCal geometry as in C18) + HFNose with corrected wafer size + Phase2 HCAL and EB (used in Run4D93)
+* C21: HGCal (v17 version of HGCal geometry as in C19 but turning off all dead areas and gaps) + Phase2 HCAL and EB (used in Run4D101)
+* C22: HGCal (v18 version of HGCal geometry as in C18 with calibration cells, nonzero cssette retraction, correct mousebite, guard ring, proper cell size) + Phase2 HCAL and EB (used in Run4D104)
+* C23: HGCal (same as the v18 version which is in C22 but without internal cells in the Geant4 geometry defintiion) + Phase2 HCAL and EB (used in Run4D106)
+* C24: HGCal (v18 version of HGCal geometry as in C122 but turning off all dead areas and gaps) + Phase2 HCAL and EB (used in Run4D109)
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields

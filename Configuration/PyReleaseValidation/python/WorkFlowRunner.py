@@ -137,7 +137,14 @@ class WorkFlowRunner(Thread):
                         isInputOk = False
                  
                 inFile = 'filelist:' + basename(dasOutputPath)
+
+                if com.skimEvents:
+                    lumiRangeFile='step%d_lumiRanges.log'%(istep,)
+                    cmd2 = preamble + "mv lumi_ranges.txt " + lumiRangeFile
+                    retStep = self.doCmd(cmd2)
+
                 print("---")
+
             else:
                 #chaining IO , which should be done in WF object already and not using stepX.root but <stepName>.root
                 cmd += com

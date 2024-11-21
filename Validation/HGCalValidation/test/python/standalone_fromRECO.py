@@ -7,7 +7,7 @@ process = cms.Process('HGCAL',Phase2C17I13M9)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(

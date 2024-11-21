@@ -96,6 +96,7 @@ validations:
                 magneticfield: true
                 maxevents: 1
                 maxtracks: 1
+                maxEntriesPerModuleForDmr: 100
 
         merge:
             TestMergeMC:
@@ -106,6 +107,9 @@ validations:
                 - plain
                 - split
                 customrighttitle: IOV
+                moduleFilterFile: ""
+                maxBadLumiPixel: 0.5
+                maxBadLumiStrip: 7.0
                 legendoptions:
                 - mean
                 - rms

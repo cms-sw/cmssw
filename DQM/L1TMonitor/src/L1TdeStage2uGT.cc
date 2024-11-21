@@ -110,7 +110,7 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
       // Fills algorithm bits histograms
       int numAlgs = it_data->getAlgoDecisionInitial().size();
       for (int algoBit = 0; algoBit < numAlgs; ++algoBit) {
-        string algoName = "xxx";
+        string_view algoName = "xxx";
         bool found = gtUtil_.getAlgNameFromBit(algoBit, algoName);
         if (not found)
           continue;
@@ -121,7 +121,7 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
           //std::cout << pattern << std::endl;
           if (edm::is_glob(pattern)) {
             std::regex regexp(edm::glob2reg(pattern));
-            if (regex_match(algoName.c_str(), regexp))
+            if (regex_match(algoName.begin(), algoName.end(), regexp))
               isBlackListed = true;
           } else {
             if (algoName == pattern)

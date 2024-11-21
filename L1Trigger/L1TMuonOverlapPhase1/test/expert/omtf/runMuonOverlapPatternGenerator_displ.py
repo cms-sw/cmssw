@@ -50,16 +50,16 @@ if not verbose:
                                      )
     
 # PostLS1 geometry used
-process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D86_cff')  
+process.load('Configuration.Geometry.GeometryExtendedRun4D86Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D86_cff')  
     
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-#process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
+#process.load('Configuration.Geometry.GeometryExtendedRun4D41Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtendedRun4D41_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 #process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')

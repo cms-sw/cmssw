@@ -328,7 +328,7 @@ class MatrixInjector(object):
             wmsplit['HARVESTRUN3'] = 1
             # automate for phase 2
             from .upgradeWorkflowComponents import upgradeKeys
-            for key in upgradeKeys[2026]:
+            for key in upgradeKeys['Run4']:
                 if 'PU' not in key:
                     continue
 

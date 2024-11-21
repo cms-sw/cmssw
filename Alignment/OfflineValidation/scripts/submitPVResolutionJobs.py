@@ -190,20 +190,29 @@ def batchScriptCERN(theCMSSW_BASE, cfgdir, runindex, eosdir, lumiToRun, key, con
 #######################################################
     '''prepare the batch script, to run on HTCondor'''
     script = """#!/bin/bash
-#source /afs/cern.ch/cms/caf/setup.sh
 CMSSW_DIR={CMSSW_BASE_DIR}/src/Alignment/OfflineValidation/test
-echo "the mother directory is $CMSSW_DIR"
+echo "The mother directory is $CMSSW_DIR"
 export X509_USER_PROXY=$CMSSW_DIR/.user_proxy
 #OUT_DIR=$CMSSW_DIR/harvest ## for local storage
 OUT_DIR={MYDIR}
 LOG_DIR=$CMSSW_DIR/out
-LXBATCH_DIR=`pwd`  
-cd $CMSSW_DIR
-eval `scram runtime -sh`
+LXBATCH_DIR=$PWD
+# Check if CMSSW environment is set by checking CMSSW_BASE or other variables
+if [[ -z "$CMSSW_BASE" || -z "$CMSSW_VERSION" || -z "$SCRAM_ARCH" ]]; then
+    echo "CMSSW environment not detected. Sourcing scramv1 runtime..."
+    cd $CMSSW_DIR
+    # Assuming you have a valid CMSSW release environment to source
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scramv1 runtime -sh)  # This sets the CMSSW environment
+else
+    echo "CMSSW environment is already set. Continuing..."
+fi
 cd $LXBATCH_DIR 
 cp -pr {CFGDIR}/PrimaryVertexResolution_{KEY}_{runindex}_cfg.py .
 cmsRun PrimaryVertexResolution_{KEY}_{runindex}_cfg.py TrackCollection={TRKS} GlobalTag={GT} lumi={LUMITORUN} {REC} {EXT} >& log_{KEY}_run{runindex}.out
-ls -lh . 
+# Print the contents of the current directory using $PWD and echo
+echo "Contents of the current directory ($PWD):"
+echo "$(ls -lh "$PWD")"
 """.format(CMSSW_BASE_DIR=theCMSSW_BASE,
            CFGDIR=cfgdir,
            runindex=runindex,
@@ -302,11 +311,11 @@ def main():
     runs.sort()
     print("\n\n Will run on the following runs: \n",runs)
 
-    if(not os.path.exists("cfg")):
-        os.system("mkdir cfg")
-        os.system("mkdir BASH")
-        os.system("mkdir harvest")
-        os.system("mkdir out")
+    # List of directories to create
+    directories = ["cfg", "BASH", "harvest", "out"]
+
+    for directory in directories:
+        os.makedirs(directory, exist_ok=True)
 
     cwd = os.getcwd()
     bashdir = os.path.join(cwd,"BASH")
@@ -412,10 +421,25 @@ def main():
                 key = key.split(":", 1)[1]
                 print("dealing with",key)
 
-            os.system("cp "+input_CMSSW_BASE+"/src/Alignment/OfflineValidation/test/PrimaryVertexResolution_templ_cfg.py ./cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
-            os.system("sed -i 's|XXX_FILES_XXX|"+listOfFiles+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
-            os.system("sed -i 's|XXX_RUN_XXX|"+run+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
-            os.system("sed -i 's|YYY_KEY_YYY|"+key+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
+            # Paths and variables
+            template_file = os.path.join(input_CMSSW_BASE, "src/Alignment/OfflineValidation/test/PrimaryVertexResolution_templ_cfg.py")
+            output_file = f"./cfg/PrimaryVertexResolution_{key}_{run}_cfg.py"
+
+            # Copy the template file to the destination
+            shutil.copy(template_file, output_file)
+
+            # Read and replace placeholders in the copied file
+            with open(output_file, 'r') as file:
+                content = file.read()
+
+            # Replace placeholders with actual values
+            content = content.replace("XXX_FILES_XXX", listOfFiles)
+            content = content.replace("XXX_RUN_XXX", run)
+            content = content.replace("YYY_KEY_YYY", key)
+
+            # Write the modified content back to the file
+            with open(output_file, 'w') as file:
+                file.write(content)
 
             scriptFileName = os.path.join(bashdir,"batchHarvester_"+key+"_"+str(count-1)+".sh")
             scriptFile = open(scriptFileName,'w')

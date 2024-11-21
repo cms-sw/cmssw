@@ -4,7 +4,7 @@ import FWCore.Utilities.FileUtils as FileUtils
 from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
 process = cms.Process('PROD',Phase2C20I13M9)
 
-process.load('Configuration.Geometry.GeometryExtended2026D115Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D115Reco_cff')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Services_cff')

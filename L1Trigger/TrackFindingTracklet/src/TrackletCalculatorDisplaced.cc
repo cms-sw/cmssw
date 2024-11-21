@@ -1211,6 +1211,9 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   int take3 = 0;  //L2L3D1
   unsigned ndisks = 1;
 
+  // N.B. The names r1, r2, r3 reflect the fact that confusingly,
+  // innerStub is actually the one furthest from the beamline ...
+
   double r3 = innerStub->r();
   double z3 = innerStub->z();
   double phi3 = innerStub->phi();

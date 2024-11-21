@@ -130,10 +130,14 @@ std::vector<l1t::TrackerMuon> TPSAlgorithm::sort(std::vector<l1t::TrackerMuon>& 
 }
 
 propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer) const {
-  static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop_coord1 = {
-      {lt_prop_coord1_0, lt_prop_coord1_1, lt_prop_coord1_2, lt_prop_coord1_3, lt_prop_coord1_4}};
-  static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop_coord2 = {
-      {lt_prop_coord2_0, lt_prop_coord2_1, lt_prop_coord2_2, lt_prop_coord2_3, lt_prop_coord2_4}};
+  static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop1_coord1 = {
+      {lt_prop1_coord1_0, lt_prop1_coord1_1, lt_prop1_coord1_2, lt_prop1_coord1_3, lt_prop1_coord1_4}};
+  static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop1_coord2 = {
+      {lt_prop1_coord2_0, lt_prop1_coord2_1, lt_prop1_coord2_2, lt_prop1_coord2_3, lt_prop1_coord2_4}};
+  static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop2_coord1 = {
+      {lt_prop2_coord1_0, lt_prop2_coord1_1, lt_prop2_coord1_2, lt_prop2_coord1_3, lt_prop2_coord1_4}};
+  static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop2_coord2 = {
+      {lt_prop2_coord2_0, lt_prop2_coord2_1, lt_prop2_coord2_2, lt_prop2_coord2_3, lt_prop2_coord2_4}};
 
   static const std::array<const ap_uint<BITSPROPSIGMACOORD_A>*, 5> lt_res0_coord1 = {
       {lt_res0_coord1_0, lt_res0_coord1_1, lt_res0_coord1_2, lt_res0_coord1_3, lt_res0_coord1_4}};
@@ -154,8 +158,10 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
 
   static const uint barrellimit[5] = {barrelLimit0_, barrelLimit1_, barrelLimit2_, barrelLimit3_, barrelLimit4_};
 
-  ap_uint<BITSPROPCOORD> prop_coord1 = 0;
-  ap_uint<BITSPROPCOORD> prop_coord2 = 0;
+  ap_uint<BITSPROPCOORD> prop1_coord1 = 0;
+  ap_uint<BITSPROPCOORD> prop1_coord2 = 0;
+  ap_uint<BITSPROPCOORD> prop2_coord1 = 0;
+  ap_uint<BITSPROPCOORD> prop2_coord2 = 0;
   ap_uint<BITSPROPSIGMACOORD_A> res0_coord1 = 0;
   ap_uint<BITSPROPSIGMACOORD_B> res1_coord1 = 0;
   ap_uint<BITSPROPSIGMACOORD_A> res0_coord2 = 0;
@@ -169,8 +175,10 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
 
   //Propagate to layers
   assert(layer < 5);
-  prop_coord1 = lt_prop_coord1[layer][reducedAbsEta];
-  prop_coord2 = lt_prop_coord2[layer][reducedAbsEta];
+  prop1_coord1 = lt_prop1_coord1[layer][reducedAbsEta];
+  prop1_coord2 = lt_prop1_coord2[layer][reducedAbsEta];
+  prop2_coord1 = lt_prop2_coord1[layer][reducedAbsEta];
+  prop2_coord2 = lt_prop2_coord2[layer][reducedAbsEta];
   res0_coord1 = lt_res0_coord1[layer][reducedAbsEta];
   res1_coord1 = lt_res1_coord1[layer][reducedAbsEta];
   res0_coord2 = lt_res0_coord2[layer][reducedAbsEta];
@@ -180,55 +188,108 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   res0_eta2 = lt_res0_eta2[layer][reducedAbsEta];
   is_barrel = reducedAbsEta < barrellimit[layer] ? 1 : 0;
 
+  //try inflating res0's
+  //res0_coord1 = 2 * res0_coord1;
+  //res0_coord2 = 2 * res0_coord2;
+
   propagation_t out;
   ap_int<BITSTTCURV> curvature = track.curvature();
   ap_int<BITSPHI> phi = track.phi();
-  ap_int<BITSPROPCOORD + BITSTTCURV> c1kFull = prop_coord1 * curvature;
-  ap_int<BITSPROPCOORD + BITSTTCURV - 10> c1k = (c1kFull) / 1024;
-  ap_int<BITSPHI> coord1 = phi - c1k;
 
-  out.coord1 = coord1 / PHIDIVIDER;
+  //should be enough bits to hold all of c1k + d1kabsK, so if each are the same number of bits (they should be), that is 1 more bit (12 bits in this case)
+  ap_uint<BITSPROPCOORD + BITSTTCURV - 12> absDphiOverflow;
+  ap_int<BITSPROP + 1> dphi;
 
-  ap_int<BITSPROPCOORD + BITSTTCURV> c2kFull = prop_coord2 * curvature;
+  ap_uint<BITSTTCURV - 1> absK = 0;
+  ap_uint<1> negativeCurv;
+  if (track.curvature() < 0) {
+    absK = ap_uint<BITSTTCURV - 1>(-track.curvature());
+    negativeCurv = 1;
+  } else {
+    absK = ap_uint<BITSTTCURV - 1>(track.curvature());
+    negativeCurv = 0;
+  }
 
-  ap_int<BITSPROPCOORD + BITSTTCURV - 10> c2k = (c2kFull) / 1024;
-  if (is_barrel)
-    out.coord2 = -c2k / PHIDIVIDER;
+  ap_uint<BITSPROPCOORD + BITSTTCURV - 1> c1kFull = prop1_coord1 * absK;
+  ap_uint<BITSPROPCOORD + BITSTTCURV - 13> c1k = (c1kFull) >> 12;  // 1024;
+  //ap_int<BITSPHI> coord1 = phi - c1k;
+
+  ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 2> d1kabsKFull = prop2_coord1 * absK * absK;
+  ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 28> d1kabsK = (d1kabsKFull) >> 26;  // 16777216;
+
+  absDphiOverflow = c1k + d1kabsK;
+  if (absDphiOverflow > PROPMAX)
+    dphi = PROPMAX;
   else
-    out.coord2 = (phi - c2k) / PHIDIVIDER;
+    dphi = absDphiOverflow;
+
+  if (negativeCurv == 1)
+    dphi = -dphi;
+
+  //ap_int<BITSPHI> coord1 = phi - dphi;
+  out.coord1 = (phi - dphi) / PHIDIVIDER;
+
+  ap_uint<BITSPROPCOORD + BITSTTCURV - 1> c2kFull = prop1_coord2 * absK;
+  ap_uint<BITSPROPCOORD + BITSTTCURV - 13> c2k = (c2kFull) >> 12;  // 1024;
+
+  ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 2> d2kabsKFull = prop2_coord2 * absK * absK;
+  ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 28> d2kabsK = (d2kabsKFull) >> 26;  // 16777216;
+
+  absDphiOverflow = c2k + d2kabsK;
+  if (absDphiOverflow > PROPMAX)
+    dphi = PROPMAX;
+  else
+    dphi = absDphiOverflow;
+
+  if (negativeCurv == 1)
+    dphi = -dphi;
+
+  if (is_barrel)
+    out.coord2 = -dphi / PHIDIVIDER;
+  else
+    out.coord2 = (phi - dphi) / PHIDIVIDER;
 
   ap_int<BITSETA> eta = track.eta();
   out.eta = eta / ETADIVIDER;
 
   ap_uint<2 * BITSTTCURV - 2> curvature2All = curvature * curvature;
   ap_uint<BITSTTCURV2> curvature2 = curvature2All / 2;
-
+  /*
   /////New propagation for sigma
   ap_uint<BITSTTCURV - 1> absK = 0;
   if (track.curvature() < 0)
     absK = ap_uint<BITSTTCURV - 1>(-track.curvature());
   else
     absK = ap_uint<BITSTTCURV - 1>(track.curvature());
-
+  */
   //bound the resolution propagation
-  if (absK > 6000)
-    absK = 6000;
-
-  ap_uint<BITSPROPSIGMACOORD_B + BITSTTCURV - 1> s1kFull = res1_coord1 * absK;
-  ap_uint<BITSPROPSIGMACOORD_B + BITSTTCURV - 1 - 10> s1k = s1kFull / 1024;
-  ap_uint<BITSPROPSIGMACOORD_A + BITSPROPSIGMACOORD_B + BITSTTCURV - 1 - 10> sigma1 = res0_coord1 + s1k;
-  out.sigma_coord1 = ap_uint<BITSSIGMACOORD>(sigma1 / PHIDIVIDER);
-
-  ap_uint<BITSPROPSIGMACOORD_B + BITSTTCURV - 1> s2kFull = res1_coord2 * absK;
-  ap_uint<BITSPROPSIGMACOORD_B + BITSTTCURV - 1 - 10> s2k = s2kFull / 1024;
-  ap_uint<BITSPROPSIGMACOORD_A + BITSPROPSIGMACOORD_B + BITSTTCURV - 1 - 10> sigma2 = res0_coord2 + s2k;
-  out.sigma_coord2 = ap_uint<BITSSIGMACOORD>(sigma2 / PHIDIVIDER);
+  //if (absK > 6000)
+  //  absK = 6000;
 
   ap_uint<BITSPROPSIGMAETA_B + BITSTTCURV2> resetak = (res1_eta * curvature2) >> 23;
   ap_ufixed<BITSSIGMAETA, BITSSIGMAETA, AP_TRN_ZERO, AP_SAT_SYM> sigma_eta1 = res0_eta1 + resetak;
   out.sigma_eta1 = ap_uint<BITSSIGMAETA>(sigma_eta1);
   ap_ufixed<BITSSIGMAETA, BITSSIGMAETA, AP_TRN_ZERO, AP_SAT_SYM> sigma_eta2 = res0_eta2 + resetak;
   out.sigma_eta2 = ap_uint<BITSSIGMAETA>(sigma_eta2);
+
+  ap_uint<BITSPROPSIGMACOORD_B + BITSTTCURV - 1> s1kFull = res1_coord1 * absK;
+  ap_uint<BITSPROPSIGMACOORD_B + BITSTTCURV - 1 - 10> s1k = res0_coord1 + (s1kFull >> 10);
+  if (s1k >= (1 << (BITSSIGMACOORD + BITSPHI - BITSSTUBCOORD)))
+    out.sigma_coord1 = ~ap_uint<BITSSIGMACOORD>(0);
+  else if (s1k < PHIDIVIDER)
+    out.sigma_coord1 = 1;
+  else
+    out.sigma_coord1 = s1k / PHIDIVIDER;
+
+  ap_uint<BITSPROPSIGMACOORD_B + BITSTTCURV - 1> s2kFull = res1_coord2 * absK;
+  ap_uint<BITSPROPSIGMACOORD_B + BITSTTCURV - 1 - 10> s2k = res0_coord2 + (s2kFull >> 10);
+  if (s2k >= (1 << (BITSSIGMACOORD + BITSPHI - BITSSTUBCOORD)))
+    out.sigma_coord2 = ~ap_uint<BITSSIGMACOORD>(0);
+  else if (s2k < PHIDIVIDER)
+    out.sigma_coord2 = 1;
+  else
+    out.sigma_coord2 = s2k / PHIDIVIDER;
+
   out.valid = 1;
   out.is_barrel = is_barrel;
 
@@ -472,6 +533,7 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track,
     muon.printWord();
     edm::LogInfo("TPSAlgo") << std::endl;
   }
+
   return muon;
 }
 

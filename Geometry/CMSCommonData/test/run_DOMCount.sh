@@ -39,9 +39,9 @@ cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryZeroMaterialXML_cfi"
 
 # automatically retrieve active phase 2 geometries
-read -a DETS <<< $(python3 -c 'from Configuration.Geometry.dict2026Geometry import detectorVersionDict; print (" ".join(sorted([x[1] for x in detectorVersionDict.items()])))')
+read -a DETS <<< $(python3 -c 'from Configuration.Geometry.dictRun4Geometry import detectorVersionDict; print (" ".join(sorted([x[1] for x in detectorVersionDict.items()])))')
 for DET in ${DETS[@]}; do
-	cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2026${DET}XML_cfi"
+	cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryRun4${DET}XML_cfi"
 done
 
 for cfiFile in ${cfiFiles}

@@ -60,8 +60,8 @@ if not useFileInput:
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = 'HcalGPU'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'HcalGPU'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'HcalGPU'
+# process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
 if not unitTest and not useFileInput :
@@ -128,7 +128,7 @@ process.dqmPath = cms.EndPath(
 		process.dqmEnv)
 process.dqmPath1 = cms.EndPath(
 		process.dqmSaver
-		*process.dqmSaverPB
+		#*process.dqmSaverPB
 )
 
 process.schedule = cms.Schedule(

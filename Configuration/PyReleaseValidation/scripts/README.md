@@ -61,35 +61,35 @@ Found 0 compatible workflows inside relval_generator
 Found 0 compatible workflows inside relval_standard
 Found 0 compatible workflows inside relval_extendedgen
 Found 0 compatible workflows inside relval_premix
-Found 0 compatible workflows inside relval_2026
+Found 0 compatible workflows inside relval_Run4
 Found 0 compatible workflows inside relval_machine
 Found 0 compatible workflows inside relval_pileup
 Found 0 compatible workflows inside relval_2017
-23201.0 SingleElectronPt10 2026D49+SingleElectronPt10_pythia8_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
-23202.0 SingleElectronPt35 2026D49+SingleElectronPt35_pythia8_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
-23203.0 SingleElectronPt1000 2026D49+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
-23291.0 SingleElectronPt15Eta1p7_2p7 2026D49+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
-23302.0 SingleEFlatPt2To100 2026D49+SingleElectronFlatPt2To100_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
-23401.0 SingleElectronPt10 2026D49PU+SingleElectronPt10_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23401.98 SingleElectronPt10 2026D49PU_PMXS2+SingleElectronPt10_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23401.99 SingleElectronPt10 2026D49PU_PMXS1S2+SingleElectronPt10_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23401.999 SingleElectronPt10 2026D49PU_PMXS1S2PR+SingleElectronPt10_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23402.0 SingleElectronPt35 2026D49PU+SingleElectronPt35_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23402.98 SingleElectronPt35 2026D49PU_PMXS2+SingleElectronPt35_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23402.99 SingleElectronPt35 2026D49PU_PMXS1S2+SingleElectronPt35_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23402.999 SingleElectronPt35 2026D49PU_PMXS1S2PR+SingleElectronPt35_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23403.0 SingleElectronPt1000 2026D49PU+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23403.98 SingleElectronPt1000 2026D49PU_PMXS2+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23403.99 SingleElectronPt1000 2026D49PU_PMXS1S2+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23403.999 SingleElectronPt1000 2026D49PU_PMXS1S2PR+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23491.0 SingleElectronPt15Eta1p7_2p7 2026D49PU+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23491.98 SingleElectronPt15Eta1p7_2p7 2026D49PU_PMXS2+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23491.99 SingleElectronPt15Eta1p7_2p7 2026D49PU_PMXS1S2+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23491.999 SingleElectronPt15Eta1p7_2p7 2026D49PU_PMXS1S2PR+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23502.0 SingleEFlatPt2To100 2026D49PU+SingleElectronFlatPt2To100_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23502.98 SingleEFlatPt2To100 2026D49PU_PMXS2+SingleElectronFlatPt2To100_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23502.99 SingleEFlatPt2To100 2026D49PU_PMXS1S2+SingleElectronFlatPt2To100_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23502.999 SingleEFlatPt2To100 2026D49PU_PMXS1S2PR+SingleElectronFlatPt2To100_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23201.0 SingleElectronPt10 Run4D49+SingleElectronPt10_pythia8_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
+23202.0 SingleElectronPt35 Run4D49+SingleElectronPt35_pythia8_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
+23203.0 SingleElectronPt1000 Run4D49+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
+23291.0 SingleElectronPt15Eta1p7_2p7 Run4D49+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
+23302.0 SingleEFlatPt2To100 Run4D49+SingleElectronFlatPt2To100_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
+23401.0 SingleElectronPt10 Run4D49PU+SingleElectronPt10_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23401.98 SingleElectronPt10 Run4D49PU_PMXS2+SingleElectronPt10_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23401.99 SingleElectronPt10 Run4D49PU_PMXS1S2+SingleElectronPt10_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23401.999 SingleElectronPt10 Run4D49PU_PMXS1S2PR+SingleElectronPt10_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23402.0 SingleElectronPt35 Run4D49PU+SingleElectronPt35_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23402.98 SingleElectronPt35 Run4D49PU_PMXS2+SingleElectronPt35_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23402.99 SingleElectronPt35 Run4D49PU_PMXS1S2+SingleElectronPt35_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23402.999 SingleElectronPt35 Run4D49PU_PMXS1S2PR+SingleElectronPt35_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23403.0 SingleElectronPt1000 Run4D49PU+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23403.98 SingleElectronPt1000 Run4D49PU_PMXS2+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23403.99 SingleElectronPt1000 Run4D49PU_PMXS1S2+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23403.999 SingleElectronPt1000 Run4D49PU_PMXS1S2PR+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23491.0 SingleElectronPt15Eta1p7_2p7 Run4D49PU+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23491.98 SingleElectronPt15Eta1p7_2p7 Run4D49PU_PMXS2+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23491.99 SingleElectronPt15Eta1p7_2p7 Run4D49PU_PMXS1S2+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23491.999 SingleElectronPt15Eta1p7_2p7 Run4D49PU_PMXS1S2PR+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23502.0 SingleEFlatPt2To100 Run4D49PU+SingleElectronFlatPt2To100_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23502.98 SingleEFlatPt2To100 Run4D49PU_PMXS2+SingleElectronFlatPt2To100_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23502.99 SingleEFlatPt2To100 Run4D49PU_PMXS1S2+SingleElectronFlatPt2To100_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23502.999 SingleEFlatPt2To100 Run4D49PU_PMXS1S2PR+SingleElectronFlatPt2To100_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
 Found 25 compatible workflows inside relval_upgrade
 matrix>
 ```
@@ -116,31 +116,31 @@ Example:
 
 ```
 matrix> searchInWorkflow relval_upgrade .*D49.*SingleElectron.*
-23201.0 SingleElectronPt10 2026D49+SingleElectronPt10_pythia8_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
-23202.0 SingleElectronPt35 2026D49+SingleElectronPt35_pythia8_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
-23203.0 SingleElectronPt1000 2026D49+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
-23291.0 SingleElectronPt15Eta1p7_2p7 2026D49+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
-23302.0 SingleEFlatPt2To100 2026D49+SingleElectronFlatPt2To100_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
-23401.0 SingleElectronPt10 2026D49PU+SingleElectronPt10_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23401.98 SingleElectronPt10 2026D49PU_PMXS2+SingleElectronPt10_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23401.99 SingleElectronPt10 2026D49PU_PMXS1S2+SingleElectronPt10_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23401.999 SingleElectronPt10 2026D49PU_PMXS1S2PR+SingleElectronPt10_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23402.0 SingleElectronPt35 2026D49PU+SingleElectronPt35_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23402.98 SingleElectronPt35 2026D49PU_PMXS2+SingleElectronPt35_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23402.99 SingleElectronPt35 2026D49PU_PMXS1S2+SingleElectronPt35_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23402.999 SingleElectronPt35 2026D49PU_PMXS1S2PR+SingleElectronPt35_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23403.0 SingleElectronPt1000 2026D49PU+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23403.98 SingleElectronPt1000 2026D49PU_PMXS2+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23403.99 SingleElectronPt1000 2026D49PU_PMXS1S2+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23403.999 SingleElectronPt1000 2026D49PU_PMXS1S2PR+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23491.0 SingleElectronPt15Eta1p7_2p7 2026D49PU+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23491.98 SingleElectronPt15Eta1p7_2p7 2026D49PU_PMXS2+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23491.99 SingleElectronPt15Eta1p7_2p7 2026D49PU_PMXS1S2+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23491.999 SingleElectronPt15Eta1p7_2p7 2026D49PU_PMXS1S2PR+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23502.0 SingleEFlatPt2To100 2026D49PU+SingleElectronFlatPt2To100_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23502.98 SingleEFlatPt2To100 2026D49PU_PMXS2+SingleElectronFlatPt2To100_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23502.99 SingleEFlatPt2To100 2026D49PU_PMXS1S2+SingleElectronFlatPt2To100_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
-23502.999 SingleEFlatPt2To100 2026D49PU_PMXS1S2PR+SingleElectronFlatPt2To100_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23201.0 SingleElectronPt10 Run4D49+SingleElectronPt10_pythia8_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
+23202.0 SingleElectronPt35 Run4D49+SingleElectronPt35_pythia8_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
+23203.0 SingleElectronPt1000 Run4D49+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
+23291.0 SingleElectronPt15Eta1p7_2p7 Run4D49+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
+23302.0 SingleEFlatPt2To100 Run4D49+SingleElectronFlatPt2To100_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
+23401.0 SingleElectronPt10 Run4D49PU+SingleElectronPt10_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23401.98 SingleElectronPt10 Run4D49PU_PMXS2+SingleElectronPt10_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23401.99 SingleElectronPt10 Run4D49PU_PMXS1S2+SingleElectronPt10_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23401.999 SingleElectronPt10 Run4D49PU_PMXS1S2PR+SingleElectronPt10_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23402.0 SingleElectronPt35 Run4D49PU+SingleElectronPt35_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23402.98 SingleElectronPt35 Run4D49PU_PMXS2+SingleElectronPt35_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23402.99 SingleElectronPt35 Run4D49PU_PMXS1S2+SingleElectronPt35_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23402.999 SingleElectronPt35 Run4D49PU_PMXS1S2PR+SingleElectronPt35_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23403.0 SingleElectronPt1000 Run4D49PU+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23403.98 SingleElectronPt1000 Run4D49PU_PMXS2+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23403.99 SingleElectronPt1000 Run4D49PU_PMXS1S2+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23403.999 SingleElectronPt1000 Run4D49PU_PMXS1S2PR+SingleElectronPt1000_pythia8_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23491.0 SingleElectronPt15Eta1p7_2p7 Run4D49PU+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23491.98 SingleElectronPt15Eta1p7_2p7 Run4D49PU_PMXS2+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23491.99 SingleElectronPt15Eta1p7_2p7 Run4D49PU_PMXS1S2+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23491.999 SingleElectronPt15Eta1p7_2p7 Run4D49PU_PMXS1S2PR+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23502.0 SingleEFlatPt2To100 Run4D49PU+SingleElectronFlatPt2To100_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23502.98 SingleEFlatPt2To100 Run4D49PU_PMXS2+SingleElectronFlatPt2To100_GenSimHLBeamSpot+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23502.99 SingleEFlatPt2To100 Run4D49PU_PMXS1S2+SingleElectronFlatPt2To100_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
+23502.999 SingleEFlatPt2To100 Run4D49PU_PMXS1S2PR+SingleElectronFlatPt2To100_GenSimHLBeamSpot+PREMIX_PremixHLBeamSpotPU+DigiTriggerPU+RecoGlobalPU+HARVESTGlobalPU
 Found 25 compatible workflows inside relval_upgrade
 matrix>
 ```
@@ -152,14 +152,14 @@ Suppose now that you want to know what are the commands run by the workflow
 
 ```
 matrix> dumpWorkflowId 23291
-23291.0 2026D49+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
-[1]: cmsDriver.py SingleElectronPt15Eta1p7_2p7_cfi  --conditions auto:phase2_realistic_T15 -n 10 --era Phase2C9 --eventcontent FEVTDEBUG --relval 9000,100 -s GEN,SIM --datatier GEN-SIM --beamspot HLLHC --geometry Extended2026D49
+23291.0 Run4D49+SingleElectronPt15Eta1p7_2p7_GenSimHLBeamSpot+DigiTrigger+RecoGlobal+HARVESTGlobal
+[1]: cmsDriver.py SingleElectronPt15Eta1p7_2p7_cfi  --conditions auto:phase2_realistic_T15 -n 10 --era Phase2C9 --eventcontent FEVTDEBUG --relval 9000,100 -s GEN,SIM --datatier GEN-SIM --beamspot HLLHC --geometry ExtendedRun4D49
 
-[2]: cmsDriver.py step2  --conditions auto:phase2_realistic_T15 -s DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:@fake2 --datatier GEN-SIM-DIGI-RAW -n 10 --geometry Extended2026D49 --era Phase2C9 --eventcontent FEVTDEBUGHLT
+[2]: cmsDriver.py step2  --conditions auto:phase2_realistic_T15 -s DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:@fake2 --datatier GEN-SIM-DIGI-RAW -n 10 --geometry ExtendedRun4D49 --era Phase2C9 --eventcontent FEVTDEBUGHLT
 
-[3]: cmsDriver.py step3  --conditions auto:phase2_realistic_T15 -s RAW2DIGI,L1Reco,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM --datatier GEN-SIM-RECO,MINIAODSIM,DQMIO -n 10 --geometry Extended2026D49 --era Phase2C9 --eventcontent FEVTDEBUGHLT,MINIAODSIM,DQM
+[3]: cmsDriver.py step3  --conditions auto:phase2_realistic_T15 -s RAW2DIGI,L1Reco,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM --datatier GEN-SIM-RECO,MINIAODSIM,DQMIO -n 10 --geometry ExtendedRun4D49 --era Phase2C9 --eventcontent FEVTDEBUGHLT,MINIAODSIM,DQM
 
-[4]: cmsDriver.py step4  --conditions auto:phase2_realistic_T15 -s HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM --scenario pp --filetype DQM --geometry Extended2026D49 --era Phase2C9 --mc  -n 100
+[4]: cmsDriver.py step4  --conditions auto:phase2_realistic_T15 -s HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM --scenario pp --filetype DQM --geometry ExtendedRun4D49 --era Phase2C9 --mc  -n 100
 
 
 Workflow found in relval_upgrade.
@@ -220,7 +220,7 @@ upgrade
 cleanedupgrade
 gpu
 2017
-2026
+Run4
 identity
 machine
 premix
@@ -321,22 +321,24 @@ MC workflows for pp collisions:
 | 11634.0 	| TTbar_14TeV 	| phase1_2022_realistic 	| Run3 	|  	|  	
 | 13234.0 	| RelValTTbar_14TeV 	| phase1_2022_realistic 	| Run3_FastSim 	| *FastSim*  |  	
 | 12434.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023 	|  	|  	
-| 12834.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2024 	|  	| 
+| 12834.0 	| RelValTTbar_14TeV 	| phase1_2024_realistic 	| Run3_2024 	|  	| 
 | 12846.0 	| RelValZEE_14 	| phase1_2023_realistic 	| Run3_2024 	|  	|  	
-| 13034.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2024 	|  Run3_Flat55To75_PoissonOOTPU 	|  	
-| 12834.7 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2024 	| mkFit 	|  	
+| 13034.0 	| RelValTTbar_14TeV 	| phase1_2024_realistic 	| Run3_2024 	|  Run3_Flat55To75_PoissonOOTPU 	|  	
+| 12834.7 	| RelValTTbar_14TeV 	| phase1_2024_realistic 	| Run3_2024 	| mkFit 	|  	
+| 12834.0 	| RelValTTbar_14TeV 	| phase1_2024_realistic 	| Run3_2024 	|  	| 
+| 16834.0 	| RelValTTbar_14TeV 	| phase1_2025_realistic 	| Run3_2025 	|  	| 
 | 14034.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	|  	*FastSim* |  	
 | 14234.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	| *FastSim*  Run3_Flat55To75_PoissonOOTPU 	|  	
 | 2500.201 	| RelValTTbar_14TeV 	| phase1_2022_realistic 	| Run3 	| NanoAOD from existing MINI 	|  	
 | | | | | | 
 | **Phase2** 	|  	|  	|  	|  	**Geometry** |  	
 | |  	|  	|  	|  	|  	
-| 24834.0 	| RelValTTbar_14TeV 	| phase2_realistic_T25 	| Phase2C17I13M9 	| Extended2026D98 	| (Phase-2 baseline) 	
-| 24834.911 	| TTbar_14TeV_TuneCP5 	| phase2_realistic_T25 	| Phase2C17I13M9 	| DD4hepExtended2026D98 	| DD4Hep (HLLHC14TeV BeamSpot) 	
-| 25034.999 	| RelValTTbar_14TeV (PREMIX) 	| phase2_realistic_T25 	| Phase2C17I13M9 	| Extended2026D98 	| AVE_50_BX_25ns_m3p3 	
-| 24896.0 	| RelValCloseByPGun_CE_E_Front_120um 	| phase2_realistic_T25 	| Phase2C17I13M9 	| Extended2026D98 	|  	
-| 24900.0 	| RelValCloseByPGun_CE_H_Coarse_Scint 	| phase2_realistic_T25 	| Phase2C17I13M9 	| Extended2026D98 	|  	
-| 23234.0 	| TTbar_14TeV_TuneCP5 	| phase2_realistic_T21 	| Phase2C20I13M9 	| Extended2026D94 	| (exercise with HFNose) 	
+| 24834.0 	| RelValTTbar_14TeV 	| phase2_realistic_T25 	| Phase2C17I13M9 	| ExtendedRun4D98 	| (Phase-2 baseline) 	
+| 24834.911 	| TTbar_14TeV_TuneCP5 	| phase2_realistic_T25 	| Phase2C17I13M9 	| DD4hepExtendedRun4D98 	| DD4Hep (HLLHC14TeV BeamSpot) 	
+| 25034.999 	| RelValTTbar_14TeV (PREMIX) 	| phase2_realistic_T25 	| Phase2C17I13M9 	| ExtendedRun4D98 	| AVE_50_BX_25ns_m3p3 	
+| 24896.0 	| RelValCloseByPGun_CE_E_Front_120um 	| phase2_realistic_T25 	| Phase2C17I13M9 	| ExtendedRun4D98 	|  	
+| 24900.0 	| RelValCloseByPGun_CE_H_Coarse_Scint 	| phase2_realistic_T25 	| Phase2C17I13M9 	| ExtendedRun4D98 	|  	
+| 23234.0 	| TTbar_14TeV_TuneCP5 	| phase2_realistic_T21 	| Phase2C20I13M9 	| ExtendedRun4D94 	| (exercise with HFNose) 	
 
 pp Data reRECO workflows:
 
@@ -365,14 +367,14 @@ pp Data reRECO workflows:
 | 2021 	|  	|  	|  	|  	|  	
 | 139.001 	| Run2021 	MinimumBias 	| run3_hlt_relval 	| Run3 	| HLT@relval2022 (Commissioning2021) |	
 | 2022 	|  	|  	|  	|  	|  	
-| 140.023 	| Run2022B ZeroBias 	|  	run3_hlt_relval |  	Run3 |  	HLT:@relval2022 |  	
-| 140.043 	| Run2022C ZeroBias 	|  	run3_hlt_relval |  	Run3 |  	HLT:@relval2022 |  	
-| 140.063 	| Run2022D ZeroBias 	|  	run3_hlt_relval |  	Run3 |  	HLT:@relval2022 |  	
-| 2023 	|  	|  	|  	|  	|  	
-| 141.044 	| Run2023D JetMET0 	| run3_hlt_relval 	| Run3_2023 	| HLT@relval2024 	|  
-| 141.042 	| Run2023D ZeroBias 	| run3_hlt_relval 	| Run3_2023 	| HLT@relval2024 	|  	
-| 141.046 	| Run2023D EGamma0 	| run3_hlt_relval 	| Run3_2023 	| HLT@relval2024 	|  	
-
+| 2022.002001 	| Run2022D ZeroBias 	|  	run3_hlt_relval + run3_data_relval |  	Run3 |  	HLT:@relval2022 | 
+| 2022.000001 	| Run2022D JetHT 	|  	run3_hlt_relval + run3_data_relval |  	Run3 |  	HLT:@relval2022 |  	
+| 2023.002001 	| Run2023D ZeroBias 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2023 |  	HLT:@relval2023 | 
+| 2023.000001 	| Run2023D MuonEG 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2023 |  	HLT:@relval2023 | 
+| 2024.000001 	| Run2024B ZeroBias 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2023 |  
+| 2024.101001 	| Run2024C BTagMu 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
+| 2024.202001 	| Run2024D JetMET0 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
+| 2024.303001 	| Run2024E RunDisplacedJet 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
 
 And Heavy Ion workflows:
 

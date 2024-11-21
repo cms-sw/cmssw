@@ -30,7 +30,7 @@ def checkEnvironment():
         sys.exit(CMSSW_NOT_SET)
 
 def getTrackerRecoMaterialCopy(filename):
-    # path of trackerRecoMaterial as defined in this cfi (for 2026D41) : Geometry/CMSCommonData/python/cmsExtendedGeometry2026D41XML_cfi.py
+    # path of trackerRecoMaterial as defined in this cfi (for 2026D41) : Geometry/CMSCommonData/python/cmsExtendedGeometryRun4D41XML_cfi.py
     tracker_reco_material = os.path.join(os.environ['CMSSW_BASE'],
                                          'src/Geometry/TrackerRecoData/data/PhaseII/TiltedTracker613/trackerRecoMaterial.xml')
     if not os.path.exists(tracker_reco_material):

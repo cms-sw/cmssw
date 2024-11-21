@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
-process = cms.Process("GeometryTest",Phase2C17I13M9)
+process = cms.Process("GeometryTest",_PH2_ERA,dd4hep)
 
 process.source = cms.Source("EmptySource")
 
@@ -54,7 +56,7 @@ process.MessageLogger.files.mtdDetLayerGeometry = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO'))
 
 # Choose Tracker Geometry
-process.load("Configuration.Geometry.GeometryExtended2026D110Reco_cff")
+process.load("Configuration.Geometry.GeometryDD4hepExtendedRun4DefaultReco_cff")
 process.load("MagneticField.Engine.volumeBasedMagneticField_160812_cfi")
 
 process.Timing = cms.Service("Timing")

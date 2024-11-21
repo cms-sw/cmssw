@@ -125,13 +125,13 @@ namespace edm {
     }
 
     if (om_->compressionAlgorithm() == std::string("ZLIB")) {
-      filePtr_->SetCompressionAlgorithm(ROOT::kZLIB);
+      filePtr_->SetCompressionAlgorithm(ROOT::RCompressionSetting::EAlgorithm::kZLIB);
     } else if (om_->compressionAlgorithm() == std::string("LZMA")) {
-      filePtr_->SetCompressionAlgorithm(ROOT::kLZMA);
+      filePtr_->SetCompressionAlgorithm(ROOT::RCompressionSetting::EAlgorithm::kLZMA);
     } else if (om_->compressionAlgorithm() == std::string("ZSTD")) {
-      filePtr_->SetCompressionAlgorithm(ROOT::kZSTD);
+      filePtr_->SetCompressionAlgorithm(ROOT::RCompressionSetting::EAlgorithm::kZSTD);
     } else if (om_->compressionAlgorithm() == std::string("LZ4")) {
-      filePtr_->SetCompressionAlgorithm(ROOT::kLZ4);
+      filePtr_->SetCompressionAlgorithm(ROOT::RCompressionSetting::EAlgorithm::kLZ4);
     } else {
       throw Exception(errors::Configuration)
           << "PoolOutputModule configured with unknown compression algorithm '" << om_->compressionAlgorithm() << "'\n"

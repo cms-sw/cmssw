@@ -73,10 +73,10 @@ namespace edm {
       EventPrincipal const& ep = info.principal();
       assert(ep.streamID() < m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
+      EventSignalsSentry sentry(act, mcc);
       Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
       e.setProducer(mod, &mod->previousParentage_, &mod->gotBranchIDsFromAcquire_);
-      EventSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
           info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), parentC};
@@ -92,10 +92,10 @@ namespace edm {
       EventPrincipal const& ep = info.principal();
       assert(ep.streamID() < m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
+      EventAcquireSignalsSentry sentry(act, mcc);
       Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
       e.setProducerForAcquire(mod, nullptr, mod->gotBranchIDsFromAcquire_);
-      EventAcquireSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
           info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), parentC};

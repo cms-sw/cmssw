@@ -2,7 +2,7 @@ from Configuration.PyReleaseValidation.upgradeWorkflowComponents import upgradeP
 from Configuration.AlCa.autoCond import autoCond
 from Configuration.StandardSequences.Eras import eras
 
-DEFAULT_VERSION = "2026D110"
+DEFAULT_VERSION = "Run4D110"
 
 def get_era_and_conditions(version_key):
     """Retrieve the era and global tag for a given version key.
@@ -16,12 +16,12 @@ def get_era_and_conditions(version_key):
     Raises:
         KeyError: If the version key or global tag is not found.
     """
-    # Ensure the version key exists in the properties for 2026
-    if version_key not in properties[2026]:
-        raise KeyError(f"Version key '{version_key}' not found in properties[2026].")
+    # Ensure the version key exists in the properties for Run4
+    if version_key not in properties['Run4']:
+        raise KeyError(f"Version key '{version_key}' not found in properties['Run4'].")
 
     # Retrieve the global tag key
-    global_tag_key = properties[2026][version_key]['GT']
+    global_tag_key = properties['Run4'][version_key]['GT']
     print(f"Global tag key from properties: {global_tag_key}")
 
     # Validate the existence of the global tag in autoCond
@@ -30,7 +30,7 @@ def get_era_and_conditions(version_key):
         raise KeyError(f"Global tag key '{global_tag_key}' not found in autoCond.")
 
     # Retrieve the era key and get the corresponding era object
-    era_key = properties[2026][version_key]['Era']
+    era_key = properties['Run4'][version_key]['Era']
     print(f"Constructed era key from properties: {era_key}")
     era = getattr(eras, era_key)
 

@@ -14,7 +14,7 @@ from Configuration.PyReleaseValidation.relval_production import workflows as _pr
 from Configuration.PyReleaseValidation.relval_ged import workflows as _ged
 from Configuration.PyReleaseValidation.relval_gpu import workflows as _gpu
 from Configuration.PyReleaseValidation.relval_2017 import workflows as _2017
-from Configuration.PyReleaseValidation.relval_2026 import workflows as _2026
+from Configuration.PyReleaseValidation.relval_Run4 import workflows as _Run4
 from Configuration.PyReleaseValidation.relval_machine import workflows as _machine
 from Configuration.PyReleaseValidation.relval_premix import workflows as _premix
 
@@ -23,7 +23,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 numWFIB = []
 for upgrade_wf in _upgrade_workflows:
     veto = False
-    for matrixToVeto in [_standard, _highstats, _pileup, _generator, _extendedgen, _production, _ged, _gpu, _2017, _2026, _machine, _premix]:
+    for matrixToVeto in [_standard, _highstats, _pileup, _generator, _extendedgen, _production, _ged, _gpu, _2017, _Run4, _machine, _premix]:
         if upgrade_wf in matrixToVeto:
             veto = True
             break

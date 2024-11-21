@@ -245,7 +245,17 @@ def DMR(config, validationDir):
                 elif isDataMerged[mergeName] == 1: 
                     mergesDATA.append(mergeName)
                 else:
-                    mergesMC.append(mergeName) 
+                    mergesMC.append(mergeName)
+                if "moduleFilterFile" not in config["validations"]["DMR"]["merge"][mergeName]:
+                    raise Exception("Value for 'moduleFilterFile' is required for the 'merge' step if the 'averaged' step is requested.")
+                if "maxBadLumiPixel" not in config["validations"]["DMR"]["merge"][mergeName]:
+                    print("WARNING: Default value for the 'maxBadLumiPixel' is used.")
+                if "maxBadLumiStrip" not in config["validations"]["DMR"]["merge"][mergeName]:
+                    print("WARNING: Default value for the 'maxBadLumiStrip' is used.")
+                #Validate single step within merge step
+                for singleName in config["validations"]["DMR"]["merge"][mergeName]['singles']:
+                    if "maxEntriesPerModuleForDmr" not in config["validations"]["DMR"]["single"][singleName]:
+                        raise Exception("Value for 'maxEntriesPerModuleForDmr' is required for the 'single' step if the 'averaged' step is requested.")
 
             lumiPerRun = []
             lumiPerIoV = []

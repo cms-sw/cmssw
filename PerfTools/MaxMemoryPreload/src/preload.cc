@@ -26,6 +26,16 @@
 // static data member definitions
 //
 
+// Hooks the target application can be instrumented with to pause and
+// unpause the MaxMemoryPreload. Pausing the monitoring during a
+// multithreaded execution can result in unexpected results, because
+// the setting is global.
+namespace {
+  std::atomic<bool> paused = false;
+}
+void pauseMaxMemoryPreload() { paused = true; }
+void unpauseMaxMemoryPreload() { paused = false; }
+
 namespace {
   class MonitorAdaptor : public cms::perftools::AllocMonitorBase {
   public:
@@ -34,6 +44,9 @@ namespace {
 
   private:
     void allocCalled(size_t iRequested, size_t iActual, void const*) final {
+      if (paused)
+        return;
+
       nAllocations_.fetch_add(1, std::memory_order_acq_rel);
       requested_.fetch_add(iRequested, std::memory_order_acq_rel);
 
@@ -48,6 +61,9 @@ namespace {
       }
     }
     void deallocCalled(size_t iActual, void const*) final {
+      if (paused)
+        return;
+
       nDeallocations_.fetch_add(1, std::memory_order_acq_rel);
       auto present = presentActual_.load(std::memory_order_acquire);
       if (present >= iActual) {

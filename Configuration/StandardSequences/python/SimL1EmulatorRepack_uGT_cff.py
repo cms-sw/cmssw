@@ -30,7 +30,7 @@ simGtStage2Digis.TauInputTag        = "unpackGtStage2:Tau"
 simGtStage2Digis.JetInputTag        = "unpackGtStage2:Jet"
 simGtStage2Digis.EtSumInputTag      = "unpackGtStage2:EtSum"
 simGtStage2Digis.EtSumZdcInputTag   = "unpackGtStage2:EtSumZDC"
-simGtStage2Digis.CICADAScoreInputTag = "unpackGtStage2:CICADAScore"
+simGtStage2Digis.CICADAInputTag     = "unpackGtStage2:CICADAScore"
 simGtStage2Digis.ExtInputTag        = "unpackGtStage2" # as in default
 
 

@@ -178,6 +178,12 @@ hltMeasurementTrackerEvent = cms.EDProducer( "MeasurementTrackerEventProducer",
     measurementTracker = cms.string( "hltESPMeasurementTracker" )
 )
 
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(hltMeasurementTrackerEvent,
+                         stripClusterProducer = cms.string( "hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression" ),
+                         pixelClusterProducer = cms.string( "hltSiPixelClustersAfterSplittingPPOnAA" ),
+                         )
+
 #####
 hltESPTrajectoryFitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
   appendToDataLabel = cms.string( "" ),
@@ -223,6 +229,9 @@ hltTrackRefitterForSiStripMonitorTrack.MeasurementTrackerEvent = 'hltMeasurement
 hltTrackRefitterForSiStripMonitorTrack.NavigationSchool        = 'navigationSchoolESProducer'
 hltTrackRefitterForSiStripMonitorTrack.src                     = 'hltMergedTracks' # hltIter2Merged
 
+pp_on_PbPb_run3.toModify(hltTrackRefitterForSiStripMonitorTrack,
+                         src = 'hltMergedTracksPPOnAA')
+
 HLTSiStripMonitorTrack.TopFolderName = 'HLT/SiStrip'
 HLTSiStripMonitorTrack.TrackProducer = 'hltTrackRefitterForSiStripMonitorTrack'
 HLTSiStripMonitorTrack.TrackLabel    = ''
@@ -233,6 +242,12 @@ HLTSiStripMonitorTrack.Mod_On        = False
 HLTSiStripMonitorTrack.OffHisto_On   = True
 HLTSiStripMonitorTrack.HistoFlag_On  = False
 HLTSiStripMonitorTrack.TkHistoMap_On = False
+
+pp_on_PbPb_run3.toModify(HLTSiStripMonitorTrack,
+                         Cluster_src = "hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression")
+
+pp_on_PbPb_run3.toModify(HLTSiStripMonitorCluster,
+                         BPTXfilter = dict(l1Algorithms = ['L1_ZeroBias']))
 
 HLTSiStripMonitorClusterAPVgainCalibration = HLTSiStripMonitorCluster.clone()
 from DQM.TrackingMonitorSource.pset4GenericTriggerEventFlag_cfi import *
@@ -260,6 +275,10 @@ HLTSiStripMonitorClusterAPVgainCalibration.BPTXfilter = cms.PSet(
    verbosityLevel = cms.uint32(1)
 )
 HLTSiStripMonitorClusterAPVgainCalibration.TopFolderName = cms.string('HLT/SiStrip/ZeroBias_FirstCollisionAfterAbortGap')
+
+pp_on_PbPb_run3.toModify(HLTSiStripMonitorClusterAPVgainCalibration,
+                         BPTXfilter = dict(hltPaths = ["HLT_HICentrality30100_FirstCollisionAfterAbortGap_v*"]),
+                         TopFolderName = cms.string('HLT/SiStrip/HLT_HICentrality30100_FirstCollisionAfterAbortGap'))
 
 sistripOnlineMonitorHLTsequence = cms.Sequence(
     hltMeasurementTrackerEvent

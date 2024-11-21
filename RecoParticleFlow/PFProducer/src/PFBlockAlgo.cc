@@ -209,6 +209,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   }
 
   elements_.clear();
+  elements_.shrink_to_fit();
 
   return blocks;
 }

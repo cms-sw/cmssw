@@ -169,7 +169,7 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup, bool is
        itAlgo != m_algorithmMap->end();
        itAlgo++) {
     // Get the algorithm name
-    std::string algName = itAlgo->first;
+    std::string_view algName = itAlgo->first;
     int algBit = (itAlgo->second).getIndex();  //algoBitNumber();
 
     (m_prescales[algBit]).first = algName;
@@ -251,7 +251,7 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent,
            itAlgo != m_algorithmMap->end();
            itAlgo++) {
         // Get the algorithm name
-        std::string algName = itAlgo->first;
+        std::string_view algName = itAlgo->first;
         int algBit = (itAlgo->second).getIndex();  //algoBitNumber();
 
         bool decisionInitial = algBlk->getAlgoDecisionInitial(algBit);
@@ -338,8 +338,10 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
     //std::cout << "NumPrescaleSets= " << NumPrescaleSets << std::endl;
     if (NumPrescaleSets > 0) {
       // Fill default prescale set
+      prescale_vec.reserve(NumPrescaleSets);
       for (int iSet = 0; iSet < NumPrescaleSets; iSet++) {
-        prescale_vec.push_back(std::vector<double>());
+        prescale_vec.emplace_back();
+        prescale_vec.back().reserve(m_numberPhysTriggers);
         for (unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit) {
           int inputDefaultPrescale = 1;
           prescale_vec[iSet].push_back(inputDefaultPrescale);
@@ -379,8 +381,10 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 
     m_PreScaleColumn = 0;
 
+    prescale_vec.reserve(1);
     for (int col = 0; col < 1; col++) {
-      prescale_vec.push_back(std::vector<double>());
+      prescale_vec.emplace_back();
+      prescale_vec.back().reserve(m_numberPhysTriggers);
       for (unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit) {
         int inputDefaultPrescale = 0;
         prescale_vec[col].push_back(inputDefaultPrescale);
@@ -390,9 +394,9 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 
   inputPrescaleFile.close();
 
-  m_initialPrescaleFactorsAlgoTrig = prescale_vec;
+  m_initialPrescaleFactorsAlgoTrig = std::move(prescale_vec);
   // setting of bx masks from an input file not enabled; do not see a use case at the moment
-  std::map<int, std::vector<int> > m_initialTriggerMaskAlgoTrig;
+  //std::map<int, std::vector<int> > m_initialTriggerMaskAlgoTrig;
 }
 
 void l1t::L1TGlobalUtil::eventSetupConsumes(edm::ConsumesCollector& iC, UseEventSetupIn useEventSetupIn) {
@@ -465,7 +469,7 @@ const bool l1t::L1TGlobalUtil::getAlgBitFromName(const std::string& algName, int
   return false;  //did not find anything by that name
 }
 
-const bool l1t::L1TGlobalUtil::getAlgNameFromBit(int& bit, std::string& algName) const {
+const bool l1t::L1TGlobalUtil::getAlgNameFromBit(int& bit, std::string_view& algName) const {
   // since we are just looking up the name, doesn't matter which vector we get it from
   if ((m_decisionsInitial[bit]).first != "NULL") {
     algName = (m_decisionsInitial[bit]).first;

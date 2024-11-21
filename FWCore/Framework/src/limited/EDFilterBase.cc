@@ -55,6 +55,7 @@ namespace edm {
     bool EDFilterBase::doEvent(EventTransitionInfo const& info,
                                ActivityRegistry* act,
                                ModuleCallingContext const* mcc) {
+      EventSignalsSentry sentry(act, mcc);
       Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
       const auto streamIndex = e.streamID().value();
@@ -62,7 +63,6 @@ namespace edm {
       ESParentContext parentC(mcc);
       const EventSetup c{
           info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
-      EventSignalsSentry sentry(act, mcc);
       bool returnValue = this->filter(e.streamID(), e, c);
       commit_(e, &previousParentageIds_[streamIndex]);
       return returnValue;

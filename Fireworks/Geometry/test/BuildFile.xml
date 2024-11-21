@@ -4,4 +4,4 @@
 <test name="test_dumpRecoGeometry_2017" command="test_dumpRecoGeometry.sh 2017"/>
 <!-- currently commented as it crashes at runtime -->
 <!-- <test name="test_dumpRecoGeometry_2021" command="test_dumpRecoGeometry.sh 2021"/> -->
-<test name="test_dumpRecoGeometry_2026" command="test_dumpRecoGeometry.sh 2026"/>
+<test name="test_dumpRecoGeometry_Run4" command="test_dumpRecoGeometry.sh Run4"/>

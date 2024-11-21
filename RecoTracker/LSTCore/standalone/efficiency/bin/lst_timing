@@ -1,0 +1,153 @@
+#!/bin/bash
+
+run_rocm()
+{
+    version=$1
+    sample=$2
+    nevents=$3
+    shift 3
+    # ROCm backend
+    lst_make_tracklooper -mR $*
+    for s_value in 1 2 4 6 8; do
+        lst -n ${NEVENTS} -o ${OUTDIR}/rocm_${version}_s${s_value}.root -v 1 -w 0 -s ${s_value} -i ${sample} | tee -a timing_temp.txt
+    done
+}
+
+run_cuda()
+{
+    version=$1
+    sample=$2
+    nevents=$3
+    shift 3
+    # CUDA backend
+    lst_make_tracklooper -mG $*
+    for s_value in 1 2 4 6 8; do
+        lst -n ${NEVENTS} -o ${OUTDIR}/cuda_${version}_s${s_value}.root -v 1 -w 0 -s ${s_value} -i ${sample} | tee -a timing_temp.txt
+    done
+}
+
+run_cpu()
+{
+    version=$1
+    sample=$2
+    nevents=$3
+    shift 3
+    # CPU backend
+    lst_make_tracklooper -mC $*
+    for s_value in 1 4 16 32 64; do
+        lst -n ${NEVENTS} -o ${OUTDIR}/cpu_${version}_s${s_value}.root -v 1 -w 0 -s ${s_value} -i ${sample} | tee -a timing_temp.txt
+    done
+}
+
+run_timing_test_usage()
+{
+    echo "ERROR - Usage:"
+    echo
+    echo "      sh $(basename $0) [-b BACKEND] SAMPLETYPE [SPECIFICGPUVERISON] [NEVENTS]"
+    echo
+    echo "Options:"
+    echo "   -b BACKEND                         cpu, cuda, or rocm (default is cuda)"
+    echo
+    echo "Arguments:"
+    echo "   SAMPLETYPE                         muonGun, PU200, or pionGun"
+    echo "   SPECIFICGPUVERSION (optional)      Run only one of the cache, etc."
+    echo "                                      If nothing provided, then it checks all possible tests."
+    echo "   NEVENTS           (optional)       200, 10000, -1, etc."
+    echo ""
+    exit
+}
+
+# Parsing command-line opts
+BACKEND="cuda"  # Default to cuda if no backend specified
+while getopts ":hb:" OPTION; do
+  case $OPTION in
+    h) usage;;
+    b) BACKEND=$OPTARG;;
+    :) usage;;
+  esac
+done
+
+# Shift away the parsed options
+shift $(($OPTIND - 1))
+
+if [ -z ${1} ]; then run_timing_test_usage; fi
+
+SAMPLE=${1}
+if [[ ${SAMPLE} == *"pionGun"* ]]; then
+    PDGID=211
+elif [[ ${SAMPLE} == *"muonGun"* ]]; then
+    PDGID=13
+elif [[ ${SAMPLE} == *"PU200"* ]]; then
+    PDGID=0
+fi
+
+SPECIFICGPUVERSION=${2}
+
+if [ -z ${3} ]; then
+    NEVENTS=200 # If no number of events provided, validate on first 200 events
+else
+    NEVENTS=${3} # If provided set the NEVENTS
+fi
+
+# Decide which function to run
+if [ "$BACKEND" == "cuda" ]; then
+    run_func=run_cuda
+elif [ "$BACKEND" == "cpu" ]; then
+    run_func=run_cpu
+elif [ "$BACKEND" == "rocm" ]; then
+    run_func=run_rocm
+else
+    echo "Invalid backend specified."
+    exit 1
+fi
+
+# Check if there are any uncommited changes in the repo
+pushd ${TRACKLOOPERDIR}
+GITHASH=$(git rev-parse --short HEAD)
+DIRTY=""
+DIFF=$(git diff)
+if [ -z "${DIFF}" ]; then
+    DIRTY=""
+else
+    DIRTY="DIRTY"
+fi
+popd
+GITHASH=${GITHASH}${DIRTY}
+
+OUTDIR=output/outputs_${GITHASH}_${SAMPLE}
+
+# Verbose
+echo "*****************************************************"
+echo ""
+echo ""
+echo "Run LST Timing Program                               "
+echo ""
+echo ""
+echo "*****************************************************"
+echo ""
+echo "  GITHASH              : ${GITHASH}"
+echo "  SAMPLE               : ${SAMPLE}"
+echo "  NEVENTS              : ${NEVENTS}"
+if [ -n ${SPECIFICGPUVERSION} ]; then
+echo "  SPECIFICGPUVERSION   : ${SPECIFICGPUVERSION}"
+else
+echo "  SPECIFICGPUVERSION   : all configurations"
+fi
+echo ""
+
+# Delete old run
+rm -rf ${OUTDIR}
+mkdir -p ${OUTDIR}
+rm -f timing_temp.txt
+
+# Run different configurations
+if [ -z "${SPECIFICGPUVERSION}" ] || [[ "${SPECIFICGPUVERSION}" == "explicit" ]]; then
+    $run_func explicit "${SAMPLE}" "${NEVENTS}"
+fi
+
+echo "Total Timing Summary"
+grep -h "Time for map " timing_temp.txt | cut -d " " -f 6 | awk '{ SUM += $1} END { print "Average time for map loading =",SUM/5,"ms" }' # 5 is the number of stream values run
+grep -h "Time for input " timing_temp.txt | cut -d " " -f 6 | awk '{ SUM += $1} END { print "Average time for input loading =",SUM/5,"ms" }' # 5 is the number of stream values run
+grep -h "Time for event " timing_temp.txt | cut -d " " -f 6 | awk '{ SUM += $1} END { print "Average time for lst::Event creation =",SUM/21,"ms"}' # 5 is the number of total streams run (1+2+4+6+8)
+echo "   Evt    Hits       MD       LS      T3       T5       pLS       pT5      pT3      TC       Reset    Event     Short             Rate"
+grep -hr "avg " timing_temp.txt # space is needed to not get certain bad lines 

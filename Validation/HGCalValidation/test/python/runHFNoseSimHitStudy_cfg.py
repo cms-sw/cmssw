@@ -5,7 +5,7 @@ process = cms.Process('PROD',Phase2C20I13M9)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load('Configuration.Geometry.GeometryExtended2026D115_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D115_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')

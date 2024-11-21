@@ -111,11 +111,11 @@ void HGCalMouseBiteTester::analyze(const edm::Event& iEvent, const edm::EventSet
   int orient = HGCalWaferType::getOrient(index, hgcons_.getParameter()->waferInfoMap_);
   int placeIndex_ = HGCalCell::cellPlacementIndex(zside, frontBack, orient);
   int waferType_ = HGCalWaferType::getType(index, hgcons_.getParameter()->waferInfoMap_);
-  double mouseBiteCut_ = waferSize_ * tan(30.0 * CLHEP::deg) - 5.0;
+  double mouseBiteCut_ = hgcons_.mouseBite(false);
   bool v17OrLess = hgcons_.v17OrLess();
   HGCGuardRing guardRing_(hgcons_);
   HGCGuardRingPartial guardRingPartial_(hgcons_);
-  HGCMouseBite mouseBite_(hgcons_, angle_, mouseBiteCut_, true);
+  HGCMouseBite mouseBite_(hgcons_, angle_, (waferSize_ * tan(30.0 * CLHEP::deg) - mouseBiteCut_), true);
   const int nFine(12), nCoarse(8);
   double r2 = 0.5 * waferSize_;
   double R2 = 2 * r2 / sqrt(3);

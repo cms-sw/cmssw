@@ -20,8 +20,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder    = "Info/Lumi"
 process.dqmSaver.tag = "Lumi"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "Lumi"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "Lumi"
+# process.dqmSaverPB.runNumber = options.runNumber
 
 #---------------------------------------------
 # Global Tag
@@ -69,7 +69,7 @@ process.dqmmodules = cms.Sequence(process.dqmEnv
                                   + process.expressLumiProducer
                                   + process.dqmLumiMonitor    
                                   + process.dqmSaver
-                                  + process.dqmSaverPB)
+                                  )#+ process.dqmSaverPB)
 #----------------------------
 # Proton-Proton Running Stuff
 #----------------------------

@@ -172,34 +172,36 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   std::unordered_map<int, std::vector<int>> seedToTrackstersAssociation;
   // if it's regional iteration and there are seeding regions
-  if (!seeding_regions.empty() and seeding_regions[0].index != -1) {
-    auto numberOfSeedingRegions = seeding_regions.size();
-    for (unsigned int i = 0; i < numberOfSeedingRegions; ++i) {
-      seedToTrackstersAssociation.emplace(seeding_regions[i].index, 0);
+  if (!seeding_regions.empty()) {
+    if (seeding_regions[0].index != -1) {
+      auto numberOfSeedingRegions = seeding_regions.size();
+      for (unsigned int i = 0; i < numberOfSeedingRegions; ++i) {
+        seedToTrackstersAssociation.emplace(seeding_regions[i].index, 0);
+      }
     }
-  }
 
-  if (doNose_) {
-    const auto& layer_clusters_hfnose_tiles = evt.get(layer_clusters_tiles_hfnose_token_);
-    const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(
-        evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_hfnose_tiles, seeding_regions);
+    if (doNose_) {
+      const auto& layer_clusters_hfnose_tiles = evt.get(layer_clusters_tiles_hfnose_token_);
+      const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(
+          evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_hfnose_tiles, seeding_regions);
 
-    myAlgoHFNose_->makeTracksters(inputHFNose, *initialResult, seedToTrackstersAssociation);
-    // Run inference algorithm
-    inferenceAlgo_->inputData(layerClusters, *initialResult);
-    inferenceAlgo_->runInference(*initialResult);
-    myAlgoHFNose_->filter(*result, *initialResult, inputHFNose, seedToTrackstersAssociation);
+      myAlgoHFNose_->makeTracksters(inputHFNose, *initialResult, seedToTrackstersAssociation);
+      // Run inference algorithm
+      inferenceAlgo_->inputData(layerClusters, *initialResult);
+      inferenceAlgo_->runInference(*initialResult);
+      myAlgoHFNose_->filter(*result, *initialResult, inputHFNose, seedToTrackstersAssociation);
 
-  } else {
-    const auto& layer_clusters_tiles = evt.get(layer_clusters_tiles_token_);
-    const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
-        evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
+    } else {
+      const auto& layer_clusters_tiles = evt.get(layer_clusters_tiles_token_);
+      const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
+          evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
 
-    myAlgo_->makeTracksters(input, *initialResult, seedToTrackstersAssociation);
-    // Run inference algorithm
-    inferenceAlgo_->inputData(layerClusters, *initialResult);
-    inferenceAlgo_->runInference(*initialResult);
-    myAlgo_->filter(*result, *initialResult, input, seedToTrackstersAssociation);
+      myAlgo_->makeTracksters(input, *initialResult, seedToTrackstersAssociation);
+      // Run inference algorithm
+      inferenceAlgo_->inputData(layerClusters, *initialResult);
+      inferenceAlgo_->runInference(*initialResult);
+      myAlgo_->filter(*result, *initialResult, input, seedToTrackstersAssociation);
+    }
   }
   // Now update the global mask and put it into the event
   output_mask->reserve(original_layerclusters_mask.size());

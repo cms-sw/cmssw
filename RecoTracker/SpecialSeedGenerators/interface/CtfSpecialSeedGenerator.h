@@ -6,11 +6,13 @@
  *  from combinations of hits in pairs of strip layers 
  */
 //FWK
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 //DataFormats
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -42,13 +44,14 @@ public:
   typedef TrajectoryStateOnSurface TSOS;
 
   CtfSpecialSeedGenerator(const edm::ParameterSet& conf);
-
-  ~CtfSpecialSeedGenerator() override;  //{};
+  ~CtfSpecialSeedGenerator() override = default;
 
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
 
   void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   bool run(const edm::EventSetup& c, const edm::Event& e, TrajectorySeedCollection& output);

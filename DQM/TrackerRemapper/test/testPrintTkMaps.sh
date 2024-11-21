@@ -7,7 +7,8 @@ printPixelROCsMap --help || die 'failed running printPixelROCsMap --help' $?
 printPixelTrackerMap --help || die 'failed running printPixelTrackerMap --help' $?
 printStripTrackerMap --help || die 'failed running printStripTrackerMap --help' $?
 echo -e "\n"
-testPixelFile=$CMSSW_RELEASE_BASE/src/SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt
+testPixelFile=$CMSSW_BASE/src/SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt
+[ -e $testPixelFile ] || testPixelFile=$CMSSW_RELEASE_BASE/src/SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt
 # Store the first 50 elements of the first column in a variable
 testPixelDetids=$(head -n 50 "$testPixelFile" | cut -d ' ' -f 1 | paste -sd ' ' -)
 
@@ -28,7 +29,8 @@ echo -e "==== Testing printPixelTrackerMap"
 printPixelTrackerMap --input-file $testPixelFile || die 'failed printPixelTrackerMap --input-file' $?
 printPixelTrackerMap $testPixelDetids || die 'failed printPixelTrackerMap $testPixelDetids' $?
 echo -e "\n"
-testStripFile=$CMSSW_RELEASE_BASE/src/CalibTracker/SiStripCommon/data/SiStripDetInfo.dat
+testStripFile=$CMSSW_BASE/src/CalibTracker/SiStripCommon/data/SiStripDetInfo.dat
+[ -e $testStripFile ] || testStripFile=$CMSSW_RELEASE_BASE/src/CalibTracker/SiStripCommon/data/SiStripDetInfo.dat
 # Store the first 50 elements of the first column in a variable
 testStripDetids=$(head -n 50 "$testStripFile" | cut -d ' ' -f 1 | paste -sd ' ' -)
 

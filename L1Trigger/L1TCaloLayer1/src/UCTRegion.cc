@@ -72,6 +72,7 @@ UCTRegion::UCTRegion(const UCTRegion& otherRegion)
     : crate(otherRegion.crate),
       card(otherRegion.card),
       region(otherRegion.region),
+      negativeEta(otherRegion.negativeEta),
       towers(otherRegion.towers),
       regionSummary(otherRegion.regionSummary),
       fwVersion(otherRegion.fwVersion) {}

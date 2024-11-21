@@ -14,7 +14,7 @@
   <class name="std::pair<DTLayerId,std::pair<unsigned int,unsigned int> >"/>
   <class name="std::map<DTLayerId,std::pair<unsigned long,unsigned long> >"/>
   <class name="std::pair<DTLayerId,std::pair<unsigned long,unsigned long> >"/>
-  <class name="edm::OwnVector<DTRecHit1DPair,edm::ClonePolicy<DTRecHit1DPair> >"   rntupleSplit="false"/>
+  <class name="edm::OwnVector<DTRecHit1DPair,edm::ClonePolicy<DTRecHit1DPair> >"   rntupleStreamerMode="true"/>
   <class name="edm::ClonePolicy<DTRecHit1DPair>" /> <!-- Root6 -->
   <class name="edm::RangeMap <DTLayerId,edm::OwnVector<DTRecHit1DPair,edm::ClonePolicy<DTRecHit1DPair> >,edm::ClonePolicy<DTRecHit1DPair> >"/> 
   <class name="edm::Wrapper<edm::RangeMap <DTLayerId, edm::OwnVector<DTRecHit1DPair,edm::ClonePolicy<DTRecHit1DPair> >,edm::ClonePolicy<DTRecHit1DPair> > >"/>
@@ -25,7 +25,7 @@
    <version ClassVersion="10" checksum="2463285514"/>
   </class>
   <class name="std::vector<DTSLRecCluster*>"/>
-  <class name="edm::OwnVector<DTSLRecCluster,edm::ClonePolicy<DTSLRecCluster> >"   rntupleSplit="false"/>
+  <class name="edm::OwnVector<DTSLRecCluster,edm::ClonePolicy<DTSLRecCluster> >"   rntupleStreamerMode="true"/>
   <class name="edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecCluster,edm::ClonePolicy<DTSLRecCluster> >,edm::ClonePolicy<DTSLRecCluster> >"/>
   <class name="edm::Wrapper<edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecCluster,edm::ClonePolicy<DTSLRecCluster> >,edm::ClonePolicy<DTSLRecCluster> > >"/>
   <class name="DTRecSegment2D" ClassVersion="11">
@@ -39,7 +39,7 @@
   <class name="std::vector<DTSLRecSegment2D*>"/>
   <class name="std::map<DTSuperLayerId,std::pair<unsigned int,unsigned int> >"/>
   <class name="std::map<DTSuperLayerId,std::pair<unsigned long,unsigned long> >"/>
-  <class name="edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >"   rntupleSplit="false"/>
+  <class name="edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >"   rntupleStreamerMode="true"/>
   <class name="edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >,edm::ClonePolicy<DTSLRecSegment2D> >"/>
   <class name="edm::Wrapper<edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >,edm::ClonePolicy<DTSLRecSegment2D> > >"/>
   <class name="DTChamberRecSegment2D" ClassVersion="11">
@@ -56,7 +56,7 @@
   <class name="std::pair<DTChamberId,std::pair<unsigned int,unsigned int> >"/>
   <class name="std::map<DTChamberId,std::pair<unsigned long,unsigned long> >"/>
   <class name="std::pair<DTChamberId,std::pair<unsigned long,unsigned long> >"/>
-  <class name="edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >"   rntupleSplit="false"/>
+  <class name="edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >"   rntupleStreamerMode="true"/>
   <class name="edm::ClonePolicy<DTRecSegment4D>" /> <!-- Root6 -->
   <class name="edm::RangeMap <DTChamberId, edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> >"/>
   <class name="edm::Wrapper<edm::RangeMap <DTChamberId, edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> > >"/>

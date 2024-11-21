@@ -23,8 +23,8 @@ process.dqmEnv.subSystemFolder = 'BRIL'
 process.dqmEnv.eventInfoFolder = 'EventInfo'
 process.dqmSaver.tag = 'BRIL'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'BRIL'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'BRIL'
+# process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 
 if process.dqmRunConfig.type.value() == "production":
@@ -39,6 +39,6 @@ process.dqmEnv.eventInfoFolder = 'EventInfo/Random'
 process.BrilClient = DQMEDHarvester("BrilClient")
 
 process.bril_path = cms.Path(process.BrilClient)
-process.p = cms.EndPath(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
+process.p = cms.EndPath(process.dqmEnv + process.dqmSaver )#+ process.dqmSaverPB)
 
 process.schedule = cms.Schedule(process.bril_path, process.p)

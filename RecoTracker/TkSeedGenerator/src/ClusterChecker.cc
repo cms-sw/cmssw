@@ -37,6 +37,7 @@ void ClusterChecker::fillDescriptions(edm::ParameterSetDescription& desc) {
   desc.add<edm::InputTag>("PixelClusterCollectionLabel", edm::InputTag("siPixelClusters"));
   desc.add<std::string>("cut",
                         "strip < 400000 && pixel < 40000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + 0.1*strip)");
+  desc.add<uint32_t>("DontCountDetsAboveNClusters", 0);
 }
 
 ClusterChecker::~ClusterChecker() {}

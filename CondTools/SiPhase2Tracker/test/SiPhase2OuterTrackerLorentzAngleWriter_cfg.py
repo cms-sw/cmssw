@@ -44,8 +44,8 @@ if os.path.exists(outfile):
 process.load("CondCore.CondDB.CondDB_cfi")
 process.CondDB.connect = cms.string(outdb)
 
-process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026Default_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4Default_cff')
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag

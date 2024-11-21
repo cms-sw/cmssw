@@ -53,6 +53,15 @@ done
 
 echo -e " Done with the miscalibrators \n\n"
 
+## do the checkers
+for entry in "${SCRAM_TEST_PATH}/"SiStrip*Checker_cfg.py
+do
+  echo "===== Test \"cmsRun $entry \" ===="
+  (cmsRun $entry) || die "Failure using cmsRun $entry" $?
+done
+
+echo -e " Done with the checkers \n\n"
+
 ## do the scaler
 
 # copy all the necessary conditions in order to run the miscalibration tool

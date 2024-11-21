@@ -103,7 +103,7 @@ namespace l1t {
     unsigned int formatAsym(std::vector<l1t::EtSum>::const_iterator etSum);
     unsigned int formatHMB(std::vector<l1t::EtSum>::const_iterator etSum);
     std::pair<unsigned int, unsigned int> formatCentrality(std::vector<l1t::EtSum>::const_iterator etSum);
-    std::map<std::string, std::vector<int>> m_algoSummary;
+    std::map<std::string, std::vector<int>, std::less<>> m_algoSummary;
 
     unsigned int m_absBx;
     int m_bxOffset;
@@ -201,11 +201,11 @@ namespace l1t {
     LogDebug("GtRecordDump") << "retrieved L1 data " << endl;
 
     // grab the map for the final decisions
-    const std::vector<std::pair<std::string, bool>> initialDecisions = m_gtUtil->decisionsInitial();
-    const std::vector<std::pair<std::string, bool>> intermDecisions = m_gtUtil->decisionsInterm();
-    const std::vector<std::pair<std::string, bool>> finalDecisions = m_gtUtil->decisionsFinal();
-    const std::vector<std::pair<std::string, double>> prescales = m_gtUtil->prescales();
-    const std::vector<std::pair<std::string, std::vector<int>>> masks = m_gtUtil->masks();
+    const auto& initialDecisions = m_gtUtil->decisionsInitial();
+    const auto& intermDecisions = m_gtUtil->decisionsInterm();
+    const auto& finalDecisions = m_gtUtil->decisionsFinal();
+    const auto& prescales = m_gtUtil->prescales();
+    const auto& masks = m_gtUtil->masks();
 
     LogDebug("GtRecordDump") << "retrieved all event vectors " << endl;
 
@@ -220,7 +220,7 @@ namespace l1t {
     }
     for (unsigned int i = 0; i < initialDecisions.size(); i++) {
       // get the name and trigger result
-      std::string name = (initialDecisions.at(i)).first;
+      string name{(initialDecisions.at(i)).first};
       bool resultInit = (initialDecisions.at(i)).second;
 
       //  put together our map of algorithms and counts across events

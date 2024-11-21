@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2026D110Reco_cff")
+process.load("Configuration.Geometry.GeometryExtendedRun4D110Reco_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Geometry.CaloTopology.hgcalTopologyTester_cfi")
 

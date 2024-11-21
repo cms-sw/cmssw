@@ -34,7 +34,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #           Alpaka pixel-only quadruplets:                      ZMM with PU: any backend, any backend vs cpu validation, profiling
 #           Alpaka pixel-only triplets:                         ZMM with PU: any backend, any backend vs cpu validation, profiling
 #           Alpaka pixel-only quadruplets:                      Single Nu E10 with PU: any backend
-# mc 2026   
+# mc Run4   
 # no PU
 #           Alpaka pixel-only:                                  TTbar: quadruplets any backend, any backend vs cpu validation, profiling, triplets      
 #           Alpaka pixel-only:                                  Single Nu E10: any backend
@@ -69,11 +69,13 @@ numWFIB = [
            13050.406, 13050.407, 13050.408,
            13061.402,
 
-           # 2026, Alpaka-based noPU
+           # Run4, Alpaka-based noPU
            29634.402, 29634.403, 29634.404, 29634.406,
            29661.402,
+           # Run4, Alpaka-based noPU GPU LST tracking D98
+           24834.704,
 
-           # 2026, Alpaka-based PU
+           # Run4, Alpaka-based PU
            29834.402, 29834.403, 29834.404
         ]
 
