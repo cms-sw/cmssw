@@ -86,7 +86,7 @@ from DQMOffline.Muon.muonQualityTests_cff import *
 from DQMOffline.EGamma.egammaPostProcessing_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
-from DQMOffline.RecoB.dqmCollector_cff import *
+from DQMOffline.RecoB.bTagMiniDQM_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitorClient_cff import *
 from DQMOffline.JetMET.SusyPostProcessor_cff import *
 
@@ -265,7 +265,7 @@ DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
 
 DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )
 
-DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
+DQMHarvestBTag = cms.Sequence( bTagMiniDQMHarvesting )
 
 from PhysicsTools.NanoAOD.nanoDQM_cff import *
 from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import *
