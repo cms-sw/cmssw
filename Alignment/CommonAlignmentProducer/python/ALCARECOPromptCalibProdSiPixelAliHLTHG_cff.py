@@ -56,12 +56,13 @@ SiPixelAliMilleAlignmentProducerHLTHG = SiPixelAliMilleAlignmentProducerHLT.clon
 
 # Ingredient: SiPixelAliTrackerTrackHitFilter
 SiPixelAliTrackerTrackHitFilterHLTHG = SiPixelAliTrackerTrackHitFilterHLT.clone(
-    src = 'SiPixelAliTrackRefitterHLTHG0'
+    src = 'SiPixelAliTrackRefitterHLTHG0',
+    usePixelQualityFlag = False
 )
 
 # Ingredient: SiPixelAliSiPixelAliTrackFitter
 SiPixelAliTrackFitterHLTHG = SiPixelAliTrackFitterHLT.clone(
-    src = 'SiPixelAliTrackerTrackHitFilterHG'
+    src = 'SiPixelAliTrackerTrackHitFilterHLTHG'
 )
 
 SiPixelAliMillePedeFileConverterHLTHG = cms.EDProducer(

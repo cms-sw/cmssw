@@ -109,12 +109,13 @@ SiPixelAliMilleAlignmentProducerHLTHGDimuon = SiPixelAliMilleAlignmentProducerHL
 SiPixelAliTrackerTrackHitFilterHLTHGDimuon = SiPixelAliTrackerTrackHitFilterHLT.clone(
     src = 'SiPixelAliTrackRefitterHLTHGDimuon0',
     TrackAngleCut = 0.087,
-    minimumHits = 10
+    minimumHits = 10,
+    usePixelQualityFlag = False
 )
 
 # Ingredient: SiPixelAliSiPixelAliTrackFitter
 SiPixelAliTrackFitterHLTHGDimuon = SiPixelAliTrackFitterHLT.clone(
-	src = 'SiPixelAliTrackerTrackHitFilterHLTHGDimuon'
+    src = 'SiPixelAliTrackerTrackHitFilterHLTHGDimuon'
 )
 
 SiPixelAliMillePedeFileConverterHLTHGDimuon = cms.EDProducer(
