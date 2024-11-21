@@ -21,8 +21,8 @@ using namespace tt;
 namespace trackerTFP {
 
   /*! \class  trackerTFP::AnalyzerDemonstrator
-   *  \brief  Class to demontrate correctness of track trigger emulators
-   *          by comparing FW with SW
+   *  \brief  calls questasim to simulate the f/w and compares the results with clock-and-bit-accurate emulation.
+   *          A single bit error interrupts the run.
    *  \author Thomas Schuh
    *  \date   2020, Nov
    */
@@ -64,13 +64,14 @@ namespace trackerTFP {
     // book in- and output ED products
     const string& labelIn = iConfig.getParameter<string>("LabelIn");
     const string& labelOut = iConfig.getParameter<string>("LabelOut");
-    const string& branchStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
-    const string& branchTracks = iConfig.getParameter<string>("BranchAcceptedTracks");
+    const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
+    const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
     edGetTokenStubsIn_ = consumes<StreamsStub>(InputTag(labelIn, branchStubs));
-    edGetTokenStubsOut_ = consumes<StreamsStub>(InputTag(labelOut, branchStubs));
-    if (labelIn == "TrackerTFPProducerKFin" || labelIn == "TrackerTFPProducerKF")
+    if (labelOut != "ProducerTFP")
+      edGetTokenStubsOut_ = consumes<StreamsStub>(InputTag(labelOut, branchStubs));
+    if (labelIn == "ProducerCTB" || labelIn == "ProducerKF" || labelIn == "ProducerDR")
       edGetTokenTracksIn_ = consumes<StreamsTrack>(InputTag(labelIn, branchTracks));
-    if (labelOut == "TrackerTFPProducerKF" || labelOut == "TrackerTFPProducerDR")
+    if (labelOut == "ProducerCTB" || labelOut == "ProducerKF" || labelOut == "ProducerDR" || labelOut == "ProducerTFP")
       edGetTokenTracksOut_ = consumes<StreamsTrack>(InputTag(labelOut, branchTracks));
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
@@ -85,6 +86,8 @@ namespace trackerTFP {
   }
 
   void AnalyzerDemonstrator::analyze(const Event& iEvent, const EventSetup& iSetup) {
+    Handle<StreamsStub> handle;
+    iEvent.getByToken<StreamsStub>(edGetTokenStubsIn_, handle);
     vector<vector<Frame>> input;
     vector<vector<Frame>> output;
     convert(iEvent, edGetTokenTracksIn_, edGetTokenStubsIn_, input);

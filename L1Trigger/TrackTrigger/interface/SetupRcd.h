@@ -1,11 +1,9 @@
-#ifndef L1Trigger_TrackerDTC_SetupRcd_h
-#define L1Trigger_TrackerDTC_SetupRcd_h
+#ifndef L1Trigger_TrackTrigger_SetupRcd_h
+#define L1Trigger_TrackTrigger_SetupRcd_h
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CondFormats/DataRecord/interface/TrackerDetToDTCELinkCablingMapRcd.h"
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithmRecord.h"
@@ -14,16 +12,12 @@
 
 namespace tt {
 
-  typedef edm::mpl::Vector<TrackerDigiGeometryRecord,
-                           TrackerTopologyRcd,
-                           IdealMagneticFieldRecord,
-                           IdealGeometryRecord,
-                           TrackerDetToDTCELinkCablingMapRcd,
-                           TTStubAlgorithmRecord>
-      Rcds;
+  typedef edm::mpl::
+      Vector<TrackerDigiGeometryRecord, TrackerTopologyRcd, TrackerDetToDTCELinkCablingMapRcd, TTStubAlgorithmRecord>
+          SetupDepRcds;
 
   // record of tt::Setup
-  class SetupRcd : public edm::eventsetup::DependentRecordImplementation<SetupRcd, Rcds> {};
+  class SetupRcd : public edm::eventsetup::DependentRecordImplementation<SetupRcd, SetupDepRcds> {};
 
 }  // namespace tt
 

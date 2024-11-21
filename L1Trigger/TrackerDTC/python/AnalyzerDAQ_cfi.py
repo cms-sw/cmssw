@@ -1,3 +1,5 @@
+# configuration for TrackerDTCAnalyzerDAQ
+
 import FWCore.ParameterSet.Config as cms
 
 TrackerDTCAnalyzerDAQ_params = cms.PSet (

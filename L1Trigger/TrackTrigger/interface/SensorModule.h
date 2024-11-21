@@ -25,6 +25,8 @@ namespace tt {
     bool side() const { return side_; }
     // barrel or endcap
     bool barrel() const { return barrel_; }
+    // tilted barrel or flat barrel
+    bool tilted() const { return tilted_; }
     // Pixel-Strip or 2Strip module
     bool psModule() const { return psModule_; }
     // main sensor inside or outside
@@ -69,6 +71,10 @@ namespace tt {
     int windowSize() const { return windowSize_; }
     //
     double tiltCorrection(double cot) const { return std::abs(tiltCorrectionSlope_ * cot) + tiltCorrectionIntercept_; }
+    //
+    double dPhi(double inv2R) const { return dPhi_ + (dR_ + scattering_) * abs(inv2R); }
+    //
+    double dZ() const { return dZ_; }
 
     unsigned int ringId(const Setup* setup) const;
 
@@ -84,6 +90,8 @@ namespace tt {
     bool side_;
     // barrel or endcap
     bool barrel_;
+    // tilted barrel or flat barrel
+    bool tilted_;
     // Pixel-Strip or 2Strip module
     bool psModule_;
     // main sensor inside or outside
@@ -132,6 +140,14 @@ namespace tt {
     double tiltCorrectionSlope_;
     // tilt correction parameter used to project r to z uncertainty
     double tiltCorrectionIntercept_;
+    //
+    double scattering_;
+    //
+    double dR_;
+    //
+    double dPhi_;
+    //
+    double dZ_;
   };
 
 }  // namespace tt

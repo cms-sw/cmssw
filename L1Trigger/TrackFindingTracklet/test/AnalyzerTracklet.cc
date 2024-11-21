@@ -15,6 +15,7 @@
 #include "SimTracker/TrackTriggerAssociation/interface/StubAssociation.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
+#include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
 
 #include <TProfile.h>
 #include <TH1F.h>
@@ -66,10 +67,14 @@ namespace trklet {
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // DataFormats token
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    // ChannelAssignment token
+    ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
     // stores, calculates and provides run-time constants
     const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_ = nullptr;
+    // helper class to assign tracks to channel
+    const ChannelAssignment* channelAssignment_ = nullptr;
     // enables analyze of TPs
     bool useMCTruth_;
     //
@@ -105,6 +110,7 @@ namespace trklet {
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
+    esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
     // log config
     log_.setf(ios::fixed, ios::floatfield);
     log_.precision(4);
@@ -115,6 +121,8 @@ namespace trklet {
     setup_ = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
+    // helper class to assign tracks to channel
+    channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
     // book histograms
     Service<TFileService> fs;
     TFileDirectory dir;
@@ -132,7 +140,7 @@ namespace trklet {
     prof_->GetXaxis()->SetBinLabel(10, "Perfectly Found selected TPs");
     // channel occupancy
     constexpr int maxOcc = 180;
-    const int numChannels = setup_->numRegions();
+    const int numChannels = channelAssignment_->numSeedTypes();
     hisChannel_ = dir.make<TH1F>("His Channel Occupancy", ";", maxOcc, -.5, maxOcc - .5);
     profChannel_ = dir.make<TProfile>("Prof Channel Occupancy", ";", numChannels, -.5, numChannels - .5);
     // Efficiencies
@@ -178,12 +186,18 @@ namespace trklet {
             return sum + ttTrackRef->getStubRefs().size();
           });
       const int nTracks = ttTrackRefs.size();
-      hisChannel_->Fill(nTracks);
-      profChannel_->Fill(region, nTracks);
       prof_->Fill(1, nStubs);
       prof_->Fill(2, nTracks);
       // no access to lost tracks
       prof_->Fill(3, 0);
+      for (int seedType = 0; seedType < channelAssignment_->numSeedTypes(); seedType++) {
+        const int nTracks =
+            accumulate(ttTrackRefs.begin(), ttTrackRefs.end(), 0, [seedType](int sum, const TTTrackRef& ttTrackRef) {
+              return sum += ((int)ttTrackRef->trackSeedType() == seedType ? 1 : 0);
+            });
+        hisChannel_->Fill(nTracks);
+        profChannel_->Fill(seedType, nTracks);
+      }
     }
     // analyze tracklet products and associate found tracks with reconstrucable TrackingParticles
     set<TPPtr> tpPtrs;
@@ -251,7 +265,7 @@ namespace trklet {
     log_ << "                  fake rate = " << setw(wNums) << fracFake << endl;
     log_ << "             duplicate rate = " << setw(wNums) << fracDup << endl;
     log_ << "=============================================================";
-    LogPrint("L1Trigger/TrackFindingTracklet") << log_.str();
+    LogPrint(moduleDescription().moduleName()) << log_.str();
   }
 
   // gets all TPs associated too any of the tracks & number of tracks matching at least one TP
