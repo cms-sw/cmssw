@@ -2,7 +2,6 @@
 
 from builtins import zip
 from builtins import object
-from past.utils import old_div
 from builtins import range
 import sys
 import re
@@ -14,6 +13,9 @@ import math
 
 sepRE      = re.compile (r'[\s,;:]+')
 nonSpaceRE = re.compile (r'\S')
+
+def old_div(a, b):
+  return a // b
 
 ##########################
 ## #################### ##
