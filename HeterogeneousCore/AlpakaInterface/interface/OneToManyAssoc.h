@@ -74,6 +74,11 @@ namespace cms::alpakatools {
     }
 
     template <typename TAcc>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE static uint32_t atomicNIncrement(const TAcc &acc, Counter &x, Counter N) {
+      return alpaka::atomicAdd(acc, &x, N, alpaka::hierarchy::Blocks{});
+    }
+
+    template <typename TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE static uint32_t atomicDecrement(const TAcc &acc, Counter &x) {
       return alpaka::atomicSub(acc, &x, 1u, alpaka::hierarchy::Blocks{});
     }
@@ -82,6 +87,12 @@ namespace cms::alpakatools {
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void count(const TAcc &acc, I b) {
       ALPAKA_ASSERT_ACC(b < static_cast<uint32_t>(nOnes()));
       atomicIncrement(acc, off[b]);
+    }
+
+    template <typename TAcc>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void countN(const TAcc &acc, I b, Counter N) {
+      ALPAKA_ASSERT_ACC(b < static_cast<uint32_t>(nOnes()));
+      atomicNIncrement(acc, off[b],N);
     }
 
     template <typename TAcc>
