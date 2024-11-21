@@ -40,7 +40,7 @@ namespace lst {
           pixelMapping(pixelMappingIn) {}
   };
 
-  std::unique_ptr<LSTESData<alpaka_common::DevHost>> loadAndFillESHost();
+  std::unique_ptr<LSTESData<alpaka_common::DevHost>> loadAndFillESHost(std::string& ptCutLabel);
 
 }  // namespace lst
 

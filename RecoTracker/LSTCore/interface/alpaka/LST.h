@@ -17,6 +17,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     void run(Queue& queue,
              bool verbose,
+             const float ptCut,
              LSTESData<Device> const* deviceESData,
              std::vector<float> const& see_px,
              std::vector<float> const& see_py,
@@ -63,7 +64,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                       std::vector<unsigned int> const& ph2_detId,
                       std::vector<float> const& ph2_x,
                       std::vector<float> const& ph2_y,
-                      std::vector<float> const& ph2_z);
+                      std::vector<float> const& ph2_z,
+                      const float ptCut);
 
     void getOutput(LSTEvent& event);
 

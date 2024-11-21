@@ -701,7 +701,7 @@ void addInputsToLineSegmentTrackingPreLoad(std::vector<std::vector<float>> &out_
     float eta = p3LH.Eta();
     float ptErr = trk.see_ptErr()[iSeed];
 
-    if ((ptIn > PT_CUT - 2 * ptErr)) {
+    if ((ptIn > ana.ptCut - 2 * ptErr)) {
       TVector3 r3LH(trk.see_stateTrajGlbX()[iSeed], trk.see_stateTrajGlbY()[iSeed], trk.see_stateTrajGlbZ()[iSeed]);
       TVector3 p3PCA(trk.see_px()[iSeed], trk.see_py()[iSeed], trk.see_pz()[iSeed]);
       TVector3 r3PCA(calculateR3FromPCA(p3PCA, trk.see_dxy()[iSeed], trk.see_dz()[iSeed]));
@@ -722,7 +722,7 @@ void addInputsToLineSegmentTrackingPreLoad(std::vector<std::vector<float>> &out_
       PixelType pixtype = PixelType::kInvalid;
       if (ptIn >= 2.0) {
         pixtype = PixelType::kHighPt;
-      } else if (ptIn >= (PT_CUT - 2 * ptErr) and ptIn < 2.0) {
+      } else if (ptIn >= (ana.ptCut - 2 * ptErr) and ptIn < 2.0) {
         if (pixelSegmentDeltaPhiChange >= 0) {
           pixtype = PixelType::kLowPtPosCurv;
         } else {

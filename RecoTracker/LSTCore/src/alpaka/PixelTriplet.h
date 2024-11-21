@@ -29,7 +29,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int firstMDIndex,
                                                                 unsigned int secondMDIndex,
                                                                 unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex);
+                                                                unsigned int fourthMDIndex,
+                                                                const float ptCut);
   template <typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletDefaultAlgoPPEE(TAcc const& acc,
                                                                 ModulesConst modules,
@@ -45,7 +46,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int firstMDIndex,
                                                                 unsigned int secondMDIndex,
                                                                 unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex);
+                                                                unsigned int fourthMDIndex,
+                                                                const float ptCut);
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addPixelTripletToMemory(MiniDoubletsConst mds,
                                                               SegmentsConst segments,
@@ -123,7 +125,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                      uint16_t outerInnerLowerModuleIndex,
                                                                      uint16_t outerOuterLowerModuleIndex,
                                                                      unsigned int innerSegmentIndex,
-                                                                     unsigned int outerSegmentIndex) {
+                                                                     unsigned int outerSegmentIndex,
+                                                                     const float ptCut) {
     short outerInnerLowerModuleSubdet = modules.subdets()[outerInnerLowerModuleIndex];
     short outerOuterLowerModuleSubdet = modules.subdets()[outerOuterLowerModuleIndex];
 
@@ -149,7 +152,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        firstMDIndex,
                                        secondMDIndex,
                                        thirdMDIndex,
-                                       fourthMDIndex);
+                                       fourthMDIndex,
+                                       ptCut);
     } else if (outerInnerLowerModuleSubdet == Endcap and outerOuterLowerModuleSubdet == Endcap) {
       return runTripletDefaultAlgoPPEE(acc,
                                        modules,
@@ -165,7 +169,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        firstMDIndex,
                                        secondMDIndex,
                                        thirdMDIndex,
-                                       fourthMDIndex);
+                                       fourthMDIndex,
+                                       ptCut);
     }
     return false;
   }
@@ -639,6 +644,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                  float& rzChiSquared,
                                                                  float& rPhiChiSquared,
                                                                  float& rPhiChiSquaredInwards,
+                                                                 const float ptCut,
                                                                  bool runChiSquaredCuts = true) {
     //run pT4 compatibility between the pixel segment and inner segment, and between the pixel and outer segment of the triplet
     uint16_t pixelModuleIndex = segments.innerLowerModuleIndices()[pixelSegmentIndex];
@@ -659,7 +665,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                              lowerModuleIndex,
                                              middleModuleIndex,
                                              pixelSegmentIndex,
-                                             triplets.segmentIndices()[tripletIndex][0]))
+                                             triplets.segmentIndices()[tripletIndex][0],
+                                             ptCut))
         return false;
 
       //pixel segment vs outer segment of triplet
@@ -673,7 +680,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                              middleModuleIndex,
                                              upperModuleIndex,
                                              pixelSegmentIndex,
-                                             triplets.segmentIndices()[tripletIndex][1]))
+                                             triplets.segmentIndices()[tripletIndex][1],
+                                             ptCut))
         return false;
     }
 
@@ -791,7 +799,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   PixelTriplets pixelTriplets,
                                   unsigned int* connectedPixelSize,
                                   unsigned int* connectedPixelIndex,
-                                  unsigned int nPixelSegments) const {
+                                  unsigned int nPixelSegments,
+                                  const float ptCut) const {
       auto const globalBlockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc);
       auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
       auto const gridBlockExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc);
@@ -867,7 +876,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                       centerY,
                                                       rzChiSquared,
                                                       rPhiChiSquared,
-                                                      rPhiChiSquaredInwards);
+                                                      rPhiChiSquaredInwards,
+                                                      ptCut);
 
             if (success) {
               float phi =
@@ -933,7 +943,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int firstMDIndex,
                                                                 unsigned int secondMDIndex,
                                                                 unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex) {
+                                                                unsigned int fourthMDIndex,
+                                                                const float ptCut) {
     float dPhi, betaIn, betaOut, pt_beta, zLo, zHi, zLoPointed, zHiPointed, dPhiCut, betaOutCut;
 
     bool isPS_OutLo = (modules.moduleType()[outerInnerLowerModuleIndex] == PS);
@@ -1191,7 +1202,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int firstMDIndex,
                                                                 unsigned int secondMDIndex,
                                                                 unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex) {
+                                                                unsigned int fourthMDIndex,
+                                                                const float ptCut) {
     float dPhi, betaIn, betaOut, pt_beta, rtLo, rtHi, dPhiCut, betaOutCut;
 
     bool isPS_OutLo = (modules.moduleType()[outerInnerLowerModuleIndex] == PS);
