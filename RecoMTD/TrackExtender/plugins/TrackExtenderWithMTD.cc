@@ -620,6 +620,8 @@ private:
   const bool useSimVertex_;
   const float dzCut_;
   const float bsTimeSpread_;
+
+  static constexpr float trackMaxBtlEta_ = 1.5;
 };
 
 template <class TrackCollection>
@@ -1010,8 +1012,8 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
               mBTL.hit ? (float)(*track).outerRadius()
                        : (float)(*track).outerZ());  // save R of the outermost hit for BTL, z for ETL.
         } else {
-          outermostHitPosition.push_back(std::abs(track->eta()) < 1.48 ? (float)(*track).outerRadius()
-                                                                       : (float)(*track).outerZ());
+          outermostHitPosition.push_back(std::abs(track->eta()) < trackMaxBtlEta_ ? (float)(*track).outerRadius()
+                                                                                  : (float)(*track).outerZ());
         }
 
         LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: tmtd " << tmtdMap << " +/- " << sigmatmtdMap
