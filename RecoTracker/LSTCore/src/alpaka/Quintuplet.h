@@ -1212,7 +1212,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                    unsigned int firstMDIndex,
                                                                    unsigned int secondMDIndex,
                                                                    unsigned int thirdMDIndex,
-                                                                   unsigned int fourthMDIndex) {
+                                                                   unsigned int fourthMDIndex,
+                                                                   const float ptCut) {
     bool isPS_InLo = (modules.moduleType()[innerInnerLowerModuleIndex] == PS);
     bool isPS_OutLo = (modules.moduleType()[outerInnerLowerModuleIndex] == PS);
 
@@ -1454,7 +1455,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                    unsigned int firstMDIndex,
                                                                    unsigned int secondMDIndex,
                                                                    unsigned int thirdMDIndex,
-                                                                   unsigned int fourthMDIndex) {
+                                                                   unsigned int fourthMDIndex,
+                                                                   const float ptCut) {
     bool isPS_InLo = (modules.moduleType()[innerInnerLowerModuleIndex] == PS);
     bool isPS_OutLo = (modules.moduleType()[outerInnerLowerModuleIndex] == PS);
 
@@ -1698,7 +1700,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                    unsigned int firstMDIndex,
                                                                    unsigned int secondMDIndex,
                                                                    unsigned int thirdMDIndex,
-                                                                   unsigned int fourthMDIndex) {
+                                                                   unsigned int fourthMDIndex,
+                                                                   const float ptCut) {
     float rt_InLo = mds.anchorRt()[firstMDIndex];
     float rt_InOut = mds.anchorRt()[secondMDIndex];
     float rt_OutLo = mds.anchorRt()[thirdMDIndex];
@@ -1923,7 +1926,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int firstMDIndex,
                                                                 unsigned int secondMDIndex,
                                                                 unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex) {
+                                                                unsigned int fourthMDIndex,
+                                                                const float ptCut) {
     short innerInnerLowerModuleSubdet = modules.subdets()[innerInnerLowerModuleIndex];
     short innerOuterLowerModuleSubdet = modules.subdets()[innerOuterLowerModuleIndex];
     short outerInnerLowerModuleSubdet = modules.subdets()[outerInnerLowerModuleIndex];
@@ -1944,7 +1948,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                           firstMDIndex,
                                           secondMDIndex,
                                           thirdMDIndex,
-                                          fourthMDIndex);
+                                          fourthMDIndex,
+                                          ptCut);
     } else if (innerInnerLowerModuleSubdet == Barrel and innerOuterLowerModuleSubdet == Barrel and
                outerInnerLowerModuleSubdet == Endcap and outerOuterLowerModuleSubdet == Endcap) {
       return runQuintupletDefaultAlgoBBEE(acc,
@@ -1960,7 +1965,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                           firstMDIndex,
                                           secondMDIndex,
                                           thirdMDIndex,
-                                          fourthMDIndex);
+                                          fourthMDIndex,
+                                          ptCut);
     } else if (innerInnerLowerModuleSubdet == Barrel and innerOuterLowerModuleSubdet == Barrel and
                outerInnerLowerModuleSubdet == Barrel and outerOuterLowerModuleSubdet == Endcap) {
       return runQuintupletDefaultAlgoBBBB(acc,
@@ -1976,7 +1982,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                           firstMDIndex,
                                           secondMDIndex,
                                           thirdMDIndex,
-                                          fourthMDIndex);
+                                          fourthMDIndex,
+                                          ptCut);
     } else if (innerInnerLowerModuleSubdet == Barrel and innerOuterLowerModuleSubdet == Endcap and
                outerInnerLowerModuleSubdet == Endcap and outerOuterLowerModuleSubdet == Endcap) {
       return runQuintupletDefaultAlgoBBEE(acc,
@@ -1992,7 +1999,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                           firstMDIndex,
                                           secondMDIndex,
                                           thirdMDIndex,
-                                          fourthMDIndex);
+                                          fourthMDIndex,
+                                          ptCut);
     } else if (innerInnerLowerModuleSubdet == Endcap and innerOuterLowerModuleSubdet == Endcap and
                outerInnerLowerModuleSubdet == Endcap and outerOuterLowerModuleSubdet == Endcap) {
       return runQuintupletDefaultAlgoEEEE(acc,
@@ -2008,7 +2016,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                           firstMDIndex,
                                           secondMDIndex,
                                           thirdMDIndex,
-                                          fourthMDIndex);
+                                          fourthMDIndex,
+                                          ptCut);
     }
 
     return false;
@@ -2036,7 +2045,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                float& rzChiSquared,
                                                                float& chiSquared,
                                                                float& nonAnchorChiSquared,
-                                                               bool& tightCutFlag) {
+                                                               bool& tightCutFlag,
+                                                               const float ptCut) {
     unsigned int firstSegmentIndex = triplets.segmentIndices()[innerTripletIndex][0];
     unsigned int secondSegmentIndex = triplets.segmentIndices()[innerTripletIndex][1];
     unsigned int thirdSegmentIndex = triplets.segmentIndices()[outerTripletIndex][0];
@@ -2070,7 +2080,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                       firstMDIndex,
                                       secondMDIndex,
                                       thirdMDIndex,
-                                      fourthMDIndex))
+                                      fourthMDIndex,
+                                      ptCut))
       return false;
 
     if (not runQuintupletAlgoSelector(acc,
@@ -2086,7 +2097,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                       firstMDIndex,
                                       secondMDIndex,
                                       fourthMDIndex,
-                                      fifthMDIndex))
+                                      fifthMDIndex,
+                                      ptCut))
       return false;
 
     float x1 = mds.anchorX()[firstMDIndex];
@@ -2342,7 +2354,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   Quintuplets quintuplets,
                                   QuintupletsOccupancy quintupletsOccupancy,
                                   ObjectRangesConst ranges,
-                                  uint16_t nEligibleT5Modules) const {
+                                  uint16_t nEligibleT5Modules,
+                                  const float ptCut) const {
       auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
       auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
 
@@ -2397,7 +2410,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                     rzChiSquared,
                                                     chiSquared,
                                                     nonAnchorChiSquared,
-                                                    tightCutFlag);
+                                                    tightCutFlag,
+                                                    ptCut);
 
             if (success) {
               int totOccupancyQuintuplets = alpaka::atomicAdd(

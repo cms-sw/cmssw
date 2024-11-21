@@ -439,7 +439,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                     float& quintupletRadius,
                                                                     float& centerX,
                                                                     float& centerY,
-                                                                    unsigned int pixelSegmentArrayIndex) {
+                                                                    unsigned int pixelSegmentArrayIndex,
+                                                                    const float ptCut) {
     unsigned int t5InnerT3Index = quintuplets.tripletIndices()[quintupletIndex][0];
     unsigned int t5OuterT3Index = quintuplets.tripletIndices()[quintupletIndex][1];
 
@@ -462,6 +463,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        rzChiSquaredTemp,
                                        rPhiChiSquaredTemp,
                                        rPhiChiSquaredInwardsTemp,
+                                       ptCut,
                                        false))
       return false;
 
@@ -583,7 +585,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   unsigned int* connectedPixelSize,
                                   unsigned int* connectedPixelIndex,
                                   unsigned int nPixelSegments,
-                                  ObjectRangesConst ranges) const {
+                                  ObjectRangesConst ranges,
+                                  const float ptCut) const {
       auto const globalBlockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc);
       auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
       auto const gridBlockExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc);
@@ -638,7 +641,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                          quintupletRadius,
                                                          centerX,
                                                          centerY,
-                                                         static_cast<unsigned int>(i_pLS));
+                                                         static_cast<unsigned int>(i_pLS),
+                                                         ptCut);
             if (success) {
               unsigned int totOccupancyPixelQuintuplets = alpaka::atomicAdd(
                   acc, &pixelQuintuplets.totOccupancyPixelQuintuplets(), 1u, alpaka::hierarchy::Threads{});

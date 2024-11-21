@@ -43,21 +43,22 @@ namespace {
   void loadMapsHost(lst::MapPLStoLayer& pLStoLayer,
                     lst::EndcapGeometry& endcapGeometry,
                     lst::TiltedGeometry& tiltedGeometry,
-                    lst::ModuleConnectionMap& moduleConnectionMap) {
+                    lst::ModuleConnectionMap& moduleConnectionMap,
+                    std::string& ptCutLabel) {
     // Module orientation information (DrDz or phi angles)
-    auto endcap_geom =
-        get_absolute_path_after_check_file_exists(geometryDataDir() + "/data/OT800_IT615_pt0.8/endcap_orientation.bin");
-    auto tilted_geom = get_absolute_path_after_check_file_exists(
-        geometryDataDir() + "/data/OT800_IT615_pt0.8/tilted_barrel_orientation.bin");
+    auto endcap_geom = get_absolute_path_after_check_file_exists(geometryDataDir() + "/data/OT800_IT615_pt" +
+                                                                 ptCutLabel + "/endcap_orientation.bin");
+    auto tilted_geom = get_absolute_path_after_check_file_exists(geometryDataDir() + "/data/OT800_IT615_pt" +
+                                                                 ptCutLabel + "/tilted_barrel_orientation.bin");
     // Module connection map (for line segment building)
-    auto mappath = get_absolute_path_after_check_file_exists(
-        geometryDataDir() + "/data/OT800_IT615_pt0.8/module_connection_tracing_merged.bin");
+    auto mappath = get_absolute_path_after_check_file_exists(geometryDataDir() + "/data/OT800_IT615_pt" + ptCutLabel +
+                                                             "/module_connection_tracing_merged.bin");
 
     endcapGeometry.load(endcap_geom);
     tiltedGeometry.load(tilted_geom);
     moduleConnectionMap.load(mappath);
 
-    auto pLSMapDir = geometryDataDir() + "/data/OT800_IT615_pt0.8/pixelmap/pLS_map";
+    auto pLSMapDir = geometryDataDir() + "/data/OT800_IT615_pt" + ptCutLabel + "/pixelmap/pLS_map";
     const std::array<std::string, 4> connects{
         {"_layer1_subdet5", "_layer2_subdet5", "_layer1_subdet4", "_layer2_subdet4"}};
     std::string path;
@@ -78,7 +79,7 @@ namespace {
   }
 }  // namespace
 
-std::unique_ptr<lst::LSTESData<alpaka_common::DevHost>> lst::loadAndFillESHost() {
+std::unique_ptr<lst::LSTESData<alpaka_common::DevHost>> lst::loadAndFillESHost(std::string& ptCutLabel) {
   uint16_t nModules;
   uint16_t nLowerModules;
   unsigned int nPixels;
@@ -87,7 +88,7 @@ std::unique_ptr<lst::LSTESData<alpaka_common::DevHost>> lst::loadAndFillESHost()
   TiltedGeometry tiltedGeometry;
   PixelMap pixelMapping;
   ModuleConnectionMap moduleConnectionMap;
-  ::loadMapsHost(pLStoLayer, endcapGeometry, tiltedGeometry, moduleConnectionMap);
+  ::loadMapsHost(pLStoLayer, endcapGeometry, tiltedGeometry, moduleConnectionMap, ptCutLabel);
 
   auto endcapGeometryDev =
       std::make_shared<EndcapGeometryDevHostCollection>(endcapGeometry.nEndCapMap, cms::alpakatools::host());
@@ -98,8 +99,8 @@ std::unique_ptr<lst::LSTESData<alpaka_common::DevHost>> lst::loadAndFillESHost()
               endcapGeometry.geoMapPhi_buf.data(),
               endcapGeometry.nEndCapMap * sizeof(float));
 
-  auto path =
-      get_absolute_path_after_check_file_exists(geometryDataDir() + "/data/OT800_IT615_pt0.8/sensor_centroids.bin");
+  auto path = get_absolute_path_after_check_file_exists(geometryDataDir() + "/data/OT800_IT615_pt" + ptCutLabel +
+                                                        "/sensor_centroids.bin");
   auto modulesBuffers = lst::loadModulesFromFile(pLStoLayer,
                                                  path.c_str(),
                                                  nModules,

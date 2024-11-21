@@ -381,7 +381,8 @@ void LSTEvent::createMiniDoublets() {
                       hitsDC_->const_view<HitsRangesSoA>(),
                       miniDoubletsDC_->view<MiniDoubletsSoA>(),
                       miniDoubletsDC_->view<MiniDoubletsOccupancySoA>(),
-                      rangesDC_->const_view());
+                      rangesDC_->const_view(),
+                      ptCut_);
 
   WorkDiv1D const addMiniDoubletRangesToEventExplicit_workDiv = createWorkDiv<Vec1D>({1}, {1024}, {1});
 
@@ -427,7 +428,8 @@ void LSTEvent::createSegmentsWithModuleMap() {
                       miniDoubletsDC_->const_view<MiniDoubletsOccupancySoA>(),
                       segmentsDC_->view<SegmentsSoA>(),
                       segmentsDC_->view<SegmentsOccupancySoA>(),
-                      rangesDC_->const_view());
+                      rangesDC_->const_view(),
+                      ptCut_);
 
   WorkDiv1D const addSegmentRangesToEventExplicit_workDiv = createWorkDiv<Vec1D>({1}, {1024}, {1});
 
@@ -537,7 +539,8 @@ void LSTEvent::createTriplets() {
                       tripletsDC_->view<TripletsOccupancySoA>(),
                       rangesDC_->const_view(),
                       index_gpu_buf.data(),
-                      nonZeroModules);
+                      nonZeroModules,
+                      ptCut_);
 
   WorkDiv1D const addTripletRangesToEventExplicit_workDiv = createWorkDiv<Vec1D>({1}, {1024}, {1});
 
@@ -822,7 +825,8 @@ void LSTEvent::createPixelTriplets() {
                       pixelTripletsDC_->view(),
                       connectedPixelSize_dev_buf.data(),
                       connectedPixelIndex_dev_buf.data(),
-                      nInnerSegments);
+                      nInnerSegments,
+                      ptCut_);
 
 #ifdef WARNINGS
   auto nPixelTriplets_buf = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
@@ -904,7 +908,8 @@ void LSTEvent::createQuintuplets() {
                       quintupletsDC_->view<QuintupletsSoA>(),
                       quintupletsDC_->view<QuintupletsOccupancySoA>(),
                       rangesDC_->const_view(),
-                      nEligibleT5Modules);
+                      nEligibleT5Modules,
+                      ptCut_);
 
   Vec3D const threadsPerBlockDupQuint{1, 16, 16};
   Vec3D const blocksPerGridDupQuint{max_blocks, 1, 1};
@@ -1065,7 +1070,8 @@ void LSTEvent::createPixelQuintuplets() {
                       connectedPixelSize_dev_buf.data(),
                       connectedPixelIndex_dev_buf.data(),
                       nInnerSegments,
-                      rangesDC_->const_view());
+                      rangesDC_->const_view(),
+                      ptCut_);
 
   Vec3D const threadsPerBlockDupPix{1, 16, 16};
   Vec3D const blocksPerGridDupPix{1, max_blocks, 1};

@@ -141,7 +141,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 float& rtOut,
                                                                 unsigned int innerSegmentIndex,
                                                                 float& betaIn,
-                                                                float& betaInCut) {
+                                                                float& betaInCut,
+                                                                const float ptCut) {
     bool isPSIn = (modules.moduleType()[innerInnerLowerModuleIndex] == PS);
     bool isPSOut = (modules.moduleType()[outerOuterLowerModuleIndex] == PS);
 
@@ -238,7 +239,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int innerSegmentIndex,
                                                                 unsigned int outerSegmentIndex,
                                                                 float& betaIn,
-                                                                float& betaInCut) {
+                                                                float& betaInCut,
+                                                                const float ptCut) {
     bool isPSIn = (modules.moduleType()[innerInnerLowerModuleIndex] == PS);
     bool isPSOut = (modules.moduleType()[outerOuterLowerModuleIndex] == PS);
 
@@ -356,7 +358,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int innerSegmentIndex,
                                                                 unsigned int outerSegmentIndex,
                                                                 float& betaIn,
-                                                                float& betaInCut) {
+                                                                float& betaInCut,
+                                                                const float ptCut) {
     float rtIn = mds.anchorRt()[firstMDIndex];
     float rtMid = mds.anchorRt()[secondMDIndex];
     rtOut = mds.anchorRt()[thirdMDIndex];
@@ -478,7 +481,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                              unsigned int innerSegmentIndex,
                                                              unsigned int outerSegmentIndex,
                                                              float& betaIn,
-                                                             float& betaInCut) {
+                                                             float& betaInCut,
+                                                             const float ptCut) {
     short innerInnerLowerModuleSubdet = modules.subdets()[innerInnerLowerModuleIndex];
     short middleLowerModuleSubdet = modules.subdets()[middleLowerModuleIndex];
     short outerOuterLowerModuleSubdet = modules.subdets()[outerOuterLowerModuleIndex];
@@ -499,7 +503,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        rtOut,
                                        innerSegmentIndex,
                                        betaIn,
-                                       betaInCut);
+                                       betaInCut,
+                                       ptCut);
     } else if (innerInnerLowerModuleSubdet == Barrel and middleLowerModuleSubdet == Barrel and
                outerOuterLowerModuleSubdet == Endcap) {
       return passPointingConstraintBBE(acc,
@@ -518,7 +523,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        innerSegmentIndex,
                                        outerSegmentIndex,
                                        betaIn,
-                                       betaInCut);
+                                       betaInCut,
+                                       ptCut);
     } else if (innerInnerLowerModuleSubdet == Barrel and middleLowerModuleSubdet == Endcap and
                outerOuterLowerModuleSubdet == Endcap) {
       return passPointingConstraintBBE(acc,
@@ -537,7 +543,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        innerSegmentIndex,
                                        outerSegmentIndex,
                                        betaIn,
-                                       betaInCut);
+                                       betaInCut,
+                                       ptCut);
 
     }
 
@@ -558,7 +565,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        innerSegmentIndex,
                                        outerSegmentIndex,
                                        betaIn,
-                                       betaInCut);
+                                       betaInCut,
+                                       ptCut);
     }
     return false;  // failsafe
   }
@@ -612,7 +620,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                    float& betaInCut,
                                                                    float& circleRadius,
                                                                    float& circleCenterX,
-                                                                   float& circleCenterY) {
+                                                                   float& circleCenterY,
+                                                                   const float ptCut) {
     //this cut reduces the number of candidates by a factor of 4, i.e., 3 out of 4 warps can end right here!
     if (segments.mdIndices()[innerSegmentIndex][1] != segments.mdIndices()[outerSegmentIndex][0])
       return false;
@@ -647,7 +656,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                    innerSegmentIndex,
                                    outerSegmentIndex,
                                    betaIn,
-                                   betaInCut))
+                                   betaInCut,
+                                   ptCut))
       return false;
 
     float x1 = mds.anchorX()[firstMDIndex];
@@ -672,7 +682,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   TripletsOccupancy tripletsOccupancy,
                                   ObjectRangesConst ranges,
                                   uint16_t* index_gpu,
-                                  uint16_t nonZeroModules) const {
+                                  uint16_t nonZeroModules,
+                                  const float ptCut) const {
       auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
       auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
 
@@ -719,7 +730,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                         betaInCut,
                                                         circleRadius,
                                                         circleCenterX,
-                                                        circleCenterY);
+                                                        circleCenterY,
+                                                        ptCut);
 
             if (success) {
               unsigned int totOccupancyTriplets =
