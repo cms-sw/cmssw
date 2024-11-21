@@ -194,8 +194,8 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
           hitsForSeed.emplace_back(dynamic_cast<Hit>(&hit));
           nHits++;
         }
-
-        seedCreator_->init(GlobalTrackingRegion(), iSetup, nullptr);
+        GlobalTrackingRegion region;
+        seedCreator_->init(region, iSetup, nullptr);
         seedCreator_->makeSeed(seeds, hitsForSeed);
         if (seeds.empty()) {
           edm::LogInfo("LSTOutputConverter")
