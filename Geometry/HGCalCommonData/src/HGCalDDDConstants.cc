@@ -301,7 +301,8 @@ double HGCalDDDConstants::cellArea(const HGCSiliconDetId& id, bool reco) const {
     if (ktr->second.part == HGCalTypes::WaferFull) {
       area = cellOffset_->cellAreaUV(id.cellU(), id.cellV(), placementIndex(id), ktr->second.type, reco);
     } else {
-      area = cellOffset_->cellAreaUV(id.cellU(), id.cellV(), placementIndex(id), ktr->second.type, ktr->second.part, reco);
+      area =
+          cellOffset_->cellAreaUV(id.cellU(), id.cellV(), placementIndex(id), ktr->second.type, ktr->second.part, reco);
     }
   }
 #ifdef EDM_ML_DEBUG
@@ -1257,8 +1258,9 @@ int32_t HGCalDDDConstants::placementIndex(const HGCSiliconDetId& id) const {
   if (ktr != hgpar_->waferInfoMap_.end()) {
     place = HGCalCell::cellPlacementIndex(id.zside(), layertype, (ktr->second).orient);
   }
-#ifdef EDM_ML_DEBUG  
-  edm::LogVerbatim("HGCalGeom") << "ID: " << id << " Layer " << layer << ":" << layertype << " Index " << indx << ":" << (ktr != hgpar_->waferInfoMap_.end()) << " Place " << place;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "ID: " << id << " Layer " << layer << ":" << layertype << " Index " << indx << ":"
+                                << (ktr != hgpar_->waferInfoMap_.end()) << " Place " << place;
 #endif
   return place;
 }
