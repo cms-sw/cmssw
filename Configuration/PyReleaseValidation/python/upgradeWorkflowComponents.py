@@ -93,6 +93,8 @@ upgradeKeys['Run4'] = [
     'Run4D110SimOnGen',
     'Run4D115',
     'Run4D115PU',
+    'Run4D116',
+    'Run4D116PU',
 ]
 
 # pre-generation of WF numbers
@@ -3542,6 +3544,13 @@ upgradeProperties['Run4'] = {
         'HLTmenu': '@relvalRun4',
         'GT' : 'auto:phase2_realistic_T33',
         'Era' : 'Phase2C20I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    'Run4D116' : {
+        'Geom' : 'ExtendedRun4D116',
+        'HLTmenu': '@relvalRun4',
+        'GT' : 'auto:phase2_realistic_T33',
+        'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
 }
