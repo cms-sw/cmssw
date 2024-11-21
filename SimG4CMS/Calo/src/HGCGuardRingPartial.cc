@@ -13,7 +13,7 @@ HGCGuardRingPartial::HGCGuardRingPartial(const HGCalDDDConstants& hgc)
       modeUV_(hgcons_.geomMode()),
       v17OrLess_(hgcons_.v17OrLess()),
       waferSize_(hgcons_.waferSize(false)),
-      guardRingOffset_(hgcons_.getParameter()->guardRingOffset_) {
+      guardRingOffset_(hgcons_.guardRingOffset(false)) {
   offset_ = guardRingOffset_;
   c22_ = (v17OrLess_) ? HGCalTypes::c22O : HGCalTypes::c22;
   c27_ = (v17OrLess_) ? HGCalTypes::c27O : HGCalTypes::c27;
