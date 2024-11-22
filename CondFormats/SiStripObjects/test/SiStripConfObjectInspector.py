@@ -1,4 +1,3 @@
-from __future__ import print_function
 import DLFCN, sys, os
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 import pluginCondDBPyInterface as condDB

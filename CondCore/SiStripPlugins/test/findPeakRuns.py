@@ -18,7 +18,6 @@ Usage:
  python findPeakRuns.py -f log.json -r isTrackerIn.json > & allTrackerRuns.csv &
 '''
 
-from __future__ import print_function
 import json
 import ROOT
 from pprint import pprint

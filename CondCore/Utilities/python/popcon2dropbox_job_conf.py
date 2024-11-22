@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 from . import popcon2dropbox

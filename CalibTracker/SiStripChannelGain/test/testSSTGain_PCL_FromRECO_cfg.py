@@ -1,4 +1,3 @@
-from __future__ import print_function
 # Auto generated configuration file
 # with command line options: stepALCA --datatier ALCARECO --conditions auto:run2_data -s ALCA:PromptCalibProdSiStripGains --eventcontent ALCARECO -n 1000 --dasquery=file dataset=/ZeroBias/Run2016C-SiStripCalMinBias-18Apr2017-v1/ALCARECO run=276243 --no_exec
 import warnings
