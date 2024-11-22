@@ -429,12 +429,10 @@ void HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
   unsigned int ls = lumi.luminosityBlock();
   unsigned int run = lumi.run();
 
-  bool writeFiles = true;
   if (edm::Service<evf::FastMonitoringService>().isAvailable()) {
-    writeFiles = edm::Service<evf::FastMonitoringService>()->shouldWriteFiles(ls);
+    if (!edm::Service<evf::FastMonitoringService>()->shouldWriteFiles(ls))
+      return;
   }
-  if (not writeFiles)
-    return;
 
   unsigned int processed = lumidata->processed.value().at(0);
   auto const& rundata = *runCache(lumi.getRun().index());
