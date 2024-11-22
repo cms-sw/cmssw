@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from .MatrixUtil import *
 
 from Configuration.HLT.autoHLT import autoHLT
