@@ -15,6 +15,11 @@ from Alignment.CommonAlignmentProducer.LSNumberFilter_cfi import *
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 onlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
+import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone(
+    timeThreshold = 999999 # for express allow >48h old payloads for replays. DO NOT CHANGE
+)
+
 # Ingredient: ALCARECOTkAlMinBiasHLT
 from  Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import ALCARECOTkAlMinBias
 ALCARECOTkAlMinBiasHLTTracks = ALCARECOTkAlMinBias.clone(
@@ -128,17 +133,21 @@ hltESPTTRHBWithTrackAngle = cms.ESProducer(
 SiPixelAliTrackRefitterHLT0 = TrackRefitter.clone(
     src = 'SiPixelAliLooseSelectorHLT',   #'ALCARECOTkAlMinBias'#'ALCARECOTkAlCosmicsCTF0T' #'ALCARECOTkAlMuonIsolated'
     NavigationSchool = '',            # to avoid filling hit pattern
-    TTRHBuilder = 'hltESPTTRHBWithTrackAngle'
+    TTRHBuilder = 'hltESPTTRHBWithTrackAngle',
+    beamSpot = 'onlineBeamSpot'
 )
 
 SiPixelAliTrackRefitterHLT1 = SiPixelAliTrackRefitter0.clone(
-	src = 'SiPixelAliTrackSelectorHLT'
+    src = 'SiPixelAliTrackSelectorHLT',
+    TTRHBuilder = 'hltESPTTRHBWithTrackAngle',
+    beamSpot = 'onlineBeamSpot'
 )
 
 #-- Alignment producer
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
 from Alignment.CommonAlignmentProducer.AlignmentProducerAsAnalyzer_cff import AlignmentProducer
 SiPixelAliMilleAlignmentProducerHLT = SiPixelAliMilleAlignmentProducer.clone(
+    beamSpotTag = 'onlineBeamSpot',
     tjTkAssociationMapTag = 'SiPixelAliTrackRefitterHLT1',
     algoConfig = MillePedeAlignmentAlgorithm.clone(
         binaryFile = 'milleBinaryHLT_0.dat',
@@ -146,23 +155,19 @@ SiPixelAliMilleAlignmentProducerHLT = SiPixelAliMilleAlignmentProducer.clone(
         monitorFile = 'millePedeMonitorHLT.root'
     )
 )
-# Does anything else of the AlignmentProducer need to be overwritten ???
-
-
-
 
 # Ingredient: SiPixelAliTrackerTrackHitFilterHLT
 SiPixelAliTrackerTrackHitFilterHLT = SiPixelAliTrackerTrackHitFilter.clone(
 	src = 'SiPixelAliTrackRefitterHLT0'
 )
 
-
 # Ingredient: SiPixelAliTrackFitterHLT
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff as fitWithMaterial
 SiPixelAliTrackFitterHLT = fitWithMaterial.ctfWithMaterialTracks.clone(
     src = 'SiPixelAliTrackerTrackHitFilterHLT',
-    # TTRHBuilder = 'hltESPTTRHBWithTrackAngle', #should already be default ???
-    NavigationSchool = ''
+    NavigationSchool = '',
+    TTRHBuilder = 'hltESPTTRHBWithTrackAngle',
+    beamSpot = 'onlineBeamSpot'
 )
 
 SiPixelAliMillePedeFileConverterHLT = cms.EDProducer( 

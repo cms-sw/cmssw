@@ -12,8 +12,7 @@ ALCARECOTkAlZMuMuFilterForSiPixelAliHLT = hltHighLevel.clone(
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAliHLT_cff import *
 from Alignment.CommonAlignmentProducer.LSNumberFilter_cfi import *
 
-# Ingredient: offlineBeamSpot
-from RecoVertex.BeamSpotProducer.BeamSpot_cfi import offlineBeamSpot
+
 
 # Ingredient: AlignmentTrackSelector
 # track selector for HighPurity tracks
@@ -128,7 +127,7 @@ SiPixelAliMillePedeFileConverterHLTHGDimuon = cms.EDProducer(
 seqALCARECOPromptCalibProdSiPixelAliHLTHGDiMu = cms.Sequence(
     ALCARECOTkAlZMuMuFilterForSiPixelAliHLT*
     LSNumberFilter*
-    offlineBeamSpot*
+    onlineBeamSpot*
     SiPixelAliLooseSelectorHLTHGDimuon*
     SiPixelAliTrackRefitterHLTHGDimuon0*
     SiPixelAliTrackerTrackHitFilterHLTHGDimuon*
