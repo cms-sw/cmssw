@@ -29,6 +29,7 @@ public:
   ~RawEventFileWriterForBU();
 
   void doOutputEvent(edm::streamer::FRDEventMsgView const& msg);
+  void doOutputEvent(void* startAddress, size_t size);
 
   edm::streamer::uint32 adler32() const { return (adlerb_ << 16) | adlera_; }
 

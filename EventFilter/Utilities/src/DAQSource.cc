@@ -9,6 +9,7 @@
 #include "EventFilter/Utilities/interface/DAQSourceModels.h"
 #include "EventFilter/Utilities/interface/DAQSourceModelsFRD.h"
 #include "EventFilter/Utilities/interface/DAQSourceModelsScoutingRun3.h"
+#include "EventFilter/Utilities/interface/DAQSourceModelsDTH.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
@@ -87,6 +88,8 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
     dataMode_ = std::make_shared<DataModeFRDStriped>(this);
   } else if (dataModeConfig_ == "ScoutingRun3") {
     dataMode_ = std::make_shared<DataModeScoutingRun3>(this);
+  } else if (dataModeConfig_ == "DTH") {
+    dataMode_ = std::make_shared<DataModeDTH>(this, verifyChecksum_);
   } else
     throw cms::Exception("DAQSource::DAQSource") << "Unknown data mode " << dataModeConfig_;
 
@@ -373,7 +376,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextEventFromDataBlock() {
   if (verifyChecksum_ && !dataMode_->checksumValid()) {
     if (fms_)
       fms_->setExceptionDetected(currentLumiSection_);
-    throw cms::Exception("DAQSource::getNextEventFromDataBlock") << dataMode_->getChecksumError();
+    throw cms::Exception("DAQSource::getNextEventFromDataBlock") << "InvalidChecksum - " << dataMode_->getChecksumError();
   }
   setMonState(inCachedEvent);
 
@@ -502,7 +505,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     currentFile_->advance(currentFile_->rawHeaderSize_);
   }
 
-  //file is too short to fit event header
+  //file is too short to fit event (or event block, orbit...) header
   if (currentFile_->fileSizeLeft() < dataMode_->headerSize())
     throw cms::Exception("DAQSource::getNextDataBlock")
         << "Premature end of input file while reading event header. Missing: "
@@ -532,14 +535,20 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   //get buffer size of current chunk (can be resized)
   uint64_t currentChunkSize = currentFile_->currentChunkSize();
 
-  //prepare view based on header that was read
+  //prepare view based on header that was read. It could parse through the whole buffer for fitToBuffer models
   dataMode_->makeDataBlockView(dataPosition, currentFile_.get());
 
-  //check that payload size is within the file
+  if (verifyChecksum_ && !dataMode_->blockChecksumValid()) {
+    if (fms_)
+      fms_->setExceptionDetected(currentLumiSection_);
+    throw cms::Exception("DAQSource::getNextDataBlock") << dataMode_->getChecksumError();
+  }
+
+  //check that the (remaining) payload size is within the file
   const size_t msgSize = dataMode_->dataBlockSize() - dataMode_->headerSize();
 
   if (currentFile_->fileSizeLeft() < (int64_t)msgSize)
-    throw cms::Exception("DAQSource::getNextEventDataBlock")
+    throw cms::Exception("DAQSource::getNextDataBlock")
         << "Premature end of input file (missing:" << (msgSize - currentFile_->fileSizeLeft())
         << ") while parsing block";
 
@@ -568,7 +577,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     dataMode_->makeDataBlockView(
         dataPosition, currentFile_.get());
   } else {
-    //everything is in a single chunk, only move pointers forward
+    //everything is in a single chunk, only move pointers forward. Also used for fitToBuffer models
     chunkEnd = currentFile_->advance(mWakeup_, cvWakeupAll_, dataPosition, msgSize);
     assert(!chunkEnd);
     chunkIsFree_ = false;

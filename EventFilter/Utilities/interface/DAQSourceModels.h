@@ -43,6 +43,7 @@ public:
   virtual void makeDataBlockView(unsigned char* addr,
                                  RawInputFile* rawFile) = 0;
   virtual bool nextEventView(RawInputFile*) = 0;
+  virtual bool blockChecksumValid() = 0;
   virtual bool checksumValid() = 0;
   virtual std::string getChecksumError() const = 0;
   virtual uint32_t run() const = 0;

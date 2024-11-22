@@ -43,6 +43,7 @@ public:
   }
 
   bool nextEventView(RawInputFile*) override;
+  bool blockChecksumValid() override { return true; }
   bool checksumValid() override;
   std::string getChecksumError() const override;
 
@@ -130,6 +131,7 @@ public:
   }
 
   bool nextEventView(RawInputFile*) override;
+  bool blockChecksumValid() override { return true; }
   bool checksumValid() override;
   std::string getChecksumError() const override;
 
@@ -234,6 +236,7 @@ public:
   }
 
   bool nextEventView(RawInputFile*) override;
+  bool blockChecksumValid() override { return true; }
   bool checksumValid() override;
   std::string getChecksumError() const override;
 

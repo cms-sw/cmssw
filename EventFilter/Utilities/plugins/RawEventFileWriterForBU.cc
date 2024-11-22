@@ -98,6 +98,24 @@ RawEventFileWriterForBU::~RawEventFileWriterForBU() {
   delete runMon_;
 }
 
+void RawEventFileWriterForBU::doOutputEvent(void* startAddress, size_t size) {
+  ssize_t retval = write(outfd_, startAddress, size);
+
+  if ((unsigned)retval != size) {
+    throw cms::Exception("RawEventFileWriterForBU", "doOutputEvent")
+        << "Error writing FED Raw Data event data to " << fileName_ << ".  Possibly the output disk "
+        << "is full?" << std::endl;
+  }
+
+  // throttle event output
+  usleep(microSleep_);
+  perFileEventCount_.value()++;
+  perFileSize_.value() += size;
+
+  //  cms::Adler32((const char*) msg.startAddress(), msg.size(), adlera_, adlerb_);
+}
+
+
 void RawEventFileWriterForBU::doOutputEvent(FRDEventMsgView const& msg) {
   ssize_t retval = write(outfd_, (void*)msg.startAddress(), msg.size());
 
