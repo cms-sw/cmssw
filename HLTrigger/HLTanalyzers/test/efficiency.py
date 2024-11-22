@@ -1,4 +1,3 @@
-from __future__ import print_function
 ### assumes QCD_Pt-.../res/ folders are in current directory ###
 
 import glob, os, string
