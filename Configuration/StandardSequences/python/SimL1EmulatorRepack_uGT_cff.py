@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 ## L1REPACK uGT : Re-Emulate L1 uGT and repack into RAW
