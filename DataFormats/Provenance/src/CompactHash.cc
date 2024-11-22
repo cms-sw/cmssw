@@ -32,7 +32,7 @@ namespace edm {
 
     std::array<unsigned char, 16> fromHex_(std::string_view v) {
       cms::MD5Result temp;
-      temp.fromHexifiedString(std::string(v));
+      temp.fromHexifiedString(v);
       auto hash = temp.compactForm();
       std::array<unsigned char, 16> ret;
       std::copy(hash.begin(), hash.end(), ret.begin());
