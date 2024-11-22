@@ -1,4 +1,3 @@
-from __future__ import print_function
 # Generate 2^6 = 64 entries
 # a=12, b=23, c=34, d=13, e=14, f=24
 

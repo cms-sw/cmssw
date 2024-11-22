@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # cfg file to run L1GtTrigReport on GT output file containing 
 #    the readout record L1GlobalTriggerReadoutRecord

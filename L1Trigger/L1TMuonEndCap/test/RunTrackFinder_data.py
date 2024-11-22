@@ -1,4 +1,3 @@
-from __future__ import print_function
 ## 11.02.16: Copied from https://raw.githubusercontent.com/dcurry09/EMTF8/master/L1Trigger/L1TMuonEndCap/test/runMuonEndCap.py
 
 import FWCore.ParameterSet.Config as cms
