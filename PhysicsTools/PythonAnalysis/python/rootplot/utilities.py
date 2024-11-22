@@ -1,7 +1,6 @@
 """
 Utilities for rootplot including histogram classes.
 """
-from __future__ import print_function
 
 from builtins import range
 __license__ = '''\

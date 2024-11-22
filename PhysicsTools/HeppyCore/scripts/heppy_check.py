@@ -2,7 +2,6 @@
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
-from __future__ import print_function
 import sys
 import re
 import os

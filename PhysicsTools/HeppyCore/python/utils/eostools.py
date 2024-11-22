@@ -2,7 +2,6 @@
 """
 A module to manipulate files on EOS or on the local file system. Intended to have the same interface as castortools.py.
 """
-from __future__ import print_function
 import sys
 import os
 import re

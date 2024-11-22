@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-from __future__ import print_function
 import ROOT
 import sys
 from DataFormats.FWLite import Events, Handle
