@@ -257,7 +257,20 @@ namespace trackerTFP {
       if (invalidLayers || !validX0 || !validX1 || !validX2 || !validX3)
         continue;
       const int trackId = state->trackId();
-      finals_.emplace_back(trackId, numConsistent, numConsistentPS, inv2R, phiT, cot, zT, chi20, chi21, hitPattern, track, stubs, phis, zs);
+      finals_.emplace_back(trackId,
+                           numConsistent,
+                           numConsistentPS,
+                           inv2R,
+                           phiT,
+                           cot,
+                           zT,
+                           chi20,
+                           chi21,
+                           hitPattern,
+                           track,
+                           stubs,
+                           phis,
+                           zs);
     }
   }
 
@@ -356,7 +369,7 @@ namespace trackerTFP {
   void KalmanFilter::accumulator(vector<Track>& finals, vector<Track*>& best) {
     // create container of pointer to make sorts less CPU intense
     //for (Track& track : finals)
-      //best.push_back(&track);
+    //best.push_back(&track);
     transform(finals.begin(), finals.end(), back_inserter(best), [](Track& track) { return &track; });
     // prepare arrival order
     vector<int> trackIds;

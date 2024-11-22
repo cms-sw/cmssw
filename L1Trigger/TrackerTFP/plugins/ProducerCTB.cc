@@ -98,7 +98,7 @@ namespace trackerTFP {
     layerEncoding_ = &iSetup.getData(esGetTokenLayerEncoding_);
     //
     const double baseZ = dataFormats_->base(Variable::z, Process::ctb);
-    const double baseR =  dataFormats_->base(Variable::r, Process::ctb);
+    const double baseR = dataFormats_->base(Variable::r, Process::ctb);
     const double range = dataFormats_->range(Variable::cot, Process::kf);
     const int baseShift = ceil(log2(range / baseZ * baseR / setup_->ctbNumBinsCot()));
     const int width = ceil(log2(setup_->ctbNumBinsCot()));

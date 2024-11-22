@@ -44,7 +44,8 @@ namespace trackerTFP {
   public:
     DataFormat() {}
     DataFormat(bool twos, bool biased = true) : twos_(twos), width_(0), base_(1.), range_(0.) {}
-    DataFormat(bool twos, int width, double base, double range) : twos_(twos), width_(width), base_(base), range_(range) {}
+    DataFormat(bool twos, int width, double base, double range)
+        : twos_(twos), width_(width), base_(base), range_(range) {}
     ~DataFormat() {}
     // converts int to bitvector
     TTBV ttBV(int i) const { return TTBV(i, width_, twos_); }

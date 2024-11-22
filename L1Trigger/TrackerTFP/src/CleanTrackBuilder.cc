@@ -42,13 +42,13 @@ namespace trackerTFP {
     // loop over worker
     for (int channelOut = 0; channelOut < numChannelOut; channelOut++) {
       //if (channelOut != 3)
-        //continue;
+      //continue;
       // clean input tracks
       vector<deque<Track*>> streamsT(numChannel);
       vector<deque<Stub*>> streamsS(numChannel);
       for (int cin = 0; cin < numChannel; cin++) {
         //if (cin != 1)
-          //continue;
+        //continue;
         const int index = numChannel * cin + channelOut;
         cleanStream(streamsIn[index], streamsT[cin], streamsS[cin], index);
       }
@@ -135,7 +135,7 @@ namespace trackerTFP {
       for (int layer = 0; layer < setup_->numLayers(); layer++) {
         if (pattern.test(layer)) {
           doubleGap = false;
-          if(++nHits == setup_->ctbMinLayers())
+          if (++nHits == setup_->ctbMinLayers())
             return false;
         } else if (!maybePattern.test(layer)) {
           if (++nGaps == setup_->kfMaxGaps() || doubleGap)

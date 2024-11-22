@@ -111,9 +111,7 @@ namespace trackerTFP {
     // apply final cuts
     void finalize(const std::deque<State*>& stream, std::vector<Track>& finals);
     // Transform States into Tracks
-    void conv(const std::vector<Track*>& best,
-              std::vector<TrackKF*>& tracks,
-              std::vector<std::vector<StubKF*>>& stubs);
+    void conv(const std::vector<Track*>& best, std::vector<TrackKF*>& tracks, std::vector<std::vector<StubKF*>>& stubs);
     // adds a layer to states
     void addLayer(std::deque<State*>& stream);
     // adds a layer to states to build seeds

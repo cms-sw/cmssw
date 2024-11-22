@@ -21,7 +21,7 @@ namespace trackerTFP {
       "S00Shifted", "S01Shifted", "S12Shifted", "S13Shifted", "K00",          "K10",          "K21",       "K31",
       "R00",        "R11",        "R00Rough",   "R11Rough",   "invR00Approx", "invR11Approx", "invR00Cor", "invR11Cor",
       "invR00",     "invR11",     "C00",        "C01",        "C11",          "C22",          "C23",       "C33",
-      "r0Shifted",  "r1Shifted",  "r02",        "r12",        "chi20",      "chi21"};
+      "r0Shifted",  "r1Shifted",  "r02",        "r12",        "chi20",        "chi21"};
 
   void KalmanFilterFormats::endJob() {
     const int wName =

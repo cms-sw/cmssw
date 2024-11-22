@@ -150,7 +150,7 @@ namespace trackerTFP {
         if (++hits >= setup_->kfMinLayers() && k >= layer)
           return true;
       } else if (!maybePattern_[k]) {
-        if (gap || ++ gaps > setup_->kfMaxGaps())
+        if (gap || ++gaps > setup_->kfMaxGaps())
           return false;
         gap = true;
       }

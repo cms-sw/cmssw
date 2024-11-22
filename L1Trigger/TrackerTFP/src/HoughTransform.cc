@@ -188,7 +188,8 @@ namespace trackerTFP {
     if (pattern.count(0, setup_->kfMaxSeedingLayer()) < 2)
       return true;
     // check min layers req
-    const int minLayers = setup_->htMinLayers() - (((zT == -4 || zT == 3) && (!pattern.test(5) && !pattern.test(7))) ? 1 : 0);
+    const int minLayers =
+        setup_->htMinLayers() - (((zT == -4 || zT == 3) && (!pattern.test(5) && !pattern.test(7))) ? 1 : 0);
     // prepare pattern analysis
     const TTBV& maybePattern = layerEncoding_->maybePattern(zT);
     int nHits(0);
@@ -197,7 +198,7 @@ namespace trackerTFP {
     for (int layer = 0; layer < setup_->numLayers(); layer++) {
       if (pattern.test(layer)) {
         doubleGap = false;
-        if(++nHits == minLayers)
+        if (++nHits == minLayers)
           return false;
       } else if (!maybePattern.test(layer)) {
         if (++nGaps == setup_->kfMaxGaps() || doubleGap)
