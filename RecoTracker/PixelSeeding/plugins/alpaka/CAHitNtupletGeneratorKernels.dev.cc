@@ -34,9 +34,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         counters_{cms::alpakatools::make_device_buffer<Counters>(queue)},
 
         // workspace
-        device_hitToTuple_{cms::alpakatools::make_device_buffer<HitToTuple>(queue)},
+        device_hitToTuple_{cms::alpakatools::make_device_buffer<GenericContainer>(queue)},
+        // device_hitToTupleStorage_{
+        //     cms::alpakatools::make_device_buffer<typename HitToTuple::Counter[]>(queue, hh.metadata().size() + 1)},
         device_hitToTupleStorage_{
-            cms::alpakatools::make_device_buffer<typename HitToTuple::Counter[]>(queue, hh.metadata().size() + 1)},
+             cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(queue, hh.metadata().size() * TrackerTraits::avgHitsPerTrack)},
+        device_hitToTupleOffsets_{
+             cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, hh.metadata().size() + 1)},
         // Hits
         device_hitPhiHist_{cms::alpakatools::make_device_buffer<PhiBinner>(queue)},
         device_phiBinnerStorage_{cms::alpakatools::make_device_buffer<hindex_type[]>(queue, hh.metadata().size())},
@@ -92,17 +96,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     TupleMultiplicity::template launchZero<Acc1D>(tupleMultiplicityDeviceData, queue);
 
     device_hitToTupleView_.assoc = device_hitToTuple_.data();
-    device_hitToTupleView_.offStorage = device_hitToTupleStorage_.data();
-    device_hitToTupleView_.offSize = hh.metadata().size() + 1;
+    device_hitToTupleView_.offStorage = device_hitToTupleOffsets_.data();
+    device_hitToTupleView_.offSize = alpaka::getExtentProduct(device_hitToTupleOffsets_);//hh.metadata().size() + 1; // there's a way to get the size of a buffer? could be used here
+    device_hitToTupleView_.contentStorage = device_hitToTupleStorage_.data();
+    device_hitToTupleView_.contentSize = alpaka::getExtentProduct(device_hitToTupleStorage_);//hh.metadata().size() * TrackerTraits::avgHitsPerTrack;
 
-    HitToTuple::template launchZero<Acc1D>(device_hitToTupleView_, queue);
+    std::cout << alpaka::getExtentProduct(device_hitToTupleStorage_) << " - > " << hh.metadata().size() * TrackerTraits::avgHitsPerTrack << std::endl;
 
+    // HitToTuple::template launchZero<Acc1D>(device_hitToTupleView_, queue);
+    GenericContainer::template launchZero<Acc1D>(device_hitToTupleView_, queue);
+    
     device_hitPhiView_.assoc = device_hitPhiHist_.data();
     device_hitPhiView_.offSize = -1;
     device_hitPhiView_.offStorage = nullptr;
     device_hitPhiView_.contentSize = hh.metadata().size();
     device_hitPhiView_.contentStorage = device_phiBinnerStorage_.data();
 
+    // zero tuples
+    HitContainer::template launchZero<Acc1D>(this->device_hitContainer_.data(), queue);
+    
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
     std::cout << "Allocations for CAHitNtupletGeneratorKernels: done!" << std::endl;
@@ -153,9 +165,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                   Queue &queue) {
     using namespace caPixelDoublets;
     using namespace caHitNtupletGeneratorKernels;
-
-    // zero tuples
-    HitContainer::template launchZero<Acc1D>(this->device_hitContainer_.data(), queue);
 
     uint32_t nhits = hh.metadata().size();
 
@@ -498,9 +507,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           Kernel_countHitInTracks<TrackerTraits>{},
                           tracks_view,
                           this->device_hitContainer_.data(),
-                          this->device_hitToTuple_.data());  //CHECK
+                          this->device_hitToTuple_.data()); 
 
-      HitToTuple::template launchFinalize<Acc1D>(this->device_hitToTupleView_, queue);
+      GenericContainer::template launchFinalize<Acc1D>(this->device_hitToTupleView_, queue);
       alpaka::exec<Acc1D>(
           queue, workDiv1D, Kernel_fillHitInTracks<TrackerTraits>{}, tracks_view, this->device_hitContainer_.data(), this->device_hitToTuple_.data());
 #ifdef GPU_DEBUG

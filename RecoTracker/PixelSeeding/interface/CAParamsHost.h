@@ -12,4 +12,4 @@
 namespace reco {
     using CAParamsHost = PortableHostMultiCollection<CALayersSoA, CACellsSoA>;
 }
-#endif  // DataFormats_VertexSoA_CAParamsHost_H
+#endif  // RecoTracker_PixelSeeding_interface_CAParamsHost_H
