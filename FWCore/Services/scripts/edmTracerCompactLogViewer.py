@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 from builtins import range
 from itertools import groupby
 from operator import attrgetter,itemgetter

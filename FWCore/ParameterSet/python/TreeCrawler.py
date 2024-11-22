@@ -1,4 +1,3 @@
-from __future__ import print_function
 # This CMS code is based on previous work done by Toby Dickenson, as indiciated below
 #
 # for questions: Benedikt.Hegner@cern.ch
