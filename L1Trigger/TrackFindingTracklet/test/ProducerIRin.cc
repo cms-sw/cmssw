@@ -60,7 +60,7 @@ namespace trklet {
 
   ProducerIRin::ProducerIRin(const ParameterSet& iConfig) : iConfig_(iConfig) {
     const InputTag& inputTag = iConfig.getParameter<InputTag>("InputTagDTC");
-    const string& branchStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
+    const string& branchStubs = iConfig.getParameter<string>("BranchStubsAccepted");
     // book in- and output ED products
     edGetTokenTTDTC_ = consumes<TTDTC>(inputTag);
     edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
@@ -74,11 +74,6 @@ namespace trklet {
   void ProducerIRin::beginRun(const Run& iRun, const EventSetup& iSetup) {
     // helper class to store configurations
     setup_ = &iSetup.getData(esGetTokenSetup_);
-    if (!setup_->configurationSupported())
-      return;
-    // check process history if desired
-    if (iConfig_.getParameter<bool>("CheckHistory"))
-      setup_->checkHistory(iRun.processHistory());
     channelAssignment_ = const_cast<ChannelAssignment*>(&iSetup.getData(esGetTokenChannelAssignment_));
     // map of used tfp channels
     channelEncoding_ = channelAssignment_->channelEncoding();
@@ -88,15 +83,13 @@ namespace trklet {
     // empty IRin product
     StreamsStub streamStubs;
     // read in hybrid track finding product and produce KFin product
-    if (setup_->configurationSupported()) {
-      Handle<TTDTC> handleTTDTC;
-      iEvent.getByToken<TTDTC>(edGetTokenTTDTC_, handleTTDTC);
-      const int numChannel = channelEncoding_.size();
-      streamStubs.reserve(numChannel);
-      for (int tfpRegion : handleTTDTC->tfpRegions())
-        for (int tfpChannel : channelEncoding_)
-          streamStubs.emplace_back(handleTTDTC->stream(tfpRegion, tfpChannel));
-    }
+    Handle<TTDTC> handleTTDTC;
+    iEvent.getByToken<TTDTC>(edGetTokenTTDTC_, handleTTDTC);
+    const int numChannel = channelEncoding_.size();
+    streamStubs.reserve(numChannel);
+    for (int tfpRegion : handleTTDTC->tfpRegions())
+      for (int tfpChannel : channelEncoding_)
+        streamStubs.emplace_back(handleTTDTC->stream(tfpRegion, tfpChannel));
     // store products
     iEvent.emplace(edPutTokenStubs_, std::move(streamStubs));
   }

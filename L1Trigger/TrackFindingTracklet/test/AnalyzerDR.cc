@@ -62,13 +62,9 @@ namespace trklet {
                    int& sum,
                    bool perfect = false) const;
     // ED input token of stubs
-    EDGetTokenT<StreamsStub> edGetTokenAcceptedStubs_;
+    EDGetTokenT<StreamsStub> edGetTokenStubs_;
     // ED input token of tracks
-    EDGetTokenT<StreamsTrack> edGetTokenAcceptedTracks_;
-    // ED input token of lost stubs
-    EDGetTokenT<StreamsStub> edGetTokenLostStubs_;
-    // ED input token of lost tracks
-    EDGetTokenT<StreamsTrack> edGetTokenLostTracks_;
+    EDGetTokenT<StreamsTrack> edGetTokenTracks_;
     // ED input token of TTStubRef to TPPtr association for tracking efficiency
     EDGetTokenT<StubAssociation> edGetTokenSelection_;
     // ED input token of TTStubRef to recontructable TPPtr association
@@ -95,6 +91,7 @@ namespace trklet {
     TProfile* prof_;
     TProfile* profChannel_;
     TH1F* hisChannel_;
+    TH1F* hisTracks_;
 
     // printout
     stringstream log_;
@@ -103,15 +100,11 @@ namespace trklet {
   AnalyzerDR::AnalyzerDR(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
     usesResource("TFileService");
     // book in- and output ED products
-    const string& label = iConfig.getParameter<string>("LabelDR");
-    const string& branchAcceptedStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
-    const string& branchAcceptedTracks = iConfig.getParameter<string>("BranchAcceptedTracks");
-    const string& branchLostStubs = iConfig.getParameter<string>("BranchLostStubs");
-    const string& branchLostTracks = iConfig.getParameter<string>("BranchLostTracks");
-    edGetTokenAcceptedStubs_ = consumes<StreamsStub>(InputTag(label, branchAcceptedStubs));
-    edGetTokenAcceptedTracks_ = consumes<StreamsTrack>(InputTag(label, branchAcceptedTracks));
-    edGetTokenLostStubs_ = consumes<StreamsStub>(InputTag(label, branchLostStubs));
-    edGetTokenLostTracks_ = consumes<StreamsTrack>(InputTag(label, branchLostTracks));
+    const string& label = iConfig.getParameter<string>("OutputLabelDR");
+    const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
+    const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
+    edGetTokenStubs_ = consumes<StreamsStub>(InputTag(label, branchStubs));
+    edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(label, branchTracks));
     if (useMCTruth_) {
       const auto& inputTagSelecttion = iConfig.getParameter<InputTag>("InputTagSelection");
       const auto& inputTagReconstructable = iConfig.getParameter<InputTag>("InputTagReconstructable");
@@ -141,35 +134,28 @@ namespace trklet {
     prof_ = dir.make<TProfile>("Counts", ";", 10, 0.5, 10.5);
     prof_->GetXaxis()->SetBinLabel(1, "Stubs");
     prof_->GetXaxis()->SetBinLabel(2, "Tracks");
-    prof_->GetXaxis()->SetBinLabel(3, "Lost Tracks");
     prof_->GetXaxis()->SetBinLabel(4, "Matched Tracks");
     prof_->GetXaxis()->SetBinLabel(5, "All Tracks");
     prof_->GetXaxis()->SetBinLabel(6, "Found TPs");
     prof_->GetXaxis()->SetBinLabel(7, "Found selected TPs");
-    prof_->GetXaxis()->SetBinLabel(8, "Lost TPs");
     prof_->GetXaxis()->SetBinLabel(9, "All TPs");
     prof_->GetXaxis()->SetBinLabel(10, "Perfect TPs");
     // channel occupancy
     constexpr int maxOcc = 180;
-    const int numChannels = channelAssignment_->numNodesDR();
+    const int numChannels = 1;
     hisChannel_ = dir.make<TH1F>("His Channel Occupancy", ";", maxOcc, -.5, maxOcc - .5);
     profChannel_ = dir.make<TProfile>("Prof Channel Occupancy", ";", numChannels, -.5, numChannels - .5);
+    hisTracks_ = dir.make<TH1F>("His Number of Tracks", ";", maxOcc, -.5, maxOcc - .5);
   }
 
   void AnalyzerDR::analyze(const Event& iEvent, const EventSetup& iSetup) {
     // read in ht products
-    Handle<StreamsStub> handleAcceptedStubs;
-    iEvent.getByToken<StreamsStub>(edGetTokenAcceptedStubs_, handleAcceptedStubs);
-    const StreamsStub& acceptedStubs = *handleAcceptedStubs;
-    Handle<StreamsTrack> handleAcceptedTracks;
-    iEvent.getByToken<StreamsTrack>(edGetTokenAcceptedTracks_, handleAcceptedTracks);
-    const StreamsTrack& acceptedTracks = *handleAcceptedTracks;
-    Handle<StreamsStub> handleLostStubs;
-    iEvent.getByToken<StreamsStub>(edGetTokenLostStubs_, handleLostStubs);
-    const StreamsStub& lostStubs = *handleLostStubs;
-    Handle<StreamsTrack> handleLostTracks;
-    iEvent.getByToken<StreamsTrack>(edGetTokenLostTracks_, handleLostTracks);
-    const StreamsTrack& lostTracks = *handleLostTracks;
+    Handle<StreamsStub> handleStubs;
+    iEvent.getByToken<StreamsStub>(edGetTokenStubs_, handleStubs);
+    const StreamsStub& streamsStub = *handleStubs;
+    Handle<StreamsTrack> handleTracks;
+    iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
+    const StreamsTrack& streamsTrack = *handleTracks;
     // read in MCTruth
     const StubAssociation* selection = nullptr;
     const StubAssociation* reconstructable = nullptr;
@@ -186,53 +172,38 @@ namespace trklet {
     set<TPPtr> tpPtrs;
     set<TPPtr> tpPtrsSelection;
     set<TPPtr> tpPtrsPerfect;
-    set<TPPtr> tpPtrsLost;
     int allMatched(0);
     int allTracks(0);
     for (int region = 0; region < setup_->numRegions(); region++) {
-      const int offset = region * channelAssignment_->numNodesDR();
       int nStubs(0);
       int nTracks(0);
-      int nLost(0);
-      for (int channel = 0; channel < channelAssignment_->numNodesDR(); channel++) {
-        vector<vector<TTStubRef>> tracks;
-        formTracks(acceptedTracks, acceptedStubs, tracks, offset + channel);
-        vector<vector<TTStubRef>> lost;
-        formTracks(lostTracks, lostStubs, lost, offset + channel);
-        nTracks += tracks.size();
-        nStubs += accumulate(tracks.begin(), tracks.end(), 0, [](int sum, const vector<TTStubRef>& track) {
-          return sum + static_cast<int>(track.size());
-        });
-        nLost += lost.size();
-        allTracks += tracks.size();
-        if (!useMCTruth_)
-          continue;
-        int tmp(0);
-        associate(tracks, selection, tpPtrsSelection, tmp);
-        associate(tracks, selection, tpPtrsPerfect, tmp, true);
-        associate(lost, selection, tpPtrsLost, tmp);
-        associate(tracks, reconstructable, tpPtrs, allMatched);
-        const StreamTrack& stream = acceptedTracks[offset + channel];
-        const auto end =
-            find_if(stream.rbegin(), stream.rend(), [](const FrameTrack& frame) { return frame.first.isNonnull(); });
-        const int size = distance(stream.begin(), end.base()) - 1;
-        hisChannel_->Fill(size);
-        profChannel_->Fill(channel, size);
-      }
+      vector<vector<TTStubRef>> tracks;
+      formTracks(streamsTrack, streamsStub, tracks, region);
+      nTracks += tracks.size();
+      nStubs += accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const vector<TTStubRef>& track) {
+        return sum += (int)track.size();
+      });
+      allTracks += tracks.size();
+      if (!useMCTruth_)
+        continue;
+      int tmp(0);
+      associate(tracks, selection, tpPtrsSelection, tmp);
+      associate(tracks, selection, tpPtrsPerfect, tmp, true);
+      associate(tracks, reconstructable, tpPtrs, allMatched);
+      const StreamTrack& stream = streamsTrack[region];
+      const auto end =
+          find_if(stream.rbegin(), stream.rend(), [](const FrameTrack& frame) { return frame.first.isNonnull(); });
+      const int size = distance(stream.begin(), end.base()) - 1;
+      hisTracks_->Fill(nTracks);
+      hisChannel_->Fill(size);
+      profChannel_->Fill(1, size);
       prof_->Fill(1, nStubs);
       prof_->Fill(2, nTracks);
-      prof_->Fill(3, nLost);
     }
-    vector<TPPtr> recovered;
-    recovered.reserve(tpPtrsLost.size());
-    set_intersection(tpPtrsLost.begin(), tpPtrsLost.end(), tpPtrs.begin(), tpPtrs.end(), back_inserter(recovered));
-    for (const TPPtr& tpPtr : recovered)
-      tpPtrsLost.erase(tpPtr);
     prof_->Fill(4, allMatched);
     prof_->Fill(5, allTracks);
     prof_->Fill(6, tpPtrs.size());
     prof_->Fill(7, tpPtrsSelection.size());
-    prof_->Fill(8, tpPtrsLost.size());
     prof_->Fill(10, tpPtrsPerfect.size());
     nEvents_++;
   }
@@ -240,46 +211,38 @@ namespace trklet {
   void AnalyzerDR::endJob() {
     if (nEvents_ == 0)
       return;
-    // printout SF summary
+    // printout summary
     const double totalTPs = prof_->GetBinContent(9);
     const double numStubs = prof_->GetBinContent(1);
     const double numTracks = prof_->GetBinContent(2);
-    const double numTracksLost = prof_->GetBinContent(3);
     const double totalTracks = prof_->GetBinContent(5);
     const double numTracksMatched = prof_->GetBinContent(4);
     const double numTPsAll = prof_->GetBinContent(6);
     const double numTPsEff = prof_->GetBinContent(7);
-    const double numTPsLost = prof_->GetBinContent(8);
     const double numTPsEffPerfect = prof_->GetBinContent(10);
     const double errStubs = prof_->GetBinError(1);
     const double errTracks = prof_->GetBinError(2);
-    const double errTracksLost = prof_->GetBinError(3);
     const double fracFake = (totalTracks - numTracksMatched) / totalTracks;
     const double fracDup = (numTracksMatched - numTPsAll) / totalTracks;
     const double eff = numTPsEff / totalTPs;
     const double errEff = sqrt(eff * (1. - eff) / totalTPs / nEvents_);
-    const double effLoss = numTPsLost / totalTPs;
-    const double errEffLoss = sqrt(effLoss * (1. - effLoss) / totalTPs / nEvents_);
     const double effPerfect = numTPsEffPerfect / totalTPs;
     const double errEffPerfect = sqrt(effPerfect * (1. - effPerfect) / totalTPs / nEvents_);
-    const vector<double> nums = {numStubs, numTracks, numTracksLost};
-    const vector<double> errs = {errStubs, errTracks, errTracksLost};
+    const vector<double> nums = {numStubs, numTracks};
+    const vector<double> errs = {errStubs, errTracks};
     const int wNums = ceil(log10(*max_element(nums.begin(), nums.end()))) + 5;
     const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
     log_ << "                         DR  SUMMARY                         " << endl;
     log_ << "number of stubs       per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
     log_ << "number of tracks      per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks
          << endl;
-    log_ << "number of lost tracks per TFP = " << setw(wNums) << numTracksLost << " +- " << setw(wErrs) << errTracksLost
-         << endl;
     log_ << "  current tracking efficiency = " << setw(wNums) << effPerfect << " +- " << setw(wErrs) << errEffPerfect
          << endl;
     log_ << "  max     tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
-    log_ << "     lost tracking efficiency = " << setw(wNums) << effLoss << " +- " << setw(wErrs) << errEffLoss << endl;
     log_ << "                    fake rate = " << setw(wNums) << fracFake << endl;
     log_ << "               duplicate rate = " << setw(wNums) << fracDup << endl;
     log_ << "=============================================================";
-    LogPrint("L1Trigger/TrackerTFP") << log_.str();
+    LogPrint(moduleDescription().moduleName()) << log_.str();
   }
 
   //

@@ -1,9 +1,11 @@
 #ifndef L1Trigger_TrackerTFP_GeometricProcessor_h
 #define L1Trigger_TrackerTFP_GeometricProcessor_h
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
-#include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
+#include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <vector>
 #include <deque>
@@ -16,33 +18,29 @@ namespace trackerTFP {
     GeometricProcessor(const edm::ParameterSet& iConfig,
                        const tt::Setup* setup_,
                        const DataFormats* dataFormats,
-                       int region);
+                       const LayerEncoding* layerEncoding,
+                       std::vector<StubGP>& stubs);
     ~GeometricProcessor() {}
 
-    // read in and organize input product (fill vector input_)
-    void consume(const TTDTC& ttDTC);
-    // fill output products
-    void produce(tt::StreamsStub& accepted, tt::StreamsStub& lost);
+    // fill output data
+    void produce(const std::vector<std::vector<StubPP*>>& streamsIn, std::vector<std::deque<StubGP*>>& streamsOut);
 
   private:
+    // convert stub
+    StubGP* produce(const StubPP& stub, int phiT, int zT);
     // remove and return first element of deque, returns nullptr if empty
     template <class T>
     T* pop_front(std::deque<T*>& ts) const;
-
     // true if truncation is enbaled
     bool enableTruncation_;
     // provides run-time constants
     const tt::Setup* setup_;
     // provides dataformats
     const DataFormats* dataFormats_;
-    // processing region (0 - 8)
-    const int region_;
-    // storage of input stubs
-    std::vector<StubPP> stubsPP_;
+    // provides layer encoding
+    const LayerEncoding* layerEncoding_;
     // storage of output stubs
-    std::vector<StubGP> stubsGP_;
-    // h/w liked organized pointer to input stubs
-    std::vector<std::vector<std::deque<StubPP*>>> input_;
+    std::vector<StubGP>& stubs_;
   };
 
 }  // namespace trackerTFP

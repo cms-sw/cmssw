@@ -1,21 +1,19 @@
-# defines PSet to assign tracklet tracks and stubs to output channel based on their Pt or seed type as well as DTC stubs to input channel
+# configuration for ChannelAssignment
+
 import FWCore.ParameterSet.Config as cms
 
 ChannelAssignment_params = cms.PSet (
 
-  # DRin parameter
-  DRin = cms.PSet (
-    WidthLayerId    = cms.int32(  4 ), # number of bits used to represent layer id [barrel: 0-5, discs: 6-10]
-    WidthStubId     = cms.int32( 10 ), # number of bits used to represent stub id for projected stubs
-    WidthSeedStubId = cms.int32(  7 ), # number of bits used to represent stub id for seed stubs
-    WidthPSTilt     = cms.int32(  1 ), # number of bits used to distinguish between tilted and untilded barrel modules or 2S and PS endcap modules
-    DepthMemory     = cms.int32( 32 ), # depth of fifos within systolic array
-    PtBoundaries    = cms.vdouble( 3.0, 5.0, 8.0, 12.0, 24.0 )  # positive pt Boundaries in GeV (symmetric negatives are assumed), first boundary is pt cut, last boundary is infinity, defining pt bins used by DR
+  # TM parameter
+  TM = cms.PSet (
+    NumLayers   = cms.int32( 11 ), # number of layers per track
+    WidthStubId = cms.int32( 10 ), # number of bits used to represent stub id for projected stubs
+    WidthCot    = cms.int32( 14 )
   ),
 
   # DR parameter
   DR = cms.PSet (
-    NumComparisonModules = cms.int32( 16 ), # number of comparison modules used in each DR node
+    NumComparisonModules = cms.int32( 32 ), # number of comparison modules used in each DR node
     MinIdenticalStubs    = cms.int32(  3 )  # min number of shared stubs to identify duplicates
   ),
 

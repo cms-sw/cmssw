@@ -21,7 +21,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '140X_mcRun4_realistic_v3', '')
 
 # load code that produces DTCStubs
-process.load( 'L1Trigger.TrackerDTC.ProducerED_cff' )
+process.load( 'L1Trigger.TrackerDTC.DTC_cff' )
 # load code that analyzes DTCStubs
 process.load( 'L1Trigger.TrackerDTC.Analyzer_cff' )
 # cosutmize TT algorithm
@@ -30,8 +30,8 @@ from L1Trigger.TrackerDTC.Customize_cff import *
 #analyzerUseTMTT(process)
 
 # build schedule (not essential to rerun producer)
-process.produce = cms.Path( process.TrackerDTCProducer )
-process.analyze = cms.Path( process.TrackerDTCAnalyzer )
+process.produce = cms.Path( process.ProducerDTC )
+process.analyze = cms.Path( process.AnalyzerDTC )
 process.schedule = cms.Schedule( process.produce, process.analyze )
 
 # create options

@@ -38,8 +38,8 @@ namespace tmtt {
         stubMatchStrict_(false),
 
         // Kalman filter track fit cfg
-        kalmanDebugLevel_(0),
-        //kalmanDebugLevel_(2), // Good for debugging
+        //kalmanDebugLevel_(0),
+        kalmanDebugLevel_(2),  // Good for debugging
         kalmanMinNumStubs_(4),
         kalmanMaxNumStubs_(6),
         kalmanAddBeamConstr_(false),  // Apply post-fit beam-spot constraint to 5-param fit

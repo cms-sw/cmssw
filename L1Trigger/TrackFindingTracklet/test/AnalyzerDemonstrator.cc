@@ -25,8 +25,8 @@ using namespace trackerTFP;
 namespace trklet {
 
   /*! \class  trklet::AnalyzerDemonstrator
-   *  \brief  Class to demontrate correctness of track trigger emulators
-   *          by comparing FW with SW
+   *  \brief  calls questasim to simulate the f/w and compares the results with clock-and-bit-accurate emulation.
+   *          At the end the number of passing events (not a single bit error) are reported.
    *  \author Thomas Schuh
    *  \date   2022, March
    */
@@ -44,7 +44,8 @@ namespace trklet {
     void convert(const Event& iEvent,
                  const EDGetTokenT<StreamsTrack>& tokenTracks,
                  const EDGetTokenT<StreamsStub>& tokenStubs,
-                 vector<vector<Frame>>& bits) const;
+                 vector<vector<Frame>>& bits,
+                 bool TB = false) const;
     //
     template <typename T>
     void convert(const T& collection, vector<vector<Frame>>& bits) const;
@@ -70,26 +71,30 @@ namespace trklet {
     int nEvents_ = 0;
     //
     int nEventsSuccessful_ = 0;
+    //
+    bool TBin_;
+    bool TBout_;
   };
 
   AnalyzerDemonstrator::AnalyzerDemonstrator(const ParameterSet& iConfig) {
     // book in- and output ED products
     const string& labelIn = iConfig.getParameter<string>("LabelIn");
     const string& labelOut = iConfig.getParameter<string>("LabelOut");
-    const string& branchStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
-    const string& branchTracks = iConfig.getParameter<string>("BranchAcceptedTracks");
+    const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
+    const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
     edGetTokenStubsIn_ = consumes<StreamsStub>(InputTag(labelIn, branchStubs));
     edGetTokenStubsOut_ = consumes<StreamsStub>(InputTag(labelOut, branchStubs));
-    if (labelOut != "TrackFindingTrackletProducerKFout")
-      edGetTokenStubsOut_ = consumes<StreamsStub>(InputTag(labelOut, branchStubs));
-    if (labelIn != "TrackFindingTrackletProducerIRin")
+    if (labelIn != "ProducerIRin")
       edGetTokenTracksIn_ = consumes<StreamsTrack>(InputTag(labelIn, branchTracks));
-    if (labelOut != "TrackFindingTrackletProducerIRin")
+    if (labelOut != "ProducerIRin")
       edGetTokenTracksOut_ = consumes<StreamsTrack>(InputTag(labelOut, branchTracks));
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
     esGetTokenDemonstrator_ = esConsumes<Demonstrator, DemonstratorRcd, Transition::BeginRun>();
+    //
+    TBin_ = labelIn == "l1tTTTracksFromTrackletEmulation";
+    TBout_ = labelOut == "l1tTTTracksFromTrackletEmulation";
   }
 
   void AnalyzerDemonstrator::beginRun(const Run& iEvent, const EventSetup& iSetup) {
@@ -105,8 +110,8 @@ namespace trklet {
     nEvents_++;
     vector<vector<Frame>> input;
     vector<vector<Frame>> output;
-    convert(iEvent, edGetTokenTracksIn_, edGetTokenStubsIn_, input);
-    convert(iEvent, edGetTokenTracksOut_, edGetTokenStubsOut_, output);
+    convert(iEvent, edGetTokenTracksIn_, edGetTokenStubsIn_, input, TBin_);
+    convert(iEvent, edGetTokenTracksOut_, edGetTokenStubsOut_, output, TBout_);
     if (demonstrator_->analyze(input, output))
       nEventsSuccessful_++;
   }
@@ -115,36 +120,41 @@ namespace trklet {
   void AnalyzerDemonstrator::convert(const Event& iEvent,
                                      const EDGetTokenT<StreamsTrack>& tokenTracks,
                                      const EDGetTokenT<StreamsStub>& tokenStubs,
-                                     vector<vector<Frame>>& bits) const {
+                                     vector<vector<Frame>>& bits,
+                                     bool TB) const {
     const bool tracks = !tokenTracks.isUninitialized();
     const bool stubs = !tokenStubs.isUninitialized();
     Handle<StreamsStub> handleStubs;
     Handle<StreamsTrack> handleTracks;
+    int numChannelStubs(0);
+    if (stubs) {
+      iEvent.getByToken<StreamsStub>(tokenStubs, handleStubs);
+      numChannelStubs = handleStubs->size();
+    }
     int numChannelTracks(0);
     if (tracks) {
       iEvent.getByToken<StreamsTrack>(tokenTracks, handleTracks);
       numChannelTracks = handleTracks->size();
     }
     numChannelTracks /= setup_->numRegions();
-    int numChannelStubs(0);
-    vector<int> numChannelsStubs(numChannelTracks, 0);
-    if (stubs) {
-      iEvent.getByToken<StreamsStub>(tokenStubs, handleStubs);
-      numChannelStubs = handleStubs->size() / setup_->numRegions();
-      const int numChannel = tracks ? numChannelStubs / numChannelTracks : numChannelStubs;
-      numChannelsStubs = vector<int>(numChannelTracks, numChannel);
-    }
+    numChannelStubs /= (setup_->numRegions() * (tracks ? numChannelTracks : 1));
+    if (TB)
+      numChannelStubs = channelAssignment_->numChannelsStub();
     bits.reserve(numChannelTracks + numChannelStubs);
     for (int region = 0; region < setup_->numRegions(); region++) {
       if (tracks) {
         const int offsetTracks = region * numChannelTracks;
         for (int channelTracks = 0; channelTracks < numChannelTracks; channelTracks++) {
-          const int offsetStubs =
-              region * numChannelStubs +
-              accumulate(numChannelsStubs.begin(), next(numChannelsStubs.begin(), channelTracks), 0);
-          convert(handleTracks->at(offsetTracks + channelTracks), bits);
+          int offsetStubs = (region * numChannelTracks + channelTracks) * numChannelStubs;
+          if (TB) {
+            numChannelStubs =
+                channelAssignment_->numProjectionLayers(channelTracks) + channelAssignment_->numSeedingLayers();
+            offsetStubs = channelAssignment_->offsetStub(offsetTracks + channelTracks);
+          }
+          if (tracks)
+            convert(handleTracks->at(offsetTracks + channelTracks), bits);
           if (stubs) {
-            for (int channelStubs = 0; channelStubs < numChannelsStubs[channelTracks]; channelStubs++)
+            for (int channelStubs = 0; channelStubs < numChannelStubs; channelStubs++)
               convert(handleStubs->at(offsetStubs + channelStubs), bits);
           }
         }
@@ -168,7 +178,7 @@ namespace trklet {
   void AnalyzerDemonstrator::endJob() {
     stringstream log;
     log << "Successrate: " << nEventsSuccessful_ << " / " << nEvents_ << " = " << nEventsSuccessful_ / (double)nEvents_;
-    LogPrint("L1Trigger/TrackerTFP") << log.str();
+    LogPrint(moduleDescription().moduleName()) << log.str();
   }
 
 }  // namespace trklet

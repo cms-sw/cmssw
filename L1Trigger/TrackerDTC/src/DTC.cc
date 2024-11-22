@@ -8,15 +8,18 @@
 using namespace std;
 using namespace edm;
 using namespace tt;
+using namespace trackerTFP;
 
 namespace trackerDTC {
 
   DTC::DTC(const ParameterSet& iConfig,
            const Setup* setup,
+           const DataFormats* dataFormats,
            const LayerEncoding* layerEncoding,
            int dtcId,
-           const std::vector<std::vector<TTStubRef>>& stubsDTC)
+           const vector<vector<TTStubRef>>& stubsDTC)
       : setup_(setup),
+        dataFormats_(dataFormats),
         enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
         region_(dtcId / setup->numDTCsPerRegion()),
         board_(dtcId % setup->numDTCsPerRegion()),
@@ -33,7 +36,7 @@ namespace trackerDTC {
       if (ttStubRefs.empty())
         continue;
       // Module which produced this ttStubRefs
-      SensorModule* module = modules_.at(modId);
+      const SensorModule* module = modules_.at(modId);
       // DTC routing block id [0-1]
       const int blockId = modId / setup->dtcNumModulesPerRoutingBlock();
       // DTC routing blockc  channel id [0-35]
@@ -41,7 +44,7 @@ namespace trackerDTC {
       // convert TTStubs and fill input channel
       Stubs& stubs = input_[blockId][channelId];
       for (const TTStubRef& ttStubRef : ttStubRefs) {
-        stubs_.emplace_back(iConfig, setup, layerEncoding, module, ttStubRef);
+        stubs_.emplace_back(iConfig, setup, dataFormats, layerEncoding, module, ttStubRef);
         Stub& stub = stubs_.back();
         if (stub.valid())
           // passed pt and eta cut
@@ -120,8 +123,8 @@ namespace trackerDTC {
         output.push_back(nullptr);
     }
     // truncate if desired
-    if (enableTruncation_ && (int)output.size() > setup_->numFramesIO()) {
-      const auto limit = next(output.begin(), setup_->numFramesIO());
+    if (enableTruncation_ && (int)output.size() > setup_->numFramesIOHigh()) {
+      const auto limit = next(output.begin(), setup_->numFramesIOHigh());
       copy_if(limit, output.end(), back_inserter(lost), [](Stub* stub) { return stub; });
       output.erase(limit, output.end());
     }
@@ -151,9 +154,7 @@ namespace trackerDTC {
   // conversion from Stubss to TTDTC
   void DTC::produce(const Stubss& stubss, TTDTC& product) {
     int channel(0);
-    auto toFrame = [&channel](Stub* stub) {
-      return stub ? make_pair(stub->ttStubRef(), stub->frame(channel)) : FrameStub();
-    };
+    auto toFrame = [&channel](Stub* stub) { return stub ? stub->frame(channel) : FrameStub(); };
     for (const Stubs& stubs : stubss) {
       StreamStub stream;
       stream.reserve(stubs.size());

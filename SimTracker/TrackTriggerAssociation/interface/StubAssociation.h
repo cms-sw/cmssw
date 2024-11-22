@@ -1,7 +1,8 @@
 #ifndef SimTracker_TrackTriggerAssociation_StubAssociation_h
 #define SimTracker_TrackTriggerAssociation_StubAssociation_h
 
-#include "SimDataFormats/Associations/interface/TTTypes.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimTracker/TrackTriggerAssociation/interface/TTTypes.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 
 #include <vector>
@@ -19,7 +20,7 @@ namespace tt {
   class StubAssociation {
   public:
     StubAssociation() { setup_ = nullptr; }
-    StubAssociation(const Setup* setup) : setup_(setup) {}
+    StubAssociation(const edm::ParameterSet& pSet, const Setup* setup);
     ~StubAssociation() {}
     // insert a TPPtr and its associated collection of TTstubRefs into the underlayering maps
     void insert(const TPPtr& tpPtr, const std::vector<TTStubRef>& ttSTubRefs);
@@ -47,6 +48,14 @@ namespace tt {
   private:
     // stores, calculates and provides run-time constants
     const Setup* setup_;
+    // required number of layers a found track has to have in common with a TP to consider it matched
+    int minLayersGood_;
+    // required number of ps layers a found track has to have in common with a TP to consider it matched
+    int minLayersGoodPS_;
+    // max number of unassociated 2S stubs allowed to still associate TTTrack with TP
+    int maxLayersBad_;
+    // max number of unassociated PS stubs allowed to still associate TTTrack with TP
+    int maxLayersBadPS_;
     // map containing TTStubRef and their associated collection of TPPtrs
     std::map<TTStubRef, std::vector<TPPtr>> mapTTStubRefsTPPtrs_;
     // map containing TPPtr and their associated collection of TTStubRefs

@@ -5,8 +5,6 @@
 #include <iterator>
 #include <deque>
 #include <vector>
-#include <set>
-#include <utility>
 #include <cmath>
 
 using namespace std;
@@ -18,186 +16,196 @@ namespace trackerTFP {
   HoughTransform::HoughTransform(const ParameterSet& iConfig,
                                  const Setup* setup,
                                  const DataFormats* dataFormats,
-                                 int region)
+                                 const LayerEncoding* layerEncoding,
+                                 vector<StubHT>& stubs)
       : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
         setup_(setup),
         dataFormats_(dataFormats),
-        inv2R_(dataFormats_->format(Variable::inv2R, Process::ht)),
-        phiT_(dataFormats_->format(Variable::phiT, Process::ht)),
-        region_(region),
-        input_(dataFormats_->numChannel(Process::ht), vector<deque<StubGP*>>(dataFormats_->numChannel(Process::gp))) {}
-
-  // read in and organize input product (fill vector input_)
-  void HoughTransform::consume(const StreamsStub& streams) {
-    const int offset = region_ * dataFormats_->numChannel(Process::gp);
-    auto validFrame = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
-    int nStubsGP(0);
-    for (int sector = 0; sector < dataFormats_->numChannel(Process::gp); sector++) {
-      const StreamStub& stream = streams[offset + sector];
-      nStubsGP += accumulate(stream.begin(), stream.end(), 0, validFrame);
-    }
-    stubsGP_.reserve(nStubsGP);
-    for (int sector = 0; sector < dataFormats_->numChannel(Process::gp); sector++) {
-      const int sectorPhi = sector % setup_->numSectorsPhi();
-      const int sectorEta = sector / setup_->numSectorsPhi();
-      for (const FrameStub& frame : streams[offset + sector]) {
-        // Store input stubs in vector, so rest of HT algo can work with pointers to them (saves CPU)
-        StubGP* stub = nullptr;
-        if (frame.first.isNonnull()) {
-          stubsGP_.emplace_back(frame, dataFormats_, sectorPhi, sectorEta);
-          stub = &stubsGP_.back();
-        }
-        for (int binInv2R = 0; binInv2R < dataFormats_->numChannel(Process::ht); binInv2R++)
-          input_[binInv2R][sector].push_back(stub && stub->inInv2RBin(binInv2R) ? stub : nullptr);
-      }
-    }
-    // remove all gaps between end and last stub
-    for (vector<deque<StubGP*>>& input : input_)
-      for (deque<StubGP*>& stubs : input)
-        for (auto it = stubs.end(); it != stubs.begin();)
-          it = (*--it) ? stubs.begin() : stubs.erase(it);
-    auto validStub = [](int sum, StubGP* stub) { return sum + (stub ? 1 : 0); };
-    int nStubsHT(0);
-    for (const vector<deque<StubGP*>>& binInv2R : input_)
-      for (const deque<StubGP*>& sector : binInv2R)
-        nStubsHT += accumulate(sector.begin(), sector.end(), 0, validStub);
-    stubsHT_.reserve(nStubsHT);
-  }
+        layerEncoding_(layerEncoding),
+        inv2R_(&dataFormats_->format(Variable::inv2R, Process::ht)),
+        phiT_(&dataFormats_->format(Variable::phiT, Process::ht)),
+        zT_(&dataFormats_->format(Variable::zT, Process::gp)),
+        phi_(&dataFormats_->format(Variable::phi, Process::ht)),
+        z_(&dataFormats_->format(Variable::z, Process::gp)),
+        stubs_(stubs) {}
 
   // fill output products
-  void HoughTransform::produce(StreamsStub& accepted, StreamsStub& lost) {
-    for (int binInv2R = 0; binInv2R < dataFormats_->numChannel(Process::ht); binInv2R++) {
-      const int inv2R = inv2R_.toSigned(binInv2R);
-      deque<StubHT*> acceptedAll;
-      deque<StubHT*> lostAll;
-      for (deque<StubGP*>& inputSector : input_[binInv2R]) {
-        const int size = inputSector.size();
-        vector<StubHT*> acceptedSector;
-        vector<StubHT*> lostSector;
-        acceptedSector.reserve(size);
-        lostSector.reserve(size);
+  void HoughTransform::produce(const vector<vector<StubGP*>>& streamsIn, vector<deque<StubHT*>>& streamsOut) {
+    static const int numChannelIn = dataFormats_->numChannel(Process::gp);
+    static const int numChannelOut = dataFormats_->numChannel(Process::ht);
+    static const int chan = setup_->kfNumWorker();
+    static const int mux = numChannelOut / chan;
+    // count and reserve ht stubs
+    auto multiplicity = [](int& sum, StubGP* s) { return sum += s ? 1 + s->inv2RMax() - s->inv2RMin() : 0; };
+    int nStubs(0);
+    for (const vector<StubGP*>& input : streamsIn)
+      nStubs += accumulate(input.begin(), input.end(), 0, multiplicity);
+    stubs_.reserve(nStubs);
+    for (int channelOut = 0; channelOut < numChannelOut; channelOut++) {
+      const int inv2Ru = mux * (channelOut % chan) + channelOut / chan;
+      const int inv2R = inv2R_->toSigned(inv2Ru);
+      deque<StubHT*>& output = streamsOut[channelOut];
+      for (int channelIn = numChannelIn - 1; channelIn >= 0; channelIn--) {
+        const vector<StubGP*>& input = streamsIn[channelIn];
+        vector<StubHT*> stubs;
+        stubs.reserve(2 * input.size());
         // associate stubs with inv2R and phiT bins
-        fillIn(inv2R, inputSector, acceptedSector, lostSector);
-        // Process::ht collects all stubs before readout starts -> remove all gaps
-        acceptedSector.erase(remove(acceptedSector.begin(), acceptedSector.end(), nullptr), acceptedSector.end());
+        fillIn(inv2R, channelIn, input, stubs);
+        // apply truncation
+        if (enableTruncation_ && (int)stubs.size() > setup_->numFramesHigh())
+          stubs.resize(setup_->numFramesHigh());
+        // ht collects all stubs before readout starts -> remove all gaps
+        stubs.erase(remove(stubs.begin(), stubs.end(), nullptr), stubs.end());
         // identify tracks
-        readOut(acceptedSector, lostSector, acceptedAll, lostAll);
+        readOut(stubs, output);
       }
-      // truncate accepted stream
-      const auto limit = enableTruncation_
-                             ? next(acceptedAll.begin(), min(setup_->numFrames(), (int)acceptedAll.size()))
-                             : acceptedAll.end();
-      copy_if(limit, acceptedAll.end(), back_inserter(lostAll), [](StubHT* stub) { return stub; });
-      acceptedAll.erase(limit, acceptedAll.end());
-      // store found tracks
-      auto put = [](const deque<StubHT*>& stubs, StreamStub& stream) {
-        stream.reserve(stubs.size());
-        for (StubHT* stub : stubs)
-          stream.emplace_back(stub ? stub->frame() : FrameStub());
-      };
-      const int offset = region_ * dataFormats_->numChannel(Process::ht);
-      put(acceptedAll, accepted[offset + binInv2R]);
-      // store lost tracks
-      put(lostAll, lost[offset + binInv2R]);
+      // apply truncation
+      if (enableTruncation_ && (int)output.size() > setup_->numFramesHigh())
+        output.resize(setup_->numFramesHigh());
+      // remove trailing gaps
+      for (auto it = output.end(); it != output.begin();)
+        it = (*--it) ? output.begin() : output.erase(it);
     }
   }
 
   // associate stubs with phiT bins in this inv2R column
-  void HoughTransform::fillIn(int inv2R,
-                              deque<StubGP*>& inputSector,
-                              vector<StubHT*>& acceptedSector,
-                              vector<StubHT*>& lostSector) {
+  void HoughTransform::fillIn(int inv2R, int sector, const vector<StubGP*>& input, vector<StubHT*>& output) {
+    static const DataFormat& gp = dataFormats_->format(Variable::phiT, Process::gp);
+    auto inv2RrangeCheck = [inv2R](StubGP* stub) {
+      return (stub && stub->inv2RMin() <= inv2R && stub->inv2RMax() >= inv2R) ? stub : nullptr;
+    };
+    const int gpPhiT = gp.toSigned(sector % setup_->gpNumBinsPhiT());
+    const int zT = sector / setup_->gpNumBinsPhiT() - setup_->gpNumBinsZT() / 2;
+    const double inv2Rf = inv2R_->floating(inv2R);
+    const double zTf = zT_->floating(zT);
+    const double cotf = zTf / setup_->chosenRofZ();
+    auto convert = [this, inv2Rf, gpPhiT, zT](StubGP* stub, int phiTht, double phi, double z) {
+      const double phiTf = phiT_->floating(phiTht);
+      const int phiT = phiT_->integer(gp.floating(gpPhiT) + phiTf);
+      const double htPhi = phi - (inv2Rf * stub->r() + phiTf);
+      stubs_.emplace_back(*stub, stub->r(), htPhi, z, stub->layer(), phiT, zT);
+      return &stubs_.back();
+    };
+    // Latency of ht fifo firmware
+    static constexpr int latency = 1;
+    // static delay container
+    deque<StubHT*> delay(latency, nullptr);
     // fifo, used to store stubs which belongs to a second possible track
     deque<StubHT*> stack;
+    // stream of incroming stubs
+    deque<StubGP*> stream;
+    transform(input.begin(), input.end(), back_inserter(stream), inv2RrangeCheck);
     // clock accurate firmware emulation, each while trip describes one clock tick, one stub in and one stub out per tick
-    while (!inputSector.empty() || !stack.empty()) {
+    while (!stream.empty() || !stack.empty() ||
+           !all_of(delay.begin(), delay.end(), [](const StubHT* stub) { return !stub; })) {
       StubHT* stubHT = nullptr;
-      StubGP* stubGP = pop_front(inputSector);
+      StubGP* stubGP = pop_front(stream);
       if (stubGP) {
-        const double phiT = stubGP->phi() - inv2R_.floating(inv2R) * stubGP->r();
-        const int major = phiT_.integer(phiT);
-        if (phiT_.inRange(major)) {
-          // major candidate has pt > threshold (3 GeV)
-          // stubHT records which HT bin this stub is added to
-          stubsHT_.emplace_back(*stubGP, major, inv2R);
-          stubHT = &stubsHT_.back();
+        double phi = stubGP->phi();
+        double z = stubGP->z();
+        if (false) {
+          const double d = inv2Rf * (stubGP->r() + setup_->chosenRofPhi());
+          const double dPhi = asin(d) - d;
+          const double dZ = dPhi / inv2Rf * cotf;
+          phi = phi_->digi(phi - dPhi);
+          z = z_->digi(z - dZ);
         }
-        const double chi = phiT - phiT_.floating(major);
-        if (abs(stubGP->r() * inv2R_.base()) + 2. * abs(chi) >= phiT_.base()) {
+        const double phiT = phi - inv2Rf * stubGP->r();
+        const int major = phiT_->integer(phiT);
+        if (major >= -setup_->htNumBinsPhiT() / 2 && major < setup_->htNumBinsPhiT() / 2) {
+          // major candidate has pt > threshold (3 GeV)
+          stubHT = convert(stubGP, major, phi, z);
+        }
+        const double chi = phi_->digi(phiT - phiT_->floating(major));
+        if (abs(stubGP->r() * inv2R_->base()) + 2. * abs(chi) >= phiT_->base()) {
           // stub belongs to two candidates
           const int minor = chi >= 0. ? major + 1 : major - 1;
-          if (phiT_.inRange(minor)) {
+          if (minor >= -setup_->htNumBinsPhiT() / 2 && minor < setup_->htNumBinsPhiT() / 2) {
             // second (minor) candidate has pt > threshold (3 GeV)
-            stubsHT_.emplace_back(*stubGP, minor, inv2R);
-            if (enableTruncation_ && (int)stack.size() == setup_->htDepthMemory() - 1)
-              // buffer overflow
-              lostSector.push_back(pop_front(stack));
-            // store minor stub in fifo
-            stack.push_back(&stubsHT_.back());
+            StubHT* stub = convert(stubGP, minor, phi, z);
+            delay.push_back(stub);
           }
         }
       }
+      // add nullptr to delay pipe if stub didn't fill any cell
+      if ((int)delay.size() == latency)
+        delay.push_back(nullptr);
+      // take fifo latency into account (read before write)
+      StubHT* stub = pop_front(delay);
+      if (stub) {
+        // buffer overflow
+        if (enableTruncation_ && (int)stack.size() == setup_->htDepthMemory() - 1)
+          pop_front(stack);
+        // store minor stub in fifo
+        stack.push_back(stub);
+      }
       // take a minor stub if no major stub available
-      acceptedSector.push_back(stubHT ? stubHT : pop_front(stack));
+      output.push_back(stubHT ? stubHT : pop_front(stack));
     }
-    // truncate to many input stubs
-    const auto limit = enableTruncation_
-                           ? next(acceptedSector.begin(), min(setup_->numFrames(), (int)acceptedSector.size()))
-                           : acceptedSector.end();
-    copy_if(limit, acceptedSector.end(), back_inserter(lostSector), [](StubHT* stub) { return stub; });
-    acceptedSector.erase(limit, acceptedSector.end());
   }
 
   // identify tracks
-  void HoughTransform::readOut(const vector<StubHT*>& acceptedSector,
-                               const vector<StubHT*>& lostSector,
-                               deque<StubHT*>& acceptedAll,
-                               deque<StubHT*>& lostAll) const {
+  void HoughTransform::readOut(const vector<StubHT*>& input, deque<StubHT*>& output) const {
+    auto toBinPhiT = [this](StubHT* stub) {
+      static const DataFormat& gp = dataFormats_->format(Variable::phiT, Process::gp);
+      const double phiT = phiT_->floating(stub->phiT());
+      const double local = phiT - gp.digi(phiT);
+      return phiT_->integer(local) + setup_->htNumBinsPhiT() / 2;
+    };
+    auto toLayerId = [this](StubHT* stub) {
+      static const DataFormat& layer = dataFormats_->format(Variable::layer, Process::ctb);
+      return stub->layer().val(layer.width());
+    };
     // used to recognise in which order tracks are found
     TTBV trkFoundPhiTs(0, setup_->htNumBinsPhiT());
     // hitPattern for all possible tracks, used to find tracks
     vector<TTBV> patternHits(setup_->htNumBinsPhiT(), TTBV(0, setup_->numLayers()));
-    // found unsigned phiTs, ordered in time
-    vector<int> binsPhiT;
-    // stub container for all possible tracks
-    vector<vector<StubHT*>> tracks(setup_->htNumBinsPhiT());
-    for (int binPhiT = 0; binPhiT < setup_->htNumBinsPhiT(); binPhiT++) {
-      const int phiT = phiT_.toSigned(binPhiT);
-      auto samePhiT = [phiT](int sum, StubHT* stub) { return sum + (stub->phiT() == phiT); };
-      const int numAccepted = accumulate(acceptedSector.begin(), acceptedSector.end(), 0, samePhiT);
-      const int numLost = accumulate(lostSector.begin(), lostSector.end(), 0, samePhiT);
-      tracks[binPhiT].reserve(numAccepted + numLost);
-    }
-    for (StubHT* stub : acceptedSector) {
-      const int binPhiT = phiT_.toUnsigned(stub->phiT());
+    // found phiTs, ordered in time
+    vector<int> phiTs;
+    phiTs.reserve(setup_->htNumBinsPhiT());
+    for (StubHT* stub : input) {
+      const int binPhiT = toBinPhiT(stub);
+      const int layerId = toLayerId(stub);
       TTBV& pattern = patternHits[binPhiT];
-      pattern.set(stub->layer());
-      tracks[binPhiT].push_back(stub);
-      if (pattern.count() >= setup_->htMinLayers() && !trkFoundPhiTs[binPhiT]) {
-        // first time track found
-        trkFoundPhiTs.set(binPhiT);
-        binsPhiT.push_back(binPhiT);
-      }
+      pattern.set(layerId);
+      if (trkFoundPhiTs[binPhiT] || noTrack(pattern, stub->zT()))
+        continue;
+      // first time track found
+      trkFoundPhiTs.set(binPhiT);
+      phiTs.push_back(binPhiT);
     }
     // read out found tracks ordered as found
-    for (int binPhiT : binsPhiT) {
-      const vector<StubHT*>& track = tracks[binPhiT];
-      acceptedAll.insert(acceptedAll.end(), track.begin(), track.end());
+    for (int phiT : phiTs) {
+      auto samePhiT = [phiT, toBinPhiT, this](StubHT* stub) { return toBinPhiT(stub) == phiT; };
+      // read out stubs in reverse order to emulate f/w (backtracking linked list)
+      copy_if(input.rbegin(), input.rend(), back_inserter(output), samePhiT);
     }
-    // look for lost tracks
-    for (StubHT* stub : lostSector) {
-      const int binPhiT = phiT_.toUnsigned(stub->phiT());
-      if (!trkFoundPhiTs[binPhiT])
-        tracks[binPhiT].push_back(stub);
+  }
+
+  // track identification
+  bool HoughTransform::noTrack(const TTBV& pattern, int zT) const {
+    // not enough seeding layer
+    if (pattern.count(0, setup_->kfMaxSeedingLayer()) < 2)
+      return true;
+    // check min layers req
+    const int minLayers = setup_->htMinLayers() - (((zT == -4 || zT == 3) && (!pattern.test(5) && !pattern.test(7))) ? 1 : 0);
+    // prepare pattern analysis
+    const TTBV& maybePattern = layerEncoding_->maybePattern(zT);
+    int nHits(0);
+    int nGaps(0);
+    bool doubleGap = false;
+    for (int layer = 0; layer < setup_->numLayers(); layer++) {
+      if (pattern.test(layer)) {
+        doubleGap = false;
+        if(++nHits == minLayers)
+          return false;
+      } else if (!maybePattern.test(layer)) {
+        if (++nGaps == setup_->kfMaxGaps() || doubleGap)
+          break;
+        doubleGap = true;
+      }
     }
-    for (int binPhiT : trkFoundPhiTs.ids(false)) {
-      const vector<StubHT*>& track = tracks[binPhiT];
-      set<int> layers;
-      auto toLayer = [](StubHT* stub) { return stub->layer(); };
-      transform(track.begin(), track.end(), inserter(layers, layers.begin()), toLayer);
-      if ((int)layers.size() >= setup_->htMinLayers())
-        lostAll.insert(lostAll.end(), track.begin(), track.end());
-    }
+    return true;
   }
 
   // remove and return first element of deque, returns nullptr if empty
