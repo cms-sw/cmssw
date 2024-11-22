@@ -3,7 +3,6 @@
 
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerDTC/interface/LayerEncoding.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTypes.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 
 #include <utility>

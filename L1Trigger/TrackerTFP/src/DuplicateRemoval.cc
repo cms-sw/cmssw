@@ -39,7 +39,7 @@ namespace trackerTFP {
     int nTracks(0);
     for (const vector<TrackKF*>& tracks : tracksIn)
       nTracks +=
-          accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, TrackKF* track) { return sum += track ? 1 : 0; });
+          accumulate(tracks.begin(), tracks.end(), 0, [](int sum, TrackKF* track) { return sum += track ? 1 : 0; });
     vector<Track> tracks;
     tracks.reserve(nTracks);
     deque<Track*> stream;

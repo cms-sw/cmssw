@@ -93,8 +93,8 @@ namespace trackerTFP {
     iEvent.getByToken<StreamsStub>(edGetToken_, handle);
     const StreamsStub& streamsStub = *handle.product();
     // helper
-    auto validFrame = [](int& sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
-    auto nSectors = [](int& sum, const StubPP& object) {
+    auto validFrame = [](int sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto nSectors = [](int sum, const StubPP& object) {
       const int nPhiT = object.phiTMax() - object.phiTMin() + 1;
       const int nZT = object.zTMax() - object.zTMin() + 1;
       return sum += nPhiT * nZT;

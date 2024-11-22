@@ -2,13 +2,16 @@
 #define SimTracker_TrackTriggerAssociation_StubAssociation_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTypes.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 
 #include <vector>
 #include <map>
 
 namespace tt {
+
+  typedef edm::Ptr<TrackingParticle> TPPtr;
 
   /*! \class  tt::StubAssociation
    *  \brief  Class to associate reconstrucable TrackingParticles with TTStubs and vice versa.

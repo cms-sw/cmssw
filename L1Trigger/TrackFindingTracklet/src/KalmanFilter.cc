@@ -44,13 +44,13 @@ namespace trklet {
     static const int numLayers = setup_->numLayers();
     const int offset = region_ * numLayers;
     const StreamTrack& streamTrack = streamsTrack[region_];
-    const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int& sum, const FrameTrack& f) {
+    const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int sum, const FrameTrack& f) {
       return sum += (f.first.isNull() ? 0 : 1);
     });
     int numStubs(0);
     for (int layer = 0; layer < numLayers; layer++) {
       const StreamStub& streamStub = streamsStub[offset + layer];
-      numStubs += accumulate(streamStub.begin(), streamStub.end(), 0, [](int& sum, const FrameStub& f) {
+      numStubs += accumulate(streamStub.begin(), streamStub.end(), 0, [](int sum, const FrameStub& f) {
         return sum += (f.first.isNull() ? 0 : 1);
       });
     }
@@ -241,7 +241,7 @@ namespace trklet {
     }
     // count total number of final states
     const int nStates =
-        accumulate(stream_.begin(), stream_.end(), 0, [](int& sum, State* state) { return sum += (state ? 1 : 0); });
+        accumulate(stream_.begin(), stream_.end(), 0, [](int sum, State* state) { return sum += (state ? 1 : 0); });
     // apply truncation
     if (enableTruncation_ && (int)stream_.size() > setup_->numFramesHigh())
       stream_.resize(setup_->numFramesHigh());

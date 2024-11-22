@@ -15,7 +15,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackMultiplexer.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTypes.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <string>
 #include <vector>

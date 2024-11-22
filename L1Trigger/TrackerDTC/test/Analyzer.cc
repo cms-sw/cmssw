@@ -19,7 +19,6 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "SimTracker/TrackTriggerAssociation/interface/StubAssociation.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTypes.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerDTC/interface/LayerEncoding.h"
 

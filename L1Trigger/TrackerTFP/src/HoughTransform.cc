@@ -36,7 +36,7 @@ namespace trackerTFP {
     static const int chan = setup_->kfNumWorker();
     static const int mux = numChannelOut / chan;
     // count and reserve ht stubs
-    auto multiplicity = [](int& sum, StubGP* s) { return sum += s ? 1 + s->inv2RMax() - s->inv2RMin() : 0; };
+    auto multiplicity = [](int sum, StubGP* s) { return sum += s ? 1 + s->inv2RMax() - s->inv2RMin() : 0; };
     int nStubs(0);
     for (const vector<StubGP*>& input : streamsIn)
       nStubs += accumulate(input.begin(), input.end(), 0, multiplicity);

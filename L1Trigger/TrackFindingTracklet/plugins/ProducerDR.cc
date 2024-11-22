@@ -14,7 +14,7 @@
 #include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 #include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
 #include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
-#include "L1Trigger/TrackFindingTracklet/interface/DR.h"
+#include "L1Trigger/TrackFindingTracklet/interface/DuplicateRemoval.h"
 #include "SimDataFormats/Associations/interface/TTTypes.h"
 
 #include <string>

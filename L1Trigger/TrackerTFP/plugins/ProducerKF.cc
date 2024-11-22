@@ -125,8 +125,8 @@ namespace trackerTFP {
     iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
     const StreamsTrack& allTracks = *handleTracks;
     // helper
-    auto validFrameT = [](int& sum, const FrameTrack& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
-    auto validFrameS = [](int& sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto validFrameT = [](int sum, const FrameTrack& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto validFrameS = [](int sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
     auto putT = [](const vector<TrackKF*>& objects, StreamTrack& stream) {
       auto toFrame = [](TrackKF* object) { return object ? object->frame() : FrameTrack(); };
       stream.reserve(objects.size());

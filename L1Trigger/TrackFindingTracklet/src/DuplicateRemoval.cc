@@ -32,8 +32,8 @@ namespace trklet {
 
   // read in and organize input tracks and stubs
   void DuplicateRemoval::consume(const StreamsTrack& streamsTrack, const StreamsStub& streamsStub) {
-    auto nonNullTrack = [](int& sum, const FrameTrack& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
-    auto nonNullStub = [](int& sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto nonNullTrack = [](int sum, const FrameTrack& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto nonNullStub = [](int sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
     // count tracks and stubs and reserve corresponding vectors
     int sizeStubs(0);
     static const int numLayers = channelAssignment_->tmNumLayers();

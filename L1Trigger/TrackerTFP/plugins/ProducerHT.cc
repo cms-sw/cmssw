@@ -95,7 +95,7 @@ namespace trackerTFP {
     iEvent.getByToken<StreamsStub>(edGetToken_, handle);
     const StreamsStub& streamsStub = *handle.product();
     // helper
-    auto validFrame = [](int& sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto validFrame = [](int sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
     auto toFrame = [](StubHT* object) { return object ? object->frame() : FrameStub(); };
     // produce HT output per region
     for (int region = 0; region < numRegions; region++) {

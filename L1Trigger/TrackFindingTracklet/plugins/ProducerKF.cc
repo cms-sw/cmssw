@@ -119,7 +119,7 @@ namespace trklet {
   }
 
   void ProducerKF::produce(Event& iEvent, const EventSetup& iSetup) {
-    auto valid = [](int& sum, const FrameTrack& f) { return sum += f.first.isNull() ? 0 : 1; };
+    auto valid = [](int sum, const FrameTrack& f) { return sum += (f.first.isNull() ? 0 : 1); };
     static const int numRegions = setup_->numRegions();
     static const int numLayers = setup_->numLayers();
     // empty KF products
