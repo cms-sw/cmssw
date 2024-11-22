@@ -1,4 +1,3 @@
-from __future__ import print_function
 from PhysicsTools.Heppy.utils.cmsswRelease import cmsswRelease, releaseNumber
 
 def miniAodFiles():

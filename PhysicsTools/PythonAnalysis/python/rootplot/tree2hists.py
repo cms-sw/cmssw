@@ -4,7 +4,6 @@ Create ROOT Histograms from one or more ROOT TTrees or TNtuples.
 
 Options are specified in the given configuration file.
 """
-from __future__ import print_function
 
 # Create configuration file:
 #   tree2hists.py

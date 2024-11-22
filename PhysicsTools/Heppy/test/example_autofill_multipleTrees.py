@@ -3,7 +3,6 @@
 # In particular here we create a second tree producer containing only information and then, 
 # cloning it in two copies, we store it both in the same file as the main tree and in separate file
 
-from __future__ import print_function
 import ROOT
 import PhysicsTools.HeppyCore.framework.config as cfg
 # avoid creating subdirs, in case subdirs are wanted the treeProducer should have different names (set name="blabla" in the config)
