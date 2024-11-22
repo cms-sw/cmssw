@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 # $Id: physics_dqm_sourceclient-live_cfg.py,v 1.11 2012/02/13 15:09:30 lilopera Exp $
 

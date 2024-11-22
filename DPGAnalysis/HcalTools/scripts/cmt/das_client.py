@@ -5,7 +5,6 @@
 """
 DAS command line tool
 """
-from __future__ import print_function
 __author__ = "Valentin Kuznetsov"
 
 # system modules

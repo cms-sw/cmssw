@@ -1,4 +1,3 @@
-from __future__ import print_function
 # L1 Trigger DQM sequence (L1T)
 #
 #   authors previous versions - see CVS

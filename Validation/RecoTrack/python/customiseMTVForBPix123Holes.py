@@ -1,4 +1,3 @@
-from __future__ import print_function
 # This customise file provides an example (in the form of holes in
 # BPix L1-L2 and L3-L3) on how to select a subset of generalTracks
 # (e.g. by phi and eta) and setup various MTV instances for those

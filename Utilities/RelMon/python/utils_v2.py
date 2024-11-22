@@ -5,8 +5,6 @@ Help functions for ValidationMatrix_v2.py.
 Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
-from __future__ import print_function
-from __future__ import absolute_import
 from builtins import range
 import sys
 import re
