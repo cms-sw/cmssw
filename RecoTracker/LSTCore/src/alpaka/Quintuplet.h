@@ -2418,7 +2418,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                   acc, &quintupletsOccupancy.totOccupancyQuintuplets()[lowerModule1], 1u, alpaka::hierarchy::Threads{});
               if (totOccupancyQuintuplets >= ranges.quintupletModuleOccupancy()[lowerModule1]) {
 #ifdef WARNINGS
-                printf("Quintuplet excess alert! Module index = %d\n", lowerModule1);
+                printf("Quintuplet excess alert! Module index = %d, Occupancy = %d\n",
+                       lowerModule1,
+                       totOccupancyQuintuplets);
 #endif
               } else {
                 int quintupletModuleIndex = alpaka::atomicAdd(
@@ -2478,7 +2480,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                   ModulesConst modules,
                                   TripletsOccupancyConst tripletsOccupancy,
-                                  ObjectRanges ranges) const {
+                                  ObjectRanges ranges,
+                                  const float ptCut) const {
       // implementation is 1D with a single block
       static_assert(std::is_same_v<TAcc, ALPAKA_ACCELERATOR_NAMESPACE::Acc1D>, "Should be Acc1D");
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
@@ -2494,6 +2497,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         nEligibleT5Modulesx = 0;
       }
       alpaka::syncBlockThreads(acc);
+
+      // Occupancy matrix for 0.8 GeV pT Cut
+      constexpr int p08_occupancy_matrix[4][4] = {
+          {336, 414, 231, 146},  // category 0
+          {0, 0, 0, 0},          // category 1
+          {0, 0, 0, 0},          // category 2
+          {0, 0, 191, 106}       // category 3
+      };
+
+      // Occupancy matrix for 0.6 GeV pT Cut, 99.99%
+      constexpr int p06_occupancy_matrix[4][4] = {
+          {325, 237, 217, 176},  // category 0
+          {0, 0, 0, 0},          // category 1
+          {0, 0, 0, 0},          // category 2
+          {0, 0, 129, 180}       // category 3
+      };
+
+      // Select the appropriate occupancy matrix based on ptCut
+      const auto& occupancy_matrix = (ptCut < 0.8f) ? p06_occupancy_matrix : p08_occupancy_matrix;
 
       for (int i = globalThreadIdx[0]; i < modules.nLowerModules(); i += gridThreadExtent[0]) {
         // Condition for a quintuple to exist for a module
@@ -2512,55 +2534,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         int nEligibleT5Modules = alpaka::atomicAdd(acc, &nEligibleT5Modulesx, 1, alpaka::hierarchy::Threads{});
 
-        int category_number;
-        if (module_layers <= 3 && module_subdets == 5)
-          category_number = 0;
-        else if (module_layers >= 4 && module_subdets == 5)
-          category_number = 1;
-        else if (module_layers <= 2 && module_subdets == 4 && module_rings >= 11)
-          category_number = 2;
-        else if (module_layers >= 3 && module_subdets == 4 && module_rings >= 8)
-          category_number = 2;
-        else if (module_layers <= 2 && module_subdets == 4 && module_rings <= 10)
-          category_number = 3;
-        else if (module_layers >= 3 && module_subdets == 4 && module_rings <= 7)
-          category_number = 3;
-        else
-          category_number = -1;
+        int category_number = getCategoryNumber(module_layers, module_subdets, module_rings);
+        int eta_number = getEtaBin(module_eta);
 
-        int eta_number;
-        if (module_eta < 0.75f)
-          eta_number = 0;
-        else if (module_eta < 1.5f)
-          eta_number = 1;
-        else if (module_eta < 2.25f)
-          eta_number = 2;
-        else if (module_eta < 3.0f)
-          eta_number = 3;
-        else
-          eta_number = -1;
-
-        int occupancy;
-        if (category_number == 0 && eta_number == 0)
-          occupancy = 336;
-        else if (category_number == 0 && eta_number == 1)
-          occupancy = 414;
-        else if (category_number == 0 && eta_number == 2)
-          occupancy = 231;
-        else if (category_number == 0 && eta_number == 3)
-          occupancy = 146;
-        else if (category_number == 3 && eta_number == 1)
-          occupancy = 0;
-        else if (category_number == 3 && eta_number == 2)
-          occupancy = 191;
-        else if (category_number == 3 && eta_number == 3)
-          occupancy = 106;
-        else {
-          occupancy = 0;
-#ifdef WARNINGS
-          printf("Unhandled case in createEligibleModulesListForQuintupletsGPU! Module index = %i\n", i);
-#endif
+        int occupancy = 0;
+        if (category_number != -1 && eta_number != -1) {
+          occupancy = occupancy_matrix[category_number][eta_number];
         }
+#ifdef WARNINGS
+        else {
+          printf("Unhandled case in createEligibleModulesListForQuintupletsGPU! Module index = %i\n", i);
+        }
+#endif
 
         int nTotQ = alpaka::atomicAdd(acc, &nTotalQuintupletsx, occupancy, alpaka::hierarchy::Threads{});
         ranges.quintupletModuleIndices()[i] = nTotQ;

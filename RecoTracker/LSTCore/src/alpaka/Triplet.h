@@ -742,7 +742,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               if (static_cast<int>(totOccupancyTriplets) >=
                   ranges.tripletModuleOccupancy()[innerInnerLowerModuleIndex]) {
 #ifdef WARNINGS
-                printf("Triplet excess alert! Module index = %d\n", innerInnerLowerModuleIndex);
+                printf("Triplet excess alert! Module index = %d, Occupancy = %d\n",
+                       innerInnerLowerModuleIndex,
+                       totOccupancyTriplets);
 #endif
               } else {
                 unsigned int tripletModuleIndex = alpaka::atomicAdd(
@@ -781,7 +783,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                   ModulesConst modules,
                                   ObjectRanges ranges,
-                                  SegmentsOccupancyConst segmentsOccupancy) const {
+                                  SegmentsOccupancyConst segmentsOccupancy,
+                                  const float ptCut) const {
       // implementation is 1D with a single block
       static_assert(std::is_same_v<TAcc, ALPAKA_ACCELERATOR_NAMESPACE::Acc1D>, "Should be Acc1D");
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
@@ -796,6 +799,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       }
       alpaka::syncBlockThreads(acc);
 
+      // Occupancy matrix for 0.8 GeV pT Cut
+      constexpr int p08_occupancy_matrix[4][4] = {
+          {543, 235, 88, 46},  // category 0
+          {755, 347, 0, 0},    // category 1
+          {0, 0, 0, 0},        // category 2
+          {0, 38, 46, 39}      // category 3
+      };
+
+      // Occupancy matrix for 0.6 GeV pT Cut, 99.9%
+      constexpr int p06_occupancy_matrix[4][4] = {
+          {1146, 544, 216, 83},  // category 0
+          {1032, 275, 0, 0},     // category 1
+          {0, 0, 0, 0},          // category 2
+          {0, 115, 110, 76}      // category 3
+      };
+
+      // Select the appropriate occupancy matrix based on ptCut
+      const auto& occupancy_matrix = (ptCut < 0.8f) ? p06_occupancy_matrix : p08_occupancy_matrix;
+
       for (uint16_t i = globalThreadIdx[0]; i < modules.nLowerModules(); i += gridThreadExtent[0]) {
         if (segmentsOccupancy.nSegments()[i] == 0) {
           ranges.tripletModuleIndices()[i] = nTotalTriplets;
@@ -808,63 +830,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         short module_subdets = modules.subdets()[i];
         float module_eta = alpaka::math::abs(acc, modules.eta()[i]);
 
-        int category_number;
-        if (module_layers <= 3 && module_subdets == 5)
-          category_number = 0;
-        else if (module_layers >= 4 && module_subdets == 5)
-          category_number = 1;
-        else if (module_layers <= 2 && module_subdets == 4 && module_rings >= 11)
-          category_number = 2;
-        else if (module_layers >= 3 && module_subdets == 4 && module_rings >= 8)
-          category_number = 2;
-        else if (module_layers <= 2 && module_subdets == 4 && module_rings <= 10)
-          category_number = 3;
-        else if (module_layers >= 3 && module_subdets == 4 && module_rings <= 7)
-          category_number = 3;
-        else
-          category_number = -1;
+        int category_number = getCategoryNumber(module_layers, module_subdets, module_rings);
+        int eta_number = getEtaBin(module_eta);
 
-        int eta_number;
-        if (module_eta < 0.75f)
-          eta_number = 0;
-        else if (module_eta < 1.5f)
-          eta_number = 1;
-        else if (module_eta < 2.25f)
-          eta_number = 2;
-        else if (module_eta < 3.0f)
-          eta_number = 3;
-        else
-          eta_number = -1;
-
-        int occupancy;
-        if (category_number == 0 && eta_number == 0)
-          occupancy = 543;
-        else if (category_number == 0 && eta_number == 1)
-          occupancy = 235;
-        else if (category_number == 0 && eta_number == 2)
-          occupancy = 88;
-        else if (category_number == 0 && eta_number == 3)
-          occupancy = 46;
-        else if (category_number == 1 && eta_number == 0)
-          occupancy = 755;
-        else if (category_number == 1 && eta_number == 1)
-          occupancy = 347;
-        else if (category_number == 2 && eta_number == 1)
-          occupancy = 0;
-        else if (category_number == 2 && eta_number == 2)
-          occupancy = 0;
-        else if (category_number == 3 && eta_number == 1)
-          occupancy = 38;
-        else if (category_number == 3 && eta_number == 2)
-          occupancy = 46;
-        else if (category_number == 3 && eta_number == 3)
-          occupancy = 39;
-        else {
-          occupancy = 0;
-#ifdef WARNINGS
-          printf("Unhandled case in createTripletArrayRanges! Module index = %i\n", i);
-#endif
+        int occupancy = 0;
+        if (category_number != -1 && eta_number != -1) {
+          occupancy = occupancy_matrix[category_number][eta_number];
         }
+#ifdef WARNINGS
+        else {
+          printf("Unhandled case in createTripletArrayRanges! Module index = %i\n", i);
+        }
+#endif
 
         ranges.tripletModuleOccupancy()[i] = occupancy;
         unsigned int nTotT = alpaka::atomicAdd(acc, &nTotalTriplets, occupancy, alpaka::hierarchy::Threads{});

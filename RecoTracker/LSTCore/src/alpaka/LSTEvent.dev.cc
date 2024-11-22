@@ -202,7 +202,8 @@ void LSTEvent::addPixelSegmentToEvent(std::vector<unsigned int> const& hitIndice
                         createMDArrayRangesGPU_workDiv,
                         CreateMDArrayRangesGPU{},
                         modules_.const_view<ModulesSoA>(),
-                        rangesDC_->view());
+                        rangesDC_->view(),
+                        ptCut_);
 
     auto nTotalMDs_buf_h = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
     auto nTotalMDs_buf_d = cms::alpakatools::make_device_view(queue_, rangesOccupancy.nTotalMDs());
@@ -233,7 +234,8 @@ void LSTEvent::addPixelSegmentToEvent(std::vector<unsigned int> const& hitIndice
                         CreateSegmentArrayRanges{},
                         modules_.const_view<ModulesSoA>(),
                         rangesDC_->view(),
-                        miniDoubletsDC_->const_view<MiniDoubletsSoA>());
+                        miniDoubletsDC_->const_view<MiniDoubletsSoA>(),
+                        ptCut_);
 
     auto rangesOccupancy = rangesDC_->view();
     auto nTotalSegments_view_h = cms::alpakatools::make_host_view(nTotalSegments_);
@@ -346,7 +348,8 @@ void LSTEvent::createMiniDoublets() {
                       createMDArrayRangesGPU_workDiv,
                       CreateMDArrayRangesGPU{},
                       modules_.const_view<ModulesSoA>(),
-                      rangesDC_->view());
+                      rangesDC_->view(),
+                      ptCut_);
 
   auto nTotalMDs_buf_h = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
   auto nTotalMDs_buf_d = cms::alpakatools::make_device_view(queue_, rangesOccupancy.nTotalMDs());
@@ -454,7 +457,8 @@ void LSTEvent::createTriplets() {
                         CreateTripletArrayRanges{},
                         modules_.const_view<ModulesSoA>(),
                         rangesDC_->view(),
-                        segmentsDC_->const_view<SegmentsOccupancySoA>());
+                        segmentsDC_->const_view<SegmentsOccupancySoA>(),
+                        ptCut_);
 
     // TODO: Why are we pulling this back down only to put it back on the device in a new struct?
     auto rangesOccupancy = rangesDC_->view();
@@ -857,7 +861,8 @@ void LSTEvent::createQuintuplets() {
                       CreateEligibleModulesListForQuintuplets{},
                       modules_.const_view<ModulesSoA>(),
                       tripletsDC_->const_view<TripletsOccupancySoA>(),
-                      rangesDC_->view());
+                      rangesDC_->view(),
+                      ptCut_);
 
   auto nEligibleT5Modules_buf = cms::alpakatools::make_host_buffer<uint16_t>(queue_);
   auto nTotalQuintuplets_buf = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
