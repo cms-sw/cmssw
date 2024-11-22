@@ -11,7 +11,6 @@
 #TODO:
 #In the future can put it in scripts/ and take dir to run from and write to as options.
 
-from __future__ import print_function
 import os, subprocess
 
 def ProduceTkMapVoltageInputFiles(workdir=os.getcwd()): #Setting the dir by default to the current working directory...

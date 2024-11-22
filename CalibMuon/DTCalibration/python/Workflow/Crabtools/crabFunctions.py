@@ -4,7 +4,6 @@
 #
 # This module provides common functions for tasks with crab3.
 # You need no create a CrabController object in order to use the functions
-from __future__ import print_function
 import os,sys,glob
 import tarfile
 import xml.etree.ElementTree as ET

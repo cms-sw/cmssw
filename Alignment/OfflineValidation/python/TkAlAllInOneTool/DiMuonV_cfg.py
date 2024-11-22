@@ -1,4 +1,3 @@
-from __future__ import print_function
 from fnmatch import fnmatch
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList

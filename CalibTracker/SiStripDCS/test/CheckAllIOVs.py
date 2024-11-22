@@ -7,7 +7,6 @@
 3- creates 2 log files per IOV (Summary/Debug) with all the SiStripDetVOff information in ASCII format
 It is recommended to redirect the output to a file.
 """
-from __future__ import print_function
 #3- takes the output of each job and builds a single output with the content of each iov
 
 import os
