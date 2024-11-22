@@ -12,10 +12,10 @@ OutALCARECOTkAlHLTTracksZMuMu_noDrop = cms.PSet(
         'keep SiPixelClusteredmNewDetSetVector_ALCARECOTkAlHLTTracksZMuMu_*_*',
         'keep SiStripClusteredmNewDetSetVector_ALCARECOTkAlHLTTracksZMuMu_*_*',
         'keep L1AcceptBunchCrossings_*_*_*',
-        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_TriggerResults_*_*',
-        'keep DcsStatuss_scalersRawToDigi_*_*',
-	'keep *_hltVerticesPFFilter_*_*')
+	'keep *_hltVerticesPFFilter_*_*',
+        'keep *_hltOnlineBeamSpot_*_*'
+    )
 )
 
 OutALCARECOTkAlHLTTracksZMuMu = OutALCARECOTkAlHLTTracksZMuMu_noDrop.clone()
