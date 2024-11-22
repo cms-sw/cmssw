@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 #function to switch to an external weight producer for an analyzer in the validation chain
