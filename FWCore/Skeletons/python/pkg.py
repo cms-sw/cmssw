@@ -8,7 +8,6 @@ Author     : Valentin Kuznetsov <vkuznet@gmail.com>
 Description: AbstractGenerator class provides basic functionality
 to generate CMSSW class from given template
 """
-from __future__ import print_function
 
 # system modules
 import os

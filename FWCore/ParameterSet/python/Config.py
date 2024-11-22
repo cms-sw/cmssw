@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 ### command line options helper
-from __future__ import print_function
-from __future__ import absolute_import
 import os
 from  .Options import Options
 options = Options()

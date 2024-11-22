@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-from __future__ import print_function
 import ROOT
 from DataFormats.FWLite import Events, Handle
 import FWCore.ParameterSet.VarParsing as VarParsing
