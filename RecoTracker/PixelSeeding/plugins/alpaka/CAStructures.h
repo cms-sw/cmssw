@@ -7,6 +7,7 @@
 
 namespace caStructures {
 
+
   using Quality = ::pixelTrack::Quality;
 
 
@@ -67,6 +68,7 @@ namespace caStructures {
 
   using GenericContainer = cms::alpakatools::OneToManyAssocRandomAccess<hindex_type, -1, -1>;
   using GenericContainerStorage = typename GenericContainer::index_type;
+  using GenericContainerOffsets = typename GenericContainer::Counter;
   using GenericContainerView = typename GenericContainer::View;
 
   template <typename TrackerTraits>

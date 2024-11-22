@@ -17,6 +17,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "RecoTracker/PixelSeeding/interface/CAParamsSoA.h"
+// #include "RecoTracker/PixelSeeding/interface/alpaka/CACoupleSoACollection.h"
 
 #include "CACell.h"
 #include "CAPixelDoublets.h"
@@ -168,8 +169,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::alpakatools::device_buffer<Device, Counters> counters_;
 
     // Hits->Track
-    cms::alpakatools::device_buffer<Device, HitToTuple> device_hitToTuple_;
-    cms::alpakatools::device_buffer<Device, uint32_t[]> device_hitToTupleStorage_;
+    // cms::alpakatools::device_buffer<Device, HitToTuple> device_hitToTuple_;
+    // cms::alpakatools::device_buffer<Device, uint32_t[]> device_hitToTupleStorage_;
+
+    cms::alpakatools::device_buffer<Device, GenericContainer> device_hitToTuple_;
+    cms::alpakatools::device_buffer<Device, GenericContainerStorage[]> device_hitToTupleStorage_;
+    cms::alpakatools::device_buffer<Device, GenericContainerOffsets[]> device_hitToTupleOffsets_;
 
     // Hits 
     cms::alpakatools::device_buffer<Device, PhiBinner> device_hitPhiHist_;
@@ -179,8 +184,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // Tracks->Hits
     cms::alpakatools::device_buffer<Device, HitContainer> device_hitContainer_;
-
-    HitToTupleView device_hitToTupleView_;
+    
+    // GenericContainerView device_hitToTupleView_;
+    GenericContainerView device_hitToTupleView_;
     cms::alpakatools::device_buffer<Device, TupleMultiplicity> device_tupleMultiplicity_;
     cms::alpakatools::device_buffer<Device, CACell[]> device_theCells_;
     cms::alpakatools::device_buffer<Device, OuterHitOfCellContainer[]> device_isOuterHitOfCell_;
@@ -201,7 +207,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // cms::alpakatools::device_buffer<Device, GenericContainerStorage[]> device_hitToCellOffsets_;
 
     // cms::alpakatools::device_buffer<Device, GenericContainerStorage[]> device_hitToCellStorage_;
-
+    // CACoupleSoACollection 
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

@@ -13,4 +13,4 @@ namespace reco {
     template <typename TDev>
     using CAParamsDevice = PortableDeviceMultiCollection<TDev, CALayersSoA, CACellsSoA>;
 }
-#endif  // DataFormats_VertexSoA_CAParamsDevice_H
+#endif  // RecoTracker_PixelSeeding_interface_CAParamsDevice_H

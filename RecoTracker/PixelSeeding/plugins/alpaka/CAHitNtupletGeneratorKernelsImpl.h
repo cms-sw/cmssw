@@ -118,7 +118,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView tracks_view,
                                   HitContainer<TrackerTraits> const *__restrict__ foundNtuplets,
                                   TupleMultiplicity<TrackerTraits> const *tupleMultiplicity,
-                                  HitToTuple<TrackerTraits> const *hitToTuple,
+                                  GenericContainer const *hitToTuple,
                                   cms::alpakatools::AtomicPairCounter *apc,
                                   CACellT<TrackerTraits> const *__restrict__ cells,
                                   uint32_t const *__restrict__ nCells,
@@ -659,7 +659,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   TkSoAView tracks_view,
                                   HitContainer<TrackerTraits> const *__restrict__ foundNtuplets,
-                                  HitToTuple<TrackerTraits> *hitToTuple) const {
+                                  GenericContainer *hitToTuple) const {
       for (auto idx : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
         if (foundNtuplets->size(idx) == 0)
           break;  // guard
@@ -676,7 +676,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   TkSoAView tracks_view,
                                   HitContainer<TrackerTraits> const *__restrict__ foundNtuplets,
-                                  HitToTuple<TrackerTraits> *hitToTuple) const {
+                                  GenericContainer *hitToTuple) const {
       for (auto idx : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
         if (foundNtuplets->size(idx) == 0)
           break;  // guard
@@ -737,7 +737,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  HitToTuple<TrackerTraits> const *__restrict__ hitToTuple,
+                                  GenericContainer const *__restrict__ hitToTuple,
                                   Counters *counters) const {
       auto &c = *counters;
       for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple->nOnes())) {
@@ -758,12 +758,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   int *__restrict__ nshared,
                                   HitContainer<TrackerTraits> const *__restrict__ ptuples,
                                   Quality const *__restrict__ quality,
-                                  HitToTuple<TrackerTraits> const *__restrict__ phitToTuple) const {
+                                  GenericContainer const *__restrict__ phitToTuple) const {
       constexpr auto loose = Quality::loose;
 
       auto &hitToTuple = *phitToTuple;
       auto const &foundNtuplets = *ptuples;
-      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple->nbins())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple.nOnes())) {
         if (hitToTuple.size(idx) < 2)
           continue;
 
@@ -825,7 +825,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView tracks_view,
                                   uint16_t nmin,
                                   bool dupPassThrough,
-                                  HitToTuple<TrackerTraits> const *__restrict__ phitToTuple) const {
+                                  GenericContainer const *__restrict__ phitToTuple) const {
       // quality to mark rejected
       auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
 
@@ -884,7 +884,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView tracks_view,
                                   int nmin,
                                   bool dupPassThrough,
-                                  HitToTuple<TrackerTraits> const *__restrict__ phitToTuple) const {
+                                  GenericContainer const *__restrict__ phitToTuple) const {
       // quality to mark rejected
       auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
       // quality of longest track
@@ -937,7 +937,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView tracks_view,
                                   uint16_t nmin,
                                   bool dupPassThrough,
-                                  HitToTuple<TrackerTraits> const *__restrict__ phitToTuple) const {
+                                  GenericContainer const *__restrict__ phitToTuple) const {
       // quality to mark rejected
       auto const reject = Quality::loose;
       /// min quality of good
@@ -997,7 +997,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView tracks_view,
                                   uint16_t nmin,
                                   bool dupPassThrough,
-                                  HitToTuple<TrackerTraits> const *__restrict__ phitToTuple) const {
+                                  GenericContainer const *__restrict__ phitToTuple) const {
       // quality to mark rejected
       auto const reject = Quality::loose;
       /// min quality of good
@@ -1043,7 +1043,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   HitsConstView hh,
                                   TkSoAView tracks_view,
                                   HitContainer<TrackerTraits> const *__restrict__ foundNtuplets,
-                                  HitToTuple<TrackerTraits> const *__restrict__ phitToTuple,
+                                  GenericContainer const *__restrict__ phitToTuple,
                                   int32_t firstPrint,
                                   int32_t lastPrint,
                                   int iev) const {
