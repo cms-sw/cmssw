@@ -1,6 +1,5 @@
 #!/bin/env python3
 
-from __future__ import print_function
 import sys
 
 from DQMServices.FileIO.DQM import DQMReader

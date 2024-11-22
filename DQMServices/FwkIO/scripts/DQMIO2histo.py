@@ -7,7 +7,6 @@ in input file it creates a Run X named folder for each run.
 Thanks for Marco Rovere for giving example script/class needed to browse DQM I/O 
 formatted input.
 """
-from __future__ import print_function
 
 from builtins import range
 import ROOT as R

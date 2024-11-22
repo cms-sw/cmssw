@@ -7,7 +7,6 @@
 """
 DBS data discovery command line interface
 """
-from __future__ import print_function
 
 import httplib, urllib, urllib2, types, string, os, sys
 from optparse import OptionParser

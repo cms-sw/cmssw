@@ -6,7 +6,6 @@
 # This script compares the plots cointained in two DQM files and save the superimposed plots 
 #
 
-from __future__ import print_function
 DQMfileOld="/afs/cern.ch/user/s/sdonato/AFSwork/public/DQM_V0001_R000000001__CMSSW_X_Y_Z__RelVal__TrigVal.root"
 DQMfileNew="/afs/cern.ch/user/s/sdonato/AFSwork/public/DQM_V0001_R000000002__CMSSW_X_Y_Z__RelVal__TrigVal.root"
 labelNew = "New"

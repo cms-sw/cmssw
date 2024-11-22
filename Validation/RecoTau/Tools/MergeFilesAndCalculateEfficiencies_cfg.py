@@ -12,7 +12,6 @@
      Example: ./MergeFilesAndCalculateEfficiencies.py CMSSW_3_1_0_Signal.root CMSSW_3_1_0_ZTT_*.root
 
 """
-from __future__ import print_function
 
 import os
 import sys

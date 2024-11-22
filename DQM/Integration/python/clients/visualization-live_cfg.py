@@ -1,4 +1,3 @@
-from __future__ import print_function
 import re, os, sys
 import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.GetScenario import getScenario

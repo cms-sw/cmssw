@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 from builtins import range
 import ROOT, os, math, sys
 import numpy as num

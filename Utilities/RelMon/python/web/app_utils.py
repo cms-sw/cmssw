@@ -6,7 +6,6 @@ Helper functions for CherryPy application ``browse_db.py``.
 Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
-from __future__ import print_function
 
 import sqlite3
 import re
