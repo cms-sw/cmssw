@@ -269,8 +269,9 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
           }
         }
       }
-      tracksterToSimTracksterMap->sort(true);
-      simTracksterToTracksterMap->sort(true);
+      // Sort the maps by score in ascending order
+      tracksterToSimTracksterMap->sort([](const auto& a, const auto& b) { return a.score() < b.score(); });
+      simTracksterToTracksterMap->sort([](const auto& a, const auto& b) { return a.score() < b.score(); });
 
       // After populating the maps, store them in the event
       iEvent.put(std::move(tracksterToSimTracksterMap), tracksterToken.first + "To" + simTracksterToken.first);
