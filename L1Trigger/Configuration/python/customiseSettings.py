@@ -2,8 +2,8 @@ from __future__ import print_function
 import os.path
 import FWCore.ParameterSet.Config as cms
 
-def L1TSettingsToCaloParamsHI_2024_v0_2(process):
-    process.load("L1Trigger.L1TCalorimeter.caloParamsHI_2024_v0_2_cfi")
+def L1TSettingsToCaloParamsHI_2024_v0_0(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParamsHI_2024_v0_0_cfi")
     return process
 
 def L1TSettingsToCaloParams_2024_v0_2(process):
