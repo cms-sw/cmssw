@@ -1624,7 +1624,7 @@ muonDict = {
         ],
         "era" : "run3_GEM",
     },
-    "M3" : {
+    "M4" : {
         1 : [
             'Geometry/MuonCommonData/data/mbCommon/2021/v2/mbCommon.xml',
             'Geometry/MuonCommonData/data/mb1/2021/v1/mb1.xml',
@@ -1637,7 +1637,7 @@ muonDict = {
             'Geometry/MuonCommonData/data/rpcf/2024/v1/rpcf.xml',
             'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
             'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
-            'Geometry/MuonCommonData/data/gem21/2024/v1/gem21.xml',
+            'Geometry/MuonCommonData/data/gem21/2024/v2/gem21.xml',
             'Geometry/MuonCommonData/data/csc/2021/v3/csc.xml',
             'Geometry/MuonCommonData/data/mfshield/2017/v2/mfshield.xml',
         ],
@@ -1669,7 +1669,7 @@ muonDict = {
         ],
         "era" : "run3_GEM",
     },
-    "M4" : {
+    "M5" : {
         1 : [
             'Geometry/MuonCommonData/data/mbCommon/2021/v2/mbCommon.xml',
             'Geometry/MuonCommonData/data/mb1/2021/v1/mb1.xml',
@@ -1679,10 +1679,10 @@ muonDict = {
             'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
             'Geometry/MuonCommonData/data/muonYoke/2021/v5/muonYoke.xml',
             'Geometry/MuonCommonData/data/mf/2021/v3/mf.xml',
-            'Geometry/MuonCommonData/data/rpcf/2024/v1/rpcf.xml',
+            'Geometry/MuonCommonData/data/rpcf/2025/v1/rpcf.xml',
             'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
             'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
-            'Geometry/MuonCommonData/data/gem21/2024/v2/gem21.xml',
+            'Geometry/MuonCommonData/data/gem21/2025/v1/gem21.xml',
             'Geometry/MuonCommonData/data/csc/2021/v3/csc.xml',
             'Geometry/MuonCommonData/data/mfshield/2017/v2/mfshield.xml',
         ],
@@ -1946,7 +1946,8 @@ detectorVersionDict = {
     ("O5","T6","C2","M4","F2","P7") : "2024FlatMinus10Percent",
     ("O5","T7","C2","M4","F2","P7") : "2024FlatPlus05Percent",
     ("O5","T8","C2","M4","F2","P7") : "2024FlatPlus10Percent",
+    ("O6","T3","C2","M5","F3","P7") : "2025",
  }
 
-deprecatedSubdets = set([ "T1", "T2", "O1", "O2", "O3", "P1", "P2", "P3", 
-                          "P4", "P5", "P6" ])
+deprecatedSubdets = set([ "T1", "T2", "O1", "O2", "O3", "M3", "P1", "P2",
+                           "P3", "P4", "P5", "P6" ])
