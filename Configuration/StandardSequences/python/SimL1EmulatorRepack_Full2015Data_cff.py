@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 ## L1REPACK Full2015Data : Re-Emulate all of L1 and repack into RAW

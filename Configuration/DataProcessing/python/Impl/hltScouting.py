@@ -6,7 +6,6 @@ Scenario supporting proton collisions with input HLT scouting data
 
 """
 
-from __future__ import print_function
 
 import os
 import sys
