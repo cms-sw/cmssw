@@ -114,13 +114,13 @@ namespace cms {
     return std::string(p, p + bytes.size());
   }
 
-  void MD5Result::fromHexifiedString(std::string const& hexy) {
+  void MD5Result::fromHexifiedString(std::string_view hexy) {
     switch (hexy.size()) {
       case 0: {
         set_to_default(*this);
       } break;
       case 32: {
-        std::string::const_iterator it = hexy.begin();
+        auto it = hexy.cbegin();
         for (size_t i = 0; i != 16; ++i) {
           // first nybble
           bytes[i] = (unhexify(*it++) << 4);

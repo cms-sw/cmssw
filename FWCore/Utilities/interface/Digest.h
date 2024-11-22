@@ -28,7 +28,7 @@ namespace cms {
     std::string compactForm() const;
 
     // Set our data from the given hexdigest string.
-    void fromHexifiedString(std::string const& s);
+    void fromHexifiedString(std::string_view);
 
     bool isValid() const;
   };
