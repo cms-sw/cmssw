@@ -9,6 +9,8 @@
 #include <iostream>
 #include <cassert>
 
+#include <limits>
+
 // CMSSW specific includes
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -40,10 +42,26 @@ namespace ticl {
   class AssociationElement {
   public:
     using value_type = V;
-
-    AssociationElement(unsigned int idx = 0, V val = V()) : index_(idx), value_(val) {}
+    AssociationElement() : index_(std::numeric_limits<unsigned int>::max()) {
+      if constexpr (std::is_same_v<V, FractionType> || std::is_same_v<V, SharedEnergyType>) {
+        value_.value = -1.f;
+      } else if constexpr (std::is_same_v<V, std::pair<FractionType, float>> ||
+                           std::is_same_v<V, std::pair<SharedEnergyType, float>>) {
+        value_.first.value = -1.f;
+      }
+    }
+    AssociationElement(unsigned int index, const V& value) : index_(index), value_(value) {}
 
     unsigned int index() const { return index_; }
+
+    bool isValid() const {
+      if constexpr (std::is_same_v<V, FractionType> || std::is_same_v<V, SharedEnergyType>) {
+        return value_.value >= 0.f;
+      } else if constexpr (std::is_same_v<V, std::pair<FractionType, float>> ||
+                           std::is_same_v<V, std::pair<SharedEnergyType, float>>) {
+        return value_.first.value >= 0.f;
+      }
+    }
 
     // Enable fraction() if ValueType is FractionType
     template <typename T = V, typename std::enable_if_t<std::is_same_v<T, FractionType>, int> = 0>
@@ -87,6 +105,11 @@ namespace ticl {
         value_.second += other_value.second;
       }
     }
+    bool operator==(const AssociationElement& other) const {
+      return index_ == other.index_ && value_.value == other.value_.value;
+    }
+
+    bool operator!=(const AssociationElement& other) const { return !(*this == other); }
 
   private:
     unsigned int index_;
@@ -115,8 +138,8 @@ namespace ticl {
   template <typename T>
   struct IsValueTypeWithScore : std::false_type {};
 
-  template <typename First, typename Second>
-  struct IsValueTypeWithScore<std::pair<First, Second>> : std::true_type {};
+  template <typename First>
+  struct IsValueTypeWithScore<std::pair<First, float>> : std::true_type {};
 
   // Define map types using AssociationElement and container types
   using mapWithFraction = std::vector<std::vector<AssociationElement<FractionType>>>;
@@ -182,6 +205,8 @@ namespace ticl {
 
     const MapType& getMap() const { return map_; }
 
+    const auto size() const { return map_.size(); }
+
     // CMSSW-specific method to get references
     template <typename C1 = Collection1,
               typename C2 = Collection2,
@@ -244,21 +269,45 @@ namespace ticl {
         // Sorting not applicable for one-to-one maps
       } else {
         for (auto& vec : map_) {
-          if (byScore) {
-            std::sort(vec.begin(), vec.end(), [](const AssociationElementType& a, const AssociationElementType& b) {
-              return a.score() > b.score();
+          if (byScore && IsValueTypeWithScore<V>::value) {
+            std::sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
+              if (a.score() != b.score()) {
+                return a.score() > b.score();
+              } else {
+                return a.index() < b.index();
+              }
             });
           } else {
             if constexpr (std::is_same_v<V, FractionType> || std::is_same_v<V, std::pair<FractionType, float>>) {
-              std::sort(vec.begin(), vec.end(), [](const AssociationElementType& a, const AssociationElementType& b) {
-                return a.fraction() > b.fraction();
+              std::sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
+                if (a.fraction() != b.fraction()) {
+                  return a.fraction() > b.fraction();
+                } else {
+                  return a.index() < b.index();
+                }
               });
             } else {
-              std::sort(vec.begin(), vec.end(), [](const AssociationElementType& a, const AssociationElementType& b) {
-                return a.sharedEnergy() > b.sharedEnergy();
+              std::sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
+                if (a.sharedEnergy() != b.sharedEnergy()) {
+                  return a.sharedEnergy() > b.sharedEnergy();
+                } else {
+                  return a.index() < b.index();
+                }
               });
             }
           }
+        }
+      }
+    }
+
+    // Overload of sort() that accepts a custom comparator
+    template <typename Compare>
+    void sort(Compare comp) {
+      if constexpr (is_one_to_one) {
+        // Sorting not applicable for one-to-one maps
+      } else {
+        for (auto& vec : map_) {
+          std::sort(vec.begin(), vec.end(), comp);
         }
       }
     }
@@ -268,9 +317,23 @@ namespace ticl {
 
     auto& operator[](unsigned int index1) { return map_[index1]; }
 
-    const auto& at(unsigned int index1) const { return map_.at(index1); }
+    const auto& at(unsigned int index1) const {
+      const auto& elem = map_.at(index1);
+      if (!elem.isValid()) {
+        throw std::out_of_range("Attempted to access an unset element in AssociationMap. Element index: " +
+                                std::to_string(index1));
+      }
+      return elem;
+    }
 
-    auto& at(unsigned int index1) { return map_.at(index1); }
+    auto& at(unsigned int index1) {
+      auto& elem = map_.at(index1);
+      if (!elem.isValid()) {
+        throw std::out_of_range("Attempted to access an unset element in AssociationMap. Element index: " +
+                                std::to_string(index1));
+      }
+      return elem;
+    }
 
     // CMSSW-specific resize method
     template <typename C1 = Collection1,
@@ -291,9 +354,13 @@ namespace ticl {
     // Method to print the entire map
     void print(std::ostream& os) const {
       for (size_t i = 0; i < map_.size(); ++i) {
-        os << "Index " << i << ":\n";
         if constexpr (is_one_to_one) {
           const auto& elem = map_[i];
+          if (!elem.isValid()) {
+            continue;
+          }
+          os << "Index " << i << ":\n";
+
           os << "  (" << elem.index() << ", ";
           if constexpr (IsValueTypeWithScore<V>::value) {
             if constexpr (std::is_same_v<typename V::first_type, FractionType>) {
@@ -310,6 +377,7 @@ namespace ticl {
           }
           os << ")\n";
         } else {
+          os << "Index " << i << ":\n";
           for (const auto& elem : map_[i]) {
             os << "  (" << elem.index() << ", ";
             if constexpr (IsValueTypeWithScore<V>::value) {
