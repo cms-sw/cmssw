@@ -367,10 +367,7 @@ void L1TriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
 
   bool writeFiles = true;
   if (edm::Service<evf::FastMonitoringService>().isAvailable()) {
-    evf::FastMonitoringService* fms =
-        (evf::FastMonitoringService*)(edm::Service<evf::FastMonitoringService>().operator->());
-    if (fms)
-      writeFiles = fms->shouldWriteFiles(ls);
+    writeFiles = edm::Service<evf::FastMonitoringService>()->shouldWriteFiles(ls);
   }
   if (not writeFiles)
     return;
