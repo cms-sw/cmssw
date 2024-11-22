@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # cfg file to run the L1 GT test analyzer according to 
 #   the options set in "user choices"
