@@ -30,6 +30,17 @@
     <script type="module" src="transitions.js"></script>
 </head>
 <body>
+    <p id="selectFilePrompt">Please select a file</p>
+    <div id="loadingSpinner" style="display: none;">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+    <div id="jsonDropdownDiv">
+        <label for="jsonDropdown">Select a JSON file:</label>
+        <select id="jsonDropdown">
+            <option value="">Select a file</option>
+        </select>
+    </div>
     <div class="container">
         <div class="name_div">
             <canvas id="name_view"></canvas>
@@ -49,8 +60,10 @@
             <p>&lt;CTRL&gt;+scroll to zoom</p>
         </div>
     </div>
+    <script src="transitions.js"></script>
 </body>
 </html>
+
 
 
 
