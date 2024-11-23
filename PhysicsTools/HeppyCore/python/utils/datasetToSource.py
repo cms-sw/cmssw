@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import os
 from .dataset import Dataset, CMSDataset, LocalDataset, createDataset, PrivateDataset, createMyDataset
 
