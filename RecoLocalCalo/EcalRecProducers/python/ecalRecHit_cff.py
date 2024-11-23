@@ -73,11 +73,11 @@ gpu.toReplaceWith(ecalCalibratedRecHitTask, cms.Task(
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
 # ECAL conditions used by the rechit producer running on the accelerator
-from RecoLocalCalo.EcalRecProducers.ecalRecHitConditionsHostESProducer_cfi import ecalRecHitConditionsHostESProducer
-from RecoLocalCalo.EcalRecProducers.ecalRecHitParametersHostESProducer_cfi import ecalRecHitParametersHostESProducer
+from RecoLocalCalo.EcalRecProducers.ecalRecHitConditionsESProducer_cfi import ecalRecHitConditionsESProducer
+from RecoLocalCalo.EcalRecProducers.ecalRecHitParametersESProducer_cfi import ecalRecHitParametersESProducer
 
 ecalRecHitParametersSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('EcalRecHitParametersRcd'),
+    recordName = cms.string('JobConfigurationGPURecord'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
@@ -91,7 +91,7 @@ ecalRecHitPortable = _ecalRecHitProducerPortable.clone(
 
 # replace the SwitchProducerCUDA branches with the module to convert the rechits from SoA to legacy format
 from RecoLocalCalo.EcalRecProducers.ecalRecHitSoAToLegacy_cfi import ecalRecHitSoAToLegacy as _ecalRecHitSoAToLegacy
-# TODO: the portably produced ECAL calibrated rechits correct yet.
+# TODO: the portably produced ECAL calibrated rechits are not correct yet.
 # When they are working and validated, remove this comment and uncomment the next lines:
 #alpaka.toModify(ecalRecHit,
 #    cpu = _ecalRecHitSoAToLegacy.clone()
@@ -99,8 +99,8 @@ from RecoLocalCalo.EcalRecProducers.ecalRecHitSoAToLegacy_cfi import ecalRecHitS
 
 alpaka.toReplaceWith(ecalCalibratedRecHitTask, cms.Task(
   # ECAL conditions and parameters used by the rechit producer running on the accelerator
-  ecalRecHitConditionsHostESProducer,
-  ecalRecHitParametersHostESProducer,
+  ecalRecHitConditionsESProducer,
+  ecalRecHitParametersESProducer,
   # ECAL rechit producer running on device
   ecalRecHitPortable,
   # ECAL rechit producer running on CPU, or convert the rechits from SoA to legacy format

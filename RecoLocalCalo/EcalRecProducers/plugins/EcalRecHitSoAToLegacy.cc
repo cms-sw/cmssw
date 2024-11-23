@@ -5,13 +5,13 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 
-class EcalRecHitSoAToLegacy : public edm::stream::EDProducer<> {
+class EcalRecHitSoAToLegacy : public edm::global::EDProducer<> {
 public:
   explicit EcalRecHitSoAToLegacy(edm::ParameterSet const &ps);
   ~EcalRecHitSoAToLegacy() override = default;
@@ -19,7 +19,7 @@ public:
 
 private:
   using InputProduct = EcalRecHitHostCollection;
-  void produce(edm::Event &, edm::EventSetup const &) override;
+  void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const override;
 
 private:
   const bool isPhase2_;
@@ -51,7 +51,7 @@ EcalRecHitSoAToLegacy::EcalRecHitSoAToLegacy(edm::ParameterSet const &ps)
       recHitsCPUEEToken_{isPhase2_ ? edm::EDPutTokenT<EERecHitCollection>{}
                                    : produces<EERecHitCollection>(ps.getParameter<std::string>("recHitsLabelCPUEE"))} {}
 
-void EcalRecHitSoAToLegacy::produce(edm::Event &event, edm::EventSetup const &setup) {
+void EcalRecHitSoAToLegacy::produce(edm::StreamID sid, edm::Event &event, edm::EventSetup const &setup) const {
   auto const &recHitsEBColl = event.get(recHitsPortableEB_);
   auto const &recHitsEBCollView = recHitsEBColl.const_view();
   auto recHitsCPUEB = std::make_unique<EBRecHitCollection>();

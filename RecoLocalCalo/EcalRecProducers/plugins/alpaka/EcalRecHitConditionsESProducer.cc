@@ -36,9 +36,9 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  class EcalRecHitConditionsHostESProducer : public ESProducer {
+  class EcalRecHitConditionsESProducer : public ESProducer {
   public:
-    EcalRecHitConditionsHostESProducer(edm::ParameterSet const& iConfig)
+    EcalRecHitConditionsESProducer(edm::ParameterSet const& iConfig)
         : ESProducer(iConfig), isPhase2_{iConfig.getParameter<bool>("isPhase2")} {
       auto cc = setWhatProduced(this);
       adcToGeVConstantToken_ = cc.consumes();
@@ -195,4 +195,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(EcalRecHitConditionsHostESProducer);
+DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(EcalRecHitConditionsESProducer);
