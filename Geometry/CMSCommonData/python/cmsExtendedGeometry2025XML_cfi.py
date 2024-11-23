@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring(
-        'Geometry/CMSCommonData/data/materials/2021/v3/materials.xml',
+        'Geometry/CMSCommonData/data/materials/2021/v4/materials.xml',
         'Geometry/TrackerCommonData/data/trackermaterial/2021/v2/trackermaterial.xml',
         'Geometry/CMSCommonData/data/rotations.xml',
         'Geometry/CMSCommonData/data/extend/v3/cmsextent.xml',
@@ -241,7 +241,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/MuonCommonData/data/mb2/2021/v1/mb2.xml',
         'Geometry/MuonCommonData/data/mb3/2021/v1/mb3.xml',
         'Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml',
-        'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
+        'Geometry/MuonCommonData/data/mb4Shield/2021/v2/mb4Shield.xml',
         'Geometry/MuonCommonData/data/muonYoke/2021/v5/muonYoke.xml',
         'Geometry/MuonCommonData/data/mf/2021/v3/mf.xml',
         'Geometry/MuonCommonData/data/rpcf/2025/v1/rpcf.xml',
