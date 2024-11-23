@@ -1,5 +1,4 @@
 #include "CondFormats/DataRecord/interface/EcalRecHitConditionsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalRecHitParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/alpaka/EcalRecHitConditionsDevice.h"
 #include "CondFormats/EcalObjects/interface/alpaka/EcalRecHitParametersDevice.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -15,6 +14,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
+#include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 
 #include "DeclsForKernels.h"
 #include "EcalRecHitBuilder.h"
@@ -45,7 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // conditions tokens
     const device::ESGetToken<EcalRecHitConditionsDevice, EcalRecHitConditionsRcd> recHitConditionsToken_;
-    const device::ESGetToken<EcalRecHitParametersDevice, EcalRecHitParametersRcd> recHitParametersToken_;
+    const device::ESGetToken<EcalRecHitParametersDevice, JobConfigurationGPURecord> recHitParametersToken_;
   };
 
   void EcalRecHitProducerPortable::fillDescriptions(edm::ConfigurationDescriptions& confDesc) {
@@ -132,13 +132,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         isPhase2_ ? std::unique_ptr<OutputProduct>() : std::make_unique<OutputProduct>(uncalibRecHitsSizeEE, queue);
     // reset the size scalar of the SoA
     // memset takes an alpaka view that is created from the scalar in a view to the portable device collection
-    auto recHitSizeViewEB =
-        cms::alpakatools::make_device_view<uint32_t>(alpaka::getDev(queue), recHitsDevEB->view().size());
+    auto recHitSizeViewEB = cms::alpakatools::make_device_view<uint32_t>(queue, recHitsDevEB->view().size());
     alpaka::memset(queue, recHitSizeViewEB, 0);
 
     if (!isPhase2_) {
-      auto recHitSizeViewEE =
-          cms::alpakatools::make_device_view<uint32_t>(alpaka::getDev(queue), recHitsDevEE->view().size());
+      auto recHitSizeViewEE = cms::alpakatools::make_device_view<uint32_t>(queue, recHitsDevEE->view().size());
       alpaka::memset(queue, recHitSizeViewEE, 0);
     }
 

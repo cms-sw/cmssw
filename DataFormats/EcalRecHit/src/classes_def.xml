@@ -42,16 +42,12 @@
   <class name="EcalOotAmpArray"/>
   <class name="EcalUncalibratedRecHitSoA"/>
   <class name="EcalUncalibratedRecHitSoA::View"/>
-  <class name="EcalUncalibratedRecHitHostCollection" ClassVersion="3">
-    <version ClassVersion="3" checksum="2717044868"/>
-  </class>
+  <class name="EcalUncalibratedRecHitHostCollection"/>
   <class name="edm::Wrapper<EcalUncalibratedRecHitHostCollection>" splitLevel="0"/>
 
   <class name="EcalRecHitSoA"/>
   <class name="EcalRecHitSoA::View"/>
-  <class name="EcalRecHitHostCollection" ClassVersion="3">
-    <version ClassVersion="3" checksum="446484604"/>
-  </class>
+  <class name="EcalRecHitHostCollection"/>
   <class name="edm::Wrapper<EcalRecHitHostCollection>" splitLevel="0"/>
 
 </lcgdict>

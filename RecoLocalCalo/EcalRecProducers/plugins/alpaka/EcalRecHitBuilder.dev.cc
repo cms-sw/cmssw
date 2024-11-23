@@ -24,7 +24,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                           ConfigurationParameters const& configParams,
                           bool const isPhase2) {
     auto nchannels = static_cast<uint32_t>(ebUncalibRecHits->const_view().metadata().size());
-    if (!isPhase2 && eeUncalibRecHits != nullptr) {
+    if (!isPhase2) {
       nchannels += static_cast<uint32_t>(eeUncalibRecHits->const_view().metadata().size());
     }
 
@@ -35,7 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
     auto constexpr threads = nchannels_per_block;
     auto const blocks = cms::alpakatools::divide_up_by(nchannels, threads);
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(blocks, threads);
-    if (!isPhase2 && eeUncalibRecHits != nullptr) {
+    if (!isPhase2) {
       alpaka::exec<Acc1D>(queue,
                           workDiv,
                           KernelCreateEcalRechit{},
@@ -46,19 +46,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                           conditionsDev.const_view(),
                           parametersDev.const_view(),
                           eventTime,
-                          // configuration
-                          configParams.killDeadChannels,
-                          configParams.recoverEBIsolatedChannels,
-                          configParams.recoverEEIsolatedChannels,
-                          configParams.recoverEBVFE,
-                          configParams.recoverEEVFE,
-                          configParams.recoverEBFE,
-                          configParams.recoverEEFE,
-                          configParams.EBLaserMIN,
-                          configParams.EELaserMIN,
-                          configParams.EBLaserMAX,
-                          configParams.EELaserMAX,
-                          configParams.flagmask);
+                          configParams);
     } else {
       alpaka::exec<Acc1D>(queue,
                           workDiv,
@@ -68,14 +56,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                           conditionsDev.const_view(),
                           parametersDev.const_view(),
                           eventTime,
-                          // configuration
-                          configParams.killDeadChannels,
-                          configParams.recoverEBIsolatedChannels,
-                          configParams.recoverEBVFE,
-                          configParams.recoverEBFE,
-                          configParams.EBLaserMIN,
-                          configParams.EBLaserMAX,
-                          configParams.flagmask);
+                          configParams);
     }
   }
 
