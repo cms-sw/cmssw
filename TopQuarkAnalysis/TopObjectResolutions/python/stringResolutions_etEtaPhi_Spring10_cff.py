@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.recoLayer0.stringResolutionProvider_cfi import *

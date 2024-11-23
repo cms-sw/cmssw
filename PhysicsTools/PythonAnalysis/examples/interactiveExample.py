@@ -1,4 +1,3 @@
-from __future__ import print_function
 # has to be called with python -i interactiveExample.py
 
 from PhysicsTools.PythonAnalysis import *

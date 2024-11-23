@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles

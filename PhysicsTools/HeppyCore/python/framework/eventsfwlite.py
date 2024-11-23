@@ -1,4 +1,3 @@
-from __future__ import print_function
 from DataFormats.FWLite import Events as FWLiteEvents
 
 from ROOT import gROOT, gSystem, AutoLibraryLoader
