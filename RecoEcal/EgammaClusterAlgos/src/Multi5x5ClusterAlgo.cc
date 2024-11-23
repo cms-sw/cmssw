@@ -137,7 +137,7 @@ namespace {
       clusters_.push_back(std::move(c));
       if (reassignSeedCrysToClusterItSeeds_) {
         for (auto const& hit : clusters_.back().hits()) {
-          whichClusCrysBelongsTo_.push_back(std::pair<DetId, int>(hit.first, clusters_.size()));
+          whichClusCrysBelongsTo_.push_back(std::pair<DetId, int>(hit.first, clusters_.size() - 1));
         }
       }
     }
