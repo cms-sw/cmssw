@@ -34,6 +34,7 @@ Muon system:
 * M1: 2021 baseline with additional chambers in GE21 and iRPC31/41
 * M2: 2023 GE21 shifted in position
 * M3: 2024 with additional chambers in GE21 and iRPC31
+* M4: 2025 with additional chambers in GE21 and iRPC
 
 PPS:
 * P7: 2021 baseline (after removing overlaps and using common materials whenever possible)
@@ -42,29 +43,31 @@ The script also handles the common and forward elements of the geometry:
 * O4: as O6, but with zero material
 * O5: as O6, but with trackermaterial removed (they are in T5, T6, T7, T8)
 * O6: 2021 baseline
+* O7: 2021 with added material for muon shield
 * F1: 2021 baseline
 * F2: same as F1 with modified file zdc.xmlfrom ZDC group
 * F3: same as F2 with added simulti geometry for RPD
 
 Several detector combinations have been generated:
-* 2021 = T3+C1+M1+P7+O6+F1
+* 2021 = T3+C3+M1+P7+O6+F1
 * 2021ZeroMaterial = T4+C1+M1+P7+O4+F1
 * 2021FlatMinus05Percent = T5+C1+M1+P7+O5+F1
 * 2021FlatMinus10Percent = T6+C1+M1+P7+O5+F1
 * 2021FlatPlus05Percent = T7+C1+M1+P7+O5+F1
 * 2021FlatPlus10Percent = T8+C1+M1+P7+O5+F1
-* 2023 = T3+C1+M2+P7+O6+F3
+* 2023 = T3+C2+M2+P7+O6+F3
 * 2023ZeroMaterial = T4+C1+M2+P7+O4+F2
 * 2023FlatMinus05Percent = T5+C1+M2+P7+O5+F2
 * 2023FlatMinus10Percent = T6+C1+M2+P7+O5+F2
 * 2023FlatPlus05Percent = T7+C1+M2+P7+O5+F2
 * 2023FlatPlus10Percent = T8+C1+M2+P7+O5+F2
-* 2024 = T3+C1+M3+P7+O6+F3
-* 2024ZeroMaterial = T4+C1+M3+P7+O4+F2
-* 2024FlatMinus05Percent = T5+C1+M3+P7+O5+F2
-* 2024FlatMinus10Percent = T6+C1+M3+P7+O5+F2
-* 2024FlatPlus05Percent = T7+C1+M3+P7+O5+F2
-* 2024FlatPlus10Percent = T8+C1+M3+P7+O5+F2
+* 2024 = T3+C2+M3+P7+O6+F3
+* 2024ZeroMaterial = T4+C2+M3+P7+O4+F2
+* 2024FlatMinus05Percent = T5+C2+M3+P7+O5+F2
+* 2024FlatMinus10Percent = T6+C2+M3+P7+O5+F2
+* 2024FlatPlus05Percent = T7+C2+M3+P7+O5+F2
+* 2024FlatPlus10Percent = T8+C2+M3+P7+O5+F2
+* 2025 = T3+C2+M4+P7+O7+F3
 
 # Phase 2 Geometries
 
