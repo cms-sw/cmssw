@@ -25,7 +25,7 @@ from __future__ import print_function
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from builtins import range
-import sys, os, inspect, copy, struct, dis, imp
+import sys, os, inspect, copy, struct, dis, importlib
 import modulefinder
 
 def packageNameFromFilename(name:str) -> str:
@@ -198,16 +198,16 @@ class mymf(modulefinder.ModuleFinder):
                                 try :
                                     parentFilename=[self._localarea+"/python"]
                                     for subModule in loadMethodArgument.split(".") :
-                                        moduleInfo=imp.find_module( subModule, parentFilename )
-                                        parentFilename=[moduleInfo[1]]
+                                        moduleInfo=importlib.machinery.PathFinder.find_spec( subModule, parentFilename )
+                                        parentFilename=[moduleInfo.origin]
                                     # If control got this far without raising an exception, then it must be a valid python module
                                     yield "import", (None, loadMethodArgument)
                                 except ImportError :
                                     # Didn't work in the local area, try in the global area.
                                     parentFilename=[self._globalarea+"/python"]
                                     for subModule in loadMethodArgument.split(".") :
-                                        moduleInfo=imp.find_module( subModule, parentFilename )
-                                        parentFilename=[moduleInfo[1]]
+                                        moduleInfo=importlib.machinery.PathFinder.find_spec( subModule, parentFilename )
+                                        parentFilename=[moduleInfo.origin]
                                     # If control got this far without raising an exception, then it must be a valid python module
                                     yield "import", (None, loadMethodArgument)
                             except Exception as error:
