@@ -1,20 +1,26 @@
 import os
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 import mimetypes
 import argparse
+import json
 
-class Serv(BaseHTTPRequestHandler):
+class Serv(SimpleHTTPRequestHandler):
     def do_GET(self):
         # Default route to serve the index.html file
         if self.path == '/':
             self.path = '/index.html'
-        # Serve the uploaded JavaScript file if requested
-        if self.path == '/modules_data.json':
-            self.path = '/modules_data.json'
+        elif self.path == '/list-json':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            json_files = [f for f in os.listdir('.') if f.endswith('.json')]
+            self.wfile.write(json.dumps(json_files).encode())
+            return
+
+        # Serve the requested file (JSON or other static files)
+        file_path = self.path[1:]  # Remove leading '/' to get the file path
 
         try:
-            file_path = self.path[1:]  # Remove leading '/' to get the file path
-
             # Read the requested file
             with open(file_path, 'rb') as file:
                 file_to_open = file.read()
@@ -60,4 +66,6 @@ if __name__ == "__main__":
 
     # Start the server with the specified port
     run(port=args.port)
+
+
 
