@@ -4,7 +4,6 @@
 map derived from pedestal runs studies with the old db map into a new
 accurate map.
 """
-from __future__ import print_function
 
 import sys
 

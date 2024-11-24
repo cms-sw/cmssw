@@ -15,7 +15,6 @@
 #
 # Use createChi2ndfplot.C to plot the output of this script.
 
-from __future__ import print_function
 import os
 import sys
 import re

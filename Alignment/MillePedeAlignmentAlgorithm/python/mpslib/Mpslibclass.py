@@ -1,4 +1,3 @@
-from __future__ import print_function
 # This Jobdatabas-Class interacts with the mps.db file.
 # It's member-variables are often called in the mps_... scripts.
 #

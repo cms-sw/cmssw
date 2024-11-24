@@ -2,7 +2,6 @@
 #from G.Benelli and Arun Mittal
 # 2016 November 17
 #Quick script to split a large sqlite file (holding all of our Noise payloads (Run1+Run2) into a set of smaller ones.
-from __future__ import print_function
 import subprocess
 #Input IOVs:
 #Reference for the use of subprocess Popen to execute a command:

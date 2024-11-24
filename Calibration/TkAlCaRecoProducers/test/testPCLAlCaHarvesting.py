@@ -1,4 +1,3 @@
-from __future__ import print_function
 import calendar
 import CondCore.Utilities.conddblib as conddb
 

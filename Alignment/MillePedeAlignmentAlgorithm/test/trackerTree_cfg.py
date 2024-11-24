@@ -1,4 +1,3 @@
-from __future__ import print_function
 ##########################################################################
 # Creates the TrackerTree.root file.
 # Configuration file from TrackerAlignment/test/trackerTreeGenerator_cfg.py

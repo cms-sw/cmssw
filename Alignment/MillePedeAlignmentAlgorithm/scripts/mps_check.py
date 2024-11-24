@@ -11,7 +11,6 @@
 #
 #  It also retirieves number of events from alignment.log and cputime from STDOUT
 
-from __future__ import print_function
 from builtins import range
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import subprocess

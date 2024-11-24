@@ -8,7 +8,6 @@ The db may change + this shouldn't cause tests to fail.
 TODO: Change code so that all connections are used when testing queries - if this isn't too bad a thing to do with the DBs.
 
 """
-from __future__ import print_function
 
 import unittest
 import sys
