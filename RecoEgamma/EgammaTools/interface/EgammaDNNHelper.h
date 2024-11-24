@@ -42,7 +42,6 @@ namespace egammaTools {
   public:
     EgammaDNNHelper(const DNNConfiguration&, const ModelSelector& sel, const std::vector<std::string>& availableVars);
 
-    std::vector<tensorflow::Session*> getSessions() const;
     // Function getting the input vector for a specific electron, already scaled
     // together with the model index it has to be used.
     // The model index is determined by the ModelSelector functor passed in the constructor
@@ -50,11 +49,10 @@ namespace egammaTools {
     std::pair<uint, std::vector<float>> getScaledInputs(const std::map<std::string, float>& variables) const;
 
     std::vector<std::pair<uint, std::vector<float>>> evaluate(
-        const std::vector<std::map<std::string, float>>& candidates,
-        const std::vector<tensorflow::Session*>& sessions) const;
+        const std::vector<std::map<std::string, float>>& candidates) const;
 
   private:
-    void initTensorFlowGraphs();
+    void initTensorFlowSessions();
     void initScalerFiles(const std::vector<std::string>& availableVars);
 
     const DNNConfiguration cfg_;
@@ -64,7 +62,8 @@ namespace egammaTools {
     // Number of inputs for each loaded model
     std::vector<uint> nInputs_;
 
-    std::vector<std::unique_ptr<const tensorflow::GraphDef>> graphDefs_;
+    // TF SessionCache stores both the grapha and the session of each model
+    std::vector<std::unique_ptr<tensorflow::SessionCache>> tf_sessions_cache_;
 
     // List of input variables for each of the model;
     std::vector<std::vector<ScalerConfiguration>> featuresMap_;
