@@ -1,4 +1,3 @@
-from __future__ import print_function
 ##########################################################################
 # Classes which are needed by the mps_validate.py file.
 ##

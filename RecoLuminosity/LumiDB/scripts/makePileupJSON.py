@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 import argparse
 import RecoLuminosity.LumiDB.LumiConstants as LumiConstants
 import re

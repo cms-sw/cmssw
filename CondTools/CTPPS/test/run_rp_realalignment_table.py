@@ -1,6 +1,5 @@
 #! python3
 
-from __future__ import print_function
 
 ### this script takes a file with a list of IOVs and subdir name where separated xmls files are located
 ### the xml files have the iov start runno in the name and in the body (iov node of the xml) which should match
