@@ -26,7 +26,7 @@ namespace {
 TEST_CASE("Test cms::Digest", "[Digest]") {
   SECTION("Identical") {
     Digest dig1;
-    dig1.append("hello");
+    dig1.append(std::string_view("hello"));
     Digest dig2("hello");
 
     MD5Result r1 = dig1.digest();
@@ -80,5 +80,19 @@ TEST_CASE("Test cms::Digest", "[Digest]") {
         REQUIRE(lookup.compactForm() == fromHex.compactForm());
       }
     }
+  }
+  SECTION("append equal") {
+    std::string full("aldjfakl\tsdjf34234 \najdf");
+    Digest full_digest{full};
+    MD5Result full_r = full_digest.digest();
+    REQUIRE(full_r.isValid());
+
+    Digest append_digest;
+    append_digest.append(std::string_view(full.data(), 10));
+    append_digest.append(std::string_view(full.data() + 10, 10));
+    append_digest.append(std::string_view(full.data() + 20, 4));
+    MD5Result append_r = append_digest.digest();
+    REQUIRE(append_r.isValid());
+    REQUIRE(full_r == append_r);
   }
 }
