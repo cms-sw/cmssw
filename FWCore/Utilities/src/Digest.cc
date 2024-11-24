@@ -114,13 +114,13 @@ namespace cms {
     return std::string(p, p + bytes.size());
   }
 
-  void MD5Result::fromHexifiedString(std::string const& hexy) {
+  void MD5Result::fromHexifiedString(std::string_view hexy) {
     switch (hexy.size()) {
       case 0: {
         set_to_default(*this);
       } break;
       case 32: {
-        std::string::const_iterator it = hexy.begin();
+        auto it = hexy.cbegin();
         for (size_t i = 0; i != 16; ++i) {
           // first nybble
           bytes[i] = (unhexify(*it++) << 4);
@@ -158,9 +158,24 @@ namespace cms {
     this->append(s);
   }
 
+  Digest::Digest(std::string_view v) : state_() {
+    md5_init(&state_);
+    this->append(v);
+  }
+
+  Digest::Digest(const char* s) : state_() {
+    md5_init(&state_);
+    this->append(s, strlen(s));
+  }
+
   void Digest::append(std::string const& s) {
     const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(s.data());
     md5_append(&state_, const_cast<md5_byte_t*>(data), s.size());
+  }
+
+  void Digest::append(std::string_view v) {
+    const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(v.data());
+    md5_append(&state_, const_cast<md5_byte_t*>(data), v.size());
   }
 
   void Digest::append(const char* s, size_t size) {
