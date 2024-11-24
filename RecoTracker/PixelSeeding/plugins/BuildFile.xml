@@ -33,6 +33,6 @@
   <use name="RecoLocalTracker/SiPixelRecHits"/>
   <!-- work around for cms-sw/cmssw#45179 -->
   <use name="no-array-bounds-flag" for="alpaka/serial"/>
-  <flags ALPAKA_BACKENDS="1"/>
+  <flags ALPAKA_BACKENDS="cuda serial"/>
   <flags EDM_PLUGIN="1"/>
 </library>

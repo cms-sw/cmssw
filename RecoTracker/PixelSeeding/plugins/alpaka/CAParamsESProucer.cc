@@ -96,7 +96,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto layerSoA = product.view();
     auto cellSoA = product.view<::reco::CACellsSoA>();
 
-    for (int i = 0; i < n_layers; ++i)
+    std::cout << "nLayers = " << n_layers << std::endl;
+    for (int i = 0; i < n_layers - 1 ; ++i)
     {
       layerSoA.layerStarts()[i] = layerStarts_[i];
       layerSoA.caThetaCut()[i] = caThetaCuts_[i];
@@ -104,6 +105,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::cout << i << " - > " << caDCACuts_[i] << std::endl;
     }
     
+    layerSoA.layerStarts()[n_layers-1] = layerStarts_[n_layers-1];
+
     for (int i = 0; i < n_pairs; ++i)
     {
         cellSoA.graph()[i] = {{uint32_t(pairGraph_[2*i]),uint32_t(pairGraph_[2*i+1])}};

@@ -30,7 +30,7 @@
 </bin>
 
 <bin file="alpaka/CAsizes_t.cpp">
-<flags ALPAKA_BACKENDS="1"/>  
+<flags ALPAKA_BACKENDS="cuda serial"/>  
   <use name="alpaka"/>
   <use name="eigen"/>
   <use name="boost"/>
@@ -38,7 +38,7 @@
 </bin>
 
 <bin file="alpaka/CAParams_t.cpp">
-<flags ALPAKA_BACKENDS="1"/>  
+<flags ALPAKA_BACKENDS="cuda serial"/>  
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="RecoTracker/PixelSeeding"/>
   <use name="alpaka"/>

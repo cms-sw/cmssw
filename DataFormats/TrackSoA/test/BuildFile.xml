@@ -3,11 +3,11 @@
 <bin file="alpaka/TrackSoAHeterogeneous_test.cc alpaka/TrackSoAHeterogeneous_test.dev.cc" name="TrackSoAHeterogeneousAlpaka_test">
   <use name="alpaka"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
-<flags ALPAKA_BACKENDS="1"/>
+<flags ALPAKA_BACKENDS="cuda serial"/>
 </bin>
 
 <bin file="alpaka/TrajectoryStateSoA_t.cc alpaka/TrajectoryStateSoA_t.dev.cc" name="TrajectoryStateSoA_t">
   <use name="alpaka"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
-<flags ALPAKA_BACKENDS="1"/>
+<flags ALPAKA_BACKENDS="cuda serial"/>
 </bin>
