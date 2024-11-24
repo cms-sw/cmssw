@@ -67,13 +67,13 @@ namespace caStructures {
   // }
 
   using GenericContainer = cms::alpakatools::OneToManyAssocRandomAccess<hindex_type, -1, -1>;
-  using GenericContainerStorage = typename GenericContainer::index_type;
-  using GenericContainerOffsets = typename GenericContainer::Counter;
+  using GenericContainerStorage = uint32_t;//typename GenericContainer::index_type;
+  using GenericContainerOffsets = uint32_t;//typename GenericContainer::Counter;
   using GenericContainerView = typename GenericContainer::View;
 
   using SequentialContainer = cms::alpakatools::OneToManyAssocSequential<hindex_type, -1, -1>;
-  using SequentialContainerStorage = typename SequentialContainer::index_type;
-  using SequentialContainerOffsets = typename SequentialContainer::Counter;
+  using SequentialContainerStorage = uint32_t;//typename SequentialContainer::index_type;
+  using SequentialContainerOffsets = uint32_t;//typename SequentialContainer::Counter;
   using SequentialContainerView = typename SequentialContainer::View;
 
   template <typename TrackerTraits>

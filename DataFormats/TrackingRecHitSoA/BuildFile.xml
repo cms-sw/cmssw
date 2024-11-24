@@ -7,7 +7,7 @@
 <use name="DataFormats/TrackerCommon" source_only="1"/>
 <use name="Geometry/CommonTopologies" source_only="1"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
-<flags ALPAKA_BACKENDS="!serial"/>
+<flags ALPAKA_BACKENDS="cuda"/>
 <export>
     <lib name="1"/>
 </export>

@@ -7,6 +7,6 @@
   <use name="RecoLocalTracker/Records"/>
   <use name="DataFormats/TrackerCommon"/>
   <use name="RecoLocalTracker/ClusterParameterEstimator"/>
-  <flags ALPAKA_BACKENDS="1"/>
+  <flags ALPAKA_BACKENDS="cuda serial"/>
   <flags EDM_PLUGIN="1"/>
 </library>

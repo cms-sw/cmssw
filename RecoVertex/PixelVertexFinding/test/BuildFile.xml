@@ -50,7 +50,7 @@
   <!-- work around for cms-sw/cmssw#45179 -->
   <use name="no-array-bounds-flag" for="alpaka/serial"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
-  <flags ALPAKA_BACKENDS="1"/>
+  <flags ALPAKA_BACKENDS="cuda serial"/>
   <flags CXXFLAGS="-g -DGPU_DEBUG -DONE_KERNEL"/>
 </bin>
 
@@ -59,20 +59,20 @@
   <use name="no-array-bounds-flag" for="alpaka/serial"/>
   <use name="alpaka"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
-  <flags ALPAKA_BACKENDS="1"/>
+  <flags ALPAKA_BACKENDS="cuda serial"/>
   <flags CXXFLAGS="-g -DGPU_DEBUG"/>
 </bin>
 
 <bin file="alpaka/VertexFinder_t.cc alpaka/VertexFinder_t.dev.cc" name="deviceVertexFinderDBSCAN_t">
   <use name="alpaka"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
-  <flags ALPAKA_BACKENDS="1"/>
+  <flags ALPAKA_BACKENDS="cuda serial"/>
   <flags CXXFLAGS="-g -DGPU_DEBUG -DUSE_DBSCAN"/>
 </bin>
 
 <bin file="alpaka/VertexFinder_t.cc alpaka/VertexFinder_t.dev.cc" name="deviceVertexFinderIterative_t">
   <use name="alpaka"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
-  <flags ALPAKA_BACKENDS="1"/>
+  <flags ALPAKA_BACKENDS="cuda serial"/>
   <flags CXXFLAGS="-g -DGPU_DEBUG -DUSE_ITERATIVE"/>
 </bin>

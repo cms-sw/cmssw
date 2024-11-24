@@ -41,7 +41,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // Hits
         device_hitPhiHist_{cms::alpakatools::make_device_buffer<PhiBinner>(queue)},
         device_phiBinnerStorage_{cms::alpakatools::make_device_buffer<hindex_type[]>(queue, hh.metadata().size())},
-        device_layerStarts_{cms::alpakatools::make_device_buffer<hindex_type[]>(queue, nLayers)}, 
+        device_layerStarts_{cms::alpakatools::make_device_buffer<hindex_type[]>(queue, nLayers + 1)}, 
 
         // Tracks -> Hits
         device_hitContainer_{cms::alpakatools::make_device_buffer<SequentialContainer>(queue)},
@@ -119,21 +119,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // Tracks -> Hits
     device_tupleMultiplicityView_.assoc = device_tupleMultiplicity_.data();
-    device_tupleMultiplicityView_.offStorage = device_tupleMultiplicityStorage_.data();
-    device_tupleMultiplicityView_.contentStorage = device_tupleMultiplicityOffsets_.data();
+    device_tupleMultiplicityView_.offStorage = device_tupleMultiplicityOffsets_.data();
+    device_tupleMultiplicityView_.contentStorage = device_tupleMultiplicityStorage_.data();
     device_tupleMultiplicityView_.contentSize = alpaka::getExtentProduct(device_tupleMultiplicityStorage_);
     device_tupleMultiplicityView_.offSize = alpaka::getExtentProduct(device_tupleMultiplicityOffsets_);
-    // zero tuples
-    GenericContainer::template launchZero<Acc1D>(this->device_hitContainer_.data(), queue);
+    
+    GenericContainer::template launchZero<Acc1D>(device_tupleMultiplicityView_, queue);
+
 
     // No.Hits -> Track (Multiplicity)
     device_hitContainerView_.assoc = device_hitContainer_.data();
-    device_hitContainerView_.offStorage = device_hitContainerStorage_.data();
-    device_hitContainerView_.contentStorage = device_hitContainerOffsets_.data();
-    device_hitContainerView_.contentSize = alpaka::getExtentProduct(device_tupleMultiplicityStorage_);
-    device_hitContainerView_.offSize = alpaka::getExtentProduct(device_tupleMultiplicityOffsets_);
+    device_hitContainerView_.offStorage = device_hitContainerOffsets_.data();
+    device_hitContainerView_.contentStorage = device_hitContainerStorage_.data();
+    device_hitContainerView_.contentSize = alpaka::getExtentProduct(device_hitContainerStorage_);
+    device_hitContainerView_.offSize = alpaka::getExtentProduct(device_hitContainerOffsets_);
     
-    GenericContainer::template launchZero<Acc1D>(device_tupleMultiplicityView_, queue);
+    SequentialContainer::template launchZero<Acc1D>(device_hitContainerView_, queue);
+
     
     // in OneToManyAssoc?
     // initGenericContainer(device_hitToTupleView_,
@@ -315,7 +317,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
     blockSize = 128;
-    numberOfBlocks = cms::alpakatools::divide_up_by(HitContainer{}.totOnes(), blockSize);
+    numberOfBlocks = cms::alpakatools::divide_up_by(TrackerTraits::maxNumberOfTuples+1, blockSize);
     workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
 
     alpaka::exec<Acc1D>(

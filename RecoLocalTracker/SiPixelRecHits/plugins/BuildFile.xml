@@ -22,6 +22,6 @@
   <use name="DataFormats/Portable"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
-  <flags ALPAKA_BACKENDS="1"/>
+  <flags ALPAKA_BACKENDS="cuda serial"/>
   <flags EDM_PLUGIN="1"/>
 </library>
