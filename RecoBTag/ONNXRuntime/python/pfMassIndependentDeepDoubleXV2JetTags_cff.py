@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 from .pfDeepDoubleBvLJetTags_cfi import pfDeepDoubleBvLJetTags
 from .pfDeepDoubleCvLJetTags_cfi import pfDeepDoubleCvLJetTags

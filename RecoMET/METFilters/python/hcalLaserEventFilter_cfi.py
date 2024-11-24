@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 from RecoMET.METFilters.hcallaserevent_cfi import * # from fillDescriptions
 
 try:
