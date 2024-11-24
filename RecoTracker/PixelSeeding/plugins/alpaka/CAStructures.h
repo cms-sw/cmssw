@@ -71,6 +71,11 @@ namespace caStructures {
   using GenericContainerOffsets = typename GenericContainer::Counter;
   using GenericContainerView = typename GenericContainer::View;
 
+  using SequentialContainer = cms::alpakatools::OneToManyAssocSequential<hindex_type, -1, -1>;
+  using SequentialContainerStorage = typename SequentialContainer::index_type;
+  using SequentialContainerOffsets = typename SequentialContainer::Counter;
+  using SequentialContainerView = typename SequentialContainer::View;
+
   template <typename TrackerTraits>
   using CellNeighborsT =
       cms::alpakatools::VecArray<typename TrackerTraits::cindex_type, TrackerTraits::maxCellNeighbors>;
