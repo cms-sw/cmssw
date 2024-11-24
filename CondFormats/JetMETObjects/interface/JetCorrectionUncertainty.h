@@ -1,11 +1,10 @@
 #ifndef JetCorrectionUncertainty_h
 #define JetCorrectionUncertainty_h
 
-#include "CondFormats/Serialization/interface/Serializable.h"
-
 #include <string>
 #include <vector>
-class SimpleJetCorrectionUncertainty;
+#include "CondFormats/JetMETObjects/interface/SimpleJetCorrectionUncertainty.h"
+
 class JetCorrectorParameters;
 
 class JetCorrectionUncertainty {
@@ -15,7 +14,8 @@ public:
   JetCorrectionUncertainty(const JetCorrectorParameters& fParameters);
   JetCorrectionUncertainty(const JetCorrectionUncertainty&) = delete;
   JetCorrectionUncertainty& operator=(const JetCorrectionUncertainty&) = delete;
-  ~JetCorrectionUncertainty();
+  JetCorrectionUncertainty& operator=(JetCorrectionUncertainty&&) = default;
+  ~JetCorrectionUncertainty() = default;
 
   void setParameters(const std::string& fDataFile);
   void setJetEta(float fEta);
@@ -50,7 +50,7 @@ private:
   bool mIsLepPxset;
   bool mIsLepPyset;
   bool mIsLepPzset;
-  SimpleJetCorrectionUncertainty* mUncertainty;
+  SimpleJetCorrectionUncertainty mUncertainty;
 };
 
 #endif
