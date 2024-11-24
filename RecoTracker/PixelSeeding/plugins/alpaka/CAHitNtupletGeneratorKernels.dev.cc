@@ -37,16 +37,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         device_hitToTuple_{cms::alpakatools::make_device_buffer<GenericContainer>(queue)},
         device_hitToTupleStorage_{cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(queue, hh.metadata().size() * TrackerTraits::avgHitsPerTrack)},
         device_hitToTupleOffsets_{cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, hh.metadata().size() + 1)},
+        
         // Hits
         device_hitPhiHist_{cms::alpakatools::make_device_buffer<PhiBinner>(queue)},
         device_phiBinnerStorage_{cms::alpakatools::make_device_buffer<hindex_type[]>(queue, hh.metadata().size())},
         device_layerStarts_{cms::alpakatools::make_device_buffer<hindex_type[]>(queue, nLayers)}, 
+
         // Tracks -> Hits
-        device_hitContainer_{cms::alpakatools::make_device_buffer<HitContainer>(queue)},     
+        device_hitContainer_{cms::alpakatools::make_device_buffer<SequentialContainer>(queue)},
+        device_hitContainerStorage_{cms::alpakatools::make_device_buffer<SequentialContainerStorage[]>(queue, TrackerTraits::avgHitsPerTrack * TrackerTraits::maxNumberOfTuples)},
+        device_hitContainerOffsets_{cms::alpakatools::make_device_buffer<SequentialContainerOffsets[]>(queue, TrackerTraits::maxNumberOfTuples + 1)},     
+        
         // No.Hits -> Track (Multiplicity)
         device_tupleMultiplicity_{cms::alpakatools::make_device_buffer<GenericContainer>(queue)},
         device_tupleMultiplicityStorage_{cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(queue, TrackerTraits::maxNumberOfTuples)},
         device_tupleMultiplicityOffsets_{cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, TrackerTraits::maxHitsOnTrack + 1)},
+        
         // NB: In legacy, device_theCells_ and device_isOuterHitOfCell_ were allocated inside buildDoublets
         device_theCells_{
             cms::alpakatools::make_device_buffer<CACell[]>(queue, m_params.algoParams_.maxNumberOfDoublets_)},
@@ -85,6 +91,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memset(queue, counters_, 0);
     alpaka::memset(queue, device_nCells_, 0);
     alpaka::memset(queue, cellStorage_, 0);
+
+    // Hits -> Track
+    device_hitToTupleView_.assoc = device_hitToTuple_.data();
+    device_hitToTupleView_.contentStorage = device_hitToTupleStorage_.data();
+    device_hitToTupleView_.offStorage = device_hitToTupleOffsets_.data();
+    device_hitToTupleView_.contentSize = alpaka::getExtentProduct(device_hitToTupleStorage_);//hh.metadata().size() * TrackerTraits::avgHitsPerTrack;
+    device_hitToTupleView_.offSize = alpaka::getExtentProduct(device_hitToTupleOffsets_);//hh.metadata().size() + 1; // there's a way to get the size of a buffer? could be used here
+
+    GenericContainer::template launchZero<Acc1D>(device_hitToTupleView_, queue);
+
+    // Hits
+    device_hitPhiView_.assoc = device_hitPhiHist_.data();
+    device_hitPhiView_.offSize = -1;
+    device_hitPhiView_.offStorage = nullptr;
+    device_hitPhiView_.contentSize = hh.metadata().size();
+    device_hitPhiView_.contentStorage = device_phiBinnerStorage_.data();
+
     // alpaka::memset(queue, host_nCells_, 0);
     // [[maybe_unused]] TupleMultiplicity *tupleMultiplicityDeviceData = device_tupleMultiplicity_.data();
     // using TM = cms::alpakatools::OneToManyAssocRandomAccess<uint32_t,
@@ -93,14 +116,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // TM *tm = device_tupleMultiplicity_.data();
     // TM::template launchZero<Acc1D>(tm, queue);
     // TupleMultiplicity::template launchZero<Acc1D>(tupleMultiplicityDeviceData, queue);
-    
+
+    // Tracks -> Hits
     device_tupleMultiplicityView_.assoc = device_tupleMultiplicity_.data();
     device_tupleMultiplicityView_.offStorage = device_tupleMultiplicityStorage_.data();
     device_tupleMultiplicityView_.contentStorage = device_tupleMultiplicityOffsets_.data();
     device_tupleMultiplicityView_.contentSize = alpaka::getExtentProduct(device_tupleMultiplicityStorage_);
     device_tupleMultiplicityView_.offSize = alpaka::getExtentProduct(device_tupleMultiplicityOffsets_);
-    
+    // zero tuples
+    GenericContainer::template launchZero<Acc1D>(this->device_hitContainer_.data(), queue);
 
+    // No.Hits -> Track (Multiplicity)
+    device_hitContainerView_.assoc = device_hitContainer_.data();
+    device_hitContainerView_.offStorage = device_hitContainerStorage_.data();
+    device_hitContainerView_.contentStorage = device_hitContainerOffsets_.data();
+    device_hitContainerView_.contentSize = alpaka::getExtentProduct(device_tupleMultiplicityStorage_);
+    device_hitContainerView_.offSize = alpaka::getExtentProduct(device_tupleMultiplicityOffsets_);
+    
     GenericContainer::template launchZero<Acc1D>(device_tupleMultiplicityView_, queue);
     
     // in OneToManyAssoc?
@@ -110,22 +142,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // alpaka::getExtentProduct(device_hitToTupleOffsets_),
     // alpaka::getExtentProduct(device_hitToTupleStorage_));
 
-    device_hitToTupleView_.assoc = device_hitToTuple_.data();
-    device_hitToTupleView_.contentStorage = device_hitToTupleStorage_.data();
-    device_hitToTupleView_.offStorage = device_hitToTupleOffsets_.data();
-    device_hitToTupleView_.contentSize = alpaka::getExtentProduct(device_hitToTupleStorage_);//hh.metadata().size() * TrackerTraits::avgHitsPerTrack;
-    device_hitToTupleView_.offSize = alpaka::getExtentProduct(device_hitToTupleOffsets_);//hh.metadata().size() + 1; // there's a way to get the size of a buffer? could be used here
 
-    GenericContainer::template launchZero<Acc1D>(device_hitToTupleView_, queue);
-    
-    device_hitPhiView_.assoc = device_hitPhiHist_.data();
-    device_hitPhiView_.offSize = -1;
-    device_hitPhiView_.offStorage = nullptr;
-    device_hitPhiView_.contentSize = hh.metadata().size();
-    device_hitPhiView_.contentStorage = device_phiBinnerStorage_.data();
-
-    // zero tuples
-    HitContainer::template launchZero<Acc1D>(this->device_hitContainer_.data(), queue);
     
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
