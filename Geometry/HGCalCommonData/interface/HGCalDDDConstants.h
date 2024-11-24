@@ -59,6 +59,7 @@ public:
   int cassetteTile(int iphi) const {
     return (HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_));
   }
+  double cellArea(const HGCSiliconDetId&, bool) const;
   std::pair<double, double> cellEtaPhiTrap(int type, int irad) const;
   bool cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, int zside, bool reco) const;
   const HGCalCellOffset* cellOffset() const { return cellOffset_.get(); }
@@ -152,6 +153,7 @@ public:
     int part = (ktr != hgpar_->waferInfoMap_.end()) ? (ktr->second).part : HGCalTypes::WaferFull;
     return part;
   }
+  int32_t placementIndex(const HGCSiliconDetId&) const;
   std::pair<double, double> rangeR(double z, bool reco) const;
   std::pair<double, double> rangeRLayer(int lay, bool reco) const;
   std::pair<double, double> rangeZ(bool reco) const;
