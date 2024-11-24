@@ -9,7 +9,7 @@
 <use name="TrackingTools/TrajectoryState"/>
 <use name="clhep"/>
 <use name="alpaka"/>
-<flags ALPAKA_BACKENDS="1"/>
+<flags ALPAKA_BACKENDS="cuda serial"/>
 <export>
   <lib name="1"/>
 </export>

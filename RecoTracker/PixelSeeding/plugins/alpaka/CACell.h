@@ -516,6 +516,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               ALPAKA_ASSERT_ACC(nh < TrackerTraits::maxHitsOnTrack);
               hits[nh] = theOuterHitId;
               auto it = foundNtuplets.bulkFill(acc, apc, hits, nh + 1);
+              printf("track n. %d nhits %d \n",it,nh+1);
               if (it >= 0) {  // if negative is overflow....
                 for (auto c : tmpNtuplet)
                   cells[c].addTrack(acc, it, cellTracks);

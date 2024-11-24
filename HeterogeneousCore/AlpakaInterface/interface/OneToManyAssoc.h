@@ -194,11 +194,13 @@ namespace cms::alpakatools {
       int f = apc.get().first;
       auto s = apc.get().second;
       if (f >= this->nOnes()) {  // overflow!
+        printf("overflowing %d %d \n",f,this->nOnes());
         this->off[this->nOnes()] = uint32_t(this->off[this->nOnes() - 1]);
         return;
       }
       auto first = f + alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
       for (int i = first; i < this->totOnes(); i += alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0]) {
+        printf("bulkfinalizefill %d %d %d %d \n",f,i,first,s);
         this->off[i] = s;
       }
     }

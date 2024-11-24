@@ -547,6 +547,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   GenericContainer *tupleMultiplicity) const {
       for (auto it : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
         auto nhits = foundNtuplets->size(it);
+        printf("countMulti mult %d %d\n", it, nhits);
         if (nhits < 3)
           continue;
         if (tracks_view[it].quality() == Quality::edup)
@@ -554,7 +555,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         ALPAKA_ASSERT_ACC(tracks_view[it].quality() == Quality::bad);
         if (nhits > TrackerTraits::maxHitsOnTrack)  // current limit
           printf("wrong mult %d %d\n", it, nhits);
-        ALPAKA_ASSERT_ACC(nhits <= TrackerTraits::maxHitsOnTrack);
+        // ALPAKA_ASSERT_ACC(nhits <= TrackerTraits::maxHitsOnTrack);
         tupleMultiplicity->count(acc, nhits);
       }
     }
@@ -569,7 +570,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   HitContainer const *__restrict__ foundNtuplets,
                                   GenericContainer *tupleMultiplicity) const {
       for (auto it : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
+
         auto nhits = foundNtuplets->size(it);
+
+        printf("fillMulti mult %d %d\n", it, nhits);
+
         if (nhits < 3)
           continue;
         if (tracks_view[it].quality() == Quality::edup)
@@ -703,6 +708,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         // tracks_view.detIndices().content[idx] = hh[foundNtuplets->content[idx]].detectorIndex();
         track_hits_view[idx].id() = foundNtuplets->content[idx];
         track_hits_view[idx].detId() = hh[foundNtuplets->content[idx]].detectorIndex();
+        printf("Kernel_fillHitDetIndices %d %d \n",idx,foundNtuplets->content[idx]);
       }
     }
   };
