@@ -293,6 +293,24 @@ bool HGCalDDDConstants::cassetteShiftScintillator(int zside, int layer, int iphi
   return shift;
 }
 
+double HGCalDDDConstants::cellArea(const HGCSiliconDetId& id, bool reco) const {
+  double area(0);
+  int32_t indx = HGCalWaferIndex::waferIndex(id.layer(), id.waferU(), id.waferV());
+  auto ktr = hgpar_->waferInfoMap_.find(indx);
+  if (ktr != hgpar_->waferInfoMap_.end()) {
+    if (ktr->second.part == HGCalTypes::WaferFull) {
+      area = cellOffset_->cellAreaUV(id.cellU(), id.cellV(), placementIndex(id), ktr->second.type, reco);
+    } else {
+      area =
+          cellOffset_->cellAreaUV(id.cellU(), id.cellV(), placementIndex(id), ktr->second.type, ktr->second.part, reco);
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "CellArea: " << id << " Area " << area;
+#endif
+  return area;
+}
+
 std::pair<double, double> HGCalDDDConstants::cellEtaPhiTrap(int type, int irad) const {
   double dr(0), df(0);
   if (tileTrapezoid()) {
@@ -1229,6 +1247,22 @@ int HGCalDDDConstants::numberCellsHexagon(int lay, int waferU, int waferV, bool 
     return (3 * N * N);
   else
     return N;
+}
+
+int32_t HGCalDDDConstants::placementIndex(const HGCSiliconDetId& id) const {
+  int32_t place(0);
+  int32_t layer = id.layer();
+  int32_t layertype = layerType(layer);
+  int32_t indx = HGCalWaferIndex::waferIndex(layer, id.waferU(), id.waferV());
+  auto ktr = hgpar_->waferInfoMap_.find(indx);
+  if (ktr != hgpar_->waferInfoMap_.end()) {
+    place = HGCalCell::cellPlacementIndex(id.zside(), layertype, (ktr->second).orient);
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "ID: " << id << " Layer " << layer << ":" << layertype << " Index " << indx << ":"
+                                << (ktr != hgpar_->waferInfoMap_.end()) << " Place " << place;
+#endif
+  return place;
 }
 
 std::pair<double, double> HGCalDDDConstants::rangeR(double z, bool reco) const {
