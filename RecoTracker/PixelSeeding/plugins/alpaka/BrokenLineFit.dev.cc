@@ -12,11 +12,9 @@
 
 #include "HelixFit.h"
 
-template <typename TrackerTraits>
-using Tuples = caStructures::HitContainerT<TrackerTraits>;
 using OutputSoAView = reco::TrackSoAView;
-template <typename TrackerTraits>
-using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
+using TupleMultiplicity = caStructures::GenericContainer;
+using Tuples = caStructures::SequentialContainer;
 
 // #define BL_DUMP_HITS
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -26,8 +24,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
-                                  TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
+                                  Tuples const *__restrict__ foundNtuplets,
+                                  TupleMultiplicity const *__restrict__ tupleMultiplicity,
                                   ::reco::TrackingRecHitConstView hh,
                                   FrameSoAConstView fr,
                                   typename TrackerTraits::tindex_type *__restrict__ ptkids,
@@ -175,7 +173,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
+                                  TupleMultiplicity const *__restrict__ tupleMultiplicity,
                                   double bField,
                                   OutputSoAView results_view,
                                   typename TrackerTraits::tindex_type const *__restrict__ ptkids,

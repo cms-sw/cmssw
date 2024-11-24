@@ -12,11 +12,9 @@
 #include "HelixFit.h"
 #include "CAStructures.h"
 
-template <typename TrackerTraits>
-using Tuples = caStructures::HitContainerT<TrackerTraits>;
 using OutputSoAView = reco::TrackSoAView;
-template <typename TrackerTraits>
-using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
+using TupleMultiplicity = caStructures::GenericContainer;
+using Tuples = caStructures::SequentialContainer;
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace alpaka;
@@ -27,8 +25,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
-                                  TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
+                                  Tuples const *__restrict__ foundNtuplets,
+                                  TupleMultiplicity const *__restrict__ tupleMultiplicity,
                                   uint32_t nHits,
                                   ::reco::TrackingRecHitConstView hh,
                                   FrameSoAConstView fr,
@@ -95,7 +93,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
+                                  TupleMultiplicity const *__restrict__ tupleMultiplicity,
                                   uint32_t nHits,
                                   double bField,
                                   double *__restrict__ phits,
@@ -141,7 +139,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
+                                  TupleMultiplicity const *__restrict__ tupleMultiplicity,
                                   uint32_t nHits,
                                   double bField,
                                   OutputSoAView results_view,

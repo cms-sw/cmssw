@@ -136,21 +136,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static constexpr int32_t S = TrackerTraits::maxNumberOfTuples;
     static constexpr int32_t H = TrackerTraits::avgHitsPerTrack;
     using HitToTuple = caStructures::template HitToTupleT<TrackerTraits>;
-    using HitContainer = cms::alpakatools::OneToManyAssocSequential<hindex_type, S + 1, H * S>;
+    using HitContainer = caStructures::SequentialContainer;
     using HitToTupleView = typename HitToTuple::View;
     using TupleMultiplicity = caStructures::template TupleMultiplicityT<TrackerTraits>;
     
-    /// Cells
     using GenericContainer = caStructures::GenericContainer;
     using GenericContainerStorage = typename GenericContainer::index_type;
     using GenericContainerView = typename GenericContainer::View;
     using DeviceGenericContainerBuffer = cms::alpakatools::device_buffer<Device, GenericContainer>;
+    using DeviceGenericStorageBuffer = cms::alpakatools::device_buffer<Device, GenericContainerStorage[]>;
+    using DeviceGenericOffsetsBuffer = cms::alpakatools::device_buffer<Device, GenericContainerOffsets[]>;
+
+    using SequentialContainer = caStructures::SequentialContainer;
+    using SequentialContainerStorage = typename SequentialContainer::index_type;
+    using SequentialContainerView = typename SequentialContainer::View;
+    using DeviceSequentialContainerBuffer = cms::alpakatools::device_buffer<Device, SequentialContainer>;
+    using DeviceSequentialStorageBuffer = cms::alpakatools::device_buffer<Device, SequentialContainerStorage[]>;
+    using DeviceSequentialOffsetsBuffer = cms::alpakatools::device_buffer<Device, SequentialContainerOffsets[]>;
 
     CAHitNtupletGeneratorKernels(Params const& params, const HitsConstView &hh, uint16_t nLayers, Queue& queue);
     ~CAHitNtupletGeneratorKernels() = default;
 
     GenericContainer const* tupleMultiplicity() const { return device_tupleMultiplicity_.data(); }
-    HitContainer const* hitContainer() const { return device_hitContainer_.data(); }
+    SequentialContainer const* hitContainer() const { return device_hitContainer_.data(); }
 
     void prepareHits(const HitsConstView& hh, const HitModulesConstView &mm, const ::reco::CALayersSoAConstView& ll, Queue& queue);
 
@@ -171,8 +179,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // Hits->Track
     DeviceGenericContainerBuffer device_hitToTuple_;
-    cms::alpakatools::device_buffer<Device, GenericContainerStorage[]> device_hitToTupleStorage_;
-    cms::alpakatools::device_buffer<Device, GenericContainerOffsets[]> device_hitToTupleOffsets_;
+    DeviceGenericStorageBuffer device_hitToTupleStorage_;
+    DeviceGenericOffsetsBuffer device_hitToTupleOffsets_;
     GenericContainerView device_hitToTupleView_;
 
     // Hits 
@@ -182,14 +190,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::alpakatools::device_buffer<Device, hindex_type[]> device_layerStarts_;
 
     // Tracks->Hits
-    cms::alpakatools::device_buffer<Device, HitContainer> device_hitContainer_;
-    
-    // GenericContainerView device_hitToTupleView_;
+    DeviceSequentialContainerBuffer device_hitContainer_;
+    DeviceGenericStorageBuffer device_hitContainerStorage_;
+    DeviceSequentialOffsetsBuffer device_hitContainerOffsets_;
+    SequentialContainerView device_hitContainerView_;
     
     // No.Hits -> Track (Multiplicity)
     DeviceGenericContainerBuffer device_tupleMultiplicity_;
-    cms::alpakatools::device_buffer<Device, GenericContainerStorage[]> device_tupleMultiplicityStorage_;
-    cms::alpakatools::device_buffer<Device, GenericContainerOffsets[]> device_tupleMultiplicityOffsets_;
+    DeviceGenericStorageBuffer device_tupleMultiplicityStorage_;
+    DeviceGenericOffsetsBuffer device_tupleMultiplicityOffsets_;
     GenericContainerView device_tupleMultiplicityView_;
 
     cms::alpakatools::device_buffer<Device, CACell[]> device_theCells_;
@@ -208,9 +217,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Hit -> Cells
     // DeviceGenericContainerBuffer device_hitToCell_;
     // GenericContainerView device_hitToCellView_;
-    // cms::alpakatools::device_buffer<Device, GenericContainerStorage[]> device_hitToCellOffsets_;
+    // DeviceGenericStorageBuffer device_hitToCellOffsets_;
 
-    // cms::alpakatools::device_buffer<Device, GenericContainerStorage[]> device_hitToCellStorage_;
+    // DeviceGenericStorageBuffer device_hitToCellStorage_;
     // CACoupleDevice<Device> cellsSoA_;
     // CACoupleDevice<Device> tripletsSoA_;
   };

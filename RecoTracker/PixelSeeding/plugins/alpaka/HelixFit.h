@@ -56,11 +56,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     using HitView = ::reco::TrackingRecHitView;
     using HitConstView = ::reco::TrackingRecHitConstView;
-    using Tuples = caStructures::HitContainerT<TrackerTraits>;
     using OutputSoAView = ::reco::TrackSoAView;
     using OutputHitSoAView = ::reco::TrackHitSoAView;
 
-    using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
+    using Tuples = caStructures::SequentialContainer;
+    using TupleMultiplicity = caStructures::GenericContainer;
 
 
     explicit HelixFit(float bf, bool fitNas4) : bField_(bf), fitNas4_(fitNas4) {}
