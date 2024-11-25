@@ -87,6 +87,34 @@ commonDict = {
         ],
         "era" : "run3_common, stage2L1Trigger_2021",
     },
+    "O7" : {
+        1 : [
+            'Geometry/CMSCommonData/data/materials/2021/v4/materials.xml',
+            'Geometry/TrackerCommonData/data/trackermaterial/2021/v2/trackermaterial.xml',
+            'Geometry/CMSCommonData/data/rotations.xml',
+            'Geometry/CMSCommonData/data/extend/v3/cmsextent.xml',
+            'Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml',
+            'Geometry/CMSCommonData/data/cms/2021/v3/cms.xml',
+            'Geometry/CMSCommonData/data/cmsMother.xml',
+            'Geometry/CMSCommonData/data/eta3/etaMax.xml',
+            'Geometry/CMSCommonData/data/cmsTracker.xml',
+            'Geometry/CMSCommonData/data/caloBase/2017/v1/caloBase.xml',
+            'Geometry/CMSCommonData/data/cmsCalo.xml',
+            'Geometry/CMSCommonData/data/muonBase/2018/v1/muonBase.xml',
+            'Geometry/CMSCommonData/data/cmsMuon.xml',
+            'Geometry/CMSCommonData/data/mgnt.xml',
+            'Geometry/CMSCommonData/data/beampipe/2021/v1/beampipe.xml',
+            'Geometry/CMSCommonData/data/cmsBeam/2021/v1/cmsBeam.xml',
+            'Geometry/CMSCommonData/data/muonMB.xml',
+            'Geometry/CMSCommonData/data/muonMagnet.xml',
+            'Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml',
+            'Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml',
+        ],
+        5 : [
+            'Geometry/CMSCommonData/data/FieldParameters.xml',
+        ],
+        "era" : "run3_common, stage2L1Trigger_2021",
+    },
 }
 
 trackerDict = {
@@ -1624,7 +1652,7 @@ muonDict = {
         ],
         "era" : "run3_GEM",
     },
-    "M4" : {
+    "M3" : {
         1 : [
             'Geometry/MuonCommonData/data/mbCommon/2021/v2/mbCommon.xml',
             'Geometry/MuonCommonData/data/mb1/2021/v1/mb1.xml',
@@ -1669,14 +1697,14 @@ muonDict = {
         ],
         "era" : "run3_GEM",
     },
-    "M5" : {
+    "M4" : {
         1 : [
             'Geometry/MuonCommonData/data/mbCommon/2021/v2/mbCommon.xml',
             'Geometry/MuonCommonData/data/mb1/2021/v1/mb1.xml',
             'Geometry/MuonCommonData/data/mb2/2021/v1/mb2.xml',
             'Geometry/MuonCommonData/data/mb3/2021/v1/mb3.xml',
             'Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml',
-            'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
+            'Geometry/MuonCommonData/data/mb4Shield/2021/v2/mb4Shield.xml',
             'Geometry/MuonCommonData/data/muonYoke/2021/v5/muonYoke.xml',
             'Geometry/MuonCommonData/data/mf/2021/v3/mf.xml',
             'Geometry/MuonCommonData/data/rpcf/2025/v1/rpcf.xml',
@@ -1940,14 +1968,14 @@ detectorVersionDict = {
     ("O5","T6","C1","M2","F2","P7") : "2023FlatMinus10Percent",
     ("O5","T7","C1","M2","F2","P7") : "2023FlatPlus05Percent",
     ("O5","T8","C1","M2","F2","P7") : "2023FlatPlus10Percent",
-    ("O6","T3","C2","M4","F3","P7") : "2024",
-    ("O4","T4","C2","M4","F2","P7") : "2024ZeroMaterial",
-    ("O5","T5","C2","M4","F2","P7") : "2024FlatMinus05Percent",
-    ("O5","T6","C2","M4","F2","P7") : "2024FlatMinus10Percent",
-    ("O5","T7","C2","M4","F2","P7") : "2024FlatPlus05Percent",
-    ("O5","T8","C2","M4","F2","P7") : "2024FlatPlus10Percent",
-    ("O6","T3","C2","M5","F3","P7") : "2025",
+    ("O6","T3","C2","M3","F3","P7") : "2024",
+    ("O4","T4","C2","M3","F2","P7") : "2024ZeroMaterial",
+    ("O5","T5","C2","M3","F2","P7") : "2024FlatMinus05Percent",
+    ("O5","T6","C2","M3","F2","P7") : "2024FlatMinus10Percent",
+    ("O5","T7","C2","M3","F2","P7") : "2024FlatPlus05Percent",
+    ("O5","T8","C2","M3","F2","P7") : "2024FlatPlus10Percent",
+    ("O7","T3","C2","M4","F3","P7") : "2025",
  }
 
-deprecatedSubdets = set([ "T1", "T2", "O1", "O2", "O3", "M3", "P1", "P2",
-                           "P3", "P4", "P5", "P6" ])
+deprecatedSubdets = set([ "T1", "T2", "O1", "O2", "O3", "P1", "P2", "P3",
+                          "P4", "P5", "P6" ])

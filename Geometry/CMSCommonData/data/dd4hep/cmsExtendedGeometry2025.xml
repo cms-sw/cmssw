@@ -4,7 +4,7 @@
   <close_geometry/>
 
   <IncludeSection>
-    <Include ref='Geometry/CMSCommonData/data/materials/2021/v3/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2021/v4/materials.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/trackermaterial/2021/v2/trackermaterial.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/v3/cmsextent.xml'/>
@@ -240,7 +240,7 @@
     <Include ref='Geometry/MuonCommonData/data/mb2/2021/v1/mb2.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb3/2021/v1/mb3.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mb4Shield/2021/v2/mb4Shield.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonYoke/2021/v5/muonYoke.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mf/2021/v3/mf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/rpcf/2025/v1/rpcf.xml'/>
