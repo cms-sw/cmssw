@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from __future__ import absolute_import
 from .Page1Parser import Page1Parser
 import sys
 import os
