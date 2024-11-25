@@ -9,7 +9,6 @@
 #                                                                              
 ################################################################################
 
-from __future__ import print_function
 from sys import argv,exit
 from optparse import OptionParser
 import cPickle

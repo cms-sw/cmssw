@@ -1,4 +1,3 @@
-from __future__ import print_function
 # set up variables
 #def readConfig(fileName)
 import FWCore.ParameterSet.Config as cms

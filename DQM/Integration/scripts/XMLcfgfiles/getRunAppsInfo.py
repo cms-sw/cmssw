@@ -7,7 +7,6 @@ When used as a script the following options are accepted:
 	-f Show all columns
 	-h show headers
 """
-from __future__ import print_function
 import sys
 import os.path
 import getopt as gop

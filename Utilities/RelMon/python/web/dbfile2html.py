@@ -7,8 +7,6 @@ Warrning!: did not finish the implementation, see TODO comment.
 Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
-from __future__ import absolute_import
-from __future__ import print_function
 import sqlite3
 import re
 from os import listdir, makedirs, getcwd

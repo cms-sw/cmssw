@@ -11,7 +11,6 @@
 # Fermilab, 2008
 #
 # imported from UserCode/Yumiceva/cuy
-from __future__ import print_function
 #
 # modified by Adrien Caudron to create TGraphErrors for b-tag performance plots
 # UCLouvain, 2012 

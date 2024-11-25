@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from __future__ import print_function
 import ROOT
 import sys,os,string,errno,shutil
 import code
