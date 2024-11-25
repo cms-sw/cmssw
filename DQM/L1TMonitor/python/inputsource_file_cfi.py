@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # provide online L1 Trigger DQM input from file(s)
 #

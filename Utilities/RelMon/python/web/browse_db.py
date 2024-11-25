@@ -8,7 +8,6 @@ comparison information browsing. Database file can be generated with
 Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
-from __future__ import absolute_import
 import cherrypy as cpy
 import sqlite3
 from os.path import isfile

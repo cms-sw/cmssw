@@ -1,4 +1,3 @@
-from __future__ import print_function
 import xml.dom.minidom as dom
 import sys, os, optparse
 

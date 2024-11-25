@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 # ===================================================================
 # So to get the list of input files. One must call :

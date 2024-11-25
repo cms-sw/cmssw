@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from __future__ import print_function
 import sys
 import os
 from ROOT import gROOT, TArrow, TCanvas, TGraph, TH2Poly, gPad, TLatex

@@ -1,4 +1,3 @@
-from __future__ import print_function
 #-------------------------------------
 #	Hcal DQM Application using New DQM Sources/Clients
 #	Online Mode

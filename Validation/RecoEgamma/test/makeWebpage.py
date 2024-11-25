@@ -24,7 +24,6 @@
 ## index.html to an apropriate place.
 ## (This can be autmated too, if needed.)
 
-from __future__ import print_function
 import sys
 import os
 import re
