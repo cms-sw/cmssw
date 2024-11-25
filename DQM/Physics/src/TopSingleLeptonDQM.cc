@@ -529,7 +529,7 @@ namespace TopSingleLepton {
     // check availability of the btaggers
     edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx, btagCSV;
     if (includeBTag_) {
-      if(!event.getByToken(btagCSV_,btagCSV)){
+      if (!event.getByToken(btagCSV_, btagCSV)) {
         return;
       }
     }

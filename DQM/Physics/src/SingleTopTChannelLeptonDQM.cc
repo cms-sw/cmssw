@@ -139,7 +139,7 @@ namespace SingleTopTChannelLepton {
       includeBTag_ = jetExtras.existsAs<edm::ParameterSet>("jetBTaggers");
       if (includeBTag_) {
         edm::ParameterSet btagCSV =
-        jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("cvsVertex");
+            jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("cvsVertex");
         btagCSV_ = iC.consumes<reco::JetTagCollection>(btagCSV.getParameter<edm::InputTag>("label"));
         btagCSVWP_ = btagCSV.getParameter<double>("workingPoint");
       }

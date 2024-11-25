@@ -580,11 +580,11 @@ namespace TopSingleLepton_miniAOD {
         ++loosemult;  // determine jet multiplicity
 
         //ParticleNet discriminator
-        
+
         double discriminator =
             monitorJet.bDiscriminator("pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:BvsAll") > 0
-		            ? monitorJet.bDiscriminator("pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:BvsAll")
-		            : -1;
+                ? monitorJet.bDiscriminator("pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:BvsAll")
+                : -1;
 
         fill("jetBPNet_", discriminator);  //hard coded discriminator and value right now.
         if (discriminator > 0.1919)
