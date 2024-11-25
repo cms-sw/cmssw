@@ -86,14 +86,14 @@ namespace TopSingleLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if (muonExtras.existsAs<std::string>("select")) {
-        muonSelect_ = std::make_unique<StringCutObjectSelector<reco::Muon>>(
-            muonExtras.getParameter<std::string>("select"));
+        muonSelect_ =
+            std::make_unique<StringCutObjectSelector<reco::Muon>>(muonExtras.getParameter<std::string>("select"));
       }
       // isolation is optional; in case it's not found no
       // isolation will be applied
       if (muonExtras.existsAs<std::string>("isolation")) {
-        muonIso_ = std::make_unique<StringCutObjectSelector<reco::Muon>>(
-            muonExtras.getParameter<std::string>("isolation"));
+        muonIso_ =
+            std::make_unique<StringCutObjectSelector<reco::Muon>>(muonExtras.getParameter<std::string>("isolation"));
       }
     }
 
@@ -206,7 +206,7 @@ namespace TopSingleLepton {
     // multiplicity of jets with pt>30
     hists_["jetMult_"] = ibooker.book1D("JetMult", "N_{30}(jet)", 10, 0., 10.);
     // multiplicity of loose jets with pt>30
-    hists_["jetMultLoose_"] = ibooker.book1D("JetMultLoose", "N_{30, loose}(jet)", 10, 0., 10.);
+    hists_["jetMultLoose_"] = ibooker.book1D("JetMultLoose", "N_{30,loose}(jet)", 10, 0., 10.);
 
     // trigger efficiency estimates for single lepton triggers
     // hists_["triggerEff_"] = ibooker.book1D("TriggerEff",
@@ -357,7 +357,6 @@ namespace TopSingleLepton {
         pvMult++;
     }
     fill("pvMult_", pvMult);
-
     /*
   ------------------------------------------------------------
 
@@ -376,10 +375,10 @@ namespace TopSingleLepton {
     // check availability of electron id
     edm::Handle<edm::ValueMap<float>> electronId;
     if (!electronId_.isUninitialized()) {
-      if (!event.getByToken(electronId_, electronId))
+      if (!event.getByToken(electronId_, electronId)) {
         return;
+      }
     }
-
     // loop electron collection
     unsigned int eMult = 0, eMultIso = 0;
     std::vector<const reco::GsfElectron*> isoElecs;
@@ -530,8 +529,9 @@ namespace TopSingleLepton {
     // check availability of the btaggers
     edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx, btagCSV;
     if (includeBTag_) {
-      if (!event.getByToken(btagCSV_, btagCSV))
+      if(!event.getByToken(btagCSV_,btagCSV)){
         return;
+      }
     }
 
     // loop jet collection
@@ -555,7 +555,6 @@ namespace TopSingleLepton {
         if (!(*jetSelection_)(sel))
           continue;
       }
-
       // prepare jet to fill monitor histograms
       reco::Jet monitorJet = *jet;
 
@@ -616,8 +615,9 @@ namespace TopSingleLepton {
         continue;
       if (met->begin() != met->end()) {  //If we ever have to use more than one type of met again
         unsigned int idx = met_ - mets_.begin();
-        if (idx == 0)
+        if (idx == 0) {
           fill("metPflow_", met->begin()->et());
+        }
       }
     }
 
@@ -630,7 +630,6 @@ namespace TopSingleLepton {
   */
 
     // fill W boson and top mass estimates
-
     Calculate eventKinematics(MAXJETS, WMASS);
     double wMass = eventKinematics.massWBoson(correctedJets);
     double topMass = eventKinematics.massTopQuark(correctedJets);
@@ -646,8 +645,9 @@ namespace TopSingleLepton {
     if (correctedJets.size() != JetTagValues.size())
       return;
     double btopMass = eventKinematics.massBTopQuark(correctedJets, JetTagValues, btagCSVWP_);
-    if (btopMass >= 0)
+    if (btopMass >= 0) {
       fill("massBTop_", btopMass);
+    }
 
     // fill plots for trigger monitoring
     if ((lowerEdge_ == -1. && upperEdge_ == -1.) || (lowerEdge_ < wMass && wMass < upperEdge_)) {
@@ -686,7 +686,9 @@ TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg)
   JetSteps.clear();
   CaloJetSteps.clear();
   PFJetSteps.clear();
+
   // configure preselection
+
   edm::ParameterSet presel = cfg.getParameter<edm::ParameterSet>("preselection");
   if (presel.existsAs<edm::ParameterSet>("trigger")) {
     edm::ParameterSet trigger = presel.getParameter<edm::ParameterSet>("trigger");
@@ -748,19 +750,23 @@ void TopSingleLeptonDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
 void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   if (!triggerTable__.isUninitialized()) {
     edm::Handle<edm::TriggerResults> triggerTable;
-    if (!event.getByToken(triggerTable__, triggerTable))
+    if (!event.getByToken(triggerTable__, triggerTable)) {
       return;
-    if (!accept(event, *triggerTable, triggerPaths_))
+    }
+    if (!accept(event, *triggerTable, triggerPaths_)) {
       return;
+    }
   }
   if (!beamspot__.isUninitialized()) {
     edm::Handle<reco::BeamSpot> beamspot;
-    if (!event.getByToken(beamspot__, beamspot))
+    if (!event.getByToken(beamspot__, beamspot)) {
       return;
-    if (!(*beamspotSelect_)(*beamspot))
+    }
+    if (!(*beamspotSelect_)(*beamspot)) {
       return;
+    }
   }
-  //  cout<<" apply selection steps"<<endl;
+  // apply selection steps
   unsigned int nJetSteps = -1;
   unsigned int nPFJetSteps = -1;
   unsigned int nCaloJetSteps = -1;
@@ -773,34 +779,33 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup&
       }
       if (type == "muons" && MuonStep != nullptr) {
         if (MuonStep->select(event)) {
-          //      cout<<"selected event! "<<selection_[key].second<<endl;
           selection_[key].second->fill(event, setup);
-        } else
+        } else {
           break;
+        }
       }
-      // cout<<" apply selection steps 2"<<endl;
       if (type == "elecs" && ElectronStep != nullptr) {
-        // cout<<"In electrons ..."<<endl;
         if (ElectronStep->select(event, "electron")) {
           selection_[key].second->fill(event, setup);
-        } else
+        } else {
           break;
+        }
       }
-      // cout<<" apply selection steps 3"<<endl;
       if (type == "pvs" && PvStep != nullptr) {
         if (PvStep->selectVertex(event)) {
           selection_[key].second->fill(event, setup);
-        } else
+        } else {
           break;
+        }
       }
-      // cout<<" apply selection steps 4"<<endl;
       if (type == "jets") {
         nJetSteps++;
         if (JetSteps[nJetSteps] != nullptr) {
           if (JetSteps[nJetSteps]->select(event, setup)) {
             selection_[key].second->fill(event, setup);
-          } else
+          } else {
             break;
+          }
         }
       }
       if (type == "jets/pf") {
@@ -808,8 +813,9 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup&
         if (PFJetSteps[nPFJetSteps] != nullptr) {
           if (PFJetSteps[nPFJetSteps]->select(event, setup)) {
             selection_[key].second->fill(event, setup);
-          } else
+          } else {
             break;
+          }
         }
       }
       if (type == "jets/calo") {
@@ -817,21 +823,18 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup&
         if (CaloJetSteps[nCaloJetSteps] != nullptr) {
           if (CaloJetSteps[nCaloJetSteps]->select(event, setup)) {
             selection_[key].second->fill(event, setup);
-          } else
+          } else {
             break;
+          }
         }
       }
       if (type == "met" && METStep != nullptr) {
         if (METStep->select(event)) {
           selection_[key].second->fill(event, setup);
-        } else
+        } else {
           break;
+        }
       }
     }
   }
 }
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:
