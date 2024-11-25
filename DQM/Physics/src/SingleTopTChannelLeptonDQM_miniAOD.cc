@@ -315,9 +315,9 @@ namespace SingleTopTChannelLepton_miniAOD {
     //hists_["jetBDiscVtx_"] = ibooker.book1D("JetBDiscVtx",
     //    "Disc_{SSVHE}(Jet)", 35, -1., 6.);
     // multiplicity for combined secondary vertex
-    hists_["jetMultBDeepJetM_"] = ibooker.book1D("JetMultBDeepJetM", "N_{30}(DeepJetM)", 10, 0., 10.);
+    hists_["jetMultBPNetM_"] = ibooker.book1D("JetMultBPNetM", "N_{30}(PNetM)", 10, 0., 10.);
     // btag discriminator for combined secondary vertex
-    hists_["jetBDeepJet_"] = ibooker.book1D("JetDiscDeepJet", "BJet Disc_{DeepJet}(JET)", 100, -1., 2.);
+    hists_["jetBPNet_"] = ibooker.book1D("JetDiscPNet", "BJet Disc_{PNet}(JET)", 100, -1., 2.);
     // pt of the 1. leading jet (uncorrected)
     //hists_["jet1PtRaw_"] = ibooker.book1D("Jet1PtRaw", "pt_{Raw}(jet1)", 60, 0., 300.);
     // pt of the 2. leading jet (uncorrected)
@@ -571,7 +571,7 @@ namespace SingleTopTChannelLepton_miniAOD {
     pat::Jet TaggedJetCand;
     vector<double> bJetDiscVal;
 
-    unsigned int mult = 0, loosemult = 0, multBDeepJetM = 0;
+    unsigned int mult = 0, loosemult = 0, multBPNetM = 0;
 
     edm::Handle<edm::View<pat::Jet>> jets;
     if (!event.getByToken(jets_, jets)) {
@@ -603,25 +603,28 @@ namespace SingleTopTChannelLepton_miniAOD {
         correctedJets.push_back(monitorJet);
         ++loosemult;  // determine jet multiplicity
 
-        double discriminator = monitorJet.bDiscriminator("pfDeepFlavourJetTags:probb") +
-                               monitorJet.bDiscriminator("pfDeepFlavourJetTags:probbb") +
-                               monitorJet.bDiscriminator("pfDeepFlavourJetTags:problepb");
+        //ParticleNet discriminator
+        
+        double discriminator =
+            monitorJet.bDiscriminator("pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:BvsAll") > 0
+		            ? monitorJet.bDiscriminator("pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:BvsAll")
+		            : -1;
 
-        fill("jetBDeepJet_", discriminator);  //hard coded discriminator and value right now.
-        if (discriminator > 0.2435) {
-          if (multBDeepJetM == 0) {
+        fill("jetBPNet_", discriminator);  //hard coded discriminator and value right now.
+        if (discriminator > 0.1919) {
+          if (multBPNetM == 0) {
             TaggedJetCand = monitorJet;
             bJetDiscVal.push_back(discriminator);
-          } else if (multBDeepJetM == 1) {
+          } else if (multBPNetM == 1) {
             bJetDiscVal.push_back(discriminator);
             if (bJetDiscVal[1] > bJetDiscVal[0])
               TaggedJetCand = monitorJet;
           }
 
-          ++multBDeepJetM;
+          ++multBPNetM;
         }
 
-        // Fill a vector with Jet b-tag WP for later M3+1tag calculation: DeepJet
+        // Fill a vector with Jet b-tag WP for later M3+1tag calculation: PNet
         // tagger
         JetTagValues.push_back(discriminator);
         //    }
@@ -642,7 +645,7 @@ namespace SingleTopTChannelLepton_miniAOD {
     }
     fill("jetMult_", mult);
     fill("jetLooseMult_", loosemult);
-    fill("jetMultBDeepJetM_", multBDeepJetM);
+    fill("jetMultBPNetM_", multBPNetM);
 
     /*
   ------------------------------------------------------------
@@ -665,7 +668,7 @@ namespace SingleTopTChannelLepton_miniAOD {
         unsigned int idx = met_ - mets_.begin();
         if (idx == 0)
           fill("slimmedMETs_", met->begin()->et());
-        if (idx == 2)
+        if (idx == 1)
           fill("slimmedMETsPuppi_", met->begin()->et());
       }
     }
@@ -688,12 +691,12 @@ namespace SingleTopTChannelLepton_miniAOD {
       fill("massTop_", topMass);
     }
 
-    // Fill M3 with Btag (DeepJet Tight) requirement
+    // Fill M3 with Btag (PNet Tight) requirement
 
     // if (!includeBTag_) return;
     //if (correctedJets.size() != JetTagValues.size()) return;
     //double btopMass =
-    //    eventKinematics.massBTopQuark(correctedJets, JetTagValues, 0.2435); //hard coded DeepJet value
+    //    eventKinematics.massBTopQuark(correctedJets, JetTagValues, 0.2435); //hard coded PNet value
 
     //if (btopMass >= 0) fill("massBTop_", btopMass);
 
@@ -722,14 +725,14 @@ namespace SingleTopTChannelLepton_miniAOD {
       }
     }
 
-    if (multBDeepJetM != 0 && mTight == 1) {
+    if (multBPNetM != 0 && mTight == 1) {
       double mtW = eventKinematics.tmassWBoson(&mu, mET, TaggedJetCand);
       fill("MTWm_", mtW);
       double MTT = eventKinematics.tmassTopQuark(&mu, mET, TaggedJetCand);
       fill("mMTT_", MTT);
     }
 
-    if (multBDeepJetM != 0 && eMultIso == 1) {
+    if (multBPNetM != 0 && eMultIso == 1) {
       double mtW = eventKinematics.tmassWBoson(&e, mET, TaggedJetCand);
       fill("MTWe_", mtW);
       double MTT = eventKinematics.tmassTopQuark(&e, mET, TaggedJetCand);
