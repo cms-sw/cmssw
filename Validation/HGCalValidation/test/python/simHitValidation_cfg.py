@@ -51,7 +51,7 @@ else:
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('HGCalSimHitLocal',Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 fileName = "file:SimHitVal" + options.geometry + ".root"
 outFile = "file:step1" + options.geometry + ".root"
 

@@ -50,7 +50,7 @@ else:
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('WaferValidation',Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 if (options.geometry == "D98"):
     fileName = 'Validation/HGCalValidation/data/geomnew_corrected_360_V1.txt'
 else:

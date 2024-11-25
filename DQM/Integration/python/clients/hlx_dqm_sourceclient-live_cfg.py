@@ -28,8 +28,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder    = "HLX"
 process.dqmSaver.tag= "HLX"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'HLX'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'HLX'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 ## Lumi reference file
 
@@ -44,7 +44,7 @@ process.hlxQualityTester = DQMQualityTester(
     qtestOnEndRun = cms.untracked.bool(True)
 )
 
-process.p = cms.Path(process.hlxdqmsource*process.hlxQualityTester*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
+process.p = cms.Path(process.hlxdqmsource*process.hlxQualityTester*process.dqmEnv*process.dqmSaver)#*process.dqmSaverPB)
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

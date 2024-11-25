@@ -199,7 +199,7 @@ For concrete examples see code in [`HeterogeneousCore/AlpakaTest`](../../Heterog
 
 ### EDProducer
 
-This example shows a mixture of behavior from test code in [`HeterogeneousCore/AlpakaTest/plugins/alpaka/`](HeterogeneousCore/AlpakaTest/plugins/alpaka/)
+This example shows a mixture of behavior from test code in [`HeterogeneousCore/AlpakaTest/plugins/alpaka/`](../../HeterogeneousCore/AlpakaTest/plugins/alpaka/)
 ```cpp
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
@@ -314,7 +314,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // fill the hostProduct from hostInput
 
-      return std::move(hostProduct);
+      return hostProduct;
     }
 
   private:
@@ -359,7 +359,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       algo_.fill(iRecord.queue(), deviceInput, deviceProduct);
 
       // return the product without waiting
-      return std::move(deviceProduct);
+      return deviceProduct;
     }
 
   private:

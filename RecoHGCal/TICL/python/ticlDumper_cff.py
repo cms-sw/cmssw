@@ -40,10 +40,12 @@ ticlDumper = ticlDumper_.clone(
         ),
     ],
     
-    associators=dumperAssociators.copy()
+    associators=dumperAssociators.copy(),
+    saveSuperclustering = cms.bool(False)
 )
 
 ticl_v5.toModify(ticlDumper, ticlcandidates = cms.InputTag("ticlCandidate"), recoSuperClusters_sourceTracksterCollection=cms.InputTag("ticlCandidate"))
+ticl_v5.toModify(ticlDumper, saveSuperclustering = cms.bool(True))
 
 
 

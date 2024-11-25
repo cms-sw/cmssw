@@ -17,7 +17,6 @@
 ## Imports
 ############################################
 
-from __future__ import print_function
 import os, glob
 import os.path
 import operator

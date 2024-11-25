@@ -2,9 +2,9 @@
 # Way to use this:
 #   cmsRun g4OverlapCheckCalo_cfg.py geometry=2021 tol=0.1
 #
-#   Options for geometry 2016, 2017, 2021, 2026D102, 2026D103, 2026D104,
-#                        22026D108, 026D109, 2026D110, 2026D111, 2026D112, 
-#                        2026D113, 2026D114, 2026D115
+#   Options for geometry 2016, 2017, 2021, Run4D102, Run4D103, Run4D104,
+#                        2Run4D108, 026D109, Run4D110, Run4D111, Run4D112, 
+#                        Run4D113, Run4D114, Run4D115
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -18,7 +18,7 @@ options.register('geometry',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2016, 2017, 2021, 2026D102, 2026D103, 2026D104, 2026D108, 2026D109, 2026D110, 2026D111, 2026D112, 2026D113, 2026D114, 2026D115")
+                  "geometry of operations: 2016, 2017, 2021, Run4D102, Run4D103, Run4D104, Run4D108, Run4D109, Run4D110, Run4D111, Run4D112, Run4D113, Run4D114, Run4D115, Run4D116")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -34,76 +34,81 @@ print(options)
 ####################################################################
 # Use the options
 
-if (options.geometry == "2026D102"):
+if (options.geometry == "Run4D102"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
     process.load('Configuration.Geometry.GeometryExtendedRun4D102Reco_cff')
-    baseName = 'Hcal2026D102'
-elif (options.geometry == "2026D103"):
+    baseName = 'CaloRun4D102'
+elif (options.geometry == "Run4D103"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
     process.load('Configuration.Geometry.GeometryExtendedRun4D103Reco_cff')
-    baseName = 'Hcal2026D103'
-elif (options.geometry == "2026D104"):
+    baseName = 'CaloRun4D103'
+elif (options.geometry == "Run4D104"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
     process.load('Configuration.Geometry.GeometryExtendedRun4D104Reco_cff')
-    baseName = 'Hcal2026D104'
-elif (options.geometry == "2026D108"):
+    baseName = 'CaloRun4D104'
+elif (options.geometry == "Run4D108"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
     process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D108'
-elif (options.geometry == "2026D109"):
+    baseName = 'CaloRun4D108'
+elif (options.geometry == "Run4D109"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
     process.load('Configuration.Geometry.GeometryExtendedRun4D109Reco_cff')
-    baseName = 'Hcal2026D109'
-elif (options.geometry == "2026D110"):
+    baseName = 'CaloRun4D109'
+elif (options.geometry == "Run4D110"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D110'
-elif (options.geometry == "2026D111"):
+    process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+    baseName = 'CaloRun4D110'
+elif (options.geometry == "Run4D111"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D111'
-elif (options.geometry == "2026D112"):
+    process.load('Configuration.Geometry.GeometryExtendedRun4D111Reco_cff')
+    baseName = 'CaloRun4D111'
+elif (options.geometry == "Run4D112"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D112'
-elif (options.geometry == "2026D113"):
+    process.load('Configuration.Geometry.GeometryExtendedRun4D112Reco_cff')
+    baseName = 'CaloRun4D112'
+elif (options.geometry == "Run4D113"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D113'
-elif (options.geometry == "2026D114"):
+    process.load('Configuration.Geometry.GeometryExtendedRun4D113Reco_cff')
+    baseName = 'CaloRun4D113'
+elif (options.geometry == "Run4D114"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D114'
-elif (options.geometry == "2026D115"):
+    process.load('Configuration.Geometry.GeometryExtendedRun4D114Reco_cff')
+    baseName = 'CaloRun4D114'
+elif (options.geometry == "Run4D115"):
     from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
     process = cms.Process('G4PrintGeometry',Phase2C20I13M9)
-    process.load('Configuration.Geometry.GeometryExtendedRun4D108Reco_cff')
-    baseName = 'Hcal2026D115'
+    process.load('Configuration.Geometry.GeometryExtendedRun4D115Reco_cff')
+    baseName = 'CaloRun4D115'
+elif (options.geometry == "Run4D116"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtendedRun4D116Reco_cff')
+    baseName = 'CaloRun4D110'
 elif (options.geometry == "2016"):
     from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
     process = cms.Process('G4PrintGeometry',Run2_2016)
     process.load('Configuration.Geometry.GeometryExtended2016Reco_cff')
-    baseName = 'Hcal2016'
+    baseName = 'Calo2016'
 elif (options.geometry == "2017"):
     from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
     process = cms.Process('G4PrintGeometry',Run2_2017)
     process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
-    baseName = 'Hcal2017'
+    baseName = 'Calo2017'
 else:
     from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
     process = cms.Process('G4PrintGeometry',Run3_DDD)
     process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
-    baseName = 'Hcal2021'
+    baseName = 'Calo2021'
 
 print("Base file Name: ", baseName)
 

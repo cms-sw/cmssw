@@ -1,4 +1,3 @@
-from __future__ import print_function
 import re
 
 def setup(process, global_tag, zero_tesla=False, geometry=""):
@@ -30,7 +29,7 @@ def setup(process, global_tag, zero_tesla=False, geometry=""):
         print(f"Using Geometry from DB")
         process.load('Configuration.Geometry.GeometryRecoDB_cff')
     else:
-        # Check if the geometry string matches the format "Extended<X>", e.g. Extended2026D110
+        # Check if the geometry string matches the format "Extended<X>", e.g. ExtendedRun4D110
         if re.match(r"^Extended\w+$", geometry):
             # Dynamically load the specified geometry
             geometry_module = f"Configuration.Geometry.Geometry{geometry}Reco_cff"

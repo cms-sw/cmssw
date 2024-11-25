@@ -5,6 +5,7 @@
 TYPELOOKUP_ALPAKA_DATA_REG(AlpakaESTestDataADevice);
 TYPELOOKUP_ALPAKA_DATA_REG(AlpakaESTestDataCDevice);
 TYPELOOKUP_ALPAKA_DATA_REG(AlpakaESTestDataDDevice);
+TYPELOOKUP_ALPAKA_DATA_REG(AlpakaESTestDataACMultiDevice);
 
 // Template-over-device model
 #include "HeterogeneousCore/AlpakaTest/interface/AlpakaESTestData.h"

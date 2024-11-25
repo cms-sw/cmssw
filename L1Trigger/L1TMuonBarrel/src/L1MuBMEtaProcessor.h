@@ -63,7 +63,7 @@ class L1TMuonBarrelParamsRcd;
 class L1MuBMEtaProcessor {
 public:
   /// constructor
-  L1MuBMEtaProcessor(const L1MuBMTrackFinder&, int id, edm::ConsumesCollector&& iC);
+  L1MuBMEtaProcessor(L1MuBMTrackFinder&, int id, edm::ConsumesCollector&& iC);
 
   /// destructor
   virtual ~L1MuBMEtaProcessor();
@@ -109,7 +109,7 @@ private:
   static int quality(int id, int stat);
 
 private:
-  const L1MuBMTrackFinder& m_tf;
+  L1MuBMTrackFinder& m_tf;
   int m_epid;
 
   int m_mask;

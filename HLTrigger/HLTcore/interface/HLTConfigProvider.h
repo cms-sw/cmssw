@@ -102,10 +102,10 @@ public:
   }
 
   /// C++ class name of module
-  const std::string moduleType(const std::string& module) const { return hltConfigData_->moduleType(module); }
+  const std::string& moduleType(const std::string& module) const { return hltConfigData_->moduleType(module); }
 
   /// C++ base class name of module
-  const std::string moduleEDMType(const std::string& module) const { return hltConfigData_->moduleEDMType(module); }
+  const std::string& moduleEDMType(const std::string& module) const { return hltConfigData_->moduleEDMType(module); }
 
   /// ParameterSet of process
   const edm::ParameterSet& processPSet() const { return hltConfigData_->processPSet(); }

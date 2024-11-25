@@ -54,8 +54,8 @@ process.load('DQM.Integration.config.environment_cfi')
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = subsystem
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = subsystem
+# process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
 
@@ -229,7 +229,7 @@ process.dqmPath = cms.EndPath(
 		process.dqmEnv)
 process.dqmPath1 = cms.EndPath(
 		process.dqmSaver
-		*process.dqmSaverPB
+		#*process.dqmSaverPB
 )
 process.qtPath = cms.Path(process.hcalQualityTests)
 

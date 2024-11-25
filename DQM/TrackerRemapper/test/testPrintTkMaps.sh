@@ -8,7 +8,7 @@ printPixelTrackerMap --help || die 'failed running printPixelTrackerMap --help' 
 printStripTrackerMap --help || die 'failed running printStripTrackerMap --help' $?
 echo -e "\n"
 testPixelFile=$CMSSW_BASE/src/SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt
-[ -e $testPixelFile} ] || testPixelFile=$CMSSW_RELEASE_BASE/src/SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt
+[ -e $testPixelFile ] || testPixelFile=$CMSSW_RELEASE_BASE/src/SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt
 # Store the first 50 elements of the first column in a variable
 testPixelDetids=$(head -n 50 "$testPixelFile" | cut -d ' ' -f 1 | paste -sd ' ' -)
 

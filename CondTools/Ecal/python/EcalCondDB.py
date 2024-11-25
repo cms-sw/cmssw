@@ -5,8 +5,6 @@
 # Main script to list, plot, draw, dump Ecal conditions
 #
 #
-from __future__ import print_function
-from __future__ import absolute_import
 import os,sys,getopt
 
 

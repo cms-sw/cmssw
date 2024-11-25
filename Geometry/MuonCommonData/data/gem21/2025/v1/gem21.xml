@@ -2390,29 +2390,16 @@
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
   <rParent name="GEMDisk21LN"/>
-  <String name="ChildName" value="GEMBox21B"/>
+  <String name="ChildName" value="GEMBox21F"/>
   <String name="RotNameSpace" value="gem21"/>
   <Numeric name="n" value="1"/>
-  <Numeric name="startCopyNo" value="([gemf:Layer2Offset]+3)"/>
+  <Numeric name="startCopyNo" value="([gemf:Layer1Offset]+17)"/>
   <Numeric name="incrCopyNo"  value="2"/>
-  <Numeric name="invert"      value="0"/>
+  <Numeric name="invert"      value="1"/>
   <Numeric name="stepAngle"   value="-40*deg"/>
-  <Numeric name="startAngle"  value="155*deg"/>
+  <Numeric name="startAngle"  value="-145*deg"/>
   <Numeric name="rPosition"   value="[rPosL]"/>
-  <Numeric name="zoffset"     value="[zposl3]"/>
-</Algorithm>
-<Algorithm name="muon:DDGEMAngular">
-  <rParent name="GEMDisk21LN"/>
-  <String name="ChildName" value="GEMBox21B"/>
-  <String name="RotNameSpace" value="gem21"/>
-  <Numeric name="n" value="1"/>
-  <Numeric name="startCopyNo" value="([gemf:Layer2Offset]+17)"/>
-  <Numeric name="incrCopyNo"  value="2"/>
-  <Numeric name="invert"      value="0"/>
-  <Numeric name="stepAngle"   value="-40*deg"/>
-  <Numeric name="startAngle"  value="235*deg"/>
-  <Numeric name="rPosition"   value="[rPosL]"/>
-  <Numeric name="zoffset"     value="[zposl3]"/>
+  <Numeric name="zoffset"     value="[zposl2]"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
   <rParent name="GEMDisk21LN"/>
@@ -2426,6 +2413,19 @@
   <Numeric name="startAngle"  value="155*deg"/>
   <Numeric name="rPosition"   value="[rPosL]"/>
   <Numeric name="zoffset"     value="[zposl4]"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+  <rParent name="GEMDisk21LN"/>
+  <String name="ChildName" value="GEMBox21F"/>
+  <String name="RotNameSpace" value="gem21"/>
+  <Numeric name="n" value="1"/>
+  <Numeric name="startCopyNo" value="([gemf:Layer1Offset]+3)"/>
+  <Numeric name="incrCopyNo"  value="2"/>
+  <Numeric name="invert"      value="1"/>
+  <Numeric name="stepAngle"   value="-40*deg"/>
+  <Numeric name="startAngle"  value="135*deg"/>
+  <Numeric name="rPosition"   value="[rPosL]"/>
+  <Numeric name="zoffset"     value="[zposl2]"/>
 </Algorithm>
       
 </DDDefinition>

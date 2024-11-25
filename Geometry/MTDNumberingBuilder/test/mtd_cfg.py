@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
 
-process = cms.Process("GeometryTest",Phase2C17I13M9)
+process = cms.Process("GeometryTest",_PH2_ERA)
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -46,7 +47,7 @@ process.MessageLogger.files.mtdNumberingDDD = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load("Configuration.Geometry.GeometryExtended2026D110Reco_cff")
+process.load("Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff")
 
 process.Timing = cms.Service("Timing")
 

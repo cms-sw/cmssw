@@ -489,24 +489,10 @@ unsigned int HLTConfigData::moduleIndex(const std::string& trigger, const std::s
   return moduleIndex(triggerIndex(trigger), module);
 }
 
-const std::string HLTConfigData::moduleType(const std::string& module) const {
-  const edm::ParameterSet& pset(modulePSet(module));
-  CMS_SA_ALLOW if (pset.existsAs<std::string>("@module_type", true)) {
-    return pset.getParameter<std::string>("@module_type");
-  }
-  else {
-    return "";
-  }
-}
+const std::string& HLTConfigData::moduleType(const std::string& module) const { return moduleInfoFor(module).class_; }
 
-const std::string HLTConfigData::moduleEDMType(const std::string& module) const {
-  const edm::ParameterSet& pset(modulePSet(module));
-  CMS_SA_ALLOW if (pset.existsAs<std::string>("@module_edm_type", true)) {
-    return pset.getParameter<std::string>("@module_edm_type");
-  }
-  else {
-    return "";
-  }
+const std::string& HLTConfigData::moduleEDMType(const std::string& module) const {
+  return moduleInfoFor(module).edmType_;
 }
 
 const edm::ParameterSet& HLTConfigData::processPSet() const { return *processPSet_; }
@@ -516,12 +502,30 @@ const edm::ParameterSet& HLTConfigData::modulePSet(const std::string& module) co
   //but in the PSet, the module is named "modname"
   //so if it starts with "-", you need to remove the "-" from the
   //module name to be able to retreive it from the PSet
-  CMS_SA_ALLOW if (processPSet_->exists(module.front() != '-' ? module : module.substr(1))) {
-    return processPSet_->getParameterSet(module.front() != '-' ? module : module.substr(1));
+  return *(moduleInfoFor(module).pset_);
+}
+const HLTConfigData::ModuleInfo& HLTConfigData::moduleInfoFor(const std::string& module) const {
+  auto canon = canonicalModuleName(module);
+  auto found = modulesInfo_.find(canon);
+  if (found != modulesInfo_.end()) {
+    return found->second;
+  }
+  CMS_SA_ALLOW if (processPSet_->exists(canon)) {
+    auto const& pset = processPSet_->getParameterSet(canon);
+    std::string class_;
+    std::string type;
+    CMS_SA_ALLOW if (pset.existsAs<std::string>("@module_type", true)) {
+      class_ = pset.getParameter<std::string>("@module_type");
+    }
+    CMS_SA_ALLOW if (pset.existsAs<std::string>("@module_edm_type", true)) {
+      type = pset.getParameter<std::string>("@module_edm_type");
+    }
+    found = modulesInfo_.emplace(module, ModuleInfo{&pset, class_, type}).first;
   }
   else {
-    return *s_dummyPSet();
+    found = modulesInfo_.emplace(module, ModuleInfo{s_dummyPSet(), "", ""}).first;
   }
+  return found->second;
 }
 
 bool HLTConfigData::saveTags(const std::string& module) const {

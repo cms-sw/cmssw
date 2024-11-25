@@ -1,4 +1,3 @@
-from __future__ import print_function
 from ROOT import gROOT,gSystem
 
 def load_libs():

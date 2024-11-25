@@ -159,12 +159,12 @@ bool EDAnalyzerAdaptorBase::doEvent(EventTransitionInfo const& info,
   EventPrincipal const& ep = info.principal();
   assert(ep.streamID() < m_streamModules.size());
   auto mod = m_streamModules[ep.streamID()];
+  EventSignalsSentry sentry(act, mcc);
   Event e(ep, moduleDescription_, mcc);
   e.setConsumer(mod);
   ESParentContext parentC(mcc);
   const EventSetup c{
       info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), parentC};
-  EventSignalsSentry sentry(act, mcc);
   mod->analyze(e, c);
   return true;
 }

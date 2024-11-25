@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runDDD2026_cfg.py type=Tracker
+#   cmsRun runDDDRun4D98_cfg.py type=Tracker
 #
 #   Options for type Tracker, Calo, MTD, Muon
 #

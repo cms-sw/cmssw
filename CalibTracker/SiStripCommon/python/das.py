@@ -1,4 +1,3 @@
-from __future__ import print_function
 from das_client import get_data
 import subprocess
 #from pdb import set_trace

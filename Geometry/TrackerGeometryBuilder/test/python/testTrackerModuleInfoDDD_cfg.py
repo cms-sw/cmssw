@@ -10,7 +10,7 @@ options.register('Scenario',
                  _settings.DEFAULT_VERSION, # default value
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.string, # string, int, or float
-                 "geometry version to use: 2026DXXX")
+                 "geometry version to use: Run4DXXX")
 options.parseArguments()
 
 ###################################################################

@@ -1,11 +1,11 @@
 #######################################################9########################
 # Way to use this:
-#   cmsRun runPrintSolid2026_cfg.py type=DDD geometry=D110
+#   cmsRun runPrintSolidRun4_cfg.py type=DDD geometry=D110
 #
 #   Options for type DDD, DD4hep
 #   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
 #                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
-#                        D114, D115
+#                        D114, D115, D116
 #
 ################################################################################
 import FWCore.ParameterSet.Config as cms
@@ -24,7 +24,7 @@ options.register('geometry',
                  "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115")
+                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -86,9 +86,9 @@ else:
         process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
 
 if (options.type == "DDD"):
-    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 else:
-    geomFile = "Configuration.Geometry.GeometryDD4hepExtended2026" + options.geometry + "Reco_cff"
+    geomFile = "Configuration.Geometry.GeometryDD4hepExtendedRun4" + options.geometry + "Reco_cff"
 
 process.load(geomFile)
 

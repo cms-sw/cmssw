@@ -59,11 +59,16 @@ process.alpakaESProducerNull = cms.ESProducer("TestAlpakaESProducerNull@alpaka",
     appendToDataLabel = cms.string("null"),
 )
 
+# PortableMultiCollection
+from HeterogeneousCore.AlpakaTest.testAlpakaESProducerAMulti_cfi import testAlpakaESProducerAMulti 
+
 process.intProduct = cms.EDProducer("IntProducer", ivalue = cms.int32(42))
+process.alpakaESProducerAMulti = testAlpakaESProducerAMulti.clone(appendToDataLabel = cms.string("appendedLabel"))
 
 from HeterogeneousCore.AlpakaTest.testAlpakaGlobalProducer_cfi import testAlpakaGlobalProducer
 process.alpakaGlobalProducer = testAlpakaGlobalProducer.clone(
     eventSetupSource = cms.ESInputTag("alpakaESProducerA", "appendedLabel"),
+    eventSetupSourceMulti = cms.ESInputTag("alpakaESProducerAMulti", "appendedLabel"),
     size = dict(
         alpaka_serial_sync = 10,
         alpaka_cuda_async = 20,
@@ -146,7 +151,7 @@ process.alpakaNullESConsumer = cms.EDProducer("TestAlpakaGlobalProducerNullES@al
 if args.processAcceleratorBackend != "":
     process.ProcessAcceleratorAlpaka.setBackend(args.processAcceleratorBackend)
 if args.moduleBackend != "":
-    for name in ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD", "ESProducerE",
+    for name in ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD", "ESProducerE", "ESProducerAMulti",
                  "ESProducerNull",
                  "GlobalProducer", "GlobalProducerE",
                  "StreamProducer", "StreamInstanceProducer",

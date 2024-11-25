@@ -16,7 +16,7 @@ _PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_V
 _PH2_GEOMETRY = f"Extended{_settings.DEFAULT_VERSION}"
 
 # Get the actual era name from the version key
-_PH2_ERA_NAME = _settings.properties[2026][_settings.DEFAULT_VERSION]['Era']
+_PH2_ERA_NAME = _settings.properties['Run4'][_settings.DEFAULT_VERSION]['Era']
 
 # Function to display help information
 def print_help():

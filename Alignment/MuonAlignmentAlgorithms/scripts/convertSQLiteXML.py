@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 import os, sys, optparse, math
 
 prog = sys.argv[0]

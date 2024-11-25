@@ -14,6 +14,4 @@ TrackFindingTrackletProducerDRin = cms.EDProducer( 'trklet::ProducerDRin', Track
 TrackFindingTrackletProducerDR = cms.EDProducer( 'trklet::ProducerDR', TrackFindingTrackletProducer_params )
 TrackFindingTrackletProducerKFin = cms.EDProducer( 'trklet::ProducerKFin', TrackFindingTrackletProducer_params )
 TrackFindingTrackletProducerKF = cms.EDProducer( 'trackerTFP::ProducerKF', TrackFindingTrackletProducer_params )
-TrackFindingTrackletProducerTT = cms.EDProducer( 'trklet::ProducerTT', TrackFindingTrackletProducer_params )
-TrackFindingTrackletProducerAS = cms.EDProducer( 'trklet::ProducerAS', TrackFindingTrackletProducer_params )
 TrackFindingTrackletProducerKFout = cms.EDProducer( 'trklet::ProducerKFout', TrackFindingTrackletProducer_params )

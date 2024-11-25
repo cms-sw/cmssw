@@ -51,7 +51,7 @@ else:
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('HGCMissingHits',Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 inFile = "file:step3" + options.geometry + ".root"
 outFile = "missedRecHit" + options.geometry + ".root"
 

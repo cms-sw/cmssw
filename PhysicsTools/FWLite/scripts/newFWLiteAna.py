@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import os
 import sys

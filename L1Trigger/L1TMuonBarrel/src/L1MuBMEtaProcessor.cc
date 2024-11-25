@@ -36,7 +36,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTEtaPattern.h"
@@ -61,13 +61,13 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuBMEtaProcessor::L1MuBMEtaProcessor(const L1MuBMTrackFinder& tf, int id, edm::ConsumesCollector&& iC)
+L1MuBMEtaProcessor::L1MuBMEtaProcessor(L1MuBMTrackFinder& tf, int id, edm::ConsumesCollector&& iC)
     : m_tf(tf),
       m_epid(id),
       m_foundPattern(0),
       m_tseta(15),
       m_bmtfParamsToken(iC.esConsumes()),
-      m_DTDigiToken(iC.consumes<L1MuDTChambThContainer>(L1MuBMTFConfig::getBMThetaDigiInputTag())) {
+      m_DTDigiToken(iC.consumes<L1MuDTChambThContainer>(tf.config().getBMThetaDigiInputTag())) {
   m_tseta.reserve(15);
 }
 
@@ -86,7 +86,7 @@ L1MuBMEtaProcessor::~L1MuBMEtaProcessor() {}
 //
 void L1MuBMEtaProcessor::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
   auto const& params = c.getData(m_bmtfParamsToken);
-  if (L1MuBMTFConfig::getEtaTF()) {
+  if (m_tf.config().getEtaTF()) {
     receiveData(bx, e, params);
     runEtaTrackFinder(params);
   }
@@ -288,16 +288,14 @@ void L1MuBMEtaProcessor::receiveAddresses() {
       continue;
     L1MuBMSecProcId tmpspid(wheel, sector);
     for (int number = 0; number < 2; number++) {
-      const L1MuBMTrack* cand = m_tf.sp(tmpspid)->track(number);
-      const L1MuBMTrack* canD = m_tf.sp(tmpspid)->tracK(number);
-      if (cand) {
-        m_address[i] = cand->address().trackAddressCode();
-        if (!cand->empty()) {
-          m_TrackCand[i] = const_cast<L1MuBMTrack*>(cand);
-          m_TracKCand[i] = const_cast<L1MuBMTrack*>(canD);
-        }
-        i++;
+      L1MuBMTrack& cand = m_tf.sp(tmpspid)->track(number);
+      L1MuBMTrack& canD = m_tf.sp(tmpspid)->tracK(number);
+      m_address[i] = cand.address().trackAddressCode();
+      if (!cand.empty()) {
+        m_TrackCand[i] = &cand;
+        m_TracKCand[i] = &canD;
       }
+      i++;
     }
   }
 }

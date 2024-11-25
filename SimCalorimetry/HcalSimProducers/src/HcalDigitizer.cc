@@ -30,7 +30,7 @@
 #include <boost/foreach.hpp>
 #include <memory>
 
-//#define EDM_ML_DEBUG
+// #define EDM_ML_DEBUG
 
 HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector &iC)
     : conditionsToken_(iC.esConsumes()),
@@ -84,7 +84,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
       theHFQIE10Digitizer(nullptr),
       theHBHEQIE11Digitizer(nullptr),
       theRelabeller(nullptr),
-      isZDC(true),
+      isZDC(ps.getParameter<bool>("doZDCDigi")),
       isHCAL(true),
       zdcgeo(true),
       hbhegeo(true),
@@ -207,10 +207,18 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
   theHFDigitizer = std::make_unique<HFDigitizer>(theHFResponse.get(), theHFElectronicsSim.get(), doEmpty);
 
   // temporary move until Run3 ZDC will be added
-  theZDCDigitizer = std::make_unique<ZDCDigitizer>(theZDCResponse.get(), theZDCElectronicsSim.get(), doEmpty);
+  if (isZDC) {
+    theZDCDigitizer = std::make_unique<ZDCDigitizer>(theZDCResponse.get(), theZDCElectronicsSim.get(), doEmpty);
+  } else {
+    theZDCDigitizer = nullptr;
+    edm::LogVerbatim("HcalDigitizer") << "Inhibit ZDC Digitization";
+  }
+  edm::LogVerbatim("HcalDigitizer") << "iszDC: " << isZDC << " theZDCDigitizer: " << theZDCDigitizer;
 
   testNumbering_ = ps.getParameter<bool>("TestNumbering");
-  //  edm::LogVerbatim("HcalSim") << "Flag to see if Hit Relabeller to be initiated " << testNumbering_;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalSim") << "Flag to see if Hit Relabeller to be initiated " << testNumbering_;
+#endif
   if (testNumbering_)
     theRelabeller = std::make_unique<HcalHitRelabeller>(ps.getParameter<bool>("doNeutralDensityFilter"));
 
@@ -366,7 +374,7 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
         darkening(hcalHitsOrig);
       }
       // Relabel PCaloHits if necessary
-      edm::LogInfo("HcalDigitizer") << "Calling Relabeller";
+      edm::LogVerbatim("HcalDigitizer") << "Calling Relabeller";
       theRelabeller->process(hcalHitsOrig);
     }
 
@@ -418,7 +426,7 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
         theHFQIE10Digitizer->add(hcalHits, bunchCrossing, engine);
     }
   } else {
-    edm::LogInfo("HcalDigitizer") << "We don't have HCAL hit collection available ";
+    edm::LogVerbatim("HcalDigitizer") << "We don't have HCAL hit collection available ";
   }
 
   if (isZDC) {
@@ -444,7 +452,7 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
       theZDCDigitizer->add(zdcHits, bunchCrossing, engine);
     }
   } else {
-    edm::LogInfo("HcalDigitizer") << "We don't have ZDC hit collection available ";
+    edm::LogVerbatim("HcalDigitizer") << "We don't have ZDC hit collection available ";
   }
 }
 
@@ -520,12 +528,12 @@ void HcalDigitizer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSet
     theZDCDigitizer->run(*zdcResult, engine);
   }
 
-  edm::LogInfo("HcalDigitizer") << "HCAL HBHE digis : " << hbheResult->size();
-  edm::LogInfo("HcalDigitizer") << "HCAL HO digis   : " << hoResult->size();
-  edm::LogInfo("HcalDigitizer") << "HCAL HF digis   : " << hfResult->size();
-  edm::LogInfo("HcalDigitizer") << "HCAL ZDC digis  : " << zdcResult->size();
-  edm::LogInfo("HcalDigitizer") << "HCAL HF QIE10 digis : " << hfQIE10Result->size();
-  edm::LogInfo("HcalDigitizer") << "HCAL HBHE QIE11 digis : " << hbheQIE11Result->size();
+  edm::LogVerbatim("HcalDigitizer") << "HCAL HBHE digis : " << hbheResult->size();
+  edm::LogVerbatim("HcalDigitizer") << "HCAL HO digis   : " << hoResult->size();
+  edm::LogVerbatim("HcalDigitizer") << "HCAL HF digis   : " << hfResult->size();
+  edm::LogVerbatim("HcalDigitizer") << "HCAL ZDC digis  : " << zdcResult->size();
+  edm::LogVerbatim("HcalDigitizer") << "HCAL HF QIE10 digis : " << hfQIE10Result->size();
+  edm::LogVerbatim("HcalDigitizer") << "HCAL HBHE QIE11 digis : " << hbheQIE11Result->size();
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalSim") << "\nHCAL HBHE digis : " << hbheResult->size();
@@ -637,7 +645,9 @@ void HcalDigitizer::updateGeometry(const edm::EventSetup &eventSetup) {
   // geometry->getValidDetIds(DetId::Hcal, HcalTriggerTower); const
   // std::vector<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo,
   // HcalCastorDetId::SubdetectorId);
-  //  edm::LogVerbatim("HcalSim") <<"HcalDigitizer::CheckGeometry number of cells: << zdcCells.size();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalSim") << "HcalDigitizer::CheckGeometry number of cells: " << zdcCells.size();
+#endif
   if (zdcCells.empty())
     zdcgeo = false;
   if (hbCells.empty() && heCells.empty())

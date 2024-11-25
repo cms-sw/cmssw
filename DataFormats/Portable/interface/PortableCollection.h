@@ -77,12 +77,12 @@ namespace cms::alpakatools {
     }
   };
 
-  template <typename TDev, typename T0, typename... Args>
-  struct CopyToDevice<PortableHostMultiCollection<TDev, T0, Args...>> {
+  template <typename T0, typename... Args>
+  struct CopyToDevice<PortableHostMultiCollection<T0, Args...>> {
     template <typename TQueue>
-    static auto copyAsync(TQueue& queue, PortableHostMultiCollection<TDev, T0, Args...> const& srcData) {
+    static auto copyAsync(TQueue& queue, PortableHostMultiCollection<T0, Args...> const& srcData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
-      PortableDeviceMultiCollection<TDev, T0, Args...> dstData(srcData.sizes(), queue);
+      PortableDeviceMultiCollection<TDevice, T0, Args...> dstData(srcData.sizes(), queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;
     }

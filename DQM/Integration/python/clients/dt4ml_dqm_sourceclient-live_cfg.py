@@ -36,8 +36,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'DT'
 process.dqmSaver.tag = "DT"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "DT"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "DT"
+# process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 
 ### CUSTOMIZE FOR ML
@@ -55,7 +55,7 @@ process.dqmSaver.backupLumiCount = 10
 process.dqmSaver.keepBackupLumi = True
 
 process.dqmSaver.path = filePath
-process.dqmSaverPB.path = filePath + "/pb"
+# process.dqmSaverPB.path = filePath + "/pb"
 
 # disable DQM gui
 print("old:",process.DQM.collectorHost)
@@ -79,7 +79,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'))
                                     )
 
-process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
+process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver )#+ process.dqmSaverPB)
 
 process.dtDQMPathPhys = cms.Path(process.unpackers + process.dqmmodules + process.physicsEventsFilter *  process.dtDQMPhysSequence)
 
@@ -88,6 +88,7 @@ process.dtDQMPathPhys = cms.Path(process.unpackers + process.dqmmodules + proces
 process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataCollector"
 process.dtunpacker.inputLabel = "rawDataCollector"
 process.gtDigis.DaqGtInputTag = "rawDataCollector"
+process.gtStage2Digis.InputLabel = "rawDataCollector"
 process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
 
 print("Running with run type = ", process.runType.getRunType())
@@ -117,6 +118,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataRepacker"
     process.dtunpacker.inputLabel = "rawDataRepacker"
     process.gtDigis.DaqGtInputTag = "rawDataRepacker"
+    process.gtStage2Digis.InputLabel = "rawDataCollector"
     process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
     
     process.dtDigiMonitor.ResetCycle = 9999

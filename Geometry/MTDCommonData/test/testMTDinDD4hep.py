@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
-process = cms.Process("CompareGeometryTest",Phase2C17I13M9,dd4hep)
+process = cms.Process("CompareGeometryTest",_PH2_ERA,dd4hep)
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
@@ -54,7 +55,7 @@ process.MessageLogger.files.mtdCommonDataDD4hep = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load('Configuration.Geometry.GeometryDD4hepExtended2026D110_cff')
+process.load('Configuration.Geometry.GeometryDD4hepExtendedRun4Default_cff')
 
 process.testBTL = cms.EDAnalyzer("DD4hep_TestMTDIdealGeometry",
                                  DDDetector = cms.ESInputTag('',''),

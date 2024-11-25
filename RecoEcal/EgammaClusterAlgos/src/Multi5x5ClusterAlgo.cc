@@ -58,24 +58,19 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(const EcalRecH
                                                                   reco::CaloID::Detectors detector,
                                                                   bool regional,
                                                                   const std::vector<RectangularEtaPhiRegion>& regions) {
-  seeds.clear();
-  used_s.clear();
-  canSeed_s.clear();
-  clusters_v.clear();
-
-  recHits_ = hits;
+  std::vector<EcalRecHit> seeds;
 
   double threshold = 0;
   std::string ecalPart_string;
   detector_ = reco::CaloID::DET_NONE;
   if (detector == reco::CaloID::DET_ECAL_ENDCAP) {
     detector_ = reco::CaloID::DET_ECAL_ENDCAP;
-    threshold = ecalEndcapSeedThreshold;
+    threshold = ecalEndcapSeedThreshold_;
     ecalPart_string = "EndCap";
   }
   if (detector == reco::CaloID::DET_ECAL_BARREL) {
     detector_ = reco::CaloID::DET_ECAL_BARREL;
-    threshold = ecalBarrelSeedThreshold;
+    threshold = ecalBarrelSeedThreshold_;
     ecalPart_string = "Barrel";
   }
 
@@ -88,20 +83,18 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(const EcalRecH
     nregions = regions.size();
 
   if (!regional || nregions) {
-    EcalRecHitCollection::const_iterator it;
-    for (it = hits->begin(); it != hits->end(); it++) {
-      double energy = it->energy();
+    for (auto const& hit : *hits) {
+      double energy = hit.energy();
       if (energy < threshold)
         continue;  // need to check to see if this line is useful!
 
-      auto thisCell = geometry_p->getGeometry(it->id());
+      auto thisCell = geometry_p->getGeometry(hit.id());
       // Require that RecHit is within clustering region in case
       // of regional reconstruction
       bool withinRegion = false;
       if (regional) {
-        std::vector<RectangularEtaPhiRegion>::const_iterator region;
-        for (region = regions.begin(); region != regions.end(); region++) {
-          if (region->inRegion(thisCell->etaPos(), thisCell->phiPos())) {
+        for (auto const& region : regions) {
+          if (region.inRegion(thisCell->etaPos(), thisCell->phiPos())) {
             withinRegion = true;
             break;
           }
@@ -109,9 +102,9 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(const EcalRecH
       }
 
       if (!regional || withinRegion) {
-        float ET = it->energy() * thisCell->getPosition().basicVector().unit().perp();
+        float ET = hit.energy() * thisCell->getPosition().basicVector().unit().perp();
         if (ET > threshold)
-          seeds.push_back(*it);
+          seeds.push_back(hit);
       }
     }
   }
@@ -120,7 +113,7 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(const EcalRecH
 
   LogTrace("EcalClusters") << "Total number of seeds found in event = " << seeds.size();
 
-  mainSearch(hits, geometry_p, topology_p, geometryES_p);
+  auto clusters_v = mainSearch(hits, geometry_p, topology_p, geometryES_p, seeds);
   sort(clusters_v.rbegin(), clusters_v.rend(), isClusterEtLess);
 
   LogTrace("EcalClusters") << "---------- end of main search. clusters have been sorted ----";
@@ -130,30 +123,91 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(const EcalRecH
 
 // Search for clusters
 //
-void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
-                                     const CaloSubdetectorGeometry* geometry_p,
-                                     const CaloSubdetectorTopology* topology_p,
-                                     const CaloSubdetectorGeometry* geometryES_p) {
+namespace {
+  class ProtoClusters {
+    using ProtoBasicCluster = Multi5x5ClusterAlgo::ProtoBasicCluster;
+    std::vector<ProtoBasicCluster> clusters_;
+    std::vector<std::pair<DetId, int> > whichClusCrysBelongsTo_;
+    bool reassignSeedCrysToClusterItSeeds_;
+
+  public:
+    ProtoClusters(bool reassignSeedCrysToClusterItSeeds)
+        : reassignSeedCrysToClusterItSeeds_(reassignSeedCrysToClusterItSeeds) {}
+    void push_back(ProtoBasicCluster&& c) {
+      clusters_.push_back(std::move(c));
+      if (reassignSeedCrysToClusterItSeeds_) {
+        for (auto const& hit : clusters_.back().hits()) {
+          whichClusCrysBelongsTo_.push_back(std::pair<DetId, int>(hit.first, clusters_.size()));
+        }
+      }
+    }
+    std::vector<ProtoBasicCluster> finalize() {
+      if (reassignSeedCrysToClusterItSeeds_) {
+        std::sort(whichClusCrysBelongsTo_.begin(), whichClusCrysBelongsTo_.end(), PairSortByFirst<DetId, int>());
+
+        for (size_t clusNr = 0; clusNr < clusters_.size(); clusNr++) {
+          if (!clusters_[clusNr].containsSeed()) {
+            const EcalRecHit& seedHit = clusters_[clusNr].seed();
+            typedef std::vector<std::pair<DetId, int> >::iterator It;
+            std::pair<It, It> result = std::equal_range(whichClusCrysBelongsTo_.begin(),
+                                                        whichClusCrysBelongsTo_.end(),
+                                                        seedHit.id(),
+                                                        PairSortByFirst<DetId, int>());
+
+            if (result.first != result.second)
+              clusters_[result.first->second].removeHit(seedHit);
+            clusters_[clusNr].addSeed();
+          }
+        }
+      }
+      whichClusCrysBelongsTo_.clear();
+      return std::move(clusters_);
+    }
+  };
+}  // namespace
+
+std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
+                                                                const CaloSubdetectorGeometry* geometry_p,
+                                                                const CaloSubdetectorTopology* topology_p,
+                                                                const CaloSubdetectorGeometry* geometryES_p,
+                                                                std::vector<EcalRecHit> const& seeds) {
   LogTrace("EcalClusters") << "Building clusters............";
 
+  // The vector of clusters
+  std::vector<reco::BasicCluster> clusters_v;
+
+  // The set of used DetID's
+  std::set<DetId> used_s;
+  // set of crystals not to be added but which can seed
+  // a new 3x3 (e.g. the outer crystals in a 5x5)
+  std::set<DetId> canSeed_s;
+
+  ProtoClusters protoClusters{reassignSeedCrysToClusterItSeeds_};
+
   // Loop over seeds:
-  std::vector<EcalRecHit>::iterator it;
-  for (it = seeds.begin(); it != seeds.end(); it++) {
+  bool first = true;
+  for (auto const& seed : seeds) {
+    struct Guard {
+      bool& b_;
+      Guard(bool& b) : b_{b} {};
+      ~Guard() { b_ = false; }
+    };
+    Guard guard(first);
     // check if this crystal is able to seed
     // (event though it is already used)
     bool usedButCanSeed = false;
-    if (canSeed_s.find(it->id()) != canSeed_s.end())
+    if (canSeed_s.find(seed.id()) != canSeed_s.end())
       usedButCanSeed = true;
 
     // avoid seeding for anomalous channels
-    if (!it->checkFlag(EcalRecHit::kGood)) {  // if rechit is good, no need for further checks
-      if (it->checkFlags(v_chstatus_))
+    if (!seed.checkFlag(EcalRecHit::kGood)) {  // if rechit is good, no need for further checks
+      if (seed.checkFlags(v_chstatus_))
         continue;
     }
 
     // make sure the current seed does not belong to a cluster already.
-    if ((used_s.find(it->id()) != used_s.end()) && (usedButCanSeed == false)) {
-      if (it == seeds.begin()) {
+    if ((used_s.find(seed.id()) != used_s.end()) && (usedButCanSeed == false)) {
+      if (first) {
         LogTrace("EcalClusters") << "##############################################################";
         LogTrace("EcalClusters") << "DEBUG ALERT: Highest energy seed already belongs to a cluster!";
         LogTrace("EcalClusters") << "##############################################################";
@@ -164,12 +218,9 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
       continue;
     }
 
-    // clear the vector of hits in current cluster
-    current_v.clear();
-
     // Create a navigator at the seed and get seed
     // energy
-    CaloNavigator<DetId> navigator(it->id(), topology_p);
+    CaloNavigator<DetId> navigator(seed.id(), topology_p);
     DetId seedId = navigator.pos();
     EcalRecHitCollection::const_iterator seedIt = hits->find(seedId);
     navigator.setHome(seedId);
@@ -180,70 +231,57 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
     if (localMaxima) {
       // build the 5x5 taking care over which crystals
       // can seed new clusters and which can't
-      prepareCluster(navigator, hits, geometry_p);
-    }
+      auto current_v = prepareCluster(navigator, hits, geometry_p, used_s, canSeed_s);
 
-    // If some crystals in the current vector then
-    // make them into a cluster
-    if (!current_v.empty()) {
-      makeCluster(hits, geometry_p, geometryES_p, seedIt, usedButCanSeed);
-    }
-
-  }  // End loop on seed crystals
-
-  if (reassignSeedCrysToClusterItSeeds_) {
-    std::sort(whichClusCrysBelongsTo_.begin(), whichClusCrysBelongsTo_.end(), PairSortByFirst<DetId, int>());
-
-    for (size_t clusNr = 0; clusNr < protoClusters_.size(); clusNr++) {
-      if (!protoClusters_[clusNr].containsSeed()) {
-        const EcalRecHit& seedHit = protoClusters_[clusNr].seed();
-        typedef std::vector<std::pair<DetId, int> >::iterator It;
-        std::pair<It, It> result = std::equal_range(whichClusCrysBelongsTo_.begin(),
-                                                    whichClusCrysBelongsTo_.end(),
-                                                    seedHit.id(),
-                                                    PairSortByFirst<DetId, int>());
-
-        if (result.first != result.second)
-          protoClusters_[result.first->second].removeHit(seedHit);
-        protoClusters_[clusNr].addSeed();
+      // If some crystals in the current vector then
+      // make them into a cluster
+      if (!current_v.empty()) {
+        auto c = makeCluster(hits, geometry_p, geometryES_p, seedIt, usedButCanSeed, current_v);
+        if (c) {
+          protoClusters.push_back(std::move(*c));
+        } else {
+          for (auto const& current : current_v) {
+            used_s.erase(current.first);
+          }
+        }
       }
     }
+  }  // End loop on seed crystals
+
+  auto finalProtoClusters = protoClusters.finalize();
+
+  for (auto const& protoCluster : finalProtoClusters) {
+    Point position = posCalculator_.Calculate_Location(protoCluster.hits(), hits, geometry_p, geometryES_p);
+    clusters_v.emplace_back(protoCluster.energy(),
+                            position,
+                            reco::CaloID(detector_),
+                            protoCluster.hits(),
+                            reco::CaloCluster::multi5x5,
+                            protoCluster.seed().id());
   }
 
-  for (size_t clusNr = 0; clusNr < protoClusters_.size(); clusNr++) {
-    const ProtoBasicCluster& protoCluster = protoClusters_[clusNr];
-    Point position;
-    position = posCalculator_.Calculate_Location(protoCluster.hits(), hits, geometry_p, geometryES_p);
-    clusters_v.push_back(reco::BasicCluster(protoCluster.energy(),
-                                            position,
-                                            reco::CaloID(detector_),
-                                            protoCluster.hits(),
-                                            reco::CaloCluster::multi5x5,
-                                            protoCluster.seed().id()));
-  }
-
-  protoClusters_.clear();
-  whichClusCrysBelongsTo_.clear();
+  return clusters_v;
 }
 
-void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
-                                      const CaloSubdetectorGeometry* geometry,
-                                      const CaloSubdetectorGeometry* geometryES,
-                                      const EcalRecHitCollection::const_iterator& seedIt,
-                                      bool seedOutside) {
+std::optional<Multi5x5ClusterAlgo::ProtoBasicCluster> Multi5x5ClusterAlgo::makeCluster(
+    const EcalRecHitCollection* hits,
+    const CaloSubdetectorGeometry* geometry,
+    const CaloSubdetectorGeometry* geometryES,
+    const EcalRecHitCollection::const_iterator& seedIt,
+    bool seedOutside,
+    std::vector<std::pair<DetId, float> >& current_v) {
   double energy = 0;
   //double chi2   = 0;
   reco::CaloID caloID;
   Point position;
   position = posCalculator_.Calculate_Location(current_v, hits, geometry, geometryES);
 
-  std::vector<std::pair<DetId, float> >::iterator it;
-  for (it = current_v.begin(); it != current_v.end(); it++) {
-    EcalRecHitCollection::const_iterator itt = hits->find((*it).first);
+  for (auto const& hitInfo : current_v) {
+    EcalRecHitCollection::const_iterator itt = hits->find(hitInfo.first);
     EcalRecHit hit_p = *itt;
     energy += hit_p.energy();
     //chi2 += 0;
-    if ((*it).first.subdetId() == EcalBarrel) {
+    if (hitInfo.first.subdetId() == EcalBarrel) {
       caloID = reco::CaloID::DET_ECAL_BARREL;
     } else {
       caloID = reco::CaloID::DET_ECAL_ENDCAP;
@@ -262,48 +300,39 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
   // must be at least the seed energy
   double seedEnergy = seedIt->energy();
   if ((seedOutside && energy >= 0) || (!seedOutside && energy >= seedEnergy)) {
-    if (reassignSeedCrysToClusterItSeeds_) {  //if we're not doing this, we dont need this info so lets not bother filling it
-      for (size_t hitNr = 0; hitNr < current_v.size(); hitNr++)
-        whichClusCrysBelongsTo_.push_back(std::pair<DetId, int>(current_v[hitNr].first, protoClusters_.size()));
-    }
-    protoClusters_.push_back(ProtoBasicCluster(energy, *seedIt, current_v));
+    return ProtoBasicCluster(energy, *seedIt, std::move(current_v));
 
     // clusters_v.push_back(reco::BasicCluster(energy, position, reco::CaloID(detector_), current_v, reco::CaloCluster::multi5x5, seedIt->id()));
 
     // if no valid cluster was built,
     // then free up these crystals to be used in the next...
-  } else {
-    std::vector<std::pair<DetId, float> >::iterator iter;
-    for (iter = current_v.begin(); iter != current_v.end(); iter++) {
-      used_s.erase(iter->first);
-    }  //for(iter)
   }  //else
+  return {};
 }
 
-bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId>& navigator, const EcalRecHitCollection* hits) {
+bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId>& navigator, const EcalRecHitCollection* hits) const {
   bool maxima = true;
   EcalRecHitCollection::const_iterator thisHit;
   EcalRecHitCollection::const_iterator seedHit = hits->find(navigator.pos());
   double seedEnergy = seedHit->energy();
 
-  std::vector<DetId> swissCrossVec;
-  swissCrossVec.clear();
+  std::array<DetId, 4> swissCrossVec;
 
-  swissCrossVec.push_back(navigator.west());
+  swissCrossVec[0] = navigator.west();
   navigator.home();
-  swissCrossVec.push_back(navigator.east());
+  swissCrossVec[1] = navigator.east();
   navigator.home();
-  swissCrossVec.push_back(navigator.north());
+  swissCrossVec[2] = navigator.north();
   navigator.home();
-  swissCrossVec.push_back(navigator.south());
+  swissCrossVec[3] = navigator.south();
   navigator.home();
 
-  for (unsigned int i = 0; i < swissCrossVec.size(); ++i) {
+  for (auto const& det : swissCrossVec) {
     // look for this hit
-    thisHit = recHits_->find(swissCrossVec[i]);
+    thisHit = hits->find(det);
 
     // continue if this hit was not found
-    if ((swissCrossVec[i] == DetId(0)) || thisHit == recHits_->end())
+    if ((det == DetId(0)) || thisHit == hits->end())
       continue;
 
     // the recHit has to be skipped in the local maximum search if it was found
@@ -324,9 +353,12 @@ bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId>& navigator, const Eca
   return maxima;
 }
 
-void Multi5x5ClusterAlgo::prepareCluster(CaloNavigator<DetId>& navigator,
-                                         const EcalRecHitCollection* hits,
-                                         const CaloSubdetectorGeometry* geometry) {
+std::vector<std::pair<DetId, float> > Multi5x5ClusterAlgo::prepareCluster(CaloNavigator<DetId>& navigator,
+                                                                          const EcalRecHitCollection* hits,
+                                                                          const CaloSubdetectorGeometry* geometry,
+                                                                          std::set<DetId>& used_s,
+                                                                          std::set<DetId>& canSeed_s) const {
+  std::vector<std::pair<DetId, float> > current_v;
   DetId thisDet;
   std::set<DetId>::iterator setItr;
 
@@ -344,7 +376,10 @@ void Multi5x5ClusterAlgo::prepareCluster(CaloNavigator<DetId>& navigator,
 
       // add the current crystal
       //std::cout << "adding " << dx << ", " << dy << std::endl;
-      addCrystal(thisDet);
+      if (addCrystal(thisDet, *hits) and (used_s.find(thisDet) == used_s.end())) {
+        current_v.push_back(std::pair<DetId, float>(thisDet, 1.));  // by default hit energy fractions are set at 1.
+        used_s.insert(thisDet);
+      }
 
       // now consider if we are in an edge (outer 16)
       // or central (inner 9) region
@@ -371,17 +406,12 @@ void Multi5x5ClusterAlgo::prepareCluster(CaloNavigator<DetId>& navigator,
   //std::cout << "*** " << std::endl;
   //std::cout << " current_v contains " << current_v.size() << std::endl;
   //std::cout << "*** " << std::endl;
+  return current_v;
 }
 
-void Multi5x5ClusterAlgo::addCrystal(const DetId& det) {
-  EcalRecHitCollection::const_iterator thisIt = recHits_->find(det);
-  if ((thisIt != recHits_->end()) && (thisIt->id() != DetId(0))) {
-    if ((used_s.find(thisIt->id()) == used_s.end())) {
-      //std::cout << "   ... this is a good crystal and will be added" << std::endl;
-      current_v.push_back(std::pair<DetId, float>(det, 1.));  // by default hit energy fractions are set at 1.
-      used_s.insert(det);
-    }
-  }
+bool Multi5x5ClusterAlgo::addCrystal(const DetId& det, const EcalRecHitCollection& recHits) {
+  auto thisIt = recHits.find(det);
+  return ((thisIt != recHits.end()) && (thisIt->id() != DetId(0)));
 }
 
 bool Multi5x5ClusterAlgo::ProtoBasicCluster::removeHit(const EcalRecHit& hitToRM) {
@@ -421,8 +451,8 @@ bool Multi5x5ClusterAlgo::ProtoBasicCluster::addSeed() {
 }
 
 bool Multi5x5ClusterAlgo::ProtoBasicCluster::isSeedCrysInHits_() const {
-  for (size_t hitNr = 0; hitNr < hits_.size(); hitNr++) {
-    if (seed_.id() == hits_[hitNr].first)
+  for (auto const& hit : hits_) {
+    if (seed_.id() == hit.first)
       return true;
   }
   return false;

@@ -19,6 +19,8 @@ namespace Phase2L1GMT {
 
   const unsigned int PHIDIVIDER = 1 << (BITSPHI - BITSSTUBCOORD);
   const unsigned int ETADIVIDER = 1 << (BITSETA - BITSSTUBETA);
+  const unsigned int BITSPROP = BITSPHI - 2;
+  const unsigned int PROPMAX = ~ap_uint<BITSPROP>(0);
 
   struct propagation_t {
     ap_int<BITSSTUBCOORD> coord1;

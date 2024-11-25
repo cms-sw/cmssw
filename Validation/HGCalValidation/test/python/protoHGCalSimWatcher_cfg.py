@@ -52,8 +52,8 @@ else:
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('PROD',Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
-fileCheck = "testHGCalSimWatcher2026" + options.geometry + ".root"
+geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
+fileCheck = "testHGCalSimWatcherRun4" + options.geometry + ".root"
 
 if (options.geometry == "D93"):
     runMode = 2

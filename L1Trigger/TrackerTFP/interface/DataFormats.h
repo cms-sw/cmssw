@@ -979,12 +979,13 @@ namespace trackerTFP {
   //Class to represent KFout 96-bit track for use in distribution server
   class TrackKFOut {
   public:
-    TrackKFOut() : TrackKFOut(0, 0, 0, 0, tt::FrameTrack(), 0, 0, false) {}
+    TrackKFOut() : TrackKFOut(0, 0, 0, 0, 0, tt::FrameTrack(), 0, 0, false) {}
     // construct TrackKF from Partial Tracks
     TrackKFOut(TTBV PartialTrack1,
                TTBV PartialTrack2,
                TTBV PartialTrack3,
                int sortKey,
+               int nonantId,
                const tt::FrameTrack& track,
                int trackID,
                int linkID,
@@ -993,6 +994,7 @@ namespace trackerTFP {
           PartialTrack2_(PartialTrack2),
           PartialTrack3_(PartialTrack3),
           sortKey_(sortKey),
+          nonantId_(nonantId),
           track_(track),
           trackID_(trackID),
           linkID_(linkID),
@@ -1001,6 +1003,7 @@ namespace trackerTFP {
     ~TrackKFOut() {}
 
     int sortKey() const { return sortKey_; }
+    int nonantId() const { return nonantId_; }
 
     bool dataValid() const { return valid_; }
 
@@ -1018,6 +1021,7 @@ namespace trackerTFP {
     TTBV PartialTrack2_;
     TTBV PartialTrack3_;
     int sortKey_;
+    int nonantId_;
     tt::FrameTrack track_;
     int trackID_;
     int linkID_;

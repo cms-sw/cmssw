@@ -70,7 +70,7 @@ else:
     else:
         process = cms.Process('MaterialBudgetVolume',Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.Geometry" + flag + "Extended2026" + options.geometry + "Reco_cff"
+geomFile = "Configuration.Geometry.Geometry" + flag + "ExtendedRun4" + options.geometry + "Reco_cff"
 fileName = "matbdgHFNose" + flag + options.geometry + tag + ".root"
 
 print("Geometry file Name: ", geomFile)

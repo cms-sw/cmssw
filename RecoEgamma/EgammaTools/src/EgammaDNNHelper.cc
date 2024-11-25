@@ -9,31 +9,23 @@ using namespace egammaTools;
 EgammaDNNHelper::EgammaDNNHelper(const DNNConfiguration& cfg,
                                  const ModelSelector& modelSelector,
                                  const std::vector<std::string>& availableVars)
-    : cfg_(cfg), modelSelector_(modelSelector), nModels_(cfg_.modelsFiles.size()), graphDefs_(cfg_.modelsFiles.size()) {
-  initTensorFlowGraphs();
+    : cfg_(cfg),
+      modelSelector_(modelSelector),
+      nModels_(cfg_.modelsFiles.size()),
+      tf_sessions_cache_(cfg_.modelsFiles.size()) {
+  initTensorFlowSessions();
   initScalerFiles(availableVars);
 }
 
-void EgammaDNNHelper::initTensorFlowGraphs() {
+void EgammaDNNHelper::initTensorFlowSessions() {
   // load the graph definition
-  LogDebug("EgammaDNNHelper") << "Loading " << nModels_ << " graphs";
+  LogDebug("EgammaDNNHelper") << "Loading " << nModels_ << " graphs and sessions";
   size_t i = 0;
-  for (const auto& model_file : cfg_.modelsFiles) {
-    graphDefs_[i] =
-        std::unique_ptr<tensorflow::GraphDef>(tensorflow::loadGraphDef(edm::FileInPath(model_file).fullPath()));
+  for (auto& model_file : cfg_.modelsFiles) {
+    tf_sessions_cache_[i] = std::make_unique<tensorflow::SessionCache>(edm::FileInPath(model_file).fullPath());
     i++;
   }
-}
-
-std::vector<tensorflow::Session*> EgammaDNNHelper::getSessions() const {
-  std::vector<tensorflow::Session*> sessions;
-  LogDebug("EgammaDNNHelper") << "Starting " << nModels_ << " TF sessions";
-  sessions.reserve(graphDefs_.size());
-  for (const auto& graphDef : graphDefs_) {
-    sessions.push_back(tensorflow::createSession(graphDef.get()));
-  }
-  LogDebug("EgammaDNNHelper") << "TF sessions started";
-  return sessions;
+  LogDebug("EgammaDNNHelper") << "TF sessions initialized";
 }
 
 void EgammaDNNHelper::initScalerFiles(const std::vector<std::string>& availableVars) {
@@ -99,8 +91,7 @@ std::pair<uint, std::vector<float>> EgammaDNNHelper::getScaledInputs(
 }
 
 std::vector<std::pair<uint, std::vector<float>>> EgammaDNNHelper::evaluate(
-    const std::vector<std::map<std::string, float>>& candidates,
-    const std::vector<tensorflow::Session*>& sessions) const {
+    const std::vector<std::map<std::string, float>>& candidates) const {
   /*
     Evaluate the PFID DNN for all the electrons/photons. 
     nModels_ are defined depending on modelIndex  --> we need to build N input tensors to evaluate
@@ -162,7 +153,10 @@ std::vector<std::pair<uint, std::vector<float>>> EgammaDNNHelper::evaluate(
       continue;  //Skip model witout inputs
     std::vector<tensorflow::Tensor> output;
     LogDebug("EgammaDNNHelper") << "Run model: " << m << " with " << counts[m] << "objects";
-    tensorflow::run(sessions[m], {{cfg_.inputTensorName, input_tensors[m]}}, {cfg_.outputTensorName}, &output);
+    tensorflow::run(tf_sessions_cache_[m]->getSession(),
+                    {{cfg_.inputTensorName, input_tensors[m]}},
+                    {cfg_.outputTensorName},
+                    &output);
     // Get the output and save the ElectronDNNEstimator::outputDim numbers along with the ele index
     const auto& r = output[0].tensor<float, 2>();
     // Iterate on the list of elements in the batch --> many electrons

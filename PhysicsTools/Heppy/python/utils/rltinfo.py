@@ -1,4 +1,3 @@
-from __future__ import print_function
 from ROOT import TFile
 from PhysicsTools.HeppyCore.statistics.tree import Tree as Tree
 

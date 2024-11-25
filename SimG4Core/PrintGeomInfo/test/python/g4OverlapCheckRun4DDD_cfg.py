@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun g4OverlapCheck2026DDD_cfg.py geometry=D110 tol=0.01
+#   cmsRun g4OverlapCheckRun4DDD_cfg.py geometry=D110 tol=0.01
 #
 #   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
 #                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
@@ -41,8 +41,8 @@ else:
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process('OverlapCheck',Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
-baseName = "cms2026" + options.geometry + "DDD"
+geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
+baseName = "cmsRun4" + options.geometry + "DDD"
 
 print("Geometry file Name: ", geomFile)
 print("Base file Name:     ", baseName)

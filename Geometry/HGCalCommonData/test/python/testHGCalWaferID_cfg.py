@@ -32,13 +32,13 @@ else:
 ####################################################################
 # Use the options
 if (options.type == "V18"):
-    geomFile = "Configuration.Geometry.GeometryExtended2026D104_cff"
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4D104_cff"
 elif (options.type == "V17Shift"):
     geomFile = "Geometry.HGCalCommonData.testHGCalV17ShiftReco_cff"
 elif (options.type == "V16"):
-    geomFile = "Configuration.Geometry.GeometryExtended2026D98_cff"
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4D98_cff"
 else:
-    geomFile = "Configuration.Geometry.GeometryExtended2026D99_cff"
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4D110_cff"
 
 print("Geometry file: ", geomFile)
 

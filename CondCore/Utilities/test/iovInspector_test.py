@@ -1,4 +1,3 @@
-from __future__ import print_function
 # test of iovInpector
 
 import os,os.path,string
