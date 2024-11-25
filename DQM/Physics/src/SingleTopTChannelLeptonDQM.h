@@ -110,14 +110,14 @@ namespace SingleTopTChannelLepton {
     /// instance label
     std::string label_;
     /// considers a vector of METs
-    std::vector<edm::EDGetTokenT<edm::View<reco::MET> > > mets_;
+    std::vector<edm::EDGetTokenT<edm::View<reco::MET>>> mets_;
     //    std::vector<edm::InputTag> mets_;
     /// input sources for monitoring
-    edm::EDGetTokenT<edm::View<reco::Jet> > jets_;
-    edm::EDGetTokenT<edm::View<reco::PFCandidate> > muons_;
-    edm::EDGetTokenT<edm::View<reco::GsfElectron> > elecs_gsf_;
-    edm::EDGetTokenT<edm::View<reco::PFCandidate> > elecs_;
-    edm::EDGetTokenT<edm::View<reco::Vertex> > pvs_;
+    edm::EDGetTokenT<edm::View<reco::Jet>> jets_;
+    edm::EDGetTokenT<edm::View<reco::Muon>> muons_;
+    //edm::EDGetTokenT<edm::View<reco::GsfElectron> > elecs_gsf_;
+    edm::EDGetTokenT<edm::View<reco::GsfElectron>> elecs_;
+    edm::EDGetTokenT<edm::View<reco::Vertex>> pvs_;
 
     //    edm::InputTag elecs_, elecs_gsf_, muons_, muons_reco_, jets_, pvs_;
 
@@ -131,7 +131,7 @@ namespace SingleTopTChannelLepton {
 
     /// electronId label
     //    edm::InputTag electronId_;
-    edm::EDGetTokenT<edm::ValueMap<float> > electronId_;
+    edm::EDGetTokenT<edm::ValueMap<float>> electronId_;
     /// electronId pattern we expect the following pattern:
     ///  0: fails
     ///  1: passes electron ID only
@@ -149,27 +149,27 @@ namespace SingleTopTChannelLepton {
     /// extra isolation criterion on electron
     std::string elecIso_;
     /// extra selection on electrons
-    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > elecSelect_;
+    std::unique_ptr<StringCutObjectSelector<reco::GsfElectron>> elecSelect_;
     edm::InputTag rhoTag;
 
     /// extra selection on primary vertices; meant to investigate the pile-up
     /// effect
-    std::unique_ptr<StringCutObjectSelector<reco::Vertex> > pvSelect_;
+    std::unique_ptr<StringCutObjectSelector<reco::Vertex>> pvSelect_;
 
     /// extra isolation criterion on muon
-    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonIso_;
+    std::unique_ptr<StringCutObjectSelector<reco::Muon>> muonIso_;
 
     /// extra selection on muons
-    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonSelect_;
+    std::unique_ptr<StringCutObjectSelector<reco::Muon>> muonSelect_;
     /// jetCorrector
     edm::EDGetTokenT<reco::JetCorrector> jetCorrector_;
     /// jetID as an extra selection type
     edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
 
     /// extra jetID selection on calo jets
-    std::unique_ptr<StringCutObjectSelector<reco::JetID> > jetIDSelect_;
-    std::unique_ptr<StringCutObjectSelector<reco::PFJet> > jetlooseSelection_;
-    std::unique_ptr<StringCutObjectSelector<reco::PFJet> > jetSelection_;
+    std::unique_ptr<StringCutObjectSelector<reco::JetID>> jetIDSelect_;
+    std::unique_ptr<StringCutObjectSelector<reco::PFJet>> jetlooseSelection_;
+    std::unique_ptr<StringCutObjectSelector<reco::PFJet>> jetSelection_;
     /// extra selection on jets (here given as std::string as it depends
     /// on the the jet type, which selections are valid and which not)
     std::string jetSelect_;
@@ -194,11 +194,11 @@ namespace SingleTopTChannelLepton {
 
     std::string directory_;
 
-    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > muonSelect;
-    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > muonIso;
+    std::unique_ptr<StringCutObjectSelector<reco::Muon, true>> muonSelect;
+    std::unique_ptr<StringCutObjectSelector<reco::Muon, true>> muonIso;
 
-    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > elecSelect;
-    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > elecIso;
+    std::unique_ptr<StringCutObjectSelector<reco::GsfElectron, true>> elecSelect;
+    std::unique_ptr<StringCutObjectSelector<reco::GsfElectron, true>> elecIso;
   };
 
   inline void MonitorEnsemble::triggerBinLabels(std::string channel, const std::vector<std::string> labels) {
@@ -304,13 +304,13 @@ private:
   edm::InputTag vertex_;
   edm::EDGetTokenT<reco::Vertex> vertex__;
   /// string cut selector
-  std::unique_ptr<StringCutObjectSelector<reco::Vertex> > vertexSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::Vertex>> vertexSelect_;
 
   /// beamspot
   edm::InputTag beamspot_;
   edm::EDGetTokenT<reco::BeamSpot> beamspot__;
   /// string cut selector
-  std::unique_ptr<StringCutObjectSelector<reco::BeamSpot> > beamspotSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::BeamSpot>> beamspotSelect_;
 
   /// needed to guarantee the selection order as defined by the order of
   /// ParameterSets in the _selection_ vector as defined in the config
@@ -320,20 +320,20 @@ private:
   /// the configuration of the selection for the SelectionStep class,
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to
   /// be filled _after_ each selection step
-  std::map<std::string, std::pair<edm::ParameterSet, std::unique_ptr<SingleTopTChannelLepton::MonitorEnsemble> > >
+  std::map<std::string, std::pair<edm::ParameterSet, std::unique_ptr<SingleTopTChannelLepton::MonitorEnsemble>>>
       selection_;
 
-  std::unique_ptr<SelectionStep<reco::Muon> > MuonStep;
-  std::unique_ptr<SelectionStep<reco::PFCandidate> > PFMuonStep;
-  std::unique_ptr<SelectionStep<reco::GsfElectron> > ElectronStep;
-  std::unique_ptr<SelectionStep<reco::PFCandidate> > PFElectronStep;
-  std::unique_ptr<SelectionStep<reco::Vertex> > PvStep;
+  std::unique_ptr<SelectionStep<reco::Muon>> MuonStep;
+  std::unique_ptr<SelectionStep<reco::Muon>> PFMuonStep;
+  std::unique_ptr<SelectionStep<reco::GsfElectron>> ElectronStep;
+  std::unique_ptr<SelectionStep<reco::GsfElectron>> PFElectronStep;
+  std::unique_ptr<SelectionStep<reco::Vertex>> PvStep;
 
-  std::vector<std::unique_ptr<SelectionStep<reco::Jet> > > JetSteps;
-  std::vector<std::unique_ptr<SelectionStep<reco::CaloJet> > > CaloJetSteps;
-  std::vector<std::unique_ptr<SelectionStep<reco::PFJet> > > PFJetSteps;
+  std::vector<std::unique_ptr<SelectionStep<reco::Jet>>> JetSteps;
+  std::vector<std::unique_ptr<SelectionStep<reco::CaloJet>>> CaloJetSteps;
+  std::vector<std::unique_ptr<SelectionStep<reco::PFJet>>> PFJetSteps;
 
-  std::unique_ptr<SelectionStep<reco::MET> > METStep;
+  std::unique_ptr<SelectionStep<reco::MET>> METStep;
   std::vector<edm::ParameterSet> sel;
 };
 
