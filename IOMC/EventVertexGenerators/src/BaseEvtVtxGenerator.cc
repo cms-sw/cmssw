@@ -51,7 +51,7 @@ void BaseEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
 
   bool found = evt.getByToken(sourceToken, HepUnsmearedMCEvt);
 
-  if (found) { // HepMC event exists
+  if (found) {  // HepMC event exists
 
     // Make a copy
     HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
@@ -67,19 +67,20 @@ void BaseEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
 
     evt.put(std::move(HepMCEvt));
 
-  } else { // no HepMC event, try to get HepMC3 event
+  } else {  // no HepMC event, try to get HepMC3 event
 
     Handle<HepMC3Product> HepUnsmearedMCEvt3;
     found = evt.getByToken(sourceToken3, HepUnsmearedMCEvt3);
 
-    if(!found) throw cms::Exception("ProductAbsent") << "No HepMCProduct, tried to get HepMC3Product, but it is also absent " << std::endl;
+    if (!found)
+      throw cms::Exception("ProductAbsent")
+          << "No HepMCProduct, tried to get HepMC3Product, but it is also absent " << std::endl;
 
     HepMC3::GenEvent* genevt3 = new HepMC3::GenEvent();
     genevt3->read_data(*HepUnsmearedMCEvt3->GetEvent());
-    HepMC3Product* productcopy3 = new HepMC3Product(genevt3);    // For the moment do not really smear HepMC3
+    HepMC3Product* productcopy3 = new HepMC3Product(genevt3);  // For the moment do not really smear HepMC3
     std::unique_ptr<edm::HepMC3Product> HepMC3Evt(productcopy3);
     evt.put(std::move(HepMC3Evt)); 
-
   }
 
   return;
