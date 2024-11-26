@@ -71,7 +71,6 @@ JetCorrectionUncertainty::JetCorrectionUncertainty(const JetCorrectorParameters&
 }
 /////////////////////////////////////////////////////////////////////////
 void JetCorrectionUncertainty::setParameters(const std::string& fDataFile) {
-  //---- delete the mParameters pointer before setting the new address ---
   mUncertainty = SimpleJetCorrectionUncertainty(fDataFile);
 }
 /////////////////////////////////////////////////////////////////////////
