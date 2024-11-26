@@ -98,7 +98,6 @@ void HGCalRawToDigi::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
 void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   hgcaldigi::HGCalDigiHost digis(moduleIndexer_.getMaxDataSize(), cms::alpakatools::host());
   hgcaldigi::HGCalECONDPacketInfoHost econdPacketInfo(moduleIndexer_.getMaxModuleSize(), cms::alpakatools::host());
-  // std::cout << "Created DIGIs SOA with " << digis.view().metadata().size() << " entries" << std::endl;
 
   // TODO @hqucms
 

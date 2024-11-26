@@ -45,7 +45,6 @@ struct HGCalFedConfig {
 class HGCalConfiguration {
 public:
   std::vector<HGCalFedConfig> feds;
-  //friend std::ostream& operator<< (std::ostream&, const HGCalConfiguration&);
 
 private:
   COND_SERIALIZABLE;

@@ -93,21 +93,12 @@ public:
     return (value_override >= 0 ? value_override : value);
   }
 
-  //template<typename T>
-  //static T getval(T value, int32_t value_override) {
-  //  // get value, and override if value_override>=0
-  //  std::cout << "HGCalConfigurationESProducer::getval: value=" << value << ", override=" << value_override << std::endl;
-  //  return (value_override>=0 ? (T) value_override : value);
-  //}
-
   std::unique_ptr<HGCalConfiguration> produce(const HGCalModuleConfigurationRcd& iRecord) {
     auto const& moduleMap = iRecord.get(indexToken_);
 
     // retrieve values from custom JSON format (see HGCalCalibrationESProducer)
     edm::FileInPath fedfip(fedjson_);  // e.g. HGCalCommissioning/LocalCalibration/data/config_feds.json
     edm::FileInPath modfip(modjson_);  // e.g. HGCalCommissioning/LocalCalibration/data/config_econds.json
-    //std::cout << "HGCalConfigurationESProducer::produce: fedjson=" << fedfip.fullPath() << std::endl;
-    //std::cout << "HGCalConfigurationESProducer::produce: modjson=" << modfip.fullPath() << std::endl;
     std::ifstream fedfile(fedfip.fullPath());
     std::ifstream modfile(modfip.fullPath());
     const json fed_config_data = json::parse(fedfile);
@@ -130,7 +121,6 @@ public:
     std::unique_ptr<HGCalConfiguration> config_ = std::make_unique<HGCalConfiguration>();
     for (std::size_t fedid = 0; fedid < moduleMap.getMaxFEDSize(); ++fedid) {
       // sanity checks
-      //std::cout << "HGCalConfigurationESProducer::produce:   fed=" << fedid << std::endl;
       if (moduleMap.getFEDReadoutSequences()[fedid].readoutTypes_.size() == 0)  // check if FED exists (non-empty)
         continue;                                                               // skip non-existent FED
       std::string sfedid = std::to_string(fedid);                               // key in JSON dictionary must be string
@@ -151,7 +141,6 @@ public:
       // loop over ECON-D modules in JSON
       for (const std::string typecode :
            fed_config_data[sfedid]["econds"]) {  // loop over module typecodes in JSON file (e.g. "ML-F3PT-TX-0003")
-        //std::cout << "HGCalConfigurationESProducer::produce:     typecode=" << typecode << std::endl;
 
         // sanity checks for ECON-Ds
         ntot_mods++;
