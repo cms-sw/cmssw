@@ -3,7 +3,9 @@
 
 // CMSSW include files
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/GenericProduct.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -12,15 +14,11 @@
 // local include files
 #include "api.h"
 
-template <typename T>
 class MPIReceiver : public edm::global::EDProducer<> {
-  using CollectionType = T;
-
 public:
   MPIReceiver(edm::ParameterSet const& config)
-      : mpiPrev_(consumes<MPIToken>(config.getParameter<edm::InputTag>("channel"))),
-        mpiNext_(produces<MPIToken>()),
-        data_(produces<CollectionType>()),
+      : upstream_(consumes<MPIToken>(config.getParameter<edm::InputTag>("upstream"))),
+        token_(produces<MPIToken>()),
         instance_(config.getParameter<int32_t>("instance"))  //
   {
     // instance 0 is reserved for the MPIController / MPISource pair
@@ -29,38 +27,60 @@ public:
       throw cms::Exception("InvalidValue")
           << "Invalid MPIReceiver instance value, please use a value between 1 and 255";
     }
+
+    auto const& products = config.getParameter<std::vector<edm::ParameterSet>>("products");
+    products_.reserve(products.size());
+    for (auto const& product : products) {
+      auto const& type = product.getParameter<std::string>("type");
+      auto const& label = product.getParameter<std::string>("label");
+
+      Entry entry;
+      entry.type = edm::TypeWithDict::byName(type);
+      entry.wrappedType = edm::TypeWithDict::byName("edm::Wrapper<" + type + ">");
+      entry.token = produces(edm::TypeID{entry.type.typeInfo()}, label);
+
+      edm::LogAbsolute("MPIReceiver") << "receive type \"" << entry.type.name() << "\" for label \"" << label
+                                      << "\" over MPI channel instance " << this->instance_;
+
+      products_.push_back(entry);
+    }
   }
 
   void produce(edm::StreamID, edm::Event& event, edm::EventSetup const&) const override {
     // read the MPIToken used to establish the communication channel
-    MPIToken token = event.get(mpiPrev_);
+    MPIToken token = event.get(upstream_);
 
-    // receive the data sent over the MPI channel
-    // note: currently this uses a blocking probe/recv
-    CollectionType data;
-    token.channel()->receiveSerializedProduct(instance_, data);
+    for (auto const& entry : products_) {
+      auto product = std::make_unique<edm::GenericProduct>();
+      product->object_ = entry.type.construct();
+      product->wrappedType_ = entry.wrappedType;
 
-    // put the data into the Event
-    event.emplace(data_, std::move(data));
+      // receive the data sent over the MPI channel
+      // note: currently this uses a blocking probe/recv
+      token.channel()->receiveSerializedProduct(instance_, product->object_);
+
+      // put the data into the Event
+      event.put(entry.token, std::move(product));
+    }
 
     // write a shallow copy of the channel to the output, so other modules can consume it
     // to indicate that they should run after this
-    event.emplace(mpiNext_, token);
+    event.emplace(token_, token);
   }
 
 private:
-  edm::EDGetTokenT<MPIToken> const mpiPrev_;  // MPIToken used to establish the communication channel
-  edm::EDPutTokenT<MPIToken> const mpiNext_;  // copy of the MPIToken that may be used to implement an ordering relation
-  edm::EDPutTokenT<CollectionType> const data_;  // data to be read over the channel and put into the Event
-  int32_t const instance_;                       // instance used to identify the source-destination pair
+  struct Entry {
+    edm::TypeWithDict type;
+    edm::TypeWithDict wrappedType;
+    edm::EDPutToken token;
+  };
+
+  // TODO consider if upstream_ should be a vector instead of a single token ?
+  edm::EDGetTokenT<MPIToken> const upstream_;  // MPIToken used to establish the communication channel
+  edm::EDPutTokenT<MPIToken> const token_;  // copy of the MPIToken that may be used to implement an ordering relation
+  std::vector<Entry> products_;             // data to be read over the channel and put into the Event
+  int32_t const instance_;                  // instance used to identify the source-destination pair
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DataFormats/Provenance/interface/EventID.h"
-using MPIReceiverEventID = MPIReceiver<edm::EventID>;
-DEFINE_FWK_MODULE(MPIReceiverEventID);
-
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-using MPIReceiverFEDRawDataCollection = MPIReceiver<FEDRawDataCollection>;
-DEFINE_FWK_MODULE(MPIReceiverFEDRawDataCollection);
+DEFINE_FWK_MODULE(MPIReceiver);

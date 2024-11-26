@@ -19,20 +19,28 @@ process.maxEvents.input = -1
 #from HeterogeneousCore.MPICore.mpiReporter_cfi import mpiReporter as mpiReporter_
 #process.reporter = mpiReporter_.clone()
 
-process.receiver = cms.EDProducer("MPIReceiverEventID",
-    channel = cms.InputTag("source"),
-    instance = cms.int32(42)
+process.receiver = cms.EDProducer("MPIReceiver",
+    upstream = cms.InputTag("source"),
+    instance = cms.int32(42),
+    products = cms.VPSet(cms.PSet(
+        type = cms.string("edm::EventID"),
+        label = cms.string("")
+    ))
 )
 
-process.otherreceiver = cms.EDProducer("MPIReceiverEventID",
-    channel = cms.InputTag("source"),
-    instance = cms.int32(19)
+process.otherreceiver = cms.EDProducer("MPIReceiver",
+    upstream = cms.InputTag("source"),
+    instance = cms.int32(19),
+    products = cms.VPSet(cms.PSet(
+        type = cms.string("edm::EventID"),
+        label = cms.string("")
+    ))
 )
 
-process.sender = cms.EDProducer("MPISenderEventID",
-    channel = cms.InputTag("otherreceiver"),  # guarantees that this module will only run after otherreceiver has run
+process.sender = cms.EDProducer("MPISender",
+    upstream = cms.InputTag("otherreceiver"),  # guarantees that this module will only run after otherreceiver has run
     instance = cms.int32(99),
-    data =  cms.InputTag("otherreceiver")
+    products = cms.vstring("edmEventID_otherreceiver__*")
 )
 
 process.analyzer = cms.EDAnalyzer("edmtest::EventIDValidator",
