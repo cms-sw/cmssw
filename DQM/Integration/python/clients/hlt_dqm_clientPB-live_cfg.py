@@ -29,8 +29,8 @@ process.dqmEnv.eventInfoFolder = 'EventInfo'
 process.dqmSaver.tag = 'HLTpb'
 #process.dqmSaver.path = './HLT'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'HLTpb'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'HLTpb'
+# process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 
 # customise for playback
@@ -81,4 +81,4 @@ process.psColumnVsLumi = process.dqmCorrelationClient.clone(
 )
 
 print("Final Source settings:", process.source)
-process.p = cms.EndPath( process.fastTimerServiceClient + process.throughputServiceClient + process.psColumnVsLumi + process.dqmEnv + process.dqmSaver + process.dqmSaverPB )
+process.p = cms.EndPath( process.fastTimerServiceClient + process.throughputServiceClient + process.psColumnVsLumi + process.dqmEnv + process.dqmSaver )#+ process.dqmSaverPB )

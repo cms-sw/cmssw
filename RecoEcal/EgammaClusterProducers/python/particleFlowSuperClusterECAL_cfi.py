@@ -28,3 +28,9 @@ egamma_lowPt_exclusive.toModify(particleFlowSuperClusterECAL,
                                 thresh_PFClusterSeedBarrel = 0.5,
                                 thresh_PFClusterSeedEndcap = 0.5)
 
+from Configuration.Eras.Era_Run3_2023_UPC_cff import Run3_2023_UPC
+(egamma_lowPt_exclusive & Run3_2023_UPC).toModify(particleFlowSuperClusterECAL, regressionConfig = dict(
+    regressionKeyEB  = 'pfscecal_ebCorrection_offline_v2',
+    uncertaintyKeyEB = 'pfscecal_ebUncertainty_offline_v2',
+    regressionKeyEE  = 'pfscecal_eeCorrection_offline_v2',
+    uncertaintyKeyEE = 'pfscecal_eeUncertainty_offline_v2'))
