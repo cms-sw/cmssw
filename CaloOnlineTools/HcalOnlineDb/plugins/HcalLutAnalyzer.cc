@@ -36,6 +36,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include "TString.h"
 #include "TH1D.h"
@@ -72,6 +73,7 @@ private:
   double Pmax;
 
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  edm::ESGetToken<HcalElectronicsMap, HcalDbRecord> tok_emap_;
 };
 
 HcalLutAnalyzer::HcalLutAnalyzer(const edm::ParameterSet& iConfig) {
@@ -92,12 +94,14 @@ HcalLutAnalyzer::HcalLutAnalyzer(const edm::ParameterSet& iConfig) {
   Pmax = iConfig.getParameter<double>("Pmax");
 
   tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_emap_ = esConsumes<HcalElectronicsMap, HcalDbRecord>();
 }
 
 void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   using namespace std;
 
   const HcalTopology* topology = &iSetup.getData(tok_htopo_);
+  const HcalElectronicsMap* electronicsMap = &iSetup.getData(tok_emap_);
 
   typedef std::vector<std::string> vstring;
   typedef std::map<unsigned long int, float> LUTINPUT;
@@ -350,8 +354,8 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
   LutXml xmls1(edm::FileInPath(Form("%s/%s/%s.xml", inputDir.c_str(), tags_[0].c_str(), tags_[0].c_str())).fullPath());
   LutXml xmls2(edm::FileInPath(Form("%s/%s/%s.xml", inputDir.c_str(), tags_[1].c_str(), tags_[1].c_str())).fullPath());
 
-  xmls1.create_lut_map();
-  xmls2.create_lut_map();
+  xmls1.create_lut_map(electronicsMap);
+  xmls2.create_lut_map(electronicsMap);
 
   for (const auto& xml2 : xmls2) {
     HcalGenericDetId detid(xml2.first);
