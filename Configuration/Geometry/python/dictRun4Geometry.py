@@ -58,6 +58,34 @@ commonDict = {
         ],
         "era" : "phase2_common, phase2_trigger",
     },
+    "O10" : {
+        1 : [
+            'Geometry/CMSCommonData/data/materials/2030/v1/materials.xml',
+            'Geometry/TrackerCommonData/data/trackermaterial/2021/v2/trackermaterial.xml',
+            'Geometry/CMSCommonData/data/rotations.xml',
+            'Geometry/CMSCommonData/data/extend/v2/cmsextent.xml',
+            'Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml',
+            'Geometry/CMSCommonData/data/cms/2026/v5/cms.xml',
+            'Geometry/CMSCommonData/data/cmsMother.xml',
+            'Geometry/CMSCommonData/data/eta3/etaMax.xml',
+            'Geometry/CMSCommonData/data/cmsTracker.xml',
+            'Geometry/CMSCommonData/data/caloBase/2026/v7/caloBase.xml',
+            'Geometry/CMSCommonData/data/cmsCalo.xml',
+            'Geometry/CMSCommonData/data/muonBase/2026/v5/muonBase.xml',
+            'Geometry/CMSCommonData/data/cmsMuon.xml',
+            'Geometry/CMSCommonData/data/mgnt.xml',
+            'Geometry/CMSCommonData/data/beampipe/2026/v3/beampipe.xml',
+            'Geometry/CMSCommonData/data/cmsBeam/2026/v1/cmsBeam.xml',
+            'Geometry/CMSCommonData/data/muonMB.xml',
+            'Geometry/CMSCommonData/data/muonMagnet.xml',
+            'Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml',
+            'Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml',
+        ],
+        5 : [
+            'Geometry/CMSCommonData/data/FieldParameters.xml',
+        ],
+        "era" : "phase2_common, phase2_trigger",
+    },
 }
 
 trackerDict = {
@@ -1293,7 +1321,7 @@ muonDict = {
             'Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml',
             'Geometry/MuonCommonData/data/mb3/2015/v3/mb3.xml',
             'Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml',
-            'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
+            'Geometry/MuonCommonData/data/mb4Shield/2030/v1/mb4Shield.xml',
             'Geometry/MuonCommonData/data/muonYoke/2026/v4/muonYoke.xml',
             'Geometry/MuonCommonData/data/mf/2026/v8/mf.xml',
             'Geometry/MuonCommonData/data/csc/2021/v2/csc.xml',
@@ -1528,7 +1556,7 @@ detectorVersionDict = {
     ("O9","T38","C24","M11","F8","I17") : "D113",
     ("O9","T39","C19","M11","F8","I17") : "D114",
     ("O9","T35","C20","M11","F8","I17") : "D115",
-    ("O9","T35","C25","M12","F9","I17") : "D116",
+    ("O10","T35","C25","M12","F9","I17") : "D116",
 }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D35", "D41", "D43", "D44", "D45", "D46", "D48", "D47", "D50", "D51", "D52", "D53", "D54", "D55", "D56", "D57", "D58", "D59", "D61", "D62", "D63", "D64", "D65", "D66", "D67", "D69", "D71", "D72", "D73", "D74", "D75", "D78", "D79", "D87", "D89", "D90", "D49", "D60", "D68", "D70", "D76", "D77", "D80", "D81", "D82", "D83", "D84", "D85","D86","D88","D91","D92","D93","D94","D97"])

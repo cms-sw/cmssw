@@ -137,17 +137,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     void resetObjectsInModule();
 
     unsigned int getNumberOfMiniDoublets();
-    unsigned int getNumberOfMiniDoubletsByLayer(unsigned int layer);
     unsigned int getNumberOfMiniDoubletsByLayerBarrel(unsigned int layer);
     unsigned int getNumberOfMiniDoubletsByLayerEndcap(unsigned int layer);
 
     unsigned int getNumberOfSegments();
-    unsigned int getNumberOfSegmentsByLayer(unsigned int layer);
     unsigned int getNumberOfSegmentsByLayerBarrel(unsigned int layer);
     unsigned int getNumberOfSegmentsByLayerEndcap(unsigned int layer);
 
     unsigned int getNumberOfTriplets();
-    unsigned int getNumberOfTripletsByLayer(unsigned int layer);
     unsigned int getNumberOfTripletsByLayerBarrel(unsigned int layer);
     unsigned int getNumberOfTripletsByLayerEndcap(unsigned int layer);
 
@@ -155,7 +152,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     int getNumberOfPixelQuintuplets();
 
     unsigned int getNumberOfQuintuplets();
-    unsigned int getNumberOfQuintupletsByLayer(unsigned int layer);
     unsigned int getNumberOfQuintupletsByLayerBarrel(unsigned int layer);
     unsigned int getNumberOfQuintupletsByLayerEndcap(unsigned int layer);
 
