@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 import sys,os,subprocess,re
 import xmlrpclib
 from CommonMethods import *
