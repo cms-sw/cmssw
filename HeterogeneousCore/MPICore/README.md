@@ -24,21 +24,34 @@ in the second process.
 ## `MPISource` class
 
 The `MPISource` is a `Source` controlling the execution of a second CMSSW process. After setting up the communication
-with an `MPIController`, it listens for EDM run, lumi and event transitions, and replicates them in its process.
+with an `MPIController`, it listens for EDM run, lumi and event transitions, and replicates them in its own process.
 
 
 ## `MPISender` class
 
-The `MPISender` is an `EDProducer` that can read a collection of a predefined type from the `Event`, serialise it using
-its ROOT dictionary, and send it over the MPI communication channel.
-`MPISender` is templated on the type to be serialised and transmitted.
+The `MPISender` is an `EDProducer` that can read any number of collections or arbitrary types from the `Event`,
+serialise them using their ROOT dictionaries, and send them over the MPI communication channel.
+The number and types of the collections to be read from the `Event` is determined by the module configuration. 
+
+The configuration can speficy a list of module labels, branch names, or a mix of the two:
+  - a module label selects all collections produced by that module, irrespective of the type and instance;
+  - a branch name selects only the collections that match all the branch fields (type, label, instance, process name),
+    similar to an `OutputModule`'s `"keep ..."` statement.
+
+Wildcards (`?` and `*`) are allowed in a module label or in each field of a branch name.
 
 
 ## `MPIReceiver` class
 
-The `MPIReceiver` is an `EDProducer` that can receive a collection of a predefined type over the MPI communication
-channel, deserialise is using its ROOT dictionary, and put it in the `Event`.
-`MPIReceiver` is templated on the type to be received and deserialised.
+The `MPIReceiver` is an `EDProducer` that can receive any number of collections of arbitrary types over the MPI
+communication channel, deserialise them using their ROOT dictionaries, and produces them in the `Event`.
+The number, type and label of the collections to be produced is determined by the module configuration.
+
+For each collection, the `type` indicates the C++ type as understood by the ROOT dictionary, and the `label` indicates
+the module instance label to be used for producing that cllection into the `Event`.
+
+
+## `MPISender` and `MPIReceiver` instances
 
 Both `MPISender` and `MPIReceiver` are configured with an instance value that is used to match one `MPISender` in one
 process to one `MPIReceiver` in another process. Using different instance values allows the use of multiple pairs of
@@ -47,24 +60,26 @@ process to one `MPIReceiver` in another process. Using different instance values
 
 ## MPI communication channel
 
-The `MPIController` and `MPISource` produce an MPIToken, a special data product that encapsulates the information about
-the MPI communication channel.
+The `MPIController` and `MPISource` produce an `MPIToken`, a special data product that encapsulates the information
+about the MPI communication channel.
 
-Both `MPISender` and `MPIReceiver` obtain the MPI communication channel reading an MPIToken from the event. They also
-produce a copy of the MPIToken, so other modules can consume it to declare a dependency on the previous modules.
+Both `MPISender` and `MPIReceiver` obtain the MPI communication channel reading an `MPIToken` from the event, identified
+by the `upstream` parmeter.
+They also produce a copy of the `MPIToken`, so other modules can consume it to declare a dependency on those modules.
 
 
 ## Testing
 
-An automated test is available in the test/ directory.
+An automated test is available in the `test/` directory.
 
 
 ## Current limitations
 
-  - all communication is blocking, and there is no acknowledgment or feedback from one module to the other;
   - `MPIDriver` is a "one" module that supports only a single luminosity block at a time;
-  - `MPISender` and `MPIReceiver` support a single compile-time type;
-  - there is no check that the type sent by the `MPISender` matches the type expected by the `MPIReceiver`.
+  - all communication is blocking, and there is no acknowledgment or feedback from one module to the other; this may
+    lead to a dead lock if a complex sender/receiver topology is used;
+  - there is no check that the number, type and order of collections sent by the `MPISender` matches those expected by
+    the `MPIReceiver`.
 
 
 ## Notes for future developments
@@ -72,8 +87,6 @@ An automated test is available in the test/ directory.
   - implement efficient serialisation for standard layout types;
   - implement efficient serialisation for `PortableCollection` types;
   - check the the collection sent by the `MPISender` and the one expected by the `MPIReceiver` match;
-  - extend the `MPISender` and `MPIReceiver` to send and receive multiple collections;
-  - rewrite the `MPISender` and `MPIReceiver` to send and receive arbitrary run-time collections;
   - improve the `MPIController` to be a `global` module rather than a `one` module;
   - let an `MPISource` accept connections and events from multiple `MPIController` modules in different jobs;
   - let an `MPIController` connect and sent events to multiple `MPISource` modules in different jobs;

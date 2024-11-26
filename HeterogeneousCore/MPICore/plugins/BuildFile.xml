@@ -1,5 +1,4 @@
 <library file="*.cc" name="HeterogeneousCoreMPICorePlugins">
-  <use name="DataFormats/FEDRawData"/>
   <use name="DataFormats/Provenance"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>

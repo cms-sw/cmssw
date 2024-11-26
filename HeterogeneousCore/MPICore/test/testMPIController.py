@@ -28,21 +28,25 @@ process.initialcheck = cms.EDAnalyzer("edmtest::EventIDValidator",
     source = cms.untracked.InputTag('ids')
 )
 
-process.sender = cms.EDProducer("MPISenderEventID",
-    channel = cms.InputTag("mpiController"),
+process.sender = cms.EDProducer("MPISender",
+    upstream = cms.InputTag("mpiController"),
     instance = cms.int32(42),
-    data =  cms.InputTag("ids")
+    products = cms.vstring("edmEventID_ids__*")
 )
 
-process.othersender = cms.EDProducer("MPISenderEventID",
-    channel = cms.InputTag("mpiController"),
+process.othersender = cms.EDProducer("MPISender",
+    upstream = cms.InputTag("mpiController"),
     instance = cms.int32(19),
-    data =  cms.InputTag("ids")
+    products = cms.vstring("edmEventID_ids__*")
 )
 
-process.receiver = cms.EDProducer("MPIReceiverEventID",
-    channel = cms.InputTag("othersender"),  # guarantees that this module will only run after othersender has run
-    instance = cms.int32(99)
+process.receiver = cms.EDProducer("MPIReceiver",
+    upstream = cms.InputTag("othersender"),  # guarantees that this module will only run after othersender has run
+    instance = cms.int32(99),
+    products = cms.VPSet(cms.PSet(
+        type = cms.string("edm::EventID"),
+        label = cms.string("")
+    ))
 )
 
 process.finalcheck = cms.EDAnalyzer("edmtest::EventIDValidator",
