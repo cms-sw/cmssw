@@ -8,6 +8,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 using namespace std;
@@ -937,10 +938,8 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
     edm::LogVerbatim("Tracklet") << "d0approx: " << d0approx << " d0: " << d0 << endl;
     edm::LogVerbatim("Tracklet") << "tapprox: " << tapprox << " t: " << t << endl;
     edm::LogVerbatim("Tracklet") << "z0approx: " << z0approx << " z0: " << z0 << endl;
-  }
 
-  for (unsigned int i = 0; i < toR_.size(); ++i) {
-    if (settings_.debugTracklet()) {
+    for (unsigned int i = 0; i < toR_.size(); ++i) {
       edm::LogVerbatim("Tracklet") << "phiprojapprox[" << i << "]: " << phiprojapprox[i] << " phiproj[" << i
                                    << "]: " << phiproj[i] << endl;
       edm::LogVerbatim("Tracklet") << "zprojapprox[" << i << "]: " << zprojapprox[i] << " zproj[" << i
@@ -950,10 +949,8 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
       edm::LogVerbatim("Tracklet") << "zderapprox[" << i << "]: " << zderapprox[i] << " zder[" << i << "]: " << zder[i]
                                    << endl;
     }
-  }
 
-  for (unsigned int i = 0; i < toZ_.size(); ++i) {
-    if (settings_.debugTracklet()) {
+    for (unsigned int i = 0; i < toZ_.size(); ++i) {
       edm::LogVerbatim("Tracklet") << "phiprojdiskapprox[" << i << "]: " << phiprojdiskapprox[i] << " phiprojdisk[" << i
                                    << "]: " << phiprojdisk[i] << endl;
       edm::LogVerbatim("Tracklet") << "rprojdiskapprox[" << i << "]: " << rprojdiskapprox[i] << " rprojdisk[" << i
@@ -991,7 +988,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   iz0 = z0approx / kz0;
 
   bool success = true;
-  if (std::abs(rinvapprox) > settings_.rinvcut()) {
+  if ((std::abs(rinvapprox) > settings_.rinvcut()) || (!edm::isFinite(rinvapprox))) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << "TrackletCalculator::DDL Seeding irinv too large: " << rinvapprox << "(" << irinv
                                    << ")";
@@ -1002,7 +999,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
       edm::LogVerbatim("Tracklet") << "Failed tracklet z0 cut " << z0approx;
     success = false;
   }
-  if (std::abs(d0approx) > settings_.maxd0()) {
+  if ((std::abs(d0approx) > settings_.maxd0()) || (!edm::isFinite(d0approx))) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << "Failed tracklet approx d0 cut " << d0approx;
     success = false;
