@@ -175,6 +175,7 @@ std::shared_ptr<IDto3Charge> GenParticleProducer::globalBeginRun(const Run&, con
 }
 
 void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) const {
+
   std::unordered_map<int, size_t> barcodes;
 
   size_t totalSize = 0;
@@ -195,12 +196,17 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
     }
     LogDebug("GenParticleProducer") << "totalSize : " << totalSize << endl;
   } else {
+
     Handle<HepMCProduct> mcp;
-    evt.getByToken(srcToken_, mcp);
-    mc = mcp->GetEvent();
-    if (mc == nullptr)
-      throw edm::Exception(edm::errors::InvalidReference) << "HepMC has null pointer to GenEvent" << endl;
-    totalSize = mc->particles_size();
+    bool found = evt.getByToken(srcToken_, mcp);
+    if (found) {
+      mc = mcp->GetEvent();
+      if (mc == nullptr)
+        throw edm::Exception(edm::errors::InvalidReference) << "HepMC has null pointer to GenEvent" << endl;
+      totalSize = mc->particles_size();
+    } else {
+      totalSize = 0;
+    }
   }
 
   // initialise containers
@@ -281,6 +287,7 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
       offset += num_particles;
     }
   } else {
+    if (totalSize) {
     auto origin = (*mc->vertices_begin())->position();
     xyz0Ptr->SetXYZ(origin.x() * mmToCm, origin.y() * mmToCm, origin.z() * mmToCm);
     *t0Ptr = origin.t() * mmToNs;
@@ -304,6 +311,7 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
         fillDaughters(cands, part, ref, d, barcodes);
       cands[d].setCollisionId(0);
     }
+    }
   }
 
   evt.put(std::move(candsPtr));
@@ -313,6 +321,7 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
     delete cfhepmcprod;
   evt.put(std::move(xyz0Ptr), "xyz0");
   evt.put(std::move(t0Ptr), "t0");
+
 }
 
 bool GenParticleProducer::convertParticle(reco::GenParticle& cand,
@@ -353,7 +362,6 @@ bool GenParticleProducer::fillDaughters(reco::GenParticleCollection& cands,
       cands[index].addMother(GenParticleRef(ref, m));
     }
   }
-
   return true;
 }
 
