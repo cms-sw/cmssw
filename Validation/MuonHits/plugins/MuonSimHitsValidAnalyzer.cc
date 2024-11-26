@@ -123,8 +123,8 @@ void MuonSimHitsValidAnalyzer::bookHistograms(DQMStore::IBooker& iBooker,
   sprintf(histo_t, "Number_of_muon_DT_hits");
   meMuDTHits = iBooker.book1D(histo_n, histo_t, 150, 1.0, 151.0);
 
-  sprintf(histo_n, "Tof_of_hits ");
-  sprintf(histo_t, "Tof_of_hits ");
+  sprintf(histo_n, "Tof_of_hits");
+  sprintf(histo_t, "Tof_of_hits");
   meToF = iBooker.book1D(histo_n, histo_t, 100, -0.5, 50.);
 
   sprintf(histo_n, "DT_energy_loss_keV");
