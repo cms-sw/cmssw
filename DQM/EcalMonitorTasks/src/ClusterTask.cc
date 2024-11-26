@@ -81,6 +81,13 @@ namespace ecaldqm {
 
     edm::Handle<L1GlobalTriggerReadoutRecord> l1GTHndl;
     _evt.getByToken(L1GlobalTriggerReadoutRecordToken_, l1GTHndl);
+
+    if (!l1GTHndl.isValid()) {
+      edm::LogError("L1GlobalTriggerReadoutRecord")
+          << "Failed to retrieve L1GlobalTriggerReadoutRecord from the Event!";
+      return;  // Exit the function early if the handle is invalid
+    }
+
     DecisionWord const& dWord(l1GTHndl->decisionWord());
 
     //Ecal

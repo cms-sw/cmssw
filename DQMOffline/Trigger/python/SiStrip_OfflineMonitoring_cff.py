@@ -32,29 +32,52 @@ HLTSiStripMonitorCluster.TH1StripNoise2ApvCycle.globalswitchon  = cms.bool(False
 HLTSiStripMonitorCluster.TH1StripNoise3ApvCycle.globalswitchon  = cms.bool(False)
 
 HLTSiStripMonitorCluster.BPTXfilter = cms.PSet(
-        andOr         = cms.bool( False ),
-            dbLabel       = cms.string("SiStripDQMTrigger"),
-            l1Algorithms = cms.vstring( 'L1Tech_BPTX_plus_AND_minus.v0', 'L1_ZeroBias' ),
-            andOrL1       = cms.bool( True ),
-            errorReplyL1  = cms.bool( True ),
-            l1BeforeMask  = cms.bool( True ) # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied.
-        )
+    andOr         = cms.bool( False ),
+    dbLabel       = cms.string("SiStripDQMTrigger"),
+    l1Algorithms = cms.vstring( 'L1Tech_BPTX_plus_AND_minus.v0', 'L1_ZeroBias' ),
+    andOrL1       = cms.bool( True ),
+    errorReplyL1  = cms.bool( True ),
+    l1BeforeMask  = cms.bool( True ) # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied.
+)
 HLTSiStripMonitorCluster.PixelDCSfilter = cms.PSet(
-        andOr         = cms.bool( False ),
-            dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
-            dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis"),
-            dcsPartitions = cms.vint32 ( 28, 29),
-            andOrDcs      = cms.bool( False ),
-            errorReplyDcs = cms.bool( True ),
-        )
+    andOr         = cms.bool( False ),
+    dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+    dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis"),
+    dcsPartitions = cms.vint32 ( 28, 29),
+    andOrDcs      = cms.bool( False ),
+    errorReplyDcs = cms.bool( True ),
+)
 HLTSiStripMonitorCluster.StripDCSfilter = cms.PSet(
-        andOr         = cms.bool( False ),
-            dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
-            dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis"),
-            dcsPartitions = cms.vint32 ( 24, 25, 26, 27 ),
-            andOrDcs      = cms.bool( False ),
-            errorReplyDcs = cms.bool( True ),
-        )
+    andOr         = cms.bool( False ),
+    dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+    dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis"),
+    dcsPartitions = cms.vint32 ( 24, 25, 26, 27 ),
+    andOrDcs      = cms.bool( False ),
+    errorReplyDcs = cms.bool( True ),
+)
+
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(HLTSiStripMonitorCluster, 
+                        BPTXfilter = dict(
+                             stage2 = cms.bool(True),
+                             l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                             l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                             ReadPrescalesFromFile = cms.bool(False)
+                         ),
+                         PixelDCSfilter = dict(
+                             stage2 = cms.bool(True),
+                             l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                             l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                             ReadPrescalesFromFile = cms.bool(False)
+                         ),
+                         StripDCSfilter = dict(
+                             stage2 = cms.bool(True),
+                             l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                             l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                             ReadPrescalesFromFile = cms.bool(False)
+                         )
+                         )
+
 HLTSiStripMonitorCluster.TH2CStripVsCpixel = cms.PSet(
         Nbinsx = cms.int32(200),
         xmin   = cms.double(-0.5),
@@ -74,6 +97,7 @@ HLTSiStripMonitorCluster.TH1NClusStrip = cms.PSet(
         xmax = cms.double(99999.5),
         xmin = cms.double(-0.5)
     )
+
 hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProducer",
   LoadTemplatesFromDB = cms.bool( True ),
   ComponentName = cms.string( "hltESPPixelCPETemplateReco" ),

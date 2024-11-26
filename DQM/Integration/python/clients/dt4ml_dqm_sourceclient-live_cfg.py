@@ -88,6 +88,7 @@ process.dtDQMPathPhys = cms.Path(process.unpackers + process.dqmmodules + proces
 process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataCollector"
 process.dtunpacker.inputLabel = "rawDataCollector"
 process.gtDigis.DaqGtInputTag = "rawDataCollector"
+process.gtStage2Digis.InputLabel = "rawDataCollector"
 process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
 
 print("Running with run type = ", process.runType.getRunType())
@@ -117,6 +118,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataRepacker"
     process.dtunpacker.inputLabel = "rawDataRepacker"
     process.gtDigis.DaqGtInputTag = "rawDataRepacker"
+    process.gtStage2Digis.InputLabel = "rawDataCollector"
     process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
     
     process.dtDigiMonitor.ResetCycle = 9999
