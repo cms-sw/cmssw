@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # cfg file to run the L1GtTriggerMenuLite producer  
 # with the options set in UserOptions_cff.py

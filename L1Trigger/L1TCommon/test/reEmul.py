@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 #  reEmul.py  configurable test of L1T re-emulation
 #

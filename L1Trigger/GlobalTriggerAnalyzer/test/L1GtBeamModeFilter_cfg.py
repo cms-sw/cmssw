@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # cfg file to test L1GtBeamModeFilter
 # it requires as input:
