@@ -57,7 +57,7 @@ namespace edm {
       processName_ = kAny;
       return;
     }
-    
+
     if (underscores >= 3) {
       // Split the branch name into <product type>_<module label>_<instance name>_<process name>
       // and convert the glob expressions into regular expressions.
