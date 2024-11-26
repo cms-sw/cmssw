@@ -655,14 +655,10 @@ G4Event* RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
   // along the beam pipe to their original value for SimTrack creation
   resetGenParticleId(inpevt);
 
-
   edm::Handle<edm::HepMCProduct> HepMCEvt;
   bool found = inpevt.getByToken(m_InToken, HepMCEvt);
 
-  // extract the HepMC::GenEvent
-//  HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepMCEvt->GetEvent());
-
-  if (found) { // HepMC event exists
+  if (found) {  // HepMC event exists
 
     m_generator.setGenEvent(HepMCEvt->GetEvent());
 
@@ -677,7 +673,7 @@ G4Event* RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
       m_generator.nonCentralEvent2G4(HepMCEvt->GetEvent(), evt);
     }
 
-  } else { // no HepMC event, try to get HepMC3 event
+  } else {  // no HepMC event, try to get HepMC3 event
 
     edm::Handle<edm::HepMC3Product> HepMCEvt3;
     inpevt.getByToken(m_InToken3, HepMCEvt3);
@@ -697,7 +693,7 @@ G4Event* RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
       //m_generator3.nonCentralEvent2G4(HepMCEvt->GetEvent(), evt);
     }
   }
-  return evt;  
+  return evt;
 }
 
 void RunManagerMTWorker::resetGenParticleId(const edm::Event& inpevt) {
