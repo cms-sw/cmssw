@@ -7,6 +7,7 @@
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include "SimG4Core/Generators/interface/Generator.h"
+#include "SimG4Core/Generators/interface/Generator3.h"
 #include "SimG4Core/Notification/interface/TmpSimEvent.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -22,6 +23,7 @@ namespace edm {
   class EventSetup;
   class ConsumesCollector;
   class HepMCProduct;
+  class HepMC3Product;
 }  // namespace edm
 
 class Generator;
@@ -89,7 +91,9 @@ private:
   void DumpMagneticField(const G4Field*, const std::string&) const;
 
   Generator m_generator;
+  Generator3 m_generator3;
   edm::EDGetTokenT<edm::HepMCProduct> m_InToken;
+  edm::EDGetTokenT<edm::HepMC3Product> m_InToken3;
   edm::EDGetTokenT<edm::HepMCProduct> m_LHCToken;
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_theLHCTlinkToken;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagField;
