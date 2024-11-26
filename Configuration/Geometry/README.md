@@ -109,6 +109,7 @@ Calorimeters:
 * C22: HGCal (v18 version of HGCal geometry as in C18 with calibration cells, nonzero cssette retraction, correct mousebite, guard ring, proper cell size) + Phase2 HCAL and EB (used in Run4D104)
 * C23: HGCal (same as the v18 version which is in C22 but without internal cells in the Geant4 geometry defintiion) + Phase2 HCAL and EB (used in Run4D106)
 * C24: HGCal (v18 version of HGCal geometry as in C122 but turning off all dead areas and gaps) + Phase2 HCAL and EB (used in Run4D109)
+* C25: sane as C18 but changing ebalgo.xml to make it more conformant with standard
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
@@ -118,6 +119,7 @@ Muon system:
 * M9: same as M8 with GE0 replacing ME0
 * M10: same as M9 but with a realistic support structure for GE0, Shield structure modified in muonYoke
 * M11: same as M10 but with a corrected eta partition sizes for GE21
+* M12: same as M11 but removing overlaps in yoke, MB3, GE0 + adding DT shield
 
 Fast Timing system:
 * I10: Fast Timing detector (LYSO barrel (bars along phi flat), silicon endcap), w/ passive materials, ETL in position defined in O4, material adjustments
@@ -136,6 +138,7 @@ The script also handles the common and forward elements of the geometry:
 * O7: same as O6 with changes needed for new defintion of calorimeter boundaries
 * O8: same as O7 with changes needed for a newer definition of calorimeter boundaries
 * O9: same as O8 with changes needed to support the additional notch in ETL
+*O10: same as O9 with changes needed to support the shields for DT
 
 * F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
 * F3: same as F2 but changes due to HFNose
@@ -144,6 +147,7 @@ The script also handles the common and forward elements of the geometry:
 * F6: same as F4 with modifications needed for BRM and forward shield
 * F7: same as F6 with modifications needed for HFNose
 * F8: same as F6 or F7 without BRM
+* F9: same as F8 after removing overlap in rotated shield
 
 Several detector combinations have been generated:
 * D95 = T31+C17+M10+I16+O9+F8
@@ -165,4 +169,6 @@ Several detector combinations have been generated:
 * D112 = T37+C24+M11+I17+O9+F8
 * D113 = T38+C24+M11+I17+O9+F8
 * D114 = T39+C19+M11+I17+O9+F8
+* D115 = T35+C20+M11+I17+O9+F8 
+* D116 = T35+C25+M12+I17+O10+F9
 
