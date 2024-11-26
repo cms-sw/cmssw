@@ -18,6 +18,7 @@ namespace CLHEP {
 
 namespace edm {
   class HepMCProduct;
+  class HepMC3Product;
 }
 
 class BaseEvtVtxGenerator : public edm::stream::EDProducer<> {
@@ -39,6 +40,7 @@ public:
 
 private:
   edm::EDGetTokenT<edm::HepMCProduct> sourceToken;
+  edm::EDGetTokenT<edm::HepMC3Product> sourceToken3;
 };
 
 #endif
