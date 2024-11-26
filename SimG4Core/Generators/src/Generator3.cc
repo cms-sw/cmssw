@@ -87,17 +87,15 @@ Generator3::Generator3(const ParameterSet &p)
 
   Z_hector = theRDecLenCut * ((1 - exp(-2 * theEtaCutForHector)) / (2 * exp(-theEtaCutForHector)));
 
-  edm::LogVerbatim("SimG4CoreGenerator3") << "SimG4Core/Generator3: Rdecaycut= " << theRDecLenCut / CLHEP::cm
-                                         << " cm;  Zdecaycut= " << theDecLenCut / CLHEP::cm
-                                         << "Z_min= " << Z_lmin / CLHEP::cm << " cm; Z_max= " << Z_lmax / CLHEP::cm
-                                         << " cm;\n"
-                                         << "                     MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m
-                                         << " m;"
-                                         << " Z_hector = " << Z_hector / CLHEP::cm << " cm\n"
-                                         << "                     ApplyCuts: " << fFiductialCuts
-                                         << "  PCuts: " << fPCuts << "  PtransCut: " << fPtransCut
-                                         << "  EtaCut: " << fEtaCuts << "  PhiCut: " << fPhiCuts
-                                         << "  LumiMonitorCut: " << lumi;
+  edm::LogVerbatim("SimG4CoreGenerator3")
+      << "SimG4Core/Generator3: Rdecaycut= " << theRDecLenCut / CLHEP::cm
+      << " cm;  Zdecaycut= " << theDecLenCut / CLHEP::cm
+      << "Z_min= " << Z_lmin / CLHEP::cm << " cm; Z_max= " << Z_lmax / CLHEP::cm << " cm;\n"
+      << "                     MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m;"
+      << " Z_hector = " << Z_hector / CLHEP::cm << " cm\n"
+      << "                     ApplyCuts: " << fFiductialCuts
+      << "  PCuts: " << fPCuts << "  PtransCut: " << fPtransCut
+      << "  EtaCut: " << fEtaCuts << "  PhiCut: " << fPhiCuts << "  LumiMonitorCut: " << lumi;
   if (fFiductialCuts) {
     edm::LogVerbatim("SimG4CoreGenerator3")
         << "SimG4Core/Generator3: Pmin(GeV)= " << theMinPCut << "; Pmax(GeV)= " << theMaxPCut
@@ -112,10 +110,10 @@ Generator3::Generator3(const ParameterSet &p)
 Generator3::~Generator3() { delete fLumiFilter; }
 
 void Generator3::HepMC2G4(const HepMC3::GenEvent *evt_orig, G4Event *g4evt) {
-  HepMC3::GenEvent* evt = new HepMC3::GenEvent(*evt_orig);
+  HepMC3::GenEvent *evt = new HepMC3::GenEvent(*evt_orig);
   //HepMC3::Print::listing(*evt);
 
-  if ( (evt->vertices()).empty() ) {
+  if ((evt->vertices()).empty()) {
     std::stringstream ss;
     ss << "SimG4Core/Generator3: in event " << g4evt->GetEventID() << " Corrupted Event - GenEvent with no vertex \n";
     throw SimG4Exception(ss.str());
@@ -135,28 +133,25 @@ void Generator3::HepMC2G4(const HepMC3::GenEvent *evt_orig, G4Event *g4evt) {
     delete vtx_;
   }
 
-  for (HepMC3::GenVertexPtr v : evt->vertices() ) {
-    vtx_ = new math::XYZTLorentzVector( (v->position()).x(),
-                                        (v->position()).y(),
-                                        (v->position()).z(),
-                                        (v->position()).t() );
-    //std::cout << "primary vertex z, t = " << (v->position()).x() << " " << (v->position()).t() << std::endl;
+  for (HepMC3::GenVertexPtr v : evt->vertices()) {
+    vtx_ =
+        new math::XYZTLorentzVector( (v->position()).x(), (v->position()).y(), (v->position()).z(), (v->position()).t());
     break;
   }
 
-  edm::LogVerbatim("SimG4CoreGenerator3") << "Generator3: primary Vertex = (" << vtx_->x() << ", " << vtx_->y() << ", "
-                                          << vtx_->z() << ")";
+  edm::LogVerbatim("SimG4CoreGenerator3")
+      << "Generator3: primary Vertex = (" << vtx_->x() << ", " << vtx_->y() << ", " << vtx_->z() << ")";
 
   unsigned int ng4vtx = 0;
   unsigned int ng4par = 0;
 
-  for (HepMC3::GenVertexPtr vitr : evt->vertices() ) {
+  for (HepMC3::GenVertexPtr vitr : evt->vertices()) {
     // loop for vertex, is it a real vertex?
     // Set qvtx to true for any particles that should be propagated by GEANT,
     // i.e., status 1 particles or status 2 particles that decay outside the
     // beampipe.
     G4bool qvtx = false;
-    for (HepMC3::GenParticlePtr pitr : vitr->particles_out() ) {
+    for (HepMC3::GenParticlePtr pitr : vitr->particles_out()) {
       // For purposes of this function, the status is defined as follows:
       // 1:  particles are not decayed by generator
       // 2:  particles are decayed by generator but need to be propagated by GEANT
@@ -171,7 +166,7 @@ void Generator3::HepMC2G4(const HepMC3::GenEvent *evt_orig, G4Event *g4evt) {
         // be propagated by GEANT, so do not change their status code.
         status = 2;
       }
-      if (status == 2 && abs(pdg) == 9900015) { // Additional photon?
+      if (status == 2 && abs(pdg) == 9900015) {  // Additional photon?
         status = 3;
       }
 
@@ -182,7 +177,7 @@ void Generator3::HepMC2G4(const HepMC3::GenEvent *evt_orig, G4Event *g4evt) {
           continue;
         }
 
-	qvtx = true;
+        qvtx = true;
         if (verbose > 2)
           LogDebug("SimG4CoreGenerator3") << "GenVertex barcode = " << vitr->id() << " " << qvtx
                                          << " selected for GenParticle barcode = " << pitr->id(); // barcode is substituted by id
