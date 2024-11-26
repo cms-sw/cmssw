@@ -1,5 +1,4 @@
 #!/bin/env python
-from __future__ import print_function
 from builtins import range
 import ROOT
 from ROOT import gROOT, TFile, TIter
