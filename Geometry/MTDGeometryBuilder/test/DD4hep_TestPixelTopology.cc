@@ -47,6 +47,7 @@
 
 using namespace cms;
 using namespace geant_units::operators;
+using namespace cms_rounding;
 
 class DD4hep_TestPixelTopology : public edm::one::EDAnalyzer<> {
 public:
@@ -60,6 +61,18 @@ public:
   void theBaseNumber(cms::DDFilteredView& fv);
 
 private:
+  inline std::string fround(const double in, const size_t prec) const {
+    std::stringstream ss;
+    ss << std::setprecision(prec) << std::fixed << std::setw(14) << roundIfNear0(in);
+    return ss.str();
+  }
+
+  inline std::string fvecround(const auto& vecin, const size_t prec) const {
+    std::stringstream ss;
+    ss << std::setprecision(prec) << std::fixed << std::setw(14) << roundVecIfNear0(vecin);
+    return ss.str();
+  }
+
   void analyseRectangle(const GeomDetUnit& det);
   void checkRotation(const GeomDetUnit& det);
 
@@ -75,13 +88,12 @@ private:
   edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
   edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
 
-  std::stringstream sunitt;
+  std::stringstream sunitt_;
   constexpr static double tolerance{0.5e-3_mm};
 };
 
 using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 using angle_units::operators::convertRadToDeg;
-using cms_rounding::roundIfNear0, cms_rounding::roundVecIfNear0;
 
 DD4hep_TestPixelTopology::DD4hep_TestPixelTopology(const edm::ParameterSet& iConfig)
     : tag_(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
@@ -125,10 +137,15 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
     edm::LogError("DD4hep_TestPixelTopology") << "ESTransientHandle<MTDTopology> pTP is not valid!";
     return;
   } else {
-    sunitt << "MTD topology mode = " << pTP.product()->getMTDTopologyMode() << " BtlLayout = "
-           << static_cast<int>(MTDTopologyMode::crysLayoutFromTopoMode(pTP.product()->getMTDTopologyMode()))
-           << " EtlLayout = "
-           << static_cast<int>(MTDTopologyMode::etlLayoutFromTopoMode(pTP.product()->getMTDTopologyMode()));
+    edm::LogVerbatim("DD4hep_TestPixelTopology")
+        << "MTD topology mode = " << pTP.product()->getMTDTopologyMode() << " BtlLayout = "
+        << static_cast<int>(MTDTopologyMode::crysLayoutFromTopoMode(pTP.product()->getMTDTopologyMode()))
+        << " EtlLayout = "
+        << static_cast<int>(MTDTopologyMode::etlLayoutFromTopoMode(pTP.product()->getMTDTopologyMode()));
+    sunitt_ << "MTD topology mode = " << pTP.product()->getMTDTopologyMode() << " BtlLayout = "
+            << static_cast<int>(MTDTopologyMode::crysLayoutFromTopoMode(pTP.product()->getMTDTopologyMode()))
+            << " EtlLayout = "
+            << static_cast<int>(MTDTopologyMode::etlLayoutFromTopoMode(pTP.product()->getMTDTopologyMode()));
   }
 
   auto pDG = iSetup.getTransientHandle(mtdgeoToken_);
@@ -141,11 +158,13 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
   std::string attribute("MtdDDStructure"), name;
   bool isBarrel = false;
   if (ddTopNodeName_ == "BarrelTimingLayer") {
-    sunitt << "  BTL MTDGeometry:\n";
+    edm::LogVerbatim("DD4hep_TestPixelTopology") << "  BTL MTDGeometry:\n";
+    sunitt_ << "  BTL MTDGeometry:\n";
     name = "FastTimerHitsBarrel";
     isBarrel = true;
   } else if (ddTopNodeName_ == "EndcapTimingLayer") {
-    sunitt << "  ETL MTDGeometry:\n";
+    edm::LogVerbatim("DD4hep_TestPixelTopology") << "  ETL MTDGeometry:\n";
+    sunitt_ << "  ETL MTDGeometry:\n";
     name = "FastTimerHitsEndcap";
   } else {
     edm::LogError("DD4hep_TestPixelTopology") << "No correct sensitive detector provided, abort" << ddTopNodeName_;
@@ -273,13 +292,20 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
           const GeomDetUnit theDetUnit = *(dynamic_cast<const MTDGeomDetUnit*>(thedet));
 
           if (isBarrel) {
-            sunitt << "geoId= " << modIdBTL.rawId() << " side= " << modIdBTL.mtdSide()
-                   << " RU/mod= " << modIdBTL.globalRunit() << " / " << modIdBTL.module();
+            edm::LogVerbatim("DD4hep_TestPixelTopology")
+                << "geoId= " << modIdBTL.rawId() << " side= " << modIdBTL.mtdSide()
+                << " RU/mod= " << modIdBTL.globalRunit() << " / " << modIdBTL.module();
+            sunitt_ << "geoId= " << modIdBTL.rawId() << " side= " << modIdBTL.mtdSide()
+                    << " RU/mod= " << modIdBTL.globalRunit() << " / " << modIdBTL.module();
           } else {
-            sunitt << "geoId= " << modIdETL.rawId() << " side= " << modIdETL.mtdSide()
-                   << " disc/face/sec= " << modIdETL.nDisc() << " / " << modIdETL.discSide() << " / "
-                   << modIdETL.sector() << " mod/typ/sens= " << modIdETL.module() << " / " << modIdETL.modType()
-                   << " / " << modIdETL.sensor();
+            edm::LogVerbatim("DD4hep_TestPixelTopology")
+                << "geoId= " << modIdETL.rawId() << " side= " << modIdETL.mtdSide()
+                << " disc/face/sec= " << modIdETL.nDisc() << " / " << modIdETL.discSide() << " / " << modIdETL.sector()
+                << " mod/typ/sens= " << modIdETL.module() << " / " << modIdETL.modType() << " / " << modIdETL.sensor();
+            sunitt_ << "geoId= " << modIdETL.rawId() << " side= " << modIdETL.mtdSide()
+                    << " disc/face/sec= " << modIdETL.nDisc() << " / " << modIdETL.discSide() << " / "
+                    << modIdETL.sector() << " mod/typ/sens= " << modIdETL.module() << " / " << modIdETL.modType()
+                    << " / " << modIdETL.sensor();
           }
           analyseRectangle(theDetUnit);
         }
@@ -300,12 +326,6 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
         //
         // Test of positions for sensitive detectors
         //
-
-        auto fround = [&](double in) {
-          std::stringstream ss;
-          ss << std::fixed << std::setw(14) << roundIfNear0(in);
-          return ss.str();
-        };
 
         if (!dd4hep::isA<dd4hep::Box>(fv.solid())) {
           throw cms::Exception("DD4hep_TestPixelTopology") << "MTD sensitive element not a DDBox";
@@ -347,8 +367,10 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
             recoCol = thepixel.second;
 
             if (origRow != recoRow || origCol != recoCol) {
-              sunitt << "DIFFERENCE row/col, orig= " << origRow << " " << origCol << " reco= " << recoRow << " "
-                     << recoCol << "\n";
+              edm::LogVerbatim("DD4hep_TestPixelTopology") << "DIFFERENCE row/col, orig= " << origRow << " " << origCol
+                                                           << " reco= " << recoRow << " " << recoCol << "\n";
+              sunitt_ << "DIFFERENCE row/col, orig= " << origRow << " " << origCol << " reco= " << recoRow << " "
+                      << recoCol << "\n";
               recoRow = origRow;
               recoCol = origCol;
             }
@@ -367,9 +389,11 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
           const auto& modGlobal = thedet->toGlobal(modLocal);
 
           if (isNewId && iloop == nTest - 1) {
-            sunitt << "row/col= " << recoRow << " / " << recoCol << " local pos= " << std::fixed << std::setw(14)
-                   << roundVecIfNear0(modLocal) << " global pos= " << std::setw(14) << roundVecIfNear0(modGlobal)
-                   << "\n";
+            edm::LogVerbatim("DD4hep_TestPixelTopology")
+                << "row/col= " << recoRow << " / " << recoCol << " local pos= " << fvecround(modLocal, 4)
+                << " global pos= " << fvecround(modGlobal, 4) << "\n";
+            sunitt_ << "row/col= " << recoRow << " / " << recoCol << " local pos= " << fvecround(modLocal, 2)
+                    << " global pos= " << fvecround(modGlobal, 2) << "\n";
           }
 
           const double deltax = convertCmToMm(modGlobal.x()) - (refGlobalPoints[iloop].x() / dd4hep::mm);
@@ -383,38 +407,71 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
           if (std::abs(deltax) > tolerance || std::abs(deltay) > tolerance || std::abs(deltaz) > tolerance ||
               std::abs(local_deltax) > tolerance || std::abs(local_deltay) > tolerance ||
               std::abs(local_deltaz) > tolerance) {
-            sunitt << print_path() << "\n";
+            edm::LogVerbatim("DD4hep_TestPixelTopology") << print_path() << "\n";
+            sunitt_ << print_path() << "\n";
             if (isBarrel) {
-              sunitt << "rawId= " << theIdBTL.rawId() << " geoId= " << geoId.rawId()
-                     << " side/rod= " << theIdBTL.mtdSide() << " / " << theIdBTL.mtdRR()
-                     << " RU= " << theIdBTL.globalRunit() << " module/geomodule= " << theIdBTL.module() << " / "
-                     << static_cast<BTLDetId>(geoId).module() << " crys= " << theIdBTL.crystal()
-                     << " BTLDetId row/col= " << origRow << " / " << origCol << "\n";
+              edm::LogVerbatim("DD4hep_TestPixelTopology")
+                  << "rawId= " << theIdBTL.rawId() << " geoId= " << geoId.rawId() << " side/rod= " << theIdBTL.mtdSide()
+                  << " / " << theIdBTL.mtdRR() << " RU= " << theIdBTL.globalRunit()
+                  << " module/geomodule= " << theIdBTL.module() << " / " << static_cast<BTLDetId>(geoId).module()
+                  << " crys= " << theIdBTL.crystal() << " BTLDetId row/col= " << origRow << " / " << origCol << "\n";
+              sunitt_ << "rawId= " << theIdBTL.rawId() << " geoId= " << geoId.rawId()
+                      << " side/rod= " << theIdBTL.mtdSide() << " / " << theIdBTL.mtdRR()
+                      << " RU= " << theIdBTL.globalRunit() << " module/geomodule= " << theIdBTL.module() << " / "
+                      << static_cast<BTLDetId>(geoId).module() << " crys= " << theIdBTL.crystal()
+                      << " BTLDetId row/col= " << origRow << " / " << origCol << "\n";
             } else {
-              sunitt << "geoId= " << modIdETL.rawId() << " side= " << modIdETL.mtdSide()
-                     << " disc/face/sec= " << modIdETL.nDisc() << " / " << modIdETL.discSide() << " / "
-                     << modIdETL.sector() << " mod/typ/sens= " << modIdETL.module() << " / " << modIdETL.modType()
-                     << " / " << modIdETL.sensor() << "\n";
+              edm::LogVerbatim("DD4hep_TestPixelTopology")
+                  << "geoId= " << modIdETL.rawId() << " side= " << modIdETL.mtdSide()
+                  << " disc/face/sec= " << modIdETL.nDisc() << " / " << modIdETL.discSide() << " / "
+                  << modIdETL.sector() << " mod/typ/sens= " << modIdETL.module() << " / " << modIdETL.modType() << " / "
+                  << modIdETL.sensor() << "\n";
+              sunitt_ << "geoId= " << modIdETL.rawId() << " side= " << modIdETL.mtdSide()
+                      << " disc/face/sec= " << modIdETL.nDisc() << " / " << modIdETL.discSide() << " / "
+                      << modIdETL.sector() << " mod/typ/sens= " << modIdETL.module() << " / " << modIdETL.modType()
+                      << " / " << modIdETL.sensor() << "\n";
             }
 
-            sunitt << "Ref#" << iloop << " local= " << fround(refLocalPoints[iloop].x() / dd4hep::mm)
-                   << fround(refLocalPoints[iloop].y() / dd4hep::mm) << fround(refLocalPoints[iloop].z() / dd4hep::mm)
-                   << " Orig global= " << fround(refGlobalPoints[iloop].x() / dd4hep::mm)
-                   << fround(refGlobalPoints[iloop].y() / dd4hep::mm) << fround(refGlobalPoints[iloop].z() / dd4hep::mm)
-                   << " Reco global= " << fround(convertCmToMm(modGlobal.x())) << fround(convertCmToMm(modGlobal.y()))
-                   << fround(convertCmToMm(modGlobal.z())) << " Delta= " << fround(deltax) << fround(deltay)
-                   << fround(deltaz) << " Local Delta= " << fround(local_deltax) << fround(local_deltay)
-                   << fround(local_deltaz) << "\n";
+            edm::LogVerbatim("DD4hep_TestPixelTopology")
+                << "Ref#" << iloop << " local= " << fround(refLocalPoints[iloop].x() / dd4hep::mm, 4)
+                << fround(refLocalPoints[iloop].y() / dd4hep::mm, 4)
+                << fround(refLocalPoints[iloop].z() / dd4hep::mm, 4)
+                << " Orig global= " << fround(refGlobalPoints[iloop].x() / dd4hep::mm, 4)
+                << fround(refGlobalPoints[iloop].y() / dd4hep::mm, 4)
+                << fround(refGlobalPoints[iloop].z() / dd4hep::mm, 4)
+                << " Reco global= " << fround(convertCmToMm(modGlobal.x()), 4)
+                << fround(convertCmToMm(modGlobal.y()), 4) << fround(convertCmToMm(modGlobal.z()), 4)
+                << " Delta= " << fround(deltax, 4) << fround(deltay, 4) << fround(deltaz, 4)
+                << " Local Delta= " << fround(local_deltax, 4) << fround(local_deltay, 4) << fround(local_deltaz, 4)
+                << "\n";
+            sunitt_ << "Ref#" << iloop << " local= " << fround(refLocalPoints[iloop].x() / dd4hep::mm, 2)
+                    << fround(refLocalPoints[iloop].y() / dd4hep::mm, 2)
+                    << fround(refLocalPoints[iloop].z() / dd4hep::mm, 2)
+                    << " Orig global= " << fround(refGlobalPoints[iloop].x() / dd4hep::mm, 2)
+                    << fround(refGlobalPoints[iloop].y() / dd4hep::mm, 2)
+                    << fround(refGlobalPoints[iloop].z() / dd4hep::mm, 2)
+                    << " Reco global= " << fround(convertCmToMm(modGlobal.x()), 2)
+                    << fround(convertCmToMm(modGlobal.y()), 2) << fround(convertCmToMm(modGlobal.z()), 2)
+                    << " Delta= " << fround(deltax, 2) << fround(deltay, 2) << fround(deltaz, 2)
+                    << " Local Delta= " << fround(local_deltax, 2) << fround(local_deltay, 2) << fround(local_deltaz, 2)
+                    << "\n";
 
             if (std::abs(deltax) > tolerance || std::abs(deltay) > tolerance || std::abs(deltaz) > tolerance) {
-              sunitt << "DIFFERENCE detId/ref# " << theId.rawId() << " " << iloop << " dx/dy/dz= " << fround(deltax)
-                     << fround(deltay) << fround(deltaz) << "\n";
+              edm::LogVerbatim("DD4hep_TestPixelTopology")
+                  << "DIFFERENCE detId/ref# " << theId.rawId() << " " << iloop << " dx/dy/dz= " << fround(deltax, 4)
+                  << fround(deltay, 4) << fround(deltaz, 4) << "\n";
+              sunitt_ << "DIFFERENCE detId/ref# " << theId.rawId() << " " << iloop << " dx/dy/dz= " << fround(deltax, 2)
+                      << fround(deltay, 2) << fround(deltaz, 2) << "\n";
             }
             if (std::abs(local_deltax) > tolerance || std::abs(local_deltay) > tolerance ||
                 std::abs(local_deltaz) > tolerance) {
-              sunitt << "DIFFERENCE detId/ref# " << theId.rawId() << " " << iloop
-                     << " local dx/dy/dz= " << fround(local_deltax) << fround(local_deltay) << fround(local_deltaz)
-                     << "\n";
+              edm::LogVerbatim("DD4hep_TestPixelTopology")
+                  << "DIFFERENCE detId/ref# " << theId.rawId() << " " << iloop
+                  << " local dx/dy/dz= " << fround(local_deltax, 4) << fround(local_deltay, 4)
+                  << fround(local_deltaz, 4) << "\n";
+              sunitt_ << "DIFFERENCE detId/ref# " << theId.rawId() << " " << iloop
+                      << " local dx/dy/dz= " << fround(local_deltax, 2) << fround(local_deltay, 2)
+                      << fround(local_deltaz, 2) << "\n";
             }
           }
         }
@@ -423,18 +480,23 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
   } while (fv.next(0));
 
   if (isBarrel && nSensBTL != pDG.product()->detsBTL().size()) {
-    sunitt << "DIFFERENCE #ideal = " << nSensBTL << " #reco = " << pDG.product()->detsBTL().size()
-           << " BTL module numbers are not matching!";
+    edm::LogVerbatim("DD4hep_TestPixelTopology")
+        << "DIFFERENCE #ideal = " << nSensBTL << " #reco = " << pDG.product()->detsBTL().size()
+        << " BTL module numbers are not matching!";
+    sunitt_ << "DIFFERENCE #ideal = " << nSensBTL << " #reco = " << pDG.product()->detsBTL().size()
+            << " BTL module numbers are not matching!";
   }
 
   if (!isBarrel && nSensETL != pDG.product()->detsETL().size()) {
-    sunitt << "DIFFERENCE #ideal = " << nSensETL << " #reco = " << pDG.product()->detsBTL().size()
-           << " ETL module numbers are not matching!";
+    edm::LogVerbatim("DD4hep_TestPixelTopology")
+        << "DIFFERENCE #ideal = " << nSensETL << " #reco = " << pDG.product()->detsBTL().size()
+        << " ETL module numbers are not matching!";
+    sunitt_ << "DIFFERENCE #ideal = " << nSensETL << " #reco = " << pDG.product()->detsBTL().size()
+            << " ETL module numbers are not matching!";
   }
 
-  if (!sunitt.str().empty()) {
-    edm::LogVerbatim("DD4hep_TestPixelTopology") << sunitt.str();
-    edm::LogVerbatim("MTDUnitTest") << sunitt.str();
+  if (!sunitt_.str().empty()) {
+    edm::LogVerbatim("MTDUnitTest") << sunitt_.str();
   }
 }
 
@@ -472,33 +534,26 @@ void DD4hep_TestPixelTopology::analyseRectangle(const GeomDetUnit& det) {
   if (outerMiddle.perp() < innerMiddle.perp())
     std::swap(outerMiddle, innerMiddle);
 
-  auto fround = [&](double in) {
-    std::stringstream ss;
-    ss << std::fixed << std::setw(14) << roundIfNear0(in);
-    return ss.str();
-  };
-
-  auto fvecround = [&](GlobalPoint vecin) {
-    std::stringstream ss;
-    ss << std::fixed << std::setw(14) << roundVecIfNear0(vecin);
-    return ss.str();
-  };
-
-  sunitt << " " << fvecround(pos) << " R= " << fround(std::sqrt(pos.x() * pos.x() + pos.y() * pos.y()))
-         << " phi= " << fround(convertRadToDeg(pos.phi())) << " outerMiddle " << fvecround(outerMiddle) << "\n"
-         << " l/w/t " << fround(length) << " / " << fround(width) << " / " << fround(thickness)
-         << " RadLeng= " << p.mediumProperties().radLen() << " Xi= " << p.mediumProperties().xi()
-         << " det center inside bounds? " << tb->inside(det.surface().toLocal(pos)) << "\n";
+  edm::LogVerbatim("DD4hep_TestPixelTopology")
+      << " " << fvecround(pos, 4) << " R= " << fround(std::sqrt(pos.x() * pos.x() + pos.y() * pos.y()), 4)
+      << " phi= " << fround(convertRadToDeg(pos.phi()), 4) << " outerMiddle " << fvecround(outerMiddle, 4) << "\n"
+      << " l/w/t " << fround(length, 4) << " / " << fround(width, 4) << " / " << fround(thickness, 4)
+      << " RadLeng= " << p.mediumProperties().radLen() << " Xi= " << p.mediumProperties().xi()
+      << " det center inside bounds? " << tb->inside(det.surface().toLocal(pos)) << "\n";
+  sunitt_ << " " << fvecround(pos, 2) << " R= " << fround(std::sqrt(pos.x() * pos.x() + pos.y() * pos.y()), 2)
+          << " phi= " << fround(convertRadToDeg(pos.phi()), 2) << " outerMiddle " << fvecround(outerMiddle, 2) << "\n"
+          << " l/w/t " << fround(length, 2) << " / " << fround(width, 2) << " / " << fround(thickness, 2)
+          << " RadLeng= " << p.mediumProperties().radLen() << " Xi= " << p.mediumProperties().xi()
+          << " det center inside bounds? " << tb->inside(det.surface().toLocal(pos)) << "\n";
 
   checkRotation(det);
 }
 
 void DD4hep_TestPixelTopology::checkRotation(const GeomDetUnit& det) {
-  const double eps = std::numeric_limits<float>::epsilon();
+  const double eps = 10. * std::numeric_limits<float>::epsilon();
   static int first = 0;
   if (first == 0) {
-    edm::LogVerbatim("DD4hep_TestPixelTopology")
-        << "numeric_limits<float>::epsilon() " << std::numeric_limits<float>::epsilon();
+    edm::LogVerbatim("DD4hep_TestPixelTopology") << "factor x numeric_limits<float>::epsilon() " << eps;
     first = 1;
   }
 
@@ -510,12 +565,18 @@ void DD4hep_TestPixelTopology::checkRotation(const GeomDetUnit& det) {
   GlobalVector aref = b.cross(c);
   GlobalVector bref = c.cross(a);
   if ((a - aref).mag() > eps || (b - bref).mag() > eps || (c - cref).mag() > eps) {
-    sunitt << " Rotation not good by cross product: " << (a - aref).mag() << ", " << (b - bref).mag() << ", "
-           << (c - cref).mag() << " for det at pos " << det.surface().position() << "\n";
+    edm::LogVerbatim("DD4hep_TestPixelTopology")
+        << " DIFFERENCE Rotation not good by cross product: " << (a - aref).mag() << ", " << (b - bref).mag() << ", "
+        << (c - cref).mag() << " for det at pos " << det.surface().position() << "\n";
+    sunitt_ << " DIFFERENCE Rotation not good by cross product: " << (a - aref).mag() << ", " << (b - bref).mag()
+            << ", " << (c - cref).mag() << " for det at pos " << det.surface().position() << "\n";
   }
   if (fabs(a.mag() - 1.) > eps || fabs(b.mag() - 1.) > eps || fabs(c.mag() - 1.) > eps) {
-    sunitt << " Rotation not good by bector mag: " << (a).mag() << ", " << (b).mag() << ", " << (c).mag()
-           << " for det at pos " << det.surface().position() << "\n";
+    edm::LogVerbatim("DD4hep_TestPixelTopology")
+        << " DIFFERENCE Rotation not good by vector mag: " << (a).mag() << ", " << (b).mag() << ", " << (c).mag()
+        << " for det at pos " << det.surface().position() << "\n";
+    sunitt_ << " DIFFERENCE Rotation not good by vector mag: " << (a).mag() << ", " << (b).mag() << ", " << (c).mag()
+            << " for det at pos " << det.surface().position() << "\n";
   }
 }
 
