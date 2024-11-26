@@ -1202,8 +1202,9 @@ void LSTEvent::addQuintupletsToEventExplicit() {
 
   // FIXME: replace by ES host data
   auto module_subdets_buf = cms::alpakatools::make_host_buffer<short[]>(queue_, nLowerModules_);
-  auto module_subdets_view = cms::alpakatools::make_device_view(queue_, modules.subdets(), modules.metadata().size());
-  alpaka::memcpy(queue_, module_subdets_buf, module_subdets_view, nModules_);
+  auto module_subdets_view =
+      cms::alpakatools::make_device_view(queue_, modules.subdets(), nLowerModules_);  // only lower modules
+  alpaka::memcpy(queue_, module_subdets_buf, module_subdets_view, nLowerModules_);
 
   auto module_layers_buf = cms::alpakatools::make_host_buffer<short[]>(queue_, nLowerModules_);
   auto module_layers_view =
