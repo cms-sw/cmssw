@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # cfg file to unpack RAW L1 GT DAQ data
 # the options set in "user choices" file
