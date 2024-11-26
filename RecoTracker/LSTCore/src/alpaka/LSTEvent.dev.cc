@@ -1271,13 +1271,6 @@ unsigned int LSTEvent::getNumberOfMiniDoublets() {
   return miniDoublets;
 }
 
-unsigned int LSTEvent::getNumberOfMiniDoubletsByLayer(unsigned int layer) {
-  if (layer == 6)
-    return n_minidoublets_by_layer_barrel_[layer];
-  else
-    return n_minidoublets_by_layer_barrel_[layer] + n_minidoublets_by_layer_endcap_[layer];
-}
-
 unsigned int LSTEvent::getNumberOfMiniDoubletsByLayerBarrel(unsigned int layer) {
   return n_minidoublets_by_layer_barrel_[layer];
 }
@@ -1298,13 +1291,6 @@ unsigned int LSTEvent::getNumberOfSegments() {
   return segments;
 }
 
-unsigned int LSTEvent::getNumberOfSegmentsByLayer(unsigned int layer) {
-  if (layer == 6)
-    return n_segments_by_layer_barrel_[layer];
-  else
-    return n_segments_by_layer_barrel_[layer] + n_segments_by_layer_endcap_[layer];
-}
-
 unsigned int LSTEvent::getNumberOfSegmentsByLayerBarrel(unsigned int layer) {
   return n_segments_by_layer_barrel_[layer];
 }
@@ -1323,13 +1309,6 @@ unsigned int LSTEvent::getNumberOfTriplets() {
   }
 
   return triplets;
-}
-
-unsigned int LSTEvent::getNumberOfTripletsByLayer(unsigned int layer) {
-  if (layer == 6)
-    return n_triplets_by_layer_barrel_[layer];
-  else
-    return n_triplets_by_layer_barrel_[layer] + n_triplets_by_layer_endcap_[layer];
 }
 
 unsigned int LSTEvent::getNumberOfTripletsByLayerBarrel(unsigned int layer) {
@@ -1371,13 +1350,6 @@ unsigned int LSTEvent::getNumberOfQuintuplets() {
   }
 
   return quintuplets;
-}
-
-unsigned int LSTEvent::getNumberOfQuintupletsByLayer(unsigned int layer) {
-  if (layer == 6)
-    return n_quintuplets_by_layer_barrel_[layer];
-  else
-    return n_quintuplets_by_layer_barrel_[layer] + n_quintuplets_by_layer_endcap_[layer];
 }
 
 unsigned int LSTEvent::getNumberOfQuintupletsByLayerBarrel(unsigned int layer) {
