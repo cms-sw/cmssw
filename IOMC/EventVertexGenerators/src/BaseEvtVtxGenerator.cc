@@ -80,7 +80,7 @@ void BaseEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
     genevt3->read_data(*HepUnsmearedMCEvt3->GetEvent());
     HepMC3Product* productcopy3 = new HepMC3Product(genevt3);  // For the moment do not really smear HepMC3
     std::unique_ptr<edm::HepMC3Product> HepMC3Evt(productcopy3);
-    evt.put(std::move(HepMC3Evt)); 
+    evt.put(std::move(HepMC3Evt));
   }
 
   return;

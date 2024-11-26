@@ -19,7 +19,7 @@ namespace CLHEP {
 namespace edm {
   class HepMCProduct;
   class HepMC3Product;
-} // namespace edm
+}  // namespace edm
 
 class BaseEvtVtxGenerator : public edm::stream::EDProducer<> {
 public:
