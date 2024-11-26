@@ -46,7 +46,7 @@ if not unitTest:
 
 # DT reco and DQM sequences
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load("Configuration/StandardSequences/MagneticField_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("DQM.DTMonitorModule.dt_dqm_sourceclient_common_cff")
 #---- for P5 (online) DB access
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
@@ -69,6 +69,7 @@ process.dtDQMPathPhys = cms.Path(process.unpackers + process.dqmmodules + proces
 process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataCollector"
 process.dtunpacker.inputLabel = "rawDataCollector"
 process.gtDigis.DaqGtInputTag = "rawDataCollector"
+process.gtStage2Digis.InputLabel = "rawDataCollector"
 process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
 
 print("Running with run type = ", process.runType.getRunType())
@@ -97,11 +98,9 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataRepacker"
     process.dtunpacker.inputLabel = "rawDataRepacker"
     process.gtDigis.DaqGtInputTag = "rawDataRepacker"
+    process.gtStage2Digis.InputLabel = "rawDataRepacker"
     process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
-    
     process.dtDigiMonitor.ResetCycle = 9999
-
-
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
