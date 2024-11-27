@@ -62,6 +62,10 @@ function of a `View` or `ConstView`. Every object contains the address of the fi
 of elements per column, and the stride for the Eigen columns. These are used to validate the columns size at run time 
 and to build a generic `View` as described in [View](#view).
 
+## Customized methods
+
+It is possible to generate methods inside the `element` and `const_element` nested structs using the `SOA_ELEMENT_METHODS` and `SOA_CONST_ELEMENT_METHODS` macros. Each of these macros can be called only once, and can define multiple methods. [An example is showed below.](#examples)
+
 ## ROOT serialization and de-serialization
 
 Layouts can be serialized and de-serialized with ROOT. In order to generate the ROOT dictionary, separate
@@ -139,6 +143,40 @@ using SoA1Layout = SoA1LayoutTemplate<>;
 using SoA1LayoutAligned = SoA1LayoutTemplate<cms::soa::CacheLineSize::defaultSize, cms::soa::AlignmentEnforcement::enforced>;
 ```
 
+It is possible to declare methods that operate on the SoA elements:
+
+```C++
+#include "DataFormats/SoALayout.h"
+
+GENERATE_SOA_LAYOUT(SoATemplate,
+  SOA_COLUMN(double, x),
+  SOA_COLUMN(double, y),
+  SOA_COLUMN(double, z),
+  
+  // methods operating on const_element
+  SOA_CONST_METHODS(
+    auto norm() const {
+      return sqrt(x()*x() + y()+y() + z()*z());
+    }
+  ),
+
+  // methods operating on element
+  SOA_METHODS(
+    void scale(float arg) {
+      x() *= arg;
+      y() *= arg;
+      z() *= arg;
+    }
+  ),
+  
+  SOA_SCALAR(int, detectorType)
+);
+
+using SoA = SoATemplate<>;
+using SoAView = SoA::View;
+using SoAConstView = SoA::ConstView;
+```
+
 The buffer of the proper size is allocated, and the layout is populated with:
 
 ```C++
@@ -211,8 +249,6 @@ template<size_t ALIGNMENT = cms::soa::CacheLineSize::defaultSize,
          bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>
 struct SoA1Layout::ConstViewTemplateFreeParams;
 ```
-
-
 
 ## Current status and further improvements
 
