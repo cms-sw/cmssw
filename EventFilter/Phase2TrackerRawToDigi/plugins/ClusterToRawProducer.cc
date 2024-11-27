@@ -125,10 +125,6 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
                     uint16_t hybrid_2_offset = offset_in_32b_words;
                     offset_in_32b_words += Hybrid_2.get_payload_size();
 
-                    std::cout << hybrid_1_offset << ", " << hybrid_2_offset << " | " << slink_id << " | " << module_id << std::endl;
-                    std::cout << Hybrid_1.get_number_of_strip_clusters() << ", " << Hybrid_1.get_number_of_pixel_clusters() << std::endl;
-                    std::cout << Hybrid_2.get_number_of_strip_clusters() << ", " << Hybrid_2.get_number_of_pixel_clusters() << std::endl;
-
                     // 24 is PSS, 23 is PSP, 26 is SS-SS
                     uint32_t combined_offsets = (static_cast<uint32_t>(hybrid_2_offset) << 16) | hybrid_1_offset;
                     offset_map[module_id_within_slink] = Word32Bits(combined_offsets);
