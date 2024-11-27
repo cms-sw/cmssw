@@ -23,73 +23,73 @@ private:
 
 private:
   const bool isPhase2_;
-  const edm::EDGetTokenT<InputProduct> recHitsPortableEB_;
-  const edm::EDGetTokenT<InputProduct> recHitsPortableEE_;
-  const edm::EDPutTokenT<EBRecHitCollection> recHitsCPUEBToken_;
-  const edm::EDPutTokenT<EERecHitCollection> recHitsCPUEEToken_;
+  const edm::EDGetTokenT<InputProduct> inputTokenEB_;
+  const edm::EDGetTokenT<InputProduct> inputTokenEE_;
+  const edm::EDPutTokenT<EBRecHitCollection> outputTokenEB_;
+  const edm::EDPutTokenT<EERecHitCollection> outputTokenEE_;
 };
 
 void EcalRecHitSoAToLegacy::fillDescriptions(edm::ConfigurationDescriptions &confDesc) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("recHitsPortableEB", edm::InputTag("ecalRecHitPortable", "EcalRecHitsEB"));
-  desc.add<std::string>("recHitsLabelCPUEB", "EcalRecHitsEB");
+  desc.add<edm::InputTag>("inputCollectionEB", edm::InputTag("ecalRecHitPortable", "EcalRecHitsEB"));
+  desc.add<std::string>("outputLabelEB", "EcalRecHitsEB");
   desc.ifValue(edm::ParameterDescription<bool>("isPhase2", false, true),
                false >> (edm::ParameterDescription<edm::InputTag>(
-                             "recHitsPortableEE", edm::InputTag("ecalRecHitPortable", "EcalRecHitsEE"), true) and
-                         edm::ParameterDescription<std::string>("recHitsLabelCPUEE", "EcalRecHitsEE", true)) or
+                             "inputCollectionEE", edm::InputTag("ecalRecHitPortable", "EcalRecHitsEE"), true) and
+                         edm::ParameterDescription<std::string>("outputLabelEE", "EcalRecHitsEE", true)) or
                    true >> edm::EmptyGroupDescription());
   confDesc.add("ecalRecHitSoAToLegacy", desc);
 }
 
 EcalRecHitSoAToLegacy::EcalRecHitSoAToLegacy(edm::ParameterSet const &ps)
     : isPhase2_{ps.getParameter<bool>("isPhase2")},
-      recHitsPortableEB_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsPortableEB"))},
-      recHitsPortableEE_{isPhase2_ ? edm::EDGetTokenT<InputProduct>{}
-                                   : consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsPortableEE"))},
-      recHitsCPUEBToken_{produces<EBRecHitCollection>(ps.getParameter<std::string>("recHitsLabelCPUEB"))},
-      recHitsCPUEEToken_{isPhase2_ ? edm::EDPutTokenT<EERecHitCollection>{}
-                                   : produces<EERecHitCollection>(ps.getParameter<std::string>("recHitsLabelCPUEE"))} {}
+      inputTokenEB_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("inputCollectionEB"))},
+      inputTokenEE_{isPhase2_ ? edm::EDGetTokenT<InputProduct>{}
+                              : consumes<InputProduct>(ps.getParameter<edm::InputTag>("inputCollectionEE"))},
+      outputTokenEB_{produces<EBRecHitCollection>(ps.getParameter<std::string>("outputLabelEB"))},
+      outputTokenEE_{isPhase2_ ? edm::EDPutTokenT<EERecHitCollection>{}
+                               : produces<EERecHitCollection>(ps.getParameter<std::string>("outputLabelEE"))} {}
 
 void EcalRecHitSoAToLegacy::produce(edm::StreamID sid, edm::Event &event, edm::EventSetup const &setup) const {
-  auto const &recHitsEBColl = event.get(recHitsPortableEB_);
-  auto const &recHitsEBCollView = recHitsEBColl.const_view();
-  auto recHitsCPUEB = std::make_unique<EBRecHitCollection>();
-  recHitsCPUEB->reserve(recHitsEBCollView.size());
+  auto const &inputCollEB = event.get(inputTokenEB_);
+  auto const &inputCollEBView = inputCollEB.const_view();
+  auto outputCollEB = std::make_unique<EBRecHitCollection>();
+  outputCollEB->reserve(inputCollEBView.size());
 
-  for (uint32_t i = 0; i < recHitsEBCollView.size(); ++i) {
+  for (uint32_t i = 0; i < inputCollEBView.size(); ++i) {
     // Save only if energy is >= 0 !
     // This is important because the channels that were supposed
     // to be excluded get "-1" as energy
-    if (recHitsEBCollView.energy()[i] >= 0.) {
-      recHitsCPUEB->emplace_back(DetId{recHitsEBCollView.id()[i]},
-                                 recHitsEBCollView.energy()[i],
-                                 recHitsEBCollView.time()[i],
-                                 recHitsEBCollView.extra()[i],
-                                 recHitsEBCollView.flagBits()[i]);
+    if (inputCollEBView.energy()[i] >= 0.) {
+      outputCollEB->emplace_back(DetId{inputCollEBView.id()[i]},
+                                 inputCollEBView.energy()[i],
+                                 inputCollEBView.time()[i],
+                                 inputCollEBView.extra()[i],
+                                 inputCollEBView.flagBits()[i]);
     }
   }
-  event.put(recHitsCPUEBToken_, std::move(recHitsCPUEB));
+  event.put(outputTokenEB_, std::move(outputCollEB));
 
   if (!isPhase2_) {
-    auto const &recHitsEEColl = event.get(recHitsPortableEE_);
-    auto const &recHitsEECollView = recHitsEEColl.const_view();
-    auto recHitsCPUEE = std::make_unique<EERecHitCollection>();
-    recHitsCPUEE->reserve(recHitsEECollView.size());
+    auto const &inputCollEE = event.get(inputTokenEE_);
+    auto const &inputCollEEView = inputCollEE.const_view();
+    auto outputCollEE = std::make_unique<EERecHitCollection>();
+    outputCollEE->reserve(inputCollEEView.size());
 
-    for (uint32_t i = 0; i < recHitsEECollView.size(); ++i) {
+    for (uint32_t i = 0; i < inputCollEEView.size(); ++i) {
       // Save only if energy is >= 0 !
       // This is important because the channels that were supposed
       // to be excluded get "-1" as energy
-      if (recHitsEECollView.energy()[i] >= 0.) {
-        recHitsCPUEE->emplace_back(DetId{recHitsEECollView.id()[i]},
-                                   recHitsEECollView.energy()[i],
-                                   recHitsEECollView.time()[i],
-                                   recHitsEECollView.extra()[i],
-                                   recHitsEECollView.flagBits()[i]);
+      if (inputCollEEView.energy()[i] >= 0.) {
+        outputCollEE->emplace_back(DetId{inputCollEEView.id()[i]},
+                                   inputCollEEView.energy()[i],
+                                   inputCollEEView.time()[i],
+                                   inputCollEEView.extra()[i],
+                                   inputCollEEView.flagBits()[i]);
       }
     }
-    event.put(recHitsCPUEEToken_, std::move(recHitsCPUEE));
+    event.put(outputTokenEE_, std::move(outputCollEE));
   }
 }
 
