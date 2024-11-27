@@ -14,14 +14,10 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
-
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
 process.source.skipEvents = cms.untracked.uint32(0)
 
-
-#process.source.fileNames = ['/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-RECO/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/02837764-A8F6-214F-AEE2-BCAEAAD7952A.root']
-
-process.source.fileNames = ['/store/relval/CMSSW_11_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-RECO/110X_mcRun3_2021_realistic_v6-v1/20000/A8E66994-05C0-104A-A0F3-4D393C7E30C8.root']
+process.source.fileNames = ['root://cmsxrootd.fnal.gov//store/relval/CMSSW_14_2_0_pre3/RelValTTbar_14TeV/GEN-SIM-RECO/PU_140X_mcRun3_2024_realistic_v26_STD_2024_PU-v1/2590000/3c568c90-b6ff-43be-9b24-8b4e9d862185.root']
 
 ## number of events
 process.maxEvents = cms.untracked.PSet(
@@ -79,10 +75,10 @@ process.p      = cms.Path(
     #process.topSingleMuonMediumDQM     +
 #    process.EIsequence * 
     process.jetCorrectorsSeq * process.dqmAk4PFCHSL1FastL2L3CorrectorChain *
-    process.topSingleMuonMediumDQM     +
+    process.topSingleMuonMediumDQM      +
     #process.topSingleElectronLooseDQM  +
     #process.ak4PFCHSL1FastL2L3CorrectorChain * 
-    process.topSingleElectronMediumDQM +
+    process.topSingleElectronMediumDQM  +
     #process.ak4PFCHSL1FastL2L3CorrectorChain * 
     process.singleTopMuonMediumDQM      +
     #process.ak4PFCHSL1FastL2L3CorrectorChain * 
