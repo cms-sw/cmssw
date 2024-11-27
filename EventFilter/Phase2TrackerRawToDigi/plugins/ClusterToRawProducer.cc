@@ -25,8 +25,6 @@
 #include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
-// #include "EventFilter/Phase2TrackerRawToDigi/interface/DTCAssembly.h"
-// #include "EventFilter/Phase2TrackerRawToDigi/interface/Cluster.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/SensorHybrid.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerSpecifications.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2DAQFormatSpecification.h"
