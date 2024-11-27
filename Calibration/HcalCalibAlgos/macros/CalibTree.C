@@ -62,7 +62,7 @@
 //                              1, else depth = 2; (7) in case of HB, depths
 //                              1 and 2 are set to 1, else depth = 2; for HE
 //                              ignore depth index; (8) Assign all depths > 4
-//                              as depth = 5; (9) Assign all depth = 1 as 
+//                              as depth = 5; (9) Assign all depth = 1 as
 //                              depth = 2. The digit *d* is used if zside is
 //                              to be ignored (1) or not (0)
 //                              (Default 0)
