@@ -50,6 +50,8 @@
 #define _VALUE_TYPE_SCALAR 0
 #define _VALUE_TYPE_COLUMN 1
 #define _VALUE_TYPE_EIGEN_COLUMN 2
+#define _VALUE_TYPE_METHOD 3
+#define _VALUE_TYPE_CONST_METHOD 4
 
 /* The size type need to be "hardcoded" in the template parameters for classes serialized by ROOT */
 /* In practice, using a typedef as a template parameter to the Layout or its ViewTemplateFreeParams member
@@ -123,7 +125,7 @@ namespace cms::soa {
     // default constructor
     SoAConstParametersImpl() = default;
 
-    // constructor from an address
+    // constructor from address
     SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(ValueType const* addr) : addr_(addr) {}
 
     // constructor from a non-const parameter set
@@ -200,7 +202,7 @@ namespace cms::soa {
     // default constructor
     SoAParametersImpl() = default;
 
-    // constructor from an address
+    // constructor from address
     SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(ValueType* addr) : addr_(addr) {}
 
     static constexpr bool checkAlignment(ValueType* addr, byte_size_type alignment) {
@@ -555,20 +557,51 @@ namespace cms::soa {
 
   // Helper function to compute aligned size
   constexpr inline byte_size_type alignSize(byte_size_type size, byte_size_type alignment) {
-    return ((size + alignment - 1) / alignment) * alignment;
+    return ((size + alignment - 1) / alignment) *
+           alignment;  //this is an integer division -> it rounds size to the next multiple of alignment
   }
 
 }  // namespace cms::soa
 
-#define SOA_SCALAR(TYPE, NAME) (_VALUE_TYPE_SCALAR, TYPE, NAME)
-#define SOA_COLUMN(TYPE, NAME) (_VALUE_TYPE_COLUMN, TYPE, NAME)
-#define SOA_EIGEN_COLUMN(TYPE, NAME) (_VALUE_TYPE_EIGEN_COLUMN, TYPE, NAME)
+#define SOA_SCALAR(TYPE, NAME) (_VALUE_TYPE_SCALAR, TYPE, NAME, ~)
+#define SOA_COLUMN(TYPE, NAME) (_VALUE_TYPE_COLUMN, TYPE, NAME, ~)
+#define SOA_EIGEN_COLUMN(TYPE, NAME) (_VALUE_TYPE_EIGEN_COLUMN, TYPE, NAME, ~)
+#define SOA_METHODS(...) (_VALUE_TYPE_METHOD, _, _, (__VA_ARGS__))
+#define SOA_CONST_METHODS(...) (_VALUE_TYPE_CONST_METHOD, _, _, (__VA_ARGS__))
 
-/* Iterate on the macro MACRO and return the result as a comma separated list */
+/* Macro generating customized methods for the element */
+#define GENERATE_METHODS(R, DATA, FIELD)                                         \
+  BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_METHOD), \
+              BOOST_PP_TUPLE_ELEM(3, FIELD),                                     \
+              BOOST_PP_EMPTY())
+
+/* Macro generating customized methods for the const element*/
+#define GENERATE_CONST_METHODS(R, DATA, FIELD)                                         \
+  BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_CONST_METHOD), \
+              BOOST_PP_TUPLE_ELEM(3, FIELD),                                           \
+              BOOST_PP_EMPTY())
+
+/* Preprocessing loop for managing functions generation: only macros containing valid content are expanded */
+#define ENUM_FOR_PRED(r, state) BOOST_PP_LESS(BOOST_PP_TUPLE_ELEM(0, state), BOOST_PP_TUPLE_ELEM(1, state))
+
+#define ENUM_FOR_OP(r, state) \
+  (BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(0, state)), BOOST_PP_TUPLE_ELEM(1, state), BOOST_PP_TUPLE_ELEM(2, state))
+
+#define ENUM_FOR_MACRO(r, state) \
+  BOOST_PP_TUPLE_ENUM(BOOST_PP_SEQ_ELEM(BOOST_PP_TUPLE_ELEM(0, state), BOOST_PP_TUPLE_ELEM(2, state)))
+
+#define ENUM_IF_VALID(...)                                                                      \
+  BOOST_PP_FOR((0, BOOST_PP_VARIADIC_SIZE(__VA_ARGS__), BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)), \
+               ENUM_FOR_PRED,                                                                   \
+               ENUM_FOR_OP,                                                                     \
+               ENUM_FOR_MACRO)
+
+/* Iterate on the macro MACRO and return the result as a comma separated list, converting
+   the boost sequence into tuples and then into list */
 #define _ITERATE_ON_ALL_COMMA(MACRO, DATA, ...) \
   BOOST_PP_TUPLE_ENUM(BOOST_PP_SEQ_TO_TUPLE(_ITERATE_ON_ALL(MACRO, DATA, __VA_ARGS__)))
 
-/* Iterate MACRO on all elements */
+/* Iterate MACRO on all elements of the boost sequence */
 #define _ITERATE_ON_ALL(MACRO, DATA, ...) BOOST_PP_SEQ_FOR_EACH(MACRO, DATA, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
 
 /* Switch on macros depending on scalar / column type */
@@ -599,6 +632,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::column, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE T* operator()() { return params_.addr_; }
+
     using NoParamReturnType = T*;
     using ParamReturnType = T&;
     SOA_HOST_DEVICE SOA_INLINE T& operator()(size_type index) { return params_.addr_[index]; }
