@@ -440,7 +440,7 @@ namespace ecaldqm {
       meSCEt.fill(getEcalDQMSetupObjects(), seedId, et);
       meSCELow.fill(getEcalDQMSetupObjects(), seedId, energy);
       meSCEtLow.fill(getEcalDQMSetupObjects(), seedId, et);
-  
+
       meSCRawE.fill(getEcalDQMSetupObjects(), seedId, rawEnergy);
       meSCRawEt.fill(getEcalDQMSetupObjects(), seedId, rawEt);
       meSCRawELow.fill(getEcalDQMSetupObjects(), seedId, rawEnergy);
