@@ -101,4 +101,4 @@ process.Timing = cms.Service("Timing",
     useJobReport = cms.untracked.bool(True)  # This will also log timings in the job report.
 )
 
-process.dtc = cms.Path(process.ClustersFromPhase2TrackerDigis * process.Experimental)
+process.dtc = cms.Path(process.ClustersFromPhase2TrackerDigis * process.Experimental * process.Analyzer)

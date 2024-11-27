@@ -84,7 +84,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     using namespace Phase2TrackerSpecifications;
     using namespace Phase2DAQFormatSpecification;
 
-    for (int dtc_id = 1; dtc_id == 1; dtc_id++)
+    for (int dtc_id = MIN_DTC_ID; dtc_id < MAX_DTC_ID; dtc_id++)
     {
         for (int slink_id = MIN_SLINK_ID; slink_id < MAX_SLINK_ID + 1; slink_id++)
         {
@@ -94,7 +94,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             FEDRawData slink_daq_stream;
 
             std::vector<Word32Bits> daq_packet;
-            std::vector<Word32Bits> offset_map(CICs_PER_SLINK, Word32Bits(0));
+            std::vector<Word32Bits> offset_map(CICs_PER_SLINK / 2, Word32Bits(0));
 
             for (int i = 0; i < 4; ++i) { daq_packet.push_back(Word32Bits(DTC_DAQ_HEADER)); }
             std::vector<Word32Bits> payload;
@@ -123,11 +123,16 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
                     // Figure Out Offsets
                     uint16_t hybrid_1_offset = offset_in_32b_words;
                     offset_in_32b_words += Hybrid_1.get_payload_size();
+
                     uint16_t hybrid_2_offset = offset_in_32b_words;
                     offset_in_32b_words += Hybrid_2.get_payload_size();
 
+                    std::cout << hybrid_1_offset << ", " << hybrid_2_offset << " | " << slink_id << " | " << module_id << std::endl;
+                    std::cout << Hybrid_1.get_number_of_strip_clusters() << ", " << Hybrid_1.get_number_of_pixel_clusters() << std::endl;
+                    std::cout << Hybrid_2.get_number_of_strip_clusters() << ", " << Hybrid_2.get_number_of_pixel_clusters() << std::endl;
+
                     // 24 is PSS, 23 is PSP, 26 is SS-SS
-                    uint32_t combined_offsets = (static_cast<uint32_t>(hybrid_1_offset) << 16) | hybrid_2_offset;
+                    uint32_t combined_offsets = (static_cast<uint32_t>(hybrid_2_offset) << 16) | hybrid_1_offset;
                     offset_map[module_id_within_slink] = Word32Bits(combined_offsets);
 
                     // Figure out Payload
@@ -136,27 +141,46 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
                 } 
                 catch (const cms::Exception& e) 
                 {
-                    // // exception here means that the link is not connected to a detector
-                    // uint32_t eventID = eventId_ & L1ID_MAX_VALUE;  // eventId_ (9 bits)
-                    // uint32_t channelErrors = 0;  // 9 bits for errors, all set to 0
-                    // uint32_t numClusters = 0;  // no clusters here.
+                    // exception here means that the link is not connected to a detector
+                    uint32_t eventID = eventId_ & L1ID_MAX_VALUE;  // eventId_ (9 bits)
+                    uint32_t channelErrors = 0;  // 9 bits for errors, all set to 0
+                    uint32_t numClusters = 0;    // no clusters here.
 
-                    // // Build the channel header
-                    // uint32_t header = (eventID << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS)) |
-                    //                 (channelErrors << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) |
-                    //                 (numClusters << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - NCLUSTERS_BITS));
+                    // Build the channel header
+                    uint32_t header_ = (eventID << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS)) |
+                            (channelErrors << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) |
+                            (numClusters << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - N_STRIP_CLUSTER_BITS)) |
+                            (numClusters);
 
-                    // // Push the header into the payload
-                    // payload.push_back(Word32Bits(header));
+                    uint16_t hybrid_1_offset = offset_in_32b_words;
+                    offset_in_32b_words += 1;
+                    
+                    uint16_t hybrid_2_offset = offset_in_32b_words;
+                    offset_in_32b_words += 1;
+
+                    uint32_t combined_offsets = (static_cast<uint32_t>(hybrid_2_offset) << 16) | hybrid_1_offset;
+                    offset_map[module_id_within_slink] = Word32Bits(combined_offsets);
+
+                    // Push the header into the payload
+                    payload.push_back(Word32Bits(header_));
+                    payload.push_back(Word32Bits(header_));
 
                     // continue;
                 }
             }
 
+            // Add the offset map to the slink_daq_stream
+            for (std::size_t i = 0; i < offset_map.size(); i++)
+            { daq_packet.push_back(offset_map[i]); }
+
+            // Add the payload to the slink_daq_stream
+            for (std::size_t i = 0; i < payload.size(); i++)
+            { daq_packet.push_back(payload[i]); }
+
             slink_daq_stream.resize(daq_packet.size() * NUMBER_OF_BYTES_PER_WORD, NUMBER_OF_BYTES_PER_WORD);  // Resize the buffer to fit all 32-bit words
             unsigned char *data_ptr = slink_daq_stream.data();
 
-            for (size_t word_index = 0; word_index < daq_packet.size(); ++word_index) 
+            for (size_t word_index = 0; word_index < daq_packet.size(); ++word_index)
             {
                 insertHexWordAt(data_ptr, word_index, (daq_packet[word_index].to_ulong()));
             }
@@ -223,7 +247,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     // for (int j = 0; j < 4; j++)
     // { fedRawDataCollection.get()->FEDData( j + 4 * (i - 1) + 0 ) = dtc_0.getSLink(j); }
 
-    // iEvent.put(std::move(fedRawDataCollection));
+    iEvent.put(std::move(fedRawDataCollection));
 
 }
 
