@@ -34,7 +34,6 @@ class SensorHybrid
                         {
                             sensor_type_2 = TrackerGeometry::ModuleType::Ph2PSS;
                         }
-                        // (*this).number_of_strip_clusters_ = (*clusterIterator).size();
                         (*this).num_channels_per_chip = CHANNELS_PER_SSA;
                         break;
 
@@ -47,7 +46,6 @@ class SensorHybrid
                         {
                             sensor_type_2 = TrackerGeometry::ModuleType::Ph2SS;
                         }
-                        // (*this).number_of_strip_clusters_ = (*clusterIterator).size();
                         (*this).num_channels_per_chip = CHANNELS_PER_CBC;
                         break;
 
@@ -60,7 +58,6 @@ class SensorHybrid
                         {
                             sensor_type_2 = TrackerGeometry::ModuleType::Ph2PSP;
                         }
-                        // (*this).number_of_pixel_clusters_ = (*clusterIterator).size();
                         cic_boundary_in_z = CIC_Z_BOUNDARY_PIXEL; 
                         (*this).num_channels_per_chip = CHANNELS_PER_SSA;
                         break;
@@ -245,8 +242,6 @@ class SensorHybrid
         int num_channels_per_chip;
 
         unsigned int offset_index_;
-        // unsigned int number_of_pixel_clusters_ = 0;
-        // unsigned int number_of_strip_clusters_ = 0;
         unsigned int eventId_ = 0;
 
     public:
@@ -258,8 +253,6 @@ class SensorHybrid
             sensor_2_clusters_ = get_clusters_on_cic(sensor_2, cic_id, trackerGeometry, 2);
         }
 
-        // unsigned int    get_number_of_pixel_clusters() const { return number_of_pixel_clusters_; }
-        // unsigned int    get_number_of_strip_clusters() const { return number_of_strip_clusters_; }
         unsigned int    get_payload_size() 
         { 
             using namespace Phase2DAQFormatSpecification;
