@@ -196,7 +196,7 @@ void Generator3::HepMC2G4(const HepMC3::GenEvent *evt_orig, G4Event *g4evt) {
             if (verbose > 2)
               LogDebug("SimG4CoreGenerator3")
                   << "GenVertex barcode = " << vitr->id() << " selected for GenParticle barcode = " << pitr->id()
-                  << " radius = " << std::sqrt(r_dd); // barcode is substituted by id
+                  << " radius = " << std::sqrt(r_dd);  // barcode is substituted by id
             break;
           }
         } else {
@@ -356,7 +356,7 @@ void Generator3::HepMC2G4(const HepMC3::GenEvent *evt_orig, G4Event *g4evt) {
               continue;
             }
           }
-          const HepMC3::GenParticle* ppointer = pitr.get();
+          const HepMC3::GenParticle *ppointer = pitr.get();
           if (fLumiFilter && !fLumiFilter->isGoodForLumiMonitor(ppointer)) {  // MK: this function is always true
             continue;
           }
@@ -431,10 +431,10 @@ void Generator3::HepMC2G4(const HepMC3::GenEvent *evt_orig, G4Event *g4evt) {
 }
 
 void Generator3::particleAssignDaughters(G4PrimaryParticle *g4p, HepMC3::GenParticle *vp, double decaylength) {
-  if (verbose > 1) {
+  if (verbose > 1) {  // MK: Check message below
     LogDebug("SimG4CoreGenerator3") << "Special case of long decay length \n"
-                                   << "Assign daughters with to mother with decaylength=" << decaylength / CLHEP::cm
-                                   << " cm";
+                                    << "Assign daughters to mother with decaylength=" << decaylength / CLHEP::cm
+                                    << " cm";
   }
   math::XYZTLorentzVector p(vp->momentum().px(), vp->momentum().py(), vp->momentum().pz(), vp->momentum().e());
 
