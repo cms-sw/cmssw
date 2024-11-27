@@ -9,8 +9,8 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
-//#include "conifer.h"
-#include "conifer_cpp.h"
+// FIXME: move to include from external package
+#include "L1Trigger/Phase2L1ParticleFlow/interface/conifer.h"
 
 #include <vector>
 #include <cmath>
@@ -56,8 +56,7 @@ namespace l1tpf {
 
     std::vector<Var> variables_;
 
-
   };  //class
-};    // namespace l1tpf
+};  // namespace l1tpf
 
 #endif

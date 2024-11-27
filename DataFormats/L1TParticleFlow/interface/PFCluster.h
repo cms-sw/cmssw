@@ -33,7 +33,8 @@ namespace l1t {
           puIdScore_(0), 
           emIdScore_(0), 
           piIdScore_(0),
-          digiData_(0) {
+          digiData_(0) // FIXME: is this still needed? Most likely not!
+          { 
       setPdgId(isEM ? 22 : 130);  // photon : non-photon(K0)
     }
     PFCluster(
@@ -90,7 +91,7 @@ namespace l1t {
     float piIDScore() const { return piIdScore_; }
 
     // Kyungmin
-    void setRho(float rho) { rho_ = rho; }
+    void setRho(float rho) { rho_ = rho; } // FIXME: is this still needed?
     float getRho() const { return rho_; } 
 
     uint64_t digiWord() const { return digiData_; }

@@ -15,9 +15,9 @@ switchOnNNAssoc = cms.bool(False)
 l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('l1tPFTracksFromL1Tracks'),
     muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
-    emClusters = cms.VInputTag(cms.InputTag("l1tPhase2L1CaloEGammaEmulator","GCTClusters")),
-    emGctRawClusters = cms.VInputTag(cms.InputTag("l1tPhase2L1CaloEGammaEmulator","GCTDigitizedClusterToCorrelator")),
-    hadClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromCombinedCaloHCal:calibrated')),
+    emGctClusters = cms.InputTag("l1tPhase2L1CaloEGammaEmulator","GCTClusters"),
+    emGctRawClusters = cms.InputTag("l1tPhase2L1CaloEGammaEmulator","GCTDigitizedClusterToCorrelator"),
+    hadClusters = cms.InputTag('l1tPFClustersFromCombinedCaloHCal:calibrated'),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
     nVtx = cms.int32(1),    
     emPtCut = cms.double(0.5),
@@ -96,7 +96,7 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
         algorithm = 2,
         trkQualityPtMin = 0.,
         compositeParametersTkEle = cms.PSet(
-            model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/my_prj.json"),
+            model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/egamma/compositeID_EB_v0.json"),
             loose_wp=cms.double(-9999),
             tight_wp=cms.double(0.0527344),
         )
@@ -153,9 +153,9 @@ _hgcalSectors = cms.VPSet(
 l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('l1tPFTracksFromL1Tracks'),
     muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
-    emClusters = cms.VInputTag(), # the em clusters are "intercepted" from the had ones in the regionizer
-    emGctRawClusters = cms.VInputTag(),
-    hadClusters = cms.VInputTag(cms.InputTag("l1tHGCalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering")),
+    emGctClusters = cms.InputTag(""), # the em clusters are "intercepted" from the had ones in the regionizer
+    emGctRawClusters = cms.InputTag(""),
+    hadClusters = cms.InputTag("l1tHGCalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering"),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
     nVtx = cms.int32(1),    
     emPtCut = cms.double(0.5),
@@ -185,6 +185,19 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
         ),
     muonInputConversionAlgo = cms.string("Emulator"),
     hgcalInputConversionAlgo = cms.string("Emulator"),
+    hgcalInputConversionParameters = cms.PSet(
+        slim = cms.bool(False),
+        multiclass_id = cms.PSet(
+            model = cms.string("L1Trigger/Phase2L1ParticleFlow/data/multiclassID/multiclass_EE.json"),
+            wp_pt = cms.vdouble(20),
+            wp_PU = cms.vdouble(0.38534376, 0.33586645),
+            wp_Pi = cms.vdouble(0.22037095, 0.08385937),
+            wp_EgEm = cms.vdouble(0.13564333, 0.36078927),
+            wp_PFEm = cms.vdouble(0.13564333, 0.36078927),
+        ),
+        corrector = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hadcorr_HGCal3D_TC.root"),
+        correctorEmfMax = cms.double(1.125),
+    ),
     regionizerAlgo = cms.string("Multififo"),
     regionizerAlgoParameters = cms.PSet(
         useAlsoVtxCoords = cms.bool(True),
@@ -261,7 +274,7 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
         #     # the working points are cuts on BDT output logits [log(p/1-p)]/4 (range -1 to 1 to match the FW dataformat)
         #     loose_wp=cms.double(-9999),
         #     tight_wp=cms.double(0.0527344),
-        #     model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/endcap.json")
+        #     model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/egamma/compositeID_EE_v1.json")
         # ),
         ), # This should be 10 GeV when doCompositeTkEle = False
     tkEgSorterAlgo = cms.string("Endcap"),
@@ -307,9 +320,9 @@ l1tLayer1HGCalElliptic = l1tLayer1HGCal.clone(
 
 l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
-    emClusters = cms.VInputTag(),
-    emGctRawClusters = cms.VInputTag(),
-    hadClusters = cms.VInputTag(cms.InputTag("l1tHGCalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering")),
+    emGctClusters = cms.InputTag(""),
+    emGctRawClusters = cms.InputTag(""),
+    hadClusters = cms.InputTag("l1tHGCalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering"),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
     nVtx = cms.int32(1),        
     emPtCut = cms.double(0.5),
@@ -318,7 +331,18 @@ l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     muonInputConversionAlgo = cms.string("Emulator"),
     hgcalInputConversionAlgo = cms.string("Emulator"),
     hgcalInputConversionParameters = cms.PSet(
-        slim = cms.bool(True)
+        slim = cms.bool(True),
+        multiclass_id = cms.PSet(
+            model = cms.string("L1Trigger/Phase2L1ParticleFlow/data/multiclassID/multiclass_EE.json"),
+            wp_pt = cms.vdouble(20),
+            wp_PU = cms.vdouble(0.38534376, 0.33586645),
+            wp_Pi = cms.vdouble(0.22037095, 0.08385937),
+            wp_EgEm = cms.vdouble(0.13564333, 0.36078927),
+            wp_PFEm = cms.vdouble(0.13564333, 0.36078927),
+        ),
+        corrector = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hadcorr_HGCal3D_TC.root"),
+        correctorEmfMax = cms.double(1.125),
+
     ),
     regionizerAlgo = cms.string("Multififo"),
     regionizerAlgoParameters = cms.PSet(
@@ -409,7 +433,7 @@ l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
 
 l1tLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
     muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
-    hadClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromCombinedCaloHF:calibrated')),
+    hadClusters = cms.InputTag('l1tPFClustersFromCombinedCaloHF:calibrated'),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
     nVtx = cms.int32(1),    
     emPtCut = cms.double(0.5),

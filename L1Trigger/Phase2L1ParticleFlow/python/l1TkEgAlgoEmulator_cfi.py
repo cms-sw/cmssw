@@ -54,7 +54,7 @@ tkEgAlgoParameters = cms.PSet(
         # the working points are cuts on BDT output logits [log(p/1-p)]/4 (range -1 to 1 to match the FW dataformat)
         loose_wp=cms.double(-0.181641),
         tight_wp=cms.double(0.0527344),
-        model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/compositeID.json")
+        model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/egamma/compositeID_EE_v0.json")
     ),
 )
 
