@@ -56,11 +56,11 @@ def customiseHLTFor46647(process):
             # Replace it with cms.uint32
             prod.DontCountDetsAboveNClusters = cms.uint32(value)
 
-        for prod in producers_by_type(process, 'SeedCombiner'):
-            if hasattr(prod, "PairCollection"):
-                delattr(prod, "PairCollection")
-            if hasattr(prod, "TripletCollection"):
-                delattr(prod, "TripletCollection")
+    for prod in producers_by_type(process, 'SeedCombiner'):
+        if hasattr(prod, "PairCollection"):
+            delattr(prod, "PairCollection")
+        if hasattr(prod, "TripletCollection"):
+            delattr(prod, "TripletCollection")
 
     return process
 
