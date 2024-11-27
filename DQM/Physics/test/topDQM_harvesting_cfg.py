@@ -36,7 +36,7 @@ process.EDMtoMEConverter.convertOnEndRun  = True
 process.dqmSaver.saveByRun      = cms.untracked.int32( -1)
 process.dqmSaver.saveAtJobEnd   = cms.untracked.bool(True)
 process.dqmSaver.forceRunNumber = cms.untracked.int32(  1)
-process.dqmSaver.workflow       = cms.untracked.string('/TopVal/CMSSW_3_8_4/RECO') ## adapt apropriately
+process.dqmSaver.workflow       = cms.untracked.string('/TopVal/CMSSW_14_2_0_pre4/RECO') ## adapt apropriately
 
 
 ## path definitions
