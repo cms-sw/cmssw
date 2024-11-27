@@ -103,7 +103,7 @@
 //                               barrel => |ieta| < 16; endcap => |ieta| > 15;
 //                               d: as the format for threshold application,
 //                               0: no threshold; 1: 2022 prompt data; 2:
-//                               2022 reco data; 3: 2023 prompt data; 4: 2025 
+//                               2022 reco data; 3: 2023 prompt data; 4: 2025
 //                               Begin of Year.
 //                               (default = 0)
 //   etalo/etahi (int,int)     = |eta| ranges (default = 0:30)
