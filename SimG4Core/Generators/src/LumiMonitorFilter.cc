@@ -15,4 +15,3 @@ void LumiMonitorFilter::Describe() const { edm::LogInfo("LumiMonitorFilter") << 
 bool LumiMonitorFilter::isGoodForLumiMonitor(const HepMC::GenParticle *) const { return true; }
 
 bool LumiMonitorFilter::isGoodForLumiMonitor(const HepMC3::GenParticle *) const { return true; }
-
