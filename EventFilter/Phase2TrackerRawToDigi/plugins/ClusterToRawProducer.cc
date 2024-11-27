@@ -25,10 +25,12 @@
 #include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
-#include "EventFilter/Phase2TrackerRawToDigi/interface/DTCAssembly.h"
-#include "EventFilter/Phase2TrackerRawToDigi/interface/Cluster.h"
+// #include "EventFilter/Phase2TrackerRawToDigi/interface/DTCAssembly.h"
+// #include "EventFilter/Phase2TrackerRawToDigi/interface/Cluster.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/SensorHybrid.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerSpecifications.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2DAQFormatSpecification.h"
+#include <fstream>
 
 class ClusterToRawProducer : public edm::one::EDProducer<> {
 public:
@@ -43,11 +45,14 @@ private:
     const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
     const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
 
-    uint32_t assignNumber(const uint32_t& N);
-    void processClusters(TrackerGeometry::ModuleType moduleType,
-                                           const Phase2TrackerCluster1DCollectionNew::DetSet& detector_cluster_collection,
-                                           unsigned int dtc_id, unsigned int slink_id, unsigned int slink_id_within, bool is_seed_sensor,
-                                           DTCAssembly& dtcAssembly);
+    void insertHexWordAt(unsigned char *data_ptr, size_t word_index, uint32_t hex_word) 
+    {
+        data_ptr[word_index * 4 + 0] = (hex_word >> 24) & 0xFF;  // Most significant byte (bits 31-24)
+        data_ptr[word_index * 4 + 1] = (hex_word >> 16) & 0xFF;  // Next byte (bits 23-16)
+        data_ptr[word_index * 4 + 2] = (hex_word >> 8) & 0xFF;   // Next byte (bits 15-8)
+        data_ptr[word_index * 4 + 3] = (hex_word >> 0) & 0xFF;   // Least significant byte (bits 7-0)
+    }
+
 };
 
 ClusterToRawProducer::ClusterToRawProducer(const edm::ParameterSet& iConfig)
@@ -71,9 +76,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     const auto& cablingMap = iSetup.getData(cablingMapToken_);
 
     // get EventID and RunID
-    unsigned int EventID = iEvent.id().event();
-
-    DTCAssembly dtcAssembly (EventID);
+    unsigned int eventId_ = iEvent.id().event();
 
     // Create FEDRawDataCollection to store the output
     auto fedRawDataCollection = std::make_unique<FEDRawDataCollection>();
@@ -81,7 +84,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     using namespace Phase2TrackerSpecifications;
     using namespace Phase2DAQFormatSpecification;
 
-    for (int dtc_id = MIN_DTC_ID; dtc_id < MAX_DTC_ID + 1; dtc_id++)
+    for (int dtc_id = 1; dtc_id == 1; dtc_id++)
     {
         for (int slink_id = MIN_SLINK_ID; slink_id < MAX_SLINK_ID + 1; slink_id++)
         {
@@ -91,65 +94,77 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             FEDRawData slink_daq_stream;
 
             std::vector<Word32Bits> daq_packet;
-            std::vector<Word32Bits> offset_map;
+            std::vector<Word32Bits> offset_map(CICs_PER_SLINK, Word32Bits(0));
+
+            for (int i = 0; i < 4; ++i) { daq_packet.push_back(Word32Bits(DTC_DAQ_HEADER)); }
             std::vector<Word32Bits> payload;
 
-            for (int i = 0; i < 3; ++i) { daq_packet.push_back( Word32Bits(DTC_DAQ_HEADER) ); }
+            unsigned int offset_in_32b_words = 0;
 
             for (int module_id = index_first; module_id < index_last; module_id++) 
             {
+                const unsigned int module_id_within_slink = module_id - index_first;
                 DTCELinkId cms_link_id = DTCELinkId(dtc_id, module_id, 0);
                 try 
                 {
-                    
-                    auto                    link_to_det_association = cablingMap.dtcELinkIdToDetId(cms_link_id);
-                    const DTCELinkId&       link_id = link_to_det_association->first;
-                    const DetId&            det_id = link_to_det_association->second;
+                    auto link_to_det_association = cablingMap.dtcELinkIdToDetId(cms_link_id);
+                    const DTCELinkId& link_id = link_to_det_association->first;
+                    const DetId& det_id = link_to_det_association->second;
 
-                    edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator 
-                                    det_seed = iEvent.get(ClusterCollectionToken_).find(det_id + 1);
+                    edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator sensor_1_cluster_collection = iEvent.get(ClusterCollectionToken_).find(det_id + 1);
+                    edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator sensor_2_cluster_collection = iEvent.get(ClusterCollectionToken_).find(det_id + 2);
 
-                    TrackerGeometry::ModuleType seed_sensor_type = trackerGeometry.getDetectorType( det_seed->detId() );
+                    // sensor_1_cic_0 and sensor_2_cic_0 form a single output daq channel.
+                    SensorHybrid Hybrid_1 (sensor_1_cluster_collection, sensor_2_cluster_collection, 0, trackerGeometry, eventId_);
 
+                    // // sensor_1_cic_1 and sensor_2_cic_1 form a single output daq channel.
+                    SensorHybrid Hybrid_2 (sensor_1_cluster_collection, sensor_2_cluster_collection, 1, trackerGeometry, eventId_);
 
-                    edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator 
-                                    det_corr = iEvent.get(ClusterCollectionToken_).find(det_id + 2);
+                    // Figure Out Offsets
+                    uint16_t hybrid_1_offset = offset_in_32b_words;
+                    offset_in_32b_words += Hybrid_1.get_payload_size();
+                    uint16_t hybrid_2_offset = offset_in_32b_words;
+                    offset_in_32b_words += Hybrid_2.get_payload_size();
 
-                    TrackerGeometry::ModuleType corr_sensor_type = trackerGeometry.getDetectorType( det_corr->detId() );
+                    // 24 is PSS, 23 is PSP, 26 is SS-SS
+                    uint32_t combined_offsets = (static_cast<uint32_t>(hybrid_1_offset) << 16) | hybrid_2_offset;
+                    offset_map[module_id_within_slink] = Word32Bits(combined_offsets);
 
-                    for (const auto& cluster : *det_seed)
-                    {
-                        
-                    }
-
-                    for (const auto& cluster : *det_corr)
-                    {
-                        
-                    }
-
+                    // Figure out Payload
+                    Hybrid_1.set_payload(payload);
+                    Hybrid_2.set_payload(payload);
                 } 
                 catch (const cms::Exception& e) 
                 {
-                    // exception here means that the link is not connected to a detector
+                    // // exception here means that the link is not connected to a detector
+                    // uint32_t eventID = eventId_ & L1ID_MAX_VALUE;  // eventId_ (9 bits)
+                    // uint32_t channelErrors = 0;  // 9 bits for errors, all set to 0
+                    // uint32_t numClusters = 0;  // no clusters here.
 
-                    uint32_t eventID = EventID & L1ID_MAX_VALUE;    // eventId_ (9 bits)
-                    uint32_t channelErrors = 0;                     // 9 bits for errors, all set to 0
-                    uint32_t numClusters = 0;                       // no clusters here.
+                    // // Build the channel header
+                    // uint32_t header = (eventID << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS)) |
+                    //                 (channelErrors << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) |
+                    //                 (numClusters << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - NCLUSTERS_BITS));
 
-                    // Build the channel header 
-                    uint32_t header = (eventID << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS)) | 
-                                    (channelErrors << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) | 
-                                    (numClusters << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - NCLUSTERS_BITS));
+                    // // Push the header into the payload
+                    // payload.push_back(Word32Bits(header));
 
-                    // Push the header into the payload
-                    payload.push_back(header);
-
-                    continue; 
+                    // continue;
                 }
-
-                // fedRawDataCollection.get()->FEDData( slink_id + SLINKS_PER_DTC * (dtc_id - 1) + TRACKER_HEADER ) = dtc_0.getSLink(j);
-
             }
+
+            slink_daq_stream.resize(daq_packet.size() * NUMBER_OF_BYTES_PER_WORD, NUMBER_OF_BYTES_PER_WORD);  // Resize the buffer to fit all 32-bit words
+            unsigned char *data_ptr = slink_daq_stream.data();
+
+            for (size_t word_index = 0; word_index < daq_packet.size(); ++word_index) 
+            {
+                insertHexWordAt(data_ptr, word_index, (daq_packet[word_index].to_ulong()));
+            }
+
+            size_t actual_used_bytes = daq_packet.size() * NUMBER_OF_BYTES_PER_WORD;  // Total size used
+            slink_daq_stream.resize(actual_used_bytes, NUMBER_OF_BYTES_PER_WORD);  
+
+            fedRawDataCollection.get()->FEDData( slink_id + SLINKS_PER_DTC * (dtc_id - 1) + TRACKER_HEADER ) = slink_daq_stream;
 
         }
     }
@@ -212,68 +227,58 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 }
 
-void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleType,
-                                           const Phase2TrackerCluster1DCollectionNew::DetSet& detector_cluster_collection,
-                                           unsigned int dtc_id, unsigned int slink_id, unsigned int slink_id_within, bool is_seed_sensor,
-                                           DTCAssembly& dtcAssembly)
-{
-    for (const auto& cluster : detector_cluster_collection)
-    {
-        DTCUnit& assignedDtcUnit = dtcAssembly.GetDTCUnit(dtc_id);
+// void ClusterToRawProducer::processClusters(TrackerGeometry::ModuleType moduleType,
+//                                            const Phase2TrackerCluster1DCollectionNew::DetSet& detector_cluster_collection,
+//                                            unsigned int dtc_id, unsigned int slink_id, unsigned int slink_id_within, bool is_seed_sensor,
+//                                            DTCAssembly& dtcAssembly)
+// {
+//     for (const auto& cluster : detector_cluster_collection)
+//     {
+//         DTCUnit& assignedDtcUnit = dtcAssembly.GetDTCUnit(dtc_id);
 
-        unsigned int z = cluster.column();
-        double x = cluster.firstStrip();
+//         unsigned int z = cluster.column();
+//         double x = cluster.firstStrip();
 
-        // info that goes into the DAQ payload
-        unsigned int width = cluster.size();
+//         // info that goes into the DAQ payload
+//         unsigned int width = cluster.size();
 
-        if (width > 8) {continue;}
+//         if (width > 8) {continue;}
 
-        unsigned int chipId = 0;
-        unsigned int sclusterAddress = 0;
-        unsigned int mipbit = 0;
-        unsigned int cicId = 0;
-        // ------------------------------ //
+//         unsigned int chipId = 0;
+//         unsigned int sclusterAddress = 0;
+//         unsigned int mipbit = 0;
+//         unsigned int cicId = 0;
+//         // ------------------------------ //
 
-        if (moduleType == TrackerGeometry::ModuleType::Ph2PSP) 
-        {
-            cicId = (z > Phase2TrackerSpecifications::CIC_Z_BOUNDARY) ? 1 : 0;
-        }
+//         if (moduleType == TrackerGeometry::ModuleType::Ph2PSP) 
+//         {
+//             cicId = (z > Phase2TrackerSpecifications::CIC_Z_BOUNDARY) ? 1 : 0;
+//         }
         
-        else if (moduleType == TrackerGeometry::ModuleType::Ph2PSS || moduleType == TrackerGeometry::ModuleType::Ph2SS) 
-        {
-            cicId = z;
-        }
+//         else if (moduleType == TrackerGeometry::ModuleType::Ph2PSS || moduleType == TrackerGeometry::ModuleType::Ph2SS) 
+//         {
+//             cicId = z;
+//         }
 
-        if (moduleType == TrackerGeometry::ModuleType::Ph2PSP || moduleType == TrackerGeometry::ModuleType::Ph2PSS) 
-        {
-            chipId = std::div(x * 2.0, Phase2TrackerSpecifications::CHANNELS_PER_SSA).quot;
-            sclusterAddress = std::div(x * 2.0, Phase2TrackerSpecifications::CHANNELS_PER_SSA).rem;
-            mipbit = cluster.threshold();
-        }
+//         if (moduleType == TrackerGeometry::ModuleType::Ph2PSP || moduleType == TrackerGeometry::ModuleType::Ph2PSS) 
+//         {
+//             chipId = std::div(x * 2.0, Phase2TrackerSpecifications::CHANNELS_PER_SSA).quot;
+//             sclusterAddress = std::div(x * 2.0, Phase2TrackerSpecifications::CHANNELS_PER_SSA).rem;
+//             mipbit = cluster.threshold();
+//         }
 
-        else if (moduleType == TrackerGeometry::ModuleType::Ph2SS) 
-        {
-            chipId = std::div(x, Phase2TrackerSpecifications::STRIPS_PER_CBC).quot;
-            sclusterAddress = std::div(x, Phase2TrackerSpecifications::STRIPS_PER_CBC).rem;
-        }
+//         else if (moduleType == TrackerGeometry::ModuleType::Ph2SS) 
+//         {
+//             chipId = std::div(x, Phase2TrackerSpecifications::STRIPS_PER_CBC).quot;
+//             sclusterAddress = std::div(x, Phase2TrackerSpecifications::STRIPS_PER_CBC).rem;
+//         }
 
-        sclusterAddress = ((sclusterAddress & 0x7F) << 1) | (is_seed_sensor & 0x1);
+//         sclusterAddress = ((sclusterAddress & 0x7F) << 1) | (is_seed_sensor & 0x1);
 
-        Cluster newCluster(z, x, width, chipId, sclusterAddress, mipbit, cicId, moduleType);
-        assignedDtcUnit.getClustersOnSLink(slink_id).at(slink_id_within).push_back(newCluster);
+//         Cluster newCluster(z, x, width, chipId, sclusterAddress, mipbit, cicId, moduleType);
+//         assignedDtcUnit.getClustersOnSLink(slink_id).at(slink_id_within).push_back(newCluster);
         
-    }
-}
-
-uint32_t ClusterToRawProducer::assignNumber(const uint32_t& N) 
-{
-    int R = N % 4;
-    if (R == 1 || R == 2) {
-        return N - R;
-    } else {
-        return -1;
-    }
-}
+//     }
+// }
 
 DEFINE_FWK_MODULE(ClusterToRawProducer);

@@ -23,7 +23,8 @@ namespace Phase2TrackerSpecifications
     static const int MODULES_PER_SLINK = 18;
     static const int CICs_PER_SLINK = 36;
 
-    static const int CIC_Z_BOUNDARY = 15;
+    static const int CIC_Z_BOUNDARY_PIXEL = 15;
+    static const int CIC_Z_BOUNDARY_STRIPS = 0;
 
     static const int MAX_DTC_ID = 216;
     static const int MIN_DTC_ID = 1;

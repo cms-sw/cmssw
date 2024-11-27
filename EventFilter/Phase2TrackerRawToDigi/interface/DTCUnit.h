@@ -185,7 +185,8 @@ class DTCUnit
                     }
                 }
 
-                if (bitsFilled > 0) {
+                if (bitsFilled > 0) 
+                {
                     payload.push_back(currentWord);  // Push any remaining bits
                     currentOffset++;
                 }
