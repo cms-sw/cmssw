@@ -3,7 +3,6 @@
 r'''
 The Wrapper for makeSkim.py, the general config for cmsRun.
 '''
-from __future__ import print_function
 
 import optparse
 import os

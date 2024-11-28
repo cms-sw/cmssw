@@ -5,7 +5,6 @@ _AlCaPPS_Run3_
 Scenario supporting proton collisions for AlCa needs for the CT-PPS detector 
 
 """
-from __future__ import print_function
 
 import os
 import sys
