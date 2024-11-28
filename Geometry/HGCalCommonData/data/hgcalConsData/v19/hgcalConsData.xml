@@ -3666,9 +3666,9 @@
        288,   288,   288,   288 
   </Vector>
   <Vector name="ScintRetract" type="numeric" nEntries="14">
-           4*mm,       4*mm,       4*mm,       4*mm,       4*mm,       4*mm,
-           4*mm,       4*mm,       4*mm,       4*mm,       4*mm,       4*mm,
-           4*mm,       4*mm 
+           4*mm,       4*mm,       4*mm,       4*mm,       8*mm,       8*mm,
+           8*mm,       8*mm,       8*mm,       8*mm,       8*mm,       8*mm,
+           8*mm,       8*mm 
   </Vector>
   <Vector name="TileRMin6" type="numeric" nEntries="24">
      1537.06*mm, 1559.91*mm, 1582.76*mm, 1605.61*mm, 1629.48*mm, 1653.35*mm,

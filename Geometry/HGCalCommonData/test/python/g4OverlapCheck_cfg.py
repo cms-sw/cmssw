@@ -60,6 +60,7 @@ process.load('Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff')
 if hasattr(process,'MessageLogger'):
 #    process.MessageLogger.SimG4CoreGeometry=dict()
     process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.EcalGeom=dict()
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)
