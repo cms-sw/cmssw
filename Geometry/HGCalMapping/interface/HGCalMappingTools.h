@@ -83,8 +83,6 @@ namespace hgcal {
 
         key.first = i;
 
-        key.first = i;
-
         //match cell by type of module and by cell det id
         DetId::Detector det(DetId::Detector::HGCalEE);
         uint32_t cellid = 0x3ff & HGCSiliconDetId(det, 0, 0, 0, 0, 0, siid.cellU(), siid.cellV()).rawId();
