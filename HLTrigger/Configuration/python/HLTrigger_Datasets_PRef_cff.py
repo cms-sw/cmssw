@@ -585,6 +585,7 @@ streamPhysicsPPRefZeroBiasPlusForward0_datasetPPRefZeroBiasPlusForward0_selector
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -610,6 +611,7 @@ streamPhysicsPPRefZeroBiasPlusForward1_datasetPPRefZeroBiasPlusForward1_selector
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -635,6 +637,7 @@ streamPhysicsPPRefZeroBiasPlusForward10_datasetPPRefZeroBiasPlusForward10_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -660,6 +663,7 @@ streamPhysicsPPRefZeroBiasPlusForward11_datasetPPRefZeroBiasPlusForward11_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -685,6 +689,7 @@ streamPhysicsPPRefZeroBiasPlusForward12_datasetPPRefZeroBiasPlusForward12_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -710,6 +715,7 @@ streamPhysicsPPRefZeroBiasPlusForward13_datasetPPRefZeroBiasPlusForward13_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -735,6 +741,7 @@ streamPhysicsPPRefZeroBiasPlusForward14_datasetPPRefZeroBiasPlusForward14_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -760,6 +767,7 @@ streamPhysicsPPRefZeroBiasPlusForward15_datasetPPRefZeroBiasPlusForward15_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -785,6 +793,7 @@ streamPhysicsPPRefZeroBiasPlusForward16_datasetPPRefZeroBiasPlusForward16_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -810,6 +819,7 @@ streamPhysicsPPRefZeroBiasPlusForward17_datasetPPRefZeroBiasPlusForward17_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -835,6 +845,7 @@ streamPhysicsPPRefZeroBiasPlusForward18_datasetPPRefZeroBiasPlusForward18_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -860,6 +871,7 @@ streamPhysicsPPRefZeroBiasPlusForward19_datasetPPRefZeroBiasPlusForward19_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -885,6 +897,7 @@ streamPhysicsPPRefZeroBiasPlusForward2_datasetPPRefZeroBiasPlusForward2_selector
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -910,6 +923,7 @@ streamPhysicsPPRefZeroBiasPlusForward20_datasetPPRefZeroBiasPlusForward20_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -935,6 +949,7 @@ streamPhysicsPPRefZeroBiasPlusForward21_datasetPPRefZeroBiasPlusForward21_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -960,6 +975,7 @@ streamPhysicsPPRefZeroBiasPlusForward22_datasetPPRefZeroBiasPlusForward22_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -985,6 +1001,7 @@ streamPhysicsPPRefZeroBiasPlusForward23_datasetPPRefZeroBiasPlusForward23_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -1010,6 +1027,7 @@ streamPhysicsPPRefZeroBiasPlusForward24_datasetPPRefZeroBiasPlusForward24_select
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -1035,6 +1053,7 @@ streamPhysicsPPRefZeroBiasPlusForward3_datasetPPRefZeroBiasPlusForward3_selector
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -1060,6 +1079,7 @@ streamPhysicsPPRefZeroBiasPlusForward4_datasetPPRefZeroBiasPlusForward4_selector
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -1085,6 +1105,7 @@ streamPhysicsPPRefZeroBiasPlusForward5_datasetPPRefZeroBiasPlusForward5_selector
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -1110,6 +1131,7 @@ streamPhysicsPPRefZeroBiasPlusForward6_datasetPPRefZeroBiasPlusForward6_selector
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -1135,6 +1157,7 @@ streamPhysicsPPRefZeroBiasPlusForward7_datasetPPRefZeroBiasPlusForward7_selector
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -1160,6 +1183,7 @@ streamPhysicsPPRefZeroBiasPlusForward8_datasetPPRefZeroBiasPlusForward8_selector
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
@@ -1185,6 +1209,7 @@ streamPhysicsPPRefZeroBiasPlusForward9_datasetPPRefZeroBiasPlusForward9_selector
     'HLT_PPRefUPC_SingleJet8_ZDC1nOR_v1',
     'HLT_PPRefUPC_ZDC1nAsymXOR_v1',
     'HLT_PPRefUPC_ZDC1nOR_v1',
+    'HLT_PPRefZeroBias_FirstCollisionInTrain_v1',
     'HLT_PPRefZeroBias_v6'
 )
 
