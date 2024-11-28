@@ -72,7 +72,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          cfg.getParameter<bool>("fillStatistics"),
                          cfg.getParameter<bool>("doSharedHitCut"),
                          cfg.getParameter<bool>("dupPassThrough"),
-                         cfg.getParameter<bool>("useSimpleTripletCleaner")});
+                         cfg.getParameter<bool>("useSimpleTripletCleaner"),
+                         cfg.getParameter<unsigned int>("maxNumberOfTuples"),
+                         cfg.getParameter<unsigned int>("avgHitsPerTrack"),
+                         });
     }
 
     //This is needed to have the partial specialization for isPhase1Topology/isPhase2Topology
@@ -160,6 +163,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     desc.add<bool>("idealConditions", true);
     desc.add<unsigned int>("maxNumberOfDoublets", pixelTopology::Phase1::maxNumberOfDoublets);
+    desc.add<unsigned int>("maxNumberOfTuples", pixelTopology::Phase1::maxNumberOfTuples);
+    desc.add<unsigned int>("avgHitsPerTrack", pixelTopology::Phase1::avgHitsPerTrack);
 
     edm::ParameterSetDescription trackQualityCuts;
     trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
@@ -198,6 +203,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     desc.add<bool>("idealConditions", false);
     desc.add<unsigned int>("maxNumberOfDoublets", pixelTopology::HIonPhase1::maxNumberOfDoublets);
+    desc.add<unsigned int>("maxNumberOfTuples", pixelTopology::HIonPhase1::maxNumberOfTuples);
+    desc.add<unsigned int>("avgHitsPerTrack", pixelTopology::HIonPhase1::avgHitsPerTrack);
     
     edm::ParameterSetDescription trackQualityCuts;
     trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
@@ -237,6 +244,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     desc.add<bool>("idealConditions", false);
     desc.add<unsigned int>("maxNumberOfDoublets", pixelTopology::Phase2::maxNumberOfDoublets);
+    desc.add<unsigned int>("maxNumberOfTuples", pixelTopology::Phase2::maxNumberOfTuples);
+    desc.add<unsigned int>("avgHitsPerTrack", pixelTopology::Phase2::avgHitsPerTrack);
 
     edm::ParameterSetDescription trackQualityCuts;
     trackQualityCuts.add<double>("maxChi2", 5.)->setComment("Max normalized chi2");
@@ -267,11 +276,11 @@ template <typename TrackerTraits>
     using GPUKernels = CAHitNtupletGeneratorKernels<TrackerTraits>;
     using TrackHitSoA = ::reco::TrackHitSoA;
     using HitContainer = caStructures::HitContainerT<TrackerTraits>;
-    static constexpr int32_t S = TrackerTraits::maxNumberOfTuples; 
-    static constexpr int32_t H = TrackerTraits::avgHitsPerTrack;
+    const int32_t S = m_params.algoParams_.maxNumberOfTuples_; 
+    const int32_t H = m_params.algoParams_.avgHitsPerTrack_;
 
-    reco::TracksSoACollection tracks({{S,H*S}},queue);
-
+    reco::TracksSoACollection tracks({{S,S*H}},queue);
+    std::cout << S << " - " << H << std::endl;
     // Don't bother if less than 2 this
     if (hits_d.view().metadata().size() < 2) {
       const auto device = alpaka::getDev(queue);
@@ -279,7 +288,7 @@ template <typename TrackerTraits>
       alpaka::memset(queue, ntracks_d, 0);
       return tracks;
     }
-    GPUKernels kernels(m_params, hits_d.view(), params_d.view().metadata().size(), queue);
+    GPUKernels kernels(m_params, hits_d.nHits(), hits_d.offsetBPIX2(), params_d.view().metadata().size(), queue);
 
     kernels.prepareHits(hits_d.view(), hits_d.view<::reco::HitModuleSoA>(),  params_d.view(),queue);
     kernels.buildDoublets(hits_d.view(), params_d.view<::reco::CACellsSoA>(), hits_d.offsetBPIX2(), queue);

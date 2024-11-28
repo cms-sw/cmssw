@@ -114,6 +114,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using OuterHitOfCell = OuterHitOfCellT<TrackerTraits>;
 
     using CACell = CACellT<TrackerTraits>;
+    using SimpleCell = CASimpleCell<TrackerTraits>;
     using Params = caHitNtupletGenerator::ParamsT<TrackerTraits>;
     using Counters = caHitNtupletGenerator::Counters;
     // Track qualities
@@ -139,7 +140,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using HitContainer = caStructures::SequentialContainer;
     using HitToTupleView = typename HitToTuple::View;
     using TupleMultiplicity = caStructures::template TupleMultiplicityT<TrackerTraits>;
-    
+    using HitToCell = caStructures::GenericContainer;
+
     using GenericContainer = caStructures::GenericContainer;
     using GenericContainerStorage = typename GenericContainer::index_type;
     using GenericContainerView = typename GenericContainer::View;
@@ -154,11 +156,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using DeviceSequentialStorageBuffer = cms::alpakatools::device_buffer<Device, SequentialContainerStorage[]>;
     using DeviceSequentialOffsetsBuffer = cms::alpakatools::device_buffer<Device, SequentialContainerOffsets[]>;
 
-    CAHitNtupletGeneratorKernels(Params const& params, const HitsConstView &hh, uint16_t nLayers, Queue& queue);
+    CAHitNtupletGeneratorKernels(Params const& params, uint32_t nHits, uint32_t offsetBPIX2, uint16_t nLayers, Queue& queue);
     ~CAHitNtupletGeneratorKernels() = default;
 
     GenericContainer const* tupleMultiplicity() const { return device_tupleMultiplicity_.data(); }
     SequentialContainer const* hitContainer() const { return device_hitContainer_.data(); }
+    HitToCell const* hitToCell() const { return device_hitToCell_.data(); }
 
     void prepareHits(const HitsConstView& hh, const HitModulesConstView &mm, const ::reco::CALayersSoAConstView& ll, Queue& queue);
 
@@ -170,7 +173,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void printCounters();
 
-    
 
   private:
     // params
@@ -182,6 +184,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     DeviceGenericStorageBuffer device_hitToTupleStorage_;
     DeviceGenericOffsetsBuffer device_hitToTupleOffsets_;
     GenericContainerView device_hitToTupleView_;
+
+    // (Outer) Hits-> Cells
+    DeviceGenericContainerBuffer device_hitToCell_;
+    DeviceGenericStorageBuffer device_hitToCellStorage_;
+    DeviceGenericOffsetsBuffer device_hitToCellOffsets_;
+    GenericContainerView device_hitToCellView_;
 
     // Hits 
     cms::alpakatools::device_buffer<Device, PhiBinner> device_hitPhiHist_;
@@ -202,6 +210,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     GenericContainerView device_tupleMultiplicityView_;
 
     cms::alpakatools::device_buffer<Device, CACell[]> device_theCells_;
+    cms::alpakatools::device_buffer<Device, SimpleCell[]> device_simpleCells_;
     cms::alpakatools::device_buffer<Device, OuterHitOfCellContainer[]> device_isOuterHitOfCell_;
     cms::alpakatools::device_buffer<Device, OuterHitOfCell> isOuterHitOfCell_;
     cms::alpakatools::device_buffer<Device, CellNeighborsVector> device_theCellNeighbors_;
@@ -211,7 +220,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     CellTracks* device_theCellTracksContainer_;
     cms::alpakatools::device_buffer<Device, cms::alpakatools::AtomicPairCounter::DoubleWord[]> device_storage_;
     cms::alpakatools::AtomicPairCounter* device_hitTuple_apc_;
-    cms::alpakatools::AtomicPairCounter* device_hitToTuple_apc_;
     cms::alpakatools::device_view<Device, uint32_t> device_nCells_;
     // cms::alpakatools::host_buffer<uint32_t> host_nCells_;
     // Hit -> Cells

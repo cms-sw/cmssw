@@ -41,6 +41,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   template <typename TrackerTraits>
   using OuterHitOfCell = OuterHitOfCellT<TrackerTraits>;
   
+  using HitToCell = GenericContainer;
+
   template <typename TrackerTraits>
   using PhiBinner = cms::alpakatools::HistoContainer<int16_t,
                                                     256,
@@ -111,14 +113,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void __attribute__((always_inline)) doubletsFromHisto(
       const TAcc& acc,
       CACellT<TrackerTraits>* cells,
+      CASimpleCell<TrackerTraits>* s_cells,
       uint32_t* nCells,
       CellNeighborsVector<TrackerTraits>* cellNeighbors,
       CellTracksVector<TrackerTraits>* cellTracks,
       HitsConstView hh,
       ::reco::CACellsSoAConstView cc,
       uint32_t const* __restrict__ offsets,
-      PhiBinner<TrackerTraits>* phiBinner,
+      PhiBinner<TrackerTraits>* phiBinner, //const
       OuterHitOfCell<TrackerTraits> isOuterHitOfCell,
+      HitToCell* hitToCell,
       AlgoParams const& params) {  
 
     // cm (1 GeV track has 1 GeV/c / (e * 3.8T) ~ 87 cm radius in a 3.8T field)
@@ -271,6 +275,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
             break;
           }  // move to SimpleVector??
           cells[ind].init(*cellNeighbors, *cellTracks, hh, pairLayerId, inner, outer, i, oi);
+          s_cells[ind].init(hh, pairLayerId, inner, outer, i, oi);
+          
+          hitToCell->count(acc,oi);
+
           isOuterHitOfCell[oi].push_back(acc, ind);
 #ifdef GPU_DEBUG
           if (isOuterHitOfCell[oi].full())
