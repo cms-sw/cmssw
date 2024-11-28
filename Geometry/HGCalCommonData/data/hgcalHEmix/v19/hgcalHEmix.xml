@@ -39,7 +39,7 @@
     <Vector name="RMaxFront" type="numeric" nEntries="4">
       [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
       [hgcal:rMaxHGCal11]</Vector>
-,   <Vector name="WaferNamesFull" type="string" nEntries="24">
+    <Vector name="WaferNamesFull" type="string" nEntries="24">
       hgcalwafer:HGCalHEWafer06HD120, hgcalwafer:HGCalHEWafer07HD120,
       hgcalwafer:HGCalHEWafer08HD120, hgcalwafer:HGCalHEWafer09HD120, 
       hgcalwafer:HGCalHEWafer10HD120, hgcalwafer:HGCalHEWafer11HD120, 
@@ -1209,9 +1209,9 @@
          288,   288,   288,   288 
     </Vector>
     <Vector name="ScintRetract" type="numeric" nEntries="14">
-             4*mm,       4*mm,       4*mm,       4*mm,       4*mm,       4*mm,
-             4*mm,       4*mm,       4*mm,       4*mm,       4*mm,       4*mm,
-             4*mm,       4*mm 
+             4*mm,       4*mm,       4*mm,       4*mm,       8*mm,       8*mm,
+             8*mm,       8*mm,       8*mm,       8*mm,       8*mm,       8*mm,
+             8*mm,       8*mm 
     </Vector>
     <Vector name="Tile6RMin" type="numeric" nEntries="24">
        1537.06*mm, 1559.91*mm, 1582.76*mm, 1605.61*mm, 1629.48*mm, 1653.35*mm,
