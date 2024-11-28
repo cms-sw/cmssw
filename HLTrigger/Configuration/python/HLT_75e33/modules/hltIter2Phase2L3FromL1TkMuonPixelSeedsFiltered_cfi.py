@@ -33,3 +33,10 @@ hltIter2Phase2L3FromL1TkMuonPixelSeedsFiltered = cms.EDProducer("MuonHLTSeedMVAC
     nSeedsMax_E = cms.int32(20),
     src = cms.InputTag("hltIter2Phase2L3FromL1TkMuonPixelSeeds")
 )
+
+from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
+from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
+(phase2L2AndL3Muons & phase2L3MuonsOIFirst).toModify(
+    hltIter2Phase2L3FromL1TkMuonPixelSeedsFiltered, 
+    L1TkMu = "hltPhase2L3MuonFilter:L1TkMuToReuse"
+)
