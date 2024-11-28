@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_1_0/Special --cff --data --type Special
 
-# /dev/CMSSW_14_1_0/Special/V40 (CMSSW_14_1_1)
+# /dev/CMSSW_14_1_0/Special/V50 (CMSSW_14_1_1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_1_0/Special/V40")
+  tableName = cms.string("/dev/CMSSW_14_1_0/Special/V50")
 )
 
 fragment.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -4213,8 +4213,8 @@ fragment.hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
     recoverEEFE = cms.bool( False ),
     dbStatusToBeExcludedEE = cms.vint32( 14, 78, 142 ),
     dbStatusToBeExcludedEB = cms.vint32( 14, 78, 142 ),
-    logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
-    logWarningEtThreshold_EE_FE = cms.double( 50.0 ),
+    logWarningEtThreshold_EB_FE = cms.double( -1.0 ),
+    logWarningEtThreshold_EE_FE = cms.double( -1.0 ),
     ebDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebDetId' ),
     eeDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeDetId' ),
     ebFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebFE' ),
@@ -5230,8 +5230,8 @@ fragment.hltEcalRecHitSerialSync = cms.EDProducer( "EcalRecHitProducer",
     recoverEEFE = cms.bool( False ),
     dbStatusToBeExcludedEE = cms.vint32( 14, 78, 142 ),
     dbStatusToBeExcludedEB = cms.vint32( 14, 78, 142 ),
-    logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
-    logWarningEtThreshold_EE_FE = cms.double( 50.0 ),
+    logWarningEtThreshold_EB_FE = cms.double( -1.0 ),
+    logWarningEtThreshold_EE_FE = cms.double( -1.0 ),
     ebDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebDetId' ),
     eeDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeDetId' ),
     ebFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebFE' ),
