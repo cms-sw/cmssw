@@ -63,6 +63,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   
   using Counters = caHitNtupletGenerator::Counters;
   using HitContainer = caStructures::SequentialContainer;
+  using HitToCell = caStructures::GenericContainer;
   using namespace cms::alpakatools;
 
    // standard initialization for a generic one to many assoc map
@@ -359,22 +360,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  cms::alpakatools::AtomicPairCounter *apc1,
-                                  cms::alpakatools::AtomicPairCounter *apc2,  // just to zero them
+                                  cms::alpakatools::AtomicPairCounter *apc1, // just to zero them
                                   HitsConstView hh,
                                   reco::CALayersSoAConstView ll,
                                   CACellT<TrackerTraits> *cells,
                                   uint32_t *nCells,
                                   CellNeighborsVector<TrackerTraits> *cellNeighbors,
                                   OuterHitOfCell<TrackerTraits> *isOuterHitOfCell,
-                                  // GenericContainer* __restrict__ histo,
+                                  HitToCell const* __restrict__ outerHitHisto,
                                   AlgoParams const& params) const {
       using Cell = CACellT<TrackerTraits>;
       // using CellStack = cms::alpakatools::SimpleVector<uint16_t>; //could
 
       if (cms::alpakatools::once_per_grid(acc)) {
         *apc1 = 0;
-        *apc2 = 0;
+        for (uint32_t idx = 0; idx < uint32_t(hh.metadata().size()); idx++) {
+          printf("outerHitHisto->idx %d; size %d;\n",idx,outerHitHisto->size(idx));
+        }
       }  // ready for next kernel
 
       // loop on outer cells
@@ -385,7 +387,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           continue;
         
         uint32_t numberOfPossibleNeighbors = (*isOuterHitOfCell)[innerHitId].size();
-        printf("numberOfPossibleNeighbors;%d;%d;\n",thisCell.innerLayer(),numberOfPossibleNeighbors);
+        uint32_t numberOfPossibleFromHisto = outerHitHisto->size(innerHitId);
+        numberOfPossibleNeighbors = numberOfPossibleFromHisto;
+        printf("%d;%d;%d;numberOfPossibleNeighbors;%d;%d;numberOfPossibleFromHisto;%d\n",*nCells,innerHitId,cellIndex,thisCell.innerLayer(),numberOfPossibleNeighbors,numberOfPossibleFromHisto);
         auto vi = (*isOuterHitOfCell)[innerHitId].data();
         auto ri = thisCell.inner_r(hh);
         auto zi = thisCell.inner_z(hh);
