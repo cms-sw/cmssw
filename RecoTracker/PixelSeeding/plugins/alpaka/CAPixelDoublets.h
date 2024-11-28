@@ -13,6 +13,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace alpaka;
   using namespace cms::alpakatools;
+  
   namespace caPixelDoublets {
 
     template <typename TrackerTraits>
@@ -57,6 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // #endif
       ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                     CACellT<TrackerTraits>* cells,
+                                    CASimpleCell<TrackerTraits>* s_cells,
                                     uint32_t* nCells,
                                     CellNeighborsVector<TrackerTraits>* cellNeighbors,
                                     CellTracksVector<TrackerTraits>* cellTracks,
@@ -65,10 +67,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     uint32_t const* __restrict__ offsets,
                                     PhiBinner<TrackerTraits>* phiBinner,
                                     OuterHitOfCell<TrackerTraits>* isOuterHitOfCell,
-                                    // GenericContainer* __restrict__ histo,
+                                    HitToCell* outerHitHisto,
                                     AlgoParams const& params) const {
         doubletsFromHisto<TrackerTraits>(
-            acc, cells, nCells, cellNeighbors, cellTracks, hh, cc, offsets, phiBinner, *isOuterHitOfCell, params);
+            acc, cells, s_cells, nCells, cellNeighbors, cellTracks, hh, cc, offsets, phiBinner, *isOuterHitOfCell, outerHitHisto, params);
       }
     };
 
@@ -76,13 +78,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     class FillDoubletsHisto {
     public:
       template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-
       ALPAKA_FN_ACC void operator()(TAcc const& acc,
-                                    CACellT<TrackerTraits>* cells,
+                                    CASimpleCell<TrackerTraits> const* __restrict__ cells,
                                     uint32_t* nCells,
-                                    GenericContainer* __restrict__ histo) const {
+                                    HitToCell* outerHitHisto) const {
         for (auto cellIndex : cms::alpakatools::uniform_elements(acc, *nCells))
-          histo->fill(acc,cells[cellIndex].outer_hit_id(),cellIndex);
+        {
+          printf("outerHitHisto;%d;%d\n",cellIndex,cells[cellIndex].outer_hit_id());
+          outerHitHisto->fill(acc,cells[cellIndex].outer_hit_id(),cellIndex);
+        }
       }
     };
 

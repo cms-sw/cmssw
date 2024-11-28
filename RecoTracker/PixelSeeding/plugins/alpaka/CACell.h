@@ -26,7 +26,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   class CASimpleCell {
-
+  
+   public:
+   
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void init(const HitsConstView& hh,
                                              int layerPairId,
                                              uint8_t theInnerLayer,
@@ -58,6 +60,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     enum class StatusBit : uint16_t { kUsed = 1, kInTrack = 2, kKilled = 1 << 15 };
 
     CASimpleCell() = default;
+    
+    constexpr unsigned int inner_hit_id() const { return theInnerHitId; }
+    constexpr unsigned int outer_hit_id() const { return theOuterHitId; }
 
     // ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_x(const HitsConstView& hh) const { return hh[theInnerHitId].xGlobal(); }
     // ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_x(const HitsConstView& hh) const { return hh[theOuterHitId].xGlobal(); }
