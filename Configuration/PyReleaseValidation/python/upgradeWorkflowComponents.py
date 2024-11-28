@@ -816,6 +816,70 @@ upgradeWFs['ticl_v5_superclustering_mustache_pf'] = UpgradeWorkflow_ticl_v5_supe
 upgradeWFs['ticl_v5_superclustering_mustache_pf'].step3 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_pf'}
 upgradeWFs['ticl_v5_superclustering_mustache_pf'].step4 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_pf'}
 
+# Improved L2 seeding from L1Tk Muons and L3 Tracker Muon Inside-Out reconstruction first (Phase-2 Muon default)
+class UpgradeWorkflow_phase2L2AndL3Muons(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step):
+            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=="ZMM_14" or 'SingleMu' in fragment or 'TTbar_14' in fragment) and 'Run4' in key
+
+upgradeWFs['phase2L2AndL3Muons'] = UpgradeWorkflow_phase2L2AndL3Muons(
+    steps = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    suffix = '_phase2L2AndL3MuonsIOFirst',
+    offset = 0.777,
+)
+upgradeWFs['phase2L2AndL3Muons'].step2 = {'--procModifiers':'phase2L2AndL3Muons'}
+upgradeWFs['phase2L2AndL3Muons'].step3 = {'--procModifiers':'phase2L2AndL3Muons'}
+upgradeWFs['phase2L2AndL3Muons'].step4 = {'--procModifiers':'phase2L2AndL3Muons'}
+
+# Improved L2 seeding from L1Tk Muons and L3 Tracker Muon Outside-In reconstruction first
+class UpgradeWorkflow_phase2L3MuonsOIFirst(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step):
+            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=="ZMM_14" or 'SingleMu' in fragment or 'TTbar_14' in fragment) and 'Run4' in key
+
+upgradeWFs['phase2L3MuonsOIFirst'] = UpgradeWorkflow_phase2L3MuonsOIFirst(
+    steps = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    suffix = '_phase2L2AndL3MuonsOIFirst',
+    offset = 0.778,
+)
+upgradeWFs['phase2L3MuonsOIFirst'].step2 = {'--procModifiers':'phase2L2AndL3Muons,phase2L3MuonsOIFirst'}
+upgradeWFs['phase2L3MuonsOIFirst'].step3 = {'--procModifiers':'phase2L2AndL3Muons,phase2L3MuonsOIFirst'}
+upgradeWFs['phase2L3MuonsOIFirst'].step4 = {'--procModifiers':'phase2L2AndL3Muons,phase2L3MuonsOIFirst'}
+
 # Track DNN workflows
 class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
