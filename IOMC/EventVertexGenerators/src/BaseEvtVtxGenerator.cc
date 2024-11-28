@@ -61,7 +61,6 @@ void BaseEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
     //
     HepMCEvt->applyVtxGen(newVertex(engine));
 
-    //HepMCEvt->LorentzBoost( 0., 142.e-6 );
     HepMCEvt->boostToLab(GetInvLorentzBoost(), "vertex");
     HepMCEvt->boostToLab(GetInvLorentzBoost(), "momentum");
 
