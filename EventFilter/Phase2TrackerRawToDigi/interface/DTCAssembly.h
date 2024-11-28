@@ -23,7 +23,7 @@ class DTCAssembly
         DTCUnit& GetDTCUnit(const unsigned int& DTCUnitID) 
         { 
             // if DTCUnitID is out of range [0, 216], throw cms exception
-            if (DTCUnitID > Phase2TrackerSpecifications::MAX_DTCs) 
+            if (DTCUnitID > Phase2TrackerSpecifications::MAX_DTC_ID) 
             {
                 throw cms::Exception("DTCAssembly") << "DTCUnitID " << DTCUnitID << " is out of range [1, 216]";
             }

@@ -38,7 +38,7 @@ class DTCUnit
         FEDRawData& getSLink(const unsigned int& SLinkID) 
         {
             // if SLinkID is out of range [0, 4], throw cms exception
-            if (SLinkID > Phase2TrackerSpecifications::MAX_SLINKS_PER_DTC - 1)
+            if (SLinkID > Phase2TrackerSpecifications::SLINKS_PER_DTC - 1)
             {
                 throw cms::Exception("DTCUnit") << "SLinkID " << SLinkID << " is out of range [0, 4)";
             }
@@ -93,6 +93,7 @@ class DTCUnit
         {
 
             using namespace Phase2TrackerSpecifications;
+            using namespace Phase2DAQFormatSpecification;
 
             std::vector<std::vector<Cluster>>& SLinks_0 = clusterCollection_[index];
             std::vector<std::vector<Cluster>> newclusterCollection_(36);
@@ -184,7 +185,8 @@ class DTCUnit
                     }
                 }
 
-                if (bitsFilled > 0) {
+                if (bitsFilled > 0) 
+                {
                     payload.push_back(currentWord);  // Push any remaining bits
                     currentOffset++;
                 }
