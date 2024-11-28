@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_1_0/Special --full --data --type Special --unprescale --process HLTSpecial --globaltag auto:run3_hlt_Special --input file:RelVal_Raw_Special_DATA.root
 
-# /dev/CMSSW_14_1_0/Special/V40 (CMSSW_14_1_1)
+# /dev/CMSSW_14_1_0/Special/V50 (CMSSW_14_1_1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTSpecial" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_1_0/Special/V40")
+  tableName = cms.string("/dev/CMSSW_14_1_0/Special/V50")
 )
 
 process.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -4499,8 +4499,8 @@ process.hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
     recoverEEFE = cms.bool( False ),
     dbStatusToBeExcludedEE = cms.vint32( 14, 78, 142 ),
     dbStatusToBeExcludedEB = cms.vint32( 14, 78, 142 ),
-    logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
-    logWarningEtThreshold_EE_FE = cms.double( 50.0 ),
+    logWarningEtThreshold_EB_FE = cms.double( -1.0 ),
+    logWarningEtThreshold_EE_FE = cms.double( -1.0 ),
     ebDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebDetId' ),
     eeDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeDetId' ),
     ebFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebFE' ),
@@ -5516,8 +5516,8 @@ process.hltEcalRecHitSerialSync = cms.EDProducer( "EcalRecHitProducer",
     recoverEEFE = cms.bool( False ),
     dbStatusToBeExcludedEE = cms.vint32( 14, 78, 142 ),
     dbStatusToBeExcludedEB = cms.vint32( 14, 78, 142 ),
-    logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
-    logWarningEtThreshold_EE_FE = cms.double( 50.0 ),
+    logWarningEtThreshold_EB_FE = cms.double( -1.0 ),
+    logWarningEtThreshold_EE_FE = cms.double( -1.0 ),
     ebDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebDetId' ),
     eeDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeDetId' ),
     ebFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebFE' ),
