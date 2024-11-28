@@ -5,7 +5,6 @@ _RunMerge_
 Test/Debugging harness for the merge configuration builder
 
 """
-from __future__ import print_function
 
 
 
