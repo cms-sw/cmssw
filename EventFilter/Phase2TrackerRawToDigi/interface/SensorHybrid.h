@@ -107,13 +107,15 @@ class SensorHybrid
                 {
                     // cluster info 
 
-                    uint32_t chipID = std::div(cluster->firstStrip() * 2.0, num_channels_per_chip).quot & CHIP_ID_MAX_VALUE;       // 3 bits
-                    uint32_t sclusterAddress = std::div(cluster->firstStrip() * 2.0, num_channels_per_chip).rem & SCLUSTER_ADDRESS_2S_MAX_VALUE;  // 8 bits
-                    uint32_t width = cluster->size() & WIDTH_MAX_VALUE;                       // 3 bits
-                    uint32_t mipbit = cluster->threshold() & 0x1;                             // 1 bit
+                    uint32_t chipID = std::div(cluster->firstStrip() * 2.0, num_channels_per_chip).quot & CHIP_ID_MAX_VALUE;  // 3 bits
+                    uint32_t sclusterAddress = std::div(cluster->firstStrip() * 2.0, num_channels_per_chip).rem & SCLUSTER_ADDRESS_PS_MAX_VALUE;  // 7 bits
+                    uint32_t width = cluster->size() & WIDTH_MAX_VALUE;  // 3 bits
+                    uint32_t mipBit = cluster->threshold() & 0x1;  // 1 bit
 
-                    uint32_t clusterData = (chipID << (SS_CLUSTER_BITS - CHIP_ID_BITS)) | 
-                                            (sclusterAddress << (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS)) | width;
+                    uint32_t clusterData = (chipID << (SS_CLUSTER_BITS - CHIP_ID_BITS)) |
+                                        (sclusterAddress << (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS)) |
+                                        (width << (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS - WIDTH_BITS)) |
+                                        mipBit;
 
                     if (bitsFilled + SS_CLUSTER_BITS <= NUMBER_OF_BITS_PER_WORD) 
                     {

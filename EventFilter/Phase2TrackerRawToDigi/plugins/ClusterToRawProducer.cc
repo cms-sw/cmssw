@@ -68,7 +68,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 {
     // Retrieve TrackerGeometry and TrackerTopology from EventSetup
     const TrackerGeometry& trackerGeometry = iSetup.getData(trackerGeometryToken_);
-    const TrackerTopology& trackerTopology = iSetup.getData(trackerTopologyToken_);
+    // const TrackerTopology& trackerTopology = iSetup.getData(trackerTopologyToken_);
     
     // Retrieve the CablingMap
     const auto& cablingMap = iSetup.getData(cablingMapToken_);
@@ -106,7 +106,6 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
                 try 
                 {
                     auto link_to_det_association = cablingMap.dtcELinkIdToDetId(cms_link_id);
-                    const DTCELinkId& link_id = link_to_det_association->first;
                     const DetId& det_id = link_to_det_association->second;
 
                     edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator sensor_1_cluster_collection = iEvent.get(ClusterCollectionToken_).find(det_id + 1);
