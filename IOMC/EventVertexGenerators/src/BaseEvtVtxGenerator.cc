@@ -72,8 +72,7 @@ void BaseEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
     found = evt.getByToken(sourceToken3, HepUnsmearedMCEvt3);
 
     if (!found)
-      throw cms::Exception("ProductAbsent")
-          << "No HepMCProduct, tried to get HepMC3Product, but it is also absent.";
+      throw cms::Exception("ProductAbsent") << "No HepMCProduct, tried to get HepMC3Product, but it is also absent.";
 
     HepMC3::GenEvent* genevt3 = new HepMC3::GenEvent();
     genevt3->read_data(*HepUnsmearedMCEvt3->GetEvent());
