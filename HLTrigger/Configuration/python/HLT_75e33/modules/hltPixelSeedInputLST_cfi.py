@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltPixelSeedInputLST = cms.EDProducer('LSTPixelSeedInputProducer',
-    beamSpot = cms.InputTag('offlineBeamSpot'),
+    beamSpot = cms.InputTag('hltOnlineBeamSpot'),
     seedTracks = cms.VInputTag(
         'hltInitialStepSeedTracksLST',
         'hltHighPtTripletStepSeedTracksLST'
