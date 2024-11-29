@@ -1,4 +1,0 @@
-<library file="plugins/*.cc" name="testEventFilterPhase2TrackerRawToDigiPlugins">
-  <use name="EventFilter/Phase2TrackerRawToDigi"/>
-  <flags EDM_PLUGIN="1"/>
-</library>
