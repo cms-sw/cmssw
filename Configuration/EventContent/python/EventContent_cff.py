@@ -712,6 +712,11 @@ phase2_muon.toModify(FEVTDEBUGHLTEventContent,
         'keep *_hltPhase2L3Muons_*_*'])
 
 from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
+(phase2_muon & ~phase2L2AndL3Muons).toModify(FEVTDEBUGHLTEventContent, 
+    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + [
+        'keep *_hltL2OfflineMuonSeeds_*_*'
+    ])
+
 (phase2_muon & phase2L2AndL3Muons).toModify(FEVTDEBUGHLTEventContent, 
     outputCommands = FEVTDEBUGHLTEventContent.outputCommands + [
         'keep *_hltPhase2L3MuonFilter_*_*'
