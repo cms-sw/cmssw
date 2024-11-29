@@ -87,11 +87,10 @@
 //                               as depth 2; (6) for depth = 1 and 2, depth =
 //                               1, else depth = 2; (7) in case of HB, depths
 //                               1 and 2 are set to 1, else depth = 2; for HE
-//                               ignore depth index; (8) in case of HE, depths
-//                               1 and 2 are set to 1, else depth = 2; for HB
-//                               ignore depth index; (9) Assign all depth = 1
-//                               as depth = 2. The digit *d* is used if zside
-//                               is to be ignored (1) or not (0)
+//                               ignore depth index; (8) Assign all depths > 4
+//                               as depth = 5; (9) Assign all depth = 1 as
+//                               depth = 2. The digit *d* is used if zside is
+//                               to be ignored (1) or not (0).
 //                               (Default 0)
 //   useGen (bool)             = true/false to use generator level momentum
 //                               or reconstruction level momentum (def false)
@@ -103,7 +102,8 @@
 //                               barrel => |ieta| < 16; endcap => |ieta| > 15;
 //                               d: as the format for threshold application,
 //                               0: no threshold; 1: 2022 prompt data; 2:
-//                               2022 reco data; 3: 2023 prompt data
+//                               2022 reco data; 3: 2023 prompt data; 4: 2025
+//                               Begin of Year.
 //                               (default = 0)
 //   etalo/etahi (int,int)     = |eta| ranges (0:30)
 //   runlo  (int)              = lower value of run number to be included (+ve)
