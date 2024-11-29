@@ -10,14 +10,17 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "Demo" )
 process.load( 'FWCore.MessageService.MessageLogger_cfi' )
-process.load( 'Configuration.Geometry.GeometryExtended2026D98Reco_cff' ) 
-process.load( 'Configuration.Geometry.GeometryExtended2026D98_cff' )
+process.load( 'Configuration.Geometry.GeometryExtendedRun4D98Reco_cff' ) 
+process.load( 'Configuration.Geometry.GeometryExtendedRun4D98_cff' )
 process.load( 'Configuration.StandardSequences.MagneticField_cff' )
+process.load( 'Configuration.StandardSequences.Services_cff' )
+process.load( 'Configuration.EventContent.EventContent_cff' )
+process.load( 'Configuration.StandardSequences.EndOfProcess_cff' )
 process.load( 'Configuration.StandardSequences.FrontierConditions_GlobalTag_cff' )
 process.load( 'L1Trigger.TrackTrigger.TrackTrigger_cff' )
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '133X_mcRun4_realistic_v1', '')
 
 # load code that associates stubs with mctruth
 process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )

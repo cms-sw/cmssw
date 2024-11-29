@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "Demo" )
 process.load( 'FWCore.MessageService.MessageLogger_cfi' )
-process.load( 'Configuration.Geometry.GeometryExtended2026D98Reco_cff' ) 
-process.load( 'Configuration.Geometry.GeometryExtended2026D98_cff' )
+process.load( 'Configuration.Geometry.GeometryExtendedRun4D98Reco_cff' ) 
+process.load( 'Configuration.Geometry.GeometryExtendedRun4D98_cff' )
 process.load( 'Configuration.StandardSequences.MagneticField_cff' )
 process.load( 'Configuration.StandardSequences.FrontierConditions_GlobalTag_cff' )
 process.load( 'L1Trigger.TrackTrigger.TrackTrigger_cff' )
