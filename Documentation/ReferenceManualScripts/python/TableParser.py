@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 # email: cmsdoxy@cern.ch, ali.mehmet.altundag@cern.ch
 
 # please have a look at the namespaces.html (namespace list) and annotated.html

@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from .Mixins import _ConfigureComponent, saveOrigin
 from .Mixins import _Unlabelable, _Labelable
 from .Mixins import _TypedParameterizable, _Parameterizable, PrintOptions, specialImportRegistry
