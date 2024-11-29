@@ -39,10 +39,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(42)
 )
 
-# EventIDChecker requires synchronizing on LuminosityBlock boundaries
-process.options.numberOfThreads = 4
-process.options.numberOfStreams = 4
-process.options.numberOfConcurrentLuminosityBlocks = 1
+# EventIDChecker requires processing the events serially
+process.options.numberOfStreams = 1
 
 process.check = cms.EDAnalyzer("EventIDChecker", eventSequence = cms.untracked(events))
 
