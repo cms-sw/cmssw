@@ -1,5 +1,4 @@
 #!/bin/env python
-from __future__ import print_function
 import sys
 
 fileName = sys.argv[1]
