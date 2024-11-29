@@ -66,6 +66,29 @@ hltIterL3MuonsTracks = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.c
 hltIterL3MuonsTracks_seq = cms.Sequence( hltIterL3MuonsTracks )
 
 #
+# Phase-2 tracks
+#
+# L3 Muon no ID tracks
+hltPhase2L3MuonNoIdTracks = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone(
+    muonsTag = "hltPhase2L3MuonsNoID",
+    inputDTRecSegment4DCollection = cms.InputTag("hltDt4DSegments"),
+    inputCSCSegmentCollection = cms.InputTag("hltCscSegments"),
+    selectionTags = ['All'],
+    trackType = "recomuonTrack",
+    ignoreMissingMuonCollection = True
+)
+
+# L3 Muon ID tracks
+hltPhase2L3MuonIdTracks = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone(
+    muonsTag = "hltPhase2L3Muons",
+    inputDTRecSegment4DCollection = cms.InputTag("hltDt4DSegments"),
+    inputCSCSegmentCollection = cms.InputTag("hltCscSegments"),
+    selectionTags = ['All'],
+    trackType = "recomuonTrack",
+    ignoreMissingMuonCollection = True
+)
+
+#
 # Configuration for Seed track extractor
 #
 
@@ -74,7 +97,13 @@ seedsOfSTAmuons = SimMuon.MCTruth.SeedToTrackProducer_cfi.SeedToTrackProducer.cl
     L2seedsCollection = "ancientMuonSeed"
 )
 seedsOfSTAmuons_seq = cms.Sequence( seedsOfSTAmuons )
+
 seedsOfDisplacedSTAmuons = SimMuon.MCTruth.SeedToTrackProducer_cfi.SeedToTrackProducer.clone(
     L2seedsCollection = "displacedMuonSeeds"
 )
 seedsOfDisplacedSTAmuons_seq = cms.Sequence( seedsOfDisplacedSTAmuons )
+
+# Phase-2 L2 seeds from L1Tk Muons
+hltPhase2L2MuonSeedTracks = SimMuon.MCTruth.SeedToTrackProducer_cfi.SeedToTrackProducer.clone(
+    L2seedsCollection = "hltL2MuonSeedsFromL1TkMuon"
+)

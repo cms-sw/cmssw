@@ -1,22 +1,15 @@
-#ifndef SimMuon_MCTruth_SeedToTrackProducer_h
-#define SimMuon_MCTruth_SeedToTrackProducer_h
-// -*- C++ -*-
-//
-// Package:    SeedToTrackProducer
-// Class:      SeedToTrackProducer
-//
-/**\class SeedToTrackProducer SeedToTrackProducer.cc
- hugues/SeedToTrackProducer/plugins/SeedToTrackProducer.cc
+#ifndef SimMuon_MCTruth_Phase2SeedToTrackProducer_h
+#define SimMuon_MCTruth_Phase2SeedToTrackProducer_h
 
- Description:
+/** \class Phase2SeedToTrackProducer
+ * 
+ *  Phase-2 implementation of the SeedToTrackProducerModule.
+ *  Baseline behaviour is the same, with the difference that
+ *  a collection of L2MuonTrajectorySeeds is expected as input
+ * 
+ *  \author Luca Ferragina (INFN BO), Carlo Battilana (INFN BO), 2024
+ */
 
-*/
-//
-// Original Author:  Hugues Brun
-//         Created:  Tue, 05 Nov 2013 13:42:04 GMT
-// $Id$
-//
-//
 // system include files
 #include <memory>
 
@@ -42,6 +35,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
 
 //
 // class declaration
@@ -49,18 +43,18 @@
 
 typedef math::Error<5>::type CovarianceMatrix;
 
-class SeedToTrackProducer : public edm::global::EDProducer<> {
+class Phase2SeedToTrackProducer : public edm::global::EDProducer<> {
 public:
-  explicit SeedToTrackProducer(const edm::ParameterSet &);
+  explicit Phase2SeedToTrackProducer(const edm::ParameterSet &);
 
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const final;
-  TrajectoryStateOnSurface seedTransientState(const TrajectorySeed &,
+  TrajectoryStateOnSurface seedTransientState(const L2MuonTrajectorySeed &,
                                               const MagneticField &,
                                               const GlobalTrackingGeometry &) const;
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT<TrajectorySeedCollection> L2seedsTagT_;
+  edm::EDGetTokenT<L2MuonTrajectorySeedCollection> L2seedsTagT_;
   edm::EDGetTokenT<edm::View<TrajectorySeed>> L2seedsTagS_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMGFieldToken;
