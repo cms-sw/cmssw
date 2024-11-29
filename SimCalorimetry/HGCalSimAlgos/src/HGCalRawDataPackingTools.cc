@@ -65,8 +65,8 @@ std::vector<uint32_t> hgcal::econd::produceERxData(const ERxChannelEnable& chann
 
     if (msb > 0)  // do we have some room for additional information?
       *it_data &= ((1 << msb) - 1);
-    if (msb + nbits > 32) {  // spilling onto the next word
-      uint8_t nbits_word1 = 32 - msb;
+    if (msb + nbits > 31) {  // spilling onto the next word
+      uint8_t nbits_word1 = 31 - msb;
       *it_data |= (word & ((1 << nbits_word1) - 1)) << msb;
       it_data = data.insert(data.end(), word >> nbits_word1);
     } else  // everything fits into one word
