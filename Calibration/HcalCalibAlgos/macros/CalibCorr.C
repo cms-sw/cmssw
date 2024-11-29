@@ -178,16 +178,9 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
       depth = 1;
     }
   } else if (truncate0 == 8) {
-    //Ignore depth index for HE; depth 1, 2 considered as 1; deepth > 2 as 2
-    //Ignore depth index for depth > 2 in HB; all depths considered as 1
-    if (subdet == 2) {
-      if (depth <= 2)
-        depth = 1;
-      else
-        depth = 2;
-    } else {
-      depth = 1;
-    }
+    //Assign all depths > 4 as depth = 5
+    if (depth >= 5)
+      depth = 5;
   } else if (truncate0 == 9) {
     //Depths 1 and 2 considered as depth = 2; rest of the depths are kept as it is
     if (depth <= 2)
@@ -246,12 +239,15 @@ int truncateDepth(int ieta, int depth, int truncateFlag) {
 }
 
 double threshold(int subdet, int depth, int form) {
-  double cutHE[7] = {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2};
-  double cutHB[3][4] = {{0.1, 0.2, 0.3, 0.3}, {0.25, 0.25, 0.3, 0.3}, {0.4, 0.3, 0.3, 0.3}};
+  double cutHE[4][7] = {{0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2},
+                        {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2},
+                        {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2},
+                        {0.2, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3}};
+  double cutHB[4][4] = {{0.1, 0.2, 0.3, 0.3}, {0.25, 0.25, 0.3, 0.3}, {0.4, 0.3, 0.3, 0.3}, {0.6, 0.4, 0.4, 0.5}};
   double thr(0);
   if (form > 0) {
     if (subdet == 2)
-      thr = cutHE[depth - 1];
+      thr = cutHE[form - 1][depth - 1];
     else
       thr = cutHB[form - 1][depth - 1];
   }
