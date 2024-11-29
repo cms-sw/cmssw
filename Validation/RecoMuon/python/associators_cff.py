@@ -265,6 +265,24 @@ Phase2tpToL3OITkAssociation = MABHhlt.clone(
     UseTracker = True,
     UseMuon = False
 )
+# L2 muons to reuse (IO first only)
+Phase2tpToL2MuonToReuseAssociation = MABHhlt.clone(
+    tracksTag = 'hltPhase2L3MuonFilter:L2MuToReuse',
+    UseTracker = False,
+    UseMuon = True
+)
+# L3 IO inner tracks filtered (IO first only)
+Phase2tpToL3IOTkFilteredAssociation = MABHhlt.clone(
+    tracksTag = 'hltPhase2L3MuonFilter:L3IOTracksFiltered',
+    UseTracker = True,
+    UseMuon = False
+)
+# L3 OI inner tracks filtered (OI first only)
+Phase2tpToL3OITkFilteredAssociation = MABHhlt.clone(
+    tracksTag = 'hltPhase2L3MuonFilter:L3OITracksFiltered',
+    UseTracker = True,
+    UseMuon = False
+)
 # L3 inner tracks merged
 Phase2tpToL3TkMergedAssociation = MABHhlt.clone(
     tracksTag = 'hltPhase2L3MuonMerged',
@@ -408,6 +426,33 @@ Phase2MuonAssociationHLT_seq = cms.Sequence(
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith(muonAssociationHLT_seq, Phase2MuonAssociationHLT_seq)
 
+# Inside-Out first
+Phase2IOFirstMuonAssociationHLT_seq = cms.Sequence(
+    hltPhase2L2MuonSeedTracks+Phase2tpToL2SeedAssociation
+    +Phase2tpToL2MuonAssociation+Phase2tpToL2MuonUpdAssociation
+    +Phase2tpToL3IOTkAssociation+Phase2tpToL3OITkAssociation
+    +Phase2tpToL2MuonToReuseAssociation+Phase2tpToL3IOTkFilteredAssociation
+    +Phase2tpToL3TkMergedAssociation+Phase2tpToL3GlbMuonMergedAssociation
+    +hltPhase2L3MuonNoIdTracks+Phase2tpToL3MuonNoIdAssociation
+    +hltPhase2L3MuonIdTracks+Phase2tpToL3MuonIdAssociation
+    )
+# Outside-In first
+Phase2OIFirstMuonAssociationHLT_seq = cms.Sequence(
+    hltPhase2L2MuonSeedTracks+Phase2tpToL2SeedAssociation
+    +Phase2tpToL2MuonAssociation+Phase2tpToL2MuonUpdAssociation
+    +Phase2tpToL3OITkAssociation+Phase2tpToL3OITkFilteredAssociation
+    +Phase2tpToL3IOTkAssociation+Phase2tpToL3TkMergedAssociation
+    +Phase2tpToL3GlbMuonMergedAssociation
+    +hltPhase2L3MuonNoIdTracks+Phase2tpToL3MuonNoIdAssociation
+    +hltPhase2L3MuonIdTracks+Phase2tpToL3MuonIdAssociation
+    )
+
+from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
+phase2L2AndL3Muons.toReplaceWith(muonAssociationHLT_seq, Phase2IOFirstMuonAssociationHLT_seq)
+
+from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
+(phase2L2AndL3Muons & phase2L3MuonsOIFirst).toReplaceWith(muonAssociationHLT_seq, Phase2OIFirstMuonAssociationHLT_seq)
+
 # fastsim has no hlt specific dt hit collection
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 _DTrechitTag = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.DTrechitTag
@@ -427,6 +472,9 @@ fastSim.toModify(Phase2tpToL2MuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(Phase2tpToL2MuonUpdAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(Phase2tpToL3IOTkAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(Phase2tpToL3OITkAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL2MuonToReuseAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL3IOTkFilteredAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL3OITkFilteredAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(Phase2tpToL3TkMergedAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(Phase2tpToL3GlbMuonMergedAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(Phase2tpToL3MuonNoIdAssociation, DTrechitTag = _DTrechitTag)
