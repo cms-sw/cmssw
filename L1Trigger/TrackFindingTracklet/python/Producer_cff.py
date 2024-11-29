@@ -4,7 +4,6 @@ import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.TrackTrigger.Setup_cff import TrackTriggerSetup
 from L1Trigger.TrackerTFP.LayerEncoding_cff import TrackTriggerLayerEncoding
-from L1Trigger.TrackerTFP.KalmanFilterFormats_cff import TrackTriggerKalmanFilterFormats
 from L1Trigger.TrackerTFP.TrackQuality_cff import *
 from L1Trigger.TrackFindingTracklet.ChannelAssignment_cff import ChannelAssignment
 from L1Trigger.TrackFindingTracklet.DataFormats_cff import *

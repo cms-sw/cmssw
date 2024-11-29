@@ -286,3 +286,5 @@ namespace trklet {
   }
 
 }  // namespace trklet
+
+DEFINE_FWK_MODULE(trklet::AnalyzerTM);

@@ -151,8 +151,6 @@ process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
 
 # HYBRID: prompt tracking
 if (L1TRKALGO == 'HYBRID'):
-    process.TrackTriggerSetup.GeometricProcessor.ChosenRofZ = 50.0
-    process.TrackTriggerSetup.TrackFinding.MaxEta = 2.4
     process.TTTracksEmulation = cms.Path(process.L1THybridTracks)
     process.TTTracksEmulationWithTruth = cms.Path(process.L1THybridTracksWithAssociators)
     NHELIXPAR = 4
