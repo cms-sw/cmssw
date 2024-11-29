@@ -2,7 +2,6 @@
 <use name="boost_header"/>
 <use name="root"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
-<use name="RecoTracker/LSTCore" for="alpaka"/>
 <flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
