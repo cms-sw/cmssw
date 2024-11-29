@@ -196,11 +196,15 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
     LogDebug("GenParticleProducer") << "totalSize : " << totalSize << endl;
   } else {
     Handle<HepMCProduct> mcp;
-    evt.getByToken(srcToken_, mcp);
-    mc = mcp->GetEvent();
-    if (mc == nullptr)
-      throw edm::Exception(edm::errors::InvalidReference) << "HepMC has null pointer to GenEvent" << endl;
-    totalSize = mc->particles_size();
+    bool found = evt.getByToken(srcToken_, mcp);
+    if (found) {
+      mc = mcp->GetEvent();
+      if (mc == nullptr)
+        throw edm::Exception(edm::errors::InvalidReference) << "HepMC has null pointer to GenEvent" << endl;
+      totalSize = mc->particles_size();
+    } else {
+      totalSize = 0;
+    }
   }
 
   // initialise containers
@@ -281,28 +285,30 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
       offset += num_particles;
     }
   } else {
-    auto origin = (*mc->vertices_begin())->position();
-    xyz0Ptr->SetXYZ(origin.x() * mmToCm, origin.y() * mmToCm, origin.z() * mmToCm);
-    *t0Ptr = origin.t() * mmToNs;
-    fillIndices(mc, particles, *barCodeVector, 0, barcodes);
+    if (totalSize) {
+      auto origin = (*mc->vertices_begin())->position();
+      xyz0Ptr->SetXYZ(origin.x() * mmToCm, origin.y() * mmToCm, origin.z() * mmToCm);
+      *t0Ptr = origin.t() * mmToNs;
+      fillIndices(mc, particles, *barCodeVector, 0, barcodes);
 
-    // fill output collection and save association
-    for (size_t i = 0; i < particles.size(); ++i) {
-      const HepMC::GenParticle* part = particles[i];
-      reco::GenParticle& cand = cands[i];
-      // convert HepMC::GenParticle to new reco::GenParticle
-      convertParticle(cand, part, id2Charge);
-      cand.resetDaughters(ref.id());
-    }
+      // fill output collection and save association
+      for (size_t i = 0; i < particles.size(); ++i) {
+        const HepMC::GenParticle* part = particles[i];
+        reco::GenParticle& cand = cands[i];
+        // convert HepMC::GenParticle to new reco::GenParticle
+        convertParticle(cand, part, id2Charge);
+        cand.resetDaughters(ref.id());
+      }
 
-    // fill references to daughters
-    for (size_t d = 0; d < cands.size(); ++d) {
-      const HepMC::GenParticle* part = particles[d];
-      const GenVertex* productionVertex = part->production_vertex();
-      // search barcode map and attach daughters
-      if (productionVertex != nullptr)
-        fillDaughters(cands, part, ref, d, barcodes);
-      cands[d].setCollisionId(0);
+      // fill references to daughters
+      for (size_t d = 0; d < cands.size(); ++d) {
+        const HepMC::GenParticle* part = particles[d];
+        const GenVertex* productionVertex = part->production_vertex();
+        // search barcode map and attach daughters
+        if (productionVertex != nullptr)
+          fillDaughters(cands, part, ref, d, barcodes);
+        cands[d].setCollisionId(0);
+      }
     }
   }
 
@@ -353,7 +359,6 @@ bool GenParticleProducer::fillDaughters(reco::GenParticleCollection& cands,
       cands[index].addMother(GenParticleRef(ref, m));
     }
   }
-
   return true;
 }
 
