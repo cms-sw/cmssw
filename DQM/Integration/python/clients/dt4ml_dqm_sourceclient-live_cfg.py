@@ -117,7 +117,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataRepacker"
     process.dtunpacker.inputLabel = "rawDataRepacker"
     process.gtDigis.DaqGtInputTag = "rawDataRepacker"
-    process.gtStage2Digis.InputLabel = "rawDataCollector"
+    process.gtStage2Digis.InputLabel = "rawDataRepacker"
     process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
     
     process.dtDigiMonitor.ResetCycle = 9999
