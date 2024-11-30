@@ -9,8 +9,8 @@
 #include "RecoTracker/PixelSeeding/interface/CACoupleSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
-// maybe not realy needed ...?
-namespace caStructures {
+namespace caStructures
+{
     using CACoupleHost = PortableHostCollection<CACoupleSoA>;
 }
 #endif  // RecoTracker_PixelSeeding_interface_CACoupleHost_h

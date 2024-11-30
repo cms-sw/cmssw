@@ -17,7 +17,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "RecoTracker/PixelSeeding/interface/CAParamsSoA.h"
-// #include "RecoTracker/PixelSeeding/interface/alpaka/CACoupleSoACollection.h"
+#include "RecoTracker/PixelSeeding/interface/alpaka/CACoupleSoACollection.h"
 
 #include "CACell.h"
 #include "CAPixelDoublets.h"
@@ -191,11 +191,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     DeviceGenericOffsetsBuffer device_hitToCellOffsets_;
     GenericContainerView device_hitToCellView_;
 
-    // Hits 
+    // Hits Phi Binner
     cms::alpakatools::device_buffer<Device, PhiBinner> device_hitPhiHist_;
     PhiBinnerView device_hitPhiView_;
     cms::alpakatools::device_buffer<Device, PhiBinnerStorageType[]> device_phiBinnerStorage_;
     cms::alpakatools::device_buffer<Device, hindex_type[]> device_layerStarts_;
+
+    // Cells-> Neighbor Cells
+    DeviceGenericContainerBuffer device_cellToNeighbors_;
+    DeviceGenericStorageBuffer device_cellToNeighborsStorage_;
+    DeviceGenericOffsetsBuffer device_cellToNeighborsOffsets_;
+    GenericContainerView device_cellToNeighborsView_;
 
     // Tracks->Hits
     DeviceSequentialContainerBuffer device_hitContainer_;
@@ -221,15 +227,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::alpakatools::device_buffer<Device, cms::alpakatools::AtomicPairCounter::DoubleWord[]> device_storage_;
     cms::alpakatools::AtomicPairCounter* device_hitTuple_apc_;
     cms::alpakatools::device_view<Device, uint32_t> device_nCells_;
-    // cms::alpakatools::host_buffer<uint32_t> host_nCells_;
-    // Hit -> Cells
-    // DeviceGenericContainerBuffer device_hitToCell_;
-    // GenericContainerView device_hitToCellView_;
-    // DeviceGenericStorageBuffer device_hitToCellOffsets_;
+    cms::alpakatools::device_view<Device, uint32_t> device_nTriplets_;
 
-    // DeviceGenericStorageBuffer device_hitToCellStorage_;
-    // CACoupleDevice<Device> cellsSoA_;
-    // CACoupleDevice<Device> tripletsSoA_;
+    CACoupleSoACollection deviceTriplets_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
