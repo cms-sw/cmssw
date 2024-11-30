@@ -12,7 +12,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE::caStructures {
+namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     using ::caStructures::CACoupleHost;
     using ::caStructures::CACoupleDevice;
@@ -21,6 +21,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caStructures {
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-ASSERT_DEVICE_MATCHES_HOST_COLLECTION(reco::CACoupleSoACollection, reco::CACoupleHost);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(CACoupleSoACollection, ::caStructures::CACoupleHost);
 
 #endif  // RecoTracker_PixelSeeding_interface_CACoupleSoACollection_h

@@ -22,6 +22,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "RecoTracker/PixelSeeding/interface/CACoupleSoA.h"
 
 // local includes
 #include "CACell.h"
@@ -363,8 +364,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   cms::alpakatools::AtomicPairCounter *apc1, // just to zero them
                                   HitsConstView hh,
                                   reco::CALayersSoAConstView ll,
+                                  caStructures::CACoupleSoAView cn,
                                   CACellT<TrackerTraits> *cells,
                                   uint32_t *nCells,
+                                  uint32_t *nTrips,
                                   CellNeighborsVector<TrackerTraits> *cellNeighbors,
                                   OuterHitOfCell<TrackerTraits> *isOuterHitOfCell,
                                   HitToCell const* __restrict__ outerHitHisto,
@@ -389,7 +392,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         uint32_t numberOfPossibleNeighbors = (*isOuterHitOfCell)[innerHitId].size();
         uint32_t numberOfPossibleFromHisto = outerHitHisto->size(innerHitId);
         numberOfPossibleNeighbors = numberOfPossibleFromHisto;
-        printf("%d;%d;%d;numberOfPossibleNeighbors;%d;%d;numberOfPossibleFromHisto;%d\n",*nCells,innerHitId,cellIndex,thisCell.innerLayer(),numberOfPossibleNeighbors,numberOfPossibleFromHisto);
+        printf("numberOfPossibleFromHisto;%d;%d;%d;%d;%d;%d\n",*nCells,innerHitId,cellIndex,thisCell.innerLayer(),numberOfPossibleNeighbors,numberOfPossibleFromHisto);
         auto vi = (*isOuterHitOfCell)[innerHitId].data();
         auto ri = thisCell.inner_r(hh);
         auto zi = thisCell.inner_z(hh);
@@ -419,8 +422,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                               oc,
                               dcaCut,
                               params.hardCurvCut_)) { 
-            printf("filling cell: %d -> %d\n",otherCell,cellIndex);
+            auto t_ind = alpaka::atomicAdd(acc, nTrips, (uint32_t)1, alpaka::hierarchy::Blocks{});
+            printf("filling cell no. %d: %d -> %d\n",t_ind,otherCell,cellIndex);
             oc.addOuterNeighbor(acc, cellIndex, *cellNeighbors);
+            cn[t_ind].inner() = otherCell;
+            cn[t_ind].outer() = cellIndex;
             // histo->count(acc,otherCell);
             thisCell.setStatusBits(Cell::StatusBit::kUsed);
             oc.setStatusBits(Cell::StatusBit::kUsed);
@@ -477,6 +483,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   HitContainer *foundNtuplets,
                                   // GenericContainer const *__restrict__ cellNeighborsHisto,
                                   CACellT<TrackerTraits> *__restrict__ cells,
+                                  uint32_t const *nTriplets,
                                   uint32_t const *nCells,
                                   CellTracksVector<TrackerTraits> *cellTracks,
                                   cms::alpakatools::AtomicPairCounter *apc,
@@ -486,7 +493,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
 #ifdef GPU_DEBUG
       if (cms::alpakatools::once_per_grid(acc))
-        printf("starting producing ntuplets from %d cells \n", *nCells);
+        printf("starting producing ntuplets from %d cells and %d triplets \n", *nCells, *nTriplets);
 #endif
 
       for (auto idx : cms::alpakatools::uniform_elements(acc, (*nCells))) {

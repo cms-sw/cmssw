@@ -9,8 +9,10 @@
 #include "RecoTracker/PixelSeeding/interface/CACoupleSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
-namespace caStructures {
+namespace caStructures
+{
     template <typename TDev>
     using CACoupleDevice = PortableDeviceCollection<CACoupleSoA, TDev>;
 }
+
 #endif  // RecoTracker_PixelSeeding_interface_CACoupleDevice_H
