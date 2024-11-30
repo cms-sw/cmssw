@@ -9,18 +9,15 @@
 
 namespace caStructures {
 
-  // May be used for:
-  // - cells (couples of hits)
-  // - triplets (couples of cells)
-  
-  GENERATE_SOA_LAYOUT(CACouple,
+    GENERATE_SOA_LAYOUT(CACoupleLayout,
                         SOA_COLUMN(uint32_t, inner),
-                        SOA_COLUMN(uint32_t, outer),
+                        SOA_COLUMN(uint32_t, outer)
                         )
                     
-  using CACoupleSoA = CACoupleLayout<>;
-  using CACoupleSoAView = CACoupleSoA::View;
-  using CACoupleSoAConstView = CACoupleSoA::ConstView;
+    using CACoupleSoA = CACoupleLayout<>;
+    using CACoupleSoAView = CACoupleSoA::View;
+    using CACoupleSoAConstView = CACoupleSoA::ConstView;
 
 }
+
 #endif  // RecoTracker_PixelSeeding_interface_CACoupleSoA_h
