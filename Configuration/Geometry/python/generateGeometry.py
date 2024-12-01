@@ -1,4 +1,3 @@
-from __future__ import print_function
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, RawTextHelpFormatter, RawDescriptionHelpFormatter
 import sys, os, operator
 from pprint import pprint
