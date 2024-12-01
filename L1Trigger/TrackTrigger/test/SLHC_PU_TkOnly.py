@@ -1,4 +1,3 @@
-from __future__ import print_function
 #########################
 #
 # Configuration file for PileUp events
