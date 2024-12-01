@@ -3,7 +3,7 @@
     <flags TEST_RUNNER_CMD="mpirun -np 4 testMPI -s 1000 -r 12345 -n 10"/>
 </bin>
 
-<test name="testMPI" command="testMPI.sh">
+<test name="testMPIControllerFollower" command="testMPIApplication.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_cfg.py">
 </test>
 
 <bin name="testSerialisation" file="testSerialisation.cc">
