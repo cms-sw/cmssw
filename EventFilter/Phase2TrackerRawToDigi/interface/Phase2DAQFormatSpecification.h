@@ -17,7 +17,7 @@ namespace Phase2DAQFormatSpecification
     static const int CHIP_ID_MAX_VALUE = 0x7;
     static const int CHIP_ID_BITS = 3;
 
-    static const int SCLUSTER_ADDRESS_2S_MAX_VALUE = 0xFF;
+    static const int SCLUSTER_ADDRESS_2S_MAX_VALUE = 0x7F;
     static const int SCLUSTER_ADDRESS_BITS_2S = 8;
 
     static const int SCLUSTER_ADDRESS_PS_MAX_VALUE = 0x7F;

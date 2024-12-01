@@ -34,7 +34,6 @@ class SensorHybrid
                         {
                             sensor_type_2 = TrackerGeometry::ModuleType::Ph2PSS;
                         }
-                        (*this).num_channels_per_chip = CHANNELS_PER_SSA;
                         break;
 
                     case TrackerGeometry::ModuleType::Ph2SS:
@@ -46,7 +45,6 @@ class SensorHybrid
                         {
                             sensor_type_2 = TrackerGeometry::ModuleType::Ph2SS;
                         }
-                        (*this).num_channels_per_chip = CHANNELS_PER_CBC;
                         break;
 
                     case TrackerGeometry::ModuleType::Ph2PSP:
@@ -59,7 +57,6 @@ class SensorHybrid
                             sensor_type_2 = TrackerGeometry::ModuleType::Ph2PSP;
                         }
                         cic_boundary_in_z = CIC_Z_BOUNDARY_PIXEL; 
-                        (*this).num_channels_per_chip = CHANNELS_PER_SSA;
                         break;
 
                     default:
@@ -107,8 +104,8 @@ class SensorHybrid
                 {
                     // cluster info 
 
-                    uint32_t chipID = std::div(cluster->firstStrip() * 2.0, num_channels_per_chip).quot & CHIP_ID_MAX_VALUE;  // 3 bits
-                    uint32_t sclusterAddress = std::div(cluster->firstStrip() * 2.0, num_channels_per_chip).rem & SCLUSTER_ADDRESS_PS_MAX_VALUE;  // 7 bits
+                    uint32_t chipID = std::div(cluster->firstStrip(), STRIPS_PER_SSA).quot & CHIP_ID_MAX_VALUE;  // 3 bits
+                    uint32_t sclusterAddress = std::div(cluster->firstStrip(), STRIPS_PER_SSA).rem & SCLUSTER_ADDRESS_PS_MAX_VALUE;  // 7 bits
                     uint32_t width = cluster->size() & WIDTH_MAX_VALUE;  // 3 bits
                     uint32_t mipBit = cluster->threshold() & 0x1;  // 1 bit
 
@@ -138,15 +135,15 @@ class SensorHybrid
                 {
                     // cluster info 
 
-                    uint32_t chipID = std::div(cluster->firstStrip() * 2.0, num_channels_per_chip).quot & CHIP_ID_MAX_VALUE;  // 3 bits
-                    uint32_t sclusterAddress = std::div(cluster->firstStrip() * 2.0, num_channels_per_chip).rem & SCLUSTER_ADDRESS_PS_MAX_VALUE;  // 7 bits
+                    uint32_t chipID = std::div(cluster->firstStrip(), STRIPS_PER_SSA).quot & CHIP_ID_MAX_VALUE;  // 3 bits
+                    uint32_t sclusterAddress = std::div(cluster->firstStrip(), STRIPS_PER_SSA).rem & SCLUSTER_ADDRESS_PS_MAX_VALUE;  // 7 bits
                     uint32_t width = cluster->size() & WIDTH_MAX_VALUE;  // 3 bits
                     uint32_t z = cluster->column() & 0xF;  // 4 bits (ensure it's within 4-bit range)
 
                     // Encode cluster data into 17 bits: 3 (chipID) + 7 (sclusterAddress) + 3 (width) + 4 (z)
                     uint32_t clusterData = (chipID << (PX_CLUSTER_BITS - CHIP_ID_BITS)) |
                                         (sclusterAddress << (PX_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS)) |
-                                        (width << (PX_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS - WIDTH_MAX_VALUE)) |
+                                        (width << (PX_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS - WIDTH_BITS)) |
                                         z;
 
                     if (bitsFilled + PX_CLUSTER_BITS <= NUMBER_OF_BITS_PER_WORD) 
@@ -174,12 +171,12 @@ class SensorHybrid
             {
                 // For SS, both sensors are strip
 
-                for (auto& cluster : sensor_1_clusters_) 
+                for (auto& cluster : sensor_2_clusters_) 
                 {
                     // cluster info 
 
-                    uint32_t chipID = std::div(cluster->firstStrip(), num_channels_per_chip).quot & CHIP_ID_MAX_VALUE;       // 3 bits
-                    uint32_t sclusterAddress = std::div(cluster->firstStrip(), num_channels_per_chip).rem & SCLUSTER_ADDRESS_2S_MAX_VALUE;  // 8 bits
+                    uint32_t chipID = std::div(cluster->firstStrip(), STRIPS_PER_CBC).quot & CHIP_ID_MAX_VALUE;       // 3 bits
+                    uint32_t sclusterAddress = std::div(cluster->firstStrip(), STRIPS_PER_CBC).rem & SCLUSTER_ADDRESS_2S_MAX_VALUE;  // 7 bits
                     uint32_t width = cluster->size() & WIDTH_MAX_VALUE;                       // 3 bits
 
                     uint32_t clusterData = (chipID << (SS_CLUSTER_BITS - CHIP_ID_BITS)) | 
@@ -204,8 +201,10 @@ class SensorHybrid
                 {
                     // cluster info 
 
-                    uint32_t chipID = std::div(cluster->firstStrip(), num_channels_per_chip).quot & CHIP_ID_MAX_VALUE;       // 3 bits
-                    uint32_t sclusterAddress = std::div(cluster->firstStrip(), num_channels_per_chip).rem & SCLUSTER_ADDRESS_2S_MAX_VALUE;  // 8 bits
+                    uint32_t chipID = std::div(cluster->firstStrip(), STRIPS_PER_CBC).quot & CHIP_ID_MAX_VALUE;       // 3 bits
+                    uint32_t baseValue = std::div(cluster->firstStrip(), STRIPS_PER_CBC).rem & SCLUSTER_ADDRESS_2S_MAX_VALUE;
+                    uint32_t lsb = 1;
+                    uint32_t sclusterAddress = (baseValue << 1) | lsb;  // Combine 7 bits and LSB into 8 bits
                     uint32_t width = cluster->size() & WIDTH_MAX_VALUE;                       // 3 bits
 
                     uint32_t clusterData = (chipID << (SS_CLUSTER_BITS - CHIP_ID_BITS)) | 
@@ -240,8 +239,6 @@ class SensorHybrid
 
         std::vector<Phase2TrackerCluster1D*> sensor_2_clusters_; // will be strip in the case of Phase2PS
         TrackerGeometry::ModuleType sensor_type_2;
-
-        int num_channels_per_chip;
 
         unsigned int offset_index_;
         unsigned int eventId_ = 0;
