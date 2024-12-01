@@ -24,9 +24,9 @@ namespace Phase2DAQFormatSpecification
     static const int SCLUSTER_ADDRESS_BITS_PS = 7;
 
     static const int WIDTH_MAX_VALUE = 0x7;
-    static const int WIDTH_BITS = 3; // Added: Number of bits for Width
+    static const int WIDTH_BITS = 3;
 
-    static const int MIP_BITS = 1; // Added: Number of bits for MIP
+    static const int MIP_BITS = 1;
 
     static const int SS_CLUSTER_BITS = 14;
     static const int PX_CLUSTER_BITS = 17;
