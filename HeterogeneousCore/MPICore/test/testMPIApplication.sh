@@ -1,5 +1,12 @@
 #! /bin/bash
 # Shell script for testing CMSSW over MPI
+CONTROLLER=$(realpath $1)
+FOLLOWER=$(realpath $2)
+
+# make sure the CMSSW environment has been loaded
+if [ -z "$CMSSW_BASE" ]; then
+  eval `scram runtime -sh`
+fi
 
 mkdir -p $CMSSW_BASE/tmp/$SCRAM_ARCH/test
 DIR=$(mktemp -d -p $CMSSW_BASE/tmp/$SCRAM_ARCH/test)
@@ -22,18 +29,20 @@ done
 
 # start the "follower" CMSSW job(s)
 {
-  mpirun --mca pmix_server_uri file:server.uri -n 1 -- cmsRun $CMSSW_BASE/src/HeterogeneousCore/MPICore/test/testMPIFollower.py >& mpifollower.log
-  echo $? > mpifollower.status
+  mpirun --mca pmix_server_uri file:server.uri -n 1 -- cmsRun $FOLLOWER >& follower.log
+  echo $? > follower.status
 } &
 FOLLOWER_PID=$!
 
-# wait to make sure the MPISource has established the connection to the ORTE server
-sleep 3s
+# wait until the MPISource has established the connection to the ORTE server
+while ! grep -q 'waiting for a connection to the MPI server' follower.log; do
+  sleep 1s
+done
 
 # start the "controller" CMSSW job(s)
 {
-  mpirun --mca pmix_server_uri file:server.uri -n 1 -- cmsRun $CMSSW_BASE/src/HeterogeneousCore/MPICore/test/testMPIController.py >& mpicontroller.log
-  echo $? > mpicontroller.status
+  mpirun --mca pmix_server_uri file:server.uri -n 1 -- cmsRun $CONTROLLER >& controller.log
+  echo $? > controller.status
 } &
 CONTROLLER_PID=$!
 
@@ -42,13 +51,13 @@ wait $CONTROLLER_PID $FOLLOWER_PID
 
 # print the jobs' output and check the jobs' exit status
 echo '========== testMPIController ==========='
-cat mpicontroller.log
-MPICONTROLLER_STATUS=$(< mpicontroller.status)
+cat controller.log
+MPICONTROLLER_STATUS=$(< controller.status)
 echo '========================================'
 echo
 echo '=========== testMPIFollower ============'
-cat mpifollower.log
-MPISOURCE_STATUS=$(< mpifollower.status)
+cat follower.log
+MPISOURCE_STATUS=$(< follower.status)
 echo '========================================'
 
 # stop the MPI server and cleanup the URI file
