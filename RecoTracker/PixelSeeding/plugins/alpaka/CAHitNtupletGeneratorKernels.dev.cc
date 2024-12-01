@@ -275,19 +275,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         this->device_theCellNeighbors_.data(),
                         this->isOuterHitOfCell_.data(),
                         this->device_hitToCell_.data(),
+                        this->device_cellToNeighbors_.data(),
                         this->m_params.algoParams_);
-    
-    // alpaka::exec<Acc2D>(queue,
-    //                 kernelConnectWorkDiv,
-    //                 Kernel_connectFill<TrackerTraits>{},
-    //                 hh,
-    //                 this->device_theCells_.data(),
-    //                 this->device_nCells_.data(),
-    //                 this->isOuterHitOfCell_.data(),
-    //                 cellNeighborsHisto.data());
-                    
-    // GenericContainer::template launchFinalize<Acc1D>(cellNeighborsHisto.data(), queue);
 
+    CellToCell::template launchFinalize<Acc1D>(this->device_cellToNeighborsView_, queue);
+
+    auto threadsPerBlock = 512;
+    auto blocks = cms::alpakatools::divide_up_by( this->m_params.algoParams_.maxNumberOfDoublets_ * TrackerTraits::maxCellNeighbors , threadsPerBlock);
+    auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
+
+    alpaka::exec<Acc1D>(queue,
+                    workDiv1D,
+                    Kernel_connectFill<TrackerTraits>{},
+                    this->device_nTriplets_.data(),
+                    this->deviceTriplets_.view(),
+                    this->device_cellToNeighbors_.data());
+                    
     // do not run the fishbone if there are hits only in BPIX1
     if (this->m_params.algoParams_.earlyFishbone_ and nhits > offsetBPIX2) {
       const auto nthTot = 128;
@@ -309,7 +312,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
     blockSize = 64;
     numberOfBlocks = cms::alpakatools::divide_up_by(3 * m_params.algoParams_.maxNumberOfDoublets_ / 4, blockSize);
-    auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+    workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
     alpaka::exec<Acc1D>(queue,
                         workDiv1D,
                         Kernel_find_ntuplets<TrackerTraits>{},
