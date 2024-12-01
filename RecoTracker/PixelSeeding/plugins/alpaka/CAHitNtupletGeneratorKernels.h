@@ -141,6 +141,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using HitToTupleView = typename HitToTuple::View;
     using TupleMultiplicity = caStructures::template TupleMultiplicityT<TrackerTraits>;
     using HitToCell = caStructures::GenericContainer;
+    using CellToCell = caStructures::GenericContainer;
 
     using GenericContainer = caStructures::GenericContainer;
     using GenericContainerStorage = typename GenericContainer::index_type;
@@ -162,7 +163,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     GenericContainer const* tupleMultiplicity() const { return device_tupleMultiplicity_.data(); }
     SequentialContainer const* hitContainer() const { return device_hitContainer_.data(); }
     HitToCell const* hitToCell() const { return device_hitToCell_.data(); }
-
+    CellToCell const* cellToCell() const { return device_cellToNeighbors_.data(); }
+    
     void prepareHits(const HitsConstView& hh, const HitModulesConstView &mm, const ::reco::CALayersSoAConstView& ll, Queue& queue);
 
     void launchKernels(const HitsConstView& hh, uint32_t offsetBPIX2, uint16_t nLayers, TkSoAView& track_view, TkHitsSoAView& track_hits_view, const ::reco::CALayersSoAConstView& ca_layers, const ::reco::CACellsSoAConstView& ca_cells, Queue& queue);
