@@ -1,4 +1,3 @@
-from __future__ import print_function
 from threading import Thread
 from Configuration.PyReleaseValidation import WorkFlow
 import os,time
