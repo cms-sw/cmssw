@@ -65,6 +65,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   using Counters = caHitNtupletGenerator::Counters;
   using HitContainer = caStructures::SequentialContainer;
   using HitToCell = caStructures::GenericContainer;
+  using CellToCell = caStructures::GenericContainer;
   using namespace cms::alpakatools;
 
    // standard initialization for a generic one to many assoc map
@@ -371,6 +372,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   CellNeighborsVector<TrackerTraits> *cellNeighbors,
                                   OuterHitOfCell<TrackerTraits> *isOuterHitOfCell,
                                   HitToCell const* __restrict__ outerHitHisto,
+                                  CellToCell *cellNeighborsHisto,
                                   AlgoParams const& params) const {
       using Cell = CACellT<TrackerTraits>;
       // using CellStack = cms::alpakatools::SimpleVector<uint16_t>; //could
@@ -425,9 +427,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
             auto t_ind = alpaka::atomicAdd(acc, nTrips, (uint32_t)1, alpaka::hierarchy::Blocks{});
             printf("filling cell no. %d: %d -> %d\n",t_ind,otherCell,cellIndex);
             oc.addOuterNeighbor(acc, cellIndex, *cellNeighbors);
+            // add check for size?
             cn[t_ind].inner() = otherCell;
             cn[t_ind].outer() = cellIndex;
-            // histo->count(acc,otherCell);
+            cellNeighborsHisto->count(acc,otherCell);
             thisCell.setStatusBits(Cell::StatusBit::kUsed);
             oc.setStatusBits(Cell::StatusBit::kUsed);
             
@@ -446,30 +449,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  HitsConstView hh,
-                                  CACellT<TrackerTraits> *cells,
-                                  uint32_t *nCells,
-                                  OuterHitOfCell<TrackerTraits> const* isOuterHitOfCell,
-                                  GenericContainer* __restrict__ histo) const {
+                                  uint32_t const* nTrips,
+                                  caStructures::CACoupleSoAConstView cn,
+                                  CellToCell *cellNeighborsHisto) const {
   
-  for (uint32_t cellIndex : cms::alpakatools::uniform_elements_y(acc, *nCells)) {
-        auto &thisCell = cells[cellIndex];
-        auto innerHitId = thisCell.inner_hit_id();
-        if (int(innerHitId) < isOuterHitOfCell->offset)
-          continue;
-        
-        uint32_t numberOfPossibleNeighbors = (*isOuterHitOfCell)[innerHitId].size();
-        auto vi = (*isOuterHitOfCell)[innerHitId].data();
-        for (uint32_t j : cms::alpakatools::independent_group_elements_x(acc, numberOfPossibleNeighbors)) {
-          auto otherCell = (vi[j]);
-          if(vi[j]==std::numeric_limits<uint32_t>::max())
-            continue;
-          histo->fill(acc,otherCell,cellIndex);
-          printf("filling histo: %d -> %d\n",otherCell,cellIndex);
+  for (uint32_t tripIndex : cms::alpakatools::uniform_elements(acc, *nTrips)) {
+        cellNeighborsHisto->fill(acc,cn[tripIndex].inner(),cn[tripIndex].outer());
+        printf("filling cellNeighborsHisto: %d -> %d\n",cn[tripIndex].inner(),cn[tripIndex].outer());
+          
         }
 
     }
-   }
   };
   
   template <typename TrackerTraits>
