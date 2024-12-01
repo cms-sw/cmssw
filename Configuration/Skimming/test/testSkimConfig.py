@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 import FWCore.ParameterSet.SequenceTypes as sqt
