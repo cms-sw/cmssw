@@ -14,4 +14,3 @@ _hltPixelSeedInputLSTSingleIterPatatrack = hltPixelSeedInputLST.clone(
 
 from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
 singleIterPatatrack.toReplaceWith(hltPixelSeedInputLST, _hltPixelSeedInputLSTSingleIterPatatrack)
-

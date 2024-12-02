@@ -49,4 +49,3 @@ from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPat
 
 from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
 (seedingLST & trackingLST).toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceLST.copyAndExclude([hltInitialStepTrackspLSTCLST,hltInitialStepTrackCutClassifierpLSTCLST,hltInitialStepTrackSelectionHighPuritypLSTCLST]))
-
