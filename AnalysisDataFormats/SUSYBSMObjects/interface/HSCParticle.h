@@ -10,6 +10,11 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <vector>
 
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/IsolatedTrack.h"
+#include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
+
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPCaloInfo.h"
 
@@ -45,6 +50,8 @@ namespace susybsm {
     HSCParticle() {}
 
     // check available infos
+    bool hasTrack() const { return track_.packedCandRef().isNonnull(); }
+    bool hasMuon() const { return muon_.isNonnull(); }
     bool hasMuonRef() const { return muonRef_.isNonnull(); }
     bool hasMTMuonRef() const { return MTMuonRef_.isNonnull(); }
     bool hasTrackRef() const { return trackRef_.isNonnull(); }
@@ -53,6 +60,9 @@ namespace susybsm {
     bool hasCaloInfo() const { return caloInfoRef_.isNonnull(); }
 
     // set infos
+    void setDeDxHitInfo(const reco::DeDxHitInfo* data) {dedxHitInfo_ = data;}
+    void setTrack(const pat::IsolatedTrack& data) { track_ = data; }
+    void setMuon(const pat::MuonRef& data) { muon_ = data; }
     void setMuon(const reco::MuonRef& data) { muonRef_ = data; }
     void setMTMuon(const reco::MuonRef& data) { MTMuonRef_ = data; }
     void setTrack(const reco::TrackRef& data) { trackRef_ = data; }
@@ -61,6 +71,9 @@ namespace susybsm {
     void setCaloInfo(const HSCPCaloInfoRef& data) { caloInfoRef_ = data; }
 
     // get infos
+    const reco::DeDxHitInfo* dedxHitInfo() const {return dedxHitInfo_; }
+    pat::IsolatedTrack track() const { return track_; }
+    pat::MuonRef muon() const { return muon_; }
     reco::TrackRef trackRef() const { return trackRef_; }
     reco::TrackRef trackIsoRef() const { return trackIsoRef_; }
     reco::MuonRef muonRef() const { return muonRef_; }
@@ -74,6 +87,9 @@ namespace susybsm {
     int type() const;
 
   private:
+    const reco::DeDxHitInfo* dedxHitInfo_ = nullptr;
+    pat::IsolatedTrack track_;
+    pat::MuonRef muon_;
     reco::TrackRef trackRef_;     //TrackRef from refitted track collection (dE/dx purposes)
     reco::TrackRef trackIsoRef_;  //TrackRef from general track collection (isolation purposes)
     reco::MuonRef muonRef_;
