@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_14_1_0/Special --full --data --type Special --unprescale --process HLTSpecial --globaltag auto:run3_hlt_Special --input file:RelVal_Raw_Special_DATA.root
+# hltGetConfiguration /dev/CMSSW_14_2_0/Special --full --data --type Special --unprescale --process HLTSpecial --globaltag auto:run3_hlt_Special --input file:RelVal_Raw_Special_DATA.root
 
-# /dev/CMSSW_14_1_0/Special/V50 (CMSSW_14_1_1)
+# /dev/CMSSW_14_2_0/Special/V10 (CMSSW_14_2_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTSpecial" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_1_0/Special/V50")
+  tableName = cms.string("/dev/CMSSW_14_2_0/Special/V10")
 )
 
 process.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -1503,6 +1503,22 @@ process.streams = cms.PSet(
     'SpecialZeroBias17' ),
   PhysicsSpecialZeroBias9 = cms.vstring( 'SpecialZeroBias18',
     'SpecialZeroBias19' ),
+  PhysicsVRRandom0 = cms.vstring( 'VRRandom0',
+    'VRRandom1' ),
+  PhysicsVRRandom1 = cms.vstring( 'VRRandom2',
+    'VRRandom3' ),
+  PhysicsVRRandom2 = cms.vstring( 'VRRandom4',
+    'VRRandom5' ),
+  PhysicsVRRandom3 = cms.vstring( 'VRRandom6',
+    'VRRandom7' ),
+  PhysicsVRRandom4 = cms.vstring( 'VRRandom8',
+    'VRRandom9' ),
+  PhysicsVRRandom5 = cms.vstring( 'VRRandom10',
+    'VRRandom11' ),
+  PhysicsVRRandom6 = cms.vstring( 'VRRandom12',
+    'VRRandom13' ),
+  PhysicsVRRandom7 = cms.vstring( 'VRRandom14',
+    'VRRandom15' ),
   RPCMON = cms.vstring( 'RPCMonitor' )
 )
 process.datasets = cms.PSet( 
@@ -1865,6 +1881,22 @@ process.datasets = cms.PSet(
     'HLT_HcalCalibration_v6' ),
   TestEnablesEcalHcalDQM = cms.vstring( 'HLT_EcalCalibration_v4',
     'HLT_HcalCalibration_v6' ),
+  VRRandom0 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom1 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom10 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom11 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom12 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom13 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom14 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom15 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom2 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom3 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom4 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom5 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom6 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom7 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom8 = cms.vstring( 'HLT_Random_HighRate_v1' ),
+  VRRandom9 = cms.vstring( 'HLT_Random_HighRate_v1' ),
   ZeroBias = cms.vstring( 'HLT_Random_v3',
     'HLT_ZeroBias_Alignment_v8',
     'HLT_ZeroBias_FirstBXAfterTrain_v10',
@@ -5271,6 +5303,7 @@ process.hltPixelVerticesSoA = cms.EDProducer( "PixelVertexProducerAlpakaPhase1@a
     eps = cms.double( 0.07 ),
     errmax = cms.double( 0.01 ),
     chi2max = cms.double( 9.0 ),
+    maxVertices = cms.int32( 256 ),
     PtMin = cms.double( 0.5 ),
     PtMax = cms.double( 75.0 ),
     pixelTrackSrc = cms.InputTag( "hltPixelTracksSoA" ),
@@ -5345,6 +5378,7 @@ process.hltPixelVerticesSoASerialSync = cms.EDProducer( "alpaka_serial_sync::Pix
     eps = cms.double( 0.07 ),
     errmax = cms.double( 0.01 ),
     chi2max = cms.double( 9.0 ),
+    maxVertices = cms.int32( 256 ),
     PtMin = cms.double( 0.5 ),
     PtMax = cms.double( 75.0 ),
     pixelTrackSrc = cms.InputTag( "hltPixelTracksSoASerialSync" )
@@ -7722,6 +7756,7 @@ process.hltIter3IterL3FromL1MuonPixelClusterCheck = cms.EDProducer( "ClusterChec
     MaxNumberOfPixelClusters = cms.uint32( 40000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
     cut = cms.string( "" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltIter3IterL3FromL1MuonPixelHitDoublets = cms.EDProducer( "HitPairEDProducer",
@@ -8523,6 +8558,7 @@ process.hltDoubletRecoveryPFlowPixelClusterCheck = cms.EDProducer( "ClusterCheck
     MaxNumberOfPixelClusters = cms.uint32( 40000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
     cut = cms.string( "" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltDoubletRecoveryPFlowPixelHitDoublets = cms.EDProducer( "HitPairEDProducer",
@@ -11025,6 +11061,22 @@ process.hltCombinatorialcosmicseedingpairsTECnegP5 = cms.EDProducer( "SeedingLay
 process.hltCombinatorialcosmicseedfinderP5 = cms.EDProducer( "CtfSpecialSeedGenerator",
     SeedMomentum = cms.double( 5.0 ),
     ErrorRescaling = cms.double( 50.0 ),
+    UseScintillatorsConstraint = cms.bool( False ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+    SeedsFromPositiveY = cms.bool( True ),
+    SeedsFromNegativeY = cms.bool( False ),
+    CheckHitsAreOnDifferentLayers = cms.bool( False ),
+    SetMomentum = cms.bool( True ),
+    requireBOFF = cms.bool( True ),
+    maxSeeds = cms.int32( 10000 ),
+    doClusterCheck = cms.bool( True ),
+    MaxNumberOfStripClusters = cms.uint32( 300 ),
+    ClusterCollectionLabel = cms.InputTag( "hltFullSiStripRawToClustersFacility" ),
+    MaxNumberOfPixelClusters = cms.uint32( 1000 ),
+    PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
+    cut = cms.string( "strip < 400000 && pixel < 40000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + 0.1*strip)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 20 ),
+    Charges = cms.vint32( -1 ),
     RegionFactoryPSet = cms.PSet( 
       RegionPSet = cms.PSet( 
         ptMin = cms.double( 0.9 ),
@@ -11038,7 +11090,20 @@ process.hltCombinatorialcosmicseedfinderP5 = cms.EDProducer( "CtfSpecialSeedGene
       ),
       ComponentName = cms.string( "GlobalRegionProducer" )
     ),
-    Charges = cms.vint32( -1 ),
+    UpperScintillatorParameters = cms.PSet( 
+      WidthInX = cms.double( 100.0 ),
+      GlobalX = cms.double( 0.0 ),
+      GlobalY = cms.double( 300.0 ),
+      GlobalZ = cms.double( 50.0 ),
+      LenghtInZ = cms.double( 100.0 )
+    ),
+    LowerScintillatorParameters = cms.PSet( 
+      WidthInX = cms.double( 100.0 ),
+      GlobalX = cms.double( 0.0 ),
+      GlobalY = cms.double( -100.0 ),
+      GlobalZ = cms.double( 50.0 ),
+      LenghtInZ = cms.double( 100.0 )
+    ),
     OrderedHitsFactoryPSets = cms.VPSet( 
       cms.PSet(  LayerSrc = cms.InputTag( "hltCombinatorialcosmicseedingtripletsP5" ),
         NavigationDirection = cms.string( "outsideIn" ),
@@ -11070,40 +11135,11 @@ process.hltCombinatorialcosmicseedfinderP5 = cms.EDProducer( "CtfSpecialSeedGene
         PropagationDirection = cms.string( "alongMomentum" ),
         ComponentName = cms.string( "GenericPairGenerator" )
       )
-    ),
-    UseScintillatorsConstraint = cms.bool( False ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    SeedsFromPositiveY = cms.bool( True ),
-    SeedsFromNegativeY = cms.bool( False ),
-    doClusterCheck = cms.bool( True ),
-    ClusterCollectionLabel = cms.InputTag( "hltFullSiStripRawToClustersFacility" ),
-    MaxNumberOfStripClusters = cms.uint32( 300 ),
-    MaxNumberOfPixelClusters = cms.uint32( 1000 ),
-    PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
-    CheckHitsAreOnDifferentLayers = cms.bool( False ),
-    SetMomentum = cms.bool( True ),
-    requireBOFF = cms.bool( True ),
-    maxSeeds = cms.int32( 10000 ),
-    DontCountDetsAboveNClusters = cms.untracked.uint32( 20 ),
-    UpperScintillatorParameters = cms.PSet( 
-      WidthInX = cms.double( 100.0 ),
-      GlobalX = cms.double( 0.0 ),
-      GlobalY = cms.double( 300.0 ),
-      GlobalZ = cms.double( 50.0 ),
-      LenghtInZ = cms.double( 100.0 )
-    ),
-    LowerScintillatorParameters = cms.PSet( 
-      WidthInX = cms.double( 100.0 ),
-      GlobalX = cms.double( 0.0 ),
-      GlobalY = cms.double( -100.0 ),
-      GlobalZ = cms.double( 50.0 ),
-      LenghtInZ = cms.double( 100.0 )
     )
 )
 process.hltCombinedP5SeedsForCTF = cms.EDProducer( "SeedCombiner",
     seedCollections = cms.VInputTag( 'hltCombinatorialcosmicseedfinderP5','hltSimpleCosmicBONSeeds' ),
-    PairCollection = cms.untracked.InputTag( "hltCombinatorialcosmicseedfinderP5" ),
-    TripletCollection = cms.untracked.InputTag( "hltSimpleCosmicBONSeeds" )
+    clusterRemovalInfos = cms.VInputTag(  )
 )
 process.hltCkfTrackCandidatesP5 = cms.EDProducer( "CkfTrackCandidateMaker",
     cleanTrajectoryAfterInOut = cms.bool( True ),
@@ -11798,6 +11834,78 @@ process.hltPreDatasetTestEnablesEcalHcalDQM = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
+process.hltDatasetVRRandom = cms.EDFilter( "TriggerResultsFilter",
+    usePathStatus = cms.bool( True ),
+    hltResults = cms.InputTag( "" ),
+    l1tResults = cms.InputTag( "" ),
+    l1tIgnoreMaskAndPrescale = cms.bool( False ),
+    throw = cms.bool( True ),
+    triggerConditions = cms.vstring( 'HLT_Random_HighRate_v1' )
+)
+process.hltPreDatasetVRRandom0 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 0 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom1 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 1 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom2 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 2 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom3 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 3 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom4 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 4 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom5 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 5 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom6 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 6 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom7 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 7 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom8 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 8 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom9 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 9 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom10 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 10 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom11 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 11 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom12 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 12 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom13 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 13 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom14 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 14 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+process.hltPreDatasetVRRandom15 = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 15 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
 process.hltDatasetZeroBias = cms.EDFilter( "TriggerResultsFilter",
     usePathStatus = cms.bool( True ),
     hltResults = cms.InputTag( "" ),
@@ -12365,6 +12473,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltL3NoFiltersNoVtxMuonCandidates_*_*',
       'keep *_hltMergedTracks_*_*',
       'keep *_hltOnlineBeamSpot_*_*',
+      'keep *_hltParticleNetDiscriminatorsJetTags_*_*',
       'keep *_hltPixelTracks_*_*',
       'keep *_hltPixelVertices_*_*',
       'keep *_hltSiPixelClusters_*_*',
@@ -12418,10 +12527,6 @@ process.hltOutputDQMGPUvsCPU = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_DQMGPUvsCPU' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *Cluster*_hltSiPixelClustersSerialSync_*_*',
-      'keep *Cluster*_hltSiPixelClusters_*_*',
-      'keep *RecHit*_hltSiPixelRecHitsSerialSync_*_*',
-      'keep *RecHit*_hltSiPixelRecHits_*_*',
       'keep *_hltEcalDigisSerialSync_*_*',
       'keep *_hltEcalDigis_*_*',
       'keep *_hltEcalUncalibRecHitSerialSync_*_*',
@@ -12430,10 +12535,6 @@ process.hltOutputDQMGPUvsCPU = cms.OutputModule( "PoolOutputModule",
       'keep *_hltHbhereco_*_*',
       'keep *_hltParticleFlowClusterHCALSerialSync_*_*',
       'keep *_hltParticleFlowClusterHCAL_*_*',
-      'keep *_hltPixelTracksSerialSync_*_*',
-      'keep *_hltPixelTracks_*_*',
-      'keep *_hltPixelVerticesSerialSync_*_*',
-      'keep *_hltPixelVertices_*_*',
       'keep *_hltSiPixelDigiErrorsSerialSync_*_*',
       'keep *_hltSiPixelDigiErrors_*_*' )
 )
@@ -13395,6 +13496,142 @@ process.hltOutputPhysicsSpecialZeroBias15 = cms.OutputModule( "PoolOutputModule"
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
+process.hltOutputPhysicsVRRandom1 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsVRRandom1.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_VRRandom2',
+  'Dataset_VRRandom3' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsVRRandom0 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsVRRandom0.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_VRRandom0',
+  'Dataset_VRRandom1' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsVRRandom2 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsVRRandom2.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_VRRandom4',
+  'Dataset_VRRandom5' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsVRRandom3 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsVRRandom3.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_VRRandom6',
+  'Dataset_VRRandom7' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsVRRandom4 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsVRRandom4.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_VRRandom8',
+  'Dataset_VRRandom9' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsVRRandom5 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsVRRandom5.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_VRRandom10',
+  'Dataset_VRRandom11' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsVRRandom6 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsVRRandom6.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_VRRandom12',
+  'Dataset_VRRandom13' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsVRRandom7 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsVRRandom7.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_VRRandom14',
+  'Dataset_VRRandom15' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
 
 process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtStage2Digis + process.hltGtStage2ObjectMap )
 process.HLTBeamSpot = cms.Sequence( process.hltOnlineMetaDataDigis + process.hltOnlineBeamSpot )
@@ -13597,6 +13834,22 @@ process.Dataset_OnlineMonitor = cms.Path( process.HLTDatasetPathBeginSequence + 
 process.Dataset_RPCMonitor = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetRPCMonitor + process.hltPreDatasetRPCMonitor )
 process.Dataset_TestEnablesEcalHcal = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetTestEnablesEcalHcal + process.hltPreDatasetTestEnablesEcalHcal )
 process.Dataset_TestEnablesEcalHcalDQM = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetTestEnablesEcalHcalDQM + process.hltPreDatasetTestEnablesEcalHcalDQM )
+process.Dataset_VRRandom0 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom0 )
+process.Dataset_VRRandom1 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom1 )
+process.Dataset_VRRandom2 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom2 )
+process.Dataset_VRRandom3 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom3 )
+process.Dataset_VRRandom4 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom4 )
+process.Dataset_VRRandom5 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom5 )
+process.Dataset_VRRandom6 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom6 )
+process.Dataset_VRRandom7 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom7 )
+process.Dataset_VRRandom8 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom8 )
+process.Dataset_VRRandom9 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom9 )
+process.Dataset_VRRandom10 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom10 )
+process.Dataset_VRRandom11 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom11 )
+process.Dataset_VRRandom12 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom12 )
+process.Dataset_VRRandom13 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom13 )
+process.Dataset_VRRandom14 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom14 )
+process.Dataset_VRRandom15 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetVRRandom + process.hltPreDatasetVRRandom15 )
 process.Dataset_ZeroBias = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetZeroBias + process.hltPreDatasetZeroBias )
 process.ALCALumiPixelsCountsExpressOutput = cms.FinalPath( process.hltOutputALCALumiPixelsCountsExpress )
 process.ALCALumiPixelsCountsGatedOutput = cms.FinalPath( process.hltOutputALCALumiPixelsCountsGated )
@@ -13751,9 +14004,17 @@ process.Dataset_SpecialHLTPhysics16 = cms.Path( process.HLTDatasetPathBeginSeque
 process.Dataset_SpecialHLTPhysics17 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetSpecialHLTPhysics + process.hltPreDatasetSpecialHLTPhysics17 )
 process.Dataset_SpecialHLTPhysics18 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetSpecialHLTPhysics + process.hltPreDatasetSpecialHLTPhysics18 )
 process.Dataset_SpecialHLTPhysics19 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetSpecialHLTPhysics + process.hltPreDatasetSpecialHLTPhysics19 )
+process.PhysicsVRRandom1Output = cms.FinalPath( process.hltOutputPhysicsVRRandom1 )
+process.PhysicsVRRandom0Output = cms.FinalPath( process.hltOutputPhysicsVRRandom0 )
+process.PhysicsVRRandom2Output = cms.FinalPath( process.hltOutputPhysicsVRRandom2 )
+process.PhysicsVRRandom3Output = cms.FinalPath( process.hltOutputPhysicsVRRandom3 )
+process.PhysicsVRRandom4Output = cms.FinalPath( process.hltOutputPhysicsVRRandom4 )
+process.PhysicsVRRandom5Output = cms.FinalPath( process.hltOutputPhysicsVRRandom5 )
+process.PhysicsVRRandom6Output = cms.FinalPath( process.hltOutputPhysicsVRRandom6 )
+process.PhysicsVRRandom7Output = cms.FinalPath( process.hltOutputPhysicsVRRandom7 )
 
 
-process.schedule = cms.Schedule( *(process.HLTriggerFirstPath, process.Status_OnCPU, process.Status_OnGPU, process.AlCa_EcalPhiSym_v20, process.AlCa_EcalEtaEBonly_v25, process.AlCa_EcalEtaEEonly_v25, process.AlCa_EcalPi0EBonly_v25, process.AlCa_EcalPi0EEonly_v25, process.AlCa_RPCMuonNormalisation_v23, process.AlCa_LumiPixelsCounts_Random_v10, process.AlCa_LumiPixelsCounts_ZeroBias_v12, process.DQM_PixelReconstruction_v12, process.DQM_EcalReconstruction_v12, process.DQM_HcalReconstruction_v10, process.DQM_Random_v1, process.DQM_ZeroBias_v3, process.DST_ZeroBias_v11, process.DST_Physics_v16, process.HLT_EcalCalibration_v4, process.HLT_HcalCalibration_v6, process.HLT_HcalNZS_v21, process.HLT_HcalPhiSym_v23, process.HLT_Random_v3, process.HLT_Physics_v14, process.HLT_ZeroBias_v13, process.HLT_ZeroBias_Alignment_v8, process.HLT_ZeroBias_Beamspot_v16, process.HLT_ZeroBias_IsolatedBunches_v12, process.HLT_ZeroBias_FirstBXAfterTrain_v10, process.HLT_ZeroBias_FirstCollisionAfterAbortGap_v12, process.HLT_ZeroBias_FirstCollisionInTrain_v11, process.HLT_ZeroBias_LastCollisionInTrain_v10, process.HLT_HT300_Beamspot_v23, process.HLT_IsoTrackHB_v14, process.HLT_IsoTrackHE_v14, process.HLT_L1SingleMuCosmics_v8, process.HLT_L2Mu10_NoVertex_NoBPTX3BX_v14, process.HLT_L2Mu10_NoVertex_NoBPTX_v15, process.HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v13, process.HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v14, process.HLT_CDC_L2cosmic_10_er1p0_v10, process.HLT_CDC_L2cosmic_5p5_er1p0_v10, process.HLT_PPSMaxTracksPerArm1_v9, process.HLT_PPSMaxTracksPerRP4_v9, process.HLT_PPSRandom_v1, process.HLT_SpecialHLTPhysics_v7, process.AlCa_LumiPixelsCounts_RandomHighRate_v4, process.AlCa_LumiPixelsCounts_ZeroBiasVdM_v4, process.AlCa_LumiPixelsCounts_ZeroBiasGated_v5, process.HLT_L1SingleMuOpen_v6, process.HLT_L1SingleMuOpen_DT_v6, process.HLT_L1SingleMu3_v5, process.HLT_L1SingleMu5_v5, process.HLT_L1SingleMu7_v5, process.HLT_L1DoubleMu0_v5, process.HLT_L1SingleJet8erHE_v5, process.HLT_L1SingleJet10erHE_v5, process.HLT_L1SingleJet12erHE_v5, process.HLT_L1SingleJet35_v5, process.HLT_L1SingleJet200_v5, process.HLT_L1SingleEG8er2p5_v4, process.HLT_L1SingleEG10er2p5_v4, process.HLT_L1SingleEG15er2p5_v4, process.HLT_L1SingleEG26er2p5_v4, process.HLT_L1SingleEG28er2p5_v4, process.HLT_L1SingleEG28er2p1_v4, process.HLT_L1SingleEG28er1p5_v4, process.HLT_L1SingleEG34er2p5_v4, process.HLT_L1SingleEG36er2p5_v4, process.HLT_L1SingleEG38er2p5_v4, process.HLT_L1SingleEG40er2p5_v4, process.HLT_L1SingleEG42er2p5_v4, process.HLT_L1SingleEG45er2p5_v4, process.HLT_L1SingleEG50_v4, process.HLT_L1SingleJet60_v4, process.HLT_L1SingleJet90_v4, process.HLT_L1SingleJet120_v4, process.HLT_L1SingleJet180_v4, process.HLT_L1HTT120er_v4, process.HLT_L1HTT160er_v4, process.HLT_L1HTT200er_v4, process.HLT_L1HTT255er_v4, process.HLT_L1HTT280er_v4, process.HLT_L1HTT320er_v4, process.HLT_L1HTT360er_v4, process.HLT_L1HTT400er_v4, process.HLT_L1HTT450er_v4, process.HLT_L1ETM120_v4, process.HLT_L1ETM150_v4, process.HLT_L1EXT_HCAL_LaserMon1_v5, process.HLT_L1EXT_HCAL_LaserMon4_v5, process.HLT_CscCluster_Cosmic_v4, process.HLT_HT60_Beamspot_v22, process.HLT_HT300_Beamspot_PixelClusters_WP2_v7, process.HLT_PixelClusters_WP2_v4, process.HLT_PixelClusters_WP1_v4, process.HLT_BptxOR_v6, process.HLT_L1SingleMuCosmics_EMTF_v4, process.HLT_L1SingleMuCosmics_CosmicTracking_v1, process.HLT_L1SingleMuCosmics_PointingCosmicTracking_v1, process.HLT_L1FatEvents_v5, process.HLT_Random_HighRate_v1, process.HLT_ZeroBias_HighRate_v4, process.HLT_ZeroBias_Gated_v4, process.HLT_SpecialZeroBias_v6, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.Dataset_AlCaLumiPixelsCountsExpress, process.Dataset_AlCaLumiPixelsCountsPrompt, process.Dataset_AlCaLumiPixelsCountsPromptHighRate0, process.Dataset_AlCaLumiPixelsCountsPromptHighRate1, process.Dataset_AlCaLumiPixelsCountsPromptHighRate2, process.Dataset_AlCaLumiPixelsCountsPromptHighRate3, process.Dataset_AlCaLumiPixelsCountsPromptHighRate4, process.Dataset_AlCaLumiPixelsCountsPromptHighRate5, process.Dataset_AlCaLumiPixelsCountsGated, process.Dataset_AlCaP0, process.Dataset_AlCaPPSExpress, process.Dataset_AlCaPPSPrompt, process.Dataset_AlCaPhiSym, process.Dataset_Commissioning, process.Dataset_Cosmics, process.Dataset_DQMGPUvsCPU, process.Dataset_DQMOnlineBeamspot, process.Dataset_DQMPPSRandom, process.Dataset_EcalLaser, process.Dataset_EventDisplay, process.Dataset_ExpressAlignment, process.Dataset_ExpressCosmics, process.Dataset_ExpressPhysics, process.Dataset_HLTMonitor, process.Dataset_HLTPhysics, process.Dataset_HcalNZS, process.Dataset_L1Accept, process.Dataset_MinimumBias, process.Dataset_MuonShower, process.Dataset_NoBPTX, process.Dataset_OnlineMonitor, process.Dataset_RPCMonitor, process.Dataset_TestEnablesEcalHcal, process.Dataset_TestEnablesEcalHcalDQM, process.Dataset_ZeroBias, process.ALCALumiPixelsCountsExpressOutput, process.ALCALumiPixelsCountsGatedOutput, process.ALCALumiPixelsCountsPromptOutput, process.ALCALumiPixelsCountsPromptHighRate0Output, process.ALCALumiPixelsCountsPromptHighRate1Output, process.ALCALumiPixelsCountsPromptHighRate2Output, process.ALCALumiPixelsCountsPromptHighRate3Output, process.ALCALumiPixelsCountsPromptHighRate4Output, process.ALCALumiPixelsCountsPromptHighRate5Output, process.ALCAP0Output, process.ALCAPHISYMOutput, process.ALCAPPSExpressOutput, process.ALCAPPSPromptOutput, process.CalibrationOutput, process.DQMOutput, process.DQMCalibrationOutput, process.DQMEventDisplayOutput, process.DQMGPUvsCPUOutput, process.DQMOnlineBeamspotOutput, process.DQMPPSRandomOutput, process.EcalCalibrationOutput, process.ExpressOutput, process.ExpressAlignmentOutput, process.ExpressCosmicsOutput, process.HLTMonitorOutput, process.PhysicsCommissioningOutput, process.NanoDSTOutput, process.RPCMONOutput, process.PhysicsSpecialHLTPhysics0Output, process.PhysicsSpecialHLTPhysics1Output, process.PhysicsSpecialHLTPhysics2Output, process.PhysicsSpecialHLTPhysics3Output, process.PhysicsSpecialHLTPhysics4Output, process.PhysicsSpecialHLTPhysics5Output, process.PhysicsSpecialHLTPhysics6Output, process.PhysicsSpecialHLTPhysics7Output, process.PhysicsSpecialHLTPhysics8Output, process.PhysicsSpecialHLTPhysics9Output, process.PhysicsSpecialHLTPhysics10Output, process.PhysicsSpecialHLTPhysics11Output, process.PhysicsSpecialHLTPhysics12Output, process.PhysicsSpecialHLTPhysics13Output, process.PhysicsSpecialHLTPhysics14Output, process.PhysicsSpecialHLTPhysics15Output, process.PhysicsSpecialHLTPhysics16Output, process.PhysicsSpecialHLTPhysics17Output, process.PhysicsSpecialHLTPhysics18Output, process.PhysicsSpecialHLTPhysics19Output, process.PhysicsSpecialRandom0Output, process.PhysicsSpecialRandom1Output, process.PhysicsSpecialRandom2Output, process.PhysicsSpecialRandom3Output, process.PhysicsSpecialRandom4Output, process.PhysicsSpecialRandom5Output, process.PhysicsSpecialRandom6Output, process.PhysicsSpecialRandom7Output, process.PhysicsSpecialRandom8Output, process.PhysicsSpecialRandom9Output, process.PhysicsSpecialZeroBias0Output, process.PhysicsSpecialZeroBias1Output, process.PhysicsSpecialZeroBias2Output, process.PhysicsSpecialZeroBias3Output, process.PhysicsSpecialZeroBias4Output, process.PhysicsSpecialZeroBias5Output, process.PhysicsSpecialZeroBias6Output, process.PhysicsSpecialZeroBias7Output, process.PhysicsSpecialZeroBias8Output, process.PhysicsSpecialZeroBias9Output, process.PhysicsSpecialZeroBias10Output, process.PhysicsSpecialZeroBias11Output, process.PhysicsSpecialZeroBias12Output, process.PhysicsSpecialZeroBias13Output, process.PhysicsSpecialZeroBias14Output, process.PhysicsSpecialZeroBias15Output, process.Dataset_SpecialRandom0, process.Dataset_SpecialRandom1, process.Dataset_SpecialRandom2, process.Dataset_SpecialRandom3, process.Dataset_SpecialRandom4, process.Dataset_SpecialRandom5, process.Dataset_SpecialRandom6, process.Dataset_SpecialRandom7, process.Dataset_SpecialRandom8, process.Dataset_SpecialRandom9, process.Dataset_SpecialRandom10, process.Dataset_SpecialRandom11, process.Dataset_SpecialRandom12, process.Dataset_SpecialRandom13, process.Dataset_SpecialRandom14, process.Dataset_SpecialRandom15, process.Dataset_SpecialRandom16, process.Dataset_SpecialRandom17, process.Dataset_SpecialRandom18, process.Dataset_SpecialRandom19, process.Dataset_SpecialZeroBias0, process.Dataset_SpecialZeroBias1, process.Dataset_SpecialZeroBias2, process.Dataset_SpecialZeroBias3, process.Dataset_SpecialZeroBias4, process.Dataset_SpecialZeroBias5, process.Dataset_SpecialZeroBias6, process.Dataset_SpecialZeroBias7, process.Dataset_SpecialZeroBias8, process.Dataset_SpecialZeroBias9, process.Dataset_SpecialZeroBias10, process.Dataset_SpecialZeroBias11, process.Dataset_SpecialZeroBias12, process.Dataset_SpecialZeroBias13, process.Dataset_SpecialZeroBias14, process.Dataset_SpecialZeroBias15, process.Dataset_SpecialZeroBias16, process.Dataset_SpecialZeroBias17, process.Dataset_SpecialZeroBias18, process.Dataset_SpecialZeroBias19, process.Dataset_SpecialZeroBias20, process.Dataset_SpecialZeroBias21, process.Dataset_SpecialZeroBias22, process.Dataset_SpecialZeroBias23, process.Dataset_SpecialZeroBias24, process.Dataset_SpecialZeroBias25, process.Dataset_SpecialZeroBias26, process.Dataset_SpecialZeroBias27, process.Dataset_SpecialZeroBias28, process.Dataset_SpecialZeroBias29, process.Dataset_SpecialZeroBias30, process.Dataset_SpecialZeroBias31, process.Dataset_SpecialHLTPhysics0, process.Dataset_SpecialHLTPhysics1, process.Dataset_SpecialHLTPhysics2, process.Dataset_SpecialHLTPhysics3, process.Dataset_SpecialHLTPhysics4, process.Dataset_SpecialHLTPhysics5, process.Dataset_SpecialHLTPhysics6, process.Dataset_SpecialHLTPhysics7, process.Dataset_SpecialHLTPhysics8, process.Dataset_SpecialHLTPhysics9, process.Dataset_SpecialHLTPhysics10, process.Dataset_SpecialHLTPhysics11, process.Dataset_SpecialHLTPhysics12, process.Dataset_SpecialHLTPhysics13, process.Dataset_SpecialHLTPhysics14, process.Dataset_SpecialHLTPhysics15, process.Dataset_SpecialHLTPhysics16, process.Dataset_SpecialHLTPhysics17, process.Dataset_SpecialHLTPhysics18, process.Dataset_SpecialHLTPhysics19, ))
+process.schedule = cms.Schedule( *(process.HLTriggerFirstPath, process.Status_OnCPU, process.Status_OnGPU, process.AlCa_EcalPhiSym_v20, process.AlCa_EcalEtaEBonly_v25, process.AlCa_EcalEtaEEonly_v25, process.AlCa_EcalPi0EBonly_v25, process.AlCa_EcalPi0EEonly_v25, process.AlCa_RPCMuonNormalisation_v23, process.AlCa_LumiPixelsCounts_Random_v10, process.AlCa_LumiPixelsCounts_ZeroBias_v12, process.DQM_PixelReconstruction_v12, process.DQM_EcalReconstruction_v12, process.DQM_HcalReconstruction_v10, process.DQM_Random_v1, process.DQM_ZeroBias_v3, process.DST_ZeroBias_v11, process.DST_Physics_v16, process.HLT_EcalCalibration_v4, process.HLT_HcalCalibration_v6, process.HLT_HcalNZS_v21, process.HLT_HcalPhiSym_v23, process.HLT_Random_v3, process.HLT_Physics_v14, process.HLT_ZeroBias_v13, process.HLT_ZeroBias_Alignment_v8, process.HLT_ZeroBias_Beamspot_v16, process.HLT_ZeroBias_IsolatedBunches_v12, process.HLT_ZeroBias_FirstBXAfterTrain_v10, process.HLT_ZeroBias_FirstCollisionAfterAbortGap_v12, process.HLT_ZeroBias_FirstCollisionInTrain_v11, process.HLT_ZeroBias_LastCollisionInTrain_v10, process.HLT_HT300_Beamspot_v23, process.HLT_IsoTrackHB_v14, process.HLT_IsoTrackHE_v14, process.HLT_L1SingleMuCosmics_v8, process.HLT_L2Mu10_NoVertex_NoBPTX3BX_v14, process.HLT_L2Mu10_NoVertex_NoBPTX_v15, process.HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v13, process.HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v14, process.HLT_CDC_L2cosmic_10_er1p0_v10, process.HLT_CDC_L2cosmic_5p5_er1p0_v10, process.HLT_PPSMaxTracksPerArm1_v9, process.HLT_PPSMaxTracksPerRP4_v9, process.HLT_PPSRandom_v1, process.HLT_SpecialHLTPhysics_v7, process.AlCa_LumiPixelsCounts_RandomHighRate_v4, process.AlCa_LumiPixelsCounts_ZeroBiasVdM_v4, process.AlCa_LumiPixelsCounts_ZeroBiasGated_v5, process.HLT_L1SingleMuOpen_v6, process.HLT_L1SingleMuOpen_DT_v6, process.HLT_L1SingleMu3_v5, process.HLT_L1SingleMu5_v5, process.HLT_L1SingleMu7_v5, process.HLT_L1DoubleMu0_v5, process.HLT_L1SingleJet8erHE_v5, process.HLT_L1SingleJet10erHE_v5, process.HLT_L1SingleJet12erHE_v5, process.HLT_L1SingleJet35_v5, process.HLT_L1SingleJet200_v5, process.HLT_L1SingleEG8er2p5_v4, process.HLT_L1SingleEG10er2p5_v4, process.HLT_L1SingleEG15er2p5_v4, process.HLT_L1SingleEG26er2p5_v4, process.HLT_L1SingleEG28er2p5_v4, process.HLT_L1SingleEG28er2p1_v4, process.HLT_L1SingleEG28er1p5_v4, process.HLT_L1SingleEG34er2p5_v4, process.HLT_L1SingleEG36er2p5_v4, process.HLT_L1SingleEG38er2p5_v4, process.HLT_L1SingleEG40er2p5_v4, process.HLT_L1SingleEG42er2p5_v4, process.HLT_L1SingleEG45er2p5_v4, process.HLT_L1SingleEG50_v4, process.HLT_L1SingleJet60_v4, process.HLT_L1SingleJet90_v4, process.HLT_L1SingleJet120_v4, process.HLT_L1SingleJet180_v4, process.HLT_L1HTT120er_v4, process.HLT_L1HTT160er_v4, process.HLT_L1HTT200er_v4, process.HLT_L1HTT255er_v4, process.HLT_L1HTT280er_v4, process.HLT_L1HTT320er_v4, process.HLT_L1HTT360er_v4, process.HLT_L1HTT400er_v4, process.HLT_L1HTT450er_v4, process.HLT_L1ETM120_v4, process.HLT_L1ETM150_v4, process.HLT_L1EXT_HCAL_LaserMon1_v5, process.HLT_L1EXT_HCAL_LaserMon4_v5, process.HLT_CscCluster_Cosmic_v4, process.HLT_HT60_Beamspot_v22, process.HLT_HT300_Beamspot_PixelClusters_WP2_v7, process.HLT_PixelClusters_WP2_v4, process.HLT_PixelClusters_WP1_v4, process.HLT_BptxOR_v6, process.HLT_L1SingleMuCosmics_EMTF_v4, process.HLT_L1SingleMuCosmics_CosmicTracking_v1, process.HLT_L1SingleMuCosmics_PointingCosmicTracking_v1, process.HLT_L1FatEvents_v5, process.HLT_Random_HighRate_v1, process.HLT_ZeroBias_HighRate_v4, process.HLT_ZeroBias_Gated_v4, process.HLT_SpecialZeroBias_v6, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.Dataset_AlCaLumiPixelsCountsExpress, process.Dataset_AlCaLumiPixelsCountsPrompt, process.Dataset_AlCaLumiPixelsCountsPromptHighRate0, process.Dataset_AlCaLumiPixelsCountsPromptHighRate1, process.Dataset_AlCaLumiPixelsCountsPromptHighRate2, process.Dataset_AlCaLumiPixelsCountsPromptHighRate3, process.Dataset_AlCaLumiPixelsCountsPromptHighRate4, process.Dataset_AlCaLumiPixelsCountsPromptHighRate5, process.Dataset_AlCaLumiPixelsCountsGated, process.Dataset_AlCaP0, process.Dataset_AlCaPPSExpress, process.Dataset_AlCaPPSPrompt, process.Dataset_AlCaPhiSym, process.Dataset_Commissioning, process.Dataset_Cosmics, process.Dataset_DQMGPUvsCPU, process.Dataset_DQMOnlineBeamspot, process.Dataset_DQMPPSRandom, process.Dataset_EcalLaser, process.Dataset_EventDisplay, process.Dataset_ExpressAlignment, process.Dataset_ExpressCosmics, process.Dataset_ExpressPhysics, process.Dataset_HLTMonitor, process.Dataset_HLTPhysics, process.Dataset_HcalNZS, process.Dataset_L1Accept, process.Dataset_MinimumBias, process.Dataset_MuonShower, process.Dataset_NoBPTX, process.Dataset_OnlineMonitor, process.Dataset_RPCMonitor, process.Dataset_TestEnablesEcalHcal, process.Dataset_TestEnablesEcalHcalDQM, process.Dataset_VRRandom0, process.Dataset_VRRandom1, process.Dataset_VRRandom2, process.Dataset_VRRandom3, process.Dataset_VRRandom4, process.Dataset_VRRandom5, process.Dataset_VRRandom6, process.Dataset_VRRandom7, process.Dataset_VRRandom8, process.Dataset_VRRandom9, process.Dataset_VRRandom10, process.Dataset_VRRandom11, process.Dataset_VRRandom12, process.Dataset_VRRandom13, process.Dataset_VRRandom14, process.Dataset_VRRandom15, process.Dataset_ZeroBias, process.ALCALumiPixelsCountsExpressOutput, process.ALCALumiPixelsCountsGatedOutput, process.ALCALumiPixelsCountsPromptOutput, process.ALCALumiPixelsCountsPromptHighRate0Output, process.ALCALumiPixelsCountsPromptHighRate1Output, process.ALCALumiPixelsCountsPromptHighRate2Output, process.ALCALumiPixelsCountsPromptHighRate3Output, process.ALCALumiPixelsCountsPromptHighRate4Output, process.ALCALumiPixelsCountsPromptHighRate5Output, process.ALCAP0Output, process.ALCAPHISYMOutput, process.ALCAPPSExpressOutput, process.ALCAPPSPromptOutput, process.CalibrationOutput, process.DQMOutput, process.DQMCalibrationOutput, process.DQMEventDisplayOutput, process.DQMGPUvsCPUOutput, process.DQMOnlineBeamspotOutput, process.DQMPPSRandomOutput, process.EcalCalibrationOutput, process.ExpressOutput, process.ExpressAlignmentOutput, process.ExpressCosmicsOutput, process.HLTMonitorOutput, process.PhysicsCommissioningOutput, process.NanoDSTOutput, process.RPCMONOutput, process.PhysicsSpecialHLTPhysics0Output, process.PhysicsSpecialHLTPhysics1Output, process.PhysicsSpecialHLTPhysics2Output, process.PhysicsSpecialHLTPhysics3Output, process.PhysicsSpecialHLTPhysics4Output, process.PhysicsSpecialHLTPhysics5Output, process.PhysicsSpecialHLTPhysics6Output, process.PhysicsSpecialHLTPhysics7Output, process.PhysicsSpecialHLTPhysics8Output, process.PhysicsSpecialHLTPhysics9Output, process.PhysicsSpecialHLTPhysics10Output, process.PhysicsSpecialHLTPhysics11Output, process.PhysicsSpecialHLTPhysics12Output, process.PhysicsSpecialHLTPhysics13Output, process.PhysicsSpecialHLTPhysics14Output, process.PhysicsSpecialHLTPhysics15Output, process.PhysicsSpecialHLTPhysics16Output, process.PhysicsSpecialHLTPhysics17Output, process.PhysicsSpecialHLTPhysics18Output, process.PhysicsSpecialHLTPhysics19Output, process.PhysicsSpecialRandom0Output, process.PhysicsSpecialRandom1Output, process.PhysicsSpecialRandom2Output, process.PhysicsSpecialRandom3Output, process.PhysicsSpecialRandom4Output, process.PhysicsSpecialRandom5Output, process.PhysicsSpecialRandom6Output, process.PhysicsSpecialRandom7Output, process.PhysicsSpecialRandom8Output, process.PhysicsSpecialRandom9Output, process.PhysicsSpecialZeroBias0Output, process.PhysicsSpecialZeroBias1Output, process.PhysicsSpecialZeroBias2Output, process.PhysicsSpecialZeroBias3Output, process.PhysicsSpecialZeroBias4Output, process.PhysicsSpecialZeroBias5Output, process.PhysicsSpecialZeroBias6Output, process.PhysicsSpecialZeroBias7Output, process.PhysicsSpecialZeroBias8Output, process.PhysicsSpecialZeroBias9Output, process.PhysicsSpecialZeroBias10Output, process.PhysicsSpecialZeroBias11Output, process.PhysicsSpecialZeroBias12Output, process.PhysicsSpecialZeroBias13Output, process.PhysicsSpecialZeroBias14Output, process.PhysicsSpecialZeroBias15Output, process.Dataset_SpecialRandom0, process.Dataset_SpecialRandom1, process.Dataset_SpecialRandom2, process.Dataset_SpecialRandom3, process.Dataset_SpecialRandom4, process.Dataset_SpecialRandom5, process.Dataset_SpecialRandom6, process.Dataset_SpecialRandom7, process.Dataset_SpecialRandom8, process.Dataset_SpecialRandom9, process.Dataset_SpecialRandom10, process.Dataset_SpecialRandom11, process.Dataset_SpecialRandom12, process.Dataset_SpecialRandom13, process.Dataset_SpecialRandom14, process.Dataset_SpecialRandom15, process.Dataset_SpecialRandom16, process.Dataset_SpecialRandom17, process.Dataset_SpecialRandom18, process.Dataset_SpecialRandom19, process.Dataset_SpecialZeroBias0, process.Dataset_SpecialZeroBias1, process.Dataset_SpecialZeroBias2, process.Dataset_SpecialZeroBias3, process.Dataset_SpecialZeroBias4, process.Dataset_SpecialZeroBias5, process.Dataset_SpecialZeroBias6, process.Dataset_SpecialZeroBias7, process.Dataset_SpecialZeroBias8, process.Dataset_SpecialZeroBias9, process.Dataset_SpecialZeroBias10, process.Dataset_SpecialZeroBias11, process.Dataset_SpecialZeroBias12, process.Dataset_SpecialZeroBias13, process.Dataset_SpecialZeroBias14, process.Dataset_SpecialZeroBias15, process.Dataset_SpecialZeroBias16, process.Dataset_SpecialZeroBias17, process.Dataset_SpecialZeroBias18, process.Dataset_SpecialZeroBias19, process.Dataset_SpecialZeroBias20, process.Dataset_SpecialZeroBias21, process.Dataset_SpecialZeroBias22, process.Dataset_SpecialZeroBias23, process.Dataset_SpecialZeroBias24, process.Dataset_SpecialZeroBias25, process.Dataset_SpecialZeroBias26, process.Dataset_SpecialZeroBias27, process.Dataset_SpecialZeroBias28, process.Dataset_SpecialZeroBias29, process.Dataset_SpecialZeroBias30, process.Dataset_SpecialZeroBias31, process.Dataset_SpecialHLTPhysics0, process.Dataset_SpecialHLTPhysics1, process.Dataset_SpecialHLTPhysics2, process.Dataset_SpecialHLTPhysics3, process.Dataset_SpecialHLTPhysics4, process.Dataset_SpecialHLTPhysics5, process.Dataset_SpecialHLTPhysics6, process.Dataset_SpecialHLTPhysics7, process.Dataset_SpecialHLTPhysics8, process.Dataset_SpecialHLTPhysics9, process.Dataset_SpecialHLTPhysics10, process.Dataset_SpecialHLTPhysics11, process.Dataset_SpecialHLTPhysics12, process.Dataset_SpecialHLTPhysics13, process.Dataset_SpecialHLTPhysics14, process.Dataset_SpecialHLTPhysics15, process.Dataset_SpecialHLTPhysics16, process.Dataset_SpecialHLTPhysics17, process.Dataset_SpecialHLTPhysics18, process.Dataset_SpecialHLTPhysics19, process.PhysicsVRRandom1Output, process.PhysicsVRRandom0Output, process.PhysicsVRRandom2Output, process.PhysicsVRRandom3Output, process.PhysicsVRRandom4Output, process.PhysicsVRRandom5Output, process.PhysicsVRRandom6Output, process.PhysicsVRRandom7Output, ))
 
 
 # source module (EDM inputs)

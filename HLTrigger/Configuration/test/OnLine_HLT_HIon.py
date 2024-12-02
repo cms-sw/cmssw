@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_14_1_0/HIon --full --data --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
+# hltGetConfiguration /dev/CMSSW_14_2_0/HIon --full --data --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_14_1_0/HIon/V50 (CMSSW_14_1_1)
+# /dev/CMSSW_14_2_0/HIon/V10 (CMSSW_14_2_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTHIon" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_1_0/HIon/V50")
+  tableName = cms.string("/dev/CMSSW_14_2_0/HIon/V10")
 )
 
 process.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -13854,6 +13854,7 @@ process.hltPixelVerticesPPOnAASoA = cms.EDProducer( "alpaka_serial_sync::PixelVe
     eps = cms.double( 0.07 ),
     errmax = cms.double( 0.01 ),
     chi2max = cms.double( 9.0 ),
+    maxVertices = cms.int32( 256 ),
     PtMin = cms.double( 0.5 ),
     PtMax = cms.double( 75.0 ),
     pixelTrackSrc = cms.InputTag( "hltPixelTracksPPOnAASoA" )
@@ -13927,6 +13928,7 @@ process.hltPixelVerticesPPOnAASoASerialSync = cms.EDProducer( "alpaka_serial_syn
     eps = cms.double( 0.07 ),
     errmax = cms.double( 0.01 ),
     chi2max = cms.double( 9.0 ),
+    maxVertices = cms.int32( 256 ),
     PtMin = cms.double( 0.5 ),
     PtMax = cms.double( 75.0 ),
     pixelTrackSrc = cms.InputTag( "hltPixelTracksPPOnAASoASerialSync" )
@@ -17122,6 +17124,7 @@ process.hltFullIter0PixelClusterCheckPreSplittingPPOnAA = cms.EDProducer( "Clust
     MaxNumberOfPixelClusters = cms.uint32( 150000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersPPOnAA" ),
     cut = cms.string( "strip < 1000000 && pixel < 150000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltFullIter0PixelHitDoubletsPreSplittingPPOnAA = cms.EDProducer( "HitPairEDProducer",
@@ -17275,7 +17278,12 @@ process.hltSiPixelClustersAfterSplittingPPOnAA = cms.EDProducer( "JetCoreCluster
     forceYError = cms.double( 150.0 ),
     fractionalWidth = cms.double( 0.4 ),
     chargePerUnit = cms.double( 2000.0 ),
-    centralMIPCharge = cms.double( 26000.0 )
+    centralMIPCharge = cms.double( 26000.0 ),
+    expSizeXAtLorentzAngleIncidence = cms.double( 1.5 ),
+    expSizeXDeltaPerTanAlpha = cms.double( 0.0 ),
+    expSizeYAtNormalIncidence = cms.double( 1.3 ),
+    tanLorentzAngle = cms.double( 0.0 ),
+    tanLorentzAngleBarrelLayer1 = cms.double( 0.0 )
 )
 process.hltSiPixelClustersCacheAfterSplittingPPOnAA = cms.EDProducer( "SiPixelClusterShapeCacheProducer",
     src = cms.InputTag( "hltSiPixelClustersAfterSplittingPPOnAA" ),
@@ -17375,6 +17383,7 @@ process.hltFullIter0PixelClusterCheckPPOnAA = cms.EDProducer( "ClusterCheckerEDP
     MaxNumberOfPixelClusters = cms.uint32( 150000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPOnAA" ),
     cut = cms.string( "strip < 1000000 && pixel < 150000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltFullIter0PixelHitDoubletsPPOnAA = cms.EDProducer( "HitPairEDProducer",
@@ -17606,6 +17615,7 @@ process.hltFullIter1PixelClusterCheckPPOnAA = cms.EDProducer( "ClusterCheckerEDP
     MaxNumberOfPixelClusters = cms.uint32( 150000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPOnAA" ),
     cut = cms.string( "strip < 1000000 && pixel < 150000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltFullIter1PixelHitDoubletsPPOnAA = cms.EDProducer( "HitPairEDProducer",
@@ -17937,6 +17947,7 @@ process.hltFullIter2PixelClusterCheckPPOnAA = cms.EDProducer( "ClusterCheckerEDP
     MaxNumberOfPixelClusters = cms.uint32( 150000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPOnAA" ),
     cut = cms.string( "strip < 1000000 && pixel < 150000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltFullIter2PixelHitDoubletsPPOnAA = cms.EDProducer( "HitPairEDProducer",
@@ -18172,6 +18183,7 @@ process.hltDoubletRecoveryPFlowPixelClusterCheckPPOnAA = cms.EDProducer( "Cluste
     MaxNumberOfPixelClusters = cms.uint32( 40000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPOnAA" ),
     cut = cms.string( "" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltDoubletRecoveryPFlowPixelHitDoubletsPPOnAA = cms.EDProducer( "HitPairEDProducer",
@@ -21023,7 +21035,8 @@ process.hltElePixelSeedsTripletsPPOnAA = cms.EDProducer( "SeedCreatorFromRegionC
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
 )
 process.hltElePixelSeedsCombinedPPOnAA = cms.EDProducer( "SeedCombiner",
-    seedCollections = cms.VInputTag( 'hltElePixelSeedsDoubletsPPOnAA','hltElePixelSeedsTripletsPPOnAA' )
+    seedCollections = cms.VInputTag( 'hltElePixelSeedsDoubletsPPOnAA','hltElePixelSeedsTripletsPPOnAA' ),
+    clusterRemovalInfos = cms.VInputTag(  )
 )
 process.hltEgammaElectronPixelSeedsPPOnAA = cms.EDProducer( "ElectronNHitSeedProducer",
     initialSeeds = cms.InputTag( "hltElePixelSeedsCombinedPPOnAA" ),
@@ -23176,6 +23189,7 @@ process.hltPixelClusterCheckForUPCPPOnAA = cms.EDProducer( "ClusterCheckerEDProd
     MaxNumberOfPixelClusters = cms.uint32( 10000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersPPOnAA" ),
     cut = cms.string( "strip < 400000 && pixel < 40000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + 0.1*strip)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( True )
 )
 process.hltPixelTracksHitDoubletsLowPtForUPCPPOnAA = cms.EDProducer( "HitPairEDProducer",
@@ -27407,6 +27421,7 @@ process.hltFullIter0PixelClusterCheckPreSplittingPPOnAAForDmeson = cms.EDProduce
     MaxNumberOfPixelClusters = cms.uint32( 120000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersPPOnAA" ),
     cut = cms.string( "strip > 0 && pixel > 0 && strip < 500000 && pixel < 120000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltFullIter0PixelHitDoubletsPreSplittingPPOnAAForDmeson = cms.EDProducer( "HitPairEDProducer",
@@ -27560,7 +27575,12 @@ process.hltSiPixelClustersAfterSplittingPPOnAAForDmeson = cms.EDProducer( "JetCo
     forceYError = cms.double( 150.0 ),
     fractionalWidth = cms.double( 0.4 ),
     chargePerUnit = cms.double( 2000.0 ),
-    centralMIPCharge = cms.double( 26000.0 )
+    centralMIPCharge = cms.double( 26000.0 ),
+    expSizeXAtLorentzAngleIncidence = cms.double( 1.5 ),
+    expSizeXDeltaPerTanAlpha = cms.double( 0.0 ),
+    expSizeYAtNormalIncidence = cms.double( 1.3 ),
+    tanLorentzAngle = cms.double( 0.0 ),
+    tanLorentzAngleBarrelLayer1 = cms.double( 0.0 )
 )
 process.hltSiPixelClustersCacheAfterSplittingPPOnAAForDmeson = cms.EDProducer( "SiPixelClusterShapeCacheProducer",
     src = cms.InputTag( "hltSiPixelClustersAfterSplittingPPOnAAForDmeson" ),
@@ -27633,6 +27653,7 @@ process.hltFullIter0PixelClusterCheckPPOnAAForDmeson = cms.EDProducer( "ClusterC
     MaxNumberOfPixelClusters = cms.uint32( 120000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPOnAAForDmeson" ),
     cut = cms.string( "strip > 0 && pixel > 0 && strip < 500000 && pixel < 120000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltFullIter0PixelHitDoubletsPPOnAAForDmeson = cms.EDProducer( "HitPairEDProducer",
@@ -27864,6 +27885,7 @@ process.hltFullIter1PixelClusterCheckPPOnAAForDmeson = cms.EDProducer( "ClusterC
     MaxNumberOfPixelClusters = cms.uint32( 120000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPOnAAForDmeson" ),
     cut = cms.string( "strip > 0 && pixel > 0 && strip < 500000 && pixel < 120000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltFullIter1PixelHitDoubletsPPOnAAForDmeson = cms.EDProducer( "HitPairEDProducer",
@@ -28068,6 +28090,7 @@ process.hltFullIter2PixelClusterCheckPPOnAAForDmeson = cms.EDProducer( "ClusterC
     MaxNumberOfPixelClusters = cms.uint32( 120000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPOnAAForDmeson" ),
     cut = cms.string( "strip > 0 && pixel > 0 && strip > 0 && pixel > 0 && strip < 500000 && pixel < 120000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltFullIter2PixelHitDoubletsPPOnAAForDmeson = cms.EDProducer( "HitPairEDProducer",
@@ -28270,6 +28293,7 @@ process.hltFullIter3PixelClusterCheckPPOnAA = cms.EDProducer( "ClusterCheckerEDP
     MaxNumberOfPixelClusters = cms.uint32( 120000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPOnAAForDmeson" ),
     cut = cms.string( "strip > 0 && pixel > 0 && strip < 500000 && pixel < 120000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltFullIter3PixelHitDoubletsPPOnAA = cms.EDProducer( "HitPairEDProducer",
@@ -28467,6 +28491,7 @@ process.hltFullIter7MixedClusterCheckPPOnAA = cms.EDProducer( "ClusterCheckerEDP
     MaxNumberOfPixelClusters = cms.uint32( 120000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPOnAAForDmeson" ),
     cut = cms.string( "strip > 0 && pixel > 0 && strip < 500000 && pixel < 120000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltFullIter7MixedHitDoubletsAPPOnAA = cms.EDProducer( "HitPairEDProducer",
@@ -28609,7 +28634,8 @@ process.hltFullIter7MixedSeedsBPPOnAA = cms.EDProducer( "SeedCreatorFromRegionCo
     )
 )
 process.hltFullIter7MixedSeedsPPOnAA = cms.EDProducer( "SeedCombiner",
-    seedCollections = cms.VInputTag( 'hltFullIter7MixedSeedsAPPOnAA','hltFullIter7MixedSeedsBPPOnAA' )
+    seedCollections = cms.VInputTag( 'hltFullIter7MixedSeedsAPPOnAA','hltFullIter7MixedSeedsBPPOnAA' ),
+    clusterRemovalInfos = cms.VInputTag(  )
 )
 process.hltFullIter7CkfTrackCandidatesPPOnAA = cms.EDProducer( "CkfTrackCandidateMaker",
     cleanTrajectoryAfterInOut = cms.bool( True ),
@@ -28810,6 +28836,7 @@ process.hltFullIter8PixelLessClusterCheckPPOnAA = cms.EDProducer( "ClusterChecke
     MaxNumberOfPixelClusters = cms.uint32( 120000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPOnAAForDmeson" ),
     cut = cms.string( "strip > 0 && pixel > 0 && strip < 500000 && pixel < 120000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltFullIter8PixelLessHitDoubletsPPOnAA = cms.EDProducer( "HitPairEDProducer",
@@ -29023,6 +29050,7 @@ process.hltFullIter9TobTecClusterCheckPPOnAA = cms.EDProducer( "ClusterCheckerED
     MaxNumberOfPixelClusters = cms.uint32( 120000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPOnAAForDmeson" ),
     cut = cms.string( "strip > 0 && pixel > 0 && strip < 500000 && pixel < 120000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltFullIter9TobTecHitDoubletsTriplPPOnAA = cms.EDProducer( "HitPairEDProducer",
@@ -29209,7 +29237,8 @@ process.hltFullIter9TobTecSeedsPairPPOnAA = cms.EDProducer( "SeedCreatorFromRegi
     )
 )
 process.hltFullIter9TobTecSeedsPPOnAA = cms.EDProducer( "SeedCombiner",
-    seedCollections = cms.VInputTag( 'hltFullIter9TobTecSeedsTriplPPOnAA','hltFullIter9TobTecSeedsPairPPOnAA' )
+    seedCollections = cms.VInputTag( 'hltFullIter9TobTecSeedsTriplPPOnAA','hltFullIter9TobTecSeedsPairPPOnAA' ),
+    clusterRemovalInfos = cms.VInputTag(  )
 )
 process.hltFullIter9CkfTrackCandidatesPPOnAA = cms.EDProducer( "CkfTrackCandidateMaker",
     cleanTrajectoryAfterInOut = cms.bool( True ),
