@@ -6,4 +6,3 @@ hltInitialStepTrackSelectionHighPuritypTTCLST = _hltInitialStepTrackSelectionHig
     originalQualVals = "hltInitialStepTrackCutClassifierpTTCLST:QualityMasks",
     originalSource = "hltInitialStepTrackspTTCLST"
 )
-

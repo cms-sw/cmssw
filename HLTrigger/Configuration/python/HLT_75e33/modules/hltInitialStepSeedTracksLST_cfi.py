@@ -4,6 +4,5 @@ hltInitialStepSeedTracksLST = cms.EDProducer(
     "TrackFromSeedProducer",
     src = cms.InputTag("hltInitialStepSeeds"),
     beamSpot = cms.InputTag("hltOnlineBeamSpot"),
-    TTRHBuilder = cms.string("WithoutRefit")
+    TTRHBuilder = cms.string("hltESPTTRHBuilderWithoutRefit")
 )
-

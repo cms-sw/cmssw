@@ -16,4 +16,3 @@ from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
 (seedingLST & trackingLST).toModify(hltLST, nopLSDupClean = True,
                                             tcpLSTriplets = True )
-

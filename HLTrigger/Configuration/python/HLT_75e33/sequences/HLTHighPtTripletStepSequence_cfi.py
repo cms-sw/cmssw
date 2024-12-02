@@ -30,4 +30,3 @@ _HLTHighPtTripletStepSequenceLSTSeeding = cms.Sequence(
 
 from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
 (seedingLST & trackingLST).toReplaceWith(HLTHighPtTripletStepSequence, _HLTHighPtTripletStepSequenceLSTSeeding)
-

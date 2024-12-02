@@ -13,4 +13,3 @@ HLTTrackingV61Sequence = cms.Sequence((HLTItLocalRecoSequence+HLTOtLocalRecoSequ
 
 from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
 singleIterPatatrack.toReplaceWith(HLTTrackingV61Sequence, HLTTrackingV61Sequence.copyAndExclude([HLTHighPtTripletStepSequence]))
-

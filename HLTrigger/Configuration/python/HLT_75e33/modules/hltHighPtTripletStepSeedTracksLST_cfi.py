@@ -4,6 +4,5 @@ hltHighPtTripletStepSeedTracksLST = cms.EDProducer(
     "TrackFromSeedProducer",
     src = cms.InputTag("hltHighPtTripletStepSeeds"),
     beamSpot = cms.InputTag("hltOnlineBeamSpot"),
-    TTRHBuilder = cms.string("WithoutRefit")
+    TTRHBuilder = cms.string("hltESPTTRHBuilderWithoutRefit")
 )
-

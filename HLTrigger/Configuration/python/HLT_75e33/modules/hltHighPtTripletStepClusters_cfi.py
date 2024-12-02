@@ -19,4 +19,3 @@ _hltHighPtTripletStepClustersLST = hltHighPtTripletStepClusters.clone(
 
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 trackingLST.toReplaceWith(hltHighPtTripletStepClusters, _hltHighPtTripletStepClustersLST)
-
