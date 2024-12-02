@@ -20,7 +20,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-#include "RecoLocalTracker/Records/interface/PixelCPEFastParamsRecord.h"
+#include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/alpaka/PixelCPEFastParamsCollection.h"
 
 #include "CAHitNtupletGenerator.h"
@@ -45,7 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenField_;
-    const device::ESGetToken<PixelCPEFastParams<TrackerTraits>, PixelCPEFastParamsRecord> cpeToken_;
+    const device::ESGetToken<PixelCPEFastParams<TrackerTraits>, TkPixelCPERecord> cpeToken_;
     const device::EDGetToken<HitsOnDevice> tokenHit_;
     const device::EDPutToken<TkSoADevice> tokenTrack_;
 
