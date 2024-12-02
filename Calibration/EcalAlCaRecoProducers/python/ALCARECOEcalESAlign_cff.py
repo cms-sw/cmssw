@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-import HLTrigger.HLTfilters.hltHighLevel_cfi
-ALCARECOEcalESAlignHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
-    andOr = True, # choose logical OR between Triggerbits
+import HLTrigger.HLTfilters.triggerResultsFilterFromDB_cfi
+ALCARECOEcalESAlignHLT = HLTrigger.HLTfilters.triggerResultsFilterFromDB_cfi.triggerResultsFilterFromDB.clone(
     eventSetupPathsKey = 'EcalESAlign',
+    usePathStatus = False,
+    hltResults = 'TriggerResults::HLT',
+    l1tResults = '', # leaving empty (not interested in L1T results)
     throw = False # tolerate triggers stated above, but not available
 )
 
