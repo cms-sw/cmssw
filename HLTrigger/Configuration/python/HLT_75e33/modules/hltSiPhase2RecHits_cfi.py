@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi import siPhase2RecHits as _siPhase2RecHits
-hltSiPhase2RecHits = _siPhase2RecHits.clone( src = "hltSiPhase2Clusters" )
-
+# RecHits options
+hltSiPhase2RecHits = cms.EDProducer("Phase2TrackerRecHits",
+  src = cms.InputTag("hltSiPhase2Clusters"),
+  Phase2StripCPE = cms.ESInputTag("phase2StripCPEESProducer", "Phase2StripCPE")
+)
