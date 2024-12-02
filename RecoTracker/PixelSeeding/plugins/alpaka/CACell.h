@@ -64,34 +64,57 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     constexpr unsigned int inner_hit_id() const { return theInnerHitId; }
     constexpr unsigned int outer_hit_id() const { return theOuterHitId; }
 
-    // ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_x(const HitsConstView& hh) const { return hh[theInnerHitId].xGlobal(); }
-    // ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_x(const HitsConstView& hh) const { return hh[theOuterHitId].xGlobal(); }
-    // ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_y(const HitsConstView& hh) const { return hh[theInnerHitId].yGlobal(); }
-    // ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_y(const HitsConstView& hh) const { return hh[theOuterHitId].yGlobal(); }
-    // ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_z(const HitsConstView& hh) const { return theInnerZ; }
-    // ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_z(const HitsConstView& hh) const { return hh[theOuterHitId].zGlobal(); }
-    // ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_r(const HitsConstView& hh) const { return theInnerR; }
-    // ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_r(const HitsConstView& hh) const { return hh[theOuterHitId].rGlobal(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void kill() { theStatus_ |= uint16_t(StatusBit::kKilled); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isKilled() const { return theStatus_ & uint16_t(StatusBit::kKilled); }
 
-    // ALPAKA_FN_ACC ALPAKA_FN_INLINE auto inner_iphi(const HitsConstView& hh) const { return hh[theInnerHitId].iphi(); }
-    // ALPAKA_FN_ACC ALPAKA_FN_INLINE auto outer_iphi(const HitsConstView& hh) const { return hh[theOuterHitId].iphi(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE int16_t layerPairId() const { return theLayerPairId_; }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE int16_t innerLayer() const { return theInnerLayer_; }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE int16_t outerLayer() const { return theOuterLayer_; }
 
-    // ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_detIndex(const HitsConstView& hh) const {
-    //   return hh[theInnerHitId].detectorIndex();
-    // }
-    // ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_detIndex(const HitsConstView& hh) const {
-    //   return hh[theOuterHitId].detectorIndex();
-    // }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool unused() const { return 0 == (uint16_t(StatusBit::kUsed) & theStatus_); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void setStatusBits(StatusBit mask) { theStatus_ |= uint16_t(mask); }
 
-    // constexpr unsigned int inner_hit_id() const { return theInnerHitId; }
-    // constexpr unsigned int outer_hit_id() const { return theOuterHitId; }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_x(const HitsConstView& hh) const { return hh[theInnerHitId].xGlobal(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_x(const HitsConstView& hh) const { return hh[theOuterHitId].xGlobal(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_y(const HitsConstView& hh) const { return hh[theInnerHitId].yGlobal(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_y(const HitsConstView& hh) const { return hh[theOuterHitId].yGlobal(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_z(const HitsConstView& hh) const { return theInnerZ; }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_z(const HitsConstView& hh) const { return hh[theOuterHitId].zGlobal(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_r(const HitsConstView& hh) const { return theInnerR; }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_r(const HitsConstView& hh) const { return hh[theOuterHitId].rGlobal(); }
 
-    // ALPAKA_FN_ACC void print_cell() const {
-    //   printf("printing cell: on layerPair: %d, innerHitId: %d, outerHitId: %d \n",
-    //          theLayerPairId_,
-    //          theInnerHitId,
-    //          theOuterHitId);
-    // }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE auto inner_iphi(const HitsConstView& hh) const { return hh[theInnerHitId].iphi(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE auto outer_iphi(const HitsConstView& hh) const { return hh[theOuterHitId].iphi(); }
+
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_detIndex(const HitsConstView& hh) const {
+      return hh[theInnerHitId].detectorIndex();
+    }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_detIndex(const HitsConstView& hh) const {
+      return hh[theOuterHitId].detectorIndex();
+    }
+
+    ALPAKA_FN_ACC void print_cell() const {
+      printf("printing cell: on layerPair: %d, innerHitId: %d, outerHitId: %d \n",
+             theLayerPairId_,
+             theInnerHitId,
+             theOuterHitId);
+    }
+
+    template <typename TAcc>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void setFishbone(TAcc const& acc, hindex_type id, float z, const HitsConstView& hh) {
+      // make it deterministic: use the farther apart (in z)
+      auto old = theFishboneId;
+      while (old !=
+             alpaka::atomicCas(
+                 acc,
+                 &theFishboneId,
+                 old,
+                 (invalidHitId == old || std::abs(z - theInnerZ) > std::abs(hh[old].zGlobal() - theInnerZ)) ? id : old,
+                 alpaka::hierarchy::Blocks{}))
+        old = theFishboneId;
+    }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE auto fishboneId() const { return theFishboneId; }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool hasFishbone() const { return theFishboneId != invalidHitId; }
 
     // ALPAKA_FN_ACC bool check_alignment(const HitsConstView& hh,
     //                                    CACellT const& otherCell,
@@ -206,6 +229,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     using TmpTuple = cms::alpakatools::VecArray<uint32_t, TrackerTraits::maxDepth>;
     using HitContainer = caStructures::SequentialContainer;
+    using CellToCell = caStructures::GenericContainer;
 
     using Quality = ::pixelTrack::Quality;
     static constexpr auto bad = ::pixelTrack::Quality::bad;
@@ -467,7 +491,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                       CACellT* __restrict__ cells,
                                                       CellTracksVector& cellTracks,
                                                       HitContainer& foundNtuplets,
-                                                      // GenericContainer const *__restrict__ cellNeighborsHisto,
+                                                      CellToCell const *__restrict__ cellNeighborsHisto,
                                                       cms::alpakatools::AtomicPairCounter& apc,
                                                       Quality* __restrict__ quality,
                                                       TmpTuple& tmpNtuplet,
@@ -483,20 +507,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ALPAKA_ASSERT_ACC(false);
       } else {
         auto doubletId = this - cells;
-        tmpNtuplet.push_back_unsafe(doubletId);
+        tmpNtuplet.push_back_unsafe(doubletId); // if we move this to be safe we could parallelize further below?
         ALPAKA_ASSERT_ACC(tmpNtuplet.size() <= int(TrackerTraits::maxHitsOnTrack - 3));
 
         bool last = true;
         // for (auto o = cellNeighborsHisto->begin(doubletId); o != cellNeighborsHisto->end(doubletId); ++o)
         //  printf("doubletIdHisto: %ld -> %d\n",doubletId,*o);
-          
-        for (unsigned int otherCell : outerNeighbors()) {
+        auto const* __restrict__ bin = cellNeighborsHisto->begin(doubletId);
+        auto const* __restrict__ end = cellNeighborsHisto->end(doubletId);
+        auto const nInBin = end - bin;
+
+        for (auto idx = 0u; idx < nInBin; idx++) {
+          // FIXME implement alpaka::ldg and use it here? or is it const* __restrict__ enough?
+          unsigned int otherCell = bin[idx];
+        // for (unsigned int otherCell : outerNeighbors()) {
           printf("doubletId: %ld -> %d\n",doubletId,otherCell);
           if (cells[otherCell].isKilled())
             continue;  // killed by earlyFishbone
           last = false;
           cells[otherCell].template find_ntuplets<DEPTH - 1>(
-              acc, hh, cc, cells, cellTracks, foundNtuplets, /*cellNeighborsHisto,*/ apc, quality, tmpNtuplet, minHitsPerNtuplet);
+              acc, hh, cc, cells, cellTracks, foundNtuplets, cellNeighborsHisto, apc, quality, tmpNtuplet, minHitsPerNtuplet);
         }
         if (last) {  // if long enough save...
           if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1) {

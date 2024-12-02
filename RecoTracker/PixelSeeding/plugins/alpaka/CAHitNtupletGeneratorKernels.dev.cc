@@ -54,6 +54,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         device_cellToNeighborsStorage_{cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(queue, m_params.algoParams_.maxNumberOfDoublets_ * TrackerTraits::maxCellNeighbors)},
         device_cellToNeighborsOffsets_{cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, m_params.algoParams_.maxNumberOfDoublets_ + 1)},
 
+        // Cell -> Tracks
+        device_cellToTracks_{cms::alpakatools::make_device_buffer<GenericContainer>(queue)},
+        device_cellToTracksStorage_{cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(queue, m_params.algoParams_.maxNumberOfDoublets_ * TrackerTraits::maxCellTracks)},
+        device_cellToTracksOffsets_{cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, m_params.algoParams_.maxNumberOfDoublets_ + 1)},
+
         // Tracks -> Hits
         device_hitContainer_{cms::alpakatools::make_device_buffer<SequentialContainer>(queue)},
         device_hitContainerStorage_{cms::alpakatools::make_device_buffer<SequentialContainerStorage[]>(queue, m_params.algoParams_.avgHitsPerTrack_ * m_params.algoParams_.maxNumberOfTuples_)},
@@ -120,7 +125,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_hitToCellView_.offSize = alpaka::getExtentProduct(device_hitToCellOffsets_);
     std::cout << "device_hitToCellView_" << device_hitToCellView_.contentSize << " - " << device_hitToCellView_.offSize << std::endl;
 
-    GenericContainer::template launchZero<Acc1D>(device_hitToCellView_, queue);
+    HitToCell::template launchZero<Acc1D>(device_hitToCellView_, queue);
 
     // Hits
     device_hitPhiView_.assoc = device_hitPhiHist_.data();
@@ -137,7 +142,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_cellToNeighborsView_.offSize = alpaka::getExtentProduct(device_cellToNeighborsOffsets_);
     std::cout << "device_cellToNeighborsView_" << device_cellToNeighborsView_.contentSize << " - " << device_cellToNeighborsView_.offSize << std::endl;
 
-    GenericContainer::template launchZero<Acc1D>(device_cellToNeighborsView_, queue);
+    CellToCell::template launchZero<Acc1D>(device_cellToNeighborsView_, queue);
+
+    // Cells-> Neighbor Cells
+    device_cellToTracksView_.assoc = device_cellToTracks_.data();
+    device_cellToTracksView_.contentStorage = device_cellToTracksStorage_.data();
+    device_cellToTracksView_.offStorage = device_cellToTracksOffsets_.data();
+    device_cellToTracksView_.contentSize = alpaka::getExtentProduct(device_cellToTracksStorage_); 
+    device_cellToTracksView_.offSize = alpaka::getExtentProduct(device_cellToTracksOffsets_);
+    std::cout << "device_cellToTracksView_" << device_cellToTracksView_.contentSize << " - " << device_cellToTracksView_.offSize << std::endl;
+
+    CellToTrack::template launchZero<Acc1D>(device_cellToTracksView_, queue);
 
     // Tracks -> Hits
     device_tupleMultiplicityView_.assoc = device_tupleMultiplicity_.data();
@@ -320,7 +335,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         cc,
                         tracks_view,
                         this->device_hitContainer_.data(),
-                        // cellNeighborsHisto.data(),
+                        this->device_cellToNeighbors_.data(),
                         this->device_theCells_.data(),
                         this->device_nTriplets_.data(),
                         this->device_nCells_.data(),
@@ -389,7 +404,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         tracks_view,
                         this->device_hitContainer_.data(),
                         this->device_tupleMultiplicity_.data());
-    GenericContainer::template launchFinalize<Acc1D>(this->device_tupleMultiplicity_.data(), queue);
+    GenericContainer::template launchFinalize<Acc1D>(this->device_tupleMultiplicityView_, queue);
 
     workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
     alpaka::exec<Acc1D>(
