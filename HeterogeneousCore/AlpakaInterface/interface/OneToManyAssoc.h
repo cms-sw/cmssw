@@ -90,12 +90,6 @@ namespace cms::alpakatools {
     }
 
     template <typename TAcc>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE void countN(const TAcc &acc, I b, Counter N) {
-      ALPAKA_ASSERT_ACC(b < static_cast<uint32_t>(nOnes()));
-      atomicNIncrement(acc, off[b],N);
-    }
-
-    template <typename TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, I b, index_type j) {
       ALPAKA_ASSERT_ACC(b < static_cast<uint32_t>(nOnes()));
       auto w = atomicDecrement(acc, off[b]);
