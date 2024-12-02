@@ -47,6 +47,8 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+#include <CLHEP/Units/SystemOfUnits.h>
+
 namespace {
   using Index_t = unsigned;
   using Barcode_t = int;
@@ -151,11 +153,13 @@ namespace {
                              CaloTruthAccumulator::calo_particles &caloParticles,
                              std::unordered_multimap<Barcode_t, Index_t> &simHitBarcodeToIndex,
                              std::unordered_map<int, std::map<int, float>> &simTrackDetIdEnergyMap,
+                             std::unordered_map<uint32_t, float> &vertex_time_map,
                              Selector selector)
         : output_(output),
           caloParticles_(caloParticles),
           simHitBarcodeToIndex_(simHitBarcodeToIndex),
           simTrackDetIdEnergyMap_(simTrackDetIdEnergyMap),
+          vertex_time_map_(vertex_time_map),
           selector_(selector) {}
     template <typename Vertex, typename Graph>
     void discover_vertex(Vertex u, const Graph &g) {
@@ -191,6 +195,7 @@ namespace {
         if (selector_(edge_property)) {
           IfLogDebug(DEBUG, messageCategoryGraph_) << "Adding CaloParticle: " << edge_property.simTrack->trackId();
           output_.pCaloParticles->emplace_back(*(edge_property.simTrack));
+          output_.pCaloParticles->back().setSimTime(vertex_time_map_[(edge_property.simTrack)->vertIndex()]);
           caloParticles_.sc_start_.push_back(output_.pSimClusters->size());
         }
       }
@@ -213,6 +218,7 @@ namespace {
     CaloTruthAccumulator::calo_particles &caloParticles_;
     std::unordered_multimap<Barcode_t, Index_t> &simHitBarcodeToIndex_;
     std::unordered_map<int, std::map<int, float>> &simTrackDetIdEnergyMap_;
+    std::unordered_map<uint32_t, float> &vertex_time_map_;
     Selector selector_;
   };
 }  // namespace
@@ -425,6 +431,12 @@ void CaloTruthAccumulator::accumulateEvent(const T &event,
     idx++;
   }
 
+  std::unordered_map<uint32_t, float> vertex_time_map;
+  for (uint32_t i = 0; i < vertices.size(); i++) {
+    // Geant4 time is in seconds, convert to ns (CLHEP::s = 1e9)
+    vertex_time_map[i] = vertices[i].position().t() * CLHEP::s;
+  }
+
   /**
   Build the main decay graph and assign the SimTrack to each edge. The graph
   built here will only contain the particles that have a decay vertex
@@ -512,6 +524,7 @@ void CaloTruthAccumulator::accumulateEvent(const T &event,
       m_caloParticles,
       m_simHitBarcodeToIndex,
       simTrackDetIdEnergyMap,
+      vertex_time_map,
       [&](EdgeProperty &edge_property) -> bool {
         // Apply selection on SimTracks in order to promote them to be
         // CaloParticles. The function returns TRUE if the particle satisfies
