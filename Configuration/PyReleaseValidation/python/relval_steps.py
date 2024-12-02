@@ -4433,7 +4433,7 @@ for ds in defaultDataSets:
             PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
         else:
             PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM-RECO'%(name,)}
-    elif '2026' in ds:
+    elif 'Run4' in ds:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_200_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
     else:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
