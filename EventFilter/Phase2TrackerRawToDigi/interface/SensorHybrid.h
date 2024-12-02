@@ -176,12 +176,13 @@ class SensorHybrid
                     // cluster info 
 
                     uint32_t chipID = std::div(cluster->firstStrip(), STRIPS_PER_CBC).quot & CHIP_ID_MAX_VALUE;       // 3 bits
-                    uint32_t sclusterAddress = std::div(cluster->firstStrip(), STRIPS_PER_CBC).rem & SCLUSTER_ADDRESS_2S_MAX_VALUE;  // 7 bits
+                    uint32_t baseValue = std::div(cluster->firstStrip(), STRIPS_PER_CBC).rem & SCLUSTER_ADDRESS_2S_MAX_VALUE;
+                    uint32_t lsb = 0;
+                    uint32_t sclusterAddress = (baseValue << 1) | lsb;  // Combine 7 bits and LSB into 8 bits
                     uint32_t width = cluster->size() & WIDTH_MAX_VALUE;                       // 3 bits
 
                     uint32_t clusterData = (chipID << (SS_CLUSTER_BITS - CHIP_ID_BITS)) | 
                                         (sclusterAddress << (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_2S)) | width;
-
                     if (bitsFilled + SS_CLUSTER_BITS <= NUMBER_OF_BITS_PER_WORD) 
                     {
                         currentWord |= clusterData << (NUMBER_OF_BITS_PER_WORD - bitsFilled - SS_CLUSTER_BITS);

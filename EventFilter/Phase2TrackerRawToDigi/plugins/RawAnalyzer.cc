@@ -37,10 +37,10 @@ void RawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   // Read only the 0th FED position as per the producer logic
-  const FEDRawData& fedData_slink_0 = fedRawDataCollection->FEDData(0 + 4 * (1 - 1) + 0);  // FED ID 0
-  const FEDRawData& fedData_slink_1 = fedRawDataCollection->FEDData(1 + 4 * (1 - 1) + 0);  // FED ID 1
-  const FEDRawData& fedData_slink_2 = fedRawDataCollection->FEDData(2 + 4 * (1 - 1) + 0);  // FED ID 2
-  const FEDRawData& fedData_slink_3 = fedRawDataCollection->FEDData(3 + 4 * (1 - 1) + 0);  // FED ID 3
+  const FEDRawData& fedData_slink_0 = fedRawDataCollection->FEDData(0 + 4 * (81 - 1) + 0);  // FED ID 0
+  const FEDRawData& fedData_slink_1 = fedRawDataCollection->FEDData(1 + 4 * (81 - 1) + 0);  // FED ID 1
+  const FEDRawData& fedData_slink_2 = fedRawDataCollection->FEDData(2 + 4 * (81 - 1) + 0);  // FED ID 2
+  const FEDRawData& fedData_slink_3 = fedRawDataCollection->FEDData(3 + 4 * (81 - 1) + 0);  // FED ID 3
  
 
   // ** Below is the logic to read out the 32bit words from the fedRawData object.
