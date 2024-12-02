@@ -1,4 +1,4 @@
-# /dev/CMSSW_14_1_0/Special
+# /dev/CMSSW_14_2_0/Special
 
 import FWCore.ParameterSet.Config as cms
 
@@ -818,4 +818,124 @@ streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias19_selector.triggerCondition
     'HLT_ZeroBias_Gated_v4',
     'HLT_ZeroBias_HighRate_v4'
 )
+
+
+# stream PhysicsVRRandom0
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom0_datasetVRRandom0_selector
+streamPhysicsVRRandom0_datasetVRRandom0_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom0_datasetVRRandom0_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom0_datasetVRRandom0_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom0_datasetVRRandom0_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom0_datasetVRRandom1_selector
+streamPhysicsVRRandom0_datasetVRRandom1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom0_datasetVRRandom1_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom0_datasetVRRandom1_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom0_datasetVRRandom1_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+
+# stream PhysicsVRRandom1
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom1_datasetVRRandom2_selector
+streamPhysicsVRRandom1_datasetVRRandom2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom1_datasetVRRandom2_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom1_datasetVRRandom2_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom1_datasetVRRandom2_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom1_datasetVRRandom3_selector
+streamPhysicsVRRandom1_datasetVRRandom3_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom1_datasetVRRandom3_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom1_datasetVRRandom3_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom1_datasetVRRandom3_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+
+# stream PhysicsVRRandom2
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom2_datasetVRRandom4_selector
+streamPhysicsVRRandom2_datasetVRRandom4_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom2_datasetVRRandom4_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom2_datasetVRRandom4_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom2_datasetVRRandom4_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom2_datasetVRRandom5_selector
+streamPhysicsVRRandom2_datasetVRRandom5_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom2_datasetVRRandom5_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom2_datasetVRRandom5_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom2_datasetVRRandom5_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+
+# stream PhysicsVRRandom3
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom3_datasetVRRandom6_selector
+streamPhysicsVRRandom3_datasetVRRandom6_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom3_datasetVRRandom6_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom3_datasetVRRandom6_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom3_datasetVRRandom6_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom3_datasetVRRandom7_selector
+streamPhysicsVRRandom3_datasetVRRandom7_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom3_datasetVRRandom7_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom3_datasetVRRandom7_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom3_datasetVRRandom7_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+
+# stream PhysicsVRRandom4
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom4_datasetVRRandom8_selector
+streamPhysicsVRRandom4_datasetVRRandom8_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom4_datasetVRRandom8_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom4_datasetVRRandom8_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom4_datasetVRRandom8_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom4_datasetVRRandom9_selector
+streamPhysicsVRRandom4_datasetVRRandom9_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom4_datasetVRRandom9_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom4_datasetVRRandom9_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom4_datasetVRRandom9_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+
+# stream PhysicsVRRandom5
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom5_datasetVRRandom10_selector
+streamPhysicsVRRandom5_datasetVRRandom10_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom5_datasetVRRandom10_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom5_datasetVRRandom10_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom5_datasetVRRandom10_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom5_datasetVRRandom11_selector
+streamPhysicsVRRandom5_datasetVRRandom11_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom5_datasetVRRandom11_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom5_datasetVRRandom11_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom5_datasetVRRandom11_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+
+# stream PhysicsVRRandom6
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom6_datasetVRRandom12_selector
+streamPhysicsVRRandom6_datasetVRRandom12_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom6_datasetVRRandom12_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom6_datasetVRRandom12_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom6_datasetVRRandom12_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom6_datasetVRRandom13_selector
+streamPhysicsVRRandom6_datasetVRRandom13_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom6_datasetVRRandom13_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom6_datasetVRRandom13_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom6_datasetVRRandom13_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+
+# stream PhysicsVRRandom7
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom7_datasetVRRandom14_selector
+streamPhysicsVRRandom7_datasetVRRandom14_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom7_datasetVRRandom14_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom7_datasetVRRandom14_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom7_datasetVRRandom14_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRRandom7_datasetVRRandom15_selector
+streamPhysicsVRRandom7_datasetVRRandom15_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRRandom7_datasetVRRandom15_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRRandom7_datasetVRRandom15_selector.throw      = cms.bool(False)
+streamPhysicsVRRandom7_datasetVRRandom15_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
 

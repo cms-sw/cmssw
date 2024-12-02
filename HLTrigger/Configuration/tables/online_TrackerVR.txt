@@ -8,14 +8,14 @@ HLTriggerFinalPath
 
 ## EndPaths / FinalPaths ##
 
-PhysicsSpecialRandom0Output
-PhysicsSpecialRandom1Output
-PhysicsSpecialRandom2Output
-PhysicsSpecialRandom3Output
-PhysicsSpecialRandom4Output
-PhysicsSpecialRandom5Output
-PhysicsSpecialRandom6Output
-PhysicsSpecialRandom7Output
+PhysicsVRRandom0Output   # CMSHLT-3405
+PhysicsVRRandom1Output
+PhysicsVRRandom2Output
+PhysicsVRRandom3Output
+PhysicsVRRandom4Output
+PhysicsVRRandom5Output
+PhysicsVRRandom6Output
+PhysicsVRRandom7Output
 
 ######## Paths that are different between online and offline ########
 
