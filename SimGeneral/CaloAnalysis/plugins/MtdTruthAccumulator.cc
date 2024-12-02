@@ -58,6 +58,8 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
+#include <CLHEP/Units/SystemOfUnits.h>
+
 namespace {
   using Index_t = unsigned;
   using Barcode_t = int;
@@ -105,8 +107,6 @@ private:
       maximumPreviousBunchCrossing_ parameter).
   */
   const unsigned int maximumSubsequentBunchCrossing_;
-
-  const unsigned int bunchSpacing_;
 
   const edm::InputTag simTrackLabel_;
   const edm::InputTag simVertexLabel_;
@@ -223,7 +223,7 @@ namespace {
         if (selector_(edge_property)) {
           IfLogDebug(DEBUG, messageCategoryGraph_) << "Adding CaloParticle: " << edge_property.simTrack->trackId();
           output_.pCaloParticles->emplace_back(*(edge_property.simTrack));
-          output_.pCaloParticles->back().addSimTime(vertex_time_map_[(edge_property.simTrack)->vertIndex()]);
+          output_.pCaloParticles->back().setSimTime(vertex_time_map_[(edge_property.simTrack)->vertIndex()]);
           caloParticles_.sc_start_.push_back(output_.pSimClusters->size());
         }
       }
@@ -257,7 +257,6 @@ MtdTruthAccumulator::MtdTruthAccumulator(const edm::ParameterSet &config,
     : messageCategory_("MtdTruthAccumulator"),
       maximumPreviousBunchCrossing_(config.getParameter<unsigned int>("maximumPreviousBunchCrossing")),
       maximumSubsequentBunchCrossing_(config.getParameter<unsigned int>("maximumSubsequentBunchCrossing")),
-      bunchSpacing_(config.getParameter<unsigned int>("bunchspace")),
       simTrackLabel_(config.getParameter<edm::InputTag>("simTrackCollection")),
       simVertexLabel_(config.getParameter<edm::InputTag>("simVertexCollection")),
       collectionTags_(),
@@ -619,7 +618,8 @@ void MtdTruthAccumulator::accumulateEvent(const T &event,
   DecayChain decay;
 
   for (uint32_t i = 0; i < vertices.size(); i++) {
-    vertex_time_map[i] = vertices[i].position().t() * 1e9 + event.bunchCrossing() * static_cast<int>(bunchSpacing_);
+    // Geant4 time is in seconds, convert to ns (CLHEP::s = 1e9)
+    vertex_time_map[i] = vertices[i].position().t() * CLHEP::s;
   }
 
   IfLogDebug(DEBUG, messageCategory_) << " TRACKS" << std::endl;
