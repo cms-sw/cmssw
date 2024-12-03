@@ -30,7 +30,7 @@ treenames = {
 }
 
 f = ROOT.TFile.Open(args.inputfile)
-idxtree = f["Indices"]
+idxtree = getattr(f, "Indices")
 
 summary = defaultdict(lambda: 0)
 
@@ -42,7 +42,7 @@ for i in range(idxtree.GetEntries()):
 
     # inclusive range -- for 0 entries, row is left out
     firstidx, lastidx = idxtree.FirstIndex, idxtree.LastIndex
-    metree = f[treenames[metype]]
+    metree = getattr(f, treenames[metype])
     # this GetEntry is only to make sure the TTree is initialized correctly
     metree.GetEntry(0)
     metree.SetBranchStatus("*",0)
