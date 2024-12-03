@@ -2940,10 +2940,10 @@ step3_pixel_ntuplet_cpu = {
     '--procModifiers': 'pixelNtupletFit'
 }
 step3_pixel_ntuplet_gpu = {
-    '--procModifiers': 'pixelNtupletFit,gpu'
+    '--procModifiers': 'alpaka'
 }
 step3_pixel_ntuplet_gpu_validation = {
-    '--procModifiers': 'pixelNtupletFit,gpuValidation'
+    '--procModifiers': 'alpaka,alpakaValidation'
 }
 step3_pixel_triplets = {
     '--customise': 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
@@ -2955,7 +2955,7 @@ step3_pixel_triplets_profiling = {
     '--customise': 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
 }
 step3_gpu = {
-    '--procModifiers': 'gpu',
+    '--procModifiers': 'alpaka',
 }
 step3_trackingLowPU = {
     '--era': 'Run2_2016_trackingLowPU'

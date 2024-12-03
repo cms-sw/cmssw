@@ -42,8 +42,6 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #           Alpaka pixel-only:                                  TTbar with PU: quadruplets any backend, any backend vs cpu validation, profiling 
 
 numWFIB = [
-           # 2023, Alpaka-based noPU
-           12434.402,12434.403,12434.412,12434.422,12434.423,
 
            # 2024, Alpaka-based noPU
            12834.402, 12834.403, 12834.404,

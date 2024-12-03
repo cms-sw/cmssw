@@ -721,10 +721,11 @@ trackingParticleHIPixelTrackAssociation = trackingParticleRecoTrackAsssociation.
     associator = "quickTrackAssociatorByHits",
 )
 
-from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
+# For the moment we have no Alpaka version of the hiConformalPixelTracks
+# from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 
-pixelNtupletFit.toModify(trackingParticleHIPixelTrackAssociation,
-        associator = "quickTrackAssociatorByHitsPreSplitting")
+# pixelNtupletFit.toModify(trackingParticleHIPixelTrackAssociation,
+#         associator = "quickTrackAssociatorByHitsPreSplitting")
 
 HIPixelVertexAssociatorByPositionAndTracks = VertexAssociatorByPositionAndTracks.clone(
     trackAssociation = "trackingParticleHIPixelTrackAssociation"
