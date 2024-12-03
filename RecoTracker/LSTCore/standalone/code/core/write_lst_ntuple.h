@@ -18,6 +18,7 @@ void createOutputBranches();
 void createRequiredOutputBranches();
 void createOptionalOutputBranches();
 void createGnnNtupleBranches();
+void createT5DNNBranches();
 
 void fillOutputBranches(LSTEvent* event);
 void setOutputBranches(LSTEvent* event);
@@ -28,6 +29,8 @@ void setQuintupletOutputBranches(LSTEvent* event);
 void setPixelTripletOutputBranches(LSTEvent* event);
 void setGnnNtupleBranches(LSTEvent* event);
 void setGnnNtupleMiniDoublet(LSTEvent* event, unsigned int MD);
+void fillT5DNNBranches(LSTEvent* event, unsigned int T3);
+void setT5DNNBranches(LSTEvent* event);
 
 std::tuple<int, float, float, float, int, std::vector<int>> parseTrackCandidate(LSTEvent* event, unsigned int);
 std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parsepT5(LSTEvent* event,

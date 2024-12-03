@@ -1,165 +1,151 @@
 #ifndef RecoTracker_LSTCore_src_alpaka_NeuralNetwork_h
 #define RecoTracker_LSTCore_src_alpaka_NeuralNetwork_h
 
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
+
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
-#include "RecoTracker/LSTCore/interface/ModulesSoA.h"
-#include "RecoTracker/LSTCore/interface/HitsSoA.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
-#include "RecoTracker/LSTCore/interface/SegmentsSoA.h"
-#include "RecoTracker/LSTCore/interface/TripletsSoA.h"
 
 #include "NeuralNetworkWeights.h"
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
+namespace ALPAKA_ACCELERATOR_NAMESPACE::lst::t5dnn {
 
-  namespace t5dnn {
+  template <int FEATURES>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void relu_activation(float (&input)[FEATURES]) {
+    CMS_UNROLL_LOOP
+    for (unsigned int col = 0; col < FEATURES; ++col) {
+      input[col] = (input[col] > 0.f) ? input[col] : 0.f;
+    }
+  }
 
-    template <typename TAcc>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE float runInference(TAcc const& acc,
-                                                      ModulesConst modules,
-                                                      MiniDoubletsConst mds,
-                                                      SegmentsConst segments,
-                                                      TripletsConst triplets,
-                                                      const float* xVec,
-                                                      const float* yVec,
-                                                      const unsigned int* mdIndices,
-                                                      const uint16_t* lowerModuleIndices,
-                                                      unsigned int innerTripletIndex,
-                                                      unsigned int outerTripletIndex,
-                                                      float innerRadius,
-                                                      float outerRadius,
-                                                      float bridgeRadius) {
-      // Unpack x-coordinates of hits
-      float x1 = xVec[0];
-      float x2 = xVec[1];
-      float x3 = xVec[2];
-      float x4 = xVec[3];
-      float x5 = xVec[4];
-      // Unpack y-coordinates of hits
-      float y1 = yVec[0];
-      float y2 = yVec[1];
-      float y3 = yVec[2];
-      float y4 = yVec[3];
-      float y5 = yVec[4];
-      // Unpack module indices
-      unsigned int mdIndex1 = mdIndices[0];
-      unsigned int mdIndex2 = mdIndices[1];
-      unsigned int mdIndex3 = mdIndices[2];
-      unsigned int mdIndex4 = mdIndices[3];
-      unsigned int mdIndex5 = mdIndices[4];
-      // Unpack module indices
-      uint16_t lowerModuleIndex1 = lowerModuleIndices[0];
-      uint16_t lowerModuleIndex2 = lowerModuleIndices[1];
-      uint16_t lowerModuleIndex3 = lowerModuleIndices[2];
-      uint16_t lowerModuleIndex4 = lowerModuleIndices[3];
-      uint16_t lowerModuleIndex5 = lowerModuleIndices[4];
-      // Compute some convenience variables
-      short layer2_adjustment = 0;
-      if (modules.layers()[lowerModuleIndex1] == 1) {
-        layer2_adjustment = 1;  // get upper segment to be in second layer
+  template <typename TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE float sigmoid_activation(TAcc const& acc, const float x) {
+    return alpaka::math::exp(acc, x) / (alpaka::math::exp(acc, x) + 1.f);
+  }
+
+  template <int IN_FEATURES, int OUT_FEATURES>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void linear_layer(const float (&input)[IN_FEATURES],
+                                                   float (&output)[OUT_FEATURES],
+                                                   const float (&weights)[IN_FEATURES][OUT_FEATURES],
+                                                   const float (&biases)[OUT_FEATURES]) {
+    CMS_UNROLL_LOOP
+    for (unsigned int i = 0; i < OUT_FEATURES; ++i) {
+      output[i] = biases[i];
+      CMS_UNROLL_LOOP
+      for (int j = 0; j < IN_FEATURES; ++j) {
+        output[i] += input[j] * weights[j][i];
       }
-      unsigned int md_idx_for_t5_eta_phi =
-          segments.mdIndices()[triplets.segmentIndices()[innerTripletIndex][0]][layer2_adjustment];
-      bool is_endcap1 = (modules.subdets()[lowerModuleIndex1] == 4);  // true if anchor hit 1 is in the endcap
-      bool is_endcap2 = (modules.subdets()[lowerModuleIndex2] == 4);  // true if anchor hit 2 is in the endcap
-      bool is_endcap3 = (modules.subdets()[lowerModuleIndex3] == 4);  // true if anchor hit 3 is in the endcap
-      bool is_endcap4 = (modules.subdets()[lowerModuleIndex4] == 4);  // true if anchor hit 4 is in the endcap
-      bool is_endcap5 = (modules.subdets()[lowerModuleIndex5] == 4);  // true if anchor hit 5 is in the endcap
+    }
+  }
 
-      // Build DNN input vector (corresponding output N-tuple branch noted in parenthetical in comment)
-      float x[38] = {
-          alpaka::math::log10(acc, 2 * k2Rinv1GeVf * innerRadius),      // inner T3 pT (t3_pt)
-          mds.anchorEta()[mdIndex1],                                    // inner T3 anchor hit 1 eta (t3_0_eta)
-          mds.anchorPhi()[mdIndex1],                                    // inner T3 anchor hit 1 phi (t3_0_phi)
-          mds.anchorZ()[mdIndex1],                                      // inner T3 anchor hit 1 z (t3_0_z)
-          alpaka::math::sqrt(acc, x1 * x1 + y1 * y1),                   // inner T3 anchor hit 1 r (t3_0_r)
-          float(modules.layers()[lowerModuleIndex1] + 6 * is_endcap1),  // inner T3 anchor hit 1 layer (t3_0_layer)
-          mds.anchorEta()[mdIndex2],                                    // inner T3 anchor hit 2 eta (t3_2_eta)
-          mds.anchorPhi()[mdIndex2],                                    // inner T3 anchor hit 2 phi (t3_2_phi)
-          mds.anchorZ()[mdIndex2],                                      // inner T3 anchor hit 2 z (t3_2_z)
-          alpaka::math::sqrt(acc, x2 * x2 + y2 * y2),                   // inner T3 anchor hit 2 r (t3_2_r)
-          float(modules.layers()[lowerModuleIndex2] + 6 * is_endcap2),  // inner T3 anchor hit 2 layer (t3_2_layer)
-          mds.anchorEta()[mdIndex3],                                    // inner T3 anchor hit 3 eta (t3_4_eta)
-          mds.anchorPhi()[mdIndex3],                                    // inner T3 anchor hit 3 phi (t3_4_phi)
-          mds.anchorZ()[mdIndex3],                                      // inner T3 anchor hit 3 z (t3_4_z)
-          alpaka::math::sqrt(acc, x3 * x3 + y3 * y3),                   // inner T3 anchor hit 3 r (t3_4_r)
-          float(modules.layers()[lowerModuleIndex3] + 6 * is_endcap3),  // inner T3 anchor hit 3 layer (t3_4_layer)
-          alpaka::math::log10(acc, 2 * k2Rinv1GeVf * outerRadius),      // outer T3 pT (t3_pt)
-          mds.anchorEta()[mdIndex3],                                    // outer T3 anchor hit 4 eta (t3_0_eta)
-          mds.anchorPhi()[mdIndex3],                                    // outer T3 anchor hit 4 phi (t3_0_phi)
-          mds.anchorZ()[mdIndex3],                                      // outer T3 anchor hit 3 eta (t3_0_z)
-          alpaka::math::sqrt(acc, x3 * x3 + y3 * y3),                   // outer T3 anchor hit 3 r (t3_0_r)
-          float(modules.layers()[lowerModuleIndex3] + 6 * is_endcap3),  // outer T3 anchor hit 3 layer (t3_0_layer)
-          mds.anchorEta()[mdIndex4],                                    // outer T3 anchor hit 4 eta (t3_2_eta)
-          mds.anchorPhi()[mdIndex4],                                    // outer T3 anchor hit 4 phi (t3_2_phi)
-          mds.anchorZ()[mdIndex4],                                      // outer T3 anchor hit 4 z (t3_2_z)
-          alpaka::math::sqrt(acc, x4 * x4 + y4 * y4),                   // outer T3 anchor hit 4 r (t3_2_r)
-          float(modules.layers()[lowerModuleIndex4] + 6 * is_endcap4),  // outer T3 anchor hit 4 layer (t3_2_layer)
-          mds.anchorEta()[mdIndex5],                                    // outer T3 anchor hit 5 eta (t3_4_eta)
-          mds.anchorPhi()[mdIndex5],                                    // outer T3 anchor hit 5 phi (t3_4_phi)
-          mds.anchorZ()[mdIndex5],                                      // outer T3 anchor hit 5 z (t3_4_z)
-          alpaka::math::sqrt(acc, x5 * x5 + y5 * y5),                   // outer T3 anchor hit 5 r (t3_4_r)
-          float(modules.layers()[lowerModuleIndex5] + 6 * is_endcap5),  // outer T3 anchor hit 5 layer (t3_4_layer)
-          alpaka::math::log10(acc, (innerRadius + outerRadius) * k2Rinv1GeVf),  // T5 pT (t5_pt)
-          mds.anchorEta()[md_idx_for_t5_eta_phi],                               // T5 eta (t5_eta)
-          mds.anchorPhi()[md_idx_for_t5_eta_phi],                               // T5 phi (t5_phi)
-          alpaka::math::log10(acc, innerRadius),                                // T5 inner radius (t5_innerRadius)
-          alpaka::math::log10(acc, bridgeRadius),                               // T5 bridge radius (t5_bridgeRadius)
-          alpaka::math::log10(acc, outerRadius)                                 // T5 outer radius (t5_outerRadius)
-      };
-
-      // (0): Linear(in_features=38, out_features=32, bias=True) => x = x*W_T + b
-      float x_0[32];
-      for (unsigned int col = 0; col < 32; ++col) {
-        x_0[col] = 0;
-        for (unsigned int inner = 0; inner < 38; ++inner) {
-          x_0[col] += x[inner] * wgtT_0[inner][col];
-        }
-        x_0[col] += bias_0[col];
-      }
-
-      // (1): ReLU()
-      float x_1[32];
-      for (unsigned int col = 0; col < 32; ++col) {
-        x_1[col] = (x_0[col] > 0.f) ? x_0[col] : 0.f;
-      }
-
-      // (2): Linear(in_features=32, out_features=32, bias=True) => x = x*W_T + b
-      float x_2[32];
-      for (unsigned int col = 0; col < 32; ++col) {
-        x_2[col] = 0;
-        for (unsigned int inner = 0; inner < 32; ++inner) {
-          x_2[col] += x_1[inner] * wgtT_2[inner][col];
-        }
-        x_2[col] += bias_2[col];
-      }
-
-      // (3): ReLU()
-      float x_3[32];
-      for (unsigned int col = 0; col < 32; ++col) {
-        x_3[col] = (x_2[col] > 0.f) ? x_2[col] : 0.f;
-      }
-
-      // (4): Linear(in_features=32, out_features=1, bias=True) => x = x*W_T + b
-      float x_4[1];
-      for (unsigned int col = 0; col < 1; ++col) {
-        x_4[col] = 0;
-        for (unsigned int inner = 0; inner < 32; ++inner) {
-          x_4[col] += x_3[inner] * wgtT_4[inner][col];
-        }
-        x_4[col] += bias_4[col];
-      }
-
-      // (5): Sigmoid()
-      float x_5[1];
-      for (unsigned int col = 0; col < 1; ++col) {
-        x_5[col] = alpaka::math::exp(acc, x_4[col]) / (alpaka::math::exp(acc, x_4[col]) + 1);
-      }
-
-      return x_5[0];
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE float delta_phi(const float phi1, const float phi2) {
+    float delta = phi1 - phi2;
+    // Adjust delta to be within the range [-M_PI, M_PI]
+    if (delta > kPi) {
+      delta -= 2 * kPi;
+    } else if (delta < -kPi) {
+      delta += 2 * kPi;
     }
 
-  }  // namespace t5dnn
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
+    return delta;
+  }
+
+  template <typename TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runInference(TAcc const& acc,
+                                                   MiniDoubletsConst mds,
+                                                   const unsigned int mdIndex1,
+                                                   const unsigned int mdIndex2,
+                                                   const unsigned int mdIndex3,
+                                                   const unsigned int mdIndex4,
+                                                   const unsigned int mdIndex5,
+                                                   const float innerRadius,
+                                                   const float outerRadius,
+                                                   const float bridgeRadius) {
+    // Constants
+    constexpr unsigned int kinputFeatures = 23;
+    constexpr unsigned int khiddenFeatures = 32;
+
+    float eta1 = alpaka::math::abs(acc, mds.anchorEta()[mdIndex1]);  // inner T3 anchor hit 1 eta (t3_0_eta)
+    float eta2 = alpaka::math::abs(acc, mds.anchorEta()[mdIndex2]);  // inner T3 anchor hit 2 eta (t3_2_eta)
+    float eta3 = alpaka::math::abs(acc, mds.anchorEta()[mdIndex3]);  // inner T3 anchor hit 3 eta (t3_4_eta)
+    float eta4 = alpaka::math::abs(acc, mds.anchorEta()[mdIndex4]);  // outer T3 anchor hit 4 eta (t3_2_eta)
+    float eta5 = alpaka::math::abs(acc, mds.anchorEta()[mdIndex5]);  // outer T3 anchor hit 5 eta (t3_4_eta)
+
+    float phi1 = mds.anchorPhi()[mdIndex1];  // inner T3 anchor hit 1 phi (t3_0_phi)
+    float phi2 = mds.anchorPhi()[mdIndex2];  // inner T3 anchor hit 2 phi (t3_2_phi)
+    float phi3 = mds.anchorPhi()[mdIndex3];  // inner T3 anchor hit 3 phi (t3_4_phi)
+    float phi4 = mds.anchorPhi()[mdIndex4];  // outer T3 anchor hit 4 phi (t3_2_phi)
+    float phi5 = mds.anchorPhi()[mdIndex5];  // outer T3 anchor hit 5 phi (t3_4_phi)
+
+    float z1 = alpaka::math::abs(acc, mds.anchorZ()[mdIndex1]);  // inner T3 anchor hit 1 z (t3_0_z)
+    float z2 = alpaka::math::abs(acc, mds.anchorZ()[mdIndex2]);  // inner T3 anchor hit 2 z (t3_2_z)
+    float z3 = alpaka::math::abs(acc, mds.anchorZ()[mdIndex3]);  // inner T3 anchor hit 3 z (t3_4_z)
+    float z4 = alpaka::math::abs(acc, mds.anchorZ()[mdIndex4]);  // outer T3 anchor hit 4 z (t3_2_z)
+    float z5 = alpaka::math::abs(acc, mds.anchorZ()[mdIndex5]);  // outer T3 anchor hit 5 z (t3_4_z)
+
+    float r1 = mds.anchorRt()[mdIndex1];  // inner T3 anchor hit 1 r (t3_0_r)
+    float r2 = mds.anchorRt()[mdIndex2];  // inner T3 anchor hit 2 r (t3_2_r)
+    float r3 = mds.anchorRt()[mdIndex3];  // inner T3 anchor hit 3 r (t3_4_r)
+    float r4 = mds.anchorRt()[mdIndex4];  // outer T3 anchor hit 4 r (t3_2_r)
+    float r5 = mds.anchorRt()[mdIndex5];  // outer T3 anchor hit 5 r (t3_4_r)
+
+    // Build the input feature vector using pairwise differences after the first hit
+    float x[kinputFeatures] = {
+        eta1 / kEta_norm,                          // inner T3: First hit eta normalized
+        alpaka::math::abs(acc, phi1) / kPhi_norm,  // inner T3: First hit phi normalized
+        z1 / kZ_max,                               // inner T3: First hit z normalized
+        r1 / kR_max,                               // inner T3: First hit r normalized
+
+        eta2 - eta1,                        // inner T3: Difference in eta between hit 2 and 1
+        delta_phi(phi2, phi1) / kPhi_norm,  // inner T3: Difference in phi between hit 2 and 1
+        (z2 - z1) / kZ_max,                 // inner T3: Difference in z between hit 2 and 1 normalized
+        (r2 - r1) / kR_max,                 // inner T3: Difference in r between hit 2 and 1 normalized
+
+        eta3 - eta2,                        // inner T3: Difference in eta between hit 3 and 2
+        delta_phi(phi3, phi2) / kPhi_norm,  // inner T3: Difference in phi between hit 3 and 2
+        (z3 - z2) / kZ_max,                 // inner T3: Difference in z between hit 3 and 2 normalized
+        (r3 - r2) / kR_max,                 // inner T3: Difference in r between hit 3 and 2 normalized
+
+        eta4 - eta3,                        // outer T3: Difference in eta between hit 4 and 3
+        delta_phi(phi4, phi3) / kPhi_norm,  // inner T3: Difference in phi between hit 4 and 3
+        (z4 - z3) / kZ_max,                 // outer T3: Difference in z between hit 4 and 3 normalized
+        (r4 - r3) / kR_max,                 // outer T3: Difference in r between hit 4 and 3 normalized
+
+        eta5 - eta4,                        // outer T3: Difference in eta between hit 5 and 4
+        delta_phi(phi5, phi4) / kPhi_norm,  // inner T3: Difference in phi between hit 5 and 4
+        (z5 - z4) / kZ_max,                 // outer T3: Difference in z between hit 5 and 4 normalized
+        (r5 - r4) / kR_max,                 // outer T3: Difference in r between hit 5 and 4 normalized
+
+        alpaka::math::log10(acc, innerRadius),   // T5 inner radius (t5_innerRadius)
+        alpaka::math::log10(acc, bridgeRadius),  // T5 bridge radius (t5_bridgeRadius)
+        alpaka::math::log10(acc, outerRadius)    // T5 outer radius (t5_outerRadius)
+    };
+
+    float x_1[khiddenFeatures];  // Layer 1 output
+    float x_2[khiddenFeatures];  // Layer 2 output
+    float x_3[1];                // Layer 3 linear output
+
+    // Layer 1: Linear + Relu
+    linear_layer<kinputFeatures, khiddenFeatures>(x, x_1, wgtT_layer1, bias_layer1);
+    relu_activation<khiddenFeatures>(x_1);
+
+    // Layer 2: Linear + Relu
+    linear_layer<khiddenFeatures, khiddenFeatures>(x_1, x_2, wgtT_layer2, bias_layer2);
+    relu_activation<khiddenFeatures>(x_2);
+
+    // Layer 3: Linear + Sigmoid
+    linear_layer<khiddenFeatures, 1>(x_2, x_3, wgtT_output_layer, bias_output_layer);
+    float x_5 = sigmoid_activation(acc, x_3[0]);
+
+    // Get the bin index based on abs(eta) of first hit and t5_pt
+    float t5_pt = innerRadius * lst::k2Rinv1GeVf * 2;
+
+    uint8_t pt_index = (t5_pt > 5);
+    uint8_t bin_index = (eta1 > 2.5f) ? (kEtaBins - 1) : static_cast<unsigned int>(eta1 / 0.25f);
+
+    // Compare x_5 to the cut value for the relevant bin
+    return x_5 > kWp[pt_index][bin_index];
+  }
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst::t5dnn
 
 #endif
