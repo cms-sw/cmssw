@@ -139,7 +139,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         // read the offsets 
         // they start from the fifth line (4 * (5-1)) until line 22nd (4 * 22-1)
         std::vector<uint32_t> offsetWords;
-        size_t nOffsetsLines = OFFSET_LENGTH * CICs_PER_SLINK / N_BITS_PER_WORD;
+        size_t nOffsetsLines = OFFSET_BITS * CICs_PER_SLINK / N_BITS_PER_WORD;
         size_t initByte = HEADER_N_LINES*N_BYTES_PER_WORD;
         size_t endByte = (nOffsetsLines-1)*N_BYTES_PER_WORD + initByte;  // -1 because we only need the starting i of the line
 
@@ -211,7 +211,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           int nFullClusters = 0;
           for (unsigned int icluster = 0; icluster < numStripClusters; icluster++)
           {
-            if (nAvailableBits >= CLUSTER_LENGTH)
+            if (nAvailableBits >= SS_CLUSTER_BITS)
             {
               // calculate the shift 
               int shift = N_BITS_PER_WORD - bitsToRead - (nFullClusters + 1) * SS_CLUSTER_BITS;
@@ -219,7 +219,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
               stripClustersWords[icluster] = (lines[iLine] >> shift) & 0x3FFF;
 //               std::cout << "\t clusterword " << std::bitset<SS_CLUSTER_BITS>(stripClustersWords[icluster]) <<  std::endl;
               // and update available bits and number of full clusters from this line
-              nAvailableBits -= CLUSTER_LENGTH;
+              nAvailableBits -= SS_CLUSTER_BITS;
               nFullClusters++;
 //               std::cout << "\t\t\t remaining bits " << nAvailableBits <<  std::endl;
               if (nAvailableBits == 0) {
@@ -246,7 +246,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
               uint16_t wordRight = (lines[iLine+1] >> (N_BITS_PER_WORD - bitsToRead)) & nMask_newLine; 
               // compose the full cluster word
               stripClustersWords[icluster] = ((wordLeft << bitsToRead) | wordRight);  
-//               std::cout << "\t\t cluster " << icluster << "  on 2 lines \t clusterword " << std::bitset<CLUSTER_LENGTH>(stripClustersWords[icluster]) <<  std::endl;
+//               std::cout << "\t\t cluster " << icluster << "  on 2 lines \t clusterword " << std::bitset<SS_CLUSTER_BITS>(stripClustersWords[icluster]) <<  std::endl;
               
               // reset n available bits
               nAvailableBits = N_BITS_PER_WORD - bitsToRead ;

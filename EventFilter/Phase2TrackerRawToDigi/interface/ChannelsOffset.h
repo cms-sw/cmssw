@@ -7,9 +7,6 @@
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2DAQFormatSpecification.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerSpecifications.h"
 
-constexpr int N_CHANNELS = 36;
-
-
 using namespace Phase2TrackerSpecifications;
 using namespace Phase2DAQFormatSpecification;
 
@@ -17,7 +14,7 @@ using namespace Phase2DAQFormatSpecification;
 class ChannelsOffset {
 public:
     std::vector<uint32_t> values_;
-    std::vector<uint16_t> offsetMap_{std::vector<uint16_t>(N_CHANNELS,0)};
+    std::vector<uint16_t> offsetMap_{std::vector<uint16_t>(CICs_PER_SLINK,0)};
 
     void setValue(std::vector<uint32_t>& newValues) {
       values_ = newValues;
@@ -34,7 +31,7 @@ public:
     }   
     
     void fillOffsetMap(){
-      for (size_t i = 0; i < N_CHANNELS/2; ++i) {
+      for (size_t i = 0; i < CICs_PER_SLINK/2; ++i) {
         // extract the lower 16 bits by masking with 0xFFFF
        offsetMap_[i*2] = static_cast<uint16_t>(values_[i] & 0xFFFF);
         // extract the upper 16 bits by shifting right by 16
@@ -43,7 +40,7 @@ public:
     }
 
     uint16_t getOffsetForChannel(unsigned int iChannel){
-      if (iChannel >= N_CHANNELS) {
+      if (iChannel >= CICs_PER_SLINK) {
         throw cms::Exception("ChannelsOffset") << " iChannel " << iChannel << " too high";
       }
       return offsetMap_[iChannel];

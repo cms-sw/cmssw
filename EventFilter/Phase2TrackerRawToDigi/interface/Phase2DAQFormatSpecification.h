@@ -37,11 +37,11 @@ namespace Phase2DAQFormatSpecification
 
     static const int CMSSW_TRACKER_ID = 0;
 
+    static const int HEADER_N_LINES =  4; // number of 32b lines of the tracker header
+    static const int OFFSET_BITS = 16;  // length of the offset word
+
     typedef std::bitset<32> Word32Bits;
     
-    static const int HEADER_N_LINES =  4; // number of 32b lines of the tracker header
-    static const int CLUSTER_LENGTH = 14; // length of the cluster word
-    static const int OFFSET_LENGTH = 16;  // length of the offset word
 };
 
 #endif
