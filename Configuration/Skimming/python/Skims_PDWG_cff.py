@@ -80,6 +80,63 @@ SKIMStreamevtSplitSkimP4 = cms.FilteredStream(
     )
 
 #####################
+# Minbias generator skims
+# 1) 1 muon with pt > 7, |eta|<2.5 --> 1Mu
+# 2) 2 muons with pt > 2 and 2, |eta|<2.5 --> 2Mu
+# 3) 2 muons with pt > 4 and 3, |eta|<2.5, opposite sign, mass [0.2,8.5] --> OS2Mu
+# 4) 2 muons with pt > 4 and 4, |eta|<2.5, opposite sign, mass [4.9,5.9] --> OS2MuB
+# 5) 3 muons with pt > 5/2/2, |eta|<2.5 --> 3Mu
+
+from Configuration.Skimming.PDWG_MCMinBiasGen_cff import *
+
+MinBiasGenSkimPath1Mu = cms.Path(MinBiasGenSkimSeq1Mu )
+MinBiasGenSkimPath2Mu = cms.Path( MinBiasGenSkimSeq2Mu )
+MinBiasGenSkimPathOS2Mu = cms.Path( MinBiasGenSkimSeqOS2Mu )
+MinBiasGenSkimPathOS2MuB = cms.Path( MinBiasGenSkimSeqOS2MuB )
+MinBiasGenSkimPath3Mu = cms.Path( MinBiasGenSkimSeq3Mu )
+
+SKIMStreamMinBiasGenSkim1Mu = cms.FilteredStream(
+    responsible = 'GEN',
+    name = 'MinBiasGenSkim1Mu',
+    paths = ( MinBiasGenSkimPath1Mu),
+    content = RAWSIMEventContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('GEN')
+)
+SKIMStreamMinBiasGenSkim2Mu = cms.FilteredStream(
+    responsible = 'GEN',
+    name = 'MinBiasGenSkim2Mu',
+    paths = ( MinBiasGenSkimPath2Mu ),
+    content = RAWSIMEventContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('GEN')
+)
+SKIMStreamMinBiasGenSkimOS2Mu = cms.FilteredStream(
+    responsible = 'GEN',
+    name = 'MinBiasGenSkimOS2Mu',
+    paths = ( MinBiasGenSkimPathOS2Mu ),
+    content = RAWSIMEventContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('GEN')
+)
+SKIMStreamMinBiasGenSkimOS2MuB = cms.FilteredStream(
+    responsible = 'GEN',
+    name = 'MinBiasGenSkimOS2MuB',
+    paths = ( MinBiasGenSkimPathOS2MuB ),
+    content = RAWSIMEventContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('GEN')
+)
+SKIMStreamMinBiasGenSkim3Mu = cms.FilteredStream(
+    responsible = 'GEN',
+    name = 'MinBiasGenSkim3Mu',
+    paths = ( MinBiasGenSkimPath3Mu ),
+    content = RAWSIMEventContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('GEN')
+)
+
+#####################
 
 from Configuration.Skimming.PDWG_BPHSkim_cff import *
 BPHSkimPath = cms.Path(BPHSkimSequence)
