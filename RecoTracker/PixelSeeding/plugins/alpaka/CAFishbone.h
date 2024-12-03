@@ -31,6 +31,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   template <typename TrackerTraits>
   using OuterHitOfCell = caStructures::OuterHitOfCellT<TrackerTraits>;
 
+  using HitToCell = caStructures::GenericContainer;
 
   template <typename TrackerTraits>
   class CAFishbone {
@@ -41,14 +42,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                                   CACellT<TrackerTraits>* cells,
                                   uint32_t const* __restrict__ nCells,
                                   OuterHitOfCell<TrackerTraits> const* isOuterHitOfCellWrap,
-                                  int32_t nHits,
+                                  HitToCell const* __restrict__ outerHitHisto,
+                                  uint32_t nHits,
+                                  uint32_t nHitsBPix1,
                                   bool checkTrack) const {
       constexpr auto maxCellsPerHit = CACellT<TrackerTraits>::maxCellsPerHit;
-
-      int32_t layer2Offset = isOuterHitOfCellWrap->offset;
-      // if there are no hits outside of the BPIX1, there is nothing to do
-      if (nHits <= layer2Offset)
-        return;
 
       auto const isOuterHitOfCell = isOuterHitOfCellWrap->container;
 
@@ -58,9 +56,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       uint8_t l[maxCellsPerHit];
 
       // outermost parallel loop, using all grid elements along the slower dimension (Y or 0 in a 2D grid)
-      for (uint32_t idy : cms::alpakatools::uniform_elements_y(acc, nHits - layer2Offset)) {
+      for (uint32_t idy : cms::alpakatools::uniform_elements_y(acc, nHits - nHitsBPix1)) {
         auto const& vc = isOuterHitOfCell[idy];
+        auto id = idy+nHitsBPix1;  //TODO have this offset in the histo building directly
+        uint32_t histSize = outerHitHisto->size(idy+nHitsBPix1);
         auto size = vc.size();
+        printf("hist %d histSize %d size %d \n",idy+nHitsBPix1,histSize,size);
+        ALPAKA_ASSERT_ACC(histSize == uint32_t(size));
         if (size < 2)
           continue;
         // if alligned kill one of the two.
@@ -70,13 +72,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         auto yo = c0.outer_y(hh);
         auto zo = c0.outer_z(hh);
         auto sg = 0;
-        for (int32_t ic = 0; ic < size; ++ic) {
-          auto& ci = cells[vc[ic]];
+        // this could be moved below 
+        // precomputing these here has 
+        // the advantage we then loop on less 
+        // entries but we can anyway skip them below and avoid having 
+        // the arrays above
+
+        auto const* __restrict__ bin = outerHitHisto->begin(idy+nHitsBPix1);
+        for (auto idx = 0u; idx < histSize; idx++) {
+          unsigned int otherCell = bin[idx];
+          printf("vc[0] %d idx %d vc[idx] %d otherCell %d \n",vc[0],idx,vc[idx],otherCell);
+        }
+        
+        for (auto idx = 0u; idx < histSize; idx++) {
+        // for (int32_t ic = 0; ic < size; ++ic) {
+        // for (auto ic = 0u; ic < histSize; ic++) {
+          unsigned int otherCell = bin[idx];
+          auto& ci = cells[otherCell];//vc[ic]];
+          // unsigned int otherCell = bin[ic] - nHitsBPix1;
+          // auto& ci = cells[otherCell];
           if (ci.unused())
             continue;  // for triplets equivalent to next
           if (checkTrack && ci.tracks().empty())
             continue;
-          cc[sg] = vc[ic];
+          cc[sg] = otherCell;//vc[ic];
           l[sg] = ci.layerPairId();
           d[sg] = ci.inner_detIndex(hh);
           x[sg] = ci.inner_x(hh) - xo;
@@ -97,6 +116,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
             // if (d[ic]==d[jc]) continue;
             auto cos12 = x[ic] * x[jc] + y[ic] * y[jc] + z[ic] * z[jc];
 
+            // cos12 * cos12 could go after d[ic] != d[jc]
             if (d[ic] != d[jc] && cos12 * cos12 >= 0.99999f * (n[ic] * n[jc])) {
               // alligned:  kill farthest (prefer consecutive layers)
               // if same layer prefer farthest (longer level arm) and make space for intermediate hit
@@ -128,3 +148,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets
 
 #endif  // RecoTracker_PixelSeeding_plugins_alpaka_CAFishbone_h
+

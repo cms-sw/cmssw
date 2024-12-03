@@ -322,7 +322,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           this->device_theCells_.data(),
                           this->device_nCells_.data(),
                           this->isOuterHitOfCell_.data(),
+                          this->device_hitToCell_.data(),
                           nhits,
+                          offsetBPIX2,
                           false);
     }
     blockSize = 64;
@@ -430,7 +432,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           this->device_theCells_.data(),
                           this->device_nCells_.data(),
                           this->isOuterHitOfCell_.data(),
+                          this->device_hitToCell_.data(),
                           nhits,
+                          offsetBPIX2,
                           true);
     }
 
