@@ -60,7 +60,7 @@ namespace susybsm {
     bool hasCaloInfo() const { return caloInfoRef_.isNonnull(); }
 
     // set infos
-    void setDeDxHitInfo(const reco::DeDxHitInfo* data) {dedxHitInfo_ = data;}
+    void setDeDxHitInfo(const reco::DeDxHitInfo* data) { dedxHitInfo_ = data; }
     void setTrack(const pat::IsolatedTrack& data) { track_ = data; }
     void setMuon(const pat::MuonRef& data) { muon_ = data; }
     void setMuon(const reco::MuonRef& data) { muonRef_ = data; }
@@ -71,7 +71,7 @@ namespace susybsm {
     void setCaloInfo(const HSCPCaloInfoRef& data) { caloInfoRef_ = data; }
 
     // get infos
-    const reco::DeDxHitInfo* dedxHitInfo() const {return dedxHitInfo_; }
+    const reco::DeDxHitInfo* dedxHitInfo() const { return dedxHitInfo_; }
     pat::IsolatedTrack track() const { return track_; }
     pat::MuonRef muon() const { return muon_; }
     reco::TrackRef trackRef() const { return trackRef_; }
