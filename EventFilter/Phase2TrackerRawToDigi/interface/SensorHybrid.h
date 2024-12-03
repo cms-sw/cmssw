@@ -256,7 +256,9 @@ class SensorHybrid
         unsigned int    get_payload_size() 
         { 
             using namespace Phase2DAQFormatSpecification;
-            return (get_number_of_strip_clusters() * SS_CLUSTER_BITS + get_number_of_pixel_clusters() * PX_CLUSTER_BITS) / NUMBER_OF_BITS_PER_WORD;
+            auto nlines_float = std::div(get_number_of_strip_clusters() * SS_CLUSTER_BITS + get_number_of_pixel_clusters() * PX_CLUSTER_BITS, NUMBER_OF_BITS_PER_WORD);
+            return nlines_float.rem > 0 ? nlines_float.quot + 1 + 1 : nlines_float.quot + 1 ;
+
         }
         unsigned int    get_offset_within_payload() const;
         const bool      get_cic_id() const { return cic_id_; }
