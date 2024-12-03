@@ -230,6 +230,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using TmpTuple = cms::alpakatools::VecArray<uint32_t, TrackerTraits::maxDepth>;
     using HitContainer = caStructures::SequentialContainer;
     using CellToCell = caStructures::GenericContainer;
+    using CellToTracks = caStructures::GenericContainer;
 
     using Quality = ::pixelTrack::Quality;
     static constexpr auto bad = ::pixelTrack::Quality::bad;
@@ -492,6 +493,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                       CellTracksVector& cellTracks,
                                                       HitContainer& foundNtuplets,
                                                       CellToCell const *__restrict__ cellNeighborsHisto,
+                                                      CellToTracks *cellTracksHisto,
                                                       cms::alpakatools::AtomicPairCounter& apc,
                                                       Quality* __restrict__ quality,
                                                       TmpTuple& tmpNtuplet,
@@ -526,7 +528,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             continue;  // killed by earlyFishbone
           last = false;
           cells[otherCell].template find_ntuplets<DEPTH - 1>(
-              acc, hh, cc, cells, cellTracks, foundNtuplets, cellNeighborsHisto, apc, quality, tmpNtuplet, minHitsPerNtuplet);
+              acc, hh, cc, cells, cellTracks, foundNtuplets, cellNeighborsHisto, cellTracksHisto, apc, quality, tmpNtuplet, minHitsPerNtuplet);
         }
         if (last) {  // if long enough save...
           if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1) {
@@ -554,7 +556,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               printf("track n. %d nhits %d \n",it,nh+1);
               if (it >= 0) {  // if negative is overflow....
                 for (auto c : tmpNtuplet)
+                {
                   cells[c].addTrack(acc, it, cellTracks);
+                  cellTracksHisto->count(acc,c);
+                }
                 quality[it] = bad;  // initialize to bad
               }
             }

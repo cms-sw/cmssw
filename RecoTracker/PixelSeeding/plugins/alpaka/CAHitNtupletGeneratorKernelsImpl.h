@@ -66,6 +66,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   using HitContainer = caStructures::SequentialContainer;
   using HitToCell = caStructures::GenericContainer;
   using CellToCell = caStructures::GenericContainer;
+  using CellToTracks = caStructures::GenericContainer;
+
   using namespace cms::alpakatools;
 
    // standard initialization for a generic one to many assoc map
@@ -466,6 +468,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView tracks_view,
                                   HitContainer *foundNtuplets,
                                   CellToCell const* __restrict__ cellNeighborsHisto,
+                                  CellToTracks *cellTracksHisto,
                                   CACellT<TrackerTraits> *__restrict__ cells,
                                   uint32_t const *nTriplets,
                                   uint32_t const *nCells,
@@ -506,6 +509,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                                           *cellTracks,
                                                           *foundNtuplets,
                                                           cellNeighborsHisto,
+                                                          cellTracksHisto,
                                                           *apc,
                                                           tracks_view.quality(),
                                                           stack,
