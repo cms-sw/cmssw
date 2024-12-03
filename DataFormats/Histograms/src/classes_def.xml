@@ -42,7 +42,7 @@
  <class name="MEtoEDM<TH2F>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<TH2S>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<TH2D>::MEtoEDMObject" rntupleStreamerMode="true"/>
- <class name="MEtoEDM<TH2Poly>::MEtoEDMObject" rntupleSplit="true"/>
+ <class name="MEtoEDM<TH2Poly>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<TH2I>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<TH3F>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<TProfile>::MEtoEDMObject" rntupleStreamerMode="true"/>
