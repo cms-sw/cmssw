@@ -8,7 +8,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/PMTDParametersRcd.h"
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 
 // Alignments
