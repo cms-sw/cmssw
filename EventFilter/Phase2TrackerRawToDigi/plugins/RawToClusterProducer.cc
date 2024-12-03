@@ -19,13 +19,13 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include <unordered_map>
 
-#include "EventFilter/Phase2TrackerRawToDigi/interface/Cluster.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/TrackerHeader.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/ChannelsOffset.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerSpecifications.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2DAQFormatSpecification.h"
 
 using namespace Phase2TrackerSpecifications;
+using namespace Phase2DAQFormatSpecification;
 
 // namespace to be added
 
@@ -117,11 +117,11 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     // Read one entire DTC (#dtcID), as per the producer logic
     unsigned int dtcID = 180; // 180 for single mu displ
     // read the 4 slinks
-    for (unsigned int iSlink = 0; iSlink < MAX_SLINKS_PER_DTC; iSlink++)
+    for (unsigned int iSlink = 0; iSlink < SLINKS_PER_DTC; iSlink++)
     {
       // as defined in the DAQProducer code
-      unsigned totID = iSlink + MAX_SLINKS_PER_DTC * (dtcID - 1) + 0 ;
-      const FEDRawData& fedData = fedRawDataCollection->FEDData(totID);  // FED ID 0
+      unsigned totID = iSlink + SLINKS_PER_DTC * (dtcID - 1) + 0 ;
+      const FEDRawData& fedData = fedRawDataCollection->FEDData(totID);  
       if (fedData.size() > 0) 
       {
         const unsigned char* dataPtr = fedData.data();
@@ -143,7 +143,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         size_t initByte = HEADER_N_LINES*N_BYTES_PER_WORD;
         size_t endByte = (nOffsetsLines-1)*N_BYTES_PER_WORD + initByte;  // -1 because we only need the starting i of the line
 
-        for (size_t i = initByte; i < endByte; i += N_BYTES_PER_WORD)  // Read 4 bytes (32 bits) at a time
+        for (size_t i = initByte; i <= endByte; i += N_BYTES_PER_WORD)  // Read 4 bytes (32 bits) at a time
           offsetWords.push_back(readLine(dataPtr, i));          
         theOffsets.setValue(offsetWords);
   //       theOffsets.printMap();
@@ -174,21 +174,23 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           // get the channel header
           uint32_t headerWord = readLine(dataPtr, idx);
           
-          unsigned long eventID = (headerWord >> 23) & L1ID_MAX_VALUE;       // eventID is a 9-bit field
-          int channelErrors = (headerWord >> 14) & 0x1FF;           // channelErrors is a 9-bit field
-          unsigned int numClusters = (headerWord >> 7) & 0x7F;      // numClusters is a 7-bit field
-          // we'll have separate num strip and num pixel clusters for PS modules, when ready
-          // other 7 bits are missing for this line
+          unsigned long eventID = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS)) & L1ID_MAX_VALUE;       // eventID is a 9-bit field
+          int channelErrors = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) & 0x1FF;   // channelErrors is a 9-bit field
+          unsigned int numStripClusters = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - N_STRIP_CLUSTER_BITS)) & 0x7F;      // numStripClusters is a 7-bit field
+          unsigned int numPixelClusters = (headerWord) & 0x7F;      // numStripClusters is a 7-bit field
           
-          unsigned int nLines = numClusters > 0 ? int(numClusters * CLUSTER_LENGTH / N_BITS_PER_WORD) + 1 : 0;
-          if (numClusters > 0){
+          unsigned int nLines = (numStripClusters + numPixelClusters > 0) ? 
+                                 int((numStripClusters * SS_CLUSTER_BITS + numPixelClusters * PX_CLUSTER_BITS)/ N_BITS_PER_WORD) + 1 : 0;
+
+          if (numStripClusters + numPixelClusters > 0 ){
             std::cout << "channel " << iChannel << "\t header: " << std::bitset<N_BITS_PER_WORD>(headerWord) <<  std::endl;
-//             std::cout << "\t n clusters = " << numClusters ;
-//             std::cout << " -> n lines = " << nLines <<  std::endl;
+            std::cout << "\t n strip clusters = " << numStripClusters ;
+            std::cout << "\t n pixel clusters = " << numPixelClusters ;
+            std::cout << " (n lines = " << nLines << ")" <<  std::endl;
           }  
           
-          std::vector<uint16_t> clustersWords;
-          clustersWords.resize(numClusters);
+          std::vector<uint16_t> stripClustersWords;
+          stripClustersWords.resize(numStripClusters);
   
           // first retrieve all lines filled with clusters
           std::vector<uint32_t> lines;
@@ -207,15 +209,15 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           int iLine = 0;
           int bitsToRead = 0;
           int nFullClusters = 0;
-          for (unsigned int icluster = 0; icluster < numClusters; icluster++)
+          for (unsigned int icluster = 0; icluster < numStripClusters; icluster++)
           {
             if (nAvailableBits >= CLUSTER_LENGTH)
             {
               // calculate the shift 
-              int shift = N_BITS_PER_WORD - bitsToRead - (nFullClusters + 1) * CLUSTER_LENGTH;
+              int shift = N_BITS_PER_WORD - bitsToRead - (nFullClusters + 1) * SS_CLUSTER_BITS;
 //               std::cout << "\t\t cluster " << icluster  << "  shift by " << shift;
-              clustersWords[icluster] = (lines[iLine] >> shift) & 0x3FFF;
-//               std::cout << "\t clusterword " << std::bitset<CLUSTER_LENGTH>(clustersWords[icluster]) <<  std::endl;
+              stripClustersWords[icluster] = (lines[iLine] >> shift) & 0x3FFF;
+//               std::cout << "\t clusterword " << std::bitset<SS_CLUSTER_BITS>(stripClustersWords[icluster]) <<  std::endl;
               // and update available bits and number of full clusters from this line
               nAvailableBits -= CLUSTER_LENGTH;
               nFullClusters++;
@@ -236,15 +238,15 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   
               // create mask for next line
               int nMask_newLine = 0;
-              bitsToRead = CLUSTER_LENGTH - nAvailableBits;
+              bitsToRead = SS_CLUSTER_BITS - nAvailableBits;
               for (int i = 0; i < bitsToRead; i ++) { 
                 nMask_newLine |= (1 << i);
               }
               // shift and mask
               uint16_t wordRight = (lines[iLine+1] >> (N_BITS_PER_WORD - bitsToRead)) & nMask_newLine; 
               // compose the full cluster word
-              clustersWords[icluster] = ((wordLeft << bitsToRead) | wordRight);  
-//               std::cout << "\t\t cluster " << icluster << "  on 2 lines \t clusterword " << std::bitset<CLUSTER_LENGTH>(clustersWords[icluster]) <<  std::endl;
+              stripClustersWords[icluster] = ((wordLeft << bitsToRead) | wordRight);  
+//               std::cout << "\t\t cluster " << icluster << "  on 2 lines \t clusterword " << std::bitset<CLUSTER_LENGTH>(stripClustersWords[icluster]) <<  std::endl;
               
               // reset n available bits
               nAvailableBits = N_BITS_PER_WORD - bitsToRead ;
@@ -254,16 +256,14 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
               nFullClusters = 0;
             }
           } // end loop storing cluster words
-          if ( clustersWords.size() != numClusters) {
-            std::cout << "warning, something went wrong when storing clusters " << std::endl;
-          }  
 
           // now create the Phase2TrackerCluster1D object 
           int count_clusters = 0;
-          for (auto icluster : clustersWords){
+          for (auto icluster : stripClustersWords){
             uint32_t chipID = (icluster >> 11) & CHIP_ID_MAX_VALUE;
 
-            uint32_t sclusterAddress = (icluster >> 4) & SCLUSTER_ADDRESS_BITS_HEX;
+            uint32_t sclusterAddress_toDelete = (icluster >> 3) & 0xFF; // only for debugging
+            uint32_t sclusterAddress = (icluster >> 4) & SCLUSTER_ADDRESS_BITS_HEX; // why not uint16?
             bool isSeedSensor = (icluster >> 3) & IS_SEED_SENSOR_BITS;
             uint32_t width = icluster &  WIDTH_MAX_VALUE;
             // cluster width is truncated during packing (3 bits)
@@ -274,18 +274,19 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             // cluster.getWidth() & WIDTH_MAX_VALUE. should be probably fixed in the packer 
             // (e.g. if width > 8, pack with width = 0) 
             if (width == 0) width = 8;
-//             std::cout << "[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<3>(chipID) <<   std::endl;
-//             std::cout << "[unpacking] address : " << (sclusterAddress) << "\t " << std::bitset<8>(sclusterAddress) <<   std::endl;
-//             std::cout << "[unpacking] width : " << (width)   << "\t " << std::bitset<3>(width) <<   std::endl;
-//             std::cout <<  std::endl;
+            std::cout << "\t[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<3>(chipID) <<   std::endl;
+            std::cout << "\t[unpacking] address : " << (sclusterAddress_toDelete) << "\t " << std::bitset<8>(sclusterAddress_toDelete) <<   std::endl;
+            std::cout << "\t[unpacking] width : " << (width)   << "\t " << std::bitset<3>(width) <<   std::endl;
+//             std::cout << "\t[unpacking] address minus seed : " << (sclusterAddress) << "\t " << std::bitset<7>(sclusterAddress) <<   std::endl;
+            std::cout <<  std::endl;
             
             // now, rebasing to PR3
             unsigned int x = STRIPS_PER_CBC * chipID + sclusterAddress;
             unsigned int y = iChannel%2 == 0 ? 0 : 1; 
-            std::cout << "\t\t cluster#" << count_clusters << "\t x y width : " << x << " " << y << " " << width << "  is seed:" << isSeedSensor;
+//             std::cout << "\t\t cluster#" << count_clusters << "\t x y width : " << x << " " << y << " " << width << "  is seed:" << isSeedSensor;
 
             Phase2TrackerCluster1D thisCluster = Phase2TrackerCluster1D(x, y, width);
-            std::cout << "\t\t check: width from Phase2TrackerCluster1D: " << thisCluster.size() << std::endl;
+//             std::cout << "\t\t check: width from Phase2TrackerCluster1D: " << thisCluster.size() << std::endl;
             if (isSeedSensor)
               thisChannel1DSeedClusters.push_back(thisCluster);
             else  

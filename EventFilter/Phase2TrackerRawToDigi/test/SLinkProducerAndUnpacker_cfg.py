@@ -69,7 +69,10 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 # print(f"InputMC: {InputMC}")
 # process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*InputMC))
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("/store/relval/CMSSW_14_0_0_pre2/RelValDisplacedSingleMuFlatPt1p5To8/GEN-SIM-DIGI-RAW/133X_mcRun4_realistic_v1_STD_2026D98_noPU_RV229-v1/2580000/3ce31040-55a5-4469-8ee2-16d050bb6ade.root")
+    fileNames = cms.untracked.vstring(
+    "/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0b2b0b0b-f312-48a8-9d46-ccbadc69bbfd.root"
+#     "/store/relval/CMSSW_14_0_0_pre2/RelValDisplacedSingleMuFlatPt1p5To8/GEN-SIM-DIGI-RAW/133X_mcRun4_realistic_v1_STD_2026D98_noPU_RV229-v1/2580000/3ce31040-55a5-4469-8ee2-16d050bb6ade.root"
+    )
  )
 
 ## in case of local file

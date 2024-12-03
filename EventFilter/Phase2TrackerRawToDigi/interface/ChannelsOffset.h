@@ -5,11 +5,14 @@
 // as from the current outer tracker data format
 
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2DAQFormatSpecification.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerSpecifications.h"
 
 constexpr int N_CHANNELS = 36;
 
 
 using namespace Phase2TrackerSpecifications;
+using namespace Phase2DAQFormatSpecification;
+
 
 class ChannelsOffset {
 public:
