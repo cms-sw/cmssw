@@ -11,11 +11,12 @@
 
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 
+#include "FWCore/Reflection/interface/DictionaryTools.h"
+#include "FWCore/Reflection/interface/SetClassParsing.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Reflection/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
 #include "TDictAttributeMap.h"
@@ -162,11 +163,18 @@ namespace edm {
 
   void ProductRegistry::setFrozen(std::set<TypeID> const& productTypesConsumed,
                                   std::set<TypeID> const& elementTypesConsumed,
-                                  std::string const& processName) {
+                                  std::string const& processName,
+                                  bool disableRootAutoParsing) {
     if (frozen())
       return;
     freezeIt();
-    initializeLookupTables(&productTypesConsumed, &elementTypesConsumed, &processName);
+    if (disableRootAutoParsing) {
+      // disable ROOT automatic class parsing while checking for missing dictionaries
+      edm::SetClassParsing guard(false);
+      initializeLookupTables(&productTypesConsumed, &elementTypesConsumed, &processName);
+    } else {
+      initializeLookupTables(&productTypesConsumed, &elementTypesConsumed, &processName);
+    }
     sort_all(transient_.aliasToOriginal_);
   }
 

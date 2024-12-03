@@ -60,7 +60,8 @@ namespace edm {
 
     void setFrozen(std::set<TypeID> const& productTypesConsumed,
                    std::set<TypeID> const& elementTypesConsumed,
-                   std::string const& processName);
+                   std::string const& processName,
+                   bool disableRootAutoParsing = false);
 
     void setUnscheduledProducts(std::set<std::string> const& unscheduledLabels);
 
