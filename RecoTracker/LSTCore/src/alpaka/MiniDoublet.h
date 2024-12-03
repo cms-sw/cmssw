@@ -420,8 +420,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     // Cut #2: dphi difference
     // Ref to original code: https://github.com/slava77/cms-tkph2-ntuple/blob/184d2325147e6930030d3d1f780136bc2dd29ce6/doubletAnalysis.C#L3085
-    float xn = 0.f, yn = 0.f;  // , zn = 0;
-    float shiftedRt2;
+    float xn = 0.f, yn = 0.f;
+    float shiftedRt2 = 0.f;
     if (modules.sides()[lowerModuleIndex] != Center)  // If barrel and not center it is tilted
     {
       // Shift the hits and calculate new xn, yn position
@@ -462,9 +462,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         noShiftedDphi = deltaPhi(acc, xLower, yLower, xUpper, yUpper);
       }
     } else {
-      shiftedX = 0;
-      shiftedY = 0;
-      shiftedZ = 0;
+      shiftedX = 0.f;
+      shiftedY = 0.f;
+      shiftedZ = 0.f;
+      shiftedRt2 = 0.f;
       dPhi = deltaPhi(acc, xLower, yLower, xUpper, yUpper);
       noShiftedDphi = dPhi;
     }
@@ -476,7 +477,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     // Ref to original code: https://github.com/slava77/cms-tkph2-ntuple/blob/184d2325147e6930030d3d1f780136bc2dd29ce6/doubletAnalysis.C#L3076
     if (modules.sides()[lowerModuleIndex] != Center) {
       // When it is tilted, use the new shifted positions
-      // TODO: This is somewhat of an mystery.... somewhat confused why this is the case
       if (modules.moduleLayerType()[lowerModuleIndex] != Pixel) {
         // dPhi Change should be calculated so that the upper hit has higher rt.
         // In principle, this kind of check rt_lower < rt_upper should not be necessary because the hit shifting should have taken care of this.
