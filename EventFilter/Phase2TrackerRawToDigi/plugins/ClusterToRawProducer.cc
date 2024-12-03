@@ -68,7 +68,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 {
     // Retrieve TrackerGeometry and TrackerTopology from EventSetup
     const TrackerGeometry& trackerGeometry = iSetup.getData(trackerGeometryToken_);
-    // const TrackerTopology& trackerTopology = iSetup.getData(trackerTopologyToken_);
+    const TrackerTopology& trackerTopology = iSetup.getData(trackerTopologyToken_);
     
     // Retrieve the CablingMap
     const auto& cablingMap = iSetup.getData(cablingMapToken_);
@@ -84,7 +84,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
     for (int dtc_id = MIN_DTC_ID; dtc_id < MAX_DTC_ID; dtc_id++)
     {
-        for (int slink_id = MIN_SLINK_ID; slink_id < MAX_SLINK_ID + 1; slink_id++)
+        for (int slink_id = 0; slink_id < MAX_SLINK_ID + 1; slink_id++)
         {
             int index_first = slink_id * MODULES_PER_SLINK;
             int index_last = (slink_id + 1) * MODULES_PER_SLINK;
@@ -116,6 +116,9 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
                     // // sensor_1_cic_1 and sensor_2_cic_1 form a single output daq channel.
                     SensorHybrid Hybrid_2 (sensor_1_cluster_collection, sensor_2_cluster_collection, 1, trackerGeometry, eventId_);
+
+                    // sensor_2 is always isUpper == 1 for 2S.
+                    // sensor_2 is always isLower == 0 for 2S.
 
                     // Figure Out Offsets
                     uint16_t hybrid_1_offset = offset_in_32b_words;
