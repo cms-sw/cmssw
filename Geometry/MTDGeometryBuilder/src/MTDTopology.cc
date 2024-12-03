@@ -1,9 +1,36 @@
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
+#include <utility>
+
 MTDTopology::MTDTopology(const int& topologyMode, const ETLValues& etl)
     : mtdTopologyMode_(topologyMode), etlVals_(etl) {}
+
+std::pair<uint32_t, uint32_t> MTDTopology::btlIndex(const uint32_t detId) {
+  uint32_t iphi(0), ieta(0);
+  return std::make_pair(iphi, ieta);
+}
+
+uint32_t MTDTopology::btlidFromIndex(const uint32_t iphi, const uint32_t ieta) { return 0; }
+
+size_t MTDTopology::phishiftBTL(const uint32_t detid, const int phiShift) {
+  if (phiShift == 0) {
+    edm::LogWarning("MTDTopology") << "asking of a null phiShift in BTL";
+    return failIndex_;
+  }
+
+  return failIndex_;
+}
+
+size_t MTDTopology::etashiftBTL(const uint32_t detid, const int etaShift) {
+  if (etaShift == 0) {
+    edm::LogWarning("MTDTopology") << "asking of a null etaShift in BTL";
+    return failIndex_;
+  }
+
+  return failIndex_;
+}
 
 bool MTDTopology::orderETLSector(const GeomDet*& gd1, const GeomDet*& gd2) {
   ETLDetId det1(gd1->geographicalId().rawId());

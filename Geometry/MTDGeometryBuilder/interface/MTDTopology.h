@@ -3,7 +3,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/MTDDetId.h"
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
@@ -12,6 +12,11 @@
 
 class MTDTopology {
 public:
+  // number of logical rods, i.e. rows of sensor modules along eta/z in phi, and of modules per rod
+  static constexpr size_t nBTLphi = BTLDetId::HALF_ROD * BTLDetId::kModulesPerTrkV2;
+  static constexpr size_t nBTLeta =
+      2 * BTLDetId::kRUPerTypeV2 * BTLDetId::kCrystalTypes * BTLDetId::kModulesPerRUV2 / BTLDetId::kModulesPerTrkV2;
+
   struct ETLfaceLayout {
     uint32_t idDiscSide_;  // disc face identifier
     uint32_t idDetType1_;  // module type id identifier for first row
@@ -25,6 +30,16 @@ public:
   MTDTopology(const int& topologyMode, const ETLValues& etl);
 
   int getMTDTopologyMode() const { return mtdTopologyMode_; }
+
+  // BTL topology navigation is based on a predefined order of dets in MTDGeometry, mapped onto phi/eta grid
+
+  std::pair<uint32_t, uint32_t> btlIndex(const uint32_t detId);
+  uint32_t btlidFromIndex(const uint32_t iphi, const uint32_t ieta);
+
+  // BTL topology navigation methods, find index of closest module along eta or phi
+
+  size_t phishiftBTL(const uint32_t detid, const int phiShift);
+  size_t etashiftBTL(const uint32_t detid, const int etaShift);
 
   // ETL topology navigation is based on a predefined order of dets in sector
 

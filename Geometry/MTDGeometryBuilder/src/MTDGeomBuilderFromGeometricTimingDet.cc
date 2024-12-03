@@ -6,7 +6,7 @@
 #include "Geometry/MTDGeometryBuilder/interface/MTDPixelTopologyBuilder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
