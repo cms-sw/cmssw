@@ -143,9 +143,9 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
                     uint32_t numClusters = 0;    // no clusters here.
 
                     // Build the channel header
-                    uint32_t header_ = (eventID << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS)) |
-                            (channelErrors << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) |
-                            (numClusters << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - N_STRIP_CLUSTER_BITS)) |
+                    uint32_t header_ = (eventID << (N_BITS_PER_WORD - L1ID_BITS)) |
+                            (channelErrors << (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) |
+                            (numClusters << (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - N_STRIP_CLUSTER_BITS)) |
                             (numClusters);
 
                     uint16_t hybrid_1_offset = offset_in_32b_words;
@@ -173,7 +173,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             for (std::size_t i = 0; i < payload.size(); i++)
             { daq_packet.push_back(payload[i]); }
 
-            slink_daq_stream.resize(daq_packet.size() * NUMBER_OF_BYTES_PER_WORD, NUMBER_OF_BYTES_PER_WORD);  // Resize the buffer to fit all 32-bit words
+            slink_daq_stream.resize(daq_packet.size() * N_BYTES_PER_WORD, N_BYTES_PER_WORD);  // Resize the buffer to fit all 32-bit words
             unsigned char *data_ptr = slink_daq_stream.data();
 
             for (size_t word_index = 0; word_index < daq_packet.size(); ++word_index)
@@ -181,8 +181,8 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
                 insertHexWordAt(data_ptr, word_index, (daq_packet[word_index].to_ulong()));
             }
 
-            size_t actual_used_bytes = daq_packet.size() * NUMBER_OF_BYTES_PER_WORD;  // Total size used
-            slink_daq_stream.resize(actual_used_bytes, NUMBER_OF_BYTES_PER_WORD);  
+            size_t actual_used_bytes = daq_packet.size() * N_BYTES_PER_WORD;  // Total size used
+            slink_daq_stream.resize(actual_used_bytes, N_BYTES_PER_WORD);  
 
             fedRawDataCollection.get()->FEDData( slink_id + SLINKS_PER_DTC * (dtc_id - 1) + TRACKER_HEADER ) = slink_daq_stream;
 

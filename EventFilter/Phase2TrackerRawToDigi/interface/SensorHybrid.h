@@ -114,17 +114,17 @@ class SensorHybrid
                                         (width << (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS - WIDTH_BITS)) |
                                         mipBit;
 
-                    if (bitsFilled + SS_CLUSTER_BITS <= NUMBER_OF_BITS_PER_WORD) 
+                    if (bitsFilled + SS_CLUSTER_BITS <= N_BITS_PER_WORD) 
                     {
-                        currentWord |= clusterData << (NUMBER_OF_BITS_PER_WORD - bitsFilled - SS_CLUSTER_BITS);
+                        currentWord |= clusterData << (N_BITS_PER_WORD - bitsFilled - SS_CLUSTER_BITS);
                         bitsFilled += SS_CLUSTER_BITS;
                     } else 
                     {
-                        int bitsLeft = NUMBER_OF_BITS_PER_WORD - bitsFilled;
+                        int bitsLeft = N_BITS_PER_WORD - bitsFilled;
                         currentWord |= clusterData >> (SS_CLUSTER_BITS - bitsLeft);
                         payload.push_back(currentWord);
 
-                        currentWord = clusterData << (NUMBER_OF_BITS_PER_WORD - (SS_CLUSTER_BITS - bitsLeft));
+                        currentWord = clusterData << (N_BITS_PER_WORD - (SS_CLUSTER_BITS - bitsLeft));
                         bitsFilled = SS_CLUSTER_BITS - bitsLeft;
                     }
                 }
@@ -146,17 +146,17 @@ class SensorHybrid
                                         (width << (PX_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS - WIDTH_BITS)) |
                                         z;
 
-                    if (bitsFilled + PX_CLUSTER_BITS <= NUMBER_OF_BITS_PER_WORD) 
+                    if (bitsFilled + PX_CLUSTER_BITS <= N_BITS_PER_WORD) 
                     {
-                        currentWord |= clusterData << (NUMBER_OF_BITS_PER_WORD - bitsFilled - PX_CLUSTER_BITS);
+                        currentWord |= clusterData << (N_BITS_PER_WORD - bitsFilled - PX_CLUSTER_BITS);
                         bitsFilled += PX_CLUSTER_BITS;
                     } else 
                     {
-                        int bitsLeft = NUMBER_OF_BITS_PER_WORD - bitsFilled;
+                        int bitsLeft = N_BITS_PER_WORD - bitsFilled;
                         currentWord |= clusterData >> (PX_CLUSTER_BITS - bitsLeft);
                         payload.push_back(currentWord);
 
-                        currentWord = clusterData << (NUMBER_OF_BITS_PER_WORD - (PX_CLUSTER_BITS - bitsLeft));
+                        currentWord = clusterData << (N_BITS_PER_WORD - (PX_CLUSTER_BITS - bitsLeft));
                         bitsFilled = PX_CLUSTER_BITS - bitsLeft;
                     }
                 }
@@ -183,17 +183,17 @@ class SensorHybrid
 
                     uint32_t clusterData = (chipID << (SS_CLUSTER_BITS - CHIP_ID_BITS)) | 
                                         (sclusterAddress << (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_2S)) | width;
-                    if (bitsFilled + SS_CLUSTER_BITS <= NUMBER_OF_BITS_PER_WORD) 
+                    if (bitsFilled + SS_CLUSTER_BITS <= N_BITS_PER_WORD) 
                     {
-                        currentWord |= clusterData << (NUMBER_OF_BITS_PER_WORD - bitsFilled - SS_CLUSTER_BITS);
+                        currentWord |= clusterData << (N_BITS_PER_WORD - bitsFilled - SS_CLUSTER_BITS);
                         bitsFilled += SS_CLUSTER_BITS;
                     } else 
                     {
-                        int bitsLeft = NUMBER_OF_BITS_PER_WORD - bitsFilled;
+                        int bitsLeft = N_BITS_PER_WORD - bitsFilled;
                         currentWord |= clusterData >> (SS_CLUSTER_BITS - bitsLeft);
                         payload.push_back(currentWord);
 
-                        currentWord = clusterData << (NUMBER_OF_BITS_PER_WORD - (SS_CLUSTER_BITS - bitsLeft));
+                        currentWord = clusterData << (N_BITS_PER_WORD - (SS_CLUSTER_BITS - bitsLeft));
                         bitsFilled = SS_CLUSTER_BITS - bitsLeft;
                     }
                 }
@@ -211,17 +211,17 @@ class SensorHybrid
                     uint32_t clusterData = (chipID << (SS_CLUSTER_BITS - CHIP_ID_BITS)) | 
                                         (sclusterAddress << (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_2S)) | width;
 
-                    if (bitsFilled + SS_CLUSTER_BITS <= NUMBER_OF_BITS_PER_WORD) 
+                    if (bitsFilled + SS_CLUSTER_BITS <= N_BITS_PER_WORD) 
                     {
-                        currentWord |= clusterData << (NUMBER_OF_BITS_PER_WORD - bitsFilled - SS_CLUSTER_BITS);
+                        currentWord |= clusterData << (N_BITS_PER_WORD - bitsFilled - SS_CLUSTER_BITS);
                         bitsFilled += SS_CLUSTER_BITS;
                     } else 
                     {
-                        int bitsLeft = NUMBER_OF_BITS_PER_WORD - bitsFilled;
+                        int bitsLeft = N_BITS_PER_WORD - bitsFilled;
                         currentWord |= clusterData >> (SS_CLUSTER_BITS - bitsLeft);
                         payload.push_back(currentWord);
 
-                        currentWord = clusterData << (NUMBER_OF_BITS_PER_WORD - (SS_CLUSTER_BITS - bitsLeft));
+                        currentWord = clusterData << (N_BITS_PER_WORD - (SS_CLUSTER_BITS - bitsLeft));
                         bitsFilled = SS_CLUSTER_BITS - bitsLeft;
                     }
                 }
@@ -256,7 +256,7 @@ class SensorHybrid
         unsigned int    get_payload_size() 
         { 
             using namespace Phase2DAQFormatSpecification;
-            auto nlines_float = std::div(get_number_of_strip_clusters() * SS_CLUSTER_BITS + get_number_of_pixel_clusters() * PX_CLUSTER_BITS, NUMBER_OF_BITS_PER_WORD);
+            auto nlines_float = std::div(get_number_of_strip_clusters() * SS_CLUSTER_BITS + get_number_of_pixel_clusters() * PX_CLUSTER_BITS, N_BITS_PER_WORD);
             return nlines_float.rem > 0 ? nlines_float.quot + 1 + 1 : nlines_float.quot + 1 ;
 
         }
@@ -306,9 +306,9 @@ class SensorHybrid
             uint32_t num_pixel_clusters = get_number_of_pixel_clusters() & ((1 << N_PIXEL_CLUSTER_BITS) - 1); // 7 bits for pixel clusters
 
             // Combine fields into the 32-bit header
-            uint32_t header_ = (eventID << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS)) |
-                            (channelErrors << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) |
-                            (num_strip_clusters << (NUMBER_OF_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - N_STRIP_CLUSTER_BITS)) |
+            uint32_t header_ = (eventID << (N_BITS_PER_WORD - L1ID_BITS)) |
+                            (channelErrors << (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) |
+                            (num_strip_clusters << (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - N_STRIP_CLUSTER_BITS)) |
                             (num_pixel_clusters);
 
             // Convert to Word32Bits and add to payload
