@@ -75,7 +75,8 @@ void LST::prepareInput(std::vector<float> const& see_px,
                        std::vector<unsigned int> const& ph2_detId,
                        std::vector<float> const& ph2_x,
                        std::vector<float> const& ph2_y,
-                       std::vector<float> const& ph2_z) {
+                       std::vector<float> const& ph2_z,
+                       float const ptCut) {
   in_trkX_.clear();
   in_trkY_.clear();
   in_trkZ_.clear();
@@ -132,7 +133,7 @@ void LST::prepareInput(std::vector<float> const& see_px,
     float eta = p3LH.eta();
     float ptErr = see_ptErr[iSeed];
 
-    if ((ptIn > 0.8 - 2 * ptErr)) {
+    if ((ptIn > ptCut - 2 * ptErr)) {
       XYZVector r3LH(see_stateTrajGlbX[iSeed], see_stateTrajGlbY[iSeed], see_stateTrajGlbZ[iSeed]);
       XYZVector p3PCA(see_px[iSeed], see_py[iSeed], see_pz[iSeed]);
       XYZVector r3PCA(calculateR3FromPCA(p3PCA, see_dxy[iSeed], see_dz[iSeed]));
@@ -149,7 +150,7 @@ void LST::prepareInput(std::vector<float> const& see_px,
 
       if (ptIn >= 2.0)
         pixtype = PixelType::kHighPt;
-      else if (ptIn >= (0.8 - 2 * ptErr) and ptIn < 2.0) {
+      else if (ptIn >= (ptCut - 2 * ptErr) and ptIn < 2.0) {
         if (pixelSegmentDeltaPhiChange >= 0)
           pixtype = PixelType::kLowPtPosCurv;
         else
@@ -255,6 +256,7 @@ void LST::getOutput(LSTEvent& event) {
 
 void LST::run(Queue& queue,
               bool verbose,
+              float const ptCut,
               LSTESData<Device> const* deviceESData,
               std::vector<float> const& see_px,
               std::vector<float> const& see_py,
@@ -277,7 +279,7 @@ void LST::run(Queue& queue,
               std::vector<float> const& ph2_z,
               bool no_pls_dupclean,
               bool tc_pls_triplets) {
-  auto event = LSTEvent(verbose, queue, deviceESData);
+  auto event = LSTEvent(verbose, ptCut, queue, deviceESData);
   prepareInput(see_px,
                see_py,
                see_pz,
@@ -296,7 +298,8 @@ void LST::run(Queue& queue,
                ph2_detId,
                ph2_x,
                ph2_y,
-               ph2_z);
+               ph2_z,
+               ptCut);
 
   event.addHitToEvent(in_trkX_, in_trkY_, in_trkZ_, in_hitId_, in_hitIdxs_);
   event.addPixelSegmentToEvent(in_hitIndices_vec0_,

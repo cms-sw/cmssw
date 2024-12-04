@@ -28,8 +28,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     LSTProducer(edm::ParameterSet const& config)
         : lstPixelSeedInputToken_{consumes(config.getParameter<edm::InputTag>("pixelSeedInput"))},
           lstPhase2OTHitsInputToken_{consumes(config.getParameter<edm::InputTag>("phase2OTHitsInput"))},
-          lstESToken_{esConsumes()},
+          lstESToken_{esConsumes(edm::ESInputTag("", config.getParameter<std::string>("ptCutLabel")))},
           verbose_(config.getParameter<bool>("verbose")),
+          ptCut_(config.getParameter<double>("ptCut")),
           nopLSDupClean_(config.getParameter<bool>("nopLSDupClean")),
           tcpLSTriplets_(config.getParameter<bool>("tcpLSTriplets")),
           lstOutputToken_{produces()} {}
@@ -43,6 +44,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       lst_.run(event.queue(),
                verbose_,
+               static_cast<float>(ptCut_),
                &lstESDeviceData,
                pixelSeeds.px(),
                pixelSeeds.py(),
@@ -78,6 +80,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<edm::InputTag>("pixelSeedInput", edm::InputTag{"lstPixelSeedInputProducer"});
       desc.add<edm::InputTag>("phase2OTHitsInput", edm::InputTag{"lstPhase2OTHitsInputProducer"});
       desc.add<bool>("verbose", false);
+      desc.add<double>("ptCut", 0.8);
+      desc.add<std::string>("ptCutLabel", "0.8");
       desc.add<bool>("nopLSDupClean", false);
       desc.add<bool>("tcpLSTriplets", false);
       descriptions.addWithDefaultLabel(desc);
@@ -87,7 +91,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::EDGetTokenT<LSTPixelSeedInput> lstPixelSeedInputToken_;
     edm::EDGetTokenT<LSTPhase2OTHitsInput> lstPhase2OTHitsInputToken_;
     device::ESGetToken<lst::LSTESData<Device>, TrackerRecoGeometryRecord> lstESToken_;
-    const bool verbose_, nopLSDupClean_, tcpLSTriplets_;
+    const bool verbose_;
+    const double ptCut_;
+    const bool nopLSDupClean_;
+    const bool tcpLSTriplets_;
     edm::EDPutTokenT<LSTOutput> lstOutputToken_;
 
     lst::LST lst_;

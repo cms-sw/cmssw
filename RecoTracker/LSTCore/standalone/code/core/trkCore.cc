@@ -291,7 +291,8 @@ std::vector<int> matchedSimTrkIdxs(std::vector<int> hitidxs, std::vector<int> hi
 //___________________________________________________________________________________________________________________________________________________________________________________________
 std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
                                    std::vector<unsigned int> hittypes,
-                                   bool verbose) {
+                                   bool verbose,
+                                   float *pmatched) {
   if (hitidxs.size() != hittypes.size()) {
     std::cout << "Error: matched_sim_trk_idxs()   hitidxs and hittypes have different lengths" << std::endl;
     std::cout << "hitidxs.size(): " << hitidxs.size() << std::endl;
@@ -425,6 +426,7 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
   }
   int maxHitMatchCount = 0;  // ultimate maximum of the number of matched hits
   std::vector<int> matched_sim_trk_idxs;
+  float max_percent_matched = 0.0f;
   for (auto &trkidx_perm : allperms) {
     std::vector<int> counts;
     for (auto &unique_idx : unique_idxs) {
@@ -436,10 +438,18 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
     int trkidx = unique_idxs[rawidx];
     if (trkidx < 0)
       continue;
-    if (counts[rawidx] > (((float)nhits_input) * 0.75))
+    float percent_matched = static_cast<float>(counts[rawidx]) / nhits_input;
+    if (percent_matched > 0.75f)
       matched_sim_trk_idxs.push_back(trkidx);
     maxHitMatchCount = std::max(maxHitMatchCount, *std::max_element(counts.begin(), counts.end()));
+    max_percent_matched = std::max(max_percent_matched, percent_matched);
   }
+
+  // If pmatched is provided, set its value
+  if (pmatched != nullptr) {
+    *pmatched = max_percent_matched;
+  }
+
   std::set<int> s;
   unsigned size = matched_sim_trk_idxs.size();
   for (unsigned i = 0; i < size; ++i)
@@ -701,7 +711,7 @@ void addInputsToLineSegmentTrackingPreLoad(std::vector<std::vector<float>> &out_
     float eta = p3LH.Eta();
     float ptErr = trk.see_ptErr()[iSeed];
 
-    if ((ptIn > PT_CUT - 2 * ptErr)) {
+    if ((ptIn > ana.ptCut - 2 * ptErr)) {
       TVector3 r3LH(trk.see_stateTrajGlbX()[iSeed], trk.see_stateTrajGlbY()[iSeed], trk.see_stateTrajGlbZ()[iSeed]);
       TVector3 p3PCA(trk.see_px()[iSeed], trk.see_py()[iSeed], trk.see_pz()[iSeed]);
       TVector3 r3PCA(calculateR3FromPCA(p3PCA, trk.see_dxy()[iSeed], trk.see_dz()[iSeed]));
@@ -722,7 +732,7 @@ void addInputsToLineSegmentTrackingPreLoad(std::vector<std::vector<float>> &out_
       PixelType pixtype = PixelType::kInvalid;
       if (ptIn >= 2.0) {
         pixtype = PixelType::kHighPt;
-      } else if (ptIn >= (PT_CUT - 2 * ptErr) and ptIn < 2.0) {
+      } else if (ptIn >= (ana.ptCut - 2 * ptErr) and ptIn < 2.0) {
         if (pixelSegmentDeltaPhiChange >= 0) {
           pixtype = PixelType::kLowPtPosCurv;
         } else {

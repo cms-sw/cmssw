@@ -106,35 +106,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float moduleGapSize(ModulesConst modules, uint16_t moduleIndex) {
-    float miniDeltaTilted[3] = {0.26f, 0.26f, 0.26f};
-    float miniDeltaFlat[6] = {0.26f, 0.16f, 0.16f, 0.18f, 0.18f, 0.18f};
-    float miniDeltaLooseTilted[3] = {0.4f, 0.4f, 0.4f};
-    float miniDeltaEndcap[5][15];
-
-    for (size_t i = 0; i < 5; i++) {
-      for (size_t j = 0; j < 15; j++) {
-        if (i == 0 || i == 1) {
-          if (j < 10) {
-            miniDeltaEndcap[i][j] = 0.4f;
-          } else {
-            miniDeltaEndcap[i][j] = 0.18f;
-          }
-        } else if (i == 2 || i == 3) {
-          if (j < 8) {
-            miniDeltaEndcap[i][j] = 0.4f;
-          } else {
-            miniDeltaEndcap[i][j] = 0.18f;
-          }
-        } else {
-          if (j < 9) {
-            miniDeltaEndcap[i][j] = 0.4f;
-          } else {
-            miniDeltaEndcap[i][j] = 0.18f;
-          }
-        }
-      }
-    }
-
     unsigned int iL = modules.layers()[moduleIndex] - 1;
     unsigned int iR = modules.rings()[moduleIndex] - 1;
     short subdet = modules.subdets()[moduleIndex];
@@ -143,22 +114,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float moduleSeparation = 0;
 
     if (subdet == Barrel and side == Center) {
-      moduleSeparation = miniDeltaFlat[iL];
+      moduleSeparation = kMiniDeltaFlat[iL];
     } else if (isTighterTiltedModules(modules, moduleIndex)) {
-      moduleSeparation = miniDeltaTilted[iL];
+      moduleSeparation = kMiniDeltaTilted[iL];
     } else if (subdet == Endcap) {
-      moduleSeparation = miniDeltaEndcap[iL][iR];
+      moduleSeparation = kMiniDeltaEndcap[iL][iR];
     } else  //Loose tilted modules
     {
-      moduleSeparation = miniDeltaLooseTilted[iL];
+      moduleSeparation = kMiniDeltaLooseTilted[iL];
     }
 
     return moduleSeparation;
   }
 
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE float dPhiThreshold(
-      TAcc const& acc, float rt, ModulesConst modules, uint16_t moduleIndex, float dPhi = 0, float dz = 0) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE float dPhiThreshold(TAcc const& acc,
+                                                     float rt,
+                                                     ModulesConst modules,
+                                                     uint16_t moduleIndex,
+                                                     const float ptCut,
+                                                     float dPhi = 0,
+                                                     float dz = 0) {
     // =================================================================
     // Various constants
     // =================================================================
@@ -403,7 +379,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                      float xUpper,
                                                      float yUpper,
                                                      float zUpper,
-                                                     float rtUpper) {
+                                                     float rtUpper,
+                                                     const float ptCut) {
     dz = zLower - zUpper;
     const float dzCut = modules.moduleType()[lowerModuleIndex] == PS ? 2.f : 10.f;
     const float sign = ((dz > 0) - (dz < 0)) * ((zLower > 0) - (zLower < 0));
@@ -415,8 +392,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float miniCut = 0;
 
     miniCut = modules.moduleLayerType()[lowerModuleIndex] == Pixel
-                  ? dPhiThreshold(acc, rtLower, modules, lowerModuleIndex)
-                  : dPhiThreshold(acc, rtUpper, modules, lowerModuleIndex);
+                  ? dPhiThreshold(acc, rtLower, modules, lowerModuleIndex, ptCut)
+                  : dPhiThreshold(acc, rtUpper, modules, lowerModuleIndex, ptCut);
 
     // Cut #2: dphi difference
     // Ref to original code: https://github.com/slava77/cms-tkph2-ntuple/blob/184d2325147e6930030d3d1f780136bc2dd29ce6/doubletAnalysis.C#L3085
@@ -530,7 +507,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                      float xUpper,
                                                      float yUpper,
                                                      float zUpper,
-                                                     float rtUpper) {
+                                                     float rtUpper,
+                                                     const float ptCut) {
     // There are series of cuts that applies to mini-doublet in a "endcap" region
     // Cut #1 : dz cut. The dz difference can't be larger than 1cm. (max separation is 4mm for modules in the endcap)
     // Ref to original code: https://github.com/slava77/cms-tkph2-ntuple/blob/184d2325147e6930030d3d1f780136bc2dd29ce6/doubletAnalysis.C#L3093
@@ -603,8 +581,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     float miniCut = 0;
     miniCut = modules.moduleLayerType()[lowerModuleIndex] == Pixel
-                  ? dPhiThreshold(acc, rtLower, modules, lowerModuleIndex, dPhi, dz)
-                  : dPhiThreshold(acc, rtUpper, modules, lowerModuleIndex, dPhi, dz);
+                  ? dPhiThreshold(acc, rtLower, modules, lowerModuleIndex, ptCut, dPhi, dz)
+                  : dPhiThreshold(acc, rtUpper, modules, lowerModuleIndex, ptCut, dPhi, dz);
 
     if (alpaka::math::abs(acc, dPhi) >= miniCut)
       return false;
@@ -641,7 +619,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                float xUpper,
                                                float yUpper,
                                                float zUpper,
-                                               float rtUpper) {
+                                               float rtUpper,
+                                               const float ptCut) {
     if (modules.subdets()[lowerModuleIndex] == Barrel) {
       return runMiniDoubletDefaultAlgoBarrel(acc,
                                              modules,
@@ -664,7 +643,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                              xUpper,
                                              yUpper,
                                              zUpper,
-                                             rtUpper);
+                                             rtUpper,
+                                             ptCut);
     } else {
       return runMiniDoubletDefaultAlgoEndcap(acc,
                                              modules,
@@ -687,7 +667,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                              xUpper,
                                              yUpper,
                                              zUpper,
-                                             rtUpper);
+                                             rtUpper,
+                                             ptCut);
     }
   }
 
@@ -699,7 +680,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   HitsRangesConst hitsRanges,
                                   MiniDoublets mds,
                                   MiniDoubletsOccupancy mdsOccupancy,
-                                  ObjectRangesConst ranges) const {
+                                  ObjectRangesConst ranges,
+                                  const float ptCut) const {
       auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
       auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
 
@@ -754,13 +736,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                    xUpper,
                                                    yUpper,
                                                    zUpper,
-                                                   rtUpper);
+                                                   rtUpper,
+                                                   ptCut);
           if (success) {
             int totOccupancyMDs = alpaka::atomicAdd(
                 acc, &mdsOccupancy.totOccupancyMDs()[lowerModuleIndex], 1u, alpaka::hierarchy::Threads{});
             if (totOccupancyMDs >= (ranges.miniDoubletModuleOccupancy()[lowerModuleIndex])) {
 #ifdef WARNINGS
-              printf("Mini-doublet excess alert! Module index =  %d\n", lowerModuleIndex);
+              printf(
+                  "Mini-doublet excess alert! Module index = %d, Occupancy = %d\n", lowerModuleIndex, totOccupancyMDs);
 #endif
             } else {
               int mdModuleIndex =
@@ -790,9 +774,38 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  // Helper function to determine eta bin for occupancies
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE int getEtaBin(const float module_eta) {
+    if (module_eta < 0.75f)
+      return 0;
+    else if (module_eta < 1.5f)
+      return 1;
+    else if (module_eta < 2.25f)
+      return 2;
+    else if (module_eta < 3.0f)
+      return 3;
+    return -1;
+  }
+
+  // Helper function to determine category number for occupancies
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE int getCategoryNumber(const short module_layers,
+                                                       const short module_subdets,
+                                                       const short module_rings) {
+    if (module_subdets == Barrel) {
+      return (module_layers <= 3) ? 0 : 1;
+    } else if (module_subdets == Endcap) {
+      if (module_layers <= 2) {
+        return (module_rings >= 11) ? 2 : 3;
+      } else {
+        return (module_rings >= 8) ? 2 : 3;
+      }
+    }
+    return -1;
+  }
+
   struct CreateMDArrayRangesGPU {
     template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, ModulesConst modules, ObjectRanges ranges) const {
+    ALPAKA_FN_ACC void operator()(TAcc const& acc, ModulesConst modules, ObjectRanges ranges, const float ptCut) const {
       // implementation is 1D with a single block
       static_assert(std::is_same_v<TAcc, ALPAKA_ACCELERATOR_NAMESPACE::Acc1D>, "Should be Acc1D");
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
@@ -807,67 +820,43 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       }
       alpaka::syncBlockThreads(acc);
 
+      // Occupancy matrix for 0.8 GeV pT Cut
+      constexpr int p08_occupancy_matrix[4][4] = {
+          {49, 42, 37, 41},  // category 0
+          {100, 100, 0, 0},  // category 1
+          {0, 16, 19, 0},    // category 2
+          {0, 14, 20, 25}    // category 3
+      };
+
+      // Occupancy matrix for 0.6 GeV pT Cut, 99.99%
+      constexpr int p06_occupancy_matrix[4][4] = {
+          {60, 57, 54, 48},  // category 0
+          {259, 195, 0, 0},  // category 1
+          {0, 23, 28, 0},    // category 2
+          {0, 25, 25, 33}    // category 3
+      };
+
+      // Select the appropriate occupancy matrix based on ptCut
+      const auto& occupancy_matrix = (ptCut < 0.8f) ? p06_occupancy_matrix : p08_occupancy_matrix;
+
       for (uint16_t i = globalThreadIdx[0]; i < modules.nLowerModules(); i += gridThreadExtent[0]) {
         short module_rings = modules.rings()[i];
         short module_layers = modules.layers()[i];
         short module_subdets = modules.subdets()[i];
         float module_eta = alpaka::math::abs(acc, modules.eta()[i]);
 
-        int category_number;
-        if (module_layers <= 3 && module_subdets == 5)
-          category_number = 0;
-        else if (module_layers >= 4 && module_subdets == 5)
-          category_number = 1;
-        else if (module_layers <= 2 && module_subdets == 4 && module_rings >= 11)
-          category_number = 2;
-        else if (module_layers >= 3 && module_subdets == 4 && module_rings >= 8)
-          category_number = 2;
-        else if (module_layers <= 2 && module_subdets == 4 && module_rings <= 10)
-          category_number = 3;
-        else if (module_layers >= 3 && module_subdets == 4 && module_rings <= 7)
-          category_number = 3;
-        else
-          category_number = -1;
+        int category_number = getCategoryNumber(module_layers, module_subdets, module_rings);
+        int eta_number = getEtaBin(module_eta);
 
-        int eta_number;
-        if (module_eta < 0.75f)
-          eta_number = 0;
-        else if (module_eta < 1.5f)
-          eta_number = 1;
-        else if (module_eta < 2.25f)
-          eta_number = 2;
-        else if (module_eta < 3.0f)
-          eta_number = 3;
-        else
-          eta_number = -1;
-
-        int occupancy;
-        if (category_number == 0 && eta_number == 0)
-          occupancy = 49;
-        else if (category_number == 0 && eta_number == 1)
-          occupancy = 42;
-        else if (category_number == 0 && eta_number == 2)
-          occupancy = 37;
-        else if (category_number == 0 && eta_number == 3)
-          occupancy = 41;
-        else if (category_number == 1)
-          occupancy = 100;
-        else if (category_number == 2 && eta_number == 1)
-          occupancy = 16;
-        else if (category_number == 2 && eta_number == 2)
-          occupancy = 19;
-        else if (category_number == 3 && eta_number == 1)
-          occupancy = 14;
-        else if (category_number == 3 && eta_number == 2)
-          occupancy = 20;
-        else if (category_number == 3 && eta_number == 3)
-          occupancy = 25;
-        else {
-          occupancy = 0;
-#ifdef WARNINGS
-          printf("Unhandled case in createMDArrayRangesGPU! Module index = %i\n", i);
-#endif
+        int occupancy = 0;
+        if (category_number != -1 && eta_number != -1) {
+          occupancy = occupancy_matrix[category_number][eta_number];
         }
+#ifdef WARNINGS
+        else {
+          printf("Unhandled case in createMDArrayRangesGPU! Module index = %i\n", i);
+        }
+#endif
 
         unsigned int nTotMDs = alpaka::atomicAdd(acc, &nTotalMDs, occupancy, alpaka::hierarchy::Threads{});
 

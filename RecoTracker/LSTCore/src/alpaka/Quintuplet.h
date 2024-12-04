@@ -2,6 +2,7 @@
 #define RecoTracker_LSTCore_src_alpaka_Quintuplet_h
 
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
@@ -18,13 +19,6 @@
 #include "Triplet.h"  // FIXME: need to refactor common functions to a common place
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool checkIntervalOverlap(float firstMin,
-                                                           float firstMax,
-                                                           float secondMin,
-                                                           float secondMax) {
-    return ((firstMin <= secondMin) && (secondMin < firstMax)) || ((secondMin < firstMin) && (firstMin < secondMax));
-  }
-
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addQuintupletToMemory(TripletsConst triplets,
                                                             Quintuplets quintuplets,
                                                             unsigned int innerTripletIndex,
@@ -43,6 +37,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                             float rzChiSquared,
                                                             float rPhiChiSquared,
                                                             float nonAnchorChiSquared,
+                                                            float dBeta1,
+                                                            float dBeta2,
                                                             float pt,
                                                             float eta,
                                                             float phi,
@@ -89,89 +85,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quintuplets.rzChiSquared()[quintupletIndex] = rzChiSquared;
     quintuplets.chiSquared()[quintupletIndex] = rPhiChiSquared;
     quintuplets.nonAnchorChiSquared()[quintupletIndex] = nonAnchorChiSquared;
-  }
-
-  //90% constraint
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passChiSquaredConstraint(ModulesConst modules,
-                                                               uint16_t lowerModuleIndex1,
-                                                               uint16_t lowerModuleIndex2,
-                                                               uint16_t lowerModuleIndex3,
-                                                               uint16_t lowerModuleIndex4,
-                                                               uint16_t lowerModuleIndex5,
-                                                               float chiSquared) {
-    // Using lstLayer numbering convention defined in ModuleMethods.h
-    const int layer1 = modules.lstLayers()[lowerModuleIndex1];
-    const int layer2 = modules.lstLayers()[lowerModuleIndex2];
-    const int layer3 = modules.lstLayers()[lowerModuleIndex3];
-    const int layer4 = modules.lstLayers()[lowerModuleIndex4];
-    const int layer5 = modules.lstLayers()[lowerModuleIndex5];
-
-    if (layer1 == 7 and layer2 == 8 and layer3 == 9) {
-      if (layer4 == 10 and layer5 == 11) {
-        return chiSquared < 0.01788f;
-      } else if (layer4 == 10 and layer5 == 16) {
-        return chiSquared < 0.04725f;
-      } else if (layer4 == 15 and layer5 == 16) {
-        return chiSquared < 0.04725f;
-      }
-    } else if (layer1 == 1 and layer2 == 7 and layer3 == 8) {
-      if (layer4 == 9 and layer5 == 10) {
-        return chiSquared < 0.01788f;
-      } else if (layer4 == 9 and layer5 == 15) {
-        return chiSquared < 0.08234f;
-      }
-    } else if (layer1 == 1 and layer2 == 2 and layer3 == 7) {
-      if (layer4 == 8 and layer5 == 9) {
-        return chiSquared < 0.02360f;
-      } else if (layer4 == 8 and layer5 == 14) {
-        return chiSquared < 0.07167f;
-      } else if (layer4 == 13 and layer5 == 14) {
-        return chiSquared < 0.08234f;
-      }
-    } else if (layer1 == 1 and layer2 == 2 and layer3 == 3) {
-      if (layer4 == 7 and layer5 == 8) {
-        return chiSquared < 0.01026f;
-      } else if (layer4 == 7 and layer5 == 13) {
-        return chiSquared < 0.06238f;
-      } else if (layer4 == 12 and layer5 == 13) {
-        return chiSquared < 0.06238f;
-      }
-    } else if (layer1 == 1 and layer2 == 2 and layer3 == 3 and layer4 == 4) {
-      if (layer5 == 5) {
-        return chiSquared < 0.04725f;
-      } else if (layer5 == 12) {
-        return chiSquared < 0.09461f;
-      }
-    } else if (layer1 == 2 and layer2 == 7 and layer3 == 8) {
-      if (layer4 == 9 and layer5 == 10) {
-        return chiSquared < 0.00512f;
-      }
-      if (layer4 == 9 and layer5 == 15) {
-        return chiSquared < 0.04112f;
-      } else if (layer4 == 14 and layer5 == 15) {
-        return chiSquared < 0.06238f;
-      }
-    } else if (layer1 == 2 and layer2 == 3 and layer3 == 7) {
-      if (layer4 == 8 and layer5 == 14) {
-        return chiSquared < 0.07167f;
-      } else if (layer4 == 13 and layer5 == 14) {
-        return chiSquared < 0.06238f;
-      }
-    } else if (layer1 == 2 and layer2 == 3 and layer3 == 4) {
-      if (layer4 == 5 and layer5 == 6) {
-        return chiSquared < 0.08234f;
-      } else if (layer4 == 5 and layer5 == 12) {
-        return chiSquared < 0.10870f;
-      } else if (layer4 == 12 and layer5 == 13) {
-        return chiSquared < 0.10870f;
-      }
-    } else if (layer1 == 3 and layer2 == 7 and layer3 == 8 and layer4 == 14 and layer5 == 15) {
-      return chiSquared < 0.09461f;
-    } else if (layer1 == 3 and layer2 == 4 and layer3 == 5 and layer4 == 12 and layer5 == 13) {
-      return chiSquared < 0.09461f;
-    }
-
-    return true;
+    quintuplets.dBeta1()[quintupletIndex] = dBeta1;
+    quintuplets.dBeta2()[quintupletIndex] = dBeta2;
   }
 
   //bounds can be found at http://uaf-10.t2.ucsd.edu/~bsathian/SDL/T5_RZFix/t5_rz_thresholds.txt
@@ -413,9 +328,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         float solz2 = alpaka::math::asin(acc, sol2) / rou * Pz / p + z_init;
         float diffz1 = (solz1 - zsi) * 100;
         float diffz2 = (solz2 - zsi) * 100;
-        if (alpaka::math::isnan(acc, diffz1))
+        if (edm::isNotFinite(diffz1))
           diffz = diffz2;
-        else if (alpaka::math::isnan(acc, diffz2))
+        else if (edm::isNotFinite(diffz2))
           diffz = diffz1;
         else {
           diffz = (alpaka::math::abs(acc, diffz1) < alpaka::math::abs(acc, diffz2)) ? diffz1 : diffz2;
@@ -460,7 +375,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
     // for set rzchi2 cut
     // if the 5 points are linear, helix calculation gives nan
-    if (inner_pt > 100 || alpaka::math::isnan(acc, rzChiSquared)) {
+    if (inner_pt > 100 || edm::isNotFinite(rzChiSquared)) {
       float slope;
       if (moduleType1 == 0 and moduleType2 == 0 and moduleType3 == 1)  //PSPS2S
       {
@@ -620,251 +535,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         segments.mdIndices()[outerInnerSegmentIndex][0];  //outer triplet inner segment inner MD index
 
     return (innerOuterOuterMiniDoubletIndex == outerInnerInnerMiniDoubletIndex);
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void computeErrorInRadius(TAcc const& acc,
-                                                           float* x1Vec,
-                                                           float* y1Vec,
-                                                           float* x2Vec,
-                                                           float* y2Vec,
-                                                           float* x3Vec,
-                                                           float* y3Vec,
-                                                           float& minimumRadius,
-                                                           float& maximumRadius) {
-    //brute force
-    float candidateRadius;
-    float g, f;
-    minimumRadius = kVerticalModuleSlope;
-    maximumRadius = 0.f;
-    for (size_t i = 0; i < 3; i++) {
-      float x1 = x1Vec[i];
-      float y1 = y1Vec[i];
-      for (size_t j = 0; j < 3; j++) {
-        float x2 = x2Vec[j];
-        float y2 = y2Vec[j];
-        for (size_t k = 0; k < 3; k++) {
-          float x3 = x3Vec[k];
-          float y3 = y3Vec[k];
-          candidateRadius = computeRadiusFromThreeAnchorHits(acc, x1, y1, x2, y2, x3, y3, g, f);
-          maximumRadius = alpaka::math::max(acc, candidateRadius, maximumRadius);
-          minimumRadius = alpaka::math::min(acc, candidateRadius, minimumRadius);
-        }
-      }
-    }
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool matchRadiiBBBEE12378(TAcc const& acc,
-                                                           float innerRadius,
-                                                           float bridgeRadius,
-                                                           float outerRadius,
-                                                           float bridgeRadiusMin2S,
-                                                           float bridgeRadiusMax2S) {
-    float innerInvRadiusMin, innerInvRadiusMax, bridgeInvRadiusMin, bridgeInvRadiusMax;
-
-    float innerInvRadiusErrorBound = 0.178f;
-    float bridgeInvRadiusErrorBound = 0.507f;
-
-    innerInvRadiusMax = (1.f + innerInvRadiusErrorBound) / innerRadius;
-    innerInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - innerInvRadiusErrorBound) / innerRadius);
-
-    bridgeInvRadiusMax = (1.f + bridgeInvRadiusErrorBound) / bridgeRadius;
-    bridgeInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - bridgeInvRadiusErrorBound) / bridgeRadius);
-
-    return checkIntervalOverlap(innerInvRadiusMin,
-                                innerInvRadiusMax,
-                                alpaka::math::min(acc, bridgeInvRadiusMin, 1.0f / bridgeRadiusMax2S),
-                                alpaka::math::max(acc, bridgeInvRadiusMax, 1.0f / bridgeRadiusMin2S));
-  }
-
-  /*bounds for high Pt taken from : http://uaf-10.t2.ucsd.edu/~bsathian/SDL/T5_efficiency/efficiencies/new_efficiencies/efficiencies_20210513_T5_recovering_high_Pt_efficiencies/highE_radius_matching/highE_bounds.txt */
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool matchRadiiBBBBB(TAcc const& acc,
-                                                      float innerRadius,
-                                                      float bridgeRadius,
-                                                      float outerRadius) {
-    float innerInvRadiusMin, innerInvRadiusMax, bridgeInvRadiusMin, bridgeInvRadiusMax;
-
-    float innerInvRadiusErrorBound = 0.1512f;
-    float bridgeInvRadiusErrorBound = 0.1781f;
-
-    if (innerRadius * k2Rinv1GeVf > 1.f) {
-      innerInvRadiusErrorBound = 0.4449f;
-      bridgeInvRadiusErrorBound = 0.4033f;
-    }
-
-    innerInvRadiusMax = (1.f + innerInvRadiusErrorBound) / innerRadius;
-    innerInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - innerInvRadiusErrorBound) / innerRadius);
-
-    bridgeInvRadiusMax = (1.f + bridgeInvRadiusErrorBound) / bridgeRadius;
-    bridgeInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - bridgeInvRadiusErrorBound) / bridgeRadius);
-
-    return checkIntervalOverlap(innerInvRadiusMin, innerInvRadiusMax, bridgeInvRadiusMin, bridgeInvRadiusMax);
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool matchRadiiBBBBE(TAcc const& acc,
-                                                      float innerRadius,
-                                                      float bridgeRadius,
-                                                      float outerRadius) {
-    float innerInvRadiusMin, innerInvRadiusMax, bridgeInvRadiusMin, bridgeInvRadiusMax;
-
-    float innerInvRadiusErrorBound = 0.1781f;
-    float bridgeInvRadiusErrorBound = 0.2167f;
-
-    if (innerRadius * k2Rinv1GeVf > 1.f) {
-      innerInvRadiusErrorBound = 0.4750f;
-      bridgeInvRadiusErrorBound = 0.3903f;
-    }
-
-    innerInvRadiusMax = (1.f + innerInvRadiusErrorBound) / innerRadius;
-    innerInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - innerInvRadiusErrorBound) / innerRadius);
-
-    bridgeInvRadiusMax = (1.f + bridgeInvRadiusErrorBound) / bridgeRadius;
-    bridgeInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - bridgeInvRadiusErrorBound) / bridgeRadius);
-
-    return checkIntervalOverlap(innerInvRadiusMin, innerInvRadiusMax, bridgeInvRadiusMin, bridgeInvRadiusMax);
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool matchRadiiBBBEE23478(TAcc const& acc,
-                                                           float innerRadius,
-                                                           float bridgeRadius,
-                                                           float outerRadius,
-                                                           float bridgeRadiusMin2S,
-                                                           float bridgeRadiusMax2S) {
-    float innerInvRadiusMin, innerInvRadiusMax, bridgeInvRadiusMin, bridgeInvRadiusMax;
-
-    float innerInvRadiusErrorBound = 0.2097f;
-    float bridgeInvRadiusErrorBound = 0.8557f;
-
-    innerInvRadiusMax = (1.f + innerInvRadiusErrorBound) / innerRadius;
-    innerInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - innerInvRadiusErrorBound) / innerRadius);
-
-    bridgeInvRadiusMax = (1.f + bridgeInvRadiusErrorBound) / bridgeRadius;
-    bridgeInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - bridgeInvRadiusErrorBound) / bridgeRadius);
-
-    return checkIntervalOverlap(innerInvRadiusMin,
-                                innerInvRadiusMax,
-                                alpaka::math::min(acc, bridgeInvRadiusMin, 1.0f / bridgeRadiusMax2S),
-                                alpaka::math::max(acc, bridgeInvRadiusMax, 1.0f / bridgeRadiusMin2S));
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool matchRadiiBBBEE34578(TAcc const& acc,
-                                                           float innerRadius,
-                                                           float bridgeRadius,
-                                                           float outerRadius,
-                                                           float bridgeRadiusMin2S,
-                                                           float bridgeRadiusMax2S) {
-    float innerInvRadiusMin, innerInvRadiusMax, bridgeInvRadiusMin, bridgeInvRadiusMax;
-
-    float innerInvRadiusErrorBound = 0.066f;
-    float bridgeInvRadiusErrorBound = 0.617f;
-
-    innerInvRadiusMax = (1.f + innerInvRadiusErrorBound) / innerRadius;
-    innerInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - innerInvRadiusErrorBound) / innerRadius);
-
-    bridgeInvRadiusMax = (1.f + bridgeInvRadiusErrorBound) / bridgeRadius;
-    bridgeInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - bridgeInvRadiusErrorBound) / bridgeRadius);
-
-    return checkIntervalOverlap(innerInvRadiusMin,
-                                innerInvRadiusMax,
-                                alpaka::math::min(acc, bridgeInvRadiusMin, 1.0f / bridgeRadiusMax2S),
-                                alpaka::math::max(acc, bridgeInvRadiusMax, 1.0f / bridgeRadiusMin2S));
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool matchRadiiBBEEE(TAcc const& acc,
-                                                      float innerRadius,
-                                                      float bridgeRadius,
-                                                      float outerRadius,
-                                                      float bridgeRadiusMin2S,
-                                                      float bridgeRadiusMax2S) {
-    float innerInvRadiusMin, innerInvRadiusMax, bridgeInvRadiusMin, bridgeInvRadiusMax;
-
-    float innerInvRadiusErrorBound = 0.6376f;
-    float bridgeInvRadiusErrorBound = 2.1381f;
-
-    if (innerRadius * k2Rinv1GeVf > 1.f)  //as good as no selections!
-    {
-      innerInvRadiusErrorBound = 12.9173f;
-      bridgeInvRadiusErrorBound = 5.1700f;
-    }
-
-    innerInvRadiusMax = (1.f + innerInvRadiusErrorBound) / innerRadius;
-    innerInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - innerInvRadiusErrorBound) / innerRadius);
-
-    bridgeInvRadiusMax = (1.f + bridgeInvRadiusErrorBound) / bridgeRadius;
-    bridgeInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - bridgeInvRadiusErrorBound) / bridgeRadius);
-
-    return checkIntervalOverlap(innerInvRadiusMin,
-                                innerInvRadiusMax,
-                                alpaka::math::min(acc, bridgeInvRadiusMin, 1.0f / bridgeRadiusMax2S),
-                                alpaka::math::max(acc, bridgeInvRadiusMax, 1.0f / bridgeRadiusMin2S));
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool matchRadiiBEEEE(TAcc const& acc,
-                                                      float innerRadius,
-                                                      float bridgeRadius,
-                                                      float outerRadius,
-                                                      float innerRadiusMin2S,
-                                                      float innerRadiusMax2S,
-                                                      float bridgeRadiusMin2S,
-                                                      float bridgeRadiusMax2S) {
-    float innerInvRadiusMin, innerInvRadiusMax, bridgeInvRadiusMin, bridgeInvRadiusMax;
-
-    float innerInvRadiusErrorBound = 1.9382f;
-    float bridgeInvRadiusErrorBound = 3.7280f;
-
-    if (innerRadius * k2Rinv1GeVf > 1.f) {
-      innerInvRadiusErrorBound = 23.2713f;
-      bridgeInvRadiusErrorBound = 21.7980f;
-    }
-
-    innerInvRadiusMax = (1.f + innerInvRadiusErrorBound) / innerRadius;
-    innerInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - innerInvRadiusErrorBound) / innerRadius);
-
-    bridgeInvRadiusMax = (1.f + bridgeInvRadiusErrorBound) / bridgeRadius;
-    bridgeInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - bridgeInvRadiusErrorBound) / bridgeRadius);
-
-    return checkIntervalOverlap(alpaka::math::min(acc, innerInvRadiusMin, 1.0f / innerRadiusMax2S),
-                                alpaka::math::max(acc, innerInvRadiusMax, 1.0f / innerRadiusMin2S),
-                                alpaka::math::min(acc, bridgeInvRadiusMin, 1.0f / bridgeRadiusMax2S),
-                                alpaka::math::max(acc, bridgeInvRadiusMax, 1.0f / bridgeRadiusMin2S));
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool matchRadiiEEEEE(TAcc const& acc,
-                                                      float innerRadius,
-                                                      float bridgeRadius,
-                                                      float outerRadius,
-                                                      float innerRadiusMin2S,
-                                                      float innerRadiusMax2S,
-                                                      float bridgeRadiusMin2S,
-                                                      float bridgeRadiusMax2S) {
-    float innerInvRadiusMin, innerInvRadiusMax, bridgeInvRadiusMin, bridgeInvRadiusMax;
-
-    float innerInvRadiusErrorBound = 1.9382f;
-    float bridgeInvRadiusErrorBound = 2.2091f;
-
-    if (innerRadius * k2Rinv1GeVf > 1.f) {
-      innerInvRadiusErrorBound = 22.5226f;
-      bridgeInvRadiusErrorBound = 21.0966f;
-    }
-
-    innerInvRadiusMax = (1.f + innerInvRadiusErrorBound) / innerRadius;
-    innerInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - innerInvRadiusErrorBound) / innerRadius);
-
-    bridgeInvRadiusMax = (1.f + bridgeInvRadiusErrorBound) / bridgeRadius;
-    bridgeInvRadiusMin = alpaka::math::max(acc, 0.f, (1.f - bridgeInvRadiusErrorBound) / bridgeRadius);
-
-    return checkIntervalOverlap(alpaka::math::min(acc, innerInvRadiusMin, 1.0f / innerRadiusMax2S),
-                                alpaka::math::max(acc, innerInvRadiusMax, 1.0f / innerRadiusMin2S),
-                                alpaka::math::min(acc, bridgeInvRadiusMin, 1.0f / bridgeRadiusMax2S),
-                                alpaka::math::max(acc, bridgeInvRadiusMax, 1.0f / bridgeRadiusMin2S));
   }
 
   template <typename TAcc>
@@ -1099,15 +769,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void runDeltaBetaIterationsT5(TAcc const& acc,
-                                                               float& betaIn,
-                                                               float& betaOut,
-                                                               float betaAv,
-                                                               float& pt_beta,
-                                                               float sdIn_dr,
-                                                               float sdOut_dr,
-                                                               float dr,
-                                                               float lIn) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void runDeltaBetaIterations(TAcc const& acc,
+                                                             float& betaIn,
+                                                             float& betaOut,
+                                                             float betaAv,
+                                                             float& pt_beta,
+                                                             float sdIn_dr,
+                                                             float sdOut_dr,
+                                                             float dr,
+                                                             float lIn) {
     if (lIn == 0) {
       betaOut += alpaka::math::copysign(
           acc,
@@ -1198,83 +868,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletDefaultAlgoBBBB(TAcc const& acc,
-                                                                   ModulesConst modules,
-                                                                   MiniDoubletsConst mds,
-                                                                   SegmentsConst segments,
-                                                                   uint16_t innerInnerLowerModuleIndex,
-                                                                   uint16_t innerOuterLowerModuleIndex,
-                                                                   uint16_t outerInnerLowerModuleIndex,
-                                                                   uint16_t outerOuterLowerModuleIndex,
-                                                                   unsigned int innerSegmentIndex,
-                                                                   unsigned int outerSegmentIndex,
-                                                                   unsigned int firstMDIndex,
-                                                                   unsigned int secondMDIndex,
-                                                                   unsigned int thirdMDIndex,
-                                                                   unsigned int fourthMDIndex) {
-    bool isPS_InLo = (modules.moduleType()[innerInnerLowerModuleIndex] == PS);
-    bool isPS_OutLo = (modules.moduleType()[outerInnerLowerModuleIndex] == PS);
-
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletdBetaCutBBBB(TAcc const& acc,
+                                                                ModulesConst modules,
+                                                                MiniDoubletsConst mds,
+                                                                SegmentsConst segments,
+                                                                uint16_t innerInnerLowerModuleIndex,
+                                                                uint16_t innerOuterLowerModuleIndex,
+                                                                uint16_t outerInnerLowerModuleIndex,
+                                                                uint16_t outerOuterLowerModuleIndex,
+                                                                unsigned int innerSegmentIndex,
+                                                                unsigned int outerSegmentIndex,
+                                                                unsigned int firstMDIndex,
+                                                                unsigned int secondMDIndex,
+                                                                unsigned int thirdMDIndex,
+                                                                unsigned int fourthMDIndex,
+                                                                float& dBeta,
+                                                                const float ptCut) {
     float rt_InLo = mds.anchorRt()[firstMDIndex];
     float rt_InOut = mds.anchorRt()[secondMDIndex];
     float rt_OutLo = mds.anchorRt()[thirdMDIndex];
 
     float z_InLo = mds.anchorZ()[firstMDIndex];
-    float z_InOut = mds.anchorZ()[secondMDIndex];
     float z_OutLo = mds.anchorZ()[thirdMDIndex];
 
-    float alpha1GeV_OutLo =
-        alpaka::math::asin(acc, alpaka::math::min(acc, rt_OutLo * k2Rinv1GeVf / ptCut, kSinAlphaMax));
-
-    float rtRatio_OutLoInLo = rt_OutLo / rt_InLo;  // Outer segment beginning rt divided by inner segment beginning rt;
-    float dzDrtScale =
-        alpaka::math::tan(acc, alpha1GeV_OutLo) / alpha1GeV_OutLo;  // The track can bend in r-z plane slightly
-    float zpitch_InLo = (isPS_InLo ? kPixelPSZpitch : kStrip2SZpitch);
-    float zpitch_OutLo = (isPS_OutLo ? kPixelPSZpitch : kStrip2SZpitch);
-
-    float zHi = z_InLo + (z_InLo + kDeltaZLum) * (rtRatio_OutLoInLo - 1.f) * (z_InLo < 0.f ? 1.f : dzDrtScale) +
-                (zpitch_InLo + zpitch_OutLo);
-    float zLo = z_InLo + (z_InLo - kDeltaZLum) * (rtRatio_OutLoInLo - 1.f) * (z_InLo > 0.f ? 1.f : dzDrtScale) -
-                (zpitch_InLo + zpitch_OutLo);
-
-    //Cut 1 - z compatibility
-    if ((z_OutLo < zLo) || (z_OutLo > zHi))
-      return false;
-
-    float drt_OutLo_InLo = (rt_OutLo - rt_InLo);
     float r3_InLo = alpaka::math::sqrt(acc, z_InLo * z_InLo + rt_InLo * rt_InLo);
     float drt_InSeg = rt_InOut - rt_InLo;
-    float dz_InSeg = z_InOut - z_InLo;
-    float dr3_InSeg = alpaka::math::sqrt(acc, rt_InOut * rt_InOut + z_InOut * z_InOut) -
-                      alpaka::math::sqrt(acc, rt_InLo * rt_InLo + z_InLo * z_InLo);
-
-    float coshEta = dr3_InSeg / drt_InSeg;
-    float dzErr = (zpitch_InLo + zpitch_OutLo) * (zpitch_InLo + zpitch_OutLo) * 2.f;
 
     float thetaMuls2 = (kMulsInGeV * kMulsInGeV) * (0.1f + 0.2f * (rt_OutLo - rt_InLo) / 50.f) * (r3_InLo / rt_InLo);
-    float muls2 = thetaMuls2 * 9.f / (ptCut * ptCut) * 16.f;
-    dzErr += muls2 * drt_OutLo_InLo * drt_OutLo_InLo / 3.f * coshEta * coshEta;
-    dzErr = alpaka::math::sqrt(acc, dzErr);
-
-    // Constructing upper and lower bound
-    const float dzMean = dz_InSeg / drt_InSeg * drt_OutLo_InLo;
-    const float zWindow =
-        dzErr / drt_InSeg * drt_OutLo_InLo +
-        (zpitch_InLo + zpitch_OutLo);  //FIXME for ptCut lower than ~0.8 need to add curv path correction
-    float zLoPointed = z_InLo + dzMean * (z_InLo > 0.f ? 1.f : dzDrtScale) - zWindow;
-    float zHiPointed = z_InLo + dzMean * (z_InLo < 0.f ? 1.f : dzDrtScale) + zWindow;
-
-    // Cut #2: Pointed Z (Inner segment two MD points to outer segment inner MD)
-    if ((z_OutLo < zLoPointed) || (z_OutLo > zHiPointed))
-      return false;
-
-    float pvOffset = 0.1f / rt_OutLo;
-    float dPhiCut = alpha1GeV_OutLo + alpaka::math::sqrt(acc, muls2 + pvOffset * pvOffset);
-
-    float deltaPhiPos = phi_mpi_pi(acc, mds.anchorPhi()[fourthMDIndex] - mds.anchorPhi()[secondMDIndex]);
-    // Cut #3: FIXME:deltaPhiPos can be tighter
-    if (alpaka::math::abs(acc, deltaPhiPos) > dPhiCut)
-      return false;
 
     float midPointX = 0.5f * (mds.anchorX()[firstMDIndex] + mds.anchorX()[thirdMDIndex]);
     float midPointY = 0.5f * (mds.anchorY()[firstMDIndex] + mds.anchorY()[thirdMDIndex]);
@@ -1282,10 +902,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float diffY = mds.anchorY()[thirdMDIndex] - mds.anchorY()[firstMDIndex];
 
     float dPhi = deltaPhi(acc, midPointX, midPointY, diffX, diffY);
-
-    // Cut #4: deltaPhiChange
-    if (alpaka::math::abs(acc, dPhi) > dPhiCut)
-      return false;
 
     // First obtaining the raw betaIn and betaOut values without any correction and just purely based on the mini-doublet hit positions
     float alpha_InLo = __H2F(segments.dPhiChanges()[innerSegmentIndex]);
@@ -1349,21 +965,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     //beta computation
     float drt_tl_axis = alpaka::math::sqrt(acc, tl_axis_x * tl_axis_x + tl_axis_y * tl_axis_y);
 
-    float corrF = 1.f;
     //innerOuterAnchor - innerInnerAnchor
     const float rt_InSeg = alpaka::math::sqrt(acc,
                                               (mds.anchorX()[secondMDIndex] - mds.anchorX()[firstMDIndex]) *
                                                       (mds.anchorX()[secondMDIndex] - mds.anchorX()[firstMDIndex]) +
                                                   (mds.anchorY()[secondMDIndex] - mds.anchorY()[firstMDIndex]) *
                                                       (mds.anchorY()[secondMDIndex] - mds.anchorY()[firstMDIndex]));
-    float betaInCut =
-        alpaka::math::asin(
-            acc, alpaka::math::min(acc, (-rt_InSeg * corrF + drt_tl_axis) * k2Rinv1GeVf / ptCut, kSinAlphaMax)) +
-        (0.02f / drt_InSeg);
-
-    //Cut #5: first beta cut
-    if (alpaka::math::abs(acc, betaInRHmin) >= betaInCut)
-      return false;
 
     float betaAv = 0.5f * (betaIn + betaOut);
     float pt_beta = drt_tl_axis * k2Rinv1GeVf / alpaka::math::sin(acc, betaAv);
@@ -1376,7 +983,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                 (mds.anchorY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]));
     float sdOut_d = mds.anchorRt()[fourthMDIndex] - mds.anchorRt()[thirdMDIndex];
 
-    runDeltaBetaIterationsT5(acc, betaIn, betaOut, betaAv, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
+    runDeltaBetaIterations(acc, betaIn, betaOut, betaAv, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
 
     const float betaInMMSF = (alpaka::math::abs(acc, betaInRHmin + betaInRHmax) > 0)
                                  ? (2.f * betaIn / alpaka::math::abs(acc, betaInRHmin + betaInRHmax))
@@ -1406,7 +1013,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     const float dBetaLum2 = (dBetaInLum + dBetaOutLum) * (dBetaInLum + dBetaOutLum);
     const float sinDPhi = alpaka::math::sin(acc, dPhi);
 
-    const float dBetaRIn2 = 0;  // TODO-RH
     float dBetaROut = 0;
     if (isEC_lastLayer) {
       dBetaROut = (alpaka::math::sqrt(acc,
@@ -1420,116 +1026,43 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     const float dBetaROut2 = dBetaROut * dBetaROut;
 
-    float betaOutCut =
-        alpaka::math::asin(acc, alpaka::math::min(acc, drt_tl_axis * k2Rinv1GeVf / ptCut, kSinAlphaMax)) +
-        (0.02f / sdOut_d) + alpaka::math::sqrt(acc, dBetaLum2 + dBetaMuls2);
-
-    //Cut #6: The real beta cut
-    if (alpaka::math::abs(acc, betaOut) >= betaOutCut)
-      return false;
-
     float dBetaRes = 0.02f / alpaka::math::min(acc, sdOut_d, drt_InSeg);
     float dBetaCut2 =
-        (dBetaRes * dBetaRes * 2.0f + dBetaMuls2 + dBetaLum2 + dBetaRIn2 + dBetaROut2 +
+        (dBetaRes * dBetaRes * 2.0f + dBetaMuls2 + dBetaLum2 + dBetaROut2 +
          0.25f *
              (alpaka::math::abs(acc, betaInRHmin - betaInRHmax) + alpaka::math::abs(acc, betaOutRHmin - betaOutRHmax)) *
              (alpaka::math::abs(acc, betaInRHmin - betaInRHmax) + alpaka::math::abs(acc, betaOutRHmin - betaOutRHmax)));
 
-    float dBeta = betaIn - betaOut;
+    dBeta = betaIn - betaOut;
     return dBeta * dBeta <= dBetaCut2;
   }
 
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletDefaultAlgoBBEE(TAcc const& acc,
-                                                                   ModulesConst modules,
-                                                                   MiniDoubletsConst mds,
-                                                                   SegmentsConst segments,
-                                                                   uint16_t innerInnerLowerModuleIndex,
-                                                                   uint16_t innerOuterLowerModuleIndex,
-                                                                   uint16_t outerInnerLowerModuleIndex,
-                                                                   uint16_t outerOuterLowerModuleIndex,
-                                                                   unsigned int innerSegmentIndex,
-                                                                   unsigned int outerSegmentIndex,
-                                                                   unsigned int firstMDIndex,
-                                                                   unsigned int secondMDIndex,
-                                                                   unsigned int thirdMDIndex,
-                                                                   unsigned int fourthMDIndex) {
-    bool isPS_InLo = (modules.moduleType()[innerInnerLowerModuleIndex] == PS);
-    bool isPS_OutLo = (modules.moduleType()[outerInnerLowerModuleIndex] == PS);
-
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletdBetaCutBBEE(TAcc const& acc,
+                                                                ModulesConst modules,
+                                                                MiniDoubletsConst mds,
+                                                                SegmentsConst segments,
+                                                                uint16_t innerInnerLowerModuleIndex,
+                                                                uint16_t innerOuterLowerModuleIndex,
+                                                                uint16_t outerInnerLowerModuleIndex,
+                                                                uint16_t outerOuterLowerModuleIndex,
+                                                                unsigned int innerSegmentIndex,
+                                                                unsigned int outerSegmentIndex,
+                                                                unsigned int firstMDIndex,
+                                                                unsigned int secondMDIndex,
+                                                                unsigned int thirdMDIndex,
+                                                                unsigned int fourthMDIndex,
+                                                                float& dBeta,
+                                                                const float ptCut) {
     float rt_InLo = mds.anchorRt()[firstMDIndex];
     float rt_InOut = mds.anchorRt()[secondMDIndex];
     float rt_OutLo = mds.anchorRt()[thirdMDIndex];
 
     float z_InLo = mds.anchorZ()[firstMDIndex];
-    float z_InOut = mds.anchorZ()[secondMDIndex];
     float z_OutLo = mds.anchorZ()[thirdMDIndex];
 
-    float alpha1GeV_OutLo =
-        alpaka::math::asin(acc, alpaka::math::min(acc, rt_OutLo * k2Rinv1GeVf / ptCut, kSinAlphaMax));
-
-    float dzDrtScale =
-        alpaka::math::tan(acc, alpha1GeV_OutLo) / alpha1GeV_OutLo;  // The track can bend in r-z plane slightly
-    float zpitch_InLo = (isPS_InLo ? kPixelPSZpitch : kStrip2SZpitch);
-    float zpitch_OutLo = (isPS_OutLo ? kPixelPSZpitch : kStrip2SZpitch);
-    float zGeom = zpitch_InLo + zpitch_OutLo;
-
-    // Cut #0: Preliminary (Only here in endcap case)
-    if (z_InLo * z_OutLo <= 0)
-      return false;
-
-    float dLum = alpaka::math::copysign(acc, kDeltaZLum, z_InLo);
-    bool isOutSgInnerMDPS = modules.moduleType()[outerInnerLowerModuleIndex] == PS;
-    float rtGeom1 = isOutSgInnerMDPS ? kPixelPSZpitch : kStrip2SZpitch;
-    float zGeom1 = alpaka::math::copysign(acc, zGeom, z_InLo);
-    float rtLo = rt_InLo * (1.f + (z_OutLo - z_InLo - zGeom1) / (z_InLo + zGeom1 + dLum) / dzDrtScale) -
-                 rtGeom1;  //slope correction only on the lower end
-    float rtOut = rt_OutLo;
-
-    //Cut #1: rt condition
-    if (rtOut < rtLo)
-      return false;
-
-    float zInForHi = z_InLo - zGeom1 - dLum;
-    if (zInForHi * z_InLo < 0) {
-      zInForHi = alpaka::math::copysign(acc, 0.1f, z_InLo);
-    }
-    float rtHi = rt_InLo * (1.f + (z_OutLo - z_InLo + zGeom1) / zInForHi) + rtGeom1;
-
-    //Cut #2: rt condition
-    if ((rt_OutLo < rtLo) || (rt_OutLo > rtHi))
-      return false;
-
     float rIn = alpaka::math::sqrt(acc, z_InLo * z_InLo + rt_InLo * rt_InLo);
-    const float drtSDIn = rt_InOut - rt_InLo;
-    const float dzSDIn = z_InOut - z_InLo;
-    const float dr3SDIn = alpaka::math::sqrt(acc, rt_InOut * rt_InOut + z_InOut * z_InOut) -
-                          alpaka::math::sqrt(acc, rt_InLo * rt_InLo + z_InLo * z_InLo);
-
-    const float coshEta = dr3SDIn / drtSDIn;  //direction estimate
-    const float dzOutInAbs = alpaka::math::abs(acc, z_OutLo - z_InLo);
-    const float multDzDr = dzOutInAbs * coshEta / (coshEta * coshEta - 1.f);
-    const float zGeom1_another = kPixelPSZpitch;
-    float kZ = (z_OutLo - z_InLo) / dzSDIn;
-    float drtErr =
-        zGeom1_another * zGeom1_another * drtSDIn * drtSDIn / dzSDIn / dzSDIn * (1.f - 2.f * kZ + 2.f * kZ * kZ);
     const float thetaMuls2 = (kMulsInGeV * kMulsInGeV) * (0.1f + 0.2f * (rt_OutLo - rt_InLo) / 50.f) * (rIn / rt_InLo);
-    const float muls2 = thetaMuls2 * 9.f / (ptCut * ptCut) * 16.f;
-    drtErr += muls2 * multDzDr * multDzDr / 3.f * coshEta * coshEta;
-    drtErr = alpaka::math::sqrt(acc, drtErr);
-
-    //Cut #3: rt-z pointed
-    if ((kZ < 0) || (rtOut < rtLo) || (rtOut > rtHi))
-      return false;
-
-    const float pvOffset = 0.1f / rt_OutLo;
-    float dPhiCut = alpha1GeV_OutLo + alpaka::math::sqrt(acc, muls2 + pvOffset * pvOffset);
-
-    float deltaPhiPos = phi_mpi_pi(acc, mds.anchorPhi()[fourthMDIndex] - mds.anchorPhi()[secondMDIndex]);
-
-    //Cut #4: deltaPhiPos can be tighter
-    if (alpaka::math::abs(acc, deltaPhiPos) > dPhiCut)
-      return false;
 
     float midPointX = 0.5f * (mds.anchorX()[firstMDIndex] + mds.anchorX()[thirdMDIndex]);
     float midPointY = 0.5f * (mds.anchorY()[firstMDIndex] + mds.anchorY()[thirdMDIndex]);
@@ -1537,25 +1070,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float diffY = mds.anchorY()[thirdMDIndex] - mds.anchorY()[firstMDIndex];
 
     float dPhi = deltaPhi(acc, midPointX, midPointY, diffX, diffY);
-    // Cut #5: deltaPhiChange
-    if (alpaka::math::abs(acc, dPhi) > dPhiCut)
-      return false;
 
     float sdIn_alpha = __H2F(segments.dPhiChanges()[innerSegmentIndex]);
     float sdIn_alpha_min = __H2F(segments.dPhiChangeMins()[innerSegmentIndex]);
     float sdIn_alpha_max = __H2F(segments.dPhiChangeMaxs()[innerSegmentIndex]);
     float sdOut_alpha = sdIn_alpha;
 
-    float sdOut_alphaOut = phi_mpi_pi(acc,
-                                      phi(acc,
-                                          mds.anchorX()[fourthMDIndex] - mds.anchorX()[thirdMDIndex],
-                                          mds.anchorY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]) -
-                                          mds.anchorPhi()[fourthMDIndex]);
+    float sdOut_dPhiPos = phi_mpi_pi(acc, mds.anchorPhi()[fourthMDIndex] - mds.anchorPhi()[thirdMDIndex]);
 
-    float sdOut_alphaOut_min = phi_mpi_pi(
-        acc, __H2F(segments.dPhiChangeMins()[outerSegmentIndex]) - __H2F(segments.dPhiMins()[outerSegmentIndex]));
-    float sdOut_alphaOut_max = phi_mpi_pi(
-        acc, __H2F(segments.dPhiChangeMaxs()[outerSegmentIndex]) - __H2F(segments.dPhiMaxs()[outerSegmentIndex]));
+    float sdOut_dPhiChange = __H2F(segments.dPhiChanges()[outerSegmentIndex]);
+    float sdOut_dPhiChange_min = __H2F(segments.dPhiChangeMins()[outerSegmentIndex]);
+    float sdOut_dPhiChange_max = __H2F(segments.dPhiChangeMaxs()[outerSegmentIndex]);
+
+    float sdOut_alphaOutRHmin = phi_mpi_pi(acc, sdOut_dPhiChange_min - sdOut_dPhiPos);
+    float sdOut_alphaOutRHmax = phi_mpi_pi(acc, sdOut_dPhiChange_max - sdOut_dPhiPos);
+    float sdOut_alphaOut = phi_mpi_pi(acc, sdOut_dPhiChange - sdOut_dPhiPos);
 
     float tl_axis_x = mds.anchorX()[fourthMDIndex] - mds.anchorX()[firstMDIndex];
     float tl_axis_y = mds.anchorY()[fourthMDIndex] - mds.anchorY()[firstMDIndex];
@@ -1577,8 +1106,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       betaInRHmax = betaIn - sdIn_alpha_max + sdIn_alpha;
     }
 
-    betaOutRHmin = betaOut - sdOut_alphaOut_min + sdOut_alphaOut;
-    betaOutRHmax = betaOut - sdOut_alphaOut_max + sdOut_alphaOut;
+    betaOutRHmin = betaOut - sdOut_alphaOutRHmin + sdOut_alphaOut;
+    betaOutRHmax = betaOut - sdOut_alphaOutRHmax + sdOut_alphaOut;
 
     float swapTemp;
     if (alpaka::math::abs(acc, betaOutRHmin) > alpaka::math::abs(acc, betaOutRHmax)) {
@@ -1601,14 +1130,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float sdIn_d = rt_InOut - rt_InLo;
 
     float dr = alpaka::math::sqrt(acc, tl_axis_x * tl_axis_x + tl_axis_y * tl_axis_y);
-    const float corrF = 1.f;
-    float betaInCut =
-        alpaka::math::asin(acc, alpaka::math::min(acc, (-sdIn_dr * corrF + dr) * k2Rinv1GeVf / ptCut, kSinAlphaMax)) +
-        (0.02f / sdIn_d);
-
-    //Cut #6: first beta cut
-    if (alpaka::math::abs(acc, betaInRHmin) >= betaInCut)
-      return false;
 
     float betaAv = 0.5f * (betaIn + betaOut);
     float pt_beta = dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaAv);
@@ -1623,7 +1144,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                 (mds.anchorY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]));
     float sdOut_d = mds.anchorRt()[fourthMDIndex] - mds.anchorRt()[thirdMDIndex];
 
-    runDeltaBetaIterationsT5(acc, betaIn, betaOut, betaAv, pt_beta, sdIn_dr, sdOut_dr, dr, lIn);
+    runDeltaBetaIterations(acc, betaIn, betaOut, betaAv, pt_beta, sdIn_dr, sdOut_dr, dr, lIn);
 
     const float betaInMMSF = (alpaka::math::abs(acc, betaInRHmin + betaInRHmax) > 0)
                                  ? (2.f * betaIn / alpaka::math::abs(acc, betaInRHmin + betaInRHmax))
@@ -1666,12 +1187,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
 
     const float dBetaROut2 = dBetaROut * dBetaROut;
-    float betaOutCut = alpaka::math::asin(acc, alpaka::math::min(acc, dr * k2Rinv1GeVf / ptCut, kSinAlphaMax)) +
-                       (0.02f / sdOut_d) + alpaka::math::sqrt(acc, dBetaLum2 + dBetaMuls2);
-
-    //Cut #6: The real beta cut
-    if (alpaka::math::abs(acc, betaOut) >= betaOutCut)
-      return false;
 
     float dBetaRes = 0.02f / alpaka::math::min(acc, sdOut_d, sdIn_d);
     float dBetaCut2 =
@@ -1679,117 +1194,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
          0.25f *
              (alpaka::math::abs(acc, betaInRHmin - betaInRHmax) + alpaka::math::abs(acc, betaOutRHmin - betaOutRHmax)) *
              (alpaka::math::abs(acc, betaInRHmin - betaInRHmax) + alpaka::math::abs(acc, betaOutRHmin - betaOutRHmax)));
-    float dBeta = betaIn - betaOut;
-    //Cut #7: Cut on dBet
+    dBeta = betaIn - betaOut;
     return dBeta * dBeta <= dBetaCut2;
   }
 
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletDefaultAlgoEEEE(TAcc const& acc,
-                                                                   ModulesConst modules,
-                                                                   MiniDoubletsConst mds,
-                                                                   SegmentsConst segments,
-                                                                   uint16_t innerInnerLowerModuleIndex,
-                                                                   uint16_t innerOuterLowerModuleIndex,
-                                                                   uint16_t outerInnerLowerModuleIndex,
-                                                                   uint16_t outerOuterLowerModuleIndex,
-                                                                   unsigned int innerSegmentIndex,
-                                                                   unsigned int outerSegmentIndex,
-                                                                   unsigned int firstMDIndex,
-                                                                   unsigned int secondMDIndex,
-                                                                   unsigned int thirdMDIndex,
-                                                                   unsigned int fourthMDIndex) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletdBetaCutEEEE(TAcc const& acc,
+                                                                ModulesConst modules,
+                                                                MiniDoubletsConst mds,
+                                                                SegmentsConst segments,
+                                                                uint16_t innerInnerLowerModuleIndex,
+                                                                uint16_t innerOuterLowerModuleIndex,
+                                                                uint16_t outerInnerLowerModuleIndex,
+                                                                uint16_t outerOuterLowerModuleIndex,
+                                                                unsigned int innerSegmentIndex,
+                                                                unsigned int outerSegmentIndex,
+                                                                unsigned int firstMDIndex,
+                                                                unsigned int secondMDIndex,
+                                                                unsigned int thirdMDIndex,
+                                                                unsigned int fourthMDIndex,
+                                                                float& dBeta,
+                                                                const float ptCut) {
     float rt_InLo = mds.anchorRt()[firstMDIndex];
     float rt_InOut = mds.anchorRt()[secondMDIndex];
     float rt_OutLo = mds.anchorRt()[thirdMDIndex];
 
     float z_InLo = mds.anchorZ()[firstMDIndex];
-    float z_InOut = mds.anchorZ()[secondMDIndex];
     float z_OutLo = mds.anchorZ()[thirdMDIndex];
 
-    float alpha1GeV_OutLo =
-        alpaka::math::asin(acc, alpaka::math::min(acc, rt_OutLo * k2Rinv1GeVf / ptCut, kSinAlphaMax));
-
-    float dzDrtScale =
-        alpaka::math::tan(acc, alpha1GeV_OutLo) / alpha1GeV_OutLo;  // The track can bend in r-z plane slightly
-
-    // Cut #0: Preliminary (Only here in endcap case)
-    if ((z_InLo * z_OutLo) <= 0)
-      return false;
-
-    float dLum = alpaka::math::copysign(acc, kDeltaZLum, z_InLo);
-    bool isOutSgInnerMDPS = modules.moduleType()[outerInnerLowerModuleIndex] == PS;
-    bool isInSgInnerMDPS = modules.moduleType()[innerInnerLowerModuleIndex] == PS;
-
-    float rtGeom = (isInSgInnerMDPS and isOutSgInnerMDPS)  ? 2.f * kPixelPSZpitch
-                   : (isInSgInnerMDPS or isOutSgInnerMDPS) ? kPixelPSZpitch + kStrip2SZpitch
-                                                           : 2.f * kStrip2SZpitch;
-
-    float dz = z_OutLo - z_InLo;
-    float rtLo = rt_InLo * (1.f + dz / (z_InLo + dLum) / dzDrtScale) - rtGeom;  //slope correction only on the lower end
-
-    float rtOut = rt_OutLo;
-
-    //Cut #1: rt condition
-
-    float rtHi = rt_InLo * (1.f + dz / (z_InLo - dLum)) + rtGeom;
-
-    if ((rtOut < rtLo) || (rtOut > rtHi))
-      return false;
-
-    bool isInSgOuterMDPS = modules.moduleType()[innerOuterLowerModuleIndex] == PS;
-
-    const float drtSDIn = rt_InOut - rt_InLo;
-    const float dzSDIn = z_InOut - z_InLo;
-    const float dr3SDIn = alpaka::math::sqrt(acc, rt_InOut * rt_InOut + z_InOut * z_InOut) -
-                          alpaka::math::sqrt(acc, rt_InLo * rt_InLo + z_InLo * z_InLo);
-    float coshEta = dr3SDIn / drtSDIn;  //direction estimate
-    float dzOutInAbs = alpaka::math::abs(acc, z_OutLo - z_InLo);
-    float multDzDr = dzOutInAbs * coshEta / (coshEta * coshEta - 1.f);
-
-    float kZ = (z_OutLo - z_InLo) / dzSDIn;
     float thetaMuls2 = (kMulsInGeV * kMulsInGeV) * (0.1f + 0.2f * (rt_OutLo - rt_InLo) / 50.f);
-
-    float muls2 = thetaMuls2 * 9.f / (ptCut * ptCut) * 16.f;
-
-    float drtErr =
-        alpaka::math::sqrt(acc,
-                           kPixelPSZpitch * kPixelPSZpitch * 2.f / (dzSDIn * dzSDIn) * (dzOutInAbs * dzOutInAbs) +
-                               muls2 * multDzDr * multDzDr / 3.f * coshEta * coshEta);
-
-    float drtMean = drtSDIn * dzOutInAbs / alpaka::math::abs(acc, dzSDIn);
-    float rtWindow = drtErr + rtGeom;
-    float rtLo_point = rt_InLo + drtMean / dzDrtScale - rtWindow;
-    float rtHi_point = rt_InLo + drtMean + rtWindow;
-
-    // Cut #3: rt-z pointed
-    // https://github.com/slava77/cms-tkph2-ntuple/blob/superDoubletLinked-91X-noMock/doubletAnalysis.C#L3765
-
-    if (isInSgInnerMDPS and isInSgOuterMDPS)  // If both PS then we can point
-    {
-      if (kZ < 0 || rtOut < rtLo_point || rtOut > rtHi_point)
-        return false;
-    }
-
-    float pvOffset = 0.1f / rtOut;
-    float dPhiCut = alpha1GeV_OutLo + alpaka::math::sqrt(acc, muls2 + pvOffset * pvOffset);
-
-    float deltaPhiPos = phi_mpi_pi(acc, mds.anchorPhi()[fourthMDIndex] - mds.anchorPhi()[secondMDIndex]);
-
-    if (alpaka::math::abs(acc, deltaPhiPos) > dPhiCut)
-      return false;
-
-    float midPointX = 0.5f * (mds.anchorX()[firstMDIndex] + mds.anchorX()[thirdMDIndex]);
-    float midPointY = 0.5f * (mds.anchorY()[firstMDIndex] + mds.anchorY()[thirdMDIndex]);
-    float diffX = mds.anchorX()[thirdMDIndex] - mds.anchorX()[firstMDIndex];
-    float diffY = mds.anchorY()[thirdMDIndex] - mds.anchorY()[firstMDIndex];
-
-    float dPhi = deltaPhi(acc, midPointX, midPointY, diffX, diffY);
-
-    // Cut #5: deltaPhiChange
-    if (alpaka::math::abs(acc, dPhi) > dPhiCut)
-      return false;
-
     float sdIn_alpha = __H2F(segments.dPhiChanges()[innerSegmentIndex]);
     float sdOut_alpha = sdIn_alpha;  //weird
     float sdOut_dPhiPos = phi_mpi_pi(acc, mds.anchorPhi()[fourthMDIndex] - mds.anchorPhi()[thirdMDIndex]);
@@ -1837,14 +1270,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float sdIn_d = rt_InOut - rt_InLo;
 
     float dr = alpaka::math::sqrt(acc, tl_axis_x * tl_axis_x + tl_axis_y * tl_axis_y);
-    const float corrF = 1.f;
-    float betaInCut =
-        alpaka::math::asin(acc, alpaka::math::min(acc, (-sdIn_dr * corrF + dr) * k2Rinv1GeVf / ptCut, kSinAlphaMax)) +
-        (0.02f / sdIn_d);
-
-    //Cut #6: first beta cut
-    if (alpaka::math::abs(acc, betaInRHmin) >= betaInCut)
-      return false;
 
     float betaAv = 0.5f * (betaIn + betaOut);
     float pt_beta = dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaAv);
@@ -1859,7 +1284,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                 (mds.anchorY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]));
     float sdOut_d = mds.anchorRt()[fourthMDIndex] - mds.anchorRt()[thirdMDIndex];
 
-    runDeltaBetaIterationsT5(acc, betaIn, betaOut, betaAv, pt_beta, sdIn_dr, sdOut_dr, dr, lIn);
+    runDeltaBetaIterations(acc, betaIn, betaOut, betaAv, pt_beta, sdIn_dr, sdOut_dr, dr, lIn);
 
     const float betaInMMSF = (alpaka::math::abs(acc, betaInRHmin + betaInRHmax) > 0)
                                  ? (2.f * betaIn / alpaka::math::abs(acc, betaInRHmin + betaInRHmax))
@@ -1888,42 +1313,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     const float dBetaOutLum = lOut < 11 ? 0.0f : alpaka::math::abs(acc, alphaOutAbsReg * kDeltaZLum / z_OutLo);
     const float dBetaLum2 = (dBetaInLum + dBetaOutLum) * (dBetaInLum + dBetaOutLum);
 
-    const float dBetaRIn2 = 0;  // TODO-RH
-
-    float dBetaROut2 = 0;  //TODO-RH
-    float betaOutCut = alpaka::math::asin(acc, alpaka::math::min(acc, dr * k2Rinv1GeVf / ptCut, kSinAlphaMax)) +
-                       (0.02f / sdOut_d) + alpaka::math::sqrt(acc, dBetaLum2 + dBetaMuls2);
-
-    //Cut #6: The real beta cut
-    if (alpaka::math::abs(acc, betaOut) >= betaOutCut)
-      return false;
-
     float dBetaRes = 0.02f / alpaka::math::min(acc, sdOut_d, sdIn_d);
     float dBetaCut2 =
-        (dBetaRes * dBetaRes * 2.0f + dBetaMuls2 + dBetaLum2 + dBetaRIn2 + dBetaROut2 +
+        (dBetaRes * dBetaRes * 2.0f + dBetaMuls2 + dBetaLum2 +
          0.25f *
              (alpaka::math::abs(acc, betaInRHmin - betaInRHmax) + alpaka::math::abs(acc, betaOutRHmin - betaOutRHmax)) *
              (alpaka::math::abs(acc, betaInRHmin - betaInRHmax) + alpaka::math::abs(acc, betaOutRHmin - betaOutRHmax)));
-    float dBeta = betaIn - betaOut;
-    //Cut #7: Cut on dBeta
+    dBeta = betaIn - betaOut;
     return dBeta * dBeta <= dBetaCut2;
   }
 
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletAlgoSelector(TAcc const& acc,
-                                                                ModulesConst modules,
-                                                                MiniDoubletsConst mds,
-                                                                SegmentsConst segments,
-                                                                uint16_t innerInnerLowerModuleIndex,
-                                                                uint16_t innerOuterLowerModuleIndex,
-                                                                uint16_t outerInnerLowerModuleIndex,
-                                                                uint16_t outerOuterLowerModuleIndex,
-                                                                unsigned int innerSegmentIndex,
-                                                                unsigned int outerSegmentIndex,
-                                                                unsigned int firstMDIndex,
-                                                                unsigned int secondMDIndex,
-                                                                unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletdBetaAlgoSelector(TAcc const& acc,
+                                                                     ModulesConst modules,
+                                                                     MiniDoubletsConst mds,
+                                                                     SegmentsConst segments,
+                                                                     uint16_t innerInnerLowerModuleIndex,
+                                                                     uint16_t innerOuterLowerModuleIndex,
+                                                                     uint16_t outerInnerLowerModuleIndex,
+                                                                     uint16_t outerOuterLowerModuleIndex,
+                                                                     unsigned int innerSegmentIndex,
+                                                                     unsigned int outerSegmentIndex,
+                                                                     unsigned int firstMDIndex,
+                                                                     unsigned int secondMDIndex,
+                                                                     unsigned int thirdMDIndex,
+                                                                     unsigned int fourthMDIndex,
+                                                                     float& dBeta,
+                                                                     const float ptCut) {
     short innerInnerLowerModuleSubdet = modules.subdets()[innerInnerLowerModuleIndex];
     short innerOuterLowerModuleSubdet = modules.subdets()[innerOuterLowerModuleIndex];
     short outerInnerLowerModuleSubdet = modules.subdets()[outerInnerLowerModuleIndex];
@@ -1931,84 +1347,94 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     if (innerInnerLowerModuleSubdet == Barrel and innerOuterLowerModuleSubdet == Barrel and
         outerInnerLowerModuleSubdet == Barrel and outerOuterLowerModuleSubdet == Barrel) {
-      return runQuintupletDefaultAlgoBBBB(acc,
-                                          modules,
-                                          mds,
-                                          segments,
-                                          innerInnerLowerModuleIndex,
-                                          innerOuterLowerModuleIndex,
-                                          outerInnerLowerModuleIndex,
-                                          outerOuterLowerModuleIndex,
-                                          innerSegmentIndex,
-                                          outerSegmentIndex,
-                                          firstMDIndex,
-                                          secondMDIndex,
-                                          thirdMDIndex,
-                                          fourthMDIndex);
+      return runQuintupletdBetaCutBBBB(acc,
+                                       modules,
+                                       mds,
+                                       segments,
+                                       innerInnerLowerModuleIndex,
+                                       innerOuterLowerModuleIndex,
+                                       outerInnerLowerModuleIndex,
+                                       outerOuterLowerModuleIndex,
+                                       innerSegmentIndex,
+                                       outerSegmentIndex,
+                                       firstMDIndex,
+                                       secondMDIndex,
+                                       thirdMDIndex,
+                                       fourthMDIndex,
+                                       dBeta,
+                                       ptCut);
     } else if (innerInnerLowerModuleSubdet == Barrel and innerOuterLowerModuleSubdet == Barrel and
                outerInnerLowerModuleSubdet == Endcap and outerOuterLowerModuleSubdet == Endcap) {
-      return runQuintupletDefaultAlgoBBEE(acc,
-                                          modules,
-                                          mds,
-                                          segments,
-                                          innerInnerLowerModuleIndex,
-                                          innerOuterLowerModuleIndex,
-                                          outerInnerLowerModuleIndex,
-                                          outerOuterLowerModuleIndex,
-                                          innerSegmentIndex,
-                                          outerSegmentIndex,
-                                          firstMDIndex,
-                                          secondMDIndex,
-                                          thirdMDIndex,
-                                          fourthMDIndex);
+      return runQuintupletdBetaCutBBEE(acc,
+                                       modules,
+                                       mds,
+                                       segments,
+                                       innerInnerLowerModuleIndex,
+                                       innerOuterLowerModuleIndex,
+                                       outerInnerLowerModuleIndex,
+                                       outerOuterLowerModuleIndex,
+                                       innerSegmentIndex,
+                                       outerSegmentIndex,
+                                       firstMDIndex,
+                                       secondMDIndex,
+                                       thirdMDIndex,
+                                       fourthMDIndex,
+                                       dBeta,
+                                       ptCut);
     } else if (innerInnerLowerModuleSubdet == Barrel and innerOuterLowerModuleSubdet == Barrel and
                outerInnerLowerModuleSubdet == Barrel and outerOuterLowerModuleSubdet == Endcap) {
-      return runQuintupletDefaultAlgoBBBB(acc,
-                                          modules,
-                                          mds,
-                                          segments,
-                                          innerInnerLowerModuleIndex,
-                                          innerOuterLowerModuleIndex,
-                                          outerInnerLowerModuleIndex,
-                                          outerOuterLowerModuleIndex,
-                                          innerSegmentIndex,
-                                          outerSegmentIndex,
-                                          firstMDIndex,
-                                          secondMDIndex,
-                                          thirdMDIndex,
-                                          fourthMDIndex);
+      return runQuintupletdBetaCutBBBB(acc,
+                                       modules,
+                                       mds,
+                                       segments,
+                                       innerInnerLowerModuleIndex,
+                                       innerOuterLowerModuleIndex,
+                                       outerInnerLowerModuleIndex,
+                                       outerOuterLowerModuleIndex,
+                                       innerSegmentIndex,
+                                       outerSegmentIndex,
+                                       firstMDIndex,
+                                       secondMDIndex,
+                                       thirdMDIndex,
+                                       fourthMDIndex,
+                                       dBeta,
+                                       ptCut);
     } else if (innerInnerLowerModuleSubdet == Barrel and innerOuterLowerModuleSubdet == Endcap and
                outerInnerLowerModuleSubdet == Endcap and outerOuterLowerModuleSubdet == Endcap) {
-      return runQuintupletDefaultAlgoBBEE(acc,
-                                          modules,
-                                          mds,
-                                          segments,
-                                          innerInnerLowerModuleIndex,
-                                          innerOuterLowerModuleIndex,
-                                          outerInnerLowerModuleIndex,
-                                          outerOuterLowerModuleIndex,
-                                          innerSegmentIndex,
-                                          outerSegmentIndex,
-                                          firstMDIndex,
-                                          secondMDIndex,
-                                          thirdMDIndex,
-                                          fourthMDIndex);
+      return runQuintupletdBetaCutBBEE(acc,
+                                       modules,
+                                       mds,
+                                       segments,
+                                       innerInnerLowerModuleIndex,
+                                       innerOuterLowerModuleIndex,
+                                       outerInnerLowerModuleIndex,
+                                       outerOuterLowerModuleIndex,
+                                       innerSegmentIndex,
+                                       outerSegmentIndex,
+                                       firstMDIndex,
+                                       secondMDIndex,
+                                       thirdMDIndex,
+                                       fourthMDIndex,
+                                       dBeta,
+                                       ptCut);
     } else if (innerInnerLowerModuleSubdet == Endcap and innerOuterLowerModuleSubdet == Endcap and
                outerInnerLowerModuleSubdet == Endcap and outerOuterLowerModuleSubdet == Endcap) {
-      return runQuintupletDefaultAlgoEEEE(acc,
-                                          modules,
-                                          mds,
-                                          segments,
-                                          innerInnerLowerModuleIndex,
-                                          innerOuterLowerModuleIndex,
-                                          outerInnerLowerModuleIndex,
-                                          outerOuterLowerModuleIndex,
-                                          innerSegmentIndex,
-                                          outerSegmentIndex,
-                                          firstMDIndex,
-                                          secondMDIndex,
-                                          thirdMDIndex,
-                                          fourthMDIndex);
+      return runQuintupletdBetaCutEEEE(acc,
+                                       modules,
+                                       mds,
+                                       segments,
+                                       innerInnerLowerModuleIndex,
+                                       innerOuterLowerModuleIndex,
+                                       outerInnerLowerModuleIndex,
+                                       outerOuterLowerModuleIndex,
+                                       innerSegmentIndex,
+                                       outerSegmentIndex,
+                                       firstMDIndex,
+                                       secondMDIndex,
+                                       thirdMDIndex,
+                                       fourthMDIndex,
+                                       dBeta,
+                                       ptCut);
     }
 
     return false;
@@ -2036,7 +1462,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                float& rzChiSquared,
                                                                float& chiSquared,
                                                                float& nonAnchorChiSquared,
-                                                               bool& tightCutFlag) {
+                                                               float& dBeta1,
+                                                               float& dBeta2,
+                                                               bool& tightCutFlag,
+                                                               const float ptCut) {
     unsigned int firstSegmentIndex = triplets.segmentIndices()[innerTripletIndex][0];
     unsigned int secondSegmentIndex = triplets.segmentIndices()[innerTripletIndex][1];
     unsigned int thirdSegmentIndex = triplets.segmentIndices()[outerTripletIndex][0];
@@ -2057,38 +1486,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     unsigned int fourthMDIndex = segments.mdIndices()[thirdSegmentIndex][1];
     unsigned int fifthMDIndex = segments.mdIndices()[fourthSegmentIndex][1];
 
-    if (not runQuintupletAlgoSelector(acc,
-                                      modules,
-                                      mds,
-                                      segments,
-                                      lowerModuleIndex1,
-                                      lowerModuleIndex2,
-                                      lowerModuleIndex3,
-                                      lowerModuleIndex4,
-                                      firstSegmentIndex,
-                                      thirdSegmentIndex,
-                                      firstMDIndex,
-                                      secondMDIndex,
-                                      thirdMDIndex,
-                                      fourthMDIndex))
-      return false;
-
-    if (not runQuintupletAlgoSelector(acc,
-                                      modules,
-                                      mds,
-                                      segments,
-                                      lowerModuleIndex1,
-                                      lowerModuleIndex2,
-                                      lowerModuleIndex4,
-                                      lowerModuleIndex5,
-                                      firstSegmentIndex,
-                                      fourthSegmentIndex,
-                                      firstMDIndex,
-                                      secondMDIndex,
-                                      fourthMDIndex,
-                                      fifthMDIndex))
-      return false;
-
     float x1 = mds.anchorX()[firstMDIndex];
     float x2 = mds.anchorX()[secondMDIndex];
     float x3 = mds.anchorX()[thirdMDIndex];
@@ -2101,73 +1498,61 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float y4 = mds.anchorY()[fourthMDIndex];
     float y5 = mds.anchorY()[fifthMDIndex];
 
-    //construct the arrays
-    float x1Vec[] = {x1, x1, x1};
-    float y1Vec[] = {y1, y1, y1};
-    float x2Vec[] = {x2, x2, x2};
-    float y2Vec[] = {y2, y2, y2};
-    float x3Vec[] = {x3, x3, x3};
-    float y3Vec[] = {y3, y3, y3};
-
-    if (modules.subdets()[lowerModuleIndex1] == Endcap and modules.moduleType()[lowerModuleIndex1] == TwoS) {
-      x1Vec[1] = mds.anchorLowEdgeX()[firstMDIndex];
-      x1Vec[2] = mds.anchorHighEdgeX()[firstMDIndex];
-
-      y1Vec[1] = mds.anchorLowEdgeY()[firstMDIndex];
-      y1Vec[2] = mds.anchorHighEdgeY()[firstMDIndex];
-    }
-    if (modules.subdets()[lowerModuleIndex2] == Endcap and modules.moduleType()[lowerModuleIndex2] == TwoS) {
-      x2Vec[1] = mds.anchorLowEdgeX()[secondMDIndex];
-      x2Vec[2] = mds.anchorHighEdgeX()[secondMDIndex];
-
-      y2Vec[1] = mds.anchorLowEdgeY()[secondMDIndex];
-      y2Vec[2] = mds.anchorHighEdgeY()[secondMDIndex];
-    }
-    if (modules.subdets()[lowerModuleIndex3] == Endcap and modules.moduleType()[lowerModuleIndex3] == TwoS) {
-      x3Vec[1] = mds.anchorLowEdgeX()[thirdMDIndex];
-      x3Vec[2] = mds.anchorHighEdgeX()[thirdMDIndex];
-
-      y3Vec[1] = mds.anchorLowEdgeY()[thirdMDIndex];
-      y3Vec[2] = mds.anchorHighEdgeY()[thirdMDIndex];
-    }
-
-    float innerRadiusMin2S, innerRadiusMax2S;
-    computeErrorInRadius(acc, x1Vec, y1Vec, x2Vec, y2Vec, x3Vec, y3Vec, innerRadiusMin2S, innerRadiusMax2S);
-
-    for (int i = 0; i < 3; i++) {
-      x1Vec[i] = x4;
-      y1Vec[i] = y4;
-    }
-    if (modules.subdets()[lowerModuleIndex4] == Endcap and modules.moduleType()[lowerModuleIndex4] == TwoS) {
-      x1Vec[1] = mds.anchorLowEdgeX()[fourthMDIndex];
-      x1Vec[2] = mds.anchorHighEdgeX()[fourthMDIndex];
-
-      y1Vec[1] = mds.anchorLowEdgeY()[fourthMDIndex];
-      y1Vec[2] = mds.anchorHighEdgeY()[fourthMDIndex];
-    }
-
-    float bridgeRadiusMin2S, bridgeRadiusMax2S;
-    computeErrorInRadius(acc, x2Vec, y2Vec, x3Vec, y3Vec, x1Vec, y1Vec, bridgeRadiusMin2S, bridgeRadiusMax2S);
-
-    for (int i = 0; i < 3; i++) {
-      x2Vec[i] = x5;
-      y2Vec[i] = y5;
-    }
-    if (modules.subdets()[lowerModuleIndex5] == Endcap and modules.moduleType()[lowerModuleIndex5] == TwoS) {
-      x2Vec[1] = mds.anchorLowEdgeX()[fifthMDIndex];
-      x2Vec[2] = mds.anchorHighEdgeX()[fifthMDIndex];
-
-      y2Vec[1] = mds.anchorLowEdgeY()[fifthMDIndex];
-      y2Vec[2] = mds.anchorHighEdgeY()[fifthMDIndex];
-    }
-
-    float outerRadiusMin2S, outerRadiusMax2S;
-    computeErrorInRadius(acc, x3Vec, y3Vec, x1Vec, y1Vec, x2Vec, y2Vec, outerRadiusMin2S, outerRadiusMax2S);
-
     float g, f;
     outerRadius = triplets.radius()[outerTripletIndex];
     bridgeRadius = computeRadiusFromThreeAnchorHits(acc, x2, y2, x3, y3, x4, y4, g, f);
     innerRadius = triplets.radius()[innerTripletIndex];
+
+    bool inference = lst::t5dnn::runInference(acc,
+                                              mds,
+                                              firstMDIndex,
+                                              secondMDIndex,
+                                              thirdMDIndex,
+                                              fourthMDIndex,
+                                              fifthMDIndex,
+                                              innerRadius,
+                                              outerRadius,
+                                              bridgeRadius);
+    tightCutFlag = tightCutFlag and inference;  // T5-in-TC cut
+    if (!inference)                             // T5-building cut
+      return false;
+
+    if (not runQuintupletdBetaAlgoSelector(acc,
+                                           modules,
+                                           mds,
+                                           segments,
+                                           lowerModuleIndex1,
+                                           lowerModuleIndex2,
+                                           lowerModuleIndex3,
+                                           lowerModuleIndex4,
+                                           firstSegmentIndex,
+                                           thirdSegmentIndex,
+                                           firstMDIndex,
+                                           secondMDIndex,
+                                           thirdMDIndex,
+                                           fourthMDIndex,
+                                           dBeta1,
+                                           ptCut))
+      return false;
+
+    if (not runQuintupletdBetaAlgoSelector(acc,
+                                           modules,
+                                           mds,
+                                           segments,
+                                           lowerModuleIndex1,
+                                           lowerModuleIndex2,
+                                           lowerModuleIndex4,
+                                           lowerModuleIndex5,
+                                           firstSegmentIndex,
+                                           fourthSegmentIndex,
+                                           firstMDIndex,
+                                           secondMDIndex,
+                                           fourthMDIndex,
+                                           fifthMDIndex,
+                                           dBeta2,
+                                           ptCut))
+      return false;
+
     g = triplets.centerX()[innerTripletIndex];
     f = triplets.centerY()[innerTripletIndex];
 
@@ -2194,72 +1579,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                tightCutFlag))
       return false;
 
-    if (innerRadius < 0.95f * ptCut / (2.f * k2Rinv1GeVf))
-      return false;
-
-    //split by category
-    bool matchedRadii;
-    if (modules.subdets()[lowerModuleIndex1] == Barrel and modules.subdets()[lowerModuleIndex2] == Barrel and
-        modules.subdets()[lowerModuleIndex3] == Barrel and modules.subdets()[lowerModuleIndex4] == Barrel and
-        modules.subdets()[lowerModuleIndex5] == Barrel) {
-      matchedRadii = matchRadiiBBBBB(acc, innerRadius, bridgeRadius, outerRadius);
-    } else if (modules.subdets()[lowerModuleIndex1] == Barrel and modules.subdets()[lowerModuleIndex2] == Barrel and
-               modules.subdets()[lowerModuleIndex3] == Barrel and modules.subdets()[lowerModuleIndex4] == Barrel and
-               modules.subdets()[lowerModuleIndex5] == Endcap) {
-      matchedRadii = matchRadiiBBBBE(acc, innerRadius, bridgeRadius, outerRadius);
-    } else if (modules.subdets()[lowerModuleIndex1] == Barrel and modules.subdets()[lowerModuleIndex2] == Barrel and
-               modules.subdets()[lowerModuleIndex3] == Barrel and modules.subdets()[lowerModuleIndex4] == Endcap and
-               modules.subdets()[lowerModuleIndex5] == Endcap) {
-      if (modules.layers()[lowerModuleIndex1] == 1) {
-        matchedRadii =
-            matchRadiiBBBEE12378(acc, innerRadius, bridgeRadius, outerRadius, bridgeRadiusMin2S, bridgeRadiusMax2S);
-      } else if (modules.layers()[lowerModuleIndex1] == 2) {
-        matchedRadii =
-            matchRadiiBBBEE23478(acc, innerRadius, bridgeRadius, outerRadius, bridgeRadiusMin2S, bridgeRadiusMax2S);
-      } else {
-        matchedRadii =
-            matchRadiiBBBEE34578(acc, innerRadius, bridgeRadius, outerRadius, bridgeRadiusMin2S, bridgeRadiusMax2S);
-      }
-    }
-
-    else if (modules.subdets()[lowerModuleIndex1] == Barrel and modules.subdets()[lowerModuleIndex2] == Barrel and
-             modules.subdets()[lowerModuleIndex3] == Endcap and modules.subdets()[lowerModuleIndex4] == Endcap and
-             modules.subdets()[lowerModuleIndex5] == Endcap) {
-      matchedRadii = matchRadiiBBEEE(acc, innerRadius, bridgeRadius, outerRadius, bridgeRadiusMin2S, bridgeRadiusMax2S);
-    } else if (modules.subdets()[lowerModuleIndex1] == Barrel and modules.subdets()[lowerModuleIndex2] == Endcap and
-               modules.subdets()[lowerModuleIndex3] == Endcap and modules.subdets()[lowerModuleIndex4] == Endcap and
-               modules.subdets()[lowerModuleIndex5] == Endcap) {
-      matchedRadii = matchRadiiBEEEE(acc,
-                                     innerRadius,
-                                     bridgeRadius,
-                                     outerRadius,
-                                     innerRadiusMin2S,
-                                     innerRadiusMax2S,
-                                     bridgeRadiusMin2S,
-                                     bridgeRadiusMax2S);
-    } else {
-      matchedRadii = matchRadiiEEEEE(acc,
-                                     innerRadius,
-                                     bridgeRadius,
-                                     outerRadius,
-                                     innerRadiusMin2S,
-                                     innerRadiusMax2S,
-                                     bridgeRadiusMin2S,
-                                     bridgeRadiusMax2S);
-    }
-
-    //compute regression radius right here - this computation is expensive!!!
-    if (not matchedRadii)
-      return false;
+    // 5 categories for sigmas
+    float sigmas2[5], delta1[5], delta2[5], slopes[5];
+    bool isFlat[5];
 
     float xVec[] = {x1, x2, x3, x4, x5};
     float yVec[] = {y1, y2, y3, y4, y5};
     const uint16_t lowerModuleIndices[] = {
         lowerModuleIndex1, lowerModuleIndex2, lowerModuleIndex3, lowerModuleIndex4, lowerModuleIndex5};
-
-    // 5 categories for sigmas
-    float sigmas2[5], delta1[5], delta2[5], slopes[5];
-    bool isFlat[5];
 
     computeSigmasForRegression(acc, modules, lowerModuleIndices, delta1, delta2, slopes, isFlat);
     regressionRadius = computeRadiusUsingRegression(acc,
@@ -2274,25 +1601,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                     regressionF,
                                                     sigmas2,
                                                     chiSquared);
-
-    unsigned int mdIndices[] = {firstMDIndex, secondMDIndex, thirdMDIndex, fourthMDIndex, fifthMDIndex};
-    float inference = t5dnn::runInference(acc,
-                                          modules,
-                                          mds,
-                                          segments,
-                                          triplets,
-                                          xVec,
-                                          yVec,
-                                          mdIndices,
-                                          lowerModuleIndices,
-                                          innerTripletIndex,
-                                          outerTripletIndex,
-                                          innerRadius,
-                                          outerRadius,
-                                          bridgeRadius);
-    tightCutFlag = tightCutFlag and (inference > t5dnn::kLSTWp2);  // T5-in-TC cut
-    if (inference <= t5dnn::kLSTWp2)                               // T5-building cut
-      return false;
 
     //compute the other chisquared
     //non anchor is always shifted for tilted and endcap!
@@ -2342,7 +1650,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   Quintuplets quintuplets,
                                   QuintupletsOccupancy quintupletsOccupancy,
                                   ObjectRangesConst ranges,
-                                  uint16_t nEligibleT5Modules) const {
+                                  uint16_t nEligibleT5Modules,
+                                  const float ptCut) const {
       auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
       auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
 
@@ -2373,7 +1682,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             uint16_t lowerModule5 = triplets.lowerModuleIndices()[outerTripletIndex][2];
 
             float innerRadius, outerRadius, bridgeRadius, regressionG, regressionF, regressionRadius, rzChiSquared,
-                chiSquared, nonAnchorChiSquared;  //required for making distributions
+                chiSquared, nonAnchorChiSquared, dBeta1, dBeta2;  //required for making distributions
 
             bool tightCutFlag = false;
             bool success = runQuintupletDefaultAlgo(acc,
@@ -2397,14 +1706,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                     rzChiSquared,
                                                     chiSquared,
                                                     nonAnchorChiSquared,
-                                                    tightCutFlag);
+                                                    dBeta1,
+                                                    dBeta2,
+                                                    tightCutFlag,
+                                                    ptCut);
 
             if (success) {
               int totOccupancyQuintuplets = alpaka::atomicAdd(
                   acc, &quintupletsOccupancy.totOccupancyQuintuplets()[lowerModule1], 1u, alpaka::hierarchy::Threads{});
               if (totOccupancyQuintuplets >= ranges.quintupletModuleOccupancy()[lowerModule1]) {
 #ifdef WARNINGS
-                printf("Quintuplet excess alert! Module index = %d\n", lowerModule1);
+                printf("Quintuplet excess alert! Module index = %d, Occupancy = %d\n",
+                       lowerModule1,
+                       totOccupancyQuintuplets);
 #endif
               } else {
                 int quintupletModuleIndex = alpaka::atomicAdd(
@@ -2440,6 +1754,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                         rzChiSquared,
                                         chiSquared,
                                         nonAnchorChiSquared,
+                                        dBeta1,
+                                        dBeta2,
                                         pt,
                                         eta,
                                         phi,
@@ -2464,7 +1780,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                   ModulesConst modules,
                                   TripletsOccupancyConst tripletsOccupancy,
-                                  ObjectRanges ranges) const {
+                                  ObjectRanges ranges,
+                                  const float ptCut) const {
       // implementation is 1D with a single block
       static_assert(std::is_same_v<TAcc, ALPAKA_ACCELERATOR_NAMESPACE::Acc1D>, "Should be Acc1D");
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
@@ -2480,6 +1797,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         nEligibleT5Modulesx = 0;
       }
       alpaka::syncBlockThreads(acc);
+
+      // Occupancy matrix for 0.8 GeV pT Cut
+      constexpr int p08_occupancy_matrix[4][4] = {
+          {336, 414, 231, 146},  // category 0
+          {0, 0, 0, 0},          // category 1
+          {0, 0, 0, 0},          // category 2
+          {0, 0, 191, 106}       // category 3
+      };
+
+      // Occupancy matrix for 0.6 GeV pT Cut, 99.99%
+      constexpr int p06_occupancy_matrix[4][4] = {
+          {325, 237, 217, 176},  // category 0
+          {0, 0, 0, 0},          // category 1
+          {0, 0, 0, 0},          // category 2
+          {0, 0, 129, 180}       // category 3
+      };
+
+      // Select the appropriate occupancy matrix based on ptCut
+      const auto& occupancy_matrix = (ptCut < 0.8f) ? p06_occupancy_matrix : p08_occupancy_matrix;
 
       for (int i = globalThreadIdx[0]; i < modules.nLowerModules(); i += gridThreadExtent[0]) {
         // Condition for a quintuple to exist for a module
@@ -2498,55 +1834,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         int nEligibleT5Modules = alpaka::atomicAdd(acc, &nEligibleT5Modulesx, 1, alpaka::hierarchy::Threads{});
 
-        int category_number;
-        if (module_layers <= 3 && module_subdets == 5)
-          category_number = 0;
-        else if (module_layers >= 4 && module_subdets == 5)
-          category_number = 1;
-        else if (module_layers <= 2 && module_subdets == 4 && module_rings >= 11)
-          category_number = 2;
-        else if (module_layers >= 3 && module_subdets == 4 && module_rings >= 8)
-          category_number = 2;
-        else if (module_layers <= 2 && module_subdets == 4 && module_rings <= 10)
-          category_number = 3;
-        else if (module_layers >= 3 && module_subdets == 4 && module_rings <= 7)
-          category_number = 3;
-        else
-          category_number = -1;
+        int category_number = getCategoryNumber(module_layers, module_subdets, module_rings);
+        int eta_number = getEtaBin(module_eta);
 
-        int eta_number;
-        if (module_eta < 0.75f)
-          eta_number = 0;
-        else if (module_eta < 1.5f)
-          eta_number = 1;
-        else if (module_eta < 2.25f)
-          eta_number = 2;
-        else if (module_eta < 3.0f)
-          eta_number = 3;
-        else
-          eta_number = -1;
-
-        int occupancy;
-        if (category_number == 0 && eta_number == 0)
-          occupancy = 336;
-        else if (category_number == 0 && eta_number == 1)
-          occupancy = 414;
-        else if (category_number == 0 && eta_number == 2)
-          occupancy = 231;
-        else if (category_number == 0 && eta_number == 3)
-          occupancy = 146;
-        else if (category_number == 3 && eta_number == 1)
-          occupancy = 0;
-        else if (category_number == 3 && eta_number == 2)
-          occupancy = 191;
-        else if (category_number == 3 && eta_number == 3)
-          occupancy = 106;
-        else {
-          occupancy = 0;
-#ifdef WARNINGS
-          printf("Unhandled case in createEligibleModulesListForQuintupletsGPU! Module index = %i\n", i);
-#endif
+        int occupancy = 0;
+        if (category_number != -1 && eta_number != -1) {
+          occupancy = occupancy_matrix[category_number][eta_number];
         }
+#ifdef WARNINGS
+        else {
+          printf("Unhandled case in createEligibleModulesListForQuintupletsGPU! Module index = %i\n", i);
+        }
+#endif
 
         int nTotQ = alpaka::atomicAdd(acc, &nTotalQuintupletsx, occupancy, alpaka::hierarchy::Threads{});
         ranges.quintupletModuleIndices()[i] = nTotQ;

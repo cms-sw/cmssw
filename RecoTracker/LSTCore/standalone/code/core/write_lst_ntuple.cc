@@ -1,3 +1,7 @@
+// to use computeRadiusFromThreeAnchorHits
+#include "LSTEvent.h"
+#include "Triplet.h"
+
 #include "write_lst_ntuple.h"
 
 using namespace ALPAKA_ACCELERATOR_NAMESPACE::lst;
@@ -72,6 +76,8 @@ void createOptionalOutputBranches() {
   ana.tx->createBranch<std::vector<float>>("pT5_eta");
   ana.tx->createBranch<std::vector<float>>("pT5_phi");
   ana.tx->createBranch<std::vector<int>>("pT5_isFake");
+  ana.tx->createBranch<std::vector<float>>("t5_sim_vxy");
+  ana.tx->createBranch<std::vector<float>>("t5_sim_vz");
   ana.tx->createBranch<std::vector<int>>("pT5_isDuplicate");
   ana.tx->createBranch<std::vector<int>>("pT5_score");
   ana.tx->createBranch<std::vector<int>>("pT5_layer_binary");
@@ -118,6 +124,7 @@ void createOptionalOutputBranches() {
   ana.tx->createBranch<std::vector<int>>("t5_isDuplicate");
   ana.tx->createBranch<std::vector<int>>("t5_foundDuplicate");
   ana.tx->createBranch<std::vector<float>>("t5_pt");
+  ana.tx->createBranch<std::vector<float>>("t5_pMatched");
   ana.tx->createBranch<std::vector<float>>("t5_eta");
   ana.tx->createBranch<std::vector<float>>("t5_phi");
   ana.tx->createBranch<std::vector<float>>("t5_score_rphisum");
@@ -126,15 +133,63 @@ void createOptionalOutputBranches() {
   ana.tx->createBranch<std::vector<int>>("t5_moduleType_binary");
   ana.tx->createBranch<std::vector<int>>("t5_layer_binary");
   ana.tx->createBranch<std::vector<float>>("t5_matched_pt");
-  ana.tx->createBranch<std::vector<int>>("t5_partOfTC");
   ana.tx->createBranch<std::vector<float>>("t5_innerRadius");
   ana.tx->createBranch<std::vector<float>>("t5_outerRadius");
   ana.tx->createBranch<std::vector<float>>("t5_bridgeRadius");
   ana.tx->createBranch<std::vector<float>>("t5_chiSquared");
   ana.tx->createBranch<std::vector<float>>("t5_rzChiSquared");
   ana.tx->createBranch<std::vector<float>>("t5_nonAnchorChiSquared");
+  ana.tx->createBranch<std::vector<float>>("t5_dBeta1");
+  ana.tx->createBranch<std::vector<float>>("t5_dBeta2");
+
+  // Occupancy branches
+  ana.tx->createBranch<std::vector<int>>("module_layers");
+  ana.tx->createBranch<std::vector<int>>("module_subdets");
+  ana.tx->createBranch<std::vector<int>>("module_rings");
+  ana.tx->createBranch<std::vector<int>>("module_rods");
+  ana.tx->createBranch<std::vector<int>>("module_modules");
+  ana.tx->createBranch<std::vector<bool>>("module_isTilted");
+  ana.tx->createBranch<std::vector<float>>("module_eta");
+  ana.tx->createBranch<std::vector<float>>("module_r");
+  ana.tx->createBranch<std::vector<int>>("md_occupancies");
+  ana.tx->createBranch<std::vector<int>>("sg_occupancies");
+  ana.tx->createBranch<std::vector<int>>("t3_occupancies");
+  ana.tx->createBranch<int>("tc_occupancies");
+  ana.tx->createBranch<std::vector<int>>("t5_occupancies");
+  ana.tx->createBranch<int>("pT3_occupancies");
+  ana.tx->createBranch<int>("pT5_occupancies");
+
+  // T5 DNN branches
+  createT5DNNBranches();
 
 #endif
+}
+
+//________________________________________________________________________________________________________________________________
+void createT5DNNBranches() {
+  // Common branches
+  ana.tx->createBranch<std::vector<int>>("t5_t3_idx0");
+  ana.tx->createBranch<std::vector<int>>("t5_t3_idx1");
+  ana.tx->createBranch<std::vector<int>>("t5_tc_idx");
+  ana.tx->createBranch<std::vector<int>>("t5_partOfTC");
+  ana.tx->createBranch<std::vector<float>>("t5_t3_pt");
+  ana.tx->createBranch<std::vector<float>>("t5_t3_eta");
+  ana.tx->createBranch<std::vector<float>>("t5_t3_phi");
+
+  // Hit-specific branches
+  std::vector<std::string> hitIndices = {"0", "1", "2", "3", "4", "5"};
+  std::vector<std::string> hitProperties = {"r", "x", "y", "z", "eta", "phi", "detId", "layer", "moduleType"};
+
+  for (const auto& idx : hitIndices) {
+    for (const auto& prop : hitProperties) {
+      std::string branchName = "t5_t3_" + idx + "_" + prop;
+      if (prop == "detId" || prop == "layer" || prop == "moduleType") {
+        ana.tx->createBranch<std::vector<int>>(branchName);
+      } else {
+        ana.tx->createBranch<std::vector<float>>(branchName);
+      }
+    }
+  }
 }
 
 //________________________________________________________________________________________________________________________________
@@ -284,8 +339,72 @@ void setOptionalOutputBranches(LSTEvent* event) {
   setPixelQuintupletOutputBranches(event);
   setQuintupletOutputBranches(event);
   setPixelTripletOutputBranches(event);
+  setOccupancyBranches(event);
+  setT5DNNBranches(event);
 
 #endif
+}
+
+//________________________________________________________________________________________________________________________________
+void setOccupancyBranches(LSTEvent* event) {
+  auto modules = event->getModules<ModulesSoA>();
+  auto miniDoublets = event->getMiniDoublets<MiniDoubletsOccupancySoA>();
+  auto segments = event->getSegments<SegmentsOccupancySoA>();
+  auto triplets = event->getTriplets<TripletsOccupancySoA>();
+  auto quintuplets = event->getQuintuplets<QuintupletsOccupancySoA>();
+  auto pixelQuintuplets = event->getPixelQuintuplets();
+  auto pixelTriplets = event->getPixelTriplets();
+  auto trackCandidates = event->getTrackCandidates();
+
+  std::vector<int> moduleLayer;
+  std::vector<int> moduleSubdet;
+  std::vector<int> moduleRing;
+  std::vector<int> moduleRod;
+  std::vector<int> moduleModule;
+  std::vector<float> moduleEta;
+  std::vector<float> moduleR;
+  std::vector<bool> moduleIsTilted;
+  std::vector<int> trackCandidateOccupancy;
+  std::vector<int> tripletOccupancy;
+  std::vector<int> segmentOccupancy;
+  std::vector<int> mdOccupancy;
+  std::vector<int> quintupletOccupancy;
+
+  for (unsigned int lowerIdx = 0; lowerIdx <= modules.nLowerModules(); lowerIdx++) {
+    //layer = 0, subdet = 0 => pixel module
+    moduleLayer.push_back(modules.layers()[lowerIdx]);
+    moduleSubdet.push_back(modules.subdets()[lowerIdx]);
+    moduleRing.push_back(modules.rings()[lowerIdx]);
+    moduleRod.push_back(modules.rods()[lowerIdx]);
+    moduleEta.push_back(modules.eta()[lowerIdx]);
+    moduleR.push_back(modules.r()[lowerIdx]);
+    bool isTilted = (modules.subdets()[lowerIdx] == 5 and modules.sides()[lowerIdx] != 3);
+    moduleIsTilted.push_back(isTilted);
+    moduleModule.push_back(modules.modules()[lowerIdx]);
+    segmentOccupancy.push_back(segments.totOccupancySegments()[lowerIdx]);
+    mdOccupancy.push_back(miniDoublets.totOccupancyMDs()[lowerIdx]);
+
+    if (lowerIdx < modules.nLowerModules()) {
+      quintupletOccupancy.push_back(quintuplets.totOccupancyQuintuplets()[lowerIdx]);
+      tripletOccupancy.push_back(triplets.totOccupancyTriplets()[lowerIdx]);
+    }
+  }
+
+  ana.tx->setBranch<std::vector<int>>("module_layers", moduleLayer);
+  ana.tx->setBranch<std::vector<int>>("module_subdets", moduleSubdet);
+  ana.tx->setBranch<std::vector<int>>("module_rings", moduleRing);
+  ana.tx->setBranch<std::vector<int>>("module_rods", moduleRod);
+  ana.tx->setBranch<std::vector<int>>("module_modules", moduleModule);
+  ana.tx->setBranch<std::vector<bool>>("module_isTilted", moduleIsTilted);
+  ana.tx->setBranch<std::vector<float>>("module_eta", moduleEta);
+  ana.tx->setBranch<std::vector<float>>("module_r", moduleR);
+  ana.tx->setBranch<std::vector<int>>("md_occupancies", mdOccupancy);
+  ana.tx->setBranch<std::vector<int>>("sg_occupancies", segmentOccupancy);
+  ana.tx->setBranch<std::vector<int>>("t3_occupancies", tripletOccupancy);
+  ana.tx->setBranch<int>("tc_occupancies", trackCandidates.nTrackCandidates());
+  ana.tx->setBranch<int>("pT3_occupancies", pixelTriplets.totOccupancyPixelTriplets());
+  ana.tx->setBranch<std::vector<int>>("t5_occupancies", quintupletOccupancy);
+  ana.tx->setBranch<int>("pT5_occupancies", pixelQuintuplets.totOccupancyPixelQuintuplets());
 }
 
 //________________________________________________________________________________________________________________________________
@@ -325,6 +444,7 @@ void setPixelQuintupletOutputBranches(LSTEvent* event) {
     ana.tx->pushbackToBranch<float>("pT5_phi", phi);
     ana.tx->pushbackToBranch<int>("pT5_layer_binary", layer_binary);
     ana.tx->pushbackToBranch<int>("pT5_moduleType_binary", moduleType_binary);
+    ana.tx->pushbackToBranch<float>("pT5_rzChiSquared", pixelQuintuplets.rzChiSquared()[pT5]);
 
     pT5_matched_simIdx.push_back(simidx);
 
@@ -393,10 +513,12 @@ void setQuintupletOutputBranches(LSTEvent* event) {
         moduleType_binary |= (modules.moduleType()[module_idx[i]] << i);
       }
 
-      std::vector<int> simidx = matchedSimTrkIdxs(hit_idx, hit_type);
+      float percent_matched;
+      std::vector<int> simidx = matchedSimTrkIdxs(hit_idx, hit_type, false, &percent_matched);
 
       ana.tx->pushbackToBranch<int>("t5_isFake", static_cast<int>(simidx.size() == 0));
       ana.tx->pushbackToBranch<float>("t5_pt", pt);
+      ana.tx->pushbackToBranch<float>("t5_pMatched", percent_matched);
       ana.tx->pushbackToBranch<float>("t5_eta", eta);
       ana.tx->pushbackToBranch<float>("t5_phi", phi);
       ana.tx->pushbackToBranch<float>("t5_innerRadius", __H2F(quintuplets.innerRadius()[quintupletIndex]));
@@ -404,6 +526,9 @@ void setQuintupletOutputBranches(LSTEvent* event) {
       ana.tx->pushbackToBranch<float>("t5_outerRadius", __H2F(quintuplets.outerRadius()[quintupletIndex]));
       ana.tx->pushbackToBranch<float>("t5_chiSquared", quintuplets.chiSquared()[quintupletIndex]);
       ana.tx->pushbackToBranch<float>("t5_rzChiSquared", quintuplets.rzChiSquared()[quintupletIndex]);
+      ana.tx->pushbackToBranch<float>("t5_nonAnchorChiSquared", quintuplets.nonAnchorChiSquared()[quintupletIndex]);
+      ana.tx->pushbackToBranch<float>("t5_dBeta1", quintuplets.dBeta1()[quintupletIndex]);
+      ana.tx->pushbackToBranch<float>("t5_dBeta2", quintuplets.dBeta2()[quintupletIndex]);
       ana.tx->pushbackToBranch<int>("t5_layer_binary", layer_binary);
       ana.tx->pushbackToBranch<int>("t5_moduleType_binary", moduleType_binary);
 
@@ -414,6 +539,21 @@ void setQuintupletOutputBranches(LSTEvent* event) {
           sim_t5_matched.at(simtrk) += 1;
         }
       }
+
+      // Avoid fakes when calculating the vertex distance, set default to 0.0.
+      if (simidx.size() == 0) {
+        ana.tx->pushbackToBranch<float>("t5_sim_vxy", 0.0);
+        ana.tx->pushbackToBranch<float>("t5_sim_vz", 0.0);
+        continue;
+      }
+
+      int vtxidx = trk.sim_parentVtxIdx()[simidx[0]];
+      float vtx_x = trk.simvtx_x()[vtxidx];
+      float vtx_y = trk.simvtx_y()[vtxidx];
+      float vtx_z = trk.simvtx_z()[vtxidx];
+
+      ana.tx->pushbackToBranch<float>("t5_sim_vxy", sqrt(vtx_x * vtx_x + vtx_y * vtx_y));
+      ana.tx->pushbackToBranch<float>("t5_sim_vz", vtx_z);
     }
   }
 
@@ -496,6 +636,109 @@ void setPixelTripletOutputBranches(LSTEvent* event) {
   ana.tx->setBranch<std::vector<int>>("sim_pT3_matched", sim_pT3_matched);
   ana.tx->setBranch<std::vector<std::vector<int>>>("pT3_matched_simIdx", pT3_matched_simIdx);
   ana.tx->setBranch<std::vector<int>>("pT3_isDuplicate", pT3_isDuplicate);
+}
+
+//________________________________________________________________________________________________________________________________
+void fillT5DNNBranches(LSTEvent* event, unsigned int iT3) {
+  auto hits = event->getHits<HitsSoA>();
+  auto modules = event->getModules<ModulesSoA>();
+
+  std::vector<unsigned int> hitIdx = getHitsFromT3(event, iT3);
+  std::vector<lst_math::Hit> hitObjects(hitIdx.size());
+
+  for (int i = 0; i < hitIdx.size(); ++i) {
+    unsigned int hit = hitIdx[i];
+    float x = hits.xs()[hit];
+    float y = hits.ys()[hit];
+    float z = hits.zs()[hit];
+    hitObjects[i] = lst_math::Hit(x, y, z);
+
+    std::string idx = std::to_string(i);
+    ana.tx->pushbackToBranch<float>("t5_t3_" + idx + "_r", sqrt(x * x + y * y));
+    ana.tx->pushbackToBranch<float>("t5_t3_" + idx + "_x", x);
+    ana.tx->pushbackToBranch<float>("t5_t3_" + idx + "_y", y);
+    ana.tx->pushbackToBranch<float>("t5_t3_" + idx + "_z", z);
+    ana.tx->pushbackToBranch<float>("t5_t3_" + idx + "_eta", hitObjects[i].eta());
+    ana.tx->pushbackToBranch<float>("t5_t3_" + idx + "_phi", hitObjects[i].phi());
+
+    int subdet = trk.ph2_subdet()[hits.idxs()[hit]];
+    int is_endcap = subdet == 4;
+    int layer = trk.ph2_layer()[hits.idxs()[hit]] + 6 * is_endcap;
+    int detId = trk.ph2_detId()[hits.idxs()[hit]];
+    unsigned int module = hits.moduleIndices()[hit];
+
+    ana.tx->pushbackToBranch<int>("t5_t3_" + idx + "_detId", detId);
+    ana.tx->pushbackToBranch<int>("t5_t3_" + idx + "_layer", layer);
+    ana.tx->pushbackToBranch<int>("t5_t3_" + idx + "_moduleType", modules.moduleType()[module]);
+  }
+
+  float g, f;
+  auto const& devHost = cms::alpakatools::host();
+  float radius = computeRadiusFromThreeAnchorHits(devHost,
+                                                  hitObjects[0].x(),
+                                                  hitObjects[0].y(),
+                                                  hitObjects[1].x(),
+                                                  hitObjects[1].y(),
+                                                  hitObjects[2].x(),
+                                                  hitObjects[2].y(),
+                                                  g,
+                                                  f);
+  ana.tx->pushbackToBranch<float>("t5_t3_pt", k2Rinv1GeVf * 2 * radius);
+
+  // Angles
+  ana.tx->pushbackToBranch<float>("t5_t3_eta", hitObjects[2].eta());
+  ana.tx->pushbackToBranch<float>("t5_t3_phi", hitObjects[0].phi());
+}
+
+//________________________________________________________________________________________________________________________________
+void setT5DNNBranches(LSTEvent* event) {
+  auto triplets = event->getTriplets<TripletsOccupancySoA>();
+  auto modules = event->getModules<ModulesSoA>();
+  auto ranges = event->getRanges();
+  auto const quintuplets = event->getQuintuplets<QuintupletsOccupancySoA>();
+  auto trackCandidates = event->getTrackCandidates();
+
+  std::unordered_set<unsigned int> allT3s;
+  std::unordered_map<unsigned int, unsigned int> t3_index_map;
+
+  for (unsigned int idx = 0; idx < modules.nLowerModules(); ++idx) {
+    for (unsigned int jdx = 0; jdx < triplets.nTriplets()[idx]; ++jdx) {
+      unsigned int t3Idx = ranges.tripletModuleIndices()[idx] + jdx;
+      if (allT3s.insert(t3Idx).second) {
+        t3_index_map[t3Idx] = allT3s.size() - 1;
+        fillT5DNNBranches(event, t3Idx);
+      }
+    }
+  }
+
+  std::unordered_map<unsigned int, unsigned int> t5_tc_index_map;
+  std::unordered_set<unsigned int> t5s_used_in_tc;
+
+  for (unsigned int idx = 0; idx < trackCandidates.nTrackCandidates(); idx++) {
+    if (trackCandidates.trackCandidateType()[idx] == LSTObjType::T5) {
+      unsigned int objIdx = trackCandidates.directObjectIndices()[idx];
+      t5s_used_in_tc.insert(objIdx);
+      t5_tc_index_map[objIdx] = idx;
+    }
+  }
+
+  for (unsigned int idx = 0; idx < modules.nLowerModules(); ++idx) {
+    for (unsigned int jdx = 0; jdx < quintuplets.nQuintuplets()[idx]; ++jdx) {
+      unsigned int t5Idx = ranges.quintupletModuleIndices()[idx] + jdx;
+      std::vector<unsigned int> t3sIdx = getT3sFromT5(event, t5Idx);
+
+      ana.tx->pushbackToBranch<int>("t5_t3_idx0", t3_index_map[t3sIdx[0]]);
+      ana.tx->pushbackToBranch<int>("t5_t3_idx1", t3_index_map[t3sIdx[1]]);
+
+      if (t5s_used_in_tc.find(t5Idx) != t5s_used_in_tc.end()) {
+        ana.tx->pushbackToBranch<int>("t5_partOfTC", 1);
+        ana.tx->pushbackToBranch<int>("t5_tc_idx", t5_tc_index_map[t5Idx]);
+      } else {
+        ana.tx->pushbackToBranch<int>("t5_partOfTC", 0);
+        ana.tx->pushbackToBranch<int>("t5_tc_idx", -999);
+      }
+    }
+  }
 }
 
 //________________________________________________________________________________________________________________________________
@@ -717,16 +960,16 @@ std::tuple<int, float, float, float, int, std::vector<int>> parseTrackCandidate(
   float pt, eta, phi;
   std::vector<unsigned int> hit_idx, hit_type;
   switch (type) {
-    case lst::LSTObjType::pT5:
+    case LSTObjType::pT5:
       std::tie(pt, eta, phi, hit_idx, hit_type) = parsepT5(event, idx);
       break;
-    case lst::LSTObjType::pT3:
+    case LSTObjType::pT3:
       std::tie(pt, eta, phi, hit_idx, hit_type) = parsepT3(event, idx);
       break;
-    case lst::LSTObjType::T5:
+    case LSTObjType::T5:
       std::tie(pt, eta, phi, hit_idx, hit_type) = parseT5(event, idx);
       break;
-    case lst::LSTObjType::pLS:
+    case LSTObjType::pLS:
       std::tie(pt, eta, phi, hit_idx, hit_type) = parsepLS(event, idx);
       break;
   }

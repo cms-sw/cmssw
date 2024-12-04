@@ -2,6 +2,7 @@
 #define RecoTracker_LSTCore_src_alpaka_Triplet_h
 
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
@@ -76,54 +77,295 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                        uint16_t outerOuterLowerModuleIndex,
                                                        unsigned int firstMDIndex,
                                                        unsigned int secondMDIndex,
-                                                       unsigned int thirdMDIndex) {
-    //get the rt and z
-    const float& r1 = mds.anchorRt()[firstMDIndex];
-    const float& r2 = mds.anchorRt()[secondMDIndex];
-    const float& r3 = mds.anchorRt()[thirdMDIndex];
-
-    const float& z1 = mds.anchorZ()[firstMDIndex];
-    const float& z2 = mds.anchorZ()[secondMDIndex];
-    const float& z3 = mds.anchorZ()[thirdMDIndex];
-
+                                                       unsigned int thirdMDIndex,
+                                                       float circleRadius,
+                                                       float circleCenterX,
+                                                       float circleCenterY) {
     // Using lst_layer numbering convention defined in ModuleMethods.h
     const int layer1 = modules.lstLayers()[innerInnerLowerModuleIndex];
     const int layer2 = modules.lstLayers()[middleLowerModuleIndex];
     const int layer3 = modules.lstLayers()[outerOuterLowerModuleIndex];
 
-    const float residual = z2 - ((z3 - z1) / (r3 - r1) * (r2 - r1) + z1);
+    //all the values are stored in the unit of cm, in the calculation below we need to be cautious if we want to use the meter unit
+    //get r and z
+    const float r1 = mds.anchorRt()[firstMDIndex] / 100;
+    const float r2 = mds.anchorRt()[secondMDIndex] / 100;
+    const float r3 = mds.anchorRt()[thirdMDIndex] / 100;
 
-    if (layer1 == 12 and layer2 == 13 and layer3 == 14) {
-      return false;
-    } else if (layer1 == 1 and layer2 == 2 and layer3 == 3) {
-      return alpaka::math::abs(acc, residual) < 0.53f;
-    } else if (layer1 == 1 and layer2 == 2 and layer3 == 7) {
-      return alpaka::math::abs(acc, residual) < 1;
-    } else if (layer1 == 13 and layer2 == 14 and layer3 == 15) {
-      return false;
-    } else if (layer1 == 14 and layer2 == 15 and layer3 == 16) {
-      return false;
-    } else if (layer1 == 1 and layer2 == 7 and layer3 == 8) {
-      return alpaka::math::abs(acc, residual) < 1;
-    } else if (layer1 == 2 and layer2 == 3 and layer3 == 4) {
-      return alpaka::math::abs(acc, residual) < 1.21f;
-    } else if (layer1 == 2 and layer2 == 3 and layer3 == 7) {
-      return alpaka::math::abs(acc, residual) < 1.f;
-    } else if (layer1 == 2 and layer2 == 7 and layer3 == 8) {
-      return alpaka::math::abs(acc, residual) < 1.f;
-    } else if (layer1 == 3 and layer2 == 4 and layer3 == 5) {
-      return alpaka::math::abs(acc, residual) < 2.7f;
-    } else if (layer1 == 4 and layer2 == 5 and layer3 == 6) {
-      return alpaka::math::abs(acc, residual) < 3.06f;
-    } else if (layer1 == 7 and layer2 == 8 and layer3 == 9) {
-      return alpaka::math::abs(acc, residual) < 1;
-    } else if (layer1 == 8 and layer2 == 9 and layer3 == 10) {
-      return alpaka::math::abs(acc, residual) < 1;
-    } else if (layer1 == 9 and layer2 == 10 and layer3 == 11) {
-      return alpaka::math::abs(acc, residual) < 1;
-    } else {
-      return alpaka::math::abs(acc, residual) < 5;
+    const float z1 = mds.anchorZ()[firstMDIndex] / 100;
+    const float z2 = mds.anchorZ()[secondMDIndex] / 100;
+    const float z3 = mds.anchorZ()[thirdMDIndex] / 100;
+
+    //use linear approximation for regions 9 and 20-24 because it works better (see https://github.com/SegmentLinking/cmssw/pull/92)
+    float residual = alpaka::math::abs(acc, z2 - ((z3 - z1) / (r3 - r1) * (r2 - r1) + z1));
+
+    //region definitions: https://github.com/user-attachments/assets/2b3c1425-66eb-4524-83de-deb6f3b31f71
+    if (layer1 == 1 && layer2 == 7) {
+      return residual < 0.01f;  // Region 9
+    } else if (layer1 == 3 && layer2 == 4) {
+      if (layer3 == 5) {
+        return residual < 0.037127972f;  // Region 20
+      } else if (layer3 == 12) {
+        return residual < 0.05f;  // Region 21
+      }
+    } else if (layer1 == 4) {
+      if (layer2 == 12) {
+        return residual < 0.063831687f;  // Region 22
+      } else if (layer2 == 5) {
+        if (layer3 == 6) {
+          return residual < 0.04362525f;  // Region 23
+        } else if (layer3 == 12) {
+          return residual < 0.05f;  // Region 24
+        }
+      }
     }
+
+    //get the type of module: 0 is ps, 1 is 2s
+    const int moduleType3 = modules.moduleType()[outerOuterLowerModuleIndex];
+
+    //get the x,y position of each MD
+    const float x1 = mds.anchorX()[firstMDIndex] / 100;
+    const float x2 = mds.anchorX()[secondMDIndex] / 100;
+    const float x3 = mds.anchorX()[thirdMDIndex] / 100;
+
+    const float y1 = mds.anchorY()[firstMDIndex] / 100;
+    const float y2 = mds.anchorY()[secondMDIndex] / 100;
+    const float y3 = mds.anchorY()[thirdMDIndex] / 100;
+
+    //set initial and target points
+    float x_init = x2;
+    float y_init = y2;
+    float z_init = z2;
+    float r_init = r2;
+
+    float z_target = z3;
+    float r_target = r3;
+
+    float x_other = x1;
+    float y_other = y1;
+
+    float dz = z2 - z1;
+
+    //use MD2 for regions 5 and 19 because it works better (see https://github.com/SegmentLinking/cmssw/pull/92)
+    if ((layer1 == 8 && layer2 == 14 && layer3 == 15) || (layer1 == 3 && layer2 == 12 && layer3 == 13)) {
+      x_init = x1;
+      y_init = y1;
+      z_init = z1;
+      r_init = r1;
+
+      z_target = z2;
+      r_target = r2;
+
+      x_other = x3;
+      y_other = y3;
+
+      dz = z3 - z1;
+    }
+
+    //use the 3 MDs to fit a circle. This is the circle parameters, for circle centers and circle radius
+    float x_center = circleCenterX / 100;
+    float y_center = circleCenterY / 100;
+    float pt = 2 * k2Rinv1GeVf * circleRadius;  //k2Rinv1GeVf is already in cm^(-1)
+
+    //determine the charge
+    int charge = 0;
+    if ((x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1) > 0)
+      charge = -1;
+    else
+      charge = 1;
+
+    //get the absolute value of px and py at the initial point
+    float px = 2 * k2Rinv1GeVf * alpaka::math::abs(acc, (y_init - y_center)) * 100;
+    float py = 2 * k2Rinv1GeVf * alpaka::math::abs(acc, (x_init - x_center)) * 100;
+
+    //Above line only gives you the correct value of px and py, but signs of px and py calculated below.
+    //We look at if the circle is clockwise or anti-clock wise, to make it simpler, we separate the x-y plane into 4 quarters.
+    if (x_init > x_center && y_init > y_center)  //1st quad
+    {
+      if (charge == 1)
+        py = -py;
+      if (charge == -1)
+        px = -px;
+    }
+    if (x_init < x_center && y_init > y_center)  //2nd quad
+    {
+      if (charge == -1) {
+        px = -px;
+        py = -py;
+      }
+    }
+    if (x_init < x_center && y_init < y_center)  //3rd quad
+    {
+      if (charge == 1)
+        px = -px;
+      if (charge == -1)
+        py = -py;
+    }
+    if (x_init > x_center && y_init < y_center)  //4th quad
+    {
+      if (charge == 1) {
+        px = -px;
+        py = -py;
+      }
+    }
+
+    //But if the initial T3 curve goes across quarters(i.e. cross axis to separate the quarters), need special redeclaration of px,py signs on these to avoid errors
+    if (x3 < x2 && x2 < x1)
+      px = -alpaka::math::abs(acc, px);
+    else if (x3 > x2 && x2 > x1)
+      px = alpaka::math::abs(acc, px);
+    if (y3 < y2 && y2 < y1)
+      py = -alpaka::math::abs(acc, py);
+    else if (y3 > y2 && y2 > y1)
+      py = alpaka::math::abs(acc, py);
+
+    float AO = alpaka::math::sqrt(
+        acc, (x_other - x_center) * (x_other - x_center) + (y_other - y_center) * (y_other - y_center));
+    float BO =
+        alpaka::math::sqrt(acc, (x_init - x_center) * (x_init - x_center) + (y_init - y_center) * (y_init - y_center));
+    float AB2 = (x_other - x_init) * (x_other - x_init) + (y_other - y_init) * (y_other - y_init);
+    float dPhi = alpaka::math::acos(acc, (AO * AO + BO * BO - AB2) / (2 * AO * BO));  //Law of Cosines
+    float ds = circleRadius / 100 * dPhi;
+    float pz = dz / ds * pt;
+
+    float p = alpaka::math::sqrt(acc, px * px + py * py + pz * pz);
+    float a = -2.f * k2Rinv1GeVf * 100 * charge;
+    float rou = a / p;
+
+    float rzChiSquared = 0;
+    float error = 0;
+
+    //check the tilted module, side: PosZ, NegZ, Center(for not tilted)
+    float drdz = alpaka::math::abs(acc, modules.drdzs()[outerOuterLowerModuleIndex]);
+    short side = modules.sides()[outerOuterLowerModuleIndex];
+    short subdets = modules.subdets()[outerOuterLowerModuleIndex];
+
+    //calculate residual
+    if (layer3 <= 6 && ((side == lst::Center) or (drdz < 1))) {  // for barrel
+      float paraA = r_init * r_init + 2 * (px * px + py * py) / (a * a) + 2 * (y_init * px - x_init * py) / a -
+                    r_target * r_target;
+      float paraB = 2 * (x_init * px + y_init * py) / a;
+      float paraC = 2 * (y_init * px - x_init * py) / a + 2 * (px * px + py * py) / (a * a);
+      float A = paraB * paraB + paraC * paraC;
+      float B = 2 * paraA * paraB;
+      float C = paraA * paraA - paraC * paraC;
+      float sol1 = (-B + alpaka::math::sqrt(acc, B * B - 4 * A * C)) / (2 * A);
+      float sol2 = (-B - alpaka::math::sqrt(acc, B * B - 4 * A * C)) / (2 * A);
+      float solz1 = alpaka::math::asin(acc, sol1) / rou * pz / p + z_init;
+      float solz2 = alpaka::math::asin(acc, sol2) / rou * pz / p + z_init;
+      float diffz1 = (solz1 - z_target) * 100;
+      float diffz2 = (solz2 - z_target) * 100;
+      if (edm::isNotFinite(diffz1))
+        residual = diffz2;
+      else if (edm::isNotFinite(diffz2))
+        residual = diffz1;
+      else {
+        residual = (alpaka::math::abs(acc, diffz1) < alpaka::math::abs(acc, diffz2)) ? diffz1 : diffz2;
+      }
+    } else {  // for endcap
+      float s = (z_target - z_init) * p / pz;
+      float x = x_init + px / a * alpaka::math::sin(acc, rou * s) - py / a * (1 - alpaka::math::cos(acc, rou * s));
+      float y = y_init + py / a * alpaka::math::sin(acc, rou * s) + px / a * (1 - alpaka::math::cos(acc, rou * s));
+      residual = (r_target - alpaka::math::sqrt(acc, x * x + y * y)) * 100;
+    }
+
+    // error
+    if (moduleType3 == 0) {
+      error = 0.15f;  //PS
+    } else {
+      error = 5.0f;  //2S
+    }
+
+    float projection_missing2 = 1;
+    if (drdz < 1)
+      projection_missing2 = ((subdets == lst::Endcap) or (side == lst::Center))
+                                ? 1.f
+                                : 1 / (1 + drdz * drdz);  // cos(atan(drdz)), if dr/dz<1
+    if (drdz > 1)
+      projection_missing2 = ((subdets == lst::Endcap) or (side == lst::Center))
+                                ? 1.f
+                                : drdz * drdz / (1 + drdz * drdz);  //sin(atan(drdz)), if dr/dz>1
+
+    rzChiSquared = 12 * (residual * residual) / (error * error * projection_missing2);
+
+    //helix calculation returns NaN, use linear approximation
+    if (edm::isNotFinite(rzChiSquared) || circleRadius < 0) {
+      float slope = (z3 - z1) / (r3 - r1);
+
+      residual = (layer3 <= 6) ? ((z3 - z1) - slope * (r3 - r1)) : ((r3 - r1) - (z3 - z1) / slope);
+      residual = (moduleType3 == 0) ? residual / 0.15f : residual / 5.0f;
+
+      rzChiSquared = 12 * residual * residual;
+      return rzChiSquared < 2.8e-4;
+    }
+
+    //cuts for different regions
+    //region definitions: https://github.com/user-attachments/assets/2b3c1425-66eb-4524-83de-deb6f3b31f71
+    //for the logic behind the cuts, see https://github.com/SegmentLinking/cmssw/pull/92
+    if (layer1 == 7) {
+      if (layer2 == 8) {
+        if (layer3 == 9) {
+          return rzChiSquared < 65.47191f;  // Region 0
+        } else if (layer3 == 14) {
+          return rzChiSquared < 3.3200853f;  // Region 1
+        }
+      } else if (layer2 == 13) {
+        return rzChiSquared < 17.194584f;  // Region 2
+      }
+    } else if (layer1 == 8) {
+      if (layer2 == 9) {
+        if (layer3 == 10) {
+          return rzChiSquared < 114.91959f;  // Region 3
+        } else if (layer3 == 15) {
+          return rzChiSquared < 3.4359624f;  // Region 4
+        }
+      } else if (layer2 == 14) {
+        return rzChiSquared < 4.6487956f;  // Region 5
+      }
+    } else if (layer1 == 9) {
+      if (layer2 == 10) {
+        if (layer3 == 11) {
+          return rzChiSquared < 97.34339f;  // Region 6
+        } else if (layer3 == 16) {
+          return rzChiSquared < 3.095819f;  // Region 7
+        }
+      } else if (layer2 == 15) {
+        return rzChiSquared < 11.477617f;  // Region 8
+      }
+    } else if (layer1 == 1) {
+      if (layer3 == 7) {
+        return rzChiSquared < 96.949936f;  // Region 10
+      } else if (layer3 == 3) {
+        return rzChiSquared < 458.43982f;  // Region 11
+      }
+    } else if (layer1 == 2) {
+      if (layer2 == 7) {
+        if (layer3 == 8) {
+          return rzChiSquared < 218.82303f;  // Region 12
+        } else if (layer3 == 13) {
+          return rzChiSquared < 3.155554f;  // Region 13
+        }
+      } else if (layer2 == 3) {
+        if (layer3 == 7) {
+          return rzChiSquared < 235.5005f;  // Region 14
+        } else if (layer3 == 12) {
+          return rzChiSquared < 3.8522234f;  // Region 15
+        } else if (layer3 == 4) {
+          return rzChiSquared < 3.5852437f;  // Region 16
+        }
+      }
+    } else if (layer1 == 3) {
+      if (layer2 == 7) {
+        if (layer3 == 8) {
+          return rzChiSquared < 42.68f;  // Region 17
+        } else if (layer3 == 13) {
+          return rzChiSquared < 3.853796f;  // Region 18
+        }
+      } else if (layer2 == 12) {
+        return rzChiSquared < 6.2774787f;  // Region 19
+      }
+    }
+    return false;
   }
 
   template <typename TAcc>
@@ -141,62 +383,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 float& rtOut,
                                                                 unsigned int innerSegmentIndex,
                                                                 float& betaIn,
-                                                                float& betaInCut) {
-    bool isPSIn = (modules.moduleType()[innerInnerLowerModuleIndex] == PS);
-    bool isPSOut = (modules.moduleType()[outerOuterLowerModuleIndex] == PS);
-
+                                                                float& betaInCut,
+                                                                const float ptCut) {
     float rtIn = mds.anchorRt()[firstMDIndex];
     float rtMid = mds.anchorRt()[secondMDIndex];
-    rtOut = mds.anchorRt()[thirdMDIndex];
-
-    float zIn = mds.anchorZ()[firstMDIndex];
-    float zMid = mds.anchorZ()[secondMDIndex];
-    zOut = mds.anchorZ()[thirdMDIndex];
-
-    float alpha1GeVOut = alpaka::math::asin(acc, alpaka::math::min(acc, rtOut * k2Rinv1GeVf / ptCut, kSinAlphaMax));
-
-    float rtRatio_OutIn = rtOut / rtIn;  // Outer segment beginning rt divided by inner segment beginning rt;
-    float dzDrtScale = alpaka::math::tan(acc, alpha1GeVOut) / alpha1GeVOut;  // The track can bend in r-z plane slightly
-    float zpitchIn = (isPSIn ? kPixelPSZpitch : kStrip2SZpitch);
-    float zpitchOut = (isPSOut ? kPixelPSZpitch : kStrip2SZpitch);
-
-    const float zHi =
-        zIn + (zIn + kDeltaZLum) * (rtRatio_OutIn - 1.f) * (zIn < 0.f ? 1.f : dzDrtScale) + (zpitchIn + zpitchOut);
-    const float zLo = zIn + (zIn - kDeltaZLum) * (rtRatio_OutIn - 1.f) * (zIn > 0.f ? 1.f : dzDrtScale) -
-                      (zpitchIn + zpitchOut);  //slope-correction only on outer end
-
-    //Cut 1 - z compatibility
-    if ((zOut < zLo) || (zOut > zHi))
-      return false;
-
-    float drt_OutIn = (rtOut - rtIn);
-
-    float r3In = alpaka::math::sqrt(acc, zIn * zIn + rtIn * rtIn);
     float drt_InSeg = rtMid - rtIn;
-    float dz_InSeg = zMid - zIn;
-    float dr3_InSeg =
-        alpaka::math::sqrt(acc, rtMid * rtMid + zMid * zMid) - alpaka::math::sqrt(acc, rtIn * rtIn + zIn * zIn);
-
-    float coshEta = dr3_InSeg / drt_InSeg;
-    float dzErr = (zpitchIn + zpitchOut) * (zpitchIn + zpitchOut) * 2.f;
-
-    float thetaMuls2 = (kMulsInGeV * kMulsInGeV) * (0.1f + 0.2f * (rtOut - rtIn) / 50.f) * (r3In / rtIn);
-    float muls2 = thetaMuls2 * 9.f / (ptCut * ptCut) * 16.f;
-    dzErr += muls2 * drt_OutIn * drt_OutIn / 3.f * coshEta * coshEta;
-    dzErr = alpaka::math::sqrt(acc, dzErr);
-
-    // Constructing upper and lower bound
-    const float dzMean = dz_InSeg / drt_InSeg * drt_OutIn;
-    const float zWindow = dzErr / drt_InSeg * drt_OutIn +
-                          (zpitchIn + zpitchOut);  //FIXME for ptCut lower than ~0.8 need to add curv path correction
-    const float zLoPointed = zIn + dzMean * (zIn > 0.f ? 1.f : dzDrtScale) - zWindow;
-    const float zHiPointed = zIn + dzMean * (zIn < 0.f ? 1.f : dzDrtScale) + zWindow;
-
-    // Constructing upper and lower bound
-
-    // Cut #2: Pointed Z (Inner segment two MD points to outer segment inner MD)
-    if ((zOut < zLoPointed) || (zOut > zHiPointed))
-      return false;
 
     // raw betaIn value without any correction, based on the mini-doublet hit positions
     float alpha_InLo = __H2F(segments.dPhiChanges()[innerSegmentIndex]);
@@ -217,7 +408,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         alpaka::math::asin(acc, alpaka::math::min(acc, (-rt_InSeg + drt_tl_axis) * k2Rinv1GeVf / ptCut, kSinAlphaMax)) +
         (0.02f / drt_InSeg);
 
-    //Cut #3: first beta cut
+    //Beta cut
     return alpaka::math::abs(acc, betaIn) < betaInCut;
   }
 
@@ -238,72 +429,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int innerSegmentIndex,
                                                                 unsigned int outerSegmentIndex,
                                                                 float& betaIn,
-                                                                float& betaInCut) {
-    bool isPSIn = (modules.moduleType()[innerInnerLowerModuleIndex] == PS);
-    bool isPSOut = (modules.moduleType()[outerOuterLowerModuleIndex] == PS);
-
-    float rtIn = mds.anchorRt()[firstMDIndex];
-    float rtMid = mds.anchorRt()[secondMDIndex];
-    rtOut = mds.anchorRt()[thirdMDIndex];
-
-    float zIn = mds.anchorZ()[firstMDIndex];
-    float zMid = mds.anchorZ()[secondMDIndex];
-    zOut = mds.anchorZ()[thirdMDIndex];
-
-    float alpha1GeV_OutLo = alpaka::math::asin(acc, alpaka::math::min(acc, rtOut * k2Rinv1GeVf / ptCut, kSinAlphaMax));
-
-    float dzDrtScale =
-        alpaka::math::tan(acc, alpha1GeV_OutLo) / alpha1GeV_OutLo;  // The track can bend in r-z plane slightly
-    float zpitchIn = (isPSIn ? kPixelPSZpitch : kStrip2SZpitch);
-    float zpitchOut = (isPSOut ? kPixelPSZpitch : kStrip2SZpitch);
-    float zGeom = zpitchIn + zpitchOut;
-
-    // Cut #0: Preliminary (Only here in endcap case)
-    if (zIn * zOut <= 0)
-      return false;
-
-    float dLum = alpaka::math::copysign(acc, kDeltaZLum, zIn);
-    bool isOutSgInnerMDPS = modules.moduleType()[outerOuterLowerModuleIndex] == PS;
-    float rtGeom1 = isOutSgInnerMDPS ? kPixelPSZpitch : kStrip2SZpitch;
-    float zGeom1 = alpaka::math::copysign(acc, zGeom, zIn);
-    float rtLo = rtIn * (1.f + (zOut - zIn - zGeom1) / (zIn + zGeom1 + dLum) / dzDrtScale) -
-                 rtGeom1;  //slope correction only on the lower end
-
-    //Cut #1: rt condition
-    float zInForHi = zIn - zGeom1 - dLum;
-    if (zInForHi * zIn < 0) {
-      zInForHi = alpaka::math::copysign(acc, 0.1f, zIn);
-    }
-    float rtHi = rtIn * (1.f + (zOut - zIn + zGeom1) / zInForHi) + rtGeom1;
-
-    //Cut #2: rt condition
-    if ((rtOut < rtLo) || (rtOut > rtHi))
-      return false;
-
-    float rIn = alpaka::math::sqrt(acc, zIn * zIn + rtIn * rtIn);
-
-    const float drtSDIn = rtMid - rtIn;
-    const float dzSDIn = zMid - zIn;
-    const float dr3SDIn =
-        alpaka::math::sqrt(acc, rtMid * rtMid + zMid * zMid) - alpaka::math::sqrt(acc, rtIn * rtIn + zIn * zIn);
-
-    const float coshEta = dr3SDIn / drtSDIn;  //direction estimate
-    const float dzOutInAbs = alpaka::math::abs(acc, zOut - zIn);
-    const float multDzDr = dzOutInAbs * coshEta / (coshEta * coshEta - 1.f);
-    const float zGeom1_another = kPixelPSZpitch;
-    const float kZ = (zOut - zIn) / dzSDIn;
-    float drtErr =
-        zGeom1_another * zGeom1_another * drtSDIn * drtSDIn / dzSDIn / dzSDIn * (1.f - 2.f * kZ + 2.f * kZ * kZ);
-    const float thetaMuls2 = (kMulsInGeV * kMulsInGeV) * (0.1f + 0.2 * (rtOut - rtIn) / 50.f) * (rIn / rtIn);
-    const float muls2 = thetaMuls2 * 9.f / (ptCut * ptCut) * 16.f;
-    drtErr += muls2 * multDzDr * multDzDr / 3.f * coshEta * coshEta;
-    drtErr = alpaka::math::sqrt(acc, drtErr);
-
-    //Cut #3: rt-z pointed
-
-    if ((kZ < 0) || (rtOut < rtLo) || (rtOut > rtHi))
-      return false;
-
+                                                                float& betaInCut,
+                                                                const float ptCut) {
     float rt_InLo = mds.anchorRt()[firstMDIndex];
     float rt_InOut = mds.anchorRt()[secondMDIndex];
 
@@ -336,7 +463,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     betaInCut = alpaka::math::asin(acc, alpaka::math::min(acc, (-sdIn_dr + dr) * k2Rinv1GeVf / ptCut, kSinAlphaMax)) +
                 (0.02f / sdIn_d);
 
-    //Cut #4: first beta cut
+    //Beta cut
     return alpaka::math::abs(acc, betaInRHmin) < betaInCut;
   }
 
@@ -356,75 +483,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int innerSegmentIndex,
                                                                 unsigned int outerSegmentIndex,
                                                                 float& betaIn,
-                                                                float& betaInCut) {
-    float rtIn = mds.anchorRt()[firstMDIndex];
-    float rtMid = mds.anchorRt()[secondMDIndex];
-    rtOut = mds.anchorRt()[thirdMDIndex];
-
-    float zIn = mds.anchorZ()[firstMDIndex];
-    float zMid = mds.anchorZ()[secondMDIndex];
-    zOut = mds.anchorZ()[thirdMDIndex];
-
-    float alpha1GeV_Out = alpaka::math::asin(acc, alpaka::math::min(acc, rtOut * k2Rinv1GeVf / ptCut, kSinAlphaMax));
-
-    float dzDrtScale =
-        alpaka::math::tan(acc, alpha1GeV_Out) / alpha1GeV_Out;  // The track can bend in r-z plane slightly
-
-    // Cut #0: Preliminary (Only here in endcap case)
-    if (zIn * zOut <= 0)
-      return false;
-
-    float dLum = alpaka::math::copysign(acc, kDeltaZLum, zIn);
-    bool isOutSgOuterMDPS = modules.moduleType()[outerOuterLowerModuleIndex] == PS;
-    bool isInSgInnerMDPS = modules.moduleType()[innerInnerLowerModuleIndex] == PS;
-
-    float rtGeom = (isInSgInnerMDPS and isOutSgOuterMDPS)  ? 2.f * kPixelPSZpitch
-                   : (isInSgInnerMDPS or isOutSgOuterMDPS) ? kPixelPSZpitch + kStrip2SZpitch
-                                                           : 2.f * kStrip2SZpitch;
-
-    float dz = zOut - zIn;
-    const float rtLo = rtIn * (1.f + dz / (zIn + dLum) / dzDrtScale) - rtGeom;  //slope correction only on the lower end
-    const float rtHi = rtIn * (1.f + dz / (zIn - dLum)) + rtGeom;
-
-    //Cut #1: rt condition
-    if ((rtOut < rtLo) || (rtOut > rtHi))
-      return false;
-
-    bool isInSgOuterMDPS = modules.moduleType()[outerOuterLowerModuleIndex] == PS;
-
-    float drtSDIn = rtMid - rtIn;
-    float dzSDIn = zMid - zIn;
-    float dr3SDIn =
-        alpaka::math::sqrt(acc, rtMid * rtMid + zMid * zMid) - alpaka::math::sqrt(acc, rtIn * rtIn + zIn * zIn);
-
-    float coshEta = dr3SDIn / drtSDIn;  //direction estimate
-    float dzOutInAbs = alpaka::math::abs(acc, zOut - zIn);
-    float multDzDr = dzOutInAbs * coshEta / (coshEta * coshEta - 1.f);
-
-    float kZ = (zOut - zIn) / dzSDIn;
-    float thetaMuls2 = (kMulsInGeV * kMulsInGeV) * (0.1f + 0.2f * (rtOut - rtIn) / 50.f);
-
-    float muls2 = thetaMuls2 * 9.f / (ptCut * ptCut) * 16.f;
-
-    float drtErr =
-        alpaka::math::sqrt(acc,
-                           kPixelPSZpitch * kPixelPSZpitch * 2.f / (dzSDIn * dzSDIn) * (dzOutInAbs * dzOutInAbs) +
-                               muls2 * multDzDr * multDzDr / 3.f * coshEta * coshEta);
-
-    float drtMean = drtSDIn * dzOutInAbs / alpaka::math::abs(acc, dzSDIn);
-    float rtWindow = drtErr + rtGeom;
-    float rtLo_point = rtIn + drtMean / dzDrtScale - rtWindow;
-    float rtHi_point = rtIn + drtMean + rtWindow;
-
-    // Cut #3: rt-z pointed
-    // https://github.com/slava77/cms-tkph2-ntuple/blob/superDoubletLinked-91X-noMock/doubletAnalysis.C#L3765
-
-    if (isInSgInnerMDPS and isInSgOuterMDPS)  // If both PS then we can point
-    {
-      if ((kZ < 0) || (rtOut < rtLo_point) || (rtOut > rtHi_point))
-        return false;
-    }
-
+                                                                float& betaInCut,
+                                                                const float ptCut) {
     float rt_InLo = mds.anchorRt()[firstMDIndex];
     float rt_InOut = mds.anchorRt()[secondMDIndex];
     float sdIn_alpha = __H2F(segments.dPhiChanges()[innerSegmentIndex]);
@@ -457,7 +517,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     betaInCut = alpaka::math::asin(acc, alpaka::math::min(acc, (-sdIn_dr + dr) * k2Rinv1GeVf / ptCut, kSinAlphaMax)) +
                 (0.02f / sdIn_d);
 
-    //Cut #4: first beta cut
+    //Beta cut
     return alpaka::math::abs(acc, betaInRHmin) < betaInCut;
   }
 
@@ -478,7 +538,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                              unsigned int innerSegmentIndex,
                                                              unsigned int outerSegmentIndex,
                                                              float& betaIn,
-                                                             float& betaInCut) {
+                                                             float& betaInCut,
+                                                             const float ptCut) {
     short innerInnerLowerModuleSubdet = modules.subdets()[innerInnerLowerModuleIndex];
     short middleLowerModuleSubdet = modules.subdets()[middleLowerModuleIndex];
     short outerOuterLowerModuleSubdet = modules.subdets()[outerOuterLowerModuleIndex];
@@ -499,7 +560,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        rtOut,
                                        innerSegmentIndex,
                                        betaIn,
-                                       betaInCut);
+                                       betaInCut,
+                                       ptCut);
     } else if (innerInnerLowerModuleSubdet == Barrel and middleLowerModuleSubdet == Barrel and
                outerOuterLowerModuleSubdet == Endcap) {
       return passPointingConstraintBBE(acc,
@@ -518,7 +580,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        innerSegmentIndex,
                                        outerSegmentIndex,
                                        betaIn,
-                                       betaInCut);
+                                       betaInCut,
+                                       ptCut);
     } else if (innerInnerLowerModuleSubdet == Barrel and middleLowerModuleSubdet == Endcap and
                outerOuterLowerModuleSubdet == Endcap) {
       return passPointingConstraintBBE(acc,
@@ -537,7 +600,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        innerSegmentIndex,
                                        outerSegmentIndex,
                                        betaIn,
-                                       betaInCut);
+                                       betaInCut,
+                                       ptCut);
 
     }
 
@@ -558,7 +622,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        innerSegmentIndex,
                                        outerSegmentIndex,
                                        betaIn,
-                                       betaInCut);
+                                       betaInCut,
+                                       ptCut);
     }
     return false;  // failsafe
   }
@@ -612,7 +677,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                    float& betaInCut,
                                                                    float& circleRadius,
                                                                    float& circleCenterX,
-                                                                   float& circleCenterY) {
+                                                                   float& circleCenterY,
+                                                                   const float ptCut) {
     //this cut reduces the number of candidates by a factor of 4, i.e., 3 out of 4 warps can end right here!
     if (segments.mdIndices()[innerSegmentIndex][1] != segments.mdIndices()[outerSegmentIndex][0])
       return false;
@@ -620,6 +686,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     unsigned int firstMDIndex = segments.mdIndices()[innerSegmentIndex][0];
     unsigned int secondMDIndex = segments.mdIndices()[outerSegmentIndex][0];
     unsigned int thirdMDIndex = segments.mdIndices()[outerSegmentIndex][1];
+
+    float x1 = mds.anchorX()[firstMDIndex];
+    float x2 = mds.anchorX()[secondMDIndex];
+    float x3 = mds.anchorX()[thirdMDIndex];
+    float y1 = mds.anchorY()[firstMDIndex];
+    float y2 = mds.anchorY()[secondMDIndex];
+    float y3 = mds.anchorY()[thirdMDIndex];
+
+    circleRadius = computeRadiusFromThreeAnchorHits(acc, x1, y1, x2, y2, x3, y3, circleCenterX, circleCenterY);
 
     if (not passRZConstraint(acc,
                              modules,
@@ -629,8 +704,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                              outerOuterLowerModuleIndex,
                              firstMDIndex,
                              secondMDIndex,
-                             thirdMDIndex))
+                             thirdMDIndex,
+                             circleRadius,
+                             circleCenterX,
+                             circleCenterY))
       return false;
+
     if (not passPointingConstraint(acc,
                                    modules,
                                    mds,
@@ -647,17 +726,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                    innerSegmentIndex,
                                    outerSegmentIndex,
                                    betaIn,
-                                   betaInCut))
+                                   betaInCut,
+                                   ptCut))
       return false;
 
-    float x1 = mds.anchorX()[firstMDIndex];
-    float x2 = mds.anchorX()[secondMDIndex];
-    float x3 = mds.anchorX()[thirdMDIndex];
-    float y1 = mds.anchorY()[firstMDIndex];
-    float y2 = mds.anchorY()[secondMDIndex];
-    float y3 = mds.anchorY()[thirdMDIndex];
-
-    circleRadius = computeRadiusFromThreeAnchorHits(acc, x1, y1, x2, y2, x3, y3, circleCenterX, circleCenterY);
     return true;
   }
 
@@ -672,7 +744,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   TripletsOccupancy tripletsOccupancy,
                                   ObjectRangesConst ranges,
                                   uint16_t* index_gpu,
-                                  uint16_t nonZeroModules) const {
+                                  uint16_t nonZeroModules,
+                                  const float ptCut) const {
       auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
       auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
 
@@ -719,7 +792,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                         betaInCut,
                                                         circleRadius,
                                                         circleCenterX,
-                                                        circleCenterY);
+                                                        circleCenterY,
+                                                        ptCut);
 
             if (success) {
               unsigned int totOccupancyTriplets =
@@ -730,7 +804,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               if (static_cast<int>(totOccupancyTriplets) >=
                   ranges.tripletModuleOccupancy()[innerInnerLowerModuleIndex]) {
 #ifdef WARNINGS
-                printf("Triplet excess alert! Module index = %d\n", innerInnerLowerModuleIndex);
+                printf("Triplet excess alert! Module index = %d, Occupancy = %d\n",
+                       innerInnerLowerModuleIndex,
+                       totOccupancyTriplets);
 #endif
               } else {
                 unsigned int tripletModuleIndex = alpaka::atomicAdd(
@@ -769,7 +845,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                   ModulesConst modules,
                                   ObjectRanges ranges,
-                                  SegmentsOccupancyConst segmentsOccupancy) const {
+                                  SegmentsOccupancyConst segmentsOccupancy,
+                                  const float ptCut) const {
       // implementation is 1D with a single block
       static_assert(std::is_same_v<TAcc, ALPAKA_ACCELERATOR_NAMESPACE::Acc1D>, "Should be Acc1D");
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
@@ -784,6 +861,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       }
       alpaka::syncBlockThreads(acc);
 
+      // Occupancy matrix for 0.8 GeV pT Cut
+      constexpr int p08_occupancy_matrix[4][4] = {
+          {543, 235, 88, 46},  // category 0
+          {755, 347, 0, 0},    // category 1
+          {0, 0, 0, 0},        // category 2
+          {0, 38, 46, 39}      // category 3
+      };
+
+      // Occupancy matrix for 0.6 GeV pT Cut, 99.9%
+      constexpr int p06_occupancy_matrix[4][4] = {
+          {1146, 544, 216, 83},  // category 0
+          {1032, 275, 0, 0},     // category 1
+          {0, 0, 0, 0},          // category 2
+          {0, 115, 110, 76}      // category 3
+      };
+
+      // Select the appropriate occupancy matrix based on ptCut
+      const auto& occupancy_matrix = (ptCut < 0.8f) ? p06_occupancy_matrix : p08_occupancy_matrix;
+
       for (uint16_t i = globalThreadIdx[0]; i < modules.nLowerModules(); i += gridThreadExtent[0]) {
         if (segmentsOccupancy.nSegments()[i] == 0) {
           ranges.tripletModuleIndices()[i] = nTotalTriplets;
@@ -796,63 +892,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         short module_subdets = modules.subdets()[i];
         float module_eta = alpaka::math::abs(acc, modules.eta()[i]);
 
-        int category_number;
-        if (module_layers <= 3 && module_subdets == 5)
-          category_number = 0;
-        else if (module_layers >= 4 && module_subdets == 5)
-          category_number = 1;
-        else if (module_layers <= 2 && module_subdets == 4 && module_rings >= 11)
-          category_number = 2;
-        else if (module_layers >= 3 && module_subdets == 4 && module_rings >= 8)
-          category_number = 2;
-        else if (module_layers <= 2 && module_subdets == 4 && module_rings <= 10)
-          category_number = 3;
-        else if (module_layers >= 3 && module_subdets == 4 && module_rings <= 7)
-          category_number = 3;
-        else
-          category_number = -1;
+        int category_number = getCategoryNumber(module_layers, module_subdets, module_rings);
+        int eta_number = getEtaBin(module_eta);
 
-        int eta_number;
-        if (module_eta < 0.75f)
-          eta_number = 0;
-        else if (module_eta < 1.5f)
-          eta_number = 1;
-        else if (module_eta < 2.25f)
-          eta_number = 2;
-        else if (module_eta < 3.0f)
-          eta_number = 3;
-        else
-          eta_number = -1;
-
-        int occupancy;
-        if (category_number == 0 && eta_number == 0)
-          occupancy = 543;
-        else if (category_number == 0 && eta_number == 1)
-          occupancy = 235;
-        else if (category_number == 0 && eta_number == 2)
-          occupancy = 88;
-        else if (category_number == 0 && eta_number == 3)
-          occupancy = 46;
-        else if (category_number == 1 && eta_number == 0)
-          occupancy = 755;
-        else if (category_number == 1 && eta_number == 1)
-          occupancy = 347;
-        else if (category_number == 2 && eta_number == 1)
-          occupancy = 0;
-        else if (category_number == 2 && eta_number == 2)
-          occupancy = 0;
-        else if (category_number == 3 && eta_number == 1)
-          occupancy = 38;
-        else if (category_number == 3 && eta_number == 2)
-          occupancy = 46;
-        else if (category_number == 3 && eta_number == 3)
-          occupancy = 39;
-        else {
-          occupancy = 0;
-#ifdef WARNINGS
-          printf("Unhandled case in createTripletArrayRanges! Module index = %i\n", i);
-#endif
+        int occupancy = 0;
+        if (category_number != -1 && eta_number != -1) {
+          occupancy = occupancy_matrix[category_number][eta_number];
         }
+#ifdef WARNINGS
+        else {
+          printf("Unhandled case in createTripletArrayRanges! Module index = %i\n", i);
+        }
+#endif
 
         ranges.tripletModuleOccupancy()[i] = occupancy;
         unsigned int nTotT = alpaka::atomicAdd(acc, &nTotalTriplets, occupancy, alpaka::hierarchy::Threads{});
