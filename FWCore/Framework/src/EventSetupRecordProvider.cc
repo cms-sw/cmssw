@@ -252,6 +252,12 @@ namespace edm {
       for_all(providers_, std::bind(&EventSetupRecordProvider::addResolversToRecordHelper, this, _1, iMap));
     }
 
+    void EventSetupRecordProvider::updateLookup(ESRecordsToProductResolverIndices const& iResolverToIndices) {
+      for (auto& productResolverProvider : providers_) {
+        productResolverProvider->updateLookup(iResolverToIndices);
+      }
+    }
+
     std::set<EventSetupRecordKey> EventSetupRecordProvider::dependentRecords() const { return dependencies(key()); }
 
     std::set<ComponentDescription> EventSetupRecordProvider::resolverProviderDescriptions() const {

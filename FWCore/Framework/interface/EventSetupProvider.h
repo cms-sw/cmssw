@@ -96,6 +96,8 @@ namespace edm {
           std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers,
           EventSetupsController& esController);
 
+      void updateLookup();
+
       bool doRecordsMatch(EventSetupProvider& precedingESProvider,
                           EventSetupRecordKey const& eventSetupRecordKey,
                           std::map<EventSetupRecordKey, bool>& allComponentsMatch,
