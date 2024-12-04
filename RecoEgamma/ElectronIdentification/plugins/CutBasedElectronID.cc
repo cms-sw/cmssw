@@ -7,12 +7,18 @@
 #include <algorithm>
 
 CutBasedElectronID::CutBasedElectronID(const edm::ParameterSet& conf, edm::ConsumesCollector& iC) {
-  verticesCollection_ = iC.consumes<std::vector<reco::Vertex> >(conf.getParameter<edm::InputTag>("verticesCollection"));
-
   type_ = conf.getParameter<std::string>("electronIDType");
   quality_ = conf.getParameter<std::string>("electronQuality");
   version_ = conf.getParameter<std::string>("electronVersion");
-  //verticesCollection_ = conf.getParameter<edm::InputTag>("verticesCollection");
+
+  //The use of 'verticesCollection' for two different data items was in the old code. This explicitly
+  // shows the uses were mutually exclusive
+  if (type_ == "classbased" or version_ == "V05") {
+    verticesCollection_ =
+        iC.consumes<std::vector<reco::Vertex> >(conf.getParameter<edm::InputTag>("verticesCollection"));
+  } else if (type_ == "robust" and (version_ == "V03" or version_ == "V04")) {
+    beamSpot_ = iC.consumes(conf.getParameter<edm::InputTag>("verticesCollection"));
+  }
 
   if (type_ == "classbased" and (version_ == "V06")) {
     newCategories_ = conf.getParameter<bool>("additionalCategories");
@@ -140,11 +146,10 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
   }
 
   if (version_ != "V01" or version_ != "V00") {
-    edm::Handle<reco::VertexCollection> vtxH;
-    e.getByToken(verticesCollection_, vtxH);
-    if (!vtxH->empty()) {
-      reco::VertexRef vtx(vtxH, 0);
-      ip = fabs(electron->gsfTrack()->dxy(math::XYZPoint(vtx->x(), vtx->y(), vtx->z())));
+    auto const& vtxC = e.get(verticesCollection_);
+    if (!vtxC.empty()) {
+      auto const& vtx = vtxC[0];
+      ip = fabs(electron->gsfTrack()->dxy(math::XYZPoint(vtx.x(), vtx.y(), vtx.z())));
     } else
       ip = fabs(electron->gsfTrack()->dxy());
 
@@ -461,9 +466,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron,
   }
 
   if (version_ == "V03" or version_ == "V04") {
-    edm::Handle<reco::BeamSpot> pBeamSpot;
-    // uses the same name for the vertex collection to avoid adding more new names
-    e.getByToken(verticesCollection_, pBeamSpot);
+    edm::Handle<reco::BeamSpot> pBeamSpot = e.getHandle(beamSpot_);
     if (pBeamSpot.isValid()) {
       const reco::BeamSpot* bspot = pBeamSpot.product();
       const math::XYZPoint& bspotPosition = bspot->position();
@@ -481,11 +484,10 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron,
   }
 
   if (version_ == "V05") {
-    edm::Handle<reco::VertexCollection> vtxH;
-    e.getByToken(verticesCollection_, vtxH);
-    if (!vtxH->empty()) {
-      reco::VertexRef vtx(vtxH, 0);
-      ip = fabs(electron->gsfTrack()->dxy(math::XYZPoint(vtx->x(), vtx->y(), vtx->z())));
+    auto const& vtxC = e.get(verticesCollection_);
+    if (!vtxC.empty()) {
+      auto const& vtx = vtxC[0];
+      ip = fabs(electron->gsfTrack()->dxy(math::XYZPoint(vtx.x(), vtx.y(), vtx.z())));
     } else
       ip = fabs(electron->gsfTrack()->dxy());
   }

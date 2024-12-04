@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class CutBasedElectronID : public ElectronIDAlgo {
 public:
@@ -26,6 +27,7 @@ private:
   std::string quality_;
   std::string version_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > verticesCollection_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpot_;
   edm::ParameterSet cuts_;
 };
 
