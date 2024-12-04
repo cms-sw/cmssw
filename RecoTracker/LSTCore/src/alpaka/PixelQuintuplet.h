@@ -107,63 +107,61 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         modules.layers()[lowerModuleIndex5] + 6 * (modules.subdets()[lowerModuleIndex5] == Endcap) +
         5 * (modules.subdets()[lowerModuleIndex5] == Endcap and modules.moduleType()[lowerModuleIndex5] == TwoS);
 
+    // These slides show the cut threshold definition. The comments below in the code, e.g, "cat 10", is consistent with the region separation in the slides
+    // https://indico.cern.ch/event/1410985/contributions/5931017/attachments/2875400/5035406/helix%20approxi%20for%20pT5%20rzchi2%20new%20results%20versions.pdf
     if (layer1 == 1 and layer2 == 2 and layer3 == 3) {
-      if (layer4 == 12 and layer5 == 13) {
-        return rzChiSquared < 451.141f;
-      } else if (layer4 == 4 and layer5 == 12) {
-        return rzChiSquared < 392.654f;
-      } else if (layer4 == 4 and layer5 == 5) {
-        return rzChiSquared < 225.322f;
-      } else if (layer4 == 7 and layer5 == 13) {
-        return rzChiSquared < 595.546f;
-      } else if (layer4 == 7 and layer5 == 8) {
-        return rzChiSquared < 196.111f;
+      if (layer4 == 12 and layer5 == 13) {  // cat 10
+        return rzChiSquared < 14.031f;
+      } else if (layer4 == 4 and layer5 == 12) {  // cat 12
+        return rzChiSquared < 8.760f;
+      } else if (layer4 == 4 and layer5 == 5) {  // cat 11
+        return rzChiSquared < 3.607f;
+      } else if (layer4 == 7 and layer5 == 13) {  // cat 9
+        return rzChiSquared < 16.620;
+      } else if (layer4 == 7 and layer5 == 8) {  // cat 8
+        return rzChiSquared < 17.910f;
       }
     } else if (layer1 == 1 and layer2 == 2 and layer3 == 7) {
-      if (layer4 == 13 and layer5 == 14) {
-        return rzChiSquared < 297.446f;
-      } else if (layer4 == 8 and layer5 == 14) {
-        return rzChiSquared < 451.141f;
-      } else if (layer4 == 8 and layer5 == 9) {
-        return rzChiSquared < 518.339f;
+      if (layer4 == 13 and layer5 == 14) {  // cat 7
+        return rzChiSquared < 8.950f;
+      } else if (layer4 == 8 and layer5 == 14) {  // cat 6
+        return rzChiSquared < 14.837f;
+      } else if (layer4 == 8 and layer5 == 9) {  // cat 5
+        return rzChiSquared < 18.519f;
       }
     } else if (layer1 == 1 and layer2 == 7 and layer3 == 8) {
-      if (layer4 == 9 and layer5 == 10) {
-        return rzChiSquared < 341.75f;
-      } else if (layer4 == 9 and layer5 == 15) {
-        return rzChiSquared < 341.75f;
+      if (layer4 == 9 and layer5 == 10) {  // cat 3
+        return rzChiSquared < 15.093f;
+      } else if (layer4 == 9 and layer5 == 15) {  // cat 4
+        return rzChiSquared < 11.200f;
       }
     } else if (layer1 == 2 and layer2 == 3 and layer3 == 4) {
-      if (layer4 == 12 and layer5 == 13) {
-        return rzChiSquared < 392.655f;
-      } else if (layer4 == 5 and layer5 == 12) {
-        return rzChiSquared < 341.75f;
-      } else if (layer4 == 5 and layer5 == 6) {
-        return rzChiSquared < 112.537f;
+      if (layer4 == 12 and layer5 == 13) {  // cat 20
+        return rzChiSquared < 12.868f;
+      } else if (layer4 == 5 and layer5 == 12) {  // cat 19
+        return rzChiSquared < 6.128f;
+      } else if (layer4 == 5 and layer5 == 6) {  // cat 18
+        return rzChiSquared < 2.987f;
       }
     } else if (layer1 == 2 and layer2 == 3 and layer4 == 7) {
-      if (layer4 == 13 and layer5 == 14) {
-        return rzChiSquared < 595.545f;
-      } else if (layer4 == 8 and layer5 == 14) {
-        return rzChiSquared < 74.198f;
+      if (layer4 == 13 and layer5 == 14) {  // cat 17
+        return rzChiSquared < 19.446f;
+      } else if (layer4 == 8 and layer5 == 14) {  // cat 16
+        return rzChiSquared < 17.520f;
       }
     } else if (layer1 == 2 and layer2 == 7 and layer3 == 8) {
-      if (layer4 == 14 and layer5 == 15) {
-        return rzChiSquared < 518.339f;
-      } else if (layer4 == 9 and layer5 == 10) {
-        return rzChiSquared < 8.046f;
-      } else if (layer4 == 9 and layer5 == 15) {
-        return rzChiSquared < 451.141f;
+      if (layer4 == 14 and layer5 == 15) {  // cat 15
+        return rzChiSquared < 14.71f;
+      } else if (layer4 == 9 and layer5 == 15) {  // cat 14
+        return rzChiSquared < 18.213f;
       }
-    } else if (layer1 == 3 and layer2 == 7 and layer3 == 8 and layer4 == 14 and layer5 == 15) {
-      return rzChiSquared < 56.207f;
     } else if (layer1 == 7 and layer2 == 8 and layer3 == 9) {
-      if (layer4 == 10 and layer5 == 11) {
-        return rzChiSquared < 64.578f;
-      } else if (layer4 == 10 and layer5 == 16) {
-        return rzChiSquared < 85.250f;
-      } else if (layer4 == 15 and layer5 == 16) {
-        return rzChiSquared < 85.250f;
+      if (layer4 == 10 and layer5 == 11) {  // cat 0
+        return rzChiSquared < 10.016f;
+      } else if (layer4 == 10 and layer5 == 16) {  // cat 1
+        return rzChiSquared < 87.671f;
+      } else if (layer4 == 15 and layer5 == 16) {  // cat 2
+        return rzChiSquared < 5.844f;
       }
     }
     return true;
@@ -255,138 +253,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE float computeChiSquaredpT5(TAcc const& acc,
-                                                            unsigned int nPoints,
-                                                            float* xs,
-                                                            float* ys,
-                                                            float* delta1,
-                                                            float* delta2,
-                                                            float* slopes,
-                                                            bool* isFlat,
-                                                            float g,
-                                                            float f,
-                                                            float radius) {
-    /*
-    Given values of (g, f, radius) and a set of points (and its uncertainties) compute chi squared
-    */
-    float c = g * g + f * f - radius * radius;
-    float chiSquared = 0.f;
-    float absArctanSlope, angleM, xPrime, yPrime, sigma2;
-    for (size_t i = 0; i < nPoints; i++) {
-      absArctanSlope = ((slopes[i] != kVerticalModuleSlope) ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i]))
-                                                            : kPi / 2.f);
-      if (xs[i] > 0 and ys[i] > 0) {
-        angleM = kPi / 2.f - absArctanSlope;
-      } else if (xs[i] < 0 and ys[i] > 0) {
-        angleM = absArctanSlope + kPi / 2.f;
-      } else if (xs[i] < 0 and ys[i] < 0) {
-        angleM = -(absArctanSlope + kPi / 2.f);
-      } else if (xs[i] > 0 and ys[i] < 0) {
-        angleM = -(kPi / 2.f - absArctanSlope);
-      } else {
-        angleM = 0;
-      }
-      if (not isFlat[i]) {
-        xPrime = xs[i] * alpaka::math::cos(acc, angleM) + ys[i] * alpaka::math::sin(acc, angleM);
-        yPrime = ys[i] * alpaka::math::cos(acc, angleM) - xs[i] * alpaka::math::sin(acc, angleM);
-      } else {
-        xPrime = xs[i];
-        yPrime = ys[i];
-      }
-      sigma2 = 4 * ((xPrime * delta1[i]) * (xPrime * delta1[i]) + (yPrime * delta2[i]) * (yPrime * delta2[i]));
-      chiSquared += (xs[i] * xs[i] + ys[i] * ys[i] - 2 * g * xs[i] - 2 * f * ys[i] + c) *
-                    (xs[i] * xs[i] + ys[i] * ys[i] - 2 * g * xs[i] - 2 * f * ys[i] + c) / (sigma2);
-    }
-    return chiSquared;
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void computeSigmasForRegression_pT5(TAcc const& acc,
-                                                                     ModulesConst modules,
-                                                                     const uint16_t* lowerModuleIndices,
-                                                                     float* delta1,
-                                                                     float* delta2,
-                                                                     float* slopes,
-                                                                     bool* isFlat,
-                                                                     unsigned int nPoints = 5,
-                                                                     bool anchorHits = true) {
-    /*
-    bool anchorHits required to deal with a weird edge case wherein
-    the hits ultimately used in the regression are anchor hits, but the
-    lower modules need not all be Pixel Modules (in case of PS). Similarly,
-    when we compute the chi squared for the non-anchor hits, the "partner module"
-    need not always be a PS strip module, but all non-anchor hits sit on strip
-    modules.
-    */
-    ModuleType moduleType;
-    short moduleSubdet, moduleSide;
-    float inv1 = kWidthPS / kWidth2S;
-    float inv2 = kPixelPSZpitch / kWidth2S;
-    float inv3 = kStripPSZpitch / kWidth2S;
-    for (size_t i = 0; i < nPoints; i++) {
-      moduleType = modules.moduleType()[lowerModuleIndices[i]];
-      moduleSubdet = modules.subdets()[lowerModuleIndices[i]];
-      moduleSide = modules.sides()[lowerModuleIndices[i]];
-      const float& drdz = modules.drdzs()[lowerModuleIndices[i]];
-      slopes[i] = modules.dxdys()[lowerModuleIndices[i]];
-      //category 1 - barrel PS flat
-      if (moduleSubdet == Barrel and moduleType == PS and moduleSide == Center) {
-        delta1[i] = inv1;
-        delta2[i] = inv1;
-        slopes[i] = -999.f;
-        isFlat[i] = true;
-      }
-      //category 2 - barrel 2S
-      else if (moduleSubdet == Barrel and moduleType == TwoS) {
-        delta1[i] = 1.f;
-        delta2[i] = 1.f;
-        slopes[i] = -999.f;
-        isFlat[i] = true;
-      }
-      //category 3 - barrel PS tilted
-      else if (moduleSubdet == Barrel and moduleType == PS and moduleSide != Center) {
-        delta1[i] = inv1;
-        isFlat[i] = false;
-
-        if (anchorHits) {
-          delta2[i] = (inv2 * drdz / alpaka::math::sqrt(acc, 1 + drdz * drdz));
-        } else {
-          delta2[i] = (inv3 * drdz / alpaka::math::sqrt(acc, 1 + drdz * drdz));
-        }
-      }
-      //category 4 - endcap PS
-      else if (moduleSubdet == Endcap and moduleType == PS) {
-        delta1[i] = inv1;
-        isFlat[i] = false;
-        /*
-        despite the type of the module layer of the lower module index,
-        all anchor hits are on the pixel side and all non-anchor hits are
-        on the strip side!
-        */
-        if (anchorHits) {
-          delta2[i] = inv2;
-        } else {
-          delta2[i] = inv3;
-        }
-      }
-      //category 5 - endcap 2S
-      else if (moduleSubdet == Endcap and moduleType == TwoS) {
-        delta1[i] = 1.f;
-        delta2[i] = 500.f * inv1;
-        isFlat[i] = false;
-      }
-#ifdef WARNINGS
-      else {
-        printf("ERROR!!!!! I SHOULDN'T BE HERE!!!! subdet = %d, type = %d, side = %d\n",
-               moduleSubdet,
-               moduleType,
-               moduleSide);
-      }
-#endif
-    }
-  }
-
-  template <typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float computePT5RPhiChiSquared(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 uint16_t* lowerModuleIndices,
@@ -403,8 +269,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     bool isFlat[5];
     float chiSquared = 0;
 
-    computeSigmasForRegression_pT5(acc, modules, lowerModuleIndices, delta1, delta2, slopes, isFlat);
-    chiSquared = computeChiSquaredpT5(acc, 5, xs, ys, delta1, delta2, slopes, isFlat, g, f, radius);
+    computeSigmasForRegression(acc, modules, lowerModuleIndices, delta1, delta2, slopes, isFlat);
+    chiSquared = computeChiSquared(acc, 5, xs, ys, delta1, delta2, slopes, isFlat, g, f, radius);
 
     return chiSquared;
   }
@@ -512,28 +378,70 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   template <typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float computePT5RZChiSquared(TAcc const& acc,
                                                               ModulesConst modules,
-                                                              uint16_t* lowerModuleIndices,
-                                                              float* rtPix,
-                                                              float* zPix,
-                                                              float* rts,
-                                                              float* zs) {
-    //use the two anchor hits of the pixel segment to compute the slope
-    //then compute the pseudo chi squared of the five outer hits
-
-    float slope = (zPix[1] - zPix[0]) / (rtPix[1] - rtPix[0]);
+                                                              const uint16_t* lowerModuleIndices,
+                                                              const float* rtPix,
+                                                              const float* xPix,
+                                                              const float* yPix,
+                                                              const float* zPix,
+                                                              const float* rts,
+                                                              const float* zs,
+                                                              float pixelSegmentPt,
+                                                              float pixelSegmentPx,
+                                                              float pixelSegmentPy,
+                                                              float pixelSegmentPz,
+                                                              int pixelSegmentCharge) {
     float residual = 0;
     float error2 = 0;
-    //hardcoded array indices!!!
     float RMSE = 0;
+
+    // the pixel positions are in unit of cm, and need to be divided by 100 to be in consistent with unit mm.
+    float Px = pixelSegmentPx, Py = pixelSegmentPy, Pz = pixelSegmentPz;
+    int charge = pixelSegmentCharge;
+    float x1 = xPix[1] / 100;
+    float y1 = yPix[1] / 100;
+    float z1 = zPix[1] / 100;
+    float r1 = rtPix[1] / 100;
+
+    float a = -100 / kR1GeVf * charge;
+
     for (size_t i = 0; i < Params_T5::kLayers; i++) {
-      uint16_t& lowerModuleIndex = lowerModuleIndices[i];
+      float zsi = zs[i] / 100;
+      float rtsi = rts[i] / 100;
+      uint16_t lowerModuleIndex = lowerModuleIndices[i];
       const int moduleType = modules.moduleType()[lowerModuleIndex];
       const int moduleSide = modules.sides()[lowerModuleIndex];
       const int moduleSubdet = modules.subdets()[lowerModuleIndex];
 
-      residual = (moduleSubdet == Barrel) ? (zs[i] - zPix[0]) - slope * (rts[i] - rtPix[0])
-                                          : (rts[i] - rtPix[0]) - (zs[i] - zPix[0]) / slope;
-      const float& drdz = modules.drdzs()[lowerModuleIndex];
+      // calculation is detailed documented here https://indico.cern.ch/event/1185895/contributions/4982756/attachments/2526561/4345805/helix%20pT3%20summarize.pdf
+      float diffr, diffz;
+      float p = alpaka::math::sqrt(acc, Px * Px + Py * Py + Pz * Pz);
+
+      float rou = a / p;
+      if (moduleSubdet == Endcap) {
+        float s = (zsi - z1) * p / Pz;
+        float x = x1 + Px / a * alpaka::math::sin(acc, rou * s) - Py / a * (1 - alpaka::math::cos(acc, rou * s));
+        float y = y1 + Py / a * alpaka::math::sin(acc, rou * s) + Px / a * (1 - alpaka::math::cos(acc, rou * s));
+        diffr = alpaka::math::abs(acc, rtsi - alpaka::math::sqrt(acc, x * x + y * y)) * 100;
+        residual = diffr;
+      }
+
+      if (moduleSubdet == Barrel) {
+        float paraA = r1 * r1 + 2 * (Px * Px + Py * Py) / (a * a) + 2 * (y1 * Px - x1 * Py) / a - rtsi * rtsi;
+        float paraB = 2 * (x1 * Px + y1 * Py) / a;
+        float paraC = 2 * (y1 * Px - x1 * Py) / a + 2 * (Px * Px + Py * Py) / (a * a);
+        float A = paraB * paraB + paraC * paraC;
+        float B = 2 * paraA * paraB;
+        float C = paraA * paraA - paraC * paraC;
+        float sol1 = (-B + alpaka::math::sqrt(acc, B * B - 4 * A * C)) / (2 * A);
+        float sol2 = (-B - alpaka::math::sqrt(acc, B * B - 4 * A * C)) / (2 * A);
+        float solz1 = alpaka::math::asin(acc, sol1) / rou * Pz / p + z1;
+        float solz2 = alpaka::math::asin(acc, sol2) / rou * Pz / p + z1;
+        float diffz1 = alpaka::math::abs(acc, solz1 - zsi) * 100;
+        float diffz2 = alpaka::math::abs(acc, solz2 - zsi) * 100;
+        diffz = alpaka::math::min(acc, diffz1, diffz2);
+        residual = diffz;
+      }
+
       //PS Modules
       if (moduleType == 0) {
         error2 = kPixelPSZpitch * kPixelPSZpitch;
@@ -544,6 +452,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
       //special dispensation to tilted PS modules!
       if (moduleType == 0 and moduleSubdet == Barrel and moduleSide != Center) {
+        float drdz = modules.drdzs()[lowerModuleIndex];
         error2 /= (1.f + drdz * drdz);
       }
       RMSE += (residual * residual) / error2;
@@ -571,7 +480,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                     float& quintupletRadius,
                                                                     float& centerX,
                                                                     float& centerY,
-                                                                    unsigned int pixelSegmentArrayIndex) {
+                                                                    unsigned int pixelSegmentArrayIndex,
+                                                                    const float ptCut) {
     unsigned int t5InnerT3Index = quintuplets.tripletIndices()[quintupletIndex][0];
     unsigned int t5OuterT3Index = quintuplets.tripletIndices()[quintupletIndex][1];
 
@@ -594,6 +504,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        rzChiSquaredTemp,
                                        rPhiChiSquaredTemp,
                                        rPhiChiSquaredInwardsTemp,
+                                       ptCut,
                                        false))
       return false;
 
@@ -619,8 +530,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     uint16_t lowerModuleIndices[Params_T5::kLayers] = {
         lowerModuleIndex1, lowerModuleIndex2, lowerModuleIndex3, lowerModuleIndex4, lowerModuleIndex5};
 
-    float zPix[Params_pLS::kLayers] = {mds.anchorZ()[pixelInnerMDIndex], mds.anchorZ()[pixelOuterMDIndex]};
     float rtPix[Params_pLS::kLayers] = {mds.anchorRt()[pixelInnerMDIndex], mds.anchorRt()[pixelOuterMDIndex]};
+    float xPix[Params_pLS::kLayers] = {mds.anchorX()[pixelInnerMDIndex], mds.anchorX()[pixelOuterMDIndex]};
+    float yPix[Params_pLS::kLayers] = {mds.anchorY()[pixelInnerMDIndex], mds.anchorY()[pixelOuterMDIndex]};
+    float zPix[Params_pLS::kLayers] = {mds.anchorZ()[pixelInnerMDIndex], mds.anchorZ()[pixelOuterMDIndex]};
     float zs[Params_T5::kLayers] = {mds.anchorZ()[firstMDIndex],
                                     mds.anchorZ()[secondMDIndex],
                                     mds.anchorZ()[thirdMDIndex],
@@ -632,9 +545,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                      mds.anchorRt()[fourthMDIndex],
                                      mds.anchorRt()[fifthMDIndex]};
 
-    rzChiSquared = computePT5RZChiSquared(acc, modules, lowerModuleIndices, rtPix, zPix, rts, zs);
+    float pixelSegmentPt = segmentsPixel.ptIn()[pixelSegmentArrayIndex];
+    float pixelSegmentPx = segmentsPixel.px()[pixelSegmentArrayIndex];
+    float pixelSegmentPy = segmentsPixel.py()[pixelSegmentArrayIndex];
+    float pixelSegmentPz = segmentsPixel.pz()[pixelSegmentArrayIndex];
+    int pixelSegmentCharge = segmentsPixel.charge()[pixelSegmentArrayIndex];
 
-    if (/*pixelRadius*/ 0 < 5.0f * kR1GeVf) {  // FIXME: pixelRadius is not defined yet
+    rzChiSquared = 0;
+
+    //get the appropriate centers
+    pixelRadius = segmentsPixel.circleRadius()[pixelSegmentArrayIndex];
+
+    if (pixelRadius < 5.0f * kR1GeVf) {  //only apply r-z chi2 cuts for <5GeV tracks
+      rzChiSquared = computePT5RZChiSquared(acc,
+                                            modules,
+                                            lowerModuleIndices,
+                                            rtPix,
+                                            xPix,
+                                            yPix,
+                                            zPix,
+                                            rts,
+                                            zs,
+                                            pixelSegmentPt,
+                                            pixelSegmentPx,
+                                            pixelSegmentPy,
+                                            pixelSegmentPz,
+                                            pixelSegmentCharge);
       if (not passPT5RZChiSquaredCuts(modules,
                                       lowerModuleIndex1,
                                       lowerModuleIndex2,
@@ -657,10 +593,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                     mds.anchorY()[fourthMDIndex],
                                     mds.anchorY()[fifthMDIndex]};
 
-    //get the appropriate radii and centers
+    //get the appropriate centers
     centerX = segmentsPixel.circleCenterX()[pixelSegmentArrayIndex];
     centerY = segmentsPixel.circleCenterY()[pixelSegmentArrayIndex];
-    pixelRadius = segmentsPixel.circleRadius()[pixelSegmentArrayIndex];
 
     float T5CenterX = quintuplets.regressionG()[quintupletIndex];
     float T5CenterY = quintuplets.regressionF()[quintupletIndex];
@@ -679,8 +614,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         return false;
     }
 
-    float xPix[] = {mds.anchorX()[pixelInnerMDIndex], mds.anchorX()[pixelOuterMDIndex]};
-    float yPix[] = {mds.anchorY()[pixelInnerMDIndex], mds.anchorY()[pixelOuterMDIndex]};
     rPhiChiSquaredInwards = computePT5RPhiChiSquaredInwards(T5CenterX, T5CenterY, quintupletRadius, xPix, yPix);
 
     if (quintuplets.regressionRadius()[quintupletIndex] < 5.0f * kR1GeVf) {
@@ -715,7 +648,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   unsigned int* connectedPixelSize,
                                   unsigned int* connectedPixelIndex,
                                   unsigned int nPixelSegments,
-                                  ObjectRangesConst ranges) const {
+                                  ObjectRangesConst ranges,
+                                  const float ptCut) const {
       auto const globalBlockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc);
       auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
       auto const gridBlockExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc);
@@ -770,7 +704,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                          quintupletRadius,
                                                          centerX,
                                                          centerY,
-                                                         static_cast<unsigned int>(i_pLS));
+                                                         static_cast<unsigned int>(i_pLS),
+                                                         ptCut);
             if (success) {
               unsigned int totOccupancyPixelQuintuplets = alpaka::atomicAdd(
                   acc, &pixelQuintuplets.totOccupancyPixelQuintuplets(), 1u, alpaka::hierarchy::Threads{});

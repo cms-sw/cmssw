@@ -202,7 +202,8 @@ void LSTEvent::addPixelSegmentToEvent(std::vector<unsigned int> const& hitIndice
                         createMDArrayRangesGPU_workDiv,
                         CreateMDArrayRangesGPU{},
                         modules_.const_view<ModulesSoA>(),
-                        rangesDC_->view());
+                        rangesDC_->view(),
+                        ptCut_);
 
     auto nTotalMDs_buf_h = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
     auto nTotalMDs_buf_d = cms::alpakatools::make_device_view(queue_, rangesOccupancy.nTotalMDs());
@@ -233,7 +234,8 @@ void LSTEvent::addPixelSegmentToEvent(std::vector<unsigned int> const& hitIndice
                         CreateSegmentArrayRanges{},
                         modules_.const_view<ModulesSoA>(),
                         rangesDC_->view(),
-                        miniDoubletsDC_->const_view<MiniDoubletsSoA>());
+                        miniDoubletsDC_->const_view<MiniDoubletsSoA>(),
+                        ptCut_);
 
     auto rangesOccupancy = rangesDC_->view();
     auto nTotalSegments_view_h = cms::alpakatools::make_host_view(nTotalSegments_);
@@ -346,7 +348,8 @@ void LSTEvent::createMiniDoublets() {
                       createMDArrayRangesGPU_workDiv,
                       CreateMDArrayRangesGPU{},
                       modules_.const_view<ModulesSoA>(),
-                      rangesDC_->view());
+                      rangesDC_->view(),
+                      ptCut_);
 
   auto nTotalMDs_buf_h = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
   auto nTotalMDs_buf_d = cms::alpakatools::make_device_view(queue_, rangesOccupancy.nTotalMDs());
@@ -381,7 +384,8 @@ void LSTEvent::createMiniDoublets() {
                       hitsDC_->const_view<HitsRangesSoA>(),
                       miniDoubletsDC_->view<MiniDoubletsSoA>(),
                       miniDoubletsDC_->view<MiniDoubletsOccupancySoA>(),
-                      rangesDC_->const_view());
+                      rangesDC_->const_view(),
+                      ptCut_);
 
   WorkDiv1D const addMiniDoubletRangesToEventExplicit_workDiv = createWorkDiv<Vec1D>({1}, {1024}, {1});
 
@@ -427,7 +431,8 @@ void LSTEvent::createSegmentsWithModuleMap() {
                       miniDoubletsDC_->const_view<MiniDoubletsOccupancySoA>(),
                       segmentsDC_->view<SegmentsSoA>(),
                       segmentsDC_->view<SegmentsOccupancySoA>(),
-                      rangesDC_->const_view());
+                      rangesDC_->const_view(),
+                      ptCut_);
 
   WorkDiv1D const addSegmentRangesToEventExplicit_workDiv = createWorkDiv<Vec1D>({1}, {1024}, {1});
 
@@ -452,7 +457,8 @@ void LSTEvent::createTriplets() {
                         CreateTripletArrayRanges{},
                         modules_.const_view<ModulesSoA>(),
                         rangesDC_->view(),
-                        segmentsDC_->const_view<SegmentsOccupancySoA>());
+                        segmentsDC_->const_view<SegmentsOccupancySoA>(),
+                        ptCut_);
 
     // TODO: Why are we pulling this back down only to put it back on the device in a new struct?
     auto rangesOccupancy = rangesDC_->view();
@@ -537,7 +543,8 @@ void LSTEvent::createTriplets() {
                       tripletsDC_->view<TripletsOccupancySoA>(),
                       rangesDC_->const_view(),
                       index_gpu_buf.data(),
-                      nonZeroModules);
+                      nonZeroModules,
+                      ptCut_);
 
   WorkDiv1D const addTripletRangesToEventExplicit_workDiv = createWorkDiv<Vec1D>({1}, {1024}, {1});
 
@@ -822,7 +829,8 @@ void LSTEvent::createPixelTriplets() {
                       pixelTripletsDC_->view(),
                       connectedPixelSize_dev_buf.data(),
                       connectedPixelIndex_dev_buf.data(),
-                      nInnerSegments);
+                      nInnerSegments,
+                      ptCut_);
 
 #ifdef WARNINGS
   auto nPixelTriplets_buf = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
@@ -853,7 +861,8 @@ void LSTEvent::createQuintuplets() {
                       CreateEligibleModulesListForQuintuplets{},
                       modules_.const_view<ModulesSoA>(),
                       tripletsDC_->const_view<TripletsOccupancySoA>(),
-                      rangesDC_->view());
+                      rangesDC_->view(),
+                      ptCut_);
 
   auto nEligibleT5Modules_buf = cms::alpakatools::make_host_buffer<uint16_t>(queue_);
   auto nTotalQuintuplets_buf = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
@@ -904,7 +913,8 @@ void LSTEvent::createQuintuplets() {
                       quintupletsDC_->view<QuintupletsSoA>(),
                       quintupletsDC_->view<QuintupletsOccupancySoA>(),
                       rangesDC_->const_view(),
-                      nEligibleT5Modules);
+                      nEligibleT5Modules,
+                      ptCut_);
 
   Vec3D const threadsPerBlockDupQuint{1, 16, 16};
   Vec3D const blocksPerGridDupQuint{max_blocks, 1, 1};
@@ -1065,7 +1075,8 @@ void LSTEvent::createPixelQuintuplets() {
                       connectedPixelSize_dev_buf.data(),
                       connectedPixelIndex_dev_buf.data(),
                       nInnerSegments,
-                      rangesDC_->const_view());
+                      rangesDC_->const_view(),
+                      ptCut_);
 
   Vec3D const threadsPerBlockDupPix{1, 16, 16};
   Vec3D const blocksPerGridDupPix{1, max_blocks, 1};
@@ -1191,8 +1202,9 @@ void LSTEvent::addQuintupletsToEventExplicit() {
 
   // FIXME: replace by ES host data
   auto module_subdets_buf = cms::alpakatools::make_host_buffer<short[]>(queue_, nLowerModules_);
-  auto module_subdets_view = cms::alpakatools::make_device_view(queue_, modules.subdets(), modules.metadata().size());
-  alpaka::memcpy(queue_, module_subdets_buf, module_subdets_view, nModules_);
+  auto module_subdets_view =
+      cms::alpakatools::make_device_view(queue_, modules.subdets(), nLowerModules_);  // only lower modules
+  alpaka::memcpy(queue_, module_subdets_buf, module_subdets_view, nLowerModules_);
 
   auto module_layers_buf = cms::alpakatools::make_host_buffer<short[]>(queue_, nLowerModules_);
   auto module_layers_view =

@@ -10,6 +10,8 @@
 #include "RecoTracker/LSTCore/interface/SegmentsSoA.h"
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
 
+#include "Quintuplet.h"
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   template <typename TAcc>
@@ -27,7 +29,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int firstMDIndex,
                                                                 unsigned int secondMDIndex,
                                                                 unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex);
+                                                                unsigned int fourthMDIndex,
+                                                                const float ptCut);
   template <typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletDefaultAlgoPPEE(TAcc const& acc,
                                                                 ModulesConst modules,
@@ -43,7 +46,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int firstMDIndex,
                                                                 unsigned int secondMDIndex,
                                                                 unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex);
+                                                                unsigned int fourthMDIndex,
+                                                                const float ptCut);
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addPixelTripletToMemory(MiniDoubletsConst mds,
                                                               SegmentsConst segments,
@@ -121,7 +125,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                      uint16_t outerInnerLowerModuleIndex,
                                                                      uint16_t outerOuterLowerModuleIndex,
                                                                      unsigned int innerSegmentIndex,
-                                                                     unsigned int outerSegmentIndex) {
+                                                                     unsigned int outerSegmentIndex,
+                                                                     const float ptCut) {
     short outerInnerLowerModuleSubdet = modules.subdets()[outerInnerLowerModuleIndex];
     short outerOuterLowerModuleSubdet = modules.subdets()[outerOuterLowerModuleIndex];
 
@@ -147,7 +152,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        firstMDIndex,
                                        secondMDIndex,
                                        thirdMDIndex,
-                                       fourthMDIndex);
+                                       fourthMDIndex,
+                                       ptCut);
     } else if (outerInnerLowerModuleSubdet == Endcap and outerOuterLowerModuleSubdet == Endcap) {
       return runTripletDefaultAlgoPPEE(acc,
                                        modules,
@@ -163,7 +169,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        firstMDIndex,
                                        secondMDIndex,
                                        thirdMDIndex,
-                                       fourthMDIndex);
+                                       fourthMDIndex,
+                                       ptCut);
     }
     return false;
   }
@@ -217,52 +224,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     //default - category not found!
     return true;
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE float computeChiSquaredpT3(TAcc const& acc,
-                                                            unsigned int nPoints,
-                                                            float* xs,
-                                                            float* ys,
-                                                            float* delta1,
-                                                            float* delta2,
-                                                            float* slopes,
-                                                            bool* isFlat,
-                                                            float g,
-                                                            float f,
-                                                            float radius) {
-    //given values of (g, f, radius) and a set of points (and its uncertainties)
-    //compute chi squared
-    float c = g * g + f * f - radius * radius;
-    float chiSquared = 0.f;
-    float absArctanSlope, angleM, xPrime, yPrime, sigma2;
-    for (size_t i = 0; i < nPoints; i++) {
-      absArctanSlope = ((slopes[i] != kVerticalModuleSlope) ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i]))
-                                                            : kPi / 2.f);
-      if (xs[i] > 0 and ys[i] > 0) {
-        angleM = kPi / 2.f - absArctanSlope;
-      } else if (xs[i] < 0 and ys[i] > 0) {
-        angleM = absArctanSlope + kPi / 2.f;
-      } else if (xs[i] < 0 and ys[i] < 0) {
-        angleM = -(absArctanSlope + kPi / 2.f);
-      } else if (xs[i] > 0 and ys[i] < 0) {
-        angleM = -(kPi / 2.f - absArctanSlope);
-      } else {
-        angleM = 0;
-      }
-
-      if (not isFlat[i]) {
-        xPrime = xs[i] * alpaka::math::cos(acc, angleM) + ys[i] * alpaka::math::sin(acc, angleM);
-        yPrime = ys[i] * alpaka::math::cos(acc, angleM) - xs[i] * alpaka::math::sin(acc, angleM);
-      } else {
-        xPrime = xs[i];
-        yPrime = ys[i];
-      }
-      sigma2 = 4 * ((xPrime * delta1[i]) * (xPrime * delta1[i]) + (yPrime * delta2[i]) * (yPrime * delta2[i]));
-      chiSquared += (xs[i] * xs[i] + ys[i] * ys[i] - 2 * g * xs[i] - 2 * f * ys[i] + c) *
-                    (xs[i] * xs[i] + ys[i] * ys[i] - 2 * g * xs[i] - 2 * f * ys[i] + c) / sigma2;
-    }
-    return chiSquared;
   }
 
   //TODO: merge this one and the pT5 function later into a single function
@@ -332,7 +293,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       }
 #endif
     }
-    chiSquared = computeChiSquaredpT3(acc, 3, xs, ys, delta1, delta2, slopes, isFlat, g, f, radius);
+    chiSquared = computeChiSquared(acc, 3, xs, ys, delta1, delta2, slopes, isFlat, g, f, radius);
 
     return chiSquared;
   }
@@ -683,6 +644,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                  float& rzChiSquared,
                                                                  float& rPhiChiSquared,
                                                                  float& rPhiChiSquaredInwards,
+                                                                 const float ptCut,
                                                                  bool runChiSquaredCuts = true) {
     //run pT4 compatibility between the pixel segment and inner segment, and between the pixel and outer segment of the triplet
     uint16_t pixelModuleIndex = segments.innerLowerModuleIndices()[pixelSegmentIndex];
@@ -703,7 +665,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                              lowerModuleIndex,
                                              middleModuleIndex,
                                              pixelSegmentIndex,
-                                             triplets.segmentIndices()[tripletIndex][0]))
+                                             triplets.segmentIndices()[tripletIndex][0],
+                                             ptCut))
         return false;
 
       //pixel segment vs outer segment of triplet
@@ -717,7 +680,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                              middleModuleIndex,
                                              upperModuleIndex,
                                              pixelSegmentIndex,
-                                             triplets.segmentIndices()[tripletIndex][1]))
+                                             triplets.segmentIndices()[tripletIndex][1],
+                                             ptCut))
         return false;
     }
 
@@ -835,7 +799,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   PixelTriplets pixelTriplets,
                                   unsigned int* connectedPixelSize,
                                   unsigned int* connectedPixelIndex,
-                                  unsigned int nPixelSegments) const {
+                                  unsigned int nPixelSegments,
+                                  const float ptCut) const {
       auto const globalBlockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc);
       auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
       auto const gridBlockExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc);
@@ -911,7 +876,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                       centerY,
                                                       rzChiSquared,
                                                       rPhiChiSquared,
-                                                      rPhiChiSquaredInwards);
+                                                      rPhiChiSquaredInwards,
+                                                      ptCut);
 
             if (success) {
               float phi =
@@ -963,105 +929,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   };
 
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void runDeltaBetaIterationspT3(TAcc const& acc,
-                                                                float& betaIn,
-                                                                float& betaOut,
-                                                                float betaAv,
-                                                                float& pt_beta,
-                                                                float sdIn_dr,
-                                                                float sdOut_dr,
-                                                                float dr,
-                                                                float lIn) {
-    if (lIn == 0) {
-      betaOut += alpaka::math::copysign(
-          acc,
-          alpaka::math::asin(
-              acc, alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
-          betaOut);
-      return;
-    }
-
-    if (betaIn * betaOut > 0.f and
-        (alpaka::math::abs(acc, pt_beta) < 4.f * kPt_betaMax or
-         (lIn >= 11 and alpaka::math::abs(acc, pt_beta) <
-                            8.f * kPt_betaMax)))  //and the pt_beta is well-defined; less strict for endcap-endcap
-    {
-      const float betaInUpd =
-          betaIn +
-          alpaka::math::copysign(
-              acc,
-              alpaka::math::asin(
-                  acc, alpaka::math::min(acc, sdIn_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
-              betaIn);  //FIXME: need a faster version
-      const float betaOutUpd =
-          betaOut +
-          alpaka::math::copysign(
-              acc,
-              alpaka::math::asin(
-                  acc, alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
-              betaOut);  //FIXME: need a faster version
-      betaAv = 0.5f * (betaInUpd + betaOutUpd);
-
-      //1st update
-      const float pt_beta_inv =
-          1.f / alpaka::math::abs(acc, dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaAv));  //get a better pt estimate
-
-      betaIn += alpaka::math::copysign(
-          acc,
-          alpaka::math::asin(acc, alpaka::math::min(acc, sdIn_dr * k2Rinv1GeVf * pt_beta_inv, kSinAlphaMax)),
-          betaIn);  //FIXME: need a faster version
-      betaOut += alpaka::math::copysign(
-          acc,
-          alpaka::math::asin(acc, alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf * pt_beta_inv, kSinAlphaMax)),
-          betaOut);  //FIXME: need a faster version
-      //update the av and pt
-      betaAv = 0.5f * (betaIn + betaOut);
-      //2nd update
-      pt_beta = dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaAv);  //get a better pt estimate
-    } else if (lIn < 11 && alpaka::math::abs(acc, betaOut) < 0.2f * alpaka::math::abs(acc, betaIn) &&
-               alpaka::math::abs(acc, pt_beta) < 12.f * kPt_betaMax)  //use betaIn sign as ref
-    {
-      const float pt_betaIn = dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaIn);
-
-      const float betaInUpd =
-          betaIn +
-          alpaka::math::copysign(
-              acc,
-              alpaka::math::asin(
-                  acc, alpaka::math::min(acc, sdIn_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_betaIn), kSinAlphaMax)),
-              betaIn);  //FIXME: need a faster version
-      const float betaOutUpd =
-          betaOut +
-          alpaka::math::copysign(
-              acc,
-              alpaka::math::asin(
-                  acc,
-                  alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_betaIn), kSinAlphaMax)),
-              betaIn);  //FIXME: need a faster version
-      betaAv = (alpaka::math::abs(acc, betaOut) > 0.2f * alpaka::math::abs(acc, betaIn))
-                   ? (0.5f * (betaInUpd + betaOutUpd))
-                   : betaInUpd;
-
-      //1st update
-      pt_beta = dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaAv);  //get a better pt estimate
-      betaIn += alpaka::math::copysign(
-          acc,
-          alpaka::math::asin(
-              acc, alpaka::math::min(acc, sdIn_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
-          betaIn);  //FIXME: need a faster version
-      betaOut += alpaka::math::copysign(
-          acc,
-          alpaka::math::asin(
-              acc, alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
-          betaIn);  //FIXME: need a faster version
-      //update the av and pt
-      betaAv = 0.5f * (betaIn + betaOut);
-      //2nd update
-      pt_beta = dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaAv);  //get a better pt estimate
-    }
-  }
-
-  template <typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletDefaultAlgoPPBB(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 ObjectRangesConst ranges,
@@ -1076,7 +943,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int firstMDIndex,
                                                                 unsigned int secondMDIndex,
                                                                 unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex) {
+                                                                unsigned int fourthMDIndex,
+                                                                const float ptCut) {
     float dPhi, betaIn, betaOut, pt_beta, zLo, zHi, zLoPointed, zHiPointed, dPhiCut, betaOutCut;
 
     bool isPS_OutLo = (modules.moduleType()[outerInnerLowerModuleIndex] == PS);
@@ -1258,7 +1126,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         alpaka::math::sqrt(acc, (x_OutUp - x_OutLo) * (x_OutUp - x_OutLo) + (y_OutUp - y_OutLo) * (y_OutUp - y_OutLo));
     float sdOut_d = rt_OutUp - rt_OutLo;
 
-    runDeltaBetaIterationspT3(acc, betaIn, betaOut, betaAv, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
+    runDeltaBetaIterations(acc, betaIn, betaOut, betaAv, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
 
     const float betaInMMSF = (alpaka::math::abs(acc, betaInRHmin + betaInRHmax) > 0)
                                  ? (2.f * betaIn / alpaka::math::abs(acc, betaInRHmin + betaInRHmax))
@@ -1334,7 +1202,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int firstMDIndex,
                                                                 unsigned int secondMDIndex,
                                                                 unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex) {
+                                                                unsigned int fourthMDIndex,
+                                                                const float ptCut) {
     float dPhi, betaIn, betaOut, pt_beta, rtLo, rtHi, dPhiCut, betaOutCut;
 
     bool isPS_OutLo = (modules.moduleType()[outerInnerLowerModuleIndex] == PS);
@@ -1517,7 +1386,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         alpaka::math::sqrt(acc, (x_OutUp - x_OutLo) * (x_OutUp - x_OutLo) + (y_OutUp - y_OutLo) * (y_OutUp - y_OutLo));
     float sdOut_d = rt_OutUp - rt_OutLo;
 
-    runDeltaBetaIterationspT3(acc, betaIn, betaOut, betaAv, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
+    runDeltaBetaIterations(acc, betaIn, betaOut, betaAv, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
 
     const float betaInMMSF = (alpaka::math::abs(acc, betaInRHmin + betaInRHmax) > 0)
                                  ? (2.f * betaIn / alpaka::math::abs(acc, betaInRHmin + betaInRHmax))
