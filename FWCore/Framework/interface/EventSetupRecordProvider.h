@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // system include files
 #include <map>
@@ -40,6 +41,7 @@ namespace edm {
     struct ComponentDescription;
     class DataKey;
     class ESProductResolverProvider;
+    class ESRecordsToProductResolverIndices;
     class EventSetupProvider;
     class EventSetupRecordImpl;
     class ParameterSetIDHolder;
@@ -156,6 +158,8 @@ namespace edm {
       void setEventSetupImpl(EventSetupImpl* value) { eventSetupImpl_ = value; }
 
       IntervalStatus intervalStatus() const { return intervalStatus_; }
+
+      void updateLookup(ESRecordsToProductResolverIndices const&);
 
     protected:
       void addResolversToRecordHelper(edm::propagate_const<std::shared_ptr<ESProductResolverProvider>>& dpp,
