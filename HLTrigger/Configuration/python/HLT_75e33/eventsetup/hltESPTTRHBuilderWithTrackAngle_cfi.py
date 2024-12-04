@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-hltTTRBWR = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
-    ComponentName = cms.string('hltESPTTRHBWithTrackAngle'),
+hltESPTTRHBuilderWithTrackAngle = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
+    ComponentName = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     ComputeCoarseLocalPositionFromDisk = cms.bool(False),
     Matcher = cms.string('StandardMatcher'),
     Phase2StripCPE = cms.string('Phase2StripCPE'),
