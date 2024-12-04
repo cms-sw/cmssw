@@ -41,7 +41,7 @@
 #include <string_view>
 #include <concepts>
 
-#include "fmt/format.h"
+#include <fmt/format.h>
 
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Utilities/interface/Likely.h"

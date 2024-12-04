@@ -1,6 +1,7 @@
 #ifndef Math_Vector3D_h
 #define Math_Vector3D_h
-#include "Math/Vector3D.h"
+
+#include <Math/Vector3D.h>
 
 namespace math {
 
