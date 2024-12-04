@@ -5,16 +5,22 @@
 
 class ClassBasedElectronID : public ElectronIDAlgo {
 public:
-  ClassBasedElectronID() {}
+  explicit ClassBasedElectronID(const edm::ParameterSet&);
 
-  ~ClassBasedElectronID() override {}
-
-  void setup(const edm::ParameterSet& conf) override;
-  double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) override;
+  double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  std::string quality_;
-  edm::ParameterSet cuts_;
+  struct Cuts {
+    Cuts(edm::ParameterSet const&);
+    std::vector<double> deltaEtaIn_;
+    std::vector<double> sigmaIetaIetaMax_;
+    std::vector<double> sigmaIetaIetaMin_;
+    std::vector<double> HoverE_;
+    std::vector<double> EoverPOutMax_;
+    std::vector<double> EoverPOutMin_;
+    std::vector<double> deltaPhiInChargeMax_;
+    std::vector<double> deltaPhiInChargeMin_;
+  } cuts_;
 };
 
 #endif  // ClassBasedElectronID_H

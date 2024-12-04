@@ -19,8 +19,7 @@ public:
   virtual ~ElectronIDAlgo() {}
 
   //void baseSetup(const edm::ParameterSet& conf) ;
-  virtual void setup(const edm::ParameterSet& conf) {}
-  virtual double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) { return 0.; };
+  virtual double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) const { return 0.; };
 
 protected:
   edm::InputTag reducedBarrelRecHitCollection_;

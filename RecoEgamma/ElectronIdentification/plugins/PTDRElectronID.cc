@@ -1,40 +1,77 @@
 #include "PTDRElectronID.h"
 
-void PTDRElectronID::setup(const edm::ParameterSet& conf) {
-  // Get all the parameters
-  //baseSetup(conf);
+PTDRElectronID::PTDRElectronID(const edm::ParameterSet& conf) : cuts_{conf} {}
 
-  quality_ = conf.getParameter<std::string>("electronQuality");
-
-  useEoverPIn_ = conf.getParameter<std::vector<int> >("useEoverPIn");
-  useDeltaEtaIn_ = conf.getParameter<std::vector<int> >("useDeltaEtaIn");
-  useDeltaPhiIn_ = conf.getParameter<std::vector<int> >("useDeltaPhiIn");
-  useHoverE_ = conf.getParameter<std::vector<int> >("useHoverE");
-  useE9overE25_ = conf.getParameter<std::vector<int> >("useE9overE25");
-  useEoverPOut_ = conf.getParameter<std::vector<int> >("useEoverPOut");
-  useDeltaPhiOut_ = conf.getParameter<std::vector<int> >("useDeltaPhiOut");
-  useInvEMinusInvP_ = conf.getParameter<std::vector<int> >("useInvEMinusInvP");
-  useBremFraction_ = conf.getParameter<std::vector<int> >("useBremFraction");
-  useSigmaEtaEta_ = conf.getParameter<std::vector<int> >("useSigmaEtaEta");
-  useSigmaPhiPhi_ = conf.getParameter<std::vector<int> >("useSigmaPhiPhi");
-  acceptCracks_ = conf.getParameter<std::vector<int> >("acceptCracks");
-
-  if (quality_ == "tight") {
-    cuts_ = conf.getParameter<edm::ParameterSet>("tightEleIDCuts");
-    variables_ = 2;
-  } else if (quality_ == "medium") {
-    cuts_ = conf.getParameter<edm::ParameterSet>("mediumEleIDCuts");
-    variables_ = 1;
-  } else if (quality_ == "loose") {
-    cuts_ = conf.getParameter<edm::ParameterSet>("looseEleIDCuts");
-    variables_ = 0;
+PTDRElectronID::Cuts::Cuts(const edm::ParameterSet& conf) {
+  int variables = 0;
+  auto quality = conf.getParameter<std::string>("electronQuality");
+  edm::ParameterSet cuts;
+  if (quality == "tight") {
+    cuts = conf.getParameter<edm::ParameterSet>("tightEleIDCuts");
+    variables = 2;
+  } else if (quality == "medium") {
+    cuts = conf.getParameter<edm::ParameterSet>("mediumEleIDCuts");
+    variables = 1;
+  } else if (quality == "loose") {
+    cuts = conf.getParameter<edm::ParameterSet>("looseEleIDCuts");
+    variables = 0;
   } else {
     throw cms::Exception("Configuration")
         << "Invalid electronQuality parameter in PTDElectronID: must be tight, medium or loose.";
   }
+
+  useEoverPIn_ = conf.getParameter<std::vector<int> >("useEoverPIn").at(variables);
+  if (useEoverPIn_) {
+    EoverPInMax_ = cuts.getParameter<std::vector<double> >("EoverPInMax");
+    EoverPInMin_ = cuts.getParameter<std::vector<double> >("EoverPInMin");
+  }
+  useDeltaEtaIn_ = conf.getParameter<std::vector<int> >("useDeltaEtaIn").at(variables);
+  if (useDeltaEtaIn_) {
+    deltaEtaIn_ = cuts.getParameter<std::vector<double> >("deltaEtaIn");
+  }
+  useDeltaPhiIn_ = conf.getParameter<std::vector<int> >("useDeltaPhiIn").at(variables);
+  if (useDeltaPhiIn_) {
+    deltaPhiIn_ = cuts.getParameter<std::vector<double> >("deltaPhiIn");
+  }
+  useHoverE_ = conf.getParameter<std::vector<int> >("useHoverE").at(variables);
+  if (useHoverE_) {
+    HoverE_ = cuts.getParameter<std::vector<double> >("HoverE");
+  }
+  useE9overE25_ = conf.getParameter<std::vector<int> >("useE9overE25").at(variables);
+  if (useE9overE25_) {
+    E9overE25_ = cuts.getParameter<std::vector<double> >("E9overE25");
+  }
+  useEoverPOut_ = conf.getParameter<std::vector<int> >("useEoverPOut").at(variables);
+  if (useEoverPOut_) {
+    EoverPOutMax_ = cuts.getParameter<std::vector<double> >("EoverPOutMax");
+    EoverPOutMin_ = cuts.getParameter<std::vector<double> >("EoverPOutMin");
+  }
+  useDeltaPhiOut_ = conf.getParameter<std::vector<int> >("useDeltaPhiOut").at(variables);
+  if (useDeltaPhiOut_) {
+    deltaPhiOut_ = cuts.getParameter<std::vector<double> >("deltaPhiOut");
+  }
+  useInvEMinusInvP_ = conf.getParameter<std::vector<int> >("useInvEMinusInvP").at(variables);
+  if (useInvEMinusInvP_) {
+    invEMinusInvP_ = cuts.getParameter<std::vector<double> >("invEMinusInvP");
+  }
+  useBremFraction_ = conf.getParameter<std::vector<int> >("useBremFraction").at(variables);
+  if (useBremFraction_) {
+    bremFraction_ = cuts.getParameter<std::vector<double> >("bremFraction");
+  }
+  useSigmaEtaEta_ = conf.getParameter<std::vector<int> >("useSigmaEtaEta").at(variables);
+  if (useSigmaEtaEta_) {
+    sigmaEtaEtaMax_ = cuts.getParameter<std::vector<double> >("sigmaEtaEtaMax");
+    sigmaEtaEtaMin_ = cuts.getParameter<std::vector<double> >("sigmaEtaEtaMin");
+  }
+  useSigmaPhiPhi_ = conf.getParameter<std::vector<int> >("useSigmaPhiPhi").at(variables);
+  if (useSigmaPhiPhi_) {
+    sigmaPhiPhiMin_ = cuts.getParameter<std::vector<double> >("sigmaPhiPhiMin");
+    sigmaPhiPhiMax_ = cuts.getParameter<std::vector<double> >("sigmaPhiPhiMax");
+  }
+  acceptCracks_ = conf.getParameter<std::vector<int> >("acceptCracks").at(variables);
 }
 
-double PTDRElectronID::result(const reco::GsfElectron* electron, const edm::Event& e, const edm::EventSetup& es) {
+double PTDRElectronID::result(const reco::GsfElectron* electron, const edm::Event& e, const edm::EventSetup& es) const {
   //determine which element of the cut arrays in cfi file to read
   //depending on the electron classification
   int icut = 0;
@@ -68,64 +105,64 @@ double PTDRElectronID::result(const reco::GsfElectron* electron, const edm::Even
     return 1.;
   }
 
-  if (acceptCracks_[variables_])
+  if (cuts_.acceptCracks_)
     if (elClass == reco::GsfElectron::GAP)
       return 1.;
 
-  if (useEoverPIn_[variables_]) {
+  if (cuts_.useEoverPIn_) {
     double value = electron->eSuperClusterOverP();
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("EoverPInMax");
-    std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("EoverPInMin");
+    std::vector<double> const& maxcut = cuts_.EoverPInMax_;
+    std::vector<double> const& mincut = cuts_.EoverPInMin_;
     if (value < mincut[icut] || value > maxcut[icut])
       return 0.;
   }
 
-  if (useDeltaEtaIn_[variables_]) {
+  if (cuts_.useDeltaEtaIn_) {
     double value = electron->deltaEtaSuperClusterTrackAtVtx();
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("deltaEtaIn");
+    std::vector<double> const& maxcut = cuts_.deltaEtaIn_;
     if (fabs(value) > maxcut[icut])
       return 0.;
   }
 
-  if (useDeltaPhiIn_[variables_]) {
+  if (cuts_.useDeltaPhiIn_) {
     double value = electron->deltaPhiSuperClusterTrackAtVtx();
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("deltaPhiIn");
+    std::vector<double> const& maxcut = cuts_.deltaPhiIn_;
     if (fabs(value) > maxcut[icut])
       return 0.;
   }
 
-  if (useHoverE_[variables_]) {
+  if (cuts_.useHoverE_) {
     double value = electron->hadronicOverEm();
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("HoverE");
+    std::vector<double> const& maxcut = cuts_.HoverE_;
     if (value > maxcut[icut])
       return 0.;
   }
 
-  if (useEoverPOut_[variables_]) {
+  if (cuts_.useEoverPOut_) {
     double value = electron->eSeedClusterOverPout();
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("EoverPOutMax");
-    std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("EoverPOutMin");
+    std::vector<double> const& maxcut = cuts_.EoverPOutMax_;
+    std::vector<double> const& mincut = cuts_.EoverPOutMin_;
     if (value < mincut[icut] || value > maxcut[icut])
       return 0.;
   }
 
-  if (useDeltaPhiOut_[variables_]) {
+  if (cuts_.useDeltaPhiOut_) {
     double value = electron->deltaPhiSeedClusterTrackAtCalo();
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("deltaPhiOut");
+    std::vector<double> const& maxcut = cuts_.deltaPhiOut_;
     if (fabs(value) > maxcut[icut])
       return 0.;
   }
 
-  if (useInvEMinusInvP_[variables_]) {
+  if (cuts_.useInvEMinusInvP_) {
     double value = (1. / electron->caloEnergy()) - (1. / electron->trackMomentumAtVtx().R());
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("invEMinusInvP");
+    std::vector<double> const& maxcut = cuts_.invEMinusInvP_;
     if (value > maxcut[icut])
       return 0.;
   }
 
-  if (useBremFraction_[variables_]) {
+  if (cuts_.useBremFraction_) {
     double value = electron->trackMomentumAtVtx().R() - electron->trackMomentumOut().R();
-    std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("bremFraction");
+    std::vector<double> const& mincut = cuts_.bremFraction_;
     if (value < mincut[icut])
       return 0.;
   }
@@ -134,23 +171,23 @@ double PTDRElectronID::result(const reco::GsfElectron* electron, const edm::Even
   //std::vector<float> vCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
   //std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
 
-  if (useE9overE25_[variables_]) {
+  if (cuts_.useE9overE25_) {
     double value = electron->r9() * electron->superCluster()->energy() / electron->e5x5();
-    std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("E9overE25");
+    std::vector<double> const& mincut = cuts_.E9overE25_;
     if (fabs(value) < mincut[icut])
       return 0.;
   }
 
-  if (useSigmaEtaEta_[variables_]) {
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("sigmaEtaEtaMax");
-    std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("sigmaEtaEtaMin");
+  if (cuts_.useSigmaEtaEta_) {
+    std::vector<double> const& maxcut = cuts_.sigmaEtaEtaMax_;
+    std::vector<double> const& mincut = cuts_.sigmaEtaEtaMin_;
     if (electron->sigmaIetaIeta() < mincut[icut] || electron->sigmaIetaIeta() > maxcut[icut])
       return 0.;
   }
 
-  if (useSigmaPhiPhi_[variables_]) {
-    std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("sigmaPhiPhiMin");
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("sigmaPhiPhiMax");
+  if (cuts_.useSigmaPhiPhi_) {
+    std::vector<double> const& mincut = cuts_.sigmaPhiPhiMin_;
+    std::vector<double> const& maxcut = cuts_.sigmaPhiPhiMax_;
     if (electron->sigmaIphiIphi() < mincut[icut] || electron->sigmaIphiIphi() > maxcut[icut])
       return 0.;
   }

@@ -1,30 +1,42 @@
 #include "ClassBasedElectronID.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
+namespace {
+  edm::ParameterSet fromQuality(const edm::ParameterSet& conf) {
+    auto quality = conf.getParameter<std::string>("electronQuality");
+
+    if (quality == "Eff95Cuts") {
+      return conf.getParameter<edm::ParameterSet>("Eff95Cuts");
+    }
+
+    else if (quality == "Eff90Cuts") {
+      return conf.getParameter<edm::ParameterSet>("Eff90Cuts");
+    }
+
+    throw cms::Exception("ClassBasedElectronID")
+        << "Invalid electronQuality parameter: must be tight, medium or loose.";
+  }
+}  // namespace
 // ===========================================================================================================
-void ClassBasedElectronID::setup(const edm::ParameterSet& conf)
+ClassBasedElectronID::ClassBasedElectronID(const edm::ParameterSet& conf)
+    : cuts_{fromQuality(conf)}
 // ===========================================================================================================
-{
-  // Get all the parameters
-  //baseSetup(conf);
+{}  // end of setup
 
-  quality_ = conf.getParameter<std::string>("electronQuality");
+ClassBasedElectronID::Cuts::Cuts(const edm::ParameterSet& conf) {
+  deltaEtaIn_ = conf.getParameter<std::vector<double> >("deltaEtaIn");
+  sigmaIetaIetaMax_ = conf.getParameter<std::vector<double> >("sigmaIetaIetaMax");
+  sigmaIetaIetaMin_ = conf.getParameter<std::vector<double> >("sigmaIetaIetaMin");
+  HoverE_ = conf.getParameter<std::vector<double> >("HoverE");
+  EoverPOutMax_ = conf.getParameter<std::vector<double> >("EoverPOutMax");
+  EoverPOutMin_ = conf.getParameter<std::vector<double> >("EoverPOutMin");
+  deltaPhiInChargeMax_ = conf.getParameter<std::vector<double> >("deltaPhiInChargeMax");
+  deltaPhiInChargeMin_ = conf.getParameter<std::vector<double> >("deltaPhiInChargeMin");
+}
 
-  if (quality_ == "Eff95Cuts") {
-    cuts_ = conf.getParameter<edm::ParameterSet>("Eff95Cuts");
-  }
-
-  else if (quality_ == "Eff90Cuts") {
-    cuts_ = conf.getParameter<edm::ParameterSet>("Eff90Cuts");
-  }
-
-  else {
-    edm::LogError("ClassBasedElectronID") << "Invalid electronQuality parameter: must be tight, medium or loose.";
-    exit(1);
-  }
-
-}  // end of setup
-
-double ClassBasedElectronID::result(const reco::GsfElectron* electron, const edm::Event& e, const edm::EventSetup& es) {
+double ClassBasedElectronID::result(const reco::GsfElectron* electron,
+                                    const edm::Event& e,
+                                    const edm::EventSetup& es) const {
   //determine which element of the cut arrays in cfi file to read
   //depending on the electron classification
   int icut = 0;
@@ -56,16 +68,16 @@ double ClassBasedElectronID::result(const reco::GsfElectron* electron, const edm
     return 1.;
   }
 
-  bool useDeltaEtaIn = true;
-  bool useSigmaIetaIeta = true;
-  bool useHoverE = true;
-  bool useEoverPOut = true;
-  bool useDeltaPhiInCharge = true;
+  constexpr bool useDeltaEtaIn = true;
+  constexpr bool useSigmaIetaIeta = true;
+  constexpr bool useHoverE = true;
+  constexpr bool useEoverPOut = true;
+  constexpr bool useDeltaPhiInCharge = true;
 
   // DeltaEtaIn
   if (useDeltaEtaIn) {
     double value = electron->deltaEtaSuperClusterTrackAtVtx();
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("deltaEtaIn");
+    std::vector<double> const& maxcut = cuts_.deltaEtaIn_;
     if (fabs(value) > maxcut[icut])
       return 0.;
   }
@@ -73,8 +85,8 @@ double ClassBasedElectronID::result(const reco::GsfElectron* electron, const edm
   // SigmaIetaIeta
   if (useSigmaIetaIeta) {
     double value = electron->sigmaIetaIeta();
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("sigmaIetaIetaMax");
-    std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("sigmaIetaIetaMin");
+    std::vector<double> const& maxcut = cuts_.sigmaIetaIetaMax_;
+    std::vector<double> const& mincut = cuts_.sigmaIetaIetaMin_;
     if (value < mincut[icut] || value > maxcut[icut])
       return 0.;
   }
@@ -82,7 +94,7 @@ double ClassBasedElectronID::result(const reco::GsfElectron* electron, const edm
   // H/E
   if (useHoverE) {  //_[variables_]) {
     double value = electron->hadronicOverEm();
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("HoverE");
+    std::vector<double> const& maxcut = cuts_.HoverE_;
     if (value > maxcut[icut])
       return 0.;
   }  // if use
@@ -90,8 +102,8 @@ double ClassBasedElectronID::result(const reco::GsfElectron* electron, const edm
   // Eseed/Pout
   if (useEoverPOut) {
     double value = electron->eSeedClusterOverPout();
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("EoverPOutMax");
-    std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("EoverPOutMin");
+    std::vector<double> maxcut = cuts_.EoverPOutMax_;
+    std::vector<double> mincut = cuts_.EoverPOutMin_;
     if (value < mincut[icut] || value > maxcut[icut])
       return 0.;
   }
@@ -101,8 +113,8 @@ double ClassBasedElectronID::result(const reco::GsfElectron* electron, const edm
     double value1 = electron->deltaPhiSuperClusterTrackAtVtx();
     double value2 = electron->charge();
     double value = value1 * value2;
-    std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("deltaPhiInChargeMax");
-    std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("deltaPhiInChargeMin");
+    std::vector<double> maxcut = cuts_.deltaPhiInChargeMax_;
+    std::vector<double> mincut = cuts_.deltaPhiInChargeMin_;
     if (value < mincut[icut] || value > maxcut[icut])
       return 0.;
   }

@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -15,7 +15,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 template <class algo>
-class ElectronIDExternalProducer : public edm::stream::EDProducer<> {
+class ElectronIDExternalProducer : public edm::global::EDProducer<> {
 public:
   explicit ElectronIDExternalProducer(const edm::ParameterSet& iConfig)
       : srcToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("src"))),
@@ -23,9 +23,7 @@ public:
     produces<edm::ValueMap<float>>();
   }
 
-  ~ElectronIDExternalProducer() override {}
-
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
 private:
   edm::EDGetTokenT<reco::GsfElectronCollection> srcToken_;
@@ -33,13 +31,10 @@ private:
 };
 
 template <typename algo>
-void ElectronIDExternalProducer<algo>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void ElectronIDExternalProducer<algo>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // read input collection
   edm::Handle<reco::GsfElectronCollection> electrons;
   iEvent.getByToken(srcToken_, electrons);
-
-  // initialize common selector
-  select_.newEvent(iEvent, iSetup);
 
   // prepare room for output
   std::vector<float> values;

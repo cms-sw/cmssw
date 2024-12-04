@@ -9,25 +9,21 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-#include "ClassBasedElectronID.h"
-#include "CutBasedElectronID.h"
 #include "ElectronIDAlgo.h"
-#include "PTDRElectronID.h"
+
+#include <memory>
 
 class ElectronIDSelectorCutBased {
 public:
   explicit ElectronIDSelectorCutBased(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
       : ElectronIDSelectorCutBased(conf, iC) {}
   explicit ElectronIDSelectorCutBased(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
-  virtual ~ElectronIDSelectorCutBased();
+  virtual ~ElectronIDSelectorCutBased() = default;
 
-  void newEvent(const edm::Event&, const edm::EventSetup&);
-  double operator()(const reco::GsfElectron&, const edm::Event&, const edm::EventSetup&);
+  double operator()(const reco::GsfElectron&, const edm::Event&, const edm::EventSetup&) const;
 
 private:
-  ElectronIDAlgo* electronIDAlgo_;
-  edm::ParameterSet conf_;
-  std::string algorithm_;
+  std::unique_ptr<ElectronIDAlgo const> electronIDAlgo_;
 };
 
 #endif

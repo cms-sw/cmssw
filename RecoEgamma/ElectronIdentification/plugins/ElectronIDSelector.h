@@ -34,7 +34,6 @@ public:
               const edm::EventSetup& iEs) {
     const edm::Handle<reco::GsfElectronCollection>& electrons = _electrons;
     selected_.clear();
-    select_.newEvent(iEvent, iEs);
     // Loop over electrons
     unsigned int i = 0;
     for (reco::GsfElectronCollection::const_iterator eleIt = electrons->begin(); eleIt != electrons->end(); ++eleIt) {

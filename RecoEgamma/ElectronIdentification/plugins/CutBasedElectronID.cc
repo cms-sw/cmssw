@@ -8,11 +8,6 @@
 
 CutBasedElectronID::CutBasedElectronID(const edm::ParameterSet& conf, edm::ConsumesCollector& iC) {
   verticesCollection_ = iC.consumes<std::vector<reco::Vertex> >(conf.getParameter<edm::InputTag>("verticesCollection"));
-}
-
-void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
-  // Get all the parameters
-  //baseSetup(conf);
 
   type_ = conf.getParameter<std::string>("electronIDType");
   quality_ = conf.getParameter<std::string>("electronQuality");
@@ -37,7 +32,9 @@ void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
   }
 }
 
-double CutBasedElectronID::result(const reco::GsfElectron* electron, const edm::Event& e, const edm::EventSetup& es) {
+double CutBasedElectronID::result(const reco::GsfElectron* electron,
+                                  const edm::Event& e,
+                                  const edm::EventSetup& es) const {
   if (type_ == "classbased")
     return cicSelection(electron, e, es);
   else if (type_ == "robust")
@@ -46,7 +43,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron, const edm::
   return 0;
 }
 
-int CutBasedElectronID::classify(const reco::GsfElectron* electron) {
+int CutBasedElectronID::classify(const reco::GsfElectron* electron) const {
   double eta = fabs(electron->superCluster()->eta());
   double eOverP = electron->eSuperClusterOverP();
   double fBrem = electron->fbrem();
@@ -116,7 +113,7 @@ int CutBasedElectronID::classify(const reco::GsfElectron* electron) {
 
 double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
                                         const edm::Event& e,
-                                        const edm::EventSetup& es) {
+                                        const edm::EventSetup& es) const {
   double scTheta = (2 * atan(exp(-electron->superCluster()->eta())));
   double scEt = electron->superCluster()->energy() * sin(scTheta);
 
@@ -167,7 +164,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
     eb = 1;
 
   // LOOSE and TIGHT Selections
-  if (type_ == "classbased" && (version_ == "V01" || version_ == "V00")) {
+  if (version_ == "V01" || version_ == "V00") {
     if ((eOverP < 0.8) && (fBrem < 0.2))
       return 0.;
 
@@ -203,7 +200,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
     return 1.;
   }
 
-  if (type_ == "classbased" and version_ == "V02") {
+  if (version_ == "V02") {
     double result = 0.;
 
     int bin = 0;
@@ -309,7 +306,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
     return result;
   }
 
-  if (type_ == "classbased" && (version_ == "V06" || version_.empty())) {
+  if (version_ == "V06" || version_.empty()) {
     std::vector<double> cutIsoSum = cuts_.getParameter<std::vector<double> >("cutiso_sum");
     std::vector<double> cutIsoSumCorr = cuts_.getParameter<std::vector<double> >("cutiso_sumoet");
     std::vector<double> cuthoe = cuts_.getParameter<std::vector<double> >("cuthoe");
@@ -406,7 +403,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
   return -1.;
 }
 
-bool CutBasedElectronID::compute_cut(double x, double et, double cut_min, double cut_max, bool gtn) {
+bool CutBasedElectronID::compute_cut(double x, double et, double cut_min, double cut_max, bool gtn) const {
   float et_min = 10;
   float et_max = 40;
 
@@ -433,7 +430,7 @@ bool CutBasedElectronID::compute_cut(double x, double et, double cut_min, double
 
 double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron,
                                            const edm::Event& e,
-                                           const edm::EventSetup& es) {
+                                           const edm::EventSetup& es) const {
   double scTheta = (2 * atan(exp(-electron->superCluster()->eta())));
   double scEt = electron->superCluster()->energy() * sin(scTheta);
   double eta = electron->p4().Eta();
@@ -496,60 +493,55 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron,
   // .....................................................................................
   std::vector<double> cut;
   // ROBUST Selection
-  if (type_ == "robust") {
-    double result = 0;
+  double result = 0;
 
-    // hoe, sigmaEtaEta, dPhiIn, dEtaIn
-    if (electron->isEB())
-      cut = cuts_.getParameter<std::vector<double> >("barrel");
+  // hoe, sigmaEtaEta, dPhiIn, dEtaIn
+  if (electron->isEB())
+    cut = cuts_.getParameter<std::vector<double> >("barrel");
+  else
+    cut = cuts_.getParameter<std::vector<double> >("endcap");
+  // check isolations: if only isolation passes result = 2
+  if (quality_ == "highenergy") {
+    if ((tkIso > cut[6] || hcalIso2 > cut[11]) ||
+        (electron->isEB() && ((ecalIso + hcalIso1) > cut[7] + cut[8] * scEt)) ||
+        (electron->isEE() && (scEt >= 50.) && ((ecalIso + hcalIso1) > cut[7] + cut[8] * (scEt - 50))) ||
+        (electron->isEE() && (scEt < 50.) && ((ecalIso + hcalIso1) > cut[9] + cut[10] * (scEt - 50))))
+      result = 0;
     else
-      cut = cuts_.getParameter<std::vector<double> >("endcap");
-    // check isolations: if only isolation passes result = 2
-    if (quality_ == "highenergy") {
-      if ((tkIso > cut[6] || hcalIso2 > cut[11]) ||
-          (electron->isEB() && ((ecalIso + hcalIso1) > cut[7] + cut[8] * scEt)) ||
-          (electron->isEE() && (scEt >= 50.) && ((ecalIso + hcalIso1) > cut[7] + cut[8] * (scEt - 50))) ||
-          (electron->isEE() && (scEt < 50.) && ((ecalIso + hcalIso1) > cut[9] + cut[10] * (scEt - 50))))
-        result = 0;
-      else
-        result = 2;
-    } else {
-      if ((tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]) || (hcalIso1 > cut[9]) || (hcalIso2 > cut[10]) ||
-          (tkIso / electron->p4().Pt() > cut[11]) || (ecalIso / electron->p4().Pt() > cut[12]) ||
-          (hcalIso / electron->p4().Pt() > cut[13]) || ((tkIso + ecalIso + hcalIso) > cut[14]) ||
-          (((tkIso + ecalIso + hcalIso) / electron->p4().Pt()) > cut[15]) ||
-          ((tkIso + ecalIsoPed + hcalIso) > cut[16]) ||
-          (((tkIso + ecalIsoPed + hcalIso) / electron->p4().Pt()) > cut[17]))
-        result = 0.;
-      else
-        result = 2.;
-    }
-
-    if ((hOverE < cut[0]) && (sigmaee < cut[1]) && (fabs(deltaPhiIn) < cut[2]) && (fabs(deltaEtaIn) < cut[3]) &&
-        (e25Maxoe55 > cut[4] && e15oe55 > cut[5]) && (sigmaee >= cut[18]) && (eOverP > cut[19] && eOverP < cut[20])) {
-      result = result + 1;
-    }
-
-    if (ip > cut[21])
-      return result;
-    if (mishits > cut[22])  // expected missing hits
-      return result;
-    // positive cut[23] means to demand a valid hit in 1st layer PXB
-    if (cut[23] > 0 &&
-        !electron->gsfTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1))
-      return result;
-
-    // cut[24]: Dist cut[25]: dcot
-    float dist = fabs(electron->convDist());
-    float dcot = fabs(electron->convDcot());
-    bool isConversion = (cut[24] > 99. || cut[25] > 99.) ? false : (dist < cut[24] && dcot < cut[25]);
-    if (isConversion)
-      return result;
-
-    result += 4;
-
-    return result;
+      result = 2;
+  } else {
+    if ((tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]) || (hcalIso1 > cut[9]) || (hcalIso2 > cut[10]) ||
+        (tkIso / electron->p4().Pt() > cut[11]) || (ecalIso / electron->p4().Pt() > cut[12]) ||
+        (hcalIso / electron->p4().Pt() > cut[13]) || ((tkIso + ecalIso + hcalIso) > cut[14]) ||
+        (((tkIso + ecalIso + hcalIso) / electron->p4().Pt()) > cut[15]) || ((tkIso + ecalIsoPed + hcalIso) > cut[16]) ||
+        (((tkIso + ecalIsoPed + hcalIso) / electron->p4().Pt()) > cut[17]))
+      result = 0.;
+    else
+      result = 2.;
   }
 
-  return -1.;
+  if ((hOverE < cut[0]) && (sigmaee < cut[1]) && (fabs(deltaPhiIn) < cut[2]) && (fabs(deltaEtaIn) < cut[3]) &&
+      (e25Maxoe55 > cut[4] && e15oe55 > cut[5]) && (sigmaee >= cut[18]) && (eOverP > cut[19] && eOverP < cut[20])) {
+    result = result + 1;
+  }
+
+  if (ip > cut[21])
+    return result;
+  if (mishits > cut[22])  // expected missing hits
+    return result;
+  // positive cut[23] means to demand a valid hit in 1st layer PXB
+  if (cut[23] > 0 &&
+      !electron->gsfTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1))
+    return result;
+
+  // cut[24]: Dist cut[25]: dcot
+  float dist = fabs(electron->convDist());
+  float dcot = fabs(electron->convDcot());
+  bool isConversion = (cut[24] > 99. || cut[25] > 99.) ? false : (dist < cut[24] && dcot < cut[25]);
+  if (isConversion)
+    return result;
+
+  result += 4;
+
+  return result;
 }
