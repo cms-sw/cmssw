@@ -94,7 +94,7 @@ namespace trackerTFP {
   AnalyzerTQ::AnalyzerTQ(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
     usesResource("TFileService");
     // book in- and output ED products
-    const string& label = iConfig.getParameter<string>("OutputLabelDR");
+    const string& label = iConfig.getParameter<string>("OutputLabelTQ");
     const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
     const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
     edGetTokenStubs_ = consumes<StreamsStub>(InputTag(label, branchStubs));
