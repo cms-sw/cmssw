@@ -51,7 +51,7 @@ process.kf  = cms.Sequence( process.ProducerKF  + process.AnalyzerKF  )
 process.dr  = cms.Sequence( process.ProducerDR  + process.AnalyzerDR  )
 process.tq  = cms.Sequence( process.ProducerTQ                        )
 process.tfp = cms.Sequence( process.ProducerTFP                       )
-process.tt  = cms.Path( process.mc + process.dtc + process.pp + process.gp + process.ht + process.ctb + process.kf )#+ process.dr + process.tq )# + process.tfp )
+process.tt  = cms.Path( process.mc + process.dtc + process.pp + process.gp + process.ht + process.ctb)# + process.kf )#+ process.dr + process.tq )# + process.tfp )
 process.schedule = cms.Schedule( process.tt )
 
 # create options

@@ -19,7 +19,7 @@ process.load( 'Configuration.StandardSequences.FrontierConditions_GlobalTag_cff'
 process.load( 'L1Trigger.TrackTrigger.TrackTrigger_cff' )
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '133X_mcRun4_realistic_v1', '')
 
 # load code that associates stubs with mctruth
 process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
@@ -45,7 +45,7 @@ process.tracklet = cms.Sequence( process.L1THybridTracks + process.AnalyzerTrack
 process.tm       = cms.Sequence( process.ProducerTM      + process.AnalyzerTM       )
 process.dr       = cms.Sequence( process.ProducerDR      + process.AnalyzerDR       )
 process.kf       = cms.Sequence( process.ProducerKF      + process.AnalyzerKF       )
-process.tq       = cms.Sequence( process.ProducerTQ                                 )
+process.tq       = cms.Sequence( process.ProducerTQ      + process.AnalyzerTQ       )
 process.tfp      = cms.Sequence( process.ProducerTFP     + process.AnalyzerTFP      )
 process.tt       = cms.Path( process.mc + process.dtc + process.tracklet + process.tm + process.dr + process.kf + process.tq + process.tfp )
 process.schedule = cms.Schedule( process.tt )

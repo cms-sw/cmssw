@@ -157,11 +157,8 @@ namespace trklet {
         if (zTtrack < zTs[iEtaReg + 1])
           break;
       const L1track3D l1track3D(settings_, stubsFound, qOverPt, phi0, z0, tanLambda, helixD0, iPhiSec, iEtaReg);
-      //cout << "In " << qOverPt << " " << phi0 << " " << tanLambda << " " << z0 << endl;
       const L1fittedTrack trackFitted(tmtt_->fit(l1track3D));
-      //cout << "Out " << trackFitted.qOverPt() << " " << trackFitted.phi0() << " " << trackFitted.tanLambda() << " " << trackFitted.z0() << endl;
       if (!trackFitted.accepted())
-        //throw cms::Exception("...");
         continue;
       static constexpr int trackId = 0;
       static constexpr int numConsistent = 0;

@@ -302,7 +302,6 @@ namespace trackerTFP {
                   vector<TProfile*>(),
                   false);
         associate(tracks, tracksStubs, region, selection, tpPtrsMax, tmp, vector<TH1F*>(), vector<TProfile*>(), false);
-        //cout << "KF "  << tpPtrsSelection.size() <<  " " << tpPtrsMax.size() << endl;
       }
       numTracks += nRegionTracks;
       prof_->Fill(1, nRegionStubs);

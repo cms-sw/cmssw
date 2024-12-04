@@ -10,3 +10,5 @@ AnalyzerHT  = cms.EDAnalyzer( 'trackerTFP::AnalyzerHT' , TrackerTFPAnalyzer_para
 AnalyzerCTB = cms.EDAnalyzer( 'trackerTFP::AnalyzerCTB', TrackerTFPAnalyzer_params, TrackerTFPProducer_params )
 AnalyzerKF  = cms.EDAnalyzer( 'trackerTFP::AnalyzerKF' , TrackerTFPAnalyzer_params, TrackerTFPProducer_params )
 AnalyzerDR  = cms.EDAnalyzer( 'trackerTFP::AnalyzerDR' , TrackerTFPAnalyzer_params, TrackerTFPProducer_params )
+AnalyzerTQ  = cms.EDAnalyzer( 'trackerTFP::AnalyzerTQ', TrackerTFPAnalyzer_params, TrackerTFPProducer_params )
+AnalyzerTFP = cms.EDAnalyzer( 'trackerTFP::AnalyzerTFP', TrackerTFPAnalyzer_params, TrackerTFPProducer_params )

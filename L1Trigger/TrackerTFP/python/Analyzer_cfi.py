@@ -12,5 +12,7 @@ TrackerTFPAnalyzer_params = cms.PSet (
   OutputLabelCTB = cms.string( "ProducerCTB" ),  #
   OutputLabelKF  = cms.string( "ProducerKF"  ),  #
   OutputLabelDR  = cms.string( "ProducerDR"  ),  #
+  OutputLabelTQ  = cms.string( "ProducerTQ"  ),  #
+  OutputLabelTFP = cms.string( "ProducerTFP" ),  #
 
 )

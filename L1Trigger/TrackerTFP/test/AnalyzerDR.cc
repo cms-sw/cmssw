@@ -28,7 +28,6 @@
 
 using namespace std;
 using namespace edm;
-using namespace trackerTFP;
 using namespace tt;
 
 namespace trackerTFP {
@@ -189,7 +188,6 @@ namespace trackerTFP {
         associate(tracks, selection, tpPtrsSelection, tmp);
         associate(tracks, reconstructable, tpPtrs, allMatched, false);
         associate(tracks, selection, tpPtrsMax, tmp, false);
-        //cout << "DR "  << tpPtrsSelection.size() <<  " " << tpPtrsMax.size() << endl;
         const int size = acceptedTracks[offset + channel].size();
         hisChannel_->Fill(size);
         profChannel_->Fill(channel, size);

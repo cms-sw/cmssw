@@ -30,9 +30,9 @@ using namespace std;
 using namespace edm;
 using namespace tt;
 
-namespace trklet {
+namespace trackerTFP {
 
-  /*! \class  trklet::AnalyzerTFP
+  /*! \class  trackerTFP::AnalyzerTFP
    *  \brief  Class to analyze TTTracks found by tfp
    *  \author Thomas Schuh
    *  \date   20204 Aug
@@ -260,6 +260,6 @@ namespace trklet {
     }
   }
 
-}  // namespace trklet
+}  // namespace trackerTFP
 
-DEFINE_FWK_MODULE(trklet::AnalyzerTFP);
+DEFINE_FWK_MODULE(trackerTFP::AnalyzerTFP);

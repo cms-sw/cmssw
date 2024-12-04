@@ -200,7 +200,7 @@ namespace trackerTFP {
         doubleGap = false;
         if (++nHits == minLayers)
           return false;
-      } else if (!maybePattern.test(layer)) {
+      } else if (nHits < setup_->kfMinLayers() && !maybePattern.test(layer)) {
         if (++nGaps == setup_->kfMaxGaps() || doubleGap)
           break;
         doubleGap = true;
