@@ -1,25 +1,12 @@
 import FWCore.ParameterSet.Config as cms
+from ..psets.hltTiclTracksterLinksPSet_cfi import hltTiclTracksterLinksPSet 
 
 hltTiclTracksterLinksL1Seeded = cms.EDProducer("TracksterLinksProducer",
     detector = cms.string('HGCAL'),
     layer_clusters = cms.InputTag("hltHgcalMergeLayerClustersL1Seeded"),
     layer_clustersTime = cms.InputTag("hltHgcalMergeLayerClustersL1Seeded","timeLayerCluster"),
     inferenceAlgo = cms.string('TracksterInferenceByDNN'),
-    linkingPSet = cms.PSet(
-        algo_verbosity = cms.int32(0),
-        cylinder_radius_sqr = cms.vdouble(9, 9),
-        dot_prod_th = cms.double(0.97),
-        max_distance_projective_sqr = cms.vdouble(60, 60),
-        max_distance_projective_sqr_closest_points = cms.vdouble(60, 60),
-        max_z_distance_closest_points = cms.vdouble(35, 35),
-        min_distance_z = cms.vdouble(30, 30),
-        min_num_lcs = cms.uint32(7),
-        min_trackster_energy = cms.double(10),
-        pca_quality_th = cms.double(0.85),
-        track_time_quality_threshold = cms.double(0.5),
-        type = cms.string('Skeletons'),
-        wind = cms.double(0.036)
-    ),
+    linkingPSet = hltTiclTracksterLinksPSet,
     pluginInferenceAlgoTracksterInferenceByDNN = cms.PSet(
         algo_verbosity = cms.int32(0),
         onnxPIDModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/linking/id_v0.onnx'),
@@ -38,7 +25,7 @@ hltTiclTracksterLinksL1Seeded = cms.EDProducer("TracksterLinksProducer",
     original_masks = cms.VInputTag("hltHgcalMergeLayerClustersL1Seeded:InitialLayerClustersMask"),
     propagator = cms.string('PropagatorWithMaterial'),
     regressionAndPid = cms.bool(True),
-    tracksters_collections = cms.VInputTag("hltTiclTrackstersCLUE3DHighL1Seeded", "hltTiclTrackstersPassthrough")
+    tracksters_collections = cms.VInputTag("hltTiclTrackstersCLUE3DHighL1Seeded", "hltTiclTrackstersRecoveryL1Seeded")
 )
 
 
