@@ -51,6 +51,7 @@ private:
   
   float clusterR_;
   float clusterZ_;
+  unsigned int clusterCol_;
   uint32_t detId_;
   float clusterCenter_;
   int clusterSize_;
@@ -93,6 +94,7 @@ void Phase2TrackerDumpDigi::beginJob ()
     outTree_->Branch("isPSModulePixel", &isPSModulePixel_, "isPSModulePixel/O");
     outTree_->Branch("isPSModuleStrip", &isPSModuleStrip_, "isPSModuleStrip/O");
     outTree_->Branch("is2SModule", &is2SModule_, "is2SModule/O");
+    outTree_->Branch("clusterCol", &clusterCol_, "clusterCol/I");
     outTree_->Branch("clusterR", &clusterR_, "clusterR/F");
     outTree_->Branch("clusterZ", &clusterZ_, "clusterZ/F");
     outTree_->Branch("clusterCenter", &clusterCenter_, "clusterCenter/F");
@@ -143,6 +145,7 @@ void Phase2TrackerDumpDigi::analyze(const edm::Event& event, const edm::EventSet
     for (const auto& clusterItr : DSVItr) {
       clusterCenter_ = clusterItr.center();
       clusterSize_ = clusterItr.size();
+      clusterCol_ = clusterItr.column();
 
       MeasurementPoint mpCluster(clusterItr.center(), clusterItr.column() + 0.5);
       Local3DPoint localPosCluster = geomDetUnit->topology().localPosition(mpCluster);
@@ -158,8 +161,13 @@ void Phase2TrackerDumpDigi::analyze(const edm::Event& event, const edm::EventSet
       clusterR_ = globalPosCluster.perp();
       clusterZ_ = globalPosCluster.z();
 
-      output << "\t cluster r position: " << globalPosCluster.perp() << std::endl;
-      output << "\t cluster global z position: " << globalPosCluster.z() << std::endl;
+      output << "\t cluster size / firstStrip / firstRow / col: " << 
+                 clusterSize_ << " / " << 
+                 clusterItr.firstStrip() << " / " << 
+                 clusterItr.firstRow() << " / " << 
+                 clusterCol_ << std::endl;
+//       output << "\t cluster r position: " << globalPosCluster.perp() << std::endl;
+//       output << "\t cluster global z position: " << globalPosCluster.z() << std::endl;
 
       outTree_->Fill();  // Fill the tree with current cluster data
     }
