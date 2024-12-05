@@ -43,8 +43,10 @@ namespace trackerTFP {
     EDGetTokenT<StreamsStub> edGetTokenStubs_;
     // ED input token of kf tracks
     EDGetTokenT<StreamsTrack> edGetTokenTracks_;
-    // ED output token for accepted kfout tracks
+    // ED output token for tracks
     EDPutTokenT<StreamsTrack> edPutTokenTracks_;
+    // ED output token for stubs
+    EDPutTokenT<StreamsStub> edPutTokenStubs_;
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // DataFormats token
@@ -67,6 +69,7 @@ namespace trackerTFP {
     edGetTokenStubs_ = consumes<StreamsStub>(InputTag(label, branchStubs));
     edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(label, branchTracks));
     edPutTokenTracks_ = produces<StreamsTrack>(branchTracks);
+    edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
@@ -133,7 +136,8 @@ namespace trackerTFP {
       }
     }
     // store TQ product
-    iEvent.emplace(edPutTokenTracks_, std::move(output));
+    iEvent.emplace(edPutTokenTracks_, move(output));
+    iEvent.emplace(edPutTokenStubs_, streamsStubs);
   }
 }  // namespace trackerTFP
 

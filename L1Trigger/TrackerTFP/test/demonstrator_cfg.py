@@ -10,7 +10,7 @@ process.load( 'Configuration.StandardSequences.FrontierConditions_GlobalTag_cff'
 process.load( 'L1Trigger.TrackTrigger.TrackTrigger_cff' )
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '133X_mcRun4_realistic_v1', '')
 
 # load code that produces DTCStubs
 process.load( 'L1Trigger.TrackerDTC.DTC_cff' )
