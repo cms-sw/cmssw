@@ -1,6 +1,8 @@
 #ifndef HeterogeneousCore_AlpakaTest_plugins_alpaka_TestHelperClass_h
 #define HeterogeneousCore_AlpakaTest_plugins_alpaka_TestHelperClass_h
 
+#include <optional>
+
 #include "DataFormats/PortableTestObjects/interface/TestHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -23,9 +25,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     void makeAsync(device::Event const& iEvent, device::EventSetup const& iSetup);
 
-    portabletest::TestHostCollection moveFrom() { return std::move(hostProduct_); }
-    portabletest::TestHostMultiCollection2 moveFromMulti2() { return std::move(hostProductMulti2_); }
-    portabletest::TestHostMultiCollection3 moveFromMulti3() { return std::move(hostProductMulti3_); }
+    portabletest::TestHostCollection moveFrom() {
+      auto product = std::move(*hostProduct_);
+      hostProduct_.reset();
+      return product;
+    }
+
+    portabletest::TestHostMultiCollection2 moveFromMulti2() {
+      auto product = std::move(*hostProductMulti2_);
+      hostProductMulti2_.reset();
+      return product;
+    }
+
+    portabletest::TestHostMultiCollection3 moveFromMulti3() {
+      auto product = std::move(*hostProductMulti3_);
+      hostProductMulti3_.reset();
+      return product;
+    }
 
   private:
     const device::EDGetToken<portabletest::TestDeviceCollection> getToken_;
@@ -35,9 +51,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const device::ESGetToken<AlpakaESTestDataCDevice, AlpakaESTestRecordC> esTokenDevice_;
 
     // hold the output product between acquire() and produce()
-    portabletest::TestHostCollection hostProduct_;
-    portabletest::TestHostMultiCollection2 hostProductMulti2_;
-    portabletest::TestHostMultiCollection3 hostProductMulti3_;
+    std::optional<portabletest::TestHostCollection> hostProduct_;
+    std::optional<portabletest::TestHostMultiCollection2> hostProductMulti2_;
+    std::optional<portabletest::TestHostMultiCollection3> hostProductMulti3_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

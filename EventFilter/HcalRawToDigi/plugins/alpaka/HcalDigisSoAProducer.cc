@@ -116,8 +116,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     event.emplace(digisF5HBToken_, std::move(df5_));
 
     if (qie11Digis.empty()) {
-      event.emplace(digisF01HEToken_);
-      event.emplace(digisF3HBToken_);
+      event.emplace(digisF01HEToken_, 0, event.queue());
+      event.emplace(digisF3HBToken_, 0, event.queue());
 
     } else {
       auto size_f1 = 0;
