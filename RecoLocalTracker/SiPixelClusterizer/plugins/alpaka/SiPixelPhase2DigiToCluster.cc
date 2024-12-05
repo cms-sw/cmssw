@@ -1,5 +1,6 @@
 // C++ includes
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -52,7 +53,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const SiPixelClusterThresholds clusterThresholds_;
     uint32_t nDigis_ = 0;
 
-    SiPixelDigisSoACollection digis_d;
+    std::optional<SiPixelDigisSoACollection> digis_d_;
   };
 
   SiPixelPhase2DigiToCluster::SiPixelPhase2DigiToCluster(const edm::ParameterSet& iConfig)
@@ -88,7 +89,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const TrackerGeometry* geom_ = &iSetup.getData(geomToken_);
 
     uint32_t nDigis = 0;
-
     for (const auto& det : input) {
       nDigis += det.size();
     }
@@ -107,39 +107,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto const gind = genericDet->index();
       for (auto const& px : det) {
         digis_h.view()[nDigis].moduleId() = uint16_t(gind);
-
         digis_h.view()[nDigis].xx() = uint16_t(px.row());
         digis_h.view()[nDigis].yy() = uint16_t(px.column());
         digis_h.view()[nDigis].adc() = uint16_t(px.adc());
-
         digis_h.view()[nDigis].clus() = 0;
-
         digis_h.view()[nDigis].pdigi() = uint32_t(px.packedData());
-
         digis_h.view()[nDigis].rawIdArr() = uint32_t(detid);
-
-        nDigis++;
+        ++nDigis;
       }
     }
 
-    digis_d = SiPixelDigisSoACollection(nDigis, iEvent.queue());
-    alpaka::memcpy(iEvent.queue(), digis_d.buffer(), digis_h.buffer());
-
-    Algo_.makePhase2ClustersAsync(iEvent.queue(), clusterThresholds_, digis_d.view(), nDigis_);
+    digis_d_ = SiPixelDigisSoACollection(nDigis, iEvent.queue());
+    alpaka::memcpy(iEvent.queue(), digis_d_->buffer(), digis_h.buffer());
+    Algo_.makePhase2ClustersAsync(iEvent.queue(), clusterThresholds_, digis_d_->view(), nDigis_);
   }
 
   void SiPixelPhase2DigiToCluster::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     if (nDigis_ == 0) {
       SiPixelClustersSoACollection clusters_d{pixelTopology::Phase2::numberOfModules, iEvent.queue()};
-      SiPixelDigisSoACollection digis_d_zero{nDigis_, iEvent.queue()};
+      SiPixelDigisSoACollection digis_d_zero{0, iEvent.queue()};
       iEvent.emplace(digiPutToken_, std::move(digis_d_zero));
       iEvent.emplace(clusterPutToken_, std::move(clusters_d));
-      return;
+    } else {
+      digis_d_->setNModules(Algo_.nModules());
+      iEvent.emplace(digiPutToken_, std::move(*digis_d_));
+      iEvent.emplace(clusterPutToken_, Algo_.getClusters());
     }
-
-    digis_d.setNModules(Algo_.nModules());
-    iEvent.emplace(digiPutToken_, std::move(digis_d));
-    iEvent.emplace(clusterPutToken_, Algo_.getClusters());
+    digis_d_.reset();
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
