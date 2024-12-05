@@ -56,11 +56,10 @@ int main() {
 
       // If the device is actually the host, use the collection as-is.
       // Otherwise, copy the data from the device to the host.
-      ZVertexHost zvertex_h;
 #ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-      zvertex_h = std::move(zvertex_d);
+      ZVertexHost zvertex_h = std::move(zvertex_d);
 #else
-      zvertex_h = cms::alpakatools::CopyToHost<ZVertexSoACollection>::copyAsync(queue, zvertex_d);
+      ZVertexHost zvertex_h = cms::alpakatools::CopyToHost<ZVertexSoACollection>::copyAsync(queue, zvertex_d);
 #endif
       alpaka::wait(queue);
       std::cout << zvertex_h.view().metadata().size() << std::endl;
