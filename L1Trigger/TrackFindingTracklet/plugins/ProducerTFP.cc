@@ -45,6 +45,7 @@ namespace trklet {
     void endStream() override {}
     // ED input token of stubs and tracks
     EDGetTokenT<StreamsTrack> edGetTokenTracks_;
+    EDGetTokenT<Streams> edGetTokenTracksAdd_;
     EDGetTokenT<StreamsStub> edGetTokenStubs_;
     // ED output token for accepted stubs and tracks
     EDPutTokenT<TTTracks> edPutTokenTTTracks_;
@@ -73,6 +74,7 @@ namespace trklet {
     const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
     // book in- and output ED products
     edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(labelTracks, branchTracks));
+    edGetTokenTracksAdd_ = consumes<Streams>(InputTag(labelTracks, branchTracks));
     edGetTokenStubs_ = consumes<StreamsStub>(InputTag(labelStubs, branchStubs));
     edPutTokenTTTracks_ = produces<TTTracks>(branchTTTracks);
     edPutTokenTracks_ = produces<StreamsTrack>(branchTracks);
@@ -98,11 +100,13 @@ namespace trklet {
     // read in TQ Products
     Handle<StreamsTrack> handleTracks;
     iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
+    Handle<Streams> handleTracksAdd;
+    iEvent.getByToken<Streams>(edGetTokenTracksAdd_, handleTracksAdd);
     Handle<StreamsStub> handleStubs;
     iEvent.getByToken<StreamsStub>(edGetTokenStubs_, handleStubs);
     // produce TTTracks
     TrackFindingProcessor tfp(iConfig_, setup_, dataFormats_, trackQuality_);
-    tfp.produce(*handleTracks, *handleStubs, ttTracks, streamsTrack);
+    tfp.produce(*handleTracks, *handleTracksAdd, *handleStubs, ttTracks, streamsTrack);
     // put TTTRacks and produce TTTRackRefs
     const int nTrks = ttTracks.size();
     const OrphanHandle<TTTracks> oh = iEvent.emplace(edPutTokenTTTracks_, move(ttTracks));

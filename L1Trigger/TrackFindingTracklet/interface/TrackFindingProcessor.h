@@ -24,6 +24,7 @@ namespace trklet {
 
     // produce TTTracks
     void produce(const tt::StreamsTrack& inputs,
+                 const tt::Streams& inputsAdd,
                  const tt::StreamsStub& stubs,
                  tt::TTTracks& ttTracks,
                  tt::StreamsTrack& outputs);
@@ -67,6 +68,7 @@ namespace trklet {
     T* pop_front(std::deque<T*>& ts) const;
     //
     void consume(const tt::StreamsTrack& inputs,
+                 const tt::Streams& inputsAdd,
                  const tt::StreamsStub& stubs,
                  std::vector<std::deque<Track*>>& outputs);
     // emualte data format f/w

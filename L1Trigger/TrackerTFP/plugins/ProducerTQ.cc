@@ -45,6 +45,8 @@ namespace trackerTFP {
     EDGetTokenT<StreamsTrack> edGetTokenTracks_;
     // ED output token for tracks
     EDPutTokenT<StreamsTrack> edPutTokenTracks_;
+    // ED output token for additional track variables
+    EDPutTokenT<Streams> edPutTokenTracksAdd_;
     // ED output token for stubs
     EDPutTokenT<StreamsStub> edPutTokenStubs_;
     // Setup token
@@ -69,6 +71,7 @@ namespace trackerTFP {
     edGetTokenStubs_ = consumes<StreamsStub>(InputTag(label, branchStubs));
     edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(label, branchTracks));
     edPutTokenTracks_ = produces<StreamsTrack>(branchTracks);
+    edPutTokenTracksAdd_ = produces<Streams>(branchTracks);
     edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
@@ -88,10 +91,11 @@ namespace trackerTFP {
   void ProducerTQ::produce(Event& iEvent, const EventSetup& iSetup) {
     static const int numRegions = setup_->numRegions();
     static const int numLayers = setup_->numLayers();
-    static const int numChannel = setup_->tqNumChannel();
     auto valid = [](int sum, const FrameTrack& frame) { return sum += (frame.first.isNull() ? 0 : 1); };
     // empty TQ product
-    StreamsTrack output(numRegions * numChannel);
+    StreamsTrack outputTracks(numRegions);
+    Streams outputTracksAdd(numRegions);
+    StreamsStub outputStubs(numRegions * numLayers);
     // read in KF Product and produce TQ product
     Handle<StreamsStub> handleStubs;
     iEvent.getByToken<StreamsStub>(edGetTokenStubs_, handleStubs);
@@ -122,21 +126,27 @@ namespace trackerTFP {
         stream.push_back(&tracks.back());
       }
       // fill TQ product
-      const int offsetChannel = region * numChannel;
-      for (int channel = 0; channel < numChannel; channel++)
-        output[offsetChannel + channel].reserve(stream.size());
+      outputTracks[region].reserve(stream.size());
+      outputTracksAdd[region].reserve(stream.size());
+      for (int layer = 0; layer < setup_->numLayers(); layer++)
+        outputStubs[offsetLayer + layer].reserve(stream.size());
       for (Track* track : stream) {
         if (!track) {
-          for (int channel = 0; channel < numChannel; channel++)
-            output[offsetChannel + channel].emplace_back(FrameTrack());
+          outputTracks[region].emplace_back(FrameTrack());
+          outputTracksAdd[region].emplace_back(Frame());
+          for (int layer = 0; layer < setup_->numLayers(); layer++)
+            outputStubs[offsetLayer + layer].emplace_back(FrameStub());
           continue;
         }
-        for (int channel = 0; channel < numChannel; channel++)
-          output[offsetChannel + channel].emplace_back(track->frame(channel));
+        outputTracks[region].emplace_back(track->frameTrack_);
+        outputTracksAdd[region].emplace_back(track->frame_);
+        for (int layer = 0; layer < setup_->numLayers(); layer++)
+          outputStubs[offsetLayer + layer].emplace_back(track->streamStub_[layer]);
       }
     }
     // store TQ product
-    iEvent.emplace(edPutTokenTracks_, move(output));
+    iEvent.emplace(edPutTokenTracks_, move(outputTracks));
+    iEvent.emplace(edPutTokenTracksAdd_, move(outputTracksAdd));
     iEvent.emplace(edPutTokenStubs_, streamsStubs);
   }
 }  // namespace trackerTFP

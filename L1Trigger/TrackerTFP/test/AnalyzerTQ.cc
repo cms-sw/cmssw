@@ -121,7 +121,7 @@ namespace trackerTFP {
     // book histograms
     Service<TFileService> fs;
     TFileDirectory dir;
-    dir = fs->mkdir("DR");
+    dir = fs->mkdir("TQ");
     prof_ = dir.make<TProfile>("Counts", ";", 12, 0.5, 12.5);
     prof_->GetXaxis()->SetBinLabel(1, "Stubs");
     prof_->GetXaxis()->SetBinLabel(2, "Tracks");
@@ -169,29 +169,24 @@ namespace trackerTFP {
     int allMatched(0);
     int allTracks(0);
     for (int region = 0; region < setup_->numRegions(); region++) {
-      const int offset = region * dataFormats_->numChannel(Process::dr);
-      int nStubs(0);
-      int nTracks(0);
-      for (int channel = 0; channel < dataFormats_->numChannel(Process::dr); channel++) {
-        vector<vector<TTStubRef>> tracks;
-        formTracks(acceptedTracks, acceptedStubs, tracks, offset + channel);
-        hisTracks_->Fill(tracks.size());
-        profTracks_->Fill(channel, tracks.size());
-        nTracks += tracks.size();
-        nStubs += accumulate(tracks.begin(), tracks.end(), 0, [](int sum, const vector<TTStubRef>& track) {
-          return sum += (int)track.size();
-        });
-        allTracks += tracks.size();
-        if (!useMCTruth_)
-          continue;
-        int tmp(0);
-        associate(tracks, selection, tpPtrsSelection, tmp);
-        associate(tracks, reconstructable, tpPtrs, allMatched, false);
-        associate(tracks, selection, tpPtrsMax, tmp, false);
-        const int size = acceptedTracks[offset + channel].size();
-        hisChannel_->Fill(size);
-        profChannel_->Fill(channel, size);
-      }
+      vector<vector<TTStubRef>> tracks;
+      formTracks(acceptedTracks, acceptedStubs, tracks, region);
+      hisTracks_->Fill(tracks.size());
+      profTracks_->Fill(region, tracks.size());
+      const int nTracks = tracks.size();
+      const int nStubs = accumulate(tracks.begin(), tracks.end(), 0, [](int sum, const vector<TTStubRef>& track) {
+        return sum += (int)track.size();
+      });
+      allTracks += tracks.size();
+      if (!useMCTruth_)
+        continue;
+      int tmp(0);
+      associate(tracks, selection, tpPtrsSelection, tmp);
+      associate(tracks, reconstructable, tpPtrs, allMatched, false);
+      associate(tracks, selection, tpPtrsMax, tmp, false);
+      const int size = acceptedTracks[region].size();
+      hisChannel_->Fill(size);
+      profChannel_->Fill(region, size);
       prof_->Fill(1, nStubs);
       prof_->Fill(2, nTracks);
     }
@@ -243,9 +238,9 @@ namespace trackerTFP {
   void AnalyzerTQ::formTracks(const StreamsTrack& streamsTrack,
                               const StreamsStub& streamsStubs,
                               vector<vector<TTStubRef>>& tracks,
-                              int channel) const {
-    const int offset = channel * setup_->numLayers();
-    const StreamTrack& streamTrack = streamsTrack[channel];
+                              int region) const {
+    const int offset = region * setup_->numLayers();
+    const StreamTrack& streamTrack = streamsTrack[region];
     const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int sum, const FrameTrack& frame) {
       return sum += (frame.first.isNonnull() ? 1 : 0);
     });

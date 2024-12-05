@@ -87,10 +87,10 @@ namespace trackerTFP {
     return toBin(bins, chi2);
   }
 
-  TrackQuality::Track::Track(const FrameTrack& frameTrack, const StreamStub& streamStub, const TrackQuality* tq) {
+  TrackQuality::Track::Track(const FrameTrack& frameTrack, const StreamStub& streamStub, const TrackQuality* tq)
+      : frameTrack_(frameTrack), streamStub_(streamStub) {
     static const DataFormats* df = tq->dataFormats();
     static const Setup* setup = df->setup();
-    frames_.reserve(setup->tqNumChannel());
     const TrackDR track(frameTrack, df);
     double trackchi2rphi(0.);
     double trackchi2rz(0.);
@@ -152,13 +152,12 @@ namespace trackerTFP {
     // collect features and classify using bdt
     const vector<ap_fixed<10, 5>>& output = bdt.decision_function({cot, z0, chi2B, nstub, n_missint, chi2rphi, chi2rz});
     const float mva = output[0].to_float();
-    // fill frames
+    // fill frame
     TTBV ttBV = hitPattern;
-    ttBV += TTBV(tq->toBinMVA(mva), numBinsMVA_);
+    ttBV += TTBV(tq->toBinMVA(mva), widthMVA_);
     tq->format(VariableTQ::chi2rphi).attach(trackchi2rphi, ttBV);
     tq->format(VariableTQ::chi2rz).attach(trackchi2rz, ttBV);
-    frames_.push_back(frameTrack);
-    frames_.emplace_back(frameTrack.first, ttBV.bs());
+    frame_ = ttBV.bs();
   }
 
   template <>

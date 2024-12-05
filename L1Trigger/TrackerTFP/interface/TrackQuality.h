@@ -19,8 +19,10 @@ C.Brown 28/07/20
 
 namespace trackerTFP {
 
+  // number of mva bit
+  static constexpr int widthMVA_ = TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize;
   // number of mva bins
-  static constexpr int numBinsMVA_ = 1 << TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize;
+  static constexpr int numBinsMVA_ = 1 << widthMVA_;
   // number of chi2B bins
   static constexpr int numBinsChi2B_ = 1 << TTTrack_TrackWord::TrackBitWidths::kBendChi2Size;
   // number of chi2rphi bins
@@ -75,10 +77,12 @@ namespace trackerTFP {
     // object to represent tracks
     struct Track {
       Track(const tt::FrameTrack& frameTrack, const tt::StreamStub& streamStub, const TrackQuality* tq);
-      // return the iths frame of this track
-      const tt::FrameTrack& frame(int i) const { return frames_.at(i); }
-      // collection of frames forming track
-      tt::StreamTrack frames_;
+      // track frame
+      tt::FrameTrack frameTrack_;
+      // additional track variables
+      tt::Frame frame_;
+      // collection of stubs forming track
+      tt::StreamStub streamStub_;
     };
     // provides dataformats
     const DataFormats* dataFormats() const { return dataFormats_; }

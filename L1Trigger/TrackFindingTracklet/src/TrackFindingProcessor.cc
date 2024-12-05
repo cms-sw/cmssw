@@ -42,9 +42,9 @@ namespace trklet {
     TTBV ttBV = TTBV(frameTQ);
     tq->format(VariableTQ::chi2rz).extract(ttBV, chi2rz_);
     tq->format(VariableTQ::chi2rphi).extract(ttBV, chi2rphi_);
-    mva_ = TTBV(ttBV, numBinsMVA_).val();
-    ttBV >>= numBinsMVA_;
-    hitPattern_ = ttBV;
+    mva_ = TTBV(ttBV, widthMVA_).val();
+    ttBV >>= widthMVA_;
+    hitPattern_ = TTBV(ttBV, setup->numLayers());
     channel_ = cot_ < 0. ? 0 : 1;
     // convert nice formats into bits
     const double z0 = zT_ - cot_ * setup->chosenRofZ();
@@ -110,12 +110,13 @@ namespace trklet {
 
   // fill output products
   void TrackFindingProcessor::produce(const StreamsTrack& inputs,
+                                      const Streams& inputsAdd,
                                       const StreamsStub& stubs,
                                       TTTracks& ttTracks,
                                       StreamsTrack& outputs) {
     // organize input tracks
     vector<deque<Track*>> streams(outputs.size());
-    consume(inputs, stubs, streams);
+    consume(inputs, inputsAdd, stubs, streams);
     // emualte data format f/w
     produce(streams, outputs);
     // produce TTTracks
@@ -124,6 +125,7 @@ namespace trklet {
 
   //
   void TrackFindingProcessor::consume(const StreamsTrack& inputs,
+                                      const Streams& inputsAdd,
                                       const StreamsStub& stubs,
                                       vector<deque<Track*>>& outputs) {
     // count input objects
@@ -134,16 +136,15 @@ namespace trklet {
     tracks_.reserve(nTracks);
     // convert input data
     for (int region = 0; region < setup_->numRegions(); region++) {
-      const int offsetTQ = region * setup_->tqNumChannel();
       const int offsetTFP = region * setup_->tfpNumChannel();
       const int offsetStub = region * setup_->numLayers();
-      const StreamTrack& streamDR = inputs[offsetTQ];
-      const StreamTrack& streamTQ = inputs[offsetTQ + 1];
+      const StreamTrack& streamKF = inputs[region];
+      const Stream& streamTQ = inputsAdd[region];
       for (int channel = 0; channel < setup_->tfpNumChannel(); channel++)
-        outputs[offsetTFP + channel] = deque<Track*>(streamDR.size(), nullptr);
-      for (int frame = 0; frame < (int)streamDR.size(); frame++) {
-        const FrameTrack& frameTrack = streamDR[frame];
-        const Frame& frameTQ = streamTQ[frame].second;
+        outputs[offsetTFP + channel] = deque<Track*>(streamKF.size(), nullptr);
+      for (int frame = 0; frame < (int)streamKF.size(); frame++) {
+        const FrameTrack& frameTrack = streamKF[frame];
+        const Frame& frameTQ = streamTQ[frame];
         if (frameTrack.first.isNull())
           continue;
         vector<TTStubRef> ttStubRefs;
