@@ -4,8 +4,8 @@
 
 #include <utility>
 
-MTDTopology::MTDTopology(const int& topologyMode, const ETLValues& etl)
-    : mtdTopologyMode_(topologyMode), etlVals_(etl) {}
+MTDTopology::MTDTopology(const int& topologyMode, const BTLValues& btl, const ETLValues& etl)
+    : mtdTopologyMode_(topologyMode), btlVals_(btl), etlVals_(etl) {}
 
 std::pair<uint32_t, uint32_t> MTDTopology::btlIndex(const uint32_t detId) {
   uint32_t iphi(0), ieta(0);
