@@ -70,7 +70,7 @@ def get_file_pairs(base_dir, pr_dir):
     # Find intersection
     return [value for value in base_files if value in pr_files]
 
-def upload_to_gui(output_dir, num_procs):
+def upload_to_gui(output_dir, num_procs, dqmgui_url):
     base_files = glob.glob(os.path.join(output_dir, 'base/*.root'))
     pr_files = glob.glob(os.path.join(output_dir, 'pr/*.root'))
 
@@ -80,14 +80,14 @@ def upload_to_gui(output_dir, num_procs):
     print(files)
     
     for _ in range(min(num_procs, len(files))):
-        thread = Thread(target=upload, args=(files,))
+        thread = Thread(target=upload, args=(files, dqmgui_url))
         thread.start()
     
-def upload(files):
+def upload(files, dqmgui_url):
     while files:
         try:
             file = files.pop()
-            command = ['visDQMUpload.py', 'https://cmsweb.cern.ch/dqm/dev', file]
+            command = ['visDQMUpload.py', dqmgui_url, file]
             print('Uploading output:')
             print(' '.join(command))
             
@@ -98,7 +98,7 @@ def upload(files):
             # started the loop. In this case this exception can be safely ignored.
             print('Exception uploading a file: %s' % ex)
 
-def generate_summary_html(output_dir, pr_list, summary_dir):
+def generate_summary_html(output_dir, pr_list, summary_dir, dqmgui_url):
     template_file_path = os.path.join(os.getenv('CMSSW_BASE'), 'src', 'DQMServices', 'FileIO', 'scripts', 'dqm-histo-comparison-summary-template.html')
     if not os.path.isfile(template_file_path):
         template_file_path = os.path.join(os.getenv('CMSSW_RELEASE_BASE'), 'src', 'DQMServices', 'FileIO', 'scripts', 'dqm-histo-comparison-summary-template.html')
@@ -117,12 +117,12 @@ def generate_summary_html(output_dir, pr_list, summary_dir):
         overlay_count = baseline_count
 
         # Make urls
-        base_url = 'https://cmsweb.cern.ch/dqm/dev/start?runnr=%s;dataset%%3D%s;sampletype%%3Doffline_relval;workspace%%3DEverything;' % (comp['run_nr'], comp['base_dataset'])
-        pr_url = 'https://cmsweb.cern.ch/dqm/dev/start?runnr=%s;dataset%%3D%s;sampletype%%3Doffline_relval;workspace%%3DEverything;' % (comp['run_nr'], comp['pr_dataset'])
-        overlay_url = 'https://cmsweb.cern.ch/dqm/dev/start?runnr=%s;dataset%%3D%s;referenceshow%%3Dall;referencenorm=False;referenceobj1%%3Dother::%s::;sampletype%%3Doffline_relval;workspace%%3DEverything;' \
-            % (comp['run_nr'], comp['pr_dataset'], comp['base_dataset'])
-        base_raw_url = 'https://cmsweb.cern.ch/dqm/dev/jsroot/index.htm?file=https://cmsweb.cern.ch/dqm/dev/data/browse/%s' % comp['base_file_path_in_gui']
-        pr_raw_url = 'https://cmsweb.cern.ch/dqm/dev/jsroot/index.htm?file=https://cmsweb.cern.ch/dqm/dev/data/browse/%s' % comp['pr_file_path_in_gui']
+        base_url = '%s/start?runnr=%s;dataset%%3D%s;sampletype%%3Doffline_relval;workspace%%3DEverything;' % (dqmgui_url, comp['run_nr'], comp['base_dataset'])
+        pr_url = '%s/start?runnr=%s;dataset%%3D%s;sampletype%%3Doffline_relval;workspace%%3DEverything;' % (dqmgui_url, comp['run_nr'], comp['pr_dataset'])
+        overlay_url = '%s/start?runnr=%s;dataset%%3D%s;referenceshow%%3Dall;referencenorm=False;referenceobj1%%3Dother::%s::;sampletype%%3Doffline_relval;workspace%%3DEverything;' \
+            % (dqmgui_url, comp['run_nr'], comp['pr_dataset'], comp['base_dataset'])
+        base_raw_url = '%s/jsroot/index.htm?file=%s/data/browse/%s' % (dqmgui_url, dqmgui_url, comp['base_file_path_in_gui'])
+        pr_raw_url = '%s/jsroot/index.htm?file=%s/data/browse/%s' % (dqmgui_url, dqmgui_url, comp['pr_file_path_in_gui'])
 
         table_items += '        <tr>\n'
         table_items += '            <td><a href="%s" target="_blank">%s baseline GUI</a><span> (%s)</span></td>\n' % (base_url, comp['workflow'], baseline_count)
@@ -161,6 +161,7 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--release-format', help='Release format in this format: CMSSW_10_5_X_2019-02-17-0000')
     parser.add_argument('-s', '--summary-dir', help='Directory where summary with all links will be saved', default='')
     parser.add_argument('-l', '--pr-list', help='A list of PRs participating in the comparison', default='')
+    parser.add_argument('-u', '--dqmgui-url', help='DQMGUI url to upload to', default='https://cmsweb.cern.ch/dqm/dev', required=False)
     args = parser.parse_args()
 
     # Get the number of the PR which triggered the comparison
@@ -179,5 +180,5 @@ if __name__ == '__main__':
             os._exit(1)
 
     collect_and_compare_files(args.base_dir, args.pr_dir, args.output_dir, args.nprocs, pr_number, args.test_number, release_format)
-    upload_to_gui(args.output_dir, args.nprocs)
-    generate_summary_html(args.output_dir, args.pr_list, args.summary_dir)
+    upload_to_gui(args.output_dir, args.nprocs, args.dqmgui_url)
+    generate_summary_html(args.output_dir, args.pr_list, args.summary_dir, args.dqmgui_url)
