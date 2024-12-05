@@ -53,6 +53,10 @@ public:
 
     int createMask(int nBits) ;
 
+    std::pair<Phase2TrackerCluster1D, bool> unpack2S(uint32_t, unsigned int );
+    Phase2TrackerCluster1D unpackStripOnPS(uint32_t, unsigned int );
+    Phase2TrackerCluster1D unpackPixelOnPS(uint32_t, unsigned int );
+
 private:
     void produce(edm::Event&, const edm::EventSetup&) override;
     
@@ -252,93 +256,34 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           
           int count_clusters = 0;
           if (is2SModule) {
-
-          // create the Phase2TrackerCluster1D objects for 2S modules
+            // create the Phase2TrackerCluster1D objects for 2S modules
             for (auto icluster : stripClustersWords){
-              
-              uint32_t chipID = (icluster >> (SS_CLUSTER_BITS - CHIP_ID_BITS)) & CHIP_ID_MAX_VALUE;  // 3 bits
-              uint32_t sclusterAddress_toDelete = (icluster >> 3) & 0xFF; // only for debugging
-              uint32_t sclusterAddress = (icluster >> (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_ONLY_BITS_2S)) & SCLUSTER_ADDRESS_BITS_HEX; // why not uint16?
-              bool isSeedSensor = (icluster >> (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_2S)) & IS_SEED_SENSOR_BITS;  // 8 bits
-              uint32_t width = icluster &  WIDTH_MAX_VALUE;  // 3 bits
-              // cluster width is truncated during packing (3 bits)
-              // since width = 0 is unphysical, we can at least recover cluster with width == 8 
-              // by assuming that clusters packed with width == 0 had in reality width = 8
-              // this is a tmp fix, we should maybe think about how to properly do this.
-              // also, for original widths > 8: again, due to truncation, they get an incorrect width of 
-              // cluster.getWidth() & WIDTH_MAX_VALUE. should be probably fixed in the packer 
-              // (e.g. if width > 8, pack with width = 0) 
-              if (width == 0) width = 8;
-//             std::cout << "\t[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<3>(chipID) <<   std::endl;
-//             std::cout << "\t[unpacking] address : " << (sclusterAddress_toDelete) << "\t " << std::bitset<8>(sclusterAddress_toDelete) <<   std::endl;
-//             std::cout << "\t[unpacking] width : " << (width)   << "\t " << std::bitset<3>(width) <<   std::endl;
-//             std::cout <<  std::endl;
-            
-              unsigned int x = STRIPS_PER_CBC * chipID + sclusterAddress;
-              unsigned int y = iChannel%2 == 0 ? 0 : 1; 
-  
-              Phase2TrackerCluster1D thisCluster = Phase2TrackerCluster1D(x, y, width);
-              if (isSeedSensor)
-                thisChannel1DSeedClusters.push_back(thisCluster);
-              else  
-                thisChannel1DCorrClusters.push_back(thisCluster);
-              count_clusters++;
-              
-            } // end loop on cluster words 
 
+              std::pair<Phase2TrackerCluster1D, bool> thisCluster = unpack2S(icluster, iChannel);
+              if (thisCluster.second)
+                thisChannel1DSeedClusters.push_back(thisCluster.first);
+              else  
+                thisChannel1DCorrClusters.push_back(thisCluster.first);
+              count_clusters++;
+            } // end loop on cluster words 
 
           } else {
             // create the Phase2TrackerCluster1D objects for PS modules
             // first loop on strip clusters
             for (auto icluster : stripClustersWords){
-              
-              uint32_t chipID = (icluster >> (SS_CLUSTER_BITS - CHIP_ID_BITS)) & CHIP_ID_MAX_VALUE;  // 3 bits
-              uint32_t sclusterAddress = (icluster >> (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS)) & SCLUSTER_ADDRESS_PS_MAX_VALUE; // 7 bits
-              uint32_t width = (icluster >> (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS - WIDTH_BITS)) &  WIDTH_MAX_VALUE;  // 3 bits
-              uint32_t mipBit = icluster &  0x1;  // 1 bits
-              // see warning above for how to treat the width
-              if (width == 0) width = 8;
-//               std::cout << "\t[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<CHIP_ID_BITS>(chipID) <<   std::endl;
-//               std::cout << "\t[unpacking] address : " << (sclusterAddress) << "\t " << std::bitset<SCLUSTER_ADDRESS_BITS_PS>(sclusterAddress) <<   std::endl;
-//               std::cout << "\t[unpacking] width : " << (width)   << "\t " << std::bitset<WIDTH_BITS>(width) <<   std::endl;
-//               std::cout << "\t[unpacking] mpBit : " << (mipBit)   << "\t " << std::bitset<1>(mipBit) <<   std::endl;
-//               std::cout <<  std::endl;
-            
-              unsigned int x = STRIPS_PER_SSA * chipID + sclusterAddress;
-              unsigned int y = iChannel%2 == 0 ? 0 : 1; 
-  
-              Phase2TrackerCluster1D thisCluster = Phase2TrackerCluster1D(x, y, width, mipBit);
-//               if (isSeedSensor)
-//                 thisChannel1DSeedClusters.push_back(thisCluster);
-//               else  
+              Phase2TrackerCluster1D thisCluster = unpackStripOnPS(icluster, iChannel);
               // for PS, strip is always correlated sensor
               thisChannel1DCorrClusters.push_back(thisCluster);
               count_clusters++; 
-            } // end loop on strip on PS 
+            } 
             
             // then loop on pixel clusters
             for (auto icluster : pixelClustersWords){
-              
-              uint32_t chipID = (icluster >> (PX_CLUSTER_BITS - CHIP_ID_BITS)) & CHIP_ID_MAX_VALUE;  // 3 bits
-              uint32_t sclusterAddress = (icluster >> (PX_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS)) & SCLUSTER_ADDRESS_PS_MAX_VALUE; // why not uint16?
-              uint32_t width = (icluster >> (PX_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS - WIDTH_BITS)) & WIDTH_MAX_VALUE;  // 3 bits
-              uint32_t z = icluster & 0xF;  // 4 bits
-//               std::cout << "\t[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<CHIP_ID_BITS>(chipID) <<   std::endl;
-//               std::cout << "\t[unpacking] address : " << (sclusterAddress) << "\t " << std::bitset<SCLUSTER_ADDRESS_BITS_PS>(sclusterAddress) <<   std::endl;
-//               std::cout << "\t[unpacking] width : " << (width)   << "\t " << std::bitset<WIDTH_BITS>(width) <<   std::endl;
-//               std::cout << "\t[unpacking] z : " << (z)   << "\t " << std::bitset<4>(z) <<   std::endl;
-//               std::cout <<  std::endl;
-            
-              unsigned int x = STRIPS_PER_SSA * chipID + sclusterAddress;
-              // NB: not really clear from the packer code. Got it from the old code.
-              unsigned int y = iChannel%2 == 0 ? z : (z + 16); 
-              // (chipId() >= MAX_CBC_PER_FE / 2) ? (rawY() + PS_COLS / 2) : rawY();
-
-              Phase2TrackerCluster1D thisCluster = Phase2TrackerCluster1D(x, y, width);
+              Phase2TrackerCluster1D thisCluster = unpackPixelOnPS(icluster, iChannel);
+              // for PS, pixel is always seed sensor
               thisChannel1DSeedClusters.push_back(thisCluster);
               count_clusters++;
-              
-            } // end loop on pixel cluster words 
+            } 
           }
           
           if (count_clusters == 0 ) continue;
@@ -388,6 +333,78 @@ uint32_t RawToClusterProducer::readLine(const unsigned char* dataPtr, int lineId
 
     return line;                                
 }
+
+
+std::pair<Phase2TrackerCluster1D, bool> RawToClusterProducer::unpack2S(uint32_t clusterWord, unsigned int iChannel){
+
+    uint32_t chipID = (clusterWord >> (SS_CLUSTER_BITS - CHIP_ID_BITS)) & CHIP_ID_MAX_VALUE;  // 3 bits
+    uint32_t sclusterAddress_toDelete = (clusterWord >> 3) & 0xFF; // only for debugging
+    uint32_t sclusterAddress = (clusterWord >> (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_ONLY_BITS_2S)) & SCLUSTER_ADDRESS_BITS_HEX; // why not uint16?
+    bool isSeedSensor = (clusterWord >> (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_2S)) & IS_SEED_SENSOR_BITS;  // 8 bits
+    uint32_t width = clusterWord &  WIDTH_MAX_VALUE;  // 3 bits
+    // cluster width is truncated during packing (3 bits)
+    // since width = 0 is unphysical, we can at least recover cluster with width == 8 
+    // by assuming that clusters packed with width == 0 had in reality width = 8
+    // this is a tmp fix, we should maybe think about how to properly do this.
+    // also, for original widths > 8: again, due to truncation, they get an incorrect width of 
+    // cluster.getWidth() & WIDTH_MAX_VALUE. should be probably fixed in the packer 
+    // (e.g. if width > 8, pack with width = 0) 
+    if (width == 0) width = 8;
+//   std::cout << "\t[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<3>(chipID) <<   std::endl;
+//   std::cout << "\t[unpacking] address : " << (sclusterAddress_toDelete) << "\t " << std::bitset<8>(sclusterAddress_toDelete) <<   std::endl;
+//   std::cout << "\t[unpacking] width : " << (width)   << "\t " << std::bitset<3>(width) <<   std::endl;
+//   std::cout <<  std::endl;
+    
+    unsigned int x = STRIPS_PER_CBC * chipID + sclusterAddress;
+    unsigned int y = iChannel%2 == 0 ? 0 : 1; 
+  
+    Phase2TrackerCluster1D thisCluster = Phase2TrackerCluster1D(x, y, width);
+    return std::make_pair(thisCluster, isSeedSensor);
+}
+
+
+Phase2TrackerCluster1D RawToClusterProducer::unpackStripOnPS(uint32_t clusterWord, unsigned int iChannel){
+    // FIXME: we don't need uint32 everywere
+    uint32_t chipID = (clusterWord >> (SS_CLUSTER_BITS - CHIP_ID_BITS)) & CHIP_ID_MAX_VALUE;  // 3 bits
+    uint32_t sclusterAddress = (clusterWord >> (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS)) & SCLUSTER_ADDRESS_PS_MAX_VALUE; // 7 bits
+    uint32_t width = (clusterWord >> (SS_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS - WIDTH_BITS)) &  WIDTH_MAX_VALUE;  // 3 bits
+    uint32_t mipBit = clusterWord &  0x1;  // 1 bits
+    // see warning above for how to treat the width
+    if (width == 0) width = 8;
+//     std::cout << "\t[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<CHIP_ID_BITS>(chipID) <<   std::endl;
+//     std::cout << "\t[unpacking] address : " << (sclusterAddress) << "\t " << std::bitset<SCLUSTER_ADDRESS_BITS_PS>(sclusterAddress) <<   std::endl;
+//     std::cout << "\t[unpacking] width : " << (width)   << "\t " << std::bitset<WIDTH_BITS>(width) <<   std::endl;
+//     std::cout << "\t[unpacking] mpBit : " << (mipBit)   << "\t " << std::bitset<1>(mipBit) <<   std::endl;
+//     std::cout <<  std::endl;
+  
+    unsigned int x = STRIPS_PER_SSA * chipID + sclusterAddress;
+    unsigned int y = iChannel%2 == 0 ? 0 : 1; 
+  
+    return Phase2TrackerCluster1D(x, y, width, mipBit);
+}
+
+
+Phase2TrackerCluster1D RawToClusterProducer::unpackPixelOnPS(uint32_t clusterWord, unsigned int iChannel){
+    // FIXME: we don't need uint32 everywere
+    uint32_t chipID = (clusterWord >> (PX_CLUSTER_BITS - CHIP_ID_BITS)) & CHIP_ID_MAX_VALUE;  // 3 bits
+    uint32_t sclusterAddress = (clusterWord >> (PX_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS)) & SCLUSTER_ADDRESS_PS_MAX_VALUE; // why not uint16?
+    uint32_t width = (clusterWord >> (PX_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS - WIDTH_BITS)) & WIDTH_MAX_VALUE;  // 3 bits
+    uint32_t z = clusterWord & 0xF;  // 4 bits
+
+//   std::cout << "\t[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<CHIP_ID_BITS>(chipID) <<   std::endl;
+//   std::cout << "\t[unpacking] address : " << (sclusterAddress) << "\t " << std::bitset<SCLUSTER_ADDRESS_BITS_PS>(sclusterAddress) <<   std::endl;
+//   std::cout << "\t[unpacking] width : " << (width)   << "\t " << std::bitset<WIDTH_BITS>(width) <<   std::endl;
+//   std::cout << "\t[unpacking] z : " << (z)   << "\t " << std::bitset<4>(z) <<   std::endl;
+//   std::cout <<  std::endl;
+            
+    unsigned int x = STRIPS_PER_SSA * chipID + sclusterAddress;
+    // NB: not really clear from the packer code. Got it from the old code.
+    unsigned int y = iChannel%2 == 0 ? z : (z + 16); 
+    // (chipId() >= MAX_CBC_PER_FE / 2) ? (rawY() + PS_COLS / 2) : rawY();
+
+    return Phase2TrackerCluster1D(x, y, width);
+}
+
 
 // create groups of 14/17 bits, joining consecutive lines if needed
 // each 2S cluster payload consists of 3bits for chipID, 8 bits for address, 3 bits for width = 14 bits
