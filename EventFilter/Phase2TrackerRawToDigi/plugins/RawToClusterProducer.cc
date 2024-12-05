@@ -38,14 +38,20 @@ public:
     
     int getLineIndex(int channelIdx, unsigned int iline);
     uint32_t readLine(const unsigned char* dataPtr, int lineIdx);
-//     void readPayload(std::vector<uint16_t>& stripClustersWords,
-//                                           std::vector<uint32_t>& lines,
-//                                           int nAvailableBits,
-//                                           int iLine,
-//                                           int bitsToRead,
-//                                           int nFullClusters
-//                                           );
+    void readPayload(std::vector<uint32_t>& clusterWords,
+                     std::vector<uint32_t>& lines,
+                     int numClusters,
+                     int& nAvailableBits,
+                     int& iLine,
+                     int& bitsToRead,
+                     int& nFullClusters,
+                     int clusterBits,
+                     int clusterWordMask,
+                     bool isPixelCluster,
+                     int nFullClustersStrips = 0
+                     );
 
+    int createMask(int nBits) ;
 
 private:
     void produce(edm::Event&, const edm::EventSetup&) override;
@@ -169,33 +175,26 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             thisChannel1DCorrClusters.clear();
           }  
 
-          // get the module type
+          // retrieve the module type: 
+          // first we need to construct the DTCElinkId object ## dtc_id, gbtlink_id, elink_id
+          // to get the gbt_id we should reverse what is done in the packer function,
+          // where clusters from channel X are split into 2*i and 2*i+1 based on being from CIC0 or CIC1
           unsigned int gbt_id = iSlink * MODULES_PER_SLINK + std::div(iChannel, 2).quot;
           DTCELinkId thisDTCElinkId(dtcID, gbt_id, 0);
-          // then pass it to the map to get the detid
           std::cout << "\tslink: " << iSlink <<  "\tiDTC: " << unsigned(dtcID) << " \tiGBT:  " <<  unsigned(gbt_id) << " \tielink: " <<  unsigned(0);
 
           int thisDetId = -1;
           bool is2SModule = false;
+          // then pass it to the map to get the detid
           if (cablingMap_->knowsDTCELinkId(thisDTCElinkId))
           {
             auto possibleDetIds = cablingMap_->dtcELinkIdToDetId(thisDTCElinkId); // this returns a pair, detid will be an uint32_t (not a DetId)
             thisDetId = possibleDetIds->second;
-            std::cout << "\t -> detId:" <<  thisDetId ; 
-            // then I'll say 
+            std::cout << "\t -> detId:" <<  thisDetId << std::endl ; 
+            // check is 2S or PS 
             is2SModule = trackerGeometry_->getDetectorType( stackMap_[thisDetId].first) == TrackerGeometry::ModuleType::Ph2SS;
-            bool isPonPS = trackerGeometry_->getDetectorType( stackMap_[thisDetId].first) == TrackerGeometry::ModuleType::Ph2PSP;
-            if (is2SModule)
-              std::cout << "-> 2S module" << std::endl;
-            if (isPonPS) 
-              std::cout << "-> first P-on-PS" << std::endl;
-            else  
-              std::cout << "-> first S-on-PS" << std::endl;
-//             isPonPS = trackerGeometry_->getDetectorType( stackMap_[possibleDetIds->second].second) == TrackerGeometry::ModuleType::Ph2PSP;
-//             std::cout << "\t\t second isPonPS: " << isPonPS << std::endl;
           }
           else {
-//             std::cout << " not connected?" << std::endl;
             std::cout << " -> not connected?" << std::endl;
             continue;
           }
@@ -206,10 +205,10 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           
           // get the channel header and unpack it
           uint32_t headerWord = readLine(dataPtr, idx);
-          unsigned long eventID = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS)) & L1ID_MAX_VALUE;  // eventID is a 9-bit field
-          int channelErrors = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) & CIC_ERROR_MASK;  // channelErrors is a 9-bit field
-          unsigned int numStripClusters = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - N_STRIP_CLUSTER_BITS)) & N_CLUSTER_MASK;  // numStripClusters is a 7-bit field
-          unsigned int numPixelClusters = (headerWord) & N_CLUSTER_MASK;  // numPixelClusters is a 7-bit field
+          unsigned long eventID = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS)) & L1ID_MAX_VALUE;  // 9-bit field
+          int channelErrors = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) & CIC_ERROR_MASK;  // 9-bit field
+          unsigned int numStripClusters = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - N_STRIP_CLUSTER_BITS)) & N_CLUSTER_MASK;  // 7-bit field
+          unsigned int numPixelClusters = (headerWord) & N_CLUSTER_MASK;  // 7-bit field
           
           // define the number of lines for the payload
           unsigned int nLines = (numStripClusters + numPixelClusters > 0) ? 
@@ -232,149 +231,28 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           if ( lines.size() != nLines) 
             std::cout << "warning, something went wrong when storing lines " << std::endl;
   
-          // first retrieve the strip clusters
-          std::vector<uint16_t> stripClustersWords;
+          // first retrieve the cluster words
+          // this was uint16, check if can be changed back 
+          std::vector<uint32_t> stripClustersWords;
           stripClustersWords.resize(numStripClusters);
 
-          // first retrieve the strip clusters
           std::vector<uint32_t> pixelClustersWords;
           pixelClustersWords.resize(numPixelClusters);
     
-          // then create groups of 14 bits, joining consecutive lines if needed
+          // then create groups of 14/17 bits, joining consecutive lines if needed
           // each cluster payload consists in 3bits for chipID, 8 bits for address, 3 bits for width = 14 bits
           int nAvailableBits = N_BITS_PER_WORD;
           int iLine = 0;
           int bitsToRead = 0;
-          int nFullClusters = 0;
-          
-          int nAvailableBitsPix = N_BITS_PER_WORD;
-          int iLinePix = 0;
-          int bitsToReadPix = 0;
+          int nFullClustersStrip = 0;
           int nFullClustersPix = 0;
           
-//             readPayload(stripClustersWords, lines,nAvailableBits, iLine, bitsToRead, nFullClusters, SS_CLUSTER_BITS );
+          readPayload(stripClustersWords, lines, numStripClusters, nAvailableBits, iLine, bitsToRead, nFullClustersStrip, SS_CLUSTER_BITS, SS_CLUSTER_WORD_MASK, false );
+          readPayload(pixelClustersWords, lines, numPixelClusters, nAvailableBits, iLine, bitsToRead, nFullClustersPix, PX_CLUSTER_BITS, PX_CLUSTER_WORD_MASK, true, nFullClustersStrip );
           
-          for (unsigned int icluster = 0; icluster < numStripClusters; icluster++)
-          {
-              std::cout << "\t icluster " << icluster <<  std::endl;
-            if (nAvailableBits >= SS_CLUSTER_BITS)
-            {
-              // calculate the shift 
-              int shift = N_BITS_PER_WORD - bitsToRead - (nFullClusters + 1) * SS_CLUSTER_BITS;
-              std::cout << "\t\t cluster " << icluster  << "  shift by " << shift;
-              stripClustersWords[icluster] = (lines[iLine] >> shift) & SS_CLUSTER_WORD_MASK;
-              std::cout << "\t clusterword " << std::bitset<SS_CLUSTER_BITS>(stripClustersWords[icluster]) <<  std::endl;
-              // and update available bits and number of full clusters from this line
-              nAvailableBits -= SS_CLUSTER_BITS;
-              nFullClusters++;
-//               std::cout << "\t\t\t remaining bits " << nAvailableBits <<  std::endl;
-              if (nAvailableBits == 0) {
-                  iLine++;
-                  nAvailableBits = N_BITS_PER_WORD;
-                  nFullClusters = 0;
-                  bitsToRead = 0;
-              }
-            } else {
-              // get the remaining bits from this line. first create the mask, then mask 
-              int nMask = 0;
-              for (int i = 0; i < nAvailableBits; i ++) { 
-                nMask |= (1 << i);
-              }          
-              uint16_t wordLeft = (lines[iLine]) & nMask; 
-  
-              // create mask for next line
-              int nMask_newLine = 0;
-              bitsToRead = SS_CLUSTER_BITS - nAvailableBits;
-              for (int i = 0; i < bitsToRead; i ++) { 
-                nMask_newLine |= (1 << i);
-              }
-              // shift and mask
-              uint16_t wordRight = (lines[iLine+1] >> (N_BITS_PER_WORD - bitsToRead)) & nMask_newLine; 
-              // compose the full cluster word
-              stripClustersWords[icluster] = ((wordLeft << bitsToRead) | wordRight);  
-              std::cout << "\t\t cluster " << icluster << "  on 2 lines \t clusterword " << std::bitset<SS_CLUSTER_BITS>(stripClustersWords[icluster]) <<  std::endl;
-              
-              // reset n available bits
-              nAvailableBits = N_BITS_PER_WORD - bitsToRead ;
-//               std::cout << "\t\t\t remaining bits " << nAvailableBits <<  std::endl;
-              // advance by one line and re-init the number of complete clusters read from this line
-              iLine++;
-              nFullClusters = 0;
-            }
-            
-            if (icluster == (numStripClusters - 1) ){
-              // this is the last strip cluster
-              // save what is needed to read pixel clusters
-              nAvailableBitsPix = nAvailableBits;
-              iLinePix = iLine;
-              bitsToReadPix = bitsToRead;
-              nFullClustersPix = 0;
-            }
-            
-          } // end loop storing strip cluster words
-
-
-              std::cout << "\t nFullClusters " << nFullClusters <<  std::endl;
-              std::cout << "\t nFullClustersPix " << nFullClustersPix <<  std::endl;
-              
-              std::cout << "\t nAvailableBitsPix " << nAvailableBitsPix <<  std::endl;
-              std::cout << "\t bitsToReadPix " << bitsToReadPix <<  std::endl;
-              std::cout << "\t PX_CLUSTER_BITS " << PX_CLUSTER_BITS <<  std::endl;
-
-          for (unsigned int icluster = 0; icluster < numPixelClusters; icluster++)
-          {
-            if (nAvailableBitsPix >= PX_CLUSTER_BITS)
-            {
-              // calculate the shift 
-              int shift = N_BITS_PER_WORD - bitsToReadPix - (nFullClustersPix + 1) * PX_CLUSTER_BITS;
-              if (icluster == 0)  shift -= (nFullClusters)* SS_CLUSTER_BITS;
-              nFullClusters = 0; // reset 
-              std::cout << "\t\t pixel cluster " << icluster  << "  shift by " << shift;
-              pixelClustersWords[icluster] = (lines[iLinePix] >> shift) & PX_CLUSTER_WORD_MASK;
-              std::cout << "\t clusterword " << std::bitset<PX_CLUSTER_BITS>(pixelClustersWords[icluster]) <<  std::endl;
-              // and update available bits and number of full clusters from this line
-              nAvailableBitsPix -= PX_CLUSTER_BITS;
-              nFullClustersPix++;
-//               std::cout << "\t\t\t remaining bits " << nAvailableBits <<  std::endl;
-              if (nAvailableBitsPix == 0) {
-                  iLinePix++;
-                  nAvailableBitsPix = N_BITS_PER_WORD;
-                  nFullClustersPix = 0;
-                  bitsToReadPix = 0;
-              }
-            } else {
-              // get the remaining bits from this line. first create the mask, then mask 
-              int nMask = 0;
-              for (int i = 0; i < nAvailableBitsPix; i ++) { 
-                nMask |= (1 << i);
-              }          
-              uint16_t wordLeft = (lines[iLinePix]) & nMask; 
-  
-              // create mask for next line
-              int nMask_newLine = 0;
-              bitsToReadPix = PX_CLUSTER_BITS - nAvailableBitsPix;
-              for (int i = 0; i < bitsToReadPix; i ++) { 
-                nMask_newLine |= (1 << i);
-              }
-              // shift and mask
-              uint16_t wordRight = (lines[iLinePix+1] >> (N_BITS_PER_WORD - bitsToReadPix)) & nMask_newLine; 
-              // compose the full cluster word
-              pixelClustersWords[icluster] = ((wordLeft << bitsToReadPix) | wordRight);  
-              std::cout << "\t\t pixel cluster " << icluster << "  on 2 lines \t clusterword " << std::bitset<PX_CLUSTER_BITS>(pixelClustersWords[icluster]) <<  std::endl;
-              
-              // reset n available bits
-              nAvailableBitsPix = N_BITS_PER_WORD - bitsToReadPix ;
-//               std::cout << "\t\t\t remaining bits " << nAvailableBits <<  std::endl;
-              // advance by one line and re-init the number of complete clusters read from this line
-              iLinePix++;
-              nFullClustersPix = 0;
-            }
-          } // end loop storing pixel cluster words
-
-
           int count_clusters = 0;
           if (is2SModule) {
-            std::cout << "DEBUGGING: why I'm running on 2S modules??" << std::endl;
+
           // create the Phase2TrackerCluster1D objects for 2S modules
             for (auto icluster : stripClustersWords){
               
@@ -445,11 +323,11 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
               uint32_t sclusterAddress = (icluster >> (PX_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS)) & SCLUSTER_ADDRESS_PS_MAX_VALUE; // why not uint16?
               uint32_t width = (icluster >> (PX_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS - WIDTH_BITS)) & WIDTH_MAX_VALUE;  // 3 bits
               uint32_t z = icluster & 0xF;  // 4 bits
-              std::cout << "\t[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<CHIP_ID_BITS>(chipID) <<   std::endl;
-              std::cout << "\t[unpacking] address : " << (sclusterAddress) << "\t " << std::bitset<SCLUSTER_ADDRESS_BITS_PS>(sclusterAddress) <<   std::endl;
-              std::cout << "\t[unpacking] width : " << (width)   << "\t " << std::bitset<WIDTH_BITS>(width) <<   std::endl;
-              std::cout << "\t[unpacking] z : " << (z)   << "\t " << std::bitset<4>(z) <<   std::endl;
-              std::cout <<  std::endl;
+//               std::cout << "\t[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<CHIP_ID_BITS>(chipID) <<   std::endl;
+//               std::cout << "\t[unpacking] address : " << (sclusterAddress) << "\t " << std::bitset<SCLUSTER_ADDRESS_BITS_PS>(sclusterAddress) <<   std::endl;
+//               std::cout << "\t[unpacking] width : " << (width)   << "\t " << std::bitset<WIDTH_BITS>(width) <<   std::endl;
+//               std::cout << "\t[unpacking] z : " << (z)   << "\t " << std::bitset<4>(z) <<   std::endl;
+//               std::cout <<  std::endl;
             
               unsigned int x = STRIPS_PER_SSA * chipID + sclusterAddress;
               // NB: not really clear from the packer code. Got it from the old code.
@@ -470,23 +348,6 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           if (iChannel%2 != 1) 
             continue;
           
-          // need the detid of this module
-          // first I need to construct the DTCElinkId object ## dtc_id, gbtlink_id, elink_id
-          // to get the gbt_id I should reverse what is done in the DTCUnit.convertToRawData function,
-          // where clusters from channel X are split into 2*i and 2*i+1 based on being from CIC0 or CIC1
-//           unsigned int gbt_id = iSlink * MODULES_PER_SLINK + std::div(iChannel, 2).quot;
-//           DTCELinkId thisDTCElinkId(dtcID, gbt_id, 0);
-          // then pass it to the map to get the detid
-//           std::cout << "\tslink: " << iSlink <<  "\tiDTC: " << unsigned(dtcID) << " \tiGBT:  " <<  unsigned(gbt_id) << " \tielink: " <<  unsigned(0);
-//           if (cablingMap_->knowsDTCELinkId(thisDTCElinkId))
-//           {
-//             auto possibleDetIds = cablingMap_->dtcELinkIdToDetId(thisDTCElinkId); // this returns a pair, detid will be an uint32_t (not a DetId)
-//             std::cout << "\t -> detId:" <<  possibleDetIds->second << std::endl;
-//             bool isPonPS = trackerGeometry_->getDetectorType( stackMap_[possibleDetIds->second].first) == TrackerGeometry::ModuleType::Ph2PSP;
-//             std::cout << "\t\t first isPonPS: " << isPonPS << std::endl;
-//             isPonPS = trackerGeometry_->getDetectorType( stackMap_[possibleDetIds->second].second) == TrackerGeometry::ModuleType::Ph2PSP;
-//             std::cout << "\t\t second isPonPS: " << isPonPS << std::endl;
-            
           // Store clusters of this channel
           std::vector<Phase2TrackerCluster1D>::iterator it;
           {
@@ -528,20 +389,75 @@ uint32_t RawToClusterProducer::readLine(const unsigned char* dataPtr, int lineId
     return line;                                
 }
 
-// void RawToClusterProducer::readPayload(std::vector<uint16_t>& stripClustersWords,
-//                                           std::vector<uint32_t>& lines,
-//                                           int nAvailableBits,
-//                                           int iLine,
-//                                           int bitsToRead,
-//                                           int nFullClusters,
-//                                           int CLUSTER_BITS
-//                                           )
-// {
-//   std::cout << "test sara" << lines[iLine]  << std::endl;;
-// 
-// }
-// void RawToClusterProducer::readPayload(std::vector<uint32_t> lines){
-// 
-// }
+// create groups of 14/17 bits, joining consecutive lines if needed
+// each 2S cluster payload consists of 3bits for chipID, 8 bits for address, 3 bits for width = 14 bits
+// each P on PS cluster payload consists of 3bits for chipID, 7 bits for address, 1 bit for mpBit, 3 bits for width = 17 bits
+// each S on PS cluster payload consists of 3bits for chipID, 8 bits for address, 1 bit for z, 3 bits for width = 17 bits
+void RawToClusterProducer::readPayload(std::vector<uint32_t>& clusterWords,
+                                       std::vector<uint32_t>& lines,
+                                       int numClusters,
+                                       int& nAvailableBits,
+                                       int& iLine,
+                                       int& bitsToRead,
+                                       int& nFullClusters,
+                                       int clusterBits,
+                                       int clusterWordMask,
+                                       bool isPixelCluster,
+                                       int nFullClustersStrips
+                                       )
+{
+    for (int icluster = 0; icluster < numClusters; icluster++) {
+        if (nAvailableBits >= clusterBits) {
+            // calculate the shift 
+            int shift = N_BITS_PER_WORD - bitsToRead - (nFullClusters + 1) * clusterBits;
+            // take into account bits already used for the last strip cluster
+            if (icluster == 0 && isPixelCluster)  shift -= (nFullClustersStrips)* SS_CLUSTER_BITS;
+            nFullClustersStrips = 0; // reset 
+ 
+            // mask, and save cluster word 
+            clusterWords[icluster] = (lines[iLine] >> shift) & clusterWordMask;
+            // update available bits and number of full clusters from this line
+            nAvailableBits -= clusterBits;
+            nFullClusters++;
+
+//             std::cout << "cluster " << icluster  << "  shift by " << shift;
+//             std::cout << "\t clusterword " << std::bitset<clusterBits>(clusterWords[icluster]) <<  std::endl;
+//             std::cout << "\t remaining bits " << nAvailableBits <<  std::endl;
+
+            if (nAvailableBits == 0) {
+                iLine++;
+                nAvailableBits = N_BITS_PER_WORD;
+                nFullClusters = 0;
+                bitsToRead = 0;
+            }
+        } else {
+            // get the remaining bits from the current line. first create the mask, then mask 
+            int nMask = createMask(nAvailableBits);
+            uint16_t wordLeft = lines[iLine] & nMask;
+
+            // create mask for next line
+            bitsToRead = clusterBits - nAvailableBits;
+            int nextMask = createMask(bitsToRead);
+            // shift and mask
+            uint16_t wordRight = (lines[iLine + 1] >> (N_BITS_PER_WORD - bitsToRead)) & nextMask;
+
+            // compose the full cluster word
+            clusterWords[icluster] = (wordLeft << bitsToRead) | wordRight;
+
+            // re-set n available bits
+            nAvailableBits = N_BITS_PER_WORD - bitsToRead;
+            // advance by one line and re-init the number of complete clusters read from the current line
+            iLine++;
+            nFullClusters = 0;
+
+//             std::cout << "cluster " << icluster << "  on 2 lines \t clusterword " << std::bitset<clusterBits>(clusterWords[icluster]) <<  std::endl;
+//             std::cout << "remaining bits " << nAvailableBits <<  std::endl;
+        }
+    }
+}
+
+int RawToClusterProducer::createMask(int nBits) {
+    return (1 << nBits) - 1;
+}
 
 DEFINE_FWK_MODULE(RawToClusterProducer);
