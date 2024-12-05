@@ -17,6 +17,21 @@
 
 namespace trigger {
 
+  namespace impl {
+
+    template <typename T>
+    concept FourMomentum = requires(T o) {
+      o.pt();
+      o.eta();
+      o.phi();
+      o.mass();
+    };
+
+    template <typename T>
+    concept FourMomentumWithPdgId = FourMomentum<T> and requires(T o) { o.pdgId(); };
+
+  }  // namespace impl
+
   /// Single trigger physics object (e.g., an isolated muon)
   class TriggerObject {
     /// data members - similar to DataFormats/Candidate/interface/Particle.h
@@ -34,10 +49,10 @@ namespace trigger {
         : id_(id), pt_(pt), eta_(eta), phi_(phi), mass_(mass) {}
 
     /// any type T object implementing the methods pt(), eta(), phi(), mass()
-    template <typename T>
+    template <impl::FourMomentum T>
     TriggerObject(int id, const T& o) : id_(id), pt_(o.pt()), eta_(o.eta()), phi_(o.phi()), mass_(o.mass()) {}
     /// ... and pdgId()
-    template <typename T>
+    template <impl::FourMomentumWithPdgId T>
     TriggerObject(const T& o) : id_(o.pdgId()), pt_(o.pt()), eta_(o.eta()), phi_(o.phi()), mass_(o.mass()) {}
 
     /// setters
