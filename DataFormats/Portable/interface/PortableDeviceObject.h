@@ -7,6 +7,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
@@ -21,7 +22,9 @@ public:
   using Buffer = cms::alpakatools::device_buffer<TDev, Product>;
   using ConstBuffer = cms::alpakatools::const_device_buffer<TDev, Product>;
 
-  PortableDeviceObject() = default;
+  PortableDeviceObject() = delete;
+
+  PortableDeviceObject(edm::Uninitialized) {}
 
   PortableDeviceObject(TDev const& device)
       // allocate global device memory

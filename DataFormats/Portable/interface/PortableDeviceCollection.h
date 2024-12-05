@@ -7,9 +7,10 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/Uninitialized.h"
+#include "DataFormats/Portable/interface/PortableCollectionCommon.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "DataFormats/Portable/interface/PortableCollectionCommon.h"
 
 // generic SoA-based product in device memory
 template <typename T, typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
@@ -24,7 +25,9 @@ public:
   using Buffer = cms::alpakatools::device_buffer<TDev, std::byte[]>;
   using ConstBuffer = cms::alpakatools::const_device_buffer<TDev, std::byte[]>;
 
-  PortableDeviceCollection() = default;
+  PortableDeviceCollection() = delete;
+
+  explicit PortableDeviceCollection(edm::Uninitialized) noexcept {}
 
   PortableDeviceCollection(int32_t elements, TDev const& device)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(device, Layout::computeDataSize(elements))},
@@ -144,7 +147,9 @@ private:
   }
 
 public:
-  PortableDeviceMultiCollection() = default;
+  PortableDeviceMultiCollection() = delete;
+
+  explicit PortableDeviceMultiCollection(edm::Uninitialized) noexcept {};
 
   PortableDeviceMultiCollection(int32_t elements, TDev const& device)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(device, Layout<>::computeDataSize(elements))},

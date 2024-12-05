@@ -2,17 +2,20 @@
 #define DataFormats_SiPixelClusterSoA_interface_SiPixelClustersDevice_h
 
 #include <cstdint>
+
 #include <alpaka/alpaka.hpp>
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersHost.h"
+
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
+#include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersHost.h"
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 template <typename TDev>
 class SiPixelClustersDevice : public PortableDeviceCollection<SiPixelClustersSoA, TDev> {
 public:
-  SiPixelClustersDevice() = default;
+  SiPixelClustersDevice(edm::Uninitialized) : PortableDeviceCollection<SiPixelClustersSoA, TDev>{edm::kUninitialized} {}
 
   template <typename TQueue>
   explicit SiPixelClustersDevice(size_t maxModules, TQueue queue)

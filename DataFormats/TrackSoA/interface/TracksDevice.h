@@ -2,10 +2,13 @@
 #define DataFormats_Track_interface_TracksDevice_h
 
 #include <cstdint>
+
 #include <alpaka/alpaka.hpp>
-#include "DataFormats/TrackSoA/interface/TracksSoA.h"
-#include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
+
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
+#include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
+#include "DataFormats/TrackSoA/interface/TracksSoA.h"
 
 // TODO: The class is created via inheritance of the PortableCollection.
 // This is generally discouraged, and should be done via composition.
@@ -14,7 +17,10 @@ template <typename TrackerTraits, typename TDev>
 class TracksDevice : public PortableDeviceCollection<reco::TrackLayout<TrackerTraits>, TDev> {
 public:
   static constexpr int32_t S = TrackerTraits::maxNumberOfTuples;  //TODO: this could be made configurable at runtime
-  TracksDevice() = default;                                       // necessary for ROOT dictionaries
+
+  TracksDevice(edm::Uninitialized)
+      : PortableDeviceCollection<reco::TrackLayout<TrackerTraits>, TDev>{edm::kUninitialized} {
+  }  // necessary for ROOT dictionaries
 
   using PortableDeviceCollection<reco::TrackLayout<TrackerTraits>, TDev>::view;
   using PortableDeviceCollection<reco::TrackLayout<TrackerTraits>, TDev>::const_view;

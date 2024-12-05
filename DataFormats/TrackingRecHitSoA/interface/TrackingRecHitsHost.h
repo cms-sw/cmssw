@@ -5,6 +5,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -19,7 +20,8 @@ public:
   using PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>::const_view;
   using PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>::buffer;
 
-  TrackingRecHitHost() = default;
+  TrackingRecHitHost(edm::Uninitialized)
+      : PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>{edm::kUninitialized} {}
 
   // Constructor which specifies only the SoA size, to be used when copying the results from the device to the host
   template <typename TQueue>

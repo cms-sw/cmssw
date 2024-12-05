@@ -2,11 +2,14 @@
 #define DataFormats_Track_TracksHost_H
 
 #include <cstdint>
+
 #include <alpaka/alpaka.hpp>
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
-#include "DataFormats/TrackSoA/interface/TracksSoA.h"
-#include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
+
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
+#include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
+#include "DataFormats/TrackSoA/interface/TracksSoA.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 
 // TODO: The class is created via inheritance of the PortableHostCollection.
 // This is generally discouraged, and should be done via composition.
@@ -15,7 +18,10 @@ template <typename TrackerTraits>
 class TracksHost : public PortableHostCollection<reco::TrackLayout<TrackerTraits>> {
 public:
   static constexpr int32_t S = TrackerTraits::maxNumberOfTuples;  //TODO: this could be made configurable at runtime
-  TracksHost() = default;  // Needed for the dictionary; not sure if line above is needed anymore
+
+  TracksHost(edm::Uninitialized)
+      : PortableHostCollection<reco::TrackLayout<TrackerTraits>>{edm::kUninitialized} {
+  }  // necessary for ROOT dictionaries
 
   using PortableHostCollection<reco::TrackLayout<TrackerTraits>>::view;
   using PortableHostCollection<reco::TrackLayout<TrackerTraits>>::const_view;
