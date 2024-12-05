@@ -11,6 +11,8 @@
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
 #include "Geometry/Records/interface/PMTDParametersRcd.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 
 #include <memory>
 
@@ -25,13 +27,18 @@ public:
   ReturnType produce(const MTDTopologyRcd&);
 
 private:
-  void fillParameters(const PMTDParameters&, int& mtdTopologyMode, MTDTopology::ETLValues&);
+  void fillBTLtopology(const MTDGeometry&, MTDTopology::BTLValues&) {};
+  void fillETLtopology(const PMTDParameters&, int& mtdTopologyMode, MTDTopology::ETLValues&);
 
-  const edm::ESGetToken<PMTDParameters, PMTDParametersRcd> token_;
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  edm::ESGetToken<PMTDParameters, PMTDParametersRcd> mtdparToken_;
 };
 
-MTDTopologyEP::MTDTopologyEP(const edm::ParameterSet& conf)
-    : token_{setWhatProduced(this).consumesFrom<PMTDParameters, PMTDParametersRcd>(edm::ESInputTag())} {}
+MTDTopologyEP::MTDTopologyEP(const edm::ParameterSet& conf) {
+  auto cc = setWhatProduced(this);
+  mtdgeoToken_ = cc.consumesFrom<MTDGeometry, MTDDigiGeometryRecord>(edm::ESInputTag());
+  mtdparToken_ = cc.consumesFrom<PMTDParameters, PMTDParametersRcd>(edm::ESInputTag());
+}
 
 void MTDTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription ttc;
@@ -40,21 +47,18 @@ void MTDTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& description
 
 MTDTopologyEP::ReturnType MTDTopologyEP::produce(const MTDTopologyRcd& iRecord) {
   int mtdTopologyMode;
+  MTDTopology::BTLValues btlVals;
   MTDTopology::ETLValues etlVals;
 
-  fillParameters(iRecord.get(token_), mtdTopologyMode, etlVals);
+  fillBTLtopology(iRecord.get(mtdgeoToken_), btlVals);
 
-  return std::make_unique<MTDTopology>(mtdTopologyMode, etlVals);
+  fillETLtopology(iRecord.get(mtdparToken_), mtdTopologyMode, etlVals);
+
+  return std::make_unique<MTDTopology>(mtdTopologyMode, btlVals, etlVals);
 }
 
-void MTDTopologyEP::fillParameters(const PMTDParameters& ptp, int& mtdTopologyMode, MTDTopology::ETLValues& etlVals) {
+void MTDTopologyEP::fillETLtopology(const PMTDParameters& ptp, int& mtdTopologyMode, MTDTopology::ETLValues& etlVals) {
   mtdTopologyMode = ptp.topologyMode_;
-
-  // for legacy geometry scenarios no topology informastion is stored, only for newer ETL 2-discs layout
-
-  if (mtdTopologyMode <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
-    return;
-  }
 
   // Check on the internal consistency of thr ETL layout information provided by parameters
 

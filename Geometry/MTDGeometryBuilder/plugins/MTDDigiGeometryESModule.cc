@@ -8,8 +8,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/PMTDParametersRcd.h"
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
-#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
-#include "Geometry/Records/interface/MTDTopologyRcd.h"
 
 // Alignments
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -45,7 +43,6 @@ private:
   const std::string myLabel_;
 
   edm::ESGetToken<GeometricTimingDet, IdealGeometryRecord> geomTimingDetToken_;
-  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdTopoToken_;
   edm::ESGetToken<PMTDParameters, PMTDParametersRcd> pmtdParamsToken_;
 
   //alignment
@@ -69,7 +66,6 @@ MTDDigiGeometryESModule::MTDDigiGeometryESModule(const edm::ParameterSet& p)
   auto cc = setWhatProduced(this);
   const edm::ESInputTag kEmpty;
   geomTimingDetToken_ = cc.consumesFrom<GeometricTimingDet, IdealGeometryRecord>(kEmpty);
-  mtdTopoToken_ = cc.consumesFrom<MTDTopology, MTDTopologyRcd>(kEmpty);
   pmtdParamsToken_ = cc.consumesFrom<PMTDParameters, PMTDParametersRcd>(kEmpty);
 
   {
@@ -109,12 +105,10 @@ std::unique_ptr<MTDGeometry> MTDDigiGeometryESModule::produce(const MTDDigiGeome
   //
   GeometricTimingDet const& gD = iRecord.get(geomTimingDetToken_);
 
-  MTDTopology const& tTopo = iRecord.get(mtdTopoToken_);
-
   PMTDParameters const& ptp = iRecord.get(pmtdParamsToken_);
 
   MTDGeomBuilderFromGeometricTimingDet builder;
-  std::unique_ptr<MTDGeometry> mtd(builder.build(&(gD), ptp, &tTopo));
+  std::unique_ptr<MTDGeometry> mtd(builder.build(&(gD), ptp));
 
   if (applyAlignment_) {
     // Since fake is fully working when checking for 'empty', we should get rid of applyAlignment_!

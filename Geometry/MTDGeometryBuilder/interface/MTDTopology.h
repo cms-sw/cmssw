@@ -12,10 +12,19 @@
 
 class MTDTopology {
 public:
-  // number of logical rods, i.e. rows of sensor modules along eta/z in phi, and of modules per rod
-  static constexpr size_t nBTLphi = BTLDetId::HALF_ROD * BTLDetId::kModulesPerTrkV2;
-  static constexpr size_t nBTLeta =
-      2 * BTLDetId::kRUPerTypeV2 * BTLDetId::kCrystalTypes * BTLDetId::kModulesPerRUV2 / BTLDetId::kModulesPerTrkV2;
+  struct BTLLayout {
+    // number of logical rods, i.e. rows of sensor modules along eta/z in phi, and of modules per rod
+    static constexpr size_t nBTLphi_ = BTLDetId::HALF_ROD * BTLDetId::kModulesPerTrkV2;
+    static constexpr size_t nBTLeta_ =
+        2 * BTLDetId::kRUPerTypeV2 * BTLDetId::kCrystalTypes * BTLDetId::kModulesPerRUV2 / BTLDetId::kModulesPerTrkV2;
+    static constexpr size_t nBTLmodules_ = nBTLphi_ * nBTLeta_;
+
+    std::array<uint32_t, nBTLmodules_> btlDetId_;
+    std::array<uint32_t, nBTLmodules_> btlPhi_;
+    std::array<uint32_t, nBTLmodules_> btlEta_;
+  };
+
+  using BTLValues = BTLLayout;
 
   struct ETLfaceLayout {
     uint32_t idDiscSide_;  // disc face identifier
@@ -27,7 +36,7 @@ public:
 
   using ETLValues = std::vector<ETLfaceLayout>;
 
-  MTDTopology(const int& topologyMode, const ETLValues& etl);
+  MTDTopology(const int& topologyMode, const BTLValues& btl, const ETLValues& etl);
 
   int getMTDTopologyMode() const { return mtdTopologyMode_; }
 
@@ -53,6 +62,8 @@ public:
 
 private:
   const int mtdTopologyMode_;
+
+  const BTLValues btlVals_;
 
   const ETLValues etlVals_;
 
