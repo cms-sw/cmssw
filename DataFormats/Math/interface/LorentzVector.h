@@ -1,8 +1,9 @@
 #ifndef Math_LorentzVector_h
 #define Math_LorentzVector_h
-#include "Math/PtEtaPhiE4D.h"
-#include "Math/PtEtaPhiM4D.h"
-#include "Math/LorentzVector.h"
+
+#include <Math/PtEtaPhiE4D.h>
+#include <Math/PtEtaPhiM4D.h>
+#include <Math/LorentzVector.h>
 
 namespace math {
 
