@@ -7,6 +7,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
@@ -19,7 +20,9 @@ public:
   using Buffer = cms::alpakatools::host_buffer<Product>;
   using ConstBuffer = cms::alpakatools::const_host_buffer<Product>;
 
-  PortableHostObject() = default;
+  PortableHostObject() = delete;
+
+  PortableHostObject(edm::Uninitialized) noexcept {}
 
   PortableHostObject(alpaka_common::DevHost const& host)
       // allocate pageable host memory
