@@ -2576,6 +2576,72 @@ upgradeWFs['JetCore'] = UpgradeWorkflow_JetCore(
     offset = 0.19002,
 )
 
+class UpgradeWorkflow_SplittingFromHLT(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'hltClusterSplitting'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2025' in key and fragment=="TTbar_14TeV"
+
+upgradeWFs['SplittingFromHLT'] = UpgradeWorkflow_SplittingFromHLT(
+    steps = [
+        'DigiTrigger',
+        'Digi',
+        'HLTOnly',
+        'RecoLocal',
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+    ],
+    PU = [
+        'DigiTrigger',
+        'Digi',
+        'HLTOnly',
+        'RecoLocal',
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+    ],
+    suffix = '_SplittingFromHLT',
+    offset = 0.19003,
+)
+
+class UpgradeWorkflow_SplittingProdLike(UpgradeWorkflow_ProdLike):
+    def __init__(self, suffix, offset,steps, PU):
+        super(UpgradeWorkflow_SplittingProdLike, self).__init__(steps, PU, suffix, offset)
+
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # copy steps, then apply specializations
+        stepDict[stepName][k] = merge([{'--procModifiers': 'hltClusterSplitting'}, stepDict[step][k]])
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2025' in key and fragment=="TTbar_14TeV"
+
+upgradeWFs['SplittingFromHLTProdLike'] = UpgradeWorkflow_SplittingProdLike(
+    steps = [
+    ],
+    PU = [
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'HLTOnly',
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+        'RecoNano',
+        'RecoNanoFakeHLT',
+        'HARVEST',
+        'HARVESTFakeHLT',
+        'HARVESTGlobal',
+        'HARVESTNano',
+        'HARVESTNanoFakeHLT',
+        'MiniAOD',
+        'ALCA',
+        'Nano',
+    ],
+    suffix = '_SplittingFromHLTProdLike',
+    offset = 0.1900321,
+)
+
 #
 # Simulates Bias Rail in Phase-2 OT PS modules and X% random bad Strips
 # in PS-s and SS sensors
