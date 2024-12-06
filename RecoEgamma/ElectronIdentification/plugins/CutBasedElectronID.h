@@ -9,26 +9,48 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
+#include <memory>
+
+class CutBasedElectronIDVersionStrategyBase {
+public:
+  virtual ~CutBasedElectronIDVersionStrategyBase() = default;
+
+  virtual double cicSelection(const reco::GsfElectron& electron, const reco::VertexCollection* e) const = 0;
+  virtual bool cicNeedsVertices() const = 0;
+
+  virtual double robustSigmaee(const reco::GsfElectron& electron) const;
+  virtual double robustIp(const reco::GsfElectron& electron,
+                          edm::Handle<reco::BeamSpot>,
+                          const reco::VertexCollection*) const;
+  virtual bool robustNeedsBeamSpot() const;
+  virtual bool robustNeedsVertices() const;
+  struct Iso {
+    double ecal;
+    double hcal;
+    double hcal1;
+    double hcal2;
+  };
+  virtual Iso robustIso(const reco::GsfElectron& electron) const;
+};
+
 class CutBasedElectronID : public ElectronIDAlgo {
 public:
   CutBasedElectronID(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
 
-  double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) const override;
+  double result(const reco::GsfElectron* electron, const edm::Event& e, const edm::EventSetup& es) const override;
 
 private:
   double cicSelection(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) const;
   double robustSelection(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) const;
-  int classify(const reco::GsfElectron*) const;
-  bool compute_cut(double x, double et, double cut_min, double cut_max, bool gtn = false) const;
 
-  bool wantBinning_;
-  bool newCategories_;
   std::string type_;
   std::string quality_;
-  std::string version_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > verticesCollection_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpot_;
-  edm::ParameterSet cuts_;
+  std::vector<double> barrelCuts_;
+  std::vector<double> endcapCuts_;
+
+  std::unique_ptr<CutBasedElectronIDVersionStrategyBase const> versionStrategy_;
 };
 
 #endif  // CutBasedElectronID_H

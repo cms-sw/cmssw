@@ -9,3 +9,8 @@
 </library>
 
 <test name="runtestRecoEgammaElectronIdentification" command="runtests.sh"/>
+
+<bin file="test_catch2_*.cc" name="testRecoEgammaElectronIdentificationTP">
+  <use name="FWCore/TestProcessor"/>
+  <use name="catch2"/>
+</bin>
