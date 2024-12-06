@@ -4,24 +4,27 @@
 </test>
 
 <!-- Tests for MC production for 2022 and 2023 -->
-<!-- 
-    The conditions used here for 2022 and 2023 will be changed 
-    to use the proper GT from ALCA including the BS smearing 
-    record from GT. For the moment we use the automatic ones.
+<!--  
     By default these tests won't fail if a failure happens at
     HLT step. If you want to catch those errors please set the
     environment variable CMSSW_MC_SETUP_TEST_CATCH_HLT.
 -->
 
-<ifarchitecture name="el8_amd64">
-  <!-- Run this test for production arch of CMSSW_13_0_19_HLT release only -->
-  <test name="test_MC_23_setup" command="CMSSW_MC_SETUP_TEST_CATCH_HLT=0 ${CMSSW_BASE}/src/Configuration/PyReleaseValidation/test/test_mc_setup/test_MC_setup.sh auto:phase1_2023_realistic Run3_2023 2023v12 CMSSW_13_0_19_HLT 130X_mcRun3_2023_realistic_HLT_forReMC_v2 Realistic25ns13p6TeVEarly2023Collision" />
+<!--
+ These tests are disabled from early 15_0_X
+ since the final setup is now well defined
+ and stable. Keeping them commented just
+ to store in cms-sw the parameters we used.
+ The non-hlt release used is 14_0_19 
+ 
+<ifarchitecture name="el8_amd64"> 
+  <test name="test_MC_23_setup" command="CMSSW_MC_SETUP_TEST_CATCH_HLT=0 ${CMSSW_BASE}/src/Configuration/PyReleaseValidation/test/test_mc_setup/test_MC_setup.sh 140X_mcRun3_2023_realistic_v9 Run3_2023 2023v12 CMSSW_13_0_19_HLT 130X_mcRun3_2023_realistic_HLT_forReMC_v2 DBRealistic" />
 </ifarchitecture>
 
 <ifarchitecture name="el8_amd64">
-  <!-- Run this test for production arch of CMSSW_12_4_22_HLT release only -->
-  <test name="test_MC_22_setup" command="CMSSW_MC_SETUP_TEST_CATCH_HLT=0 ${CMSSW_BASE}/src/Configuration/PyReleaseValidation/test/test_mc_setup/test_MC_setup.sh auto:phase1_2022_realistic Run3 2022v15 CMSSW_12_4_22_HLT 124X_mcRun3_2022_realistic_HLT_forReMC_v5 Realistic25ns13p6TeVEarly2022Collision" />
+  <test name="test_MC_22_setup" command="CMSSW_MC_SETUP_TEST_CATCH_HLT=0 ${CMSSW_BASE}/src/Configuration/PyReleaseValidation/test/test_mc_setup/test_MC_setup.sh 140X_mcRun3_2022_realistic_v12 Run3 2022v15 CMSSW_12_4_22_HLT 124X_mcRun3_2022_realistic_HLT_forReMC_v5 DBRealistic" />
 </ifarchitecture>
+-->
 
 <!-- 
     The setups below are "standard", with everything run 
