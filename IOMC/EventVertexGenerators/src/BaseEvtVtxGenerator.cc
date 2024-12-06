@@ -75,13 +75,17 @@ void BaseEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
     ROOT::Math::XYZTVector VertexShift = vertexShift(engine);
     productcopy3->applyVtxGen(HepMC3::FourVector(VertexShift.x(), VertexShift.y(), VertexShift.z(), VertexShift.t()));
 
-    if(GetInvLorentzBoost() != nullptr) {
+    if (GetInvLorentzBoost() != nullptr) {
       TMatrixD tmplorentz(*GetInvLorentzBoost());
       TMatrixD p4(4, 1);
-      p4(0, 0) = 1.; p4(1, 0) = 1.; p4(2, 0) = 1.; p4(3, 0) = 1.; // Check if the boost matrix is not trivial
+      p4(0, 0) = 1.;
+      p4(1, 0) = 1.;
+      p4(2, 0) = 1.;
+      p4(3, 0) = 1.; // Check if the boost matrix is not trivial
       TMatrixD p4lab(4, 1);
       p4lab = tmplorentz * p4;
-      if (p4lab(0, 0) - p4(0, 0) != 0. || p4lab(1, 0) - p4(1, 0) != 0. || p4lab(2, 0) - p4(2, 0) != 0. || p4lab(3, 0) - p4(3, 0) != 0.) {  // not trivial
+      if (p4lab(0, 0) - p4(0, 0) != 0. || p4lab(1, 0) - p4(1, 0) != 0. ||
+          p4lab(2, 0) - p4(2, 0) != 0. || p4lab(3, 0) - p4(3, 0) != 0.) {  // not trivial
         productcopy3->boostToLab(GetInvLorentzBoost(), "vertex");
         productcopy3->boostToLab(GetInvLorentzBoost(), "momentum");
       }

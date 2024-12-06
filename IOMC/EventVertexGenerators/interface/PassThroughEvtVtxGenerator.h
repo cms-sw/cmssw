@@ -22,7 +22,6 @@ public:
   TMatrixD const* GetInvLorentzBoost() const override { return nullptr; };
 
 private:
-
 };
 
 #endif
