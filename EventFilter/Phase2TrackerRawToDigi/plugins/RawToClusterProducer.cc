@@ -38,21 +38,10 @@ public:
     
     int getLineIndex(int channelIdx, unsigned int iline);
     uint32_t readLine(const unsigned char* dataPtr, int lineIdx);
-    void readPayload(std::vector<uint32_t>& clusterWords,
-                     std::vector<uint32_t>& lines,
-                     int numClusters,
-                     int& nAvailableBits,
-                     int& iLine,
-                     int& bitsToRead,
-                     int& nFullClusters,
-                     int clusterBits,
-                     int clusterWordMask,
-                     bool isPixelCluster,
-                     int nFullClustersStrips = 0
-                     );
+    void readPayload(std::vector<uint32_t>& clusterWords, std::vector<uint32_t>& lines, int numClusters, int& nAvailableBits, int& iLine, int& bitsToRead, int& nFullClusters, \
+                     int clusterBits, int clusterWordMask, bool isPixelCluster, int nFullClustersStrips = 0);
 
-    int createMask(int nBits) ;
-
+    int createMask(int nBits);
     std::pair<Phase2TrackerCluster1D, bool> unpack2S(uint32_t, unsigned int );
     Phase2TrackerCluster1D unpackStripOnPS(uint32_t, unsigned int );
     Phase2TrackerCluster1D unpackPixelOnPS(uint32_t, unsigned int );
@@ -86,7 +75,6 @@ RawToClusterProducer::RawToClusterProducer(const edm::ParameterSet& iConfig) :
 
 RawToClusterProducer::~RawToClusterProducer() 
 {
-
 }
 
 void RawToClusterProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
@@ -124,198 +112,195 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     TrackerHeader theHeader;
     ChannelsOffset theOffsets;
 
-
     if (!fedRawDataCollection.isValid()) 
     {
-      edm::LogError("Phase2DAQAnalyzer") << "No FEDRawDataCollection found!";
+      edm::LogError("RawtoClusterProducer") << "No FEDRawDataCollection found!";
       return;
     }
 
     // Read one entire DTC (#dtcID), as per the producer logic
-//     unsigned int dtcID = 180; // 
-    unsigned int dtcID = 209; // to test pixel clusters
+//     unsigned int dtcID = 180; // dtc processing 2S modules
+//     unsigned int dtcID = 209; // dtc processing PS modules	
+    for (int dtcID = MIN_DTC_ID; dtcID < MAX_DTC_ID; dtcID++){
     
-    // read the 4 slinks
-    for (unsigned int iSlink = 0; iSlink < SLINKS_PER_DTC; iSlink++)
-    {
-      // as defined in the DAQProducer code
-      unsigned totID = iSlink + SLINKS_PER_DTC * (dtcID - 1) + 0 ;
-      const FEDRawData& fedData = fedRawDataCollection->FEDData(totID);  
-      if (fedData.size() > 0) 
+      // read the 4 slinks
+      for (unsigned int iSlink = 0; iSlink < SLINKS_PER_DTC; iSlink++)
       {
-        const unsigned char* dataPtr = fedData.data();
-        
-        // read the header  
-        std::vector<uint32_t> headerWords;
-        for (size_t i = 0; i < HEADER_N_LINES*N_BYTES_PER_WORD; i += N_BYTES_PER_WORD)  // Read 4 bytes (32 bits) at a time
+        // as defined in the DAQProducer code
+        unsigned totID = iSlink + SLINKS_PER_DTC * (dtcID - 1) + 0 ;
+        const FEDRawData& fedData = fedRawDataCollection->FEDData(totID);  
+        if (fedData.size() > 0) 
         {
-          // Extract 4 bytes (32 bits) and pack them into a uint32_t word
-          headerWords.push_back(readLine(dataPtr, i));
-        }
-        theHeader.setValue(headerWords);
+          const unsigned char* dataPtr = fedData.data();
+          
+          // read the header  
+          std::vector<uint32_t> headerWords;
+          for (size_t i = 0; i < HEADER_N_LINES*N_BYTES_PER_WORD; i += N_BYTES_PER_WORD)  // Read 4 bytes (32 bits) at a time
+          {
+            // Extract 4 bytes (32 bits) and pack them into a uint32_t word
+            headerWords.push_back(readLine(dataPtr, i));
+          }
+          theHeader.setValue(headerWords);
+    
+          // read the offsets: each 32 bit word contains two offset words of 16 bit each
+          std::vector<uint32_t> offsetWords;
+          size_t nOffsetsLines = OFFSET_BITS * CICs_PER_SLINK / N_BITS_PER_WORD;
+          size_t initByte = HEADER_N_LINES*N_BYTES_PER_WORD;
+          size_t endByte = (nOffsetsLines-1)*N_BYTES_PER_WORD + initByte;  // -1 because we only need the starting i of the line
   
-        // read the offsets 
-        // they start from the fifth line (4 * (5-1)) until line 22nd (4 * 22-1)
-        std::vector<uint32_t> offsetWords;
-        size_t nOffsetsLines = OFFSET_BITS * CICs_PER_SLINK / N_BITS_PER_WORD;
-        size_t initByte = HEADER_N_LINES*N_BYTES_PER_WORD;
-        size_t endByte = (nOffsetsLines-1)*N_BYTES_PER_WORD + initByte;  // -1 because we only need the starting i of the line
-
-        for (size_t i = initByte; i <= endByte; i += N_BYTES_PER_WORD)  // Read 4 bytes (32 bits) at a time
-          offsetWords.push_back(readLine(dataPtr, i));          
-        theOffsets.setValue(offsetWords);
-        
-        // now read the payload (channel header + clusters)
-        // all channel headers should be there, even if 0 clusters are found
-        // this is not really the channel number, as in the ClusterToRaw conversion each channel is split by CIC0_CIC1
-        // NOTE: we need to save into the Phase2TrackerCluster1D collection two "channels" at the time 
-        // in order to get all the clusters from the same lpGBT and fill them once at the end
-        std::vector<Phase2TrackerCluster1D> thisChannel1DSeedClusters, thisChannel1DCorrClusters;
-        for (unsigned int iChannel = 0; iChannel < CICs_PER_SLINK; iChannel++)
-        {
-          // clear the collection if iChannel is even
-          if (iChannel%2==0){
+          for (size_t i = initByte; i <= endByte; i += N_BYTES_PER_WORD)  // Read 4 bytes (32 bits) at a time
+            offsetWords.push_back(readLine(dataPtr, i));          
+          theOffsets.setValue(offsetWords);
+          
+          // now read the payload (channel header + clusters)
+          // all channel headers should be there, even if 0 clusters are found
+          // the loop is not on the actual channel number, as in the ClusterToRaw conversion each channel is split by CIC0_CIC1
+          // NOTE: we need to save into the Phase2TrackerCluster1D collection two "channels" at the time 
+          // in order to get all the clusters from the same lpGBT and fill them once at the end
+          std::vector<Phase2TrackerCluster1D> thisChannel1DSeedClusters, thisChannel1DCorrClusters;
+          for (unsigned int iChannel = 0; iChannel < CICs_PER_SLINK; iChannel++)
+          {
+            // clear the collection if iChannel is even
+            if (iChannel%2==0){
             thisChannel1DSeedClusters.clear();
             thisChannel1DCorrClusters.clear();
           }  
-
-          // retrieve the module type: 
-          // first we need to construct the DTCElinkId object ## dtc_id, gbtlink_id, elink_id
-          // to get the gbt_id we should reverse what is done in the packer function,
-          // where clusters from channel X are split into 2*i and 2*i+1 based on being from CIC0 or CIC1
-          unsigned int gbt_id = iSlink * MODULES_PER_SLINK + std::div(iChannel, 2).quot;
-          DTCELinkId thisDTCElinkId(dtcID, gbt_id, 0);
-          std::cout << "\tslink: " << iSlink <<  "\tiDTC: " << unsigned(dtcID) << " \tiGBT:  " <<  unsigned(gbt_id) << " \tielink: " <<  unsigned(0);
-
-          int thisDetId = -1;
-          bool is2SModule = false;
-          // then pass it to the map to get the detid
-          if (cablingMap_->knowsDTCELinkId(thisDTCElinkId))
-          {
-            auto possibleDetIds = cablingMap_->dtcELinkIdToDetId(thisDTCElinkId); // this returns a pair, detid will be an uint32_t (not a DetId)
-            thisDetId = possibleDetIds->second;
-            std::cout << "\t -> detId:" <<  thisDetId << std::endl ; 
-            // check is 2S or PS 
-            is2SModule = trackerGeometry_->getDetectorType( stackMap_[thisDetId].first) == TrackerGeometry::ModuleType::Ph2SS;
-          }
-          else {
-            std::cout << " -> not connected?" << std::endl;
-            continue;
-          }
-
-          // find the channel offset
-          int initial_offset = (HEADER_N_LINES + MODULES_PER_SLINK) * N_BYTES_PER_WORD;
-          int idx = initial_offset + theOffsets.getOffsetForChannel(iChannel) * N_BYTES_PER_WORD;
-          
-          // get the channel header and unpack it
-          uint32_t headerWord = readLine(dataPtr, idx);
-          unsigned long eventID = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS)) & L1ID_MAX_VALUE;  // 9-bit field
-          int channelErrors = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) & CIC_ERROR_MASK;  // 9-bit field
-          unsigned int numStripClusters = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - N_STRIP_CLUSTER_BITS)) & N_CLUSTER_MASK;  // 7-bit field
-          unsigned int numPixelClusters = (headerWord) & N_CLUSTER_MASK;  // 7-bit field
-          
-          // define the number of lines for the payload
-          unsigned int nLines = (numStripClusters + numPixelClusters > 0) ? 
-                                 int((numStripClusters * SS_CLUSTER_BITS + numPixelClusters * PX_CLUSTER_BITS)/ N_BITS_PER_WORD) + 1 : 0;
-
-          if (numStripClusters + numPixelClusters > 0 ){
-            std::cout << "channel " << iChannel << "\t header: " << std::bitset<N_BITS_PER_WORD>(headerWord) ;
-            std::cout << "\t n strip clusters = " << numStripClusters ;
-            std::cout << "\t n pixel clusters = " << numPixelClusters ;
-            std::cout << " (n lines = " << nLines << ")" <<  std::endl;
-          }  
-          
-          // first retrieve all lines filled with clusters
-          std::vector<uint32_t> lines;
-          for (unsigned int iline = 0; iline < nLines; iline++)
-          {
-            int lineIdx = getLineIndex(idx, iline);
-            lines.push_back(readLine(dataPtr, lineIdx));
-          }        
-          if ( lines.size() != nLines) 
-            std::cout << "warning, something went wrong when storing lines " << std::endl;
   
-          // first retrieve the cluster words
-          // this was uint16, check if can be changed back 
-          std::vector<uint32_t> stripClustersWords;
-          stripClustersWords.resize(numStripClusters);
-
-          std::vector<uint32_t> pixelClustersWords;
-          pixelClustersWords.resize(numPixelClusters);
-    
-          // then create groups of 14/17 bits, joining consecutive lines if needed
-          // each cluster payload consists in 3bits for chipID, 8 bits for address, 3 bits for width = 14 bits
-          int nAvailableBits = N_BITS_PER_WORD;
-          int iLine = 0;
-          int bitsToRead = 0;
-          int nFullClustersStrip = 0;
-          int nFullClustersPix = 0;
-          
-          readPayload(stripClustersWords, lines, numStripClusters, nAvailableBits, iLine, bitsToRead, nFullClustersStrip, SS_CLUSTER_BITS, SS_CLUSTER_WORD_MASK, false );
-          readPayload(pixelClustersWords, lines, numPixelClusters, nAvailableBits, iLine, bitsToRead, nFullClustersPix, PX_CLUSTER_BITS, PX_CLUSTER_WORD_MASK, true, nFullClustersStrip );
-          
-          int count_clusters = 0;
-          if (is2SModule) {
-            // create the Phase2TrackerCluster1D objects for 2S modules
-            for (auto icluster : stripClustersWords){
-
-              std::pair<Phase2TrackerCluster1D, bool> thisCluster = unpack2S(icluster, iChannel);
-              if (thisCluster.second)
-                thisChannel1DSeedClusters.push_back(thisCluster.first);
-              else  
-                thisChannel1DCorrClusters.push_back(thisCluster.first);
-              count_clusters++;
-            } // end loop on cluster words 
-
-          } else {
-            // create the Phase2TrackerCluster1D objects for PS modules
-            // first loop on strip clusters
-            for (auto icluster : stripClustersWords){
-              Phase2TrackerCluster1D thisCluster = unpackStripOnPS(icluster, iChannel);
-              // for PS, strip is always correlated sensor
-              thisChannel1DCorrClusters.push_back(thisCluster);
-              count_clusters++; 
-            } 
+            // retrieve the module type: 
+            // first we need to construct the DTCElinkId object ## dtc_id, gbtlink_id, elink_id
+            // to get the gbt_id we should reverse what is done in the packer function,
+            // where clusters from channel X are split into 2*i and 2*i+1 based on being from CIC0 or CIC1
+            unsigned int gbt_id = iSlink * MODULES_PER_SLINK + std::div(iChannel, 2).quot;
+            DTCELinkId thisDTCElinkId(dtcID, gbt_id, 0);
+            std::cout << "\tslink: " << iSlink <<  "\tiDTC: " << unsigned(dtcID) << " \tiGBT:  " <<  unsigned(gbt_id) << " \tielink: " <<  unsigned(0);
+  
+            int thisDetId = -1;
+            bool is2SModule = false;
+            // then pass it to the map to get the detid
+            if (cablingMap_->knowsDTCELinkId(thisDTCElinkId))
+            {
+              auto possibleDetIds = cablingMap_->dtcELinkIdToDetId(thisDTCElinkId); // this returns a pair, detid will be an uint32_t (not a DetId)
+              thisDetId = possibleDetIds->second;
+              std::cout << "\t -> detId:" <<  thisDetId << std::endl ; 
+              // check is 2S or PS 
+              is2SModule = trackerGeometry_->getDetectorType( stackMap_[thisDetId].first) == TrackerGeometry::ModuleType::Ph2SS;
+            }
+            else {
+              std::cout << " -> not connected?" << std::endl;
+              continue;
+            }
+  
+            // find the channel offset
+            int initial_offset = (HEADER_N_LINES + MODULES_PER_SLINK) * N_BYTES_PER_WORD;
+            int idx = initial_offset + theOffsets.getOffsetForChannel(iChannel) * N_BYTES_PER_WORD;
             
-            // then loop on pixel clusters
-            for (auto icluster : pixelClustersWords){
-              Phase2TrackerCluster1D thisCluster = unpackPixelOnPS(icluster, iChannel);
-              // for PS, pixel is always seed sensor
-              thisChannel1DSeedClusters.push_back(thisCluster);
-              count_clusters++;
-            } 
-          }
-          
-          if (count_clusters == 0 ) continue;
+            // get the channel header and unpack it
+            uint32_t headerWord = readLine(dataPtr, idx);
+            unsigned long eventID = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS)) & L1ID_MAX_VALUE;  // 9-bit field
+            int channelErrors = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS)) & CIC_ERROR_MASK;  // 9-bit field
+            unsigned int numStripClusters = (headerWord >> (N_BITS_PER_WORD - L1ID_BITS - CIC_ERROR_BITS - N_STRIP_CLUSTER_BITS)) & N_CLUSTER_MASK;  // 7-bit field
+            unsigned int numPixelClusters = (headerWord) & N_CLUSTER_MASK;  // 7-bit field
+            
+            // define the number of lines of the payload
+            unsigned int nLines = (numStripClusters + numPixelClusters > 0) ? 
+                                   int((numStripClusters * SS_CLUSTER_BITS + numPixelClusters * PX_CLUSTER_BITS)/ N_BITS_PER_WORD) + 1 : 0;
   
-          // put the filler here, for the output collection
-          // fill every 2 channels are read
-          if (iChannel%2 != 1) 
-            continue;
-          
-          // Store clusters of this channel
-          std::vector<Phase2TrackerCluster1D>::iterator it;
-          {
-            // inner detid is defined as module detid + 1. First int in the pair from the map
-//             std::cout << "\t\t -> detId:" <<  possibleDetIds->second << "  from map: " << stackMap_[possibleDetIds->second].first << std::endl;
-            edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcs(*outputClusterCollection, stackMap_[thisDetId].first);
-            for (it = thisChannel1DSeedClusters.begin(); it != thisChannel1DSeedClusters.end(); it++) {
-              spcs.push_back(*it);
-            }
-          }
-          {
-            // outer detid is defined as inner detid + 1 or module detid + 2. Second int in the pair from the map
-//             std::cout << "\t\t -> detId:" <<  possibleDetIds->second << "  from map: " << stackMap_[possibleDetIds->second].second << std::endl;
-            edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcc(*outputClusterCollection, stackMap_[thisDetId].second);
-            for (it = thisChannel1DCorrClusters.begin(); it != thisChannel1DCorrClusters.end(); it++) {
-              spcc.push_back(*it);
-            }
-          }
-//           } // end if detId is found 
+            if (numStripClusters + numPixelClusters > 0 ){
+              std::cout << "channel " << iChannel << "\t header: " << std::bitset<N_BITS_PER_WORD>(headerWord) ;
+              std::cout << "\t n strip clusters = " << numStripClusters ;
+              std::cout << "\t n pixel clusters = " << numPixelClusters ;
+              std::cout << " (n lines = " << nLines << ")" <<  std::endl;
+            }  
+            
+            // first retrieve all lines filled with clusters
+            std::vector<uint32_t> lines;
+            for (unsigned int iline = 0; iline < nLines; iline++)
+            {
+              lines.push_back(readLine(dataPtr, getLineIndex(idx, iline)));
+            }        
+            if ( lines.size() != nLines) {
+              edm::LogError("RawtoClusterProducer") << "Numbers of stored lines does not match with size of lines to be read!";
+              return;
+            }  
+    
+            // first retrieve the cluster words
+            // this was uint16, check if can be changed back 
+            std::vector<uint32_t> stripClustersWords;
+            stripClustersWords.resize(numStripClusters);
   
-        } // end loop on channels for this dtc
-      } // end fed data size > 0
-    } // end loop on 4 slink of this dtc  
+            std::vector<uint32_t> pixelClustersWords;
+            pixelClustersWords.resize(numPixelClusters);
+      
+            // create groups of 14 (17) bits for 2S (PS) clusters, joining consecutive lines if needed
+            int nAvailableBits = N_BITS_PER_WORD;
+            int iLine = 0;
+            int bitsToRead = 0;
+            int nFullClustersStrip = 0;
+            int nFullClustersPix = 0;
+            
+            readPayload(stripClustersWords, lines, numStripClusters, nAvailableBits, iLine, bitsToRead, nFullClustersStrip, SS_CLUSTER_BITS, SS_CLUSTER_WORD_MASK, false );
+            readPayload(pixelClustersWords, lines, numPixelClusters, nAvailableBits, iLine, bitsToRead, nFullClustersPix, PX_CLUSTER_BITS, PX_CLUSTER_WORD_MASK, true, nFullClustersStrip );
+            
+            // unpack the cluster words and create Phase2TrackerCluster1D objects
+            int count_clusters = 0;
+            if (is2SModule) {
+              // create the Phase2TrackerCluster1D objects for 2S modules
+              for (auto icluster : stripClustersWords){
+                std::pair<Phase2TrackerCluster1D, bool> thisCluster = unpack2S(icluster, iChannel);
+                if (thisCluster.second)
+                  thisChannel1DSeedClusters.push_back(thisCluster.first);
+                else  
+                  thisChannel1DCorrClusters.push_back(thisCluster.first);
+                count_clusters++;
+              } // end loop on cluster words 
+            } else {
+              // create the Phase2TrackerCluster1D objects for PS modules
+              // first loop on strip clusters
+              for (auto icluster : stripClustersWords){
+                Phase2TrackerCluster1D thisCluster = unpackStripOnPS(icluster, iChannel);
+                // for PS, strip is always correlated sensor
+                thisChannel1DCorrClusters.push_back(thisCluster);
+                count_clusters++; 
+              } 
+              // then loop on pixel clusters
+              for (auto icluster : pixelClustersWords){
+                Phase2TrackerCluster1D thisCluster = unpackPixelOnPS(icluster, iChannel);
+                // for PS, pixel is always seed sensor
+                thisChannel1DSeedClusters.push_back(thisCluster);
+                count_clusters++;
+              } 
+            }
+            
+            if (count_clusters == 0 ) continue;
+    
+            // use FastFiller to fill the output DetSetVector output collection
+            // fill every time that 2 channels are read
+            if (iChannel%2 != 1) 
+              continue;
+            
+            // Store clusters of this channel
+            std::vector<Phase2TrackerCluster1D>::iterator it;
+            {
+              // inner detid is defined as module detid + 1. First int in the pair from the map
+  //             std::cout << "\t\t -> detId:" <<  possibleDetIds->second << "  from map: " << stackMap_[possibleDetIds->second].first << std::endl;
+              edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcs(*outputClusterCollection, stackMap_[thisDetId].first);
+              for (it = thisChannel1DSeedClusters.begin(); it != thisChannel1DSeedClusters.end(); it++) {
+                spcs.push_back(*it);
+              }
+            }
+            {
+              // outer detid is defined as inner detid + 1 or module detid + 2. Second int in the pair from the map
+  //             std::cout << "\t\t -> detId:" <<  possibleDetIds->second << "  from map: " << stackMap_[possibleDetIds->second].second << std::endl;
+              edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcc(*outputClusterCollection, stackMap_[thisDetId].second);
+              for (it = thisChannel1DCorrClusters.begin(); it != thisChannel1DCorrClusters.end(); it++) {
+                spcc.push_back(*it);
+              }
+            }
+    
+          } // end loop on channels for this dtc
+        } // end fed data size > 0
+      } // end loop on 4 slink of this dtc  
+    } // end loop on dtcs  
     std::cout << "output cluster collection contains clusters from " << outputClusterCollection->size() << " channels" <<  std::endl;
     iEvent.put(std::move(outputClusterCollection));
 
