@@ -18,6 +18,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/DTCELinkId.h"
+#include "CondFormats/DataRecord/interface/TrackerDetToDTCELinkCablingMapRcd.h"
+
 #include "TTree.h"
 #include "TROOT.h"
 
@@ -40,9 +44,11 @@ private:
   virtual void endJob();
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd> cablingMapToken_;
   const edm::EDGetTokenT<Phase2TrackerCluster1DCollectionNew> token_;
   const TrackerTopology* tTopo_ = nullptr;
   const TrackerGeometry* tGeom_ = nullptr;
+  const TrackerDetToDTCELinkCablingMap* cablingMap_ = nullptr;
   std::map<int, std::pair<int, int>> stackMap_;
 
   edm::Service<TFileService> fs_;
@@ -61,20 +67,21 @@ private:
   float clusterGlobalY_;
   float clusterGlobalZ_;
 
-   bool isPSModulePixel_ ;
-   bool isPSModuleStrip_ ;
-   bool is2SModule_      ;
-  
+  bool isPSModulePixel_ ;
+  bool isPSModuleStrip_ ;
+  bool is2SModule_      ;
+
+  int dtcID_;  
 };
 
 Phase2TrackerDumpDigi::Phase2TrackerDumpDigi(const edm::ParameterSet& pset)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
+      cablingMapToken_(esConsumes<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd, edm::Transition::BeginRun>()),
       token_(consumes<Phase2TrackerCluster1DCollectionNew>(pset.getParameter<edm::InputTag>("ProductLabel"))) {
 
     // Initialize the log file
     logfile_.open("Phase2TrackerDumpDigi_output.txt");
-//     logfile_.open("Phase2TrackerDumpDigi_original_output.txt");
     if (!logfile_.is_open()) {
         throw cms::Exception("OutputFileError") << "Failed to open log file for writing.";
     }
@@ -91,6 +98,7 @@ void Phase2TrackerDumpDigi::beginJob ()
     outTree_ = fs_->make<TTree>("ClusterTree","ClusterTree");
 
     outTree_->Branch("detId", &detId_, "detId/i");
+    outTree_->Branch("dtcID", &dtcID_, "dtcID/i");
     outTree_->Branch("isPSModulePixel", &isPSModulePixel_, "isPSModulePixel/O");
     outTree_->Branch("isPSModuleStrip", &isPSModuleStrip_, "isPSModuleStrip/O");
     outTree_->Branch("is2SModule", &is2SModule_, "is2SModule/O");
@@ -116,6 +124,7 @@ void Phase2TrackerDumpDigi::endJob ()
 void Phase2TrackerDumpDigi::beginRun(edm::Run const& run, edm::EventSetup const& es) {
     tGeom_ = &es.getData(geomToken_);
     tTopo_ = &es.getData(topoToken_);
+    cablingMap_ = &es.getData(cablingMapToken_);
 }
 
 void Phase2TrackerDumpDigi::analyze(const edm::Event& event, const edm::EventSetup& es) {
@@ -125,22 +134,37 @@ void Phase2TrackerDumpDigi::analyze(const edm::Event& event, const edm::EventSet
   std::stringstream output;
   output << "size of clusters: " << clusters_handle.product()->size() << std::endl;
 
+  int count_clusters = 0;
   for (const auto& DSVItr : *clusters_handle) {
-//     output << "inside loop" << std::endl;
 
     uint32_t rawid(DSVItr.detId());
     DetId detId(rawid);
     const GeomDetUnit* geomDetUnit(tGeom_->idToDetUnit(detId));
     if (!geomDetUnit)
       continue;
-
+   
     detId_ = detId.rawId();
     isPSModulePixel_ = tGeom_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP;
     isPSModuleStrip_ = tGeom_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSS;
     is2SModule_      = tGeom_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2SS;
-    output << "detId: " << detId.rawId() << "  " ;
-    output << (isPSModulePixel_ ? "isPSModulePixel_" : (isPSModuleStrip_ ? "isPSModuleStrip_" : "is2SModule_")); 
-    output << std::endl;
+
+//     output << "detId: " << detId.rawId() << "  " ;
+//     output << (isPSModulePixel_ ? "isPSModulePixel_" : (isPSModuleStrip_ ? "isPSModuleStrip_" : "is2SModule_")); 
+//     output << std::endl;
+    
+    
+    if (cablingMap_->knowsDetId(detId_ -1 )){
+      auto equal_range = cablingMap_->detIdToDTCELinkId(detId_ - 1);
+      for (auto it = equal_range.first; it != equal_range.second; ++it){
+        dtcID_ = it->second.dtc_id();
+      }
+    }
+    else if (cablingMap_->knowsDetId(detId_ -2 )){
+      auto equal_range = cablingMap_->detIdToDTCELinkId(detId_ - 2);
+      for (auto it = equal_range.first; it != equal_range.second; ++it){
+          dtcID_ = it->second.dtc_id();
+      }
+    }
     
     for (const auto& clusterItr : DSVItr) {
       clusterCenter_ = clusterItr.center();
@@ -160,21 +184,23 @@ void Phase2TrackerDumpDigi::analyze(const edm::Event& event, const edm::EventSet
 
       clusterR_ = globalPosCluster.perp();
       clusterZ_ = globalPosCluster.z();
+      
+      if (clusterSize_ <=8 && dtcID_ == 30)
+        count_clusters++;
 
-      output << "\t cluster size / firstStrip / firstRow / col: " << 
-                 clusterSize_ << " / " << 
-                 clusterItr.firstStrip() << " / " << 
-                 clusterItr.firstRow() << " / " << 
-                 clusterCol_ << std::endl;
+//       output << "\t cluster size / firstStrip / firstRow / col: " << 
+//                    clusterSize_ << " / " << 
+//                    clusterItr.firstStrip() << " / " << 
+//                    clusterItr.firstRow() << " / " << 
+//                    clusterCol_ << std::endl;
 //       output << "\t cluster r position: " << globalPosCluster.perp() << std::endl;
 //       output << "\t cluster global z position: " << globalPosCluster.z() << std::endl;
 
       outTree_->Fill();  // Fill the tree with current cluster data
     }
+    
   }
-
   // Output to terminal and log file
-  std::cout << output.str();
   logfile_ << output.str();
 }
 
