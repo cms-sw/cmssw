@@ -259,6 +259,7 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   LogDebug("LSTOutputConverter") << "done with conversion: Track candidate output size = " << outputpTC.size()
                                  << " (p* objects) + " << outputT5TC.size() << " (T5 objects)";
+  std::vector<SeedStopInfo> outputSeedStopInfo(pixelSeeds.size());
   iEvent.emplace(trajectorySeedPutToken_, std::move(outputTS));
   iEvent.emplace(trajectorySeedpLSPutToken_, std::move(outputpLSTS));
   iEvent.emplace(trackCandidatePutToken_, std::move(outputTC));
@@ -267,7 +268,7 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.emplace(trackCandidateNopLSTCPutToken_, std::move(outputNopLSTC));
   iEvent.emplace(trackCandidatepTTCPutToken_, std::move(outputpTTC));
   iEvent.emplace(trackCandidatepLSTCPutToken_, std::move(outputpLSTC));
-  iEvent.emplace(seedStopInfoPutToken_, 0U);  //dummy stop info
+  iEvent.emplace(seedStopInfoPutToken_, std::move(outputSeedStopInfo));  //dummy stop info
 }
 
 DEFINE_FWK_MODULE(LSTOutputConverter);

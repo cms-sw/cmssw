@@ -173,11 +173,12 @@ void LSTEvent::addPixelSegmentToEvent(std::vector<unsigned int> const& hitIndice
   unsigned int size = ptIn.size();
 
   if (size > n_max_pixel_segments_per_module) {
-    printf(
-        "*********************************************************\n"
-        "* Warning: Pixel line segments will be truncated.       *\n"
-        "* You need to increase n_max_pixel_segments_per_module. *\n"
-        "*********************************************************\n");
+    lstWarning(
+        "\
+        *********************************************************\n\
+        * Warning: Pixel line segments will be truncated.       *\n\
+        * You need to increase n_max_pixel_segments_per_module. *\n\
+        *********************************************************");
     size = n_max_pixel_segments_per_module;
   }
 
@@ -714,12 +715,13 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
   auto nTrackCandidatesT5 = *nTrackCanT5Host_buf.data();
   if ((nTrackCandidatespT5 + nTrackCandidatespT3 + nTrackCandidatespLS == n_max_pixel_track_candidates) ||
       (nTrackCandidatesT5 == n_max_nonpixel_track_candidates)) {
-    printf(
-        "****************************************************************************************************\n"
-        "* Warning: Track candidates were possibly truncated.                                               *\n"
-        "* You may need to increase either n_max_pixel_track_candidates or n_max_nonpixel_track_candidates. *\n"
-        "* Run the code with the WARNINGS flag activated for more details.                                  *\n"
-        "****************************************************************************************************\n");
+    lstWarning(
+        "\
+        ****************************************************************************************************\n\
+        * Track candidates were possibly truncated.                                                        *\n\
+        * You may need to increase either n_max_pixel_track_candidates or n_max_nonpixel_track_candidates. *\n\
+        * Run the code with the WARNINGS flag activated for more details.                                  *\n\
+        ****************************************************************************************************");
   }
 }
 

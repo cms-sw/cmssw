@@ -31,8 +31,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                             float innerRadius,
                                                             float bridgeRadius,
                                                             float outerRadius,
-                                                            float regressionG,
-                                                            float regressionF,
+                                                            float regressionCenterX,
+                                                            float regressionCenterY,
                                                             float regressionRadius,
                                                             float rzChiSquared,
                                                             float rPhiChiSquared,
@@ -63,8 +63,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quintuplets.isDup()[quintupletIndex] = 0;
     quintuplets.tightCutFlag()[quintupletIndex] = tightCutFlag;
     quintuplets.regressionRadius()[quintupletIndex] = regressionRadius;
-    quintuplets.regressionG()[quintupletIndex] = regressionG;
-    quintuplets.regressionF()[quintupletIndex] = regressionF;
+    quintuplets.regressionCenterX()[quintupletIndex] = regressionCenterX;
+    quintuplets.regressionCenterY()[quintupletIndex] = regressionCenterY;
     quintuplets.logicalLayers()[quintupletIndex][0] = triplets.logicalLayers()[innerTripletIndex][0];
     quintuplets.logicalLayers()[quintupletIndex][1] = triplets.logicalLayers()[innerTripletIndex][1];
     quintuplets.logicalLayers()[quintupletIndex][2] = triplets.logicalLayers()[innerTripletIndex][2];
@@ -1456,8 +1456,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                float& innerRadius,
                                                                float& outerRadius,
                                                                float& bridgeRadius,
-                                                               float& regressionG,
-                                                               float& regressionF,
+                                                               float& regressionCenterX,
+                                                               float& regressionCenterY,
                                                                float& regressionRadius,
                                                                float& rzChiSquared,
                                                                float& chiSquared,
@@ -1597,8 +1597,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                     delta2,
                                                     slopes,
                                                     isFlat,
-                                                    regressionG,
-                                                    regressionF,
+                                                    regressionCenterX,
+                                                    regressionCenterY,
                                                     sigmas2,
                                                     chiSquared);
 
@@ -1633,8 +1633,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                             nonAnchorDelta2,
                                             nonAnchorSlopes,
                                             isFlat,
-                                            regressionG,
-                                            regressionF,
+                                            regressionCenterX,
+                                            regressionCenterY,
                                             regressionRadius);
     return true;
   }
@@ -1681,8 +1681,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             uint16_t lowerModule4 = triplets.lowerModuleIndices()[outerTripletIndex][1];
             uint16_t lowerModule5 = triplets.lowerModuleIndices()[outerTripletIndex][2];
 
-            float innerRadius, outerRadius, bridgeRadius, regressionG, regressionF, regressionRadius, rzChiSquared,
-                chiSquared, nonAnchorChiSquared, dBeta1, dBeta2;  //required for making distributions
+            float innerRadius, outerRadius, bridgeRadius, regressionCenterX, regressionCenterY, regressionRadius,
+                rzChiSquared, chiSquared, nonAnchorChiSquared, dBeta1, dBeta2;  //required for making distributions
 
             bool tightCutFlag = false;
             bool success = runQuintupletDefaultAlgo(acc,
@@ -1700,8 +1700,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                     innerRadius,
                                                     outerRadius,
                                                     bridgeRadius,
-                                                    regressionG,
-                                                    regressionF,
+                                                    regressionCenterX,
+                                                    regressionCenterY,
                                                     regressionRadius,
                                                     rzChiSquared,
                                                     chiSquared,
@@ -1748,8 +1748,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                         innerRadius,
                                         bridgeRadius,
                                         outerRadius,
-                                        regressionG,
-                                        regressionF,
+                                        regressionCenterX,
+                                        regressionCenterY,
                                         regressionRadius,
                                         rzChiSquared,
                                         chiSquared,

@@ -24,8 +24,8 @@ namespace lst {
                       SOA_COLUMN(bool, tightCutFlag),  // tight pass to be a TC
                       SOA_COLUMN(bool, partOfPT5),
                       SOA_COLUMN(float, regressionRadius),
-                      SOA_COLUMN(float, regressionG),
-                      SOA_COLUMN(float, regressionF),
+                      SOA_COLUMN(float, regressionCenterX),
+                      SOA_COLUMN(float, regressionCenterY),
                       SOA_COLUMN(float, rzChiSquared),  // r-z only chi2
                       SOA_COLUMN(float, chiSquared),
                       SOA_COLUMN(float, nonAnchorChiSquared),
