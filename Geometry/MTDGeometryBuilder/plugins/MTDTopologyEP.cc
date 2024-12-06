@@ -27,7 +27,7 @@ public:
   ReturnType produce(const MTDTopologyRcd&);
 
 private:
-  void fillBTLtopology(const MTDGeometry&, MTDTopology::BTLValues&) {};
+  void fillBTLtopology(const MTDGeometry&, MTDTopology::BTLValues&);
   void fillETLtopology(const PMTDParameters&, int& mtdTopologyMode, MTDTopology::ETLValues&);
 
   edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
@@ -50,11 +50,36 @@ MTDTopologyEP::ReturnType MTDTopologyEP::produce(const MTDTopologyRcd& iRecord) 
   MTDTopology::BTLValues btlVals;
   MTDTopology::ETLValues etlVals;
 
+  // build BTL topology content from MTDGeometry
+
   fillBTLtopology(iRecord.get(mtdgeoToken_), btlVals);
+
+  // build ETL topology and topology mode information from PMTDParameters
 
   fillETLtopology(iRecord.get(mtdparToken_), mtdTopologyMode, etlVals);
 
   return std::make_unique<MTDTopology>(mtdTopologyMode, btlVals, etlVals);
+}
+
+void MTDTopologyEP::fillBTLtopology(const MTDGeometry& mtdgeo, MTDTopology::BTLValues& btlVals) {
+  MTDTopology::BTLLayout tmpLayout;
+  uint32_t index(0), iphi(1), ieta(0);
+  if (mtdgeo.detsBTL().size() != tmpLayout.nBTLmodules_) {
+    throw cms::Exception("MTDTopologyEP") << "Inconsistent size of BTL structure arrays";
+  }
+  for (const auto& det : mtdgeo.detsBTL()) {
+    ieta++;
+
+    tmpLayout.btlDetId_[index] = det->geographicalId().rawId();
+    tmpLayout.btlPhi_[index] = iphi;
+    tmpLayout.btlEta_[index] = ieta;
+    if (ieta == tmpLayout.nBTLeta_) {
+      iphi++;
+      ieta = 0;
+    }
+    index++;
+  }
+  btlVals = tmpLayout;
 }
 
 void MTDTopologyEP::fillETLtopology(const PMTDParameters& ptp, int& mtdTopologyMode, MTDTopology::ETLValues& etlVals) {

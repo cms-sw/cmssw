@@ -8,28 +8,94 @@ MTDTopology::MTDTopology(const int& topologyMode, const BTLValues& btl, const ET
     : mtdTopologyMode_(topologyMode), btlVals_(btl), etlVals_(etl) {}
 
 std::pair<uint32_t, uint32_t> MTDTopology::btlIndex(const uint32_t detId) {
-  uint32_t iphi(0), ieta(0);
-  return std::make_pair(iphi, ieta);
+  size_t index(0);
+  bool found(false);
+  for (const auto& theid : btlVals_.btlDetId_) {
+    if (theid == detId) {
+      found = true;
+      break;
+    }
+    index++;
+  }
+  if (found) {
+    return std::make_pair(btlVals_.btlPhi_[index], btlVals_.btlEta_[index]);
+  } else {
+    edm::LogWarning("MTDTopology") << "Searching BTL topology for BTLDetId " << detId
+                                   << " not in BTL geometry structure";
+    return std::make_pair(std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max());
+  }
 }
 
-uint32_t MTDTopology::btlidFromIndex(const uint32_t iphi, const uint32_t ieta) { return 0; }
+uint32_t MTDTopology::btlidFromIndex(const uint32_t iphi, const uint32_t ieta) {
+  uint32_t res(0);
+  for (uint32_t index = 0; index < btlVals_.nBTLmodules_; index++) {
+    if (iphi == btlVals_.btlPhi_[index] && ieta == btlVals_.btlEta_[index]) {
+      res = btlVals_.btlDetId_[index];
+      break;
+    }
+    index++;
+  }
+  return res;
+}
 
-size_t MTDTopology::phishiftBTL(const uint32_t detid, const int phiShift) {
+uint32_t MTDTopology::phishiftBTL(const uint32_t detid, const int phiShift) {
   if (phiShift == 0) {
     edm::LogWarning("MTDTopology") << "asking of a null phiShift in BTL";
     return failIndex_;
   }
-
-  return failIndex_;
+  // search for the next detector, check only sign from input
+  int sh = phiShift > 0 ? 1 : -1;
+  size_t index(0);
+  bool found(false);
+  for (const auto& theid : btlVals_.btlDetId_) {
+    if (theid == detid) {
+      found = true;
+      break;
+    }
+    index++;
+  }
+  if (found) {
+    int newIndex = index + sh * btlVals_.nBTLeta_;
+    if (newIndex > static_cast<int>(btlVals_.nBTLmodules_)) {
+      newIndex = newIndex - btlVals_.nBTLmodules_;
+    } else if (newIndex < 1) {
+      newIndex = newIndex + btlVals_.nBTLmodules_;
+    }
+    return newIndex;
+  } else {
+    edm::LogWarning("MTDTopology") << "Searching for non existent BTLDetId " << detid;
+    return failIndex_;
+  }
 }
 
-size_t MTDTopology::etashiftBTL(const uint32_t detid, const int etaShift) {
+uint32_t MTDTopology::etashiftBTL(const uint32_t detid, const int etaShift) {
   if (etaShift == 0) {
     edm::LogWarning("MTDTopology") << "asking of a null etaShift in BTL";
     return failIndex_;
   }
-
-  return failIndex_;
+  // search for the next detector, check only sign from input
+  int sh = etaShift > 0 ? 1 : -1;
+  size_t index(0);
+  bool found(false);
+  for (const auto& theid : btlVals_.btlDetId_) {
+    if (theid == detid) {
+      found = true;
+      break;
+    }
+    index++;
+  }
+  if (found) {
+    int newIndex = index + sh;
+    if (newIndex < 1 || newIndex > static_cast<int>(btlVals_.nBTLmodules_)) {
+      return failIndex_;
+    } else if (btlVals_.btlEta_[newIndex] != btlVals_.btlEta_[index]) {
+      return failIndex_;
+    }
+    return newIndex;
+  } else {
+    edm::LogWarning("MTDTopology") << "Searching for non existent BTLDetId " << detid;
+    return failIndex_;
+  }
 }
 
 bool MTDTopology::orderETLSector(const GeomDet*& gd1, const GeomDet*& gd2) {
