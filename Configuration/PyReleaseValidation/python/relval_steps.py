@@ -2936,14 +2936,18 @@ step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                   '--era'          :'Run2_2016'
                   }
 
-step3_pixel_ntuplet_cpu = {
-    '--procModifiers': 'pixelNtupletFit'
+step3_alpaka_cpu = {
+    '--procModifiers': 'alpaka',
+    '--accelerators' : 'cpu'
 }
-step3_pixel_ntuplet_gpu = {
-    '--procModifiers': 'alpaka'
+step3_alpaka_gpu = {
+    '--procModifiers': 'alpaka',
+    '--accelerators' : '*' ## redundant, here just for readability
 }
-step3_pixel_ntuplet_gpu_validation = {
-    '--procModifiers': 'alpaka,alpakaValidation'
+
+step3_alpaka_gpu_validation = {
+    '--procModifiers': 'alpaka,alpakaValidation',
+    '--accelerators' : 'gpu*'
 }
 step3_pixel_triplets = {
     '--customise': 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
@@ -2954,9 +2958,14 @@ step3_pixel_profiling = {
 step3_pixel_triplets_profiling = {
     '--customise': 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
 }
-step3_gpu = {
-    '--procModifiers': 'alpaka',
+step3_ecal_profiling = {
+    '--customise': 'RecoLocalCalo/Configuration/customizeEcalOnlyForProfiling.customizeEcalOnlyForProfilingGPUOnly'
 }
+step3_hcal_profiling = {
+    '--customise': 'RecoLocalCalo/Configuration/customizeHcalOnlyForProfiling.customizeHcalOnlyForProfilingGPUOnly'
+}
+
+
 step3_trackingLowPU = {
     '--era': 'Run2_2016_trackingLowPU'
 }
@@ -3165,23 +3174,45 @@ steps['RECODR3_reHLT_MinBiasOffline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALC
 steps['RECODR3_reHLT_ZBOffline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign+HcalCalIsoTrkProducerFilter,DQM:@rerecoZeroBias+@miniAODDQM','--procModifiers':'siPixelQualityRawToDigi'},steps['RECODR3_reHLT_2022']])
 steps['RECODR3_reHLT_HLTPhysics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:TkAlMinBias+HcalCalIterativePhiSym+HcalCalIsoTrkProducerFilter+HcalCalHO+HcalCalHBHEMuonProducerFilter,DQM:@commonReduced+@miniAODDQM','--procModifiers':'siPixelQualityRawToDigi'},steps['RECODR3_reHLT_2022']])
 steps['RECODR3_reHLT_AlCaTkCosmics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:EXONoBPTXSkim,PAT,ALCA:TkAlCosmicsInCollisions,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR3_reHLT_2022']])
-steps['RECODR3_reHLT_pixelTrackingOnly']=merge([{'-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,DQM:@pixelTrackingOnlyDQM'},steps['RECODR3_reHLT_2023']])
-steps['RECODR3_reHLT_Patatrack_PixelOnlyCPU']=merge([step3_pixel_ntuplet_cpu, steps['RECODR3_reHLT_pixelTrackingOnly']])
-steps['RECODR3_reHLT_Patatrack_PixelOnlyGPU']=merge([step3_pixel_ntuplet_gpu, steps['RECODR3_reHLT_pixelTrackingOnly']])
-steps['RECODR3_reHLT_Patatrack_PixelOnlyGPUValidation']=merge([{'--accelerators':'gpu-nvidia'},step3_pixel_ntuplet_gpu_validation,steps['RECODR3_reHLT_Patatrack_PixelOnlyGPU']])
-steps['RECODR3_reHLT_Patatrack_PixelOnlyGPUProfiling']=merge([{'-s':'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly','--customise':'RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'},steps['RECODR3_reHLT_Patatrack_PixelOnlyGPU']])
-steps['RECODR3_reHLT_Patatrack_PixelOnlyTripletsCPU']=merge([step3_pixel_ntuplet_cpu, step3_pixel_triplets, steps['RECODR3_reHLT_pixelTrackingOnly']])
-steps['RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPU']=merge([step3_pixel_ntuplet_gpu, step3_pixel_triplets, steps['RECODR3_reHLT_pixelTrackingOnly']])
-steps['RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPUValidation']=merge([{'--accelerators':'gpu-nvidia'},step3_pixel_ntuplet_gpu_validation,steps['RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPU']])
-steps['RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPUProfiling']=merge([{'-s':'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly','--customise':'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'},steps['RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPU']])
-steps['RECODR3_reHLT_ECALOnlyCPU']=merge([{'-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,DQM:@ecalOnly'},steps['RECODR3_reHLT_2023']])
-steps['RECODR3_reHLT_ECALOnlyGPU']=merge([step3_gpu, steps['RECODR3_reHLT_ECALOnlyCPU']])
-steps['RECODR3_reHLT_ECALOnlyGPUValidation']=merge([{'--accelerators':'gpu-nvidia','--procModifiers':'gpuValidation'},steps['RECODR3_reHLT_ECALOnlyGPU']])
-steps['RECODR3_reHLT_ECALOnlyGPUProfiling']=merge([{'-s':'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly', '--customise':'RecoLocalCalo/Configuration/customizeEcalOnlyForProfiling.customizeEcalOnlyForProfilingGPUOnly'},steps['RECODR3_reHLT_ECALOnlyGPU']])
-steps['RECODR3_reHLT_HCALOnlyCPU']=merge([{'-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,DQM:@hcalOnly+@hcal2Only'},steps['RECODR3_reHLT_2023']])
-steps['RECODR3_reHLT_HCALOnlyGPU']=merge([step3_gpu, steps['RECODR3_reHLT_HCALOnlyCPU']])
-steps['RECODR3_reHLT_HCALOnlyGPUValidation']=merge([{'--accelerators':'gpu-nvidia','--procModifiers':'gpuValidation'},steps['RECODR3_reHLT_HCALOnlyGPU']])
-steps['RECODR3_reHLT_HCALOnlyGPUProfiling']=merge([{'-s':'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly','--customise':'RecoLocalCalo/Configuration/customizeHcalOnlyForProfiling.customizeHcalOnlyForProfilingGPUOnly'},steps['RECODR3_reHLT_HCALOnlyGPU']])
+
+######################################################
+###### Single detector wfs (pixel,ECAL,HCAL)
+
+### Pixel Only wfs
+## Legacy wf (CPUs)
+steps['RECODR3_reHLT_pixelTrackingOnly']=merge([{'-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,DQM:@pixelTrackingOnlyDQM'}, steps['RECODR3_reHLT_2023']])
+steps['RECODR3_reHLT_pixelTrackingOnlyProfiling']=merge([{'-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly'}, steps['RECODR3_reHLT_2023']])
+## Alpaka Quadruplets Wfs
+steps['RECODR3_reHLT_Alpaka_PixelOnlyCPU']=merge([step3_alpaka_cpu, steps['RECODR3_reHLT_pixelTrackingOnly']])
+steps['RECODR3_reHLT_Alpaka_PixelOnlyGPU']=merge([step3_alpaka_gpu, steps['RECODR3_reHLT_pixelTrackingOnly']])
+steps['RECODR3_reHLT_Alpaka_PixelOnlyGPUValidation']=merge([step3_alpaka_gpu_validation,steps['RECODR3_reHLT_Alpaka_PixelOnlyGPU']])
+steps['RECODR3_reHLT_Alpaka_PixelOnlyGPUProfiling']=merge([step3_alpaka_gpu, step3_pixel_profiling, steps['RECODR3_reHLT_pixelTrackingOnlyProfiling']])
+## Alpaka Triplets Wfs
+steps['RECODR3_reHLT_Alpaka_PixelOnlyTripletsCPU']=merge([step3_alpaka_cpu, step3_pixel_triplets, steps['RECODR3_reHLT_pixelTrackingOnly']])
+steps['RECODR3_reHLT_Alpaka_PixelOnlyTripletsGPU']=merge([step3_alpaka_gpu, step3_pixel_triplets, steps['RECODR3_reHLT_pixelTrackingOnly']])
+steps['RECODR3_reHLT_Alpaka_PixelOnlyTripletsGPUValidation']=merge([step3_alpaka_gpu_validation,steps['RECODR3_reHLT_Alpaka_PixelOnlyTripletsGPU']])
+steps['RECODR3_reHLT_Alpaka_PixelOnlyTripletsGPUProfiling']=merge([step3_alpaka_gpu, step3_pixel_triplets_profiling, steps['RECODR3_reHLT_pixelTrackingOnlyProfiling']])
+
+### ECAL Only
+## Legacy wfs (CPU)
+steps['RECODR3_reHLT_ECALOnly']=merge([{'-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,DQM:@ecalOnly'}, steps['RECODR3_reHLT_2023']])
+steps['RECODR3_reHLT_ECALOnlyProfiling']=merge([{'-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly'}, steps['RECODR3_reHLT_2023']])
+## Alpaka 
+steps['RECODR3_reHLT_Alpaka_ECALOnlyCPU']=merge([step3_alpaka_cpu, steps['RECODR3_reHLT_ECALOnly']])
+steps['RECODR3_reHLT_Alpaka_ECALOnlyGPU']=merge([step3_alpaka_gpu, steps['RECODR3_reHLT_ECALOnly']])
+steps['RECODR3_reHLT_Alpaka_ECALOnlyGPUValidation']=merge([step3_alpaka_gpu_validation, steps['RECODR3_reHLT_Alpaka_ECALOnlyGPU']])
+steps['RECODR3_reHLT_Alpaka_ECALOnlyGPUProfiling']=merge([step3_ecal_profiling, steps['RECODR3_reHLT_ECALOnlyProfiling'], steps['RECODR3_reHLT_Alpaka_ECALOnlyGPU']])
+
+### HCAL Only
+## Legacy wfs (CPU)
+steps['RECODR3_reHLT_HCALOnly']=merge([{'-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,DQM:@hcalOnly+@hcal2Only'}, steps['RECODR3_reHLT_2023']])
+steps['RECODR3_reHLT_HCALOnlyProfiling']=merge([{'-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly'}, steps['RECODR3_reHLT_2023']])
+## Alpaka 
+steps['RECODR3_reHLT_Alpaka_HCALOnlyCPU']=merge([step3_alpaka_cpu, steps['RECODR3_reHLT_HCALOnly']])
+steps['RECODR3_reHLT_Alpaka_HCALOnlyGPU']=merge([step3_alpaka_gpu, steps['RECODR3_reHLT_HCALOnly']])
+steps['RECODR3_reHLT_Alpaka_HCALOnlyGPUValidation']=merge([step3_alpaka_gpu_validation, steps['RECODR3_reHLT_Alpaka_HCALOnlyGPU']])
+steps['RECODR3_reHLT_Alpaka_HCALOnlyGPUProfiling']=merge([step3_hcal_profiling, steps['RECODR3_reHLT_HCALOnlyProfiling'], steps['RECODR3_reHLT_Alpaka_HCALOnlyGPU']])
+######################################################
 
 steps['RECONANORUN3_reHLT_2022']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@standardDQMFakeHLT+@miniAODDQM+@nanoAODDQM','--datatier':'RECO,MINIAOD,NANOAOD,DQMIO','--eventcontent':'RECO,MINIAOD,NANOEDMAOD,DQM'},steps['RECODR3_reHLT_2022']])
 steps['RECONANORUN3_ZB_reHLT_2022']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@rerecoZeroBiasFakeHLT+@miniAODDQM+@nanoAODDQM'},steps['RECONANORUN3_reHLT_2022']])
@@ -3204,16 +3235,16 @@ steps['RECONANORUN3_reHLT_2024']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM
 steps['RECONANORUN3_ZB_reHLT_2024']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@rerecoZeroBias+@miniAODDQM+@nanoAODDQM'},steps['RECONANORUN3_reHLT_2024']])
 steps['AODNANORUN3_reHLT_2024']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM','--datatier':'AOD,MINIAOD,NANOAOD,DQMIO','--eventcontent':'AOD,MINIAOD,NANOEDMAOD,DQM'},steps['RECODR3_reHLT_2024']])
 
-# patatrack validation in data
-steps['RecoData_Patatrack_AllGPU_Validation_2023'] = merge([{'-s':'RAW2DIGI:RawToDigi_pixelOnly+RawToDigi_ecalOnly+RawToDigi_hcalOnly,RECO:reconstruction_pixelTrackingOnly+reconstruction_ecalOnly+reconstruction_hcalOnly,DQM:@pixelTrackingOnlyDQM+@ecalOnly+@hcalOnly+@hcal2Only',
+# Patatrack Alpaka validation in data
+steps['RecoData_Alpaka_AllGPU_Validation_2023'] = merge([{'-s':'RAW2DIGI:RawToDigi_pixelOnly+RawToDigi_ecalOnly+RawToDigi_hcalOnly,RECO:reconstruction_pixelTrackingOnly+reconstruction_ecalOnly+reconstruction_hcalOnly,DQM:@pixelTrackingOnlyDQM+@ecalOnly+@hcalOnly+@hcal2Only',
                                                              '--conditions':'auto:run3_data_prompt',
                                                              '--datatier':'RECO,MINIAOD,DQMIO',
                                                              '-n':'100',
                                                              '--eventcontent':'RECO,MINIAOD,DQM',
                                                              '--geometry':'DB:Extended',
                                                              '--era':'Run3',
-                                                             '--accelerators': 'gpu-nvidia',
-                                                             '--procModifiers':'pixelNtupletFit,gpuValidation'},dataReco])
+                                                             '--accelerators': 'gpu-*',
+                                                             '--procModifiers':'alpakaValidation'},dataReco])
 
 # Run-3 2022 skim
 for s in autoSkim.keys():
@@ -3387,13 +3418,13 @@ steps['RECOHI2023PPRECOMB']=merge([hiDefaults2023_ppReco,{'-s':'RAW2DIGI,L1Reco,
                                                           '--era':'Run3_pp_on_PbPb_2023',
                                                           '--procModifiers':'genJetSubEvent',
                                                         },step3Up2015Defaults])
-steps['RECOHI2023PPRECOMB_PatatrackGPU']=merge([hiDefaults2023_ppReco,step3_pixel_ntuplet_gpu,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+steps['RECOHI2023PPRECOMB_AlpakaGPU']=merge([hiDefaults2023_ppReco,step3_alpaka_gpu,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                                           '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                                           '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
                                                           '--era':'Run3_pp_on_PbPb',
                                                           '--procModifiers':'genJetSubEvent',
                                                         },step3Up2015Defaults])
-steps['RECOHI2023PPRECOMB_PatatrackCPU']=merge([hiDefaults2023_ppReco,step3_pixel_ntuplet_cpu,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+steps['RECOHI2023PPRECOMB_AlpakaCPU']=merge([hiDefaults2023_ppReco,step3_alpaka_cpu,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                                           '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                                           '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
                                                           '--era':'Run3_pp_on_PbPb',
@@ -4007,7 +4038,7 @@ steps['HARVESTRUN3_ECALOnlyGPUValidation'] = merge([ {'--procModifiers':'gpuVali
 steps['HARVESTRUN3_HCALOnly'] = merge([ {'-s':'HARVESTING:@hcalOnly'}, steps['HARVESTRUN3_2023']])
 steps['HARVESTRUN3_HCALOnlyGPUValidation'] = merge([ {'--procModifiers':'gpuValidation'}, steps['HARVESTRUN3_HCALOnly']])
 
-steps['HARVESTData_Patatrack_AllGPU_Validation_2023'] = merge([{'--data':'',
+steps['HARVESTData_Alpaka_AllGPU_Validation_2023'] = merge([{'--data':'',
                                                                 '-s':'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only',
                                                                 '--conditions':'auto:run3_data_prompt',
                                                                 '--geometry':'DB:Extended',
