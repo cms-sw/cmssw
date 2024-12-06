@@ -4,18 +4,19 @@ from PhysicsTools.NanoAOD.common_cff import *
 
 from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi import *
-from DPGAnalysis.MuonTools.hlt_nano_phase2_muon_trig_cff import *
+from DPGAnalysis.MuonTools.nano_mu_hlt_cff import *
 
 
-hltMuDPGNanoProducer = cms.Sequence(
+hltMuNanoProducer = cms.Sequence(
     prunedGenParticles + finalGenParticles + genParticleTable + hltMuonTriggerProducers
 )
 
 
-def hltMuDPGNanoCustomize(process):
+def hltMuNanoCustomize(process):
 
     if hasattr(process, "NANOAODSIMoutput"):
         process.prunedGenParticles.src = "genParticles"
+        process.genParticleTable.externalVariables = cms.PSet() # remove iso as external variable from PhysicsTools/NanoAOD/python/genparticles_cff.py:37 (hopefully temporarily)
         process.NANOAODSIMoutput.outputCommands.append(
             "keep nanoaodFlatTable_*Table*_*_*"
         )
