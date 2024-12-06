@@ -334,9 +334,8 @@ namespace lst {
         host_moduleType[index] = (m_t == 25 ? lst::TwoS : lst::PS);
         host_moduleLayerType[index] = (m_t == 23 ? lst::Pixel : lst::Strip);
 
-        if (host_moduleType[index] == lst::PS and host_moduleLayerType[index] == lst::Pixel) {
-          host_isAnchor[index] = true;
-        } else if (host_moduleType[index] == lst::TwoS and host_isLower[index]) {
+        if ((host_moduleType[index] == lst::PS and host_moduleLayerType[index] == lst::Pixel) ||
+            (host_moduleType[index] == lst::TwoS and host_isLower[index])) {
           host_isAnchor[index] = true;
         } else {
           host_isAnchor[index] = false;

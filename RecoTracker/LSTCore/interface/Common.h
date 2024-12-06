@@ -1,8 +1,8 @@
 #ifndef RecoTracker_LSTCore_interface_Common_h
 #define RecoTracker_LSTCore_interface_Common_h
 
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "DataFormats/Common/interface/StdArray.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 #if defined(FP16_Base)
 #if defined ALPAKA_ACC_GPU_CUDA_ENABLED

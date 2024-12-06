@@ -37,9 +37,6 @@ numWFIB.extend([31234.0]) #Run4D114
 numWFIB.extend([32034.0]) #Run4D115
 numWFIB.extend([32434.0]) #Run4D116
 
-# Temporary placement for LST workflow to workaround PR conflicts - to be formatted and placed in an upcoming PR
-numWFIB.extend([24834.703]) #Run4D98 LST tracking (initialStep+HighPtTripletStep only)
-
 #Additional sample for short matrix and IB
 #Default Phase-2 Det NoPU
 numWFIB.extend([prefixDet+34.911]) #DD4hep XML
@@ -47,6 +44,7 @@ numWFIB.extend([prefixDet+34.702]) #mkFit tracking (initialStep)
 numWFIB.extend([prefixDet+34.5])   #pixelTrackingOnly
 numWFIB.extend([prefixDet+34.9])   #vector hits
 numWFIB.extend([prefixDet+34.402]) #Alpaka local reconstruction offloaded on device (GPU if available)
+numWFIB.extend([prefixDet+34.703]) #LST tracking on CPU (initialStep+HighPtTripletStep only)
 numWFIB.extend([prefixDet+34.21])  #prodlike
 numWFIB.extend([prefixDet+96.0])   #CloseByPGun CE_E_Front_120um
 numWFIB.extend([prefixDet+100.0])  #CloseByPGun CE_H_Coarse_Scint
@@ -60,6 +58,7 @@ numWFIB.extend([prefixDet+234.999])  #premixing combined stage1+stage2 ttbar+PU5
 numWFIB.extend([prefixDet+234.21])   #prodlike PU
 numWFIB.extend([prefixDet+234.9921]) #prodlike premix stage1+stage2
 numWFIB.extend([prefixDet+234.114])  #PU, with 10% OT inefficiency
+numWFIB.extend([prefixDet+234.703])  #LST tracking on CPU (initialStep+HighPtTripletStep only)
 #
 numWFIB.extend([24834.911]) #D98 XML, to monitor instability of DD4hep
 for numWF in numWFIB:

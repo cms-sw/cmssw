@@ -56,27 +56,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return dPhi;
   }
 
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE int binary_search(const unsigned int* data,  // Array that we are searching over
-                                                        unsigned int search_val,  // Value we want to find in data array
-                                                        unsigned int ndata)       // Number of elements in data array
-  {
-    unsigned int low = 0;
-    unsigned int high = ndata - 1;
-
-    while (low <= high) {
-      unsigned int mid = (low + high) / 2;
-      unsigned int test_val = data[mid];
-      if (test_val == search_val)
-        return mid;
-      else if (test_val > search_val)
-        high = mid - 1;
-      else
-        low = mid + 1;
-    }
-    // Couldn't find search value in array.
-    return -1;
-  }
-
   struct ModuleRangesKernel {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
@@ -129,13 +108,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             ((ihit_z > 0) - (ihit_z < 0)) *
             alpaka::math::acosh(
                 acc, alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y + ihit_z * ihit_z) / hits.rts()[ihit]);
-        int found_index = binary_search(modules.mapdetId(), iDetId, nModules);
+        auto found_pointer = std::lower_bound(modules.mapdetId(), modules.mapdetId() + nModules, iDetId);
+        int found_index = std::distance(modules.mapdetId(), found_pointer);
+        if (found_pointer == modules.mapdetId() + nModules)
+          found_index = -1;
         uint16_t lastModuleIndex = modules.mapIdx()[found_index];
 
         hits.moduleIndices()[ihit] = lastModuleIndex;
 
         if (modules.subdets()[lastModuleIndex] == Endcap && modules.moduleType()[lastModuleIndex] == TwoS) {
-          found_index = binary_search(geoMapDetId, iDetId, nEndCapMap);
+          found_pointer = std::lower_bound(geoMapDetId, geoMapDetId + nEndCapMap, iDetId);
+          found_index = std::distance(geoMapDetId, found_pointer);
+          if (found_pointer == geoMapDetId + nEndCapMap)
+            found_index = -1;
           float phi = geoMapPhi[found_index];
           float cos_phi = alpaka::math::cos(acc, phi);
           hits.highEdgeXs()[ihit] = ihit_x + 2.5f * cos_phi;
