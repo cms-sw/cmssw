@@ -100,8 +100,8 @@ HGCalTestCellArea::HGCalTestCellArea(const edm::ParameterSet &iC)
               int cellV = std::atoi(items[7].c_str());
               id = static_cast<DetId>(HGCSiliconDetId(det, zside, type, layer, waferU, waferV, cellU, cellV));
               detIds_.emplace_back(id, pos);
-	    }
-	  }
+            }
+          }
         }
       }
       fInput.close();
@@ -109,7 +109,8 @@ HGCalTestCellArea::HGCalTestCellArea(const edm::ParameterSet &iC)
   }
   edm::LogVerbatim("HGCGeom") << "Reads " << detIds_.size() << " ID's from " << fileName_;
   for (unsigned int k = 0; k < detIds_.size(); ++k) {
-    edm::LogVerbatim("HGCGeom") << "[" << k << "] " << HGCSiliconDetId(detIds_[k].first) << " from DDConstant " << (detIds_[k].second);
+    edm::LogVerbatim("HGCGeom") << "[" << k << "] " << HGCSiliconDetId(detIds_[k].first) << " from DDConstant "
+                                << (detIds_[k].second);
   }
 }
 
@@ -151,7 +152,9 @@ void HGCalTestCellArea::beginRun(edm::Run const &iRun, edm::EventSetup const &iS
   for (unsigned int k = 0; k < detIds_.size(); ++k) {
     const HGCalDDDConstants *cons = hgcCons_[detMap[(detIds_[k].first).det()]];
     HGCSiliconDetId id(detIds_[k].first);
-    edm::LogVerbatim("HGCGeom") << "Hit[" << k << "] " << id << " Area " << cons->cellArea(id, false) << " Valid " << cons->isValidHex8(id.layer(), id.waferU(), id.waferV(), id.cellU(), id.cellV(), true);
+    edm::LogVerbatim("HGCGeom") << "Hit[" << k << "] " << id << " Area " << cons->cellArea(id, false) << " Valid "
+                                << cons->isValidHex8(
+                                       id.layer(), id.waferU(), id.waferV(), id.cellU(), id.cellV(), true);
   }
 }
 
