@@ -1,34 +1,28 @@
-// -*- C++ -*-
-//
-// Package:    SeedToTrackProducer
-// Class:      SeedToTrackProducer
-//
-/**\class SeedToTrackProducer SeedToTrackProducer.cc
- hugues/SeedToTrackProducer/plugins/SeedToTrackProducer.cc
+/** \class SeedToTrackProducerBase
+ *  
+ *  See header file for a description of the class
+ * 
+ *  \author  Hugues Brun 
+ */
 
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Hugues Brun
-//         Created:  Tue, 05 Nov 2013 13:42:04 GMT
-// $Id$
-//
-//
-
-#include "SeedToTrackProducer.h"
+#include "SimMuon/MCTruth/plugins/SeedToTrackProducerBase.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeed.h"
+
+template class SeedToTrackProducerBase<std::vector<TrajectorySeed>>;
+template class SeedToTrackProducerBase<std::vector<L2MuonTrajectorySeed>>;
+
 //
 // constructors and destructor
 //
-SeedToTrackProducer::SeedToTrackProducer(const edm::ParameterSet &iConfig)
+template <typename SeedCollection>
+SeedToTrackProducerBase<SeedCollection>::SeedToTrackProducerBase(const edm::ParameterSet &iConfig)
     : theMGFieldToken(esConsumes()), theTrackingGeometryToken(esConsumes()), theTopoToken(esConsumes()) {
-  L2seedsTagT_ = consumes<TrajectorySeedCollection>(iConfig.getParameter<edm::InputTag>("L2seedsCollection"));
+  L2seedsTagT_ = consumes<SeedCollection>(iConfig.getParameter<edm::InputTag>("L2seedsCollection"));
   L2seedsTagS_ = consumes<edm::View<TrajectorySeed>>(iConfig.getParameter<edm::InputTag>("L2seedsCollection"));
 
   produces<reco::TrackCollection>();
@@ -41,7 +35,10 @@ SeedToTrackProducer::SeedToTrackProducer(const edm::ParameterSet &iConfig)
 //
 
 // ------------ method called to produce the data  ------------
-void SeedToTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
+template <typename SeedCollection>
+void SeedToTrackProducerBase<SeedCollection>::produce(edm::StreamID,
+                                                      edm::Event &iEvent,
+                                                      const edm::EventSetup &iSetup) const {
   using namespace edm;
   using namespace std;
 
@@ -63,13 +60,13 @@ void SeedToTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::
   const TrackerTopology &ttopo = iSetup.getData(theTopoToken);
 
   // now read the L2 seeds collection :
-  edm::Handle<TrajectorySeedCollection> L2seedsCollection;
+  edm::Handle<SeedCollection> L2seedsCollection;
   iEvent.getByToken(L2seedsTagT_, L2seedsCollection);
-  const std::vector<TrajectorySeed> *L2seeds = nullptr;
+  const std::vector<SeedType> *L2seeds = nullptr;
   if (L2seedsCollection.isValid())
     L2seeds = L2seedsCollection.product();
   else
-    edm::LogError("SeedToTrackProducer") << "L2 seeds collection not found !! " << endl;
+    edm::LogError("SeedToTrackProducerBase") << "L2 seeds collection not found !! " << endl;
 
   edm::Handle<edm::View<TrajectorySeed>> seedHandle;
   iEvent.getByToken(L2seedsTagS_, seedHandle);
@@ -82,13 +79,13 @@ void SeedToTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::
     float seedPhi = theTrajectory.globalMomentum().phi();
     float seedPt = theTrajectory.globalMomentum().perp();
     CovarianceMatrix matrixSeedErr = theTrajectory.curvilinearError().matrix();
-    edm::LogVerbatim("SeedToTrackProducer")
+    edm::LogVerbatim("SeedToTrackProducerBase")
         << "seedPt=" << seedPt << " seedEta=" << seedEta << " seedPhi=" << seedPhi << endl;
     /*AlgebraicSymMatrix66 errors = theTrajectory.cartesianError().matrix();
     double partialPterror =
     errors(3,3)*pow(theTrajectory.globalMomentum().x(),2) +
     errors(4,4)*pow(theTrajectory.globalMomentum().y(),2);
-    edm::LogVerbatim("SeedToTrackProducer") <<  "seedPtError=" <<
+    edm::LogVerbatim("SeedToTrackProducerBase") <<  "seedPtError=" <<
     sqrt(partialPterror)/theTrajectory.globalMomentum().perp() <<
     "seedPhiError=" << theTrajectory.curvilinearError().matrix()(2,2) << endl;*/
     // fill the track in a way that its pt, phi and eta will be the same as the
@@ -122,9 +119,9 @@ void SeedToTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::
                                    (L2seeds->at(i)).direction(),
                                    seed);
     theTrack.setExtra(reco::TrackExtraRef(rTrackExtras, idx++));
-    edm::LogVerbatim("SeedToTrackProducer")
+    edm::LogVerbatim("SeedToTrackProducerBase")
         << "trackPt=" << theTrack.pt() << " trackEta=" << theTrack.eta() << " trackPhi=" << theTrack.phi() << endl;
-    edm::LogVerbatim("SeedToTrackProducer")
+    edm::LogVerbatim("SeedToTrackProducerBase")
         << "trackPtError=" << theTrack.ptError() << "trackPhiError=" << theTrack.phiError() << endl;
 
     // fill the seed segments in the track
@@ -145,9 +142,9 @@ void SeedToTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::
   iEvent.put(std::move(selectedTrackHits));
 }
 
-TrajectoryStateOnSurface SeedToTrackProducer::seedTransientState(const TrajectorySeed &tmpSeed,
-                                                                 const MagneticField &mgField,
-                                                                 const GlobalTrackingGeometry &trackingGeometry) const {
+template <typename SeedCollection>
+TrajectoryStateOnSurface SeedToTrackProducerBase<SeedCollection>::seedTransientState(
+    const SeedType &tmpSeed, const MagneticField &mgField, const GlobalTrackingGeometry &trackingGeometry) const {
   PTrajectoryStateOnDet tmpTSOD = tmpSeed.startingState();
   DetId tmpDetId(tmpTSOD.detId());
   const GeomDet *tmpGeomDet = trackingGeometry.idToDet(tmpDetId);
@@ -155,6 +152,3 @@ TrajectoryStateOnSurface SeedToTrackProducer::seedTransientState(const Trajector
       trajectoryStateTransform::transientState(tmpTSOD, &(tmpGeomDet->surface()), &mgField);
   return tmpTSOS;
 }
-
-// define this as a plug-in
-DEFINE_FWK_MODULE(SeedToTrackProducer);

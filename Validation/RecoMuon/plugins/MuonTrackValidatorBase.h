@@ -282,6 +282,16 @@ protected:
   std::vector<MonitorElement*> h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy, h_misiddxy;
   std::vector<MonitorElement*> h_recodz, h_assocdz, h_assoc2dz, h_simuldz, h_misiddz;
   std::vector<MonitorElement*> h_recopu, h_assocpu, h_assoc2pu, h_simulpu, h_misidpu;
+  std::vector<MonitorElement*> h_recodR, h_assocdR, h_assoc2dR, h_simuldR, h_misiddR;
+
+  std::vector<MonitorElement*> h_assocpTB, h_simulpTB;
+  std::vector<MonitorElement*> h_assocphiB, h_simulphiB;
+
+  std::vector<MonitorElement*> h_assocpTO, h_simulpTO;
+  std::vector<MonitorElement*> h_assocphiO, h_simulphiO;
+
+  std::vector<MonitorElement*> h_assocpTE, h_simulpTE;
+  std::vector<MonitorElement*> h_assocphiE, h_simulphiE;
 
   std::vector<MonitorElement*> h_assocRpos, h_simulRpos, h_assocZpos, h_simulZpos;
   std::vector<MonitorElement*> h_etaRes;
