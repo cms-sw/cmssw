@@ -38,7 +38,7 @@ public:
   double robustSigmaee(const reco::GsfElectron& electron) const override;
 
 private:
-  virtual double calcSigmaee(const reco::GsfElectron& electron) const {
+  virtual double calcSigmaee(const reco::GsfElectron& electron) const override {
     double sigmaee = electron.sigmaEtaEta();  //sqrt(vCov[0]);
     if (electron.isEE()) {
       double eta = fabs(electron.superCluster()->eta());
