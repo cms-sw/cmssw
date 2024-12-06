@@ -12,6 +12,9 @@
 #include "TrackingTools/DetLayers/interface/DetRodOneR.h"
 #include "TrackingTools/DetLayers/interface/PeriodicBinFinderInZ.h"
 #include "Utilities/BinningTools/interface/GenericBinFinderInZ.h"
+
+#include <ostream>
+
 class GeomDet;
 
 class MTDDetTray : public DetRodOneR {

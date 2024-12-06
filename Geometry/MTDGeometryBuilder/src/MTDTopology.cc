@@ -7,7 +7,7 @@
 MTDTopology::MTDTopology(const int& topologyMode, const BTLValues& btl, const ETLValues& etl)
     : mtdTopologyMode_(topologyMode), btlVals_(btl), etlVals_(etl) {}
 
-std::pair<uint32_t, uint32_t> MTDTopology::btlIndex(const uint32_t detId) {
+std::pair<uint32_t, uint32_t> MTDTopology::btlIndex(const uint32_t detId) const {
   size_t index(0);
   bool found(false);
   for (const auto& theid : btlVals_.btlDetId_) {
@@ -26,7 +26,7 @@ std::pair<uint32_t, uint32_t> MTDTopology::btlIndex(const uint32_t detId) {
   }
 }
 
-uint32_t MTDTopology::btlidFromIndex(const uint32_t iphi, const uint32_t ieta) {
+uint32_t MTDTopology::btlidFromIndex(const uint32_t iphi, const uint32_t ieta) const {
   uint32_t res(0);
   for (uint32_t index = 0; index < btlVals_.nBTLmodules_; index++) {
     if (iphi == btlVals_.btlPhi_[index] && ieta == btlVals_.btlEta_[index]) {
@@ -38,7 +38,7 @@ uint32_t MTDTopology::btlidFromIndex(const uint32_t iphi, const uint32_t ieta) {
   return res;
 }
 
-uint32_t MTDTopology::phishiftBTL(const uint32_t detid, const int phiShift) {
+uint32_t MTDTopology::phishiftBTL(const uint32_t detid, const int phiShift) const {
   if (phiShift == 0) {
     edm::LogWarning("MTDTopology") << "asking of a null phiShift in BTL";
     return failIndex_;
@@ -68,7 +68,7 @@ uint32_t MTDTopology::phishiftBTL(const uint32_t detid, const int phiShift) {
   }
 }
 
-uint32_t MTDTopology::etashiftBTL(const uint32_t detid, const int etaShift) {
+uint32_t MTDTopology::etashiftBTL(const uint32_t detid, const int etaShift) const {
   if (etaShift == 0) {
     edm::LogWarning("MTDTopology") << "asking of a null etaShift in BTL";
     return failIndex_;
