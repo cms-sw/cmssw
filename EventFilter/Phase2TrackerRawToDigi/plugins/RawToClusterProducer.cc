@@ -271,8 +271,6 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
               } 
             }
             
-//             if (count_clusters == 0 ) continue;
-    
             // use FastFiller to fill the output DetSetVector output collection
             // fill every time that 2 channels are read
             if (iChannel%2 != 1) 
