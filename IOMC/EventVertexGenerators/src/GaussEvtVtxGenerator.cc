@@ -5,7 +5,6 @@
 #include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
-#include "HepMC/SimpleVector.h"
 
 using CLHEP::cm;
 using CLHEP::ns;
@@ -58,14 +57,14 @@ void GaussEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
   }
 }
 
-HepMC::FourVector GaussEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) const {
+ROOT::Math::XYZTVector GaussEvtVtxGenerator::vertexShift(CLHEP::HepRandomEngine* engine) const {
   double X, Y, Z, T;
   X = CLHEP::RandGaussQ::shoot(engine, fMeanX, fSigmaX);
   Y = CLHEP::RandGaussQ::shoot(engine, fMeanY, fSigmaY);
   Z = CLHEP::RandGaussQ::shoot(engine, fMeanZ, fSigmaZ);
   T = CLHEP::RandGaussQ::shoot(engine, fTimeOffset, fSigmaZ);
 
-  return HepMC::FourVector(X, Y, Z, T);
+  return ROOT::Math::XYZTVector(X, Y, Z, T);
 }
 
 void GaussEvtVtxGenerator::sigmaX(double s) {
