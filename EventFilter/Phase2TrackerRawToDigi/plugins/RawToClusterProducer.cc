@@ -172,7 +172,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             // where clusters from channel X are split into 2*i and 2*i+1 based on being from CIC0 or CIC1
             unsigned int gbt_id = iSlink * MODULES_PER_SLINK + std::div(iChannel, 2).quot;
             DTCELinkId thisDTCElinkId(dtcID, gbt_id, 0);
-            std::cout << "\tslink: " << iSlink <<  "\tiDTC: " << unsigned(dtcID) << " \tiGBT:  " <<  unsigned(gbt_id) << " \tielink: " <<  unsigned(0);
+            std::cout << "slink: " << iSlink <<  "\tiDTC: " << unsigned(dtcID) << " \tiGBT:  " <<  unsigned(gbt_id) << " \tielink: " <<  unsigned(0);
   
             int thisDetId = -1;
             bool is2SModule = false;
@@ -206,7 +206,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
                                    int((numStripClusters * SS_CLUSTER_BITS + numPixelClusters * PX_CLUSTER_BITS)/ N_BITS_PER_WORD) + 1 : 0;
   
             if (numStripClusters + numPixelClusters > 0 ){
-              std::cout << "channel " << iChannel << "\t header: " << std::bitset<N_BITS_PER_WORD>(headerWord) ;
+              std::cout << "\t channel " << iChannel << "\t header: " << std::bitset<N_BITS_PER_WORD>(headerWord) ;
               std::cout << "\t n strip clusters = " << numStripClusters ;
               std::cout << "\t n pixel clusters = " << numPixelClusters ;
               std::cout << " (n lines = " << nLines << ")" <<  std::endl;
@@ -271,7 +271,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
               } 
             }
             
-            if (count_clusters == 0 ) continue;
+//             if (count_clusters == 0 ) continue;
     
             // use FastFiller to fill the output DetSetVector output collection
             // fill every time that 2 channels are read
@@ -282,7 +282,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             std::vector<Phase2TrackerCluster1D>::iterator it;
             {
               // inner detid is defined as module detid + 1. First int in the pair from the map
-  //             std::cout << "\t\t -> detId:" <<  possibleDetIds->second << "  from map: " << stackMap_[possibleDetIds->second].first << std::endl;
+//               std::cout << "\t\t -> filling detId:" <<  thisDetId << "  from map: " << stackMap_[thisDetId].first << std::endl;
               edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcs(*outputClusterCollection, stackMap_[thisDetId].first);
               for (it = thisChannel1DSeedClusters.begin(); it != thisChannel1DSeedClusters.end(); it++) {
                 spcs.push_back(*it);
@@ -290,7 +290,7 @@ void RawToClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             }
             {
               // outer detid is defined as inner detid + 1 or module detid + 2. Second int in the pair from the map
-  //             std::cout << "\t\t -> detId:" <<  possibleDetIds->second << "  from map: " << stackMap_[possibleDetIds->second].second << std::endl;
+//               std::cout << "\t\t -> filling detId:" <<  thisDetId << "  from map: " << stackMap_[thisDetId].second << std::endl;
               edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcc(*outputClusterCollection, stackMap_[thisDetId].second);
               for (it = thisChannel1DCorrClusters.begin(); it != thisChannel1DCorrClusters.end(); it++) {
                 spcc.push_back(*it);
@@ -364,7 +364,7 @@ Phase2TrackerCluster1D RawToClusterProducer::unpackStripOnPS(uint32_t clusterWor
   
     unsigned int x = STRIPS_PER_SSA * chipID + sclusterAddress;
     unsigned int y = iChannel%2 == 0 ? 0 : 1; 
-  
+    
     return Phase2TrackerCluster1D(x, y, width, mipBit);
 }
 
@@ -374,6 +374,8 @@ Phase2TrackerCluster1D RawToClusterProducer::unpackPixelOnPS(uint32_t clusterWor
     uint32_t chipID = (clusterWord >> (PX_CLUSTER_BITS - CHIP_ID_BITS)) & CHIP_ID_MAX_VALUE;  // 3 bits
     uint32_t sclusterAddress = (clusterWord >> (PX_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS)) & SCLUSTER_ADDRESS_PS_MAX_VALUE; // why not uint16?
     uint32_t width = (clusterWord >> (PX_CLUSTER_BITS - CHIP_ID_BITS - SCLUSTER_ADDRESS_BITS_PS - WIDTH_BITS)) & WIDTH_MAX_VALUE;  // 3 bits
+    // see warning above for how to treat the width
+    if (width == 0) width = 8;
     uint32_t z = clusterWord & 0xF;  // 4 bits
 
 //   std::cout << "\t[unpacking] chipID : " <<  (chipID) << "\t " << std::bitset<CHIP_ID_BITS>(chipID) <<   std::endl;

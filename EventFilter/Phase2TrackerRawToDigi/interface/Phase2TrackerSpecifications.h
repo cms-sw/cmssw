@@ -26,7 +26,7 @@ namespace Phase2TrackerSpecifications
     static const int CIC_Z_BOUNDARY_PIXEL = 15;
     static const int CIC_Z_BOUNDARY_STRIPS = 0;
 
-    static const int MAX_DTC_ID = 216;
+    static const int MAX_DTC_ID = 217;
     static const int MIN_DTC_ID = 1;
 
     static const int MIN_SLINK_ID = 0;
