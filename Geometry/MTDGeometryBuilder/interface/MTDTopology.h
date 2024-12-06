@@ -14,10 +14,10 @@ class MTDTopology {
 public:
   struct BTLLayout {
     // number of logical rods, i.e. rows of sensor modules along eta/z in phi, and of modules per rod
-    static constexpr size_t nBTLphi_ = BTLDetId::HALF_ROD * BTLDetId::kModulesPerTrkV2;
-    static constexpr size_t nBTLeta_ =
+    static constexpr uint32_t nBTLphi_ = BTLDetId::HALF_ROD * BTLDetId::kModulesPerTrkV2;
+    static constexpr uint32_t nBTLeta_ =
         2 * BTLDetId::kRUPerTypeV2 * BTLDetId::kCrystalTypes * BTLDetId::kModulesPerRUV2 / BTLDetId::kModulesPerTrkV2;
-    static constexpr size_t nBTLmodules_ = nBTLphi_ * nBTLeta_;
+    static constexpr uint32_t nBTLmodules_ = nBTLphi_ * nBTLeta_;
 
     std::array<uint32_t, nBTLmodules_> btlDetId_;
     std::array<uint32_t, nBTLmodules_> btlPhi_;
@@ -47,8 +47,8 @@ public:
 
   // BTL topology navigation methods, find index of closest module along eta or phi
 
-  size_t phishiftBTL(const uint32_t detid, const int phiShift);
-  size_t etashiftBTL(const uint32_t detid, const int etaShift);
+  uint32_t phishiftBTL(const uint32_t detid, const int phiShift);
+  uint32_t etashiftBTL(const uint32_t detid, const int etaShift);
 
   // ETL topology navigation is based on a predefined order of dets in sector
 
