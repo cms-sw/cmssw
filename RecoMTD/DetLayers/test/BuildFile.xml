@@ -2,17 +2,14 @@
 <use name="RecoMTD/Records"/>
 <use name="FWCore/Framework"/>
 <flags EDM_PLUGIN="1"/>
-<library file="MTDRecoGeometryAnalyzer.cc" name="testMTDRecoGeometry">
+<library file="*.cc" name="testMTDRecoGeometry">
   <use name="clhep"/>
   <use name="TrackingTools/KalmanUpdators"/>
   <use name="TrackPropagation/SteppingHelixPropagator"/>
   <use name="MagneticField/Records"/>
   <use name="MagneticField/Engine"/>
-  <use name="Geometry/MTDNumberingBuilder"/>
+  <use name="Geometry/MTDGeometryBuilder"/>
   <use name="Geometry/Records"/>
-  <flags EDM_PLUGIN="1"/>
-</library>
-<library file="TestETLNavigation.cc" name="testETLNavigation">
   <flags EDM_PLUGIN="1"/>
 </library>
 

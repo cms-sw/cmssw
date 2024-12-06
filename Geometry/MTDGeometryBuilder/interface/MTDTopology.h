@@ -42,13 +42,13 @@ public:
 
   // BTL topology navigation is based on a predefined order of dets in MTDGeometry, mapped onto phi/eta grid
 
-  std::pair<uint32_t, uint32_t> btlIndex(const uint32_t detId);
-  uint32_t btlidFromIndex(const uint32_t iphi, const uint32_t ieta);
+  std::pair<uint32_t, uint32_t> btlIndex(const uint32_t detId) const;
+  uint32_t btlidFromIndex(const uint32_t iphi, const uint32_t ieta) const;
 
   // BTL topology navigation methods, find index of closest module along eta or phi
 
-  uint32_t phishiftBTL(const uint32_t detid, const int phiShift);
-  uint32_t etashiftBTL(const uint32_t detid, const int etaShift);
+  uint32_t phishiftBTL(const uint32_t detid, const int phiShift) const;
+  uint32_t etashiftBTL(const uint32_t detid, const int etaShift) const;
 
   // ETL topology navigation is based on a predefined order of dets in sector
 
