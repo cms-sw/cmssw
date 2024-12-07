@@ -28,12 +28,12 @@ private:
   std::vector<std::pair<
       std::string,
       edm::EDGetTokenT<
-          ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>>>
+          ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>>>
       layerClusterToTracksterMapTokens_;
   std::vector<std::pair<
       std::string,
       edm::EDGetTokenT<
-          ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>>>
+          ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>>>
       layerClusterToSimTracksterMapTokens_;
 };
 
@@ -50,7 +50,7 @@ AllTracksterToSimTracksterAssociatorsByLCsProducer::AllTracksterToSimTracksterAs
     layerClusterToTracksterMapTokens_.emplace_back(
         label,
         consumes<
-            ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>(
+            ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>(
             edm::InputTag("allLayerClusterToTracksterAssociations", label)));
   }
 
@@ -64,7 +64,7 @@ AllTracksterToSimTracksterAssociatorsByLCsProducer::AllTracksterToSimTracksterAs
     layerClusterToSimTracksterMapTokens_.emplace_back(
         label,
         consumes<
-            ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>(
+            ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>(
             edm::InputTag("allLayerClusterToTracksterAssociations", label)));
   }
 
@@ -72,11 +72,11 @@ AllTracksterToSimTracksterAssociatorsByLCsProducer::AllTracksterToSimTracksterAs
   for (const auto& tracksterToken : tracksterCollectionTokens_) {
     for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
       std::string instanceLabel = tracksterToken.first + "To" + simTracksterToken.first;
-      produces<ticl::AssociationMap<ticl::mapWithFractionAndScore,
+      produces<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
                                     std::vector<ticl::Trackster>,
                                     std::vector<ticl::Trackster>>>(instanceLabel);
       std::string reverseInstanceLabel = simTracksterToken.first + "To" + tracksterToken.first;
-      produces<ticl::AssociationMap<ticl::mapWithFractionAndScore,
+      produces<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
                                     std::vector<ticl::Trackster>,
                                     std::vector<ticl::Trackster>>>(reverseInstanceLabel);
     }
@@ -98,7 +98,7 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
     const auto& recoTracksters = *recoTrackstersHandle;
 
     // Retrieve the correct LayerClusterToTracksterMap for the current trackster collection
-    Handle<ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>
+    Handle<ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>
         layerClusterToTracksterMapHandle;
     auto tracksterMapTokenIter =
         std::find_if(layerClusterToTracksterMapTokens_.begin(),
@@ -115,7 +115,8 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
       const auto& simTracksters = *simTrackstersHandle;
 
       // Retrieve the correct LayerClusterToSimTracksterMap for the current simTrackster collection
-      Handle<ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>
+      Handle<
+          ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>
           layerClusterToSimTracksterMapHandle;
       auto simTracksterMapTokenIter =
           std::find_if(layerClusterToSimTracksterMapTokens_.begin(),
@@ -127,11 +128,13 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
       const auto& layerClusterToSimTracksterMap = *layerClusterToSimTracksterMapHandle;
 
       // Create the association maps
-      auto tracksterToSimTracksterMap = std::make_unique<
-          ticl::AssociationMap<ticl::mapWithFractionAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>>(
+      auto tracksterToSimTracksterMap = std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                                              std::vector<ticl::Trackster>,
+                                                                              std::vector<ticl::Trackster>>>(
           recoTrackstersHandle, simTrackstersHandle, iEvent);
-      auto simTracksterToTracksterMap = std::make_unique<
-          ticl::AssociationMap<ticl::mapWithFractionAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>>(
+      auto simTracksterToTracksterMap = std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                                              std::vector<ticl::Trackster>,
+                                                                              std::vector<ticl::Trackster>>>(
           simTrackstersHandle, recoTrackstersHandle, iEvent);
 
       for (unsigned int tracksterIndex = 0; tracksterIndex < recoTracksters.size(); ++tracksterIndex) {
@@ -139,7 +142,8 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
         edm::Ref<std::vector<ticl::Trackster>> recoTracksterRef(recoTrackstersHandle, tracksterIndex);
         const auto& layerClustersIds = recoTrackster.vertices();
         float recoToSimScoresDenominator = 0.f;
-        ticl::mapWithFraction layerClusterToAssociatedSimTracksterMap(layerClustersIds.size());
+        ticl::AssociationMap<ticl::mapWithSharedEnergy> layerClusterToAssociatedSimTracksterMap(
+            layerClustersIds.size());
         std::vector<unsigned int> associatedSimTracksterIndices;
         for (unsigned int i = 0; i < layerClustersIds.size(); ++i) {
           unsigned int layerClusterId = layerClustersIds[i];
@@ -149,8 +153,10 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
           float squaredLayerClusterEnergy = layerCluster.energy() * layerCluster.energy();
           recoToSimScoresDenominator += squaredLayerClusterEnergy * squaredRecoFraction;
           const auto& simTracksterVec = layerClusterToSimTracksterMap[layerClusterId];
-          for (const auto& [simTracksterIndex, simSharedEnergy] : simTracksterVec) {
-            layerClusterToAssociatedSimTracksterMap[i].push_back({simTracksterIndex, simSharedEnergy});
+          for (const auto& simTracksterElement : simTracksterVec) {
+            auto simTracksterIndex = simTracksterElement.index();
+            auto simSharedEnergy = simTracksterElement.sharedEnergy();
+            layerClusterToAssociatedSimTracksterMap[i].emplace_back(simTracksterIndex, simSharedEnergy);
             associatedSimTracksterIndices.push_back(simTracksterIndex);
           }
         }
@@ -167,7 +173,7 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
           const auto& simTracksterVec = layerClusterToSimTracksterMap[layerClusterId];
           for (unsigned int simTracksterIndex : associatedSimTracksterIndices) {
             if (std::find_if(simTracksterVec.begin(), simTracksterVec.end(), [simTracksterIndex](const auto& pair) {
-                  return pair.first == simTracksterIndex;
+                  return pair.index() == simTracksterIndex;
                 }) == simTracksterVec.end()) {
               layerClusterToAssociatedSimTracksterMap[i].push_back({simTracksterIndex, 0.f});
             }
@@ -185,7 +191,9 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
           float recoSharedEnergy = layerCluster.energy() * recoFraction;
           float invLayerClusterEnergy = 1.f / layerCluster.energy();
           const auto& simTracksterVec = layerClusterToAssociatedSimTracksterMap[i];
-          for (const auto& [simTracksterIndex, simSharedEnergy] : simTracksterVec) {
+          for (const auto& simTracksterElement : simTracksterVec) {
+            auto simTracksterIndex = simTracksterElement.index();
+            float simSharedEnergy = simTracksterElement.sharedEnergy();
             edm::Ref<std::vector<ticl::Trackster>> simTracksterRef(simTrackstersHandle, simTracksterIndex);
             float sharedEnergy = std::min(simSharedEnergy, recoSharedEnergy);
             float simFraction = simSharedEnergy * invLayerClusterEnergy;
@@ -202,7 +210,7 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
         edm::Ref<std::vector<ticl::Trackster>> simTracksterRef(simTrackstersHandle, tracksterIndex);
         const auto& layerClustersIds = simTrackster.vertices();
         float simToRecoScoresDenominator = 0.f;
-        ticl::mapWithFraction layerClusterToAssociatedTracksterMap(layerClustersIds.size());
+        ticl::AssociationMap<ticl::mapWithSharedEnergy> layerClusterToAssociatedTracksterMap(layerClustersIds.size());
         std::vector<unsigned int> associatedRecoTracksterIndices;
         for (unsigned int i = 0; i < layerClustersIds.size(); ++i) {
           unsigned int layerClusterId = layerClustersIds[i];
@@ -212,8 +220,10 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
           float squaredLayerClusterEnergy = layerCluster.energy() * layerCluster.energy();
           simToRecoScoresDenominator += squaredLayerClusterEnergy * squaredSimFraction;
           const auto& recoTracksterVec = layerClusterToTracksterMap[layerClusterId];
-          for (const auto& [recoTracksterIndex, recoSharedEnergy] : recoTracksterVec) {
-            layerClusterToAssociatedTracksterMap[i].push_back({recoTracksterIndex, recoSharedEnergy});
+          for (const auto& recoTracksterElement : recoTracksterVec) {
+            auto recoTracksterIndex = recoTracksterElement.index();
+            auto recoSharedEnergy = recoTracksterElement.sharedEnergy();
+            layerClusterToAssociatedTracksterMap[i].emplace_back(recoTracksterIndex, recoSharedEnergy);
             associatedRecoTracksterIndices.push_back(recoTracksterIndex);
           }
         }
@@ -228,9 +238,9 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
           const auto& recoTracksterVec = layerClusterToTracksterMap[layerClusterId];
           for (unsigned int recoTracksterIndex : associatedRecoTracksterIndices) {
             if (std::find_if(recoTracksterVec.begin(), recoTracksterVec.end(), [recoTracksterIndex](const auto& pair) {
-                  return pair.first == recoTracksterIndex;
+                  return pair.index() == recoTracksterIndex;
                 }) == recoTracksterVec.end()) {
-              layerClusterToAssociatedTracksterMap[i].push_back({recoTracksterIndex, 0.f});
+              layerClusterToAssociatedTracksterMap[i].emplace_back(recoTracksterIndex, 0.f);
             }
           }
         }
@@ -246,7 +256,9 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
           float simSharedEnergy = layerCluster.energy() * simFraction;
           float invLayerClusterEnergy = 1.f / layerCluster.energy();
           const auto& recoTracksterVec = layerClusterToAssociatedTracksterMap[i];
-          for (const auto& [recoTracksterIndex, recoSharedEnergy] : recoTracksterVec) {
+          for (const auto& recoTracksterElement : recoTracksterVec) {
+            auto recoTracksterIndex = recoTracksterElement.index();
+            float recoSharedEnergy = recoTracksterElement.sharedEnergy();
             edm::Ref<std::vector<ticl::Trackster>> recoTracksterRef(recoTrackstersHandle, recoTracksterIndex);
             float sharedEnergy = std::min(recoSharedEnergy, simSharedEnergy);
             float recoFraction = recoSharedEnergy * invLayerClusterEnergy;
@@ -257,8 +269,9 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
           }
         }
       }
-      tracksterToSimTracksterMap->sort(true);
-      simTracksterToTracksterMap->sort(true);
+      // Sort the maps by score in ascending order
+      tracksterToSimTracksterMap->sort([](const auto& a, const auto& b) { return a.score() < b.score(); });
+      simTracksterToTracksterMap->sort([](const auto& a, const auto& b) { return a.score() < b.score(); });
 
       // After populating the maps, store them in the event
       iEvent.put(std::move(tracksterToSimTracksterMap), tracksterToken.first + "To" + simTracksterToken.first);

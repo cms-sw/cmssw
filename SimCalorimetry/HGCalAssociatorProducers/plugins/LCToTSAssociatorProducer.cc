@@ -18,7 +18,8 @@ LCToTSAssociatorProducer::LCToTSAssociatorProducer(const edm::ParameterSet &pset
     : LCCollectionToken_(consumes<std::vector<reco::CaloCluster>>(pset.getParameter<edm::InputTag>("layer_clusters"))),
       tracksterCollectionToken_(
           consumes<std::vector<ticl::Trackster>>(pset.getParameter<edm::InputTag>("tracksters"))) {
-  produces<ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>();
+  produces<
+      ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>();
 }
 
 LCToTSAssociatorProducer::~LCToTSAssociatorProducer() {}
@@ -39,7 +40,7 @@ void LCToTSAssociatorProducer::produce(edm::StreamID, edm::Event &iEvent, const 
 
   // Create association map
   auto lcToTracksterMap = std::make_unique<
-      ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>(
+      ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>(
       layer_clusters, tracksters, iEvent);
 
   // Loop over tracksters
