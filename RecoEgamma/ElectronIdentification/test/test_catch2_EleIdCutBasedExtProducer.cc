@@ -905,6 +905,472 @@ process.moduleToTest(process.toTest)
       }
     }
   }
+
+  SECTION("classbased robust default") {
+    const std::string baseConfig{
+        R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer("EleIdCutBasedExtProducer",
+    additionalCategories = cms.bool(True),
+    algorithm = cms.string('eIDCB'),
+    electronIDType = cms.string('robust'),
+    electronQuality = cms.string('tight'),
+    electronVersion = cms.string(''),
+    etBinning = cms.bool(True),
+    reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    src = cms.InputTag("gedGsfElectrons"),
+    verticesCollection = cms.InputTag("offlinePrimaryVerticesWithBS"),
+    robusttightEleIDCuts = cms.PSet(
+        barrel = cms.vdouble(
+            0.0201, 0.0102, 0.0211, 0.00606, -1,
+            -1, 2.34, 3.24, 4.51, 9999.0,
+            9999.0, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 0.0, -9999.0,
+            9999.0, 9999.0, 9999, -1, 0,
+            0
+        ),
+        endcap = cms.vdouble(
+            0.00253, 0.0291, 0.022, 0.0032, -1,
+            -1, 0.826, 2.7, 0.255, 9999.0,
+            9999.0, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 0.0, -9999.0,
+            9999.0, 9999.0, 9999, -1, 0,
+            0
+        )
+    )
+ )
+process.moduleToTest(process.toTest)
+)_"};
+
+    edm::test::TestProcessor::Config config{baseConfig};
+    SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
+
+    SECTION("Event with dummy data") {
+      auto electronToken = config.produces<std::vector<reco::GsfElectron>>("gedGsfElectrons");
+      auto vertexToken = config.produces<std::vector<reco::Vertex>>("offlinePrimaryVerticesWithBS");
+      {
+        edm::test::TestProcessor tester(config);
+
+        using namespace reco;
+        reco::SuperCluster cluster;
+        std::vector<reco::SuperCluster> clusters(1, cluster);
+
+        TrackExtra extra;
+        std::vector<TrackExtra> extras(1, extra);
+        GsfTrack track;
+        track.setExtra(TrackExtraRef(&extras, 0));
+        std::vector<GsfTrack> tracks(1, track);
+        GsfElectronCore core(GsfTrackRef(&tracks, 0));
+        core.setSuperCluster(SuperClusterRef(&clusters, 0));
+        std::vector<GsfElectronCore> cores(1, core);
+        reco::GsfElectron electron(1,
+                                   GsfElectron::ChargeInfo(),
+                                   GsfElectronCoreRef(&cores, 0),
+                                   GsfElectron::TrackClusterMatching(),
+                                   GsfElectron::TrackExtrapolations(),
+                                   GsfElectron::ClosestCtfTrack(),
+                                   GsfElectron::FiducialFlags(),
+                                   GsfElectron::ShowerShape(),
+                                   GsfElectron::ConversionRejection());
+        std::vector<reco::GsfElectron> electrons(1, electron);
+
+        reco::Vertex vertex;
+        std::vector<reco::Vertex> vertices(1, vertex);
+
+        REQUIRE_NOTHROW(tester.test(std::make_pair(electronToken, std::make_unique<decltype(electrons)>(electrons)),
+                                    std::make_pair(vertexToken, std::make_unique<decltype(vertices)>(vertices))));
+      }
+    }
+  }
+
+  SECTION("classbased robust V00") {
+    const std::string baseConfig{
+        R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer("EleIdCutBasedExtProducer",
+    additionalCategories = cms.bool(True),
+    algorithm = cms.string('eIDCB'),
+    electronIDType = cms.string('robust'),
+    electronQuality = cms.string('tight'),
+    electronVersion = cms.string('V00'),
+    etBinning = cms.bool(True),
+    reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    src = cms.InputTag("gedGsfElectrons"),
+    verticesCollection = cms.InputTag("offlinePrimaryVerticesWithBS"),
+    robusttightEleIDCutsV00 = cms.PSet(
+        barrel = cms.vdouble(
+            0.015, 0.0092, 0.02, 0.0025, -1,
+            -1, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 0.0, -9999.0,
+            9999.0, 9999.0, 9999, -1, 0,
+            0
+        ),
+        endcap = cms.vdouble(
+            0.018, 0.025, 0.02, 0.004, -1,
+            -1, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 0.0, -9999.0,
+            9999.0, 9999.0, 9999, -1, 0,
+            0
+        )
+    ),
+ )
+process.moduleToTest(process.toTest)
+)_"};
+
+    edm::test::TestProcessor::Config config{baseConfig};
+    SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
+
+    SECTION("Event with dummy data") {
+      auto electronToken = config.produces<std::vector<reco::GsfElectron>>("gedGsfElectrons");
+      auto vertexToken = config.produces<std::vector<reco::Vertex>>("offlinePrimaryVerticesWithBS");
+      {
+        edm::test::TestProcessor tester(config);
+
+        using namespace reco;
+        reco::SuperCluster cluster;
+        std::vector<reco::SuperCluster> clusters(1, cluster);
+
+        TrackExtra extra;
+        std::vector<TrackExtra> extras(1, extra);
+        GsfTrack track;
+        track.setExtra(TrackExtraRef(&extras, 0));
+        std::vector<GsfTrack> tracks(1, track);
+        GsfElectronCore core(GsfTrackRef(&tracks, 0));
+        core.setSuperCluster(SuperClusterRef(&clusters, 0));
+        std::vector<GsfElectronCore> cores(1, core);
+        reco::GsfElectron electron(1,
+                                   GsfElectron::ChargeInfo(),
+                                   GsfElectronCoreRef(&cores, 0),
+                                   GsfElectron::TrackClusterMatching(),
+                                   GsfElectron::TrackExtrapolations(),
+                                   GsfElectron::ClosestCtfTrack(),
+                                   GsfElectron::FiducialFlags(),
+                                   GsfElectron::ShowerShape(),
+                                   GsfElectron::ConversionRejection());
+        std::vector<reco::GsfElectron> electrons(1, electron);
+
+        reco::Vertex vertex;
+        std::vector<reco::Vertex> vertices(1, vertex);
+
+        REQUIRE_NOTHROW(tester.test(std::make_pair(electronToken, std::make_unique<decltype(electrons)>(electrons)),
+                                    std::make_pair(vertexToken, std::make_unique<decltype(vertices)>(vertices))));
+      }
+    }
+  }
+
+  SECTION("classbased robust V01") {
+    const std::string baseConfig{
+        R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer("EleIdCutBasedExtProducer",
+    additionalCategories = cms.bool(True),
+    algorithm = cms.string('eIDCB'),
+    electronIDType = cms.string('robust'),
+    electronQuality = cms.string('tight'),
+    electronVersion = cms.string('V01'),
+    etBinning = cms.bool(True),
+    reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    src = cms.InputTag("gedGsfElectrons"),
+    verticesCollection = cms.InputTag("offlinePrimaryVerticesWithBS"),
+    robusttightEleIDCutsV01 = cms.PSet(
+        barrel = cms.vdouble(
+            0.01, 0.0099, 0.025, 0.004, -1,
+            -1, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 0.0, -9999.0,
+            9999.0, 9999.0, 9999, -1, 0,
+            0
+        ),
+        endcap = cms.vdouble(
+            0.01, 0.028, 0.02, 0.0066, -1,
+            -1, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 0.0, -9999.0,
+            9999.0, 9999.0, 9999, -1, 0,
+            0
+        )
+    ),
+ )
+process.moduleToTest(process.toTest)
+)_"};
+
+    edm::test::TestProcessor::Config config{baseConfig};
+    SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
+
+    SECTION("Event with dummy data") {
+      auto electronToken = config.produces<std::vector<reco::GsfElectron>>("gedGsfElectrons");
+      auto vertexToken = config.produces<std::vector<reco::Vertex>>("offlinePrimaryVerticesWithBS");
+      {
+        edm::test::TestProcessor tester(config);
+
+        using namespace reco;
+        reco::SuperCluster cluster;
+        std::vector<reco::SuperCluster> clusters(1, cluster);
+
+        TrackExtra extra;
+        std::vector<TrackExtra> extras(1, extra);
+        GsfTrack track;
+        track.setExtra(TrackExtraRef(&extras, 0));
+        std::vector<GsfTrack> tracks(1, track);
+        GsfElectronCore core(GsfTrackRef(&tracks, 0));
+        core.setSuperCluster(SuperClusterRef(&clusters, 0));
+        std::vector<GsfElectronCore> cores(1, core);
+        reco::GsfElectron electron(1,
+                                   GsfElectron::ChargeInfo(),
+                                   GsfElectronCoreRef(&cores, 0),
+                                   GsfElectron::TrackClusterMatching(),
+                                   GsfElectron::TrackExtrapolations(),
+                                   GsfElectron::ClosestCtfTrack(),
+                                   GsfElectron::FiducialFlags(),
+                                   GsfElectron::ShowerShape(),
+                                   GsfElectron::ConversionRejection());
+        std::vector<reco::GsfElectron> electrons(1, electron);
+
+        reco::Vertex vertex;
+        std::vector<reco::Vertex> vertices(1, vertex);
+
+        REQUIRE_NOTHROW(tester.test(std::make_pair(electronToken, std::make_unique<decltype(electrons)>(electrons)),
+                                    std::make_pair(vertexToken, std::make_unique<decltype(vertices)>(vertices))));
+      }
+    }
+  }
+
+  SECTION("classbased robust V02") {
+    const std::string baseConfig{
+        R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer("EleIdCutBasedExtProducer",
+    additionalCategories = cms.bool(True),
+    algorithm = cms.string('eIDCB'),
+    electronIDType = cms.string('robust'),
+    electronQuality = cms.string('tight'),
+    electronVersion = cms.string('V02'),
+    etBinning = cms.bool(True),
+    reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    src = cms.InputTag("gedGsfElectrons"),
+    verticesCollection = cms.InputTag("offlinePrimaryVerticesWithBS"),
+    robusttightEleIDCutsV02 = cms.PSet(
+        barrel = cms.vdouble(
+            0.0201, 0.0102, 0.0211, 0.00606, -1,
+            -1, 2.34, 3.24, 4.51, 9999.0,
+            9999.0, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 0.0, -9999.0,
+            9999.0, 9999.0, 9999, -1, 0,
+            0
+        ),
+        endcap = cms.vdouble(
+            0.00253, 0.0291, 0.022, 0.0032, -1,
+            -1, 0.826, 2.7, 0.255, 9999.0,
+            9999.0, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 0.0, -9999.0,
+            9999.0, 9999.0, 9999, -1, 0,
+            0
+        )
+    ),
+ )
+process.moduleToTest(process.toTest)
+)_"};
+
+    edm::test::TestProcessor::Config config{baseConfig};
+    SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
+
+    SECTION("Event with dummy data") {
+      auto electronToken = config.produces<std::vector<reco::GsfElectron>>("gedGsfElectrons");
+      auto vertexToken = config.produces<std::vector<reco::Vertex>>("offlinePrimaryVerticesWithBS");
+      {
+        edm::test::TestProcessor tester(config);
+
+        using namespace reco;
+        reco::SuperCluster cluster;
+        std::vector<reco::SuperCluster> clusters(1, cluster);
+
+        TrackExtra extra;
+        std::vector<TrackExtra> extras(1, extra);
+        GsfTrack track;
+        track.setExtra(TrackExtraRef(&extras, 0));
+        std::vector<GsfTrack> tracks(1, track);
+        GsfElectronCore core(GsfTrackRef(&tracks, 0));
+        core.setSuperCluster(SuperClusterRef(&clusters, 0));
+        std::vector<GsfElectronCore> cores(1, core);
+        reco::GsfElectron electron(1,
+                                   GsfElectron::ChargeInfo(),
+                                   GsfElectronCoreRef(&cores, 0),
+                                   GsfElectron::TrackClusterMatching(),
+                                   GsfElectron::TrackExtrapolations(),
+                                   GsfElectron::ClosestCtfTrack(),
+                                   GsfElectron::FiducialFlags(),
+                                   GsfElectron::ShowerShape(),
+                                   GsfElectron::ConversionRejection());
+        std::vector<reco::GsfElectron> electrons(1, electron);
+
+        reco::Vertex vertex;
+        std::vector<reco::Vertex> vertices(1, vertex);
+
+        REQUIRE_NOTHROW(tester.test(std::make_pair(electronToken, std::make_unique<decltype(electrons)>(electrons)),
+                                    std::make_pair(vertexToken, std::make_unique<decltype(vertices)>(vertices))));
+      }
+    }
+  }
+  SECTION("classbased robust V03") {
+    const std::string baseConfig{
+        R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer("EleIdCutBasedExtProducer",
+    additionalCategories = cms.bool(True),
+    algorithm = cms.string('eIDCB'),
+    electronIDType = cms.string('robust'),
+    electronQuality = cms.string('tight'),
+    electronVersion = cms.string('V03'),
+    etBinning = cms.bool(True),
+    reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    src = cms.InputTag("gedGsfElectrons"),
+    verticesCollection = cms.InputTag("offlinePrimaryVerticesWithBS"),
+    robusttightEleIDCutsV03 = cms.PSet(
+        barrel = cms.vdouble(
+            0.0201, 0.0102, 0.0211, 0.00606, -1,
+            -1, 2.34, 3.24, 4.51, 9999.0,
+            9999.0, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 0.0, -9999.0,
+            9999.0, 9999.0, 9999, -1, 0,
+            0
+        ),
+        endcap = cms.vdouble(
+            0.00253, 0.0291, 0.022, 0.0032, -1,
+            -1, 0.826, 2.7, 0.255, 9999.0,
+            9999.0, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 0.0, -9999.0,
+            9999.0, 9999.0, 9999, -1, 0,
+            0
+        )
+    ),
+ )
+process.moduleToTest(process.toTest)
+)_"};
+
+    edm::test::TestProcessor::Config config{baseConfig};
+    SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
+
+    SECTION("Event with dummy data") {
+      auto electronToken = config.produces<std::vector<reco::GsfElectron>>("gedGsfElectrons");
+      auto vertexToken = config.produces<std::vector<reco::Vertex>>("offlinePrimaryVerticesWithBS");
+      {
+        edm::test::TestProcessor tester(config);
+
+        using namespace reco;
+        reco::SuperCluster cluster;
+        std::vector<reco::SuperCluster> clusters(1, cluster);
+
+        TrackExtra extra;
+        std::vector<TrackExtra> extras(1, extra);
+        GsfTrack track;
+        track.setExtra(TrackExtraRef(&extras, 0));
+        std::vector<GsfTrack> tracks(1, track);
+        GsfElectronCore core(GsfTrackRef(&tracks, 0));
+        core.setSuperCluster(SuperClusterRef(&clusters, 0));
+        std::vector<GsfElectronCore> cores(1, core);
+        reco::GsfElectron electron(1,
+                                   GsfElectron::ChargeInfo(),
+                                   GsfElectronCoreRef(&cores, 0),
+                                   GsfElectron::TrackClusterMatching(),
+                                   GsfElectron::TrackExtrapolations(),
+                                   GsfElectron::ClosestCtfTrack(),
+                                   GsfElectron::FiducialFlags(),
+                                   GsfElectron::ShowerShape(),
+                                   GsfElectron::ConversionRejection());
+        std::vector<reco::GsfElectron> electrons(1, electron);
+
+        reco::Vertex vertex;
+        std::vector<reco::Vertex> vertices(1, vertex);
+
+        REQUIRE_NOTHROW(tester.test(std::make_pair(electronToken, std::make_unique<decltype(electrons)>(electrons)),
+                                    std::make_pair(vertexToken, std::make_unique<decltype(vertices)>(vertices))));
+      }
+    }
+  }
+  SECTION("classbased robust V04") {
+    const std::string baseConfig{
+        R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDProducer("EleIdCutBasedExtProducer",
+    additionalCategories = cms.bool(True),
+    algorithm = cms.string('eIDCB'),
+    electronIDType = cms.string('robust'),
+    electronQuality = cms.string('tight'),
+    electronVersion = cms.string('V04'),
+    etBinning = cms.bool(True),
+    reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    src = cms.InputTag("gedGsfElectrons"),
+    verticesCollection = cms.InputTag("offlinePrimaryVerticesWithBS"),
+    robusttightEleIDCutsV04 = cms.PSet(
+        barrel = cms.vdouble(
+            0.0201, 0.0102, 0.0211, 0.00606, -1,
+            -1, 2.34, 3.24, 4.51, 9999.0,
+            9999.0, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 0.0, -9999.0,
+            9999.0, 9999.0, 9999, -1, 0,
+            0
+        ),
+        endcap = cms.vdouble(
+            0.00253, 0.0291, 0.022, 0.0032, -1,
+            -1, 0.826, 2.7, 0.255, 9999.0,
+            9999.0, 9999.0, 9999.0, 9999.0, 9999.0,
+            9999.0, 9999.0, 9999.0, 0.0, -9999.0,
+            9999.0, 9999.0, 9999, -1, 0,
+            0
+        )
+    ),
+ )
+process.moduleToTest(process.toTest)
+)_"};
+
+    edm::test::TestProcessor::Config config{baseConfig};
+    SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
+
+    SECTION("Event with dummy data") {
+      auto electronToken = config.produces<std::vector<reco::GsfElectron>>("gedGsfElectrons");
+      auto vertexToken = config.produces<std::vector<reco::Vertex>>("offlinePrimaryVerticesWithBS");
+      {
+        edm::test::TestProcessor tester(config);
+
+        using namespace reco;
+        reco::SuperCluster cluster;
+        std::vector<reco::SuperCluster> clusters(1, cluster);
+
+        TrackExtra extra;
+        std::vector<TrackExtra> extras(1, extra);
+        GsfTrack track;
+        track.setExtra(TrackExtraRef(&extras, 0));
+        std::vector<GsfTrack> tracks(1, track);
+        GsfElectronCore core(GsfTrackRef(&tracks, 0));
+        core.setSuperCluster(SuperClusterRef(&clusters, 0));
+        std::vector<GsfElectronCore> cores(1, core);
+        reco::GsfElectron electron(1,
+                                   GsfElectron::ChargeInfo(),
+                                   GsfElectronCoreRef(&cores, 0),
+                                   GsfElectron::TrackClusterMatching(),
+                                   GsfElectron::TrackExtrapolations(),
+                                   GsfElectron::ClosestCtfTrack(),
+                                   GsfElectron::FiducialFlags(),
+                                   GsfElectron::ShowerShape(),
+                                   GsfElectron::ConversionRejection());
+        std::vector<reco::GsfElectron> electrons(1, electron);
+
+        reco::Vertex vertex;
+        std::vector<reco::Vertex> vertices(1, vertex);
+
+        REQUIRE_NOTHROW(tester.test(std::make_pair(electronToken, std::make_unique<decltype(electrons)>(electrons)),
+                                    std::make_pair(vertexToken, std::make_unique<decltype(vertices)>(vertices))));
+      }
+    }
+  }
 }
 
 //Add additional TEST_CASEs to exercise the modules capabilities

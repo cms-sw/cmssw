@@ -11,26 +11,31 @@
 
 #include <memory>
 
-class CutBasedElectronIDVersionStrategyBase {
+class CutBasedElectronIDClassbasedVersionStrategyBase {
 public:
-  virtual ~CutBasedElectronIDVersionStrategyBase() = default;
+  virtual ~CutBasedElectronIDClassbasedVersionStrategyBase() = default;
 
-  virtual double cicSelection(const reco::GsfElectron& electron, const reco::VertexCollection* e) const = 0;
-  virtual bool cicNeedsVertices() const = 0;
+  virtual double selection(const reco::GsfElectron& electron, const reco::VertexCollection* e) const = 0;
+  virtual bool needsVertices() const = 0;
+};
 
-  virtual double robustSigmaee(const reco::GsfElectron& electron) const;
-  virtual double robustIp(const reco::GsfElectron& electron,
-                          edm::Handle<reco::BeamSpot>,
-                          const reco::VertexCollection*) const;
-  virtual bool robustNeedsBeamSpot() const;
-  virtual bool robustNeedsVertices() const;
+class CutBasedElectronIDRobustVersionStrategyBase {
+public:
+  virtual ~CutBasedElectronIDRobustVersionStrategyBase() = default;
+
+  virtual double sigmaee(const reco::GsfElectron& electron) const;
+  virtual double ip(const reco::GsfElectron& electron,
+                    edm::Handle<reco::BeamSpot>,
+                    const reco::VertexCollection*) const;
+  virtual bool needsBeamSpot() const;
+  virtual bool needsVertices() const;
   struct Iso {
     double ecal;
     double hcal;
     double hcal1;
     double hcal2;
   };
-  virtual Iso robustIso(const reco::GsfElectron& electron) const;
+  virtual Iso iso(const reco::GsfElectron& electron) const;
 };
 
 class CutBasedElectronID : public ElectronIDAlgo {
@@ -50,7 +55,8 @@ private:
   std::vector<double> barrelCuts_;
   std::vector<double> endcapCuts_;
 
-  std::unique_ptr<CutBasedElectronIDVersionStrategyBase const> versionStrategy_;
+  std::unique_ptr<CutBasedElectronIDClassbasedVersionStrategyBase const> classbasedVersionStrategy_;
+  std::unique_ptr<CutBasedElectronIDRobustVersionStrategyBase const> robustVersionStrategy_;
 };
 
 #endif  // CutBasedElectronID_H

@@ -6,9 +6,9 @@
 
 #include <algorithm>
 
-class CutBasedElectronIDVersionStrategyV00_V01Base : public CutBasedElectronIDVersionStrategyBase {
+class CutBasedElectronIDClassbasedVersionStrategyV00_V01Base : public CutBasedElectronIDClassbasedVersionStrategyBase {
 public:
-  explicit CutBasedElectronIDVersionStrategyV00_V01Base(bool iQualityTight, edm::ParameterSet const& iCuts)
+  explicit CutBasedElectronIDClassbasedVersionStrategyV00_V01Base(bool iQualityTight, edm::ParameterSet const& iCuts)
       : qualityIsTight_{iQualityTight} {
     hOverECuts_ = iCuts.getParameter<std::vector<double> >("hOverE");
     sigmaEtaEtaCuts_ = iCuts.getParameter<std::vector<double> >("sigmaEtaEta");
@@ -16,12 +16,12 @@ public:
     deltaEtaInCuts_ = iCuts.getParameter<std::vector<double> >("deltaEtaIn");
     eSeedOverPinCuts_ = iCuts.getParameter<std::vector<double> >("eSeedOverPin");
   }
-  double cicSelection(const reco::GsfElectron& electron, const reco::VertexCollection* v) const final;
-  bool cicNeedsVertices() const final { return false; }
+  double selection(const reco::GsfElectron& electron, const reco::VertexCollection* v) const final;
+  bool needsVertices() const final { return false; }
 
 private:
   int classify(const reco::GsfElectron&) const;
-  //used in cicSelection
+  //used in selection
   virtual double calcSigmaee(const reco::GsfElectron& electron) const = 0;
   std::vector<double> hOverECuts_;
   std::vector<double> sigmaEtaEtaCuts_;
@@ -31,11 +31,10 @@ private:
   bool qualityIsTight_;
 };
 
-class CutBasedElectronIDVersionStrategyV00 : public CutBasedElectronIDVersionStrategyV00_V01Base {
+class CutBasedElectronIDClassbasedVersionStrategyV00 : public CutBasedElectronIDClassbasedVersionStrategyV00_V01Base {
 public:
-  explicit CutBasedElectronIDVersionStrategyV00(bool iQualityTight, edm::ParameterSet const& iCuts)
-      : CutBasedElectronIDVersionStrategyV00_V01Base(iQualityTight, iCuts) {}
-  double robustSigmaee(const reco::GsfElectron& electron) const override;
+  explicit CutBasedElectronIDClassbasedVersionStrategyV00(bool iQualityTight, edm::ParameterSet const& iCuts)
+      : CutBasedElectronIDClassbasedVersionStrategyV00_V01Base(iQualityTight, iCuts) {}
 
 private:
   virtual double calcSigmaee(const reco::GsfElectron& electron) const override {
@@ -52,10 +51,16 @@ private:
   }
 };
 
-class CutBasedElectronIDVersionStrategyV01 : public CutBasedElectronIDVersionStrategyV00_V01Base {
+class CutBasedElectronIDRobustVersionStrategyV00 : public CutBasedElectronIDRobustVersionStrategyBase {
 public:
-  CutBasedElectronIDVersionStrategyV01(bool iQualityTight, edm::ParameterSet const& iCuts)
-      : CutBasedElectronIDVersionStrategyV00_V01Base(iQualityTight, iCuts) {}
+  explicit CutBasedElectronIDRobustVersionStrategyV00() = default;
+  double sigmaee(const reco::GsfElectron& electron) const override;
+};
+
+class CutBasedElectronIDClassbasedVersionStrategyV01 : public CutBasedElectronIDClassbasedVersionStrategyV00_V01Base {
+public:
+  CutBasedElectronIDClassbasedVersionStrategyV01(bool iQualityTight, edm::ParameterSet const& iCuts)
+      : CutBasedElectronIDClassbasedVersionStrategyV00_V01Base(iQualityTight, iCuts) {}
 
 private:
   double calcSigmaee(const reco::GsfElectron& electron) const override {
@@ -63,9 +68,11 @@ private:
   }
 };
 
-class CutBasedElectronIDVersionStrategyV02 : public CutBasedElectronIDVersionStrategyBase {
+using CutBasedElectronIDRobustVersionStrategyV01 = CutBasedElectronIDRobustVersionStrategyBase;
+
+class CutBasedElectronIDClassbasedVersionStrategyV02 : public CutBasedElectronIDClassbasedVersionStrategyBase {
 public:
-  CutBasedElectronIDVersionStrategyV02(edm::ParameterSet const& iCuts) {
+  CutBasedElectronIDClassbasedVersionStrategyV02(edm::ParameterSet const& iCuts) {
     cutTk_ = iCuts.getParameter<std::vector<double> >("cutisotk");
     cutEcal_ = iCuts.getParameter<std::vector<double> >("cutisoecal");
     cutHcal_ = iCuts.getParameter<std::vector<double> >("cutisohcal");
@@ -79,8 +86,8 @@ public:
     cutip_ = iCuts.getParameter<std::vector<double> >("cutip");
     cutmishits_ = iCuts.getParameter<std::vector<double> >("cutmishits");
   }
-  double cicSelection(const reco::GsfElectron& electron, const reco::VertexCollection* v) const override;
-  bool cicNeedsVertices() const final { return true; }
+  double selection(const reco::GsfElectron& electron, const reco::VertexCollection* v) const override;
+  bool needsVertices() const final { return true; }
 
 private:
   int classify(const reco::GsfElectron&) const;
@@ -99,20 +106,22 @@ private:
   std::vector<double> cutmishits_;
 };
 
+using CutBasedElectronIDRobustVersionStrategyV02 = CutBasedElectronIDRobustVersionStrategyBase;
+
 namespace {
   //These exist to guarantee we can't get the order wrong in constructor calls
   enum class WantBinning { true_, false_ };
   enum class NewCategories { true_, false_ };
 }  // namespace
 
-class CutBasedElectronIDVersionStrategyV03_V06Base : public CutBasedElectronIDVersionStrategyBase {
+class CutBasedElectronIDClassbasedVersionStrategyV03_V06Base : public CutBasedElectronIDClassbasedVersionStrategyBase {
 public:
-  CutBasedElectronIDVersionStrategyV03_V06Base(std::string const& iType, NewCategories newCategories) {
+  CutBasedElectronIDClassbasedVersionStrategyV03_V06Base(std::string const& iType, NewCategories newCategories) {
     if (iType == "classbased") {
       newCategories_ = (newCategories == NewCategories::true_);
     }
   }
-  bool cicNeedsVertices() const final { return true; }
+  bool needsVertices() const final { return true; }
 
 protected:
   int classify(const reco::GsfElectron&) const;
@@ -121,13 +130,13 @@ private:
   bool newCategories_ = false;
 };
 
-class CutBasedElectronIDVersionStrategyV03 : public CutBasedElectronIDVersionStrategyV03_V06Base {
+class CutBasedElectronIDClassbasedVersionStrategyV03 : public CutBasedElectronIDClassbasedVersionStrategyV03_V06Base {
 public:
-  CutBasedElectronIDVersionStrategyV03(std::string const& iType,
-                                       NewCategories newCategories,
-                                       WantBinning wantBinning,
-                                       edm::ParameterSet const& iCuts)
-      : CutBasedElectronIDVersionStrategyV03_V06Base(iType, newCategories),
+  CutBasedElectronIDClassbasedVersionStrategyV03(std::string const& iType,
+                                                 NewCategories newCategories,
+                                                 WantBinning wantBinning,
+                                                 edm::ParameterSet const& iCuts)
+      : CutBasedElectronIDClassbasedVersionStrategyV03_V06Base(iType, newCategories),
         wantBinning_(wantBinning == WantBinning::true_) {
     cutIsoSum_ = iCuts.getParameter<std::vector<double> >("cutiso_sum");
     cutIsoSumCorr_ = iCuts.getParameter<std::vector<double> >("cutiso_sumoet");
@@ -141,13 +150,7 @@ public:
     cutmishits_ = iCuts.getParameter<std::vector<double> >("cutfmishits");
     cutdcotdist_ = iCuts.getParameter<std::vector<double> >("cutdcotdist");
   }
-  double cicSelection(const reco::GsfElectron& electron, const reco::VertexCollection* v) const override;
-
-  double robustIp(const reco::GsfElectron& electron,
-                  edm::Handle<reco::BeamSpot> pBeamSpot,
-                  const reco::VertexCollection*) const override;
-  bool robustNeedsBeamSpot() const override;
-  bool robustNeedsVertices() const override;
+  double selection(const reco::GsfElectron& electron, const reco::VertexCollection* v) const override;
 
 private:
   std::vector<double> cutIsoSum_;
@@ -164,35 +167,45 @@ private:
   bool wantBinning_;
 };
 
-class CutBasedElectronIDVersionStrategyV04 : public CutBasedElectronIDVersionStrategyV03 {
+class CutBasedElectronIDRobustVersionStrategyV03 : public CutBasedElectronIDRobustVersionStrategyBase {
 public:
-  CutBasedElectronIDVersionStrategyV04(std::string const& iType,
-                                       NewCategories newCategories,
-                                       WantBinning wantBinning,
-                                       edm::ParameterSet const& iCuts)
-      : CutBasedElectronIDVersionStrategyV03(iType, newCategories, wantBinning, iCuts) {}
-  Iso robustIso(const reco::GsfElectron& electron) const override;
-};
-class CutBasedElectronIDVersionStrategyV05 : public CutBasedElectronIDVersionStrategyV04 {
-public:
-  CutBasedElectronIDVersionStrategyV05(std::string const& iType,
-                                       NewCategories newCategories,
-                                       WantBinning wantBinning,
-                                       edm::ParameterSet const& iCuts)
-      : CutBasedElectronIDVersionStrategyV04(iType, newCategories, wantBinning, iCuts) {}
-  double robustIp(const reco::GsfElectron& electron,
-                  edm::Handle<reco::BeamSpot> pBeamSpot,
-                  const reco::VertexCollection*) const final;
-  bool robustNeedsBeamSpot() const final;
-  bool robustNeedsVertices() const final;
+  CutBasedElectronIDRobustVersionStrategyV03() = default;
+
+  double ip(const reco::GsfElectron& electron,
+            edm::Handle<reco::BeamSpot> pBeamSpot,
+            const reco::VertexCollection*) const override;
+  bool needsBeamSpot() const override;
+  bool needsVertices() const override;
 };
 
-class CutBasedElectronIDVersionStrategyV06 : public CutBasedElectronIDVersionStrategyV03_V06Base {
+using CutBasedElectronIDClassbasedVersionStrategyV04 = CutBasedElectronIDClassbasedVersionStrategyV03;
+
+class CutBasedElectronIDRobustVersionStrategyV04 : public CutBasedElectronIDRobustVersionStrategyV03 {
 public:
-  CutBasedElectronIDVersionStrategyV06(std::string const& iType,
-                                       NewCategories newCategories,
-                                       edm::ParameterSet const& iCuts)
-      : CutBasedElectronIDVersionStrategyV03_V06Base(iType, newCategories) {
+  CutBasedElectronIDRobustVersionStrategyV04() = default;
+  Iso iso(const reco::GsfElectron& electron) const override;
+};
+
+using CutBasedElectronIDClassbasedVersionStrategyV05 = CutBasedElectronIDClassbasedVersionStrategyV03;
+
+class CutBasedElectronIDRobustVersionStrategyV05 : public CutBasedElectronIDRobustVersionStrategyV04 {
+public:
+  CutBasedElectronIDRobustVersionStrategyV05() = default;
+  double ip(const reco::GsfElectron& electron,
+            edm::Handle<reco::BeamSpot> pBeamSpot,
+            const reco::VertexCollection*) const final;
+  bool needsBeamSpot() const final;
+  bool needsVertices() const final;
+};
+
+using CutBasedElectronIDRobustVersionStrategyV06 = CutBasedElectronIDRobustVersionStrategyBase;
+
+class CutBasedElectronIDClassbasedVersionStrategyV06 : public CutBasedElectronIDClassbasedVersionStrategyV03_V06Base {
+public:
+  CutBasedElectronIDClassbasedVersionStrategyV06(std::string const& iType,
+                                                 NewCategories newCategories,
+                                                 edm::ParameterSet const& iCuts)
+      : CutBasedElectronIDClassbasedVersionStrategyV03_V06Base(iType, newCategories) {
     cutIsoSum_ = iCuts.getParameter<std::vector<double> >("cutiso_sum");
     cutIsoSumCorr_ = iCuts.getParameter<std::vector<double> >("cutiso_sumoet");
     cuthoe_ = iCuts.getParameter<std::vector<double> >("cuthoe");
@@ -210,7 +223,7 @@ public:
     cutdetal_ = iCuts.getParameter<std::vector<double> >("cutdetainl");
     cutipl_ = iCuts.getParameter<std::vector<double> >("cutip_gsfl");
   }
-  double cicSelection(const reco::GsfElectron& electron, const reco::VertexCollection* v) const override;
+  double selection(const reco::GsfElectron& electron, const reco::VertexCollection* v) const override;
 
 private:
   bool compute_cut(double x, double et, double cut_min, double cut_max, bool gtn = false) const;
@@ -233,7 +246,8 @@ private:
   std::vector<double> cutipl_;
 };
 
-using CutBasedElectronIDVersionStrategyDefault = CutBasedElectronIDVersionStrategyV06;
+using CutBasedElectronIDClassbasedVersionStrategyDefault = CutBasedElectronIDClassbasedVersionStrategyV06;
+using CutBasedElectronIDRobustVersionStrategyDefault = CutBasedElectronIDRobustVersionStrategyV06;
 
 namespace {
   double getSigmaee(const reco::GsfElectron& electron) {
@@ -267,32 +281,54 @@ namespace {
     }
     return WantBinning::false_;
   }
-  std::unique_ptr<CutBasedElectronIDVersionStrategyBase> makeStrategy(const std::string& iVersion,
-                                                                      const std::string& iType,
-                                                                      const std::string& iQuality,
-                                                                      edm::ParameterSet const& iPSet,
-                                                                      edm::ParameterSet const& cuts) {
+  std::unique_ptr<CutBasedElectronIDClassbasedVersionStrategyBase> makeClassbasedStrategy(
+      const std::string& iVersion,
+      const std::string& iType,
+      const std::string& iQuality,
+      edm::ParameterSet const& iPSet,
+      edm::ParameterSet const& cuts) {
     if (iVersion == "V00") {
-      return std::make_unique<CutBasedElectronIDVersionStrategyV00>(iQuality == "tight", cuts);
+      return std::make_unique<CutBasedElectronIDClassbasedVersionStrategyV00>(iQuality == "tight", cuts);
     } else if (iVersion == "V01") {
-      return std::make_unique<CutBasedElectronIDVersionStrategyV01>(iQuality == "tight", cuts);
+      return std::make_unique<CutBasedElectronIDClassbasedVersionStrategyV01>(iQuality == "tight", cuts);
     } else if (iVersion == "V02") {
-      return std::make_unique<CutBasedElectronIDVersionStrategyV02>(cuts);
+      return std::make_unique<CutBasedElectronIDClassbasedVersionStrategyV02>(cuts);
     } else if (iVersion == "V03") {
-      return std::make_unique<CutBasedElectronIDVersionStrategyV03>(
+      return std::make_unique<CutBasedElectronIDClassbasedVersionStrategyV03>(
           iType, newCategories(iType, iPSet), wantBinning(iType, iPSet), cuts);
     } else if (iVersion == "V04") {
-      return std::make_unique<CutBasedElectronIDVersionStrategyV04>(
+      return std::make_unique<CutBasedElectronIDClassbasedVersionStrategyV04>(
           iType, newCategories(iType, iPSet), wantBinning(iType, iPSet), cuts);
     } else if (iVersion == "V05") {
-      return std::make_unique<CutBasedElectronIDVersionStrategyV05>(
+      return std::make_unique<CutBasedElectronIDClassbasedVersionStrategyV05>(
           iType, newCategories(iType, iPSet), wantBinning(iType, iPSet), cuts);
     } else if (iVersion == "V06") {
-      return std::make_unique<CutBasedElectronIDVersionStrategyV06>(iType, newCategories(iType, iPSet), cuts);
+      return std::make_unique<CutBasedElectronIDClassbasedVersionStrategyV06>(iType, newCategories(iType, iPSet), cuts);
     } else {
-      return std::make_unique<CutBasedElectronIDVersionStrategyDefault>(iType, newCategories(iType, iPSet), cuts);
+      return std::make_unique<CutBasedElectronIDClassbasedVersionStrategyDefault>(
+          iType, newCategories(iType, iPSet), cuts);
     }
   }
+  std::unique_ptr<CutBasedElectronIDRobustVersionStrategyBase> makeRobustStrategy(const std::string& iVersion) {
+    if (iVersion == "V00") {
+      return std::make_unique<CutBasedElectronIDRobustVersionStrategyV00>();
+    } else if (iVersion == "V01") {
+      return std::make_unique<CutBasedElectronIDRobustVersionStrategyV01>();
+    } else if (iVersion == "V02") {
+      return std::make_unique<CutBasedElectronIDRobustVersionStrategyV02>();
+    } else if (iVersion == "V03") {
+      return std::make_unique<CutBasedElectronIDRobustVersionStrategyV03>();
+    } else if (iVersion == "V04") {
+      return std::make_unique<CutBasedElectronIDRobustVersionStrategyV04>();
+    } else if (iVersion == "V05") {
+      return std::make_unique<CutBasedElectronIDRobustVersionStrategyV05>();
+    } else if (iVersion == "V06") {
+      return std::make_unique<CutBasedElectronIDRobustVersionStrategyV06>();
+    } else {
+      return std::make_unique<CutBasedElectronIDRobustVersionStrategyDefault>();
+    }
+  }
+
 }  // namespace
 
 CutBasedElectronID::CutBasedElectronID(const edm::ParameterSet& conf, edm::ConsumesCollector& iC) {
@@ -312,22 +348,22 @@ CutBasedElectronID::CutBasedElectronID(const edm::ParameterSet& conf, edm::Consu
   if (type_ == "robust") {
     barrelCuts_ = cuts.getParameter<std::vector<double> >("barrel");
     endcapCuts_ = cuts.getParameter<std::vector<double> >("endcap");
-  }
-
-  versionStrategy_ = makeStrategy(version, type_, quality_, conf, cuts);
-  if ((type_ == "classbased" and versionStrategy_->cicNeedsVertices())) {
-    verticesCollection_ =
-        iC.consumes<std::vector<reco::Vertex> >(conf.getParameter<edm::InputTag>("verticesCollection"));
-  } else if (type_ == "robust") {
+    robustVersionStrategy_ = makeRobustStrategy(version);
     //The use of 'verticesCollection' for two different data items was in the old code. This explicitly
     // shows the uses were mutually exclusive
-    assert(not(versionStrategy_->robustNeedsVertices() and versionStrategy_->robustNeedsBeamSpot()));
-    if (versionStrategy_->robustNeedsVertices()) {
+    assert(not(robustVersionStrategy_->needsVertices() and robustVersionStrategy_->needsBeamSpot()));
+    if (robustVersionStrategy_->needsVertices()) {
       verticesCollection_ =
           iC.consumes<std::vector<reco::Vertex> >(conf.getParameter<edm::InputTag>("verticesCollection"));
     }
-    if (versionStrategy_->robustNeedsBeamSpot()) {
+    if (robustVersionStrategy_->needsBeamSpot()) {
       beamSpot_ = iC.consumes(conf.getParameter<edm::InputTag>("verticesCollection"));
+    }
+  } else if (type_ == "classbased") {
+    classbasedVersionStrategy_ = makeClassbasedStrategy(version, type_, quality_, conf, cuts);
+    if (classbasedVersionStrategy_->needsVertices()) {
+      verticesCollection_ =
+          iC.consumes<std::vector<reco::Vertex> >(conf.getParameter<edm::InputTag>("verticesCollection"));
     }
   }
 }
@@ -343,7 +379,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron,
   return 0;
 }
 
-int CutBasedElectronIDVersionStrategyV00_V01Base::classify(const reco::GsfElectron& electron) const {
+int CutBasedElectronIDClassbasedVersionStrategyV00_V01Base::classify(const reco::GsfElectron& electron) const {
   double eOverP = electron.eSuperClusterOverP();
   double fBrem = electron.fbrem();
 
@@ -358,7 +394,7 @@ int CutBasedElectronIDVersionStrategyV00_V01Base::classify(const reco::GsfElectr
   return cat;
 }
 
-int CutBasedElectronIDVersionStrategyV02::classify(const reco::GsfElectron& electron) const {
+int CutBasedElectronIDClassbasedVersionStrategyV02::classify(const reco::GsfElectron& electron) const {
   double eOverP = electron.eSuperClusterOverP();
   double fBrem = electron.fbrem();
 
@@ -382,7 +418,7 @@ int CutBasedElectronIDVersionStrategyV02::classify(const reco::GsfElectron& elec
   return cat;
 }
 
-int CutBasedElectronIDVersionStrategyV03_V06Base::classify(const reco::GsfElectron& electron) const {
+int CutBasedElectronIDClassbasedVersionStrategyV03_V06Base::classify(const reco::GsfElectron& electron) const {
   double eta = fabs(electron.superCluster()->eta());
   double eOverP = electron.eSuperClusterOverP();
   double fBrem = electron.fbrem();
@@ -417,8 +453,8 @@ int CutBasedElectronIDVersionStrategyV03_V06Base::classify(const reco::GsfElectr
   return cat;
 }
 
-double CutBasedElectronIDVersionStrategyV00_V01Base::cicSelection(const reco::GsfElectron& electron,
-                                                                  const reco::VertexCollection* v) const {
+double CutBasedElectronIDClassbasedVersionStrategyV00_V01Base::selection(const reco::GsfElectron& electron,
+                                                                         const reco::VertexCollection* v) const {
   int cat = classify(electron);
   int eb = electron.isEB() ? 0 : 1;
 
@@ -460,8 +496,8 @@ double CutBasedElectronIDVersionStrategyV00_V01Base::cicSelection(const reco::Gs
   return 1.;
 }
 
-double CutBasedElectronIDVersionStrategyV02::cicSelection(const reco::GsfElectron& electron,
-                                                          const reco::VertexCollection* vertices) const {
+double CutBasedElectronIDClassbasedVersionStrategyV02::selection(const reco::GsfElectron& electron,
+                                                                 const reco::VertexCollection* vertices) const {
   double result = 0.;
 
   int bin = 0;
@@ -516,8 +552,8 @@ double CutBasedElectronIDVersionStrategyV02::cicSelection(const reco::GsfElectro
   return result;
 }
 
-double CutBasedElectronIDVersionStrategyV03::cicSelection(const reco::GsfElectron& electron,
-                                                          const reco::VertexCollection* vertices) const {
+double CutBasedElectronIDClassbasedVersionStrategyV03::selection(const reco::GsfElectron& electron,
+                                                                 const reco::VertexCollection* vertices) const {
   double result = 0.;
 
   int bin = 0;
@@ -576,8 +612,8 @@ double CutBasedElectronIDVersionStrategyV03::cicSelection(const reco::GsfElectro
   return result;
 }
 
-double CutBasedElectronIDVersionStrategyV06::cicSelection(const reco::GsfElectron& electron,
-                                                          const reco::VertexCollection* vertices) const {
+double CutBasedElectronIDClassbasedVersionStrategyV06::selection(const reco::GsfElectron& electron,
+                                                                 const reco::VertexCollection* vertices) const {
   int result = 0;
 
   const int ncuts = 10;
@@ -675,11 +711,11 @@ double CutBasedElectronIDVersionStrategyV06::cicSelection(const reco::GsfElectro
 double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
                                         const edm::Event& e,
                                         const edm::EventSetup& es) const {
-  return versionStrategy_->cicSelection(*electron,
-                                        versionStrategy_->cicNeedsVertices() ? &(e.get(verticesCollection_)) : nullptr);
+  return classbasedVersionStrategy_->selection(
+      *electron, classbasedVersionStrategy_->needsVertices() ? &(e.get(verticesCollection_)) : nullptr);
 }
 
-bool CutBasedElectronIDVersionStrategyV06::compute_cut(
+bool CutBasedElectronIDClassbasedVersionStrategyV06::compute_cut(
     double x, double et, double cut_min, double cut_max, bool gtn) const {
   float et_min = 10;
   float et_max = 40;
@@ -705,11 +741,11 @@ bool CutBasedElectronIDVersionStrategyV06::compute_cut(
   return accept;
 }
 
-double CutBasedElectronIDVersionStrategyBase::robustSigmaee(const reco::GsfElectron& electron) const {
+double CutBasedElectronIDRobustVersionStrategyBase::sigmaee(const reco::GsfElectron& electron) const {
   return electron.sigmaIetaIeta();
 }
 
-double CutBasedElectronIDVersionStrategyV00::robustSigmaee(const reco::GsfElectron& electron) const {
+double CutBasedElectronIDRobustVersionStrategyV00::sigmaee(const reco::GsfElectron& electron) const {
   double sigmaee = electron.sigmaEtaEta();
   double eta = electron.p4().Eta();
   if (electron.isEE())
@@ -717,17 +753,17 @@ double CutBasedElectronIDVersionStrategyV00::robustSigmaee(const reco::GsfElectr
   return sigmaee;
 }
 
-double CutBasedElectronIDVersionStrategyBase::robustIp(const reco::GsfElectron& electron,
+double CutBasedElectronIDRobustVersionStrategyBase::ip(const reco::GsfElectron& electron,
                                                        edm::Handle<reco::BeamSpot>,
                                                        const reco::VertexCollection*) const {
   return 0;
 }
 
-bool CutBasedElectronIDVersionStrategyBase::robustNeedsBeamSpot() const { return false; }
-bool CutBasedElectronIDVersionStrategyBase::robustNeedsVertices() const { return false; }
+bool CutBasedElectronIDRobustVersionStrategyBase::needsBeamSpot() const { return false; }
+bool CutBasedElectronIDRobustVersionStrategyBase::needsVertices() const { return false; }
 
 //V03 and V04
-double CutBasedElectronIDVersionStrategyV03::robustIp(const reco::GsfElectron& electron,
+double CutBasedElectronIDRobustVersionStrategyV03::ip(const reco::GsfElectron& electron,
                                                       edm::Handle<reco::BeamSpot> pBeamSpot,
                                                       const reco::VertexCollection*) const {
   double ip = 0;
@@ -741,10 +777,10 @@ double CutBasedElectronIDVersionStrategyV03::robustIp(const reco::GsfElectron& e
   return ip;
 }
 
-bool CutBasedElectronIDVersionStrategyV03::robustNeedsBeamSpot() const { return true; }
-bool CutBasedElectronIDVersionStrategyV03::robustNeedsVertices() const { return false; }
+bool CutBasedElectronIDRobustVersionStrategyV03::needsBeamSpot() const { return true; }
+bool CutBasedElectronIDRobustVersionStrategyV03::needsVertices() const { return false; }
 
-double CutBasedElectronIDVersionStrategyV05::robustIp(const reco::GsfElectron& electron,
+double CutBasedElectronIDRobustVersionStrategyV05::ip(const reco::GsfElectron& electron,
                                                       edm::Handle<reco::BeamSpot>,
                                                       const reco::VertexCollection* pVtxC) const {
   assert(pVtxC);
@@ -759,10 +795,10 @@ double CutBasedElectronIDVersionStrategyV05::robustIp(const reco::GsfElectron& e
   return ip;
 }
 
-bool CutBasedElectronIDVersionStrategyV05::robustNeedsBeamSpot() const { return false; }
-bool CutBasedElectronIDVersionStrategyV05::robustNeedsVertices() const { return true; }
+bool CutBasedElectronIDRobustVersionStrategyV05::needsBeamSpot() const { return false; }
+bool CutBasedElectronIDRobustVersionStrategyV05::needsVertices() const { return true; }
 
-CutBasedElectronIDVersionStrategyBase::Iso CutBasedElectronIDVersionStrategyBase::robustIso(
+CutBasedElectronIDRobustVersionStrategyBase::Iso CutBasedElectronIDRobustVersionStrategyBase::iso(
     const reco::GsfElectron& electron) const {
   Iso iso;
   iso.ecal = electron.dr04EcalRecHitSumEt();
@@ -773,7 +809,7 @@ CutBasedElectronIDVersionStrategyBase::Iso CutBasedElectronIDVersionStrategyBase
 }
 
 //V04 and V05
-CutBasedElectronIDVersionStrategyBase::Iso CutBasedElectronIDVersionStrategyV04::robustIso(
+CutBasedElectronIDRobustVersionStrategyBase::Iso CutBasedElectronIDRobustVersionStrategyV04::iso(
     const reco::GsfElectron& electron) const {
   Iso iso;
   iso.ecal = electron.dr03EcalRecHitSumEt();
@@ -790,7 +826,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron,
   double scEt = electron->superCluster()->energy() * sin(scTheta);
   double eOverP = electron->eSuperClusterOverP();
   double hOverE = electron->hadronicOverEm();
-  double sigmaee = versionStrategy_->robustSigmaee(*electron);
+  double sigmaee = robustVersionStrategy_->sigmaee(*electron);
   double e25Max = electron->e2x5Max();
   double e15 = electron->e1x5();
   double e55 = electron->e5x5();
@@ -799,13 +835,13 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron,
   double deltaPhiIn = electron->deltaPhiSuperClusterTrackAtVtx();
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
 
-  double ip = versionStrategy_->robustIp(
+  double ip = robustVersionStrategy_->ip(
       *electron,
-      versionStrategy_->robustNeedsBeamSpot() ? e.getHandle(beamSpot_) : edm::Handle<reco::BeamSpot>(),
-      versionStrategy_->robustNeedsVertices() ? &(e.get(verticesCollection_)) : nullptr);
+      robustVersionStrategy_->needsBeamSpot() ? e.getHandle(beamSpot_) : edm::Handle<reco::BeamSpot>(),
+      robustVersionStrategy_->needsVertices() ? &(e.get(verticesCollection_)) : nullptr);
   int mishits = electron->gsfTrack()->missingInnerHits();
   double tkIso = electron->dr03TkSumPt();
-  auto iso = versionStrategy_->robustIso(*electron);
+  auto iso = robustVersionStrategy_->iso(*electron);
   double ecalIso = iso.ecal;
   double ecalIsoPed = (electron->isEB()) ? std::max(0., ecalIso - 1.) : ecalIso;
   double hcalIso = iso.hcal;
