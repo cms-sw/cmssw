@@ -4,6 +4,8 @@
 #include <cassert>
 #include <memory>
 
+#include "DataFormats/Common/interface/Uninitialized.h"
+
 namespace edm {
   class DeviceProductBase {
   public:
@@ -45,7 +47,13 @@ namespace edm {
   template <typename T>
   class DeviceProduct : public DeviceProductBase {
   public:
-    DeviceProduct() = default;
+    DeviceProduct()
+      requires(requires { T(); })
+    = default;
+
+    explicit DeviceProduct(edm::Uninitialized)
+      requires(requires { T(edm::kUninitialized); })
+        : data_{edm::kUninitialized} {}
 
     template <typename M, typename... Args>
     explicit DeviceProduct(std::shared_ptr<M> metadata, Args&&... args)
