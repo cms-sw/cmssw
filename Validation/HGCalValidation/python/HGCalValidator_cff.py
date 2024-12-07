@@ -13,7 +13,9 @@ hgcalValidator = _hgcalValidator.clone(
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(hgcalValidator,
-    label_cp_fake = "mixData:MergedCaloTruth"
+    label_cp_fake = "mixData:MergedCaloTruth",
+    label_cp_effic = "mixData:MergedCaloTruth",
+    label_scl = "mixData:MergedCaloTruth",
 )
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10

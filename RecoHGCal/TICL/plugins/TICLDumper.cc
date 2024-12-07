@@ -62,7 +62,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 using TracksterToTracksterMap =
-    ticl::AssociationMap<ticl::mapWithFractionAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
+    ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
 // Helper class for geometry, magnetic field, etc
 class DetectorTools {
 public:
@@ -514,10 +514,10 @@ public:
     recoToSim_sharedE.resize(numberOfTracksters);
 
     for (size_t i = 0; i < numberOfTracksters; ++i) {
-      for (const auto& [simTracksterIndex, sharedEnergyAndScorePair] : recoToSimMap[i]) {
-        recoToSim[i].push_back(simTracksterIndex);
-        recoToSim_sharedE[i].push_back(sharedEnergyAndScorePair.first);
-        recoToSim_score[i].push_back(sharedEnergyAndScorePair.second);
+      for (const auto& simTracksterElement : recoToSimMap[i]) {
+        recoToSim[i].push_back(simTracksterElement.index());
+        recoToSim_sharedE[i].push_back(simTracksterElement.sharedEnergy());
+        recoToSim_score[i].push_back(simTracksterElement.score());
       }
     }
 
@@ -528,10 +528,10 @@ public:
     simToReco_sharedE.resize(numberOfSimTracksters);
 
     for (size_t i = 0; i < numberOfSimTracksters; ++i) {
-      for (const auto& [recoTracksterIndex, sharedEnergyAndScorePair] : simToRecoMap[i]) {
-        simToReco[i].push_back(recoTracksterIndex);
-        simToReco_sharedE[i].push_back(sharedEnergyAndScorePair.first);
-        simToReco_score[i].push_back(sharedEnergyAndScorePair.second);
+      for (const auto& recoTracksterElement : simToRecoMap[i]) {
+        simToReco[i].push_back(recoTracksterElement.index());
+        simToReco_sharedE[i].push_back(recoTracksterElement.sharedEnergy());
+        simToReco_score[i].push_back(recoTracksterElement.score());
       }
     }
   }

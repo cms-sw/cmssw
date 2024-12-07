@@ -365,10 +365,10 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     if (!ts_vec.empty()) {
       auto min_elem =
           std::min_element(ts_vec.begin(), ts_vec.end(), [](auto const& ts1_id_pair, auto const& ts2_id_pair) {
-            return ts1_id_pair.second.second < ts2_id_pair.second.second;
+            return ts1_id_pair.score() < ts2_id_pair.score();
           });
-      shared_energy = min_elem->second.first;
-      cand_idx = min_elem->first;
+      shared_energy = min_elem->sharedEnergy();
+      cand_idx = min_elem->index();
     }
     // no reco associated to sim
     if (cand_idx == -1)
@@ -442,10 +442,10 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     if (!ts_vec.empty()) {
       auto min_elem =
           std::min_element(ts_vec.begin(), ts_vec.end(), [](auto const& ts1_id_pair, auto const& ts2_id_pair) {
-            return ts1_id_pair.second.second < ts2_id_pair.second.second;
+            return ts1_id_pair.score() < ts2_id_pair.score();
           });
-      shared_energy = min_elem->second.first;
-      cand_idx = min_elem->first;
+      shared_energy = min_elem->sharedEnergy();
+      cand_idx = min_elem->index();
     }
 
     // no reco associated to sim
@@ -555,10 +555,10 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     if (!sts_vec.empty()) {
       auto min_elem =
           std::min_element(sts_vec.begin(), sts_vec.end(), [](auto const& sts1_id_pair, auto const& sts2_id_pair) {
-            return sts1_id_pair.second.second < sts2_id_pair.second.second;
+            return sts1_id_pair.score() < sts2_id_pair.score();
           });
-      shared_energy = min_elem->second.first;
-      simCand_idx = min_elem->first;
+      shared_energy = min_elem->sharedEnergy();
+      simCand_idx = min_elem->index();
     }
 
     if (simCand_idx == -1)
@@ -641,10 +641,10 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     if (!sts_vec.empty()) {
       auto min_elem =
           std::min_element(sts_vec.begin(), sts_vec.end(), [](auto const& sts1_id_pair, auto const& sts2_id_pair) {
-            return sts1_id_pair.second.second < sts2_id_pair.second.second;
+            return sts1_id_pair.score() < sts2_id_pair.score();
           });
-      shared_energy = min_elem->second.first;
-      simCand_idx = min_elem->first;
+      shared_energy = min_elem->sharedEnergy();
+      simCand_idx = min_elem->index();
     }
 
     if (simCand_idx == -1)
