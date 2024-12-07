@@ -20,7 +20,8 @@
 <test name="TestDQMOnlineClient-pixel_dqm_sourceclient" command="runtest.sh pixel_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-pixellumi_dqm_sourceclient" command="runtest.sh pixellumi_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-rpc_dqm_sourceclient" command="runtest.sh rpc_dqm_sourceclient-live_cfg.py"/>
-<test name="TestDQMOnlineClient-scal_dqm_sourceclient" command="runtest.sh scal_dqm_sourceclient-live_cfg.py"/>
+<!-- The SCAL FED has been removed from DAQ since the end of Run 2 -->
+<!-- <test name="TestDQMOnlineClient-scal_dqm_sourceclient" command="runtest.sh scal_dqm_sourceclient-live_cfg.py"/> -->
 <test name="TestDQMOnlineClient-sistrip_dqm_sourceclient" command="runtest.sh sistrip_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-sistrip_approx_dqm_sourceclient" command="runtest.sh sistrip_approx_dqm_sourceclient-live_cfg.py 362321 hi_run"/>
 <test name="TestDQMOnlineClient-onlinebeammonitor_dqm_sourceclient" command="runtest.sh onlinebeammonitor_dqm_sourceclient-live_cfg.py"/>
