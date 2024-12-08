@@ -9,6 +9,5 @@ function runSuccess {
 
 runSuccess ${SCRAM_TEST_PATH}/testRefProductIDMetadataConsistencyRoot_cfg.py
 runSuccess ${SCRAM_TEST_PATH}/testRefProductIDMetadataConsistencyRoot_cfg.py --enableOther
-
 runSuccess ${SCRAM_TEST_PATH}/testRefProductIDMetadataConsistencyRootMerge_cfg.py
 runSuccess ${SCRAM_TEST_PATH}/testRefProductIDMetadataConsistencyRootTest_cfg.py
