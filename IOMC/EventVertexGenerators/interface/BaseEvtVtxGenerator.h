@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
+#include "Math/Vector4D.h"
 #include "TMatrixD.h"
 
 namespace HepMC {
@@ -29,12 +30,7 @@ public:
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const = 0;
-  /** This method - and the comment - is a left-over from COBRA-OSCAR time :
-    *  return the last generated event vertex.
-    *  If no vertex has been generated yet, a NULL pointer is returned. */
-  //virtual CLHEP::Hep3Vector* lastVertex() { return fVertex; }
-  //virtual HepMC::FourVector* lastVertex() { return fVertex; }
+  virtual ROOT::Math::XYZTVector vertexShift(CLHEP::HepRandomEngine*) const = 0;
 
   virtual TMatrixD const* GetInvLorentzBoost() const = 0;
 
