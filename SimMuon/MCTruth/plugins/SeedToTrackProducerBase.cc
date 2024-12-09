@@ -65,8 +65,10 @@ void SeedToTrackProducerBase<SeedCollection>::produce(edm::StreamID,
   const std::vector<SeedType> *L2seeds = nullptr;
   if (L2seedsCollection.isValid())
     L2seeds = L2seedsCollection.product();
-  else
+  else {
     edm::LogError("SeedToTrackProducerBase") << "L2 seeds collection not found !! " << endl;
+    return;
+  }
 
   edm::Handle<edm::View<TrajectorySeed>> seedHandle;
   iEvent.getByToken(L2seedsTagS_, seedHandle);
