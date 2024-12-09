@@ -1,11 +1,9 @@
 #ifndef CondFormats_EcalObjects_interface_EcalRecHitParametersHost_h
 #define CondFormats_EcalObjects_interface_EcalRecHitParametersHost_h
 
-#include "CondFormats/EcalObjects/interface/EcalRecHitParametersSoA.h"
-#include "DataFormats/Portable/interface/PortableHostCollection.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "CondFormats/EcalObjects/interface/EcalRecHitParameters.h"
+#include "DataFormats/Portable/interface/PortableHostObject.h"
 
-using EcalRecHitParametersHost = PortableHostCollection<EcalRecHitParametersSoA>;
+using EcalRecHitParametersHost = PortableHostObject<EcalRecHitParameters>;
 
 #endif

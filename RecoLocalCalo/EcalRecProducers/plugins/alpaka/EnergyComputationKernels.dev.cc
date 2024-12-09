@@ -22,7 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                                 uint32_t* flagBits,
                                 uint32_t* extra,
                                 EcalRecHitConditionsDevice::ConstView conditionsDev,
-                                EcalRecHitParametersDevice::ConstView parametersDev,
+                                EcalRecHitParametersDevice::Product const* parametersDev,
                                 // time, used for time dependent corrections
                                 edm::TimeValue_t const& eventTime,
                                 // configuration
@@ -160,14 +160,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
 
     auto const dbChStatus = static_cast<EcalChannelStatusCode::Code>(conditionsDev.channelStatus()[hashedId] &
                                                                      EcalChannelStatusCode::chStatusMask);
-    auto const& exclChStatCodes = parametersDev.channelStatusCodesToBeExcluded();
+    auto const& exclChStatCodes = parametersDev->channelStatusCodesToBeExcluded;
     if (exclChStatCodes[dbChStatus]) {
       // skip the channel if the channel status bit is set and should be excluded
       return;
     }
 
     // Take our association map of dbChStatuses-> recHit flagbits and return the appropriate flagbit word
-    auto const& recoFlagBits = parametersDev.recoFlagBits()[dbChStatus];
+    auto const& recoFlagBits = parametersDev->recoFlagBits[dbChStatus];
     flagBits[inputCh] = recoFlagBits;
 
     if ((flagmask & recoFlagBits) && killDeadChannels) {
