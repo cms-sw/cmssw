@@ -823,7 +823,7 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
   }
 
   // need to store the digi out of the 21x13 box.
-  for (auto& i : theDigiSignal) {
+  for (const auto& i : theDigiSignal) {
     // check if in the 21x13 box
     int chanDigi = i.first;
     std::pair<int, int> ip = PixelDigi::channelToPixel(chanDigi);
@@ -1039,7 +1039,7 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
   }
 
   // need to store the digi out of the 21x13 box.
-  for (auto& i : theDigiSignal) {
+  for (const auto& i : theDigiSignal) {
     // check if in the 21x13 box
     int chanDigi = i.first;
     std::pair<int, int> ip = PixelDigi::channelToPixel(chanDigi);
