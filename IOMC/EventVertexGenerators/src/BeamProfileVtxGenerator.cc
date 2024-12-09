@@ -11,7 +11,6 @@
 #include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
-#include "HepMC/SimpleVector.h"
 
 #include <fstream>
 #include <string>
@@ -80,8 +79,7 @@ BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet& p) : B
 
 BeamProfileVtxGenerator::~BeamProfileVtxGenerator() {}
 
-//Hep3Vector * BeamProfileVtxGenerator::newVertex() {
-HepMC::FourVector BeamProfileVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) const {
+ROOT::Math::XYZTVector BeamProfileVtxGenerator::vertexShift(CLHEP::HepRandomEngine* engine) const {
   double aX, aY;
   if (ffile) {
     double r1 = engine->flat();
@@ -121,10 +119,11 @@ HepMC::FourVector BeamProfileVtxGenerator::newVertex(CLHEP::HepRandomEngine* eng
     /*
      static const double kRadToDeg ( 180./M_PI ) ;
      std::cout<<"theta = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      <<fTheta*kRadToDeg<<", phi="<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      << fPhi*kRadToDeg <<", PSI="<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      <<fPsi*kRadToDeg<<std::endl ;
-*/
+              <<fTheta*kRadToDeg<<", phi="<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+              << fPhi*kRadToDeg <<", PSI="<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+              <<fPsi*kRadToDeg<<std::endl ;
+    */
+
     const HepGeom::RotateZ3D R1(fPhi - M_PI);
     const HepGeom::Point3D<double> xUnit(0, 1, 0);
     const HepGeom::Point3D<double> zUnit(0, 0, 1);
@@ -132,21 +131,21 @@ HepMC::FourVector BeamProfileVtxGenerator::newVertex(CLHEP::HepRandomEngine* eng
     const HepGeom::Transform3D TRF(HepGeom::Rotate3D(fPsi, RXRZ * zUnit) * RXRZ);
     /*
      std::cout<<"\n\n$$$$$$$$$$$Transform="
-	      <<" thetaZ = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      <<TRF.getRotation().thetaZ()*kRadToDeg
-	      <<", phiZ = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      <<TRF.getRotation().phiZ()*kRadToDeg
-	      <<", thetaY = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      <<TRF.getRotation().thetaY()*kRadToDeg
-	      <<", phiY = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      <<TRF.getRotation().phiY()*kRadToDeg
-	      <<", thetaX = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      <<TRF.getRotation().thetaX()*kRadToDeg
-	      <<", phiX = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      <<TRF.getRotation().phiX()*kRadToDeg
-	      <<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      <<TRF.getTranslation()<<std::endl ;
-*/
+              <<" thetaZ = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+              <<TRF.getRotation().thetaZ()*kRadToDeg
+              <<", phiZ = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+              <<TRF.getRotation().phiZ()*kRadToDeg
+              <<", thetaY = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+              <<TRF.getRotation().thetaY()*kRadToDeg
+              <<", phiY = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+              <<TRF.getRotation().phiY()*kRadToDeg
+              <<", thetaX = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+              <<TRF.getRotation().thetaX()*kRadToDeg
+              <<", phiX = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+              <<TRF.getRotation().phiX()*kRadToDeg
+              <<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+              <<TRF.getTranslation()<<std::endl ;
+    */
     const HepGeom::Vector3D<double> pv(TRF * av);
 
     xp = pv.x();
@@ -156,7 +155,7 @@ HepMC::FourVector BeamProfileVtxGenerator::newVertex(CLHEP::HepRandomEngine* eng
 
   LogDebug("VertexGenerator") << "BeamProfileVtxGenerator: Vertex created "
                               << "at (" << xp << ", " << yp << ", " << zp << ", " << fTimeOffset << ")";
-  return HepMC::FourVector(xp, yp, zp, fTimeOffset);
+  return ROOT::Math::XYZTVector(xp, yp, zp, fTimeOffset);
   ;
 }
 
