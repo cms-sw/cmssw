@@ -215,7 +215,8 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.InitialStepPreSplittingTask.remove(process.MeasurementTrackerEvent)
 
     # Redefinition of siPixelClusters: has to be after RecoTracker.IterativeTracking.InitialStepPreSplitting_cff
-    process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
+    from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
+    process.siPixelClusters = _siPixelClusters.clone()
 
     # Select events based on the pixel cluster multiplicity
     import  HLTrigger.special.hltPixelActivityFilter_cfi
