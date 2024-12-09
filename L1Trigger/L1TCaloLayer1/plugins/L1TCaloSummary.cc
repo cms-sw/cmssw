@@ -195,8 +195,8 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   // of size 7*2. Indices are mapped in UCTSummaryCard accordingly.
   UCTSummaryCard summaryCard =
       UCTSummaryCard(&pumLUT, jetSeed, tauSeed, tauIsolationFactor, eGammaSeed, eGammaIsolationFactor);
-  std::vector<UCTRegion*> inputRegions;
-  inputRegions.clear();
+  std::vector<UCTRegion> inputRegions;
+  inputRegions.reserve(252);  // 252 calorimeter regions. 18 phi * 14 eta
   edm::Handle<std::vector<L1CaloRegion>> regionCollection;
   if (!iEvent.getByToken(regionToken, regionCollection))
     edm::LogError("L1TCaloSummary") << "UCT: Failed to get regions from region collection!";
@@ -222,8 +222,8 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
     uint32_t crate = g.getCrate(t.first, t.second);
     uint32_t card = g.getCard(t.first, t.second);
     uint32_t region = g.getRegion(absCaloEta, absCaloPhi);
-    UCTRegion* test = new UCTRegion(crate, card, negativeEta, region, fwVersion);
-    test->setRegionSummary(i.raw());
+    UCTRegion test = UCTRegion(crate, card, negativeEta, region, fwVersion);
+    test.setRegionSummary(i.raw());
     inputRegions.push_back(test);
     //This *should* fill the tensor in the proper order to be fed to the anomaly model
     //We take 4 off of the GCT eta/iEta.
@@ -282,9 +282,10 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   double phi = -999.;
   double mass = 0;
 
-  std::list<UCTObject*> boostedJetObjs = summaryCard.getBoostedJetObjs();
-  for (std::list<UCTObject*>::const_iterator i = boostedJetObjs.begin(); i != boostedJetObjs.end(); i++) {
-    const UCTObject* object = *i;
+  std::list<std::shared_ptr<UCTObject>> boostedJetObjs = summaryCard.getBoostedJetObjs();
+  for (std::list<std::shared_ptr<UCTObject>>::const_iterator i = boostedJetObjs.begin(); i != boostedJetObjs.end();
+       i++) {
+    const std::shared_ptr<UCTObject> object = *i;
     pt = ((double)object->et()) * caloScaleFactor * boostedJetPtFactor;
     eta = g.getUCTTowerEta(object->iEta());
     phi = g.getUCTTowerPhi(object->iPhi());
