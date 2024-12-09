@@ -112,17 +112,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   template <typename TrackerTraits, typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void __attribute__((always_inline)) doubletsFromHisto(
       const TAcc& acc,
-      CACellT<TrackerTraits>* cells,
-      CASimpleCell<TrackerTraits>* s_cells,
+      // CACellT<TrackerTraits>* cells,
+      CASimpleCell<TrackerTraits>* cells,
       uint32_t* nCells,
-      CellNeighborsVector<TrackerTraits>* cellNeighbors,
-      CellTracksVector<TrackerTraits>* cellTracks,
+      // CellNeighborsVector<TrackerTraits>* cellNeighbors,
+      // CellTracksVector<TrackerTraits>* cellTracks,
       HitsConstView hh,
       ::reco::CACellsSoAConstView cc,
       uint32_t const* __restrict__ offsets,
       PhiBinner<TrackerTraits>* phiBinner, //const
-      OuterHitOfCell<TrackerTraits> isOuterHitOfCell,
-      HitToCell* hitToCell,
+      // OuterHitOfCell<TrackerTraits> isOuterHitOfCell,
+      HitToCell* outerHitHisto,
       AlgoParams const& params) {  
 
     // cm (1 GeV track has 1 GeV/c / (e * 3.8T) ~ 87 cm radius in a 3.8T field)
@@ -269,39 +269,40 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           if (cc.cellPtCut() > 0 && ptcut(oi, idphi))
             continue;
 
+          outerHitHisto->count(acc,oi-hh.offsetBPIX2());
+          //nCells could be simply outerHitHisto->size(); ... uhm .. false
           auto ind = alpaka::atomicAdd(acc, nCells, (uint32_t)1, alpaka::hierarchy::Blocks{});
           if (ind >= maxNumOfDoublets) {
             alpaka::atomicSub(acc, nCells, (uint32_t)1, alpaka::hierarchy::Blocks{});
             break;
           }  // move to SimpleVector??
-          cells[ind].init(*cellNeighbors, *cellTracks, hh, pairLayerId, inner, outer, i, oi);
-          s_cells[ind].init(hh, pairLayerId, inner, outer, i, oi);
+          // cells[ind].init(*cellNeighbors, *cellTracks, hh, pairLayerId, inner, outer, i, oi);
+          cells[ind].init(hh, pairLayerId, inner, outer, i, oi);
           
-          hitToCell->count(acc,oi);
-
-          isOuterHitOfCell[oi].push_back(acc, ind);
-#ifdef GPU_DEBUG
-          if (isOuterHitOfCell[oi].full())
-            ++tooMany;
-          ++tot;
-#endif
+        
+//           isOuterHitOfCell[oi].push_back(acc, ind);
+// #ifdef GPU_DEBUG
+//           if (isOuterHitOfCell[oi].full())
+//             ++tooMany;
+//           ++tot;
+// #endif
         }
       }
 //      #endif
-#ifdef GPU_DEBUG
-      if (tooMany > 0 or tot > 0)
-        printf("OuterHitOfCell for %d in layer %d/%d, %d,%d %d, %d %.3f %.3f %s\n",
-               i,
-               inner,
-               outer,
-               nmin,
-               tot,
-               tooMany,
-               iphicut,
-               TrackerTraits::minz[pairLayerId],
-               TrackerTraits::maxz[pairLayerId],
-               tooMany > 0 ? "FULL!!" : "not full.");
-#endif
+// #ifdef GPU_DEBUG
+//       if (tooMany > 0 or tot > 0)
+//         printf("OuterHitOfCell for %d in layer %d/%d, %d,%d %d, %d %.3f %.3f %s\n",
+//                i,
+//                inner,
+//                outer,
+//                nmin,
+//                tot,
+//                tooMany,
+//                iphicut,
+//                TrackerTraits::minz[pairLayerId],
+//                TrackerTraits::maxz[pairLayerId],
+//                tooMany > 0 ? "FULL!!" : "not full.");
+// #endif
     }  // loop in block...
   }
 

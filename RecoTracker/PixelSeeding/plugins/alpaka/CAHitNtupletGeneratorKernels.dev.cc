@@ -41,8 +41,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         
         // (Outer) Hits-> Cells
         device_hitToCell_{cms::alpakatools::make_device_buffer<GenericContainer>(queue)},
-        device_hitToCellStorage_{cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(queue, nHits * m_params.algoParams_.avgCellsPerHit_)},
-        device_hitToCellOffsets_{cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, nHits + 1)},
+        device_hitToCellStorage_{cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(queue, (nHits - offsetBPIX2) * m_params.algoParams_.avgCellsPerHit_)},
+        device_hitToCellOffsets_{cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, nHits - offsetBPIX2 + 1)},
 
         // Hits
         device_hitPhiHist_{cms::alpakatools::make_device_buffer<PhiBinner>(queue)},
@@ -68,36 +68,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         device_tupleMultiplicity_{cms::alpakatools::make_device_buffer<GenericContainer>(queue)},
         device_tupleMultiplicityStorage_{cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(queue, m_params.algoParams_.maxNumberOfTuples_)},
         device_tupleMultiplicityOffsets_{cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, TrackerTraits::maxHitsOnTrack + 1)},
-        
-        // NB: In legacy, device_theCells_ and device_isOuterHitOfCell_ were allocated inside buildDoublets
-        device_theCells_{
-            cms::alpakatools::make_device_buffer<CACell[]>(queue, m_params.algoParams_.maxNumberOfDoublets_)},
+
         device_simpleCells_{
             cms::alpakatools::make_device_buffer<SimpleCell[]>(queue, m_params.algoParams_.maxNumberOfDoublets_)},
         // in principle we can use "nhits" to heuristically dimension the workspace...
-        device_isOuterHitOfCell_{
-            cms::alpakatools::make_device_buffer<OuterHitOfCellContainer[]>(queue, std::max(1, int(nHits - offsetBPIX2)))},
-        isOuterHitOfCell_{cms::alpakatools::make_device_buffer<OuterHitOfCell>(queue)},
-
-        device_theCellNeighbors_{cms::alpakatools::make_device_buffer<CellNeighborsVector>(queue)},
-        device_theCellTracks_{cms::alpakatools::make_device_buffer<CellTracksVector>(queue)},
-        cellStorage_{cms::alpakatools::make_device_buffer<unsigned char[]>(
-            queue,
-            TrackerTraits::maxNumOfActiveDoublets * sizeof(CellNeighbors) +
-                TrackerTraits::maxNumOfActiveDoublets * sizeof(CellTracks))},
-        device_theCellNeighborsContainer_{reinterpret_cast<CellNeighbors *>(cellStorage_.data())},
-        device_theCellTracksContainer_{reinterpret_cast<CellTracks *>(
-            cellStorage_.data() + TrackerTraits::maxNumOfActiveDoublets * sizeof(CellNeighbors))},
-
-        // NB: In legacy, device_storage_ was allocated inside allocateOnGPU
-        device_storage_{
+        device_extraStorage_{
             cms::alpakatools::make_device_buffer<cms::alpakatools::AtomicPairCounter::DoubleWord[]>(queue, 3u)},
-        device_hitTuple_apc_{reinterpret_cast<cms::alpakatools::AtomicPairCounter *>(device_storage_.data())},
-        // device_hitToTuple_apc_{reinterpret_cast<cms::alpakatools::AtomicPairCounter *>(device_storage_.data() + 1)},
+        device_hitTuple_apc_{reinterpret_cast<cms::alpakatools::AtomicPairCounter *>(device_extraStorage_.data())},
         device_nCells_{
-            cms::alpakatools::make_device_view(queue, *reinterpret_cast<uint32_t *>(device_storage_.data() + 1))},
+            cms::alpakatools::make_device_view(queue, *reinterpret_cast<uint32_t *>(device_extraStorage_.data() + 1))},
         device_nTriplets_{
-            cms::alpakatools::make_device_view(queue, *reinterpret_cast<uint32_t *>(device_storage_.data() + 2))}
+            cms::alpakatools::make_device_view(queue, *reinterpret_cast<uint32_t *>(device_extraStorage_.data() + 2))},
+        device_nCellTracks_{
+            cms::alpakatools::make_device_view(queue, *reinterpret_cast<uint32_t *>(device_extraStorage_.data() + 3))}
         {
 #ifdef GPU_DEBUG
     std::cout << "Allocation for tuple building. N hits " << nHits << std::endl;
@@ -105,8 +88,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::memset(queue, counters_, 0);
     alpaka::memset(queue, device_nCells_, 0);
-    alpaka::memset(queue, cellStorage_, 0);
     alpaka::memset(queue, device_nTriplets_,0);
+    alpaka::memset(queue, device_nCellTracks_,0);
 
     // Hits -> Track
     device_hitToTupleView_.assoc = device_hitToTuple_.data();
@@ -144,7 +127,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     CellToCell::template launchZero<Acc1D>(device_cellToNeighborsView_, queue);
 
-    // Cells-> Neighbor Cells
+    // Cells-> Tracks
     device_cellToTracksView_.assoc = device_cellToTracks_.data();
     device_cellToTracksView_.contentStorage = device_cellToTracksStorage_.data();
     device_cellToTracksView_.offStorage = device_cellToTracksOffsets_.data();
@@ -181,7 +164,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // alpaka::getExtentProduct(device_hitToTupleStorage_));
 
     deviceTriplets_ = CACoupleSoACollection(device_cellToNeighborsView_.contentSize,queue);
-    
+    deviceTracksCells_ = CACoupleSoACollection(device_cellToTracksView_.contentSize,queue);
+
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
     std::cout << "Allocations for CAHitNtupletGeneratorKernels: done!" << std::endl;
@@ -213,10 +197,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                     (uint32_t)256,
                                                     queue);
         
-// #ifdef GPU_DEBUG
+#ifdef GPU_DEBUG
         alpaka::wait(queue);
         std::cout << "CAHitNtupletGeneratorKernels -> Hits prepared (layer starts and histo) -> DONE!" << std::endl;
-// #endif
+#endif
 
     }   
   
@@ -284,11 +268,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         hh,
                         ll,
                         this->deviceTriplets_.view(),
-                        this->device_theCells_.data(),
+                        // this->device_theCells_.data(),
+                        this->device_simpleCells_.data(),
                         this->device_nCells_.data(),
                         this->device_nTriplets_.data(),
-                        this->device_theCellNeighbors_.data(),
-                        this->isOuterHitOfCell_.data(),
+                        // this->device_theCellNeighbors_.data(),
+                        // this->isOuterHitOfCell_.data(),
                         this->device_hitToCell_.data(),
                         this->device_cellToNeighbors_.data(),
                         this->m_params.algoParams_);
@@ -301,8 +286,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::exec<Acc1D>(queue,
                     workDiv1D,
-                    Kernel_connectFill<TrackerTraits>{},
-                    this->device_nTriplets_.data(),
+                    Kernel_fillGenericCouple<TrackerTraits>{},
                     this->deviceTriplets_.view(),
                     this->device_cellToNeighbors_.data());
                     
@@ -319,12 +303,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           fishboneWorkDiv,
                           CAFishbone<TrackerTraits>{},
                           hh,
-                          this->device_theCells_.data(),
+                        //   this->device_theCells_.data(),
+                          this->device_simpleCells_.data(),
                           this->device_nCells_.data(),
-                          this->isOuterHitOfCell_.data(),
+                        //   this->isOuterHitOfCell_.data(),
                           this->device_hitToCell_.data(),
-                          nhits,
-                          offsetBPIX2,
+                          this->device_cellToTracks_.data(),
+                          nhits - offsetBPIX2,
                           false);
     }
     blockSize = 64;
@@ -339,21 +324,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         this->device_hitContainer_.data(),
                         this->device_cellToNeighbors_.data(),
                         this->device_cellToTracks_.data(),
-                        this->device_theCells_.data(),
+                        this->deviceTracksCells_.view(),
+                        this->device_simpleCells_.data(),
+                        this->device_nCellTracks_.data(),
                         this->device_nTriplets_.data(),
                         this->device_nCells_.data(),
-                        this->device_theCellTracks_.data(),
                         this->device_hitTuple_apc_,
                         this->m_params.algoParams_);
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
 #endif
 
+    CellToTracks::template launchFinalize<Acc1D>(this->device_cellToTracksView_, queue);
+
+    blocks = cms::alpakatools::divide_up_by( this->m_params.algoParams_.maxNumberOfDoublets_ * m_params.algoParams_.avgCellsPerCell_ , threadsPerBlock);
+    workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
+
+    alpaka::exec<Acc1D>(queue,
+                    workDiv1D,
+                    Kernel_fillGenericCouple<TrackerTraits>{},
+                    this->deviceTracksCells_.view(),
+                    this->device_cellToTracks_.data());
+                    
     if (this->m_params.algoParams_.doStats_)
       alpaka::exec<Acc1D>(queue,
                           workDiv1D,
                           Kernel_mark_used<TrackerTraits>{},
-                          this->device_theCells_.data(),
+                          this->device_simpleCells_.data(),
+                          this->device_cellToTracks_.data(),
                           this->device_nCells_.data());
 
 #ifdef GPU_DEBUG
@@ -389,8 +387,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::exec<Acc1D>(queue,
                         workDiv1D,
                         Kernel_earlyDuplicateRemover<TrackerTraits>{},
-                        this->device_theCells_.data(),
+                        this->device_simpleCells_.data(),
                         this->device_nCells_.data(),
+                        this->device_cellToTracks_.data(),
                         tracks_view,
                         this->m_params.algoParams_.dupPassThrough_);
 #ifdef GPU_DEBUG
@@ -429,12 +428,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           workDiv2D,
                           CAFishbone<TrackerTraits>{},
                           hh,
-                          this->device_theCells_.data(),
+                        //   this->device_theCells_.data(),
+                          this->device_simpleCells_.data(),
                           this->device_nCells_.data(),
-                          this->isOuterHitOfCell_.data(),
+                        //   this->isOuterHitOfCell_.data(),
                           this->device_hitToCell_.data(),
-                          nhits,
-                          offsetBPIX2,
+                          this->device_cellToTracks_.data(),
+                          nhits - offsetBPIX2,
                           true);
     }
 
@@ -464,40 +464,40 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::wait(queue);
 #endif
 
-    // in principle we can use "nhits" to heuristically dimension the workspace...
-    ALPAKA_ASSERT_ACC(this->device_isOuterHitOfCell_.data());
+    // // in principle we can use "nhits" to heuristically dimension the workspace...
+    // ALPAKA_ASSERT_ACC(this->device_isOuterHitOfCell_.data());
 
-    alpaka::exec<Acc1D>(
-        queue,
-        cms::alpakatools::make_workdiv<Acc1D>(1, 1),
-        [] ALPAKA_FN_ACC(Acc1D const &acc,
-                         OuterHitOfCell *isOuterHitOfCell,
-                         OuterHitOfCellContainer *container,
-                         int32_t const *offset) {
-          // this code runs on the device
-          isOuterHitOfCell->container = container;
-          isOuterHitOfCell->offset = *offset;
-        },
-        this->isOuterHitOfCell_.data(),
-        this->device_isOuterHitOfCell_.data(),
-        &hh.offsetBPIX2());
+    // alpaka::exec<Acc1D>(
+    //     queue,
+    //     cms::alpakatools::make_workdiv<Acc1D>(1, 1),
+    //     [] ALPAKA_FN_ACC(Acc1D const &acc,
+    //                      OuterHitOfCell *isOuterHitOfCell,
+    //                      OuterHitOfCellContainer *container,
+    //                      int32_t const *offset) {
+    //       // this code runs on the device
+    //       isOuterHitOfCell->container = container;
+    //       isOuterHitOfCell->offset = *offset;
+    //     },
+    //     this->isOuterHitOfCell_.data(),
+    //     this->device_isOuterHitOfCell_.data(),
+    //     &hh.offsetBPIX2());
 
-    {
-      int threadsPerBlock = 128;
-      // at least one block!
-      int blocks = std::max(1u, cms::alpakatools::divide_up_by(nhits - offsetBPIX2, threadsPerBlock));
-      const auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
+    // {
+    //   int threadsPerBlock = 128;
+    //   // at least one block!
+    //   int blocks = std::max(1u, cms::alpakatools::divide_up_by(nhits - offsetBPIX2, threadsPerBlock));
+    //   const auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
 
-      alpaka::exec<Acc1D>(queue,
-                          workDiv1D,
-                          InitDoublets<TrackerTraits>{},
-                          this->isOuterHitOfCell_.data(),
-                          nhits,
-                          this->device_theCellNeighbors_.data(),
-                          this->device_theCellNeighborsContainer_,
-                          this->device_theCellTracks_.data(),
-                          this->device_theCellTracksContainer_);
-    }
+    //   alpaka::exec<Acc1D>(queue,
+    //                       workDiv1D,
+    //                       InitDoublets<TrackerTraits>{},
+    //                       this->isOuterHitOfCell_.data(),
+    //                       nhits,
+    //                       this->device_theCellNeighbors_.data(),
+    //                       this->device_theCellNeighborsContainer_,
+    //                       this->device_theCellTracks_.data(),
+    //                       this->device_theCellTracksContainer_);
+    // }
 
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
@@ -516,16 +516,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::exec<Acc2D>(queue,
                         workDiv2D,
                         GetDoubletsFromHisto<TrackerTraits>{},
-                        this->device_theCells_.data(),
+                        // this->device_theCells_.data(),
                         this->device_simpleCells_.data(),
                         this->device_nCells_.data(),
-                        this->device_theCellNeighbors_.data(),
-                        this->device_theCellTracks_.data(),
+                        // this->device_theCellNeighbors_.data(),
+                        // this->device_theCellTracks_.data(),
                         hh,
                         cc,
                         this->device_layerStarts_.data(),
                         this->device_hitPhiHist_.data(),
-                        this->isOuterHitOfCell_.data(),
+                        // this->isOuterHitOfCell_.data(),
                         this->device_hitToCell_.data(),
                         this->m_params.algoParams_
                         );
@@ -541,6 +541,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         FillDoubletsHisto<TrackerTraits>{},
                         this->device_simpleCells_.data(),
                         this->device_nCells_.data(),
+                        offsetBPIX2,
                         this->device_hitToCell_.data());
 
     
@@ -573,8 +574,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       alpaka::exec<Acc1D>(queue,
                           workDiv1D,
                           Kernel_fishboneCleaner<TrackerTraits>{},
-                          this->device_theCells_.data(),
+                          this->device_simpleCells_.data(),
                           this->device_nCells_.data(),
+                          this->device_cellToTracks_.data(),
                           tracks_view);
     }
 
@@ -584,8 +586,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::exec<Acc1D>(queue,
                         workDiv1D,
                         Kernel_fastDuplicateRemover<TrackerTraits>{},
-                        this->device_theCells_.data(),
+                        this->device_simpleCells_.data(),
                         this->device_nCells_.data(),
+                        this->device_cellToTracks_.data(),
                         tracks_view,
                         this->m_params.algoParams_.dupPassThrough_);
 #ifdef GPU_DEBUG
@@ -674,13 +677,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           this->device_tupleMultiplicity_.data(),
                           this->device_hitToTuple_.data(),
                           this->device_hitTuple_apc_,
-                          this->device_theCells_.data(),
+                        //   this->device_theCells_.data(),
+                          this->device_simpleCells_.data(),
                           this->device_nCells_.data(),
-                          this->device_theCellNeighbors_.data(),
-                          this->device_theCellTracks_.data(),
-                          this->isOuterHitOfCell_.data(),
+                        //   this->device_theCellNeighbors_.data(),
+                        //   this->device_theCellTracks_.data(),
+                        //   this->isOuterHitOfCell_.data(),
                           nhits,
-                          this->m_params.algoParams_.maxNumberOfDoublets_,
+                          this->m_params.algoParams_,
                           this->counters_.data());
     }
 

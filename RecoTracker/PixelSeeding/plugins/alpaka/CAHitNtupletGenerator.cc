@@ -209,6 +209,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 >>>>>>> aed61da5979 (Removing RegionSoA fixes + Removing AverageGeometry)
   }
 
+  // now this could be removed actually
   template <>
   void CAHitNtupletGenerator<pixelTopology::HIonPhase1>::fillPSetDescription(edm::ParameterSetDescription& desc) {
     fillDescriptionsCommon(desc);

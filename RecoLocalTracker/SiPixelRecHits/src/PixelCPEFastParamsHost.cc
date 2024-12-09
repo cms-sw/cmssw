@@ -10,6 +10,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFastParamsHost.h"
 
+// #define CA_TRIPLETS_HOLE
 //-----------------------------------------------------------------------------
 //!  The constructor.
 //-----------------------------------------------------------------------------
@@ -42,19 +43,14 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
 
   buffer_->commonParams().theThicknessB = m_DetParams.front().theThickness;
   buffer_->commonParams().theThicknessE = m_DetParams.back().theThickness;
-  buffer_->commonParams().numberOfLaddersInBarrel = TrackerTraits::numberOfLaddersInBarrel;
 
   LogDebug("PixelCPEFastParamsHost") << "thickness " << buffer_->commonParams().theThicknessB << ' '
                                      << buffer_->commonParams().theThicknessE;
 
-  uint32_t oldLayer = 0;
-  uint32_t oldLadder = 0;
-  float rl = 0;
-  float zl = 0;
-  //#ifdef CA_TRIPLETS_HOLE
-  float miz = 500, mxz = 0;
-  float pl = 0;
-  int nl = 0;
+#ifdef CA_TRIPLETS_HOLE
+  // zero average geometry
+  memset(&buffer_->averageGeometry(), 0, sizeof(pixelTopology::AverageGeometryT<TrackerTraits>));
+#endif
 
   assert(m_DetParams.size() <= TrackerTraits::numberOfModules);
 
@@ -79,29 +75,6 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     auto thickness = g.isBarrel ? buffer_->commonParams().theThicknessB : buffer_->commonParams().theThicknessE;
     assert(thickness == p.theThickness);
 
-    auto ladder = ttopo_.pxbLadder(p.theDet->geographicalId());
-    if (oldLayer != g.layer) {
-      oldLayer = g.layer;
-      LogDebug("PixelCPEFastParamsHost") << "new layer at " << i << (g.isBarrel ? " B  " : (g.isPosZ ? " E+ " : " E- "))
-                                         << g.layer << " starting at " << g.rawId << '\n'
-                                         << "old layer had " << nl << " ladders";
-      nl = 0;
-    }
-    if (oldLadder != ladder) {
-      oldLadder = ladder;
-      LogDebug("PixelCPEFastParamsHost") << "new ladder at " << i
-                                         << (g.isBarrel ? " B  " : (g.isPosZ ? " E+ " : " E- ")) << ladder
-                                         << " starting at " << g.rawId << '\n'
-                                         << "old ladder ave z,r,p mz " << zl / 8.f << " " << rl / 8.f << " " << pl / 8.f
-                                         << ' ' << miz << ' ' << mxz;
-      rl = 0;
-      zl = 0;
-      pl = 0;
-      miz = 500;
-      mxz = 0;
-      nl++;
-    }
-
     g.shiftX = 0.5f * p.lorentzShiftInCmX;
     g.shiftY = 0.5f * p.lorentzShiftInCmY;
     g.chargeWidthX = p.lorentzShiftInCmX * p.widthLAFractionX;
@@ -117,12 +90,6 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     auto vv = p.theDet->surface().position();
     auto rr = pixelCPEforDevice::Rotation(p.theDet->surface().rotation());
     g.frame = pixelCPEforDevice::Frame(vv.x(), vv.y(), vv.z(), rr);
-
-    zl += vv.z();
-    miz = std::min(miz, std::abs(vv.z()));
-    mxz = std::max(mxz, std::abs(vv.z()));
-    rl += vv.perp();
-    pl += vv.phi();  // (not obvious)
 
     // errors .....
     ClusterParamGeneric cp;
@@ -286,18 +253,20 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     }
   }  // loop over det
 
-  #ifdef CA_TRIPLETS_HOLE
+
+#ifdef CA_TRIPLETS_HOLE
+  // compute ladder baricenter (only in global z) for the barrel
+  //
+
   constexpr int numberOfModulesInLadder = TrackerTraits::numberOfModulesInLadder;
   constexpr int numberOfLaddersInBarrel = TrackerTraits::numberOfLaddersInBarrel;
   constexpr int numberOfModulesInBarrel = TrackerTraits::numberOfModulesInBarrel;
 
-  constexpr float ladderFactor = 1.f / float(numberOfModulesInLadder);
-
   constexpr int firstEndcapPos = TrackerTraits::firstEndcapPos;
   constexpr int firstEndcapNeg = TrackerTraits::firstEndcapNeg;
+  
+  constexpr float ladderFactor = 1.f / float(numberOfModulesInLadder);
 
-  // compute ladder baricenter (only in global z) for the barrel
-  //
   auto& aveGeom = buffer_->averageGeometry();
   int il = 0;
   for (int im = 0, nm = numberOfModulesInBarrel; im < nm; ++im) {
@@ -333,6 +302,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   // correct for outer ring being closer
   aveGeom.endCapZ[0] -= TrackerTraits::endcapCorrection;
   aveGeom.endCapZ[1] += TrackerTraits::endcapCorrection;
+
 #ifdef EDM_ML_DEBUG
   for (int jl = 0, nl = numberOfLaddersInBarrel; jl < nl; ++jl) {
     LogDebug("PixelCPEFastParamsHost") << jl << ':' << aveGeom.ladderR[jl] << '/'
@@ -343,7 +313,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   }
   LogDebug("PixelCPEFastParamsHost") << aveGeom.endCapZ[0] << ' ' << aveGeom.endCapZ[1];
 #endif  // EDM_ML_DEBUG
-#endif
+#endif //CA_TRIPLETS_HOLE
 
 }
 

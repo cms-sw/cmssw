@@ -7,9 +7,7 @@
 
 namespace caStructures {
 
-
   using Quality = ::pixelTrack::Quality;
-
 
   //Configuration params common to all topologies, for the algorithms
   struct AlgoParams {
@@ -53,18 +51,6 @@ namespace caStructures {
   using hindex_type = uint32_t; // TrackerTraits::hindex_type
   using tindex_type = uint32_t; // TrackerTraits::tindex_type
   using cindex_type = uint32_t;
-
-  // template <typename TrackerTraits>
-  // struct CAContainers
-  // {
-  //   //Max constants
-  //   static constexpr int32_t S = TrackerTraits::maxNumberOfTuples;
-  //   static constexpr int32_t H = TrackerTraits::avgHitsPerTrack;
-  //   static constexpr uint32_t CT = TrackerTraits::maxCellTracks;
-  //   static constexpr uint32_t CN = TrackerTraits::maxCellNeighbors;
-
-  //   using CellNeighbors = cms::alpakatools::VecArray<typename TrackerTraits::cindex_type, TrackerTraits::maxCellNeighbors>;
-  // }
 
   using GenericContainer = cms::alpakatools::OneToManyAssocRandomAccess<hindex_type, -1, -1>;
   using GenericContainerStorage = uint32_t;//typename GenericContainer::index_type;
