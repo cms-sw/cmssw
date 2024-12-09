@@ -225,21 +225,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     DeviceGenericOffsetsBuffer device_tupleMultiplicityOffsets_;
     GenericContainerView device_tupleMultiplicityView_;
 
-    cms::alpakatools::device_buffer<Device, CACell[]> device_theCells_;
+    // cms::alpakatools::device_buffer<Device, CACell[]> device_theCells_;
     cms::alpakatools::device_buffer<Device, SimpleCell[]> device_simpleCells_;
-    cms::alpakatools::device_buffer<Device, OuterHitOfCellContainer[]> device_isOuterHitOfCell_;
-    cms::alpakatools::device_buffer<Device, OuterHitOfCell> isOuterHitOfCell_;
-    cms::alpakatools::device_buffer<Device, CellNeighborsVector> device_theCellNeighbors_;
-    cms::alpakatools::device_buffer<Device, CellTracksVector> device_theCellTracks_;
-    cms::alpakatools::device_buffer<Device, unsigned char[]> cellStorage_;
-    CellNeighbors* device_theCellNeighborsContainer_;
-    CellTracks* device_theCellTracksContainer_;
-    cms::alpakatools::device_buffer<Device, cms::alpakatools::AtomicPairCounter::DoubleWord[]> device_storage_;
+    // cms::alpakatools::device_buffer<Device, OuterHitOfCellContainer[]> device_isOuterHitOfCell_;
+    // cms::alpakatools::device_buffer<Device, OuterHitOfCell> isOuterHitOfCell_;
+    // cms::alpakatools::device_buffer<Device, CellNeighborsVector> device_theCellNeighbors_;
+    // cms::alpakatools::device_buffer<Device, CellTracksVector> device_theCellTracks_;
+    // cms::alpakatools::device_buffer<Device, unsigned char[]> cellStorage_;
+    // CellNeighbors* device_theCellNeighborsContainer_;
+    // CellTracks* device_theCellTracksContainer_;
+    cms::alpakatools::device_buffer<Device, cms::alpakatools::AtomicPairCounter::DoubleWord[]> device_extraStorage_;
     cms::alpakatools::AtomicPairCounter* device_hitTuple_apc_;
     cms::alpakatools::device_view<Device, uint32_t> device_nCells_;
     cms::alpakatools::device_view<Device, uint32_t> device_nTriplets_;
+    cms::alpakatools::device_view<Device, uint32_t> device_nCellTracks_;
 
     CACoupleSoACollection deviceTriplets_;
+    CACoupleSoACollection deviceTracksCells_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

@@ -32,6 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   using OuterHitOfCell = caStructures::OuterHitOfCellT<TrackerTraits>;
 
   using HitToCell = caStructures::GenericContainer;
+  using CellToTracks = caStructures::GenericContainer;
 
   template <typename TrackerTraits>
   class CAFishbone {
@@ -39,16 +40,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                   HitsConstView hh,
-                                  CACellT<TrackerTraits>* cells,
+                                  CASimpleCell<TrackerTraits>* cells,
                                   uint32_t const* __restrict__ nCells,
-                                  OuterHitOfCell<TrackerTraits> const* isOuterHitOfCellWrap,
+                                  // OuterHitOfCell<TrackerTraits> const* isOuterHitOfCellWrap,
                                   HitToCell const* __restrict__ outerHitHisto,
-                                  uint32_t nHits,
-                                  uint32_t nHitsBPix1,
+                                  CellToTracks const* __restrict__ cellTracksHisto,
+                                  uint32_t outerHits,
                                   bool checkTrack) const {
       constexpr auto maxCellsPerHit = CACellT<TrackerTraits>::maxCellsPerHit;
 
-      auto const isOuterHitOfCell = isOuterHitOfCellWrap->container;
+      // auto const isOuterHitOfCell = isOuterHitOfCellWrap->container;
 
       float x[maxCellsPerHit], y[maxCellsPerHit], z[maxCellsPerHit], n[maxCellsPerHit];
       uint32_t cc[maxCellsPerHit];
@@ -56,18 +57,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       uint8_t l[maxCellsPerHit];
 
       // outermost parallel loop, using all grid elements along the slower dimension (Y or 0 in a 2D grid)
-      for (uint32_t idy : cms::alpakatools::uniform_elements_y(acc, nHits - nHitsBPix1)) {
-        auto const& vc = isOuterHitOfCell[idy];
-        auto id = idy+nHitsBPix1;  //TODO have this offset in the histo building directly
-        uint32_t histSize = outerHitHisto->size(idy+nHitsBPix1);
-        auto size = vc.size();
-        printf("hist %d histSize %d size %d \n",idy+nHitsBPix1,histSize,size);
-        ALPAKA_ASSERT_ACC(histSize == uint32_t(size));
+      for (uint32_t idy : cms::alpakatools::uniform_elements_y(acc, outerHits)) {
+        // auto const& vc = isOuterHitOfCell[idy];
+        uint32_t size = outerHitHisto->size(idy); //TODO have this offset in the histo building directly
+        printf("hist %d histSize %d \n",idy,size);
+
         if (size < 2)
           continue;
+
+        auto const* __restrict__ bin = outerHitHisto->begin(idy);
         // if alligned kill one of the two.
         // in principle one could try to relax the cut (only in r-z?) for jumping-doublets
-        auto const& c0 = cells[vc[0]];
+        auto const& c0 = cells[bin[0]];
         auto xo = c0.outer_x(hh);
         auto yo = c0.outer_y(hh);
         auto zo = c0.outer_z(hh);
@@ -78,22 +79,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         // entries but we can anyway skip them below and avoid having 
         // the arrays above
 
-        auto const* __restrict__ bin = outerHitHisto->begin(idy+nHitsBPix1);
-        for (auto idx = 0u; idx < histSize; idx++) {
+#ifdef GPU_DEBUG 
+        for (auto idx = 0u; idx < size; idx++) {
           unsigned int otherCell = bin[idx];
           printf("vc[0] %d idx %d vc[idx] %d otherCell %d \n",vc[0],idx,vc[idx],otherCell);
         }
-        
-        for (auto idx = 0u; idx < histSize; idx++) {
+#endif
+        for (auto idx = 0u; idx < size; idx++) {
         // for (int32_t ic = 0; ic < size; ++ic) {
-        // for (auto ic = 0u; ic < histSize; ic++) {
+        // for (auto ic = 0u; ic < size; ic++) {
           unsigned int otherCell = bin[idx];
           auto& ci = cells[otherCell];//vc[ic]];
           // unsigned int otherCell = bin[ic] - nHitsBPix1;
           // auto& ci = cells[otherCell];
           if (ci.unused())
             continue;  // for triplets equivalent to next
-          if (checkTrack && ci.tracks().empty())
+          if (checkTrack && cellTracksHisto->size(otherCell) == 0)//ci.tracks().empty())
             continue;
           cc[sg] = otherCell;//vc[ic];
           l[sg] = ci.layerPairId();

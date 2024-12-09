@@ -57,20 +57,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //       __launch_bounds__(getDoubletsFromHistoMaxBlockSize, getDoubletsFromHistoMinBlocksPerMP)  // TODO: Alapakify
       // #endif
       ALPAKA_FN_ACC void operator()(TAcc const& acc,
-                                    CACellT<TrackerTraits>* cells,
-                                    CASimpleCell<TrackerTraits>* s_cells,
+                                    // CACellT<TrackerTraits>* cells,
+                                    CASimpleCell<TrackerTraits>* cells,
                                     uint32_t* nCells,
-                                    CellNeighborsVector<TrackerTraits>* cellNeighbors,
-                                    CellTracksVector<TrackerTraits>* cellTracks,
+                                    // CellNeighborsVector<TrackerTraits>* cellNeighbors,
+                                    // CellTracksVector<TrackerTraits>* cellTracks,
                                     HitsConstView hh,
                                     ::reco::CACellsSoAConstView cc,
                                     uint32_t const* __restrict__ offsets,
                                     PhiBinner<TrackerTraits>* phiBinner,
-                                    OuterHitOfCell<TrackerTraits>* isOuterHitOfCell,
+                                    // OuterHitOfCell<TrackerTraits>* isOuterHitOfCell,
                                     HitToCell* outerHitHisto,
                                     AlgoParams const& params) const {
         doubletsFromHisto<TrackerTraits>(
-            acc, cells, s_cells, nCells, cellNeighbors, cellTracks, hh, cc, offsets, phiBinner, *isOuterHitOfCell, outerHitHisto, params);
+            acc, cells, nCells, hh, cc, offsets, phiBinner, outerHitHisto, params);
       }
     };
 
@@ -80,12 +80,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
       ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                     CASimpleCell<TrackerTraits> const* __restrict__ cells,
-                                    uint32_t* nCells,
+                                    uint32_t* nCells, //could be size
+                                    uint32_t offsetBPIX2,
                                     HitToCell* outerHitHisto) const {
         for (auto cellIndex : cms::alpakatools::uniform_elements(acc, *nCells))
         {
           printf("outerHitHisto;%d;%d\n",cellIndex,cells[cellIndex].outer_hit_id());
-          outerHitHisto->fill(acc,cells[cellIndex].outer_hit_id(),cellIndex);
+          outerHitHisto->fill(acc,cells[cellIndex].outer_hit_id()-offsetBPIX2,cellIndex);
         }
       }
     };

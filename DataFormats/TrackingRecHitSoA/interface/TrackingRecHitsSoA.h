@@ -54,6 +54,12 @@ namespace reco {
   using HitModuleSoAView = HitModuleSoA::View;
   using HitModuleSoAConstView = HitModuleSoA::ConstView;
 
+#ifdef CA_TRIPLETS_HOLE
+  using AverageGeometrySoA = AverageGeometryLayout<>;
+  using AverageGeometryView = AverageGeometrySoA::View;
+  using AverageGeometryConstView = AverageGeometrySoA::ConstView;
+#endif
+
 };
 
 #endif
