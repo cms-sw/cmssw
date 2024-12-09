@@ -44,7 +44,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                           ebRecHits.view(),
                           eeRecHits.view(),
                           conditionsDev.const_view(),
-                          parametersDev.const_view(),
+                          parametersDev.const_data(),
                           eventTime,
                           configParams);
     } else {
@@ -54,7 +54,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                           ebUncalibRecHits->const_view(),
                           ebRecHits.view(),
                           conditionsDev.const_view(),
-                          parametersDev.const_view(),
+                          parametersDev.const_data(),
                           eventTime,
                           configParams);
     }

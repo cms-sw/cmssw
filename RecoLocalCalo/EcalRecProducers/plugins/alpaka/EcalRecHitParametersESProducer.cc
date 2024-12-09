@@ -2,8 +2,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
-#include "CondFormats/EcalObjects/interface/EcalRecHitParametersSoA.h"
+#include "CondFormats/EcalObjects/interface/EcalRecHitParameters.h"
 #include "CondFormats/EcalObjects/interface/alpaka/EcalRecHitParametersDevice.h"
+
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
@@ -81,13 +83,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   std::unique_ptr<EcalRecHitParametersHost> EcalRecHitParametersESProducer::produce(
       JobConfigurationGPURecord const& iRecord) {
-    size_t const sizeone = 1;
-    auto product = std::make_unique<EcalRecHitParametersHost>(sizeone, cms::alpakatools::host());
-    auto view = product->view();
+    auto product = std::make_unique<EcalRecHitParametersHost>(cms::alpakatools::host());
+    auto value = product->value();
 
-    std::memcpy(view.recoFlagBits().data(), recoFlagBitsArray_.data(), sizeof(uint32_t) * recoFlagBitsArray_.size());
+    std::memcpy(value.recoFlagBits.data(), recoFlagBitsArray_.data(), sizeof(uint32_t) * recoFlagBitsArray_.size());
 
-    view.channelStatusCodesToBeExcluded() = channelStatusCodesToBeExcluded_;
+    value.channelStatusCodesToBeExcluded = channelStatusCodesToBeExcluded_;
 
     return product;
   }
