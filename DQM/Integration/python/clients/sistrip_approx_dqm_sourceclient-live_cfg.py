@@ -193,7 +193,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.muonDTDigis.inputLabel = rawDataRepackerLabel
     process.muonRPCDigis.InputLabel = rawDataRepackerLabel
     process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
-    process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.siPixelDigis.InputLabel = rawDataRepackerLabel
     process.siStripDigis.ProductLabel = rawDataRepackerLabel
     process.tcdsDigis.InputLabel = rawDataRepackerLabel
 
