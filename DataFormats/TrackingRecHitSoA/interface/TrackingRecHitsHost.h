@@ -33,7 +33,7 @@ namespace reco
     // Constructor from clusters
     template <typename TQueue>
     explicit TrackingRecHitHost(TQueue queue, SiPixelClustersHost const &clusters)
-        : PortableHostMultiCollection({{int(clusters.nClusters()),clusters.view().metadata().size()}}, queue)  {
+        : HitPortableCollectionHost({{int(clusters.nClusters()),clusters.view().metadata().size()}}, queue)  {
           
       auto hitsView = this->template view<TrackingRecHitSoA>();
       auto modsView = this->template view<HitModuleSoA>();
