@@ -1,8 +1,8 @@
-/**  \class phase2HLTMuonSelectorForL3
+/**  \class Phase2HLTMuonSelectorForL3
  *   See header file for a description of this class
  *   \author Luca Ferragina (INFN BO), 2024
  */
-#include "RecoMuon/L3TrackFinder/interface/phase2HLTMuonSelectorForL3.h"
+#include "RecoMuon/L3TrackFinder/interface/Phase2HLTMuonSelectorForL3.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,7 +11,7 @@
 #include <unordered_set>
 
 // Constructor
-phase2HLTMuonSelectorForL3::phase2HLTMuonSelectorForL3(const edm::ParameterSet& iConfig)
+Phase2HLTMuonSelectorForL3::Phase2HLTMuonSelectorForL3(const edm::ParameterSet& iConfig)
     : l1TkMuCollToken_(consumes<l1t::TrackerMuonCollection>(iConfig.getParameter<edm::InputTag>("l1TkMuons"))),
       l2MuCollectionToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("l2MuonsUpdVtx"))),
       l3TrackCollectionToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("l3Tracks"))),
@@ -33,7 +33,7 @@ phase2HLTMuonSelectorForL3::phase2HLTMuonSelectorForL3(const edm::ParameterSet& 
   }
 }
 
-void phase2HLTMuonSelectorForL3::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void Phase2HLTMuonSelectorForL3::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("l1TkMuons", edm::InputTag("l1tTkMuonsGmt"));
   desc.add<edm::InputTag>("l2MuonsUpdVtx", edm::InputTag("hltL2MuonsFromL1TkMuon", "UpdatedAtVtx"));
@@ -47,13 +47,13 @@ void phase2HLTMuonSelectorForL3::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<int>("MinNhitsPixel", 1);
   desc.add<int>("MinNhitsTracker", 6);
   desc.add<double>("MaxPtDifference", 999.0);  //relative difference
-  descriptions.add("phase2HLTMuonSelectorForL3", desc);
+  descriptions.add("Phase2HLTMuonSelectorForL3", desc);
 }
 
 // IO first -> collection of L2 muons not already matched to a L3 inner track
 // OI first -> collection of L1Tk Muons not matched to a L3 track
-void phase2HLTMuonSelectorForL3::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const std::string metname = "RecoMuon|phase2HLTMuonSelectorForL3";
+void Phase2HLTMuonSelectorForL3::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  const std::string metname = "RecoMuon|Phase2HLTMuonSelectorForL3";
 
   // L3 tracks (IO or OI)
   auto l3TracksCollectionH = iEvent.getHandle(l3TrackCollectionToken_);
@@ -183,8 +183,8 @@ void phase2HLTMuonSelectorForL3::produce(edm::Event& iEvent, const edm::EventSet
   }
 }
 
-const bool phase2HLTMuonSelectorForL3::rejectL3Track(l1t::TrackerMuonRef l1TkMuRef, reco::TrackRef l3TrackRef) const {
-  const std::string metname = "RecoMuon|phase2HLTMuonSelectorForL3";
+const bool Phase2HLTMuonSelectorForL3::rejectL3Track(l1t::TrackerMuonRef l1TkMuRef, reco::TrackRef l3TrackRef) const {
+  const std::string metname = "RecoMuon|Phase2HLTMuonSelectorForL3";
 
   bool nHitsCut = l3TrackRef->numberOfValidHits() < minNhits_;
   bool chi2Cut = l3TrackRef->normalizedChi2() > maxNormalizedChi2_;
@@ -203,4 +203,4 @@ const bool phase2HLTMuonSelectorForL3::rejectL3Track(l1t::TrackerMuonRef l1TkMuR
   return reject;
 }
 
-DEFINE_FWK_MODULE(phase2HLTMuonSelectorForL3);
+DEFINE_FWK_MODULE(Phase2HLTMuonSelectorForL3);

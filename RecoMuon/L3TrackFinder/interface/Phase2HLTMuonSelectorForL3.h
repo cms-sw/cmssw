@@ -1,7 +1,7 @@
 #ifndef RecoMuon_L3TrackFinder_phase2HLTMuonSelectorForL3_H
 #define RecoMuon_L3TrackFinder_phase2HLTMuonSelectorForL3_H
 
-/**  \class phase2HLTMuonSelectorForL3
+/**  \class Phase2HLTMuonSelectorForL3
  * 
  *   Phase-2 L3 selector for Muons
  *   This module allows to choose whether to perform 
@@ -49,13 +49,13 @@ namespace edm {
   class EventSetup;
 }  // End namespace edm
 
-class phase2HLTMuonSelectorForL3 : public edm::stream::EDProducer<> {
+class Phase2HLTMuonSelectorForL3 : public edm::stream::EDProducer<> {
 public:
   // Constructor
-  phase2HLTMuonSelectorForL3(const edm::ParameterSet&);
+  Phase2HLTMuonSelectorForL3(const edm::ParameterSet&);
 
   // Destructor
-  ~phase2HLTMuonSelectorForL3() override = default;
+  ~Phase2HLTMuonSelectorForL3() override = default;
 
   // Default values
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
