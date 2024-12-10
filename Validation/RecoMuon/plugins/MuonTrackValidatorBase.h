@@ -65,6 +65,9 @@ public:
         ignoremissingtkcollection_(pset.getUntrackedParameter<bool>("ignoremissingtrackcollection", false))
 
   {
+    mindR = muonHistoParameters.getParameter<double>("mindR");
+    maxdR = muonHistoParameters.getParameter<double>("maxdR");
+    nintdR = muonHistoParameters.getParameter<int>("nintdR");
     minEta = muonHistoParameters.getParameter<double>("minEta");
     maxEta = muonHistoParameters.getParameter<double>("maxEta");
     nintEta = muonHistoParameters.getParameter<int>("nintEta");
@@ -224,6 +227,8 @@ protected:
 
   int minNTracks, maxNTracks, nintNTracks;
   int minFTracks, maxFTracks, nintFTracks;
+  double mindR, maxdR;
+  int nintdR;
   double minEta, maxEta;
   int nintEta;
   bool useFabsEta;

@@ -10,6 +10,10 @@ defaultMuonHistoParameters = cms.PSet(
     maxFTracks = cms.int32(20),                                                                                                    
     nintFTracks = cms.int32(20),    
     #
+    nintdR = cms.int32(200),
+    mindR = cms.double(0.),
+    maxdR = cms.double(10.),
+    #
     useFabsEta = cms.bool(False),
     minEta = cms.double(-2.5),
     maxEta = cms.double(2.5),

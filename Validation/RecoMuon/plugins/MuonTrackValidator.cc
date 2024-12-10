@@ -160,18 +160,14 @@ void MuonTrackValidator::bookHistograms(DQMEDAnalyzer::DQMStore::IBooker& ibooke
                                           minNHit,
                                           maxNHit));
 
-      int bindR{200};
-      double mindR{0.0};
-      double maxdR{10.0};
-
-      h_recodR.push_back(ibooker.book1D("num_reco_dR", "N of reco track vs dR2", bindR, mindR, maxdR));
+      h_recodR.push_back(ibooker.book1D("num_reco_dR", "N of reco track vs dR", nintdR, mindR, maxdR));
       h_assocdR.push_back(
-          ibooker.book1D("num_assoSimToReco_dR", "N of associated tracks (simToReco) vs dR2", bindR, mindR, maxdR));
+          ibooker.book1D("num_assoSimToReco_dR", "N of associated tracks (simToReco) vs dR", nintdR, mindR, maxdR));
       h_assoc2dR.push_back(
-          ibooker.book1D("num_assoRecoToSim_dR", "N of associated (recoToSim) tracks vs dR2", bindR, mindR, maxdR));
-      h_simuldR.push_back(ibooker.book1D("num_simul_dR", "N of simulated tracks vs dR2", bindR, mindR, maxdR));
+          ibooker.book1D("num_assoRecoToSim_dR", "N of associated (recoToSim) tracks vs dR", nintdR, mindR, maxdR));
+      h_simuldR.push_back(ibooker.book1D("num_simul_dR", "N of simulated tracks vs dR", nintdR, mindR, maxdR));
       h_misiddR.push_back(ibooker.book1D(
-          "num_chargemisid_dR", "N of associated (simToReco) tracks with charge misID vs dR2", bindR, mindR, maxdR));
+          "num_chargemisid_dR", "N of associated (simToReco) tracks with charge misID vs dR", nintdR, mindR, maxdR));
 
       h_recodxy.push_back(ibooker.book1D("num_reco_dxy", "N of reco track vs dxy", nintDxy, minDxy, maxDxy));
       h_assocdxy.push_back(ibooker.book1D(
@@ -540,14 +536,13 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
       int ats = 0;
       int st = 0;
 
-      std::optional<double> dR2 = [&]() -> std::optional<double> {
-        if (tPC.size() == 2) {
-          TrackingParticle::Vector p1 = lhcParametersDefinerTP_->momentum(event, setup, tPC[0]);
-          TrackingParticle::Vector p2 = lhcParametersDefinerTP_->momentum(event, setup, tPC[1]);
-
-          return reco::deltaR2(p1, p2);
+      std::optional<double> dR = [&]() -> std::optional<double> {
+        if (tpSelector.isSignalOnly() && tPC.size() == 2) {
+          const auto& tp1 = *tPC[0];
+          const auto& tp2 = *tPC[1];
+          return reco::deltaR(tp1.momentum(), tp2.momentum());
         }
-        return {};
+        return std::nullopt;
       }();
 
       for (size_t i = 0; i < tPC.size(); i++) {
@@ -664,12 +659,13 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
             fillPlotNoFlow(h_misidphi[w], TPphi);
         }
 
-        if (dR2.has_value()) {
-          fillPlotNoFlow(h_simuldR[w], *dR2);
+        // histos for efficiency vs dR
+        if (dR) {
+          fillPlotNoFlow(h_simuldR[w], *dR);
           if (TP_is_matched) {
-            fillPlotNoFlow(h_assocdR[w], *dR2);
+            fillPlotNoFlow(h_assocdR[w], *dR);
             if (!isChargeOK)
-              fillPlotNoFlow(h_misiddR[w], *dR2);
+              fillPlotNoFlow(h_misiddR[w], *dR);
           }
         }
 
@@ -852,10 +848,10 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
           fillPlotNoFlow(h_assoc2pT[w], xptRec);
         }
 
-        if (dR2.has_value()) {
-          fillPlotNoFlow(h_recodR[w], *dR2);
+        if (dR) {
+          fillPlotNoFlow(h_recodR[w], *dR);
           if (Track_is_matched) {
-            fillPlotNoFlow(h_assoc2pT[w], *dR2);
+            fillPlotNoFlow(h_assoc2dR[w], *dR);
           }
         }
 
