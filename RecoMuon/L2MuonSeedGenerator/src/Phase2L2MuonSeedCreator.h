@@ -111,7 +111,6 @@ private:
   const double maxEtaOverlap_;  // overlap with |eta| < 1.3, endcap after that
 
   // Handles
-  edm::ESHandle<MagneticField> magneticField_;
   edm::ESHandle<CSCGeometry> cscGeometry_;
   edm::ESHandle<DTGeometry> dtGeometry_;
 
@@ -132,13 +131,13 @@ private:
   const std::pair<int, int> matchingStubSegment(const DTChamberId& stubId,
                                                 const l1t::MuonStubRef stub,
                                                 const DTRecSegment4DCollection& segments,
-                                                const l1t::TrackerMuonRef l1TkMuRef) const;
+                                                const float l1TkMuTheta) const;
 
   // Logic to match L1 stubs to CSC segments
   const std::pair<int, int> matchingStubSegment(const CSCDetId& stubId,
                                                 const l1t::MuonStubRef stub,
                                                 const CSCSegmentCollection& segments,
-                                                const l1t::TrackerMuonRef l1TkMuRef) const;
+                                                const float l1TkMuTheta) const;
 
   // Logic to extrapolate from nearby stations in the barrel
   const std::pair<int, int> extrapolateToNearbyStation(const int endingStation,
