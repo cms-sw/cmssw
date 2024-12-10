@@ -62,6 +62,7 @@ process.load("MagneticField.Engine.volumeBasedMagneticField_160812_cfi")
 process.Timing = cms.Service("Timing")
 
 process.prod = cms.EDAnalyzer("MTDRecoGeometryAnalyzer")
-process.prod1 = cms.EDAnalyzer("TestETLNavigation")
+process.prod1 = cms.EDAnalyzer("TestBTLNavigation")
+process.prod2 = cms.EDAnalyzer("TestETLNavigation")
 
-process.p1 = cms.Path(cms.wait(process.prod)+process.prod1)
+process.p1 = cms.Path(cms.wait(process.prod)+cms.wait(process.prod1)+process.prod2)

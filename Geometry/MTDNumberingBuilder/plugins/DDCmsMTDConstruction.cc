@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 #include "Geometry/MTDNumberingBuilder/plugins/DDCmsMTDConstruction.h"
 
 #include <utility>
@@ -224,8 +226,8 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
   std::stringstream after(std::stringstream::in | std::stringstream::out);
   for (const auto& it : comp) {
     after << "ORDER2 " << it->geographicalId().rawId() << " " << static_cast<MTDDetId>(it->geographicalId()).mtdRR()
-          << " " << it->type() << " " << it->translation().z() << " "
-          << convertRadToDeg(angle0to2pi::make0To2pi(it->phi())) << "\n";
+          << " " << it->type() << " " << it->translation().z() << " " << convertRadToDeg(makempiToppi(it->phi()))
+          << "\n";
   }
   edm::LogVerbatim("MTDNumbering") << "GeometricTimingDet order after sorting \n" << after.str();
 #endif
@@ -396,8 +398,8 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
   std::stringstream after(std::stringstream::in | std::stringstream::out);
   for (const auto& it : comp) {
     after << "ORDER2 " << it->geographicalId().rawId() << " " << static_cast<MTDDetId>(it->geographicalId()).mtdRR()
-          << " " << it->type() << " " << it->translation().z() << " "
-          << convertRadToDeg(angle0to2pi::make0To2pi(it->phi())) << "\n";
+          << " " << it->type() << " " << it->translation().z() << " " << convertRadToDeg(makempiToppi(it->phi()))
+          << "\n";
   }
   edm::LogVerbatim("DD4hep_MTDNumbering") << "GeometricTimingDet order after sorting \n" << after.str();
 #endif

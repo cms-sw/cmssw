@@ -73,6 +73,10 @@ void MTDTopologyEP::fillBTLtopology(const MTDGeometry& mtdgeo, MTDTopology::BTLV
     tmpLayout.btlDetId_[index] = det->geographicalId().rawId();
     tmpLayout.btlPhi_[index] = iphi;
     tmpLayout.btlEta_[index] = ieta;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("MTDTopologyEP") << "MTDTopology BTL# " << index << " id= " << det->geographicalId().rawId()
+                                      << " iphi/ieta= " << iphi << " / " << ieta;
+#endif
     if (ieta == tmpLayout.nBTLeta_) {
       iphi++;
       ieta = 0;

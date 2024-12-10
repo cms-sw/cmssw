@@ -33,7 +33,6 @@ uint32_t MTDTopology::btlidFromIndex(const uint32_t iphi, const uint32_t ieta) c
       res = btlVals_.btlDetId_[index];
       break;
     }
-    index++;
   }
   return res;
 }
@@ -56,9 +55,9 @@ uint32_t MTDTopology::phishiftBTL(const uint32_t detid, const int phiShift) cons
   }
   if (found) {
     int newIndex = index + sh * btlVals_.nBTLeta_;
-    if (newIndex > static_cast<int>(btlVals_.nBTLmodules_)) {
+    if (newIndex >= static_cast<int>(btlVals_.nBTLmodules_)) {
       newIndex = newIndex - btlVals_.nBTLmodules_;
-    } else if (newIndex < 1) {
+    } else if (newIndex < 0) {
       newIndex = newIndex + btlVals_.nBTLmodules_;
     }
     return newIndex;
@@ -86,9 +85,9 @@ uint32_t MTDTopology::etashiftBTL(const uint32_t detid, const int etaShift) cons
   }
   if (found) {
     int newIndex = index + sh;
-    if (newIndex < 1 || newIndex > static_cast<int>(btlVals_.nBTLmodules_)) {
+    if (newIndex < 0 || newIndex >= static_cast<int>(btlVals_.nBTLmodules_)) {
       return failIndex_;
-    } else if (btlVals_.btlEta_[newIndex] != btlVals_.btlEta_[index]) {
+    } else if (btlVals_.btlPhi_[newIndex] != btlVals_.btlPhi_[index]) {
       return failIndex_;
     }
     return newIndex;
