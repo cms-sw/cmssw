@@ -6,15 +6,12 @@
  */
 
 #include "SimMuon/MCTruth/plugins/SeedToTrackProducerBase.h"
-
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeed.h"
-
-template class SeedToTrackProducerBase<std::vector<TrajectorySeed>>;
-template class SeedToTrackProducerBase<std::vector<L2MuonTrajectorySeed>>;
+#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
 
 //
 // constructors and destructor
@@ -154,3 +151,12 @@ TrajectoryStateOnSurface SeedToTrackProducerBase<SeedCollection>::seedTransientS
       trajectoryStateTransform::transientState(tmpTSOD, &(tmpGeomDet->surface()), &mgField);
   return tmpTSOS;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+typedef SeedToTrackProducerBase<TrajectorySeedCollection> SeedToTrackProducer;
+typedef SeedToTrackProducerBase<L2MuonTrajectorySeedCollection> Phase2SeedToTrackProducer;
+
+DEFINE_FWK_MODULE(SeedToTrackProducer);
+DEFINE_FWK_MODULE(Phase2SeedToTrackProducer);
