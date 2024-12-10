@@ -87,8 +87,16 @@ namespace edm {
         // In the following function, all the other components that contribute
         // to the same record and also the records that record depends on are
         // also checked. The component sharing is appropriately fixed as necessary.
+        // (this needs to be done before updateLookup because this can cause new
+        // ESProducers to be constructed).
         checkESProducerSharing();
         clearComponents();
+
+        // updateLookup needs to be called after checkESProducerSharing because
+        // that can cause new ESProducers to be constructed
+        for (auto& eventSetupProvider : providers_) {
+          eventSetupProvider->updateLookup();
+        }
 
         initializeEventSetupRecordIOVQueues();
         numberOfConcurrentIOVs_.clear();

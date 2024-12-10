@@ -28,12 +28,12 @@ namespace edm {
       sharedResourceNames_.reset();
     }
 
-    itemsToGetFromRecords_.reserve(consumesInfos_.size());
-    recordsUsedDuringGet_.reserve(consumesInfos_.size());
-
     if (itemsToGetFromRecords_.size() == consumesInfos_.size()) {
       return;
     }
+
+    itemsToGetFromRecords_.reserve(consumesInfos_.size());
+    recordsUsedDuringGet_.reserve(consumesInfos_.size());
 
     for (auto& info : consumesInfos_) {
       auto& items = itemsToGetFromRecords_.emplace_back();

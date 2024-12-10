@@ -347,10 +347,6 @@ namespace edm {
         }
       }
 
-      auto indices = recordsToResolverIndices();
-      for (auto& provider : *dataProviders_) {
-        provider->updateLookup(indices);
-      }
       dataProviders_.reset();
 
       mustFinishConfiguration_ = false;
@@ -538,6 +534,13 @@ namespace edm {
             ModuleFactory::get()->addTo(esController, *this, pset, resolverMaker, true);
           }
         }
+      }
+    }
+
+    void EventSetupProvider::updateLookup() {
+      auto indices = recordsToResolverIndices();
+      for (auto& recordProvider : recordProviders_) {
+        recordProvider->updateLookup(indices);
       }
     }
 
