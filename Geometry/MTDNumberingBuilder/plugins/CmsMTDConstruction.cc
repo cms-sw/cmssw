@@ -57,47 +57,19 @@ void CmsMTDConstruction<DDFilteredView>::buildBTLModule(DDFilteredView& fv, Geom
   GeometricTimingDet* det =
       new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen)));
 
-  if (isBTLV2(fv)) {
-    auto& gh = fv.geoHistory();
+  auto& gh = fv.geoHistory();
 
-    baseNumber_.reset();
-    baseNumber_.setSize(gh.size());
+  baseNumber_.reset();
+  baseNumber_.setSize(gh.size());
 
-    for (uint i = gh.size(); i-- > 0;) {
-      baseNumber_.addLevel(gh[i].logicalPart().name().name(), gh[i].copyno());
+  for (uint i = gh.size(); i-- > 0;) {
+    baseNumber_.addLevel(gh[i].logicalPart().name().name(), gh[i].copyno());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("CmsMTDConstruction") << gh[i].logicalPart().name().name() << " " << gh[i].copyno();
+    edm::LogVerbatim("CmsMTDConstruction") << gh[i].logicalPart().name().name() << " " << gh[i].copyno();
 #endif
-    }
-
-    det->setGeographicalID(BTLDetId(btlScheme_.getUnitID(baseNumber_)));
-
-  } else {
-    const auto& copyNumbers = fv.copyNumbers();
-    auto module_number = copyNumbers[copyNumbers.size() - 2];
-
-    constexpr char positive[] = "PositiveZ";
-    constexpr char negative[] = "NegativeZ";
-
-    const std::string& modname(fv.name());
-    size_t delim1 = modname.find("BModule");
-    size_t delim2 = modname.find("Layer");
-    module_number += atoi(modname.substr(delim1 + CmsMTDStringToEnum::kModStrLen, delim2).c_str()) - 1;
-
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CmsMTDConstruction")
-        << "BTLModule = " << modname << " " << copyNumbers[copyNumbers.size() - 3] << " " << module_number;
-#endif
-
-    if (modname.find(positive) != std::string::npos) {
-      det->setGeographicalID(BTLDetId(1, copyNumbers[copyNumbers.size() - 3], module_number, 0, 1));
-    } else if (modname.find(negative) != std::string::npos) {
-      det->setGeographicalID(BTLDetId(0, copyNumbers[copyNumbers.size() - 3], module_number, 0, 1));
-    } else {
-      throw cms::Exception("CmsMTDConstruction::buildBTLModule")
-          << "BTL Module " << module_number << " is neither positive nor negative in Z!";
-    }
   }
+
+  det->setGeographicalID(BTLDetId(btlScheme_.getUnitID(baseNumber_)));
 
   mother->addComponent(det);
 }
@@ -108,47 +80,19 @@ void CmsMTDConstruction<cms::DDFilteredView>::buildBTLModule(cms::DDFilteredView
   GeometricTimingDet* det =
       new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen)));
 
-  if (isBTLV2(fv)) {
-    baseNumber_.reset();
-    baseNumber_.setSize(fv.copyNos().size());
+  baseNumber_.reset();
+  baseNumber_.setSize(fv.copyNos().size());
 
-    for (uint i = 0; i < fv.copyNos().size(); i++) {
-      std::string_view name((fv.geoHistory()[i])->GetName());
-      size_t ipos = name.rfind('_');
-      baseNumber_.addLevel(name.substr(0, ipos), fv.copyNos()[i]);
+  for (uint i = 0; i < fv.copyNos().size(); i++) {
+    std::string_view name((fv.geoHistory()[i])->GetName());
+    size_t ipos = name.rfind('_');
+    baseNumber_.addLevel(name.substr(0, ipos), fv.copyNos()[i]);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("CmsMTDConstruction") << name.substr(0, ipos) << " " << fv.copyNos()[i];
+    edm::LogVerbatim("CmsMTDConstruction") << name.substr(0, ipos) << " " << fv.copyNos()[i];
 #endif
-    }
-
-    det->setGeographicalID(BTLDetId(btlScheme_.getUnitID(baseNumber_)));
-
-  } else {
-    const auto& copyNumbers = fv.copyNumbers();
-    auto module_number = copyNumbers[1];
-
-    constexpr char positive[] = "PositiveZ";
-    constexpr char negative[] = "NegativeZ";
-
-    const std::string modname(fv.name());
-    size_t delim1 = modname.find("BModule");
-    size_t delim2 = modname.find("Layer");
-    module_number += atoi(modname.substr(delim1 + CmsMTDStringToEnum::kModStrLen, delim2).c_str()) - 1;
-
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("MTDNumbering") << fv.path() << "\nBTLModule = " << modname << " " << copyNumbers[2] << " "
-                                     << module_number;
-#endif
-
-    if (modname.find(positive) != std::string::npos) {
-      det->setGeographicalID(BTLDetId(1, copyNumbers[2], module_number, 0, 1));
-    } else if (modname.find(negative) != std::string::npos) {
-      det->setGeographicalID(BTLDetId(0, copyNumbers[2], module_number, 0, 1));
-    } else {
-      throw cms::Exception("CmsMTDConstruction::buildBTLModule")
-          << "BTL Module " << module_number << " is neither positive nor negative in Z!";
-    }
   }
+
+  det->setGeographicalID(BTLDetId(btlScheme_.getUnitID(baseNumber_)));
 
   mother->addComponent(det);
 }
@@ -243,11 +187,6 @@ GeometricTimingDet* CmsMTDConstruction<FilteredView>::buildLayer(FilteredView& f
   }
 
   return layer;
-}
-
-template <class FilteredView>
-bool CmsMTDConstruction<FilteredView>::isBTLV2(FilteredView& fv) {
-  return (fv.name().substr(0, 9) == "BTLModule");
 }
 
 template <class FilteredView>

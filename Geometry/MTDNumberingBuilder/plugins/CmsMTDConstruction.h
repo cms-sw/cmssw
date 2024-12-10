@@ -30,7 +30,6 @@ public:
 
   void baseNumberFromHistory(const DDGeoHistory& gh);
 
-  bool isBTLV2(FilteredView&);
   bool isETLpreV8(FilteredView&);
 
 protected:
