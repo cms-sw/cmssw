@@ -1,13 +1,12 @@
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "FWCore/Utilities/interface/bit_cast.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/atomicMaxF.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/atomicMaxF.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFClusterSoAProducerKernel.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFClusterECLCC.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFClusterSoAProducerKernel.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -1088,7 +1087,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   const reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
                                   const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
-                                  const reco::PFRecHitHostCollection::ConstView pfRecHits,
+                                  const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   reco::PFClusterDeviceCollection::View clusterView,
                                   uint32_t* __restrict__ nSeeds) const {
       const int nRH = pfRecHits.size();
@@ -1165,7 +1164,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  const reco::PFRecHitHostCollection::ConstView pfRecHits,
+                                  const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusteringEdgeVarsDeviceCollection::View pfClusteringEdgeVars,
                                   uint32_t* __restrict__ nSeeds) const {
@@ -1195,7 +1194,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  const reco::PFRecHitHostCollection::ConstView pfRecHits,
+                                  const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusterDeviceCollection::View clusterView,
                                   uint32_t* __restrict__ nSeeds,
@@ -1319,7 +1318,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  const reco::PFRecHitHostCollection::ConstView pfRecHits,
+                                  const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFRecHitFractionDeviceCollection::View fracView) const {
       const int nRH = pfRecHits.size();
@@ -1350,7 +1349,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     template <bool debug = false, typename TAcc, typename = std::enable_if<!std::is_same_v<Device, alpaka::DevCpu>>>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  const reco::PFRecHitHostCollection::ConstView pfRecHits,
+                                  const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   const reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
                                   const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
@@ -1412,7 +1411,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  const reco::PFRecHitHostCollection::ConstView pfRecHits,
+                                  const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   const reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
                                   const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
@@ -1454,7 +1453,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
-  PFClusterProducerKernel::PFClusterProducerKernel(Queue& queue, const reco::PFRecHitHostCollection& pfRecHits)
+  PFClusterProducerKernel::PFClusterProducerKernel(Queue& queue)
       : nSeeds(cms::alpakatools::make_device_buffer<uint32_t>(queue)),
         globalClusterPos(
             cms::alpakatools::make_device_buffer<Position4[]>(queue, blocksForExoticClusters * maxTopoInput)),
@@ -1473,10 +1472,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                     const reco::PFRecHitHCALTopologyDeviceCollection& topology,
                                                     reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
                                                     reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
-                                                    const reco::PFRecHitHostCollection& pfRecHits,
+                                                    const reco::PFRecHitDeviceCollection& pfRecHits,
+                                                    int nRH,
                                                     reco::PFClusterDeviceCollection& pfClusters,
                                                     uint32_t* __restrict__ nRHF) {
-    const int nRH = pfRecHits->size();
     const int threadsPerBlock = 256;
     const int blocks = divide_up_by(nRH, threadsPerBlock);
 
@@ -1533,11 +1532,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                         const reco::PFRecHitHCALTopologyDeviceCollection& topology,
                                         reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
                                         reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
-                                        const reco::PFRecHitHostCollection& pfRecHits,
+                                        const reco::PFRecHitDeviceCollection& pfRecHits,
+                                        int nRH,
                                         reco::PFClusterDeviceCollection& pfClusters,
                                         reco::PFRecHitFractionDeviceCollection& pfrhFractions) {
-    const int nRH = pfRecHits->size();
-
     // fillRhfIndex
     alpaka::exec<Acc2D>(queue,
                         make_workdiv<Acc2D>({divide_up_by(nRH, 32), divide_up_by(nRH, 32)}, {32, 32}),
