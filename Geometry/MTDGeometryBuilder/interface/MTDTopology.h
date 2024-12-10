@@ -40,6 +40,10 @@ public:
 
   int getMTDTopologyMode() const { return mtdTopologyMode_; }
 
+  uint32_t btlRods() const { return btlVals_.nBTLphi_; }
+  uint32_t btlModulesPerRod() const { return btlVals_.nBTLeta_; }
+  uint32_t btlModules() const { return btlVals_.nBTLmodules_; }
+
   // BTL topology navigation is based on a predefined order of dets in MTDGeometry, mapped onto phi/eta grid
 
   std::pair<uint32_t, uint32_t> btlIndex(const uint32_t detId) const;
