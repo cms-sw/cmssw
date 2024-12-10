@@ -51,84 +51,8 @@ from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 # In the following use
 # TrackRefitter (normal tracks), TrackRefitterP5 (cosmics) or TrackRefitterBHM (beam halo)
 
-from RecoLocalTracker.SiStripRecHitConverter.StripCPEESProducer_cfi import stripCPEESProducer
-hltESPStripCPEfromTrackAngle = stripCPEESProducer.clone(
-  ComponentType = "StripCPEfromTrackAngle" ,
-  ComponentName = "hltESPStripCPEfromTrackAngle",
-  parameters = cms.PSet( 
-    mLC_P2 = cms.double(0.3),
-    mLC_P1 = cms.double(0.618),
-    mLC_P0 = cms.double(-0.326),
-#    useLegacyError = cms.bool( True ), # 50ns menu
-#    maxChgOneMIP = cms.double( -6000.0 ), # 50ns menu
-    useLegacyError = cms.bool(False) , # 25ns menu
-    maxChgOneMIP = cms.double(6000.0) , #25ns menu
-    mTEC_P1 = cms.double( 0.471 ),
-    mTEC_P0 = cms.double( -1.885 ),
-    mTOB_P0 = cms.double( -1.026 ),
-    mTOB_P1 = cms.double( 0.253 ),
-    mTIB_P0 = cms.double( -0.742 ),
-    mTIB_P1 = cms.double( 0.202 ),
-    mTID_P0 = cms.double( -1.427 ),
-    mTID_P1 = cms.double( 0.433 )
-  )
-)
-
-hltESPPixelCPEGeneric = cms.ESProducer( 
-    "PixelCPEGenericESProducer",
-    LoadTemplatesFromDB = cms.bool( True ),
-    Alpha2Order = cms.bool( True ),
-    ClusterProbComputationFlag = cms.int32( 0 ),
-    useLAWidthFromDB = cms.bool( False ),
-    lAOffset = cms.double( 0.0 ),
-    lAWidthBPix = cms.double( 0.0 ),
-    lAWidthFPix = cms.double( 0.0 ),
-    doLorentzFromAlignment = cms.bool( False ),
-    useLAFromDB = cms.bool( True ),
-    xerr_barrel_l1 = cms.vdouble( 0.00115, 0.0012, 8.8E-4 ),
-    yerr_barrel_l1 = cms.vdouble( 0.00375, 0.0023, 0.0025, 0.0025, 0.0023, 0.0023, 0.0021, 0.0021, 0.0024 ),
-    xerr_barrel_ln = cms.vdouble( 0.00115, 0.0012, 8.8E-4 ),
-    yerr_barrel_ln = cms.vdouble( 0.00375, 0.0023, 0.0025, 0.0025, 0.0023, 0.0023, 0.0021, 0.0021, 0.0024 ),
-    xerr_endcap = cms.vdouble( 0.002, 0.002 ),
-    yerr_endcap = cms.vdouble( 0.0021 ),
-    xerr_barrel_l1_def = cms.double( 0.0103 ),
-    yerr_barrel_l1_def = cms.double( 0.0021 ),
-    xerr_barrel_ln_def = cms.double( 0.0103 ),
-    yerr_barrel_ln_def = cms.double( 0.0021 ),
-    xerr_endcap_def = cms.double( 0.002 ),
-    yerr_endcap_def = cms.double( 7.5E-4 ),
-    eff_charge_cut_highX = cms.double( 1.0 ),
-    eff_charge_cut_highY = cms.double( 1.0 ),
-    eff_charge_cut_lowX = cms.double( 0.0 ),
-    eff_charge_cut_lowY = cms.double( 0.0 ),
-    size_cutX = cms.double( 3.0 ),
-    size_cutY = cms.double( 3.0 ),
-    EdgeClusterErrorX = cms.double( 50.0 ),
-    EdgeClusterErrorY = cms.double( 85.0 ),
-    inflate_errors = cms.bool( False ),
-    inflate_all_errors_no_trk_angle = cms.bool( False ),
-    NoTemplateErrorsWhenNoTrkAngles = cms.bool( False ),
-    UseErrorsFromTemplates = cms.bool( True ),
-    TruncatePixelCharge = cms.bool( True ),
-    IrradiationBiasCorrection = cms.bool( True ),
-    DoCosmics = cms.bool( False ),
-    isPhase2 = cms.bool( False ),
-    SmallPitch = cms.bool( False ),
-    ComponentName = cms.string( "hltESPPixelCPEGeneric" ),
-    MagneticFieldRecord = cms.ESInputTag( "","" ),
-    appendToDataLabel = cms.string( "" )
-)
-
-hltESPTTRHBWithTrackAngle = cms.ESProducer( 
-    "TkTransientTrackingRecHitBuilderESProducer",
-    ComponentName = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
-    StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
-    PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
-    Matcher = cms.string( "StandardMatcher" ),
-    Phase2StripCPE = cms.string( "" ),
-    appendToDataLabel = cms.string( "" )
-)
+# Ingredient: import HLT CPE ESProducers directly to avoid going out of synch
+from Alignment.CommonAlignmentProducer.HLTModulesIncludes_cff import hltESPStripCPEfromTrackAngle, hltESPPixelCPEGeneric, hltESPTTRHBWithTrackAngle
 
 SiPixelAliTrackRefitterHLT0 = TrackRefitter.clone(
     src = 'SiPixelAliLooseSelectorHLT',   #'ALCARECOTkAlMinBias'#'ALCARECOTkAlCosmicsCTF0T' #'ALCARECOTkAlMuonIsolated'
