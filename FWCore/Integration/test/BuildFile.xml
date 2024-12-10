@@ -40,6 +40,9 @@
   <test name="CatchStdExceptiontest" command="CatchStdExceptiontest.sh"/>
   <test name="CatchCmsExceptiontest" command="CatchCmsExceptiontest.sh"/>
   <test name="TestIntegrationExistingDictionary" command="run_TestExistingDictionary.sh"/>
+  <iftool name="cuda-gcc-support">
+    <test name="TestIntegrationMissingDictionaryCUDA" command="testMissingDictionaryCUDAChecking.sh"/>
+  </iftool>
   <test name="TestIntegrationEmptyRootFile" command="run_TestEmptyRootFile.sh"/>
 
   <bin file="ProcessConfiguration_t.cpp,ProcessHistory_t.cpp" name="TestIntegrationDataFormatsProvenance">
