@@ -10,6 +10,7 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 
 class PATTauHybridProducer : public edm::stream::EDProducer<> {
 public:
@@ -37,6 +38,7 @@ private:
   const bool checkTauScoreIsBest_;
   const bool usePFLeptonsAsChargedHadrons_;
 
+  GreaterByPt<pat::Tau> pTTauComparator_;
   const std::map<std::string, int> tagToDM_;
   enum class tauId_utag_idx : size_t { dm = 0, vsjet, vse, vsmu, ptcorr, qconf, pdm0, pdm1, pdm2, pdm10, pdm11, last };
   enum class tauId_min_idx : size_t { hpsnew = 0, last };
@@ -324,6 +326,9 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       outputTaus->push_back(outputTau);
     }
   }  //non-matched taus
+
+  // sort taus in pT
+  std::sort(outputTaus->begin(), outputTaus->end(), pTTauComparator_);
 
   evt.put(std::move(outputTaus));
 }
