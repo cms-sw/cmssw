@@ -52,6 +52,8 @@ class Eras (object):
                  'Run3_2023_UPC',
                  'Run3_2024_ppRef',
                  'Run3_2024_UPC',
+                 'Run3_2025_UPC',
+                 'Run3_2025_OXY',
                  'Phase2',
                  'Phase2C9',
                  'Phase2C10',
@@ -93,7 +95,7 @@ class Eras (object):
                            'run2_nanoAOD_106Xv2',
                            'run3_nanoAOD_pre142X',
                            'run3_ecal_devel',
-                           'run3_upc',
+                           'run3_upc', 'run3_oxygen',
                            'hcalHardcodeConditions', 'hcalSkipPacker',
                            'run2_HLTconditions_2016','run2_HLTconditions_2017','run2_HLTconditions_2018',
                            'bParking']
