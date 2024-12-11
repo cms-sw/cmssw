@@ -64,20 +64,22 @@ namespace trklet {
   // read in and organize input tracks and stubs
   void TrackMultiplexer::consume(const StreamsTrack& streamsTrack, const StreamsStub& streamsStub) {
     static const int numS = channelAssignment_->numSeedingLayers();
-    const int offsetTrack = region_ * channelAssignment_->numChannelsTrack();
+    static const int numChannel = channelAssignment_->numChannelsTrack();
+    const int offsetTrack = region_ * numChannel;
     // count tracks and stubs to reserve container
     int nTracks(0);
     int nStubs(0);
-    for (int channel = 0; channel < channelAssignment_->numChannelsTrack(); channel++) {
+    for (int channel = 0; channel < numChannel; channel++) {
       const int channelTrack = offsetTrack + channel;
       const int offsetStub = channelAssignment_->offsetStub(channelTrack);
+      const int numProjectionLayers = channelAssignment_->numProjectionLayers(channel);
       const StreamTrack& streamTrack = streamsTrack[channelTrack];
       input_[channel].reserve(streamTrack.size());
       for (int frame = 0; frame < (int)streamTrack.size(); frame++) {
         if (streamTrack[frame].first.isNull())
           continue;
         nTracks++;
-        for (int layer = 0; layer < channelAssignment_->numProjectionLayers(channel); layer++)
+        for (int layer = 0; layer < numProjectionLayers; layer++)
           if (streamsStub[offsetStub + layer][frame].first.isNonnull())
             nStubs++;
       }
@@ -85,7 +87,7 @@ namespace trklet {
     stubs_.reserve(nStubs + nTracks * numS);
     tracks_.reserve(nTracks);
     // store tracks and stubs
-    for (int channel = 0; channel < channelAssignment_->numChannelsTrack(); channel++) {
+    for (int channel = 0; channel < numChannel; channel++) {
       const int numP = channelAssignment_->numProjectionLayers(channel);
       const int channelTrack = offsetTrack + channel;
       const int offsetStub = channelAssignment_->offsetStub(channelTrack);
@@ -331,8 +333,9 @@ namespace trklet {
     // emualte clock domain crossing
     static constexpr int ticksPerGap = 3;
     static constexpr int gapPos = 1;
-    vector<deque<Track*>> streams(channelAssignment_->numChannelsTrack());
-    for (int channel = 0; channel < channelAssignment_->numChannelsTrack(); channel++) {
+    static const int numChannel = channelAssignment_->numChannelsTrack();
+    vector<deque<Track*>> streams(numChannel);
+    for (int channel = 0; channel < numChannel; channel++) {
       int iTrack(0);
       deque<Track*>& stream = streams[channel];
       const vector<Track*>& intput = input_[channel];
@@ -347,19 +350,19 @@ namespace trklet {
         it = (*--it) ? stream.begin() : stream.erase(it);
     // route into single channel
     deque<Track*> accepted;
-    vector<deque<Track*>> stacks(channelAssignment_->numChannelsTrack());
+    vector<deque<Track*>> stacks(numChannel);
     // clock accurate firmware emulation, each while trip describes one clock tick, one stub in and one stub out per tick
     while (!all_of(streams.begin(), streams.end(), [](const deque<Track*>& tracks) { return tracks.empty(); }) or
            !all_of(stacks.begin(), stacks.end(), [](const deque<Track*>& tracks) { return tracks.empty(); })) {
       // fill input fifos
-      for (int channel = 0; channel < channelAssignment_->numChannelsTrack(); channel++) {
+      for (int channel = 0; channel < numChannel; channel++) {
         Track* track = pop_front(streams[channel]);
         if (track)
           stacks[channel].push_back(track);
       }
       // merge input fifos to one stream, prioritizing lower input channel over higher channel, affects DR
       bool nothingToRoute(true);
-      for (int channel = 0; channel < channelAssignment_->numChannelsTrack(); channel++) {
+      for (int channel : channelAssignment_->tmMuxOrder()) {
         Track* track = pop_front(stacks[channel]);
         if (track) {
           nothingToRoute = false;

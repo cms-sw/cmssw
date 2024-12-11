@@ -6,6 +6,7 @@ ChannelAssignment_params = cms.PSet (
 
   # TM parameter
   TM = cms.PSet (
+    MuxOrder    = cms.vstring( "L1L2", "L2L3", "L1D1", "D1D2", "D3D4", "L2D1", "L3L4", "L5L6" ),
     NumLayers   = cms.int32( 11 ), # number of layers per track
     WidthStubId = cms.int32( 10 ), # number of bits used to represent stub id for projected stubs
     WidthCot    = cms.int32( 14 )

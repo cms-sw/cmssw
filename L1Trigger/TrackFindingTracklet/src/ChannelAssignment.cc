@@ -17,6 +17,7 @@ namespace trklet {
   ChannelAssignment::ChannelAssignment(const edm::ParameterSet& iConfig, const Setup* setup)
       : setup_(setup),
         pSetTM_(iConfig.getParameter<ParameterSet>("TM")),
+        tmMuxOrder_((pSetTM_.getParameter<vector<string>>("MuxOrder"))),
         tmNumLayers_((pSetTM_.getParameter<int>("NumLayers"))),
         tmWidthStubId_(pSetTM_.getParameter<int>("WidthStubId")),
         tmWidthCot_(pSetTM_.getParameter<int>("WidthCot")),
@@ -27,6 +28,9 @@ namespace trklet {
         numSeedTypes_(seedTypeNames_.size()),
         numChannelsTrack_(numSeedTypes_),
         channelEncoding_(iConfig.getParameter<vector<int>>("IRChannelsIn")) {
+    tmMuxOrderInt_.reserve(tmMuxOrder_.size());
+    for (const string& s : tmMuxOrder_)
+      tmMuxOrderInt_.push_back(distance(tmMuxOrder_.begin(), find(tmMuxOrder_.begin(), tmMuxOrder_.end(), s)));
     const ParameterSet& pSetSeedTypesSeedLayers = iConfig.getParameter<ParameterSet>("SeedTypesSeedLayers");
     const ParameterSet& pSetSeedTypesProjectionLayers = iConfig.getParameter<ParameterSet>("SeedTypesProjectionLayers");
     seedTypesSeedLayers_.reserve(numSeedTypes_);

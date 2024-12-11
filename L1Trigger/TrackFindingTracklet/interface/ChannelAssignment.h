@@ -30,6 +30,8 @@ namespace trklet {
     int numChannelsTrack() const { return numChannelsTrack_; }
     // number of used TB channels for stubs
     int numChannelsStub() const { return numChannelsStub_; }
+    //
+    std::vector<int> tmMuxOrder() const { return tmMuxOrderInt_; }
     // number of layers per rtack
     int tmNumLayers() const { return tmNumLayers_; }
     // number of bits used to represent stub id for projected stubs
@@ -68,6 +70,8 @@ namespace trklet {
     const tt::Setup* setup_;
     // TM parameter
     edm::ParameterSet pSetTM_;
+    //
+    std::vector<std::string> tmMuxOrder_;
     // number of layers per rtack
     int tmNumLayers_;
     // number of bits used to represent stub id for projected stubs
@@ -100,6 +104,8 @@ namespace trklet {
     std::vector<int> offsetsStubs_;
     // max number of seeding layers
     int numSeedingLayers_;
+    //
+    std::vector<int> tmMuxOrderInt_;
   };
 
 }  // namespace trklet
