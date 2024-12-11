@@ -10,8 +10,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testZVertexSoAT {
 
   class TestFillKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   reco::ZVertexSoAView zvertex_view,
                                   reco::ZVertexTracksSoAView ztracks_view) const {
       if (cms::alpakatools::once_per_grid(acc)) {
@@ -34,8 +33,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testZVertexSoAT {
 
   class TestVerifyKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   reco::ZVertexSoAView zvertex_view,
                                   reco::ZVertexTracksSoAView ztracks_view) const {
       if (cms::alpakatools::once_per_grid(acc)) {
