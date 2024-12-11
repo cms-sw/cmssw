@@ -114,7 +114,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             cell.eleid() = HGCalElectronicsId(false, 0, 0, 0, chip * 2 + half, seq).raw();
             cell.detid() = detid;
           }  //end loop over entities
-        }  //end loop over cell types
+        }    //end loop over cell types
 
         return cellParams;
       }  // end of produce()

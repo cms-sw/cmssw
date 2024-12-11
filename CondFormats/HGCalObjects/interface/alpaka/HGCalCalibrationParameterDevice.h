@@ -5,6 +5,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterSoA.h"
+#include "CondFormats/HGCalObjects/interface/HGCalConfigParameterSoA.h"
 #include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -13,7 +14,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     using namespace ::hgcalrechit;
     using HGCalCalibParamDevice = PortableCollection<HGCalCalibParamSoA>;
-    //using HGCalChannelConfigParamDevice = PortableCollection<HGCalChannelConfigParamSoA>;
     using HGCalConfigParamDevice = PortableCollection<HGCalConfigParamSoA>;
 
   }  // namespace hgcalrechit

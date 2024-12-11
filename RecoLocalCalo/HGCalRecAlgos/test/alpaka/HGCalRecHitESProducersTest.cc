@@ -29,9 +29,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
 
-  class TestHGCalRecHitESProducers : public stream::EDProducer<> {
+  class HGCalRecHitESProducersTest : public stream::EDProducer<> {
   public:
-    explicit TestHGCalRecHitESProducers(const edm::ParameterSet&);
+    explicit HGCalRecHitESProducersTest(const edm::ParameterSet&);
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
@@ -44,15 +44,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalModuleConfigurationRcd> calibParamToken_;
   };
 
-  TestHGCalRecHitESProducers::TestHGCalRecHitESProducers(const edm::ParameterSet& iConfig) {
-    std::cout << "TestHGCalRecHitESProducers::TestHGCalRecHitESProducers" << std::endl;
+  HGCalRecHitESProducersTest::HGCalRecHitESProducersTest(const edm::ParameterSet& iConfig) {
+    std::cout << "HGCalRecHitESProducersTest::HGCalRecHitESProducersTest" << std::endl;
     indexerToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("indexSource"));
     configToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
     configParamToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configParamSource"));
     calibParamToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("calibParamSource"));
   }
 
-  void TestHGCalRecHitESProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  void HGCalRecHitESProducersTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add("indexSource", edm::ESInputTag{})->setComment("Label for module indexer to set SoA size");
     desc.add("configSource", edm::ESInputTag{})->setComment("Label for HGCal configuration for unpacking raw data");
@@ -62,8 +62,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     descriptions.addWithDefaultLabel(desc);
   }
 
-  void TestHGCalRecHitESProducers::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-    std::cout << "TestHGCalRecHitESProducers::beginRun" << std::endl;
+  void HGCalRecHitESProducersTest::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+    std::cout << "HGCalRecHitESProducersTest::beginRun" << std::endl;
   }
 
   static std::string int2hex(int value) {
@@ -72,25 +72,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     return stream.str();
   }
 
-  void TestHGCalRecHitESProducers::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
-    std::cout << "TestHGCalRecHitESProducers::produce" << std::endl;
+  void HGCalRecHitESProducersTest::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
+    std::cout << "HGCalRecHitESProducersTest::produce" << std::endl;
     auto queue = iEvent.queue();
     auto const& moduleMap = iSetup.getData(indexerToken_);
     auto const& config = iSetup.getData(configToken_);  // HGCalConfiguration
     auto const& configParamDevice = iSetup.getData(configParamToken_);
-    //printf("TestHGCalRecHitESProducers::produce: time to load configParamDevice from config ESProducers: %f seconds\n", duration(start,now()));
+    //printf("HGCalRecHitESProducersTest::produce: time to load configParamDevice from config ESProducers: %f seconds\n", duration(start,now()));
     auto const& calibParamDevice = iSetup.getData(calibParamToken_);
-    //printf("TestHGCalRecHitESProducers::produce: time to load calibParamDevice from calib ESProducers: %f seconds\n", duration(start,now()));
+    //printf("HGCalRecHitESProducersTest::produce: time to load calibParamDevice from calib ESProducers: %f seconds\n", duration(start,now()));
 
     // Check if there are new conditions and read them
     if (configWatcher_.check(iSetup)) {
-      std::cout << "TestHGCalRecHitESProducers::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
+      std::cout << "HGCalRecHitESProducersTest::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
                 << ", moduleMap.getMaxERxSize()=" << moduleMap.getMaxERxSize() << std::endl;
 
       // ESProducer for global HGCal configuration (structs) with header markers, etc.
       auto nfeds = config.feds.size();  // number of FEDs
-      std::cout << "TestHGCalRecHitESProducers::produce: config=" << config << std::endl;
-      std::cout << "TestHGCalRecHitESProducers::produce: nfeds=" << nfeds << ", config=" << config << std::endl;
+      std::cout << "HGCalRecHitESProducersTest::produce: config=" << config << std::endl;
+      std::cout << "HGCalRecHitESProducersTest::produce: nfeds=" << nfeds << ", config=" << config << std::endl;
       for (std::size_t fedid = 0; fedid < nfeds; ++fedid) {
         auto fed = config.feds[fedid];   // HGCalFedConfig
         auto nmods = fed.econds.size();  // number of ECON-Ds for this FED
@@ -108,7 +108,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // Alpaka ESProducer for SoA with configuration parameters with gains
       int size = configParamDevice.view().metadata().size();
-      std::cout << "TestHGCalRecHitESProducers::produce: device size=" << size << std::endl;
+      std::cout << "HGCalRecHitESProducersTest::produce: device size=" << size << std::endl;
       std::cout << "  imod  gain" << std::endl;
       for (int imod = 0; imod < size; imod++) {
         if (imod >= 250)
@@ -119,7 +119,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // Alpaka ESProducer for SoA with calibration parameters with pedestals, etc.
       size = calibParamDevice.view().metadata().size();
-      std::cout << "TestHGCalRecHitESProducers::produce: device size=" << size << std::endl;
+      std::cout << "HGCalRecHitESProducersTest::produce: device size=" << size << std::endl;
       std::cout << "   idx    hex     ADC_ped   CM_slope   CM_ped   BXm1_slope" << std::endl;
       for (int idx = 0; idx < size; idx++) {
         if (idx >= 250)
@@ -136,4 +136,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 // define this as a plug-in
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
-DEFINE_FWK_ALPAKA_MODULE(TestHGCalRecHitESProducers);
+DEFINE_FWK_ALPAKA_MODULE(HGCalRecHitESProducersTest);

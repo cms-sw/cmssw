@@ -4,7 +4,6 @@
 #include <cstdint>  // for uint8_t
 
 #include <Eigen/Core>
-#include <Eigen/Dense>
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"

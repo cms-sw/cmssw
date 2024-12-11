@@ -3,6 +3,7 @@
 
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterSoA.h"
+#include "CondFormats/HGCalObjects/interface/HGCalConfigParameterSoA.h"
 
 namespace hgcalrechit {
 

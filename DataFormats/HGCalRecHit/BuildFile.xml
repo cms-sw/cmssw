@@ -1,4 +1,3 @@
-<use name="eigen"/>
 <use name="rootcore"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Portable"/>

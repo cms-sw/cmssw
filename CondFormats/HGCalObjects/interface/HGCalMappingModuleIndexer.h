@@ -53,7 +53,7 @@ public:
                         uint32_t typecodeIdx,
                         uint32_t nerx,
                         uint32_t nwords,
-                        std::string typecode = "");
+                        std::string const &typecode);
 
   /**
      @short to be called after all the modules have been processed
@@ -133,7 +133,7 @@ public:
   uint32_t getMaxFEDSize() const { return fedReadoutSequences_.size(); }
   uint32_t getMaxModuleSize() const {
     return maxModulesIdx_;
-  }  // total number of ECON-Ds (useful for setting ECON-D SoA size)
+  }                                                  // total number of ECON-Ds (useful for setting ECON-D SoA size)
   uint32_t getMaxModuleSize(uint32_t fedid) const {  // number of ECON-Ds for given FED id
     return fedReadoutSequences_[fedid].readoutTypes_.size();
   }
@@ -170,10 +170,10 @@ public:
   std::vector<uint32_t> const &getModuleOffsets() const { return moduleOffsets_; }
   std::vector<uint32_t> const &getErxOffsets() const { return erxOffsets_; }
   std::vector<uint32_t> const &getDataOffsets() const { return dataOffsets_; }
-  uint32_t fedCount() { return nfeds_; }
-  uint32_t maxDataIndex() { return maxDataIdx_; }
-  uint32_t maxErxIndex() { return maxErxIdx_; }
-  uint32_t maxModulesIndex() { return maxModulesIdx_; }
+  uint32_t fedCount() const { return nfeds_; }
+  uint32_t maxDataIndex() const { return maxDataIdx_; }
+  uint32_t maxErxIndex() const { return maxErxIdx_; }
+  uint32_t maxModulesIndex() const { return maxModulesIdx_; }
   std::map<std::string, std::pair<uint32_t, uint32_t>> const &getTypecodeMap() const { return typecodeMap_; }
 
   ///< max number of main buffers/capture blocks per FED

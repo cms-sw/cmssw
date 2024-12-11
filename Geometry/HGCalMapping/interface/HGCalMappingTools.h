@@ -42,7 +42,9 @@ namespace hgcal {
       float getIntAttr(std::string col, HGCalEntityRow &row) { return atoi(getAttr(col, row).c_str()); }
       const std::vector<HGCalEntityRow> &getEntries() { return entities_; }
       HGCalEntityRow getColumnNames() { return colNames_; }
-      bool hasColumn(std::string col) { return std::find(colNames_.begin(), colNames_.end(), col) != colNames_.end(); }
+      bool hasColumn(std::string_view col) {
+        return std::find(colNames_.begin(), colNames_.end(), col) != colNames_.end();
+      }
 
     private:
       HGCalEntityRow colNames_;

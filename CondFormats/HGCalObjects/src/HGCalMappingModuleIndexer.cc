@@ -7,7 +7,7 @@ void HGCalMappingModuleIndexer::processNewModule(uint32_t fedid,
                                                  uint32_t typecodeIdx,
                                                  uint32_t nerx,
                                                  uint32_t nwords,
-                                                 std::string typecode) {
+                                                 std::string const& typecode) {
   //add fed if needed
   if (fedid >= fedReadoutSequences_.size()) {
     fedReadoutSequences_.resize(fedid + 1);

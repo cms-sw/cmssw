@@ -25,9 +25,6 @@
 #include <string>
 #include <iostream>  // for std::cout
 #include <iomanip>   // for std::setw
-//#include <fstream> // needed to read json file with std::ifstream
-//#include <nlohmann/json.hpp>
-//using json = nlohmann::json;
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 

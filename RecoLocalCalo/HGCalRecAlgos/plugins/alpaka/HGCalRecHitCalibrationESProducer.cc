@@ -126,10 +126,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           fill_SoA_column<float>(product.view().TOT_P2(), calib_data[module]["TOT_P2"], offset, nrows);
           fill_SoA_column<float>(product.view().TOAtops(), calib_data[module]["TOAtops"], offset, nrows);
           fill_SoA_column<float>(product.view().MIPS_scale(), calib_data[module]["MIPS_scale"], offset, nrows);
-          fill_SoA_column<mybool>(product.view().valid(),
-                                  calib_data[module]["Valid"],
-                                  offset,
-                                  nrows);  // mybool (=std::byte) defined in HGCalCalibrationParameterSoA.h
+          fill_SoA_column<unsigned char>(product.view().valid(), calib_data[module]["Valid"], offset, nrows);
         }
 
         return product;

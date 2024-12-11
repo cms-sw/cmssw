@@ -58,8 +58,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto const& geo = iRecord.get(caloGeomToken_);
 
         //get cell and module indexer
-        auto modIndexer = iRecord.get(moduleIndexTkn_);
-        auto cellIndexer = iRecord.get(cellIndexTkn_);
+        auto const& modIndexer = iRecord.get(moduleIndexTkn_);
+        auto const& cellIndexer = iRecord.get(cellIndexTkn_);
 
         //get cell and module info
         auto const& moduleInfo = iRecord.get(moduleInfoTkn_);
@@ -105,7 +105,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               row.fedId() = fedId;
               row.fedReadoutSeq() = imod;
               row.chNumber() = ich;
-
               row.modInfoIdx() = modIdx;
               uint32_t cellIdx = cellInfoOffset + ich;
               row.cellInfoIdx() = cellIdx;

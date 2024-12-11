@@ -56,7 +56,7 @@ print(f">>> Calib params:  {options.params!r}")
 
 # PROCESS
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9 as Era_Phase2
-process = cms.Process('TestHGCalRecHitESProducers',Era_Phase2)
+process = cms.Process('HGCalRecHitESProducersTest',Era_Phase2)
 
 # GLOBAL TAG
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -125,7 +125,7 @@ process.hgcalCalibParamESProducer = cms.ESProducer( # ESProducer to load calibra
 
 # MAIN PROCESS
 process.testHGCalRecHitESProducers = cms.EDProducer(
-  'TestHGCalRecHitESProducers@alpaka',
+  'HGCalRecHitESProducersTest@alpaka',
   #'alpaka_cuda_async::TestHGCalRecHitProducer', # GPU
   #'alpaka_serial_sync::TestHGCalRecHitProducer', # CPU
   indexSource=cms.ESInputTag('hgCalMappingESProducer', ''),

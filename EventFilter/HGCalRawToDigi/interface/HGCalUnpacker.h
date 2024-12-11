@@ -25,7 +25,7 @@
 
 class HGCalUnpacker {
 public:
-  HGCalUnpacker() {}
+  HGCalUnpacker() = default;
 
   // TODO @hqucms
   // define what is needed as `config`

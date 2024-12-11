@@ -1,9 +1,6 @@
 #ifndef DataFormats_HGCalRecHit_interface_HGCalRecHitSoA_h
 #define DataFormats_HGCalRecHit_interface_HGCalRecHitSoA_h
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
-
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/SoATemplate/interface/SoAView.h"
