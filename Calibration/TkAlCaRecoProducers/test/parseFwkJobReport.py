@@ -18,7 +18,9 @@ TARGET_LIST_OF_TAGS=['BeamSpotObject_ByLumi',           # beamspot
                      'SiStripLA_pcl',
                      'SiPixelAli_pcl',                  # Alignment
                      'SiPixelAliHG_pcl',
-                     'SiPixelAliHGCombined_pcl']
+                     'SiPixelAliHGCombined_pcl',
+                     'SiPixelAliHLTHGCombined_pcl'
+                     ]
 TARGET_DQM_FILES=1
 TARGET_DQM_FILENAME='./DQM_V0001_R000325022__Express__PCLTest__ALCAPROMPT.root'
 TARGET_DB_FILES=len(TARGET_LIST_OF_TAGS)
