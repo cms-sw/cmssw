@@ -12,3 +12,4 @@
 <use name="boost"/>
 <use name="CSCTrackFinderEmulation"/>
 <flags CXXFLAGS="-O1"/>
+<!-- test -->
