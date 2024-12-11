@@ -2,6 +2,7 @@
 #include "RecoTracker/MkFitCore/interface/PropagationConfig.h"
 #include "RecoTracker/MkFitCore/interface/Config.h"
 #include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
+#include "RecoTracker/MkFitCore/interface/cms_common_macros.h"
 
 #include "PropagationMPlex.h"
 
@@ -431,7 +432,7 @@ namespace {
     //float s[nmax - nmin];
     //first iteration outside the loop
 #pragma omp simd
-    for (int n = 0; n < NN; ++n) {
+    for (int n = 0; n < N_proc; ++n) {
       s[n] = (std::abs(plNrm(n, 2, 0)) < 1.f ? getS(delta0[n],
                                                     delta1[n],
                                                     delta2[n],
@@ -462,7 +463,7 @@ namespace {
       // Note, sinT/cosT not updated
 
 #pragma omp simd
-      for (int n = 0; n < NN; ++n) {
+      for (int n = 0; n < N_proc; ++n) {
         s[n] += (std::abs(plNrm(n, 2, 0)) < 1.f
                      ? getS(delta0[n],
                             delta1[n],
@@ -482,14 +483,14 @@ namespace {
     }  //end Niter-1
 
     // use linear approximation if s did not converge (for very high pT tracks)
-    for (int n = 0; n < NN; ++n) {
+    for (int n = 0; n < N_proc; ++n) {
 #ifdef DEBUG
       if (debug)
         std::cout << "s[n]=" << s[n] << " sl[n]=" << sl[n] << " std::isnan(s[n])=" << std::isnan(s[n])
                   << " std::isfinite(s[n])=" << std::isfinite(s[n]) << " std::isnormal(s[n])=" << std::isnormal(s[n])
                   << std::endl;
 #endif
-      if ((std::abs(sl[n]) > std::abs(s[n])) || std::isnormal(s[n]) == false)
+      if (mkfit::isFinite(s[n]) == false && mkfit::isFinite(sl[n]))  // replace with sl even if not fully correct
         s[n] = sl[n];
     }
 
