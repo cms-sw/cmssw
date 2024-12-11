@@ -11,11 +11,16 @@ cd $SCRAM_TEST_NAME
 NEW_CMSSW_BASE=$(/bin/pwd -P)/$CMSSW_VERSION
 scram -a $SCRAM_ARCH project $CMSSW_VERSION
 pushd $CMSSW_VERSION/src
+mkdir DataFormats
+
+# Copy DataFormats/Common if it was modified locally
+if [ -d ${CMSSW_BASE}/src/DataFormats/Common ]; then
+    cp -Lr ${CMSSW_BASE}/src/DataFormats/Common DataFormats/
+fi
 
 # Copy DataFormats/TestObjects code to be able to edit it to make ROOT header parsing to fail
 for DIR in ${CMSSW_BASE} ${CMSSW_RELEASE_BASE} ${CMSSW_FULL_RELEASE_BASE} ; do
     if [ -d ${DIR}/src/DataFormats/TestObjects ]; then
-        mkdir DataFormats
         cp -Lr ${DIR}/src/DataFormats/TestObjects DataFormats/
         break
     fi

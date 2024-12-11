@@ -6,6 +6,9 @@
   <version ClassVersion="10" checksum="4286676158"/>
  </class>
  <class name="std::pair<edmtest::IntProduct, edm::RandomNumberGeneratorState>"/>
+ <class name="edmtest::MaybeUninitializedIntProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="3324182225"/>
+ </class>
  <class name="edmtest::UInt64Product" ClassVersion="11">
   <version ClassVersion="11" checksum="3240540910"/>
   <version ClassVersion="10" checksum="380152127"/>
@@ -85,6 +88,7 @@
  <class name="edm::Wrapper<edmtest::IntProduct>"/>
  <class name="std::vector<std::unique_ptr<edmtest::IntProduct>>"/>
  <class name="edm::Wrapper<std::vector<std::unique_ptr<edmtest::IntProduct>>>"/>
+ <class name="edm::Wrapper<edmtest::MaybeUninitializedIntProduct>"/>
  <class name="edm::Wrapper<edmtest::UInt64Product>"/>
  <class name="edm::Wrapper<edmtest::TransientIntProduct>" persistent="false"/>
  <class name="edm::Wrapper<edmtest::ATransientIntProduct>" persistent="false"/>

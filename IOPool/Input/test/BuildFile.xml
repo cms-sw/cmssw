@@ -25,7 +25,6 @@
   <test name="TestIOPoolInputNoParentDictionary" command="testNoParentDictionary.sh"/>
   <test name="TestFileOpenErrorExitCode" command="testFileOpenErrorExitCode.sh"/>
   <test name="TestIOPoolInputSchemaEvolution" command="testSchemaEvolution.sh"/>
-
-  <test name="TestIOPoolInputRefProductIDMetadataConsistency" command="run_TestRefProductIDMetadataConsistencyRoot.sh"/>
+  <test name="TestIOPoolInputRefProductIDMetadataConsistency" command="testRefProductIDMetadataConsistencyRoot.sh"/>
 
 </environment>
