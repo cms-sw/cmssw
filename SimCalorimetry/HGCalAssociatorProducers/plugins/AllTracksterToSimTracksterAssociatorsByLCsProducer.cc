@@ -244,7 +244,7 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
             }
           }
         }
-
+        assert(simToRecoScoresDenominator > 0.f);
         const float invDenominator = 1.f / simToRecoScoresDenominator;
 
         for (unsigned int i = 0; i < layerClustersIds.size(); ++i) {
@@ -269,9 +269,16 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
           }
         }
       }
+      auto sortingFunc = [](const auto& a, const auto& b) {
+        if (a.score() != b.score())
+          return a.score() < b.score();
+        else
+          return a.index() < b.index();
+      };
+
       // Sort the maps by score in ascending order
-      tracksterToSimTracksterMap->sort([](const auto& a, const auto& b) { return a.score() < b.score(); });
-      simTracksterToTracksterMap->sort([](const auto& a, const auto& b) { return a.score() < b.score(); });
+      tracksterToSimTracksterMap->sort(sortingFunc);
+      simTracksterToTracksterMap->sort(sortingFunc);
 
       // After populating the maps, store them in the event
       iEvent.put(std::move(tracksterToSimTracksterMap), tracksterToken.first + "To" + simTracksterToken.first);
