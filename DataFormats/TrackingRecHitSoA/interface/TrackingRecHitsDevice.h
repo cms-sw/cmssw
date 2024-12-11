@@ -5,6 +5,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsHost.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
@@ -19,7 +20,8 @@ public:
   using PortableDeviceCollection<TrackingRecHitLayout<TrackerTraits>, TDev>::const_view;
   using PortableDeviceCollection<TrackingRecHitLayout<TrackerTraits>, TDev>::buffer;
 
-  TrackingRecHitDevice() = default;
+  TrackingRecHitDevice(edm::Uninitialized)
+      : PortableDeviceCollection<TrackingRecHitLayout<TrackerTraits>, TDev>{edm::kUninitialized} {}
 
   // Constructor which specifies the SoA size, number of BPIX1 hits, and the modules entry points
   template <typename TQueue>

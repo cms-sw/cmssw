@@ -1,34 +1,32 @@
-/*
- *  CMSSW
- *
- */
-
 #include <cassert>
 #include <iostream>
 #include <memory>
 #include <vector>
-#include "catch.hpp"
+
+#include <catch.hpp>
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
 class CopyNoMove {
 public:
-  CopyNoMove() {}
+  CopyNoMove() = default;
   CopyNoMove(CopyNoMove const&) { /* std::cout << "copied\n"; */ }
   CopyNoMove& operator=(CopyNoMove const&) { /*std::cout << "assigned\n";*/ return *this; }
-
-private:
 };
 
 class MoveNoCopy {
 public:
-  MoveNoCopy() {}
+  MoveNoCopy() = default;
   MoveNoCopy(MoveNoCopy const&) = delete;
   MoveNoCopy& operator=(MoveNoCopy const&) = delete;
   MoveNoCopy(MoveNoCopy&&) { /* std::cout << "moved\n";*/ }
   MoveNoCopy& operator=(MoveNoCopy&&) { /* std::cout << "moved\n";*/ return *this; }
+};
 
-private:
+class NoDefaultCtor {
+public:
+  NoDefaultCtor() = delete;
+  NoDefaultCtor(edm::Uninitialized) {}
 };
 
 TEST_CASE("test Wrapper", "[Wrapper]") {
@@ -44,4 +42,7 @@ TEST_CASE("test Wrapper", "[Wrapper]") {
   edm::Wrapper<std::vector<double>> wrap3(std::move(thing3));
   REQUIRE(wrap3->size() == 10);
   REQUIRE(thing3.get() == 0);
+
+  auto thing4 = std::make_unique<NoDefaultCtor>(edm::kUninitialized);
+  edm::Wrapper<NoDefaultCtor> wrap4(std::move(thing4));
 }

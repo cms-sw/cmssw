@@ -220,4 +220,5 @@
 
   <test name="TestIntegrationGetByLabel" command="run_TestGetByLabel.sh"/>
 
+  <test name="TestMaybeUninitializedIntProduct" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testMaybeUninitializedIntProductPart1_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testMaybeUninitializedIntProductPart2_cfg.py"/>
 </environment>
