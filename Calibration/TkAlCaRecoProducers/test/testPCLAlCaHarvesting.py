@@ -83,6 +83,7 @@ process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiStripHitEff_dbOutp
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelAli_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelAliHG_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelAliHGCombined_dbOutput)
+process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelAliHLTHGCombined_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelLA_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelLAMCS_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiStripLA_dbOutput)
@@ -107,6 +108,7 @@ process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiStripHitEff_m
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelAli_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelAliHG_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelAliHGCombined_metadata)
+process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelAliHLTHGCombined_metadata )
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelLA_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelLAMCS_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiStripLA_metadata)
@@ -146,6 +148,16 @@ process.SiPixelAliHG      = cms.Path(process.ALCAHARVESTSiPixelAliHG)
 process.SiPixelAliMilleFileExtractorHG.outputBinaryFile = cms.string('')
 process.SiPixelAliPedeAlignmentProducerHG.algoConfig.mergeBinaryFiles=[]
 
+process.SiPixelAliHGCombined = cms.Path(process.ALCAHARVESTSiPixelAliHGCombined)
+process.SiPixelAliMilleFileExtractorHGMinBias.outputBinaryFile = cms.string('')
+process.SiPixelAliMilleFileExtractorHGZMuMu.outputBinaryFile = cms.string('')
+process.SiPixelAliPedeAlignmentProducerHGCombined.algoConfig.mergeBinaryFiles=[]
+
+process.SiPixelAliHLTHGCombined = cms.Path(process.ALCAHARVESTSiPixelAliHLTHGCombined)
+process.SiPixelAliMilleFileExtractorHLTHGMinBias.outputBinaryFile = cms.string('')
+process.SiPixelAliMilleFileExtractorHLTHGZMuMu.outputBinaryFile = cms.string('')
+process.SiPixelAliPedeAlignmentProducerHLTHGCombined.algoConfig.mergeBinaryFiles=[]
+
 process.SiPixelLA      = cms.Path(process.ALCAHARVESTSiPixelLorentzAngle)
 process.SiPixelLAMCS   = cms.Path(process.ALCAHARVESTSiPixelLorentzAngleMCS)
 process.SiPixelQuality = cms.Path(process.ALCAHARVESTSiPixelQuality)
@@ -166,6 +178,7 @@ process.schedule = cms.Schedule(process.SiStripQuality,
                                 process.SiPixelAli,
                                 process.SiPixelAliHG,
                                 process.SiPixelAliHGCombined,
+                                process.SiPixelAliHLTHGCombined,
                                 process.SiPixelLA,
                                 process.SiPixelLAMCS,
                                 process.SiStripLA,

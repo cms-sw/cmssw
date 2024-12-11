@@ -9,8 +9,9 @@ function cleanTheHouse {
     rm -fr HGalignment
 }
 
-echo "TESTING Calibration/TkAlCaRecoProducers ..."
+echo "========== Starting Calibration/TkAlCaRecoProducers Test =========="
 cmsRun -e -j testPCLAlCaHarvesting.xml ${SCRAM_TEST_PATH}/testPCLAlCaHarvesting.py || die "Failure running testPCLAlCaHarvesting.py" $?
 cleanTheHouse
-echo "PARSING Framework Job Report ..."
+echo ""  # Adding a blank line for better readability
+echo "========== Parsing Framework Job Report =========="
 python3 ${SCRAM_TEST_PATH}/parseFwkJobReport.py
