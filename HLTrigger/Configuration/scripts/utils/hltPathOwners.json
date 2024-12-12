@@ -5402,7 +5402,8 @@
   "HLT_Mu10_Barrel_L1HP11_IP6_v": {
     "online?": true,
     "owners": [
-      "BPH"
+      "BPH",
+      "EXO"
     ]
   },
   "HLT_Mu12_DoublePFJets100_PNetBTag_0p11_v": {
