@@ -3,7 +3,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/MTDDetId.h"
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
@@ -12,6 +12,20 @@
 
 class MTDTopology {
 public:
+  struct BTLLayout {
+    // number of logical rods, i.e. rows of sensor modules along eta/z in phi, and of modules per rod
+    static constexpr uint32_t nBTLphi_ = BTLDetId::HALF_ROD * BTLDetId::kModulesPerTrkV2;
+    static constexpr uint32_t nBTLeta_ =
+        2 * BTLDetId::kRUPerTypeV2 * BTLDetId::kCrystalTypes * BTLDetId::kModulesPerRUV2 / BTLDetId::kModulesPerTrkV2;
+    static constexpr uint32_t nBTLmodules_ = nBTLphi_ * nBTLeta_;
+
+    std::array<uint32_t, nBTLmodules_> btlDetId_;
+    std::array<uint32_t, nBTLmodules_> btlPhi_;
+    std::array<uint32_t, nBTLmodules_> btlEta_;
+  };
+
+  using BTLValues = BTLLayout;
+
   struct ETLfaceLayout {
     uint32_t idDiscSide_;  // disc face identifier
     uint32_t idDetType1_;  // module type id identifier for first row
@@ -22,9 +36,23 @@ public:
 
   using ETLValues = std::vector<ETLfaceLayout>;
 
-  MTDTopology(const int& topologyMode, const ETLValues& etl);
+  MTDTopology(const int& topologyMode, const BTLValues& btl, const ETLValues& etl);
 
   int getMTDTopologyMode() const { return mtdTopologyMode_; }
+
+  uint32_t btlRods() const { return btlVals_.nBTLphi_; }
+  uint32_t btlModulesPerRod() const { return btlVals_.nBTLeta_; }
+  uint32_t btlModules() const { return btlVals_.nBTLmodules_; }
+
+  // BTL topology navigation is based on a predefined order of dets in MTDGeometry, mapped onto phi/eta grid
+
+  std::pair<uint32_t, uint32_t> btlIndex(const uint32_t detId) const;
+  uint32_t btlidFromIndex(const uint32_t iphi, const uint32_t ieta) const;
+
+  // BTL topology navigation methods, find index of closest module along eta or phi
+
+  uint32_t phishiftBTL(const uint32_t detid, const int phiShift) const;
+  uint32_t etashiftBTL(const uint32_t detid, const int etaShift) const;
 
   // ETL topology navigation is based on a predefined order of dets in sector
 
@@ -38,6 +66,8 @@ public:
 
 private:
   const int mtdTopologyMode_;
+
+  const BTLValues btlVals_;
 
   const ETLValues etlVals_;
 

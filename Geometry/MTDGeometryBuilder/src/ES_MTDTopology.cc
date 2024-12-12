@@ -1,4 +1,4 @@
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
 
