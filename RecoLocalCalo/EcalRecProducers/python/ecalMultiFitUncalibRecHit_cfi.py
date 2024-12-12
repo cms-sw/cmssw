@@ -12,8 +12,8 @@ ecal_cctiming.toModify(ecalMultiFitUncalibRecHit,
         EBtimeConstantTerm = 0.85,
         outOfTimeThresholdGain12pEB = 3.0,
         outOfTimeThresholdGain12mEB = 3.0,
-        outOfTimeThresholdGain61pEB = 3.0,
-        outOfTimeThresholdGain61mEB = 3.0,
+        outOfTimeThresholdGain61pEB = 12.0,
+        outOfTimeThresholdGain61mEB = 12.0,
         timeCalibTag = ':CC',
         timeOffsetTag = ':CC'
     )
