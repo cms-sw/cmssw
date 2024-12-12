@@ -29,9 +29,10 @@ collection_choices.extend([hitCalLabel]+[hitValLabel]+[layerClustersLabel]+[trac
 tracksters = []
 
 def main(opts):
-
+    
     drawArgs={}
     extendedFlag = False
+    ticlVersion = 4
     if opts.no_ratio:
         drawArgs["ratio"] = False
     if opts.separate:

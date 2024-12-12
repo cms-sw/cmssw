@@ -23,7 +23,7 @@ TICL_RECO = cms.PSet(
       ['keep *_pfTICL_*_*'] +
       ['keep CaloParticles_mix_*_*', 'keep SimClusters_mix_*_*', 'keep *_SimClusterToCaloParticleAssociation*_*_*'] +
       ['keep *_SimClusterToCaloParticleAssociation*_*_*', 'keep *_layerClusterSimClusterAssociationProducer_*_*','keep *_layerClusterCaloParticleAssociationProducer_*_*', 'keep *_layerClusterSimTracksterAssociationProducer_*_*'] +
-      ['keep *_tracksterSimTracksterAssociation*_*_*' , 'keep *_tracksterSimTracksterFromCPsAssociation*_*_*' ]
+      ['keep *_allTrackstersToSimTrackstersAssociations*_*_*']
       )
     )
 
@@ -50,7 +50,8 @@ TICL_FEVT = cms.PSet(
       'keep *_ticlSimTracksters_*_*',
       'keep *_ticlSimTICLCandidates_*_*',
       'keep *_ticlSimTrackstersFromCP_*_*',
-      'keep *_SimTau*_*_*'
+      'keep *_SimTau*_*_*',
+      'keep *_allTrackstersToSimTrackstersAssociations*_*_*'
       )
     )
 TICL_FEVT.outputCommands.extend(TICL_RECO.outputCommands)
@@ -61,6 +62,7 @@ TICLv5_FEVT = cms.PSet(
       'keep *_ticlSimTrackstersFromCP_*_*',
       'keep CaloParticles_mix_*_*', 'keep SimClusters_mix_*_*', 'keep *_SimClusterToCaloParticleAssociation*_*_*',
       'keep *_SimClusterToCaloParticleAssociation*_*_*', 'keep *_layerClusterSimClusterAssociationProducer_*_*','keep *_layerClusterCaloParticleAssociationProducer_*_*', 'keep *_layerClusterSimTracksterAssociationProducer_*_*',
+      'keep *_SimTau*_*_*',
       'keep *_allTrackstersToSimTrackstersAssociations*_*_*'
       
       )
@@ -110,10 +112,10 @@ def customiseHGCalOnlyEventContent(process):
                                             'keep *_layerClusterCaloParticleAssociationProducer_*_*',
                                             'keep *_randomEngineStateProducer_*_*',
                                             'keep *_layerClusterSimTracksterAssociationProducer_*_*',
-                                            'keep *_tracksterSimTracksterAssociation*_*_*',
-                                            'keep *_tracksterSimTracksterFromCPsAssociation*_*_*',
                                             'keep *_SimClusterToCaloParticleAssociation*_*_*',
-                                            'keep *_simClusterToCaloParticleAssociator*_*_*'
+                                            'keep *_simClusterToCaloParticleAssociator*_*_*',
+                                            'keep *_SimTau*_*_*',
+                                            'keep *_allTrackstersToSimTrackstersAssociations*_*_*'
                                             ])
 
     if hasattr(process, 'FEVTDEBUGEventContent'):
