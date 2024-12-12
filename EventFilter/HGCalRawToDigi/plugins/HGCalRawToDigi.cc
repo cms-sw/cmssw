@@ -97,8 +97,8 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // }
 
   //Parallelization
-  tbb::this_task_arena::isolate([&]() {
-    tbb::parallel_for(0U, moduleIndexer.fedCount(), [&](unsigned fedId) {
+  oneapi::tbb::this_task_arena::isolate([&]() {
+    oneapi::tbb::parallel_for(0U, moduleIndexer.fedCount(), [&](unsigned fedId) {
       const auto& fed_data = raw_data.FEDData(fedId);
       if (fed_data.size() == 0)
         return;

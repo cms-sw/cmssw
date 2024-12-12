@@ -114,14 +114,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 #ifdef EDM_ML_DEBUG
     alpaka::wait(queue);
-    auto start = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::steady_clock::now();
 #endif
 
     auto recHits = calibrator_.calibrate(queue, hostDigis, deviceCalibParamProvider, deviceConfigParamProvider);
 
 #ifdef EDM_ML_DEBUG
     alpaka::wait(queue);
-    auto stop = std::chrono::high_resolution_clock::now();
+    auto stop = std::chrono::steady_clock::now();
     std::chrono::duration<float> elapsed = stop - start;
     LogDebug("HGCalRecHitsProducer") << "Time spent calibrating: " << elapsed.count();  //<< std::endl;
 #endif
