@@ -3,7 +3,7 @@
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 #include "DataFormats/GeometrySurface/interface/BoundDiskSector.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 
 #include <ostream>
 

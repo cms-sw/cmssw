@@ -6,11 +6,13 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
 #include "Geometry/Records/interface/PMTDParametersRcd.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 
 #include <memory>
 
@@ -25,13 +27,18 @@ public:
   ReturnType produce(const MTDTopologyRcd&);
 
 private:
-  void fillParameters(const PMTDParameters&, int& mtdTopologyMode, MTDTopology::ETLValues&);
+  void fillBTLtopology(const MTDGeometry&, MTDTopology::BTLValues&);
+  void fillETLtopology(const PMTDParameters&, int& mtdTopologyMode, MTDTopology::ETLValues&);
 
-  const edm::ESGetToken<PMTDParameters, PMTDParametersRcd> token_;
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  edm::ESGetToken<PMTDParameters, PMTDParametersRcd> mtdparToken_;
 };
 
-MTDTopologyEP::MTDTopologyEP(const edm::ParameterSet& conf)
-    : token_{setWhatProduced(this).consumesFrom<PMTDParameters, PMTDParametersRcd>(edm::ESInputTag())} {}
+MTDTopologyEP::MTDTopologyEP(const edm::ParameterSet& conf) {
+  auto cc = setWhatProduced(this);
+  mtdgeoToken_ = cc.consumesFrom<MTDGeometry, MTDDigiGeometryRecord>(edm::ESInputTag());
+  mtdparToken_ = cc.consumesFrom<PMTDParameters, PMTDParametersRcd>(edm::ESInputTag());
+}
 
 void MTDTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription ttc;
@@ -40,21 +47,47 @@ void MTDTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& description
 
 MTDTopologyEP::ReturnType MTDTopologyEP::produce(const MTDTopologyRcd& iRecord) {
   int mtdTopologyMode;
+  MTDTopology::BTLValues btlVals;
   MTDTopology::ETLValues etlVals;
 
-  fillParameters(iRecord.get(token_), mtdTopologyMode, etlVals);
+  // build BTL topology content from MTDGeometry
 
-  return std::make_unique<MTDTopology>(mtdTopologyMode, etlVals);
+  fillBTLtopology(iRecord.get(mtdgeoToken_), btlVals);
+
+  // build ETL topology and topology mode information from PMTDParameters
+
+  fillETLtopology(iRecord.get(mtdparToken_), mtdTopologyMode, etlVals);
+
+  return std::make_unique<MTDTopology>(mtdTopologyMode, btlVals, etlVals);
 }
 
-void MTDTopologyEP::fillParameters(const PMTDParameters& ptp, int& mtdTopologyMode, MTDTopology::ETLValues& etlVals) {
-  mtdTopologyMode = ptp.topologyMode_;
-
-  // for legacy geometry scenarios no topology informastion is stored, only for newer ETL 2-discs layout
-
-  if (mtdTopologyMode <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
-    return;
+void MTDTopologyEP::fillBTLtopology(const MTDGeometry& mtdgeo, MTDTopology::BTLValues& btlVals) {
+  MTDTopology::BTLLayout tmpLayout;
+  uint32_t index(0), iphi(1), ieta(0);
+  if (mtdgeo.detsBTL().size() != tmpLayout.nBTLmodules_) {
+    throw cms::Exception("MTDTopologyEP") << "Inconsistent size of BTL structure arrays";
   }
+  for (const auto& det : mtdgeo.detsBTL()) {
+    ieta++;
+
+    tmpLayout.btlDetId_[index] = det->geographicalId().rawId();
+    tmpLayout.btlPhi_[index] = iphi;
+    tmpLayout.btlEta_[index] = ieta;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("MTDTopologyEP") << "MTDTopology BTL# " << index << " id= " << det->geographicalId().rawId()
+                                      << " iphi/ieta= " << iphi << " / " << ieta;
+#endif
+    if (ieta == tmpLayout.nBTLeta_) {
+      iphi++;
+      ieta = 0;
+    }
+    index++;
+  }
+  btlVals = tmpLayout;
+}
+
+void MTDTopologyEP::fillETLtopology(const PMTDParameters& ptp, int& mtdTopologyMode, MTDTopology::ETLValues& etlVals) {
+  mtdTopologyMode = ptp.topologyMode_;
 
   // Check on the internal consistency of thr ETL layout information provided by parameters
 
