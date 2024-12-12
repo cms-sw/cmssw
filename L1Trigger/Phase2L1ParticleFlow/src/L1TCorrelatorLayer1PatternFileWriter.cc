@@ -383,7 +383,7 @@ void L1TCorrelatorLayer1PatternFileWriter::writeBarrelGCT(const l1ct::Event& eve
       for (unsigned int i = 0; i < gctLinksHad_; ++i, ++iLink) {
         ret.clear();
         for (unsigned int iHad = i; iHad < nHad; iHad += gctLinksHad_) {
-          ret.emplace_back(had[iHad].pack());
+          ret.emplace_back(had[iHad].pack_barrel());
         }
         if (ret.empty())
           ret.emplace_back(0);
@@ -392,7 +392,7 @@ void L1TCorrelatorLayer1PatternFileWriter::writeBarrelGCT(const l1ct::Event& eve
       for (unsigned int i = 0; i < gctLinksEcal_; ++i, ++iLink) {
         ret.clear();
         for (unsigned int iEcal = i; iEcal < nEcal; iEcal += gctLinksEcal_) {
-          ret.emplace_back(ecal[iEcal].pack());
+          ret.emplace_back(ecal[iEcal].pack_barrel());
         }
         if (ret.empty())
           ret.emplace_back(0);
@@ -405,7 +405,7 @@ void L1TCorrelatorLayer1PatternFileWriter::writeBarrelGCT(const l1ct::Event& eve
       for (unsigned int iclock = 0, nem = ecal.size(); iclock < NCLK_EM; ++iclock) {
         if (iclock < nem) {
           l1ct::MiddleBufferMultififoRegionizerEmulator::encode(ecal[iclock], tmp);
-          ret[iclock] = tmp.pack();
+          ret[iclock] = tmp.pack_barrel();
         } else {
           ret[iclock] = 0;
         }
@@ -413,7 +413,7 @@ void L1TCorrelatorLayer1PatternFileWriter::writeBarrelGCT(const l1ct::Event& eve
       for (unsigned int ihad = 0, iclock = NCLK_EM, nhad = had.size(); iclock < NCLK_TOT && ihad < nhad;
            ++iclock, ++ihad) {
         l1ct::MiddleBufferMultififoRegionizerEmulator::encode(had[ihad], tmp);
-        ret[iclock] = tmp.pack();
+        ret[iclock] = tmp.pack_barrel();
       }
       out.add(l1t::demo::LinkId{"gct", iS * 10}, ret);
     }

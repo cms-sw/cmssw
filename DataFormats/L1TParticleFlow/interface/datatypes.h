@@ -36,6 +36,8 @@ namespace l1ct {
   typedef ap_uint<4> redChi2Bin_t;
   typedef ap_fixed<10, 1, AP_RND_CONV, AP_SAT> id_score_t;  // ID score to be between -1 (background) and 1 (signal)
   typedef ap_ufixed<8, 1, AP_RND_CONV, AP_SAT> jet_tag_score_t;  // 8 bit jet jet probability from 0 to 1
+  //FIXME: no optimization for now
+  typedef ap_ufixed<8, 1, AP_RND_CONV, AP_SAT> id_prob_t;  // ID prob between 0 and 1 (signal)
 
   // FIXME: adjust range 10-11bits -> 1/4 - 1/2TeV is probably more than enough for all reasonable use cases
   typedef ap_ufixed<11, 9, AP_TRN, AP_SAT> iso_t;
@@ -179,6 +181,7 @@ namespace l1ct {
     inline float floatHoe(hoe_t hoe) { return hoe.to_float(); };
     inline float floatIDScore(id_score_t score) { return score.to_float(); };
     inline float floatMass(mass2_t mass) { return mass.to_float(); }
+    inline float floatIDProb(id_prob_t prob) { return prob.to_float(); };
 
     inline pt_t makePt(int pt) { return ap_ufixed<16, 14>(pt) >> 2; }
     inline dpt_t makeDPt(int dpt) { return ap_fixed<18, 16>(dpt) >> 2; }
