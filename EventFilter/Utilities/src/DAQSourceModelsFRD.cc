@@ -211,97 +211,47 @@ void DataModeFRDPreUnpack::readEvent(edm::EventPrincipal& eventPrincipal) {
 
 void DataModeFRDPreUnpack::unpackFile(RawInputFile* currentFile) {
 
-  while (true) { //loop while there is file/events to read
+  const uint64_t fileSize = currentFile->fileSize_;
+  const unsigned rawHeaderSize = currentFile->rawHeaderSize_;
 
-    unsigned char* dataPosition;
-    bool chunkEnd;
+  //TODO: set threadError for issues in this function
+  if (rawHeaderSize > 0) {
+    assert(fileSize >= rawHeaderSize);
+  }
+  assert(fileSize >= headerSize());
 
-    if (currentFile->bufferPosition_ == 0 && currentFile->rawHeaderSize_ > 0) {
-      if (currentFile->fileSize_ <= currentFile->rawHeaderSize_) {
-        //premature end of file or no events, return
-        return;
-      }
-      //advance buffer position to skip file header (chunk will be acquired later)
-      chunkEnd = currentFile->advanceSimple(dataPosition, currentFile->rawHeaderSize_);
-      assert(!chunkEnd);
-    }
+  uint64_t bufpos = rawHeaderSize;
 
-    //file is too short to fit event header (handle in the main thread)
-    //TODO: in princplie event header size could change even in the same file, then this is not safe
-    if (currentFile->fileSizeLeft() < headerSize()) { //TODO: in princplie event header size could change even in the same file, then this is not safe
-      currentFile->resetPos();
-      return;
-    }
+  while (bufpos < fileSize) { //loop while there is file/events to read
 
-    //read event header, copy it to a single chunk if necessary
-    chunkEnd = currentFile->advanceSimple(dataPosition, headerSize());
-    assert(!chunkEnd);
+    assert(bufpos + headerSize() <= fileSize);
 
-    //get buffer size of current chunk (can be resized)
-    uint64_t currentChunkSize = currentFile->currentChunkSize();
-
-    auto dataBlockAddr = dataPosition;
-    auto dataBlockMax = currentChunkSize;
+    //fit to buffer model
+    auto dataBlockAddr = (unsigned char*)currentFile->chunks_[0]->buf_ + bufpos;
 
     //first view for header only, check if it fits
     auto eview = std::make_unique<FRDEventMsgView>(dataBlockAddr);
-    if (eview->size() > dataBlockMax) {
-      currentFile->resetPos();
-      return;
-    }
 
-    //now check if event fits
-    const size_t msgSize = eview->size() -  headerSize();
-
-    //check if file is truncated (let the main thread throw error)
-    if (currentFile->fileSizeLeft() < (int64_t)msgSize) {
-      currentFile->resetPos();
-      return;
-    }
-
-    //move next event buffer pos to the end of this event
-    chunkEnd = currentFile->advanceSimple(dataPosition, msgSize);
-    assert(!chunkEnd);
-
-    //sanity-check check that the buffer position has not exceeded file size after preparing event
-    if (currentFile->fileSize_ < currentFile->bufferPosition_) {
-      currentFile->resetPos();
-      return;
-    }
-    //again build (reset) event object
-    eview = std::make_unique<FRDEventMsgView>(dataBlockAddr);
-    //check again that it fits
-    if (eview->size() > dataBlockMax) {
-      currentFile->resetPos();
-      return;
-    }
+    assert(bufpos + eview->size() <= fileSize);
+    bufpos += eview->size();
 
     //create event wrapper
-    //we will store this per each file queued to fwk
-    UnpackedRawEventWrapper* ec = new UnpackedRawEventWrapper(); //make unique?
+    //we will store this per each event queued to fwk
+    UnpackedRawEventWrapper* ec = new UnpackedRawEventWrapper();
+
+    assert(eview->version() >= 5);
 
     //crc check
-    if (eview->version() < 5)
-      throw cms::Exception("DAQSource::getNextEvent") << "Unsupported FRD version " << eview->version() << ". Minimum supported is v5.";
-
     uint32_t crc = crc32c(0, (const unsigned char*)eview->payload(), eview->eventSize());
     if (crc != eview->crc32c()) {
       std::stringstream ss;
       ss << "Found a wrong crc32c checksum: expected 0x" << std::hex << eview->crc32c() << " but calculated 0x" << crc;
       ec->setChecksumError(ss.str());
-      currentFile->resetPos();
-      currentFile->queue(ec);
-      return;
-    } else {
-      unpackEvent(eview.get(), ec);
-      currentFile->queue(ec);
+      //unpackEvent(eview.get(), ec);
     }
-
-    //file is finished. Reset file buffer position
-    if (currentFile->bufferPosition_ == currentFile->fileSize_) {
-      currentFile->resetPos();
-      return;
-    }
+    else
+     unpackEvent(eview.get(), ec);
+    currentFile->queue(ec);
   }
 }
 
