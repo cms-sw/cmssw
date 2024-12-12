@@ -166,7 +166,10 @@ namespace evf {
       "WaitChunk_newFileWaitChunkCopying",
       "WaitChunk_newFileWaitChunk",
       "inSupThrottled",
-      "inThrottled"};
+      "inThrottled",
+      "SupFileHeldLimit",
+      "WaitInput_fileHeldLimit",
+      "WaitChunk_fileHeldLimit"};
 
   class ConcurrencyTracker : public tbb::task_scheduler_observer {
     std::atomic<int> num_threads;
@@ -447,10 +450,7 @@ namespace evf {
 
   void FastMonitoringService::setExceptionDetected(unsigned int ls) {
     std::lock_guard<std::mutex> lock(fmt_->monlock_);
-    if (!ls)
-      exception_detected_ = true;
-    else
-      exceptionInLS_.push_back(ls);
+    exceptionInLS_.push_back(ls);
   }
 
   bool FastMonitoringService::exceptionDetected() const {
@@ -914,6 +914,9 @@ namespace evf {
         case FastMonState::inSupFileLimit:
           fmt_->m_data.inputState_[0] = FastMonState::inWaitInput_fileLimit;
           break;
+        case FastMonState::inSupFileHeldLimit:
+          fmt_->m_data.inputState_[0] = FastMonState::inWaitInput_fileHeldLimit;
+          break;
         case FastMonState::inSupWaitFreeChunk:
           fmt_->m_data.inputState_[0] = FastMonState::inWaitInput_waitFreeChunk;
           break;
@@ -963,6 +966,9 @@ namespace evf {
       switch (inputSupervisorState_) {
         case FastMonState::inSupFileLimit:
           fmt_->m_data.inputState_[0] = FastMonState::inWaitChunk_fileLimit;
+          break;
+        case FastMonState::inSupFileHeldLimit:
+          fmt_->m_data.inputState_[0] = FastMonState::inWaitChunk_fileHeldLimit;
           break;
         case FastMonState::inSupWaitFreeChunk:
           fmt_->m_data.inputState_[0] = FastMonState::inWaitChunk_waitFreeChunk;

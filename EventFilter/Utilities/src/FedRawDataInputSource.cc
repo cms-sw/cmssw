@@ -568,18 +568,9 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
           << "Found a wrong crc32c checksum: expected 0x" << std::hex << event_->crc32c() << " but calculated 0x"
           << crc;
     }
-  } else if (verifyChecksum_ && event_->version() >= 3) {
-    uint32_t adler = adler32(0L, Z_NULL, 0);
-    adler = adler32(adler, (Bytef*)event_->payload(), event_->eventSize());
+  } else if (event_->version() < 5)
+      throw cms::Exception("FedRawDataInputSource::getNextEvent") << "FRD event version " << event_->version() << " (< 5) is no longer supported";
 
-    if (adler != event_->adler32()) {
-      if (fms_)
-        fms_->setExceptionDetected(currentLumiSection_);
-      throw cms::Exception("FedRawDataInputSource::getNextEvent")
-          << "Found a wrong Adler32 checksum: expected 0x" << std::hex << event_->adler32() << " but calculated 0x"
-          << adler;
-    }
-  }
   setMonState(inCachedEvent);
 
   currentFile_->nProcessed_++;
@@ -770,6 +761,9 @@ void FedRawDataInputSource::readSupervisor() {
     //wait for at least one free thread and chunk
     int counter = 0;
 
+    //held files include files queued in the deleting thread.
+    //We require no more than maxBufferedFiles + 2 of total held files until deletion
+
     while (workerPool_.empty() || freeChunks_.empty() ||
            readingFilesCount_ >= maxBufferedFiles_ || heldFilesCount_ >= maxBufferedFiles_ + 2) {
 
@@ -779,9 +773,10 @@ void FedRawDataInputSource::readSupervisor() {
         for (auto j : tid_active_)
           if (j)
             copy_active = true;
-        //TODO: check what other threads are doing during file limit (add another state)
-        if (readingFilesCount_ >= maxBufferedFiles_ || heldFilesCount_ >= maxBufferedFiles_ + 2)
+        if (readingFilesCount_ >= maxBufferedFiles_)
           setMonStateSup(inSupFileLimit);
+        else if (heldFilesCount_ >= maxBufferedFiles_ + 2)
+          setMonStateSup(inSupFileHeldLimit);
         else if (freeChunks_.empty()) {
           if (copy_active)
             setMonStateSup(inSupWaitFreeChunkCopying);
