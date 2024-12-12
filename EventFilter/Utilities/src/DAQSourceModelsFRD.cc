@@ -132,17 +132,18 @@ bool DataModeFRD::nextEventView(RawInputFile*) {
         << " event id:" << event_->event() << " lumi:" << event_->lumi() << " run:" << event_->run()
         << " of size:" << event_->size() << " bytes does not fit into a chunk of size:" << dataBlockMax_ << " bytes";
   }
+  if (event_->version() < 5)
+    throw cms::Exception("DAQSource::getNextEvent") << "Unsupported FRD version " << event_->version() << ". Minimum supported is v5.";
   return true;
 }
 
 bool DataModeFRD::checksumValid() {
   crc_ = 0;
-  if (event_->version() >= 5) {
-    crc_ = crc32c(crc_, (const unsigned char*)event_->payload(), event_->eventSize());
-    if (crc_ != event_->crc32c())
-      return false;
-  }
-  return true;
+  crc_ = crc32c(crc_, (const unsigned char*)event_->payload(), event_->eventSize());
+  if (crc_ != event_->crc32c())
+    return false;
+  else
+    return true;
 }
 
 std::string DataModeFRD::getChecksumError() const {
@@ -279,8 +280,10 @@ void DataModeFRDPreUnpack::unpackFile(RawInputFile* currentFile) {
     //we will store this per each file queued to fwk
     UnpackedRawEventWrapper* ec = new UnpackedRawEventWrapper(); //make unique?
 
-    //crc check here. Support only new versions by this model
-    assert(eview->version() >= 5);
+    //crc check
+    if (eview->version() < 5)
+      throw cms::Exception("DAQSource::getNextEvent") << "Unsupported FRD version " << eview->version() << ". Minimum supported is v5.";
+
     uint32_t crc = crc32c(0, (const unsigned char*)eview->payload(), eview->eventSize());
     if (crc != eview->crc32c()) {
       std::stringstream ss;
@@ -374,6 +377,10 @@ bool DataModeFRDPreUnpack::nextEventView(RawInputFile *currentFile) {
         << " event id:" << event_->event() << " lumi:" << event_->lumi() << " run:" << event_->run()
         << " of size:" << event_->size() << " bytes does not fit into a chunk of size:" << dataBlockMax_ << " bytes";
   }
+
+  if (event_->version() < 5)
+    throw cms::Exception("DAQSource::getNextEvent") << "Unsupported FRD version " << event_->version() << ". Minimum supported is v5.";
+
   currentFile->popQueue(ec_);
   return true;
 }
@@ -519,15 +526,13 @@ bool DataModeFRDStriped::checksumValid() {
   for (size_t i = 0; i < events_.size(); i++) {
     uint32_t crc = 0;
     auto const& event = events_[i];
-    if (event->version() >= 5) {
-      crc = crc32c(crc, (const unsigned char*)event->payload(), event->eventSize());
-      if (crc != event->crc32c()) {
-        std::ostringstream ss;
-        ss << "Found a wrong crc32c checksum at readout index " << i << ": expected 0x" << std::hex << event->crc32c()
-           << " but calculated 0x" << crc << ". ";
-        crcMsg_ += ss.str();
-        status = false;
-      }
+    crc = crc32c(crc, (const unsigned char*)event->payload(), event->eventSize());
+    if (crc != event->crc32c()) {
+      std::ostringstream ss;
+      ss << "Found a wrong crc32c checksum at readout index " << i << ": expected 0x" << std::hex << event->crc32c()
+         << " but calculated 0x" << crc << ". ";
+      crcMsg_ += ss.str();
+      status = false;
     }
   }
   return status;
@@ -590,6 +595,10 @@ bool DataModeFRDStriped::makeEvents() {
       throw cms::Exception("DAQSource::getNextEvent")
           << " event id:" << events_[i]->event() << " lumi:" << events_[i]->lumi() << " run:" << events_[i]->run()
           << " of size:" << events_[i]->size() << " bytes does not fit into the buffer or has corrupted header";
+
+    if (events_[i]->version() < 5)
+      throw cms::Exception("DAQSource::getNextEvent") << "Unsupported FRD version " << events_[i]->version() << ". Minimum supported is v5.";
+
   }
   if (completed < numFiles_) {
     for (int i = 0; i < numFiles_; i++) {

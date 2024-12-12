@@ -682,6 +682,9 @@ void DAQSource::readSupervisor() {
     //wait for at least one free thread and chunk
     int counter = 0;
 
+    //held files include files queued in the deleting thread.
+    //We require no more than maxBufferedFiles + 2 of total held files until deletion
+
     while (workerPool_.empty() || freeChunks_.empty() || readingFilesCount_ >= maxBufferedFiles_ || heldFilesCount_ >= maxBufferedFiles_ + 2) {
       //report state to monitoring
       if (fms_) {
@@ -689,8 +692,10 @@ void DAQSource::readSupervisor() {
         for (auto j : tid_active_)
           if (j)
             copy_active = true;
-        if (readingFilesCount_ >= maxBufferedFiles_ || heldFilesCount_ >= maxBufferedFiles_ + 2)
+        if (readingFilesCount_ >= maxBufferedFiles_)
           setMonStateSup(inSupFileLimit);
+        if (heldFilesCount_ >= maxBufferedFiles_ + 2)
+          setMonStateSup(inSupFileHeldLimit);
         else if (freeChunks_.empty()) {
           if (copy_active)
             setMonStateSup(inSupWaitFreeChunkCopying);
