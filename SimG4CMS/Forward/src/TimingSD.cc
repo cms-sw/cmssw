@@ -181,6 +181,7 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
   tSlice = timeFactor * preStepPoint->GetGlobalTime() * invns;
   tSliceID = (int)tSlice;
 
+  setHitClassID(aStep);
   unitID = setDetUnitId(aStep);
   primaryID = getTrackID(theTrack);
 }
@@ -375,4 +376,8 @@ void TimingSD::clearHits() { slave->Initialize(); }
 int TimingSD::getTrackID(const G4Track* aTrack) {
   LogDebug("TimingSim") << "primary ID: " << aTrack->GetTrackID();
   return aTrack->GetTrackID();
+}
+
+void TimingSD::setHitClassID(const G4Step* aStep) {
+  hitClassID = 0;
 }

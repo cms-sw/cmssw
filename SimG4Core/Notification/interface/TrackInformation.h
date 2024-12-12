@@ -96,6 +96,11 @@ public:
   bool isInTrkFromBackscattering() const { return (mtdStatus_ >> 3) & 1; }
   void setExtSecondary() { mtdStatus_ |= 1 << 4; }  //5th bit
   bool isExtSecondary() const { return (mtdStatus_ >> 4) & 1; }
+  void setETLfromFront() { mtdStatus_ |= 1 << 5; }  //6th bit
+  bool isETLfromFront() const { return (mtdStatus_ >> 5) & 1; }
+  void setETLfromBack() { mtdStatus_ |= 1 << 6; }  //7th bit
+  bool isETLfromBack() const { return (mtdStatus_ >> 6) & 1; }
+  uint8_t mtdStatus() const { return mtdStatus_; }
 
   void Print() const override;
 
