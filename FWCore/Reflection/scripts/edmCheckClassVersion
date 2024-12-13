@@ -1,7 +1,12 @@
 #!  /usr/bin/env python3
 
 import sys
-import FWCore.Reflection.ClassesDefXmlUtils as ClassesDefUtils
+try:
+  import FWCore.Reflection.ClassesDefXmlUtils as ClassesDefUtils
+except:
+  import os
+  sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)),"python"))
+  import ClassesDefXmlUtils as ClassesDefUtils
 
 # recursively check the base classes for a class pointer
 # as building the streamer will crash if base classes are
