@@ -1,5 +1,5 @@
 /**
-   Simple test for the reco::CAParamsSoA data structure
+   Simple test for the reco::CAGeometrySoA data structure
    which inherits from Portable{Host}Collection.
  */
 
@@ -8,15 +8,15 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include "RecoTracker/PixelSeeding/interface/CAParamsHost.h"
-#include "RecoTracker/PixelSeeding/interface/alpaka/CAParamsSoACollection.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometryHost.h"
+#include "RecoTracker/PixelSeeding/interface/alpaka/CAGeometrySoACollection.h"
 #include "FWCore/Utilities/interface/stringize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
-#include "CAParams_t.h"
+#include "CAGeometry_t.h"
 
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 using namespace ALPAKA_ACCELERATOR_NAMESPACE::reco;
@@ -42,8 +42,8 @@ int main() {
     {
       // Instantiate vertices on device. PortableCollection allocates
       // SoA on device automatically.
-      CAParamsSoACollection ca_params_d({{n_layers,n_pairs}}, queue);
-      // testParamsSoA::runKernels(ca_params_d.view(), ca_params_d.view<reco::CACellsSoA>(), ca_params_d.view<reco::CARegionsSoA>(), queue);
+      CAGeometrySoACollection ca_params_d({{n_layers,n_pairs}}, queue);
+      // testParamsSoA::runKernels(ca_params_d.view(), ca_params_d.view<reco::CAGraphSoA>(), ca_params_d.view<reco::CARegionsSoA>(), queue);
 
 //       // If the device is actually the host, use the collection as-is.
 //       // Otherwise, copy the data from the device to the host.

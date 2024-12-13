@@ -16,7 +16,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
-#include "RecoTracker/PixelSeeding/interface/CAParamsSoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "RecoTracker/PixelSeeding/interface/CACoupleSoA.h"
 
 #include "CAStructures.h"
@@ -161,7 +161,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <int DEPTH, typename TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void find_ntuplets(TAcc const& acc,
                                                       const HitsConstView& hh,
-                                                      const ::reco::CACellsSoAConstView &cc,
+                                                      const ::reco::CAGraphSoAConstView &cc,
                                                       CASimpleCell* __restrict__ cells,
                                                       HitContainer& foundNtuplets,
                                                       CellToCell const *__restrict__ cellNeighborsHisto,
@@ -197,7 +197,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // FIXME implement alpaka::ldg and use it here? or is it const* __restrict__ enough?
           unsigned int otherCell = bin[idx];
         // for (unsigned int otherCell : outerNeighbors()) {
+#ifdef GPU_DEBUG
           printf("doubletId: %ld -> %d\n",doubletId,otherCell);
+#endif
           if (cells[otherCell].isKilled())
             continue;  // killed by earlyFishbone
           last = false;
@@ -227,7 +229,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               ALPAKA_ASSERT_ACC(nh < TrackerTraits::maxHitsOnTrack);
               hits[nh] = theOuterHitId;
               auto it = foundNtuplets.bulkFill(acc, apc, hits, nh + 1);
+#ifdef GPU_DEBUG
               printf("track n. %d nhits %d \n",it,nh+1);
+#endif
               if (it >= 0) {  // if negative is overflow....
                 for (auto c : tmpNtuplet)
                 {
@@ -235,7 +239,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   cellTracksHisto->count(acc,c); //use this to count!!!
                   auto t_ind = alpaka::atomicAdd(acc, nCellTracks, (uint32_t)1, alpaka::hierarchy::Blocks{});
                   // add a check
+#ifdef GPU_DEBUG
                   printf("cellToTrack n. %d cell %d track %d\n",t_ind,c,it);
+#endif
                   ct[t_ind].inner() = c; //cell
                   ct[t_ind].outer() = it; //track
                 }
@@ -571,7 +577,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <int DEPTH, typename TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void find_ntuplets(TAcc const& acc,
                                                       const HitsConstView& hh,
-                                                      const ::reco::CACellsSoAConstView &cc,
+                                                      const ::reco::CAGraphSoAConstView &cc,
                                                       CACellT* __restrict__ cells,
                                                       CellTracksVector& cellTracks,
                                                       HitContainer& foundNtuplets,

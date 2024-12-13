@@ -194,7 +194,6 @@ namespace cms::alpakatools {
       }
       auto first = f + alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
       for (int i = first; i < this->totOnes(); i += alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0]) {
-        printf("bulkfinalizefill %d %d %d %d \n",f,i,first,s);
         this->off[i] = s;
       }
     }

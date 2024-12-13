@@ -1,4 +1,4 @@
-#include "RecoTracker/PixelSeeding/interface/CAParamsHost.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometryHost.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 
-TYPELOOKUP_DATA_REG(reco::CAParamsHost);
+TYPELOOKUP_DATA_REG(reco::CAGeometryHost);

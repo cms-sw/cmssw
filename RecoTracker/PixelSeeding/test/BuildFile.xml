@@ -37,7 +37,7 @@
   <use name="HeterogeneousCore/AlpakaInterface"/>
 </bin>
 
-<bin file="alpaka/CAParams_t.cpp">
+<bin file="alpaka/CAGeometry_t.cpp">
 <flags ALPAKA_BACKENDS="cuda serial"/>  
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="RecoTracker/PixelSeeding"/>

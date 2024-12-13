@@ -16,7 +16,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-#include "RecoTracker/PixelSeeding/interface/CAParamsSoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 
 #include "CACell.h"
 #include "CAStructures.h"
@@ -44,22 +44,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   using HitToCell = GenericContainer;
 
   template <typename TrackerTraits>
-  using PhiBinner = cms::alpakatools::HistoContainer<int16_t,
-                                                    256,
-                                                    -1, 
-                                                    8 * sizeof(int16_t),
-                                                    typename TrackerTraits::hindex_type,
-                                                    TrackerTraits::numberOfLayers>; 
+  using PhiBinner = PhiBinnerT<TrackerTraits>; 
 
+  //Move this ^ definition in CAStructures maybe
   template <typename T, typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool __attribute__((always_inline)) zSizeCut(const TAcc& acc,
                                                                               HitsConstView hh,
                                                                               int i,
                                                                               int o) {
     const uint32_t mi = hh[i].detectorIndex();
-    const bool idealConditions_ = false;
     bool innerB1 = mi < T::last_bpix1_detIndex;
-    bool isOuterLadder = idealConditions_ ? true : 0 == (mi / 8) % 2;
+    bool isOuterLadder = 0 == (mi / 8) % 2;
     auto mes = (!innerB1) || isOuterLadder ? hh[i].clusterSizeY() : -1;
 
     if (mes < 0)
@@ -118,7 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       // CellNeighborsVector<TrackerTraits>* cellNeighbors,
       // CellTracksVector<TrackerTraits>* cellTracks,
       HitsConstView hh,
-      ::reco::CACellsSoAConstView cc,
+      ::reco::CAGraphSoAConstView cc,
       uint32_t const* __restrict__ offsets,
       PhiBinner<TrackerTraits>* phiBinner, //const
       // OuterHitOfCell<TrackerTraits> isOuterHitOfCell,
@@ -126,7 +121,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       AlgoParams const& params) {  
 
     // cm (1 GeV track has 1 GeV/c / (e * 3.8T) ~ 87 cm radius in a 3.8T field)
-    const float minRadius = cc.cellPtCut() * 87.78f;
+    const float minRadius = params.cellPtCut_ * 87.78f;
     const float minRadius2T4 = 4.f * minRadius * minRadius;
 
     const auto maxNumOfDoublets = params.maxNumberOfDoublets_;
@@ -198,7 +193,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       if (mez < cc.minz()[pairLayerId] || mez > cc.maxz()[pairLayerId])
         continue;
 
-      if (cc.doClusterCut() && outer > pixelTopology::last_barrel_layer && clusterCut<TrackerTraits,TAcc>(acc, hh, i))
+      if (params.doClusterCut_ && outer > pixelTopology::last_barrel_layer && clusterCut<TrackerTraits,TAcc>(acc, hh, i))
         continue;
 
       auto mep = hh[i].iphi();
@@ -216,7 +211,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         auto zo = hh[j].zGlobal();
         auto ro = hh[j].rGlobal();
         auto dr = ro - mer;
-        return dr > cc.maxr()[pairLayerId] || dr < 0 || std::abs((mez * ro - mer * zo)) > cc.cellZ0Cut() * dr;
+        return dr > cc.maxr()[pairLayerId] || dr < 0 || std::abs((mez * ro - mer * zo)) > params.cellZ0Cut_ * dr;
       };
 
       auto iphicut = cc.phiCuts()[pairLayerId];
@@ -254,7 +249,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           if (mo > pixelClustering::maxNumModules)
             continue;
 
-          if (cc.cellZ0Cut() > 0 && z0cutoff(oi))
+          if (params.cellZ0Cut_ > 0 && z0cutoff(oi))
             continue;
 
           auto mop = hh[oi].iphi();
@@ -263,14 +258,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           if (idphi > iphicut)
             continue;
 
-          if (cc.doClusterCut() && zSizeCut<TrackerTraits,TAcc>(acc, hh, i, oi))
+          if (params.doZSizeCut_ && zSizeCut<TrackerTraits,TAcc>(acc, hh, i, oi))
             continue;
 
-          if (cc.cellPtCut() > 0 && ptcut(oi, idphi))
+          if (params.cellPtCut_ > 0 && ptcut(oi, idphi))
             continue;
 
           outerHitHisto->count(acc,oi-hh.offsetBPIX2());
-          //nCells could be simply outerHitHisto->size(); ... uhm .. false
+          //nCells could be simply outerHitHisto->size(); ... uhm ... false it can't
           auto ind = alpaka::atomicAdd(acc, nCells, (uint32_t)1, alpaka::hierarchy::Blocks{});
           if (ind >= maxNumOfDoublets) {
             alpaka::atomicSub(acc, nCells, (uint32_t)1, alpaka::hierarchy::Blocks{});

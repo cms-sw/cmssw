@@ -7,7 +7,7 @@
 
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/FrameSoALayout.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/BrokenLine.h"
 
 #include "HelixFit.h"
@@ -27,7 +27,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   Tuples const *__restrict__ foundNtuplets,
                                   TupleMultiplicity const *__restrict__ tupleMultiplicity,
                                   ::reco::TrackingRecHitConstView hh,
-                                  FrameSoAConstView fr,
+                                  ::reco::CAModulesConstView cm,
                                   typename TrackerTraits::tindex_type *__restrict__ ptkids,
                                   double *__restrict__ phits,
                                   float *__restrict__ phits_ge,
@@ -109,10 +109,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           n += incr;
           auto hit = hitId[j];
           float ge[6];
-          auto const &frame = fr.detFrame(hh.detectorIndex(hit));
+          auto const &frame = cm.detFrame(hh.detectorIndex(hit));
 
 #ifdef YERR_FROM_DC
-          auto const &dp = fr->detParams(hh.detectorIndex(hit));
+          auto const &dp = cm->detParams(hh.detectorIndex(hit));
           auto status = hh[hit].chargeAndStatus().status;
           int qbin = CPEFastParametrisation::kGenErrorQBins - 1 - status.qBin;
           ALPAKA_ASSERT_ACC(qbin >= 0 && qbin < 5);
@@ -242,7 +242,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   void HelixFit<TrackerTraits>::launchBrokenLineKernels(
       const ::reco::TrackingRecHitConstView &hv,
-      const FrameSoAConstView &fr,
+      const ::reco::CAModulesConstView &cm,
       uint32_t hitsInFit,
       uint32_t maxNumberOfTuples,
       Queue &queue) {
@@ -272,7 +272,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           tuples_,
                           tupleMultiplicity_,
                           hv,
-                          fr,
+                          cm,
                           tkidDevice.data(),
                           hitsDevice.data(),
                           hits_geDevice.data(),
@@ -296,7 +296,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // fit all as 4
         riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrack, 1>([this,
                                                                        &hv,
-                                                                       &fr,
+                                                                       &cm,
                                                                        &tkidDevice,
                                                                        &hitsDevice,
                                                                        &hits_geDevice,
@@ -310,7 +310,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               tuples_,
                               tupleMultiplicity_,
                               hv,
-                              fr,
+                              cm,
                               tkidDevice.data(),
                               hitsDevice.data(),
                               hits_geDevice.data(),
@@ -334,7 +334,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       } else {
         riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrackForFullFit, 1>([this,
                                                                                  &hv,
-                                                                                 &fr,
+                                                                                 &cm,
                                                                                  &tkidDevice,
                                                                                  &hitsDevice,
                                                                                  &hits_geDevice,
@@ -348,7 +348,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               tuples_,
                               tupleMultiplicity_,
                               hv,
-                              fr,
+                              cm,
                               tkidDevice.data(),
                               hitsDevice.data(),
                               hits_geDevice.data(),
@@ -378,7 +378,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             tuples_,
                             tupleMultiplicity_,
                             hv,
-                            fr,
+                            cm,
                             tkidDevice.data(),
                             hitsDevice.data(),
                             hits_geDevice.data(),
