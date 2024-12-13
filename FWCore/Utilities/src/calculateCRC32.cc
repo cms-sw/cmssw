@@ -1,14 +1,14 @@
 
-#include "FWCore/Utilities/interface/CRC32Calculator.h"
+#include "FWCore/Utilities/interface/calculateCRC32.h"
 
 namespace cms {
 
   namespace {
 
-    const std::uint32_t CRC32_XINIT = 0xFFFFFFFFL;
-    const std::uint32_t CRC32_XOROT = 0xFFFFFFFFL;
+    constexpr std::uint32_t CRC32_XINIT = 0xFFFFFFFFL;
+    constexpr std::uint32_t CRC32_XOROT = 0xFFFFFFFFL;
 
-    const std::uint32_t crctable[256] = {
+    constexpr std::uint32_t crctable[256] = {
         0x00000000L, 0x77073096L, 0xEE0E612CL, 0x990951BAL, 0x076DC419L, 0x706AF48FL, 0xE963A535L, 0x9E6495A3L,
         0x0EDB8832L, 0x79DCB8A4L, 0xE0D5E91EL, 0x97D2D988L, 0x09B64C2BL, 0x7EB17CBDL, 0xE7B82D07L, 0x90BF1D91L,
         0x1DB71064L, 0x6AB020F2L, 0xF3B97148L, 0x84BE41DEL, 0x1ADAD47DL, 0x6DDDE4EBL, 0xF4D4B551L, 0x83D385C7L,
@@ -43,19 +43,16 @@ namespace cms {
         0xB3667A2EL, 0xC4614AB8L, 0x5D681B02L, 0x2A6F2B94L, 0xB40BBE37L, 0xC30C8EA1L, 0x5A05DF1BL, 0x2D02EF8DL};
   }  // namespace
 
-  CRC32Calculator::CRC32Calculator(std::string const& message) {
+  std::uint32_t calculateCRC32(std::string_view message) {
     /* initialize value */
-    checksum_ = CRC32_XINIT;
+    uint32_t checksum = CRC32_XINIT;
 
     /* process each byte prior to checksum field */
-    auto length = message.length();
-    char const* p = message.data();
-    for (size_t j = 0; j < length; j++) {
-      unsigned char uc = *p++;
-      checksum_ = cms::crctable[(checksum_ ^ uc) & 0xFFL] ^ (checksum_ >> 8);
+    for (auto uc : message) {
+      checksum = cms::crctable[(checksum ^ uc) & 0xFFL] ^ (checksum >> 8);
     }
 
     /* return XOR out value */
-    checksum_ = checksum_ ^ CRC32_XOROT;
+    return checksum ^ CRC32_XOROT;
   }
 }  // namespace cms
