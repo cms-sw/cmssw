@@ -117,7 +117,7 @@ process.TrackRefitter.NavigationSchool = ""
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "auto:phase1_2017_realistic"))
+process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "105X_upgrade2018_realistic_v4"))
 
 ####################################################################
 # Load conditions if wished
@@ -196,7 +196,20 @@ process.TFileService = cms.Service("TFileService",
                                    )
 print("Saving the output at %s" % process.TFileService.fileName.value())
 
+
+###################################################################
+# Beamspot compatibility check
+###################################################################
+from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
+process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
+    bsFromEvent = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
+    bsFromDB = "offlineBeamSpot",           # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+    warningThr = config["validation"].get("bsIncompatibleWarnThresh", 3), # significance threshold to emit a warning message
+    errorThr = config["validation"].get("bsIncompatibleErrThresh", 5),    # significance threshold to abort the job
+)
+
 process.theValidSequence = cms.Sequence(process.offlineBeamSpot                        +
+                                        process.BeamSpotChecker                        +
                                         process.TrackRefitter                          +
                                         process.offlinePrimaryVerticesFromRefittedTrks +
                                         process.PrimaryVertexResolution)
