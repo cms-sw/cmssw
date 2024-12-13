@@ -1001,20 +1001,22 @@ namespace mkfit {
 
       const TrackerInfo& tinfo = *pflags.tracker_info;
 
+#if !defined(__clang__)
 #pragma omp simd
+#endif
       for (int n = 0; n < NN; ++n) {
         if (n < N_proc) {
           if (outFailFlag(n, 0, 0) || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0))) {
             hitsRl(n, 0, 0) = 0.f;
             hitsXi(n, 0, 0) = 0.f;
           } else {
-            auto mat = tinfo.material_checked(std::abs(outPar(n, 2, 0)), msRad(n, 0, 0));
+            const auto mat = tinfo.material_checked(std::abs(outPar(n, 2, 0)), msRad(n, 0, 0));
             hitsRl(n, 0, 0) = mat.radl;
             hitsXi(n, 0, 0) = mat.bbxi;
           }
           const float r0 = hipo(inPar(n, 0, 0), inPar(n, 1, 0));
           const float r = msRad(n, 0, 0);
-          propSign(n, 0, 0) = (r > r0 ? 1. : -1.);
+          propSign(n, 0, 0) = (r > r0 ? 1.f : -1.f);
         }
       }
       MPlexHV plNrm;

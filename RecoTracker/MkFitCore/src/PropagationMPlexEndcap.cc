@@ -129,14 +129,16 @@ namespace mkfit {
 
       const TrackerInfo& tinfo = *pflags.tracker_info;
 
+#if !defined(__clang__)
 #pragma omp simd
+#endif
       for (int n = 0; n < NN; ++n) {
         if (n >= N_proc || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0))) {
           hitsRl(n, 0, 0) = 0.f;
           hitsXi(n, 0, 0) = 0.f;
         } else {
-          const float hypo = std::hypot(outPar(n, 0, 0), outPar(n, 1, 0));
-          auto mat = tinfo.material_checked(std::abs(msZ(n, 0, 0)), hypo);
+          const auto hypo = std::hypot(outPar(n, 0, 0), outPar(n, 1, 0));
+          const auto mat = tinfo.material_checked(std::abs(msZ(n, 0, 0)), hypo);
           hitsRl(n, 0, 0) = mat.radl;
           hitsXi(n, 0, 0) = mat.bbxi;
         }

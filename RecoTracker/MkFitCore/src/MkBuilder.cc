@@ -660,7 +660,7 @@ namespace mkfit {
               continue;
             }
             // Check if the candidate is close to it's max_r, pi/2 - 0.2 rad (11.5 deg)
-            if (iteration_dir == SteeringParams::IT_FwdSearch && ccand[ic].pT() < 1.2) {
+            if (iteration_dir == SteeringParams::IT_FwdSearch && ccand[ic].pT() < 1.2f) {
               const float dphi = std::abs(ccand[ic].posPhi() - ccand[ic].momPhi());
               if (ccand[ic].posRsq() > 625.f && dphi > 1.371f && dphi < 4.512f) {
                 // printf("Stopping cand at r=%f, posPhi=%.1f momPhi=%.2f pt=%.2f emomEta=%.2f\n",
