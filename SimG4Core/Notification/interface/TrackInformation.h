@@ -39,6 +39,9 @@ public:
   int mcTruthID() const { return mcTruthID_; }
   void setMCTruthID(int id) { mcTruthID_ = id; }
 
+  int idLastStoredAncestor() const { return idLastStoredAncestor_; }
+  void setIdLastStoredAncestor(int id) { idLastStoredAncestor_ = id; }
+
   // Calo section
   int getIDonCaloSurface() const { return idOnCaloSurface_; }
   void setIDonCaloSurface(int id, int ical, int last, int pdgID, double p) {
@@ -116,6 +119,7 @@ private:
   bool startedInFineVolume_{false};
   bool startedInFineVolumeIsSet_{false};
   bool hasCastorHit_{false};
+  int idLastStoredAncestor_{0};
   int idOnCaloSurface_{0};
   int idCaloVolume_{-1};
   int idLastVolume_{-1};

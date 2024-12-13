@@ -27,7 +27,7 @@ public:
 protected:
   int getTrackID(const G4Track *) override;
 
-  void setHitClassID(const G4Step* ) override;
+  void setHitClassID(const G4Step *) override;
 
 private:
   static constexpr unsigned int k_idsecOffset = 1;

@@ -106,12 +106,12 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
 #ifdef EDM_ML_DEBUG
     trkInfo->Print();
 #endif
+    if (!trkInfo->storeTrack()) {
+      theID = trkInfo->idLastStoredAncestor();
+    }
     if (rname == "FastTimerRegionSensBTL") {
-      if (!trkInfo->storeTrack()) {
-        theID = trkInfo->mcTruthID();
-      }
       if (trkInfo->isInTrkFromBackscattering()) {
-        theID = PSimHit::addTrackIdOffset(trkInfo->getIDonCaloSurface(), k_idFromCaloOffset);
+        theID = PSimHit::addTrackIdOffset(theID, k_idFromCaloOffset);
       } else if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering() && !trkInfo->storeTrack()) {
         theID = PSimHit::addTrackIdOffset(theID, k_idsecOffset);
       } else if (trkInfo->isBTLlooper()) {
@@ -122,7 +122,6 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
                                  << " BTL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
 #endif
     } else if (rname == "FastTimerRegionSensETL") {
-      theID = trkInfo->getIDonCaloSurface();
       if (hitClassID == k_idETLfromBack) {
         theID = PSimHit::addTrackIdOffset(theID, k_idETLfromBack);
       }
