@@ -22,9 +22,7 @@ namespace clangcms {
 
   private:
     CmsException m_exception;
-    bool checkAssignToMutable(const clang::MemberExpr *ME,
-                              clang::ento::CheckerContext &C,
-                              const clang::FunctionDecl *FuncD) const;
+    bool checkAssignToMutable(const clang::MemberExpr *ME, clang::ento::CheckerContext &C) const;
     bool checkCallNonConstOfMutable(const clang::MemberExpr *ME, clang::ento::CheckerContext &C) const;
   };
 }  // namespace clangcms
