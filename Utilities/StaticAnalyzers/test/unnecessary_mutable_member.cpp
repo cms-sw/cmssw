@@ -10,7 +10,7 @@ public:
 private:
   mutable int m_intMutable;
   mutable std::string m_strMutable;
-  CMS_SA_ALLOW long m_longMutable;  // should not be reported
+  CMS_SA_ALLOW mutable long m_longMutable;  // should not be reported
 };
 
 class Bar {
