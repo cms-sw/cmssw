@@ -3,11 +3,11 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/CRC32Calculator.h"
+#include "FWCore/Utilities/interface/calculateCRC32.h"
 
 #include "EventFilter/L1TRawToDigi/interface/AMC13Spec.h"
 
-#define EDM_ML_DEBUG 1
+//#define EDM_ML_DEBUG 1
 
 namespace amc13 {
   Header::Header(unsigned int namc, unsigned int orbit) {
@@ -38,8 +38,8 @@ namespace amc13 {
   }
 
   void Trailer::writeCRC(const uint64_t* start, uint64_t* end) {
-    std::string dstring(reinterpret_cast<const char*>(start), reinterpret_cast<const char*>(end) + 4);
-    auto crc = cms::CRC32Calculator(dstring).checksum();
+    std::string_view dstring(reinterpret_cast<const char*>(start), reinterpret_cast<const char*>(end) + 4);
+    auto crc = cms::calculateCRC32(dstring);
 
     *end = ((*end) & ~(uint64_t(CRC_mask) << CRC_shift)) | (static_cast<uint64_t>(crc & CRC_mask) << CRC_shift);
   }
@@ -128,8 +128,8 @@ namespace amc13 {
 
     int crc = 0;
     if (check_crc) {
-      std::string check(reinterpret_cast<const char*>(start), reinterpret_cast<const char*>(data) - 4);
-      crc = cms::CRC32Calculator(check).checksum();
+      std::string_view check(reinterpret_cast<const char*>(start), reinterpret_cast<const char*>(data) - 4);
+      crc = cms::calculateCRC32(check);
 
       LogDebug("L1T") << "checking data checksum of " << std::hex << crc << std::dec;
     }
@@ -156,8 +156,8 @@ namespace amc13 {
       t = Trailer(data++);
 
       if (check_crc) {
-        std::string check(reinterpret_cast<const char*>(start), reinterpret_cast<const char*>(data) - 4);
-        crc = cms::CRC32Calculator(check).checksum();
+        std::string_view check(reinterpret_cast<const char*>(start), reinterpret_cast<const char*>(data) - 4);
+        crc = cms::calculateCRC32(check);
 
         LogDebug("L1T") << "checking data checksum of " << std::hex << crc << std::dec;
       } else {
