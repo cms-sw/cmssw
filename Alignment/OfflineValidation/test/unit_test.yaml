@@ -8,7 +8,7 @@ alignments:
         title: unit test
     unitTestPV:
         color: 1
-        globaltag: 110X_dataRun2_v10
+        globaltag: 140X_dataRun3_Prompt_v4
         style: 2001
         title: unit test
     ideal:
@@ -144,6 +144,8 @@ validations:
                 alignments:
                     - unitTestPV
                 maxevents: 10
+                bsIncompatibleWarnThresh: 100
+                bsIncompatibleErrThresh: 1000
                 trackcollection: ALCARECOTkAlMinBias
                 vertexcollection: offlinePrimaryVertices
                 isda: true
@@ -180,6 +182,8 @@ validations:
                 alignments:
                 - unitTest
                 trackcollection: generalTracks
+                bsIncompatibleWarnThresh: 100
+                bsIncompatibleErrThresh: 1000
                 HLTSelection: False
                 triggerBits: HLT_*
                 maxevents: 10
@@ -194,6 +198,8 @@ validations:
                 - 1
                 alignments:
                 - unitTestDiMuonVMC
+                bsIncompatibleWarnThresh: 100
+                bsIncompatibleErrThresh: 1000
                 trackcollection: generalTracks
                 maxevents: 10
 
@@ -209,6 +215,8 @@ validations:
                 alignments:
                 - unitTestZmumuMCreal
                 - unitTestZmumuMCdesign
+                bsIncompatibleWarnThresh: 100
+                bsIncompatibleErrThresh: 1000
                 trackcollection: ALCARECOTkAlZMuMu
                 maxevents: 100
     MTS:
@@ -247,12 +255,16 @@ validations:
                 alignments:
                 - unitTestJetHT
                 trackCollection: ALCARECOTkAlMinBias
+                bsIncompatibleWarnThresh: 100
+                bsIncompatibleErrThresh: 1000
                 maxevents: 100
                 iovListFile: Alignment/OfflineValidation/data/lumiPerRun_Run2.txt
 
             testMC:
                 alignments:
                 - unitTestJetHTMC
+                bsIncompatibleWarnThresh: 100
+                bsIncompatibleErrThresh: 1000
                 trackCollection: ALCARECOTkAlMinBias
                 mc: True
                 maxevents: 100

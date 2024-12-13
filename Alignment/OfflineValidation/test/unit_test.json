@@ -11,7 +11,7 @@
         },
         "unitTestPV": {
            "color": "1",
-           "globaltag": "110X_dataRun2_v10",
+           "globaltag": "140X_dataRun3_Prompt_v4",
            "style": "2001",
            "title": "unit test"
         },
@@ -147,6 +147,8 @@
                       "alignments": ["unitTestPV"],
                       "trackcollection": "ALCARECOTkAlMinBias",
                       "vertexcollection": "offlinePrimaryVertices",
+		      "bsIncompatibleWarnThresh": "100",
+        	      "bsIncompatibleErrThresh": "1000",
                       "maxevents": "10",
                       "isda": "true",
                       "ismc": "false"
@@ -182,6 +184,8 @@
                       "IOV": ["1"],
                       "alignments": ["unitTest"],
                       "trackcollection": "generalTracks",
+		      "bsIncompatibleWarnThresh": "100",
+        	      "bsIncompatibleErrThresh": "1000",
 		      "HLTSelection": "False",
                       "triggerBits" : "HLT_*",
                       "maxevents": "10"
@@ -198,6 +202,8 @@
 		"testUnits" : {
 		    "IOV" : ["1"],
                     "alignments" : ["unitTestDiMuonVMC"],
+		    "bsIncompatibleWarnThresh": "100",
+        	    "bsIncompatibleErrThresh": "1000",
                     "trackcollection" : "generalTracks",
                     "maxevents" : "10"
 		}
@@ -244,13 +250,17 @@
                     "alignments": ["unitTestJetHT"],
                     "trackCollection": "ALCARECOTkAlMinBias",
                     "maxevents": 100,
-                    "iovListFile": "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt"
+                    "iovListFile": "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt",
+		    "bsIncompatibleWarnThresh": "100",
+        	    "bsIncompatibleErrThresh": "1000"
                 },
                 "testMC": {
                     "alignments": ["unitTestJetHTMC"],
                     "trackCollection": "ALCARECOTkAlMinBias",
                     "mc": "True",
-                    "maxevents": 100
+                    "maxevents": 100,
+		    "bsIncompatibleWarnThresh": "100",
+        	    "bsIncompatibleErrThresh": "1000"
                 }
             },
             "merge": {
