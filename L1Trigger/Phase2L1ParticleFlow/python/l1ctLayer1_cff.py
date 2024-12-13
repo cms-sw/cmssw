@@ -5,7 +5,6 @@ import math
 from L1Trigger.Phase2L1ParticleFlow.l1tPFTracksFromL1Tracks_cfi import l1tPFTracksFromL1Tracks, l1tPFTracksFromL1TracksExtended
 from L1Trigger.Phase2L1ParticleFlow.l1tPFClustersFromL1EGClusters_cfi import l1tPFClustersFromL1EGClusters
 from L1Trigger.Phase2L1ParticleFlow.pfClustersFromCombinedCalo_cff import l1tPFClustersFromCombinedCaloHCal, l1tPFClustersFromCombinedCaloHF
-from L1Trigger.Phase2L1ParticleFlow.l1tPFClustersFromHGC3DClusters_cfi import l1tPFClustersFromHGC3DClusters
 
 from L1Trigger.Phase2L1ParticleFlow.l1TkEgAlgoEmulator_cfi import tkEgAlgoParameters,tkEgSorterParameters
 
@@ -98,7 +97,7 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
         compositeParametersTkEle = cms.PSet(
             model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/egamma/compositeID_EB_v0.json"),
             loose_wp=cms.double(-9999),
-            tight_wp=cms.double(0.0527344),
+            tight_wp=cms.double(0.0263672),
         )
     ),
     tkEgSorterAlgo = cms.string("Barrel"),
@@ -619,7 +618,6 @@ L1TLayer1TaskInputsTask = cms.Task(
     l1tPFClustersFromL1EGClusters,
     l1tPFClustersFromCombinedCaloHCal,
     l1tPFClustersFromCombinedCaloHF,
-    l1tPFClustersFromHGC3DClusters,
     l1tPFTracksFromL1Tracks,
     l1tPFTracksFromL1TracksExtended
 )

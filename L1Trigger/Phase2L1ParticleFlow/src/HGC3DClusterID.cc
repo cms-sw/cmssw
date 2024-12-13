@@ -44,29 +44,27 @@ float l1tpf::HGC3DClusterID::evaluate(const l1t::HGCalMulticluster &cl, l1t::PFC
   cpf.setEmIDScore(emScore);
   cpf.setPiIDScore(piScore);
   
-  cpf.setRho(cl.pt());
-
   return maxScore;
 }
 
 
 bool l1tpf::HGC3DClusterID::passPuID(l1t::PFCluster &cpf, float maxScore) {
 
-  return (cpf.getRho() < 20 ? (cpf.puIDScore() > wp_PU[0]) : (cpf.puIDScore() > wp_PU[1]));
+  return (cpf.pt() < 20 ? (cpf.puIDScore() > wp_PU[0]) : (cpf.puIDScore() > wp_PU[1]));
 }
 
 bool l1tpf::HGC3DClusterID::passPFEmID(l1t::PFCluster &cpf, float maxScore) {
 
-  return (cpf.getRho() < 20 ? ((cpf.puIDScore() <= wp_PU[0]) && (cpf.emIDScore() > wp_Eg[0])) : ((cpf.puIDScore() <= wp_PU[1]) && (cpf.emIDScore() > wp_Eg[1])));
+  return (cpf.pt() < 20 ? ((cpf.puIDScore() <= wp_PU[0]) && (cpf.emIDScore() > wp_Eg[0])) : ((cpf.puIDScore() <= wp_PU[1]) && (cpf.emIDScore() > wp_Eg[1])));
 }
 
 bool l1tpf::HGC3DClusterID::passEgEmID(l1t::PFCluster &cpf, float maxScore) {
  
-  return (cpf.getRho() < 20 ? ((cpf.puIDScore() <= wp_PU[0]) && (cpf.emIDScore() > wp_Eg[0])) : ((cpf.puIDScore() <= wp_PU[1]) && (cpf.emIDScore() > wp_Eg[1])));
+  return (cpf.pt() < 20 ? ((cpf.puIDScore() <= wp_PU[0]) && (cpf.emIDScore() > wp_Eg[0])) : ((cpf.puIDScore() <= wp_PU[1]) && (cpf.emIDScore() > wp_Eg[1])));
 }
 
 
 bool l1tpf::HGC3DClusterID::passPiID(l1t::PFCluster &cpf, float maxScore) {
   
-  return (cpf.getRho() < 20 ? ((cpf.puIDScore() <= wp_PU[0]) && (cpf.piIDScore() > wp_Pi[0])) : ((cpf.puIDScore() <= wp_PU[1]) && (cpf.piIDScore() > wp_Pi[1])));
+  return (cpf.pt() < 20 ? ((cpf.puIDScore() <= wp_PU[0]) && (cpf.piIDScore() > wp_Pi[0])) : ((cpf.puIDScore() <= wp_PU[1]) && (cpf.piIDScore() > wp_Pi[1])));
 }

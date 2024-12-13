@@ -31,11 +31,6 @@ private:
   std::vector<std::vector<uint32_t>> outputRegions_;
   const unsigned int tmuxFactor_ = 6;  // not really configurable in current architecture
 
-// FIXME: cleanup comments
-  // std::unordered_map<const l1t::PFCandidate *, l1t::PFClusterRef> clusterRefMap_;
-  // std::unordered_map<const l1t::PFCandidate *, l1t::PFTrackRef> trackRefMap_;
-  // std::unordered_map<const l1t::PFCandidate *, l1t::PFCandidate::MuonRef> muonRefMap_;
-
   void produce(edm::Event &, const edm::EventSetup &) override;
   void hwToEdm_(const std::vector<l1ct::PuppiObjEmu> &hwOut, std::vector<l1t::PFCandidate> &edmOut) const;
   void setRefs_(l1t::PFCandidate &pf, const l1ct::PuppiObjEmu &p) const;
@@ -55,10 +50,6 @@ DeregionizerProducer::DeregionizerProducer(const edm::ParameterSet &iConfig)
 DeregionizerProducer::~DeregionizerProducer() {}
 
 void DeregionizerProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  // clusterRefMap_.clear();
-  // trackRefMap_.clear();
-  // muonRefMap_.clear();
-
   auto deregColl = std::make_unique<l1t::PFCandidateCollection>();
   auto truncColl = std::make_unique<l1t::PFCandidateCollection>();
 
@@ -85,9 +76,6 @@ void DeregionizerProducer::produce(edm::Event &iEvent, const edm::EventSetup &iS
     for (int i = 0, n = region.size(); i < n; ++i) {
       l1ct::PuppiObjEmu tempPuppi;
       const l1t::PFCandidate &cand = region[i];
-      // clusterRefMap_[&cand] = cand.pfCluster();
-      // trackRefMap_[&cand] = cand.pfTrack();
-      // muonRefMap_[&cand] = cand.muon();
 
       tempPuppi.initFromBits(cand.encodedPuppi64());
       tempPuppi.srcCand = &cand;
@@ -148,39 +136,8 @@ void DeregionizerProducer::hwToEdm_(const std::vector<l1ct::PuppiObjEmu> &hwOut,
     edmOut.back().setCaloPtr(hwPuppi.srcCand->caloPtr());
     edmOut.back().setPFTrack(hwPuppi.srcCand->pfTrack());
     edmOut.back().setMuon(hwPuppi.srcCand->muon());
-    // setRefs_(edmOut.back(), hwPuppi);
   }
 }
-
-// void DeregionizerProducer::setRefs_(l1t::PFCandidate &pf, const l1ct::PuppiObjEmu &p) const {
-//   if (p.srcCand) {
-//     auto match = clusterRefMap_.find(p.srcCand);
-//     if (match == clusterRefMap_.end()) {
-//       throw cms::Exception("CorruptData") << "Invalid cluster pointer in PF candidate id " << p.intId() << " pt "
-//                                           << p.floatPt() << " eta " << p.floatEta() << " phi " << p.floatPhi();
-//     }
-//     pf.setPFCluster(match->second);
-//   }
-//   if (p.srcCand) {
-//     auto match = trackRefMap_.find(p.srcCand);
-//     if (match == trackRefMap_.end()) {
-//       throw cms::Exception("CorruptData") << "Invalid track pointer in PF candidate id " << p.intId() << " pt "
-//                                           << p.floatPt() << " eta " << p.floatEta() << " phi " << p.floatPhi();
-//     }
-//     pf.setPFTrack(match->second);
-//   }
-//   if (p.srcCand) {
-//     auto match = muonRefMap_.find(p.srcCand);
-//     if (match == muonRefMap_.end()) {
-//       throw cms::Exception("CorruptData") << "Invalid muon pointer in PF candidate id " << p.intId() << " pt "
-//                                           << p.floatPt() << " eta " << p.floatEta() << " phi " << p.floatPhi();
-//     }
-//     pf.setMuon(match->second);
-//   }
-//   pf.setCaloPtr(p.srcCand->caloPtr());
-//   pf.setPFTrack(p.srcCand->pfTrack());
-//   pf.setMuon(p.srcCand->muon());
-// }
 
 void DeregionizerProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
