@@ -70,6 +70,7 @@ DeepFlavourONNXJetTagsProducer::DeepFlavourONNXJetTagsProducer(const edm::Parame
   }
 
   assert(input_names_.size() == input_sizes_.size());
+  data_.reserve(input_sizes_.size());
 }
 
 DeepFlavourONNXJetTagsProducer::~DeepFlavourONNXJetTagsProducer() {}
@@ -143,6 +144,7 @@ void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
   for (std::size_t flav_n = 0; flav_n < flav_names_.size(); ++flav_n) {
     iEvent.put(std::move(output_tags[flav_n]), flav_names_[flav_n]);
   }
+  data_.clear();
 }
 
 void DeepFlavourONNXJetTagsProducer::make_inputs(unsigned i_jet, const reco::DeepFlavourTagInfo& taginfo) {
