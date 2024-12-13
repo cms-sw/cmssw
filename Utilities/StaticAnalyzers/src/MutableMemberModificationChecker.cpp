@@ -85,12 +85,22 @@ namespace clangcms {
 
     // == Check if we are modifying the mutable ==
     bool ret;
-    ret = checkAssignToMutable(ME, C, FuncD);
-    if (!ret) {
-      ret = checkCallNonConstOfMutable(ME, C);
+    if (checkAssignToMutable(ME, C)) {
+      // == Emit report ==
+      std::string MutableMemberName = ME->getMemberDecl()->getQualifiedNameAsString();
+      if (!BT) {
+        BT = std::make_unique<clang::ento::BugType>(
+            this, "Mutable member modification in const member function", "ConstThreadSafety");
+      }
+      std::string Description =
+          "Modifying mutable member '" + MutableMemberName + "' in const member function is potentially thread-unsafe ";
+      auto Report = std::make_unique<clang::ento::PathSensitiveBugReport>(*BT, Description, C.generateErrorNode());
+      Report->addRange(ME->getSourceRange());
+      C.emitReport(std::move(Report));
+      return;
     }
 
-    if (ret) {
+    if (checkCallNonConstOfMutable(ME, C)) {
       if (RD) {
         std::string ClassName = RD->getNameAsString();
         std::string MemberName = ME->getMemberDecl()->getNameAsString();
@@ -105,10 +115,8 @@ namespace clangcms {
 
   // Check direct modifications of mutable (assign, compound stmt, increment/decrement)
   bool MutableMemberModificationChecker::checkAssignToMutable(const clang::MemberExpr *ME,
-                                                              clang::ento::CheckerContext &C,
-                                                              const clang::FunctionDecl *FuncD) const {
+                                                              clang::ento::CheckerContext &C) const {
     // == Check if this is a modifying statement ==
-    bool isModification = false;
 
     // Retrieve the parent statement of the MemberExpr
     const clang::LocationContext *LC = C.getLocationContext();
@@ -126,7 +134,7 @@ namespace clangcms {
       if (LHSAsME) {
         if (BO->isAssignmentOp() && LHSAsME == ME) {
           // The MemberExpr is on the left-hand side of an assignment
-          isModification = true;
+          return true;
         }
       }
     }
@@ -138,7 +146,7 @@ namespace clangcms {
       if (LHSAsME) {
         if (CO->isAssignmentOp() && LHSAsME == ME) {
           // The MemberExpr is on the left-hand side of an assignment
-          isModification = true;
+          return true;
         }
       }
     }
@@ -146,26 +154,11 @@ namespace clangcms {
     // Check for increment/decrement
     if (const auto *UO = llvm::dyn_cast<clang::UnaryOperator>(ParentStmt)) {
       if (UO->isIncrementDecrementOp() && UO->getSubExpr() == ME) {
-        isModification = true;
+        return true;
       }
     }
 
-    if (!isModification) {
-      return false;
-    }
-
-    // == Report a bug if none of the above conditions allow access. ==
-    std::string MutableMemberName = ME->getMemberDecl()->getQualifiedNameAsString();
-    if (!BT) {
-      BT = std::make_unique<clang::ento::BugType>(
-          this, "Mutable member modification in const member function", "ConstThreadSafety");
-    }
-    std::string Description =
-        "Modifying mutable member '" + MutableMemberName + "' in const member function is potentially thread-unsafe ";
-    auto Report = std::make_unique<clang::ento::PathSensitiveBugReport>(*BT, Description, C.generateErrorNode());
-    Report->addRange(ME->getSourceRange());
-    C.emitReport(std::move(Report));
-    return true;
+    return false;
   }  // checkAssignToMutable
 
   // Check for indirect modifications of mutable (calling non-const method)
