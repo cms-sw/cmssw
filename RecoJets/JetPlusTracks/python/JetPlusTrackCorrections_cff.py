@@ -6,10 +6,6 @@ ak4JetTracksAssociatorAtVertexJPT = ak4JetTracksAssociatorAtVertex.clone(
     useAssigned = True,
     pvSrc       = "offlinePrimaryVertices"
 )
-# ---------- Tight Electron ID
-
-from RecoEgamma.ElectronIdentification.electronIdSequence_cff import eidTight
-JPTeidTight = eidTight.clone()
 
 # ---------- Seeds from TrackJets
 
@@ -47,7 +43,6 @@ JetPlusTrackZSPCorJetAntiKt4.JetSplitMerge = 2
 # Anti-Kt
 
 JetPlusTrackCorrectionsAntiKt4Task = cms.Task(
-    JPTeidTight,
     JetPlusTrackAddonSeedReco,
     ak4JetTracksAssociatorAtVertexJPT,
     ak4JetTracksAssociatorAtCaloFace,
