@@ -251,7 +251,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   if (0 < m_verbose) {
     edm::LogVerbatim("SimG4CoreApplication")
-        << "Produced " << p2->size() << " SimVertecies: position(cm), time(s), parentID, vertexID, processType";
+        << "Produced " << p2->size() << " SimVertices: position(cm), time(s), parentID, vertexID, processType";
     if (1 < m_verbose) {
       int nn = p2->size();
       for (int i = 0; i < nn; ++i) {
@@ -260,12 +260,15 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     }
     edm::LogVerbatim("SimG4CoreApplication")
         << "Produced " << p1->size()
-        << " SimTracks: pdg, 4-momentum(GeV), vertexID, mcTruthID, flagBoundary, trackID at boundary";
+        << " SimTracks: G4 Id, pdg, 4-momentum(GeV), vertexID, mcTruthID, crossedBoundary, trackID at boundary, from "
+           "backscattering, isPrimary, getPrimary";
     if (1 < m_verbose) {
       int nn = p1->size();
       for (int i = 0; i < nn; ++i) {
-        edm::LogVerbatim("Track") << " " << i << ". " << (*p1)[i] << " " << (*p1)[i].crossedBoundary() << " "
-                                  << (*p1)[i].getIDAtBoundary();
+        edm::LogVerbatim("Track") << " " << i << ". " << (*p1)[i].trackId() << " " << (*p1)[i] << " "
+                                  << (*p1)[i].crossedBoundary() << " " << (*p1)[i].getIDAtBoundary() << " "
+                                  << (*p1)[i].isFromBackScattering() << " " << (*p1)[i].isPrimary() << " "
+                                  << (*p1)[i].getPrimaryID();
       }
     }
   }

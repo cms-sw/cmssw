@@ -37,7 +37,7 @@ void TmpSimEvent::load(edm::SimTrackContainer& c) const {
     int id = trk->id();
     bool isBackScatter = trk->isFromBackScattering();
     bool isPrimary = trk->isPrimary();
-    int primaryGenPartId = trk->getPrimaryID(); // filled if the G4Track had this info
+    int primaryGenPartId = trk->getPrimaryID();  // filled if the G4Track had this info
     // ip = particle ID as PDG
     // p  = 4-momentum in GeV
     // iv = corresponding TmpSimVertex index

@@ -73,7 +73,7 @@ void SimTrackManager::addTrack(TrackWithHistory* iTrack, const G4Track* track, b
   std::pair<int, int> thePair(iTrack->trackID(), iTrack->parentID());
   idsave.push_back(thePair);
   if (inHistory) {
-    auto info = static_cast<const TrackInformation *>(track->GetUserInformation());
+    auto info = static_cast<const TrackInformation*>(track->GetUserInformation());
     if (info->isInTrkFromBackscattering())
       iTrack->setFromBackScattering();
     // set there *for all the tracks* the genParticle ID associated with the G4Track
@@ -131,7 +131,7 @@ void SimTrackManager::storeTracks() {
 void SimTrackManager::reallyStoreTracks() {
   // loop over the (now ordered) vector and really save the tracks
 #ifdef DebugLog
-  edm::LogVerbatim("SimTrackManager") << "reallyStoreTracks() NtracksWithHistory= " << m_trackContainer->size();
+  edm::LogVerbatim("SimTrackManager") << "reallyStoreTracks() NtracksWithHistory= " << m_trackContainer.size();
 #endif
 
   int nn = m_endPoints.size();
@@ -139,10 +139,10 @@ void SimTrackManager::reallyStoreTracks() {
     // at this stage there is one vertex per track,
     // so the vertex id of track N is also N
     int iParentID = trkH->parentID();
-    int ig = trkH->genParticleID(); // filled only for primary tracks
+    int ig = trkH->genParticleID();  // filled only for primary tracks
     bool isBackScatter = trkH->isFromBackScattering();
     bool isPrimary = trkH->isPrimary();
-    int primaryGenPartId = trkH->getPrimaryID(); // filled if the G4Track had this info
+    int primaryGenPartId = trkH->getPrimaryID();  // filled if the G4Track had this info
     int ivertex = getOrCreateVertex(trkH, iParentID);
 
     auto ptr = trkH;
@@ -319,7 +319,7 @@ void SimTrackManager::cleanTracksWithHistory() {
   std::stable_sort(idsave.begin(), idsave.end());
 
 #ifdef DebugLog
-  LogDebug("SimTrackManager") << " SimTrackManager::cleanTracksWithHistory knows " << m_trksForThisEvent->size()
+  LogDebug("SimTrackManager") << " SimTrackManager::cleanTracksWithHistory knows " << m_trackContainer.size()
                               << " tracks with history before branching";
   for (unsigned int it = 0; it < m_trackContainer.size(); it++) {
     LogDebug("SimTrackManager") << " 1 - Track in position " << it << " G4 track number "
