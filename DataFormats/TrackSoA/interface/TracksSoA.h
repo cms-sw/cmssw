@@ -46,7 +46,7 @@ namespace reco {
   // note: non-literal type 'reco::TrackLayout<128, false>::ConstViewTemplateFreeParams<128, false, true, true>::const_element' 
   // cannot be used in a constant expression
   
-  // move to use the layer gaps defined in CAParams
+  // move to use the layer gaps defined in CAGeometry
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static int nLayers(const TrackSoAConstView &tracks,
                                                                                  const TrackHitSoAConstView &hits,
                                                                                  uint16_t maxLayers,

@@ -60,8 +60,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       for (uint32_t idy : cms::alpakatools::uniform_elements_y(acc, outerHits)) {
         // auto const& vc = isOuterHitOfCell[idy];
         uint32_t size = outerHitHisto->size(idy); //TODO have this offset in the histo building directly
+#ifdef GPU_DEBUG
         printf("hist %d histSize %d \n",idy,size);
-
+#endif
         if (size < 2)
           continue;
 

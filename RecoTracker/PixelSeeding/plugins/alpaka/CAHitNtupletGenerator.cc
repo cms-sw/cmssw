@@ -5,6 +5,7 @@
 #include <cassert>
 #include <functional>
 #include <vector>
+#include <TFormula.h>
 
 #include <alpaka/alpaka.hpp>
 
@@ -20,6 +21,7 @@
 #include "CAHitNtupletGeneratorKernels.h"
 #include "CAPixelDoublets.h"
 #include "CAPixelDoubletsAlgos.h"
+
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace {
@@ -43,7 +45,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<double>("ptmin", 0.9f)->setComment("Cut on minimum pt");
       desc.add<double>("hardCurvCut", 1.f / (0.35 * 87.f))
           ->setComment("Cut on minimum curvature, used in DCA ntuplet selection");
+      desc.add<double>("cellZ0Cut", 12.0f) ->setComment("Z0 cut for cells");
+      desc.add<double>("cellPtCut", 0.5f) ->setComment("Preliminary pT cut at cell building level."); 
 
+      desc.add<unsigned int>("maxNumberOfDoublets", pixelTopology::Phase1::maxNumberOfDoublets);
+      desc.add<unsigned int>("maxNumberOfTuples", pixelTopology::Phase1::maxNumberOfTuples);
+      desc.add<unsigned int>("avgHitsPerTrack", pixelTopology::Phase1::avgHitsPerTrack);
+      desc.add<unsigned int>("avgCellsPerHit", pixelTopology::Phase1::maxCellsPerHit);
+      desc.add<unsigned int>("avgCellsPerCell", pixelTopology::Phase1::maxCellNeighbors);
+      desc.add<unsigned int>("avgTracksPerCell", pixelTopology::Phase1::maxCellTracks);
+      
       desc.add<bool>("earlyFishbone", true);
       desc.add<bool>("lateFishbone", false);
       desc.add<bool>("fillStatistics", false);
@@ -57,6 +68,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
       desc.add<bool>("dupPassThrough", false)->setComment("Do not reject duplicate");
       desc.add<bool>("useSimpleTripletCleaner", true)->setComment("use alternate implementation");
+
+      desc.add<bool>("doClusterCut", true)->setComment("Cut on inner hit cluster size (in Y) for barrel-forward cells.");
+      desc.add<bool>("doZSizeCut", true)->setComment("Cut on cluster size differences (in Y) for barrel-forward cells.");
     }
 
     AlgoParams makeCommonParams(edm::ParameterSet const& cfg) {
@@ -64,8 +78,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
                          // Container sizes
                          cfg.getParameter<unsigned int>("maxNumberOfDoublets"),
-                         cfg.getParameter<unsigned int>("minHitsPerNtuplet"),
-                         cfg.getParameter<unsigned int>("minHitsForSharingCut"),
                          cfg.getParameter<unsigned int>("maxNumberOfTuples"),
                          cfg.getParameter<unsigned int>("avgHitsPerTrack"),
                          cfg.getParameter<unsigned int>("avgCellsPerHit"),
@@ -73,8 +85,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          cfg.getParameter<unsigned int>("avgTracksPerCell"),
 
                          // Algo params
+                         cfg.getParameter<unsigned int>("minHitsPerNtuplet"),
+                         cfg.getParameter<unsigned int>("minHitsForSharingCut"),
                          (float)cfg.getParameter<double>("ptmin"),
                          (float)cfg.getParameter<double>("hardCurvCut"),
+                         (float)cfg.getParameter<double>("cellZ0Cut"),
+                         (float)cfg.getParameter<double>("cellPtCut"),
                          cfg.getParameter<bool>("useRiemannFit"),
                          cfg.getParameter<bool>("fitNas4"),
                          cfg.getParameter<bool>("earlyFishbone"),
@@ -83,7 +99,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          cfg.getParameter<bool>("doSharedHitCut"),
                          cfg.getParameter<bool>("dupPassThrough"),
                          cfg.getParameter<bool>("useSimpleTripletCleaner"),
-
+                         cfg.getParameter<bool>("doClusterCut"),
+                         cfg.getParameter<bool>("doZSizeCut")
                          });
     }
 
@@ -170,14 +187,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void CAHitNtupletGenerator<pixelTopology::Phase1>::fillPSetDescription(edm::ParameterSetDescription& desc) {
     fillDescriptionsCommon(desc);
 
-    desc.add<bool>("idealConditions", true);
-    desc.add<unsigned int>("maxNumberOfDoublets", pixelTopology::Phase1::maxNumberOfDoublets);
-    desc.add<unsigned int>("maxNumberOfTuples", pixelTopology::Phase1::maxNumberOfTuples);
-    desc.add<unsigned int>("avgHitsPerTrack", pixelTopology::Phase1::avgHitsPerTrack);
-    desc.add<unsigned int>("avgCellsPerHit", pixelTopology::Phase1::maxCellsPerHit);
-    desc.add<unsigned int>("avgCellsPerCell", pixelTopology::Phase1::maxCellNeighbors);
-    desc.add<unsigned int>("avgTracksPerCell", pixelTopology::Phase1::maxCellTracks);
-
     edm::ParameterSetDescription trackQualityCuts;
     trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
     trackQualityCuts.add<std::vector<double>>("chi2Coeff", {0.9, 1.8})->setComment("chi2 at 1GeV and at ptMax above");
@@ -212,15 +221,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // now this could be removed actually
   template <>
   void CAHitNtupletGenerator<pixelTopology::HIonPhase1>::fillPSetDescription(edm::ParameterSetDescription& desc) {
+    
     fillDescriptionsCommon(desc);
-
-    desc.add<bool>("idealConditions", false);
-    desc.add<unsigned int>("maxNumberOfDoublets", pixelTopology::HIonPhase1::maxNumberOfDoublets);
-    desc.add<unsigned int>("maxNumberOfTuples", pixelTopology::HIonPhase1::maxNumberOfTuples);
-    desc.add<unsigned int>("avgHitsPerTrack", pixelTopology::HIonPhase1::avgHitsPerTrack);
-    desc.add<unsigned int>("avgCellsPerHit", pixelTopology::HIonPhase1::maxCellsPerHit);
-    desc.add<unsigned int>("avgCellsPerCell", pixelTopology::HIonPhase1::maxCellNeighbors);
-    desc.add<unsigned int>("avgTracksPerCell", pixelTopology::Phase1::maxCellTracks);
     
     edm::ParameterSetDescription trackQualityCuts;
     trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
@@ -256,15 +258,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <>
   void CAHitNtupletGenerator<pixelTopology::Phase2>::fillPSetDescription(edm::ParameterSetDescription& desc) {
+    
     fillDescriptionsCommon(desc);
-
-    desc.add<bool>("idealConditions", false);
-    desc.add<unsigned int>("maxNumberOfDoublets", pixelTopology::Phase2::maxNumberOfDoublets);
-    desc.add<unsigned int>("maxNumberOfTuples", pixelTopology::Phase2::maxNumberOfTuples);
-    desc.add<unsigned int>("avgHitsPerTrack", pixelTopology::Phase2::avgHitsPerTrack);
-    desc.add<unsigned int>("avgCellsPerHit", pixelTopology::Phase2::maxCellsPerHit);
-    desc.add<unsigned int>("avgCellsPerCell", pixelTopology::Phase2::maxCellNeighbors);
-    desc.add<unsigned int>("avgTracksPerCell", pixelTopology::Phase2::maxCellTracks);
 
     edm::ParameterSetDescription trackQualityCuts;
     trackQualityCuts.add<double>("maxChi2", 5.)->setComment("Max normalized chi2");
@@ -290,7 +285,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 template <typename TrackerTraits>
   reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::makeTuplesAsync(
-      HitsOnDevice const& hits_d, FrameOnDevice const& frame, CAParamsOnDevice const& params_d, float bfield, Queue& queue) const {
+      HitsOnDevice const& hits_d, CAGeometryOnDevice const& geometry_d, float bfield, Queue& queue) const {
     using HelixFit = HelixFit<TrackerTraits>;
     using GPUKernels = CAHitNtupletGeneratorKernels<TrackerTraits>;
     using TrackHitSoA = ::reco::TrackHitSoA;
@@ -299,7 +294,7 @@ template <typename TrackerTraits>
     const int32_t H = m_params.algoParams_.avgHitsPerTrack_;
 
     reco::TracksSoACollection tracks({{S,S*H}},queue);
-    std::cout << S << " - " << H << std::endl;
+
     // Don't bother if less than 2 this
     if (hits_d.view().metadata().size() < 2) {
       const auto device = alpaka::getDev(queue);
@@ -307,20 +302,20 @@ template <typename TrackerTraits>
       alpaka::memset(queue, ntracks_d, 0);
       return tracks;
     }
-    GPUKernels kernels(m_params, hits_d.nHits(), hits_d.offsetBPIX2(), params_d.view().metadata().size(), queue);
+    GPUKernels kernels(m_params, hits_d.nHits(), hits_d.offsetBPIX2(), geometry_d.view().metadata().size(), queue);
 
-    kernels.prepareHits(hits_d.view(), hits_d.view<::reco::HitModuleSoA>(),  params_d.view(),queue);
-    kernels.buildDoublets(hits_d.view(), params_d.view<::reco::CACellsSoA>(), hits_d.offsetBPIX2(), queue);
-    kernels.launchKernels(hits_d.view(), hits_d.offsetBPIX2(), params_d.view().metadata().size(), tracks.view(), tracks.view<TrackHitSoA>(), params_d.view<::reco::CALayersSoA>(), params_d.view<::reco::CACellsSoA>(), queue);
+    kernels.prepareHits(hits_d.view(), hits_d.view<::reco::HitModuleSoA>(),  geometry_d.view(),queue);
+    kernels.buildDoublets(hits_d.view(), geometry_d.view<::reco::CAGraphSoA>(), hits_d.offsetBPIX2(), queue);
+    kernels.launchKernels(hits_d.view(), hits_d.offsetBPIX2(), geometry_d.view().metadata().size(), tracks.view(), tracks.view<TrackHitSoA>(), geometry_d.view<::reco::CALayersSoA>(), geometry_d.view<::reco::CAGraphSoA>(), queue);
 
     HelixFit fitter(bfield, m_params.algoParams_.fitNas4_);
     fitter.allocate(kernels.tupleMultiplicity(), tracks.view(), kernels.hitContainer());
     if (m_params.algoParams_.useRiemannFit_) {
       fitter.launchRiemannKernels(
-          hits_d.view(), frame.view(), hits_d.view().metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
+          hits_d.view(), geometry_d.view<::reco::CAModulesSoA>(), hits_d.view().metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
     } else {
       fitter.launchBrokenLineKernels(
-          hits_d.view(), frame.view(), hits_d.view().metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
+          hits_d.view(), geometry_d.view<::reco::CAModulesSoA>(), hits_d.view().metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
     }
     kernels.classifyTuples(hits_d.view(), tracks.view(), queue);
 #ifdef GPU_DEBUG
