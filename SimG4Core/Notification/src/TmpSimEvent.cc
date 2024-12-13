@@ -35,15 +35,25 @@ void TmpSimEvent::load(edm::SimTrackContainer& c) const {
     int iv = trk->ivert();
     int ig = trk->igenpart();
     int id = trk->id();
+    bool isBackScatter = trk->isFromBackScattering();
+    bool isPrimary = trk->isPrimary();
+    int primaryGenPartId = trk->getPrimaryID(); // filled if the G4Track had this info
     // ip = particle ID as PDG
-    // pp = 4-momentum in GeV
+    // p  = 4-momentum in GeV
     // iv = corresponding TmpSimVertex index
-    // ig = corresponding GenParticle index
+    // ig = corresponding GenParticle index only if is a primary, otherwise is -1
+    // primaryGenPartId = corresponding GenParticle index also if not primary
+    // id = corresponding g4Track Id
     SimTrack t = SimTrack(ip, p, iv, ig, trk->trackerSurfacePosition(), trk->trackerSurfaceMomentum());
     t.setTrackId(id);
     t.setEventId(EncodedEventId(0));
     t.setCrossedBoundaryVars(
         trk->crossedBoundary(), trk->getIDAtBoundary(), trk->getPositionAtBoundary(), trk->getMomentumAtBoundary());
+    if (isBackScatter)
+      t.setFromBackScattering();
+    if (isPrimary)
+      t.setIsPrimary();
+    t.setGenParticleID(primaryGenPartId);
     c.push_back(t);
   }
   std::stable_sort(c.begin(), c.end(), IdSort());
