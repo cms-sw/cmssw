@@ -4,8 +4,6 @@
 <test name="GetTestDQMOfflineConfigurationFile" command="edmCopyUtil ${INFILE} $(LOCALTOP)/tmp/"/>
 
 <!-- To make the tests run in parallel, we chunk up the work into arbitrary sets of 10 sequences. -->
-
-
 <test name="TestDQMOfflineConfiguration" command="runtests.sh   ${step_value} ${value} file://${LOCALTOP}/tmp/${INFILE_NAME}" for="0,339,10">
   <flags PRE_TEST="GetTestDQMOfflineConfigurationFile"/>
 </test>
