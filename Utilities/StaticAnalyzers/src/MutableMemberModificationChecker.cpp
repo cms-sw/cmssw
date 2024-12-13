@@ -63,7 +63,7 @@ namespace clangcms {
       return;
     }
 
-    // == Skip atmoic mutables, these are thread-safe by design ==
+    // == Skip atomic mutables, these are thread-safe by design ==
     if (support::isStdAtomic(FD)) {
       return;  // Skip if it's a mutable std::atomic
     }
