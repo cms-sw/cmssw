@@ -378,6 +378,4 @@ int TimingSD::getTrackID(const G4Track* aTrack) {
   return aTrack->GetTrackID();
 }
 
-void TimingSD::setHitClassID(const G4Step* aStep) {
-  hitClassID = 0;
-}
+void TimingSD::setHitClassID(const G4Step* aStep) { hitClassID = 0; }

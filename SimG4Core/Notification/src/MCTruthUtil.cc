@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 #include "SimG4Core/Notification/interface/MCTruthUtil.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
@@ -11,6 +13,7 @@ void MCTruthUtil::primary(G4Track *aTrack) {
   trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
   trkInfo->setGenParticleP(aTrack->GetMomentum().mag());
   trkInfo->setMCTruthID(aTrack->GetTrackID());
+  trkInfo->setIdLastStoredAncestor(aTrack->GetTrackID());
   aTrack->SetUserInformation(trkInfo);
 }
 
@@ -25,6 +28,7 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
     trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
     trkInfo->setGenParticleP(aTrack->GetMomentum().mag());
     trkInfo->setMCTruthID(aTrack->GetTrackID());
+    trkInfo->setIdLastStoredAncestor(aTrack->GetTrackID());
   } else {
     // secondary
     trkInfo->setGenParticlePID(motherInfo->genParticlePID());
@@ -40,6 +44,7 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
                                 motherInfo->getIDLastVolume(),
                                 aTrack->GetDefinition()->GetPDGEncoding(),
                                 aTrack->GetMomentum().mag());
+    trkInfo->setIdLastStoredAncestor(aTrack->GetTrackID());
   } else {
     // transfer calo ID from mother (to be checked in TrackingAction)
     trkInfo->setIDonCaloSurface(motherInfo->getIDonCaloSurface(),
@@ -47,6 +52,7 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
                                 motherInfo->getIDLastVolume(),
                                 motherInfo->caloSurfaceParticlePID(),
                                 motherInfo->caloSurfaceParticleP());
+    trkInfo->setIdLastStoredAncestor(motherInfo->idLastStoredAncestor());
   }
 
   // for Run1 and Run2
