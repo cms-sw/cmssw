@@ -644,6 +644,7 @@ steps['RunUPC2024']={'INPUT':InputInfo(dataSet='/HIForward0/HIRun2024B-v1/RAW',l
 RunHI2023={375491: [[100, 100]]}
 steps['RunHIPhysicsRawPrime2023A']={'INPUT':InputInfo(dataSet='/HIPhysicsRawPrime0/HIRun2023A-v1/RAW',label='HI2023A',events=100000,location='STD', ls=RunHI2023)}
 
+steps['RunHLTMonitor2024I']={'INPUT':InputInfo(dataSet='/HLTMonitor/Run2024I-Express-v2/FEVTHLTALL',label='2024I',events=100000,location='STD', ls={386801: [[32, 111]]})}
 ##################################################################
 ### Golden Data Steps
 # Reading good runs directly from the latest golden json 
@@ -2445,6 +2446,16 @@ steps['TIER0EXPRUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExp
                           '--era':'Run3',
                           '--conditions':'auto:run3_data_express'
                           },steps['TIER0']])
+steps['ReAlCaHLT']={'-s':'ALCA:TkAlHLTTracks+TkAlHLTTracksZMuMu',
+                    '--conditions':'140X_dataRun3_Express_v3',
+                    '--scenario': 'pp',
+                    '--data': '',
+                    '--era':'Run3_2024',
+                    '--datatier':'ALCARECO',
+                    '--eventcontent':'ALCARECO',
+                    '--process':'RECO',
+                    '--processName':'ReAlCa',
+                    }
 steps['TIER0EXPCOSMICSRUN3']=merge([{'--scenario':'cosmics',
                                      '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExpressCosmics,ENDJOB',
                                      '-n':1000,
@@ -2727,6 +2738,15 @@ steps['ALCAHARVDSIPIXELALIHGCOMBINED']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCa
                      '--scenario':'pp',
                      '--data':'',
                      '--filein':'file:PromptCalibProdSiPixelAliHGComb.root',
+                     '--customise':'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.lowerHitsPerStructure'}
+
+steps['ALCAHARVDSIPIXELALIHLTHGCOMBINED']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelAliHLTHGC']),
+                     '--conditions':'140X_dataRun3_Express_v3',
+                     '--scenario':'pp',
+                     '--era':'Run3_2024',
+                     '--data':'',
+                     '-n':'-1',
+                     '--filein':'file:PromptCalibProdSiPixelAliHLTHGC_0.root,file:PromptCalibProdSiPixelAliHLTHGC_1.root',
                      '--customise':'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.lowerHitsPerStructure'}
 
 steps['ALCAHARVDPPSCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSTimingCalib']),
@@ -3544,6 +3564,34 @@ steps['ALCAEXPSIPIXELALIRUN3']={'-s':'ALCAOUTPUT:TkAlZMuMu+TkAlMinBias,ALCA:Prom
                                 '--datatier':'ALCARECO',
                                 '--eventcontent':'ALCARECO',
                                 '--triggerResultsProcess': 'RECO'}
+steps['ALCAReAlCaHLTHGComb']={'-s':'ALCA:PromptCalibProdSiPixelAliHLTHGC',
+                                '--conditions':'140X_dataRun3_Express_v3',
+                                '--customise': 'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS',
+	                            '--scenario': 'pp',
+	                            '--data': '',
+                                '--era':'Run3_2024',
+                                '--datatier':'ALCARECO',
+                                '--eventcontent':'ALCARECO',
+                                '--processName=ReAlCaHLTHGC':'',
+                                '-n':'-1',
+                                '--filein':'file:TkAlHLTTracks.root',
+                                '--fileout':'file:PromptCalibProdSiPixelAliHLTHGC_0.root',
+                                '--customise_commands=process.ALCARECOTkAlZMuMuFilterForSiPixelAliHLT.throw = False;process.ALCARECOTkAlMinBiasFilterForSiPixelAliHLTHG.TriggerResultsTag = "TriggerResults::ReAlCa"':'',
+                                '--triggerResultsProcess': 'ReAlCa'}
+steps['ALCAReAlCaHLTHGCombZMUMU']={'-s':'ALCA:PromptCalibProdSiPixelAliHLTHGC',
+                                '--conditions':'140X_dataRun3_Express_v3',
+                                '--customise': 'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS',
+	                            '--scenario': 'pp',
+	                            '--data': '',
+                                '--era':'Run3_2024',
+                                '--datatier':'ALCARECO',
+                                '--eventcontent':'ALCARECO',
+                                '--processName=ReAlCaHLTHGC':'',
+                                '-n':'-1',
+                                '--filein':'file:TkAlHLTTracksZMuMu.root',
+                                '--fileout':'file:PromptCalibProdSiPixelAliHLTHGC_1.root',
+                                '--customise_commands=process.ALCARECOTkAlZMuMuFilterForSiPixelAliHLT.throw = False;process.ALCARECOTkAlMinBiasFilterForSiPixelAliHLTHG.TriggerResultsTag = "TriggerResults::ReAlCa"':'',
+                                '--triggerResultsProcess': 'ReAlCa'}
 steps['ALCAEXPCOSMICSRUN3']={'-s':'ALCAOUTPUT:@allForExpressCosmics,ALCA:PromptCalibProdSiStrip+PromptCalibProdSiPixelLAMCS+PromptCalibProdSiStripLA',
                              '-n':1000,
                              '--scenario':'cosmics',
