@@ -53,9 +53,9 @@ namespace l1ct {
     float floatSrrTot() const { return Scales::floatSrrTot(hwSrrTot); };
     float floatMeanZ() const { return Scales::floatMeanZ(hwMeanZ); };
     float floatHoe() const { return Scales::floatHoe(hwHoe); };
-    float floatPiID() const { return Scales::floatIDProb(hwPiProb); };
-    float floatEmID() const { return Scales::floatIDProb(hwEmID); };
-    float floatPuID() const { return Scales::floatIDProb(hwPuProb()); };
+    float floatPiProb() const { return Scales::floatIDProb(hwPiProb); };
+    float floatEmProb() const { return Scales::floatIDProb(hwEmID); };
+    float floatPuProb() const { return Scales::floatIDProb(hwPuProb()); };
 
     bool hwIsEM() const { return hwEmID != 0; }
 
@@ -212,9 +212,9 @@ namespace l1ct {
     float floatSrrTot() const { return Scales::floatSrrTot(hwSrrTot); };
     float floatMeanZ() const { return Scales::floatMeanZ(hwMeanZ); };
     float floatHoe() const { return Scales::floatHoe(hwHoe); };
-    float floatPiID() const { return Scales::floatIDProb(hwPiProb); };
-    float floatEmID() const { return Scales::floatIDProb(hwEmID); };
-    float floatPuID() const { return Scales::floatIDProb(hwPuID()); };
+    float floatPiProb() const { return Scales::floatIDProb(hwPiProb); };
+    float floatEmProb() const { return Scales::floatIDProb(hwEmID); };
+    float floatPuProb() const { return Scales::floatIDProb(hwPuID()); };
 
     static const int BITWIDTH_BARREL_SLIM = pt_t::width + pt_t::width + eta_t::width + phi_t::width + emid_t::width;
     static const int BITWIDTH_ENDCAP_SLIM = pt_t::width + pt_t::width + eta_t::width + phi_t::width + emid_t::width + id_prob_t::width + id_prob_t::width;

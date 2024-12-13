@@ -128,8 +128,7 @@ private:
                         const edm::Handle<l1tp2::CaloCrystalClusterCollection> &caloHandle,
                         unsigned int ic,
                         l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec);
-  // FIXME: could be templated? maybe not after adding specific variables for Gct and HGCal clusters
-  void getEmPFCluster(const l1ct::EmCaloObjEmu &decCalo,
+  void addEmPFCluster(const l1ct::EmCaloObjEmu &decCalo,
                       const l1ct::PFRegionEmu &region,
                       std::unique_ptr<l1t::PFClusterCollection> &pfClusters) const;
 
@@ -138,8 +137,7 @@ private:
                          unsigned int ic,
                          l1ct::DetectorSector<l1ct::HadCaloObjEmu> &sec);
 
-  // FIXME: could be templated? maybe not after adding specific variables for Gct and HGCal clusters
-  void getHadPFCluster(const l1ct::HadCaloObjEmu &decCalo,
+  void addHadPFCluster(const l1ct::HadCaloObjEmu &decCalo,
                        const l1ct::PFRegionEmu &region,
                        std::unique_ptr<l1t::PFClusterCollection> &pfClusters) const;
 
@@ -562,7 +560,6 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
             // Use the valid flag to reject PU clusters when creating the decoded object
             decCalo = hgcalInput_->decode(sec_raw.region, cwrd, valid);
           } else {  // GCT Inputs & PF
-            // FIXME: split PF
             const l1t::PFCluster *pfcl = dynamic_cast<const l1t::PFCluster *>(&calo);
             // FIXME: for now we keep using l1t::PFClusters but should move to the GCT emulated collection
             // and proper unpacking
@@ -778,20 +775,28 @@ void L1TCorrelatorLayer1Producer::encodeAndAddHgcalCluster(ap_uint<256> &word,
   sec.obj.push_back(word);
 }
 
-void L1TCorrelatorLayer1Producer::getEmPFCluster(const l1ct::EmCaloObjEmu &decCalo,
+void L1TCorrelatorLayer1Producer::addEmPFCluster(const l1ct::EmCaloObjEmu &decCalo,
                                                  const l1ct::PFRegionEmu &region,
                                                  std::unique_ptr<l1t::PFClusterCollection> &pfClusters) const {
   // Crete the PFCluster and add the original object as Consitutent
-  l1t::PFCluster pfCl(decCalo.floatPt(),
+  pfClusters->emplace_back(decCalo.floatPt(),
                       region.floatGlbEta(decCalo.hwEta),
                       region.floatGlbPhi(decCalo.hwPhi),
                       decCalo.floatHoe(),
-                      true);  // FIXME: is this used?
+                      true,
+                      decCalo.floatPtErr(),
+                      decCalo.intPt(),
+                      decCalo.intEta(),
+                      decCalo.intPhi(),
+                      decCalo.floatMeanZ(),
+                      decCalo.floatSrrTot());
+  
   // Add additional variables specialized for GCT and HGCal clusters
-  pfCl.setSigmaRR(decCalo.floatSrrTot());
-  pfCl.setAbsZBarycenter(decCalo.floatMeanZ());
-  setRefs_(pfCl, decCalo);
-  pfClusters->push_back(pfCl);
+  pfClusters->back().setHwQual(decCalo.hwEmID.to_int());
+  pfClusters->back().setPuIDScore(decCalo.floatPuProb());
+  pfClusters->back().setPiIDScore(decCalo.floatPiProb());
+  pfClusters->back().setEmIDScore(decCalo.floatEmProb());
+  setRefs_(pfClusters->back(), decCalo);
 }
 
 void L1TCorrelatorLayer1Producer::addDecodedEmCalo(l1ct::EmCaloObjEmu &decCalo,
@@ -804,23 +809,28 @@ void L1TCorrelatorLayer1Producer::addDecodedEmCalo(l1ct::EmCaloObjEmu &decCalo,
   sec.obj.push_back(decCalo);
 }
 
-// FIXME: besides the specific "cluster shape variables" this function and the EM one could be merged via templates
-// we will see after the new implementation is complete: it all depends on the decision about PFClusters.
-// do we need to specialize them for barrel& endcap or we can just add all variables to the same class?
-void L1TCorrelatorLayer1Producer::getHadPFCluster(const l1ct::HadCaloObjEmu &decCalo,
+void L1TCorrelatorLayer1Producer::addHadPFCluster(const l1ct::HadCaloObjEmu &decCalo,
                                                   const l1ct::PFRegionEmu &region,
                                                   std::unique_ptr<l1t::PFClusterCollection> &pfClusters) const {
-  // Crete the PFCluster and add the original object as Consitutent
-  l1t::PFCluster pfCl(decCalo.floatPt(),
+    // Crete the PFCluster and add the original object as Consitutent
+  pfClusters->emplace_back(decCalo.floatPt(),
                       region.floatGlbEta(decCalo.hwEta),
                       region.floatGlbPhi(decCalo.hwPhi),
                       decCalo.floatHoe(),
-                      decCalo.hwIsEM());
+                      decCalo.hwIsEM(),
+                      0., // ptError
+                      decCalo.intPt(),
+                      decCalo.intEta(),
+                      decCalo.intPhi(),
+                      decCalo.floatMeanZ(),
+                      decCalo.floatSrrTot());
+  
   // Add additional variables specialized for GCT and HGCal clusters
-  pfCl.setSigmaRR(decCalo.floatSrrTot());
-  pfCl.setAbsZBarycenter(decCalo.floatMeanZ());
-  setRefs_(pfCl, decCalo);
-  pfClusters->push_back(pfCl);
+  pfClusters->back().setHwQual(decCalo.hwEmID.to_int());
+  pfClusters->back().setPuIDScore(decCalo.floatPuProb());
+  pfClusters->back().setPiIDScore(decCalo.floatPiProb());
+  pfClusters->back().setEmIDScore(decCalo.floatEmProb());
+  setRefs_(pfClusters->back(), decCalo);
 }
 
 void L1TCorrelatorLayer1Producer::addDecodedHadCalo(l1ct::HadCaloObjEmu &decCalo,
@@ -1161,7 +1171,7 @@ std::unique_ptr<l1t::PFClusterCollection> L1TCorrelatorLayer1Producer::fetchDeco
     for (const auto &p : r.hadcalo) {
       if (p.hwPt == 0 || !reg.isFiducial(p))
         continue;
-      getHadPFCluster(p, reg, ret);
+      addHadPFCluster(p, reg, ret);
     }
   }
   return ret;
@@ -1174,7 +1184,7 @@ std::unique_ptr<l1t::PFClusterCollection> L1TCorrelatorLayer1Producer::fetchDeco
     for (const auto &p : r.emcalo) {
       if (p.hwPt == 0 || !reg.isFiducial(p))
         continue;
-      getEmPFCluster(p, reg, ret);
+      addEmPFCluster(p, reg, ret);
     }
   }
   return ret;
