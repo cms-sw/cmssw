@@ -42,7 +42,7 @@
  * objects from the output of SoA CA.
  */
 
-#define GPU_DEBUG
+// #define GPU_DEBUG
 
 template <typename TrackerTraits>
 class PixelTrackProducerFromSoAAlpaka : public edm::global::EDProducer<> {
@@ -192,7 +192,6 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
   //store the index of the SoA: indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
   indToEdm.resize(sortIdxs.size(), -1);
   for (const auto &it : sortIdxs) {
-    std::cout << it << std::endl;
     auto nHits = reco::nHits(tsoa.view(), it);
     assert(nHits >= 3);
     auto q = quality[it];

@@ -1,8 +1,8 @@
 #ifndef RecoTracker_PixelSeeding_plugins_alpaka_CAHitNtupletGeneratorKernelsImpl_h
 #define RecoTracker_PixelSeeding_plugins_alpaka_CAHitNtupletGeneratorKernelsImpl_h
 
-#define GPU_DEBUG
-#define NTUPLE_DEBUG
+// #define GPU_DEBUG
+// #define NTUPLE_DEBUG
 
 // C++ includes
 #include <cmath>
@@ -48,30 +48,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   using QualityCuts = ::pixelTrack::QualityCutsT<TrackerTraits>;
   
   using Counters = caHitNtupletGenerator::Counters;
-  using HitContainer = caStructures::SequentialContainer;
-  using HitToCell = caStructures::GenericContainer;
   using HitToTuple = caStructures::GenericContainer;
-  using CellToCell = caStructures::GenericContainer;
-  using CellToTracks = caStructures::GenericContainer;
+  using HitContainer = caStructures::SequentialContainer;
   using TupleMultiplicity = caStructures::GenericContainer;
+  using HitToCell = caStructures::GenericContainer;
+  using CellToCell = caStructures::GenericContainer;
+  using CellToTrack = caStructures::GenericContainer;
 
   using namespace cms::alpakatools;
 
-   // standard initialization for a generic one to many assoc map
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static void initGenericContainer(GenericContainerView &view,
-                                                                                 GenericContainer *histo,
-                                                                                 GenericContainer::Counter *offsets,
-                                                                                 GenericContainer::Counter *storage,
-                                                                                 uint32_t n_ones,
-                                                                                 uint32_t n_many) {
-    view.assoc = histo;
-    view.offSize = n_ones + 1;
-    view.offStorage = offsets;
-    view.contentSize = n_many;
-    view.contentStorage = storage;
-  }
-
-  class setHitsLayerStart {
+  class SetHitsLayerStart {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
@@ -199,7 +185,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   CASimpleCell<TrackerTraits> const *cells,
                                   uint32_t const *__restrict__ nCells,
-                                  CellToTracks const* __restrict__ cellTracksHisto,
+                                  CellToTrack const* __restrict__ cellTracksHisto,
                                   TkSoAView tracks_view) const {
       constexpr auto reject = Quality::dup;
 
@@ -225,14 +211,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   CASimpleCell<TrackerTraits> const *cells,
                                   uint32_t const *__restrict__ nCells,
-                                  CellToTracks const* __restrict__ cellTracksHisto,
+                                  CellToTrack const* __restrict__ cellTracksHisto,
                                   TkSoAView tracks_view,
                                   bool dupPassThrough) const {
       // quality to mark rejected
       constexpr auto reject = Quality::edup;  /// cannot be loose
       ALPAKA_ASSERT_ACC(nCells);
       for (auto idx : cms::alpakatools::uniform_elements(acc, *nCells)) {
-        auto const &thisCell = cells[idx];
+        // auto const &thisCell = cells[idx];
         //auto cT = thisCell.tracks();
         //printf("cellTracksSizes;%d;%d;%d\n",idx,cT.size(),cT.capacity());
         // if (thisCell.tracks().size() < 2)
@@ -271,7 +257,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   CASimpleCell<TrackerTraits> const *__restrict__ cells,
                                   uint32_t const *__restrict__ nCells,
-                                  CellToTracks const* __restrict__ cellTracksHisto,
+                                  CellToTrack const* __restrict__ cellTracksHisto,
                                   TkSoAView tracks_view,
                                   bool dupPassThrough) const {
       // quality to mark rejected
@@ -370,7 +356,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  cms::alpakatools::AtomicPairCounter *apc1, // just to zero them
+                                  cms::alpakatools::AtomicPairCounter *apc, // just to zero them
                                   HitsConstView hh,
                                   reco::CALayersSoAConstView ll,
                                   caStructures::CACoupleSoAView cn,
@@ -386,7 +372,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       using Cell = CASimpleCell<TrackerTraits>;
 
       if (cms::alpakatools::once_per_grid(acc)) {
-        *apc1 = 0;
+        *apc = 0;
       }  // ready for next kernel
 
       // loop on outer cells
@@ -404,8 +390,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         // uint32_t numberOfPossibleNeighbors = (*isOuterHitOfCell)[innerHitId].size(); //REMOVE ME!
         // uint32_t numberOfPossibleNeighbors = outerHitHisto->size(innerHitId);
         // numberOfPossibleNeighbors = numberOfPossibleFromHisto;
+#ifdef GPU_DEBUG
         printf("numberOfPossibleFromHisto;%d;%d;%d;%d;%d\n",*nCells,innerHitId,cellIndex,thisCell.innerLayer(),numberOfPossibleNeighbors);
-
+#endif
         //printf("numberOfPossibleFromHisto;%d;%d;%d;%d;%d;%d\n",*nCells,innerHitId,cellIndex,thisCell.innerLayer(),numberOfPossibleNeighbors,numberOfPossibleFromHisto);
         // auto vi = (*isOuterHitOfCell)[innerHitId].data();
         auto ri = thisCell.inner_r(hh);
@@ -422,7 +409,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           auto r1 = oc.inner_r(hh);
           auto z1 = oc.inner_z(hh);
           auto dcaCut = ll[oc.innerLayer()].caDCACut();
+#ifdef GPU_DEBUG
           printf("cellIndex:%d;%d;%d;%d .%2f -> %.2f \n",cellIndex, otherCell, oc.innerLayer(),thisCell.innerLayer(),thetaCut,dcaCut);
+#endif
           bool aligned = Cell::areAlignedRZ(
               r1,
               z1,
@@ -439,7 +428,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                               params.hardCurvCut_)) { 
             cellNeighborsHisto->count(acc,otherCell);
             auto t_ind = alpaka::atomicAdd(acc, nTrips, (uint32_t)1, alpaka::hierarchy::Blocks{});
+#ifdef GPU_DEBUG
             printf("filling cell no. %d %d: %d -> %d\n",t_ind,cellNeighborsHisto->size(),otherCell,cellIndex);
+#endif
             // oc.addOuterNeighbor(acc, cellIndex, *cellNeighbors);
             
             // ALPAKA_ASSERT_ACC(t_ind == );
@@ -468,29 +459,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   
   for (uint32_t index : cms::alpakatools::uniform_elements(acc, genericHisto->size())) {
         genericHisto->fill(acc,cn[index].inner(),cn[index].outer());
-        printf("filling: %d -> %d\n",cn[index].inner(),cn[index].outer());
+        // printf("filling: %d -> %d\n",cn[index].inner(),cn[index].outer());
         }
 
     }
   };
 
-  template <typename TrackerTraits>
-  class Kernel_cellTrackHistoFill {
-  public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  uint32_t const* nTrips,
-                                  caStructures::CACoupleSoAConstView cn,
-                                  CellToCell *cellNeighborsHisto) const {
-  
-  for (uint32_t tripIndex : cms::alpakatools::uniform_elements(acc, *nTrips)) {
-        cellNeighborsHisto->fill(acc,cn[tripIndex].inner(),cn[tripIndex].outer());
-        printf("filling cellNeighborsHisto: %d -> %d\n",cn[tripIndex].inner(),cn[tripIndex].outer());
-          
-        }
-
-    }
-  };
   
   template <typename TrackerTraits>
   class Kernel_find_ntuplets {
@@ -498,11 +472,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   HitsConstView hh,
-                                  const ::reco::CACellsSoAConstView &cc,
+                                  const ::reco::CAGraphSoAConstView &cc,
                                   TkSoAView tracks_view,
                                   HitContainer *foundNtuplets,
                                   CellToCell const* __restrict__ cellNeighborsHisto,
-                                  CellToTracks *cellTracksHisto,
+                                  CellToTrack *cellTracksHisto,
                                   caStructures::CACoupleSoAView ct,
                                   CASimpleCell<TrackerTraits> *__restrict__ cells,
                                   uint32_t *nCellTracks,
@@ -526,8 +500,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           continue;
 
         // we require at least three hits
-        auto nNeighbors = cellNeighborsHisto->end(idx) - cellNeighborsHisto->begin(idx);
-        printf("%d nNeighbors %ld size %d \n",idx, nNeighbors,cellNeighborsHisto->size(idx));
+        
+#ifdef GPU_DEBUG
+        printf("%d nNeighbors %d \n",idx,cellNeighborsHisto->size(idx));
+#endif
         if (cellNeighborsHisto->size(idx) == 0)
           continue;
 
@@ -564,7 +540,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   CASimpleCell<TrackerTraits> *__restrict__ cells,
-                                  CellToTracks const* __restrict__ cellTracksHisto,
+                                  CellToTrack const* __restrict__ cellTracksHisto,
                                   uint32_t const *nCells) const {
       using Cell = CASimpleCell<TrackerTraits>;
       for (auto idx : cms::alpakatools::uniform_elements(acc, (*nCells))) {
@@ -586,7 +562,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TupleMultiplicity *tupleMultiplicity) const {
       for (auto it : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
         auto nhits = foundNtuplets->size(it);
-        printf("countMulti mult %d %d\n", it, nhits);
         if (nhits < 3)
           continue;
         if (tracks_view[it].quality() == Quality::edup)
@@ -594,7 +569,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         ALPAKA_ASSERT_ACC(tracks_view[it].quality() == Quality::bad);
         if (nhits > TrackerTraits::maxHitsOnTrack)  // current limit
           printf("wrong mult %d %d\n", it, nhits);
-        // ALPAKA_ASSERT_ACC(nhits <= TrackerTraits::maxHitsOnTrack);
+        ALPAKA_ASSERT_ACC(nhits <= TrackerTraits::maxHitsOnTrack);
         tupleMultiplicity->count(acc, nhits);
       }
     }
@@ -611,8 +586,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       for (auto it : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
 
         auto nhits = foundNtuplets->size(it);
-
-        printf("fillMulti mult %d %d\n", it, nhits);
 
         if (nhits < 3)
           continue;
@@ -738,16 +711,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   HitsConstView hh) const {
       // copy offsets
       for (auto idx : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes() - 1)) {
-        // tracks_view.detIndices().off[idx] = foundNtuplets->off[idx];
         tracks_view[idx].hitOffsets() = foundNtuplets->off[idx + 1]; // offset for track 0 is always 0
       }
       // fill hit indices
       for (auto idx : cms::alpakatools::uniform_elements(acc, foundNtuplets->size())) {
         ALPAKA_ASSERT_ACC(foundNtuplets->content[idx] < (uint32_t)hh.metadata().size());
-        // tracks_view.detIndices().content[idx] = hh[foundNtuplets->content[idx]].detectorIndex();
         track_hits_view[idx].id() = foundNtuplets->content[idx];
         track_hits_view[idx].detId() = hh[foundNtuplets->content[idx]].detectorIndex();
+#ifdef GPU_DEBUG
         printf("Kernel_fillHitDetIndices %d %d %d \n",idx,foundNtuplets->content[idx],track_hits_view.metadata().size());
+#endif
       }
     }
   };
@@ -770,7 +743,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       for (auto idx : cms::alpakatools::uniform_elements(acc, ntracks)) {
         ALPAKA_ASSERT_ACC(reco::nHits(tracks_view, idx) >= 3);
         tracks_view[idx].nLayers() = reco::nLayers(tracks_view, track_hits_view, maxLayers, layerStarts, idx);
+#ifdef GPU_DEBUG
         printf("Kernel_fillNLayers %d %d %d \n",idx,ntracks,reco::nLayers(tracks_view, track_hits_view, maxLayers, layerStarts, idx));
+#endif
       }
     }
   };
