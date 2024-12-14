@@ -1,8 +1,9 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="CondFormats/Alignment"/>
+
 <library name="AlignmentCommonAlignmentFakeProducers" file="FakeAlignment*.cc">
-  <use name="CondFormats/Alignment"/>
   <use name="CondFormats/AlignmentRecord"/>
 </library>
 
@@ -45,14 +46,19 @@
   <use name="TrackPropagation/SteppingHelixPropagator"/>
   <use name="TrackPropagation/RungeKutta"/>
   <use name="CondFormats/AlignmentRecord"/>
-  <use name="CondFormats/Alignment"/>
   <use name="CondCore/DBOutputService"/>
   <use name="DataFormats/DetId"/>
   <use name="DataFormats/TrackReco"/>
   <use name="RecoMuon/TransientTrackingRecHit"/>
+  <use name="CLHEP"/>
 </library>
 
 <library file="LSNumberFilter.cc" name="AlignmentCommonAlignmentProducerFilter">
   <use name="HLTrigger/HLTcore"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="Alignment*MuonSelector.cc" name="AlignmentCommonAlignmentProducerSelector">
+  <use name="DataFormats/MuonReco"/>
   <flags EDM_PLUGIN="1"/>
 </library>
