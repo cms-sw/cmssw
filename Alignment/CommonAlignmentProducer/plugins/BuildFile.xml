@@ -56,3 +56,8 @@
   <use name="HLTrigger/HLTcore"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="Alignment*MuonSelector.cc" name="AlignmentCommonAlignmentProducerSelector">
+  <use name="DataFormats/MuonReco"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
