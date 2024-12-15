@@ -21,8 +21,11 @@ ALCARECOTkAlZMuMuDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clon
     DebugOn      = cms.untracked.bool(False)
 )
 
-## standard muon selection
-from Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi import *
+import Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi
+ALCARECOTkAlZMuMuGoodMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlGoodIdMuonSelector.clone()
+ALCARECOTkAlZMuMuRelCombIsoMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlRelCombIsoMuonSelector.clone(
+    src = 'ALCARECOTkAlZMuMuGoodMuons'
+)
 
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlZMuMu = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
@@ -34,7 +37,7 @@ ALCARECOTkAlZMuMu.etaMin = -3.5
 ALCARECOTkAlZMuMu.etaMax = 3.5
 ALCARECOTkAlZMuMu.nHitMin = 0
 
-ALCARECOTkAlZMuMu.GlobalSelector.muonSource = 'TkAlRelCombIsoMuonSelector'
+ALCARECOTkAlZMuMu.GlobalSelector.muonSource = 'ALCARECOTkAlZMuMuRelCombIsoMuons'
 # Isolation is shifted to the muon preselection, and then applied intrinsically if applyGlobalMuonFilter = True
 ALCARECOTkAlZMuMu.GlobalSelector.applyIsolationtest = False
 ALCARECOTkAlZMuMu.GlobalSelector.applyGlobalMuonFilter = True
@@ -52,14 +55,9 @@ ALCARECOTkAlZMuMu.TwoBodyDecaySelector.numberOfCandidates = 1
 TkAlZMuMuGenMuonSelector = cms.EDFilter("GenParticleSelector",
                                         src = cms.InputTag("genParticles"),
                                         cut = cms.string("abs(pdgId) == 13"), # Select only muons
-                                        filter = cms.bool(False),
-                                        throwOnMissing = cms.untracked.bool(False))
+                                        filter = cms.bool(False))
 
-seqALCARECOTkAlZMuMu = cms.Sequence(ALCARECOTkAlZMuMuHLT+
-                                    ALCARECOTkAlZMuMuDCSFilter+
-                                    seqALCARECOTkAlRelCombIsoMuons+
-                                    ALCARECOTkAlZMuMu+
-                                    TkAlZMuMuGenMuonSelector)
+seqALCARECOTkAlZMuMu = cms.Sequence(ALCARECOTkAlZMuMuHLT+ALCARECOTkAlZMuMuDCSFilter+ALCARECOTkAlZMuMuGoodMuons+ALCARECOTkAlZMuMuRelCombIsoMuons+ALCARECOTkAlZMuMu+TkAlZMuMuGenMuonSelector)
 
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017

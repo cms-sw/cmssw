@@ -9,7 +9,7 @@ ALCARECOTkAlZMuMuPAHLT = ALCARECOTkAlZMuMuHLT.clone(
 
 ALCARECOTkAlZMuMuPADCSFilter = ALCARECOTkAlZMuMuDCSFilter.clone()
 
-ALCARECOTkAlZMuMuPAGoodMuons = TkAlGoodIdMuonSelector.clone()
+ALCARECOTkAlZMuMuPAGoodMuons = ALCARECOTkAlZMuMuGoodMuons.clone()
 
 ALCARECOTkAlZMuMuPA = ALCARECOTkAlZMuMu.clone(
      src = 'generalTracks'
@@ -18,6 +18,6 @@ ALCARECOTkAlZMuMuPA.GlobalSelector.muonSource = 'ALCARECOTkAlZMuMuPAGoodMuons'
 
 seqALCARECOTkAlZMuMuPA = cms.Sequence(ALCARECOTkAlZMuMuPAHLT
                                       +ALCARECOTkAlZMuMuPADCSFilter
-                                      +TkAlGoodIdMuonSelector
+                                      +ALCARECOTkAlZMuMuPAGoodMuons
                                       +ALCARECOTkAlZMuMuPA
                                       )
