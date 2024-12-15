@@ -3,13 +3,12 @@ import FWCore.ParameterSet.Config as cms
 ##################################################################
 # Exact same configuration as TkAlZMuMu: extract mumu pairs
 #################################################################
+from Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi import *
 import Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_cff as confALCARECOTkAlZMuMu
 ALCARECOTkAlDiMuonHLT = confALCARECOTkAlZMuMu.ALCARECOTkAlZMuMuHLT.clone()
 ALCARECOTkAlDiMuonDCSFilter = confALCARECOTkAlZMuMu.ALCARECOTkAlZMuMuDCSFilter.clone()
-ALCARECOTkAlDiMuonGoodMuons = confALCARECOTkAlZMuMu.ALCARECOTkAlZMuMuGoodMuons.clone()
-ALCARECOTkAlDiMuonRelCombIsoMuons = confALCARECOTkAlZMuMu.ALCARECOTkAlZMuMuRelCombIsoMuons.clone(src = 'ALCARECOTkAlDiMuonGoodMuons')
 ALCARECOTkAlDiMuon = confALCARECOTkAlZMuMu.ALCARECOTkAlZMuMu.clone()
-ALCARECOTkAlDiMuon.GlobalSelector.muonSource = 'ALCARECOTkAlDiMuonRelCombIsoMuons'
+ALCARECOTkAlDiMuon.GlobalSelector.muonSource = 'TkAlRelCombIsoMuonSelector'
 
 ##################################################################
 # Tracks from the selected vertex
@@ -23,15 +22,15 @@ ALCARECOTkAlDiMuonVertexTracks = TracksFromVertex.AlignmentTracksFromVertexSelec
 TkAlDiMuonAndVertexGenMuonSelector = cms.EDFilter("GenParticleSelector",
                                                   src = cms.InputTag("genParticles"),
                                                   cut = cms.string("abs(pdgId) == 13"), # Select only muons
-                                                  filter = cms.bool(False))
+                                                  filter = cms.bool(False),
+                                                  throwOnMissing = cms.untracked.bool(False))
 
 ##################################################################
 # The sequence
 #################################################################
 seqALCARECOTkAlDiMuonAndVertex = cms.Sequence(ALCARECOTkAlDiMuonHLT+
                                               ALCARECOTkAlDiMuonDCSFilter+
-                                              ALCARECOTkAlDiMuonGoodMuons+
-                                              ALCARECOTkAlDiMuonRelCombIsoMuons+
+                                              seqALCARECOTkAlRelCombIsoMuons+
                                               ALCARECOTkAlDiMuon+
                                               ALCARECOTkAlDiMuonVertexTracks+
                                               TkAlDiMuonAndVertexGenMuonSelector)
