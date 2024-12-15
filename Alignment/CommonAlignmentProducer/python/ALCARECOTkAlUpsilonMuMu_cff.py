@@ -56,9 +56,10 @@ ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.numberOfCandidates = 1
 
 ## for the GEN level information
 TkAlUpsilonMuMuGenMuonSelector = cms.EDFilter("GenParticleSelector",
-                                        src = cms.InputTag("genParticles"),
-                                        cut = cms.string("abs(pdgId) == 13"), # Select only muons
-                                        filter = cms.bool(False))
+                                              src = cms.InputTag("genParticles"),
+                                              cut = cms.string("abs(pdgId) == 13"), # Select only muons
+                                              filter = cms.bool(False),
+                                              throwOnMissing = cms.untracked.bool(False))
 
 seqALCARECOTkAlUpsilonMuMu = cms.Sequence(ALCARECOTkAlUpsilonMuMuHLT+ALCARECOTkAlUpsilonMuMuDCSFilter+ALCARECOTkAlUpsilonMuMuGoodMuons+ALCARECOTkAlUpsilonMuMuRelCombIsoMuons+ALCARECOTkAlUpsilonMuMu+TkAlUpsilonMuMuGenMuonSelector)
 
