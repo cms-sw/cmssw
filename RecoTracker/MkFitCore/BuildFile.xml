@@ -5,6 +5,7 @@
 <use name="ofast-flag"/>
 <flags CXXFLAGS="-fopenmp-simd"/>
 <flags ADD_SUBDIR="1"/>
+<flags REM_CXXFLAGS="-Ofast" FILE="IterationConfig.cc"/>
 <export>
   <lib name="RecoTrackerMkFitCore"/>
 </export>
