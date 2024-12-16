@@ -376,6 +376,7 @@ namespace dqm::impl {
     virtual int getNbinsY() const;
     virtual int getNbinsZ() const;
     virtual int getBin(int binx, int biny) const;
+    virtual int getNcells() const;
     virtual std::string getAxisTitle(int axis = 1) const;
     virtual std::string getTitle() const;
 
@@ -401,6 +402,8 @@ namespace dqm::impl {
 
     // non-const -- thread safety and semantical issues
     virtual void addBin(TGraph *graph);
+    virtual void addBin(int n, const double *x, const double *y);
+    virtual void addBin(double x1, double y1, double x2, double y2);
     virtual void setBinContent(int binx, double content);
     virtual void setBinContent(int binx, int biny, double content);
     virtual void setBinContent(int binx, int biny, int binz, double content);

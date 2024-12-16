@@ -7,10 +7,24 @@
 
 template <typename BOOKERLIKE, typename ME, bool DOLUMI = false>
 class BookerFiller {
+private:
+  struct PolygonDef {
+    int nPoints;
+    std::vector<double> x;
+    std::vector<double> y;
+  };
+  std::vector<PolygonDef> m_polygons;
+
 public:
   BookerFiller(std::string folder, int howmany) {
     this->howmany = howmany;
     this->folder = folder;
+    m_polygons = {
+        {6, {37.5, 25.0, -0.5, -0.5, 25.0, 37.5}, {5.0, -0.5, -0.5, 10.0, 10.0, 5.0}},   // polygon-1: n, x, y
+        {5, {37.5, 25.0, 75.0, 62.5, 37.5}, {5.0, 10.0, 10.0, 5.0, 5.0}},                // polygon-2: n, x, y
+        {5, {37.5, 25.0, 75.0, 62.5, 37.5}, {5.0, -0.5, -0.5, 5.0, 5.0}},                // polygon-3: n, x, y
+        {6, {62.5, 75.0, 100.0, 100.0, 75.0, 62.5}, {5.0, 10.0, 10.0, -0.5, -0.5, 5.0}}  // polygon-3: n, x, y
+    };
   }
 
   BookerFiller() {}
@@ -34,8 +48,16 @@ public:
       mes_2D.push_back(ibooker.book2D("th2f" + num, "2D Float Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
       mes_2D.push_back(ibooker.book2S("th2s" + num, "2D Short Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
       mes_2D.push_back(ibooker.book2DD("th2d" + num, "2D Double Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
-      mes_2D.push_back(
-          ibooker.book2DPoly("th2poly" + num, "2D Polygonal Double Histogram " + num, -0.5, 100.5, -0.5, 10.5));
+      auto th2poly_main =
+          ibooker.book2DPoly("th2poly" + num, "2D Polygonal Double Histogram " + num, -0.5, 100.5, -0.5, 10.5);
+      int nCells = th2poly_main->getNcells();
+      // Only add bins if they don't exist yet (nCells<=9)
+      if (nCells <= 9) {
+        for (const auto& poly : m_polygons) {
+          th2poly_main->addBin(poly.nPoints, poly.x.data(), poly.y.data());
+        }
+      }
+      mes_2D.push_back(th2poly_main);
       mes_2D.push_back(ibooker.book2I("th2i" + num, "2D Integer Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
       mes_2D.push_back(
           ibooker.bookProfile("tprofile" + num, "1D Profile Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
@@ -59,8 +81,16 @@ public:
         mes_2D.push_back(ibooker.book2D("th2f" + num, "2D Float Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
         mes_2D.push_back(ibooker.book2S("th2s" + num, "2D Short Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
         mes_2D.push_back(ibooker.book2DD("th2d" + num, "2D Double Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
-        mes_2D.push_back(
-            ibooker.book2DPoly("th2poly" + num, "2D Polygonal Double Histogram " + num, -0.5, 100.5, -0.5, 10.5));
+        auto th2poly_lumi =
+            ibooker.book2DPoly("th2poly" + num, "2D Polygonal Double Histogram " + num, -0.5, 100.5, -0.5, 10.5);
+        int nCells_lumi = th2poly_lumi->getNcells();
+        // Only add bins if they don't exist yet (nCells<=9)
+        if (nCells_lumi <= 9) {
+          for (const auto& poly : m_polygons) {
+            th2poly_lumi->addBin(poly.nPoints, poly.x.data(), poly.y.data());
+          }
+        }
+        mes_2D.push_back(th2poly_lumi);
         mes_2D.push_back(ibooker.book2I("th2i" + num, "2D Integer Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
         mes_2D.push_back(
             ibooker.bookProfile("tprofile" + num, "1D Profile Histogram " + num, 101, -0.5, 100.5, 11, -0.5, 10.5));
@@ -268,8 +298,7 @@ private:
                       edm::Run const&,
                       edm::EventSetup const&,
                       TestHistograms& h) const override {
-    h.folder = this->folder_;
-    h.howmany = this->howmany_;
+    h = TestHistograms(this->folder_, this->howmany_);
     h.bookall(ibooker);
   }
 
@@ -294,7 +323,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("folder", "Global/testglobal")->setComment("Where to put all the histograms");
+    desc.add<std::string>("folder", "Global/testglobalrunsummary")->setComment("Where to put all the histograms");
     desc.add<int>("howmany", 1)->setComment("How many copies of each ME to put");
     desc.add<double>("value", 1)->setComment("Which value to use on the third axis (first two are lumi and run)");
     descriptions.add("testglobalrunsummary", desc);
@@ -309,8 +338,7 @@ private:
                       edm::Run const&,
                       edm::EventSetup const&,
                       TestHistograms& h) const override {
-    h.folder = this->folder_;
-    h.howmany = this->howmany_;
+    h = TestHistograms(this->folder_, this->howmany_);
     h.bookall(ibooker);
   }
 

@@ -7,7 +7,7 @@ set -x
 # 1. Run a very simple configuration with all module types.
 cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py outfile=alltypes.root numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100
 # actually we'd expect 99, but the MEs by legacy modules are booked with JOB scope and cannot be saved to DQMIO.
-[ 84 = $(dqmiolistmes.py alltypes.root -r 1 | wc -l) ]
+[ 98 = $(dqmiolistmes.py alltypes.root -r 1 | wc -l) ]
 [ 84 = $(dqmiolistmes.py alltypes.root -r 1 -l 1 | wc -l) ]
 # this is deeply related to what the analyzers actually do.
 # again, the legacy modules output is not saved.
@@ -16,14 +16,14 @@ cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py outfile=alltypes.root numberEvent
 # testonefilllumi also should have 5 entries in the histograms (9 more)
 # the "fillrun" module should have one entry in the histograms (9 total) and 0 in the scalars (2 total)
 
-[ "0: 7, 0.0: 1, 1: 11, 100: 33, 200: 11, 5: 16, 5.0: 5" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py alltypes.root -r 1 --summary)" ]
+[ "0: 1, 0.0: 1, 1: 12, 100: 60, 5: 18, 5.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py alltypes.root -r 1 --summary)" ]
 # per lumi we see 20 in most histograms (4*9), and the current lumi number in the scalars (6 modules * 2).
 # the two fillumi modules should have one entry in each of the lumi histograms, (2*9 total)
-[ "0: 6, 1: 28, 1.0: 6, 20: 44" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py alltypes.root -r 1 -l 1 --summary)" ]
-[ "0: 6, 1: 22, 2: 6, 2.0: 6, 20: 44" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py alltypes.root -r 1 -l 2 --summary)" ]
-[ "0: 6, 1: 22, 20: 44, 3: 6, 3.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py alltypes.root -r 1 -l 3 --summary)" ]
-[ "0: 6, 1: 22, 20: 44, 4: 6, 4.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py alltypes.root -r 1 -l 4 --summary)" ]
-[ "0: 6, 1: 22, 20: 44, 5: 6, 5.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py alltypes.root -r 1 -l 5 --summary)" ]
+[ "1: 30, 1.0: 6, 20: 48" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py alltypes.root -r 1 -l 1 --summary)" ]
+[ "1: 24, 2: 6, 2.0: 6, 20: 48" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py alltypes.root -r 1 -l 2 --summary)" ]
+[ "1: 24, 20: 48, 3: 6, 3.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py alltypes.root -r 1 -l 3 --summary)" ]
+[ "1: 24, 20: 48, 4: 6, 4.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py alltypes.root -r 1 -l 4 --summary)" ]
+[ "1: 24, 20: 48, 5: 6, 5.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py alltypes.root -r 1 -l 5 --summary)" ]
 # just make sure we are not off by one
 [ "" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py alltypes.root -r 1 -l 6 --summary)" ]
 
@@ -39,15 +39,14 @@ cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py outfile=nolegacy-cl.root numberEv
 # same math as above, just a few less modules, and more events.
 for f in nolegacy.root nolegacy-mt.root nolegacy-cl.root
 do
-  [ "0: 5, 0.0: 1, 1: 11, 1000: 22, 2000: 11, 5: 3, 5.0: 3" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py $f -r 1 --summary)" ]
-  [ "0: 2, 1: 2, 1.0: 2, 200: 22" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py $f -r 1 -l 1 --summary)" ]
-  [ "0: 2, 2: 2, 2.0: 2, 200: 22" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py $f -r 1 -l 2 --summary)" ]
-  [ "0: 2, 200: 22, 3: 2, 3.0: 2" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py $f -r 1 -l 3 --summary)" ]
-  [ "0: 2, 200: 22, 4: 2, 4.0: 2" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py $f -r 1 -l 4 --summary)" ]
-  [ "0: 2, 200: 22, 5: 2, 5.0: 2" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py $f -r 1 -l 5 --summary)" ]
+  [ "0: 1, 0.0: 1, 1: 12, 1000: 48, 5: 4, 5.0: 4" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py $f -r 1 --summary)" ]
+  [ "1: 2, 1.0: 2, 200: 24" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py $f -r 1 -l 1 --summary)" ]
+  [ "2: 2, 2.0: 2, 200: 24" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py $f -r 1 -l 2 --summary)" ]
+  [ "200: 24, 3: 2, 3.0: 2" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py $f -r 1 -l 3 --summary)" ]
+  [ "200: 24, 4: 2, 4.0: 2" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py $f -r 1 -l 4 --summary)" ]
+  [ "200: 24, 5: 2, 5.0: 2" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py $f -r 1 -l 5 --summary)" ]
   [ "" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py $f -r 1 -l 6 --summary)" ]
 done
-
 
 # 4. Try crossing a run boundary.
 cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py outfile=multirun.root numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=1200
@@ -88,7 +87,7 @@ cmp <(${SCRAM_TEST_PATH}/dqmiodumpentries.py multirun.root -r 1 -l 2) <(${SCRAM_
 cmsRun ${SCRAM_TEST_PATH}/run_harvesters_cfg.py inputFiles=alltypes.root nomodules=True legacyoutput=True reScope=JOB
 # this number is rather messy: we have 66 per-lumi objecs (harvested), 66 per-run objects (no legacy output), one folder for each set of 11, 
 # plus some higher-level folders and the ProvInfo hierarchy create by the FileSaver.
-[ 197 = $(rootlist DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root | wc -l) ]
+[ 212 = $(rootlist DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root | wc -l) ]
 
 cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100 legacyoutput=True
 # we expect only the (per-job) legacy histograms here: 3*11 objects in 3 folders, plus 9 more for ProvInfo and higher-level folders.
@@ -98,7 +97,7 @@ cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py numberEventsInRun=100 numberEvent
 cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=1200 protobufoutput=True
 
 cmsRun ${SCRAM_TEST_PATH}/run_harvesters_cfg.py inputFiles=./run000001 outfile=pbdata.root nomodules=True protobufinput=True
-[ 126 = $(dqmiolistmes.py pbdata.root -r 1 | wc -l) ]
+[ 140 = $(dqmiolistmes.py pbdata.root -r 1 | wc -l) ]
 [ 84 = $(dqmiolistmes.py pbdata.root -r 1 -l 1 | wc -l) ]
 
 # this will potentially mess up statistics (we should only fastHadd *within* a lumisection, not *across*), but should technically work.
@@ -106,17 +105,17 @@ fastHadd add -o streamDQMHistograms.pb run000001/run000001_ls*_streamDQMHistogra
 # the output format is different from the harvesting above, this is a not-DQM-formatted TDirectory file.
 fastHadd convert -o streamDQMHistograms.root streamDQMHistograms.pb
 # here we expect all (incl. legacy) MEs (99+66), plus folders (14 + 4 higher-level)
-[ 229 = $(rootlist streamDQMHistograms.root | wc -l) ]
+[ 244 = $(rootlist streamDQMHistograms.root | wc -l) ]
 
 
 # 9. Try writing online files. This is really TDirectory files, but written via a different module.
 # Note that this does not really need to support multiple runs, but it appears it does.
 cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=1200 onlineoutput=True
 # here we expect full per-run output (99 objects), no per-lumi MEs, plus folders (9 + 10 higher-level).
-[ 145 = $(rootlist DQM_V0001_UNKNOWN_R000000001.root | wc -l) ]
-[ 145 = $(rootlist DQM_V0001_UNKNOWN_R000000002.root | wc -l) ]
-[ 145 = $(rootlist DQM_V0001_UNKNOWN_R000000003.root | wc -l) ]
-[ 145 = $(rootlist DQM_V0001_UNKNOWN_R000000004.root | wc -l) ]
+[ 160 = $(rootlist DQM_V0001_UNKNOWN_R000000001.root | wc -l) ]
+[ 160 = $(rootlist DQM_V0001_UNKNOWN_R000000002.root | wc -l) ]
+[ 160 = $(rootlist DQM_V0001_UNKNOWN_R000000003.root | wc -l) ]
+[ 160 = $(rootlist DQM_V0001_UNKNOWN_R000000004.root | wc -l) ]
 
 
 # 10. Try running some harvesting modules and check if their output makes it out.
@@ -129,15 +128,15 @@ cmsRun ${SCRAM_TEST_PATH}/run_harvesters_cfg.py inputFiles=part1.root inputFiles
 # 11. Try MEtoEDM and EDMtoME.
 cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py outfile=metoedm.root numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100 metoedmoutput=True
 cmsRun ${SCRAM_TEST_PATH}/run_harvesters_cfg.py outfile=edmtome.root inputFiles=metoedm.root nomodules=True metoedminput=True
-[ 78 = $(dqmiolistmes.py edmtome.root -r 1 | wc -l) ]
+[ 91 = $(dqmiolistmes.py edmtome.root -r 1 | wc -l) ]
 [ 78 = $(dqmiolistmes.py edmtome.root -r 1 -l 1 | wc -l) ]
 # again, no legacy module (run) output here due to JOB scope for legacy modules
-[ "0: 7, 0.0: 1, 1: 10, 100: 30, 200: 10, 5: 15, 5.0: 5" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 --summary)" ]
-[ "0: 6, 1: 26, 1.0: 6, 20: 40" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 -l 1 --summary)" ]
-[ "0: 6, 1: 20, 2: 6, 2.0: 6, 20: 40" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 -l 2 --summary)" ]
-[ "0: 6, 1: 20, 20: 40, 3: 6, 3.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 -l 3 --summary)" ]
-[ "0: 6, 1: 20, 20: 40, 4: 6, 4.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 -l 4 --summary)" ]
-[ "0: 6, 1: 20, 20: 40, 5: 6, 5.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 -l 5 --summary)" ]
+[ "0: 1, 0.0: 1, 1: 11, 100: 55, 5: 17, 5.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 --summary)" ]
+[ "1: 28, 1.0: 6, 20: 44" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 -l 1 --summary)" ]
+[ "1: 22, 2: 6, 2.0: 6, 20: 44" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 -l 2 --summary)" ]
+[ "1: 22, 20: 44, 3: 6, 3.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 -l 3 --summary)" ]
+[ "1: 22, 20: 44, 4: 6, 4.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 -l 4 --summary)" ]
+[ "1: 22, 20: 44, 5: 6, 5.0: 6" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 -l 5 --summary)" ]
 [ "" = "$(${SCRAM_TEST_PATH}/dqmiodumpentries.py edmtome.root -r 1 -l 6 --summary)" ]
 
 cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py outfile=part1_metoedm.root metoedmoutput=True numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=50               # 1st half of 1st lumi
@@ -156,7 +155,7 @@ cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py outfile=empty.root howmany=0 lega
 cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py outfile=empty.root howmany=0 protobufoutput=True
 # nLumisections might be a bit buggy (off by one) in EDM, but is fine here.
 cmsRun ${SCRAM_TEST_PATH}/run_analyzers_cfg.py outfile=noevents.root processingMode='RunsAndLumis' nLumisections=20
-[ 84 = $(dqmiolistmes.py noevents.root -r 1 | wc -l) ]
+[ 98 = $(dqmiolistmes.py noevents.root -r 1 | wc -l) ]
 [ 84 = $(dqmiolistmes.py noevents.root -r 1 -l 1 | wc -l) ]
-[ 84 = $(dqmiolistmes.py noevents.root -r 2 | wc -l) ]
+[ 98 = $(dqmiolistmes.py noevents.root -r 2 | wc -l) ]
 [ 84 = $(dqmiolistmes.py noevents.root -r 2 -l 2 | wc -l) ]

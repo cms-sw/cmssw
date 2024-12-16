@@ -365,8 +365,32 @@ namespace dqm::impl {
       access.value.scalar_.real = 0;
     else if (kind() == Kind::STRING)
       access.value.scalar_.str.clear();
-    else
+    else if (kind() == Kind::TH1F)
       return accessRootObject(access, __PRETTY_FUNCTION__, 1)->Reset();
+    else if (kind() == Kind::TH1S)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->Reset();
+    else if (kind() == Kind::TH1D)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->Reset();
+    else if (kind() == Kind::TH1I)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->Reset();
+    else if (kind() == Kind::TPROFILE)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->Reset();
+    else if (kind() == Kind::TH2F)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->Reset();
+    else if (kind() == Kind::TH2S)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->Reset();
+    else if (kind() == Kind::TH2D)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->Reset();
+    else if (kind() == Kind::TH2I)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->Reset();
+    else if (kind() == Kind::TH2Poly)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->Reset();
+    else if (kind() == Kind::TPROFILE2D)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->Reset();
+    else if (kind() == Kind::TH3F)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 3)->Reset();
+    else
+      incompatible(__PRETTY_FUNCTION__);
   }
 
   /// convert scalar data into a string.
@@ -646,6 +670,12 @@ namespace dqm::impl {
     }
   }
 
+  // Returns number of cells (9 indicates empty TH2Poly without user-defined bins)
+  int MonitorElement::getNcells() const {
+    auto access = this->access();
+    return accessRootObject(access, __PRETTY_FUNCTION__, 1)->GetNcells();
+  }
+
   /// get # of bin entries (for profiles)
   double MonitorElement::getBinEntries(int bin) const {
     auto access = this->access();
@@ -691,12 +721,32 @@ namespace dqm::impl {
   }
 
   /*** setter methods (wrapper around ROOT methods) ****/
-  //
-  /// set polygon bin (TH2Poly)
+
+  // Add a polygonal bin to a TH2Poly histogram through TGraph
   void MonitorElement::addBin(TGraph *graph) {
     auto access = this->accessMut();
     if (kind() == Kind::TH2Poly) {
       static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->AddBin(graph);
+    } else {
+      incompatible(__PRETTY_FUNCTION__);
+    }
+  }
+
+  // Add a polygonal bin to a TH2Poly histogram through arrays
+  void MonitorElement::addBin(int n, const double *x, const double *y) {
+    auto access = this->accessMut();
+    if (kind() == Kind::TH2Poly) {
+      static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->AddBin(n, x, y);
+    } else {
+      incompatible(__PRETTY_FUNCTION__);
+    }
+  }
+
+  // Add a rectangular bin to a TH2Poly histogram
+  void MonitorElement::addBin(double x1, double y1, double x2, double y2) {
+    auto access = this->accessMut();
+    if (kind() == Kind::TH2Poly) {
+      static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->AddBin(x1, y1, x2, y2);
     } else {
       incompatible(__PRETTY_FUNCTION__);
     }
