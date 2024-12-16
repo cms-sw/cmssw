@@ -24,7 +24,10 @@ namespace {
     const auto recoTrackstersProductId = tracksterHandle.id();
     const auto simTrackstersProductId = simTracksterHandle.id();
     const auto simTrackstersFromCPsProductId = simTracksterFromCPHandle.id();
-
+    if (recoTrackstersProductId == simTrackstersProductId or recoTrackstersProductId == simTrackstersFromCPsProductId) {
+      edm::LogInfo("MissingProduct") << "no SimTrackster to Simtrackster map available.";
+      return false;
+    }
     for (const auto& handle : tracksterToTracksterMapsHandles) {
       const auto& firstID = handle->getCollectionIDs().first.id();
       const auto& secondID = handle->getCollectionIDs().second.id();
