@@ -4,15 +4,26 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "EventFilter/HGCalRawToDigi/interface/HGCalUnpacker.h"
-
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
-#include "DataFormats/HGCalDigi/interface/HGCalDigiCollections.h"
+#include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 
+#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
+#include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h"
+#include "CondFormats/HGCalObjects/interface/HGCalConfiguration.h"
+
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb.h"
+
+#include "EventFilter/HGCalRawToDigi/interface/HGCalUnpacker.h"
 class HGCalRawToDigi : public edm::stream::EDProducer<> {
 public:
   explicit HGCalRawToDigi(const edm::ParameterSet&);
@@ -21,108 +32,92 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
+  // input tokens
   const edm::EDGetTokenT<FEDRawDataCollection> fedRawToken_;
-  const edm::EDPutTokenT<HGCalDigiCollection> digisToken_;
-  const edm::EDPutTokenT<HGCalElecDigiCollection> elecDigisToken_;
 
-  const std::vector<unsigned int> fedIds_;
-  const unsigned int badECONDMax_;
-  const unsigned int numERxsInECOND_;
-  const std::unique_ptr<HGCalUnpacker<HGCalElectronicsId> > unpacker_;
+  // output tokens
+  const edm::EDPutTokenT<hgcaldigi::HGCalDigiHost> digisToken_;
+  const edm::EDPutTokenT<hgcaldigi::HGCalECONDPacketInfoHost> econdPacketInfoToken_;
+
+  // TODO @hqucms
+  // what else do we want to output?
+
+  // config tokens
+  edm::ESGetToken<HGCalMappingCellIndexer, HGCalElectronicsMappingRcd> cellIndexToken_;
+  edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexToken_;
+  edm::ESGetToken<HGCalConfiguration, HGCalModuleConfigurationRcd> configToken_;
+
+  // TODO @hqucms
+  // how to implement this enabled eRx pattern? Can this be taken from the logical mapping?
+  // HGCalCondSerializableModuleInfo::ERxBitPatternMap erxEnableBits_;
+  // std::map<uint16_t, uint16_t> fed2slink_;
+
+  HGCalUnpacker unpacker_;
+
+  const bool fixCalibChannel_;
 };
 
 HGCalRawToDigi::HGCalRawToDigi(const edm::ParameterSet& iConfig)
     : fedRawToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-      digisToken_(produces<HGCalDigiCollection>()),
-      elecDigisToken_(produces<HGCalElecDigiCollection>()),
-      fedIds_(iConfig.getParameter<std::vector<unsigned int> >("fedIds")),
-      badECONDMax_(iConfig.getParameter<unsigned int>("badECONDMax")),
-      numERxsInECOND_(iConfig.getParameter<unsigned int>("numERxsInECOND")),
-      unpacker_(new HGCalUnpacker<HGCalElectronicsId>(
-          HGCalUnpackerConfig{.sLinkBOE = iConfig.getParameter<unsigned int>("slinkBOE"),
-                              .captureBlockReserved = iConfig.getParameter<unsigned int>("captureBlockReserved"),
-                              .econdHeaderMarker = iConfig.getParameter<unsigned int>("econdHeaderMarker"),
-                              .sLinkCaptureBlockMax = iConfig.getParameter<unsigned int>("maxCaptureBlock"),
-                              .captureBlockECONDMax = iConfig.getParameter<unsigned int>("captureBlockECONDMax"),
-                              .econdERXMax = iConfig.getParameter<unsigned int>("econdERXMax"),
-                              .erxChannelMax = iConfig.getParameter<unsigned int>("erxChannelMax"),
-                              .payloadLengthMax = iConfig.getParameter<unsigned int>("payloadLengthMax"),
-                              .channelMax = iConfig.getParameter<unsigned int>("channelMax"),
-                              .commonModeMax = iConfig.getParameter<unsigned int>("commonModeMax")})) {}
+      digisToken_(produces<hgcaldigi::HGCalDigiHost>()),
+      econdPacketInfoToken_(produces<hgcaldigi::HGCalECONDPacketInfoHost>()),
+      cellIndexToken_(esConsumes()),
+      moduleIndexToken_(esConsumes()),
+      configToken_(esConsumes()),
+      fixCalibChannel_(iConfig.getParameter<bool>("fixCalibChannel")) {}
 
-void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // retrieve the FED raw data
-  const auto& raw_data = iEvent.get(fedRawToken_);
-  // prepare the output
-  HGCalDigiCollection digis;
-  HGCalElecDigiCollection elec_digis;
-  for (const auto& fed_id : fedIds_) {
-    const auto& fed_data = raw_data.FEDData(fed_id);
-    if (fed_data.size() == 0)
-      continue;
-
-    std::vector<uint32_t> data_32bit;
-    auto* ptr = fed_data.data();
-    size_t fed_size = fed_data.size();
-    for (size_t i = 0; i < fed_size; i += 4)
-      data_32bit.emplace_back(((*(ptr + i) & 0xff) << 0) + (((i + 1) < fed_size) ? ((*(ptr + i + 1) & 0xff) << 8) : 0) +
-                              (((i + 2) < fed_size) ? ((*(ptr + i + 2) & 0xff) << 16) : 0) +
-                              (((i + 3) < fed_size) ? ((*(ptr + i + 3) & 0xff) << 24) : 0));
-
-    unpacker_->parseSLink(
-        data_32bit,
-        [this](uint16_t /*sLink*/, uint8_t /*captureBlock*/, uint8_t /*econd*/) { return (1 << numERxsInECOND_) - 1; },
-        [](HGCalElectronicsId elecID) -> HGCalElectronicsId { return elecID; });
-    const auto elecid_to_detid = [](const HGCalElectronicsId& id) -> HGCalDetId {
-      return HGCalDetId(id.raw());
-    };  //TODO: implement something more relevant
-
-    auto channeldata = unpacker_->channelData();
-    auto cms = unpacker_->commonModeIndex();
-    for (unsigned int i = 0; i < channeldata.size(); i++) {
-      auto data = channeldata.at(i);
-      auto cm = cms.at(i);
-      const auto& id = data.id();
-      auto idraw = id.raw();
-      auto raw = data.raw();
-      LogDebug("HGCalRawToDigi:produce") << "id=" << idraw << ", raw=" << raw << ", common mode index=" << cm << ".";
-      digis.push_back(HGCROCChannelDataFrameSpec(elecid_to_detid(id), data.raw()));
-      elec_digis.push_back(data);
-    }
-    if (const auto& bad_econds = unpacker_->badECOND(); !bad_econds.empty()) {
-      if (bad_econds.size() > badECONDMax_)
-        throw cms::Exception("HGCalRawToDigi:produce")
-            << "Too many bad ECON-Ds: " << bad_econds.size() << " > " << badECONDMax_ << ".";
-      edm::LogWarning("HGCalRawToDigi:produce").log([&bad_econds](auto& log) {
-        log << "Bad ECON-D: " << std::dec;
-        std::string prefix;
-        for (const auto& badECOND : bad_econds)
-          log << prefix << badECOND, prefix = ", ";
-        log << ".";
-      });
-    }
-  }
-  iEvent.emplace(digisToken_, std::move(digis));
-  iEvent.emplace(elecDigisToken_, std::move(elec_digis));
+void HGCalRawToDigi::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  // TODO @hqucms
+  // init unpacker with proper configs
 }
 
+void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  // retrieve logical mapping
+  auto moduleIndexer = iSetup.getData(moduleIndexToken_);
+  auto cellIndexer = iSetup.getData(cellIndexToken_);
+  auto config = iSetup.getData(configToken_);
+
+  hgcaldigi::HGCalDigiHost digis(moduleIndexer.getMaxDataSize(), cms::alpakatools::host());
+  hgcaldigi::HGCalECONDPacketInfoHost econdPacketInfo(moduleIndexer.getMaxModuleSize(), cms::alpakatools::host());
+
+  // retrieve the FED raw data
+  const auto& raw_data = iEvent.get(fedRawToken_);
+
+  for (int32_t i = 0; i < digis.view().metadata().size(); i++) {
+    digis.view()[i].flags() = hgcal::DIGI_FLAG::NotAvailable;
+  }
+  // TODO: comparing timing of multithread and FED-level parrallelization
+  // for (unsigned fedId = 0; fedId < moduleIndexer.fedCount(); ++fedId) {
+  //   const auto& fed_data = raw_data.FEDData(fedId);
+  //   if (fed_data.size() == 0)
+  //     continue;
+  //   unpacker_.parseFEDData(fedId, fed_data, moduleIndexer, config, digis, econdPacketInfo, /*headerOnlyMode*/ false);
+  // }
+
+  //Parallelization
+  oneapi::tbb::this_task_arena::isolate([&]() {
+    oneapi::tbb::parallel_for(0U, moduleIndexer.fedCount(), [&](unsigned fedId) {
+      const auto& fed_data = raw_data.FEDData(fedId);
+      if (fed_data.size() == 0)
+        return;
+      unpacker_.parseFEDData(fedId, fed_data, moduleIndexer, config, digis, econdPacketInfo, /*headerOnlyMode*/ false);
+      return;
+    });
+  });
+  // put information to the event
+  iEvent.emplace(digisToken_, std::move(digis));
+  iEvent.emplace(econdPacketInfoToken_, std::move(econdPacketInfo));
+}
+
+// fill descriptions
 void HGCalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("rawDataCollector"));
-  desc.add<unsigned int>("maxCaptureBlock", 1)->setComment("maximum number of capture blocks in one S-Link");
-  desc.add<unsigned int>("captureBlockReserved", 0)->setComment("capture block reserved pattern");
-  desc.add<unsigned int>("econdHeaderMarker", 0x154)->setComment("ECON-D header Marker pattern");
-  desc.add<unsigned int>("slinkBOE", 0x2a)->setComment("SLink BOE pattern");
-  desc.add<unsigned int>("captureBlockECONDMax", 12)->setComment("maximum number of ECON-D's in one capture block");
-  desc.add<unsigned int>("econdERXMax", 12)->setComment("maximum number of eRx's in one ECON-D");
-  desc.add<unsigned int>("erxChannelMax", 37)->setComment("maximum number of channels in one eRx");
-  desc.add<unsigned int>("payloadLengthMax", 469)->setComment("maximum length of payload length");
-  desc.add<unsigned int>("channelMax", 7000000)->setComment("maximum number of channels unpacked");
-  desc.add<unsigned int>("commonModeMax", 4000000)->setComment("maximum number of common modes unpacked");
-  desc.add<unsigned int>("badECONDMax", 200)->setComment("maximum number of bad ECON-D's");
   desc.add<std::vector<unsigned int> >("fedIds", {});
-  desc.add<unsigned int>("numERxsInECOND", 12)->setComment("number of eRxs in each ECON-D payload");
+  desc.add<bool>("fixCalibChannel", true)
+      ->setComment("FIXME: always treat calib channels in characterization mode; to be fixed in ROCv3b");
   descriptions.add("hgcalDigis", desc);
 }
 
