@@ -1,11 +1,11 @@
 #include <iomanip>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/CRC32Calculator.h"
+#include "FWCore/Utilities/interface/calculateCRC32.h"
 
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
 
-#define EDM_ML_DEBUG 1
+//#define EDM_ML_DEBUG 1
 
 namespace amc {
   BlockHeader::BlockHeader(unsigned int amc_no, unsigned int board_id, unsigned int size, unsigned int block) {
@@ -92,8 +92,8 @@ namespace amc {
   }
 
   void Trailer::writeCRC(const uint64_t *start, uint64_t *end) {
-    std::string dstring(reinterpret_cast<const char *>(start), reinterpret_cast<const char *>(end) + 4);
-    auto crc = cms::CRC32Calculator(dstring).checksum();
+    std::string_view dstring(reinterpret_cast<const char *>(start), reinterpret_cast<const char *>(end) + 4);
+    auto crc = cms::calculateCRC32(dstring);
 
     *end = ((*end) & ~(uint64_t(CRC_mask) << CRC_shift)) | (static_cast<uint64_t>(crc & CRC_mask) << CRC_shift);
   }
@@ -133,8 +133,8 @@ namespace amc {
       header_ = Header(payload_.data());
       trailer_ = Trailer(&payload_.back());
 
-      std::string check(reinterpret_cast<const char *>(payload_.data()), payload_.size() * 8 - 4);
-      auto crc = cms::CRC32Calculator(check).checksum();
+      std::string_view check(reinterpret_cast<const char *>(payload_.data()), payload_.size() * 8 - 4);
+      auto crc = cms::calculateCRC32(check);
 
       trailer_.check(crc, lv1, header_.getSize(), mtf7_mode);
     }
