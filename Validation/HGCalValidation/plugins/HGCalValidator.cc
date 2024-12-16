@@ -405,7 +405,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   const std::unordered_map<DetId, const unsigned int>& hitMap = *hitMapHandle;
 
   MultiVectorManager<HGCRecHit> rechitManager;
-  for (const auto &token : hits_tokens_) {
+  for (const auto& token : hits_tokens_) {
     Handle<HGCRecHitCollection> hitsHandle;
     event.getByToken(token, hitsHandle);
     rechitManager.addVector(*hitsHandle);
@@ -550,8 +550,6 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
       edm::Handle<ticl::TracksterCollection> tracksterHandle;
       event.getByToken(label_tstTokens[wml], tracksterHandle);
       const ticl::TracksterCollection& tracksters = *tracksterHandle;
-      if (tracksterHandle.id() == simTracksterHandle.id() or tracksterHandle.id() == simTracksterFromCPHandle.id())
-        continue;
       edm::Handle<TracksterToTracksterMap> trackstersToSimTrackstersMapH, simTrackstersToTrackstersMapH,
           trackstersToSimTrackstersFromCPsMapH, simTrackstersFromCPsToTrackstersMapH,
           trackstersToSimTrackstersByHitsMapH, simTrackstersToTrackstersByHitsMapH,
