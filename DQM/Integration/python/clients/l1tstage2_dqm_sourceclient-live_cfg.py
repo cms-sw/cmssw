@@ -129,6 +129,8 @@ if process.runType.getRunType() == process.runType.hi_run:
     rawDataRepackerLabel = 'rawDataRepacker'
     process.l1tStage2uGTTiming.firstBXInTrainAlgo=cms.untracked.string("L1_FirstBunchInTrain_50ns")
     process.l1tStage2uGTTiming.lastBXInTrainAlgo=cms.untracked.string("L1_LastBunchInTrain_50ns")
+    process.l1tObjectsTiming.firstBXInTrainAlgo=cms.untracked.string("L1_FirstBunchInTrain_50ns")
+    process.l1tObjectsTiming.lastBXInTrainAlgo=cms.untracked.string("L1_LastBunchInTrain_50ns")
     process.onlineMetaDataDigis.onlineMetaDataInputLabel = rawDataRepackerLabel
     process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = rawDataRepackerLabel
     process.castorDigis.InputLabel = rawDataRepackerLabel
