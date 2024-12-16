@@ -188,6 +188,16 @@ PhysicsSpecialZeroBias12Output
 PhysicsSpecialZeroBias13Output
 PhysicsSpecialZeroBias14Output
 PhysicsSpecialZeroBias15Output
+
+PhysicsVRRandom0Output   # CMSHLT-3405
+PhysicsVRRandom1Output
+PhysicsVRRandom2Output
+PhysicsVRRandom3Output
+PhysicsVRRandom4Output
+PhysicsVRRandom5Output
+PhysicsVRRandom6Output
+PhysicsVRRandom7Output
+
 RPCMONOutput
 
 ######## paths that are different between Special and online_special ################################
