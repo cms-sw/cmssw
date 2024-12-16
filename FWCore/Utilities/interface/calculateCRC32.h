@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_CRC32Calculator_h
-#define FWCore_Utilities_CRC32Calculator_h
+#ifndef FWCore_Utilities_calculateCRC32_h
+#define FWCore_Utilities_calculateCRC32_h
 
 /*
 Code to calculate a CRC32 checksum on a string.  This code is based
@@ -55,18 +55,10 @@ from the original code follow below to attribute the source.
 
 #include <cstdint>
 
-#include <string>
+#include <string_view>
 
 namespace cms {
 
-  class CRC32Calculator {
-  public:
-    CRC32Calculator(std::string const& message);
-
-    std::uint32_t checksum() { return checksum_; }
-
-  private:
-    std::uint32_t checksum_;
-  };
+  std::uint32_t calculateCRC32(std::string_view message);
 }  // namespace cms
 #endif
