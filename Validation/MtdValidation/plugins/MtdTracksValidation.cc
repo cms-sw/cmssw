@@ -749,7 +749,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             });
             // Find the first direct hit in time
             directSimClusIt = std::find_if(simClustersRefs.begin(), simClustersRefs.end(), [](const auto& simCluster) {
-              return simCluster->trackIdOffset() == 0;
+              MTDDetId mtddetid = simCluster->detIds_and_rows().front().first;
+              return (mtddetid.mtdSubDetector() == 1 && simCluster->trackIdOffset() == 0);
             });
             // Check if TP has direct or other sim cluster for BTL
             for (const auto& simClusterRef : simClustersRefs) {
