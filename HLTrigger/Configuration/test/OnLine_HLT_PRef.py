@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_14_1_0/PRef --full --data --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
+# hltGetConfiguration /dev/CMSSW_14_2_0/PRef --full --data --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_14_1_0/PRef/V50 (CMSSW_14_1_1)
+# /dev/CMSSW_14_2_0/PRef/V10 (CMSSW_14_2_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTPRef" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_1_0/PRef/V50")
+  tableName = cms.string("/dev/CMSSW_14_2_0/PRef/V10")
 )
 
 process.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -5744,6 +5744,7 @@ process.hltPixelVerticesSoA = cms.EDProducer( "PixelVertexProducerAlpakaPhase1@a
     eps = cms.double( 0.07 ),
     errmax = cms.double( 0.01 ),
     chi2max = cms.double( 9.0 ),
+    maxVertices = cms.int32( 256 ),
     PtMin = cms.double( 0.5 ),
     PtMax = cms.double( 75.0 ),
     pixelTrackSrc = cms.InputTag( "hltPixelTracksSoA" ),
@@ -5818,6 +5819,7 @@ process.hltPixelVerticesSoASerialSync = cms.EDProducer( "alpaka_serial_sync::Pix
     eps = cms.double( 0.07 ),
     errmax = cms.double( 0.01 ),
     chi2max = cms.double( 9.0 ),
+    maxVertices = cms.int32( 256 ),
     PtMin = cms.double( 0.5 ),
     PtMax = cms.double( 75.0 ),
     pixelTrackSrc = cms.InputTag( "hltPixelTracksSoASerialSync" )
@@ -8179,6 +8181,7 @@ process.hltIter3IterL3FromL1MuonPixelClusterCheck = cms.EDProducer( "ClusterChec
     MaxNumberOfPixelClusters = cms.uint32( 40000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
     cut = cms.string( "" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltIter3IterL3FromL1MuonPixelHitDoublets = cms.EDProducer( "HitPairEDProducer",
@@ -8980,6 +8983,7 @@ process.hltDoubletRecoveryPFlowPixelClusterCheck = cms.EDProducer( "ClusterCheck
     MaxNumberOfPixelClusters = cms.uint32( 40000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
     cut = cms.string( "" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 process.hltDoubletRecoveryPFlowPixelHitDoublets = cms.EDProducer( "HitPairEDProducer",
@@ -12172,7 +12176,8 @@ process.hltElePixelSeedsTriplets = cms.EDProducer( "SeedCreatorFromRegionConsecu
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
 )
 process.hltElePixelSeedsCombined = cms.EDProducer( "SeedCombiner",
-    seedCollections = cms.VInputTag( 'hltElePixelSeedsDoublets','hltElePixelSeedsTriplets' )
+    seedCollections = cms.VInputTag( 'hltElePixelSeedsDoublets','hltElePixelSeedsTriplets' ),
+    clusterRemovalInfos = cms.VInputTag(  )
 )
 process.hltEgammaElectronPixelSeeds = cms.EDProducer( "ElectronNHitSeedProducer",
     initialSeeds = cms.InputTag( "hltElePixelSeedsCombined" ),
@@ -17043,6 +17048,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltL3NoFiltersNoVtxMuonCandidates_*_*',
       'keep *_hltMergedTracks_*_*',
       'keep *_hltOnlineBeamSpot_*_*',
+      'keep *_hltParticleNetDiscriminatorsJetTags_*_*',
       'keep *_hltPixelTracks_*_*',
       'keep *_hltPixelVertices_*_*',
       'keep *_hltSiPixelClusters_*_*',
@@ -17096,10 +17102,6 @@ process.hltOutputDQMGPUvsCPU = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_DQMGPUvsCPU' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *Cluster*_hltSiPixelClustersSerialSync_*_*',
-      'keep *Cluster*_hltSiPixelClusters_*_*',
-      'keep *RecHit*_hltSiPixelRecHitsSerialSync_*_*',
-      'keep *RecHit*_hltSiPixelRecHits_*_*',
       'keep *_hltEcalDigisSerialSync_*_*',
       'keep *_hltEcalDigis_*_*',
       'keep *_hltEcalUncalibRecHitSerialSync_*_*',
@@ -17108,10 +17110,6 @@ process.hltOutputDQMGPUvsCPU = cms.OutputModule( "PoolOutputModule",
       'keep *_hltHbhereco_*_*',
       'keep *_hltParticleFlowClusterHCALSerialSync_*_*',
       'keep *_hltParticleFlowClusterHCAL_*_*',
-      'keep *_hltPixelTracksSerialSync_*_*',
-      'keep *_hltPixelTracks_*_*',
-      'keep *_hltPixelVerticesSerialSync_*_*',
-      'keep *_hltPixelVertices_*_*',
       'keep *_hltSiPixelDigiErrorsSerialSync_*_*',
       'keep *_hltSiPixelDigiErrors_*_*' )
 )
