@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTDoFullUnpackingEgammaEcalL1SeededSequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaL1SeededSequence_cfi import *
@@ -12,21 +11,14 @@ from ..sequences.HLTGsfElectronL1SeededSequence_cfi import *
 from ..sequences.HLTAK4PFJetsReconstruction_cfi import *
 from ..sequences.HLTPFTauHPS_cfi import *
 from ..sequences.HLTHPSDeepTauPFTauSequence_cfi import *
-
-#from ..sequences.RawToDigiSequence_cfi import *  ## CHANGED TO FILE BELOW
 from ..sequences.HLTRawToDigiSequence_cfi import *
-
-#from ..sequences.hgcalLocalRecoSequence_cfi import * ## CHANGED TO FILE BELOW
 from ..sequences.HLTHgcalLocalRecoSequence_cfi import *
-
-#from ..sequences.localrecoSequence_cfi import * ## CHANGED TO FILE BELOW
 from ..sequences.HLTLocalrecoSequence_cfi import *
-
 from ..sequences.HLTTrackingV61Sequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
 from ..sequences.HLTParticleFlowSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
-from ..modules.hltPuppiTauTkIsoEle4522L1TkFilter_cfi import *
+from ..modules.hltPuppiTauTkIsoEle45_22L1TkFilter_cfi import *
 from ..modules.hltEgammaCandidatesL1Seeded_cfi import *
 from ..modules.hltEgammaCandidatesWrapperL1Seeded_cfi import *
 from ..modules.hltEgammaClusterShapeL1Seeded_cfi import *
@@ -57,20 +49,8 @@ from ..modules.hltEgammaEleGsfTrackIsoV6L1Seeded_cfi import *
 from ..modules.hltEle32WPTightGsfTrackIsoL1SeededFilter_cfi import hltEle32WPTightGsfTrackIsoL1SeededFilter as _hltEle32WPTightGsfTrackIsoL1SeededFilter
 from ..modules.hltAK4PFJetsForTaus_cfi import *
 from ..modules.hltHpsSelectedPFTauLooseTauWPDeepTau_cfi import * 
-from ..modules.hltHpsPFTau30LooseTauWPDeepTau_cfi import * ## NEW (with threshold different from youngwan)
-from ..modules.hltAK4PFJets_cfi import *
+from ..modules.hltHpsPFTau30LooseTauWPDeepTau_cfi import *
 
-
-
-
-#hltEG30EtL1SeededFilter = _hltEG32EtL1SeededFilter.clone(
-#    etcutEB = cms.double(30.0), 
-#    etcutEE = cms.double(30.0), 
-#    inputTag = cms.InputTag("hltEgammaCandidatesWrapperL1Seeded"),
-#    l1EGCand = cms.InputTag("hltEgammaCandidatesL1Seeded"),
-#    ncandcut = cms.int32(1),
-#    saveTags = cms.bool(True)
-#)
 
 hltEle30WPTightClusterShapeL1SeededFilter = _hltEle32WPTightClusterShapeL1SeededFilter.clone(
     absEtaLowEdges = cms.vdouble(0.0, 1.479),
@@ -550,17 +530,10 @@ hltEle30WPTightGsfTrackIsoL1SeededFilter = _hltEle32WPTightGsfTrackIsoL1SeededFi
 
 HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1 = cms.Path( 
     HLTBeginSequence +
-    hltPuppiTauTkIsoEle4522L1TkFilter +
-
-    #RawToDigiSequence +
+    hltPuppiTauTkIsoEle45_22L1TkFilter +
     HLTRawToDigiSequence +
-    
-    #hgcalLocalRecoSequence +
     HLTHgcalLocalRecoSequence +
-    
-    #localrecoSequence +
     HLTLocalrecoSequence +
-    
     HLTDoFullUnpackingEgammaEcalL1SeededSequence +
     HLTPFClusteringForEgammaL1SeededSequence +
     HLTHgcalTiclPFClusteringForEgammaL1SeededSequence +
