@@ -568,6 +568,7 @@ unsigned int CaloSD::findBoundaryCrossingParent(const G4Track* track, bool markA
 #endif
     boundaryCrossingParentMap_[id] = id;
     trkInfo->setStoreTrack();
+    trkInfo->setIdLastStoredAncestor(id);
     return id;
   }
   // Else, traverse the history of the track
@@ -676,6 +677,7 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep, const G4Track* theTrack, in
 #endif
       if (etrack >= energyCut || forceSave) {
         trkInfo->setStoreTrack();
+        trkInfo->setIdLastStoredAncestor(theTrack->GetTrackID());
       }
     } else {
       TrackWithHistory* trkh = tkMap[currentID[k].trackID()];
