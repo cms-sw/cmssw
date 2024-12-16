@@ -56,7 +56,7 @@ private:
 
   HGCalUnpacker unpacker_;
 
-  const bool fixCalibChannel_;
+  const bool doSerial_;
 };
 
 HGCalRawToDigi::HGCalRawToDigi(const edm::ParameterSet& iConfig)
@@ -66,7 +66,8 @@ HGCalRawToDigi::HGCalRawToDigi(const edm::ParameterSet& iConfig)
       cellIndexToken_(esConsumes()),
       moduleIndexToken_(esConsumes()),
       configToken_(esConsumes()),
-      fixCalibChannel_(iConfig.getParameter<bool>("fixCalibChannel")) {}
+      doSerial_(iConfig.getParameter<bool>("doSerial")) {}
+
 
 void HGCalRawToDigi::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   // TODO @hqucms
@@ -75,9 +76,9 @@ void HGCalRawToDigi::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
 
 void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // retrieve logical mapping
-  auto moduleIndexer = iSetup.getData(moduleIndexToken_);
-  auto cellIndexer = iSetup.getData(cellIndexToken_);
-  auto config = iSetup.getData(configToken_);
+  const auto& moduleIndexer = iSetup.getData(moduleIndexToken_);
+  const auto& cellIndexer = iSetup.getData(cellIndexToken_);
+  const auto& config = iSetup.getData(configToken_);
 
   hgcaldigi::HGCalDigiHost digis(moduleIndexer.getMaxDataSize(), cms::alpakatools::host());
   hgcaldigi::HGCalECONDPacketInfoHost econdPacketInfo(moduleIndexer.getMaxModuleSize(), cms::alpakatools::host());
@@ -88,24 +89,29 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   for (int32_t i = 0; i < digis.view().metadata().size(); i++) {
     digis.view()[i].flags() = hgcal::DIGI_FLAG::NotAvailable;
   }
-  // TODO: comparing timing of multithread and FED-level parrallelization
-  // for (unsigned fedId = 0; fedId < moduleIndexer.fedCount(); ++fedId) {
-  //   const auto& fed_data = raw_data.FEDData(fedId);
-  //   if (fed_data.size() == 0)
-  //     continue;
-  //   unpacker_.parseFEDData(fedId, fed_data, moduleIndexer, config, digis, econdPacketInfo, /*headerOnlyMode*/ false);
-  // }
 
-  //Parallelization
-  oneapi::tbb::this_task_arena::isolate([&]() {
-    oneapi::tbb::parallel_for(0U, moduleIndexer.fedCount(), [&](unsigned fedId) {
+  //serial unpacking calls
+  if(doSerial_) {
+    for (unsigned fedId = 0; fedId < moduleIndexer.fedCount(); ++fedId) {
       const auto& fed_data = raw_data.FEDData(fedId);
       if (fed_data.size() == 0)
-        return;
+        continue;
       unpacker_.parseFEDData(fedId, fed_data, moduleIndexer, config, digis, econdPacketInfo, /*headerOnlyMode*/ false);
-      return;
+    }
+  }
+  //parallel unpacking calls
+  else {
+    oneapi::tbb::this_task_arena::isolate([&]() {
+      oneapi::tbb::parallel_for(0U, moduleIndexer.fedCount(), [&](unsigned fedId) {
+        const auto& fed_data = raw_data.FEDData(fedId);
+        if (fed_data.size() == 0)
+          return;
+        unpacker_.parseFEDData(fedId, fed_data, moduleIndexer, config, digis, econdPacketInfo, /*headerOnlyMode*/ false);
+        return;
+      });
     });
-  });
+  }
+  
   // put information to the event
   iEvent.emplace(digisToken_, std::move(digis));
   iEvent.emplace(econdPacketInfoToken_, std::move(econdPacketInfo));
@@ -116,8 +122,7 @@ void HGCalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("rawDataCollector"));
   desc.add<std::vector<unsigned int> >("fedIds", {});
-  desc.add<bool>("fixCalibChannel", true)
-      ->setComment("FIXME: always treat calib channels in characterization mode; to be fixed in ROCv3b");
+  desc.add<bool>("doSerial",true)->setComment("do not attempt to paralleize unpacking of different FEDs");
   descriptions.add("hgcalDigis", desc);
 }
 
