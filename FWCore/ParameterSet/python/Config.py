@@ -52,7 +52,7 @@ def checkImportPermission(minLevel: int = 2, allowedPatterns = []):
     import os
 
     ignorePatterns = ['FWCore/ParameterSet/Config.py', 'FWCore/ParameterSet/python/Config.py','<string>','<frozen ']
-    CMSSWPath = [os.environ['CMSSW_BASE'],os.environ['CMSSW_RELEASE_BASE']]
+    CMSSWPath = [os.getenv(base) for base in ['CMSSW_BASE', 'CMSSW_RELEASE_BASE', 'CMSSW_FULL_RELEASE_BASE'] if os.getenv(base, '')]
 
     # Filter the stack to things in CMSSWPath and not in ignorePatterns
     trueStack = []
