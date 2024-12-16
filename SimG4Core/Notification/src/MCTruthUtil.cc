@@ -1,4 +1,4 @@
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 #include "SimG4Core/Notification/interface/MCTruthUtil.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -28,7 +28,6 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
     trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
     trkInfo->setGenParticleP(aTrack->GetMomentum().mag());
     trkInfo->setMCTruthID(aTrack->GetTrackID());
-    trkInfo->setIdLastStoredAncestor(aTrack->GetTrackID());
   } else {
     // secondary
     trkInfo->setGenParticlePID(motherInfo->genParticlePID());
