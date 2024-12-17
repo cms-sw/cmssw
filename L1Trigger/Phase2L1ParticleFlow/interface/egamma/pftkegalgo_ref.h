@@ -210,8 +210,7 @@ namespace l1ct {
                                        const std::vector<TkObjEmu> &track,
                                        const PFTkEGAlgoEmuConfig::CompIDParameters &params) const;
 
-    id_score_t compute_composite_score_eb(const PFRegionEmu &r,
-                                          CompositeCandidate &cand,
+    id_score_t compute_composite_score_eb(CompositeCandidate &cand,
                                           float sumTkPt,
                                           unsigned int nTkMatch,
                                           const std::vector<EmCaloObjEmu> &emcalo,

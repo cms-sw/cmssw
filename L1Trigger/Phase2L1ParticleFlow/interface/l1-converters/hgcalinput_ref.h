@@ -20,7 +20,10 @@ namespace l1ct {
                                 const std::vector<double> &wp_Pi,
                                 const std::vector<double> &wp_EgEm,
                                 const std::vector<double> &wp_PFEm,
-                                bool slim = false);
+                                bool slim = false,
+                                const std::string &corrector = "",
+                                float correctorEmfMax = -1,
+                                const std::string &emInterpScenario = "no");
     HgcalClusterDecoderEmulator(const edm::ParameterSet &pset);
 
     class MultiClassID {
@@ -51,6 +54,8 @@ namespace l1ct {
       conifer::BDT<bdt_feature_t, bdt_score_t, false> *multiclass_bdt_;
     };
 
+    enum class UseEmInterp { No, EmOnly, AllKeepHad, AllKeepTot };
+
     ~HgcalClusterDecoderEmulator();
 
     static edm::ParameterSetDescription getParameterSetDescription();
@@ -58,9 +63,11 @@ namespace l1ct {
     l1ct::HadCaloObjEmu decode(const l1ct::PFRegionEmu &sector, const ap_uint<256> &in, bool &valid) const;
 
   private:
+    UseEmInterp setEmInterpScenario(const std::string &emInterpScenario);
     bool slim_;
     l1ct::HgcalClusterDecoderEmulator::MultiClassID multiclass_id_;
-    l1tpf::corrector corrector_;  // FIXME: need to work outside of CMSSW as well: emulator version
+    l1tpf::corrector corrector_;  // FIXME: need to use it in "emulator" mode to be used in firmware testbench
+    UseEmInterp emInterpScenario_;
   };
 }  // namespace l1ct
 

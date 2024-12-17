@@ -719,11 +719,19 @@ void L1TCorrelatorLayer1Producer::rawHgcalClusterEncode(ap_uint<256> &cwrd,
 
   // implemented as of interface document (version of 15/11/2025)
   ap_ufixed<14, 12, AP_RND_CONV, AP_SAT> w_pt = c->pt();
-  // FIXME: We use iPt here for now despite it not being consistent with the interface document and the fraction below
+  // NOTE: We use iPt here for now despite final HGC FW implementation might be different
   ap_ufixed<14, 12, AP_RND_CONV, AP_SAT> w_empt = c->iPt(l1t::HGCalMulticluster::EnergyInterpretation::EM);
-  // FIXME: this number is not consistent with the iPt interpretation but this is what the multiclass model
-  // uses in input
-  ap_uint<8> w_emfrac = round(c->eot() * 256);
+  
+  // NOTE: this number is not consistent with the iPt interpretation nor with hoe.
+  // hoe uses the total cluster em and had energies while eot computed in the showershapes only accounts for a 
+  // a max radius from the cluster center. This is the value used by the ID models
+  ap_uint<8> w_emfrac = std::min(round(c->eot() * 256), float(255.));
+
+  // NOTE II: we compute a second eot value to propagate the value of the total hadronic energy as in 
+  // the hoe computation
+  float em_frac_tot = c->hOverE() < 0 ? 0. : 1./(c->hOverE()+1.);
+  ap_uint<8> w_emfrac_tot = std::min(round(em_frac_tot * 256), float(255.));
+
 
   constexpr float ETAPHI_LSB = M_PI / 720;
   constexpr float SIGMAZZ_LSB = 778.098 / (1 << 7);
@@ -747,7 +755,9 @@ void L1TCorrelatorLayer1Producer::rawHgcalClusterEncode(ap_uint<256> &cwrd,
   // Word 0
   cwrd(13, 0) = w_pt.range();     // 14 bits: 13-0
   cwrd(27, 14) = w_empt.range();  // 14 bits: 27-14
-  cwrd(39, 32) = w_emfrac;        //  8 bits: 39-32
+  cwrd(39, 32) = w_emfrac_tot;        //  8 bits: 39-32
+  cwrd(47, 40) = w_emfrac;        //  8 bits: 47-40
+  
   // Word 1
   cwrd(64 + 9, 64 + 0) = w_eta;              // 10 bits: 9-0
   cwrd(64 + 18, 64 + 10) = w_phi;            //  9 bits: 18-10
