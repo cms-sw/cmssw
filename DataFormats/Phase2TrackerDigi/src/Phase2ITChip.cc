@@ -6,12 +6,12 @@
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITChip.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITDigiHit.h"
 
-Phase2ITChip::Phase2ITChip(int rocnum, std::vector<Phase2ITDigiHit> hl) {
-  hitList = hl;
+Phase2ITChip::Phase2ITChip(int rocnum, const std::vector<Phase2ITDigiHit> hl) {
+  hitList_ = hl;
   rocnum_ = rocnum;
 }
 
-unsigned int Phase2ITChip::size() { return hitList.size(); }
+unsigned int Phase2ITChip::size() { return hitList_.size(); }
 
 //Returns the position (row,col) of the 4x4 QCores that contains a hit
 std::pair<int, int> Phase2ITChip::get_QCore_pos(Phase2ITDigiHit hit) {
@@ -25,7 +25,7 @@ Phase2ITQCore Phase2ITChip::get_QCore_from_hit(Phase2ITDigiHit pixel) {
   std::vector<int> adcs(16, 0), hits(16, 0);
   std::pair<int, int> pos = get_QCore_pos(pixel);
 
-  for (const auto& hit : hitList) {
+  for (const auto& hit : hitList_) {
     if (get_QCore_pos(hit) == pos) {
       int i = (4 * (hit.row() % 4) + (hit.col() % 4) + 8) % 16;
       adcs[i] = hit.adc();
@@ -103,7 +103,7 @@ std::vector<Phase2ITQCore> link_QCores(std::vector<Phase2ITQCore> qcores) {
 std::vector<Phase2ITQCore> Phase2ITChip::get_organized_QCores() {
   std::vector<Phase2ITQCore> qcores = {};
 
-  for (const auto& hit : hitList) {
+  for (const auto& hit : hitList_) {
     qcores.push_back(get_QCore_from_hit(hit));
   }
 
@@ -114,7 +114,7 @@ std::vector<Phase2ITQCore> Phase2ITChip::get_organized_QCores() {
 std::vector<bool> Phase2ITChip::get_chip_code() {
   std::vector<bool> code = {};
 
-  if (hitList.size() > 0) {
+  if (hitList_.size() > 0) {
     std::vector<Phase2ITQCore> qcores = get_organized_QCores();
     bool is_new_col = true;
 

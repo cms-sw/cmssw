@@ -8,11 +8,9 @@
 
 class Phase2ITChip {
   // Quarter cores collected into a chip (only active quarter cores with hits gets collected)
-  std::vector<Phase2ITDigiHit> hitList;
-  int rocnum_;
 
 public:
-  Phase2ITChip(int rocnum, std::vector<Phase2ITDigiHit> hl);
+  Phase2ITChip(int rocnum, const std::vector<Phase2ITDigiHit> hl);
 
   unsigned int size();
   int rocnum() const { return rocnum_; }
@@ -21,6 +19,9 @@ public:
   std::vector<bool> get_chip_code();
 
 private:
+  std::vector<Phase2ITDigiHit> hitList_;
+  int rocnum_;
+
   std::pair<int, int> get_QCore_pos(Phase2ITDigiHit hit);
 
   Phase2ITQCore get_QCore_from_hit(Phase2ITDigiHit pixel);
