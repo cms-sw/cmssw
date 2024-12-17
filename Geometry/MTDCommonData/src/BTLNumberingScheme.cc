@@ -47,60 +47,8 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
 
     if (baseNumber.getLevelName(0).find("Timingactive") != std::string_view::npos) {
-      crystal = baseNumber.getCopyNumber(0);
-
-      modCopy = baseNumber.getCopyNumber(2);
-      rodCopy = baseNumber.getCopyNumber(3);
-
-      const std::string_view& modName(baseNumber.getLevelName(2));  // name of module volume
-      uint32_t pos = modName.find("Positive");
-
-      zside = (pos <= modName.size() ? 1 : 0);
-      std::string_view baseName = modName.substr(modName.find(':') + 1);
-
-      modtyp = ::atoi(&baseName.at(7));
-      if (modtyp == 17) {
-        modtyp = 2;
-      } else if (modtyp == 33) {
-        modtyp = 3;
-      }
-
-      // error checking
-
-      if (1 > crystal || 64 < crystal) {
-        edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                   << "****************** Bad crystal number = " << crystal
-                                   << ", Volume Number = " << baseNumber.getCopyNumber(0);
-        return 0;
-      }
-
-      if (1 > modtyp || 3 < modtyp) {
-        edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                   << "****************** Bad module name = " << modName
-                                   << ", Volume Name = " << baseNumber.getLevelName(2);
-        return 0;
-      }
-
-      if (1 > modCopy || 54 < modCopy) {
-        edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                   << "****************** Bad module copy = " << modCopy
-                                   << ", Volume Number = " << baseNumber.getCopyNumber(2);
-        return 0;
-      }
-
-      if (1 > rodCopy || 36 < rodCopy) {
-        edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                   << "****************** Bad rod copy = " << rodCopy
-                                   << ", Volume Number = " << baseNumber.getCopyNumber(4);
-        return 0;
-      }
-
-      if (1 < zside) {
-        edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                   << "****************** Bad side = " << zside
-                                   << ", Volume Name = " << baseNumber.getLevelName(2);
-        return 0;
-      }
+      edm::LogError("MTDGeom") << "Geometry v1 of BTL not supported, run on a Geometry configuration D95 or latest ";
+      throw cms::Exception("Configuration") << "Invalid BTL Geometry configuration (v1)";
     } else if (baseNumber.getLevelName(0).find("BTLCrystal") != std::string_view::npos) {
       // v2 or v3 scenario
 
@@ -113,8 +61,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
       rodCopy = baseNumber.getCopyNumber(3) - 1;
       
       // RU, global module and crystal copy numbers
-      // (make everything start from 0)
-
+      // (everything start from 0)
       // V3: RU number is global RU number
       runitCopy = baseNumber.getCopyNumber(2) - 1;
       // V2: the type is embedded in crystal name and RU number is by type
@@ -208,8 +155,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
     rodCopy = baseNumber.getCopyNumber(2) - 1;
 
     // RU, and global module copy numbers
-    // (make everything start from 0)
-
+    // (everything start from 0)
     // V3: RU number is global RU number
     runitCopy = baseNumber.getCopyNumber(1) - 1;
     // V2: the type is embedded in crystal name and RU number is by type
