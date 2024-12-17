@@ -1,6 +1,8 @@
 #ifndef SimG4CMSForward_MtdHitCategory_h
 #define SimG4CMSForward_MtdHitCategory_h
 
+#include <algorithm>
+
 namespace MtdHitCategory {
   static constexpr unsigned int k_idsecOffset = 1;
   static constexpr unsigned int k_idloopOffset = 2;
