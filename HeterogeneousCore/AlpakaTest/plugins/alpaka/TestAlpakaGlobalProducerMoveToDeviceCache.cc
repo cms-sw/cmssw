@@ -73,7 +73,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // implementation of the algorithm
     TestAlgo algo_;
 
-    cms::alpakatools::MoveToDeviceCache<Queue, PortableHostObject<TestAlgo::UpdateInfo>> deviceCache_;
+    cms::alpakatools::MoveToDeviceCache<Device, PortableHostObject<TestAlgo::UpdateInfo>> deviceCache_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
