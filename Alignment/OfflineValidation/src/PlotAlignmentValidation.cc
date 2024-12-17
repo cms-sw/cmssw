@@ -857,7 +857,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable,
     }
 
     // Skip strip detectors if plotting any "Y" variable
-    if (i != 1 && i != 2 && variable.length() > 0 && variable[variable.length() - 1] == 'Y') {
+    if (i != 1 && i != 2 && !variable.empty() && variable[variable.length() - 1] == 'Y') {
       continue;
     }
 
@@ -2261,7 +2261,7 @@ double PlotAlignmentValidation::resampleTestOfEqualRMS(TH1F* h1, TH1F* h2, int n
   std::vector<double> diff;
   diff.clear();
   //"true" (in bootstrap terms) difference of the samples' RMS
-  double rmsdiff = abs(h1->GetRMS() - h2->GetRMS());
+  double rmsdiff = std::abs(h1->GetRMS() - h2->GetRMS());
   //means of the samples to calculate RMS
   double m1 = h1->GetMean();
   double m2 = h2->GetMean();
@@ -2281,8 +2281,8 @@ double PlotAlignmentValidation::resampleTestOfEqualRMS(TH1F* h1, TH1F* h2, int n
     }
     d1 /= h1->GetEntries();
     d2 /= h2->GetEntries();
-    diff.push_back(abs(d1 - d2 - rmsdiff));
-    test_mean += abs(d1 - d2 - rmsdiff);
+    diff.push_back(std::abs(d1 - d2 - rmsdiff));
+    test_mean += std::abs(d1 - d2 - rmsdiff);
   }
   test_mean /= numSamples;
   edm::LogPrint("") << "test mean:" << test_mean;
@@ -2309,7 +2309,7 @@ double PlotAlignmentValidation::resampleTestOfEqualMeans(TH1F* h1, TH1F* h2, int
   std::vector<double> diff;
   diff.clear();
   //"true" (in bootstrap terms) difference of the samples' means
-  double meandiff = abs(h1->GetMean() - h2->GetMean());
+  double meandiff = std::abs(h1->GetMean() - h2->GetMean());
   //realization of random variable
   double d1 = 0;
   double d2 = 0;
@@ -2326,8 +2326,8 @@ double PlotAlignmentValidation::resampleTestOfEqualMeans(TH1F* h1, TH1F* h2, int
     }
     d1 /= h1->GetEntries();
     d2 /= h2->GetEntries();
-    diff.push_back(abs(d1 - d2 - meandiff));
-    test_mean += abs(d1 - d2 - meandiff);
+    diff.push_back(std::abs(d1 - d2 - meandiff));
+    test_mean += std::abs(d1 - d2 - meandiff);
   }
   test_mean /= numSamples;
   edm::LogPrint("") << "test mean:" << test_mean;
@@ -2344,7 +2344,7 @@ double PlotAlignmentValidation::resampleTestOfEqualMeans(TH1F* h1, TH1F* h2, int
 }
 
 float PlotAlignmentValidation::twotailedStudentTTestEqualMean(float t, float v) {
-  return 2 * (1 - ROOT::Math::tdistribution_cdf(abs(t), v));
+  return 2 * (1 - ROOT::Math::tdistribution_cdf(std::abs(t), v));
 }
 
 const TString PlotAlignmentValidation::summaryfilename = "OfflineValidationSummary";
