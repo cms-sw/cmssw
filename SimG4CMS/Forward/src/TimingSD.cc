@@ -51,7 +51,8 @@ TimingSD::TimingSD(const std::string& name, const SensitiveDetectorCatalog& clg,
       tSliceID(-1),
       timeFactor(1.0),
       energyCut(1.e+9),
-      energyHistoryCut(1.e+9) {
+      energyHistoryCut(1.e+9),
+      hitClassID(0) {
   slave = new TrackingSlaveSD(name);
   theEnumerator = new G4ProcessTypeEnumerator();
 }

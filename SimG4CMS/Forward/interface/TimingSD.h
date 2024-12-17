@@ -68,8 +68,6 @@ protected:
   // general method to determine classification of hit based on its properties
   virtual void setHitClassID(const G4Step*);
 
-  unsigned int hitClassID;
-
 private:
   void getStepInfo(const G4Step*);
   bool hitExists(const G4Step*);
@@ -111,6 +109,9 @@ private:
   float tof;              // ns
   float edeposit;
   float edepositEM, edepositHAD;
+
+protected:
+  unsigned int hitClassID;
 };
 
 #endif
