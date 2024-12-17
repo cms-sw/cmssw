@@ -23,6 +23,7 @@
 <use name="Geometry/HcalCommonData"/>
 <use name="Geometry/MTDGeometryBuilder"/>
 <use name="Geometry/MTDNumberingBuilder"/>
+<use name="SimG4CMS/Forward"/>
 
 <library file="*.cc" name="SimGeneralCaloAnalysisPlugins">
   <flags EDM_PLUGIN="1"/>
