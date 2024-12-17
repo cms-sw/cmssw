@@ -177,8 +177,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
 
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestDeviceCollection::ConstView input,
                                   TestAlgo::UpdateInfo const* updateInfo,
                                   portabletest::TestDeviceCollection::View output) const {
@@ -228,8 +227,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
 
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestSoA::ConstView input,
                                   portabletest::TestSoA2::ConstView input2,
                                   TestAlgo::UpdateInfo const* updateInfo,
@@ -299,8 +297,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
 
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestSoA::ConstView input,
                                   portabletest::TestSoA2::ConstView input2,
                                   portabletest::TestSoA3::ConstView input3,
