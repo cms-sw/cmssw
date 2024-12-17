@@ -4,6 +4,10 @@
 <test name="test-clang-tidy" command="test-clang-tidy.sh">
   <use name="llvm"/>
 </test>
+<test name="test-scram-code-checks" command="test-scram-code-checks.sh">
+  <use name="cmssw-config"/>
+  <use name="llvm"/>
+</test>
 <ifrelease name="!ASAN">
   <test name="TestValgrind" command="test-valgrind.sh">
     <flags PRE_TEST="test-valgrind-memleak"/>
