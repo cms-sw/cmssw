@@ -9,20 +9,20 @@ Phase2ITQCore::Phase2ITQCore(int rocid,
                              int qcrow_in,
                              bool isneighbour_in,
                              bool islast_in,
-                             std::vector<int> adcs_in,
-                             std::vector<int> hits_in) {
+                             const std::vector<int>& adcs_in,
+                             const std::vector<int>& hits_in) {
   rocid_ = rocid;
-  ccol = ccol_in;
-  qcrow = qcrow_in;
+  ccol_ = ccol_in;
+  qcrow_ = qcrow_in;
   isneighbour_ = isneighbour_in;
   islast_ = islast_in;
-  adcs = adcs_in;
-  hits = hits_in;
+  adcs_ = adcs_in;
+  hits_ = hits_in;
 }
 
 //Takes a hitmap in sensor coordinates in 4x4 and converts it to readout chip coordinates with 2x8
 std::vector<bool> Phase2ITQCore::toRocCoordinates(std::vector<bool>& hitmap) {
-  std::vector<bool> ROC_hitmap(16, 0);
+  std::vector<bool> ROC_hitmap(16, false);
 
   for (size_t i = 0; i < hitmap.size(); i++) {
     int row = std::floor(i / 4);
@@ -49,7 +49,7 @@ std::vector<bool> Phase2ITQCore::toRocCoordinates(std::vector<bool>& hitmap) {
 std::vector<bool> Phase2ITQCore::getHitmap() {
   std::vector<bool> hitmap = {};
 
-  for (auto hit : hits) {
+  for (auto hit : hits_) {
     hitmap.push_back(hit > 0);
   }
 
@@ -59,7 +59,7 @@ std::vector<bool> Phase2ITQCore::getHitmap() {
 std::vector<int> Phase2ITQCore::getADCs() {
   std::vector<int> adcmap = {};
 
-  for (auto adc : adcs) {
+  for (auto adc : adcs_) {
     adcmap.push_back(adc);
   }
 
@@ -68,16 +68,11 @@ std::vector<int> Phase2ITQCore::getADCs() {
 
 //Converts an integer into a binary, and formats it with the given length
 std::vector<bool> Phase2ITQCore::intToBinary(int num, int length) {
-  int n = num;
-  std::vector<bool> bi_num(length, 0);
+  std::vector<bool> bi_num(length, false);
 
-  for (int i = length; i > 0; i--) {
-    if (n >= pow(2, i - 1)) {
-      bi_num[length - i] = 1;
-      n -= pow(2, i - 1);
-    } else {
-      bi_num[length - i] = 0;
-    }
+  for (int i = 0; i < length; ++i) {
+    // Extract the (length - 1 - i)th bit from num
+    bi_num[i] = (num >> (length - 1 - i)) & 1;
   }
 
   return bi_num;
@@ -111,8 +106,8 @@ std::vector<bool> Phase2ITQCore::getHitmapCode(std::vector<bool> hitmap) {
   bool hit_right = containsHit(right_hitmap);
 
   if (hit_left && hit_right) {
-    code.push_back(1);
-    code.push_back(1);
+    code.push_back(true);
+    code.push_back(true);
 
     std::vector<bool> left_code = getHitmapCode(left_hitmap);
     std::vector<bool> right_code = getHitmapCode(right_hitmap);
@@ -122,14 +117,14 @@ std::vector<bool> Phase2ITQCore::getHitmapCode(std::vector<bool> hitmap) {
 
   } else if (hit_right) {
     //Huffman encoding compresses 01 into 0
-    code.push_back(0);
+    code.push_back(false);
 
     std::vector<bool> right_code = getHitmapCode(right_hitmap);
     code.insert(code.end(), right_code.begin(), right_code.end());
 
   } else if (hit_left) {
-    code.push_back(1);
-    code.push_back(0);
+    code.push_back(true);
+    code.push_back(false);
 
     std::vector<bool> left_code = getHitmapCode(left_hitmap);
     code.insert(code.end(), left_code.begin(), left_code.end());
@@ -143,7 +138,7 @@ std::vector<bool> Phase2ITQCore::encodeQCore(bool is_new_col) {
   std::vector<bool> code = {};
 
   if (is_new_col) {
-    std::vector<bool> col_code = intToBinary(ccol, 6);
+    std::vector<bool> col_code = intToBinary(ccol_, 6);
     code.insert(code.end(), col_code.begin(), col_code.end());
   }
 
@@ -151,14 +146,14 @@ std::vector<bool> Phase2ITQCore::encodeQCore(bool is_new_col) {
   code.push_back(isneighbour_);
 
   if (!isneighbour_) {
-    std::vector<bool> row_code = intToBinary(qcrow, 8);
+    std::vector<bool> row_code = intToBinary(qcrow_, 8);
     code.insert(code.end(), row_code.begin(), row_code.end());
   }
 
   std::vector<bool> hitmap_code = getHitmapCode(getHitmap());
   code.insert(code.end(), hitmap_code.begin(), hitmap_code.end());
 
-  for (auto adc : adcs) {
+  for (auto adc : adcs_) {
     std::vector<bool> adc_code = intToBinary(adc, 4);
     code.insert(code.end(), adc_code.begin(), adc_code.end());
   }
