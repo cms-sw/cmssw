@@ -190,14 +190,14 @@ Also note that the `fillDescription()` function must have the same content for a
 While the EventSetup can be used to handle copying data to all devices
 of an Alpaka backend, for data used only by one EDProducer a simpler
 way would be to use one of
-* `cms::alpakatools::MoveToDeviceCache<TQueue, THostObject>` (recommended)
+* `cms::alpakatools::MoveToDeviceCache<TDevice, THostObject>` (recommended)
   * `#include "HeterogeneousCore/AlpakaCore/interface/MoveToDeviceCache.h"`
   * Moves the `THostObject` to all devices using `cms::alpakatools::CopyToDevice<THostObject>` synchronously. On host backends the argument `THostObject` is moved around, but not copied.
   * The `THostObject` must not be copyable
     * This is to avoid easy mistakes with objects that follow copy semantics of `std::shared_ptr` (that includes Alpaka buffers), that would allow the source memory buffer to be used via another copy during the asynchronous data copy to the device.
   * The constructor argument `THostObject` object may not be used, unless it is initialized again e.g. by assigning another `THostObject` into it.
   * The corresponding device-side object can be obtained with `get()` member function using either alpaka Device or Queue object. It can be used immediately after the constructor returns.
-* `cms::alpakatools::CopyToDeviceCache<TQueue, THostObject>` (use only if **must** use copyable `THostObject`)
+* `cms::alpakatools::CopyToDeviceCache<TDevice, THostObject>` (use only if **must** use copyable `THostObject`)
   * `#include "HeterogeneousCore/AlpakaCore/interface/CopyToDeviceCache.h"`
   * Copies the `THostObject` to all devices using `cms::alpakatools::CopyToDevice<THostObject>` synchronously. Also host backends do a copy.
   * The constructor argument `THostObject` object can be used for other purposes immediately after the constructor returns

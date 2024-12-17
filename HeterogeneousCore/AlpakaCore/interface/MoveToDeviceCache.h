@@ -17,11 +17,11 @@ namespace cms::alpakatools {
     // std::conditional_t and if constexpr) because the
     // CopyToDevice<THostObject>::copyAsync() is ill-defined e.g. for
     // PortableCollection on host device
-    template <typename TDev, typename TQueue, typename THostObject>
+    template <typename TDevice, typename THostObject>
     class MoveToDeviceCacheImpl {
     public:
       using HostObject = THostObject;
-      using Impl = CopyToDeviceCacheImpl<TDev, TQueue, THostObject>;
+      using Impl = CopyToDeviceCacheImpl<TDevice, THostObject>;
       using DeviceObject = typename Impl::DeviceObject;
 
       MoveToDeviceCacheImpl(HostObject&& srcObject) : impl_(srcObject) {}
@@ -33,8 +33,8 @@ namespace cms::alpakatools {
     };
 
     // For host device, move the host object instead
-    template <typename TQueue, typename THostObject>
-    class MoveToDeviceCacheImpl<alpaka_common::DevHost, TQueue, THostObject> {
+    template <typename THostObject>
+    class MoveToDeviceCacheImpl<alpaka_common::DevHost, THostObject> {
     public:
       using HostObject = THostObject;
       using DeviceObject = HostObject;
@@ -51,14 +51,14 @@ namespace cms::alpakatools {
   /**
    * This class template implements a cache for data that is moved
    * from the host (of type THostObject) to all the devices
-   * corresponding the TQueue queue type.
+   * corresponding to the TDevice device type.
    *
    * The host-side object to be moved is given as an argument to the
    * class constructor. The constructor uses the
    * CopyToDevice<THostObject> class template to copy the data to the
    * devices, and waits for the data copies to finish, i.e. the
    * constructor is synchronous wrt. the data copies. The "move" is
-   * achieved by requiring the constructor argument to the rvalue
+   * achieved by requiring the constructor argument to be an rvalue
    * reference.
    *
    * Note that the host object type is required to be non-copyable.
@@ -71,21 +71,14 @@ namespace cms::alpakatools {
    * type is the return type of CopyToDevice<THostObject>::copyAsync())
    * can be obtained with get() member function, that has either the
    * queue or device argument.
-   *
-   * TODO: In principle it would be better to template over Device,
-   * but then we'd need a way to have a "default queue" type for each
-   * Device in order to infer the return type of
-   * CopyToDevice::copyAsync(). Alternatively, the template over
-   * TQueue could be removed by moving the class definition to
-   * ALPAKA_ACCELERATOR_NAMESPACE.
    */
-  template <typename TQueue, typename THostObject>
+  template <typename TDevice, typename THostObject>
+    requires alpaka::isDevice<TDevice>
   class MoveToDeviceCache {
   public:
-    using Queue = TQueue;
-    using Device = alpaka::Dev<Queue>;
+    using Device = TDevice;
     using HostObject = THostObject;
-    using Impl = detail::MoveToDeviceCacheImpl<Device, Queue, HostObject>;
+    using Impl = detail::MoveToDeviceCacheImpl<Device, HostObject>;
     using DeviceObject = typename Impl::DeviceObject;
 
     static_assert(not(std::is_copy_constructible_v<HostObject> or std::is_copy_assignable_v<HostObject>),
@@ -93,12 +86,12 @@ namespace cms::alpakatools {
 
     MoveToDeviceCache(HostObject&& srcData) : data_(std::move(srcData)) {}
 
-    // TODO: I could make this function to return the contained object
-    // in case of alpaka buffer, PortableObject, or PortableCollection
-    // (in PortableCollection case it would be the View)
     DeviceObject const& get(Device const& dev) const { return data_.get(alpaka::getNativeHandle(dev)); }
 
-    DeviceObject const& get(Queue const& queue) const { return get(alpaka::getDev(queue)); }
+    template <typename TQueue>
+    DeviceObject const& get(TQueue const& queue) const {
+      return get(alpaka::getDev(queue));
+    }
 
   private:
     Impl data_;

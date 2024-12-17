@@ -74,7 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // implementation of the algorithm
     TestAlgo algo_;
 
-    cms::alpakatools::CopyToDeviceCache<Queue, cms::alpakatools::host_buffer<TestAlgo::UpdateInfo>> deviceCache_;
+    cms::alpakatools::CopyToDeviceCache<Device, cms::alpakatools::host_buffer<TestAlgo::UpdateInfo>> deviceCache_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
