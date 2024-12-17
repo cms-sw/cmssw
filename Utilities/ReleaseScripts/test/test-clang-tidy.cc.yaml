@@ -35,28 +35,28 @@ Diagnostics:
     DiagnosticMessage:
       Message:         'prefer using ''override'' or (rarely) ''final'' instead of ''virtual'''
       FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-      FileOffset:      385
+      FileOffset:      386
       Replacements:
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          377
+          Offset:          378
           Length:          8
           ReplacementText: ''
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          399
+          Offset:          400
           Length:          0
           ReplacementText: ' override'
   - DiagnosticName:  modernize-use-override
     DiagnosticMessage:
       Message:         'prefer using ''override'' or (rarely) ''final'' instead of ''virtual'''
       FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-      FileOffset:      415
+      FileOffset:      416
       Replacements:
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          403
+          Offset:          404
           Length:          8
           ReplacementText: ''
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          427
+          Offset:          428
           Length:          0
           ReplacementText: ' override'
 ...

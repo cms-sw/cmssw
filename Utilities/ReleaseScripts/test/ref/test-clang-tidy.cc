@@ -2,7 +2,7 @@ class BaseClass {
 public:
   BaseClass(int x) {
     m_x = x;
-    ch = 0;
+    ch = nullptr;
   };
   virtual ~BaseClass();
   virtual int someMethod();
@@ -13,9 +13,9 @@ protected:
 };
 
 BaseClass::~BaseClass() {
-  if (ch != 0) {
+  if (ch != nullptr) {
     delete ch;
-    ch = 0;
+    ch = nullptr;
   }
 }
 int BaseClass::someMethod() { return m_x; }
@@ -23,8 +23,8 @@ int BaseClass::someMethod() { return m_x; }
 class DrivedClass : public BaseClass {
 public:
   DrivedClass(int x) : BaseClass(x) {};
-  virtual ~DrivedClass();
-  virtual int someMethod();
+  ~DrivedClass() override;
+  int someMethod() override;
 };
 
 DrivedClass::~DrivedClass() {}
