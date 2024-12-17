@@ -68,6 +68,14 @@ uint32_t getHitTowerLocation(uint32_t* et) {
   return iAve;
 }
 
+UCTRegion::UCTRegion(const UCTRegion& otherRegion)
+    : crate(otherRegion.crate),
+      card(otherRegion.card),
+      region(otherRegion.region),
+      towers(otherRegion.towers),
+      regionSummary(otherRegion.regionSummary),
+      fwVersion(otherRegion.fwVersion) {}
+
 UCTRegion::UCTRegion(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn, int fwv)
     : crate(crt), card(crd), region(rgn), negativeEta(ne), regionSummary(0), fwVersion(fwv) {
   UCTGeometry g;
@@ -76,24 +84,17 @@ UCTRegion::UCTRegion(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn, int fwv)
   towers.clear();
   for (uint32_t iEta = 0; iEta < nEta; iEta++) {
     for (uint32_t iPhi = 0; iPhi < nPhi; iPhi++) {
-      towers.push_back(new UCTTower(crate, card, ne, region, iEta, iPhi, fwVersion));
+      towers.push_back(std::make_shared<UCTTower>(crate, card, ne, region, iEta, iPhi, fwVersion));
     }
   }
 }
 
-UCTRegion::~UCTRegion() {
-  for (uint32_t i = 0; i < towers.size(); i++) {
-    if (towers[i] != nullptr)
-      delete towers[i];
-  }
-}
-
-const UCTTower* UCTRegion::getTower(uint32_t caloEta, uint32_t caloPhi) const {
+const std::shared_ptr<UCTTower> UCTRegion::getTower(uint32_t caloEta, uint32_t caloPhi) const {
   UCTGeometry g;
   uint32_t nPhi = g.getNPhi(region);
   uint32_t iEta = g.getiEta(caloEta);
   uint32_t iPhi = g.getiPhi(caloPhi);
-  UCTTower* tower = towers[iEta * nPhi + iPhi];
+  std::shared_ptr<UCTTower> tower = towers[iEta * nPhi + iPhi];
   return tower;
 }
 
@@ -229,7 +230,7 @@ bool UCTRegion::setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET) {
   uint32_t absCaloPhi = abs(t.second);
   uint32_t iEta = g.getiEta(absCaloEta);
   uint32_t iPhi = g.getiPhi(absCaloPhi);
-  UCTTower* tower = towers[iEta * nPhi + iPhi];
+  std::shared_ptr<UCTTower> tower = towers[iEta * nPhi + iPhi];
   return tower->setECALData(ecalFG, ecalET);
 }
 
@@ -244,7 +245,7 @@ bool UCTRegion::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
     // Valid data are:
     //    absCaloEta = 30-39, 1 < absCaloPhi <= 72 (every second value)
     for (uint32_t iPhi = iPhiStart; iPhi < iPhiStart + 2; iPhi++) {  // For artificial splitting in half
-      UCTTower* tower = towers[iEta * nPhi + iPhi];
+      std::shared_ptr<UCTTower> tower = towers[iEta * nPhi + iPhi];
       // We divide by 2 in output section, after LUT
       if (!tower->setHFData(hcalFB, hcalET))
         return false;
@@ -253,14 +254,14 @@ bool UCTRegion::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
     // Valid data are:
     //    absCaloEta = 40,41, 1 < absCaloPhi <= 72 (every fourth value)
     for (uint32_t iPhi = 0; iPhi < 4; iPhi++) {  // For artificial splitting in quarter
-      UCTTower* tower = towers[iEta * nPhi + iPhi];
+      std::shared_ptr<UCTTower> tower = towers[iEta * nPhi + iPhi];
       // We divide by 4 in output section, after LUT
       if (!tower->setHFData(hcalFB, hcalET))
         return false;
     }
   } else {
     uint32_t iPhi = g.getiPhi(absCaloPhi);
-    UCTTower* tower = towers[iEta * nPhi + iPhi];
+    std::shared_ptr<UCTTower> tower = towers[iEta * nPhi + iPhi];
     return tower->setHCALData(hcalFB, hcalET);
   }
   return true;
