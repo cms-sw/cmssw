@@ -16,6 +16,8 @@
 
 #include <iostream>
 
+using namespace MtdHitCategory;
+
 //-------------------------------------------------------------------
 MtdSD::MtdSD(const std::string& name,
              const SensitiveDetectorCatalog& clg,
