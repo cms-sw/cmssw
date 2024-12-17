@@ -3,7 +3,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step3 --conditions auto:phase2_realistic_T21 -s RAW2DIGI,L1Reco,RECO,RECOSIM,VALIDATION:@phase2Validation,DQM:@phase2 --datatier DQMIO -n 10 --geometry Extended2026D98 --era Phase2C11M9 --eventcontent DQM --no_exec
+# with command line options: step3 --conditions auto:phase2_realistic_T21 -s RAW2DIGI,L1Reco,RECO,RECOSIM,VALIDATION:@phase2Validation,DQM:@phase2 --datatier DQMIO -n 10 --geometry Extended2026D76 --era Phase2C11M9 --eventcontent DQM --no_exec
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
@@ -16,7 +16,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D98Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D76Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -34,7 +34,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0b2b0b0b-f312-48a8-9d46-ccbadc69bbfd.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_11_3_0_pre4/RelValTTbar_14TeV/GEN-SIM-RECO/113X_mcRun4_realistic_v4_2026D76noPU-v1/00000/cf5b0e7d-f139-4305-9baf-db9c64590966.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 

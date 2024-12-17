@@ -1,3 +1,4 @@
+
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -15,7 +16,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D98Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D76Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
 process.load('Configuration.StandardSequences.Harvesting_cff')
@@ -82,4 +83,3 @@ process.dqmsave_step = cms.Path(process.DQMSaver)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.trackerphase2ValidationHarvesting_step,process.dqmsave_step)
-
