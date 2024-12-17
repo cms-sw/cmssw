@@ -150,6 +150,7 @@ void MtdSD::setHitClassID(const G4Step* aStep) {
       hitClassID = k_idETLfromBack;
       trkInfo->setETLfromBack();
     } else {
+      hitClassID = 0;
       trkInfo->setETLfromFront();
     }
   }
