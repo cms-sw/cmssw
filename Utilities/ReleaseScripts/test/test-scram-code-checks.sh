@@ -8,7 +8,7 @@ cd $CMSSW_VERSION
 mkdir src/FWCore
 RefDir=$CMSSW_BASE/src/FWCore/Version
 [ -e $RefDir ] || RefDir=$CMSSW_RELEASE_BASE/src/FWCore/Version
-rsync -a $RefDir/ src/FWCore/Version/
+rsync -a --no-g $RefDir/ src/FWCore/Version/
 chmod -R u+w src/FWCore/Version
 
 #Get latest clang-tidy and format files
