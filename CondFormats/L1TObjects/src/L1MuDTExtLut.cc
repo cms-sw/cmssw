@@ -141,7 +141,7 @@ int L1MuDTExtLut::load() {
 
     // assemble file name
     edm::FileInPath lut_f = edm::FileInPath(string(defaultPath + ext_dir + ext_str + ".lut"));
-    string ext_file = lut_f.fullPath();
+    const string& ext_file = lut_f.fullPath();
 
     // open file
     L1TriggerLutFile file(ext_file);
