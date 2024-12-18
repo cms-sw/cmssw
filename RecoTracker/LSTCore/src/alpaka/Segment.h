@@ -1,6 +1,8 @@
 #ifndef RecoTracker_LSTCore_src_alpaka_Segment_h
 #define RecoTracker_LSTCore_src_alpaka_Segment_h
 
+#include <limits>
+
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
@@ -246,7 +248,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                  mds.anchorY()[innerMDIndex] + circleRadius * alpaka::math::cos(acc, circlePhi)};
 
     //check which of the circles can accommodate r3LH better (we won't get perfect agreement)
-    float bestChiSquared = kVerticalModuleSlope;
+    float bestChiSquared = std::numeric_limits<float>::infinity();
     float chiSquared;
     size_t bestIndex;
     for (size_t i = 0; i < 2; i++) {

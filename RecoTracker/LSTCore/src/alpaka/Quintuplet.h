@@ -657,8 +657,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       // Computing sigmas is a very tricky affair
       // if the module is tilted or endcap, we need to use the slopes properly!
 
-      absArctanSlope = ((slopes[i] != kVerticalModuleSlope) ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i]))
-                                                            : kPi / 2.f);
+      absArctanSlope = ((slopes[i] != kVerticalModuleSlope && edm::isFinite(slopes[i]))
+                            ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i]))
+                            : kPi / 2.f);
 
       if (xs[i] > 0 and ys[i] > 0) {
         angleM = kPi / 2.f - absArctanSlope;
@@ -740,8 +741,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float chiSquared = 0.f;
     float absArctanSlope, angleM, xPrime, yPrime, sigma2;
     for (size_t i = 0; i < nPoints; i++) {
-      absArctanSlope = ((slopes[i] != kVerticalModuleSlope) ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i]))
-                                                            : kPi / 2.f);
+      absArctanSlope = ((slopes[i] != kVerticalModuleSlope && edm::isFinite(slopes[i]))
+                            ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i]))
+                            : kPi / 2.f);
       if (xs[i] > 0 and ys[i] > 0) {
         angleM = kPi / 2.f - absArctanSlope;
       } else if (xs[i] < 0 and ys[i] > 0) {
