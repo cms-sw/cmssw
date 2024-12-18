@@ -334,13 +334,12 @@ namespace edm::streamer {
         std::optional<ProductProvenance> productProvenance{std::in_place, spitem.branchID(), *spitem.parents()};
         if (spitem.prod() != nullptr) {
           FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc,
-                                   std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())),
-                                   std::move(productProvenance));
+          eventPrincipal.putOnRead(
+              branchDesc, std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())), productProvenance);
           FDEBUG(10) << "addproduct done" << std::endl;
         } else {
           FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), std::move(productProvenance));
+          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), productProvenance);
           FDEBUG(10) << "addproduct empty done" << std::endl;
         }
       } else {

@@ -148,7 +148,7 @@ namespace {
     }
   };
 
-  static ThreadTracker& getTracker() {
+  ThreadTracker& getTracker() {
     static ThreadTracker s_tracker;
     return s_tracker;
   }
