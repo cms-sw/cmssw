@@ -21,7 +21,7 @@ namespace edm {
                                      std::string const& override,
                                      bool useLFNasPFNifLFNnotFound,
                                      edm::CatalogType catType)
-      : logicalFileNames_(fileNames), fileNames_(fileNames), fileCatalogItems_(), overrideFileLocator_() {
+      : logicalFileNames_(fileNames), fileCatalogItems_(), overrideFileLocator_() {
     init(override, useLFNasPFNifLFNnotFound, catType);
   }
 
@@ -123,32 +123,31 @@ namespace edm {
       throw ex;
     }
 
-    for (iter it = fileNames_.begin(), lt = logicalFileNames_.begin(), itEnd = fileNames_.end(); it != itEnd;
-         ++it, ++lt) {
-      boost::trim(*it);
+    for (auto& lfn : logicalFileNames_) {
+      boost::trim(lfn);
       std::vector<std::string> pfns;
-      if (it->empty()) {
+      if (lfn.empty()) {
         cms::Exception ex("FileCatalog");
         ex << "An empty string specified in the fileNames parameter for input source";
         ex.addContext("Calling edm::InputFileCatalog::init()");
         throw ex;
       }
-      if (isPhysical(*it)) {
-        if (it->back() == ':') {
+      if (isPhysical(lfn)) {
+        if (lfn.back() == ':') {
           cms::Exception ex("FileCatalog");
           ex << "An empty physical file name specified in the fileNames parameter for input source";
           ex.addContext("Calling edm::InputFileCatalog::init()");
           throw ex;
         }
-        pfns.push_back(*it);
+        pfns.push_back(lfn);
         // Clear the LFN.
-        lt->clear();
+        lfn.clear();
       } else {
-        boost::trim(*lt);
-        findFile(*lt, pfns, useLFNasPFNifLFNnotFound, catType);
+        findFile(lfn, pfns, useLFNasPFNifLFNnotFound, catType);
       }
+      lfn.shrink_to_fit();  // try to release memory
 
-      fileCatalogItems_.push_back(FileCatalogItem(pfns, *lt));
+      fileCatalogItems_.emplace_back(std::move(pfns), lfn);
     }
   }
 
