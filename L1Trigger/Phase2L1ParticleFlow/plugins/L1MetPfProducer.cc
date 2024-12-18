@@ -85,7 +85,7 @@ L1MetPfProducer::L1MetPfProducer(const edm::ParameterSet& cfg)
       maxCands_(cfg.getParameter<int>("maxCands")),
       modelVersion_(cfg.getParameter<std::string>("modelVersion")) {
   produces<std::vector<l1t::EtSum>>();
-  useMlModel_ = (modelVersion_.length() > 0);
+  useMlModel_ = (!modelVersion_.empty());
   if (useMlModel_) {
     hls4mlEmulator::ModelLoader loader(modelVersion_);
     model = loader.load_model();
