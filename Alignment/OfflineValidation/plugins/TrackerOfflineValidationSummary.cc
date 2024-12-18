@@ -504,7 +504,7 @@ const std::string TrackerOfflineValidationSummary::associateModuleHistsWithTree(
     std::map<std::string, std::string>& substructureName) {
   std::stringstream histDir, sSubdetName;
   std::string componentName;
-  if (moduleDirectory_.length() != 0)
+  if (!moduleDirectory_.empty())
     histDir << moduleDirectory_ << "/";
   std::string wheelOrLayer("_layer_");
   if (treeMem.subDetId == PixelSubdetector::PixelBarrel) {
@@ -770,7 +770,7 @@ void TrackerOfflineValidationSummary::applyHarvestingHierarchy(TTree& tree) {
                                             iSubdet == StripSubdetector::TID || iSubdet == StripSubdetector::TEC))
             continue;
           treeEntries.push_back(iTree);
-          if (hierarchyName.length() == 0) {
+          if (hierarchyName.empty()) {
             hierarchyName = (*substructureName)["subdet"];
             componentName = (*substructureName)["component"];
           }
@@ -804,7 +804,7 @@ void TrackerOfflineValidationSummary::bookHarvestingHists() {
     dmrYprimeHistoTitle << "DMR for " << iHier->hierarchyName << ";<#DeltaY> [cm];# modules";
 
     std::string directoryString(moduleDirectory_);
-    if (directoryString.length() != 0)
+    if (!directoryString.empty())
       directoryString += "/";
     directoryString += iHier->componentName;
     dbe_->setCurrentFolder(directoryString);
