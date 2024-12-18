@@ -7,6 +7,22 @@ ak4JetTracksAssociatorAtVertexJPT = ak4JetTracksAssociatorAtVertex.clone(
     pvSrc       = "offlinePrimaryVertices"
 )
 
+# ---------- Tight Electron ID
+
+from RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff import egmGsfElectronIDs
+JPTegmGsfElectronIDs = egmGsfElectronIDs.clone(
+    physicsObjectsIDs = cms.VPSet(),
+    physicsObjectSrc = 'gedGsfElectrons'
+)
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
+my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Winter22_122X_V1_cff']
+for id_module_name in my_id_modules:
+    idmod= __import__(id_module_name, globals(), locals(), ['idName','cutFlow'])
+    for name in dir(idmod):
+        item = getattr(idmod,name)
+        if hasattr(item,'idName') and hasattr(item,'cutFlow'):
+            setupVIDSelection(JPTegmGsfElectronIDs,item)
+
 # ---------- Seeds from TrackJets
 
 from RecoJets.JetPlusTracks.jetPlusTrackAddonSeedProducer_cfi import *
