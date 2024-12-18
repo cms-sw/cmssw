@@ -31,9 +31,10 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include <sys/stat.h>
-#include <filesystem>
 #include <boost/algorithm/string.hpp>
+#include <filesystem>
+#include <memory>
+#include <sys/stat.h>
 
 typedef edm::detail::TriggerResultsBasedEventSelector::handle_t Trig;
 
@@ -310,7 +311,7 @@ namespace evf {
     mergeType_.setName("MergeType");
     hltErrorEvents_.setName("HLTErrorEvents");
 
-    jsonMonitor_.reset(new jsoncollector::FastMonitor(&outJsonDef, true));
+    jsonMonitor_ = std::make_shared<jsoncollector::FastMonitor>(&outJsonDef, true);
     jsonMonitor_->setDefPath(outJsonDefName);
     jsonMonitor_->registerGlobalMonitorable(&processed_, false);
     jsonMonitor_->registerGlobalMonitorable(&accepted_, false);

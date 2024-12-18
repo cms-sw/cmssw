@@ -1,8 +1,9 @@
+#include <algorithm>
+#include <chrono>
+#include <memory>
 #include <sstream>
 #include <unistd.h>
 #include <vector>
-#include <chrono>
-#include <algorithm>
 
 #include "EventFilter/Utilities/interface/DAQSource.h"
 #include "EventFilter/Utilities/interface/DAQSourceModels.h"
@@ -78,11 +79,11 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
 
   //load mode class based on parameter
   if (dataModeConfig_ == "FRD") {
-    dataMode_.reset(new DataModeFRD(this));
+    dataMode_ = std::make_shared<DataModeFRD>(this);
   } else if (dataModeConfig_ == "FRDStriped") {
-    dataMode_.reset(new DataModeFRDStriped(this));
+    dataMode_ = std::make_shared<DataModeFRDStriped>(this);
   } else if (dataModeConfig_ == "ScoutingRun3") {
-    dataMode_.reset(new DataModeScoutingRun3(this));
+    dataMode_ = std::make_shared<DataModeScoutingRun3>(this);
   } else
     throw cms::Exception("DAQSource::DAQSource") << "Unknown data mode " << dataModeConfig_;
 
