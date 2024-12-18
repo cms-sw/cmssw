@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_2_0/Special --cff --data --type Special
 
-# /dev/CMSSW_14_2_0/Special/V10 (CMSSW_14_2_0)
+# /dev/CMSSW_14_2_0/Special/V16 (CMSSW_14_2_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_2_0/Special/V10")
+  tableName = cms.string("/dev/CMSSW_14_2_0/Special/V16")
 )
 
 fragment.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -6364,7 +6364,7 @@ fragment.hltGemRecHits = cms.EDProducer( "GEMRecHitProducer",
     recAlgoConfig = cms.PSet(  ),
     recAlgo = cms.string( "GEMRecHitStandardAlgo" ),
     gemDigiLabel = cms.InputTag( "hltMuonGEMDigis" ),
-    applyMasking = cms.bool( False ),
+    applyMasking = cms.bool( True ),
     ge21Off = cms.bool( False )
 )
 fragment.hltGemSegments = cms.EDProducer( "GEMSegmentProducer",
