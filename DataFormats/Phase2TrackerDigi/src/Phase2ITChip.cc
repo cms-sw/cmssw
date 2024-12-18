@@ -60,7 +60,7 @@ std::vector<Phase2ITQCore> Phase2ITChip::rem_duplicates(std::vector<Phase2ITQCor
 //Returns a list of the qcores with hits arranged by increasing column and then row numbers
 std::vector<Phase2ITQCore> Phase2ITChip::organize_QCores(std::vector<Phase2ITQCore> qcores) {
   std::vector<Phase2ITQCore> organized_list = {};
-  while (qcores.size() > 0) {
+  while (!qcores.empty()) {
     int min = 0;
 
     for (size_t i = 1; i < qcores.size(); i++) {
@@ -87,7 +87,7 @@ std::vector<Phase2ITQCore> link_QCores(std::vector<Phase2ITQCore> qcores) {
   }
 
   //.size() is unsigned. If size is zero size()-1 is a huge number hence this needs to be protected
-  if (qcores.size() > 0) {
+  if (!qcores.empty()) {
     for (size_t i = 0; i < qcores.size() - 1; i++) {
       if (qcores[i].get_col() != qcores[i + 1].get_col()) {
         qcores[i].setIsLast(true);
@@ -103,6 +103,7 @@ std::vector<Phase2ITQCore> link_QCores(std::vector<Phase2ITQCore> qcores) {
 std::vector<Phase2ITQCore> Phase2ITChip::get_organized_QCores() {
   std::vector<Phase2ITQCore> qcores = {};
 
+  qcores.reserve(hitList_.size());
   for (const auto& hit : hitList_) {
     qcores.push_back(get_QCore_from_hit(hit));
   }
@@ -114,7 +115,7 @@ std::vector<Phase2ITQCore> Phase2ITChip::get_organized_QCores() {
 std::vector<bool> Phase2ITChip::get_chip_code() {
   std::vector<bool> code = {};
 
-  if (hitList_.size() > 0) {
+  if (!hitList_.empty()) {
     std::vector<Phase2ITQCore> qcores = get_organized_QCores();
     bool is_new_col = true;
 

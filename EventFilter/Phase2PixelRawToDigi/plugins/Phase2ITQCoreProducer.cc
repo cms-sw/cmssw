@@ -38,7 +38,7 @@ public:
   ~Phase2ITQCoreProducer() override = default;
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   const edm::InputTag src_;
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> pixelDigi_token_;
