@@ -210,7 +210,7 @@ namespace edm {
 
   void PileUp::beginStream(edm::StreamID) {
     auto iID = eventPrincipal_->streamID();  // each producer has its own workermanager, so use default streamid
-    streamContext_.reset(new StreamContext(iID, processContext_.get()));
+    streamContext_ = std::make_shared<StreamContext>(iID, processContext_.get());
     streamContext_->setTransition(StreamContext::Transition::kBeginStream);
     if (provider_.get() != nullptr) {
       edm::ServiceRegistry::Operate guard(*serviceToken_);
@@ -245,7 +245,7 @@ namespace edm {
 
   void PileUp::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      runPrincipal_.reset(new RunPrincipal(productRegistry_, *processConfiguration_, nullptr, 0));
+      runPrincipal_ = std::make_shared<RunPrincipal>(productRegistry_, *processConfiguration_, nullptr, 0);
       runPrincipal_->setAux(run.runAuxiliary());
       edm::ServiceRegistry::Operate guard(*serviceToken_);
       streamContext_->setTransition(StreamContext::Transition::kBeginRun);
@@ -254,7 +254,7 @@ namespace edm {
   }
   void PileUp::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      lumiPrincipal_.reset(new LuminosityBlockPrincipal(productRegistry_, *processConfiguration_, nullptr, 0));
+      lumiPrincipal_ = std::make_shared<LuminosityBlockPrincipal>(productRegistry_, *processConfiguration_, nullptr, 0);
       lumiPrincipal_->setAux(lumi.luminosityBlockAuxiliary());
       lumiPrincipal_->setRunPrincipal(runPrincipal_);
       setRandomEngine(lumi);
@@ -348,7 +348,7 @@ namespace edm {
       edm::LogInfo("MixingModule") << "An histogram will be created with " << numBins << " bins in the range (" << xmin
                                    << "," << xmax << ")." << std::endl;
 
-      histo_.reset(new TH1F("h", "Histo from the user's probability function", numBins, xmin, xmax));
+      histo_ = std::make_shared<TH1F>("h", "Histo from the user's probability function", numBins, xmin, xmax);
 
       LogDebug("MixingModule") << "Filling histogram with the following data:" << std::endl;
 

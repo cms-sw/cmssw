@@ -1,12 +1,12 @@
 
+#include "G4NucleiProperties.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4ParticleTable.hh"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
-#include "G4ParticleTable.hh"
-#include "G4ParticleDefinition.hh"
 #include "Randomize.hh"
-#include "G4NucleiProperties.hh"
-#include <math.h>
 #include "TMath.h"
+#include <cmath>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -125,7 +125,7 @@ G4HadFinalState* CMSSQNeutronAnnih::ApplyYourself(const G4HadProjectile& aTrack,
   //           << " PDGcode= " << projPDG << " on nucleus Z= " << Z
   //           << " A= " << A << " N= " << N;
 
-  G4LorentzVector lv1 = aParticle->Get4Momentum();
+  const G4LorentzVector& lv1 = aParticle->Get4Momentum();
   edm::LogVerbatim("CMSSWNeutronAnnih") << "The neutron Fermi momentum (mag, x, y, z) "
                                         << targetNucleus.GetFermiMomentum().mag() / MeV << " "
                                         << targetNucleus.GetFermiMomentum().x() / MeV << " "
