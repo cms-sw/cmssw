@@ -113,7 +113,7 @@ void DeDxEstimatorRekeyer::produce(edm::StreamID, edm::Event& iEvent, const edm:
   auto dedxHitInfoAssociation = std::make_unique<reco::DeDxHitInfoAss>(dedxHitInfoHandle);
   reco::DeDxHitInfoAss::Filler filler(*dedxHitInfoAssociation);
   auto resultdedxHitColl = std::make_unique<reco::DeDxHitInfoCollection>();
-  resultdedxHitColl->reserve(pcTrkMap.size() > 0 ? pcTrkMap.size() * pcTrkMap[0].second.size() : 0);
+  resultdedxHitColl->reserve(!pcTrkMap.empty() ? pcTrkMap.size() * pcTrkMap[0].second.size() : 0);
   std::vector<std::vector<float>> momenta;
   momenta.reserve(resultdedxHitColl->capacity());
   // Loop over packed candidates
