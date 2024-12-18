@@ -35,7 +35,7 @@ void SeedFromNuclearInteraction::setMeasurements(const TSOS& inner_TSOS,
   //theHits.push_back(  inner_TM.recHit() ); // put temporarily - TODO: remove this line
   theHits.push_back(outerHit_);
 
-  initialTSOS_.reset(new TrajectoryStateOnSurface(inner_TSOS));
+  initialTSOS_ = std::make_shared<TrajectoryStateOnSurface>(inner_TSOS);
 
   // calculate the initial FreeTrajectoryState.
   freeTS_.reset(stateWithError());
@@ -70,7 +70,7 @@ void SeedFromNuclearInteraction::setMeasurements(TangentHelix& thePrimaryHelix,
   theHits.push_back(innerHit_);
   theHits.push_back(outerHit_);
 
-  initialTSOS_.reset(new TrajectoryStateOnSurface(inner_TSOS));
+  initialTSOS_ = std::make_shared<TrajectoryStateOnSurface>(inner_TSOS);
 
   // calculate the initial FreeTrajectoryState from the inner and outer TM assuming that the helix equation is already known.
   freeTS_.reset(stateWithError(helix));
@@ -149,7 +149,7 @@ bool SeedFromNuclearInteraction::construct() {
       return false;
 
     const TransientTrackingRecHit::ConstRecHitPointer& tth = theHits[iHit];
-    updatedTSOS_.reset(new TrajectoryStateOnSurface(theUpdator.update(state, *tth)));
+    updatedTSOS_ = std::make_shared<TrajectoryStateOnSurface>(theUpdator.update(state, *tth));
   }
 
   LogDebug("NuclearSeedGenerator") << "Seed ** updated state " << updatedTSOS_->cartesianError().matrix();
