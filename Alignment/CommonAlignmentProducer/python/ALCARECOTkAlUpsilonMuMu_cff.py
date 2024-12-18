@@ -23,11 +23,7 @@ ALCARECOTkAlUpsilonMuMuDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatu
 
 import Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi
 ALCARECOTkAlUpsilonMuMuGoodMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlGoodIdMuonSelector.clone()
-ALCARECOTkAlUpsilonMuMuRelCombIsoMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlRelCombIsoMuonSelector.clone(
-    src = 'ALCARECOTkAlUpsilonMuMuGoodMuons',
-    cut = '(isolationR03().sumPt + isolationR03().emEt + isolationR03().hadEt)/pt  < 0.3'
-
-)
+ALCARECOTkAlUpsilonMuMuRelCombIsoMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlRelCombIsoMuonSelector.clone(src = 'ALCARECOTkAlUpsilonMuMuGoodMuons')
 
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlUpsilonMuMu = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
@@ -54,7 +50,14 @@ ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.acoplanarDistance = 1 ##radian
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.numberOfCandidates = 1	 
 
-seqALCARECOTkAlUpsilonMuMu = cms.Sequence(ALCARECOTkAlUpsilonMuMuHLT+ALCARECOTkAlUpsilonMuMuDCSFilter+ALCARECOTkAlUpsilonMuMuGoodMuons+ALCARECOTkAlUpsilonMuMuRelCombIsoMuons+ALCARECOTkAlUpsilonMuMu)
+## for the GEN level information
+TkAlUpsilonMuMuGenMuonSelector = cms.EDFilter("GenParticleSelector",
+                                              src = cms.InputTag("genParticles"),
+                                              cut = cms.string("abs(pdgId) == 13"), # Select only muons
+                                              filter = cms.bool(False),
+                                              throwOnMissing = cms.untracked.bool(False))
+
+seqALCARECOTkAlUpsilonMuMu = cms.Sequence(ALCARECOTkAlUpsilonMuMuHLT+ALCARECOTkAlUpsilonMuMuDCSFilter+ALCARECOTkAlUpsilonMuMuGoodMuons+ALCARECOTkAlUpsilonMuMuRelCombIsoMuons+ALCARECOTkAlUpsilonMuMu+TkAlUpsilonMuMuGenMuonSelector)
 
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017

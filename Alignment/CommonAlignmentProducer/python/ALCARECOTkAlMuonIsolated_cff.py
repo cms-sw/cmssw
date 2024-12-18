@@ -21,11 +21,7 @@ ALCARECOTkAlMuonIsolatedDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstat
     DebugOn      = cms.untracked.bool(False)
 )
 
-import Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi
-ALCARECOTkAlMuonIsolatedGoodMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlGoodIdMuonSelector.clone()
-ALCARECOTkAlMuonIsolatedRelCombIsoMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlRelCombIsoMuonSelector.clone(
-    src = 'ALCARECOTkAlMuonIsolatedGoodMuons'
-)
+from Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi import *
 
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlMuonIsolated = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
@@ -37,7 +33,7 @@ ALCARECOTkAlMuonIsolated = Alignment.CommonAlignmentProducer.AlignmentTrackSelec
     nHitMin = 0
 )
 
-ALCARECOTkAlMuonIsolated.GlobalSelector.muonSource = 'ALCARECOTkAlMuonIsolatedRelCombIsoMuons'
+ALCARECOTkAlMuonIsolated.GlobalSelector.muonSource = 'TkAlRelCombIsoMuonSelector'
 # Isolation is shifted to the muon preselection, and then applied intrinsically if applyGlobalMuonFilter = True
 ALCARECOTkAlMuonIsolated.GlobalSelector.applyIsolationtest = False
 ALCARECOTkAlMuonIsolated.GlobalSelector.minJetDeltaR = 0.1
@@ -47,8 +43,10 @@ ALCARECOTkAlMuonIsolated.TwoBodyDecaySelector.applyMassrangeFilter = False
 ALCARECOTkAlMuonIsolated.TwoBodyDecaySelector.applyChargeFilter = False
 ALCARECOTkAlMuonIsolated.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 
-seqALCARECOTkAlMuonIsolated = cms.Sequence(ALCARECOTkAlMuonIsolatedHLT+ALCARECOTkAlMuonIsolatedDCSFilter+ALCARECOTkAlMuonIsolatedGoodMuons+ALCARECOTkAlMuonIsolatedRelCombIsoMuons+ALCARECOTkAlMuonIsolated)
-
+seqALCARECOTkAlMuonIsolated = cms.Sequence(ALCARECOTkAlMuonIsolatedHLT+
+                                           ALCARECOTkAlMuonIsolatedDCSFilter+
+                                           seqALCARECOTkAlRelCombIsoMuons+
+                                           ALCARECOTkAlMuonIsolated)
 
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
