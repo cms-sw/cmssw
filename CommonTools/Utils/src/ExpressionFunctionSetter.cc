@@ -1,11 +1,12 @@
 #include "CommonTools/Utils/interface/parser/ExpressionFunctionSetter.h"
-#include "CommonTools/Utils/interface/parser/ExpressionUnaryOperator.h"
 #include "CommonTools/Utils/interface/parser/ExpressionBinaryOperator.h"
+#include "CommonTools/Utils/interface/parser/ExpressionUnaryOperator.h"
 #include "CommonTools/Utils/src/ExpressionQuaterOperator.h"
-#include <cmath>
-#include <Math/ProbFuncMathCore.h>
 #include <DataFormats/Math/interface/deltaPhi.h>
 #include <DataFormats/Math/interface/deltaR.h>
+#include <Math/ProbFuncMathCore.h>
+#include <cmath>
+#include <memory>
 
 namespace reco {
   namespace parser {
@@ -89,73 +90,73 @@ void ExpressionFunctionSetter::operator()(const char *, const char *) const {
   ExpressionPtr funExp;
   switch (fun) {
     case (kAbs):
-      funExp.reset(new ExpressionUnaryOperator<abs_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<abs_f>>(expStack_);
       break;
     case (kAcos):
-      funExp.reset(new ExpressionUnaryOperator<acos_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<acos_f>>(expStack_);
       break;
     case (kAsin):
-      funExp.reset(new ExpressionUnaryOperator<asin_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<asin_f>>(expStack_);
       break;
     case (kAtan):
-      funExp.reset(new ExpressionUnaryOperator<atan_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<atan_f>>(expStack_);
       break;
     case (kAtan2):
-      funExp.reset(new ExpressionBinaryOperator<atan2_f>(expStack_));
+      funExp = std::make_shared<ExpressionBinaryOperator<atan2_f>>(expStack_);
       break;
     case (kChi2Prob):
-      funExp.reset(new ExpressionBinaryOperator<chi2prob_f>(expStack_));
+      funExp = std::make_shared<ExpressionBinaryOperator<chi2prob_f>>(expStack_);
       break;
     case (kCos):
-      funExp.reset(new ExpressionUnaryOperator<cos_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<cos_f>>(expStack_);
       break;
     case (kCosh):
-      funExp.reset(new ExpressionUnaryOperator<cosh_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<cosh_f>>(expStack_);
       break;
     case (kDeltaR):
-      funExp.reset(new ExpressionQuaterOperator<deltaR_f>(expStack_));
+      funExp = std::make_shared<ExpressionQuaterOperator<deltaR_f>>(expStack_);
       break;
     case (kDeltaPhi):
-      funExp.reset(new ExpressionBinaryOperator<deltaPhi_f>(expStack_));
+      funExp = std::make_shared<ExpressionBinaryOperator<deltaPhi_f>>(expStack_);
       break;
     case (kExp):
-      funExp.reset(new ExpressionUnaryOperator<exp_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<exp_f>>(expStack_);
       break;
     case (kHypot):
-      funExp.reset(new ExpressionBinaryOperator<hypot_f>(expStack_));
+      funExp = std::make_shared<ExpressionBinaryOperator<hypot_f>>(expStack_);
       break;
     case (kLog):
-      funExp.reset(new ExpressionUnaryOperator<log_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<log_f>>(expStack_);
       break;
     case (kLog10):
-      funExp.reset(new ExpressionUnaryOperator<log10_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<log10_f>>(expStack_);
       break;
     case (kMax):
-      funExp.reset(new ExpressionBinaryOperator<max_f>(expStack_));
+      funExp = std::make_shared<ExpressionBinaryOperator<max_f>>(expStack_);
       break;
     case (kMin):
-      funExp.reset(new ExpressionBinaryOperator<min_f>(expStack_));
+      funExp = std::make_shared<ExpressionBinaryOperator<min_f>>(expStack_);
       break;
     case (kPow):
-      funExp.reset(new ExpressionBinaryOperator<pow_f>(expStack_));
+      funExp = std::make_shared<ExpressionBinaryOperator<pow_f>>(expStack_);
       break;
     case (kSin):
-      funExp.reset(new ExpressionUnaryOperator<sin_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<sin_f>>(expStack_);
       break;
     case (kSinh):
-      funExp.reset(new ExpressionUnaryOperator<sinh_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<sinh_f>>(expStack_);
       break;
     case (kSqrt):
-      funExp.reset(new ExpressionUnaryOperator<sqrt_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<sqrt_f>>(expStack_);
       break;
     case (kTan):
-      funExp.reset(new ExpressionUnaryOperator<tan_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<tan_f>>(expStack_);
       break;
     case (kTanh):
-      funExp.reset(new ExpressionUnaryOperator<tanh_f>(expStack_));
+      funExp = std::make_shared<ExpressionUnaryOperator<tanh_f>>(expStack_);
       break;
     case (kTestBit):
-      funExp.reset(new ExpressionBinaryOperator<test_bit_f>(expStack_));
+      funExp = std::make_shared<ExpressionBinaryOperator<test_bit_f>>(expStack_);
       break;
   };
   expStack_.push_back(funExp);
