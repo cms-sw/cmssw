@@ -411,19 +411,19 @@ namespace edm {
         // query values
         size_t allocated, active, resident, mapped, metadata;
         size_t len = sizeof(size_t);
-        if (je_mallctl("stats.allocated", &allocated, &len, 0, 0) != 0) {
+        if (je_mallctl("stats.allocated", &allocated, &len, nullptr, 0) != 0) {
           return info;
         }
-        if (je_mallctl("stats.active", &active, &len, 0, 0) != 0) {
+        if (je_mallctl("stats.active", &active, &len, nullptr, 0) != 0) {
           return info;
         }
-        if (je_mallctl("stats.resident", &resident, &len, 0, 0) != 0) {
+        if (je_mallctl("stats.resident", &resident, &len, nullptr, 0) != 0) {
           return info;
         }
-        if (je_mallctl("stats.mapped", &mapped, &len, 0, 0) != 0) {
+        if (je_mallctl("stats.mapped", &mapped, &len, nullptr, 0) != 0) {
           return info;
         }
-        if (je_mallctl("stats.metadata", &metadata, &len, 0, 0) != 0) {
+        if (je_mallctl("stats.metadata", &metadata, &len, nullptr, 0) != 0) {
           return info;
         }
         info.allocated = allocated / 1024.0 / 1024.0;

@@ -201,8 +201,7 @@ namespace edm {
     }
     auto phb = getProductResolverByIndex(index);
 
-    productProvenanceRetrieverPtr()->insertIntoSet(
-        ProductProvenance(phb->branchDescription().branchID(), std::move(parentage)));
+    productProvenanceRetrieverPtr()->insertIntoSet(ProductProvenance(phb->branchDescription().branchID(), parentage));
 
     assert(phb);
     // ProductResolver assumes ownership
@@ -214,7 +213,7 @@ namespace edm {
                                  std::optional<ProductProvenance> productProvenance) const {
     assert(!bd.produced());
     if (productProvenance) {
-      productProvenanceRetrieverPtr()->insertIntoSet(std::move(*productProvenance));
+      productProvenanceRetrieverPtr()->insertIntoSet(*productProvenance);
     }
     auto phb = getExistingProduct(bd.branchID());
     assert(phb);

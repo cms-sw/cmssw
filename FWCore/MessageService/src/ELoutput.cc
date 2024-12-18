@@ -83,10 +83,11 @@
 // #define ELoutputTRACE_LOG
 // #define ELoutput_EMIT_TRACE
 
-#include <iostream>
-#include <fstream>
-#include <cstring>
 #include <cassert>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <memory>
 
 namespace {
   // ----------------------------------------------------------------------
@@ -375,14 +376,14 @@ namespace edm {
             needAspace = false;
           }
         }
-        if (wantModule && (xid.module.length() > 0)) {
+        if (wantModule && (!xid.module.empty())) {
           if (needAspace) {
             emitToken(" ");
             needAspace = false;
           }
           emitToken(xid.module + " ");
         }
-        if (wantSubroutine && (xid.subroutine.length() > 0)) {
+        if (wantSubroutine && (!xid.subroutine.empty())) {
           if (needAspace) {
             emitToken(" ");
             needAspace = false;
@@ -516,7 +517,7 @@ namespace edm {
       std::cerr << "[][][] in emit:  lineLength is " << lineLength << '\n';
 #endif
 
-      if (s.length() == 0) {
+      if (s.empty()) {
         if (nl) {
           (*os) << newline << std::flush;
           charsOnLine = 0;
@@ -632,7 +633,7 @@ namespace edm {
     }
 
     void ELoutput::changeFile(const std::string& filename) {
-      os.reset(new std::ofstream(filename.c_str(), std::ios /*_base*/ ::app), close_and_delete());
+      os.reset(new std::ofstream(filename.c_str(), std::ios /*_base*/ ::app), close_and_delete());  //NOLINT
       emitToken("\n=======================================================", true);
       emitToken("\nError Log changed to this file\n");
       std::string const& ftime = formatTime(time(nullptr));  // Change log 7
