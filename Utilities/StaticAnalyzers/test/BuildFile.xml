@@ -1,0 +1,12 @@
+<flags CXXFLAGS="-Wno-error=unused-variable -Wno-error=reorder -Wno-error=unused-but-set-variable"/>
+<flags CXXFLAGS="-Wno-unused-variable -Wno-reorder -Wno-unused-but-set-variable"/>
+<bin file="class_checker.cpp"/>
+<bin file="const_cast_away.cpp"/>
+<bin file="const_cast.cpp"/>
+<bin file="func_checker.cpp"/>
+<bin file="global_static.cpp"/>
+<bin file="global_static_edm.cpp"/>
+<bin file="mutable_member.cpp"/>
+<bin file="static_local.cpp"/>
+<bin file="unnecessary_mutable_member.cpp"/>
+<test name="testLLVMAnalyzers" command="run_static_checks.sh"/>

@@ -26,7 +26,7 @@ namespace clangcms {
                             clang::ento::PathDiagnosticLocation const& path,
                             clang::ento::BugReporter& BR) const;
 
-    bool reportMutableMember(clang::QualType const& t,
+    bool reportMutableMember(/*clang::QualType const& t,*/
                              clang::ento::PathDiagnosticLocation const& path,
                              clang::ento::BugReporter& BR) const;
     bool reportClass(clang::ento::PathDiagnosticLocation const& path, clang::ento::BugReporter& BR) const;
