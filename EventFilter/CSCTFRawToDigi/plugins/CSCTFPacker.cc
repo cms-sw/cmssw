@@ -75,7 +75,7 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet& conf) : edm::one::EDProducer<>
   swapME1strips = conf.getParameter<bool>("swapME1strips");
 
   file = nullptr;
-  if (outputFile.length() && (file = fopen(outputFile.c_str(), "wt")) == nullptr)
+  if (!outputFile.empty() && (file = fopen(outputFile.c_str(), "wt")) == nullptr)
     throw cms::Exception("OutputFile ") << "CSCTFPacker: cannot open output file (errno=" << errno
                                         << "). Try outputFile=\"\"";
 
