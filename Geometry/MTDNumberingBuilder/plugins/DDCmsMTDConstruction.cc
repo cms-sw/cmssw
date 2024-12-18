@@ -29,7 +29,7 @@ public:
   void veto(const std::string& veto) { veto_.emplace_back(veto); }
 
   bool accept(const DDExpandedView& ev) const final {
-    if (allowedNS_.size() == 0 && allowed_.size() == 0 && veto_.size() == 0) {
+    if (allowedNS_.empty() && allowed_.empty() && veto_.empty()) {
       return true;
     }
     bool out(false);
@@ -37,7 +37,7 @@ public:
     for (const auto& test : allowedNS_) {
       if (currentNSName.find(test) != std::string::npos) {
         out = true;
-        if (allowed_.size() > 0 || veto_.size() > 0) {
+        if (!allowed_.empty() || !veto_.empty()) {
           std::string_view currentName(ev.logicalPart().name().name());
           for (const auto& test : veto_) {
             if (currentName.find(test) != std::string::npos) {
