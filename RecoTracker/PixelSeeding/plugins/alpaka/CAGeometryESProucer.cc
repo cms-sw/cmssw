@@ -78,14 +78,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     assert(caThetaCuts_.size() == caDCACuts_.size()); 
     
-    int n_layers = caThetaCuts_.size(); //layerStarts_.size() - 1;
+    int n_layers = caThetaCuts_.size(); 
     int n_pairs = pairGraph_.size() / 2;
     int n_modules = 0;
-    assert(int(n_pairs) == int(minZ_.size())); 
-    assert(*std::max_element(startingPairs_.begin(), startingPairs_.end()) < n_pairs);
-
-    // std::cout << "No. Layers to be used = " << n_layers << std::endl;
     
+#ifdef GPU_DEBUG 
+    std::cout << "No. Layers to be used = " << n_layers << std::endl;
+    std::cout << "No. Pairs to be used = " << n_pairs << std::endl;
+#endif
+
+    assert(int(n_pairs) == int(minZ_.size())); 
+    assert(*std::max_element(startingPairs_.begin(), startingPairs_.end()) <= n_pairs);
+
     const auto &trackerTopology = &iRecord.get(tTopologyToken_);
     const auto &trackerGeometry = &iRecord.get(tGeometryToken_);
     auto const& detUnits = trackerGeometry->detUnits();
@@ -177,6 +181,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       edm::ConfigurationDescriptions& descriptions) {
     
     using namespace phase1PixelTopology;
+    constexpr auto nPairs = pixelTopology::Phase1::nPairsForQuadruplets;
     edm::ParameterSetDescription desc;
 
     // layers params
@@ -184,11 +189,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<std::vector<double>>("caThetaCuts", {0.002f,0.002f,0.002f,0.002f,0.003f,0.003f,0.003f,0.003f,0.003f,0.003f}) ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
     desc.add<std::vector<int>>("startingPairs",{0,1,2}) ->setComment("The list of the ids of pairs from which the CA ntuplets building may start."); //TODO could be parsed via an expression
     // cells params
-    desc.add<std::vector<int>>("pairGraph", std::vector<int>(std::begin(layerPairs), std::end(layerPairs))) ->setComment("CA graph");
-    desc.add<std::vector<int>>("phiCuts", std::vector<int>(std::begin(phicuts), std::end(phicuts))) ->setComment("Cuts in phi for cells");
-    desc.add<std::vector<double>>("minZ", std::vector<double>(std::begin(minz), std::end(minz))) ->setComment("Cuts in min z (on inner hit) for cells");
-    desc.add<std::vector<double>>("maxZ", std::vector<double>(std::begin(maxz), std::end(maxz))) ->setComment("Cuts in max z (on inner hit) for cells");
-    desc.add<std::vector<double>>("maxR", std::vector<double>(std::begin(maxr), std::end(maxr))) ->setComment("Cuts in max r for cells");
+    desc.add<std::vector<int>>("pairGraph", std::vector<int>(std::begin(layerPairs), std::begin(layerPairs) + (nPairs * 2))) ->setComment("CA graph");
+    desc.add<std::vector<int>>("phiCuts", std::vector<int>(std::begin(phicuts), std::begin(phicuts) + nPairs )) ->setComment("Cuts in phi for cells");
+    desc.add<std::vector<double>>("minZ", std::vector<double>(std::begin(minz), std::begin(minz) + nPairs )) ->setComment("Cuts in min z (on inner hit) for cells");
+    desc.add<std::vector<double>>("maxZ", std::vector<double>(std::begin(maxz), std::begin(maxz) + nPairs )) ->setComment("Cuts in max z (on inner hit) for cells");
+    desc.add<std::vector<double>>("maxR", std::vector<double>(std::begin(maxr), std::begin(maxr) + nPairs)) ->setComment("Cuts in max r for cells");
 
     descriptions.addWithDefaultLabel(desc);
   }

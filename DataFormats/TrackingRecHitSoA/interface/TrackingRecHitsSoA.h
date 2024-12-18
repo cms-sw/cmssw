@@ -10,8 +10,6 @@
 
 namespace reco {
   
-  using HitModuleStartArray = std::array<uint32_t, 4000>;
-
   GENERATE_SOA_LAYOUT(TrackingHitsLayout,
                       SOA_COLUMN(float, xLocal),
                       SOA_COLUMN(float, yLocal),
@@ -26,8 +24,7 @@ namespace reco {
                       SOA_COLUMN(int16_t, clusterSizeX),
                       SOA_COLUMN(int16_t, clusterSizeY),
                       SOA_COLUMN(uint16_t, detectorIndex),
-                      SOA_SCALAR(int32_t, offsetBPIX2),
-                      SOA_SCALAR(HitModuleStartArray, hitsModuleStart));
+                      SOA_SCALAR(int32_t, offsetBPIX2));
 
   GENERATE_SOA_LAYOUT(HitModulesLayout,
                SOA_COLUMN(uint32_t, moduleStart)

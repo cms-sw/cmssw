@@ -12,6 +12,7 @@
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::reco {
@@ -52,6 +53,39 @@ namespace cms::alpakatools {
       return hostData;
     }
   };
+  
+  template <>
+  struct CopyToDevice<::reco::TrackingRecHitHost> {
+    template <typename TQueue>
+     static auto copyAsync(TQueue& queue, reco::TrackingRecHitHost const& hostData) {
+      using TDevice = typename alpaka::trait::DevType<TQueue>::type;
+      
+      auto hostHitView = hostData.template view<reco::TrackingRecHitSoA>();
+      auto moduleHitsView = hostData.template view<reco::HitModuleSoA>();
+
+      reco::TrackingRecHitDevice<TDevice> deviceData(queue,  hostHitView.metadata().size(), moduleHitsView.metadata().size());
+
+      if (hostHitView.metadata().size() == 0) {
+        std::memset(deviceData.buffer().data(),
+                    0,
+                    alpaka::getExtentProduct(deviceData.buffer()) *
+                        sizeof(alpaka::Elem<reco::TrackingRecHitHost::Buffer>));
+        return deviceData;
+      }
+
+      alpaka::memcpy(queue, deviceData.buffer(), hostData.buffer());
+
+#ifdef GPU_DEBUG
+      printf("TrackingRecHitsSoACollection: I'm copying to host.\n");
+      alpaka::wait(queue);
+      assert(deviceData.nHits() == hostData.nHits());
+      assert(deviceData.nModules() == hostData.nModules());
+      assert(deviceData.offsetBPIX2() == hostData.offsetBPIX2());
+#endif
+      return deviceData;
+    }
+  };
+
 }  // namespace cms::alpakatools
 
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(reco::TrackingRecHitsSoACollection, reco::TrackingRecHitHost);

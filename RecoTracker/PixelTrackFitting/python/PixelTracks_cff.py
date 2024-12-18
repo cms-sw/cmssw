@@ -121,19 +121,9 @@ pixelTracksAlpakaSerial = makeSerialClone(pixelTracksAlpaka,
 )
 
 # legacy pixel tracks from SoA
-from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpakaPhase1_cfi import pixelTrackProducerFromSoAAlpakaPhase1 as _pixelTrackProducerFromSoAAlpakaPhase1
-from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpakaPhase2_cfi import pixelTrackProducerFromSoAAlpakaPhase2 as _pixelTrackProducerFromSoAAlpakaPhase2
-from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpakaHIonPhase1_cfi import pixelTrackProducerFromSoAAlpakaHIonPhase1 as _pixelTrackProducerFromSoAAlpakaHIonPhase1
+from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpaka_cfi import pixelTrackProducerFromSoAAlpaka as _pixelTrackProducerFromSoAAlpaka
 
-(alpaka & ~phase2_tracker).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpakaPhase1.clone(
-    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
-))
-
-(alpaka & phase2_tracker).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpakaPhase2.clone(
-    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
-))
-
-(alpaka & ~phase2_tracker & pp_on_AA).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpakaHIonPhase1.clone(
+(alpaka).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpaka.clone(
     pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
 ))
 

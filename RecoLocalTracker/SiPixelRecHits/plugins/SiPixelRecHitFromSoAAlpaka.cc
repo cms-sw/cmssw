@@ -22,7 +22,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 
 class SiPixelRecHitFromSoAAlpaka : public edm::global::EDProducer<> {
-  using HitModuleStartArray = reco::HitModuleStartArray;
+
   using hindex_type = uint32_t;//typename TrackerTraits::hindex_type;
   using HMSstorage = typename std::vector<hindex_type>;
 
