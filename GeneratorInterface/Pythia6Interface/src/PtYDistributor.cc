@@ -22,7 +22,7 @@ PtYDistributor::PtYDistributor(const edm::FileInPath& fip,
                                int ybins = 50)
     : ptmax_(ptmax), ptmin_(ptmin), ymax_(ymax), ymin_(ymin), ptbins_(ptbins), ybins_(ybins) {
   // edm::FileInPath f1(input);
-  std::string fDataFile = fip.fullPath();
+  const std::string& fDataFile = fip.fullPath();
 
   std::cout << " File from " << fDataFile << std::endl;
   TFile f(fDataFile.c_str(), "READ");
