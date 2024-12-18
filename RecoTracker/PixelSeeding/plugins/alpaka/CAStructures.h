@@ -13,16 +13,14 @@ namespace caStructures {
   struct AlgoParams {
 
     // Container sizes
-    uint32_t maxNumberOfDoublets_;
-    uint32_t maxNumberOfTuples_;
-    uint32_t avgHitsPerTrack_;
-    uint32_t avgCellsPerHit_;
-    uint32_t avgCellsPerCell_; 
-    uint32_t avgTracksPerCell_;
+    float avgHitsPerTrack_;
+    float avgCellsPerHit_;
+    float avgCellsPerCell_; 
+    float avgTracksPerCell_;
 
     // Algorithm Parameters
-    uint32_t minHitsPerNtuplet_;
-    uint32_t minHitsForSharingCut_;
+    uint16_t minHitsPerNtuplet_;
+    uint16_t minHitsForSharingCut_;
     float ptmin_;
     float hardCurvCut_;
     float cellZ0Cut_;

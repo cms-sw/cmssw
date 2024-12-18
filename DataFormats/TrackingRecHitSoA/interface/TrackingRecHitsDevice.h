@@ -27,6 +27,11 @@ namespace reco
 
     TrackingRecHitDevice() = default;
 
+     // Constructor which specifies only the SoA size, to be used when copying the results from host to device     
+    template <typename TQueue>
+    explicit TrackingRecHitDevice(TQueue queue, uint32_t nHits, uint32_t nModules)
+        : HitPortableCollectionDevice<TDev>({{int(nHits),int(nModules)}}, queue) {}
+
     // Constructor from clusters
     template <typename TQueue>
     explicit TrackingRecHitDevice(TQueue queue, SiPixelClustersDevice<TDev> const &clusters)
@@ -51,8 +56,6 @@ namespace reco
     uint32_t nModules() const { return this->template view<HitModuleSoA>().metadata().size(); }
 
     int32_t offsetBPIX2() const { return offsetBPIX2_; }
-
-    uint32_t const* hitsModuleStart() const { return this->template view<TrackingRecHitSoA>().hitsModuleStart().data(); }
 
     // asynchronously update the information cached within the class itself from the information on the device
     template <typename TQueue>

@@ -23,12 +23,13 @@ namespace reco
   class TrackingRecHitHost : public HitPortableCollectionHost {
   public:
 
-    TrackingRecHitHost() = default;
+    TrackingRecHitHost(edm::Uninitialized) : PortableHostMultiCollection<reco::TrackingRecHitSoA, reco::HitModuleSoA> {edm::kUninitialized} {}
 
     // Constructor which specifies only the SoA size, to be used when copying the results from the device to the host
     template <typename TQueue>
     explicit TrackingRecHitHost(TQueue queue, uint32_t nHits, uint32_t nModules)
-        : HitPortableCollectionHost({{int(nHits),int(nModules)}}, queue) {}
+        : HitPortableCollectionHost({{int(nHits),int(nModules)}}, queue) {} 
+          //FIXME it would have more sense to put here a +1 for modules
 
     // Constructor from clusters
     template <typename TQueue>
@@ -52,8 +53,6 @@ namespace reco
     uint32_t nModules() const { return this->template view<HitModuleSoA>().metadata().size(); }
 
     int32_t offsetBPIX2() const { return this->template view<TrackingRecHitSoA>().offsetBPIX2(); }
-
-    uint32_t const* hitsModuleStart() const { return this->template view<TrackingRecHitSoA>().hitsModuleStart().data(); }
 
     // do nothing for a host collection
     template <typename TQueue>

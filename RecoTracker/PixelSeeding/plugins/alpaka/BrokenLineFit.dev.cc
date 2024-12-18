@@ -1,5 +1,5 @@
-//#define BROKENLINE_DEBUG
-//#define BL_DUMP_HITS
+// #define BROKENLINE_DEBUG
+// #define BL_DUMP_HITS
 
 #include <cstdint>
 
@@ -16,7 +16,6 @@ using OutputSoAView = reco::TrackSoAView;
 using TupleMultiplicity = caStructures::GenericContainer;
 using Tuples = caStructures::SequentialContainer;
 
-// #define BL_DUMP_HITS
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <int N, typename TrackerTraits>
