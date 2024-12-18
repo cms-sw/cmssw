@@ -1,5 +1,5 @@
-#ifndef IOPool_Streamer_FRDFileHeader_h
-#define IOPool_Streamer_FRDFileHeader_h
+#ifndef EventFilter_Utilities_DTHHeaders_h
+#define EventFilter_Utilities_DTHHeaders_h
 
 #include <array>
 #include <cstddef>
