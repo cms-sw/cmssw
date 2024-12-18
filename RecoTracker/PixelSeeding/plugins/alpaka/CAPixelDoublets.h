@@ -16,34 +16,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   
   namespace caPixelDoublets {
 
-    template <typename TrackerTraits>
-    class InitDoublets {
-    public:
-      template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-      ALPAKA_FN_ACC void operator()(TAcc const& acc,
-                                    OuterHitOfCell<TrackerTraits>* isOuterHitOfCell,
-                                    int nHits,
-                                    CellNeighborsVector<TrackerTraits>* cellNeighbors,
-                                    CellNeighbors<TrackerTraits>* cellNeighborsContainer,
-                                    CellTracksVector<TrackerTraits>* cellTracks,
-                                    CellTracks<TrackerTraits>* cellTracksContainer) const {
-        ALPAKA_ASSERT_ACC((*isOuterHitOfCell).container);
+    // template <typename TrackerTraits>
+    // class InitDoublets {
+    // public:
+    //   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    //   ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    //                                 OuterHitOfCell<TrackerTraits>* isOuterHitOfCell,
+    //                                 int nHits,
+    //                                 CellNeighborsVector<TrackerTraits>* cellNeighbors,
+    //                                 CellNeighbors<TrackerTraits>* cellNeighborsContainer,
+    //                                 CellTracksVector<TrackerTraits>* cellTracks,
+    //                                 CellTracks<TrackerTraits>* cellTracksContainer) const {
+    //     ALPAKA_ASSERT_ACC((*isOuterHitOfCell).container);
 
-        for (auto i : cms::alpakatools::uniform_elements(acc, nHits - isOuterHitOfCell->offset))
-          (*isOuterHitOfCell).container[i].reset();
+    //     for (auto i : cms::alpakatools::uniform_elements(acc, nHits - isOuterHitOfCell->offset))
+    //       (*isOuterHitOfCell).container[i].reset();
 
-        if (cms::alpakatools::once_per_grid(acc)) {
-          cellNeighbors->construct(TrackerTraits::maxNumOfActiveDoublets, cellNeighborsContainer);
-          cellTracks->construct(TrackerTraits::maxNumOfActiveDoublets, cellTracksContainer);
-          [[maybe_unused]] auto i = cellNeighbors->extend(acc);
-          ALPAKA_ASSERT_ACC(0 == i);
-          (*cellNeighbors)[0].reset();
-          i = cellTracks->extend(acc);
-          ALPAKA_ASSERT_ACC(0 == i);
-          (*cellTracks)[0].reset();
-        }
-      }
-    };
+    //     if (cms::alpakatools::once_per_grid(acc)) {
+    //       cellNeighbors->construct(TrackerTraits::maxNumOfActiveDoublets, cellNeighborsContainer);
+    //       cellTracks->construct(TrackerTraits::maxNumOfActiveDoublets, cellTracksContainer);
+    //       [[maybe_unused]] auto i = cellNeighbors->extend(acc);
+    //       ALPAKA_ASSERT_ACC(0 == i);
+    //       (*cellNeighbors)[0].reset();
+    //       i = cellTracks->extend(acc);
+    //       ALPAKA_ASSERT_ACC(0 == i);
+    //       (*cellTracks)[0].reset();
+    //     }
+    //   }
+    // };
 
     // Not used for the moment, see below.
     //constexpr auto getDoubletsFromHistoMaxBlockSize = 64;  // for both x and y
@@ -57,20 +57,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //       __launch_bounds__(getDoubletsFromHistoMaxBlockSize, getDoubletsFromHistoMinBlocksPerMP)  // TODO: Alapakify
       // #endif
       ALPAKA_FN_ACC void operator()(TAcc const& acc,
-                                    // CACellT<TrackerTraits>* cells,
+                                    uint32_t maxNumOfDoublets,
                                     CASimpleCell<TrackerTraits>* cells,
                                     uint32_t* nCells,
-                                    // CellNeighborsVector<TrackerTraits>* cellNeighbors,
-                                    // CellTracksVector<TrackerTraits>* cellTracks,
+                                    // cms::alpakatools::AtomicPairCounter *apc,
                                     HitsConstView hh,
                                     ::reco::CAGraphSoAConstView cc,
                                     uint32_t const* __restrict__ offsets,
-                                    PhiBinner<TrackerTraits>* phiBinner,
-                                    // OuterHitOfCell<TrackerTraits>* isOuterHitOfCell,
+                                    PhiBinner<TrackerTraits> const* phiBinner,
                                     HitToCell* outerHitHisto,
                                     AlgoParams const& params) const {
         doubletsFromHisto<TrackerTraits>(
-            acc, cells, nCells, hh, cc, offsets, phiBinner, outerHitHisto, params);
+            acc, maxNumOfDoublets, cells, nCells, /*apc,*/ hh, cc, offsets, phiBinner, outerHitHisto, params);
       }
     };
 

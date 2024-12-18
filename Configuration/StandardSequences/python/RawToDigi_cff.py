@@ -67,6 +67,10 @@ RawToDigi_noTk = cms.Sequence(RawToDigiTask_noTk)
 RawToDigiTask_pixelOnly = cms.Task(siPixelDigisTask, scalersRawToDigi)
 RawToDigi_pixelOnly = cms.Sequence(RawToDigiTask_pixelOnly)
 
+
+RawToDigiTask_trackerOnly = cms.Task(siPixelDigisTask, siStripDigis, scalersRawToDigi)
+RawToDigi_trackerOnly = cms.Sequence(RawToDigiTask_trackerOnly)
+
 RawToDigiTask_ecalOnly = cms.Task(ecalDigisTask, ecalPreshowerDigis, scalersRawToDigi)
 RawToDigi_ecalOnly = cms.Sequence(RawToDigiTask_ecalOnly)
 

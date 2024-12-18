@@ -16,7 +16,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoTracker/PixelSeeding/interface/alpaka/CAGeometrySoACollection.h"
 
-#include "CACell.h"
+#include "CASimpleCell.h"
 #include "CAHitNtupletGeneratorKernels.h"
 #include "HelixFit.h"
 
@@ -33,20 +33,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using HitsConstView = ::reco::TrackingRecHitConstView;
     using HitsOnDevice = reco::TrackingRecHitsSoACollection;
     using HitsOnHost = ::reco::TrackingRecHitHost;
-    using hindex_type = uint32_t;//typename TrackingRecHitSoA<TrackerTraits>::hindex_type;
+    using hindex_type = uint32_t;
 
-    using HitToTuple = caStructures::HitToTupleT<TrackerTraits>;
-    using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
-    using OuterHitOfCell = caStructures::OuterHitOfCellT<TrackerTraits>;
-
-    using CACell = CACellT<TrackerTraits>;
     using TkSoADevice = reco::TracksSoACollection;
-    using HitContainer = caStructures::HitContainerT<TrackerTraits>;
-    using Tuple = HitContainer;
-
-    using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
-    using CellTracksVector = caStructures::CellTracksVectorT<TrackerTraits>;
-
     using Quality = ::pixelTrack::Quality;
 
     using QualityCuts = ::pixelTrack::QualityCutsT<TrackerTraits>;
@@ -54,6 +43,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using Counters = caHitNtupletGenerator::Counters;
 
     using CAGeometryOnDevice = reco::CAGeometrySoACollection;
+
   public:
     CAHitNtupletGenerator(const edm::ParameterSet& cfg);
 
@@ -70,6 +60,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     TkSoADevice makeTuplesAsync(HitsOnDevice const& hits_d,
                                 CAGeometryOnDevice const& params_d,
                                 float bfield,
+                                uint32_t maxDoublets,
+                                uint32_t maxTuples,
                                 Queue& queue) const;
 
   private:
