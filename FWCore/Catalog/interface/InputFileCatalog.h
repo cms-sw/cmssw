@@ -19,7 +19,7 @@
 namespace edm {
   class FileCatalogItem {
   public:
-    FileCatalogItem(std::vector<std::string> const& pfns, std::string const& lfn) : pfns_(pfns), lfn_(lfn) {}
+    FileCatalogItem(std::vector<std::string> pfns, std::string lfn) : pfns_(std::move(pfns)), lfn_(std::move(lfn)) {}
 
     std::string const& fileName(unsigned iCatalog) const { return pfns_[iCatalog]; }
     std::string const& logicalFileName() const { return lfn_; }
@@ -54,7 +54,6 @@ namespace edm {
                   bool useLFNasPFNifLFNnotFound,
                   edm::CatalogType catType);
     std::vector<std::string> logicalFileNames_;
-    std::vector<std::string> fileNames_;
     std::vector<FileCatalogItem> fileCatalogItems_;
     edm::propagate_const<std::unique_ptr<FileLocator>> overrideFileLocator_;
 
