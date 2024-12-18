@@ -137,7 +137,9 @@ See the previous section for considerations about the use of device-mapped
 memory.
 
 
-## A note about copies and synchronisation
+## Notes about copies and synchronisation
+
+### Host-to-device copy
 
 When copying data from a host buffer to a device buffer, _e.g._ with
 ```c++
@@ -162,6 +164,40 @@ std::memset(a_host_buffer.data(), 0x00, size);
 ```
 is likely to overwrite part of the buffer while the copy is still ongoing,
 resulting in `a_device_buffer` with incomplete and corrupted contents.
+
+### Host-to-device move
+
+For host data types that are movable and not copyable one can, to
+large degree, avoid worrying about the caveats above about avoiding
+any operations on the host with the following utility and move semantics
+```c++
+#include "HeterogeneousCore/AlpakaInterface/interface/moveToDeviceAsync.h"
+// ...
+auto device_object = cms::alpakatools::moveToDeviceAsync(queue, std::move(host_object));
+```
+
+Here the host-side `host_object` is _moved_ to the
+`moveToDeviceAsync()` function, which returns a correponding
+device-side `device_object`. In this case any subsequent use of
+`host_object` is clearly "use after move", which is easier to catch in
+code review or by static analysis tools than the consequences of
+`alpaka::mempcy()`.
+
+The `cms::alpakatools::CopyToDevice<T>` class temlate must have a
+specialization for the host data type (otherwise the compilation will fail).
+
+As mentioned above, the host data type must be movable but not
+copyable (the compilation will fail with copyable types). For example,
+the `PortableHostCollection` and `PortableHostObject` class templates
+can be used, but Alpaka buffers can not be directly used.
+
+The host data object should manage memory in
+[queue-ordered](#allocating-queue-ordered-host-buffers-in-device-mapped-memory)
+way. If not, the object must synchronize the device and the host in
+its destructor (although such synchronization is undesirable).
+Otherwise, the behavior is undefined.
+
+### Device-to-host copy
 
 When copying data from a device buffer to a host buffer, _e.g._ with
 ```c++
