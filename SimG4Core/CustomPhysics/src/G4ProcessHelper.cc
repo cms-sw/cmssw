@@ -27,7 +27,7 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet& p, CustomParticleFacto
   G4String line;
 
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("processesDef");
-  std::string processDefFilePath = fp.fullPath();
+  const std::string& processDefFilePath = fp.fullPath();
   std::ifstream process_stream(processDefFilePath.c_str());
 
   resonant = p.getParameter<bool>("resonant");
