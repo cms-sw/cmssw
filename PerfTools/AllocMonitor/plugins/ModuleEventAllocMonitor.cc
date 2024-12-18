@@ -273,6 +273,8 @@ public:
     iAR.watchPreBeginJob([this](auto const&, auto const&) {
       streamModuleAllocs_.resize(nStreams_ * nModules_);
       streamModuleInAcquire_ = std::vector<std::atomic<bool>>(nStreams_ * nModules_);
+      streamModuleFinishOrder_ = std::vector<int>(nStreams_ * nModules_);
+      streamNFinishedModules_ = std::vector<std::atomic<unsigned int>>(nStreams_);
       streamSync_ = std::vector<std::atomic<unsigned int>>(nStreams_);
     });
 
@@ -300,6 +302,9 @@ public:
           << " " << v << " " << info->allocMap_.allocationSizes().size() << "\n";
         file->write(s.str());
         auto index = moduleIndex(mod_id);
+        auto finishedOrder = streamNFinishedModules_[iStream.streamID().value()]++;
+        streamModuleFinishOrder_[finishedOrder + nModules_ * iStream.streamID().value()] =
+            nModules_ * iStream.streamID().value() + index;
         streamModuleAllocs_[nModules_ * iStream.streamID().value() + index] = info->allocMap_;
         ++streamSync_[iStream.streamID().value()];
       }
@@ -359,20 +364,23 @@ public:
       auto info = filter_.stopOnThread();
       if (info) {
         streamSync_[iStream.streamID().value()].load();
-        auto itBegin = streamModuleAllocs_.begin() + nModules_ * iStream.streamID().value();
-        auto const itEnd = itBegin + nModules_;
-
+        //search for associated allocs to deallocs in reverse order that modules finished
+        auto nRan = streamNFinishedModules_[iStream.streamID().value()].load();
+        auto itBegin = streamModuleFinishOrder_.cbegin() + nModules_ - nRan;
+        auto const itEnd = itBegin + nRan;
+        streamNFinishedModules_[iStream.streamID().value()].store(0);
         {
           std::vector<std::size_t> moduleDeallocSize(nModules_);
           std::vector<unsigned int> moduleDeallocCount(nModules_);
           for (auto& address : info->unmatched_) {
-            decltype(itBegin->findOffset(address)) offset;
-            auto found = std::find_if(itBegin, itEnd, [&address, &offset](auto const& elem) {
+            decltype(streamModuleAllocs_[0].findOffset(address)) offset;
+            auto found = std::find_if(itBegin, itEnd, [&address, &offset, this](auto const& index) {
+              auto const& elem = streamModuleAllocs_[index];
               return elem.size() != 0 and (offset = elem.findOffset(address)) != elem.size();
             });
             if (found != itEnd) {
-              auto index = std::distance(itBegin, found);
-              moduleDeallocSize[index] += found->allocationSizes()[offset];
+              auto index = *found - nModules_ * iStream.streamID().value();
+              moduleDeallocSize[index] += streamModuleAllocs_[*found].allocationSizes()[offset];
               moduleDeallocCount[index] += 1;
             }
           }
@@ -387,8 +395,12 @@ public:
           }
         }
 
-        for (auto it = itBegin; it != itEnd; ++it) {
-          it->clear();
+        {
+          auto itBegin = streamModuleAllocs_.begin() + nModules_ * iStream.streamID().value();
+          auto itEnd = itBegin + nModules_;
+          for (auto it = itBegin; it != itEnd; ++it) {
+            it->clear();
+          }
         }
       }
     });
@@ -425,6 +437,9 @@ private:
   //The size is (#streams)*(#modules)
   CMS_THREAD_GUARD(streamSync_) std::vector<AllocMap> streamModuleAllocs_;
   CMS_THREAD_GUARD(streamSync_) std::vector<std::atomic<bool>> streamModuleInAcquire_;
+  //This holds the index into the streamModuleAllocs_ for the module which finished
+  CMS_THREAD_GUARD(streamSync_) std::vector<int> streamModuleFinishOrder_;
+  std::vector<std::atomic<unsigned int>> streamNFinishedModules_;
   std::vector<std::atomic<unsigned int>> streamSync_;
   std::vector<std::string> moduleNames_;
   std::vector<int> moduleIDs_;
