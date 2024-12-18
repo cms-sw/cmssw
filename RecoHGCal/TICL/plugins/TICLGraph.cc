@@ -58,14 +58,14 @@ std::vector<std::vector<unsigned int>> TICLGraph::findSubComponents(std::vector<
 
 inline void TICLGraph::findRootNodes() {
   for (auto const& n : nodes_) {
-    if (n.getInnerNeighbours().size() == 0) {
+    if (n.getInnerNeighbours().empty()) {
       rootNodes_.push_back(n);
     }
   }
 }
 
 bool TICLGraph::isGraphOk() {
-  for (auto n : nodes_) {
+  for (const auto& n : nodes_) {
     if (n.getInnerNeighbours().size() > 1) {
       return false;
     }
