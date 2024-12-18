@@ -32,6 +32,7 @@ struct HGCalPassive {
     double moduleThick = args.value<double>("ModuleThick");                  // Thickness of the overall module
     int sectors = args.value<int>("Sectors");                                // number of phi sectors (cassettes)
     std::vector<std::string> tagsector;                                      // Tag of the sector (to be added to name)
+    tagsector.reserve(sectors);
     for (int k = 0; k < sectors; ++k)
       tagsector.emplace_back("F" + std::to_string(k));
     int position = args.value<int>("Position");  // 0 if -z; 1 if +z
