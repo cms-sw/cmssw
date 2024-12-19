@@ -59,6 +59,8 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
+#include "SimG4CMS/Forward/interface/MtdHitCategory.h"
+
 #include <CLHEP/Units/SystemOfUnits.h>
 
 namespace {
@@ -187,7 +189,7 @@ namespace {
       if (!vertex_property.simTrack)
         return;
       // -- loop over possible trackIdOffsets to save also sim clusters from non-direct hits
-      for (unsigned int offset = 0; offset < 4; offset++) {
+      for (unsigned int offset = 0; offset < MtdHitCategory::n_categories + 1; offset++) {
         auto trackIdx = vertex_property.simTrack->trackId();
         trackIdx += offset * (static_cast<int>(PSimHit::k_tidOffset));
         IfLogDebug(DEBUG, messageCategoryGraph_)

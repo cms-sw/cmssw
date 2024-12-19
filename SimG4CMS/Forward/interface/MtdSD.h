@@ -2,6 +2,8 @@
 #define SimG4CMSForward_MtdSD_h
 
 #include "SimG4CMS/Forward/interface/TimingSD.h"
+#include "SimG4CMS/Forward/interface/MtdHitCategory.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
@@ -27,11 +29,9 @@ public:
 protected:
   int getTrackID(const G4Track *) override;
 
-private:
-  static constexpr unsigned int k_idsecOffset = 1;
-  static constexpr unsigned int k_idloopOffset = 2;
-  static constexpr unsigned int k_idFromCaloOffset = 3;
+  void setHitClassID(const G4Step *) override;
 
+private:
   double energyCut;
   double energyHistoryCut;
 
