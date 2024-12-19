@@ -21,8 +21,8 @@ namespace edm {
                                      std::string const& override,
                                      bool useLFNasPFNifLFNnotFound,
                                      edm::CatalogType catType)
-      : logicalFileNames_(fileNames), fileCatalogItems_(), overrideFileLocator_() {
-    init(override, useLFNasPFNifLFNnotFound, catType);
+      : fileCatalogItems_(), overrideFileLocator_() {
+    init(fileNames, override, useLFNasPFNifLFNnotFound, catType);
   }
 
   InputFileCatalog::~InputFileCatalog() {}
@@ -36,7 +36,8 @@ namespace edm {
     return tmp;
   }
 
-  void InputFileCatalog::init(std::string const& inputOverride,
+  void InputFileCatalog::init(std::vector<std::string> logicalFileNames,
+                              std::string const& inputOverride,
                               bool useLFNasPFNifLFNnotFound,
                               edm::CatalogType catType) {
     typedef std::vector<std::string>::iterator iter;
@@ -123,7 +124,7 @@ namespace edm {
       throw ex;
     }
 
-    for (auto& lfn : logicalFileNames_) {
+    for (auto& lfn : logicalFileNames) {
       boost::trim(lfn);
       std::vector<std::string> pfns;
       if (lfn.empty()) {
@@ -147,7 +148,7 @@ namespace edm {
       }
       lfn.shrink_to_fit();  // try to release memory
 
-      fileCatalogItems_.emplace_back(std::move(pfns), lfn);
+      fileCatalogItems_.emplace_back(std::move(pfns), std::move(lfn));
     }
   }
 
