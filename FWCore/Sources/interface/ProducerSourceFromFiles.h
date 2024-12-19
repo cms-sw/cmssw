@@ -21,7 +21,6 @@ namespace edm {
 
     using FromFiles::catalog;
     using FromFiles::fileNames;
-    using FromFiles::logicalFileNames;
 
     static void fillDescription(ParameterSetDescription& desc);
 
