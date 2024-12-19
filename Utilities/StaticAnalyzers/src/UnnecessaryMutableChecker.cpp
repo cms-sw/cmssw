@@ -46,6 +46,15 @@ namespace clangcms {
       if (!Field->isMutable()) {
         continue;
       }
+
+      // == Skip non-private mutables
+      // Public mutable members are flagged by PublicMutableChecker
+      // Private ones can be modified by other classes, so it is bit hard to find if
+      // a `mutable` attribute is not necessary (i.e. not modified in any const method).
+      if (Field->getAccess() != clang::AS_private) {
+        return;
+      }
+
       // == Skip atmoic mutables, these are thread-safe by design ==
       if (support::isStdAtomic(Field)) {
         return;  // Skip if it's a mutable std::atomic
@@ -64,16 +73,17 @@ namespace clangcms {
       if (!isMutableMemberModified(Field, RD)) {
         clang::SourceLocation Loc = Field->getLocation();
         if (Loc.isValid()) {
+          clang::ento::PathDiagnosticLocation FieldLoc(Loc, SM);
           if (!BT) {
             BT = std::make_unique<clang::ento::BugType>(this, "Unnecessarily Mutable Member", "Coding Practices");
           }
-          BR.EmitBasicReport(
-              Field,
-              this,
-              "Useless mutable field",
-              "ConstThreadSafety",
-              "The mutable field '" + Field->getQualifiedNameAsString() + "' is not modified in any const methods",
-              PathLoc);
+          BR.EmitBasicReport(Field,
+                             this,
+                             "Useless mutable field",
+                             "ConstThreadSafety",
+                             "The mutable field '" + Field->getQualifiedNameAsString() +
+                                 "' is not modified in any public const methods",
+                             FieldLoc);
         }
       }
     }
