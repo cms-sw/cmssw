@@ -296,7 +296,7 @@ static std::vector<ap_uint<64>> packCollection(const std::vector<T>& collection)
       packed.emplace_back(0);
     }
   } else if constexpr (std::is_same_v<T, EtSum>) {
-    if (packed.size() < 1) {
+    if (packed.empty()) {
       packed.emplace_back(0);
     }
   }

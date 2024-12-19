@@ -58,9 +58,9 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
     DTChamberId chId(mp.rawId);
     DTSuperLayerId slId(mp.rawId);
 
-    bool PhiMP = 0;
+    bool PhiMP = false;
     if (slId.superLayer() != 2)
-      PhiMP = 1;
+      PhiMP = true;
 
     int sector = chId.sector();
     int wheel = chId.wheel();
@@ -93,15 +93,15 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
       float t0 = (mp.t0 - shift_back * LHC_CLK_FREQ) * ((float)TIME_TO_TDC_COUNTS / (float)LHC_CLK_FREQ);
       t0 = t0 - t0_mean;
 
-      bool co_found = 0;
+      bool co_found = false;
 
       for (auto &mp2 : allMPs) {
         DTChamberId chId2(mp2.rawId);
         DTSuperLayerId slId2(mp2.rawId);
 
-        bool PhiMP2 = 0;
+        bool PhiMP2 = false;
         if (slId2.superLayer() != 2)
-          PhiMP2 = 1;
+          PhiMP2 = true;
 
         int qcut = co_quality;  // Tested for 0,1,5
         if (mp.quality > qcut)
@@ -120,15 +120,15 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
         if (sector2 == 14)
           sector2 = 10;
 
-        bool SectorSearch = 0;
+        bool SectorSearch = false;
         if (sector2 == sector || sector2 == sector_p1 || sector2 == sector_m1)
-          SectorSearch = 1;
+          SectorSearch = true;
         if (SectorSearch != 1)
           continue;
 
-        bool WheelSearch = 0;
+        bool WheelSearch = false;
         if (wheel2 == wheel || wheel2 == wheel - 1 || wheel2 == wheel + 1)
-          WheelSearch = 1;
+          WheelSearch = true;
         if (WheelSearch != 1)
           continue;
 
@@ -147,13 +147,13 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
 
         float thres = t0_width + t0_width2;
 
-        bool SameCh = 0;
+        bool SameCh = false;
         if (station2 == station && sector2 == sector && wheel2 == wheel)
-          SameCh = 1;
+          SameCh = true;
 
-        bool Wh2Exc = 0;
+        bool Wh2Exc = false;
         if (abs(wheel) == 2 && station < 3 && SameCh == 1)
-          Wh2Exc = 1;  // exception for WH2 MB1/2
+          Wh2Exc = true;  // exception for WH2 MB1/2
 
         if (Wh2Exc == 1 && PhiMP != PhiMP2) {  // pass if Phi-Th(large k) pair in same chamber
           float k = 0;
@@ -163,10 +163,10 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
             k = mp2.phiB;
 
           if (wheel == 2 && k > 0.9) {
-            co_found = 1;
+            co_found = true;
             break;
           } else if (wheel == -2 && k < -0.9) {
-            co_found = 1;
+            co_found = true;
             break;
           }
         }
@@ -180,7 +180,7 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
           continue;  // Different chambers + not adjacent chambers (standard)
 
         if (abs(t02 - t0) < thres) {
-          co_found = 1;
+          co_found = true;
           break;
         }
       }  // loop over all MPs and look for co
