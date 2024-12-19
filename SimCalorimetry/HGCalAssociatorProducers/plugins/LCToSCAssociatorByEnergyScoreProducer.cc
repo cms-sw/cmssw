@@ -1,5 +1,7 @@
 #include "LCToSCAssociatorByEnergyScoreProducer.h"
 
+#include <memory>
+
 template <typename HIT>
 LCToSCAssociatorByEnergyScoreProducer<HIT>::LCToSCAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
@@ -13,7 +15,7 @@ LCToSCAssociatorByEnergyScoreProducer<HIT>::LCToSCAssociatorByEnergyScoreProduce
       hits_token_.push_back(consumes<std::vector<HIT>>(label));
   }
 
-  rhtools_.reset(new hgcal::RecHitTools());
+  rhtools_ = std::make_shared<hgcal::RecHitTools>();
 
   // Register the product
   produces<ticl::LayerClusterToSimClusterAssociator>();
