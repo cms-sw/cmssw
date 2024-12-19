@@ -5,6 +5,8 @@
  *      Author: kbunkow
  */
 
+#include <memory>
+
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/EmulationObserverBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -65,7 +67,7 @@ void EmulationObserverBase::observeProcesorEmulation(unsigned int iProcessor,
 }
 
 void EmulationObserverBase::observeEventBegin(const edm::Event& iEvent) {
-  omtfCand.reset(new AlgoMuon());
+  omtfCand = std::make_shared<AlgoMuon>();
   candProcIndx = 0xffff;
 
   simMuon = findSimMuon(iEvent);

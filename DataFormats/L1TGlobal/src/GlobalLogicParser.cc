@@ -187,7 +187,7 @@ bool GlobalLogicParser::buildRpnVector(const std::string& logicalExpressionVal) 
     exprStringStream >> std::skipws >> std::ws >> tokenString;
 
     // skip the end
-    if (tokenString.find_first_not_of(whitespaces) == std::string::npos || tokenString.length() == 0) {
+    if (tokenString.find_first_not_of(whitespaces) == std::string::npos || tokenString.empty()) {
       //LogTrace("L1TGlobal")
       //<< "  Break for token string = " << tokenString
       //<< std::endl;
