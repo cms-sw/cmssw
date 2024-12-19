@@ -77,7 +77,7 @@ HGCalTestGuardRing::HGCalTestGuardRing(const edm::ParameterSet& ps)
                               HGCalTypes::WaferFive,
                               HGCalTypes::WaferThree};
     edm::FileInPath filetmp("SimG4CMS/Calo/data/" + waferFile_);
-    std::string fileName = filetmp.fullPath();
+    const std::string& fileName = filetmp.fullPath();
     std::ifstream fInput(fileName.c_str());
     if (!fInput.good()) {
       edm::LogVerbatim("HGCalSim") << "Cannot open file " << fileName;
