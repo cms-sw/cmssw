@@ -5,7 +5,7 @@
 #include <list>
 #include <map>
 #include <optional>
-#include <sstream>
+#include <syncstream>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -112,7 +112,7 @@ namespace cms::alpakatools {
         fillCaches_(config.fillCaches),
         fillCacheValue_(config.fillCacheValue) {
     if (debug_) {
-      std::ostringstream out;
+      std::osyncstream out(std::cerr);
       out << "CachingAllocator settings\n"
           << "  bin growth " << binGrowth_ << "\n"
           << "  min bin    " << minBin_ << "\n"
@@ -122,8 +122,7 @@ namespace cms::alpakatools {
         auto binSize = detail::power(binGrowth_, bin);
         out << "    " << std::right << std::setw(12) << detail::as_bytes(binSize) << '\n';
       }
-      out << "  maximum amount of cached memory: " << detail::as_bytes(maxCachedBytes_);
-      std::cout << out.str() << std::endl;
+      out << "  maximum amount of cached memory: " << detail::as_bytes(maxCachedBytes_) << '\n';
     }
   }
 
@@ -219,12 +218,11 @@ namespace cms::alpakatools {
         alpaka::enqueue(*(block->queue), *(block->event));
       } catch (std::exception& e) {
         if (debug_) {
-          std::ostringstream out;
+          std::osyncstream out(std::cerr);
           out << "CachingAllocator::free() caught an alpaka error: " << e.what() << "\n";
           out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " freed " << block->bytes << " bytes at "
               << block->buffer->data() << " from associated queue " << block->queue->m_spQueueImpl.get() << ", event "
               << block->event->m_spEventImpl.get() << ".\n";
-          std::cout << out.str() << std::endl;
         }
         // Free the block implicitly when it goes out of scope.
         // Note: if the underlying runtime is in an invalid state, this may
@@ -234,11 +232,10 @@ namespace cms::alpakatools {
       totalFree_ += block->bytes;
 
       if (debug_) {
-        std::ostringstream out;
+        std::osyncstream out(std::cerr);
         out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " returned " << block->bytes << " bytes at "
             << block->buffer->data() << " from associated queue " << block->queue->m_spQueueImpl.get() << ", event "
             << block->event->m_spEventImpl.get() << ".\n";
-        std::cout << out.str() << std::endl;
       }
 
       // Move the block into the free list
@@ -265,12 +262,11 @@ namespace cms::alpakatools {
         }
       } catch (std::exception& e) {
         if (debug_) {
-          std::ostringstream out;
+          std::osyncstream out(std::cerr);
           out << "CachingAllocator::free() caught an alpaka error: " << e.what() << "\n";
           out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " freed " << block->bytes << " bytes at "
               << block->buffer->data() << " from associated queue " << block->queue->m_spQueueImpl.get() << ", event "
               << block->event->m_spEventImpl.get() << ".\n";
-          std::cout << out.str() << std::endl;
         }
         // Free the block implicitly when it goes out of scope.
         // Note: if the underlying runtime is in an invalid state, this may
@@ -279,11 +275,10 @@ namespace cms::alpakatools {
       }
 
       if (debug_) {
-        std::ostringstream out;
+        std::osyncstream out(std::cerr);
         out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " freed " << block->bytes << " bytes at "
             << block->buffer->data() << " from associated queue " << block->queue->m_spQueueImpl.get() << ", event "
             << block->event->m_spEventImpl.get() << ".\n";
-        std::cout << out.str() << std::endl;
       }
 
       // The buffer is not recached, delete it and free the memory associated to it.
@@ -391,13 +386,11 @@ namespace cms::alpakatools {
         totalRequested_ += block.requested;
 
         if (debug_) {
-          std::ostringstream out;
+          std::osyncstream out(std::cerr);
           out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " reused cached block at "
               << block.buffer->data() << " (" << block.bytes << " bytes) for queue " << block.queue->m_spQueueImpl.get()
               << ", event " << block.event->m_spEventImpl.get() << " (previously associated with queue "
-              << candidate->queue->m_spQueueImpl.get() << ", event " << candidate->event->m_spEventImpl.get() << ")."
-              << std::endl;
-          std::cout << out.str() << std::endl;
+              << candidate->queue->m_spQueueImpl.get() << ", event " << candidate->event->m_spEventImpl.get() << ").\n";
         }
 
         // Free the block descriptor
@@ -443,11 +436,10 @@ namespace cms::alpakatools {
     } catch (std::runtime_error const& e) {
       // The allocation attempt failed: free all cached blocks on the device and retry
       if (debug_) {
-        std::ostringstream out;
+        std::osyncstream out(std::cerr);
         out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " failed to allocate " << block.bytes
-            << " bytes for queue " << block.queue->m_spQueueImpl.get() << ", retrying after freeing cached allocations"
-            << std::endl;
-        std::cout << out.str() << std::endl;
+            << " bytes for queue " << block.queue->m_spQueueImpl.get()
+            << ", retrying after freeing cached allocations.\n";
       }
       // TODO implement a method that frees only up to block.bytes bytes ?
       freeAllCached();
@@ -464,11 +456,10 @@ namespace cms::alpakatools {
     totalRequested_ += block.requested;
 
     if (debug_) {
-      std::ostringstream out;
+      std::osyncstream out(std::cerr);
       out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " allocated new block at "
           << block.buffer->data() << " (" << block.bytes << " bytes associated with queue "
-          << block.queue->m_spQueueImpl.get() << ", event " << block.event->m_spEventImpl.get() << "." << std::endl;
-      std::cout << out.str() << std::endl;
+          << block.queue->m_spQueueImpl.get() << ", event " << block.event->m_spEventImpl.get() << ".\n";
     }
   }
 
@@ -480,9 +471,8 @@ namespace cms::alpakatools {
       while (bin.blocks_.try_pop(block)) {
         totalFree_ -= block->bytes;
         if (debug_) {
-          std::ostringstream out;
+          std::osyncstream out(std::cerr);
           out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " freed " << block->bytes << " bytes.\n";
-          std::cout << out.str() << std::endl;
         }
         block.reset();
       }
