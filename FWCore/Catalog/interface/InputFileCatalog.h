@@ -42,18 +42,19 @@ namespace edm {
 
     ~InputFileCatalog();
     std::vector<FileCatalogItem> const& fileCatalogItems() const { return fileCatalogItems_; }
-    std::vector<std::string> const& logicalFileNames() const { return logicalFileNames_; }
     std::vector<std::string> fileNames(unsigned iCatalog) const;
     bool empty() const { return fileCatalogItems_.empty(); }
     static bool isPhysical(std::string const& name) { return (name.empty() || name.find(':') != std::string::npos); }
 
   private:
-    void init(std::string const& override, bool useLFNasPFNifLFNnotFound, edm::CatalogType catType);
+    void init(std::vector<std::string> logicalFileNames,
+              std::string const& override,
+              bool useLFNasPFNifLFNnotFound,
+              edm::CatalogType catType);
     void findFile(std::string const& lfn,
                   std::vector<std::string>& pfns,
                   bool useLFNasPFNifLFNnotFound,
                   edm::CatalogType catType);
-    std::vector<std::string> logicalFileNames_;
     std::vector<FileCatalogItem> fileCatalogItems_;
     edm::propagate_const<std::unique_ptr<FileLocator>> overrideFileLocator_;
 

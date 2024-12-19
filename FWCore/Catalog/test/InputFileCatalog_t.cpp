@@ -25,14 +25,6 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWCore/Catalog]") {
 
     edm::InputFileCatalog catalog(std::vector<std::string>{"/store/foo/bar", "   file:/foo/bar", "root://foobar "}, "");
 
-    SECTION("logicalFileNames") {
-      auto const& lfns = catalog.logicalFileNames();
-      REQUIRE(lfns.size() == 3);
-      CHECK(lfns[0] == "/store/foo/bar");
-      CHECK(lfns[1] == "");  // was PFN
-      CHECK(lfns[2] == "");  // was PFN
-    }
-
     SECTION("fileNames") {
       SECTION("Catalog 0") {
         auto const names = catalog.fileNames(0);
@@ -76,14 +68,6 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWCore/Catalog]") {
     edm::InputFileCatalog catalog(std::vector<std::string>{"/store/foo/bar", "   file:/foo/bar", "root://foobar "},
                                   "T1_US_FNAL,,T1_US_FNAL,FNAL_dCache_EOS,XRootD");
 
-    SECTION("logicalFileNames") {
-      auto const& lfns = catalog.logicalFileNames();
-      REQUIRE(lfns.size() == 3);
-      CHECK(lfns[0] == "/store/foo/bar");
-      CHECK(lfns[1] == "");  // was PFN
-      CHECK(lfns[2] == "");  // was PFN
-    }
-
     SECTION("fileNames") {
       auto const names = catalog.fileNames(0);
       REQUIRE(names.size() == 3);
@@ -115,14 +99,6 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWCore/Catalog]") {
 
     edm::InputFileCatalog catalog(
         std::vector<std::string>{"/store/foo/bar", "/tmp/foo/bar", "root://foobar "}, "", true);
-
-    SECTION("logicalFileNames") {
-      auto const& lfns = catalog.logicalFileNames();
-      REQUIRE(lfns.size() == 3);
-      CHECK(lfns[0] == "/store/foo/bar");
-      CHECK(lfns[1] == "/tmp/foo/bar");
-      CHECK(lfns[2] == "");  // was PFN
-    }
 
     SECTION("fileNames") {
       SECTION("Catalog 0") {
