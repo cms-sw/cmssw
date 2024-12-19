@@ -33,7 +33,7 @@ namespace edm {
 
   class InputFileCatalog {
   public:
-    InputFileCatalog(std::vector<std::string> const& fileNames,
+    InputFileCatalog(std::vector<std::string> fileNames,
                      std::string const& override,
                      bool useLFNasPFNifLFNnotFound = false,
                      //switching between two catalog types
