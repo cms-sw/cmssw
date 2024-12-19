@@ -18,7 +18,7 @@ class MPThetaMatching : public MPFilter {
 public:
   // Constructors and destructor
   MPThetaMatching(const edm::ParameterSet &pset);
-  ~MPThetaMatching() override = default;
+  ~MPThetaMatching() override;  // = default;
 
   // Main methods
   void initialise(const edm::EventSetup &iEventSetup) override;
@@ -30,11 +30,11 @@ public:
            const edm::EventSetup &iEventSetup,
            std::vector<cmsdt::metaPrimitive> &allMPaths,
            std::vector<cmsdt::metaPrimitive> &inMPaths,
-           std::vector<cmsdt::metaPrimitive> &outMPaths) override {};
+           std::vector<cmsdt::metaPrimitive> &outMPaths) override{};
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
            MuonPathPtrs &inMPath,
-           MuonPathPtrs &outMPath) override {};
+           MuonPathPtrs &outMPath) override{};
 
   void finish() override;
 
@@ -48,12 +48,14 @@ public:
   float zFE[5] = {-658.9, -393.3, 126.4, 393.3, 658.9};  //cm
   float xFE[3] = {218 / 2., 266.8 / 2., 315 / 2.};       //cm
   float ZRES_CONV = 65536. / 1500;
+  int totOUTtheta, totINtheta, totOUTphi, totINphi;
+  int nothetaOUTphi, st4OUTphi, hqOUTphi, nophiOUTtheta;
 
 private:
   // Private methods
   std::vector<cmsdt::metaPrimitive> filter(std::vector<cmsdt::metaPrimitive> inMPs,
-//                                           int th_option,
-//                                           int th_quality,
+                                           //                                           int th_option,
+                                           //                                           int th_quality,
                                            double shift_back);
 
   bool isThereThetaMPInChamber(int sector, int wheel, int station, std::vector<cmsdt::metaPrimitive> thetaMPs);
@@ -64,8 +66,11 @@ private:
                            const std::tuple<cmsdt::metaPrimitive, cmsdt::metaPrimitive, float> &b) {
     return std::get<2>(a) < std::get<2>(b);
   };
-  void orderAndSave(std::vector<std::tuple<cmsdt::metaPrimitive, cmsdt::metaPrimitive, float>> deltaTimePosPhiCands, 
-            std::vector<cmsdt::metaPrimitive> *outMPaths, std::vector<cmsdt::metaPrimitive> *savedThetas);
+  void orderAndSave(std::vector<std::tuple<cmsdt::metaPrimitive, cmsdt::metaPrimitive, float>> deltaTimePosPhiCands,
+                    std::vector<cmsdt::metaPrimitive> *outMPaths,
+                    std::vector<cmsdt::metaPrimitive> *savedThetas);
+
+  //float computePosRefX(cmsdt::metaPrimitive);
 
   // Private attributes
   const bool debug_;
