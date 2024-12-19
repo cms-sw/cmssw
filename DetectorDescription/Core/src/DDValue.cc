@@ -5,6 +5,7 @@
 #include "DetectorDescription/Core/interface/DDComparator.h"
 
 #include <cassert>
+#include <memory>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -49,7 +50,7 @@ DDValue::DDValue(const std::string& name, const std::vector<DDValuePair>& v) : i
   auto it = v.begin();
   std::vector<std::string> svec;
   std::vector<double> dvec;
-  vecPair_.reset(new vecpair_type(false, std::make_pair(svec, dvec)));
+  vecPair_ = std::make_shared<vecpair_type>(false, std::make_pair(svec, dvec));
   for (; it != v.end(); ++it) {
     vecPair_->second.first.emplace_back(it->first);
     vecPair_->second.second.emplace_back(it->second);
@@ -62,7 +63,7 @@ DDValue::DDValue(const std::string& name, double val) : id_(0) {
   std::vector<std::string> svec(1, "");
   std::vector<double> dvec(1, val);
 
-  vecPair_.reset(new vecpair_type(false, std::make_pair(svec, dvec)));
+  vecPair_ = std::make_shared<vecpair_type>(false, std::make_pair(svec, dvec));
   setEvalState(true);
 }
 
@@ -71,7 +72,7 @@ DDValue::DDValue(const std::string& name, const std::string& sval, double dval) 
 
   std::vector<std::string> svec(1, sval);
   std::vector<double> dvec(1, dval);
-  vecPair_.reset(new vecpair_type(false, std::make_pair(svec, dvec)));
+  vecPair_ = std::make_shared<vecpair_type>(false, std::make_pair(svec, dvec));
   setEvalState(true);
 }
 
@@ -80,7 +81,7 @@ DDValue::DDValue(const std::string& name, const std::string& sval) : id_(0) {
 
   std::vector<std::string> svec(1, sval);
   std::vector<double> dvec(1, 0);
-  vecPair_.reset(new vecpair_type(false, std::make_pair(svec, dvec)));
+  vecPair_ = std::make_shared<vecpair_type>(false, std::make_pair(svec, dvec));
   setEvalState(false);
 }
 

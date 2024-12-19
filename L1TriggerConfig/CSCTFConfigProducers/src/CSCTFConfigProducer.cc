@@ -58,7 +58,7 @@ std::unique_ptr<L1MuCSCPtLut> CSCTFConfigProducer::produceL1MuCSCPtLutRcd(const 
 
   std::unique_ptr<L1MuCSCPtLut> pt_lut = std::make_unique<L1MuCSCPtLut>();
 
-  if (ptLUT_path.length()) {
+  if (!ptLUT_path.empty()) {
     readLUT(ptLUT_path, (unsigned short*)pt_lut->pt_lut, 1 << 21);  //CSCBitWidths::kPtAddressWidth
   } else {
     throw cms::Exception("Undefined pT LUT")

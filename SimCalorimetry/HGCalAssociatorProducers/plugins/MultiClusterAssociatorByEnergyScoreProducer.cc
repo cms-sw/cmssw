@@ -1,6 +1,8 @@
 // Original author: Leonardo Cristella
 
 // user include files
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
@@ -41,7 +43,7 @@ MultiClusterAssociatorByEnergyScoreProducer::MultiClusterAssociatorByEnergyScore
   for (auto &label : hits_label_) {
     hits_token_.push_back(consumes<HGCRecHitCollection>(label));
   }
-  rhtools_.reset(new hgcal::RecHitTools());
+  rhtools_ = std::make_shared<hgcal::RecHitTools>();
 
   // Register the product
   produces<hgcal::MultiClusterToCaloParticleAssociator>();
