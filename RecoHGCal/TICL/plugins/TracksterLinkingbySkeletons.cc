@@ -145,7 +145,7 @@ std::array<ticl::Vector, 3> TracksterLinkingbySkeletons::findSkeletonNodes(
   // sort vertices by layerId
   std::array<ticl::Vector, 3> skeleton;
   if (trackster.vertices().size() < 3) {
-    auto v = layerClusters[trackster.vertices()[0]];
+    const auto &v = layerClusters[trackster.vertices()[0]];
     const Vector intersection(v.x(), v.y(), v.z());
     skeleton = {{intersection, intersection, intersection}};
     return skeleton;
