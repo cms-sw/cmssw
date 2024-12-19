@@ -655,7 +655,7 @@ steps['RunHLTMonitor2024I']={'INPUT':InputInfo(dataSet='/HLTMonitor/Run2024I-Exp
 ###2024 
 
 pds_2024  = ['BTagMu', 'DisplacedJet', 'EGamma0', 'HcalNZS', 'JetMET0', 'Muon0', 'MuonEG', 'NoBPTX', 'ParkingDoubleMuonLowMass0', 'ParkingHH', 'ParkingLLP', 'ParkingSingleMuon0', 'ParkingVBF0', 'Tau', 'ZeroBias']
-eras_2024 = ['Run2024B', 'Run2024C', 'Run2024D', 'Run2024E', 'Run2024F']
+eras_2024 = ['Run2024B', 'Run2024C', 'Run2024D', 'Run2024E', 'Run2024F','Run2024G','Run2024H','Run2024I']
 for era in eras_2024:
     for pd in pds_2024:
         dataset = "/" + pd + "/" + era + "-v1/RAW"
@@ -697,6 +697,21 @@ for era in eras_2022_2:
         for e_key,evs in event_steps_dict.items():
             step_name = "Run" + pd + era.split("Run")[1] + "_" + e_key
             steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
+
+
+### 2024 single lumi mask wfs for the limited matrix only
+### Mask chosen from golden json away from run start
+
+good_runs_2024 = [379238,379454,380360,381079,382258,383814,385889,386593]
+lumi_mask_2024 = [{ r : [[110, 111]]} for r in good_runs_2024]
+era_mask_2024  = dict(zip(eras_2024,lumi_mask_2024))
+
+for era in era_mask_2024:
+    for pd in pds_2024:
+        dataset = "/" + pd + "/" + era + "-v1/RAW"
+        lm = era_mask_2024[era]
+        step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1]
+        steps[step_name]={'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=100000,location='STD', ls=lm)}
 
 
 ##################################################################
