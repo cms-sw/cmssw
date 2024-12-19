@@ -65,10 +65,6 @@ namespace cms::alpakatools {
    * The `Event` type depends only on the synchronisation `Device` type.
    * The `Queue` type depends on the synchronisation `Device` type and the queue properties, either `Sync` or `Async`.
    *
-   * **Note**: how to handle different queue and event types in a single allocator ?  store and access type-punned
-   * queues and events ?  or template the internal structures on them, but with a common base class ?
-   * alpaka does rely on the compile-time type for dispatch.
-   *
    * Common use case #1: accelerator's memory allocations
    *   - the "memory device" is the accelerator device (e.g. a GPU);
    *   - the "synchronisation device" is the same accelerator device;
@@ -76,12 +72,13 @@ namespace cms::alpakatools {
    *
    * Common use case #2: pinned host memory allocations
    *    - the "memory device" is the host device (e.g. system memory);
-   *    - the "synchronisation device" is the accelerator device (e.g. a GPU) whose work queue will access the host;
+   *    - the "synchronisation device" is the accelerator device (e.g. a GPU) whose work queue will access the host
    *      memory (direct memory access from the accelerator, or scheduling `alpaka::memcpy`/`alpaka::memset`), and can
    *      be different for each allocation;
    *    - the synchronisation `Device` _type_ could potentially be different, but memory pinning is currently tied to
    *      the accelerator's platform (CUDA, HIP, etc.), so the device type needs to be fixed to benefit from caching;
-   *    - the `Queue` type can be either `Sync` _or_ `Async` on any allocation.
+   *    - the `Queue` type could be either `Sync` _or_ `Async` on any allocation; currently the caching allocator type
+   *      depends on the `Queue` type, so the `Queue` type is fixed at compile time.
    */
 
   template <typename TDev, typename TQueue>
@@ -156,7 +153,7 @@ namespace cms::alpakatools {
     }
   }
 
-  // Allocate given number of bytes on the current device associated to given queue.
+  // Allocate at least the requested number of bytes on the device associated to given queue.
   template <typename TDev, typename TQueue>
   typename CachingAllocator<TDev, TQueue>::BlockDescriptor* CachingAllocator<TDev, TQueue>::allocate(size_t bytes,
                                                                                                      Queue queue) {
@@ -185,10 +182,10 @@ namespace cms::alpakatools {
     return block.release();
   }
 
-  // Free an allocation
+  // Free an allocation, potentially caching the memory block for later reuse.
   template <typename TDev, typename TQueue>
   void CachingAllocator<TDev, TQueue>::free(typename CachingAllocator<TDev, TQueue>::BlockDescriptor* ptr) {
-    // Take ownership of the allocation
+    // Take ownership of the allocation.
     std::unique_ptr<BlockDescriptor> block(ptr);
     assert(block);
     assert(block->buffer);
@@ -202,11 +199,11 @@ namespace cms::alpakatools {
 
     bool recache = (totalFree_ + block->bytes <= maxCachedBytes_);
     if (recache) {
-      // If enqueuing the event fails, very likely an error has occurred in the
-      // asynchronous processing. In that case the error will show up in all
-      // device API function calls, and the free() will be called by destructors
-      // during stack unwinding. In order to avoid terminate() being called
-      // because of multiple exceptions it is best to ignore these errors.
+      // If the memset or enqueuing the event fail, very likely an error has
+      // occurred in the asynchronous processing. In that case the error will
+      // show up in all device API function calls, and free() will be called by
+      // destructors during stack unwinding. In order to avoid terminate() being
+      // called because of multiple exceptions it is best to ignore the errors.
       try {
         // Fill memory blocks with a pattern before caching them.
         if (fillCaches_) {
@@ -224,9 +221,10 @@ namespace cms::alpakatools {
               << block->buffer->data() << " from associated queue " << block->queue->m_spQueueImpl.get() << ", event "
               << block->event->m_spEventImpl.get() << ".\n";
         }
-        // Free the block implicitly when it goes out of scope.
+        // Free the block.
         // Note: if the underlying runtime is in an invalid state, this may
         // throw an execption while releasing the underlying objects.
+        block.reset();
         return;
       }
       totalFree_ += block->bytes;
@@ -238,7 +236,7 @@ namespace cms::alpakatools {
             << block->event->m_spEventImpl.get() << ".\n";
       }
 
-      // Move the block into the free list
+      // Move the block into the free list.
       auto& bin = cachedBlocks_[block->bin];
       assert(block);
       assert(block->buffer);
@@ -252,9 +250,9 @@ namespace cms::alpakatools {
     } else {
       // If the memset fails, very likely an error has occurred in the
       // asynchronous processing. In that case the error will show up in all
-      // device API function calls, and the free() will be called by destructors
+      // device API function calls, and free() will be called by destructors
       // during stack unwinding. In order to avoid terminate() being called
-      // because of multiple exceptions it is best to ignore these errors.
+      // because of multiple exceptions it is best to ignore the errors.
       try {
         // Fill memory blocks with a pattern before freeing them.
         if (fillDeallocations_) {
@@ -268,9 +266,10 @@ namespace cms::alpakatools {
               << block->buffer->data() << " from associated queue " << block->queue->m_spQueueImpl.get() << ", event "
               << block->event->m_spEventImpl.get() << ".\n";
         }
-        // Free the block implicitly when it goes out of scope.
+        // Free the block.
         // Note: if the underlying runtime is in an invalid state, this may
         // throw an execption while releasing the underlying objects.
+        block.reset();
         return;
       }
 
@@ -281,7 +280,7 @@ namespace cms::alpakatools {
             << block->event->m_spEventImpl.get() << ".\n";
       }
 
-      // The buffer is not recached, delete it and free the memory associated to it.
+      // The buffer is not recached, free it and the memory associated to it.
       assert(block);
       assert(block->buffer);
       assert(block->buffer->data());
@@ -393,10 +392,10 @@ namespace cms::alpakatools {
               << candidate->queue->m_spQueueImpl.get() << ", event " << candidate->event->m_spEventImpl.get() << ").\n";
         }
 
-        // Free the block descriptor
+        // Free the block descriptor and the resources still associated to it.
         candidate.reset();
       } else {
-        // The candidate block is still busy, move it to the temporary buffer
+        // The candidate block is still busy, move it to the temporary buffer.
         temp.push_back(std::move(candidate));
       }
       assert(not candidate);
@@ -441,7 +440,11 @@ namespace cms::alpakatools {
             << " bytes for queue " << block.queue->m_spQueueImpl.get()
             << ", retrying after freeing cached allocations.\n";
       }
-      // TODO implement a method that frees only up to block.bytes bytes ?
+      // TODO
+      //   - implement a method that frees only up to block.bytes bytes ?
+      //     that may not work, if the memory is fragmented;
+      //   - try to reuse larger cached block ?
+      //   - or, try to free a larger cached block and to allocate a buffer ?
       freeAllCached();
 
       // Throw an exception if it fails again.

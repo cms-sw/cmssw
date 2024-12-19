@@ -125,10 +125,10 @@ namespace cms::alpakatools {
     // corresponding event is reached.
     void immediateOrAsyncMemset(Queue queue, Buffer buffer, uint8_t value);
 
-    // Return the maximum amount of memory that should be cached on this device
+    // Return the maximum amount of memory that should be cached on this device.
     size_t cacheSize(size_t maxCachedBytes, double maxCachedFraction) const;
 
-    // Return (bin, bin size)
+    // Return (bin, bin size).
     std::tuple<unsigned int, size_t> findBin(size_t bytes) const;
 
     bool tryReuseCachedBlock(BlockDescriptor& block);
@@ -143,10 +143,11 @@ namespace cms::alpakatools {
       tbb::concurrent_queue<std::unique_ptr<BlockDescriptor>> blocks_;
     };
 
-    Device device_;  // The device where the memory is allocated
+    // The device where the memory is allocated.
+    Device device_;
     inline static const std::string deviceType_ = alpaka::core::demangled<Device>;
 
-    // List of free allocation blocks, cached and potentially available for reuse, index by the block bin
+    // List of free allocation blocks, cached and potentially available for reuse, index by the block bin.
     std::vector<BlockList> cachedBlocks_;
 
     std::atomic<size_t> totalFree_ = 0;       // Total bytes freed and cached on this device
