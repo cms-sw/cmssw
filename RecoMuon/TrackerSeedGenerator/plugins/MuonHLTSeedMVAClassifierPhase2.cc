@@ -155,11 +155,11 @@ void MuonHLTSeedMVAClassifierPhase2::produce(edm::Event& iEvent, const edm::Even
     return;
   }
 
-  if (h_L1TkMu->size() == 0 or h_Seed->size() == 0) {
-    if (h_Seed->size() != 0) {
+  if (h_L1TkMu->empty() or h_Seed->empty()) {
+    if (!h_Seed->empty()) {
       edm::LogInfo("SeedClassifierError") << "Empty L1TkMu collection" << '\n';
     }
-    if (h_L1TkMu->size() != 0) {
+    if (!h_L1TkMu->empty()) {
       edm::LogInfo("SeedClassifierError") << "Empty Muon Pixel seeds collection" << '\n';
     } else {
       edm::LogInfo("SeedClassifierError") << "Empty L1TkMu and Muon Pixel seeds collections" << '\n';

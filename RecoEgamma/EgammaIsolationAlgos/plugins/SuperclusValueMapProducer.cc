@@ -18,7 +18,7 @@
 class SuperclusValueMapProducer : public edm::stream::EDProducer<> {
 public:
   explicit SuperclusValueMapProducer(const edm::ParameterSet&);
-  ~SuperclusValueMapProducer() = default;
+  ~SuperclusValueMapProducer() override = default;
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -108,6 +108,7 @@ std::vector<edm::EDGetTokenT<pat::PackedCandidateCollection>> SuperclusValueMapP
     const std::vector<edm::InputTag>& tags) {
   std::vector<edm::EDGetTokenT<pat::PackedCandidateCollection>> out;
 
+  out.reserve(tags.size());
   for (const auto& tag : tags)
     out.push_back(consumes<pat::PackedCandidateCollection>(tag));
 
