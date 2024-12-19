@@ -17,12 +17,12 @@
 
 namespace edm {
 
-  InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames,
+  InputFileCatalog::InputFileCatalog(std::vector<std::string> fileNames,
                                      std::string const& override,
                                      bool useLFNasPFNifLFNnotFound,
                                      edm::CatalogType catType)
       : fileCatalogItems_(), overrideFileLocator_() {
-    init(fileNames, override, useLFNasPFNifLFNnotFound, catType);
+    init(std::move(fileNames), override, useLFNasPFNifLFNnotFound, catType);
   }
 
   InputFileCatalog::~InputFileCatalog() {}
