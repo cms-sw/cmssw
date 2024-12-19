@@ -58,7 +58,7 @@ void P2GTTriggerResultsConverter::produce(edm::Event& event, const edm::EventSet
 
   bool fillAlgoNames = false;
 
-  if (algoNames_.size() == 0) {
+  if (algoNames_.empty()) {
     algoNames_ = std::vector<std::string>(algoBlockMap.size());
     fillAlgoNames = true;
   }
