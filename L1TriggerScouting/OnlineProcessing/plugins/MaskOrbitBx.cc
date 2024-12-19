@@ -27,7 +27,7 @@ template <typename T>
 class MaskOrbitBx : public edm::stream::EDProducer<> {
 public:
   explicit MaskOrbitBx(const edm::ParameterSet&);
-  ~MaskOrbitBx() {}
+  ~MaskOrbitBx() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
