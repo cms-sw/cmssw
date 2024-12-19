@@ -18,7 +18,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CachingAllocator.h"
 
-// Inspired by cub::CachingDeviceAllocator
+// Originally inspired by the cub::CachingDeviceAllocator
 
 namespace cms::alpakatools {
 
@@ -36,7 +36,7 @@ namespace cms::alpakatools {
       return power;
     }
 
-    // format a memory size in B/KiB/MiB/GiB/TiB
+    // Format a memory size in B/KiB/MiB/GiB/TiB.
     inline std::string as_bytes(size_t value) {
       if (value == std::numeric_limits<size_t>::max()) {
         return "unlimited";
@@ -129,12 +129,12 @@ namespace cms::alpakatools {
 
   template <typename TDev, typename TQueue>
   CachingAllocator<TDev, TQueue>::~CachingAllocator() {
-    // this should never be called while some memory blocks are still live
+    // This should never be called while some memory blocks are still live.
     assert(totalLive_ == 0);
     freeAllCached();
   }
 
-  // return a copy of the cache allocation status, for monitoring purposes
+  // Return a copy of the cache allocation status, for monitoring purposes.
   template <typename TDev, typename TQueue>
   typename CachingAllocator<TDev, TQueue>::CachedBytes CachingAllocator<TDev, TQueue>::cacheStatus() const {
     return CachedBytes{totalFree_, totalLive_, totalRequested_};
@@ -149,7 +149,7 @@ namespace cms::alpakatools {
   // corresponding event is reached.
   template <typename TDev, typename TQueue>
   void CachingAllocator<TDev, TQueue>::immediateOrAsyncMemset(Queue queue, Buffer buffer, uint8_t value) {
-    // host-only
+    // Host-only
     if (std::is_same_v<Device, alpaka::DevCpu> and not reuseSameQueueAllocations_) {
       std::memset(buffer.data(), value, alpaka::getExtentProduct(buffer) * sizeof(alpaka::Elem<Buffer>));
     } else {
@@ -157,19 +157,19 @@ namespace cms::alpakatools {
     }
   }
 
-  // Allocate given number of bytes on the current device associated to given queue
+  // Allocate given number of bytes on the current device associated to given queue.
   template <typename TDev, typename TQueue>
   typename CachingAllocator<TDev, TQueue>::BlockDescriptor* CachingAllocator<TDev, TQueue>::allocate(size_t bytes,
                                                                                                      Queue queue) {
-    // create a block descriptor for the requested allocation
-    BlockDescriptor* block = new BlockDescriptor;
+    // Create a block descriptor for the requested allocation.
+    auto block = std::make_unique<BlockDescriptor>();
     block->queue = std::move(queue);
     block->requested = bytes;
     std::tie(block->bin, block->bytes) = findBin(bytes);
 
-    // try to re-use a cached block, or allocate a new buffer
+    // Try to re-use a cached block, or allocate a new buffer.
     if (tryReuseCachedBlock(*block)) {
-      // fill the re-used memory block with a pattern
+      // Fill the re-used memory block with a pattern.
       if (fillReallocations_) {
         immediateOrAsyncMemset(*block->queue, *block->buffer, fillReallocationValue_);
       } else if (fillAllocations_) {
@@ -177,18 +177,20 @@ namespace cms::alpakatools {
       }
     } else {
       allocateNewBlock(*block);
-      // fill the newly allocated memory block with a pattern
+      // Fill the newly allocated memory block with a pattern.
       if (fillAllocations_) {
         immediateOrAsyncMemset(*block->queue, *block->buffer, fillAllocationValue_);
       }
     }
 
-    return block;
+    return block.release();
   }
 
-  // frees an allocation
+  // Free an allocation
   template <typename TDev, typename TQueue>
-  void CachingAllocator<TDev, TQueue>::free(typename CachingAllocator<TDev, TQueue>::BlockDescriptor* block) {
+  void CachingAllocator<TDev, TQueue>::free(typename CachingAllocator<TDev, TQueue>::BlockDescriptor* ptr) {
+    // Take ownership of the allocation
+    std::unique_ptr<BlockDescriptor> block(ptr);
     assert(block);
     assert(block->buffer);
     assert(block->buffer->data());
@@ -201,21 +203,19 @@ namespace cms::alpakatools {
 
     bool recache = (totalFree_ + block->bytes <= maxCachedBytes_);
     if (recache) {
-      // If enqueuing the event fails, very likely an error has
-      // occurred in the asynchronous processing. In that case the
-      // error will show up in all device API function calls, and
-      // the free() will be called by destructors during stack
-      // unwinding. In order to avoid terminate() being called
-      // because of multiple exceptions it is best to ignore these
-      // errors.
+      // If enqueuing the event fails, very likely an error has occurred in the
+      // asynchronous processing. In that case the error will show up in all
+      // device API function calls, and the free() will be called by destructors
+      // during stack unwinding. In order to avoid terminate() being called
+      // because of multiple exceptions it is best to ignore these errors.
       try {
-        // fill memory blocks with a pattern before caching them
+        // Fill memory blocks with a pattern before caching them.
         if (fillCaches_) {
           alpaka::memset(*block->queue, *block->buffer, fillCacheValue_);
         } else if (fillDeallocations_) {
           alpaka::memset(*block->queue, *block->buffer, fillDeallocationValue_);
         }
-        // record in the block a marker associated to the work queue
+        // Record in the block a marker associated to the work queue.
         alpaka::enqueue(*(block->queue), *(block->event));
       } catch (std::exception& e) {
         if (debug_) {
@@ -226,7 +226,9 @@ namespace cms::alpakatools {
               << block->event->m_spEventImpl.get() << ".\n";
           std::cout << out.str() << std::endl;
         }
-        delete block;
+        // Free the block implicitly when it goes out of scope.
+        // Note: if the underlying runtime is in an invalid state, this may
+        // throw an execption while releasing the underlying objects.
         return;
       }
       totalFree_ += block->bytes;
@@ -239,7 +241,7 @@ namespace cms::alpakatools {
         std::cout << out.str() << std::endl;
       }
 
-      // move the block into the free list
+      // Move the block into the free list
       auto& bin = cachedBlocks_[block->bin];
       assert(block);
       assert(block->buffer);
@@ -248,17 +250,16 @@ namespace cms::alpakatools {
       assert(block->queue->m_spQueueImpl.get());
       assert(block->event);
       assert(block->event->m_spEventImpl.get());
-      bin.blocks_.push(block);
-      block = nullptr;
+      bin.blocks_.push(std::move(block));
+      assert(not block);
     } else {
       // If the memset fails, very likely an error has occurred in the
       // asynchronous processing. In that case the error will show up in all
-      // device API function calls, and the free() will be called by
-      // destructors during stack unwinding. In order to avoid terminate()
-      // being called because of multiple exceptions it is best to ignore
-      // these errors.
+      // device API function calls, and the free() will be called by destructors
+      // during stack unwinding. In order to avoid terminate() being called
+      // because of multiple exceptions it is best to ignore these errors.
       try {
-        // fill memory blocks with a pattern before freeing them
+        // Fill memory blocks with a pattern before freeing them.
         if (fillDeallocations_) {
           alpaka::memset(*block->queue, *block->buffer, fillDeallocationValue_);
         }
@@ -271,6 +272,9 @@ namespace cms::alpakatools {
               << block->event->m_spEventImpl.get() << ".\n";
           std::cout << out.str() << std::endl;
         }
+        // Free the block implicitly when it goes out of scope.
+        // Note: if the underlying runtime is in an invalid state, this may
+        // throw an execption while releasing the underlying objects.
         return;
       }
 
@@ -282,7 +286,7 @@ namespace cms::alpakatools {
         std::cout << out.str() << std::endl;
       }
 
-      // the buffer is not recached, delete it and free the memory associated to it
+      // The buffer is not recached, delete it and free the memory associated to it.
       assert(block);
       assert(block->buffer);
       assert(block->buffer->data());
@@ -290,15 +294,14 @@ namespace cms::alpakatools {
       assert(block->queue->m_spQueueImpl.get());
       assert(block->event);
       assert(block->event->m_spEventImpl.get());
-      delete block;
-      block = nullptr;
+      block.reset();
     }
   }
 
-  // return the maximum amount of memory that should be cached on this device
+  // Return the maximum amount of memory that should be cached on this device.
   template <typename TDev, typename TQueue>
   size_t CachingAllocator<TDev, TQueue>::cacheSize(size_t maxCachedBytes, double maxCachedFraction) const {
-    // note that getMemBytes() returns 0 if the platform does not support querying the device memory
+    // Note that getMemBytes() returns 0 if the platform does not support querying the device memory.
     size_t totalMemory = alpaka::getMemBytes(device_);
     size_t memoryFraction = static_cast<size_t>(maxCachedFraction * totalMemory);
     size_t size = std::numeric_limits<size_t>::max();
@@ -311,7 +314,7 @@ namespace cms::alpakatools {
     return size;
   }
 
-  // return (bin, bin size)
+  // Return (bin, bin size).
   template <typename TDev, typename TQueue>
   std::tuple<unsigned int, size_t> CachingAllocator<TDev, TQueue>::findBin(size_t bytes) const {
     if (bytes < minBinBytes_) {
@@ -337,11 +340,11 @@ namespace cms::alpakatools {
     auto& bin = cachedBlocks_[block.bin];
     auto& blocks = bin.blocks_;
 
-    std::vector<BlockDescriptor*> temp;
+    std::vector<std::unique_ptr<BlockDescriptor>> temp;
     temp.reserve(16);
 
     bool found = false;
-    BlockDescriptor* candidate = nullptr;
+    std::unique_ptr<BlockDescriptor> candidate;
     while (not found and blocks.try_pop(candidate)) {
       assert(candidate);
       assert(candidate->buffer);
@@ -353,24 +356,27 @@ namespace cms::alpakatools {
 
       if ((reuseSameQueueAllocations_ and (*block.queue == *candidate->queue)) or
           alpaka::isComplete(*candidate->event)) {
-        // reuse the block
+        // Reuse the block.
         found = true;
 
-        // transfer ownership of the old buffer
+        // Transfer ownership of the old buffer.
         block.buffer = std::move(candidate->buffer);
         assert(block.buffer);
         assert(block.buffer->data());
 
-        // keep the queue used to request the allocation
+        // Keep the queue used to request the allocation.
         assert(block.queue);
         assert(block.queue->m_spQueueImpl.get());
 
-        // if the new queue is on different device than the old event, create a new event, otherwise reuse the old event
+        // If the new queue is on different device than the old event, create a
+        // new event, otherwise reuse the old event.
+        // Device memory allocators are per-device, so this can only happen for
+        // a host allocator caching mapped memory buffers.
         if (block.device() != alpaka::getDev(*(candidate->event))) {
           block.event = Event{block.device()};
         } else {
           if (debug_) {
-            // only for debugging make a copy, so we can print the information of the old event
+            // Only for debugging: ake a copy to print the information of the old event.
             block.event = candidate->event;
           } else {
             block.event = std::move(candidate->event);
@@ -379,7 +385,7 @@ namespace cms::alpakatools {
         assert(block.event);
         assert(block.event->m_spEventImpl.get());
 
-        // update the accounting information
+        // Update the accounting information.
         totalFree_ -= block.bytes;
         totalLive_ += block.bytes;
         totalRequested_ += block.requested;
@@ -393,16 +399,20 @@ namespace cms::alpakatools {
               << std::endl;
           std::cout << out.str() << std::endl;
         }
+
+        // Free the block descriptor
+        candidate.reset();
       } else {
-        // the candidate block is still busy, move it to the temporary buffer
-        temp.push_back(candidate);
-        candidate = nullptr;
+        // The candidate block is still busy, move it to the temporary buffer
+        temp.push_back(std::move(candidate));
       }
+      assert(not candidate);
     }
 
-    // either we found a block to reuse, or the free list is empty; stop looking and put the blocks in the temporary store back in the free list
-    for (auto* tmp_block : temp) {
-      blocks.push(tmp_block);
+    // Either we found a block to reuse, or the free list is empty; stop looking
+    // and put the blocks in the temporary store back in the free list.
+    for (auto& tmp_block : temp) {
+      blocks.push(std::move(tmp_block));
     }
 
     return found;
@@ -412,14 +422,14 @@ namespace cms::alpakatools {
   typename CachingAllocator<TDev, TQueue>::Buffer CachingAllocator<TDev, TQueue>::allocateBuffer(size_t bytes,
                                                                                                  Queue const& queue) {
     if constexpr (std::is_same_v<Device, alpaka::Dev<Queue>>) {
-      // allocate device memory
+      // Allocate device memory.
       return alpaka::allocBuf<std::byte, size_t>(device_, bytes);
     } else if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
-      // allocate pinned host memory accessible by the queue's platform
+      // Allocate pinned host memory accessible by the queue's platform.
       using Platform = alpaka::Platform<alpaka::Dev<Queue>>;
       return alpaka::allocMappedBuf<Platform, std::byte, size_t>(device_, platform<Platform>(), bytes);
     } else {
-      // unsupported combination
+      // Unsupported combination.
       static_assert(std::is_same_v<Device, alpaka::Dev<Queue>> or std::is_same_v<Device, alpaka::DevCpu>,
                     "The \"memory device\" type can either be the same as the \"synchronisation device\" type, or be "
                     "the host CPU.");
@@ -431,7 +441,7 @@ namespace cms::alpakatools {
     try {
       block.buffer = allocateBuffer(block.bytes, *block.queue);
     } catch (std::runtime_error const& e) {
-      // the allocation attempt failed: free all cached blocks on the device and retry
+      // The allocation attempt failed: free all cached blocks on the device and retry
       if (debug_) {
         std::ostringstream out;
         out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " failed to allocate " << block.bytes
@@ -439,17 +449,17 @@ namespace cms::alpakatools {
             << std::endl;
         std::cout << out.str() << std::endl;
       }
-      // TODO implement a method that frees only up to block.bytes bytes
+      // TODO implement a method that frees only up to block.bytes bytes ?
       freeAllCached();
 
-      // throw an exception if it fails again
+      // Throw an exception if it fails again.
       block.buffer = allocateBuffer(block.bytes, *block.queue);
     }
 
-    // create a new event associated to the "synchronisation device"
+    // Create a new event associated to the "synchronisation device".
     block.event = Event{block.device()};
 
-    // update the statistics
+    // Update the statistics.
     totalLive_ += block.bytes;
     totalRequested_ += block.requested;
 
@@ -465,19 +475,16 @@ namespace cms::alpakatools {
   template <typename TDev, typename TQueue>
   void CachingAllocator<TDev, TQueue>::freeAllCached() {
     for (auto& bin : cachedBlocks_) {
-      // pops the blocks one at a time from the queue, and delete them
-      BlockDescriptor* block = nullptr;
+      // Pop the blocks one at a time from the queue, and free them.
+      std::unique_ptr<BlockDescriptor> block;
       while (bin.blocks_.try_pop(block)) {
         totalFree_ -= block->bytes;
-
         if (debug_) {
           std::ostringstream out;
           out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " freed " << block->bytes << " bytes.\n";
           std::cout << out.str() << std::endl;
         }
-
-        delete block;
-        block = nullptr;
+        block.reset();
       }
     }
   }

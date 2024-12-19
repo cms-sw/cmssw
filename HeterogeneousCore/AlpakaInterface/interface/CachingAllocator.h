@@ -65,9 +65,9 @@ namespace cms::alpakatools {
     friend class alpaka_tbb_async::AlpakaService;
 #endif
 
-    using Device = TDev;                 // the "memory device", where the memory will be allocated
-    using Queue = TQueue;                // the queue used to submit the memory operations
-    using Event = alpaka::Event<Queue>;  // the events used to synchronise the operations
+    using Device = TDev;                 // The "memory device", where the memory will be allocated
+    using Queue = TQueue;                // The queue used to submit the memory operations
+    using Event = alpaka::Event<Queue>;  // The events used to synchronise the operations
     using Buffer = alpaka::Buf<Device, std::byte, alpaka::DimInt<1u>, size_t>;
 
     // The "memory device" type can either be the same as the "synchronisation device" type, or be the host CPU.
@@ -85,7 +85,7 @@ namespace cms::alpakatools {
       size_t requested = 0;
       unsigned int bin = 0;
 
-      // the "synchronisation device" for this block
+      // The "synchronisation device" for this block
       auto device() { return alpaka::getDev(*queue); }
     };
 
@@ -116,7 +116,7 @@ namespace cms::alpakatools {
     void free(BlockDescriptor* block);
 
   private:
-    // Fill a memory buffer with the specified bye value.
+    // Fill a memory buffer with the specified byte value.
     // If the underlying device is the host and the allocator is configured to support immediate
     // (non queue-ordered) operations, fill the memory synchronously using std::memset.
     // Otherwise, let the alpaka queue schedule the operation.
@@ -140,10 +140,10 @@ namespace cms::alpakatools {
     void freeAllCached();
 
     struct BlockList {
-      tbb::concurrent_queue<BlockDescriptor*> blocks_;
+      tbb::concurrent_queue<std::unique_ptr<BlockDescriptor>> blocks_;
     };
 
-    Device device_;  // the device where the memory is allocated
+    Device device_;  // The device where the memory is allocated
     inline static const std::string deviceType_ = alpaka::core::demangled<Device>;
 
     // List of free allocation blocks, cached and potentially available for reuse, index by the block bin
