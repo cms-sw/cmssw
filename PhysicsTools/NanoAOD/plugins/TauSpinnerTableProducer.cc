@@ -60,10 +60,10 @@ private:
       std::string name = std::to_string(val);
       name.erase(name.find_last_not_of('0') + 1, std::string::npos);
       name.erase(name.find_last_not_of('.') + 1, std::string::npos);
-      size_t pos = name.find(".");
+      size_t pos = name.find('.');
       if (pos != std::string::npos)
         name.replace(pos, 1, "p");
-      pos = name.find("-");
+      pos = name.find('-');
       if (pos != std::string::npos)
         name.replace(pos, 1, "minus");
       out.push_back(std::make_pair(name, val));

@@ -456,8 +456,8 @@ void DQMHcalPhiSymAlCaReco::analyze(const edm::Event &iEvent, const edm::EventSe
         hiDistrNoisePl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy());
         hiDistrNoise2Pl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy() * hbheItr->energy());
       } else {
-        hiDistrNoiseMin2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy());
-        hiDistrNoise2Min2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy() * hbheItr->energy());
+        hiDistrNoiseMin2D_->Fill(std::abs(hid.ieta()), hid.iphi(), hbheItr->energy());
+        hiDistrNoise2Min2D_->Fill(std::abs(hid.ieta()), hid.iphi(), hbheItr->energy() * hbheItr->energy());
       }
     }
   }
@@ -473,8 +473,8 @@ void DQMHcalPhiSymAlCaReco::analyze(const edm::Event &iEvent, const edm::EventSe
         hiDistrMBPl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy());
         hiDistrMB2Pl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy() * hbheItr->energy());
       } else {
-        hiDistrMBMin2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy());
-        hiDistrMB2Min2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy() * hbheItr->energy());
+        hiDistrMBMin2D_->Fill(std::abs(hid.ieta()), hid.iphi(), hbheItr->energy());
+        hiDistrMB2Min2D_->Fill(std::abs(hid.ieta()), hid.iphi(), hbheItr->energy() * hbheItr->energy());
       }
     }
   }
@@ -492,8 +492,8 @@ void DQMHcalPhiSymAlCaReco::analyze(const edm::Event &iEvent, const edm::EventSe
         hiDistrNoisePl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy());
         hiDistrNoise2Pl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy() * hbheItr->energy());
       } else {
-        hiDistrNoiseMin2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy());
-        hiDistrNoise2Min2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy() * hbheItr->energy());
+        hiDistrNoiseMin2D_->Fill(std::abs(hid.ieta()), hid.iphi(), hbheItr->energy());
+        hiDistrNoise2Min2D_->Fill(std::abs(hid.ieta()), hid.iphi(), hbheItr->energy() * hbheItr->energy());
       }
     }
   }
@@ -509,8 +509,8 @@ void DQMHcalPhiSymAlCaReco::analyze(const edm::Event &iEvent, const edm::EventSe
         hiDistrMBPl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy());
         hiDistrMB2Pl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy() * hbheItr->energy());
       } else {
-        hiDistrMBMin2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy());
-        hiDistrMB2Min2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy() * hbheItr->energy());
+        hiDistrMBMin2D_->Fill(std::abs(hid.ieta()), hid.iphi(), hbheItr->energy());
+        hiDistrMB2Min2D_->Fill(std::abs(hid.ieta()), hid.iphi(), hbheItr->energy() * hbheItr->energy());
       }
     }
   }
