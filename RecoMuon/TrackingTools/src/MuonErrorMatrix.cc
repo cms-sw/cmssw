@@ -120,7 +120,7 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet &iConfig) : theD(nullpt
     if (!madeFromCff) {
       edm::LogInfo(theCategory) << "using an error matrix object from: " << fileName;
       edm::FileInPath data(fileName);
-      std::string fullpath = data.fullPath();
+      const std::string &fullpath = data.fullPath();
       gROOT->cd();
       theD = new TFile(fullpath.c_str());
       theD->SetWritable(false);
