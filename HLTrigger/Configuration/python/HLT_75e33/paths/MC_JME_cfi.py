@@ -12,4 +12,16 @@ from ..sequences.HLTTrackingV61Sequence_cfi import *
 from ..sequences.HLTLocalrecoSequence_cfi import *
 from ..sequences.HLTRawToDigiSequence_cfi import *
 
-MC_JME = cms.Path(HLTBeginSequence+HLTRawToDigiSequence+HLTHgcalLocalRecoSequence+HLTLocalrecoSequence+HLTTrackingV61Sequence+HLTMuonsSequence+HLTParticleFlowSequence+HLTHgcalTiclPFClusteringForEgamma+HLTJMESequence+hltPFPuppiHT+hltPFPuppiMHT)
+MC_JME = cms.Path(
+    HLTBeginSequence
+    + HLTRawToDigiSequence
+    + HLTHgcalLocalRecoSequence
+    + HLTLocalrecoSequence
+    + HLTTrackingV61Sequence
+    + HLTMuonsSequence
+    + HLTParticleFlowSequence
+    + HLTHgcalTiclPFClusteringForEgamma
+    + HLTJMESequence
+    + hltPFPuppiHT
+    + hltPFPuppiMHT
+)

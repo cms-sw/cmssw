@@ -39,3 +39,15 @@ hltPhase2L3OISeedsFromL2Muons = cms.EDProducer("TSGForOIFromL2",
     tsosDiff1 = cms.double(0.2),
     tsosDiff2 = cms.double(0.02)
 )
+
+from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
+phase2L2AndL3Muons.toModify(
+    hltPhase2L3OISeedsFromL2Muons,
+    src = "hltPhase2L3MuonFilter:L2MuToReuse"
+)
+
+from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
+(phase2L2AndL3Muons & phase2L3MuonsOIFirst).toModify(
+    hltPhase2L3OISeedsFromL2Muons,
+    src ="hltL2MuonsFromL1TkMuon:UpdatedAtVtx"
+)
