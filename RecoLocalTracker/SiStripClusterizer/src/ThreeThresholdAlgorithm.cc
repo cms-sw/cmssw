@@ -150,6 +150,19 @@ void ThreeThresholdAlgorithm::stripByStripAdd(State& state,
   addToCandidate(state, SiStripDigi(strip, adc));
 }
 
+void ThreeThresholdAlgorithm::stripByStripAdd(State& state,
+                                              uint16_t strip,
+                                              uint8_t adc,
+                                              output_t::TSFastFiller& out) const {
+  if (candidateEnded(state, strip))
+    endCandidate(state, out);
+  addToCandidate(state, strip, adc);
+}
+
 void ThreeThresholdAlgorithm::stripByStripEnd(State& state, std::vector<SiStripCluster>& out) const {
+  endCandidate(state, out);
+}
+
+void ThreeThresholdAlgorithm::stripByStripEnd(State& state, output_t::TSFastFiller& out) const {
   endCandidate(state, out);
 }

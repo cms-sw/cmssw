@@ -16,13 +16,9 @@ public:
   void stripByStripAdd(State& state, uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out) const override;
   void stripByStripEnd(State& state, std::vector<SiStripCluster>& out) const override;
 
-  void stripByStripAdd(State& state, uint16_t strip, uint8_t adc, output_t::TSFastFiller& out) const override {
-    if (candidateEnded(state, strip))
-      endCandidate(state, out);
-    addToCandidate(state, strip, adc);
-  }
+  void stripByStripAdd(State& state, uint16_t strip, uint8_t adc, output_t::TSFastFiller& out) const override;
 
-  void stripByStripEnd(State& state, output_t::TSFastFiller& out) const override { endCandidate(state, out); }
+  void stripByStripEnd(State& state, output_t::TSFastFiller& out) const override;
 
 private:
   template <class T>
