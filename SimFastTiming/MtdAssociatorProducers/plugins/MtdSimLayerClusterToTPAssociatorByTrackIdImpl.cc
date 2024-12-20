@@ -29,9 +29,9 @@ reco::SimToTPCollectionMtd MtdSimLayerClusterToTPAssociatorByTrackIdImpl::associ
   std::map<std::pair<unsigned int, uint32_t>, TrackingParticleRef> tpIdMap;
   for (auto tpIt = trackingParticles.begin(); tpIt != trackingParticles.end(); tpIt++) {
     const auto& tp = *tpIt;
+    EncodedEventId tpEventId = tp.eventId();
     for (unsigned int igt = 0; igt < tp.g4Tracks().size(); igt++) {
       unsigned int tpTrackId = tp.g4Tracks()[igt].trackId();
-      EncodedEventId tpEventId = tp.eventId();
       TrackingParticleRef tpRef =
           edm::Ref<TrackingParticleCollection>(trackingParticleH, tpIt - trackingParticles.begin());
       tpIdMap[std::make_pair(tpTrackId, tpEventId.rawId())] = tpRef;
@@ -47,9 +47,9 @@ reco::SimToTPCollectionMtd MtdSimLayerClusterToTPAssociatorByTrackIdImpl::associ
     const auto& simClus = *simClusIt;
     size_t simClusIndex = simClusIt - simClusters.begin();
     MtdSimLayerClusterRef simClusterRef = edm::Ref<MtdSimLayerClusterCollection>(simClusH, simClusIndex);
+    EncodedEventId simClusEventId = simClus.eventId();
     for (unsigned int igt = 0; igt < simClus.g4Tracks().size(); igt++) {
       unsigned int simClusTrackId = simClus.g4Tracks()[igt].trackId();
-      EncodedEventId simClusEventId = simClus.eventId();
       std::pair uniqueId = std::make_pair(simClusTrackId, simClusEventId.rawId());
       auto it = tpIdMap.find(uniqueId);
 
@@ -85,9 +85,9 @@ reco::TPToSimCollectionMtd MtdSimLayerClusterToTPAssociatorByTrackIdImpl::associ
   std::map<std::pair<unsigned int, uint32_t>, std::vector<MtdSimLayerClusterRef>> simClusIdMap;
   for (auto simClusIt = simClusters.begin(); simClusIt != simClusters.end(); simClusIt++) {
     const auto& simClus = *simClusIt;
+    EncodedEventId simClusEventId = simClus.eventId();
     for (unsigned int igt = 0; igt < simClus.g4Tracks().size(); igt++) {
       unsigned int simClusTrackId = simClus.g4Tracks()[igt].trackId();
-      EncodedEventId simClusEventId = simClus.eventId();
       MtdSimLayerClusterRef simClusterRef =
           edm::Ref<MtdSimLayerClusterCollection>(simClusH, simClusIt - simClusters.begin());
       simClusIdMap[std::make_pair(simClusTrackId, simClusEventId.rawId())].push_back(simClusterRef);
@@ -99,9 +99,9 @@ reco::TPToSimCollectionMtd MtdSimLayerClusterToTPAssociatorByTrackIdImpl::associ
     const auto& tp = *tpIt;
     size_t tpIndex = tpIt - trackingParticles.begin();
     TrackingParticleRef tpRef = edm::Ref<TrackingParticleCollection>(trackingParticleH, tpIndex);
+    EncodedEventId tpEventId = tp.eventId();
     for (unsigned int igt = 0; igt < tp.g4Tracks().size(); igt++) {
       unsigned int tpTrackId = tp.g4Tracks()[igt].trackId();
-      EncodedEventId tpEventId = tp.eventId();
       std::pair uniqueId = std::make_pair(tpTrackId, tpEventId.rawId());
       auto it = simClusIdMap.find(uniqueId);
 
