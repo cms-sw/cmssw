@@ -14,7 +14,7 @@ class BranchIDListsModifierProducer : public edm::global::EDProducer<> {
 public:
   BranchIDListsModifierProducer(edm::ParameterSet const& iPSet);
 
-  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& iDesc);
 

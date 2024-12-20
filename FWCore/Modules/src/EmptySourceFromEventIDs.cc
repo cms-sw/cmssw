@@ -42,7 +42,7 @@ bool EmptySourceFromEventIDs::setRunAndEventInfo(edm::EventID& event,
     return false;
   }
 
-  event = std::move(events_.back());
+  event = events_.back();
   events_.pop_back();
   return true;
 }
