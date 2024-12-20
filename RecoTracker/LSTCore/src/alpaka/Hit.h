@@ -59,8 +59,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   struct ModuleRangesKernel {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
                                   HitsRanges hitsRanges,
                                   int nLowerModules) const {
@@ -79,8 +78,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   };
 
   struct HitLoopKernel {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   uint16_t Endcap,          // Integer corresponding to endcap in module subdets
                                   uint16_t TwoS,            // Integer corresponding to TwoS in moduleType
                                   unsigned int nModules,    // Number of modules
