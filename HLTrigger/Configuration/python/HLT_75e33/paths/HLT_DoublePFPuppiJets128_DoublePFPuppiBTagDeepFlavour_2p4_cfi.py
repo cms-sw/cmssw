@@ -15,4 +15,19 @@ from ..sequences.HLTTrackingV61Sequence_cfi import *
 from ..sequences.HLTLocalrecoSequence_cfi import *
 from ..sequences.HLTRawToDigiSequence_cfi import *
 
-HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4 = cms.Path(HLTBeginSequence+hltL1SeedsForDoublePuppiJetBtagFilter+HLTRawToDigiSequence+HLTHgcalLocalRecoSequence+HLTLocalrecoSequence+HLTTrackingV61Sequence+HLTMuonsSequence+HLTParticleFlowSequence+HLTAK4PFPuppiJetsReconstruction+hltDoublePFPuppiJets128MaxEta2p4+hltDoublePFPuppiJets128Eta2p4MaxDeta1p6+HLTBtagDeepFlavourSequencePFPuppiModEta2p4+hltBTagPFPuppiDeepFlavour0p935DoubleEta2p4+HLTEndSequence)
+HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4 = cms.Path(
+    HLTBeginSequence
+    + hltL1SeedsForDoublePuppiJetBtagFilter
+    + HLTRawToDigiSequence
+    + HLTHgcalLocalRecoSequence
+    + HLTLocalrecoSequence
+    + HLTTrackingV61Sequence
+    + HLTMuonsSequence
+    + HLTParticleFlowSequence
+    + HLTAK4PFPuppiJetsReconstruction
+    + hltDoublePFPuppiJets128MaxEta2p4
+    + hltDoublePFPuppiJets128Eta2p4MaxDeta1p6
+    + HLTBtagDeepFlavourSequencePFPuppiModEta2p4
+    + hltBTagPFPuppiDeepFlavour0p935DoubleEta2p4
+    + HLTEndSequence
+)

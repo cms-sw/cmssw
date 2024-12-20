@@ -17,4 +17,21 @@ from ..sequences.HLTTrackingV61Sequence_cfi import *
 from ..sequences.HLTLocalrecoSequence_cfi import *
 from ..sequences.HLTRawToDigiSequence_cfi import *
 
-HLT_PFPuppiMETTypeOne140_PFPuppiMHT140 = cms.Path(HLTBeginSequence+hltL1SeedsForPuppiMETFilter+HLTRawToDigiSequence+HLTHgcalLocalRecoSequence+HLTLocalrecoSequence+HLTTrackingV61Sequence+HLTMuonsSequence+HLTParticleFlowSequence+HLTAK4PFPuppiJetsReconstruction+HLTPFPuppiMETReconstruction+hltPFPuppiMETTypeOneCorrector+hltPFPuppiMETTypeOne+hltPFPuppiMETTypeOne140+hltPFPuppiMHT+hltPFPuppiMHT140+HLTEndSequence)
+HLT_PFPuppiMETTypeOne140_PFPuppiMHT140 = cms.Path(
+    HLTBeginSequence
+    + hltL1SeedsForPuppiMETFilter
+    + HLTRawToDigiSequence
+    + HLTHgcalLocalRecoSequence
+    + HLTLocalrecoSequence
+    + HLTTrackingV61Sequence
+    + HLTMuonsSequence
+    + HLTParticleFlowSequence
+    + HLTAK4PFPuppiJetsReconstruction
+    + HLTPFPuppiMETReconstruction
+    + hltPFPuppiMETTypeOneCorrector
+    + hltPFPuppiMETTypeOne
+    + hltPFPuppiMETTypeOne140
+    + hltPFPuppiMHT
+    + hltPFPuppiMHT140
+    + HLTEndSequence
+)

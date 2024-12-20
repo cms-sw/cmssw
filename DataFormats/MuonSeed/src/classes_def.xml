@@ -1,5 +1,6 @@
 <lcgdict>
-      <class name="L2MuonTrajectorySeed"  ClassVersion="12">
+      <class name="L2MuonTrajectorySeed"  ClassVersion="13">
+       <version ClassVersion="13" checksum="2121764882"/>
        <version ClassVersion="12" checksum="2773784798"/>
        <version ClassVersion="11" checksum="541533207"/>
        <version ClassVersion="10" checksum="2502730614"/>
