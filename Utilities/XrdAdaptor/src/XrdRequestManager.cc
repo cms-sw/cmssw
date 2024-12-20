@@ -771,12 +771,12 @@ std::future<IOSize> XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vect
   std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr1, c_ptr2;
   std::future<IOSize> future1, future2;
   if (!req1->empty()) {
-    c_ptr1.reset(new XrdAdaptor::ClientRequest(*this, req1));
+    c_ptr1 = std::make_shared<XrdAdaptor::ClientRequest>(*this, req1);
     activeSources[0]->handle(c_ptr1);
     future1 = c_ptr1->get_future();
   }
   if (!req2->empty()) {
-    c_ptr2.reset(new XrdAdaptor::ClientRequest(*this, req2));
+    c_ptr2 = std::make_shared<XrdAdaptor::ClientRequest>(*this, req2);
     activeSources[1]->handle(c_ptr2);
     future2 = c_ptr2->get_future();
   }
@@ -1106,7 +1106,7 @@ void XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRo
       std::string excludeString;
       Source::determineHostExcludeString(*m_file, hostList.get(), excludeString);
 
-      source.reset(new Source(now, std::move(m_file), excludeString));
+      source = std::make_shared<Source>(now, std::move(m_file), excludeString);
       m_promise.set_value(source);
     } else {
       releaseFile = std::move(m_file);

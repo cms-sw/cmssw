@@ -177,7 +177,7 @@ int main(int argc, const char* argv[]) {
       //NOTE: JobReport must have a lifetime shorter than jobReportStreamPtr so that when the JobReport destructor
       // is called jobReportStreamPtr is still valid
       auto jobRepPtr = std::make_unique<edm::JobReport>(jobReportStreamPtr.get());
-      jobRep.reset(new edm::serviceregistry::ServiceWrapper<edm::JobReport>(std::move(jobRepPtr)));
+      jobRep = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::JobReport>>(std::move(jobRepPtr));
       edm::ServiceToken jobReportToken = edm::ServiceRegistry::createContaining(jobRep);
 
       if (!fileName.empty()) {
