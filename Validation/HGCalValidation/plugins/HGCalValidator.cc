@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "Validation/HGCalValidation/interface/HGCalValidator.h"
 
 #include "SimCalorimetry/HGCalAssociatorProducers/interface/AssociatorTools.h"
@@ -181,7 +183,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
                                     pset.getParameter<bool>("notConvertedOnlyCP"),
                                     pset.getParameter<std::vector<int>>("pdgIdCP"));
 
-  tools_.reset(new hgcal::RecHitTools());
+  tools_ = std::make_shared<hgcal::RecHitTools>();
 
   particles_to_monitor_ = pset.getParameter<std::vector<int>>("pdgIdCP");
   totallayers_to_monitor_ = pset.getParameter<int>("totallayers_to_monitor");
