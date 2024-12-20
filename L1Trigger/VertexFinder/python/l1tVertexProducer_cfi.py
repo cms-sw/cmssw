@@ -8,7 +8,7 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
   # === Vertex Reconstruction configuration
   VertexReconstruction = cms.PSet(
         # Vertex Reconstruction Algorithm
-        Algorithm = cms.string("fastHisto"),
+        Algorithm = cms.string("PFA"),
         # Vertex distance [cm]
         VertexDistance = cms.double(.15),
         # Assumed Vertex Resolution [cm]
@@ -21,15 +21,31 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         #   0 = unweighted
         #   1 = pT weighted
         #   2 = pT^2 weighted
-        WeightedMean = cms.uint32(1),
+        WeightedMean = cms.uint32(2),
         # Chi2 cut for the Adaptive Vertex Reconstruction Algorithm
         AVR_chi2cut = cms.double(5.),
         # Do track quality cuts in emulation algorithms
         EM_DoQualityCuts = cms.bool(False),
         # Track-stubs Pt compatibility cut
-        FH_DoPtComp = cms.bool(True),
+        FH_DoPtComp = cms.bool(False),
         # chi2dof < 5 for tracks with Pt > 10
         FH_DoTightChi2 = cms.bool(False),
+        # PFA algorithm scan parameters (min,max,width) [cm]
+        PFA_ScanParameters = cms.vdouble(-20.46912512, 20.46912512, 0.03997876),
+        # Include eta-dependence of the estimated track resolution used in PFA
+        PFA_EtaDependentResolution = cms.bool(True),
+        # Scale factor for the PFA track resolution parameter (where the nominal values with and without eta-dependence are hard-coded using the fit results from Giovanna's thesis)
+        PFA_ResolutionSF = cms.double(2.),
+        # PFA Gaussian width cutoff [cm]
+        PFA_VertexWidth = cms.double(1.31), # Giovanna's recommendation of 3*sigma(lowest-resolution tracks).
+        # Enable 2-step process where the weighted pT sum is only calculated at positions where the weighted multiplicity is maximum ("local maxima"). In the second step, the local maximum with the largest weighted pT sum is chosen as the vertex.
+        PFA_UseMultiplicityMaxima = cms.bool(False),
+        # Weight function to use in PFA. 0: Gaussian, 1: Gaussian without width normalisation, 2: Complementary error function
+        PFA_WeightFunction = cms.uint32(1),
+        # Instead of taking the z0 value from the discrete PFA scan (0), calculate it from the Gaussian and pT-weighted sum of track z0 (1) or the optimal (1/variance) weighted mean of associated tracks, weighted also by pT and association probability (2)
+        PFA_WeightedZ0 = cms.uint32(1),
+        # Use VxMinTrackPt cut specified below (otherwise no additional track selection is applied)
+        PFA_DoQualityCuts = cms.bool(False),
         # fastHisto algorithm histogram parameters (min,max,width) [cm]
         # TDR settings: [-14.95, 15.0, 0.1]
         # L1TkPrimaryVertexProducer: [-30.0, 30.0, 0.09983361065]
@@ -38,7 +54,7 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         # Track word limits (256 binns): [-20.46912512, 20.46912512, 0.15991504]
         FH_HistogramParameters = cms.vdouble(-20.46912512, 20.46912512, 0.15991504),
         # The number of vertixes to return (i.e. N windows with the highest combined pT)
-        FH_NVtx = cms.uint32(1),
+        FH_NVtx = cms.uint32(10),
         # fastHisto algorithm assumed vertex half-width [cm]
         FH_VertexWidth = cms.double(.15),
         # Window size of the sliding window
@@ -62,11 +78,11 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         # Option '0' was used for the TDR, but '1' is used for the firmware
         VxMaxTrackPtBehavior = cms.int32(1),
         # Maximum chi2 of tracks used to create vertex
-        VxMaxTrackChi2 = cms.double(100.),
+        VxMaxTrackChi2 = cms.double(99999999.),
         # Minimum number of stubs associated to a track
-        VxMinNStub = cms.uint32(4),
+        VxMinNStub = cms.uint32(0),
         # Minimum number of stubs in PS modules associated to a track
-        VxMinNStubPS = cms.uint32(3),
+        VxMinNStubPS = cms.uint32(0),
         # Track weight NN graph 
         TrackWeightGraph = cms.FileInPath("L1Trigger/VertexFinder/data/NNVtx_WeightModelGraph.pb"),
         # Pattern recognition NN graph
