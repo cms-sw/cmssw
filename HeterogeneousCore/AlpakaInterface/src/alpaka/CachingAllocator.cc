@@ -334,8 +334,14 @@ namespace cms::alpakatools {
     auto& bin = cachedBlocks_[block.bin];
     auto& blocks = bin.blocks_;
 
+    // Create a temporary storage to hold the blocks that are still busy while looking for one that is ready.
+    // Most of the time this is not actually used, so delay the initial reserve to the first usage.
     std::vector<std::unique_ptr<BlockDescriptor>> temp;
-    temp.reserve(16);
+
+    // Note that if an exception is thrown during the loop, the temporary storage will be destroyed and the blocks it
+    // contain will be released.
+    // As these are free blocks and not accounted in the totalLive_ value, this should not cause problems with the
+    // assertion in the destructor of the CachingAllocator.
 
     bool found = false;
     std::unique_ptr<BlockDescriptor> candidate;
@@ -348,57 +354,67 @@ namespace cms::alpakatools {
       assert(candidate->event);
       assert(candidate->event->m_spEventImpl.get());
 
-      if ((reuseSameQueueAllocations_ and (*block.queue == *candidate->queue)) or
-          alpaka::isComplete(*candidate->event)) {
-        // Reuse the block.
-        found = true;
-
-        // Transfer ownership of the old buffer.
-        block.buffer = std::move(candidate->buffer);
-        assert(block.buffer);
-        assert(block.buffer->data());
-
-        // Keep the queue used to request the allocation.
-        assert(block.queue);
-        assert(block.queue->m_spQueueImpl.get());
-
-        // If the new queue is on different device than the old event, create a
-        // new event, otherwise reuse the old event.
-        // Device memory allocators are per-device, so this can only happen for
-        // a host allocator caching mapped memory buffers.
-        if (block.device() != alpaka::getDev(*(candidate->event))) {
-          block.event = Event{block.device()};
-        } else {
-          if (debug_) {
-            // Only for debugging: ake a copy to print the information of the old event.
-            block.event = candidate->event;
-          } else {
-            block.event = std::move(candidate->event);
-          }
+      // If the candidate block is still busy, move it to the temporary buffer and look for another block.
+      if ((not reuseSameQueueAllocations_ or (*block.queue != *candidate->queue)) and
+          not alpaka::isComplete(*candidate->event)) {
+        // This is a simple heuristic based on a measurement performed using the reduced 2024 HLT menu (including only
+        // the alpaka modules) running with 256 cores one a single GPU: using an initial capacity that is one quarter
+        // of the original queue size, over 60% of the non-empty cases do not require any reallocation, while the other
+        // will need at most two (except for the rare circumstances where the queue grows significantly while looking
+        // for a ready block).
+        // On average, this reserves 18 entries and requires 0.6 reallocations.
+        // Note that after the first try_pop() the queue size is one less the original value.
+        if (temp.empty()) {
+          temp.reserve(blocks.unsafe_size() / 4 + 1);
         }
-        assert(block.event);
-        assert(block.event->m_spEventImpl.get());
-
-        // Update the accounting information.
-        totalFree_ -= block.bytes;
-        totalLive_ += block.bytes;
-        totalRequested_ += block.requested;
-
-        if (debug_) {
-          std::osyncstream out(std::cerr);
-          out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " reused cached block at "
-              << block.buffer->data() << " (" << block.bytes << " bytes) for queue " << block.queue->m_spQueueImpl.get()
-              << ", event " << block.event->m_spEventImpl.get() << " (previously associated with queue "
-              << candidate->queue->m_spQueueImpl.get() << ", event " << candidate->event->m_spEventImpl.get() << ").\n";
-        }
-
-        // Free the block descriptor and the resources still associated to it.
-        candidate.reset();
-      } else {
-        // The candidate block is still busy, move it to the temporary buffer.
         temp.push_back(std::move(candidate));
+        continue;
       }
-      assert(not candidate);
+
+      // Reuse the block.
+      found = true;
+
+      // Transfer ownership of the old buffer.
+      block.buffer = std::move(candidate->buffer);
+      assert(block.buffer);
+      assert(block.buffer->data());
+
+      // Keep the queue used to request the allocation.
+      assert(block.queue);
+      assert(block.queue->m_spQueueImpl.get());
+
+      // If the new queue is on different device than the old event, create a
+      // new event, otherwise reuse the old event.
+      // Device memory allocators are per-device, so this can only happen for
+      // a host allocator caching mapped memory buffers.
+      if (block.device() != alpaka::getDev(*(candidate->event))) {
+        block.event = Event{block.device()};
+      } else {
+        if (debug_) {
+          // Only for debugging: make a copy to print the information of the old event.
+          block.event = candidate->event;
+        } else {
+          block.event = std::move(candidate->event);
+        }
+      }
+      assert(block.event);
+      assert(block.event->m_spEventImpl.get());
+
+      // Update the accounting information.
+      totalFree_ -= block.bytes;
+      totalLive_ += block.bytes;
+      totalRequested_ += block.requested;
+
+      if (debug_) {
+        std::osyncstream out(std::cerr);
+        out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " reused cached block at "
+            << block.buffer->data() << " (" << block.bytes << " bytes) for queue " << block.queue->m_spQueueImpl.get()
+            << ", event " << block.event->m_spEventImpl.get() << " (previously associated with queue "
+            << candidate->queue->m_spQueueImpl.get() << ", event " << candidate->event->m_spEventImpl.get() << ").\n";
+      }
+
+      // Free the block descriptor and the resources still associated to it.
+      candidate.reset();
     }
 
     // Either we found a block to reuse, or the free list is empty; stop looking
