@@ -1313,7 +1313,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
             accept = false;
         }
         if (accept) {
-	  ++count_;
+          ++count_;
           tree->Fill();
           edm::LogVerbatim("HcalIsoTrackX")
               << "Run " << t_RunNo << " Event " << t_EventNo << " Track " << nTracks << " p " << t_p;
@@ -1443,7 +1443,7 @@ void HcalIsoTrkAnalyzer::storeEnergy(int indx,
     for (unsigned int k = 0; k < ids.size(); ++k) {
       double corr = (respCorrs_->getValues(ids[k]))->getValue();
       if (count_ <= 1)
-	edm::LogVerbatim("HcalIsoTrack") << "Correction Factor for " << HcalDetId(ids[k]) << " " << corr;
+        edm::LogVerbatim("HcalIsoTrack") << "Correction Factor for " << HcalDetId(ids[k]) << " " << corr;
       if (corr != 0)
         edet[k] /= corr;
       ehcal += edet[k];
