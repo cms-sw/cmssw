@@ -379,8 +379,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                       quintuplets.lowerModuleIndices()[quintupletIndex].data(),
                                       quintuplets.hitIndices()[quintupletIndex].data(),
                                       -1 /*no pixel seed index for T5s*/,
-                                      quintuplets.regressionG()[quintupletIndex],
-                                      quintuplets.regressionF()[quintupletIndex],
+                                      quintuplets.regressionCenterX()[quintupletIndex],
+                                      quintuplets.regressionCenterY()[quintupletIndex],
                                       quintuplets.regressionRadius()[quintupletIndex],
                                       trackCandidateIdx,
                                       quintupletIndex);
