@@ -179,6 +179,10 @@ namespace cms::alpakatools {
       }
     }
 
+    // Update the statistics.
+    totalLive_ += block->bytes;
+    totalRequested_ += block->requested;
+
     return block.release();
   }
 
@@ -194,6 +198,8 @@ namespace cms::alpakatools {
     assert(block->queue->m_spQueueImpl.get());
     assert(block->event);
     assert(block->event->m_spEventImpl.get());
+
+    // Update the statistics.
     totalLive_ -= block->bytes;
     totalRequested_ -= block->requested;
 
@@ -379,6 +385,9 @@ namespace cms::alpakatools {
       assert(block.buffer);
       assert(block.buffer->data());
 
+      // Update the statistics; totalLive_ and totalRequested_ are updated by allocate().
+      totalFree_ -= block.bytes;
+
       // Keep the queue used to request the allocation.
       assert(block.queue);
       assert(block.queue->m_spQueueImpl.get());
@@ -399,11 +408,6 @@ namespace cms::alpakatools {
       }
       assert(block.event);
       assert(block.event->m_spEventImpl.get());
-
-      // Update the accounting information.
-      totalFree_ -= block.bytes;
-      totalLive_ += block.bytes;
-      totalRequested_ += block.requested;
 
       if (debug_) {
         std::osyncstream out(std::cerr);
@@ -463,16 +467,14 @@ namespace cms::alpakatools {
       //   - or, try to free a larger cached block and to allocate a buffer ?
       freeAllCached();
 
-      // Throw an exception if it fails again.
+      // Let it throw an exception if it fails again.
       block.buffer = allocateBuffer(block.bytes, *block.queue);
     }
 
     // Create a new event associated to the "synchronisation device".
     block.event = Event{block.device()};
 
-    // Update the statistics.
-    totalLive_ += block.bytes;
-    totalRequested_ += block.requested;
+    // The statistics are updated by allocate().
 
     if (debug_) {
       std::osyncstream out(std::cerr);
