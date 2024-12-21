@@ -2302,7 +2302,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
           myFake = 1;
 
         myTP_pdgid = my_tp->pdgId();
-        if (my_tp->genParticles().size() > 0) {
+        if (!my_tp->genParticles().empty()) {
           myTP_mother_pdgid = my_tp->genParticles().at(0)->mother(0)->pdgId();
         }
         myTP_pt = my_tp->p4().pt();
@@ -2365,7 +2365,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
 
       this_l1track++;
     }  //end track loop
-  }    //end if SaveAllTracks
+  }  //end if SaveAllTracks
 
   // ----------------------------------------------------------------------------------------------
   // loop over (extended) L1 tracks
@@ -2579,7 +2579,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         m_trkExt_selected_associated_emulation_foretmiss_index->push_back(this_l1track);
       this_l1track++;
     }  //end track loop
-  }    //end if SaveAllTracks (displaced)
+  }  //end if SaveAllTracks (displaced)
 
   // ----------------------------------------------------------------------------------------------
   // loop over tracking particles
@@ -2829,7 +2829,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
           }
 
         }  // end loop over matched L1 tracks
-      }    // end has at least 1 matched L1 track
+      }  // end has at least 1 matched L1 track
       // ----------------------------------------------------------------------------------------------
 
       float tmp_matchtrk_pt = -999;
@@ -3000,7 +3000,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
           }
 
         }  // end loop over matched L1 tracks
-      }    // end has at least 1 matched L1 track
+      }  // end has at least 1 matched L1 track
       // ----------------------------------------------------------------------------------------------
 
       float tmp_matchtrkExt_pt = -999;
