@@ -962,7 +962,7 @@ void CalibMonitor::Loop(Long64_t nmax, bool debug) {
     } else if (kp == 5) {
       ++kount5[0];
     }
-    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
+    bool select = ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(0))) ? (cDuplicate_->isDuplicate(jentry)) : true;
     if (!select) {
       ++duplicate;
       if (debug)
@@ -1037,7 +1037,7 @@ void CalibMonitor::Loop(Long64_t nmax, bool debug) {
           continue;
       }
     }
-    if (cDuplicate_ != nullptr) {
+    if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(2))) {
       if (cDuplicate_->select(t_ieta, t_iphi))
         continue;
     }
