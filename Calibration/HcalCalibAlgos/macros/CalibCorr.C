@@ -1305,7 +1305,8 @@ bool CalibSelectRBX::isItRBX(const int ieta, const int iphi) {
   return ok;
 }
 
-CalibDuplicate::CalibDuplicate(const char* fname, int flag, bool debug) : flag_(flag), nocc_(0),  debug_(debug), ok_(false) {
+CalibDuplicate::CalibDuplicate(const char* fname, int flag, bool debug)
+    : flag_(flag), nocc_(0), debug_(debug), ok_(false) {
   std::cout << "CalibDuplicate called with Flag " << flag_ << " i/p file " << fname << std::endl;
   if (flag_ == 0) {
     if (strcmp(fname, "") != 0) {
@@ -1459,7 +1460,8 @@ double CalibDuplicate::getCorr(int run, int ieta, int depth) {
     corr = (itr->second)[irun];
   }
   if (debug_ && (nocc_ < 1000))
-    std::cout << "Run " << run << " ieta:depth " << ieta << ":" << depth << " found " << (itr == corrs_.end()) << " Corr " << corr << std::endl;
+    std::cout << "Run " << run << " ieta:depth " << ieta << ":" << depth << " found " << (itr == corrs_.end())
+              << " Corr " << corr << std::endl;
   return corr;
 }
 
