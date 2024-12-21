@@ -1,4 +1,4 @@
-To run the L1 tracking & create a TTree of tracking performance: 
+To run the L1 tracking & create a TTree of tracking performance:  
 
 cmsRun L1TrackNtupleMaker_cfg.py
 
