@@ -658,7 +658,7 @@ private:
   bool readCorrFactor(const char* fName);
   unsigned int runId(const int& run);
 
-  int flag_;
+  int flag_, nocc_;
   double debug_, ok_;
   std::vector<Long64_t> entries_;
   std::map<int, std::vector<double> > weights_;
@@ -1305,7 +1305,8 @@ bool CalibSelectRBX::isItRBX(const int ieta, const int iphi) {
   return ok;
 }
 
-CalibDuplicate::CalibDuplicate(const char* fname, int flag, bool debug) : flag_(flag), debug_(debug), ok_(false) {
+CalibDuplicate::CalibDuplicate(const char* fname, int flag, bool debug) : flag_(flag), nocc_(0),  debug_(debug), ok_(false) {
+  std::cout << "CalibDuplicate called with Flag " << flag_ << " i/p file " << fname << std::endl;
   if (flag_ == 0) {
     if (strcmp(fname, "") != 0) {
       std::ifstream infile(fname);
@@ -1449,6 +1450,7 @@ bool CalibDuplicate::select(int ieta, int iphi) {
 }
 
 double CalibDuplicate::getCorr(int run, int ieta, int depth) {
+  ++nocc_;
   std::map<std::pair<int, int>, std::vector<double> >::const_iterator itr =
       corrs_.find(std::pair<int, int>(ieta, depth));
   double corr(1.0);
@@ -1456,6 +1458,8 @@ double CalibDuplicate::getCorr(int run, int ieta, int depth) {
     unsigned int irun = runId(run);
     corr = (itr->second)[irun];
   }
+  if (debug_ && (nocc_ < 1000))
+    std::cout << "Run " << run << " ieta:depth " << ieta << ":" << depth << " found " << (itr == corrs_.end()) << " Corr " << corr << std::endl;
   return corr;
 }
 
