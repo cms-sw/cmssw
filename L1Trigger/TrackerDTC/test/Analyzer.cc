@@ -327,7 +327,7 @@ namespace trackerDTC {
     }
   }
 
-  // prints out MC summary
+  // prints out Monte Carlo summary
   void Analyzer::endJobMC() {
     const double numStubs = profMC_->GetBinContent(1);
     const double numStubsMatched = profMC_->GetBinContent(2);
@@ -344,7 +344,7 @@ namespace trackerDTC {
     const int wNums = ceil(log10(*max_element(nums.begin(), nums.end()))) + 5;
     const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
     log_ << "=============================================================" << endl;
-    log_ << "                         MC  SUMMARY                         " << endl;
+    log_ << "                         Monte Carlo  SUMMARY                         " << endl;
     /*log_ << "number of cluster       per TFP = " << setw(wNums) << numCluster << " +- " << setw(wErrs) << errCluster
          << endl;
     log_ << "number of stubs         per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs
