@@ -8,7 +8,6 @@ from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
-from ..sequences.HLTTrackingV61Sequence_cfi import *
 from ..sequences.HLTItLocalRecoSequence_cfi import *
 from ..sequences.HLTMuonlocalrecoSequence_cfi import *
 from ..sequences.HLTOtLocalRecoSequence_cfi import *
