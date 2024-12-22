@@ -48,8 +48,8 @@ namespace clangcms {
       }
 
       // == Skip non-private mutables
-      // Public mutable members are flagged by PublicMutableChecker
-      // Private ones can be modified by other classes, so it is bit hard to find if
+      // Public mutable members are forbidden and flagged by PublicMutableChecker
+      // Protected ones can be modified by derived classes, so it is bit hard to find if
       // a `mutable` attribute is not necessary (i.e. not modified in any const method).
       if (Field->getAccess() != clang::AS_private) {
         return;
