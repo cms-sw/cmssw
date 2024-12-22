@@ -70,8 +70,8 @@ void testDDFilteredViewFind::checkFilteredView() {
   double radLength = fview.getNextValue("TrackerRadLength");
   std::cout << radLength << "\n";
   double xi = fview.getNextValue("TrackerXi");
-  CPPUNIT_ASSERT(abs(radLength - refRadLength_) < 10e-6);
-  CPPUNIT_ASSERT(abs(xi - refXi_) < 10e-6);
+  CPPUNIT_ASSERT(std::abs(radLength - refRadLength_) < 10e-6);
+  CPPUNIT_ASSERT(std::abs(xi - refXi_) < 10e-6);
 
   std::cout << "TrackerRadLength = " << radLength << "\nTrackerXi = " << xi << "\n";
 
