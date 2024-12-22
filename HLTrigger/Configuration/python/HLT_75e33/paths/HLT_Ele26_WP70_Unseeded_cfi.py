@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.hltPreEle26WP70Unseeded_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEle26WP70UnseededSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
