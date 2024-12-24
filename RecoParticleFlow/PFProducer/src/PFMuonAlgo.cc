@@ -16,12 +16,12 @@ using namespace boost;
 
 PFMuonAlgo::PFMuonAlgo(const edm::ParameterSet& iConfig, bool postMuonCleaning)
 
-    : pfCosmicsMuonCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
-      pfCleanedTrackerAndGlobalMuonCandidates_(std::make_unique<reco::PFCandidateCollection>()),
-      pfFakeMuonCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
-      pfPunchThroughMuonCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
-      pfPunchThroughHadronCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
-      pfAddedMuonCandidates_(std::make_unique<reco::PFCandidateCollection>()),
+    : pfCosmicsMuonCleanedCandidates_(),
+      pfCleanedTrackerAndGlobalMuonCandidates_(),
+      pfFakeMuonCleanedCandidates_(),
+      pfPunchThroughMuonCleanedCandidates_(),
+      pfPunchThroughHadronCleanedCandidates_(),
+      pfAddedMuonCandidates_(),
 
       maxDPtOPt_(iConfig.getParameter<double>("maxDPtOPt")),
       trackQuality_(reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("trackQuality"))),
