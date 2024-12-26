@@ -19,7 +19,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaGlobalProducerWithPtr : public global::EDProducer<> {
   public:
     TestAlpakaGlobalProducerWithPtr(edm::ParameterSet const& config)
-        : token_{produces()}, size_{config.getParameter<int>("size")} {}
+        : EDProducer<>(config), token_{produces()}, size_{config.getParameter<int>("size")} {}
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;

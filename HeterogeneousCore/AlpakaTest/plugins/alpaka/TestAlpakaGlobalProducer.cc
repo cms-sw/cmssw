@@ -21,7 +21,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaGlobalProducer : public global::EDProducer<> {
   public:
     TestAlpakaGlobalProducer(edm::ParameterSet const& config)
-        : esToken_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSource"))),
+        : EDProducer<>(config),
+          esToken_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSource"))),
           esMultiToken_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSourceMulti"))),
           deviceToken_{produces()},
           deviceTokenMulti2_{produces()},

@@ -16,10 +16,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     public:
       // TODO: WaitingTaskWithArenaHolder not really needed for host synchronous case
       // Constructor overload to be called from acquire()
-      EDMetadataAcquireSentry(edm::StreamID stream, edm::WaitingTaskWithArenaHolder holder);
+      EDMetadataAcquireSentry(edm::StreamID stream, edm::WaitingTaskWithArenaHolder holder, bool synchronize);
 
       // Constructor overload to be called from registerTransformAsync()
-      EDMetadataAcquireSentry(Device const& device, edm::WaitingTaskWithArenaHolder holder);
+      EDMetadataAcquireSentry(Device const& device, edm::WaitingTaskWithArenaHolder holder, bool synchronize = false);
 
       EDMetadataAcquireSentry(EDMetadataAcquireSentry const&) = delete;
       EDMetadataAcquireSentry& operator=(EDMetadataAcquireSentry const&) = delete;
@@ -40,6 +40,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::shared_ptr<EDMetadata> metadata_;
 
       edm::WaitingTaskWithArenaHolder waitingTaskHolder_;
+      bool const synchronize_;
     };
   }  // namespace detail
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
