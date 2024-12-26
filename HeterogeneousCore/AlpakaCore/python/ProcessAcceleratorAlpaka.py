@@ -32,6 +32,11 @@ class ModuleTypeResolverAlpaka:
         if module.type_().endswith("@alpaka"):
             defaultBackend = self._valid_backends[0]
             if hasattr(module, "alpaka"):
+                # Ensure the untrackedness already here, because the
+                # C++ ModuleTypeResolverAlpaka relies on the
+                # untrackedness (before the configuration validation)
+                if module.alpaka.isTracked():
+                    raise cms.EDMException(cms.edm.errors.Configuration, "The 'alpaka' PSet in module '{}' is tracked, but it should be untracked".format(module.label()))
                 if hasattr(module.alpaka, "backend"):
                     if module.alpaka.backend == "":
                         module.alpaka.backend = defaultBackend
