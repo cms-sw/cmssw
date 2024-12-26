@@ -15,10 +15,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       static_assert(not edm::CheckAbility<edm::module::Abilities::kExternalWork, Args...>::kHasIt,
                     "ALPAKA_ACCELERATOR_NAMESPACE::global::EDProducer may not be used with ExternalWork ability. "
                     "Please use ALPAKA_ACCELERATOR_NAMESPACE::stream::SynchronizingEDProducer instead.");
+      using Base = ProducerBase<edm::global::EDProducer, Args...>;
+
+    protected:
+      EDProducer() = default;  // to be removed in the near future
+      EDProducer(edm::ParameterSet const iConfig) : Base(iConfig) {}
 
     public:
       void produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& iSetup) const final {
-        detail::EDMetadataSentry sentry(sid);
+        detail::EDMetadataSentry sentry(sid, this->synchronize());
         device::Event ev(iEvent, sentry.metadata());
         device::EventSetup const es(iSetup, ev.device());
         produce(sid, ev, es);

@@ -24,7 +24,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaStreamProducer : public stream::EDProducer<> {
   public:
     TestAlpakaStreamProducer(edm::ParameterSet const& config)
-        : size_{config.getParameter<edm::ParameterSet>("size").getParameter<int32_t>(
+        : EDProducer<>(config),
+          size_{config.getParameter<edm::ParameterSet>("size").getParameter<int32_t>(
               EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE))},
           size2_{config.getParameter<edm::ParameterSet>("size").getParameter<int32_t>(
               EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE))},
