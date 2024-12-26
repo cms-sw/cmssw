@@ -143,11 +143,16 @@ namespace edm {
                            handle);
               }
             });
-        WaitingTaskWithArenaHolder wta(*iHolder.group(), nextTask);
+        WaitingTaskHolder wth(*iHolder.group(), nextTask);
         CMS_SA_ALLOW try {
-          *cache = transformInfo_.get<kPreTransform>(iIndex)(streamContext.streamID(), *(handle->wrapper()), wta);
+          // wth must be copied into wta below so that the
+          // wth.doneWaiting() is called after the pre-transform
+          // function has finished
+          WaitingTaskWithArenaHolder wta(wth);
+          *cache =
+              transformInfo_.get<kPreTransform>(iIndex)(streamContext.streamID(), *(handle->wrapper()), std::move(wta));
         } catch (...) {
-          wta.doneWaiting(std::current_exception());
+          wth.doneWaiting(std::current_exception());
         }
       }
     } else {

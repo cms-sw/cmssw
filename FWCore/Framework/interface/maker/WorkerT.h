@@ -27,7 +27,6 @@ namespace edm {
   class ModuleProcessName;
   class ProductResolverIndexAndSkipBit;
   class ThinnedAssociationsHelper;
-  class WaitingTaskWithArenaHolder;
 
   template <typename T>
   class WorkerT : public Worker {
@@ -90,7 +89,7 @@ namespace edm {
     void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const final;
     bool implNeedToRunSelection() const noexcept final;
 
-    void implDoAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskWithArenaHolder&) final;
+    void implDoAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskHolder&&) final;
 
     size_t transformIndex(edm::BranchDescription const&) const noexcept final;
     void implDoTransformAsync(WaitingTaskHolder,

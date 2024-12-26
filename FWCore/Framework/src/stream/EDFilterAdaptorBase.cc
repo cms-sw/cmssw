@@ -66,7 +66,7 @@ namespace edm {
     void EDFilterAdaptorBase::doAcquire(EventTransitionInfo const& info,
                                         ActivityRegistry* act,
                                         ModuleCallingContext const* mcc,
-                                        WaitingTaskWithArenaHolder& holder) {
+                                        WaitingTaskHolder&& holder) {
       EventPrincipal const& ep = info.principal();
       assert(ep.streamID() < m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
@@ -77,7 +77,7 @@ namespace edm {
       ESParentContext parentC(mcc);
       const EventSetup c{
           info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), parentC};
-      mod->doAcquire_(e, c, holder);
+      mod->doAcquire_(e, c, std::move(holder));
     }
 
     template class edm::stream::ProducingModuleAdaptorBase<edm::stream::EDFilterBase>;
