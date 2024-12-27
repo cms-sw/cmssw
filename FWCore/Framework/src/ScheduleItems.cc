@@ -134,8 +134,15 @@ namespace edm {
 
     act_table_ = std::make_unique<ExceptionToActionTable>(parameterSet);
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
-    processConfiguration_ = std::make_shared<ProcessConfiguration>(
-        processName, getReleaseVersion(), getPassID());  // propagate_const<T> has no reset() function
+    std::string releaseVersion;
+    if (parameterSet.existsAs<std::string>("@special_override_release_version_only_for_testing", false)) {
+      releaseVersion =
+          parameterSet.getUntrackedParameter<std::string>("@special_override_release_version_only_for_testing");
+    } else {
+      releaseVersion = getReleaseVersion();
+    }
+    // propagate_const<T> has no reset() function
+    processConfiguration_ = std::make_shared<ProcessConfiguration>(processName, releaseVersion, getPassID());
     auto common = std::make_shared<CommonParams>(
         parameterSet.getUntrackedParameterSet("maxEvents").getUntrackedParameter<int>("input"),
         parameterSet.getUntrackedParameterSet("maxLuminosityBlocks").getUntrackedParameter<int>("input"),

@@ -149,6 +149,7 @@ class Process(object):
         self.__isStrict = False
         self.__dict__['_Process__modifiers'] = Mods
         self.__dict__['_Process__accelerators'] = {}
+        self.__dict__['_Process__specialOverrideReleaseVersionOnlyForTesting'] = None
         self.__injectValidValue('options', Process.defaultOptions_())
         self.__injectValidValue('maxEvents', Process.defaultMaxEvents_())
         self.maxLuminosityBlocks = Process.defaultMaxLuminosityBlocks_()
@@ -813,6 +814,10 @@ class Process(object):
 
         self.__dict__['_Process__InExtendCall'] = False
 
+    def _specialOverrideReleaseVersionOnlyForTesting(self, version):
+        "This function is intended only for specific framework tests. Do not use for anything else."
+        self.__specialOverrideReleaseVersionOnlyForTesting = version
+
     def _dumpConfigNamedList(self,items,typeName:str,options:PrintOptions) -> str:
         returnValue = ''
         for name,item in items:
@@ -1458,6 +1463,8 @@ class Process(object):
 
         self.validate()
         processPSet.addString(True, "@process_name", self.name_())
+        if self.__specialOverrideReleaseVersionOnlyForTesting is not None:
+            processPSet.addString(False, "@special_override_release_version_only_for_testing", self.__specialOverrideReleaseVersionOnlyForTesting)
         self.handleProcessAccelerators(processPSet)
         all_modules = self.producers_().copy()
         all_modules.update(self.filters_())
@@ -4943,5 +4950,17 @@ process.ProcessAcceleratorTest = ProcessAcceleratorTest(
             unpkl.fillProcessDesc(p)
             self.assertEqual((False, "sp@test1"), p.values["sp"][1].values["@chosen_case"])
             self.assertEqual(["cpu", "test1"], p.values["@available_accelerators"][1])
+
+        def testProcessSpecialOverrideReleaseVersion(self):
+            proc = Process("TEST")
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertFalse("@special_override_release_version_only_for_testing" in p.values)
+
+            proc = Process("TEST")
+            proc._specialOverrideReleaseVersionOnlyForTesting("CMSSW_15_0_0")
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertEqual((False, "CMSSW_15_0_0"), p.values["@special_override_release_version_only_for_testing"])
 
     unittest.main()

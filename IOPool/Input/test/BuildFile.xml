@@ -38,5 +38,6 @@
     <lib name="SchemaEvolutionTest"/>
   </test>
   <test name="TestIOPoolInputRefProductIDMetadataConsistency" command="testRefProductIDMetadataConsistencyRoot.sh"/>
+  <test name="TestIOPoolInputReducedProcessHistory" command="testReducedProcessHistory.sh"/>
 
 </environment>
