@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun dumpGE0_cfg.py geometry=GE0
 #
-#   Options for geometry GE0, Mu24
+#   Options for geometry GE0, Mu24, GE21
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "GE0",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: GE0, Mu24")
+                  "geometry of operations: GE0, Mu24, GE21")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -39,8 +39,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.G4cerr=dict()
-    process.MessageLogger.G4cout=dict()
     process.MessageLogger.MuonGeom=dict()
+#   process.MessageLogger.TGeoMgrFromDdd=dict()
 
 process.source = cms.Source("EmptySource")
 
