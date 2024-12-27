@@ -78,7 +78,7 @@ namespace l1t {
     }
 
     /// get all the object combinations evaluated to true in the condition
-    inline CombinationsInCond const& getCombinationsInCond() const { return m_combinationsInCond; }
+    inline CombinationsWithBxInCond const& getCombinationsInCond() const { return m_combinationsInCond; }
 
     /// print condition
     virtual void print(std::ostream& myCout) const;
@@ -87,7 +87,7 @@ namespace l1t {
 
   protected:
     /// get all the object combinations (to fill it...)
-    inline CombinationsInCond& combinationsInCond() const { return m_combinationsInCond; }
+    inline CombinationsWithBxInCond& combinationsInCond() const { return m_combinationsInCond; }
 
     /// check if a value is greater than a threshold or
     /// greater-or-equal depending on the value of the condGEqValue flag
@@ -166,7 +166,7 @@ namespace l1t {
     bool m_condLastResult;
 
     /// store all the object combinations evaluated to true in the condition
-    mutable CombinationsInCond m_combinationsInCond;
+    mutable CombinationsWithBxInCond m_combinationsInCond;
 
     /// verbosity level
     int m_verbosity;

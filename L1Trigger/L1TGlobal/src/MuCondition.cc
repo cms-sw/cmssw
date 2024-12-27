@@ -111,7 +111,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
   const BXVector<const l1t::Muon*>* candVec = m_gtGTL->getCandL1Mu();  //BLW Change for BXVector
 
   // Look at objects in bx = bx + relativeBx
-  int useBx = bxEval + m_gtMuonTemplate->condRelativeBx();
+  L1TObjBxIndexType const useBx = bxEval + m_gtMuonTemplate->condRelativeBx();
 
   // Fail condition if attempting to get Bx outside of range
   if ((useBx < candVec->getFirstBX()) || (useBx > candVec->getLastBX())) {
@@ -148,7 +148,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
 
   // store the indices of the muon objects
   // from the combination evaluated in the condition
-  SingleCombInCond objectsInComb;
+  SingleCombWithBxInCond objectsInComb;
   objectsInComb.reserve(nObjInCond);
 
   // clear the m_combinationsInCond vector
@@ -176,7 +176,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
       else
         LogDebug("L1TGlobal") << "===> MuCondition::evaluateCondition, FAIL!! This muon failed the condition."
                               << std::endl;
-      objectsInComb.push_back(index[i]);
+      objectsInComb.emplace_back(useBx, index[i]);
     }
 
     // if permutation does not match particle conditions
@@ -304,7 +304,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
     // set the general result for evaluateCondition to "true"
 
     condResult = true;
-    (combinationsInCond()).push_back(objectsInComb);
+    combinationsInCond().push_back(objectsInComb);
 
   } while (std::next_permutation(index.begin(), index.end()));
 
