@@ -22,7 +22,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaGlobalProducerOffset : public global::EDProducer<> {
   public:
     TestAlpakaGlobalProducerOffset(edm::ParameterSet const& config)
-        : esToken_(esConsumes()),
+        : EDProducer<>(config),
+          esToken_(esConsumes()),
           deviceToken_{produces()},
           x_(config.getParameter<edm::ParameterSet>("xvalue").getParameter<double>(
               EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE))) {}

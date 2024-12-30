@@ -146,7 +146,9 @@ The `...` can in principle be any of the module abilities listed in the linked T
 
 New base classes (or other functionality) can be added based on new use cases that come up.
 
-The Alpaka-based ESProducers should use the `ESProducer` base class (`#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"`). Note that the Alpaka-based ESProducer constructor must pass the argument `edm::ParameterSet` object to the constructor of the `ESProducer` base class.
+The Alpaka-based ESProducers should use the `ESProducer` base class (`#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"`).
+
+Note that both the Alpaka-based EDProducer and ESProducer constructors must pass the argument `edm::ParameterSet` object to the constructor of their base class.
 
 Note that currently Alpaka-based ESSources are not supported. If you need to produce EventSetup data products into a Record for which there is no ESSource yet, use [`EmptyESSource`](https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideEDMParametersForModules#EmptyESSource).
 
@@ -237,8 +239,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class ExampleAlpakaProducer : public global::EDProducer<> {
   public:
     ExampleAlpakaProducer(edm::ParameterSet const& iConfig)
-        // produces() must not specify the product type, it is deduced from deviceToken_
-        : deviceToken_{produces()}, size_{iConfig.getParameter<int32_t>("size")} {}
+        : EDProducer<>(iConfig),
+          // produces() must not specify the product type, it is deduced from deviceToken_
+          deviceToken_{produces()},
+          size_{iConfig.getParameter<int32_t>("size")} {}
 
     // device::Event and device::EventSetup are defined in ALPAKA_ACCELERATOR_NAMESPACE as well
     void produce(edm::StreamID sid, device::Event& iEvent, device::EventSetup const& iSetup) const override {
@@ -478,6 +482,24 @@ process.ProcessAcceleratorAlpaka.setBackend("serial_sync") # or "cuda_async" or 
 ```python
 process.options.accelerators = ["cpu"] # or "gpu-nvidia" or "gpu-amd"
 ```
+
+### Blocking synchronization (for testing)
+
+While the general approach is to favor asynchronous operations with non-blocking synchronization, for testing purposes it can be useful to synchronize the EDModule's `acquire()` / `produce()` or ESProducer's production functions in a blocking way. Such a blocking synchronization can be specified for individual modules via the `alpaka` `PSet` along
+```python
+process.producer = cms.EDProducer("ExampleAlpakaProducer@alpaka",
+    ...
+    alpaka = cms.untracked.PSet(
+        synchronize = cms.untracked.bool(True)
+    )
+)
+```
+
+The blocking synchronization can be specified for all Alpaka modules via the `ProcessAcceleratorAlpaka` along
+```python
+process.ProcessAcceleratorAlpaka.setSynchronize(True)
+```
+Note that the possible per-module parameter overrides this global setting.
 
 
 ## Unit tests

@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/produce_helpers.h"
-#include "HeterogeneousCore/AlpakaCore/interface/module_backend_config.h"
+#include "HeterogeneousCore/AlpakaCore/interface/modulePrevalidate.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESDeviceProduct.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESDeviceProductType.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Record.h"
@@ -30,7 +30,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     static void prevalidate(edm::ConfigurationDescriptions& descriptions) {
       Base::prevalidate(descriptions);
-      cms::alpakatools::module_backend_config(descriptions);
+      cms::alpakatools::modulePrevalidate(descriptions);
     }
 
   protected:

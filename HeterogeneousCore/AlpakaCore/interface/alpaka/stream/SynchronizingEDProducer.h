@@ -18,12 +18,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           not edm::CheckAbility<edm::module::Abilities::kExternalWork, Args...>::kHasIt,
           "ExternalWork ability is redundant with ALPAKA_ACCELERATOR_NAMESPACE::stream::SynchronizingEDProducer."
           "Please remove it.");
+      using Base = ProducerBase<edm::stream::EDProducer, edm::ExternalWork, Args...>;
+
+    protected:
+      SynchronizingEDProducer() = default;  // to be removed in the near future
+      SynchronizingEDProducer(edm::ParameterSet const iConfig) : Base(iConfig) {}
 
     public:
       void acquire(edm::Event const& iEvent,
                    edm::EventSetup const& iSetup,
                    edm::WaitingTaskWithArenaHolder holder) final {
-        detail::EDMetadataAcquireSentry sentry(iEvent.streamID(), std::move(holder));
+        detail::EDMetadataAcquireSentry sentry(iEvent.streamID(), std::move(holder), this->synchronize());
         device::Event const ev(iEvent, sentry.metadata());
         device::EventSetup const es(iSetup, ev.device());
         acquire(ev, es);
@@ -31,7 +36,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) final {
-        detail::EDMetadataSentry sentry(std::move(metadata_));
+        detail::EDMetadataSentry sentry(std::move(metadata_), this->synchronize());
         device::Event ev(iEvent, sentry.metadata());
         device::EventSetup const es(iSetup, ev.device());
         produce(ev, es);

@@ -5,7 +5,7 @@ import os
 from HeterogeneousCore.Common.PlatformStatus import PlatformStatus
 
 class ModuleTypeResolverAlpaka:
-    def __init__(self, accelerators, backend):
+    def __init__(self, accelerators, backend, synchronize):
         # first element is used as the default if nothing is set
         self._valid_backends = []
         if "gpu-nvidia" in accelerators:
@@ -23,6 +23,7 @@ class ModuleTypeResolverAlpaka:
             if backend != self._valid_backends[0]:
                 self._valid_backends.remove(backend)
                 self._valid_backends.insert(0, backend)
+        self._synchronize = synchronize
 
     def plugin(self):
         return "ModuleTypeResolverAlpaka"
@@ -31,6 +32,11 @@ class ModuleTypeResolverAlpaka:
         if module.type_().endswith("@alpaka"):
             defaultBackend = self._valid_backends[0]
             if hasattr(module, "alpaka"):
+                # Ensure the untrackedness already here, because the
+                # C++ ModuleTypeResolverAlpaka relies on the
+                # untrackedness (before the configuration validation)
+                if module.alpaka.isTracked():
+                    raise cms.EDMException(cms.edm.errors.Configuration, "The 'alpaka' PSet in module '{}' is tracked, but it should be untracked".format(module.label()))
                 if hasattr(module.alpaka, "backend"):
                     if module.alpaka.backend == "":
                         module.alpaka.backend = defaultBackend
@@ -42,6 +48,12 @@ class ModuleTypeResolverAlpaka:
                 module.alpaka = cms.untracked.PSet(
                     backend = cms.untracked.string(defaultBackend)
                 )
+            isDefaultValue = lambda v: \
+                isinstance(v, type(cms.optional.untracked.bool)) \
+                and not v.isTracked() \
+                and v.isCompatibleCMSType(cms.bool)
+            if not hasattr(module.alpaka, "synchronize") or isDefaultValue(module.alpaka.synchronize):
+                module.alpaka.synchronize = cms.untracked.bool(self._synchronize)
 
 class ProcessAcceleratorAlpaka(cms.ProcessAccelerator):
     """ProcessAcceleratorAlpaka itself does not define or inspect
@@ -53,14 +65,18 @@ class ProcessAcceleratorAlpaka(cms.ProcessAccelerator):
     def __init__(self):
         super(ProcessAcceleratorAlpaka, self).__init__()
         self._backend = None
+        self._synchronize = False
 
     # User-facing interface
     def setBackend(self, backend):
         self._backend = backend
 
+    def setSynchronize(self, synchronize):
+        self._synchronize = synchronize
+
     # Framework-facing interface
     def moduleTypeResolver(self, accelerators):
-        return ModuleTypeResolverAlpaka(accelerators, self._backend)
+        return ModuleTypeResolverAlpaka(accelerators, self._backend, self._synchronize)
 
     def apply(self, process, accelerators):
         # Propagate the AlpakaService messages through the MessageLogger
