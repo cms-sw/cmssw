@@ -22,7 +22,7 @@ namespace edmtest {
       bool check = iPSet.getUntrackedParameter<bool>("checkTransformNotCalled");
       registerTransformAsync(
           putToken_,
-          [offset = transformOffset_, check](auto const& iFrom, auto iTask) {
+          [offset = transformOffset_, check](edm::StreamID, auto const& iFrom, auto iTask) {
             if (check) {
               throw cms::Exception("TransformShouldNotBeCalled");
             }
@@ -32,7 +32,7 @@ namespace edmtest {
             ret.value_ = IntProduct(iFrom.value + offset);
             return ret;
           },
-          [](auto const& iFrom) {
+          [](edm::StreamID, auto const& iFrom) {
             iFrom.thread_->join();
             return iFrom.value_;
           },
