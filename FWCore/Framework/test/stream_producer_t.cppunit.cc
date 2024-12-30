@@ -381,7 +381,7 @@ private:
   public:
     TransformProd(edm::ParameterSet const&) {
       token_ = produces<float>();
-      registerTransform(token_, [](float iV) { return int(iV); });
+      registerTransform(token_, [](edm::StreamID, float iV) { return int(iV); });
     }
 
     void produce(edm::Event& iEvent, edm::EventSetup const&) final {
@@ -403,8 +403,8 @@ private:
       token_ = produces<float>();
       registerTransformAsync(
           token_,
-          [](float iV, edm::WaitingTaskWithArenaHolder iHolder) { return IntHolder(iV); },
-          [](IntHolder iWaitValue) { return iWaitValue.value_; });
+          [](edm::StreamID, float iV, edm::WaitingTaskWithArenaHolder iHolder) { return IntHolder(iV); },
+          [](edm::StreamID, IntHolder iWaitValue) { return iWaitValue.value_; });
     }
 
     void produce(edm::Event& iEvent, edm::EventSetup const&) final {

@@ -9,6 +9,8 @@
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
+
 #include <optional>
 
 namespace {
@@ -116,7 +118,8 @@ namespace edm {
       std::optional<decltype(iEvent.get(transformInfo_.get<kType>(iIndex), transformInfo_.get<kResolverIndex>(iIndex)))>
           handle;
       //transform acquiring signal
-      TransformAcquiringSignalSentry sentry(iAct, *mcc.getStreamContext(), mcc);
+      auto const& streamContext = *mcc.getStreamContext();
+      TransformAcquiringSignalSentry sentry(iAct, streamContext, mcc);
       CMS_SA_ALLOW try {
         handle = iEvent.get(transformInfo_.get<kType>(iIndex), transformInfo_.get<kResolverIndex>(iIndex));
       } catch (...) {
@@ -133,15 +136,16 @@ namespace edm {
               } else {
                 //transform signal
                 auto mcc = iEvent.moduleCallingContext();
-                TransformSignalSentry sentry(iAct, *mcc.getStreamContext(), mcc);
+                auto const& streamContext = *mcc.getStreamContext();
+                TransformSignalSentry sentry(iAct, streamContext, mcc);
                 iEvent.put(iBase.putTokenIndexToProductResolverIndex()[transformInfo_.get<kToken>(iIndex).index()],
-                           transformInfo_.get<kTransform>(iIndex)(std::move(*cache)),
+                           transformInfo_.get<kTransform>(iIndex)(streamContext.streamID(), std::move(*cache)),
                            handle);
               }
             });
         WaitingTaskWithArenaHolder wta(*iHolder.group(), nextTask);
         CMS_SA_ALLOW try {
-          *cache = transformInfo_.get<kPreTransform>(iIndex)(*(handle->wrapper()), wta);
+          *cache = transformInfo_.get<kPreTransform>(iIndex)(streamContext.streamID(), *(handle->wrapper()), wta);
         } catch (...) {
           wta.doneWaiting(std::current_exception());
         }
@@ -153,9 +157,10 @@ namespace edm {
         if (handle.wrapper()) {
           std::any v = handle.wrapper();
           //transform signal
-          TransformSignalSentry sentry(iAct, *mcc.getStreamContext(), mcc);
+          auto const& streamContext = *mcc.getStreamContext();
+          TransformSignalSentry sentry(iAct, streamContext, mcc);
           iEvent.put(iBase.putTokenIndexToProductResolverIndex()[transformInfo_.get<kToken>(iIndex).index()],
-                     transformInfo_.get<kTransform>(iIndex)(std::move(v)),
+                     transformInfo_.get<kTransform>(iIndex)(streamContext.streamID(), std::move(v)),
                      handle);
         }
       } catch (...) {
