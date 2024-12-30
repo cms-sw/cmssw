@@ -8,6 +8,8 @@ parser.add_argument("--accelerators", type=str, help="Set process.options.accele
 parser.add_argument("--moduleBackend", type=str, help="Set Alpaka backend via module instances", default="")
 parser.add_argument("--processAcceleratorBackend", type=str, help="Set Alpaka backend via ProcessAcceleratorAlpaka", default="")
 parser.add_argument("--expectBackend", type=str, help="Expect this backend to run")
+parser.add_argument("--moduleSynchronize", action="store_true", help="Set synchronize parameter via module instances", default="")
+parser.add_argument("--processAcceleratorSynchronize", action="store_true", help="Set synchronize parameter via ProcessAcceleratorAlpaka", default="")
 parser.add_argument("--run", type=int, help="Run number (default: 1)", default=1)
 
 args = parser.parse_args()
@@ -168,20 +170,21 @@ process.alpakaNullESConsumer = cms.EDProducer("TestAlpakaGlobalProducerNullES@al
     eventSetupSource = cms.ESInputTag("", "null")
 )
 
+_postfixes = ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD", "ESProducerE", "ESProducerAMulti",
+              "ESProducerNull",
+              "GlobalProducer", "GlobalProducerE",
+              "GlobalProducerCopyToDeviceCache", "GlobalProducerMoveToDeviceCache",
+              "StreamProducer", "StreamInstanceProducer",
+              "StreamSynchronizingProducer", "StreamSynchronizingProducerToDevice",
+              "GlobalDeviceConsumer", "StreamDeviceConsumer",
+              "StreamSynchronizingProducerToDeviceDeviceConsumer1", "StreamSynchronizingProducerToDeviceDeviceConsumer2",
+              "NullESConsumer"]
+alpakaModules = ["alpaka"+x for x in _postfixes]
 if args.processAcceleratorBackend != "":
     process.ProcessAcceleratorAlpaka.setBackend(args.processAcceleratorBackend)
 if args.moduleBackend != "":
-    for name in ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD", "ESProducerE", "ESProducerAMulti",
-                 "ESProducerNull",
-                 "GlobalProducer", "GlobalProducerE",
-                 "GlobalProducerCopyToDeviceCache", "GlobalProducerMoveToDeviceCache",
-                 "StreamProducer", "StreamInstanceProducer",
-                 "StreamSynchronizingProducer", "StreamSynchronizingProducerToDevice",
-                 "GlobalDeviceConsumer", "StreamDeviceConsumer",
-                 "StreamSynchronizingProducerToDeviceDeviceConsumer1", "StreamSynchronizingProducerToDeviceDeviceConsumer2",
-                 "NullESConsumer"]:
-        mod = getattr(process, "alpaka"+name)
-        mod.alpaka = cms.untracked.PSet(backend = cms.untracked.string(args.moduleBackend))
+    for name in alpakaModules:
+        getattr(process, name).alpaka = cms.untracked.PSet(backend = cms.untracked.string(args.moduleBackend))
 if args.expectBackend == "cuda_async":
     def setExpect(m, size):
         m.expectSize = size
@@ -210,6 +213,16 @@ elif args.expectBackend == "rocm_async":
     setExpect(process.alpakaStreamConsumer, size = 125)
     setExpect(process.alpakaStreamInstanceConsumer, size = 216)
     setExpect(process.alpakaStreamSynchronizingConsumer, size = 30)
+
+if args.processAcceleratorSynchronize:
+    process.ProcessAcceleratorAlpaka.setSynchronize(True)
+if args.moduleSynchronize:
+    for name in alpakaModules:
+        mod = getattr(process, name)
+        if hasattr(mod, "alpaka"):
+            mod.alpaka = dict(synchronize = cms.untracked.bool(True))
+        else:
+            mod.alpaka = cms.untracked.PSet(synchronize = cms.untracked.bool(True))
 
 process.output = cms.OutputModule('PoolOutputModule',
     fileName = cms.untracked.string('testAlpaka.root'),

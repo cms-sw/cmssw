@@ -5,13 +5,14 @@
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Framework/interface/moduleAbilities.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/DeviceProductType.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadataAcquireSentry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/EventCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/QueueCache.h"
-#include "HeterogeneousCore/AlpakaCore/interface/module_backend_config.h"
+#include "HeterogeneousCore/AlpakaCore/interface/modulePrevalidate.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/Backend.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 
@@ -46,7 +47,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using Base = BaseT<Args..., edm::Transformer>;
 
   public:
+    // TODO: default constructor to be removed after all derived classes have been migrated
     ProducerBase() : backendToken_(Base::produces("backend")) {}
+    ProducerBase(edm::ParameterSet const& iConfig)
+        : backendToken_(Base::produces("backend")),
+          // The 'synchronize' parameter can be unset in Alpaka
+          // modules specified with the namespace prefix instead if
+          // '@alpaka' suffix
+          synchronize_(iConfig.getUntrackedParameter<edm::ParameterSet>("alpaka").getUntrackedParameter<bool>(
+              "synchronize", false)) {}
 
     template <edm::Transition Tr = edm::Transition::Event>
     [[nodiscard]] auto produces() noexcept {
@@ -60,7 +69,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void prevalidate(edm::ConfigurationDescriptions& descriptions) {
       Base::prevalidate(descriptions);
-      cms::alpakatools::module_backend_config(descriptions);
+      cms::alpakatools::modulePrevalidate(descriptions);
     }
 
   protected:
@@ -68,8 +77,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       iEvent.emplace(this->backendToken_, static_cast<unsigned short>(kBackend));
     }
 
+    bool synchronize() const { return synchronize_; }
+
   private:
     edm::EDPutTokenT<unsigned short> const backendToken_;
+    bool const synchronize_ = false;
 
     template <typename TProducer, edm::Transition Tr>
     friend class ProducerBaseAdaptor;
