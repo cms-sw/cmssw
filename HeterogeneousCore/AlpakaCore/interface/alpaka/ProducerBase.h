@@ -12,6 +12,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadataAcquireSentry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/modulePrevalidate.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/Backend.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 
 #include <memory>
@@ -90,7 +91,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // can think of it later if really needed
     template <typename TProduct, edm::Transition Tr>
     edm::EDPutTokenT<TProduct> produces(std::string instanceName) {
-      return Base::template produces<TProduct, Tr>(std::move(instanceName));
+      constexpr bool hasCopy = requires(Queue& queue, TProduct const& prod) {
+        cms::alpakatools::CopyToDevice<TProduct>::copyAsync(queue, prod);
+      };
+
+      if constexpr (detail::useProductDirectly or not hasCopy) {
+        return Base::template produces<TProduct, Tr>(std::move(instanceName));
+      } else {
+        edm::EDPutTokenT<TProduct> hostToken = Base::template produces<TProduct, Tr>(instanceName);
+        this->registerTransformAsync(
+            hostToken,
+            [synchronize = this->synchronize()](
+                edm::StreamID streamID, TProduct const& hostProduct, edm::WaitingTaskWithArenaHolder holder) {
+              detail::EDMetadataAcquireSentry sentry(streamID, std::move(holder), synchronize);
+              using CopyT = cms::alpakatools::CopyToDevice<TProduct>;
+              auto productOnDevice = CopyT::copyAsync(sentry.metadata()->queue(), hostProduct);
+              // Need to keep the EDMetadata object from sentry.finish()
+              // alive until the synchronization
+              using TplType = std::tuple<std::shared_ptr<EDMetadata>, decltype(productOnDevice)>;
+              // Wrap possibly move-only type into a copyable type
+              return std::make_shared<TplType>(sentry.finish(), std::move(productOnDevice));
+            },
+            [](edm::StreamID, auto tplPtr) {
+              using DeviceObject = std::tuple_element_t<1, std::remove_cvref_t<decltype(*tplPtr)>>;
+              using DeviceProductType = detail::DeviceProductType<DeviceObject>;
+              return DeviceProductType(std::move(std::get<0>(*tplPtr)), std::move(std::get<1>(*tplPtr)));
+            },
+            std::move(instanceName));
+        return hostToken;
+      }
     }
 
     // Device products
