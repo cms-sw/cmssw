@@ -144,6 +144,15 @@ def customizeHLTfor47047(process):
                 setattr(prod, attr, copy.deepcopy(getattr(esProducer, attr)))
         delattr(process, esProducer.label())
 
+    for prod in producers_by_type(process, "HBHERecHitProducerPortable@alpaka", "alpaka_serial_sync::HBHERecHitProducerPortable"):
+        pulseOffsetLabel = prod.mahiPulseOffSets.getModuleLabel()
+        if hasattr(process, pulseOffsetLabel):
+            esProducer = getattr(process, pulseOffsetLabel)
+            prod.pulseOffsets = copy.deepcopy(esProducer.pulseOffsets)
+        del prod.mahiPulseOffSets
+    for prod in list(esproducers_by_type(process, "HcalMahiPulseOffsetsESProducer@alpaka")):
+        delattr(process, prod.label())
+
     return process
 
 # CMSSW version specific customizations

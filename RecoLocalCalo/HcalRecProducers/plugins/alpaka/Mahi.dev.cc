@@ -753,7 +753,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                       float* pulseMatrices,
                                       float* pulseMatricesM,
                                       float* pulseMatricesP,
-                                      HcalMahiPulseOffsetsPortableDevice::ConstView pulseOffsets,
+                                      HcalMahiPulseOffsetsSoA::ConstView pulseOffsets,
                                       float const* amplitudes,
                                       IProductTypef01::ConstView f01HEDigis,
                                       IProductTypef5::ConstView f5HBDigis,
@@ -975,7 +975,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                       float* pulseMatrices,
                                       float* pulseMatricesM,
                                       float* pulseMatricesP,
-                                      HcalMahiPulseOffsetsPortableDevice::ConstView pulseOffsetsView,
+                                      HcalMahiPulseOffsetsSoA::ConstView pulseOffsetsView,
                                       float* noiseTerms,
                                       float* electronicNoiseTerms,
                                       int8_t* soiSamples,
@@ -1290,7 +1290,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                       HcalMahiConditionsPortableDevice::ConstView const& mahi,
                       HcalSiPMCharacteristicsPortableDevice::ConstView const& sipmCharacteristics,
                       HcalRecoParamWithPulseShapeDevice::ConstView const& recoParamsWithPS,
-                      HcalMahiPulseOffsetsPortableDevice::ConstView const& mahiPulseOffsets,
+                      HcalMahiPulseOffsetsSoA::ConstView const& mahiPulseOffsets,
                       ConfigParameters const& configParameters) {
       auto const totalChannels =
           f01HEDigis.metadata().size() + f5HBDigis.metadata().size() + f3HBDigis.metadata().size();
