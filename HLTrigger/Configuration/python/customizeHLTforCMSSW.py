@@ -153,6 +153,19 @@ def customizeHLTfor47047(process):
     for prod in list(esproducers_by_type(process, "HcalMahiPulseOffsetsESProducer@alpaka")):
         delattr(process, prod.label())
 
+    for prod in producers_by_type(process, "PFClusterSoAProducer@alpaka", "alpaka_serial_sync::PFClusterSoAProducer"):
+        clusterParamsLabel = prod.pfClusterParams.getModuleLabel()
+        if hasattr(process, clusterParamsLabel):
+            esProducer = getattr(process, clusterParamsLabel)
+            for attr in ["seedFinder", "initialClusteringStep", "pfClusterBuilder"]:
+                setattr(prod, attr, copy.deepcopy(getattr(esProducer, attr).copy()))
+        del prod.pfClusterParams
+    for prod in list(esproducers_by_type(process, "PFClusterParamsESProducer@alpaka")):
+        delattr(process, prod.label())
+
+    if hasattr(process, "hltESSJobConfigurationGPURecord"):
+        del process.hltESSJobConfigurationGPURecord
+
     return process
 
 # CMSSW version specific customizations
