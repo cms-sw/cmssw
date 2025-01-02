@@ -22,7 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
                      OutputProduct& uncalibRecHitsDevEB,
                      OutputProduct& uncalibRecHitsDevEE,
                      EcalMultifitConditionsDevice const& conditionsDev,
-                     EcalMultifitParametersDevice const& paramsDev,
+                     EcalMultifitParameters const* paramsDev,
                      ConfigurationParameters const& configParams) {
     using digis_type = std::vector<uint16_t>;
     using dids_type = std::vector<uint32_t>;
@@ -172,7 +172,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
                           scratch.accTimeMaxDevBuf.value().data(),
                           scratch.accTimeWgtDevBuf.value().data(),
                           scratch.tcStateDevBuf.value().data(),
-                          paramsDev.const_view(),
+                          paramsDev,
                           configParams.timeFitLimitsFirstEB,
                           configParams.timeFitLimitsFirstEE,
                           configParams.timeFitLimitsSecondEB,
@@ -201,7 +201,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
                           scratch.ampMaxErrorDevBuf.value().data(),
                           scratch.timeMaxDevBuf.value().data(),
                           scratch.timeErrorDevBuf.value().data(),
-                          paramsDev.const_view());
+                          paramsDev);
 
       auto const threads_timecorr = 32;
       auto const blocks_timecorr = cms::alpakatools::divide_up_by(totalChannels, threads_timecorr);
