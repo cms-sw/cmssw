@@ -732,8 +732,6 @@ std::string Tracklet::trackfitstr() const {
   for (unsigned i = 0; i < maxNHits; i++)
     hitmap[i * nBitsPerHit + 2] = stub[i][0];
 
-  std::cout << "hitmap :"<<hitmap<<std::endl;
-  
   std::string oss("");
   //Binary print out
   if (!settings_.writeoutReal()) {

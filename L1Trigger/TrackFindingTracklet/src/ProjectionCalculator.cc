@@ -104,7 +104,6 @@ void ProjectionCalculator::addOutput(MemoryBase* memory, string output) {
     if (memory->getName().substr(memory->getName().size()-2,2) == "_E") {
       extraMPOffset = 2;
     }
-    std::cout << "extraMPOffset: " << memory->getName() << " " << extraMPOffset << std::endl;
     unsigned int layerdisk = memory->getName()[memory->getName().size() - 5 - extraMPOffset] - '1';   //layer or disk counting from 0
     unsigned int phiregion = memory->getName()[memory->getName().size() - 1 - extraMPOffset] - 'A';  //phiregion counting from 0
     if (memory->getName()[memory->getName().size() - 6 - extraMPOffset] == 'D') layerdisk += N_LAYER;

@@ -568,6 +568,14 @@ namespace tt {
 
     // Hybrid specific parameter
     edm::ParameterSet pSetHybrid_;
+    // cut on stub pt in GeV, also defines region overlap shape
+    double hybridMinPtStub_;
+    // cut on andidate pt in GeV
+    double hybridMinPtCand_;
+    // cut on stub eta
+    double hybridMaxEta_;
+    // critical radius defining region overlap shape in cm
+    double hybridChosenRofPhi_;
     // max number of layers connected to one DTC
     int hybridNumLayers_;
     // number of outer PS rings for disk 1, 2, 3, 4, 5

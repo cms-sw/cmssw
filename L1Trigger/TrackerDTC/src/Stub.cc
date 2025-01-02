@@ -169,8 +169,6 @@ namespace trackerDTC {
     const int decodedLayerId = layerEncoding_->decode(sm_);
     // stub phi w.r.t. processing region border in rad
     double phi = phi_ - (region - .5) * setup_->baseRegion() + setup_->hybridRangePhi() / 2.;
-    if (phi >= setup_->hybridRangePhi())
-      phi = setup_->hybridRangePhi() - setup_->hybridBasePhi(type) / 2.;
     double r;
     if (type == SensorModule::DiskPS)
       r = r_ -
@@ -178,9 +176,11 @@ namespace trackerDTC {
     else
       r = r_;
 
+    // convert stub variables into bit vectors
     const TTBV hwND(nd_, setup_->hybridWidthND(type));
-    const TTBV hwR(r, setup_->hybridBaseR(type), setup_->hybridWidthR(type), true);
-    const TTBV hwPhi(phi, setup_->hybridBasePhi(type), setup_->hybridWidthPhi(type), true);
+    const bool twosR = type == SensorModule::BarrelPS || type == SensorModule::Barrel2S;
+    const TTBV hwR(r, setup_->hybridBaseR(type), setup_->hybridWidthR(type), twosR);
+    const TTBV hwPhi(phi, setup_->hybridBasePhi(type), setup_->hybridWidthPhi(type));
     const TTBV hwZ(z_, setup_->hybridBaseZ(type), setup_->hybridWidthZ(type), true);
     const TTBV hwAlpha(row_, setup_->hybridBaseAlpha(type), setup_->hybridWidthAlpha(type), true);
     const TTBV hwBend(bend_, setup_->hybridWidthBend(type), true);
