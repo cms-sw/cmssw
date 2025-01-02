@@ -71,6 +71,8 @@ namespace trackerDTC {
     int rowLUT_;
     // sub row number inside reduced row number
     int rowSub_;
+    // stub negDisk bool, determined by if in neg. or pos. z region
+    bool nd_;
     // stub r w.r.t. an offset in cm
     double r_;
     // stub phi w.r.t. detector region centre in rad

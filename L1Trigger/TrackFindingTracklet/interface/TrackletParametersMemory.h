@@ -20,18 +20,23 @@ namespace trklet {
 
     ~TrackletParametersMemory() override = default;
 
-    void addTracklet(Tracklet *tracklet) { tracklets_.push_back(tracklet); }
+    void addTracklet(Tracklet *tracklet,unsigned int page = 0) { tracklets_[page].push_back(tracklet); }
 
-    unsigned int nTracklets() const { return tracklets_.size(); }
+    unsigned int nTracklets(unsigned int page = 0) const { return tracklets_[page].size(); }
 
-    Tracklet *getTracklet(unsigned int i) { return tracklets_[i]; }
+    Tracklet *getTracklet(unsigned int i, unsigned int page = 0) { return tracklets_[page][i]; }
+
+    unsigned int nPage() const { return npage_; }
 
     void clean() override;
 
     void writeTPAR(bool first, unsigned int iSector);
 
   private:
-    std::vector<Tracklet *> tracklets_;
+
+    std::vector<std::vector<Tracklet *> > tracklets_;
+    unsigned int npage_;
+
   };
 
 };  // namespace trklet

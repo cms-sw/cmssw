@@ -4,7 +4,6 @@
 #include "L1Trigger/TrackFindingTracklet/interface/AllStubsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/AllInnerStubsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
-#include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -25,16 +24,6 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
       innerTable_(settings),
       innerOverlapTable_(settings) {
   iAllStub_ = -1;
-
-  for (unsigned int ilayer = 0; ilayer < N_LAYER; ilayer++) {
-    vector<TrackletProjectionsMemory*> tmp(settings_.nallstubs(ilayer), nullptr);
-    trackletprojlayers_.push_back(tmp);
-  }
-
-  for (unsigned int idisk = 0; idisk < N_DISK; idisk++) {
-    vector<TrackletProjectionsMemory*> tmp(settings_.nallstubs(idisk + N_LAYER), nullptr);
-    trackletprojdisks_.push_back(tmp);
-  }
 
   outervmstubs_ = nullptr;
 
@@ -58,6 +47,8 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
       rmin = rmax * settings_.zmean(layerdisk2_ - N_LAYER - 1) / settings_.zmean(layerdisk2_ - N_LAYER);
     }
   }
+
+  init(iSeed_);
 
   double dphimax = asin(0.5 * settings_.maxrinv() * rmax) - asin(0.5 * settings_.maxrinv() * rmin);
 
@@ -102,11 +93,6 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
   maxStep_ = settings_.maxStep("TP");
 }
 
-void TrackletProcessor::addOutputProjection(TrackletProjectionsMemory*& outputProj, MemoryBase* memory) {
-  outputProj = dynamic_cast<TrackletProjectionsMemory*>(memory);
-  assert(outputProj != nullptr);
-}
-
 void TrackletProcessor::addOutput(MemoryBase* memory, string output) {
   if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding output to " << memory->getName() << " to output "
@@ -119,32 +105,10 @@ void TrackletProcessor::addOutput(MemoryBase* memory, string output) {
     return;
   }
 
-  if (output.substr(0, 7) == "projout") {
-    //output is on the form 'projoutL2PHIC' or 'projoutD3PHIB'
-    auto* tmp = dynamic_cast<TrackletProjectionsMemory*>(memory);
-    assert(tmp != nullptr);
-
-    unsigned int layerdisk = output[8] - '1';   //layer or disk counting from 0
-    unsigned int phiregion = output[12] - 'A';  //phiregion counting from 0
-
-    if (output[7] == 'L') {
-      assert(layerdisk < N_LAYER);
-      assert(phiregion < trackletprojlayers_[layerdisk].size());
-      //check that phiregion not already initialized
-      assert(trackletprojlayers_[layerdisk][phiregion] == nullptr);
-      trackletprojlayers_[layerdisk][phiregion] = tmp;
-      return;
-    }
-
-    if (output[7] == 'D') {
-      assert(layerdisk < N_DISK);
-      assert(phiregion < trackletprojdisks_[layerdisk].size());
-      //check that phiregion not already initialized
-      assert(trackletprojdisks_[layerdisk][phiregion] == nullptr);
-      trackletprojdisks_[layerdisk][phiregion] = tmp;
-      return;
-    }
-  }
+  //if (output.substr(0,4) == "proj") {
+    //Hack to keep proj output in config - but ignore in application
+  //  return;
+  //}
 
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find output : " << output;
 }
@@ -402,9 +366,12 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
         if (negdisk) {
           indexz = ((1 << nbitszfinebintable_) - 1) - indexz;
         }
-        indexr = stub->r().value() >> (stub->r().nbits() - nbitsrfinebintable_);
+        indexr =
+            stub->rvalue() >>
+            (stub->r().nbits() + 1 -
+             nbitsrfinebintable_);  // + 1 required to offset artificial decrease in # of diskps r bits from 12 -> 11 to make space for negDisk bit
       } else {  //Take the top nbitsfinebintable_ bits of the z coordinate
-        indexr = (stub->r().value() >> (stub->r().nbits() - nbitsrfinebintable_)) & ((1 << nbitsrfinebintable_) - 1);
+        indexr = (stub->rvalue() >> (stub->r().nbits() - nbitsrfinebintable_)) & ((1 << nbitsrfinebintable_) - 1);
       }
 
       int lutval = -1;

@@ -44,6 +44,7 @@ namespace tt {
         pSetHybrid_(iConfig.getParameter<ParameterSet>("Hybrid")),
         hybridNumLayers_(pSetHybrid_.getParameter<int>("NumLayers")),
         hybridNumRingsPS_(pSetHybrid_.getParameter<vector<int>>("NumRingsPS")),
+        hybridWidthsND_(pSetHybrid_.getParameter<vector<int>>("WidthsND")),
         hybridWidthsR_(pSetHybrid_.getParameter<vector<int>>("WidthsR")),
         hybridWidthsZ_(pSetHybrid_.getParameter<vector<int>>("WidthsZ")),
         hybridWidthsPhi_(pSetHybrid_.getParameter<vector<int>>("WidthsPhi")),
@@ -590,7 +591,11 @@ namespace tt {
       hybridBasesZ_.emplace_back(hybridRangesZ_.at(type) / pow(2., hybridWidthsZ_.at(type)));
     hybridBasesR_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
-      hybridBasesR_.emplace_back(hybridRangesR_.at(type) / pow(2., hybridWidthsR_.at(type)));
+      if (type == SensorModule::DiskPS)
+        hybridBasesR_.emplace_back(hybridRangesR_.at(type) /
+                                   pow(2., hybridWidthsR_.at(type) + 1));  // to account for 7.5 cm offset
+      else
+        hybridBasesR_.emplace_back(hybridRangesR_.at(type) / pow(2., hybridWidthsR_.at(type)));
     hybridBasesR_[SensorModule::Disk2S] = 1.;
     hybridBasesPhi_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
@@ -600,13 +605,11 @@ namespace tt {
       hybridBasesAlpha_.emplace_back(hybridRangesAlpha_.at(type) / pow(2., hybridWidthsAlpha_.at(type)));
     hybridNumsUnusedBits_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
-      hybridNumsUnusedBits_.emplace_back(TTBV::S_ - hybridWidthsR_.at(type) - hybridWidthsZ_.at(type) -
-                                         hybridWidthsPhi_.at(type) - hybridWidthsAlpha_.at(type) -
-                                         hybridWidthsBend_.at(type) - hybridWidthLayerId_ - 1);
-    hybridBaseR_ = *min_element(hybridBasesR_.begin(), hybridBasesR_.end());
-    hybridBasePhi_ = *min_element(hybridBasesPhi_.begin(), hybridBasesPhi_.end());
-    hybridBaseZ_ = *min_element(hybridBasesZ_.begin(), hybridBasesZ_.end());
-    hybridMaxCot_ = sinh(maxEta_);
+      hybridNumsUnusedBits_.emplace_back(TTBV::S_ - hybridWidthsND_.at(type) - hybridWidthsR_.at(type) -
+                                         hybridWidthsZ_.at(type) - hybridWidthsPhi_.at(type) -
+                                         hybridWidthsAlpha_.at(type) - hybridWidthsBend_.at(type) -
+                                         hybridWidthLayerId_ - 1);
+    hybridMaxCot_ = sinh(hybridMaxEta_);
     disk2SRs_.reserve(hybridDisk2SRsSet_.size());
     for (const auto& pSet : hybridDisk2SRsSet_)
       disk2SRs_.emplace_back(pSet.getParameter<vector<double>>("Disk2SRs"));

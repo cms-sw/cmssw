@@ -44,7 +44,7 @@ namespace trklet {
               bool usesecondMinus,
               bool usesecondPlus,
               bool isPSseed,
-              Tracklet* proj);
+              Tracklet* proj, bool print);
 
     bool empty() const { return candmatches_.empty(); }
 
@@ -69,9 +69,9 @@ namespace trklet {
     unsigned int rptr() const { return candmatches_.rptr(); }
     unsigned int wptr() const { return candmatches_.wptr(); }
 
-    void step();
+    void step(bool print = false);
 
-    void processPipeline();
+    void processPipeline(bool print = false);
 
   private:
     //Provide access to constants

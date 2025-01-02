@@ -25,25 +25,27 @@ Stub::Stub(L1TStub& stub, Settings const& settings, Globals& globals) : settings
 
   int nalphabits = 0;
 
+  r_offset_bits = 8;
+
+  int nndbits = settings_.nndbitsstub(layerdisk_);
   int nrbits = settings_.nrbitsstub(layerdisk_);
   int nzbits = settings_.nzbitsstub(layerdisk_);
   int nphibits = settings_.nphibitsstub(layerdisk_);
 
   if (layerdisk_ >= N_LAYER && !stub.isPSmodule()) {
     nalphabits = settings.nbitsalpha();
-    nrbits = 7;
+    nrbits = 6;
   }
 
-  assert(nbendbits + nalphabits + nrbits + nzbits + nphibits == 36);
+  assert(nndbits + nbendbits + nalphabits + nrbits + nzbits + nphibits == 36);
 
-  bitset<32> rbits(stubwordbin.substr(0, nrbits));
-  bitset<32> zbits(stubwordbin.substr(nrbits, nzbits));
-  bitset<32> phibits(stubwordbin.substr(nrbits + nzbits, nphibits));
-  bitset<32> alphabits(stubwordbin.substr(nphibits + nzbits + nrbits, nalphabits));
-  bitset<32> bendbits(stubwordbin.substr(nphibits + nzbits + nrbits + nalphabits, nbendbits));
+  bitset<32> rbits(stubwordbin.substr(nndbits, nrbits));
+  bitset<32> zbits(stubwordbin.substr(nrbits + nndbits, nzbits));
+  bitset<32> phibits(stubwordbin.substr(nrbits + nzbits + nndbits, nphibits));
+  bitset<32> alphabits(stubwordbin.substr(nphibits + nzbits + nrbits + nndbits, nalphabits));
+  bitset<32> bendbits(stubwordbin.substr(nphibits + nzbits + nrbits + nalphabits + nndbits, nbendbits));
 
   int newbend = bendbits.to_ulong();
-
   int newr = rbits.to_ulong();
   if (layerdisk_ < N_LAYER) {
     if (newr >= (1 << (nrbits - 1)))
@@ -160,7 +162,7 @@ double Stub::rapprox() const {
     else
       return settings_.rDSSouter(r_.value());
   }
-  return r_.value() * settings_.kr();
+  return (r_.value() + (1 << r_offset_bits)) * settings_.kr();  // Incorporating r offset for disk PS stubs
 }
 
 double Stub::zapprox() const {

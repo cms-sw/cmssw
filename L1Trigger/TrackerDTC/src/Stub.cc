@@ -137,6 +137,14 @@ namespace trackerDTC {
       r_ = sm->encodedR() + (sm->side() ? -col_ : (col_ + sm->numColumns() / 2));
       r_ = (r_ + 0.5) * setup->hybridBaseR(sm->type());
     }
+    if (sm->type() == SensorModule::DiskPS ||
+        sm->type() == SensorModule::Disk2S) {  // set negDisk bit based on which z-side of detector stub is in
+      if (sm_->side())
+        nd_ = 0;
+      else
+        nd_ = 1;
+    }
+
     // encode bend
     const vector<double>& encodingBend = setup->encodingBend(sm->windowSize(), sm->psModule());
     const auto pos = find(encodingBend.begin(), encodingBend.end(), abs(ttStubRef->bendBE()));
@@ -161,10 +169,18 @@ namespace trackerDTC {
     const int decodedLayerId = layerEncoding_->decode(sm_);
     // stub phi w.r.t. processing region border in rad
     double phi = phi_ - (region - .5) * setup_->baseRegion() + setup_->hybridRangePhi() / 2.;
-    // convert stub variables into bit vectors
-    const bool twosR = type == SensorModule::BarrelPS || type == SensorModule::Barrel2S;
-    const TTBV hwR(r_, setup_->hybridBaseR(type), setup_->hybridWidthR(type), twosR);
-    const TTBV hwPhi(phi, setup_->hybridBasePhi(type), setup_->hybridWidthPhi(type));
+    if (phi >= setup_->hybridRangePhi())
+      phi = setup_->hybridRangePhi() - setup_->hybridBasePhi(type) / 2.;
+    double r;
+    if (type == SensorModule::DiskPS)
+      r = r_ -
+          7.5;  // Adding offset of 7.5 cm (256 * granularity) to allow adding negDisk bit required for dual FPGA project
+    else
+      r = r_;
+
+    const TTBV hwND(nd_, setup_->hybridWidthND(type));
+    const TTBV hwR(r, setup_->hybridBaseR(type), setup_->hybridWidthR(type), true);
+    const TTBV hwPhi(phi, setup_->hybridBasePhi(type), setup_->hybridWidthPhi(type), true);
     const TTBV hwZ(z_, setup_->hybridBaseZ(type), setup_->hybridWidthZ(type), true);
     const TTBV hwAlpha(row_, setup_->hybridBaseAlpha(type), setup_->hybridWidthAlpha(type), true);
     const TTBV hwBend(bend_, setup_->hybridWidthBend(type), true);
@@ -172,8 +188,8 @@ namespace trackerDTC {
     const TTBV hwGap(0, setup_->hybridNumUnusedBits(type));
     const TTBV hwValid(1, 1);
     // assemble final bitset
-    return Frame(hwGap.str() + hwR.str() + hwZ.str() + hwPhi.str() + hwAlpha.str() + hwBend.str() + hwLayer.str() +
-                 hwValid.str());
+    return Frame(hwGap.str() + hwND.str() + hwR.str() + hwZ.str() + hwPhi.str() + hwAlpha.str() + hwBend.str() +
+                 hwLayer.str() + hwValid.str());
   }
 
   Frame Stub::formatTMTT(int region) const {

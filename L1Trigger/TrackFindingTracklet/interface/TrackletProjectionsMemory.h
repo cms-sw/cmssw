@@ -22,12 +22,14 @@ namespace trklet {
       }
     };
 
-    void addProj(Tracklet* tracklet);
+    void addProj(Tracklet* tracklet, unsigned int page = 0);
 
-    unsigned int nTracklets() const { return tracklets_.size(); }
+    unsigned int nTracklets(unsigned int page = 0) const { return tracklets_[page].size(); }
 
-    Tracklet* getTracklet(unsigned int i) { return tracklets_[i]; }
-
+    Tracklet* getTracklet(unsigned int i, unsigned int page = 0) { return tracklets_[page][i]; }
+    
+    unsigned int nPage() const { return npage_; }
+    
     void clean() override;
 
     void writeTPROJ(bool first, unsigned int iSector);
@@ -36,11 +38,12 @@ namespace trklet {
     int disk() const { return disk_; }
 
   private:
-    std::vector<Tracklet*> tracklets_;
+    std::vector< std::vector<Tracklet*> > tracklets_;
 
     bool hasProj_;
     int layer_;
     int disk_;
+    int npage_;
   };
 
 };  // namespace trklet

@@ -4,7 +4,6 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Tracklet.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
 #include "L1Trigger/TrackFindingTracklet/interface/L1TStub.h"
-#include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -599,8 +598,8 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   double phicritapprox = phi0approx - asin((0.5 * settings_.rcrit() * rinvapprox) + (d0approx / settings_.rcrit()));
   int phicrit = iphi0 - 2 * irinv - 2 * id0;
 
-  int iphicritmincut = settings_.phicritminmc() / globals_->ITC_L1L2()->phi0_final.K();
-  int iphicritmaxcut = settings_.phicritmaxmc() / globals_->ITC_L1L2()->phi0_final.K();
+  int iphicritmincut = settings_.phicritminmc() / settings_.kphi0pars();
+  int iphicritmaxcut = settings_.phicritmaxmc() / settings_.kphi0pars();
 
   bool keepapprox = (phicritapprox > settings_.phicritminmc()) && (phicritapprox < settings_.phicritmaxmc()),
        keep = (phicrit > iphicritmincut) && (phicrit < iphicritmaxcut);
@@ -743,8 +742,8 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
                                     id0,
                                     iz0,
                                     it,
-                                    projs,
                                     false);
+  tracklet->addProjs(projs); // add projections to tracklet
 
   if (settings_.debugTracklet())
     edm::LogVerbatim("Tracklet") << "TrackletCalculatorDisplaced " << getName()
@@ -1019,8 +1018,8 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   double phicritapprox = phi0approx - asin((0.5 * settings_.rcrit() * rinvapprox) + (d0approx / settings_.rcrit()));
   int phicrit = iphi0 - 2 * irinv - 2 * id0;
 
-  int iphicritmincut = settings_.phicritminmc() / globals_->ITC_L1L2()->phi0_final.K();
-  int iphicritmaxcut = settings_.phicritmaxmc() / globals_->ITC_L1L2()->phi0_final.K();
+  int iphicritmincut = settings_.phicritminmc() / settings_.kphi0pars();
+  int iphicritmaxcut = settings_.phicritmaxmc() / settings_.kphi0pars();
 
   bool keepapprox = (phicritapprox > settings_.phicritminmc()) && (phicritapprox < settings_.phicritmaxmc()),
        keep = (phicrit > iphicritmincut) && (phicrit < iphicritmaxcut);
@@ -1154,8 +1153,8 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
                                     id0,
                                     iz0,
                                     it,
-                                    projs,
                                     true);
+  tracklet->addProjs(projs); // add projections to tracklet
 
   if (settings_.debugTracklet())
     edm::LogVerbatim("Tracklet") << "TrackletCalculatorDisplaced " << getName()
@@ -1423,8 +1422,8 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   double phicritapprox = phi0approx - asin((0.5 * settings_.rcrit() * rinvapprox) + (d0approx / settings_.rcrit()));
   int phicrit = iphi0 - 2 * irinv - 2 * id0;
 
-  int iphicritmincut = settings_.phicritminmc() / globals_->ITC_L1L2()->phi0_final.K();
-  int iphicritmaxcut = settings_.phicritmaxmc() / globals_->ITC_L1L2()->phi0_final.K();
+  int iphicritmincut = settings_.phicritminmc() / settings_.kphi0pars();
+  int iphicritmaxcut = settings_.phicritmaxmc() / settings_.kphi0pars();
 
   bool keepapprox = (phicritapprox > settings_.phicritminmc()) && (phicritapprox < settings_.phicritmaxmc()),
        keep = (phicrit > iphicritmincut) && (phicrit < iphicritmaxcut);
@@ -1559,8 +1558,8 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
                                     id0,
                                     iz0,
                                     it,
-                                    projs,
                                     false);
+  tracklet->addProjs(projs); // add projections to tracklet
 
   if (settings_.debugTracklet())
     edm::LogVerbatim("Tracklet") << "TrackletCalculatorDisplaced " << getName()

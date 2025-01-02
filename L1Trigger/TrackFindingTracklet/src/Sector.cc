@@ -9,30 +9,20 @@
 #include "L1Trigger/TrackFindingTracklet/interface/AllInnerStubsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsTEMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsMEMemory.h"
-#include "L1Trigger/TrackFindingTracklet/interface/StubPairsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/StubTripletsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletParametersMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProjectionsMemory.h"
-#include "L1Trigger/TrackFindingTracklet/interface/AllProjectionsMemory.h"
-#include "L1Trigger/TrackFindingTracklet/interface/VMProjectionsMemory.h"
-#include "L1Trigger/TrackFindingTracklet/interface/CandidateMatchMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/FullMatchMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackFitMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/CleanTrackMemory.h"
 
 #include "L1Trigger/TrackFindingTracklet/interface/InputRouter.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMRouterCM.h"
-#include "L1Trigger/TrackFindingTracklet/interface/VMRouter.h"
-#include "L1Trigger/TrackFindingTracklet/interface/TrackletEngine.h"
-#include "L1Trigger/TrackFindingTracklet/interface/TrackletEngineDisplaced.h"
-#include "L1Trigger/TrackFindingTracklet/interface/TripletEngine.h"
-#include "L1Trigger/TrackFindingTracklet/interface/TrackletCalculator.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProcessor.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProcessorDisplaced.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletCalculatorDisplaced.h"
-#include "L1Trigger/TrackFindingTracklet/interface/ProjectionRouter.h"
-#include "L1Trigger/TrackFindingTracklet/interface/MatchEngine.h"
-#include "L1Trigger/TrackFindingTracklet/interface/MatchCalculator.h"
+#include "L1Trigger/TrackFindingTracklet/interface/ProjectionCalculator.h"
+#include "L1Trigger/TrackFindingTracklet/interface/VMStubMERouter.h"
 #include "L1Trigger/TrackFindingTracklet/interface/MatchProcessor.h"
 #include "L1Trigger/TrackFindingTracklet/interface/FitTrack.h"
 #include "L1Trigger/TrackFindingTracklet/interface/PurgeDuplicate.h"
@@ -117,20 +107,12 @@ void Sector::addMem(string memType, string memName) {
     addMemToVec(VMSTE_, memName, settings_);
   } else if (memType == "VMStubsME:") {
     addMemToVec(VMSME_, memName, settings_);
-  } else if (memType == "StubPairs:" || memType == "StubPairsDisplaced:") {
-    addMemToVec(SP_, memName, settings_);
   } else if (memType == "StubTriplets:") {
     addMemToVec(ST_, memName, settings_);
   } else if (memType == "TrackletParameters:") {
     addMemToVec(TPAR_, memName, settings_);
   } else if (memType == "TrackletProjections:") {
     addMemToVec(TPROJ_, memName, settings_);
-  } else if (memType == "AllProj:") {
-    addMemToVec(AP_, memName, settings_);
-  } else if (memType == "VMProjections:") {
-    addMemToVec(VMPROJ_, memName, settings_);
-  } else if (memType == "CandidateMatch:") {
-    addMemToVec(CM_, memName, settings_);
   } else if (memType == "FullMatch:") {
     addMemToVec(FM_, memName, settings_);
   } else if (memType == "TrackFit:") {
@@ -146,31 +128,18 @@ void Sector::addMem(string memType, string memName) {
 void Sector::addProc(string procType, string procName) {
   if (procType == "InputRouter:") {
     addProcToVec(IR_, procName, settings_, globals_);
-  } else if (procType == "VMRouter:") {
-    addProcToVec(VMR_, procName, settings_, globals_);
   } else if (procType == "VMRouterCM:") {
     addProcToVec(VMRCM_, procName, settings_, globals_);
-  } else if (procType == "TrackletEngine:") {
-    addProcToVec(TE_, procName, settings_, globals_);
-  } else if (procType == "TrackletEngineDisplaced:") {
-    addProcToVec(TED_, procName, settings_, globals_);
-  } else if (procType == "TripletEngine:") {
-    addProcToVec(TRE_, procName, settings_, globals_);
-  } else if (procType == "TrackletCalculator:") {
-    addProcToVec(TC_, procName, settings_, globals_);
   } else if (procType == "TrackletProcessor:") {
     addProcToVec(TP_, procName, settings_, globals_);
   } else if (procType == "TrackletProcessorDisplaced:") {
     addProcToVec(TPD_, procName, settings_, globals_);
   } else if (procType == "TrackletCalculatorDisplaced:") {
     addProcToVec(TCD_, procName, settings_, globals_);
-  } else if (procType == "ProjectionRouter:") {
-    addProcToVec(PR_, procName, settings_, globals_);
-  } else if (procType == "MatchEngine:") {
-    addProcToVec(ME_, procName, settings_, globals_);
-  } else if (procType == "MatchCalculator:" ||
-             procType == "DiskMatchCalculator:") {  //TODO should not be used in configurations
-    addProcToVec(MC_, procName, settings_, globals_);
+  } else if (procType == "ProjectionCalculator:") {
+    addProcToVec(PC_, procName, settings_, globals_);
+  } else if (procType == "VMStubMERouter:") {
+    addProcToVec(VMSMER_, procName, settings_, globals_);
   } else if (procType == "MatchProcessor:") {
     addProcToVec(MP_, procName, settings_, globals_);
   } else if (procType == "FitTrack:") {
@@ -263,12 +232,6 @@ void Sector::writeAIS(bool first) {
   }
 }
 
-void Sector::writeSP(bool first) {
-  for (auto& i : SP_) {
-    i->writeSP(first, isector_);
-  }
-}
-
 void Sector::writeST(bool first) {
   for (auto& i : ST_) {
     i->writeST(first, isector_);
@@ -284,24 +247,6 @@ void Sector::writeTPAR(bool first) {
 void Sector::writeTPROJ(bool first) {
   for (auto& i : TPROJ_) {
     i->writeTPROJ(first, isector_);
-  }
-}
-
-void Sector::writeAP(bool first) {
-  for (auto& i : AP_) {
-    i->writeAP(first, isector_);
-  }
-}
-
-void Sector::writeVMPROJ(bool first) {
-  for (auto& i : VMPROJ_) {
-    i->writeVMPROJ(first, isector_);
-  }
-}
-
-void Sector::writeCM(bool first) {
-  for (auto& i : CM_) {
-    i->writeCM(first, isector_);
   }
 }
 
@@ -342,29 +287,8 @@ void Sector::executeVMR() {
       out << i->getName() << " " << i->nStubs() << endl;
     }
   }
-  for (auto& i : VMR_) {
-    i->execute();
-  }
   for (auto& i : VMRCM_) {
     i->execute(isector_);
-  }
-}
-
-void Sector::executeTE() {
-  for (auto& i : TE_) {
-    i->execute();
-  }
-}
-
-void Sector::executeTED() {
-  for (auto& i : TED_) {
-    i->execute();
-  }
-}
-
-void Sector::executeTRE() {
-  for (auto& i : TRE_) {
-    i->execute();
   }
 }
 
@@ -380,40 +304,21 @@ void Sector::executeTPD() {
   }
 }
 
-void Sector::executeTC() {
-  for (auto& i : TC_) {
-    i->execute(isector_, phimin_, phimax_);
-  }
-
-  if (settings_.writeMonitorData("TrackProjOcc")) {
-    ofstream& out = globals_->ofstream("trackprojocc.txt");
-    for (auto& i : TPROJ_) {
-      out << i->getName() << " " << i->nTracklets() << endl;
-    }
-  }
-}
-
 void Sector::executeTCD() {
   for (auto& i : TCD_) {
     i->execute(isector_, phimin_, phimax_);
   }
 }
 
-void Sector::executePR() {
-  for (auto& i : PR_) {
+void Sector::executePC() {
+  for (auto& i : PC_) {
     i->execute();
   }
 }
 
-void Sector::executeME() {
-  for (auto& i : ME_) {
+void Sector::executeVMSMER() {
+  for (auto& i : VMSMER_) {
     i->execute(isector_);
-  }
-}
-
-void Sector::executeMC() {
-  for (auto& i : MC_) {
-    i->execute(isector_, phimin_);
   }
 }
 

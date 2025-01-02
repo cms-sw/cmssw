@@ -194,7 +194,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
           if (vmstub.stub()->isPSmodule()) {
             bin = 0;
           } else {
-            bin = vmstub.stub()->r().value();  // 0 to 9
+            bin = vmstub.stub()->rvalue();  // 0 to 9
             bin = bin >> 2;                    // 0 to 2
             bin += 1;
           }
@@ -232,9 +232,10 @@ void VMStubsTEMemory::writeStubs(bool first, unsigned int iSector) {
     }
   } else {  // outer VM for TE purpose
     for (unsigned int i = 0; i < stubsbinnedvm_.size(); i++) {
+      unsigned int newi = 8*(i&7)+(i>>3);
       for (unsigned int j = 0; j < stubsbinnedvm_[i].size(); j++) {
         string stub = stubsbinnedvm_[i][j].str();
-        out_ << hexstr(i) << " " << hexstr(j) << " " << stub << " " << trklet::hexFormat(stub) << endl;
+        out_ << hexstr(newi) << " " << hexstr(j) << " " << stub << " " << trklet::hexFormat(stub) << endl;
       }
     }
   }

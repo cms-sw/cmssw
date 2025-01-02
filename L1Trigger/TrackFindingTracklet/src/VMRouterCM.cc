@@ -65,8 +65,6 @@ VMRouterCM::VMRouterCM(string name, Settings const& settings, Globals* global)
 
   nbitszfinebintable_ = settings_.vmrlutzbits(layerdisk_);
   nbitsrfinebintable_ = settings_.vmrlutrbits(layerdisk_);
-
-  nvmmebins_ = settings_.NLONGVMBINS() * ((layerdisk_ >= N_LAYER) ? 2 : 1);  //number of long z/r bins in VM
 }
 
 void VMRouterCM::addOutput(MemoryBase* memory, string output) {
@@ -145,18 +143,13 @@ void VMRouterCM::addOutput(MemoryBase* memory, string output) {
         VMStubsTEPHICM atmp(iseed, inner, vectmp);
         vmstubsTEPHI_.push_back(atmp);
       }
+
       if (!isTripletSeed) {
         tmp->resize(settings_.NLONGVMBINS() * settings_.nvmte(1, iseed));
         vmstubsTEPHI_[seedindex].vmstubmem[0].push_back(tmp);
       } else {
         vmstubsTEPHI_[seedindex].vmstubmem[(vmbin - 1) & (settings_.nvmte(inner, iseed) - 1)].push_back(tmp);
       }
-
-    } else if (memory->getName().substr(3, 2) == "ME") {
-      VMStubsMEMemory* tmp = dynamic_cast<VMStubsMEMemory*>(memory);
-      assert(tmp != nullptr);
-      tmp->resize(nvmmebins_ * settings_.nvmme(layerdisk_));
-      vmstubsMEPHI_.push_back(tmp);
     } else {
       throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " memory: " << memory->getName()
                                          << " => should never get here!";
@@ -260,9 +253,9 @@ void VMRouterCM::execute(unsigned int) {
             absz > VMROUTERCUTZL1L3L5 / settings_.kz(layerdisk_))
           continue;
         if ((layerdisk_ == LayerDisk::D1 || layerdisk_ == LayerDisk::D3) &&
-            stub->r().value() > VMROUTERCUTRD1D3 / settings_.kr())
+            stub->rvalue() > VMROUTERCUTRD1D3 / settings_.kr())
           continue;
-        if ((layerdisk_ == LayerDisk::D1 || layerdisk_ == LayerDisk::D3) && stub->r().value() < 2 * int(N_DSS_MOD))
+        if ((layerdisk_ == LayerDisk::D1 || layerdisk_ == LayerDisk::D3) && stub->rvalue() < 2 * int(N_DSS_MOD))
           continue;
         if (layerdisk_ == LayerDisk::L1) {
           if (memtype == 'M' || memtype == 'R' || memtype == 'L') {
@@ -281,13 +274,7 @@ void VMRouterCM::execute(unsigned int) {
         allstub.second->addStub(stub);
       }
 
-      //Fill all the ME VM memories
-      unsigned int ivm =
-          iphi.bits(iphi.nbits() - (settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmme(layerdisk_)),
-                    settings_.nbitsvmme(layerdisk_));
-
       //Calculate the z and r position for the vmstub
-
       //Take the top nbitszfinebintable_ bits of the z coordinate
       int indexz = (stub->z().value() >> (stub->z().nbits() - nbitszfinebintable_)) & ((1 << nbitszfinebintable_) - 1);
       int indexr = -1;
@@ -295,13 +282,13 @@ void VMRouterCM::execute(unsigned int) {
         if (negdisk) {
           indexz = ((1 << nbitszfinebintable_) - 1) - indexz;
         }
-        indexr = stub->r().value();
+        indexr = stub->rvalue();
         if (stub->isPSmodule()) {
-          indexr = stub->r().value() >> (stub->r().nbits() - nbitsrfinebintable_);
+          indexr = stub->rvalue() >> (stub->r().nbits() + 1 - nbitsrfinebintable_);
         }
       } else {
         //Take the top nbitsfinebintable_ bits of the z coordinate. The & is to handle the negative z values.
-        indexr = (stub->r().value() >> (stub->r().nbits() - nbitsrfinebintable_)) & ((1 << nbitsrfinebintable_) - 1);
+        indexr = (stub->rvalue() >> (stub->r().nbits() - nbitsrfinebintable_)) & ((1 << nbitsrfinebintable_) - 1);
       }
 
       assert(indexz >= 0);
@@ -310,7 +297,6 @@ void VMRouterCM::execute(unsigned int) {
       assert(indexr < (1 << nbitsrfinebintable_));
 
       int melut = meTable_.lookup((indexz << nbitsrfinebintable_) + indexr);
-
       assert(melut >= 0);
 
       // The following indices are calculated in the same way as in the old
@@ -339,30 +325,10 @@ void VMRouterCM::execute(unsigned int) {
       int melutOld = meTableOld_.lookup((indexzOld << nbitsrfinebintable_) + indexrOld);
 
       assert(melutOld >= 0);
-
-      int vmbin = melut >> NFINERZBITS;
-      if (negdisk)
-        vmbin += (1 << NFINERZBITS);
-      int rzfine = melut & ((1 << NFINERZBITS) - 1);
-
-      // pad disk PS bend word with a '0' in MSB so that all disk bends have 4 bits (for HLS compatibility)
-      int nbendbits = stub->bend().nbits();
-      if (layerdisk_ >= N_LAYER)
-        nbendbits = settings_.nbendbitsmedisk();
-
-      VMStubME vmstub(
-          stub,
-          stub->iphivmFineBins(settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmme(layerdisk_), NFINERZBITS),
-          FPGAWord(rzfine, NFINERZBITS, true, __LINE__, __FILE__),
-          FPGAWord(stub->bend().value(), nbendbits, true, __LINE__, __FILE__),
-          allStubIndex);
-
-      unsigned int nmems = vmstubsMEPHI_.size();
-
-      for (unsigned int i = 0; i < nmems; i++) {  // allows multiple VMStubs to be written for duplicated MPs
-        if (vmstubsMEPHI_[i] != nullptr)
-          vmstubsMEPHI_[i]->addStub(vmstub, ivm * nvmmebins_ + vmbin);
-      }
+      
+      //Fill the TE VM memories
+      if (layerdisk_ >= N_LAYER && (!stub->isPSmodule()))
+        continue;
 
       for (auto& ivmstubTEPHI : vmstubsTEPHI_) {
         unsigned int iseed = ivmstubTEPHI.seednumber;

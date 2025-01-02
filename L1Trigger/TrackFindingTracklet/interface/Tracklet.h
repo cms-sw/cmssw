@@ -46,7 +46,6 @@ namespace trklet {
              int id0,
              int iz0,
              int it,
-             Projection projs[N_LAYER + N_DISK],
              bool disk,
              bool overlap = false);
 
@@ -78,6 +77,8 @@ namespace trklet {
 
     std::string trackletprojstrlayer(int layer) const { return trackletprojstr(layer); }
     std::string trackletprojstrdisk(int disk) const { return trackletprojstrD(disk); }
+
+    void addProjs(Projection projs[N_LAYER + N_DISK]);
 
     bool validProj(int layerdisk) const {
       assert(layerdisk >= 0 && layerdisk < N_LAYER + N_DISK);

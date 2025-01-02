@@ -13,9 +13,14 @@ TrackletProjectionsMemory::TrackletProjectionsMemory(string name, Settings const
   assert(pos != string::npos);
   initLayerDisk(pos + 1, layer_, disk_);
   hasProj_ = false;
+  npage_ = name.size()-17;
+  if (name.substr(name.size()-2,2)=="_E") {
+    npage_ = name.size()-19;
+  }
+  tracklets_.resize(npage_);
 }
 
-void TrackletProjectionsMemory::addProj(Tracklet* tracklet) {
+void TrackletProjectionsMemory::addProj(Tracklet* tracklet, unsigned int page) {
   if (layer_ != 0 && disk_ == 0)
     assert(tracklet->validProj(layer_ - 1));
   if (layer_ == 0 && disk_ != 0)
@@ -23,7 +28,7 @@ void TrackletProjectionsMemory::addProj(Tracklet* tracklet) {
   if (layer_ != 0 && disk_ != 0)
     assert(tracklet->validProj(layer_ - 1) || tracklet->validProj(N_LAYER + abs(disk_) - 1));
 
-  for (auto& itracklet : tracklets_) {
+  for (auto& itracklet : tracklets_[page]) {
     if (itracklet == tracklet) {
       edm::LogPrint("Tracklet") << "Adding same tracklet " << tracklet << " twice in " << getName();
     }
@@ -31,15 +36,26 @@ void TrackletProjectionsMemory::addProj(Tracklet* tracklet) {
   }
 
   hasProj_ = true;
-  tracklets_.push_back(tracklet);
+
+  if (tracklets_[page].size()<(1<<(N_BITSMEMADDRESS-1))-1) {
+    tracklets_[page].push_back(tracklet);
+  }
 }
 
-void TrackletProjectionsMemory::clean() { tracklets_.clear(); }
+void TrackletProjectionsMemory::clean() {
+  for (unsigned int i = 0; i < tracklets_.size() ; i++){
+    tracklets_[i].clear(); 
+  }
+}
 
 void TrackletProjectionsMemory::writeTPROJ(bool first, unsigned int iSector) {
   iSector_ = iSector;
   const string dirTP = settings_.memPath() + "TrackletProjections/";
 
+
+  //Hack to suppress writing empty TPROJ memories - only want to write MPROJ memories
+  if (getName()[0] == 'T') return;
+  
   std::ostringstream oss;
   oss << dirTP << "TrackletProjections_" << getName() << "_" << std::setfill('0') << std::setw(2) << (iSector_ + 1)
       << ".dat";
@@ -50,9 +66,27 @@ void TrackletProjectionsMemory::writeTPROJ(bool first, unsigned int iSector) {
   out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
 
   for (unsigned int j = 0; j < tracklets_.size(); j++) {
-    string proj = (layer_ > 0 && tracklets_[j]->validProj(layer_ - 1)) ? tracklets_[j]->trackletprojstrlayer(layer_)
-                                                                       : tracklets_[j]->trackletprojstrdisk(disk_);
-    out_ << hexstr(j) << " " << proj << "  " << trklet::hexFormat(proj) << endl;
+    // This is a hack here to write out the TPAR files for backward compatibility
+    std::ofstream out;
+    std::string moduleName = getName().substr(0,10);;
+    moduleName[0]='T';
+    std::ostringstream oss2;
+    char postfix = getName()[10];
+    postfix+=j;
+    oss2 << dirTP << "TrackletProjections_" << moduleName << postfix << "_" << getName().substr(getName().size()-6,6)
+	 << "_" <<std::setfill('0') << std::setw(2) << (iSector_ + 1)
+	 << ".dat";
+    std::string fnameTPAR = oss2.str();
+    openfile(out, first, dirTP, fnameTPAR, __FILE__, __LINE__);
+    out << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
+    for (unsigned int i = 0; i < tracklets_[j].size(); i++) {
+    
+      string proj = (layer_ > 0 && tracklets_[j][i]->validProj(layer_ - 1)) ? tracklets_[j][i]->trackletprojstrlayer(layer_)
+	: tracklets_[j][i]->trackletprojstrdisk(disk_);
+      out_ << hexstr(j) << " " << hexstr(i) << " " << proj << "  " << trklet::hexFormat(proj) << endl;
+      out << hexstr(i) << " " << proj << "  " << trklet::hexFormat(proj) << endl;
+    }
+    out.close();
   }
   out_.close();
 

@@ -9,13 +9,25 @@ using namespace std;
 using namespace trklet;
 
 TrackletParametersMemory::TrackletParametersMemory(string name, Settings const& settings)
-    : MemoryBase(name, settings) {}
+    : MemoryBase(name, settings) {
+  npage_ = name.size()-9;
+  tracklets_.resize(npage_);
+}
 
 void TrackletParametersMemory::clean() {
-  for (auto& tracklet : tracklets_) {
-    delete tracklet;
+
+  //This is where we delete the tracklets that were created. As tracklet as stored in both the TPAR and MPAR memories
+  //we will onlu delete once in the TPAR memory
+  if (name_[0] == 'T') {
+    for (unsigned int page = 0 ; page < npage_ ; page++ ){
+      for (auto& tracklet : tracklets_[page]) {
+	delete tracklet;
+      }
+    }
   }
-  tracklets_.clear();
+  for (unsigned int page = 0; page < tracklets_.size(); page++) {
+    tracklets_[page].clear();
+  }
 }
 
 void TrackletParametersMemory::writeTPAR(bool first, unsigned int iSector) {
@@ -31,9 +43,12 @@ void TrackletParametersMemory::writeTPAR(bool first, unsigned int iSector) {
 
   out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
 
-  for (unsigned int j = 0; j < tracklets_.size(); j++) {
-    string tpar = tracklets_[j]->trackletparstr();
-    out_ << hexstr(j) << " " << tpar << " " << trklet::hexFormat(tpar) << endl;
+
+  for (unsigned int page = 0; page < tracklets_.size(); page++) {
+    for (unsigned int j = 0; j < tracklets_[page].size(); j++) {
+      string tpar = tracklets_[page][j]->trackletparstr();
+      out_ << hexstr(page) << " " << hexstr(j) << " " << tpar << " " << trklet::hexFormat(tpar) << endl;
+    }
   }
   out_.close();
 

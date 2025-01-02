@@ -30,9 +30,10 @@ namespace trklet {
         return r_.str() + "|" + z_.str() + "|" + phi_.str() + "|" + bend_.str();
       } else {
         if (isPSmodule()) {
-          return r_.str() + "|" + z_.str() + "|" + phi_.str() + "|" + bend_.str();
+          return negdisk_.str() + "|" + r_.str() + "|" + z_.str() + "|" + phi_.str() + "|" + bend_.str();
         } else {
-          return "000" + r_.str() + "|" + z_.str() + "|" + phi_.str() + "|" + alpha_.str() + "|" + bend_.str();
+          return negdisk_.str() + "|" + "00" + r_.str() + "|" + z_.str() + "|" + phi_.str() + "|" + alpha_.str() + "|" +
+                 bend_.str();
         }
       }
     }
@@ -43,11 +44,7 @@ namespace trklet {
       unsigned int nbitsfinephi = 8;
       FPGAWord finephi(
           phicorr_.bits(phicorr_.nbits() - nbitsfinephi, nbitsfinephi), nbitsfinephi, true, __LINE__, __FILE__);
-      if (layer_.value() == -1) {
-        return str() + "|" + negdisk_.str() + "|" + stubindex_.str() + "|" + finephi.str();
-      } else {
-        return str() + "|" + stubindex_.str() + "|" + finephi.str();
-      }
+      return str() + "|" + stubindex_.str() + "|" + finephi.str();
     }
 
     FPGAWord allStubIndex() const { return stubindex_; }
@@ -61,6 +58,10 @@ namespace trklet {
     void setPhiCorr(int phiCorr);
 
     const FPGAWord& bend() const { return bend_; }
+
+    const int rvalue() const {
+      return (layerdisk_ < N_LAYER) ? r_.value() : (r_.value() > 10) ? r_.value() + (1 << r_offset_bits) : r_.value();
+    }
 
     const FPGAWord& r() const { return r_; }
     const FPGAWord& z() const { return z_; }
@@ -102,6 +103,8 @@ namespace trklet {
     FPGAWord phicorr_;  //Corrected for bend to nominal radius
 
     FPGAWord stubindex_;
+
+    int r_offset_bits;
 
     L1TStub* l1tstub_;
     Settings const& settings_;
