@@ -376,6 +376,44 @@ private:
       m_globalEndLuminosityBlockSummaryCalled = false;
     }
   };
+
+  class TransformProd : public edm::stream::EDProducer<edm::Transformer> {
+  public:
+    TransformProd(edm::ParameterSet const&) {
+      token_ = produces<float>();
+      registerTransform(token_, [](float iV) { return int(iV); });
+    }
+
+    void produce(edm::Event& iEvent, edm::EventSetup const&) final {
+      //iEvent.emplace(token_, 3.625);
+    }
+
+  private:
+    edm::EDPutTokenT<float> token_;
+  };
+
+  class TransformAsyncProd : public edm::stream::EDProducer<edm::Transformer> {
+  public:
+    struct IntHolder {
+      IntHolder() : value_(0) {}
+      IntHolder(int iV) : value_(iV) {}
+      int value_;
+    };
+    TransformAsyncProd(edm::ParameterSet const&) {
+      token_ = produces<float>();
+      registerTransformAsync(
+          token_,
+          [](float iV, edm::WaitingTaskWithArenaHolder iHolder) { return IntHolder(iV); },
+          [](IntHolder iWaitValue) { return iWaitValue.value_; });
+    }
+
+    void produce(edm::Event& iEvent, edm::EventSetup const&) final {
+      //iEvent.emplace(token_, 3.625);
+    }
+
+  private:
+    edm::EDPutTokenT<float> token_;
+  };
 };
 unsigned int testStreamProducer::BasicProd::m_count = 0;
 unsigned int testStreamProducer::GlobalProd::m_count = 0;
