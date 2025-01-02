@@ -51,12 +51,16 @@ int main() {
       // requires c++23 to make cms::alpakatools::CopyToHost compile using if constexpr
       // see https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2593r0.html
       TrackingRecHitHost<pixelTopology::Phase1> const& host_collection = tkhit;
-#else
-      TrackingRecHitHost<pixelTopology::Phase1> host_collection =
-          cms::alpakatools::CopyToHost<TrackingRecHitDevice<pixelTopology::Phase1, Device> >::copyAsync(queue, tkhit);
-#endif
-      // wait for the kernel and the potential copy to complete
+      // wait for the kernel to complete
       alpaka::wait(queue);
+#else
+      using CopyT = cms::alpakatools::CopyToHost<TrackingRecHitDevice<pixelTopology::Phase1, Device> >;
+      TrackingRecHitHost<pixelTopology::Phase1> host_collection = CopyT::copyAsync(queue, tkhit);
+      // wait for the kernel and the copy to complete
+      alpaka::wait(queue);
+      CopyT::postCopy(host_collection);
+#endif
+
       assert(tkhit.nHits() == nHits);
       assert(tkhit.offsetBPIX2() == 22);  // set in the kernel
       assert(tkhit.nHits() == host_collection.nHits());
