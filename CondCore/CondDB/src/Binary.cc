@@ -5,8 +5,9 @@
 //
 #include <cstring>
 
-#include <openssl/sha.h>
 #include <cstring>
+#include <memory>
+#include <openssl/sha.h>
 
 cond::Binary::Binary() : m_data(new coral::Blob(0)) {}
 
@@ -30,7 +31,7 @@ cond::Binary& cond::Binary::operator=(const Binary& rhs) {
 const coral::Blob& cond::Binary::get() const { return *m_data; }
 
 void cond::Binary::copy(const std::string& source) {
-  m_data.reset(new coral::Blob(source.size()));
+  m_data = std::make_shared<coral::Blob>(source.size());
   ::memcpy(m_data->startingAddress(), source.c_str(), source.size());
 }
 

@@ -129,7 +129,7 @@ bool LMFSeqDat::isValid() const {
   if (getSequenceStart().isNull()) {
     ret = false;
   }
-  if ((getSequenceStop().str().length() > 0) && (getSequenceStop().microsTime() < getSequenceStart().microsTime())) {
+  if ((!getSequenceStop().str().empty()) && (getSequenceStop().microsTime() < getSequenceStart().microsTime())) {
     ret = false;
   }
   if (getSequenceStop() == Tm().plusInfinity()) {
@@ -147,7 +147,7 @@ std::string LMFSeqDat::writeDBSql(Statement *stmt) {
     throw(std::runtime_error("LMFSeqDat::writeDB: not valid"));
   }
 
-  if (getSequenceStop().str().length() == 0) {
+  if (getSequenceStop().str().empty()) {
     setSequenceStop(dh.getPlusInfTm());
   }
   int runIOVID = m_runIOV.getID();

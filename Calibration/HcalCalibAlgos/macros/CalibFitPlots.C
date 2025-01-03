@@ -2216,7 +2216,7 @@ void PlotHistCorrFactor(char* infile,
     gStyle->SetOptFit(0);
   }
   int colors[7] = {1, 6, 4, 7, 2, 9, 3};
-  int mtype[7] = {20, 21, 22, 23, 24, 33, 25};
+  int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
   int nbin = etamax - etamin + 1;
   std::vector<TH1D*> hists;
   std::vector<int> entries;
@@ -2357,7 +2357,7 @@ void PlotHistCorrFactor(char* infile,
     gStyle->SetOptFit(0);
   }
   int colors[7] = {1, 6, 4, 7, 2, 9, 3};
-  int mtype[7] = {20, 21, 22, 23, 24, 33, 25};
+  int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
   int nbin = etamax - etamin + 1;
   std::vector<TH1D*> hists;
   std::vector<int> entries;
@@ -2485,8 +2485,8 @@ void PlotHistCorrAsymmetry(char* infile, std::string text, std::string prefixF =
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
   gStyle->SetOptFit(10);
-  int colors[6] = {1, 6, 4, 7, 2, 9};
-  int mtype[6] = {20, 21, 22, 23, 24, 33};
+  int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+  int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
   int nbin = etamax + 1;
   std::vector<TH1D*> hists;
   std::vector<int> entries;
@@ -2639,8 +2639,8 @@ void PlotHistCorrFactors(char* infile1,
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
     }
-    int colors[7] = {1, 6, 4, 2, 7, 9, 46};
-    int mtype[7] = {20, 24, 22, 23, 21, 25, 33};
+    int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+    int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     int nbin = etamax - etamin + 1;
     std::vector<TH1D*> hists;
     std::vector<int> entries, htype, depths;
@@ -2873,8 +2873,8 @@ void PlotHistCorr2Factors(char* infile1,
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
     }
-    int colors[7] = {1, 6, 4, 2, 7, 9, 46};
-    int mtype[7] = {20, 24, 22, 23, 21, 25, 33};
+    int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+    int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     int nbin = etamax - etamin + 1;
     std::vector<TH1D*> hists;
     std::vector<int> entries, htype;
@@ -3116,8 +3116,8 @@ void PlotHistCorrDFactors(char* infile1,
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
     }
-    int colors[7] = {1, 6, 4, 2, 7, 9, 46};
-    int mtype[7] = {20, 24, 22, 23, 21, 25, 33};
+    int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+    int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     int nbin = etamax - etamin + 1;
     std::vector<TH1D*> hists;
     std::vector<int> entries, htype;
@@ -3337,8 +3337,8 @@ void PlotHistCorrSys(std::string infilec, int conds, std::string text, int save 
     gStyle->SetOptTitle(0);
     gStyle->SetOptStat(10);
     gStyle->SetOptFit(10);
-    int colors[6] = {1, 6, 4, 7, 2, 9};
-    int mtype[6] = {20, 21, 22, 23, 24, 33};
+    int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+    int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     std::vector<TH1D*> hists;
     char name[100];
     int nbin = etamax - etamin + 1;
@@ -3537,8 +3537,8 @@ void PlotHistCorrRel(char* infile1,
     gStyle->SetOptTitle(0);
     gStyle->SetOptStat(10);
     gStyle->SetOptFit(10);
-    int colors[6] = {1, 6, 4, 7, 2, 9};
-    int mtype[6] = {20, 21, 22, 23, 24, 33};
+    int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+    int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     std::vector<TH1D*> hists;
     char name[100];
     int nbin = etamax - etamin + 1;
@@ -4512,7 +4512,7 @@ void PlotDepthCorrFactor(char* infile,
     gStyle->SetOptFit(0);
   }
   int colors[7] = {1, 6, 4, 7, 2, 9, 3};
-  int mtype[7] = {20, 21, 22, 23, 24, 33, 25};
+  int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
   int nbin = etamax - etamin + 1;
   std::vector<TH1D*> hists;
   std::vector<int> entries;
@@ -4818,8 +4818,8 @@ void PlotHistCorrRatio(char* infile1,
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
     }
-    int colors[7] = {1, 6, 4, 2, 7, 9, 46};
-    int mtype[7] = {20, 24, 22, 23, 21, 25, 33};
+    int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+    int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     int styles[7] = {2, 3, 1, 4, 1, 3, 2};
     int nbin = etamax - etamin + 1;
     std::vector<TH1D*> hists;

@@ -788,7 +788,7 @@ Double_t CalibTree::Loop(int loop,
       else if ((oddEven > 0) && (jentry % 2 != 0))
         continue;
     }
-    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
+    bool select = ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(0))) ? (cDuplicate_->isDuplicate(jentry)) : true;
     if (!select)
       continue;
     bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) : ((t_Run < runlo_) || (t_Run > runhi_)));
@@ -805,7 +805,7 @@ Double_t CalibTree::Loop(int loop,
           continue;
       }
     }
-    if (cDuplicate_ != nullptr) {
+    if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(2))) {
       if (cDuplicate_->select(t_ieta, t_iphi))
         continue;
     }
@@ -1094,7 +1094,7 @@ void CalibTree::getDetId(double fraction, int ietaTrack, bool debug, Long64_t nm
         else if ((oddEven > 0) && (jentry % 2 != 0))
           continue;
       }
-      bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
+      bool select = ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(0))) ? (cDuplicate_->isDuplicate(jentry)) : true;
       if (!select)
         continue;
       // Find DetIds contributing to the track
@@ -1109,7 +1109,7 @@ void CalibTree::getDetId(double fraction, int ietaTrack, bool debug, Long64_t nm
           else
             isItRBX = !(temp);
         }
-        if ((cDuplicate_ != nullptr) && (!isItRBX))
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(2)) && (!isItRBX))
           isItRBX = (cDuplicate_->select(t_ieta, t_iphi));
         ++kprint;
         if (!(isItRBX)) {
@@ -1348,10 +1348,10 @@ void CalibTree::makeplots(
       else if ((oddEven > 0) && (jentry % 2 != 0))
         continue;
     }
-    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
+    bool select = ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(0))) ? (cDuplicate_->isDuplicate(jentry)) : true;
     if (!select)
       continue;
-    if (cDuplicate_ != nullptr) {
+    if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(2))) {
       select = !(cDuplicate_->select(t_ieta, t_iphi));
       if (!select)
         continue;
@@ -1536,7 +1536,7 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
             hitEn = (*t_HitEnergies3)[idet];
           if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
             hitEn *= cFactor_->getCorr(t_Run, id);
-          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3)))
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
             hitEn *= cDuplicate_->getWeight(id);
           if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
             int subdet, zside, ieta, iphi, depth;
