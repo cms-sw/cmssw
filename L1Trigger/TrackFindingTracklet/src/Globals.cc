@@ -7,9 +7,7 @@
 using namespace std;
 using namespace trklet;
 
-Globals::Globals(Settings const& settings) {
-
-}
+Globals::Globals(Settings const& settings) {}
 
 Globals::~Globals() {
   for (auto i : thePhiCorr_) {

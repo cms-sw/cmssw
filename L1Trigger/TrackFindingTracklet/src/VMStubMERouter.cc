@@ -42,13 +42,13 @@ void VMStubMERouter::addOutput(MemoryBase* memory, string output) {
     VMStubsMEMemory* tmp = dynamic_cast<VMStubsMEMemory*>(memory);
     assert(tmp != nullptr);
     tmp->resize(16 * settings_.nvmme(layerdisk_));
-    assert(vmstubsMEPHI_.size()<=2);
+    assert(vmstubsMEPHI_.size() <= 2);
     if (vmstubsMEPHI_[0] == nullptr) {
       vmstubsMEPHI_[0] = tmp;
     } else {
       vmstubsMEPHI_.push_back(tmp);
     }
-    
+
     return;
   }
 
@@ -144,11 +144,10 @@ void VMStubMERouter::execute(unsigned int) {
           allStubIndex);
 
       if (vmstubsMEPHI_[0] != nullptr) {
-	for (unsigned int i=0; i<vmstubsMEPHI_.size(); i++) {
-	  vmstubsMEPHI_[i]->addStub(vmstub, ivm * nvmmebins_ + vmbin);
-	}
+        for (unsigned int i = 0; i < vmstubsMEPHI_.size(); i++) {
+          vmstubsMEPHI_[i]->addStub(vmstub, ivm * nvmmebins_ + vmbin);
+        }
       }
     }
   }
 }
-

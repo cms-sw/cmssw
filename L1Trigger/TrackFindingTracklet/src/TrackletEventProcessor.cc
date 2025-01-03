@@ -276,7 +276,6 @@ void TrackletEventProcessor::event(SLHCEvent& ev,
       }
     }
 
-
     // tracklet processor displaced
     TPDTimer_.start();
     sector_->executeTPD();
@@ -347,17 +346,17 @@ void TrackletEventProcessor::printSummary() {
                                << "VMRouter              " << setw(10) << VMRouterTimer_.ntimes() << setw(20)
                                << setprecision(3) << VMRouterTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
                                << VMRouterTimer_.tottime() << "\n"
-			       << "TrackletProcessor     " << setw(10) << TPTimer_.ntimes() << setw(20)
-			       << setprecision(3) << TPTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
-			       << TPTimer_.tottime() << "\n"
-			       << "MatchProcessor        " << setw(10) << MPTimer_.ntimes() << setw(20)
-			       << setprecision(3) << MPTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
-			       << MPTimer_.tottime();
-    if (settings_->extended()) {
-      edm::LogVerbatim("Tracklet") << "TrackletProcessorDisplaced" << setw(10) << TPDTimer_.ntimes() << setw(20)
-                                   << setprecision(3) << TPDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
-                                   << TPDTimer_.tottime();
-    }
+                               << "TrackletProcessor     " << setw(10) << TPTimer_.ntimes() << setw(20)
+                               << setprecision(3) << TPTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                               << TPTimer_.tottime() << "\n"
+                               << "MatchProcessor        " << setw(10) << MPTimer_.ntimes() << setw(20)
+                               << setprecision(3) << MPTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                               << MPTimer_.tottime();
+  if (settings_->extended()) {
+    edm::LogVerbatim("Tracklet") << "TrackletProcessorDisplaced" << setw(10) << TPDTimer_.ntimes() << setw(20)
+                                 << setprecision(3) << TPDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                                 << TPDTimer_.tottime();
+  }
   edm::LogVerbatim("Tracklet") << "FitTrack              " << setw(10) << FTTimer_.ntimes() << setw(20)
                                << setprecision(3) << FTTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
                                << FTTimer_.tottime() << "\n"

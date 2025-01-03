@@ -55,4 +55,3 @@ namespace trklet {
 };  // namespace trklet
 
 #endif
-

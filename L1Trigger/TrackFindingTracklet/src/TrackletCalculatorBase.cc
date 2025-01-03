@@ -15,8 +15,7 @@ using namespace trklet;
 TrackletCalculatorBase::TrackletCalculatorBase(string name, Settings const& settings, Globals* global)
     : ProcessBase(name, settings, global) {}
 
-void TrackletCalculatorBase::init(int iSeed){
-
+void TrackletCalculatorBase::init(int iSeed) {
   phiHG_ = settings_.dphisectorHG();
 
   //Constants for coordinates and track parameter definitions
@@ -26,9 +25,9 @@ void TrackletCalculatorBase::init(int iSeed){
   n_phi0_ = 16;
   n_rinv_ = 13;
   n_t_ = 9;
-  n_phidisk_ = n_phi_-3;
-  n_rdisk_ = n_r_-1;
-  
+  n_phidisk_ = n_phi_ - 3;
+  n_rdisk_ = n_r_ - 1;
+
   //Constants used for tracklet parameter calculations
   n_delta0_ = 13;
   n_deltaz_ = 11;
@@ -39,7 +38,7 @@ void TrackletCalculatorBase::init(int iSeed){
   n_r6_ = 4;
   n_delta02_ = 14;
   n_x6_ = 15;
-  n_HG_ = 15;  
+  n_HG_ = 15;
 
   //Constants used for projectison to layers
   n_s_ = 12;
@@ -50,48 +49,48 @@ void TrackletCalculatorBase::init(int iSeed){
   n_y_ = 14;
   n_x_ = 14;
   n_xx6_ = 14;
-  
+
   LUT_itinv_.resize(8192);
 
   for (int it = 0; it < 8192; it++) {
-    if (it<100) {
-      LUT_itinv_[it] =  0;
+    if (it < 100) {
+      LUT_itinv_[it] = 0;
     } else {
       LUT_itinv_[it] = (1 << (n_t_ + n_tinv_)) / abs(it);
     }
   }
-    
-  if (iSeed<4) { //FIXME - should not have hardcoded number here
+
+  if (iSeed < 4) {  //FIXME - should not have hardcoded number here
     n_Deltar_ = 24;
     LUT_idrinv_.resize(512);
-    for(int idr=-256; idr<256; idr++){
+    for (int idr = -256; idr < 256; idr++) {
       int uidr = idr;
-      if (uidr < 0) uidr += 512;
+      if (uidr < 0)
+        uidr += 512;
       int idrabs = idr + settings_.irmean(layerdisk2_) - settings_.irmean(layerdisk1_);
-      LUT_idrinv_[uidr] = (1<<n_Deltar_)/idrabs;
+      LUT_idrinv_[uidr] = (1 << n_Deltar_) / idrabs;
     }
   }
 
-  if (iSeed>=4 && iSeed<6){ //FIXME - should not have hardcoded number here
+  if (iSeed >= 4 && iSeed < 6) {  //FIXME - should not have hardcoded number here
     n_Deltar_ = 23;
     LUT_idrinv_.resize(512);
-    for(unsigned int idr=1; idr<512; idr++){
-      LUT_idrinv_[idr] = (1<<n_Deltar_)/idr;
-    }    
+    for (unsigned int idr = 1; idr < 512; idr++) {
+      LUT_idrinv_[idr] = (1 << n_Deltar_) / idr;
+    }
   }
 
-  if (iSeed>=6) { //FIXME - should not have hardcoded number here
+  if (iSeed >= 6) {  //FIXME - should not have hardcoded number here
     n_Deltar_ = 23;
     n_delta0_ = 14;
     n_deltaz_ = 9;
     n_a_ = 14;
     n_r6_ = 6;
     LUT_idrinv_.resize(1024);
-    for(unsigned int idr=1; idr<1024; idr++){
-      LUT_idrinv_[idr] = (1<<n_Deltar_)/idr;
+    for (unsigned int idr = 1; idr < 1024; idr++) {
+      LUT_idrinv_[idr] = (1 << n_Deltar_) / idr;
     }
   }
-
 }
 
 void TrackletCalculatorBase::exacttracklet(double r1,
@@ -129,7 +128,6 @@ void TrackletCalculatorBase::exacttracklet(double r1,
   t = (z1 - z2) / (rhopsi1 - rhopsi2);
 
   z0 = z1 - t * rhopsi1;
-
 }
 
 void TrackletCalculatorBase::exacttrackletdisk(double r1,
@@ -167,7 +165,6 @@ void TrackletCalculatorBase::exacttrackletdisk(double r1,
   t = (z1 - z2) / (rhopsi1 - rhopsi2);
 
   z0 = z1 - t * rhopsi1;
-
 }
 
 void TrackletCalculatorBase::exacttrackletOverlap(double r1,
@@ -208,7 +205,6 @@ void TrackletCalculatorBase::exacttrackletOverlap(double r1,
   t = (z1 - z2) / (rhopsi1 - rhopsi2);
 
   z0 = z1 - t * rhopsi1;
-
 }
 
 void TrackletCalculatorBase::exactproj(double rproj,
@@ -247,91 +243,100 @@ void TrackletCalculatorBase::exactprojdisk(double zproj,
   rder = cos(tmp) / t;
 }
 
-    //project to layer
-void TrackletCalculatorBase::projlayer(int ir, int irinv, int iphi0, int it,int iz0, int &iz, int &iphi) {
+//project to layer
+void TrackletCalculatorBase::projlayer(int ir, int irinv, int iphi0, int it, int iz0, int& iz, int& iphi) {
+  int irtilde = ir * phiHG_ / sqrt(6.0) + 0.5;
 
-  int irtilde = ir*phiHG_/sqrt(6.0)+0.5;
+  int is = (irtilde * irinv) >> n_s_;
 
-  int is =  (irtilde*irinv) >> n_s_;
+  int is6 = (1 << n_s6_) + ((is * is) >> (2 + 2 * n_r_ + 2 * n_rinv_ - 2 * n_s_ - n_s6_));
 
-  int is6 =  (1 << n_s6_) + ((is*is) >> (2 + 2*n_r_ + 2*n_rinv_ - 2*n_s_ - n_s6_));
+  int iu = (ir * irinv) >> (n_r_ + n_rinv_ + 1 - n_phi_);
 
-  int iu = (ir*irinv) >> (n_r_ + n_rinv_ + 1 - n_phi_);
+  iphi = (iphi0 << (n_phi_ - n_phi0_)) - ((iu * is6) >> n_s6_);
 
-  iphi = (iphi0 << (n_phi_ - n_phi0_)) - ((iu*is6) >> n_s6_);
+  int iv = (it * ir) >> (n_r_ + n_t_ - n_z_);
 
-  int iv = (it*ir) >> (n_r_ + n_t_ - n_z_);
-
-  iz = iz0 + ((iv*is6) >> n_s6_);
-
+  iz = iz0 + ((iv * is6) >> n_s6_);
 }
 
-void TrackletCalculatorBase::projdisk(int iz, int irinv, int iphi0, int it,int iz0, int &ir, int &iphi, int &iderphi, int &iderr) {
-    int iz0_sign = (it>0)?iz0:-iz0;
+void TrackletCalculatorBase::projdisk(
+    int iz, int irinv, int iphi0, int it, int iz0, int& ir, int& iphi, int& iderphi, int& iderr) {
+  int iz0_sign = (it > 0) ? iz0 : -iz0;
 
-    assert(abs(it)<LUT_itinv_.size());
-    int itinv = LUT_itinv_[abs(it)];
-    
-    iderphi = (-irinv*itinv) >> 17;
-    iderr = itinv >> 5;
-    if (it<0) {
-      iderphi = -iderphi;
-      iderr = -iderr;
-    }				   
-    
-    int iw = (((iz << (n_r_ - n_z_)) - (iz0_sign << (n_r_ - n_z_)))*itinv) >> n_tinv_;
+  assert(abs(it) < LUT_itinv_.size());
+  int itinv = LUT_itinv_[abs(it)];
 
-    iphi = (iphi0 >> (n_phi0_ - n_phidisk_)) - ((iw*irinv) >> (1 + n_r_ + n_rinv_ - n_phidisk_));
+  iderphi = (-irinv * itinv) >> 17;
+  iderr = itinv >> 5;
+  if (it < 0) {
+    iderphi = -iderphi;
+    iderr = -iderr;
+  }
 
-    int ifact = (1 << n_y_)*phiHG_/sqrt(6.0);
+  int iw = (((iz << (n_r_ - n_z_)) - (iz0_sign << (n_r_ - n_z_))) * itinv) >> n_tinv_;
 
-    int iy = (ifact * irinv) >> n_y_;
+  iphi = (iphi0 >> (n_phi0_ - n_phidisk_)) - ((iw * irinv) >> (1 + n_r_ + n_rinv_ - n_phidisk_));
 
-    int ix = (iw*iy) >> n_x_;
+  int ifact = (1 << n_y_) * phiHG_ / sqrt(6.0);
 
-    int ix6 = (1 << n_xx6_) - ( (ix*ix) >> (2 + 2*n_r_ + 2*n_rinv_ - 2*n_x_ - n_xx6_));
+  int iy = (ifact * irinv) >> n_y_;
 
-    ir = (iw*ix6) >> (n_r_ - n_rdisk_ + n_xx6_);
+  int ix = (iw * iy) >> n_x_;
 
+  int ix6 = (1 << n_xx6_) - ((ix * ix) >> (2 + 2 * n_r_ + 2 * n_rinv_ - 2 * n_x_ - n_xx6_));
+
+  ir = (iw * ix6) >> (n_r_ - n_rdisk_ + n_xx6_);
 }
 
-void TrackletCalculatorBase::calcPars(unsigned int idr, int iphi1, int ir1, int iz1, int iphi2, int ir2, int iz2, int &irinv_new, int &iphi0_new, int &iz0_new, int &it_new) {
-
+void TrackletCalculatorBase::calcPars(unsigned int idr,
+                                      int iphi1,
+                                      int ir1,
+                                      int iz1,
+                                      int iphi2,
+                                      int ir2,
+                                      int iz2,
+                                      int& irinv_new,
+                                      int& iphi0_new,
+                                      int& iz0_new,
+                                      int& it_new) {
   int idz = iz2 - iz1;
 
-  assert(idr<LUT_idrinv_.size());
+  assert(idr < LUT_idrinv_.size());
   int invdr = LUT_idrinv_[idr];
 
-  int idelta0 = ((iphi2 - iphi1)*invdr) >> n_delta0_;
-  int ideltaz = (idz*invdr) >> n_deltaz_;
+  int idelta0 = ((iphi2 - iphi1) * invdr) >> n_delta0_;
+  int ideltaz = (idz * invdr) >> n_deltaz_;
 
-  int idelta1 = (ir1*idelta0) >> n_delta1_;  
-  int idelta2 = (ir2*idelta0) >> n_delta2_;
+  int idelta1 = (ir1 * idelta0) >> n_delta1_;
+  int idelta2 = (ir2 * idelta0) >> n_delta2_;
 
-  int idelta12 = (idelta1*idelta2) >> n_delta12_;
+  int idelta12 = (idelta1 * idelta2) >> n_delta12_;
 
-  int iHG = phiHG_*phiHG_*(1 << n_HG_);
+  int iHG = phiHG_ * phiHG_ * (1 << n_HG_);
 
-  int ia = ((1 << n_a_) - ((idelta12*iHG) >> (2*n_Deltar_ + 2*n_phi_ + n_HG_ - 2*n_delta0_ - n_delta1_ - n_delta2_ - n_delta12_ + 1 - n_a_)));
+  int ia = ((1 << n_a_) - ((idelta12 * iHG) >> (2 * n_Deltar_ + 2 * n_phi_ + n_HG_ - 2 * n_delta0_ - n_delta1_ -
+                                                n_delta2_ - n_delta12_ + 1 - n_a_)));
 
-  int ifact = (1<<n_r6_)*phiHG_*phiHG_/6.0;
+  int ifact = (1 << n_r6_) * phiHG_ * phiHG_ / 6.0;
 
-  int ir6 = (ir1+ir2)*ifact;
+  int ir6 = (ir1 + ir2) * ifact;
 
-  int idelta02 = (idelta0*idelta2) >> n_delta02_;
-  
-  int ix6 = (-(1 << n_x6_)+((ir6*idelta02) >> (n_r6_ + 2*n_Deltar_ + 2*n_phi_ - n_x6_ - n_delta2_- n_delta02_ - 2*n_delta0_)));
-  
-  int it1 = (ir1*ideltaz) >> (n_Deltar_ - n_deltaz_);
+  int idelta02 = (idelta0 * idelta2) >> n_delta02_;
 
-  irinv_new = ((-idelta0*ia) >> (n_phi_ + n_a_ - n_rinv_ + n_Deltar_ - n_delta0_ - n_r_ - 1));
+  int ix6 = (-(1 << n_x6_) + ((ir6 * idelta02) >>
+                              (n_r6_ + 2 * n_Deltar_ + 2 * n_phi_ - n_x6_ - n_delta2_ - n_delta02_ - 2 * n_delta0_)));
 
-  iphi0_new = (iphi1 >> (n_phi_ - n_phi0_))+((idelta1*ix6) >> (n_Deltar_ + n_x6_ + n_phi_ - n_delta0_ - n_delta1_ - n_phi0_));
+  int it1 = (ir1 * ideltaz) >> (n_Deltar_ - n_deltaz_);
 
-  it_new = ((ideltaz*ia) >> (n_Deltar_ + n_a_ + n_z_ - n_t_ - n_deltaz_ - n_r_));
+  irinv_new = ((-idelta0 * ia) >> (n_phi_ + n_a_ - n_rinv_ + n_Deltar_ - n_delta0_ - n_r_ - 1));
 
-  iz0_new = iz1+((it1*ix6) >> n_x6_);
+  iphi0_new = (iphi1 >> (n_phi_ - n_phi0_)) +
+              ((idelta1 * ix6) >> (n_Deltar_ + n_x6_ + n_phi_ - n_delta0_ - n_delta1_ - n_phi0_));
 
+  it_new = ((ideltaz * ia) >> (n_Deltar_ + n_a_ + n_z_ - n_t_ - n_deltaz_ - n_r_));
+
+  iz0_new = iz1 + ((it1 * ix6) >> n_x6_);
 }
 
 void TrackletCalculatorBase::addDiskProj(Tracklet* tracklet, int disk) {
@@ -513,7 +518,6 @@ bool TrackletCalculatorBase::barrelSeeding(const Stub* innerFPGAStub,
 
   //now binary
 
-
   int ir1 = innerFPGAStub->r().value();
   int iphi1 = innerFPGAStub->phi().value();
   int iz1 = innerFPGAStub->z().value();
@@ -530,28 +534,29 @@ bool TrackletCalculatorBase::barrelSeeding(const Stub* innerFPGAStub,
   iz1 <<= (settings_.nzbitsstub(0) - settings_.nzbitsstub(layerdisk1_));
   iz2 <<= (settings_.nzbitsstub(0) - settings_.nzbitsstub(layerdisk2_));
 
-  //Each of ir1 and ir2 are signed 8 bit integers. idr is signed 9 bit integer  
+  //Each of ir1 and ir2 are signed 8 bit integers. idr is signed 9 bit integer
   int idr = ir2 - ir1;
 
-  if (idr < 0) idr += 512;
+  if (idr < 0)
+    idr += 512;
 
   int irinv_new, iphi0_new, iz0_new, it_new;
 
   unsigned int ir1mean = settings_.irmean(layerdisk1_);
   unsigned int ir2mean = settings_.irmean(layerdisk2_);
-    
+
   int ir1abs = ir1 + ir1mean;
   int ir2abs = ir2 + ir2mean;
 
   calcPars(idr, iphi1, ir1abs, iz1, iphi2, ir2abs, iz2, irinv_new, iphi0_new, iz0_new, it_new);
 
-  bool rinvcut = abs(irinv_new) < settings_.rinvcut()*(120.0*(1<<n_rinv_))/phiHG_;
-  bool z0cut = abs(iz0_new) < settings_.z0cut()*(1<<n_z_)/120.0;
-  if (iSeed_ != 0 ) {
-    z0cut = abs(iz0_new) < 1.5*settings_.z0cut()*(1<<n_z_)/120.0;
+  bool rinvcut = abs(irinv_new) < settings_.rinvcut() * (120.0 * (1 << n_rinv_)) / phiHG_;
+  bool z0cut = abs(iz0_new) < settings_.z0cut() * (1 << n_z_) / 120.0;
+  if (iSeed_ != 0) {
+    z0cut = abs(iz0_new) < 1.5 * settings_.z0cut() * (1 << n_z_) / 120.0;
   }
 
-  if (!goodTrackPars(rinvcut, z0cut) ) {
+  if (!goodTrackPars(rinvcut, z0cut)) {
     if (settings_.debugTracklet()) {
       edm::LogVerbatim("Tracklet") << getName() << " Failed rinv or z0 cut";
     }
@@ -567,9 +572,9 @@ bool TrackletCalculatorBase::barrelSeeding(const Stub* innerFPGAStub,
 
   if (settings_.writeMonitorData("TPars")) {
     globals_->ofstream("trackletpars.txt")
-        << "Trackpars " << layerdisk1_ + 1 << "   " << " " << rinv << " " << irinv_new
-        << "   " << phi0 << " " << iphi0_new << "   " << t << " "
-        << it_new << "   " << " " << iz0_new << endl;
+        << "Trackpars " << layerdisk1_ + 1 << "   "
+        << " " << rinv << " " << irinv_new << "   " << phi0 << " " << iphi0_new << "   " << t << " " << it_new << "   "
+        << " " << iz0_new << endl;
   }
 
   Tracklet* tracklet = new Tracklet(settings_,
@@ -633,10 +638,8 @@ bool TrackletCalculatorBase::barrelSeeding(const Stub* innerFPGAStub,
 bool TrackletCalculatorBase::diskSeeding(const Stub* innerFPGAStub,
                                          const L1TStub* innerStub,
                                          const Stub* outerFPGAStub,
-                                         const L1TStub* outerStub, 
-					 bool print) {
-
-
+                                         const L1TStub* outerStub,
+                                         bool print) {
   if (settings_.debugTracklet()) {
     edm::LogVerbatim("Tracklet") << "TrackletCalculator::execute calculate disk seeds";
   }
@@ -713,11 +716,11 @@ bool TrackletCalculatorBase::diskSeeding(const Stub* innerFPGAStub,
   iphi1 <<= (settings_.nphibitsstub(5) - settings_.nphibitsstub(0));
   iphi2 <<= (settings_.nphibitsstub(5) - settings_.nphibitsstub(0));
 
-  //Each of ir1 and ir2 are signed 8 bit integers. idr is signed 9 bit integer  
-  unsigned int idr = ir2-ir1;
+  //Each of ir1 and ir2 are signed 8 bit integers. idr is signed 9 bit integer
+  unsigned int idr = ir2 - ir1;
 
-  unsigned int iz1mean = sign*settings_.izmean(layerdisk1_ - N_LAYER);
-  unsigned int iz2mean = sign*settings_.izmean(layerdisk2_ - N_LAYER);
+  unsigned int iz1mean = sign * settings_.izmean(layerdisk1_ - N_LAYER);
+  unsigned int iz2mean = sign * settings_.izmean(layerdisk2_ - N_LAYER);
 
   int iz1abs = iz1 + iz1mean;
   int iz2abs = iz2 + iz2mean;
@@ -730,24 +733,21 @@ bool TrackletCalculatorBase::diskSeeding(const Stub* innerFPGAStub,
     std::cout << "=======================" << std::endl;
     std::cout << "iphi1, ir1, iz1abs : " << iphi1 << " " << ir1 << " " << iz1abs << std::endl;
     std::cout << "iphi2, ir2, iz2abs : " << iphi2 << " " << ir2 << " " << iz2abs << std::endl;
-    std::cout << "idr irinv iphi0 iz0 it : " << idr << " " << irinv_new << " " << iphi0_new 
-	      << " " << iz0_new << " " << it_new <<std::endl;
+    std::cout << "idr irinv iphi0 iz0 it : " << idr << " " << irinv_new << " " << iphi0_new << " " << iz0_new << " "
+              << it_new << std::endl;
   }
 
-  bool rinvcut = abs(irinv_new) < settings_.rinvcut()*(120.0*(1<<n_rinv_))/phiHG_;
-  bool z0cut = abs(iz0_new) < settings_.z0cut()*(1<<n_z_)/120.0;
+  bool rinvcut = abs(irinv_new) < settings_.rinvcut() * (120.0 * (1 << n_rinv_)) / phiHG_;
+  bool z0cut = abs(iz0_new) < settings_.z0cut() * (1 << n_z_) / 120.0;
 
   if (print) {
-    std::cout << "Pass cuts: " << rinvcut << " " << z0cut << " " << inSector(iphi0_new, irinv_new, phi0, rinv) << std::endl;
-    std::cout << "rinvcut  : " << settings_.rinvmax()*(120.0*(1<<n_rinv_))/phiHG_ << " " << settings_.rinvmax() << " "
-	      << 1.0/((120.0*(1<<n_rinv_))/phiHG_)<<std::endl;
+    std::cout << "Pass cuts: " << rinvcut << " " << z0cut << " " << inSector(iphi0_new, irinv_new, phi0, rinv)
+              << std::endl;
+    std::cout << "rinvcut  : " << settings_.rinvmax() * (120.0 * (1 << n_rinv_)) / phiHG_ << " " << settings_.rinvmax()
+              << " " << 1.0 / ((120.0 * (1 << n_rinv_)) / phiHG_) << std::endl;
   }
-  
-  
 
-
-
-  if (!goodTrackPars(rinvcut, z0cut ))
+  if (!goodTrackPars(rinvcut, z0cut))
     return false;
 
   if (!inSector(iphi0_new, irinv_new, phi0, rinv))
@@ -755,9 +755,8 @@ bool TrackletCalculatorBase::diskSeeding(const Stub* innerFPGAStub,
 
   if (settings_.writeMonitorData("TPars")) {
     globals_->ofstream("trackletparsdisk.txt")
-        << "Trackpars         " << layerdisk1_ - 5 << "   " << rinv << " " << rinv << " "
-        << rinv << "   " << phi0 << " " << phi0 << " " << phi0 << "   " << t
-        << " " << t << " " << t  << "   " << z0 << " " << z0 << " " << z0
+        << "Trackpars         " << layerdisk1_ - 5 << "   " << rinv << " " << rinv << " " << rinv << "   " << phi0
+        << " " << phi0 << " " << phi0 << "   " << t << " " << t << " " << t << "   " << z0 << " " << z0 << " " << z0
         << endl;
   }
 
@@ -804,9 +803,7 @@ bool TrackletCalculatorBase::overlapSeeding(const Stub* innerFPGAStub,
                                             const L1TStub* innerStub,
                                             const Stub* outerFPGAStub,
                                             const L1TStub* outerStub,
-					    bool print) {
-
-
+                                            bool print) {
   //Deal with overlap stubs here
   assert(outerFPGAStub->layerdisk() < N_LAYER);
 
@@ -876,7 +873,7 @@ bool TrackletCalculatorBase::overlapSeeding(const Stub* innerFPGAStub,
   int iz1 = outerFPGAStub->z().value();
 
   //To get global precission
-  int ll = outerFPGAStub->layer().value() + 1; 
+  int ll = outerFPGAStub->layer().value() + 1;
   ir1 = l1t::bitShift(ir1, (8 - settings_.nrbitsstub(ll - 1)));
   iphi1 <<= (settings_.nphibitsstub(5) - settings_.nphibitsstub(0));
   iphi2 <<= (settings_.nphibitsstub(5) - settings_.nphibitsstub(0));
@@ -885,7 +882,7 @@ bool TrackletCalculatorBase::overlapSeeding(const Stub* innerFPGAStub,
 
   int ir1abs = ir1 + ir1mean;
 
-  unsigned int idr = ir2-ir1abs;
+  unsigned int idr = ir2 - ir1abs;
 
   if (idr >= LUT_idrinv_.size()) {
     return false;
@@ -893,7 +890,7 @@ bool TrackletCalculatorBase::overlapSeeding(const Stub* innerFPGAStub,
 
   int iz2mean = settings_.izmean(layerdisk2_ - N_LAYER);
 
-  if (iz1<0) {
+  if (iz1 < 0) {
     iz2mean = -iz2mean;
   }
 
@@ -912,8 +909,8 @@ bool TrackletCalculatorBase::overlapSeeding(const Stub* innerFPGAStub,
     std::cout << "pars: " << irinv_new << " " << iphi0_new << " " << iz0_new << " " << it_new << std::endl;
   }
 
-  bool rinvcut = abs(irinv_new) < settings_.rinvcut()*(120.0*(1<<n_rinv_))/phiHG_;
-  bool z0cut = abs(iz0_new) < settings_.z0cut()*(1<<n_z_)/120.0;
+  bool rinvcut = abs(irinv_new) < settings_.rinvcut() * (120.0 * (1 << n_rinv_)) / phiHG_;
+  bool z0cut = abs(iz0_new) < settings_.z0cut() * (1 << n_z_) / 120.0;
 
   if (!goodTrackPars(rinvcut, z0cut))
     return false;
@@ -923,9 +920,8 @@ bool TrackletCalculatorBase::overlapSeeding(const Stub* innerFPGAStub,
 
   if (settings_.writeMonitorData("TPars")) {
     globals_->ofstream("trackletparsoverlap.txt")
-        << "Trackpars " << layerdisk1_ - 5 << "   " << rinv << " " << irinv_new << " "
-        << phi0 << " " << iphi0_new << "   " << t << " " << it_new << " "
-        << z0 << " " << iz0_new << endl;
+        << "Trackpars " << layerdisk1_ - 5 << "   " << rinv << " " << irinv_new << " " << phi0 << " " << iphi0_new
+        << "   " << t << " " << it_new << " " << z0 << " " << iz0_new << endl;
   }
 
   Tracklet* tracklet = new Tracklet(settings_,

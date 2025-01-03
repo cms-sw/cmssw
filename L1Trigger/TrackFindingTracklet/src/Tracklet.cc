@@ -84,7 +84,10 @@ Tracklet::Tracklet(Settings const& settings,
   ichisqrzfit_.set(-1, 8, false);
 }
 
-void Tracklet::addProjs(Projection projs[N_LAYER + N_DISK]){ // needs to be separate from constructor to allow TPars only calculated in TrackletProcessor
+void Tracklet::addProjs(
+    Projection
+        projs[N_LAYER +
+              N_DISK]) {  // needs to be separate from constructor to allow TPars only calculated in TrackletProcessor
   //Handle projections to the layers
   for (unsigned int i = 0; i < N_LAYER - 2; i++) {
     if (projlayer_[i] == 0)
@@ -342,7 +345,7 @@ std::string Tracklet::fullmatchdiskstr(int disk) {
   const FPGAWord& stubr = resid_[N_LAYER + disk - 1].stubptr()->r();
   const bool isPS = resid_[N_LAYER + disk - 1].stubptr()->isPSmodule();
   std::string oss = tcid.str() + "|" + tmp.str() + "|" + resid_[N_LAYER + disk - 1].fpgastubid().str() + "|" +
-                    (isPS ? "0"+stubr.str() : ("00000000" + stubr.str())) + "|" +
+                    (isPS ? "0" + stubr.str() : ("00000000" + stubr.str())) + "|" +
                     resid_[N_LAYER + disk - 1].fpgaphiresid().str() + "|" +
                     resid_[N_LAYER + disk - 1].fpgarzresid().str();
   return oss;
@@ -617,7 +620,7 @@ const std::string Tracklet::diskstubstr(const unsigned disk) const {
     oss << "1|";  // valid bit
     oss << tmp.str() << "|";
     oss << resid_[N_LAYER + disk].fpgastubid().str() << "|";
-    oss << (isPS ? ("0"+stubr.str()) : ("00000000" + stubr.str())) << "|";
+    oss << (isPS ? ("0" + stubr.str()) : ("00000000" + stubr.str())) << "|";
     oss << resid_[N_LAYER + disk].fpgaphiresid().str() << "|";
     oss << resid_[N_LAYER + disk].fpgarzresid().str();
   }
@@ -629,8 +632,8 @@ std::string Tracklet::trackfitstr() const {
   const unsigned maxNHits = N_LAYER + N_DISK;
   const unsigned nBitsPerHit = 3;
   vector<string> stub(maxNHits);
-  for (unsigned int i = 0; i<maxNHits; i++) {
-    if (i<N_LAYER) {
+  for (unsigned int i = 0; i < maxNHits; i++) {
+    if (i < N_LAYER) {
       //layer
       stub[i] = "0|0000000|0000000000|0000000|000000000000|000000000";
     } else {
@@ -640,7 +643,6 @@ std::string Tracklet::trackfitstr() const {
   }
   string hitmap(maxNHits * nBitsPerHit, '0');
 
-  
   // Assign stub strings for each of the possible projections for each seed.
   // The specific layers/disks for a given seed are determined by the wiring.
   switch (seedIndex()) {
@@ -692,8 +694,8 @@ std::string Tracklet::trackfitstr() const {
       stub[0] = layerstubstr(0);  // L1
       stub[1] = layerstubstr(1);  // L2
 
-      stub[8] = diskstubstr(2);  // D3
-      stub[9] = diskstubstr(3);  // D4
+      stub[8] = diskstubstr(2);   // D3
+      stub[9] = diskstubstr(3);   // D4
       stub[10] = diskstubstr(4);  // D5
 
       break;
@@ -701,16 +703,16 @@ std::string Tracklet::trackfitstr() const {
     case 5:                       // D3D4
       stub[0] = layerstubstr(0);  // L1
 
-      stub[6] = diskstubstr(0);  // D1
-      stub[7] = diskstubstr(1);  // D2
+      stub[6] = diskstubstr(0);   // D1
+      stub[7] = diskstubstr(1);   // D2
       stub[10] = diskstubstr(4);  // D5
 
       break;
 
-    case 6:                      // L1D1
-      stub[7] = diskstubstr(1);  // D2
-      stub[8] = diskstubstr(2);  // D3
-      stub[9] = diskstubstr(3);  // D4
+    case 6:                       // L1D1
+      stub[7] = diskstubstr(1);   // D2
+      stub[8] = diskstubstr(2);   // D3
+      stub[9] = diskstubstr(3);   // D4
       stub[10] = diskstubstr(4);  // D5
 
       break;

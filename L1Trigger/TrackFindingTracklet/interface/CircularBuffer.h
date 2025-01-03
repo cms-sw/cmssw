@@ -35,7 +35,8 @@ namespace trklet {
 
     //near full if writer ptr incremented by 1, 2, or 3 is same as read ptr
     bool nearfull4() const {
-      return (((wptr_ + 1) % size_) == rptr_) || (((wptr_ + 2) % size_) == rptr_) || (((wptr_ + 3) % size_) == rptr_) || (((wptr_ + 4) % size_) == rptr_);
+      return (((wptr_ + 1) % size_) == rptr_) || (((wptr_ + 2) % size_) == rptr_) || (((wptr_ + 3) % size_) == rptr_) ||
+             (((wptr_ + 4) % size_) == rptr_);
     }
 
     //Empty buffer is write ptr is same as read ptr

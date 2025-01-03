@@ -937,7 +937,6 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
   bool print = getName() == "FT_D1D2" && iSector == 3;
   print = false;
 
-  
   iSector_ = iSector;
 
   if (settings_.debugTracklet() && (matches1.size() + matches2.size() + matches3.size() + matches4.size()) > 0) {
@@ -957,8 +956,8 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
   unsigned int countFit = 0;
   unsigned int countAll = 0;
 
-  int istep=-1;
-  
+  int istep = -1;
+
   Tracklet* bestTracklet = nullptr;
   do {
     istep++;
@@ -1064,13 +1063,11 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
       }
     }
 
-
-
     if (bestTracklet == nullptr)
       break;
 
     countAll++;
-    
+
     //Counts total number of matched hits
     int nMatches = 0;
 
@@ -1078,10 +1075,12 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
     int nMatchesUniq = 0;
     bool match = false;
 
-    if (print) std::cout << "istep = " << istep; 
-    
+    if (print)
+      std::cout << "istep = " << istep;
+
     while (indexArray[0] < matches0.size() && matches0[indexArray[0]] == bestTracklet) {
-      if (print) std::cout << " match0";
+      if (print)
+        std::cout << " match0";
       indexArray[0]++;
       nMatches++;
       match = true;
@@ -1091,9 +1090,9 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
       nMatchesUniq++;
     match = false;
 
-
     while (indexArray[1] < matches1.size() && matches1[indexArray[1]] == bestTracklet) {
-      if (print) std::cout << " match1";
+      if (print)
+        std::cout << " match1";
       indexArray[1]++;
       nMatches++;
       match = true;
@@ -1103,9 +1102,9 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
       nMatchesUniq++;
     match = false;
 
-
     while (indexArray[2] < matches2.size() && matches2[indexArray[2]] == bestTracklet) {
-      if (print) std::cout << " match2";
+      if (print)
+        std::cout << " match2";
       indexArray[2]++;
       nMatches++;
       match = true;
@@ -1115,9 +1114,9 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
       nMatchesUniq++;
     match = false;
 
-
     while (indexArray[3] < matches3.size() && matches3[indexArray[3]] == bestTracklet) {
-      if (print) std::cout << " match3";
+      if (print)
+        std::cout << " match3";
       indexArray[3]++;
       nMatches++;
       match = true;
@@ -1127,9 +1126,9 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
       nMatchesUniq++;
     match = false;
 
-
     while (indexArray[4] < matches4.size() && matches4[indexArray[4]] == bestTracklet) {
-      if (print) std::cout << " match4";
+      if (print)
+        std::cout << " match4";
       indexArray[4]++;
       nMatches++;
       match = true;
@@ -1139,9 +1138,9 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
       nMatchesUniq++;
     match = false;
 
-
     while (indexArray[5] < matches5.size() && matches5[indexArray[5]] == bestTracklet) {
-      if (print) std::cout << " match5";
+      if (print)
+        std::cout << " match5";
       indexArray[5]++;
       nMatches++;
       match = true;
@@ -1151,9 +1150,9 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
       nMatchesUniq++;
     match = false;
 
-
     while (indexArray[6] < matches6.size() && matches6[indexArray[6]] == bestTracklet) {
-      if (print) std::cout << " match6";
+      if (print)
+        std::cout << " match6";
       indexArray[6]++;
       nMatches++;
       match = true;
@@ -1163,9 +1162,9 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
       nMatchesUniq++;
     match = false;
 
-
     while (indexArray[7] < matches7.size() && matches7[indexArray[7]] == bestTracklet) {
-      if (print) std::cout << " match7";
+      if (print)
+        std::cout << " match7";
       indexArray[7]++;
       nMatches++;
       match = true;
@@ -1175,9 +1174,9 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
       nMatchesUniq++;
     match = false;
 
-
     while (indexArray[8] < matches8.size() && matches8[indexArray[8]] == bestTracklet) {
-      if (print) std::cout << " match8";
+      if (print)
+        std::cout << " match8";
       indexArray[8]++;
       nMatches++;
       match = true;
@@ -1187,9 +1186,9 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
       nMatchesUniq++;
     match = false;
 
-
     while (indexArray[9] < matches9.size() && matches9[indexArray[9]] == bestTracklet) {
-      if (print) std::cout << " match9";
+      if (print)
+        std::cout << " match9";
       indexArray[9]++;
       nMatches++;
       match = true;
@@ -1199,9 +1198,9 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
       nMatchesUniq++;
     match = false;
 
-
     while (indexArray[10] < matches10.size() && matches10[indexArray[10]] == bestTracklet) {
-      if (print) std::cout << " match10";
+      if (print)
+        std::cout << " match10";
       indexArray[10]++;
       nMatches++;
       match = true;
@@ -1211,13 +1210,12 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
       nMatchesUniq++;
     match = false;
 
-
-
     if (settings_.debugTracklet()) {
       edm::LogVerbatim("Tracklet") << getName() << " : nMatches = " << nMatches << " nMatchesUniq = " << nMatchesUniq;
     }
 
-    if (print) std::cout << " nMatchesUniq = " << nMatchesUniq << std::endl;
+    if (print)
+      std::cout << " nMatchesUniq = " << nMatchesUniq << std::endl;
 
     std::vector<const Stub*> trackstublist;
     std::vector<std::pair<int, int>> stubidslist;

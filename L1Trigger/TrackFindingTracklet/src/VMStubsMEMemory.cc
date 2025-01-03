@@ -31,7 +31,7 @@ void VMStubsMEMemory::writeStubs(bool first, unsigned int iSector) {
 
   for (unsigned int i = 0; i < binnedstubs_.size(); i++) {
     int nbitsrz = (layerdisk_ < N_LAYER) ? 3 : 4;
-    unsigned int newi = 8*(i&((1<<nbitsrz)-1)) + (i>>nbitsrz);
+    unsigned int newi = 8 * (i & ((1 << nbitsrz) - 1)) + (i >> nbitsrz);
     for (unsigned int j = 0; j < binnedstubs_[i].size(); j++) {
       string stub = binnedstubs_[i][j].stubindex().str();
       stub += "|" + binnedstubs_[i][j].bend().str();

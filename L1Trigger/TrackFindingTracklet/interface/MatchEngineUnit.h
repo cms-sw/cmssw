@@ -44,7 +44,8 @@ namespace trklet {
               bool usesecondMinus,
               bool usesecondPlus,
               bool isPSseed,
-              Tracklet* proj, bool print);
+              Tracklet* proj,
+              bool print);
 
     bool empty() const { return candmatches_.empty(); }
 

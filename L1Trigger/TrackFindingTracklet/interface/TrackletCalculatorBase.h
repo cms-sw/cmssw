@@ -103,13 +103,27 @@ namespace trklet {
                        double& phider,
                        double& rder);
 
+    void projlayer(int ir,
+                   int irinv,
+                   int iphi0,
+                   int it,
+                   int iz0,
+                   int& iz,
+                   int& iphi);  // lower case to differentiate from ProjectionCalculator functions
 
-    void projlayer(int ir, int irinv, int iphi0, int it,int iz0, int &iz, int &iphi); // lower case to differentiate from ProjectionCalculator functions
+    void projdisk(int iz, int irinv, int iphi0, int it, int iz0, int& ir, int& iphi, int& iderphi, int& iderr);
 
-    void projdisk(int iz, int irinv, int iphi0, int it,int iz0, int &ir, int &iphi, int &iderphi, int &iderr);
-
-    void calcPars(unsigned int idr, int iphi1, int ir1, int iz1, int iphi2, int ir2, int iz2,
-		  int &irinv_new, int &iphi0_new, int &iz0_new, int &it_new);
+    void calcPars(unsigned int idr,
+                  int iphi1,
+                  int ir1,
+                  int iz1,
+                  int iphi2,
+                  int ir2,
+                  int iz2,
+                  int& irinv_new,
+                  int& iphi0_new,
+                  int& iz0_new,
+                  int& it_new);
 
     void addDiskProj(Tracklet* tracklet, int disk);
     bool addLayerProj(Tracklet* tracklet, int layer);
@@ -129,13 +143,12 @@ namespace trklet {
                      const L1TStub* innerStub,
                      const Stub* outerFPGAStub,
                      const L1TStub* outerStub,
-		     bool print =  false);
+                     bool print = false);
     bool overlapSeeding(const Stub* innerFPGAStub,
                         const L1TStub* innerStub,
                         const Stub* outerFPGAStub,
                         const L1TStub* outerStub,
-			bool print =  false);
-
+                        bool print = false);
 
   protected:
     unsigned int iSeed_;
@@ -147,8 +160,6 @@ namespace trklet {
     unsigned int iSector_;
     double phimin_, phimax_;
     double phiHG_;
-
-
 
     TrackletParametersMemory* trackletpars_;
 
@@ -165,7 +176,7 @@ namespace trklet {
     int n_t_;
     int n_phidisk_;
     int n_rdisk_;
-  
+
     //Constants used for tracklet parameter calculations
     int n_Deltar_;
     int n_delta0_;
@@ -177,7 +188,7 @@ namespace trklet {
     int n_r6_;
     int n_delta02_;
     int n_x6_;
-    int n_HG_;  
+    int n_HG_;
 
     //Constants used for projectison to layers
     int n_s_;
@@ -188,11 +199,9 @@ namespace trklet {
     int n_y_;
     int n_x_;
     int n_xx6_;
-  
+
     std::vector<int> LUT_itinv_;
     std::vector<int> LUT_idrinv_;
-
-
   };
 
 };  // namespace trklet

@@ -325,7 +325,7 @@ void VMRouterCM::execute(unsigned int) {
       int melutOld = meTableOld_.lookup((indexzOld << nbitsrfinebintable_) + indexrOld);
 
       assert(melutOld >= 0);
-      
+
       //Fill the TE VM memories
       if (layerdisk_ >= N_LAYER && (!stub->isPSmodule()))
         continue;

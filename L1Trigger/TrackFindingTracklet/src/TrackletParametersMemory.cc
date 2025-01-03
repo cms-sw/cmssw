@@ -8,20 +8,18 @@
 using namespace std;
 using namespace trklet;
 
-TrackletParametersMemory::TrackletParametersMemory(string name, Settings const& settings)
-    : MemoryBase(name, settings) {
-  npage_ = name.size()-9;
+TrackletParametersMemory::TrackletParametersMemory(string name, Settings const& settings) : MemoryBase(name, settings) {
+  npage_ = name.size() - 9;
   tracklets_.resize(npage_);
 }
 
 void TrackletParametersMemory::clean() {
-
   //This is where we delete the tracklets that were created. As tracklet as stored in both the TPAR and MPAR memories
   //we will onlu delete once in the TPAR memory
   if (name_[0] == 'T') {
-    for (unsigned int page = 0 ; page < npage_ ; page++ ){
+    for (unsigned int page = 0; page < npage_; page++) {
       for (auto& tracklet : tracklets_[page]) {
-	delete tracklet;
+        delete tracklet;
       }
     }
   }
@@ -42,7 +40,6 @@ void TrackletParametersMemory::writeTPAR(bool first, unsigned int iSector) {
   openfile(out_, first, dirTP, fname, __FILE__, __LINE__);
 
   out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
-
 
   for (unsigned int page = 0; page < tracklets_.size(); page++) {
     for (unsigned int j = 0; j < tracklets_[page].size(); j++) {

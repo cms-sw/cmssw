@@ -15,26 +15,26 @@ namespace trklet {
 
   class ProjectionCalculator : public ProcessBase {
   public:
-    ProjectionCalculator(std::string name, Settings const& settings, Globals* global);
+    ProjectionCalculator(std::string name, Settings const &settings, Globals *global);
 
     ~ProjectionCalculator() override = default;
 
-    void addOutput(MemoryBase* memory, std::string output) override;
-    void addInput(MemoryBase* memory, std::string input) override;
+    void addOutput(MemoryBase *memory, std::string output) override;
+    void addInput(MemoryBase *memory, std::string input) override;
 
     void execute();
 
-    void projLayer(int ir, int irinv, int iphi0, int it,int iz0, int &iz, int &iphi);
+    void projLayer(int ir, int irinv, int iphi0, int it, int iz0, int &iz, int &iphi);
 
-    void projDisk(int iz, int irinv, int iphi0, int it,int iz0, int &ir, int &iphi, int &iderphi, int &iderr);
+    void projDisk(int iz, int irinv, int iphi0, int it, int iz0, int &ir, int &iphi, int &iderphi, int &iderr);
 
   private:
+    std::vector<std::vector<std::vector<TrackletProjectionsMemory *> > >
+        outputproj_;  // projs now stored by layer/disk & phi region
 
-    std::vector<std::vector<std::vector<TrackletProjectionsMemory*> > > outputproj_; // projs now stored by layer/disk & phi region 
-
-    std::vector<TrackletParametersMemory*> inputpars_;
-    std::vector<TrackletParametersMemory*> outputpars_;
-    std::vector<std::string > projnames_; 
+    std::vector<TrackletParametersMemory *> inputpars_;
+    std::vector<TrackletParametersMemory *> outputpars_;
+    std::vector<std::string> projnames_;
 
     //Constants for coordinates and track parameter definitions
     int n_phi_;
@@ -61,7 +61,6 @@ namespace trklet {
     double phiHG_;
 
     std::vector<int> LUT_itinv_;
-
   };
 
 };  // namespace trklet

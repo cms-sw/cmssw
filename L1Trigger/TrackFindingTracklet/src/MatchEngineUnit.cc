@@ -48,7 +48,8 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
                            bool usesecondMinus,
                            bool usesecondPlus,
                            bool isPSseed,
-                           Tracklet* proj, bool print) {
+                           Tracklet* proj,
+                           bool print) {
   vmstubsmemory_ = vmstubsmemory;
   idle_ = false;
   nrzbins_ = nrzbins;
@@ -80,7 +81,7 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
   if (print) {
     std::cout << "MEU Init: " << imeu_ << " " << projfinerz << " " << projfinephi << std::endl;
   }
-  
+
   good__ = false;
 }
 
@@ -108,7 +109,8 @@ void MatchEngineUnit::step(bool print) {
   vmstub__ = vmstubsmemory_->getVMStubMEBin(slot, istub_);
 
   if (print) {
-    std::cout << "Read vmstub MEU "<<imeu_<<" "<<slot<<" "<<istub_<<" "<<vmstub__.bend().value() << std::endl;
+    std::cout << "Read vmstub MEU " << imeu_ << " " << slot << " " << istub_ << " " << vmstub__.bend().value()
+              << std::endl;
   }
 
   rzbin__ = rzbin_ + use_[iuse_].first;
@@ -185,9 +187,10 @@ void MatchEngineUnit::processPipeline(bool print) {
     }
 
     if (print) {
-      std::cout << "MEU: "<< imeu_ << " " << " " << " " << index << " " 
-		<< luttable_.lookup(index) << " " << pass << " " << dphicut << " "
-		<< stubfinephi << " " << projfinephi____ << std::endl;
+      std::cout << "MEU: " << imeu_ << " "
+                << " "
+                << " " << index << " " << luttable_.lookup(index) << " " << pass << " " << dphicut << " " << stubfinephi
+                << " " << projfinephi____ << std::endl;
     }
 
     bool goodpair = (pass && dphicut) && luttable_.lookup(index);
@@ -196,7 +199,7 @@ void MatchEngineUnit::processPipeline(bool print) {
 
     if (goodpair) {
       if (print) {
-	std::cout << "Write tp match buffer : " << imeu_ << " " <<candmatches_.rptr() << std::endl;
+        std::cout << "Write tp match buffer : " << imeu_ << " " << candmatches_.rptr() << std::endl;
       }
       candmatches_.store(tmppair);
     }
@@ -210,7 +213,6 @@ void MatchEngineUnit::processPipeline(bool print) {
   good____ = good__;
   vmstub____ = vmstub__;
   rzbin____ = rzbin__;
-
 }
 
 void MatchEngineUnit::reset() {

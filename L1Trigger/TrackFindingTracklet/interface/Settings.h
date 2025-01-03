@@ -103,9 +103,7 @@ namespace trklet {
     unsigned int nbendbitsmedisk() const { return nbendbitsmedisk_; }
 
     bool useSeed(unsigned int iSeed) const { return useseeding_.find(iSeed) != useseeding_.end(); }
-    unsigned int nbitsvmte(unsigned int inner, unsigned int iSeed) const {
-      return nbitsvmtecm_[inner][iSeed];
-    }
+    unsigned int nbitsvmte(unsigned int inner, unsigned int iSeed) const { return nbitsvmtecm_[inner][iSeed]; }
     unsigned int nvmte(unsigned int inner, unsigned int iSeed) const { return (1 << nbitsvmte(inner, iSeed)); }
 
     unsigned int nbitsvmme(unsigned int layerdisk) const { return nbitsvmme_[layerdisk]; }
@@ -139,9 +137,7 @@ namespace trklet {
     double half2SmoduleWidth() const { return half2SmoduleWidth_; }
 
     int nfinephi(unsigned int inner, unsigned int iSeed) const { return nfinephi_[inner][iSeed]; }
-    double nphireg(unsigned int inner, unsigned int iSeed) const {
-      return nphiregcm_[inner][iSeed];
-    }
+    double nphireg(unsigned int inner, unsigned int iSeed) const { return nphiregcm_[inner][iSeed]; }
     double lutwidthtab(unsigned int inner, unsigned int iSeed) const { return lutwidthtab_[inner][iSeed]; }
     double lutwidthtabextended(unsigned int inner, unsigned int iSeed) const {
       return lutwidthtabextended_[inner][iSeed];
@@ -546,7 +542,8 @@ namespace trklet {
 
     std::array<unsigned int, N_LAYER + N_DISK> nbitsallstubs_{{3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}};
     std::array<unsigned int, N_LAYER + N_DISK> nbitsvmme_{{2, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2}};
-    std::array<std::array<unsigned int, N_SEED>, 3> nbitsvmte_{  //FIXME unused?
+    std::array<std::array<unsigned int, N_SEED>, 3> nbitsvmte_{
+        //FIXME unused?
         {{{2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 3, 2}},  // (3 = #stubs/triplet, only row 1+2 used for tracklet)
          {{3, 2, 3, 3, 2, 2, 2, 2, 3, 3, 2, 2}},
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1}}}};
@@ -680,7 +677,8 @@ namespace trklet {
 
     //These are the number of bits used for the VM regions in the TE by seedindex
     //FIXME not independed nbitsvmte
-    std::array<std::array<unsigned int, N_SEED>, 3> nphireg_{  //FIXME unused?
+    std::array<std::array<unsigned int, N_SEED>, 3> nphireg_{
+        //FIXME unused?
         {{{5, 4, 4, 4, 4, 4, 4, 3, 4, 4, 5, 4}},    //inner
          {{5, 4, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4}},    //outer
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4}}}};  //outermost (triplets only)
