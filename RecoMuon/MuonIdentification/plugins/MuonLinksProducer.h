@@ -17,23 +17,26 @@
 //
 
 // user include files
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class MuonLinksProducer : public edm::global::EDProducer<> {
 public:
   explicit MuonLinksProducer(const edm::ParameterSet&);
-
-  ~MuonLinksProducer() override;
+  ~MuonLinksProducer() override = default;
 
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
-  edm::InputTag m_inputCollection;
-  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  const edm::InputTag m_inputCollection;
+  const edm::EDGetTokenT<reco::MuonCollection> muonToken_;
 };
 #endif
