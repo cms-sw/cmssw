@@ -104,10 +104,7 @@ namespace trklet {
 
     bool useSeed(unsigned int iSeed) const { return useseeding_.find(iSeed) != useseeding_.end(); }
     unsigned int nbitsvmte(unsigned int inner, unsigned int iSeed) const {
-      if (combined_) {
-        return nbitsvmtecm_[inner][iSeed];
-      }
-      return nbitsvmte_[inner][iSeed];
+      return nbitsvmtecm_[inner][iSeed];
     }
     unsigned int nvmte(unsigned int inner, unsigned int iSeed) const { return (1 << nbitsvmte(inner, iSeed)); }
 
@@ -143,10 +140,7 @@ namespace trklet {
 
     int nfinephi(unsigned int inner, unsigned int iSeed) const { return nfinephi_[inner][iSeed]; }
     double nphireg(unsigned int inner, unsigned int iSeed) const {
-      if (combined_) {
-        return nphiregcm_[inner][iSeed];
-      }
-      return nphireg_[inner][iSeed];
+      return nphiregcm_[inner][iSeed];
     }
     double lutwidthtab(unsigned int inner, unsigned int iSeed) const { return lutwidthtab_[inner][iSeed]; }
     double lutwidthtabextended(unsigned int inner, unsigned int iSeed) const {
@@ -242,8 +236,7 @@ namespace trklet {
 
     std::string geomext() const {
       std::string geo = extended_ ? "hourglassExtended" : "hourglass";
-      if (combined_)
-        geo += "Combined";
+      geo += "Combined";
       return geo;
     }
 
@@ -279,8 +272,6 @@ namespace trklet {
     const std::array<bool, N_LAYER + N_DISK>& layersDisksDuplicatedWeightedProjBalance() const {
       return layersDisksDuplicatedWeightedProjBalance_;
     }
-    bool combined() const { return combined_; }
-    void setCombined(bool combined) { combined_ = combined; }
     bool reduced() const { return reduced_; }
     void setReduced(bool reduced) { reduced_ = reduced; }
     bool inventStubs() const { return inventStubs_; }
@@ -555,7 +546,7 @@ namespace trklet {
 
     std::array<unsigned int, N_LAYER + N_DISK> nbitsallstubs_{{3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}};
     std::array<unsigned int, N_LAYER + N_DISK> nbitsvmme_{{2, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2}};
-    std::array<std::array<unsigned int, N_SEED>, 3> nbitsvmte_{
+    std::array<std::array<unsigned int, N_SEED>, 3> nbitsvmte_{  //FIXME unused?
         {{{2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 3, 2}},  // (3 = #stubs/triplet, only row 1+2 used for tracklet)
          {{3, 2, 3, 3, 2, 2, 2, 2, 3, 3, 2, 2}},
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1}}}};
@@ -689,12 +680,11 @@ namespace trklet {
 
     //These are the number of bits used for the VM regions in the TE by seedindex
     //FIXME not independed nbitsvmte
-    std::array<std::array<unsigned int, N_SEED>, 3> nphireg_{
+    std::array<std::array<unsigned int, N_SEED>, 3> nphireg_{  //FIXME unused?
         {{{5, 4, 4, 4, 4, 4, 4, 3, 4, 4, 5, 4}},    //inner
          {{5, 4, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4}},    //outer
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4}}}};  //outermost (triplets only)
 
-    //For combined modules
     std::array<std::array<unsigned int, N_SEED>, 3> nphiregcm_{
         {{{5, 4, 4, 4, 4, 4, 4, 3, 4, 4, 5, 4}},    //inner
          {{5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4}},    //outer
@@ -1044,13 +1034,6 @@ namespace trklet {
     bool extended_{false};       // turn on displaced tracking
     bool reduced_{false};        // use reduced (Summer Chain) config
     bool inventStubs_{false};    // invent seeding stub coordinates based on tracklet traj
-
-    // Use combined TP (TE+TC) & MP (PR+ME+MC) config (with prompt tracking)
-    bool combined_{true};
-    // N.B. For extended tracking, this combined_ is overridden by python cfg
-    // to false, but combined modules are nonetheless used by default.
-    // If you don't want them, edit l1tTTTracksFromTrackletEmulation_cfi.py
-    // to refer to *_hourglassExtended.dat .
 
     // Use chain with duplicated MPs for L3,L4 to reduce truncation issue
     // Balances load from projections roughly in half for each of the two MPs

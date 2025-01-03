@@ -196,20 +196,19 @@ std::string Tracklet::trackletparstr() {
     return oss;
   } else {
     std::string str = "";
-    if (settings_.combined()) {
-      if (seedIndex() == Seed::L1D1 || seedIndex() == Seed::L2D1) {
-        str += outerFPGAStub_->phiregionstr() + "|";
-      } else {
-        str += innerFPGAStub_->phiregionstr() + "|";
-      }
+    if (seedIndex() == Seed::L1D1 || seedIndex() == Seed::L2D1) {
+      str += outerFPGAStub_->phiregionstr() + "|";
+    } else {
+      str += innerFPGAStub_->phiregionstr() + "|";
     }
     str += innerFPGAStub_->stubindex().str() + "|";
     if (middleFPGAStub_) {
       str += middleFPGAStub_->stubindex().str() + "|";
     }
     str += outerFPGAStub_->stubindex().str() + "|" + fpgapars_.rinv().str() + "|" + fpgapars_.phi0().str() + "|";
-    if (middleFPGAStub_)
+    if (middleFPGAStub_) {
       str += fpgapars_.d0().str() + "|";
+    }
     str += fpgapars_.z0().str() + "|" + fpgapars_.t().str();
     return str;
   }

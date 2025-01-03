@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////
 // MatchProcessor
 //
-// This module is the combined version of the PR+ME+MC
+// This module is the combines the old PR+ME+MC modules
 // See more in execute()
 //
 // Variables such as `best_ideltaphi_barrel` store the "global"

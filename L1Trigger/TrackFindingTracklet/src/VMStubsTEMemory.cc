@@ -56,7 +56,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin, int ivmte, bool combin
   //If the pt of the stub is consistent with the allowed pt of tracklets
   //in that can be formed in this VM and the other VM used in the TE.
 
-  if (settings_.combined() && combined) {
+  if (combined) {
     if (disk_ > 0) {
       assert(vmstub.stub()->isPSmodule());
     }

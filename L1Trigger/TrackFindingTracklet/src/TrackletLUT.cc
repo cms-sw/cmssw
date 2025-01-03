@@ -235,7 +235,7 @@ void TrackletLUT::initmatchcut(unsigned int layerdisk, MatchType type, unsigned 
     }
   }
 
-  name_ = settings_.combined() ? "MP_" : "MC_";
+  name_ = "MP_";
 
   if (type == barrelphi) {
     nbits_ = 10;
@@ -845,7 +845,7 @@ void TrackletLUT::initProjectionBend(double k_phider,
 
   positive_ = false;
   nbits_ = 5;
-  name_ = settings_.combined() ? "MP_" : "PR_";
+  name_ = "MP_";
   name_ += "ProjectionBend_" + TrackletConfigBuilder::LayerName(N_LAYER + idisk) + ".tab";
 
   writeTable();
@@ -1031,7 +1031,7 @@ void TrackletLUT::initVMRTable(unsigned int layerdisk, VMRTableType type, int re
       // VMRouterCM and TrackletProcessorDisplaced currently use the older LUTs
       // that were used with the non-combined modules. Once these modules are
       // updated, this extra flag can be removed.
-      if (settings_.combined() && combined) {
+      if (combined) {
         int iznew = izbin - (1 << (zbits - 1));
         if (iznew < 0)
           iznew += (1 << zbits);
@@ -1124,7 +1124,7 @@ void TrackletLUT::initVMRTable(unsigned int layerdisk, VMRTableType type, int re
   // VMRouterCM and TrackletProcessorDisplaced currently use the older LUTs
   // that were used with the non-combined modules. Once these modules are
   // updated, this extra flag can be removed.
-  if (settings_.combined() && combined) {
+  if (combined) {
     if (type == VMRTableType::me) {
       nbits_ = 2 * settings_.NLONGVMBITS();
       positive_ = false;
