@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include <chrono>
+#include <memory>
 
 // ================================================================================
 
@@ -156,7 +157,7 @@ namespace cond {
 }  // namespace cond
 
 cond::UntypedPayloadProxy::UntypedPayloadProxy(Session& session) : m_session(session) {
-  m_data.reset(new pimpl);
+  m_data = std::make_shared<pimpl>();
   m_data->current.clear();
 }
 

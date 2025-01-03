@@ -396,7 +396,7 @@ void MillePedeAlignmentAlgorithm::terminate() {
     std::string filesForLogOutput;
     for (const auto &file : files)
       filesForLogOutput += " " + file + ",";
-    if (filesForLogOutput.length() != 0)
+    if (!filesForLogOutput.empty())
       filesForLogOutput.pop_back();
     edm::LogInfo("Alignment") << "Based on the config parameter mergeBinaryFiles, using the following "
                               << "files as input (assigned weights are indicated by ' -- <weight>'):"
