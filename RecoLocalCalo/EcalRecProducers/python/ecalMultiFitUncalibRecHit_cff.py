@@ -103,3 +103,9 @@ alpaka.toReplaceWith(ecalMultiFitUncalibRecHitTask, cms.Task(
   # ECAL multifit running on CPU, or convert the uncalibrated rechits from SoA to legacy format
   ecalMultiFitUncalibRecHit,
 ))
+
+# for alpaka validation compare the legacy CPU module with the alpaka module
+from Configuration.ProcessModifiers.alpakaValidationEcal_cff import alpakaValidationEcal
+alpakaValidationEcal.toModify(ecalMultiFitUncalibRecHit, cpu = ecalMultiFitUncalibRecHitCPU)
+alpakaValidationEcal.toModify(ecalMultiFitUncalibRecHit, cuda = _ecalUncalibRecHitSoAToLegacy.clone())
+
