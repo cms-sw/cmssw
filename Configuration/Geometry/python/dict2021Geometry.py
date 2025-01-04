@@ -1765,7 +1765,7 @@ muonDict = {
             'Geometry/MuonCommonData/data/rpcf/2025/v1/rpcf.xml',
             'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
             'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
-            'Geometry/MuonCommonData/data/gem21/2025/v1/gem21.xml',
+            'Geometry/MuonCommonData/data/gem21/2025/v2/gem21.xml',
             'Geometry/MuonCommonData/data/csc/2021/v3/csc.xml',
             'Geometry/MuonCommonData/data/mfshield/2017/v2/mfshield.xml',
         ],
