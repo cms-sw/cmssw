@@ -2472,7 +2472,8 @@ void PlotHistCorrFactor(char* infile,
   }
 }
 
-void PlotHistCorrAsymmetry(char* infile, std::string text, std::string prefixF = "", int depth = -1, int iformat = 0, int save = 0) {
+void PlotHistCorrAsymmetry(
+    char* infile, std::string text, std::string prefixF = "", int depth = -1, int iformat = 0, int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
   double scale(1.0);
@@ -2494,7 +2495,7 @@ void PlotHistCorrAsymmetry(char* infile, std::string text, std::string prefixF =
   double dy(0);
   int maxd = (depth < 0) ? maxdepth : 1;
   for (int j = 0; j < maxd; ++j) {
-    int dep =  (depth < 0) ? (j + 1) : depth;
+    int dep = (depth < 0) ? (j + 1) : depth;
     sprintf(name, "hd%d", dep);
     TObject* ob = gROOT->FindObject(name);
     if (ob)
@@ -2546,7 +2547,7 @@ void PlotHistCorrAsymmetry(char* infile, std::string text, std::string prefixF =
   TLegend* legend = new TLegend(0.60, yl, 0.90, yl + 0.035 * hists.size());
   legend->SetFillColor(kWhite);
   for (unsigned int k = 0; k < hists.size(); ++k) {
-    int dep =  (depth < 0) ? (k + 1) : depth;
+    int dep = (depth < 0) ? (k + 1) : depth;
     if (k == 0)
       hists[k]->Draw("");
     else
