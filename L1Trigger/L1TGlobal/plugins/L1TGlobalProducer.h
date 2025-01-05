@@ -43,22 +43,18 @@ class TriggerMenu;
 class L1TGlobalProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1TGlobalProducer(const edm::ParameterSet&);
-  ~L1TGlobalProducer() override;
+  ~L1TGlobalProducer() override = default;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
+
+  void produce(edm::Event& iEvent, const edm::EventSetup& iEventSetup) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  /// cached stuff
-
-  /// stable parameters
-  const L1TGlobalParameters* m_l1GtStablePar;
-  unsigned long long m_l1GtParCacheID;
-
   // trigger menu
   std::unique_ptr<TriggerMenu> m_l1GtMenu;
-  unsigned long long m_l1GtMenuCacheID;
+  L1TUtmTriggerMenu const* m_utml1GtMenu;
 
   // number of physics triggers
   unsigned int m_numberPhysTriggers;
@@ -97,8 +93,6 @@ private:
 
   const std::vector<std::vector<double>>* m_prescaleFactorsAlgoTrig;
   std::vector<std::vector<double>> m_initialPrescaleFactorsAlgoTrig;
-
-  uint m_currentLumi;
 
   /// trigger masks & veto masks
   const L1GtTriggerMask* m_l1GtTmAlgo;
@@ -184,7 +178,7 @@ private:
   bool m_getPrescaleColumnFromData;
   bool m_requireMenuToMatchAlgoBlkInput;
   edm::InputTag m_algoblkInputTag;
-  edm::EDGetToken m_algoblkInputToken;
+  edm::EDGetTokenT<BXVector<GlobalAlgBlk>> m_algoblkInputToken;
 
   edm::ESGetToken<L1TGlobalParameters, L1TGlobalParametersRcd> m_l1GtStableParToken;
   edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1GtMenuToken;

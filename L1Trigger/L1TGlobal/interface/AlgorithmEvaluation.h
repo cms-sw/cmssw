@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <map>
+#include <memory>
 #include <queue>
 #include <stack>
 #include <string>
@@ -55,9 +56,7 @@ namespace l1t {
     // virtual ~AlgorithmEvaluation();
 
     //typedef std::map<std::string, ConditionEvaluation*> ConditionEvaluationMap;
-    typedef std::unordered_map<std::string, ConditionEvaluation*> ConditionEvaluationMap;
-    typedef ConditionEvaluationMap::const_iterator CItEvalMap;
-    typedef ConditionEvaluationMap::iterator ItEvalMap;
+    typedef std::unordered_map<std::string, std::unique_ptr<ConditionEvaluation>> ConditionEvaluationMap;
 
   public:
     /// get / set the result of the algorithm

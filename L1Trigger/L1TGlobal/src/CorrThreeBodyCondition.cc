@@ -45,18 +45,21 @@ l1t::CorrThreeBodyCondition::CorrThreeBodyCondition(const GlobalCondition* corrT
                                                     const GlobalCondition* cond0Condition,
                                                     const GlobalCondition* cond1Condition,
                                                     const GlobalCondition* cond2Condition,
-                                                    const GlobalBoard* ptrGTB)
+                                                    const GlobalBoard* ptrGTB,
+                                                    const GlobalScales* ptrGS)
     : ConditionEvaluation(),
       m_gtCorrelationThreeBodyTemplate(static_cast<const CorrelationThreeBodyTemplate*>(corrTemplate)),
       m_gtCond0(cond0Condition),
       m_gtCond1(cond1Condition),
       m_gtCond2(cond2Condition),
-      m_uGtB(ptrGTB) {}
+      m_uGtB(ptrGTB),
+      m_gtScales(ptrGS) {}
 
 // copy constructor
 void l1t::CorrThreeBodyCondition::copy(const l1t::CorrThreeBodyCondition& cp) {
   m_gtCorrelationThreeBodyTemplate = cp.gtCorrelationThreeBodyTemplate();
   m_uGtB = cp.getuGtB();
+  m_gtScales = cp.getScales();
 
   m_condMaxNumberObjects = cp.condMaxNumberObjects();
   m_condLastResult = cp.condLastResult();

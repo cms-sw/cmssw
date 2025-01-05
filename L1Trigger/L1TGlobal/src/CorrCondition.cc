@@ -50,17 +50,20 @@ l1t::CorrCondition::CorrCondition() : ConditionEvaluation() {}
 l1t::CorrCondition::CorrCondition(const GlobalCondition* corrTemplate,
                                   const GlobalCondition* cond0Condition,
                                   const GlobalCondition* cond1Condition,
-                                  const GlobalBoard* ptrGTB)
+                                  const GlobalBoard* ptrGTB,
+                                  const GlobalScales* ptrGS)
     : ConditionEvaluation(),
       m_gtCorrelationTemplate(static_cast<const CorrelationTemplate*>(corrTemplate)),
       m_gtCond0(cond0Condition),
       m_gtCond1(cond1Condition),
-      m_uGtB(ptrGTB) {}
+      m_uGtB(ptrGTB),
+      m_gtScales(ptrGS) {}
 
 // copy constructor
 void l1t::CorrCondition::copy(const l1t::CorrCondition& cp) {
   m_gtCorrelationTemplate = cp.gtCorrelationTemplate();
   m_uGtB = cp.getuGtB();
+  m_gtScales = cp.getScales();
 
   m_condMaxNumberObjects = cp.condMaxNumberObjects();
   m_condLastResult = cp.condLastResult();
