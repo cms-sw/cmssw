@@ -38,6 +38,17 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
 
   if (dbe) {
     // Find all monitor elements for histograms
+    MonitorElement *meN_clus_barrel = dbe->get(topFolderName_ + "/EfficiencyIngredients/gen_clusters_if_stub_barrel");
+    MonitorElement *meD_clus_barrel = dbe->get(topFolderName_ + "/EfficiencyIngredients/gen_clusters_barrel");
+    MonitorElement *meN_clus_zoom_barrel =
+        dbe->get(topFolderName_ + "/EfficiencyIngredients/gen_clusters_if_stub_zoom_barrel");
+    MonitorElement *meD_clus_zoom_barrel = dbe->get(topFolderName_ + "/EfficiencyIngredients/gen_clusters_zoom_barrel");
+    MonitorElement *meN_clus_endcaps = dbe->get(topFolderName_ + "/EfficiencyIngredients/gen_clusters_if_stub_endcaps");
+    MonitorElement *meD_clus_endcaps = dbe->get(topFolderName_ + "/EfficiencyIngredients/gen_clusters_endcaps");
+    MonitorElement *meN_clus_zoom_endcaps =
+        dbe->get(topFolderName_ + "/EfficiencyIngredients/gen_clusters_if_stub_zoom_endcaps");
+    MonitorElement *meD_clus_zoom_endcaps =
+        dbe->get(topFolderName_ + "/EfficiencyIngredients/gen_clusters_zoom_endcaps");
     MonitorElement *meN_eta = dbe->get(topFolderName_ + "/EfficiencyIngredients/match_tp_eta");
     MonitorElement *meD_eta = dbe->get(topFolderName_ + "/EfficiencyIngredients/tp_eta");
     MonitorElement *meN_pt = dbe->get(topFolderName_ + "/EfficiencyIngredients/match_tp_pt");
@@ -115,6 +126,122 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
     MonitorElement *meresd0_eta1p2to1p6 = dbe->get(topFolderName_ + "/ResolutionIngredients/resd0_eta1p2to1p6");
     MonitorElement *meresd0_eta1p6to2 = dbe->get(topFolderName_ + "/ResolutionIngredients/resd0_eta1p6to2");
     MonitorElement *meresd0_eta2to2p4 = dbe->get(topFolderName_ + "/ResolutionIngredients/resd0_eta2to2p4");
+
+    if (meN_clus_barrel && meD_clus_barrel) {
+      // Get the numerator and denominator histograms
+      TH1F *numerator = meN_clus_barrel->getTH1F();
+      TH1F *denominator = meD_clus_barrel->getTH1F();
+      numerator->Sumw2();
+      denominator->Sumw2();
+
+      // Set the current directory
+      dbe->setCurrentFolder(topFolderName_ + "/FinalEfficiency");
+
+      // Book the new histogram to contain the results
+      MonitorElement *me_effic_clus_barrel = ibooker.book1D("StubEfficiencyBarrel",
+                                                            "Stub Efficiency Barrel",
+                                                            numerator->GetNbinsX(),
+                                                            numerator->GetXaxis()->GetXmin(),
+                                                            numerator->GetXaxis()->GetXmax());
+
+      // Calculate the efficiency
+      me_effic_clus_barrel->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
+      me_effic_clus_barrel->setAxisTitle("tracking particle pT [GeV]");
+      me_effic_clus_barrel->getTH1F()->GetYaxis()->SetTitle("Efficiency");
+      me_effic_clus_barrel->getTH1F()->SetMaximum(1.1);
+      me_effic_clus_barrel->getTH1F()->SetMinimum(0.0);
+      me_effic_clus_barrel->getTH1F()->SetStats(false);
+    }  // if ME found
+    else {
+      edm::LogWarning("DataNotFound") << "Monitor elements for stub efficiency barrel cannot be found!\n";
+    }
+
+    if (meN_clus_zoom_barrel && meD_clus_zoom_barrel) {
+      // Get the numerator and denominator histograms
+      TH1F *numerator_zoom = meN_clus_zoom_barrel->getTH1F();
+      TH1F *denominator_zoom = meD_clus_zoom_barrel->getTH1F();
+      numerator_zoom->Sumw2();
+      denominator_zoom->Sumw2();
+
+      // Set the current directory
+      dbe->setCurrentFolder(topFolderName_ + "/FinalEfficiency");
+
+      // Book the new histogram to contain the results
+      MonitorElement *me_effic_clus_zoom_barrel = ibooker.book1D("StubEfficiencyZoomBarrel",
+                                                                 "Stub Efficiency Zoom Barrel",
+                                                                 numerator_zoom->GetNbinsX(),
+                                                                 numerator_zoom->GetXaxis()->GetXmin(),
+                                                                 numerator_zoom->GetXaxis()->GetXmax());
+
+      // Calculate the efficiency
+      me_effic_clus_zoom_barrel->getTH1F()->Divide(numerator_zoom, denominator_zoom, 1., 1., "B");
+      me_effic_clus_zoom_barrel->setAxisTitle("tracking particle pT [GeV]");
+      me_effic_clus_zoom_barrel->getTH1F()->GetYaxis()->SetTitle("Efficiency");
+      me_effic_clus_zoom_barrel->getTH1F()->SetMaximum(1.1);
+      me_effic_clus_zoom_barrel->getTH1F()->SetMinimum(0.0);
+      me_effic_clus_zoom_barrel->getTH1F()->SetStats(false);
+    }  // if ME found
+    else {
+      edm::LogWarning("DataNotFound") << "Monitor elements for stub zoom barrel efficiency cannot be found!\n";
+    }
+
+    if (meN_clus_endcaps && meD_clus_endcaps) {
+      // Get the numerator and denominator histograms
+      TH1F *numerator = meN_clus_endcaps->getTH1F();
+      TH1F *denominator = meD_clus_endcaps->getTH1F();
+      numerator->Sumw2();
+      denominator->Sumw2();
+
+      // Set the current directory
+      dbe->setCurrentFolder(topFolderName_ + "/FinalEfficiency");
+
+      // Book the new histogram to contain the results
+      MonitorElement *me_effic_clus_endcaps = ibooker.book1D("StubEfficiencyEndcaps",
+                                                             "Stub Efficiency Endcaps",
+                                                             numerator->GetNbinsX(),
+                                                             numerator->GetXaxis()->GetXmin(),
+                                                             numerator->GetXaxis()->GetXmax());
+
+      // Calculate the efficiency
+      me_effic_clus_endcaps->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
+      me_effic_clus_endcaps->setAxisTitle("tracking particle pT [GeV]");
+      me_effic_clus_endcaps->getTH1F()->GetYaxis()->SetTitle("Efficiency");
+      me_effic_clus_endcaps->getTH1F()->SetMaximum(1.1);
+      me_effic_clus_endcaps->getTH1F()->SetMinimum(0.0);
+      me_effic_clus_endcaps->getTH1F()->SetStats(false);
+    }  // if ME found
+    else {
+      edm::LogWarning("DataNotFound") << "Monitor elements for stub efficiency endcaps cannot be found!\n";
+    }
+
+    if (meN_clus_zoom_endcaps && meD_clus_zoom_endcaps) {
+      // Get the numerator and denominator histograms
+      TH1F *numerator_zoom = meN_clus_zoom_endcaps->getTH1F();
+      TH1F *denominator_zoom = meD_clus_zoom_endcaps->getTH1F();
+      numerator_zoom->Sumw2();
+      denominator_zoom->Sumw2();
+
+      // Set the current directory
+      dbe->setCurrentFolder(topFolderName_ + "/FinalEfficiency");
+
+      // Book the new histogram to contain the results
+      MonitorElement *me_effic_clus_zoom_endcaps = ibooker.book1D("StubEfficiencyZoomEndcaps",
+                                                                  "Stub Efficiency Zoom Endcaps",
+                                                                  numerator_zoom->GetNbinsX(),
+                                                                  numerator_zoom->GetXaxis()->GetXmin(),
+                                                                  numerator_zoom->GetXaxis()->GetXmax());
+
+      // Calculate the efficiency
+      me_effic_clus_zoom_endcaps->getTH1F()->Divide(numerator_zoom, denominator_zoom, 1., 1., "B");
+      me_effic_clus_zoom_endcaps->setAxisTitle("tracking particle pT [GeV]");
+      me_effic_clus_zoom_endcaps->getTH1F()->GetYaxis()->SetTitle("Efficiency");
+      me_effic_clus_zoom_endcaps->getTH1F()->SetMaximum(1.1);
+      me_effic_clus_zoom_endcaps->getTH1F()->SetMinimum(0.0);
+      me_effic_clus_zoom_endcaps->getTH1F()->SetStats(false);
+    }  // if ME found
+    else {
+      edm::LogWarning("DataNotFound") << "Monitor elements for stub zoom endcaps efficiency cannot be found!\n";
+    }
 
     if (meN_eta && meD_eta) {
       // Get the numerator and denominator histograms
