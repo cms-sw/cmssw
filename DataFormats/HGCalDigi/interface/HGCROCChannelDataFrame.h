@@ -38,7 +38,6 @@ public:
   HGCROCChannelDataFrame(uint32_t value) : id_(0), value_(value) {}
   HGCROCChannelDataFrame(const D& id, uint32_t value) : id_(id), value_(value) {}
   HGCROCChannelDataFrame(const HGCROCChannelDataFrame& o) : id_(o.id_), value_(o.value_) {}
-  HGCROCChannelDataFrame& operator=(const HGCROCChannelDataFrame&) = default;
 
   /**
      @short det id
@@ -102,7 +101,7 @@ public:
   uint32_t raw() const { return value_; }
   bool tc() const { return flag2(); }
   bool tp() const { return flag1(); }
-  uint16_t tctp() const { return (tc() << 1) | tp(); }
+  uint8_t tctp() const { return (tc() << 1) | tp(); }
   uint16_t adc(bool charMode = false) const { return charMode ? packet3() : (tc() ? 0 : packet2()); }
   uint16_t adcm1(bool charMode = false) const { return charMode ? 0 : packet3(); }
   uint16_t tot(bool charMode = false) const {
