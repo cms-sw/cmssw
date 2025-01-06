@@ -11,6 +11,7 @@
 //
 
 #include <functional>
+#include <memory>
 
 #include "TFile.h"
 #include "TSystem.h"
@@ -48,9 +49,9 @@ FWViewBase* FWGeometryTableViewManager::buildView(TEveWindowSlot* iParent, const
   FWViewType::EType typeId =
       (type == FWViewType::sName[FWViewType::kGeometryTable]) ? FWViewType::kGeometryTable : FWViewType::kOverlapTable;
   if (typeId == FWViewType::kGeometryTable)
-    view.reset(new FWGeometryTableView(iParent, &colorManager()));
+    view = std::make_shared<FWGeometryTableView>(iParent, &colorManager());
   else
-    view.reset(new FWOverlapTableView(iParent, &colorManager()));
+    view = std::make_shared<FWOverlapTableView>(iParent, &colorManager());
 
   view->setBackgroundColor();
   m_views.push_back(std::shared_ptr<FWGeometryTableViewBase>(view));
