@@ -13,20 +13,22 @@
 #include <memory>
 #include <algorithm>
 #include <map>
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 #include "MultiTrackSelector.h"
 
@@ -38,7 +40,9 @@ public:
   /// constructor
   explicit AnalyticalTrackSelector(const edm::ParameterSet& cfg);
   /// destructor
-  ~AnalyticalTrackSelector() override;
+  ~AnalyticalTrackSelector() override = default;
+  /// fillDescriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   typedef math::XYZPoint Point;
@@ -101,10 +105,8 @@ AnalyticalTrackSelector::AnalyticalTrackSelector(const edm::ParameterSet& cfg) :
   produces<edm::ValueMap<float>>("MVAVals");
   //foward compatibility
   produces<MVACollection>("MVAValues");
-  useAnyMVA_ = false;
   forest_[0] = nullptr;
-  if (cfg.exists("useAnyMVA"))
-    useAnyMVA_ = cfg.getParameter<bool>("useAnyMVA");
+  useAnyMVA_ = cfg.getParameter<bool>("useAnyMVA");
 
   src_ = consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>("src"));
   hSrc_ = consumes<TrackingRecHitCollection>(cfg.getParameter<edm::InputTag>("src"));
@@ -146,16 +148,14 @@ AnalyticalTrackSelector::AnalyticalTrackSelector(const edm::ParameterSet& cfg) :
   min_hits_bypass_.push_back(cfg.getParameter<uint32_t>("minHitsToBypassChecks"));
   max_relpterr_.push_back(cfg.getParameter<double>("max_relpterr"));
   min_nhits_.push_back(cfg.getParameter<uint32_t>("min_nhits"));
-  max_minMissHitOutOrIn_.push_back(
-      cfg.existsAs<int32_t>("max_minMissHitOutOrIn") ? cfg.getParameter<int32_t>("max_minMissHitOutOrIn") : 99);
-  max_lostHitFraction_.push_back(
-      cfg.existsAs<double>("max_lostHitFraction") ? cfg.getParameter<double>("max_lostHitFraction") : 1.0);
+  max_minMissHitOutOrIn_.push_back(cfg.getParameter<int32_t>("max_minMissHitOutOrIn"));
+  max_lostHitFraction_.push_back(cfg.getParameter<double>("max_lostHitFraction"));
   min_eta_.push_back(cfg.getParameter<double>("min_eta"));
   max_eta_.push_back(cfg.getParameter<double>("max_eta"));
 
   // Flag to apply absolute cuts if no PV passes the selection
   applyAbsCutsIfNoPV_.push_back(cfg.getParameter<bool>("applyAbsCutsIfNoPV"));
-  keepAllTracks_.push_back(cfg.exists("keepAllTracks") ? cfg.getParameter<bool>("keepAllTracks") : false);
+  keepAllTracks_.push_back(cfg.getParameter<bool>("keepAllTracks"));
 
   setQualityBit_.push_back(false);
   std::string qualityStr = cfg.getParameter<std::string>("qualityBit");
@@ -165,12 +165,9 @@ AnalyticalTrackSelector::AnalyticalTrackSelector(const edm::ParameterSet& cfg) :
     throw;
   }
 
-  if (cfg.exists("qualityBit")) {
-    std::string qualityStr = cfg.getParameter<std::string>("qualityBit");
-    if (!qualityStr.empty()) {
-      setQualityBit_[0] = true;
-      qualityToSet_[0] = TrackBase::qualityByName(cfg.getParameter<std::string>("qualityBit"));
-    }
+  if (!qualityStr.empty()) {
+    setQualityBit_[0] = true;
+    qualityToSet_[0] = TrackBase::qualityByName(cfg.getParameter<std::string>("qualityBit"));
   }
 
   if (keepAllTracks_[0] && !setQualityBit_[0])
@@ -189,19 +186,14 @@ AnalyticalTrackSelector::AnalyticalTrackSelector(const edm::ParameterSet& cfg) :
   }
 
   if (useAnyMVA_) {
-    bool thisMVA = false;
-    if (cfg.exists("useMVA"))
-      thisMVA = cfg.getParameter<bool>("useMVA");
+    bool thisMVA = cfg.getParameter<bool>("useMVA");
     useMVA_.push_back(thisMVA);
     if (thisMVA) {
-      double minVal = -1;
-      if (cfg.exists("minMVA"))
-        minVal = cfg.getParameter<double>("minMVA");
+      double minVal = cfg.getParameter<double>("minMVA");
       min_MVA_.push_back(minVal);
-      mvaType_.push_back(cfg.exists("mvaType") ? cfg.getParameter<std::string>("mvaType") : "Detached");
-      forestLabel_.push_back(cfg.exists("GBRForestLabel") ? cfg.getParameter<std::string>("GBRForestLabel")
-                                                          : "MVASelectorIter0");
-      useMVAonly_.push_back(cfg.exists("useMVAonly") ? cfg.getParameter<bool>("useMVAonly") : false);
+      mvaType_.push_back(cfg.getParameter<std::string>("mvaType"));
+      forestLabel_.push_back(cfg.getParameter<std::string>("GBRForestLabel"));
+      useMVAonly_.push_back(cfg.getParameter<bool>("useMVAonly"));
     } else {
       min_MVA_.push_back(-9999.0);
       useMVAonly_.push_back(false);
@@ -230,8 +222,6 @@ AnalyticalTrackSelector::AnalyticalTrackSelector(const edm::ParameterSet& cfg) :
   // around a rare race condition in framework scheduling
   produces<reco::TrackCollection>().setBranchAlias(alias + "Tracks");
 }
-
-AnalyticalTrackSelector::~AnalyticalTrackSelector() {}
 
 void AnalyticalTrackSelector::run(edm::Event& evt, const edm::EventSetup& es) const {
   // storage....
@@ -395,6 +385,76 @@ void AnalyticalTrackSelector::run(edm::Event& evt, const edm::EventSetup& es) co
     evt.put(std::move(selTrajs_));
     evt.put(std::move(selTTAss_));
   }
+}
+
+void AnalyticalTrackSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("src", edm::InputTag("generalTracks"));
+  desc.add<bool>("keepAllTracks", false)
+      ->setComment("if set to true tracks failing this filter are kept in the output");
+  desc.add<edm::InputTag>("beamspot", edm::InputTag("offlineBeamSpot"));
+
+  // vertex selection
+  desc.add<bool>("useVertices", true);
+  desc.add<bool>("useVtxError", false);
+  desc.add<edm::InputTag>("vertices", edm::InputTag("firstStepPrimaryVertices"));
+  desc.add<int32_t>("vtxNumber", -1);
+  desc.add<std::string>("vertexCut", "ndof>=2&!isFake");
+
+  desc.addUntracked<bool>("copyExtras", false);
+  desc.addUntracked<bool>("copyTrajectories", false);
+  desc.add<std::string>("qualityBit", std::string(""))->setComment("set to ''if you don't want to set the bit");
+
+  // parameters for adapted optimal cuts on chi2 and primary vertex compatibility
+  desc.add<double>("chi2n_no1Dmod_par", 9999.)
+      ->setComment("parameter for adapted optimal cuts on chi2 and primary vertex compatibility");
+  desc.add<double>("chi2n_par", 1.6)
+      ->setComment("parameter for adapted optimal cuts on chi2 and primary vertex compatibility");
+  desc.add<std::vector<double>>("res_par", {0.003, 0.01})->setComment("default: Loose");
+  desc.add<std::vector<double>>("d0_par1", {0.55, 4.0})->setComment("default: Loose");
+  desc.add<std::vector<double>>("d0_par2", {0.65, 4.0})->setComment("default: Loose");
+  desc.add<std::vector<double>>("dz_par1", {0.55, 4.0})->setComment("default: Loose");
+  desc.add<std::vector<double>>("dz_par2", {0.45, 4.0})->setComment("default: Loose");
+  desc.add<bool>("applyAdaptedPVCuts", true)
+      ->setComment("Boolean indicating if adapted primary vertex compatibility cuts are to be applied.");
+
+  // Impact parameter absolute cuts.
+  desc.add<double>("max_d0", 100.)->setComment("transverse impact parameter absolute cut");
+  desc.add<double>("max_z0", 100.)->setComment("longitudinal impact parameter absolute cut");
+  desc.add<double>("nSigmaZ", 4.);
+
+  // Cuts on numbers of layers with hits/3D hits/lost hits.
+  desc.add<uint32_t>("minNumberLayers", 0);
+  desc.add<uint32_t>("minNumber3DLayers", 0);
+  desc.add<uint32_t>("minHitsToBypassChecks", 20);
+  desc.add<uint32_t>("maxNumberLostLayers", 999);
+
+  // Absolute cuts in case of no PV. If yes, please define also max_d0NoPV and max_z0NoPV
+  desc.add<bool>("applyAbsCutsIfNoPV", false);
+  desc.add<double>("max_d0NoPV", 100.);
+  desc.add<double>("max_z0NoPV", 100.);
+
+  // parameters for cutting on pterror/pt and number of valid hits
+  desc.add<double>("max_relpterr", 9999)->setComment("parameter for cutting on pterror/pt");
+  desc.add<uint32_t>("min_nhits", 0)->setComment("parameter for cutting on number of valid hits");
+
+  desc.add<double>("max_lostHitFraction", 1.0);
+  desc.add<int32_t>("max_minMissHitOutOrIn", 99);
+
+  // parameters for cutting on eta
+  desc.add<double>("max_eta", 9999.);
+  desc.add<double>("min_eta", -9999.);
+
+  // optional parameters for MVA selection
+  desc.add<bool>("useMVA", false);
+  desc.add<bool>("useAnyMVA", false);
+  desc.add<bool>("useMVAonly", false);
+  desc.add<double>("minMVA", -1.);
+  desc.add<std::string>("GBRForestLabel", "MVASelectorIter0");
+  desc.add<std::string>("mvaType", "Detached");
+
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
