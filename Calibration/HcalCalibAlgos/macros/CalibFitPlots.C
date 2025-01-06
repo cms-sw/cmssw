@@ -2495,7 +2495,7 @@ void PlotHistCorrAsymmetry(
   double dy(0);
   int maxd = (depth < 0) ? maxdepth : 1;
   for (int j = 0; j < maxd; ++j) {
-    int dep = (depth < 0) ? (j + 1) : depth;
+    int dep = (depth <= 0) ? (j + 1) : depth;
     sprintf(name, "hd%d", dep);
     TObject* ob = gROOT->FindObject(name);
     if (ob)
