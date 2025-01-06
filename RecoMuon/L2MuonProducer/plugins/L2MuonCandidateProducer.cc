@@ -26,7 +26,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 class L2MuonCandidateProducer : public edm::global::EDProducer<> {
@@ -40,20 +42,29 @@ public:
   /// produce candidates
   void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup&) const override;
 
+  /// fillDescriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   // StandAlone Collection Label
-  edm::InputTag theSACollectionLabel;
-  edm::EDGetTokenT<reco::TrackCollection> tracksToken;
+  const edm::InputTag theSACollectionLabel;
+  const edm::EDGetTokenT<reco::TrackCollection> tracksToken;
 };
 
 /// constructor with config
-L2MuonCandidateProducer::L2MuonCandidateProducer(const edm::ParameterSet& parameterSet) {
+L2MuonCandidateProducer::L2MuonCandidateProducer(const edm::ParameterSet& parameterSet)
+    :  // StandAlone Collection Label
+      theSACollectionLabel{parameterSet.getParameter<edm::InputTag>("InputObjects")},
+      tracksToken{consumes<reco::TrackCollection>(theSACollectionLabel)} {
   LogTrace("Muon|RecoMuon|L2MuonCandidateProducer") << " constructor called";
-
-  // StandAlone Collection Label
-  theSACollectionLabel = parameterSet.getParameter<edm::InputTag>("InputObjects");
-  tracksToken = consumes<reco::TrackCollection>(theSACollectionLabel);
   produces<reco::RecoChargedCandidateCollection>();
+}
+
+void L2MuonCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("InputObjects", edm::InputTag("L2Muons", "UpdatedAtVtx"))
+      ->setComment("Standalone Collection Label");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 /// destructor
