@@ -180,5 +180,4 @@ inline void ThreeThresholdAlgorithm::appendBadNeighbors(State& state) const {
   }
 }
 
-
 #endif
