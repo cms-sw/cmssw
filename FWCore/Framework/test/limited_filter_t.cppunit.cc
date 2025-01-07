@@ -391,7 +391,7 @@ private:
     TransformProd(edm::ParameterSet const&)
         : edm::limited::EDFilterBase(s_pset), edm::limited::EDFilter<edm::Transformer>(s_pset) {
       token_ = produces<float>();
-      registerTransform(token_, [](float iV) { return int(iV); });
+      registerTransform(token_, [](edm::StreamID, float iV) { return int(iV); });
     }
 
     bool filter(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {

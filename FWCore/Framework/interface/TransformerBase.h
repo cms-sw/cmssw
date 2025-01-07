@@ -10,6 +10,7 @@
 
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/SoATuple.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 
@@ -38,8 +39,9 @@ namespace edm {
   protected:
     //The function takes the WrapperBase corresponding to the data product from the EDPutToken
     // and returns the WrapperBase associated to the id and instanceName
-    using TransformFunction = std::function<std::unique_ptr<edm::WrapperBase>(std::any)>;
-    using PreTransformFunction = std::function<std::any(edm::WrapperBase const&, edm::WaitingTaskWithArenaHolder)>;
+    using TransformFunction = std::function<std::unique_ptr<edm::WrapperBase>(edm::StreamID, std::any)>;
+    using PreTransformFunction =
+        std::function<std::any(edm::StreamID, edm::WrapperBase const&, edm::WaitingTaskWithArenaHolder)>;
 
     void registerTransformImp(ProducerBase&, EDPutToken, const TypeID& id, std::string instanceName, TransformFunction);
     void registerTransformAsyncImp(

@@ -106,7 +106,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         using CopyT = cms::alpakatools::CopyToHost<TProduct>;
         this->registerTransformAsync(
             token,
-            [](TToken const& deviceProduct, edm::WaitingTaskWithArenaHolder holder) {
+            [](edm::StreamID, TToken const& deviceProduct, edm::WaitingTaskWithArenaHolder holder) {
               auto const& device = alpaka::getDev(deviceProduct.template metadata<EDMetadata>().queue());
               detail::EDMetadataAcquireSentry sentry(device, std::move(holder));
               auto metadataPtr = sentry.metadata();
@@ -122,7 +122,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               // Wrap possibly move-only type into a copyable type
               return std::make_shared<TplType>(std::move(productOnHost), sentry.finish());
             },
-            [](auto tplPtr) {
+            [](edm::StreamID, auto tplPtr) {
               auto& productOnHost = std::get<0>(*tplPtr);
               if constexpr (requires { CopyT::postCopy(productOnHost); }) {
                 CopyT::postCopy(productOnHost);

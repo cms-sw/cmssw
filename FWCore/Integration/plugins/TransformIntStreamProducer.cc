@@ -15,7 +15,7 @@ namespace edmtest {
       bool check = iPSet.getUntrackedParameter<bool>("checkTransformNotCalled");
       registerTransform(
           putToken_,
-          [offset = transformOffset_, check](auto const& iFrom) {
+          [offset = transformOffset_, check](edm::StreamID, auto const& iFrom) {
             if (check) {
               throw cms::Exception("TransformShouldNotBeCalled");
             }
