@@ -71,7 +71,6 @@ equivDict = \
          {'PhysicsToolsObjects'   : ['PhysicsTools::Calibration']},
          {'TrackReco'             : ['reco::Track','reco::TrackRef']},
          {'VertexReco'            : ['reco::Vertex']},
-         {'TFWLiteSelectorTest'   : ['tfwliteselectortest']},
          {'TauReco'               : ['reco::PFJetRef']},
          {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
          {'HGCDigi'               : ['HGCSample']},
