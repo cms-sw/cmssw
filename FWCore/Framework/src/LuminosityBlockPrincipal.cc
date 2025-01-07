@@ -3,15 +3,12 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 namespace edm {
-
   LuminosityBlockPrincipal::LuminosityBlockPrincipal(std::shared_ptr<ProductRegistry const> reg,
+                                                     std::vector<std::shared_ptr<ProductResolverBase>>&& resolvers,
                                                      ProcessConfiguration const& pc,
                                                      HistoryAppender* historyAppender,
-                                                     unsigned int index,
-                                                     bool isForPrimaryProcess)
-      : Base(reg, reg->productLookup(InLumi), pc, InLumi, historyAppender, isForPrimaryProcess),
-        runPrincipal_(),
-        index_(index) {}
+                                                     unsigned int index)
+      : Base(reg, std::move(resolvers), pc, InLumi, historyAppender), runPrincipal_(), index_(index) {}
 
   void LuminosityBlockPrincipal::fillLuminosityBlockPrincipal(ProcessHistory const* processHistory,
                                                               DelayedReader* reader) {

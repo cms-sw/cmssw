@@ -42,6 +42,7 @@
 #include "FWCore/Framework/interface/globalTransitionAsync.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/SendSourceTerminationSignalIfException.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -543,33 +544,39 @@ namespace edm {
       for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
         // Reusable event principal
         auto ep = std::make_shared<EventPrincipal>(preg(),
+                                                   productResolversFactory::makePrimary,
                                                    branchIDListHelper(),
                                                    thinnedAssociationsHelper(),
                                                    *processConfiguration_,
                                                    historyAppender_.get(),
                                                    index,
-                                                   true /*primary process*/,
                                                    &*processBlockHelper_);
         principalCache_.insert(std::move(ep));
       }
 
       for (unsigned int index = 0; index < preallocations_.numberOfRuns(); ++index) {
-        auto rp = std::make_unique<RunPrincipal>(
-            preg(), *processConfiguration_, historyAppender_.get(), index, true, &mergeableRunProductProcesses_);
+        auto rp = std::make_unique<RunPrincipal>(preg(),
+                                                 productResolversFactory::makePrimary,
+                                                 *processConfiguration_,
+                                                 historyAppender_.get(),
+                                                 index,
+                                                 &mergeableRunProductProcesses_);
         principalCache_.insert(std::move(rp));
       }
 
       for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
-        auto lp =
-            std::make_unique<LuminosityBlockPrincipal>(preg(), *processConfiguration_, historyAppender_.get(), index);
+        auto lp = std::make_unique<LuminosityBlockPrincipal>(
+            preg(), productResolversFactory::makePrimary, *processConfiguration_, historyAppender_.get(), index);
         principalCache_.insert(std::move(lp));
       }
 
       {
-        auto pb = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
+        auto pb = std::make_unique<ProcessBlockPrincipal>(
+            preg(), productResolversFactory::makePrimary, *processConfiguration_);
         principalCache_.insert(std::move(pb));
 
-        auto pbForInput = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
+        auto pbForInput = std::make_unique<ProcessBlockPrincipal>(
+            preg(), productResolversFactory::makePrimary, *processConfiguration_);
         principalCache_.insertForInput(std::move(pbForInput));
       }
 

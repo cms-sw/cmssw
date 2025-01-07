@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/SignallingProductRegistry.h"
@@ -71,6 +72,7 @@ namespace edm {
   void SecondaryProducer::beginJob() {
     // propagate_const<T> has no reset() function
     eventPrincipal_ = std::make_unique<EventPrincipal>(secInput_->productRegistry(),
+                                                       edm::productResolversFactory::makePrimary,
                                                        std::make_shared<BranchIDListHelper>(),
                                                        std::make_shared<ThinnedAssociationsHelper>(),
                                                        *processConfiguration_,

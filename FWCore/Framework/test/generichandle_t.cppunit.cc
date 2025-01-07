@@ -20,6 +20,8 @@ Test of GenericHandle class.
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
@@ -78,17 +80,24 @@ void testGenericHandle::failgetbyLabelTest() {
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   auto preg = std::make_shared<edm::ProductRegistry>();
   preg->setFrozen();
-  auto rp = std::make_shared<edm::RunPrincipal>(preg, pc, &historyAppender_, 0);
+  auto rp =
+      std::make_shared<edm::RunPrincipal>(preg, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   rp->setAux(edm::RunAuxiliary(id.run(), time, time));
-  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(preg, pc, &historyAppender_, 0);
+  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(
+      preg, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   lbp->setAux(edm::LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   lbp->setRunPrincipal(rp);
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(*preg);
   auto thinnedAssociationsHelper = std::make_shared<edm::ThinnedAssociationsHelper>();
   edm::EventAuxiliary eventAux(id, uuid, time, true);
-  edm::EventPrincipal ep(
-      preg, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_, edm::StreamID::invalidStreamID());
+  edm::EventPrincipal ep(preg,
+                         edm::productResolversFactory::makePrimary,
+                         branchIDListHelper,
+                         thinnedAssociationsHelper,
+                         pc,
+                         &historyAppender_,
+                         edm::StreamID::invalidStreamID());
   ep.fillEventPrincipal(eventAux, nullptr);
   ep.setLuminosityBlockPrincipal(lbp.get());
   edm::GenericHandle h("edmtest::DummyProduct");
@@ -164,14 +173,21 @@ void testGenericHandle::getbyLabelTest() {
   std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
   std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
-  auto rp = std::make_shared<edm::RunPrincipal>(pregc, pc, &historyAppender_, 0);
+  auto rp =
+      std::make_shared<edm::RunPrincipal>(pregc, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   rp->setAux(edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
-  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(pregc, pc, &historyAppender_, 0);
+  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(
+      pregc, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   lbp->setAux(edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
-  edm::EventPrincipal ep(
-      pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_, edm::StreamID::invalidStreamID());
+  edm::EventPrincipal ep(pregc,
+                         edm::productResolversFactory::makePrimary,
+                         branchIDListHelper,
+                         thinnedAssociationsHelper,
+                         pc,
+                         &historyAppender_,
+                         edm::StreamID::invalidStreamID());
   ep.fillEventPrincipal(eventAux, nullptr);
   ep.setLuminosityBlockPrincipal(lbp.get());
   edm::BranchDescription const& branchFromRegistry = it->second;

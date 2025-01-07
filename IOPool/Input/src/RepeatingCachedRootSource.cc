@@ -30,6 +30,8 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -233,6 +235,7 @@ void RepeatingCachedRootSource::beginJob() {
 
   //Thinned collection associations are not supported at this time
   EventPrincipal eventPrincipal(productRegistry(),
+                                edm::productResolversFactory::makePrimary,
                                 branchIDListHelper(),
                                 std::make_shared<ThinnedAssociationsHelper>(),
                                 processConfiguration,
