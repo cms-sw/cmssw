@@ -1,6 +1,7 @@
+
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
-from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_MinBias2018B
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_HLTPhys2024I
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
@@ -43,9 +44,9 @@ if "dataset" in config["validation"]:
                                 skipEvents = cms.untracked.uint32(0)
                             )
 else:
-    print(">>>>>>>>>> PV_cfg.py: msg%-i: config not specified! Loading default dataset -> filesDefaultData_MinBias2018B!")
+    print(">>>>>>>>>> PV_cfg.py: msg%-i: config not specified! Loading default dataset -> filesDefaultData_HLTPhys2024I!")
     process.source = cms.Source("PoolSource",
-                                fileNames = filesDefaultData_MinBias2018B,
+                                fileNames = filesDefaultData_HLTPhys2024I,
                                 skipEvents = cms.untracked.uint32(0)
                             )
 
@@ -123,7 +124,7 @@ process.seqTrackselRefit = trackselRefit.getSequence(process,
 #Global tag
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "auto:phase1_2017_realistic"))
+process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "140X_dataRun3_Prompt_v4"))
 
 ##Load conditions if wished
 if "conditions" in config["alignment"]:
@@ -160,6 +161,17 @@ process.noscraping = cms.EDFilter("FilterOutScraping",
                                   thresh = cms.untracked.double(0.25)
                                   )
 
+###################################################################
+# Beamspot compatibility check
+###################################################################
+from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
+process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
+    bsFromEvent = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
+    bsFromDB = "offlineBeamSpot",           # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+    warningThr = config["validation"].get("bsIncompatibleWarnThresh", 3), # significance threshold to emit a warning message
+    errorThr = config["validation"].get("bsIncompatibleErrThresh", 5),    # significance threshold to abort the job
+)
+
 process.load("Alignment.CommonAlignment.filterOutLowPt_cfi")
 process.filterOutLowPt.src = cms.untracked.InputTag(config["validation"].get("trackcollection", "ALCARECOTkAlMinBias"))
 process.filterOutLowPt.ptmin = cms.untracked.double(config["validation"].get("ptCut", 3.))
@@ -170,9 +182,9 @@ else:
      process.filterOutLowPt.runControlNumber = [runboundary]
 
 if isMC:
-     process.goodvertexSkim = cms.Sequence(process.noscraping + process.filterOutLowPt)
+     process.goodvertexSkim = cms.Sequence(process.BeamSpotChecker + process.noscraping + process.filterOutLowPt)
 else:
-     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.filterOutLowPt)
+     process.goodvertexSkim = cms.Sequence(process.BeamSpotChecker + process.primaryVertexFilter + process.noscraping + process.filterOutLowPt)
 
 
 ####################################################################
