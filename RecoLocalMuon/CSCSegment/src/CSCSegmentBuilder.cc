@@ -23,7 +23,7 @@ CSCSegmentBuilder::CSCSegmentBuilder(const edm::ParameterSet& ps) : geom_(nullpt
   int chosenAlgo = ps.getParameter<int>("algo_type") - 1;
 
   // Find appropriate ParameterSets for each algo type
-  std::vector<edm::ParameterSet> algoPSets = ps.getParameter<std::vector<edm::ParameterSet> >("algo_psets");
+  std::vector<edm::ParameterSet> algoPSets = ps.getParameter<std::vector<edm::ParameterSet>>("algo_psets");
 
   // Now load the right parameter set
   // Algo name
@@ -33,14 +33,14 @@ CSCSegmentBuilder::CSCSegmentBuilder(const edm::ParameterSet& ps) : geom_(nullpt
 
   // SegAlgo parameter set
   std::vector<edm::ParameterSet> segAlgoPSet =
-      algoPSets[chosenAlgo].getParameter<std::vector<edm::ParameterSet> >("algo_psets");
+      algoPSets[chosenAlgo].getParameter<std::vector<edm::ParameterSet>>("algo_psets");
 
   // Chamber types to handle
-  std::vector<std::string> chType = algoPSets[chosenAlgo].getParameter<std::vector<std::string> >("chamber_types");
+  std::vector<std::string> chType = algoPSets[chosenAlgo].getParameter<std::vector<std::string>>("chamber_types");
   LogDebug("CSCSegment|CSC") << "No. of chamber types to handle: " << chType.size();
 
   // Algo to chamber type
-  std::vector<int> algoToType = algoPSets[chosenAlgo].getParameter<std::vector<int> >("parameters_per_chamber_type");
+  std::vector<int> algoToType = algoPSets[chosenAlgo].getParameter<std::vector<int>>("parameters_per_chamber_type");
 
   // Trap if we don't have enough parameter sets or haven't assigned an algo to every type
   if (algoToType.size() != chType.size()) {
@@ -101,3 +101,30 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCo
 }
 
 void CSCSegmentBuilder::setGeometry(const CSCGeometry* geom) { geom_ = geom; }
+
+void CSCSegmentBuilder::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  /// Top-level parameters
+  desc.add<int>("algo_type", 5)->setComment("Choice of the building algo: 1 SK, 2 TC, 3 DF, 4 ST, 5 RU, ...");
+
+  // Define the nested PSet for individual configurations
+  edm::ParameterSetDescription algoPSet;
+  algoPSet.add<std::vector<int>>("parameters_per_chamber_type", {1, 2, 3, 4, 5, 6, 5, 6, 5, 6});
+
+  // Define the VPSet inside algo_psets
+  edm::ParameterSetDescription innerPSet;
+  // Allow any parameter in the innerPSet
+  innerPSet.setAllowAnything();
+
+  // Fill the VPSet for algo_psets
+  edm::ParameterSetDescription innerAlgoPSet;
+  innerAlgoPSet.addVPSet("algo_psets", innerPSet);
+
+  // Additional top-level keys
+  algoPSet.addVPSet("algo_psets", innerPSet);
+  algoPSet.add<std::string>("algo_name", "CSCSegAlgoRU");
+  algoPSet.add<std::vector<std::string>>(
+      "chamber_types", {"ME1/a", "ME1/b", "ME1/2", "ME1/3", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2"});
+
+  // Add to the top-level VPSet
+  desc.addVPSet("algo_psets", algoPSet);
+}

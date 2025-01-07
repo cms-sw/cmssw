@@ -12,6 +12,50 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
+void GlobalHaloDataProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("IsHLT", false);
+
+  // Higher Level Reco
+  desc.add<edm::InputTag>("metLabel", edm::InputTag("caloMet"));
+  desc.add<edm::InputTag>("calotowerLabel", edm::InputTag("towerMaker"));
+  desc.add<edm::InputTag>("CSCSegmentLabel", edm::InputTag("cscSegments"));
+  desc.add<edm::InputTag>("CSCRecHitLabel", edm::InputTag("csc2DRecHits"));
+  desc.add<edm::InputTag>("MuonLabel", edm::InputTag("muons"));
+  desc.add<edm::InputTag>("CSCHaloDataLabel", edm::InputTag("CSCHaloData"));
+  desc.add<edm::InputTag>("EcalHaloDataLabel", edm::InputTag("EcalHaloData"));
+  desc.add<edm::InputTag>("HcalHaloDataLabel", edm::InputTag("HcalHaloData"));
+  desc.add<double>("EcalMinMatchingRadiusParam", 110.);
+  desc.add<double>("EcalMaxMatchingRadiusParam", 330.);
+  desc.add<double>("HcalMinMatchingRadiusParam", 110.);
+  desc.add<double>("HcalMaxMatchingRadiusParam", 490.);
+  desc.add<double>("CaloTowerEtThresholdParam", 0.3);
+
+  // Parameters for CSC-calo matching
+  desc.add<double>("MaxSegmentTheta", 0.7);
+  desc.add<double>("rh_et_threshforcscmatching_eb", 10.);
+  desc.add<double>("rcalominrsegm_lowthresh_eb", -30.);
+  desc.add<double>("rcalominrsegm_highthresh_eb", 15.);
+  desc.add<double>("dtcalosegm_thresh_eb", 15.);
+  desc.add<double>("dphicalosegm_thresh_eb", 0.04);
+  desc.add<double>("rh_et_threshforcscmatching_ee", 10.);
+  desc.add<double>("rcalominrsegm_lowthresh_ee", -30.);
+  desc.add<double>("rcalominrsegm_highthresh_ee", 30.);
+  desc.add<double>("dtcalosegm_thresh_ee", 15.);
+  desc.add<double>("dphicalosegm_thresh_ee", 0.04);
+  desc.add<double>("rh_et_threshforcscmatching_hb", 20.);
+  desc.add<double>("rcalominrsegm_lowthresh_hb", -100.);
+  desc.add<double>("rcalominrsegm_highthresh_hb", 20.);
+  desc.add<double>("dtcalosegm_thresh_hb", 15.);
+  desc.add<double>("dphicalosegm_thresh_hb", 0.15);
+  desc.add<double>("rh_et_threshforcscmatching_he", 20.);
+  desc.add<double>("rcalominrsegm_lowthresh_he", -30.);
+  desc.add<double>("rcalominrsegm_highthresh_he", 30.);
+  desc.add<double>("dtcalosegm_thresh_he", 15.);
+  desc.add<double>("dphicalosegm_thresh_he", 0.1);
+  descriptions.addWithDefaultLabel(desc);
+}
+
 GlobalHaloDataProducer::GlobalHaloDataProducer(const edm::ParameterSet& iConfig) {
   ishlt = iConfig.getParameter<bool>("IsHLT");
 

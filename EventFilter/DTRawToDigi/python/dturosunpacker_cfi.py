@@ -1,6 +1,4 @@
 import FWCore.ParameterSet.Config as cms
 
-dturosunpacker = cms.EDProducer("DTuROSRawToDigi",
-                                  inputLabel = cms.InputTag("rawDataCollector"),
-                                  debug = cms.untracked.bool(False),
-                               )
+from EventFilter.DTRawToDigi.dTuROSRawToDigi_cfi import dTuROSRawToDigi as _dTuROSRawToDigi
+dturosunpacker = _dTuROSRawToDigi.clone()

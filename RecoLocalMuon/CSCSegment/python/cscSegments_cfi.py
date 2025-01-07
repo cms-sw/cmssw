@@ -6,7 +6,8 @@ from RecoLocalMuon.CSCSegment.CSCSegmentAlgorithmDF_cfi import *
 from RecoLocalMuon.CSCSegment.CSCSegmentAlgorithmST_cfi import *
 from RecoLocalMuon.CSCSegment.CSCSegmentAlgorithmRU_cfi import *
 
-cscSegments = cms.EDProducer("CSCSegmentProducer",
+from RecoLocalMuon.CSCSegment.cscSegmentProducer_cfi import cscSegmentProducer as _cscSegmentProducer
+cscSegments = _cscSegmentProducer.clone(
     # Define input
     inputObjects = cms.InputTag("csc2DRecHits"),
     # Choice of the building algo: 1 SK, 2 TC, 3 DF, 4 ST, 5 RU, ...
