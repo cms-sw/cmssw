@@ -10,8 +10,6 @@
 #include "FWCore/Utilities/interface/Transition.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/DeviceProductType.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadataAcquireSentry.h"
-#include "HeterogeneousCore/AlpakaCore/interface/EventCache.h"
-#include "HeterogeneousCore/AlpakaCore/interface/QueueCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/modulePrevalidate.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/Backend.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
@@ -101,7 +99,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // can think of it later if really needed
     template <typename TProduct, typename TToken, edm::Transition Tr>
     edm::EDPutTokenT<TToken> deviceProduces(std::string instanceName) {
-      if constexpr (detail::useProductDirectly<TProduct>) {
+      if constexpr (detail::useProductDirectly) {
         return Base::template produces<TToken, Tr>(std::move(instanceName));
       } else {
         edm::EDPutTokenT<TToken> token = Base::template produces<TToken, Tr>(instanceName);
