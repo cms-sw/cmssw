@@ -41,37 +41,43 @@ static const char category[] = "Muon|RecoMuon|L3MuonCandidateProducer";
 
 /// constructor with config
 L3MuonCandidateProducer::L3MuonCandidateProducer(const ParameterSet& parameterSet) {
-  LogTrace(category) << " constructor called";
+  LogTrace(category) << "Constructor called";
 
   // StandAlone Collection Label
   theL3CollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
   trackToken_ = consumes<reco::TrackCollection>(theL3CollectionLabel);
 
-  // use links
-  theUseLinks = parameterSet.existsAs<InputTag>("InputLinksObjects");
+  // Use links
+  theL3LinksLabel = parameterSet.getParameter<InputTag>("InputLinksObjects");
+  theUseLinks = !theL3LinksLabel.label().empty() && theL3LinksLabel.label() != "unused";
   if (theUseLinks) {
-    theL3LinksLabel = parameterSet.getParameter<InputTag>("InputLinksObjects");
     linkToken_ = consumes<reco::MuonTrackLinksCollection>(theL3LinksLabel);
-    if (theL3LinksLabel.label().empty() or theL3LinksLabel.label() == "unused")
-      theUseLinks = false;
   }
 
-  // use global, standalone or tracker pT/4-vector assignment
-  const std::string& muon_track_for_momentum = parameterSet.existsAs<std::string>("MuonPtOption")
-                                                   ? parameterSet.getParameter<std::string>("MuonPtOption")
-                                                   : "Global";
-  if (muon_track_for_momentum == std::string("Tracker"))
+  // Use global, standalone or tracker pT/4-vector assignment
+  const std::string& muon_track_for_momentum = parameterSet.getParameter<std::string>("MuonPtOption");
+  if (muon_track_for_momentum == "Tracker")
     theType = InnerTrack;
-  else if (muon_track_for_momentum == std::string("Standalone"))
+  else if (muon_track_for_momentum == "Standalone")
     theType = OuterTrack;
-  else if (muon_track_for_momentum == std::string("Global"))
+  else if (muon_track_for_momentum == "Global")
     theType = CombinedTrack;
   else {
-    LogError(category) << "invalid value for MuonPtOption, please choose among 'Tracker', 'Standalone', 'Global'";
+    LogError(category) << "Invalid value for MuonPtOption, please choose among 'Tracker', 'Standalone', 'Global'";
     theType = CombinedTrack;
   }
 
   produces<RecoChargedCandidateCollection>();
+}
+
+/// fillDescriptions
+void L3MuonCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<InputTag>("InputObjects", edm::InputTag("L3Muons"))->setComment("Input tag for L3 muon tracks");
+  desc.add<InputTag>("InputLinksObjects", edm::InputTag("unused"))->setComment("Input tag for track links");
+  desc.add<std::string>("MuonPtOption", "Global")
+      ->setComment("Option to determine muon momentum: 'Tracker', 'Standalone', or 'Global'");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 /// destructor

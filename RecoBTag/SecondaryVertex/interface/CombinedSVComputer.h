@@ -8,31 +8,28 @@
 #include <vector>
 
 #include <Math/VectorUtil.h>
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
+#include "DataFormats/BTauReco/interface/ParticleMasses.h"
+#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
+#include "DataFormats/BTauReco/interface/TaggingVariable.h"
+#include "DataFormats/BTauReco/interface/VertexTypes.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
-#include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
-#include "DataFormats/BTauReco/interface/TaggingVariable.h"
-#include "DataFormats/BTauReco/interface/VertexTypes.h"
-#include "DataFormats/BTauReco/interface/ParticleMasses.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-
-#include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
-#include "RecoBTag/SecondaryVertex/interface/V0Filter.h"
-#include "RecoBTag/SecondaryVertex/interface/TrackSorting.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
+#include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
+#include "RecoBTag/SecondaryVertex/interface/TrackSorting.h"
+#include "RecoBTag/SecondaryVertex/interface/V0Filter.h"
 
 #define range_for(i, x) for (int i = (x).begin; i != (x).end; i += (x).increment)
 
@@ -68,6 +65,8 @@ public:
                            const SVTI &svInfo,
                            double &vtx_track_ptSum,
                            double &vtx_track_ESum) const;
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
   bool trackFlip;
