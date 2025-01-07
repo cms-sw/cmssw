@@ -65,6 +65,25 @@ def customizeHLTfor46935(process):
             delattr(prod, 'recHitsLabelCPUEE')
     return process
 
+
+def customizeHLTfor47017(process):
+    """Remove unneeded parameters from the HLT menu"""
+    for prod in producers_by_type(process, 'MaskedMeasurementTrackerEventProducer'):
+        if hasattr(prod, 'OnDemand'):
+            delattr(prod, 'OnDemand')
+
+    for prod in producers_by_type(process, 'HcalHaloDataProducer'):
+        if hasattr(prod, 'HcalMaxMatchingRadiusParam'):
+            delattr(prod, 'HcalMaxMatchingRadiusParam')
+        if hasattr(prod, 'HcalMinMatchingRadiusParam'):
+            delattr(prod, 'HcalMinMatchingRadiusParam')
+
+    for prod in producers_by_type(process, 'SiPixelRecHitConverter'):
+        if hasattr(prod, 'VerboseLevel'):
+            delattr(prod, 'VerboseLevel')
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -74,5 +93,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     process = customizeHLTfor46935(process)
+    process = customizeHLTfor47017(process)
     
     return process
+

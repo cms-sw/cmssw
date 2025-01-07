@@ -180,10 +180,21 @@ process.noslowpt = cms.EDFilter("FilterOutLowPt",
                                 runControlNumber = cms.untracked.vuint32(int(runboundary))
                                 )
 
+####################################################################
+# BeamSpot check
+####################################################################
+from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
+process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
+    bsFromEvent = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
+    bsFromDB = "offlineBeamSpot",           # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+    warningThr = 3, # significance threshold to emit a warning message
+    errorThr = 5,    # significance threshold to abort the job
+)
+
 if isMC:
-     process.goodvertexSkim = cms.Sequence(process.noscraping)
+     process.goodvertexSkim = cms.Sequence(process.BeamSpotChecker + process.noscraping)
 else:
-     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
+     process.goodvertexSkim = cms.Sequence(process.BeamSpotChecker + process.primaryVertexFilter + process.noscraping + process.noslowpt)
 
 
 if(theRefitter == RefitType.COMMON):

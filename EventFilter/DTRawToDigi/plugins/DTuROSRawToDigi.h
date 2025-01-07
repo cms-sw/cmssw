@@ -14,22 +14,23 @@
 #ifndef DTRawToDigi_DTuROSRawToDigi_h
 #define DTRawToDigi_DTuROSRawToDigi_h
 
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/ESGetToken.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-#include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
-
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
-#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
-#include <FWCore/Framework/interface/stream/EDProducer.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/Utilities/interface/InputTag.h>
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 
@@ -42,13 +43,15 @@ public:
   DTuROSRawToDigi(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTuROSRawToDigi() override;
+  ~DTuROSRawToDigi() override = default;
 
   /// Produce digis out of raw data
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   /// Generate and fill FED raw data for a full event
   bool fillRawData(edm::Event& e, const edm::EventSetup& c, DTDigiCollection& digis, std::vector<DTuROSFEDData>& words);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   edm::InputTag DTuROSInputTag_;
