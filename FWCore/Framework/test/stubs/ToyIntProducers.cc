@@ -1001,8 +1001,9 @@ namespace edm::test {
     public:
       explicit IntTransformer(edm::ParameterSet const& p)
           : token_{produces()}, value_(p.getParameter<int>("valueOther")) {
-        registerTransform(token_,
-                          [](edmtest::ATransientIntProduct const& iV) { return edmtest::IntProduct(iV.value); });
+        registerTransform(token_, [](edm::StreamID, edmtest::ATransientIntProduct const& iV) {
+          return edmtest::IntProduct(iV.value);
+        });
       }
       void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const final { e.emplace(token_, value_); }
 

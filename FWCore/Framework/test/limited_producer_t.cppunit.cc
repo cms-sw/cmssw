@@ -357,7 +357,7 @@ private:
     TransformProd(edm::ParameterSet const&)
         : edm::limited::EDProducerBase(s_pset), edm::limited::EDProducer<edm::Transformer>(s_pset) {
       token_ = produces<float>();
-      registerTransform(token_, [](float iV) { return int(iV); });
+      registerTransform(token_, [](edm::StreamID, float iV) { return int(iV); });
     }
 
     void produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
