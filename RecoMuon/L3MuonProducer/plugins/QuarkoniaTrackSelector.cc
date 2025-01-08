@@ -1,9 +1,8 @@
-#include "RecoMuon/L3MuonProducer/src/QuarkoniaTrackSelector.h"
+#include "RecoMuon/L3MuonProducer/plugins/QuarkoniaTrackSelector.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -167,4 +166,5 @@ void QuarkoniaTrackSelector::produce(edm::StreamID, edm::Event& iEvent, const ed
 }
 
 //define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(QuarkoniaTrackSelector);

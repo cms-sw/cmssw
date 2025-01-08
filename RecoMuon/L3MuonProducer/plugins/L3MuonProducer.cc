@@ -16,7 +16,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoMuon/L3MuonProducer/src/L3MuonProducer.h"
+#include "RecoMuon/L3MuonProducer/plugins/L3MuonProducer.h"
 
 // TrackFinder and specific GLB Trajectory Builder
 #include "RecoMuon/L3TrackFinder/interface/L3MuonTrajectoryBuilder.h"
@@ -319,3 +319,6 @@ void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   }
   descriptions.add("L3MuonProducer", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L3MuonProducer);

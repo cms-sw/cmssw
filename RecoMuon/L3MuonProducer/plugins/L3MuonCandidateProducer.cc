@@ -22,7 +22,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoMuon/L3MuonProducer/src/L3MuonCandidateProducer.h"
+#include "RecoMuon/L3MuonProducer/plugins/L3MuonCandidateProducer.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -176,3 +176,6 @@ void L3MuonCandidateProducer::produce(StreamID, Event& event, const EventSetup& 
   LogTrace(category) << " Event loaded"
                      << "================================";
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L3MuonCandidateProducer);

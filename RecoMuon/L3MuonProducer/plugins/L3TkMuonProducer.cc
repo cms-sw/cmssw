@@ -13,7 +13,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoMuon/L3MuonProducer/src/L3TkMuonProducer.h"
+#include "RecoMuon/L3MuonProducer/plugins/L3TkMuonProducer.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 #include <string>
@@ -258,3 +258,6 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   LogDebug(metname) << " Event loaded"
                     << "================================";
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L3TkMuonProducer);

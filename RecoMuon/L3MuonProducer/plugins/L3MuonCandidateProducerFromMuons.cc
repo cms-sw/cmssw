@@ -13,7 +13,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "RecoMuon/L3MuonProducer/src/L3MuonCandidateProducerFromMuons.h"
+#include "RecoMuon/L3MuonProducer/plugins/L3MuonCandidateProducerFromMuons.h"
 
 // Input and output collections
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -90,3 +90,6 @@ void L3MuonCandidateProducerFromMuons::produce(StreamID, Event& event, const Eve
   }
   event.put(std::move(candidates));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L3MuonCandidateProducerFromMuons);

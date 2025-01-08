@@ -6,8 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -50,4 +48,6 @@ void L3MuonCleaner::produce(edm::StreamID, edm::Event& event, const edm::EventSe
   }
   event.put(std::move(outTracks));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(L3MuonCleaner);
