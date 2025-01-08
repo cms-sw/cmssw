@@ -10,6 +10,8 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHFStatusBitFromRecHits.h"
@@ -55,6 +57,8 @@ public:
   void beginRun(edm::Run const& r, edm::EventSetup const& es) final;
   void endRun(edm::Run const& r, edm::EventSetup const& es) final;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   typedef void (HcalSimpleRecAlgo::*SetCorrectionFcn)(std::shared_ptr<AbsOOTPileupCorrection>);

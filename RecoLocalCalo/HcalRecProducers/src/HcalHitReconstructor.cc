@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
@@ -63,9 +64,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf)
   //  recoParamsFromDB_ = false ; //  trun off for now.
 
   // std::cout<<"  HcalHitReconstructor   recoParamsFromDB_ "<<recoParamsFromDB_<<std::endl;
-
-  if (conf.existsAs<bool>("setNegativeFlags"))
-    setNegativeFlags_ = conf.getParameter<bool>("setNegativeFlags");
+  setNegativeFlags_ = conf.getParameter<bool>("setNegativeFlags");
 
   hfdigibit_ = nullptr;
 
@@ -104,35 +103,35 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf)
       hfdigibit_ = new HcalHFStatusBitFromDigis(psdigi, psTimeWin);
 
       const edm::ParameterSet& psS9S1 = conf.getParameter<edm::ParameterSet>("S9S1stat");
-      hfS9S1_ = new HcalHF_S9S1algorithm(psS9S1.getParameter<std::vector<double> >("short_optimumSlope"),
-                                         psS9S1.getParameter<std::vector<double> >("shortEnergyParams"),
-                                         psS9S1.getParameter<std::vector<double> >("shortETParams"),
-                                         psS9S1.getParameter<std::vector<double> >("long_optimumSlope"),
-                                         psS9S1.getParameter<std::vector<double> >("longEnergyParams"),
-                                         psS9S1.getParameter<std::vector<double> >("longETParams"),
+      hfS9S1_ = new HcalHF_S9S1algorithm(psS9S1.getParameter<std::vector<double>>("short_optimumSlope"),
+                                         psS9S1.getParameter<std::vector<double>>("shortEnergyParams"),
+                                         psS9S1.getParameter<std::vector<double>>("shortETParams"),
+                                         psS9S1.getParameter<std::vector<double>>("long_optimumSlope"),
+                                         psS9S1.getParameter<std::vector<double>>("longEnergyParams"),
+                                         psS9S1.getParameter<std::vector<double>>("longETParams"),
                                          psS9S1.getParameter<int>("HcalAcceptSeverityLevel"),
                                          psS9S1.getParameter<bool>("isS8S1"));
 
       const edm::ParameterSet& psS8S1 = conf.getParameter<edm::ParameterSet>("S8S1stat");
-      hfS8S1_ = new HcalHF_S9S1algorithm(psS8S1.getParameter<std::vector<double> >("short_optimumSlope"),
-                                         psS8S1.getParameter<std::vector<double> >("shortEnergyParams"),
-                                         psS8S1.getParameter<std::vector<double> >("shortETParams"),
-                                         psS8S1.getParameter<std::vector<double> >("long_optimumSlope"),
-                                         psS8S1.getParameter<std::vector<double> >("longEnergyParams"),
-                                         psS8S1.getParameter<std::vector<double> >("longETParams"),
+      hfS8S1_ = new HcalHF_S9S1algorithm(psS8S1.getParameter<std::vector<double>>("short_optimumSlope"),
+                                         psS8S1.getParameter<std::vector<double>>("shortEnergyParams"),
+                                         psS8S1.getParameter<std::vector<double>>("shortETParams"),
+                                         psS8S1.getParameter<std::vector<double>>("long_optimumSlope"),
+                                         psS8S1.getParameter<std::vector<double>>("longEnergyParams"),
+                                         psS8S1.getParameter<std::vector<double>>("longETParams"),
                                          psS8S1.getParameter<int>("HcalAcceptSeverityLevel"),
                                          psS8S1.getParameter<bool>("isS8S1"));
 
       const edm::ParameterSet& psPET = conf.getParameter<edm::ParameterSet>("PETstat");
-      hfPET_ = new HcalHF_PETalgorithm(psPET.getParameter<std::vector<double> >("short_R"),
-                                       psPET.getParameter<std::vector<double> >("shortEnergyParams"),
-                                       psPET.getParameter<std::vector<double> >("shortETParams"),
-                                       psPET.getParameter<std::vector<double> >("long_R"),
-                                       psPET.getParameter<std::vector<double> >("longEnergyParams"),
-                                       psPET.getParameter<std::vector<double> >("longETParams"),
+      hfPET_ = new HcalHF_PETalgorithm(psPET.getParameter<std::vector<double>>("short_R"),
+                                       psPET.getParameter<std::vector<double>>("shortEnergyParams"),
+                                       psPET.getParameter<std::vector<double>>("shortETParams"),
+                                       psPET.getParameter<std::vector<double>>("long_R"),
+                                       psPET.getParameter<std::vector<double>>("longEnergyParams"),
+                                       psPET.getParameter<std::vector<double>>("longETParams"),
                                        psPET.getParameter<int>("HcalAcceptSeverityLevel"),
-                                       psPET.getParameter<std::vector<double> >("short_R_29"),
-                                       psPET.getParameter<std::vector<double> >("long_R_29"));
+                                       psPET.getParameter<std::vector<double>>("short_R_29"),
+                                       psPET.getParameter<std::vector<double>>("long_R_29"));
     }
     produces<HFRecHitCollection>();
   } else if (!strcasecmp(subd.c_str(), "ZDC")) {
@@ -150,14 +149,10 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf)
 
   // If no valid OOT pileup correction name specified,
   // disable the correction
-  if (conf.existsAs<std::string>("dataOOTCorrectionName"))
-    dataOOTCorrectionName_ = conf.getParameter<std::string>("dataOOTCorrectionName");
-  if (conf.existsAs<std::string>("dataOOTCorrectionCategory"))
-    dataOOTCorrectionCategory_ = conf.getParameter<std::string>("dataOOTCorrectionCategory");
-  if (conf.existsAs<std::string>("mcOOTCorrectionName"))
-    mcOOTCorrectionName_ = conf.getParameter<std::string>("mcOOTCorrectionName");
-  if (conf.existsAs<std::string>("mcOOTCorrectionCategory"))
-    mcOOTCorrectionCategory_ = conf.getParameter<std::string>("mcOOTCorrectionCategory");
+  dataOOTCorrectionName_ = conf.getParameter<std::string>("dataOOTCorrectionName");
+  dataOOTCorrectionCategory_ = conf.getParameter<std::string>("dataOOTCorrectionCategory");
+  mcOOTCorrectionName_ = conf.getParameter<std::string>("mcOOTCorrectionName");
+  mcOOTCorrectionCategory_ = conf.getParameter<std::string>("mcOOTCorrectionCategory");
   if (dataOOTCorrectionName_.empty() && mcOOTCorrectionName_.empty())
     setPileupCorrection_ = nullptr;
 
@@ -518,3 +513,103 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   }
   //DL  delete myqual;
 }  // void HcalHitReconstructor::produce(...)
+
+void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("correctForTimeslew", false);
+  desc.add<bool>("correctForPhaseContainment", false);
+  desc.add<double>("correctionPhaseNS", 13.0);
+  desc.add<edm::InputTag>("digiLabel", edm::InputTag("hcalDigis"));
+  desc.add<bool>("correctTiming", true);
+  desc.add<bool>("setHSCPFlags", false);
+  desc.add<bool>("setPulseShapeFlags", false);
+  desc.add<bool>("dropZSmarkedPassed", true);
+  desc.add<int>("firstAuxTS", 1);
+  desc.add<int>("firstSample", 2);
+  desc.add<int>("samplesToAdd", 1);
+  desc.add<bool>("tsFromDB", true);
+  desc.add<bool>("useLeakCorrection", false);
+  desc.add<bool>("recoParamsFromDB", true);
+  desc.add<bool>("setNegativeFlags", false);
+
+  edm::ParameterSetDescription saturationParametersDesc;
+  saturationParametersDesc.add<int>("maxADCvalue", 127);
+
+  // Conditionally add saturationParameters if setSaturationFlags is true
+  desc.ifValue(
+      edm::ParameterDescription<bool>("setSaturationFlags", true, true),
+      false >> edm::EmptyGroupDescription() or true >> edm::ParameterDescription<edm::ParameterSetDescription>(
+                                                           "saturationParameters", saturationParametersDesc, true));
+
+  // Add digiTimeFromDB conditionally based on Subdetector being "HF"
+  desc.ifValue(edm::ParameterDescription<std::string>("Subdetector", "HF", true),
+               "HF" >> edm::ParameterDescription<bool>("digiTimeFromDB", false, true) or
+                   "HO" >> edm::EmptyGroupDescription()  // Default case: do nothing
+  );
+
+  edm::ParameterSetDescription hfTimingTrustParametersDesc;
+  hfTimingTrustParametersDesc.add<int>("hfTimingTrustLevel1", 1);
+  hfTimingTrustParametersDesc.add<int>("hfTimingTrustLevel2", 4);
+
+  // Conditionally add hfTimingTrustParameters if setTimingTrustFlags is true
+  desc.ifValue(edm::ParameterDescription<bool>("setTimingTrustFlags", true, true),
+               false >> edm::EmptyGroupDescription() or
+                   true >> edm::ParameterDescription<edm::ParameterSetDescription>(
+                               "hfTimingTrustParameters", hfTimingTrustParametersDesc, true));
+
+  {
+    edm::ParameterSetDescription digiStatDesc;
+    HcalHFStatusBitFromDigis::fillHFDigiTimeParamsDesc(digiStatDesc);
+
+    edm::ParameterSetDescription hfInWindowStatDesc;
+    HcalHFStatusBitFromDigis::fillHFTimeInWindowParamsDesc(hfInWindowStatDesc);
+
+    edm::ParameterSetDescription s9s1StatDesc;
+    s9s1StatDesc.add<std::vector<double>>("short_optimumSlope", {});
+    s9s1StatDesc.add<std::vector<double>>("shortEnergyParams", {});
+    s9s1StatDesc.add<std::vector<double>>("shortETParams", {});
+    s9s1StatDesc.add<std::vector<double>>("long_optimumSlope", {});
+    s9s1StatDesc.add<std::vector<double>>("longEnergyParams", {});
+    s9s1StatDesc.add<std::vector<double>>("longETParams", {});
+    s9s1StatDesc.add<int>("HcalAcceptSeverityLevel", 9);
+    s9s1StatDesc.add<bool>("isS8S1", false);
+
+    edm::ParameterSetDescription s8s1StatDesc;
+    s8s1StatDesc.add<std::vector<double>>("short_optimumSlope", {});
+    s8s1StatDesc.add<std::vector<double>>("shortEnergyParams", {});
+    s8s1StatDesc.add<std::vector<double>>("shortETParams", {});
+    s8s1StatDesc.add<std::vector<double>>("long_optimumSlope", {});
+    s8s1StatDesc.add<std::vector<double>>("longEnergyParams", {});
+    s8s1StatDesc.add<std::vector<double>>("longETParams", {});
+    s8s1StatDesc.add<int>("HcalAcceptSeverityLevel", 9);
+    s8s1StatDesc.add<bool>("isS8S1", true);
+
+    edm::ParameterSetDescription petStatDesc;
+    petStatDesc.add<std::vector<double>>("short_R", {});
+    petStatDesc.add<std::vector<double>>("shortEnergyParams", {});
+    petStatDesc.add<std::vector<double>>("shortETParams", {});
+    petStatDesc.add<std::vector<double>>("long_R", {});
+    petStatDesc.add<std::vector<double>>("longEnergyParams", {});
+    petStatDesc.add<std::vector<double>>("longETParams", {});
+    petStatDesc.add<int>("HcalAcceptSeverityLevel", 9);
+    petStatDesc.add<std::vector<double>>("short_R_29", {});
+    petStatDesc.add<std::vector<double>>("long_R_29", {});
+
+    // Conditionally add S9S1stat if setNoiseFlags is true
+    desc.ifValue(
+        edm::ParameterDescription<bool>("setNoiseFlags", true, true),
+        false >> edm::EmptyGroupDescription() or
+            true >>
+                (edm::ParameterDescription<edm::ParameterSetDescription>("digistat", digiStatDesc, true) and
+                 edm::ParameterDescription<edm::ParameterSetDescription>("HFInWindowStat", hfInWindowStatDesc, true) and
+                 edm::ParameterDescription<edm::ParameterSetDescription>("S9S1stat", s9s1StatDesc, true) and
+                 edm::ParameterDescription<edm::ParameterSetDescription>("S8S1stat", s8s1StatDesc, true) and
+                 edm::ParameterDescription<edm::ParameterSetDescription>("PETstat", petStatDesc, true)));
+  }
+
+  desc.add<std::string>("dataOOTCorrectionName", std::string(""));
+  desc.add<std::string>("dataOOTCorrectionCategory", "Data");
+  desc.add<std::string>("mcOOTCorrectionName", "");
+  desc.add<std::string>("mcOOTCorrectionCategory", "MC");
+  descriptions.addWithDefaultLabel(desc);
+}
