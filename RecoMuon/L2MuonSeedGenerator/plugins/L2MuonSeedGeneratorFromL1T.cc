@@ -18,7 +18,7 @@
 //--------------------------------------------------
 
 // Class Header
-#include "RecoMuon/L2MuonSeedGenerator/src/L2MuonSeedGeneratorFromL1T.h"
+#include "RecoMuon/L2MuonSeedGenerator/plugins/L2MuonSeedGeneratorFromL1T.h"
 
 // Framework
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -1047,3 +1047,6 @@ bool L2MuonSeedGeneratorFromL1T::isAssociateOfflineSeedToL1(
 
   return isAssociated;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L2MuonSeedGeneratorFromL1T);

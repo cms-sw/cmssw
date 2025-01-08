@@ -3,7 +3,7 @@
  *   \author Luca Ferragina (INFN BO), 2024
  */
 
-#include "RecoMuon/L2MuonSeedGenerator/src/Phase2L2MuonSeedCreator.h"
+#include "RecoMuon/L2MuonSeedGenerator/plugins/Phase2L2MuonSeedCreator.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
@@ -164,7 +164,7 @@ void Phase2L2MuonSeedCreator::produce(edm::Event& iEvent, const edm::EventSetup&
     unsigned int nCscHits = 0;
 
     // Loop on L1TkMu stubs to find best association to DT/CSC segments
-    for (auto stub : stubRefs) {
+    for (const auto& stub : stubRefs) {
 #ifdef EDM_ML_DEBUG
       stub->print();
 #endif
@@ -409,7 +409,7 @@ void Phase2L2MuonSeedCreator::produce(edm::Event& iEvent, const edm::EventSetup&
       // Find valid detectors with states
       auto detsWithStates = detLayer->compatibleDets(tsos, *service_->propagator(propagatorName_), *estimator_);
       // Check that at least one valid detector was found
-      if (detsWithStates.size() > 0) {
+      if (!detsWithStates.empty()) {
         // Update the detId with the one from the first valid detector with measurments found
         propagateToId = detsWithStates.front().first->geographicalId();
         // Create the Trajectory State on that detector's surface
@@ -486,7 +486,7 @@ const std::pair<int, int> Phase2L2MuonSeedCreator::matchingStubSegment(const DTC
   LogDebug(metname) << "Matching stub with DT segment";
   int nMatchingIds = 0;
 
-  for (DTChamberId id : matchingIds(stubId)) {
+  for (const DTChamberId& id : matchingIds(stubId)) {
     DTRecSegment4DCollection::range segmentsInChamber = segments.get(id);
     for (DTRecSegment4DCollection::const_iterator segment = segmentsInChamber.first;
          segment != segmentsInChamber.second;

@@ -16,7 +16,7 @@
 //--------------------------------------------------
 
 // Class Header
-#include "RecoMuon/L2MuonSeedGenerator/src/L2MuonSeedGenerator.h"
+#include "RecoMuon/L2MuonSeedGenerator/plugins/L2MuonSeedGenerator.h"
 
 // Framework
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -402,3 +402,6 @@ const TrajectorySeed* L2MuonSeedGenerator::associateOfflineSeedToL1(edm::Handle<
 
   return selOffseed;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L2MuonSeedGenerator);
