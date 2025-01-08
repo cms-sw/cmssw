@@ -88,13 +88,15 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
   const CaloGeometry &geom = es.getData(caloGeomToken_);
   rhtools_.setGeometry(geom);
 
-  constexpr auto isHFnose = std::is_same<TILES, TICLLayerTilesHFNose>::value;
+  constexpr bool isBarrel = std::is_same<TILES, TICLLayerTilesBarrel>::value;
+  constexpr bool isHFnose = std::is_same<TILES, TICLLayerTilesHFNose>::value;
   constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
   constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
 
   // We need to partition the two sides of the HGCAL detector
   auto lastLayerPerSide = static_cast<unsigned int>(rhtools_.lastLayer(isHFnose)) - 1;
-  unsigned int maxLayer = 2 * lastLayerPerSide - 1;
+  if (isBarrel) lastLayerPerSide = static_cast<unsigned int>(rhtools_.lastLayerBarrel()) -1;
+  unsigned int maxLayer = isBarrel ? lastLayerPerSide + 1 : 2 * lastLayerPerSide - 1;
   std::vector<fastjet::PseudoJet> fjInputs;
   fjInputs.clear();
   for (unsigned int currentLayer = 0; currentLayer <= maxLayer; ++currentLayer) {
@@ -102,12 +104,12 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
       buildJetAndTracksters(fjInputs, result);
     }
     const auto &tileOnLayer = input.tiles[currentLayer];
-    for (int ieta = 0; ieta <= nEtaBin; ++ieta) {
+    for (int ieta = 0; ieta < nEtaBin; ++ieta) {
       auto offset = ieta * nPhiBin;
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
         edm::LogVerbatim("PatternRecogntionbyFastJet") << "offset: " << offset;
       }
-      for (int iphi = 0; iphi <= nPhiBin; ++iphi) {
+      for (int iphi = 0; iphi < nPhiBin; ++iphi) {
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
           edm::LogVerbatim("PatternRecogntionbyFastJet") << "iphi: " << iphi;
           edm::LogVerbatim("PatternRecogntionbyFastJet") << "Entries in tileBin: " << tileOnLayer[offset + iphi].size();
@@ -171,3 +173,4 @@ void PatternRecognitionbyFastJet<TILES>::fillPSetDescription(edm::ParameterSetDe
 }
 
 template class ticl::PatternRecognitionbyFastJet<TICLLayerTiles>;
+template class ticl::PatternRecognitionbyFastJet<TICLLayerTilesBarrel>;

@@ -8,8 +8,11 @@
 
 EDM_REGISTER_VALIDATED_PLUGINFACTORY(PatternRecognitionFactory, "PatternRecognitionFactory");
 EDM_REGISTER_VALIDATED_PLUGINFACTORY(PatternRecognitionHFNoseFactory, "PatternRecognitionHFNoseFactory");
+EDM_REGISTER_VALIDATED_PLUGINFACTORY(PatternRecognitionBarrelFactory, "PatternRecognitionBarrelFactory");
+
 DEFINE_EDM_VALIDATED_PLUGIN(PatternRecognitionFactory, ticl::PatternRecognitionbyCA<TICLLayerTiles>, "CA");
 DEFINE_EDM_VALIDATED_PLUGIN(PatternRecognitionFactory, ticl::PatternRecognitionbyCLUE3D<TICLLayerTiles>, "CLUE3D");
 DEFINE_EDM_VALIDATED_PLUGIN(PatternRecognitionFactory, ticl::PatternRecognitionbyFastJet<TICLLayerTiles>, "FastJet");
 DEFINE_EDM_VALIDATED_PLUGIN(PatternRecognitionFactory, ticl::PatternRecognitionbyRecovery<TICLLayerTiles>, "Recovery");
+DEFINE_EDM_VALIDATED_PLUGIN(PatternRecognitionBarrelFactory, ticl::PatternRecognitionbyFastJet<TICLLayerTilesBarrel>, "FastJet");
 DEFINE_EDM_VALIDATED_PLUGIN(PatternRecognitionHFNoseFactory, ticl::PatternRecognitionbyCA<TICLLayerTilesHFNose>, "CA");
