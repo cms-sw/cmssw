@@ -1,4 +1,4 @@
-#include "RecoMuon/CosmicMuonProducer/src/GlobalCosmicMuonProducer.h"
+#include "RecoMuon/CosmicMuonProducer/plugins/GlobalCosmicMuonProducer.h"
 
 /**\class GlobalCosmicMuonProducer
  *
@@ -91,3 +91,6 @@ void GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
   theTrackFinder->reconstruct(cosTrackCands, iEvent, iSetup);
   LogTrace(metname) << "Event loaded";
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(GlobalCosmicMuonProducer);

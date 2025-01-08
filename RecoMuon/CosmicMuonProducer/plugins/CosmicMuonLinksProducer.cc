@@ -1,4 +1,4 @@
-#include "RecoMuon/CosmicMuonProducer/src/CosmicMuonLinksProducer.h"
+#include "RecoMuon/CosmicMuonProducer/plugins/CosmicMuonLinksProducer.h"
 
 /**\class CosmicMuonLinksProducer
  *
@@ -152,3 +152,6 @@ int CosmicMuonLinksProducer::sharedHits(const reco::Track& track1, const reco::T
 
   return match;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CosmicMuonLinksProducer);

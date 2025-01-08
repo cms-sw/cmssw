@@ -1,4 +1,4 @@
-#include "RecoMuon/CosmicMuonProducer/src/CosmicMuonProducer.h"
+#include "RecoMuon/CosmicMuonProducer/plugins/CosmicMuonProducer.h"
 
 /**\class CosmicMuonProducer
  *
@@ -81,3 +81,6 @@ void CosmicMuonProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   theService->update(iSetup);
   theTrackFinder->reconstruct(seeds, iEvent, iSetup);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CosmicMuonProducer);
