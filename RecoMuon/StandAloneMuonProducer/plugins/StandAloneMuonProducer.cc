@@ -17,7 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoMuon/StandAloneMuonProducer/src/StandAloneMuonProducer.h"
+#include "RecoMuon/StandAloneMuonProducer/plugins/StandAloneMuonProducer.h"
 
 // TrackFinder and Specific STA Trajectory Builder
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
@@ -125,3 +125,6 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
                     << "================================" << endl
                     << endl;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(StandAloneMuonProducer);
