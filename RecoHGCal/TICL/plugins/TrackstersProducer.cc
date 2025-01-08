@@ -49,6 +49,8 @@ public:
     // Configure the pattern recognition plugin once per run/IOV.
     if (doNose_) {
       myAlgoHFNose_->setGeometry(rhtools_);
+    } else if (doBarrel_) {
+      myAlgoBarrel_->setGeometry(rhtools_);
     } else {
       myAlgo_->setGeometry(rhtools_);
     }
@@ -57,7 +59,9 @@ public:
 private:
   std::string detector_;
   bool doNose_;
+  bool doBarrel_;
   std::unique_ptr<PatternRecognitionAlgoBaseT<TICLLayerTiles>> myAlgo_;
+  std::unique_ptr<PatternRecognitionAlgoBaseT<TICLLayerTilesBarrel>> myAlgoBarrel_;
   std::unique_ptr<PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>> myAlgoHFNose_;
 
   std::unique_ptr<TracksterInferenceAlgoBase> inferenceAlgo_;
@@ -68,6 +72,7 @@ private:
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
 
   edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
+  edm::EDGetTokenT<TICLLayerTilesBarrel> layer_clusters_tiles_barrel_token_;
   edm::EDGetTokenT<TICLLayerTilesHFNose> layer_clusters_tiles_hfnose_token_;
   const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seeding_regions_token_;
 
@@ -83,6 +88,7 @@ DEFINE_FWK_MODULE(TrackstersProducer);
 TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, ticl::TICLONNXGlobalCache const* cache)
     : detector_(ps.getParameter<std::string>("detector")),
       doNose_(detector_ == "HFNose"),
+      doBarrel_(detector_ == "Barrel"),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
       filtered_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"))),
       original_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"))),
@@ -99,6 +105,11 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, ticl::TICLON
     myAlgoHFNose_ = PatternRecognitionHFNoseFactory::get()->create(plugin, pluginPSet, consumesCollector());
     layer_clusters_tiles_hfnose_token_ =
         consumes<TICLLayerTilesHFNose>(ps.getParameter<edm::InputTag>("layer_clusters_hfnose_tiles"));
+  } else if (doBarrel_) {
+    myAlgoBarrel_ = PatternRecognitionBarrelFactory::get()->create(
+        ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, consumesCollector());
+    layer_clusters_tiles_barrel_token_ = 
+        consumes<TICLLayerTilesBarrel>(ps.getParameter<edm::InputTag>("layer_clusters_barrel_tiles"));
   } else {
     myAlgo_ = PatternRecognitionFactory::get()->create(plugin, pluginPSet, consumesCollector());
     layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
@@ -174,6 +185,17 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       }
 
       myAlgoHFNose_->filter(*result, *initialResult, inputHFNose, seedToTrackstersAssociation);
+    
+     } else if (doBarrel_) {                                                                                             
+       const auto& layer_clusters_barrel_tiles = evt.get(layer_clusters_tiles_barrel_token_);
+       const typename PatternRecognitionAlgoBaseT<TICLLayerTilesBarrel>::Inputs inputBarrel(
+           evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_barrel_tiles, seeding_regions);
+    
+       if (inferenceAlgo_) {
+        inferenceAlgo_->runInference(layerClusters, *initialResult, rhtools_);
+       }
+
+       myAlgoBarrel_->makeTracksters(inputBarrel, *result, seedToTrackstersAssociation);
     } else {
       const auto& tiles = evt.get(layer_clusters_tiles_token_);
       const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
@@ -211,6 +233,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("original_mask", edm::InputTag("hgcalMergeLayerClusters", "InitialLayerClustersMask"));
   desc.add<edm::InputTag>("time_layerclusters", edm::InputTag("hgcalMergeLayerClusters", "timeLayerCluster"));
   desc.add<edm::InputTag>("layer_clusters_tiles", edm::InputTag("ticlLayerTileProducer"));
+  desc.add<edm::InputTag>("layer_clusters_barrel_tiles", edm::InputTag("ticlLayerTileProducer", "ticlLayerTilesBarrel"));
   desc.add<edm::InputTag>("layer_clusters_hfnose_tiles", edm::InputTag("ticlLayerTileHFNose"));
   desc.add<edm::InputTag>("seeding_regions", edm::InputTag("ticlSeedingRegionProducer"));
   desc.add<std::string>("patternRecognitionBy", "CLUE3D");
