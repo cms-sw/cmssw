@@ -202,5 +202,3 @@ const bool Phase2HLTMuonSelectorForL3::rejectL3Track(l1t::TrackerMuonRef l1TkMuR
   LogDebug(metname) << "Reject L3 Track: " << reject;
   return reject;
 }
-
-DEFINE_FWK_MODULE(Phase2HLTMuonSelectorForL3);
