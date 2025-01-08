@@ -53,7 +53,8 @@ void TmpSimEvent::load(edm::SimTrackContainer& c) const {
       t.setFromBackScattering();
     if (isPrimary)
       t.setIsPrimary();
-    t.setGenParticleID(primaryGenPartId);
+    else
+      t.setGenParticleID(primaryGenPartId);
     c.push_back(t);
   }
   std::stable_sort(c.begin(), c.end(), IdSort());

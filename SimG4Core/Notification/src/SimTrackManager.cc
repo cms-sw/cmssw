@@ -76,10 +76,12 @@ void SimTrackManager::addTrack(TrackWithHistory* iTrack, const G4Track* track, b
     auto info = static_cast<const TrackInformation*>(track->GetUserInformation());
     if (info->isInTrkFromBackscattering())
       iTrack->setFromBackScattering();
-    // set there *for all the tracks* the genParticle ID associated with the G4Track
-    // in the constructor of TrackWithHistory the info isPrimary is saved and used
-    // to give -1 if the track is not a primary
-    iTrack->setGenParticleID(info->mcTruthID());
+    // set there for the *non-primary* tracks the genParticle ID associated with the G4Track
+    // for the primaries this is done in the TrackWithHistory constructor.
+    // In the constructor of TrackWithHistory the info isPrimary is saved and used
+    // to give -1 if the track is not a primary.
+    if (not iTrack->isPrimary())
+      iTrack->setGenParticleID(info->mcTruthID());
     m_trackContainer.push_back(iTrack);
     const auto& v = track->GetStep()->GetPostStepPoint()->GetPosition();
     std::pair<int, math::XYZVectorD> p(iTrack->trackID(),

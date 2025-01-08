@@ -260,14 +260,14 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     }
     edm::LogVerbatim("SimG4CoreApplication")
         << "Produced " << p1->size()
-        << " SimTracks: G4 Id, pdg, 4-momentum(GeV), vertexID, mcTruthID, crossedBoundary, trackID at boundary, from "
-           "backscattering, isPrimary, getPrimary";
+        << " SimTracks: G4 Id, pdg, 4-momentum(GeV), vertexID, mcTruthID, crossedBoundary -> trackID at boundary, from "
+           "backscattering, isPrimary -> getPrimary";
     if (1 < m_verbose) {
       int nn = p1->size();
       for (int i = 0; i < nn; ++i) {
-        edm::LogVerbatim("Track") << " " << i << ". " << (*p1)[i].trackId() << " " << (*p1)[i] << " "
-                                  << (*p1)[i].crossedBoundary() << " " << (*p1)[i].getIDAtBoundary() << " "
-                                  << (*p1)[i].isFromBackScattering() << " " << (*p1)[i].isPrimary() << " "
+        edm::LogVerbatim("Track") << " " << i << ". " << (*p1)[i].trackId() << ", " << (*p1)[i] << ", "
+                                  << (*p1)[i].crossedBoundary() << "-> " << (*p1)[i].getIDAtBoundary() << ", "
+                                  << (*p1)[i].isFromBackScattering() << ", " << (*p1)[i].isPrimary() << "-> "
                                   << (*p1)[i].getPrimaryID();
       }
     }

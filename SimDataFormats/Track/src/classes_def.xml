@@ -9,6 +9,22 @@
    <version ClassVersion="12" checksum="3470347245"/>
    <version ClassVersion="11" checksum="1785575744"/>
    <version ClassVersion="10" checksum="1430205451"/>
+   <ioread sourceClass = "SimTrack" version="[-12]" targetClass="SimTrack" source="" target="">
+    <![CDATA[
+        SimTrack tmp(newObj->type(), newObj->momentum(), newObj->vertIndex(), newObj->genpartIndex(), newObj->trackerSurfacePosition(), newObj->trackerSurfaceMomentum());
+        tmp.setTrackId(newObj->trackId());
+        tmp.setEventId(newObj->eventId());
+        tmp.setCrossedBoundaryVars(
+            newObj->crossedBoundary(), newObj->getIDAtBoundary(), newObj->getPositionAtBoundary(), newObj->getMomentumAtBoundary());
+        if (newObj->isFromBackScattering()) {
+          tmp.setFromBackScattering();
+        }
+        if (newObj->genpartIndex() != -1) {
+          tmp.setIsPrimary();
+        }
+        *newObj=tmp;
+    ]]>
+   </ioread>
   </class>
   <class name="edm::Wrapper<std::vector<SimTrack> >" />
   <class name="edm::RefProd<std::vector<SimTrack> >"/>
