@@ -16,7 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "RecoMuon/GlobalMuonProducer/src/TevMuonProducer.h"
+#include "RecoMuon/GlobalMuonProducer/plugins/TevMuonProducer.h"
 
 // TrackFinder and specific GLB Trajectory Builder
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrajectoryBuilder.h"
@@ -145,3 +145,6 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   LogTrace(metname) << "Done." << endl;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TevMuonProducer);

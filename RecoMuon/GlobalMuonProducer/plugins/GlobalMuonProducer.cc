@@ -17,7 +17,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoMuon/GlobalMuonProducer/src/GlobalMuonProducer.h"
+#include "RecoMuon/GlobalMuonProducer/plugins/GlobalMuonProducer.h"
 
 // TrackFinder and specific GLB Trajectory Builder
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrajectoryBuilder.h"
@@ -151,3 +151,6 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
                     << "================================" << endl
                     << endl;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(GlobalMuonProducer);
