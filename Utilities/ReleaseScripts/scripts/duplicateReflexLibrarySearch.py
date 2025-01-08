@@ -77,6 +77,7 @@ equivDict = \
          {'HGCDigi'               : ['HGCSample']},
          {'HGCRecHit'             : ['constHGCRecHit','HGCRecHit']},
          {'SiPixelObjects'        : ['SiPixelQuality.*']},
+         {'EcalRecHit'            : ['EcalRecHitSoA.*']},
      ]
 
 ignoreEdmDP = {
