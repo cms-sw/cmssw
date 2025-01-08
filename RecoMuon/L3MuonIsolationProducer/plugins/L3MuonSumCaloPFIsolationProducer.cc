@@ -1,4 +1,4 @@
-#include "L3MuonSumCaloPFIsolationProducer.h"
+#include "RecoMuon/L3MuonIsolationProducer/plugins/L3MuonSumCaloPFIsolationProducer.h"
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
@@ -76,3 +76,6 @@ void L3MuonSumCaloPFIsolationProducer::produce(edm::StreamID, edm::Event& iEvent
   isoFloatFiller.fill();
   iEvent.put(std::move(caloIsoMap));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L3MuonSumCaloPFIsolationProducer);

@@ -1,4 +1,4 @@
-#include "L3MuonCombinedRelativeIsolationProducer.h"
+#include "RecoMuon/L3MuonIsolationProducer/plugins/L3MuonCombinedRelativeIsolationProducer.h"
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
@@ -25,7 +25,7 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 
-#include "L3NominalEfficiencyConfigurator.h"
+#include "RecoMuon/L3MuonIsolationProducer/interface/L3NominalEfficiencyConfigurator.h"
 
 #include <string>
 
@@ -342,3 +342,6 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
     std::cout << " END OF EVENT "
               << "================================";
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L3MuonCombinedRelativeIsolationProducer);
