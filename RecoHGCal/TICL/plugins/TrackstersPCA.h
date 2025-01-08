@@ -26,6 +26,7 @@ namespace ticl {
                              bool computeLocalTime = false,
                              bool energyWeight = true,
                              bool clean = false,
+                             bool isBarrel = false,
                              int minLayer = 10,
                              int maxLayer = 10);
   std::pair<float, float> computeLocalTracksterTime(const Trackster &trackster,
@@ -38,7 +39,7 @@ namespace ticl {
                                                size_t N);
 
   inline unsigned getLayerFromLC(const reco::CaloCluster &LC, const hgcal::RecHitTools &rhtools) {
-    std::vector<std::pair<DetId, float>> thisclusterHits = LC.hitsAndFractions();
+    const std::vector<std::pair<DetId, float>> &thisclusterHits = LC.hitsAndFractions();
     auto layer = rhtools.getLayerWithOffset(thisclusterHits[0].first);
     return layer;
   }
