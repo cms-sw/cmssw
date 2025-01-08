@@ -4,7 +4,7 @@
 /** \class MuonSeedPtExtractor
  */
 
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedVPtExtractor.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedVPtExtractor.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 #include <map>

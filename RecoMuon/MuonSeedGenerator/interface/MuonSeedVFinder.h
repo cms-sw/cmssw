@@ -12,7 +12,7 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedPtExtractor.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include <vector>
 

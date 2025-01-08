@@ -1,7 +1,7 @@
 #ifndef MuonSeedGenerator_MuonSeedSimpleCleaner_h
 #define MuonSeedGenerator_MuonSeedSimpleCleaner_h
 
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedVCleaner.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedVCleaner.h"
 
 class MuonSeedSimpleCleaner : public MuonSeedVCleaner {
 public:

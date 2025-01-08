@@ -1,7 +1,7 @@
 #ifndef MuonSeedGenerator_SETPatternRecognition_h
 #define MuonSeedGenerator_SETPatternRecognition_h
 
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedVPatternRecognition.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedVPatternRecognition.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 

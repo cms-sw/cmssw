@@ -11,11 +11,11 @@
  *  
  */
 
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedVFinder.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonCSCSeedFromRecHits.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonDTSeedFromRecHits.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonOverlapSeedFromRecHits.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedVFinder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedPtExtractor.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonCSCSeedFromRecHits.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonDTSeedFromRecHits.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonOverlapSeedFromRecHits.h"
 
 #include <vector>
 

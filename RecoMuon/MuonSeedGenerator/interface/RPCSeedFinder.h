@@ -8,7 +8,7 @@
  *  
  */
 
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedPattern.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCSeedPattern.h"
 #include <DataFormats/TrajectorySeed/interface/TrajectorySeed.h>
 #include <RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>

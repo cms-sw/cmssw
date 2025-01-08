@@ -3,7 +3,7 @@
 // Package:    RPCSeedGenerator
 // Class:      RPCSeedGenerator
 //
-/**\class RPCSeedGenerator RPCSeedGenerator.cc RecoMuon/MuonSeedGenerator/src/RPCSeedGenerator.cc
+/**\class RPCSeedGenerator RPCSeedGenerator.cc RecoMuon/MuonSeedGenerator/interface/RPCSeedGenerator.cc
 
 Description: <one line class summary>
 
@@ -32,12 +32,12 @@ Implementation:
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include <vector>
 // Using other classes
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedPattern.h"
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedFinder.h"
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedrecHitFinder.h"
-#include "RecoMuon/MuonSeedGenerator/src/RPCCosmicSeedrecHitFinder.h"
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedLayerFinder.h"
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedOverlapper.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCSeedPattern.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCSeedFinder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCSeedrecHitFinder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCCosmicSeedrecHitFinder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCSeedLayerFinder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCSeedOverlapper.h"
 // Geometry
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"

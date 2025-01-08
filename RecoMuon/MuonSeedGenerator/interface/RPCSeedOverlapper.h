@@ -13,7 +13,7 @@
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <DataFormats/Common/interface/OwnVector.h>
 #include <DataFormats/TrackingRecHit/interface/TrackingRecHit.h>
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedPattern.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCSeedPattern.h"
 
 class RPCSeedOverlapper {
   typedef RPCSeedPattern::weightedTrajectorySeed weightedTrajectorySeed;

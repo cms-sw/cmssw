@@ -9,8 +9,8 @@
  */
 
 #include <RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h>
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedrecHitFinder.h"
-#include "RecoMuon/MuonSeedGenerator/src/RPCCosmicSeedrecHitFinder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCSeedrecHitFinder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCCosmicSeedrecHitFinder.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #ifndef RPCLayerNumber

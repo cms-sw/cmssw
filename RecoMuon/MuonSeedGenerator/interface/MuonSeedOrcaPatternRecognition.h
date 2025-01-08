@@ -1,7 +1,7 @@
 #ifndef MuonSeedGenerator_MuonSeedOrcaPatternRecognition_h
 #define MuonSeedGenerator_MuonSeedOrcaPatternRecognition_h
 
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedVPatternRecognition.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedVPatternRecognition.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"

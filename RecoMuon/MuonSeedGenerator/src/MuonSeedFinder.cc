@@ -6,7 +6,7 @@
  *
  */
 
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedFinder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;

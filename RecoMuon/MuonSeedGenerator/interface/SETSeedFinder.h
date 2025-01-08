@@ -1,10 +1,10 @@
 #ifndef MuonSeedGenerator_SETSeedFinder_h
 #define MuonSeedGenerator_SETSeedFinder_h
 
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedVFinder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedVFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
-#include "RecoMuon/MuonSeedGenerator/src/SETFilter.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedPtExtractor.h"
+#include "RecoMuon/MuonSeedGenerator/interface/SETFilter.h"
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
