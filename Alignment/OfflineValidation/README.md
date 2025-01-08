@@ -117,5 +117,11 @@ For details read [`README_JetHT.md`](https://github.com/cms-sw/cmssw/blob/master
 ## MTS validation
 For details read [`README_MTS.md`](https://github.com/cms-sw/cmssw/blob/master/Alignment/OfflineValidation/README_MTS.md)
 
+## Pixel BaryCenter
+For details read [`README_MTS.md`](https://github.com/cms-sw/cmssw/blob/master/Alignment/OfflineValidation/README_PixBary.md)
+
+## Generic validation (dataset validation)
+For details read [`README_Generic.md`](https://github.com/cms-sw/cmssw/blob/master/Alignment/OfflineValidation/README_Generic.md)
+
 ## General info about IOV/run arguments
 For details read [`README_IOV.md`](https://github.com/cms-sw/cmssw/blob/master/Alignment/OfflineValidation/README_IOV.md)
