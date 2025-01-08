@@ -345,3 +345,7 @@ void TSGFromPropagation::adjust(TrajectoryStateOnSurface& state) const {
   state =
       TrajectoryStateOnSurface(state.weight(), state.globalParameters(), oMat, state.surface(), state.surfaceSide());
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
+DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGFromPropagation, "TSGFromPropagation");

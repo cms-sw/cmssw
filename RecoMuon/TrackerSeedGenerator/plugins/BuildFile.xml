@@ -11,6 +11,7 @@
   <use name="DataFormats/Phase2TrackerDigi"/>
   <use name="DataFormats/RecoCandidate"/>
   <use name="DataFormats/SiPixelDetId"/>
+  <use name="DataFormats/TrackCandidate"/>
   <use name="DataFormats/TrackerCommon"/>
   <use name="DataFormats/TrackReco"/>
   <use name="DataFormats/TrackingRecHit"/>

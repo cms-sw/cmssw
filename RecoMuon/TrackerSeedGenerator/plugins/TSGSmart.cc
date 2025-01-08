@@ -56,3 +56,7 @@ void TSGSmart::run(TrajectorySeedCollection &seeds,
       thePairGenerator->run(seeds, region, ev, es);
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
+DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGSmart, "TSGSmart");

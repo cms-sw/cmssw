@@ -9,7 +9,7 @@
  * \author Jean-Roch Vlimant
  */
 
-#include "RecoMuon/TrackerSeedGenerator/plugins/CompositeTSG.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/CompositeTSG.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class TrackerTopology;

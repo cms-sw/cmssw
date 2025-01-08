@@ -1,4 +1,4 @@
-#include "RecoMuon/TrackerSeedGenerator/plugins/CompositeTSG.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/CompositeTSG.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"

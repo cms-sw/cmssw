@@ -1,4 +1,4 @@
-#include "RecoMuon/TrackerSeedGenerator/plugins/SeparatingTSG.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/SeparatingTSG.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 

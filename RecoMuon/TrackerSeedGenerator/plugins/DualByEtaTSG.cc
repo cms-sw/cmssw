@@ -14,3 +14,7 @@ unsigned int DualByEtaTSG::selectTSG(const TrackCand& muonTrackCand, const Track
                         << " compared to: " << theEtaSeparation;
   return (fabs(muonTrackCand.second->eta()) < theEtaSeparation);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
+DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, DualByEtaTSG, "DualByEtaTSG");
