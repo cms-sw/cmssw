@@ -1,3 +1,4 @@
+<library name="RecoMuonL2MuonIsolationProducerPlugins" file="*.cc">
 <use name="DataFormats/Common"/>
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/TrackReco"/>
@@ -8,3 +9,4 @@
 <use name="PhysicsTools/IsolationAlgos"/>
 <use name="RecoMuon/MuonIsolation"/>
 <flags EDM_PLUGIN="1"/>
+</library>

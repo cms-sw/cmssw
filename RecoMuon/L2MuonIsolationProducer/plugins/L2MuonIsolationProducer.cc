@@ -12,7 +12,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
-#include "RecoMuon/L2MuonIsolationProducer/src/L2MuonIsolationProducer.h"
+#include "RecoMuon/L2MuonIsolationProducer/plugins/L2MuonIsolationProducer.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -186,3 +186,6 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   LogDebug(metname) << " Event loaded"
                     << "================================";
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L2MuonIsolationProducer);
