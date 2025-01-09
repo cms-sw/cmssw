@@ -217,7 +217,7 @@ namespace trackerTFP {
         }
       }
     }
-    const OrphanHandle<TTTracks> handle = iEvent.emplace(edPutTokenTTTracks_, move(ttTracks));
+    const OrphanHandle<TTTracks> handle = iEvent.emplace(edPutTokenTTTracks_, std::move(ttTracks));
     // add TTTrackRefs
     int iTrk(0);
     int iChan(0);
@@ -236,9 +236,9 @@ namespace trackerTFP {
       }
     }
     // store tracks
-    iEvent.emplace(edPutTokenTracks_, move(acceptedTracks));
+    iEvent.emplace(edPutTokenTracks_, std::move(acceptedTracks));
     // store stubs
-    iEvent.emplace(edPutTokenStubs_, move(acceptedStubs));
+    iEvent.emplace(edPutTokenStubs_, std::move(acceptedStubs));
   }
 
 }  // namespace trackerTFP

@@ -158,7 +158,7 @@ namespace trklet {
     }
     if (use5ParameterFit_) {
       // store ttTracks
-      const OrphanHandle<TTTracks> oh = iEvent.emplace(edPutTokenTTTracks_, move(ttTracks));
+      const OrphanHandle<TTTracks> oh = iEvent.emplace(edPutTokenTTTracks_, std::move(ttTracks));
       // replace ttTrackRefs in track streams
       int iTrk(0);
       for (StreamTrack& stream : streamsTrack)
@@ -167,8 +167,8 @@ namespace trklet {
             frame.first = TTTrackRef(oh, iTrk++);
     }
     // store products
-    iEvent.emplace(edPutTokenStubs_, move(streamsStub));
-    iEvent.emplace(edPutTokenTracks_, move(streamsTrack));
+    iEvent.emplace(edPutTokenStubs_, std::move(streamsStub));
+    iEvent.emplace(edPutTokenTracks_, std::move(streamsTrack));
     iEvent.emplace(edPutTokenNumStatesAccepted_, numStatesAccepted);
     iEvent.emplace(edPutTokenNumStatesTruncated_, numStatesTruncated);
   }

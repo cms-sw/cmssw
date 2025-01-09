@@ -145,8 +145,8 @@ namespace trackerTFP {
       }
     }
     // store TQ product
-    iEvent.emplace(edPutTokenTracks_, move(outputTracks));
-    iEvent.emplace(edPutTokenTracksAdd_, move(outputTracksAdd));
+    iEvent.emplace(edPutTokenTracks_, std::move(outputTracks));
+    iEvent.emplace(edPutTokenTracksAdd_, std::move(outputTracksAdd));
     iEvent.emplace(edPutTokenStubs_, streamsStubs);
   }
 }  // namespace trackerTFP
