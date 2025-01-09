@@ -66,11 +66,21 @@ public:
     std::vector<int> vals_pid;
     std::vector<int> vals_status;
     std::vector<int> vals_spin;
+    std::vector<Short_t> vals_firstMotherIdx;
+    std::vector<Short_t> vals_lastMotherIdx;
     alphaS = hepeup.AQCDUP;
+
+    int nOutPart = 0;
+    std::vector<int> newIdxs(pup.size());
+
     for (unsigned int i = 0, n = pup.size(); i < n; ++i) {
       int status = hepeup.ISTUP[i];
       int idabs = std::abs(hepeup.IDUP[i]);
+
       if (status == 1 || status == -1 || (status == 2 && (idabs >= 23 && idabs <= 25))) {
+        newIdxs[i] = nOutPart;
+
+        nOutPart += 1;
         TLorentzVector p4(pup[i][0], pup[i][1], pup[i][2], pup[i][3]);  // x,y,z,t
         vals_pid.push_back(hepeup.IDUP[i]);
         vals_spin.push_back(hepeup.SPINUP[i]);
@@ -81,13 +91,19 @@ public:
           vals_phi.push_back(0);
           vals_mass.push_back(0);
           vals_pz.push_back(p4.Pz());
+          vals_firstMotherIdx.push_back(-1);
+          vals_lastMotherIdx.push_back(-1);
         } else {
           vals_pt.push_back(p4.Pt());
           vals_eta.push_back(p4.Eta());
           vals_phi.push_back(p4.Phi());
           vals_mass.push_back(p4.M());
           vals_pz.push_back(0);
+          vals_firstMotherIdx.push_back(newIdxs[std::max(hepeup.MOTHUP[i].first - 1, 0)]);
+          vals_lastMotherIdx.push_back(newIdxs[std::max(hepeup.MOTHUP[i].second - 1, 0)]);
         }
+      } else {
+        newIdxs[i] = -1;
       }
       if ((status == 1) && ((idabs == 21) || (idabs > 0 && idabs < 7))) {  //# gluons and quarks
         // object counters
@@ -118,6 +134,7 @@ public:
         (hepeup.IDUP[i] > 0 ? lep : lepBar) = i;
       }
     }
+
     std::pair<int, int> v(0, 0);
     if (lep != -1 && lepBar != -1)
       v = std::make_pair(lep, lepBar);
@@ -153,6 +170,10 @@ public:
     outPart->addColumn<int>("pdgId", vals_pid, "PDG ID of LHE particles");
     outPart->addColumn<int>("status", vals_status, "LHE particle status; -1:incoming, 1:outgoing");
     outPart->addColumn<int>("spin", vals_spin, "Spin of LHE particles");
+    outPart->addColumn<Short_t>(
+        "firstMotherIdx", vals_firstMotherIdx, "Index of this particle's first mother in the LHEPart collection");
+    outPart->addColumn<Short_t>(
+        "lastMotherIdx", vals_lastMotherIdx, "Index of this particle's last mother in the LHEPart collection");
 
     return outPart;
   }

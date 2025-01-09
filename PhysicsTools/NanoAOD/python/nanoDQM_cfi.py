@@ -521,6 +521,8 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('pdgId', 'pdgId', 20, -6000, 6000, 'PDG id'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
+                NoPlot('firstMotherIdx'),
+                NoPlot('lastMotherIdx'),
             )
         ),
         LHEPdfWeight = cms.PSet(
