@@ -51,5 +51,7 @@
   <class name="edm::Wrapper<tt::TTTrackRefMap>"/>
   <class name="TTDTC"/>
   <class name="edm::Wrapper<TTDTC>"/>
+  <class name="std::vector<std::pair<double, double>>"/>
+  <class name="edm::Wrapper<std::vector<std::pair<double, double>>>"/>
 </lcgdict>
 

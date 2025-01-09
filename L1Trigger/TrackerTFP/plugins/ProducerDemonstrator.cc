@@ -13,7 +13,8 @@ using namespace tt;
 namespace trackerTFP {
 
   /*! \class  trackerTFP::ProducerDemonstrator
-   *  \brief  Class to demontrate correctness of track trigger emulators
+   *  \brief  ESProducer providing the algorithm to run input data through modelsim
+   *          and to compares results with expected output data
    *  \author Thomas Schuh
    *  \date   2020, Nov
    */
