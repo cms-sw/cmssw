@@ -22,28 +22,26 @@ namespace trklet {
     ChannelAssignment() {}
     ChannelAssignment(const edm::ParameterSet& iConfig, const tt::Setup* setup);
     ~ChannelAssignment() {}
+    // helper class to store configurations
+    const tt::Setup* setup() const { return setup_; }
     // returns channelId of given TTTrackRef from TrackBuilder
     int channelId(const TTTrackRef& ttTrackRef) const;
     // number of used TB channels for tracks
     int numChannelsTrack() const { return numChannelsTrack_; }
     // number of used TB channels for stubs
     int numChannelsStub() const { return numChannelsStub_; }
-    // number of bits used to represent layer id [barrel: 0-5, discs: 6-10]
-    int widthLayerId() const { return widthLayerId_; }
+    //
+    std::vector<int> tmMuxOrder() const { return tmMuxOrderInt_; }
+    // number of layers per rtack
+    int tmNumLayers() const { return tmNumLayers_; }
     // number of bits used to represent stub id for projected stubs
-    int widthStubId() const { return widthStubId_; }
-    // number of bits used to represent stub id for seed stubs
-    int widthSeedStubId() const { return widthSeedStubId_; }
-    // number of bits used to distinguish between tilted and untilded barrel modules or 2S and PS endcap modules
-    int widthPSTilt() const { return widthPSTilt_; }
-    // depth of fifos within systolic array
-    int depthMemory() const { return depthMemory_; }
+    int tmWidthStubId() const { return tmWidthStubId_; }
+    //
+    int tmWidthCot() const { return tmWidthCot_; }
     // number of comparison modules used in each DR node
     int numComparisonModules() const { return numComparisonModules_; }
     // min number of shared stubs to identify duplicates
     int minIdenticalStubs() const { return minIdenticalStubs_; }
-    // number of DR nodes
-    int numNodesDR() const { return numNodesDR_; }
     // number of used seed types in tracklet algorithm
     int numSeedTypes() const { return numSeedTypes_; }
     // sets layerId (0-7 in sequence the seed type projects to) of given TTStubRef and seedType, returns false if seeed stub
@@ -66,34 +64,26 @@ namespace trklet {
     int channelId(int seedType, int layerId) const;
     // max number of seeding layers
     int numSeedingLayers() const { return numSeedingLayers_; }
-    // return DR node for given ttTrackRef
-    int nodeDR(const TTTrackRef& ttTrackRef) const;
 
   private:
     // helper class to store configurations
     const tt::Setup* setup_;
-    // DRin parameter
-    edm::ParameterSet pSetDRin_;
-    // number of bits used to represent layer id [barrel: 0-5, discs: 6-10]
-    int widthLayerId_;
+    // TM parameter
+    edm::ParameterSet pSetTM_;
+    //
+    std::vector<std::string> tmMuxOrder_;
+    // number of layers per rtack
+    int tmNumLayers_;
     // number of bits used to represent stub id for projected stubs
-    int widthStubId_;
-    // number of bits used to represent stub id for seed stubs
-    int widthSeedStubId_;
-    // number of bits used to distinguish between tilted and untilded barrel modules or 2S and PS endcap modules
-    int widthPSTilt_;
-    // depth of fifos within systolic array
-    int depthMemory_;
-    // positive pt Boundaries in GeV (symmetric negatives are assumed), first boundary is pt cut, last boundary is infinity, defining ot bins used by DR
-    std::vector<double> ptBoundaries_;
-    // DRin parameter
+    int tmWidthStubId_;
+    //
+    int tmWidthCot_;
+    // DR parameter
     edm::ParameterSet pSetDR_;
     // number of comparison modules used in each DR node
     int numComparisonModules_;
     // min number of shared stubs to identify duplicates [default: 3]
     int minIdenticalStubs_;
-    // number of DR nodes
-    int numNodesDR_;
     // seed type names
     std::vector<std::string> seedTypeNames_;
     // number of used seed types in tracklet algorithm
@@ -114,6 +104,8 @@ namespace trklet {
     std::vector<int> offsetsStubs_;
     // max number of seeding layers
     int numSeedingLayers_;
+    //
+    std::vector<int> tmMuxOrderInt_;
   };
 
 }  // namespace trklet

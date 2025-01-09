@@ -55,6 +55,8 @@
 
 ////////////////
 // PHYSICS TOOLS
+#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 #include "L1Trigger/TrackFindingTracklet/interface/HitPatternHelper.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -65,6 +67,7 @@
 #include <TCanvas.h>
 #include <TTree.h>
 #include <TFile.h>
+#include <TMath.h>
 #include <TF1.h>
 #include <TH2F.h>
 #include <TH1F.h>
@@ -128,23 +131,25 @@ private:
   edm::InputTag TrackingVertexInputTag;
   edm::InputTag GenJetInputTag;
 
-  edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_> > > ttClusterToken_;
-  edm::EDGetTokenT<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> > > ttStubToken_;
-  edm::EDGetTokenT<TTClusterAssociationMap<Ref_Phase2TrackerDigi_> > ttClusterMCTruthToken_;
-  edm::EDGetTokenT<TTStubAssociationMap<Ref_Phase2TrackerDigi_> > ttStubMCTruthToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>> ttClusterToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> ttStubToken_;
+  edm::EDGetTokenT<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>> ttClusterMCTruthToken_;
+  edm::EDGetTokenT<TTStubAssociationMap<Ref_Phase2TrackerDigi_>> ttStubMCTruthToken_;
 
-  edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > ttTrackToken_;
-  edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_> > ttTrackMCTruthToken_;
+  edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> ttTrackToken_;
+  edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> ttTrackMCTruthToken_;
 
-  edm::EDGetTokenT<std::vector<TrackingParticle> > TrackingParticleToken_;
-  edm::EDGetTokenT<std::vector<TrackingVertex> > TrackingVertexToken_;
+  edm::EDGetTokenT<std::vector<TrackingParticle>> TrackingParticleToken_;
+  edm::EDGetTokenT<std::vector<TrackingVertex>> TrackingVertexToken_;
 
-  edm::EDGetTokenT<std::vector<reco::GenJet> > GenJetToken_;
+  edm::EDGetTokenT<std::vector<reco::GenJet>> GenJetToken_;
 
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> getTokenTrackerGeom_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> getTokenTrackerTopo_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> getTokenBField_;
   edm::ESGetToken<hph::Setup, hph::SetupRcd> getTokenHPHSetup_;
+  edm::ESGetToken<tt::Setup, tt::SetupRcd> getTokenSetup_;
+  edm::ESGetToken<trackerTFP::LayerEncoding, trackerTFP::LayerEncodingRcd> getTokenLayerEncoding_;
   //-----------------------------------------------------------------------------------------------
   // tree & branches for mini-ntuple
 
@@ -178,6 +183,7 @@ private:
   std::vector<int>* m_trk_nLost2Sstub_hitpattern;
   std::vector<int>* m_trk_nLoststub_V1_hitpattern;  // Same as the definiton of "nlaymiss_interior" in TrackQuality.cc
   std::vector<int>* m_trk_nLoststub_V2_hitpattern;  // A tighter version of "nlaymiss_interior"
+  std::vector<int>* m_trk_charge;
   std::vector<unsigned int>* m_trk_phiSector;
   std::vector<int>* m_trk_etaSector;
   std::vector<int>* m_trk_genuine;
@@ -191,17 +197,18 @@ private:
   std::vector<float>* m_trk_matchtp_eta;
   std::vector<float>* m_trk_matchtp_phi;
   std::vector<float>* m_trk_matchtp_z0;
-  std::vector<float>* m_trk_matchtp_dxy;
+  std::vector<float>* m_trk_matchtp_lxy;
   std::vector<float>* m_trk_matchtp_d0;
   std::vector<int>* m_trk_injet;          //is the track within dR<0.4 of a genjet with pt > 30 GeV?
   std::vector<int>* m_trk_injet_highpt;   //is the track within dR<0.4 of a genjet with pt > 100 GeV?
   std::vector<int>* m_trk_injet_vhighpt;  //is the track within dR<0.4 of a genjet with pt > 200 GeV?
+  std::vector<std::vector<int>>* m_trk_layers;
 
   // all tracking particles
   std::vector<float>* m_tp_pt;
   std::vector<float>* m_tp_eta;
   std::vector<float>* m_tp_phi;
-  std::vector<float>* m_tp_dxy;
+  std::vector<float>* m_tp_lxy;
   std::vector<float>* m_tp_d0;
   std::vector<float>* m_tp_z0;
   std::vector<float>* m_tp_d0_prod;
@@ -234,6 +241,7 @@ private:
   std::vector<int>* m_matchtrk_dhits;
   std::vector<int>* m_matchtrk_seed;
   std::vector<int>* m_matchtrk_hitpattern;
+  std::vector<int>* m_matchtrk_charge;
   std::vector<int>* m_matchtrk_injet;
   std::vector<int>* m_matchtrk_injet_highpt;
   std::vector<int>* m_matchtrk_injet_vhighpt;
@@ -303,20 +311,22 @@ L1TrackNtupleMaker::L1TrackNtupleMaker(edm::ParameterSet const& iConfig) : confi
   TrackingVertexInputTag = iConfig.getParameter<edm::InputTag>("TrackingVertexInputTag");
   GenJetInputTag = iConfig.getParameter<edm::InputTag>("GenJetInputTag");
 
-  ttTrackToken_ = consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(L1TrackInputTag);
-  ttTrackMCTruthToken_ = consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_> >(MCTruthTrackInputTag);
-  ttStubToken_ = consumes<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> > >(L1StubInputTag);
-  ttClusterMCTruthToken_ = consumes<TTClusterAssociationMap<Ref_Phase2TrackerDigi_> >(MCTruthClusterInputTag);
-  ttStubMCTruthToken_ = consumes<TTStubAssociationMap<Ref_Phase2TrackerDigi_> >(MCTruthStubInputTag);
+  ttTrackToken_ = consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(L1TrackInputTag);
+  ttTrackMCTruthToken_ = consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>(MCTruthTrackInputTag);
+  ttStubToken_ = consumes<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>(L1StubInputTag);
+  ttClusterMCTruthToken_ = consumes<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>(MCTruthClusterInputTag);
+  ttStubMCTruthToken_ = consumes<TTStubAssociationMap<Ref_Phase2TrackerDigi_>>(MCTruthStubInputTag);
 
-  TrackingParticleToken_ = consumes<std::vector<TrackingParticle> >(TrackingParticleInputTag);
-  TrackingVertexToken_ = consumes<std::vector<TrackingVertex> >(TrackingVertexInputTag);
-  GenJetToken_ = consumes<std::vector<reco::GenJet> >(GenJetInputTag);
+  TrackingParticleToken_ = consumes<std::vector<TrackingParticle>>(TrackingParticleInputTag);
+  TrackingVertexToken_ = consumes<std::vector<TrackingVertex>>(TrackingVertexInputTag);
+  GenJetToken_ = consumes<std::vector<reco::GenJet>>(GenJetInputTag);
 
   getTokenTrackerGeom_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   getTokenTrackerTopo_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   getTokenBField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
   getTokenHPHSetup_ = esConsumes<hph::Setup, hph::SetupRcd>();
+  getTokenSetup_ = esConsumes<tt::Setup, tt::SetupRcd>();
+  getTokenLayerEncoding_ = esConsumes<trackerTFP::LayerEncoding, trackerTFP::LayerEncodingRcd>();
 }
 
 /////////////
@@ -355,6 +365,7 @@ void L1TrackNtupleMaker::endJob() {
   delete m_trk_nLost2Sstub_hitpattern;
   delete m_trk_nLoststub_V1_hitpattern;
   delete m_trk_nLoststub_V2_hitpattern;
+  delete m_trk_charge;
   delete m_trk_phiSector;
   delete m_trk_etaSector;
   delete m_trk_genuine;
@@ -368,7 +379,7 @@ void L1TrackNtupleMaker::endJob() {
   delete m_trk_matchtp_eta;
   delete m_trk_matchtp_phi;
   delete m_trk_matchtp_z0;
-  delete m_trk_matchtp_dxy;
+  delete m_trk_matchtp_lxy;
   delete m_trk_matchtp_d0;
   delete m_trk_injet;
   delete m_trk_injet_highpt;
@@ -377,7 +388,7 @@ void L1TrackNtupleMaker::endJob() {
   delete m_tp_pt;
   delete m_tp_eta;
   delete m_tp_phi;
-  delete m_tp_dxy;
+  delete m_tp_lxy;
   delete m_tp_d0;
   delete m_tp_z0;
   delete m_tp_d0_prod;
@@ -409,6 +420,7 @@ void L1TrackNtupleMaker::endJob() {
   delete m_matchtrk_lhits;
   delete m_matchtrk_seed;
   delete m_matchtrk_hitpattern;
+  delete m_matchtrk_charge;
   delete m_matchtrk_injet;
   delete m_matchtrk_injet_highpt;
   delete m_matchtrk_injet_vhighpt;
@@ -476,6 +488,7 @@ void L1TrackNtupleMaker::beginJob() {
   m_trk_nLost2Sstub_hitpattern = new std::vector<int>;
   m_trk_nLoststub_V1_hitpattern = new std::vector<int>;
   m_trk_nLoststub_V2_hitpattern = new std::vector<int>;
+  m_trk_charge = new std::vector<int>;
   m_trk_phiSector = new std::vector<unsigned int>;
   m_trk_etaSector = new std::vector<int>;
   m_trk_genuine = new std::vector<int>;
@@ -489,16 +502,17 @@ void L1TrackNtupleMaker::beginJob() {
   m_trk_matchtp_eta = new std::vector<float>;
   m_trk_matchtp_phi = new std::vector<float>;
   m_trk_matchtp_z0 = new std::vector<float>;
-  m_trk_matchtp_dxy = new std::vector<float>;
+  m_trk_matchtp_lxy = new std::vector<float>;
   m_trk_matchtp_d0 = new std::vector<float>;
   m_trk_injet = new std::vector<int>;
   m_trk_injet_highpt = new std::vector<int>;
   m_trk_injet_vhighpt = new std::vector<int>;
+  m_trk_layers = new std::vector<std::vector<int>>;
 
   m_tp_pt = new std::vector<float>;
   m_tp_eta = new std::vector<float>;
   m_tp_phi = new std::vector<float>;
-  m_tp_dxy = new std::vector<float>;
+  m_tp_lxy = new std::vector<float>;
   m_tp_d0 = new std::vector<float>;
   m_tp_z0 = new std::vector<float>;
   m_tp_d0_prod = new std::vector<float>;
@@ -530,6 +544,7 @@ void L1TrackNtupleMaker::beginJob() {
   m_matchtrk_lhits = new std::vector<int>;
   m_matchtrk_seed = new std::vector<int>;
   m_matchtrk_hitpattern = new std::vector<int>;
+  m_matchtrk_charge = new std::vector<int>;
   m_matchtrk_injet = new std::vector<int>;
   m_matchtrk_injet_highpt = new std::vector<int>;
   m_matchtrk_injet_vhighpt = new std::vector<int>;
@@ -590,6 +605,7 @@ void L1TrackNtupleMaker::beginJob() {
     eventTree->Branch("trk_nLost2Sstub_hitpattern", &m_trk_nLost2Sstub_hitpattern);
     eventTree->Branch("trk_nLoststub_V1_hitpattern", &m_trk_nLoststub_V1_hitpattern);
     eventTree->Branch("trk_nLoststub_V2_hitpattern", &m_trk_nLoststub_V2_hitpattern);
+    eventTree->Branch("trk_charge", &m_trk_charge);
     eventTree->Branch("trk_phiSector", &m_trk_phiSector);
     eventTree->Branch("trk_etaSector", &m_trk_etaSector);
     eventTree->Branch("trk_genuine", &m_trk_genuine);
@@ -603,19 +619,20 @@ void L1TrackNtupleMaker::beginJob() {
     eventTree->Branch("trk_matchtp_eta", &m_trk_matchtp_eta);
     eventTree->Branch("trk_matchtp_phi", &m_trk_matchtp_phi);
     eventTree->Branch("trk_matchtp_z0", &m_trk_matchtp_z0);
-    eventTree->Branch("trk_matchtp_dxy", &m_trk_matchtp_dxy);
+    eventTree->Branch("trk_matchtp_lxy", &m_trk_matchtp_lxy);
     eventTree->Branch("trk_matchtp_d0", &m_trk_matchtp_d0);
     if (TrackingInJets) {
       eventTree->Branch("trk_injet", &m_trk_injet);
       eventTree->Branch("trk_injet_highpt", &m_trk_injet_highpt);
       eventTree->Branch("trk_injet_vhighpt", &m_trk_injet_vhighpt);
     }
+    eventTree->Branch("m_trk_layers", &m_trk_layers);
   }
 
   eventTree->Branch("tp_pt", &m_tp_pt);
   eventTree->Branch("tp_eta", &m_tp_eta);
   eventTree->Branch("tp_phi", &m_tp_phi);
-  eventTree->Branch("tp_dxy", &m_tp_dxy);
+  eventTree->Branch("tp_lxy", &m_tp_lxy);
   eventTree->Branch("tp_d0", &m_tp_d0);
   eventTree->Branch("tp_z0", &m_tp_z0);
   eventTree->Branch("tp_d0_prod", &m_tp_d0_prod);
@@ -649,6 +666,7 @@ void L1TrackNtupleMaker::beginJob() {
   eventTree->Branch("matchtrk_dhits", &m_matchtrk_dhits);
   eventTree->Branch("matchtrk_seed", &m_matchtrk_seed);
   eventTree->Branch("matchtrk_hitpattern", &m_matchtrk_hitpattern);
+  eventTree->Branch("matchtrk_charge", &m_matchtrk_charge);
   if (TrackingInJets) {
     eventTree->Branch("matchtrk_injet", &m_matchtrk_injet);
     eventTree->Branch("matchtrk_injet_highpt", &m_matchtrk_injet_highpt);
@@ -733,6 +751,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_trk_nLost2Sstub_hitpattern->clear();
     m_trk_nLoststub_V1_hitpattern->clear();
     m_trk_nLoststub_V2_hitpattern->clear();
+    m_trk_charge->clear();
     m_trk_phiSector->clear();
     m_trk_etaSector->clear();
     m_trk_genuine->clear();
@@ -746,17 +765,18 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_trk_matchtp_eta->clear();
     m_trk_matchtp_phi->clear();
     m_trk_matchtp_z0->clear();
-    m_trk_matchtp_dxy->clear();
+    m_trk_matchtp_lxy->clear();
     m_trk_matchtp_d0->clear();
     m_trk_injet->clear();
     m_trk_injet_highpt->clear();
     m_trk_injet_vhighpt->clear();
+    m_trk_layers->clear();
   }
 
   m_tp_pt->clear();
   m_tp_eta->clear();
   m_tp_phi->clear();
-  m_tp_dxy->clear();
+  m_tp_lxy->clear();
   m_tp_d0->clear();
   m_tp_z0->clear();
   m_tp_d0_prod->clear();
@@ -788,6 +808,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   m_matchtrk_dhits->clear();
   m_matchtrk_seed->clear();
   m_matchtrk_hitpattern->clear();
+  m_matchtrk_charge->clear();
   m_matchtrk_injet->clear();
   m_matchtrk_injet_highpt->clear();
   m_matchtrk_injet_vhighpt->clear();
@@ -827,25 +848,25 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   // -----------------------------------------------------------------------------------------------
 
   // L1 tracks
-  edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > TTTrackHandle;
+  edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> TTTrackHandle;
   iEvent.getByToken(ttTrackToken_, TTTrackHandle);
 
   // L1 stubs
-  edm::Handle<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> > > TTStubHandle;
+  edm::Handle<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> TTStubHandle;
   if (SaveStubs)
     iEvent.getByToken(ttStubToken_, TTStubHandle);
 
   // MC truth association maps
-  edm::Handle<TTClusterAssociationMap<Ref_Phase2TrackerDigi_> > MCTruthTTClusterHandle;
+  edm::Handle<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTClusterHandle;
   iEvent.getByToken(ttClusterMCTruthToken_, MCTruthTTClusterHandle);
-  edm::Handle<TTStubAssociationMap<Ref_Phase2TrackerDigi_> > MCTruthTTStubHandle;
+  edm::Handle<TTStubAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTStubHandle;
   iEvent.getByToken(ttStubMCTruthToken_, MCTruthTTStubHandle);
-  edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_> > MCTruthTTTrackHandle;
+  edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTTrackHandle;
   iEvent.getByToken(ttTrackMCTruthToken_, MCTruthTTTrackHandle);
 
   // tracking particles
-  edm::Handle<std::vector<TrackingParticle> > TrackingParticleHandle;
-  edm::Handle<std::vector<TrackingVertex> > TrackingVertexHandle;
+  edm::Handle<std::vector<TrackingParticle>> TrackingParticleHandle;
+  edm::Handle<std::vector<TrackingVertex>> TrackingVertexHandle;
   iEvent.getByToken(TrackingParticleToken_, TrackingParticleHandle);
   //iEvent.getByToken(TrackingVertexToken_, TrackingVertexHandle);
 
@@ -858,10 +879,14 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::ESHandle<MagneticField> bFieldHandle = iSetup.getHandle(getTokenBField_);
 
   edm::ESHandle<hph::Setup> hphHandle = iSetup.getHandle(getTokenHPHSetup_);
+  edm::ESHandle<tt::Setup> handleSetup = iSetup.getHandle(getTokenSetup_);
+  edm::ESHandle<trackerTFP::LayerEncoding> handleLayerEncoding = iSetup.getHandle(getTokenLayerEncoding_);
 
   const TrackerTopology* const tTopo = tTopoHandle.product();
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
   const hph::Setup* hphSetup = hphHandle.product();
+  const tt::Setup* setup = handleSetup.product();
+  const trackerTFP::LayerEncoding* layerEncoding = handleLayerEncoding.product();
 
   // ----------------------------------------------------------------------------------------------
   // loop over L1 stubs
@@ -880,14 +905,14 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         continue;
 
       // Get the DetSets of the Clusters
-      edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_> > stubs = (*TTStubHandle)[stackDetid];
+      edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_>> stubs = (*TTStubHandle)[stackDetid];
       const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit(detid);
       const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(det0);
       const PixelTopology* topol = dynamic_cast<const PixelTopology*>(&(theGeomDet->specificTopology()));
 
       // loop over stubs
       for (auto stubIter = stubs.begin(); stubIter != stubs.end(); ++stubIter) {
-        edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > tempStubPtr =
+        edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>> tempStubPtr =
             edmNew::makeRefTo(TTStubHandle, stubIter);
 
         int isBarrel = 0;
@@ -985,7 +1010,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     // gen jets
     if (DebugMode)
       edm::LogVerbatim("Tracklet") << "get genjets";
-    edm::Handle<std::vector<reco::GenJet> > GenJetHandle;
+    edm::Handle<std::vector<reco::GenJet>> GenJetHandle;
     iEvent.getByToken(GenJetToken_, GenJetHandle);
 
     if (GenJetHandle.isValid()) {
@@ -1042,9 +1067,9 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
 
     int this_l1track = 0;
-    std::vector<TTTrack<Ref_Phase2TrackerDigi_> >::const_iterator iterL1Track;
+    std::vector<TTTrack<Ref_Phase2TrackerDigi_>>::const_iterator iterL1Track;
     for (iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++) {
-      edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > l1track_ptr(TTTrackHandle, this_l1track);
+      edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> l1track_ptr(TTTrackHandle, this_l1track);
       this_l1track++;
 
       float tmp_trk_pt = iterL1Track->momentum().perp();
@@ -1052,6 +1077,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       float tmp_trk_phi = iterL1Track->momentum().phi();
       float tmp_trk_z0 = iterL1Track->z0();  //cm
       float tmp_trk_tanL = iterL1Track->tanL();
+      int tmp_trk_charge = (int)TMath::Sign(1, iterL1Track->rInv());
       bool usingNewKF = hphSetup->useNewKF();
       if (usingNewKF) {
         // Skip crazy tracks to avoid crash (as NewKF applies no cuts to kill them).
@@ -1095,7 +1121,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       float tmp_trk_bendchi2 = iterL1Track->stubPtConsistency();
       float tmp_trk_MVA1 = iterL1Track->trkMVA1();
 
-      std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
+      std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
           stubRefs = iterL1Track->getStubRefs();
       int tmp_trk_nstub = (int)stubRefs.size();
       int ndof = 2 * tmp_trk_nstub - L1Tk_nPar;
@@ -1207,6 +1233,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       m_trk_nLost2Sstub_hitpattern->push_back(tmp_trk_nLost2Sstub_hitpattern);
       m_trk_nLoststub_V1_hitpattern->push_back(tmp_trk_nLoststub_V1_hitpattern);
       m_trk_nLoststub_V2_hitpattern->push_back(tmp_trk_nLoststub_V2_hitpattern);
+      m_trk_charge->push_back(tmp_trk_charge);
       m_trk_phiSector->push_back(tmp_trk_phiSector);
       m_trk_etaSector->push_back(tmp_trk_etaSector);
       m_trk_genuine->push_back(tmp_trk_genuine);
@@ -1227,7 +1254,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       float tmp_matchtp_eta = -999;
       float tmp_matchtp_phi = -999;
       float tmp_matchtp_z0 = -999;
-      float tmp_matchtp_dxy = -999;
+      float tmp_matchtp_lxy = -999;
       float tmp_matchtp_d0 = -999;
 
       if (my_tp.isNull())
@@ -1248,7 +1275,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         float tmp_matchtp_vz = my_tp->vz();
         float tmp_matchtp_vx = my_tp->vx();
         float tmp_matchtp_vy = my_tp->vy();
-        tmp_matchtp_dxy = sqrt(tmp_matchtp_vx * tmp_matchtp_vx + tmp_matchtp_vy * tmp_matchtp_vy);
+        tmp_matchtp_lxy = sqrt(tmp_matchtp_vx * tmp_matchtp_vx + tmp_matchtp_vy * tmp_matchtp_vy);
 
         // ----------------------------------------------------------------------------------------------
         // get d0/z0 propagated back to the IP
@@ -1280,7 +1307,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
           edm::LogVerbatim("Tracklet") << "TP matched to track has pt = " << my_tp->p4().pt()
                                        << " eta = " << my_tp->momentum().eta() << " phi = " << my_tp->momentum().phi()
                                        << " z0 = " << my_tp->vertex().z() << " pdgid = " << my_tp->pdgId()
-                                       << " dxy = " << tmp_matchtp_dxy;
+                                       << " lxy = " << tmp_matchtp_lxy;
         }
       }
 
@@ -1291,7 +1318,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       m_trk_matchtp_eta->push_back(tmp_matchtp_eta);
       m_trk_matchtp_phi->push_back(tmp_matchtp_phi);
       m_trk_matchtp_z0->push_back(tmp_matchtp_z0);
-      m_trk_matchtp_dxy->push_back(tmp_matchtp_dxy);
+      m_trk_matchtp_lxy->push_back(tmp_matchtp_lxy);
       m_trk_matchtp_d0->push_back(tmp_matchtp_d0);
 
       // ----------------------------------------------------------------------------------------------
@@ -1329,6 +1356,16 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         m_trk_injet_vhighpt->push_back(InJetVeryHighpt);
 
       }  //end tracking in jets
+
+      // layer encoding
+      const TTBV hitPattern((int)iterL1Track->hitPattern(), setup->numLayers());
+      const double zT = iterL1Track->z0() + setup->chosenRofZ() * iterL1Track->tanL();
+      const vector<int>& le = layerEncoding->layerEncoding(zT);
+      vector<int> layers;
+      layers.reserve(hitPattern.size());
+      for (int layer : hitPattern.ids())
+        layers.push_back(le[layer]);
+      m_trk_layers->push_back(layers);
 
     }  //end track loop
 
@@ -1407,9 +1444,9 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       continue;
 
     // for pions in ttbar, only consider TPs coming from near the IP!
-    float dxy = sqrt(tmp_tp_vx * tmp_tp_vx + tmp_tp_vy * tmp_tp_vy);
-    float tmp_tp_dxy = dxy;
-    if (MyProcess == 6 && (dxy > 1.0))
+    float lxy = sqrt(tmp_tp_vx * tmp_tp_vx + tmp_tp_vy * tmp_tp_vy);
+    float tmp_tp_lxy = lxy;
+    if (MyProcess == 6 && (lxy > 1.0))
       continue;
 
     if (DebugMode)
@@ -1430,7 +1467,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       continue;
     }
 
-    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
+    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
         theStubRefs = MCTruthTTStubHandle->findTTStubRefs(tp_ptr);
     int nStubTP = (int)theStubRefs.size();
 
@@ -1491,7 +1528,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     // ----------------------------------------------------------------------------------------------
     // look for L1 tracks matched to the tracking particle
 
-    std::vector<edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > > matchedTracks =
+    std::vector<edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>> matchedTracks =
         MCTruthTTTrackHandle->findTTTrackPtrs(tp_ptr);
 
     int nMatch = 0;
@@ -1544,7 +1581,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         // + have >= L1Tk_minNStub stubs for it to be a valid match (only relevant is your track collection
         // e.g. stores 3-stub tracks but at plot level you require >= 4 stubs (--> tracklet case)
 
-        std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
+        std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
             stubRefs = matchedTracks.at(it)->getStubRefs();
         int tmp_trk_nstub = stubRefs.size();
 
@@ -1602,6 +1639,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     float tmp_matchtrk_chi2rz_dof = -999;
     float tmp_matchtrk_bendchi2 = -999;
     float tmp_matchtrk_MVA1 = -999;
+    int tmp_matchtrk_charge = -999;
     int tmp_matchtrk_nstub = -999;
     int tmp_matchtrk_dhits = -999;
     int tmp_matchtrk_lhits = -999;
@@ -1613,6 +1651,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     if (nMatch > 0) {
       tmp_matchtrk_pt = matchedTracks.at(i_track)->momentum().perp();
+      tmp_matchtrk_charge = (int)TMath::Sign(1, matchedTracks.at(i_track)->rInv());
       tmp_matchtrk_eta = matchedTracks.at(i_track)->momentum().eta();
       tmp_matchtrk_phi = matchedTracks.at(i_track)->momentum().phi();
       tmp_matchtrk_z0 = matchedTracks.at(i_track)->z0();
@@ -1646,7 +1685,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       tmp_matchtrk_dhits = 0;
       tmp_matchtrk_lhits = 0;
 
-      std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
+      std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
           stubRefs = matchedTracks.at(i_track)->getStubRefs();
       int tmp_nstub = stubRefs.size();
 
@@ -1674,7 +1713,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_tp_pt->push_back(tmp_tp_pt);
     m_tp_eta->push_back(tmp_tp_eta);
     m_tp_phi->push_back(tmp_tp_phi);
-    m_tp_dxy->push_back(tmp_tp_dxy);
+    m_tp_lxy->push_back(tmp_tp_lxy);
     m_tp_z0->push_back(tmp_tp_z0);
     m_tp_d0->push_back(tmp_tp_d0);
     m_tp_z0_prod->push_back(tmp_tp_z0_prod);
@@ -1700,6 +1739,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_matchtrk_lhits->push_back(tmp_matchtrk_lhits);
     m_matchtrk_seed->push_back(tmp_matchtrk_seed);
     m_matchtrk_hitpattern->push_back(tmp_matchtrk_hitpattern);
+    m_matchtrk_charge->push_back(tmp_matchtrk_charge);
     m_matchtrk_chi2_dof->push_back(tmp_matchtrk_chi2_dof);
     m_matchtrk_chi2rphi_dof->push_back(tmp_matchtrk_chi2rphi_dof);
     m_matchtrk_chi2rz_dof->push_back(tmp_matchtrk_chi2rz_dof);

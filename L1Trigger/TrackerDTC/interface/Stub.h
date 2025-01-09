@@ -3,7 +3,7 @@
 
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerDTC/interface/LayerEncoding.h"
-#include "SimDataFormats/Associations/interface/TTTypes.h"
+#include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 
 #include <utility>
 #include <vector>
@@ -17,20 +17,30 @@ namespace trackerDTC {
    */
   class Stub {
   public:
-    Stub(const edm::ParameterSet&, const tt::Setup*, const LayerEncoding*, tt::SensorModule*, const TTStubRef&);
+    Stub(const trackerTFP::DataFormats*, const tt::SensorModule*, const TTStubRef&);
+    Stub(const edm::ParameterSet&,
+         const tt::Setup*,
+         const trackerTFP::DataFormats*,
+         const LayerEncoding*,
+         const tt::SensorModule*,
+         const TTStubRef&);
     ~Stub() {}
     // underlying TTStubRef
-    TTStubRef ttStubRef() const { return ttStubRef_; }
+    const TTStubRef& ttStubRef() const { return ttStubRef_; }
     // did pass pt and eta cut
     bool valid() const { return valid_; }
     // stub bend in quarter pitch units
     int bend() const { return bend_; }
     // bit accurate representation of Stub
-    tt::Frame frame(int region) const;
+    tt::FrameStub frame(int region) const;
     // checks stubs region assignment
-    bool inRegion(int region) const;
+    bool inRegion(int region) const { return regions_[region]; }
+    // range of stub extrapolated phi to radius chosenRofPhi in rad
+    std::pair<double, double> phiT() const { return phiT_; }
+    // stub phi w.r.t. detector region centre in rad
+    double phi() const { return phi_; }
 
-  private:
+  public:
     // truncates double precision to f/w integer equivalent
     double digi(double value, double precision) const;
     // 64 bit stub in hybrid data format
@@ -39,12 +49,14 @@ namespace trackerDTC {
     tt::Frame formatTMTT(int region) const;
     // stores, calculates and provides run-time constants
     const tt::Setup* setup_;
+    // helper class to extract structured data from tt::Frames
+    const trackerTFP::DataFormats* dataFormats_;
     // class to encode layer ids used between DTC and TFP in Hybrid
     const LayerEncoding* layerEncoding_;
     // representation of an outer tracker sensormodule
-    tt::SensorModule* sm_;
+    const tt::SensorModule* sm_;
     // underlying TTStubRef
-    TTStubRef ttStubRef_;
+    const TTStubRef ttStubRef_;
     // chosen TT algorithm
     bool hybrid_;
     // passes pt and eta cut
@@ -73,12 +85,12 @@ namespace trackerDTC {
     double d_;
     // range of stub inv2R in 1/cm
     std::pair<double, double> inv2R_;
-    // range of stub cot(theta)
-    std::pair<double, double> cot_;
-    // range of stub extrapolated phi to radius chosenRofPhi in rad
+    // range of stub extrapolated phi to radius chosenRofPhi wrt detector nonant center in rad
     std::pair<double, double> phiT_;
+    // range of stub extrapolated z to radius chosenRofZ in cm
+    std::pair<double, double> zT_;
     // shared regions this stub belongs to [0-1]
-    std::vector<int> regions_;
+    TTBV regions_;
   };
 
 }  // namespace trackerDTC

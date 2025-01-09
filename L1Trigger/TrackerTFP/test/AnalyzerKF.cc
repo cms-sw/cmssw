@@ -15,7 +15,6 @@
 #include "SimTracker/TrackTriggerAssociation/interface/StubAssociation.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
-#include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 #include "L1Trigger/TrackerTFP/interface/KalmanFilterFormats.h"
 
 #include <TProfile.h>
@@ -28,6 +27,7 @@
 #include <cmath>
 #include <numeric>
 #include <sstream>
+#include <utility>
 
 using namespace std;
 using namespace edm;
@@ -51,25 +51,25 @@ namespace trackerTFP {
 
   private:
     //
-    void associate(const TTTracks& ttTracks,
+    void associate(const vector<TrackKF>& tracks,
+                   const vector<vector<StubKF*>>& stubs,
+                   int region,
                    const StubAssociation* ass,
                    set<TPPtr>& tps,
                    int& sum,
                    const vector<TH1F*>& his,
-                   TProfile* prof) const;
-
+                   const vector<TProfile*>& prof,
+                   bool perfect = true) const;
     // ED input token of accepted Tracks
-    EDGetTokenT<StreamsStub> edGetTokenAcceptedStubs_;
+    EDGetTokenT<StreamsStub> edGetTokenStubs_;
     // ED input token of accepted Stubs
-    EDGetTokenT<StreamsTrack> edGetTokenAcceptedTracks_;
-    // ED input token of lost Stubs
-    EDGetTokenT<StreamsStub> edGetTokenLostStubs_;
-    // ED input token of lost Tracks
-    EDGetTokenT<StreamsTrack> edGetTokenLostTracks_;
+    EDGetTokenT<StreamsTrack> edGetTokenTracks_;
     // ED input token for number of accepted States
-    EDGetTokenT<int> edGetTokenNumAcceptedStates_;
+    EDGetTokenT<int> edGetTokenNumStatesAccepted_;
     // ED input token for number of lost States
-    EDGetTokenT<int> edGetTokenNumLostStates_;
+    EDGetTokenT<int> edGetTokenNumStatesTruncated_;
+    // ED input token for r-phi and r-z plane chi2s
+    EDGetTokenT<vector<pair<double, double>>> edGetTokenChi2s_;
     // ED input token of TTStubRef to TPPtr association for tracking efficiency
     EDGetTokenT<StubAssociation> edGetTokenSelection_;
     // ED input token of TTStubRef to recontructable TPPtr association
@@ -78,14 +78,10 @@ namespace trackerTFP {
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // DataFormats token
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
-    // LayerEncoding token
-    ESGetToken<LayerEncoding, LayerEncodingRcd> esGetTokenLayerEncoding_;
     // stores, calculates and provides run-time constants
     const Setup* setup_ = nullptr;
     //
     const DataFormats* dataFormats_ = nullptr;
-    //
-    const LayerEncoding* layerEncoding_ = nullptr;
     // enables analyze of TPs
     bool useMCTruth_;
     //
@@ -97,37 +93,44 @@ namespace trackerTFP {
     TProfile* profChannel_;
     TH1F* hisChannel_;
     vector<TH1F*> hisRes_;
-    TProfile* profResZ0_;
+    vector<TProfile*> profRes_;
     TH1F* hisEffEta_;
     TH1F* hisEffEtaTotal_;
     TEfficiency* effEta_;
+    TH1F* hisEffZT_;
+    TH1F* hisEffZTTotal_;
+    TEfficiency* effZT_;
     TH1F* hisEffInv2R_;
     TH1F* hisEffInv2RTotal_;
     TEfficiency* effInv2R_;
-    TH1F* hisChi2_;
-    TH1F* hisPhi_;
+    TH1F* hisEffPT_;
+    TH1F* hisEffPTTotal_;
+    TEfficiency* effPT_;
+    TH1F* hisChi20s_;
+    TH1F* hisChi21s_;
+    TH1F* hisChi2s_;
+    TH1F* hisTracks_;
+    TH1F* hisLayers_;
+    TH1F* hisNumLayers_;
+    TProfile* profNumLayers_;
 
     // printout
     stringstream log_;
   };
 
   AnalyzerKF::AnalyzerKF(const ParameterSet& iConfig)
-      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), hisRes_(4) {
+      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0), hisRes_(4), profRes_(4) {
     usesResource("TFileService");
     // book in- and output ED products
-    const string& label = iConfig.getParameter<string>("LabelKF");
-    const string& branchAcceptedStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
-    const string& branchAcceptedTracks = iConfig.getParameter<string>("BranchAcceptedTracks");
-    const string& branchLostStubs = iConfig.getParameter<string>("BranchLostStubs");
-    const string& branchLostTracks = iConfig.getParameter<string>("BranchLostTracks");
-    edGetTokenAcceptedStubs_ = consumes<StreamsStub>(InputTag(label, branchAcceptedStubs));
-    edGetTokenAcceptedTracks_ = consumes<StreamsTrack>(InputTag(label, branchAcceptedTracks));
-    edGetTokenLostStubs_ = consumes<StreamsStub>(InputTag(label, branchLostStubs));
-    edGetTokenLostTracks_ = consumes<StreamsTrack>(InputTag(label, branchLostTracks));
-    edGetTokenNumAcceptedStates_ = consumes<int>(InputTag(label, branchAcceptedTracks));
-    ;
-    edGetTokenNumLostStates_ = consumes<int>(InputTag(label, branchLostTracks));
-    ;
+    const string& label = iConfig.getParameter<string>("OutputLabelKF");
+    const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
+    const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
+    const string& branchTruncated = iConfig.getParameter<string>("BranchTruncated");
+    edGetTokenStubs_ = consumes<StreamsStub>(InputTag(label, branchStubs));
+    edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(label, branchTracks));
+    edGetTokenNumStatesAccepted_ = consumes<int>(InputTag(label, branchTracks));
+    edGetTokenNumStatesTruncated_ = consumes<int>(InputTag(label, branchTruncated));
+    edGetTokenChi2s_ = consumes<vector<pair<double, double>>>(InputTag(label, branchTracks));
     if (useMCTruth_) {
       const auto& inputTagSelecttion = iConfig.getParameter<InputTag>("InputTagSelection");
       const auto& inputTagReconstructable = iConfig.getParameter<InputTag>("InputTagReconstructable");
@@ -137,7 +140,6 @@ namespace trackerTFP {
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
-    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, LayerEncodingRcd, Transition::BeginRun>();
     // log config
     log_.setf(ios::fixed, ios::floatfield);
     log_.precision(4);
@@ -147,70 +149,87 @@ namespace trackerTFP {
     // helper class to store configurations
     setup_ = &iSetup.getData(esGetTokenSetup_);
     dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
-    layerEncoding_ = &iSetup.getData(esGetTokenLayerEncoding_);
     // book histograms
     Service<TFileService> fs;
     TFileDirectory dir;
     dir = fs->mkdir("KF");
-    prof_ = dir.make<TProfile>("Counts", ";", 11, 0.5, 11.5);
+    prof_ = dir.make<TProfile>("Counts", ";", 12, 0.5, 12.5);
     prof_->GetXaxis()->SetBinLabel(1, "Stubs");
     prof_->GetXaxis()->SetBinLabel(2, "Tracks");
-    prof_->GetXaxis()->SetBinLabel(3, "Lost Tracks");
     prof_->GetXaxis()->SetBinLabel(4, "Matched Tracks");
     prof_->GetXaxis()->SetBinLabel(5, "All Tracks");
     prof_->GetXaxis()->SetBinLabel(6, "Found TPs");
     prof_->GetXaxis()->SetBinLabel(7, "Found selected TPs");
-    prof_->GetXaxis()->SetBinLabel(8, "Lost TPs");
     prof_->GetXaxis()->SetBinLabel(9, "All TPs");
     prof_->GetXaxis()->SetBinLabel(10, "states");
-    prof_->GetXaxis()->SetBinLabel(11, "lost states");
+    prof_->GetXaxis()->SetBinLabel(12, "max tp");
     // channel occupancy
     constexpr int maxOcc = 180;
     const int numChannels = dataFormats_->numChannel(Process::kf);
     hisChannel_ = dir.make<TH1F>("His Channel Occupancy", ";", maxOcc, -.5, maxOcc - .5);
     profChannel_ = dir.make<TProfile>("Prof Channel Occupancy", ";", numChannels, -.5, numChannels - .5);
     // resoultions
-    static const vector<string> names = {"phiT", "inv2R", "zT", "cot"};
-    static const vector<double> ranges = {.01, .1, 5, .1};
+    static const vector<string> names = {"phi0", "inv2R", "z0", "cot"};
+    static const vector<double> ranges = {.01, .004, 20., .4};
     for (int i = 0; i < 4; i++) {
       const double range = ranges[i];
       hisRes_[i] = dir.make<TH1F>(("HisRes" + names[i]).c_str(), ";", 100, -range, range);
+      profRes_[i] = dir.make<TProfile>(("ProfRes" + names[i]).c_str(), ";", 32, 0, 2.4);
     }
-    profResZ0_ = dir.make<TProfile>("ProfResZ0", ";", 32, 0, 2.5);
     // Efficiencies
-    hisEffEtaTotal_ = dir.make<TH1F>("HisTPEtaTotal", ";", 128, -2.5, 2.5);
-    hisEffEta_ = dir.make<TH1F>("HisTPEta", ";", 128, -2.5, 2.5);
-    effEta_ = dir.make<TEfficiency>("EffEta", ";", 128, -2.5, 2.5);
+    hisEffEtaTotal_ = dir.make<TH1F>("HisTPEtaTotal", ";", 48, -2.4, 2.4);
+    hisEffEta_ = dir.make<TH1F>("HisTPEta", ";", 48, -2.4, 2.4);
+    effEta_ = dir.make<TEfficiency>("EffEta", ";", 48, -2.4, 2.4);
+    const int zTBins = setup_->gpNumBinsZT();
+    hisEffZTTotal_ = dir.make<TH1F>("HisTPZTTotal", ";", zTBins, -zTBins / 2, zTBins / 2);
+    hisEffZT_ = dir.make<TH1F>("HisTPZT", ";", zTBins, -zTBins / 2, zTBins / 2);
+    effZT_ = dir.make<TEfficiency>("EffZT", ";", zTBins, -zTBins / 2, zTBins / 2);
     const double rangeInv2R = dataFormats_->format(Variable::inv2R, Process::dr).range();
     hisEffInv2R_ = dir.make<TH1F>("HisTPInv2R", ";", 32, -rangeInv2R / 2., rangeInv2R / 2.);
     hisEffInv2RTotal_ = dir.make<TH1F>("HisTPInv2RTotal", ";", 32, -rangeInv2R / 2., rangeInv2R / 2.);
     effInv2R_ = dir.make<TEfficiency>("EffInv2R", ";", 32, -rangeInv2R / 2., rangeInv2R / 2.);
-    // chi2
-    hisChi2_ = dir.make<TH1F>("HisChi2", ";", 100, -.5, 99.5);
-    const double rangePhi = dataFormats_->format(Variable::phi0, Process::dr).range();
-    hisPhi_ = dir.make<TH1F>("HisPhi", ";", 100, -rangePhi, rangePhi);
+    hisEffPT_ = dir.make<TH1F>("HisTPPT", ";", 100, 0, 100);
+    hisEffPTTotal_ = dir.make<TH1F>("HisTPPTTotal", ";", 100, 0, 100);
+    effPT_ = dir.make<TEfficiency>("EffPT", ";", 100, 0, 100);
+    // chi2s
+    hisChi20s_ = dir.make<TH1F>("HisChi20", ";", 128, 0., 10);
+    hisChi21s_ = dir.make<TH1F>("HisChi21", ";", 128, 0., 10);
+    hisChi2s_ = dir.make<TH1F>("HisChi2", ";", 128, 0., 10);
+    // tracks
+    hisTracks_ = dir.make<TH1F>("HisTracks", ";", 40, 0., 400);
+    // layers
+    hisLayers_ = dir.make<TH1F>("HisLayers", ";", 8, 0, 8);
+    hisNumLayers_ = dir.make<TH1F>("HisNumLayers", ";", 9, 0, 9);
+    profNumLayers_ = dir.make<TProfile>("Prof NumLayers", ";", 32, 0, 2.4);
   }
 
   void AnalyzerKF::analyze(const Event& iEvent, const EventSetup& iSetup) {
-    auto fill = [this](const TPPtr& tpPtr, TH1F* hisEta, TH1F* hisInv2R) {
+    static const int numChannel = dataFormats_->numChannel(Process::kf);
+    static const int numLayers = setup_->numLayers();
+    auto fill = [this](const TPPtr& tpPtr, TH1F* hisEta, TH1F* hisZT, TH1F* hisInv2R, TH1F* hisPT) {
+      const double tpPhi0 = tpPtr->phi();
+      const double tpCot = sinh(tpPtr->eta());
+      const math::XYZPointD& v = tpPtr->vertex();
+      const double tpZ0 = v.z() - tpCot * (v.x() * cos(tpPhi0) + v.y() * sin(tpPhi0));
+      const double tpZT = tpZ0 + tpCot * setup_->chosenRofZ();
       hisEta->Fill(tpPtr->eta());
+      hisZT->Fill(dataFormats_->format(Variable::zT, Process::gp).integer(tpZT));
       hisInv2R->Fill(tpPtr->charge() / tpPtr->pt() * setup_->invPtToDphi());
+      hisPT->Fill(tpPtr->pt());
     };
     // read in kf products
-    Handle<StreamsStub> handleAcceptedStubs;
-    iEvent.getByToken<StreamsStub>(edGetTokenAcceptedStubs_, handleAcceptedStubs);
-    const StreamsStub& acceptedStubs = *handleAcceptedStubs;
-    Handle<StreamsTrack> handleAcceptedTracks;
-    iEvent.getByToken<StreamsTrack>(edGetTokenAcceptedTracks_, handleAcceptedTracks);
-    Handle<StreamsStub> handleLostStubs;
-    iEvent.getByToken<StreamsStub>(edGetTokenLostStubs_, handleLostStubs);
-    const StreamsStub& lostStubs = *handleLostStubs;
-    Handle<StreamsTrack> handleLostTracks;
-    iEvent.getByToken<StreamsTrack>(edGetTokenLostTracks_, handleLostTracks);
-    Handle<int> handleNumAcceptedStates;
-    iEvent.getByToken<int>(edGetTokenNumAcceptedStates_, handleNumAcceptedStates);
-    Handle<int> handleNumLostStates;
-    iEvent.getByToken<int>(edGetTokenNumLostStates_, handleNumLostStates);
+    Handle<StreamsStub> handleStubs;
+    iEvent.getByToken<StreamsStub>(edGetTokenStubs_, handleStubs);
+    const StreamsStub& allStubs = *handleStubs;
+    Handle<StreamsTrack> handleTracks;
+    iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
+    const StreamsTrack& allTracks = *handleTracks;
+    Handle<int> handleNumStatesAccepted;
+    iEvent.getByToken<int>(edGetTokenNumStatesAccepted_, handleNumStatesAccepted);
+    Handle<int> handleNumStatesTruncated;
+    iEvent.getByToken<int>(edGetTokenNumStatesTruncated_, handleNumStatesTruncated);
+    Handle<vector<pair<double, double>>> handleChi2s;
+    iEvent.getByToken<vector<pair<double, double>>>(edGetTokenChi2s_, handleChi2s);
     // read in MCTruth
     const StubAssociation* selection = nullptr;
     const StubAssociation* reconstructable = nullptr;
@@ -223,82 +242,81 @@ namespace trackerTFP {
       iEvent.getByToken<StubAssociation>(edGetTokenReconstructable_, handleReconstructable);
       reconstructable = handleReconstructable.product();
       for (const auto& p : selection->getTrackingParticleToTTStubsMap())
-        fill(p.first, hisEffEtaTotal_, hisEffInv2RTotal_);
+        fill(p.first, hisEffEtaTotal_, hisEffZTTotal_, hisEffInv2RTotal_, hisEffPTTotal_);
+    }
+    // chi2s
+    for (const pair<double, double>& chi2s : *handleChi2s) {
+      hisChi20s_->Fill(chi2s.first * 2.);
+      hisChi21s_->Fill(chi2s.second * 2.);
+      hisChi2s_->Fill(chi2s.first + chi2s.second);
     }
     // analyze kf products and associate found tracks with reconstrucable TrackingParticles
     set<TPPtr> tpPtrs;
     set<TPPtr> tpPtrsSelection;
-    set<TPPtr> tpPtrsLost;
-    int allMatched(0);
-    int allTracks(0);
-    auto consume = [this](const StreamTrack& tracks, const StreamsStub& streams, int channel, TTTracks& ttTracks) {
-      const int offset = channel * setup_->numLayers();
-      int pos(0);
-      for (const FrameTrack& frameTrack : tracks) {
-        vector<StubKF> stubs;
-        stubs.reserve(setup_->numLayers());
-        for (int layer = 0; layer < setup_->numLayers(); layer++) {
-          const FrameStub& frameStub = streams[offset + layer][pos];
-          if (frameStub.first.isNonnull())
-            stubs.emplace_back(frameStub, dataFormats_, layer);
-        }
-        TrackKF track(frameTrack, dataFormats_);
-        ttTracks.emplace_back(track.ttTrack(stubs));
-        pos++;
-      }
-    };
+    set<TPPtr> tpPtrsMax;
+    int numMatched(0);
+    int numTracks(0);
     for (int region = 0; region < setup_->numRegions(); region++) {
-      int nStubsRegion(0);
-      int nTracksRegion(0);
-      int nLostRegion(0);
-      for (int channel = 0; channel < dataFormats_->numChannel(Process::kf); channel++) {
-        const int index = region * dataFormats_->numChannel(Process::kf) + channel;
-        const StreamTrack& accepted = handleAcceptedTracks->at(index);
-        const StreamTrack& lost = handleLostTracks->at(index);
-        hisChannel_->Fill(accepted.size());
-        profChannel_->Fill(channel, accepted.size());
-        TTTracks tracks;
-        const int nTracks = accumulate(accepted.begin(), accepted.end(), 0, [](int sum, const FrameTrack& frame) {
-          return sum + (frame.first.isNonnull() ? 1 : 0);
-        });
-        nTracksRegion += nTracks;
-        tracks.reserve(nTracks);
-        consume(accepted, acceptedStubs, index, tracks);
-        for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : tracks)
-          hisPhi_->Fill(ttTrack.momentum().phi());
-        nStubsRegion += accumulate(tracks.begin(), tracks.end(), 0, [](int sum, const auto& ttTrack) {
-          return sum + (int)ttTrack.getStubRefs().size();
-        });
-        TTTracks tracksLost;
-        const int nLost = accumulate(lost.begin(), lost.end(), 0, [](int sum, const FrameTrack& frame) {
-          return sum + (frame.first.isNonnull() ? 1 : 0);
-        });
-        nLostRegion += nLost;
-        tracksLost.reserve(nLost);
-        consume(lost, lostStubs, index, tracksLost);
-        allTracks += nTracks;
+      int nRegionStubs(0);
+      int nRegionTracks(0);
+      for (int channel = 0; channel < numChannel; channel++) {
+        const int index = region * numChannel + channel;
+        const int offset = index * numLayers;
+        const StreamTrack& channelTracks = allTracks[index];
+        hisChannel_->Fill(channelTracks.size());
+        profChannel_->Fill(channel, channelTracks.size());
+        vector<TrackKF> tracks;
+        vector<StubKF> stubs;
+        vector<vector<StubKF*>> tracksStubs(channelTracks.size(), vector<StubKF*>(numLayers, nullptr));
+        tracks.reserve(channelTracks.size());
+        stubs.reserve(channelTracks.size() * numLayers);
+        for (int frame = 0; frame < (int)channelTracks.size(); frame++) {
+          tracks.emplace_back(channelTracks[frame], dataFormats_);
+          const double cot = tracks.back().zT() / setup_->chosenRofZ();
+          int nLs(0);
+          for (int layer = 0; layer < numLayers; layer++) {
+            const FrameStub& fs = allStubs[offset + layer][frame];
+            if (fs.first.isNull())
+              continue;
+            stubs.emplace_back(fs, dataFormats_);
+            tracksStubs[frame][layer] = &stubs.back();
+            hisLayers_->Fill(layer);
+            nLs++;
+          }
+          hisNumLayers_->Fill(nLs);
+          profNumLayers_->Fill(abs(sinh(cot)), nLs);
+        }
+        nRegionStubs += stubs.size();
+        nRegionTracks += tracks.size();
         if (!useMCTruth_)
           continue;
         int tmp(0);
-        associate(tracks, selection, tpPtrsSelection, tmp, hisRes_, profResZ0_);
-        associate(tracksLost, selection, tpPtrsLost, tmp, vector<TH1F*>(), nullptr);
-        associate(tracks, reconstructable, tpPtrs, allMatched, vector<TH1F*>(), nullptr);
+        associate(tracks, tracksStubs, region, selection, tpPtrsSelection, tmp, hisRes_, profRes_);
+        associate(tracks,
+                  tracksStubs,
+                  region,
+                  reconstructable,
+                  tpPtrs,
+                  numMatched,
+                  vector<TH1F*>(),
+                  vector<TProfile*>(),
+                  false);
+        associate(tracks, tracksStubs, region, selection, tpPtrsMax, tmp, vector<TH1F*>(), vector<TProfile*>(), false);
       }
-      prof_->Fill(1, nStubsRegion);
-      prof_->Fill(2, nTracksRegion);
-      prof_->Fill(3, nLostRegion);
+      numTracks += nRegionTracks;
+      prof_->Fill(1, nRegionStubs);
+      prof_->Fill(2, nRegionTracks);
     }
     for (const TPPtr& tpPtr : tpPtrsSelection)
-      fill(tpPtr, hisEffEta_, hisEffInv2R_);
-    deque<TPPtr> tpPtrsRealLost;
-    set_difference(tpPtrsLost.begin(), tpPtrsLost.end(), tpPtrs.begin(), tpPtrs.end(), back_inserter(tpPtrsRealLost));
-    prof_->Fill(4, allMatched);
-    prof_->Fill(5, allTracks);
+      fill(tpPtr, hisEffEta_, hisEffZT_, hisEffInv2R_, hisEffPT_);
+    prof_->Fill(4, numMatched);
+    prof_->Fill(5, numTracks);
     prof_->Fill(6, tpPtrs.size());
     prof_->Fill(7, tpPtrsSelection.size());
-    prof_->Fill(8, tpPtrsRealLost.size());
-    prof_->Fill(10, *handleNumAcceptedStates);
-    prof_->Fill(11, *handleNumLostStates);
+    prof_->Fill(10, *handleNumStatesAccepted);
+    prof_->Fill(11, *handleNumStatesTruncated);
+    prof_->Fill(12, tpPtrsMax.size());
+    hisTracks_->Fill(numTracks);
     nEvents_++;
   }
 
@@ -308,79 +326,103 @@ namespace trackerTFP {
     // effi
     effEta_->SetPassedHistogram(*hisEffEta_, "f");
     effEta_->SetTotalHistogram(*hisEffEtaTotal_, "f");
+    effZT_->SetPassedHistogram(*hisEffZT_, "f");
+    effZT_->SetTotalHistogram(*hisEffZTTotal_, "f");
     effInv2R_->SetPassedHistogram(*hisEffInv2R_, "f");
     effInv2R_->SetTotalHistogram(*hisEffInv2RTotal_, "f");
+    effPT_->SetPassedHistogram(*hisEffPT_, "f");
+    effPT_->SetTotalHistogram(*hisEffPTTotal_, "f");
     // printout SF summary
     const double totalTPs = prof_->GetBinContent(9);
     const double numStubs = prof_->GetBinContent(1);
     const double numTracks = prof_->GetBinContent(2);
-    const double numTracksLost = prof_->GetBinContent(3);
     const double totalTracks = prof_->GetBinContent(5);
     const double numTracksMatched = prof_->GetBinContent(4);
     const double numTPsAll = prof_->GetBinContent(6);
     const double numTPsEff = prof_->GetBinContent(7);
-    const double numTPsLost = prof_->GetBinContent(8);
+    const double numTPsEffMax = prof_->GetBinContent(12);
     const double errStubs = prof_->GetBinError(1);
     const double errTracks = prof_->GetBinError(2);
-    const double errTracksLost = prof_->GetBinError(3);
     const double fracFake = (totalTracks - numTracksMatched) / totalTracks;
     const double fracDup = (numTracksMatched - numTPsAll) / totalTracks;
     const double eff = numTPsEff / totalTPs;
     const double errEff = sqrt(eff * (1. - eff) / totalTPs / nEvents_);
-    const double effLoss = numTPsLost / totalTPs;
-    const double errEffLoss = sqrt(effLoss * (1. - effLoss) / totalTPs / nEvents_);
+    const double effMax = numTPsEffMax / totalTPs;
+    const double errEffMax = sqrt(effMax * (1. - effMax) / totalTPs / nEvents_);
     const int numStates = prof_->GetBinContent(10);
     const int numStatesLost = prof_->GetBinContent(11);
     const double fracSatest = numStates / (double)(numStates + numStatesLost);
-    const vector<double> nums = {numStubs, numTracks, numTracksLost};
-    const vector<double> errs = {errStubs, errTracks, errTracksLost};
+    const vector<double> nums = {numStubs, numTracks};
+    const vector<double> errs = {errStubs, errTracks};
     const int wNums = ceil(log10(*max_element(nums.begin(), nums.end()))) + 5;
     const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
     log_ << "                         KF  SUMMARY                         " << endl;
     log_ << "number of stubs       per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
     log_ << "number of tracks      per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks
          << endl;
-    log_ << "number of lost tracks per TFP = " << setw(wNums) << numTracksLost << " +- " << setw(wErrs) << errTracksLost
-         << endl;
     log_ << "          tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
-    log_ << "     lost tracking efficiency = " << setw(wNums) << effLoss << " +- " << setw(wErrs) << errEffLoss << endl;
+    log_ << "      max tracking efficiency = " << setw(wNums) << effMax << " +- " << setw(wErrs) << errEffMax << endl;
     log_ << "                    fake rate = " << setw(wNums) << fracFake << endl;
     log_ << "               duplicate rate = " << setw(wNums) << fracDup << endl;
     log_ << "    state assessment fraction = " << setw(wNums) << fracSatest << endl;
+    log_ << "     number of states per TFP = " << setw(wNums) << (numStates + numStatesLost) / setup_->numRegions()
+         << endl;
     log_ << "=============================================================";
-    LogPrint("L1Trigger/TrackerTFP") << log_.str();
+    LogPrint(moduleDescription().moduleName()) << log_.str();
   }
 
   //
-  void AnalyzerKF::associate(const TTTracks& ttTracks,
+  void AnalyzerKF::associate(const vector<TrackKF>& tracks,
+                             const vector<vector<StubKF*>>& tracksStubs,
+                             int region,
                              const StubAssociation* ass,
                              set<TPPtr>& tps,
                              int& sum,
                              const vector<TH1F*>& his,
-                             TProfile* prof) const {
-    for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : ttTracks) {
-      const vector<TTStubRef>& ttStubRefs = ttTrack.getStubRefs();
-      const vector<TPPtr>& tpPtrs = ass->associateFinal(ttStubRefs);
+                             const vector<TProfile*>& prof,
+                             bool perfect) const {
+    for (int frame = 0; frame < (int)tracks.size(); frame++) {
+      const TrackKF& track = tracks[frame];
+      const vector<StubKF*>& stubs = tracksStubs[frame];
+      vector<TTStubRef> ttStubRefs;
+      ttStubRefs.reserve(stubs.size());
+      TTBV hitPattern(0, setup_->numLayers());
+      int layer(-1);
+      for (StubKF* stub : stubs) {
+        layer++;
+        if (!stub)
+          continue;
+        hitPattern.set(layer);
+        ttStubRefs.push_back(stub->frame().first);
+      }
+      const vector<TPPtr>& tpPtrs = perfect ? ass->associateFinal(ttStubRefs) : ass->associate(ttStubRefs);
       if (tpPtrs.empty())
         continue;
       sum++;
       copy(tpPtrs.begin(), tpPtrs.end(), inserter(tps, tps.begin()));
       if (his.empty())
         continue;
+      const double zT = dataFormats_->format(Variable::zT, Process::gp).digi(track.zT());
+      const double cot = zT / setup_->chosenRofZ() + track.cot();
+      const double z0 = track.zT() - setup_->chosenRofZ() * cot;
+      const double inv2R = track.inv2R();
+      const double phi0 = deltaPhi(track.phiT() - setup_->chosenRofPhi() * inv2R +
+                                   region * dataFormats_->format(Variable::phiT, Process::kf).range());
       for (const TPPtr& tpPtr : tpPtrs) {
-        const double phi0 = tpPtr->phi();
-        const double cot = sinh(tpPtr->eta());
-        const double inv2R = setup_->invPtToDphi() * tpPtr->charge() / tpPtr->pt();
+        const double tpPhi0 = tpPtr->phi();
+        const double tpCot = sinh(tpPtr->eta());
+        const double tpInv2R = -setup_->invPtToDphi() * tpPtr->charge() / tpPtr->pt();
         const math::XYZPointD& v = tpPtr->vertex();
-        const double z0 = v.z() - cot * (v.x() * cos(phi0) + v.y() * sin(phi0));
-        const double dCot = cot - ttTrack.tanL();
-        const double dZ0 = z0 - ttTrack.z0();
-        const double dInv2R = inv2R - ttTrack.rInv();
-        const double dPhi0 = deltaPhi(phi0 - ttTrack.phi());
-        const vector<double> ds = {dPhi0, dInv2R, dZ0, dCot};
-        for (int i = 0; i < (int)ds.size(); i++)
+        const double tpZ0 = v.z() - tpCot * (v.x() * cos(tpPhi0) + v.y() * sin(tpPhi0));
+        const double dCot = tpCot - cot;
+        const double dZ0 = tpZ0 - z0;
+        const double dInv2R = tpInv2R - inv2R;
+        const double dPhi0 = deltaPhi(tpPhi0 - phi0);
+        const vector<double> ds = {dPhi0, dInv2R / setup_->invPtToDphi(), dZ0, dCot};
+        for (int i = 0; i < (int)ds.size(); i++) {
           his[i]->Fill(ds[i]);
-        prof->Fill(abs(tpPtr->eta()), abs(dZ0));
+          prof[i]->Fill(abs(tpPtr->eta()), abs(ds[i]));
+        }
       }
     }
   }

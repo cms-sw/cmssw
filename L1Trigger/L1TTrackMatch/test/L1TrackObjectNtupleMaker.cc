@@ -2653,7 +2653,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
           myFake = 1;
 
         myTP_pdgid = my_tp->pdgId();
-        if (my_tp->genParticles().size() > 0) {
+        if (!my_tp->genParticles().empty()) {
           myTP_mother_pdgid = my_tp->genParticles().at(0)->mother(0)->pdgId();
         }
         myTP_pt = my_tp->p4().pt();

@@ -72,6 +72,35 @@ namespace tmtt {
         : L1track3D(
               settings, stubs, cellLocationHT, helixRphi, helixRz, 0.0, iPhiSec, iEtaReg, optoLinkID, mergedHTcell) {}
 
+    // KF emulator: constructor
+    L1track3D(Settings* settings,
+              std::vector<Stub*> stubs,
+              double qOverPt,
+              double phi0,
+              double z0,
+              double tanLambda,
+              double helixD0,
+              int iPhiSec,
+              int iEtaReg)
+        : settings_(settings),
+          stubs_(stubs),
+          stubsConst_(std::vector<const Stub*>()),
+          bestStubs_(std::unordered_set<const Stub*>()),
+          nLayers_(0),
+          cellLocationHT_(0, 0),
+          helixRphi_(qOverPt, phi0),
+          helixRz_(z0, tanLambda),
+          helixD0_(helixD0),
+          iPhiSec_(iPhiSec),
+          iEtaReg_(iEtaReg),
+          optoLinkID_(0),
+          mergedHTcell_(false),
+          seedLayerType_(TrackletSeedType()),
+          seedPS_(0),
+          matchedTP_(nullptr),
+          matchedStubs_(std::vector<const Stub*>()),
+          nMatchedLayers_(0) {}
+
     ~L1track3D() override = default;
 
     //--- Set/get optional info for tracklet tracks.

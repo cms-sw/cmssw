@@ -16,21 +16,21 @@ namespace trklet {
 
   ChannelAssignment::ChannelAssignment(const edm::ParameterSet& iConfig, const Setup* setup)
       : setup_(setup),
-        pSetDRin_(iConfig.getParameter<ParameterSet>("DRin")),
-        widthLayerId_(pSetDRin_.getParameter<int>("WidthLayerId")),
-        widthStubId_(pSetDRin_.getParameter<int>("WidthStubId")),
-        widthSeedStubId_(pSetDRin_.getParameter<int>("WidthSeedStubId")),
-        widthPSTilt_(pSetDRin_.getParameter<int>("WidthPSTilt")),
-        depthMemory_(pSetDRin_.getParameter<int>("DepthMemory")),
-        ptBoundaries_(pSetDRin_.getParameter<vector<double>>("PtBoundaries")),
+        pSetTM_(iConfig.getParameter<ParameterSet>("TM")),
+        tmMuxOrder_((pSetTM_.getParameter<vector<string>>("MuxOrder"))),
+        tmNumLayers_((pSetTM_.getParameter<int>("NumLayers"))),
+        tmWidthStubId_(pSetTM_.getParameter<int>("WidthStubId")),
+        tmWidthCot_(pSetTM_.getParameter<int>("WidthCot")),
         pSetDR_(iConfig.getParameter<ParameterSet>("DR")),
         numComparisonModules_(pSetDR_.getParameter<int>("NumComparisonModules")),
         minIdenticalStubs_(pSetDR_.getParameter<int>("MinIdenticalStubs")),
-        numNodesDR_(2 * (ptBoundaries_.size() + 1)),
         seedTypeNames_(iConfig.getParameter<vector<string>>("SeedTypes")),
         numSeedTypes_(seedTypeNames_.size()),
         numChannelsTrack_(numSeedTypes_),
         channelEncoding_(iConfig.getParameter<vector<int>>("IRChannelsIn")) {
+    tmMuxOrderInt_.reserve(tmMuxOrder_.size());
+    for (const string& s : tmMuxOrder_)
+      tmMuxOrderInt_.push_back(distance(tmMuxOrder_.begin(), find(tmMuxOrder_.begin(), tmMuxOrder_.end(), s)));
     const ParameterSet& pSetSeedTypesSeedLayers = iConfig.getParameter<ParameterSet>("SeedTypesSeedLayers");
     const ParameterSet& pSetSeedTypesProjectionLayers = iConfig.getParameter<ParameterSet>("SeedTypesProjectionLayers");
     seedTypesSeedLayers_.reserve(numSeedTypes_);
@@ -184,22 +184,6 @@ namespace trklet {
     if (its != seeds.end())
       return (int)projections.size() + distance(seeds.begin(), its);
     return -1;
-  }
-
-  // return DR node for given ttTrackRef
-  int ChannelAssignment::nodeDR(const TTTrackRef& ttTrackRef) const {
-    const double pt = ttTrackRef->momentum().perp();
-    int bin(0);
-    for (double b : ptBoundaries_) {
-      if (pt < b)
-        break;
-      bin++;
-    }
-    if (ttTrackRef->rInv() >= 0.)
-      bin += numNodesDR_ / 2;
-    else
-      bin = numNodesDR_ / 2 - 1 - bin;
-    return bin;
   }
 
   // layers a seed types can project to using default layer id [barrel: 1-6, discs: 11-15]
