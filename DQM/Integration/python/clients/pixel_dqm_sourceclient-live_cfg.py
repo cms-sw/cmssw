@@ -105,20 +105,20 @@ process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
 
 # PixelPhase1 Real data raw to digi
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.cpu.IncludeErrors = True
+process.siPixelDigis.IncludeErrors = True
 
 if (process.runType.getRunType() == process.runType.hi_run):
   rawDataRepackerLabel = 'rawDataRepacker'
   #--------------------------------
   # Heavy Ion Configuration Changes
   #--------------------------------
-  process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
+  process.siPixelDigis.InputLabel = rawDataRepackerLabel
   process.siStripDigis.ProductLabel   = rawDataRepackerLabel
   process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
   process.tcdsDigis.InputLabel = rawDataRepackerLabel
 else :
   rawDataCollectorLabel = 'rawDataCollector'
-  process.siPixelDigis.cpu.InputLabel = rawDataCollectorLabel
+  process.siPixelDigis.InputLabel = rawDataCollectorLabel
   process.siStripDigis.ProductLabel = rawDataCollectorLabel
 
 ## Collision Reconstruction

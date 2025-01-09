@@ -521,7 +521,7 @@ process.muonCSCDigis.InputObjects = rawDataCollectorLabel
 process.muonDTDigis.inputLabel = rawDataCollectorLabel
 process.muonRPCDigis.InputLabel = rawDataCollectorLabel
 process.scalersRawToDigi.scalersInputTag = rawDataCollectorLabel
-process.siPixelDigis.cpu.InputLabel = rawDataCollectorLabel
+process.siPixelDigis.InputLabel = rawDataCollectorLabel
 process.siStripDigis.ProductLabel = rawDataCollectorLabel
 process.siStripFEDMonitor.RawDataTag = rawDataCollectorLabel
 #--------------------------------------------------
@@ -544,7 +544,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.muonDTDigis.inputLabel = rawDataRepackerLabel
     process.muonRPCDigis.InputLabel = rawDataRepackerLabel
     process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
-    process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.siPixelDigis.InputLabel = rawDataRepackerLabel
     process.siStripDigis.ProductLabel = rawDataRepackerLabel
     process.siStripFEDMonitor.RawDataTag = rawDataRepackerLabel
     process.tcdsDigis.InputLabel = rawDataRepackerLabel
