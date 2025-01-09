@@ -767,7 +767,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     L1TkTracksForOutput->push_back(aTrack);
   }
 
-  const OrphanHandle<TTTracks> oh = iEvent.emplace(putTokenTTTracks_, move(*L1TkTracksForOutput));
+  const OrphanHandle<TTTracks> oh = iEvent.emplace(putTokenTTTracks_, std::move(*L1TkTracksForOutput));
 
   // produce clock and bit accurate stream output tracks and stubs.
   // from end of tracklet pattern recognition.
@@ -810,8 +810,8 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         streamsStub[offsetOut + layer++].push_back(fs);
     }
   }
-  iEvent.emplace(putTokenTracks_, move(streamsTrack));
-  iEvent.emplace(putTokenStubs_, move(streamsStub));
+  iEvent.emplace(putTokenTracks_, std::move(streamsTrack));
+  iEvent.emplace(putTokenStubs_, std::move(streamsStub));
 
 }  /// End of produce()
 
