@@ -56,4 +56,5 @@
  <class name="edm::Wrapper<unsigned short>"/>
  <class name="edm::Wrapper<std::vector<std::pair<int,std::bitset<6> > > >" />
  <class name="edm::Wrapper<std::vector<std::unique_ptr<int>>>"/>
+ <class name="edm::Wrapper<std::vector<std::pair<double, double>>>"/>
 </lcgdict>
