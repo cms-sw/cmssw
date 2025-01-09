@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.threshold = 'ERROR'
 
@@ -12,23 +10,22 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
-
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
+from IOPool.Input.modules import PoolSource
+process.source = PoolSource(
+    fileNames = [
         'file:testRunMergeMERGE4.root',
         'file:testRunMergeMERGE4.root'
-    )
-    , duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
-    , noEventSort = cms.untracked.bool(True)
-    , lumisToProcess = cms.untracked.VLuminosityBlockRange('1:1')
+    ]
+    , duplicateCheckMode = 'checkEachRealDataFile'
+    , noEventSort = True
+    , lumisToProcess = ['1:1']
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('file:testRunMergeRecombined4.root')
-)
+from IOPool.Output.modules import PoolOutputModule
+process.out = PoolOutputModule(fileName = 'testRunMergeRecombined4.root')
 
-process.test = cms.EDAnalyzer("TestMergeResults",
-
+from FWCore.Framework.modules import TestMergeResults, RunLumiEventAnalyzer
+process.test = TestMergeResults(
     #   Check to see that the value we read matches what we know
     #   was written. Expected values listed below come in sets of three
     #      value expected in Thing
@@ -41,44 +38,44 @@ process.test = cms.EDAnalyzer("TestMergeResults",
     #   When the sequence of parameter values is exhausted it stops checking
     #   0's are just placeholders, if the value is a "0" the check is not made.
 
-    expectedBeginRunProd = cms.untracked.vint32(
+    expectedBeginRunProd = [
         10001,   80016,  10003   # end run 1
-    ),
+    ],
 
-    expectedEndRunProd = cms.untracked.vint32(
+    expectedEndRunProd = [
         100001,  800016, 100003   # end run 1
-    ),
+    ],
 
-    expectedBeginLumiProd = cms.untracked.vint32(
+    expectedBeginLumiProd = [
         101,  816, 103  # end run 1 lumi 1
-    ),
+    ],
 
-    expectedEndLumiProd = cms.untracked.vint32(
+    expectedEndLumiProd = [
         1001,  8016, 1003   # end run 1 lumi 1
-    ),
+    ],
 
-    expectedBeginRunNew = cms.untracked.vint32(
+    expectedBeginRunNew = [
         10001,   60012,  10003   # end run 1
-    ),
+    ],
 
-    expectedEndRunNew = cms.untracked.vint32(
+    expectedEndRunNew = [
         100001,  600012, 100003   # end run 1
-    ),
+    ],
 
-    expectedBeginLumiNew = cms.untracked.vint32(
+    expectedBeginLumiNew = [
         101,  612, 103   # end run 1 lumi 1
-    ),
+    ],
 
-    expectedEndLumiNew = cms.untracked.vint32(
+    expectedEndLumiNew = [
         1001,  6012, 1003   # end run 1 lumi 1
-    ),
+    ],
 
-    verbose = cms.untracked.bool(True)
+    verbose = True
 )
 
-process.test2 = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+process.test2 = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
 1, 0, 0,
 1, 1, 0,
 1, 1, 11,
@@ -135,7 +132,7 @@ process.test2 = cms.EDAnalyzer('RunLumiEventAnalyzer',
 1, 1, 26,
 1, 1, 0,
 1, 0, 0
-)
+]
 )
 
 process.path1 = cms.Path(process.test + process.test2)
