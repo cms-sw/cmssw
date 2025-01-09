@@ -87,7 +87,7 @@ public:
   bool requireHeader() const override { return true; }
 
   bool fitToBuffer() const override { return true; }
-  void unpackFile(RawInputFile* file) {}
+  void unpackFile(RawInputFile* file) override {}
 
   bool dataBlockInitialized() const override { return dataBlockInitialized_; }
 

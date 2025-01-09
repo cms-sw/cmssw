@@ -56,7 +56,7 @@ public:
 
   bool fitToBuffer() const override { return false; }
 
-  void unpackFile(RawInputFile*) {}
+  void unpackFile(RawInputFile*) override {}
 
   bool dataBlockInitialized() const override { return true; }
 
@@ -102,7 +102,7 @@ public:
 
   //non-virtual
   void unpackEvent(edm::streamer::FRDEventMsgView* eview, UnpackedRawEventWrapper* ec);
-  void unpackFile(RawInputFile*);
+  void unpackFile(RawInputFile*) override;
   edm::Timestamp fillFEDRawDataCollection(edm::streamer::FRDEventMsgView* eview,
                                           FEDRawDataCollection& rawData,
                                           bool& tcdsInRange,
@@ -253,7 +253,7 @@ public:
 
   bool fitToBuffer() const override { return true; }
 
-  void unpackFile(RawInputFile*) {}
+  void unpackFile(RawInputFile*) override {}
 
   bool dataBlockInitialized() const override { return dataBlockInitialized_; }
 

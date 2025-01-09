@@ -48,7 +48,7 @@ public:
 
   bool fitToBuffer() const override { return true; }
 
-  void unpackFile(RawInputFile*) {}
+  void unpackFile(RawInputFile*) override {}
 
   bool dataBlockInitialized() const override { return dataBlockInitialized_; }
 
