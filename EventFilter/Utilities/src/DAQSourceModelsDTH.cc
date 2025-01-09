@@ -57,12 +57,11 @@ edm::Timestamp DataModeDTH::fillFEDRawDataCollection(FEDRawDataCollection& rawDa
   time = (time << 32) + stv.tv_usec;
   edm::Timestamp tstamp(time);
 
-  for (size_t i=0; i<eventFragments_.size(); i++) {
-
+  for (size_t i = 0; i < eventFragments_.size(); i++) {
     auto fragTrailer = eventFragments_[i];
     uint8_t* payload = (uint8_t*)fragTrailer->payload();
     auto fragSize = fragTrailer->payloadSizeBytes();
-/*
+    /*
     //Slink header and trailer
     assert(fragSize >= (FEDTrailer::length + FEDHeader::length));
     const FEDHeader fedHeader(payload);
@@ -75,8 +74,9 @@ edm::Timestamp DataModeDTH::fillFEDRawDataCollection(FEDRawDataCollection& rawDa
     if (fragSize < sizeof(SLinkRocketTrailer_v3) + sizeof(SLinkRocketHeader_v3))
       throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Invalid fragment size: " << fragSize;
 
-    const SLinkRocketHeader_v3* fedHeader = (const SLinkRocketHeader_v3*) payload;
-    const SLinkRocketTrailer_v3* fedTrailer = (const SLinkRocketTrailer_v3*) ((uint8_t*)fragTrailer - sizeof(SLinkRocketTrailer_v3));
+    const SLinkRocketHeader_v3* fedHeader = (const SLinkRocketHeader_v3*)payload;
+    const SLinkRocketTrailer_v3* fedTrailer =
+        (const SLinkRocketTrailer_v3*)((uint8_t*)fragTrailer - sizeof(SLinkRocketTrailer_v3));
 
     //check SLR trailer first as it comes just before fragmen trailer
     if (!fedTrailer->verifyMarker())
@@ -98,10 +98,11 @@ edm::Timestamp DataModeDTH::fillFEDRawDataCollection(FEDRawDataCollection& rawDa
     //const uint32_t crc16 = fedTrailer->crc();
 
     if (fedSize != fragSize)
-      throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Fragment size mismatch. From DTHTrailer: " << fragSize << " and from SLinkRocket trailer: " << fedSize;
+      throw cms::Exception("DAQSource::DAQSourceModelsDTH")
+          << "Fragment size mismatch. From DTHTrailer: " << fragSize << " and from SLinkRocket trailer: " << fedSize;
     FEDRawData& fedData = rawData.FEDData(fedId);
     fedData.resize(fedSize);
-    memcpy(fedData.data(), payload, fedSize); //copy with header and trailer
+    memcpy(fedData.data(), payload, fedSize);  //copy with header and trailer
   }
   return tstamp;
 }
@@ -114,82 +115,84 @@ std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeDTH::makeD
   return daqProvenanceHelpers_;
 }
 
-
 void DataModeDTH::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) {
+  //TODO: optimize by merging into a pair or tuple and reserve size
+  addrsEnd_.clear();
+  addrsStart_.clear();
+  constexpr size_t hsize = sizeof(evf::DTHOrbitHeader_v1);
 
-    //TODO: optimize by merging into a pair or tuple and reserve size
-    addrsEnd_.clear();
-    addrsStart_.clear();
-    constexpr size_t hsize = sizeof(evf::DTHOrbitHeader_v1);
+  LogDebug("DataModeDTH::makeDataBlockView") << "blockAddr: 0x" << std::hex << (uint64_t)addr << " chunkOffset: 0x"
+                                             << std::hex << (uint64_t)(addr - rawFile->chunks_[0]->buf_);
 
-    LogDebug("DataModeDTH::makeDataBlockView") << "blockAddr: 0x" << std::hex << (uint64_t) addr << " chunkOffset: 0x" << std::hex << (uint64_t)(addr - rawFile->chunks_[0]->buf_);
+  //intial orbit header was advanced over by source
+  size_t maxAllowedSize = rawFile->fileSizeLeft() + headerSize();
+  auto nextAddr = addr;
+  checksumValid_ = true;
+  if (!checksumError_.empty())
+    checksumError_ = std::string();
 
-    //intial orbit header was advanced over by source
-    size_t maxAllowedSize = rawFile->fileSizeLeft() + headerSize();
-    auto nextAddr = addr;
-    checksumValid_ = true;
-    if (!checksumError_.empty())
-      checksumError_ = std::string();
+  firstOrbitHeader_ = nullptr;
+  while (nextAddr < addr + maxAllowedSize) {
+    //ensure header fits
+    assert(nextAddr + hsize < addr + maxAllowedSize);
 
-    firstOrbitHeader_ = nullptr;
-    while (nextAddr < addr + maxAllowedSize) {
-
-      //ensure header fits
-      assert(nextAddr + hsize < addr + maxAllowedSize);
-
-      auto orbitHeader = (evf::DTHOrbitHeader_v1*)(nextAddr);
-      if (!orbitHeader->verifyMarker())
-        throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Invalid DTH orbit marker";
-      if (!firstOrbitHeader_) {
+    auto orbitHeader = (evf::DTHOrbitHeader_v1*)(nextAddr);
+    if (!orbitHeader->verifyMarker())
+      throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Invalid DTH orbit marker";
+    if (!firstOrbitHeader_) {
+      firstOrbitHeader_ = orbitHeader;
+    } else {
+      assert(orbitHeader->runNumber() == firstOrbitHeader_->runNumber());
+      if (orbitHeader->orbitNumber() != firstOrbitHeader_->orbitNumber()) {
         firstOrbitHeader_ = orbitHeader;
+        //next orbit ID reached, do not include this orbit in this block
+        break;
       }
-      else {
-        assert(orbitHeader->runNumber() == firstOrbitHeader_->runNumber());
-        if (orbitHeader->orbitNumber() != firstOrbitHeader_->orbitNumber()) {
-          firstOrbitHeader_ = orbitHeader;
-          //next orbit ID reached, do not include this orbit in this block
-          break;
-        }
-      }
-
-      auto srcOrbitSize = orbitHeader->totalSize();
-      auto nextEnd = nextAddr + srcOrbitSize;
-      assert(nextEnd <= addr + maxAllowedSize);//boundary check
-
-      if (verifyChecksum_) {
-        auto crc = crc32c(0U, (const uint8_t*)orbitHeader->payload(), orbitHeader->payloadSizeBytes());
-        if (crc != orbitHeader->crc()) {
-          checksumValid_ = false;
-          if (!checksumError_.empty()) checksumError_ += "\n";
-          checksumError_ += fmt::format("Found a wrong crc32c checksum in orbit: {} sourceID: {}. Expected {:x} but calculated {:x}",
-                                        orbitHeader->orbitNumber(), orbitHeader->sourceID(), orbitHeader->crc(), crc);
-        }
-      }
-
-      addrsStart_.push_back(nextAddr + hsize);
-      addrsEnd_.push_back(nextAddr + srcOrbitSize);
-      nextAddr +=  srcOrbitSize;
     }
-    dataBlockSize_ = nextAddr - addr;
 
-    eventCached_ = false;
-    nextEventView(rawFile);
-    eventCached_ = true;
+    auto srcOrbitSize = orbitHeader->totalSize();
+    auto nextEnd = nextAddr + srcOrbitSize;
+    assert(nextEnd <= addr + maxAllowedSize);  //boundary check
+
+    if (verifyChecksum_) {
+      auto crc = crc32c(0U, (const uint8_t*)orbitHeader->payload(), orbitHeader->payloadSizeBytes());
+      if (crc != orbitHeader->crc()) {
+        checksumValid_ = false;
+        if (!checksumError_.empty())
+          checksumError_ += "\n";
+        checksumError_ +=
+            fmt::format("Found a wrong crc32c checksum in orbit: {} sourceID: {}. Expected {:x} but calculated {:x}",
+                        orbitHeader->orbitNumber(),
+                        orbitHeader->sourceID(),
+                        orbitHeader->crc(),
+                        crc);
+      }
+    }
+
+    addrsStart_.push_back(nextAddr + hsize);
+    addrsEnd_.push_back(nextAddr + srcOrbitSize);
+    nextAddr += srcOrbitSize;
   }
+  dataBlockSize_ = nextAddr - addr;
 
+  eventCached_ = false;
+  nextEventView(rawFile);
+  eventCached_ = true;
+}
 
 bool DataModeDTH::nextEventView(RawInputFile*) {
   blockCompleted_ = false;
   if (eventCached_)
     return true;
 
-  bool blockCompletedAll = !addrsEnd_.empty() ? true: false;
+  bool blockCompletedAll = !addrsEnd_.empty() ? true : false;
   bool blockCompletedAny = false;
   eventFragments_.clear();
   size_t last_eID = 0;
 
-  for (size_t i=0; i<addrsEnd_.size(); i++) {
-    evf::DTHFragmentTrailer_v1* trailer = (evf::DTHFragmentTrailer_v1*)(addrsEnd_[i] -  sizeof(evf::DTHFragmentTrailer_v1));
+  for (size_t i = 0; i < addrsEnd_.size(); i++) {
+    evf::DTHFragmentTrailer_v1* trailer =
+        (evf::DTHFragmentTrailer_v1*)(addrsEnd_[i] - sizeof(evf::DTHFragmentTrailer_v1));
 
     if (!trailer->verifyMarker())
       throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Invalid DTH trailer marker";
@@ -199,35 +202,34 @@ bool DataModeDTH::nextEventView(RawInputFile*) {
     uint64_t eID = trailer->eventID();
     eventFragments_.push_back(trailer);
     auto payload_size = trailer->payloadSizeBytes();
-    if(payload_size > evf::SLR_MAX_EVENT_LEN) //max possible by by SlinkRocket (1 MB)
-      throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "DTHFragment size " << payload_size
-        << " larger than the SLinkRocket limit of " << evf::SLR_MAX_EVENT_LEN;
+    if (payload_size > evf::SLR_MAX_EVENT_LEN)  //max possible by by SlinkRocket (1 MB)
+      throw cms::Exception("DAQSource::DAQSourceModelsDTH")
+          << "DTHFragment size " << payload_size << " larger than the SLinkRocket limit of " << evf::SLR_MAX_EVENT_LEN;
 
-    if (i==0) {
+    if (i == 0) {
       nextEventID_ = eID;
       last_eID = eID;
-    }
-    else
-      if(last_eID != nextEventID_)
-        throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Inconsistent event number between fragments";
+    } else if (last_eID != nextEventID_)
+      throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Inconsistent event number between fragments";
 
     //update address array
     addrsEnd_[i] -= sizeof(evf::DTHFragmentTrailer_v1) + payload_size;
 
     if (trailer->flags())
-      throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Detected error condition in DTH trailer of event "
-        << trailer->eventID() << " flags: "<< std::bitset<16>(trailer->flags());
+      throw cms::Exception("DAQSource::DAQSourceModelsDTH")
+          << "Detected error condition in DTH trailer of event " << trailer->eventID()
+          << " flags: " << std::bitset<16>(trailer->flags());
 
     if (addrsEnd_[i] == addrsStart_[i]) {
       blockCompletedAny = true;
-    }
-    else {
+    } else {
       assert(addrsEnd_[i] > addrsStart_[i]);
       blockCompletedAll = false;
     }
   }
   if (blockCompletedAny != blockCompletedAll)
-    throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Some orbit sources have inconsistent number of event fragments.";
+    throw cms::Exception("DAQSource::DAQSourceModelsDTH")
+        << "Some orbit sources have inconsistent number of event fragments.";
 
   if (blockCompletedAll) {
     blockCompleted_ = blockCompletedAll;

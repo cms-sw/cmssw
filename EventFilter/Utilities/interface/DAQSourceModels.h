@@ -40,8 +40,7 @@ public:
   virtual uint32_t headerSize() const = 0;
   virtual bool versionCheck() const = 0;
   virtual uint64_t dataBlockSize() const = 0;
-  virtual void makeDataBlockView(unsigned char* addr,
-                                 RawInputFile* rawFile) = 0;
+  virtual void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) = 0;
   virtual bool nextEventView(RawInputFile*) = 0;
   virtual bool blockChecksumValid() = 0;
   virtual bool checksumValid() = 0;
@@ -65,7 +64,7 @@ public:
                                     std::string const& runDir) = 0;
   void setTesting(bool testing) { testing_ = testing; }
 
-  bool errorDetected() {return errorDetected_;}
+  bool errorDetected() { return errorDetected_; }
 
 protected:
   DAQSource* daqSource_;

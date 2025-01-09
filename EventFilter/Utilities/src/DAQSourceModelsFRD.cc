@@ -133,7 +133,8 @@ bool DataModeFRD::nextEventView(RawInputFile*) {
         << " of size:" << event_->size() << " bytes does not fit into a chunk of size:" << dataBlockMax_ << " bytes";
   }
   if (event_->version() < 5)
-    throw cms::Exception("DAQSource::getNextEvent") << "Unsupported FRD version " << event_->version() << ". Minimum supported is v5.";
+    throw cms::Exception("DAQSource::getNextEvent")
+        << "Unsupported FRD version " << event_->version() << ". Minimum supported is v5.";
   return true;
 }
 
@@ -156,10 +157,9 @@ std::string DataModeFRD::getChecksumError() const {
  * FRD preRead
  */
 
-
-void DataModeFRDPreUnpack::unpackEvent(edm::streamer::FRDEventMsgView *eview, UnpackedRawEventWrapper *ec) {
+void DataModeFRDPreUnpack::unpackEvent(edm::streamer::FRDEventMsgView* eview, UnpackedRawEventWrapper* ec) {
   //TODO: also walk the file and build checksum
-  FEDRawDataCollection * rawData = new FEDRawDataCollection;
+  FEDRawDataCollection* rawData = new FEDRawDataCollection;
   bool tcdsInRange;
   unsigned char* tcds_pointer = nullptr;
   std::string errmsg;
@@ -182,15 +182,15 @@ void DataModeFRDPreUnpack::unpackEvent(edm::streamer::FRDEventMsgView *eview, Un
   } else {
     const FEDHeader fedHeader(tcds_pointer);
     tcds::Raw_v1 const* tcds = reinterpret_cast<tcds::Raw_v1 const*>(tcds_pointer + FEDHeader::length);
-    edm::EventAuxiliary * aux = new edm::EventAuxiliary();//allocate empty aux
+    edm::EventAuxiliary* aux = new edm::EventAuxiliary();  //allocate empty aux
     *aux = evf::evtn::makeEventAuxiliary(tcds,
-                                      daqSource_->eventRunNumber(),
-                                      daqSource_->currentLumiSection(),
-                                      eview->isRealData(),
-                                      static_cast<edm::EventAuxiliary::ExperimentType>(fedHeader.triggerType()),
-                                      daqSource_->processGUID(),
-                                      !daqSource_->fileListLoopMode(),
-                                      !tcdsInRange);
+                                         daqSource_->eventRunNumber(),
+                                         daqSource_->currentLumiSection(),
+                                         eview->isRealData(),
+                                         static_cast<edm::EventAuxiliary::ExperimentType>(fedHeader.triggerType()),
+                                         daqSource_->processGUID(),
+                                         !daqSource_->fileListLoopMode(),
+                                         !tcdsInRange);
     ec->setAux(aux);
     ec->aux()->setProcessHistoryID(daqSource_->processHistoryID());
     ec->setRun(eview->run());
@@ -208,9 +208,7 @@ void DataModeFRDPreUnpack::readEvent(edm::EventPrincipal& eventPrincipal) {
       daqProvenanceHelpers_[0]->branchDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
 }
 
-
 void DataModeFRDPreUnpack::unpackFile(RawInputFile* currentFile) {
-
   const uint64_t fileSize = currentFile->fileSize_;
   const unsigned rawHeaderSize = currentFile->rawHeaderSize_;
 
@@ -222,7 +220,7 @@ void DataModeFRDPreUnpack::unpackFile(RawInputFile* currentFile) {
 
   uint64_t bufpos = rawHeaderSize;
 
-  while (bufpos < fileSize) { //loop while there is file/events to read
+  while (bufpos < fileSize) {  //loop while there is file/events to read
 
     assert(bufpos + headerSize() <= fileSize);
 
@@ -248,16 +246,18 @@ void DataModeFRDPreUnpack::unpackFile(RawInputFile* currentFile) {
       ss << "Found a wrong crc32c checksum: expected 0x" << std::hex << eview->crc32c() << " but calculated 0x" << crc;
       ec->setChecksumError(ss.str());
       //unpackEvent(eview.get(), ec);
-    }
-    else
-     unpackEvent(eview.get(), ec);
+    } else
+      unpackEvent(eview.get(), ec);
     currentFile->queue(ec);
   }
 }
 
-edm::Timestamp DataModeFRDPreUnpack::fillFEDRawDataCollection(edm::streamer::FRDEventMsgView *eview, FEDRawDataCollection& rawData,
-                                                     bool& tcdsInRange,
-                                                     unsigned char*& tcds_pointer, bool & err, std::string & errmsg) {
+edm::Timestamp DataModeFRDPreUnpack::fillFEDRawDataCollection(edm::streamer::FRDEventMsgView* eview,
+                                                              FEDRawDataCollection& rawData,
+                                                              bool& tcdsInRange,
+                                                              unsigned char*& tcds_pointer,
+                                                              bool& err,
+                                                              std::string& errmsg) {
   edm::TimeValue_t time;
   timeval stv;
   gettimeofday(&stv, nullptr);
@@ -282,7 +282,7 @@ edm::Timestamp DataModeFRDPreUnpack::fillFEDRawDataCollection(edm::streamer::FRD
     if (fedId > FEDNumbering::MAXFEDID) {
       err = true;
       std::stringstream str;
-      str <<  "Out of range FED ID : " << fedId;
+      str << "Out of range FED ID : " << fedId;
       errmsg = str.str();
       return tstamp;
     } else if (fedId >= MINTCDSuTCAFEDID_ && fedId <= MAXTCDSuTCAFEDID_) {
@@ -292,7 +292,7 @@ edm::Timestamp DataModeFRDPreUnpack::fillFEDRawDataCollection(edm::streamer::FRD
         if (fedId >= FEDNumbering::MINTCDSuTCAFEDID && fedId <= FEDNumbering::MAXTCDSuTCAFEDID) {
           tcdsInRange = true;
         }
-      } else  {
+      } else {
         err = true;
         std::stringstream str;
         str << "Second TCDS FED ID " << fedId << " found. First ID: " << selectedTCDSFed;
@@ -318,7 +318,7 @@ std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeFRDPreUnpa
   return daqProvenanceHelpers_;
 }
 
-bool DataModeFRDPreUnpack::nextEventView(RawInputFile *currentFile) {
+bool DataModeFRDPreUnpack::nextEventView(RawInputFile* currentFile) {
   if (eventCached_)
     return true;
   event_ = std::make_unique<FRDEventMsgView>(dataBlockAddr_);
@@ -329,21 +329,16 @@ bool DataModeFRDPreUnpack::nextEventView(RawInputFile *currentFile) {
   }
 
   if (event_->version() < 5)
-    throw cms::Exception("DAQSource::getNextEvent") << "Unsupported FRD version " << event_->version() << ". Minimum supported is v5.";
+    throw cms::Exception("DAQSource::getNextEvent")
+        << "Unsupported FRD version " << event_->version() << ". Minimum supported is v5.";
 
   currentFile->popQueue(ec_);
   return true;
 }
 
-bool DataModeFRDPreUnpack::checksumValid() {
-  return !ec_->checksumError();
-}
+bool DataModeFRDPreUnpack::checksumValid() { return !ec_->checksumError(); }
 
-std::string DataModeFRDPreUnpack::getChecksumError() const {
-  return ec_->errmsg();
-}
-
-
+std::string DataModeFRDPreUnpack::getChecksumError() const { return ec_->errmsg(); }
 
 /*
  * FRD Multi Source
@@ -547,14 +542,13 @@ bool DataModeFRDStriped::makeEvents() {
           << " of size:" << events_[i]->size() << " bytes does not fit into the buffer or has corrupted header";
 
     if (events_[i]->version() < 5)
-      throw cms::Exception("DAQSource::getNextEvent") << "Unsupported FRD version " << events_[i]->version() << ". Minimum supported is v5.";
-
+      throw cms::Exception("DAQSource::getNextEvent")
+          << "Unsupported FRD version " << events_[i]->version() << ". Minimum supported is v5.";
   }
   if (completed < numFiles_) {
     for (int i = 0; i < numFiles_; i++) {
       if (dataBlockAddrs_[i] == dataBlockMaxAddrs_[i]) {
-        edm::LogError("dataModeFRDStriped::makeEvents")
-          << "incomplete file block read from directory " << buPaths_[i];
+        edm::LogError("dataModeFRDStriped::makeEvents") << "incomplete file block read from directory " << buPaths_[i];
         errorDetected_ = true;
       }
     }

@@ -243,7 +243,9 @@ void DAQSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
           "Block size used in a single file read call (must be smaller or equal to the initial chunk buffer size). If "
           "0 is specified, use chunk size.");
 
-  desc.addUntracked<int>("numConcurrentReads", -1)->setComment("Max number of concurrent reads. If not positive, it will "
+  desc.addUntracked<int>("numConcurrentReads", -1)
+      ->setComment(
+          "Max number of concurrent reads. If not positive, it will "
           "be set to numBuffers - 1");
   desc.addUntracked<unsigned int>("numBuffers", 2)->setComment("Number of buffers used for reading input");
   desc.addUntracked<unsigned int>("maxBufferedFiles", 2)
@@ -376,7 +378,8 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextEventFromDataBlock() {
   if (verifyChecksum_ && !dataMode_->checksumValid()) {
     if (fms_)
       fms_->setExceptionDetected(currentLumiSection_);
-    throw cms::Exception("DAQSource::getNextEventFromDataBlock") << "InvalidChecksum - " << dataMode_->getChecksumError();
+    throw cms::Exception("DAQSource::getNextEventFromDataBlock")
+        << "InvalidChecksum - " << dataMode_->getChecksumError();
   }
   setMonState(inCachedEvent);
 
@@ -448,26 +451,27 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_]);
     if (currentFile_->nEvents_ >= 0 && currentFile_->nEvents_ != int(currentFile_->nProcessed_)) {
       std::stringstream str;
-      for (auto& s: currentFile_->fileNames_) {
+      for (auto& s : currentFile_->fileNames_) {
         struct stat bufs;
         if (stat(s.c_str(), &bufs) != 0)
           throw cms::Exception("DAQSource::getNextDataBlock") << "Could not stat file " << s;
         str << s << " (size:" << (bufs.st_size / 1000) << " kB)" << std::endl;
       }
       throw cms::Exception("DAQSource::getNextDataBlock")
-          << "Fully processed " << currentFile_->nProcessed_ << " from:" << std::endl << str.str()
-          << "but according to RAW header there should be " << currentFile_->nEvents_ << " events. Check previous error log for details.";
+          << "Fully processed " << currentFile_->nProcessed_ << " from:" << std::endl
+          << str.str() << "but according to RAW header there should be " << currentFile_->nEvents_
+          << " events. Check previous error log for details.";
     } else if (dataMode_->errorDetected()) {
       std::stringstream str;
-      for (auto& s: currentFile_->fileNames_) {
+      for (auto& s : currentFile_->fileNames_) {
         struct stat bufs;
         if (stat(s.c_str(), &bufs) != 0)
           throw cms::Exception("DAQSource::getNextDataBlock") << "Could not stat file " << s;
         str << s << " (size:" << (bufs.st_size / 1000) << " kB)" << std::endl;
       }
       throw cms::Exception("DAQSource::getNextDataBlock")
-          << "Processed " << currentFile_->nProcessed_ << " from:" << std::endl << str.str()
-          << "but there was a mismatch detected by the data model. Check previous error log for details.";
+          << "Processed " << currentFile_->nProcessed_ << " from:" << std::endl
+          << str.str() << "but there was a mismatch detected by the data model. Check previous error log for details.";
     }
     setMonState(inReadCleanup);
     if (!daqDirector_->isSingleStreamThread() && !fileListMode_) {
@@ -572,8 +576,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     }
     setMonState(inChunkReceived);
     //header and payload is moved, update view
-    dataMode_->makeDataBlockView(
-        dataPosition, currentFile_.get());
+    dataMode_->makeDataBlockView(dataPosition, currentFile_.get());
   } else {
     //everything is in a single chunk, only move pointers forward. Also used for fitToBuffer models
     chunkEnd = currentFile_->advance(mWakeup_, cvWakeupAll_, dataPosition, msgSize);
@@ -693,7 +696,8 @@ void DAQSource::readSupervisor() {
     //held files include files queued in the deleting thread.
     //We require no more than maxBufferedFiles + 2 of total held files until deletion
 
-    while (workerPool_.empty() || freeChunks_.empty() || readingFilesCount_ >= maxBufferedFiles_ || heldFilesCount_ >= maxBufferedFiles_ + 2) {
+    while (workerPool_.empty() || freeChunks_.empty() || readingFilesCount_ >= maxBufferedFiles_ ||
+           heldFilesCount_ >= maxBufferedFiles_ + 2) {
       //report state to monitoring
       if (fms_) {
         bool copy_active = false;
@@ -721,10 +725,11 @@ void DAQSource::readSupervisor() {
       if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout) {
         counter++;
         if (!(counter % 6000)) {
-          edm::LogWarning("DAQSource")
-              << "No free chunks or threads. Worker pool empty:" << workerPool_.empty()
-              << ", free chunks empty:" << freeChunks_.empty() << ", number of files buffered (held):" << readingFilesCount_
-              << "(" << heldFilesCount_ << ")" << " / " << maxBufferedFiles_;
+          edm::LogWarning("DAQSource") << "No free chunks or threads. Worker pool empty:" << workerPool_.empty()
+                                       << ", free chunks empty:" << freeChunks_.empty()
+                                       << ", number of files buffered (held):" << readingFilesCount_ << "("
+                                       << heldFilesCount_ << ")"
+                                       << " / " << maxBufferedFiles_;
         }
         LogDebug("DAQSource") << "No free chunks or threads...";
       }
@@ -1440,8 +1445,7 @@ void DAQSource::setMonStateSup(evf::FastMonState::InputState state) {
     fms_->setInStateSup(state);
 }
 
-bool RawInputFile::advance(std::mutex &m, std::condition_variable &cv, unsigned char*& dataPosition, const size_t size) {
-
+bool RawInputFile::advance(std::mutex& m, std::condition_variable& cv, unsigned char*& dataPosition, const size_t size) {
   sourceParent_->setMonState(inWaitChunk);
   //wait for chunk
   while (!waitForChunk(currentChunk_)) {
@@ -1461,7 +1465,6 @@ bool RawInputFile::advance(std::mutex &m, std::condition_variable &cv, unsigned 
 
     sourceParent_->setMonState(inWaitChunk);
     while (!waitForChunk(currentChunk_ + 1)) {
-
       std::unique_lock<std::mutex> lk(m);
       cv.wait_for(lk, std::chrono::milliseconds(100));
       if (sourceParent_->exceptionState())

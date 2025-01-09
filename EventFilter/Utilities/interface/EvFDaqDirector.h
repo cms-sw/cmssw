@@ -72,7 +72,10 @@ namespace evf {
     void postEndRun(edm::GlobalContext const& globalContext);
     void preGlobalEndLumi(edm::GlobalContext const& globalContext);
     void updateRunParams();
-    void overrideRunNumber(unsigned int run) { run_ = run; updateRunParams(); }
+    void overrideRunNumber(unsigned int run) {
+      run_ = run;
+      updateRunParams();
+    }
     std::string const& runString() const { return run_string_; }
     std::string& baseRunDir() { return run_dir_; }
     std::string& buBaseRunDir() { return bu_run_dir_; }

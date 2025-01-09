@@ -65,10 +65,10 @@ RawEventOutputModuleForBU<Consumer>::RawEventOutputModuleForBU(edm::ParameterSet
       token_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("source"))),
       numEventsPerFile_(ps.getParameter<unsigned int>("numEventsPerFile")),
       frdVersion_(ps.getParameter<unsigned int>("frdVersion")),
-      sourceIdList_(ps.getUntrackedParameter<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>()))
-{
+      sourceIdList_(ps.getUntrackedParameter<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>())) {
   if (frdVersion_ > 0 && frdVersion_ < 5)
-    throw cms::Exception("RawEventOutputModuleForBU") << "Generating data with FRD version " << frdVersion_ << " is no longer supported";
+    throw cms::Exception("RawEventOutputModuleForBU")
+        << "Generating data with FRD version " << frdVersion_ << " is no longer supported";
   else if (frdVersion_ > edm::streamer::FRDHeaderMaxVersion)
     throw cms::Exception("RawEventOutputModuleForBU") << "Unknown FRD version " << frdVersion_;
 }
@@ -104,8 +104,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
       FEDRawData singleFED = fedBuffers->FEDData(idx);
       expectedSize += singleFED.size();
     }
-  }
-  else {
+  } else {
     for (int idx = 0; idx < nFeds; ++idx) {
       FEDRawData singleFED = fedBuffers->FEDData(idx);
       expectedSize += singleFED.size();
@@ -154,15 +153,14 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
       }
     }
   if (frdVersion_) {
-      //crc32c checksum
+    //crc32c checksum
     uint32_t crc = 0;
     *(payloadPtr - 1) = crc32c(crc, (const unsigned char*)payloadPtr, expectedSize - headerSize);
 
     // create the FRDEventMsgView and use the template consumer to write it out
     edm::streamer::FRDEventMsgView msg(workBuffer.get()->data());
     templateConsumer_->doOutputEvent(msg);
-  }
-  else {
+  } else {
     //write only raw FEDs
     templateConsumer_->doOutputEvent((void*)workBuffer.get()->data(), expectedSize);
   }

@@ -184,8 +184,6 @@ private:
 
   std::map<unsigned int, unsigned int> sourceEventsReport_;
   std::mutex monlock_;
-
-
 };
 
 struct InputChunk {
@@ -306,7 +304,7 @@ public:
     //some atomics to make sure everything is cache synchronized for the main thread
     return chunks_[chunkid] != nullptr && chunks_[chunkid]->readComplete_;
   }
-  bool advance(std::mutex &m, std::condition_variable &cv, unsigned char*& dataPosition, const size_t size);
+  bool advance(std::mutex& m, std::condition_variable& cv, unsigned char*& dataPosition, const size_t size);
   bool advanceSimple(unsigned char*& dataPosition, const size_t size) {
     size_t currentLeft = chunks_[currentChunk_]->size_ - chunkPosition_;
     if (currentLeft < size)

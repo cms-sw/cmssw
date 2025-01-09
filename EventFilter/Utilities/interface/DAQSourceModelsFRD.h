@@ -32,14 +32,12 @@ public:
 
   uint64_t dataBlockSize() const override { return event_->size(); }
 
-  void makeDataBlockView(unsigned char* addr,
-                         RawInputFile* rawFile) override {
+  void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) override {
     dataBlockAddr_ = addr;
     dataBlockMax_ = rawFile->currentChunkSize();
     eventCached_ = false;
     nextEventView(rawFile);
     eventCached_ = true;
-
   }
 
   bool nextEventView(RawInputFile*) override;
@@ -98,16 +96,19 @@ private:
 class DataModeFRDPreUnpack : public DataMode {
 public:
   DataModeFRDPreUnpack(DAQSource* daqSource) : DataMode(daqSource) {}
-  ~DataModeFRDPreUnpack() override{};
+  ~DataModeFRDPreUnpack() override {};
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
   void readEvent(edm::EventPrincipal& eventPrincipal) override;
 
   //non-virtual
-  void unpackEvent(edm::streamer::FRDEventMsgView *eview, UnpackedRawEventWrapper *ec);
+  void unpackEvent(edm::streamer::FRDEventMsgView* eview, UnpackedRawEventWrapper* ec);
   void unpackFile(RawInputFile*);
-  edm::Timestamp fillFEDRawDataCollection(edm::streamer::FRDEventMsgView *eview, FEDRawDataCollection& rawData,
+  edm::Timestamp fillFEDRawDataCollection(edm::streamer::FRDEventMsgView* eview,
+                                          FEDRawDataCollection& rawData,
                                           bool& tcdsInRange,
-                                          unsigned char*& tcds_pointer, bool & err, std::string & errmsg);
+                                          unsigned char*& tcds_pointer,
+                                          bool& err,
+                                          std::string& errmsg);
 
   int dataVersion() const override { return detectedFRDversion_; }
   void detectVersion(unsigned char* fileBuf, uint32_t fileHeaderOffset) override {
@@ -121,8 +122,7 @@ public:
   //used
   uint64_t dataBlockSize() const override { return event_->size(); }
 
-  void makeDataBlockView(unsigned char* addr,
-                         RawInputFile* rawFile) override {
+  void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) override {
     dataBlockAddr_ = addr;
     dataBlockMax_ = rawFile->currentChunkSize();
     eventCached_ = false;
@@ -146,7 +146,7 @@ public:
 
   bool dataBlockInitialized() const override { return true; }
 
-  void setDataBlockInitialized(bool) override{};
+  void setDataBlockInitialized(bool) override {};
 
   void setTCDSSearchRange(uint16_t MINTCDSuTCAFEDID, uint16_t MAXTCDSuTCAFEDID) override {
     MINTCDSuTCAFEDID_ = MINTCDSuTCAFEDID;
@@ -175,8 +175,6 @@ private:
   uint16_t MAXTCDSuTCAFEDID_ = FEDNumbering::MAXTCDSuTCAFEDID;
   bool eventCached_ = false;
 };
-
-
 
 /* 
  * FRD source reading files from multiple striped destinations
@@ -209,8 +207,7 @@ public:
     return events_[0]->size();
   }
 
-  void makeDataBlockView(unsigned char* addr,
-                         RawInputFile* rawFile) override {
+  void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) override {
     fileHeaderSize_ = rawFile->rawHeaderSize_;
     std::vector<uint64_t> const& fileSizes = rawFile->fileSizes_;
     numFiles_ = fileSizes.size();

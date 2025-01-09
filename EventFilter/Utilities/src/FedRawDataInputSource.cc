@@ -223,7 +223,8 @@ void FedRawDataInputSource::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.addUntracked<unsigned int>("eventChunkSize", 32)->setComment("Input buffer (chunk) size");
   desc.addUntracked<unsigned int>("eventChunkBlock", 32)
       ->setComment("Block size used in a single file read call (must be smaller or equal to buffer size)");
-  desc.addUntracked<int>("numConcurrentReads", -1)->setComment("Max number of concurrent reads. If not positive, it will be set to numBuffers - 1");
+  desc.addUntracked<int>("numConcurrentReads", -1)
+      ->setComment("Max number of concurrent reads. If not positive, it will be set to numBuffers - 1");
   desc.addUntracked<unsigned int>("numBuffers", 2)->setComment("Number of buffers used for reading input");
   desc.addUntracked<unsigned int>("maxBufferedFiles", 2)
       ->setComment("Maximum number of simultaneously buffered raw files");
@@ -502,7 +503,8 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
           << "Premature end of input file (missing:"
           << (FRDHeaderVersionSize[detectedFRDversion_] - currentFile_->fileSizeLeft())
           << ") while reading event data for next event header";
-    bool chunkEnd = currentFile_->advance(mWakeup_, cvWakeupAll_, dataPosition, FRDHeaderVersionSize[detectedFRDversion_]);
+    bool chunkEnd =
+        currentFile_->advance(mWakeup_, cvWakeupAll_, dataPosition, FRDHeaderVersionSize[detectedFRDversion_]);
 
     event_ = std::make_unique<FRDEventMsgView>(dataPosition);
     if (event_->size() > eventChunkSize_) {
@@ -534,7 +536,8 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
         setMonState(inWaitChunk);
         {
           IdleSourceSentry ids(fms_);
-          chunkEnd = currentFile_->advance(mWakeup_, cvWakeupAll_, dataPosition, FRDHeaderVersionSize[detectedFRDversion_] + msgSize);
+          chunkEnd = currentFile_->advance(
+              mWakeup_, cvWakeupAll_, dataPosition, FRDHeaderVersionSize[detectedFRDversion_] + msgSize);
         }
         setMonState(inChunkReceived);
 
@@ -569,7 +572,8 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
           << crc;
     }
   } else if (event_->version() < 5)
-      throw cms::Exception("FedRawDataInputSource::getNextEvent") << "FRD event version " << event_->version() << " (< 5) is no longer supported";
+    throw cms::Exception("FedRawDataInputSource::getNextEvent")
+        << "FRD event version " << event_->version() << " (< 5) is no longer supported";
 
   setMonState(inCachedEvent);
 
@@ -699,7 +703,6 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
 
 void FedRawDataInputSource::rewind_() {}
 
-
 void FedRawDataInputSource::fileDeleter() {
   bool stop = false;
 
@@ -752,7 +755,6 @@ void FedRawDataInputSource::fileDeleter() {
   }
 }
 
-
 void FedRawDataInputSource::readSupervisor() {
   bool stop = false;
   unsigned int currentLumiSection = 0;
@@ -774,9 +776,8 @@ void FedRawDataInputSource::readSupervisor() {
     //held files include files queued in the deleting thread.
     //We require no more than maxBufferedFiles + 2 of total held files until deletion
 
-    while (workerPool_.empty() || freeChunks_.empty() ||
-           readingFilesCount_ >= maxBufferedFiles_ || heldFilesCount_ >= maxBufferedFiles_ + 2) {
-
+    while (workerPool_.empty() || freeChunks_.empty() || readingFilesCount_ >= maxBufferedFiles_ ||
+           heldFilesCount_ >= maxBufferedFiles_ + 2) {
       //report state to monitoring
       if (fms_) {
         bool copy_active = false;
@@ -807,8 +808,9 @@ void FedRawDataInputSource::readSupervisor() {
         if (!(counter % 6000)) {
           edm::LogWarning("FedRawDataInputSource")
               << "No free chunks or threads. Worker pool empty:" << workerPool_.empty()
-              << ", free chunks empty:" << freeChunks_.empty() << ", number of files buffered (held):" << readingFilesCount_
-              << "(" << heldFilesCount_ << ")" << " / " << maxBufferedFiles_;
+              << ", free chunks empty:" << freeChunks_.empty()
+              << ", number of files buffered (held):" << readingFilesCount_ << "(" << heldFilesCount_ << ")"
+              << " / " << maxBufferedFiles_;
         }
         LogDebug("FedRawDataInputSource") << "No free chunks or threads...";
       }
@@ -1330,9 +1332,9 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
     auto end = std::chrono::high_resolution_clock::now();
     auto diff = end - start;
     std::chrono::milliseconds msec = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
-    LogDebug("FedRawDataInputSource") << " finished reading block -: " << (bufferLeft / (1024.*1024)) << " MB"
-                                      << " in " << msec.count() << " ms (" << (bufferLeft / (1024.*1024.)) / double(msec.count())
-                                      << " GB/s)";
+    LogDebug("FedRawDataInputSource") << " finished reading block -: " << (bufferLeft / (1024. * 1024)) << " MB"
+                                      << " in " << msec.count() << " ms ("
+                                      << (bufferLeft / (1024. * 1024.)) / double(msec.count()) << " GB/s)";
 
     if (chunk->offset_ + bufferLeft == file->fileSize_) {  //file reading finished using same fd
       close(fileDescriptor);
@@ -1383,8 +1385,10 @@ inline void FedRawDataInputSource::setMonStateSup(evf::FastMonState::InputState 
     fms_->setInStateSup(state);
 }
 
-inline bool InputFile::advance(std::mutex &m, std::condition_variable &cv, unsigned char*& dataPosition, const size_t size) {
-
+inline bool InputFile::advance(std::mutex& m,
+                               std::condition_variable& cv,
+                               unsigned char*& dataPosition,
+                               const size_t size) {
   parent_->setMonState(inWaitChunk);
   //wait for chunk
   while (!waitForChunk(currentChunk_)) {
@@ -1403,7 +1407,6 @@ inline bool InputFile::advance(std::mutex &m, std::condition_variable &cv, unsig
     assert(chunks_.size() > currentChunk_ + 1);
     parent_->setMonState(inWaitChunk);
     while (!waitForChunk(currentChunk_ + 1)) {
-
       std::unique_lock<std::mutex> lk(m);
       cv.wait_for(lk, std::chrono::milliseconds(100));
       if (parent_->exceptionState())

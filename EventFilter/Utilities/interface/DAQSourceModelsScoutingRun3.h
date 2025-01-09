@@ -39,8 +39,7 @@ public:
     return events_[0]->size();
   }
 
-  void makeDataBlockView(unsigned char* addr,
-                         RawInputFile* rawFile) override {
+  void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) override {
     std::vector<uint64_t> const& fileSizes = rawFile->fileSizes_;
     fileHeaderSize_ = rawFile->rawHeaderSize_;
     numFiles_ = fileSizes.size();

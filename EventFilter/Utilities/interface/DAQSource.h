@@ -182,43 +182,38 @@ private:
   std::shared_ptr<DataMode> dataMode_;
 };
 
-
 //used by some models that use FEDRawDataCollection
 class UnpackedRawEventWrapper {
-  public:
-      UnpackedRawEventWrapper() {}
-      ~UnpackedRawEventWrapper() {}
-      void setError(std::string msg) {
-        errmsg_ = msg;
-        error_ = true;
-      }
-      void setChecksumError(std::string msg) {
-        errmsg_ = msg;
-        checksumError_ = true;
-      }
-      void setRawData(FEDRawDataCollection* rawData) {
-        rawData_.reset(rawData);
-      }
-      void setAux(edm::EventAuxiliary* aux) {
-        aux_.reset(aux);
-      }
-      void setRun(uint32_t run) { run_ = run; }
-      FEDRawDataCollection* rawData() { return rawData_.get(); }
-      std::unique_ptr<FEDRawDataCollection>& rawDataRef() { return rawData_; }
-      edm::EventAuxiliary* aux() { return aux_.get(); }
-      uint32_t run() const { return run_; }
-      bool checksumError() const { return checksumError_; }
-      bool error() const { return error_; }
-      std::string const& errmsg() { return errmsg_; }
-  private:
-    std::unique_ptr<FEDRawDataCollection> rawData_;
-    std::unique_ptr<edm::EventAuxiliary> aux_;
-    uint32_t run_;
-    bool checksumError_ = false;
-    bool error_ = false;
-    std::string errmsg_;
-};
+public:
+  UnpackedRawEventWrapper() {}
+  ~UnpackedRawEventWrapper() {}
+  void setError(std::string msg) {
+    errmsg_ = msg;
+    error_ = true;
+  }
+  void setChecksumError(std::string msg) {
+    errmsg_ = msg;
+    checksumError_ = true;
+  }
+  void setRawData(FEDRawDataCollection* rawData) { rawData_.reset(rawData); }
+  void setAux(edm::EventAuxiliary* aux) { aux_.reset(aux); }
+  void setRun(uint32_t run) { run_ = run; }
+  FEDRawDataCollection* rawData() { return rawData_.get(); }
+  std::unique_ptr<FEDRawDataCollection>& rawDataRef() { return rawData_; }
+  edm::EventAuxiliary* aux() { return aux_.get(); }
+  uint32_t run() const { return run_; }
+  bool checksumError() const { return checksumError_; }
+  bool error() const { return error_; }
+  std::string const& errmsg() { return errmsg_; }
 
+private:
+  std::unique_ptr<FEDRawDataCollection> rawData_;
+  std::unique_ptr<edm::EventAuxiliary> aux_;
+  uint32_t run_;
+  bool checksumError_ = false;
+  bool error_ = false;
+  std::string errmsg_;
+};
 
 class RawInputFile : public InputFile {
 public:
@@ -234,18 +229,18 @@ public:
                DAQSource* parent = nullptr)
       : InputFile(status, lumi, name, deleteFile, rawFd, fileSize, rawHeaderSize, nChunks, nEvents, nullptr),
         sourceParent_(parent) {}
-  bool advance(std::mutex &m, std::condition_variable &cv, unsigned char*& dataPosition, const size_t size);
+  bool advance(std::mutex& m, std::condition_variable& cv, unsigned char*& dataPosition, const size_t size);
   void advance(const size_t size) {
     chunkPosition_ += size;
     bufferPosition_ += size;
   }
   void queue(UnpackedRawEventWrapper* ec) {
     if (!frdcQueue_.get())
-      frdcQueue_.reset( new std::queue<std::unique_ptr<UnpackedRawEventWrapper>>() );
+      frdcQueue_.reset(new std::queue<std::unique_ptr<UnpackedRawEventWrapper>>());
     std::unique_ptr<UnpackedRawEventWrapper> uptr(ec);
     frdcQueue_->push(std::move(uptr));
   }
-  void popQueue(std::unique_ptr<UnpackedRawEventWrapper> & uptr) {
+  void popQueue(std::unique_ptr<UnpackedRawEventWrapper>& uptr) {
     uptr = std::move(frdcQueue_->front());
     frdcQueue_->pop();
   }

@@ -8,11 +8,9 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/Utilities/interface/DTHHeaders.h"
 
-
 class FEDRawDataCollection;
 
 class DataModeDTH : public DataMode {
-
 public:
   DataModeDTH(DAQSource* daqSource, bool verifyChecksum) : DataMode(daqSource), verifyChecksum_(verifyChecksum) {}
   ~DataModeDTH() override {}
@@ -22,9 +20,9 @@ public:
   //non-virtual
   edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection& rawData);
 
-  int dataVersion() const override { return detectedDTHversion_;}
+  int dataVersion() const override { return detectedDTHversion_; }
   void detectVersion(unsigned char* fileBuf, uint32_t fileHeaderOffset) override {
-    detectedDTHversion_ = 1;//TODO: read version
+    detectedDTHversion_ = 1;  //TODO: read version
   }
 
   uint32_t headerSize() const override { return sizeof(evf::DTHOrbitHeader_v1); }
@@ -33,15 +31,14 @@ public:
 
   uint64_t dataBlockSize() const override { return dataBlockSize_; }
 
-  void makeDataBlockView(unsigned char* addr,
-                         RawInputFile* rawFile) override;
+  void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) override;
 
   bool nextEventView(RawInputFile*) override;
   bool blockChecksumValid() override { return checksumValid_; }
   bool checksumValid() override { return checksumValid_; }
   std::string getChecksumError() const override { return checksumError_; }
 
-  bool isRealData() const { return true; } //this flag could be added to RU/BU-generated index
+  bool isRealData() const { return true; }  //this flag could be added to RU/BU-generated index
 
   uint32_t run() const override { return firstOrbitHeader_->runNumber(); }
 
@@ -55,7 +52,7 @@ public:
 
   bool dataBlockInitialized() const override { return dataBlockInitialized_; }
 
-  void setDataBlockInitialized(bool val) override {  dataBlockInitialized_ = val; }
+  void setDataBlockInitialized(bool val) override { dataBlockInitialized_ = val; }
 
   void setTCDSSearchRange(uint16_t MINTCDSuTCAFEDID, uint16_t MAXTCDSuTCAFEDID) override {}
 
@@ -73,12 +70,12 @@ private:
   uint16_t detectedDTHversion_ = 0;
   evf::DTHOrbitHeader_v1* firstOrbitHeader_ = nullptr;
   uint64_t nextEventID_ = 0;
-  std::vector<evf::DTHFragmentTrailer_v1*> eventFragments_; //events in block (DTH trailer)
+  std::vector<evf::DTHFragmentTrailer_v1*> eventFragments_;  //events in block (DTH trailer)
   bool dataBlockInitialized_ = false;
   bool blockCompleted_ = true;
 
-  std::vector<uint8_t*> addrsStart_;//start of orbit payloads per source
-  std::vector<uint8_t*> addrsEnd_; //dth trailers per source (go through events from the end)
+  std::vector<uint8_t*> addrsStart_;  //start of orbit payloads per source
+  std::vector<uint8_t*> addrsEnd_;    //dth trailers per source (go through events from the end)
 
   bool checksumValid_ = false;
   std::string checksumError_;
@@ -87,7 +84,6 @@ private:
   //uint16_t MINTCDSuTCAFEDID_ = FEDNumbering::MINTCDSuTCAFEDID;
   //uint16_t MAXTCDSuTCAFEDID_ = FEDNumbering::MAXTCDSuTCAFEDID;
   bool eventCached_ = false;
-
 };
 
 #endif  // EventFilter_Utilities_DAQSourceModelsDTH_h

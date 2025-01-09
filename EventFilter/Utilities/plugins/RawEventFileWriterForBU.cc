@@ -25,7 +25,6 @@ using namespace edm::streamer;
 RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps)
     : microSleep_(ps.getParameter<int>("microSleep")),
       frdFileVersion_(ps.getParameter<unsigned int>("frdFileVersion")) {
-
   if (edm::Service<evf::FastMonitoringService>().isAvailable())
     fms_ = static_cast<evf::FastMonitoringService*>(edm::Service<evf::FastMonitoringService>().operator->());
 
@@ -115,7 +114,6 @@ void RawEventFileWriterForBU::doOutputEvent(void* startAddress, size_t size) {
   //  cms::Adler32((const char*) msg.startAddress(), msg.size(), adlera_, adlerb_);
 }
 
-
 void RawEventFileWriterForBU::doOutputEvent(FRDEventMsgView const& msg) {
   ssize_t retval = write(outfd_, (void*)msg.startAddress(), msg.size());
 
@@ -133,7 +131,10 @@ void RawEventFileWriterForBU::doOutputEvent(FRDEventMsgView const& msg) {
   //  cms::Adler32((const char*) msg.startAddress(), msg.size(), adlera_, adlerb_);
 }
 
-void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std::string const& name, int run, unsigned int ls) {
+void RawEventFileWriterForBU::initialize(std::string const& destinationDir,
+                                         std::string const& name,
+                                         int run,
+                                         unsigned int ls) {
   destinationDir_ = destinationDir;
   run_ = run;
 

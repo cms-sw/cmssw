@@ -32,18 +32,17 @@ namespace evf {
   constexpr unsigned h_size_ = sizeof(SLinkRocketHeader_v3);
   constexpr unsigned t_size_ = sizeof(SLinkRocketTrailer_v3);
 
-
-  constexpr double rndFactor = (maxOrbitBx - minOrbitBx + 1) / (double(avgEventsPerOrbit) *RAND_MAX);
-
+  constexpr double rndFactor = (maxOrbitBx - minOrbitBx + 1) / (double(avgEventsPerOrbit) * RAND_MAX);
 
   DTHFakeReader::DTHFakeReader(const edm::ParameterSet& pset)
-    : fillRandom_(pset.getUntrackedParameter<bool>("fillRandom", false)),
-      meansize_(pset.getUntrackedParameter<unsigned int>("meanSize", 1024)),
-      width_(pset.getUntrackedParameter<unsigned int>("width", 1024)),
-      injected_errors_per_million_events_(pset.getUntrackedParameter<unsigned int>("injectErrPpm", 0)),
-      sourceIdList_(pset.getUntrackedParameter<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>())),
-      modulo_error_events_(injected_errors_per_million_events_ ? 1000000 / injected_errors_per_million_events_
-                                                             : 0xffffffff) {
+      : fillRandom_(pset.getUntrackedParameter<bool>("fillRandom", false)),
+        meansize_(pset.getUntrackedParameter<unsigned int>("meanSize", 1024)),
+        width_(pset.getUntrackedParameter<unsigned int>("width", 1024)),
+        injected_errors_per_million_events_(pset.getUntrackedParameter<unsigned int>("injectErrPpm", 0)),
+        sourceIdList_(
+            pset.getUntrackedParameter<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>())),
+        modulo_error_events_(injected_errors_per_million_events_ ? 1000000 / injected_errors_per_million_events_
+                                                                 : 0xffffffff) {
     if (fillRandom_) {
       //intialize random seed
       auto time_count =
@@ -53,9 +52,7 @@ namespace evf {
     produces<FEDRawDataCollection>();
   }
 
-
   void DTHFakeReader::fillRawData(edm::Event& e, FEDRawDataCollection*& data) {
-
     // a null pointer is passed, need to allocate the fed collection (reusing it as container)
     data = new FEDRawDataCollection();
     //auto ls = e.luminosityBlock();
@@ -70,7 +67,7 @@ namespace evf {
     }
 
     //randomize which orbit was accepted
-    for (unsigned i=minOrbitBx; i<= maxOrbitBx; i++) {
+    for (unsigned i = minOrbitBx; i <= maxOrbitBx; i++) {
       if ((std::rand() * rndFactor) < 1) {
         uint64_t eventId = orbitId * maxOrbitBx + i;
         eventIdList_.push_back(eventId);
@@ -78,7 +75,8 @@ namespace evf {
           float logsiz = CLHEP::RandGauss::shoot(std::log(meansize_), std::log(meansize_) - std::log(width_ / 2.));
           size_t size = int(std::exp(logsiz));
           size -= size % 16;  // all blocks aligned to 128 bit words (with header+trailer being 16, this remains valid)
-          if (!size) size = 16;
+          if (!size)
+            size = 16;
           randFedSizes[sourceId][eventId] = size;
         }
       }
@@ -92,19 +90,25 @@ namespace evf {
         size += randFedSizes[sourceId][eventId] + h_size_ + t_size_ + sizeof(DTHFragmentTrailer_v1);
       feddata.resize(size);
 
-      uint64_t fragments_size_bytes =  sizeof(DTHOrbitHeader_v1);
+      uint64_t fragments_size_bytes = sizeof(DTHOrbitHeader_v1);
       //uint32_t runningChecksum = 0xffffffffU;
       uint32_t runningChecksum = 0;
       for (auto eventId : eventIdList_) {
         unsigned char* fedaddr = feddata.data() + fragments_size_bytes;
         //fragments_size_bytes += fillFED(fedaddr, sourceId, eventId, randFedSizes[sourceId][eventId], runningChecksum);
-        fragments_size_bytes += fillSLRFED(fedaddr, sourceId, eventId, orbitId, randFedSizes[sourceId][eventId], runningChecksum);
+        fragments_size_bytes +=
+            fillSLRFED(fedaddr, sourceId, eventId, orbitId, randFedSizes[sourceId][eventId], runningChecksum);
       }
       //in place construction
-      new (feddata.data()) DTHOrbitHeader_v1(sourceId, orbitId, e.id().run(), fragments_size_bytes >> evf::DTH_WORD_NUM_BYTES_SHIFT, eventIdList_.size(), runningChecksum, 0);
+      new (feddata.data()) DTHOrbitHeader_v1(sourceId,
+                                             orbitId,
+                                             e.id().run(),
+                                             fragments_size_bytes >> evf::DTH_WORD_NUM_BYTES_SHIFT,
+                                             eventIdList_.size(),
+                                             runningChecksum,
+                                             0);
     }
   }
-
 
   void DTHFakeReader::produce(edm::Event& e, edm::EventSetup const& es) {
     edm::Handle<FEDRawDataCollection> rawdata;
@@ -114,8 +118,12 @@ namespace evf {
     e.put(std::move(bare_product));
   }
 
-
-  uint32_t DTHFakeReader::fillSLRFED(unsigned char* buf, const uint32_t sourceId, edm::EventNumber_t eventId, const uint32_t orbitId, uint32_t size, uint32_t &accum_crc32c) {
+  uint32_t DTHFakeReader::fillSLRFED(unsigned char* buf,
+                                     const uint32_t sourceId,
+                                     edm::EventNumber_t eventId,
+                                     const uint32_t orbitId,
+                                     uint32_t size,
+                                     uint32_t& accum_crc32c) {
     // Generate size...
     const unsigned h_size_ = sizeof(SLinkRocketHeader_v3);
     const unsigned t_size_ = sizeof(SLinkRocketTrailer_v3);
@@ -124,7 +132,7 @@ namespace evf {
     const unsigned fragsize = size + h_size_ + t_size_;
 
     //Fill SLinkRocket header
-    uint8_t emu_status = 2; //set 2 indicating fragment generated by DTH
+    uint8_t emu_status = 2;  //set 2 indicating fragment generated by DTH
     uint16_t l1a_types = 1;  //set provisionally to 1, to be revised later
     uint8_t l1a_subtype = 0;
     new ((void*)buf) SLinkRocketHeader_v3(eventId, emu_status, l1a_subtype, l1a_types, sourceId);
@@ -147,12 +155,11 @@ namespace evf {
     uint16_t bxid = 0;
     uint8_t status = 0;
     //size is in bytes, it will be converted by constructor
-    new ((void*)(buf + h_size_ + size)) SLinkRocketTrailer_v3(crc, fragsize >> evf::SLR_WORD_NUM_BYTES_SHIFT, bxid, orbitId, crc, status);
-
-
+    new ((void*)(buf + h_size_ + size))
+        SLinkRocketTrailer_v3(crc, fragsize >> evf::SLR_WORD_NUM_BYTES_SHIFT, bxid, orbitId, crc, status);
 
     //fill DTH fragment trailer
-    void * dthTrailerAddr = buf + fragsize;
+    void* dthTrailerAddr = buf + fragsize;
     new (dthTrailerAddr) DTHFragmentTrailer_v1(fragsize >> evf::DTH_WORD_NUM_BYTES_SHIFT, 0, crc, eventId);
 
     //accumulate crc32 checksum
@@ -161,8 +168,8 @@ namespace evf {
     return totsize;
   }
 
-
-  uint32_t DTHFakeReader::fillFED(unsigned char* buf, const int sourceId, edm::EventNumber_t eventId, uint32_t size, uint32_t &accum_crc32c) {
+  uint32_t DTHFakeReader::fillFED(
+      unsigned char* buf, const int sourceId, edm::EventNumber_t eventId, uint32_t size, uint32_t& accum_crc32c) {
     // Generate size...
     const unsigned h_size = 8;
     const unsigned t_size = 8;
@@ -173,10 +180,10 @@ namespace evf {
     // Generate header
     //FEDHeader::set(feddata.data(),
     FEDHeader::set(buf,
-                   1,            // Trigger type
-                   eventId,  // LV1_id (24 bits)
-                   0,            // BX_id
-                   sourceId);       // source_id
+                   1,          // Trigger type
+                   eventId,    // LV1_id (24 bits)
+                   0,          // BX_id
+                   sourceId);  // source_id
 
     // Payload = all 0s or random
     if (fillRandom_) {
@@ -202,8 +209,9 @@ namespace evf {
     //FIXME: accumulate crc32 checksum
     //crc32c = 0;
 
-    void * dthTrailerAddr = buf + h_size + t_size + size;
-    new (dthTrailerAddr) DTHFragmentTrailer_v1((h_size + t_size + size) >> evf::DTH_WORD_NUM_BYTES_SHIFT, 0, crc, eventId);
+    void* dthTrailerAddr = buf + h_size + t_size + size;
+    new (dthTrailerAddr)
+        DTHFragmentTrailer_v1((h_size + t_size + size) >> evf::DTH_WORD_NUM_BYTES_SHIFT, 0, crc, eventId);
     return totsize;
   }
 
@@ -222,4 +230,4 @@ namespace evf {
     desc.addUntracked<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>());
     descriptions.add("DTHFakeReader", desc);
   }
-} //namespace evf
+}  //namespace evf
