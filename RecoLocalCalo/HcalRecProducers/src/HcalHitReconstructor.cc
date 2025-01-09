@@ -33,11 +33,9 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf)
       inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
       correctTiming_(conf.getParameter<bool>("correctTiming")),
       setNoiseFlags_(conf.getParameter<bool>("setNoiseFlags")),
-      setHSCPFlags_(conf.getParameter<bool>("setHSCPFlags")),
       setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags")),
       setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
-      setPulseShapeFlags_(conf.getParameter<bool>("setPulseShapeFlags")),
-      setNegativeFlags_(false),
+      setNegativeFlags_(conf.getParameter<bool>("setNegativeFlags")),
       dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
       firstAuxTS_(conf.getParameter<int>("firstAuxTS")),
       firstSample_(conf.getParameter<int>("firstSample")),
@@ -64,7 +62,6 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf)
   //  recoParamsFromDB_ = false ; //  trun off for now.
 
   // std::cout<<"  HcalHitReconstructor   recoParamsFromDB_ "<<recoParamsFromDB_<<std::endl;
-  setNegativeFlags_ = conf.getParameter<bool>("setNegativeFlags");
 
   hfdigibit_ = nullptr;
 
@@ -521,8 +518,6 @@ void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("correctionPhaseNS", 13.0);
   desc.add<edm::InputTag>("digiLabel", edm::InputTag("hcalDigis"));
   desc.add<bool>("correctTiming", true);
-  desc.add<bool>("setHSCPFlags", false);
-  desc.add<bool>("setPulseShapeFlags", false);
   desc.add<bool>("dropZSmarkedPassed", true);
   desc.add<int>("firstAuxTS", 1);
   desc.add<int>("firstSample", 2);

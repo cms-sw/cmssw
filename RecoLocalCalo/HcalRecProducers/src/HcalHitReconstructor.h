@@ -74,17 +74,15 @@ private:
   DetId::Detector det_;
   int subdet_;
   HcalOtherSubdetector subdetOther_;
-  edm::InputTag inputLabel_;
+  const edm::InputTag inputLabel_;
   edm::EDGetTokenT<HODigiCollection> tok_ho_;
   edm::EDGetTokenT<HFDigiCollection> tok_hf_;
   edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
   //std::vector<std::string> channelStatusToDrop_;
   bool correctTiming_;        // turn on/off Ken Rossato's algorithm to fix timing
   bool setNoiseFlags_;        // turn on/off basic noise flags
-  bool setHSCPFlags_;         // turn on/off HSCP noise flags
   bool setSaturationFlags_;   // turn on/off flag indicating ADC saturation
   bool setTimingTrustFlags_;  // turn on/off HF timing uncertainty flag
-  bool setPulseShapeFlags_;   //  turn on/off HBHE fit-based noise flags
   bool setNegativeFlags_;     // turn on/off HBHE negative noise flags
   bool dropZSmarkedPassed_;   // turn on/off dropping of zero suppression marked and passed digis
 

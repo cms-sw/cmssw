@@ -113,6 +113,13 @@ def customizeHLTforXXXXX(process):
                 if hasattr(prod, param):
                     delattr(prod, param)
 
+        # Remove useless parameters
+        if hasattr(prod,'setHSCPFlags'):
+            delattr(prod,'setHSCPFlags')
+
+        if hasattr(prod,'setPulseShapeFlags'):
+            delattr(prod,'setPulseShapeFlags')
+                    
     return process
 
 # CMSSW version specific customizations
