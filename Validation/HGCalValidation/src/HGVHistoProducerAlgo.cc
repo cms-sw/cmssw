@@ -1453,7 +1453,7 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
                                                     std::vector<SimVertex> const& simVertices,
                                                     unsigned int layers,
                                                     std::unordered_map<DetId, const unsigned int> const& hitMap,
-                                                    std::vector<HGCRecHit> const& hits) const {
+                                                    MultiVectorManager<HGCRecHit> const& hits) const {
   const auto eta = getEta(caloParticle.eta());
   if (histograms.h_caloparticle_eta.count(pdgid)) {
     histograms.h_caloparticle_eta.at(pdgid)->Fill(eta);
@@ -1715,7 +1715,7 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simClusterAssociation_hist
     unsigned int layers,
     const ticl::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
     const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap,
-    std::vector<HGCRecHit> const& hits) const {
+    MultiVectorManager<HGCRecHit> const& hits) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
   //a layer variable (layerid) that maps the layers in :
@@ -1757,7 +1757,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
                                                           unsigned int layers,
                                                           const ticl::RecoToSimCollection& cpsInLayerClusterMap,
                                                           const ticl::SimToRecoCollection& cPOnLayerMap,
-                                                          std::vector<HGCRecHit> const& hits) const {
+                                                          MultiVectorManager<HGCRecHit> const& hits) const {
   const auto nLayerClusters = clusters.size();
 
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToCaloParticleId_Map;
@@ -2018,7 +2018,7 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
     unsigned int layers,
     const ticl::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
     const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap,
-    std::vector<HGCRecHit> const& hits) const {
+    MultiVectorManager<HGCRecHit> const& hits) const {
   // Here fill the plots to compute the different metrics linked to
   // reco-level, namely fake-rate and merge-rate. In this loop should *not*
   // restrict only to the selected SimClusters.
@@ -2199,7 +2199,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
                                                        std::vector<int> thicknesses,
                                                        const ticl::RecoToSimCollection& cpsInLayerClusterMap,
                                                        const ticl::SimToRecoCollection& cPOnLayerMap,
-                                                       std::vector<HGCRecHit> const& hits) const {
+                                                       MultiVectorManager<HGCRecHit> const& hits) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
   //a layer variable (layerid) that maps the layers in :
@@ -2684,7 +2684,7 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
     std::vector<size_t> const& cPSelectedIndices,
     std::unordered_map<DetId, const unsigned int> const& hitMap,
     unsigned int layers,
-    std::vector<HGCRecHit> const& hits,
+    MultiVectorManager<HGCRecHit> const& hits,
     bool mapsFound,
     const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersByLCsMapH,
     const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByLCsMapH,
@@ -2932,7 +2932,7 @@ void HGVHistoProducerAlgo::setRecHitTools(std::shared_ptr<hgcal::RecHitTools> re
 
 DetId HGVHistoProducerAlgo::findmaxhit(const reco::CaloCluster& cluster,
                                        std::unordered_map<DetId, const unsigned int> const& hitMap,
-                                       std::vector<HGCRecHit> const& hits) const {
+                                       MultiVectorManager<HGCRecHit> const& hits) const {
   const auto& hits_and_fractions = cluster.hitsAndFractions();
 
   DetId themaxid;
