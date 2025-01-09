@@ -1,17 +1,47 @@
 /**  \class HLTMuonL2SelectorForL3IO
  * 
  *   L2 muon selector for L3 IO:
- *   finds L2 muons not previous converted into (good) L3 muons
+ *   finds L2 muons not previous converted into (good) L3 muons 
  *
  *   \author  Benjamin Radburn-Smith, Santiago Folgueras - Purdue University
  */
 
-#include "RecoMuon/L3TrackFinder/interface/HLTMuonL2SelectorForL3IO.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+class HLTMuonL2SelectorForL3IO : public edm::stream::EDProducer<> {
+public:
+  /// constructor with config
+  HLTMuonL2SelectorForL3IO(const edm::ParameterSet&);
+
+  /// destructor
+  ~HLTMuonL2SelectorForL3IO() override = default;
+
+  /// default values
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  /// select muons
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  const edm::EDGetTokenT<reco::TrackCollection> l2Src_;
+  const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> l3OISrc_;
+  const edm::EDGetTokenT<reco::MuonTrackLinksCollection> l3linkToken_;
+  const bool applyL3Filters_;
+  const double max_NormalizedChi2_, max_PtDifference_;
+  const int min_Nhits_, min_NmuonHits_;
+};
 
 /// constructor with config
 HLTMuonL2SelectorForL3IO::HLTMuonL2SelectorForL3IO(const edm::ParameterSet& iConfig)
@@ -26,9 +56,6 @@ HLTMuonL2SelectorForL3IO::HLTMuonL2SelectorForL3IO(const edm::ParameterSet& iCon
   LogTrace("Muon|RecoMuon|HLTMuonL2SelectorForL3IO") << "constructor called";
   produces<reco::TrackCollection>();
 }
-
-/// destructor
-HLTMuonL2SelectorForL3IO::~HLTMuonL2SelectorForL3IO() {}
 
 /// create collection of L2 muons not already reconstructed as L3 muons
 void HLTMuonL2SelectorForL3IO::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -109,3 +136,6 @@ void HLTMuonL2SelectorForL3IO::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<double>("MaxPtDifference", 999.0);  //relative difference
   descriptions.add("HLTMuonL2SelectorForL3IO", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTMuonL2SelectorForL3IO);

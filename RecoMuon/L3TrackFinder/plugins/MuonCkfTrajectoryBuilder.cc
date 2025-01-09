@@ -1,19 +1,59 @@
-#include "RecoMuon/L3TrackFinder/interface/MuonCkfTrajectoryBuilder.h"
+#include <sstream>
 
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilderFactory.h"
+#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
-#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
-#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "RecoMuon/L3TrackFinder/src/EtaPhiEstimator.h"
-#include <sstream>
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
+#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+
+#include "EtaPhiEstimator.h"
+
+class TrackingComponentsRecord;
+
+class MuonCkfTrajectoryBuilder : public CkfTrajectoryBuilder {
+public:
+  MuonCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
+  ~MuonCkfTrajectoryBuilder() override;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
+
+protected:
+  void setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
+  void collectMeasurement(const DetLayer* layer,
+                          const std::vector<const DetLayer*>& nl,
+                          const TrajectoryStateOnSurface& currentState,
+                          std::vector<TM>& result,
+                          int& invalidHits,
+                          const Propagator*) const;
+
+  void findCompatibleMeasurements(const TrajectorySeed& seed,
+                                  const TempTrajectory& traj,
+                                  std::vector<TrajectoryMeasurement>& result) const override;
+
+  //and other fields
+  bool theUseSeedLayer;
+  double theRescaleErrorIfFail;
+  const double theDeltaEta;
+  const double theDeltaPhi;
+  const std::string theProximityPropagatorName;
+  const Propagator* theProximityPropagator;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
+  edm::ESWatcher<BaseCkfTrajectoryBuilder::Chi2MeasurementEstimatorRecord> theEstimatorWatcher;
+  std::unique_ptr<Chi2MeasurementEstimatorBase> theEtaPhiEstimator;
+};
 
 MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC)
     : CkfTrajectoryBuilder(conf, iC),
@@ -233,3 +273,6 @@ void MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed& 
 
   //analyseMeasurements( result, traj);
 }
+
+#include "FWCore/ParameterSet/interface/ValidatedPluginMacros.h"
+DEFINE_EDM_VALIDATED_PLUGIN(BaseCkfTrajectoryBuilderFactory, MuonCkfTrajectoryBuilder, "MuonCkfTrajectoryBuilder");
