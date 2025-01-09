@@ -4,6 +4,7 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingFactory.h"
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/ThreeThresholdAlgorithm.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingAlgorithms.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
@@ -89,10 +90,11 @@ namespace {
     return buffer;
   }
 
+  template <class AlgoT>
   class ClusterFiller final : public StripClusterizerAlgorithm::output_t::Getter {
   public:
     ClusterFiller(const FEDRawDataCollection& irawColl,
-                  StripClusterizerAlgorithm& iclusterizer,
+                  const AlgoT& iclusterizer,
                   SiStripRawProcessingAlgorithms& irawAlgos,
                   bool idoAPVEmulatorCheck,
                   bool legacy,
@@ -119,7 +121,7 @@ namespace {
 
     const FEDRawDataCollection& rawColl;
 
-    StripClusterizerAlgorithm& clusterizer;
+    const AlgoT& clusterizer;
     const SiStripClusterizerConditions& conditions;
     SiStripRawProcessingAlgorithms& rawAlgos;
 
@@ -181,7 +183,7 @@ public:
         legacy_(conf.getParameter<bool>("LegacyUnpacker")),
         hybridZeroSuppressed_(conf.getParameter<bool>("HybridZeroSuppressed")) {
     productToken_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("ProductLabel"));
-    produces<edmNew::DetSetVector<SiStripCluster> >();
+    produces<edmNew::DetSetVector<SiStripCluster>>();
     assert(clusterizer_.get());
     assert(rawAlgos_.get());
   }
@@ -193,12 +195,23 @@ public:
     edm::Handle<FEDRawDataCollection> rawData;
     ev.getByToken(productToken_, rawData);
 
-    std::unique_ptr<edmNew::DetSetVector<SiStripCluster> > output(
-        onDemand ? new edmNew::DetSetVector<SiStripCluster>(
-                       std::shared_ptr<edmNew::DetSetVector<SiStripCluster>::Getter>(std::make_shared<ClusterFiller>(
-                           *rawData, *clusterizer_, *rawAlgos_, doAPVEmulatorCheck_, legacy_, hybridZeroSuppressed_)),
-                       clusterizer_->conditions().allDetIds())
-                 : new edmNew::DetSetVector<SiStripCluster>());
+    const ThreeThresholdAlgorithm* clusterizer3 = dynamic_cast<const ThreeThresholdAlgorithm*>(clusterizer_.get());
+    std::unique_ptr<edmNew::DetSetVector<SiStripCluster>> output;
+    if (onDemand) {
+      if (clusterizer3 == nullptr)
+        output = std::make_unique<edmNew::DetSetVector<SiStripCluster>>(edmNew::DetSetVector<SiStripCluster>(
+            std::shared_ptr<edmNew::DetSetVector<SiStripCluster>::Getter>(
+                std::make_shared<ClusterFiller<StripClusterizerAlgorithm>>(
+                    *rawData, *clusterizer_, *rawAlgos_, doAPVEmulatorCheck_, legacy_, hybridZeroSuppressed_)),
+            clusterizer_->conditions().allDetIds()));
+      else
+        output = std::make_unique<edmNew::DetSetVector<SiStripCluster>>(edmNew::DetSetVector<SiStripCluster>(
+            std::shared_ptr<edmNew::DetSetVector<SiStripCluster>::Getter>(
+                std::make_shared<ClusterFiller<ThreeThresholdAlgorithm>>(
+                    *rawData, *clusterizer3, *rawAlgos_, doAPVEmulatorCheck_, legacy_, hybridZeroSuppressed_)),
+            clusterizer_->conditions().allDetIds()));
+    } else
+      output = std::make_unique<edmNew::DetSetVector<SiStripCluster>>(edmNew::DetSetVector<SiStripCluster>());
 
     if (onDemand)
       assert(output->onDemand());
@@ -266,20 +279,38 @@ void SiStripClusterizerFromRaw::initialize(const edm::EventSetup& es) {
 }
 
 void SiStripClusterizerFromRaw::run(const FEDRawDataCollection& rawColl, edmNew::DetSetVector<SiStripCluster>& output) {
-  ClusterFiller filler(rawColl, *clusterizer_, *rawAlgos_, doAPVEmulatorCheck_, legacy_, hybridZeroSuppressed_);
+  const ThreeThresholdAlgorithm* clusterizer3 = dynamic_cast<const ThreeThresholdAlgorithm*>(clusterizer_.get());
+  if (clusterizer3 == nullptr) {
+    ClusterFiller<StripClusterizerAlgorithm> filler(
+        rawColl, *clusterizer_, *rawAlgos_, doAPVEmulatorCheck_, legacy_, hybridZeroSuppressed_);
 
-  // loop over good det in cabling
-  for (auto idet : clusterizer_->conditions().allDetIds()) {
-    StripClusterizerAlgorithm::output_t::TSFastFiller record(output, idet);
+    // loop over good det in cabling
+    for (auto idet : clusterizer_->conditions().allDetIds()) {
+      StripClusterizerAlgorithm::output_t::TSFastFiller record(output, idet);
 
-    filler.fill(record);
+      filler.fill(record);
 
-    if (record.empty())
-      record.abort();
-  }  // end loop over dets
+      if (record.empty())
+        record.abort();
+    }  // end loop over dets
+  } else {
+    ClusterFiller<ThreeThresholdAlgorithm> filler(
+        rawColl, *clusterizer3, *rawAlgos_, doAPVEmulatorCheck_, legacy_, hybridZeroSuppressed_);
+
+    // loop over good det in cabling
+    for (auto idet : clusterizer_->conditions().allDetIds()) {
+      StripClusterizerAlgorithm::output_t::TSFastFiller record(output, idet);
+
+      filler.fill(record);
+
+      if (record.empty())
+        record.abort();
+    }  // end loop over dets
+  }
 }
 
 namespace {
+  template <class AlgoT>
   class StripByStripAdder {
   public:
     typedef std::output_iterator_tag iterator_category;
@@ -288,7 +319,7 @@ namespace {
     typedef void pointer;
     typedef void reference;
 
-    StripByStripAdder(StripClusterizerAlgorithm& clusterizer,
+    StripByStripAdder(const AlgoT& clusterizer,
                       StripClusterizerAlgorithm::State& state,
                       StripClusterizerAlgorithm::output_t::TSFastFiller& record)
         : clusterizer_(clusterizer), state_(state), record_(record) {}
@@ -303,7 +334,7 @@ namespace {
     StripByStripAdder& operator++(int) { return *this; }
 
   private:
-    StripClusterizerAlgorithm& clusterizer_;
+    const AlgoT& clusterizer_;
     StripClusterizerAlgorithm::State& state_;
     StripClusterizerAlgorithm::output_t::TSFastFiller& record_;
   };
@@ -326,7 +357,8 @@ namespace {
   };
 }  // namespace
 
-void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& record) const {
+template <class AlgoT>
+void ClusterFiller<AlgoT>::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& record) const {
   try {  // edmNew::CapacityExaustedException
     incReady();
 
@@ -393,7 +425,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
 
       using namespace sistrip;
       if LIKELY (fedchannelunpacker::isZeroSuppressed(mode, legacy_, lmode)) {
-        auto perStripAdder = StripByStripAdder(clusterizer, state, record);
+        auto perStripAdder = StripByStripAdder<AlgoT>(clusterizer, state, record);
         const auto isNonLite = fedchannelunpacker::isNonLiteZS(mode, legacy_, lmode);
         const uint8_t pCode = (isNonLite ? buffer->packetCode(legacy_, fedCh) : 0);
         auto st_ch = fedchannelunpacker::StatusCode::SUCCESS;
