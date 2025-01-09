@@ -123,6 +123,14 @@ std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeFRD::makeD
   return daqProvenanceHelpers_;
 }
 
+void DataModeFRD::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) {
+  dataBlockAddr_ = addr;
+  dataBlockMax_ = rawFile->currentChunkSize();
+  eventCached_ = false;
+  nextEventView(rawFile);
+  eventCached_ = true;
+}
+
 bool DataModeFRD::nextEventView(RawInputFile*) {
   if (eventCached_)
     return true;
@@ -318,6 +326,14 @@ std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeFRDPreUnpa
   return daqProvenanceHelpers_;
 }
 
+void DataModeFRDPreUnpack::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) {
+  dataBlockAddr_ = addr;
+  dataBlockMax_ = rawFile->currentChunkSize();
+  eventCached_ = false;
+  nextEventView(rawFile);
+  eventCached_ = true;
+}
+
 bool DataModeFRDPreUnpack::nextEventView(RawInputFile* currentFile) {
   if (eventCached_)
     return true;
@@ -507,6 +523,31 @@ std::pair<bool, std::vector<std::string>> DataModeFRDStriped::defineAdditionalFi
     additionalFiles.push_back(newPath.generic_string());
   }
   return std::make_pair(true, additionalFiles);
+}
+
+void DataModeFRDStriped::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) {
+  fileHeaderSize_ = rawFile->rawHeaderSize_;
+  std::vector<uint64_t> const& fileSizes = rawFile->fileSizes_;
+  numFiles_ = fileSizes.size();
+  //add offset address for each file payload
+  dataBlockAddrs_.clear();
+  dataBlockAddrs_.push_back(addr);
+  dataBlockMaxAddrs_.clear();
+  dataBlockMaxAddrs_.push_back(addr + fileSizes[0] - fileHeaderSize_);
+  auto fileAddr = addr;
+  for (unsigned int i = 1; i < fileSizes.size(); i++) {
+    fileAddr += fileSizes[i - 1];
+    dataBlockAddrs_.push_back(fileAddr);
+    dataBlockMaxAddrs_.push_back(fileAddr + fileSizes[i] - fileHeaderSize_);
+  }
+
+  dataBlockMax_ = rawFile->currentChunkSize();
+  blockCompleted_ = false;
+  //set event cached as we set initial address here
+  bool result = makeEvents();
+  assert(result);
+  eventCached_ = true;
+  setDataBlockInitialized(true);
 }
 
 bool DataModeFRDStriped::nextEventView(RawInputFile*) {

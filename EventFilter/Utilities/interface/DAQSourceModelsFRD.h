@@ -32,14 +32,7 @@ public:
 
   uint64_t dataBlockSize() const override { return event_->size(); }
 
-  void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) override {
-    dataBlockAddr_ = addr;
-    dataBlockMax_ = rawFile->currentChunkSize();
-    eventCached_ = false;
-    nextEventView(rawFile);
-    eventCached_ = true;
-  }
-
+  void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) override;
   bool nextEventView(RawInputFile*) override;
   bool blockChecksumValid() override { return true; }
   bool checksumValid() override;
@@ -122,14 +115,7 @@ public:
   //used
   uint64_t dataBlockSize() const override { return event_->size(); }
 
-  void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) override {
-    dataBlockAddr_ = addr;
-    dataBlockMax_ = rawFile->currentChunkSize();
-    eventCached_ = false;
-    nextEventView(rawFile);
-    eventCached_ = true;
-  }
-
+  void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) override;
   bool nextEventView(RawInputFile*) override;
   bool blockChecksumValid() override { return true; }
   bool checksumValid() override;
@@ -207,31 +193,7 @@ public:
     return events_[0]->size();
   }
 
-  void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) override {
-    fileHeaderSize_ = rawFile->rawHeaderSize_;
-    std::vector<uint64_t> const& fileSizes = rawFile->fileSizes_;
-    numFiles_ = fileSizes.size();
-    //add offset address for each file payload
-    dataBlockAddrs_.clear();
-    dataBlockAddrs_.push_back(addr);
-    dataBlockMaxAddrs_.clear();
-    dataBlockMaxAddrs_.push_back(addr + fileSizes[0] - fileHeaderSize_);
-    auto fileAddr = addr;
-    for (unsigned int i = 1; i < fileSizes.size(); i++) {
-      fileAddr += fileSizes[i - 1];
-      dataBlockAddrs_.push_back(fileAddr);
-      dataBlockMaxAddrs_.push_back(fileAddr + fileSizes[i] - fileHeaderSize_);
-    }
-
-    dataBlockMax_ = rawFile->currentChunkSize();
-    blockCompleted_ = false;
-    //set event cached as we set initial address here
-    bool result = makeEvents();
-    assert(result);
-    eventCached_ = true;
-    setDataBlockInitialized(true);
-  }
-
+  void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) override;
   bool nextEventView(RawInputFile*) override;
   bool blockChecksumValid() override { return true; }
   bool checksumValid() override;
