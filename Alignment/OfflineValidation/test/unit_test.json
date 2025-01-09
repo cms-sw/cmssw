@@ -192,6 +192,23 @@
                  }
              }
         },
+	"Generic": {
+	    "merge": {
+		"testUnits": {
+                    "singles": ["testUnits"]
+                }
+            },
+            "single": {
+                "testUnits": {
+                    "IOV": ["1"],
+                    "alignments": ["unitTest"],
+                    "trackcollection": "generalTracks",
+		    "HLTSelection": "False",
+                    "triggerBits" : "HLT_*",
+                    "maxevents": "10"
+                }
+            }
+        },
 	"DiMuonV" : {
             "merge": {
 		"testUnits": {
