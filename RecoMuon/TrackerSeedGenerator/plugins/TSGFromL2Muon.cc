@@ -126,3 +126,6 @@ void TSGFromL2Muon::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription desc;
   desc.setAllowAnything();
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TSGFromL2Muon);

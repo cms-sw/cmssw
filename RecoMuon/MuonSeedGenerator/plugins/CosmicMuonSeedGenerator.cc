@@ -553,3 +553,6 @@ void CosmicMuonSeedGenerator::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<bool>("ForcePointDown", true);
   descriptions.addWithDefaultLabel(desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CosmicMuonSeedGenerator);

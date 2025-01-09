@@ -30,3 +30,7 @@ void CombinedTSG::trackerSeeds(const TrackCand& muonTrackCand,
     }
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
+DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, CombinedTSG, "CombinedTSG");

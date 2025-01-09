@@ -507,6 +507,5 @@ edm::ESHandle<Propagator> RealCosmicDataAnalyzer::propagator() const {
   return theService->propagator("SteppingHelixPropagatorAny");
 }
 
-//define this as a plug-in
-
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(RealCosmicDataAnalyzer);
