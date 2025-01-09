@@ -77,7 +77,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             uncalibratedRecHitsDev.flags()[tx] = 0x1 << EcalUncalibratedRecHit::kHasSwitchToGain1;
           }
         }  //if within nchannels
-      }    //kernel}
+      }  //kernel}
 
       void phase2Weights(EcalDigiPhase2DeviceCollection const &digis,
                          EcalUncalibratedRecHitDeviceCollection &uncalibratedRecHits,
@@ -107,5 +107,5 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
     }  // namespace weights
-  }    // namespace ecal
+  }  // namespace ecal
 }  //namespace ALPAKA_ACCELERATOR_NAMESPACE

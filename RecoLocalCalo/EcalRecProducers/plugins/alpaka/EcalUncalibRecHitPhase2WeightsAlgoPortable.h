@@ -15,7 +15,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          Queue &queue);
 
     }  // namespace weights
-  }    // namespace ecal
+  }  // namespace ecal
 }  //namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #endif  // RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitPhase2WeightsAlgoPortable_h
