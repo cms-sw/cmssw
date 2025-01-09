@@ -113,10 +113,17 @@ namespace tt {
     // calculate tilt correction parameter used to project r to z uncertainty
     tiltCorrectionSlope_ = barrel_ ? 0. : 1.;
     tiltCorrectionIntercept_ = barrel_ ? 1. : 0.;
+    tilted_ = false;
     if (typeTilt == tiltedMinus || typeTilt == tiltedPlus) {
+      tilted_ = true;
       tiltCorrectionSlope_ = setup->tiltApproxSlope();
       tiltCorrectionIntercept_ = setup->tiltApproxIntercept();
     }
+    // stub uncertainty
+    scattering_ = setup->scattering();
+    dR_ = abs(sinTilt_) * pitchCol_;
+    dPhi_ = pitchRow_ / r_;
+    dZ_ = abs(cosTilt_) * pitchCol_ + dR_ * abs(z_) / r_;
   }
 
   unsigned int SensorModule::ringId(const Setup* setup) const {

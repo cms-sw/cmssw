@@ -15,106 +15,106 @@ namespace trackerTFP {
   GeometricProcessor::GeometricProcessor(const ParameterSet& iConfig,
                                          const Setup* setup,
                                          const DataFormats* dataFormats,
-                                         int region)
+                                         const LayerEncoding* layerEncoding,
+                                         std::vector<StubGP>& stubs)
       : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
         setup_(setup),
         dataFormats_(dataFormats),
-        region_(region),
-        input_(dataFormats_->numChannel(Process::gp), vector<deque<StubPP*>>(dataFormats_->numChannel(Process::pp))) {}
-
-  // read in and organize input product (fill vector input_)
-  void GeometricProcessor::consume(const TTDTC& ttDTC) {
-    auto validFrame = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
-    int nStubsPP(0);
-    for (int channel = 0; channel < dataFormats_->numChannel(Process::pp); channel++) {
-      const StreamStub& stream = ttDTC.stream(region_, channel);
-      nStubsPP += accumulate(stream.begin(), stream.end(), 0, validFrame);
-    }
-    stubsPP_.reserve(nStubsPP);
-    for (int channel = 0; channel < dataFormats_->numChannel(Process::pp); channel++) {
-      for (const FrameStub& frame : ttDTC.stream(region_, channel)) {
-        StubPP* stub = nullptr;
-        if (frame.first.isNonnull()) {
-          stubsPP_.emplace_back(frame, dataFormats_);
-          stub = &stubsPP_.back();
-        }
-        for (int sector = 0; sector < dataFormats_->numChannel(Process::gp); sector++)
-          // adding gaps (nullptr) if no stub available or not in sector to emulate f/w
-          input_[sector][channel].push_back(stub && stub->inSector(sector) ? stub : nullptr);
-      }
-    }
-    // remove all gaps between end and last stub
-    for (vector<deque<StubPP*>>& input : input_)
-      for (deque<StubPP*>& stubs : input)
-        for (auto it = stubs.end(); it != stubs.begin();)
-          it = (*--it) ? stubs.begin() : stubs.erase(it);
-    auto validStub = [](int sum, StubPP* stub) { return sum + (stub ? 1 : 0); };
-    int nStubsGP(0);
-    for (const vector<deque<StubPP*>>& sector : input_)
-      for (const deque<StubPP*>& channel : sector)
-        nStubsGP += accumulate(channel.begin(), channel.end(), 0, validStub);
-    stubsGP_.reserve(nStubsGP);
-  }
+        layerEncoding_(layerEncoding),
+        stubs_(stubs) {}
 
   // fill output products
-  void GeometricProcessor::produce(StreamsStub& accepted, StreamsStub& lost) {
-    for (int sector = 0; sector < dataFormats_->numChannel(Process::gp); sector++) {
-      vector<deque<StubPP*>>& inputs = input_[sector];
-      vector<deque<StubGP*>> stacks(dataFormats_->numChannel(Process::pp));
-      const int sectorPhi = sector % setup_->numSectorsPhi();
-      const int sectorEta = sector / setup_->numSectorsPhi();
-      auto size = [](int sum, const deque<StubPP*>& stubs) { return sum + stubs.size(); };
-      const int nStubs = accumulate(inputs.begin(), inputs.end(), 0, size);
-      vector<StubGP*> acceptedSector;
-      vector<StubGP*> lostSector;
-      acceptedSector.reserve(nStubs);
-      lostSector.reserve(nStubs);
+  void GeometricProcessor::produce(const vector<vector<StubPP*>>& streamsIn, vector<deque<StubGP*>>& streamsOut) {
+    static const int numChannelIn = dataFormats_->numChannel(Process::pp);
+    static const int numChannelOut = dataFormats_->numChannel(Process::gp);
+    for (int channelOut = 0; channelOut < numChannelOut; channelOut++) {
+      // helper
+      const int phiT = channelOut % setup_->gpNumBinsPhiT() - setup_->gpNumBinsPhiT() / 2;
+      const int zT = channelOut / setup_->gpNumBinsPhiT() - setup_->gpNumBinsZT() / 2;
+      auto valid = [phiT, zT](StubPP* stub) {
+        const bool phiTValid = stub && phiT >= stub->phiTMin() && phiT <= stub->phiTMax();
+        const bool zTValid = stub && zT >= stub->zTMin() && zT <= stub->zTMax();
+        return (phiTValid && zTValid) ? stub : nullptr;
+      };
+      // input streams of stubs
+      vector<deque<StubPP*>> inputs(numChannelIn);
+      for (int channelIn = 0; channelIn < numChannelIn; channelIn++) {
+        const vector<StubPP*>& streamIn = streamsIn[channelIn];
+        transform(streamIn.begin(), streamIn.end(), back_inserter(inputs[channelIn]), valid);
+      }
+      // fifo for each stream
+      vector<deque<StubGP*>> stacks(streamsIn.size());
+      // output stream
+      deque<StubGP*>& output = streamsOut[channelOut];
       // clock accurate firmware emulation, each while trip describes one clock tick, one stub in and one stub out per tick
       while (!all_of(inputs.begin(), inputs.end(), [](const deque<StubPP*>& stubs) { return stubs.empty(); }) or
              !all_of(stacks.begin(), stacks.end(), [](const deque<StubGP*>& stubs) { return stubs.empty(); })) {
         // fill input fifos
-        for (int channel = 0; channel < dataFormats_->numChannel(Process::pp); channel++) {
-          deque<StubGP*>& stack = stacks[channel];
-          StubPP* stub = pop_front(inputs[channel]);
+        for (int channelIn = 0; channelIn < numChannelIn; channelIn++) {
+          deque<StubGP*>& stack = stacks[channelIn];
+          StubPP* stub = pop_front(inputs[channelIn]);
           if (stub) {
-            stubsGP_.emplace_back(*stub, sectorPhi, sectorEta);
+            // convert stub
+            StubGP* stubGP = produce(*stub, phiT, zT);
+            // buffer overflow
             if (enableTruncation_ && (int)stack.size() == setup_->gpDepthMemory() - 1)
-              lostSector.push_back(pop_front(stack));
-            stack.push_back(&stubsGP_.back());
+              pop_front(stack);
+            stack.push_back(stubGP);
           }
         }
         // merge input fifos to one stream, prioritizing higher input channel over lower channel
         bool nothingToRoute(true);
-        for (int channel = dataFormats_->numChannel(Process::pp) - 1; channel >= 0; channel--) {
-          StubGP* stub = pop_front(stacks[channel]);
+        //for (int channelIn = numChannelIn - 1; channelIn >= 0; channelIn--) {
+        for (int channelIn = 0; channelIn < numChannelIn; channelIn++) {
+          StubGP* stub = pop_front(stacks[channelIn]);
           if (stub) {
             nothingToRoute = false;
-            acceptedSector.push_back(stub);
+            output.push_back(stub);
             break;
           }
         }
         if (nothingToRoute)
-          acceptedSector.push_back(nullptr);
+          output.push_back(nullptr);
       }
       // truncate if desired
-      if (enableTruncation_ && (int)acceptedSector.size() > setup_->numFrames()) {
-        const auto limit = next(acceptedSector.begin(), setup_->numFrames());
-        copy_if(limit, acceptedSector.end(), back_inserter(lostSector), [](const StubGP* stub) { return stub; });
-        acceptedSector.erase(limit, acceptedSector.end());
-      }
+      if (enableTruncation_ && (int)output.size() > setup_->numFramesHigh())
+        output.resize(setup_->numFramesHigh());
       // remove all gaps between end and last stub
-      for (auto it = acceptedSector.end(); it != acceptedSector.begin();)
-        it = (*--it) ? acceptedSector.begin() : acceptedSector.erase(it);
-      // fill products
-      auto put = [](const vector<StubGP*>& stubs, StreamStub& stream) {
-        auto toFrame = [](StubGP* stub) { return stub ? stub->frame() : FrameStub(); };
-        stream.reserve(stubs.size());
-        transform(stubs.begin(), stubs.end(), back_inserter(stream), toFrame);
-      };
-      const int index = region_ * dataFormats_->numChannel(Process::gp) + sector;
-      put(acceptedSector, accepted[index]);
-      put(lostSector, lost[index]);
+      for (auto it = output.end(); it != output.begin();)
+        it = (*--it) ? output.begin() : output.erase(it);
     }
+  }
+
+  // convert stub
+  StubGP* GeometricProcessor::produce(const StubPP& stub, int phiT, int zT) {
+    static const DataFormat& dfPhiT = dataFormats_->format(Variable::phiT, Process::gp);
+    static const DataFormat& dfZT = dataFormats_->format(Variable::zT, Process::gp);
+    static const DataFormat& dfCot = dataFormats_->format(Variable::cot, Process::gp);
+    static const DataFormat& dfR = dataFormats_->format(Variable::r, Process::gp);
+    static const DataFormat& dfL = dataFormats_->format(Variable::layer, Process::gp);
+    const double cot = dfCot.digi(dfZT.floating(zT) / setup_->chosenRofZ());
+    // determine kf layer id
+    const vector<int>& le = layerEncoding_->layerEncoding(zT);
+    const int layerId = setup_->layerId(stub.frame().first);
+    const auto it = find(le.begin(), le.end(), layerId);
+    const int kfLayerId = min((int)distance(le.begin(), it), setup_->numLayers() - 1);
+    // create data fields
+    const double r = stub.r();
+    const double phi = stub.phi() - dfPhiT.floating(phiT);
+    const double z = stub.z() - (stub.r() + dfR.digi(setup_->chosenRofPhi())) * cot;
+    TTBV layer(kfLayerId, dfL.width());
+    if (stub.layer()[4]) {  // barrel
+      layer.set(5);
+      if (stub.layer()[3])  // psTilt
+        layer.set(3);
+      if (stub.layer().val(3) < 3)  // layerId < 3
+        layer.set(4);
+    } else if (stub.layer()[3])  // psTilt
+      layer.set(4);
+    const int inv2RMin = stub.inv2RMin();
+    const int inv2RMax = stub.inv2RMax();
+    stubs_.emplace_back(stub, r, phi, z, layer, inv2RMin, inv2RMax);
+    return &stubs_.back();
   }
 
   // remove and return first element of deque, returns nullptr if empty

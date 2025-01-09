@@ -59,11 +59,13 @@ namespace hph {
     int etaRegion(double z0, double cot, bool useNewKF) const;
     int digiCot(double cot, int binEta) const;
     int digiZT(double z0, double cot, int binEta) const;
-    const std::vector<int>& layerEncoding(int binEta, int binZT, int binCot) const {
-      return layerEncoding_.layerEncoding(binEta, binZT, binCot);
+    const std::vector<int> layerEncoding(int binEta, int binZT, int binCot) const {
+      //return layerEncoding_.layerEncoding(binEta, binZT, binCot);
+      return std::vector<int>();
     }
-    const std::map<int, const tt::SensorModule*>& layerEncodingMap(int binEta, int binZT, int binCot) const {
-      return layerEncoding_.layerEncodingMap(binEta, binZT, binCot);
+    const std::map<int, const tt::SensorModule*> layerEncodingMap(int binEta, int binZT, int binCot) const {
+      //return layerEncoding_.layerEncodingMap(binEta, binZT, binCot);
+      return std::map<int, const tt::SensorModule*>();
     }
 
   private:

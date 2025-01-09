@@ -3,10 +3,10 @@
 
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
+#include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <vector>
-#include <set>
 #include <deque>
 
 namespace trackerTFP {
@@ -14,51 +14,45 @@ namespace trackerTFP {
   // Class to find initial rough candidates in r-phi in a region
   class HoughTransform {
   public:
-    HoughTransform(const edm::ParameterSet& iConfig, const tt::Setup* setup, const DataFormats* dataFormats, int region);
+    HoughTransform(const edm::ParameterSet& iConfig,
+                   const tt::Setup* setup,
+                   const DataFormats* dataFormats,
+                   const LayerEncoding* layerEncoding,
+                   std::vector<StubHT>& stubs);
     ~HoughTransform() {}
-
-    // read in and organize input product
-    void consume(const tt::StreamsStub& streams);
     // fill output products
-    void produce(tt::StreamsStub& accepted, tt::StreamsStub& lost);
+    void produce(const std::vector<std::vector<StubGP*>>& streamsIn, std::vector<std::deque<StubHT*>>& streamsOut);
 
   private:
     // remove and return first element of deque, returns nullptr if empty
     template <class T>
     T* pop_front(std::deque<T*>& ts) const;
     // associate stubs with phiT bins in this inv2R column
-    void fillIn(int inv2R,
-                std::deque<StubGP*>& inputSector,
-                std::vector<StubHT*>& acceptedSector,
-                std::vector<StubHT*>& lostSector);
+    void fillIn(int inv2R, int sector, const std::vector<StubGP*>& input, std::vector<StubHT*>& output);
     // identify tracks
-    void readOut(const std::vector<StubHT*>& acceptedSector,
-                 const std::vector<StubHT*>& lostSector,
-                 std::deque<StubHT*>& acceptedAll,
-                 std::deque<StubHT*>& lostAll) const;
-    // identify lost tracks
-    void analyze();
-    // store tracks
-    void put() const;
-
+    void readOut(const std::vector<StubHT*>& input, std::deque<StubHT*>& output) const;
+    //
+    bool noTrack(const TTBV& pattern, int zT) const;
     // true if truncation is enbaled
     bool enableTruncation_;
     // provides run-time constants
     const tt::Setup* setup_;
     // provides dataformats
     const DataFormats* dataFormats_;
+    //
+    const LayerEncoding* layerEncoding_;
     // data format of inv2R
-    DataFormat inv2R_;
+    const DataFormat* inv2R_;
     // data format of phiT
-    DataFormat phiT_;
-    // processing region (0 - 8)
-    int region_;
-    // container of input stubs
-    std::vector<StubGP> stubsGP_;
-    // container of output stubs
-    std::vector<StubHT> stubsHT_;
-    // h/w liked organized pointer to input stubs
-    std::vector<std::vector<std::deque<StubGP*>>> input_;
+    const DataFormat* phiT_;
+    // data format of zT
+    const DataFormat* zT_;
+    // data format of phi
+    const DataFormat* phi_;
+    // data format of z
+    const DataFormat* z_;
+    // container of stubs
+    std::vector<StubHT>& stubs_;
   };
 
 }  // namespace trackerTFP

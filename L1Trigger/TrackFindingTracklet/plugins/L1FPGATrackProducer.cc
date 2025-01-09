@@ -24,6 +24,7 @@
 // DATA FORMATS HEADERS
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 //
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
@@ -53,6 +54,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/TrackQuality.h"
 //
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -99,7 +101,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 #include "L1Trigger/TrackTrigger/interface/StubPtConsistency.h"
-#include "L1Trigger/TrackTrigger/interface/L1TrackQuality.h"
 
 //////////////
 // STD HEADERS
@@ -114,6 +115,7 @@ using namespace edm;
 using namespace std;
 using namespace tt;
 using namespace trklet;
+using namespace trackerTFP;
 
 //////////////////////////////
 //                          //
@@ -180,9 +182,6 @@ private:
   bool extended_;
   bool reduced_;
 
-  bool trackQuality_;
-  std::unique_ptr<L1TrackQuality> trackQualityModel_;
-
   std::map<string, vector<int>> dtclayerdisk;
 
   edm::InputTag MCTruthClusterInputTag;
@@ -194,26 +193,30 @@ private:
   edm::EDGetTokenT<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>> getTokenTTClusterMCTruth_;
   edm::EDGetTokenT<std::vector<TrackingParticle>> getTokenTrackingParticle_;
 
+  // ED output token for TTTracks
+  const EDPutTokenT<TTTracks> putTokenTTTracks_;
   // ED output token for clock and bit accurate tracks
-  const edm::EDPutTokenT<Streams> putTokenTracks_;
+  EDPutTokenT<StreamsTrack> putTokenTracks_;
   // ED output token for clock and bit accurate stubs
-  const edm::EDPutTokenT<StreamsStub> putTokenStubs_;
-  // ChannelAssignment token
-  const ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
-  // helper class to assign tracks to channel
-  const ChannelAssignment* channelAssignment_;
+  EDPutTokenT<StreamsStub> putTokenStubs_;
 
-  // helper class to store DTC configuration
-  const Setup* setup_;
+  // helper class to store Track Trigger configuration
+  const Setup* setup_ = nullptr;
+  // helper class to store Tracklet specific configuration
+  const ChannelAssignment* channelAssignment_ = nullptr;
+  // helper class to determine track quality
+  const TrackQuality* trackQuality_ = nullptr;
   // helper class to store configuration needed by HitPatternHelper
-  const hph::Setup* setupHPH_;
+  const hph::Setup* setupHPH_ = nullptr;
 
   // Setup token
-  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> esGetTokenBfield_;
-  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> esGetTokenTGeom_;
-  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> esGetTokenTTopo_;
-  const edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetToken_;
-  const edm::ESGetToken<hph::Setup, hph::SetupRcd> esGetTokenHPH_;
+  const ESGetToken<MagneticField, IdealMagneticFieldRecord> esGetTokenBfield_;
+  const ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> esGetTokenTGeom_;
+  const ESGetToken<TrackerTopology, TrackerTopologyRcd> esGetTokenTTopo_;
+  const ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+  const ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
+  const ESGetToken<TrackQuality, TrackQualityRcd> esGetTokenTrackQuality_;
+  const ESGetToken<hph::Setup, hph::SetupRcd> esGetTokenHPH_;
 
   /// ///////////////// ///
   /// MANDATORY METHODS ///
@@ -236,23 +239,26 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
       // book ED products
       getTokenBS_(consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("BeamSpotSource"))),
       getTokenDTC_(consumes<TTDTC>(edm::InputTag(iConfig.getParameter<edm::InputTag>("InputTagTTDTC")))),
-      // book ED output token for clock and bit accurate tracks
-      putTokenTracks_(produces<Streams>("Level1TTTracks")),
-      // book ED output token for clock and bit accurate stubs
-      putTokenStubs_(produces<StreamsStub>("Level1TTTracks")),
+      // book ED output token for TTTracks
+      putTokenTTTracks_(produces<TTTracks>("Level1TTTracks")),
       // book ES products
-      esGetTokenChannelAssignment_(esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>()),
       esGetTokenBfield_(esConsumes<edm::Transition::BeginRun>()),
       esGetTokenTGeom_(esConsumes()),
       esGetTokenTTopo_(esConsumes()),
-      esGetToken_(esConsumes<tt::Setup, tt::SetupRcd, edm::Transition::BeginRun>()),
+      esGetTokenSetup_(esConsumes<Setup, SetupRcd, Transition::BeginRun>()),
+      esGetTokenChannelAssignment_(esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>()),
+      esGetTokenTrackQuality_(esConsumes<TrackQuality, TrackQualityRcd, Transition::BeginRun>()),
       esGetTokenHPH_(esConsumes<hph::Setup, hph::SetupRcd, edm::Transition::BeginRun>()) {
   if (readMoreMcTruth_) {
     getTokenTTClusterMCTruth_ = consumes<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>(MCTruthClusterInputTag);
     getTokenTrackingParticle_ = consumes<std::vector<TrackingParticle>>(TrackingParticleInputTag);
   }
-
-  produces<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>("Level1TTTracks").setBranchAlias("Level1TTTracks");
+  const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
+  const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
+  // book ED output token for clock and bit accurate tracks
+  putTokenTracks_ = produces<StreamsTrack>(branchTracks);
+  // book ED output token for clock and bit accurate stubs
+  putTokenStubs_ = produces<StreamsStub>(branchStubs);
 
   asciiEventOutName_ = iConfig.getUntrackedParameter<string>("asciiFileName", "");
 
@@ -270,10 +276,6 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
     tableTEDFile = iConfig.getParameter<edm::FileInPath>("tableTEDFile");
     tableTREFile = iConfig.getParameter<edm::FileInPath>("tableTREFile");
   }
-
-  // initial ES products
-  channelAssignment_ = nullptr;
-  setup_ = nullptr;
 
   // --------------------------------------------------------------------------------
   // set options in Settings based on inputs from configuration files
@@ -323,11 +325,6 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
                                    << "\n table_TRE    :  " << tableTREFile.fullPath();
     }
   }
-
-  trackQuality_ = iConfig.getParameter<bool>("TrackQuality");
-  if (trackQuality_) {
-    trackQualityModel_ = std::make_unique<L1TrackQuality>(iConfig.getParameter<edm::ParameterSet>("TrackQualityPSet"));
-  }
   if (settings_.storeTrackBuilderOutput() && (settings_.doMultipleMatches() || !settings_.removalType().empty())) {
     cms::Exception exception("ConfigurationNotSupported.");
     exception.addContext("L1FPGATrackProducer::produce");
@@ -360,13 +357,16 @@ void L1FPGATrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& i
   double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0, 0, 0)).z();
   settings_.setBfield(mMagneticFieldStrength);
 
-  setup_ = &iSetup.getData(esGetToken_);
+  // helper class to store Track Trigger configuration
+  setup_ = &iSetup.getData(esGetTokenSetup_);
+  // helper class to store Tracklet spezific configuration
+  channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
+  // helper class to determine track quality
+  trackQuality_ = &iSetup.getData(esGetTokenTrackQuality_);
 
   settings_.passSetup(setup_);
 
   setupHPH_ = &iSetup.getData(esGetTokenHPH_);
-  // Tracklet pattern reco output channel info.
-  channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
   // initialize the tracklet event processing (this sets all the processing & memory modules, wiring, etc)
   eventProcessor.init(settings_, setup_);
 }
@@ -748,7 +748,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     aTrack.setTrackWordBits();
 
     if (trackQuality_) {
-      trackQualityModel_->setL1TrackQuality(aTrack);
+      trackQuality_->setL1TrackQuality(aTrack);
     }
 
     //    hph::HitPatternHelper hph(setupHPH_, tmp_hit, tmp_tanL, tmp_z0);
@@ -761,50 +761,57 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     // test track word
     //aTrack.testTrackWordBits();
 
+    // set track word again to set MVA variable from TTTrack into track word
+    aTrack.setTrackWordBits();
+
     L1TkTracksForOutput->push_back(aTrack);
   }
 
-  iEvent.put(std::move(L1TkTracksForOutput), "Level1TTTracks");
+  const OrphanHandle<TTTracks> oh = iEvent.emplace(putTokenTTTracks_, move(*L1TkTracksForOutput));
 
   // produce clock and bit accurate stream output tracks and stubs.
   // from end of tracklet pattern recognition.
   // Convertion here is from stream format that allows this code to run
   // outside CMSSW to the EDProduct one.
-  Streams streamsTrack(numStreamsTrack);
+  int iTrk(0);
+  StreamsTrack streamsTrack(numStreamsTrack);
   StreamsStub streamsStub(numStreamsStub);
-
-  for (unsigned int chanTrk = 0; chanTrk < numStreamsTrack; chanTrk++) {
-    for (unsigned int itk = 0; itk < streamsTrackRaw[chanTrk].size(); itk++) {
-      std::string bitsTrk = streamsTrackRaw[chanTrk][itk];
-      int iSeed = chanTrk % channelAssignment_->numChannelsTrack();  // seed type
-      streamsTrack[chanTrk].emplace_back(bitsTrk);
-
-      const unsigned int chanStubOffsetIn = chanTrk * numStubChannel;
-      const unsigned int chanStubOffsetOut = channelAssignment_->offsetStub(chanTrk);
-      const unsigned int numProjLayers = channelAssignment_->numProjectionLayers(iSeed);
-      TTBV hitMap(0, numProjLayers + numSeedingLayers);
-      // remove padding from stub stream
-      for (unsigned int iproj = 0; iproj < numStubChannel; iproj++) {
-        // FW current has one (perhaps invalid) stub per layer per track.
-        const StubStreamData& stubdata = streamsStubRaw[chanStubOffsetIn + iproj][itk];
-        const L1TStub& stub = stubdata.stub();
-        if (!stubdata.valid())
+  for (int channel = 0; channel < (int)numStreamsTrack; channel++) {
+    const int seedType = channel % channelAssignment_->numChannelsTrack();
+    const int numLayers = channelAssignment_->numProjectionLayers(seedType) + channelAssignment_->numSeedingLayers();
+    const int offsetIn = channel * numStubChannel;
+    const int offsetOut = channelAssignment_->offsetStub(channel);
+    const vector<string>& tracks = streamsTrackRaw[channel];
+    StreamTrack& streamTrack = streamsTrack[channel];
+    streamTrack.reserve(tracks.size());
+    for (int layer = 0; layer < numLayers; layer++)
+      streamsStub[offsetOut + layer].reserve(tracks.size());
+    for (int frame = 0; frame < (int)tracks.size(); frame++) {
+      const Frame bitsTrk(tracks[frame]);
+      if (bitsTrk.none()) {
+        streamTrack.emplace_back(FrameTrack());
+        for (int layer = 0; layer < numLayers; layer++)
+          streamsStub[offsetOut + layer].emplace_back(FrameStub());
+        continue;
+      }
+      const TTTrackRef ttTrackRef(oh, iTrk++);
+      streamTrack.emplace_back(ttTrackRef, bitsTrk);
+      StreamStub stubs(numLayers, FrameStub());
+      for (int layer = 0; layer < numLayers; layer++) {
+        const StubStreamData& stub = streamsStubRaw[offsetIn + layer][frame];
+        if (!stub.valid())
           continue;
-        const TTStubRef& ttStubRef = stubMap[stub];
-        const int seedType = stubdata.iSeed();
-        const int layerId = setup_->layerId(ttStubRef);
-        const int channelId = channelAssignment_->channelId(seedType, layerId);
-        hitMap.set(channelId);
-        streamsStub[chanStubOffsetOut + channelId].emplace_back(ttStubRef, stubdata.dataBits());
+        const TTStubRef& ttStubRef = stubMap[stub.stub()];
+        const int index = channelAssignment_->channelId(seedType, setup_->layerId(ttStubRef));
+        stubs[index] = FrameStub(ttStubRef, stub.dataBits());
       }
-      for (int layerId : hitMap.ids(false)) {  // invalid stubs
-        streamsStub[chanStubOffsetOut + layerId].emplace_back(tt::FrameStub());
-      }
+      int layer(0);
+      for (const FrameStub& fs : stubs)
+        streamsStub[offsetOut + layer++].push_back(fs);
     }
   }
-
-  iEvent.emplace(putTokenTracks_, std::move(streamsTrack));
-  iEvent.emplace(putTokenStubs_, std::move(streamsStub));
+  iEvent.emplace(putTokenTracks_, move(streamsTrack));
+  iEvent.emplace(putTokenStubs_, move(streamsStub));
 
 }  /// End of produce()
 

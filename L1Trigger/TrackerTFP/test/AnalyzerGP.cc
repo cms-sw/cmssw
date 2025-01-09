@@ -14,9 +14,11 @@
 
 #include "SimTracker/TrackTriggerAssociation/interface/StubAssociation.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 
 #include <TProfile.h>
 #include <TH1F.h>
+#include <TEfficiency.h>
 
 #include <vector>
 #include <set>
@@ -45,15 +47,17 @@ namespace trackerTFP {
 
   private:
     // ED input token of stubs
-    EDGetTokenT<StreamsStub> edGetTokenAccepted_;
-    // ED input token of lost stubs
-    EDGetTokenT<StreamsStub> edGetTokenLost_;
+    EDGetTokenT<StreamsStub> edGetToken_;
     // ED input token of TTStubRef to TPPtr association for tracking efficiency
     EDGetTokenT<StubAssociation> edGetTokenAss_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetToken_;
+    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    // DataFormats token
+    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
     const Setup* setup_ = nullptr;
+    // helper class to extract structured data from tt::Frames
+    const DataFormats* dataFormats_ = nullptr;
     // enables analyze of TPs
     bool useMCTruth_;
     //
@@ -64,6 +68,18 @@ namespace trackerTFP {
     TProfile* prof_;
     TProfile* profChannel_;
     TH1F* hisChannel_;
+    TH1F* hisEffEta_;
+    TH1F* hisEffEtaTotal_;
+    TEfficiency* effEta_;
+    TH1F* hisEffZT_;
+    TH1F* hisEffZTTotal_;
+    TEfficiency* effZT_;
+    TH1F* hisEffInv2R_;
+    TH1F* hisEffInv2RTotal_;
+    TEfficiency* effInv2R_;
+    TH1F* hisEffPT_;
+    TH1F* hisEffPTTotal_;
+    TEfficiency* effPT_;
 
     // printout
     stringstream log_;
@@ -72,17 +88,16 @@ namespace trackerTFP {
   AnalyzerGP::AnalyzerGP(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
     usesResource("TFileService");
     // book in- and output ED products
-    const string& label = iConfig.getParameter<string>("LabelGP");
-    const string& branchAccepted = iConfig.getParameter<string>("BranchAcceptedStubs");
-    const string& branchLost = iConfig.getParameter<string>("BranchLostStubs");
-    edGetTokenAccepted_ = consumes<StreamsStub>(InputTag(label, branchAccepted));
-    edGetTokenLost_ = consumes<StreamsStub>(InputTag(label, branchLost));
+    const string& label = iConfig.getParameter<string>("OutputLabelGP");
+    const string& branch = iConfig.getParameter<string>("BranchStubs");
+    edGetToken_ = consumes<StreamsStub>(InputTag(label, branch));
     if (useMCTruth_) {
       const auto& inputTagAss = iConfig.getParameter<InputTag>("InputTagSelection");
       edGetTokenAss_ = consumes<StubAssociation>(inputTagAss);
     }
-    // book ES product
-    esGetToken_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
+    // book ES products
+    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
+    esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
     // log config
     log_.setf(ios::fixed, ios::floatfield);
     log_.precision(4);
@@ -90,16 +105,33 @@ namespace trackerTFP {
 
   void AnalyzerGP::beginRun(const Run& iEvent, const EventSetup& iSetup) {
     // helper class to store configurations
-    setup_ = &iSetup.getData(esGetToken_);
+    setup_ = &iSetup.getData(esGetTokenSetup_);
+    // helper class to extract structured data from tt::Frames
+    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
     // book histograms
     Service<TFileService> fs;
     TFileDirectory dir;
     dir = fs->mkdir("GP");
     prof_ = dir.make<TProfile>("Counts", ";", 4, 0.5, 4.5);
-    prof_->GetXaxis()->SetBinLabel(1, "Stubs");
-    prof_->GetXaxis()->SetBinLabel(2, "Lost Stubs");
+    prof_->GetXaxis()->SetBinLabel(1, "Accepted Stubs");
+    prof_->GetXaxis()->SetBinLabel(2, "Truncated Stubs");
     prof_->GetXaxis()->SetBinLabel(3, "Found TPs");
     prof_->GetXaxis()->SetBinLabel(4, "Selected TPs");
+    // Efficiencies
+    hisEffEtaTotal_ = dir.make<TH1F>("HisTPEtaTotal", ";", 48, -2.4, 2.4);
+    hisEffEta_ = dir.make<TH1F>("HisTPEta", ";", 48, -2.4, 2.4);
+    effEta_ = dir.make<TEfficiency>("EffEta", ";", 48, -2.4, 2.4);
+    const int zTBins = setup_->gpNumBinsZT();
+    hisEffZTTotal_ = dir.make<TH1F>("HisTPZTTotal", ";", zTBins, -zTBins / 2, zTBins / 2);
+    hisEffZT_ = dir.make<TH1F>("HisTPZT", ";", zTBins, -zTBins / 2, zTBins / 2);
+    effZT_ = dir.make<TEfficiency>("EffZT", ";", zTBins, -zTBins / 2, zTBins / 2);
+    const double rangeInv2R = dataFormats_->format(Variable::inv2R, Process::dr).range();
+    hisEffInv2R_ = dir.make<TH1F>("HisTPInv2R", ";", 32, -rangeInv2R / 2., rangeInv2R / 2.);
+    hisEffInv2RTotal_ = dir.make<TH1F>("HisTPInv2RTotal", ";", 32, -rangeInv2R / 2., rangeInv2R / 2.);
+    effInv2R_ = dir.make<TEfficiency>("EffInv2R", ";", 32, -rangeInv2R / 2., rangeInv2R / 2.);
+    hisEffPT_ = dir.make<TH1F>("HisTPPT", ";", 100, 0, 100);
+    hisEffPTTotal_ = dir.make<TH1F>("HisTPPTTotal", ";", 100, 0, 100);
+    effPT_ = dir.make<TEfficiency>("EffPT", ";", 100, 0, 100);
     // channel occupancy
     constexpr int maxOcc = 180;
     const int numChannels = setup_->numSectors();
@@ -108,11 +140,20 @@ namespace trackerTFP {
   }
 
   void AnalyzerGP::analyze(const Event& iEvent, const EventSetup& iSetup) {
+    auto fill = [this](const TPPtr& tpPtr, TH1F* hisEta, TH1F* hisZT, TH1F* hisInv2R, TH1F* hisPT) {
+      const double tpPhi0 = tpPtr->phi();
+      const double tpCot = sinh(tpPtr->eta());
+      const math::XYZPointD& v = tpPtr->vertex();
+      const double tpZ0 = v.z() - tpCot * (v.x() * cos(tpPhi0) + v.y() * sin(tpPhi0));
+      const double tpZT = tpZ0 + tpCot * setup_->chosenRofZ();
+      hisEta->Fill(tpPtr->eta());
+      hisZT->Fill(dataFormats_->format(Variable::zT, Process::gp).integer(tpZT));
+      hisInv2R->Fill(tpPtr->charge() / tpPtr->pt() * setup_->invPtToDphi());
+      hisPT->Fill(tpPtr->pt());
+    };
     // read in gp products
-    Handle<StreamsStub> handleAccepted;
-    iEvent.getByToken<StreamsStub>(edGetTokenAccepted_, handleAccepted);
-    Handle<StreamsStub> handleLost;
-    iEvent.getByToken<StreamsStub>(edGetTokenLost_, handleLost);
+    Handle<StreamsStub> handleStubs;
+    iEvent.getByToken<StreamsStub>(edGetToken_, handleStubs);
     // read in MCTruth
     const StubAssociation* stubAssociation = nullptr;
     if (useMCTruth_) {
@@ -120,16 +161,17 @@ namespace trackerTFP {
       iEvent.getByToken<StubAssociation>(edGetTokenAss_, handleAss);
       stubAssociation = handleAss.product();
       prof_->Fill(4, stubAssociation->numTPs());
+      for (const auto& p : stubAssociation->getTrackingParticleToTTStubsMap())
+        fill(p.first, hisEffEtaTotal_, hisEffZTTotal_, hisEffInv2RTotal_, hisEffPTTotal_);
     }
     // analyze gp products and find still reconstrucable TrackingParticles
     set<TPPtr> setTPPtr;
     for (int region = 0; region < setup_->numRegions(); region++) {
       int nStubs(0);
-      int nLost(0);
       map<TPPtr, vector<TTStubRef>> mapTPsTTStubs;
       for (int channel = 0; channel < setup_->numSectors(); channel++) {
         const int index = region * setup_->numSectors() + channel;
-        const StreamStub& accepted = handleAccepted->at(index);
+        const StreamStub& accepted = handleStubs->at(index);
         hisChannel_->Fill(accepted.size());
         profChannel_->Fill(channel, accepted.size());
         for (const FrameStub& frame : accepted) {
@@ -148,14 +190,14 @@ namespace trackerTFP {
             it->second.push_back(frame.first);
           }
         }
-        nLost += handleLost->at(index).size();
       }
       for (const auto& p : mapTPsTTStubs)
         if (setup_->reconstructable(p.second))
           setTPPtr.insert(p.first);
       prof_->Fill(1, nStubs);
-      prof_->Fill(2, nLost);
     }
+    for (const TPPtr& tpPtr : setTPPtr)
+      fill(tpPtr, hisEffEta_, hisEffZT_, hisEffInv2R_, hisEffPT_);
     prof_->Fill(3, setTPPtr.size());
     nEvents_++;
   }
@@ -163,26 +205,31 @@ namespace trackerTFP {
   void AnalyzerGP::endJob() {
     if (nEvents_ == 0)
       return;
+    // effi
+    effEta_->SetPassedHistogram(*hisEffEta_, "f");
+    effEta_->SetTotalHistogram(*hisEffEtaTotal_, "f");
+    effZT_->SetPassedHistogram(*hisEffZT_, "f");
+    effZT_->SetTotalHistogram(*hisEffZTTotal_, "f");
+    effInv2R_->SetPassedHistogram(*hisEffInv2R_, "f");
+    effInv2R_->SetTotalHistogram(*hisEffInv2RTotal_, "f");
+    effPT_->SetPassedHistogram(*hisEffPT_, "f");
+    effPT_->SetTotalHistogram(*hisEffPTTotal_, "f");
     // printout GP summary
     const double numStubs = prof_->GetBinContent(1);
-    const double numStubsLost = prof_->GetBinContent(2);
     const double errStubs = prof_->GetBinError(1);
-    const double errStubsLost = prof_->GetBinError(2);
     const double numTPs = prof_->GetBinContent(3);
     const double totalTPs = prof_->GetBinContent(4);
     const double eff = numTPs / totalTPs;
     const double errEff = sqrt(eff * (1. - eff) / totalTPs / nEvents_);
-    const vector<double> nums = {numStubs, numStubsLost};
-    const vector<double> errs = {errStubs, errStubsLost};
+    const vector<double> nums = {numStubs};
+    const vector<double> errs = {errStubs};
     const int wNums = ceil(log10(*max_element(nums.begin(), nums.end()))) + 5;
     const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
     log_ << "                         GP  SUMMARY                         " << endl;
     log_ << "number of stubs      per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
-    log_ << "number of lost stubs per TFP = " << setw(wNums) << numStubsLost << " +- " << setw(wErrs) << errStubsLost
-         << endl;
     log_ << "     max tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
     log_ << "=============================================================";
-    LogPrint("L1Trigger/TrackerTFP") << log_.str();
+    LogPrint(moduleDescription().moduleName()) << log_.str();
   }
 
 }  // namespace trackerTFP

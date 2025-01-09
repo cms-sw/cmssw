@@ -3,35 +3,38 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "Demo" )
 process.load( 'FWCore.MessageService.MessageLogger_cfi' )
-process.load( 'Configuration.Geometry.GeometryExtendedRun4D88Reco_cff' ) 
-process.load( 'Configuration.Geometry.GeometryExtendedRun4D88_cff' )
+process.load( 'Configuration.Geometry.GeometryExtendedRun4D98Reco_cff' ) 
+process.load( 'Configuration.Geometry.GeometryExtendedRun4D98_cff' )
 process.load( 'Configuration.StandardSequences.MagneticField_cff' )
 process.load( 'Configuration.StandardSequences.FrontierConditions_GlobalTag_cff' )
 process.load( 'L1Trigger.TrackTrigger.TrackTrigger_cff' )
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '133X_mcRun4_realistic_v1', '')
 
 # load code that produces DTCStubs
-process.load( 'L1Trigger.TrackerDTC.ProducerED_cff' )
+process.load( 'L1Trigger.TrackerDTC.DTC_cff' )
 # cosutmize TT algorithm
-#from L1Trigger.TrackerDTC.Customize_cff import *
-#producerUseTMTT(process)
-#analyzerUseTMTT(process)
+from L1Trigger.TrackerDTC.Customize_cff import *
+producerUseTMTT(process)
+analyzerUseTMTT(process)
 #--- Load code that produces tfp Stubs
 process.load( 'L1Trigger.TrackerTFP.Producer_cff' )
+from L1Trigger.TrackerTFP.Customize_cff import *
+setupUseTMTT( process )
 #--- Load code that demonstrates tfp Stubs
 process.load( 'L1Trigger.TrackerTFP.Demonstrator_cff' )
 
 # build schedule
-process.tt = cms.Sequence (  process.TrackerDTCProducer
-                           + process.TrackerTFPProducerGP
-                           + process.TrackerTFPProducerHT
-                           + process.TrackerTFPProducerMHT
-                           + process.TrackerTFPProducerZHT
-                           + process.TrackerTFPProducerZHTout
-                           + process.TrackerTFPProducerKFin
-                           + process.TrackerTFPProducerKF
+process.tt = cms.Sequence (  process.ProducerDTC
+                           + process.ProducerPP
+                           + process.ProducerGP
+                           + process.ProducerHT
+                           + process.ProducerCTB
+                           + process.ProducerKF
+                           + process.ProducerDR
+                           + process.ProducerTQ
+                           + process.ProducerTFP
                           )
 process.demo = cms.Path( process.tt + process.TrackerTFPDemonstrator )
 process.schedule = cms.Schedule( process.demo )
@@ -41,7 +44,16 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing( 'analysis' )
 # specify input MC
 Samples = [
-'/store/mc/CMSSW_12_6_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v5_2026D88PU200RV183v2-v1/30000/0959f326-3f52-48d8-9fcf-65fc41de4e27.root'
+'/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0b2b0b0b-f312-48a8-9d46-ccbadc69bbfd.root',
+'/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0c3cb20d-8556-450d-b4f0-e5c754818f74.root',
+'/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0eafa2b4-711a-43ec-be1c-7e564c294a9a.root',
+'/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/1450b1bb-171e-495e-a767-68e2796d95c2.root',
+'/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/15498564-9cf0-4219-aab7-f97b3484b122.root',
+'/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/1838a806-316b-4f53-9d22-5b3856019623.root',
+'/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/1a34eb87-b9a3-47fb-b945-57e6f775fcac.root',
+'/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/1add5b2e-19cb-4581-956d-271907d03b72.root',
+'/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/1bed1837-ef65-4e07-a2ac-13c705b20fc1.root',
+'/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/1d057884-72bd-4353-8375-ec4616c00a33.root'
 ]
 options.register( 'inputMC', Samples, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed" )
 # specify number of events to process.
@@ -53,7 +65,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.Even
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring( options.inputMC ),
-  #skipEvents = cms.untracked.uint32( 914 ),
+  #skipEvents = cms.untracked.uint32( 2 ),
   secondaryFileNames = cms.untracked.vstring(),
   duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )

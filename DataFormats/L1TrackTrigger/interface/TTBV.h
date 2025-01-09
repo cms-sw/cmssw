@@ -20,16 +20,13 @@
 class TTBV {
 public:
   static constexpr int S_ = 64;  // Frame width of emp infrastructure f/w, max number of bits a TTBV can handle
-
 private:
   bool twos_;           // Two's complement (true) or binary (false)
   int size_;            // number or bits
   std::bitset<S_> bs_;  // underlying storage
-
 public:
   // constructor: default
   TTBV() : twos_(false), size_(0), bs_() {}
-
   // constructor: double precision (IEEE 754); from most to least significant bit: 1 bit sign + 11 bit binary exponent + 52 bit binary mantisse
   TTBV(const double d) : twos_(false), size_(S_) {
     int index(0);
@@ -42,14 +39,17 @@ public:
   }
 
   // constructor: unsigned int value
-  TTBV(unsigned long long int value, int size) : twos_(false), size_(size), bs_(value) {}
+  TTBV(unsigned long long int value, int size) : twos_(false), size_(size), bs_(value) { checkU(value); }
 
   // constructor: int value
   TTBV(int value, int size, bool twos = false)
-      : twos_(twos), size_(size), bs_((!twos || value >= 0) ? value : value + iMax()) {}
+      : twos_(twos), size_(size), bs_((!twos || value >= 0) ? value : value + iMax()) {
+    checkI(value);
+  }
 
   // constructor: double value + precision, biased (floor) representation
-  TTBV(double value, double base, int size, bool twos = false) : TTBV((int)std::floor(value / base), size, twos) {}
+  TTBV(double value, double base, int size, bool twos = false)
+      : TTBV((int)std::floor(value / base + 1.e-12), size, twos) {}
 
   // constructor: string
   TTBV(const std::string& str, bool twos = false) : twos_(twos), size_(str.size()), bs_(str) {}
@@ -70,9 +70,14 @@ public:
   // underlying storage
   const std::bitset<S_>& bs() const { return bs_; }
 
-  // access: single bit
+  // access: single bit value
   bool operator[](int pos) const { return bs_[pos]; }
+
+  // access: single bit reference
   std::bitset<S_>::reference operator[](int pos) { return bs_[pos]; }
+
+  // access: single bit value with bounds check
+  bool test(int pos) const { return bs_.test(pos); }
 
   // access: most significant bit copy
   bool msb() const { return bs_[size_ - 1]; }
@@ -95,31 +100,31 @@ public:
 
   // operator: boolean and
   TTBV& operator&=(const TTBV& rhs) {
-    const int m(std::max(size_, rhs.size()));
-    this->resize(m);
-    TTBV bv(rhs);
-    bv.resize(m);
-    bs_ &= bv.bs_;
+    bs_ &= rhs.bs_;
     return *this;
+  }
+
+  // operator: boolean and
+  TTBV operator&&(const TTBV& rhs) {
+    TTBV copy(*this);
+    return copy &= rhs;
   }
 
   // operator: boolean or
   TTBV& operator|=(const TTBV& rhs) {
-    const int m(std::max(size_, rhs.size()));
-    this->resize(m);
-    TTBV bv(rhs);
-    bv.resize(m);
-    bs_ |= bv.bs_;
+    bs_ |= rhs.bs_;
     return *this;
+  }
+
+  // operator: boolean or
+  TTBV operator||(const TTBV& rhs) {
+    TTBV copy(*this);
+    return copy |= rhs;
   }
 
   // operator: boolean xor
   TTBV& operator^=(const TTBV& rhs) {
-    const int m(std::max(size_, rhs.size()));
-    this->resize(m);
-    TTBV bv(rhs);
-    bv.resize(m);
-    bs_ ^= bv.bs_;
+    bs_ ^= rhs.bs_;
     return *this;
   }
 
@@ -242,7 +247,7 @@ public:
           bs_.set(n, msb);
       size_ = size;
     } else if (size < size_ && size > 0) {
-      this->operator<<=(size - size_);
+      this->operator<<=(size_ - size);
       if (twos_)
         this->msb() = msb;
     }
@@ -281,8 +286,15 @@ public:
 
   // maniplulation and conversion: extracts range based to int reinterpret sign and removes these bits
   int extract(int size, bool twos = false) {
-    double val = this->val(size, 0, twos);
+    int val = this->val(size, 0, twos);
     this->operator>>=(size);
+    return val;
+  }
+
+  // maniplulation and conversion: extracts bool and removes this bit
+  bool extract() {
+    bool val = bs_[0];
+    this->operator>>=(1);
     return val;
   }
 
@@ -310,12 +322,28 @@ public:
     return size_;
   }
 
+  // position of least significant '1' or '0' in range [begin, end)
+  int plEncode(int begin, int end, bool b = true) const {
+    for (int e = begin; e < end; e++)
+      if (bs_.test(e) == b)
+        return e;
+    return size_;
+  }
+
   // position of most significant '1' or '0'
   int pmEncode(bool b = true) const {
     for (int e = size_ - 1; e > -1; e--)
       if (bs_[e] == b)
         return e;
     return size_;
+  }
+
+  // position of most significant '1' or '0' in range [begin, end)
+  int pmEncode(int begin, int end, bool b = true) const {
+    for (int e = end - 1; e >= begin; e--)
+      if (bs_.test(e) == b)
+        return e;
+    return end;
   }
 
   // position for n'th '1' or '0' counted from least to most significant bit
@@ -344,17 +372,58 @@ public:
 
 private:
   // look up table initializer for powers of 2
-  constexpr std::array<unsigned long long int, S_> powersOfTwo() const {
-    std::array<unsigned long long int, S_> lut = {};
-    for (int i = 0; i < S_; i++)
+  constexpr std::array<double, S_ + 1> powersOfTwo() const {
+    std::array<double, S_ + 1> lut = {};
+    for (int i = 0; i <= S_; i++)
       lut[i] = std::pow(2, i);
     return lut;
   }
 
   // returns 2 ** size_
-  unsigned long long int iMax() const {
-    static const std::array<unsigned long long int, S_> lut = powersOfTwo();
-    return lut[size_];
+  double iMax() const {
+    static const std::array<double, S_ + 1> lut = powersOfTwo();
+    return std::round(lut[size_]);
+  }
+
+  // check if value fits into binary BV
+  void checkU(unsigned long long int value) {
+    if (size_ == 0)
+      return;
+    if (value < iMax())
+      return;
+    cms::Exception exception("RunTimeError.");
+    exception << "Value " << value << " does not fit into a " << size_ << "b binary.";
+    exception.addContext("TTBV::checkU");
+    throw exception;
+  }
+
+  // check if value fits into twos's complement BV
+  void checkT(int value) {
+    if (size_ == 0)
+      return;
+    static const std::array<double, S_ + 1> lut = powersOfTwo();
+    auto abs = [](int val) { return val < 0 ? std::abs(val) - 1 : val; };
+    if (abs(value) < std::round(lut[size_ - 1]))
+      return;
+    cms::Exception exception("RunTimeError.");
+    exception << "Value " << value << " does not fit into a " << size_ << "b two's complement.";
+    exception.addContext("TTBV::checkT");
+    throw exception;
+  }
+
+  // check if value fits into twos complement / binary BV
+  void checkI(int value) {
+    if (size_ == 0)
+      return;
+    if (twos_)
+      checkT(value);
+    else if (value < 0) {
+      cms::Exception exception("RunTimeError.");
+      exception << size_ << "b Binary TTBV constructor called with negative value (" << value << ").";
+      exception.addContext("TTBV::checkI");
+      throw exception;
+    } else
+      checkU(value);
   }
 };
 

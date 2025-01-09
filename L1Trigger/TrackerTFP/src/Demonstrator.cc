@@ -1,9 +1,11 @@
 #include "L1Trigger/TrackerTFP/interface/Demonstrator.h"
 
 #include <vector>
+#include <set>
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <numeric>
 
 using namespace std;
 using namespace edm;
@@ -14,54 +16,79 @@ namespace trackerTFP {
   Demonstrator::Demonstrator(const ParameterSet& iConfig, const Setup* setup)
       : dirIPBB_(iConfig.getParameter<string>("DirIPBB")),
         runTime_(iConfig.getParameter<double>("RunTime")),
+        linkMappingIn_(iConfig.getParameter<vector<int>>("LinkMappingIn")),
+        linkMappingOut_(iConfig.getParameter<vector<int>>("LinkMappingOut")),
         dirIn_(dirIPBB_ + "in.txt"),
         dirOut_(dirIPBB_ + "out.txt"),
         dirPre_(dirIPBB_ + "pre.txt"),
         dirDiff_(dirIPBB_ + "diff.txt"),
-        numFrames_(setup->numFramesIO()),
+        numFrames_(setup->numFramesIOHigh()),
         numFramesInfra_(setup->numFramesInfra()),
         numRegions_(setup->numRegions()) {}
 
   // plays input through modelsim and compares result with output
   bool Demonstrator::analyze(const vector<vector<Frame>>& input, const vector<vector<Frame>>& output) const {
-    stringstream ss;
+    // default link mapping
+    auto linkMapping = [this](const vector<int>& mapC, vector<int>& map, const vector<vector<Frame>>& data) {
+      if (mapC.empty()) {
+        map.resize((int)data.size() / numRegions_);
+        iota(map.begin(), map.end(), 0);
+      } else
+        map = mapC;
+    };
     // converts input into stringstream
-    convert(input, ss);
+    stringstream ss;
+    vector<int> map;
+    linkMapping(linkMappingIn_, map, input);
+    convert(input, ss, map);
     // play input through modelsim
     sim(ss);
     // converts output into stringstream
-    convert(output, ss);
+    map.clear();
+    linkMapping(linkMappingOut_, map, output);
+    convert(output, ss, map);
     // compares output with modelsim output
     return compare(ss);
   }
 
   // converts streams of bv into stringstream
-  void Demonstrator::convert(const vector<vector<Frame>>& bits, stringstream& ss) const {
+  void Demonstrator::convert(const vector<vector<Frame>>& bits, stringstream& ss, const vector<int>& mapping) const {
     // reset ss
     ss.str("");
     ss.clear();
     // number of tranceiver in a quad
     static constexpr int quad = 4;
-    const int numChannel = bits.size() / numRegions_;
-    const int voidChannel = numChannel % quad == 0 ? 0 : quad - numChannel % quad;
+    set<int> quads;
+    for (int channel : mapping)
+      quads.insert(channel / quad);
+    vector<int> links;
+    links.reserve(quads.size() * quad);
+    for (int q : quads) {
+      const int offset = q * quad;
+      for (int c = 0; c < quad; c++)
+        links.push_back(offset + c);
+    }
     // start with header
-    ss << header(numChannel + voidChannel);
+    ss << header(links);
     int nFrame(0);
     // create one packet per region
     bool first = true;
     for (int region = 0; region < numRegions_; region++) {
-      const int offset = region * numChannel;
+      const int offset = region * mapping.size();
       // start with emp 6 frame gap
-      ss << infraGap(nFrame, numChannel + voidChannel);
+      ss << infraGap(nFrame, links.size());
       for (int frame = 0; frame < numFrames_; frame++) {
         // write one frame for all channel
         ss << this->frame(nFrame);
-        for (int channel = 0; channel < numChannel; channel++) {
-          const vector<Frame>& bvs = bits[offset + channel];
-          ss << (frame < (int)bvs.size() ? hex(bvs[frame], first) : hex(Frame(), first));
+        for (int link : links) {
+          const auto channel = find(mapping.begin(), mapping.end(), link);
+          if (channel == mapping.end())
+            ss << "  0000 " << string(TTBV::S_ / 4, '0');
+          else {
+            const vector<Frame>& bvs = bits[offset + distance(mapping.begin(), channel)];
+            ss << (frame < (int)bvs.size() ? hex(bvs[frame], first) : hex(Frame(), first));
+          }
         }
-        for (int channel = 0; channel < voidChannel; channel++)
-          ss << "  0000 " << string(TTBV::S_ / 4, '0');
         ss << endl;
         first = false;
       }
@@ -107,15 +134,15 @@ namespace trackerTFP {
   }
 
   // creates emp file header
-  string Demonstrator::header(int numLinks) const {
+  string Demonstrator::header(const vector<int>& links) const {
     stringstream ss;
     // file header
-    ss << "Board CMSSW" << endl
+    ss << "Id: CMSSW" << endl
        << "Metadata: (strobe,) start of orbit, start of packet, end of packet, valid" << endl
        << endl;
     // link header
     ss << "      Link  ";
-    for (int link = 0; link < numLinks; link++)
+    for (int link : links)
       ss << "            " << setfill('0') << setw(3) << link << "        ";
     ss << endl;
     return ss.str();

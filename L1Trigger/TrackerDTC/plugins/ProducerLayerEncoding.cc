@@ -26,18 +26,17 @@ namespace trackerDTC {
     unique_ptr<LayerEncoding> produce(const LayerEncodingRcd& rcd);
 
   private:
-    const ParameterSet iConfig_;
     ESGetToken<Setup, SetupRcd> esGetToken_;
   };
 
-  ProducerLayerEncoding::ProducerLayerEncoding(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerLayerEncoding::ProducerLayerEncoding(const ParameterSet& iConfig) {
     auto cc = setWhatProduced(this);
     esGetToken_ = cc.consumes();
   }
 
   unique_ptr<LayerEncoding> ProducerLayerEncoding::produce(const LayerEncodingRcd& rcd) {
     const Setup* setup = &rcd.get(esGetToken_);
-    return make_unique<LayerEncoding>(iConfig_, setup);
+    return make_unique<LayerEncoding>(setup);
   }
 
 }  // namespace trackerDTC
