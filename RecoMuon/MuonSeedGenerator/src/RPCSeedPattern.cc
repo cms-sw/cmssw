@@ -6,7 +6,7 @@
  *
  */
 
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedPattern.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCSeedPattern.h"
 #include <RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h>
 #include <MagneticField/Engine/interface/MagneticField.h>
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h>

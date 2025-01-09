@@ -32,3 +32,7 @@ void TSGFromOrderedHits::run(TrajectorySeedCollection &seeds,
                              const TrackingRegion &region) {
   theGenerator->run(seeds, region, ev, es);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
+DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGFromOrderedHits, "TSGFromOrderedHits");

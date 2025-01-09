@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"

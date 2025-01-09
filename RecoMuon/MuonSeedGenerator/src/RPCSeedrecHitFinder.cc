@@ -3,7 +3,7 @@
  *
  */
 
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedrecHitFinder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCSeedrecHitFinder.h"
 #include <DataFormats/TrackingRecHit/interface/TrackingRecHit.h>
 #include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
 
