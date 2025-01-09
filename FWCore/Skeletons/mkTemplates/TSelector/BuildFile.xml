@@ -1,5 +1,0 @@
-@example_track<use name="DataFormats/TrackReco"/>
-<use name="FWCore/TFWLiteSelector"/>
-<export>
-  <lib name="1"/>
-</export>
