@@ -118,8 +118,8 @@ namespace trklet {
       tm.produce(streamsTrack, streamsStub);
     }
     // store products
-    iEvent.emplace(edPutTokenTracks_, move(streamsTrack));
-    iEvent.emplace(edPutTokenStubs_, move(streamsStub));
+    iEvent.emplace(edPutTokenTracks_, std::move(streamsTrack));
+    iEvent.emplace(edPutTokenStubs_, std::move(streamsStub));
   }
 
 }  // namespace trklet

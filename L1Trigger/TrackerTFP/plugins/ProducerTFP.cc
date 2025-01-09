@@ -104,7 +104,7 @@ namespace trackerTFP {
     tfp.produce(*handleTracks, *handleStubs, ttTracks, streamsTrack);
     // put TTTRacks and produce TTTRackRefs
     const int nTrks = ttTracks.size();
-    const OrphanHandle<TTTracks> oh = iEvent.emplace(edPutTokenTTTracks_, move(ttTracks));
+    const OrphanHandle<TTTracks> oh = iEvent.emplace(edPutTokenTTTracks_, std::move(ttTracks));
     vector<TTTrackRef> ttTrackRefs;
     ttTrackRefs.reserve(nTrks);
     for (int iTrk = 0; iTrk < nTrks; iTrk++)
@@ -112,7 +112,7 @@ namespace trackerTFP {
     // replace old TTTrackRefs in streamsTrack with new TTTrackRefs
     tfp.produce(ttTrackRefs, streamsTrack);
     // put StreamsTrack
-    iEvent.emplace(edPutTokenTracks_, move(streamsTrack));
+    iEvent.emplace(edPutTokenTracks_, std::move(streamsTrack));
   }
 
 }  // namespace trackerTFP

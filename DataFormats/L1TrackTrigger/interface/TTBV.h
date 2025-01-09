@@ -1,6 +1,8 @@
 #ifndef DataFormats_L1TrackTrigger_TTBV_h
 #define DataFormats_L1TrackTrigger_TTBV_h
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <bitset>
 #include <array>
 #include <string>

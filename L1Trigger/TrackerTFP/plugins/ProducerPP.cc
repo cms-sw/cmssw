@@ -73,7 +73,7 @@ namespace trackerTFP {
         stubs[offset + channel] = ttDTC.stream(region, channel);
     }
     // store products
-    iEvent.emplace(edPutToken_, move(stubs));
+    iEvent.emplace(edPutToken_, std::move(stubs));
   }
 
 }  // namespace trackerTFP
