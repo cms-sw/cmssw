@@ -450,7 +450,6 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
       std::stringstream str;
       for (auto& s: currentFile_->fileNames_) {
         struct stat bufs;
-        assert(stat(s.c_str(), &bufs) == 0);
         if (stat(s.c_str(), &bufs) != 0)
           throw cms::Exception("DAQSource::getNextDataBlock") << "Could not stat file " << s;
         str << s << " (size:" << (bufs.st_size / 1000) << " kB)" << std::endl;
@@ -462,7 +461,6 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
       std::stringstream str;
       for (auto& s: currentFile_->fileNames_) {
         struct stat bufs;
-        assert(stat(s.c_str(), &bufs) == 0);
         if (stat(s.c_str(), &bufs) != 0)
           throw cms::Exception("DAQSource::getNextDataBlock") << "Could not stat file " << s;
         str << s << " (size:" << (bufs.st_size / 1000) << " kB)" << std::endl;
@@ -729,10 +727,6 @@ void DAQSource::readSupervisor() {
               << "(" << heldFilesCount_ << ")" << " / " << maxBufferedFiles_;
         }
         LogDebug("DAQSource") << "No free chunks or threads...";
-      } else {
-        //TODO: review these conditions
-        //std::unique_lock<std::mutex> lk(mReader_);
-        //assert(!workerPool_.empty() || freeChunks_.empty())
       }
       if (quit_threads_.load(std::memory_order_relaxed) || edm::shutdown_flag.load(std::memory_order_relaxed)) {
         stop = true;

@@ -129,7 +129,7 @@ void DataModeDTH::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) 
     auto nextAddr = addr;
     checksumValid_ = true;
     if (checksumError_.size())
-      checksumError_ == std::string();
+      checksumError_ = std::string();
 
     firstOrbitHeader_ = nullptr;
     while (nextAddr < addr + maxAllowedSize) {
