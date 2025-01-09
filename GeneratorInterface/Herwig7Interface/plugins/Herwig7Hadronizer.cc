@@ -181,7 +181,7 @@ bool Herwig7Hadronizer::hadronize()
     if (evtnum == -1) {
         edm::LogError("Generator|Herwig7Hadronizer") << "Event number not set in lhe file, needed for correctly aligning Herwig and LHE events!";
         return false;
-    } else if (thepegEvent->number() == evtnum) {
+    } else if (thepegEvent->number() < evtnum) {
         edm::LogError("Herwig7 interface") << "Herwig does not seem to be generating events in order, did you set /Herwig/EventHandlers/FxFxLHReader:AllowedToReOpen Yes?";
         return false;
     } else if (thepegEvent->number() == evtnum) {
