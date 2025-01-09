@@ -14,6 +14,7 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
+#include "CommonTools/Utils/interface/TypedStringObjectMethodCaller.h"
 
 #include <memory>
 #include <vector>
@@ -71,6 +72,55 @@ public:
 protected:
   StringFunctor func_;
   StringFunctor precisionFunc_;
+};
+
+// Collection variables: i.e. variables that is variable-size collection, e.g. std::vector
+template <typename ObjType>
+class CollectionVariable : public VariableBase {
+public:
+  CollectionVariable(const std::string &aname, const edm::ParameterSet &cfg) : VariableBase(aname, cfg) {}
+  virtual std::unique_ptr<std::vector<unsigned int>> getCounts(std::vector<const ObjType *> &selobjs) const = 0;
+  virtual void fill(std::vector<const ObjType *> &selobjs, nanoaod::FlatTable &out) const = 0;
+};
+
+template <typename ObjType, typename CollectionStringFunctor, typename PrecisionStringFunctor, typename ValType>
+class FuncCollectionVariable : public CollectionVariable<ObjType> {
+public:
+  FuncCollectionVariable(const std::string &aname, const edm::ParameterSet &cfg)
+      : CollectionVariable<ObjType>(aname, cfg),
+        func_(cfg.getParameter<std::string>("expr"), cfg.getUntrackedParameter<bool>("lazyEval")),
+        precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",
+                       cfg.getUntrackedParameter<bool>("lazyEval")) {}
+  ~FuncCollectionVariable() override {}
+
+  std::unique_ptr<std::vector<unsigned int>> getCounts(std::vector<const ObjType *> &selobjs) const override {
+    auto counts = std::make_unique<std::vector<unsigned int>>();
+    for (auto const &obj : selobjs)
+      counts->push_back(func_(*obj).size());
+    return counts;
+  }
+
+  void fill(std::vector<const ObjType *> &selobjs, nanoaod::FlatTable &out) const override {
+    std::vector<ValType> vals;
+    for (unsigned int i = 0; i < selobjs.size(); ++i) {
+      for (ValType val : func_(*selobjs[i])) {
+        if constexpr (std::is_same<ValType, float>()) {
+          if (this->precision_ == -2) {
+            auto prec = precisionFunc_(*selobjs[i]);
+            if (prec > 0) {
+              val = MiniFloatConverter::reduceMantissaToNbitsRounding(val, prec);
+            }
+          }
+        }
+        vals.push_back(val);
+      }
+    }
+    out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
+  }
+
+protected:
+  CollectionStringFunctor func_;          // functor to get collection objects
+  PrecisionStringFunctor precisionFunc_;  // functor to get output precision
 };
 
 // External variables: i.e. variables that are not member or methods of the object
@@ -484,6 +534,186 @@ protected:
   typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, uint8_t> UInt8TypedExtVar;
   typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, int16_t> Int16TypedExtVar;
   typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, uint16_t> UInt16TypedExtVar;
+};
+
+template <typename T>
+class SimpleCollectionFlatTableProducer : public SimpleFlatTableProducer<T> {
+public:
+  SimpleCollectionFlatTableProducer(edm::ParameterSet const &params) : SimpleFlatTableProducer<T>(params) {
+    if (params.existsAs<edm::ParameterSet>("collectionVariables")) {
+      edm::ParameterSet const &collectionVarsPSet = params.getParameter<edm::ParameterSet>("collectionVariables");
+      for (const std::string &coltablename :
+           collectionVarsPSet.getParameterNamesForType<edm::ParameterSet>()) {  // tables of variables
+        const auto &coltablePSet = collectionVarsPSet.getParameter<edm::ParameterSet>(coltablename);
+        CollectionVariableTableInfo coltable;
+        coltable.name =
+            coltablePSet.existsAs<std::string>("name") ? coltablePSet.getParameter<std::string>("name") : coltablename;
+        coltable.doc = coltablePSet.getParameter<std::string>("doc");
+        coltable.useCount = coltablePSet.getParameter<bool>("useCount");
+        coltable.useOffset = coltablePSet.getParameter<bool>("useOffset");
+        const auto &colvarsPSet = coltablePSet.getParameter<edm::ParameterSet>("variables");
+        for (const std::string &colvarname : colvarsPSet.getParameterNamesForType<edm::ParameterSet>()) {  // variables
+          const auto &colvarPSet = colvarsPSet.getParameter<edm::ParameterSet>(colvarname);
+          const std::string &type = colvarPSet.getParameter<std::string>("type");
+          if (type == "int")
+            coltable.colvars.push_back(std::make_unique<IntVectorVar>(colvarname, colvarPSet));
+          else if (type == "uint")
+            coltable.colvars.push_back(std::make_unique<UIntVectorVar>(colvarname, colvarPSet));
+          else if (type == "float")
+            coltable.colvars.push_back(std::make_unique<FloatVectorVar>(colvarname, colvarPSet));
+          else if (type == "double")
+            coltable.colvars.push_back(std::make_unique<DoubleVectorVar>(colvarname, colvarPSet));
+          else if (type == "uint8")
+            coltable.colvars.push_back(std::make_unique<UInt8VectorVar>(colvarname, colvarPSet));
+          else if (type == "int16")
+            coltable.colvars.push_back(std::make_unique<Int16VectorVar>(colvarname, colvarPSet));
+          else if (type == "uint16")
+            coltable.colvars.push_back(std::make_unique<UInt16VectorVar>(colvarname, colvarPSet));
+          else
+            throw cms::Exception("Configuration",
+                                 "unsupported type " + type + " for variable " + colvarname + " in " + coltablename);
+        }
+        this->coltables.push_back(std::move(coltable));
+        edm::stream::EDProducer<>::produces<nanoaod::FlatTable>(coltables.back().name + "Table");
+      }
+    }
+  }
+
+  ~SimpleCollectionFlatTableProducer() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc = SimpleFlatTableProducer<T>::baseDescriptions();
+    edm::ParameterSetDescription colvariable;
+    colvariable.add<std::string>("expr")->setComment(
+        "a function to define the content of the branch in the flat table");
+    colvariable.add<std::string>("doc")->setComment("few words of self documentation");
+    colvariable.addUntracked<bool>("lazyEval", false)
+        ->setComment("if true, can use methods of inheriting classes in `expr`. Can cause problems with threading.");
+    colvariable.ifValue(edm::ParameterDescription<std::string>(
+                            "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
+                        edm::allowedValues<std::string>("int", "uint", "float", "double", "uint8", "int16", "uint16"));
+    colvariable.addOptionalNode(
+        edm::ParameterDescription<int>(
+            "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
+            edm::ParameterDescription<std::string>(
+                "precision", true, edm::Comment("the precision with which to store the value in the flat table")),
+        false);
+    edm::ParameterSetDescription colvariables;
+    colvariables.setComment("a parameters set to define all variable to fill the flat table");
+    colvariables.addNode(
+        edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireAtLeastOne, true, colvariable));
+
+    edm::ParameterSetDescription coltable;
+    coltable.addOptional<std::string>("name")->setComment(
+        "name of the branch in the flat table containing flatten collections of variables");
+    coltable.add<std::string>("doc")->setComment(
+        "few words description of the table containing flatten collections of variables");
+    coltable.add<bool>("useCount", true)
+        ->setComment("whether to use count for the main table to index table with flatten collections of variables");
+    coltable.add<bool>("useOffset", false)
+        ->setComment("whether to use offset for the main table to index table with flatten collections of variables");
+    coltable.add<edm::ParameterSetDescription>("variables", colvariables);
+
+    edm::ParameterSetDescription coltables;
+    coltables.setComment("a parameters set to define variables to be flatten to fill the table");
+    coltables.addOptionalNode(
+        edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, coltable), false);
+    desc.addOptional<edm::ParameterSetDescription>("collectionVariables", coltables);
+
+    descriptions.addWithDefaultLabel(desc);
+  }
+
+  void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override {
+    // same as SimpleFlatTableProducer
+    edm::Handle<edm::View<T>> prod;
+    iEvent.getByToken(this->src_, prod);
+
+    std::vector<const T *> selobjs;
+    std::vector<edm::Ptr<T>> selptrs;  // for external variables
+    if (prod.isValid() || !(this->skipNonExistingSrc_)) {
+      if (this->singleton_) {
+        assert(prod->size() == 1);
+        selobjs.push_back(&(*prod)[0]);
+        if (!this->extvars_.empty() || !this->typedextvars_.empty())
+          selptrs.emplace_back(prod->ptrAt(0));
+      } else {
+        for (unsigned int i = 0, n = prod->size(); i < n; ++i) {
+          const auto &obj = (*prod)[i];
+          if (this->cut_(obj)) {
+            selobjs.push_back(&obj);
+            if (!this->extvars_.empty() || !this->typedextvars_.empty())
+              selptrs.emplace_back(prod->ptrAt(i));
+          }
+          if (selobjs.size() >= this->maxLen_)
+            break;
+        }
+      }
+    }
+
+    auto out = std::make_unique<nanoaod::FlatTable>(selobjs.size(), this->name_, this->singleton_, this->extension_);
+    for (const auto &var : this->vars_)
+      var->fill(selobjs, *out);
+    for (const auto &var : this->extvars_)
+      var->fill(iEvent, selptrs, *out);
+    for (const auto &var : this->typedextvars_)
+      var->fill(iEvent, selptrs, *out);
+
+    // collection variable tables
+    for (const auto &coltable : this->coltables) {
+      std::unique_ptr<std::vector<unsigned int>> counts = coltable.colvars[0]->getCounts(selobjs);
+      // compute size
+      unsigned int coltablesize = 0;
+      for (auto const &count : *counts)
+        coltablesize += count;
+      // add count branch if requested
+      if (coltable.useCount)
+        out->template addColumn<uint16_t>("n" + coltable.name, *counts, "counts for " + coltable.name);
+      // add offset branch if requested
+      if (coltable.useOffset) {
+        unsigned int offset = 0;
+        std::vector<unsigned int> offsets;
+        for (auto const &count : *counts) {
+          offsets.push_back(offset);
+          offset += count;
+        }
+        out->template addColumn<uint16_t>("o" + coltable.name, offsets, "offsets for " + coltable.name);
+      }
+
+      std::unique_ptr<nanoaod::FlatTable> outcoltable =
+          std::make_unique<nanoaod::FlatTable>(coltablesize, coltable.name, false, false);
+      for (const auto &colvar : coltable.colvars) {
+        colvar->fill(selobjs, *outcoltable);
+      }
+      outcoltable->setDoc(coltable.doc);
+      iEvent.put(std::move(outcoltable), coltable.name + "Table");
+    }
+
+    // put the main table into the event
+    out->setDoc(this->doc_);
+    iEvent.put(std::move(out));
+  }
+
+protected:
+  template <typename R>
+  using VectorVar =
+      FuncCollectionVariable<T, TypedStringObjectMethodCaller<T, std::vector<R>>, StringObjectFunction<T>, R>;
+
+  using IntVectorVar = VectorVar<int32_t>;
+  using UIntVectorVar = VectorVar<uint32_t>;
+  using FloatVectorVar = VectorVar<float>;
+  using DoubleVectorVar = VectorVar<double>;
+  using UInt8VectorVar = VectorVar<uint8_t>;
+  using Int16VectorVar = VectorVar<int16_t>;
+  using UInt16VectorVar = VectorVar<uint16_t>;
+
+  struct CollectionVariableTableInfo {
+    std::string name;
+    std::string doc;
+    bool useCount;
+    bool useOffset;
+    std::vector<std::unique_ptr<CollectionVariable<T>>> colvars;
+  };
+  std::vector<CollectionVariableTableInfo> coltables;
 };
 
 template <typename T>
