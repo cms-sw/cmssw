@@ -128,7 +128,7 @@ void DataModeDTH::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) 
     size_t maxAllowedSize = rawFile->fileSizeLeft() + headerSize();
     auto nextAddr = addr;
     checksumValid_ = true;
-    if (checksumError_.size())
+    if (!checksumError_.empty())
       checksumError_ = std::string();
 
     firstOrbitHeader_ = nullptr;
@@ -160,7 +160,7 @@ void DataModeDTH::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) 
         auto crc = crc32c(0U, (const uint8_t*)orbitHeader->payload(), orbitHeader->payloadSizeBytes());
         if (crc != orbitHeader->crc()) {
           checksumValid_ = false;
-          if (checksumError_.size()) checksumError_ += "\n";
+          if (!checksumError_.empty()) checksumError_ += "\n";
           checksumError_ += fmt::format("Found a wrong crc32c checksum in orbit: {} sourceID: {}. Expected {:x} but calculated {:x}",
                                         orbitHeader->orbitNumber(), orbitHeader->sourceID(), orbitHeader->crc(), crc);
         }
@@ -183,7 +183,7 @@ bool DataModeDTH::nextEventView(RawInputFile*) {
   if (eventCached_)
     return true;
 
-  bool blockCompletedAll = addrsEnd_.size() ? true: false;
+  bool blockCompletedAll = !addrsEnd_.empty() ? true: false;
   bool blockCompletedAny = false;
   eventFragments_.clear();
   size_t last_eID = 0;
