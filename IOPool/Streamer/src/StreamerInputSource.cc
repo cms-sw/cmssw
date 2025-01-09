@@ -66,7 +66,7 @@ namespace edm::streamer {
       pReg.updateFromInput(descs);
       std::string mergeInfo = reg.merge(pReg, std::string(), BranchDescription::Permissive);
       if (!mergeInfo.empty()) {
-        throw cms::Exception("MismatchedInput", "RootInputFileSequence::previousEvent()") << mergeInfo;
+        throw cms::Exception("MismatchedInput", "StreamerInputSource::mergeIntoRegistry") << mergeInfo;
       }
     } else {
       declareStreamers(descs);

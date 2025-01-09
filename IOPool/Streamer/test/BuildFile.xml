@@ -28,6 +28,10 @@
 
   <test name="TestIOPoolStreamerRefProductIDMetadataConsistency" command="run_TestRefProductIDMetadataConsistencyStreamer.sh"/>
   
+  <test name="TestIOPoolStreamerRefMerge" command="run_RefMerge.sh"/>
+
+  <test name="TestIOPoolStreamerFailures" command="run_failures.sh"/>
+
   <library file="StreamThingProducer.cc" name="StreamThingProducer">
     <flags EDM_PLUGIN="1"/>
     <use name="DataFormats/TestObjects"/>
