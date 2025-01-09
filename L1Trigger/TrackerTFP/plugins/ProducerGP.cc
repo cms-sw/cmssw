@@ -149,7 +149,7 @@ namespace trackerTFP {
       }
     }
     // store products
-    iEvent.emplace(edPutToken_, move(accepted));
+    iEvent.emplace(edPutToken_, std::move(accepted));
   }
 
 }  // namespace trackerTFP

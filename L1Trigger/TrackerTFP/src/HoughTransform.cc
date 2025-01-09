@@ -176,7 +176,7 @@ namespace trackerTFP {
     }
     // read out found tracks ordered as found
     for (int phiT : phiTs) {
-      auto samePhiT = [phiT, toBinPhiT, this](StubHT* stub) { return toBinPhiT(stub) == phiT; };
+      auto samePhiT = [phiT, toBinPhiT](StubHT* stub) { return toBinPhiT(stub) == phiT; };
       // read out stubs in reverse order to emulate f/w (backtracking linked list)
       copy_if(input.rbegin(), input.rend(), back_inserter(output), samePhiT);
     }
