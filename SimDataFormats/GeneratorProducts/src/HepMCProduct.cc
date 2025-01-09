@@ -36,7 +36,6 @@ void HepMCProduct::addHepMCData(HepMC::GenEvent* evt) {
 
 void HepMCProduct::applyVtxGen(HepMC::FourVector const& vtxShift) {
   //std::cout<< " applyVtxGen called " << isVtxGenApplied_ << endl;
-  //fTimeOffset = 0;
 
   if (isVtxGenApplied())
     return;
@@ -126,16 +125,14 @@ HepMCProduct::HepMCProduct(HepMCProduct const& other) : evt_(nullptr) {
   isVtxGenApplied_ = other.isVtxGenApplied_;
   isVtxBoostApplied_ = other.isVtxBoostApplied_;
   isPBoostApplied_ = other.isPBoostApplied_;
-  //fTimeOffset = other.fTimeOffset;
 }
 
 // swap
 void HepMCProduct::swap(HepMCProduct& other) {
   std::swap(evt_, other.evt_);
-  std::swap(isVtxGenApplied_, other.isVtxGenApplied_);
-  std::swap(isVtxBoostApplied_, other.isVtxBoostApplied_);
-  std::swap(isPBoostApplied_, other.isPBoostApplied_);
-  //std::swap(fTimeOffset, other.fTimeOffset);
+  isVtxGenApplied_ = other.isVtxGenApplied_;
+  isVtxBoostApplied_ = other.isVtxBoostApplied_;
+  isPBoostApplied_ = other.isPBoostApplied_;
 }
 
 // assignment: use copy/swap idiom for exception safety.
