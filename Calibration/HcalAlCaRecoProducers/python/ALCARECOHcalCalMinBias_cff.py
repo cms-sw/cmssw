@@ -107,6 +107,13 @@ _phase1_hfrecoMBNZS = RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi.h
     ),
 )
 
+## remove uneeded paraemters sets because setNoiseFlags is False
+for param in ['PETstat', 'S8S1stat', 'S9S1stat']:
+    if hasattr(_phase1_hfrecoNoise, param):
+        delattr(_phase1_hfrecoNoise, param)
+    if hasattr(_phase1_hfrecoMBNZS, param):
+        delattr(_phase1_hfrecoMBNZS, param)
+
 _phase1_seqALCARECOHcalCalMinBias = seqALCARECOHcalCalMinBias.copy()
 _phase1_seqALCARECOHcalCalMinBias.insert(0,hfprerecoMBNZS)
 _phase1_seqALCARECOHcalCalMinBias.insert(0,hfprerecoNoise)

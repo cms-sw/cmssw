@@ -51,20 +51,20 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(const edm::ParameterSet& HFDi
 }
 
 void HcalHFStatusBitFromDigis::fillHFDigiTimeParamsDesc(edm::ParameterSetDescription& desc) {
-  desc.add<int>("HFdigiflagFirstSample");
-  desc.add<int>("HFdigiflagSamplesToAdd");
-  desc.add<int>("HFdigiflagExpectedPeak");
-  desc.add<double>("HFdigiflagMinEthreshold");
-  desc.add<std::vector<double> >("HFdigiflagCoef");
+  desc.add<int>("HFdigiflagFirstSample", 1);
+  desc.add<int>("HFdigiflagSamplesToAdd", 1);
+  desc.add<int>("HFdigiflagExpectedPeak", 2);
+  desc.add<double>("HFdigiflagMinEthreshold", {40});
+  desc.add<std::vector<double> >("HFdigiflagCoef", {0.93, -0.38275, -0.012667});
 }
 
 void HcalHFStatusBitFromDigis::fillHFTimeInWindowParamsDesc(edm::ParameterSetDescription& desc) {
-  desc.add<std::vector<double> >("hflongMinWindowTime");
-  desc.add<std::vector<double> >("hflongMaxWindowTime");
-  desc.add<double>("hflongEthresh");
-  desc.add<std::vector<double> >("hfshortMinWindowTime");
-  desc.add<std::vector<double> >("hfshortMaxWindowTime");
-  desc.add<double>("hfshortEthresh");
+  desc.add<std::vector<double> >("hflongMinWindowTime", {-10.});
+  desc.add<std::vector<double> >("hflongMaxWindowTime", {10.});
+  desc.add<double>("hflongEthresh", 40.);
+  desc.add<std::vector<double> >("hfshortMinWindowTime", {-12.});
+  desc.add<std::vector<double> >("hfshortMaxWindowTime", {10.});
+  desc.add<double>("hfshortEthresh", 40.);
 }
 
 HcalHFStatusBitFromDigis::~HcalHFStatusBitFromDigis() {}

@@ -119,6 +119,11 @@ def customizeHLTforXXXXX(process):
 
         if hasattr(prod,'setPulseShapeFlags'):
             delattr(prod,'setPulseShapeFlags')
+
+    for prod in producers_by_type(process, 'HFPhase1Reconstructor'):
+        # Remove 'HFStripFilter' if "runHFStripFilter" is false
+        if hasattr(prod, 'runHFStripFilter') and not getattr(prod, 'runHFStripFilter'):
+            delattr(prod,'HFStripFilter')
                     
     return process
 

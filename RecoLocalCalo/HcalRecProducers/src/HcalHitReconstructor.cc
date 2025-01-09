@@ -560,35 +560,71 @@ void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& desc
     HcalHFStatusBitFromDigis::fillHFTimeInWindowParamsDesc(hfInWindowStatDesc);
 
     edm::ParameterSetDescription s9s1StatDesc;
-    s9s1StatDesc.add<std::vector<double>>("short_optimumSlope", {});
-    s9s1StatDesc.add<std::vector<double>>("shortEnergyParams", {});
-    s9s1StatDesc.add<std::vector<double>>("shortETParams", {});
-    s9s1StatDesc.add<std::vector<double>>("long_optimumSlope", {});
-    s9s1StatDesc.add<std::vector<double>>("longEnergyParams", {});
-    s9s1StatDesc.add<std::vector<double>>("longETParams", {});
+    s9s1StatDesc.add<std::vector<double>>("short_optimumSlope",
+                                          {-99999,
+                                           0.0164905,
+                                           0.0238698,
+                                           0.0321383,
+                                           0.041296,
+                                           0.0513428,
+                                           0.0622789,
+                                           0.0741041,
+                                           0.0868186,
+                                           0.100422,
+                                           0.135313,
+                                           0.136289,
+                                           0.0589927});
+    s9s1StatDesc.add<std::vector<double>>(
+        "shortEnergyParams",
+        {35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093});
+    s9s1StatDesc.add<std::vector<double>>("shortETParams", {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+    s9s1StatDesc.add<std::vector<double>>("long_optimumSlope",
+                                          {-99999,
+                                           0.0164905,
+                                           0.0238698,
+                                           0.0321383,
+                                           0.041296,
+                                           0.0513428,
+                                           0.0622789,
+                                           0.0741041,
+                                           0.0868186,
+                                           0.100422,
+                                           0.135313,
+                                           0.136289,
+                                           0.0589927});
+    s9s1StatDesc.add<std::vector<double>>(
+        "longEnergyParams", {43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62});
+    s9s1StatDesc.add<std::vector<double>>("longETParams", {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
     s9s1StatDesc.add<int>("HcalAcceptSeverityLevel", 9);
     s9s1StatDesc.add<bool>("isS8S1", false);
 
     edm::ParameterSetDescription s8s1StatDesc;
-    s8s1StatDesc.add<std::vector<double>>("short_optimumSlope", {});
-    s8s1StatDesc.add<std::vector<double>>("shortEnergyParams", {});
-    s8s1StatDesc.add<std::vector<double>>("shortETParams", {});
-    s8s1StatDesc.add<std::vector<double>>("long_optimumSlope", {});
-    s8s1StatDesc.add<std::vector<double>>("longEnergyParams", {});
-    s8s1StatDesc.add<std::vector<double>>("longETParams", {});
+    s8s1StatDesc.add<std::vector<double>>(
+        "short_optimumSlope", {0.30, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10});
+    s8s1StatDesc.add<std::vector<double>>("shortEnergyParams",
+                                          {40, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100});
+    s8s1StatDesc.add<std::vector<double>>("shortETParams", {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+    s8s1StatDesc.add<std::vector<double>>(
+        "long_optimumSlope", {0.30, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10});
+    s8s1StatDesc.add<std::vector<double>>("longEnergyParams",
+                                          {40, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100});
+    s8s1StatDesc.add<std::vector<double>>("longETParams", {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
     s8s1StatDesc.add<int>("HcalAcceptSeverityLevel", 9);
     s8s1StatDesc.add<bool>("isS8S1", true);
 
     edm::ParameterSetDescription petStatDesc;
-    petStatDesc.add<std::vector<double>>("short_R", {});
-    petStatDesc.add<std::vector<double>>("shortEnergyParams", {});
-    petStatDesc.add<std::vector<double>>("shortETParams", {});
-    petStatDesc.add<std::vector<double>>("long_R", {});
-    petStatDesc.add<std::vector<double>>("longEnergyParams", {});
-    petStatDesc.add<std::vector<double>>("longETParams", {});
+    petStatDesc.add<std::vector<double>>("short_R", {0.8});
+    petStatDesc.add<std::vector<double>>(
+        "shortEnergyParams",
+        {35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093});
+    petStatDesc.add<std::vector<double>>("shortETParams", {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+    petStatDesc.add<std::vector<double>>("long_R", {0.98});
+    petStatDesc.add<std::vector<double>>(
+        "longEnergyParams", {43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62});
+    petStatDesc.add<std::vector<double>>("longETParams", {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+    petStatDesc.add<std::vector<double>>("short_R_29", {0.8});
+    petStatDesc.add<std::vector<double>>("long_R_29", {0.8});
     petStatDesc.add<int>("HcalAcceptSeverityLevel", 9);
-    petStatDesc.add<std::vector<double>>("short_R_29", {});
-    petStatDesc.add<std::vector<double>>("long_R_29", {});
 
     // Conditionally add S9S1stat if setNoiseFlags is true
     desc.ifValue(
