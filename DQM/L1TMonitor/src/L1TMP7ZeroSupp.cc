@@ -231,16 +231,16 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
         continue;
 
       auto payload64 = amc.data();
-      auto start = (const uint32_t*)payload64.get();
+      auto start = reinterpret_cast<const uint32_t*>(&payload64.front());
       // Want to have payload size in 32 bit words, but AMC measures
       // it in 64 bit words -> factor 2.
-      const uint32_t* end = start + (amc.size() * 2);
+      const uint32_t* end = start + (payload64.size() * 2);
 
       auto payload = std::make_unique<l1t::MP7Payload>(start, end, false);
 
-      // getBlock() returns a non-null unique_ptr on success
-      std::unique_ptr<l1t::Block> block;
-      while ((block = payload->getBlock()) != nullptr) {
+      // getBlock() returns a non-nullopt_t optional on success
+      std::optional<l1t::Block> block;
+      while ((block = payload->getBlock())) {
         if (verbose_) {
           std::cout << ">>> check zero suppression for block <<<" << std::endl
                     << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::dec
