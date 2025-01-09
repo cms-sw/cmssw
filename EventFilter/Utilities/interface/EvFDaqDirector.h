@@ -27,6 +27,7 @@
 #include <cstdio>
 
 #include <boost/asio.hpp>
+#include <oneapi/tbb/concurrent_hash_map.h>
 
 class SystemBounds;
 class GlobalContext;
@@ -191,6 +192,7 @@ namespace evf {
     std::vector<int> const& getBUBaseDirsNSources() const { return bu_base_dirs_nSources_; }
     void setFileListMode() { fileListMode_ = true; }
     bool fileListMode() const { return fileListMode_; }
+    unsigned int lsWithFilesOpen(unsigned int ls) const;
 
   private:
     bool bumpFile(unsigned int& ls,
@@ -227,6 +229,7 @@ namespace evf {
     std::string hltSourceDirectory_;
 
     unsigned int startFromLS_ = 1;
+    oneapi::tbb::concurrent_hash_map<unsigned int, unsigned int> lsWithFilesMap_;
 
     std::string hostname_;
     std::string run_string_;

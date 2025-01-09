@@ -706,14 +706,24 @@ void FedRawDataInputSource::fileDeleter() {
   while (!stop) {
     std::vector<InputFile*> deleteVec;
     {
+      unsigned int lastFileLS = 0;
+      bool fileLSOpen = false;
       std::unique_lock<std::mutex> lkw(fileDeleteLock_);
       auto it = filesToDelete_.begin();
       while (it != filesToDelete_.end()) {
         bool fileIsBeingProcessed = false;
+        //check if file LS has already reached global EoL, reuse cached check
+        if (!(lastFileLS && lastFileLS == it->second->lumi_)) {
+          lastFileLS = it->second->lumi_;
+          fileLSOpen = daqDirector_->lsWithFilesOpen(lastFileLS);
+        }
         for (unsigned int i = 0; i < streamFileTracker_.size(); i++) {
           if (it->first == streamFileTracker_.at(i)) {
-            fileIsBeingProcessed = true;
-            break;
+            //only skip if LS is open
+            if (fileLSOpen) {
+              fileIsBeingProcessed = true;
+              break;
+            }
           }
         }
         if (!fileIsBeingProcessed && (!fms_ || !fms_->isExceptionOnData(it->second->lumi_))) {

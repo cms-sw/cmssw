@@ -433,6 +433,7 @@ namespace evf {
   }
 
   void EvFDaqDirector::preGlobalEndLumi(edm::GlobalContext const& globalContext) {
+      lsWithFilesMap_.erase(globalContext.luminosityBlockID().luminosityBlock());
   }
 
   std::string EvFDaqDirector::getInputJsonFilePath(const unsigned int ls, const unsigned int index) const {
@@ -684,6 +685,12 @@ namespace evf {
             fflush(fu_rw_lock_stream2);
             fsync(fu_readwritelock_fd2);
             fileStatus = newFile;
+            {
+              oneapi::tbb::concurrent_hash_map<unsigned int, unsigned int>::accessor  acc;
+              bool result = lsWithFilesMap_.insert(acc, readLs);
+              if (!result) acc->second++;
+              else acc->second = 1;
+            } //release accessor lock
             LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":" << readIndex + 1;
           } else {
             edm::LogError("EvFDaqDirector")
@@ -1917,6 +1924,12 @@ namespace evf {
     else if (fileStatus == newFile) {
       assert(serverLS >= ls);
       ls = serverLS;
+      {
+        oneapi::tbb::concurrent_hash_map<unsigned int, unsigned int>::accessor  acc;
+        bool result = lsWithFilesMap_.insert(acc, ls);
+        if (!result) acc->second++;
+        else acc->second = 1;
+      } //release accessor lock
     } else if (fileStatus == noFile) {
       if (serverLS >= ls)
         ls = serverLS;
@@ -1991,6 +2004,15 @@ namespace evf {
   bool EvFDaqDirector::lumisectionDiscarded(unsigned int ls) {
     struct stat buf;
     return (stat((discard_ls_filestem_ + std::to_string(ls)).c_str(), &buf) == 0);
+  }
+
+  unsigned int EvFDaqDirector::lsWithFilesOpen(unsigned int ls) const {
+   // oneapi::tbb::hash_t::accessor accessor;
+    oneapi::tbb::concurrent_hash_map<unsigned int, unsigned int>::accessor  acc;
+    if(lsWithFilesMap_.find(acc, ls))
+      return (unsigned int)(acc->second);
+    else
+      return 0;
   }
 
 }  // namespace evf
