@@ -140,22 +140,14 @@ namespace amc {
     }
   }
 
-  std::vector<uint64_t> Packet::block(unsigned int id) const {
+  std::span<const uint64_t> Packet::block(unsigned int id) const {
     if (id == 0 and id == block_header_.getBlocks() - 1) {
-      return payload_;
+      return std::span<const uint64_t>(payload_);
     } else if (id == block_header_.getBlocks() - 1) {
-      return std::vector<uint64_t>(payload_.begin() + id * split_block_size, payload_.end());
+      return std::span<const uint64_t>(payload_.begin() + id * split_block_size, payload_.end());
     } else {
-      return std::vector<uint64_t>(payload_.begin() + id * split_block_size,
-                                   payload_.begin() + (id + 1) * split_block_size);
+      return std::span<const uint64_t>(payload_.begin() + id * split_block_size,
+                                       payload_.begin() + (id + 1) * split_block_size);
     }
-  }
-
-  std::unique_ptr<uint64_t[]> Packet::data() {
-    // Remove 3 words: 2 for the header, 1 for the trailer
-    std::unique_ptr<uint64_t[]> res(new uint64_t[payload_.size() - 3]);
-    for (unsigned int i = 0; i < payload_.size() - 3; ++i)
-      res.get()[i] = payload_[i + 2];
-    return res;
   }
 }  // namespace amc

@@ -82,8 +82,8 @@ void dqmBmtfAlgoSelector::L1TBMTFAlgoSelector::produce(edm::Event &eve, const ed
   unsigned algo_ver;
   if (!packet.payload().empty()) {
     auto payload64 = (packet.payload().at(0)).data();
-    const uint32_t *start = (const uint32_t *)payload64.get();
-    const uint32_t *end = start + (packet.payload().at(0).size() * 2);
+    const uint32_t *start = reinterpret_cast<const uint32_t *>(&payload64.front());
+    const uint32_t *end = start + (payload64.size() * 2);
 
     l1t::MP7Payload payload(start, end, false);
     algo_ver = payload.getAlgorithmFWVersion();
