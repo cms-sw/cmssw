@@ -46,8 +46,6 @@ private:
   std::string errmsg_;
 };
 
-
-
 struct InputChunk {
   unsigned char* buf_;
   InputChunk* next_ = nullptr;

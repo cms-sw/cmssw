@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <vector>
 
+#include "EventFilter/Utilities/interface/SourceRawFile.h"
 #include "EventFilter/Utilities/interface/DAQSource.h"
 #include "EventFilter/Utilities/interface/DAQSourceModels.h"
 #include "EventFilter/Utilities/interface/DAQSourceModelsFRD.h"

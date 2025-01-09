@@ -24,8 +24,10 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 
 //import InputChunk
-#include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
+#include "EventFilter/Utilities/interface/SourceRawFile.h"
 
+class RawInputFile;
+class UnpackedRawEventWrapper;
 class DAQSource;
 
 //evf?

@@ -33,9 +33,6 @@ class SystemBounds;
 class GlobalContext;
 class StreamID;
 
-class InputFile;
-struct InputChunk;
-
 namespace edm {
   class PathsAndConsumesOfModulesBase;
   class ProcessContext;

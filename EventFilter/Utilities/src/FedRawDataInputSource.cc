@@ -30,6 +30,7 @@
 
 #include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 
+#include "EventFilter/Utilities/interface/SourceRawFile.h"
 #include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
 
 #include "EventFilter/Utilities/interface/SourceCommon.h"
