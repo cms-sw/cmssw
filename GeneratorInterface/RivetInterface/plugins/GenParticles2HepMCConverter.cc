@@ -99,7 +99,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
   hepmc_event.weights() = genEventInfoHandle->weights();
   // add dummy weight if necessary
-  if (hepmc_event.weights().size() == 0) {
+  if (hepmc_event.weights().empty()) {
     hepmc_event.weights().push_back(1.);
   }
 

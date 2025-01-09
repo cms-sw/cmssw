@@ -47,7 +47,7 @@ namespace edm {
           << "Beam vertex offset (cm) " << xoff_ << ":" << yoff_ << " and z position " << zpos_;
 
     edm::FileInPath fp = pgun_params.getParameter<edm::FileInPath>("FileName");
-    std::string infileName = fp.fullPath();
+    const std::string& infileName = fp.fullPath();
 
     fFile_ = new TFile(infileName.c_str());
     fFile_->GetObject("EventTree", fTree_);

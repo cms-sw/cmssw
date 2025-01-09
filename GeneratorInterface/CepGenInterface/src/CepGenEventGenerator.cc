@@ -20,6 +20,8 @@
 #include <CepGen/Process/Process.h>
 #include <CepGenAddOns/HepMC2Wrapper/HepMC2EventInterface.h>
 
+#include <memory>
+
 using namespace gen;
 
 CepGenEventGenerator::CepGenEventGenerator(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
@@ -85,7 +87,7 @@ bool CepGenEventGenerator::initializeForInternalPartons() {
 }
 
 bool CepGenEventGenerator::generatePartonsAndHadronize() {
-  event().reset(new HepMC::CepGenEvent(gen_->next()));
+  event() = std::make_unique<HepMC::CepGenEvent>(gen_->next());
   event()->set_cross_section(xsec_);
   event()->weights().push_back(1.);
   return true;

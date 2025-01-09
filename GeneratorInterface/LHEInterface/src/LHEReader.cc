@@ -489,7 +489,7 @@ namespace lhef {
           data.str(handler->buffer);
           handler->buffer.clear();
 
-          curRunInfo.reset(new LHERunInfo(data));
+          curRunInfo = std::make_shared<LHERunInfo>(data);
 
           std::for_each(handler->headers.begin(),
                         handler->headers.end(),
@@ -521,7 +521,7 @@ namespace lhef {
           handler->buffer.clear();
 
           std::shared_ptr<LHEEvent> lheevent;
-          lheevent.reset(new LHEEvent(curRunInfo, data));
+          lheevent = std::make_shared<LHEEvent>(curRunInfo, data);
           const XMLHandler::wgt_info &info = handler->weightsinevent;
           for (size_t i = 0; i < info.size(); ++i) {
             double num = -1.0;
