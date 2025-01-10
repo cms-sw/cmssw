@@ -66,8 +66,8 @@ public:
     std::vector<int> vals_pid;
     std::vector<int> vals_status;
     std::vector<int> vals_spin;
-    std::vector<Short_t> vals_firstMotherIdx;
-    std::vector<Short_t> vals_lastMotherIdx;
+    std::vector<int16_t> vals_firstMotherIdx;
+    std::vector<int16_t> vals_lastMotherIdx;
     alphaS = hepeup.AQCDUP;
 
     int nOutPart = 0;
@@ -170,9 +170,9 @@ public:
     outPart->addColumn<int>("pdgId", vals_pid, "PDG ID of LHE particles");
     outPart->addColumn<int>("status", vals_status, "LHE particle status; -1:incoming, 1:outgoing");
     outPart->addColumn<int>("spin", vals_spin, "Spin of LHE particles");
-    outPart->addColumn<Short_t>(
+    outPart->addColumn<int16_t>(
         "firstMotherIdx", vals_firstMotherIdx, "Index of this particle's first mother in the LHEPart collection");
-    outPart->addColumn<Short_t>(
+    outPart->addColumn<int16_t>(
         "lastMotherIdx", vals_lastMotherIdx, "Index of this particle's last mother in the LHEPart collection");
 
     return outPart;
