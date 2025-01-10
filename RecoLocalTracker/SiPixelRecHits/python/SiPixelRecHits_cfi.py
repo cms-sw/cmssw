@@ -59,7 +59,7 @@ from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromSoAAlpakaHIonPhase1_cfi im
             src = cms.InputTag('siPixelClustersPreSplitting'))
 )
 
-(alpaka & pp_on_AA & ~phase2_tracker).toModify(siPixelRecHitsPreSplitting, _siPixelRecHitFromSoAAlpakaHIonPhase1.clone(
+(alpaka & pp_on_AA & ~phase2_tracker).toReplaceWith(siPixelRecHitsPreSplitting, _siPixelRecHitFromSoAAlpakaHIonPhase1.clone(
             pixelRecHitSrc = cms.InputTag('siPixelRecHitsPreSplittingAlpaka'),
             src = cms.InputTag('siPixelClustersPreSplitting'))
 )
