@@ -35,6 +35,7 @@ for i in range(len(lib.JOBID)):
     batchExited = 0
     finished = 0
     endofjob = 0
+    badInputFile = 0
     eofile = 1  # do not deal with timel yet
     timel = 0
     killed = 0
@@ -59,6 +60,11 @@ for i in range(len(lib.JOBID)):
     quotaspace = 0
     copyerr=0
     ispede=0
+    mismatchedInputFiles = 0
+    missingBinaryfile = 0
+    missingTreefile = 0
+    missingMonitor = 0
+    zeroEvents = 0
 
     kill_reason = None
     pedeLogErrStr = ""
@@ -117,9 +123,15 @@ for i in range(len(lib.JOBID)):
                     if match:
                         cpuFactor = 2.125
                         cputime = int(round(int(match.group(1))/cpuFactor)) # match.group(1) is the matched digit
+                    if re.search(re.compile('Missing milleBinary',re.M), line):
+                         missingBinaryfile = 1
+                    if re.search(re.compile('Missing treeFile',re.M), line):
+                         missingTreefile = 1
+                    if re.search(re.compile('Missing Monitor',re.M), line):
+                         missingMonitor = 1
 
             # gzip it afterwards:
-            print('gzip -f '+stdOut)
+            print('Checked '+stdOut)
             os.system('gzip -f '+stdOut)
         except IOError as e:
             if e.args == (2, "No such file or directory"):
@@ -133,7 +145,7 @@ for i in range(len(lib.JOBID)):
             condor_log = subprocess.check_output(["condor_q", lib.JOBID[i],
                                                   "-userlog", log_file,
                                                   "-af",
-                                                  "RemoteSysCpu",
+                                                  "RemoteUserCpu",
                                                   "JobStatus",
                                                   "RemoveReason"],
                                                  stderr = subprocess.STDOUT).decode()
@@ -187,6 +199,10 @@ for i in range(len(lib.JOBID)):
             with open(eazeLog,'r') as INFILE:
                 # scan records in input file
                 for line in INFILE:
+                    # check whether any file could not be opened
+                    if re.search(re.compile('Failed to open the file',re.M), line):
+                        badInputFile = 1
+                        break
                     # check if end of file has been reached
                     if re.search(re.compile('\<StorageStatistics\>',re.M), line):
                         eofile = 1
@@ -212,6 +228,10 @@ for i in range(len(lib.JOBID)):
                     # AP 07.09.2009 - Check that the job got to a normal end
                     if re.search(re.compile('AlignmentProducerAsAnalyzer::endJob\(\)',re.M), line):
                         endofjob = 1
+                    if re.search(re.compile('MismatchedInputFiles',re.M), line):
+                        mismatchedInputFiles = 1
+                    if re.search(re.compile('Did not process any events',re.M), line):
+                        zeroEvents = 1
                     if re.search(re.compile('FwkReport            -i main_input:sourc',re.M), line):
                         array = line.split()
                         nEvent = int(array[5])
@@ -222,6 +242,11 @@ for i in range(len(lib.JOBID)):
                     if nEvent==0 and re.search(re.compile('FwkReport            -i AfterSource',re.M), line):
                         array = line.split()
                         nEvent = int(array[5])
+                    # RM 03.02.2023
+                    if nEvent==0:
+                        x = re.search(r"FwkReport            -f AfterSource\s+(\d+)",line)
+                        if x:
+                            nEvent = int(x.group(1))
 
             if logZipped == 'true':
                 os.system('gzip -f '+eazeLog)
@@ -239,7 +264,6 @@ for i in range(len(lib.JOBID)):
             #$mOutSize = `nsls -l $mssDir | grep $milleOut | head -1 | awk '{print \$5}'`;
             #$mOutSize = `cmsLs -l $mssDir | grep $milleOut | head -1 | awk '{print \$2}'`;
             mOutSize = 0
-            #print(">>>eoslsoutput:", eoslsoutput, " \ttype(eoslsoutput):", type(eoslsoutput))
             for line in eoslsoutput:
                 if milleOut in line:
                     columns = line.split()
@@ -370,6 +394,10 @@ for i in range(len(lib.JOBID)):
         farmhost = ' '
 
         okStatus = 'OK'
+        if badInputFile == 1:
+            print(lib.JOBDIR[i],lib.JOBID[i],'had FileOpenError')
+            okStatus = 'FAIL'
+            remark = 'FileOpenError'
         if not eofile == 1:
             print(lib.JOBDIR[i],lib.JOBID[i],'did not reach end of file')
             okStatus = 'ABEND'
@@ -456,7 +484,26 @@ for i in range(len(lib.JOBID)):
             remark = 'copy to eos failed'
             okStatus = 'FAIL'
 
-
+        if missingBinaryfile == 1:
+            print(lib.JOBDIR[i],lib.JOBID[i],'Missing binary file')
+            remark = 'Missing binary file'
+            okStatus = 'FAIL'
+        if missingTreefile == 1:
+            print(lib.JOBDIR[i],lib.JOBID[i],'Missing Treefile')
+            remark = 'Missing Treefile'
+            okStatus = 'FAIL'
+        if missingMonitor == 1:
+            print(lib.JOBDIR[i],lib.JOBID[i],'Missing Monitor')
+            remark = 'Missing Monitor file'
+            okStatus = 'FAIL'
+        if zeroEvents == 1:
+            print(lib.JOBDIR[i],lib.JOBID[i],'Did not process any events')
+            remark = 'Did not process any events'
+            okStatus = 'FAIL'
+        if mismatchedInputFiles == 1:
+            print(lib.JOBDIR[i],lib.JOBID[i],'MismatchedInputFiles')
+            remark = 'MismatchedInputFiles'
+            okStatus = 'FAIL'
         # print warning line to stdout
         if okStatus != "OK":
             print(lib.JOBDIR[i],lib.JOBID[i],' -------- ',okStatus)
