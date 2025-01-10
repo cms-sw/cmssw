@@ -90,6 +90,8 @@
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
+#include "oneapi/tbb/task_arena.h"
+
 #include <exception>
 #include <map>
 #include <memory>

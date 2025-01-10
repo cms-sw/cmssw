@@ -48,9 +48,9 @@
 // forward declarations
 namespace edm {
 
-  class WaitingTaskWithArenaHolder;
   class ServiceWeakToken;
   class ActivityRegistry;
+  class WaitingTaskWithArenaHolder;
 
   namespace global {
     namespace impl {
@@ -436,7 +436,7 @@ namespace edm {
       private:
         bool hasAcquire() const noexcept override { return true; }
 
-        void doAcquire_(StreamID, Event const&, edm::EventSetup const&, WaitingTaskWithArenaHolder&) final;
+        void doAcquire_(StreamID, Event const&, edm::EventSetup const&, WaitingTaskHolder&&) final;
 
         virtual void acquire(StreamID, Event const&, edm::EventSetup const&, WaitingTaskWithArenaHolder) const = 0;
       };
