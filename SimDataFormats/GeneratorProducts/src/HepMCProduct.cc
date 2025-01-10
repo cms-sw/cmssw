@@ -130,9 +130,9 @@ HepMCProduct::HepMCProduct(HepMCProduct const& other) : evt_(nullptr) {
 // swap
 void HepMCProduct::swap(HepMCProduct& other) {
   std::swap(evt_, other.evt_);
-  isVtxGenApplied_ = other.isVtxGenApplied_;
-  isVtxBoostApplied_ = other.isVtxBoostApplied_;
-  isPBoostApplied_ = other.isPBoostApplied_;
+  std::swap(isVtxGenApplied_, other.isVtxGenApplied_);
+  std::swap(isVtxBoostApplied_, other.isVtxBoostApplied_);
+  std::swap(isPBoostApplied_, other.isPBoostApplied_);
 }
 
 // assignment: use copy/swap idiom for exception safety.
@@ -143,7 +143,10 @@ HepMCProduct& HepMCProduct::operator=(HepMCProduct const& other) {
 }
 
 // move, needed explicitly as we have raw pointer...
-HepMCProduct::HepMCProduct(HepMCProduct&& other) : evt_(nullptr) { swap(other); }
+HepMCProduct::HepMCProduct(HepMCProduct&& other)
+    : evt_(nullptr), isVtxGenApplied_(false), isVtxBoostApplied_(false), isPBoostApplied_(false) {
+  swap(other);
+}
 HepMCProduct& HepMCProduct::operator=(HepMCProduct&& other) {
   swap(other);
   return *this;
