@@ -74,8 +74,8 @@ namespace edm {
       void ExternalWork<T>::doAcquire_(StreamID s,
                                        Event const& ev,
                                        edm::EventSetup const& es,
-                                       WaitingTaskWithArenaHolder& holder) {
-        this->acquire(s, ev, es, holder);
+                                       WaitingTaskHolder&& holder) {
+        this->acquire(s, ev, es, WaitingTaskWithArenaHolder(std::move(holder)));
       }
     }  // namespace impl
   }  // namespace global

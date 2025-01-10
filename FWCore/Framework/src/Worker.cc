@@ -395,10 +395,10 @@ namespace edm {
 
   void Worker::runAcquire(EventTransitionInfo const& info,
                           ParentContext const& parentContext,
-                          WaitingTaskWithArenaHolder& holder) {
+                          WaitingTaskHolder holder) {
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     try {
-      convertException::wrap([&]() { this->implDoAcquire(info, &moduleCallingContext_, holder); });
+      convertException::wrap([&]() { this->implDoAcquire(info, &moduleCallingContext_, std::move(holder)); });
     } catch (cms::Exception& ex) {
       edm::exceptionContext(ex, moduleCallingContext_);
       if (shouldRethrowException(std::current_exception(), parentContext, true, shouldTryToContinue_)) {
@@ -411,7 +411,7 @@ namespace edm {
   void Worker::runAcquireAfterAsyncPrefetch(std::exception_ptr iEPtr,
                                             EventTransitionInfo const& eventTransitionInfo,
                                             ParentContext const& parentContext,
-                                            WaitingTaskWithArenaHolder holder) noexcept {
+                                            WaitingTaskHolder holder) noexcept {
     ranAcquireWithoutException_ = false;
     std::exception_ptr exceptionPtr;
     if (iEPtr) {
@@ -420,8 +420,10 @@ namespace edm {
       }
       moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);
     } else {
-      // Caught exception is propagated via WaitingTaskWithArenaHolder
+      // Caught exception is propagated via WaitingTaskHolder
       CMS_SA_ALLOW try {
+        // holder is copied to runAcquire in order to be independent
+        // of the lifetime of the WaitingTaskHolder inside runAcquire
         runAcquire(eventTransitionInfo, parentContext, holder);
         ranAcquireWithoutException_ = true;
       } catch (...) {
