@@ -9,7 +9,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <cassert>
 #include <vector>
@@ -29,9 +28,9 @@ namespace edmtest {
     void endJob();
 
   private:
-    std::vector<unsigned long long> expectedRunLumisEvents0_;
-    std::vector<unsigned long long> expectedRunLumisEvents1_;
-    edm::propagate_const<std::vector<unsigned long long>*> const expectedRunLumisEvents_;
+    std::vector<unsigned long long> const expectedRunLumisEvents0_;
+    std::vector<unsigned long long> const expectedRunLumisEvents1_;
+    std::vector<unsigned long long> const* const expectedRunLumisEvents_;
     bool const verbose_;
     bool const dumpTriggerResults_;
     int const expectedEndingIndex0_;
@@ -42,27 +41,14 @@ namespace edmtest {
   };
 
   RunLumiEventAnalyzer::RunLumiEventAnalyzer(edm::ParameterSet const& pset)
-      : expectedRunLumisEvents0_(),
-        expectedRunLumisEvents1_(),
+      : expectedRunLumisEvents0_(pset.getUntrackedParameter<std::vector<unsigned long long>>("expectedRunLumiEvents")),
+        expectedRunLumisEvents1_(pset.getUntrackedParameter<std::vector<unsigned long long>>("expectedRunLumiEvents1")),
         expectedRunLumisEvents_(&expectedRunLumisEvents0_),
         verbose_(pset.getUntrackedParameter<bool>("verbose")),
         dumpTriggerResults_(pset.getUntrackedParameter<bool>("dumpTriggerResults")),
         expectedEndingIndex0_(pset.getUntrackedParameter<int>("expectedEndingIndex")),
         expectedEndingIndex1_(pset.getUntrackedParameter<int>("expectedEndingIndex1")),
         expectedEndingIndex_(expectedEndingIndex0_) {
-    if (pset.existsAs<std::vector<unsigned int>>("expectedRunLumiEvents", false)) {
-      std::vector<unsigned int> temp = pset.getUntrackedParameter<std::vector<unsigned int>>("expectedRunLumiEvents");
-      expectedRunLumisEvents0_.assign(temp.begin(), temp.end());
-    } else {
-      expectedRunLumisEvents0_ = pset.getUntrackedParameter<std::vector<unsigned long long>>("expectedRunLumiEvents");
-    }
-
-    if (pset.existsAs<std::vector<unsigned int>>("expectedRunLumiEvents1", false)) {
-      std::vector<unsigned int> temp = pset.getUntrackedParameter<std::vector<unsigned int>>("expectedRunLumiEvents1");
-      expectedRunLumisEvents1_.assign(temp.begin(), temp.end());
-    } else {
-      expectedRunLumisEvents1_ = pset.getUntrackedParameter<std::vector<unsigned long long>>("expectedRunLumiEvents1");
-    }
     if (dumpTriggerResults_) {
       triggerResultsToken_ = consumes(edm::InputTag("TriggerResults"));
     }
@@ -74,10 +60,8 @@ namespace edmtest {
     desc.addUntracked<bool>("dumpTriggerResults", false);
     desc.addUntracked<int>("expectedEndingIndex", -1);
     desc.addUntracked<int>("expectedEndingIndex1", -1);
-    desc.addNode(edm::ParameterDescription<std::vector<unsigned long long>>("expectedRunLumiEvents", {}, false) xor
-                 edm::ParameterDescription<std::vector<unsigned int>>("expectedRunLumiEvents", {}, false));
-    desc.addNode(edm::ParameterDescription<std::vector<unsigned long long>>("expectedRunLumiEvents1", {}, false) xor
-                 edm::ParameterDescription<std::vector<unsigned int>>("expectedRunLumiEvents1", {}, false));
+    desc.addUntracked<std::vector<unsigned long long>>("expectedRunLumiEvents", {});
+    desc.addUntracked<std::vector<unsigned long long>>("expectedRunLumiEvents1", {});
 
     descriptions.addDefault(desc);
   }
