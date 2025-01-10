@@ -85,7 +85,7 @@ def customizeHLTfor47017(process):
     return process
 
 
-def customizeHLTforXXXXX(process):
+def customizeHLTfor47079(process):
     """Remove unneeded parameters from the HLT menu"""
     for filt in filters_by_type(process, 'PrimaryVertexObjectFilter'):
         if hasattr(filt, 'filterParams') and hasattr(filt.filterParams, 'pvSrc'):
@@ -137,7 +137,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customizeHLTfor46935(process)
     process = customizeHLTfor47017(process)
-    process = customizeHLTforXXXXX(process)
+    process = customizeHLTfor47079(process)
 
     return process
 
