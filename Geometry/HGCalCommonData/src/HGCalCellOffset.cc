@@ -1278,8 +1278,7 @@ std::pair<double, double> HGCalCellOffset::cellOffsetUV2XY1(
                                                                   : offsetX[type][cellType][Pos];
         y_off = offsetY[type][cellType][Pos];
       }
-    } else if ((cellType == HGCalCell::halfCell) || (cellType == HGCalCell::halfTrunCell) ||
-               (cellType == HGCalCell::halfExtCell) || (cellType == HGCalCell::LDPartial0714Cell) ||
+    } else if ((cellType == HGCalCell::halfCell) || (cellType == HGCalCell::LDPartial0714Cell) ||
                (cellType == HGCalCell::LDPartial0815Cell) || (cellType == HGCalCell::HDPartial0920Cell) ||
                (cellType == HGCalCell::HDPartial1021Cell)) {
       int cellType1 = cellType - HGCalCell::partiaclWaferCellsOffset;
