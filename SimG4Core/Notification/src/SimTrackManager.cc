@@ -73,6 +73,15 @@ void SimTrackManager::addTrack(TrackWithHistory* iTrack, const G4Track* track, b
   std::pair<int, int> thePair(iTrack->trackID(), iTrack->parentID());
   idsave.push_back(thePair);
   if (inHistory) {
+    auto info = static_cast<const TrackInformation*>(track->GetUserInformation());
+    if (info->isInTrkFromBackscattering())
+      iTrack->setFromBackScattering();
+    // set there for the *non-primary* tracks the genParticle ID associated with the G4Track
+    // for the primaries this is done in the TrackWithHistory constructor.
+    // In the constructor of TrackWithHistory the info isPrimary is saved and used
+    // to give -1 if the track is not a primary.
+    if (not iTrack->isPrimary())
+      iTrack->setGenParticleID(info->mcTruthID());
     m_trackContainer.push_back(iTrack);
     const auto& v = track->GetStep()->GetPostStepPoint()->GetPosition();
     std::pair<int, math::XYZVectorD> p(iTrack->trackID(),
@@ -124,7 +133,7 @@ void SimTrackManager::storeTracks() {
 void SimTrackManager::reallyStoreTracks() {
   // loop over the (now ordered) vector and really save the tracks
 #ifdef DebugLog
-  edm::LogVerbatim("SimTrackManager") << "reallyStoreTracks() NtracksWithHistory= " << m_trackContainer->size();
+  edm::LogVerbatim("SimTrackManager") << "reallyStoreTracks() NtracksWithHistory= " << m_trackContainer.size();
 #endif
 
   int nn = m_endPoints.size();
@@ -132,7 +141,10 @@ void SimTrackManager::reallyStoreTracks() {
     // at this stage there is one vertex per track,
     // so the vertex id of track N is also N
     int iParentID = trkH->parentID();
-    int ig = trkH->genParticleID();
+    int ig = trkH->genParticleID();  // filled only for primary tracks
+    bool isBackScatter = trkH->isFromBackScattering();
+    bool isPrimary = trkH->isPrimary();
+    int primaryGenPartId = trkH->getPrimaryID();  // filled if the G4Track had this info
     int ivertex = getOrCreateVertex(trkH, iParentID);
 
     auto ptr = trkH;
@@ -170,6 +182,11 @@ void SimTrackManager::reallyStoreTracks() {
     TmpSimTrack* g4simtrack =
         new TmpSimTrack(id, trkH->particleID(), trkH->momentum(), trkH->totalEnergy(), ivertex, ig, pm, spos, smom);
     g4simtrack->copyCrossedBoundaryVars(trkH);
+    if (isBackScatter)
+      g4simtrack->setFromBackScattering();
+    if (isPrimary)
+      g4simtrack->setIsPrimary();
+    g4simtrack->setGenParticleID(primaryGenPartId);
     m_simEvent->addTrack(g4simtrack);
   }
 }
@@ -304,7 +321,7 @@ void SimTrackManager::cleanTracksWithHistory() {
   std::stable_sort(idsave.begin(), idsave.end());
 
 #ifdef DebugLog
-  LogDebug("SimTrackManager") << " SimTrackManager::cleanTracksWithHistory knows " << m_trksForThisEvent->size()
+  LogDebug("SimTrackManager") << " SimTrackManager::cleanTracksWithHistory knows " << m_trackContainer.size()
                               << " tracks with history before branching";
   for (unsigned int it = 0; it < m_trackContainer.size(); it++) {
     LogDebug("SimTrackManager") << " 1 - Track in position " << it << " G4 track number "

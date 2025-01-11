@@ -262,6 +262,7 @@ public:
         lheWeightPrecision_(params.getParameter<int32_t>("lheWeightPrecision")),
         maxPdfWeights_(params.getParameter<uint32_t>("maxPdfWeights")),
         keepAllPSWeights_(params.getParameter<bool>("keepAllPSWeights")),
+        allowedNumScaleWeights_(params.getParameter<std::vector<uint32_t>>("allowedNumScaleWeights")),
         debug_(params.getUntrackedParameter<bool>("debug", false)),
         debugRun_(debug_.load()),
         hasIssuedWarning_(false),
@@ -559,7 +560,7 @@ public:
       std::vector<ScaleVarWeight> scaleVariationIDs;
       std::vector<PDFSetWeights> pdfSetWeightIDs;
       std::vector<std::string> lheReweighingIDs;
-      bool isFirstGroup = true;
+      bool preScaleVariationGroup = true;
 
       std::regex weightgroupmg26x("<weightgroup\\s+(?:name|type)=\"(.*)\"\\s+combine=\"(.*)\"\\s*>");
       std::regex weightgroup("<weightgroup\\s+combine=\"(.*)\"\\s+(?:name|type)=\"(.*)\"\\s*>");
@@ -591,9 +592,20 @@ public:
           "\\s*(?:PDF=(\\d+)\\s*MemberID=(\\d+))?\\s*(?:\\s.*)?</"
           "weight>");
 
+      std::regex mgVerRegex(R"(VERSION\s+(\d+)\.(\d+)\.(\d+))");
+      bool isMGVer2x = false;
+
       std::regex rwgt("<weight\\s+id=\"(.+)\">(.+)?(</weight>)?");
       std::smatch groups;
       for (auto iter = lheInfo->headers_begin(), end = lheInfo->headers_end(); iter != end; ++iter) {
+        if (iter->tag() == "MG5ProcCard") {
+          for (const auto& line : iter->lines()) {
+            if (std::regex_search(line, groups, mgVerRegex)) {
+              isMGVer2x = (groups[1].str() == "2");
+              break;
+            }
+          }
+        }
         if (iter->tag() != "initrwgt") {
           if (lheDebug)
             std::cout << "Skipping LHE header with tag" << iter->tag() << std::endl;
@@ -620,18 +632,26 @@ public:
         for (unsigned int iLine = 0, nLines = lines.size(); iLine < nLines; ++iLine) {
           if (lheDebug)
             std::cout << lines[iLine];
-          if (std::regex_search(lines[iLine], groups, ismg26x ? weightgroupmg26x : weightgroup)) {
-            std::string groupname = groups.str(2);
-            if (ismg26x)
-              groupname = groups.str(1);
+          auto foundWeightGroup = std::regex_search(lines[iLine], groups, ismg26x ? weightgroupmg26x : weightgroup);
+          if (foundWeightGroup || preScaleVariationGroup) {
+            std::string groupname;
+            if (foundWeightGroup) {
+              groupname = ismg26x ? groups.str(1) : groups.str(2);
+            } else {
+              // rewind by one line and check later in the inner loop
+              --iLine;
+            }
             if (lheDebug)
               std::cout << ">>> Looks like the beginning of a weight group for '" << groupname << "'" << std::endl;
-            if (groupname.find("scale_variation") == 0 || groupname == "Central scale variation" || isFirstGroup) {
+            if (groupname.find("scale_variation") == 0 || groupname == "Central scale variation" ||
+                preScaleVariationGroup) {
               if (lheDebug && groupname.find("scale_variation") != 0 && groupname != "Central scale variation")
                 std::cout << ">>> First weight is not scale variation, but assuming is the Central Weight" << std::endl;
               else if (lheDebug)
                 std::cout << ">>> Looks like scale variation for theory uncertainties" << std::endl;
-              isFirstGroup = false;
+              if (groupname.find("scale_variation") == 0 || groupname == "Central scale variation") {
+                preScaleVariationGroup = false;
+              }
               for (++iLine; iLine < nLines; ++iLine) {
                 if (lheDebug) {
                   std::cout << "    " << lines[iLine];
@@ -928,7 +948,16 @@ public:
             break;
         }
       }
+      // check the number of scale variations
+      if (isMGVer2x && !allowedNumScaleWeights_.empty()) {
+        auto it = std::find(allowedNumScaleWeights_.begin(), allowedNumScaleWeights_.end(), scaleVariationIDs.size());
+        if (it == allowedNumScaleWeights_.end()) {
+          throw cms::Exception("LogicError")
+              << "Number of scale variations found (" << scaleVariationIDs.size() << ") is invalid.";
+        }
+      }
     }
+
     return weightChoice;
   }
 
@@ -1171,6 +1200,9 @@ public:
     desc.add<int32_t>("lheWeightPrecision")->setComment("Number of bits in the mantissa for LHE weights");
     desc.add<uint32_t>("maxPdfWeights")->setComment("Maximum number of PDF weights to save (to crop NN replicas)");
     desc.add<bool>("keepAllPSWeights")->setComment("Store all PS weights found");
+    desc.add<std::vector<uint32_t>>("allowedNumScaleWeights")
+        ->setComment(
+            "Allowed numbers of scale weights parsed from the header. Empty list means any number is allowed.");
     desc.addOptionalUntracked<bool>("debug")->setComment("dump out all LHE information for one event");
     descriptions.add("genWeightsTable", desc);
   }
@@ -1189,6 +1221,7 @@ protected:
   int lheWeightPrecision_;
   unsigned int maxPdfWeights_;
   bool keepAllPSWeights_;
+  std::vector<uint32_t> allowedNumScaleWeights_;
 
   mutable std::atomic<bool> debug_, debugRun_, hasIssuedWarning_, psWeightWarning_;
 };
