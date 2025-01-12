@@ -24,8 +24,10 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 
 //import InputChunk
-#include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
+#include "EventFilter/Utilities/interface/SourceRawFile.h"
 
+class RawInputFile;
+class UnpackedRawEventWrapper;
 class DAQSource;
 
 //evf?
@@ -40,18 +42,16 @@ public:
   virtual uint32_t headerSize() const = 0;
   virtual bool versionCheck() const = 0;
   virtual uint64_t dataBlockSize() const = 0;
-  virtual void makeDataBlockView(unsigned char* addr,
-                                 size_t maxSize,
-                                 std::vector<uint64_t> const& fileSizes,
-                                 size_t fileHeaderSize) = 0;
-  virtual bool nextEventView() = 0;
+  virtual void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) = 0;
+  virtual bool nextEventView(RawInputFile*) = 0;
+  virtual bool blockChecksumValid() = 0;
   virtual bool checksumValid() = 0;
   virtual std::string getChecksumError() const = 0;
-  virtual bool isRealData() const = 0;
   virtual uint32_t run() const = 0;
   virtual bool dataBlockCompleted() const = 0;
   virtual bool requireHeader() const = 0;
   virtual bool fitToBuffer() const = 0;
+  virtual void unpackFile(RawInputFile* file) = 0;
 
   virtual bool dataBlockInitialized() const = 0;
   virtual void setDataBlockInitialized(bool) = 0;
@@ -66,9 +66,12 @@ public:
                                     std::string const& runDir) = 0;
   void setTesting(bool testing) { testing_ = testing; }
 
+  bool errorDetected() { return errorDetected_; }
+
 protected:
   DAQSource* daqSource_;
   bool testing_ = false;
+  bool errorDetected_ = false;
 };
 
 #endif  // EventFilter_Utilities_DAQSourceModels_h

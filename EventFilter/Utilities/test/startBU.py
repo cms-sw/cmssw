@@ -53,10 +53,17 @@ options.register ('fedMeanSize',
                   "Mean size of generated (fake) FED raw payload")
 
 options.register ('frdFileVersion',
-                  0,
+                  1,
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Generate raw files with FRD file header with version 1 or separate JSON files with 0")
+
+options.register ('dataType',
+                  "FRD",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "Choice between FRD or raw DTH data generation")
+
 
 
 
@@ -120,19 +127,37 @@ process.a = cms.EDAnalyzer("ExceptionGenerator",
     defaultAction = cms.untracked.int32(0),
     defaultQualifier = cms.untracked.int32(0))
 
-process.s = cms.EDProducer("DaqFakeReader",
-                           fillRandom = cms.untracked.bool(True),
-                           meanSize = cms.untracked.uint32(options.fedMeanSize),
-                           width = cms.untracked.uint32(int(math.ceil(options.fedMeanSize/2.))),
-                           tcdsFEDID = cms.untracked.uint32(1024),
-                           injectErrPpm = cms.untracked.uint32(0)
-                           )
+if  options.dataType == "FRD":
+    process.s = cms.EDProducer("DaqFakeReader",
+                               fillRandom = cms.untracked.bool(True),
+                               meanSize = cms.untracked.uint32(options.fedMeanSize),
+                               width = cms.untracked.uint32(int(math.ceil(options.fedMeanSize/2.))),
+                               tcdsFEDID = cms.untracked.uint32(1024),
+                               injectErrPpm = cms.untracked.uint32(0)
+                               )
 
-process.out = cms.OutputModule("RawStreamFileWriterForBU",
-    source = cms.InputTag("s"),
-    numEventsPerFile = cms.uint32(options.eventsPerFile),
-    frdVersion = cms.uint32(6),
-    frdFileVersion = cms.uint32(options.frdFileVersion)
+    process.out = cms.OutputModule("RawStreamFileWriterForBU",
+        source = cms.InputTag("s"),
+        numEventsPerFile = cms.uint32(options.eventsPerFile),
+        frdVersion = cms.uint32(6),
+        frdFileVersion = cms.uint32(options.frdFileVersion),
+        )
+
+elif  options.dataType == "DTH":
+    process.s = cms.EDProducer("DTHFakeReader",
+                               fillRandom = cms.untracked.bool(True),
+                               meanSize = cms.untracked.uint32(options.fedMeanSize),
+                               width = cms.untracked.uint32(int(math.ceil(options.fedMeanSize/2.))),
+                               injectErrPpm = cms.untracked.uint32(0),
+                               sourceIdList = cms.untracked.vuint32(66,1511)
+                               )
+
+    process.out = cms.OutputModule("RawStreamFileWriterForBU",
+        source = cms.InputTag("s"),
+        numEventsPerFile = cms.uint32(options.eventsPerFile),
+        frdVersion = cms.uint32(0),
+        frdFileVersion = cms.uint32(0),
+        sourceIdList = cms.untracked.vuint32(66,1511)
     )
 
 process.p = cms.Path(process.s+process.a)

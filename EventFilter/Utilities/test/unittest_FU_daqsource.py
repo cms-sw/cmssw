@@ -129,9 +129,13 @@ process.filter2 = cms.EDFilter("HLTPrescaler",
                                L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
                                )
 
+if options.daqSourceMode == "DTH":
+    sleepTime = 0
+else:
+    sleepTime = 58
 process.a = cms.EDAnalyzer("ExceptionGenerator",
     defaultAction = cms.untracked.int32(0),
-    defaultQualifier = cms.untracked.int32(58))
+    defaultQualifier = cms.untracked.int32(sleepTime))
 
 process.b = cms.EDAnalyzer("ExceptionGenerator",
     defaultAction = cms.untracked.int32(0),
@@ -141,7 +145,14 @@ process.tcdsRawToDigi = cms.EDProducer("TcdsRawToDigi",
     InputLabel = cms.InputTag("rawDataCollector")
 )
 
-process.p1 = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
+if options.daqSourceMode == "DTH":
+
+    process.p1 = cms.Path(process.a*process.filter1)
+    sleepTime = 5
+else:
+    process.p1 = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
+    sleepTime = 50
+
 process.p2 = cms.Path(process.b*process.filter2)
 
 process.streamA = cms.OutputModule("GlobalEvFOutputModule",
