@@ -275,3 +275,33 @@ inline void SiStripZeroSuppression::storeCMN(uint32_t id, const medians_t& vmedi
   if (!apvDetSet.empty())
     output_apvcm.push_back(std::move(apvDetSet));
 }
+
+void SiStripZeroSuppression::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  // Algorithms
+  edm::ParameterSetDescription algorithmsDesc;
+  SiStripRawProcessingFactory::fillDescriptions(algorithmsDesc);
+  desc.add<edm::ParameterSetDescription>("Algorithms", algorithmsDesc);
+
+  // RawDigiProducersList
+  desc.add<std::vector<edm::InputTag>>("RawDigiProducersList",
+                                       {edm::InputTag("siStripDigis", "VirginRaw"),
+                                        edm::InputTag("siStripDigis", "ProcessedRaw"),
+                                        edm::InputTag("siStripDigis", "ScopeMode")});
+
+  // CM and baseline settings
+  desc.add<bool>("storeCM", true);
+  desc.add<bool>("fixCM", false);
+
+  // Raw digi production settings
+  desc.add<bool>("produceRawDigis", true);
+  desc.add<bool>("produceCalculatedBaseline", false);
+  desc.add<bool>("produceBaselinePoints", false);
+
+  // ZS collection settings
+  desc.add<bool>("storeInZScollBadAPV", true);
+  desc.add<bool>("produceHybridFormat", false);
+
+  descriptions.add("siStripZeroSuppression", desc);
+}

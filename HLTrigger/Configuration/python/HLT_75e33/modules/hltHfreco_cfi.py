@@ -1,17 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 hltHfreco = cms.EDProducer("HFPhase1Reconstructor",
-    HFStripFilter = cms.PSet(
-        gap = cms.int32(2),
-        lstrips = cms.int32(2),
-        maxStripTime = cms.double(10.0),
-        maxThreshold = cms.double(100.0),
-        seedHitIetaMax = cms.int32(35),
-        stripThreshold = cms.double(40.0),
-        timeMax = cms.double(6.0),
-        verboseLevel = cms.untracked.int32(10),
-        wedgeCut = cms.double(0.05)
-    ),
     PETstat = cms.PSet(
         HcalAcceptSeverityLevel = cms.int32(9),
         longETParams = cms.vdouble(

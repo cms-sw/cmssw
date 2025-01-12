@@ -1,14 +1,15 @@
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -30,8 +31,10 @@
 class Phase2TrackerRecHits : public edm::global::EDProducer<> {
 public:
   explicit Phase2TrackerRecHits(const edm::ParameterSet& conf);
-  ~Phase2TrackerRecHits() override {}
+  ~Phase2TrackerRecHits() override = default;
   void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const final;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
@@ -45,6 +48,13 @@ Phase2TrackerRecHits::Phase2TrackerRecHits(edm::ParameterSet const& conf)
       tCPE_(esConsumes(conf.getParameter<edm::ESInputTag>("Phase2StripCPE"))),
       token_(consumes<Phase2TrackerCluster1DCollectionNew>(conf.getParameter<edm::InputTag>("src"))) {
   produces<Phase2TrackerRecHit1DCollectionNew>();
+}
+
+void Phase2TrackerRecHits::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::ESInputTag>("Phase2StripCPE", edm::ESInputTag("phase2StripCPEESProducer", "Phase2StripCPE"));
+  desc.add<edm::InputTag>("src", edm::InputTag("siPhase2Clusters"));
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const {

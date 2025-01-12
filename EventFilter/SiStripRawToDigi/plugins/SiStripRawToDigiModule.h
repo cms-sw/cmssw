@@ -1,14 +1,17 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Visibility.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+
 #include <string>
 #include <cstdint>
 
@@ -38,6 +41,8 @@ namespace sistrip {
 
     void produce(edm::Event&, const edm::EventSetup&) override;
     void endStream() override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     void updateCabling(const edm::EventSetup&);
