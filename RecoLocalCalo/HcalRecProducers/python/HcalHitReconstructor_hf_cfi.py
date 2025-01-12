@@ -25,10 +25,8 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         # Tags for calculating status flags
                         setNoiseFlags = cms.bool(True),
                         digiTimeFromDB = cms.bool(True), # turn on to read parameters from DB
-                        setHSCPFlags = cms.bool( False ),
                         setSaturationFlags = cms.bool(True),
                         setTimingTrustFlags = cms.bool(True),
-                        setPulseShapeFlags = cms.bool(False),  # not yet defined for HF
                         setNegativeFlags          = cms.bool(False),  # only in HBHE
 
                         digistat= cms.PSet(HFdigiflagFirstSample     = cms.int32(1),  # These may be different from samples used for reconstruction

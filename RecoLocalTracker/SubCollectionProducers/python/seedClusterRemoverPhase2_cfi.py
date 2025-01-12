@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-seedClusterRemoverPhase2 = cms.EDProducer("SeedClusterRemoverPhase2",
-                                    trajectories = cms.InputTag("initialStepSeeds"),
-                                    phase2OTClusters = cms.InputTag("siPhase2Clusters"),
-                                    pixelClusters = cms.InputTag("siPixelClusters"),
-                                    )
+from RecoLocalTracker.SubCollectionProducers.default_seedClusterRemoverPhase2_cfi import default_seedClusterRemoverPhase2
+seedClusterRemoverPhase2 = default_seedClusterRemoverPhase2.clone(
+    trajectories = "initialStepSeeds",
+    phase2OTClusters = "siPhase2Clusters",
+    pixelClusters = "siPixelClusters"
+)
 

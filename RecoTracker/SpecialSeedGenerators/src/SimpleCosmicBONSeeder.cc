@@ -5,11 +5,11 @@
 // From CosmicSeedGenerator+SimpleCosmicBONSeeder, with changes by Giovanni
 // to seed Cosmics with B != 0
 
-#include "RecoTracker/SpecialSeedGenerators/interface/SimpleCosmicBONSeeder.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/isFinite.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/SimpleCosmicBONSeeder.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 typedef SeedingHitSet::ConstRecHitPointer SeedingHit;
 
@@ -28,8 +28,8 @@ SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const &conf)
       trackerToken_(esConsumes()),
       ttrhBuilderToken_(esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("TTRHBuilder")))),
       writeTriplets_(conf.getParameter<bool>("writeTriplets")),
-      seedOnMiddle_(conf.existsAs<bool>("seedOnMiddle") ? conf.getParameter<bool>("seedOnMiddle") : false),
-      rescaleError_(conf.existsAs<double>("rescaleError") ? conf.getParameter<double>("rescaleError") : 1.0),
+      seedOnMiddle_(conf.getParameter<bool>("seedOnMiddle")),
+      rescaleError_(conf.getParameter<double>("rescaleError")),
       tripletsVerbosity_(conf.getUntrackedParameter<uint32_t>("TripletsDebugLevel", 0)),
       seedVerbosity_(conf.getUntrackedParameter<uint32_t>("seedDebugLevel", 0)),
       helixVerbosity_(conf.getUntrackedParameter<uint32_t>("helixDebugLevel", 0)),
@@ -620,4 +620,65 @@ void SimpleCosmicBONSeeder::done() {
   delete thePropagatorAl;
   delete thePropagatorOp;
   delete theUpdator;
+}
+
+void SimpleCosmicBONSeeder::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
+
+  edm::ParameterSetDescription clusterCheckPSet;
+  clusterCheckPSet.add<bool>("doClusterCheck", true);
+  clusterCheckPSet.add<uint32_t>("MaxNumberOfStripClusters", 300);
+  clusterCheckPSet.add<edm::InputTag>("ClusterCollectionLabel", edm::InputTag("siStripClusters"));
+  clusterCheckPSet.add<uint32_t>("DontCountDetsAboveNClusters", 20);
+  clusterCheckPSet.add<uint32_t>("MaxNumberOfPixelClusters", 1000);
+  clusterCheckPSet.add<edm::InputTag>("PixelClusterCollectionLabel", edm::InputTag("siPixelClusters"));
+  desc.add<edm::ParameterSetDescription>("ClusterCheckPSet", clusterCheckPSet);
+
+  desc.add<int>("maxTriplets", 50000);
+  desc.add<int>("maxSeeds", 20000);
+
+  edm::ParameterSetDescription regionPSet;
+  regionPSet.add<double>("originZPosition", 0.0);
+  regionPSet.add<double>("originRadius", 150.0);
+  regionPSet.add<double>("originHalfLength", 90.0);
+  regionPSet.add<double>("ptMin", 0.5);
+  regionPSet.add<double>("pMin", 1.0);
+  desc.add<edm::ParameterSetDescription>("RegionPSet", regionPSet);
+
+  desc.add<edm::InputTag>("TripletsSrc", edm::InputTag("simpleCosmicBONSeedingLayers"));
+  desc.addUntracked<uint32_t>("TripletsDebugLevel", 0);
+  desc.add<bool>("seedOnMiddle", false);
+  desc.add<double>("rescaleError", 1.0);
+
+  edm::ParameterSetDescription clusterChargeCheck;
+  clusterChargeCheck.add<bool>("checkCharge", false);
+  clusterChargeCheck.add<bool>("matchedRecHitsUseAnd", true);
+  edm::ParameterSetDescription thresholds;
+  thresholds.add<int>("TIB", 0);
+  thresholds.add<int>("TID", 0);
+  thresholds.add<int>("TOB", 0);
+  thresholds.add<int>("TEC", 0);
+  clusterChargeCheck.add<edm::ParameterSetDescription>("Thresholds", thresholds);
+  desc.add<edm::ParameterSetDescription>("ClusterChargeCheck", clusterChargeCheck);
+
+  edm::ParameterSetDescription hitsPerModuleCheck;
+  hitsPerModuleCheck.add<bool>("checkHitsPerModule", true);
+  edm::ParameterSetDescription hitsThresholds;
+  hitsThresholds.add<int>("TIB", 20);
+  hitsThresholds.add<int>("TID", 20);
+  hitsThresholds.add<int>("TOB", 20);
+  hitsThresholds.add<int>("TEC", 20);
+  hitsPerModuleCheck.add<edm::ParameterSetDescription>("Thresholds", hitsThresholds);
+  desc.add<edm::ParameterSetDescription>("HitsPerModuleCheck", hitsPerModuleCheck);
+
+  desc.add<int>("minimumGoodHitsInSeed", 3);
+  desc.add<bool>("writeTriplets", false);
+  desc.addUntracked<uint32_t>("helixDebugLevel", 0);
+  desc.addUntracked<uint32_t>("seedDebugLevel", 0);
+  desc.add<bool>("PositiveYOnly", false);
+  desc.add<bool>("NegativeYOnly", false);
+
+  descriptions.addWithDefaultLabel(desc);
 }

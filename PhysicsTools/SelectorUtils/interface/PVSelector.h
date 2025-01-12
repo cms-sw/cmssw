@@ -10,6 +10,9 @@
 #include "PhysicsTools/SelectorUtils/interface/EventSelector.h"
 #include "PhysicsTools/SelectorUtils/interface/PVObjectSelector.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 // make a selector for this selection
 class PVSelector : public Selector<edm::EventBase> {
 public:
@@ -27,6 +30,13 @@ public:
     pvSrcToken_ = iC.consumes<std::vector<reco::Vertex> >(pvSrc_);
   }
 #endif
+
+  static edm::ParameterSetDescription getDescription() {
+    edm::ParameterSetDescription desc = PVObjectSelector::getDescription();
+    desc.add<edm::InputTag>("pvSrc", edm::InputTag(""));
+    desc.add<int>("NPV", 1);
+    return desc;
+  }
 
   bool operator()(edm::EventBase const& event, pat::strbitset& ret) override {
     ret.set(false);

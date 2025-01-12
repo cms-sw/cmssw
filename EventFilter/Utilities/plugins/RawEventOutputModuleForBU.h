@@ -24,7 +24,6 @@
 
 template <class Consumer>
 class RawEventOutputModuleForBU : public edm::one::OutputModule<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
-  typedef unsigned int uint32;
   /**
    * Consumers are suppose to provide:
    *   void doOutputEvent(const FRDEventMsgView& msg)
@@ -52,12 +51,9 @@ private:
   const edm::EDGetTokenT<FEDRawDataCollection> token_;
   const unsigned int numEventsPerFile_;
   const unsigned int frdVersion_;
-  unsigned long long totsize = 0LL;
-  unsigned long long writtensize = 0LL;
-  unsigned long long writtenSizeLast = 0LL;
-  unsigned int totevents = 0;
+  std::vector<unsigned int> sourceIdList_;
+  unsigned int totevents_ = 0;
   unsigned int index_ = 0;
-  timeval startOfLastLumi;
   bool firstLumi_ = true;
 };
 
@@ -68,100 +64,106 @@ RawEventOutputModuleForBU<Consumer>::RawEventOutputModuleForBU(edm::ParameterSet
       templateConsumer_(new Consumer(ps)),
       token_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("source"))),
       numEventsPerFile_(ps.getParameter<unsigned int>("numEventsPerFile")),
-      frdVersion_(ps.getParameter<unsigned int>("frdVersion")) {}
+      frdVersion_(ps.getParameter<unsigned int>("frdVersion")),
+      sourceIdList_(ps.getUntrackedParameter<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>())) {
+  if (frdVersion_ > 0 && frdVersion_ < 5)
+    throw cms::Exception("RawEventOutputModuleForBU")
+        << "Generating data with FRD version " << frdVersion_ << " is no longer supported";
+  else if (frdVersion_ > edm::streamer::FRDHeaderMaxVersion)
+    throw cms::Exception("RawEventOutputModuleForBU") << "Unknown FRD version " << frdVersion_;
+}
 
 template <class Consumer>
 RawEventOutputModuleForBU<Consumer>::~RawEventOutputModuleForBU() {}
 
 template <class Consumer>
 void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
-  using namespace edm::streamer;
+  //using namespace edm::streamer;
 
-  unsigned int ls = e.luminosityBlock();
-  if (totevents > 0 && totevents % numEventsPerFile_ == 0) {
+  if (totevents_ > 0 && totevents_ % numEventsPerFile_ == 0) {
     index_++;
+    unsigned int ls = e.luminosityBlock();
     std::string filename = edm::Service<evf::EvFDaqDirector>()->getOpenRawFilePath(ls, index_);
     std::string destinationDir = edm::Service<evf::EvFDaqDirector>()->buBaseRunDir();
-    templateConsumer_->initialize(destinationDir, filename, ls);
+    int run = edm::Service<evf::EvFDaqDirector>()->getRunNumber();
+    templateConsumer_->initialize(destinationDir, filename, run, ls);
   }
-  totevents++;
+  totevents_++;
   // serialize the FEDRawDataCollection into the format that we expect for
   // FRDEventMsgView objects (may be better ways to do this)
   edm::Handle<FEDRawDataCollection> fedBuffers;
   e.getByToken(token_, fedBuffers);
 
-  // determine the expected size of the FRDEvent IN BYTES !!!!!
-  assert(frdVersion_ <= edm::streamer::FRDHeaderMaxVersion);
+  // determine the expected size of the FRDEvent IN bytes
   int headerSize = edm::streamer::FRDHeaderVersionSize[frdVersion_];
   int expectedSize = headerSize;
-  int nFeds = frdVersion_ < 3 ? 1024 : FEDNumbering::lastFEDId() + 1;
+  int nFeds = FEDNumbering::lastFEDId() + 1;
 
-  for (int idx = 0; idx < nFeds; ++idx) {
-    FEDRawData singleFED = fedBuffers->FEDData(idx);
-    expectedSize += singleFED.size();
+  if (sourceIdList_.size()) {
+    for (int idx : sourceIdList_) {
+      FEDRawData singleFED = fedBuffers->FEDData(idx);
+      expectedSize += singleFED.size();
+    }
+  } else {
+    for (int idx = 0; idx < nFeds; ++idx) {
+      FEDRawData singleFED = fedBuffers->FEDData(idx);
+      expectedSize += singleFED.size();
+    }
   }
 
-  totsize += expectedSize;
   // build the FRDEvent into a temporary buffer
   std::unique_ptr<std::vector<unsigned char>> workBuffer(
       std::make_unique<std::vector<unsigned char>>(expectedSize + 256));
-  uint32* bufPtr = (uint32*)(workBuffer.get()->data());
-  if (frdVersion_ <= 5) {
-    *bufPtr++ = (uint32)frdVersion_;  // version number only
-  } else {
-    uint16 flags = 0;
-    if (!e.eventAuxiliary().isRealData())
-      flags |= FRDEVENT_MASK_ISGENDATA;
-    *(uint16*)bufPtr = (uint16)(frdVersion_ & 0xffff);
-    *((uint16*)bufPtr + 1) = flags;
-    bufPtr++;
-  }
-  *bufPtr++ = (uint32)e.id().run();
-  *bufPtr++ = (uint32)e.luminosityBlock();
-  *bufPtr++ = (uint32)e.id().event();
-  if (frdVersion_ == 4)
-    *bufPtr++ = 0;  //64-bit event id high part
+  uint32_t* bufPtr = (uint32_t*)(workBuffer.get()->data());
 
-  if (frdVersion_ < 3) {
-    uint32 fedsize[1024];
-    for (int idx = 0; idx < 1024; ++idx) {
-      FEDRawData singleFED = fedBuffers->FEDData(idx);
-      fedsize[idx] = singleFED.size();
-      //std::cout << "fed size " << singleFED.size()<< std::endl;
+  if (frdVersion_) {
+    if (frdVersion_ <= 5) {
+      //32-bits version field
+      *bufPtr++ = (uint32_t)frdVersion_;
+    } else {
+      //16 bits version and 16 bits flags
+      uint16_t flags = 0;
+      if (!e.eventAuxiliary().isRealData())
+        flags |= edm::streamer::FRDEVENT_MASK_ISGENDATA;
+      *(uint16_t*)bufPtr = (uint16_t)(frdVersion_ & 0xffff);
+      *((uint16_t*)bufPtr + 1) = flags;
+      bufPtr++;
     }
-    memcpy(bufPtr, fedsize, 1024 * sizeof(uint32));
-    bufPtr += 1024;
-  } else {
+    *bufPtr++ = (uint32_t)e.id().run();
+    *bufPtr++ = (uint32_t)e.luminosityBlock();
+    *bufPtr++ = (uint32_t)e.id().event();
     *bufPtr++ = expectedSize - headerSize;
     *bufPtr++ = 0;
-    if (frdVersion_ <= 4)
-      *bufPtr++ = 0;
   }
-  uint32* payloadPtr = bufPtr;
-  for (int idx = 0; idx < nFeds; ++idx) {
-    FEDRawData singleFED = fedBuffers->FEDData(idx);
-    if (singleFED.size() > 0) {
-      memcpy(bufPtr, singleFED.data(), singleFED.size());
-      bufPtr += singleFED.size() / 4;
+  uint32_t* payloadPtr = bufPtr;
+  if (sourceIdList_.size())
+    for (int idx : sourceIdList_) {
+      FEDRawData singleFED = fedBuffers->FEDData(idx);
+      if (singleFED.size() > 0) {
+        memcpy(bufPtr, singleFED.data(), singleFED.size());
+        bufPtr += singleFED.size() / 4;
+      }
     }
-  }
-  if (frdVersion_ > 4) {
+  else
+    for (int idx = 0; idx < nFeds; ++idx) {
+      FEDRawData singleFED = fedBuffers->FEDData(idx);
+      if (singleFED.size() > 0) {
+        memcpy(bufPtr, singleFED.data(), singleFED.size());
+        bufPtr += singleFED.size() / 4;
+      }
+    }
+  if (frdVersion_) {
     //crc32c checksum
     uint32_t crc = 0;
     *(payloadPtr - 1) = crc32c(crc, (const unsigned char*)payloadPtr, expectedSize - headerSize);
-  } else if (frdVersion_ >= 3) {
-    //adler32 checksum
-    uint32 adlera = 1;
-    uint32 adlerb = 0;
-    cms::Adler32((const char*)payloadPtr, expectedSize - headerSize, adlera, adlerb);
-    *(payloadPtr - 1) = (adlerb << 16) | adlera;
+
+    // create the FRDEventMsgView and use the template consumer to write it out
+    edm::streamer::FRDEventMsgView msg(workBuffer.get()->data());
+    templateConsumer_->doOutputEvent(msg);
+  } else {
+    //write only raw FEDs
+    templateConsumer_->doOutputEvent((void*)workBuffer.get()->data(), expectedSize);
   }
-
-  // create the FRDEventMsgView and use the template consumer to write it out
-  edm::streamer::FRDEventMsgView msg(workBuffer.get()->data());
-  writtensize += msg.size();
-
-  templateConsumer_->doOutputEvent(msg);
 }
 
 template <class Consumer>
@@ -180,25 +182,13 @@ void RawEventOutputModuleForBU<Consumer>::beginLuminosityBlock(edm::LuminosityBl
   index_ = 0;
   std::string filename = edm::Service<evf::EvFDaqDirector>()->getOpenRawFilePath(ls.id().luminosityBlock(), index_);
   std::string destinationDir = edm::Service<evf::EvFDaqDirector>()->buBaseRunDir();
+  int run = edm::Service<evf::EvFDaqDirector>()->getRunNumber();
   std::cout << " writing to destination dir " << destinationDir << " name: " << filename << std::endl;
-  templateConsumer_->initialize(destinationDir, filename, ls.id().luminosityBlock());
-  //edm::Service<evf::EvFDaqDirector>()->updateBuLock(ls.id().luminosityBlock()+1);
+  templateConsumer_->initialize(destinationDir, filename, run, ls.id().luminosityBlock());
   if (!firstLumi_) {
-    timeval now;
-    ::gettimeofday(&now, nullptr);
-    //long long elapsedusec = (now.tv_sec - startOfLastLumi.tv_sec)*1000000+now.tv_usec-startOfLastLumi.tv_usec;
-    /*     std::cout << "(now.tv_sec - startOfLastLumi.tv_sec) " << now.tv_sec <<"-" << startOfLastLumi.tv_sec */
-    /* 	      <<" (now.tv_usec-startOfLastLumi.tv_usec) " << now.tv_usec << "-" << startOfLastLumi.tv_usec << std::endl; */
-    /*     std::cout << "elapsedusec " << elapsedusec << "  totevents " << totevents << "  size (GB)" << writtensize  */
-    /* 	      << "  rate " << (writtensize-writtenSizeLast)/elapsedusec << " MB/s" <<std::endl; */
-    writtenSizeLast = writtensize;
-    ::gettimeofday(&startOfLastLumi, nullptr);
-    //edm::Service<evf::EvFDaqDirector>()->writeLsStatisticsBU(ls.id().luminosityBlock(), totevents, totsize, elapsedusec);
-  } else
-    ::gettimeofday(&startOfLastLumi, nullptr);
-  totevents = 0;
-  totsize = 0LL;
-  firstLumi_ = false;
+    totevents_ = 0;
+    firstLumi_ = false;
+  }
 }
 
 template <class Consumer>
@@ -213,6 +203,7 @@ void RawEventOutputModuleForBU<Consumer>::fillDescriptions(edm::ConfigurationDes
   desc.add<edm::InputTag>("source", edm::InputTag("rawDataCollector"));
   desc.add<unsigned int>("numEventsPerFile", 100);
   desc.add<unsigned int>("frdVersion", 6);
+  desc.addUntracked<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>());
   Consumer::extendDescription(desc);
 
   descriptions.addWithDefaultLabel(desc);

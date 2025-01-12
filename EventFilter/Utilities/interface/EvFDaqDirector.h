@@ -27,13 +27,11 @@
 #include <cstdio>
 
 #include <boost/asio.hpp>
+#include <oneapi/tbb/concurrent_hash_map.h>
 
 class SystemBounds;
 class GlobalContext;
 class StreamID;
-
-class InputFile;
-struct InputChunk;
 
 namespace edm {
   class PathsAndConsumesOfModulesBase;
@@ -70,7 +68,11 @@ namespace evf {
     void preBeginRun(edm::GlobalContext const& globalContext);
     void postEndRun(edm::GlobalContext const& globalContext);
     void preGlobalEndLumi(edm::GlobalContext const& globalContext);
-    void overrideRunNumber(unsigned int run) { run_ = run; }
+    void updateRunParams();
+    void overrideRunNumber(unsigned int run) {
+      run_ = run;
+      updateRunParams();
+    }
     std::string const& runString() const { return run_string_; }
     std::string& baseRunDir() { return run_dir_; }
     std::string& buBaseRunDir() { return bu_run_dir_; }
@@ -178,11 +180,6 @@ namespace evf {
     int readLastLSEntry(std::string const& file);
     unsigned int getLumisectionToStart() const;
     unsigned int getStartLumisectionFromEnv() const { return startFromLS_; }
-    void setDeleteTracking(std::mutex* fileDeleteLock,
-                           std::list<std::pair<int, std::unique_ptr<InputFile>>>* filesToDelete) {
-      fileDeleteLockPtr_ = fileDeleteLock;
-      filesToDeletePtr_ = filesToDelete;
-    }
 
     std::string getStreamDestinations(std::string const&) const { return std::string(""); }
     std::string getStreamMergeType(std::string const&, MergeType defaultType) const {
@@ -193,6 +190,9 @@ namespace evf {
     bool lumisectionDiscarded(unsigned int ls);
     std::vector<std::string> const& getBUBaseDirs() const { return bu_base_dirs_all_; }
     std::vector<int> const& getBUBaseDirsNSources() const { return bu_base_dirs_nSources_; }
+    void setFileListMode() { fileListMode_ = true; }
+    bool fileListMode() const { return fileListMode_; }
+    unsigned int lsWithFilesOpen(unsigned int ls) const;
 
   private:
     bool bumpFile(unsigned int& ls,
@@ -229,6 +229,7 @@ namespace evf {
     std::string hltSourceDirectory_;
 
     unsigned int startFromLS_ = 1;
+    oneapi::tbb::concurrent_hash_map<unsigned int, unsigned int> lsWithFilesMap_;
 
     std::string hostname_;
     std::string run_string_;
@@ -264,9 +265,6 @@ namespace evf {
 
     evf::FastMonitoringService* fms_ = nullptr;
 
-    std::mutex* fileDeleteLockPtr_ = nullptr;
-    std::list<std::pair<int, std::unique_ptr<InputFile>>>* filesToDeletePtr_ = nullptr;
-
     pthread_mutex_t init_lock_ = PTHREAD_MUTEX_INITIALIZER;
 
     unsigned int nStreams_ = 0;
@@ -293,6 +291,7 @@ namespace evf {
 
     std::string input_throttled_file_;
     std::string discard_ls_filestem_;
+    bool fileListMode_ = false;
   };
 }  // namespace evf
 
