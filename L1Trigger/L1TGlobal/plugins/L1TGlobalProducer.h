@@ -202,10 +202,6 @@ private:
 
   //switch to save axo scores in global board
   bool m_produceAXOL1TLScore;
-
-  //vectors to store muon data for previous relative bx crossings
-  std::vector<l1t::Muon> muonVec_bxm2;
-  std::vector<l1t::Muon> muonVec_bxm1;
 };
 
 #endif  // L1TGlobalProducer_h
