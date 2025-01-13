@@ -26,7 +26,7 @@ namespace cms::alpakatools {
     template <typename TQueue>
     static auto copyAsync(TQueue& queue, FrameSoAHost const& srcData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
-      FrameSoADevice<TDevice> dstData (srcData->metadata().size(), queue);
+      FrameSoADevice<TDevice> dstData(srcData->metadata().size(), queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;
     }

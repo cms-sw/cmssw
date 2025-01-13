@@ -48,8 +48,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenField_;
-    //const device::ESGetToken<PixelCPEFastParams<pixelTopology::base_traits_t<TrackerTraits>>, PixelCPEFastParamsRecord> cpeToken_; 
-    const device::ESGetToken<FrameSoACollection, FrameSoARecord> frameToken_; 
+    //const device::ESGetToken<PixelCPEFastParams<pixelTopology::base_traits_t<TrackerTraits>>, PixelCPEFastParamsRecord> cpeToken_;
+    const device::ESGetToken<FrameSoACollection, FrameSoARecord> frameToken_;
     const device::EDGetToken<HitsOnDevice> tokenHit_;
     const device::EDPutToken<TkSoADevice> tokenTrack_;
 
@@ -72,7 +72,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::string cpe = "DUMMY";
     //cpe += TrackerTraits::nameModifier;
     desc.add<std::string>("CPE", cpe);
-    
+
     std::string frame = "FrameSoAPhase1";
     frame += TrackerTraits::nameModifier;
     desc.add<std::string>("frameSoA", frame);
@@ -91,7 +91,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // iEvent.emplace(tokenTrack_, deviceAlgo_.makeTuplesAsync(hits, fcpe.const_buffer().data(), bf, iEvent.queue()));
     iEvent.emplace(tokenTrack_, deviceAlgo_.makeTuplesAsync(hits, frame, bf, iEvent.queue()));
-
   }
 
   using CAHitNtupletAlpakaPhase1 = CAHitNtupletAlpaka<pixelTopology::Phase1>;
@@ -107,4 +106,3 @@ DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaPhase1);
 DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaHIonPhase1);
 DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaPhase2);
 DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaPhase1Strip);
-

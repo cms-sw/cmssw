@@ -9,11 +9,10 @@
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
-GENERATE_SOA_LAYOUT(FrameLayout,
-                    SOA_COLUMN(SOAFrame<float>, detFrame))
+GENERATE_SOA_LAYOUT(FrameLayout, SOA_COLUMN(SOAFrame<float>, detFrame))
 
 using FrameSoALayout = FrameLayout<>;
 using FrameSoAView = FrameSoALayout::View;
 using FrameSoAConstView = FrameSoALayout::ConstView;
 
-#endif //RecoLocalTracker_ClusterParameterEstimator_interface_FrameLayout_h
+#endif  //RecoLocalTracker_ClusterParameterEstimator_interface_FrameLayout_h

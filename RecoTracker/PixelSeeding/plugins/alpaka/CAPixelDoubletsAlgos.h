@@ -106,8 +106,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       auto dz = hh[i].zGlobal() - hh[o].zGlobal();
       auto dr = hh[i].rGlobal() - hh[o].rGlobal();
 
-      auto innerBarrel = mi < T::last_barrel_detIndex; //|| (mi >= 1856 && mi <=3392);
-      auto onlyBarrel = mo < T::last_barrel_detIndex ;//|| (mo >= 1856 && hh[o].detectorIndex() <=3392);
+      auto innerBarrel = mi < T::last_barrel_detIndex;  //|| (mi >= 1856 && mi <=3392);
+      auto onlyBarrel = mo < T::last_barrel_detIndex;   //|| (mo >= 1856 && hh[o].detectorIndex() <=3392);
 
       if (not innerBarrel and not onlyBarrel)
         return false;
@@ -209,8 +209,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       ALPAKA_ASSERT_ACC(j < innerLayerCumulativeSize[pairLayerId]);
       ALPAKA_ASSERT_ACC(0 == pairLayerId || j >= innerLayerCumulativeSize[pairLayerId - 1]);
 
-      uint8_t inner = TrackerTraits::layerPairs[2 * pairLayerId]; // layer id
-      uint8_t outer = TrackerTraits::layerPairs[2 * pairLayerId + 1]; // layer id
+      uint8_t inner = TrackerTraits::layerPairs[2 * pairLayerId];      // layer id
+      uint8_t outer = TrackerTraits::layerPairs[2 * pairLayerId + 1];  // layer id
       ALPAKA_ASSERT_ACC(outer > inner);
 
       auto hoff = PhiBinner::histOff(outer);
@@ -231,53 +231,52 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
       auto mez = hh[i].zGlobal();
 
-        if (mez < cuts.minz[pairLayerId] || mez > cuts.maxz[pairLayerId])
-          continue;
-	#ifdef GPU_DEBUG
-	if (doClusterCut && outer > pixelTopology::last_barrel_layer && outer > TrackerTraits::numberOfPixelLayers )
-	  {
-	    bool innerB1 = i < T::last_bpix1_detIndex;
-	    bool isOuterLadder =  0 == (i / 8) % 2;
-	    bool innerB2 = (i >= T::last_bpix1_detIndex) && (i < T::last_bpix2_detIndex);
-	    auto mes = (!innerB1) || isOuterLadder ? hh[i].clusterSizeY() : -1;
-	    //if (hh[oi].detectorIndex() <=3392){
-	    if (mes > 0 && innerB1)
-	      printf("ClusterSizeY innerB1 StripBarrel: %d", hh[i].clusterSizeY());
-	    if (mes > 0 && innerB2)
-	      printf("ClusterSizeY innerB2 StripBarrel: %d", hh[i].clusterSizeY());
-	  }
-	if (doClusterCut && outer > pixelTopology::last_barrel_layer && outer < TrackerTraits::numberOfPixelLayers )
-          {
-            bool innerB1 = i < T::last_bpix1_detIndex;
-            bool isOuterLadder =  0 == (i / 8) % 2;
-            bool innerB2 = (i >= T::last_bpix1_detIndex) && (i < T::last_bpix2_detIndex);
-	    auto mes = (!innerB1) || isOuterLadder ? hh[i].clusterSizeY() : -1;
-            if (mes > 0 && innerB1)
-              printf("ClusterSizeY innerB1 FPix: %d", hh[i].clusterSizeY());
-            if (mes > 0 && innerB2)
-              printf("ClusterSizeY innerB2 FPix: %d", hh[i].clusterSizeY());
-            }
-	#endif
-	if (doClusterCut && outer > pixelTopology::last_barrel_layer && cuts.clusterCut(acc, hh, i) && outer < TrackerTraits::numberOfPixelLayers)
-	  continue;
-      
+      if (mez < cuts.minz[pairLayerId] || mez > cuts.maxz[pairLayerId])
+        continue;
+#ifdef GPU_DEBUG
+      if (doClusterCut && outer > pixelTopology::last_barrel_layer && outer > TrackerTraits::numberOfPixelLayers) {
+        bool innerB1 = i < T::last_bpix1_detIndex;
+        bool isOuterLadder = 0 == (i / 8) % 2;
+        bool innerB2 = (i >= T::last_bpix1_detIndex) && (i < T::last_bpix2_detIndex);
+        auto mes = (!innerB1) || isOuterLadder ? hh[i].clusterSizeY() : -1;
+        //if (hh[oi].detectorIndex() <=3392){
+        if (mes > 0 && innerB1)
+          printf("ClusterSizeY innerB1 StripBarrel: %d", hh[i].clusterSizeY());
+        if (mes > 0 && innerB2)
+          printf("ClusterSizeY innerB2 StripBarrel: %d", hh[i].clusterSizeY());
+      }
+      if (doClusterCut && outer > pixelTopology::last_barrel_layer && outer < TrackerTraits::numberOfPixelLayers) {
+        bool innerB1 = i < T::last_bpix1_detIndex;
+        bool isOuterLadder = 0 == (i / 8) % 2;
+        bool innerB2 = (i >= T::last_bpix1_detIndex) && (i < T::last_bpix2_detIndex);
+        auto mes = (!innerB1) || isOuterLadder ? hh[i].clusterSizeY() : -1;
+        if (mes > 0 && innerB1)
+          printf("ClusterSizeY innerB1 FPix: %d", hh[i].clusterSizeY());
+        if (mes > 0 && innerB2)
+          printf("ClusterSizeY innerB2 FPix: %d", hh[i].clusterSizeY());
+      }
+#endif
+      if (doClusterCut && outer > pixelTopology::last_barrel_layer && cuts.clusterCut(acc, hh, i) &&
+          outer < TrackerTraits::numberOfPixelLayers)
+        continue;
+
       auto mep = hh[i].iphi();
       auto mer = hh[i].rGlobal();
 
-        // all cuts: true if fails
-        auto ptcut = [&](int j, int16_t idphi) {
-          auto r2t4 = minRadius2T4;
-          auto ri = mer;
-          auto ro = hh[j].rGlobal();
-          auto dphi = short2phi(idphi);
-          return dphi * dphi * (r2t4 - ri * ro) > (ro - ri) * (ro - ri);
-        };
-        auto z0cutoff = [&](int j) {
-          auto zo = hh[j].zGlobal();
-          auto ro = hh[j].rGlobal();
-          auto dr = ro - mer;
-          return dr > cuts.maxr[pairLayerId] || dr < 0 || std::abs((mez * ro - mer * zo)) > z0cut * dr;
-        };
+      // all cuts: true if fails
+      auto ptcut = [&](int j, int16_t idphi) {
+        auto r2t4 = minRadius2T4;
+        auto ri = mer;
+        auto ro = hh[j].rGlobal();
+        auto dphi = short2phi(idphi);
+        return dphi * dphi * (r2t4 - ri * ro) > (ro - ri) * (ro - ri);
+      };
+      auto z0cutoff = [&](int j) {
+        auto zo = hh[j].zGlobal();
+        auto ro = hh[j].rGlobal();
+        auto dr = ro - mer;
+        return dr > cuts.maxr[pairLayerId] || dr < 0 || std::abs((mez * ro - mer * zo)) > z0cut * dr;
+      };
 
       auto iphicut = cuts.phiCuts[pairLayerId];
 
@@ -310,13 +309,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           ALPAKA_ASSERT_ACC(oi < offsets[outer + 1]);
           auto mo = hh[oi].detectorIndex();
           if ((outer < TrackerTraits::numberOfPixelLayers && mo > pixelClustering::maxNumModules))
-	      continue;
+            continue;
           if (doZ0Cut && z0cutoff(oi))
             continue;
 
           auto mop = hh[oi].iphi();
-	  uint16_t idphi = std::min(std::abs(int16_t(mop - mep)), std::abs(int16_t(mep - mop))); 
-	  if (idphi > iphicut)
+          uint16_t idphi = std::min(std::abs(int16_t(mop - mep)), std::abs(int16_t(mep - mop)));
+          if (idphi > iphicut)
             continue;
 
           if (doClusterCut && cuts.zSizeCut(acc, hh, i, oi) && oi < TrackerTraits::numberOfPixelLayers)
@@ -325,10 +324,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           if (doPtCut && ptcut(oi, idphi))
             continue;
           auto ind = alpaka::atomicAdd(acc, nCells, (uint32_t)1, alpaka::hierarchy::Blocks{});
-	  if (ind >= maxNumOfDoublets) {
+          if (ind >= maxNumOfDoublets) {
             alpaka::atomicSub(acc, nCells, (uint32_t)1, alpaka::hierarchy::Blocks{});
             break;
-	    }  // move to SimpleVector?? */
+          }  // move to SimpleVector?? */
           cells[ind].init(*cellNeighbors, *cellTracks, hh, pairLayerId, i, oi);
           isOuterHitOfCell[oi].push_back(acc, ind);
 #ifdef GPU_DEBUG
@@ -340,19 +339,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       }
 //      #endif
 #ifdef GPU_DEBUG
-   if (tooMany > 0 or tot > 0){
-	  printf("i,inner,outer,nmin,tot,tooMany,iphicut,cuts.minz[pairLayerId],cuts.maxz[pairLayerId]");
-          printf("OuterHitOfCell for %d in layer %d/%d, %d,%d %d, %d %.3d %.3d %s\n",
-                 i,
-                 inner,
-                 outer,
-                 nmin,
-                 tot,
-                 tooMany,
-                 iphicut,
-                 cuts.minz[pairLayerId],
-                 cuts.maxz[pairLayerId],
-                 tooMany > 0 ? "FULL!!" : "not full.");}
+      if (tooMany > 0 or tot > 0) {
+        printf("i,inner,outer,nmin,tot,tooMany,iphicut,cuts.minz[pairLayerId],cuts.maxz[pairLayerId]");
+        printf("OuterHitOfCell for %d in layer %d/%d, %d,%d %d, %d %.3d %.3d %s\n",
+               i,
+               inner,
+               outer,
+               nmin,
+               tot,
+               tooMany,
+               iphicut,
+               cuts.minz[pairLayerId],
+               cuts.maxz[pairLayerId],
+               tooMany > 0 ? "FULL!!" : "not full.");
+      }
 #endif
     }  // loop in block...
   }

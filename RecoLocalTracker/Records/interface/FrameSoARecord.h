@@ -7,5 +7,7 @@
 
 #include "FWCore/Utilities/interface/mplVector.h"
 
-class FrameSoARecord :public edm::eventsetup::DependentRecordImplementation<FrameSoARecord, edm::mpl::Vector<TrackerDigiGeometryRecord, TrackerTopologyRcd> > {};
+class FrameSoARecord : public edm::eventsetup::DependentRecordImplementation<
+                           FrameSoARecord,
+                           edm::mpl::Vector<TrackerDigiGeometryRecord, TrackerTopologyRcd> > {};
 #endif

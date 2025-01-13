@@ -32,7 +32,6 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class FrameSoAESProducer : public ESProducer {
-
     using Rotation = SOARotation<float>;
     using Frame = SOAFrame<float>;
 
@@ -50,8 +49,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace edm;
 
   template <typename TrackerTraits>
-  FrameSoAESProducer<TrackerTraits>::FrameSoAESProducer(const edm::ParameterSet& p)
-      : ESProducer(p) {
+  FrameSoAESProducer<TrackerTraits>::FrameSoAESProducer(const edm::ParameterSet& p) : ESProducer(p) {
     auto const& myname = p.getParameter<std::string>("ComponentName");
 
     auto cc = setWhatProduced(this, myname);
@@ -60,49 +58,45 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   template <typename TrackerTraits>
-  std::unique_ptr<FrameSoAHost> FrameSoAESProducer<TrackerTraits>::produce(
-      const FrameSoARecord& iRecord) {
-
-    const TrackerGeometry* geometry = &iRecord.get(geometry_); 
-    const TrackerTopology* topology = &iRecord.get(topology_); 
+  std::unique_ptr<FrameSoAHost> FrameSoAESProducer<TrackerTraits>::produce(const FrameSoARecord& iRecord) {
+    const TrackerGeometry* geometry = &iRecord.get(geometry_);
+    const TrackerTopology* topology = &iRecord.get(topology_);
 
     auto const& detUnits = geometry->detUnits();
 
     auto product = std::make_unique<FrameSoAHost>(TrackerTraits::numberOfModules, cms::alpakatools::host());
-    
+
     if constexpr (std::is_same_v<TrackerTraits, pixelTopology::Phase1Strip>) {
       int i = 0;
       for (auto layer : phase1PixelStripTopology::layerData) {
         auto step = layer.isStrip2D ? 2 : 1;
         for (auto j = layer.start; j != layer.end; j += step) {
-          auto& s = layer.isStrip2D ? 
-            geometry->idToDet(topology->glued(detUnits[i]->geographicalId()))->surface() :
-            detUnits[j]->surface();
-          product->view()[i].detFrame() = Frame(s.position().x(), s.position().y(), s.position().z(), s.rotation()); 
+          auto& s = layer.isStrip2D ? geometry->idToDet(topology->glued(detUnits[i]->geographicalId()))->surface()
+                                    : detUnits[j]->surface();
+          product->view()[i].detFrame() = Frame(s.position().x(), s.position().y(), s.position().z(), s.rotation());
           ++i;
         }
       }
-    }
-    else {
-      constexpr auto n_detectors = TrackerTraits::numberOfModules; // converting only up to the modules used in the CA topology
+    } else {
+      constexpr auto n_detectors =
+          TrackerTraits::numberOfModules;  // converting only up to the modules used in the CA topology
 
-      assert(n_detectors < detUnits.size()); //still there shouldn't be more modules than what we have from the TrackerGeometry
+      assert(n_detectors <
+             detUnits.size());  //still there shouldn't be more modules than what we have from the TrackerGeometry
 
       for (unsigned i = 0; i != n_detectors; ++i) {
         auto det = detUnits[i];
         auto vv = det->surface().position();
         auto rr = Rotation(det->surface().rotation());
-        product->view()[i].detFrame() =  Frame(vv.x(), vv.y(), vv.z(), rr); 
+        product->view()[i].detFrame() = Frame(vv.x(), vv.y(), vv.z(), rr);
       }
     }
-
 
     return product;
   }
 
   template <typename TrackerTraits>
-  void FrameSoAESProducer<TrackerTraits>::fillDescriptions(
-      edm::ConfigurationDescriptions& descriptions) {
+  void FrameSoAESProducer<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
 
     std::string name = "FrameSoAPhase1";
@@ -115,7 +109,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using FrameSoAESProducerPhase1 = FrameSoAESProducer<pixelTopology::Phase1>;
   using FrameSoAESProducerPhase2 = FrameSoAESProducer<pixelTopology::Phase2>;
   using FrameSoAESProducerHIonPhase1 = FrameSoAESProducer<pixelTopology::HIonPhase1>;
-  using FrameSoAESProducerPhase1Strip = FrameSoAESProducer<pixelTopology::Phase1Strip>; 
+  using FrameSoAESProducerPhase1Strip = FrameSoAESProducer<pixelTopology::Phase1Strip>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(FrameSoAESProducerPhase1);

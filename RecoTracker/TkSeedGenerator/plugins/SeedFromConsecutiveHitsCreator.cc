@@ -193,16 +193,19 @@ void SeedFromConsecutiveHitsCreator::buildSeed(TrajectorySeedCollection& seedCol
     //} else {
     //    std::cout << "Hit is in an unknown detector." << std::endl;
     //}
-    
+
     //pixelTopology::Phase1Strip::mapIndex(trackerGeometry_->idToDet(hit->stereoId()->index())))
     TrajectoryStateOnSurface state =
-        (gluedDet) ? ((iHit == 0) ? propagator_->propagate(fts, trackerGeometry_->idToDet(hit->geographicalId())->surface())
-                    : propagator_->propagate(updatedState, trackerGeometry_->idToDet(hit->geographicalId())->surface())) :
-                    ((iHit == 0) ? propagator_->propagate(fts, trackerGeometry_->idToDet(hit->geographicalId())->surface())
-                    : propagator_->propagate(updatedState, trackerGeometry_->idToDet(hit->geographicalId())->surface()));
+        (gluedDet)
+            ? ((iHit == 0)
+                   ? propagator_->propagate(fts, trackerGeometry_->idToDet(hit->geographicalId())->surface())
+                   : propagator_->propagate(updatedState, trackerGeometry_->idToDet(hit->geographicalId())->surface()))
+            : ((iHit == 0)
+                   ? propagator_->propagate(fts, trackerGeometry_->idToDet(hit->geographicalId())->surface())
+                   : propagator_->propagate(updatedState, trackerGeometry_->idToDet(hit->geographicalId())->surface()));
     if (!state.isValid()) {
-    //std::cerr << "Error: TrajectoryStateOnSurface is not valid!" << std::endl;
-    return;
+      //std::cerr << "Error: TrajectoryStateOnSurface is not valid!" << std::endl;
+      return;
     }
     SeedingHitSet::ConstRecHitPointer tth = hits[iHit];
 

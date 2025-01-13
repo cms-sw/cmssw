@@ -50,7 +50,7 @@ void SiStripRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es) {
   LogDebug("SiStripRecHitConverter") << "found\n"
                                      << output.rphi->dataSize() << "  clusters in mono detectors\n"
                                      << output.stereo->dataSize() << "  clusters in partners stereo detectors\n";
-  
+
   e.put(std::move(output.rphi), rphiRecHitsTag);
   e.put(std::move(output.stereo), stereoRecHitsTag);
   if (doMatching) {

@@ -263,7 +263,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void HelixFit<TrackerTraits>::launchBrokenLineKernels(
       const TrackingRecHitSoAConstView<TrackerTraits> &hv,
       // pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *cpeParams,
-      const FrameSoAConstView& fr,
+      const FrameSoAConstView &fr,
       uint32_t hitsInFit,
       uint32_t maxNumberOfTuples,
       Queue &queue) {

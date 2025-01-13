@@ -113,10 +113,10 @@ PixelTrackProducerFromSoAAlpaka<TrackerTraits>::PixelTrackProducerFromSoAAlpaka(
   produces<reco::TrackCollection>();
   produces<IndToEdm>();
   if (useStripHits_) {
-    cpuStripHits_ = consumes<SiStripMatchedRecHit2DCollection>(iConfig.getParameter<edm::InputTag>("stripRecHitLegacySrc"));
+    cpuStripHits_ =
+        consumes<SiStripMatchedRecHit2DCollection>(iConfig.getParameter<edm::InputTag>("stripRecHitLegacySrc"));
     hmsToken_ = consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("hitModuleStartSrc"));
-  }
-  else {
+  } else {
     hmsToken_ = consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"));
   }
 }
@@ -176,31 +176,31 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
   auto const &hitsModuleStart = iEvent.get(hmsToken_);
 
   size_t nStripHits = 0;
-  const edmNew::DetSetVector<SiStripMatchedRecHit2D>* stripRechitsDSV = nullptr;
+  const edmNew::DetSetVector<SiStripMatchedRecHit2D> *stripRechitsDSV = nullptr;
 
-   if (useStripHits_) {
+  if (useStripHits_) {
     stripRechitsDSV = &iEvent.get(cpuStripHits_);
     nStripHits = hitsModuleStart[TrackerTraits::numberOfModules] - hitsModuleStart[TrackerTraits::numberOfPixelModules];
   }
-  
+
   size_t nhits = nPixelHits + nStripHits;
 
   std::vector<TrackingRecHit const *> hitmap(nhits, nullptr);
   // std::vector<int> counter(nhits, 0);
 
-  for (const auto& moduleHits : pixelRecHitsDSV) {
-    auto* det = theTrackerGeometry->idToDet(moduleHits.detId());
+  for (const auto &moduleHits : pixelRecHitsDSV) {
+    auto *det = theTrackerGeometry->idToDet(moduleHits.detId());
     const auto detI = det->index();
-    for (const auto& hit : moduleHits) {
+    for (const auto &hit : moduleHits) {
       auto const &clus = hit.firstClusterRef();
       auto const idx = hitsModuleStart[detI] + clus.pixelCluster().originalId();
-      
-       if (idx >= hitsModuleStart[detI + 1]) {
-            std::cout << "excess pixel hit" << std::endl;
-              continue;
-	      }
-       if (idx >= hitmap.size())
-	 hitmap.resize(idx + 256, nullptr);  /// only in case of hit overflow in one module 
+
+      if (idx >= hitsModuleStart[detI + 1]) {
+        std::cout << "excess pixel hit" << std::endl;
+        continue;
+      }
+      if (idx >= hitmap.size())
+        hitmap.resize(idx + 256, nullptr);  /// only in case of hit overflow in one module
 
       assert(nullptr == hitmap[idx]);
 
@@ -225,9 +225,10 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
   // }
 
   if (useStripHits_) {
-    for (const auto& moduleHits : *stripRechitsDSV) {
-      const GluedGeomDet* theStripDet = dynamic_cast<const GluedGeomDet*>(theTrackerGeometry->idToDet(moduleHits[0].geographicalId()));
-      int moduleIdx = TrackerTraits:: mapIndex(theStripDet->stereoDet()->index());
+    for (const auto &moduleHits : *stripRechitsDSV) {
+      const GluedGeomDet *theStripDet =
+          dynamic_cast<const GluedGeomDet *>(theTrackerGeometry->idToDet(moduleHits[0].geographicalId()));
+      int moduleIdx = TrackerTraits::mapIndex(theStripDet->stereoDet()->index());
       if (moduleIdx >= TrackerTraits::numberOfModules)
         continue;
       for (auto i = 0u; i < moduleHits.size(); ++i) {
@@ -238,21 +239,21 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
     }
   }
 
-  #ifdef GPU_DEBUG
+#ifdef GPU_DEBUG
   std::cout << "hitmap nulls:" << std::count(hitmap.begin(), hitmap.end(), nullptr) << std::endl;
-  #endif
+#endif
   std::vector<const TrackingRecHit *> hits;
-  hits.reserve(5); //TODO: Move to the average depending on tracker traits
+  hits.reserve(5);  //TODO: Move to the average depending on tracker traits
 
   auto const &tsoa = iEvent.get(tokenTrack_);
   auto const *quality = tsoa.view().quality();
   auto const &hitIndices = tsoa.view().hitIndices();
   auto nTracks = tsoa.view().nTracks();
 
-  #ifdef GPU_DEBUG
+#ifdef GPU_DEBUG
   std::cout << "max hit index = " << *std::max_element(hitIndices.begin(), hitIndices.end()) << std::endl;
   std::cout << "hitmap.size() = " << hitmap.size() << std::endl;
-  #endif
+#endif
 
   tracks.reserve(nTracks);
 
@@ -272,14 +273,13 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
   //store the index of the SoA: indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
   indToEdm.resize(sortIdxs.size(), -1);
   for (const auto &it : sortIdxs) {
-
     auto nHits = TracksHelpers::nHits(tsoa.view(), it);
 
     assert(nHits >= 3);
     auto q = quality[it];
-    #ifdef GPU_DEBUG
-    std::cout << " nHits " << nHits << " quality: " << int(q) << std::endl; 
-    #endif
+#ifdef GPU_DEBUG
+    std::cout << " nHits " << nHits << " quality: " << int(q) << std::endl;
+#endif
     if (q < minQuality_)
       continue;
     if (nHits < minNumberOfHits_)  //move to nLayers?
@@ -326,9 +326,10 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
     math::XYZVector mom(pp.x(), pp.y(), pp.z());
 
     auto track = std::make_unique<reco::Track>(chi2, ndof, pos, mom, gp.charge(), CurvilinearTrajectoryError(mo));
-    #ifdef GPU_DEBUG
-    std::cout << "chi2 " << chi2 << " ndof: " << ndof << "pos " << pos << " mom " << mom << " gp.charge() " << gp.charge()<<  std::endl;
-    #endif
+#ifdef GPU_DEBUG
+    std::cout << "chi2 " << chi2 << " ndof: " << ndof << "pos " << pos << " mom " << mom << " gp.charge() "
+              << gp.charge() << std::endl;
+#endif
     // bad and edup not supported as fit not present or not reliable
     auto tkq = recoQuality[int(q)];
     track->setQuality(tkq);
@@ -342,7 +343,6 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
     track->setQuality(tkq);
     // filter???
     tracks.emplace_back(track.release(), hits);
-    
   }
 #ifdef GPU_DEBUG
   std::cout << "processed " << nt << " good tuples " << tracks.size() << " out of " << indToEdm.size() << std::endl;

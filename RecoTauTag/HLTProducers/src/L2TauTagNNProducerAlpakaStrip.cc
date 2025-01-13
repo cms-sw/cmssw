@@ -144,7 +144,8 @@ struct L2TauNNProducerAlpakaStripCacheData {
   std::vector<normDictElement> normVec;
 };
 
-class L2TauNNProducerAlpakaStrip : public edm::stream::EDProducer<edm::GlobalCache<L2TauNNProducerAlpakaStripCacheData>> {
+class L2TauNNProducerAlpakaStrip
+    : public edm::stream::EDProducer<edm::GlobalCache<L2TauNNProducerAlpakaStripCacheData>> {
 public:
   using TracksHost = pixelTrack::TracksHostPhase1Strip;
 
@@ -225,7 +226,8 @@ private:
 
 std::unique_ptr<L2TauNNProducerAlpakaStripCacheData> L2TauNNProducerAlpakaStrip::initializeGlobalCache(
     const edm::ParameterSet& cfg) {
-  std::unique_ptr<L2TauNNProducerAlpakaStripCacheData> cacheData = std::make_unique<L2TauNNProducerAlpakaStripCacheData>();
+  std::unique_ptr<L2TauNNProducerAlpakaStripCacheData> cacheData =
+      std::make_unique<L2TauNNProducerAlpakaStripCacheData>();
   cacheData->normVec.reserve(L2TauTagNNv1::nVars);
 
   auto const graphPath = edm::FileInPath(cfg.getParameter<std::string>("graphPath")).fullPath();
@@ -286,7 +288,7 @@ void L2TauNNProducerAlpakaStrip::fillDescriptions(edm::ConfigurationDescriptions
 }
 
 L2TauNNProducerAlpakaStrip::L2TauNNProducerAlpakaStrip(const edm::ParameterSet& cfg,
-                                             const L2TauNNProducerAlpakaStripCacheData* cacheData)
+                                                       const L2TauNNProducerAlpakaStripCacheData* cacheData)
     : debugLevel_(cfg.getParameter<int>("debugLevel")),
       hbheToken_(consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("hbheInput"))),
       hoToken_(consumes<HORecHitCollection>(cfg.getParameter<edm::InputTag>("hoInput"))),
@@ -400,7 +402,8 @@ void L2TauNNProducerAlpakaStrip::standardizeTensor(tensorflow::Tensor& tensor) {
   }
 }
 
-void L2TauNNProducerAlpakaStrip::fillL1TauVars(tensorflow::Tensor& cellGridMatrix, const std::vector<l1t::TauRef>& allTaus) {
+void L2TauNNProducerAlpakaStrip::fillL1TauVars(tensorflow::Tensor& cellGridMatrix,
+                                               const std::vector<l1t::TauRef>& allTaus) {
   using NNInputs = L2TauTagNNv1::NNInputs;
 
   const int nTaus = allTaus.size();
@@ -419,7 +422,9 @@ void L2TauNNProducerAlpakaStrip::fillL1TauVars(tensorflow::Tensor& cellGridMatri
 }
 
 template <typename LVec>
-std::tuple<float, float, int, int> L2TauNNProducerAlpakaStrip::getEtaPhiIndices(float eta, float phi, const LVec& tau_p4) {
+std::tuple<float, float, int, int> L2TauNNProducerAlpakaStrip::getEtaPhiIndices(float eta,
+                                                                                float phi,
+                                                                                const LVec& tau_p4) {
   const float deta = eta - tau_p4.eta();
   const float dphi = reco::deltaPhi(phi, tau_p4.phi());
   const int eta_idx = static_cast<int>(floor((deta + L2TauTagNNv1::dR_max) / dEta_width));
@@ -428,13 +433,14 @@ std::tuple<float, float, int, int> L2TauNNProducerAlpakaStrip::getEtaPhiIndices(
 }
 
 template <typename VPos, typename LVec>
-std::tuple<float, float, int, int> L2TauNNProducerAlpakaStrip::getEtaPhiIndices(const VPos& position, const LVec& tau_p4) {
+std::tuple<float, float, int, int> L2TauNNProducerAlpakaStrip::getEtaPhiIndices(const VPos& position,
+                                                                                const LVec& tau_p4) {
   return getEtaPhiIndices(position.eta(), position.phi(), tau_p4);
 }
 
 void L2TauNNProducerAlpakaStrip::fillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
-                                            const std::vector<l1t::TauRef>& allTaus,
-                                            const caloRecHitCollections& caloRecHits) {
+                                                 const std::vector<l1t::TauRef>& allTaus,
+                                                 const caloRecHitCollections& caloRecHits) {
   using NNInputs = L2TauTagNNv1::NNInputs;
 
   const int nTaus = allTaus.size();
@@ -572,9 +578,9 @@ void L2TauNNProducerAlpakaStrip::fillCaloRecHits(tensorflow::Tensor& cellGridMat
 }
 
 void L2TauNNProducerAlpakaStrip::selectGoodTracksAndVertices(const ZVertexHost& patavtx_soa,
-                                                        const TracksHost& patatracks_tsoa,
-                                                        std::vector<int>& trkGood,
-                                                        std::vector<int>& vtxGood) {
+                                                             const TracksHost& patatracks_tsoa,
+                                                             std::vector<int>& trkGood,
+                                                             std::vector<int>& vtxGood) {
   using patatrackHelpers = TracksUtilities<pixelTopology::Phase1Strip>;
   const auto maxTracks = patatracks_tsoa.view().metadata().size();
   const int nv = patavtx_soa.view().nvFinal();
@@ -620,10 +626,10 @@ void L2TauNNProducerAlpakaStrip::selectGoodTracksAndVertices(const ZVertexHost& 
 }
 
 std::pair<float, float> L2TauNNProducerAlpakaStrip::impactParameter(int it,
-                                                               const TracksHost& patatracks_tsoa,
-                                                               float patatrackPhi,
-                                                               const reco::BeamSpot& beamspot,
-                                                               const MagneticField* magfi) {
+                                                                    const TracksHost& patatracks_tsoa,
+                                                                    float patatrackPhi,
+                                                                    const reco::BeamSpot& beamspot,
+                                                                    const MagneticField* magfi) {
   /* dxy and dz */
   riemannFit::Vector5d ipar, opar;
   riemannFit::Matrix5d icov, ocov;
@@ -651,11 +657,11 @@ std::pair<float, float> L2TauNNProducerAlpakaStrip::impactParameter(int it,
 }
 
 void L2TauNNProducerAlpakaStrip::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
-                                           const std::vector<l1t::TauRef>& allTaus,
-                                           const TracksHost& patatracks_tsoa,
-                                           const ZVertexHost& patavtx_soa,
-                                           const reco::BeamSpot& beamspot,
-                                           const MagneticField* magfi) {
+                                                const std::vector<l1t::TauRef>& allTaus,
+                                                const TracksHost& patatracks_tsoa,
+                                                const ZVertexHost& patavtx_soa,
+                                                const reco::BeamSpot& beamspot,
+                                                const MagneticField* magfi) {
   using NNInputs = L2TauTagNNv1::NNInputs;
   using patatrackHelpers = TracksUtilities<pixelTopology::Phase1Strip>;
   float deta, dphi;

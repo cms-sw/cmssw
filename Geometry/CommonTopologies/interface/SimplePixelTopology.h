@@ -135,7 +135,8 @@ namespace phase1PixelTopology {
   using pixelTopology::phi0p07;
 
   constexpr uint32_t numberOfLayers = 10;
-  constexpr int nPairs = 13 + 2 + 4;; // without jump + jumping barrel + jumping forward 
+  constexpr int nPairs = 13 + 2 + 4;
+  ;  // without jump + jumping barrel + jumping forward
   constexpr uint16_t numberOfModules = 1856;
 
   constexpr uint32_t maxNumClustersPerModules = 1024;
@@ -199,8 +200,7 @@ namespace phase1PixelTopology {
                                                               1520,
                                                               1632,
                                                               1744,  // negative endcap
-                                                              numberOfModules
-                                                              };
+                                                              numberOfModules};
 }  // namespace phase1PixelTopology
 
 namespace phase2PixelTopology {
@@ -236,34 +236,34 @@ namespace phase2PixelTopology {
   };
 
   static constexpr uint32_t layerStart[numberOfLayers + 1] = {0,
-                                                                  108,
-                                                                  324,
-                                                                  504,  // Barrel
-                                                                  756,
-                                                                  864,
-                                                                  972,
-                                                                  1080,
-                                                                  1188,
-                                                                  1296,
-                                                                  1404,
-                                                                  1512,
-                                                                  1620,
-                                                                  1796,
-                                                                  1972,
-                                                                  2148,  // Fp
-                                                                  2324,
-                                                                  2432,
-                                                                  2540,
-                                                                  2648,
-                                                                  2756,
-                                                                  2864,
-                                                                  2972,
-                                                                  3080,
-                                                                  3188,
-                                                                  3364,
-                                                                  3540,
-                                                                  3716,  // Np
-                                                                  numberOfModules};
+                                                              108,
+                                                              324,
+                                                              504,  // Barrel
+                                                              756,
+                                                              864,
+                                                              972,
+                                                              1080,
+                                                              1188,
+                                                              1296,
+                                                              1404,
+                                                              1512,
+                                                              1620,
+                                                              1796,
+                                                              1972,
+                                                              2148,  // Fp
+                                                              2324,
+                                                              2432,
+                                                              2540,
+                                                              2648,
+                                                              2756,
+                                                              2864,
+                                                              2972,
+                                                              3080,
+                                                              3188,
+                                                              3364,
+                                                              3540,
+                                                              3716,  // Np
+                                                              numberOfModules};
 
   HOST_DEVICE_CONSTANT int16_t phicuts[nPairs]{
       phi0p05, phi0p05, phi0p05, phi0p06, phi0p07, phi0p07, phi0p06, phi0p07, phi0p07, phi0p05, phi0p05,
@@ -484,12 +484,12 @@ namespace pixelTopology {
 
     static constexpr int nPairsForQuadruplets = 13;                     // quadruplets require hits in all layers
     static constexpr int nPairsForTriplets = nPairsForQuadruplets + 2;  // include barrel "jumping" layer pairs
-    static constexpr int nPairs = nPairsForTriplets +4;                // include forward "jumping" layer pairs
+    static constexpr int nPairs = nPairsForTriplets + 4;                // include forward "jumping" layer pairs
 
     static constexpr int maxDYsize12 = 28;
     static constexpr int maxDYsize = 20;
     static constexpr int maxDYPred = 20;
-    
+
     static constexpr uint16_t numberOfModules = 1856;
     static constexpr uint16_t numberOfPixelModules = phase1PixelTopology::layerStart[numberOfPixelLayers];
     static constexpr uint16_t numberOfStripModules = numberOfModules - numberOfPixelModules;
@@ -564,7 +564,7 @@ namespace pixelTopology {
 
     static constexpr int mapIndex(int i) { return i; }
   };
-  
+
   struct HIonPhase1 : public Phase1 {
     // Storing here the needed constants different w.r.t. pp Phase1 topology.
     // All the other defined by inheritance in the HIon topology struct.
@@ -598,7 +598,7 @@ namespace pixelTopology {
 
   template <typename T>
   using base_traits_t = std::conditional_t<std::is_base_of_v<Phase1, T>, Phase1, Phase2>;
-  
+
 }  // namespace pixelTopology
 
 #endif  // Geometry_CommonTopologies_SimplePixelTopology_h

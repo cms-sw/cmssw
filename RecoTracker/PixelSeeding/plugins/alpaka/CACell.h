@@ -188,37 +188,41 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       auto isOuterBarrelPixel = otherCell.outer_detIndex(hh) < TrackerTraits::last_barrel_detIndex;
       auto isInnerBarrelPixel = otherCell.inner_detIndex(hh) < TrackerTraits::last_barrel_detIndex;
-      auto isOuterForwardPixel = otherCell.outer_detIndex(hh) >= TrackerTraits::last_barrel_detIndex && otherCell.outer_detIndex(hh) < TrackerTraits::numberOfPixelModules;
-      auto isInnerForwardPixel = otherCell.inner_detIndex(hh) >= TrackerTraits::last_barrel_detIndex && otherCell.inner_detIndex(hh) < TrackerTraits::numberOfPixelModules;
-      auto isOuterBarrelStrip =  otherCell.outer_detIndex(hh) >= TrackerTraits::numberOfPixelModules && otherCell.outer_detIndex(hh) < 3392;
-      auto isInnerBarrelStrip =  otherCell.inner_detIndex(hh) >= TrackerTraits::numberOfPixelModules && otherCell.inner_detIndex(hh) < 3392;
+      auto isOuterForwardPixel = otherCell.outer_detIndex(hh) >= TrackerTraits::last_barrel_detIndex &&
+                                 otherCell.outer_detIndex(hh) < TrackerTraits::numberOfPixelModules;
+      auto isInnerForwardPixel = otherCell.inner_detIndex(hh) >= TrackerTraits::last_barrel_detIndex &&
+                                 otherCell.inner_detIndex(hh) < TrackerTraits::numberOfPixelModules;
+      auto isOuterBarrelStrip =
+          otherCell.outer_detIndex(hh) >= TrackerTraits::numberOfPixelModules && otherCell.outer_detIndex(hh) < 3392;
+      auto isInnerBarrelStrip =
+          otherCell.inner_detIndex(hh) >= TrackerTraits::numberOfPixelModules && otherCell.inner_detIndex(hh) < 3392;
       auto isOuterForwardStrip = otherCell.outer_detIndex(hh) >= 3392;
       auto isInnerForwardStrip = otherCell.inner_detIndex(hh) >= 3392;
-      caThetaCut = (isInnerBarrelPixel && isOuterBarrelPixel) ? caThetaCutBarrel :
-             (isInnerBarrelPixel && isOuterForwardPixel) ? caThetaCutForward :
-             (isInnerBarrelPixel && isOuterBarrelStrip) ? caThetaCutBarrelPixelBarrelStrip :
-             (isInnerBarrelPixel && isOuterForwardStrip) ? caThetaCutBarrelPixelForwardStrip :
-             (isInnerBarrelStrip && isOuterForwardStrip) ? caThetaCutBarrelStripForwardStrip :
-             (isInnerBarrelStrip && isOuterBarrelStrip) ? caThetaCutBarrelStrip :
-             caThetaCutDefault;
+      caThetaCut = (isInnerBarrelPixel && isOuterBarrelPixel)    ? caThetaCutBarrel
+                   : (isInnerBarrelPixel && isOuterForwardPixel) ? caThetaCutForward
+                   : (isInnerBarrelPixel && isOuterBarrelStrip)  ? caThetaCutBarrelPixelBarrelStrip
+                   : (isInnerBarrelPixel && isOuterForwardStrip) ? caThetaCutBarrelPixelForwardStrip
+                   : (isInnerBarrelStrip && isOuterForwardStrip) ? caThetaCutBarrelStripForwardStrip
+                   : (isInnerBarrelStrip && isOuterBarrelStrip)  ? caThetaCutBarrelStrip
+                                                                 : caThetaCutDefault;
 
       auto isFirstInnerBarrelPixel = otherCell.inner_detIndex(hh) < TrackerTraits::last_bpix1_detIndex;
-      auto isBeyondFirstInnerBarrelPixel = otherCell.inner_detIndex(hh) > TrackerTraits::last_bpix1_detIndex && otherCell.inner_detIndex(hh) < TrackerTraits::numberOfPixelModules;
+      auto isBeyondFirstInnerBarrelPixel = otherCell.inner_detIndex(hh) > TrackerTraits::last_bpix1_detIndex &&
+                                           otherCell.inner_detIndex(hh) < TrackerTraits::numberOfPixelModules;
       float dcaCutTriplet;
-     
-      dcaCutTriplet = (isFirstInnerBarrelPixel && (isOuterBarrelStrip || isOuterForwardStrip)) ? dcaCutInnerTripletPixelStrip :
-                (isBeyondFirstInnerBarrelPixel && (isOuterBarrelStrip || isOuterForwardStrip)) ? dcaCutOuterTripletPixelStrip :
-                (isFirstInnerBarrelPixel && (isOuterBarrelPixel || isOuterForwardPixel)) ? dcaCutInnerTriplet :
-                (isBeyondFirstInnerBarrelPixel && (isOuterBarrelPixel || isOuterForwardPixel)) ? dcaCutOuterTriplet :
-                ((isInnerBarrelStrip || isInnerForwardStrip) && (isOuterBarrelStrip || isOuterForwardStrip)) ? dcaCutTripletStrip :
-                dcaCutTripletDefault;
 
+      dcaCutTriplet =
+          (isFirstInnerBarrelPixel && (isOuterBarrelStrip || isOuterForwardStrip)) ? dcaCutInnerTripletPixelStrip
+          : (isBeyondFirstInnerBarrelPixel && (isOuterBarrelStrip || isOuterForwardStrip))
+              ? dcaCutOuterTripletPixelStrip
+          : (isFirstInnerBarrelPixel && (isOuterBarrelPixel || isOuterForwardPixel))       ? dcaCutInnerTriplet
+          : (isBeyondFirstInnerBarrelPixel && (isOuterBarrelPixel || isOuterForwardPixel)) ? dcaCutOuterTriplet
+          : ((isInnerBarrelStrip || isInnerForwardStrip) && (isOuterBarrelStrip || isOuterForwardStrip))
+              ? dcaCutTripletStrip
+              : dcaCutTripletDefault;
 
       bool aligned = areAlignedRZ(r1, z1, ri, zi, ro, zo, ptmin, caThetaCut);
-      return (aligned && dcaCut(hh,
-                                otherCell,
-                                dcaCutTriplet,
-                                hardCurvCut));
+      return (aligned && dcaCut(hh, otherCell, dcaCutTriplet, hardCurvCut));
     }
 
     ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) static bool areAlignedRZ(
@@ -351,7 +355,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               acc, hh, cells, cellTracks, foundNtuplets, apc, quality, tmpNtuplet, minHitsPerNtuplet, startAt0);
         }
         if (last) {  // if long enough save...
-          if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1){
+          if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1) {
 #ifdef ONLY_TRIPLETS_IN_HOLE
             // triplets accepted only pointing to the hole
             if (tmpNtuplet.size() >= 3 || (startAt0 && hole4(hh, cells[tmpNtuplet[0]])) ||
@@ -372,15 +376,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               ALPAKA_ASSERT_ACC(nh < TrackerTraits::maxHitsOnTrack);
               hits[nh] = theOuterHitId;
               auto it = foundNtuplets.bulkFill(acc, apc, hits, nh + 1);
-	      
+
               if (it >= 0) {  // if negative is overflow....
                 for (auto c : tmpNtuplet)
                   cells[c].addTrack(acc, it, cellTracks);
                 quality[it] = bad;  // initialize to bad
+              } else {
+                //printf("Going into overflow from bulkFill");
               }
-	      else{
-		//printf("Going into overflow from bulkFill");
-	      }
             }
           }
         }

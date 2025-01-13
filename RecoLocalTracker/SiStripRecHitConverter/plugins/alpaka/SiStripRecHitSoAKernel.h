@@ -22,7 +22,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <typename TrackerTraits>
     class SiStripRecHitSoAKernel {
-
       using StripHits = TrackingRecHitsSoACollection<TrackerTraits>;
       using StripHitsHost = TrackingRecHitHost<TrackerTraits>;
 
@@ -35,12 +34,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       SiStripRecHitSoAKernel& operator=(const SiStripRecHitSoAKernel&) = delete;
       SiStripRecHitSoAKernel& operator=(SiStripRecHitSoAKernel&&) = delete;
 
-      StripHits fillHitsAsync(
-        StripHitsHost const& hits_h,
-        Queue queue) const;
-
+      StripHits fillHitsAsync(StripHitsHost const& hits_h, Queue queue) const;
     };
-  }  // namespace pixelgpudetails
+  }  // namespace hitkernels
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #endif  // RecoLocalTracker_SiPixelRecHits_SiStripRecHitSoAKernel_h

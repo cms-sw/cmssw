@@ -20,15 +20,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <typename TrackerTraits>
     TrackingRecHitsSoACollection<TrackerTraits> SiStripRecHitSoAKernel<TrackerTraits>::fillHitsAsync(
-        StripHitsHost const& hits_h,
-        Queue queue) const {
-          
-      TrackingRecHitsSoACollection<TrackerTraits> hits_d(queue, hits_h.nHits(), hits_h.offsetBPIX2(), hits_h.hitsModuleStart());
+        StripHitsHost const& hits_h, Queue queue) const {
+      TrackingRecHitsSoACollection<TrackerTraits> hits_d(
+          queue, hits_h.nHits(), hits_h.offsetBPIX2(), hits_h.hitsModuleStart());
       alpaka::memcpy(queue, hits_d.buffer(), hits_h.buffer());
 
       // assuming full warp of threads is better than a smaller number...
       if (hits_h.nHits()) {
-        
         constexpr auto nLayers = TrackerTraits::numberOfLayers;
 
         typename TrackingRecHitSoA<TrackerTraits>::PhiBinnerView hrv_d;
@@ -46,18 +44,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //                                             (uint32_t)256,
         //                                             queue);
         cms::alpakatools::fillManyFromVector<Acc1D>(&(hits_d.view().phiBinner()),
-                                                      hrv_d,
-                                                      nLayers,
-                                                      hits_d.view().iphi(),
-                                                      hits_d.view().hitsLayerStart().data(),
-                                                      hits_h.nHits(),
-                                                      (uint32_t)256,
-                                                      queue);
+                                                    hrv_d,
+                                                    nLayers,
+                                                    hits_d.view().iphi(),
+                                                    hits_d.view().hitsLayerStart().data(),
+                                                    hits_h.nHits(),
+                                                    (uint32_t)256,
+                                                    queue);
 
 #ifdef GPU_DEBUG
-          alpaka::wait(queue);
+        alpaka::wait(queue);
 #endif
-        }
+      }
 
 #ifdef GPU_DEBUG
       alpaka::wait(queue);

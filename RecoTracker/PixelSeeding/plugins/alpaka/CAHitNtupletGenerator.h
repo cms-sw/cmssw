@@ -54,6 +54,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     //using ParamsOnDevice = pixelCPEforDevice::ParamsOnDeviceT<pixelTopology::base_traits_t<TrackerTraits>>;
     using FrameOnDevice = FrameSoACollection;
+
   public:
     CAHitNtupletGenerator(const edm::ParameterSet& cfg);
 
