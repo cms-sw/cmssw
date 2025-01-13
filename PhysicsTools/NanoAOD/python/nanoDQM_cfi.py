@@ -373,6 +373,20 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
             )
         ),
+        TrackGenJetAK4 = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 25, -0.5, 24.5, 'trackGenJetAK4, i.e. ak4 Jets made only with charged particles'),
+                Plot1D('eta', 'eta', 20, -7, 7, 'eta'),
+                Plot1D('hadronFlavour', 'hadronFlavour', 6, -0.5, 5.5, 'flavour from hadron ghost clustering'),
+                Plot1D('mass', 'mass', 20, 0, 200, 'mass'),
+                Plot1D('nBHadrons', 'nBHadrons', 4, -0.5, 3.5, 'number of b-hadrons'),
+                Plot1D('nCHadrons', 'nCHadrons', 4, -0.5, 3.5, 'number of c-hadrons'),
+                Plot1D('partonFlavour', 'partonFlavour', 40, -9.5, 30.5, 'flavour from parton matching'),
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
+            )
+        ),
         GenMET = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
@@ -500,6 +514,10 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('neHEF', 'neHEF', 20, 0, 1, 'neutral Hadron Energy Fraction'),
                 Plot1D('partonFlavour', 'partonFlavour', 40, -9.5, 30.5, 'flavour from parton matching'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('pnScore_heavy', 'pnScore_heavy', 40, -1, 1, 'PNet muon ID score for lepton from B or D hadrons'),
+                Plot1D('pnScore_light', 'pnScore_light', 40, -1, 1, 'PNet muon ID score for lepton from hadrons w/o b or c quarks OR w/o generator matching'),
+                Plot1D('pnScore_prompt', 'pnScore_prompt', 40, -1, 1, 'PNet muon ID score for lepton from W/Z/H bosons'),
+                Plot1D('pnScore_tau', 'pnScore_tau', 40, -1, 1, 'PNet muon ID score for decay of tau to light leptons (mu)'),
                 Plot1D('pt', 'pt', 20, 0, 400, 'pt'),
                 Plot1D('puId', 'puId', 8, -0.5, 7.5, 'Pilup ID flags'),
                 Plot1D('puIdDisc', 'puIdDisc', 20, -1, 1, 'Pilup ID discriminant with 102X (2018) training'),
@@ -622,10 +640,6 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('pfRelIso03_chg', 'pfRelIso03_chg', 20, 0, 2, 'PF relative isolation dR=0.3, charged component'),
                 Plot1D('pfRelIso04_all', 'pfRelIso04_all', 20, 0, 2, 'PF relative isolation dR=0.4, total (deltaBeta corrections)'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
-                Plot1D('pnScore_heavy', 'pnScore_heavy', 40, -1, 1, 'PNet muon ID score for lepton from B or D hadrons'),
-                Plot1D('pnScore_light', 'pnScore_light', 40, -1, 1, 'PNet muon ID score for lepton from hadrons w/o b or c quarks OR w/o generator matching'),
-                Plot1D('pnScore_prompt', 'pnScore_prompt', 40, -1, 1, 'PNet muon ID score for lepton from W/Z/H bosons'),
-                Plot1D('pnScore_tau', 'pnScore_tau', 40, -1, 1, 'PNet muon ID score for decay of tau to light leptons (mu)'),
                 Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
                 Plot1D('ptErr', 'ptErr', 20, 0, 20, 'ptError of the muon track'),
                 Plot1D('segmentComp', 'segmentComp', 20, 0, 1, 'muon segment compatibility'),
@@ -1043,4 +1057,5 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
         ),
     )
 )
+
 
