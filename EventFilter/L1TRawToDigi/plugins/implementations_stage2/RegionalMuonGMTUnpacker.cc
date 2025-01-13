@@ -34,18 +34,14 @@ namespace l1t {
       unsigned int linkId = blockId / 2;
       int processor;
       RegionalMuonCandBxCollection* regionalMuonCollection;
-      RegionalMuonShowerBxCollection* regionalMuonShowerCollection;
+      RegionalMuonShowerBxCollection* regionalMuonShowerCollection = nullptr;
       tftype trackFinder;
       if (linkId > 47 && linkId < 60) {
         regionalMuonCollection = static_cast<GMTCollections*>(coll)->getRegionalMuonCandsBMTF();
-        regionalMuonShowerCollection =
-            new RegionalMuonShowerBxCollection();  // To avoid warning re uninitialised collection
         trackFinder = tftype::bmtf;
         processor = linkId - 48;
       } else if (linkId > 41 && linkId < 66) {
         regionalMuonCollection = static_cast<GMTCollections*>(coll)->getRegionalMuonCandsOMTF();
-        regionalMuonShowerCollection =
-            new RegionalMuonShowerBxCollection();  // To avoid warning re uninitialised collection
         if (linkId < 48) {
           trackFinder = tftype::omtf_pos;
           processor = linkId - 42;
@@ -68,8 +64,9 @@ namespace l1t {
         return false;
       }
       regionalMuonCollection->setBXRange(firstBX, lastBX);
-      regionalMuonShowerCollection->setBXRange(firstBX, lastBX);
-
+      if (regionalMuonShowerCollection) {
+        regionalMuonShowerCollection->setBXRange(firstBX, lastBX);
+      }
       LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
       // Get the BX blocks and unpack them
@@ -127,7 +124,8 @@ namespace l1t {
           // Fill RegionalMuonShower objects. For this we need to look at all six words together.
           RegionalMuonShower muShower;
           if (RegionalMuonRawDigiTranslator::fillRegionalMuonShower(
-                  muShower, bxPayload, processor, trackFinder, useEmtfNominalTightShowers_, useEmtfLooseShowers_)) {
+                  muShower, bxPayload, processor, trackFinder, useEmtfNominalTightShowers_, useEmtfLooseShowers_) and
+              regionalMuonShowerCollection) {
             regionalMuonShowerCollection->push_back(bx, muShower);
           }
         } else {

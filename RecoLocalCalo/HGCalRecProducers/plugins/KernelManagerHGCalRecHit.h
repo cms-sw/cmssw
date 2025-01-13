@@ -13,10 +13,6 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#ifdef __CUDA_ARCH__
-extern __constant__ uint32_t calo_rechit_masks[];
-#endif
-
 template <typename T>
 class KernelConstantData {
 public:

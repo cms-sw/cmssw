@@ -41,7 +41,7 @@ CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>::produceAligned(const typena
   ZdcGeometry* zdcGeometry = new ZdcGeometry(&zdcTopology);
   PtrType ptr(zdcGeometry);
 
-  if (dins.size() > 0) {
+  if (!dins.empty()) {
     const unsigned int nTrParm(tvec.size() / zdcTopology.kSizeForDenseIndexing());
 
     assert(dvec.size() == ZdcGeometry::k_NumberOfShapes * ZdcGeometry::k_NumberOfParametersPerShape);

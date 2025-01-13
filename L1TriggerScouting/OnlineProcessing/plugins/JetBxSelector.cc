@@ -26,7 +26,7 @@ using namespace l1ScoutingRun3;
 class JetBxSelector : public edm::stream::EDProducer<> {
 public:
   explicit JetBxSelector(const edm::ParameterSet&);
-  ~JetBxSelector() {}
+  ~JetBxSelector() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:

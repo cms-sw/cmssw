@@ -246,3 +246,42 @@ void clangcms::support::fixAnonNS(std::string &name, const char *fname) {
   }
   return;
 }
+
+bool clangcms::support::isStdAtomic(const clang::FieldDecl *fieldDecl) {
+  if (!fieldDecl)
+    return false;
+
+  // Get the type of the field
+  clang::QualType fieldType = fieldDecl->getType();
+
+  // Resolve any typedefs or aliases to get the canonical type
+  fieldType = fieldType.getCanonicalType();
+
+  // Check if the type is a record type (class/struct)
+  if (const clang::RecordType *recordType = fieldType->getAs<clang::RecordType>()) {
+    const clang::CXXRecordDecl *recordDecl = clang::dyn_cast<clang::CXXRecordDecl>(recordType->getDecl());
+    if (!recordDecl)
+      return false;
+
+    // Check if the record is a class template specialization
+    if (const clang::ClassTemplateSpecializationDecl *specDecl =
+            clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(recordDecl)) {
+      const clang::TemplateDecl *templateDecl = specDecl->getSpecializedTemplate();
+      if (!templateDecl)
+        return false;
+
+      // Check if the template name matches "atomic"
+      const std::string templateName = templateDecl->getNameAsString();
+      if (templateName == "atomic") {
+        // Further check if it's in the "std" namespace
+        const clang::NamespaceDecl *namespaceDecl =
+            clang::dyn_cast<clang::NamespaceDecl>(templateDecl->getDeclContext());
+        if (namespaceDecl && namespaceDecl->getNameAsString() == "std") {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}

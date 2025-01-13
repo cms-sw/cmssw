@@ -19,11 +19,12 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -53,7 +54,7 @@
 class HFPhase1Reconstructor : public edm::stream::EDProducer<> {
 public:
   explicit HFPhase1Reconstructor(const edm::ParameterSet&);
-  ~HFPhase1Reconstructor() override;
+  ~HFPhase1Reconstructor() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -112,35 +113,35 @@ HFPhase1Reconstructor::HFPhase1Reconstructor(const edm::ParameterSet& conf)
   // Configure the noise cleanup algorithms
   if (setNoiseFlags_) {
     const edm::ParameterSet& psS9S1 = conf.getParameter<edm::ParameterSet>("S9S1stat");
-    hfS9S1_ = std::make_unique<HcalHF_S9S1algorithm>(psS9S1.getParameter<std::vector<double> >("short_optimumSlope"),
-                                                     psS9S1.getParameter<std::vector<double> >("shortEnergyParams"),
-                                                     psS9S1.getParameter<std::vector<double> >("shortETParams"),
-                                                     psS9S1.getParameter<std::vector<double> >("long_optimumSlope"),
-                                                     psS9S1.getParameter<std::vector<double> >("longEnergyParams"),
-                                                     psS9S1.getParameter<std::vector<double> >("longETParams"),
+    hfS9S1_ = std::make_unique<HcalHF_S9S1algorithm>(psS9S1.getParameter<std::vector<double>>("short_optimumSlope"),
+                                                     psS9S1.getParameter<std::vector<double>>("shortEnergyParams"),
+                                                     psS9S1.getParameter<std::vector<double>>("shortETParams"),
+                                                     psS9S1.getParameter<std::vector<double>>("long_optimumSlope"),
+                                                     psS9S1.getParameter<std::vector<double>>("longEnergyParams"),
+                                                     psS9S1.getParameter<std::vector<double>>("longETParams"),
                                                      psS9S1.getParameter<int>("HcalAcceptSeverityLevel"),
                                                      psS9S1.getParameter<bool>("isS8S1"));
 
     const edm::ParameterSet& psS8S1 = conf.getParameter<edm::ParameterSet>("S8S1stat");
-    hfS8S1_ = std::make_unique<HcalHF_S9S1algorithm>(psS8S1.getParameter<std::vector<double> >("short_optimumSlope"),
-                                                     psS8S1.getParameter<std::vector<double> >("shortEnergyParams"),
-                                                     psS8S1.getParameter<std::vector<double> >("shortETParams"),
-                                                     psS8S1.getParameter<std::vector<double> >("long_optimumSlope"),
-                                                     psS8S1.getParameter<std::vector<double> >("longEnergyParams"),
-                                                     psS8S1.getParameter<std::vector<double> >("longETParams"),
+    hfS8S1_ = std::make_unique<HcalHF_S9S1algorithm>(psS8S1.getParameter<std::vector<double>>("short_optimumSlope"),
+                                                     psS8S1.getParameter<std::vector<double>>("shortEnergyParams"),
+                                                     psS8S1.getParameter<std::vector<double>>("shortETParams"),
+                                                     psS8S1.getParameter<std::vector<double>>("long_optimumSlope"),
+                                                     psS8S1.getParameter<std::vector<double>>("longEnergyParams"),
+                                                     psS8S1.getParameter<std::vector<double>>("longETParams"),
                                                      psS8S1.getParameter<int>("HcalAcceptSeverityLevel"),
                                                      psS8S1.getParameter<bool>("isS8S1"));
 
     const edm::ParameterSet& psPET = conf.getParameter<edm::ParameterSet>("PETstat");
-    hfPET_ = std::make_unique<HcalHF_PETalgorithm>(psPET.getParameter<std::vector<double> >("short_R"),
-                                                   psPET.getParameter<std::vector<double> >("shortEnergyParams"),
-                                                   psPET.getParameter<std::vector<double> >("shortETParams"),
-                                                   psPET.getParameter<std::vector<double> >("long_R"),
-                                                   psPET.getParameter<std::vector<double> >("longEnergyParams"),
-                                                   psPET.getParameter<std::vector<double> >("longETParams"),
+    hfPET_ = std::make_unique<HcalHF_PETalgorithm>(psPET.getParameter<std::vector<double>>("short_R"),
+                                                   psPET.getParameter<std::vector<double>>("shortEnergyParams"),
+                                                   psPET.getParameter<std::vector<double>>("shortETParams"),
+                                                   psPET.getParameter<std::vector<double>>("long_R"),
+                                                   psPET.getParameter<std::vector<double>>("longEnergyParams"),
+                                                   psPET.getParameter<std::vector<double>>("longETParams"),
                                                    psPET.getParameter<int>("HcalAcceptSeverityLevel"),
-                                                   psPET.getParameter<std::vector<double> >("short_R_29"),
-                                                   psPET.getParameter<std::vector<double> >("long_R_29"));
+                                                   psPET.getParameter<std::vector<double>>("short_R_29"),
+                                                   psPET.getParameter<std::vector<double>>("long_R_29"));
 
     // Configure HFStripFilter
     if (runHFStripFilter_) {
@@ -159,11 +160,6 @@ HFPhase1Reconstructor::HFPhase1Reconstructor(const edm::ParameterSet& conf)
   conditionsToken_ = esConsumes<HcalDbService, HcalDbRecord>();
   qualToken_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"));
   sevToken_ = esConsumes<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd>();
-}
-
-HFPhase1Reconstructor::~HFPhase1Reconstructor() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 void HFPhase1Reconstructor::beginRun(const edm::Run& r, const edm::EventSetup& es) {
@@ -271,29 +267,100 @@ void HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventS
   e.put(std::move(rec));
 }
 
-#define add_param_set(name) /**/     \
-  edm::ParameterSetDescription name; \
-  name.setAllowAnything();           \
-  desc.add<edm::ParameterSetDescription>(#name, name)
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HFPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("inputLabel");
-  desc.add<std::string>("algoConfigClass");
-  desc.add<bool>("setNoiseFlags");
-  desc.add<bool>("runHFStripFilter", false);
-  desc.add<bool>("useChannelQualityFromDB");
-  desc.add<bool>("checkChannelQualityForDepth3and4");
-  desc.add<edm::ParameterSetDescription>("algorithm", fillDescriptionForParseHFPhase1AlgoDescription());
-  desc.add<edm::ParameterSetDescription>("HFStripFilter", HFStripFilter::fillDescription());
+  desc.add<edm::InputTag>("inputLabel", edm::InputTag("hfprereco"))
+      ->setComment("Label for the input HFPreRecHitCollection");
+  desc.add<std::string>("algoConfigClass", "HFPhase1PMTParams")
+      ->setComment("reconstruction algorithm data to fetch from DB, if any");
+  desc.add<bool>("useChannelQualityFromDB", true)
+      ->setComment("change the following to True in order to use the channel status from the DB");
+  desc.add<bool>("checkChannelQualityForDepth3and4", true);
+  desc.add<edm::ParameterSetDescription>("algorithm", fillDescriptionForParseHFPhase1AlgoDescription())
+      ->setComment("configure the reconstruction algorithm");
 
-  add_param_set(S9S1stat);
-  add_param_set(S8S1stat);
-  add_param_set(PETstat);
+  desc.ifValue(
+      edm::ParameterDescription<bool>("runHFStripFilter", true, true),
+      false >> edm::EmptyGroupDescription() or true >> edm::ParameterDescription<edm::ParameterSetDescription>(
+                                                           "HFStripFilter", HFStripFilter::fillDescription(), true));
 
-  descriptions.addDefault(desc);
+  {
+    // Define common vectors
+    std::vector<double> slopes_S9S1_run1 = {-99999,
+                                            0.0164905,
+                                            0.0238698,
+                                            0.0321383,
+                                            0.041296,
+                                            0.0513428,
+                                            0.0622789,
+                                            0.0741041,
+                                            0.0868186,
+                                            0.100422,
+                                            0.135313,
+                                            0.136289,
+                                            0.0589927};
+    std::vector<double> coeffs = {1.0, 2.5, 2.2, 2.0, 1.8, 1.6, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+    std::vector<double> slopes_S9S1_run2(slopes_S9S1_run1.size());
+    for (size_t i = 0; i < slopes_S9S1_run1.size(); ++i) {
+      slopes_S9S1_run2[i] = slopes_S9S1_run1[i] * coeffs[i];
+    }
+
+    // S9S1stat configuration
+    edm::ParameterSetDescription S9S1statDesc;
+    S9S1statDesc.add<std::vector<double>>("short_optimumSlope", slopes_S9S1_run2);
+    S9S1statDesc.add<std::vector<double>>(
+        "shortEnergyParams",
+        {35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093});
+    S9S1statDesc.add<std::vector<double>>("shortETParams", std::vector<double>(13, 0));
+    S9S1statDesc.add<std::vector<double>>("long_optimumSlope", slopes_S9S1_run2);
+    S9S1statDesc.add<std::vector<double>>(
+        "longEnergyParams", {43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62});
+    S9S1statDesc.add<std::vector<double>>("longETParams", std::vector<double>(13, 0));
+    S9S1statDesc.add<int>("HcalAcceptSeverityLevel", 9);
+    S9S1statDesc.add<bool>("isS8S1", false);
+
+    // S8S1stat configuration
+    edm::ParameterSetDescription S8S1statDesc;
+    S8S1statDesc.add<std::vector<double>>(
+        "short_optimumSlope", {0.30, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10});
+    S8S1statDesc.add<std::vector<double>>("shortEnergyParams",
+                                          {40, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100});
+    S8S1statDesc.add<std::vector<double>>("shortETParams", std::vector<double>(13, 0));
+    S8S1statDesc.add<std::vector<double>>(
+        "long_optimumSlope", {0.30, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10});
+    S8S1statDesc.add<std::vector<double>>("longEnergyParams",
+                                          {40, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100});
+    S8S1statDesc.add<std::vector<double>>("longETParams", std::vector<double>(13, 0));
+    S8S1statDesc.add<int>("HcalAcceptSeverityLevel", 9);
+    S8S1statDesc.add<bool>("isS8S1", true);
+
+    // PETstat configuration
+    edm::ParameterSetDescription PETstatDesc;
+    PETstatDesc.add<std::vector<double>>("short_R", {0.8});
+    PETstatDesc.add<std::vector<double>>(
+        "shortEnergyParams",
+        {35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093});
+    PETstatDesc.add<std::vector<double>>("shortETParams", std::vector<double>(13, 0));
+    PETstatDesc.add<std::vector<double>>("long_R", {0.98});
+    PETstatDesc.add<std::vector<double>>(
+        "longEnergyParams", {43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62});
+    PETstatDesc.add<std::vector<double>>("longETParams", std::vector<double>(13, 0));
+    PETstatDesc.add<std::vector<double>>("short_R_29", {0.8});
+    PETstatDesc.add<std::vector<double>>("long_R_29", {0.8});
+    PETstatDesc.add<int>("HcalAcceptSeverityLevel", 9);
+
+    // Conditionally add S9S1stat if setNoiseFlags is true
+    desc.ifValue(
+        edm::ParameterDescription<bool>("setNoiseFlags", true, true),
+        false >> edm::EmptyGroupDescription() or
+            true >> (edm::ParameterDescription<edm::ParameterSetDescription>("S9S1stat", S9S1statDesc, true) and
+                     edm::ParameterDescription<edm::ParameterSetDescription>("S8S1stat", S8S1statDesc, true) and
+                     edm::ParameterDescription<edm::ParameterSetDescription>("PETstat", PETstatDesc, true)));
+  }
+
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

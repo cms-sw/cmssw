@@ -12,15 +12,17 @@
  * $Id: CandidateProducer.h,v 1.4 2010/02/11 00:10:53 wmtan Exp $
  *
  */
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "CommonTools/UtilAlgos/interface/MasterCollectionHelper.h"
 #include "CommonTools/UtilAlgos/interface/AnySelector.h"
 #include "CommonTools/UtilAlgos/interface/EventSetupInitTrait.h"
+#include "CommonTools/UtilAlgos/interface/MasterCollectionHelper.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace converter {
   namespace helper {
@@ -80,6 +82,14 @@ public:
   }
   /// destructor
   ~CandidateProducer() override {}
+
+  /// fillDescriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src", edm::InputTag(""));
+    Conv::fillPSetDescription(desc);
+    descriptions.addWithDefaultLabel(desc);
+  }
 
 private:
   /// begin job (first run)

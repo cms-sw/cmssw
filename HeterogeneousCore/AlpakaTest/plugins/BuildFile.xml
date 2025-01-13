@@ -19,6 +19,7 @@
   The dependency on "DataFormats/PortableTestObjects" automatically expands to include
   the host-only library (if it exists) and the corresponding Alpaka libraries (if they exist)
   -->
+  <use name="DataFormats/Portable"/>
   <use name="DataFormats/PortableTestObjects"/>
   <use name="DataFormats/TestObjects"/>
   <use name="FWCore/Framework"/>

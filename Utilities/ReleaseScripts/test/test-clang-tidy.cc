@@ -22,7 +22,7 @@ int BaseClass::someMethod() { return m_x; }
 
 class DrivedClass : public BaseClass {
 public:
-  DrivedClass(int x) : BaseClass(x){};
+  DrivedClass(int x) : BaseClass(x) {};
   virtual ~DrivedClass();
   virtual int someMethod();
 };

@@ -24,7 +24,7 @@ FileRandomMultiParticlePGunProducer::FileRandomMultiParticlePGunProducer(const P
   fMinP_ = pgunParams.getParameter<double>("MinP");
   fMaxP_ = pgunParams.getParameter<double>("MaxP");
   edm::FileInPath fp = pgunParams.getParameter<edm::FileInPath>("FileName");
-  std::string file = fp.fullPath();
+  const std::string& file = fp.fullPath();
 
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();

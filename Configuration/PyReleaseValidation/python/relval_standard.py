@@ -544,9 +544,9 @@ workflows[141.113] = ['',['RunCosmics2023C','HLTDR3_2023','SKIMCOSMICSRUN3_reHLT
 workflows[141.114] = ['',['RunParkingDoubleMuonLowMass2023C','HLTDR3_2023','SKIMPARKINGDOUBLEMUONLOWMASS0RUN3_reHLT_2023','HARVESTRUN3_2023']]
 
 ### run3-2023 (2023 data) - Pixel-only (triplets), ECAL-only and HCAL-only
-workflows[141.008505] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_Patatrack_PixelOnlyTripletsCPU','HARVESTRUN3_pixelTrackingOnly']]
-workflows[141.008511] = ['Run3-2023_JetMET2023B_RecoECALOnlyCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_ECALOnlyCPU','HARVESTRUN3_ECALOnly']]
-workflows[141.008521] = ['Run3-2023_JetMET2023B_RecoHCALOnlyCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_HCALOnlyCPU','HARVESTRUN3_HCALOnly']]
+workflows[141.008405] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_Alpaka_PixelOnlyTripletsCPU','HARVESTRUN3_pixelTrackingOnly']]
+workflows[141.008411] = ['Run3-2023_JetMET2023B_RecoECALOnlyCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_Alpaka_ECALOnlyCPU','HARVESTRUN3_ECALOnly']]
+workflows[141.008421] = ['Run3-2023_JetMET2023B_RecoHCALOnlyCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_Alpaka_HCALOnlyCPU','HARVESTRUN3_HCALOnly']]
 
 ### run3-2023 (2023 HI UPC data)
 workflows[141.901] = ['',['RunUPC2023','RECODR3_2023_UPC','HARVESTDPROMPTR3']]
@@ -573,57 +573,19 @@ workflows[143.902] = ['',['RunUPC2024','RECODR3_2025_HIN','HARVESTDPROMPTR3']]
 ### run3-2025 (2025 HI OXY data)
 workflows[143.911] = ['',['RunUPC2024','RECODR3_2025_OXY','HARVESTDPROMPTR3']]
 
-##################################################################
-### Golden Data Wfs
-# for a limited set of eras and PDs not to overflow the IB matrices
-# the full set in relval_data_highstats.py
 
-offset_era = 0.1 # less than 10 eras per year
+## Lumi mask fixed 2024 wfs
+base_wf = 145.0
+offset_era = 0.1 # less than 10 eras per year (hopefully)
 offset_pd = 0.001 # less than 100 pds per year
 
-# 2024
-base_wf = 2024
-for e_n,era in enumerate(['Run2024B','Run2024C','Run2024D','Run2024E']):
-    for p_n,pd in enumerate(['ZeroBias','BTagMu','JetMET0','DisplacedJet']):
-        wf_number = base_wf
-        wf_number = wf_number + offset_era * e_n
-        wf_number = wf_number + offset_pd * p_n
-        wf_number = wf_number + 0.0001 * 0.01 
-        wf_number = round(wf_number,6)
-
-        step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_10k"
-        y = str(base_wf)
+for e_n,era in enumerate(era_mask_2024):
+    for p_n,pd in enumerate(pds_2024):
+        wf_number = round(base_wf + offset_era * e_n + offset_pd * p_n,3)
+        dataset = "/" + pd + "/" + era + "-v1/RAW"
+        step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1]
         suff = "ZB_" if "ZeroBias" in step_name else ""
-        workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
-
-# 2023
-base_wf = 2023
-for e_n,era in enumerate(['Run2023D']):
-    for p_n,pd in enumerate(['MuonEG','DisplacedJet','ZeroBias']):
-        wf_number = base_wf
-        wf_number = wf_number + offset_era * e_n
-        wf_number = wf_number + offset_pd * p_n
-        wf_number = wf_number + 0.0001 * 0.01
-        wf_number = round(wf_number,6)
-
-        step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_10k"
-        y = str(base_wf) + "B" if "2023B" in era else str(base_wf)
-        suff = "ZB_" if "ZeroBias" in step_name else ""
-        workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
-
-# 2022
-base_wf = 2022
-for e_n,era in enumerate(['Run2022C']):
-    for p_n,pd in enumerate(['JetHT','EGamma','ZeroBias']):
-        wf_number = base_wf
-        wf_number = wf_number + offset_era * e_n
-        wf_number = wf_number + offset_pd * p_n
-        wf_number = wf_number + 0.0001 * 0.01 
-        wf_number = round(wf_number,6)
-        step_name = "Run" + pd + era.split("Run")[1] + "_10k"
-        y = str(base_wf)
-        suff = "ZB_" if "ZeroBias" in step_name else ""
-        workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
+        workflows[wf_number] = ['',[step_name,'HLTDR3_2024','RECONANORUN3_' + suff + 'reHLT_2024','HARVESTRUN3_' + suff + '2024']]
 
 ##################################################################
 
@@ -883,7 +845,7 @@ workflows[160.2] = ['',['PhotonJets_Pt_10_5362_HI_2023','DIGIHI2023PPRECO','RECO
 workflows[160.3] = ['',['ZMM_5362_HI_2023','DIGIHI2023PPRECO','RECOHI2023PPRECO','HARVESTHI2023PPRECO']]
 workflows[160.4] = ['',['ZEE_5362_HI_2023','DIGIHI2023PPRECO','RECOHI2023PPRECO','HARVESTHI2023PPRECO']]
 # Patatrack Pixel Tracks on CPU
-workflows[160.501] = ['',['HydjetQ_MinBias_5362GeV_2023_ppReco','DIGIHI2023PPRECO','RAWPRIMESIMHI18','RECOHI2023PPRECOMB_PatatrackCPU','MINIHI2023PROD']]
+workflows[160.401] = ['',['HydjetQ_MinBias_5362GeV_2023_ppReco','DIGIHI2023PPRECO','RAWPRIMESIMHI18','RECOHI2023PPRECOMB_AlpakaCPU','MINIHI2023PROD']]
 ### Run 3 cond., 2024
 workflows[161] = ['',['HydjetQ_B12_5362GeV_2024','DIGIHI2024','RECOHI2024MB','ALCARECOHI2023PPRECO','HARVESTHI2024']]
 workflows[161.02] = ['',['HydjetQ_B12_5362GeV_2024','DIGIHI2024','RAWPRIMESIMHI18','RECOHI2024MBAPPROXCLUSTERS','ALCARECOHI2024','HARVESTHI2024S4']]

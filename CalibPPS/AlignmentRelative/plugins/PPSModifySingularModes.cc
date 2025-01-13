@@ -60,7 +60,7 @@ void PPSModifySingularModes::beginRun(edm::Run const &, edm::EventSetup const &e
   const double de_rho2 = ps_.getUntrackedParameter<double>("de_rho2");
 
   FileInPath inputFileInPath(ps_.getUntrackedParameter<string>("inputFile"));
-  const string inputFile = inputFileInPath.fullPath();
+  const string &inputFile = inputFileInPath.fullPath();
   const string outputFile = ps_.getUntrackedParameter<string>("outputFile");
 
   // validate config parameters

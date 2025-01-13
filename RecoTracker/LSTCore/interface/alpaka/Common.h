@@ -3,6 +3,7 @@
 
 #include <numbers>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTracker/LSTCore/interface/Common.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
@@ -10,6 +11,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   using namespace ::lst;
 
   Vec3D constexpr elementsPerThread(Vec3D::all(static_cast<Idx>(1)));
+
+  ALPAKA_FN_HOST ALPAKA_FN_INLINE void lstWarning(std::string warning) {
+    edm::LogWarning("LST") << warning;
+    return;
+  }
 
   // Adjust grid and block sizes based on backend configuration
   template <typename Vec, typename TAcc = Acc<typename Vec::Dim>>

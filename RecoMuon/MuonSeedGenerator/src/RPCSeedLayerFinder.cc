@@ -3,7 +3,7 @@
  *
  */
 
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedLayerFinder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCSeedLayerFinder.h"
 
 using namespace std;
 using namespace edm;

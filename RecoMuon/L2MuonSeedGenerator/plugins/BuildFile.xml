@@ -16,5 +16,6 @@
     <use name="TrackingTools/TrajectoryParametrization"/>
     <use name="TrackingTools/TrajectoryState"/>
     <use name="clhep"/>
+    <use name="vdt"/>
     <flags EDM_PLUGIN="1"/>
 </library>

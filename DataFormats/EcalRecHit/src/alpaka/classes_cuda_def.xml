@@ -2,4 +2,8 @@
   <class name="alpaka_cuda_async::EcalUncalibratedRecHitDeviceCollection" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_cuda_async::EcalUncalibratedRecHitDeviceCollection>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::EcalUncalibratedRecHitDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::EcalRecHitDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::EcalRecHitDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::EcalRecHitDeviceCollection>>" persistent="false"/>
 </lcgdict>

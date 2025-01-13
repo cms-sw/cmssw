@@ -1,5 +1,7 @@
 #include "LCToCPAssociatorByEnergyScoreProducer.h"
 
+#include <memory>
+
 template <typename HIT>
 LCToCPAssociatorByEnergyScoreProducer<HIT>::LCToCPAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
@@ -13,7 +15,7 @@ LCToCPAssociatorByEnergyScoreProducer<HIT>::LCToCPAssociatorByEnergyScoreProduce
       hits_token_.push_back(consumes<std::vector<HIT>>(label));
   }
 
-  rhtools_.reset(new hgcal::RecHitTools());
+  rhtools_ = std::make_shared<hgcal::RecHitTools>();
 
   // Register the product
   produces<ticl::LayerClusterToCaloParticleAssociator>();

@@ -1,6 +1,7 @@
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -36,10 +37,12 @@ public:
   SeedClusterRemoverPhase2(const edm::ParameterSet &iConfig);
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
 private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
-  bool doOuterTracker_, doPixel_;
-  bool mergeOld_;
+  const bool doOuterTracker_, doPixel_;
+  const bool mergeOld_;
   typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelMaskContainer;
   typedef edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > Phase2OTMaskContainer;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
@@ -62,9 +65,9 @@ using namespace edm;
 
 SeedClusterRemoverPhase2::SeedClusterRemoverPhase2(const ParameterSet &iConfig)
     : tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
-      doOuterTracker_(iConfig.existsAs<bool>("doOuterTracker") ? iConfig.getParameter<bool>("doOuterTracker") : true),
-      doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
-      mergeOld_(iConfig.exists("oldClusterRemovalInfo")) {
+      doOuterTracker_(iConfig.getParameter<bool>("doOuterTracker")),
+      doPixel_(iConfig.getParameter<bool>("doPixel")),
+      mergeOld_(!iConfig.getParameter<edm::InputTag>("oldClusterRemovalInfo").label().empty()) {
   produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
   produces<edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > >();
 
@@ -231,6 +234,17 @@ void SeedClusterRemoverPhase2::produce(Event &iEvent, const EventSetup &iSetup) 
 
   collectedOuterTrackers_.clear();
   collectedPixels_.clear();
+}
+
+void SeedClusterRemoverPhase2::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("doOuterTracker", true);
+  desc.add<bool>("doPixel", true);
+  desc.add<InputTag>("trajectories", edm::InputTag("initialStepSeeds"));
+  desc.add<InputTag>("pixelClusters", edm::InputTag("siPixelClusters"));
+  desc.add<InputTag>("phase2OTClusters", edm::InputTag("siPhase2Clusters"));
+  desc.add<InputTag>("oldClusterRemovalInfo", edm::InputTag(""));
+  descriptions.add("default_seedClusterRemoverPhase2", desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

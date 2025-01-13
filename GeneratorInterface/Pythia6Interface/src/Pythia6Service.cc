@@ -175,7 +175,7 @@ void Pythia6Service::setCSAParams() {
     for (size_t i = 0; i < SETCSAPARBUFSIZE; ++i)
       buf[i] = ' ';
     // Skip empty parameters.
-    if (iter->length() <= 0)
+    if (iter->empty())
       continue;
     // Limit the size of the string to something which fits the buffer.
     size_t maxSize = iter->length() > (SETCSAPARBUFSIZE - 2) ? (SETCSAPARBUFSIZE - 2) : iter->length();
@@ -251,7 +251,7 @@ void Pythia6Service::setSLHAParams() {
     //std::cout << " start, end = " << start << " " << end << std::endl;
     std::string shortfile = iter->substr(start, end - start + 1);
     FileInPath f1(shortfile);
-    std::string file = f1.fullPath();
+    const std::string& file = f1.fullPath();
 
     /*
 	//

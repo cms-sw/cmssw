@@ -56,7 +56,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
@@ -94,6 +96,8 @@ namespace cms {
     //--- Constructor, virtual destructor (just in case)
     explicit SiPixelRecHitConverter(const edm::ParameterSet& conf);
     ~SiPixelRecHitConverter() override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     //--- Factory method to make CPE's depending on the ParameterSet
     //--- Not sure if we need to make more than one CPE to run concurrently
@@ -257,5 +261,12 @@ namespace cms {
 }  // end of namespace cms
 
 using cms::SiPixelRecHitConverter;
+
+void SiPixelRecHitConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("siPixelClusters"));
+  desc.add<std::string>("CPE", "PixelCPEGeneric");
+  descriptions.addWithDefaultLabel(desc);
+}
 
 DEFINE_FWK_MODULE(SiPixelRecHitConverter);

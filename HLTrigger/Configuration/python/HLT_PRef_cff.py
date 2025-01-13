@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_14_1_0/PRef --cff --data --type PRef
+# hltGetConfiguration /dev/CMSSW_14_2_0/PRef --cff --data --type PRef
 
-# /dev/CMSSW_14_1_0/PRef/V50 (CMSSW_14_1_1)
+# /dev/CMSSW_14_2_0/PRef/V10 (CMSSW_14_2_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_1_0/PRef/V50")
+  tableName = cms.string("/dev/CMSSW_14_2_0/PRef/V10")
 )
 
 fragment.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -5458,6 +5458,7 @@ fragment.hltPixelVerticesSoA = cms.EDProducer( "PixelVertexProducerAlpakaPhase1@
     eps = cms.double( 0.07 ),
     errmax = cms.double( 0.01 ),
     chi2max = cms.double( 9.0 ),
+    maxVertices = cms.int32( 256 ),
     PtMin = cms.double( 0.5 ),
     PtMax = cms.double( 75.0 ),
     pixelTrackSrc = cms.InputTag( "hltPixelTracksSoA" ),
@@ -5532,6 +5533,7 @@ fragment.hltPixelVerticesSoASerialSync = cms.EDProducer( "alpaka_serial_sync::Pi
     eps = cms.double( 0.07 ),
     errmax = cms.double( 0.01 ),
     chi2max = cms.double( 9.0 ),
+    maxVertices = cms.int32( 256 ),
     PtMin = cms.double( 0.5 ),
     PtMax = cms.double( 75.0 ),
     pixelTrackSrc = cms.InputTag( "hltPixelTracksSoASerialSync" )
@@ -7893,6 +7895,7 @@ fragment.hltIter3IterL3FromL1MuonPixelClusterCheck = cms.EDProducer( "ClusterChe
     MaxNumberOfPixelClusters = cms.uint32( 40000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
     cut = cms.string( "" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 fragment.hltIter3IterL3FromL1MuonPixelHitDoublets = cms.EDProducer( "HitPairEDProducer",
@@ -8694,6 +8697,7 @@ fragment.hltDoubletRecoveryPFlowPixelClusterCheck = cms.EDProducer( "ClusterChec
     MaxNumberOfPixelClusters = cms.uint32( 40000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
     cut = cms.string( "" ),
+    DontCountDetsAboveNClusters = cms.uint32( 0 ),
     silentClusterCheck = cms.untracked.bool( False )
 )
 fragment.hltDoubletRecoveryPFlowPixelHitDoublets = cms.EDProducer( "HitPairEDProducer",
@@ -11886,7 +11890,8 @@ fragment.hltElePixelSeedsTriplets = cms.EDProducer( "SeedCreatorFromRegionConsec
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
 )
 fragment.hltElePixelSeedsCombined = cms.EDProducer( "SeedCombiner",
-    seedCollections = cms.VInputTag( 'hltElePixelSeedsDoublets','hltElePixelSeedsTriplets' )
+    seedCollections = cms.VInputTag( 'hltElePixelSeedsDoublets','hltElePixelSeedsTriplets' ),
+    clusterRemovalInfos = cms.VInputTag(  )
 )
 fragment.hltEgammaElectronPixelSeeds = cms.EDProducer( "ElectronNHitSeedProducer",
     initialSeeds = cms.InputTag( "hltElePixelSeedsCombined" ),

@@ -31,11 +31,13 @@ import FWCore.ParameterSet.Config as cms
 # to "True". In this case the SOI configuration is ignored, and the energy
 # is accumulated using all time slices in the data frame.
 #
-hfprereco = cms.EDProducer("HFPreReconstructor",
-    digiLabel = cms.InputTag("hcalDigis"),
-    dropZSmarkedPassed = cms.bool(False),
-    tsFromDB = cms.bool(False),
-    sumAllTimeSlices = cms.bool(False),
-    forceSOI = cms.int32(-1),
-    soiShift = cms.int32(0)
+
+from RecoLocalCalo.HcalRecProducers.hfPreReconstructor_cfi import hfPreReconstructor
+hfprereco = hfPreReconstructor.clone(
+    digiLabel = "hcalDigis",
+    dropZSmarkedPassed = False,
+    tsFromDB = False,
+    sumAllTimeSlices = False,
+    forceSOI = -1,
+    soiShift = 0
 )

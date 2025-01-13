@@ -188,17 +188,33 @@ process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
                                                  nVtxBins = cms.untracked.double(40.)
                                                  )
 
+###################################################################
+# TFileService
+###################################################################
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string(options.outputRootFile),	
                                    closeFileFast = cms.untracked.bool(False)
                                    )
 
+###################################################################
+# Beamspot compatibility check
+###################################################################
+from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
+process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
+    bsFromEvent = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
+    bsFromDB = "offlineBeamSpot",           # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+    warningThr = 3, # significance threshold to emit a warning message
+    errorThr = 5    # significance threshold to abort the job
+)
+
+###################################################################
+# Path
+###################################################################
 process.p = cms.Path(process.HLTFilter                               +
                      #process.offlineBeamSpot                        +
                      #process.TrackRefitter                          +
+                     process.BeamSpotChecker                         +
                      process.seqTrackselRefit                        +
                      process.offlinePrimaryVerticesFromRefittedTrks  +
                      process.PrimaryVertexResolution                 +
                      process.myanalysis)
-
-

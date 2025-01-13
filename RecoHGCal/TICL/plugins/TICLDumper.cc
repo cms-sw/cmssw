@@ -992,7 +992,7 @@ void TICLDumper::beginJob() {
     superclustering_tree_->Branch("recoSuperCluster_constituentTs", &recoSuperCluster_constituentTs);
   }
 
-  if (associations_parameterSets_.size() > 0) {
+  if (!associations_parameterSets_.empty()) {
     associations_tree_ = fs->make<TTree>("associations", "Associations");
     associations_tree_->Branch("event", &eventId_);
   }
@@ -1291,7 +1291,7 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     associations_dumperHelpers_[i].fillFromEvent(event.get(associations_recoToSim_token_[i]),
                                                  event.get(associations_simToReco_token_[i]));
   }
-  if (associations_dumperHelpers_.size() > 0)
+  if (!associations_dumperHelpers_.empty())
     associations_tree_->Fill();
 
   //Tracks

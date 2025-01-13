@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "GeneratorInterface/Pythia8Interface/interface/Py8GunBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
@@ -45,7 +47,7 @@ namespace gen {
 
     if (useEvtGen) {
       edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
-      evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile, evtgenPdlFile));
+      evtgenDecays = std::make_shared<EvtGenDecays>(fMasterGen.get(), evtgenDecFile, evtgenPdlFile);
       for (unsigned int i = 0; i < evtgenUserFiles.size(); i++)
         evtgenDecays->readDecayFile(evtgenUserFiles.at(i));
     }

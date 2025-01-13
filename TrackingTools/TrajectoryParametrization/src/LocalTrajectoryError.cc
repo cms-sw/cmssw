@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
 #include "FWCore/Utilities/interface/Likely.h"
@@ -13,7 +15,7 @@ LocalTrajectoryError::LocalTrajectoryError(float dx, float dy, float dxdir, floa
 
 const AlgebraicSymMatrix55& LocalTrajectoryError::weightMatrix() const {
   if UNLIKELY (theWeightMatrixPtr.get() == nullptr) {
-    theWeightMatrixPtr.reset(new AlgebraicSymMatrix55());
+    theWeightMatrixPtr = std::make_shared<AlgebraicSymMatrix55>();
     invertPosDefMatrix(theCovarianceMatrix, *theWeightMatrixPtr);
   }
   return *theWeightMatrixPtr;

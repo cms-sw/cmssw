@@ -1,10 +1,12 @@
+#include <memory>
+
 #include "CondCore/CondDB/interface/PayloadReader.h"
 
 namespace cond {
 
   namespace persistency {
 
-    PayloadReader::PayloadReader() { m_connection.reset(new ConnectionPool); }
+    PayloadReader::PayloadReader() { m_connection = std::make_shared<ConnectionPool>(); }
 
     PayloadReader::PayloadReader(const PayloadReader& rhs) : m_connection(rhs.m_connection), m_session(rhs.m_session) {}
 

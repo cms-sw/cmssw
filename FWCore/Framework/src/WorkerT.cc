@@ -203,43 +203,41 @@ namespace edm {
   }
 
   template <typename T>
-  inline void WorkerT<T>::implDoAcquire(EventTransitionInfo const&,
-                                        ModuleCallingContext const*,
-                                        WaitingTaskWithArenaHolder&) {}
+  inline void WorkerT<T>::implDoAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskHolder&&) {}
 
   template <>
   inline void WorkerT<global::EDProducerBase>::implDoAcquire(EventTransitionInfo const& info,
                                                              ModuleCallingContext const* mcc,
-                                                             WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, holder);
+                                                             WaitingTaskHolder&& holder) {
+    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
   }
 
   template <>
   inline void WorkerT<global::EDFilterBase>::implDoAcquire(EventTransitionInfo const& info,
                                                            ModuleCallingContext const* mcc,
-                                                           WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, holder);
+                                                           WaitingTaskHolder&& holder) {
+    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
   }
 
   template <>
   inline void WorkerT<global::OutputModuleBase>::implDoAcquire(EventTransitionInfo const& info,
                                                                ModuleCallingContext const* mcc,
-                                                               WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, holder);
+                                                               WaitingTaskHolder&& holder) {
+    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
   }
 
   template <>
   inline void WorkerT<stream::EDProducerAdaptorBase>::implDoAcquire(EventTransitionInfo const& info,
                                                                     ModuleCallingContext const* mcc,
-                                                                    WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, holder);
+                                                                    WaitingTaskHolder&& holder) {
+    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
   }
 
   template <>
   inline void WorkerT<stream::EDFilterAdaptorBase>::implDoAcquire(EventTransitionInfo const& info,
                                                                   ModuleCallingContext const* mcc,
-                                                                  WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, holder);
+                                                                  WaitingTaskHolder&& holder) {
+    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
   }
 
   template <typename T>

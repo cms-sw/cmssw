@@ -109,7 +109,7 @@ std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeScoutingRu
   return daqProvenanceHelpers_;
 }
 
-bool DataModeScoutingRun3::nextEventView() {
+bool DataModeScoutingRun3::nextEventView(RawInputFile*) {
   blockCompleted_ = false;
   if (eventCached_)
     return true;

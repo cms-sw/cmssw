@@ -129,7 +129,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.muonDTDigis.inputLabel           = "rawDataCollector"
     process.muonRPCDigis.InputLabel          = "rawDataCollector"
     process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
-    process.siPixelDigis.cpu.InputLabel      = "rawDataCollector"
+    process.siPixelDigis.InputLabel      = "rawDataCollector"
     process.siStripDigis.ProductLabel        = "rawDataCollector"
 
     
@@ -182,7 +182,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonDTDigis.inputLabel           = "rawDataRepacker"
     process.muonRPCDigis.InputLabel          = "rawDataRepacker"
     process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
-    process.siPixelDigis.cpu.InputLabel      = "rawDataRepacker"
+    process.siPixelDigis.InputLabel      = "rawDataRepacker"
     process.siStripDigis.ProductLabel        = "rawDataRepacker"
 
 

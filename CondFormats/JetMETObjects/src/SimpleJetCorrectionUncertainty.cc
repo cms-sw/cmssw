@@ -54,7 +54,7 @@ float SimpleJetCorrectionUncertainty::uncertaintyBin(unsigned fBin, float fY, bo
     return -999.0;
   }
   const std::vector<float>& p = mParameters.record(fBin).parameters();
-  if ((p.size() % 3) != 0 or p.size() == 0)
+  if ((p.size() % 3) != 0 or p.empty())
     throw cms::Exception("SimpleJetCorrectionUncertainty")
         << "wrong # of parameters: multiple of 3 expected, " << p.size() << " got";
   Span3 yGrid{p};

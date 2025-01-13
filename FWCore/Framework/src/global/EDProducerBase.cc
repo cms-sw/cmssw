@@ -36,9 +36,6 @@
 // constants, enums and typedefs
 //
 namespace edm {
-
-  class WaitingTaskWithArenaHolder;
-
   namespace global {
     //
     // static data member definitions
@@ -78,7 +75,7 @@ namespace edm {
     void EDProducerBase::doAcquire(EventTransitionInfo const& info,
                                    ActivityRegistry* act,
                                    ModuleCallingContext const* mcc,
-                                   WaitingTaskWithArenaHolder& holder) {
+                                   WaitingTaskHolder&& holder) {
       EventAcquireSignalsSentry sentry(act, mcc);
       Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
@@ -87,7 +84,7 @@ namespace edm {
       ESParentContext parentC(mcc);
       const EventSetup c{
           info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
-      this->doAcquire_(e.streamID(), e, c, holder);
+      this->doAcquire_(e.streamID(), e, c, std::move(holder));
     }
 
     void EDProducerBase::doTransformAsync(WaitingTaskHolder iTask,
@@ -303,7 +300,7 @@ namespace edm {
 
     void EDProducerBase::clearInputProcessBlockCaches() {}
 
-    void EDProducerBase::doAcquire_(StreamID, Event const&, EventSetup const&, WaitingTaskWithArenaHolder&) {}
+    void EDProducerBase::doAcquire_(StreamID, Event const&, EventSetup const&, WaitingTaskHolder&&) {}
 
     void EDProducerBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;

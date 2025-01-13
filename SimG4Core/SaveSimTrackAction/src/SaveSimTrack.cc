@@ -29,6 +29,7 @@ void SaveSimTrack::update(const BeginOfTrack *trk) {
     int pdg = theTrack->GetDefinition()->GetPDGEncoding();
     if (std::find(pdgs_.begin(), pdgs_.end(), pdg) != pdgs_.end()) {
       trkInfo->setStoreTrack();
+      trkInfo->setIdLastStoredAncestor(theTrack->GetTrackID());
       LogDebug("SaveSimTrack") << "Save SimTrack the Track " << theTrack->GetTrackID() << " Type "
                                << theTrack->GetDefinition()->GetParticleName() << " Momentum "
                                << theTrack->GetMomentum() / CLHEP::MeV << " MeV/c";

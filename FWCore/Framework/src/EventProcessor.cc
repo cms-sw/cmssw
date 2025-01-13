@@ -94,6 +94,7 @@
 #include <sys/msg.h>
 
 #include "oneapi/tbb/task.h"
+#include "oneapi/tbb/task_arena.h"
 
 //Used for CPU affinity
 #ifndef __APPLE__

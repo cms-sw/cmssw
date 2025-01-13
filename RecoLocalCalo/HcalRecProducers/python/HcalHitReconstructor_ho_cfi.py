@@ -24,11 +24,9 @@ horeco = cms.EDProducer(
 
     #Tags for calculating status flags
     correctTiming = cms.bool(True),
-    setNoiseFlags = cms.bool(True),
-    setHSCPFlags  = cms.bool(True), # HSCP not implemented for horeco; this boolean does nothing
+    setNoiseFlags = cms.bool(False), # noise flags only implemented for HF
     setSaturationFlags = cms.bool(True),
     setTimingTrustFlags = cms.bool(False), # timing flags currently only implemented for HF
-    setPulseShapeFlags = cms.bool(False),  # not yet defined for HO
     setNegativeFlags          = cms.bool(False),  # only in HBHE
     saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127))
 ) # horeco

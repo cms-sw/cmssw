@@ -315,7 +315,7 @@ process.muonCSCDigis.InputObjects        = rawDataInputTag
 process.muonDTDigis.inputLabel           = rawDataInputTag
 process.muonRPCDigis.InputLabel          = rawDataInputTag
 process.scalersRawToDigi.scalersInputTag = rawDataInputTag
-process.siPixelDigis.cpu.InputLabel      = rawDataInputTag
+process.siPixelDigis.InputLabel      = rawDataInputTag
 process.siStripDigis.ProductLabel        = rawDataInputTag
 process.tcdsDigis.InputLabel             = rawDataInputTag
 

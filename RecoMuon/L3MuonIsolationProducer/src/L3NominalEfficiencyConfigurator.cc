@@ -1,4 +1,4 @@
-#include "L3NominalEfficiencyConfigurator.h"
+#include "RecoMuon/L3MuonIsolationProducer/interface/L3NominalEfficiencyConfigurator.h"
 #include "RecoMuon/MuonIsolation/interface/IsolatorByNominalEfficiency.h"
 
 using namespace muonisolation;

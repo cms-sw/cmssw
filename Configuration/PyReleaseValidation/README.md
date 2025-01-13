@@ -37,36 +37,22 @@ The offsets currently in use are:
 * 0.407: Alpaka, pixel only triplets, portable vs. CPU validation
 * 0.407: Alpaka, pixel only triplets, portable profiling
 * 0.412: Alpaka, ECAL only, portable
+* 0.413: Alpaka, ECAL only, portable vs. CPU validation
 * 0.422: Alpaka, HCAL only, portable
 * 0.423: Alpaka, HCAL only, portable vs CPU validation
 * 0.424: Alpaka, HCAL only, portable profiling
 * 0.492: Alpaka, full reco with pixel quadruplets
 * 0.496: Alpaka, full reco with pixel triplets
-* 0.5: Pixel tracking only + 0.1
-* 0.501: Patatrack, pixel only quadruplets, on CPU
-* 0.502: Patatrack, pixel only quadruplets, with automatic offload to GPU if available
-* 0.504: Patatrack, pixel only quadruplets, GPU profiling
-* 0.505: Patatrack, pixel only triplets, on CPU
-* 0.506: Patatrack, pixel only triplets, with automatic offload to GPU if available
-* 0.508: Patatrack, pixel only triplets, GPU profiling
-* 0.511: Patatrack, ECAL only, on CPU
-* 0.512: Patatrack, ECAL only, with automatic offload to GPU if available
-* 0.513: Patatrack, ECAL only, GPU vs. CPU validation
-* 0.514: Patatrack, ECAL only, GPU profiling
-* 0.521: Patatrack, HCAL only, on CPU
-* 0.522: Patatrack, HCAL only, with automatic offload to GPU if available
-* 0.524: Patatrack, HCAL only, GPU profiling
-* 0.591: Patatrack, full reco with pixel quadruplets, on CPU
-* 0.592: Patatrack, full reco with pixel quadruplets, with automatic offload to GPU if available
-* 0.595: Patatrack, full reco with pixel triplets, on CPU
-* 0.596: Patatrack, full reco with pixel triplets, with automatic offload to GPU if available
+* 0.5: Legacy pixel tracking only (CPU)
+* 0.511: Legacy ECAL reco only (CPU)
+* 0.521: Legacy HCAL reco only (CPU)
 * 0.6: HE Collapse (old depth segmentation for 2018)
 * 0.601: HLT as separate step
 * 0.7: trackingMkFit modifier
 * 0.701: DisplacedRegionalStep tracking iteration for Run-3
 * 0.702: trackingMkFit modifier for Phase-2 (initialStep only)
 * 0.703: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
-* 0.704: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU
+* 0.704: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
 * 0.75: HLT phase-2 timing menu
 * 0.751: HLT phase-2 timing menu Alpaka variant
 * 0.752: HLT phase-2 timing menu ticl_v5 variant

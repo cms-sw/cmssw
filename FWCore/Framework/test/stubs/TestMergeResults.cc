@@ -45,6 +45,8 @@ namespace edmtest {
   public:
     explicit TestMergeResults(edm::ParameterSet const&);
 
+    static void fillDescriptions(edm::ConfigurationDescriptions&);
+
     void analyze(edm::Event const& e, edm::EventSetup const& c) override;
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
     void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -74,84 +76,70 @@ namespace edmtest {
                           int actualValue,
                           bool unexpectedImproperlyMergedValue = false) const;
 
-    std::vector<int> default_;
-    std::vector<std::string> defaultvstring_;
+    std::vector<int> const expectedBeginRunProd_;
+    std::vector<int> const expectedEndRunProd_;
+    std::vector<int> const expectedBeginLumiProd_;
+    std::vector<int> const expectedEndLumiProd_;
 
-    std::vector<int> expectedBeginRunProd_;
-    std::vector<int> expectedEndRunProd_;
-    std::vector<int> expectedBeginLumiProd_;
-    std::vector<int> expectedEndLumiProd_;
+    std::vector<int> const expectedBeginRunNew_;
+    std::vector<int> const expectedEndRunNew_;
+    std::vector<int> const expectedBeginLumiNew_;
+    std::vector<int> const expectedEndLumiNew_;
 
-    std::vector<int> expectedBeginRunNew_;
-    std::vector<int> expectedEndRunNew_;
-    std::vector<int> expectedBeginLumiNew_;
-    std::vector<int> expectedEndLumiNew_;
+    std::vector<int> const expectedEndRunProdImproperlyMerged_;
+    std::vector<int> const expectedEndLumiProdImproperlyMerged_;
 
-    std::vector<int> expectedEndRunProdImproperlyMerged_;
-    std::vector<int> expectedEndLumiProdImproperlyMerged_;
+    std::vector<std::string> const expectedParents_;
 
-    std::vector<std::string> expectedParents_;
+    std::vector<std::string> const expectedProcessHistoryInRuns_;
 
-    std::vector<std::string> expectedProcessHistoryInRuns_;
+    std::vector<int> const expectedDroppedEvent_;
+    std::vector<int> const expectedDroppedEvent1_;
+    std::vector<int> const expectedDroppedEvent1NEvents_;
 
-    std::vector<int> expectedDroppedEvent_;
-    std::vector<int> expectedDroppedEvent1_;
-    std::vector<int> expectedDroppedEvent1NEvents_;
+    bool const verbose_;
+    bool const testAlias_;
 
-    bool verbose_;
-
-    unsigned int indexRun_;
-    unsigned int indexLumi_;
-    unsigned int parentIndex_;
-    unsigned int droppedIndex1_;
-    int droppedIndex1EventCount_;
-    unsigned int processHistoryIndex_;
+    unsigned int indexRun_ = 0;
+    unsigned int indexLumi_ = 0;
+    unsigned int parentIndex_ = 0;
+    unsigned int droppedIndex1_ = 0;
+    int droppedIndex1EventCount_ = 0;
+    unsigned int processHistoryIndex_ = 0;
 
     edm::Handle<edmtest::Thing> h_thing;
     edm::Handle<edmtest::ThingWithMerge> h_thingWithMerge;
     edm::Handle<edmtest::ThingWithIsEqual> h_thingWithIsEqual;
-
-    bool testAlias_;
   };
 
   // -----------------------------------------------------------------
 
   TestMergeResults::TestMergeResults(edm::ParameterSet const& ps)
-      : default_(),
-        defaultvstring_(),
-        expectedBeginRunProd_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginRunProd", default_)),
-        expectedEndRunProd_(ps.getUntrackedParameter<std::vector<int> >("expectedEndRunProd", default_)),
-        expectedBeginLumiProd_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginLumiProd", default_)),
-        expectedEndLumiProd_(ps.getUntrackedParameter<std::vector<int> >("expectedEndLumiProd", default_)),
+      : expectedBeginRunProd_(ps.getUntrackedParameter<std::vector<int>>("expectedBeginRunProd")),
+        expectedEndRunProd_(ps.getUntrackedParameter<std::vector<int>>("expectedEndRunProd")),
+        expectedBeginLumiProd_(ps.getUntrackedParameter<std::vector<int>>("expectedBeginLumiProd")),
+        expectedEndLumiProd_(ps.getUntrackedParameter<std::vector<int>>("expectedEndLumiProd")),
 
-        expectedBeginRunNew_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginRunNew", default_)),
-        expectedEndRunNew_(ps.getUntrackedParameter<std::vector<int> >("expectedEndRunNew", default_)),
-        expectedBeginLumiNew_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginLumiNew", default_)),
-        expectedEndLumiNew_(ps.getUntrackedParameter<std::vector<int> >("expectedEndLumiNew", default_)),
+        expectedBeginRunNew_(ps.getUntrackedParameter<std::vector<int>>("expectedBeginRunNew")),
+        expectedEndRunNew_(ps.getUntrackedParameter<std::vector<int>>("expectedEndRunNew")),
+        expectedBeginLumiNew_(ps.getUntrackedParameter<std::vector<int>>("expectedBeginLumiNew")),
+        expectedEndLumiNew_(ps.getUntrackedParameter<std::vector<int>>("expectedEndLumiNew")),
 
         expectedEndRunProdImproperlyMerged_(
-            ps.getUntrackedParameter<std::vector<int> >("expectedEndRunProdImproperlyMerged", default_)),
+            ps.getUntrackedParameter<std::vector<int>>("expectedEndRunProdImproperlyMerged")),
         expectedEndLumiProdImproperlyMerged_(
-            ps.getUntrackedParameter<std::vector<int> >("expectedEndLumiProdImproperlyMerged", default_)),
+            ps.getUntrackedParameter<std::vector<int>>("expectedEndLumiProdImproperlyMerged")),
 
-        expectedParents_(ps.getUntrackedParameter<std::vector<std::string> >("expectedParents", defaultvstring_)),
+        expectedParents_(ps.getUntrackedParameter<std::vector<std::string>>("expectedParents")),
         expectedProcessHistoryInRuns_(
-            ps.getUntrackedParameter<std::vector<std::string> >("expectedProcessHistoryInRuns", defaultvstring_)),
+            ps.getUntrackedParameter<std::vector<std::string>>("expectedProcessHistoryInRuns")),
 
-        expectedDroppedEvent_(ps.getUntrackedParameter<std::vector<int> >("expectedDroppedEvent", default_)),
-        expectedDroppedEvent1_(ps.getUntrackedParameter<std::vector<int> >("expectedDroppedEvent1", default_)),
-        expectedDroppedEvent1NEvents_(
-            ps.getUntrackedParameter<std::vector<int> >("expectedDroppedEvent1NEvents", default_)),
+        expectedDroppedEvent_(ps.getUntrackedParameter<std::vector<int>>("expectedDroppedEvent")),
+        expectedDroppedEvent1_(ps.getUntrackedParameter<std::vector<int>>("expectedDroppedEvent1")),
+        expectedDroppedEvent1NEvents_(ps.getUntrackedParameter<std::vector<int>>("expectedDroppedEvent1NEvents")),
 
-        verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
-
-        indexRun_(0),
-        indexLumi_(0),
-        parentIndex_(0),
-        droppedIndex1_(0),
-        droppedIndex1EventCount_(0),
-        processHistoryIndex_(0),
-        testAlias_(ps.getUntrackedParameter<bool>("testAlias", false)) {
+        verbose_(ps.getUntrackedParameter<bool>("verbose")),
+        testAlias_(ps.getUntrackedParameter<bool>("testAlias")) {
     auto ap_thing = std::make_unique<edmtest::Thing>();
     edm::Wrapper<edmtest::Thing> w_thing(std::move(ap_thing));
     assert(!w_thing.isMergeable());
@@ -277,6 +265,61 @@ namespace edmtest {
 
   // -----------------------------------------------------------------
 
+  void TestMergeResults::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.addUntracked<std::vector<int>>("expectedBeginRunProd", {})
+        ->setComment(
+            "Check the expected values of Thing, ThingWithMerge, ThingWithIsEqual from process PROD at beginRun.");
+    desc.addUntracked<std::vector<int>>("expectedEndRunProd", {})
+        ->setComment(
+            "Check the expected values of Thing, ThingWithMerge, ThingWithIsEqual from process PROD at nendRun.");
+    desc.addUntracked<std::vector<int>>("expectedBeginLumiProd", {})
+        ->setComment(
+            "Check the expected values of Thing, ThingWithMerge, ThingWithIsEqual from process PROD at "
+            "beginLuminosityBlock.");
+    desc.addUntracked<std::vector<int>>("expectedEndLumiProd", {})
+        ->setComment(
+            "Check the expected values of Thing, ThingWithMerge, ThingWithIsEqual from process PROD at "
+            "endLuminosityBlock.");
+
+    desc.addUntracked<std::vector<int>>("expectedBeginRunNew", {})
+        ->setComment(
+            "Check the expected values of Thing, ThingWithMerge, ThingWithIsEqual from the latest process at "
+            "beginRun.");
+    desc.addUntracked<std::vector<int>>("expectedEndRunNew", {})
+        ->setComment(
+            "Check the expected values of Thing, ThingWithMerge, ThingWithIsEqual from the latest process at endRun.");
+    desc.addUntracked<std::vector<int>>("expectedBeginLumiNew", {})
+        ->setComment(
+            "Check the expected values of Thing, ThingWithMerge, ThingWithIsEqual from the latest process at "
+            "beginLuminosityBlock.");
+    desc.addUntracked<std::vector<int>>("expectedEndLumiNew", {})
+        ->setComment(
+            "Check the expected values of Thing, ThingWithMerge, ThingWithIsEqual from the latest process at "
+            "endLuminosityBlock.");
+
+    desc.addUntracked<std::vector<int>>("expectedEndRunProdImproperlyMerged", {});
+    desc.addUntracked<std::vector<int>>("expectedEndLumiProdImproperlyMerged", {});
+    desc.addUntracked<std::vector<std::string>>("expectedParents", {});
+    desc.addUntracked<std::vector<std::string>>("expectedProcessHistoryInRuns", {});
+    desc.addUntracked<std::vector<int>>("expectedDroppedEvent", {});
+    desc.addUntracked<std::vector<int>>("expectedDroppedEvent1", {});
+    desc.addUntracked<std::vector<int>>("expectedDroppedEvent1NEvents", {});
+
+    desc.addUntracked<bool>("testAlias", false);
+    desc.addUntracked<bool>("verbose", false);
+
+    desc.setComment(
+        "The expected{Begin,End}(Run,Lumi}{Prod,New} parameters follow the same pattern. The expected values come in "
+        "sets of three: value expected in Thing, ThingWithMerge, and ThingWithIsEqual. Each set of 3 is tested at the "
+        "specific transition, and then the next set of 3 is tested at the next transition, and so on. When the "
+        "sequence of parameter values is exhausted, the checking is stopped. The values if 0 are just placedholders, "
+        "i.e. if the value is a 0, the check is not made.");
+
+    descriptions.addDefault(desc);
+  }
+
+  // -----------------------------------------------------------------
   void TestMergeResults::analyze(edm::Event const& e, edm::EventSetup const&) {
     assert(e.processHistory().id() == e.processHistoryID());
 

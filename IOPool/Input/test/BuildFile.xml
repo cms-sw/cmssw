@@ -1,6 +1,4 @@
 <environment>
-  <test name="TestPoolInput" command="TestPoolInput.sh"/>
-
   <library file="IOExerciser.cc" name="IOExerciser">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>
@@ -21,10 +19,25 @@
     <use name="FWCore/Utilities"/>
   </library>
 
+  <test name="TestPoolInput" command="TestPoolInput.sh"/>
+  <test name="TestPoolInputRunPerLumi" command="TestPoolInputRunPerLumi.sh"/>
+  <test name="TestPoolInputOldFormat" command="TestPoolInputOldFormat.sh">
+    <lib name="GetTriggerNamesAnalyzer"/>
+  </test>
+
+  <!-- test merging of heterogeneous files with extra provenenace in subsequent files -->
+  <test name="TestPoolInputMergeHeterogeneousFiles" command="cmsRun ${LOCALTOP}/src/IOPool/Input/test/preMerge_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/IOPool/Input/test/preMerge2_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/IOPool/Input/test/HeteroMerge_cfg.py"/>
+
+  <test name="TestPoolInputMultiLumi" command="cmsRun ${LOCALTOP}/src/IOPool/Input/test/test_make_multi_lumi_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/IOPool/Input/test/test_read_multi_lumi_as_one_cfg.py"/>
+  <test name="TestPoolInputOverlappingLumis" command="cmsRun ${LOCALTOP}/src/IOPool/Input/test/test_make_overlapping_lumis_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/IOPool/Input/test/test_read_overlapping_lumis_cfg.py"/>
+
   <test name="TestIOPoolInputRepeating" command="testRepeatingCachedRootSource.sh"/>
   <test name="TestIOPoolInputNoParentDictionary" command="testNoParentDictionary.sh"/>
   <test name="TestFileOpenErrorExitCode" command="testFileOpenErrorExitCode.sh"/>
-  <test name="TestIOPoolInputSchemaEvolution" command="testSchemaEvolution.sh"/>
+  <test name="TestIOPoolInputSchemaEvolution" command="testSchemaEvolution.sh">
+    <lib name="SchemaEvolutionTest"/>
+  </test>
   <test name="TestIOPoolInputRefProductIDMetadataConsistency" command="testRefProductIDMetadataConsistencyRoot.sh"/>
+  <test name="TestIOPoolInputReducedProcessHistory" command="testReducedProcessHistory.sh"/>
 
 </environment>

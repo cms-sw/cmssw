@@ -34,7 +34,7 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
   firstLayer_ = hgcons_.getLayerOffset();
   if (!fileName.empty()) {
     edm::FileInPath filetmp1("SimG4CMS/Calo/data/" + fileName);
-    std::string filetmp2 = filetmp1.fullPath();
+    const std::string& filetmp2 = filetmp1.fullPath();
     std::ifstream fInput(filetmp2.c_str());
     if (!fInput.good()) {
       edm::LogVerbatim("HGCalSim") << "Cannot open file " << filetmp2;

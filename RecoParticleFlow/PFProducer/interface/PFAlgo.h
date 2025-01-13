@@ -112,9 +112,17 @@ public:
   reco::PFCandidateCollection& getCleanedCandidates() { return pfCleanedCandidates_; }
 
   /// \return the collection of candidates
-  reco::PFCandidateCollection makeConnectedCandidates() { return connector_.connect(*pfCandidates_); }
+  reco::PFCandidateCollection makeConnectedCandidates() { return connector_.connect(pfCandidates_); }
 
   friend std::ostream& operator<<(std::ostream& out, const PFAlgo& algo);
+
+  void clear() {
+    pfCandidates_.clear();
+    pfCleanedCandidates_.clear();
+    if (useVertices_) {
+      primaryVertex_ = decltype(primaryVertex_)();
+    }
+  };
 
 private:
   void egammaFilters(const reco::PFBlockRef& blockref, std::vector<bool>& active, PFEGammaFilters const* pfegamma);
@@ -223,7 +231,7 @@ private:
   double nSigmaHFEM(double clusterEnergy) const;
   double nSigmaHFHAD(double clusterEnergy) const;
 
-  std::unique_ptr<reco::PFCandidateCollection> pfCandidates_;
+  reco::PFCandidateCollection pfCandidates_;
   // the post-HF-cleaned candidates
   reco::PFCandidateCollection pfCleanedCandidates_;
 

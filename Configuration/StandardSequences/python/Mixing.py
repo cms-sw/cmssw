@@ -222,4 +222,18 @@ def defineMixing(dict):
     if 'F' in dict:
         commands.append('process.mix.input.fileNames = cms.untracked.vstring(%s)'%(repr(dict['F'])))
         dict.pop('F')
+    if 'BS' in dict:
+        bunch_space = dict['BS']
+        commands.append(f'process.mix.bunchspace = cms.int32({bunch_space})')
+        dict.pop('BS')
+    if 'Flat' in dict:
+        pu_min,pu_max=dict['Flat']
+        pu_x = list(range(pu_max+1))
+        pu_y = [0]*(pu_max+1)
+        prob=1./(pu_max+1-pu_min)
+        for pu in range(pu_min,pu_max+1):
+            pu_y[pu]=prob
+        commands.append(f'process.mix.input.nbPileupEvents.probFunctionVariable = cms.vint32({pu_x})')
+        commands.append(f'process.mix.input.nbPileupEvents.probValue = cms.vdouble({pu_y})')
+        dict.pop('Flat')
     return commands

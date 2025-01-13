@@ -98,7 +98,7 @@ namespace cms::alpakatools {
   };
 }
 ```
-Note that the destination (device-side) type `TDst` can be different from or the same as the source (host-side) type `TSrc` as far as the framework is concerned. For example, in the `PortableCollection` model the types are different. The `copyAsync()` member function is easiest to implement as a template over `TQueue`. The framework handles the necessary synchronization between the copy function and the consumer (currently the synchronization blocks, but work is ongoing to make it non-blocking).
+Note that the destination (device-side) type `TDst` can be different from or the same as the source (host-side) type `TSrc` as far as the framework is concerned. For example, in the `PortableCollection` model the types are different. The `copyAsync()` member function is easiest to implement as a template over `TQueue`. The framework handles the necessary synchronization between the copy function and the consumer in a non-blocking way.
 
 The `CopyToDevice` class template is partially specialized for all `PortableCollection` instantiations.
 
@@ -146,7 +146,9 @@ The `...` can in principle be any of the module abilities listed in the linked T
 
 New base classes (or other functionality) can be added based on new use cases that come up.
 
-The Alpaka-based ESProducers should use the `ESProducer` base class (`#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"`). Note that the Alpaka-based ESProducer constructor must pass the argument `edm::ParameterSet` object to the constructor of the `ESProducer` base class.
+The Alpaka-based ESProducers should use the `ESProducer` base class (`#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"`).
+
+Note that both the Alpaka-based EDProducer and ESProducer constructors must pass the argument `edm::ParameterSet` object to the constructor of their base class.
 
 Note that currently Alpaka-based ESSources are not supported. If you need to produce EventSetup data products into a Record for which there is no ESSource yet, use [`EmptyESSource`](https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideEDMParametersForModules#EmptyESSource).
 
@@ -185,6 +187,26 @@ In the [`fillDescriptions()`](https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWG
 
 Also note that the `fillDescription()` function must have the same content for all backends, i.e. any backend-specific behavior with e.g. `#ifdef` or `if constexpr` are forbidden.
 
+### Copy e.g. configuration data to all devices in EDProducer
+
+While the EventSetup can be used to handle copying data to all devices
+of an Alpaka backend, for data used only by one EDProducer a simpler
+way would be to use one of
+* `cms::alpakatools::MoveToDeviceCache<TDevice, THostObject>` (recommended)
+  * `#include "HeterogeneousCore/AlpakaCore/interface/MoveToDeviceCache.h"`
+  * Moves the `THostObject` to all devices using `cms::alpakatools::CopyToDevice<THostObject>` synchronously. On host backends the argument `THostObject` is moved around, but not copied.
+  * The `THostObject` must not be copyable
+    * This is to avoid easy mistakes with objects that follow copy semantics of `std::shared_ptr` (that includes Alpaka buffers), that would allow the source memory buffer to be used via another copy during the asynchronous data copy to the device.
+  * The constructor argument `THostObject` object may not be used, unless it is initialized again e.g. by assigning another `THostObject` into it.
+  * The corresponding device-side object can be obtained with `get()` member function using either alpaka Device or Queue object. It can be used immediately after the constructor returns.
+* `cms::alpakatools::CopyToDeviceCache<TDevice, THostObject>` (use only if **must** use copyable `THostObject`)
+  * `#include "HeterogeneousCore/AlpakaCore/interface/CopyToDeviceCache.h"`
+  * Copies the `THostObject` to all devices using `cms::alpakatools::CopyToDevice<THostObject>` synchronously. Also host backends do a copy.
+  * The constructor argument `THostObject` object can be used for other purposes immediately after the constructor returns
+  * The corresponding device-side object can be obtained with `get()` member function using either alpaka Device or Queue object. It can be used immediately after the constructor returns.
+
+For examples see [`HeterogeneousCore/AlpakaTest/plugins/alpaka/TestAlpakaGlobalProducerCopyToDeviceCache.cc`](../../HeterogeneousCore/AlpakaTest/plugins/alpaka/TestAlpakaGlobalProducerCopyToDeviceCache.cc) and [`HeterogeneousCore/AlpakaTest/plugins/alpaka/TestAlpakaGlobalProducerMoveToDeviceCache.cc`](../../HeterogeneousCore/AlpakaTest/plugins/alpaka/TestAlpakaGlobalProducerMoveToDeviceCache.cc).
+
 ## Guarantees
 
 * All Event data products in the device memory space are guaranteed to be accessible only for operations enqueued in the `Queue` given by `device::Event::queue()` when accessed through the `device::Event`.
@@ -217,8 +239,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class ExampleAlpakaProducer : public global::EDProducer<> {
   public:
     ExampleAlpakaProducer(edm::ParameterSet const& iConfig)
-        // produces() must not specify the product type, it is deduced from deviceToken_
-        : deviceToken_{produces()}, size_{iConfig.getParameter<int32_t>("size")} {}
+        : EDProducer<>(iConfig),
+          // produces() must not specify the product type, it is deduced from deviceToken_
+          deviceToken_{produces()},
+          size_{iConfig.getParameter<int32_t>("size")} {}
 
     // device::Event and device::EventSetup are defined in ALPAKA_ACCELERATOR_NAMESPACE as well
     void produce(edm::StreamID sid, device::Event& iEvent, device::EventSetup const& iSetup) const override {
@@ -458,6 +482,24 @@ process.ProcessAcceleratorAlpaka.setBackend("serial_sync") # or "cuda_async" or 
 ```python
 process.options.accelerators = ["cpu"] # or "gpu-nvidia" or "gpu-amd"
 ```
+
+### Blocking synchronization (for testing)
+
+While the general approach is to favor asynchronous operations with non-blocking synchronization, for testing purposes it can be useful to synchronize the EDModule's `acquire()` / `produce()` or ESProducer's production functions in a blocking way. Such a blocking synchronization can be specified for individual modules via the `alpaka` `PSet` along
+```python
+process.producer = cms.EDProducer("ExampleAlpakaProducer@alpaka",
+    ...
+    alpaka = cms.untracked.PSet(
+        synchronize = cms.untracked.bool(True)
+    )
+)
+```
+
+The blocking synchronization can be specified for all Alpaka modules via the `ProcessAcceleratorAlpaka` along
+```python
+process.ProcessAcceleratorAlpaka.setSynchronize(True)
+```
+Note that the possible per-module parameter overrides this global setting.
 
 
 ## Unit tests

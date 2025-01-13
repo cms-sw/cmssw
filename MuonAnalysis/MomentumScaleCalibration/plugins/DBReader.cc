@@ -1,6 +1,7 @@
 // system include files
 #include <cstdio>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <sys/time.h>
 #include <vector>
@@ -71,11 +72,11 @@ void DBReader::initialize(const edm::EventSetup& iSetup) {
   // This string is one of: scale, resolution, background.
   // Create the corrector and set the parameters
   if (type_ == "scale")
-    corrector_.reset(new MomentumScaleCorrector(dbObject));
+    corrector_ = std::make_shared<MomentumScaleCorrector>(dbObject);
   else if (type_ == "resolution")
-    resolution_.reset(new ResolutionFunction(dbObject));
+    resolution_ = std::make_shared<ResolutionFunction>(dbObject);
   else if (type_ == "background")
-    background_.reset(new BackgroundFunction(dbObject));
+    background_ = std::make_shared<BackgroundFunction>(dbObject);
   else {
     edm::LogPrint("DBReader") << "Error: unrecognized type. Use one of those: 'scale', 'resolution', 'background'"
                               << std::endl;

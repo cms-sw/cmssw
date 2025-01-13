@@ -42,13 +42,11 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #           Alpaka pixel-only:                                  TTbar with PU: quadruplets any backend, any backend vs cpu validation, profiling 
 
 numWFIB = [
-           # 2023, Alpaka-based noPU
-           12434.402,12434.403,12434.412,12434.422,12434.423,
 
            # 2024, Alpaka-based noPU
            12834.402, 12834.403, 12834.404,
            12834.406, 12834.407, 12834.408,
-           12834.412,#12834.413, 12834.414,
+           12834.412, 12834.413,#12834.414,
            12834.422, 12834.423, 12834.424,
            #12834.482, 12834.483, 12834.484
            #12834.486, 12834.487, 12834.488
@@ -60,7 +58,7 @@ numWFIB = [
            # 2024 with PU, Alpaka-based
            13034.402, 13034.403, 13034.404,
            13034.406, 13034.407, 13034.408,
-           13034.412, #13034.413, 13034.414
+           13034.412, 13034.413, #13034.414
            13034.422, 13034.423, 13034.424,
            #13034.482, 13034.483, 13034.484
            #13034.486, 13034.487, 13034.488
@@ -70,13 +68,11 @@ numWFIB = [
            13061.402,
 
            # Run4, Alpaka-based noPU
-           29634.402, 29634.403, 29634.404, 29634.406,
+           29634.402, 29634.403, 29634.404, 29634.406, 29634.704,
            29661.402,
-           # Run4, Alpaka-based noPU GPU LST tracking D98
-           24834.704,
 
            # Run4, Alpaka-based PU
-           29834.402, 29834.403, 29834.404
+           29834.402, 29834.403, 29834.404, 29834.704
         ]
 
 for numWF in numWFIB:
@@ -86,68 +82,69 @@ for numWF in numWFIB:
 
 # data WFs to run in IB:
 
-# data 2023 Patatrack pixel-only triplets:   RunJetMET2022D on GPU (optional), RunJetMET2022D GPU-vs-CPU validation, RunJetMET2022D profiling
-#           Patatrack ECAL-only:             RunJetMET2022D on GPU (optional), RunJetMET2022D GPU-vs-CPU validation, RunJetMET2022D profiling
-#           Patatrack HCAL-only:             RunJetMET2022D on GPU (optional), RunJetMET2022D GPU-vs-CPU validation, RunJetMET2022D profiling
-workflows[141.008506] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsGPU',[
-                            'RunJetMET2023B',
+# data 2023 Alpaka pixel-only triplets:   RunJetMET2023D on GPU (optional), RunJetMET2023D GPU-vs-CPU validation, RunJetMET2023D profiling
+#           Alpaka ECAL-only:             RunJetMET2023D on GPU (optional), RunJetMET2023D GPU-vs-CPU validation, RunJetMET2023D profiling
+#           Alpaka HCAL-only:             RunJetMET2023D on GPU (optional), RunJetMET2023D GPU-vs-CPU validation, RunJetMET2023D profiling
+
+workflows[141.044406] = ['Run3-2023_JetMET2023D_RecoPixelOnlyTripletsGPU',[
+                            'RunJetMET2023D',
                             'HLTDR3_2023',
-                            'RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPU',
+                            'RECODR3_reHLT_Alpaka_PixelOnlyTripletsGPU',
                             'HARVESTRUN3_pixelTrackingOnly'
                         ]]
-workflows[141.008507] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsGPU_Validation',[
-                            'RunJetMET2023B',
+workflows[141.044407] = ['Run3-2023_JetMET2023D_RecoPixelOnlyTripletsGPU_Validation',[
+                            'RunJetMET2023D',
                             'HLTDR3_2023',
-                            'RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPUValidation',
+                            'RECODR3_reHLT_Alpaka_PixelOnlyTripletsGPUValidation',
                             'HARVESTRUN3_pixelTrackingOnlyGPUValidation'
                         ]]
-workflows[141.008508] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsGPU_Profiling',[
-                            'RunJetMET2023B',
+workflows[141.044408] = ['Run3-2023_JetMET2023D_RecoPixelOnlyTripletsGPU_Profiling',[
+                            'RunJetMET2023D',
                             'HLTDR3_2023',
-                            'RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPUProfiling'
+                            'RECODR3_reHLT_Alpaka_PixelOnlyTripletsGPUProfiling'
                         ]]
 
-workflows[141.008512] = ['Run3-2023_JetMET2023B_RecoECALOnlyGPU',[
-                            'RunJetMET2023B',
+workflows[141.044412] = ['Run3-2023_JetMET2023D_RecoECALOnlyGPU',[
+                            'RunJetMET2023D',
                             'HLTDR3_2023',
-                            'RECODR3_reHLT_ECALOnlyGPU',
+                            'RECODR3_reHLT_Alpaka_ECALOnlyGPU',
                             'HARVESTRUN3_ECALOnly'
                         ]]
-workflows[141.008513] = ['Run3-2023_JetMET2023B_RecoECALOnlyGPU_Validation',[
-                            'RunJetMET2023B',
+workflows[141.044413] = ['Run3-2023_JetMET2023D_RecoECALOnlyGPU_Validation',[
+                            'RunJetMET2023D',
                             'HLTDR3_2023',
-                            'RECODR3_reHLT_ECALOnlyGPUValidation',
+                            'RECODR3_reHLT_Alpaka_ECALOnlyGPUValidation',
                             'HARVESTRUN3_ECALOnlyGPUValidation'
                         ]]
-workflows[141.008514] = ['Run3-2023_JetMET2023B_RecoECALOnlyGPU_Profiling',[
-                            'RunJetMET2023B',
+workflows[141.044414] = ['Run3-2023_JetMET2023D_RecoECALOnlyGPU_Profiling',[
+                            'RunJetMET2023D',
                             'HLTDR3_2023',
-                            'RECODR3_reHLT_ECALOnlyGPUProfiling'
+                            'RECODR3_reHLT_Alpaka_ECALOnlyGPUProfiling'
                         ]]
 
-workflows[141.008522] = ['Run3-2023_JetMET2023B_RecoHCALOnlyGPU',[
-                            'RunJetMET2023B',
+workflows[141.044422] = ['Run3-2023_JetMET2023D_RecoHCALOnlyGPU',[
+                            'RunJetMET2023D',
                             'HLTDR3_2023',
-                            'RECODR3_reHLT_HCALOnlyGPU',
+                            'RECODR3_reHLT_Alpaka_HCALOnlyGPU',
                             'HARVESTRUN3_HCALOnly'
                         ]]
-workflows[141.008523] = ['Run3-2023_JetMET2023B_RecoHCALOnlyGPU_Validation',[
-                            'RunJetMET2023B',
+workflows[141.044423] = ['Run3-2023_JetMET2023D_RecoHCALOnlyGPU_Validation',[
+                            'RunJetMET2023D',
                             'HLTDR3_2023',
-                            'RECODR3_reHLT_HCALOnlyGPUValidation',
+                            'RECODR3_reHLT_Alpaka_HCALOnlyGPUValidation',
                             'HARVESTRUN3_HCALOnlyGPUValidation'
                         ]]
-workflows[141.008524] = ['Run3-2023_JetMET2023B_RecoHCALOnlyGPU_Profiling',[
-                            'RunJetMET2023B',
+workflows[141.044424] = ['Run3-2023_JetMET2023D_RecoHCALOnlyGPU_Profiling',[
+                            'RunJetMET2023D',
                             'HLTDR3_2023',
-                            'RECODR3_reHLT_HCALOnlyGPUProfiling'
+                            'RECODR3_reHLT_Alpaka_HCALOnlyGPUProfiling'
                         ]]
 
-workflows[141.008583] = ['Run3-2023_JetMET2023B_GPUValidation',[
-                            'RunJetMET2023B',
-                            'RecoData_Patatrack_AllGPU_Validation_2023',
-                            'HARVESTData_Patatrack_AllGPU_Validation_2023'
+workflows[141.044483] = ['Run3-2023_JetMET2023D_GPUValidation',[
+                            'RunJetMET2023D',
+                            'RecoData_Alpaka_AllGPU_Validation_2023',
+                            'HARVESTData_Alpaka_AllGPU_Validation_2023'
                         ]]
 
-# 2023 HIon MC Patatrack pixel-only quadruplets on HydjetQ_MinBias_5362GeV_2023_ppReco on GPU (optional)
-workflows[160.03502] = ['',['HydjetQ_MinBias_5362GeV_2023_ppReco','DIGIHI2023PPRECO','RAWPRIMESIMHI18','RECOHI2023PPRECOMB_PatatrackGPU','MINIHI2023PROD']]
+# 2023 HIon MC Alpaka pixel-only quadruplets on HydjetQ_MinBias_5362GeV_2023_ppReco on GPU (optional)
+workflows[160.03502] = ['',['HydjetQ_MinBias_5362GeV_2023_ppReco','DIGIHI2023PPRECO','RAWPRIMESIMHI18','RECOHI2023PPRECOMB_AlpakaGPU','MINIHI2023PROD']]

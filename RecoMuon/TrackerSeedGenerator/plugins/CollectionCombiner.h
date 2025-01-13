@@ -19,15 +19,18 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 template <typename Collection>
 class CollectionCombiner : public edm::global::EDProducer<> {
 public:
   explicit CollectionCombiner(const edm::ParameterSet&);
-  ~CollectionCombiner() override;
+  ~CollectionCombiner() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
@@ -44,8 +47,6 @@ CollectionCombiner<Collection>::CollectionCombiner(const edm::ParameterSet& iCon
   for (unsigned int i = 0; i < labels.size(); ++i)
     collectionTokens.push_back(consumes<Collection>(labels.at(i)));
 }
-template <typename Collection>
-CollectionCombiner<Collection>::~CollectionCombiner() {}
 
 template <typename Collection>
 void CollectionCombiner<Collection>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& es) const {
@@ -57,6 +58,13 @@ void CollectionCombiner<Collection>::produce(edm::StreamID, edm::Event& iEvent, 
     merged->insert(merged->end(), handle->begin(), handle->end());
   }
   iEvent.put(std::move(merged));
+}
+
+template <typename Collection>
+void CollectionCombiner<Collection>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::vector<edm::InputTag> >("labels", {});
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #endif

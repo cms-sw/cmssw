@@ -697,7 +697,7 @@ public:
   // methods
   JsonOutputProducer(bool _writeJson, std::string _file_name)
       : writeJson(_writeJson), out_filename_base(std::move(_file_name)) {
-    useSingleOutFile = out_filename_base.length() > 0;
+    useSingleOutFile = !out_filename_base.empty();
   }
 
   JsonEvent& pushEvent(int _run, int _lumi, int _event) {

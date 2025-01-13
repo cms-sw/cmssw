@@ -128,9 +128,9 @@ ALIint ALIFileIn::getWordsInLine(std::vector<ALIstring>& wordlist) {
         }
       }
       tt++;
-    } while (*tt != '\0' && stemp.length() != 0);
+    } while (*tt != '\0' && !stemp.empty());
     ALIstring stempt(ltemp);
-    if (stempt.length() == 0)
+    if (stempt.empty())
       NoWords = 0;
 
     //--------- Read words from istr_line and write them into wordlist
@@ -138,7 +138,7 @@ ALIint ALIFileIn::getWordsInLine(std::vector<ALIstring>& wordlist) {
     for (ii = 0; ii < NoWords; ii++) {
       ALIstring stemp = "";
       istr_line >> stemp;  //?? gives warning in Insure++
-      if (stemp.length() == 0)
+      if (stemp.empty())
         break;
       ALIint comment = stemp.find(ALIstring("//"));
       //    std::cout << "!!!COMMENT" << comment << stemp.c_str() << std::endl;

@@ -26,3 +26,11 @@ L2MuonTrajectorySeed::L2MuonTrajectorySeed(PTrajectoryStateOnDet const& ptsos,
     : TrajectorySeed(ptsos, rh, dir) {
   theL1TParticle = l1Ref;
 }
+
+L2MuonTrajectorySeed::L2MuonTrajectorySeed(PTrajectoryStateOnDet const& ptsos,
+                                           RecHitContainer const& rh,
+                                           PropagationDirection dir,
+                                           l1t::TrackerMuonRef l1TkMuRef)
+    : TrajectorySeed(ptsos, rh, dir) {
+  theL1TkMu = l1TkMuRef;
+}

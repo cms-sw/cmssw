@@ -8,7 +8,7 @@
  *  \author ported by: R. Bellan - INFN Torino
  */
 
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedOrcaPatternRecognition.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedOrcaPatternRecognition.h"
 
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"

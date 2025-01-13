@@ -48,20 +48,83 @@ def customiseForOffline(process):
 
     return process
 
-def customiseHLTFor46647(process):
-    for prod in producers_by_type(process, 'CtfSpecialSeedGenerator'):
-        if hasattr(prod, "DontCountDetsAboveNClusters"):
-            value = prod.DontCountDetsAboveNClusters.value()
-            delattr(prod, "DontCountDetsAboveNClusters")
-            # Replace it with cms.uint32
-            prod.DontCountDetsAboveNClusters = cms.uint32(value)
+def customizeHLTfor46935(process):
+    """Changes parameter names of EcalUncalibRecHitSoAToLegacy producer"""
+    for prod in producers_by_type(process, 'EcalUncalibRecHitSoAToLegacy'):
+        if hasattr(prod, 'uncalibRecHitsPortableEB'):
+            prod.inputCollectionEB = prod.uncalibRecHitsPortableEB
+            delattr(prod, 'uncalibRecHitsPortableEB')
+        if hasattr(prod, 'uncalibRecHitsPortableEE'):
+            prod.inputCollectionEE = prod.uncalibRecHitsPortableEE
+            delattr(prod, 'uncalibRecHitsPortableEE')
+        if hasattr(prod, 'recHitsLabelCPUEB'):
+            prod.outputLabelEB = prod.recHitsLabelCPUEB
+            delattr(prod, 'recHitsLabelCPUEB')
+        if hasattr(prod, 'recHitsLabelCPUEE'):
+            prod.outputLabelEE = prod.recHitsLabelCPUEE
+            delattr(prod, 'recHitsLabelCPUEE')
+    return process
 
-    for prod in producers_by_type(process, 'SeedCombiner'):
-        if hasattr(prod, "PairCollection"):
-            delattr(prod, "PairCollection")
-        if hasattr(prod, "TripletCollection"):
-            delattr(prod, "TripletCollection")
 
+def customizeHLTfor47017(process):
+    """Remove unneeded parameters from the HLT menu"""
+    for prod in producers_by_type(process, 'MaskedMeasurementTrackerEventProducer'):
+        if hasattr(prod, 'OnDemand'):
+            delattr(prod, 'OnDemand')
+
+    for prod in producers_by_type(process, 'HcalHaloDataProducer'):
+        if hasattr(prod, 'HcalMaxMatchingRadiusParam'):
+            delattr(prod, 'HcalMaxMatchingRadiusParam')
+        if hasattr(prod, 'HcalMinMatchingRadiusParam'):
+            delattr(prod, 'HcalMinMatchingRadiusParam')
+
+    for prod in producers_by_type(process, 'SiPixelRecHitConverter'):
+        if hasattr(prod, 'VerboseLevel'):
+            delattr(prod, 'VerboseLevel')
+
+    return process
+
+
+def customizeHLTfor47079(process):
+    """Remove unneeded parameters from the HLT menu"""
+    for filt in filters_by_type(process, 'PrimaryVertexObjectFilter'):
+        if hasattr(filt, 'filterParams') and hasattr(filt.filterParams, 'pvSrc'):
+            del filt.filterParams.pvSrc  # Remove the pvSrc parameter
+
+    for prod in producers_by_type(process, 'HcalHitReconstructor'):
+        # Remove "digiTimeFromDB" if "Subdetector" is not "HF"
+        if hasattr(prod, 'Subdetector') and getattr(prod, 'Subdetector') != "HF":
+            if hasattr(prod, 'digiTimeFromDB'):
+                delattr(prod, 'digiTimeFromDB')
+
+        # Remove "saturationParameters" if "setSaturationFlags" is false
+        if hasattr(prod, 'setSaturationFlags') and not getattr(prod, 'setSaturationFlags'):
+            if hasattr(prod, 'saturationParameters'):
+                delattr(prod, 'saturationParameters')
+
+        # Remove "hfTimingTrustParameters" if "setTimingTrustFlags" is false
+        if hasattr(prod, 'setTimingTrustFlags') and not getattr(prod, 'setTimingTrustFlags'):
+            if hasattr(prod, 'hfTimingTrustParameters'):
+                delattr(prod, 'hfTimingTrustParameters')
+
+        # Remove 'PETstat', 'S8S1stat', 'S9S1stat',  'digistat' and 'HFInWindowStat' if "setNoiseFlags" is false
+        if hasattr(prod, 'setNoiseFlags') and not getattr(prod, 'setNoiseFlags'):
+            for param in ['PETstat', 'S8S1stat', 'S9S1stat', 'digistat', 'HFInWindowStat']:
+                if hasattr(prod, param):
+                    delattr(prod, param)
+
+        # Remove useless parameters
+        if hasattr(prod,'setHSCPFlags'):
+            delattr(prod,'setHSCPFlags')
+
+        if hasattr(prod,'setPulseShapeFlags'):
+            delattr(prod,'setPulseShapeFlags')
+
+    for prod in producers_by_type(process, 'HFPhase1Reconstructor'):
+        # Remove 'HFStripFilter' if "runHFStripFilter" is false
+        if hasattr(prod, 'runHFStripFilter') and not getattr(prod, 'runHFStripFilter'):
+            delattr(prod,'HFStripFilter')
+                    
     return process
 def configureFrameSoAESProducers(process):
     """
@@ -111,6 +174,9 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    process = customiseHLTFor46647(process)
-    
+    process = customizeHLTfor46935(process)
+    process = customizeHLTfor47017(process)
+    process = customizeHLTfor47079(process)
+
     return process
+

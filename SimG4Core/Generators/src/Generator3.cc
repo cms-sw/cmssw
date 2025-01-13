@@ -132,7 +132,7 @@ void Generator3::HepMC2G4(const HepMC3::GenEvent *evt_orig, G4Event *g4evt) {
     delete vtx_;
   }
 
-  for (HepMC3::GenVertexPtr v : evt->vertices()) {
+  for (const HepMC3::GenVertexPtr &v : evt->vertices()) {
     vtx_ =
         new math::XYZTLorentzVector((v->position()).x(), (v->position()).y(), (v->position()).z(), (v->position()).t());
     break;
@@ -144,13 +144,13 @@ void Generator3::HepMC2G4(const HepMC3::GenEvent *evt_orig, G4Event *g4evt) {
   unsigned int ng4vtx = 0;
   unsigned int ng4par = 0;
 
-  for (HepMC3::GenVertexPtr vitr : evt->vertices()) {
+  for (const HepMC3::GenVertexPtr &vitr : evt->vertices()) {
     // loop for vertex, is it a real vertex?
     // Set qvtx to true for any particles that should be propagated by GEANT,
     // i.e., status 1 particles or status 2 particles that decay outside the
     // beampipe.
     G4bool qvtx = false;
-    for (HepMC3::GenParticlePtr pitr : vitr->particles_out()) {
+    for (const HepMC3::GenParticlePtr &pitr : vitr->particles_out()) {
       // For purposes of this function, the status is defined as follows:
       // 1:  particles are not decayed by generator
       // 2:  particles are decayed by generator but need to be propagated by GEANT
@@ -221,7 +221,7 @@ void Generator3::HepMC2G4(const HepMC3::GenEvent *evt_orig, G4Event *g4evt) {
 
     G4PrimaryVertex *g4vtx = new G4PrimaryVertex(x1, y1, z1, t1);
 
-    for (HepMC3::GenParticlePtr pitr : vitr->particles_out()) {
+    for (const HepMC3::GenParticlePtr &pitr : vitr->particles_out()) {
       int status = pitr->status();
       int pdg = pitr->pid();
       bool hasDecayVertex = (nullptr != pitr->end_vertex());
@@ -454,7 +454,7 @@ void Generator3::particleAssignDaughters(G4PrimaryParticle *g4p, HepMC3::GenPart
   double y1 = vp->end_vertex()->position().y();
   double z1 = vp->end_vertex()->position().z();
 
-  for (HepMC3::GenParticlePtr vpdec : vp->end_vertex()->particles_out()) {
+  for (const HepMC3::GenParticlePtr &vpdec : vp->end_vertex()->particles_out()) {
     // transform decay products such that in the rest frame of mother
     math::XYZTLorentzVector pdec(
         vpdec->momentum().px(), vpdec->momentum().py(), vpdec->momentum().pz(), vpdec->momentum().e());
