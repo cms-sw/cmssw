@@ -2,8 +2,11 @@
 #define DataFormats_L1TParticleFlow_PFCluster_h
 
 #include <vector>
+#include <variant>
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/L1TParticleFlow/interface/layer1_objs.h"
+#include <ap_int.h>
 
 namespace l1t {
 
@@ -22,19 +25,13 @@ namespace l1t {
               float ptError = 0,
               int hwpt = 0,
               int hweta = 0,
-              int hwphi = 0,
-              float absZBarycenter = 0.,
-              float sigmaRR = 0.)
+              int hwphi = 0)
         : L1Candidate(PolarLorentzVector(pt, eta, phi, 0), hwpt, hweta, hwphi, /*hwQuality=*/isEM ? 1 : 0),
           hOverE_(hOverE),
           ptError_(ptError),
-          absZBarycenter_(absZBarycenter),
-          sigmaRR_(sigmaRR),
-          puIdScore_(0), 
-          emIdScore_(0), 
-          piIdScore_(0),
-          digiData_(0) // FIXME: is this still needed? Most likely not!
-          { 
+          encoding_(HWEncoding::None),
+          digiDataW0_(0),
+          digiDataW1_(0) {
       setPdgId(isEM ? 22 : 130);  // photon : non-photon(K0)
     }
     PFCluster(
@@ -43,15 +40,12 @@ namespace l1t {
       setPdgId(isEM ? 22 : 130);  // photon : non-photon(K0)
     }
 
+    enum class HWEncoding { None = 0, Had = 1, Em = 2, Gct = 3 };
+
     float hOverE() const { return hOverE_; }
     void setHOverE(float hOverE) { hOverE_ = hOverE; }
 
-    void setSigmaRR(float sigmaRR) { sigmaRR_ = sigmaRR; }
-    float absZBarycenter() const { return absZBarycenter_; }
-
-    void setAbsZBarycenter(float absZBarycenter) { absZBarycenter_ = absZBarycenter; }
-    float sigmaRR() const { return sigmaRR_; }
-
+    // FIXME: this might nor be consistent with the value stored in the HW digi
     float emEt() const {
       if (hOverE_ == -1)
         return 0;
@@ -75,34 +69,43 @@ namespace l1t {
     void setIsEM(bool isEM) { setHwQual(isEM); }
     unsigned int hwEmID() const { return hwQual(); }
 
-    float egVsPionMVAOut() const { return egVsPionMVAOut_; }
-    void setEgVsPionMVAOut(float egVsPionMVAOut) { egVsPionMVAOut_ = egVsPionMVAOut; }
-
-    float egVsPUMVAOut() const { return egVsPUMVAOut_; }
-    void setEgVsPUMVAOut(float egVsPUMVAOut) { egVsPUMVAOut_ = egVsPUMVAOut; }
-
-    void setPuIDScore(float score) { puIdScore_ = score; }
-    float puIDScore() const { return puIdScore_; }
-
-    void setEmIDScore(float score) { emIdScore_ = score; }
-    float emIDScore() const { return emIdScore_; }
-
-    void setPiIDScore(float score) { piIdScore_ = score; }
-    float piIDScore() const { return piIdScore_; }
-
-    uint64_t digiWord() const { return digiData_; }
-    void setDigiWord(uint64_t data) {
-      digiData_ = data;
+    std::variant<l1ct::HadCaloObj, l1ct::EmCaloObj> caloDigiObj() const {
+      switch (encoding_) {
+        case HWEncoding::Had:
+          return l1ct::HadCaloObj::unpack(binaryWord<l1ct::HadCaloObj::BITWIDTH>());
+        case HWEncoding::Em:
+          return l1ct::EmCaloObj::unpack(binaryWord<l1ct::EmCaloObj::BITWIDTH>());
+        default:
+          throw std::runtime_error("No encoding for this cluster");
+      }
     }
 
+    void setCaloDigi(const l1ct::HadCaloObj& obj) { setBinaryWord(obj.pack(), HWEncoding::Had); }
+
+    void setCaloDigi(const l1ct::EmCaloObj& obj) { setBinaryWord(obj.pack(), HWEncoding::Em); }
+
+    HWEncoding encoding() const { return encoding_; }
+
   private:
-    float hOverE_, ptError_, egVsPionMVAOut_, egVsPUMVAOut_;
-    // HGC dedicated quantities (0ed by default)
-    float absZBarycenter_, sigmaRR_;
-    float puIdScore_, emIdScore_, piIdScore_;
+    float hOverE_, ptError_;
 
     ConstituentsAndFractions constituents_;
-    uint64_t digiData_;
+
+    template <int N>
+    void setBinaryWord(ap_uint<N> word, HWEncoding encoding) {
+      digiDataW0_ = word;
+      digiDataW1_ = (word >> 64);
+      encoding_ = encoding;
+    }
+
+    template <int N>
+    ap_uint<N> binaryWord() const {
+      return ap_uint<N>(digiDataW0_) | (ap_uint<N>(digiDataW1_) << 64);
+    }
+
+    HWEncoding encoding_;
+    uint64_t digiDataW0_;
+    uint64_t digiDataW1_;
   };
 
   typedef std::vector<l1t::PFCluster> PFClusterCollection;

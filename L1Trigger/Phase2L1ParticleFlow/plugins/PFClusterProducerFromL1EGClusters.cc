@@ -69,25 +69,29 @@ void l1tpf::PFClusterProducerFromL1EGClusters::produce(edm::Event &iEvent, const
 
   l1tpf_calo::GridSelector selector = l1tpf_calo::GridSelector(etaBounds_, phiBounds_, maxClustersEtaPhi_);
 
-  for(unsigned int index = 0; index < clusters->size(); ++index) {
-    const auto& cryCl = (*clusters)[index];
-    const auto& digiCryCl = (*digi_clusters)[index];
+  for (unsigned int index = 0; index < clusters->size(); ++index) {
+    const auto &cryCl = (*clusters)[index];
+    const auto &digiCryCl = (*digi_clusters)[index];
 
     if (cryCl.pt() <= etCut_)
       continue;
 
-    l1t::PFCluster cluster(
-        cryCl.pt(), cryCl.eta(), cryCl.phi(), /*hOverE=*/0., /*isEM=*/true);  // it->hovere() seems to return random values
+    l1t::PFCluster cluster(cryCl.pt(),
+                           cryCl.eta(),
+                           cryCl.phi(),
+                           /*hOverE=*/0.,
+                           /*isEM=*/true);  // it->hovere() seems to return random values
     if (corrector_.valid())
       corrector_.correctPt(cluster);
     cluster.setPtError(resol_(cluster.pt(), std::abs(cluster.eta())));
-    // hwQual definition: 
+    // hwQual definition:
     // bit 0: standaloneWP: is_iso && is_ss
     // bit 1: looseL1TkMatchWP: is_looseTkiso && is_looseTkss
-    // bit 2: photonWP: 
-    unsigned int qual = (digiCryCl.passes_iso() & digiCryCl.passes_ss()) | ((digiCryCl.passes_looseTkiso() & digiCryCl.passes_looseTkss()) << 1) | (false << 2);
+    // bit 2: photonWP:
+    unsigned int qual = (digiCryCl.passes_iso() & digiCryCl.passes_ss()) |
+                        ((digiCryCl.passes_looseTkiso() & digiCryCl.passes_looseTkss()) << 1) | (false << 2);
     cluster.setHwQual(qual);
-    cluster.setDigiWord(digiCryCl.data());
+    // cluster.setDigiWord(digiCryCl.data());
     out->push_back(cluster);
     out->back().addConstituent(edm::Ptr<l1t::L1Candidate>(clusters, index));
     selector.fill(cluster.pt(), cluster.eta(), cluster.phi(), index);
@@ -95,7 +99,7 @@ void l1tpf::PFClusterProducerFromL1EGClusters::produce(edm::Event &iEvent, const
   std::vector<unsigned int> indices = selector.returnSorted();
   for (unsigned int ii = 0; ii < indices.size(); ii++) {
     unsigned int theIndex = indices[ii];
-    const auto& digiCryCl = (*digi_clusters)[theIndex];
+    const auto &digiCryCl = (*digi_clusters)[theIndex];
 
     l1t::PFCluster cluster((clusters->begin() + theIndex)->pt(),
                            (clusters->begin() + theIndex)->eta(),
@@ -105,10 +109,11 @@ void l1tpf::PFClusterProducerFromL1EGClusters::produce(edm::Event &iEvent, const
     if (corrector_.valid())
       corrector_.correctPt(cluster);
     cluster.setPtError(resol_(cluster.pt(), std::abs(cluster.eta())));
-    unsigned int qual = (digiCryCl.passes_iso() & digiCryCl.passes_ss()) | ((digiCryCl.passes_looseTkiso() & digiCryCl.passes_looseTkss()) << 1) | (false << 2);
+    unsigned int qual = (digiCryCl.passes_iso() & digiCryCl.passes_ss()) |
+                        ((digiCryCl.passes_looseTkiso() & digiCryCl.passes_looseTkss()) << 1) | (false << 2);
     cluster.setHwQual(qual);
 
-    cluster.setDigiWord(digiCryCl.data());
+    // cluster.setDigiWord(digiCryCl.data());
     out_sel->push_back(cluster);
     out_sel->back().addConstituent(edm::Ptr<l1t::L1Candidate>(clusters, theIndex));
   }

@@ -177,17 +177,16 @@ private:
   void setRefs_(l1t::PFCandidate &pf, const T &p) const;
   template <typename T>
   void setRefs_(l1t::PFCluster &pf, const T &p) const;
-  template<typename Tm, typename Tk, typename To>
-  auto findRef_(const Tm& map, const Tk* key, const To& obj) const {
+  template <typename Tm, typename Tk, typename To>
+  auto findRef_(const Tm &map, const Tk *key, const To &obj) const {
     auto match = map.find(key);
     if (match == map.end()) {
       throw cms::Exception("CorruptData") << refExcepMsg_(obj);
     }
     return match->second;
   }
-  template<typename T>
+  template <typename T>
   std::string refExcepMsg_(const T &key) const;
-
 
   void doVertexings(std::vector<float> &pvdz) const;
   // for multiplicities
@@ -721,17 +720,16 @@ void L1TCorrelatorLayer1Producer::rawHgcalClusterEncode(ap_uint<256> &cwrd,
   ap_ufixed<14, 12, AP_RND_CONV, AP_SAT> w_pt = c->pt();
   // NOTE: We use iPt here for now despite final HGC FW implementation might be different
   ap_ufixed<14, 12, AP_RND_CONV, AP_SAT> w_empt = c->iPt(l1t::HGCalMulticluster::EnergyInterpretation::EM);
-  
+
   // NOTE: this number is not consistent with the iPt interpretation nor with hoe.
-  // hoe uses the total cluster em and had energies while eot computed in the showershapes only accounts for a 
+  // hoe uses the total cluster em and had energies while eot computed in the showershapes only accounts for a
   // a max radius from the cluster center. This is the value used by the ID models
   ap_uint<8> w_emfrac = std::min(round(c->eot() * 256), float(255.));
 
-  // NOTE II: we compute a second eot value to propagate the value of the total hadronic energy as in 
+  // NOTE II: we compute a second eot value to propagate the value of the total hadronic energy as in
   // the hoe computation
-  float em_frac_tot = c->hOverE() < 0 ? 0. : 1./(c->hOverE()+1.);
+  float em_frac_tot = c->hOverE() < 0 ? 0. : 1. / (c->hOverE() + 1.);
   ap_uint<8> w_emfrac_tot = std::min(round(em_frac_tot * 256), float(255.));
-
 
   constexpr float ETAPHI_LSB = M_PI / 720;
   constexpr float SIGMAZZ_LSB = 778.098 / (1 << 7);
@@ -755,9 +753,9 @@ void L1TCorrelatorLayer1Producer::rawHgcalClusterEncode(ap_uint<256> &cwrd,
   // Word 0
   cwrd(13, 0) = w_pt.range();     // 14 bits: 13-0
   cwrd(27, 14) = w_empt.range();  // 14 bits: 27-14
-  cwrd(39, 32) = w_emfrac_tot;        //  8 bits: 39-32
+  cwrd(39, 32) = w_emfrac_tot;    //  8 bits: 39-32
   cwrd(47, 40) = w_emfrac;        //  8 bits: 47-40
-  
+
   // Word 1
   cwrd(64 + 9, 64 + 0) = w_eta;              // 10 bits: 9-0
   cwrd(64 + 18, 64 + 10) = w_phi;            //  9 bits: 18-10
@@ -790,22 +788,18 @@ void L1TCorrelatorLayer1Producer::addEmPFCluster(const l1ct::EmCaloObjEmu &decCa
                                                  std::unique_ptr<l1t::PFClusterCollection> &pfClusters) const {
   // Crete the PFCluster and add the original object as Consitutent
   pfClusters->emplace_back(decCalo.floatPt(),
-                      region.floatGlbEta(decCalo.hwEta),
-                      region.floatGlbPhi(decCalo.hwPhi),
-                      decCalo.floatHoe(),
-                      true,
-                      decCalo.floatPtErr(),
-                      decCalo.intPt(),
-                      decCalo.intEta(),
-                      decCalo.intPhi(),
-                      decCalo.floatMeanZ(),
-                      decCalo.floatSrrTot());
-  
+                           region.floatGlbEta(decCalo.hwEta),
+                           region.floatGlbPhi(decCalo.hwPhi),
+                           decCalo.floatHoe(),
+                           true,
+                           decCalo.floatPtErr(),
+                           decCalo.intPt(),
+                           decCalo.intEta(),
+                           decCalo.intPhi());
+
   // Add additional variables specialized for GCT and HGCal clusters
   pfClusters->back().setHwQual(decCalo.hwEmID.to_int());
-  pfClusters->back().setPuIDScore(decCalo.floatPuProb());
-  pfClusters->back().setPiIDScore(decCalo.floatPiProb());
-  pfClusters->back().setEmIDScore(decCalo.floatEmProb());
+  pfClusters->back().setCaloDigi(decCalo);
   setRefs_(pfClusters->back(), decCalo);
 }
 
@@ -822,24 +816,20 @@ void L1TCorrelatorLayer1Producer::addDecodedEmCalo(l1ct::EmCaloObjEmu &decCalo,
 void L1TCorrelatorLayer1Producer::addHadPFCluster(const l1ct::HadCaloObjEmu &decCalo,
                                                   const l1ct::PFRegionEmu &region,
                                                   std::unique_ptr<l1t::PFClusterCollection> &pfClusters) const {
-    // Crete the PFCluster and add the original object as Consitutent
+  // Crete the PFCluster and add the original object as Consitutent
   pfClusters->emplace_back(decCalo.floatPt(),
-                      region.floatGlbEta(decCalo.hwEta),
-                      region.floatGlbPhi(decCalo.hwPhi),
-                      decCalo.floatHoe(),
-                      decCalo.hwIsEM(),
-                      0., // ptError
-                      decCalo.intPt(),
-                      decCalo.intEta(),
-                      decCalo.intPhi(),
-                      decCalo.floatMeanZ(),
-                      decCalo.floatSrrTot());
-  
+                           region.floatGlbEta(decCalo.hwEta),
+                           region.floatGlbPhi(decCalo.hwPhi),
+                           decCalo.floatHoe(),
+                           decCalo.hwIsEM(),
+                           0.,  // ptError
+                           decCalo.intPt(),
+                           decCalo.intEta(),
+                           decCalo.intPhi());
+
   // Add additional variables specialized for GCT and HGCal clusters
   pfClusters->back().setHwQual(decCalo.hwEmID.to_int());
-  pfClusters->back().setPuIDScore(decCalo.floatPuProb());
-  pfClusters->back().setPiIDScore(decCalo.floatPiProb());
-  pfClusters->back().setEmIDScore(decCalo.floatEmProb());
+  pfClusters->back().setCaloDigi(decCalo);
   setRefs_(pfClusters->back(), decCalo);
 }
 
@@ -1046,8 +1036,6 @@ void L1TCorrelatorLayer1Producer::getDecodedGctPFCluster(l1ct::HadCaloObjEmu &ca
   calo.hwPhi = l1ct::Scales::makePhi(sec.region.localPhi(c->phi()));
   calo.hwEmPt = l1ct::Scales::makePtFromFloat(c->emEt());
   calo.hwEmID = c->hwEmID();
-  calo.hwSrrTot = l1ct::Scales::makeSrrTot(c->sigmaRR());
-  calo.hwMeanZ = c->absZBarycenter() < 320. ? l1ct::meanz_t(0) : l1ct::Scales::makeMeanZ(c->absZBarycenter());
   calo.hwHoe = l1ct::Scales::makeHoe(c->hOverE());
 }
 
@@ -1080,44 +1068,42 @@ void L1TCorrelatorLayer1Producer::setRefs_(l1t::PFCandidate &pf, const T &p) con
   }
 }
 
-template<>
-std::string  L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::PFNeutralObjEmu>(const l1ct::PFNeutralObjEmu &key) const {
-  return "Invalid pointer in Neutral PF candidate id " + std::to_string(key.intId()) + " pt " + std::to_string(key.floatPt()) +
-         " eta " + std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
+template <>
+std::string L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::PFNeutralObjEmu>(const l1ct::PFNeutralObjEmu &key) const {
+  return "Invalid pointer in Neutral PF candidate id " + std::to_string(key.intId()) + " pt " +
+         std::to_string(key.floatPt()) + " eta " + std::to_string(key.floatEta()) + " phi " +
+         std::to_string(key.floatPhi());
 }
 
-template<>
-std::string  L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::HadCaloObjEmu>(const l1ct::HadCaloObjEmu &key) const {
-  return "Invalid pointer in hadcalo obj, pt " + std::to_string(key.floatPt()) +
-         " eta " + std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
+template <>
+std::string L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::HadCaloObjEmu>(const l1ct::HadCaloObjEmu &key) const {
+  return "Invalid pointer in hadcalo obj, pt " + std::to_string(key.floatPt()) + " eta " +
+         std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
 }
 
-template<>
-std::string  L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::EmCaloObjEmu>(const l1ct::EmCaloObjEmu &key) const {
-  return "Invalid pointer in emcalo obj, pt " + std::to_string(key.floatPt()) +
-         " eta " + std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
+template <>
+std::string L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::EmCaloObjEmu>(const l1ct::EmCaloObjEmu &key) const {
+  return "Invalid pointer in emcalo obj, pt " + std::to_string(key.floatPt()) + " eta " +
+         std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
 }
 
-template<>
-std::string  L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::TkObjEmu>(const l1ct::TkObjEmu &key) const {
-  return "Invalid track pointer in track obj, pt " + std::to_string(key.floatPt()) +
-         " eta " + std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
+template <>
+std::string L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::TkObjEmu>(const l1ct::TkObjEmu &key) const {
+  return "Invalid track pointer in track obj, pt " + std::to_string(key.floatPt()) + " eta " +
+         std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
 }
 
-template<>
-std::string  L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::EGIsoObjEmu>(const l1ct::EGIsoObjEmu &key) const {
-  return "Invalid cluster pointer in EGIso candidate, pt " + std::to_string(key.floatPt()) +
-         " eta " + std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
+template <>
+std::string L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::EGIsoObjEmu>(const l1ct::EGIsoObjEmu &key) const {
+  return "Invalid cluster pointer in EGIso candidate, pt " + std::to_string(key.floatPt()) + " eta " +
+         std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
 }
 
-template<>
-std::string  L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::EGIsoEleObjEmu>(const l1ct::EGIsoEleObjEmu &key) const {
-  return "Invalid cluster pointer in EGEleIso candidate, pt " + std::to_string(key.floatPt()) +
-         " eta " + std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
+template <>
+std::string L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::EGIsoEleObjEmu>(const l1ct::EGIsoEleObjEmu &key) const {
+  return "Invalid cluster pointer in EGEleIso candidate, pt " + std::to_string(key.floatPt()) + " eta " +
+         std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
 }
-
-
-
 
 template <>
 void L1TCorrelatorLayer1Producer::setRefs_<l1ct::PFNeutralObjEmu>(l1t::PFCandidate &pf,

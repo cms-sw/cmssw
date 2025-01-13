@@ -111,7 +111,6 @@ void l1tpf::PFClusterProducerFromHGC3DClusters::produce(edm::Event &iEvent, cons
     if (pt <= etCut_)
       continue;
 
-
     // this block below is to support the older EG emulators, and is not used in newer ones
     if (it->hwQual()) {  // this is the EG ID shipped with the HGC TPs
       // we use the EM interpretation of the cluster energy
@@ -163,9 +162,9 @@ void l1tpf::PFClusterProducerFromHGC3DClusters::produce(edm::Event &iEvent, cons
       corrector_.correctPt(cluster);
     cluster.setPtError(resol_(cluster.pt(), std::abs(cluster.eta())));
 
-    // We se the cluster shape variables used downstream
-    cluster.setAbsZBarycenter(fabs(it->zBarycenter()));
-    cluster.setSigmaRR(it->sigmaRRTot());
+    // // We se the cluster shape variables used downstream
+    // cluster.setAbsZBarycenter(fabs(it->zBarycenter()));
+    // cluster.setSigmaRR(it->sigmaRRTot());
 
     out->push_back(cluster);
     out->back().addConstituent(edm::Ptr<l1t::L1Candidate>(multiclusters, multiclusters->key(it)));

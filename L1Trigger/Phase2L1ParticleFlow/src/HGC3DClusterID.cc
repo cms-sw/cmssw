@@ -2,7 +2,8 @@
 
 l1tpf::HGC3DClusterID::HGC3DClusterID(const edm::ParameterSet &pset) {
   // Inference of the conifer BDT model
-  multiclass_bdt_ = new conifer::BDT<bdt_feature_t, bdt_score_t, false>(edm::FileInPath(pset.getParameter<std::string>("model")).fullPath());
+  multiclass_bdt_ = new conifer::BDT<bdt_feature_t, bdt_score_t, false>(
+      edm::FileInPath(pset.getParameter<std::string>("model")).fullPath());
 
   wp_PU = {0.38534376, 0.33586645};
   wp_Pi = {0.22037095, 0.08385937};
@@ -14,7 +15,7 @@ float l1tpf::HGC3DClusterID::evaluate(const l1t::HGCalMulticluster &cl, l1t::PFC
   bdt_feature_t showerlength = cl.showerLength();
   bdt_feature_t coreshowerlength = cl.coreShowerLength();
   bdt_feature_t eot = cl.eot();
-  bdt_feature_t eta = std::abs(cl.eta()); // take absolute values for eta for BDT input
+  bdt_feature_t eta = std::abs(cl.eta());  // take absolute values for eta for BDT input
   bdt_feature_t meanz = std::abs(cl.zBarycenter()) - 320;
   bdt_feature_t seetot = cl.sigmaEtaEtaTot();
   bdt_feature_t spptot = cl.sigmaPhiPhiTot();
@@ -40,31 +41,29 @@ float l1tpf::HGC3DClusterID::evaluate(const l1t::HGCalMulticluster &cl, l1t::PFC
   // max score to ID the cluster -> Deprecated
   float maxScore = *std::max_element(bdt_score.begin(), bdt_score.end());
 
-  cpf.setPuIDScore(puScore);
-  cpf.setEmIDScore(emScore);
-  cpf.setPiIDScore(piScore);
-  
+  // cpf.setPuIDScore(puScore);
+  // cpf.setEmIDScore(emScore);
+  // cpf.setPiIDScore(piScore);
+
   return maxScore;
 }
 
-
 bool l1tpf::HGC3DClusterID::passPuID(l1t::PFCluster &cpf, float maxScore) {
-
-  return (cpf.pt() < 20 ? (cpf.puIDScore() > wp_PU[0]) : (cpf.puIDScore() > wp_PU[1]));
+  return false;
+  // return (cpf.pt() < 20 ? (cpf.puIDScore() > wp_PU[0]) : (cpf.puIDScore() > wp_PU[1]));
 }
 
 bool l1tpf::HGC3DClusterID::passPFEmID(l1t::PFCluster &cpf, float maxScore) {
-
-  return (cpf.pt() < 20 ? ((cpf.puIDScore() <= wp_PU[0]) && (cpf.emIDScore() > wp_Eg[0])) : ((cpf.puIDScore() <= wp_PU[1]) && (cpf.emIDScore() > wp_Eg[1])));
+  return false;
+  // return (cpf.pt() < 20 ? ((cpf.puIDScore() <= wp_PU[0]) && (cpf.emIDScore() > wp_Eg[0])) : ((cpf.puIDScore() <= wp_PU[1]) && (cpf.emIDScore() > wp_Eg[1])));
 }
 
 bool l1tpf::HGC3DClusterID::passEgEmID(l1t::PFCluster &cpf, float maxScore) {
- 
-  return (cpf.pt() < 20 ? ((cpf.puIDScore() <= wp_PU[0]) && (cpf.emIDScore() > wp_Eg[0])) : ((cpf.puIDScore() <= wp_PU[1]) && (cpf.emIDScore() > wp_Eg[1])));
+  return false;
+  // return (cpf.pt() < 20 ? ((cpf.puIDScore() <= wp_PU[0]) && (cpf.emIDScore() > wp_Eg[0])) : ((cpf.puIDScore() <= wp_PU[1]) && (cpf.emIDScore() > wp_Eg[1])));
 }
 
-
 bool l1tpf::HGC3DClusterID::passPiID(l1t::PFCluster &cpf, float maxScore) {
-  
-  return (cpf.pt() < 20 ? ((cpf.puIDScore() <= wp_PU[0]) && (cpf.piIDScore() > wp_Pi[0])) : ((cpf.puIDScore() <= wp_PU[1]) && (cpf.piIDScore() > wp_Pi[1])));
+  return false;
+  // return (cpf.pt() < 20 ? ((cpf.puIDScore() <= wp_PU[0]) && (cpf.piIDScore() > wp_Pi[0])) : ((cpf.puIDScore() <= wp_PU[1]) && (cpf.piIDScore() > wp_Pi[1])));
 }

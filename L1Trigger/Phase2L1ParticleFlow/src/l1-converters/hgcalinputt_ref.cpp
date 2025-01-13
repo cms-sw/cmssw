@@ -59,7 +59,8 @@ l1ct::HgcalClusterDecoderEmulator::HgcalClusterDecoderEmulator(const std::string
 
 l1ct::HgcalClusterDecoderEmulator::~HgcalClusterDecoderEmulator() {}
 
-l1ct::HgcalClusterDecoderEmulator::UseEmInterp l1ct::HgcalClusterDecoderEmulator::setEmInterpScenario(const std::string &emInterpScenario) {
+l1ct::HgcalClusterDecoderEmulator::UseEmInterp l1ct::HgcalClusterDecoderEmulator::setEmInterpScenario(
+    const std::string &emInterpScenario) {
   if (emInterpScenario == "no")
     return UseEmInterp::No;
   if (emInterpScenario == "emOnly")
@@ -70,7 +71,6 @@ l1ct::HgcalClusterDecoderEmulator::UseEmInterp l1ct::HgcalClusterDecoderEmulator
     return UseEmInterp::AllKeepTot;
   throw std::runtime_error("Unknown emInterpScenario: " + emInterpScenario);
 }
-
 
 l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegionEmu &sector,
                                                               const ap_uint<256> &in,
@@ -84,7 +84,7 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
   ap_uint<14> w_pt = in(13, 0);       // 14 bits: 13-0
   ap_uint<14> w_empt = in(27, 14);    // 14 bits: 27-14
   ap_uint<4> w_gctqual = in(31, 28);  //  4 bits: 31-28
-  ap_uint<8> w_emf_tot = in(39, 32);      //  8 bits: 39-32
+  ap_uint<8> w_emf_tot = in(39, 32);  //  8 bits: 39-32
   ap_uint<8> w_emf = in(47, 40);      //  8 bits: 47-40
 
   // Word 1
@@ -123,7 +123,7 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
     out.hwSrrTot = w_sigmarrtot * l1ct::srrtot_t(l1ct::Scales::SRRTOT_LSB);
     // We just downscale precision and round to the nearest integer
     out.hwMeanZ = l1ct::meanz_t(std::min(w_meanz.to_int() + 4, (1 << 12) - 1) >> 3);
-    // Compute an H/E value: 1/emf - 1 as needed by Composite ID 
+    // Compute an H/E value: 1/emf - 1 as needed by Composite ID
     // NOTE: this uses the total cluster energy, which is not the case for the eot shower shape!
     // FIXME: could drop once we move the model to the eot fraction
     ap_ufixed<10, 5, AP_RND_CONV, AP_SAT> w_hoe = 256.0 / (w_emf_tot.to_int() + 0.5) - 1;
@@ -142,21 +142,22 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
   // evaluate multiclass model
   valid = multiclass_id_.evaluate(out, inputs);
 
-  
   // Apply EM interpretation scenario
   if (emInterpScenario_ == UseEmInterp::No) {  // we do not use EM interpretation
-    out.hwEmPt = w_emf_tot*out.hwPt/256;
+    out.hwEmPt = w_emf_tot * out.hwPt / 256;
     // NOTE: only case where hoe consisten with hwEmPt
   } else if (emInterpScenario_ == UseEmInterp::EmOnly) {  // for emID objs, use EM interp as pT and set H = 0
     if (out.hwEmID) {
       out.hwPt = out.hwEmPt;
       out.hwHoe = 0;
     }
-  } else if (emInterpScenario_ == UseEmInterp::AllKeepHad) {  // for all objs, replace EM part with EM interp, preserve H
-    l1ct::pt_t had_pt = out.hwPt - w_emf_tot*out.hwPt/256;
+  } else if (emInterpScenario_ ==
+             UseEmInterp::AllKeepHad) {  // for all objs, replace EM part with EM interp, preserve H
+    l1ct::pt_t had_pt = out.hwPt - w_emf_tot * out.hwPt / 256;
     out.hwPt = had_pt + out.hwEmPt;
     // FIXME: we do not recompute hoe for now...
-  } else if (emInterpScenario_ == UseEmInterp::AllKeepTot) {  // for all objs, replace EM part with EM interp, preserve pT
+  } else if (emInterpScenario_ ==
+             UseEmInterp::AllKeepTot) {  // for all objs, replace EM part with EM interp, preserve pT
     // FIXME: we do not recompute hoe for now...
   }
 
@@ -210,7 +211,7 @@ bool l1ct::HgcalClusterDecoderEmulator::MultiClassID::evaluate(l1ct::HadCaloObjE
   cl.hwEmID = passPFEm | (passEgEm << 1) | (passEgEm << 2);  // FIXME: for now loose eg WP == tight WP?
 
   cl.hwPiProb = sm_scores[1];
-  cl.hwEgProb = sm_scores[2];
+  cl.hwEmProb = sm_scores[2];
   return !passPu;
 }
 
