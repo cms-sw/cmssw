@@ -8,9 +8,11 @@
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/FitResult.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/alpaka/FrameSoACollection.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/FrameSoALayout.h"
 
 #include "CAStructures.h"
 
@@ -69,16 +71,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ~HelixFit() { deallocate(); }
 
     void setBField(double bField) { bField_ = bField; }
-    void launchRiemannKernels(const HitConstView &hv,
-                              ParamsOnDevice const *cpeParams,
-                              uint32_t nhits,
-                              uint32_t maxNumberOfTuples,
-                              Queue &queue);
-    void launchBrokenLineKernels(const HitConstView &hv,
-                                 ParamsOnDevice const *cpeParams,
-                                 uint32_t nhits,
-                                 uint32_t maxNumberOfTuples,
-                                 Queue &queue);
+    void launchRiemannKernels(const HitConstView &hv, const FrameSoAConstView &fr, uint32_t nhits, uint32_t maxNumberOfTuples, Queue &queue);
+    void launchBrokenLineKernels(const HitConstView &hv, const FrameSoAConstView &fr, uint32_t nhits, uint32_t maxNumberOfTuples, Queue &queue);
 
     void allocate(TupleMultiplicity const *tupleMultiplicity, OutputSoAView &helix_fit_results);
     void deallocate();

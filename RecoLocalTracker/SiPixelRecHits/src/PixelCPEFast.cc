@@ -4,7 +4,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
@@ -529,3 +530,4 @@ void PixelCPEFast<TrackerTraits>::fillPSetDescription(edm::ParameterSetDescripti
 template class PixelCPEFast<pixelTopology::Phase1>;
 template class PixelCPEFast<pixelTopology::Phase2>;
 template class PixelCPEFast<pixelTopology::HIonPhase1>;
+template class PixelCPEFast<pixelTopology::Phase1Strip>;

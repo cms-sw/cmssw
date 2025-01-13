@@ -89,7 +89,7 @@ PixelTrackProducerFromSoAT<TrackerTraits>::PixelTrackProducerFromSoAT(const edm:
     throw cms::Exception("PixelTrackConfiguration")
         << iConfig.getParameter<std::string>("minQuality") + " is not a pixelTrack::Quality";
   }
-  if (minQuality_ < pixelTrack::Quality::dup) {
+  if (minQuality_ < pixelTrack::Quality::edup) {
     throw cms::Exception("PixelTrackConfiguration")
         << iConfig.getParameter<std::string>("minQuality") + " not supported";
   }
@@ -107,7 +107,7 @@ void PixelTrackProducerFromSoAT<TrackerTraits>::fillDescriptions(edm::Configurat
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("trackSrc", edm::InputTag("pixelTracksSoA"));
-  desc.add<edm::InputTag>("pixelRecHitLegacySrc", edm::InputTag("siPixelRecHitsPreSplittingLegacy"));
+  desc.add<edm::InputTag>("pixelRecHitLegacySrc", edm::InputTag("siPixelRecHitsPreSplitting"));
   desc.add<int>("minNumberOfHits", 0);
   desc.add<std::string>("minQuality", "loose");
   descriptions.addWithDefaultLabel(desc);

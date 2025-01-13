@@ -7,8 +7,12 @@
 
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/FrameSoALayout.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/BrokenLine.h"
+
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 
 #include "HelixFit.h"
 
@@ -30,7 +34,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
                                   TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
                                   TrackingRecHitSoAConstView<TrackerTraits> hh,
-                                  pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *__restrict__ cpeParams,
+                                  // pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *__restrict__ cpeParams,
+                                  FrameSoAConstView fr,
                                   typename TrackerTraits::tindex_type *__restrict__ ptkids,
                                   double *__restrict__ phits,
                                   float *__restrict__ phits_ge,
@@ -112,15 +117,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           n += incr;
           auto hit = hitId[j];
           float ge[6];
-
+          auto const &frame = fr.detFrame(hh.detectorIndex(hit));
 #ifdef YERR_FROM_DC
-          auto const &dp = cpeParams->detParams(hh.detectorIndex(hit));
           auto status = hh[hit].chargeAndStatus().status;
           int qbin = CPEFastParametrisation::kGenErrorQBins - 1 - status.qBin;
           ALPAKA_ASSERT_ACC(qbin >= 0 && qbin < 5);
           bool nok = (status.isBigY | status.isOneY);
           // compute cotanbeta and use it to recompute error
-          dp.frame.rotation().multiply(dx, dy, dz, ux, uy, uz);
+          frame.rotation().multiply(dx, dy, dz, ux, uy, uz);
           auto cb = std::abs(uy / uz);
           int bin =
               int(cb * (float(phase1PixelTopology::pixelThickess) / float(phase1PixelTopology::pixelPitchY)) * 8.f) - 4;
@@ -133,9 +137,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           yerr *= yerr;
           yerr += dp.apeYY;
           yerr = nok ? hh[hit].yerrLocal() : yerr;
-          dp.frame.toGlobal(hh[hit].xerrLocal(), 0, yerr, ge);
+          frame.toGlobal(hh[hit].xerrLocal(), 0, yerr, ge);
 #else
-          cpeParams->detParams(hh[hit].detectorIndex()).frame.toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
+          frame.toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
+          // if (hh[hit].detectorIndex() <= TrackerTraits::numberOfPixelModules)
+          //   cpeParams->detParams(hh[hit].detectorIndex()).frame.toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
+          // else
+          // {
+          //   auto xe = hh[hit].xerrLocal();
+          //   auto ye = hh[hit].yerrLocal();
+
+          //   ge[0] = xe;
+          //   ge[1] = sqrt(xe*xe + ye*ye);
+          //   ge[2] = ye;
+          //   ge[3] = sqrt(xe*xe + ye*ye);
+          //   ge[4] = sqrt(xe*xe + ye*ye);
+          //   ge[5] = sqrt(xe*xe + ye*ye);
+          // }
 #endif
 
 #ifdef BL_DUMP_HITS
@@ -244,7 +262,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   void HelixFit<TrackerTraits>::launchBrokenLineKernels(
       const TrackingRecHitSoAConstView<TrackerTraits> &hv,
-      pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *cpeParams,
+      // pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *cpeParams,
+      const FrameSoAConstView& fr,
       uint32_t hitsInFit,
       uint32_t maxNumberOfTuples,
       Queue &queue) {
@@ -274,7 +293,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           tuples_,
                           tupleMultiplicity_,
                           hv,
-                          cpeParams,
+                          fr,
                           tkidDevice.data(),
                           hitsDevice.data(),
                           hits_geDevice.data(),
@@ -298,7 +317,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // fit all as 4
         riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrack, 1>([this,
                                                                        &hv,
-                                                                       &cpeParams,
+                                                                       &fr,
                                                                        &tkidDevice,
                                                                        &hitsDevice,
                                                                        &hits_geDevice,
@@ -312,7 +331,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               tuples_,
                               tupleMultiplicity_,
                               hv,
-                              cpeParams,
+                              fr,
                               tkidDevice.data(),
                               hitsDevice.data(),
                               hits_geDevice.data(),
@@ -336,7 +355,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       } else {
         riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrackForFullFit, 1>([this,
                                                                                  &hv,
-                                                                                 &cpeParams,
+                                                                                 &fr,
                                                                                  &tkidDevice,
                                                                                  &hitsDevice,
                                                                                  &hits_geDevice,
@@ -350,7 +369,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               tuples_,
                               tupleMultiplicity_,
                               hv,
-                              cpeParams,
+                              fr,
                               tkidDevice.data(),
                               hitsDevice.data(),
                               hits_geDevice.data(),
@@ -380,7 +399,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             tuples_,
                             tupleMultiplicity_,
                             hv,
-                            cpeParams,
+                            fr,
                             tkidDevice.data(),
                             hitsDevice.data(),
                             hits_geDevice.data(),
@@ -407,5 +426,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template class HelixFit<pixelTopology::Phase1>;
   template class HelixFit<pixelTopology::Phase2>;
   template class HelixFit<pixelTopology::HIonPhase1>;
+  template class HelixFit<pixelTopology::Phase1Strip>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

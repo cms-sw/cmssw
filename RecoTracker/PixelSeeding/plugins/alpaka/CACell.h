@@ -2,16 +2,14 @@
 #define RecoTracker_PixelSeeding_plugins_alpaka_CACell_h
 
 // #define ONLY_TRIPLETS_IN_HOLE
-
 #include <cmath>
 #include <limits>
-
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 #include "DataFormats/TrackSoA/interface/TracksSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -43,7 +41,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using HitContainer = typename reco::TrackSoA<TrackerTraits>::HitContainer;
     using Quality = ::pixelTrack::Quality;
     static constexpr auto bad = ::pixelTrack::Quality::bad;
-
     enum class StatusBit : uint16_t { kUsed = 1, kInTrack = 2, kKilled = 1 << 15 };
 
     CACellT() = default;
@@ -164,10 +161,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                        const float caThetaCutBarrel,
                                        const float caThetaCutForward,
                                        const float dcaCutInnerTriplet,
-                                       const float dcaCutOuterTriplet) const {
+                                       const float dcaCutOuterTriplet,
+                                       const float caThetaCutBarrelPixelBarrelStrip,
+                                       const float caThetaCutBarrelPixelForwardStrip,
+                                       const float caThetaCutBarrelStripForwardStrip,
+                                       const float caThetaCutBarrelStrip,
+                                       const float caThetaCutDefault,
+                                       const float dcaCutInnerTripletPixelStrip,
+                                       const float dcaCutOuterTripletPixelStrip,
+                                       const float dcaCutTripletStrip,
+                                       const float dcaCutTripletDefault) const {
       // detIndex of the layerStart for the Phase1 Pixel Detector:
       // [BPX1, BPX2, BPX3, BPX4,  FP1,  FP2,  FP3,  FN1,  FN2,  FN3, LAST_VALID]
-      // [   0,   96,  320,  672, 1184, 1296, 1408, 1520, 1632, 1744,       1856]
+      // [   0,   96,  320,  672, 1184, 1296, 1408, 1520, 1632, 1744,       1856] , 3392 TIB2
       auto ri = inner_r(hh);
       auto zi = inner_z(hh);
 
@@ -176,13 +182,42 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       auto r1 = otherCell.inner_r(hh);
       auto z1 = otherCell.inner_z(hh);
-      auto isBarrel = otherCell.outer_detIndex(hh) < TrackerTraits::last_barrel_detIndex;
       // TODO tune CA cuts below (theta and dca)
-      bool aligned = areAlignedRZ(r1, z1, ri, zi, ro, zo, ptmin, isBarrel ? caThetaCutBarrel : caThetaCutForward);
+      // Distinguish caThetaCuts for different cases
+      float caThetaCut;
+
+      auto isOuterBarrelPixel = otherCell.outer_detIndex(hh) < TrackerTraits::last_barrel_detIndex;
+      auto isInnerBarrelPixel = otherCell.inner_detIndex(hh) < TrackerTraits::last_barrel_detIndex;
+      auto isOuterForwardPixel = otherCell.outer_detIndex(hh) >= TrackerTraits::last_barrel_detIndex && otherCell.outer_detIndex(hh) < TrackerTraits::numberOfPixelModules;
+      auto isInnerForwardPixel = otherCell.inner_detIndex(hh) >= TrackerTraits::last_barrel_detIndex && otherCell.inner_detIndex(hh) < TrackerTraits::numberOfPixelModules;
+      auto isOuterBarrelStrip =  otherCell.outer_detIndex(hh) >= TrackerTraits::numberOfPixelModules && otherCell.outer_detIndex(hh) < 3392;
+      auto isInnerBarrelStrip =  otherCell.inner_detIndex(hh) >= TrackerTraits::numberOfPixelModules && otherCell.inner_detIndex(hh) < 3392;
+      auto isOuterForwardStrip = otherCell.outer_detIndex(hh) >= 3392;
+      auto isInnerForwardStrip = otherCell.inner_detIndex(hh) >= 3392;
+      caThetaCut = (isInnerBarrelPixel && isOuterBarrelPixel) ? caThetaCutBarrel :
+             (isInnerBarrelPixel && isOuterForwardPixel) ? caThetaCutForward :
+             (isInnerBarrelPixel && isOuterBarrelStrip) ? caThetaCutBarrelPixelBarrelStrip :
+             (isInnerBarrelPixel && isOuterForwardStrip) ? caThetaCutBarrelPixelForwardStrip :
+             (isInnerBarrelStrip && isOuterForwardStrip) ? caThetaCutBarrelStripForwardStrip :
+             (isInnerBarrelStrip && isOuterBarrelStrip) ? caThetaCutBarrelStrip :
+             caThetaCutDefault;
+
+      auto isFirstInnerBarrelPixel = otherCell.inner_detIndex(hh) < TrackerTraits::last_bpix1_detIndex;
+      auto isBeyondFirstInnerBarrelPixel = otherCell.inner_detIndex(hh) > TrackerTraits::last_bpix1_detIndex && otherCell.inner_detIndex(hh) < TrackerTraits::numberOfPixelModules;
+      float dcaCutTriplet;
+     
+      dcaCutTriplet = (isFirstInnerBarrelPixel && (isOuterBarrelStrip || isOuterForwardStrip)) ? dcaCutInnerTripletPixelStrip :
+                (isBeyondFirstInnerBarrelPixel && (isOuterBarrelStrip || isOuterForwardStrip)) ? dcaCutOuterTripletPixelStrip :
+                (isFirstInnerBarrelPixel && (isOuterBarrelPixel || isOuterForwardPixel)) ? dcaCutInnerTriplet :
+                (isBeyondFirstInnerBarrelPixel && (isOuterBarrelPixel || isOuterForwardPixel)) ? dcaCutOuterTriplet :
+                ((isInnerBarrelStrip || isInnerForwardStrip) && (isOuterBarrelStrip || isOuterForwardStrip)) ? dcaCutTripletStrip :
+                dcaCutTripletDefault;
+
+
+      bool aligned = areAlignedRZ(r1, z1, ri, zi, ro, zo, ptmin, caThetaCut);
       return (aligned && dcaCut(hh,
                                 otherCell,
-                                otherCell.inner_detIndex(hh) < TrackerTraits::last_bpix1_detIndex ? dcaCutInnerTriplet
-                                                                                                  : dcaCutOuterTriplet,
+                                dcaCutTriplet,
                                 hardCurvCut));
     }
 
@@ -316,7 +351,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               acc, hh, cells, cellTracks, foundNtuplets, apc, quality, tmpNtuplet, minHitsPerNtuplet, startAt0);
         }
         if (last) {  // if long enough save...
-          if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1) {
+          if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1){
 #ifdef ONLY_TRIPLETS_IN_HOLE
             // triplets accepted only pointing to the hole
             if (tmpNtuplet.size() >= 3 || (startAt0 && hole4(hh, cells[tmpNtuplet[0]])) ||
@@ -337,11 +372,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               ALPAKA_ASSERT_ACC(nh < TrackerTraits::maxHitsOnTrack);
               hits[nh] = theOuterHitId;
               auto it = foundNtuplets.bulkFill(acc, apc, hits, nh + 1);
+	      
               if (it >= 0) {  // if negative is overflow....
                 for (auto c : tmpNtuplet)
                   cells[c].addTrack(acc, it, cellTracks);
                 quality[it] = bad;  // initialize to bad
               }
+	      else{
+		//printf("Going into overflow from bulkFill");
+	      }
             }
           }
         }

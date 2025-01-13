@@ -10,7 +10,7 @@
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsDevice.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsHost.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
@@ -25,6 +25,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using TrackingRecHitSoAPhase1 = TrackingRecHitsSoACollection<pixelTopology::Phase1>;
   using TrackingRecHitSoAPhase2 = TrackingRecHitsSoACollection<pixelTopology::Phase2>;
   using TrackingRecHitSoAHIonPhase1 = TrackingRecHitsSoACollection<pixelTopology::HIonPhase1>;
+  using TrackingRecHitSoAPhase1Strip = TrackingRecHitsSoACollection<pixelTopology::Phase1Strip>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
@@ -69,5 +70,5 @@ namespace cms::alpakatools {
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(TrackingRecHitSoAPhase1, TrackingRecHitHostPhase1);
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(TrackingRecHitSoAPhase2, TrackingRecHitHostPhase2);
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(TrackingRecHitSoAHIonPhase1, TrackingRecHitHostHIonPhase1);
-
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(TrackingRecHitSoAPhase1Strip, TrackingRecHitHostPhase1Strip );
 #endif  // DataFormats_TrackingRecHitSoA_interface_alpaka_TrackingRecHitsSoACollection_h

@@ -1,6 +1,6 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFastParamsHost.h"
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 
 using PixelCPEFastParamsHostPhase1 = PixelCPEFastParamsHost<pixelTopology::Phase1>;
 using PixelCPEFastParamsHostHIonPhase1 = PixelCPEFastParamsHost<pixelTopology::HIonPhase1>;

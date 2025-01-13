@@ -1,6 +1,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -107,9 +108,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using PixelVertexProducerAlpakaPhase1 = PixelVertexProducerAlpaka<pixelTopology::Phase1>;
   using PixelVertexProducerAlpakaPhase2 = PixelVertexProducerAlpaka<pixelTopology::Phase2>;
   using PixelVertexProducerAlpakaHIonPhase1 = PixelVertexProducerAlpaka<pixelTopology::HIonPhase1>;
+  using PixelVertexProducerAlpakaPhase1Strip = PixelVertexProducerAlpaka<pixelTopology::Phase1Strip>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 DEFINE_FWK_ALPAKA_MODULE(PixelVertexProducerAlpakaPhase1);
 DEFINE_FWK_ALPAKA_MODULE(PixelVertexProducerAlpakaPhase2);
 DEFINE_FWK_ALPAKA_MODULE(PixelVertexProducerAlpakaHIonPhase1);
+DEFINE_FWK_ALPAKA_MODULE(PixelVertexProducerAlpakaPhase1Strip);

@@ -2,7 +2,8 @@
 #define RecoLocalTracker_SiStripRecHitConverter_StripCPEfromTrackAngle_H
 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
 class StripCPEfromTrackAngle : public StripCPE {
 private:
   using StripCPE::localParameters;

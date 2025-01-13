@@ -36,6 +36,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const bool doSharedHitCut_;
       const bool dupPassThrough_;
       const bool useSimpleTripletCleaner_;
+      const bool useRemovers_;
     };
 
     //CAParams
@@ -48,6 +49,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const float hardCurvCut_;
       const float dcaCutInnerTriplet_;
       const float dcaCutOuterTriplet_;
+      const float CAThetaCutBarrelPixelBarrelStrip_;
+      const float CAThetaCutBarrelPixelForwardStrip_;
+      const float CAThetaCutBarrelStripForwardStrip_;
+      const float CAThetaCutBarrelStrip_;
+      const float CAThetaCutDefault_;
+      const float dcaCutInnerTripletPixelStrip_;
+      const float dcaCutOuterTripletPixelStrip_;
+      const float dcaCutTripletStrip_;
+      const float dcaCutTripletDefault_;
     };
 
     template <typename TrackerTraits, typename Enable = void>
@@ -60,15 +70,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     struct CAParamsT<TrackerTraits, pixelTopology::isPhase1Topology<TrackerTraits>> : public CACommon {
       /// Is is a starting layer pair?
       ALPAKA_FN_ACC ALPAKA_FN_INLINE bool startingLayerPair(int16_t pid) const {
-        return minHitsPerNtuplet_ > 3 ? pid < 3 : pid < 8 || pid > 12;
+        if constexpr (std::is_same_v<TrackerTraits, pixelTopology::Phase1Strip>) {
+         return (pid < 12 || pid == 37 || pid == 38 || pid == 34  || pid == 32 || pid == 18 || pid == 48);
+        }
+        else{
+          return minHitsPerNtuplet_ > 3 ? pid < 3 : pid < 8 || pid > 12;
+        }
       }
 
       /// Is this a pair with inner == 0?
       ALPAKA_FN_ACC ALPAKA_FN_INLINE bool startAt0(int16_t pid) const {
-        ALPAKA_ASSERT_ACC(
-            (pixelTopology::Phase1::layerPairs[pid * 2] == 0) ==
-            (pid < 3 || pid == 13 || pid == 15 || pid == 16));  // to be 100% sure it's working, may be removed
+        if constexpr (std::is_same_v<TrackerTraits, pixelTopology::Phase1Strip>) {
+        assert((pixelTopology::Phase1Strip::layerPairs[pid * 2] == 0) ==
+               (pid < 3 || pid == 8 || pid == 10 || pid == 11 || pid == 34 ));  // to be 100% sure it's working, may be removed
+        return pixelTopology::Phase1Strip::layerPairs[pid * 2] == 0;
+        }
+        else{
+           assert((pixelTopology::Phase1::layerPairs[pid * 2] == 0) ==
+               (pid < 3 || pid == 13 || pid == 15 || pid == 16));  // to be 100% sure it's working, may be removed
         return pixelTopology::Phase1::layerPairs[pid * 2] == 0;
+        }
       }
     };
 

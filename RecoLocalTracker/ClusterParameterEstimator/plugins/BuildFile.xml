@@ -1,0 +1,12 @@
+<library file="alpaka/*.cc" name="RecoLocalTrackerClusterParameterEstimatorPluginsPortable">
+  <use name="alpaka"/>
+  <use name="DataFormats/Portable"/>
+  <use name="FWCore/Framework"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoLocalTracker/Records"/>
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="RecoLocalTracker/ClusterParameterEstimator"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

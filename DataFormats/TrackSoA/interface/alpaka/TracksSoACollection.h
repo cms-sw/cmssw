@@ -8,7 +8,7 @@
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
 #include "DataFormats/TrackSoA/interface/TracksDevice.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AssertDeviceMatchesHostCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -29,6 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using TracksSoACollectionPhase1 = TracksSoACollection<pixelTopology::Phase1>;
     using TracksSoACollectionPhase2 = TracksSoACollection<pixelTopology::Phase2>;
     using TracksSoACollectionHIonPhase1 = TracksSoACollection<pixelTopology::HIonPhase1>;
+    using TracksSoACollectionPhase1Strip = TracksSoACollection<pixelTopology::Phase1Strip>;
   }  // namespace pixelTrack
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
@@ -50,5 +51,6 @@ namespace cms::alpakatools {
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(pixelTrack::TracksSoACollectionPhase1, pixelTrack::TracksHostPhase1);
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(pixelTrack::TracksSoACollectionPhase2, pixelTrack::TracksHostPhase2);
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(pixelTrack::TracksSoACollectionHIonPhase1, pixelTrack::TracksHostHIonPhase1);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(pixelTrack::TracksSoACollectionPhase1Strip, pixelTrack::TracksHostPhase1Strip);
 
 #endif  // DataFormats_TrackSoA_interface_alpaka_TracksSoACollection_h

@@ -22,6 +22,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
 #include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 // for string manipulations
 #include <fmt/printf.h>
 
@@ -362,7 +363,9 @@ void SiPixelCompareTrackSoA<T>::fillDescriptions(edm::ConfigurationDescriptions&
 using SiPixelPhase1CompareTrackSoA = SiPixelCompareTrackSoA<pixelTopology::Phase1>;
 using SiPixelPhase2CompareTrackSoA = SiPixelCompareTrackSoA<pixelTopology::Phase2>;
 using SiPixelHIonPhase1CompareTrackSoA = SiPixelCompareTrackSoA<pixelTopology::HIonPhase1>;
+using SiPixelPhase1StripCompareTrackSoA = SiPixelCompareTrackSoA<pixelTopology::Phase1Strip>;
 
 DEFINE_FWK_MODULE(SiPixelPhase1CompareTrackSoA);
+DEFINE_FWK_MODULE(SiPixelPhase1StripCompareTrackSoA);
 DEFINE_FWK_MODULE(SiPixelPhase2CompareTrackSoA);
 DEFINE_FWK_MODULE(SiPixelHIonPhase1CompareTrackSoA);

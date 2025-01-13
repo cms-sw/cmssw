@@ -91,11 +91,9 @@ trackingLowPU.toReplaceWith(pixelTracksTask, _pixelTracksTask_lowPU)
 
 # "Patatrack" pixel ntuplets, fishbone cleaning, Broken Line fit, and density-based vertex reconstruction
 from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
-
 from RecoTracker.PixelSeeding.caHitNtupletCUDAPhase1_cfi import caHitNtupletCUDAPhase1 as _pixelTracksCUDA
 from RecoTracker.PixelSeeding.caHitNtupletCUDAPhase2_cfi import caHitNtupletCUDAPhase2 as _pixelTracksCUDAPhase2
 from RecoTracker.PixelSeeding.caHitNtupletCUDAHIonPhase1_cfi import caHitNtupletCUDAHIonPhase1 as _pixelTracksCUDAHIonPhase1
-
 # Phase 2 modifier
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 # HIon modifiers
@@ -250,3 +248,74 @@ alpaka.toReplaceWith(pixelTracksTask, cms.Task(
     # Convert the pixel tracks from SoA to legacy format
     pixelTracks)
 )
+
+# Patatrack with strip hits (alpaka-only)
+
+from Configuration.ProcessModifiers.stripNtupletFit_cff import stripNtupletFit
+from RecoLocalTracker.Configuration.RecoLocalTracker_cff import striptrackerlocalrecoTask
+from RecoLocalTracker.SiStripRecHitConverter.siStripRecHitSoAPhase1_cfi import siStripRecHitSoAPhase1
+from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import quickTrackAssociatorByHits, quickTrackAssociatorByHitsTrackerHitAssociator
+from Validation.RecoTrack.TrackValidation_cff import quickTrackAssociatorByHitsPreSplitting
+from RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpakaPhase1Strip_cfi import pixelTrackProducerFromSoAAlpakaPhase1Strip as _pixelTrackProducerFromSoAAlpakaPhase1Strip
+
+from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase1Strip_cfi import caHitNtupletAlpakaPhase1Strip as _pixelTracksAlpakaPhase1Strip
+
+(alpaka & stripNtupletFit & ~phase2_tracker).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpakaPhase1Strip.clone(useStripHits = cms.bool(True), minQuality = cms.string('loose'),hitModuleStartSrc = cms.InputTag("siStripRecHitSoAPhase1")))
+
+(alpaka & stripNtupletFit & ~phase2_tracker).toReplaceWith(pixelTracksAlpaka, _pixelTracksAlpakaPhase1Strip.clone(pixelRecHitSrc = cms.InputTag("siStripRecHitSoAPhase1")))
+
+siStripRecHitSoAPhase1Serial = makeSerialClone(siStripRecHitSoAPhase1)
+
+(alpaka & stripNtupletFit & ~phase2_tracker).toReplaceWith(pixelTracksAlpakaSerial,makeSerialClone(_pixelTracksAlpakaPhase1Strip,
+    pixelRecHitSrc = 'siStripRecHitSoAPhase1Serial'
+))
+
+(alpaka & stripNtupletFit & ~phase2_tracker).toReplaceWith(quickTrackAssociatorByHits, quickTrackAssociatorByHitsTrackerHitAssociator.clone(cluster2TPSrc = "tpClusterProducerPreSplitting"))
+
+(alpaka & stripNtupletFit & ~phase2_tracker).toReplaceWith(pixelTracksTask, cms.Task(
+    # build legacy strip hits
+    striptrackerlocalrecoTask,
+    # mix pixel and strip hits in a SoA
+    siStripRecHitSoAPhase1,
+    siStripRecHitSoAPhase1Serial,
+    # Build the pixel ntuplets and the pixel tracks in SoA format with alpaka on the device
+    pixelTracksAlpaka,
+    # # Build the pixel ntuplets and the pixel tracks in SoA format with alpaka on the cpu (if requested by the validation)
+    pixelTracksAlpakaSerial,
+    # Convert the pixel tracks from SoA to legacy format
+    pixelTracks
+))
+
+# ### Alpaka Device vs Host validation
+
+# from Configuration.ProcessModifiers.alpakaValidationPixel_cff import alpakaValidationPixel
+
+# # Hit SoA producer on serial backend
+# pixelTracksAlpakaSerial = pixelTracksAlpaka.clone(
+#     pixelRecHitSrc = 'siPixelRecHitsPreSplittingAlpakaSerial',
+#     alpaka = dict( backend = 'serial_sync' )
+# )
+
+# siStripRecHitSoAPhase1Serial = siStripRecHitSoAPhase1.clone(
+#     pixelRecHitSoASource = cms.InputTag('siPixelRecHitsPreSplittingAlpakaSerial'),
+#     alpaka = dict( backend = 'serial_sync' )
+# )
+
+# (alpakaValidationPixel & stripNtupletFit & ~phase2_tracker).toModify(pixelTracksAlpakaSerial,
+#     pixelRecHitSrc = 'siStripRecHitSoAPhase1Serial'
+# )
+
+# (alpakaValidationPixel & ~stripNtupletFit).toReplaceWith(pixelTracksTask, cms.Task(
+#                         # Reconstruct and convert the pixel tracks with alpaka on device
+#                         pixelTracksTask.copy(),
+#                         # SoA serial counterpart
+#                         pixelTracksAlpakaSerial))
+
+# (alpakaValidationPixel & stripNtupletFit).toReplaceWith(pixelTracksTask, cms.Task(
+#                         # Reconstruct and convert the pixel tracks with alpaka on device
+#                         pixelTracksTask.copy(),
+#                         # mix pixel and strips serial
+#                         siStripRecHitSoAPhase1Serial,
+#                         # SoA serial counterpart
+#                         pixelTracksAlpakaSerial))
+

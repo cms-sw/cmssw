@@ -1,8 +1,10 @@
 #ifndef Geometry_CommonTopologies_SimplePixelTopology_h
 #define Geometry_CommonTopologies_SimplePixelTopology_h
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
+#include <tuple>
 #include <type_traits>
 #include "FWCore/Utilities/interface/HostDeviceConstant.h"
 
@@ -27,6 +29,7 @@ namespace pixelTopology {
   constexpr int16_t phi0p06 = 626;  // round(625.82270...) = phi2short(0.06);
   constexpr int16_t phi0p07 = 730;  // round(730.12648...) = phi2short(0.07);
   constexpr int16_t phi0p09 = 900;
+  constexpr int16_t phi5deg = 1820;
 
   constexpr uint16_t last_barrel_layer = 3;  // this is common between all the topologies
 
@@ -131,8 +134,8 @@ namespace phase1PixelTopology {
   using pixelTopology::phi0p06;
   using pixelTopology::phi0p07;
 
-  constexpr uint32_t numberOfLayers = 28;
-  constexpr int nPairs = 13 + 2 + 4;
+  constexpr uint32_t numberOfLayers = 10;
+  constexpr int nPairs = 13 + 2 + 4;; // without jump + jumping barrel + jumping forward 
   constexpr uint16_t numberOfModules = 1856;
 
   constexpr uint32_t maxNumClustersPerModules = 1024;
@@ -196,7 +199,8 @@ namespace phase1PixelTopology {
                                                               1520,
                                                               1632,
                                                               1744,  // negative endcap
-                                                              numberOfModules};
+                                                              numberOfModules
+                                                              };
 }  // namespace phase1PixelTopology
 
 namespace phase2PixelTopology {
@@ -230,7 +234,8 @@ namespace phase2PixelTopology {
       4,  6,  5,  7,  6,  8,  7,  9,  8,  10, 9,  11, 10, 12,  // POS Jump (48)
       16, 18, 17, 19, 18, 20, 19, 21, 20, 22, 21, 23, 22, 24,  // NEG Jump (55)
   };
-  HOST_DEVICE_CONSTANT uint32_t layerStart[numberOfLayers + 1] = {0,
+
+  static constexpr uint32_t layerStart[numberOfLayers + 1] = {0,
                                                                   108,
                                                                   324,
                                                                   504,  // Barrel
@@ -337,7 +342,10 @@ namespace pixelTopology {
     static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
     static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
     static constexpr uint32_t maxDepth = 12;
-    static constexpr uint32_t numberOfLayers = 28;
+
+    static constexpr uint32_t numberOfPixelLayers = 28;
+    static constexpr uint32_t numberOfStripLayers = 0;
+    static constexpr uint32_t numberOfLayers = numberOfStripLayers + numberOfPixelLayers;
 
     static constexpr uint32_t maxSizeCluster = 2047;
 
@@ -378,7 +386,9 @@ namespace pixelTopology {
     static constexpr int maxDYsize = 10;
     static constexpr int maxDYPred = 20;
 
-    static constexpr uint16_t numberOfModules = phase2PixelTopology::numberOfModules;
+    static constexpr uint16_t numberOfModules = 3892;
+    static constexpr uint16_t numberOfPixelModules = 3892;
+    static constexpr uint16_t numberOfStripModules = 0;
 
     // 1000 bins < 1024 bins (10 bits) must be:
     // - < 32*32 (warpSize*warpSize for block prefix scan for CUDA)
@@ -413,12 +423,14 @@ namespace pixelTopology {
 
     static constexpr inline uint16_t localX(uint16_t px) { return px; }
     static constexpr inline uint16_t localY(uint16_t py) { return py; }
+
+    static constexpr int mapIndex(int i) { return i; }
   };
 
   struct Phase1 {
     // types
     using hindex_type = uint32_t;  // FIXME from siPixelRecHitsHeterogeneousProduct
-    using tindex_type = uint16_t;  // for tuples
+    using tindex_type = uint32_t;  // for tuples
     using cindex_type = uint32_t;  // for cells
 
     static constexpr uint32_t maxCellNeighbors = 36;
@@ -434,7 +446,10 @@ namespace pixelTopology {
     static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
     static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
     static constexpr uint32_t maxDepth = 6;
-    static constexpr uint32_t numberOfLayers = 10;
+
+    static constexpr uint32_t numberOfPixelLayers = 10;
+    static constexpr uint32_t numberOfStripLayers = 0;
+    static constexpr uint32_t numberOfLayers = numberOfPixelLayers + numberOfStripLayers;
 
     static constexpr uint32_t maxSizeCluster = 1023;
 
@@ -464,18 +479,20 @@ namespace pixelTopology {
 
     static constexpr float dzdrFact = 8 * 0.0285 / 0.015;  // from dz/dr to "DY"
 
-    static constexpr int minYsizeB1 = 36;
-    static constexpr int minYsizeB2 = 28;
+    static constexpr int minYsizeB1 = 1;
+    static constexpr int minYsizeB2 = 1;
 
     static constexpr int nPairsForQuadruplets = 13;                     // quadruplets require hits in all layers
     static constexpr int nPairsForTriplets = nPairsForQuadruplets + 2;  // include barrel "jumping" layer pairs
-    static constexpr int nPairs = nPairsForTriplets + 4;                // include forward "jumping" layer pairs
+    static constexpr int nPairs = nPairsForTriplets +4;                // include forward "jumping" layer pairs
 
     static constexpr int maxDYsize12 = 28;
     static constexpr int maxDYsize = 20;
     static constexpr int maxDYPred = 20;
-
-    static constexpr uint16_t numberOfModules = phase1PixelTopology::numberOfModules;
+    
+    static constexpr uint16_t numberOfModules = 1856;
+    static constexpr uint16_t numberOfPixelModules = phase1PixelTopology::layerStart[numberOfPixelLayers];
+    static constexpr uint16_t numberOfStripModules = numberOfModules - numberOfPixelModules;
 
     static constexpr uint16_t numRowsInRoc = 80;
     static constexpr uint16_t numColsInRoc = 52;
@@ -544,8 +561,10 @@ namespace pixelTopology {
         shift += 1;
       return py + shift;
     }
-  };
 
+    static constexpr int mapIndex(int i) { return i; }
+  };
+  
   struct HIonPhase1 : public Phase1 {
     // Storing here the needed constants different w.r.t. pp Phase1 topology.
     // All the other defined by inheritance in the HIon topology struct.
@@ -577,6 +596,9 @@ namespace pixelTopology {
   template <typename T>
   using isPhase2Topology = typename std::enable_if<std::is_base_of<Phase2, T>::value>::type;
 
+  template <typename T>
+  using base_traits_t = std::conditional_t<std::is_base_of_v<Phase1, T>, Phase1, Phase2>;
+  
 }  // namespace pixelTopology
 
 #endif  // Geometry_CommonTopologies_SimplePixelTopology_h

@@ -13,6 +13,8 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "FWCore/Utilities/interface/Likely.h"
+#include "Geometry/CommonTopologies/interface/GluedGeomDet.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 
 namespace {
 
@@ -170,12 +172,38 @@ void SeedFromConsecutiveHitsCreator::buildSeed(TrajectorySeedCollection& seedCol
   const TrackingRecHit* hit = nullptr;
   for (unsigned int iHit = 0; iHit < hits.size(); iHit++) {
     hit = hits[iHit]->hit();
+    // added by Brunella
+    const GeomDet* baseDet = trackerGeometry_->idToDet(hit->geographicalId());
+    const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*>(baseDet);
+    //if (iHit == 0) std::cout << "Start analyzing!" << std::endl;
+    //std::cout << "Everything fine until here!" << std::endl;
+    //DetId detId = hit->geographicalId();
+    //if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
+    //std::cout << "Hit is in the Pixel Barrel." << std::endl;
+    //} else if (detId.subdetId() == PixelSubdetector::PixelEndcap) {
+    //    std::cout << "Hit is in the Pixel Endcap." << std::endl;
+    //} else if (detId.subdetId() == StripSubdetector::TIB) {
+    //    std::cout << "Hit is in the Tracker Inner Barrel." << std::endl;
+    //} else if (detId.subdetId() == StripSubdetector::TOB) {
+    //    std::cout << "Hit is in the Tracker Outer Barrel." << std::endl;
+    //} else if (detId.subdetId() == StripSubdetector::TEC) {
+    //    std::cout << "Hit is in the Tracker Endcap." << std::endl;
+    //} else if (detId.subdetId() == StripSubdetector::TID) {
+    //    std::cout << "Hit is in the Tracker Inner Disc." << std::endl;
+    //} else {
+    //    std::cout << "Hit is in an unknown detector." << std::endl;
+    //}
+    
+    //pixelTopology::Phase1Strip::mapIndex(trackerGeometry_->idToDet(hit->stereoId()->index())))
     TrajectoryStateOnSurface state =
-        (iHit == 0) ? propagator_->propagate(fts, trackerGeometry_->idToDet(hit->geographicalId())->surface())
-                    : propagator_->propagate(updatedState, trackerGeometry_->idToDet(hit->geographicalId())->surface());
-    if (!state.isValid())
-      return;
-
+        (gluedDet) ? ((iHit == 0) ? propagator_->propagate(fts, trackerGeometry_->idToDet(hit->geographicalId())->surface())
+                    : propagator_->propagate(updatedState, trackerGeometry_->idToDet(hit->geographicalId())->surface())) :
+                    ((iHit == 0) ? propagator_->propagate(fts, trackerGeometry_->idToDet(hit->geographicalId())->surface())
+                    : propagator_->propagate(updatedState, trackerGeometry_->idToDet(hit->geographicalId())->surface()));
+    if (!state.isValid()) {
+    //std::cerr << "Error: TrajectoryStateOnSurface is not valid!" << std::endl;
+    return;
+    }
     SeedingHitSet::ConstRecHitPointer tth = hits[iHit];
 
     std::unique_ptr<BaseTrackerRecHit> newtth(refitHit(tth, state));

@@ -27,7 +27,7 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 template <typename T>
 class SiPixelCompareRecHitsSoA : public DQMEDAnalyzer {
 public:
@@ -246,9 +246,12 @@ void SiPixelCompareRecHitsSoA<T>::fillDescriptions(edm::ConfigurationDescription
 }
 
 using SiPixelPhase1CompareRecHitsSoA = SiPixelCompareRecHitsSoA<pixelTopology::Phase1>;
+using SiPixelPhase1StripCompareRecHitsSoA = SiPixelCompareRecHitsSoA<pixelTopology::Phase1Strip>;
 using SiPixelPhase2CompareRecHitsSoA = SiPixelCompareRecHitsSoA<pixelTopology::Phase2>;
 using SiPixelHIonPhase1CompareRecHitsSoA = SiPixelCompareRecHitsSoA<pixelTopology::HIonPhase1>;
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiPixelPhase1CompareRecHitsSoA);
+DEFINE_FWK_MODULE(SiPixelPhase1StripCompareRecHitsSoA);
 DEFINE_FWK_MODULE(SiPixelPhase2CompareRecHitsSoA);
 DEFINE_FWK_MODULE(SiPixelHIonPhase1CompareRecHitsSoA);

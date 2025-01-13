@@ -13,4 +13,9 @@
   <class name="alpaka_cuda_async::TrackingRecHitSoAHIonPhase1" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_cuda_async::TrackingRecHitSoAHIonPhase1>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::TrackingRecHitSoAHIonPhase1>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::PortableCollection<TrackingRecHitLayout<pixelTopology::Phase1Strip>>" persistent="false"/>
+  <class name="alpaka_cuda_async::TrackingRecHitSoAPhase1Strip" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::TrackingRecHitSoAPhase1Strip>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::TrackingRecHitSoAPhase1Strip>>" persistent="false"/>
 </lcgdict>

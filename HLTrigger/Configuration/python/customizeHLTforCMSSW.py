@@ -63,12 +63,51 @@ def customiseHLTFor46647(process):
             delattr(prod, "TripletCollection")
 
     return process
+def configureFrameSoAESProducers(process):
+    """
+    Configures the appropriate FrameSoAESProducer based on the pixel topology (Phase1, Phase2, etc.).
+    If the corresponding producer is not found, it will add it to the process.
+    """
+    
+    # Define a mapping of pixel topology to corresponding ESProducer and component name
+    topology_to_es_producer = {
+        'Phase1': ('frameSoAESProducerPhase1', 'FrameSoAPhase1', 'FrameSoAESProducerPhase1@alpaka'),
+        'HIonPhase1': ('frameSoAESProducerHIonPhase1', 'FrameSoAPhase1HIonPhase1', 'FrameSoAESProducerHIonPhase1@alpaka'),
+        'Phase2': ('frameSoAESProducerPhase2', 'FrameSoAPhase2', 'FrameSoAESProducerPhase2@alpaka'),
+        'Phase1Strip': ('frameSoAESProducerPhase1Strip', 'FrameSoAPhase1Strip', 'FrameSoAESProducerPhase1Strip@alpaka'),
+    }
+
+    has_alpaka_named_module = any("Alpaka" in name for name in process.__dict__.keys())
+
+    if not has_alpaka_named_module:
+        print("No modules with 'Alpaka' in their names found in the process. Skipping configuration of FrameSoAESProducers.")
+        return process
+    for pixel_topology, (es_name, component_name, producer_type) in topology_to_es_producer.items():
+        if not hasattr(process, es_name):
+            # If the producer does not exist, create and add it
+            #print(f"Adding {es_name} with component name {component_name}")
+            setattr(process, es_name, cms.ESProducer(producer_type,
+                                                     ComponentName=cms.string(component_name),
+                                                     appendToDataLabel=cms.string('')))
+        else:
+            print(f"{es_name} already configured.")
+
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customiseForOffline(process)
-
+    # Pixel+Strip HLT
+    #from Configuration.ProcessModifiers.stripNtupletFit_cff import stripNtupletFit 
+    #from HLTrigger.Configuration.customizeHLTforAlpakaStripNoDoubletRecovery import customizeHLTforAlpakaStripNoDoubletRecovery
+    #(stripNtupletFit).makeProcessModifier(customizeHLTforAlpakaStripNoDoubletRecovery).apply(process)
+     
+    #from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
+    #from HLTrigger.Configuration.customizeHLTforAlpakaStrip import customizeHLTforAlpakaStrip
+    #(stripNtupletFit).makeProcessModifier(customizeHLTforAlpakaStrip).apply(process)
+    process = configureFrameSoAESProducers(process)
+     
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 

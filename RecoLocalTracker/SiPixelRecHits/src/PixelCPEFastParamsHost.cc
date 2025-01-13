@@ -4,10 +4,11 @@
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "DataFormats/TrackingRecHitSoA/interface/SiPixelHitStatus.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+// #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFastParamsHost.h"
 
 //-----------------------------------------------------------------------------

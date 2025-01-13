@@ -9,6 +9,7 @@
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 
 template <typename TrackerTraits>
 class TrackingRecHitHost : public PortableHostCollection<TrackingRecHitLayout<TrackerTraits>> {
@@ -50,5 +51,6 @@ public:
 using TrackingRecHitHostPhase1 = TrackingRecHitHost<pixelTopology::Phase1>;
 using TrackingRecHitHostPhase2 = TrackingRecHitHost<pixelTopology::Phase2>;
 using TrackingRecHitHostHIonPhase1 = TrackingRecHitHost<pixelTopology::HIonPhase1>;
+using TrackingRecHitHostPhase1Strip = TrackingRecHitHost<pixelTopology::Phase1Strip>;
 
 #endif  // DataFormats_TrackingRecHitSoA_interface_TrackingRecHitsHost_h

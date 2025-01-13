@@ -22,6 +22,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
 #include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 // for string manipulations
 #include <fmt/printf.h>
 
@@ -195,7 +196,9 @@ void SiPixelMonitorTrackSoA<T>::fillDescriptions(edm::ConfigurationDescriptions&
 using SiPixelPhase1MonitorTrackSoA = SiPixelMonitorTrackSoA<pixelTopology::Phase1>;
 using SiPixelPhase2MonitorTrackSoA = SiPixelMonitorTrackSoA<pixelTopology::Phase2>;
 using SiPixelHIonPhase1MonitorTrackSoA = SiPixelMonitorTrackSoA<pixelTopology::HIonPhase1>;
+using SiPixelPhase1StripMonitorTrackSoA = SiPixelMonitorTrackSoA<pixelTopology::Phase1Strip>;
 
 DEFINE_FWK_MODULE(SiPixelPhase1MonitorTrackSoA);
 DEFINE_FWK_MODULE(SiPixelPhase2MonitorTrackSoA);
 DEFINE_FWK_MODULE(SiPixelHIonPhase1MonitorTrackSoA);
+DEFINE_FWK_MODULE(SiPixelPhase1StripMonitorTrackSoA);

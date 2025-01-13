@@ -7,6 +7,7 @@
 
 #include "HeterogeneousCore/AlpakaInterface/interface/OneToManyAssoc.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 
@@ -66,33 +67,39 @@ namespace reco {
   struct IsTrackSoAConstView<TrackSoAConstView<pixelTopology::HIonPhase1>> : std::true_type {};
   template <>
   struct IsTrackSoAConstView<TrackSoAView<pixelTopology::HIonPhase1>> : std::true_type {};
+  template <>
+  struct IsTrackSoAConstView<TrackSoAConstView<pixelTopology::Phase1Strip>> : std::true_type {};
+  template <>
+  struct IsTrackSoAConstView<TrackSoAView<pixelTopology::Phase1Strip>> : std::true_type {};
 
   template <typename T>
   constexpr bool isTrackSoAConstView = IsTrackSoAConstView<T>::value;
 
-  template <typename ConstView, typename = std::enable_if_t<isTrackSoAConstView<ConstView>>>
+  // enable_if should be used when there is another implementation, 
+  // please use static_assert to report invalid template arguments
+  template <typename ConstView> //, typename = std::enable_if_t<isTrackSoAConstView<ConstView>>>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr float charge(ConstView const& tracks, int32_t i) {
     //was: std::copysign(1.f, tracks[i].state()(2)). Will be constexpr with C++23
     float v = tracks[i].state()(2);
     return float((0.0f < v) - (v < 0.0f));
   }
 
-  template <typename ConstView, typename = std::enable_if_t<isTrackSoAConstView<ConstView>>>
+  template <typename ConstView> //, typename = std::enable_if_t<isTrackSoAConstView<ConstView>>>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr float phi(ConstView const& tracks, int32_t i) {
     return tracks[i].state()(0);
   }
 
-  template <typename ConstView, typename = std::enable_if_t<isTrackSoAConstView<ConstView>>>
+  template <typename ConstView> //, typename = std::enable_if_t<isTrackSoAConstView<ConstView>>>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr float tip(ConstView const& tracks, int32_t i) {
     return tracks[i].state()(1);
   }
 
-  template <typename ConstView, typename = std::enable_if_t<isTrackSoAConstView<ConstView>>>
+  template <typename ConstView> //, typename = std::enable_if_t<isTrackSoAConstView<ConstView>>>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr float zip(ConstView const& tracks, int32_t i) {
     return tracks[i].state()(4);
   }
 
-  template <typename ConstView, typename = std::enable_if_t<isTrackSoAConstView<ConstView>>>
+  template <typename ConstView> //, typename = std::enable_if_t<isTrackSoAConstView<ConstView>>>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr bool isTriplet(ConstView const& tracks, int32_t i) {
     return tracks[i].nLayers() == 3;
   }
