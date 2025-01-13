@@ -5,20 +5,18 @@ process = cms.Process("COPY")
 import FWCore.Framework.test.cmsExceptionsFatal_cff
 process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.maxEvents.input = -1
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-)
-
-process.source = cms.Source("PoolSource",
+# Must use old syntax for now because of the need to use firstEvent as uint64
+process.source = process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:myout.root'),
     firstEvent = cms.untracked.uint64(10123456792)
 )
 
-process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(False),
-    expectedRunLumiEvents = cms.untracked.vuint64(
+from FWCore.Framework.modules import RunLumiEventAnalyzer
+process.test = RunLumiEventAnalyzer(
+    verbose = False,
+    expectedRunLumiEvents = [
       1, 0, 0,
       1, 1, 0,
       #1, 1, 10123456789,
@@ -73,8 +71,8 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
       1, 1, 10123456838,
       1, 1, 0,
       1, 0, 0
-    ),
-    expectedEndingIndex = cms.untracked.int32(153)
+    ],
+    expectedEndingIndex = 153
 )
 
 process.e = cms.EndPath(process.test)
