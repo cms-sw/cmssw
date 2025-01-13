@@ -9,12 +9,12 @@
 
 namespace edm {
   RunPrincipal::RunPrincipal(std::shared_ptr<ProductRegistry const> reg,
+                             std::vector<std::shared_ptr<ProductResolverBase>>&& resolvers,
                              ProcessConfiguration const& pc,
                              HistoryAppender* historyAppender,
                              unsigned int iRunIndex,
-                             bool isForPrimaryProcess,
                              MergeableRunProductProcesses const* mergeableRunProductProcesses)
-      : Base(reg, reg->productLookup(InRun), pc, InRun, historyAppender, isForPrimaryProcess), index_(iRunIndex) {
+      : Base(reg, std::move(resolvers), pc, InRun, historyAppender), index_(iRunIndex) {
     if (mergeableRunProductProcesses) {  // primary RunPrincipals of EventProcessor
       mergeableRunProductMetadataPtr_ = (std::make_unique<MergeableRunProductMetadata>(*mergeableRunProductProcesses));
     }

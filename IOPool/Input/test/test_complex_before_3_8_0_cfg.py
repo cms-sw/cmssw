@@ -4,27 +4,21 @@ import sys
 process = cms.Process("READMERGE")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
-process.AdaptorConfig = cms.Service("AdaptorConfig",
-    stats = cms.untracked.bool(False)
-)
+from IOPool.TFileAdaptor.modules import AdaptorConfig
+process.add_(AdaptorConfig(stats = False))
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-)
+process.maxEvents.input = -1
 
-process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string(
-      'file:ReadMerge_out.root'
-    )
-)
+from IOPool.Output.modules import PoolOutputModule
+process.output = PoolOutputModule(fileName = 'ReadMerge_out.root')
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:"+sys.argv[1])
-)
+from IOPool.Input.modules import PoolSource
+process.source = PoolSource(fileNames = [f"file:{sys.argv[1]}"])
 
-process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+from FWCore.Framework.modules import RunLumiEventAnalyzer
+process.test = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
 100,   0,   0,
 100, 100,   0,
 100, 100, 100,
@@ -75,7 +69,7 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
   2,   1,   5,
   2,   1,   0,
   2,   0,   0
-)
+]
 )
 
 process.test.expectedRunLumiEvents.extend([

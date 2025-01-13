@@ -21,9 +21,12 @@ namespace edm {
 
   class ProcessBlockPrincipal : public Principal {
   public:
-    ProcessBlockPrincipal(std::shared_ptr<ProductRegistry const>,
-                          ProcessConfiguration const&,
-                          bool isForPrimaryProcess = true);
+    template <typename FACTORY>
+      requires(requires(FACTORY&& f, std::string const& name, ProductRegistry const& reg) { f(InProcess, name, reg); })
+    ProcessBlockPrincipal(std::shared_ptr<ProductRegistry const> iReg,
+                          FACTORY&& iFactory,
+                          ProcessConfiguration const& iConfig)
+        : ProcessBlockPrincipal(iReg, iFactory(InProcess, iConfig.processName(), *iReg), iConfig) {}
 
     void fillProcessBlockPrincipal(std::string const& processName, DelayedReader* reader = nullptr);
 
@@ -35,6 +38,9 @@ namespace edm {
     unsigned int index() const { return 0; }
 
   private:
+    ProcessBlockPrincipal(std::shared_ptr<ProductRegistry const>,
+                          std::vector<std::shared_ptr<ProductResolverBase>>&& resolvers,
+                          ProcessConfiguration const&);
     unsigned int transitionIndex_() const final;
 
     std::string processName_;
