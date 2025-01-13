@@ -67,11 +67,10 @@ namespace edm {
     typedef std::string ProcessName;
 
     Principal(std::shared_ptr<ProductRegistry const> reg,
-              std::shared_ptr<ProductResolverIndexHelper const> productLookup,
+              std::vector<std::shared_ptr<ProductResolverBase>>&& resolvers,
               ProcessConfiguration const& pc,
               BranchType bt,
-              HistoryAppender* historyAppender,
-              bool isForPrimaryProcess = true);
+              HistoryAppender* historyAppender);
 
     ~Principal() override;
 
@@ -218,16 +217,9 @@ namespace edm {
     //called by adjustIndexesAfterProductRegistryAddition only if an index actually changed
     virtual void changedIndexes_() {}
 
-    void addScheduledProduct(std::shared_ptr<BranchDescription const> bd);
-    void addSourceProduct(std::shared_ptr<BranchDescription const> bd);
+    //called by adjustIndexesAfterProductRegistryAddition
     void addDelayedReaderInputProduct(std::shared_ptr<BranchDescription const> bd);
     void addPutOnReadInputProduct(std::shared_ptr<BranchDescription const> bd);
-    void addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd);
-    void addTransformProduct(std::shared_ptr<BranchDescription const> bd);
-    void addAliasedProduct(std::shared_ptr<BranchDescription const> bd);
-    void addSwitchProducerProduct(std::shared_ptr<BranchDescription const> bd);
-    void addSwitchAliasProduct(std::shared_ptr<BranchDescription const> bd);
-    void addParentProcessProduct(std::shared_ptr<BranchDescription const> bd);
 
     WrapperBase const* getIt(ProductID const&) const override;
     std::optional<std::tuple<WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,

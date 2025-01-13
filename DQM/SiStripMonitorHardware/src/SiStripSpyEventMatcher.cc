@@ -16,6 +16,7 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
@@ -64,6 +65,7 @@ namespace sistrip {
     productRegistry_->setFrozen();
 
     eventPrincipal_ = std::make_unique<edm::EventPrincipal>(source_->productRegistry(),
+                                                            edm::productResolversFactory::makePrimary,
                                                             std::make_shared<edm::BranchIDListHelper>(),
                                                             std::make_shared<edm::ThinnedAssociationsHelper>(),
                                                             *processConfiguration_,
@@ -183,22 +185,22 @@ namespace sistrip {
     CountersPtr inputL1ACounters = getCounters(event, l1aCountersTag_);
     CountersPtr inputAPVAddresses = getCounters(event, apvAddressesTag_, false);
     const edm::DetSetVector<SiStripRawDigi>* inputScopeDigis =
-        getProduct<edm::DetSetVector<SiStripRawDigi> >(event, scopeDigisTag_);
+        getProduct<edm::DetSetVector<SiStripRawDigi>>(event, scopeDigisTag_);
     const edm::DetSetVector<SiStripRawDigi>* inputPayloadDigis =
-        getProduct<edm::DetSetVector<SiStripRawDigi> >(event, payloadDigisTag_);
+        getProduct<edm::DetSetVector<SiStripRawDigi>>(event, payloadDigisTag_);
     const edm::DetSetVector<SiStripRawDigi>* inputReorderedDigis =
-        getProduct<edm::DetSetVector<SiStripRawDigi> >(event, reorderedDigisTag_);
+        getProduct<edm::DetSetVector<SiStripRawDigi>>(event, reorderedDigisTag_);
     const edm::DetSetVector<SiStripRawDigi>* inputVirginRawDigis =
-        getProduct<edm::DetSetVector<SiStripRawDigi> >(event, virginRawDigisTag_);
+        getProduct<edm::DetSetVector<SiStripRawDigi>>(event, virginRawDigisTag_);
     //construct the output vectors if the digis were found and they do not exist
     if (inputScopeDigis && !mo.outputScopeDigisVector_.get())
-      mo.outputScopeDigisVector_.reset(new std::vector<edm::DetSet<SiStripRawDigi> >);
+      mo.outputScopeDigisVector_ = std::make_shared<std::vector<edm::DetSet<SiStripRawDigi>>>();
     if (inputPayloadDigis && !mo.outputPayloadDigisVector_.get())
-      mo.outputPayloadDigisVector_.reset(new std::vector<edm::DetSet<SiStripRawDigi> >);
+      mo.outputPayloadDigisVector_ = std::make_shared<std::vector<edm::DetSet<SiStripRawDigi>>>();
     if (inputReorderedDigis && !mo.outputReorderedDigisVector_.get())
-      mo.outputReorderedDigisVector_.reset(new std::vector<edm::DetSet<SiStripRawDigi> >);
+      mo.outputReorderedDigisVector_ = std::make_shared<std::vector<edm::DetSet<SiStripRawDigi>>>();
     if (inputVirginRawDigis && !mo.outputVirginRawDigisVector_.get())
-      mo.outputVirginRawDigisVector_.reset(new std::vector<edm::DetSet<SiStripRawDigi> >);
+      mo.outputVirginRawDigisVector_ = std::make_shared<std::vector<edm::DetSet<SiStripRawDigi>>>();
     //find matching FEDs
     std::set<uint16_t> matchingFeds;
     findMatchingFeds(eventId, apvAddress, inputTotalEventCounters, inputL1ACounters, inputAPVAddresses, matchingFeds);
@@ -309,10 +311,10 @@ namespace sistrip {
                                           std::vector<uint32_t>& outputTotalEventCounters,
                                           std::vector<uint32_t>& outputL1ACounters,
                                           std::vector<uint32_t>& outputAPVAddresses,
-                                          std::vector<edm::DetSet<SiStripRawDigi> >* outputScopeDigisVector,
-                                          std::vector<edm::DetSet<SiStripRawDigi> >* outputPayloadDigisVector,
-                                          std::vector<edm::DetSet<SiStripRawDigi> >* outputReorderedDigisVector,
-                                          std::vector<edm::DetSet<SiStripRawDigi> >* outputVirginRawDigisVector,
+                                          std::vector<edm::DetSet<SiStripRawDigi>>* outputScopeDigisVector,
+                                          std::vector<edm::DetSet<SiStripRawDigi>>* outputPayloadDigisVector,
+                                          std::vector<edm::DetSet<SiStripRawDigi>>* outputReorderedDigisVector,
+                                          std::vector<edm::DetSet<SiStripRawDigi>>* outputVirginRawDigisVector,
                                           const SiStripFedCabling& cabling) {
     //reserve space in vectors
     if (inputScopeDigis) {
@@ -391,12 +393,12 @@ namespace sistrip {
   SpyEventMatcher::CountersPtr SpyEventMatcher::getCounters(const edm::EventPrincipal& event,
                                                             const edm::InputTag& tag,
                                                             const bool mapKeyIsByFedID) {
-    const std::vector<uint32_t>* vectorFromEvent = getProduct<std::vector<uint32_t> >(event, tag);
+    const std::vector<uint32_t>* vectorFromEvent = getProduct<std::vector<uint32_t>>(event, tag);
     if (vectorFromEvent) {
       //vector is from event so, will be deleted when the event is destroyed (and not before)
       return std::make_shared<CountersWrapper>(vectorFromEvent);
     } else {
-      const std::map<uint32_t, uint32_t>* mapFromEvent = getProduct<std::map<uint32_t, uint32_t> >(event, tag);
+      const std::map<uint32_t, uint32_t>* mapFromEvent = getProduct<std::map<uint32_t, uint32_t>>(event, tag);
       if (mapFromEvent) {
         std::vector<uint32_t>* newVector = new std::vector<uint32_t>(FED_ID_MAX + 1, 0);
         if (mapKeyIsByFedID) {
@@ -428,10 +430,10 @@ namespace sistrip {
       std::vector<uint32_t>& theTotalEventCounters,
       std::vector<uint32_t>& theL1ACounters,
       std::vector<uint32_t>& theAPVAddresses,
-      std::vector<edm::DetSet<SiStripRawDigi> >* theScopeDigisVector,
-      std::vector<edm::DetSet<SiStripRawDigi> >* thePayloadDigisVector,
-      std::vector<edm::DetSet<SiStripRawDigi> >* theReorderedDigisVector,
-      std::vector<edm::DetSet<SiStripRawDigi> >* theVirginRawDigisVector)
+      std::vector<edm::DetSet<SiStripRawDigi>>* theScopeDigisVector,
+      std::vector<edm::DetSet<SiStripRawDigi>>* thePayloadDigisVector,
+      std::vector<edm::DetSet<SiStripRawDigi>>* theReorderedDigisVector,
+      std::vector<edm::DetSet<SiStripRawDigi>>* theVirginRawDigisVector)
       : rawData(new FEDRawDataCollection),
         totalEventCounters(new std::vector<uint32_t>),
         l1aCounters(new std::vector<uint32_t>),

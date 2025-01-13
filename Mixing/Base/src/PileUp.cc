@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
@@ -127,6 +128,7 @@ namespace edm {
 
     // A modified HistoryAppender must be used for unscheduled processing.
     eventPrincipal_ = std::make_unique<EventPrincipal>(input_->productRegistry(),
+                                                       edm::productResolversFactory::makePrimary,
                                                        std::make_shared<BranchIDListHelper>(),
                                                        std::make_shared<ThinnedAssociationsHelper>(),
                                                        *processConfiguration_,
@@ -245,7 +247,8 @@ namespace edm {
 
   void PileUp::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      runPrincipal_ = std::make_shared<RunPrincipal>(productRegistry_, *processConfiguration_, nullptr, 0);
+      runPrincipal_ = std::make_shared<RunPrincipal>(
+          productRegistry_, edm::productResolversFactory::makePrimary, *processConfiguration_, nullptr, 0);
       runPrincipal_->setAux(run.runAuxiliary());
       edm::ServiceRegistry::Operate guard(*serviceToken_);
       streamContext_->setTransition(StreamContext::Transition::kBeginRun);
@@ -254,7 +257,8 @@ namespace edm {
   }
   void PileUp::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      lumiPrincipal_ = std::make_shared<LuminosityBlockPrincipal>(productRegistry_, *processConfiguration_, nullptr, 0);
+      lumiPrincipal_ = std::make_shared<LuminosityBlockPrincipal>(
+          productRegistry_, edm::productResolversFactory::makePrimary, *processConfiguration_, nullptr, 0);
       lumiPrincipal_->setAux(lumi.luminosityBlockAuxiliary());
       lumiPrincipal_->setRunPrincipal(runPrincipal_);
       setRandomEngine(lumi);

@@ -32,14 +32,14 @@
 
 namespace edm {
   EventPrincipal::EventPrincipal(std::shared_ptr<ProductRegistry const> reg,
+                                 std::vector<std::shared_ptr<ProductResolverBase>>&& resolvers,
                                  std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
                                  std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
                                  ProcessConfiguration const& pc,
                                  HistoryAppender* historyAppender,
                                  unsigned int streamIndex,
-                                 bool isForPrimaryProcess,
                                  ProcessBlockHelperBase const* processBlockHelper)
-      : Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender, isForPrimaryProcess),
+      : Base(reg, std::move(resolvers), pc, InEvent, historyAppender),
         aux_(),
         luminosityBlockPrincipal_(nullptr),
         provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex, *reg)),
