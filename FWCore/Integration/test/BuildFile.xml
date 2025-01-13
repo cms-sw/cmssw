@@ -133,6 +133,8 @@
   <test name="TestFWCoreIntegrationTryToContinueESProducer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_ESProducer_cfg.py"/>
   <test name="TestFWCoreIntegrationTryToContinueESProducerContinue" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_ESProducer_cfg.py --continueAnalyzer"/>
 
+  <test name="TestFWCoreIntegrationInconsistentProducts" command="run_inconsistent_products.sh"/>
+
   <test name="TestIntegrationProcessBlock1" command="run_TestProcessBlock.sh 1"/>
   <test name="TestIntegrationProcessBlock2" command="run_TestProcessBlock.sh 2"/>
   <test name="TestIntegrationProcessBlock3" command="run_TestProcessBlock.sh 3"/>
