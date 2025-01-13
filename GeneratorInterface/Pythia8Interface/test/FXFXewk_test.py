@@ -146,7 +146,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
             'SLHA:minMassSM = 1000.',
             'ParticleDecays:limitTau0 = on',
             'ParticleDecays:tau0Max = 10',
-            'ParticleDecays:allowPhotonRadiation = on'
+            'HadronLevel:QED = on'
         ),
         pythia8PSweightsSettings = cms.vstring(
             'UncertaintyBands:doVariations = on',

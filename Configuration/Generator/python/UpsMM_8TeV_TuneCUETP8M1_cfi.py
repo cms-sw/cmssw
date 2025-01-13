@@ -15,7 +15,7 @@ generator = cms.EDFilter("Pythia8ConcurrentGeneratorFilter",
         pythia8CUEP8M1SettingsBlock,
         processParameters = cms.vstring(
             'Bottomonium:all = on', # Quarkonia, MSEL=62
-            'ParticleDecays:allowPhotonRadiation = on', # Turn on QED FSR
+            'HadronLevel:QED = on', # Turn on QED FSR
             'StringFlav:mesonBvector = 3.000', # relative production vector/pseudoscalar for charm mesons - needs work
             'StringFlav:mesonBL1S1J0 = 0.072', # relative scalar production (L=1,S=1,J=0)/pseudoscalar for charm mesons
             'StringFlav:mesonBL1S0J1 = 3.000', # relative pseudovector production (L=1,S=0,J=1)/pseudoscalar for charm mesons
