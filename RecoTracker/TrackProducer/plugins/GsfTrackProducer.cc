@@ -47,6 +47,16 @@ GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig)
   produces<TrajGsfTrackAssociationCollection>();
 }
 
+void GsfTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("TrajectoryInEvent", false);
+  desc.add<bool>("useHitsSplitting", false);
+  desc.add<edm::InputTag>("src", edm::InputTag("CkfElectronCandidates"));
+  TrackProducerAlgorithm<reco::GsfTrack>::fillPSetDescription(desc);
+  GsfTrackProducerBase::fillPSetDescription(desc);
+  descriptions.addWithDefaultLabel(desc);
+}
+
 void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup) {
   edm::LogInfo("GsfTrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
   //
@@ -115,26 +125,6 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
            &ttopo);
   LogDebug("GsfTrackProducer") << "end"
                                << "\n";
-}
-
-void GsfTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-
-  desc.add<edm::InputTag>("src", edm::InputTag("CkfElectronCandidates"));
-  desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
-  desc.add<std::string>("producer", std::string(""));
-  desc.add<std::string>("Fitter", std::string("GsfElectronFittingSmoother"));
-  desc.add<bool>("useHitsSplitting", false);
-  desc.add<bool>("TrajectoryInEvent", false);
-  desc.add<std::string>("TTRHBuilder", std::string("WithTrackAngle"));
-  desc.add<std::string>("Propagator", std::string("fwdElectronPropagator"));
-  desc.add<std::string>("NavigationSchool", std::string("SimpleNavigationSchool"));
-  desc.add<std::string>("MeasurementTracker", std::string(""));
-  desc.add<edm::InputTag>("MeasurementTrackerEvent", edm::InputTag("MeasurementTrackerEvent"));
-  desc.add<bool>("GeometricInnerState", false);
-  desc.add<std::string>("AlgorithmName", std::string("gsf"));
-
-  descriptions.add("gsfTrackProducer", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

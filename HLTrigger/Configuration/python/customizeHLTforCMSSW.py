@@ -127,7 +127,6 @@ def customizeHLTfor47079(process):
                     
     return process
 
-
 def customizeHLTfor47047(process):
     """Migrates many ESProducers to MoveToDeviceCache"""
     import copy
@@ -167,6 +166,19 @@ def customizeHLTfor47047(process):
         del process.hltESSJobConfigurationGPURecord
 
     return process
+        
+def customizeHLTfor47107(process):
+    """Remove unneeded parameters from the HLT menu"""
+
+    for prod in producers_by_type(process, 'TrackProducer'):
+        if hasattr(prod, 'alias'):
+            delattr(prod, 'alias')
+
+    for prod in producers_by_type(process, 'GsfTrackProducer'):
+        if hasattr(prod, 'producer'):
+            delattr(prod, 'producer')
+
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -180,6 +192,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customizeHLTfor47017(process)
     process = customizeHLTfor47079(process)
     process = customizeHLTfor47047(process)
+    process = customizeHLTfor47107(process)
 
     return process
-

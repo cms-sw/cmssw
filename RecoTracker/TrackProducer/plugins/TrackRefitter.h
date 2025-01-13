@@ -19,6 +19,9 @@ public:
   /// Implementation of produce method
   void produce(edm::Event&, const edm::EventSetup&) override;
 
+  /// fillDescriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   TrackProducerAlgorithm<reco::Track> theAlgo;
   enum Constraint { none, momentum, vertex, trackParameters };

@@ -52,6 +52,18 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet &iConfig)
   produces<TrajTrackAssociationCollection>();
 }
 
+void TrackRefitter::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("TrajectoryInEvent", false);
+  desc.add<bool>("useHitsSplitting", false);
+  desc.add<edm::InputTag>("src", edm::InputTag(""));
+  desc.add<std::string>("constraint", "");
+  desc.add<edm::InputTag>("srcConstr", edm::InputTag(""));
+  TrackProducerAlgorithm<reco::Track>::fillPSetDescription(desc);
+  KfTrackProducerBase::fillPSetDescription(desc);
+  descriptions.addWithDefaultLabel(desc);
+}
+
 void TrackRefitter::produce(edm::Event &theEvent, const edm::EventSetup &setup) {
   LogDebug("TrackRefitter") << "Analyzing event number: " << theEvent.id() << "\n";
   //

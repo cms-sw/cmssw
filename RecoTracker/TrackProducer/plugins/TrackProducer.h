@@ -8,9 +8,9 @@
  */
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "RecoTracker/TrackProducer/interface/KfTrackProducerBase.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
-
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 class TrackProducer : public KfTrackProducerBase, public edm::stream::EDProducer<> {
@@ -31,6 +31,9 @@ public:
   // 			std::unique_ptr<reco::TrackExtraCollection>&,
   // 			std::unique_ptr<std::vector<Trajectory> >&,
   // 			AlgoProductCollection&);
+
+  /// fillDescriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   TrackProducerAlgorithm<reco::Track> theAlgo;

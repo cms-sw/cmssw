@@ -1,19 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
-gsfTrackProducer = cms.EDProducer("GsfTrackProducer",
-    src = cms.InputTag("CkfElectronCandidates"),
-    beamSpot = cms.InputTag("offlineBeamSpot"),
-    producer = cms.string(''),
-    Fitter = cms.string('GsfElectronFittingSmoother'),
-    useHitsSplitting = cms.bool(False),
-    TrajectoryInEvent = cms.bool(False),
-    TTRHBuilder = cms.string('WithTrackAngle'),
-    Propagator = cms.string('fwdElectronPropagator'),
-    NavigationSchool = cms.string('SimpleNavigationSchool'),
-    MeasurementTracker = cms.string(''),                   
-    MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent'),                   
-    GeometricInnerState = cms.bool(False),
-    AlgorithmName = cms.string('gsf')
+from RecoTracker.TrackProducer.gsfTrackProducer_cfi import gsfTrackProducer
+gsfTrackProducer = gsfTrackProducer.clone(
+    src = "CkfElectronCandidates",
+    beamSpot = "offlineBeamSpot",
+    Fitter = 'GsfElectronFittingSmoother',
+    useHitsSplitting = False,
+    TrajectoryInEvent = False,
+    TTRHBuilder = 'WithTrackAngle',
+    Propagator = 'fwdElectronPropagator',
+    NavigationSchool = 'SimpleNavigationSchool',
+    MeasurementTracker = '',
+    MeasurementTrackerEvent = 'MeasurementTrackerEvent',
+    GeometricInnerState = False,
+    AlgorithmName = 'gsf'
 )
 
 

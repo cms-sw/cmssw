@@ -49,6 +49,18 @@ GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig)
   ttopoToken_ = esConsumes();
 }
 
+void GsfTrackRefitter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("TrajectoryInEvent", false);
+  desc.add<bool>("useHitsSplitting", false);
+  desc.add<edm::InputTag>("src", edm::InputTag(""));
+  desc.add<std::string>("constraint", "");
+  desc.add<edm::InputTag>("srcConstr", edm::InputTag(""));
+  TrackProducerAlgorithm<reco::GsfTrack>::fillPSetDescription(desc);
+  GsfTrackProducerBase::fillPSetDescription(desc);
+  descriptions.addWithDefaultLabel(desc);
+}
+
 void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup) {
   edm::LogInfo("GsfTrackRefitter") << "Analyzing event number: " << theEvent.id() << "\n";
   //

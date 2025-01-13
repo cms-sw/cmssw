@@ -1,19 +1,17 @@
-#include "RecoTracker/TrackProducer/plugins/TrackProducer.h"
 // system include files
 #include <memory>
+
 // user include files
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoTracker/TrackProducer/plugins/TrackProducer.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 TrackProducer::TrackProducer(const edm::ParameterSet& iConfig)
     : KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
@@ -24,11 +22,9 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig)
       iConfig, consumesCollector(), consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("src")));
   setAlias(iConfig.getParameter<std::string>("@module_label"));
 
-  if (iConfig.exists("clusterRemovalInfo")) {
-    edm::InputTag tag = iConfig.getParameter<edm::InputTag>("clusterRemovalInfo");
-    if (!(tag == edm::InputTag())) {
-      setClusterRemovalInfo(tag);
-    }
+  edm::InputTag tag = iConfig.getParameter<edm::InputTag>("clusterRemovalInfo");
+  if (!(tag == edm::InputTag())) {
+    setClusterRemovalInfo(tag);
   }
 
   //register your products
@@ -41,6 +37,17 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig)
   produces<std::vector<Trajectory> >();
   produces<std::vector<int> >();
   produces<TrajTrackAssociationCollection>();
+}
+
+void TrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("TrajectoryInEvent", false);
+  desc.add<bool>("useHitsSplitting", false);
+  desc.add<edm::InputTag>("src", edm::InputTag("ckfTrackCandidates"));
+  desc.add<edm::InputTag>("clusterRemovalInfo", edm::InputTag(""));
+  TrackProducerAlgorithm<reco::Track>::fillPSetDescription(desc);
+  KfTrackProducerBase::fillPSetDescription(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup) {
