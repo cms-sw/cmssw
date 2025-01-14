@@ -46,9 +46,8 @@ namespace l1t {
                            const GlobalCondition*,
                            const GlobalCondition*,
                            const GlobalCondition*,
-                           const GlobalBoard*
-
-    );
+                           const GlobalBoard*,
+                           const GlobalScales*);
 
     // copy constructor
     CorrThreeBodyCondition(const CorrThreeBodyCondition&);
@@ -67,18 +66,15 @@ namespace l1t {
     void print(std::ostream& myCout) const override;
 
   public:
-    ///   get / set the pointer to a Condition
     inline const CorrelationThreeBodyTemplate* gtCorrelationThreeBodyTemplate() const {
       return m_gtCorrelationThreeBodyTemplate;
     }
-
     void setGtCorrelationThreeBodyTemplate(const CorrelationThreeBodyTemplate*);
 
-    ///   get / set the pointer to uGt GlobalBoard
     inline const GlobalBoard* getuGtB() const { return m_uGtB; }
-
     void setuGtB(const GlobalBoard*);
 
+    inline const GlobalScales* getScales() const { return m_gtScales; }
     void setScales(const GlobalScales*);
 
   private:
