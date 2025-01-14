@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runHcalCellKountRun3_cfg.py geometry=2021
+#   cmsRun runHcalCellCountRun3_cfg.py geometry=2021
 #
 #   Options for geometry 2016, 2016dev, 2017, 2018, 2021, 2023, 2024
 #
@@ -57,7 +57,7 @@ process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Geometry.HcalTowerAlgo.hcalCellKount_cfi')
+process.load('Geometry.HcalTowerAlgo.hcalCellCount_cfi')
 
 process.MessageLogger.G4cout=dict()
 
@@ -127,7 +127,7 @@ process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
-process.analysis_step = cms.EndPath(process.hcalCellKount)
+process.analysis_step = cms.EndPath(process.hcalCellCount)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,

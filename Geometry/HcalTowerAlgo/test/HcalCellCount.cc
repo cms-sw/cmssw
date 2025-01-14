@@ -2,21 +2,19 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include <iostream>
 #include <string>
 
-class HcalCellKount : public edm::one::EDAnalyzer<> {
+class HcalCellCount : public edm::one::EDAnalyzer<> {
 public:
-  explicit HcalCellKount(const edm::ParameterSet&);
-  ~HcalCellKount(void) override = default;
+  explicit HcalCellCount(const edm::ParameterSet&);
+  ~HcalCellCount(void) override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void beginJob() override {}
@@ -28,17 +26,17 @@ private:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 };
 
-HcalCellKount::HcalCellKount(const edm::ParameterSet& iConfig) : verbose_(iConfig.getParameter<int>("Verbosity")) {
+HcalCellCount::HcalCellCount(const edm::ParameterSet& iConfig) : verbose_(iConfig.getParameter<int>("Verbosity")) {
   tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 }
 
-void HcalCellKount::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HcalCellCount::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<int>("Verbosity", 0);
-  descriptions.add("hcalCellKount", desc);
+  descriptions.add("hcalCellCount", desc);
 }
 
-void HcalCellKount::analyze(edm::Event const& /*iEvent*/, const edm::EventSetup& iSetup) {
+void HcalCellCount::analyze(edm::Event const& /*iEvent*/, const edm::EventSetup& iSetup) {
   const CaloGeometry* geo = &iSetup.getData(tok_geom_);
 
   // ECAL
@@ -99,4 +97,4 @@ void HcalCellKount::analyze(edm::Event const& /*iEvent*/, const edm::EventSetup&
     edm::LogVerbatim("HCalGeom") << "HGCaLHSc Geometry does not exist";
 }
 
-DEFINE_FWK_MODULE(HcalCellKount);
+DEFINE_FWK_MODULE(HcalCellCount);
