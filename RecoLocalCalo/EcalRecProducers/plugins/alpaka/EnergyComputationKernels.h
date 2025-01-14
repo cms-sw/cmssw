@@ -3,8 +3,8 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "CondFormats/EcalObjects/interface/EcalRecHitParameters.h"
 #include "CondFormats/EcalObjects/interface/alpaka/EcalRecHitConditionsDevice.h"
-#include "CondFormats/EcalObjects/interface/alpaka/EcalRecHitParametersDevice.h"
 #include "DataFormats/EcalRecHit/interface/alpaka/EcalRecHitDeviceCollection.h"
 #include "DataFormats/EcalRecHit/interface/alpaka/EcalUncalibratedRecHitDeviceCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -42,7 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                                 uint32_t* flagBits,
                                 uint32_t* extra,
                                 EcalRecHitConditionsDevice::ConstView conditionsDev,
-                                EcalRecHitParametersDevice::Product const* parametersDev,
+                                EcalRecHitParameters const* parametersDev,
                                 // time, used for time dependent corrections
                                 edm::TimeValue_t const& eventTime,
                                 // configuration
@@ -61,7 +61,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                                   EcalUncalibratedRecHitDeviceCollection::ConstView uncalibRecHits,
                                   EcalRecHitDeviceCollection::View recHits,
                                   EcalRecHitConditionsDevice::ConstView conditionsDev,
-                                  EcalRecHitParametersDevice::Product const* parametersDev,
+                                  EcalRecHitParameters const* parametersDev,
                                   // time, used for time dependent corrections
                                   edm::TimeValue_t const& eventTime,
                                   ConfigurationParameters const& configParams) const {
@@ -110,7 +110,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                                   EcalRecHitDeviceCollection::View ebRecHits,
                                   EcalRecHitDeviceCollection::View eeRecHits,
                                   EcalRecHitConditionsDevice::ConstView conditionsDev,
-                                  EcalRecHitParametersDevice::Product const* parametersDev,
+                                  EcalRecHitParameters const* parametersDev,
                                   // time, used for time dependent corrections
                                   edm::TimeValue_t const& eventTime,
                                   ConfigurationParameters const& configParams) const {

@@ -1,5 +1,5 @@
-#ifndef CondFormats_HcalObjects_HcalMahiPulseOffsetsSoA_h
-#define CondFormats_HcalObjects_HcalMahiPulseOffsetsSoA_h
+#ifndef RecoLocalCalo_HcalRecProducers_plugins_alpaka_HcalMahiPulseOffsetsSoA_h
+#define RecoLocalCalo_HcalRecProducers_plugins_alpaka_HcalMahiPulseOffsetsSoA_h
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"

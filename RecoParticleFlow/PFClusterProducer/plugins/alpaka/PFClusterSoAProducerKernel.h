@@ -5,10 +5,11 @@
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitDeviceCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitFractionDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFClusterParamsDeviceCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFClusteringEdgeVarsDeviceCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFClusteringVarsDeviceCollection.h"
 #include "RecoParticleFlow/PFRecHitProducer/interface/alpaka/PFRecHitTopologyDeviceCollection.h"
+
+#include "PFClusterParamsSoA.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -39,7 +40,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     explicit PFClusterProducerKernel(Queue& queue);
 
     void seedTopoAndContract(Queue& queue,
-                             const reco::PFClusterParamsDeviceCollection& params,
+                             const ::reco::PFClusterParamsSoA::ConstView params,
                              const reco::PFRecHitHCALTopologyDeviceCollection& topology,
                              reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
                              reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
@@ -49,7 +50,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                              uint32_t* __restrict__ nRHF);
 
     void cluster(Queue& queue,
-                 const reco::PFClusterParamsDeviceCollection& params,
+                 const ::reco::PFClusterParamsSoA::ConstView params,
                  const reco::PFRecHitHCALTopologyDeviceCollection& topology,
                  reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
                  reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
