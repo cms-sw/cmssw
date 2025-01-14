@@ -5,8 +5,8 @@
 // Builder of ECAL RecHits on GPU
 //
 
+#include "CondFormats/EcalObjects/interface/EcalRecHitParameters.h"
 #include "CondFormats/EcalObjects/interface/alpaka/EcalRecHitConditionsDevice.h"
-#include "CondFormats/EcalObjects/interface/alpaka/EcalRecHitParametersDevice.h"
 #include "DataFormats/EcalRecHit/interface/alpaka/EcalRecHitDeviceCollection.h"
 #include "DataFormats/EcalRecHit/interface/alpaka/EcalUncalibratedRecHitDeviceCollection.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -26,7 +26,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                           OutputProduct& ebRecHits,
                           OutputProduct& eeRecHits,
                           EcalRecHitConditionsDevice const& conditionsDev,
-                          EcalRecHitParametersDevice const& parametersDev,
+                          EcalRecHitParameters const* parametersDev,
                           edm::TimeValue_t const& eventTime,
                           ConfigurationParameters const& configParams,
                           bool const isPhase2);

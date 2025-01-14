@@ -127,6 +127,47 @@ def customizeHLTfor47079(process):
                     
     return process
 
+
+def customizeHLTfor47047(process):
+    """Migrates many ESProducers to MoveToDeviceCache"""
+    import copy
+    if hasattr(process, "ecalMultifitParametersSource"):
+        del process.ecalMultifitParametersSource
+    esProducer = None
+    for prod in esproducers_by_type(process, "EcalMultifitParametersHostESProducer@alpaka"):
+        if esProducer is not None:
+            raise Exception("Assumption of only one EcalMultifitParametersHostESProducer@alpaka in a process broken")
+        esProducer = prod
+    if esProducer is not None:
+        for prod in producers_by_type(process, "EcalUncalibRecHitProducerPortable@alpaka", "alpaka_serial_sync::EcalUncalibRecHitProducerPortable"):
+            for attr in ["EBtimeFitParameters", "EEtimeFitParameters", "EBamplitudeFitParameters", "EEamplitudeFitParameters"]:
+                setattr(prod, attr, copy.deepcopy(getattr(esProducer, attr)))
+        delattr(process, esProducer.label())
+
+    for prod in producers_by_type(process, "HBHERecHitProducerPortable@alpaka", "alpaka_serial_sync::HBHERecHitProducerPortable"):
+        pulseOffsetLabel = prod.mahiPulseOffSets.getModuleLabel()
+        if hasattr(process, pulseOffsetLabel):
+            esProducer = getattr(process, pulseOffsetLabel)
+            prod.pulseOffsets = copy.deepcopy(esProducer.pulseOffsets)
+        del prod.mahiPulseOffSets
+    for prod in list(esproducers_by_type(process, "HcalMahiPulseOffsetsESProducer@alpaka")):
+        delattr(process, prod.label())
+
+    for prod in producers_by_type(process, "PFClusterSoAProducer@alpaka", "alpaka_serial_sync::PFClusterSoAProducer"):
+        clusterParamsLabel = prod.pfClusterParams.getModuleLabel()
+        if hasattr(process, clusterParamsLabel):
+            esProducer = getattr(process, clusterParamsLabel)
+            for attr in ["seedFinder", "initialClusteringStep", "pfClusterBuilder"]:
+                setattr(prod, attr, copy.deepcopy(getattr(esProducer, attr).copy()))
+        del prod.pfClusterParams
+    for prod in list(esproducers_by_type(process, "PFClusterParamsESProducer@alpaka")):
+        delattr(process, prod.label())
+
+    if hasattr(process, "hltESSJobConfigurationGPURecord"):
+        del process.hltESSJobConfigurationGPURecord
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -138,6 +179,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customizeHLTfor46935(process)
     process = customizeHLTfor47017(process)
     process = customizeHLTfor47079(process)
+    process = customizeHLTfor47047(process)
 
     return process
 

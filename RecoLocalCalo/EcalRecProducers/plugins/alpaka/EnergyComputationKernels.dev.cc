@@ -22,7 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                                 uint32_t* flagBits,
                                 uint32_t* extra,
                                 EcalRecHitConditionsDevice::ConstView conditionsDev,
-                                EcalRecHitParametersDevice::Product const* parametersDev,
+                                EcalRecHitParameters const* parametersDev,
                                 // time, used for time dependent corrections
                                 edm::TimeValue_t const& eventTime,
                                 // configuration
