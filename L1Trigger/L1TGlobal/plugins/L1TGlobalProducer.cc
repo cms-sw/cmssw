@@ -255,10 +255,6 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   m_l1GtTmAlgoCacheID = 0ULL;
   m_l1GtTmVetoAlgoCacheID = 0ULL;
 
-  //
-  std::vector<l1t::Muon> muonVec_bxm2;
-  std::vector<l1t::Muon> muonVec_bxm1;
-
   // Set default, initial, dummy prescale factor table
   std::vector<std::vector<double>> temp_prescaleTable;
 
@@ -601,7 +597,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
                                   receiveEtSumsZdc,
                                   receiveCICADA);
 
-  m_uGtBrd->receiveMuonObjectData(iEvent, m_muInputToken, receiveMu, m_nrL1Mu, &muonVec_bxm2, &muonVec_bxm1);
+  m_uGtBrd->receiveMuonObjectData(iEvent, m_muInputToken, receiveMu, m_nrL1Mu);
 
   if (m_useMuonShowers)
     m_uGtBrd->receiveMuonShowerObjectData(iEvent, m_muShowerInputToken, receiveMuShower, m_nrL1MuShower);
@@ -655,13 +651,6 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
   }  //End Loop over Bx
 
-  muonVec_bxm2 = muonVec_bxm1;
-  muonVec_bxm1.clear();
-  for (std::vector<const l1t::Muon*>::const_iterator iMu = (*(m_uGtBrd->getCandL1Mu())).begin(0);
-       iMu != (*(m_uGtBrd->getCandL1Mu())).end(0);
-       ++iMu) {
-    muonVec_bxm1.push_back(**iMu);
-  }
   // Add explicit reset of Board
   m_uGtBrd->reset();
 
