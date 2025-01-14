@@ -1,4 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+import argparse
+import sys
+
+parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test GlobalObjectMapRecord')
+
+parser.add_argument('--outputFileName', type=str, help='Output file name (default: testGlobalObjectMapRecord.root)', default='testGlobalObjectMapRecord.root')
+args = parser.parse_args()
 
 process = cms.Process("PROD")
 
@@ -24,11 +31,12 @@ process.globalObjectMapRecordProducer = cms.EDProducer("TestWriteGlobalObjectMap
     nElements2 = cms.uint32(4),
     nElements3 = cms.uint32(5),
     firstElement = cms.int32(11),
-    elementDelta = cms.int32(3)
+    elementDelta = cms.int32(3),
+    bxIndexModulus = cms.uint32(3),
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testGlobalObjectMapRecord.root')
+    fileName = cms.untracked.string(f'{args.outputFileName}')
 )
 
 process.path = cms.Path(process.globalObjectMapRecordProducer)

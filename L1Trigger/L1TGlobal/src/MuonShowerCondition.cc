@@ -102,7 +102,7 @@ const bool l1t::MuonShowerCondition::evaluateCondition(const int bxEval) const {
   const BXVector<std::shared_ptr<l1t::MuonShower>>* candVec = m_gtGTL->getCandL1MuShower();
 
   // Look at objects in BX = BX + relativeBX
-  int useBx = bxEval + m_gtMuonShowerTemplate->condRelativeBx();
+  L1TObjBxIndexType const useBx = bxEval + m_gtMuonShowerTemplate->condRelativeBx();
   LogDebug("MuonShowerCondition") << "Considering BX " << useBx << std::endl;
 
   // Fail condition if attempting to get BX outside of range
@@ -111,7 +111,7 @@ const bool l1t::MuonShowerCondition::evaluateCondition(const int bxEval) const {
   }
 
   // Store the indices of the shower objects from the combination evaluated in the condition
-  SingleCombInCond objectsInComb;
+  SingleCombWithBxInCond objectsInComb;
   objectsInComb.reserve(nObjInCond);
 
   // Clear the m_combinationsInCond vector
@@ -144,7 +144,7 @@ const bool l1t::MuonShowerCondition::evaluateCondition(const int bxEval) const {
     if (passCondition) {
       LogDebug("MuonShowerCondition")
           << "===> MuShowerCondition::evaluateCondition, PASS! This muon shower passed the condition." << std::endl;
-      objectsInComb.push_back(indexObj);
+      objectsInComb.emplace_back(useBx, indexObj);
     } else
       LogDebug("MuonShowerCondition")
           << "===> MuShowerCondition::evaluateCondition, FAIL! This muon shower failed the condition." << std::endl;

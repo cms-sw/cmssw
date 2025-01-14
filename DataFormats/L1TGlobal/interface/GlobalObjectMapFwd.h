@@ -1,8 +1,8 @@
-#ifndef L1GlobalTrigger_L1TGtObjectMapFwd_h
-#define L1GlobalTrigger_L1TGtObjectMapFwd_h
+#ifndef DataFormats_L1TGlobal_L1TGtObjectMapFwd_h
+#define DataFormats_L1TGlobal_L1TGtObjectMapFwd_h
 
 /**
- * \class GlobalObjectMap
+ * \class GlobalObjectMapFwd
  * 
  * 
  * Description: group typedefs used by GlobalObjectMap.  
@@ -16,6 +16,7 @@
  */
 
 // system include files
+#include <utility>
 #include <vector>
 
 // user include files
@@ -24,14 +25,15 @@
 // forward declarations
 
 /// typedefs
+typedef int16_t L1TObjBxIndexType;
+typedef int L1TObjIndexType;
 
-/// list of object indices corresponding to a condition evaluated to true
-typedef std::vector<int> SingleCombInCond;
+/// list of object indices:bx pairs corresponding to a condition evaluated to true
+typedef std::vector<std::pair<L1TObjBxIndexType, L1TObjIndexType>> SingleCombWithBxInCond;
 
-/// all the object combinations evaluated to true in the condition
-typedef std::vector<SingleCombInCond> CombinationsInCond;
+/// all the object combinations evaluated to true in the condition (object indices + BX indices)
+typedef std::vector<SingleCombWithBxInCond> CombinationsWithBxInCond;
 
 typedef std::vector<l1t::GlobalObject> L1TObjectTypeInCond;
-//typedef std::vector<int> ObjectTypeInCond;
 
-#endif /* L1GlobalTrigger_L1TGtObjectMapFwd_h */
+#endif
