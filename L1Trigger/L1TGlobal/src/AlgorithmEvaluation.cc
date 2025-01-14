@@ -75,7 +75,7 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
     switch (it->operation) {
       case GlobalLogicParser::OP_OPERAND: {
-        CItEvalMap itCond = (conditionResultMaps.at(chipNumber)).find(it->operand);
+        auto itCond = conditionResultMaps.at(chipNumber).find(it->operand);
         if (itCond != (conditionResultMaps[chipNumber]).end()) {
           if (nullptr == itCond->second) {
             // it should never be happen, only valid conditions are in the maps

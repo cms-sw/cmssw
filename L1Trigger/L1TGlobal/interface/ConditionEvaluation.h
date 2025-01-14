@@ -22,22 +22,13 @@
  *
  */
 
-// system include files
+#include <cstdint>
 #include <iostream>
-
 #include <string>
 #include <vector>
 
-// user include files
-
-//   base class
-
-//
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <cstdint>
-
-// forward declarations
 
 namespace l1t {
 
