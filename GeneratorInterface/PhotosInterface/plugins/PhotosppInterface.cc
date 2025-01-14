@@ -16,6 +16,7 @@ using namespace std;
 
 #include "Photos/Photos.h"
 #include "Photos/PhotosHepMCEvent.h"
+#include "Photos/PhotosHepMC3Event.h"
 
 CLHEP::HepRandomEngine* PhotosppInterface::fRandomEngine = nullptr;
 
@@ -282,6 +283,16 @@ HepMC::GenEvent* PhotosppInterface::apply(HepMC::GenEvent* evt) {
       }
     }
   }
+  return evt;
+}
+
+HepMC3::GenEvent* PhotosppInterface::apply(HepMC3::GenEvent* evt) {
+  Photospp::Photos::setRandomGenerator(PhotosppInterface::flat);
+  if (!fIsInitialized)
+    return evt;
+  int NPartBefore = evt->particles_size();
+  Photospp::PhotosHepMC3Event PhotosEvt(evt);
+  PhotosEvt.process();
   return evt;
 }
 
