@@ -95,7 +95,7 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
 
   // store the indices of the calorimeter objects
   // from the combination evaluated in the condition
-  SingleCombInCond objectsInComb;
+  SingleCombWithBxInCond objectsInComb;
 
   // clear the m_combinationsInCond vector
   (combinationsInCond()).clear();
@@ -106,7 +106,7 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
   const BXVector<const l1t::EtSum*>* candVec = m_uGtB->getCandL1EtSum();
 
   // Look at objects in bx = bx + relativeBx
-  int useBx = bxEval + m_gtEnergySumTemplate->condRelativeBx();
+  L1TObjBxIndexType const useBx = bxEval + m_gtEnergySumTemplate->condRelativeBx();
 
   // Fail condition if attempting to get Bx outside of range
   if ((useBx < candVec->getFirstBX()) || (useBx > candVec->getLastBX())) {
@@ -247,9 +247,10 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
   // get energy, phi (ETM and HTM) and overflow for the trigger object
   unsigned int candEt = 0;
   unsigned int candPhi = 0;
+
   bool candOverflow = false;
   for (int iEtSum = 0; iEtSum < numberObjects; ++iEtSum) {
-    l1t::EtSum cand = *(candVec->at(useBx, iEtSum));
+    auto const& cand = *(candVec->at(useBx, iEtSum));
     if (cand.getType() != type)
       continue;
     candEt = cand.hwPt();
@@ -302,9 +303,7 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
   }
 
   // index is always zero, as they are global quantities (there is only one object)
-  int indexObj = 0;
-
-  objectsInComb.push_back(indexObj);
+  objectsInComb.emplace_back(useBx, 0);
   (combinationsInCond()).push_back(objectsInComb);
 
   // if we get here all checks were successfull for this combination

@@ -129,11 +129,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
   const EnergySumTemplate* corrEnergySum = nullptr;
 
   // FIXME copying is slow...
-  CombinationsInCond cond0Comb;
-  CombinationsInCond cond1Comb;
-
-  int cond0bx(0);
-  int cond1bx(0);
+  CombinationsWithBxInCond cond0Comb{};
+  CombinationsWithBxInCond cond1Comb{};
 
   switch (cond0Categ) {
     case CondMuon: {
@@ -145,7 +142,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
       reqObjResult = muCondition.condLastResult();
 
       cond0Comb = (muCondition.getCombinationsInCond());
-      cond0bx = bxEval + (corrMuon->condRelativeBx());
+
       cndObjTypeVec[0] = (corrMuon->objectType())[0];
 
       if (m_verbosity) {
@@ -165,7 +162,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
       reqObjResult = caloCondition.condLastResult();
 
       cond0Comb = (caloCondition.getCombinationsInCond());
-      cond0bx = bxEval + (corrCalo->condRelativeBx());
+
       cndObjTypeVec[0] = (corrCalo->objectType())[0];
 
       if (m_verbosity) {
@@ -183,7 +180,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
       reqObjResult = eSumCondition.condLastResult();
 
       cond0Comb = (eSumCondition.getCombinationsInCond());
-      cond0bx = bxEval + (corrEnergySum->condRelativeBx());
+
       cndObjTypeVec[0] = (corrEnergySum->objectType())[0];
 
       if (m_verbosity) {
@@ -217,7 +214,6 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
       reqObjResult = muCondition.condLastResult();
 
       cond1Comb = (muCondition.getCombinationsInCond());
-      cond1bx = bxEval + (corrMuon->condRelativeBx());
 
       cndObjTypeVec[1] = (corrMuon->objectType())[0];
 
@@ -237,7 +233,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
       reqObjResult = caloCondition.condLastResult();
 
       cond1Comb = (caloCondition.getCombinationsInCond());
-      cond1bx = bxEval + (corrCalo->condRelativeBx());
+
       cndObjTypeVec[1] = (corrCalo->objectType())[0];
 
       if (m_verbosity) {
@@ -257,7 +253,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
       reqObjResult = eSumCondition.condLastResult();
 
       cond1Comb = (eSumCondition.getCombinationsInCond());
-      cond1bx = bxEval + (corrEnergySum->condRelativeBx());
+
       cndObjTypeVec[1] = (corrEnergySum->objectType())[0];
 
       if (m_verbosity) {
@@ -288,7 +284,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
   // vector to store the indices of the calorimeter objects
   // from the combination evaluated in the condition
-  SingleCombInCond objectsInComb;
+  SingleCombWithBxInCond objectsInComb;
   objectsInComb.reserve(nObjInCond);
 
   // clear the m_combinationsInCond vector
@@ -388,25 +384,23 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
   std::string lutObj0 = "NULL";
   std::string lutObj1 = "NULL";
 
-  LogTrace("L1TGlobal") << "  Sub-condition 0: std::vector<SingleCombInCond> size: " << (cond0Comb.size()) << std::endl;
-  LogTrace("L1TGlobal") << "  Sub-condition 1: std::vector<SingleCombInCond> size: " << (cond1Comb.size()) << std::endl;
+  LogTrace("L1TGlobal") << "  Sub-condition 0: std::vector<SingleCombWithBxInCond> size: " << cond0Comb.size();
+  LogTrace("L1TGlobal") << "  Sub-condition 1: std::vector<SingleCombWithBxInCond> size: " << cond1Comb.size();
 
   // loop over all combinations which produced individually "true" as Type1s
   //
   // BLW: Optimization issue: potentially making the same comparison twice
   //                          if both legs are the same object type.
-  for (std::vector<SingleCombInCond>::const_iterator it0Comb = cond0Comb.begin(); it0Comb != cond0Comb.end();
-       it0Comb++) {
-    // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in (*it0Comb)[0]
+  for (auto const& it0Comb : cond0Comb) {
+    // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in it0Comb[0]
     // ... but add protection to not crash
-    int obj0Index = -1;
-
-    if (!(*it0Comb).empty()) {
-      obj0Index = (*it0Comb)[0];
-    } else {
-      LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it0Comb).size() " << ((*it0Comb).size()) << std::endl;
+    if (it0Comb.empty()) {
+      LogTrace("L1TGlobal") << "\n  SingleCombWithBxInCond it0Comb.size() " << it0Comb.size();
       return false;
     }
+
+    auto const cond0bx = it0Comb[0].first;
+    auto const obj0Index = it0Comb[0].second;
 
     // Collect the information on the first leg of the correlation
     switch (cond0Categ) {
@@ -687,19 +681,17 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     }  //end switch on first leg type
 
     // Now loop over the second leg to get its information
-    for (std::vector<SingleCombInCond>::const_iterator it1Comb = cond1Comb.begin(); it1Comb != cond1Comb.end();
-         it1Comb++) {
-      LogDebug("L1TGlobal") << "Looking at second Condition" << std::endl;
-      // Type1s: there is 1 object only, no need for a loop (*it1Comb)[0]
+    for (auto const& it1Comb : cond1Comb) {
+      LogDebug("L1TGlobal") << "Looking at second Condition";
+      // Type1s: there is 1 object only, no need for a loop it1Comb[0]
       // ... but add protection to not crash
-      int obj1Index = -1;
-
-      if (!(*it1Comb).empty()) {
-        obj1Index = (*it1Comb)[0];
-      } else {
-        LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it1Comb).size() " << ((*it1Comb).size()) << std::endl;
+      if (it1Comb.empty()) {
+        LogTrace("L1TGlobal") << "\n  SingleCombWithBxInCond it1Comb.size() " << it1Comb.size();
         return false;
       }
+
+      auto const cond1bx = it1Comb[0].first;
+      auto const obj1Index = it1Comb[0].second;
 
       //If we are dealing with the same object type avoid the two legs
       // either being the same object
@@ -998,8 +990,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
       // clear the indices in the combination
       objectsInComb.clear();
 
-      objectsInComb.push_back(obj0Index);
-      objectsInComb.push_back(obj1Index);
+      objectsInComb.emplace_back(cond0bx, obj0Index);
+      objectsInComb.emplace_back(cond1bx, obj1Index);
 
       // if we get here all checks were successful for this combination
       // set the general result for evaluateCondition to "true"

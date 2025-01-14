@@ -1,5 +1,5 @@
-#ifndef L1GlobalTrigger_L1TGtObjectMap_h
-#define L1GlobalTrigger_L1TGtObjectMap_h
+#ifndef DataFormats_L1TGlobal_GlobalObjectMap_h
+#define DataFormats_L1TGlobal_GlobalObjectMap_h
 
 /**
  * \class GlobalObjectMap
@@ -15,27 +15,16 @@
  *
  */
 
-// system include files
 #include <string>
 #include <vector>
-
 #include <iosfwd>
 
-// user include files
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
-
 #include "DataFormats/L1TGlobal/interface/GlobalLogicParser.h"
 
-// forward declarations
-
-// class declaration
 class GlobalObjectMap {
 public:
-  /// constructor(s)
   GlobalObjectMap() {}
-
-  /// destructor
-  //~GlobalObjectMap(){}
 
 public:
   /// get / set name for algorithm in the object map
@@ -56,13 +45,13 @@ public:
 
   /// get / set the vector of combinations for the algorithm
   /// return a constant reference to the vector of combinations for the algorithm
-  inline const std::vector<CombinationsInCond>& combinationVector() const { return m_combinationVector; }
+  inline const std::vector<CombinationsWithBxInCond>& combinationVector() const { return m_combinationWithBxVector; }
 
-  void setCombinationVector(const std::vector<CombinationsInCond>& combinationVectorValue) {
-    m_combinationVector = combinationVectorValue;
+  void setCombinationVector(const std::vector<CombinationsWithBxInCond>& combinationVectorValue) {
+    m_combinationWithBxVector = combinationVectorValue;
   }
-  void swapCombinationVector(std::vector<CombinationsInCond>& combinationVectorValue) {
-    m_combinationVector.swap(combinationVectorValue);
+  void swapCombinationVector(std::vector<CombinationsWithBxInCond>& combinationVectorValue) {
+    m_combinationWithBxVector.swap(combinationVectorValue);
   }
 
   /// get / set the vector of operand tokens
@@ -79,6 +68,7 @@ public:
   /// get / set the vector of object types
   /// return a constant reference to the vector of operand tokens
   inline const std::vector<L1TObjectTypeInCond>& objectTypeVector() const { return m_objectTypeVector; }
+
   void setObjectTypeVector(const std::vector<L1TObjectTypeInCond>& objectTypeVectorValue) {
     m_objectTypeVector = objectTypeVectorValue;
   }
@@ -88,10 +78,10 @@ public:
 
 public:
   /// return all the combinations passing the requirements imposed in condition condNameVal
-  const CombinationsInCond* getCombinationsInCond(const std::string& condNameVal) const;
+  const CombinationsWithBxInCond* getCombinationsInCond(const std::string& condNameVal) const;
 
   /// return all the combinations passing the requirements imposed in condition condNumberVal
-  const CombinationsInCond* getCombinationsInCond(const int condNumberVal) const;
+  const CombinationsWithBxInCond* getCombinationsInCond(const int condNumberVal) const;
 
   /// return the result for the condition condNameVal
   const bool getConditionResult(const std::string& condNameVal) const;
@@ -118,10 +108,10 @@ private:
   std::vector<GlobalLogicParser::OperandToken> m_operandTokenVector;
 
   // vector of combinations for all conditions in an algorithm
-  std::vector<CombinationsInCond> m_combinationVector;
+  std::vector<CombinationsWithBxInCond> m_combinationWithBxVector;
 
   // vector of object type vectors for all conditions in an algorithm
   std::vector<L1TObjectTypeInCond> m_objectTypeVector;
 };
 
-#endif /* L1GlobalTrigger_L1TGtObjectMap_h */
+#endif

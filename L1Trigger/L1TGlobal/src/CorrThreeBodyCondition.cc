@@ -109,13 +109,9 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
 
   const MuonTemplate* corrMuon = nullptr;
 
-  CombinationsInCond cond0Comb;
-  CombinationsInCond cond1Comb;
-  CombinationsInCond cond2Comb;
-
-  int cond0bx(0);
-  int cond1bx(0);
-  int cond2bx(0);
+  CombinationsWithBxInCond cond0Comb{};
+  CombinationsWithBxInCond cond1Comb{};
+  CombinationsWithBxInCond cond2Comb{};
 
   // FIRST OBJECT
   bool reqObjResult = false;
@@ -129,7 +125,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
     reqObjResult = muCondition.condLastResult();
 
     cond0Comb = (muCondition.getCombinationsInCond());
-    cond0bx = bxEval + (corrMuon->condRelativeBx());
+
     cndObjTypeVec[0] = (corrMuon->objectType())[0];
 
     if (m_verbosity) {
@@ -160,7 +156,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
     reqObjResult = muCondition.condLastResult();
 
     cond1Comb = (muCondition.getCombinationsInCond());
-    cond1bx = bxEval + (corrMuon->condRelativeBx());
+
     cndObjTypeVec[1] = (corrMuon->objectType())[0];
 
     if (m_verbosity) {
@@ -193,7 +189,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
     reqObjResult = muCondition.condLastResult();
 
     cond2Comb = (muCondition.getCombinationsInCond());
-    cond2bx = bxEval + (corrMuon->condRelativeBx());
+
     cndObjTypeVec[2] = (corrMuon->objectType())[0];
 
     if (m_verbosity) {
@@ -224,7 +220,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
       *(m_gtCorrelationThreeBodyTemplate->correlationThreeBodyParameter());
 
   // Vector to store the indices of the objects involved in the condition evaluation
-  SingleCombInCond objectsInComb;
+  SingleCombWithBxInCond objectsInComb;
   objectsInComb.reserve(nObjInCond);
 
   // Clear the m_combinationsInCond vector:
@@ -294,28 +290,28 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
   unsigned int preShift = 0;
 
   // *** Looking for a set of three objects
-  for (std::vector<SingleCombInCond>::const_iterator it0Comb = cond0Comb.begin(); it0Comb != cond0Comb.end();
-       it0Comb++) {
+  for (auto const& it0Comb : cond0Comb) {
     // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in (*it0Comb)[0]
     // ... but add protection to not crash
     LogDebug("L1TGlobal") << "Looking at first subcondition" << std::endl;
-    int obj0Index = -1;
 
-    if (!(*it0Comb).empty()) {
-      obj0Index = (*it0Comb)[0];
-    } else {
-      LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it0Comb).size() " << ((*it0Comb).size()) << std::endl;
+    if (it0Comb.empty()) {
+      LogTrace("L1TGlobal") << "\n  SingleCombWithBxInCond it0Comb.size() " << it0Comb.size();
       return false;
     }
+
+    auto const cond0bx = it0Comb[0].first;
+    auto const obj0Index = it0Comb[0].second;
 
     // FIRST OBJECT: Collect the information on the first leg of the correlation
     if (cond0Categ == CondMuon) {
       lutObj0 = "MU";
       candMuVec = m_uGtB->getCandL1Mu();
-      phiIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPhiAtVtx();
-      etaIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwEtaAtVtx();
-      etIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPt();
-      chrg0 = (candMuVec->at(cond0bx, obj0Index))->hwCharge();
+      auto const* mu0 = candMuVec->at(cond0bx, obj0Index);
+      phiIndex0 = mu0->hwPhiAtVtx();
+      etaIndex0 = mu0->hwEtaAtVtx();
+      etIndex0 = mu0->hwPt();
+      chrg0 = mu0->hwCharge();
 
       etaBin0 = etaIndex0;
       if (etaBin0 < 0)
@@ -343,17 +339,16 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
     }
 
     // SECOND OBJECT: Now loop over the second leg to get its information
-    for (std::vector<SingleCombInCond>::const_iterator it1Comb = cond1Comb.begin(); it1Comb != cond1Comb.end();
-         it1Comb++) {
+    for (auto const& it1Comb : cond1Comb) {
       LogDebug("L1TGlobal") << "Looking at second subcondition" << std::endl;
-      int obj1Index = -1;
 
-      if (!(*it1Comb).empty()) {
-        obj1Index = (*it1Comb)[0];
-      } else {
-        LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it1Comb).size() " << ((*it1Comb).size()) << std::endl;
+      if (it1Comb.empty()) {
+        LogTrace("L1TGlobal") << "\n  SingleCombWithBxInCond it1Comb.size() " << it1Comb.size();
         return false;
       }
+
+      auto const cond1bx = it1Comb[0].first;
+      auto const obj1Index = it1Comb[0].second;
 
       // If we are dealing with the same object type avoid the two legs either being the same object
       if (cndObjTypeVec[0] == cndObjTypeVec[1] && obj0Index == obj1Index && cond0bx == cond1bx) {
@@ -364,10 +359,11 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
       if (cond1Categ == CondMuon) {
         lutObj1 = "MU";
         candMuVec = m_uGtB->getCandL1Mu();
-        phiIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwPhiAtVtx();
-        etaIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwEtaAtVtx();
-        etIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwPt();
-        chrg1 = (candMuVec->at(cond1bx, obj1Index))->hwCharge();
+        auto const* mu1 = candMuVec->at(cond1bx, obj1Index);
+        phiIndex1 = mu1->hwPhiAtVtx();
+        etaIndex1 = mu1->hwEtaAtVtx();
+        etIndex1 = mu1->hwPt();
+        chrg1 = mu1->hwCharge();
 
         etaBin1 = etaIndex1;
         if (etaBin1 < 0)
@@ -395,17 +391,16 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
       }
 
       // THIRD OBJECT: Finally loop over the third leg to get its information
-      for (std::vector<SingleCombInCond>::const_iterator it2Comb = cond2Comb.begin(); it2Comb != cond2Comb.end();
-           it2Comb++) {
+      for (auto const& it2Comb : cond2Comb) {
         LogDebug("L1TGlobal") << "Looking at the third object for the three-body condition" << std::endl;
-        int obj2Index = -1;
 
-        if (!(*it2Comb).empty()) {
-          obj2Index = (*it2Comb)[0];
-        } else {
-          LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it2Comb).size() " << ((*it2Comb).size()) << std::endl;
+        if (it2Comb.empty()) {
+          LogTrace("L1TGlobal") << "\n  SingleCombWithBxInCond it2Comb.size() " << it2Comb.size();
           return false;
         }
+
+        auto const cond2bx = it2Comb[0].first;
+        auto const obj2Index = it2Comb[0].second;
 
         // If we are dealing with the same object type avoid the two legs
         // either being the same object
@@ -418,10 +413,11 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         if (cond2Categ == CondMuon) {
           lutObj2 = "MU";
           candMuVec = m_uGtB->getCandL1Mu();
-          phiIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPhiAtVtx();
-          etaIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwEtaAtVtx();
-          etIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPt();
-          chrg2 = (candMuVec->at(cond2bx, obj2Index))->hwCharge();
+          auto const* mu2 = candMuVec->at(cond2bx, obj2Index);
+          phiIndex2 = mu2->hwPhiAtVtx();
+          etaIndex2 = mu2->hwEtaAtVtx();
+          etIndex2 = mu2->hwPt();
+          chrg2 = mu2->hwCharge();
 
           etaBin2 = etaIndex2;
           if (etaBin2 < 0)
@@ -490,9 +486,9 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
 
         // Clear the vector containing indices of the objects of the combination involved in the condition evaluation
         objectsInComb.clear();
-        objectsInComb.push_back(obj0Index);
-        objectsInComb.push_back(obj1Index);
-        objectsInComb.push_back(obj2Index);
+        objectsInComb.emplace_back(cond0bx, obj0Index);
+        objectsInComb.emplace_back(cond1bx, obj1Index);
+        objectsInComb.emplace_back(cond2bx, obj2Index);
 
         // Delta eta and phi calculations needed to evaluate the three-body invariant mass
         double deltaPhiPhy_01 = fabs(phi1Phy - phi0Phy);
