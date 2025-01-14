@@ -27,7 +27,7 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
+#include "Geometry/CommonTopologies/interface/SimpleSeedingLayersTopology.h"
 template <typename T>
 class SiPixelCompareRecHitsSoA : public DQMEDAnalyzer {
 public:

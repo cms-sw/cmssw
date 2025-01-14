@@ -14,7 +14,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "Geometry/CommonTopologies/interface/GluedGeomDet.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
+#include "Geometry/CommonTopologies/interface/SimpleSeedingLayersTopology.h"
 
 namespace {
 

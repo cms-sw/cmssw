@@ -1,5 +1,5 @@
-#ifndef Geometry_CommonTopologies_SimplePixelStripTopology_h
-#define Geometry_CommonTopologies_SimplePixelStripTopology_h
+#ifndef Geometry_CommonTopologies_SimpleSeedingLayersTopology_h
+#define Geometry_CommonTopologies_SimpleSeedingLayersTopology_h
 #include <iostream>
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 namespace phase1PixelStripTopology {
@@ -75,55 +75,44 @@ namespace phase1PixelStripTopology {
   //constexpr int16_t phi0p09 = 900;
   //constexpr int16_t phi5deg = 1820;
   constexpr LayerPairData layerPairData[] = {
-      {BPIX1, BPIX2, phi0p05, -20., 20., 20.},                // 0  (No inner layer) OK
-      {BPIX1, FPIX1Pos, phi0p07, 0., 30., 9.},                // 1  (No inner layer) OK
-      {BPIX1, FPIX1Neg, phi0p07, -30., 0., 9.},               // 2  (No inner layer) OK
-      {BPIX2, BPIX3, phi0p05, -22., 22., 20.},                // 3  OK
-      {BPIX2, FPIX1Pos, phi0p07, 10., 30., 7.},               // 4  OK
-      {BPIX2, FPIX1Neg, phi0p06, -30., -10., 7.},             // 5  OK
-      {FPIX1Pos, FPIX2Pos, phi0p06, -70., 70., 5.},           // 6  OK
-      {FPIX1Neg, FPIX2Neg, phi0p05, -70., 70., 5.},           // 7  OK
-      {BPIX1, BPIX3, phi0p05, -20., 20., 20.},                // 8 (No inner layer) OK
-      {BPIX2, BPIX4, phi0p05, -22., 22., 20.},                // 9  OK
-      {BPIX1, FPIX2Pos, phi0p06, 0., 30., 9.},                // 10 (No inner layer) OK
-      {BPIX1, FPIX2Neg, phi0p05, -30., 0., 9.},               // 11 (No inner layer) Until here Starting Pairs OK
-      {FPIX1Pos, TIB1, 1200, -70., 70., 1000.},               // 12
-      {FPIX1Neg, TIB1, 1200, -70., 70., 1000.},               // 13
-      {BPIX3, BPIX4, phi0p06, -22., 22., 20.},                // 14
-      {BPIX3, FPIX1Pos, phi0p07, 15., 30., 6.},               // 15
-      {BPIX3, FPIX1Neg, phi0p06, -30, -15., 6.},              // 16
-      {FPIX2Pos, FPIX3Pos, phi0p06, -70., 70., 5.},           // 17
-      {FPIX2Neg, FPIX3Neg, phi0p05, -70., 70., 5.},           // 18
-      {BPIX3, TIB1, phi5deg, -22., 22., 1000.},               // 19
-      {BPIX4, TIB1, phi5deg, -22., 22., 1000.},               // 20
-      {BPIX4, TIB2, phi5deg, -22., 22., 1000.},               // 21
-      {TIB1, TIB2, phi5deg, -55., 55., 1000.},                // 22
-      {FPIX2Neg, TIB1, phi5deg, -70., 70., 1000.},            // 23
-      {FPIX3Neg, TIB1, phi5deg, -70., 70., 1000.},            // 24
-      {FPIX3Neg, TID1Neg2D, phi5deg, -70., 70., 1000.},       // 25
-      {FPIX3Neg, TID2Neg2D, phi5deg, -70., 70., 1000.},       // 26
-      {FPIX3Neg, TID3Neg2D, phi5deg, -70., 70., 1000.},       // 27
-      {TID1Neg2D, TID2Neg2D, phi5deg, -1000., 1000., 1000.},  // 28
-      {TID2Neg2D, TID3Neg2D, phi5deg, -1000., 1000., 1000.},  // 29
-      {TIB1, TID1Neg2D, phi5deg, -55., 0., 1000.},            // 30
-      {TIB2, TID1Neg2D, phi5deg, -55., 0., 1000.},            // 31
-      {BPIX2, TIB1, phi5deg, -22., 0., 1000.},                // 32
-      {BPIX2, TIB2, phi5deg, -22., 0., 1000.},                // 33
-      {BPIX1, TIB1, phi5deg, -22., 0., 1000.},                // 34
-      {BPIX3, TIB2, phi5deg, -22., 22., 1000.},               // 35
-      {BPIX4, TID1Neg2D, phi5deg, -55., 0., 1000.},           // 36
-      {FPIX1Pos, FPIX3Pos, phi0p06, -70., 70., 9.},           // 37
-      {FPIX1Neg, FPIX3Neg, phi0p05, -70., 70., 9.},           // 38
-      {FPIX1Neg, TIB2, phi5deg, -70., 70., 1000.},            // 39
-      {FPIX1Neg, TID1Neg2D, phi5deg, -70., 70., 1000.},       // 40
-      {FPIX1Neg, TID2Neg2D, phi5deg, -70., 70., 1000.},       // 41
-      {FPIX2Pos, TID3Pos2D, phi5deg, -70., 70., 1000.},       // 42
-      {FPIX2Neg, TIB2, phi5deg, -70., 70., 1000.},            // 43
-      {FPIX2Neg, TID1Neg2D, phi5deg, -70., 70., 1000.},       // 44
-      {FPIX2Neg, TID2Neg2D, phi5deg, -70., 70., 1000.},       // 45
-      {FPIX2Neg, TID3Neg2D, phi5deg, -70., 70., 1000.},       // 46
-      {FPIX3Neg, TIB2, phi5deg, -70., 70., 1000.},            // 47
-      {BPIX2, FPIX2Neg, phi5deg, -30., 0., 1000.}             //  48
+  { BPIX1,    BPIX2,      phi0p05,  -20.,   20.,  20.           }, // 0                                                                                          
+  { BPIX1,    FPIX1Pos,   phi0p07,  0.,     30.,  9.            }, // 1                                                                                         
+  { BPIX1,    FPIX1Neg,   phi0p07,  -30.,   0.,   9.            }, // 2                                                                                         
+  { BPIX2,    BPIX3,      phi0p05,  -22.,   22.,  20.           }, // 3                                                                                                            
+  { BPIX2,    FPIX1Pos,   phi0p07,  10.,    30.,  7.            }, // 4                                                                                                            
+  { BPIX2,    FPIX1Neg,   phi0p06,  -30.,   -10., 7.            }, // 5                                                                                                            
+  { FPIX1Pos, FPIX2Pos,   phi0p06,  -70.,   70.,  5.            }, // 6                                                                                                            
+  { FPIX1Neg, FPIX2Neg,   phi0p05,  -70.,   70.,  5.            }, // 7                                                                                                            
+  { BPIX1,    BPIX3,      phi0p05,  -20.,   20.,  20.           }, // 8                                                                                           
+  { BPIX2,    BPIX4,      phi0p05,  -22.,   22.,  20.           }, // 9                                                                                                            
+  { BPIX1,    FPIX2Pos,   phi0p06,    0.,   30.,  9.            }, // 10                                                                                          
+  { BPIX1,    FPIX2Neg,   phi0p05,  -30.,   0.,   9.            }, // 11                                                                
+  { FPIX1Pos, TIB1,       1200,  -70.,   70.,  1000.            }, // 12                                                                                                             
+  { FPIX1Neg, TIB1,       1200,  -70.,   70.,  1000.            }, // 13                                                                                                             
+  { BPIX3,    BPIX4,      phi0p06,  -22.,   22.,  20.           }, // 14                                                                                                             
+  { BPIX3,    FPIX1Pos,   phi0p07,  15.,    30.,  6.            }, // 15                                                                                                             
+  { BPIX3,    FPIX1Neg,   phi0p06,  -30,   -15.,  6.            }, // 16                                                                                                             
+  { FPIX2Pos, FPIX3Pos,   phi0p06,  -70.,   70.,  5.            }, // 17                                                                                                             
+  { FPIX2Neg, FPIX3Neg,   phi0p05,  -70.,   70.,  5.            }, // 18                                                                                                             
+  { BPIX3,    TIB1,       phi5deg,  -22.,   22.,   1000.        }, // 19                                                                                                             
+  { BPIX4,    TIB1,       phi5deg,  -22.,   22.,   1000.        }, // 20                                                                                                             
+  { BPIX4,    TIB2,       phi5deg,  -22.,   22.,   1000.        }, // 21                                                                                                             
+  { TIB1,     TIB2,       phi5deg,  -55.,   55.,   1000.        }, // 22                                                                                                             
+  { FPIX2Neg, TIB1,       phi5deg,  -70.,   70.,   1000.        }, // 23                                                                                                             
+  { FPIX3Neg, TIB1,       phi5deg,  -70.,   70.,   1000.        }, // 24                                                                                                             
+  { TIB1,     TID1Neg2D,  phi5deg,  -55.,   0.,    1000.        }, // 25                                                                                                             
+  { TIB2,     TID1Neg2D,  phi5deg,  -55.,   0.,    1000.        }, // 26                                                                                                             
+  { BPIX2,    TIB1,       phi5deg,  -22.,   0.,    1000.        }, // 27                                                                                                             
+  { BPIX2,    TIB2,       phi5deg,  -22.,   0.,    1000.        }, // 28                                                                                                             
+  { BPIX1,    TIB1,       phi5deg,  -22.,   0.,    1000.        }, // 29                                                                                                             
+  { BPIX3,    TIB2,       phi5deg,  -22.,   22.,   1000.        }, // 30                                                                                                             
+  { BPIX4,    TID1Neg2D,  phi5deg,  -55.,  0.,    1000.         }, // 31                                                                                                             
+  { FPIX1Pos, FPIX3Pos,   phi0p06,  -70.,   70.,      9.        }, // 32                                                                                                             
+  { FPIX1Neg, FPIX3Neg,   phi0p05,  -70.,   70.,      9.        }, // 33                                                                                                             
+  { FPIX1Neg, TIB2,       phi5deg,  -70.,   70.,   1000.        }, // 34                                                                                                             
+  { FPIX2Neg, TIB2,       phi5deg,  -70.,   70.,   1000.        }, // 35                                                                                                             
+  { FPIX3Neg, TIB2,       phi5deg,  -70.,   70.,   1000.        }, // 36                                                                                                             
+  { BPIX2,    FPIX2Neg,   phi5deg,  -30.,   0.,   1000.         } //  37     
   };
 
   constexpr uint32_t maxNumClustersPerModules = 1024;
@@ -301,4 +290,4 @@ namespace pixelTopology {
 
 }  // namespace pixelTopology
 
-#endif  // Geometry_CommonTopologies_SimplePixelStripTopology_h
+#endif  // Geometry_CommonTopologies_SimpleSeedingLayersTopology_h

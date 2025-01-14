@@ -8,7 +8,7 @@
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
 #include "DataFormats/TrackSoA/interface/TracksDevice.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
+#include "Geometry/CommonTopologies/interface/SimpleSeedingLayersTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AssertDeviceMatchesHostCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"

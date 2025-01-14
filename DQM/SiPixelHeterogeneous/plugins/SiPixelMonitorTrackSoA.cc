@@ -22,7 +22,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
 #include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
+#include "Geometry/CommonTopologies/interface/SimpleSeedingLayersTopology.h"
 // for string manipulations
 #include <fmt/printf.h>
 

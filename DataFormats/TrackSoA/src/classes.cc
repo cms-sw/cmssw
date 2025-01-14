@@ -1,6 +1,6 @@
 #include "DataFormats/Portable/interface/PortableHostCollectionReadRules.h"
 #include "DataFormats/TrackSoA/interface/TracksSoA.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
+#include "Geometry/CommonTopologies/interface/SimpleSeedingLayersTopology.h"
 
 using namespace reco;
 

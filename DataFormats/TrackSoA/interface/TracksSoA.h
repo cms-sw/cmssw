@@ -7,7 +7,7 @@
 
 #include "HeterogeneousCore/AlpakaInterface/interface/OneToManyAssoc.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
+#include "Geometry/CommonTopologies/interface/SimpleSeedingLayersTopology.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 

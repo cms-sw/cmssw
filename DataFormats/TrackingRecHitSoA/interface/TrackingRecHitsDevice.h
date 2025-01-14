@@ -9,7 +9,7 @@
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsHost.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
+#include "Geometry/CommonTopologies/interface/SimpleSeedingLayersTopology.h"
 
 template <typename TrackerTraits, typename TDev>
 class TrackingRecHitDevice : public PortableDeviceCollection<TrackingRecHitLayout<TrackerTraits>, TDev> {

@@ -161,14 +161,6 @@ def configureFrameSoAESProducers(process):
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customiseForOffline(process)
-    # Pixel+Strip HLT
-    #from Configuration.ProcessModifiers.stripNtupletFit_cff import stripNtupletFit 
-    #from HLTrigger.Configuration.customizeHLTforAlpakaStripNoDoubletRecovery import customizeHLTforAlpakaStripNoDoubletRecovery
-    #(stripNtupletFit).makeProcessModifier(customizeHLTforAlpakaStripNoDoubletRecovery).apply(process)
-     
-    #from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
-    #from HLTrigger.Configuration.customizeHLTforAlpakaStrip import customizeHLTforAlpakaStrip
-    #(stripNtupletFit).makeProcessModifier(customizeHLTforAlpakaStrip).apply(process)
     process = configureFrameSoAESProducers(process)
      
     # add call to action function in proper order: newest last!

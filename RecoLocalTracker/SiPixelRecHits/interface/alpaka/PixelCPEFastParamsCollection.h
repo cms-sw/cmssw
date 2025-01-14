@@ -8,7 +8,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFastParamsDevice.h"
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
+#include "Geometry/CommonTopologies/interface/SimpleSeedingLayersTopology.h"
 
 // TODO: The class is created via inheritance of the PortableCollection.
 // This is generally discouraged, and should be done via composition.

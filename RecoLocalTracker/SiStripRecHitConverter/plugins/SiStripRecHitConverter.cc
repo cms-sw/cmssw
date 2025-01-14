@@ -17,7 +17,6 @@ SiStripRecHitConverter::SiStripRecHitConverter(edm::ParameterSet const& conf)
   produces<SiStripRecHit2DCollection>(rphiRecHitsTag);
   produces<SiStripRecHit2DCollection>(stereoRecHitsTag);
   if (doMatching) {
-    //std::cout << "Running the module that produces strip hits" << std::endl;
     produces<SiStripMatchedRecHit2DCollection>(matchedRecHitsTag);
     produces<SiStripRecHit2DCollection>(rphiRecHitsTag + "Unmatched");
     produces<SiStripRecHit2DCollection>(stereoRecHitsTag + "Unmatched");
@@ -54,8 +53,6 @@ void SiStripRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es) {
   e.put(std::move(output.rphi), rphiRecHitsTag);
   e.put(std::move(output.stereo), stereoRecHitsTag);
   if (doMatching) {
-    //std::cout << "found\n"
-    //        << output.matched->dataSize() << "  clusters in matched detectors\n";
     e.put(std::move(output.matched), matchedRecHitsTag);
     e.put(std::move(output.rphiUnmatched), rphiRecHitsTag + "Unmatched");
     e.put(std::move(output.stereoUnmatched), stereoRecHitsTag + "Unmatched");

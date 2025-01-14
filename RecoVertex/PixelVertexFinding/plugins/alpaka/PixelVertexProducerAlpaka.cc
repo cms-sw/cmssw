@@ -1,7 +1,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
+#include "Geometry/CommonTopologies/interface/SimpleSeedingLayersTopology.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"

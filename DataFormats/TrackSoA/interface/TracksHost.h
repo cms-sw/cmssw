@@ -9,7 +9,7 @@
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 #include "DataFormats/TrackSoA/interface/TracksSoA.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
+#include "Geometry/CommonTopologies/interface/SimpleSeedingLayersTopology.h"
 
 // TODO: The class is created via inheritance of the PortableHostCollection.
 // This is generally discouraged, and should be done via composition.

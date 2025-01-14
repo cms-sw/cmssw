@@ -25,7 +25,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
 
-#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
+#include "Geometry/CommonTopologies/interface/SimpleSeedingLayersTopology.h"
 
 template <typename T>
 class SiPixelMonitorTrackSoAAlpaka : public DQMEDAnalyzer {

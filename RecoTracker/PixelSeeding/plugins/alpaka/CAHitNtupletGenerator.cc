@@ -21,7 +21,7 @@
 #include "CAPixelDoublets.h"
 #include "CAPixelDoubletsAlgos.h"
 
-#include "Geometry/CommonTopologies/interface/SimplePixelStripTopology.h"
+#include "Geometry/CommonTopologies/interface/SimpleSeedingLayersTopology.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace {

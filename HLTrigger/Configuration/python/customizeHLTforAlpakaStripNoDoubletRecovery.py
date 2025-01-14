@@ -6,124 +6,6 @@ from FWCore.ParameterSet.MassReplace import massReplaceInputTag
 from HeterogeneousCore.AlpakaCore.functions import *
 from HLTrigger.Configuration.common import *
 
-## Pixel HLT in Alpaka
-def customizeHLTforDQMGPUvsCPUPixel(process):
-    '''Ad-hoc changes to test HLT config containing only DQM_PixelReconstruction_v and DQMGPUvsCPU stream
-       only up to the Pixel Local Reconstruction
-    '''
-    dqmPixelRecoPathName = None
-    for pathName in process.paths_():
-        if pathName.startswith('DQM_PixelReconstruction_v'):
-            dqmPixelRecoPathName = pathName
-            break
-
-    if dqmPixelRecoPathName == None:
-        return process
-
-    for prod in producers_by_type(process, 'SiPixelPhase1MonitorRecHitsSoAAlpaka'):
-        return process
-
-    # modify EventContent of DQMGPUvsCPU stream
-    try:
-        outCmds_new = [foo for foo in process.hltOutputDQMGPUvsCPU.outputCommands if 'Pixel' not in foo]
-        outCmds_new += [
-            'keep *Cluster*_hltSiPixelClusters_*_*',
-            'keep *Cluster*_hltSiPixelClustersSerialSync_*_*',
-            'keep *_hltSiPixelDigiErrors_*_*',
-            'keep *_hltSiPixelDigiErrorsSerialSync_*_*',
-            'keep *RecHit*_hltSiPixelRecHits_*_*',
-            'keep *RecHit*_hltSiPixelRecHitsSerialSync_*_*',
-            'keep *_hltPixelTracks_*_*',
-            'keep *_hltPixelTracksSerialSync_*_*',
-            'keep *_hltPixelVertices_*_*',
-            'keep *_hltPixelVerticesSerialSync_*_*',
-        ]
-        process.hltOutputDQMGPUvsCPU.outputCommands = outCmds_new[:]
-    except:
-        pass
-
-    # PixelRecHits: monitor of SerialSync product (Alpaka backend: 'serial_sync')
-    process.hltPixelRecHitsSoAMonitorCPU = cms.EDProducer('SiPixelPhase1MonitorRecHitsSoAAlpaka',
-        pixelHitsSrc = cms.InputTag('hltSiPixelRecHitsSoASerialSync'),
-        TopFolderName = cms.string('SiPixelHeterogeneous/PixelRecHitsCPU')
-    )
-
-    # PixelRecHits: monitor of GPU product (Alpaka backend: '')
-    process.hltPixelRecHitsSoAMonitorGPU = cms.EDProducer('SiPixelPhase1MonitorRecHitsSoAAlpaka',
-        pixelHitsSrc = cms.InputTag('hltSiPixelRecHitsSoA'),
-        TopFolderName = cms.string('SiPixelHeterogeneous/PixelRecHitsGPU')
-    )
-
-    # PixelRecHits: 'GPUvsCPU' comparisons
-    process.hltPixelRecHitsSoACompareGPUvsCPU = cms.EDProducer('SiPixelPhase1CompareRecHitsSoAAlpaka',
-        pixelHitsSrcHost = cms.InputTag('hltSiPixelRecHitsSoASerialSync'),
-        pixelHitsSrcDevice = cms.InputTag('hltSiPixelRecHitsSoA'),
-        topFolderName = cms.string('SiPixelHeterogeneous/PixelRecHitsCompareGPUvsCPU'),
-        minD2cut = cms.double(1.0e-4)
-    )
-
-    process.hltPixelTracksSoAMonitorCPU = cms.EDProducer("SiPixelPhase1MonitorTrackSoAAlpaka",
-        minQuality = cms.string('loose'),
-        pixelTrackSrc = cms.InputTag('hltPixelTracksSoASerialSync'),
-        topFolderName = cms.string('SiPixelHeterogeneous/PixelTrackCPU'),
-        useQualityCut = cms.bool(True)
-    )
-
-    process.hltPixelTracksSoAMonitorGPU = cms.EDProducer("SiPixelPhase1MonitorTrackSoAAlpaka",
-        minQuality = cms.string('loose'),
-        pixelTrackSrc = cms.InputTag('hltPixelTracksSoA'),
-        topFolderName = cms.string('SiPixelHeterogeneous/PixelTrackGPU'),
-        useQualityCut = cms.bool(True)
-    )
-
-    process.hltPixelTracksSoACompareGPUvsCPU = cms.EDProducer("SiPixelPhase1StripCompareTrackSoAAlpaka",
-        deltaR2cut = cms.double(0.04),
-        minQuality = cms.string('loose'),
-        pixelTrackSrcHost = cms.InputTag("hltPixelTracksSoASerialSync"),
-        pixelTrackSrcDevice = cms.InputTag("hltPixelTracksSoA"),
-        topFolderName = cms.string('SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU'),
-        useQualityCut = cms.bool(True)
-    )
-
-    process.hltPixelVertexSoAMonitorCPU = cms.EDProducer("SiPixelMonitorVertexSoAAlpaka",
-        beamSpotSrc = cms.InputTag("hltOnlineBeamSpot"),
-        pixelVertexSrc = cms.InputTag("hltPixelVerticesSoASerialSync"),
-        topFolderName = cms.string('SiPixelHeterogeneous/PixelVertexCPU')
-    )
-
-    process.hltPixelVertexSoAMonitorGPU = cms.EDProducer("SiPixelMonitorVertexSoAAlpaka",
-        beamSpotSrc = cms.InputTag("hltOnlineBeamSpot"),
-        pixelVertexSrc = cms.InputTag("hltPixelVerticesSoA"),
-        topFolderName = cms.string('SiPixelHeterogeneous/PixelVertexGPU')
-    )
-
-    process.hltPixelVertexSoACompareGPUvsCPU = cms.EDProducer("SiPixelCompareVertexSoAAlpaka",
-        beamSpotSrc = cms.InputTag("hltOnlineBeamSpot"),
-        dzCut = cms.double(1),
-        pixelVertexSrcHost = cms.InputTag("hltPixelVerticesSoASerialSync"),
-        pixelVertexSrcDevice = cms.InputTag("hltPixelVerticesSoA"),
-        topFolderName = cms.string('SiPixelHeterogeneous/PixelVertexCompareGPUvsCPU')
-    )
-
-    process.HLTDQMPixelReconstruction = cms.Sequence(
-        process.hltPixelRecHitsSoAMonitorCPU
-      + process.hltPixelRecHitsSoAMonitorGPU
-      + process.hltPixelRecHitsSoACompareGPUvsCPU
-      + process.hltPixelTracksSoAMonitorCPU
-      + process.hltPixelTracksSoAMonitorGPU
-      + process.hltPixelTracksSoACompareGPUvsCPU
-      + process.hltPixelVertexSoAMonitorCPU
-      + process.hltPixelVertexSoAMonitorGPU
-      + process.hltPixelVertexSoACompareGPUvsCPU
-    )
-
-    for delMod in ['hltPixelConsumerCPU', 'hltPixelConsumerGPU']:
-        if hasattr(process, delMod):
-            process.__delattr__(delMod)
-
-    return process
-
-
 def customizeHLTforAlpakaPixelRecoLocal(process):
     '''Customisation to introduce the Local Pixel Reconstruction in Alpaka
     '''
@@ -333,9 +215,9 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
     process.HLTDoLocalPixelSequence = cms.Sequence(
         process.hltOnlineBeamSpotDevice+
         process.hltSiPixelClustersSoA+
-        process.hltSiPixelClusters+                                                                                                                               
-        process.hltSiPixelClustersCache+                                                                                                                                       
-        process.hltSiPixelDigiErrors+                                                                                                                                        
+        process.hltSiPixelClusters+                                                                                                                     
+        process.hltSiPixelClustersCache+                                                                                                               
+        process.hltSiPixelDigiErrors+                                                                                                                   
         process.hltSiStripRawToClustersFacility+
         process.hltSiStripMatchedRecHitsFull+
         process.hltSiPixelOnlyRecHitsSoA+
@@ -461,15 +343,15 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
         pixelRecHitSrc = cms.InputTag('hltSiPixelRecHitsSoA'),
         frameSoA = cms.string('FrameSoAPhase1Strip'),
         ptmin = cms.double(0.9),
-        maxNumberOfDoublets = cms.uint32(10*256*1024),
+        maxNumberOfDoublets = cms.uint32(4*256*1024),
         CAThetaCutBarrel = cms.double(0.002),
         CAThetaCutForward = cms.double(0.003),
         hardCurvCut = cms.double(0.0328407225),
         dcaCutInnerTriplet = cms.double(0.15),
         dcaCutOuterTriplet = cms.double(0.25),
         CAThetaCutBarrelPixelBarrelStrip = cms.double(0.002),
-        CAThetaCutBarrelPixelForwardStrip = cms.double(0.003),
-        CAThetaCutBarrelStripForwardStrip = cms.double(0.003),
+        CAThetaCutBarrelPixelForwardStrip = cms.double(0.002),
+        CAThetaCutBarrelStripForwardStrip = cms.double(0.002),
         CAThetaCutBarrelStrip = cms.double(0.002),
         CAThetaCutDefault = cms.double(0.003),
         dcaCutInnerTripletPixelStrip = cms.double(0.15),
@@ -487,9 +369,9 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
 	cellZ0Cut = cms.double(10.0),
         cellPtCut = cms.double(0.5),
         doPtCut = cms.bool(True),
-        useRemovers = cms.bool(False),
+        useRemovers = cms.bool(True),
         useRiemannFit = cms.bool(False),
-        doSharedHitCut = cms.bool(False), #originall True                                                                                              
+        doSharedHitCut = cms.bool(True), #originall True                                                                                              
         dupPassThrough = cms.bool(False), #originall False                                                                                             
         useSimpleTripletCleaner = cms.bool(True),#originally True,                                                                                     
         idealConditions = cms.bool(False),
@@ -508,22 +390,9 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
           quadrupletMaxTip = cms.double(0.5),
           quadrupletMaxZip = cms.double(12)
         ),
-    #minz = cms.vdouble(
-    # -20.0, 0.0, -30.0, -22.0, 10.0, -30.0, -70.0, -70.0, -20.0, -22.0, 0.0, -30.0, -70.0, -70.0, -22.0, 15.0, -30.0, -70.0, -70.0, -22.0, -22.0, -22.0, -55.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -1000.0, -1000.0, -1000.0, -1000.0, 0.0, -55.0, 0.0, -55.0, -22.0, -22.0, -22.0, -22.0, 0.0, -55.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -30.0, 0.0 ,#),
-# phicuts Good Cuts for Trk DPGv7 TTbar PU
-#phiCuts = cms.vint32(
-#     522, 730, 730, 522, 730, 626, 626, 522, 522, 522, 626, 522, 1200, 1200, 626, 730, 626, 626, 522, 5000, 5000, 5000, 5000, 0, 5000, 0, 0, 0, 0, 5000, 5000, 5000, 5000, 0, 0, 5000, 5000, 0, 5000, 0, 5000, 5000, 5000, 5000, 5000, 0, 5000, 626, 0, 0, 0, 0, 522, 5000, 5000, 5000, 5000, 0, 0, 0, 0, 5000, 5000, 5000, 5000, 0, 5000, 5000, 0 ,
-                                               #),
 phiCuts = cms.vint32(
-     522, 730, 730, 522, 730, 626, 626, 522, 522, 522, 626, 522, 1200, 1200, 626, 730, 626, 626, 522, 2000, 2000, 2000, 2000,  2000, 2000, 2000, 2000, 2000, 2000, 2000,  2000,  2000, 2000, 2000, 2000, 2000, 2000, 626,  522, 2000, 2000, 2000, 2000,  2000, 2000, 2000, 2000, 2000, 2000),
+     522, 730, 730, 522, 730, 626, 626, 522, 522, 522, 626, 522, 1200, 1200, 626, 730, 626, 626, 522, 2000, 2000, 2000, 2000,  2000, 2000, 2000, 2000, 2000, 2000, 2000,  2000,  2000, 626,  522, 2000, 2000, 2000, 2000),
 
-
-## Good Cuts for TTbar PU and No PU                                               
-#        phiCuts = cms.vint32( 522, 730, 730, 522, 730, 626, 626, 522, 522, 522, 626, 522, 1200, 1200, 626, 730, 626, 626, 522, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 626, 5000, 5000, 5000, 5000, 522, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000,
-#        ),
-#minz = cms.vdouble(
-#     -20.0, 0.0, -30.0, -22.0, 10.0, -30.0, -70.0, -70.0, -20.0, -22.0, 0.0, -30.0, -70.0, -70.0, -22.0, 15.0, -30.0, -70.0, -70.0, -22.0, -22.0, -22.0, -55.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -1000.0, -1000.0, -1000.0, -1000.0, 0.0, -55.0, 0.0, -55.0, -22.0, -22.0, -22.0, -22.0, 0.0, -55.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -70.0, -30.0, 0.0 ,
-                                               #),
         # autoselect the alpaka backend
         alpaka = cms.untracked.PSet(
             backend = cms.untracked.string('')
@@ -668,7 +537,6 @@ def customizeHLTforAlpakaPixelReco(process):
     process = customizeHLTforAlpakaPixelRecoLocal(process)
     process = customizeHLTforAlpakaPixelRecoTracking(process)
     process = customizeHLTforAlpakaPixelRecoVertexing(process)
-    process = customizeHLTforDQMGPUvsCPUPixel(process)
 
     return process
 
@@ -786,7 +654,7 @@ def customizeHLTforAlpakaRename(process):
     return process
 
 
-def customizeHLTforAlpakaStripNoDoubletRecovery(process):
+def customizeHLTforAlpakaStripNoDoubletRecoveryIncreseDoublets(process):
     print("applying AlpakaCustomizer")
     process = customizeHLTforAlpakaStatus(process)
     process = customizeHLTforAlpakaPixelReco(process)
