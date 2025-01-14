@@ -365,7 +365,7 @@ void Phase2OTValidateTTStub::analyze(const edm::Event& iEvent, const edm::EventS
         layer = -1;
       }
 
-      int isPSmodule = (topo.nrows() == 960) ? 1 : 0;
+      bool isPSmodule = tkGeom_->getDetectorType(detid) == TrackerGeometry::ModuleType::Ph2PSP;
 
       // Calculate local coordinates of clusters
       MeasurementPoint innerClusterCoords = tempStubPtr->clusterRef(0)->findAverageLocalCoordinatesCentered();
