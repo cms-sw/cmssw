@@ -39,6 +39,7 @@ private:
   double const fMaxEta_;
   unsigned int const fMaxJets_;
   int const fNParticles_;
+  std::vector<l1ct::JetTagClass> classes_;
 
   hls4mlEmulator::ModelLoader loader;
   std::shared_ptr<hls4mlEmulator::Model> model;
@@ -52,32 +53,46 @@ L1MultiJetProducer::L1MultiJetProducer(const edm::ParameterSet& cfg)
       fMaxJets_(cfg.getParameter<int>("maxJets")),
       fNParticles_(cfg.getParameter<int>("nParticles")),
       loader(hls4mlEmulator::ModelLoader(cfg.getParameter<string>("MultiJetPath"))) {
+  std::vector<std::string> classes = cfg.getParameter<std::vector<std::string>>("classes");
+  for(unsigned i = 0; i < classes.size(); i++){
+    classes_.push_back(l1ct::JetTagClass(classes[i]));
+  }
   model = loader.load_model();
   fJetId_ = std::make_unique<MultiJetId>(model, fNParticles_);
-  produces<edm::ValueMap<std::vector<float>>>("L1PFMultiJets");
+  produces<l1t::PFJetCollection>("L1PFMultiJets");
 }
 
 void L1MultiJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<l1t::PFJet>> jets;
   iEvent.getByToken(jets_, jets);
-
-  std::vector<std::vector<float>> jetScores;
+  std::vector<l1t::PFJet> taggedJets;
 
   for (const auto& srcjet : *jets) {
+    l1ct::Jet ctHWTaggedJet = l1ct::Jet::unpack(srcjet.encodedJet(l1t::PFJet::HWEncoding::CT));
     if (((fUseRawPt_ ? srcjet.rawPt() : srcjet.pt()) < fMinPt_) || std::abs(srcjet.eta()) > fMaxEta_ ||
-        jetScores.size() >= fMaxJets_) {
-      jetScores.push_back({-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.});
+        taggedJets.size() >= fMaxJets_) {
+      ctHWTaggedJet.clear();
       continue;
     }
     std::vector<float> JetScore_float = fJetId_->computeFixed(srcjet, fUseRawPt_);
-    jetScores.push_back(JetScore_float);
+    for(unsigned i = 0; i < JetScore_float.size(); i++){
+      ctHWTaggedJet.hwTagScores[i] = JetScore_float[i];
+    }
+    l1gt::Jet gtHWTaggedJet = ctHWTaggedJet.toGT();
+    // TODO set the regressed pT instead of the srcjet pt
+    l1t::PFJet edmTaggedJet(srcjet.pt(), srcjet.eta(), srcjet.phi(), srcjet.mass(),
+                            gtHWTaggedJet.v3.pt.V, gtHWTaggedJet.v3.eta.V, gtHWTaggedJet.v3.phi.V
+                           );
+    std::cout << "Jet (pT, eta, phi) = (" << edmTaggedJet.pt() << ", " << edmTaggedJet.eta() << ", " << edmTaggedJet.phi() << ")" << std::endl;
+    edmTaggedJet.setEncodedJet(l1t::PFJet::HWEncoding::CT, ctHWTaggedJet.pack());
+    edmTaggedJet.setEncodedJet(l1t::PFJet::HWEncoding::GT, gtHWTaggedJet.pack());
+    taggedJets.push_back(edmTaggedJet);
   }
+  std::sort(taggedJets.begin(), taggedJets.end(), [](l1t::PFJet a, l1t::PFJet b){ return (a.pt() > b.pt()); });
 
-  auto outT = std::make_unique<edm::ValueMap<std::vector<float>>>();
-  edm::ValueMap<std::vector<float>>::Filler fillerT(*outT);
-  fillerT.insert(jets, jetScores.begin(), jetScores.end());
-  fillerT.fill();
-  iEvent.put(std::move(outT), "L1PFMultiJets");
+  std::unique_ptr<l1t::PFJetCollection> taggedJetsCollection(new l1t::PFJetCollection);
+  taggedJetsCollection->swap(taggedJets);
+  iEvent.put(std::move(taggedJetsCollection), "L1PFMultiJets");
 }
 
 
@@ -91,6 +106,7 @@ void L1MultiJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("minPt", 20);
   desc.add<double>("maxEta", 2.4);
   desc.add<edm::InputTag>("vtx", edm::InputTag("L1VertexFinderEmulator", "L1VerticesEmulation"));
+  desc.add<std::vector<std::string>>("classes", {"uds", "g", "b", "c", "tau_p", "tau_n", "e", "mu"});
   descriptions.add("L1MultiJetProducer", desc);
 }
 

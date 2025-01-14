@@ -8,7 +8,9 @@ l1tMultiJetProducerPuppi = L1MultiJetProducer.clone(
     maxJets = 16,
     minPt = 10,
     vtx = ("l1tVertexFinderEmulator","L1VerticesEmulation"),
-    MultiJetPath = cms.string(os.environ['CMSSW_BASE']+"/src/hls4ml-jettagger/MultiJetBaseline")
+    MultiJetPath = cms.string(os.environ['CMSSW_BASE']+"/src/hls4ml-jettagger/MultiJetBaseline"),
+    # TODO correct the classes
+    classes = cms.vstring(["uds", "g", "b", "c", "tau_p", "tau_n", "e", "mu"])
 )
 
 

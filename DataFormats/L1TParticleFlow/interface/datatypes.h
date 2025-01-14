@@ -35,6 +35,7 @@ namespace l1ct {
   typedef ap_uint<4> redChi2Bin_t;
   typedef ap_fixed<10, 1, AP_RND_CONV, AP_SAT> id_score_t;  // ID score to be between -1 (background) and 1 (signal)
   typedef ap_ufixed<10, 1, AP_RND, AP_SAT> b_tag_score_t;   // result_t from the NN is still apx_fixed<16,6>
+  typedef ap_ufixed<8, 1, AP_RND_CONV, AP_SAT> jet_tag_score_t; // 8 bit jet jet probability from 0 to 1
 
   // FIXME: adjust range 10-11bits -> 1/4 - 1/2TeV is probably more than enough for all reasonable use cases
   typedef ap_ufixed<11, 9, AP_TRN, AP_SAT> iso_t;
