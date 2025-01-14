@@ -39,27 +39,31 @@ void HcalCellKount::fillDescriptions(edm::ConfigurationDescriptions& description
 }
 
 void HcalCellKount::analyze(edm::Event const& /*iEvent*/, const edm::EventSetup& iSetup) {
-  const CaloGeometry *geo = &iSetup.getData(tok_geom_);
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
 
   // ECAL
   const CaloSubdetectorGeometry* bGeom = geo->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  if (bGeom != nullptr) 
-    edm::LogVerbatim("HCalGeom") << "Valid ID for EcalBarrel: " << bGeom->getValidDetIds(DetId::Ecal, EcalBarrel).size();
+  if (bGeom != nullptr)
+    edm::LogVerbatim("HCalGeom") << "Valid ID for EcalBarrel: "
+                                 << bGeom->getValidDetIds(DetId::Ecal, EcalBarrel).size();
   else
     edm::LogVerbatim("HCalGeom") << "EB Geometry does not exist";
   const CaloSubdetectorGeometry* eGeom = geo->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  if (eGeom != nullptr) 
-    edm::LogVerbatim("HCalGeom") << "Valid ID for EcalEndcap: " << eGeom->getValidDetIds(DetId::Ecal, EcalEndcap).size();
+  if (eGeom != nullptr)
+    edm::LogVerbatim("HCalGeom") << "Valid ID for EcalEndcap: "
+                                 << eGeom->getValidDetIds(DetId::Ecal, EcalEndcap).size();
   else
     edm::LogVerbatim("HCalGeom") << "EE Geometry does not exist";
   const CaloSubdetectorGeometry* sGeom = geo->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  if (sGeom != nullptr) 
-    edm::LogVerbatim("HCalGeom") << "Valid ID for EcalPreshower: " << sGeom->getValidDetIds(DetId::Ecal, EcalPreshower).size();
+  if (sGeom != nullptr)
+    edm::LogVerbatim("HCalGeom") << "Valid ID for EcalPreshower: "
+                                 << sGeom->getValidDetIds(DetId::Ecal, EcalPreshower).size();
   else
     edm::LogVerbatim("HCalGeom") << "ES Geometry does not exist";
   const CaloSubdetectorGeometry* tGeom = geo->getSubdetectorGeometry(DetId::Ecal, EcalTriggerTower);
-  if (tGeom != nullptr) 
-    edm::LogVerbatim("HCalGeom") << "Valid ID for EcalTriggerTower: " << tGeom->getValidDetIds(DetId::Ecal, EcalTriggerTower).size();
+  if (tGeom != nullptr)
+    edm::LogVerbatim("HCalGeom") << "Valid ID for EcalTriggerTower: "
+                                 << tGeom->getValidDetIds(DetId::Ecal, EcalTriggerTower).size();
   else
     edm::LogVerbatim("HCalGeom") << "EcalTriggerTower Geometry does not exist";
 
@@ -69,12 +73,14 @@ void HcalCellKount::analyze(edm::Event const& /*iEvent*/, const edm::EventSetup&
     edm::LogVerbatim("HCalGeom") << "Valid ID for HcalBarrel: " << gHB->getValidDetIds(DetId::Hcal, HcalBarrel).size();
     edm::LogVerbatim("HCalGeom") << "Valid ID for HcalEndcap: " << gHB->getValidDetIds(DetId::Hcal, HcalEndcap).size();
     edm::LogVerbatim("HCalGeom") << "Valid ID for HcalOuter: " << gHB->getValidDetIds(DetId::Hcal, HcalOuter).size();
-    edm::LogVerbatim("HCalGeom") << "Valid ID for HcalForward: " << gHB->getValidDetIds(DetId::Hcal, HcalForward).size();
-    edm::LogVerbatim("HCalGeom") << "Valid ID for HcalTriggerTower: " << gHB->getValidDetIds(DetId::Hcal, HcalTriggerTower).size();
+    edm::LogVerbatim("HCalGeom") << "Valid ID for HcalForward: "
+                                 << gHB->getValidDetIds(DetId::Hcal, HcalForward).size();
+    edm::LogVerbatim("HCalGeom") << "Valid ID for HcalTriggerTower: "
+                                 << gHB->getValidDetIds(DetId::Hcal, HcalTriggerTower).size();
   } else {
     edm::LogVerbatim("HCalGeom") << "HCAL Geometry does not exist";
   }
-  
+
   //HGCAL
   const CaloSubdetectorGeometry* gHGEE = geo->getSubdetectorGeometry(DetId::HGCalEE, 0);
   if (gHGEE != nullptr)
