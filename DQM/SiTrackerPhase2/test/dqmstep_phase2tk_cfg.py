@@ -2,6 +2,13 @@
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
+
+# This configuration file runs the first step of the DQM sequence.
+# Usage:
+# cmsRun dqmstep_phase2tk_cfg.py
+# Output:
+# step3_pre4_inDQM.root - input for the next step in the DQM sequence, harvestingstep_phase2tk_cfg.py
+
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: step3 --conditions auto:phase2_realistic_T21 -s RAW2DIGI,L1Reco,RECO,RECOSIM,VALIDATION:@phase2Validation,DQM:@phase2 --datatier DQMIO -n 10 --geometry Extended2026D98 --era Phase2C11M9 --eventcontent DQM --no_exec
 import FWCore.ParameterSet.Config as cms

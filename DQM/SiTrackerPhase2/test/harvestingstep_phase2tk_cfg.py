@@ -1,9 +1,15 @@
-
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
+
+# This configuration file runs the second step of the DQM sequence.
+# Usage:
+# cmsRun harvestingstep_phase2tk_cfg.py
+# Output:
+# DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root - for local visualization of histograms
+
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step4 --conditions auto:phase2_realistic_T21 -s HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM --scenario pp --filetype DQM --geometry Extended2026D98 --era Phase2C11M9 --mc -n -1 --no_exec
+# with command line options: step4 --conditions auto:phase2_realistic_T21 -s HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM --scenario pp --filetype DQM --geometry ExtendedRun4D98 --era Phase2C11M9 --mc -n -1 --no_exec
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
