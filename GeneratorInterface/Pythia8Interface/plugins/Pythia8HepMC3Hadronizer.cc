@@ -903,7 +903,7 @@ bool Pythia8HepMC3Hadronizer::residualDecay() {
 
   bool result = true;
 
-  for (const auto& p : (event3().get())->particles()) {
+  for (const auto &p : (event3().get())->particles()) {
     if (p->id() > NPartsBeforeDecays) {
       if (p->status() == 1 && (fDecayer->particleData).canDecay(p->pid())) {
         fDecayer->event.reset();
