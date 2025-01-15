@@ -184,13 +184,13 @@ namespace edm {
       // it should be called here
       //
       if (decayer_) {
-        if (ivhepmc == 2) { // handle HepMC2
+        if (ivhepmc == 2) {  // handle HepMC2
           auto t = decayer_->decay(event.get());
           if (t != event.get()) {
             event.reset(t);
           }
         }
-        if (ivhepmc == 3) { // handle HepMC3
+        if (ivhepmc == 3) {  // handle HepMC3
           auto t = decayer_->decay(event3.get());
           if (t != event3.get()) {
             event3.reset(t);
