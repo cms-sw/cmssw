@@ -24,8 +24,6 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-//class MultiRecHitRecord;
-
 class DAFTrackProducer : public KfTrackProducerBase, public edm::stream::EDProducer<> {
 public:
   typedef std::vector<Trajectory> TrajectoryCollection;
@@ -34,6 +32,9 @@ public:
 
   // Implementation of produce method
   void produce(edm::Event&, const edm::EventSetup&) override;
+
+  /// fillDescriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   DAFTrackProducerAlgorithm theAlgo;
@@ -75,6 +76,18 @@ DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig)
   measurementCollectorToken_ = esConsumes(edm::ESInputTag("", measurementCollectorName));
   std::string updatorName = getConf().getParameter<std::string>("UpdatorName");
   updatorToken_ = esConsumes(edm::ESInputTag("", updatorName));
+}
+
+void DAFTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("TrajectoryInEvent", false);
+  desc.add<edm::InputTag>("src", edm::InputTag("DAFTrackCandidateMaker"));
+  desc.add<bool>("TrajAnnealingSaving", false);
+  desc.add<std::string>("MeasurementCollector", "simpleMultiRecHitCollector");
+  desc.add<std::string>("UpdatorName", "SiTrackerMultiRecHitUpdator");
+  KfTrackProducerBase::fillPSetDescription(desc);
+  DAFTrackProducerAlgorithm::fillPSetDescription(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup) {
