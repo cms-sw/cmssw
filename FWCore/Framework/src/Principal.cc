@@ -15,7 +15,7 @@
 #include "FWCore/Framework/src/ProductDeletedException.h"
 #include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
-#include "ProductResolvers.h"
+#include "DroppedDataProductResolver.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -166,12 +166,8 @@ namespace edm {
     return true;
   }
 
-  void Principal::addDelayedReaderInputProduct(std::shared_ptr<BranchDescription const> bd) {
-    addProductOrThrow(std::make_unique<DelayedReaderInputProductResolver>(std::move(bd)));
-  }
-
-  void Principal::addPutOnReadInputProduct(std::shared_ptr<BranchDescription const> bd) {
-    addProductOrThrow(std::make_unique<PutOnReadInputProductResolver>(std::move(bd)));
+  void Principal::addDroppedProduct(BranchDescription const& bd) {
+    addProductOrThrow(std::make_unique<DroppedDataProductResolver>(std::make_shared<BranchDescription const>(bd)));
   }
 
   // "Zero" the principal so it can be reused for another Event.
@@ -357,6 +353,7 @@ namespace edm {
 
   Principal::ConstProductResolverPtr Principal::getProductResolverByIndex(
       ProductResolverIndex const& index) const noexcept {
+    assert(index < productResolvers_.size());
     ConstProductResolverPtr const phb = productResolvers_[index].get();
     return phb;
   }
@@ -678,12 +675,9 @@ namespace edm {
           if (!productResolvers_[index]) {
             // no product holder.  Must add one. The new entry must be an input product holder.
             assert(!bd.produced());
-            auto cbd = std::make_shared<BranchDescription const>(bd);
-            if (bd.onDemand()) {
-              addDelayedReaderInputProduct(cbd);
-            } else {
-              addPutOnReadInputProduct(cbd);
-            }
+            assert(bd.dropped());
+            //adding the resolver allows access to the provenance for the data product
+            addDroppedProduct(bd);
             changed = true;
           }
         }

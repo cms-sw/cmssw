@@ -218,8 +218,7 @@ namespace edm {
     virtual void changedIndexes_() {}
 
     //called by adjustIndexesAfterProductRegistryAddition
-    void addDelayedReaderInputProduct(std::shared_ptr<BranchDescription const> bd);
-    void addPutOnReadInputProduct(std::shared_ptr<BranchDescription const> bd);
+    void addDroppedProduct(BranchDescription const& bd);
 
     WrapperBase const* getIt(ProductID const&) const override;
     std::optional<std::tuple<WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
