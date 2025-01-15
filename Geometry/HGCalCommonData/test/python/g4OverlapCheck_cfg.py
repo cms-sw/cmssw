@@ -3,7 +3,7 @@
 #   cmsRun g4OverlapCheck_cfg.py type=V17 tol=0.01
 #
 #   Options for type V16, V17, V17n, V17ng, V18, V18n, V18O, V19, Wafer,
-#                    WaferFR, WaferPR
+#                    WaferFR, WaferPR, V17Only
 #               tol 1.0, 0.1, 0.01, 0.0
 #
 ###############################################################################
@@ -18,7 +18,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17n, V7ng, V18, V18n, V18O, V19, Wafer, WaferFR, WaferPR")
+                  "type of operations: V16, V17, V17n, V7ng, V17Only, V18, V18n, V18O, V19, Wafer, WaferFR, WaferPR")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -33,6 +33,8 @@ from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 from Configuration.Eras.Modifier_phase2_hgcalOnly_cff import phase2_hgcalOnly
 
 if (options.type == "V18O"):
+    process = cms.Process("OverlapCheck",Phase2C17I13M9,phase2_hgcalOnly)
+elif (options.type == "V17Only"):
     process = cms.Process("OverlapCheck",Phase2C17I13M9,phase2_hgcalOnly)
 else:
     process = cms.Process("OverlapCheck",Phase2C17I13M9)
