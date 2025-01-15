@@ -903,9 +903,8 @@ bool Pythia8HepMC3Hadronizer::residualDecay() {
 
   bool result = true;
 
-  for (auto p : (event3().get())->particles()) {
-    if(p->id() > NPartsBeforeDecays) {
-
+  for (const auto& p : (event3().get())->particles()) {
+    if (p->id() > NPartsBeforeDecays) {
       if (p->status() == 1 && (fDecayer->particleData).canDecay(p->pid())) {
         fDecayer->event.reset();
         Particle py8part(p->pid(),
@@ -922,7 +921,9 @@ bool Pythia8HepMC3Hadronizer::residualDecay() {
                          p->momentum().t(),
                          p->generated_mass());
 
-        py8part.vProd(p->production_vertex()->position().x(), p->production_vertex()->position().y(), p->production_vertex()->position().z(),
+        py8part.vProd(p->production_vertex()->position().x(),
+                      p->production_vertex()->position().y(),
+                      p->production_vertex()->position().z(),
                       p->production_vertex()->position().t());
 
         py8part.tau((fDecayer->particleData).tau0(p->pid()));
@@ -938,21 +939,24 @@ bool Pythia8HepMC3Hadronizer::residualDecay() {
         p->set_status(2);
 
         HepMC3::GenVertexPtr prod_vtx0 = make_shared<HepMC3::GenVertex>(  // neglect particle path to decay
-          HepMC3::FourVector(p->production_vertex()->position().x(), p->production_vertex()->position().y(), p->production_vertex()->position().z(),
-                             p->production_vertex()->position().t()));
-        prod_vtx0->add_particle_in( p );
-        (event3().get())->add_vertex( prod_vtx0 );
-        HepMC3::GenParticle* pnew;
+            HepMC3::FourVector(p->production_vertex()->position().x(),
+                               p->production_vertex()->position().y(),
+                               p->production_vertex()->position().z(),
+                               p->production_vertex()->position().t()));
+        prod_vtx0->add_particle_in(p);
+        (event3().get())->add_vertex(prod_vtx0);
+        HepMC3::GenParticle *pnew;
         Pythia8::Event pyev = fDecayer->event;
         double momFac = 1.;
         for (int i = 2; i < pyev.size(); ++i) {
           // Fill the particle.
           pnew = new HepMC3::GenParticle(
-            HepMC3::FourVector( momFac * pyev[i].px(), momFac * pyev[i].py(),
-                                momFac * pyev[i].pz(), momFac * pyev[i].e()  ),
-            pyev[i].id(), pyev[i].statusHepMC() );
-          pnew->set_generated_mass( momFac * pyev[i].m() );
-          prod_vtx0->add_particle_out( pnew );
+              HepMC3::FourVector(
+                  momFac * pyev[i].px(), momFac * pyev[i].py(), momFac * pyev[i].pz(), momFac * pyev[i].e()),
+              pyev[i].id(),
+              pyev[i].statusHepMC());
+          pnew->set_generated_mass(momFac * pyev[i].m());
+          prod_vtx0->add_particle_out(pnew);
         }
       }
     }
