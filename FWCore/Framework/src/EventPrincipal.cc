@@ -238,7 +238,15 @@ namespace edm {
 
   unsigned int EventPrincipal::transitionIndex_() const { return streamID_.value(); }
 
-  void EventPrincipal::changedIndexes_() { provRetrieverPtr_->update(productRegistry()); }
+  void EventPrincipal::changedIndexes_() {
+    provRetrieverPtr_->update(productRegistry());
+    //If new Retrievers were added, we need to pass the provenance retriever
+    for (auto& prod : *this) {
+      if (prod->singleProduct()) {
+        prod->setProductProvenanceRetriever(productProvenanceRetrieverPtr());
+      }
+    }
+  }
 
   static void throwProductDeletedException(ProductID const& pid,
                                            edm::EventPrincipal::ConstProductResolverPtr const phb) {
