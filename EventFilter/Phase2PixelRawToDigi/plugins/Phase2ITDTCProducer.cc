@@ -29,8 +29,6 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
-#include "DataFormats/Phase2TrackerDigi/interface/Phase2ITDTCCollection.h"
-
 class Phase2TrackerDTCAssociator : public edm::one::EDProducer<> {
 public:
   explicit Phase2TrackerDTCAssociator(const edm::ParameterSet&);
