@@ -5,6 +5,7 @@
   <use name="DataFormats/DetId"/>
   <use name="DataFormats/FEDRawData"/>
   <use name="DataFormats/Phase2TrackerDigi"/>
+  <use name="CondFormats/SiPhase2TrackerObjects"/>
   <use name="EventFilter/Phase2PixelRawToDigi"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
