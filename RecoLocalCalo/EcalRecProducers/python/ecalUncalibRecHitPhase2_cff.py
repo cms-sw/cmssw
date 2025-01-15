@@ -33,9 +33,9 @@ from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitSoAToLegacy_cfi import ecal
 alpaka.toModify(ecalUncalibRecHitPhase2,
     cpu = _ecalUncalibRecHitSoAToLegacy.clone(
     isPhase2 = True,
-    uncalibRecHitsPortableEB = 'ecalUncalibRecHitPhase2Portable:EcalUncalibRecHitsEB',
-    uncalibRecHitsPortableEE = None,
-    recHitsLabelCPUEE = None
+    inputCollectionEB = 'ecalUncalibRecHitPhase2Portable:EcalUncalibRecHitsEB',
+    inputCollectionEE = None,
+    outputLabelEE = None
     )
 )
 

@@ -35,7 +35,7 @@ void EcalUncalibRecHitSoAToLegacy::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::string>("outputLabelEB", "EcalUncalibRecHitsEB");
   desc.ifValue(edm::ParameterDescription<bool>("isPhase2", false, true),
                false >> (edm::ParameterDescription<edm::InputTag>(
-			     "inputCollectionEB",
+                             "inputCollectionEB",
                              edm::InputTag("ecalMultiFitUncalibRecHitPortable", "EcalUncalibRecHitsEB"),
                              true) and
                          edm::ParameterDescription<edm::InputTag>(
@@ -43,7 +43,7 @@ void EcalUncalibRecHitSoAToLegacy::fillDescriptions(edm::ConfigurationDescriptio
                              edm::InputTag("ecalMultiFitUncalibRecHitPortable", "EcalUncalibRecHitsEE"),
                              true) and
                          edm::ParameterDescription<std::string>("outputLabelEE", "EcalUncalibRecHitsEE", true)) or
- 	           true >> (edm::ParameterDescription<edm::InputTag>(
+                   true >> (edm::ParameterDescription<edm::InputTag>(
                                "inputCollectionEB",
                                edm::InputTag("ecalUncalibRecHitPhase2Portable", "EcalUncalibRecHitsEB"),
                                true)));
