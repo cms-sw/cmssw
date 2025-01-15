@@ -290,7 +290,6 @@ HepMC3::GenEvent* PhotosppInterface::apply(HepMC3::GenEvent* evt) {
   Photospp::Photos::setRandomGenerator(PhotosppInterface::flat);
   if (!fIsInitialized)
     return evt;
-  int NPartBefore = evt->particles_size();
   Photospp::PhotosHepMC3Event PhotosEvt(evt);
   PhotosEvt.process();
   return evt;
