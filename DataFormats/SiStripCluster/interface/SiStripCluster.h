@@ -102,6 +102,8 @@ public:
   float getSplitClusterError() const { return error_x; }
   void setSplitClusterError(float errx) { error_x = errx; }
 
+  void initQB();
+
 private:
   std::vector<uint8_t> amplitudes_;
 
@@ -127,8 +129,6 @@ private:
   // The CPE will check these errors and if they are not un-physical,
   // it will recognize the clusters as split and assign these (increased)
   // errors to the corresponding rechit.
-
-  void initQB();
 };
 
 // Comparison operators
@@ -159,4 +159,5 @@ inline void SiStripCluster::initQB() {
   // Need to mask off the high bit of firstStrip_, which contains the merged status.
   barycenter_ = float((firstStrip_ & stripIndexMask)) + float(sumx) / float(suma) + 0.5f;
 }
+
 #endif  // DATAFORMATS_SISTRIPCLUSTER_H
