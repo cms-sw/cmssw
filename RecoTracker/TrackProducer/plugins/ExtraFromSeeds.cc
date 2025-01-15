@@ -19,7 +19,36 @@
 // system include files
 #include <memory>
 
-#include "RecoTracker/TrackProducer/plugins/ExtraFromSeeds.h"
+// user include files
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+//
+// class declaration
+//
+
+class ExtraFromSeeds : public edm::global::EDProducer<> {
+public:
+  explicit ExtraFromSeeds(const edm::ParameterSet&);
+  ~ExtraFromSeeds() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  const edm::EDGetTokenT<reco::TrackCollection> tracks_;
+  typedef std::vector<unsigned int> ExtremeLight;
+
+  // ----------member data ---------------------------
+};
 
 //
 // constructors and destructor
@@ -28,11 +57,6 @@ ExtraFromSeeds::ExtraFromSeeds(const edm::ParameterSet& iConfig)
     : tracks_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))) {
   produces<ExtremeLight>();
   produces<TrackingRecHitCollection>();
-}
-
-ExtraFromSeeds::~ExtraFromSeeds() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -72,9 +96,10 @@ void ExtraFromSeeds::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void ExtraFromSeeds::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
+  descriptions.addWithDefaultLabel(desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ExtraFromSeeds);
