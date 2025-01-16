@@ -33,63 +33,26 @@ print(options)
 
 ####################################################################
 # Use the options
-from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
-if (options.geometry == "D115"):
-    from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C20I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C20I13M9)
-elif (options.geometry == "D104"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-elif (options.geometry == "D106"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-elif (options.geometry == "D109"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-elif (options.geometry == "D111"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-elif (options.geometry == "D112"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-elif (options.geometry == "D113"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-else:
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C17I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
+geomName = "Run4" + options.geometry
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+print("Geometry Name:   ", geomName)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
 
 if (options.type == "DD4hep"):
-    geomFile = "Configuration.Geometry.GeometryDD4hepExtendedRun4" + options.geometry + "Reco_cff"
+    from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+    process = cms.Process('G4PrintGeometry',ERA,dd4hep)
+    geomFile = "Configuration.Geometry.GeometryDD4hepExtended" + geomName + "Reco_cff"
+    dd4hep = True
 else:
-    geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
+    process = cms.Process('G4PrintGeometry',ERA)
+    geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+    dd4hep = False
 
 print("Geometry file Name: ", geomFile)
+print("dd4hep Flag:        ", dd4hep)
 
 process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -131,11 +94,6 @@ process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.DefaultCutValue = 10. 
 process.g4SimHits.LHCTransport = False
-
-if (options.type == "DD4hep"):
-    dd4hep = True
-else:
-    dd4hep = False
 
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     dd4hep         = cms.untracked.bool(dd4hep),
