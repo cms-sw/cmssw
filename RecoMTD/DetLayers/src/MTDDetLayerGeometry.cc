@@ -78,7 +78,7 @@ DetId MTDDetLayerGeometry::makeDetLayerId(const DetLayer* detLayer) const {
     return ETLDetId(id.mtdSide(), 0, 0, 0, 0);  // Constructor of new geometry is compatible with prev8
   } else if (detLayer->subDetector() == GeomDetEnumerators::TimingBarrel) {
     BTLDetId id(detLayer->basicComponents().front()->geographicalId().rawId());
-    return BTLDetId(id.mtdSide(), 0, 0, 0, 0, 0);
+    return BTLDetId(id.mtdSide(), 0, 0, 0, 0);
   } else
     throw cms::Exception("InvalidModuleIdentification");  // << detLayer->module();
 }
@@ -108,7 +108,7 @@ const DetLayer* MTDDetLayerGeometry::idToLayer(const DetId& id) const {
     idout = ETLDetId(etlId.mtdSide(), 0, 0, 0, 0);
   } else if (detId.mtdSubDetector() == 1) {  // 1 is BTL
     BTLDetId btlId(detId.rawId());
-    idout = BTLDetId(btlId.mtdSide(), 0, 0, 0, 0, 0);
+    idout = BTLDetId(btlId.mtdSide(), 0, 0, 0, 0);
   } else
     throw cms::Exception("InvalidSubdetId") << detId.subdetId();
 
