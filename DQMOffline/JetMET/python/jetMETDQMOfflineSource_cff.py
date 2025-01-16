@@ -79,6 +79,7 @@ dqmAk4PFL1FastL2L3ResidualCorrectorChain = cms.Sequence(
     dqmAk4PFL1FastL2L3ResidualCorrector
 )
 
+
 from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSL1FastL2L3ResidualCorrectorChain,ak4PFCHSL1FastL2L3ResidualCorrector,ak4PFCHSL1FastL2L3Corrector,ak4PFCHSResidualCorrector,ak4PFCHSL3AbsoluteCorrector,ak4PFCHSL2RelativeCorrector,ak4PFCHSL1FastjetCorrector
 
 dqmAk4PFCHSL1FastL2L3ResidualCorrector = ak4PFCHSL1FastL2L3ResidualCorrector.clone()
@@ -97,6 +98,40 @@ from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFPuppiL1FastL2
 dqmAk4PFPuppiL1FastL2L3ResidualCorrector = ak4PFPuppiL1FastL2L3ResidualCorrector.clone()
 dqmAk4PFPuppiL1FastL2L3ResidualCorrectorChain = cms.Sequence(
     dqmAk4PFPuppiL1FastL2L3ResidualCorrector
+)
+
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3ResidualCorrectorChain,ak4PFL1FastL2L3ResidualCorrector,ak4PFCHSL1FastL2L3Corrector,ak4PFResidualCorrector,ak4PFL3AbsoluteCorrector,ak4PFL2RelativeCorrector,ak4PFL1FastjetCorrector
+
+ak4PFScoutingL1FastjetCorrector = ak4PFL1FastjetCorrector.clone(
+    algorithm   = cms.string('AK4PFHLT'),
+    srcRho = cms.InputTag("hltScoutingPFPacker","rho")
+    )
+    
+ak4PFScoutingL2RelativeCorrector = ak4PFL2RelativeCorrector.clone( 
+    algorithm = cms.string('AK4PFHLT'),
+    )
+
+ak4PFScoutingL3AbsoluteCorrector = ak4PFL3AbsoluteCorrector.clone( 
+    algorithm = cms.string('AK4PFHLT'),
+    )
+
+ak4PFScoutingResidualCorrector  = ak4PFResidualCorrector.clone( 
+    algorithm = cms.string('AK4PFHLT'),
+    )
+
+ak4PFScoutingL1FastL2L3ResidualCorrector = cms.EDProducer(
+    'ChainedJetCorrectorProducer',
+    correctors = cms.VInputTag('ak4PFScoutingL1FastjetCorrector','ak4PFScoutingL2RelativeCorrector','ak4PFScoutingL3AbsoluteCorrector','ak4PFScoutingResidualCorrector')
+    )
+    
+ak4PFScoutingL1FastL2L3ResidualCorrectorTask = cms.Task(
+    ak4PFScoutingL1FastjetCorrector, ak4PFScoutingL2RelativeCorrector, ak4PFScoutingL3AbsoluteCorrector, ak4PFScoutingResidualCorrector, ak4PFScoutingL1FastL2L3ResidualCorrector
+)
+ak4PFScoutingL1FastL2L3ResidualCorrectorChain = cms.Sequence(ak4PFScoutingL1FastL2L3ResidualCorrectorTask)
+    
+dqmAk4PFScoutingL1FastL2L3ResidualCorrector = ak4PFScoutingL1FastL2L3ResidualCorrector.clone()
+dqmAk4PFScoutingL1FastL2L3ResidualCorrectorChain = cms.Sequence(
+    dqmAk4PFScoutingL1FastL2L3ResidualCorrector
 )
 
 ###from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3ResidualCorrectorChain,ak4PFL1FastL2L3ResidualCorrector,ak4PFCHSL1FastL2L3Corrector,ak4PFResidualCorrector,ak4PFL3AbsoluteCorrector,ak4PFL2RelativeCorrector,ak4PFL1FastjetCorrector
@@ -139,6 +174,10 @@ _jetPreDQMTaskWithPUPPI = cms.Task(ak4CaloL2RelativeCorrector,
                          ak4PFPuppiL2RelativeCorrector,
                          ak4PFPuppiL3AbsoluteCorrector,
                          ak4PFPuppiResidualCorrector,
+                         ak4PFScoutingL1FastjetCorrector,
+                         ak4PFScoutingL2RelativeCorrector,
+                         ak4PFScoutingL3AbsoluteCorrector,
+                         ak4PFScoutingResidualCorrector
 )
 jetPreDQMSeq=cms.Sequence(jetPreDQMTask)
 _jetPreDQMSeqWithPUPPI=cms.Sequence(_jetPreDQMTaskWithPUPPI)
@@ -170,7 +209,7 @@ _jetMETDQMOfflineSourceWithPUPPI = cms.Sequence(AnalyzeSUSYDQM*QGTagger*
                                       pileupJetIdCalculatorDQM*pileupJetIdEvaluatorDQM*
                                       pileupJetIdCalculatorPUPPIDQM*pileupJetIdEvaluatorPUPPIDQM*
                                       _jetPreDQMSeqWithPUPPI*
-                                      dqmAk4CaloL2L3ResidualCorrectorChain*dqmAk4PFL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3CorrectorChain*dqmAk4PFPuppiL1FastL2L3ResidualCorrectorChain*
+                                      dqmAk4CaloL2L3ResidualCorrectorChain*dqmAk4PFL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3CorrectorChain*dqmAk4PFPuppiL1FastL2L3ResidualCorrectorChain*dqmAk4PFScoutingL1FastL2L3ResidualCorrectorChain*
                                       cms.ignore(goodOfflinePrimaryVerticesDQM)*                                                                            
                                       dqmCorrPfMetType1*pfMETT1*jetDQMAnalyzerSequence*HBHENoiseFilterResultProducer*
                                       cms.ignore(CSCTightHaloFilterDQM)*cms.ignore(CSCTightHalo2015FilterDQM)*cms.ignore(eeBadScFilterDQM)*cms.ignore(EcalDeadCellTriggerPrimitiveFilterDQM)*cms.ignore(EcalDeadCellBoundaryEnergyFilterDQM)*cms.ignore(HcalStripHaloFilterDQM)                                      
