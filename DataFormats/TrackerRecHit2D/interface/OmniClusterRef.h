@@ -28,6 +28,7 @@ public:
   typedef edm::Ref<FTLClusterCollection, FTLCluster> ClusterMTDRef;
 
   OmniClusterRef() : me(edm::RefCore(), kInvalid) {}
+  OmniClusterRef(edm::ProductID const& id, SiStripCluster const* clu, unsigned int key) : me(id, clu, key | kIsStrip) {}
   explicit OmniClusterRef(ClusterPixelRef const& ref, unsigned int subClus = 0)
       : me(ref.refCore(), (ref.isNonnull() ? ref.key() | (subClus << subClusShift) : kInvalid)) {}
   explicit OmniClusterRef(ClusterStripRef const& ref, unsigned int subClus = 0)

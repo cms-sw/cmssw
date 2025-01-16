@@ -33,6 +33,12 @@ namespace edm {
                      bool transient,
                      unsigned int elementIndex);
 
+    RefCoreWithIndex(ProductID const& id, void const* prodPtr, unsigned int index)
+        : cachePtr_(prodPtr),
+          processIndex_(id.processIndex()),
+          productIndex_(id.productIndex()),
+          elementIndex_(index) {}
+
     RefCoreWithIndex(RefCore const& iCore, unsigned int);
 
     RefCoreWithIndex(RefCoreWithIndex const&);
