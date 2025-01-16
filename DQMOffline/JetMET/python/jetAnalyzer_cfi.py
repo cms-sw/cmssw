@@ -148,39 +148,30 @@ jetDQMAnalizerAk4PUPPICleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     JetType = cms.string('puppi'),
     jetsrc = "ak4PFJetsPuppi",
     METCollectionLabel = "pfMetPuppi",
-    JetCorrections = "ak4PFPuppiL1FastL2L3ResidualCorrector",
+    JetCorrections = cms.InputTag("dqmAk4PFPuppiL1FastL2L3ResidualCorrector"),
     JetIDVersion = "RUN2ULPUPPI",
     JetIDQuality = cms.string("TIGHT"),
     fillCHShistos = True,
 )
 
-jetDQMAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4CaloUncleaned.clone( ###DQMEDAnalyzer('JetAnalyzer',    ### or jetDQMAnalyzerAk4Scouting=jetDQMAnalyzerAk4CaloUncleaned.clone(
-    #JetType = cms.string('scouting'),                               ###--->', # 'JetScoutingAnalyzer' or 'JetAnalyzer',    ### or jetDQMAnalyzerAk4Scouting=jetDQMAnalyzerAk4PFCleaned.clone(
-    #JetType = cms.string('scouting'),                               ###--->changed or 'pf'???
-    #jetsrc = cms.InputTag("hltScoutingPFPacker"),                   ###--->changed  ---> this name goes to GUI and TTree under JetMET/Jet
-    #METCollectionLabel = "pfMetScouting",                           ###---> this name goes to GUI and TTree under JetMET/MET ---> is it needed????
-    #JetCorrections = "ak4PFPuppiL1FastL2L3ResidualCorrector",      ###--->????
-    #JetIDVersion = "RUN2ULPUPPI",                                  ###--->????
-    #JetIDQuality = cms.string("TIGHT"),                            ###--->????
-    #fillCHShistos = True,                                          ###--->????
-###) ###<------
-    JetType = cms.string('scouting'),#pf, calo or jpt
-    ###JetCorrections = cms.InputTag("dqmAk4CaloL2L3ResidualCorrector"),
-    jetsrc = cms.InputTag("hltScoutingPFPacker"),
-    METCollectionLabel = cms.InputTag("hltScoutingPFPacker","pfMetPt"),
+jetDQMAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4CaloUncleaned.clone(   ###DQMEDAnalyzer('JetAnalyzer',  ###--->' if I put it like that it doesn't produce the RunPromptRecoCfg.py/.pkl file and it gives errors when running "bash recoWrapper.sh -j ....", # 'JetScoutingAnalyzer' 
+    JetType = cms.string('scouting'),
+    #JetCorrections = cms.InputTag("dqmAk4PFL1FastL2L3ResidualCorrector"),
+    JetCorrections = cms.InputTag("dqmAk4PFScoutingL1FastL2L3ResidualCorrector"),
+    jetsrc = cms.InputTag("hltScoutingPFPacker"),                       ###---> this name goes to GUI and TTree under JetMET/Jet
+    srcRho = cms.InputTag("hltScoutingPFPacker","rho"),
+    METCollectionLabel = cms.InputTag("hltScoutingPFPacker","pfMetPt"), ###---> this name goes to GUI and TTree under JetMET/MET ---> is it needed????
     muonsrc = cms.InputTag("hltScoutingMuonPackerNoVtx","","HLT"),
     l1algoname = cms.string("L1Tech_BPTX_plus_AND_minus.v0"),
-    filljetHighLevel = False, ### for 2 plots, "vertices" and "cleanup" in JetMET/ (not in JetMET/Jet/)
+    filljetHighLevel = False,                                           ### for 2 plots, "vertices" and "cleanup" in JetMET/ (not in JetMET/Jet/)
     fillsubstructure = False,
-    ###ptMinBoosted = cms.double(400.), ### not needed -> used only for patJets
-    #
-    #
-    #
+    ###ptMinBoosted = cms.double(400.),                                 ### not needed -> used only for patJets
+    
     highPtJetTrigger = cms.PSet(
         andOr         = cms.bool( False ),
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
-        hltPaths       = cms.vstring( 'DST_PFScouting_jetHT_v*'), 
+        hltPaths       = cms.vstring( 'DST_PFScouting_JetHT_v*'), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
@@ -193,8 +184,8 @@ jetDQMAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4CaloUncleaned.clone( ###DQ
         errorReplyHlt  = cms.bool( False ),
     ),
 
-    TriggerResultsLabel        = cms.InputTag("TriggerResults", "", "HLT"),
-    processname                = cms.string("HLT"),                     ###--->????
+    TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
+    processname                = cms.string("HLT"),                     
 
     #
     # Jet-related
@@ -210,7 +201,7 @@ jetDQMAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4CaloUncleaned.clone( ###DQ
         ),
 
     #for JPT and CaloJetID  
-    ###InputJetIDValueMap         = cms.InputTag("ak4JetID"), 
+    #InputJetIDValueMap         = cms.untracked.InputTag("ak4JetID"), 
     #options for Calo and JPT: LOOSE,LOOSE_AOD,TIGHT,MINIMAL
     #for PFJets: LOOSE,TIGHT
     ###JetIDQuality               = cms.string("LOOSE"),
