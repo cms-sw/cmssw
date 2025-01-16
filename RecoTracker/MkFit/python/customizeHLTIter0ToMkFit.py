@@ -68,7 +68,7 @@ def customizeHLTIter0ToMkFit(process):
     # Use fourth hit if one is available
     process.hltIter0PFLowPixelSeedsFromPixelTracks.includeFourthHit = cms.bool(True)
 
-    process.hltMkFitGeometryESProducer = mkFitGeometryESProducer_cfi.mkFitGeometryESProducer.clone()
+    process.load("RecoTracker.MkFit.mkFitGeometryESProducer_cfi")
 
     process.hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHits = mkFitSiPixelHitConverter_cfi.mkFitSiPixelHitConverter.clone(
         hits = "hltSiPixelRecHits",
