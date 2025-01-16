@@ -43,7 +43,7 @@ public:
   static constexpr uint32_t kCrystalsBTL =
       kCrystalsPerModuleV2 * kModulesPerRUV2 * kRUPerTypeV2 * kCrystalTypes * HALF_ROD * 2;
 
-  enum class CrysLayout { tile = 1, bar = 2, barzflat = 3, barphiflat = 4, v2 = 5, v3 = 6 };
+  enum class CrysLayout { tile = 1, bar = 2, barzflat = 3, barphiflat = 4, v2 = 5, v3 = 6, v4 = 7 };
 
   // ---------- Constructors, enumerated types ----------
 

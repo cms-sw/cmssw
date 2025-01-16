@@ -6,9 +6,10 @@ BTLDetId BTLDetId::geographicalId(CrysLayout lay) const {
   if (lay == CrysLayout::barphiflat) {
     // barphiflat: count modules in a rod, combining all types
     return BTLDetId(mtdSide(), mtdRR(), module() + kModulePerTypeBarPhiFlat * (modType() - 1), 0, 1);
-  } else if (lay == CrysLayout::v2 || lay == CrysLayout::v3) {
+  } else if (lay == CrysLayout::v2 || lay == CrysLayout::v3 || lay == CrysLayout::v4) {
     // v2: set number of crystals to 17 to distinguish from crystal BTLDetId
     // v3: set number of crystals to 17 to distinguish from crystal BTLDetId, build V2-like type and RU number as in BTLNumberingScheme
+    // v4: identical to v3, needed to update BTLDetId format and corresponding numbering scheme
     return BTLDetId(mtdSide(), mtdRR(), runit(), module(), modType(), kCrystalsPerModuleV2 + 1);
   }
 
