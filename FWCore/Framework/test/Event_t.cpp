@@ -222,8 +222,6 @@ void testEvent::registerProduct(std::string const& tag,
                            product_type.userClassName(),
                            product_type.friendlyClassName(),
                            productInstanceName,
-                           moduleClassName,
-                           moduleParams.id(),
                            product_type);
 
   moduleDescriptions_[tag] = ModuleDescription(
@@ -371,8 +369,6 @@ testEvent::testEvent()
                            product_type.userClassName(),
                            product_type.friendlyClassName(),
                            productInstanceName,
-                           moduleClassName,
-                           moduleParams.id(),
                            product_type);
 
   availableProducts_->addProduct(branch);

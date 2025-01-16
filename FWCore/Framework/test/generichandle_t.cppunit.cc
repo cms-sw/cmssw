@@ -145,15 +145,8 @@ void testGenericHandle::getbyLabelTest() {
   edm::ParameterSet pset;
   pset.registerIt();
 
-  edm::BranchDescription product(edm::InEvent,
-                                 label,
-                                 processName,
-                                 dummytype.userClassName(),
-                                 className,
-                                 productInstanceName,
-                                 "",
-                                 pset.id(),
-                                 dummytype);
+  edm::BranchDescription product(
+      edm::InEvent, label, processName, dummytype.userClassName(), className, productInstanceName, dummytype);
 
   product.init();
 

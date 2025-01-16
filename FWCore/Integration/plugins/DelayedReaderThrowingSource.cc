@@ -97,8 +97,6 @@ namespace edm {
                                            twd.userClassName(),
                                            twd.friendlyClassName(),
                                            "",  //product instance name
-                                           "",  //module name which isn't set for items not produced
-                                           dummy.id(),
                                            twd,
                                            false  //not produced
                                            ));
