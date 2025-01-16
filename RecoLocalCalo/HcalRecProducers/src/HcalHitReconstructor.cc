@@ -529,36 +529,29 @@ void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& desc
 
   edm::ParameterSetDescription saturationParametersDesc;
   saturationParametersDesc.add<int>("maxADCvalue", 127);
+  desc.add<edm::ParameterSetDescription>("saturationParameters", saturationParametersDesc);
 
-  // Conditionally add saturationParameters if setSaturationFlags is true
-  desc.ifValue(
-      edm::ParameterDescription<bool>("setSaturationFlags", true, true),
-      false >> edm::EmptyGroupDescription() or true >> edm::ParameterDescription<edm::ParameterSetDescription>(
-                                                           "saturationParameters", saturationParametersDesc, true));
-
-  // Add digiTimeFromDB conditionally based on Subdetector being "HF"
-  desc.ifValue(edm::ParameterDescription<std::string>("Subdetector", "HF", true),
-               "HF" >> edm::ParameterDescription<bool>("digiTimeFromDB", false, true) or
-                   "HO" >> edm::EmptyGroupDescription()  // Default case: do nothing
-  );
+  desc.add<bool>("setSaturationFlags", true);
+  desc.add<std::string>("Subdetector", "HF");
+  desc.add<bool>("digiTimeFromDB", false);
 
   edm::ParameterSetDescription hfTimingTrustParametersDesc;
   hfTimingTrustParametersDesc.add<int>("hfTimingTrustLevel1", 1);
   hfTimingTrustParametersDesc.add<int>("hfTimingTrustLevel2", 4);
+  desc.add<edm::ParameterSetDescription>("hfTimingTrustParameters", hfTimingTrustParametersDesc);
 
-  // Conditionally add hfTimingTrustParameters if setTimingTrustFlags is true
-  desc.ifValue(edm::ParameterDescription<bool>("setTimingTrustFlags", true, true),
-               false >> edm::EmptyGroupDescription() or
-                   true >> edm::ParameterDescription<edm::ParameterSetDescription>(
-                               "hfTimingTrustParameters", hfTimingTrustParametersDesc, true));
+  desc.add<bool>("setTimingTrustFlags", true);
+  desc.add<bool>("setNoiseFlags", true);
+
+  edm::ParameterSetDescription digiStatDesc;
+  HcalHFStatusBitFromDigis::fillHFDigiTimeParamsDesc(digiStatDesc);
+  desc.add<edm::ParameterSetDescription>("digistat", digiStatDesc);
+
+  edm::ParameterSetDescription hfInWindowStatDesc;
+  HcalHFStatusBitFromDigis::fillHFTimeInWindowParamsDesc(hfInWindowStatDesc);
+  desc.add<edm::ParameterSetDescription>("HFInWindowStat", hfInWindowStatDesc);
 
   {
-    edm::ParameterSetDescription digiStatDesc;
-    HcalHFStatusBitFromDigis::fillHFDigiTimeParamsDesc(digiStatDesc);
-
-    edm::ParameterSetDescription hfInWindowStatDesc;
-    HcalHFStatusBitFromDigis::fillHFTimeInWindowParamsDesc(hfInWindowStatDesc);
-
     edm::ParameterSetDescription s9s1StatDesc;
     s9s1StatDesc.add<std::vector<double>>("short_optimumSlope",
                                           {-99999,
@@ -597,7 +590,10 @@ void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& desc
     s9s1StatDesc.add<std::vector<double>>("longETParams", {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
     s9s1StatDesc.add<int>("HcalAcceptSeverityLevel", 9);
     s9s1StatDesc.add<bool>("isS8S1", false);
+    desc.add<edm::ParameterSetDescription>("S9S1stat", s9s1StatDesc);
+  }
 
+  {
     edm::ParameterSetDescription s8s1StatDesc;
     s8s1StatDesc.add<std::vector<double>>(
         "short_optimumSlope", {0.30, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10});
@@ -611,7 +607,10 @@ void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& desc
     s8s1StatDesc.add<std::vector<double>>("longETParams", {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
     s8s1StatDesc.add<int>("HcalAcceptSeverityLevel", 9);
     s8s1StatDesc.add<bool>("isS8S1", true);
+    desc.add<edm::ParameterSetDescription>("S8S1stat", s8s1StatDesc);
+  }
 
+  {
     edm::ParameterSetDescription petStatDesc;
     petStatDesc.add<std::vector<double>>("short_R", {0.8});
     petStatDesc.add<std::vector<double>>(
@@ -625,17 +624,7 @@ void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& desc
     petStatDesc.add<std::vector<double>>("short_R_29", {0.8});
     petStatDesc.add<std::vector<double>>("long_R_29", {0.8});
     petStatDesc.add<int>("HcalAcceptSeverityLevel", 9);
-
-    // Conditionally add S9S1stat if setNoiseFlags is true
-    desc.ifValue(
-        edm::ParameterDescription<bool>("setNoiseFlags", true, true),
-        false >> edm::EmptyGroupDescription() or
-            true >>
-                (edm::ParameterDescription<edm::ParameterSetDescription>("digistat", digiStatDesc, true) and
-                 edm::ParameterDescription<edm::ParameterSetDescription>("HFInWindowStat", hfInWindowStatDesc, true) and
-                 edm::ParameterDescription<edm::ParameterSetDescription>("S9S1stat", s9s1StatDesc, true) and
-                 edm::ParameterDescription<edm::ParameterSetDescription>("S8S1stat", s8s1StatDesc, true) and
-                 edm::ParameterDescription<edm::ParameterSetDescription>("PETstat", petStatDesc, true)));
+    desc.add<edm::ParameterSetDescription>("PETstat", petStatDesc);
   }
 
   desc.add<std::string>("dataOOTCorrectionName", std::string(""));

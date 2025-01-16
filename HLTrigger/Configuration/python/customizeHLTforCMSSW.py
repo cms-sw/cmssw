@@ -92,41 +92,14 @@ def customizeHLTfor47079(process):
             del filt.filterParams.pvSrc  # Remove the pvSrc parameter
 
     for prod in producers_by_type(process, 'HcalHitReconstructor'):
-        # Remove "digiTimeFromDB" if "Subdetector" is not "HF"
-        if hasattr(prod, 'Subdetector') and getattr(prod, 'Subdetector') != "HF":
-            if hasattr(prod, 'digiTimeFromDB'):
-                delattr(prod, 'digiTimeFromDB')
-
-        # Remove "saturationParameters" if "setSaturationFlags" is false
-        if hasattr(prod, 'setSaturationFlags') and not getattr(prod, 'setSaturationFlags'):
-            if hasattr(prod, 'saturationParameters'):
-                delattr(prod, 'saturationParameters')
-
-        # Remove "hfTimingTrustParameters" if "setTimingTrustFlags" is false
-        if hasattr(prod, 'setTimingTrustFlags') and not getattr(prod, 'setTimingTrustFlags'):
-            if hasattr(prod, 'hfTimingTrustParameters'):
-                delattr(prod, 'hfTimingTrustParameters')
-
-        # Remove 'PETstat', 'S8S1stat', 'S9S1stat',  'digistat' and 'HFInWindowStat' if "setNoiseFlags" is false
-        if hasattr(prod, 'setNoiseFlags') and not getattr(prod, 'setNoiseFlags'):
-            for param in ['PETstat', 'S8S1stat', 'S9S1stat', 'digistat', 'HFInWindowStat']:
-                if hasattr(prod, param):
-                    delattr(prod, param)
-
         # Remove useless parameters
         if hasattr(prod,'setHSCPFlags'):
             delattr(prod,'setHSCPFlags')
 
         if hasattr(prod,'setPulseShapeFlags'):
             delattr(prod,'setPulseShapeFlags')
-
-    for prod in producers_by_type(process, 'HFPhase1Reconstructor'):
-        # Remove 'HFStripFilter' if "runHFStripFilter" is false
-        if hasattr(prod, 'runHFStripFilter') and not getattr(prod, 'runHFStripFilter'):
-            delattr(prod,'HFStripFilter')
                     
     return process
-
 
 def customizeHLTfor47047(process):
     """Migrates many ESProducers to MoveToDeviceCache"""
