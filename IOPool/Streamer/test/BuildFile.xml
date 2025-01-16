@@ -32,6 +32,8 @@
 
   <test name="TestIOPoolStreamerFailures" command="run_failures.sh"/>
 
+  <test name="TestIOPoolStreamerReducedProcessHistory" command="run_TestReducedProcessHistory.sh"/>
+
   <library file="StreamThingProducer.cc" name="StreamThingProducer">
     <flags EDM_PLUGIN="1"/>
     <use name="DataFormats/TestObjects"/>
