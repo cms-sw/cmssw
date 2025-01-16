@@ -199,15 +199,20 @@ namespace edmtest {
 
     const std::vector<edm::InputTag> emptyTagVector;
 
-    ps.addUntracked<std::vector<edm::InputTag>>("inputTags", emptyTagVector)->setComment("Get these IntProduct data products");
-    ps.addUntracked<int>("expectedSum", 0)->setComment("The sum of all values from data products obtained from entire job.");
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTags", emptyTagVector)
+        ->setComment("Get these IntProduct data products");
+    ps.addUntracked<int>("expectedSum", 0)
+        ->setComment("The sum of all values from data products obtained from entire job.");
     ps.addUntracked<int>("expectedCache", 0)->setComment("Check value of ProcessBlock caches.");
     ps.addUntracked<bool>("getByTokenFirst", false)->setComment("Call getByToken before calling getByLabel");
     ps.addUntracked<bool>("runProducerParameterCheck", false);
     ps.addUntracked<bool>("testGetterOfProducts", false);
-    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsNotFound", emptyTagVector)->setComment("Data products which should be missing from the job.");
-    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsView", emptyTagVector)->setComment("Data products to get via View<int>.");
-    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsUInt64", emptyTagVector)->setComment("Get these UInt64Product data products.");
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsNotFound", emptyTagVector)
+        ->setComment("Data products which should be missing from the job.");
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsView", emptyTagVector)
+        ->setComment("Data products to get via View<int>.");
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsUInt64", emptyTagVector)
+        ->setComment("Get these UInt64Product data products.");
     ps.addUntracked<std::vector<edm::InputTag>>("inputTagsEndLumi", emptyTagVector);
     ps.addUntracked<std::vector<edm::InputTag>>("inputTagsEndRun", emptyTagVector);
     ps.addUntracked<std::vector<edm::InputTag>>("inputTagsBeginProcessBlock", emptyTagVector);

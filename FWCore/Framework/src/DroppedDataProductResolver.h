@@ -3,9 +3,8 @@
 
 /*----------------------------------------------------------------------
 
-ProductResolver: Class to handle access to a WrapperBase and its related information.
+DroppedDataProductResolver: Handles case of a DataProduct which was dropped on output
 
- [The class was formerly called Group and later ProductHolder]
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProductResolverBase.h"
@@ -14,7 +13,7 @@ namespace edm {
   class DroppedDataProductResolver : public ProductResolverBase {
   public:
     DroppedDataProductResolver(std::shared_ptr<BranchDescription const> bd)
-        : ProductResolverBase(), m_provenance(bd, {}) {}
+        : ProductResolverBase(), m_provenance(std::move(bd), {}) {}
 
     void connectTo(ProductResolverBase const&, Principal const*) final {}
 
