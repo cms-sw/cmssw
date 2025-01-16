@@ -62,6 +62,7 @@ public:
   // Get xtal from TOFHIR Channel number
   int THChToXtal(uint32_t smodCopy, uint32_t THCh);
   BTLDetId THChToBTLDetId(uint32_t zside, uint32_t rod, uint32_t runit, uint32_t dmodule, uint32_t smodCopy, uint32_t THCh);
+  // int BTLElectronicsMapping::SiPMChToXtal(uint32_t zside, uint32_t smodCopy, uint32_t SiPMCh);
 
   /** Returns TOFHIR ASIC number in construction database. */
   int TOFHIRASIC(uint32_t dmodule, uint32_t smodCopy);
