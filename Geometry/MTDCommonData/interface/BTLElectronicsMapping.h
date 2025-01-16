@@ -31,7 +31,7 @@ public:
   // Map SiPM Channel to crystal bars for Backward module orientation
   static constexpr std::array<uint32_t, BTLDetId::kCrystalsPerModuleV2 * 2> SiPMChannelMapBW{
       {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
-       31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16}};
+      31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16}};
 
   // Map TOFHIR Channel to SiPM Channel
   static constexpr std::array<uint32_t, BTLDetId::kCrystalsPerModuleV2 * 2> THChannelMap{
@@ -61,8 +61,7 @@ public:
 
   // Get xtal from TOFHIR Channel number
   int THChToXtal(uint32_t smodCopy, uint32_t THCh);
-  BTLDetId THChToBTLDetId(
-      uint32_t zside, uint32_t rod, uint32_t runit, uint32_t dmodule, uint32_t smodCopy, uint32_t THCh);
+  BTLDetId THChToBTLDetId(uint32_t zside, uint32_t rod, uint32_t runit, uint32_t dmodule, uint32_t smodCopy, uint32_t THCh);
 
   /** Returns TOFHIR ASIC number in construction database. */
   int TOFHIRASIC(uint32_t dmodule, uint32_t smodCopy);

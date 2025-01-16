@@ -293,8 +293,8 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
 
           if (isBarrel) {
             edm::LogVerbatim("DD4hep_TestPixelTopology")
-                << "geoId= " << modIdBTL.rawId() << " side= " << modIdBTL.mtdSide() << " RU/mod= " << modIdBTL.runit()
-                << " / " << modIdBTL.module();
+                << "geoId= " << modIdBTL.rawId() << " side= " << modIdBTL.mtdSide()
+                << " RU/mod= " << modIdBTL.runit() << " / " << modIdBTL.module();
             sunitt_ << "geoId= " << modIdBTL.rawId() << " side= " << modIdBTL.mtdSide()
                     << " RU/mod= " << modIdBTL.runit() << " / " << modIdBTL.module();
           } else {
@@ -416,10 +416,10 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
                   << " module/geomodule= " << theIdBTL.module() << " / " << static_cast<BTLDetId>(geoId).module()
                   << " crys= " << theIdBTL.crystal() << " BTLDetId row/col= " << origRow << " / " << origCol << "\n";
               sunitt_ << "rawId= " << theIdBTL.rawId() << " geoId= " << geoId.rawId()
-                      << " side/rod= " << theIdBTL.mtdSide() << " / " << theIdBTL.mtdRR() << " RU= " << theIdBTL.runit()
-                      << " module/geomodule= " << theIdBTL.module() << " / " << static_cast<BTLDetId>(geoId).module()
-                      << " crys= " << theIdBTL.crystal() << " BTLDetId row/col= " << origRow << " / " << origCol
-                      << "\n";
+                      << " side/rod= " << theIdBTL.mtdSide() << " / " << theIdBTL.mtdRR()
+                      << " RU= " << theIdBTL.runit() << " module/geomodule= " << theIdBTL.module() << " / "
+                      << static_cast<BTLDetId>(geoId).module() << " crys= " << theIdBTL.crystal()
+                      << " BTLDetId row/col= " << origRow << " / " << origCol << "\n";
             } else {
               edm::LogVerbatim("DD4hep_TestPixelTopology")
                   << "geoId= " << modIdETL.rawId() << " side= " << modIdETL.mtdSide()

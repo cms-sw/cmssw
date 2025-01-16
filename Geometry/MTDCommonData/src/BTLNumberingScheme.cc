@@ -45,6 +45,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
                         << bareBaseName(baseNumber.getLevelName(7)) << "[" << baseNumber.getCopyNumber(7) << "], "
                         << bareBaseName(baseNumber.getLevelName(8)) << "[" << baseNumber.getCopyNumber(8) << "]";
 
+
     if (baseNumber.getLevelName(0).find("Timingactive") != std::string_view::npos) {
       edm::LogError("MTDGeom") << "Geometry v1 of BTL not supported, run on a Geometry configuration D95 or latest ";
       throw cms::Exception("Configuration") << "Invalid BTL Geometry configuration (v1)";
@@ -58,7 +59,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
       // rod (tray) copy number
       rodCopy = baseNumber.getCopyNumber(3) - 1;
-
+      
       // RU, global module and crystal copy numbers
       // (everything start from 0)
       // V3: RU number is global RU number
@@ -73,40 +74,39 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
       crystal = int(baseNumber.getCopyNumber(0)) - 1;
 
       // Detector and sensor module numbers from global module number 0-23
-      dmodCopy = int((modCopy / BTLDetId::kDModulesInRUCol) / BTLDetId::kSModulesInDM) +
-                 (modCopy % BTLDetId::kDModulesInRUCol) * BTLDetId::kDModulesInRURow;
-      smodCopy = int(modCopy / BTLDetId::kDModulesInRUCol) % BTLDetId::kSModulesInDM;
+      dmodCopy = int((modCopy / BTLDetId::kDModulesInRUCol) / BTLDetId::kSModulesInDM) + (modCopy % BTLDetId::kDModulesInRUCol) * BTLDetId::kDModulesInRURow;
+      smodCopy = int( modCopy / BTLDetId::kDModulesInRUCol ) % BTLDetId::kSModulesInDM;
 
       // error checking
-      if (0 > int(crystal) || BTLDetId::kCrystalsPerModuleV2 - 1 < crystal) {
+     if (0 > int(crystal) || BTLDetId::kCrystalsPerModuleV2-1 < crystal) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                    << "****************** Bad crystal number = " << int(crystal)
                                    << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(0) - 1;
         return 0;
       }
 
-      if (0 > int(modCopy) || BTLDetId::kModulesPerRUV2 - 1 < modCopy) {
+      if (0 > int(modCopy) || BTLDetId::kModulesPerRUV2-1 < modCopy) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                    << "****************** Bad module copy = " << int(modCopy)
                                    << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(1) - 1;
         return 0;
       }
 
-      if (0 > int(smodCopy) || BTLDetId::kSModulesPerDM - 1 < smodCopy) {
+      if (0 > int(smodCopy) || BTLDetId::kSModulesPerDM-1 < smodCopy) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                    << "****************** Bad detector module copy = " << int(smodCopy)
                                    << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(1) - 1;
         return 0;
       }
 
-      if (0 > int(dmodCopy) || BTLDetId::kDModulesPerRU - 1 < dmodCopy) {
+      if (0 > int(dmodCopy) || BTLDetId::kDModulesPerRU-1 < dmodCopy) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                    << "****************** Bad detector module copy = " << int(dmodCopy)
                                    << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(1) - 1;
         return 0;
       }
 
-      if (0 > int(runitCopy) || BTLDetId::kRUPerRod - 1 < runitCopy) {
+      if (0 > int(runitCopy) || BTLDetId::kRUPerRod-1 < runitCopy) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                    << "****************** Bad readout unit copy = " << int(runitCopy)
                                    << " module type = " << int(modtyp)
@@ -115,7 +115,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
         return 0;
       }
 
-      if (0 > int(rodCopy) || BTLDetId::HALF_ROD - 1 < rodCopy) {
+      if (0 > int(rodCopy) || BTLDetId::HALF_ROD-1 < rodCopy) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                    << "****************** Bad rod copy = " << int(rodCopy)
                                    << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(3);
@@ -166,41 +166,40 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
     modCopy = baseNumber.getCopyNumber(0) - 1;
 
     // eval detector and sensor module numbers from global module number 1-24
-    dmodCopy = int((modCopy / BTLDetId::kDModulesInRUCol) / BTLDetId::kSModulesInDM) +
-               (modCopy % BTLDetId::kDModulesInRUCol) * BTLDetId::kDModulesInRURow;
-    smodCopy = int(modCopy / BTLDetId::kDModulesInRUCol) % BTLDetId::kSModulesInDM;
+    dmodCopy = int((modCopy / BTLDetId::kDModulesInRUCol) / BTLDetId::kSModulesInDM) + (modCopy % BTLDetId::kDModulesInRUCol) * BTLDetId::kDModulesInRURow;
+    smodCopy = int( modCopy / BTLDetId::kDModulesInRUCol) % BTLDetId::kSModulesInDM;
 
     // error checking
 
-    if (0 > int(modCopy) || BTLDetId::kModulesPerRUV2 - 1 < modCopy) {
+    if (0 > int(modCopy) || BTLDetId::kModulesPerRUV2-1 < modCopy) {
       edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                  << "****************** Bad module copy = " << int(modCopy)
                                  << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(0) - 1;
       return 0;
     }
 
-    if (0 > int(smodCopy) || BTLDetId::kSModulesPerDM - 1 < smodCopy) {
+    if (0 > int(smodCopy) || BTLDetId::kSModulesPerDM-1 < smodCopy) {
       edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                  << "****************** Bad detector module copy = " << int(smodCopy)
                                  << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(0) - 1;
       return 0;
     }
 
-    if (0 > int(dmodCopy) || BTLDetId::kDModulesPerRU - 1 < dmodCopy) {
+    if (0 > int(dmodCopy) || BTLDetId::kDModulesPerRU-1 < dmodCopy) {
       edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                  << "****************** Bad detector module copy = " << int(dmodCopy)
                                  << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(0) - 1;
       return 0;
     }
 
-    if (0 > int(runitCopy) || BTLDetId::kRUPerRod - 1 < runitCopy) {
+    if (0 > int(runitCopy) || BTLDetId::kRUPerRod-1 < runitCopy) {
       edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                  << "****************** Bad readout unit copy = " << int(runitCopy)
                                  << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(1) - 1;
       return 0;
     }
 
-    if (0 > int(rodCopy) || BTLDetId::HALF_ROD - 1 < rodCopy) {
+    if (0 > int(rodCopy) || BTLDetId::HALF_ROD-1 < rodCopy) {
       edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                  << "****************** Bad rod copy = " << int(rodCopy)
                                  << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(2);
@@ -226,9 +225,8 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   }
 
   LogDebug("MTDGeom") << "BTL Numbering scheme: "
-                      << " Raw Id = " << intindex << " zside = " << zside << " rod = " << rodCopy
-                      << " runit = " << runitCopy << " dmodule = " << dmodCopy << " smodule = " << smodCopy
-                      << " module = " << modCopy + 1 << " crystal = " << crystal << "\n"
+                      << " Raw Id = " << intindex << " zside = " << zside << " rod = " << rodCopy << " runit = " << runitCopy
+                      << " dmodule = " << dmodCopy << " smodule = " << smodCopy << " module = " << modCopy+1 << " crystal = " << crystal << "\n"
                       << BTLDetId(intindex);
 
   return intindex;
