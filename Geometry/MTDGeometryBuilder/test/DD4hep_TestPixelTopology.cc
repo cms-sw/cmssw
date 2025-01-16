@@ -294,9 +294,9 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
           if (isBarrel) {
             edm::LogVerbatim("DD4hep_TestPixelTopology")
                 << "geoId= " << modIdBTL.rawId() << " side= " << modIdBTL.mtdSide()
-                << " RU/mod= " << modIdBTL.runit() << " / " << modIdBTL.module();
+                << " RU/mod= " << modIdBTL.globalRunit() << " / " << modIdBTL.module();
             sunitt_ << "geoId= " << modIdBTL.rawId() << " side= " << modIdBTL.mtdSide()
-                    << " RU/mod= " << modIdBTL.runit() << " / " << modIdBTL.module();
+                    << " RU/mod= " << modIdBTL.globalRunit() << " / " << modIdBTL.module();
           } else {
             edm::LogVerbatim("DD4hep_TestPixelTopology")
                 << "geoId= " << modIdETL.rawId() << " side= " << modIdETL.mtdSide()
@@ -412,12 +412,12 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
             if (isBarrel) {
               edm::LogVerbatim("DD4hep_TestPixelTopology")
                   << "rawId= " << theIdBTL.rawId() << " geoId= " << geoId.rawId() << " side/rod= " << theIdBTL.mtdSide()
-                  << " / " << theIdBTL.mtdRR() << " RU= " << theIdBTL.runit()
+                  << " / " << theIdBTL.mtdRR() << " RU= " << theIdBTL.globalRunit()
                   << " module/geomodule= " << theIdBTL.module() << " / " << static_cast<BTLDetId>(geoId).module()
                   << " crys= " << theIdBTL.crystal() << " BTLDetId row/col= " << origRow << " / " << origCol << "\n";
               sunitt_ << "rawId= " << theIdBTL.rawId() << " geoId= " << geoId.rawId()
                       << " side/rod= " << theIdBTL.mtdSide() << " / " << theIdBTL.mtdRR()
-                      << " RU= " << theIdBTL.runit() << " module/geomodule= " << theIdBTL.module() << " / "
+                      << " RU= " << theIdBTL.globalRunit() << " module/geomodule= " << theIdBTL.module() << " / "
                       << static_cast<BTLDetId>(geoId).module() << " crys= " << theIdBTL.crystal()
                       << " BTLDetId row/col= " << origRow << " / " << origCol << "\n";
             } else {
