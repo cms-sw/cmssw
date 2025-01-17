@@ -26,9 +26,9 @@ private:
   const double sqrt3_ = std::sqrt(3.0);
   const double sqrt3By2_ = (0.5 * sqrt3_);
   std::array<std::array<std::array<double, 6>, 6>, 2> offsetX, offsetY;
-  std::array<std::array<std::array<double, 6>, 11>, 2> offsetPartialX, offsetPartialY;
+  std::array<std::array<std::array<double, 6>, 25>, 2> offsetPartialX, offsetPartialY;
   int32_t ncell_[2];
-  double cellX_[2], cellY_[2], fullArea[2], cellArea[2][6], cellAreaPartial[2][11];
+  double cellX_[2], cellY_[2], fullArea[2], cellArea[2][6], cellAreaPartial[2][25];
   std::unique_ptr<HGCalCell> hgcalcell_;
 };
 
