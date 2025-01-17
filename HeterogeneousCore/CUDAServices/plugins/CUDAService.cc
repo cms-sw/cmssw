@@ -221,7 +221,6 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
   auto printfFifoSize = limits.getUntrackedParameter<int>("cudaLimitPrintfFifoSize");
   auto stackSize = limits.getUntrackedParameter<int>("cudaLimitStackSize");
   auto mallocHeapSize = limits.getUntrackedParameter<int>("cudaLimitMallocHeapSize");
-  auto devRuntimeSyncDepth = limits.getUntrackedParameter<int>("cudaLimitDevRuntimeSyncDepth");
   auto devRuntimePendingLaunchCount = limits.getUntrackedParameter<int>("cudaLimitDevRuntimePendingLaunchCount");
 
   std::set<std::string> models;
@@ -367,11 +366,6 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
       setCudaLimit(cudaLimitMallocHeapSize, "cudaLimitMallocHeapSize", mallocHeapSize);
     }
     if ((properties.major > 3) or (properties.major == 3 and properties.minor >= 5)) {
-      // cudaLimitDevRuntimeSyncDepth controls the maximum nesting depth of a grid at which
-      // a thread can safely call cudaDeviceSynchronize().
-      if (devRuntimeSyncDepth >= 0) {
-        setCudaLimit(cudaLimitDevRuntimeSyncDepth, "cudaLimitDevRuntimeSyncDepth", devRuntimeSyncDepth);
-      }
       // cudaLimitDevRuntimePendingLaunchCount controls the maximum number of outstanding
       // device runtime launches that can be made from the current device.
       if (devRuntimePendingLaunchCount >= 0) {
@@ -391,8 +385,6 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
       cudaCheck(cudaDeviceGetLimit(&value, cudaLimitMallocHeapSize));
       log << "  malloc heap size:          " << std::setw(10) << value / (1 << 20) << " MB\n";
       if ((properties.major > 3) or (properties.major == 3 and properties.minor >= 5)) {
-        cudaCheck(cudaDeviceGetLimit(&value, cudaLimitDevRuntimeSyncDepth));
-        log << "  runtime sync depth:           " << std::setw(10) << value << '\n';
         cudaCheck(cudaDeviceGetLimit(&value, cudaLimitDevRuntimePendingLaunchCount));
         log << "  runtime pending launch count: " << std::setw(10) << value << '\n';
       }
@@ -458,8 +450,6 @@ void CUDAService::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   limits.addUntracked<int>("cudaLimitStackSize", -1)->setComment("Stack size in bytes of each GPU thread.");
   limits.addUntracked<int>("cudaLimitMallocHeapSize", -1)
       ->setComment("Size in bytes of the heap used by the malloc() and free() device system calls.");
-  limits.addUntracked<int>("cudaLimitDevRuntimeSyncDepth", -1)
-      ->setComment("Maximum nesting depth of a grid at which a thread can safely call cudaDeviceSynchronize().");
   limits.addUntracked<int>("cudaLimitDevRuntimePendingLaunchCount", -1)
       ->setComment("Maximum number of outstanding device runtime launches that can be made from the current device.");
   desc.addUntracked<edm::ParameterSetDescription>("limits", limits)
