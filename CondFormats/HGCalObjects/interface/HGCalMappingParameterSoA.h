@@ -10,7 +10,7 @@
 
 namespace hgcal {
 
-  // Generate structure of channel-level arrays (SoA) layout with module mapping information
+  // Generate structure of module-level (ECON-D) arrays (SoA) layout with module mapping information
   GENERATE_SOA_LAYOUT(HGCalMappingModuleParamSoALayout,
                       SOA_COLUMN(bool, valid),
                       SOA_COLUMN(bool, zside),
@@ -18,6 +18,7 @@ namespace hgcal {
                       SOA_COLUMN(int, plane),
                       SOA_COLUMN(int, i1),
                       SOA_COLUMN(int, i2),
+                      SOA_COLUMN(uint8_t, irot),
                       SOA_COLUMN(int, celltype),
                       SOA_COLUMN(uint16_t, typeidx),
                       SOA_COLUMN(uint16_t, fedid),
@@ -50,6 +51,20 @@ namespace hgcal {
                       SOA_COLUMN(uint32_t, eleid),
                       SOA_COLUMN(uint32_t, detid))
   using HGCalMappingCellParamSoA = HGCalMappingCellParamSoALayout<>;
+
+  // Generate structure of channel-level arrays (SoA) layout with module mapping information
+  GENERATE_SOA_LAYOUT(HGCalDenseIndexInfoSoALayout,
+                      SOA_COLUMN(uint32_t, fedId),
+                      SOA_COLUMN(uint32_t, fedReadoutSeq),
+                      SOA_COLUMN(uint32_t, detid),
+                      SOA_COLUMN(uint32_t, eleid),
+                      SOA_COLUMN(uint32_t, modInfoIdx),
+                      SOA_COLUMN(uint32_t, cellInfoIdx),
+                      SOA_COLUMN(uint32_t, chNumber),
+                      SOA_COLUMN(float, x),
+                      SOA_COLUMN(float, y),
+                      SOA_COLUMN(float, z))
+  using HGCalDenseIndexInfoSoA = HGCalDenseIndexInfoSoALayout<>;
 
 }  // namespace hgcal
 
