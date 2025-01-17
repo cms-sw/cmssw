@@ -143,7 +143,7 @@ namespace {
       MTDDetId mtdid(id);
       switch (mtdid.mtdSubDetector()) {
         case MTDDetId::BTL:
-          layer = BTLDetId(id).runit();
+          layer = BTLDetId(id).globalRunit();
           break;
         case MTDDetId::ETL:
           layer = ETLDetId(id).mtdRR();
