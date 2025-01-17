@@ -84,22 +84,21 @@ namespace cms::alpakatools {
   template <typename T, typename TPlatform>
   std::enable_if_t<not std::is_array_v<T>, host_buffer<T>> make_host_buffer() {
     using Platform = TPlatform;
-    return alpaka::allocMappedBuf<Platform, T, Idx>(host(), platform<Platform>(), Scalar{});
+    return alpaka::allocMappedBuf<T, Idx>(host(), platform<Platform>(), Scalar{});
   }
 
   template <typename T, typename TPlatform>
   std::enable_if_t<cms::is_unbounded_array_v<T> and not std::is_array_v<std::remove_extent_t<T>>, host_buffer<T>>
   make_host_buffer(Extent extent) {
     using Platform = TPlatform;
-    return alpaka::allocMappedBuf<Platform, std::remove_extent_t<T>, Idx>(host(), platform<Platform>(), Vec1D{extent});
+    return alpaka::allocMappedBuf<std::remove_extent_t<T>, Idx>(host(), platform<Platform>(), Vec1D{extent});
   }
 
   template <typename T, typename TPlatform>
   std::enable_if_t<cms::is_bounded_array_v<T> and not std::is_array_v<std::remove_extent_t<T>>, host_buffer<T>>
   make_host_buffer() {
     using Platform = TPlatform;
-    return alpaka::allocMappedBuf<Platform, std::remove_extent_t<T>, Idx>(
-        host(), platform<Platform>(), Vec1D{std::extent_v<T>});
+    return alpaka::allocMappedBuf<std::remove_extent_t<T>, Idx>(host(), platform<Platform>(), Vec1D{std::extent_v<T>});
   }
 
   // potentially cached, pinned, scalar and 1-dimensional host buffers, associated to a work queue
@@ -112,7 +111,7 @@ namespace cms::alpakatools {
       return allocCachedBuf<T, Idx>(host(), queue, Scalar{});
     } else {
       using Platform = alpaka::Platform<alpaka::Dev<TQueue>>;
-      return alpaka::allocMappedBuf<Platform, T, Idx>(host(), platform<Platform>(), Scalar{});
+      return alpaka::allocMappedBuf<T, Idx>(host(), platform<Platform>(), Scalar{});
     }
   }
 
@@ -125,8 +124,7 @@ namespace cms::alpakatools {
       return allocCachedBuf<std::remove_extent_t<T>, Idx>(host(), queue, Vec1D{extent});
     } else {
       using Platform = alpaka::Platform<alpaka::Dev<TQueue>>;
-      return alpaka::allocMappedBuf<Platform, std::remove_extent_t<T>, Idx>(
-          host(), platform<Platform>(), Vec1D{extent});
+      return alpaka::allocMappedBuf<std::remove_extent_t<T>, Idx>(host(), platform<Platform>(), Vec1D{extent});
     }
   }
 
@@ -139,7 +137,7 @@ namespace cms::alpakatools {
       return allocCachedBuf<std::remove_extent_t<T>, Idx>(host(), queue, Vec1D{std::extent_v<T>});
     } else {
       using Platform = alpaka::Platform<alpaka::Dev<TQueue>>;
-      return alpaka::allocMappedBuf<Platform, std::remove_extent_t<T>, Idx>(
+      return alpaka::allocMappedBuf<std::remove_extent_t<T>, Idx>(
           host(), platform<Platform>(), Vec1D{std::extent_v<T>});
     }
   }
