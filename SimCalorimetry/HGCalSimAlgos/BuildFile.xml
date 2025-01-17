@@ -1,5 +1,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/ForwardDetId"/>
+<use name="DataFormats/HGCalDigi"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="vdt_headers"/>
