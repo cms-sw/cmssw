@@ -2,6 +2,7 @@
 #define RecoTracker_LSTCore_src_alpaka_Hit_h
 
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/alpakastdAlgorithm.h"
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
@@ -103,7 +104,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             ((ihit_z > 0) - (ihit_z < 0)) *
             alpaka::math::acosh(
                 acc, alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y + ihit_z * ihit_z) / hits.rts()[ihit]);
-        auto found_pointer = std::lower_bound(modules.mapdetId(), modules.mapdetId() + nModules, iDetId);
+        auto found_pointer = alpaka_std::lower_bound(modules.mapdetId(), modules.mapdetId() + nModules, iDetId);
         int found_index = std::distance(modules.mapdetId(), found_pointer);
         if (found_pointer == modules.mapdetId() + nModules)
           found_index = -1;
@@ -112,7 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         hits.moduleIndices()[ihit] = lastModuleIndex;
 
         if (modules.subdets()[lastModuleIndex] == Endcap && modules.moduleType()[lastModuleIndex] == TwoS) {
-          found_pointer = std::lower_bound(geoMapDetId, geoMapDetId + nEndCapMap, iDetId);
+          found_pointer = alpaka_std::lower_bound(geoMapDetId, geoMapDetId + nEndCapMap, iDetId);
           found_index = std::distance(geoMapDetId, found_pointer);
           if (found_pointer == geoMapDetId + nEndCapMap)
             found_index = -1;
