@@ -1,25 +1,25 @@
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEgeometric.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripFakeCPE.h"
-
 #include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripFakeCPE.h"
+#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEgeometric.h"
 
 class StripCPEESProducer : public edm::ESProducer {
 public:
   StripCPEESProducer(const edm::ParameterSet&);
   std::unique_ptr<StripClusterParameterEstimator> produce(const TkStripCPERecord&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   enum CPE_t { SIMPLE, TRACKANGLE, GEOMETRIC, FAKE };
@@ -34,6 +34,27 @@ private:
   edm::ESGetToken<SiStripConfObject, SiStripConfObjectRcd> confObjToken_;
   edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
 };
+
+void StripCPEESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("ComponentName", "SimpleStripCPE");
+
+  edm::ParameterSetDescription cpeFromTrackAngleDesc;
+  StripCPEfromTrackAngle::fillPSetDescription(cpeFromTrackAngleDesc);
+
+  edm::ParameterSetDescription emptyDesc;
+
+  desc.ifValue(
+      edm::ParameterDescription<std::string>("ComponentType", "SimpleStripCPE", true),
+      "SimpleStripCPE" >> edm::ParameterDescription<edm::ParameterSetDescription>("parameters", emptyDesc, true) or
+          "StripCPEfromTrackAngle" >>
+              edm::ParameterDescription<edm::ParameterSetDescription>("parameters", cpeFromTrackAngleDesc, true) or
+          "StripCPEgeometric" >>
+              edm::ParameterDescription<edm::ParameterSetDescription>("parameters", emptyDesc, true) or
+          "FakeStripCPE" >> edm::EmptyGroupDescription());
+
+  descriptions.addDefault(desc);
+}
 
 StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet& p) {
   std::string name = p.getParameter<std::string>("ComponentName");
@@ -54,7 +75,7 @@ StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet& p) {
     throw cms::Exception("Unknown StripCPE type") << type;
 
   cpeNum = enumMap[type];
-  parametersPSet = (p.exists("parameters") ? p.getParameter<edm::ParameterSet>("parameters") : p);
+  parametersPSet = p.getParameter<edm::ParameterSet>("parameters");
   auto cc = setWhatProduced(this, name);
   pDDToken_ = cc.consumes();
   magfieldToken_ = cc.consumes();
