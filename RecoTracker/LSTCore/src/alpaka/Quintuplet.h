@@ -13,10 +13,9 @@
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
 #include "RecoTracker/LSTCore/interface/EndcapGeometry.h"
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
+#include "RecoTracker/LSTCore/interface/Circle.h"
 
 #include "NeuralNetwork.h"
-#include "Hit.h"
-#include "Triplet.h"  // FIXME: need to refactor common functions to a common place
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addQuintupletToMemory(TripletsConst triplets,
@@ -1502,7 +1501,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     float g, f;
     outerRadius = triplets.radius()[outerTripletIndex];
-    bridgeRadius = computeRadiusFromThreeAnchorHits(acc, x2, y2, x3, y3, x4, y4, g, f);
+    std::tie(bridgeRadius, g, f) = computeRadiusFromThreeAnchorHits(acc, x2, y2, x3, y3, x4, y4);
     innerRadius = triplets.radius()[innerTripletIndex];
 
     bool inference = lst::t5dnn::runInference(acc,

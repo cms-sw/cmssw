@@ -5,6 +5,7 @@
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
+#include "RecoTracker/LSTCore/interface/HitsSoA.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
 #include "RecoTracker/LSTCore/interface/PixelQuintupletsSoA.h"
 #include "RecoTracker/LSTCore/interface/PixelTripletsSoA.h"
@@ -12,8 +13,6 @@
 #include "RecoTracker/LSTCore/interface/SegmentsSoA.h"
 #include "RecoTracker/LSTCore/interface/TrackCandidatesSoA.h"
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
-
-#include "Hit.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addpLSTrackCandidateToMemory(TrackCandidates& cands,

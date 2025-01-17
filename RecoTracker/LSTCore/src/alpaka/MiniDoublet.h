@@ -5,13 +5,12 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
+#include "RecoTracker/LSTCore/interface/HitsSoA.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
 #include "RecoTracker/LSTCore/interface/alpaka/MiniDoubletsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
 #include "RecoTracker/LSTCore/interface/EndcapGeometry.h"
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
-
-#include "Hit.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   template <typename TAcc>

@@ -3,6 +3,8 @@
 
 #include "LSTEvent.h"
 
+#include "Hit.h"
+#include "Kernels.h"
 #include "MiniDoublet.h"
 #include "PixelQuintuplet.h"
 #include "PixelTriplet.h"

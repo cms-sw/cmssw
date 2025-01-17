@@ -9,11 +9,10 @@
 #include "RecoTracker/LSTCore/interface/SegmentsSoA.h"
 #include "RecoTracker/LSTCore/interface/alpaka/SegmentsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
+#include "RecoTracker/LSTCore/interface/HitsSoA.h"
+#include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
 #include "RecoTracker/LSTCore/interface/EndcapGeometry.h"
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
-
-#include "MiniDoublet.h"
-#include "Hit.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 

@@ -2,6 +2,7 @@
 #define RecoTracker_LSTCore_src_alpaka_PixelQuintuplet_h
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
+#include "RecoTracker/LSTCore/interface/HitsSoA.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
@@ -10,7 +11,7 @@
 #include "RecoTracker/LSTCore/interface/SegmentsSoA.h"
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
 
-#include "Hit.h"
+#include "Quintuplet.h"
 #include "PixelTriplet.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
