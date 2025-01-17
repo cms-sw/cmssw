@@ -1,7 +1,21 @@
-// Package:    SiOuterTrackerV
-// Class:      SiOuterTrackerV
+// Package:    Validation/SiTrackerPhase2V
+// Class:      Phase2OTValidateTrackingParticles
+
+/**
+ * This class is part of the Phase 2 Tracker validation framework. It validates the
+ * performance of tracking particle reconstruction by comparing them with clusters, stubs,
+ * and Level-1 tracks. It generates histograms to assess tracking efficiency, resolution,
+ * and vertex reconstruction performance.
+ * 
+ * Usage:
+ * To generate histograms from this code, run the test configuration files provided
+ * in the DQM/SiTrackerPhase2/test directory. The generated histograms can then be
+ * analyzed or visualized.
+ */
 
 // Original Author:  Emily MacDonald
+
+// Updated by: Brandi Skipworth, 2025
 
 // system include files
 #include <memory>

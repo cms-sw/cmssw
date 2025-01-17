@@ -1,3 +1,20 @@
+// Package:    Validation/SiTrackerPhase2V
+// Class:      Phase2OTHarvestTrackingParticles
+
+/**
+ * This class is part of the Phase 2 Tracker validation framework and performs
+ * the harvesting step for tracking particle validation. It processes histograms
+ * created during the earlier validation steps to calculate efficiencies and
+ * resolutions for stub reconstruction and tracking performance.
+ *
+ * Usage:
+ * To generate histograms from this code, run the test configuration files provided
+ * in the DQM/SiTrackerPhase2/test directory. The generated histograms can then be
+ * analyzed or visualized.
+ */
+
+// Updated by: Brandi Skipworth, 2025
+
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/Event.h"

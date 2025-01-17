@@ -1,14 +1,22 @@
 // -*- C++ -*-
 //
-/**\class SiOuterTracker Phase2OTValidateTTStub.cc
- Description: [one line class summary]
+// Package:    Validation/SiTrackerPhase2V
+// Class:      Phase2OTValidateTTStub
 
- Implementation:
-     [Notes on implementation]
-*/
-//
+/**
+ * This class is part of the Phase 2 Tracker validation framework. It validates the
+ * association of tracking particles to stubs and evaluates stub reconstruction performance
+ * by generating detailed histograms, including residuals for key parameters.
+ * 
+ * Usage:
+ * To generate histograms from this code, run the test configuration files provided
+ * in the DQM/SiTrackerPhase2/test directory. The generated histograms can then be
+ * analyzed or visualized to study stub performance.
+ */
+
 // Original Author:
-//
+
+// Updated by: Brandi Skipworth, 2025
 
 // system include files
 #include <memory>
