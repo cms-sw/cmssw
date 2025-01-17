@@ -170,6 +170,17 @@ namespace edm {
       it->applyToAll(branchstates);
   }
 
+  bool ProductSelectorRules::select(edm::BranchDescription const& bd) const {
+    bool selected = false;
+    for (auto const& rule : rules_) {
+      rule.applyToOne(&bd, selected);
+      if (selected) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   //   bool
   //   Rule::applyToOne(edm::BranchDescription const* branch) const
   //   {
