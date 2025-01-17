@@ -241,20 +241,20 @@ namespace pixelTopology {
     typedef Phase1 PixelBase;  //Could be removed using based class
     static constexpr uint32_t maxNumClustersPerModules = phase1PixelStripTopology::maxNumClustersPerModules;
     static constexpr uint32_t maxHitsInModule = phase1PixelStripTopology::maxNumClustersPerModules;
-    static constexpr uint32_t maxCellNeighbors = 64;  //64
-    static constexpr uint32_t maxCellTracks = 90;     //302
-    static constexpr uint32_t maxHitsOnTrack = 15;    //15
+    static constexpr uint32_t maxCellNeighbors = 64;
+    static constexpr uint32_t maxCellTracks = 90;
+    static constexpr uint32_t maxHitsOnTrack = 15;
     static constexpr uint32_t maxHitsOnTrackForFullFit = 6;
-    static constexpr uint32_t avgHitsPerTrack = 7;  //7
+    static constexpr uint32_t avgHitsPerTrack = 7;
     static constexpr uint32_t maxCellsPerHit = 256;
-    static constexpr uint32_t avgTracksPerHit = 10;                //10
-    static constexpr uint32_t maxNumberOfTuples = 256 * 1024 * 2;  // 256 * 2048*10; //256*2048
+    static constexpr uint32_t avgTracksPerHit = 10;
+    static constexpr uint32_t maxNumberOfTuples = 32 * 1024 * 4;
     //this is well above thanks to maxNumberOfTuples
     static constexpr uint32_t maxHitsForContainers = avgHitsPerTrack * maxNumberOfTuples;
     static constexpr uint32_t maxNumberOfDoublets = 10 * 256 * 1024;
     static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
-    static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;  //*4
-    static constexpr uint32_t maxDepth = 12;                               //12
+    static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
+    static constexpr uint32_t maxDepth = 12;
     static constexpr int minYsizeB1 = 1;
     static constexpr int minYsizeB2 = 1;
     static constexpr uint32_t const* layerStart = phase1PixelStripTopology::layerStart.data();

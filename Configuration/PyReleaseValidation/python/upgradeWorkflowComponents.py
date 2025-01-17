@@ -1402,6 +1402,20 @@ upgradeWFs['PatatrackPixelOnlyTripletsAlpakaProfiling'] = PatatrackWorkflow(
     offset = 0.408,
 )
 
+upgradeWFs['PatatrackPixelPlusStripAlpaka'] = PatatrackWorkflow(
+    digi = { 
+        '--procModifiers': 'alpaka',
+        '--customise': 'HLTrigger/Configuration/customizeHLTforAlpakaStripNoDoubletRecovery.customizeHLTforAlpakaStripNoDoubletRecovery'
+    },
+    reco = {
+        '-s': 'RAW2DIGI,RECO',
+        '--procModifiers': 'alpaka,stripNtupletFit'
+    },
+    harvest = None,
+    suffix = 'Patatrack_PixelPlusStripAlpaka',
+    offset = 0.409,
+)
+
 # end of Patatrack workflows
 ###############################################################################################################
 
