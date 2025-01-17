@@ -291,36 +291,36 @@ def AddTriggerObjectBits(process):
             l2seed = cms.string("type(83) && coll('hltL2MuonCandidates')"),  l2deltaR = cms.double(0.3),
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet(
-                mksel("filter('hltTripleMuonL2PreFiltered0')","hltTripleMuonL2PreFiltered0"), #0
-                mksel("filter('hltTripleMuL3PreFiltered222')","hltTripleMuL3PreFiltered222"), #1
-                mksel("filter('hltJpsiMuonL3Filtered3p5')","hltJpsiMuonL3Filtered3p5"), #2 
-                mksel("filter('hltVertexmumuFilterJpsiMuon3p5')","hltVertexmumuFilterJpsiMuon3p5"), #3
+                mksel("filter('hltTripleMuonL2PreFiltered0')","hltTripleMuonL2PreFiltered0"), #0 - HLT_Dimuon0_Jpsi3p5_Muon2_v
+                mksel("filter('hltTripleMuL3PreFiltered222')","hltTripleMuL3PreFiltered222"), #1 - HLT_Dimuon0_Jpsi3p5_Muon2_v
+                mksel("filter('hltJpsiMuonL3Filtered3p5')","hltJpsiMuonL3Filtered3p5"), #2 - HLT_Dimuon0_Jpsi3p5_Muon2_v
+                mksel("filter('hltVertexmumuFilterJpsiMuon3p5')","hltVertexmumuFilterJpsiMuon3p5"), #3 - HLT_Dimuon0_Jpsi3p5_Muon2_v
                 mksel("filter('hltL2fL1sDoubleMu0er15OSIorDoubleMu0er14OSIorDoubleMu4OSIorDoubleMu4p5OSL1Filtered0')","hltL2fL1sDoubleMu0er15OSIorDoubleMu0er14OSIorDoubleMu4OSIorDoubleMu4p5OSL1Filtered0"), #4
                 mksel("filter('hltDoubleMu4JpsiDisplacedL3Filtered')","hltDoubleMu4JpsiDisplacedL3Filtered"), #5
                 mksel("filter('hltDisplacedmumuFilterDoubleMu4Jpsi')","hltDisplacedmumuFilterDoubleMu4Jpsi"), #6
-                mksel("filter('hltJpsiTkVertexFilter')","hltJpsiTkVertexFilter"), #7
-                mksel("filter('hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered')","hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered"), #8
-                mksel("filter('hltL3fL1DoubleMu155fPreFiltered8')","hltL3fL1DoubleMu155fPreFiltered8"), #9
-                mksel("filter('hltL3fL1DoubleMu155fFiltered17')","hltL3fL1DoubleMu155fFiltered17"), #10
-                mksel("filter('hltDiMuon178RelTrkIsoFiltered0p4')","hltDiMuon178RelTrkIsoFiltered0p4"), #11
-                mksel("filter('hltDiMuon178RelTrkIsoFiltered0p4DzFiltered0p2')","hltDiMuon178RelTrkIsoFiltered0p4DzFiltered0p2"), #12
-                mksel("filter('hltDiMuon178RelTrkIsoVVLFiltered')","hltDiMuon178RelTrkIsoVVLFiltered"), #13
-                mksel("filter('hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2')","hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2"), #14
-                mksel("filter('hltDiMuon178Mass3p8Filtered')","hltDiMuon178Mass3p8Filtered"), #15
-                mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q"), #16
+                mksel("filter('hltJpsiTkTkVertexFilterPhiDoubleTrk1v4')","hltJpsiTkTkVertexFilterPhiDoubleTrk1v4"), #7 - HLT_DoubleMu2_Jpsi_DoubleTrk1_Phi1p05_v
+                mksel("filter('hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered')","hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered"), #8 - HLT_IsoMu24_v
+                mksel("filter('hltL3fL1DoubleMu155fPreFiltered8')","hltL3fL1DoubleMu155fPreFiltered8"), #9 - HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL
+                mksel("filter('hltL3fL1DoubleMu155fFiltered17')","hltL3fL1DoubleMu155fFiltered17"), #10 - HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL
+                # mksel("filter('hltDiMuon178RelTrkIsoFiltered0p4')","hltDiMuon178RelTrkIsoFiltered0p4"), #11
+                # mksel("filter('hltDiMuon178RelTrkIsoFiltered0p4DzFiltered0p2')","hltDiMuon178RelTrkIsoFiltered0p4DzFiltered0p2"), #12
+                mksel("filter('hltDiMuon178RelTrkIsoVVLFiltered')","hltDiMuon178RelTrkIsoVVLFiltered"), #13 - HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL (Iso)
+                mksel("filter('hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2')","hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2"), #14 - HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ
+                mksel("filter('hltDiMuon178Mass3p8Filtered')","hltDiMuon178Mass3p8Filtered"), #15 - HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8
+                mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q"), #16 - HLT_Mu50_v
                 mksel("filter('hltL2fOldL1sMu22or25L1f0L2Filtered10Q')","hltL2fOldL1sMu22or25L1f0L2Filtered10Q"), #17
-                mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q"), #18
-                mksel("filter('hltL3fL1sMu25f0TkFiltered100Q')","hltL3fL1sMu25f0TkFiltered100Q"), #19
-                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17"), #20
-                mksel("filter('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4')","hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4"), #21
-                mksel("filter('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered')","hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered"), #22
-                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8')","hltL3fL1sMu5L1f0L2f5L3Filtered8"), #23
-                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4')","hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4"), #24
-                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered')","hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered"), #25
-                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered12')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered12"), #26
-                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered15')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered15"), #27
-                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19"), #28
-                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19") #29
+                mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q"), #18 - HLT_CascadeMu100_v
+                mksel("filter('hltL3fL1sMu25f0TkFiltered100Q')","hltL3fL1sMu25f0TkFiltered100Q"), #19 - HLT_HighPtTkMu100_v
+                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17"), #20 - HLT_Mu17_v
+                # mksel("filter('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4')","hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4"), #21
+                mksel("filter('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered')","hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered"), #22 - HLT_Mu17_TrkIsoVVL_v
+                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8')","hltL3fL1sMu5L1f0L2f5L3Filtered8"), #23 - HLT_Mu8_v
+                # mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4')","hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4"), #24
+                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered')","hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered"), #25 - HLT_Mu8_TrkIsoVVL_v
+                mksel("filter('hltL3fL1sMu7L1f0L2f0L3Filtered12eta2p3')","hltL3fL1sMu7L1f0L2f0L3Filtered12eta2p3"), #26 - HLT_Mu12eta2p3_v
+                mksel("filter('hltL3fL1sMu15DQorMu7lqL1f0L2f10L3Filtered15')","hltL3fL1sMu15DQorMu7lqL1f0L2f10L3Filtered15"), #27 - HLT_Mu15_v
+                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17"), #28 - HLT_Mu17_v
+                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19") #29 - HLT_Mu19_v
             )
         )
 
@@ -331,8 +331,8 @@ def AddTriggerObjectBits(process):
             l2seed = cms.string("type(83) && coll('hltL2MuonCandidates')"),  l2deltaR = cms.double(0.3),
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet(
-                mksel("filter('hltL3fL1sSingleMuOpenCandidateL1f0L2f3QL3Filtered50Q')","hltL3fL1sSingleMuOpenCandidateL1f0L2f3QL3Filtered50Q"), #0
-                mksel("filter('hltTrk200MuonEndcapFilter')","hltTrk200MuonEndcapFilter") #1
+                mksel("filter('hltL3fL1sSingleMuOpenCandidateL1f0L2f3QL3Filtered50Q')","hltL3fL1sSingleMuOpenCandidateL1f0L2f3QL3Filtered50Q"), #0 - HLT_Mu50_L1SingleMuShower_v
+                mksel("filter('hltTrk200MuonEndcapFilter')","hltTrk200MuonEndcapFilter") #1 - HLT_IsoTrk200_L1SingleMuShower_v
             )
         )
 
