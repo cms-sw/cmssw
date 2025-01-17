@@ -1,18 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
-process = cms.Process('PROD',Phase2C20I13M9)
+geomName = "Run4D115"
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+print("Geometry Name:  ", geomName)
+print("Geom file Name: ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
+
+process = cms.Process('HFNoseSimHitStudy',ERA)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load('Configuration.Geometry.GeometryExtendedRun4D115_cff')
+process.load(geomFile)
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Validation.HGCalValidation.hfnoseSimHitStudy_cfi')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalValidation=dict()
