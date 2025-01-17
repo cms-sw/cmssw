@@ -302,25 +302,25 @@ def AddTriggerObjectBits(process):
                 mksel("filter('hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered')","hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered"), #8 - HLT_IsoMu24_v
                 mksel("filter('hltL3fL1DoubleMu155fPreFiltered8')","hltL3fL1DoubleMu155fPreFiltered8"), #9 - HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL
                 mksel("filter('hltL3fL1DoubleMu155fFiltered17')","hltL3fL1DoubleMu155fFiltered17"), #10 - HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL
-                # mksel("filter('hltDiMuon178RelTrkIsoFiltered0p4')","hltDiMuon178RelTrkIsoFiltered0p4"), #11
-                # mksel("filter('hltDiMuon178RelTrkIsoFiltered0p4DzFiltered0p2')","hltDiMuon178RelTrkIsoFiltered0p4DzFiltered0p2"), #12
-                mksel("filter('hltDiMuon178RelTrkIsoVVLFiltered')","hltDiMuon178RelTrkIsoVVLFiltered"), #13 - HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL (Iso)
-                mksel("filter('hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2')","hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2"), #14 - HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ
-                mksel("filter('hltDiMuon178Mass3p8Filtered')","hltDiMuon178Mass3p8Filtered"), #15 - HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8
-                mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q"), #16 - HLT_Mu50_v
-                mksel("filter('hltL2fOldL1sMu22or25L1f0L2Filtered10Q')","hltL2fOldL1sMu22or25L1f0L2Filtered10Q"), #17
-                mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q"), #18 - HLT_CascadeMu100_v
-                mksel("filter('hltL3fL1sMu25f0TkFiltered100Q')","hltL3fL1sMu25f0TkFiltered100Q"), #19 - HLT_HighPtTkMu100_v
-                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17"), #20 - HLT_Mu17_v
-                # mksel("filter('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4')","hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4"), #21
-                mksel("filter('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered')","hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered"), #22 - HLT_Mu17_TrkIsoVVL_v
-                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8')","hltL3fL1sMu5L1f0L2f5L3Filtered8"), #23 - HLT_Mu8_v
-                # mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4')","hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4"), #24
-                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered')","hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered"), #25 - HLT_Mu8_TrkIsoVVL_v
-                mksel("filter('hltL3fL1sMu7L1f0L2f0L3Filtered12eta2p3')","hltL3fL1sMu7L1f0L2f0L3Filtered12eta2p3"), #26 - HLT_Mu12eta2p3_v
-                mksel("filter('hltL3fL1sMu15DQorMu7lqL1f0L2f10L3Filtered15')","hltL3fL1sMu15DQorMu7lqL1f0L2f10L3Filtered15"), #27 - HLT_Mu15_v
-                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17"), #28 - HLT_Mu17_v
-                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19") #29 - HLT_Mu19_v
+                mksel("filter('hltDiMuon178RelTrkIsoVVLFiltered')","hltDiMuon178RelTrkIsoVVLFiltered"), #11 - HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL (Iso)
+                mksel("filter('hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2')","hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2"), #12 - HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ
+                mksel("filter('hltDiMuon178Mass3p8Filtered')","hltDiMuon178Mass3p8Filtered"), #13 - HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8
+                mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q"), #14 - HLT_Mu50_v
+                mksel("filter('hltL2fOldL1sMu22or25L1f0L2Filtered10Q')","hltL2fOldL1sMu22or25L1f0L2Filtered10Q"), #15
+                mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q"), #16 - HLT_CascadeMu100_v
+                mksel("filter('hltL3fL1sMu25f0TkFiltered100Q')","hltL3fL1sMu25f0TkFiltered100Q"), #17 - HLT_HighPtTkMu100_v
+                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17"), #18 - HLT_Mu17_v
+                mksel("filter('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered')","hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered"), #19 - HLT_Mu17_TrkIsoVVL_v
+                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8')","hltL3fL1sMu5L1f0L2f5L3Filtered8"), #20 - HLT_Mu8_v
+                mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered')","hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered"), #21 - HLT_Mu8_TrkIsoVVL_v
+                mksel("filter('hltL3fL1sMu7L1f0L2f0L3Filtered12eta2p3')","hltL3fL1sMu7L1f0L2f0L3Filtered12eta2p3"), #22 - HLT_Mu12eta2p3_v
+                mksel("filter('hltL3fL1sMu15DQorMu7lqL1f0L2f10L3Filtered15')","hltL3fL1sMu15DQorMu7lqL1f0L2f10L3Filtered15"), #23 - HLT_Mu15_v
+                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17"), #24 - HLT_Mu17_v
+                mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19"), #25 - HLT_Mu19_v
+                mksel("filter('hltL3fL1sMu18L1f0L2f10QL3Filtered20Q')","hltL3fL1sMu18L1f0L2f10QL3Filtered20Q"), #26 - HLT_Mu20_v
+                mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered27Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered27Q"), #27 - HLT_Mu27_v
+                mksel("filter('hltL3fL1sSingleMuOpenCandidateL1f0L2f3QL3Filtered50Q')","hltL3fL1sSingleMuOpenCandidateL1f0L2f3QL3Filtered50Q"), #28 - HLT_Mu50_L1SingleMuShower_v
+                mksel("filter('hltTrk200MuonEndcapFilter')","hltTrk200MuonEndcapFilter") #29 - HLT_IsoTrk200_L1SingleMuShower_v
             )
         )
 
@@ -331,8 +331,25 @@ def AddTriggerObjectBits(process):
             l2seed = cms.string("type(83) && coll('hltL2MuonCandidates')"),  l2deltaR = cms.double(0.3),
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet(
-                mksel("filter('hltL3fL1sSingleMuOpenCandidateL1f0L2f3QL3Filtered50Q')","hltL3fL1sSingleMuOpenCandidateL1f0L2f3QL3Filtered50Q"), #0 - HLT_Mu50_L1SingleMuShower_v
-                mksel("filter('hltTrk200MuonEndcapFilter')","hltTrk200MuonEndcapFilter") #1 - HLT_IsoTrk200_L1SingleMuShower_v
+                mksel("filter('hltSQMu7p5L2Mu2JpsiTrackMassFiltered')","hltSQMu7p5L2Mu2JpsiTrackMassFiltered"), #0 - HLT_Mu7p5_L2Mu2_Jpsi_v (DoubleMuon Parking)
+                mksel("filter('hltSQMu7p5L2Mu2UpsilonTrackMassFiltered')","hltSQMu7p5L2Mu2UpsilonTrackMassFiltered"), #1 - HLT_Mu7p5_L2Mu2_Upsilon_v
+                mksel("filter('hltDiMuonGlb25PhiTrk0DzFiltered0p2')","hltDiMuonGlb25PhiTrk0DzFiltered0p2"), #2 - HLT_Mu25_TkMu0_Phi_v
+                mksel("filter('hltDiMuonGlb30Trk0DzPsiFiltered0p2')","hltDiMuonGlb30Trk0DzPsiFiltered0p2"), #3 - HLT_Mu30_TkMu0_Psi_v
+                mksel("filter('hltDiMuonGlb30TrkUpsilon0DzFiltered0p2')","hltDiMuonGlb30TrkUpsilon0DzFiltered0p2"), #4 - HLT_Mu30_TkMu0_Upsilon_v
+                mksel("filter('hltL3fL1sDoubleMu0SQL1f0L2PreFilteres0L3Filtered4')","hltL3fL1sDoubleMu0SQL1f0L2PreFilteres0L3Filtered4"), #5 - HLT_Mu4_L1DoubleMu_v
+                mksel("filter('hltL3fL1sMu0BMTFL3Filtered0')","hltL3fL1sMu0BMTFL3Filtered0"), #6 - HLT_Mu0_Barrel_v (SingleMuon Parking)
+                mksel("filter('hltL3fL1sMuHP10L3Filtered0')","hltL3fL1sMuHP10L3Filtered0"), #7 - HLT_Mu0_Barrel_L1HP10_v
+                mksel("filter('hltL3fL1sMuHP11L3Filtered0')","hltL3fL1sMuHP11L3Filtered0"), #8 - HLT_Mu0_Barrel_L1HP11_v
+                mksel("filter('hltL3fL1sMu9HP10IP6L3Filtered0')","hltL3fL1sMu9HP10IP6L3Filtered0"), #9 - HLT_Mu9_Barrel_L1HP10_IP6_v
+                mksel("filter('hltL3fL1sMu10HP11IP6L3Filtered0')","hltL3fL1sMu10HP11IP6L3Filtered0"), #10 - HLT_Mu10_Barrel_L1HP11_IP6_v
+                mksel("filter('hltL3fL1sMuHP8L3Filtered0')","hltL3fL1sMuHP8L3Filtered0"), #11 - HLT_Mu0_Barrel_L1HP8_v
+                mksel("filter('hltL3fL1sMuHP9L3Filtered0')","hltL3fL1sMuHP9L3Filtered0"), #12 - HLT_Mu0_Barrel_L1HP9_v
+                mksel("filter('hltL3fL1sMu7HP8IP6L3Filtered0')","hltL3fL1sMu7HP8IP6L3Filtered0"), #13 - HLT_Mu7_Barrel_L1HP8_IP6_v
+                mksel("filter('hltL3fL1sMu8HP9IP6L3Filtered0')","hltL3fL1sMu8HP9IP6L3Filtered0"), #14 - HLT_Mu8_Barrel_L1HP9_IP6_v
+                mksel("filter('hltL3fL1sMuHP6L3Filtered0')","hltL3fL1sMuHP6L3Filtered0"), #15 - HLT_Mu0_Barrel_L1HP6_v 
+                mksel("filter('hltL3fL1sMuHP7L3Filtered0')","hltL3fL1sMuHP7L3Filtered0"), #16 - HLT_Mu0_Barrel_L1HP7_v
+                mksel("filter('hltL3fL1sMu0HP6IP6L3Filtered0')","hltL3fL1sMu0HP6IP6L3Filtered0"), #17 - HLT_Mu0_Barrel_L1HP6_IP6_v
+                mksel("filter('hltL3fL1sMu6HP7IP6L3Filtered0')","hltL3fL1sMu6HP7IP6L3Filtered0"), #18 - HLT_Mu6_Barrel_L1HP7_IP6_v
             )
         )
 
