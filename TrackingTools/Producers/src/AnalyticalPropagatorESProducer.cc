@@ -48,12 +48,12 @@ AnalyticalPropagatorESProducer::AnalyticalPropagatorESProducer(const edm::Parame
 
 void AnalyticalPropagatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& oDesc) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("ComponentName")->setComment("the data label assigned to the Propagator");
+  desc.add<std::string>("ComponentName", "AnalyticalPropagator")
+      ->setComment("the data label assigned to the Propagator");
   desc.add<std::string>("SimpleMagneticField", "")->setComment("the data label used to retrieve the MagneticField");
-  desc.add<std::string>("PropagationDirection");
-  desc.add<double>("MaxDPhi");
-
-  oDesc.addDefault(desc);
+  desc.add<std::string>("PropagationDirection", "alongMomentum");
+  desc.add<double>("MaxDPhi", 1.6);
+  oDesc.addWithDefaultLabel(desc);
 }
 
 std::unique_ptr<Propagator> AnalyticalPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord) {
