@@ -54,7 +54,7 @@ template <typename TfLV1, typename TfLV2, typename TfLL>
 static inline void ConvertToCCS_imp(const TfLV1& a, TfLV2& b, TfLL& c, const int nmin, const int nmax) {
 #pragma omp simd
   for (int n = nmin; n < nmax; ++n) {
-    const float pt = getHypot(a(n, 0, 3), a(n, 0, 4));
+    const float pt = hipo(a(n, 0, 3), a(n, 0, 4));
     const float p2 = pt * pt + a(n, 0, 5) * a(n, 0, 5);
     //
     b(n, 0, 0) = a(n, 0, 0);

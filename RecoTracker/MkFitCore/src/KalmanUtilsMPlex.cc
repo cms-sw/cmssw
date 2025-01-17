@@ -934,7 +934,7 @@ namespace mkfit {
       MPlexQF msRad;
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
-        msRad.At(n, 0, 0) = std::hypot(msPar.constAt(n, 0, 0), msPar.constAt(n, 1, 0));
+        msRad.At(n, 0, 0) = hipo(msPar.constAt(n, 0, 0), msPar.constAt(n, 1, 0));
       }
 
       propagateHelixToRMPlex(psErr, psPar, Chg, msRad, propErr, propPar, outFailFlag, N_proc, propFlags);
@@ -983,7 +983,7 @@ namespace mkfit {
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
         if (n < N_proc) {
-          msRad.At(n, 0, 0) = std::hypot(msPar.constAt(n, 0, 0), msPar.constAt(n, 1, 0));
+          msRad.At(n, 0, 0) = hipo(msPar.constAt(n, 0, 0), msPar.constAt(n, 1, 0));
         } else {
           msRad.At(n, 0, 0) = 0.0f;
         }
@@ -1053,7 +1053,7 @@ namespace mkfit {
     MPlexQF rotT01;
     for (int n = 0; n < NN; ++n) {
       if (n < N_proc) {
-        const float r = std::hypot(msPar.constAt(n, 0, 0), msPar.constAt(n, 1, 0));
+        const float r = hipo(msPar.constAt(n, 0, 0), msPar.constAt(n, 1, 0));
         rotT00.At(n, 0, 0) = -(msPar.constAt(n, 1, 0) + psPar.constAt(n, 1, 0)) / (2 * r);
         rotT01.At(n, 0, 0) = (msPar.constAt(n, 0, 0) + psPar.constAt(n, 0, 0)) / (2 * r);
       } else {
