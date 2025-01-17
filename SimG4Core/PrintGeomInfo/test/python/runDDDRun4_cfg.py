@@ -28,14 +28,17 @@ print(options)
 ####################################################################
 # Use the options
 
-if (options.geometry == "D115"):
-    from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
-    process = cms.Process('G4PrintGeometry',Phase2C20I13M9)
-else:
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
+geomName = "Run4" + options.geometry
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+print("Geometry Name:   ", geomName)
+print("Geom file Name:  ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
 
-geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
+process = cms.Process('G4PrintGeometry',ERA)
+
 materialFileName = "matfile" + options.geometry + "DDD.txt"
 solidFileName    = "solidfile" + options.geometry + "DDD.txt"
 lvFileName       = "lvfile" + options.geometry + "DDD.txt"
@@ -43,7 +46,6 @@ pvFileName       = "pvfile" + options.geometry + "DDD.txt"
 touchFileName    = "touchfile" + options.geometry + "DDD.txt"
 regionFileName   = "regionfile" + options.geometry + "DDD.txt"
 
-print("Geometry file Name: ", geomFile)
 print("Material file Name: ", materialFileName)
 print("Solid file Name:    ", solidFileName)
 print("LV file Name:       ", lvFileName)
