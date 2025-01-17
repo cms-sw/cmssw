@@ -532,21 +532,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   SegmentsOccupancy segmentsOccupancy,
                                   ObjectRangesConst ranges,
                                   const float ptCut) const {
-      auto const globalBlockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc);
-      auto const blockThreadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc);
-      auto const gridBlockExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc);
-      auto const blockThreadExtent = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc);
-
-      for (uint16_t innerLowerModuleIndex = globalBlockIdx[2]; innerLowerModuleIndex < modules.nLowerModules();
-           innerLowerModuleIndex += gridBlockExtent[2]) {
+      for (uint16_t innerLowerModuleIndex : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
         unsigned int nInnerMDs = mdsOccupancy.nMDs()[innerLowerModuleIndex];
         if (nInnerMDs == 0)
           continue;
 
         unsigned int nConnectedModules = modules.nConnectedModules()[innerLowerModuleIndex];
 
-        for (uint16_t outerLowerModuleArrayIdx = blockThreadIdx[1]; outerLowerModuleArrayIdx < nConnectedModules;
-             outerLowerModuleArrayIdx += blockThreadExtent[1]) {
+        for (uint16_t outerLowerModuleArrayIdx : cms::alpakatools::uniform_elements_y(acc, nConnectedModules)) {
           uint16_t outerLowerModuleIndex = modules.moduleMap()[innerLowerModuleIndex][outerLowerModuleArrayIdx];
 
           unsigned int nOuterMDs = mdsOccupancy.nMDs()[outerLowerModuleIndex];
@@ -555,7 +548,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
           if (limit == 0)
             continue;
-          for (unsigned int hitIndex = blockThreadIdx[2]; hitIndex < limit; hitIndex += blockThreadExtent[2]) {
+          for (unsigned int hitIndex : cms::alpakatools::uniform_elements_x(acc, limit)) {
             unsigned int innerMDArrayIdx = hitIndex / nOuterMDs;
             unsigned int outerMDArrayIdx = hitIndex % nOuterMDs;
             if (outerMDArrayIdx >= nOuterMDs)
@@ -632,9 +625,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       static_assert(std::is_same_v<TAcc, ALPAKA_ACCELERATOR_NAMESPACE::Acc1D>, "Should be Acc1D");
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
 
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
       // Initialize variables in shared memory and set to 0
       int& nTotalSegments = alpaka::declareSharedVar<int, __COUNTER__>(acc);
       if (cms::alpakatools::once_per_block(acc)) {
@@ -661,7 +651,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       // Select the appropriate occupancy matrix based on ptCut
       const auto& occupancy_matrix = (ptCut < 0.8f) ? p06_occupancy_matrix : p08_occupancy_matrix;
 
-      for (uint16_t i = globalThreadIdx[0]; i < modules.nLowerModules(); i += gridThreadExtent[0]) {
+      for (uint16_t i : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
         if (modules.nConnectedModules()[i] == 0) {
           ranges.segmentModuleIndices()[i] = nTotalSegments;
           ranges.segmentModuleOccupancy()[i] = 0;
@@ -710,10 +700,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       static_assert(std::is_same_v<TAcc, ALPAKA_ACCELERATOR_NAMESPACE::Acc1D>, "Should be Acc1D");
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
 
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (uint16_t i = globalThreadIdx[0]; i < modules.nLowerModules(); i += gridThreadExtent[0]) {
+      for (uint16_t i : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
         if (segmentsOccupancy.nSegments()[i] == 0) {
           ranges.segmentRanges()[i][0] = -1;
           ranges.segmentRanges()[i][1] = -1;
@@ -741,10 +728,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   float* dPhiChange,
                                   uint16_t pixelModuleIndex,
                                   int size) const {
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (int tid = globalThreadIdx[2]; tid < size; tid += gridThreadExtent[2]) {
+      for (int tid : cms::alpakatools::uniform_elements(acc, size)) {
         unsigned int innerMDIndex = ranges.miniDoubletModuleIndices()[pixelModuleIndex] + 2 * (tid);
         unsigned int outerMDIndex = ranges.miniDoubletModuleIndices()[pixelModuleIndex] + 2 * (tid) + 1;
         unsigned int pixelSegmentIndex = ranges.segmentModuleIndices()[pixelModuleIndex] + tid;

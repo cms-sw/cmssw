@@ -1,6 +1,8 @@
 #ifndef RecoTracker_LSTCore_src_alpaka_Kernels_h
 #define RecoTracker_LSTCore_src_alpaka_Kernels_h
 
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
@@ -145,20 +147,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   Quintuplets quintuplets,
                                   QuintupletsOccupancyConst quintupletsOccupancy,
                                   ObjectRangesConst ranges) const {
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (unsigned int lowmod = globalThreadIdx[0]; lowmod < modules.nLowerModules(); lowmod += gridThreadExtent[0]) {
+      for (unsigned int lowmod : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
         unsigned int nQuintuplets_lowmod = quintupletsOccupancy.nQuintuplets()[lowmod];
         int quintupletModuleIndices_lowmod = ranges.quintupletModuleIndices()[lowmod];
 
-        for (unsigned int ix1 = globalThreadIdx[1]; ix1 < nQuintuplets_lowmod; ix1 += gridThreadExtent[1]) {
+        for (unsigned int ix1 : cms::alpakatools::uniform_elements_y(acc, nQuintuplets_lowmod)) {
           unsigned int ix = quintupletModuleIndices_lowmod + ix1;
           float eta1 = __H2F(quintuplets.eta()[ix]);
           float phi1 = __H2F(quintuplets.phi()[ix]);
           float score_rphisum1 = __H2F(quintuplets.score_rphisum()[ix]);
 
-          for (unsigned int jx1 = globalThreadIdx[2] + ix1 + 1; jx1 < nQuintuplets_lowmod; jx1 += gridThreadExtent[2]) {
+          for (unsigned int jx1 : cms::alpakatools::uniform_elements_x(acc, ix1 + 1, nQuintuplets_lowmod)) {
             unsigned int jx = quintupletModuleIndices_lowmod + jx1;
 
             float eta2 = __H2F(quintuplets.eta()[jx]);
@@ -194,11 +193,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   Quintuplets quintuplets,
                                   QuintupletsOccupancyConst quintupletsOccupancy,
                                   ObjectRangesConst ranges) const {
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (unsigned int lowmodIdx1 = globalThreadIdx[1]; lowmodIdx1 < ranges.nEligibleT5Modules();
-           lowmodIdx1 += gridThreadExtent[1]) {
+      for (unsigned int lowmodIdx1 : cms::alpakatools::uniform_elements_y(acc, ranges.nEligibleT5Modules())) {
         uint16_t lowmod1 = ranges.indicesOfEligibleT5Modules()[lowmodIdx1];
         unsigned int nQuintuplets_lowmod1 = quintupletsOccupancy.nQuintuplets()[lowmod1];
         if (nQuintuplets_lowmod1 == 0)
@@ -206,8 +201,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         unsigned int quintupletModuleIndices_lowmod1 = ranges.quintupletModuleIndices()[lowmod1];
 
-        for (unsigned int lowmodIdx2 = globalThreadIdx[2] + lowmodIdx1; lowmodIdx2 < ranges.nEligibleT5Modules();
-             lowmodIdx2 += gridThreadExtent[2]) {
+        for (unsigned int lowmodIdx2 :
+             cms::alpakatools::uniform_elements_x(acc, lowmodIdx1, ranges.nEligibleT5Modules())) {
           uint16_t lowmod2 = ranges.indicesOfEligibleT5Modules()[lowmodIdx2];
           unsigned int nQuintuplets_lowmod2 = quintupletsOccupancy.nQuintuplets()[lowmod2];
           if (nQuintuplets_lowmod2 == 0)
@@ -274,11 +269,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   struct RemoveDupPixelTripletsFromMap {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, PixelTriplets pixelTriplets) const {
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (unsigned int ix = globalThreadIdx[1]; ix < pixelTriplets.nPixelTriplets(); ix += gridThreadExtent[1]) {
-        for (unsigned int jx = globalThreadIdx[2]; jx < pixelTriplets.nPixelTriplets(); jx += gridThreadExtent[2]) {
+      for (unsigned int ix : cms::alpakatools::uniform_elements_y(acc, pixelTriplets.nPixelTriplets())) {
+        for (unsigned int jx : cms::alpakatools::uniform_elements_x(acc, pixelTriplets.nPixelTriplets())) {
           if (ix == jx)
             continue;
 
@@ -308,13 +300,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   struct RemoveDupPixelQuintupletsFromMap {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, PixelQuintuplets pixelQuintuplets) const {
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
       unsigned int nPixelQuintuplets = pixelQuintuplets.nPixelQuintuplets();
-      for (unsigned int ix = globalThreadIdx[1]; ix < nPixelQuintuplets; ix += gridThreadExtent[1]) {
+      for (unsigned int ix : cms::alpakatools::uniform_elements_y(acc, nPixelQuintuplets)) {
         float score1 = __H2F(pixelQuintuplets.score()[ix]);
-        for (unsigned int jx = globalThreadIdx[2]; jx < nPixelQuintuplets; jx += gridThreadExtent[2]) {
+        for (unsigned int jx : cms::alpakatools::uniform_elements_x(acc, nPixelQuintuplets)) {
           if (ix == jx)
             continue;
 
@@ -339,16 +328,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   SegmentsOccupancyConst segmentsOccupancy,
                                   SegmentsPixel segmentsPixel,
                                   bool secondpass) const {
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
       int pixelModuleIndex = modules.nLowerModules();
       unsigned int nPixelSegments = segmentsOccupancy.nSegments()[pixelModuleIndex];
 
       if (nPixelSegments > n_max_pixel_segments_per_module)
         nPixelSegments = n_max_pixel_segments_per_module;
 
-      for (unsigned int ix = globalThreadIdx[1]; ix < nPixelSegments; ix += gridThreadExtent[1]) {
+      for (unsigned int ix : cms::alpakatools::uniform_elements_y(acc, nPixelSegments)) {
         if (secondpass && (!segmentsPixel.isQuad()[ix] || (segmentsPixel.isDup()[ix] & 1)))
           continue;
 
@@ -360,7 +346,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         float eta_pix1 = segmentsPixel.eta()[ix];
         float phi_pix1 = segmentsPixel.phi()[ix];
 
-        for (unsigned int jx = ix + 1 + globalThreadIdx[2]; jx < nPixelSegments; jx += gridThreadExtent[2]) {
+        for (unsigned int jx : cms::alpakatools::uniform_elements_x(acc, ix + 1, nPixelSegments)) {
           float eta_pix2 = segmentsPixel.eta()[jx];
           float phi_pix2 = segmentsPixel.phi()[jx];
 
