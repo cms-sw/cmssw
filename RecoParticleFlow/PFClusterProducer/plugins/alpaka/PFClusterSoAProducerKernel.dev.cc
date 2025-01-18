@@ -1304,10 +1304,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         *nRHF = totalSeedFracOffset;
         clusterView.nSeeds() = *nSeeds;
         clusterView.nTopos() = pfClusteringVars.nTopos();
-
-        if (pfClusteringVars.pcrhFracSize() > 200000)  // Warning in case the fraction is too large
-          printf("At the end of topoClusterContraction, found large *pcrhFracSize = %d\n",
-                 pfClusteringVars.pcrhFracSize());
       }
     }
   };
