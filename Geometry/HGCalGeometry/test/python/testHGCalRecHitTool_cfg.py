@@ -1,11 +1,46 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalRecHitTool_cfg.py geometry=D110
+#
+#   Options for type D95, D96, D98, D99, D100, D101, D102, D103, D104, D105,
+#                    D106, D107, D108, D109, D110, D111, D112, D113, D114,
+#                    D115, D116
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PROD")
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D110",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116")
+
+### get and parse the command line arguments
+options.parseArguments()
+print(options)
+
+####################################################################
+# Use the options
+
+geomName = "Run4" + options.geometry
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+
+print("Geometry Name:   ", geomName)
+print("Geom file Name:  ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
+
+process = cms.Process("PROD",ERA)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("Configuration.Geometry.GeometryExtendedRun4D49Reco_cff")
-#process.load("Configuration.Geometry.GeometryExtendedRun4D67Reco_cff")
-#process.load("Configuration.Geometry.GeometryExtendedRun4D71Reco_cff")
+process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
