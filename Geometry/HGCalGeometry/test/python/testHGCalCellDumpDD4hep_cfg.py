@@ -1,31 +1,48 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalCellDumpDD4hep_cfg.py geometry=D110
+#
+#   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
+#                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
+#                        D114, D115, D116
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2C11_dd4hep_cff import Phase2C11_dd4hep
+import os, sys, importlib, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("HcalGeometryTest",Phase2C11_dd4hep)
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D110",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116")
+### get and parse the command line arguments
+options.parseArguments()
 
-process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
-process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
-process.load("Geometry.CaloEventSetup.HGCalTopology_cfi")
-process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
-process.load("Geometry.EcalMapping.EcalMapping_cfi")
-process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
-process.load("Geometry.HcalCommonData.hcalDDDRecConstants_cfi")
-process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
+print(options)
+
+####################################################################
+# Use the options
+
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+
+geomName = "Run4" + options.geometry
+geomFile = "Configuration.Geometry.GeometryDD4hepExtended" + geomName + "Reco_cff"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+
+print("Geometry Name:   ", geomName)
+print("Geom file Name:  ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
+
+process = cms.Process("HcalGeometryTest",ERA,dd4hep)
+
+process.load(geomFile)
 process.load("Geometry.HGCalGeometry.hgcalGeometryDump_cfi")
-
-process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometryRun4D71.xml'),
-                                            appendToDataLabel = cms.string('')
-)
-
-process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-                                                appendToDataLabel = cms.string('')
-)
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
