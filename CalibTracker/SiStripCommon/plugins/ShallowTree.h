@@ -49,8 +49,8 @@ private:
   template <class T>
   class TypedBranchConnector : public BranchConnector {
   private:
-    std::string ml;   //module label
-    std::string pin;  //product instance name
+    std::string ml_;   //module label
+    std::string pin_;  //product instance name
     T object_;
     T* object_ptr_;
 

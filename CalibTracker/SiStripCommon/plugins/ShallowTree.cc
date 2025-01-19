@@ -11,10 +11,10 @@ ShallowTree::ShallowTree(const edm::ParameterSet& iConfig) {
 
   //int compSettings= iConfig.getParameter<int>("CompressionSettings",-1);
   int compSettings = iConfig.getUntrackedParameter<int>("CompressionSettings", -1);
-  edm::Service<TFileService> fs_;
+  edm::Service<TFileService> fs;
   if (compSettings > 0)
-    fs_->file().SetCompressionSettings(compSettings);
-  tree_ = fs_->make<TTree>("tree", "");
+    fs->file().SetCompressionSettings(compSettings);
+  tree_ = fs->make<TTree>("tree", "");
 
   std::map<std::string, LEAFTYPE> leafmap;
   leafmap["bool"] = BOOL;
@@ -177,22 +177,22 @@ void ShallowTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 template <class T>
 void ShallowTree::TypedBranchConnector<T>::connect(const edm::Event& iEvent) {
-  edm::Handle<T> handle_;
-  iEvent.getByLabel(ml, pin, handle_);
-  object_ = *handle_;
+  edm::Handle<T> handle;
+  iEvent.getByLabel(ml_, pin_, handle);
+  object_ = *handle;
 }
 
 template <class T>
 ShallowTree::TypedBranchConnector<T>::TypedBranchConnector(edm::BranchDescription const* desc,
                                                            std::string t,
                                                            TTree* tree)
-    : ml(desc->moduleLabel()), pin(desc->productInstanceName()) {
+    : ml_(desc->moduleLabel()), pin_(desc->productInstanceName()) {
   object_ptr_ = &object_;
-  std::string s = pin + t;
+  std::string s = pin_ + t;
   if (!t.empty()) {
-    tree->Branch(pin.c_str(), object_ptr_, s.c_str());
+    tree->Branch(pin_.c_str(), object_ptr_, s.c_str());
   }  //raw type
   else {
-    tree->Branch(pin.c_str(), &object_ptr_);
+    tree->Branch(pin_.c_str(), &object_ptr_);
   }  //vector<type>
 }
