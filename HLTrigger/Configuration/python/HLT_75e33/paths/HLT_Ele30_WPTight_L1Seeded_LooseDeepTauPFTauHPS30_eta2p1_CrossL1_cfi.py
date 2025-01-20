@@ -29,7 +29,7 @@ from ..modules.hltEgammaEcalPFClusterIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHGCalLayerClusterIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHcalPFClusterIsoL1Seeded_cfi import *
 from ..modules.hltEgammaEleL1TrkIsoL1Seeded_cfi import *
-from ..modules.hltEgammaEleGsfTrackIsoV6L1Seeded_cfi import *
+from ..modules.hltEgammaEleGsfTrackIsoL1Seeded_cfi import *
 from ..modules.hltAK4PFJetsForTaus_cfi import *
 from ..modules.hltHpsSelectedPFTauLooseTauWPDeepTau_cfi import * 
 from ..modules.hltHpsPFTau30LooseTauWPDeepTau_cfi import *
@@ -93,7 +93,7 @@ HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1 = cms.Path(
     hltEgammaEleL1TrkIsoL1Seeded + 
     hltEle30WPTightGsfTrackIsoFromL1TracksL1SeededFilter + 
     HLTTrackingV61Sequence +
-    hltEgammaEleGsfTrackIsoV6L1Seeded +
+    hltEgammaEleGsfTrackIsoL1Seeded +
     hltEle30WPTightGsfTrackIsoL1SeededFilter + 
     HLTMuonsSequence +
     HLTParticleFlowSequence +

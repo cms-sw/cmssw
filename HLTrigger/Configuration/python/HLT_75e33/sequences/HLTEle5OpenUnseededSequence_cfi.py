@@ -8,7 +8,6 @@ from ..modules.hltEgammaR9Unseeded_cfi import *
 from ..modules.hltEgammaHollowTrackIsoUnseeded_cfi import *
 from ..modules.hltEgammaEcalPFClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaEleGsfTrackIsoUnseeded_cfi import *
-from ..modules.hltEgammaEleGsfTrackIsoV6Unseeded_cfi import *
 from ..modules.hltEgammaEleL1TrkIsoUnseeded_cfi import *
 from ..modules.hltEgammaHcalPFClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaHGCALIDVarsUnseeded_cfi import *
@@ -62,7 +61,6 @@ HLTEle5OpenUnseededSequence = cms.Sequence(HLTL1Sequence
                                            +hltEgammaHGCalLayerClusterIsoUnseeded
                                            +hltEgammaHcalPFClusterIsoUnseeded
                                            +hltEgammaEleGsfTrackIsoUnseeded
-                                           +hltEgammaEleGsfTrackIsoV6Unseeded
                                            +hltEgammaEleL1TrkIsoUnseeded
                                            +hltEgammaHollowTrackIsoUnseeded
                                            +hltEgammaCandidatesWrapperUnseeded

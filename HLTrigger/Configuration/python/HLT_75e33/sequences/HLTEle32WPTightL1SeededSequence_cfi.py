@@ -12,7 +12,7 @@ from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
 from ..sequences.HLTTrackingV61Sequence_cfi import *
 
 from ..modules.hltEgammaEcalPFClusterIsoL1Seeded_cfi import *
-from ..modules.hltEgammaEleGsfTrackIsoV6L1Seeded_cfi import *
+from ..modules.hltEgammaEleGsfTrackIsoL1Seeded_cfi import *
 from ..modules.hltEgammaEleL1TrkIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHcalPFClusterIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHGCALIDVarsL1Seeded_cfi import *
@@ -79,7 +79,7 @@ HLTEle32WPTightL1SeededSequence = cms.Sequence(HLTL1Sequence
     +hltEgammaEleL1TrkIsoL1Seeded
     +hltEle32WPTightGsfTrackIsoFromL1TracksL1SeededFilter
     +HLTTrackingV61Sequence
-    +hltEgammaEleGsfTrackIsoV6L1Seeded
+    +hltEgammaEleGsfTrackIsoL1Seeded
     +hltEle32WPTightGsfTrackIsoL1SeededFilter
 
 )

@@ -8,7 +8,6 @@ from ..modules.hltEgammaR9L1Seeded_cfi import *
 from ..modules.hltEgammaHollowTrackIsoL1Seeded_cfi import *
 from ..modules.hltEgammaEcalPFClusterIsoL1Seeded_cfi import *
 from ..modules.hltEgammaEleGsfTrackIsoL1Seeded_cfi import *
-from ..modules.hltEgammaEleGsfTrackIsoV6L1Seeded_cfi import *
 from ..modules.hltEgammaEleL1TrkIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHcalPFClusterIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHGCALIDVarsL1Seeded_cfi import *
@@ -82,6 +81,5 @@ HLTEle5OpenL1SeededSequence = cms.Sequence(HLTL1Sequence
         +cms.ignore(hltEle5WPTightGsfTrackIsoFromL1TracksL1SeededFilter)
         +HLTTrackingV61Sequence
         +hltEgammaEleGsfTrackIsoL1Seeded
-        +hltEgammaEleGsfTrackIsoV6L1Seeded
         +hltEgammaHollowTrackIsoL1Seeded
         +cms.ignore(hltEle5WPTightGsfTrackIsoL1SeededFilter))

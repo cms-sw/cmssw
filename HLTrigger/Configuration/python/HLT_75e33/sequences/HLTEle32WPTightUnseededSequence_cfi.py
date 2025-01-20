@@ -14,7 +14,7 @@ from ..sequences.HLTTrackingV61Sequence_cfi import *
 from ..modules.hltEgammaCandidatesUnseeded_cfi import *
 from ..modules.hltEgammaClusterShapeUnseeded_cfi import *
 from ..modules.hltEgammaEcalPFClusterIsoUnseeded_cfi import *
-from ..modules.hltEgammaEleGsfTrackIsoV6Unseeded_cfi import *
+from ..modules.hltEgammaEleGsfTrackIsoUnseeded_cfi import *
 from ..modules.hltEgammaEleL1TrkIsoUnseeded_cfi import *
 from ..modules.hltEgammaHcalPFClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaHGCALIDVarsUnseeded_cfi import *
@@ -78,6 +78,6 @@ HLTEle32WPTightUnseededSequence = cms.Sequence(HLTL1Sequence
     +hltEgammaEleL1TrkIsoUnseeded
     +hltEle32WPTightGsfTrackIsoFromL1TracksUnseededFilter
     +HLTTrackingV61Sequence
-    +hltEgammaEleGsfTrackIsoV6Unseeded
+    +hltEgammaEleGsfTrackIsoUnseeded
     +hltEle32WPTightGsfTrackIsoUnseededFilter
 )
