@@ -750,12 +750,12 @@ void TrackBuildingAnalyzer::analyzeRegions(const T& regions) {
       }
       if (doAllSeedPlots || doPHI) {
         for (auto phi = phiMin; phi < phiMax; phi += phiBinWidth) {
-          TrackingRegionPhi->Fill(reco::reduceRange(phi));
+          TrackingRegionPhi->Fill(reco::reducePhiRange(phi));
         }
       }
       if (doAllSeedPlots || doPHIVsETA) {
         for (auto phi = phiMin; phi < phiMax; phi += phiBinWidth) {
-          const auto reducedPhi = reco::reduceRange(phi);
+          const auto reducedPhi = reco::reducePhiRange(phi);
           for (auto eta = etaMin; eta < etaMax; eta += etaBinWidth) {
             TrackingRegionPhiVsEta->Fill(eta, reducedPhi);
           }

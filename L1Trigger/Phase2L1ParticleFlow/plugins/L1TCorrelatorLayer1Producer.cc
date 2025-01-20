@@ -647,7 +647,7 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
   event_.decoded.track.clear();
   for (unsigned int ieta = 0, neta = 2; ieta < neta; ++ieta) {
     for (unsigned int iphi = 0; iphi < TF_phiSlices; ++iphi) {
-      float phiCenter = reco::reduceRange(iphi * TF_phiWidth);
+      float phiCenter = reco::reducePhiRange(iphi * TF_phiWidth);
       event_.decoded.track.emplace_back((ieta ? 0. : -2.5), (ieta ? 2.5 : 0.0), phiCenter, TF_phiWidth);
       event_.raw.track.emplace_back((ieta ? 0. : -2.5), (ieta ? 2.5 : 0.0), phiCenter, TF_phiWidth);
     }
@@ -671,7 +671,7 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
       if (etaWidth > 2 * l1ct::Scales::maxAbsEta())
         throw cms::Exception("Configuration", "caloSectors eta range too large for eta_t data type");
       for (unsigned int iphi = 0; iphi < phiSlices; ++iphi) {
-        float phiCenter = reco::reduceRange(iphi * phiWidth + phiZero);
+        float phiCenter = reco::reducePhiRange(iphi * phiWidth + phiZero);
         event_.decoded.hadcalo.emplace_back(etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth);
         event_.decoded.emcalo.emplace_back(etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth);
         event_.raw.hgcalcluster.emplace_back(etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth);
@@ -693,7 +693,7 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
     float phiWidth = 2 * M_PI / phiSlices;
     for (unsigned int ieta = 0, neta = etaBoundaries.size() - 1; ieta < neta; ++ieta) {
       for (unsigned int iphi = 0; iphi < phiSlices; ++iphi) {
-        float phiCenter = reco::reduceRange(iphi * phiWidth);  //align with L1 TrackFinder phi sector indexing
+        float phiCenter = reco::reducePhiRange(iphi * phiWidth);  //align with L1 TrackFinder phi sector indexing
         event_.pfinputs.emplace_back(
             etaBoundaries[ieta], etaBoundaries[ieta + 1], phiCenter, phiWidth, etaExtra, phiExtra);
       }

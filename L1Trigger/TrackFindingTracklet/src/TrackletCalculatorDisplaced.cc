@@ -1651,7 +1651,7 @@ void TrackletCalculatorDisplaced::exactprojdisk(double zproj,
 
   phiproj = atan2(y, x);
 
-  phiproj = reco::reduceRange(phiproj - phimin_);
+  phiproj = reco::reducePhiRange(phiproj - phimin_);
 
   rproj = sqrt(x * x + y * y);
 
@@ -1731,7 +1731,7 @@ void TrackletCalculatorDisplaced::exacttracklet(double r1,
 
   d0 = -R1 + sqrt(x0 * x0 + y0 * y0);
   //sign of rinv:
-  double dphi = reco::reduceRange(phi3 - atan2(y0, x0));
+  double dphi = reco::reducePhiRange(phi3 - atan2(y0, x0));
   if (dphi < 0) {
     rinv = -rinv;
     d0 = -d0;
@@ -1741,9 +1741,9 @@ void TrackletCalculatorDisplaced::exacttracklet(double r1,
 
   //now in RZ:
   //turning angle
-  double beta1 = reco::reduceRange(atan2(y1 - y0, x1 - x0) - atan2(-y0, -x0));
-  double beta2 = reco::reduceRange(atan2(y2 - y0, x2 - x0) - atan2(-y0, -x0));
-  double beta3 = reco::reduceRange(atan2(y3 - y0, x3 - x0) - atan2(-y0, -x0));
+  double beta1 = reco::reducePhiRange(atan2(y1 - y0, x1 - x0) - atan2(-y0, -x0));
+  double beta2 = reco::reducePhiRange(atan2(y2 - y0, x2 - x0) - atan2(-y0, -x0));
+  double beta3 = reco::reducePhiRange(atan2(y3 - y0, x3 - x0) - atan2(-y0, -x0));
 
   double t12 = (z2 - z1) / std::abs(beta2 - beta1) / R1;
   double z12 = (z1 * beta2 - z2 * beta1) / (beta2 - beta1);

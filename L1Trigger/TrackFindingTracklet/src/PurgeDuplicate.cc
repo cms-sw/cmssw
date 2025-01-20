@@ -640,13 +640,13 @@ std::vector<double> PurgeDuplicate::getInventedCoords(unsigned int iSector,
     stub_r = settings_.rmean(stubLayer - 1);
     stub_phi = tracklet->phi0() - std::asin(stub_r * tracklet_rinv / 2);
     stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
-    stub_phi = reco::reduceRange(stub_phi);
+    stub_phi = reco::reducePhiRange(stub_phi);
     stub_z = tracklet->z0() + 2 * tracklet->t() * 1 / tracklet_rinv * std::asin(stub_r * tracklet_rinv / 2);
   } else {
     stub_z = settings_.zmean(stubDisk - 1) * tracklet->disk() / abs(tracklet->disk());
     stub_phi = tracklet->phi0() - (stub_z - tracklet->z0()) * tracklet_rinv / 2 / tracklet->t();
     stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
-    stub_phi = reco::reduceRange(stub_phi);
+    stub_phi = reco::reducePhiRange(stub_phi);
     stub_r = 2 / tracklet_rinv * std::sin((stub_z - tracklet->z0()) * tracklet_rinv / 2 / tracklet->t());
   }
 
@@ -689,7 +689,7 @@ std::vector<double> PurgeDuplicate::getInventedCoordsExtended(unsigned int iSect
       sin_val = std::max(std::min(sin_val, 1.0), -1.0);
       stub_phi = tracklet->phi0() - std::asin(sin_val);
       stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
-      stub_phi = reco::reduceRange(stub_phi);
+      stub_phi = reco::reducePhiRange(stub_phi);
 
       // The expanded version of this expression is more stable for extremely
       // high-pT (high-rho) tracks. But we also explicitly restrict cos_val to
@@ -714,7 +714,7 @@ std::vector<double> PurgeDuplicate::getInventedCoordsExtended(unsigned int iSect
       sin_val = std::max(std::min(sin_val, 1.0), -1.0);
       stub_phi = tracklet->phi0() - std::asin(sin_val);
       stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
-      stub_phi = reco::reduceRange(stub_phi);
+      stub_phi = reco::reducePhiRange(stub_phi);
     }
   }
 
