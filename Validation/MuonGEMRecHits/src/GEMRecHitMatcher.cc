@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "Validation/MuonGEMRecHits/interface/GEMRecHitMatcher.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
@@ -11,7 +13,7 @@ GEMRecHitMatcher::GEMRecHitMatcher(const edm::ParameterSet& pset, edm::ConsumesC
   verbose_ = gemRecHit.getParameter<int>("verbose");
 
   // make a new digi matcher
-  gemDigiMatcher_.reset(new GEMDigiMatcher(pset, std::move(iC)));
+  gemDigiMatcher_ = std::make_shared<GEMDigiMatcher>(pset, std::move(iC));
 
   gemRecHitToken_ = iC.consumes<GEMRecHitCollection>(gemRecHit.getParameter<edm::InputTag>("inputTag"));
   geomToken_ = iC.esConsumes<GEMGeometry, MuonGeometryRecord>();

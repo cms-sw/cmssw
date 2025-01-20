@@ -78,7 +78,7 @@ void L1TCaloLayer1Summary::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
   auto caloCICADAScores = iEvent.get(caloLayer1CICADAScoreToken_);
-  auto gtCICADAScores = iEvent.get(gtCICADAScoreToken_);
+  const auto& gtCICADAScores = iEvent.get(gtCICADAScoreToken_);
   auto simCICADAScores = iEvent.get(simCICADAScoreToken_);
 
   if (caloCICADAScores.size() > 0) {
