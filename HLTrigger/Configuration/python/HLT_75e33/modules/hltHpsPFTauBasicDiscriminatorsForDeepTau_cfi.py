@@ -111,7 +111,7 @@ hltHpsPFTauBasicDiscriminatorsForDeepTau = cms.EDProducer("PFRecoTauDiscriminati
         )
     ),
     rhoConeSize = cms.double(0.5),
-    rhoProducer = cms.InputTag("hltFixedGridRhoProducerFastjetAllTau"),
+    rhoProducer = cms.InputTag("hltFixedGridRhoFastjetAllTmp"),
     rhoUEOffsetCorrection = cms.double(1.0),
     verbosity = cms.int32(0),
     vertexSrc = cms.InputTag("hltPhase2PixelVertices")
