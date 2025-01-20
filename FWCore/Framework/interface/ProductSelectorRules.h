@@ -38,6 +38,7 @@ namespace edm {
       explicit BranchSelectState(edm::BranchDescription const* bd) : desc(bd), selectMe(false) {}
     };
 
+    bool select(edm::BranchDescription const& bd) const;
     void applyToAll(std::vector<BranchSelectState>& branchstates) const;
 
     bool keepAll() const { return keepAll_; }
