@@ -314,12 +314,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     float sdCut = sdSlope + alpaka::math::sqrt(acc, sdMuls * sdMuls + sdPVoff * sdPVoff);
 
-    dPhi = phi_mpi_pi(acc, mds.anchorPhi()[outerMDIndex] - mds.anchorPhi()[innerMDIndex]);
+    dPhi = cms::alpakatools::reducePhiRange(acc, mds.anchorPhi()[outerMDIndex] - mds.anchorPhi()[innerMDIndex]);
 
     if (alpaka::math::abs(acc, dPhi) > sdCut)
       return false;
 
-    dPhiChange = phi_mpi_pi(acc, phi(acc, xOut - xIn, yOut - yIn) - mds.anchorPhi()[innerMDIndex]);
+    dPhiChange = cms::alpakatools::reducePhiRange(
+        acc, cms::alpakatools::phi(acc, xOut - xIn, yOut - yIn) - mds.anchorPhi()[innerMDIndex]);
 
     if (alpaka::math::abs(acc, dPhiChange) > sdCut)
       return false;
@@ -415,12 +416,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     if ((rtOut < rtLo) || (rtOut > rtHi))
       return false;
 
-    dPhi = phi_mpi_pi(acc, mds.anchorPhi()[outerMDIndex] - mds.anchorPhi()[innerMDIndex]);
+    dPhi = cms::alpakatools::reducePhiRange(acc, mds.anchorPhi()[outerMDIndex] - mds.anchorPhi()[innerMDIndex]);
 
     float sdCut = sdSlope;
     if (outerLayerEndcapTwoS) {
-      float dPhiPos_high = phi_mpi_pi(acc, mds.anchorHighEdgePhi()[outerMDIndex] - mds.anchorPhi()[innerMDIndex]);
-      float dPhiPos_low = phi_mpi_pi(acc, mds.anchorLowEdgePhi()[outerMDIndex] - mds.anchorPhi()[innerMDIndex]);
+      float dPhiPos_high =
+          cms::alpakatools::reducePhiRange(acc, mds.anchorHighEdgePhi()[outerMDIndex] - mds.anchorPhi()[innerMDIndex]);
+      float dPhiPos_low =
+          cms::alpakatools::reducePhiRange(acc, mds.anchorLowEdgePhi()[outerMDIndex] - mds.anchorPhi()[innerMDIndex]);
 
       dPhiMax = alpaka::math::abs(acc, dPhiPos_high) > alpaka::math::abs(acc, dPhiPos_low) ? dPhiPos_high : dPhiPos_low;
       dPhiMin = alpaka::math::abs(acc, dPhiPos_high) > alpaka::math::abs(acc, dPhiPos_low) ? dPhiPos_low : dPhiPos_high;

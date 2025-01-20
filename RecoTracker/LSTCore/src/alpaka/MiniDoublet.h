@@ -429,22 +429,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         shiftedZ = zUpper;
         shiftedRt2 = xn * xn + yn * yn;
 
-        dPhi = deltaPhi(acc, xLower, yLower, shiftedX, shiftedY);  //function from Hit.cc
-        noShiftedDphi = deltaPhi(acc, xLower, yLower, xUpper, yUpper);
+        dPhi = cms::alpakatools::deltaPhi(acc, xLower, yLower, shiftedX, shiftedY);  //function from Hit.cc
+        noShiftedDphi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper);
       } else {
         shiftedX = xn;
         shiftedY = yn;
         shiftedZ = zLower;
         shiftedRt2 = xn * xn + yn * yn;
-        dPhi = deltaPhi(acc, shiftedX, shiftedY, xUpper, yUpper);
-        noShiftedDphi = deltaPhi(acc, xLower, yLower, xUpper, yUpper);
+        dPhi = cms::alpakatools::deltaPhi(acc, shiftedX, shiftedY, xUpper, yUpper);
+        noShiftedDphi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper);
       }
     } else {
       shiftedX = 0.f;
       shiftedY = 0.f;
       shiftedZ = 0.f;
       shiftedRt2 = 0.f;
-      dPhi = deltaPhi(acc, xLower, yLower, xUpper, yUpper);
+      dPhi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper);
       noShiftedDphi = dPhi;
     }
 
@@ -557,21 +557,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         shiftedX = xn;
         shiftedY = yn;
         shiftedZ = zUpper;
-        dPhi = deltaPhi(acc, xLower, yLower, shiftedX, shiftedY);
-        noShiftedDphi = deltaPhi(acc, xLower, yLower, xUpper, yUpper);
+        dPhi = cms::alpakatools::deltaPhi(acc, xLower, yLower, shiftedX, shiftedY);
+        noShiftedDphi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper);
       } else {
         shiftedX = xn;
         shiftedY = yn;
         shiftedZ = zLower;
-        dPhi = deltaPhi(acc, shiftedX, shiftedY, xUpper, yUpper);
-        noShiftedDphi = deltaPhi(acc, xLower, yLower, xUpper, yUpper);
+        dPhi = cms::alpakatools::deltaPhi(acc, shiftedX, shiftedY, xUpper, yUpper);
+        noShiftedDphi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper);
       }
     } else {
       shiftedX = xn;
       shiftedY = yn;
       shiftedZ = zUpper;
-      dPhi = deltaPhi(acc, xLower, yLower, xn, yn);
-      noShiftedDphi = deltaPhi(acc, xLower, yLower, xUpper, yUpper);
+      dPhi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xn, yn);
+      noShiftedDphi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper);
     }
 
     // dz needs to change if it is a PS module where the strip hits are shifted in order to properly account for the case when a tilted module falls under "endcap logic"
