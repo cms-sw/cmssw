@@ -7,6 +7,19 @@
 #include "Geometry/MTDCommonData/interface/BTLNumberingScheme.h"
 #include "Geometry/MTDCommonData/interface/ETLNumberingScheme.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
+
+namespace {
+
+  template <class valType>
+  inline constexpr valType makempiToppi(valType angle) {
+    constexpr valType twoPi = 2. * M_PI;
+    constexpr valType epsilon = 1.e-13;
+    auto tmpphi = angle0to2pi::make0To2pi(angle);
+    return (tmpphi - M_PI > epsilon) ? tmpphi - twoPi : tmpphi;
+  }
+}  // namespace
+
 /**
  * Adds GeometricTimingDets representing final modules to the previous level
  */
