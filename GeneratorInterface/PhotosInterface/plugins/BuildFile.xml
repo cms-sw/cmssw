@@ -4,6 +4,7 @@
   <use name="GeneratorInterface/PhotosInterface"/>
   <use name="photospp"/>
   <use name="hepmc"/>
+  <use name="hepmc3"/>
   <use name="clhep"/>
   <flags EDM_PLUGIN="1"/>
 </library>
