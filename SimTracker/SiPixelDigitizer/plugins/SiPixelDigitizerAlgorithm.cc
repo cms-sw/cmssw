@@ -1808,6 +1808,7 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
   // First add noise to hit pixels
   float theSmearedChargeRMS = 0.0;
 
+  if (theSignal.empty()) { return; }
   for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); i++) {
     if (addChargeVCALSmearing) {
       if ((*i).second < 3000) {
@@ -1869,6 +1870,7 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
 #endif
 
   // Add noisy pixels
+  if (otherPixels.empty()) { return; }
   for (mapI = otherPixels.begin(); mapI != otherPixels.end(); mapI++) {
     int iy = ((*mapI).first) / numRows;
     int ix = ((*mapI).first) - (iy * numRows);
@@ -1887,8 +1889,7 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
 #endif
 
     if (theSignal[chan] == 0) {
-      //      float noise = float( (*mapI).second );
-      int noise = int((*mapI).second);
+      float noise = float( (*mapI).second );
       theSignal[chan] = digitizerUtility::Amplitude(noise, -1.);
     }
   }
