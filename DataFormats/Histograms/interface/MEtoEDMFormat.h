@@ -9,6 +9,7 @@
  *  \author M. Strang SUNY-Buffalo
  */
 
+#include <TClass.h>
 #include <TObject.h>
 #include <TH1F.h>
 #include <TH1S.h>
@@ -16,6 +17,7 @@
 #include <TH2F.h>
 #include <TH2S.h>
 #include <TH2D.h>
+#include <TH2Poly.h>
 #include <TH3F.h>
 #include <TProfile.h>
 #include <TProfile2D.h>
@@ -120,6 +122,15 @@ public:
         if (MEtoEdmObject[j].object.Merge(&list) == -1) {
           std::cout << "ERROR MEtoEDM::mergeProducts(): merge failed for '" << name << "'" << std::endl;
         }
+        // } else if (MEtoEdmObject[j].object.IsA()->InheritsFrom("TH2Poly")) {
+        //   // ad-hoc addition because no matching function for call to 'TH2Poly::Add(const TH2Poly*)'
+        //   int nbins = MEtoEdmObject[j].object.GetNcells() - 9;
+        //   for(int ibin=1; ibin<nbins+1; ++ibin) {
+        //       double value1 = MEtoEdmObject[j].object.GetBinContent(ibin);
+        //       double value2 = newMEtoEDMObject[i].object.GetBinContent(ibin);
+        //       double total = value1 + value2;
+        //       MEtoEdmObject[j].object.SetBinContent(ibin, total);
+        //   }
       } else {
         // this value is also in the new container: add the two
         if (MEtoEdmObject[j].object.GetNbinsX() == newMEtoEDMObject[i].object.GetNbinsX() &&
@@ -341,6 +352,54 @@ inline bool MEtoEDM<TString>::mergeProduct(const MEtoEDM<TString> &newMEtoEDM) {
       std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
 #endif
       MEtoEdmObject.push_back(newMEtoEDMObject[i]);
+    }
+  }
+  return true;
+}
+
+template <>
+inline bool MEtoEDM<TH2Poly>::mergeProduct(const MEtoEDM<TH2Poly> &newMEtoEDM) {
+  const MEtoEdmObjectVector &newMEtoEDMObject = newMEtoEDM.getMEtoEdmObject();
+  const size_t nObjects = newMEtoEDMObject.size();
+  //  NOTE: we remember the present size since we will only add content
+  //        from newMEtoEDMObject after this point
+  const size_t nOldObjects = MEtoEdmObject.size();
+
+  // if the old and new are not the same size, we want to report a problem
+  if (nObjects != nOldObjects) {
+    std::cout << "WARNING MEtoEDM::mergeProducts(): the lists of histograms to be merged have different sizes: new="
+              << nObjects << ", old=" << nOldObjects << std::endl;
+  }
+
+  for (unsigned int i = 0; i < nObjects; ++i) {
+    unsigned int j = 0;
+    // see if the name is already in the old container up to the point where
+    // we may have added new entries in the container
+    const std::string &name = newMEtoEDMObject[i].name;
+    if (i < nOldObjects && (MEtoEdmObject[i].name == name)) {
+      j = i;
+    } else {
+      j = 0;
+      while (j < nOldObjects && (MEtoEdmObject[j].name != name))
+        ++j;
+    }
+    if (j >= nOldObjects) {
+      // this value is only in the new container, not the old one
+#if METOEDMFORMAT_DEBUG
+      std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
+#endif
+      MEtoEdmObject.emplace_back(std::move(newMEtoEDMObject[i]));
+    } else if (MEtoEdmObject[j].object.IsA()->InheritsFrom("TH2Poly")) {
+      //MEtoEdmObject[j].object.Add((TH1*)newMEtoEDMObject[i].object, 1);
+
+      // ad-hoc addition because no matching function for call to 'TH2Poly::Add(const TH2Poly*)'
+      int nbins = MEtoEdmObject[j].object.GetNcells() - 9;
+      for (int ibin = 1; ibin < nbins + 1; ++ibin) {
+        double value1 = MEtoEdmObject[j].object.GetBinContent(ibin);
+        double value2 = newMEtoEDMObject[i].object.GetBinContent(ibin);
+        double total = value1 + value2;
+        MEtoEdmObject[j].object.SetBinContent(ibin, total);
+      }
     }
   }
   return true;

@@ -6,6 +6,7 @@
  <class name="edm::Wrapper<TH1S>"/>
  <class name="edm::Wrapper<TH2C>"/>
  <class name="edm::Wrapper<TH2D>"/>
+ <class name="edm::Wrapper<TH2Poly>"/>
  <class name="edm::Wrapper<TH2F>"/>
  <class name="edm::Wrapper<TH2I>"/>
  <class name="edm::Wrapper<TH2S>"/>
@@ -25,6 +26,7 @@
  <class name="MEtoEDM<TH2F>"/>
  <class name="MEtoEDM<TH2S>"/>
  <class name="MEtoEDM<TH2D>"/>
+ <class name="MEtoEDM<TH2Poly>"/>
  <class name="MEtoEDM<TH2I>"/>
  <class name="MEtoEDM<TH3F>"/>
  <class name="MEtoEDM<TProfile>"/>
@@ -40,6 +42,7 @@
  <class name="MEtoEDM<TH2F>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<TH2S>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<TH2D>::MEtoEDMObject" rntupleStreamerMode="true"/>
+ <class name="MEtoEDM<TH2Poly>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<TH2I>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<TH3F>::MEtoEDMObject" rntupleStreamerMode="true"/>
  <class name="MEtoEDM<TProfile>::MEtoEDMObject" rntupleStreamerMode="true"/>
@@ -55,6 +58,7 @@
  <class name="std::vector<MEtoEDM<TH2F>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH2S>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH2D>::MEtoEDMObject>"/>
+ <class name="std::vector<MEtoEDM<TH2Poly>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH2I>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH3F>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TProfile>::MEtoEDMObject>"/>
@@ -70,6 +74,7 @@
  <class name="edm::Wrapper<MEtoEDM<TH2F> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH2S> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH2D> >"/>
+ <class name="edm::Wrapper<MEtoEDM<TH2Poly> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH2I> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH3F> >"/>
  <class name="edm::Wrapper<MEtoEDM<TProfile> >"/>
