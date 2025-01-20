@@ -2,6 +2,9 @@
 
 #include "CondCore/CondDB/interface/IOVProxy.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondCore/CondDB/interface/Session.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
+#include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "SessionImpl.h"
 
 namespace cond {
@@ -315,10 +318,27 @@ namespace cond {
           m_data->groupHigherIov = cond::time::MAX_VAL;
         }
       }
-      if (not firstTime) {
-        edm::LogSystem("NewIOV") << "Fetched new IOV for '" << m_data->tagInfo.name << "' request interval [ "
+      // if (not firstTime) {
+      const std::string_view beamspotPayloadType = "BeamSpotOnlineObjects";
+      if (m_data->tagInfo.payloadType == beamspotPayloadType) { // TODO isn't it BeamSpotOnlineObjects???
+        edm::LogSystem("NewIOV") << "Fetched new IOV for '" << m_data->tagInfo.name 
+                                 << " payloadType: " << m_data->tagInfo.payloadType << "' request interval [ "
                                  << lowerGroup << " , " << higherGroup << " ] new range [ " << m_data->groupLowerIov
                                  << " , " << m_data->groupHigherIov << " ] #entries " << m_data->iovSequence.size();
+        std::stringstream payloadsInfo;
+        cond::persistency::Session session(m_session);
+        session.transaction().start(true);
+        for(const auto& [_, hash] : m_data->iovSequence) {
+          payloadsInfo << hash << " ";
+          // std::unique_ptr<BeamSpotOnlineObjects> beamspot = session.fetchPayload<BeamSpotOnlineObjects>(hash);
+          std::unique_ptr<LHCInfo> lhcinfo = session.fetchPayload<LHCInfo>(hash);
+          // // edm::LogSystem("NewIOV") << "Fetched beamspot obj:\n" << *beamspot;
+          // beamspot->print(payloadsInfo);
+          break;
+        }
+        session.transaction().commit();
+        edm::LogSystem("NewIOV") << payloadsInfo.str();
+
       }
 
       m_data->numberOfQueries++;
