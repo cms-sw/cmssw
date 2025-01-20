@@ -140,6 +140,7 @@ namespace pixelTrack {
 
       float pt = std::min<float>(tracks.pt(it), chi2MaxPt);
       float chi2Cut = chi2Scale * (chi2Coeff[0] + roughLog(pt) * chi2Coeff[1]);
+      //chi2Cut = chi2Scale;
       if (tracks.chi2(it) >= chi2Cut) {
 #ifdef NTUPLE_FIT_DEBUG
         printf("Bad chi2 %d pt %f eta %f chi2 %f\n", it, tracks.pt(it), tracks.eta(it), tracks.chi2(it));
@@ -173,6 +174,7 @@ namespace pixelTrack {
 
 // TODO: Should those be placed in the ALPAKA_ACCELERATOR_NAMESPACE
 template struct TracksUtilities<pixelTopology::Phase1>;
+template struct TracksUtilities<pixelTopology::Phase1Strip>;
 template struct TracksUtilities<pixelTopology::Phase2>;
 
 #endif  // DataFormats_TrackSoA_interface_alpaka_TrackUtilities_h

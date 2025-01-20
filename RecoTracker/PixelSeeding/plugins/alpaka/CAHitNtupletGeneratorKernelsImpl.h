@@ -124,6 +124,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 #endif
 
       if (cms::alpakatools::once_per_grid(acc)) {
+#ifdef GPU_DEBUG
         if (apc->get().first >= TrackerTraits::maxNumberOfQuadruplets)
           printf("Tuples overflow\n");
         if (*nCells >= maxNumberOfDoublets)
@@ -134,7 +135,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           printf("cellTracks overflow\n");
         if (int(hitToTuple->nOnes()) < nHits)
           printf("ERROR hitToTuple  overflow %d %d\n", hitToTuple->nOnes(), nHits);
-#ifdef GPU_DEBUG
         printf("size of cellNeighbors %d \n cellTracks %d \n hitToTuple %d \n",
                cellNeighbors->size(),
                cellTracks->size(),
@@ -198,7 +198,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView<TrackerTraits> tracks_view,
                                   bool dupPassThrough) const {
       // quality to mark rejected
-      constexpr auto reject = Quality::edup;  /// cannot be loose
+      constexpr auto reject = pixelTrack::Quality::edup;  /// cannot be loose
       ALPAKA_ASSERT_ACC(nCells);
       for (auto idx : cms::alpakatools::uniform_elements(acc, *nCells)) {
         auto const &thisCell = cells[idx];
@@ -350,29 +350,63 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         auto zi = thisCell.inner_z(hh);
         auto ro = thisCell.outer_r(hh);
         auto zo = thisCell.outer_z(hh);
-        auto isBarrel = thisCell.inner_detIndex(hh) < TrackerTraits::last_barrel_detIndex;
-
+        float caThetaCut;
+        auto isOuterBarrelPixel = thisCell.outer_detIndex(hh) < TrackerTraits::last_barrel_detIndex;
+        auto isInnerBarrelPixel = thisCell.inner_detIndex(hh) < TrackerTraits::last_barrel_detIndex;
+        auto isOuterForwardPixel = thisCell.outer_detIndex(hh) >= TrackerTraits::last_barrel_detIndex &&
+                                   thisCell.outer_detIndex(hh) < TrackerTraits::numberOfPixelModules;
+        auto isOuterBarrelStrip =
+            thisCell.outer_detIndex(hh) >= TrackerTraits::numberOfPixelModules && thisCell.outer_detIndex(hh) < 3392;
+        auto isInnerBarrelStrip =
+            thisCell.inner_detIndex(hh) >= TrackerTraits::numberOfPixelModules && thisCell.inner_detIndex(hh) < 3392;
+        auto isOuterForwardStrip = thisCell.outer_detIndex(hh) >= 3392;
+        caThetaCut = (isInnerBarrelPixel && isOuterBarrelPixel)    ? params.CAThetaCutBarrel_
+                     : (isInnerBarrelPixel && isOuterForwardPixel) ? params.CAThetaCutForward_
+                     : (isInnerBarrelPixel && isOuterBarrelStrip)  ? params.CAThetaCutBarrelPixelBarrelStrip_
+                     : (isInnerBarrelPixel && isOuterForwardStrip) ? params.CAThetaCutBarrelPixelForwardStrip_
+                     : (isInnerBarrelStrip && isOuterForwardStrip) ? params.CAThetaCutBarrelStripForwardStrip_
+                     : (isInnerBarrelStrip && isOuterBarrelStrip)  ? params.CAThetaCutBarrelStrip_
+                                                                   : params.CAThetaCutDefault_;
         // loop on inner cells
         for (uint32_t j : cms::alpakatools::independent_group_elements_x(acc, numberOfPossibleNeighbors)) {
           auto otherCell = (vi[j]);
           auto &oc = cells[otherCell];
           auto r1 = oc.inner_r(hh);
           auto z1 = oc.inner_z(hh);
-          bool aligned = Cell::areAlignedRZ(
-              r1,
-              z1,
-              ri,
-              zi,
-              ro,
-              zo,
-              params.ptmin_,
-              isBarrel ? params.CAThetaCutBarrel_ : params.CAThetaCutForward_);  // 2.f*thetaCut); // FIXME tune cuts
-          if (aligned &&
-              thisCell.dcaCut(hh,
-                              oc,
-                              oc.inner_detIndex(hh) < TrackerTraits::last_bpix1_detIndex ? params.dcaCutInnerTriplet_
-                                                                                         : params.dcaCutOuterTriplet_,
-                              params.hardCurvCut_)) {  // FIXME tune cuts
+          bool aligned = Cell::areAlignedRZ(r1,
+                                            z1,
+                                            ri,
+                                            zi,
+                                            ro,
+                                            zo,
+                                            params.ptmin_,
+                                            caThetaCut);  // 2.f*thetaCut); // FIXME tune cuts
+          auto isOuterBarrelPixel = oc.outer_detIndex(hh) < TrackerTraits::last_barrel_detIndex;
+          auto isOuterForwardPixel = oc.outer_detIndex(hh) >= TrackerTraits::last_barrel_detIndex &&
+                                     oc.outer_detIndex(hh) < TrackerTraits::numberOfPixelModules;
+          auto isOuterBarrelStrip =
+              oc.outer_detIndex(hh) >= TrackerTraits::numberOfPixelModules && oc.outer_detIndex(hh) < 3392;
+          auto isInnerBarrelStrip =
+              oc.inner_detIndex(hh) >= TrackerTraits::numberOfPixelModules && oc.inner_detIndex(hh) < 3392;
+          auto isOuterForwardStrip = oc.outer_detIndex(hh) >= 3392;
+          auto isInnerForwardStrip = oc.inner_detIndex(hh) >= 3392;
+          auto isFirstInnerBarrelPixel = oc.inner_detIndex(hh) < TrackerTraits::last_bpix1_detIndex;
+          auto isBeyondFirstInnerBarrelPixel = oc.inner_detIndex(hh) > TrackerTraits::last_bpix1_detIndex &&
+                                               oc.inner_detIndex(hh) < TrackerTraits::numberOfPixelModules;
+          float dcaCutTriplet;
+          dcaCutTriplet = (isFirstInnerBarrelPixel && (isOuterBarrelStrip || isOuterForwardStrip))
+                              ? params.dcaCutInnerTripletPixelStrip_
+                          : (isBeyondFirstInnerBarrelPixel && (isOuterBarrelStrip || isOuterForwardStrip))
+                              ? params.dcaCutOuterTripletPixelStrip_
+                          : (isFirstInnerBarrelPixel && (isOuterBarrelPixel || isOuterForwardPixel))
+                              ? params.dcaCutInnerTriplet_
+                          : (isBeyondFirstInnerBarrelPixel && (isOuterBarrelPixel || isOuterForwardPixel))
+                              ? params.dcaCutOuterTriplet_
+                          : ((isInnerBarrelStrip || isInnerForwardStrip) && (isOuterBarrelStrip || isOuterForwardStrip))
+                              ? params.dcaCutTripletStrip_
+                              : params.dcaCutTripletDefault_;
+          if (aligned && thisCell.dcaCut(hh, oc, dcaCutTriplet,
+                                         params.hardCurvCut_)) {  // FIXME tune cuts
             oc.addOuterNeighbor(acc, cellIndex, *cellNeighbors);
             thisCell.setStatusBits(Cell::StatusBit::kUsed);
             oc.setStatusBits(Cell::StatusBit::kUsed);
@@ -396,12 +430,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       // recursive: not obvious to widen
 
       using Cell = CACellT<TrackerTraits>;
-
 #ifdef GPU_DEBUG
       if (cms::alpakatools::once_per_grid(acc))
         printf("starting producing ntuplets from %d cells \n", *nCells);
 #endif
-
       for (auto idx : cms::alpakatools::uniform_elements(acc, (*nCells))) {
         auto const &thisCell = cells[idx];
 
@@ -927,7 +959,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         // mark worse ambiguities
         for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
           auto const it = *ip;
-          if (tracks_view[it].quality() > reject && reco::isTriplet(tracks_view, it) && it != im)
+          if (tracks_view[it].quality() > reject && tracks_view.hitIndices().size(it) < 4 && it != im)
             tracks_view[it].quality() = reject;  //no race:  simple assignment of the same constant
         }
 

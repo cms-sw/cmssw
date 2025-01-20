@@ -137,3 +137,40 @@ alpaka.toReplaceWith(pixelTracksTask, cms.Task(
     # Convert the pixel tracks from SoA to legacy format
     pixelTracks)
 )
+
+# Patatrack with strip hits (alpaka-only)
+
+from Configuration.ProcessModifiers.stripNtupletFit_cff import stripNtupletFit
+from RecoLocalTracker.Configuration.RecoLocalTracker_cff import striptrackerlocalrecoTask
+from RecoLocalTracker.SiStripRecHitConverter.siStripRecHitSoAPhase1_cfi import siStripRecHitSoAPhase1
+from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import quickTrackAssociatorByHits, quickTrackAssociatorByHitsTrackerHitAssociator
+from Validation.RecoTrack.TrackValidation_cff import quickTrackAssociatorByHitsPreSplitting
+from RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpakaPhase1Strip_cfi import pixelTrackProducerFromSoAAlpakaPhase1Strip as _pixelTrackProducerFromSoAAlpakaPhase1Strip
+
+from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase1Strip_cfi import caHitNtupletAlpakaPhase1Strip as _pixelTracksAlpakaPhase1Strip
+
+(alpaka & stripNtupletFit & ~phase2_tracker).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpakaPhase1Strip.clone(useStripHits = cms.bool(True), minQuality = cms.string('loose'),hitModuleStartSrc = cms.InputTag("siStripRecHitSoAPhase1")))
+
+(alpaka & stripNtupletFit & ~phase2_tracker).toReplaceWith(pixelTracksAlpaka, _pixelTracksAlpakaPhase1Strip.clone(pixelRecHitSrc = cms.InputTag("siStripRecHitSoAPhase1")))
+
+siStripRecHitSoAPhase1Serial = makeSerialClone(siStripRecHitSoAPhase1)
+
+(alpaka & stripNtupletFit & ~phase2_tracker).toReplaceWith(pixelTracksAlpakaSerial,makeSerialClone(_pixelTracksAlpakaPhase1Strip,
+    pixelRecHitSrc = 'siStripRecHitSoAPhase1Serial'
+))
+
+(alpaka & stripNtupletFit & ~phase2_tracker).toReplaceWith(quickTrackAssociatorByHits, quickTrackAssociatorByHitsTrackerHitAssociator.clone(cluster2TPSrc = "tpClusterProducerPreSplitting"))
+
+(alpaka & stripNtupletFit & ~phase2_tracker).toReplaceWith(pixelTracksTask, cms.Task(
+    # build legacy strip hits
+    striptrackerlocalrecoTask,
+    # mix pixel and strip hits in a SoA
+    siStripRecHitSoAPhase1,
+    siStripRecHitSoAPhase1Serial,
+    # Build the pixel ntuplets and the pixel tracks in SoA format with alpaka on the device
+    pixelTracksAlpaka,
+    # # Build the pixel ntuplets and the pixel tracks in SoA format with alpaka on the cpu (if requested by the validation)
+    pixelTracksAlpakaSerial,
+    # Convert the pixel tracks from SoA to legacy format
+    pixelTracks
+))

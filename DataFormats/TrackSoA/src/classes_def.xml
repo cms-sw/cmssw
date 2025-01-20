@@ -25,4 +25,14 @@
   <class name="PortableHostCollection<reco::TrackLayout<pixelTopology::HIonPhase1>>"/>
   <class name="pixelTrack::TracksHostHIonPhase1"/>
   <class name="edm::Wrapper<pixelTrack::TracksHostHIonPhase1>" splitLevel="0"/>
+
+  <class name="reco::TrackSoA<pixelTopology::Phase1Strip>"/>
+  <class name="reco::TrackSoA<pixelTopology::Phase1Strip>::Layout<>"/>
+  <class name="reco::TrackLayout<pixelTopology::Phase1Strip>"/>
+  <class name="reco::TrackSoAView<pixelTopology::Phase1Strip>"/>
+
+  <class name="PortableHostCollection<reco::TrackLayout<pixelTopology::Phase1Strip>>"/>
+  <class name="pixelTrack::TracksHostPhase1Strip">
+  </class>
+  <class name="edm::Wrapper<pixelTrack::TracksHostPhase1Strip>" splitLevel="0"/>
 </lcgdict>

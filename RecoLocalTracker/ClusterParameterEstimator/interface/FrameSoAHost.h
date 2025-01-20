@@ -1,0 +1,10 @@
+#ifndef RecoLocalTracker_ClusterParameterEstimator_interface_FrameSoAHost_h
+#define RecoLocalTracker_ClusterParameterEstimator_interface_FrameSoAHost_h
+
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/FrameSoALayout.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
+
+using FrameSoAHost = PortableHostCollection<FrameSoALayout>;
+
+#endif  // RecoLocalTracker_ClusterParameterEstimator_interface_FrameSoAHost_h
