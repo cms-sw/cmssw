@@ -76,7 +76,7 @@ class printable_parameter:
             self.trackedCode = "untracked " # trailing space is needed
 
         # We need special handling of some of the parameter types.
-        if self.type in ["vbool", "vint32", "vuint32", "vdouble", "vstring", "VInputTag", "VESInputTag"]:   
+        if self.type in ["vbool", "vint32", "vuint32", "vfloat", "vdouble", "vstring", "VInputTag", "VESInputTag"]:   
             # TODO: Consider using cStringIO, if this is observed
             # to be a bottleneck. This may happen if many large
             # vectors are used in parameter sets.

@@ -5,7 +5,6 @@ import os
 from  .Options import Options
 options = Options()
 
-
 ## imports
 import sys
 from typing import Union
@@ -2145,6 +2144,10 @@ if __name__=="__main__":
         def addDouble(self,tracked,label,value):
             self.__insertValue(tracked,label,value)
         def addVDouble(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addFloat(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVFloat(self,tracked,label,value):
             self.__insertValue(tracked,label,value)
         def addBool(self,tracked,label,value):
             self.__insertValue(tracked,label,value)

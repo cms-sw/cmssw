@@ -322,13 +322,13 @@ class uint64(_SimpleParameterTypeBase):
 class double(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value) -> bool:
-        return isinstance(value, (int, long, float))
+        return isinstance(value, (int, long, builtins.float))
     @staticmethod
     def _valueFromString(value:str):
         """only used for cfg-parsing"""
-        return double(float(value))
+        return double(builtins.float(value))
     def insertInto(self, parameterSet, myname:str):
-        parameterSet.addDouble(self.isTracked(), myname, float(self.value()))
+        parameterSet.addDouble(self.isTracked(), myname, builtins.float(self.value()))
     def __nonzero__(self) -> bool:
         return self.value()!=0.
     def configValue(self, options:PrintOptions=PrintOptions()) -> str:
@@ -344,7 +344,30 @@ class double(_SimpleParameterTypeBase):
             return "float('nan')"
         return str(value)
 
-
+class float(_SimpleParameterTypeBase):
+    @staticmethod
+    def _isValid(value) -> bool:
+        return isinstance(value, (int, long, builtins.float))
+    @staticmethod
+    def _valueFromString(value:str):
+        """only used for cfg-parsing"""
+        return float(builtins.float(value))
+    def insertInto(self, parameterSet, myname:str):
+        parameterSet.addFloat(self.isTracked(), myname, builtins.float(self.value()))
+    def __nonzero__(self) -> bool:
+        return self.value()!=0.
+    def configValue(self, options:PrintOptions=PrintOptions()) -> str:
+        return float._pythonValue(self._value)
+    @staticmethod
+    def _pythonValue(value) -> str:
+        if math.isinf(value):
+            if value > 0:
+                return "float('inf')"
+            else:
+                return "-float('inf')"
+        if math.isnan(value):
+            return "float('nan')"
+        return str(value)
 
 class bool(_SimpleParameterTypeBase):
     @staticmethod
@@ -1021,7 +1044,6 @@ class SecSource(_ParameterTypeBase,_TypedParameterizable,_ConfigureComponent,_La
         proc._placePSet(name,self)
     def __str__(self) -> str:
         return object.__str__(self)
-
 class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     def __init__(self,*arg,**args):
         #need to call the inits separately
@@ -1156,7 +1178,19 @@ class vdouble(_ValidatingParameterListBase):
     def pythonValueForItem(self,item, options) -> str:
         return double._pythonValue(item)
 
-
+class vfloat(_ValidatingParameterListBase):
+    def __init__(self,*arg,**args):
+        super(vfloat,self).__init__(*arg,**args)
+    @classmethod
+    def _itemIsValid(cls,item) -> builtins.bool:
+        return float._isValid(item)
+    @staticmethod
+    def _valueFromString(value:str):
+        return vfloat(*_ValidatingParameterListBase._itemsFromStrings(value,float._valueFromString))
+    def insertInto(self, parameterSet, myname:str):
+        parameterSet.addVFloat(self.isTracked(), myname, self.value())
+    def pythonValueForItem(self,item, options) -> str:
+        return float._pythonValue(item)
 
 
 class vbool(_ValidatingParameterListBase):
@@ -1438,6 +1472,10 @@ class _ConvertToPSet(object):
         v = double(value)
         v.setIsTracked(tracked)
         setattr(self.pset,label,v)
+    def addFloat(self,tracked:bool,label:str,value):
+        v = float(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
     def addString(self,tracked:bool,label:str,value):
         v = string(value)
         v.setIsTracked(tracked)
@@ -1488,6 +1526,11 @@ class _ConvertToPSet(object):
         setattr(self.pset,label,v)
     def addVDouble(self,tracked:bool,label:str,value):
         v = vdouble(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    
+    def addVFloat(self,tracked:bool,label:str,value):
+        v = vfloat(value)
         v.setIsTracked(tracked)
         setattr(self.pset,label,v)
     def addVString(self,tracked:bool,label:str,value):
@@ -1679,26 +1722,26 @@ if __name__ == "__main__":
             d = double(1)
             self.assertEqual(d.value(),1)
             self.assertEqual(d.pythonValue(),'1')
-            d = double(float('Inf'))
-            self.assertEqual(d,float('Inf'))
+            d = double(builtins.float('Inf'))
+            self.assertEqual(d,builtins.float('Inf'))
             self.assertEqual(d.pythonValue(),"float('inf')")
-            d = double(-float('Inf'))
-            self.assertEqual(d,-float('Inf'))
+            d = double(-builtins.float('Inf'))
+            self.assertEqual(d,-builtins.float('Inf'))
             self.assertEqual(d.pythonValue(),"-float('inf')")
-            d = double(float('Nan'))
+            d = double(builtins.float('Nan'))
             self.assertTrue(math.isnan(d.value()))
             self.assertEqual(d.pythonValue(),"float('nan')")
         def testvdouble(self):
             d = vdouble(1)
             self.assertEqual(d.value(),[1])
             self.assertEqual(d.dumpPython(),'cms.vdouble(1)')
-            d = vdouble(float('inf'))
-            self.assertEqual(d,[float('inf')])
+            d = vdouble(builtins.float('inf'))
+            self.assertEqual(d,[builtins.float('inf')])
             self.assertEqual(d.dumpPython(),"cms.vdouble(float('inf'))")
-            d = vdouble(-float('Inf'))
-            self.assertEqual(d,[-float('inf')])
+            d = vdouble(-builtins.float('Inf'))
+            self.assertEqual(d,[-builtins.float('inf')])
             self.assertEqual(d.dumpPython(),"cms.vdouble(-float('inf'))")
-            d = vdouble(float('nan'))
+            d = vdouble(builtins.float('nan'))
             self.assertTrue(math.isnan(d[0]))
             self.assertEqual(d.dumpPython(),"cms.vdouble(float('nan'))")
         def testvint32(self):
@@ -2538,12 +2581,12 @@ if __name__ == "__main__":
                 with self.assertRaises(TypeError):
                     3 < string("I am a string")
         def testinfinity(self):
-            self.assertLess(1e99, double(float("inf")))
-            self.assertLess(double(1e99), float("inf"))
-            self.assertGreater(1e99, double(float("-inf")))
-            self.assertEqual(double(float("inf")), float("inf"))
+            self.assertLess(1e99, double(builtins.float("inf")))
+            self.assertLess(double(1e99), builtins.float("inf"))
+            self.assertGreater(1e99, double(builtins.float("-inf")))
+            self.assertEqual(double(builtins.float("inf")), builtins.float("inf"))
         def testnan(self):
-            nan = double(float("nan"))
+            nan = double(builtins.float("nan"))
             self.assertNotEqual(nan, nan)
             self.assertFalse(nan > 3 or nan < 3 or nan == 3)
 
