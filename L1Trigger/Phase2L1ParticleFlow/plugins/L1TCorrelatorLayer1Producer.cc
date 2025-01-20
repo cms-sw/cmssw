@@ -731,10 +731,10 @@ void L1TCorrelatorLayer1Producer::rawHgcalClusterEncode(ap_uint<256> &cwrd,
   float em_frac_tot = c->hOverE() < 0 ? 0. : 1. / (c->hOverE() + 1.);
   ap_uint<8> w_emfrac_tot = std::min(round(em_frac_tot * 256), float(255.));
 
-  constexpr float ETAPHI_LSB = M_PI / 720;
-  constexpr float SIGMAZZ_LSB = 778.098 / (1 << 7);
-  constexpr float SIGMAPHIPHI_LSB = 0.12822 / (1 << 7);
-  constexpr float SIGMAETAETA_LSB = 0.148922 / (1 << 5);
+  static constexpr float ETAPHI_LSB = M_PI / 720;
+  static constexpr float SIGMAZZ_LSB = 778.098 / (1 << 7);
+  static constexpr float SIGMAPHIPHI_LSB = 0.12822 / (1 << 7);
+  static constexpr float SIGMAETAETA_LSB = 0.148922 / (1 << 5);
 
   ap_uint<10> w_eta = round(fabs(c->eta()) / ETAPHI_LSB);
   ap_int<9> w_phi = round(sec.region.localPhi(c->phi()) / ETAPHI_LSB);
@@ -1006,12 +1006,16 @@ void L1TCorrelatorLayer1Producer::addDecodedMuon(l1ct::DetectorSector<l1ct::MuOb
 void L1TCorrelatorLayer1Producer::getDecodedGctEmCluster(l1ct::EmCaloObjEmu &calo,
                                                          l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec,
                                                          const l1tp2::DigitizedClusterCorrelator &digi) const {
+  constexpr float ETA_RANGE_ONE_SIDE = 1.4841;  // barrel goes from (-1.4841, +1.4841)
+  constexpr float ETA_LSB = 2 * ETA_RANGE_ONE_SIDE / 170.;
+  constexpr float PHI_LSB = 2 * M_PI / 360.;
+
   calo.clear();
   calo.hwPt = l1ct::Scales::makePtFromFloat(digi.pt() * digi.ptLSB());
-  calo.hwEta = l1ct::Scales::makeGlbEta(digi.realEta()) -
-               sec.region.hwEtaCenter;  // important to enforce that the region boundary is on a discrete value
-  calo.hwPhi = l1ct::Scales::makePhi(sec.region.localPhi(digi.realPhi()));
-
+  calo.hwEta = l1ct::Scales::makeGlbEta(digi.realEta() + ETA_LSB / 2.) -
+               sec.region.hwEtaCenter;  // FIXME: correct here a 1/2 a crystal bias
+  calo.hwPhi = l1ct::Scales::makePhi(
+      sec.region.localPhi(digi.realPhi() + PHI_LSB / 2.));  // FIXME: correct here a 1/2 a crystal bias
   if (corrector_.valid()) {
     float newpt = corrector_.correctedPt(calo.floatPt(), calo.floatPt(), sec.region.floatGlbEta(calo.hwEta));
     calo.hwPt = l1ct::Scales::makePtFromFloat(newpt);

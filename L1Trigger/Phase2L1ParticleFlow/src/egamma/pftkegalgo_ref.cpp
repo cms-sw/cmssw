@@ -53,6 +53,7 @@ l1ct::PFTkEGAlgoEmuConfig::PFTkEGAlgoEmuConfig(const edm::ParameterSet &pset)
 
 edm::ParameterSetDescription l1ct::PFTkEGAlgoEmuConfig::getParameterSetDescription() {
   edm::ParameterSetDescription description;
+  description.addUntracked<unsigned int>("debug", 0);
   description.add<unsigned int>("nTRACK");
   description.add<unsigned int>("nTRACK_EGIN");
   description.add<unsigned int>("nEMCALO_EGIN");
