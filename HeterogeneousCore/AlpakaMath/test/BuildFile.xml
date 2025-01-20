@@ -1,0 +1,6 @@
+<bin name="alpakaTestDeltaPhi" file="alpaka/testDeltaPhi.dev.cc">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
