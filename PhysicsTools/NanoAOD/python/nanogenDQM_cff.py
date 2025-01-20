@@ -10,6 +10,7 @@ nanogenDQM = DQMEDAnalyzer("NanoAODDQM",
         GenIsolatedPhoton = nanoDQM.vplots.GenIsolatedPhoton,
         GenJet = nanoDQM.vplots.GenJet,
         GenJetAK8 = nanoDQM.vplots.GenJetAK8,
+        TrackGenJetAK4 = nanoDQM.vplots.TrackGenJetAK4,
         GenMET = nanoDQM.vplots.GenMET,
         GenPart = nanoDQM.vplots.GenPart, 
         GenVtx = nanoDQM.vplots.GenVtx,
@@ -31,3 +32,4 @@ nanoDQMQTester = DQMQualityTester(
 )
 
 nanogenHarvest = cms.Sequence( nanoDQMQTester )
+

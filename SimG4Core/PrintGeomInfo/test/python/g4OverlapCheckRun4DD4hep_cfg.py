@@ -34,19 +34,19 @@ print(options)
 ####################################################################
 # Use the options
 
+geomName = "Run4" + options.geometry
+geomFile = "Configuration.Geometry.GeometryDD4hepExtended" + geomName + "Reco_cff"
+baseName = "cms" + geomName + "DD4hep"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+print("Geometry Name:   ", geomName)
+print("Geom file Name:  ", geomFile)
+print("Base file Name:  ", baseName)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
+
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-if (options.geometry == "D115"):
-    from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
-    process = cms.Process('OverlapCheck',Phase2C20I13M9,dd4hep)
-else:
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    process = cms.Process('OverlapCheck',Phase2C17I13M9,dd4hep)
-
-geomFile = "Configuration.Geometry.GeometryDD4hepExtendedRun4" + options.geometry + "Reco_cff"
-baseName = "cmsRun4" + options.geometry + "DD4hep"
-
-print("Geometry file Name: ", geomFile)
-print("Base file Name:     ", baseName)
+process = cms.Process('OverlapCheck',ERA,dd4hep)
 
 process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')

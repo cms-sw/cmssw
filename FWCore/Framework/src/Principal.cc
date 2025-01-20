@@ -116,185 +116,23 @@ namespace edm {
   }
 
   Principal::Principal(std::shared_ptr<ProductRegistry const> reg,
-                       std::shared_ptr<ProductResolverIndexHelper const> productLookup,
+                       std::vector<std::shared_ptr<ProductResolverBase>>&& resolvers,
                        ProcessConfiguration const& pc,
                        BranchType bt,
-                       HistoryAppender* historyAppender,
-                       bool isForPrimaryProcess)
+                       HistoryAppender* historyAppender)
       : EDProductGetter(),
         processHistoryPtr_(),
         processHistoryID_(),
         processHistoryIDBeforeConfig_(),
         processConfiguration_(&pc),
-        productResolvers_(),
+        productResolvers_(resolvers.begin(), resolvers.end()),
         preg_(reg),
-        productLookup_(productLookup),
-        lookupProcessOrder_(productLookup->lookupProcessNames().size(), 0),
+        productLookup_(reg->productLookup(bt)),
+        lookupProcessOrder_(productLookup_->lookupProcessNames().size(), 0),
         reader_(),
         branchType_(bt),
         historyAppender_(historyAppender),
-        cacheIdentifier_(nextIdentifier()) {
-    productResolvers_.resize(reg->getNextIndexValue(bt));
-    //Now that these have been set, we can create the list of Branches we need.
-    std::string const source("source");
-    ProductRegistry::ProductList const& prodsList = reg->productList();
-    // The constructor of an alias product holder takes as an argument the product holder for which it is an alias.
-    // So, the non-alias product holders must be created first.
-    // Therefore, on this first pass, skip current EDAliases.
-    bool hasAliases = false;
-    bool hasSwitchAliases = false;
-    for (auto const& prod : prodsList) {
-      BranchDescription const& bd = prod.second;
-      if (bd.branchType() == branchType_) {
-        if (isForPrimaryProcess or bd.processName() == pc.processName()) {
-          if (bd.isAlias()) {
-            hasAliases = true;
-          } else if (bd.isSwitchAlias()) {
-            hasSwitchAliases = true;
-          } else {
-            auto cbd = std::make_shared<BranchDescription const>(bd);
-            if (bd.produced()) {
-              if (bd.moduleLabel() == source) {
-                addSourceProduct(cbd);
-              } else if (bd.onDemand()) {
-                assert(branchType_ == InEvent);
-                if (bd.isTransform()) {
-                  addTransformProduct(cbd);
-                } else {
-                  addUnscheduledProduct(cbd);
-                }
-              } else {
-                addScheduledProduct(cbd);
-              }
-            } else {
-              if (bd.onDemand()) {
-                addDelayedReaderInputProduct(cbd);
-              } else {
-                addPutOnReadInputProduct(cbd);
-              }
-            }
-          }
-        } else {
-          //We are in a SubProcess and this branch is from the parent
-          auto cbd = std::make_shared<BranchDescription const>(bd);
-          addParentProcessProduct(cbd);
-        }
-      }
-    }
-    // Now process any EDAliases
-    if (hasAliases) {
-      for (auto const& prod : prodsList) {
-        BranchDescription const& bd = prod.second;
-        if (bd.isAlias() && bd.branchType() == branchType_) {
-          addAliasedProduct(std::make_shared<BranchDescription const>(bd));
-        }
-      }
-    }
-    // Finally process any SwitchProducer aliases
-    if (hasSwitchAliases) {
-      for (auto const& prod : prodsList) {
-        BranchDescription const& bd = prod.second;
-        if (bd.isSwitchAlias() && bd.branchType() == branchType_) {
-          assert(branchType_ == InEvent);
-          auto cbd = std::make_shared<BranchDescription const>(bd);
-          // Need different implementation for SwitchProducers not
-          // in any Path (onDemand) and for those in a Path in order
-          // to prevent the switch-aliased-for EDProducers from
-          // being run when the SwitchProducer is in a Path after a
-          // failing EDFilter.
-          if (bd.onDemand()) {
-            addSwitchAliasProduct(cbd);
-          } else {
-            addSwitchProducerProduct(cbd);
-          }
-        }
-      }
-    }
-
-    // Now create the ProductResolvers that search in reverse process
-    // order and are used for queries where the process name is the
-    // empty string
-    std::vector<std::string> const& lookupProcessNames = productLookup_->lookupProcessNames();
-    std::vector<ProductResolverIndex> matchingHolders(lookupProcessNames.size(), ProductResolverIndexInvalid);
-    std::vector<bool> ambiguous(lookupProcessNames.size(), false);
-    unsigned int beginElements = productLookup_->beginElements();
-    std::vector<TypeID> const& sortedTypeIDs = productLookup_->sortedTypeIDs();
-    std::vector<ProductResolverIndexHelper::Range> const& ranges = productLookup_->ranges();
-    std::vector<ProductResolverIndexHelper::IndexAndNames> const& indexAndNames = productLookup_->indexAndNames();
-    std::vector<char> const& processNamesCharArray = productLookup_->processNames();
-
-    unsigned int numberOfMatches = 0;
-    ProductResolverIndex lastMatchIndex = ProductResolverIndexInvalid;
-    if (!sortedTypeIDs.empty()) {
-      ProductResolverIndex productResolverIndex = ProductResolverIndexInvalid;
-      for (unsigned int k = 0, kEnd = sortedTypeIDs.size(); k < kEnd; ++k) {
-        ProductResolverIndexHelper::Range const& range = ranges.at(k);
-        for (unsigned int i = range.begin(); i < range.end(); ++i) {
-          ProductResolverIndexHelper::IndexAndNames const& product = indexAndNames.at(i);
-          if (product.startInProcessNames() == 0) {
-            if (productResolverIndex != ProductResolverIndexInvalid) {
-              if ((numberOfMatches == 1) and (lastMatchIndex != ProductResolverIndexAmbiguous)) {
-                //only one choice so use a special resolver
-                productResolvers_.at(productResolverIndex) =
-                    std::make_shared<SingleChoiceNoProcessProductResolver>(lastMatchIndex);
-              } else {
-                bool productMadeAtEnd = false;
-                //Need to know if the product from this processes is added at end of transition
-                for (unsigned int j = 0; j < matchingHolders.size(); ++j) {
-                  if ((not ambiguous[j]) and ProductResolverIndexInvalid != matchingHolders[j] and
-                      productResolvers_[matchingHolders[j]]->branchDescription().availableOnlyAtEndTransition()) {
-                    productMadeAtEnd = true;
-                    break;
-                  }
-                }
-                std::shared_ptr<ProductResolverBase> newHolder =
-                    std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous, productMadeAtEnd);
-                productResolvers_.at(productResolverIndex) = newHolder;
-              }
-              matchingHolders.assign(lookupProcessNames.size(), ProductResolverIndexInvalid);
-              ambiguous.assign(lookupProcessNames.size(), false);
-              numberOfMatches = 0;
-              lastMatchIndex = ProductResolverIndexInvalid;
-            }
-            productResolverIndex = product.index();
-          } else {
-            std::string process(&processNamesCharArray.at(product.startInProcessNames()));
-            auto iter = std::find(lookupProcessNames.begin(), lookupProcessNames.end(), process);
-            assert(iter != lookupProcessNames.end());
-            ProductResolverIndex iMatchingIndex = product.index();
-            lastMatchIndex = iMatchingIndex;
-            assert(iMatchingIndex != ProductResolverIndexInvalid);
-            ++numberOfMatches;
-            if (iMatchingIndex == ProductResolverIndexAmbiguous) {
-              assert(k >= beginElements);
-              ambiguous.at(iter - lookupProcessNames.begin()) = true;
-            } else {
-              matchingHolders.at(iter - lookupProcessNames.begin()) = iMatchingIndex;
-            }
-          }
-        }
-      }
-      //Need to know if the product from this processes is added at end of transition
-      if ((numberOfMatches == 1) and (lastMatchIndex != ProductResolverIndexAmbiguous)) {
-        //only one choice so use a special resolver
-        productResolvers_.at(productResolverIndex) =
-            std::make_shared<SingleChoiceNoProcessProductResolver>(lastMatchIndex);
-      } else {
-        bool productMadeAtEnd = false;
-        for (unsigned int i = 0; i < matchingHolders.size(); ++i) {
-          if ((not ambiguous[i]) and ProductResolverIndexInvalid != matchingHolders[i] and
-              productResolvers_[matchingHolders[i]]->branchDescription().availableOnlyAtEndTransition()) {
-            productMadeAtEnd = true;
-            break;
-          }
-        }
-        std::shared_ptr<ProductResolverBase> newHolder =
-            std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous, productMadeAtEnd);
-        productResolvers_.at(productResolverIndex) = newHolder;
-      }
-    }
-  }
-
+        cacheIdentifier_(nextIdentifier()) {}
   Principal::~Principal() {}
 
   // Number of products in the Principal.
@@ -328,58 +166,12 @@ namespace edm {
     return true;
   }
 
-  void Principal::addScheduledProduct(std::shared_ptr<BranchDescription const> bd) {
-    auto phb = std::make_unique<PuttableProductResolver>(std::move(bd));
-    addProductOrThrow(std::move(phb));
-  }
-
-  void Principal::addSourceProduct(std::shared_ptr<BranchDescription const> bd) {
-    auto phb = std::make_unique<PuttableProductResolver>(std::move(bd));
-    addProductOrThrow(std::move(phb));
-  }
-
   void Principal::addDelayedReaderInputProduct(std::shared_ptr<BranchDescription const> bd) {
     addProductOrThrow(std::make_unique<DelayedReaderInputProductResolver>(std::move(bd)));
   }
 
   void Principal::addPutOnReadInputProduct(std::shared_ptr<BranchDescription const> bd) {
     addProductOrThrow(std::make_unique<PutOnReadInputProductResolver>(std::move(bd)));
-  }
-
-  void Principal::addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd) {
-    addProductOrThrow(std::make_unique<UnscheduledProductResolver>(std::move(bd)));
-  }
-
-  void Principal::addTransformProduct(std::shared_ptr<BranchDescription const> bd) {
-    addProductOrThrow(std::make_unique<TransformingProductResolver>(std::move(bd)));
-  }
-
-  void Principal::addAliasedProduct(std::shared_ptr<BranchDescription const> bd) {
-    ProductResolverIndex index = preg_->indexFrom(bd->originalBranchID());
-    assert(index != ProductResolverIndexInvalid);
-
-    addProductOrThrow(std::make_unique<AliasProductResolver>(
-        std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*productResolvers_[index])));
-  }
-
-  void Principal::addSwitchProducerProduct(std::shared_ptr<BranchDescription const> bd) {
-    ProductResolverIndex index = preg_->indexFrom(bd->switchAliasForBranchID());
-    assert(index != ProductResolverIndexInvalid);
-
-    addProductOrThrow(std::make_unique<SwitchProducerProductResolver>(
-        std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*productResolvers_[index])));
-  }
-
-  void Principal::addSwitchAliasProduct(std::shared_ptr<BranchDescription const> bd) {
-    ProductResolverIndex index = preg_->indexFrom(bd->switchAliasForBranchID());
-    assert(index != ProductResolverIndexInvalid);
-
-    addProductOrThrow(std::make_unique<SwitchAliasProductResolver>(
-        std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*productResolvers_[index])));
-  }
-
-  void Principal::addParentProcessProduct(std::shared_ptr<BranchDescription const> bd) {
-    addProductOrThrow(std::make_unique<ParentProcessProductResolver>(std::move(bd)));
   }
 
   // "Zero" the principal so it can be reused for another Event.

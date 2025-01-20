@@ -1062,8 +1062,8 @@ namespace mkfit {
      if (fabs(sqrt(outPar[0]*outPar[0]+outPar[1]*outPar[1]) - msRad[0]) > 0.0001)
      {
        std::cout << "DID NOT GET TO R, FailFlag=" << failFlag[0]
-                 << " dR=" << msRad[0] - std::hypot(outPar[0],outPar[1])
-                 << " r="  << msRad[0] << " rin=" << std::hypot(inPar[0],inPar[1]) << " rout=" << std::hypot(outPar[0],outPar[1])
+                 << " dR=" << msRad[0] - hipo(outPar[0],outPar[1])
+                 << " r="  << msRad[0] << " rin=" << hipo(inPar[0],inPar[1]) << " rout=" << hipo(outPar[0],outPar[1])
                  << std::endl;
        // std::cout << "    pt=" << pt << " pz=" << inPar.At(n, 2) << std::endl;
      }

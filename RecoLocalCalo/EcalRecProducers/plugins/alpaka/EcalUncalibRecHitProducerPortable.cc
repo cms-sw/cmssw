@@ -1,12 +1,12 @@
 #include "CondFormats/DataRecord/interface/EcalMultifitConditionsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalMultifitParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/alpaka/EcalMultifitConditionsDevice.h"
-#include "CondFormats/EcalObjects/interface/alpaka/EcalMultifitParametersDevice.h"
 #include "DataFormats/EcalDigi/interface/alpaka/EcalDigiDeviceCollection.h"
 #include "DataFormats/EcalRecHit/interface/alpaka/EcalUncalibratedRecHitDeviceCollection.h"
+#include "DataFormats/Portable/interface/PortableObject.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "HeterogeneousCore/AlpakaCore/interface/MoveToDeviceCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
@@ -14,18 +14,29 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
 
 #include "DeclsForKernels.h"
+#include "EcalMultifitParameters.h"
 #include "EcalUncalibRecHitMultiFitAlgoPortable.h"
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
+#include <algorithm>
 
-  class EcalUncalibRecHitProducerPortable : public stream::SynchronizingEDProducer<> {
+namespace ALPAKA_ACCELERATOR_NAMESPACE {
+  namespace {
+    using EcalMultifitParametersCache =
+        cms::alpakatools::MoveToDeviceCache<Device, PortableHostObject<EcalMultifitParameters>>;
+  }
+
+  class EcalUncalibRecHitProducerPortable
+      : public stream::SynchronizingEDProducer<edm::GlobalCache<EcalMultifitParametersCache>> {
   public:
-    explicit EcalUncalibRecHitProducerPortable(edm::ParameterSet const& ps);
+    explicit EcalUncalibRecHitProducerPortable(edm::ParameterSet const& ps, EcalMultifitParametersCache const*);
     ~EcalUncalibRecHitProducerPortable() override = default;
     static void fillDescriptions(edm::ConfigurationDescriptions&);
+    static std::unique_ptr<EcalMultifitParametersCache> initializeGlobalCache(edm::ParameterSet const& ps);
 
     void acquire(device::Event const&, device::EventSetup const&) override;
     void produce(device::Event&, device::EventSetup const&) override;
+
+    static void globalEndJob(EcalMultifitParametersCache*) {}
 
   private:
     using InputProduct = EcalDigiDeviceCollection;
@@ -37,7 +48,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // conditions tokens
     const device::ESGetToken<EcalMultifitConditionsDevice, EcalMultifitConditionsRcd> multifitConditionsToken_;
-    const device::ESGetToken<EcalMultifitParametersDevice, EcalMultifitParametersRcd> multifitParametersToken_;
 
     // configuration parameters
     ecal::multifit::ConfigurationParameters configParameters_;
@@ -73,18 +83,66 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<double>("outOfTimeThresholdGain61mEE", 1000);
     desc.add<double>("amplitudeThresholdEB", 10);
     desc.add<double>("amplitudeThresholdEE", 10);
+
+    desc.add<std::vector<double>>("EBtimeFitParameters",
+                                  {-2.015452e+00,
+                                   3.130702e+00,
+                                   -1.234730e+01,
+                                   4.188921e+01,
+                                   -8.283944e+01,
+                                   9.101147e+01,
+                                   -5.035761e+01,
+                                   1.105621e+01});
+    desc.add<std::vector<double>>("EEtimeFitParameters",
+                                  {-2.390548e+00,
+                                   3.553628e+00,
+                                   -1.762341e+01,
+                                   6.767538e+01,
+                                   -1.332130e+02,
+                                   1.407432e+02,
+                                   -7.541106e+01,
+                                   1.620277e+01});
+    desc.add<std::vector<double>>("EBamplitudeFitParameters", {1.138, 1.652});
+    desc.add<std::vector<double>>("EEamplitudeFitParameters", {1.890, 1.400});
+
     desc.addUntracked<std::vector<uint32_t>>("kernelMinimizeThreads", {32, 1, 1});
     desc.add<bool>("shouldRunTimingComputation", true);
+
     confDesc.addWithDefaultLabel(desc);
   }
 
-  EcalUncalibRecHitProducerPortable::EcalUncalibRecHitProducerPortable(const edm::ParameterSet& ps)
+  std::unique_ptr<EcalMultifitParametersCache> EcalUncalibRecHitProducerPortable::initializeGlobalCache(
+      edm::ParameterSet const& ps) {
+    PortableHostObject<EcalMultifitParameters> params(cms::alpakatools::host());
+
+    auto const ebTimeFitParamsFromPSet = ps.getParameter<std::vector<double>>("EBtimeFitParameters");
+    auto const eeTimeFitParamsFromPSet = ps.getParameter<std::vector<double>>("EEtimeFitParameters");
+    // Assert that there are as many parameters as the EcalMultiFitParametersSoA expects
+    assert(ebTimeFitParamsFromPSet.size() == EcalMultifitParameters::kNTimeFitParams);
+    assert(eeTimeFitParamsFromPSet.size() == EcalMultifitParameters::kNTimeFitParams);
+    std::ranges::copy(ebTimeFitParamsFromPSet, params->timeFitParamsEB.begin());
+    std::ranges::copy(eeTimeFitParamsFromPSet, params->timeFitParamsEE.begin());
+
+    std::vector<float> ebAmplitudeFitParameters_;
+    std::vector<float> eeAmplitudeFitParameters_;
+    auto const ebAmplFitParamsFromPSet = ps.getParameter<std::vector<double>>("EBamplitudeFitParameters");
+    auto const eeAmplFitParamsFromPSet = ps.getParameter<std::vector<double>>("EEamplitudeFitParameters");
+    // Assert that there are as many parameters as the EcalMultiFitParametersSoA expects
+    assert(ebAmplFitParamsFromPSet.size() == EcalMultifitParameters::kNAmplitudeFitParams);
+    assert(eeAmplFitParamsFromPSet.size() == EcalMultifitParameters::kNAmplitudeFitParams);
+    std::ranges::copy(ebAmplFitParamsFromPSet, params->amplitudeFitParamsEB.begin());
+    std::ranges::copy(eeAmplFitParamsFromPSet, params->amplitudeFitParamsEE.begin());
+
+    return std::make_unique<EcalMultifitParametersCache>(std::move(params));
+  }
+
+  EcalUncalibRecHitProducerPortable::EcalUncalibRecHitProducerPortable(const edm::ParameterSet& ps,
+                                                                       EcalMultifitParametersCache const*)
       : digisTokenEB_{consumes(ps.getParameter<edm::InputTag>("digisLabelEB"))},
         digisTokenEE_{consumes(ps.getParameter<edm::InputTag>("digisLabelEE"))},
         uncalibRecHitsTokenEB_{produces(ps.getParameter<std::string>("recHitsLabelEB"))},
         uncalibRecHitsTokenEE_{produces(ps.getParameter<std::string>("recHitsLabelEE"))},
         multifitConditionsToken_{esConsumes()},
-        multifitParametersToken_{esConsumes()},
         ebDigisSizeHostBuf_{cms::alpakatools::make_host_buffer<uint32_t>()},
         eeDigisSizeHostBuf_{cms::alpakatools::make_host_buffer<uint32_t>()} {
     std::pair<double, double> EBtimeFitLimits, EEtimeFitLimits;
@@ -196,7 +254,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     if (ebDigisSize + eeDigisSize > 0) {
       // conditions
       auto const& multifitConditionsDev = setup.getData(multifitConditionsToken_);
-      auto const& multifitParametersDev = setup.getData(multifitParametersToken_);
+      auto const* multifitParametersDev = globalCache()->get(queue).const_data();
 
       //
       // schedule algorithms

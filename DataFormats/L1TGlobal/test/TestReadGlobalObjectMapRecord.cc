@@ -58,8 +58,10 @@ namespace edmtest {
     int expectedFirstElement_;
     int expectedElementDelta_;
     int expectedFinalValue_;
+    uint expectedBxIndexModulus_;
 
     edm::EDGetTokenT<GlobalObjectMapRecord> globalObjectMapRecordToken_;
+    uint globalObjectMapClassVersion_;
   };
 
   TestReadGlobalObjectMapRecord::TestReadGlobalObjectMapRecord(edm::ParameterSet const& iPSet)
@@ -75,8 +77,9 @@ namespace edmtest {
         expectedFirstElement_(iPSet.getParameter<int>("expectedFirstElement")),
         expectedElementDelta_(iPSet.getParameter<int>("expectedElementDelta")),
         expectedFinalValue_(iPSet.getParameter<int>("expectedFinalValue")),
-
-        globalObjectMapRecordToken_(consumes(iPSet.getParameter<edm::InputTag>("globalObjectMapRecordTag"))) {
+        expectedBxIndexModulus_(iPSet.getParameter<uint>("expectedBxIndexModulus")),
+        globalObjectMapRecordToken_(consumes(iPSet.getParameter<edm::InputTag>("globalObjectMapRecordTag"))),
+        globalObjectMapClassVersion_(iPSet.getParameter<uint>("globalObjectMapClassVersion")) {
     if (expectedAlgoNames_.size() != expectedAlgoBitNumbers_.size() ||
         expectedAlgoNames_.size() != expectedAlgoGtlResults_.size() ||
         expectedAlgoNames_.size() != expectedTokenNames0_.size() ||
@@ -134,12 +137,20 @@ namespace edmtest {
         throwWithMessage("tokenResult3 does not have expected value");
       }
 
+      uint bxCounter = 0;
       int expectedValue = expectedFirstElement_;
       for (auto const& combinationsInCond : globalObjectMap.combinationVector()) {
         for (auto const& singleCombInCond : combinationsInCond) {
           for (auto const& value : singleCombInCond) {
-            if (value != expectedValue) {
-              throwWithMessage("element in inner combination vector does have expected value");
+            L1TObjBxIndexType const expectedBxValue =
+                globalObjectMapClassVersion_ > 10 ? bxCounter % expectedBxIndexModulus_ : 0;
+            if (value.first != expectedBxValue) {
+              throwWithMessage("BX in combinationVector does not have expected value");
+            }
+            ++bxCounter;
+
+            if (value.second != expectedValue) {
+              throwWithMessage("index in combinationVector does not have expected value");
             }
             expectedValue += expectedElementDelta_;
           }
@@ -149,7 +160,7 @@ namespace edmtest {
       for (auto const& l1tObjectTypeInCond : globalObjectMap.objectTypeVector()) {
         for (auto const& globalObject : l1tObjectTypeInCond) {
           if (static_cast<int>(globalObject) != (expectedValue % 28)) {
-            throwWithMessage("globalObject does have expected value");
+            throwWithMessage("globalObject does not have expected value");
           }
           expectedValue += expectedElementDelta_;
         }
@@ -181,7 +192,9 @@ namespace edmtest {
     desc.add<int>("expectedFirstElement");
     desc.add<int>("expectedElementDelta");
     desc.add<int>("expectedFinalValue");
+    desc.add<uint>("expectedBxIndexModulus");
     desc.add<edm::InputTag>("globalObjectMapRecordTag");
+    desc.add<uint>("globalObjectMapClassVersion");
     descriptions.addDefault(desc);
   }
 }  // namespace edmtest

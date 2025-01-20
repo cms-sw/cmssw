@@ -92,39 +92,66 @@ def customizeHLTfor47079(process):
             del filt.filterParams.pvSrc  # Remove the pvSrc parameter
 
     for prod in producers_by_type(process, 'HcalHitReconstructor'):
-        # Remove "digiTimeFromDB" if "Subdetector" is not "HF"
-        if hasattr(prod, 'Subdetector') and getattr(prod, 'Subdetector') != "HF":
-            if hasattr(prod, 'digiTimeFromDB'):
-                delattr(prod, 'digiTimeFromDB')
-
-        # Remove "saturationParameters" if "setSaturationFlags" is false
-        if hasattr(prod, 'setSaturationFlags') and not getattr(prod, 'setSaturationFlags'):
-            if hasattr(prod, 'saturationParameters'):
-                delattr(prod, 'saturationParameters')
-
-        # Remove "hfTimingTrustParameters" if "setTimingTrustFlags" is false
-        if hasattr(prod, 'setTimingTrustFlags') and not getattr(prod, 'setTimingTrustFlags'):
-            if hasattr(prod, 'hfTimingTrustParameters'):
-                delattr(prod, 'hfTimingTrustParameters')
-
-        # Remove 'PETstat', 'S8S1stat', 'S9S1stat',  'digistat' and 'HFInWindowStat' if "setNoiseFlags" is false
-        if hasattr(prod, 'setNoiseFlags') and not getattr(prod, 'setNoiseFlags'):
-            for param in ['PETstat', 'S8S1stat', 'S9S1stat', 'digistat', 'HFInWindowStat']:
-                if hasattr(prod, param):
-                    delattr(prod, param)
-
         # Remove useless parameters
         if hasattr(prod,'setHSCPFlags'):
             delattr(prod,'setHSCPFlags')
 
         if hasattr(prod,'setPulseShapeFlags'):
             delattr(prod,'setPulseShapeFlags')
-
-    for prod in producers_by_type(process, 'HFPhase1Reconstructor'):
-        # Remove 'HFStripFilter' if "runHFStripFilter" is false
-        if hasattr(prod, 'runHFStripFilter') and not getattr(prod, 'runHFStripFilter'):
-            delattr(prod,'HFStripFilter')
                     
+    return process
+
+def customizeHLTfor47047(process):
+    """Migrates many ESProducers to MoveToDeviceCache"""
+    import copy
+    if hasattr(process, "ecalMultifitParametersSource"):
+        del process.ecalMultifitParametersSource
+    esProducer = None
+    for prod in esproducers_by_type(process, "EcalMultifitParametersHostESProducer@alpaka"):
+        if esProducer is not None:
+            raise Exception("Assumption of only one EcalMultifitParametersHostESProducer@alpaka in a process broken")
+        esProducer = prod
+    if esProducer is not None:
+        for prod in producers_by_type(process, "EcalUncalibRecHitProducerPortable@alpaka", "alpaka_serial_sync::EcalUncalibRecHitProducerPortable"):
+            for attr in ["EBtimeFitParameters", "EEtimeFitParameters", "EBamplitudeFitParameters", "EEamplitudeFitParameters"]:
+                setattr(prod, attr, copy.deepcopy(getattr(esProducer, attr)))
+        delattr(process, esProducer.label())
+
+    for prod in producers_by_type(process, "HBHERecHitProducerPortable@alpaka", "alpaka_serial_sync::HBHERecHitProducerPortable"):
+        pulseOffsetLabel = prod.mahiPulseOffSets.getModuleLabel()
+        if hasattr(process, pulseOffsetLabel):
+            esProducer = getattr(process, pulseOffsetLabel)
+            prod.pulseOffsets = copy.deepcopy(esProducer.pulseOffsets)
+        del prod.mahiPulseOffSets
+    for prod in list(esproducers_by_type(process, "HcalMahiPulseOffsetsESProducer@alpaka")):
+        delattr(process, prod.label())
+
+    for prod in producers_by_type(process, "PFClusterSoAProducer@alpaka", "alpaka_serial_sync::PFClusterSoAProducer"):
+        clusterParamsLabel = prod.pfClusterParams.getModuleLabel()
+        if hasattr(process, clusterParamsLabel):
+            esProducer = getattr(process, clusterParamsLabel)
+            for attr in ["seedFinder", "initialClusteringStep", "pfClusterBuilder"]:
+                setattr(prod, attr, copy.deepcopy(getattr(esProducer, attr).copy()))
+        del prod.pfClusterParams
+    for prod in list(esproducers_by_type(process, "PFClusterParamsESProducer@alpaka")):
+        delattr(process, prod.label())
+
+    if hasattr(process, "hltESSJobConfigurationGPURecord"):
+        del process.hltESSJobConfigurationGPURecord
+
+    return process
+        
+def customizeHLTfor47107(process):
+    """Remove unneeded parameters from the HLT menu"""
+
+    for prod in producers_by_type(process, 'TrackProducer'):
+        if hasattr(prod, 'alias'):
+            delattr(prod, 'alias')
+
+    for prod in producers_by_type(process, 'GsfTrackProducer'):
+        if hasattr(prod, 'producer'):
+            delattr(prod, 'producer')
+
     return process
 
 # CMSSW version specific customizations
@@ -138,6 +165,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customizeHLTfor46935(process)
     process = customizeHLTfor47017(process)
     process = customizeHLTfor47079(process)
+    process = customizeHLTfor47047(process)
+    process = customizeHLTfor47107(process)
 
     return process
-

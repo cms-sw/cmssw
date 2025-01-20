@@ -36,6 +36,7 @@
 #include "FWCore/Framework/interface/makeModuleTypeResolverMaker.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
@@ -165,6 +166,7 @@ namespace edm {
       for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
         // Reusable event principal
         auto ep = std::make_shared<EventPrincipal>(preg_,
+                                                   edm::productResolversFactory::makePrimary,
                                                    branchIDListHelper_,
                                                    thinnedAssociationsHelper_,
                                                    *processConfiguration_,
@@ -173,17 +175,22 @@ namespace edm {
         principalCache_.insert(std::move(ep));
       }
       for (unsigned int index = 0; index < preallocations_.numberOfRuns(); ++index) {
-        auto rp = std::make_unique<RunPrincipal>(
-            preg_, *processConfiguration_, historyAppender_.get(), index, true, &mergeableRunProductProcesses_);
+        auto rp = std::make_unique<RunPrincipal>(preg_,
+                                                 edm::productResolversFactory::makePrimary,
+                                                 *processConfiguration_,
+                                                 historyAppender_.get(),
+                                                 index,
+                                                 &mergeableRunProductProcesses_);
         principalCache_.insert(std::move(rp));
       }
       for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
-        auto lp =
-            std::make_unique<LuminosityBlockPrincipal>(preg_, *processConfiguration_, historyAppender_.get(), index);
+        auto lp = std::make_unique<LuminosityBlockPrincipal>(
+            preg_, edm::productResolversFactory::makePrimary, *processConfiguration_, historyAppender_.get(), index);
         principalCache_.insert(std::move(lp));
       }
       {
-        auto pb = std::make_unique<ProcessBlockPrincipal>(preg_, *processConfiguration_);
+        auto pb = std::make_unique<ProcessBlockPrincipal>(
+            preg_, edm::productResolversFactory::makePrimary, *processConfiguration_);
         principalCache_.insert(std::move(pb));
       }
     }

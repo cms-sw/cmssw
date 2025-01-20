@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
@@ -50,6 +51,8 @@ class EcalDetailedTimeRecHitProducer : public edm::stream::EDProducer<> {
 public:
   explicit EcalDetailedTimeRecHitProducer(const edm::ParameterSet& ps);
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   //Functions to correct the TOF from the EcalDigi which is not corrected for the vertex position
@@ -250,6 +253,23 @@ double EcalDetailedTimeRecHitProducer::deltaTimeOfFlight(GlobalPoint& vertex, co
       cellGeometry->getPosition(double(layer) + 0.5);  //depth in mm in the middle of the layer position
   GlobalVector tofVector = layerPos - vertex;
   return (layerPos.mag() * CLHEP::cm - tofVector.mag() * CLHEP::cm) / (float)c_light;
+}
+
+void EcalDetailedTimeRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("EBRecHitCollection", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("EERecHitCollection", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
+  desc.add<edm::InputTag>("EBTimeDigiCollection", edm::InputTag("mix", "EBTimeDigi"));
+  desc.add<edm::InputTag>("EETimeDigiCollection", edm::InputTag("mix", "EETimeDigi"));
+  desc.add<std::string>("EBDetailedTimeRecHitCollection", "EcalRecHitsEB");
+  desc.add<std::string>("EEDetailedTimeRecHitCollection", "EcalRecHitsEE");
+  desc.add<bool>("correctForVertexZPosition", false);
+  desc.add<bool>("useMCTruthVertex", false);
+  desc.add<edm::InputTag>("recoVertex", edm::InputTag("offlinePrimaryVerticesWithBS"));
+  desc.add<edm::InputTag>("simVertex", edm::InputTag("g4SimHits"));
+  desc.add<int>("EBTimeLayer", 7);
+  desc.add<int>("EETimeLayer", 3);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

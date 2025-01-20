@@ -59,7 +59,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // Cluster position calculation
   template <bool debug = false>
-  ALPAKA_FN_ACC static void updateClusterPos(reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+  ALPAKA_FN_ACC static void updateClusterPos(::reco::PFClusterParamsSoA::ConstView pfClusParams,
                                              Position4& pos4,
                                              float frac,
                                              int rhInd,
@@ -89,7 +89,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <bool debug = false, typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   ALPAKA_FN_ACC static void hcalFastCluster_singleSeed(
       const TAcc& acc,
-      reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+      ::reco::PFClusterParamsSoA::ConstView pfClusParams,
       const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
       int topoId,   // from selection
       int nRHTopo,  // from selection
@@ -257,7 +257,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <bool debug = false, typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   ALPAKA_FN_ACC static void hcalFastCluster_multiSeedParallel(
       const TAcc& acc,
-      reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+      ::reco::PFClusterParamsSoA::ConstView pfClusParams,
       const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
       int topoId,   // from selection
       int nSeeds,   // from selection
@@ -543,7 +543,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Device function designed to be called by all threads of a given block
   template <bool debug = false, typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   ALPAKA_FN_ACC static void hcalFastCluster_exotic(const TAcc& acc,
-                                                   reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+                                                   ::reco::PFClusterParamsSoA::ConstView pfClusParams,
                                                    const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
                                                    int topoId,
                                                    int nSeeds,
@@ -818,7 +818,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <bool debug = false, typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   ALPAKA_FN_ACC static void hcalFastCluster_multiSeedIterative(
       const TAcc& acc,
-      reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+      ::reco::PFClusterParamsSoA::ConstView pfClusParams,
       const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
       int topoId,
       int nSeeds,
@@ -1085,7 +1085,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
-                                  const reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+                                  const ::reco::PFClusterParamsSoA::ConstView pfClusParams,
                                   const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
                                   const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   reco::PFClusterDeviceCollection::View clusterView,
@@ -1350,7 +1350,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <bool debug = false, typename TAcc, typename = std::enable_if<!std::is_same_v<Device, alpaka::DevCpu>>>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
-                                  const reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+                                  const ::reco::PFClusterParamsSoA::ConstView pfClusParams,
                                   const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusterDeviceCollection::View clusterView,
@@ -1412,7 +1412,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
-                                  const reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+                                  const ::reco::PFClusterParamsSoA::ConstView pfClusParams,
                                   const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusterDeviceCollection::View clusterView,
@@ -1468,7 +1468,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   void PFClusterProducerKernel::seedTopoAndContract(Queue& queue,
-                                                    const reco::PFClusterParamsDeviceCollection& params,
+                                                    const ::reco::PFClusterParamsSoA::ConstView params,
                                                     const reco::PFRecHitHCALTopologyDeviceCollection& topology,
                                                     reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
                                                     reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
@@ -1484,7 +1484,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         make_workdiv<Acc1D>(blocks, threadsPerBlock),
                         SeedingTopoThresh{},
                         pfClusteringVars.view(),
-                        params.view(),
+                        params,
                         topology.view(),
                         pfRecHits.view(),
                         pfClusters.view(),
@@ -1528,7 +1528,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   void PFClusterProducerKernel::cluster(Queue& queue,
-                                        const reco::PFClusterParamsDeviceCollection& params,
+                                        const ::reco::PFClusterParamsSoA::ConstView params,
                                         const reco::PFRecHitHCALTopologyDeviceCollection& topology,
                                         reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
                                         reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
@@ -1549,7 +1549,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         make_workdiv<Acc1D>(nRH, threadsPerBlockForClustering),
                         FastCluster{},
                         pfRecHits.view(),
-                        params.view(),
+                        params,
                         topology.view(),
                         pfClusteringVars.view(),
                         pfClusters.view(),
@@ -1560,7 +1560,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                             threadsPerBlockForClustering),  // uses 4 blocks to minimize memory usage
                         FastClusterExotic{},
                         pfRecHits.view(),
-                        params.view(),
+                        params,
                         topology.view(),
                         pfClusteringVars.view(),
                         pfClusters.view(),

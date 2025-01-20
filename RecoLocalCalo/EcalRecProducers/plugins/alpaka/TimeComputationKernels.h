@@ -6,7 +6,6 @@
 #include <limits>
 
 #include "CondFormats/EcalObjects/interface/alpaka/EcalMultifitConditionsDevice.h"
-#include "CondFormats/EcalObjects/interface/alpaka/EcalMultifitParametersDevice.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
@@ -17,6 +16,7 @@
 
 #include "DeclsForKernels.h"
 #include "KernelHelpers.h"
+#include "EcalMultifitParameters.h"
 
 //#define ECAL_RECO_ALPAKA_DEBUG
 
@@ -135,7 +135,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
                                   ScalarType* g_accTimeMax,
                                   ScalarType* g_accTimeWgt,
                                   TimeComputationState* g_state,
-                                  EcalMultifitParametersDevice::ConstView paramsDev,
+                                  EcalMultifitParameters const* paramsDev,
                                   ConfigurationParameters::type const timeFitLimits_firstEB,
                                   ConfigurationParameters::type const timeFitLimits_firstEE,
                                   ConfigurationParameters::type const timeFitLimits_secondEB,
@@ -175,11 +175,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
           auto const did = DetId{dids[inputCh]};
           auto const isBarrel = did.subdetId() == EcalBarrel;
           auto* const amplitudeFitParameters =
-              isBarrel ? paramsDev.amplitudeFitParamsEB().data() : paramsDev.amplitudeFitParamsEE().data();
+              isBarrel ? paramsDev->amplitudeFitParamsEB.data() : paramsDev->amplitudeFitParamsEE.data();
           auto* const timeFitParameters =
-              isBarrel ? paramsDev.timeFitParamsEB().data() : paramsDev.timeFitParamsEE().data();
+              isBarrel ? paramsDev->timeFitParamsEB.data() : paramsDev->timeFitParamsEE.data();
           auto const timeFitParameters_size =
-              isBarrel ? paramsDev.timeFitParamsEB().size() : paramsDev.timeFitParamsEE().size();
+              isBarrel ? paramsDev->timeFitParamsEB.size() : paramsDev->timeFitParamsEE.size();
           auto const timeFitLimits_first = isBarrel ? timeFitLimits_firstEB : timeFitLimits_firstEE;
           auto const timeFitLimits_second = isBarrel ? timeFitLimits_secondEB : timeFitLimits_secondEE;
 
@@ -542,7 +542,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
                                   ScalarType* g_ampMaxError,
                                   ScalarType* g_timeMax,
                                   ScalarType* g_timeError,
-                                  EcalMultifitParametersDevice::ConstView paramsDev) const {
+                                  EcalMultifitParameters const* paramsDev) const {
       /// launch ctx parameters are
       /// 10 threads per channel, N channels per block, Y blocks
       /// TODO: do we need to keep the state around or can be removed?!
@@ -573,8 +573,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 
         auto state = g_state[ch];
         auto const did = DetId{dids[inputCh]};
-        auto* const amplitudeFitParameters = did.subdetId() == EcalBarrel ? paramsDev.amplitudeFitParamsEB().data()
-                                                                          : paramsDev.amplitudeFitParamsEE().data();
+        auto* const amplitudeFitParameters = did.subdetId() == EcalBarrel ? paramsDev->amplitudeFitParamsEB.data()
+                                                                          : paramsDev->amplitudeFitParamsEE.data();
 
         // TODO is that better than storing into global and launching another kernel
         // for the first 10 threads

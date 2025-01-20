@@ -26,36 +26,20 @@ print(options)
 
 ####################################################################
 # Use the options
-if (options.geometry == "D115"):
-    from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
-    process = cms.Process('DigiStudy',Phase2C20I13M9)
-elif (options.geometry == "D104"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('DigiStudy',PhaseC22I13M9)
-elif (options.geometry == "D106"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('DigiStudy',PhaseC22I13M9)
-elif (options.geometry == "D109"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('DigiStudy',PhaseC22I13M9)
-elif (options.geometry == "D111"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('DigiStudy',PhaseC22I13M9)
-elif (options.geometry == "D112"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('DigiStudy',PhaseC22I13M9)
-elif (options.geometry == "D113"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('DigiStudy',PhaseC22I13M9)
-else:
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    process = cms.Process('DigiStudy',Phase2C17I13M9)
+geomName = "Run4" + options.geometry
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+print("Geometry Name:  ", geomName)
+print("Geom file Name: ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
 
-geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
+process = cms.Process('DigiStudy',ERA)
+
 fileInput = "file:step2" + options.geometry + "tt.root"
 fileName = "hgcDigi" + options.geometry + "tt.root"
 
-print("Geometry file: ", geomFile)
 print("Input file:    ", fileInput)
 print("Output file:   ", fileName)
 
@@ -67,7 +51,7 @@ process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Validation.HGCalValidation.hgcDigiStudy_cfi')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(fileInput) )

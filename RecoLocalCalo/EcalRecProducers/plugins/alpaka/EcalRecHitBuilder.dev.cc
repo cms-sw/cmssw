@@ -19,7 +19,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                           OutputProduct& ebRecHits,
                           OutputProduct& eeRecHits,
                           EcalRecHitConditionsDevice const& conditionsDev,
-                          EcalRecHitParametersDevice const& parametersDev,
+                          EcalRecHitParameters const* parametersDev,
                           edm::TimeValue_t const& eventTime,
                           ConfigurationParameters const& configParams,
                           bool const isPhase2) {
@@ -44,7 +44,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                           ebRecHits.view(),
                           eeRecHits.view(),
                           conditionsDev.const_view(),
-                          parametersDev.const_data(),
+                          parametersDev,
                           eventTime,
                           configParams);
     } else {
@@ -54,7 +54,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                           ebUncalibRecHits->const_view(),
                           ebRecHits.view(),
                           conditionsDev.const_view(),
-                          parametersDev.const_data(),
+                          parametersDev,
                           eventTime,
                           configParams);
     }

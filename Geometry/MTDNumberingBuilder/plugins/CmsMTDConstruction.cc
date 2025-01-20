@@ -9,6 +9,8 @@
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "Geometry/MTDCommonData/interface/MTDBaseNumber.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
+
 using angle_units::operators::convertRadToDeg;
 
 template <class FilteredView>
@@ -37,14 +39,14 @@ bool CmsMTDConstruction<FilteredView>::mtdOrderPhi(const GeometricTimingDet* a, 
 
 template <class FilteredView>
 bool CmsMTDConstruction<FilteredView>::btlOrderPhi(const GeometricTimingDet* a, const GeometricTimingDet* b) {
-  return static_cast<int>(convertRadToDeg(makempiToppi(a->phi()))) <
-         static_cast<int>(convertRadToDeg(makempiToppi(b->phi())));
+  return static_cast<int>(convertRadToDeg(angle0to2pi::make0To2pi(a->phi()))) <
+         static_cast<int>(convertRadToDeg(angle0to2pi::make0To2pi(b->phi())));
 }
 
 template <class FilteredView>
 bool CmsMTDConstruction<FilteredView>::btlOrderZ(const GeometricTimingDet* a, const GeometricTimingDet* b) {
-  bool order = (static_cast<int>(convertRadToDeg(makempiToppi(a->phi()))) ==
-                static_cast<int>(convertRadToDeg(makempiToppi(b->phi())))) &&
+  bool order = (static_cast<int>(convertRadToDeg(angle0to2pi::make0To2pi(a->phi()))) ==
+                static_cast<int>(convertRadToDeg(angle0to2pi::make0To2pi(b->phi())))) &&
                (a->translation().z() < b->translation().z());
   return order;
 }
@@ -148,10 +150,10 @@ GeometricTimingDet* CmsMTDConstruction<FilteredView>::buildSubdet(FilteredView& 
   GeometricTimingDet* subdet = new GeometricTimingDet(&fv, thisDet);
 
   if (thisDet == GeometricTimingDet::BTL) {
-    subdet->setGeographicalID(BTLDetId(0, 0, 0, 0, 0, 0));
+    subdet->setGeographicalID(BTLDetId(0, 0, 0, 0, 0));
   } else if (thisDet == GeometricTimingDet::ETL) {
     const uint32_t side = subdet->translation().z() > 0 ? 1 : 0;
-    subdet->setGeographicalID(ETLDetId(side, 0, 0, 0, 0, 0));
+    subdet->setGeographicalID(ETLDetId(side, 0, 0, 0, 0));
   } else {
     throw cms::Exception("CmsMTDConstruction") << " ERROR - I was expecting a SubDet, I got a " << fv.name();
   }

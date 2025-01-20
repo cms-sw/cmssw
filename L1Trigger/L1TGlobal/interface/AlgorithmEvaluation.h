@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <map>
+#include <memory>
 #include <queue>
 #include <stack>
 #include <string>
@@ -55,9 +56,7 @@ namespace l1t {
     // virtual ~AlgorithmEvaluation();
 
     //typedef std::map<std::string, ConditionEvaluation*> ConditionEvaluationMap;
-    typedef std::unordered_map<std::string, ConditionEvaluation*> ConditionEvaluationMap;
-    typedef ConditionEvaluationMap::const_iterator CItEvalMap;
-    typedef ConditionEvaluationMap::iterator ItEvalMap;
+    typedef std::unordered_map<std::string, std::unique_ptr<ConditionEvaluation>> ConditionEvaluationMap;
 
   public:
     /// get / set the result of the algorithm
@@ -68,9 +67,8 @@ namespace l1t {
     /// evaluate an algorithm
     void evaluateAlgorithm(const int chipNumber, const std::vector<ConditionEvaluationMap>&);
 
-    /// get all the object combinations evaluated to true in the conditions
-    /// from the algorithm
-    inline std::vector<CombinationsInCond>& gtAlgoCombinationVector() { return m_algoCombinationVector; }
+    /// get all the object combinations evaluated to true in the conditions from the algorithm
+    inline std::vector<CombinationsWithBxInCond>& gtAlgoCombinationVector() { return m_algoCombinationVector; }
 
     inline std::vector<GlobalLogicParser::OperandToken>& operandTokenVector() { return m_operandTokenVector; }
 
@@ -86,7 +84,7 @@ namespace l1t {
 
     std::vector<OperandToken> m_operandTokenVector;
 
-    std::vector<CombinationsInCond> m_algoCombinationVector;
+    std::vector<CombinationsWithBxInCond> m_algoCombinationVector;
   };
 
 }  // namespace l1t

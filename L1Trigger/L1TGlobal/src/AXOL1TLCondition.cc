@@ -19,7 +19,6 @@
 #include <vector>
 #include <algorithm>
 #include "ap_fixed.h"
-#include "hls4ml/emulator.h"
 
 // user include files
 //   base classes
@@ -42,17 +41,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-// constructors
-//     default
-l1t::AXOL1TLCondition::AXOL1TLCondition() : ConditionEvaluation() {
-  // empty
-}
+l1t::AXOL1TLCondition::AXOL1TLCondition()
+    : ConditionEvaluation(), m_gtAXOL1TLTemplate{nullptr}, m_gtGTB{nullptr}, m_model{nullptr} {}
 
-//     from base template condition (from event setup usually)
 l1t::AXOL1TLCondition::AXOL1TLCondition(const GlobalCondition* axol1tlTemplate, const GlobalBoard* ptrGTB)
     : ConditionEvaluation(),
       m_gtAXOL1TLTemplate(static_cast<const AXOL1TLTemplate*>(axol1tlTemplate)),
-      m_gtGTB(ptrGTB) {}
+      m_gtGTB(ptrGTB),
+      m_model_loader{kModelNamePrefix + m_gtAXOL1TLTemplate->modelVersion()} {
+  loadModel();
+}
 
 // copy constructor
 void l1t::AXOL1TLCondition::copy(const l1t::AXOL1TLCondition& cp) {
@@ -64,6 +62,9 @@ void l1t::AXOL1TLCondition::copy(const l1t::AXOL1TLCondition& cp) {
   m_combinationsInCond = cp.getCombinationsInCond();
 
   m_verbosity = cp.m_verbosity;
+
+  m_model_loader.reset(cp.model_loader().model_name());
+  loadModel();
 }
 
 l1t::AXOL1TLCondition::AXOL1TLCondition(const l1t::AXOL1TLCondition& cp) : ConditionEvaluation() { copy(cp); }
@@ -88,25 +89,24 @@ void l1t::AXOL1TLCondition::setuGtB(const GlobalBoard* ptrGTB) { m_gtGTB = ptrGT
 /// set score for score saving
 void l1t::AXOL1TLCondition::setScore(const float scoreval) const { m_savedscore = scoreval; }
 
+void l1t::AXOL1TLCondition::loadModel() {
+  try {
+    m_model = m_model_loader.load_model();
+  } catch (std::runtime_error& e) {
+    throw cms::Exception("ModelError") << " ERROR: failed to load AXOL1TL model version \""
+                                       << m_model_loader.model_name()
+                                       << "\". Model version not found in cms-hls4ml externals.";
+  }
+}
+
 const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
+  if (m_model == nullptr) {
+    throw cms::Exception("ModelError") << " ERROR: no model was loaded for AXOL1TL model version \""
+                                       << m_model_loader.model_name() << "\".";
+  }
+
   bool condResult = false;
   int useBx = bxEval + m_gtAXOL1TLTemplate->condRelativeBx();
-
-  //HLS4ML stuff
-  std::string AXOL1TLmodelversion = "GTADModel_" + m_gtAXOL1TLTemplate->modelVersion();  //loading from menu/template
-
-  //otherwise load model (if possible) and run inference
-  hls4mlEmulator::ModelLoader loader(AXOL1TLmodelversion);
-  std::shared_ptr<hls4mlEmulator::Model> model;
-
-  try {
-    model = loader.load_model();
-  } catch (std::runtime_error& e) {
-    // for stopping with exception if model version cannot be loaded
-    throw cms::Exception("ModelError")
-        << " ERROR: failed to load AXOL1TL model version \"" << AXOL1TLmodelversion
-        << "\" that was specified in menu. Model version not found in cms-hls4ml externals.";
-  }
 
   // //pointers to objects
   const BXVector<const l1t::Muon*>* candMuVec = m_gtGTB->getCandL1Mu();
@@ -232,9 +232,9 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   }
 
   //now run the inference
-  model->prepare_input(ADModelInput);  //scaling internal here
-  model->predict();
-  model->read_result(&ADModelResult);  // this should be the square sum model result
+  m_model->prepare_input(ADModelInput);  //scaling internal here
+  m_model->predict();
+  m_model->read_result(&ADModelResult);  // this should be the square sum model result
 
   result = ADModelResult.first;
   loss = ADModelResult.second;

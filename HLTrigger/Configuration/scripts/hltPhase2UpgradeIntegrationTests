@@ -32,6 +32,7 @@ def print_help():
     --restrictPathsTo : Restrict paths to be run to a user defined subset (e.g. "HLT_Ele*")
     --procModifiers   : Optionally use one (or more) cmssw processModifier
     --cachedInput     : Optionally use an existing RAW data file (do not regenerate it from scratch)
+    --dryRun          : Optionally do not run any of the configuration created
 
     Example usage:
     hltPhase2UpgradeIntegrationTests --globaltag auto:phase2_realistic_T33 --geometry Extended2026D110 --events 10 --threads 4
@@ -83,6 +84,7 @@ parser.add_argument("--threads", type=int, default=1, help="Number of threads to
 parser.add_argument("--restrictPathsTo", nargs='+', default=[], help="List of HLT paths to restrict to")
 parser.add_argument("--cachedInput", default=None, help="Predefined input file to use instead of running TTbar GEN,SIM step")
 parser.add_argument("--procModifiers", default=None, help="Optional process modifier for cmsDriver")  # New argument for procModifiers
+parser.add_argument("--dryRun", action="store_true", help="Only generate configurations without running them")
 
 # Step 0: Capture the start time and print the start timestamp
 start_time = time.time()
@@ -282,7 +284,7 @@ ttbar_command = (
     f"--python_filename {ttbar_config_file}"
 )
 
-if not args.cachedInput:
+if not args.cachedInput and not args.dryRun:
     print("Running TTbar GEN,SIM step...")
     run_command(ttbar_command, log_file=os.path.join(output_dir, "ttbar_gen_sim.log"))
 
@@ -317,6 +319,11 @@ config_files = [
     if f.endswith(".py") and f.startswith("Phase2_") and f != "Phase2_dump.py"
 ]
 print(f"Found {len(config_files)} configuration files in {hlt_configs_dir}.")
+
+##### stop here in case it's dryRun mode
+if args.dryRun:  # Check if the --dryRun flag is active
+    print("Dry run mode activated. All configurations have been created.")
+    exit(0)
 
 # Run cmsRun on all config files in parallel and handle errors
 error_occurred = False

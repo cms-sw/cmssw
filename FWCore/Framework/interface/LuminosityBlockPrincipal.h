@@ -16,6 +16,7 @@ is the DataBlock.
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Framework/interface/Principal.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
@@ -33,11 +34,13 @@ namespace edm {
     typedef LuminosityBlockAuxiliary Auxiliary;
     typedef Principal Base;
 
+    template <ProductResolversFactory FACTORY>
     LuminosityBlockPrincipal(std::shared_ptr<ProductRegistry const> reg,
+                             FACTORY&& iFactory,
                              ProcessConfiguration const& pc,
                              HistoryAppender* historyAppender,
-                             unsigned int index,
-                             bool isForPrimaryProcess = true);
+                             unsigned int index)
+        : LuminosityBlockPrincipal(reg, iFactory(InLumi, pc.processName(), *reg), pc, historyAppender, index) {}
 
     ~LuminosityBlockPrincipal() override {}
 
@@ -77,6 +80,11 @@ namespace edm {
     void setShouldWriteLumi(ShouldWriteLumi value) { shouldWriteLumi_ = value; }
 
   private:
+    LuminosityBlockPrincipal(std::shared_ptr<ProductRegistry const> reg,
+                             std::vector<std::shared_ptr<ProductResolverBase>>&& resolvers,
+                             ProcessConfiguration const& pc,
+                             HistoryAppender* historyAppender,
+                             unsigned int index);
     unsigned int transitionIndex_() const override;
 
     edm::propagate_const<std::shared_ptr<RunPrincipal>> runPrincipal_;

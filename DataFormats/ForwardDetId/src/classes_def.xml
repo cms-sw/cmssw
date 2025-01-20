@@ -23,15 +23,8 @@
   <class name="MTDDetId" ClassVersion="3">
    <version ClassVersion="3" checksum="1210976889"/>
   </class>
-  <class name="BTLDetId" ClassVersion="4">
-   <version ClassVersion="4" checksum="1515591716"/>
+  <class name="BTLDetId" ClassVersion="3">
    <version ClassVersion="3" checksum="1515591716"/>
-   <ioread sourceClass = "BTLDetId" version="[-3]" targetClass="BTLDetId" source="" target="">
-    <![CDATA[
-        BTLDetId tmp(newObj->newForm(newObj->rawId()));
-         *newObj=tmp;
-    ]]>
-   </ioread>
   </class>
   <class name="ETLDetId" ClassVersion="4">
    <version ClassVersion="4" checksum="1644731879"/>

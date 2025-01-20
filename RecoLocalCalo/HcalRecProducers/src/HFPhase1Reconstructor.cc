@@ -281,10 +281,9 @@ void HFPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::ParameterSetDescription>("algorithm", fillDescriptionForParseHFPhase1AlgoDescription())
       ->setComment("configure the reconstruction algorithm");
 
-  desc.ifValue(
-      edm::ParameterDescription<bool>("runHFStripFilter", true, true),
-      false >> edm::EmptyGroupDescription() or true >> edm::ParameterDescription<edm::ParameterSetDescription>(
-                                                           "HFStripFilter", HFStripFilter::fillDescription(), true));
+  desc.add<bool>("runHFStripFilter", true);
+  desc.add<edm::ParameterSetDescription>("HFStripFilter", HFStripFilter::fillDescription());
+  desc.add<bool>("setNoiseFlags", true);
 
   {
     // Define common vectors
@@ -320,7 +319,10 @@ void HFPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& des
     S9S1statDesc.add<std::vector<double>>("longETParams", std::vector<double>(13, 0));
     S9S1statDesc.add<int>("HcalAcceptSeverityLevel", 9);
     S9S1statDesc.add<bool>("isS8S1", false);
+    desc.add<edm::ParameterSetDescription>("S9S1stat", S9S1statDesc);
+  }
 
+  {
     // S8S1stat configuration
     edm::ParameterSetDescription S8S1statDesc;
     S8S1statDesc.add<std::vector<double>>(
@@ -335,7 +337,10 @@ void HFPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& des
     S8S1statDesc.add<std::vector<double>>("longETParams", std::vector<double>(13, 0));
     S8S1statDesc.add<int>("HcalAcceptSeverityLevel", 9);
     S8S1statDesc.add<bool>("isS8S1", true);
+    desc.add<edm::ParameterSetDescription>("S8S1stat", S8S1statDesc);
+  }
 
+  {
     // PETstat configuration
     edm::ParameterSetDescription PETstatDesc;
     PETstatDesc.add<std::vector<double>>("short_R", {0.8});
@@ -350,14 +355,7 @@ void HFPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& des
     PETstatDesc.add<std::vector<double>>("short_R_29", {0.8});
     PETstatDesc.add<std::vector<double>>("long_R_29", {0.8});
     PETstatDesc.add<int>("HcalAcceptSeverityLevel", 9);
-
-    // Conditionally add S9S1stat if setNoiseFlags is true
-    desc.ifValue(
-        edm::ParameterDescription<bool>("setNoiseFlags", true, true),
-        false >> edm::EmptyGroupDescription() or
-            true >> (edm::ParameterDescription<edm::ParameterSetDescription>("S9S1stat", S9S1statDesc, true) and
-                     edm::ParameterDescription<edm::ParameterSetDescription>("S8S1stat", S8S1statDesc, true) and
-                     edm::ParameterDescription<edm::ParameterSetDescription>("PETstat", PETstatDesc, true)));
+    desc.add<edm::ParameterSetDescription>("PETstat", PETstatDesc);
   }
 
   descriptions.addWithDefaultLabel(desc);

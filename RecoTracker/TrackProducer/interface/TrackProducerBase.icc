@@ -1,36 +1,30 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 
 /// user include files
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <FWCore/Utilities/interface/ESInputTag.h>
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-
-#include "DataFormats/Common/interface/AssociationMap.h"
-
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-// #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-
-#include <TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h>
-#include <TrackingTools/DetLayers/interface/GeometricSearchDet.h>
-#include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
-#include <RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h>
-#include <TrackingTools/MeasurementDet/interface/MeasurementDet.h>
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
+#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h"
 
 //destructor
 template <class T>
@@ -53,9 +47,7 @@ void TrackProducerBase<T>::initTrackProducerBase(const edm::ParameterSet& conf,
   // we should get rid of the boolean parameter useSimpleMF,
   // and use only a string magneticField [instead of SimpleMagneticField]
   // or better an edm::ESInputTag (at the moment HLT does not handle ESInputTag)
-  bool useSimpleMF = false;
-  if (conf_.exists("useSimpleMF"))
-    useSimpleMF = conf_.getParameter<bool>("useSimpleMF");
+  bool useSimpleMF = conf_.getParameter<bool>("useSimpleMF");
   std::string mfName = "";
   if (useSimpleMF) {
     mfName = conf_.getParameter<std::string>("SimpleMagneticField");
@@ -76,12 +68,7 @@ void TrackProducerBase<T>::initTrackProducerBase(const edm::ParameterSet& conf,
   // (they are necessary to fill in the secondary hit patterns)
   //
 
-  std::string theNavigationSchool = "";
-  if (conf_.exists("NavigationSchool"))
-    theNavigationSchool = conf_.getParameter<std::string>("NavigationSchool");
-  else
-    edm::LogWarning("TrackProducerBase")
-        << " NavigationSchool parameter not set. secondary hit pattern will not be filled.";
+  std::string theNavigationSchool = conf_.getParameter<std::string>("NavigationSchool");
   if (!theNavigationSchool.empty()) {
     useSchool_ = true;
     schoolSrc_ = cc.esConsumes(edm::ESInputTag("", theNavigationSchool));
@@ -90,8 +77,20 @@ void TrackProducerBase<T>::initTrackProducerBase(const edm::ParameterSet& conf,
   }
 }
 
-// ------------ method called to produce the data  ------------
+template <class T>
+void TrackProducerBase<T>::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("MeasurementTrackerEvent", edm::InputTag("MeasurementTrackerEvent"));
+  desc.add<bool>("useSimpleMF", false);
+  desc.add<std::string>("SimpleMagneticField", "");
+  desc.add<std::string>("Fitter", "KFFittingSmootherWithOutliersRejectionAndRK");
+  desc.add<std::string>("Propagator", "RungeKuttaTrackerPropagator");
+  desc.add<std::string>("TTRHBuilder", "WithAngleAndTemplate");
+  desc.add<std::string>("NavigationSchool", "SimpleNavigationSchool");
+  desc.add<std::string>("MeasurementTracker", "");
+}
 
+// ------------ method called to produce the data  ------------
 template <class T>
 void TrackProducerBase<T>::getFromES(const edm::EventSetup& setup,
                                      edm::ESHandle<TrackerGeometry>& theG,

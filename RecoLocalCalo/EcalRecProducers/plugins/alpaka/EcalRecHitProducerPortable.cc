@@ -1,33 +1,43 @@
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "CondFormats/DataRecord/interface/EcalRecHitConditionsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
+#include "CondFormats/EcalObjects/interface/EcalRecHitParameters.h"
 #include "CondFormats/EcalObjects/interface/alpaka/EcalRecHitConditionsDevice.h"
-#include "CondFormats/EcalObjects/interface/alpaka/EcalRecHitParametersDevice.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/RecoTypes.h"
 #include "DataFormats/EcalRecHit/interface/alpaka/EcalUncalibratedRecHitDeviceCollection.h"
 #include "DataFormats/EcalRecHit/interface/alpaka/EcalRecHitDeviceCollection.h"
+#include "DataFormats/Portable/interface/PortableObject.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "HeterogeneousCore/AlpakaCore/interface/MoveToDeviceCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
-#include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 
 #include "DeclsForKernels.h"
 #include "EcalRecHitBuilder.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
+  namespace {
+    using EcalRecHitParametersCache =
+        cms::alpakatools::MoveToDeviceCache<Device, PortableHostObject<EcalRecHitParameters>>;
+  }
 
-  class EcalRecHitProducerPortable : public stream::EDProducer<> {
+  class EcalRecHitProducerPortable : public stream::EDProducer<edm::GlobalCache<EcalRecHitParametersCache>> {
   public:
-    explicit EcalRecHitProducerPortable(edm::ParameterSet const& ps);
+    explicit EcalRecHitProducerPortable(edm::ParameterSet const& ps, EcalRecHitParametersCache const*);
     ~EcalRecHitProducerPortable() override = default;
     static void fillDescriptions(edm::ConfigurationDescriptions&);
+    static std::unique_ptr<EcalRecHitParametersCache> initializeGlobalCache(edm::ParameterSet const& ps);
 
     void produce(device::Event&, device::EventSetup const&) override;
+
+    static void globalEndJob(EcalRecHitParametersCache*) {}
 
   private:
     bool const isPhase2_;
@@ -45,7 +55,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // conditions tokens
     const device::ESGetToken<EcalRecHitConditionsDevice, EcalRecHitConditionsRcd> recHitConditionsToken_;
-    const device::ESGetToken<EcalRecHitParametersDevice, JobConfigurationGPURecord> recHitParametersToken_;
   };
 
   void EcalRecHitProducerPortable::fillDescriptions(edm::ConfigurationDescriptions& confDesc) {
@@ -75,17 +84,65 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                            edm::ParameterDescription<double>("EELaserMAX", 8.0, true)) or
                      true >> edm::EmptyGroupDescription());
 
+    // channel statuses to be exluded from reconstruction
+    desc.add<std::vector<std::string>>("ChannelStatusToBeExcluded",
+                                       {"kDAC",
+                                        "kNoisy",
+                                        "kNNoisy",
+                                        "kFixedG6",
+                                        "kFixedG1",
+                                        "kFixedG0",
+                                        "kNonRespondingIsolated",
+                                        "kDeadVFE",
+                                        "kDeadFE",
+                                        "kNoDataNoTP"});
+
+    // reco flags association to channel status flags
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::vector<std::string>>("kGood", {"kOk", "kDAC", "kNoLaser", "kNoisy"});
+    psd0.add<std::vector<std::string>>("kNeighboursRecovered", {"kFixedG0", "kNonRespondingIsolated", "kDeadVFE"});
+    psd0.add<std::vector<std::string>>("kDead", {"kNoDataNoTP"});
+    psd0.add<std::vector<std::string>>("kNoisy", {"kNNoisy", "kFixedG6", "kFixedG1"});
+    psd0.add<std::vector<std::string>>("kTowerRecovered", {"kDeadFE"});
+    desc.add<edm::ParameterSetDescription>("flagsMapDBReco", psd0);
+
     confDesc.addWithDefaultLabel(desc);
   }
 
-  EcalRecHitProducerPortable::EcalRecHitProducerPortable(const edm::ParameterSet& ps)
+  std::unique_ptr<EcalRecHitParametersCache> EcalRecHitProducerPortable::initializeGlobalCache(
+      edm::ParameterSet const& ps) {
+    PortableHostObject<EcalRecHitParameters> params(cms::alpakatools::host());
+
+    // Translate string representation of ChannelStatusToBeExcluded to enum values and pack into bitset
+    auto const& channelStatusToBeExcluded = StringToEnumValue<EcalChannelStatusCode::Code>(
+        ps.getParameter<std::vector<std::string>>("ChannelStatusToBeExcluded"));
+    for (auto const& st : channelStatusToBeExcluded) {
+      params->channelStatusCodesToBeExcluded.set(st);
+    }
+
+    // Generate map of channel status codes and corresponding recoFlag bits
+    auto const& fmdbRecoPset = ps.getParameter<edm::ParameterSet>("flagsMapDBReco");
+    auto const& recoFlagStrings = fmdbRecoPset.getParameterNames();
+    for (auto const& recoFlagString : recoFlagStrings) {
+      auto const recoFlag = static_cast<EcalRecHit::Flags>(StringToEnumValue<EcalRecHit::Flags>(recoFlagString));
+      auto const& channelStatusCodeStrings = fmdbRecoPset.getParameter<std::vector<std::string>>(recoFlagString);
+      for (auto const& channelStatusCodeString : channelStatusCodeStrings) {
+        auto const chStatCode = StringToEnumValue<EcalChannelStatusCode::Code>(channelStatusCodeString);
+        // set recoFlagBits for this channel status code
+        params->recoFlagBits.at(chStatCode) = static_cast<uint32_t>(recoFlag);
+      }
+    }
+
+    return std::make_unique<EcalRecHitParametersCache>(std::move(params));
+  }
+
+  EcalRecHitProducerPortable::EcalRecHitProducerPortable(const edm::ParameterSet& ps, EcalRecHitParametersCache const*)
       : isPhase2_{ps.getParameter<bool>("isPhase2")},
         uncalibRecHitsTokenEB_{consumes(ps.getParameter<edm::InputTag>("uncalibrecHitsInLabelEB"))},
         uncalibRecHitsTokenEE_{isPhase2_ ? device::EDGetToken<InputProduct>{}
                                          : consumes(ps.getParameter<edm::InputTag>("uncalibrecHitsInLabelEE"))},
         recHitsTokenEB_{produces(ps.getParameter<std::string>("recHitsLabelEB"))},
-        recHitConditionsToken_{esConsumes()},
-        recHitParametersToken_{esConsumes()} {
+        recHitConditionsToken_{esConsumes()} {
     if (!isPhase2_) {
       recHitsTokenEE_ = produces(ps.getParameter<std::string>("recHitsLabelEE"));
     }
@@ -147,7 +204,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // conditions
       auto const& recHitConditionsDev = setup.getData(recHitConditionsToken_);
-      auto const& recHitParametersDev = setup.getData(recHitParametersToken_);
+      auto const* recHitParametersDev = globalCache()->get(queue).const_data();
 
       //
       // schedule algorithms

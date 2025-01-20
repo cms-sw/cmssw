@@ -155,7 +155,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
   }
 
   // Look at objects in bx = bx + relativeBx
-  int useBx = bxEval + m_gtCaloTemplate->condRelativeBx();
+  L1TObjBxIndexType const useBx = bxEval + m_gtCaloTemplate->condRelativeBx();
 
   // Fail condition if attempting to get Bx outside of range
   if ((useBx < candVec->getFirstBX()) || (useBx > candVec->getLastBX())) {
@@ -185,7 +185,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 
   // store the indices of the calorimeter objects
   // from the combination evaluated in the condition
-  SingleCombInCond objectsInComb;
+  SingleCombWithBxInCond objectsInComb;
   objectsInComb.reserve(nObjInCond);
 
   // clear the m_combinationsInCond vector
@@ -203,7 +203,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
       totalLoops++;
       bool passCondition = checkObjectParameter(0, *(candVec->at(useBx, i)), index[i]);
       if (passCondition) {
-        objectsInComb.push_back(i);
+        objectsInComb.emplace_back(useBx, i);
         condResult = true;
         passLoops++;
         combinationsInCond().push_back(objectsInComb);
@@ -268,8 +268,8 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
           }  // end wsc check
 
           objectsInComb.clear();
-          objectsInComb.push_back(i);
-          objectsInComb.push_back(j);
+          objectsInComb.emplace_back(useBx, i);
+          objectsInComb.emplace_back(useBx, j);
           condResult = true;
           passLoops++;
           combinationsInCond().push_back(objectsInComb);
@@ -315,9 +315,9 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
             condResult = true;
             passLoops++;
             objectsInComb.clear();
-            objectsInComb.push_back(i);
-            objectsInComb.push_back(j);
-            objectsInComb.push_back(k);
+            objectsInComb.emplace_back(useBx, i);
+            objectsInComb.emplace_back(useBx, j);
+            objectsInComb.emplace_back(useBx, k);
             combinationsInCond().push_back(objectsInComb);
           }
         }  // end loop on k
@@ -394,10 +394,10 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
                          (passCondition0m && passCondition1k && passCondition2j && passCondition3i));
             if (pass) {
               objectsInComb.clear();
-              objectsInComb.push_back(i);
-              objectsInComb.push_back(j);
-              objectsInComb.push_back(k);
-              objectsInComb.push_back(m);
+              objectsInComb.emplace_back(useBx, i);
+              objectsInComb.emplace_back(useBx, j);
+              objectsInComb.emplace_back(useBx, k);
+              objectsInComb.emplace_back(useBx, m);
               condResult = true;
               passLoops++;
               combinationsInCond().push_back(objectsInComb);

@@ -42,6 +42,9 @@ import datetime
 import time
 import os
 import sys
+import re
+import math
+import fileinput
 
 #-------------------------------------------------------------------------------
 class jobdatabase:
@@ -144,33 +147,49 @@ class jobdatabase:
         print('pedeMem:\t',             self.pedeMem, '\n')
 
         #print interesting Job-level lists ---- to add: t/evt, fix remarks
-        print('###     dir      jobid    stat  try  rtime      nevt  remark   weight  name')
+        headFmt = '###     dir      jobid    stat  try  rtime      nevt  remark   weight  name'
+        jobFmt = '%03d  %6s  %10s%6s  %3d  %5d  %6d  %12s  %5s  %s'
+        mrgFmt = '%s  %6s  %10s%6s  %3d  %5d  %6d  %12s  %5s  %s'
+        if self.nJobs>999:
+            headFmt = '####     dir       jobid  stat  try  rtime      nevt    remark   weight  name'
+            jobFmt = '%04d  %7s  %10s%6s  %3d  %5d  %6d  %12s  %5s  %s'
+            mrgFmt = '%s   %7s  %10s%6s  %3d  %5d  %6d  %12s  %5s  %s'
+        if self.nJobs>9999:
+            jobFmt = '%d  %s  %10s%6s  %3d  %5d  %6d  %12s  %5s  %s'
+            mrgFmt = '%s    %8s  %10s%6s  %3d  %5d  %6d  %12s  %5s  %s'
+        print(headFmt)
         print("------------------------------------------------------------------------------")
         for i in range(self.nJobs):
-            print('%03d  %6s  %9s  %6s  %3d  %5d  %8d  %8s  %5s  %s' % (
+            remarkField = self.JOBHOST[i]
+            if self.JOBSTATUS[i] == "FAIL":
+                remarkField = self.JOBREMARK[i]
+            print(jobFmt % (
                 self.JOBNUMBER[i],
                 self.JOBDIR[i],
                 self.JOBID[i],
-                self.JOBSTATUS[i],
+                self.JOBSTATUS[i][:6],
                 self.JOBNTRY[i],
                 self.JOBRUNTIME[i],
                 self.JOBNEVT[i],
-                self.JOBHOST[i],
+                remarkField[:12],
                 self.JOBSP2[i],
                 self.JOBSP3[i]))
 
         #print merge Jobs if merge mode
         if self.driver == 'merge':
             for i in range(self.nJobs,len(self.JOBDIR)):
-                print('%s  %6s  %9s  %6s  %3d  %5d  %8d  %8s  %5s  %s' % (
+                remarkField = self.JOBHOST[i]
+                if (self.JOBSTATUS[i] == "FAIL") or (self.JOBSTATUS[i] == "WARN"):
+                    remarkField = self.JOBREMARK[i]
+                print(mrgFmt % (
                     'MMM',
                     self.JOBDIR[i],
                     self.JOBID[i],
-                    self.JOBSTATUS[i],
+                    self.JOBSTATUS[i][:6],
                     self.JOBNTRY[i],
                     self.JOBRUNTIME[i],
                     self.JOBNEVT[i],
-                    self.JOBHOST[i],
+                    remarkField[:12],
                     self.JOBSP2[i],
                     self.JOBSP3[i]))
 
@@ -192,7 +211,7 @@ class jobdatabase:
     #-------------------------------------------------------------------------------
     # writes a new mps.db file from the members. Replaces the old mps.db
     def write_db(self):
-        self.header = "mps database schema 3.2"
+        self.header = "mps database schema 4.0"
         self.currentTime = int(time.time())
         self.elapsedTime = 0;
         if self.updateTime != 0:
@@ -218,7 +237,7 @@ class jobdatabase:
 
         #write mps.db jobinfo
         for i in range(len(self.JOBID)):
-            DBFILE.write('%03d:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n' %
+            DBFILE.write('%d:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n' %
                          (i+1,
                           self.JOBDIR[i],
                           self.JOBID[i],
@@ -252,3 +271,61 @@ class jobdatabase:
         else:
             print('\nget_class():\n  Know class only for \'mille\' or \'pede\', not %s!\n\n' %argument)
             sys.exit(1)
+
+    #-------------------------------------------------------------------------------
+    #  Take card file, blank all INFI directives and insert the INFI directives 
+    #  from the modifier file instead
+    def mps_splice(self,inCfg='',modCfg='',outCfg='the.py',isn=0,skip_events=0,max_events=0):
+
+        with open(inCfg, 'r') as INFILE:
+            body = INFILE.read()
+
+        # read modifier file
+        with open(modCfg, 'r') as MODFILE:
+            mods = MODFILE.read()
+        mods = mods.strip()
+
+        # prepare the new fileNames directive. Delete first line if necessary.
+        fileNames = mods.split('\n')
+        if 'CastorPool=' in fileNames[0]:
+            del fileNames[0]
+
+        # replace ISN number (input is a string of three digit number with leading zeros though)
+        body = re.sub(re.compile('ISN',re.M), isn, body)
+
+        # print to outCfg
+        with open(outCfg, 'w') as OUTFILE:
+            OUTFILE.write(body)
+
+        # Number of total files and number of extends for cms.vstring are needed
+        numberOfFiles   = len(fileNames)
+        numberOfExtends = int(math.ceil(numberOfFiles/255.))
+
+        # Create and insert the readFile.extend lines
+        for j in range(numberOfExtends):
+            insertBlock = "readFiles.extend([\n    "
+            i=0
+            currentStart = j*255
+            while (i<255) and ((currentStart+i)<numberOfFiles):
+                entry = fileNames[currentStart+i].strip()
+                if (i==254) or ((currentStart+i+1)==numberOfFiles):
+                    insertBlock += "\'"+entry+"\'])\n"
+                else:
+                    insertBlock += "\'"+entry+"\',\n    "
+                i+=1
+
+            for line in fileinput.input(outCfg, inplace=1):
+                print(line,end='')
+                if re.match('readFiles\s*=\s*cms.untracked.vstring()',line):
+                    print(insertBlock,end='')
+
+        if skip_events != 0:
+            with open(outCfg, "a") as f:
+                f.write("process.source.skipEvents = cms.untracked.uint32({0:d})\n"
+                        .format(skip_events))
+
+        if max_events != 0:
+            with open(outCfg, "a") as f:
+                f.write("process.maxEvents = cms.untracked.PSet(input = "
+                        "cms.untracked.int32({0:d}))\n".format(max_events))
+
