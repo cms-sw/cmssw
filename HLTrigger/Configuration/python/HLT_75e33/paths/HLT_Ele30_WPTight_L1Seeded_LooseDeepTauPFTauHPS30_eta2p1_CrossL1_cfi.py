@@ -14,7 +14,7 @@ from ..sequences.HLTHPSDeepTauPFTauSequence_cfi import *
 from ..sequences.HLTRawToDigiSequence_cfi import *
 from ..sequences.HLTHgcalLocalRecoSequence_cfi import *
 from ..sequences.HLTLocalrecoSequence_cfi import *
-from ..sequences.HLTTrackingV61Sequence_cfi import *
+from ..sequences.HLTTrackingSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
 from ..sequences.HLTParticleFlowSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
@@ -92,7 +92,7 @@ HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1 = cms.Path(
     hltEle30WPTightBestGsfChi2L1SeededFilter + 
     hltEgammaEleL1TrkIsoL1Seeded + 
     hltEle30WPTightGsfTrackIsoFromL1TracksL1SeededFilter + 
-    HLTTrackingV61Sequence +
+    HLTTrackingSequence +
     hltEgammaEleGsfTrackIsoL1Seeded +
     hltEle30WPTightGsfTrackIsoL1SeededFilter + 
     HLTMuonsSequence +

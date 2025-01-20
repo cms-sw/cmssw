@@ -9,7 +9,7 @@ from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
-from ..sequences.HLTTrackingV61Sequence_cfi import *
+from ..sequences.HLTTrackingSequence_cfi import *
 
 from ..modules.hltEgammaCandidatesUnseeded_cfi import *
 from ..modules.hltEgammaClusterShapeUnseeded_cfi import *
@@ -77,7 +77,7 @@ HLTEle32WPTightUnseededSequence = cms.Sequence(HLTL1Sequence
     +hltEle32WPTightBestGsfChi2UnseededFilter
     +hltEgammaEleL1TrkIsoUnseeded
     +hltEle32WPTightGsfTrackIsoFromL1TracksUnseededFilter
-    +HLTTrackingV61Sequence
+    +HLTTrackingSequence
     +hltEgammaEleGsfTrackIsoUnseeded
     +hltEle32WPTightGsfTrackIsoUnseededFilter
 )

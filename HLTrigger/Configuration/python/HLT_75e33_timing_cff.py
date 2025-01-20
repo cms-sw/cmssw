@@ -306,7 +306,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTPhoton108EBTightID
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTPhoton108EBTightIDTightIsoUnseededSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTPhoton187L1SeededSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTPhoton187UnseededSequence_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTTrackingV61Sequence_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTTrackingSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTInitialStepPVSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTInitialStepSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTIterTICLSequence_cfi")
