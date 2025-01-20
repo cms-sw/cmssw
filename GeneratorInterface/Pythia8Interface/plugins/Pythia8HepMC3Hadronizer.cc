@@ -895,56 +895,72 @@ bool Pythia8HepMC3Hadronizer::residualDecay() {
   int NPartsBeforeDecays = pythiaEvent->size() - 1;  // do NOT count the very 1st "system" particle
                                                      // in Pythia8::Event record; it does NOT even
                                                      // get translated by the HepMCInterface to the
-                                                     // HepMC::GenEvent record !!!
-  //int NPartsAfterDecays = event().get()->particles_size();
-  int NPartsAfterDecays = 0;
-  for (auto p : (event3().get())->particles()) {
-    NPartsAfterDecays++;
-  }
+                                                     // HepMC3::GenEvent record !!!
 
+  int NPartsAfterDecays = ((event3().get())->particles()).size();
   if (NPartsAfterDecays == NPartsBeforeDecays)
     return true;
 
   bool result = true;
 
-// this below is to be rewritten in future development, then it will be uncommented
-#if 0
-  for (int ipart = NPartsAfterDecays; ipart > NPartsBeforeDecays; ipart--) {
-    HepMC::GenParticle *part = event().get()->barcode_to_particle(ipart);
+  for (const auto &p : (event3().get())->particles()) {
+    if (p->id() > NPartsBeforeDecays) {
+      if (p->status() == 1 && (fDecayer->particleData).canDecay(p->pid())) {
+        fDecayer->event.reset();
+        Particle py8part(p->pid(),
+                         93,
+                         0,
+                         0,
+                         0,
+                         0,
+                         0,
+                         0,
+                         p->momentum().x(),
+                         p->momentum().y(),
+                         p->momentum().z(),
+                         p->momentum().t(),
+                         p->generated_mass());
 
-    if (part->status() == 1 && (fDecayer->particleData).canDecay(part->pdg_id())) {
-      fDecayer->event.reset();
-      Particle py8part(part->pdg_id(),
-                       93,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       part->momentum().x(),
-                       part->momentum().y(),
-                       part->momentum().z(),
-                       part->momentum().t(),
-                       part->generated_mass());
-      HepMC::GenVertex *ProdVtx = part->production_vertex();
-      py8part.vProd(ProdVtx->position().x(), ProdVtx->position().y(), ProdVtx->position().z(), ProdVtx->position().t());
-      py8part.tau((fDecayer->particleData).tau0(part->pdg_id()));
-      fDecayer->event.append(py8part);
-      int nentries = fDecayer->event.size();
-      if (!fDecayer->event[nentries - 1].mayDecay())
-        continue;
-      fDecayer->next();
-      int nentries1 = fDecayer->event.size();
-      if (nentries1 <= nentries)
-        continue;  //same number of particles, no decays...
+        py8part.vProd(p->production_vertex()->position().x(),
+                      p->production_vertex()->position().y(),
+                      p->production_vertex()->position().z(),
+                      p->production_vertex()->position().t());
 
-      part->set_status(2);
+        py8part.tau((fDecayer->particleData).tau0(p->pid()));
+        fDecayer->event.append(py8part);
+        int nentries = fDecayer->event.size();
+        if (!fDecayer->event[nentries - 1].mayDecay())
+          continue;
+        result = fDecayer->next();
+        int nentries1 = fDecayer->event.size();
+        if (nentries1 <= nentries)
+          continue;  //same number of particles, no decays...
 
-      result = toHepMC.fill_next_event(*(fDecayer.get()), event().get(), -1, true, part);
+        p->set_status(2);
+
+        HepMC3::GenVertexPtr prod_vtx0 = make_shared<HepMC3::GenVertex>(  // neglect particle path to decay
+            HepMC3::FourVector(p->production_vertex()->position().x(),
+                               p->production_vertex()->position().y(),
+                               p->production_vertex()->position().z(),
+                               p->production_vertex()->position().t()));
+        prod_vtx0->add_particle_in(p);
+        (event3().get())->add_vertex(prod_vtx0);
+        HepMC3::GenParticle *pnew;
+        Pythia8::Event pyev = fDecayer->event;
+        double momFac = 1.;
+        for (int i = 2; i < pyev.size(); ++i) {
+          // Fill the particle.
+          pnew = new HepMC3::GenParticle(
+              HepMC3::FourVector(
+                  momFac * pyev[i].px(), momFac * pyev[i].py(), momFac * pyev[i].pz(), momFac * pyev[i].e()),
+              pyev[i].id(),
+              pyev[i].statusHepMC());
+          pnew->set_generated_mass(momFac * pyev[i].m());
+          prod_vtx0->add_particle_out(pnew);
+        }
+      }
     }
   }
-#endif
 
   return result;
 }

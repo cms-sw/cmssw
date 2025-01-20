@@ -8,6 +8,7 @@
 #include "GeneratorInterface/PhotosInterface/interface/PhotosFactory.h"
 #include "GeneratorInterface/PhotosInterface/interface/PhotosInterfaceBase.h"
 #include "HepMC/GenEvent.h"
+#include "HepMC3/GenEvent.h"
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 // LHE Run
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
@@ -63,6 +64,12 @@ HepMC::GenEvent* ExternalDecayDriver::decay(HepMC::GenEvent* evt, lhef::LHEEvent
   return decay(evt);
 }
 
+HepMC3::GenEvent* ExternalDecayDriver::decay(HepMC3::GenEvent* evt, lhef::LHEEvent* lheEvent) {
+  if (fTauolaInterface)
+    fTauolaInterface->SetLHE(lheEvent);
+  return decay(evt);
+}
+
 HepMC::GenEvent* ExternalDecayDriver::decay(HepMC::GenEvent* evt) {
   if (!fIsInitialized)
     return evt;
@@ -78,6 +85,33 @@ HepMC::GenEvent* ExternalDecayDriver::decay(HepMC::GenEvent* evt) {
     if (!evt)
       return nullptr;
   }
+
+  if (fPhotosInterface) {
+    evt = fPhotosInterface->apply(evt);
+    if (!evt)
+      return nullptr;
+  }
+
+  return evt;
+}
+
+HepMC3::GenEvent* ExternalDecayDriver::decay(HepMC3::GenEvent* evt) {
+  if (!fIsInitialized)
+    return evt;
+
+#if 0
+  if (fEvtGenInterface) {
+    evt = fEvtGenInterface->decay(evt);
+    if (!evt)
+      return nullptr;
+  }
+
+  if (fTauolaInterface) {
+    evt = fTauolaInterface->decay(evt);
+    if (!evt)
+      return nullptr;
+  }
+#endif
 
   if (fPhotosInterface) {
     evt = fPhotosInterface->apply(evt);

@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "ProductResolvers.h"
+#include "DroppedDataProductResolver.h"
 
 #include <memory>
 
@@ -25,6 +26,10 @@ namespace edm::productResolversFactory {
     std::shared_ptr<ProductResolverBase> makeTransformProduct(std::shared_ptr<BranchDescription const> bd) {
       return std::make_shared<TransformingProductResolver>(std::move(bd));
     }
+    std::shared_ptr<ProductResolverBase> makeDroppedProduct(std::shared_ptr<BranchDescription const> bd) {
+      return std::make_shared<DroppedDataProductResolver>(std::move(bd));
+    }
+
     std::shared_ptr<ProductResolverBase> makeAliasedProduct(
         std::shared_ptr<BranchDescription const> bd,
         ProductRegistry const& iReg,
@@ -98,6 +103,10 @@ namespace edm::productResolversFactory {
         return makeScheduledProduct(cbd);
       }
       /* not produced so comes from source */
+      if (bd.dropped()) {
+        //this allows access to provenance for the dropped product
+        return makeDroppedProduct(cbd);
+      }
       if (bd.onDemand()) {
         return makeDelayedReaderInputProduct(cbd);
       }

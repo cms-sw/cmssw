@@ -14,6 +14,11 @@ Phase2StripCPE::Phase2StripCPE(edm::ParameterSet& conf,
   fillParam();
 }
 
+void Phase2StripCPE::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<double>("TanLorentzAnglePerTesla", 0.07);
+  desc.add<bool>("LorentzAngle_DB", true);
+}
+
 Phase2StripCPE::LocalValues Phase2StripCPE::localParameters(const Phase2TrackerCluster1D& cluster,
                                                             const GeomDetUnit& detunit) const {
   auto const& p = m_Params[detunit.index() - m_off];
