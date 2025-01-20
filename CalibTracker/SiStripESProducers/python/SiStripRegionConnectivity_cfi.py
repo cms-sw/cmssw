@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripRegionConnectivity = cms.ESProducer("SiStripRegionConnectivity",
-    EtaDivisions = cms.untracked.uint32(20),
-    PhiDivisions = cms.untracked.uint32(20),
-    EtaMax = cms.untracked.double(2.5)
+from CalibTracker.SiStripESProducers.siStripRegionConnectivity_cfi import siStripRegionConnectivity as _siStripRegionConnectivity
+SiStripRegionConnectivity = _siStripRegionConnectivity.clone(
+    EtaDivisions = 20,
+    PhiDivisions = 20,
+    EtaMax = 2.5
 )
 
 
