@@ -216,7 +216,9 @@ namespace ecaldqm {
 
   void ClusterTask::runOnBasicClusters(edm::View<reco::CaloCluster> const& _bcs, Collections _collection) {
     MESet& meBCE(MEs_.at("BCE"));
+    MESet& meBCEt(MEs_.at("BCEt"));
     MESet& meBCEMap(MEs_.at("BCEMap"));
+    MESet& meBCEtMap(MEs_.at("BCEtMap"));
     MESet& meBCEMapProjEta(MEs_.at("BCEMapProjEta"));
     MESet& meBCEMapProjPhi(MEs_.at("BCEMapProjPhi"));
     MESet& meBCEtMapProjEta(MEs_.at("BCEtMapProjEta"));
@@ -268,8 +270,10 @@ namespace ecaldqm {
         subdet = -EcalEndcap;
 
       meBCE.fill(getEcalDQMSetupObjects(), id, energy);
+      meBCEt.fill(getEcalDQMSetupObjects(), id, et);
 
       meBCEMap.fill(getEcalDQMSetupObjects(), id, energy);
+      meBCEtMap.fill(getEcalDQMSetupObjects(), id, et);
       meBCEMapProjEta.fill(getEcalDQMSetupObjects(), posEta, energy);
       meBCEMapProjPhi.fill(getEcalDQMSetupObjects(), subdet, posPhi, energy);
       meBCEtMapProjEta.fill(getEcalDQMSetupObjects(), posEta, et);
@@ -368,9 +372,13 @@ namespace ecaldqm {
     EcalSubdetector subdet(isBarrel ? EcalBarrel : EcalEndcap);
 
     MESet& meSCE(MEs_.at("SCE"));
+    MESet& meSCEt(MEs_.at("SCEt"));
     MESet& meSCELow(MEs_.at("SCELow"));
+    MESet& meSCEtLow(MEs_.at("SCEtLow"));
     MESet& meSCRawE(MEs_.at("SCRawE"));
+    MESet& meSCRawEt(MEs_.at("SCRawEt"));
     MESet& meSCRawELow(MEs_.at("SCRawELow"));
+    MESet& meSCRawEtLow(MEs_.at("SCRawEtLow"));
     MESet& meSCRawEHigh(MEs_.at("SCRawEHigh"));
     MESet& meSCNBCs(MEs_.at("SCNBCs"));
     MESet& meSCNcrystals(MEs_.at("SCNcrystals"));
@@ -402,9 +410,8 @@ namespace ecaldqm {
 
     for (reco::SuperClusterCollection::const_iterator scItr(_scs.begin()); scItr != _scs.end(); ++scItr) {
       DetId seedId(scItr->seed()->seed());
+      math::XYZPoint const& position(scItr->position());
       if (seedId.null()) {
-        math::XYZPoint const& position(scItr->position());
-
         GlobalPoint gp(position.x(), position.y(), position.z());
 
         CaloSubdetectorGeometry const* subgeom(
@@ -424,13 +431,20 @@ namespace ecaldqm {
 
       float energy(scItr->energy());
       float rawEnergy(scItr->rawEnergy());
+      float posEta(position.eta());
+      float et(energy / std::cosh(posEta));
+      float rawEt(rawEnergy / std::cosh(posEta));
       float size(scItr->size());
 
       meSCE.fill(getEcalDQMSetupObjects(), seedId, energy);
+      meSCEt.fill(getEcalDQMSetupObjects(), seedId, et);
       meSCELow.fill(getEcalDQMSetupObjects(), seedId, energy);
-
+      meSCEtLow.fill(getEcalDQMSetupObjects(), seedId, et);
+  
       meSCRawE.fill(getEcalDQMSetupObjects(), seedId, rawEnergy);
+      meSCRawEt.fill(getEcalDQMSetupObjects(), seedId, rawEt);
       meSCRawELow.fill(getEcalDQMSetupObjects(), seedId, rawEnergy);
+      meSCRawEtLow.fill(getEcalDQMSetupObjects(), seedId, rawEt);
       meSCRawEHigh.fill(getEcalDQMSetupObjects(), seedId, rawEnergy);
 
       meSCNBCs.fill(getEcalDQMSetupObjects(), seedId, scItr->clustersSize());
