@@ -4,3 +4,9 @@
   <use name="FWCore/FWLite"/>
   <use name="root"/>
 </bin>
+<bin name="edmMemberSize" file="edmMemberSize.cpp">
+  <use name="PerfTools/EdmEvent"/>
+  <use name="boost_program_options"/>
+  <use name="FWCore/FWLite"/>
+  <use name="root"/>
+</bin>
