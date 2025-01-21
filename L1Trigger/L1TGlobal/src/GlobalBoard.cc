@@ -376,9 +376,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
 void l1t::GlobalBoard::receiveMuonObjectData(const edm::Event& iEvent,
                                              const edm::EDGetTokenT<BXVector<l1t::Muon>>& muInputToken,
                                              const bool receiveMu,
-                                             const int nrL1Mu,
-                                             const std::vector<l1t::Muon>* muonVec_bxm2,
-                                             const std::vector<l1t::Muon>* muonVec_bxm1) {
+                                             const int nrL1Mu) {
   if (m_verbosity) {
     LogDebug("L1TGlobal") << "\n**** GlobalBoard receiving muon data = ";
     //<< "\n     from input tag " << muInputTag << "\n"
@@ -405,45 +403,16 @@ void l1t::GlobalBoard::receiveMuonObjectData(const edm::Event& iEvent,
 
         //Loop over Muons in this bx
         int nObj = 0;
-        if (i == -2) {
-          for (std::vector<l1t::Muon>::const_iterator mu = muonVec_bxm2->begin(); mu != muonVec_bxm2->end(); ++mu) {
-            if (nObj < nrL1Mu) {
-              (*m_candL1Mu).push_back(i, &(*mu));
-            } else {
-              edm::LogWarning("L1TGlobal")
-                  << " Too many Muons (" << nObj << ") for uGT Configuration maxMu =" << nrL1Mu;
-            }
-
-            LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " EtaAtVtx  " << mu->hwEtaAtVtx() << " PhiAtVtx "
-                                  << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() << "  Iso " << mu->hwIso();
-            nObj++;
+        for (std::vector<l1t::Muon>::const_iterator mu = muonData->begin(i); mu != muonData->end(i); ++mu) {
+          if (nObj < nrL1Mu) {
+            (*m_candL1Mu).push_back(i, &(*mu));
+          } else {
+            edm::LogWarning("L1TGlobal") << " Too many Muons (" << nObj << ") for uGT Configuration maxMu =" << nrL1Mu;
           }
-        } else if (i == -1) {
-          for (std::vector<l1t::Muon>::const_iterator mu = muonVec_bxm1->begin(); mu != muonVec_bxm1->end(); ++mu) {
-            if (nObj < nrL1Mu) {
-              (*m_candL1Mu).push_back(i, &(*mu));
-            } else {
-              edm::LogWarning("L1TGlobal")
-                  << " Too many Muons (" << nObj << ") for uGT Configuration maxMu =" << nrL1Mu;
-            }
 
-            LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " EtaAtVtx  " << mu->hwEtaAtVtx() << " PhiAtVtx "
-                                  << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() << "  Iso " << mu->hwIso();
-            nObj++;
-          }
-        } else {
-          for (std::vector<l1t::Muon>::const_iterator mu = muonData->begin(i); mu != muonData->end(i); ++mu) {
-            if (nObj < nrL1Mu) {
-              (*m_candL1Mu).push_back(i, &(*mu));
-            } else {
-              edm::LogWarning("L1TGlobal")
-                  << " Too many Muons (" << nObj << ") for uGT Configuration maxMu =" << nrL1Mu;
-            }
-
-            LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " EtaAtVtx  " << mu->hwEtaAtVtx() << " PhiAtVtx "
-                                  << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() << "  Iso " << mu->hwIso();
-            nObj++;
-          }
+          LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " EtaAtVtx  " << mu->hwEtaAtVtx() << " PhiAtVtx "
+                                << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() << "  Iso " << mu->hwIso();
+          nObj++;
         }  //end loop over muons in bx
       }  //end loop over bx
     }  //end if over valid muon data
