@@ -59,6 +59,12 @@ The offsets currently in use are:
 * 0.753: HLT phase-2 timing menu Alpaka, single tracking iteration variant
 * 0.754: HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
 * 0.755: HLT phase-2 timing menu Alpaka, LST building variant
+* 0.756 HLT phase-2 timing menu trimmed tracking
+* 0.757 HLT phase-2 timing menu Alpaka, trimmed tracking
+* 0.758 HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
+* 0.759 HLT phase-2 timing menu trimmed tracking, LST building variant
+* 0.760 HLT phase-2 timing menu Alpaka, trimmed tracking, LST building variant
+* 0.761 HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant, LST building variant
 * 0.78: Complete L1 workflow
 * 0.8: BPH Parking (Run-2)
 * 0.81: Running also HeavyFlavor DQM
