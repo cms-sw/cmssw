@@ -68,7 +68,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifdef GPU_DEBUG
         alpaka::wait(queue);
 #endif
-
       }
 
 #ifdef GPU_DEBUG

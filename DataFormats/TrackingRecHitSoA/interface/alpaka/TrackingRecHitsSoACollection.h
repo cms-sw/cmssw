@@ -20,7 +20,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::reco {
   using TrackingRecHitsSoACollection = std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>,
                                                           ::reco::TrackingRecHitHost,
                                                           ::reco::TrackingRecHitDevice<Device>>;
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::reco
 
 namespace cms::alpakatools {
   template <typename TDevice>
@@ -31,13 +31,13 @@ namespace cms::alpakatools {
       auto moduleHitsView = deviceData.template view<reco::HitModuleSoA>();
 
       reco::TrackingRecHitHost hostData(queue, deviceHitView.metadata().size(), moduleHitsView.metadata().size());
-      
+
       // Don't bother if zero hits
       if (deviceHitView.metadata().size() == 0) {
-        std::memset(hostData.buffer().data(),
-                    0,
-                    alpaka::getExtentProduct(hostData.buffer()) *
-                        sizeof(alpaka::Elem<reco::TrackingRecHitHost::Buffer>));
+        std::memset(
+            hostData.buffer().data(),
+            0,
+            alpaka::getExtentProduct(hostData.buffer()) * sizeof(alpaka::Elem<reco::TrackingRecHitHost::Buffer>));
         return hostData;
       }
 
@@ -53,23 +53,24 @@ namespace cms::alpakatools {
       return hostData;
     }
   };
-  
+
   template <>
   struct CopyToDevice<::reco::TrackingRecHitHost> {
     template <typename TQueue>
-     static auto copyAsync(TQueue& queue, reco::TrackingRecHitHost const& hostData) {
+    static auto copyAsync(TQueue& queue, reco::TrackingRecHitHost const& hostData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
-      
+
       auto hostHitView = hostData.template view<reco::TrackingRecHitSoA>();
       auto moduleHitsView = hostData.template view<reco::HitModuleSoA>();
 
-      reco::TrackingRecHitDevice<TDevice> deviceData(queue,  hostHitView.metadata().size(), moduleHitsView.metadata().size());
+      reco::TrackingRecHitDevice<TDevice> deviceData(
+          queue, hostHitView.metadata().size(), moduleHitsView.metadata().size());
 
       if (hostHitView.metadata().size() == 0) {
-        std::memset(deviceData.buffer().data(),
-                    0,
-                    alpaka::getExtentProduct(deviceData.buffer()) *
-                        sizeof(alpaka::Elem<reco::TrackingRecHitHost::Buffer>));
+        std::memset(
+            deviceData.buffer().data(),
+            0,
+            alpaka::getExtentProduct(deviceData.buffer()) * sizeof(alpaka::Elem<reco::TrackingRecHitHost::Buffer>));
         return deviceData;
       }
 

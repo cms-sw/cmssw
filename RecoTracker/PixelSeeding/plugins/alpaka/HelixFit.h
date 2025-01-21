@@ -10,7 +10,7 @@
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/FitResult.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
+#include "RecoTracker/Record/interface/CAGeometrySoA.h"
 
 #include "CAStructures.h"
 
@@ -53,7 +53,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class HelixFit {
   public:
-
     using HitView = ::reco::TrackingRecHitView;
     using HitConstView = ::reco::TrackingRecHitConstView;
     using OutputSoAView = ::reco::TrackSoAView;
@@ -62,16 +61,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using Tuples = caStructures::SequentialContainer;
     using TupleMultiplicity = caStructures::GenericContainer;
 
-
     explicit HelixFit(float bf, bool fitNas4) : bField_(bf), fitNas4_(fitNas4) {}
     ~HelixFit() { deallocate(); }
 
     void setBField(double bField) { bField_ = bField; }
-    void launchRiemannKernels(const HitConstView &hv, const ::reco::CAModulesConstView &fr, uint32_t nhits, uint32_t maxNumberOfTuples, Queue &queue);
-    void launchBrokenLineKernels(const HitConstView &hv, const ::reco::CAModulesConstView &fr, uint32_t nhits, uint32_t maxNumberOfTuples, Queue &queue);
+    void launchRiemannKernels(const HitConstView &hv,
+                              const ::reco::CAModulesConstView &fr,
+                              uint32_t nhits,
+                              uint32_t maxNumberOfTuples,
+                              Queue &queue);
+    void launchBrokenLineKernels(const HitConstView &hv,
+                                 const ::reco::CAModulesConstView &fr,
+                                 uint32_t nhits,
+                                 uint32_t maxNumberOfTuples,
+                                 Queue &queue);
 
-
-    void allocate(TupleMultiplicity const *tupleMultiplicity, OutputSoAView &helix_fit_results, Tuples const *__restrict__ foundNtuplets);
+    void allocate(TupleMultiplicity const *tupleMultiplicity,
+                  OutputSoAView &helix_fit_results,
+                  Tuples const *__restrict__ foundNtuplets);
     void deallocate();
 
   private:

@@ -36,12 +36,3 @@
   <use name="boost"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
 </bin>
-
-<bin file="alpaka/CAGeometry_t.cpp">
-<flags ALPAKA_BACKENDS="cuda serial"/>  
-  <use name="HeterogeneousCore/AlpakaInterface"/>
-  <use name="RecoTracker/PixelSeeding"/>
-  <use name="alpaka"/>
-  <use name="eigen"/>
-  <use name="boost"/>
-</bin>

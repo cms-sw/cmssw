@@ -44,9 +44,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     class TestVerifyKernel {
     public:
 
-      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                    TrackSoAConstView tracks_view,
-                                    int32_t nTracks) const {
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc, TrackSoAConstView tracks_view, int32_t nTracks) const {
+
         if (cms::alpakatools::once_per_grid(acc)) {
           ALPAKA_ASSERT(tracks_view.nTracks() == nTracks);
         }
@@ -72,9 +71,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       alpaka::exec<Acc1D>(queue, workDiv, TestVerifyKernel{}, tracks_view, tracks);
     }
 
-    template void runKernels<pixelTopology::Phase1>(TrackSoAView tracks_view, Queue& queue);
-    template void runKernels<pixelTopology::Phase2>(TrackSoAView tracks_view, Queue& queue);
-
   }  // namespace testTrackSoA
-  
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

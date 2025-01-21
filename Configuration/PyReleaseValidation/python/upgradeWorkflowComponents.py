@@ -1346,10 +1346,30 @@ upgradeWFs['PatatrackPixelOnlyAlpaka'] = PatatrackWorkflow(
     offset = 0.402,
 )
 
+
+# Pixel+Strip quadruplets workflow running on GPU (optional)
+#  - Pixel+Strip only reconstruction with Alpaka, with DQM and validation
+#  - harvesting
+
+upgradeWFs['PatatrackPixelStripOnlyAlpaka'] = PatatrackWorkflow(
+    digi = {
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+        '--procModifiers': 'alpaka,stripNtupletFit',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+    },
+    suffix = 'Patatrack_PixelStripOnlyAlpaka',
+    offset = 0.409,
+)
+
 # Pixel-only quadruplets workflow running on GPU (optional)
 #  - Pixel-only reconstruction with Alpaka, with standard and CPUvsGPU DQM and validation
 #  - harvesting for CPUvsGPU validation
-
 upgradeWFs['PatatrackPixelOnlyAlpakaValidation'] = PatatrackWorkflow(
     digi = {
         '--procModifiers': 'alpaka', 

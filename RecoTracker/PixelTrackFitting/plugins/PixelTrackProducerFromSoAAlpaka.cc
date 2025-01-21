@@ -37,8 +37,6 @@
 
 #include "storeTracks.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
-
 /**
  * This class creates "legacy" reco::Track
  * objects from the output of SoA CA.
@@ -51,7 +49,6 @@ class PixelTrackProducerFromSoAAlpaka : public edm::global::EDProducer<> {
   using HMSstorage = std::vector<uint32_t>;
   using IndToEdm = std::vector<uint32_t>;
   using TrackHitSoA = reco::TrackHitSoA;
-
 
 public:
   explicit PixelTrackProducerFromSoAAlpaka(const edm::ParameterSet &iConfig);
@@ -66,7 +63,6 @@ private:
   const edm::EDGetTokenT<reco::BeamSpot> tBeamSpot_;
   const edm::EDGetTokenT<TrackSoAHost> tokenTrack_;
   const edm::EDGetTokenT<SiPixelRecHitCollectionNew> cpuHits_;
-  edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> cpuStripHits_;
   edm::EDGetTokenT<HMSstorage> hmsToken_;
   // Event Setup tokens
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldToken_;
@@ -74,8 +70,6 @@ private:
 
   int32_t const minNumberOfHits_;
   pixelTrack::Quality const minQuality_;
-  const bool useStripHits_;
-
 };
 
 PixelTrackProducerFromSoAAlpaka::PixelTrackProducerFromSoAAlpaka(const edm::ParameterSet &iConfig)
@@ -85,16 +79,8 @@ PixelTrackProducerFromSoAAlpaka::PixelTrackProducerFromSoAAlpaka(const edm::Para
       idealMagneticFieldToken_(esConsumes()),
       ttTopoToken_(esConsumes()),
       minNumberOfHits_(iConfig.getParameter<int>("minNumberOfHits")),
-      minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))),
-      useStripHits_(iConfig.getParameter<bool>("useStripHits")) {
-  
-  if (useStripHits_) {
-    cpuStripHits_ = consumes<SiStripMatchedRecHit2DCollection>(iConfig.getParameter<edm::InputTag>("stripRecHitLegacySrc"));
-    hmsToken_ = consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("hitModuleStartSrc"));
-  }
-  else {
-    hmsToken_ = consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"));
-  }
+      minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))) {
+  hmsToken_ = consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"));
 
   if (minQuality_ == pixelTrack::Quality::notQuality) {
     throw cms::Exception("PixelTrackConfiguration")
@@ -120,13 +106,12 @@ void PixelTrackProducerFromSoAAlpaka::fillDescriptions(edm::ConfigurationDescrip
   desc.add<edm::InputTag>("pixelRecHitLegacySrc", edm::InputTag("siPixelRecHitsPreSplittingLegacy"));
   desc.add<int>("minNumberOfHits", 0);
   desc.add<std::string>("minQuality", "loose");
-  desc.add<bool>("useStripHits",false);
   descriptions.addWithDefaultLabel(desc);
 }
 
 void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
-                                                             edm::Event &iEvent,
-                                                             const edm::EventSetup &iSetup) const {
+                                              edm::Event &iEvent,
+                                              const edm::EventSetup &iSetup) const {
   // enum class Quality : uint8_t { bad = 0, edup, dup, loose, strict, tight, highPurity };
   reco::TrackBase::TrackQuality recoQuality[] = {reco::TrackBase::undefQuality,
                                                  reco::TrackBase::undefQuality,
@@ -157,23 +142,10 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
   std::vector<TrackingRecHit const *> hitmap;
   auto const &pixelRecHits = pixelRecHitsDSV.data();
   auto const nPixelHits = pixelRecHits.size();
-  auto nPixelModules = pixelRecHitsDSV.size();
 
   auto const &hitsModuleStart = iEvent.get(hmsToken_);
 
-  size_t nStripHits = 0;
-  const edmNew::DetSetVector<SiStripMatchedRecHit2D>* stripRechitsDSV = nullptr;
-
-   if (useStripHits_) {
-    stripRechitsDSV = &iEvent.get(cpuStripHits_);
-    nStripHits = hitsModuleStart[hitsModuleStart.size() - 1] - hitsModuleStart[nPixelModules];
-  }
-
-  // auto const &stripRechits = pixelRecHitsDSV.data();
-
-  size_t nhits = nPixelHits + nStripHits;
-
-  hitmap.resize(nhits, nullptr);
+  hitmap.resize(nPixelHits, nullptr);
 
   for (auto const &pixelHit : pixelRecHits) {
     auto const &thit = static_cast<BaseTrackerRecHit const &>(pixelHit);
@@ -188,21 +160,8 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     hitmap[idx] = &pixelHit;
   }
 
-  if (useStripHits_) {
-    for (const auto& stripModuleHits : *stripRechitsDSV) {
-
-      auto moduleIdx = stripModuleHits.begin()->det()->index();
-
-      for (auto i = 0u; i < stripModuleHits.size(); ++i) {
-        auto j = hitsModuleStart[moduleIdx] + i;
-        hitmap[j] = &*(stripModuleHits.begin() + i);
-        // ++counter[j];
-      }
-    }
-  }
-
   std::vector<const TrackingRecHit *> hits;
-  hits.reserve(5);
+  hits.reserve(5);  //TODO move to a configurable parameter?
 
   auto const &tsoa = iEvent.get(tokenTrack_);
   auto const *quality = tsoa.view().quality();
@@ -241,17 +200,17 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     ++nt;
 
     hits.resize(nHits);
-    auto start = (it==0)? 0 : hitOffs[it-1];
+    auto start = (it == 0) ? 0 : hitOffs[it - 1];
     auto end = hitOffs[it];
 
     for (auto iHit = start; iHit < end; ++iHit)
       hits[iHit - start] = hitmap[hitIdxs[iHit]];
-    
-#ifdef GPU_DEBUG
+
+#ifdef CA_DEBUG
     std::cout << "track soa : " << it << " with hits: ";
     for (auto iHit = start; iHit < end; ++iHit)
       std::cout << hitIdxs[iHit] << " - ";
-    std::cout << std::endl;  
+    std::cout << std::endl;
 #endif
 
     // mind: this values are respect the beamspot!
@@ -314,3 +273,13 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PixelTrackProducerFromSoAAlpaka);
+
+// (also) for HLT migration, could be removed once done
+using PixelTrackProducerFromSoAAlpakaPhase1 = PixelTrackProducerFromSoAAlpaka;
+using PixelTrackProducerFromSoAAlpakaPhase2 = PixelTrackProducerFromSoAAlpaka;
+using PixelTrackProducerFromSoAAlpakaHIonPhase1 = PixelTrackProducerFromSoAAlpaka;
+
+DEFINE_FWK_MODULE(PixelTrackProducerFromSoAAlpakaPhase1);
+DEFINE_FWK_MODULE(PixelTrackProducerFromSoAAlpakaPhase2);
+DEFINE_FWK_MODULE(PixelTrackProducerFromSoAAlpakaHIonPhase1);
+

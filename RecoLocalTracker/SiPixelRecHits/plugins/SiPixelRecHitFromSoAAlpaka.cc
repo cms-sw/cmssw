@@ -22,8 +22,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 
 class SiPixelRecHitFromSoAAlpaka : public edm::global::EDProducer<> {
-
-  using hindex_type = uint32_t;//typename TrackerTraits::hindex_type;
+  using hindex_type = uint32_t;  //typename TrackerTraits::hindex_type;
   using HMSstorage = typename std::vector<hindex_type>;
 
 public:
@@ -46,7 +45,6 @@ private:
   const edm::EDPutTokenT<HMSstorage> hostPutToken_;
 };
 
-
 SiPixelRecHitFromSoAAlpaka::SiPixelRecHitFromSoAAlpaka(const edm::ParameterSet& iConfig)
     : maxHitsInModules_(iConfig.getParameter<uint32_t>("maxHitsInModules")),
       geomToken_(esConsumes()),
@@ -55,19 +53,18 @@ SiPixelRecHitFromSoAAlpaka::SiPixelRecHitFromSoAAlpaka(const edm::ParameterSet& 
       rechitsPutToken_(produces()),
       hostPutToken_(produces()) {}
 
-
 void SiPixelRecHitFromSoAAlpaka::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<uint32_t>("maxHitsInModules", phase1PixelTopology::maxNumClustersPerModules)->setComment("Max number of hits in a single module");
+  desc.add<uint32_t>("maxHitsInModules", phase1PixelTopology::maxNumClustersPerModules)
+      ->setComment("Max number of hits in a single module");
   desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelClustersPreSplitting"));
   descriptions.addWithDefaultLabel(desc);
 }
 
-
 void SiPixelRecHitFromSoAAlpaka::produce(edm::StreamID streamID,
-                                                        edm::Event& iEvent,
-                                                        const edm::EventSetup& iSetup) const {
+                                         edm::Event& iEvent,
+                                         const edm::EventSetup& iSetup) const {
   auto const& hits = iEvent.get(hitsToken_);
   auto hitsView = hits.view();
   auto modulesView = hits.view<::reco::HitModuleSoA>();

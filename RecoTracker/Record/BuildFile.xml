@@ -9,3 +9,5 @@
 <use name="CalibTracker/Records"/>
 <use name="clhep"/>
 <use name="boost"/>
+<use name="alpaka"/>
+<flags ALPAKA_BACKENDS="1"/>

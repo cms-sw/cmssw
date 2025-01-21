@@ -19,7 +19,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace testTrackingRecHitSoA {
 
     struct TestFillKernel {
-	ALPAKA_FN_ACC void operator()(Acc1D const& acc, ::reco::TrackingRecHitView soa, ::reco::HitModuleSoAView mods) const {
+
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                    ::reco::TrackingRecHitView soa,
+                                    ::reco::HitModuleSoAView mods) const {
 
         const uint32_t i(alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
         const uint32_t j(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
@@ -35,8 +38,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     };
 
     struct ShowKernel {
-      ALPAKA_FN_ACC void operator()(Acc1D const& acc, ::reco::TrackingRecHitConstView soa, ::reco::HitModuleSoAView mods) const {
-
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                    ::reco::TrackingRecHitConstView soa,
+                                    ::reco::HitModuleSoAView mods) const {
         if (cms::alpakatools::once_per_grid(acc)) {
           printf("offsetBPIX = %d\n", soa.offsetBPIX2());
           printf("nHits = %d\n", soa.metadata().size());
@@ -46,7 +50,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // can be increased to soa.nHits() for debugging
         for (uint32_t i : cms::alpakatools::uniform_elements(acc, soa.metadata().size())) {
           printf("iPhi %d -> %d\n", i, soa[i].iphi());
-          printf("x %d -> %.2f \n",i,soa[i].xLocal());
+          printf("x %d -> %.2f \n", i, soa[i].xLocal());
         }
       }
     };

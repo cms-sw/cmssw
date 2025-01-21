@@ -8,8 +8,8 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include "RecoTracker/PixelSeeding/interface/CAGeometryHost.h"
-#include "RecoTracker/PixelSeeding/interface/alpaka/CAGeometrySoACollection.h"
+#include "RecoTracker/Record/interface/CAGeometryHost.h"
+#include "RecoTracker/Record/interface/alpaka/CAGeometrySoACollection.h"
 #include "FWCore/Utilities/interface/stringize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
@@ -42,38 +42,38 @@ int main() {
     {
       // Instantiate vertices on device. PortableCollection allocates
       // SoA on device automatically.
-      CAGeometrySoACollection ca_params_d({{n_layers,n_pairs}}, queue);
+      CAGeometrySoACollection ca_params_d({{n_layers, n_pairs}}, queue);
       // testParamsSoA::runKernels(ca_params_d.view(), ca_params_d.view<reco::CAGraphSoA>(), ca_params_d.view<reco::CARegionsSoA>(), queue);
 
-//       // If the device is actually the host, use the collection as-is.
-//       // Otherwise, copy the data from the device to the host.
-//       ZVertexHost zvertex_h;
-// #ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-//       zvertex_h = std::move(zvertex_d);
-// #else
-//       zvertex_h = cms::alpakatools::CopyToHost<ZPixelSeedingCollection>::copyAsync(queue, zvertex_d);
-// #endif
-//       alpaka::wait(queue);
-//       std::cout << zvertex_h.view().metadata().size() << std::endl;
+      //       // If the device is actually the host, use the collection as-is.
+      //       // Otherwise, copy the data from the device to the host.
+      //       ZVertexHost zvertex_h;
+      // #ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
+      //       zvertex_h = std::move(zvertex_d);
+      // #else
+      //       zvertex_h = cms::alpakatools::CopyToHost<ZPixelSeedingCollection>::copyAsync(queue, zvertex_d);
+      // #endif
+      //       alpaka::wait(queue);
+      //       std::cout << zvertex_h.view().metadata().size() << std::endl;
 
-//       // Print results
-//       std::cout << "idv\t"
-//                 << "zv\t"
-//                 << "wv\t"
-//                 << "chi2\t"
-//                 << "ptv2\t"
-//                 << "ndof\t"
-//                 << "sortInd\t"
-//                 << "nvFinal\n";
+      //       // Print results
+      //       std::cout << "idv\t"
+      //                 << "zv\t"
+      //                 << "wv\t"
+      //                 << "chi2\t"
+      //                 << "ptv2\t"
+      //                 << "ndof\t"
+      //                 << "sortInd\t"
+      //                 << "nvFinal\n";
 
-//       auto vtx_v = zvertex_h.view<reco::ZPixelSeeding>();
-//       auto trk_v = zvertex_h.view<reco::ZVertexTracksSoA>();
-//       for (int i = 0; i < 10; ++i) {
-//         auto vi = vtx_v[i];
-//         auto ti = trk_v[i];
-//         std::cout << (int)ti.idv() << "\t" << vi.zv() << "\t" << vi.wv() << "\t" << vi.chi2() << "\t" << vi.ptv2()
-//                   << "\t" << (int)ti.ndof() << "\t" << vi.sortInd() << "\t" << (int)vtx_v.nvFinal() << std::endl;
-//       }
+      //       auto vtx_v = zvertex_h.view<reco::ZPixelSeeding>();
+      //       auto trk_v = zvertex_h.view<reco::ZVertexTracksSoA>();
+      //       for (int i = 0; i < 10; ++i) {
+      //         auto vi = vtx_v[i];
+      //         auto ti = trk_v[i];
+      //         std::cout << (int)ti.idv() << "\t" << vi.zv() << "\t" << vi.wv() << "\t" << vi.chi2() << "\t" << vi.ptv2()
+      //                   << "\t" << (int)ti.ndof() << "\t" << vi.sortInd() << "\t" << (int)vtx_v.nvFinal() << std::endl;
+      //       }
     }
   }
 

@@ -16,7 +16,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
-#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
+#include "RecoTracker/Record/interface/CAGeometrySoA.h"
 #include "RecoTracker/PixelSeeding/interface/CACoupleSoA.h"
 
 #include "CAStructures.h"
@@ -29,7 +29,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class CACellT : public CASimpleCell<TrackerTraits> {
   public:
-
     using typename CASimpleCell<TrackerTraits>::StatusBit;
     using typename CASimpleCell<TrackerTraits>::Quality;
     using typename CASimpleCell<TrackerTraits>::HitContainer;
@@ -177,15 +176,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return std::abs(eq.dca0()) < region_origin_radius_plus_tolerance * std::abs(eq.curvature());
     }
 
-
 #ifdef CA_TRIPLET_HOLES
 
     // These functions have never been used in production
-    // They need an AverageGeometry to be filled 
-    // Commenting for the moment since they are the only reason we 
+    // They need an AverageGeometry to be filled
+    // Commenting for the moment since they are the only reason we
     // fill the AverageGeometry and attach to the hit SoA
 
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool hole0(const HitsConstView& hh, AverageGeometryConstView& ag, CACellT const& innerCell) const {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool hole0(const HitsConstView& hh,
+                                              AverageGeometryConstView& ag,
+                                              CACellT const& innerCell) const {
       using namespace phase1PixelTopology;
 
       int p = innerCell.inner_iphi(hh);
@@ -230,7 +230,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 #endif
 
-    
     // trying to free the track building process from hardcoded layers, leaving
     // the visit of the graph based on the neighborhood connections between cells.
     template <int DEPTH, typename TAcc>
@@ -302,10 +301,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-
     CellNeighbors* theOuterNeighbors;
     CellTracks* theTracks;
-
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

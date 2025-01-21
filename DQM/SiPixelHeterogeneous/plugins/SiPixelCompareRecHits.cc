@@ -92,7 +92,6 @@ void SiPixelCompareRecHits::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
   tTopo_ = &iSetup.getData(topoToken_);
 }
 
-
 template <typename U, typename V>
 void SiPixelCompareRecHits::analyzeSeparate(U tokenRef, V tokenTar, const edm::Event& iEvent) {
   const auto& rhsoaHandleRef = iEvent.getHandle(tokenRef);
@@ -217,8 +216,8 @@ void SiPixelCompareRecHits::analyze(const edm::Event& iEvent, const edm::EventSe
 //
 
 void SiPixelCompareRecHits::bookHistograms(DQMStore::IBooker& iBook,
-                                              edm::Run const& iRun,
-                                              edm::EventSetup const& iSetup) {
+                                           edm::Run const& iRun,
+                                           edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 

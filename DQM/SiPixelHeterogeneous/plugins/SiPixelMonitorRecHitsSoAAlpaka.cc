@@ -137,8 +137,8 @@ void SiPixelMonitorRecHitsSoAAlpaka::analyze(const edm::Event& iEvent, const edm
 //
 
 void SiPixelMonitorRecHitsSoAAlpaka::bookHistograms(DQMStore::IBooker& iBook,
-                                                       edm::Run const& iRun,
-                                                       edm::EventSetup const& iSetup) {
+                                                    edm::Run const& iRun,
+                                                    edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 

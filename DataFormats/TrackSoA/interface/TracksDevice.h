@@ -10,8 +10,7 @@
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 #include "DataFormats/TrackSoA/interface/TracksSoA.h"
 
-namespace reco
-{
+namespace reco {
   template <typename TDev>
   using TracksDevice = PortableDeviceMultiCollection<TDev, TrackSoA, TrackHitSoA>;
 }

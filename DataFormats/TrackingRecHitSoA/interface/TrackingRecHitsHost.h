@@ -15,32 +15,30 @@
 // This is generally discouraged, and should be done via composition.
 // See: https://github.com/cms-sw/cmssw/pull/40465#discussion_r1067364306
 
-namespace reco
-{
+namespace reco {
 
   using HitPortableCollectionHost = PortableHostMultiCollection<reco::TrackingRecHitSoA, reco::HitModuleSoA>;
 
   class TrackingRecHitHost : public HitPortableCollectionHost {
   public:
-
-    TrackingRecHitHost(edm::Uninitialized) : PortableHostMultiCollection<reco::TrackingRecHitSoA, reco::HitModuleSoA> {edm::kUninitialized} {}
+    TrackingRecHitHost(edm::Uninitialized)
+        : PortableHostMultiCollection<reco::TrackingRecHitSoA, reco::HitModuleSoA>{edm::kUninitialized} {}
 
     // Constructor which specifies only the SoA size, to be used when copying the results from the device to the host
     template <typename TQueue>
     explicit TrackingRecHitHost(TQueue queue, uint32_t nHits, uint32_t nModules)
-        : HitPortableCollectionHost({{int(nHits),int(nModules)}}, queue) {} 
-          //FIXME it would have more sense to put here a +1 for modules
+        : HitPortableCollectionHost({{int(nHits), int(nModules)}}, queue) {}
+    //FIXME it would have more sense to put here a +1 for modules
 
     // Constructor from clusters
     template <typename TQueue>
     explicit TrackingRecHitHost(TQueue queue, SiPixelClustersHost const &clusters)
-        : HitPortableCollectionHost({{int(clusters.nClusters()),clusters.view().metadata().size()}}, queue)  {
-          
+        : HitPortableCollectionHost({{int(clusters.nClusters()), clusters.view().metadata().size()}}, queue) {
       auto hitsView = this->template view<TrackingRecHitSoA>();
       auto modsView = this->template view<HitModuleSoA>();
 
       auto nModules = clusters.view().metadata().size();
-      
+
       auto clusters_m = cms::alpakatools::make_host_view(clusters.view().clusModuleStart(), nModules);
       auto hits_m = cms::alpakatools::make_host_view(modsView.moduleStart(), nModules);
 
@@ -59,8 +57,6 @@ namespace reco
     void updateFromDevice(TQueue) {}
   };
 
- 
-
-}
+}  // namespace reco
 
 #endif  // DataFormats_TrackingRecHitSoA_interface_TrackingRecHitsHost_h

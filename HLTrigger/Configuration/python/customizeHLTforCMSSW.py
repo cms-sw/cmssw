@@ -39,99 +39,121 @@ def customiseForOffline(process):
 
     return process
 
-
-def customizeHLTfor46935(process):
-    """Changes parameter names of EcalUncalibRecHitSoAToLegacy producer"""
-    for prod in producers_by_type(process, 'EcalUncalibRecHitSoAToLegacy'):
-        if hasattr(prod, 'uncalibRecHitsPortableEB'):
-            prod.inputCollectionEB = prod.uncalibRecHitsPortableEB
-            delattr(prod, 'uncalibRecHitsPortableEB')
-        if hasattr(prod, 'uncalibRecHitsPortableEE'):
-            prod.inputCollectionEE = prod.uncalibRecHitsPortableEE
-            delattr(prod, 'uncalibRecHitsPortableEE')
-        if hasattr(prod, 'recHitsLabelCPUEB'):
-            prod.outputLabelEB = prod.recHitsLabelCPUEB
-            delattr(prod, 'recHitsLabelCPUEB')
-        if hasattr(prod, 'recHitsLabelCPUEE'):
-            prod.outputLabelEE = prod.recHitsLabelCPUEE
-            delattr(prod, 'recHitsLabelCPUEE')
-    return process
-
-def customiseHLTFor46647(process):
-    for prod in producers_by_type(process, 'CtfSpecialSeedGenerator'):
-        if hasattr(prod, "DontCountDetsAboveNClusters"):
-            value = prod.DontCountDetsAboveNClusters.value()
-            delattr(prod, "DontCountDetsAboveNClusters")
-            # Replace it with cms.uint32
-            prod.DontCountDetsAboveNClusters = cms.uint32(value)
-
-
-def customizeHLTfor47017(process):
-    """Remove unneeded parameters from the HLT menu"""
-    for prod in producers_by_type(process, 'MaskedMeasurementTrackerEventProducer'):
-        if hasattr(prod, 'OnDemand'):
-            delattr(prod, 'OnDemand')
-
-    for prod in producers_by_type(process, 'HcalHaloDataProducer'):
-        if hasattr(prod, 'HcalMaxMatchingRadiusParam'):
-            delattr(prod, 'HcalMaxMatchingRadiusParam')
-        if hasattr(prod, 'HcalMinMatchingRadiusParam'):
-            delattr(prod, 'HcalMinMatchingRadiusParam')
-
-    for prod in producers_by_type(process, 'SiPixelRecHitConverter'):
-        if hasattr(prod, 'VerboseLevel'):
-            delattr(prod, 'VerboseLevel')
-
-def customizeHLTforXXX(process):
+def customizeHLTforXYZ(process):
+    """ Add CAGeometry ESProducer"""
+    
     if not hasattr(process, 'HLTRecoPixelTracksSequence'):
         return process
+        
+    ca_producers = ['CAHitNtupletAlpakaPhase1@alpaka','alpaka_serial_sync::CAHitNtupletAlpakaPhase1']
 
-    process.frameSoAESProducerPhase1 = cms.ESProducer('FrameSoAESProducerPhase1@alpaka',
-      ComponentName = cms.string('FrameSoAPhase1'),
-      appendToDataLabel = cms.string(''),
-      alpaka = cms.untracked.PSet(
-        backend = cms.untracked.string('')
-      )
+    ca_parameters = [ 'CAThetaCutBarrel', 'CAThetaCutForward', 
+        'dcaCutInnerTriplet', 'dcaCutOuterTriplet', 
+        'doPtCut', 'doZ0Cut', 'idealConditions', 
+        'includeJumpingForwardDoublets', 'phiCuts','doClusterCut','CPE'] 
+
+    process.hltCAGeometry = cms.ESProducer('CAGeometryESProducer@alpaka',
+        caDCACuts = cms.vdouble(
+            0.15, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25
+        ),
+        caThetaCuts = cms.vdouble(
+            0.002,
+            0.002,
+            0.002,
+            0.002,
+            0.003,
+            0.003,
+            0.003,
+            0.003,
+            0.003,
+            0.003
+        ),
+        startingPairs = cms.vint32( [i for i in range(8)] + [13, 14, 15, 16, 17, 18, 19]),
+        pairGraph = cms.vint32( 0, 1, 0, 4, 0,
+            7, 1, 2, 1, 4,
+            1, 7, 4, 5, 7,
+            8, 2, 3, 2, 4,
+            2, 7, 5, 6, 8,
+            9, 0, 2, 1, 3,
+            0, 5, 0, 8, 
+            4, 6, 7, 9 
+        ),
+        phiCuts = cms.vint32( 522, 730, 730, 522, 626,
+            626, 522, 522, 626, 626,
+            626, 522, 522, 522, 522,
+            522, 522, 522, 522
+        ),
+        minZ = cms.vdouble(
+                -20., 0., -30., -22., 10., 
+                -30., -70., -70., -22., 15., 
+                -30, -70., -70., -20., -22., 
+                0, -30., -70., -70.
+        ),
+        maxZ = cms.vdouble( 20., 30., 0., 22., 30., 
+            -10., 70., 70., 22., 30., 
+            -15., 70., 70., 20., 22., 
+            30., 0., 70., 70.),
+        maxR = cms.vdouble(20., 9., 9., 20., 7., 
+            7., 5., 5., 20., 6., 
+            6., 5., 5., 20., 20., 
+            9., 9., 9., 9.),
+        appendToDataLabel = cms.string('hltCAGeometry'),
+        alpaka = cms.untracked.PSet(
+        backend = cms.untracked.string(''),
+        synchronize = cms.optional.untracked.bool
+        )
     )
 
-    for producer in producers_by_type(process, "CAHitNtupletAlpakaPhase1@alpaka"):
-        #print("entered the producers loop")
-        if hasattr(producer, "CPE"):
-            print("found CPE stuff")
-            delattr(producer, "CPE")
-        if not hasattr(producer, 'frameSoA'):
-            setattr(producer, 'frameSoA', cms.string('FrameSoAPhase1'))
+    for ca_producer in ca_producers:
+        for prod in producers_by_type(process, ca_producer):
 
-    for producer in producers_by_type(process, "alpaka_serial_sync::CAHitNtupletAlpakaPhase1"):
-        #print("entered the producers loop")
-        if hasattr(producer, "CPE"):
-            print("found CPE stuff")
-            delattr(producer, "CPE")
-        if not hasattr(producer, 'frameSoA'):
-            setattr(producer, 'frameSoA', cms.string('FrameSoAPhase1'))
-    
+            if not hasattr(prod, 'caGeometry'):
+                setattr(prod, 'caGeometry', cms.string('hltCAGeometry'))
+            
+            for par in ['minYsizeB2','minYsizeB1']:
+                if hasattr(prod, par):
+                    v = getattr(prod, par)
+                    delattr(prod, par)
+                    setattr(prod, par, cms.uint32(v.value()))
+            
+            if hasattr(prod, 'maxNumberOfDoublets'):
+                v = getattr(prod, 'maxNumberOfDoublets')
+                delattr(prod, 'maxNumberOfDoublets')
+                setattr(prod, 'maxNumberOfDoublets', cms.string(str(v.value())))
+            
+            if not hasattr(prod, 'maxNumberOfTuples'):
+                setattr(prod,'maxNumberOfTuples',cms.string(str(32*1024)))
+                
+            if not hasattr(prod, 'avgCellsPerCell'):
+                setattr(prod, 'avgCellsPerCell', cms.double(0.071))
+            
+            if not hasattr(prod, 'avgCellsPerHit'):
+                setattr(prod, 'avgCellsPerHit', cms.double(27))
+            
+            if not hasattr(prod, 'avgHitsPerTrack'):
+                setattr(prod, 'avgHitsPerTrack', cms.double(4.5))
+            
+            if not hasattr(prod, 'avgTracksPerCell'):
+                setattr(prod, 'avgTracksPerCell', cms.double(0.127))
+            
+            if not hasattr(prod, 'dzdrFact'):
+                setattr(prod, 'dzdrFact', cms.double(8.0 * 0.0285 / 0.015))
+            if not hasattr(prod, 'maxDYsize12'):
+                setattr(prod, 'maxDYsize12', cms.uint32(28))
+            if not hasattr(prod, 'maxDYsize'):
+                setattr(prod, 'maxDYsize', cms.uint32(20))
+            if not hasattr(prod, 'maxDYPred'):
+                setattr(prod, 'maxDYPred', cms.uint32(20))
+
+            for par in ca_parameters:
+                if hasattr(prod, par):
+                    delattr(prod,par)
     return process
 
 
-def customizeHLTfor47079(process):
-    """Remove unneeded parameters from the HLT menu"""
-    for filt in filters_by_type(process, 'PrimaryVertexObjectFilter'):
-        if hasattr(filt, 'filterParams') and hasattr(filt.filterParams, 'pvSrc'):
-            del filt.filterParams.pvSrc  # Remove the pvSrc parameter
 
-    for prod in producers_by_type(process, 'HcalHitReconstructor'):
-        # Remove useless parameters
-        if hasattr(prod,'setHSCPFlags'):
-            delattr(prod,'setHSCPFlags')
-
-        if hasattr(prod,'setPulseShapeFlags'):
-            delattr(prod,'setPulseShapeFlags')
-                    
-    return process
-
-def customizeHLTfor47047(process):
-    """Migrates many ESProducers to MoveToDeviceCache"""
->>>>>>> 82c6e3e3d74 (Moving histo out of hits and new FrameSoA)
+def customizeHLTfor47378(process):
+    """Needed following the migration of the online beam spot arbitration to the edproducer"""
     import copy
     for esprod in list(esproducers_by_type(process, "OnlineBeamSpotESProducer")):
         delattr(process, esprod.label())
@@ -142,7 +164,7 @@ def customizeHLTfor47047(process):
             delattr(edprod, 'useTransientRecord')
     
     return process
-
+    
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -153,5 +175,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customizeHLTfor47378(process)
     process = customizeHLTforXXX(process)
-   
+
     return process
