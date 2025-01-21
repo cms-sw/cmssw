@@ -253,7 +253,6 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     }
   }  // loop over det
 
-
 #ifdef CA_TRIPLETS_HOLE
   // compute ladder baricenter (only in global z) for the barrel
   //
@@ -264,7 +263,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
 
   constexpr int firstEndcapPos = TrackerTraits::firstEndcapPos;
   constexpr int firstEndcapNeg = TrackerTraits::firstEndcapNeg;
-  
+
   constexpr float ladderFactor = 1.f / float(numberOfModulesInLadder);
 
   auto& aveGeom = buffer_->averageGeometry();
@@ -313,8 +312,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   }
   LogDebug("PixelCPEFastParamsHost") << aveGeom.endCapZ[0] << ' ' << aveGeom.endCapZ[1];
 #endif  // EDM_ML_DEBUG
-#endif //CA_TRIPLETS_HOLE
-
+#endif  //CA_TRIPLETS_HOLE
 }
 
 template <typename TrackerTraits>

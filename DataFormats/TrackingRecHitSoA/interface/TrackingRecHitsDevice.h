@@ -15,8 +15,7 @@
 // This is generally discouraged, and should be done via composition.
 // See: https://github.com/cms-sw/cmssw/pull/40465#discussion_r1067364306
 
-namespace reco 
-{
+namespace reco {
 
   template <typename TDev>
   using HitPortableCollectionDevice = PortableDeviceMultiCollection<TDev, reco::TrackingRecHitSoA, reco::HitModuleSoA>;
@@ -24,24 +23,25 @@ namespace reco
   template <typename TDev>
   class TrackingRecHitDevice : public HitPortableCollectionDevice<TDev> {
   public:
-
     TrackingRecHitDevice() = default;
 
-     // Constructor which specifies only the SoA size, to be used when copying the results from host to device     
+    TrackingRecHitDevice(edm::Uninitialized) : HitPortableCollectionDevice<TDev>{edm::kUninitialized} {}
+
+    // Constructor which specifies only the SoA size, to be used when copying the results from host to device
     template <typename TQueue>
     explicit TrackingRecHitDevice(TQueue queue, uint32_t nHits, uint32_t nModules)
-        : HitPortableCollectionDevice<TDev>({{int(nHits),int(nModules)}}, queue) {}
+        : HitPortableCollectionDevice<TDev>({{int(nHits), int(nModules)}}, queue) {}
 
     // Constructor from clusters
     template <typename TQueue>
     explicit TrackingRecHitDevice(TQueue queue, SiPixelClustersDevice<TDev> const &clusters)
-        : HitPortableCollectionDevice<TDev>({{int(clusters.nClusters()),clusters.view().metadata().size()}}, queue), offsetBPIX2_{clusters.offsetBPIX2()} {
-      
+        : HitPortableCollectionDevice<TDev>({{int(clusters.nClusters()), clusters.view().metadata().size()}}, queue),
+          offsetBPIX2_{clusters.offsetBPIX2()} {
       auto hitsView = this->template view<TrackingRecHitSoA>();
       auto modsView = this->template view<HitModuleSoA>();
 
       auto nModules = clusters.view().metadata().size();
-      
+
       auto clusters_m = cms::alpakatools::make_device_view(queue, clusters.view().clusModuleStart(), nModules);
       auto hits_m = cms::alpakatools::make_device_view(queue, modsView.moduleStart(), nModules);
 
@@ -69,6 +69,6 @@ namespace reco
     // offsetBPIX2 is used on host functions so is useful to have it also stored in the class and not only in the layout
     int32_t offsetBPIX2_ = 0;
   };
-}
+}  // namespace reco
 
 #endif  // DataFormats_RecHits_interface_TrackingRecHitSoADevice_h

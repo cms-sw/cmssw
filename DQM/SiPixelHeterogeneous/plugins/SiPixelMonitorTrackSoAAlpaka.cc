@@ -26,7 +26,6 @@
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 
-
 class SiPixelMonitorTrackSoAAlpaka : public DQMEDAnalyzer {
 public:
   using PixelTrackHeterogeneous = reco::TracksHost;
@@ -65,7 +64,6 @@ private:
 // constructors
 //
 
-
 SiPixelMonitorTrackSoAAlpaka::SiPixelMonitorTrackSoAAlpaka(const edm::ParameterSet& iConfig) {
   tokenSoATrack_ = consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
   topFolderName_ = iConfig.getParameter<std::string>("topFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
@@ -76,7 +74,7 @@ SiPixelMonitorTrackSoAAlpaka::SiPixelMonitorTrackSoAAlpaka(const edm::ParameterS
 //
 // -- Analyze
 //
- 
+
 void SiPixelMonitorTrackSoAAlpaka::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& tsoaHandle = iEvent.getHandle(tokenSoATrack_);
   if (!tsoaHandle.isValid()) {
@@ -142,8 +140,8 @@ void SiPixelMonitorTrackSoAAlpaka::analyze(const edm::Event& iEvent, const edm::
 //
 
 void SiPixelMonitorTrackSoAAlpaka::bookHistograms(DQMStore::IBooker& iBook,
-                                                     edm::Run const& iRun,
-                                                     edm::EventSetup const& iSetup) {
+                                                  edm::Run const& iRun,
+                                                  edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 
@@ -181,7 +179,6 @@ hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::format("{} vs track #eta;T
     i++;
   }
 }
-
 
 void SiPixelMonitorTrackSoAAlpaka::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelTrackSoA

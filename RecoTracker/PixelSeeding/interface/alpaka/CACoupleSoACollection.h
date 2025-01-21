@@ -14,10 +14,10 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-    using ::caStructures::CACoupleHost;
-    using ::caStructures::CACoupleDevice;
-    using CACoupleSoACollection =
-        std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>, CACoupleHost, CACoupleDevice<Device>>;
+  using ::caStructures::CACoupleDevice;
+  using ::caStructures::CACoupleHost;
+  using CACoupleSoACollection =
+      std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>, CACoupleHost, CACoupleDevice<Device>>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

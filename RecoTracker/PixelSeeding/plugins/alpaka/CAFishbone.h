@@ -17,19 +17,9 @@
 #include "CACell.h"
 #include "CAStructures.h"
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
+//#define GPU_DEBUG
 
-  using namespace ::caStructures;
-  template <typename TrackerTraits>
-  using CellNeighbors = caStructures::CellNeighborsT<TrackerTraits>;
-  template <typename TrackerTraits>
-  using CellTracks = caStructures::CellTracksT<TrackerTraits>;
-  template <typename TrackerTraits>
-  using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
-  template <typename TrackerTraits>
-  using CellTracksVector = caStructures::CellTracksVectorT<TrackerTraits>;
-  template <typename TrackerTraits>
-  using OuterHitOfCell = caStructures::OuterHitOfCellT<TrackerTraits>;
+namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
   using HitToCell = caStructures::GenericContainer;
   using CellToTracks = caStructures::GenericContainer;
@@ -42,35 +32,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                                   HitsConstView hh,
                                   CASimpleCell<TrackerTraits>* cells,
                                   uint32_t const* __restrict__ nCells,
-                                  // OuterHitOfCell<TrackerTraits> const* isOuterHitOfCellWrap,
                                   HitToCell const* __restrict__ outerHitHisto,
                                   CellToTracks const* __restrict__ cellTracksHisto,
                                   uint32_t outerHits,
                                   bool checkTrack) const {
-      constexpr auto maxCellsPerHit = TrackerTraits::maxCellsPerHit;
-
-      // auto const isOuterHitOfCell = isOuterHitOfCellWrap->container;
-
-      float x[maxCellsPerHit], y[maxCellsPerHit], z[maxCellsPerHit], n[maxCellsPerHit];
-      uint32_t cc[maxCellsPerHit];
-      uint16_t d[maxCellsPerHit];
-      uint8_t l[maxCellsPerHit];
 
       // outermost parallel loop, using all grid elements along the slower dimension (Y or 0 in a 2D grid)
       for (uint32_t idy : cms::alpakatools::uniform_elements_y(acc, outerHits)) {
-        // auto const& vc = isOuterHitOfCell[idy];
-        uint32_t size = outerHitHisto->size(idy); //TODO have this offset in the histo building directly
-// #ifdef GPU_DEBUG
-//         printf("hist %d histSize %d \n",idy,size);
-// #endif
-        // printf("fishbone ---> outerhit %d size %d - ",idy,size);
+        uint32_t size = outerHitHisto->size(idy);  
+        // printf("fishbone ---> outersize %d - ",idy,size);
 
         if (size < 2)
           continue;
-        
+
         auto const* __restrict__ bin = outerHitHisto->begin(idy);
-        auto const* __restrict__ end = outerHitHisto->end(idy);
-        auto const nInBin = end - bin;
 
         // if alligned kill one of the two.
         // in principle one could try to relax the cut (only in r-z?) for jumping-doublets
@@ -78,71 +53,66 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         auto xo = c0.outer_x(hh);
         auto yo = c0.outer_y(hh);
         auto zo = c0.outer_z(hh);
-        auto sg = 0;
-        //printf("first cell %d x0 %.2f y0 %.2f z0 %.2f - ",bin[0],c0.outer_x(hh),c0.outer_y(hh),c0.outer_z(hh));
+        //printf("first cell %d xo %.2f yo %.2f zo %.2f - ",bin[0],c0.outer_x(hh),c0.outer_y(hh),c0.outer_z(hh));ve
 
-        // this could be moved below 
-        // precomputing these here has 
-        // the advantage we then loop on less 
-        // entries but we can anyway skip them below and avoid having 
-        // the arrays above
-
-// #ifdef GPU_DEBUG 
-//         for (auto idx = 0u; idx < size; idx++) {
-//           unsigned int otherCell = bin[idx];
-//           printf("vc[0] %d idx %d vc[idx] %d otherCell %d \n",vc[0],idx,vc[idx],otherCell);
-//         }
-// #endif
-        for (auto idx = 0u; idx < nInBin; idx++) {
-        // for (int32_t ic = 0; ic < size; ++ic) {
-        // for (auto ic = 0u; ic < size; ic++) {
-          unsigned int otherCell = bin[idx];
-          auto& ci = cells[otherCell];//vc[ic]];
-          // unsigned int otherCell = bin[ic] - nHitsBPix1;
-          // auto& ci = cells[otherCell];
+        // #ifdef GPU_DEBUG
+        //         for (auto idx = 0u; idx < size; idx++) {
+        //           unsigned int otherCell = bin[idx];
+        //           printf("vc[0] %d idx %d vc[idx] %d otherCell %d \n",vc[0],idx,vc[idx],otherCell);
+        //         }
+        // #endif
+        for (uint32_t ic : cms::alpakatools::independent_group_elements_x(acc, size)) {
+          
+//printf("cell0 = %d ci = %d\n",bin[0],bin[ic]);
+          unsigned int otherCell = bin[ic];
+          auto& ci = cells[otherCell];
+//	printf("xo = %.2f yo = %.2f zo = %.2f xi = %.2f yi = %.2f zi = %.2f \n",xo,yo,zo,ci.inner_x(hh),ci.inner_y(hh),ci.inner_z(hh));  
           if (ci.unused())
-            continue;  // for triplets equivalent to next
-          if (checkTrack && cellTracksHisto->size(otherCell) == 0)//ci.tracks().empty())
+            continue; // for triplets equivalent to next
+          if (checkTrack && cellTracksHisto->size(otherCell) == 0)
             continue;
-          cc[sg] = otherCell;//vc[ic];
-          l[sg] = ci.layerPairId();
-          d[sg] = ci.inner_detIndex(hh);
-          x[sg] = ci.inner_x(hh) - xo;
-          y[sg] = ci.inner_y(hh) - yo;
-          z[sg] = ci.inner_z(hh) - zo;
-          n[sg] = x[sg] * x[sg] + y[sg] * y[sg] + z[sg] * z[sg];
-          ++sg;
-          //printf("sg %d idx %d cell %d x %.2f y %.2f z %.2f - ",sg,idx,otherCell,x[sg],y[sg],z[sg]);
-        }
-        //printf("\n");
-        if (sg < 2)
-          continue;
 
-        // innermost parallel loop, using the block elements along the faster dimension (X or 1 in a 2D grid)
-        for (uint32_t ic : cms::alpakatools::independent_group_elements_x(acc, sg - 1)) {
-          auto& ci = cells[cc[ic]];
-          for (auto jc = ic + 1; (int)jc < sg; ++jc) {
-            auto& cj = cells[cc[jc]];
-            // must be different detectors (in the same layer)
-            // if (d[ic]==d[jc]) continue;
-            auto cos12 = x[ic] * x[jc] + y[ic] * y[jc] + z[ic] * z[jc];
+          float x1 = (ci.inner_x(hh) - xo);
+          float y1 = (ci.inner_y(hh) - yo);
+          float z1 = (ci.inner_z(hh) - zo);
+          float n1 = x1 * x1 + y1 * y1 + z1 * z1;
 
-            // cos12 * cos12 could go after d[ic] != d[jc]
-            if (d[ic] != d[jc] && cos12 * cos12 >= 0.99999f * (n[ic] * n[jc])) {
+          for (auto jc = ic + 1; jc < size; ++jc) {
+            unsigned int nextCell = bin[jc];
+            auto& cj = cells[nextCell];
+	    if (cj.unused())
+	    continue;
+	    if (checkTrack && cellTracksHisto->size(nextCell) == 0)  
+	    continue;
+#ifdef GPU_DEBUG 
+printf("xx = %.2f yo = %.2f zo = %.2f xi = %.2f yi = %.2f zi = %.2f xj = %.2f yj = %.2f zj = %.2f\n",xo,yo,zo,ci.inner_x(hh),ci.inner_y(hh),ci.inner_z(hh),cj.inner_x(hh),cj.inner_y(hh),cj.inner_z(hh));
+#endif
+
+  if (ci.inner_detIndex(hh) == cj.inner_detIndex(hh))
+              continue;
+
+            float x2 = (cj.inner_x(hh) - xo);
+            float y2 = (cj.inner_y(hh) - yo);
+            float z2 = (cj.inner_z(hh) - zo);
+            float n2 = x2 * x2 + y2 * y2 + z2 * z2;
+
+            auto cos12 = x1 * x2 + y1 * y2 + z1 * z2;
+
+            if (cos12 * cos12 >= 0.99999f * (n1 * n2)) {
               // alligned:  kill farthest (prefer consecutive layers)
               // if same layer prefer farthest (longer level arm) and make space for intermediate hit
-              bool sameLayer = l[ic] == l[jc];
-              if (n[ic] > n[jc]) {
+              bool sameLayer = int(ci.layerPairId()) == int(cj.layerPairId());
+              if (n1 > n2) {
                 if (sameLayer) {
                   cj.kill();  // closest
-#ifdef GPU_DEBUG
-printf("hit %d same layer cell %d kill %d \n",idy,cc[ic],cc[jc]);  
-#endif
                   ci.setFishbone(acc, cj.inner_hit_id(), cj.inner_z(hh), hh);
+#ifdef GPU_DEBUG
+                 printf("n1>n2 lic = %d ljc = %d dic = %.2f djc = %.2f cell %d kill %d cos = %.7f n1 = %.3f n2 = %.3f same\n",int(ci.layerPairId()),int(cj.layerPairId()),ci.inner_detIndex(hh), cj.inner_detIndex(hh), bin[ic], bin[jc],cos12 * cos12 / (n1*n2), n1, n2);
+#endif
                 } else {
                   ci.kill();  // farthest
 #ifdef GPU_DEBUG
-printf("hit %d same layer cell %d kill %d \n",idy,cc[jc],cc[ic]);  
+             printf("n1>n2 lic = %d ljc = %d dic = %.2f djc = %.2f cell %d kill %d cos = %.7f n1 = %.3f n2 = %.3f diff\n",int(ci.layerPairId()),int(cj.layerPairId()),ci.inner_detIndex(hh), cj.inner_detIndex(hh), bin[jc], bin[ic],cos12 * cos12 / (n1*n2), n1, n2); 
 #endif
                   // break;  // removed to improve reproducibility, keep it for reference and tests
                 }
@@ -150,18 +120,18 @@ printf("hit %d same layer cell %d kill %d \n",idy,cc[jc],cc[ic]);
                 if (!sameLayer) {
                   cj.kill();  // farthest
 #ifdef GPU_DEBUG
-printf("hit %d diff layer cell %d kill %d \n",idy,cc[ic],cc[jc]);
-#endif  
+             printf("n2>n1 lic = %d ljc = %d dic = %.2f djc = %.2f cell %d kill %d cos = %.7f n1 = %.3f n2 = %.3f diff\n",int(ci.layerPairId()),int(cj.layerPairId()),ci.inner_detIndex(hh), cj.inner_detIndex(hh), bin[ic], bin[jc],cos12 * cos12 / (n1*n2), n1, n2); 
+#endif
                 } else {
                   ci.kill();  // closest
-#ifdef GPU_DEBUG
-printf("hit %d diff layer cell %d kill %d \n",idy,cc[jc],cc[ic]);
-#endif
                   cj.setFishbone(acc, ci.inner_hit_id(), ci.inner_z(hh), hh);
+#ifdef GPU_DEBUG
+             printf("n2>n1 lic = %d ljc = %d dic = %.2f djc = %.2f cell %d kill %d cos = %.7f n1 = %.3f n2 = %.3f same\n",int(ci.layerPairId()),int(cj.layerPairId()),ci.inner_detIndex(hh), cj.inner_detIndex(hh), bin[jc], bin[ic],cos12 * cos12 / (n1*n2), n1, n2);
+#endif
                   // break;  // removed to improve reproducibility, keep it for reference and tests
                 }
               }
-            }
+            }  // cos
           }  // cj
         }  // ci
       }  // hits
@@ -171,4 +141,3 @@ printf("hit %d diff layer cell %d kill %d \n",idy,cc[jc],cc[ic]);
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets
 
 #endif  // RecoTracker_PixelSeeding_plugins_alpaka_CAFishbone_h
-

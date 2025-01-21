@@ -12,28 +12,26 @@
 
 namespace reco {
 
-    // Aliases in order to not confuse the GENERATE_SOA_LAYOUT
-    // macro with weird colons and angled brackets.
-    using Vector5f = Eigen::Matrix<float, 5, 1>;
-    using Vector15f = Eigen::Matrix<float, 15, 1>;
-    using Quality = pixelTrack::Quality;
+  // Aliases in order to not confuse the GENERATE_SOA_LAYOUT
+  // macro with weird colons and angled brackets.
+  using Vector5f = Eigen::Matrix<float, 5, 1>;
+  using Vector15f = Eigen::Matrix<float, 15, 1>;
+  using Quality = pixelTrack::Quality;
 
-    GENERATE_SOA_LAYOUT(TrackLayout,
-                        SOA_COLUMN(Quality, quality),
-                        SOA_COLUMN(float, chi2),
-                        SOA_COLUMN(int8_t, nLayers),
-                        SOA_COLUMN(float, eta),
-                        SOA_COLUMN(float, pt),
-                        // state at the beam spot: {phi, tip, 1/pt, cotan(theta), zip}
-                        SOA_EIGEN_COLUMN(Vector5f, state),
-                        SOA_EIGEN_COLUMN(Vector15f, covariance),
-                        SOA_SCALAR(int, nTracks),
-                        SOA_COLUMN(uint32_t, hitOffsets))
-                        
-    GENERATE_SOA_LAYOUT(TrackHitsLayout,
-                        SOA_COLUMN(uint32_t, id),
-                        SOA_COLUMN(uint32_t, detId))
-  
+  GENERATE_SOA_LAYOUT(TrackLayout,
+                      SOA_COLUMN(Quality, quality),
+                      SOA_COLUMN(float, chi2),
+                      SOA_COLUMN(int8_t, nLayers),
+                      SOA_COLUMN(float, eta),
+                      SOA_COLUMN(float, pt),
+                      // state at the beam spot: {phi, tip, 1/pt, cotan(theta), zip}
+                      SOA_EIGEN_COLUMN(Vector5f, state),
+                      SOA_EIGEN_COLUMN(Vector15f, covariance),
+                      SOA_SCALAR(int, nTracks),
+                      SOA_COLUMN(uint32_t, hitOffsets))
+
+  GENERATE_SOA_LAYOUT(TrackHitsLayout, SOA_COLUMN(uint32_t, id), SOA_COLUMN(uint32_t, detId))
+
   using TrackSoA = TrackLayout<>;
   using TrackSoAView = TrackSoA::View;
   using TrackSoAConstView = TrackSoA::ConstView;
@@ -43,27 +41,27 @@ namespace reco {
   using TrackHitSoAConstView = TrackHitSoA::ConstView;
 
   // All these below were constexpr. Now I get this:
-  // note: non-literal type 'reco::TrackLayout<128, false>::ConstViewTemplateFreeParams<128, false, true, true>::const_element' 
+  // note: non-literal type 'reco::TrackLayout<128, false>::ConstViewTemplateFreeParams<128, false, true, true>::const_element'
   // cannot be used in a constant expression
-  
+
   // move to use the layer gaps defined in CAGeometry
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static int nLayers(const TrackSoAConstView &tracks,
-                                                                                 const TrackHitSoAConstView &hits,
-                                                                                 uint16_t maxLayers,
-                                                                                 uint32_t const* __restrict__ layerStarts,
-                                                                                 int32_t i) {
-    auto start = (i==0) ? 0 : tracks[i-1].hitOffsets();
+                                                         const TrackHitSoAConstView &hits,
+                                                         uint16_t maxLayers,
+                                                         uint32_t const *__restrict__ layerStarts,
+                                                         int32_t i) {
+    auto start = (i == 0) ? 0 : tracks[i - 1].hitOffsets();
     auto end = tracks[i].hitOffsets();
     auto hitId = hits[start].id();
-    int nl = 1; 
+    int nl = 1;
     auto ol = 0;
-    while ( hitId >= layerStarts[ol+1] and ol < maxLayers)
+    while (hitId >= layerStarts[ol + 1] and ol < maxLayers)
       ++ol;
     ++start;
     for (; start < end; ++start) {
       hitId = hits[start].id();
       auto il = 0;
-      while ( hitId >= layerStarts[il+1] and il < maxLayers)
+      while (hitId >= layerStarts[il + 1] and il < maxLayers)
         ++il;
       if (il != ol)
         ++nl;
@@ -95,14 +93,14 @@ namespace reco {
   }
 
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static int nHits(const TrackSoAConstView &tracks, int i) {
-    auto start = (i==0)? 0 : tracks[i-1].hitOffsets();
+    auto start = (i == 0) ? 0 : tracks[i - 1].hitOffsets();
     return tracks[i].hitOffsets() - start;
   }
 
   // state at the beam spot: { phi, tip, 1/pt, cotan(theta), zip }
 
-  // variable of non-literal type 'MapType' 
-  // (aka 'Map<Eigen::Matrix<float, 15, 1, 0, 15, 1>, 0, Eigen::InnerStride<Eigen::Dynamic>>') 
+  // variable of non-literal type 'MapType'
+  // (aka 'Map<Eigen::Matrix<float, 15, 1, 0, 15, 1>, 0, Eigen::InnerStride<Eigen::Dynamic>>')
   // cannot be defined in a function before C++2b
   template <typename V3, typename M3, typename V2, typename M2>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static void copyFromCircle(
@@ -127,9 +125,9 @@ namespace reco {
 
   template <typename V5, typename M5>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static void copyFromDense(TrackSoAView &tracks,
-                                                                          V5 const &v,
-                                                                          M5 const &cov,
-                                                                          int32_t i) {
+                                                                V5 const &v,
+                                                                M5 const &cov,
+                                                                int32_t i) {
     tracks[i].state() = v.template cast<float>();
     for (int j = 0, ind = 0; j < 5; ++j)
       for (auto k = j; k < 5; ++k)
@@ -138,9 +136,9 @@ namespace reco {
 
   template <typename V5, typename M5>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static void copyToDense(const TrackSoAConstView &tracks,
-                                                                        V5 &v,
-                                                                        M5 &cov,
-                                                                        int32_t i) {
+                                                              V5 &v,
+                                                              M5 &cov,
+                                                              int32_t i) {
     v = tracks[i].state().template cast<typename V5::Scalar>();
     for (int j = 0, ind = 0; j < 5; ++j) {
       cov(j, j) = tracks[i].covariance()(ind++);

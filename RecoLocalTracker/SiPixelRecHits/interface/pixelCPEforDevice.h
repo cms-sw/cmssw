@@ -99,7 +99,6 @@ namespace pixelCPEforDevice {
     Frame frame;
   };
 
-
   constexpr int32_t MaxHitsInIter = pixelClustering::maxHitsInIter();
   using ClusParams = ClusParamsT<MaxHitsInIter>;
 
@@ -402,13 +401,9 @@ namespace pixelCPEforDevice {
 
   template <typename TrackerTopology>
   struct ParamsOnDeviceT {
-    
-    
-
     CommonParams m_commonParams;
     // Will contain an array of DetParams instances
     DetParams m_detParams[TrackerTopology::numberOfModules];
-    
 
     constexpr CommonParams const& __restrict__ commonParams() const { return m_commonParams; }
     constexpr DetParams const& __restrict__ detParams(int i) const { return m_detParams[i]; }
@@ -422,8 +417,7 @@ namespace pixelCPEforDevice {
     AverageGeometry m_averageGeometry;
     constexpr AverageGeometry const& __restrict__ averageGeometry() const { return m_averageGeometry; }
     AverageGeometry& averageGeometry() { return m_averageGeometry; }
-#endif // CA_TRIPLETS_HOLE
-
+#endif  // CA_TRIPLETS_HOLE
   };
 
 }  // namespace pixelCPEforDevice

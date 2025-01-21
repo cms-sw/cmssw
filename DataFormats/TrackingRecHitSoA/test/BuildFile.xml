@@ -5,8 +5,12 @@
   <flags ALPAKA_BACKENDS="cuda serial"/>
 </bin>
 
-<bin file="alpaka/TestMerge.cc " name="TestMerge">
+<library name="testHitSoA" file="TestWriteHostHitSoA.cc,TestReadHostHitSoA.cc,">
+  <flags EDM_PLUGIN="1"/>
   <use name="alpaka"/>
-  <use name="HeterogeneousCore/AlpakaInterface"/>
-  <flags ALPAKA_BACKENDS="cuda serial"/>
-</bin>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+</library>
+
+<test name="testWriteAndReadHitSoA" command="testWriteAndReadHitSoA.sh" />
