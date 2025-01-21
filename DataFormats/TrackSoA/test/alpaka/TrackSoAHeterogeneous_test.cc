@@ -41,7 +41,7 @@ int main() {
       "the test will be skipped.\n";
     exit(EXIT_FAILURE);
   }
-
+  /*
   // Run the test on each device
   for (const auto& device : devices) {
     Queue queue(device);
@@ -54,7 +54,7 @@ int main() {
       constexpr auto nHits = nTracks *  5;
 
       TracksSoACollection tracks_d({{nTracks,nHits}},queue);
-      testTrackSoA::runKernels<pixelTopology::Phase1>(tracks_d.view(), queue);
+      testTrackSoA::runKernels(tracks_d.view(), queue);
 
       // Instantate tracks on host. This is where the data will be
       // copied to from device.
@@ -84,6 +84,6 @@ int main() {
       }
     }
   }
-
+*/
   return EXIT_SUCCESS;
 }

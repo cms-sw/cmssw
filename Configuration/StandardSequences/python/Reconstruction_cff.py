@@ -224,6 +224,7 @@ reconstruction_pixelTrackingOnlyTask = cms.Task(
     siPixelClusterShapeCachePreSplitting,
     recopixelvertexingTask
 )
+
 reconstruction_pixelTrackingOnly = cms.Sequence(reconstruction_pixelTrackingOnlyTask)
 
 reconstruction_ecalOnlyTask = cms.Task(

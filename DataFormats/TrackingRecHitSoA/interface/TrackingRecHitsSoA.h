@@ -9,7 +9,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 
 namespace reco {
-  
+
   GENERATE_SOA_LAYOUT(TrackingHitsLayout,
                       SOA_COLUMN(float, xLocal),
                       SOA_COLUMN(float, yLocal),
@@ -26,22 +26,19 @@ namespace reco {
                       SOA_COLUMN(uint16_t, detectorIndex),
                       SOA_SCALAR(int32_t, offsetBPIX2));
 
-  GENERATE_SOA_LAYOUT(HitModulesLayout,
-               SOA_COLUMN(uint32_t, moduleStart)
-  );
-               
-  #ifdef CA_TRIPLETS_HOLE
+  GENERATE_SOA_LAYOUT(HitModulesLayout, SOA_COLUMN(uint32_t, moduleStart));
+
+#ifdef CA_TRIPLETS_HOLE
   GENERATE_SOA_LAYOUT(AverageGeometryLayout,
-    SOA_COLUMN(float, ladderZ),
-    SOA_COLUMN(float, ladderX),
-    SOA_COLUMN(float, ladderY),
-    SOA_COLUMN(float, ladderR),
-    SOA_COLUMN(float, ladderMinZ),
-    SOA_COLUMN(float, ladderMaxZ),
-    SOA_SCALAR(int32_t, endCapZPos),
-    SOA_SCALAR(int32_t, endCapZNeg)
-  )
-  #endif
+                      SOA_COLUMN(float, ladderZ),
+                      SOA_COLUMN(float, ladderX),
+                      SOA_COLUMN(float, ladderY),
+                      SOA_COLUMN(float, ladderR),
+                      SOA_COLUMN(float, ladderMinZ),
+                      SOA_COLUMN(float, ladderMaxZ),
+                      SOA_SCALAR(int32_t, endCapZPos),
+                      SOA_SCALAR(int32_t, endCapZNeg))
+#endif
 
   using TrackingRecHitSoA = TrackingHitsLayout<>;
   using TrackingRecHitView = TrackingRecHitSoA::View;
@@ -57,6 +54,6 @@ namespace reco {
   using AverageGeometryConstView = AverageGeometrySoA::ConstView;
 #endif
 
-};
+};  // namespace reco
 
 #endif

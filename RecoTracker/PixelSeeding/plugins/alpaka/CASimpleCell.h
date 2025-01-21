@@ -1,7 +1,9 @@
 #ifndef RecoTracker_PixelSeeding_plugins_alpaka_CASimpleCell_h
 #define RecoTracker_PixelSeeding_plugins_alpaka_CASimpleCell_h
 
-// #define GPU_DEBUG
+//#define GPU_DEBUG
+//#define CA_DEBUG
+
 #include <cmath>
 #include <limits>
 
@@ -15,7 +17,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
-#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
+#include "RecoTracker/Record/interface/CAGeometrySoA.h"
 #include "RecoTracker/PixelSeeding/interface/CACoupleSoA.h"
 
 #include "CAStructures.h"
@@ -29,11 +31,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   class CASimpleCell {
+    friend class CACellT<TrackerTraits>;
 
-   friend class CACellT<TrackerTraits>;
-  
-   public:
-   
+  public:
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void init(const HitsConstView& hh,
                                              int layerPairId,
                                              uint8_t theInnerLayer,
@@ -52,9 +52,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       theInnerZ = hh[innerHitId].zGlobal();
       theInnerR = hh[innerHitId].rGlobal();
     }
-    
-    using hindex_type = typename TrackerTraits::hindex_type;
-    using tindex_type = typename TrackerTraits::tindex_type;
+
+    using hindex_type = ::caStructures::hindex_type;
+    using tindex_type = ::caStructures::tindex_type;
+
     static constexpr auto invalidHitId = std::numeric_limits<hindex_type>::max();
 
     using TmpTuple = cms::alpakatools::VecArray<uint32_t, TrackerTraits::maxDepth>;
@@ -69,7 +70,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     enum class StatusBit : uint16_t { kUsed = 1, kInTrack = 2, kKilled = 1 << 15 };
 
     CASimpleCell() = default;
-    
+
     constexpr unsigned int inner_hit_id() const { return theInnerHitId; }
     constexpr unsigned int outer_hit_id() const { return theOuterHitId; }
 
@@ -104,7 +105,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     ALPAKA_FN_ACC ALPAKA_FN_INLINE auto fishboneId() const { return theFishboneId; }
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool hasFishbone() const { return theFishboneId != invalidHitId; }
-
 
     ALPAKA_FN_ACC void print_cell() const {
       printf("printing cell: on layerPair: %d, innerLayer: %d, outerLayer: %d, innerHitId: %d, outerHitId: %d \n",
@@ -164,14 +164,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // trying to free the track building process from hardcoded layers, leaving
     // the visit of the graph based on the neighborhood connections between cells.
+
     template <int DEPTH, typename TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void find_ntuplets(TAcc const& acc,
-                                                      const ::reco::CAGraphSoAConstView &cc,
+                                                      const ::reco::CAGraphSoAConstView& cc,
                                                       CASimpleCell* __restrict__ cells,
                                                       HitContainer& foundNtuplets,
-                                                      CellToCell const *__restrict__ cellNeighborsHisto,
-                                                      CellToTracks *cellTracksHisto,
-                                                      uint32_t *nCellTracks,
+                                                      CellToCell const* __restrict__ cellNeighborsHisto,
+                                                      CellToTracks* cellTracksHisto,
+                                                      uint32_t* nCellTracks,
                                                       CACoupleSoAView ct,
                                                       cms::alpakatools::AtomicPairCounter& apc,
                                                       Quality* __restrict__ quality,
@@ -187,30 +188,46 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ALPAKA_ASSERT_ACC(false);
       } else {
         auto doubletId = this - cells;
-        tmpNtuplet.push_back_unsafe(doubletId); // if we move this to be safe we could parallelize further below?
+        tmpNtuplet.push_back_unsafe(doubletId);  // if we move this to be safe we could parallelize further below?
         ALPAKA_ASSERT_ACC(tmpNtuplet.size() <= int(TrackerTraits::maxHitsOnTrack - 3));
 
         bool last = true;
-        // for (auto o = cellNeighborsHisto->begin(doubletId); o != cellNeighborsHisto->end(doubletId); ++o)
-        //  printf("doubletIdHisto: %ld -> %d\n",doubletId,*o);
         auto const* __restrict__ bin = cellNeighborsHisto->begin(doubletId);
-        auto const* __restrict__ end = cellNeighborsHisto->end(doubletId);
-        auto const nInBin = end - bin;
+        auto nInBin = cellNeighborsHisto->size(doubletId);
 
         for (auto idx = 0u; idx < nInBin; idx++) {
           // FIXME implement alpaka::ldg and use it here? or is it const* __restrict__ enough?
           unsigned int otherCell = bin[idx];
-        // for (unsigned int otherCell : outerNeighbors()) {
-// #ifdef GPU_DEBUG
-	  if (cells[otherCell].isKilled())
-             continue;     
-#ifdef GPU_DEBUG  
-      printf("Doublet no. %d %d doubletId: %ld -> %d (isKilled %d) (%d,%d) -> (%d,%d) %d %ld\n",tmpNtuplet.size(),idx,doubletId,otherCell,cells[otherCell].isKilled(),this->inner_hit_id(),this->outer_hit_id(),cells[otherCell].inner_hit_id(),cells[otherCell].outer_hit_id(),idx,nInBin);
+          if (cells[otherCell].isKilled())
+            continue;
+#ifdef CA_DEBUG
+          printf("Doublet no. %d %d doubletId: %ld -> %d (isKilled %d) (%d,%d) -> (%d,%d) %d %d\n",
+                 tmpNtuplet.size(),
+                 idx,
+                 doubletId,
+                 otherCell,
+                 cells[otherCell].isKilled(),
+                 this->inner_hit_id(),
+                 this->outer_hit_id(),
+                 cells[otherCell].inner_hit_id(),
+                 cells[otherCell].outer_hit_id(),
+                 idx,
+                 nInBin);
 #endif
-         
+
           last = false;
-          cells[otherCell].template find_ntuplets<DEPTH - 1>(
-              acc, cc, cells, foundNtuplets, cellNeighborsHisto, cellTracksHisto, nCellTracks, ct, apc, quality, tmpNtuplet, minHitsPerNtuplet);
+          cells[otherCell].template find_ntuplets<DEPTH - 1>(acc,
+                                                             cc,
+                                                             cells,
+                                                             foundNtuplets,
+                                                             cellNeighborsHisto,
+                                                             cellTracksHisto,
+                                                             nCellTracks,
+                                                             ct,
+                                                             apc,
+                                                             quality,
+                                                             tmpNtuplet,
+                                                             minHitsPerNtuplet);
         }
         if (last) {  // if long enough save...
           if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1) {
@@ -229,30 +246,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               ALPAKA_ASSERT_ACC(nh < TrackerTraits::maxHitsOnTrack);
               hits[nh] = theOuterHitId;
               auto it = foundNtuplets.bulkFill(acc, apc, hits, nh + 1);
-#ifdef GPU_DEBUG
-              printf("track n. %d nhits %d with cells: ",it,nh+1);
+#ifdef CA_DEBUG
+              printf("track n. %d nhits %d with cells: ", it, nh + 1);
 #endif
               if (it >= 0) {  // if negative is overflow....
-                for (auto c : tmpNtuplet)
-                {
-#ifdef GPU_DEBUG
-                  printf("%d - ",c);
+                for (auto c : tmpNtuplet) {
+#ifdef CA_DEBUG
+                  printf("%d - ", c);
 #endif
                   auto t_ind = alpaka::atomicAdd(acc, nCellTracks, (uint32_t)1, alpaka::hierarchy::Blocks{});
 
                   if (t_ind >= uint32_t(ct.metadata().size())) {
-                    printf("Warning!!!! Too many cell->tracks associations (limit = %d)!\n",ct.metadata().size());
-                    alpaka::atomicSub(acc, nCellTracks, (uint32_t)1, alpaka::hierarchy::Blocks{});
+#ifdef CA_DEBUG
+                    printf("Warning!!!! Too many cell->tracks associations (limit = %d)!\n", ct.metadata().size());
+#endif
+		    alpaka::atomicSub(acc, nCellTracks, (uint32_t)1, alpaka::hierarchy::Blocks{});
                     break;
                   }
-                  cellTracksHisto->count(acc,c); 
-// #ifdef GPU_DEBUG
-//                   printf("cellToTrack n. %d cell %d track %d\n",t_ind,c,it);
-// #endif
-                  ct[t_ind].inner() = c; //cell
-                  ct[t_ind].outer() = it; //track
+                  cellTracksHisto->count(acc, c);
+
+                  ct[t_ind].inner() = c;   //cell
+                  ct[t_ind].outer() = it;  //track
                 }
-#ifdef GPU_DEBUG
+#ifdef CA_DEBUG
                 printf("\n");
 #endif
                 quality[it] = bad;  // initialize to bad
@@ -265,21 +281,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
 
+  protected:
+    int16_t theLayerPairId_;
+    uint8_t theInnerLayer_;
+    uint8_t theOuterLayer_;
+    uint16_t theStatus_;  // tbd
 
-    protected:
-      int16_t theLayerPairId_;
-      uint8_t theInnerLayer_;
-      uint8_t theOuterLayer_;
-      uint16_t theStatus_;  // tbd
-
-      float theInnerZ;
-      float theInnerR;
-      hindex_type theInnerHitId;
-      hindex_type theOuterHitId;
-      hindex_type theFishboneId;
-
+    float theInnerZ;
+    float theInnerR;
+    hindex_type theInnerHitId;
+    hindex_type theOuterHitId;
+    hindex_type theFishboneId;
   };
-  
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #endif  // RecoTracker_PixelSeeding_plugins_alpaka_CASimpleCell_h

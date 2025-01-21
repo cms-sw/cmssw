@@ -6,7 +6,7 @@
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
+#include "RecoTracker/Record/interface/CAGeometrySoA.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/RiemannFit.h"
 
 #include "HelixFit.h"
@@ -172,12 +172,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         riemannFit::fromCircleToPerigee(acc, circle_fit[local_idx]);
 
         reco::copyFromCircle(results_view,
-                                                       circle_fit[local_idx].par,
-                                                       circle_fit[local_idx].cov,
-                                                       line_fit.par,
-                                                       line_fit.cov,
-                                                       1.f / float(bField),
-                                                       tkid);
+                             circle_fit[local_idx].par,
+                             circle_fit[local_idx].cov,
+                             line_fit.par,
+                             line_fit.cov,
+                             1.f / float(bField),
+                             tkid);
         results_view[tkid].pt() = bField / std::abs(circle_fit[local_idx].par(2));
         results_view[tkid].eta() = asinhf(line_fit.par(0));
         results_view[tkid].chi2() = (circle_fit[local_idx].chi2 + line_fit.chi2) / (2 * N - 5);

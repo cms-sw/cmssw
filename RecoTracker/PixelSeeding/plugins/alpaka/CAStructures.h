@@ -11,11 +11,11 @@ namespace caStructures {
 
   //Configuration params common to all topologies, for the algorithms
   struct AlgoParams {
-
+    
     // Container sizes
     float avgHitsPerTrack_;
     float avgCellsPerHit_;
-    float avgCellsPerCell_; 
+    float avgCellsPerCell_;
     float avgTracksPerCell_;
 
     // Algorithm Parameters
@@ -25,6 +25,16 @@ namespace caStructures {
     float hardCurvCut_;
     float cellZ0Cut_;
     float cellPtCut_;
+    
+    // Pixel Cluster Cut Params
+    float dzdrFact_;  // from dz/dr to "DY"
+    uint16_t minYsizeB1_;
+    uint16_t minYsizeB2_;
+    uint16_t maxDYsize12_;
+    uint16_t maxDYsize_;
+    uint16_t maxDYPred_;
+
+    // Flags
     bool useRiemannFit_;
     bool fitNas4_;
     bool earlyFishbone_;
@@ -33,9 +43,6 @@ namespace caStructures {
     bool doSharedHitCut_;
     bool dupPassThrough_;
     bool useSimpleTripletCleaner_;
-    bool doClusterCut_;
-    bool doZSizeCut_;
-
   };
 
   // Hits data formats
@@ -47,29 +54,25 @@ namespace caStructures {
   using TkSoAView = ::reco::TrackSoAView;
   using TkHitsSoAView = ::reco::TrackHitSoAView;
 
-  //Indices for hits and tracks
-  using hindex_type = uint32_t; // TrackerTraits::hindex_type
-  using tindex_type = uint32_t; // TrackerTraits::tindex_type
+  //Indices for hits, tracks and cells
+  using hindex_type = uint32_t;
+  using tindex_type = uint32_t;
   using cindex_type = uint32_t;
-  
+
   //FIX ME HERE, use the typenames etc. etc.
   using GenericContainer = cms::alpakatools::OneToManyAssocRandomAccess<hindex_type, -1, -1>;
-  using GenericContainerStorage = uint32_t;//typename GenericContainer::index_type;
-  using GenericContainerOffsets = uint32_t;//typename GenericContainer::Counter;
+  using GenericContainerStorage = typename GenericContainer::index_type;
+  using GenericContainerOffsets = typename GenericContainer::Counter;
   using GenericContainerView = typename GenericContainer::View;
 
   using SequentialContainer = cms::alpakatools::OneToManyAssocSequential<hindex_type, -1, -1>;
-  using SequentialContainerStorage = uint32_t;//typename SequentialContainer::index_type;
-  using SequentialContainerOffsets = uint32_t;//typename SequentialContainer::Counter;
+  using SequentialContainerStorage = typename SequentialContainer::index_type;
+  using SequentialContainerOffsets = typename SequentialContainer::Counter;
   using SequentialContainerView = typename SequentialContainer::View;
 
   template <typename TrackerTraits>
-  using PhiBinnerT = cms::alpakatools::HistoContainer<int16_t,
-                                                    256,
-                                                    -1, 
-                                                    8 * sizeof(int16_t),
-                                                    typename TrackerTraits::hindex_type,
-                                                    TrackerTraits::numberOfLayers>;
+  using PhiBinnerT =
+      cms::alpakatools::HistoContainer<int16_t, 256, -1, 8 * sizeof(int16_t), hindex_type, TrackerTraits::numberOfLayers>;
 
   template <typename TrackerTraits>
   using CellNeighborsT =
@@ -88,21 +91,21 @@ namespace caStructures {
   using OuterHitOfCellContainerT = cms::alpakatools::VecArray<uint32_t, TrackerTraits::maxCellsPerHit>;
 
   template <typename TrackerTraits>
-  using TupleMultiplicityT = cms::alpakatools::OneToManyAssocRandomAccess<tindex_type,
-                                                                          TrackerTraits::maxHitsOnTrack + 1,
-                                                                          TrackerTraits::maxNumberOfTuples>;
-  
+  using TupleMultiplicityT = cms::alpakatools::
+      OneToManyAssocRandomAccess<tindex_type, TrackerTraits::maxHitsOnTrack + 1, TrackerTraits::maxNumberOfTuples>;
+
   template <typename TrackerTraits>
-  using HitContainerT = cms::alpakatools::OneToManyAssocSequential<uint32_t, TrackerTraits::maxNumberOfTuples + 1, 
-                                        TrackerTraits::avgHitsPerTrack * TrackerTraits::maxNumberOfTuples>;
-                                          
+  using HitContainerT =
+      cms::alpakatools::OneToManyAssocSequential<uint32_t,
+                                                 TrackerTraits::maxNumberOfTuples + 1,
+                                                 TrackerTraits::avgHitsPerTrack * TrackerTraits::maxNumberOfTuples>;
+
   template <typename TrackerTraits>
   using HitToTupleT =
       cms::alpakatools::OneToManyAssocRandomAccess<tindex_type,
                                                    -1,
-                                                   TrackerTraits::maxNumberOfTuples*TrackerTraits::avgHitsPerTrack>;  // 3.5 should be enough
-  
-  
+                                                   TrackerTraits::maxNumberOfTuples *
+                                                       TrackerTraits::avgHitsPerTrack>;  // 3.5 should be enough
 
   template <typename TrackerTraits>
   using TuplesContainerT = cms::alpakatools::OneToManyAssocRandomAccess<typename TrackerTraits::hindex_type,

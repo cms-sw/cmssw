@@ -33,7 +33,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::test {
 
     template <typename TrackerTraits>
     struct TestTrackSoA {
-
       ALPAKA_FN_ACC void operator()(Acc1D const& acc, reco::TrackSoAView tracks) const {
         Vector5d par0;
         par0 << 0.2, 0.1, 3.5, 0.8, 0.1;

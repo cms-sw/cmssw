@@ -74,11 +74,6 @@ namespace cms::alpakatools {
     }
 
     template <typename TAcc>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE static uint32_t atomicNIncrement(const TAcc &acc, Counter &x, Counter N) {
-      return alpaka::atomicAdd(acc, &x, N, alpaka::hierarchy::Blocks{});
-    }
-
-    template <typename TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE static uint32_t atomicDecrement(const TAcc &acc, Counter &x) {
       return alpaka::atomicSub(acc, &x, 1u, alpaka::hierarchy::Blocks{});
     }
@@ -188,7 +183,6 @@ namespace cms::alpakatools {
       int f = apc.get().first;
       auto s = apc.get().second;
       if (f >= this->nOnes()) {  // overflow!
-        printf("overflowing %d %d \n",f,this->nOnes());
         this->off[this->nOnes()] = uint32_t(this->off[this->nOnes() - 1]);
         return;
       }

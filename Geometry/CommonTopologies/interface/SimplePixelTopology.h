@@ -9,9 +9,10 @@
 namespace pixelTopology {
 
   constexpr auto maxNumberOfLadders = 160;
-  constexpr uint32_t maxLayers = 28;
-
-  // TODO 
+  constexpr uint8_t maxLayers = 28;
+  constexpr uint8_t maxPairs = 64;
+  
+  // TODO
   // Once CUDA is dropped this could be wrapped in #ifdef CA_TRIPLETS_HOLE
   // see DataFormats/TrackingRecHitSoa/interface/TrackingRecHitSoA.h
 
@@ -235,10 +236,9 @@ namespace phase2PixelTopology {
       16, 18, 17, 19, 18, 20, 19, 21, 20, 22, 21, 23, 22, 24,  // NEG Jump (55)
   };
   HOST_DEVICE_CONSTANT uint32_t layerStart[numberOfLayers + 1] = {0,
-                                                                  108,
-                                                                  324,
-                                                                  504,  // Barrel
-                                                                  756,
+                                                                  216,
+                                                                  432,
+                                                                  612,
                                                                   864,
                                                                   972,
                                                                   1080,
@@ -247,10 +247,10 @@ namespace phase2PixelTopology {
                                                                   1404,
                                                                   1512,
                                                                   1620,
-                                                                  1796,
-                                                                  1972,
-                                                                  2148,  // Fp
-                                                                  2324,
+                                                                  1728,
+                                                                  1904,
+                                                                  2080,
+                                                                  2256,
                                                                   2432,
                                                                   2540,
                                                                   2648,
@@ -259,9 +259,10 @@ namespace phase2PixelTopology {
                                                                   2972,
                                                                   3080,
                                                                   3188,
-                                                                  3364,
-                                                                  3540,
-                                                                  3716,  // Np
+                                                                  3296,
+                                                                  3472,
+                                                                  3648,
+                                                                  3824,
                                                                   numberOfModules};
 
   HOST_DEVICE_CONSTANT int16_t phicuts[nPairs]{
@@ -329,7 +330,7 @@ namespace pixelTopology {
 
     static constexpr uint32_t maxCellNeighbors = 64;
     static constexpr uint32_t maxCellTracks = 302;
-    static constexpr uint32_t maxHitsOnTrack = 15;
+    static constexpr uint32_t maxHitsOnTrack = 20;
     static constexpr uint32_t maxHitsOnTrackForFullFit = 6;
     static constexpr uint32_t avgHitsPerTrack = 7;
     static constexpr uint32_t maxCellsPerHit = 256;
@@ -345,7 +346,7 @@ namespace pixelTopology {
 
     static constexpr uint32_t maxSizeCluster = 2047;
 
-    static constexpr uint32_t getDoubletsFromHistoMaxBlockSize = 64;  // for both x and y
+    static constexpr uint32_t getDoubletsFromHistoMaxBlockSize = 128;  // for both x and y
     static constexpr uint32_t getDoubletsFromHistoMinBlocksPerMP = 16;
 
     static constexpr uint16_t last_bpix1_detIndex = 108;

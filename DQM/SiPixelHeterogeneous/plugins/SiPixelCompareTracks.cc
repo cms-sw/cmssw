@@ -145,7 +145,6 @@ SiPixelCompareTracks::SiPixelCompareTracks(const edm::ParameterSet& iConfig)
 
 template <typename U, typename V>
 void SiPixelCompareTracks::analyzeSeparate(U tokenRef, V tokenTar, const edm::Event& iEvent) {
-
   const auto& tsoaHandleRef = iEvent.getHandle(tokenRef);
   const auto& tsoaHandleTar = iEvent.getHandle(tokenTar);
 
@@ -288,8 +287,8 @@ void SiPixelCompareTracks::analyze(const edm::Event& iEvent, const edm::EventSet
 //
 
 void SiPixelCompareTracks::bookHistograms(DQMStore::IBooker& iBook,
-                                             edm::Run const& iRun,
-                                             edm::EventSetup const& iSetup) {
+                                          edm::Run const& iRun,
+                                          edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 

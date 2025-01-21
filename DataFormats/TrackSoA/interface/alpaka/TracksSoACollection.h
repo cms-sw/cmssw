@@ -15,11 +15,12 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::reco {
 
-    using ::reco::TracksHost;
-    using ::reco::TracksDevice;
-    using TracksSoACollection = std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>, TracksHost, TracksDevice<Device>>;
+  using ::reco::TracksDevice;
+  using ::reco::TracksHost;
+  using TracksSoACollection =
+      std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>, TracksHost, TracksDevice<Device>>;
 
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::reco
 
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(reco::TracksSoACollection, reco::TracksHost);
 

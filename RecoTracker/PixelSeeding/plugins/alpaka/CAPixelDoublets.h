@@ -13,62 +13,29 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace alpaka;
   using namespace cms::alpakatools;
-  
+
   namespace caPixelDoublets {
-
-    // template <typename TrackerTraits>
-    // class InitDoublets {
-    // public:
-    //   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    //   ALPAKA_FN_ACC void operator()(TAcc const& acc,
-    //                                 OuterHitOfCell<TrackerTraits>* isOuterHitOfCell,
-    //                                 int nHits,
-    //                                 CellNeighborsVector<TrackerTraits>* cellNeighbors,
-    //                                 CellNeighbors<TrackerTraits>* cellNeighborsContainer,
-    //                                 CellTracksVector<TrackerTraits>* cellTracks,
-    //                                 CellTracks<TrackerTraits>* cellTracksContainer) const {
-    //     ALPAKA_ASSERT_ACC((*isOuterHitOfCell).container);
-
-    //     for (auto i : cms::alpakatools::uniform_elements(acc, nHits - isOuterHitOfCell->offset))
-    //       (*isOuterHitOfCell).container[i].reset();
-
-    //     if (cms::alpakatools::once_per_grid(acc)) {
-    //       cellNeighbors->construct(TrackerTraits::maxNumOfActiveDoublets, cellNeighborsContainer);
-    //       cellTracks->construct(TrackerTraits::maxNumOfActiveDoublets, cellTracksContainer);
-    //       [[maybe_unused]] auto i = cellNeighbors->extend(acc);
-    //       ALPAKA_ASSERT_ACC(0 == i);
-    //       (*cellNeighbors)[0].reset();
-    //       i = cellTracks->extend(acc);
-    //       ALPAKA_ASSERT_ACC(0 == i);
-    //       (*cellTracks)[0].reset();
-    //     }
-    //   }
-    // };
-
-    // Not used for the moment, see below.
-    //constexpr auto getDoubletsFromHistoMaxBlockSize = 64;  // for both x and y
-    //constexpr auto getDoubletsFromHistoMinBlocksPerMP = 16;
 
     template <typename TrackerTraits>
     class GetDoubletsFromHisto {
     public:
       template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
       // #ifdef __CUDACC__
-      //       __launch_bounds__(getDoubletsFromHistoMaxBlockSize, getDoubletsFromHistoMinBlocksPerMP)  // TODO: Alapakify
+      //       __launch_bounds__(getDoubletsFromHistoMaxBlockSize, getDoubletsFromHistoMinBlocksPerMP)  // TODO: Alapakafy
       // #endif
       ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                     uint32_t maxNumOfDoublets,
                                     CASimpleCell<TrackerTraits>* cells,
                                     uint32_t* nCells,
-                                    // cms::alpakatools::AtomicPairCounter *apc,
                                     HitsConstView hh,
                                     ::reco::CAGraphSoAConstView cc,
+                                    ::reco::CALayersSoAConstView ll,
                                     uint32_t const* __restrict__ offsets,
                                     PhiBinner<TrackerTraits> const* phiBinner,
                                     HitToCell* outerHitHisto,
                                     AlgoParams const& params) const {
         doubletsFromHisto<TrackerTraits>(
-            acc, maxNumOfDoublets, cells, nCells, /*apc,*/ hh, cc, offsets, phiBinner, outerHitHisto, params);
+            acc, maxNumOfDoublets, cells, nCells, hh, cc, ll, offsets, phiBinner, outerHitHisto, params);
       }
     };
 
@@ -78,15 +45,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
       ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                     CASimpleCell<TrackerTraits> const* __restrict__ cells,
-                                    uint32_t* nCells, //could be size
+                                    uint32_t* nCells,
                                     uint32_t offsetBPIX2,
                                     HitToCell* outerHitHisto) const {
-        for (auto cellIndex : cms::alpakatools::uniform_elements(acc, *nCells))
-        {
-#ifdef GPU_DEBUG
-          printf("outerHitHisto;%d;%d\n",cellIndex,cells[cellIndex].outer_hit_id());
+        for (auto cellIndex : cms::alpakatools::uniform_elements(acc, *nCells)) {
+#ifdef DOUBLETS_DEBUG
+          printf("outerHitHisto;%d;%d\n", cellIndex, cells[cellIndex].outer_hit_id());
 #endif
-          outerHitHisto->fill(acc,cells[cellIndex].outer_hit_id()-offsetBPIX2,cellIndex);
+          outerHitHisto->fill(acc, cells[cellIndex].outer_hit_id() - offsetBPIX2, cellIndex);
         }
       }
     };
