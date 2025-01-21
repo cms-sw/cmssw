@@ -20,7 +20,6 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
 #ifdef GPU_DEBUG
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   HOST_DEVICE_CONSTANT uint32_t gMaxHit = 0;
 #endif
 
@@ -66,8 +65,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
        *   - if `status` should be read through a `volatile` pointer (CUDA/ROCm)
        *   - if `status` should be read with an atomic load (CPU)
        */
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE constexpr void promote(TAcc const& acc,
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE constexpr void promote(Acc1D const& acc,
                                                           uint32_t* __restrict__ status,
                                                           const uint16_t x,
                                                           const uint16_t y) {
@@ -92,8 +90,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
   template <typename TrackerTraits>
   struct CountModules {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   SiPixelDigisSoAView digi_view,
                                   SiPixelClustersSoAView clus_view,
                                   const unsigned int numElements) const {
@@ -138,8 +135,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
     static constexpr uint32_t maxElementsPerBlock =
         cms::alpakatools::round_up_by(TrackerTraits::maxPixInModule / maxIterGPU, 128);
 
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   SiPixelDigisSoAView digi_view,
                                   SiPixelClustersSoAView clus_view,
                                   const unsigned int numElements) const {
@@ -310,7 +306,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
         // number of elements per thread
         constexpr uint32_t maxElements =
-            cms::alpakatools::requires_single_thread_per_block_v<TAcc> ? maxElementsPerBlock : 1;
+            cms::alpakatools::requires_single_thread_per_block_v<Acc1D> ? maxElementsPerBlock : 1;
         ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u] <= maxElements));
 
         constexpr unsigned int maxIter = maxIterGPU * maxElements;
@@ -462,8 +458,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
           clus_view[thisModuleId].clusInModule() = foundClusters;
           clus_view[module].moduleId() = thisModuleId;
 #ifdef GPU_DEBUG
-          if (foundClusters > gMaxHit<TAcc>) {
-            gMaxHit<TAcc> = foundClusters;
+          if (foundClusters > gMaxHit) {
+            gMaxHit = foundClusters;
             if (foundClusters > 8)
               printf("max hit %d in %d\n", foundClusters, thisModuleId);
           }

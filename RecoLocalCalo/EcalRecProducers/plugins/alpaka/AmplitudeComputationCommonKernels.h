@@ -28,8 +28,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
   ///
   class Kernel_prep_1d_and_initialize {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   EcalDigiDeviceCollection::ConstView digisDevEB,
                                   EcalDigiDeviceCollection::ConstView digisDevEE,
                                   EcalUncalibratedRecHitDeviceCollection::View uncalibRecHitsEB,
@@ -328,8 +327,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
   ///
   class Kernel_prep_2d {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   EcalDigiDeviceCollection::ConstView digisDevEB,
                                   EcalDigiDeviceCollection::ConstView digisDevEE,
                                   EcalMultifitConditionsDevice::ConstView conditionsDev,
@@ -466,11 +464,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit
 
 namespace alpaka::trait {
+  using namespace ALPAKA_ACCELERATOR_NAMESPACE;
   using namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit;
 
   //! The trait for getting the size of the block shared dynamic memory for Kernel_prep_1d_and_initialize.
-  template <typename TAcc>
-  struct BlockSharedMemDynSizeBytes<Kernel_prep_1d_and_initialize, TAcc> {
+  template <>
+  struct BlockSharedMemDynSizeBytes<Kernel_prep_1d_and_initialize, Acc1D> {
     //! \return The size of the shared memory allocated for a block.
     template <typename TVec, typename... TArgs>
     ALPAKA_FN_HOST_ACC static auto getBlockSharedMemDynSizeBytes(Kernel_prep_1d_and_initialize const&,

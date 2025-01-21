@@ -86,9 +86,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // Processing single seed clusters
   // Device function designed to be called by all threads of a given block
-  template <bool debug = false, typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <bool debug = false>
   ALPAKA_FN_ACC static void hcalFastCluster_singleSeed(
-      const TAcc& acc,
+      const Acc1D& acc,
       ::reco::PFClusterParamsSoA::ConstView pfClusParams,
       const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
       int topoId,   // from selection
@@ -254,9 +254,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // Processing clusters up to 100 seeds and 512 non-seed rechits using shared memory accesses
   // Device function designed to be called by all threads of a given block
-  template <bool debug = false, typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <bool debug = false>
   ALPAKA_FN_ACC static void hcalFastCluster_multiSeedParallel(
-      const TAcc& acc,
+      const Acc1D& acc,
       ::reco::PFClusterParamsSoA::ConstView pfClusParams,
       const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
       int topoId,   // from selection
@@ -541,8 +541,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Process very large exotic clusters, from nSeeds > 400 and non-seeds > 1500
   // Uses global memory access
   // Device function designed to be called by all threads of a given block
-  template <bool debug = false, typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-  ALPAKA_FN_ACC static void hcalFastCluster_exotic(const TAcc& acc,
+  template <bool debug = false>
+  ALPAKA_FN_ACC static void hcalFastCluster_exotic(const Acc1D& acc,
                                                    ::reco::PFClusterParamsSoA::ConstView pfClusParams,
                                                    const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
                                                    int topoId,
@@ -815,9 +815,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // Process clusters with up to 400 seeds and 1500 non seeds using shared memory
   // Device function designed to be called by all threads of a given block
-  template <bool debug = false, typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <bool debug = false>
   ALPAKA_FN_ACC static void hcalFastCluster_multiSeedIterative(
-      const TAcc& acc,
+      const Acc1D& acc,
       ::reco::PFClusterParamsSoA::ConstView pfClusParams,
       const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
       int topoId,
@@ -1082,8 +1082,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Seeding using local energy maxima
   class SeedingTopoThresh {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   const ::reco::PFClusterParamsSoA::ConstView pfClusParams,
                                   const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
@@ -1162,8 +1161,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Preparation of topo inputs. Initializing topoId, egdeIdx, nEdges, edgeList
   class PrepareTopoInputs {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusteringEdgeVarsDeviceCollection::View pfClusteringEdgeVars,
@@ -1192,8 +1190,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Contraction in a single block
   class TopoClusterContraction {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusterDeviceCollection::View clusterView,
@@ -1312,8 +1309,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Optimized for GPU parallel, but works on any backend
   class FillRhfIndex {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFRecHitFractionDeviceCollection::View fracView) const {
@@ -1343,8 +1339,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class FastCluster {
   public:
-    template <bool debug = false, typename TAcc, typename = std::enable_if<!std::is_same_v<Device, alpaka::DevCpu>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    template <bool debug = false, typename = std::enable_if<!std::is_same_v<Device, alpaka::DevCpu>>>
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   const ::reco::PFClusterParamsSoA::ConstView pfClusParams,
                                   const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
@@ -1405,8 +1401,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Process very large, exotic topo clusters
   class FastClusterExotic {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   const ::reco::PFClusterParamsSoA::ConstView pfClusParams,
                                   const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,

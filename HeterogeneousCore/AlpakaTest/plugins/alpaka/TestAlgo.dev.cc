@@ -17,8 +17,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceCollection::View view, double xvalue) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  portabletest::TestDeviceCollection::View view,
+                                  double xvalue) const {
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
       const portabletest::Array flags = {{6, 4, 2, 0}};
 
@@ -36,8 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoMultiKernel2 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestDeviceMultiCollection2::View<1> view,
                                   double xvalue) const {
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
@@ -56,8 +56,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoMultiKernel3 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestDeviceMultiCollection3::View<2> view,
                                   double xvalue) const {
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
@@ -109,8 +108,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoStructKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestDeviceObject::Product* data,
                                   double x,
                                   double y,
@@ -157,8 +155,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoKernelUpdate {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestDeviceCollection::ConstView input,
                                   AlpakaESTestDataEDevice::ConstView esData,
                                   portabletest::TestDeviceCollection::View output) const {
@@ -197,8 +194,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoKernelUpdateMulti2 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestSoA::ConstView input,
                                   portabletest::TestSoA2::ConstView input2,
                                   AlpakaESTestDataEDevice::ConstView esData,
@@ -255,8 +251,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoKernelUpdateMulti3 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestSoA::ConstView input,
                                   portabletest::TestSoA2::ConstView input2,
                                   portabletest::TestSoA3::ConstView input3,
@@ -497,8 +492,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestZeroCollectionKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceCollection::ConstView view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestDeviceCollection::ConstView view) const {
       const portabletest::Matrix matrix{{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
       const portabletest::Array flags = {{0, 0, 0, 0}};
 
@@ -522,8 +516,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestZeroMultiCollectionKernel2 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceMultiCollection2::ConstView<1> view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestDeviceMultiCollection2::ConstView<1> view) const {
       const portabletest::Matrix matrix{{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
 
       // check this only once in the whole kernel grid
@@ -545,8 +538,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestZeroMultiCollectionKernel3 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceMultiCollection3::ConstView<2> view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestDeviceMultiCollection3::ConstView<2> view) const {
       const portabletest::Matrix matrix{{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
 
       // check this only once in the whole kernel grid
@@ -568,8 +560,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestZeroStructKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceObject::Product const* data) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestDeviceObject::Product const* data) const {
       // check this only once in the whole kernel grid
       if (once_per_grid(acc)) {
         ALPAKA_ASSERT(data->x == 0.);
