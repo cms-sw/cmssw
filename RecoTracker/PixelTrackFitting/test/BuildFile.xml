@@ -59,7 +59,7 @@
   <use name="cuda"/>
   <use name="eigen"/>
   <use name="root"/>
-  <flags CXXFLAGS="-DEIGEN_NO_DEBUG"/>
+  <flags CXXFLAGS="-DEIGEN_NO_DEBUG -O2"/>
 </bin>
 
 <bin file="PixelTrackFits.cc" name="PixelTrackBrokenLineFit">
