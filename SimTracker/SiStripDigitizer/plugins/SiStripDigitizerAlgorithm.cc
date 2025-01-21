@@ -175,7 +175,7 @@ void SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
   uint32_t detId = det->geographicalId().rawId();
   // First: loop on the SimHits
   if (CLHEP::RandFlat::shoot(engine) > inefficiency) {
-    AssociationInfoForChannel* pDetIDAssociationInfo;  // I only need this if makeDigiSimLinks_ is true...
+    AssociationInfoForChannel* pDetIDAssociationInfo{nullptr};  // I only need this if makeDigiSimLinks_ is true...
     if (makeDigiSimLinks_)
       pDetIDAssociationInfo = &(associationInfoForDetId_[detId]);  // ...so only search the map if that is the case
     std::vector<float>
