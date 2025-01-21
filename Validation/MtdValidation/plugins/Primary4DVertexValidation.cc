@@ -1476,7 +1476,7 @@ void Primary4DVertexValidation::observablesFromJets(const std::vector<reco::Trac
   fjInputs_.clear();
   size_t countScale0 = 0;
   for (size_t i = 0; i < reco_Tracks.size(); i++) {
-    const auto recotr = reco_Tracks[i];
+    const auto& recotr = reco_Tracks[i];
     const auto mass = mass_Tracks[i];
     float scale = 1.;
     if (recotr.charge() == 0) {

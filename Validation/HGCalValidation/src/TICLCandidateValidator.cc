@@ -361,7 +361,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
 
     int32_t cand_idx = -1;
     float shared_energy = 0.;
-    const auto ts_vec = mergeTsSimToRecoMap[i];
+    const auto& ts_vec = mergeTsSimToRecoMap[i];
     if (!ts_vec.empty()) {
       auto min_elem =
           std::min_element(ts_vec.begin(), ts_vec.end(), [](auto const& ts1_id_pair, auto const& ts2_id_pair) {
@@ -438,7 +438,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
 
     int32_t cand_idx = -1;
     float shared_energy = 0.;
-    const auto ts_vec = mergeTsSimToRecoMap[i];
+    const auto& ts_vec = mergeTsSimToRecoMap[i];
     if (!ts_vec.empty()) {
       auto min_elem =
           std::min_element(ts_vec.begin(), ts_vec.end(), [](auto const& ts1_id_pair, auto const& ts2_id_pair) {
@@ -549,7 +549,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     histograms.h_chg_candidate_partType[index]->Fill(std::max_element(arr.begin(), arr.end()) - arr.begin());
 
     int32_t simCand_idx = -1;
-    const auto sts_vec = mergeTsRecoToSimMap[mergeTs_id];
+    const auto& sts_vec = mergeTsRecoToSimMap[mergeTs_id];
     float shared_energy = 0.;
     // search for reco cand associated
     if (!sts_vec.empty()) {
@@ -635,7 +635,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     histograms.h_neut_candidate_partType[index]->Fill(std::max_element(arr.begin(), arr.end()) - arr.begin());
 
     int32_t simCand_idx = -1;
-    const auto sts_vec = mergeTsRecoToSimMap[mergeTs_id];
+    const auto& sts_vec = mergeTsRecoToSimMap[mergeTs_id];
     float shared_energy = 0.;
     // search for reco cand associated
     if (!sts_vec.empty()) {
