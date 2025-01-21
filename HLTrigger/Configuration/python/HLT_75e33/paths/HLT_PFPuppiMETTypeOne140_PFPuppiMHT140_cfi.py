@@ -13,7 +13,7 @@ from ..sequences.HLTEndSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
 from ..sequences.HLTParticleFlowSequence_cfi import *
 from ..sequences.HLTPFPuppiMETReconstruction_cfi import *
-from ..sequences.HLTTrackingV61Sequence_cfi import *
+from ..sequences.HLTTrackingSequence_cfi import *
 from ..sequences.HLTLocalrecoSequence_cfi import *
 from ..sequences.HLTRawToDigiSequence_cfi import *
 
@@ -23,7 +23,7 @@ HLT_PFPuppiMETTypeOne140_PFPuppiMHT140 = cms.Path(
     + HLTRawToDigiSequence
     + HLTHgcalLocalRecoSequence
     + HLTLocalrecoSequence
-    + HLTTrackingV61Sequence
+    + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence
     + HLTAK4PFPuppiJetsReconstruction
