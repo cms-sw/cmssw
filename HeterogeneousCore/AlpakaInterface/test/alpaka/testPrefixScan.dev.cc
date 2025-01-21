@@ -32,8 +32,7 @@ public:
 
 template <typename T>
 struct testPrefixScan {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc, unsigned int size) const {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, unsigned int size) const {
     // alpaka::warp::getSize(acc) is runtime, but we need a compile-time or constexpr value
 #if defined(__CUDA_ARCH__)
     // CUDA always has a warp size of 32
@@ -85,9 +84,8 @@ struct testPrefixScan {
  */
 template <typename T>
 struct testWarpPrefixScan {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc, uint32_t size) const {
-    if constexpr (!requires_single_thread_per_block_v<TAcc>) {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, uint32_t size) const {
+    if constexpr (not requires_single_thread_per_block_v<Acc1D>) {
       ALPAKA_ASSERT_ACC(size <= static_cast<uint32_t>(alpaka::warp::getSize(acc)));
       auto& c = alpaka::declareSharedVar<T[1024], __COUNTER__>(acc);
       auto& co = alpaka::declareSharedVar<T[1024], __COUNTER__>(acc);
@@ -115,15 +113,14 @@ struct testWarpPrefixScan {
         ALPAKA_ASSERT_ACC(c[i] == co[i]);
       }
     } else {
-      // We should never be called outsie of the GPU.
+      // This should never be called outsie for the serial CPU backend.
       ALPAKA_ASSERT_ACC(false);
     }
   }
 };
 
 struct init {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc, uint32_t* v, uint32_t val, uint32_t n) const {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, uint32_t* v, uint32_t val, uint32_t n) const {
     for (auto index : uniform_elements(acc, n)) {
       v[index] = val;
 
@@ -134,8 +131,7 @@ struct init {
 };
 
 struct verify {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc, uint32_t const* v, uint32_t n) const {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, uint32_t const* v, uint32_t n) const {
     for (auto index : uniform_elements(acc, n)) {
       ALPAKA_ASSERT_ACC(v[index] == index + 1);
 

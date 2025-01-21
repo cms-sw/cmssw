@@ -269,8 +269,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       class Kernel_prep1d_sameNumberOfSamples {
       public:
-        template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-        ALPAKA_FN_ACC void operator()(TAcc const& acc,
+        ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                       OProductType::View outputGPU,
                                       IProductTypef01::ConstView f01HEDigis,
                                       IProductTypef5::ConstView f5HBDigis,
@@ -749,8 +748,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       class Kernel_prep_pulseMatrices_sameNumberOfSamples {
       public:
-        template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-        ALPAKA_FN_ACC void operator()(TAcc const& acc,
+        ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                       float* pulseMatrices,
                                       float* pulseMatricesM,
                                       float* pulseMatricesP,
@@ -969,8 +967,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <int NSAMPLES, int NPULSES>
       class Kernel_minimize {
       public:
-        template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-        ALPAKA_FN_ACC void operator()(TAcc const& acc,
+        ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                       OProductType::View outputGPU,
                                       float const* amplitudes,
                                       float* pulseMatrices,
@@ -1409,11 +1406,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 namespace alpaka::trait {
+  using namespace ALPAKA_ACCELERATOR_NAMESPACE;
   using namespace ALPAKA_ACCELERATOR_NAMESPACE::hcal::reconstruction::mahi;
 
   //! The trait for getting the size of the block shared dynamic memory for Kernel_prep_1d_and_initialize.
-  template <typename TAcc>
-  struct BlockSharedMemDynSizeBytes<Kernel_prep1d_sameNumberOfSamples, TAcc> {
+  template <>
+  struct BlockSharedMemDynSizeBytes<Kernel_prep1d_sameNumberOfSamples, Acc2D> {
     //! \return The size of the shared memory allocated for a block.
     template <typename TVec, typename... TArgs>
     ALPAKA_FN_HOST_ACC static auto getBlockSharedMemDynSizeBytes(Kernel_prep1d_sameNumberOfSamples const&,
@@ -1432,8 +1430,8 @@ namespace alpaka::trait {
   };
 
   //! The trait for getting the size of the block shared dynamic memory for kernel_minimize.
-  template <int NSAMPLES, int NPULSES, typename TAcc>
-  struct BlockSharedMemDynSizeBytes<Kernel_minimize<NSAMPLES, NPULSES>, TAcc> {
+  template <int NSAMPLES, int NPULSES>
+  struct BlockSharedMemDynSizeBytes<Kernel_minimize<NSAMPLES, NPULSES>, Acc1D> {
     //! \return The size of the shared memory allocated for a block.
     template <typename TVec, typename... TArgs>
     ALPAKA_FN_HOST_ACC static auto getBlockSharedMemDynSizeBytes(Kernel_minimize<NSAMPLES, NPULSES> const&,

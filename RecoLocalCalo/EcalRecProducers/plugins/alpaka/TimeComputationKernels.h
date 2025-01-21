@@ -33,8 +33,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
     using ScalarType = ::ecal::multifit::SampleVector::Scalar;
 
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ScalarType* const sample_values,
                                   ScalarType* const sample_value_errors,
                                   bool* const useless_sample_values,
@@ -120,8 +119,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
     using ScalarType = ::ecal::multifit::SampleVector::Scalar;
 
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   EcalDigiDeviceCollection::ConstView digisDevEB,
                                   EcalDigiDeviceCollection::ConstView digisDevEE,
                                   ScalarType* const sample_values,
@@ -523,8 +521,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
     using ScalarType = ::ecal::multifit::SampleVector::Scalar;
 
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   EcalDigiDeviceCollection::ConstView digisDevEB,
                                   EcalDigiDeviceCollection::ConstView digisDevEE,
                                   ScalarType* const sample_values,
@@ -730,8 +727,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
     using ScalarType = ::ecal::multifit::SampleVector::Scalar;
 
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   EcalDigiDeviceCollection::ConstView digisDevEB,
                                   EcalDigiDeviceCollection::ConstView digisDevEE,
                                   EcalMultifitConditionsDevice::ConstView conditionsDev,
@@ -777,8 +773,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
     using ScalarType = ::ecal::multifit::SampleVector::Scalar;
 
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   EcalDigiDeviceCollection::ConstView digisDevEB,
                                   EcalDigiDeviceCollection::ConstView digisDevEE,
                                   EcalMultifitConditionsDevice::ConstView conditionsDev,
@@ -960,8 +955,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
     using ScalarType = ::ecal::multifit::SampleVector::Scalar;
 
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   EcalDigiDeviceCollection::ConstView digisDevEB,
                                   EcalDigiDeviceCollection::ConstView digisDevEE,
                                   EcalUncalibratedRecHitDeviceCollection::View uncalibRecHitsEB,
@@ -1095,18 +1089,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit
 
 namespace alpaka::trait {
+  using namespace ALPAKA_ACCELERATOR_NAMESPACE;
   using namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit;
 
   //! The trait for getting the size of the block shared dynamic memory for Kernel_time_compute_nullhypot.
-  template <typename TAcc>
-  struct BlockSharedMemDynSizeBytes<Kernel_time_compute_nullhypot, TAcc> {
+  template <>
+  struct BlockSharedMemDynSizeBytes<Kernel_time_compute_nullhypot, Acc1D> {
     //! \return The size of the shared memory allocated for a block.
     template <typename TVec, typename... TArgs>
     ALPAKA_FN_HOST_ACC static auto getBlockSharedMemDynSizeBytes(Kernel_time_compute_nullhypot const&,
                                                                  TVec const& threadsPerBlock,
                                                                  TVec const& elemsPerThread,
                                                                  TArgs const&...) -> std::size_t {
-      using ScalarType = ecal::multifit::SampleVector::Scalar;
+      using ScalarType = ::ecal::multifit::SampleVector::Scalar;
 
       // return the amount of dynamic shared memory needed
       std::size_t bytes = threadsPerBlock[0u] * elemsPerThread[0u] * 4 * sizeof(ScalarType);
@@ -1115,14 +1110,14 @@ namespace alpaka::trait {
   };
 
   //! The trait for getting the size of the block shared dynamic memory for Kernel_time_compute_makeratio.
-  template <typename TAcc>
-  struct BlockSharedMemDynSizeBytes<Kernel_time_compute_makeratio, TAcc> {
+  template <>
+  struct BlockSharedMemDynSizeBytes<Kernel_time_compute_makeratio, Acc1D> {
     template <typename TVec, typename... TArgs>
     ALPAKA_FN_HOST_ACC static auto getBlockSharedMemDynSizeBytes(Kernel_time_compute_makeratio const&,
                                                                  TVec const& threadsPerBlock,
                                                                  TVec const& elemsPerThread,
                                                                  TArgs const&...) -> std::size_t {
-      using ScalarType = ecal::multifit::SampleVector::Scalar;
+      using ScalarType = ::ecal::multifit::SampleVector::Scalar;
 
       std::size_t bytes = (8 * sizeof(ScalarType) + 3 * sizeof(bool)) * threadsPerBlock[0u] * elemsPerThread[0u];
       return bytes;
@@ -1130,14 +1125,14 @@ namespace alpaka::trait {
   };
 
   //! The trait for getting the size of the block shared dynamic memory for Kernel_time_compute_findamplchi2_and_finish.
-  template <typename TAcc>
-  struct BlockSharedMemDynSizeBytes<Kernel_time_compute_findamplchi2_and_finish, TAcc> {
+  template <>
+  struct BlockSharedMemDynSizeBytes<Kernel_time_compute_findamplchi2_and_finish, Acc1D> {
     template <typename TVec, typename... TArgs>
     ALPAKA_FN_HOST_ACC static auto getBlockSharedMemDynSizeBytes(Kernel_time_compute_findamplchi2_and_finish const&,
                                                                  TVec const& threadsPerBlock,
                                                                  TVec const& elemsPerThread,
                                                                  TArgs const&...) -> std::size_t {
-      using ScalarType = ecal::multifit::SampleVector::Scalar;
+      using ScalarType = ::ecal::multifit::SampleVector::Scalar;
 
       std::size_t bytes = 2 * threadsPerBlock[0u] * elemsPerThread[0u] * sizeof(ScalarType);
       return bytes;
@@ -1145,14 +1140,14 @@ namespace alpaka::trait {
   };
 
   //! The trait for getting the size of the block shared dynamic memory for Kernel_time_computation_init.
-  template <typename TAcc>
-  struct BlockSharedMemDynSizeBytes<Kernel_time_computation_init, TAcc> {
+  template <>
+  struct BlockSharedMemDynSizeBytes<Kernel_time_computation_init, Acc1D> {
     template <typename TVec, typename... TArgs>
     ALPAKA_FN_HOST_ACC static auto getBlockSharedMemDynSizeBytes(Kernel_time_computation_init const&,
                                                                  TVec const& threadsPerBlock,
                                                                  TVec const& elemsPerThread,
                                                                  TArgs const&...) -> std::size_t {
-      using ScalarType = ecal::multifit::SampleVector::Scalar;
+      using ScalarType = ::ecal::multifit::SampleVector::Scalar;
 
       std::size_t bytes = 2 * threadsPerBlock[0u] * elemsPerThread[0u] * sizeof(ScalarType);
       return bytes;
