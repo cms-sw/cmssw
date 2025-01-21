@@ -16,7 +16,7 @@ from ..sequences.HLTBtagDeepCSVSequencePFPuppiModEta2p4_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
 from ..sequences.HLTParticleFlowSequence_cfi import *
-from ..sequences.HLTTrackingV61Sequence_cfi import *
+from ..sequences.HLTTrackingSequence_cfi import *
 from ..sequences.HLTLocalrecoSequence_cfi import *
 from ..sequences.HLTRawToDigiSequence_cfi import *
 
@@ -26,7 +26,7 @@ HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepCSV_2p4 = cms.Pa
     + HLTRawToDigiSequence
     + HLTHgcalLocalRecoSequence
     + HLTLocalrecoSequence
-    + HLTTrackingV61Sequence
+    + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence
     + HLTAK4PFPuppiJetsReconstruction

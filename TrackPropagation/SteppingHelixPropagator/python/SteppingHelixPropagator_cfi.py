@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from TrackPropagation.SteppingHelixPropagator.steppingHelixPropagatorESProducer_cfi import steppingHelixPropagatorESProducer
-SteppingHelixPropagator = steppingHelixPropagatorESProducer.clone(
+from TrackPropagation.SteppingHelixPropagator.steppingHelixPropagatorESProducer_cfi import steppingHelixPropagatorESProducer as _steppingHelixPropagatorESProducer
+SteppingHelixPropagator =  _steppingHelixPropagatorESProducer.clone(
     ComponentName = 'SteppingHelixPropagator',
     NoErrorPropagation = False,
     PropagationDirection = 'alongMomentum',
