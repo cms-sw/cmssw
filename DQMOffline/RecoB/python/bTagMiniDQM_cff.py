@@ -130,9 +130,48 @@ for tagger in taggersToAnalyze:
                  globalPSet=bTagMiniValidationGlobalUParT if "UParT" in tagger else bTagMiniValidationGlobal,
                  label=tagger+'Validation')
 
+
+#
+# Setup DQM Anayzer
+#
+patJetsPuppiTagInfoAnalyzerDQM = DQMEDAnalyzer('MiniAODTagInfoAnalyzer', cms.PSet(
+    jets = cms.InputTag('updatedPatJetsSlimmedPuppiWithDeepTags'),
+    jetTagInfos = cms.vstring(
+        "pfDeepFlavourTagInfosSlimmedPuppiWithDeepTags",
+        "pfParticleNetFromMiniAODAK4PuppiCentralTagInfosSlimmedPuppiWithDeepTags",
+        "pfUnifiedParticleTransformerAK4TagInfosSlimmedPuppiWithDeepTags",
+    ),
+    ptMin = cms.double(30.),
+    absEtaMin = cms.double(0.0),
+    absEtaMax = cms.double(2.5),
+   )
+)
+bTagMiniDQMSource += patJetsPuppiTagInfoAnalyzerDQM
+
+#
+#
+#
+patJetsPuppiForwardTagInfoAnalyzerDQM = patJetsPuppiTagInfoAnalyzerDQM.clone(
+    jetTagInfos = cms.vstring(
+        "pfParticleNetFromMiniAODAK4PuppiForwardTagInfosSlimmedPuppiWithDeepTags",
+    ),
+    absEtaMin = cms.double(2.5),
+    absEtaMax = cms.double(5.0),
+)
+bTagMiniDQMSource += patJetsPuppiForwardTagInfoAnalyzerDQM
+
+#
+patJetsPuppiTagInfoAnalyzerValidation = patJetsPuppiTagInfoAnalyzerDQM.clone()
+bTagMiniValidationSource += patJetsPuppiTagInfoAnalyzerValidation
+
+patJetsPuppiForwardTagInfoAnalyzerValidation = patJetsPuppiForwardTagInfoAnalyzerDQM.clone()
+bTagMiniValidationSource += patJetsPuppiForwardTagInfoAnalyzerValidation
+
+
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from Configuration.ProcessModifiers.miniAOD_skip_trackExtras_cff import miniAOD_skip_trackExtras
 
 _mAOD = (pp_on_AA | miniAOD_skip_trackExtras)
 _mAOD.toReplaceWith(bTagMiniDQMSource, bTagMiniDQMSource.copyAndExclude([bTagSVDQM, patJetsSVInfoTask]))
 _mAOD.toReplaceWith(bTagMiniValidationSource, bTagMiniValidationSource.copyAndExclude([bTagSVDQM, patJetsSVInfoTask]))
+
