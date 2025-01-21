@@ -106,25 +106,10 @@ void CSCSegmentBuilder::fillPSetDescription(edm::ParameterSetDescription& desc) 
   /// Top-level parameters
   desc.add<int>("algo_type", 5)->setComment("Choice of the building algo: 1 SK, 2 TC, 3 DF, 4 ST, 5 RU, ...");
 
-  // Define the nested PSet for individual configurations
-  edm::ParameterSetDescription algoPSet;
-  algoPSet.add<std::vector<int>>("parameters_per_chamber_type", {1, 2, 3, 4, 5, 6, 5, 6, 5, 6});
-
-  // Define the VPSet inside algo_psets
+  // Define the validator for entries in algo_psets
   edm::ParameterSetDescription innerPSet;
-  // Allow any parameter in the innerPSet
-  innerPSet.setAllowAnything();
+  innerPSet.setAllowAnything();  // Allow any parameters in the inner PSet
 
-  // Fill the VPSet for algo_psets
-  edm::ParameterSetDescription innerAlgoPSet;
-  innerAlgoPSet.addVPSet("algo_psets", innerPSet);
-
-  // Additional top-level keys
-  algoPSet.addVPSet("algo_psets", innerPSet);
-  algoPSet.add<std::string>("algo_name", "CSCSegAlgoRU");
-  algoPSet.add<std::vector<std::string>>(
-      "chamber_types", {"ME1/a", "ME1/b", "ME1/2", "ME1/3", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2"});
-
-  // Add to the top-level VPSet
-  desc.addVPSet("algo_psets", algoPSet);
+  // Add algo_psets as a VPSet with an empty default value
+  desc.addVPSet("algo_psets", innerPSet, {})->setComment("Default empty VPSet, can contain anything");
 }
