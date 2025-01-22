@@ -443,7 +443,7 @@ namespace edm {
     //initialize the services
     auto& serviceSets = processDesc->getServicesPSets();
     ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy, true);
-    serviceToken_ = items.addCPRandTNS(*parameterSet, token);
+    serviceToken_ = items.addTNS(*parameterSet, token);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
