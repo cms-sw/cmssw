@@ -182,7 +182,8 @@ namespace edm {
       //even if we have an exception, send the signal
       std::shared_ptr<int> sentry(nullptr, [areg, &md](void*) { areg->postSourceConstructionSignal_(md); });
       convertException::wrap([&]() {
-        input = std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
+        input = std::unique_ptr<InputSource>(
+            InputSourceFactory::get()->makeInputSource(*main_input, *preg, isdesc).release());
         input->preEventReadFromSourceSignal_.connect(std::cref(areg->preEventReadFromSourceSignal_));
         input->postEventReadFromSourceSignal_.connect(std::cref(areg->postEventReadFromSourceSignal_));
       });
@@ -488,7 +489,7 @@ namespace edm {
         tbb::task_group group;
 
         // initialize the input source
-        auto tempReg = std::make_shared<ProductRegistry>();
+        auto tempReg = std::make_shared<SignallingProductRegistry>();
         auto sourceID = ModuleDescription::getUniqueID();
 
         group.run([&, this]() {
