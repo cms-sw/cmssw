@@ -4,10 +4,8 @@
 
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
 
 #include <sstream>
@@ -54,7 +52,9 @@ namespace edm {
     };
   }  // namespace
 
-  void ProducerBase::registerProducts(ProducerBase* producer, ProductRegistry* iReg, ModuleDescription const& md) {
+  void ProducerBase::registerProducts(ProducerBase* producer,
+                                      SignallingProductRegistry* iReg,
+                                      ModuleDescription const& md) {
     if (typeLabelList().empty() && !registrationCallback()) {
       return;
     }
@@ -71,8 +71,7 @@ namespace edm {
 
     ProductRegistryHelper::addToRegistry(plist.begin(), plist.end(), md, *(iReg), this, isListener);
     if (registrationCallback()) {
-      Service<ConstProductRegistry> regService;
-      regService->watchProductAdditions(CallbackWrapper(producer, registrationCallback(), iReg, md));
+      iReg->watchProductAdditions(CallbackWrapper(producer, registrationCallback(), iReg, md));
     }
   }
 

@@ -9,7 +9,6 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -67,9 +66,8 @@ namespace {
   struct Responder {
     std::string name_;
     edm::ProductRegistry* reg_;
-    Responder(std::string const& iName, edm::ConstProductRegistry& iConstReg, edm::ProductRegistry& iReg)
-        : name_(iName), reg_(&iReg) {
-      iConstReg.watchProductAdditions(this, &Responder::respond);
+    Responder(std::string const& iName, edm::SignallingProductRegistry& iReg) : name_(iName), reg_(&iReg) {
+      iReg.watchProductAdditions(this, &Responder::respond);
     }
     void respond(edm::BranchDescription const& iDesc) {
       edm::ParameterSet dummyProcessPset;
@@ -156,14 +154,13 @@ void testProductRegistry::testSignal() {
 void testProductRegistry::testWatch() {
   using namespace edm;
   SignallingProductRegistry reg;
-  ConstProductRegistry constReg(reg);
 
   int hear = 0;
   Listener listening(hear);
-  constReg.watchProductAdditions(listening);
-  constReg.watchProductAdditions(listening, &Listener::operator());
+  reg.watchProductAdditions(listening);
+  reg.watchProductAdditions(listening, &Listener::operator());
 
-  Responder one("one", constReg, reg);
+  Responder one("one", reg);
 
   //BranchDescription prod(InEvent, "label", "PROD", "int", "int", "int");
   //reg.addProduct(prod);
@@ -184,15 +181,14 @@ void testProductRegistry::testWatch() {
 void testProductRegistry::testCircular() {
   using namespace edm;
   SignallingProductRegistry reg;
-  ConstProductRegistry constReg(reg);
 
   int hear = 0;
   Listener listening(hear);
-  constReg.watchProductAdditions(listening);
-  constReg.watchProductAdditions(listening, &Listener::operator());
+  reg.watchProductAdditions(listening);
+  reg.watchProductAdditions(listening, &Listener::operator());
 
-  Responder one("one", constReg, reg);
-  Responder two("two", constReg, reg);
+  Responder one("one", reg);
+  Responder two("two", reg);
 
   //BranchDescription prod(InEvent, "label","PROD","int","int","int");
   //reg.addProduct(prod);

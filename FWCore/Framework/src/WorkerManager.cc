@@ -49,7 +49,7 @@ namespace edm {
   }
 
   Worker* WorkerManager::getWorker(ParameterSet& pset,
-                                   ProductRegistry& preg,
+                                   SignallingProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    std::string const& label) {
@@ -58,7 +58,7 @@ namespace edm {
   }
 
   void WorkerManager::addToUnscheduledWorkers(ParameterSet& pset,
-                                              ProductRegistry& preg,
+                                              SignallingProductRegistry& preg,
                                               PreallocationConfiguration const* prealloc,
                                               std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                               std::string label,

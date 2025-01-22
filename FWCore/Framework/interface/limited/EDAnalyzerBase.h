@@ -36,6 +36,7 @@ namespace edm {
   class StreamID;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
+  class SignallingProductRegistry;
 
   namespace maker {
     template <typename T>
@@ -108,7 +109,7 @@ namespace edm {
       void doRespondToCloseOutputFile() { clearInputProcessBlockCaches(); }
       void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
-      void registerProductsAndCallbacks(EDAnalyzerBase* module, ProductRegistry* reg);
+      void registerProductsAndCallbacks(EDAnalyzerBase* module, SignallingProductRegistry* reg);
       std::string workerType() const { return "WorkerT<EDAnalyzer>"; }
 
       virtual void analyze(StreamID, Event const&, EventSetup const&) const = 0;

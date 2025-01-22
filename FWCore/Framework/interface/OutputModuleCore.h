@@ -215,7 +215,7 @@ namespace edm {
       /// Tell the OutputModule that is must end the current file.
       void doCloseFile();
 
-      void registerProductsAndCallbacks(OutputModuleCore const*, ProductRegistry*);
+      void registerProductsAndCallbacks(OutputModuleCore const*, SignallingProductRegistry*);
 
       bool needToRunSelection() const noexcept;
       std::vector<ProductResolverIndexAndSkipBit> productsUsedBySelection() const noexcept;

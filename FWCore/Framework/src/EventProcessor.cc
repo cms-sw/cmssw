@@ -121,7 +121,7 @@ namespace edm {
   std::unique_ptr<InputSource> makeInput(unsigned int moduleIndex,
                                          ParameterSet& params,
                                          CommonParams const& common,
-                                         std::shared_ptr<ProductRegistry> preg,
+                                         std::shared_ptr<SignallingProductRegistry> preg,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                                          std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
                                          std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
