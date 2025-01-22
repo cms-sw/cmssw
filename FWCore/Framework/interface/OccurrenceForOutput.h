@@ -69,6 +69,9 @@ namespace edm {
 
     void getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
+    std::vector<BranchDescription const*> productDescriptions() const;
+    ProductRegistry const& productRegistry() const;
+
     virtual ProcessHistory const& processHistory() const;
 
     size_t size() const;

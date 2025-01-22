@@ -15,8 +15,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 
 namespace edm {
 
@@ -73,8 +71,7 @@ namespace edm {
     LogAbsolute("AsciiOut") << '\n' << e.id() << '\n';
 
     // Loop over products, and write some output for each...
-    Service<ConstProductRegistry> reg;
-    for (auto const& prod : reg->productList()) {
+    for (auto const& prod : e.productRegistry().productList()) {
       BranchDescription const& desc = prod.second;
       if (selected(desc)) {
         if (desc.isAlias()) {
