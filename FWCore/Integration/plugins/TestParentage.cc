@@ -117,8 +117,9 @@ namespace edmtest {
       for (edm::BranchID const& ancestor : ancestors) {
         try {
           ancestorLabels.insert(e.getStableProvenance(ancestor).moduleLabel());
-        } catch(cms::Exception& iEx) {
-          edm::LogSystem("MissingProvenance") << "the provenance for BranchID " << ancestor << " is missing\n"<<iEx.what();
+        } catch (cms::Exception& iEx) {
+          edm::LogSystem("MissingProvenance") << "the provenance for BranchID " << ancestor << " is missing\n"
+                                              << iEx.what();
           ancestorLabels.insert("");
         }
       }
@@ -140,9 +141,11 @@ namespace edmtest {
     for (edm::BranchID const& ancestor : ancestorsFromRetriever) {
       try {
         ancestorLabels2.insert(e.getStableProvenance(ancestor).moduleLabel());
-      } catch(cms::Exception& iEx) {
-          edm::LogSystem("MissingProvenance") << "the provenance from Retriever for BranchID " << ancestor << " is missing\n"<<iEx.what();
-          ancestorLabels2.insert("");
+      } catch (cms::Exception& iEx) {
+        edm::LogSystem("MissingProvenance")
+            << "the provenance from Retriever for BranchID " << ancestor << " is missing\n"
+            << iEx.what();
+        ancestorLabels2.insert("");
       }
     }
     if (ancestorLabels2 != expectedAncestors) {
