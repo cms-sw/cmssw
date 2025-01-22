@@ -159,6 +159,8 @@ namespace edm {
       thinnedAssociationsHelper_->updateFromParentProcess(
           thinnedAssociationsHelper, keepAssociation_, droppedBranchIDToKeptBranchID_);
       outputProcessBlockHelper_.updateAfterProductSelection(processesWithKeptProcessBlockProducts, processBlockHelper);
+
+      initialRegistry(preg);
     }
 
     void OutputModuleCore::updateBranchIDListsWithKeptAliases() {
