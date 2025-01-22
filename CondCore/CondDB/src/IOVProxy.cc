@@ -4,7 +4,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondCore/CondDB/interface/Session.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+// #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "SessionImpl.h"
 
 namespace cond {
@@ -330,10 +331,25 @@ namespace cond {
         session.transaction().start(true);
         for(const auto& [_, hash] : m_data->iovSequence) {
           payloadsInfo << hash << " ";
-          // std::unique_ptr<BeamSpotOnlineObjects> beamspot = session.fetchPayload<BeamSpotOnlineObjects>(hash);
-          std::unique_ptr<LHCInfo> lhcinfo = session.fetchPayload<LHCInfo>(hash);
-          // // edm::LogSystem("NewIOV") << "Fetched beamspot obj:\n" << *beamspot;
+          std::unique_ptr<BeamSpotOnlineObjects> beamspot = session.fetchPayload<BeamSpotOnlineObjects>(hash);
           // beamspot->print(payloadsInfo);
+
+          reco::BeamSpot::CovarianceMatrix matrix;
+          std::ostringstream matrixStream;
+          for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
+            for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
+              matrix(i, j) = beamspot->covariance(i, j);
+              matrixStream << matrix(i, j) << " "; 
+            }
+            matrixStream << "\n"; 
+          }
+          double det;
+          matrix.Det2(det);
+          edm::LogSystem("NewIOV") << "Fetched beamspot obj:\n" << *beamspot << "\n"
+                                   << "Determinant: " << det << "\n"
+                                   << "Of matrix: \n" << matrixStream.str() << "\n";
+          //try to create a default-constructed beamSpot and create a VertexState from it. It should give exception and hint how the matrix is inverted. 
+          // This is something specific so you could just as well ask Marco. 
           break;
         }
         session.transaction().commit();
