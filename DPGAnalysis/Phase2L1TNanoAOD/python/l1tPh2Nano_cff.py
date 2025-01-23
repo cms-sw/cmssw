@@ -1,6 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-# from PhysicsTools.NanoAOD.nano_eras_cff import *
-from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_cff import nanoMetadata
 
 l1tPh2NanoTask = cms.Task(nanoMetadata)
