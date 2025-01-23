@@ -35,6 +35,10 @@ Muon system:
 * M2: 2023 GE21 shifted in position
 * M3: 2024 with additional chambers in GE21 and iRPC31
 * M4: 2025 with additional chambers in GE21 and iRPC
+* M5: Same as M1 with modified RPC
+* M6: Same as M2 with modified RPC
+* M7: Same as M3 with modified RPC
+* M8: Same as M4 with modified RPC
 
 PPS:
 * P7: 2021 baseline (after removing overlaps and using common materials whenever possible)
