@@ -1,10 +1,7 @@
-<flags CXXFLAGS="-O0 -g"/>
 <use name="CondFormats/Serialization"/>
 <use name="CondFormats/Common"/>
 <use name="CondFormats/BeamSpotObjects"/>
-<use name="DataFormats/​BeamSpot"/>
 <use name="RecoVertex/VertexPrimitives"/>
-<!-- <use name="CondFormats/RunInfo"/> -->
 <use name="FWCore/Framework"/>
 <use name="Utilities/OpenSSL"/>
 <use name="boost"/>
