@@ -17,8 +17,7 @@ using namespace reco;
 
 CombinedMVAV2JetTagComputer::Tokens::Tokens(const edm::ParameterSet &params, edm::ESConsumesCollector &&cc) {
   if (params.getParameter<bool>("useCondDB")) {
-    gbrForest_ = cc.consumes(edm::ESInputTag{
-        "", params.existsAs<std::string>("gbrForestLabel") ? params.getParameter<std::string>("gbrForestLabel") : ""});
+    gbrForest_ = cc.consumes(edm::ESInputTag{"", params.getParameter<std::string>("gbrForestLabel")});
   }
   const auto &inputComputerNames = params.getParameter<std::vector<std::string> >("jetTagComputers");
   computers_.resize(inputComputerNames.size());
@@ -31,10 +30,9 @@ CombinedMVAV2JetTagComputer::CombinedMVAV2JetTagComputer(const edm::ParameterSet
     : mvaName(params.getParameter<std::string>("mvaName")),
       variables(params.getParameter<std::vector<std::string> >("variables")),
       spectators(params.getParameter<std::vector<std::string> >("spectators")),
-      weightFile(params.existsAs<edm::FileInPath>("weightFile") ? params.getParameter<edm::FileInPath>("weightFile")
-                                                                : edm::FileInPath()),
-      useGBRForest(params.existsAs<bool>("useGBRForest") ? params.getParameter<bool>("useGBRForest") : false),
-      useAdaBoost(params.existsAs<bool>("useAdaBoost") ? params.getParameter<bool>("useAdaBoost") : false),
+      weightFile(params.getParameter<edm::FileInPath>("weightFile")),
+      useGBRForest(params.getParameter<bool>("useGBRForest")),
+      useAdaBoost(params.getParameter<bool>("useAdaBoost")),
       tokens(std::move(tokens))
 
 {
@@ -126,4 +124,16 @@ float CombinedMVAV2JetTagComputer::discriminator(const JetTagComputer::TagInfoHe
 
   // return the final discriminator value
   return value;
+}
+
+void CombinedMVAV2JetTagComputer::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<bool>("useCondDB", false);
+  desc.add<std::string>("gbrForestLabel", "");
+  desc.add<std::vector<std::string> >("jetTagComputers", {});
+  desc.add<std::string>("mvaName", "");
+  desc.add<std::vector<std::string> >("variables", {});
+  desc.add<std::vector<std::string> >("spectators", {});
+  desc.add<edm::FileInPath>("weightFile", edm::FileInPath());
+  desc.add<bool>("useGBRForest", false);
+  desc.add<bool>("useAdaBoost", false);
 }

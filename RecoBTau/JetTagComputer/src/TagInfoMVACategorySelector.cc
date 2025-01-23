@@ -35,3 +35,8 @@ int TagInfoMVACategorySelector::findCategory(const TaggingVariableList &taggingV
 
   return index;
 }
+
+void TagInfoMVACategorySelector::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<std::string>("categoryVariableName", "");
+  desc.add<std::vector<std::string> >("calibrationRecords", {});
+}
