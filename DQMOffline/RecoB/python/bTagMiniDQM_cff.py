@@ -61,8 +61,6 @@ Etaregions = {
 }
 
 
-
-
 # For DQM
 bTagMiniDQMSource = cms.Sequence(bTagSVDQM, patJetsSVInfoTask)
 bTagMiniDQMHarvesting = cms.Sequence()
@@ -70,7 +68,6 @@ bTagMiniDQMHarvesting = cms.Sequence()
 # For Validation
 bTagMiniValidationSource = cms.Sequence(bTagSVDQM, patJetsSVInfoTask)
 bTagMiniValidationHarvesting = cms.Sequence()
-
 
 #####################################################################################
 #
@@ -173,19 +170,19 @@ bTagMiniDQMSource += patJetsPuppiForwardTagInfoAnalyzerDQM
 #####################################################################################
 # Jets in the tracker-coverage region (Inclusive flavour)
 patJetsPuppiTagInfoAnalyzerValidation = patJetsPuppiTagInfoAnalyzerDQM.clone()
-bTagMiniDQMSource += patJetsPuppiTagInfoAnalyzerValidation
+bTagMiniValidationSource += patJetsPuppiTagInfoAnalyzerValidation
 
 # Jets in the tracker-coverage region (B flavour)
 patJetsPuppiTagInfoAnalyzerBJetsValidation = patJetsPuppiTagInfoAnalyzerValidation.clone(jetPartonFlavour=5)
-bTagMiniDQMSource += patJetsPuppiTagInfoAnalyzerBJetsValidation
+bTagMiniValidationSource += patJetsPuppiTagInfoAnalyzerBJetsValidation
 
 # Jets in the tracker-coverage region (C flavour)
 patJetsPuppiTagInfoAnalyzerCJetsValidation = patJetsPuppiTagInfoAnalyzerValidation.clone(jetPartonFlavour=4)
-bTagMiniDQMSource += patJetsPuppiTagInfoAnalyzerCJetsValidation
+bTagMiniValidationSource += patJetsPuppiTagInfoAnalyzerCJetsValidation
 
 # Jets in the tracker-coverage region (L flavour: uds+g)
 patJetsPuppiTagInfoAnalyzerLJetsValidation = patJetsPuppiTagInfoAnalyzerValidation.clone(jetPartonFlavour=1)
-bTagMiniDQMSource += patJetsPuppiTagInfoAnalyzerLJetsValidation
+bTagMiniValidationSource += patJetsPuppiTagInfoAnalyzerLJetsValidation
 
 # Jets outside tracker-coverage region (Inclusive flavour). Only ParticleNet
 patJetsPuppiForwardTagInfoAnalyzerValidation = patJetsPuppiForwardTagInfoAnalyzerDQM.clone()
@@ -198,7 +195,24 @@ bTagMiniValidationSource += patJetsPuppiForwardTagInfoAnalyzerValidation
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from Configuration.ProcessModifiers.miniAOD_skip_trackExtras_cff import miniAOD_skip_trackExtras
 
+toExcludeDQMSource_pp_on_AA = [
+    bTagSVDQM,
+    patJetsSVInfoTask,
+    patJetsPuppiTagInfoAnalyzerDQM,
+    patJetsPuppiForwardTagInfoAnalyzerDQM,
+]
+
+toExcludeValidationSource_pp_on_AA = [
+    bTagSVDQM,
+    patJetsSVInfoTask,
+    patJetsPuppiTagInfoAnalyzerValidation,
+    patJetsPuppiTagInfoAnalyzerBJetsValidation,
+    patJetsPuppiTagInfoAnalyzerCJetsValidation,
+    patJetsPuppiTagInfoAnalyzerLJetsValidation,
+    patJetsPuppiForwardTagInfoAnalyzerValidation
+]
+
 _mAOD = (pp_on_AA | miniAOD_skip_trackExtras)
-_mAOD.toReplaceWith(bTagMiniDQMSource, bTagMiniDQMSource.copyAndExclude([bTagSVDQM, patJetsSVInfoTask]))
-_mAOD.toReplaceWith(bTagMiniValidationSource, bTagMiniValidationSource.copyAndExclude([bTagSVDQM, patJetsSVInfoTask]))
+_mAOD.toReplaceWith(bTagMiniDQMSource, bTagMiniDQMSource.copyAndExclude(toExcludeDQMSource_pp_on_AA))
+_mAOD.toReplaceWith(bTagMiniValidationSource, bTagMiniValidationSource.copyAndExclude(toExcludeValidationSource_pp_on_AA))
 
