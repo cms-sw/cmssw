@@ -60,6 +60,29 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStr
                                           products& output,
                                           LocalVector trackdirection) {
   auto const inputID = inputhandle.id();
+  unsigned int nIDs[2]{};
+  unsigned int nCs[2]{};
+  for (auto const& DS : *inputhandle) {
+    auto id = DS.id();
+    if (!useModule(id))
+      continue;
+
+    unsigned int iStereo = StripSubdetector(id).stereo();
+    nIDs[iStereo]++;
+
+    bool bad128StripBlocks[6];
+    fillBad128StripBlocks(id, bad128StripBlocks);
+
+    for (auto const& cluster : DS) {
+      if (isMasked(cluster, bad128StripBlocks))
+        continue;
+
+      nCs[iStereo]++;
+    }
+  }
+  output.rphi->reserve(nIDs[0], nCs[0]);
+  output.stereo->reserve(nIDs[1], nCs[1]);
+
   for (auto const& DS : *inputhandle) {
     auto id = DS.id();
     if (!useModule(id))
