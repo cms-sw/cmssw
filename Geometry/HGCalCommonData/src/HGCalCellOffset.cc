@@ -579,8 +579,8 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         std::array<double, 6> tempOffsetY = {
             {-sqrt3By2_ * offMag, 0.0, sqrt3By2_ * offMag, sqrt3By2_ * offMag, 0.0, -sqrt3By2_ * offMag}};
         for (int i = 0; i < 6; ++i) {
-          offsetX[k][j][i] = tempOffsetX[i];
-          offsetY[k][j][i] = tempOffsetY[i];
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
         }
       } else if (j == HGCalCell::intExtCell) {                             //Offset for extended cells
         double totalArea = (7.0 * sqrt3_ / 4.0) * std::pow(cellX_[k], 2);  // Area of cell without any dead zone
@@ -598,8 +598,8 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         std::array<double, 6> tempOffsetY = {
             {-sqrt3By2_ * offMag, 0.0, sqrt3By2_ * offMag, sqrt3By2_ * offMag, 0.0, -sqrt3By2_ * offMag}};
         for (int i = 0; i < 6; ++i) {
-          offsetX[k][j][i] = tempOffsetX[i];
-          offsetY[k][j][i] = tempOffsetY[i];
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
         }
       } else if (j == (HGCalCell::intHalfExtCell)) {
         double totalArea = (7.0 * sqrt3_ / 8.0) * std::pow(cellX_[k], 2);

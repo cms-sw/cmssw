@@ -81,8 +81,6 @@ namespace edm {
                               p->typeID_.userClassName(),
                               p->typeID_.friendlyClassName(),
                               p->productInstanceName_,
-                              iDesc.moduleName(),
-                              iDesc.parameterSetID(),
                               type,
                               true,
                               isEndTransition(p->transition_));

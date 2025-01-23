@@ -53,7 +53,6 @@ namespace edm {
     std::string const& branchName() const { return stable().branchName(); }
     std::string const& className() const { return stable().className(); }
     std::string const& moduleLabel() const { return stable().moduleLabel(); }
-    std::string const& moduleName() const { return stable().moduleName(); }
     std::string const& processName() const { return stable().processName(); }
     std::string const& productInstanceName() const { return stable().productInstanceName(); }
     std::string const& friendlyClassName() const { return stable().friendlyClassName(); }

@@ -26,6 +26,7 @@
 #include "TBranchElement.h"
 #include "TObjArray.h"
 #include "RVersion.h"
+#include "TDictAttributeMap.h"
 
 #include <fstream>
 #include <iomanip>
@@ -211,13 +212,31 @@ namespace edm {
         splitLevel = theBranch->GetSplitLevel();
         basketSize = theBranch->GetBasketSize();
       } else {
-        splitLevel = (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel());
+        auto wp = prod.wrappedType().getClass()->GetAttributeMap();
+        auto wpSplitLevel = BranchDescription::invalidSplitLevel;
+        if (wp && wp->HasKey("splitLevel")) {
+          wpSplitLevel = strtol(wp->GetPropertyAsString("splitLevel"), nullptr, 0);
+          if (wpSplitLevel < 0) {
+            throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " << wpSplitLevel
+                                                      << " is specified for class " << prod.wrappedName() << ".'\n";
+          }
+          wpSplitLevel += 1;  //Compensate for wrapper
+        }
+        splitLevel = (wpSplitLevel == BranchDescription::invalidSplitLevel ? splitLevel_ : wpSplitLevel);
         for (auto const& b : specialSplitLevelForBranches_) {
           if (b.match(prod.branchName())) {
             splitLevel = b.splitLevel_;
           }
         }
-        basketSize = (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize());
+        auto wpBasketSize = BranchDescription::invalidBasketSize;
+        if (wp && wp->HasKey("basketSize")) {
+          wpBasketSize = strtol(wp->GetPropertyAsString("basketSize"), nullptr, 0);
+          if (wpBasketSize <= 0) {
+            throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " << wpBasketSize
+                                                      << " is specified for class " << prod.wrappedName() << "'.\n";
+          }
+        }
+        basketSize = (wpBasketSize == BranchDescription::invalidBasketSize ? basketSize_ : wpBasketSize);
       }
       outputItemList.emplace_back(&prod, kept.second, splitLevel, basketSize);
     }

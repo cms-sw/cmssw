@@ -43,9 +43,6 @@ TEST_CASE("test ProductSelector", "[ProductSelector]") {
   auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
   processConfiguration->setParameterSetID(dummyProcessPset.id());
 
-  edm::ParameterSet pset;
-  pset.registerIt();
-
   edm::TypeWithDict dummyTypeWithDict;
   // We pretend to have one module, with two products. The products
   // are of the same and, type differ in instance name.
@@ -56,10 +53,8 @@ TEST_CASE("test ProductSelector", "[ProductSelector]") {
   modAparams.registerIt();
   psetsA.insert(modAparams.id());
 
-  edm::BranchDescription b1(
-      edm::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i1", "", pset.id(), dummyTypeWithDict);
-  edm::BranchDescription b2(
-      edm::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i2", "", pset.id(), dummyTypeWithDict);
+  edm::BranchDescription b1(edm::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i1", dummyTypeWithDict);
+  edm::BranchDescription b2(edm::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i2", dummyTypeWithDict);
 
   // Our second pretend module has only one product, and gives it no
   // instance name.
@@ -69,16 +64,13 @@ TEST_CASE("test ProductSelector", "[ProductSelector]") {
   modBparams.registerIt();
   psetsB.insert(modBparams.id());
 
-  edm::BranchDescription b3(
-      edm::InEvent, "modB", "HLT", "UglyProdTypeB", "ProdTypeB", "", "", pset.id(), dummyTypeWithDict);
+  edm::BranchDescription b3(edm::InEvent, "modB", "HLT", "UglyProdTypeB", "ProdTypeB", "", dummyTypeWithDict);
 
   // Our third pretend is like modA, except it hass processName_ of
   // "USER"
 
-  edm::BranchDescription b4(
-      edm::InEvent, "modA", "USER", "UglyProdTypeA", "ProdTypeA", "i1", "", pset.id(), dummyTypeWithDict);
-  edm::BranchDescription b5(
-      edm::InEvent, "modA", "USER", "UglyProdTypeA", "ProdTypeA", "i2", "", pset.id(), dummyTypeWithDict);
+  edm::BranchDescription b4(edm::InEvent, "modA", "USER", "UglyProdTypeA", "ProdTypeA", "i1", dummyTypeWithDict);
+  edm::BranchDescription b5(edm::InEvent, "modA", "USER", "UglyProdTypeA", "ProdTypeA", "i2", dummyTypeWithDict);
 
   // These are pointers to all the branches that are available. In a
   // framework program, these would come from the ProductRegistry
