@@ -18,6 +18,7 @@
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalConfiguration.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "EventFilter/HGCalRawToDigi/interface/Unpackertools.h"
 
 #include <cstdint>
 #include <functional>
