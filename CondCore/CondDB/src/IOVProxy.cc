@@ -300,7 +300,6 @@ namespace cond {
 
     void IOVProxy::fetchSequence(cond::Time_t lowerGroup, cond::Time_t higherGroup) {
       bool printedDiagnostics = false;
-      bool firstTime = m_data->iovSequence.empty();
       m_data->iovSequence.clear();
       m_session->iovSchema().iovTable().select(
           m_data->tagInfo.name, lowerGroup, higherGroup, m_data->snapshotTime, m_data->iovSequence);
@@ -409,11 +408,19 @@ namespace cond {
                                    << "err cyy() = " << beamVertexState.error().cyy() << "\n"
                                    << "err czz() = " << beamVertexState.error().czz() << "\n"
                                    << std::endl;
+          
+          int inverseError = 1;
+          edm::LogSystem("NewIOV") <<
+            "matrix.Inverse():"<< std::endl << matrix.Inverse(inverseError) << "\n" <<
+            "error code (0=ok): " << inverseError << std::endl;
+          
           printedDiagnostics = true;
           //try to create a default-constructed beamSpot and create a VertexState from it. It should give exception and hint how the matrix is inverted. 
           // This is something specific so you could just as well ask Marco. 
+
           if(iSeq >= 3) break;
           iSeq++;
+          edm::LogSystem("NewIOV") << "----------------------------";
         }
         session.transaction().commit();
         edm::LogSystem("NewIOV") << payloadsInfo.str();
