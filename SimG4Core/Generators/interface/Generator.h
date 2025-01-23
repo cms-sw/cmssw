@@ -45,6 +45,7 @@ private:
   bool fEtaCuts;
   bool fPhiCuts;
   bool fFiductialCuts;
+  bool fSmuon;
   double theMinPhiCut;
   double theMaxPhiCut;
   double theMinEtaCut;
@@ -57,7 +58,6 @@ private:
   double theDecLenCut;
   double maxZCentralCMS;
   int verbose;
-  std::vector<int> fParticleList;
   LumiMonitorFilter *fLumiFilter;
   HepMC::GenEvent *evt_;
   math::XYZTLorentzVector *vtx_;
