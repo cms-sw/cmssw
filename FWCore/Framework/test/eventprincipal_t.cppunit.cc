@@ -122,8 +122,6 @@ std::shared_ptr<edm::BranchDescription> test_ep::fake_single_process_branch(std:
                                                          productClassName,
                                                          friendlyProductClassName,
                                                          productInstanceName,
-                                                         moduleClass,
-                                                         modParams.id(),
                                                          dummyType);
   branchDescriptions_[tag] = result;
   return result;

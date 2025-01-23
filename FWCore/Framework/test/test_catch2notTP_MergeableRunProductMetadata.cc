@@ -65,8 +65,6 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
 
   SECTION("test main functions") {
     edm::ProductRegistry productRegistry;
-    edm::ParameterSet dummyPset;
-    dummyPset.registerIt();
 
     // not mergeable
     edm::BranchDescription prod1(edm::InRun,
@@ -75,8 +73,6 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
                                  "edmtest::Thing",
                                  "edmtestThing",
                                  "instance",
-                                 "aModule",
-                                 dummyPset.id(),
                                  edm::TypeWithDict::byName("edmtest::Thing"),
                                  false);
     productRegistry.copyProduct(prod1);
@@ -88,8 +84,6 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
                                  "edmtest::ThingWithMerge",
                                  "edmtestThingWithMerge",
                                  "instance",
-                                 "aModule",
-                                 dummyPset.id(),
                                  edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
                                  false);
     productRegistry.copyProduct(prod2);
@@ -101,8 +95,6 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
                                  "edmtest::ThingWithMerge",
                                  "edmtestThingWithMerge",
                                  "instance",
-                                 "aModule",
-                                 dummyPset.id(),
                                  edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
                                  false);
     productRegistry.copyProduct(prod3);
@@ -114,8 +106,6 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
                                  "edmtest::ThingWithMerge",
                                  "edmtestThingWithMerge",
                                  "instance",
-                                 "aModule",
-                                 dummyPset.id(),
                                  edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
                                  true);
     productRegistry.addProduct(prod4);
@@ -127,8 +117,6 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
                                  "edmtest::ThingWithMerge",
                                  "edmtestThingWithMerge",
                                  "instance",
-                                 "aModule",
-                                 dummyPset.id(),
                                  edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
                                  false);
     prod5.setDropped(true);
@@ -141,8 +129,6 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
                                  "edmtest::ThingWithMerge",
                                  "edmtestThingWithMerge",
                                  "instance",
-                                 "aModule",
-                                 dummyPset.id(),
                                  edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
                                  false);
     productRegistry.copyProduct(prod6);
@@ -154,8 +140,6 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
                                  "edmtest::ThingWithMerge",
                                  "edmtestThingWithMerge",
                                  "instance",
-                                 "aModule",
-                                 dummyPset.id(),
                                  edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
                                  false);
     productRegistry.copyProduct(prod7);

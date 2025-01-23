@@ -137,8 +137,6 @@ namespace edm {
                                        twd.userClassName(),
                                        twd.friendlyClassName(),
                                        produce.instanceLabel_,
-                                       "",
-                                       psetid,
                                        twd,
                                        true  //force this to come from 'source'
         );
