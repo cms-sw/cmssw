@@ -9,6 +9,8 @@
 // #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "SessionImpl.h"
 
+#define BEAM_SPOT_DIAGNOSTICS_DEBUG
+
 namespace cond {
 
   namespace persistency {
@@ -297,9 +299,110 @@ namespace cond {
       if (!m_session->isTransactionActive(false))
         throwException("The transaction is not active.", ctx);
     }
+    
+    reco::BeamSpot beamSpotFromBSOnlineObjects(std::unique_ptr<BeamSpotOnlineObjects> const &beamspotObj) {
+      static int iSeq = 0;
+      bool changeFrame = false;
+          double f = changeFrame ? -1.0 : 1.0;
+          reco::BeamSpot::Point apoint(f * beamspotObj->x(), f * beamspotObj->y(), f * beamspotObj->z());
+
+          reco::BeamSpot::CovarianceMatrix matrix;
+          const double invalidMatrix[][3] = {
+            {0,              0,            -4.84531e-151},
+            {0,              0,            0},
+            {-4.84531e-151,  0,            1.06053e-07}
+          };
+          for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
+            for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
+              //TODO tmp debug
+              switch(iSeq) {
+                case 0:
+                  matrix(i, j) = beamspotObj->covariance(i, j);
+                  break;
+                case 1:
+                  matrix(i, j) = 0;
+                  break;
+                case 2:
+                  if (i < 3 && j < 3) matrix(i, j) = invalidMatrix[i][j];
+                  break;
+              }
+            }
+          }
+
+          double sigmaZ = beamspotObj->sigmaZ();
+          reco::BeamSpot beamSpot;
+          if(iSeq != 3) {
+            beamSpot = reco::BeamSpot(apoint, sigmaZ, beamspotObj->dxdz(), beamspotObj->dydz(),
+                                      beamspotObj->beamWidthX(), matrix);
+            beamSpot.setBeamWidthY(beamspotObj->beamWidthY());
+            beamSpot.setEmittanceX(beamspotObj->emittanceX());
+            beamSpot.setEmittanceY(beamspotObj->emittanceY());
+            beamSpot.setbetaStar(beamspotObj->betaStar());
+          }
+          iSeq++;
+          return beamSpot;
+    }
+
+    bool printBeamSpotDiagnostics(std::shared_ptr<IOVProxyData> iovProxyData,
+                                  std::shared_ptr<SessionImpl> sessionImpl,
+                                  cond::Time_t lowerGroup, cond::Time_t higherGroup) {
+      bool printedDiagnostics = false;
+      if (iovProxyData->tagInfo.payloadType == "BeamSpotOnlineObjects") {
+        cond::persistency::Session session(sessionImpl);
+        session.transaction().start(true);
+        int iSeq = 0;
+        for(const auto& [iov, hash] : iovProxyData->iovSequence) {
+          std::unique_ptr<BeamSpotOnlineObjects> beamspotObj = session.fetchPayload<BeamSpotOnlineObjects>(hash);
+          reco::BeamSpot beamSpot = beamSpotFromBSOnlineObjects(beamspotObj);
+          
+          //Check validity of BeamSpot by validating error of VertexState created from it
+          VertexState beamVertexState(beamSpot);
+          bool vertexFromBSInvalid = (beamVertexState.error().cxx() <= 0.) || (beamVertexState.error().cyy() <= 0.) ||
+              (beamVertexState.error().czz() <= 0.);
+
+          //Check validity of BeamSpot by confirming it can be inverted
+          int inversionFail = 2; //the .Inverse(...) will set it to 0 or 1
+          reco::BeamSpot::CovarianceMatrix errorInverse = beamSpot.covariance().Inverse(inversionFail);
+
+          double det; //TODO do we check BS validity by det?
+          beamSpot.covariance().Det2(det);
+          if(vertexFromBSInvalid || inversionFail) {
+            edm::LogSystem("NewIOV") <<
+              "\n--------------------- BeamSpot Diagnostics (hash: " << hash << ") ----------------\n" <<
+              "Fetched invalid beamspot obj of hash " << hash << "\n" <<
+              "Tag: " << iovProxyData->tagInfo.name << "\n"
+              "IOV: " << iov << "(" << cond::time::timeTypeName(iovProxyData->tagInfo.timeType) << ")\n"
+              "Request info: "  << "' request interval [ " << lowerGroup << " , " << higherGroup << " ] " << 
+              "new range [ " << iovProxyData->groupLowerIov << " , " << iovProxyData->groupHigherIov << " ] "
+              "#entries " << iovProxyData->iovSequence.size() << "\n" <<
+              "\n"
+              "BeamSpotOnlineObjects:" << *beamspotObj << "\n" <<
+              "BeamSpot:\n" << beamSpot << "\n" << //TODO probably no new info here, enough to preant only BeamSpotOnlineObjects
+              "BeamSpot (BS) rotatedCovariance3D:\n" << beamSpot.rotatedCovariance3D() << "\n" <<
+              "BS position:\n" << beamSpot.position() << "\n" <<
+              "BS covariance Determinant: " << det << "\n" <<
+              "Of matrix: \n" << beamSpot.covariance() << "\n" <<
+              "is VertexState(BS).error() invalid? (0=valid): " << vertexFromBSInvalid << "\n" <<
+              "VertexState(BS).error().matrix(): \n" << beamVertexState.error().matrix() << "\n"  <<
+              "err cxx() = " << beamVertexState.error().cxx() << "\n" <<
+              "err cyy() = " << beamVertexState.error().cyy() << "\n" <<
+              "err czz() = " << beamVertexState.error().czz() << "\n" <<
+              "did BS.covariance() inversion failed? (0=ok, 1=failed): " << inversionFail << "\n" <<
+              "BS.covariance().Inverse():\n"<< errorInverse << "\n" <<
+              "\n-------------- end of BeamSpot Diagnostics (hash: " << hash << ") ----------------\n" <<
+              std::endl;
+            printedDiagnostics = true;
+          }
+
+          if(iSeq >= 3) break; //TODO remove
+          iSeq++;
+        }
+        session.transaction().commit();
+      }
+      return printedDiagnostics;
+    }
 
     void IOVProxy::fetchSequence(cond::Time_t lowerGroup, cond::Time_t higherGroup) {
-      bool printedDiagnostics = false;
       m_data->iovSequence.clear();
       m_session->iovSchema().iovTable().select(
           m_data->tagInfo.name, lowerGroup, higherGroup, m_data->snapshotTime, m_data->iovSequence);
@@ -320,115 +423,10 @@ namespace cond {
           m_data->groupHigherIov = cond::time::MAX_VAL;
         }
       }
-      // if (not firstTime) {
-      const std::string_view beamspotPayloadType = "BeamSpotOnlineObjects";
-      if (m_data->tagInfo.payloadType == beamspotPayloadType) { // TODO isn't it BeamSpotOnlineObjects???
-      //TODO print IOV
-        edm::LogSystem("NewIOV") << "Fetched new IOV for '" << m_data->tagInfo.name 
-                                 << " payloadType: " << m_data->tagInfo.payloadType << "' request interval [ "
-                                 << lowerGroup << " , " << higherGroup << " ] new range [ " << m_data->groupLowerIov
-                                 << " , " << m_data->groupHigherIov << " ] #entries " << m_data->iovSequence.size();
-        std::stringstream payloadsInfo;
-        cond::persistency::Session session(m_session);
-        session.transaction().start(true);
-        int iSeq = 0;
-        for(const auto& [_, hash] : m_data->iovSequence) {
-          payloadsInfo << hash << " ";
-          std::unique_ptr<BeamSpotOnlineObjects> beamspotObj = session.fetchPayload<BeamSpotOnlineObjects>(hash);
-          // beamspot->print(payloadsInfo);
-          bool changeFrame = false;
-          double f = changeFrame ? -1.0 : 1.0;
-          reco::BeamSpot::Point apoint(f * beamspotObj->x(), f * beamspotObj->y(), f * beamspotObj->z());
-
-          reco::BeamSpot::CovarianceMatrix matrix;
-          std::ostringstream matrixStream;
-          double invalidMatrix[][3] = {
-            {0,              0,            -4.84531e-151},
-            {0,              0,            0},
-            {-4.84531e-151,  0,            1.06053e-07}
-          };
-          for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
-            for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
-              switch(iSeq) {
-                case 0:
-                  matrix(i, j) = beamspotObj->covariance(i, j);
-                  break;
-                case 1:
-                  matrix(i, j) = 0;
-                  break;
-                case 2:
-                  if (i < 3 && j < 3) matrix(i, j) = invalidMatrix[i][j];
-                  break;
-              }
-              matrixStream << matrix(i, j) << " "; 
-            }
-            matrixStream << "\n"; 
-          }
-
-          double sigmaZ = beamspotObj->sigmaZ();
-          reco::BeamSpot beamSpot;
-          if(iSeq != 3) {
-            beamSpot = reco::BeamSpot(apoint, sigmaZ, beamspotObj->dxdz(), beamspotObj->dydz(), beamspotObj->beamWidthX(), matrix);
-            beamSpot.setBeamWidthY(beamspotObj->beamWidthY());
-            beamSpot.setEmittanceX(beamspotObj->emittanceX());
-            beamSpot.setEmittanceY(beamspotObj->emittanceY());
-            beamSpot.setbetaStar(beamspotObj->betaStar());
-          }
-
-          // reco::BeamSpot::CovarianceMatrix matrix;
-          // for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
-          //   for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
-          //     matrix(i, j) = beamspotObj->covariance(i, j);
-          //     matrixStream << matrix(i, j) << " "; 
-          //   }
-          //   matrixStream << "\n"; 
-          // }
-          bool validBS = true;
-          VertexState beamVertexState(beamSpot);
-
-          if ((beamVertexState.error().cxx() <= 0.) || (beamVertexState.error().cyy() <= 0.) ||
-              (beamVertexState.error().czz() <= 0.)) {
-            edm::LogError("UnusableBeamSpot") << "Beamspot with invalid errors " << beamVertexState.error().matrix();
-            validBS = false;
-          }
-
-          double det;
-          beamSpot.covariance().Det2(det);
-          beamSpot.covariance3D().Det2(det);
-          edm::LogSystem("NewIOV") << "Fetched " << (validBS? "valid" : "invalid") << " "
-                                   << "beamspot obj:\n" << *beamspotObj << "\n"
-                                   << "beamSpot:\n" << beamSpot << "\n"
-                                   << "BS rotatedCovariance3D:\n" << beamSpot.rotatedCovariance3D() << "\n"
-                                   << "BS position:\n" << beamSpot.position() << "\n"
-                                   << "Determinant: " << det << "\n"
-                                   << "Of matrix: \n" << matrixStream.str() << "\n"
-                                   << "beamVertexState.error().matrix(): \n" << beamVertexState.error().matrix() << "\n" 
-                                   << "is beamspot valid: " << validBS << "\n"
-                                   << "err cxx() = " << beamVertexState.error().cxx() << "\n"
-                                   << "err cyy() = " << beamVertexState.error().cyy() << "\n"
-                                   << "err czz() = " << beamVertexState.error().czz() << "\n"
-                                   << std::endl;
-          
-          int inverseError = 1;
-          edm::LogSystem("NewIOV") <<
-            "matrix.Inverse():"<< std::endl << matrix.Inverse(inverseError) << "\n" <<
-            "error code (0=ok): " << inverseError << std::endl;
-          
-          printedDiagnostics = true;
-          //try to create a default-constructed beamSpot and create a VertexState from it. It should give exception and hint how the matrix is inverted. 
-          // This is something specific so you could just as well ask Marco. 
-
-          if(iSeq >= 3) break;
-          iSeq++;
-          edm::LogSystem("NewIOV") << "----------------------------";
-        }
-        session.transaction().commit();
-        edm::LogSystem("NewIOV") << payloadsInfo.str();
-
-      }
-
+      if(printBeamSpotDiagnostics(m_data, m_session, lowerGroup, higherGroup)){
+        std::exit(0);
+      } 
       m_data->numberOfQueries++;
-      if(printedDiagnostics) std::exit(0);
     }
 
     cond::Iov_t IOVProxy::getInterval(cond::Time_t time) {
