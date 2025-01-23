@@ -46,6 +46,14 @@ autoNANO = {
                'customize': ','.join(['PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomizeFull',
                                       'DPGAnalysis/L1TNanoAOD/l1tNano_cff.addCaloFull',
                                       'L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW'])},
+    # Phase-2 L1 DPG (from RAW/DIGI)
+    'Phase2L1DPG' : {'sequence': 'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.l1tPh2NanoSequence',
+                     'customize': ','.join([
+                        #  'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addFullPh2L1Nano',
+                         'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addPh2L1Objects',
+                         'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addPh2GTObjects',
+                        #  'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addGenObjects',
+                         ])},
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
     'MUPOG': {'sequence': '@PHYS',
               'customize': '@PHYS+PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
