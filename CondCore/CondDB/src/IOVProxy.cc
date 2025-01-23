@@ -6,10 +6,10 @@
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
-// #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "SessionImpl.h"
 
-#define BEAM_SPOT_DIAGNOSTICS_DEBUG
+// Turns on diagnostics debug mode to simulate fetching invalid beamspot
+// #define BEAM_SPOT_DIAGNOSTICS_DEBUG
 
 namespace cond {
 
@@ -301,46 +301,55 @@ namespace cond {
     }
     
     reco::BeamSpot beamSpotFromBSOnlineObjects(std::unique_ptr<BeamSpotOnlineObjects> const &beamspotObj) {
-      static int iSeq = 0;
+    //TODO Is that a good way to set up a debug mode? 
+    // Is that even needed for final PR or should it be treated temporarty and remove before merging?
+    // If it would be merged with the debug mode it should probably be improved
+#ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG 
+      static int testCaseNr = 0;
+      const double invalidMatrix[][3] = { //Invalid non-0 matrix that appeared in crash logs
+        {0,              0,            -4.84531e-151},
+        {0,              0,            0},
+        {-4.84531e-151,  0,            1.06053e-07}
+      };
+#endif
       bool changeFrame = false;
-          double f = changeFrame ? -1.0 : 1.0;
-          reco::BeamSpot::Point apoint(f * beamspotObj->x(), f * beamspotObj->y(), f * beamspotObj->z());
+      double f = changeFrame ? -1.0 : 1.0;
+      reco::BeamSpot::Point apoint(f * beamspotObj->x(), f * beamspotObj->y(), f * beamspotObj->z());
 
-          reco::BeamSpot::CovarianceMatrix matrix;
-          const double invalidMatrix[][3] = {
-            {0,              0,            -4.84531e-151},
-            {0,              0,            0},
-            {-4.84531e-151,  0,            1.06053e-07}
-          };
-          for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
-            for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
-              //TODO tmp debug
-              switch(iSeq) {
-                case 0:
-                  matrix(i, j) = beamspotObj->covariance(i, j);
-                  break;
-                case 1:
-                  matrix(i, j) = 0;
-                  break;
-                case 2:
-                  if (i < 3 && j < 3) matrix(i, j) = invalidMatrix[i][j];
-                  break;
-              }
-            }
+      reco::BeamSpot::CovarianceMatrix matrix;
+      for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
+        for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
+#ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
+          switch(testCaseNr) {
+            case 0:
+              matrix(i, j) = beamspotObj->covariance(i, j);
+              break;
+            case 1:
+              matrix(i, j) = 0;
+              break;
+            case 2:
+              if (i < 3 && j < 3) matrix(i, j) = invalidMatrix[i][j];
+              break;
           }
+#else
+          matrix(i, j) = beamspotObj->covariance(i, j);
+#endif
+        }
+      }
 
-          double sigmaZ = beamspotObj->sigmaZ();
-          reco::BeamSpot beamSpot;
-          if(iSeq != 3) {
-            beamSpot = reco::BeamSpot(apoint, sigmaZ, beamspotObj->dxdz(), beamspotObj->dydz(),
-                                      beamspotObj->beamWidthX(), matrix);
-            beamSpot.setBeamWidthY(beamspotObj->beamWidthY());
-            beamSpot.setEmittanceX(beamspotObj->emittanceX());
-            beamSpot.setEmittanceY(beamspotObj->emittanceY());
-            beamSpot.setbetaStar(beamspotObj->betaStar());
-          }
-          iSeq++;
-          return beamSpot;
+#ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
+      if(testCaseNr == 3) {
+        return reco::BeamSpot();
+      }
+      testCaseNr++;
+#endif
+      reco::BeamSpot beamSpot = reco::BeamSpot(apoint, beamspotObj->sigmaZ(), beamspotObj->dxdz(),
+                                               beamspotObj->dydz(), beamspotObj->beamWidthX(), matrix);
+      beamSpot.setBeamWidthY(beamspotObj->beamWidthY());
+      beamSpot.setEmittanceX(beamspotObj->emittanceX());
+      beamSpot.setEmittanceY(beamspotObj->emittanceY());
+      beamSpot.setbetaStar(beamspotObj->betaStar());
+      return beamSpot;
     }
 
     bool printBeamSpotDiagnostics(std::shared_ptr<IOVProxyData> iovProxyData,
@@ -350,7 +359,9 @@ namespace cond {
       if (iovProxyData->tagInfo.payloadType == "BeamSpotOnlineObjects") {
         cond::persistency::Session session(sessionImpl);
         session.transaction().start(true);
+#ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
         int iSeq = 0;
+#endif
         for(const auto& [iov, hash] : iovProxyData->iovSequence) {
           std::unique_ptr<BeamSpotOnlineObjects> beamspotObj = session.fetchPayload<BeamSpotOnlineObjects>(hash);
           reco::BeamSpot beamSpot = beamSpotFromBSOnlineObjects(beamspotObj);
@@ -393,9 +404,10 @@ namespace cond {
               std::endl;
             printedDiagnostics = true;
           }
-
-          if(iSeq >= 3) break; //TODO remove
+#ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
+          if(iSeq >= 3) break;
           iSeq++;
+#endif
         }
         session.transaction().commit();
       }
@@ -423,9 +435,13 @@ namespace cond {
           m_data->groupHigherIov = cond::time::MAX_VAL;
         }
       }
+#ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
       if(printBeamSpotDiagnostics(m_data, m_session, lowerGroup, higherGroup)){
         std::exit(0);
       } 
+#else
+      printBeamSpotDiagnostics(m_data, m_session, lowerGroup, higherGroup);
+#endif
       m_data->numberOfQueries++;
     }
 
