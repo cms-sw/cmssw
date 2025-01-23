@@ -159,7 +159,7 @@ void UnifiedParticleTransformerAK4TagInfoProducer::fillDescriptions(edm::Configu
   desc.add<double>("min_candidate_pt", 0.10);
   desc.add<bool>("flip", false);
   desc.add<bool>("sort_cand_by_pt", false);
-  desc.add<bool>("fix_lt_sorting", false);
+  desc.add<bool>("fix_lt_sorting", true);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("losttracks", edm::InputTag("lostTracks"));
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
