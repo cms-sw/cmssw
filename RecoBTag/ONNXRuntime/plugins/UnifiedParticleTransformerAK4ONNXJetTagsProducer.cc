@@ -40,6 +40,7 @@ private:
   const edm::EDGetTokenT<TagInfoCollection> src_;
   std::vector<std::string> flav_names_;
   std::vector<std::string> input_names_;
+  bool use_dynamic_axes_ = false;
   std::vector<std::string> output_names_;
 
   enum InputIndexes {
@@ -71,11 +72,13 @@ private:
   FloatArrays data_;
 };
 
-UnifiedParticleTransformerAK4ONNXJetTagsProducer::UnifiedParticleTransformerAK4ONNXJetTagsProducer(
+UnifiedParticleTransformerAK4ONNXJetTagsProducer::UnifiedParticleTransformerAK4ONNXJetTagsProducer( 
     const edm::ParameterSet& iConfig, const ONNXRuntime* cache)
-    : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+    :
+      src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
+      use_dynamic_axes_(iConfig.getParameter<edm::FileInPath>("model_path").fullPath().find("v2.onnx") != std::string::npos),
       output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")) {
   // get output names from flav_names
   for (const auto& flav_name : flav_names_) {
@@ -89,7 +92,7 @@ void UnifiedParticleTransformerAK4ONNXJetTagsProducer::fillDescriptions(edm::Con
   desc.add<edm::InputTag>("src", edm::InputTag("pfUnifiedParticleTransformerAK4TagInfos"));
   desc.add<std::vector<std::string>>(
       "input_names", {"input_1", "input_2", "input_3", "input_4", "input_5", "input_6", "input_7", "input_8"});
-  desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoBTag/Combined/data/UParTAK4/PUPPI/V00/UParTAK4.onnx"));
+  desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoBTag/Combined/data/UParTAK4/PUPPI/V1/UParTAK4_v2.onnx"));
   desc.add<std::vector<std::string>>("output_names", {"softmax"});
   desc.add<std::vector<std::string>>(
       "flav_names",
@@ -164,12 +167,31 @@ void UnifiedParticleTransformerAK4ONNXJetTagsProducer::get_input_sizes(
     const reco::FeaturesTagInfo<btagbtvdeep::UnifiedParticleTransformerAK4Features> taginfo) {
   const auto& features = taginfo.features();
 
-  /// We require a fixed size due to an ONNX conversion issue (to be improved in the future ?) ///
-  n_cpf_ = (unsigned int)29;
-  n_lt_ = (unsigned int)5;
-  n_npf_ = (unsigned int)25;
-  n_sv_ = (unsigned int)5;
+  if (use_dynamic_axes_) {
+    unsigned int n_cpf = features.c_pf_features.size();
+    unsigned int n_lt  = features.lt_features.size();
+    unsigned int n_npf = features.n_pf_features.size();
+    unsigned int n_vtx = features.sv_features.size();
+    
+    // Use actual sizes for dynamic axes version
+    n_cpf_ = std::max((unsigned int)1,n_cpf);
+    n_lt_  = std::max((unsigned int)1,n_lt);
+    n_npf_ = std::max((unsigned int)1,n_npf);
+    n_sv_  = std::max((unsigned int)1,n_vtx);
 
+    n_cpf_ = std::min((unsigned int)29,n_cpf_);
+    n_lt_  = std::min((unsigned int)5,n_lt_);
+    n_npf_ = std::min((unsigned int)25,n_npf_);
+    n_sv_  = std::min((unsigned int)5,n_sv_);
+    
+  } else {
+    // Use fixed sizes for original version
+    n_cpf_ = (unsigned int)29;
+    n_lt_ = (unsigned int)5;
+    n_npf_ = (unsigned int)25;
+    n_sv_ = (unsigned int)5;
+  }
+  
   input_sizes_ = {
       n_cpf_ * n_features_cpf_,
       n_lt_ * n_features_lt_,
