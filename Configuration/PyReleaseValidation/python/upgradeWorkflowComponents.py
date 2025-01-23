@@ -1720,20 +1720,22 @@ upgradeWFs['L1Complete'] = UpgradeWorkflow_L1Complete(
     offset = 0.78
 )
 
-upgradeWFs['L1CompleteWithNano'] = deepcopy(upgradeWFs['L1Complete'])
+# use HLTTiming75e33 template as it skips the steps after DIGI
+upgradeWFs['L1CompleteWithNano'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['L1CompleteWithNano'].suffix = '_L1CompleteWithNano'
-upgradeWFs['L1CompleteWithNano'].offset = 0.79
+upgradeWFs['L1CompleteWithNano'].offset = 0.781
 upgradeWFs['L1CompleteWithNano'].step2 = {
-    '-s': 'DIGI:pdigi_valid,L1,L1TrackTrigger,L1P2GT,DIGI2RAW,HLT:@relvalRun4:NANO:@Phase2L1DPG',
+    '-s': 'DIGI:pdigi_valid,L1,L1TrackTrigger,L1P2GT,DIGI2RAW,HLT:@relvalRun4,NANO:@Phase2L1DPG',
     '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
     '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM'
 }
 
-upgradeWFs['L1NANOonly'] = deepcopy(upgradeWFs['L1Complete'])
-upgradeWFs['L1NANOonly'].suffix = '_L1NANOonly'
-upgradeWFs['L1NANOonly'].offset = 0.791
-upgradeWFs['L1NANOonly'].step2 = {
-    '-s': 'DIGI:pdigi_valid,NANO:@Phase2L1DPG',
+upgradeWFs['L1CompleteOnlyNano'] = deepcopy(upgradeWFs['L1CompleteWithNano'])
+upgradeWFs['L1CompleteOnlyNano'].suffix = '_L1CompleteOnlyNano'
+upgradeWFs['L1CompleteOnlyNano'].offset = 0.782
+upgradeWFs['L1CompleteOnlyNano'].step2 = {
+    # '-s': 'NANO:@Phase2L1DPG',
+    '-s': 'DIGI:pdigi_valid,L1,L1TrackTrigger,L1P2GT,DIGI2RAW,HLT:@relvalRun4,NANO:@Phase2L1DPG',
     '--datatier':'NANOAODSIM',
     '--eventcontent':'NANOAODSIM'
 }
