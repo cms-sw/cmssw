@@ -49,6 +49,26 @@ public:
     uses("ipTagInfos");
   }
 
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    desc.add<int>("impactParameterType", 0)->setComment("0 = 3D, 1 = 2D");
+    desc.add<double>("minimumProbability", 0.005);
+    desc.add<double>("deltaR", 0.3);
+    desc.add<int>("trackIpSign", 1)->setComment("0 = use both, 1 = positive only, -1 = negative only");
+    desc.add<double>("maximumDecayLength", 5.0);
+    desc.add<double>("maximumDistanceToJetAxis", 0.07);
+    desc.add<std::string>("trackQualityClass", "any");
+    desc.add<bool>("useVariableJTA", false);
+    desc.add<double>("a_dR", -0.001053);
+    desc.add<double>("b_dR", 0.6263);
+    desc.add<double>("a_pT", 0.005263);
+    desc.add<double>("b_pT", 0.3684);
+    desc.add<double>("min_pT", 120);
+    desc.add<double>("max_pT", 500);
+    desc.add<double>("min_pT_dRcut", 0.5);
+    desc.add<double>("max_pT_dRcut", 0.1);
+    desc.add<double>("max_pT_trackPTcut", 3.);
+  }
+
   float discriminator(const TagInfoHelper& ti) const override {
     const TagInfo& tkip = ti.get<TagInfo>();
     const Container& tracks(tkip.selectedTracks());

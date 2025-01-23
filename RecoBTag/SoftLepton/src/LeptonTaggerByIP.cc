@@ -4,6 +4,11 @@
 #include "RecoBTag/SoftLepton/interface/LeptonTaggerByIP.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
 
+LeptonTaggerByIP::LeptonTaggerByIP(const edm::ParameterSet& configuration)
+    : m_use3d(configuration.getParameter<bool>("use3d")), m_selector(configuration) {
+  uses("slTagInfos");
+}
+
 /// b-tag a jet based on track-to-jet parameters in the extened info collection
 float LeptonTaggerByIP::discriminator(const TagInfoHelper& tagInfo) const {
   // default value, used if there are no leptons associated to this jet
@@ -22,4 +27,9 @@ float LeptonTaggerByIP::discriminator(const TagInfoHelper& tagInfo) const {
     }
   }
   return bestTag;
+}
+
+void LeptonTaggerByIP::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  btag::LeptonSelector::fillPSetDescription(desc);
+  desc.add<bool>("use3d", false);
 }

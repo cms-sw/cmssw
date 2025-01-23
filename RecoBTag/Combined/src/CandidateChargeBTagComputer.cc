@@ -245,14 +245,11 @@ float CandidateChargeBTagComputer::discriminator(const TagInfoHelper& tagInfo) c
   return value;
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module ------------
-void CandidateChargeBTagComputer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
+void CandidateChargeBTagComputer::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<bool>("useCondDB", false);
   desc.add<std::string>("gbrForestLabel", "");
   desc.add<edm::FileInPath>("weightFile", edm::FileInPath());
   desc.add<bool>("useAdaBoost", true);
   desc.add<double>("jetChargeExp", 0.8);
   desc.add<double>("svChargeExp", 0.5);
-  descriptions.addDefault(desc);
 }
