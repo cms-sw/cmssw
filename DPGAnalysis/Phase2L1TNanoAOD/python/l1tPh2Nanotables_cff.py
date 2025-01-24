@@ -499,12 +499,15 @@ p2L1TablesTask = cms.Task(
     ## Muons
     gmtTkMuTable,
     staMuTable, staDisplacedMuTable,
+
+    # below not available in `RAW/DIGI/FEVTDEBUG` data tier, only when rerunning L1 at the same time
     KMTFpromptMuTable,
     KMTFDisplaceMuTable,
     OMTFpromptMuTable,
     OMTFDisplaceMuTable,
     EMTFpromptMuTable,
     EMTFDisplaceMuTable,
+    
     ## EG
     tkEleTable,
     tkPhotonTable,
