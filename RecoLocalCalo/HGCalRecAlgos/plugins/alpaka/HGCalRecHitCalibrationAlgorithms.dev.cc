@@ -180,12 +180,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   }
 
-  void HGCalRecHitCalibrationAlgorithms::print_recHit_device(Queue& queue,
-                                                             HGCalRecHitDevice const& recHits,
-                                                             int max) const {
+  void HGCalRecHitCalibrationAlgorithms::print_recHit_device(
+      Queue& queue, PortableHostCollection<hgcalrechit::HGCalRecHitSoALayout<> >::View const& recHits, int max) const {
     auto grid = make_workdiv<Acc1D>(1, 1);
-    auto size = max > 0 ? max : recHits.view().metadata().size();
-    alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_printRecHits{}, recHits.view(), size);
+    auto size = max > 0 ? max : recHits.metadata().size();
+    alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_printRecHits{}, recHits, size);
 
     // ensure that the print operations are complete before returning
     alpaka::wait(queue);
