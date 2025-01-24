@@ -5,9 +5,17 @@
    <class name="edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi >"/>
    <class name="std::vector< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >"/>
    <class name="edm::DetSet<Phase2TrackerDigi>"/>
-   <class name="edm::DetSet<Phase2ITQCore>"/>
-   <class name="edm::DetSet<Phase2ITChipBitStream>"/>
+   <class name="Phase2ITQCore" ClassVersion="3">
+    <version ClassVersion="3" checksum="2154561050"/>
+   </class>                                 
+   <class name="Phase2ITChipBitStream" ClassVersion="3">
+    <version ClassVersion="3" checksum="2503829339"/>
+   </class>                                 
    <class name="std::vector<Phase2TrackerDigi>"/>
+   <class name="edm::DetSet<Phase2ITChipBitStream>"/>
+   <class name="edm::DetSet<Phase2ITQCore>"/>
+   <class name="std::vector<Phase2ITChipBitStream>"/>
+   <class name="std::vector<Phase2ITQCore>"/>
    <class name="edm::DetSetVector<Phase2TrackerDigi>"/>
    <class name="edm::DetSetVector<Phase2ITQCore>"/>
    <class name="edm::DetSetVector<Phase2ITChipBitStream>"/>
@@ -26,3 +34,4 @@
    <class name="edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> >" />
    <class name="vector<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" />
 </lcgdict>
+
