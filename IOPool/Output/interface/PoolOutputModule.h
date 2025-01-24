@@ -27,6 +27,7 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 class TTree;
 namespace edm {
@@ -156,6 +157,7 @@ namespace edm {
     void reallyOpenFile();
     void reallyCloseFile() override;
     void beginJob() override;
+    void initialRegistry(edm::ProductRegistry const& iReg) override;
 
     void setProcessesWithSelectedMergeableRunProducts(std::set<std::string> const&) override;
 
@@ -190,6 +192,7 @@ namespace edm {
     AuxItemArray auxItems_;
     std::vector<OutputItemList> selectedOutputItemList_;
     std::vector<SpecialSplitLevelForBranch> specialSplitLevelForBranches_;
+    std::unique_ptr<edm::ProductRegistry const> reg_;
     std::string const fileName_;
     std::string const logicalFileName_;
     std::string const catalog_;

@@ -219,7 +219,11 @@ namespace edm::productResolversFactory {
         } else {
           //We are in a SubProcess and this branch is from the parent
           auto cbd = std::make_shared<BranchDescription const>(bd);
-          addProductOrThrow(makeParentProcessProduct(cbd), productResolvers, iReg);
+          if (bd.dropped()) {
+            addProductOrThrow(makeDroppedProduct(cbd), productResolvers, iReg);
+          } else {
+            addProductOrThrow(makeParentProcessProduct(cbd), productResolvers, iReg);
+          }
         }
       }
     }

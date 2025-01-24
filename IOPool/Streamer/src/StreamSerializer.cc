@@ -14,7 +14,6 @@
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
@@ -59,7 +58,6 @@ namespace edm::streamer {
       sd.push_back(*selection.first);
       FDEBUG(9) << "StreamOutput got product = " << selection.first->className() << std::endl;
     }
-    Service<ConstProductRegistry> reg;
     sd.setParameterSetMap(psetMap);
 
     data_buffer.rootbuf_.Reset();

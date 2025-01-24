@@ -40,7 +40,7 @@ namespace edm {
     // ---------- member functions ---------------------------
     using ProducerBase::registerProducts;
     using ProducerBase::resolvePutIndicies;
-    void registerProducts() final;
+    void registerProducts(SignallingProductRegistry&) final;
 
     bool hasAbilityToProduceInBeginRuns() const final { return true; }
 

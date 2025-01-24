@@ -6,7 +6,6 @@
 #include "DataFormats/Provenance/interface/ProductProvenanceLookup.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -101,12 +100,6 @@ namespace edmtest {
 
     std::set<std::string> expectedAncestors(expectedAncestors_.begin(), expectedAncestors_.end());
 
-    std::map<edm::BranchID, std::string> branchIDToLabel;
-    edm::Service<edm::ConstProductRegistry> reg;
-    for (auto const& prod : reg->productList()) {
-      branchIDToLabel[prod.second.branchID()] = prod.second.moduleLabel();
-    }
-
     // Currently we need to turn off this part of the test of when calling
     // from a SubProcess and the parentage includes a product not kept
     // in the SubProcess. This might get fixed someday ...
@@ -122,7 +115,13 @@ namespace edmtest {
 
       std::set<std::string> ancestorLabels;
       for (edm::BranchID const& ancestor : ancestors) {
-        ancestorLabels.insert(branchIDToLabel[ancestor]);
+        try {
+          ancestorLabels.insert(e.getStableProvenance(ancestor).moduleLabel());
+        } catch (cms::Exception& iEx) {
+          edm::LogSystem("MissingProvenance") << "the provenance for BranchID " << ancestor << " is missing\n"
+                                              << iEx.what();
+          ancestorLabels.insert("");
+        }
       }
       if (ancestorLabels != expectedAncestors) {
         cms::Exception ex("WrongAncestors");
@@ -140,7 +139,14 @@ namespace edmtest {
 
     std::set<std::string> ancestorLabels2;
     for (edm::BranchID const& ancestor : ancestorsFromRetriever) {
-      ancestorLabels2.insert(branchIDToLabel[ancestor]);
+      try {
+        ancestorLabels2.insert(e.getStableProvenance(ancestor).moduleLabel());
+      } catch (cms::Exception& iEx) {
+        edm::LogSystem("MissingProvenance")
+            << "the provenance from Retriever for BranchID " << ancestor << " is missing\n"
+            << iEx.what();
+        ancestorLabels2.insert("");
+      }
     }
     if (ancestorLabels2 != expectedAncestors) {
       cms::Exception ex("WrongAncestors");

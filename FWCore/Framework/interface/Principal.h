@@ -137,6 +137,7 @@ namespace edm {
     ProcessConfiguration const& processConfiguration() const { return *processConfiguration_; }
 
     ProductRegistry const& productRegistry() const { return *preg_; }
+    std::vector<BranchDescription const*> productDescriptions() const;
 
     ProductResolverIndexHelper const& productLookup() const { return *productLookup_; }
 

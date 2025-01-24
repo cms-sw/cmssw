@@ -11,7 +11,6 @@
 //
 
 // system include files
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
@@ -129,10 +128,8 @@ namespace edm {
     }
 
     //Determine what BranchIDs are in the product registry
-    Service<ConstProductRegistry> reg;
-    ProductRegistry::ProductList const& prodList = reg->productList();
     std::set<BranchID> branchesInReg;
-    for (auto const& product : prodList) {
+    for (auto const& product : e.productRegistry().productList()) {
       branchesInReg.insert(product.second.branchID());
       idToBranchDescriptions[product.second.branchID()] = &product.second;
     }

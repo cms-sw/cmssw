@@ -35,6 +35,7 @@ namespace edm {
   class PreallocationConfiguration;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
+  class SignallingProductRegistry;
 
   namespace maker {
     template <typename T>
@@ -99,7 +100,7 @@ namespace edm {
       void doRespondToCloseOutputFile() { clearInputProcessBlockCaches(); }
       void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
-      void registerProductsAndCallbacks(EDAnalyzerBase const* module, ProductRegistry* reg);
+      void registerProductsAndCallbacks(EDAnalyzerBase const* module, SignallingProductRegistry* reg);
       std::string workerType() const { return "WorkerT<EDAnalyzer>"; }
 
       SharedResourcesAcquirer& sharedResourcesAcquirer() { return resourcesAcquirer_; }

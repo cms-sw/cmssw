@@ -55,6 +55,7 @@ namespace edm {
   class PreallocationConfiguration;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
+  class SignallingProductRegistry;
 
   template <typename T>
   class OutputModuleCommunicatorT;
@@ -215,7 +216,7 @@ namespace edm {
       /// Tell the OutputModule that is must end the current file.
       void doCloseFile();
 
-      void registerProductsAndCallbacks(OutputModuleCore const*, ProductRegistry*);
+      void registerProductsAndCallbacks(OutputModuleCore const*, SignallingProductRegistry*);
 
       bool needToRunSelection() const noexcept;
       std::vector<ProductResolverIndexAndSkipBit> productsUsedBySelection() const noexcept;
@@ -230,6 +231,9 @@ namespace edm {
 
       virtual void write(EventForOutput const&) = 0;
 
+      /// @brief  called after data product selection has finished
+      /// @param  iReg ProductRegistry at the start of the job
+      virtual void initialRegistry(edm::ProductRegistry const& iReg) {}
       virtual void beginJob() {}
       virtual void endJob() {}
       virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) = 0;

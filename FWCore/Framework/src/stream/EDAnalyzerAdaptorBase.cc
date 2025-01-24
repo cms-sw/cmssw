@@ -84,7 +84,7 @@ void EDAnalyzerAdaptorBase::doPreallocate(PreallocationConfiguration const& iPre
   preallocLumis(iPrealloc.numberOfLuminosityBlocks());
 }
 
-void EDAnalyzerAdaptorBase::registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, ProductRegistry* reg) {
+void EDAnalyzerAdaptorBase::registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, SignallingProductRegistry* reg) {
   for (auto mod : m_streamModules) {
     mod->registerProductsAndCallbacks(mod, reg);
   }

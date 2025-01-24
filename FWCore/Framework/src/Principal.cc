@@ -318,6 +318,16 @@ namespace edm {
     return phb;
   }
 
+  std::vector<BranchDescription const*> Principal::productDescriptions() const {
+    std::vector<BranchDescription const*> retValue;
+    for (auto const& p : productRegistry().productList()) {
+      if (p.second.branchType() == branchType()) {
+        retValue.push_back(&p.second);
+      }
+    }
+    return retValue;
+  }
+
   void Principal::addProduct_(std::unique_ptr<ProductResolverBase> productResolver) {
     BranchDescription const& bd = productResolver->branchDescription();
     assert(!bd.className().empty());
