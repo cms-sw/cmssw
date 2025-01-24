@@ -285,6 +285,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         MinPhiCut = cms.double(-3.14159265359), ## (radians)
         MaxPhiCut = cms.double(3.14159265359),  ## according to CMS conventions
         ApplyLumiMonitorCuts = cms.bool(False), ## primary for lumi monitors
+        IsSmuon = cms.bool(False),
         Verbosity = cms.untracked.int32(0),
         PDGselection = cms.PSet(
             PDGfilterSel = cms.bool(False), ## filter out unwanted particles
