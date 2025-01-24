@@ -38,7 +38,9 @@ using namespace edm;
 PuttableSourceBase::PuttableSourceBase(ParameterSet const& iPSet, InputSourceDescription const& iISD)
     : InputSource(iPSet, iISD) {}
 
-void PuttableSourceBase::registerProducts() { registerProducts(this, &productRegistryUpdate(), moduleDescription()); }
+void PuttableSourceBase::registerProducts(SignallingProductRegistry& iReg) {
+  registerProducts(this, &iReg, moduleDescription());
+}
 
 void PuttableSourceBase::beginJob() {
   auto r = productRegistry();

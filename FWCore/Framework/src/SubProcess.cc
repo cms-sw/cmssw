@@ -146,7 +146,7 @@ namespace edm {
 
     ServiceToken newToken = items.initServices(serviceSets, *processParameterSet_, token, iLegacy, false);
     parentActReg.connectToSubProcess(*items.actReg_);
-    serviceToken_ = items.addCPRandTNS(*processParameterSet_, newToken);
+    serviceToken_ = items.addTNS(*processParameterSet_, newToken);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);

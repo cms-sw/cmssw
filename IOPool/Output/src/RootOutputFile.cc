@@ -33,7 +33,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/StoredProcessBlockHelper.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -415,7 +415,6 @@ namespace edm {
       // work by accident.
       // So, for now, we do not enable fast cloning of the non-product branches.
       /*
-      Service<ConstProductRegistry> reg;
       canFastCloneAux_ = (whyNotFastClonable_ == FileBlock::CanFastClone) &&
                           fb.fileFormatVersion().noMetaDataTrees() &&
                           !om_->hasNewlyDroppedBranch()[InEvent] &&
@@ -484,9 +483,8 @@ namespace edm {
     // Note: The EventSelectionIDVector should have a one to one correspondence with the processes in the process history.
     // Therefore, a new entry should be added if and only if the current process has been added to the process history,
     // which is done if and only if there is a produced product.
-    Service<ConstProductRegistry> reg;
     EventSelectionIDVector esids = e.eventSelectionIDs();
-    if (reg->anyProductProduced() || !om_->wantAllEvents()) {
+    if (e.productRegistry().anyProductProduced() || !om_->wantAllEvents()) {
       esids.push_back(om_->selectorConfig());
     }
     pEventSelectionIDs_ = &esids;
@@ -669,11 +667,10 @@ namespace edm {
     fillParameterSetBranch(parameterSetsTree_.get(), om_->basketSize());
   }
 
-  void RootOutputFile::writeProductDescriptionRegistry() {
+  void RootOutputFile::writeProductDescriptionRegistry(ProductRegistry const& iReg) {
     // Make a local copy of the ProductRegistry, removing any transient or pruned products.
     using ProductList = ProductRegistry::ProductList;
-    Service<ConstProductRegistry> reg;
-    ProductRegistry pReg(reg->productList());
+    ProductRegistry pReg(iReg.productList());
     ProductList& pList = const_cast<ProductList&>(pReg.productList());
     for (auto const& prod : pList) {
       if (prod.second.branchID() != prod.second.originalBranchID()) {
@@ -883,8 +880,7 @@ namespace edm {
     // We do this only for event products.
     std::set<BranchID> producedBranches;
     if (doProvenance && branchType == InEvent && om_->dropMetaData() != PoolOutputModule::DropNone) {
-      Service<ConstProductRegistry> preg;
-      for (auto bd : preg->allBranchDescriptions()) {
+      for (auto bd : occurrence.productRegistry().allBranchDescriptions()) {
         if (bd->produced() && bd->branchType() == InEvent) {
           producedBranches.insert(bd->branchID());
         }

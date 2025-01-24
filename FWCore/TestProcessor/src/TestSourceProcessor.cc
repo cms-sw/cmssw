@@ -58,7 +58,7 @@ namespace {
   // ---------------------------------------------------------------
   std::unique_ptr<InputSource> makeInput(unsigned int moduleIndex,
                                          ParameterSet& params,
-                                         std::shared_ptr<ProductRegistry> preg,
+                                         std::shared_ptr<SignallingProductRegistry> preg,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                                          std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
                                          std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
@@ -98,7 +98,8 @@ namespace {
     InputSourceDescription isdesc(
         md, preg, branchIDListHelper, processBlockHelper, thinnedAssociationsHelper, areg, -1, -1, 0, allocations);
 
-    return std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
+    return std::unique_ptr<InputSource>(
+        InputSourceFactory::get()->makeInputSource(*main_input, *preg, isdesc).release());
   }
 }  // namespace
 
@@ -124,7 +125,7 @@ namespace edm::test {
     //initialize the services
     auto& serviceSets = procDesc->getServicesPSets();
     ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError, true);
-    serviceToken_ = items.addCPRandTNS(*psetPtr, token);
+    serviceToken_ = items.addTNS(*psetPtr, token);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -142,7 +143,7 @@ namespace edm::test {
 
     {
       // initialize the input source
-      auto tempReg = std::make_shared<ProductRegistry>();
+      auto tempReg = std::make_shared<SignallingProductRegistry>();
       auto sourceID = ModuleDescription::getUniqueID();
 
       ServiceRegistry::Operate operate(serviceToken_);

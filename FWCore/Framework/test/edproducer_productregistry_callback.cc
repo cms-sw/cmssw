@@ -13,7 +13,6 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "FWCore/Framework/interface/SignallingProductRegistry.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -26,7 +25,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
 class testEDProducerProductRegistryCallback : public CppUnit::TestFixture {
@@ -115,11 +113,6 @@ void testEDProducerProductRegistryCallback::testCircularRef() {
 
   SignallingProductRegistry preg;
 
-  //Need access to the ConstProductRegistry service
-  auto cReg = std::make_unique<ConstProductRegistry>(preg);
-  ServiceToken token = ServiceRegistry::createContaining(std::move(cReg));
-  ServiceRegistry::Operate startServices(token);
-
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
   ParameterSet p1;
@@ -192,11 +185,6 @@ void testEDProducerProductRegistryCallback::testCircularRef2() {
 
   SignallingProductRegistry preg;
 
-  //Need access to the ConstProductRegistry service
-  auto cReg = std::make_unique<ConstProductRegistry>(preg);
-  ServiceToken token = ServiceRegistry::createContaining(std::move(cReg));
-  ServiceRegistry::Operate startServices(token);
-
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
   ParameterSet p1;
@@ -267,11 +255,6 @@ void testEDProducerProductRegistryCallback::testTwoListeners() {
   using namespace edm;
 
   SignallingProductRegistry preg;
-
-  //Need access to the ConstProductRegistry service
-  auto cReg = std::make_unique<ConstProductRegistry>(preg);
-  ServiceToken token = ServiceRegistry::createContaining(std::move(cReg));
-  ServiceRegistry::Operate startServices(token);
 
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 

@@ -121,7 +121,7 @@ namespace edm {
   std::unique_ptr<InputSource> makeInput(unsigned int moduleIndex,
                                          ParameterSet& params,
                                          CommonParams const& common,
-                                         std::shared_ptr<ProductRegistry> preg,
+                                         std::shared_ptr<SignallingProductRegistry> preg,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                                          std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
                                          std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
@@ -182,7 +182,8 @@ namespace edm {
       //even if we have an exception, send the signal
       std::shared_ptr<int> sentry(nullptr, [areg, &md](void*) { areg->postSourceConstructionSignal_(md); });
       convertException::wrap([&]() {
-        input = std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
+        input = std::unique_ptr<InputSource>(
+            InputSourceFactory::get()->makeInputSource(*main_input, *preg, isdesc).release());
         input->preEventReadFromSourceSignal_.connect(std::cref(areg->preEventReadFromSourceSignal_));
         input->postEventReadFromSourceSignal_.connect(std::cref(areg->postEventReadFromSourceSignal_));
       });
@@ -442,7 +443,7 @@ namespace edm {
     //initialize the services
     auto& serviceSets = processDesc->getServicesPSets();
     ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy, true);
-    serviceToken_ = items.addCPRandTNS(*parameterSet, token);
+    serviceToken_ = items.addTNS(*parameterSet, token);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -488,7 +489,7 @@ namespace edm {
         tbb::task_group group;
 
         // initialize the input source
-        auto tempReg = std::make_shared<ProductRegistry>();
+        auto tempReg = std::make_shared<SignallingProductRegistry>();
         auto sourceID = ModuleDescription::getUniqueID();
 
         group.run([&, this]() {

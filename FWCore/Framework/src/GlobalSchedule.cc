@@ -28,7 +28,7 @@ namespace edm {
       std::shared_ptr<ModuleRegistry> modReg,
       std::vector<std::string> const& iModulesToUse,
       ParameterSet& proc_pset,
-      ProductRegistry& pregistry,
+      SignallingProductRegistry& pregistry,
       PreallocationConfiguration const& prealloc,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,

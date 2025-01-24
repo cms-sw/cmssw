@@ -9,6 +9,8 @@
 
 namespace edm {
 
+  class SignallingProductRegistry;
+
   typedef InputSource*(ISFunc)(ParameterSet const&, InputSourceDescription const&);
 
   typedef edmplugin::PluginFactory<ISFunc> InputSourcePluginFactory;
@@ -19,7 +21,9 @@ namespace edm {
 
     static InputSourceFactory const* get();
 
-    std::unique_ptr<InputSource> makeInputSource(ParameterSet const&, InputSourceDescription const&) const;
+    std::unique_ptr<InputSource> makeInputSource(ParameterSet const&,
+                                                 SignallingProductRegistry&,
+                                                 InputSourceDescription const&) const;
 
   private:
     InputSourceFactory();

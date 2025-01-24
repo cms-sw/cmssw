@@ -22,7 +22,7 @@ namespace edm {
   class BranchDescription;
   class ModuleDescription;
   class ProducesCollector;
-  class ProductRegistry;
+  class SignallingProductRegistry;
   class Event;
   class LuminosityBlock;
   class ProcessBlock;
@@ -76,7 +76,7 @@ namespace edm {
     /// used by the fwk to register list of products
     std::function<void(BranchDescription const&)> registrationCallback() const;
 
-    void registerProducts(ProducerBase*, ProductRegistry*, ModuleDescription const&);
+    void registerProducts(ProducerBase*, SignallingProductRegistry*, ModuleDescription const&);
 
     using ProductRegistryHelper::recordProvenanceList;
     using ProductRegistryHelper::typeLabelList;

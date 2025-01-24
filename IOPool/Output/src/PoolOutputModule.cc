@@ -2,7 +2,6 @@
 
 #include "IOPool/Output/src/RootOutputFile.h"
 
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
@@ -108,14 +107,10 @@ namespace edm {
     pset.getUntrackedParameterSet("dataset");
   }
 
-  void PoolOutputModule::beginJob() {
-    Service<ConstProductRegistry> reg;
-    for (auto const& prod : reg->productList()) {
-      BranchDescription const& desc = prod.second;
-      if (desc.produced() && desc.branchType() == InEvent && !desc.isAlias()) {
-        producedBranches_.emplace_back(desc.branchID());
-      }
-    }
+  void PoolOutputModule::beginJob() {}
+
+  void PoolOutputModule::initialRegistry(edm::ProductRegistry const& iReg) {
+    reg_ = std::make_unique<ProductRegistry>(iReg.productList());
   }
 
   std::string const& PoolOutputModule::currentFileName() const { return rootOutputFile_->fileName(); }
@@ -324,7 +319,12 @@ namespace edm {
     rootOutputFile_->writeLuminosityBlock(lb);
   }
 
-  void PoolOutputModule::writeRun(RunForOutput const& r) { rootOutputFile_->writeRun(r); }
+  void PoolOutputModule::writeRun(RunForOutput const& r) {
+    if (!reg_ or (reg_->size() < r.productRegistry().size())) {
+      reg_ = std::make_unique<ProductRegistry>(r.productRegistry().productList());
+    }
+    rootOutputFile_->writeRun(r);
+  }
 
   void PoolOutputModule::writeProcessBlock(ProcessBlockForOutput const& pb) { rootOutputFile_->writeProcessBlock(pb); }
 
@@ -362,7 +362,10 @@ namespace edm {
   }
   void PoolOutputModule::writeProcessHistoryRegistry() { rootOutputFile_->writeProcessHistoryRegistry(); }
   void PoolOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
-  void PoolOutputModule::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
+  void PoolOutputModule::writeProductDescriptionRegistry() {
+    assert(reg_);
+    rootOutputFile_->writeProductDescriptionRegistry(*reg_);
+  }
   void PoolOutputModule::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
   void PoolOutputModule::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
   void PoolOutputModule::writeThinnedAssociationsHelper() { rootOutputFile_->writeThinnedAssociationsHelper(); }
@@ -430,6 +433,14 @@ namespace edm {
 
   void PoolOutputModule::updateBranchParents(EventForOutput const& e) {
     ProductProvenanceRetriever const* provRetriever = e.productProvenanceRetrieverPtr();
+    if (producedBranches_.empty()) {
+      for (auto const& prod : e.productRegistry().productList()) {
+        BranchDescription const& desc = prod.second;
+        if (desc.produced() && desc.branchType() == InEvent && !desc.isAlias()) {
+          producedBranches_.emplace_back(desc.branchID());
+        }
+      }
+    }
     for (auto const& bid : producedBranches_) {
       updateBranchParentsForOneBranch(provRetriever, bid);
     }
