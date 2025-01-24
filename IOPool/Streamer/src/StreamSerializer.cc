@@ -5,7 +5,7 @@
  * Event) into streamer message objects.
  */
 #include "IOPool/Streamer/interface/StreamSerializer.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
@@ -153,7 +153,7 @@ namespace edm::streamer {
     // lost when the streamer output module is used.
 
     for (auto const &selection : *selections_) {
-      BranchDescription const &desc = *selection.first;
+      ProductDescription const &desc = *selection.first;
       BasicHandle result = event.getByToken(selection.second, desc.unwrappedTypeID());
       if (!result.isValid()) {
         // No product with this ID was put in the event.

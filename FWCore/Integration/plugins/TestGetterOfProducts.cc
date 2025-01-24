@@ -16,7 +16,7 @@
 #include <vector>
 
 namespace edm {
-  class BranchDescription;
+  class ProductDescription;
   class Event;
   class EventSetup;
 }  // namespace edm
@@ -150,7 +150,7 @@ namespace edmtest {
     getterOfProducts_ = edm::GetterOfProducts<Thing>(edm::ProcessMatch(processName_), this, branchType_);
     getterUsingLabel_ = edm::GetterOfProducts<Thing>(edm::ModuleLabelMatch("A"), this, branchType_);
 
-    callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+    callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
       getterOfIntProducts_(bd);
       getterOfProducts_(bd);
       getterUsingLabel_(bd);

@@ -1,7 +1,7 @@
 #ifndef FWCore_Sources_LHEProvenanceHelper_h
 #define FWCore_Sources_LHEProvenanceHelper_h
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
@@ -24,8 +24,8 @@ namespace edm {
     ParameterSet fillCommonProcessParameterSet();
     void lheAugment(lhef::LHERunInfo const* runInfo);
     ProcessHistoryID lheInit(ProcessHistoryRegistry& processHistoryRegistry);
-    BranchDescription const eventProductBranchDescription_;
-    BranchDescription const runProductBranchDescription_;
+    ProductDescription const eventProductProductDescription_;
+    ProductDescription const runProductProductDescription_;
     ProductProvenance eventProductProvenance_;
     ParameterSet const commonProcessParameterSet_;
     ParameterSet processParameterSet_;

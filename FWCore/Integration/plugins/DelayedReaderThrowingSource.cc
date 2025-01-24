@@ -89,9 +89,9 @@ namespace edm {
     dummy.registerIt();
     auto twd = TypeWithDict::byTypeInfo(typeid(edmtest::IntProduct));
 
-    std::vector<BranchDescription> branches;
+    std::vector<ProductDescription> branches;
     for (auto const& label : pset.getUntrackedParameter<std::vector<std::string>>("labels")) {
-      branches.push_back(BranchDescription(InEvent,
+      branches.push_back(ProductDescription(InEvent,
                                            label,        //module label
                                            "INPUTTEST",  //can't be the present process name
                                            twd.userClassName(),

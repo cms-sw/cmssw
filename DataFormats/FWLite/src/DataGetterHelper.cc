@@ -155,7 +155,7 @@ namespace fwlite {
                             char const* iModuleLabel,
                             char const* iProductInstanceLabel,
                             char const* iProcessLabel) -> std::optional<edm::BranchID> {
-      for (auto const& bd : branchMap_->getBranchDescriptions()) {
+      for (auto const& bd : branchMap_->getProductDescriptions()) {
         if (bd.unwrappedTypeID() == iInfo and bd.moduleLabel() == iModuleLabel and
             bd.productInstanceName() == iProductInstanceLabel and bd.processName() == iProcessLabel) {
           return bd.branchID();
@@ -337,7 +337,7 @@ namespace fwlite {
       return true;
   }
 
-  bool DataGetterHelper::getByBranchDescription(edm::BranchDescription const& bDesc,
+  bool DataGetterHelper::getByProductDescription(edm::ProductDescription const& bDesc,
                                                 Long_t eventEntry,
                                                 KeyToDataMap::iterator& itData) const {
     if (!bDesc.branchID().isValid()) {
@@ -378,10 +378,10 @@ namespace fwlite {
     std::map<IDPair, std::shared_ptr<internal::Data>>::const_iterator itFound = idToData_.find(theID);
 
     if (itFound == idToData_.end()) {
-      edm::BranchDescription const& bDesc = branchMap_->productToBranch(iID);
+      edm::ProductDescription const& bDesc = branchMap_->productToBranch(iID);
       KeyToDataMap::iterator itData;
 
-      if (!getByBranchDescription(bDesc, eventEntry, itData)) {
+      if (!getByProductDescription(bDesc, eventEntry, itData)) {
         return nullptr;
       }
       itFound = idToData_.insert(std::make_pair(theID, itData->second)).first;
@@ -403,10 +403,10 @@ namespace fwlite {
     auto itFound = bidToData_.find(bid);
 
     if (itFound == bidToData_.end()) {
-      edm::BranchDescription const& bDesc = branchMap_->branchIDToBranch(bid);
+      edm::ProductDescription const& bDesc = branchMap_->branchIDToBranch(bid);
       KeyToDataMap::iterator itData;
 
-      if (!getByBranchDescription(bDesc, eventEntry, itData)) {
+      if (!getByProductDescription(bDesc, eventEntry, itData)) {
         return nullptr;
       }
       itFound = bidToData_.insert(std::make_pair(bid, itData->second)).first;

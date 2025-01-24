@@ -14,7 +14,7 @@ namespace edm {
    *
    * The purposes of this EDProducer are
    * - Create the consumes() links to the chosen case to make the prefetching work correclty
-   * - Forward the produces() information to create proper BranchDescription objects
+   * - Forward the produces() information to create proper ProductDescription objects
    */
   class SwitchProducer : public global::EDProducer<> {
   public:
@@ -28,7 +28,7 @@ namespace edm {
     auto const& moduleLabel = iConfig.getParameter<std::string>("@module_label");
     auto const& chosenLabel = iConfig.getUntrackedParameter<std::string>("@chosen_case");
     auto const& processName = iConfig.getUntrackedParameter<std::string>("@process_name");
-    callWhenNewProductsRegistered([=, this](edm::BranchDescription const& iBranch) {
+    callWhenNewProductsRegistered([=, this](edm::ProductDescription const& iBranch) {
       if (iBranch.moduleLabel() == chosenLabel and iBranch.processName() == processName) {
         if (iBranch.branchType() != InEvent) {
           throw Exception(errors::UnimplementedFeature)
@@ -39,7 +39,7 @@ namespace edm {
         // With consumes, create the connection to the chosen case EDProducer for prefetching
         this->consumes(edm::TypeToGet{iBranch.unwrappedTypeID(), PRODUCT_TYPE},
                        edm::InputTag{iBranch.moduleLabel(), iBranch.productInstanceName(), iBranch.processName()});
-        // With produces, create a producer-like BranchDescription
+        // With produces, create a producer-like ProductDescription
         // early-enough for it to be flagged as non-OnDemand in case
         // the SwithcProducer is on a Path
         this->produces(iBranch.unwrappedTypeID(), iBranch.productInstanceName()).setSwitchAlias(iBranch.moduleLabel());

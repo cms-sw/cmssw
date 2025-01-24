@@ -19,7 +19,7 @@ EDProducts into an Event.
 #include <array>
 
 namespace edm {
-  class BranchDescription;
+  class ProductDescription;
   class ModuleDescription;
   class ProducesCollector;
   class SignallingProductRegistry;
@@ -74,7 +74,7 @@ namespace edm {
     ~ProducerBase() noexcept(false) override;
 
     /// used by the fwk to register list of products
-    std::function<void(BranchDescription const&)> registrationCallback() const;
+    std::function<void(ProductDescription const&)> registrationCallback() const;
 
     void registerProducts(ProducerBase*, SignallingProductRegistry*, ModuleDescription const&);
 
@@ -84,7 +84,7 @@ namespace edm {
     template <typename T>
     using BranchAliasSetterT = ProductRegistryHelper::BranchAliasSetterT<T>;
 
-    void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+    void callWhenNewProductsRegistered(std::function<void(ProductDescription const&)> const& func) {
       callWhenNewProductsRegistered_ = func;
     }
 
@@ -130,7 +130,7 @@ namespace edm {
 
     using ProductRegistryHelper::transforms;
 
-    std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
+    std::function<void(ProductDescription const&)> callWhenNewProductsRegistered_;
     std::array<std::vector<edm::ProductResolverIndex>, edm::NumBranchTypes> putIndicies_;
     std::vector<edm::ProductResolverIndex> putTokenToResolverIndex_;
   };

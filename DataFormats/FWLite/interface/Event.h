@@ -69,7 +69,7 @@
 namespace edm {
   class WrapperBase;
   class ProductRegistry;
-  class BranchDescription;
+  class ProductDescription;
   class EDProductGetter;
   class EventAux;
   class Timestamp;
@@ -173,8 +173,8 @@ namespace fwlite {
 
     edm::EventAuxiliary const& eventAuxiliary() const override;
 
-    std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
-      return branchMap_.getBranchDescriptions();
+    std::vector<edm::ProductDescription> const& getProductDescriptions() const {
+      return branchMap_.getProductDescriptions();
     }
     std::vector<std::string> const& getProcessHistory() const;
     TFile* getTFile() const { return branchMap_.getFile(); }

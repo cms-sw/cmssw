@@ -250,7 +250,7 @@ namespace edm {
 
   void Worker::setEarlyDeleteHelper(EarlyDeleteHelper* iHelper) { earlyDeleteHelper_ = iHelper; }
 
-  size_t Worker::transformIndex(edm::BranchDescription const&) const noexcept { return -1; }
+  size_t Worker::transformIndex(edm::ProductDescription const&) const noexcept { return -1; }
   void Worker::doTransformAsync(WaitingTaskHolder iTask,
                                 size_t iTransformIndex,
                                 EventPrincipal const& iPrincipal,

@@ -6,9 +6,9 @@
 
 namespace edm {
 
-  class BranchDescription;
+  class ProductDescription;
 
-  void insertSelectedProcesses(BranchDescription const& desc,
+  void insertSelectedProcesses(ProductDescription const& desc,
                                std::set<std::string>& processes,
                                std::set<std::string>& processesWithKeptProcessBlockProducts);
 }  // namespace edm

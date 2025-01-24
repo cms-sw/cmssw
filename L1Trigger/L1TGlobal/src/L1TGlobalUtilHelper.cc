@@ -1,5 +1,5 @@
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtilHelper.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -25,7 +25,7 @@ void l1t::L1TGlobalUtilHelper::fillDescription(edm::ParameterSetDescription& des
 
 namespace {
   template <typename C, typename T>
-  void setConsumesAndCheckAmbiguities(edm::BranchDescription const& iDesc,
+  void setConsumesAndCheckAmbiguities(edm::ProductDescription const& iDesc,
                                       C const& iPreferredTags,
                                       T& ioToken,
                                       edm::InputTag& ioTag,
@@ -82,7 +82,7 @@ namespace {
   }
 }  // namespace
 
-void l1t::L1TGlobalUtilHelper::checkToUpdateTags(edm::BranchDescription const& branchDescription,
+void l1t::L1TGlobalUtilHelper::checkToUpdateTags(edm::ProductDescription const& productDescription,
                                                  edm::ConsumesCollector consumesCollector,
                                                  bool findL1TAlgBlk,
                                                  bool findL1TExtBlk) {
@@ -108,7 +108,7 @@ void l1t::L1TGlobalUtilHelper::checkToUpdateTags(edm::BranchDescription const& b
   // TODO decide if the preferred input tags must be given as input parameters
   // or stay hardwired
 
-  if (branchDescription.dropped()) {
+  if (productDescription.dropped()) {
     return;
   }
 
@@ -120,9 +120,9 @@ void l1t::L1TGlobalUtilHelper::checkToUpdateTags(edm::BranchDescription const& b
 
   // GlobalAlgBlkBxCollection
 
-  if (findL1TAlgBlk && (branchDescription.unwrappedTypeID() == edm::TypeID(typeid(GlobalAlgBlkBxCollection))) &&
-      (branchDescription.branchType() == edm::InEvent)) {
-    setConsumesAndCheckAmbiguities(branchDescription,
+  if (findL1TAlgBlk && (productDescription.unwrappedTypeID() == edm::TypeID(typeid(GlobalAlgBlkBxCollection))) &&
+      (productDescription.branchType() == edm::InEvent)) {
+    setConsumesAndCheckAmbiguities(productDescription,
                                    preferredL1TAlgBlkInputTag,
                                    m_l1tAlgBlkToken,
                                    m_l1tAlgBlkInputTag,
@@ -132,9 +132,9 @@ void l1t::L1TGlobalUtilHelper::checkToUpdateTags(edm::BranchDescription const& b
 
   // GlobalExtBlkBxCollection
 
-  if (findL1TExtBlk && (branchDescription.unwrappedTypeID() == edm::TypeID(typeid(GlobalExtBlkBxCollection))) &&
-      (branchDescription.branchType() == edm::InEvent)) {
-    setConsumesAndCheckAmbiguities(branchDescription,
+  if (findL1TExtBlk && (productDescription.unwrappedTypeID() == edm::TypeID(typeid(GlobalExtBlkBxCollection))) &&
+      (productDescription.branchType() == edm::InEvent)) {
+    setConsumesAndCheckAmbiguities(productDescription,
                                    preferredL1TExtBlkInputTag,
                                    m_l1tExtBlkToken,
                                    m_l1tExtBlkInputTag,

@@ -55,7 +55,7 @@ class testEvent;
 
 namespace edm {
 
-  class BranchDescription;
+  class ProductDescription;
   class ModuleCallingContext;
   class TriggerResultsByName;
   class TriggerResults;
@@ -270,7 +270,7 @@ namespace edm {
 
     void fillLuminosityBlock() const;
 
-    ProductID makeProductID(BranchDescription const& desc) const;
+    ProductID makeProductID(ProductDescription const& desc) const;
 
     //override used by EventBase class
     BasicHandle getByLabelImpl(std::type_info const& iWrapperType,

@@ -1,5 +1,5 @@
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtilsHelper.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -25,7 +25,7 @@ void L1GtUtilsHelper::fillDescription(edm::ParameterSetDescription& desc) {
 
 namespace {
   template <typename C, typename T>
-  void setConsumesAndCheckAmbiguities(edm::BranchDescription const& iDesc,
+  void setConsumesAndCheckAmbiguities(edm::ProductDescription const& iDesc,
                                       C const& iPreferredTags,
                                       T& ioToken,
                                       edm::InputTag& ioTag,
@@ -85,12 +85,12 @@ namespace {
     }
   }
 }  // namespace
-void L1GtUtilsHelper::checkToUpdateTags(edm::BranchDescription const& branchDescription,
+void L1GtUtilsHelper::checkToUpdateTags(edm::ProductDescription const& productDescription,
                                         edm::ConsumesCollector consumesCollector,
                                         bool findRecord,
                                         bool findReadoutRecord,
                                         bool findMenuLite) {
-  if (branchDescription.dropped()) {
+  if (productDescription.dropped()) {
     return;
   }
   // This is only used if required InputTags were not specified already.
@@ -125,9 +125,9 @@ void L1GtUtilsHelper::checkToUpdateTags(edm::BranchDescription const& branchDesc
 
   // L1GlobalTriggerRecord
 
-  if (findRecord && (branchDescription.unwrappedTypeID() == edm::TypeID(typeid(L1GlobalTriggerRecord))) &&
-      (branchDescription.branchType() == edm::InEvent)) {
-    setConsumesAndCheckAmbiguities(branchDescription,
+  if (findRecord && (productDescription.unwrappedTypeID() == edm::TypeID(typeid(L1GlobalTriggerRecord))) &&
+      (productDescription.branchType() == edm::InEvent)) {
+    setConsumesAndCheckAmbiguities(productDescription,
                                    preferredL1GtRecordInputTag,
                                    m_l1GtRecordToken,
                                    m_l1GtRecordInputTag,
@@ -137,9 +137,9 @@ void L1GtUtilsHelper::checkToUpdateTags(edm::BranchDescription const& branchDesc
 
   // L1GlobalTriggerReadoutRecord
 
-  if (findReadoutRecord && (branchDescription.unwrappedTypeID() == edm::TypeID(typeid(L1GlobalTriggerReadoutRecord))) &&
-      (branchDescription.branchType() == edm::InEvent)) {
-    setConsumesAndCheckAmbiguities(branchDescription,
+  if (findReadoutRecord && (productDescription.unwrappedTypeID() == edm::TypeID(typeid(L1GlobalTriggerReadoutRecord))) &&
+      (productDescription.branchType() == edm::InEvent)) {
+    setConsumesAndCheckAmbiguities(productDescription,
                                    preferredL1GtReadoutRecordInputTag,
                                    m_l1GtReadoutRecordToken,
                                    m_l1GtReadoutRecordInputTag,
@@ -149,9 +149,9 @@ void L1GtUtilsHelper::checkToUpdateTags(edm::BranchDescription const& branchDesc
 
   // L1GtTriggerMenuLite
 
-  if (findMenuLite && (branchDescription.unwrappedTypeID() == edm::TypeID(typeid(L1GtTriggerMenuLite))) &&
-      (branchDescription.branchType() == edm::InEvent)) {
-    setConsumesAndCheckAmbiguities(branchDescription,
+  if (findMenuLite && (productDescription.unwrappedTypeID() == edm::TypeID(typeid(L1GtTriggerMenuLite))) &&
+      (productDescription.branchType() == edm::InEvent)) {
+    setConsumesAndCheckAmbiguities(productDescription,
                                    preferredL1GtTriggerMenuLiteInputTag,
                                    m_l1GtTriggerMenuLiteToken,
                                    m_l1GtTriggerMenuLiteInputTag,

@@ -39,7 +39,7 @@
 namespace edm {
   class WrapperBase;
   class ProductRegistry;
-  class BranchDescription;
+  class ProductDescription;
   class EDProductGetter;
   class LuminosityBlockAux;
   class Timestamp;
@@ -89,8 +89,8 @@ namespace fwlite {
 
     edm::LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const override;
 
-    std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
-      return branchMap_->getBranchDescriptions();
+    std::vector<edm::ProductDescription> const& getProductDescriptions() const {
+      return branchMap_->getProductDescriptions();
     }
 
     //       void setGetter(//Copy from Event if needed

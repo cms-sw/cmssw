@@ -146,14 +146,14 @@ namespace edm {
 
   DelayedReader* RootTree::rootDelayedReader() const { return rootDelayedReader_.get(); }
 
-  void RootTree::setPresence(BranchDescription& prod, std::string const& oldBranchName) {
+  void RootTree::setPresence(ProductDescription& prod, std::string const& oldBranchName) {
     assert(isValid());
     if (tree_->GetBranch(oldBranchName.c_str()) == nullptr) {
       prod.setDropped(true);
     }
   }
 
-  void RootTree::addBranch(BranchDescription const& prod, std::string const& oldBranchName) {
+  void RootTree::addBranch(ProductDescription const& prod, std::string const& oldBranchName) {
     assert(isValid());
     //use the translated branch name
     TBranch* branch = tree_->GetBranch(oldBranchName.c_str());

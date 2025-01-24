@@ -42,7 +42,7 @@ namespace edmtest {
 
 namespace edm {
 
-  class BranchDescription;
+  class ProductDescription;
   class ModuleCallingContext;
   class ProductProvenanceRetriever;
   class EDConsumerBase;

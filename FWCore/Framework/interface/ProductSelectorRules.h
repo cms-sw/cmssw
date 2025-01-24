@@ -16,7 +16,7 @@
 #include <regex>
 
 namespace edm {
-  class BranchDescription;
+  class ProductDescription;
   class ProductSelector;
   class ParameterSet;
   class ParameterSetDescription;
@@ -27,18 +27,18 @@ namespace edm {
                          std::string const& parameterName,
                          std::string const& parameterOwnerName);
     //--------------------------------------------------
-    // BranchSelectState is a struct which associates a BranchDescription
+    // BranchSelectState is a struct which associates a ProductDescription
     // (*desc) with a bool indicating whether or not the branch with
     // that name is to be selected.  Note that desc may not be null.
     struct BranchSelectState {
-      edm::BranchDescription const* desc;
+      edm::ProductDescription const* desc;
       bool selectMe;
 
       // N.B.: We assume bd is not null.
-      explicit BranchSelectState(edm::BranchDescription const* bd) : desc(bd), selectMe(false) {}
+      explicit BranchSelectState(edm::ProductDescription const* bd) : desc(bd), selectMe(false) {}
     };
 
-    bool select(edm::BranchDescription const& bd) const;
+    bool select(edm::ProductDescription const& bd) const;
     void applyToAll(std::vector<BranchSelectState>& branchstates) const;
 
     bool keepAll() const { return keepAll_; }
@@ -58,19 +58,19 @@ namespace edm {
       // the given branch states.
       void applyToAll(std::vector<BranchSelectState>& branchstates) const;
 
-      // Apply the rule to the given BranchDescription. The return value
+      // Apply the rule to the given ProductDescription. The return value
       // is the value to which the 'select bit' should be set, according
       // to application of this rule.
-      //bool applyToOne(BranchDescription const* branch) const;
+      //bool applyToOne(ProductDescription const* branch) const;
 
-      // If this rule applies to the given BranchDescription, then
+      // If this rule applies to the given ProductDescription, then
       // modify 'result' to match the rule's select flag. If the rule does
       // not apply, do not modify 'result'.
-      void applyToOne(BranchDescription const* branch, bool& result) const;
+      void applyToOne(ProductDescription const* branch, bool& result) const;
 
       // Return the answer to the question: "Does the rule apply to this
-      // BranchDescription?"
-      bool appliesTo(BranchDescription const* branch) const;
+      // ProductDescription?"
+      bool appliesTo(ProductDescription const* branch) const;
 
     private:
       // selectflag_ carries the value to which we should set the 'select

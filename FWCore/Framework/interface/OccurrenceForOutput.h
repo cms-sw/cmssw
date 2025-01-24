@@ -37,7 +37,7 @@ namespace edmtest {
 
 namespace edm {
 
-  class BranchDescription;
+  class ProductDescription;
   class ModuleCallingContext;
   class Principal;
   class EDConsumerBase;
@@ -69,7 +69,7 @@ namespace edm {
 
     void getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
-    std::vector<BranchDescription const*> productDescriptions() const;
+    std::vector<ProductDescription const*> productDescriptions() const;
     ProductRegistry const& productRegistry() const;
 
     virtual ProcessHistory const& processHistory() const;

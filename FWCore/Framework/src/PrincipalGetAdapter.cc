@@ -186,10 +186,10 @@ namespace edm {
   void PrincipalGetAdapter::throwUnregisteredPutException(TypeID const& type,
                                                           std::string const& productInstanceName) const {
     std::ostringstream str;
-    for (auto branchDescription : principal_.productRegistry().allBranchDescriptions()) {
-      if (branchDescription->moduleLabel() == md_.moduleLabel() and
-          branchDescription->processName() == md_.processName()) {
-        str << *branchDescription << "-----\n";
+    for (auto productDescription : principal_.productRegistry().allProductDescriptions()) {
+      if (productDescription->moduleLabel() == md_.moduleLabel() and
+          productDescription->processName() == md_.processName()) {
+        str << *productDescription << "-----\n";
       }
     }
     throw edm::Exception(edm::errors::InsertFailure)
@@ -208,7 +208,7 @@ namespace edm {
            "'put' call.";
   }
 
-  BranchDescription const& PrincipalGetAdapter::getBranchDescription(TypeID const& type,
+  ProductDescription const& PrincipalGetAdapter::getProductDescription(TypeID const& type,
                                                                      std::string const& productInstanceName) const {
     ProductResolverIndexHelper const& productResolverIndexHelper = principal_.productLookup();
     ProductResolverIndex index = productResolverIndexHelper.index(
@@ -218,14 +218,14 @@ namespace edm {
     }
     ProductResolverBase const* phb = principal_.getProductResolverByIndex(index);
     assert(phb != nullptr);
-    return phb->branchDescription();
+    return phb->productDescription();
   }
 
-  BranchDescription const& PrincipalGetAdapter::getBranchDescription(unsigned int iPutTokenIndex) const {
+  ProductDescription const& PrincipalGetAdapter::getProductDescription(unsigned int iPutTokenIndex) const {
     auto index = prodBase_->putTokenIndexToProductResolverIndex()[iPutTokenIndex];
     ProductResolverBase const* phb = principal_.getProductResolverByIndex(index);
     assert(phb != nullptr);
-    return phb->branchDescription();
+    return phb->productDescription();
   }
 
   ProductID const& PrincipalGetAdapter::getProductID(unsigned int iPutTokenIndex) const {

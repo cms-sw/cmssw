@@ -18,7 +18,7 @@ class TTree;
 #include <vector>
 
 namespace edm {
-  class BranchDescription;
+  class ProductDescription;
   class FileBlock {
   public:
     // bit mask for reasons fast cloning can be disabled or not applicable

@@ -2,12 +2,12 @@
 #define DataFormats_Provenance_ProvenanceFwd_h
 
 namespace edm {
-  class BranchDescription;
+  class ProductDescription;
   class BranchIDListHelper;
   class Parentage;
   class BranchID;
   class BranchKey;
-  class BranchDescription;
+  class ProductDescription;
   class ProductProvenance;
   class ProductProvenance;
   class EventAuxiliary;

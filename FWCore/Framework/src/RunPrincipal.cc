@@ -32,7 +32,7 @@ namespace edm {
     }
   }
 
-  void RunPrincipal::put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
+  void RunPrincipal::put(ProductDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
     put_(bd, std::move(edp));
   }
 
@@ -41,7 +41,7 @@ namespace edm {
     dynamic_cast<ProductPutterBase const*>(phb)->putProduct(std::move(edp));
   }
 
-  void RunPrincipal::putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase> prod) const {
+  void RunPrincipal::putOrMerge(ProductDescription const& bd, std::unique_ptr<WrapperBase> prod) const {
     if (prod.get() == nullptr) {
       throw edm::Exception(edm::errors::InsertFailure, "Null Pointer")
           << "putOrMerge: Cannot put because unique_ptr to product is null."

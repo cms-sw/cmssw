@@ -131,7 +131,7 @@ namespace edm {
           processName = processConfiguration_->processName();
         }
         edm::TypeWithDict twd(produce.type_.typeInfo());
-        edm::BranchDescription product(edm::InEvent,
+        edm::ProductDescription product(edm::InEvent,
                                        produce.moduleLabel_,
                                        processName,
                                        twd.userClassName(),

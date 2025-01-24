@@ -91,7 +91,7 @@ namespace edm {
 
     void implDoAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskHolder&&) final;
 
-    size_t transformIndex(edm::BranchDescription const&) const noexcept final;
+    size_t transformIndex(edm::ProductDescription const&) const noexcept final;
     void implDoTransformAsync(WaitingTaskHolder,
                               size_t iTransformIndex,
                               EventPrincipal const&,

@@ -24,7 +24,7 @@ namespace edm {
   class TypeID;
   class WrapperBase;
   class EventForTransformer;
-  class BranchDescription;
+  class ProductDescription;
   class ProductResolverIndexHelper;
   class ModuleDescription;
   class WaitingTaskWithArenaHolder;
@@ -47,7 +47,7 @@ namespace edm {
     void registerTransformAsyncImp(
         ProducerBase&, EDPutToken, const TypeID& id, std::string instanceName, PreTransformFunction, TransformFunction);
 
-    std::size_t findMatchingIndex(ProducerBase const& iBase, edm::BranchDescription const&) const noexcept;
+    std::size_t findMatchingIndex(ProducerBase const& iBase, edm::ProductDescription const&) const noexcept;
     ProductResolverIndex prefetchImp(std::size_t iIndex) const noexcept {
       return transformInfo_.get<kResolverIndex>(iIndex);
     }

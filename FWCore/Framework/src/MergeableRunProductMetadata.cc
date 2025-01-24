@@ -290,7 +290,7 @@ namespace edm {
     unsigned int processIndex = 0;
     for (auto const& metadataForProcess : metadataForProcesses_) {
       // This string comparison could be optimized away by storing an index in
-      // BranchDescription as a transient calculated once early in a job.
+      // ProductDescription as a transient calculated once early in a job.
       if (getProcessName(processIndex) == processName) {
         return &metadataForProcess;
       }

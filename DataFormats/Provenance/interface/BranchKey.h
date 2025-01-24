@@ -12,7 +12,7 @@ is determined entirely from the BranchKey.
 #include <string>
 
 namespace edm {
-  class BranchDescription;
+  class ProductDescription;
 
   class BranchKey {
   public:
@@ -21,7 +21,7 @@ namespace edm {
     BranchKey(std::string const& cn, std::string const& ml, std::string const& pin, std::string const& pn)
         : friendlyClassName_(cn), moduleLabel_(ml), productInstanceName_(pin), processName_(pn) {}
 
-    explicit BranchKey(BranchDescription const& desc);
+    explicit BranchKey(ProductDescription const& desc);
 
     std::string const& friendlyClassName() const { return friendlyClassName_; }
     std::string const& moduleLabel() const { return moduleLabel_; }

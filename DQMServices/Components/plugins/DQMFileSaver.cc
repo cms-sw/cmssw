@@ -156,7 +156,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       // Abuse ProcessMatch as a "match all".
       jobmegetter_(edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InProcess)),
       runmegetter_(edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InRun)) {
-  callWhenNewProductsRegistered([this](edm::BranchDescription const &bd) {
+  callWhenNewProductsRegistered([this](edm::ProductDescription const &bd) {
     this->jobmegetter_(bd);
     this->runmegetter_(bd);
   });

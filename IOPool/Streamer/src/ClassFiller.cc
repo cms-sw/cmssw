@@ -37,7 +37,7 @@ namespace edm::streamer {
       loadCap(std::string("edm::StreamedProduct"), missingDictionaries);
       loadCap(std::string("std::vector<edm::StreamedProduct>"), missingDictionaries);
       loadCap(std::string("edm::SendEvent"), missingDictionaries);
-      loadCap(std::string("std::vector<edm::BranchDescription>"), missingDictionaries);
+      loadCap(std::string("std::vector<edm::ProductDescription>"), missingDictionaries);
       loadCap(std::string("edm::SendJobHeader"), missingDictionaries);
       if (!missingDictionaries.empty()) {
         std::string context("Calling loadExtraClasses, checking dictionaries");

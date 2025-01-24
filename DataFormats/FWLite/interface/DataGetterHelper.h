@@ -41,7 +41,7 @@ class TTreeCache;
 class TTree;
 
 namespace edm {
-  class BranchDescription;
+  class ProductDescription;
   class BranchID;
   class ObjectWithDict;
   class ProductID;
@@ -99,7 +99,7 @@ namespace fwlite {
 
     internal::Data& getBranchDataFor(std::type_info const&, char const*, char const*, char const*) const;
     void getBranchData(edm::EDProductGetter const*, Long64_t, internal::Data&) const;
-    bool getByBranchDescription(edm::BranchDescription const&, Long_t eventEntry, KeyToDataMap::iterator&) const;
+    bool getByProductDescription(edm::ProductDescription const&, Long_t eventEntry, KeyToDataMap::iterator&) const;
     edm::WrapperBase const* wrapperBasePtr(edm::ObjectWithDict const&) const;
     edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID, Long_t eventEntry) const;
 

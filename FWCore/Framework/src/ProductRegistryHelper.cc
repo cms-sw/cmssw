@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "DataFormats/Common/interface/setIsMergeable.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Reflection/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -75,7 +75,7 @@ namespace edm {
       }
 
       TypeWithDict type(p->typeID_.typeInfo());
-      BranchDescription pdesc(branchType,
+      ProductDescription pdesc(branchType,
                               iDesc.moduleLabel(),
                               iDesc.processName(),
                               p->typeID_.userClassName(),
