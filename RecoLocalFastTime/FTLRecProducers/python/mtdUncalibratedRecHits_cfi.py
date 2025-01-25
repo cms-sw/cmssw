@@ -23,10 +23,10 @@ _endcapAlgo = cms.PSet(
     toaLSB_ns     = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.toaLSB_ns,
     tofDelay      = mtdDigitizer.endcapDigitizer.DeviceSimulation.tofDelay,
     timeResolutionInNs = cms.string("0.0370"), # [ns]
-    timeCorr_p0 = cms.double(1.07959),
-    timeCorr_p1 = cms.double(-0.274148),
-    timeCorr_p2 = cms.double(0.0241685),
-    timeCorr_p3 = cms.double(-0.000665249)
+    timeCorr_p0 = cms.double(0.974683),
+    timeCorr_p1 = cms.double(-0.237274),
+    timeCorr_p2 = cms.double(0.021455),
+    timeCorr_p3 = cms.double(-0.000727429)
 )
 
 
