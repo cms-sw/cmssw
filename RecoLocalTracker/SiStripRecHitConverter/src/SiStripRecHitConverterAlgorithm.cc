@@ -59,6 +59,7 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStr
 void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStripCluster>> inputhandle,
                                           products& output,
                                           LocalVector trackdirection) {
+  auto const inputID = inputhandle.id();
   for (auto const& DS : *inputhandle) {
     auto id = DS.id();
     if (!useModule(id))
@@ -75,8 +76,8 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStr
         continue;
 
       StripClusterParameterEstimator::LocalValues parameters = parameterestimator->localParameters(cluster, du);
-      collector.push_back(
-          SiStripRecHit2D(parameters.first, parameters.second, du, DS.makeRefTo(inputhandle, &cluster)));
+      collector.push_back(SiStripRecHit2D(
+          parameters.first, parameters.second, du, OmniClusterRef(inputID, &cluster, DS.makeKeyOf(&cluster))));
     }
 
     if (collector.empty())
