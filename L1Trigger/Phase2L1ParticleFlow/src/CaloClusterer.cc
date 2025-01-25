@@ -84,8 +84,8 @@ int l1tpf_calo::Phase1GridBase::find_cell(float eta, float phi) const {
     ieta = nEta_;
   if (eta < 0)
     ieta = -ieta;
-  phi = reco::reduceRange(phi);  // [-PI, PI]
-  if (phi < 0)                   // then bring to [0, 2*PI]
+  phi = reco::reducePhiRange(phi);  // [-PI, PI]
+  if (phi < 0)                      // then bring to [0, 2*PI]
     phi += 2 * M_PI;
   int iphi = std::floor(phi * nPhi_ / (2 * M_PI));
   if (phi >= 2 * M_PI)
@@ -356,7 +356,7 @@ void l1tpf_calo::SingleCaloClusterer::run() {
           cluster.eta = grid_->eta(i) + avg_eta / tot;
           cluster.phi = grid_->phi(i) + avg_phi / tot;
           // wrap around phi
-          cluster.phi = reco::reduceRange(cluster.phi);
+          cluster.phi = reco::reducePhiRange(cluster.phi);
         } else {
           cluster.eta = grid_->eta(i);
           cluster.phi = grid_->phi(i);
@@ -592,7 +592,7 @@ void l1tpf_calo::SimpleCaloLinker::run() {
           cluster.ecal_eta = cluster.eta;
           cluster.ecal_phi = cluster.phi;
           // wrap around phi
-          cluster.phi = reco::reduceRange(cluster.phi);
+          cluster.phi = reco::reducePhiRange(cluster.phi);
           cluster.constituents.emplace_back(-i - 1, 1);
         }
       } else {
@@ -622,7 +622,7 @@ void l1tpf_calo::SimpleCaloLinker::run() {
           cluster.ecal_eta = cluster.eta;
           cluster.ecal_phi = cluster.phi;
           // wrap around phi
-          cluster.phi = reco::reduceRange(cluster.phi);
+          cluster.phi = reco::reducePhiRange(cluster.phi);
         }
       }
       if (cluster.et > 0) {

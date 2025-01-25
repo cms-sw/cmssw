@@ -152,7 +152,7 @@ $(shell echo "};" >> FWCore/MessageLogger/interface/MessageLogger.h)
 $(shell echo "#endif" >> FWCore/MessageLogger/interface/MessageLogger.h)
 endif
 
-# reduceRange for standalone
+# reducePhiRange for standalone
 ifeq ("$(wildcard DataFormats/Math/interface)","")
 $(shell mkdir DataFormats)
 $(shell mkdir DataFormats/Math)
@@ -163,7 +163,7 @@ ifeq ("$(wildcard DataFormats/Math/interface/deltaPhi.h)","")
 $(shell echo "#ifndef DataFormats_Math_interface_deltaPhi_h" > DataFormats/Math/interface/deltaPhi.h)
 $(shell echo "#define DataFormats_Math_interface_deltaPhi_h" >> DataFormats/Math/interface/deltaPhi.h)
 $(shell echo "namespace reco {" >> DataFormats/Math/interface/deltaPhi.h)
-$(shell echo "  inline double reduceRange(double phi) { assert(std::abs(phi) < 100.0); " >> DataFormats/Math/interface/deltaPhi.h)
+$(shell echo "  inline double reducePhiRange(double phi) { assert(std::abs(phi) < 100.0); " >> DataFormats/Math/interface/deltaPhi.h)
 $(shell echo "    while (phi < -M_PI) { phi += 2 * M_PI; }" >> DataFormats/Math/interface/deltaPhi.h)
 $(shell echo "    while (phi > M_PI) { phi -= 2 * M_PI; }" >> DataFormats/Math/interface/deltaPhi.h)
 $(shell echo "    return phi; } " >> DataFormats/Math/interface/deltaPhi.h)

@@ -32,9 +32,9 @@ inline int diff(float a, float b) {
 #include <vector>
 int main() {
   for (float q = -10.; q < 10.; q += 0.5)
-    std::cout << q << ' ' << q - std::copysign(2 * M_PI, q) << ' ' << reco::reduceRange(q) << std::endl;
+    std::cout << q << ' ' << q - std::copysign(2 * M_PI, q) << ' ' << reco::reducePhiRange(q) << std::endl;
 
-  std::cout << reco::reduceRange(std::sqrt(-1)) << std::endl;
+  std::cout << reco::reducePhiRange(std::sqrt(-1)) << std::endl;
 
   std::vector<Vector> vs;
   for (float x = -1000.; x <= 1010.; x += 100)
