@@ -118,7 +118,7 @@ def customizeNanoGEN(process):
     process.load("RecoJets.JetProducers.ak8GenJets_cfi")
     process.ak8GenJetsNoNuConstituents =  process.ak8GenJetsConstituents.clone(src='ak8GenJetsNoNu')
     process.ak8GenJetsNoNuSoftDrop = process.ak8GenJetsSoftDrop.clone(src=cms.InputTag('ak8GenJetsNoNuConstituents', 'constituents'))
-    process.genSubJetAK8Table.src = "ak8GenJetsNoNuSoftDrop"
+    process.genSubJetAK8Table.src = ("ak8GenJetsNoNuSoftDrop","SubJets")
     process.genParticlesForJetsCharged = cms.EDFilter("CandPtrSelector", src = cms.InputTag("genParticles"), cut = cms.string("charge != 0 && pt > 0.3 && status == 1 && abs(pdgId) != 12 && abs(pdgId) != 14 && abs(pdgId) != 16"))
     process.ak4GenJetsChargedOnly = ak4GenJets.clone(src = cms.InputTag("genParticlesForJetsCharged"), rParam = cms.double(0.4), jetAlgorithm=cms.string("AntiKt"), doAreaFastjet = False, jetPtMin=1)
     process.nanogenSequence.insert(0, process.ak4GenJetsChargedOnly)
