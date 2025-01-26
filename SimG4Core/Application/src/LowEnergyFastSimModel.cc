@@ -23,24 +23,24 @@ LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* reg
     : G4VFastSimulationModel(name, region),
       fRegion(region),
       fTrackingAction(nullptr),
-      fCheck(true),
+      fCheck(false),
       fTailPos(0., 0., 0.) {
   fEmax = parSet.getParameter<double>("LowEnergyGflashEcalEmax") * CLHEP::GeV;
   fPositron = G4Positron::Positron();
   fMaterial = nullptr;
   auto table = G4Material::GetMaterialTable();
   for (auto const& mat : *table) {
-    G4String nam = (G4String)(DD4hep2DDDName::noNameSpace(mat->GetName()));
-    size_t n = nam.size();
+    const G4String& nam = mat->GetName();
+    std::size_t n = nam.size();
     if (n > 4) {
-      G4String sn = nam.substr(n - 5, 5);
+      const G4String& sn = nam.substr(n - 5, 5);
       if (sn == "PbWO4") {
         fMaterial = mat;
         break;
       }
     }
   }
-  G4String nm = (nullptr == fMaterial) ? "not found!" : (G4String)(DD4hep2DDDName::noNameSpace(fMaterial->GetName()));
+  const G4String& nm = (nullptr == fMaterial) ? "not found!" : fMaterial->GetName();
   edm::LogVerbatim("LowEnergyFastSimModel") << "LowEGFlash material: <" << nm << ">";
 }
 
@@ -72,8 +72,6 @@ G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack) {
 }
 
 void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
-  fastStep.KillPrimaryTrack();
-  fastStep.ProposePrimaryTrackPathLength(0.0);
   auto track = fastTrack.GetPrimaryTrack();
   G4double energy = track->GetKineticEnergy() * scaleFactor;
 
@@ -87,41 +85,52 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
 
   const G4ThreeVector& momDir = track->GetMomentumDirection();
 
-  // in point energy deposition
-  GFlashEnergySpot spot;
-  spot.SetEnergy(inPointEnergy);
-  spot.SetPosition(pos);
-  fHitMaker.make(&spot, &fastTrack);
-
   // Russian roulette
   double wt2 = track->GetWeight();
   if (wt2 <= 0.0) {
     wt2 = 1.0;
   }
-
   // tail energy deposition
-  const G4double etail = energy - inPointEnergy;
-  const G4int nspots = etail;
-  const G4double tailEnergy = etail * wt2 / (nspots + 1);
+  G4double etail = energy - inPointEnergy;
+  G4int nspots = G4lrint(etail);
+  if (0 == nspots) {
+    inPointEnergy = energy;
+    etail = 0.0;
+  }
+
+  // in point energy deposition
+  GFlashEnergySpot spot;
+  spot.SetEnergy(inPointEnergy*wt2);
+  spot.SetPosition(pos);
+  fHitMaker.make(&spot, &fastTrack);
+
+  G4double zz = 0.0;
+  if (0 < nspots) {
+    etail *= wt2 / (G4double)nspots;
   /*  
   edm::LogVerbatim("LowEnergyFastSimModel") << track->GetDefinition()->GetParticleName()
 					    << " Ekin(MeV)=" << energy << " material: <"
                                             << track->GetMaterial()->GetName() 
 					    << "> Elocal=" << inPointEnergy
 					    << " Etail=" << tailEnergy
-					    << " Nspots=" << nspots+1;
+					    << " Nspots=" << nspots;
   */
-  for (G4int i = 0; i <= nspots; ++i) {
-    const G4double r = fParam.GetRadius(energy);
-    const G4double z = fParam.GetZ();
+    for (G4int i = 0; i < nspots; ++i) {
+      const G4double r = fParam.GetRadius(energy);
+      const G4double z = fParam.GetZ();
+      zz += z;
 
-    const G4double phi = CLHEP::twopi * G4UniformRand();
-    fTailPos.set(r * std::cos(phi), r * std::sin(phi), z);
-    fTailPos.rotateUz(momDir);
-    fTailPos += pos;
+      const G4double phi = CLHEP::twopi * G4UniformRand();
+      fTailPos.set(r * std::cos(phi), r * std::sin(phi), z);
+      fTailPos.rotateUz(momDir);
+      fTailPos += pos;
 
-    spot.SetEnergy(tailEnergy);
-    spot.SetPosition(fTailPos);
-    fHitMaker.make(&spot, &fastTrack);
+      spot.SetEnergy(etail);
+      spot.SetPosition(fTailPos);
+      fHitMaker.make(&spot, &fastTrack);
+    }
+    zz /= (G4double)nspots;
   }
+  fastStep.KillPrimaryTrack();
+  fastStep.ProposePrimaryTrackPathLength(zz);
 }
