@@ -100,14 +100,14 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
 
   // in point energy deposition
   GFlashEnergySpot spot;
-  spot.SetEnergy(inPointEnergy*wt2);
+  spot.SetEnergy(inPointEnergy * wt2);
   spot.SetPosition(pos);
   fHitMaker.make(&spot, &fastTrack);
 
   G4double zz = 0.0;
   if (0 < nspots) {
     etail *= wt2 / (G4double)nspots;
-  /*  
+    /*  
   edm::LogVerbatim("LowEnergyFastSimModel") << track->GetDefinition()->GetParticleName()
 					    << " Ekin(MeV)=" << energy << " material: <"
                                             << track->GetMaterial()->GetName() 
