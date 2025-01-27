@@ -156,11 +156,11 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
       bool crcvalid(true);
       const auto econd_payload_length = ((econd_headers[0] >> ECOND_FRAME::PAYLOAD_POS) & ECOND_FRAME::PAYLOAD_MASK);
       crcvalid = hgcal::econdCRCAnalysis(ptr, 0, econd_payload_length);
-      LogDebug("[HGCalUnpacker]")    << "crc value " << crcvalid;
+      LogDebug("[HGCalUnpacker]") << "crc value " << crcvalid;
       ++ptr;
-      
+
       if (!crcvalid) {
-              econd_pkt_status |= 0b1000; //If CRC errors in the trailer, update the pkt status
+        econd_pkt_status |= 0b1000;  //If CRC errors in the trailer, update the pkt status
       }
 
       econdPacketInfo.view()[ECONDdenseIdx].cbFlag() = (uint16_t)(econd_pkt_status);
@@ -193,7 +193,8 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
       if ((((econd_headers[0] >> ECOND_FRAME::HT_POS) & ECOND_FRAME::HT_MASK) >= 0b10) ||
           (((econd_headers[0] >> ECOND_FRAME::EBO_POS) & ECOND_FRAME::EBO_MASK) >= 0b10) ||
           (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) ||
-	  (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) || econd_payload_length == 0 || econd_pkt_status == 0b111 || headerOnlyMode) {
+          (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) || econd_payload_length == 0 ||
+          econd_pkt_status == 0b111 || headerOnlyMode) {
         continue;
       }
 
