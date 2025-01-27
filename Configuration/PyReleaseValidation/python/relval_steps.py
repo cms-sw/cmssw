@@ -2942,12 +2942,12 @@ step3_alpaka_cpu = {
 }
 step3_alpaka_gpu = {
     '--procModifiers': 'alpaka',
-    '--accelerators' : '*' ## redundant, here just for readability
+    '--accelerators' : '"*"' ## redundant, here just for readability
 }
 
 step3_alpaka_gpu_validation = {
     '--procModifiers': 'alpaka,alpakaValidation',
-    '--accelerators' : 'gpu*'
+    '--accelerators' : '"gpu*"'
 }
 step3_pixel_triplets = {
     '--customise': 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
@@ -3243,7 +3243,7 @@ steps['RecoData_Alpaka_AllGPU_Validation_2023'] = merge([{'-s':'RAW2DIGI:RawToDi
                                                              '--eventcontent':'RECO,MINIAOD,DQM',
                                                              '--geometry':'DB:Extended',
                                                              '--era':'Run3',
-                                                             '--accelerators': 'gpu-*',
+                                                             '--accelerators': '"gpu-*"',
                                                              '--procModifiers':'alpakaValidation'},dataReco])
 
 # Run-3 2022 skim
