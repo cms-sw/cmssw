@@ -24,6 +24,7 @@
 // user include files
 #include "SiPixelDigitizer.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelSimHitExtraInfo.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelSimHitExtraInfoLite.h"
 #include "PixelDigiAddTempInfo.h"
 #include "SiPixelDigitizerAlgorithm.h"
 
@@ -86,9 +87,14 @@ namespace cms {
         firstFinalizeEvent_(true),
         applyLateReweighting_(
             iConfig.exists("applyLateReweighting") ? iConfig.getParameter<bool>("applyLateReweighting") : false),
+        usePixelExtraLiteFormat_(
+            iConfig.exists("usePixelExtraLiteFormat") ? iConfig.getParameter<bool>("usePixelExtraLiteFormat") : false),
         store_SimHitEntryExitPoints_(iConfig.exists("store_SimHitEntryExitPoints")
                                          ? iConfig.getParameter<bool>("store_SimHitEntryExitPoints")
                                          : false),
+        store_SimHitEntryExitPointsLite_(iConfig.exists("store_SimHitEntryExitPointsLite")
+                                             ? iConfig.getParameter<bool>("store_SimHitEntryExitPointsLite")
+                                             : false),
         _pixeldigialgo(),
         hitsProducer(iConfig.getParameter<std::string>("hitsProducer")),
         trackerContainers(iConfig.getParameter<std::vector<std::string> >("RoutList")),
@@ -108,6 +114,9 @@ namespace cms {
     if (store_SimHitEntryExitPoints_)
       producesCollector.produces<edm::DetSetVector<PixelSimHitExtraInfo> >().setBranchAlias(alias +
                                                                                             "siPixelExtraSimHit");
+    if (store_SimHitEntryExitPointsLite_)
+      producesCollector.produces<edm::DetSetVector<PixelSimHitExtraInfoLite> >().setBranchAlias(
+          alias + "siPixelExtraSimHitLite");
 
     for (auto const& trackerContainer : trackerContainers) {
       edm::InputTag tag(hitsProducer, trackerContainer);
@@ -261,6 +270,7 @@ namespace cms {
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
     std::vector<edm::DetSet<PixelSimHitExtraInfo> > theExtraSimHitInfoVector;
+    std::vector<edm::DetSet<PixelSimHitExtraInfoLite> > theExtraSimHitInfoLiteVector;
 
     if (firstFinalizeEvent_) {
       _pixeldigialgo->init_DynIneffDB(iSetup);
@@ -285,6 +295,7 @@ namespace cms {
         edm::DetSet<PixelDigiSimLink> linkcollector(iu->geographicalId().rawId());
         std::vector<PixelDigiAddTempInfo> tempcollector;
         edm::DetSet<PixelSimHitExtraInfo> tempSHcollector(iu->geographicalId().rawId());
+        edm::DetSet<PixelSimHitExtraInfoLite> tempSHLitecollector(iu->geographicalId().rawId());
 
         _pixeldigialgo->digitize(dynamic_cast<const PixelGeomDetUnit*>(iu),
                                  collector.data,
@@ -318,6 +329,7 @@ namespace cms {
             }
 
             bool checkInTheList = false;
+            // To fill the PixelSimHitExtraInfo temporary collector
             if (!checkTwoSimHits) {
               std::vector<PixelSimHitExtraInfo>::iterator loopTempSH;
               for (loopTempSH = tempSHcollector.begin(); loopTempSH != tempSHcollector.end(); ++loopTempSH) {
@@ -334,13 +346,41 @@ namespace cms {
                 tempSHcollector.push_back(newSHEntry);
               }
             }
+            bool checkInTheListLite = false;
+            // To fill the PixelSimHitExtraInfoLite temporary collector
+            if (!checkTwoSimHits) {
+              std::vector<PixelSimHitExtraInfoLite>::iterator loopTempSHLite;
+              for (loopTempSHLite = tempSHLitecollector.begin(); loopTempSHLite != tempSHLitecollector.end();
+                   ++loopTempSHLite) {
+                if (loopNewClass->hitIndex() == loopTempSHLite->hitIndex()) {
+                  checkInTheListLite = true;
+                  loopTempSHLite->addDigiInfo(loopNewClass->channel());
+                }
+              }
+              if (!checkInTheListLite) {
+                PixelSimHitExtraInfoLite newSHLiteEntry(loopNewClass->hitIndex(),
+                                                        loopNewClass->entryPoint(),
+                                                        loopNewClass->exitPoint(),
+                                                        loopNewClass->channel());
+                tempSHLitecollector.push_back(newSHLiteEntry);
+              }
+            }
           }
         }
 
         if (applyLateReweighting_) {
-          // if applyLateReweighting_  is true, the charge reweighting has to be applied on top of the digis
-          _pixeldigialgo->lateSignalReweight(
-              dynamic_cast<const PixelGeomDetUnit*>(iu), collector.data, tempSHcollector.data, tTopo, randomEngine_);
+          if (!usePixelExtraLiteFormat_) {
+            // if applyLateReweighting_  is true, the charge reweighting has to be applied on top of the digis
+            _pixeldigialgo->lateSignalReweight(
+                dynamic_cast<const PixelGeomDetUnit*>(iu), collector.data, tempSHcollector.data, tTopo, randomEngine_);
+          } else {
+            // if applyLateReweighting_  is true, the charge reweighting has to be applied on top of the digis
+            _pixeldigialgo->lateSignalReweight(dynamic_cast<const PixelGeomDetUnit*>(iu),
+                                               collector.data,
+                                               tempSHLitecollector.data,
+                                               tTopo,
+                                               randomEngine_);
+          }
         }
 
         if (!collector.data.empty()) {
@@ -352,6 +392,9 @@ namespace cms {
         if (!tempSHcollector.data.empty()) {
           theExtraSimHitInfoVector.push_back(std::move(tempSHcollector));
         }
+        if (!tempSHLitecollector.data.empty()) {
+          theExtraSimHitInfoLiteVector.push_back(std::move(tempSHLitecollector));
+        }
       }
     }
     _pixeldigialgo->resetSimHitMaps();
@@ -362,12 +405,16 @@ namespace cms {
         new edm::DetSetVector<PixelDigiSimLink>(theDigiLinkVector));
     std::unique_ptr<edm::DetSetVector<PixelSimHitExtraInfo> > outputExtraSim(
         new edm::DetSetVector<PixelSimHitExtraInfo>(theExtraSimHitInfoVector));
+    std::unique_ptr<edm::DetSetVector<PixelSimHitExtraInfoLite> > outputExtraSimLite(
+        new edm::DetSetVector<PixelSimHitExtraInfoLite>(theExtraSimHitInfoLiteVector));
 
     // Step D: write output to file
     iEvent.put(std::move(output));
     iEvent.put(std::move(outputlink));
     if (store_SimHitEntryExitPoints_)
       iEvent.put(std::move(outputExtraSim));
+    if (store_SimHitEntryExitPointsLite_)
+      iEvent.put(std::move(outputExtraSimLite));
 
     randomEngine_ = nullptr;  // to prevent access outside event
   }
