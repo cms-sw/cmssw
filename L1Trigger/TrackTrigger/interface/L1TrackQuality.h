@@ -20,6 +20,7 @@ C.Brown 28/07/20
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include <memory>
 
 #include "conifer.h"
@@ -40,13 +41,15 @@ public:
                                       std::vector<std::string> const& featureNames);
 
   // Passed by reference a track without MVA filled, method fills the track's MVA field
-  void setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack);
+  double getL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack);
   // Function to run the BDT in isolation allowing a feature vector in the ap_fixed datatype to be passed
   // and a single output to be returned which is then used to fill the bits in the Track Word for situations
   // where a TTTrack datatype is unavailable to be passed to the track quality
   float runEmulatedTQ(std::vector<ap_fixed<10, 5>> inputFeatures);
 
-  void setModel(edm::FileInPath const& model, std::vector<std::string> const& featureNames);
+  void setModel(edm::FileInPath const& model,
+                std::vector<std::string> const& featureNames,
+                std::string const& inputName = "");
 
   void setBonusFeatures(std::vector<float> bonusFeatures);
 
@@ -69,5 +72,7 @@ private:
   std::vector<std::string> featureNames_;
   bool useHPH_;
   std::vector<float> bonusFeatures_;
+  std::string inputName_;
+  std::unique_ptr<cms::Ort::ONNXRuntime> runTime_;
 };
 #endif
