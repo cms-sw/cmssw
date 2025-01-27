@@ -99,6 +99,7 @@ namespace edm {
 
   void ActivityRegistry::connectLocals(ActivityRegistry& iOther) {
     preBeginJobSignal_.connect(std::cref(iOther.preBeginJobSignal_));
+    lookupInitializationCompleteSignal_.connect(std::cref(iOther.lookupInitializationCompleteSignal_));
 
     preBeginStreamSignal_.connect(std::cref(iOther.preBeginStreamSignal_));
     postBeginStreamSignal_.connect(std::cref(iOther.postBeginStreamSignal_));
@@ -278,6 +279,7 @@ namespace edm {
     copySlotsToFrom(postBeginJobSignal_, iOther.postBeginJobSignal_);
     copySlotsToFromReverse(preEndJobSignal_, iOther.preEndJobSignal_);
     copySlotsToFromReverse(postEndJobSignal_, iOther.postEndJobSignal_);
+    copySlotsToFrom(lookupInitializationCompleteSignal_, iOther.lookupInitializationCompleteSignal_);
 
     copySlotsToFromReverse(jobFailureSignal_, iOther.jobFailureSignal_);
 

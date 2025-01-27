@@ -11,7 +11,6 @@
 //
 
 // system include files
-#include <array>
 #include <cassert>
 
 // user include files
@@ -142,6 +141,14 @@ void EDAnalyzerAdaptorBase::modulesWhoseProductsAreConsumed(
       modules, modulesInPreviousProcesses, preg, labelsToDesc, processName);
 }
 
+void EDAnalyzerAdaptorBase::esModulesWhoseProductsAreConsumed(
+    eventsetup::EventSetupProvider const& eventSetupProvider,
+    std::array<std::vector<eventsetup::ComponentDescription const*>*,
+               static_cast<unsigned int>(Transition::NumberOfEventSetupTransitions)>& esModules) const {
+  assert(not m_streamModules.empty());
+  return m_streamModules[0]->esModulesWhoseProductsAreConsumed(eventSetupProvider, esModules);
+}
+
 void EDAnalyzerAdaptorBase::convertCurrentProcessAlias(std::string const& processName) {
   for (auto mod : m_streamModules) {
     mod->convertCurrentProcessAlias(processName);
@@ -151,6 +158,12 @@ void EDAnalyzerAdaptorBase::convertCurrentProcessAlias(std::string const& proces
 std::vector<edm::ConsumesInfo> EDAnalyzerAdaptorBase::consumesInfo() const {
   assert(not m_streamModules.empty());
   return m_streamModules[0]->consumesInfo();
+}
+
+std::vector<edm::EventSetupConsumesInfo> EDAnalyzerAdaptorBase::eventSetupConsumesInfo(
+    eventsetup::EventSetupProvider const& eventSetupProvider) const {
+  assert(not m_streamModules.empty());
+  return m_streamModules[0]->eventSetupConsumesInfo(eventSetupProvider);
 }
 
 bool EDAnalyzerAdaptorBase::doEvent(EventTransitionInfo const& info,

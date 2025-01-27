@@ -25,14 +25,15 @@
 #include <vector>
 
 // user include files
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/EventSetupConsumesInfo.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
@@ -58,8 +59,10 @@ namespace edm {
   }
 
   namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
-  }
+    class EventSetupProvider;
+  }  // namespace eventsetup
 
   namespace stream {
     class EDAnalyzerBase;
@@ -124,9 +127,15 @@ namespace edm {
                                            std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                            std::string const& processName) const;
 
+      void esModulesWhoseProductsAreConsumed(
+          eventsetup::EventSetupProvider const&,
+          std::array<std::vector<eventsetup::ComponentDescription const*>*,
+                     static_cast<unsigned int>(Transition::NumberOfEventSetupTransitions)>& esModules) const;
+
       void convertCurrentProcessAlias(std::string const& processName);
 
       std::vector<ConsumesInfo> consumesInfo() const;
+      std::vector<EventSetupConsumesInfo> eventSetupConsumesInfo(eventsetup::EventSetupProvider const&) const;
 
       void deleteModulesEarly();
 

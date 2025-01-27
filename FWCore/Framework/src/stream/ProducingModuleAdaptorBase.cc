@@ -11,7 +11,6 @@
 //
 
 // system include files
-#include <array>
 #include <cassert>
 
 // user include files
@@ -141,6 +140,15 @@ namespace edm {
     }
 
     template <typename T>
+    void ProducingModuleAdaptorBase<T>::esModulesWhoseProductsAreConsumed(
+        eventsetup::EventSetupProvider const& eventSetupProvider,
+        std::array<std::vector<eventsetup::ComponentDescription const*>*,
+                   static_cast<unsigned int>(Transition::NumberOfEventSetupTransitions)>& esModules) const {
+      assert(not m_streamModules.empty());
+      return m_streamModules[0]->esModulesWhoseProductsAreConsumed(eventSetupProvider, esModules);
+    }
+
+    template <typename T>
     void ProducingModuleAdaptorBase<T>::convertCurrentProcessAlias(std::string const& processName) {
       for (auto mod : m_streamModules) {
         mod->convertCurrentProcessAlias(processName);
@@ -151,6 +159,13 @@ namespace edm {
     std::vector<edm::ConsumesInfo> ProducingModuleAdaptorBase<T>::consumesInfo() const {
       assert(not m_streamModules.empty());
       return m_streamModules[0]->consumesInfo();
+    }
+
+    template <typename T>
+    std::vector<edm::EventSetupConsumesInfo> ProducingModuleAdaptorBase<T>::eventSetupConsumesInfo(
+        eventsetup::EventSetupProvider const& eventSetupProvider) const {
+      assert(not m_streamModules.empty());
+      return m_streamModules[0]->eventSetupConsumesInfo(eventSetupProvider);
     }
 
     template <typename T>

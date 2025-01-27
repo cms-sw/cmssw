@@ -99,9 +99,9 @@ namespace edm {
       esproducers.clear();
       esproducers.reserve(resolvers_.size());
       for (auto const& iData : resolvers_) {
-        ComponentDescription const* componentDescription = iData->providerDescription();
-        if (!componentDescription->isLooper_ && !componentDescription->isSource_) {
-          esproducers.push_back(componentDescription);
+        ComponentDescription const* description = iData->providerDescription();
+        if (!description->isLooper_ && !description->isSource_) {
+          esproducers.push_back(description);
         }
       }
     }
@@ -181,6 +181,26 @@ namespace edm {
       for (auto& productResolver : resolvers_) {
         productResolver->resetIfTransient();
       }
+    }
+
+    ComponentDescription const* EventSetupRecordImpl::componentDescription(ESResolverIndex iResolverIndex) const {
+      auto index = iResolverIndex.value();
+      if (index >= 0 && static_cast<unsigned int>(index) < resolvers_.size()) {
+        const ESProductResolver* resolver = resolvers_[iResolverIndex.value()];
+        assert(nullptr != resolver);
+        return resolver->providerDescription();
+      }
+      return nullptr;
+    }
+
+    unsigned int EventSetupRecordImpl::transitionID(ESResolverIndex iResolverIndex) const {
+      auto index = iResolverIndex.value();
+      if (index >= 0 && static_cast<unsigned int>(index) < resolvers_.size()) {
+        const ESProductResolver* resolver = resolvers_[iResolverIndex.value()];
+        assert(nullptr != resolver);
+        return resolver->transitionID();
+      }
+      return 0;
     }
 
     void const* EventSetupRecordImpl::getFromResolverAfterPrefetch(ESResolverIndex iResolverIndex,

@@ -150,6 +150,9 @@ namespace edm {
       void invalidateResolvers();
       void resetIfTransientInResolvers();
 
+      ComponentDescription const* componentDescription(ESResolverIndex iResolverIndex) const;
+      unsigned int transitionID(ESResolverIndex iResolverIndex) const;
+
     private:
       void const* getFromResolverAfterPrefetch(ESResolverIndex iResolverIndex,
                                                bool iTransientAccessOnly,

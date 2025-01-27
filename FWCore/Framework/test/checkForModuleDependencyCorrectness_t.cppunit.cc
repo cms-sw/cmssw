@@ -11,13 +11,25 @@
 #include <unordered_set>
 #include <algorithm>
 #include <cassert>
+#include <vector>
 
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
+#include "FWCore/ServiceRegistry/interface/EventSetupConsumesInfo.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Transition.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "cppunit/extensions/HelperMacros.h"
+
+namespace edm {
+  class ESProducer;
+
+  namespace eventsetup {
+    struct ComponentDescription;
+    class ESProductResolverProvider;
+  }  // namespace eventsetup
+}  // namespace edm
 
 using ModuleDependsOnMap = std::map<std::string, std::vector<std::string>>;
 using PathToModules = std::unordered_map<std::string, std::vector<std::string>>;
@@ -42,14 +54,34 @@ namespace {
         unsigned int moduleID, edm::BranchType branchType) const final {
       return m_modulesWhoseProductsAreConsumedBy[moduleID];
     }
+
     std::vector<edm::ConsumesInfo> doConsumesInfo(unsigned int moduleID) const final {
       return m_moduleConsumesInfo[moduleID];
     }
+
     unsigned int doLargestModuleID() const final {
       if (m_modules.empty()) {
         return 0;
       }
       return m_modules.size() - 1;
+    }
+
+    // The next 5 functions only exist to allow this to compile. These functions are
+    // pure virtual in the base class. They're not used in this test and never get called.
+    std::vector<edm::eventsetup::ComponentDescription const*> const& doESModulesWhoseProductsAreConsumedBy(
+        unsigned int, edm::Transition) const {
+      return m_dummy1;
+    }
+    std::vector<edm::EventSetupConsumesInfo> doEventSetupConsumesInfo(unsigned int) const final { return {}; }
+    std::vector<edm::eventsetup::ESProductResolverProvider const*> const& doAllESProductResolverProviders() const final {
+      return m_dummy2;
+    }
+    std::vector<std::vector<edm::eventsetup::ComponentDescription const*>> const&
+    doESModulesWhoseProductsAreConsumedByESModule() const final {
+      return m_dummy3;
+    }
+    std::vector<std::vector<edm::EventSetupConsumesInfo>> doEventSetupConsumesInfo(edm::ESProducer const&) const {
+      return {};
     }
 
     std::vector<std::string> m_paths;
@@ -59,7 +91,10 @@ namespace {
     std::vector<std::vector<edm::ModuleDescription const*>> m_modulesOnPath;
     std::vector<std::vector<edm::ModuleDescription const*>> m_modulesOnEndPath;
     std::vector<std::vector<edm::ModuleDescription const*>> m_modulesWhoseProductsAreConsumedBy;
+    std::vector<edm::eventsetup::ComponentDescription const*> m_dummy1;
     std::vector<edm::ModuleDescription> m_cache;
+    std::vector<edm::eventsetup::ESProductResolverProvider const*> m_dummy2;
+    std::vector<std::vector<edm::eventsetup::ComponentDescription const*>> m_dummy3;
 
     static unsigned int indexForModule(std::string const& iName,
                                        std::unordered_map<std::string, unsigned int>& modsToIndex,

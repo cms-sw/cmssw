@@ -26,9 +26,9 @@
 #include <array>
 #include <cassert>
 #include <tuple>
+#include <utility>
 
 // user include files
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
@@ -37,6 +37,8 @@
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/EventSetupConsumesInfo.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeToGet.h"
@@ -67,8 +69,10 @@ namespace edm {
   class WillGetIfMatch;
 
   namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
-  }
+    class EventSetupProvider;
+  }  // namespace eventsetup
 
   class EDConsumerBase {
   public:
@@ -117,10 +121,16 @@ namespace edm {
                                          std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                          std::string const& processName) const;
 
+    void esModulesWhoseProductsAreConsumed(
+        eventsetup::EventSetupProvider const&,
+        std::array<std::vector<eventsetup::ComponentDescription const*>*,
+                   static_cast<unsigned int>(Transition::NumberOfEventSetupTransitions)>& esModules) const;
+
     /// Convert "@currentProcess" in InputTag process names to the actual current process name.
     void convertCurrentProcessAlias(std::string const& processName);
 
     std::vector<ConsumesInfo> consumesInfo() const;
+    std::vector<EventSetupConsumesInfo> eventSetupConsumesInfo(eventsetup::EventSetupProvider const&) const;
 
     ESResolverIndex const* esGetTokenIndices(edm::Transition iTrans) const {
       if (iTrans < edm::Transition::NumberOfEventSetupTransitions) {
@@ -288,21 +298,21 @@ namespace edm {
       unsigned int m_startOfComponentName;
     };
 
-    // TODO We would like to be able to access m_esTokenInfo from the
-    // index in the token, but this is currently not possible. One idea
-    // for this is to order the entries in m_esToken so that all the ones
-    // for transition 0 come first, then the ones for for transition 1
-    // and so on for all the transitions. Within a transition, the
-    // entries would be in the same order in m_esTokenInfo and
-    // esItemsToGetFromTransition_. This is something for future
-    // development and might require a change to SoATuple to support
-    // inserts in the middle of the data structure.
     enum { kESLookupInfo, kESResolverIndex };
     edm::SoATuple<ESTokenLookupInfo, ESResolverIndex> m_esTokenInfo;
-    std::array<std::vector<ESResolverIndex>, static_cast<unsigned int>(edm::Transition::NumberOfEventSetupTransitions)>
-        esItemsToGetFromTransition_;
+
+    using ResolverIndexContainer =
+        std::array<std::vector<ESResolverIndex>,
+                   static_cast<unsigned int>(edm::Transition::NumberOfEventSetupTransitions)>;
+    ResolverIndexContainer esItemsToGetFromTransition_;
+
     std::array<std::vector<ESRecordIndex>, static_cast<unsigned int>(edm::Transition::NumberOfEventSetupTransitions)>
         esRecordsToGetFromTransition_;
+
+    // Ordered same as m_esTokenInfo, contents are indexes into esItemsToGetFromTransition_
+    std::vector<std::pair<ResolverIndexContainer::size_type, std::vector<ESResolverIndex>::size_type>>
+        consumesIndexToTransitionAndTokenIndex_;
+
     bool frozen_;
     bool containsCurrentProcessAlias_;
   };

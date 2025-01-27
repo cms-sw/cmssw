@@ -13,7 +13,10 @@ WorkerT: Code common to all workers.
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/maker/WorkerParams.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/EventSetupConsumesInfo.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include <array>
 #include <map>
@@ -27,6 +30,11 @@ namespace edm {
   class ModuleProcessName;
   class ProductResolverIndexAndSkipBit;
   class ThinnedAssociationsHelper;
+
+  namespace eventsetup {
+    struct ComponentDescription;
+    class EventSetupProvider;
+  }  // namespace eventsetup
 
   template <typename T>
   class WorkerT : public Worker {
@@ -131,11 +139,22 @@ namespace edm {
           modules, modulesInPreviousProcesses, preg, labelsToDesc, module_->moduleDescription().processName());
     }
 
+    void esModulesWhoseProductsAreConsumed(
+        eventsetup::EventSetupProvider const& eventSetupProvider,
+        std::array<std::vector<eventsetup::ComponentDescription const*>*,
+                   static_cast<unsigned int>(Transition::NumberOfEventSetupTransitions)>& esModules) const override {
+      module_->esModulesWhoseProductsAreConsumed(eventSetupProvider, esModules);
+    }
+
     void convertCurrentProcessAlias(std::string const& processName) override {
       module_->convertCurrentProcessAlias(processName);
     }
 
     std::vector<ConsumesInfo> consumesInfo() const override { return module_->consumesInfo(); }
+    std::vector<EventSetupConsumesInfo> eventSetupConsumesInfo(
+        eventsetup::EventSetupProvider const& eventSetupProvider) const override {
+      return module_->eventSetupConsumesInfo(eventSetupProvider);
+    }
 
     void itemsToGet(BranchType branchType, std::vector<ProductResolverIndexAndSkipBit>& indexes) const override {
       module_->itemsToGet(branchType, indexes);
