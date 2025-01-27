@@ -1062,8 +1062,10 @@ class ConfigBuilder(object):
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 
         if not self._options.beamspot:
-            if 'SIM' in self.stepMap or 'GEN' in self.stepMap:
-                raise Exception("Missing \'--beamspot\' option in the GEN-SIM step of the cmsDriver command!")
+            # GEN step always requires to have a VtxSmearing scenario (--beamspot) defined
+            # ...unless it's a special gen-only request (GEN:pgen_genonly)
+            if 'GEN' in self.stepMap and not 'pgen_genonly' in self.stepMap['GEN']:
+                raise Exception("Missing \'--beamspot\' option in the GEN step of the cmsDriver command!")
             else:
                 self._options.beamspot=VtxSmearedDefaultKey
 
