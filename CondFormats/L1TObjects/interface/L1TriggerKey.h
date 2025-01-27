@@ -40,12 +40,12 @@ public:
 
   /* Adds new record and type mapping to payload. If such exists, nothing happens */
   void add(const std::string& record, const std::string& type, const std::string& key) {
-    m_recordToKey.insert(std::make_pair(record + "@" + type, key.empty() ? kNullKey : key));
+    m_recordToKey.emplace(record + "@" + type, key.empty() ? kNullKey : key);
   }
 
   void add(const RecordToKey& map) {
     for (RecordToKey::const_iterator itr = map.begin(); itr != map.end(); ++itr) {
-      m_recordToKey.insert(std::make_pair(itr->first, itr->second.empty() ? kNullKey : itr->second));
+      m_recordToKey.emplace(itr->first, itr->second.empty() ? kNullKey : itr->second);
     }
   }
 

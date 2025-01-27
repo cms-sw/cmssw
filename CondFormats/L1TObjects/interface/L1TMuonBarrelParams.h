@@ -7,12 +7,13 @@
 /// \author: Giannis Flouris
 ///
 
-#ifndef L1TBMTFParams_h
-#define L1TBMTFParams_h
+#ifndef CondFormats_L1TObjects_L1TMuonBarrelParams_h
+#define CondFormats_L1TObjects_L1TMuonBarrelParams_h
 
 #include <memory>
 #include <iostream>
 #include <vector>
+#include <map>
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "CondFormats/L1TObjects/interface/LUT.h"
