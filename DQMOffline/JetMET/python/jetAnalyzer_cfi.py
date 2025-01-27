@@ -154,18 +154,16 @@ jetDQMAnalizerAk4PUPPICleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     fillCHShistos = True,
 )
 
-jetDQMAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4CaloUncleaned.clone(   ###DQMEDAnalyzer('JetAnalyzer',  ###--->' if I put it like that it doesn't produce the RunPromptRecoCfg.py/.pkl file and it gives errors when running "bash recoWrapper.sh -j ....", # 'JetScoutingAnalyzer' 
+jetDQMAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4CaloUncleaned.clone(  
     JetType = cms.string('scouting'),
-    #JetCorrections = cms.InputTag("dqmAk4PFL1FastL2L3ResidualCorrector"),
     JetCorrections = cms.InputTag("dqmAk4PFScoutingL1FastL2L3ResidualCorrector"),
-    jetsrc = cms.InputTag("hltScoutingPFPacker"),                       ###---> this name goes to GUI and TTree under JetMET/Jet
+    jetsrc = cms.InputTag("hltScoutingPFPacker"),                       ###---> this name goes to GUI and TTree under .../JetMET/Run summary/Jet
     srcRho = cms.InputTag("hltScoutingPFPacker","rho"),
-    METCollectionLabel = cms.InputTag("hltScoutingPFPacker","pfMetPt"), ###---> this name goes to GUI and TTree under JetMET/MET ---> is it needed????
+    METCollectionLabel = cms.InputTag("hltScoutingPFPacker","pfMetPt"), ###---> this name goes to GUI and TTree under .../JetMET/Run summary/MET 
     muonsrc = cms.InputTag("hltScoutingMuonPackerNoVtx","","HLT"),
     l1algoname = cms.string("L1Tech_BPTX_plus_AND_minus.v0"),
-    filljetHighLevel = False,                                           ### for 2 plots, "vertices" and "cleanup" in JetMET/ (not in JetMET/Jet/)
+    filljetHighLevel = False,                                           ### for plots: "vertices" and "cleanup" in .../JetMET/Run summary/
     fillsubstructure = False,
-    ###ptMinBoosted = cms.double(400.),                                 ### not needed -> used only for patJets
     
     highPtJetTrigger = cms.PSet(
         andOr         = cms.bool( False ),
