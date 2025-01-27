@@ -89,8 +89,10 @@ simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = 'unpackCSC:MuonCSCCompar
 simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = 'unpackCSC:MuonCSCWireDigi'
 
 simTwinMuxDigis.RPC_Source         = 'unpackRPCTwinMux'
-simTwinMuxDigis.DTDigi_Source      = "unpackTwinMux:PhIn"
-simTwinMuxDigis.DTThetaDigi_Source = "unpackTwinMux:ThIn"
+#simTwinMuxDigis.DTDigi_Source      = "unpackTwinMux:PhIn"
+#simTwinMuxDigis.DTThetaDigi_Source = "unpackTwinMux:ThIn" #technically correct, but L1 emulation does not seem to favor this?
+simTwinMuxDigis.DTDigi_Source = 'simDtTriggerPrimitiveDigis'
+simTwinMuxDigis.DTThetaDigi_Source = 'simDtTriggerPrimitiveDigis'
 
 (stage2L1Trigger & run3_GEM).toModify(simMuonGEMPadDigis,
     InputCollection = 'unpackGEM'
@@ -104,7 +106,8 @@ for b in cutlist:
 # -----------------------------------------------------------
 
 # BMTF
-simBmtfDigis.DTDigi_Source       = "simTwinMuxDigis"
+#simBmtfDigis.DTDigi_Source =     = "simTwinMuxDigis" #used previously, but removed in favor of rem-emul favored unpacked inputs
+simBmtfDigis.DTDigi_Source       = "unpackBmtf"
 simBmtfDigis.DTDigi_Theta_Source = "unpackBmtf"
 
 # OMTF
@@ -122,6 +125,10 @@ stage2L1Trigger_2017.toModify(simOmtfDigis,
 # EMTF
 simEmtfDigis.CSCInput            = "unpackEmtf"
 simEmtfDigis.RPCInput            = 'unpackRPC'
+simEmtfDigis.CPPFInput           = cms.InputTag('unpackEmtf')
+simEmtfDigis.GEMEnable           = cms.bool(False)
+simEmtfDigis.GEMInput            = cms.InputTag('unpackGEM')
+simEmtfDigis.CPPFEnable          = cms.bool(True)
 
 # Calo Layer-1
 simCaloStage2Layer1Digis.ecalToken = 'unpackEcal:EcalTriggerPrimitives'
