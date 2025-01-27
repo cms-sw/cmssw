@@ -1219,8 +1219,8 @@ caloDict = {
 muonDict = {
     "abbrev" : "M",
     "name" : "muon",
-    "default" : 11,
-    "M10" : {
+    "default" : 14,
+    "M13" : {
         1 : [
             'Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml',
             'Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml',
@@ -1231,7 +1231,7 @@ muonDict = {
             'Geometry/MuonCommonData/data/muonYoke/2030/v3/muonYoke.xml',
             'Geometry/MuonCommonData/data/mf/2030/v8/mf.xml',
             'Geometry/MuonCommonData/data/csc/2021/v2/csc.xml',
-            'Geometry/MuonCommonData/data/rpcf/2030/v3/rpcf.xml',
+            'Geometry/MuonCommonData/data/rpcf/2030/v4/rpcf.xml',
             'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
             'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
             'Geometry/MuonCommonData/data/gem21/TDR_Eta16/gem21.xml',
@@ -1267,7 +1267,7 @@ muonDict = {
         ],
         "era" : "phase2_muon, phase2_GEM, phase2_GE0",
     },
-    "M11" : {
+    "M14" : {
         1 : [
             'Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml',
             'Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml',
@@ -1278,7 +1278,7 @@ muonDict = {
             'Geometry/MuonCommonData/data/muonYoke/2030/v3/muonYoke.xml',
             'Geometry/MuonCommonData/data/mf/2030/v8/mf.xml',
             'Geometry/MuonCommonData/data/csc/2021/v2/csc.xml',
-            'Geometry/MuonCommonData/data/rpcf/2030/v3/rpcf.xml',
+            'Geometry/MuonCommonData/data/rpcf/2030/v4/rpcf.xml',
             'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
             'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
             'Geometry/MuonCommonData/data/gem21/2030/v1/gem21.xml',
@@ -1314,7 +1314,7 @@ muonDict = {
         ],
         "era" : "phase2_muon, phase2_GEM, phase2_GE0",
     },
-    "M12" : {
+    "M15" : {
         1 : [
             'Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml',
             'Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml',
@@ -1325,7 +1325,7 @@ muonDict = {
             'Geometry/MuonCommonData/data/muonYoke/2030/v4/muonYoke.xml',
             'Geometry/MuonCommonData/data/mf/2030/v8/mf.xml',
             'Geometry/MuonCommonData/data/csc/2021/v2/csc.xml',
-            'Geometry/MuonCommonData/data/rpcf/2030/v3/rpcf.xml',
+            'Geometry/MuonCommonData/data/rpcf/2030/v4/rpcf.xml',
             'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
             'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
             'Geometry/MuonCommonData/data/gem21/2030/v1/gem21.xml',
@@ -1536,28 +1536,28 @@ timingDict = {
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
 
 detectorVersionDict = {
-    ("O9","T31","C17","M10","F8","I16") : "D95",
-    ("O9","T31","C18","M10","F8","I16") : "D96",
-    ("O9","T32","C17","M10","F8","I16") : "D98",
-    ("O9","T32","C18","M10","F8","I16") : "D99",
-    ("O9","T34","C17","M11","F8","I16") : "D100",
-    ("O9","T34","C18","M11","F8","I16") : "D101",
-    ("O9","T35","C17","M11","F8","I16") : "D102",
-    ("O9","T34","C21","M11","F8","I16") : "D103",
-    ("O9","T35","C22","M11","F8","I17") : "D104",
-    ("O9","T35","C17","M11","F8","I17") : "D105",
-    ("O9","T35","C23","M11","F8","I17") : "D106",
-    ("O9","T32","C17","M11","F8","I17") : "D107",
-    ("O9","T35","C19","M11","F8","I17") : "D108",
-    ("O9","T35","C24","M11","F8","I17") : "D109",
-    ("O9","T35","C18","M11","F8","I17") : "D110",
-    ("O9","T36","C24","M11","F8","I17") : "D111",
-    ("O9","T37","C24","M11","F8","I17") : "D112",
-    ("O9","T38","C24","M11","F8","I17") : "D113",
-    ("O9","T39","C19","M11","F8","I17") : "D114",
-    ("O9","T35","C20","M11","F8","I17") : "D115",
-    ("O10","T35","C25","M12","F9","I17") : "D116",
+    ("O9","T31","C17","M13","F8","I16") : "D95",
+    ("O9","T31","C18","M13","F8","I16") : "D96",
+    ("O9","T32","C17","M13","F8","I16") : "D98",
+    ("O9","T32","C18","M13","F8","I16") : "D99",
+    ("O9","T34","C17","M14","F8","I16") : "D100",
+    ("O9","T34","C18","M14","F8","I16") : "D101",
+    ("O9","T35","C17","M14","F8","I16") : "D102",
+    ("O9","T34","C21","M14","F8","I16") : "D103",
+    ("O9","T35","C22","M14","F8","I17") : "D104",
+    ("O9","T35","C17","M14","F8","I17") : "D105",
+    ("O9","T35","C23","M14","F8","I17") : "D106",
+    ("O9","T32","C17","M14","F8","I17") : "D107",
+    ("O9","T35","C19","M14","F8","I17") : "D108",
+    ("O9","T35","C24","M14","F8","I17") : "D109",
+    ("O9","T35","C18","M14","F8","I17") : "D110",
+    ("O9","T36","C24","M14","F8","I17") : "D111",
+    ("O9","T37","C24","M14","F8","I17") : "D112",
+    ("O9","T38","C24","M14","F8","I17") : "D113",
+    ("O9","T39","C19","M14","F8","I17") : "D114",
+    ("O9","T35","C20","M14","F8","I17") : "D115",
+    ("O10","T35","C25","M15","F9","I17") : "D116",
 }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D35", "D41", "D43", "D44", "D45", "D46", "D48", "D47", "D50", "D51", "D52", "D53", "D54", "D55", "D56", "D57", "D58", "D59", "D61", "D62", "D63", "D64", "D65", "D66", "D67", "D69", "D71", "D72", "D73", "D74", "D75", "D78", "D79", "D87", "D89", "D90", "D49", "D60", "D68", "D70", "D76", "D77", "D80", "D81", "D82", "D83", "D84", "D85","D86","D88","D91","D92","D93","D94","D97"])
-deprecatedSubdets = set([ "T1", "T2" ,"T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12", "T13", "T14", "T15", "T16", "T17", "T18", "T19", "T20", "T21", "T22", "T23", "T24", "T25", "T26", "T27", "T28", "T29", "T30", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13", "C14", "C15", "C16", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12", "I13", "I14", "I15", "O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "F1", "F2", "F3", "F4", "F5", "F6", "F7"])
+deprecatedSubdets = set([ "T1", "T2" ,"T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12", "T13", "T14", "T15", "T16", "T17", "T18", "T19", "T20", "T21", "T22", "T23", "T24", "T25", "T26", "T27", "T28", "T29", "T30", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13", "C14", "C15", "C16", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11", "M12", "I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12", "I13", "I14", "I15", "O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "F1", "F2", "F3", "F4", "F5", "F6", "F7"])
