@@ -47,7 +47,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // do not use triplets
           //if (reco::isTriplet(tracks_view, idx))
-	  if (nHits < 4)
+          if (nHits < 4)
             continue;
 
           // use only "high purity" track
