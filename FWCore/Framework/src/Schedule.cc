@@ -682,7 +682,7 @@ namespace edm {
       }
       // The RandomNumberGeneratorService is not a module, yet it consumes.
       { RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed); }
-      preg.setFrozen(productTypesConsumed, elementTypesConsumed, processConfiguration->processName());
+      preg.setFrozen(productTypesConsumed, elementTypesConsumed, processConfiguration->processName(), true);
     }
 
     for (auto& c : all_output_communicators_) {

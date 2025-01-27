@@ -2,6 +2,15 @@
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/SOA" source_only="1"/>
 <use name="FWCore/Utilities"/>
+<flags LCG_DICT_HEADER="classes.h"/>
+<flags LCG_DICT_XML="classes_def.xml"/>
+
+<iftool name="cuda-gcc-support">
+  <use name="cuda"/>
+  <flags LCG_DICT_HEADER="classes_cuda.h"/>
+  <flags LCG_DICT_XML="classes_cuda_def.xml"/>
+</iftool>
+
 <export>
   <lib name="1"/>
 </export>
