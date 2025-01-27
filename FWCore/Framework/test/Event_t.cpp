@@ -217,12 +217,12 @@ void testEvent::registerProduct(std::string const& tag,
   TypeWithDict product_type(typeid(T));
 
   ProductDescription branch(InEvent,
-                           moduleLabel,
-                           processName,
-                           product_type.userClassName(),
-                           product_type.friendlyClassName(),
-                           productInstanceName,
-                           product_type);
+                            moduleLabel,
+                            processName,
+                            product_type.userClassName(),
+                            product_type.friendlyClassName(),
+                            productInstanceName,
+                            product_type);
 
   moduleDescriptions_[tag] = ModuleDescription(
       moduleParams.id(), moduleClassName, moduleLabel, processX.get(), ModuleDescription::getUniqueID());
@@ -364,12 +364,12 @@ testEvent::testEvent()
   std::string productInstanceName("int1");
 
   ProductDescription branch(InEvent,
-                           moduleLabel,
-                           processName,
-                           product_type.userClassName(),
-                           product_type.friendlyClassName(),
-                           productInstanceName,
-                           product_type);
+                            moduleLabel,
+                            processName,
+                            product_type.userClassName(),
+                            product_type.friendlyClassName(),
+                            productInstanceName,
+                            product_type);
 
   availableProducts_->addProduct(branch);
 

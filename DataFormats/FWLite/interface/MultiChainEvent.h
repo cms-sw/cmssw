@@ -26,6 +26,7 @@
 // user include files
 #include "DataFormats/FWLite/interface/EventBase.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
@@ -33,7 +34,6 @@ namespace edm {
   class WrapperBase;
   class ProductRegistry;
   class ProcessHistory;
-  class ProductDescription;
   class EDProductGetter;
   class EventAux;
   class TriggerResults;

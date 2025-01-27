@@ -83,7 +83,9 @@ namespace edm {
       mergeableRunProductMetadata_ = mrpm;
     }
 
-    void setProductDescription(std::shared_ptr<ProductDescription const> const& p) { stable().setProductDescription(p); }
+    void setProductDescription(std::shared_ptr<ProductDescription const> const& p) {
+      stable().setProductDescription(p);
+    }
 
     void swap(Provenance&);
 

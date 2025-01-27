@@ -338,8 +338,8 @@ namespace fwlite {
   }
 
   bool DataGetterHelper::getByProductDescription(edm::ProductDescription const& bDesc,
-                                                Long_t eventEntry,
-                                                KeyToDataMap::iterator& itData) const {
+                                                 Long_t eventEntry,
+                                                 KeyToDataMap::iterator& itData) const {
     if (!bDesc.branchID().isValid()) {
       return false;
     }

@@ -76,12 +76,12 @@ namespace {
       pc->setParameterSetID(dummyProcessPset.id());
 
       edm::ProductDescription prod(iDesc.branchType(),
-                                  name_,
-                                  iDesc.processName(),
-                                  iDesc.fullClassName(),
-                                  iDesc.friendlyClassName(),
-                                  iDesc.productInstanceName() + "-" + name_,
-                                  iDesc.unwrappedType());
+                                   name_,
+                                   iDesc.processName(),
+                                   iDesc.fullClassName(),
+                                   iDesc.friendlyClassName(),
+                                   iDesc.productInstanceName() + "-" + name_,
+                                   iDesc.unwrappedType());
       reg_->addProduct(prod);
     }
   };
@@ -108,20 +108,20 @@ void testProductRegistry::setUp() {
 
   simpleVecBranch_ =
       std::make_shared<edm::ProductDescription>(edm::InEvent,
-                                               "labelovsimple",
-                                               "PROD",
-                                               "edm::OwnVector<edmtest::Simple>",
-                                               "edmtestSimplesOwned",
-                                               "ovsimple",
-                                               edm::TypeWithDict(typeid(edm::OwnVector<edmtest::Simple>)));
+                                                "labelovsimple",
+                                                "PROD",
+                                                "edm::OwnVector<edmtest::Simple>",
+                                                "edmtestSimplesOwned",
+                                                "ovsimple",
+                                                edm::TypeWithDict(typeid(edm::OwnVector<edmtest::Simple>)));
   simpleDerivedVecBranch_ =
       std::make_shared<edm::ProductDescription>(edm::InEvent,
-                                               "labelovsimplederived",
-                                               "PROD",
-                                               "edm::OwnVector<edmtest::SimpleDerived>",
-                                               "edmtestSimpleDerivedsOwned",
-                                               "ovsimplederived",
-                                               edm::TypeWithDict(typeid(edm::OwnVector<edmtest::SimpleDerived>)));
+                                                "labelovsimplederived",
+                                                "PROD",
+                                                "edm::OwnVector<edmtest::SimpleDerived>",
+                                                "edmtestSimpleDerivedsOwned",
+                                                "ovsimplederived",
+                                                edm::TypeWithDict(typeid(edm::OwnVector<edmtest::SimpleDerived>)));
 }
 
 namespace {

@@ -22,25 +22,25 @@ namespace edm {
                                            ProductRegistry& productRegistry,
                                            BranchIDListHelper& branchIDListHelper)
       : eventProductProductDescription_(ProductDescription(InEvent,
+                                                           "source",
+                                                           "LHEFile"
+                                                           // , "LHE"
+                                                           ,
+                                                           "LHEEventProduct",
+                                                           "LHEEventProduct",
+                                                           "",
+                                                           TypeWithDict(eventProductType.typeInfo()),
+                                                           false)),
+        runProductProductDescription_(ProductDescription(InRun,
                                                          "source",
                                                          "LHEFile"
                                                          // , "LHE"
                                                          ,
-                                                         "LHEEventProduct",
-                                                         "LHEEventProduct",
+                                                         "LHERunInfoProduct",
+                                                         "LHERunInfoProduct",
                                                          "",
-                                                         TypeWithDict(eventProductType.typeInfo()),
+                                                         TypeWithDict(runProductType.typeInfo()),
                                                          false)),
-        runProductProductDescription_(ProductDescription(InRun,
-                                                       "source",
-                                                       "LHEFile"
-                                                       // , "LHE"
-                                                       ,
-                                                       "LHERunInfoProduct",
-                                                       "LHERunInfoProduct",
-                                                       "",
-                                                       TypeWithDict(runProductType.typeInfo()),
-                                                       false)),
         eventProductProvenance_(eventProductProductDescription_.branchID()),
         commonProcessParameterSet_(fillCommonProcessParameterSet()),
         processParameterSet_(),

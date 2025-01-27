@@ -9,6 +9,7 @@ FileBlock: Properties of an input file.
 
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 class TTree;
 #include <memory>
@@ -18,7 +19,6 @@ class TTree;
 #include <vector>
 
 namespace edm {
-  class ProductDescription;
   class FileBlock {
   public:
     // bit mask for reasons fast cloning can be disabled or not applicable

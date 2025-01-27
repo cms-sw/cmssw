@@ -14,9 +14,9 @@
 #include <vector>
 
 #include <regex>
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 namespace edm {
-  class ProductDescription;
   class ProductSelector;
   class ParameterSet;
   class ParameterSetDescription;

@@ -209,7 +209,7 @@ namespace edm {
   }
 
   ProductDescription const& PrincipalGetAdapter::getProductDescription(TypeID const& type,
-                                                                     std::string const& productInstanceName) const {
+                                                                       std::string const& productInstanceName) const {
     ProductResolverIndexHelper const& productResolverIndexHelper = principal_.productLookup();
     ProductResolverIndex index = productResolverIndexHelper.index(
         PRODUCT_TYPE, type, md_.moduleLabel().c_str(), productInstanceName.c_str(), md_.processName().c_str());

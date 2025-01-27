@@ -19,6 +19,7 @@
 
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,7 +30,6 @@
 #include <utility>
 
 namespace edm {
-  class ProductDescription;
   class ParameterSetDescription;
 }  // namespace edm
 

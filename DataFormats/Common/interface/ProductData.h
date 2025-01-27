@@ -9,11 +9,11 @@ is the storage unit of such information.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include <memory>
 
 namespace edm {
-  class ProductDescription;
   class MergeableRunProductMetadataBase;
   class WrapperBase;
 

@@ -20,6 +20,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,7 +31,6 @@
 #include <utility>
 
 namespace edm {
-  class ProductDescription;
   class ParameterSetDescription;
 }  // namespace edm
 

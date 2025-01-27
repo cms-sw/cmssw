@@ -13,6 +13,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 #include <string>
 #include <functional>
@@ -24,7 +25,6 @@ namespace edm {
   class TypeID;
   class WrapperBase;
   class EventForTransformer;
-  class ProductDescription;
   class ProductResolverIndexHelper;
   class ModuleDescription;
   class WaitingTaskWithArenaHolder;

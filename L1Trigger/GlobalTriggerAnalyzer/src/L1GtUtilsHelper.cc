@@ -137,7 +137,8 @@ void L1GtUtilsHelper::checkToUpdateTags(edm::ProductDescription const& productDe
 
   // L1GlobalTriggerReadoutRecord
 
-  if (findReadoutRecord && (productDescription.unwrappedTypeID() == edm::TypeID(typeid(L1GlobalTriggerReadoutRecord))) &&
+  if (findReadoutRecord &&
+      (productDescription.unwrappedTypeID() == edm::TypeID(typeid(L1GlobalTriggerReadoutRecord))) &&
       (productDescription.branchType() == edm::InEvent)) {
     setConsumesAndCheckAmbiguities(productDescription,
                                    preferredL1GtReadoutRecordInputTag,

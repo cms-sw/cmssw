@@ -29,11 +29,9 @@
 // Original Author:  W. David Dagenhart
 //         Created:  21 June 2018
 //
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 namespace edm {
-
-  class ProductDescription;
-
   void setIsMergeable(ProductDescription&);
 }  // namespace edm
 

@@ -20,6 +20,7 @@
 
 // user include files
 #include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "DataFormats/FWLite/interface/HistoryGetterBase.h"
 #include "DataFormats/FWLite/interface/InternalDataKey.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
@@ -41,7 +42,6 @@ class TTreeCache;
 class TTree;
 
 namespace edm {
-  class ProductDescription;
   class BranchID;
   class ObjectWithDict;
   class ProductID;

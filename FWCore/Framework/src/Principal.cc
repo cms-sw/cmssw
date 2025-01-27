@@ -312,7 +312,8 @@ namespace edm {
             << "\n"
             << "Workaround: change process name or product instance name of " << newProduct.branchName() << "\n";
       } else {
-        assert(nullptr == phb || BranchKey(productResolver.productDescription()) == BranchKey(phb->productDescription()));
+        assert(nullptr == phb ||
+               BranchKey(productResolver.productDescription()) == BranchKey(phb->productDescription()));
       }
     }
     return phb;

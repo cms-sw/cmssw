@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleLabelMatch.h"
@@ -16,7 +17,6 @@
 #include <vector>
 
 namespace edm {
-  class ProductDescription;
   class Event;
   class EventSetup;
 }  // namespace edm

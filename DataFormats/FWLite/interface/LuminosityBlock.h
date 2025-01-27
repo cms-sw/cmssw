@@ -33,13 +33,13 @@
 #include "DataFormats/FWLite/interface/EntryFinder.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 namespace edm {
   class WrapperBase;
   class ProductRegistry;
-  class ProductDescription;
   class EDProductGetter;
   class LuminosityBlockAux;
   class Timestamp;

@@ -3,10 +3,9 @@
 
 #include <set>
 #include <string>
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 namespace edm {
-
-  class ProductDescription;
 
   void insertSelectedProcesses(ProductDescription const& desc,
                                std::set<std::string>& processes,

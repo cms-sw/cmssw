@@ -6,14 +6,13 @@
 */
 
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 #include <map>
 #include <set>
 #include <vector>
 
 namespace edm {
-
-  class ProductDescription;
 
   class ThinnedAssociationBranches {
   public:

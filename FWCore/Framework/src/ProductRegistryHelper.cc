@@ -76,14 +76,14 @@ namespace edm {
 
       TypeWithDict type(p->typeID_.typeInfo());
       ProductDescription pdesc(branchType,
-                              iDesc.moduleLabel(),
-                              iDesc.processName(),
-                              p->typeID_.userClassName(),
-                              p->typeID_.friendlyClassName(),
-                              p->productInstanceName_,
-                              type,
-                              true,
-                              isEndTransition(p->transition_));
+                               iDesc.moduleLabel(),
+                               iDesc.processName(),
+                               p->typeID_.userClassName(),
+                               p->typeID_.friendlyClassName(),
+                               p->productInstanceName_,
+                               type,
+                               true,
+                               isEndTransition(p->transition_));
       if (p->aliasType_ == TypeLabelItem::AliasType::kSwitchAlias) {
         if (p->branchAlias_.empty()) {
           throw edm::Exception(edm::errors::LogicError)

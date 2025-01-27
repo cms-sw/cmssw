@@ -132,13 +132,13 @@ namespace edm {
         }
         edm::TypeWithDict twd(produce.type_.typeInfo());
         edm::ProductDescription product(edm::InEvent,
-                                       produce.moduleLabel_,
-                                       processName,
-                                       twd.userClassName(),
-                                       twd.friendlyClassName(),
-                                       produce.instanceLabel_,
-                                       twd,
-                                       true  //force this to come from 'source'
+                                        produce.moduleLabel_,
+                                        processName,
+                                        twd.userClassName(),
+                                        twd.friendlyClassName(),
+                                        produce.instanceLabel_,
+                                        twd,
+                                        true  //force this to come from 'source'
         );
         product.init();
         dataProducts_.emplace_back(product, std::unique_ptr<WrapperBase>());

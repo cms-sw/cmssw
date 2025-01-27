@@ -11,6 +11,7 @@ EDProducts into an Event.
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 #include <functional>
 #include <unordered_map>
@@ -19,7 +20,6 @@ EDProducts into an Event.
 #include <array>
 
 namespace edm {
-  class ProductDescription;
   class ModuleDescription;
   class ProducesCollector;
   class SignallingProductRegistry;

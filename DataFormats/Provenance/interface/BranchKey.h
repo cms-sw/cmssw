@@ -11,8 +11,9 @@ is determined entirely from the BranchKey.
 #include <iosfwd>
 #include <string>
 
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
+
 namespace edm {
-  class ProductDescription;
 
   class BranchKey {
   public:

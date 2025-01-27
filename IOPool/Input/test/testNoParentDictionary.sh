@@ -17,6 +17,9 @@ mkdir DataFormats
 if [ -d ${CMSSW_BASE}/src/DataFormats/Common ]; then
     cp -Lr ${CMSSW_BASE}/src/DataFormats/Common DataFormats/
 fi
+if [ -d ${CMSSW_BASE}/src/DataFormats/Provenance ]; then
+    cp -Lr ${CMSSW_BASE}/src/DataFormats/Provenance DataFormats/
+fi
 
 # Copy DataFormats/TestObjects code to be able to edit it to make ROOT header parsing to fail
 for DIR in ${CMSSW_BASE} ${CMSSW_RELEASE_BASE} ${CMSSW_FULL_RELEASE_BASE} ; do

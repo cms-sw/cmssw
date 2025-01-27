@@ -10,10 +10,9 @@ BranchChildren: Dependency information between branches.
 #include <map>
 #include <set>
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 namespace edm {
-
-  class ProductDescription;
 
   class BranchChildren {
   private:

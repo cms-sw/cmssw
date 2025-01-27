@@ -17,19 +17,19 @@
 
 namespace {
   edm::ProductDescription makeDescriptionForDaqProvHelper(edm::TypeID const& rawDataType,
-                                                         std::string const& collectionName,
-                                                         std::string const& friendlyName,
-                                                         std::string const& sourceLabel) {
+                                                          std::string const& collectionName,
+                                                          std::string const& friendlyName,
+                                                          std::string const& sourceLabel) {
     edm::ProductDescription desc(edm::InEvent,
-                                "rawDataCollector",
-                                // "source",
-                                "LHC",
-                                // "HLT",
-                                collectionName,
-                                friendlyName,
-                                "",
-                                edm::TypeWithDict(rawDataType.typeInfo()),
-                                false);
+                                 "rawDataCollector",
+                                 // "source",
+                                 "LHC",
+                                 // "HLT",
+                                 collectionName,
+                                 friendlyName,
+                                 "",
+                                 edm::TypeWithDict(rawDataType.typeInfo()),
+                                 false);
     desc.setIsProvenanceSetOnRead();
     return desc;
   }
@@ -97,7 +97,8 @@ namespace edm {
 
     // Insert an entry for this process in the process history registry
     ProcessHistory ph;
-    ph.emplace_back(constProductDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
+    ph.emplace_back(
+        constProductDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
     processHistoryRegistry.registerProcessHistory(ph);
 
     // Save the process history ID for use every event.

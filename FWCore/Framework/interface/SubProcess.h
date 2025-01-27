@@ -2,6 +2,7 @@
 #define FWCore_Framework_SubProcess_h
 
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
@@ -30,7 +31,6 @@
 
 namespace edm {
   class ActivityRegistry;
-  class ProductDescription;
   class BranchIDListHelper;
   class EventPrincipal;
   class EventSetupImpl;

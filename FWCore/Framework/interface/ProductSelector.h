@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 #include <iosfwd>
 #include <map>
@@ -17,8 +18,6 @@
 #include <vector>
 
 namespace edm {
-  class ProductDescription;
-  class BranchID;
   class ProductRegistry;
   class ProductSelectorRules;
   class ParameterSet;
@@ -28,7 +27,8 @@ namespace edm {
     ProductSelector();
 
     // N.B.: we assume there are not null pointers in the vector allBranches.
-    void initialize(ProductSelectorRules const& rules, std::vector<ProductDescription const*> const& productDescriptions);
+    void initialize(ProductSelectorRules const& rules,
+                    std::vector<ProductDescription const*> const& productDescriptions);
 
     bool selected(ProductDescription const& desc) const;
 
@@ -37,8 +37,8 @@ namespace edm {
 
     bool initialized() const { return initialized_; }
 
-    static void checkForDuplicateKeptBranch(ProductDescription const& desc,
-                                            std::map<BranchID, ProductDescription const*>& trueBranchIDToKeptBranchDesc);
+    static void checkForDuplicateKeptBranch(
+        ProductDescription const& desc, std::map<BranchID, ProductDescription const*>& trueBranchIDToKeptBranchDesc);
 
     static void fillDroppedToKept(ProductRegistry const& preg,
                                   std::map<BranchID, ProductDescription const*> const& trueBranchIDToKeptBranchDesc,

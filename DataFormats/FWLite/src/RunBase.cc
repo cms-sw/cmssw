@@ -28,7 +28,8 @@
 
 static const edm::ProductID s_id;
 static edm::ProductDescription const s_branch = edm::ProductDescription(edm::ProductDescription());
-static const edm::Provenance s_prov(std::shared_ptr<edm::ProductDescription const>(&s_branch, edm::do_nothing_deleter()),
+static const edm::Provenance s_prov(std::shared_ptr<edm::ProductDescription const>(&s_branch,
+                                                                                   edm::do_nothing_deleter()),
                                     s_id);
 
 namespace fwlite {

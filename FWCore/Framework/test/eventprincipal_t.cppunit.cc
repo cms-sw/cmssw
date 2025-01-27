@@ -103,8 +103,8 @@ std::shared_ptr<edm::ProcessConfiguration> test_ep::fake_single_module_process(s
 }
 
 std::shared_ptr<edm::ProductDescription> test_ep::fake_single_process_branch(std::string const& tag,
-                                                                            std::string const& processName,
-                                                                            std::string const& productInstanceName) {
+                                                                             std::string const& processName,
+                                                                             std::string const& productInstanceName) {
   std::string moduleLabel = processName + "dummyMod";
   std::string moduleClass("DummyModule");
   edm::TypeWithDict dummyType(typeid(edmtest::DummyProduct));
@@ -117,12 +117,12 @@ std::shared_ptr<edm::ProductDescription> test_ep::fake_single_process_branch(std
   std::shared_ptr<edm::ProcessConfiguration> process(fake_single_module_process(tag, processName, modParams));
 
   auto result = std::make_shared<edm::ProductDescription>(edm::InEvent,
-                                                         moduleLabel,
-                                                         processName,
-                                                         productClassName,
-                                                         friendlyProductClassName,
-                                                         productInstanceName,
-                                                         dummyType);
+                                                          moduleLabel,
+                                                          processName,
+                                                          productClassName,
+                                                          friendlyProductClassName,
+                                                          productInstanceName,
+                                                          dummyType);
   productDescriptions_[tag] = result;
   return result;
 }

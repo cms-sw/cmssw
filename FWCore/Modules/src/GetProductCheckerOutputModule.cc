@@ -96,8 +96,8 @@ namespace edm {
                                        << productDescription->processName();
         } else {
           edm::LogInfo("DidNotFindProduct")
-              << "did not find " << productDescription->moduleLabel() << " '" << productDescription->productInstanceName()
-              << "' " << productDescription->processName();
+              << "did not find " << productDescription->moduleLabel() << " '"
+              << productDescription->productInstanceName() << "' " << productDescription->processName();
         }
       }
       if (nullptr != bh.provenance() &&
