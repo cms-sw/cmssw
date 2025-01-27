@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
@@ -44,6 +45,8 @@ class CastorDbProducer : public edm::ESProducer {
 public:
   CastorDbProducer(const edm::ParameterSet&);
   ~CastorDbProducer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   std::shared_ptr<CastorDbService> produce(const CastorDbRecord&);
 
@@ -102,6 +105,13 @@ CastorDbProducer::~CastorDbProducer() {
   // (e.g. close files, deallocate resources etc.)
   if (mDumpStream != &std::cout)
     delete mDumpStream;
+}
+
+void CastorDbProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::vector<std::string> >("dump", std::vector<std::string>());
+  desc.addUntracked<std::string>("file", "");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //
