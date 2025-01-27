@@ -63,7 +63,7 @@ defaultOptions.datatier = None
 defaultOptions.inlineEventContent = True
 defaultOptions.inlineObjects =''
 defaultOptions.hideGen=False
-from Configuration.StandardSequences.VtxSmeared import VtxSmearedDefaultKey,VtxSmearedHIDefaultKey
+from Configuration.StandardSequences.VtxSmeared import VtxSmearedDefaultKey
 defaultOptions.beamspot=None
 defaultOptions.outputDefinition =''
 defaultOptions.inputCommands = None
@@ -1062,7 +1062,10 @@ class ConfigBuilder(object):
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 
         if not self._options.beamspot:
-            self._options.beamspot=VtxSmearedDefaultKey
+            if 'SIM' in self.stepMap or 'GEN' in self.stepMap:
+                raise Exception("Missing \'--beamspot\' option in the GEN-SIM step of the cmsDriver command!")
+            else:
+                self._options.beamspot=VtxSmearedDefaultKey
 
         # if its MC then change the raw2digi
         if self._options.isMC==True:
@@ -1095,8 +1098,6 @@ class ConfigBuilder(object):
             self.DQMDefaultSeq='DQMOfflineCosmics'
 
         if self._options.scenario=='HeavyIons':
-            if not self._options.beamspot:
-                self._options.beamspot=VtxSmearedHIDefaultKey
             self.HLTDefaultSeq = 'HIon'
             self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationHeavyIons_cff"
             self.VALIDATIONDefaultSeq=''
