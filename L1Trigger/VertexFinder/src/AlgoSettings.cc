@@ -20,6 +20,7 @@ namespace l1tVertexFinder {
         vx_pfa_usemultiplicitymaxima_(vertex_.getParameter<bool>("PFA_UseMultiplicityMaxima")),
         vx_pfa_weightfunction_(vertex_.getParameter<unsigned int>("PFA_WeightFunction")),
         vx_pfa_weightedz0_(vertex_.getParameter<unsigned int>("PFA_WeightedZ0")),
+        vx_pfa_useSFforweightedz0_(vertex_.getParameter<bool>("PFA_UseSFforWeightedZ0")),
         vx_pfa_doqualitycuts_(vertex_.getParameter<bool>("PFA_DoQualityCuts")),
         vx_DoPtComp_(vertex_.getParameter<bool>("FH_DoPtComp")),
         vx_DoTightChi2_(vertex_.getParameter<bool>("FH_DoTightChi2")),

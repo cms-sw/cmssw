@@ -40,10 +40,12 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         PFA_VertexWidth = cms.double(1.31), # Giovanna's recommendation of 3*sigma(lowest-resolution tracks).
         # Enable 2-step process where the weighted pT sum is only calculated at positions where the weighted multiplicity is maximum ("local maxima"). In the second step, the local maximum with the largest weighted pT sum is chosen as the vertex.
         PFA_UseMultiplicityMaxima = cms.bool(False),
-        # Weight function to use in PFA. 0: Gaussian, 1: Gaussian without width normalisation, 2: Complementary error function
+        # Weight function to use in PFA. 0: Gaussian, 1: Gaussian without width normalisation, 2: Complementary error function, 3: Step function
         PFA_WeightFunction = cms.uint32(1),
-        # Instead of taking the z0 value from the discrete PFA scan (0), calculate it from the Gaussian and pT-weighted sum of track z0 (1) or the optimal (1/variance) weighted mean of associated tracks, weighted also by pT and association probability (2)
+        # Instead of taking the z0 value from the discrete PFA scan (0), calculate it from the Gaussian and pT-weighted average of track z0 (1) or the optimal (1/variance) weighted mean of associated tracks, weighted also by pT and association probability (2)
         PFA_WeightedZ0 = cms.uint32(1),
+        # Use above PFA_ResolutionSF also in weighted-average z0 computation
+        PFA_UseSFforWeightedZ0 = cms.bool(True),
         # Use VxMinTrackPt cut specified below (otherwise no additional track selection is applied)
         PFA_DoQualityCuts = cms.bool(False),
         # fastHisto algorithm histogram parameters (min,max,width) [cm]
