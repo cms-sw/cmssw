@@ -301,13 +301,14 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
   }
 
-  jetME = ibooker.book1D("jetReco", "jetReco", 6, 1, 6);        //###--->change 5 to 6 ???
+  jetME = ibooker.book1D("jetReco", "jetReco", 5, 1, 5);      // --> for .../JetMET/Run summary/Jet/.../jetReco plots
+  //jetME = ibooker.book1D("jetReco", "jetReco", 6, 1, 6);    // use it to include scouting jets
   jetME->setBinLabel(1, "CaloJets", 1);
   jetME->setBinLabel(2, "PFJets", 1);
   jetME->setBinLabel(3, "JPTJets", 1);
   jetME->setBinLabel(4, "MiniAODJets", 1);
   jetME->setBinLabel(5, "PUPPIJets", 1);
-  jetME->setBinLabel(6, "ScoutingJets", 1);             //###<------is it needed ---> it is used only for "jetReco" plot in each sbdir, but not filled properly in all of them ???
+  //jetME->setBinLabel(6, "ScoutingJets", 1);                 // use it to include scouting jets
 
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "jetReco", jetME));
 
@@ -411,8 +412,8 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   //mEta_Lo                 = ibooker.book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
   mPhi_Lo = ibooker.book1D("Phi_Lo", "Phi (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
 
-  mPt_Hi = ibooker.book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 100, 0, 1600); // 100, 0, 500  ////// 60,0,300
-  mEta_Hi = ibooker.book1D("Eta_Hi", "Eta (Pass Hi Pt Jet Trigger)", 100, -6.0, 6.0); //etaBin_, etaMin_, etaMax_
+  mPt_Hi = ibooker.book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 100, 0, 1600);   // original binning: 60,0,300
+  mEta_Hi = ibooker.book1D("Eta_Hi", "Eta (Pass Hi Pt Jet Trigger)", 100, -6.0, 6.0); //  original binning: etaBin_, etaMin_, etaMax_
   mPhi_Hi = ibooker.book1D("Phi_Hi", "Phi (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
   mNJets = ibooker.book1D("NJets", "number of jets", 100, 0, 100);
   mNJets_Hi = ibooker.book1D("NJets_Hi", "number of jets (Pass Hi Pt Jet Trigger)", 100, 0, 100);
@@ -2613,14 +2614,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     for (unsigned int i = 0; i < nTrig; ++i) {
       if (triggerNames.triggerName(i).find(highPtJetExpr_[0].substr(0, highPtJetExpr_[0].rfind("_v") + 2)) !=
               std::string::npos &&
-          triggerResults->accept(i)) //{
-        // std::cout << "  highPtJetExpr " << highPtJetExpr_[0] << "  " << triggerNames.triggerName(i) << "   " << triggerNames.triggerName(i).find(highPtJetExpr_[0].substr(0, highPtJetExpr_[0].rfind("_v") + 2)) << std::endl;
-        JetHiPass = 1; //}
+          triggerResults->accept(i))
+        JetHiPass = 1;
       else if (triggerNames.triggerName(i).find(lowPtJetExpr_[0].substr(0, lowPtJetExpr_[0].rfind("_v") + 2)) !=
                    std::string::npos &&
-               triggerResults->accept(i)) //{
-         //std::cout <<  "  lowPtJetExpr " << lowPtJetExpr_[0] << "  " << triggerNames.triggerName(i) << "   " << triggerNames.triggerName(i).find(lowPtJetExpr_[0].substr(0, lowPtJetExpr_[0].rfind("_v") + 2)) << std::endl;
-        JetLoPass = 1; //}
+               triggerResults->accept(i))
+        JetLoPass = 1; 
     }
   }
 
@@ -2718,6 +2717,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<vector<Run3ScoutingPFJet>> scoutingJets;
 
   edm::Handle<MuonCollection> Muons;
+
+  //edm::Handle<double> scoutingRho;      //// for scouting jets
 
   bool pass_Z_selection = false;
   reco::Candidate::PolarLorentzVector zCand;
@@ -2843,6 +2844,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
   }
+  
   if (isScoutingJet_)
     iEvent.getByToken(scoutingPfJetsToken_, scoutingJets);
   if (isMiniAODJet_)
@@ -2876,13 +2878,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (!scoutingJets.isValid())
       return;
   }
-  ///// the following is equivalent to the 5 lines right above for scouting jets, but not exactly for the other jets -> would need fixing if the following are used
-  /*
-  if (isScoutingJet_) 
-    jetCollectionIsValid = scoutingJets.isValid(); 
-  if (!jetCollectionIsValid)
-     return; 
-    */
+
     
   unsigned int collSize = -1;
   if (isCaloJet_)
@@ -3127,14 +3123,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       TLorentzVector vec;
       vec.SetPtEtaPhiM((*scoutingJets)[ijet].pt(),(*scoutingJets)[ijet].eta(),(*scoutingJets)[ijet].phi(),(*scoutingJets)[ijet].m());
       vec.Energy();
-      
-      //std::cout << "totalen1 = " << (*scoutingJets)[ijet].chargedHadronEnergy() + (*scoutingJets)[ijet].neutralHadronEnergy() + (*scoutingJets)[ijet].electronEnergy() + (*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].muonEnergy() + (*scoutingJets)[ijet].HFEMEnergy() << " | totalen2 = " << (*scoutingJets)[ijet].chargedHadronEnergy() + (*scoutingJets)[ijet].neutralHadronEnergy() + (*scoutingJets)[ijet].electronEnergy() + (*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].muonEnergy() << " | totalen3 = " << (*scoutingJets)[ijet].chargedHadronEnergy() + (*scoutingJets)[ijet].neutralHadronEnergy() + (*scoutingJets)[ijet].electronEnergy() + (*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].muonEnergy() + (*scoutingJets)[ijet].HFEMEnergy() + (*scoutingJets)[ijet].HFHadronEnergy() << " | totalen4 = " << (*scoutingJets)[ijet].chargedHadronEnergy() + (*scoutingJets)[ijet].neutralHadronEnergy() + (*scoutingJets)[ijet].electronEnergy() + (*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].muonEnergy() + (*scoutingJets)[ijet].HFEMEnergy() + (*scoutingJets)[ijet].HFHadronEnergy() + (*scoutingJets)[ijet].HOEnergy() << " | pT*cosheta = " << (*scoutingJets)[ijet].pt()*cosh((*scoutingJets)[ijet].eta()) << " | sqrt(pT*cosheta2 + m2) = " << sqrt((((*scoutingJets)[ijet].pt()*cosh((*scoutingJets)[ijet].eta()))*((*scoutingJets)[ijet].pt()*cosh((*scoutingJets)[ijet].eta()))) + (((*scoutingJets)[ijet].m())*((*scoutingJets)[ijet].m()))) << " | total energy = " << vec.Energy() << std::endl;  
-      
-      //std::cout << "HFEMFrac = " << (*scoutingJets)[ijet].HFEMEnergy() << " | HFHFrac = " << (*scoutingJets)[ijet].HFHadronEnergy() <<  " | HOFrac = " << (*scoutingJets)[ijet].HOEnergy() << std::endl;
-      
-      //std::cout << "denominator_wHFEMEN = " << (*scoutingJets)[ijet].chargedHadronEnergy() + (*scoutingJets)[ijet].neutralHadronEnergy() + (*scoutingJets)[ijet].electronEnergy() + (*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].muonEnergy() + (*scoutingJets)[ijet].HFEMEnergy() << " | denominator_woHFEMEN = " << (*scoutingJets)[ijet].chargedHadronEnergy() + (*scoutingJets)[ijet].neutralHadronEnergy() + (*scoutingJets)[ijet].electronEnergy() + (*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].muonEnergy() << " | denominator_wHFEMEN_HFHadEn = " << (*scoutingJets)[ijet].chargedHadronEnergy() + (*scoutingJets)[ijet].neutralHadronEnergy() + (*scoutingJets)[ijet].electronEnergy() + (*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].muonEnergy() + (*scoutingJets)[ijet].HFEMEnergy() + (*scoutingJets)[ijet].HFHadronEnergy() << " | denominator_wHFEMEN_HFHadEn_wHOEn = " << (*scoutingJets)[ijet].chargedHadronEnergy() + (*scoutingJets)[ijet].neutralHadronEnergy() + (*scoutingJets)[ijet].electronEnergy() + (*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].muonEnergy() + (*scoutingJets)[ijet].HFEMEnergy() + (*scoutingJets)[ijet].HFHadronEnergy() + (*scoutingJets)[ijet].HOEnergy() << " | total energy = " << (*scoutingJets)[ijet].energy() << std::endl;
-      
-      
+
       if (fabs((*scoutingJets)[ijet].eta()) <= 1.3) {
         mPt_Barrel = map_of_MEs[DirName + "/" + "Pt_Barrel"];
         if (mPt_Barrel && mPt_Barrel->getRootObject())
@@ -3281,7 +3270,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
       if (JetHiPass == 1) {
         //std::cout << "For Scouting jets: Trigger  Hi = " << JetHiPass << std::endl;
-       //if ((*scoutingJets)[ijet].pt() >= 60) { //////////////////////////////
+       //if ((*scoutingJets)[ijet].pt() >= 60) { 
         mPt_Hi = map_of_MEs[DirName + "/" + "Pt_Hi"];
         if (mPt_Hi && mPt_Hi->getRootObject())
           mPt_Hi->Fill((*scoutingJets)[ijet].pt());
@@ -3345,12 +3334,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         mHOFrac_Hi_altBinning = map_of_MEs[DirName + "/" + "HOFrac_Hi_altBinning"];
         if (mHOFrac_Hi_altBinning && mHOFrac_Hi_altBinning->getRootObject())
           mHOFrac_Hi_altBinning->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));
-        mChargedHadronMultiplicity = map_of_MEs[DirName + "/" + "ChargedHadronMultiplicity"];   // HFHadronMultiplicity HFEMMultiplicity
+        mChargedHadronMultiplicity = map_of_MEs[DirName + "/" + "ChargedHadronMultiplicity"];
         if (mChargedHadronMultiplicity && mChargedHadronMultiplicity->getRootObject())
-          mChargedHadronMultiplicity->Fill((*scoutingJets)[ijet].chargedHadronMultiplicity()); //chargedMultiplicity
+          mChargedHadronMultiplicity->Fill((*scoutingJets)[ijet].chargedHadronMultiplicity());
         mNeutralHadronMultiplicity = map_of_MEs[DirName + "/" + "NeutralHadronMultiplicity"];
         if (mNeutralHadronMultiplicity && mNeutralHadronMultiplicity->getRootObject())
-          mNeutralHadronMultiplicity->Fill((*scoutingJets)[ijet].neutralHadronMultiplicity());  //neutralMultiplicity
+          mNeutralHadronMultiplicity->Fill((*scoutingJets)[ijet].neutralHadronMultiplicity());
         mMuonMultiplicity = map_of_MEs[DirName + "/" + "MuonMultiplicity"];
         if (mMuonMultiplicity && mMuonMultiplicity->getRootObject())
           mMuonMultiplicity->Fill((*scoutingJets)[ijet].muonMultiplicity());
@@ -3366,7 +3355,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         mHFEMMultiplicity = map_of_MEs[DirName + "/" + "HFEMMultiplicity"];
         if (mHFEMMultiplicity && mHFEMMultiplicity->getRootObject())
           mHFEMMultiplicity->Fill((*scoutingJets)[ijet].HFEMMultiplicity());
-      //}  //////////////////////////////
+      //}  //closing if scoutingjet.pT>=60 GeV
         if (fabs((*scoutingJets)[ijet].eta()) <= 1.3) {
           mPt_Barrel_Hi = map_of_MEs[DirName + "/" + "Pt_Barrel_Hi"];
           if (mPt_Barrel_Hi && mPt_Barrel_Hi->getRootObject())
@@ -3503,9 +3492,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if (mHFEMMultiplicity && mHFEMMultiplicity->getRootObject())
         mHFEMMultiplicity->Fill((*scoutingJets)[ijet].HFEMMultiplicity());*/
   
-      jetME = map_of_MEs[DirName + "/" + "jetReco"];  // does it have any meaning for scouting jets, since no reco takes place?
+      /*jetME = map_of_MEs[DirName + "/" + "jetReco"];  // does it have any meaning for scouting jets, since no reco takes place?
       if (jetME && jetME->getRootObject())
-        jetME->Fill(6);
+        jetME->Fill(6);*/
     }
     
     //fill only corrected jets -> check ID for uncorrected jets
@@ -4625,9 +4614,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         pt3 = (*scoutingJets)[ijet].pt();
         ind3 = ijet;
       }
-      //if (!pass_uncorrected) {
-      //  continue;
-      //}
     } else {
     if (correctedJet.pt() > pt1) {
       pt3 = pt2;
@@ -4850,7 +4836,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           }  //substructure filling for boosted
         }    //substructure filling
       }
-      // --- Event passed the low pt jet trigger
+      // --- Event passed the low pt jet trigger // the following plots are not filled for calo, pf, pf chs, and puppi jets
       if (jetLoPass_ == 1) {
         mPhi_Lo = map_of_MEs[DirName + "/" + "Phi_Lo"];
         if (mPhi_Lo && mPhi_Lo->getRootObject())
@@ -4859,7 +4845,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         if (mPt_Lo && mPt_Lo->getRootObject())
           mPt_Lo->Fill(correctedJet.pt());
       }
-      // --- Event passed the high pt jet trigger
+      // --- Event passed the high pt jet trigger // the following plots are not filled for calo, pf, pf chs, and puppi jets
       if (jetHiPass_ == 1 && correctedJet.pt() > 100.) {
         mEta_Hi = map_of_MEs[DirName + "/" + "Eta_Hi"];
         if (mEta_Hi && mEta_Hi->getRootObject())
@@ -4966,17 +4952,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }  // pass ID for corrected jets --> inclusive selection
   }    //loop over uncorrected jets
 
-  //std::cout << " | number of scouting jets " << numofscoutingjets << std::endl; //wrong
   if (isScoutingJet_) {
-    //for (unsigned int ievt = 0; ievt < 2700; ievt++) {
-        //std::cout << "ievent " << edm::Event& << " | number of scouting jets " << numofscoutingjets << std::endl;
-        //std::cout << " | number of scouting jets " << numofscoutingjets << std::endl;
-    //}
-    //if (!scoutingJets.isValid())
-    //  return;
-    //std::cout << "ind1 " << ind1 << " | ind2 " << ind2 << " | number of scouting jets " << numofscoutingjets << std::endl;
-    //std::cout << "ind1 " << ind1 << " | jet pT1 " << (*scoutingJets)[ind1].pt() << "  | ind2 " << ind2 << " | jet pT2 " << (*scoutingJets)[ind2].pt() << "  |  ind3 " << ind3 << " | jet pT3 " << (*scoutingJets)[ind3].pt() << std::endl;
-    
     mNJets = map_of_MEs[DirName + "/" + "NJets"];
     if (mNJets && mNJets->getRootObject())
       mNJets->Fill(numofscoutingjets);
