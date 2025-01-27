@@ -83,7 +83,6 @@ void L1MultiJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     l1t::PFJet edmTaggedJet(srcjet.pt(), srcjet.eta(), srcjet.phi(), srcjet.mass(),
                             gtHWTaggedJet.v3.pt.V, gtHWTaggedJet.v3.eta.V, gtHWTaggedJet.v3.phi.V
                            );
-    std::cout << "Jet (pT, eta, phi) = (" << edmTaggedJet.pt() << ", " << edmTaggedJet.eta() << ", " << edmTaggedJet.phi() << ")" << std::endl;
     edmTaggedJet.setEncodedJet(l1t::PFJet::HWEncoding::CT, ctHWTaggedJet.pack());
     edmTaggedJet.setEncodedJet(l1t::PFJet::HWEncoding::GT, gtHWTaggedJet.pack());
     taggedJets.push_back(edmTaggedJet);
