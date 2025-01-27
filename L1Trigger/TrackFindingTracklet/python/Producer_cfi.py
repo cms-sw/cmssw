@@ -1,26 +1,24 @@
+# configuration for hybrid track reconstruction chain emulating EDProducer
+
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.TrackTrigger.TrackQualityParams_cfi import *
 
 TrackFindingTrackletProducer_params = cms.PSet (
 
-  InputTag             = cms.InputTag( "l1tTTTracksFromTrackletEmulation", "Level1TTTracks"), #
-  InputTagDTC          = cms.InputTag( "TrackerDTCProducer", "StubAccepted"),              #
-  LabelTBout           = cms.string  ( "TrackFindingTrackletProducerTBout" ),              #
-  LabelDRin            = cms.string  ( "TrackFindingTrackletProducerDRin"  ),              #
-  LabelDR              = cms.string  ( "TrackFindingTrackletProducerDR"    ),              #
-  LabelKFin            = cms.string  ( "TrackFindingTrackletProducerKFin"  ),              #
-  LabelKF              = cms.string  ( "TrackFindingTrackletProducerKF"    ),              #
-  LabelKFout           = cms.string  ( "TrackFindingTrackletProducerKFout" ),              #
-  BranchAcceptedStubs  = cms.string  ( "StubAccepted"  ),                                  #
-  BranchAcceptedTracks = cms.string  ( "TrackAccepted" ),                                  #
-  BranchAcceptedTTTracks = cms.string  ( "TTTrackAccepted" ),                              #
-  BranchLostStubs      = cms.string  ( "StubLost"      ),                                  #
-  BranchLostTracks     = cms.string  ( "TrackLost"     ),                                  #
-  CheckHistory         = cms.bool    ( False ),                                            # checks if input sample production is configured as current process
-  EnableTruncation     = cms.bool    ( True  ),                                            # enable emulation of truncation for TBout, KF, KFin, lost stubs are filled in BranchLost
-  PrintKFDebug         = cms.bool    ( False ),                                            # print end job internal unused MSB
-  UseTTStubResiduals   = cms.bool    ( False ),                                            # stub residuals are recalculated from seed parameter and TTStub position
-  TrackQualityPSet     = cms.PSet    ( TrackQualityParams ),
-
+  InputLabelTFP            = cms.string( "ProducerTQ"      ),                  #
+  InputLabelTQ             = cms.string( "ProducerKF"      ),                  #
+  InputLabelKF             = cms.string( "ProducerDR"      ),                  #
+  InputLabelDR             = cms.string( "ProducerTM"      ),                  #
+  InputLabelTM             = cms.string( "l1tTTTracksFromTrackletEmulation" ), #
+  BranchStubs              = cms.string( "StubAccepted"    ),                  #
+  BranchTracks             = cms.string( "TrackAccepted"   ),                  #
+  BranchTTTracks           = cms.string( "TTTrackAccepted" ),                  #
+  BranchTruncated          = cms.string( "Truncated"       ),                  #
+  EnableTruncation         = cms.bool  ( True  ),                              # enable emulation of truncation for TM, DR, KF, TQ and TFP
+  PrintKFDebug             = cms.bool  ( False ),                              # print end job internal unused MSB
+  UseTTStubResiduals       = cms.bool  ( True  ),                              # stub residuals and radius are recalculated from seed parameter and TTStub position
+  UseTTStubParameters      = cms.bool  ( True  ),                              # track parameter are recalculated from seed TTStub positions
+  ApplyNonLinearCorrection = cms.bool  ( True  ),                              # 
+  Use5ParameterFit         = cms.bool  ( False ),                              # double precision simulation of 5 parameter fit instead of bit accurate emulation of 4 parameter fit
+  UseKFsimmulation         = cms.bool  ( False )                               # simulate KF instead of emulate
 
 )

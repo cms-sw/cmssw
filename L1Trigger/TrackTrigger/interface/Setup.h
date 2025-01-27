@@ -4,8 +4,6 @@
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -13,10 +11,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 
@@ -45,21 +40,13 @@ namespace tt {
   public:
     Setup() {}
     Setup(const edm::ParameterSet& iConfig,
-          const MagneticField& magneticField,
           const TrackerGeometry& trackerGeometry,
           const TrackerTopology& trackerTopology,
           const TrackerDetToDTCELinkCablingMap& cablingMap,
           const StubAlgorithmOfficial& stubAlgorithm,
-          const edm::ParameterSet& pSetStubAlgorithm,
-          const edm::ParameterSet& pSetGeometryConfiguration,
-          const edm::ParameterSetID& pSetIdTTStubAlgorithm,
-          const edm::ParameterSetID& pSetIdGeometryConfiguration);
+          const edm::ParameterSet& pSetStubAlgorithm);
     ~Setup() {}
 
-    // true if tracker geometry and magnetic field supported
-    bool configurationSupported() const { return configurationSupported_; }
-    // checks current configuration vs input sample configuration
-    void checkHistory(const edm::ProcessHistory& processHistory) const;
     // converts tk layout id into dtc id
     int dtcId(int tklId) const;
     // converts dtci id into tk layout id
@@ -76,6 +63,8 @@ namespace tt {
     int slot(int dtcId) const;
     // sensor module for det id
     SensorModule* sensorModule(const DetId& detId) const;
+    // sensor module for ttStubRef
+    SensorModule* sensorModule(const TTStubRef& ttStubRef) const;
     // TrackerGeometry
     const TrackerGeometry* trackerGeometry() const { return trackerGeometry_; }
     // TrackerTopology
@@ -88,12 +77,6 @@ namespace tt {
     GlobalPoint stubPos(bool hybrid, const tt::FrameStub& frame, int region) const;
     // empty trackerDTC EDProduct
     TTDTC ttDTC() const { return TTDTC(numRegions_, numOverlappingRegions_, numDTCsPerRegion_); }
-    // checks if stub collection is considered forming a reconstructable track
-    bool reconstructable(const std::vector<TTStubRef>& ttStubRefs) const;
-    // checks if tracking particle is selected for efficiency measurements
-    bool useForAlgEff(const TrackingParticle& tp) const;
-    // checks if tracking particle is selected for fake and duplicate rate measurements
-    bool useForReconstructable(const TrackingParticle& tp) const { return tpSelectorLoose_(tp); }
     // stub layer id (barrel: 1 - 6, endcap: 11 - 15)
     int layerId(const TTStubRef& ttStubRef) const;
     // return tracklet layerId (barrel: [0-5], endcap: [6-10]) for given TTStubRef
@@ -106,6 +89,8 @@ namespace tt {
     bool psModule(const TTStubRef& ttStubRef) const;
     // return sensor moduel type
     SensorModule::Type type(const TTStubRef& ttStubRef) const;
+    // checks if stub collection is considered forming a reconstructable track
+    bool reconstructable(const std::vector<TTStubRef>& ttStubRefs) const;
     //
     TTBV layerMap(const std::vector<int>& ints) const;
     //
@@ -117,13 +102,23 @@ namespace tt {
     // stub projected phi uncertainty
     double dPhi(const TTStubRef& ttStubRef, double inv2R) const;
     // stub projected z uncertainty
-    double dZ(const TTStubRef& ttStubRef, double cot) const;
+    double dZ(const TTStubRef& ttStubRef) const;
     // stub projected chi2phi wheight
     double v0(const TTStubRef& ttStubRef, double inv2R) const;
     // stub projected chi2z wheight
     double v1(const TTStubRef& ttStubRef, double cot) const;
     //
     const std::vector<SensorModule>& sensorModules() const { return sensorModules_; }
+    //
+    TTBV module(double r, double z) const;
+    //
+    bool ps(const TTBV& module) const { return module[gpPosPS_]; }
+    //
+    bool barrel(const TTBV& module) const { return module[gpPosBarrel_]; }
+    //
+    bool tilted(const TTBV& module) const { return module[gpPosTilted_]; }
+    // stub projected phi uncertainty for given module type, stub radius and track curvature
+    double dPhi(const TTBV& module, double r, double inv2R) const;
 
     // Firmware specific Parameter
 
@@ -150,29 +145,50 @@ namespace tt {
     // smallest address width of an BRAM18 configured as broadest simple dual port memory
     int widthAddrBRAM18() const { return widthAddrBRAM18_; }
     // number of frames betwen 2 resets of 18 BX packets
-    int numFrames() const { return numFrames_; }
+    int numFramesHigh() const { return numFramesHigh_; }
+    // number of frames betwen 2 resets of 18 BX packets
+    int numFramesLow() const { return numFramesLow_; }
     // number of frames needed per reset
     int numFramesInfra() const { return numFramesInfra_; }
     // number of valid frames per 18 BX packet
-    int numFramesIO() const { return numFramesIO_; }
+    int numFramesIOHigh() const { return numFramesIOHigh_; }
+    // number of valid frames per 18 BX packet
+    int numFramesIOLow() const { return numFramesIOLow_; }
     // number of valid frames per 8 BX packet
     int numFramesFE() const { return numFramesFE_; }
-    // maximum representable stub phi uncertainty
-    double maxdPhi() const { return maxdPhi_; }
-    // maximum representable stub z uncertainty
-    double maxdZ() const { return maxdZ_; }
+
+    // Tracker specific Parameter
+
+    // strip pitch of outer tracker sensors in cm
+    double pitchRow2S() const { return pitchRow2S_; }
+    // pixel pitch of outer tracker sensors in cm
+    double pitchRowPS() const { return pitchRowPS_; }
+    // strip length of outer tracker sensors in cm
+    double pitchCol2S() const { return pitchCol2S_; }
+    // pixel length of outer tracker sensors in cm
+    double pitchColPS() const { return pitchColPS_; }
+    // BField used in fw in T
+    double bField() const { return bField_; }
+    // outer radius of outer tracker in cm
+    double outerRadius() const { return outerRadius_; }
+    // inner radius of outer tracker in cm
+    double innerRadius() const { return innerRadius_; }
+    // half length of outer tracker in cm
+    double halfLength() const { return halfLength_; }
+    // max strip/pixel length of outer tracker sensors in cm
+    double maxPitchCol() const { return maxPitchCol_; }
+    // In tilted barrel, grad*|z|/r + int approximates |cosTilt| + |sinTilt * cotTheta|
+    double tiltApproxSlope() const { return tiltApproxSlope_; }
+    // In tilted barrel, grad*|z|/r + int approximates |cosTilt| + |sinTilt * cotTheta|
+    double tiltApproxIntercept() const { return tiltApproxIntercept_; }
+    // In tilted barrel, constant assumed stub radial uncertainty * sqrt(12) in cm
+    double tiltUncertaintyR() const { return tiltUncertaintyR_; }
+    // scattering term used to add stub phi uncertainty depending on assumed track inv2R
+    double scattering() const { return scattering_; }
     // barrel layer limit z value to partition into tilted and untilted region
     double tiltedLayerLimitZ(int layer) const { return tiltedLayerLimitsZ_.at(layer); }
     // endcap disk limit r value to partition into PS and 2S region
     double psDiskLimitR(int layer) const { return psDiskLimitsR_.at(layer); }
-    // strip pitch of outer tracker sensors in cm
-    double pitch2S() const { return pitch2S_; }
-    // pixel pitch of outer tracker sensors in cm
-    double pitchPS() const { return pitchPS_; }
-    // strip length of outer tracker sensors in cm
-    double length2S() const { return length2S_; }
-    // pixel length of outer tracker sensors in cm
-    double lengthPS() const { return lengthPS_; }
 
     // Common track finding parameter
 
@@ -182,37 +198,23 @@ namespace tt {
     double invPtToDphi() const { return invPtToDphi_; }
     // region size in rad
     double baseRegion() const { return baseRegion_; }
-    // pt cut
-    double tpMinPt() const { return tpMinPt_; }
-    // TP eta cut
-    double tpMaxEta() const { return tpMaxEta_; }
-    // TP cut on vertex pos r in cm
-    double tpMaxVertR() const { return tpMaxVertR_; }
-    // TP cut on vertex pos z in cm
-    double tpMaxVertZ() const { return tpMaxVertZ_; }
-    // TP cut on impact parameter in cm
-    double tpMaxD0() const { return tpMaxD0_; }
-    // required number of associated layers to a TP to consider it reconstruct-able
-    int tpMinLayers() const { return tpMinLayers_; }
-    // required number of associated ps layers to a TP to consider it reconstruct-able
-    int tpMinLayersPS() const { return tpMinLayersPS_; }
-    // max number of unassociated 2S stubs allowed to still associate TTTrack with TP
-    int tpMaxBadStubs2S() const { return tpMaxBadStubs2S_; }
-    // max number of unassociated PS stubs allowed to still associate TTTrack with TP
-    int tpMaxBadStubsPS() const { return tpMaxBadStubsPS_; }
-    // BField used in fw in T
-    double bField() const { return bField_; }
+    // max cot(theta) of found tracks
+    double maxCot() const { return maxCot_; }
+    // cut on stub and TP pt, also defines region overlap shape in GeV
+    double minPt() const { return minPt_; }
+    // cut on candidate pt
+    double minPtCand() const { return minPtCand_; }
+    // cut on stub eta
+    double maxEta() const { return maxEta_; }
+    // constraints track reconstruction phase space
+    double maxD0() const { return maxD0_; }
+    // critical radius defining region overlap shape in cm
+    double chosenRofPhi() const { return chosenRofPhi_; }
+    // TMTT: number of detector layers a reconstructbale particle may cross; Hybrid: max number of layers connected to one DTC
+    int numLayers() const { return numLayers_; }
 
     // TMTT specific parameter
 
-    // cut on stub and TP pt, also defines region overlap shape in GeV
-    double minPt() const { return minPt_; }
-    // cut on stub eta
-    double maxEta() const { return maxEta_; }
-    // critical radius defining region overlap shape in cm
-    double chosenRofPhi() const { return chosenRofPhi_; }
-    // number of detector layers a reconstructbale particle may cross
-    int numLayers() const { return numLayers_; }
     // number of bits used for stub r - ChosenRofPhi
     int tmttWidthR() const { return tmttWidthR_; }
     // number of bits used for stub phi w.r.t. phi sector centre
@@ -237,35 +239,11 @@ namespace tt {
     double tmttBasePhiT() const { return tmttBasePhiT_; }
     // number of padded 0s in output data format
     int tmttNumUnusedBits() const { return tmttNumUnusedBits_; }
-    // outer radius of outer tracker in cm
-    double outerRadius() const { return outerRadius_; }
-    // inner radius of outer tracker in cm
-    double innerRadius() const { return innerRadius_; }
-    // half length of outer tracker in cm
-    double halfLength() const { return halfLength_; }
-    // max strip/pixel length of outer tracker sensors in cm
-    double maxLength() const { return maxLength_; }
-    // In tilted barrel, grad*|z|/r + int approximates |cosTilt| + |sinTilt * cotTheta|
-    double tiltApproxSlope() const { return tiltApproxSlope_; }
-    // In tilted barrel, grad*|z|/r + int approximates |cosTilt| + |sinTilt * cotTheta|
-    double tiltApproxIntercept() const { return tiltApproxIntercept_; }
-    // In tilted barrel, constant assumed stub radial uncertainty * sqrt(12) in cm
-    double tiltUncertaintyR() const { return tiltUncertaintyR_; }
-    // scattering term used to add stub phi uncertainty depending on assumed track inv2R
-    double scattering() const { return scattering_; }
 
     // Hybrid specific parameter
 
-    // cut on stub pt in GeV, also defines region overlap shape
-    double hybridMinPtStub() const { return hybridMinPtStub_; }
-    // cut on andidate pt in GeV
-    double hybridMinPtCand() const { return hybridMinPtCand_; }
-    // cut on stub eta
-    double hybridMaxEta() const { return hybridMaxEta_; }
-    // critical radius defining region overlap shape in cm
-    double hybridChosenRofPhi() const { return hybridChosenRofPhi_; }
-    // max number of detector layer connected to one DTC
-    int hybridNumLayers() const { return hybridNumLayers_; }
+    // max number of layer connected to one DTC
+    double hybridNumLayers() const { return hybridNumLayers_; }
     // number of bits used for stub r w.r.t layer/disk centre for module types (barrelPS, barrel2S, diskPS, disk2S)
     int hybridWidthR(SensorModule::Type type) const { return hybridWidthsR_.at(type); }
     // number of bits used for stub z w.r.t layer/disk centre for module types (barrelPS, barrel2S, diskPS, disk2S)
@@ -280,10 +258,13 @@ namespace tt {
     int hybridWidthLayerId() const { return hybridWidthLayerId_; }
     // precision or r in cm for (barrelPS, barrel2S, diskPS, disk2S)
     double hybridBaseR(SensorModule::Type type) const { return hybridBasesR_.at(type); }
+    double hybridBaseR() const { return hybridBaseR_; }
     // precision or phi in rad for (barrelPS, barrel2S, diskPS, disk2S)
     double hybridBasePhi(SensorModule::Type type) const { return hybridBasesPhi_.at(type); }
+    double hybridBasePhi() const { return hybridBasePhi_; }
     // precision or z in cm for (barrelPS, barrel2S, diskPS, disk2S)
     double hybridBaseZ(SensorModule::Type type) const { return hybridBasesZ_.at(type); }
+    double hybridBaseZ() const { return hybridBaseZ_; }
     // precision or alpha in pitch units for (barrelPS, barrel2S, diskPS, disk2S)
     double hybridBaseAlpha(SensorModule::Type type) const { return hybridBasesAlpha_.at(type); }
     // number of padded 0s in output data format for (barrelPS, barrel2S, diskPS, disk2S)
@@ -300,6 +281,8 @@ namespace tt {
     double hybridRangePhi() const { return hybridRangePhi_; }
     // range of stub r in cm
     double hybridRangeR() const { return hybridRangesR_[SensorModule::DiskPS]; }
+    // biggest barrel stub z position after TrackBuilder in cm
+    double tbBarrelHalfLength() const { return tbBarrelHalfLength_; }
     // smallest stub radius after TrackBuilder in cm
     double tbInnerRadius() const { return tbInnerRadius_; }
     // center radius of outer tracker endcap 2S diks strips
@@ -325,6 +308,8 @@ namespace tt {
     double baseWindowSize() const { return baseWindowSize_; }
     // index = encoded bend, value = decoded bend for given window size and module type
     const std::vector<double>& encodingBend(int windowSize, bool psModule) const;
+    //getBendCut
+    const StubAlgorithmOfficial* stubAlgorithm() const { return stubAlgorithm_; }
 
     // Parameter specifying front-end
 
@@ -398,8 +383,8 @@ namespace tt {
 
     // number of bist used for phi0
     int tfpWidthPhi0() const { return tfpWidthPhi0_; }
-    // umber of bist used for inv2R
-    int tfpWidthInv2R() const { return tfpWidthInv2R_; }
+    // umber of bist used for invR
+    int tfpWidthInvR() const { return tfpWidthInvR_; }
     // number of bist used for cot(theta)
     int tfpWidthCot() const { return tfpWidthCot_; }
     // number of bist used for z0
@@ -410,28 +395,23 @@ namespace tt {
     // Parameter specifying GeometricProcessor
 
     // number of phi sectors in a processing nonant used in hough transform
-    int numSectorsPhi() const { return numSectorsPhi_; }
+    int gpNumBinsPhiT() const { return gpNumBinsPhiT_; }
     // number of eta sectors used in hough transform
-    int numSectorsEta() const { return numSectorsEta_; }
+    int gpNumBinsZT() const { return gpNumBinsZT_; }
     // # critical radius defining r-z sector shape in cm
     double chosenRofZ() const { return chosenRofZ_; }
     // fifo depth in stub router firmware
     int gpDepthMemory() const { return gpDepthMemory_; }
-    // defining r-z sector shape
-    double boundarieEta(int eta) const { return boundariesEta_.at(eta); }
-    std::vector<double> boundarieEta() const { return boundariesEta_; }
+    //
+    int gpWidthModule() const { return gpWidthModule_; }
     // phi sector size in rad
     double baseSector() const { return baseSector_; }
-    // cut on zT
-    double maxZT() const { return maxZT_; }
-    // cut on stub cot theta
-    double maxCot() const { return maxCot_; }
     // total number of sectors
     int numSectors() const { return numSectors_; }
-    // cot(theta) of given eta sector
-    double sectorCot(int eta) const { return sectorCots_.at(eta); }
     //
-    double neededRangeChiZ() const { return neededRangeChiZ_; }
+    double maxRphi() const { return maxRphi_; }
+    //
+    double maxRz() const { return maxRz_; }
 
     // Parameter specifying HoughTransform
 
@@ -444,85 +424,73 @@ namespace tt {
     // internal fifo depth
     int htDepthMemory() const { return htDepthMemory_; }
 
-    // Parameter specifying MiniHoughTransform
+    // Parameter specifying Track Builder
 
     // number of finer inv2R bins inside HT bin
-    int mhtNumBinsInv2R() const { return mhtNumBinsInv2R_; }
+    int ctbNumBinsInv2R() const { return ctbNumBinsInv2R_; }
     // number of finer phiT bins inside HT bin
-    int mhtNumBinsPhiT() const { return mhtNumBinsPhiT_; }
-    // number of dynamic load balancing steps
-    int mhtNumDLBs() const { return mhtNumDLBs_; }
-    // number of units per dynamic load balancing step
-    int mhtNumDLBNodes() const { return mhtNumDLBNodes_; }
-    // number of inputs per dynamic load balancing unit
-    int mhtNumDLBChannel() const { return mhtNumDLBChannel_; }
+    int ctbNumBinsPhiT() const { return ctbNumBinsPhiT_; }
+    // number of used z0 bins inside GP ZT bin
+    int ctbNumBinsCot() const { return ctbNumBinsCot_; }
+    //number of used zT bins inside GP ZT bin
+    int ctbNumBinsZT() const { return ctbNumBinsZT_; }
     // required number of stub layers to form a candidate
-    int mhtMinLayers() const { return mhtMinLayers_; }
-    // number of mht cells
-    int mhtNumCells() const { return mhtNumCells_; }
-
-    // Parameter specifying ZHoughTransform
-
-    //number of used zT bins
-    int zhtNumBinsZT() const { return zhtNumBinsZT_; }
-    // number of used cot bins
-    int zhtNumBinsCot() const { return zhtNumBinsCot_; }
-    //  number of stages
-    int zhtNumStages() const { return zhtNumStages_; }
-    // required number of stub layers to form a candidate
-    int zhtMinLayers() const { return zhtMinLayers_; }
+    int ctbMinLayers() const { return ctbMinLayers_; }
     // max number of output tracks per node
-    int zhtMaxTracks() const { return zhtMaxTracks_; }
+    int ctbMaxTracks() const { return ctbMaxTracks_; }
     // cut on number of stub per layer for input candidates
-    int zhtMaxStubsPerLayer() const { return zhtMaxStubsPerLayer_; }
-    // number of zht cells
-    int zhtNumCells() const { return zhtNumCells_; }
-
-    // Parameter specifying KalmanFilter Input Formatter
-
-    // power of 2 multiplier of stub phi residual range
-    int kfinShiftRangePhi() const { return kfinShiftRangePhi_; }
-    // power of 2 multiplier of stub z residual range
-    int kfinShiftRangeZ() const { return kfinShiftRangeZ_; }
+    int ctbMaxStubs() const { return ctbMaxStubs_; }
+    // internal memory depth
+    int ctbDepthMemory() const { return ctbDepthMemory_; }
 
     // Parameter specifying KalmanFilter
 
     // number of kf worker
     int kfNumWorker() const { return kfNumWorker_; }
+    // max number of tracks a kf worker can process
+    int kfMaxTracks() const { return kfMaxTracks_; }
     // required number of stub layers to form a track
     int kfMinLayers() const { return kfMinLayers_; }
+    // required number of ps stub layers to form a track
+    int kfMinLayersPS() const { return kfMinLayersPS_; }
     // maximum number of  layers added to a track
     int kfMaxLayers() const { return kfMaxLayers_; }
+    //
+    int kfMaxGaps() const { return kfMaxGaps_; }
+    //
+    int kfMaxSeedingLayer() const { return kfMaxSeedingLayer_; }
+    //
+    int kfNumSeedStubs() const { return kfNumSeedStubs_; }
+    //
+    double kfMinSeedDeltaR() const { return kfMinSeedDeltaR_; }
     // search window of each track parameter in initial uncertainties
     double kfRangeFactor() const { return kfRangeFactor_; }
-    //
+    // initial C00 is given by inv2R uncertainty squared times this power of 2
     int kfShiftInitialC00() const { return kfShiftInitialC00_; }
-    //
+    // initial C11 is given by phiT uncertainty squared times this power of 2
     int kfShiftInitialC11() const { return kfShiftInitialC11_; }
-    //
+    // initial C22 is given by cot uncertainty squared times this power of 2
     int kfShiftInitialC22() const { return kfShiftInitialC22_; }
-    //
+    // initial C33 is given by zT uncertainty squared times this power of 2
     int kfShiftInitialC33() const { return kfShiftInitialC33_; }
-
-    // Parameter specifying KalmanFilter Output Formatter
-    // Conversion factor between dphi^2/weight and chi2rphi
-    int kfoutchi2rphiConv() const { return kfoutchi2rphiConv_; }
-    // Conversion factor between dz^2/weight and chi2rz
-    int kfoutchi2rzConv() const { return kfoutchi2rzConv_; }
-    // Fraction of total dphi and dz ranges to calculate v0 and v1 LUT for
-    int weightBinFraction() const { return weightBinFraction_; }
-    // Constant used in FW to prevent 32-bit int overflow
-    int dzTruncation() const { return dzTruncation_; }
-    // Constant used in FW to prevent 32-bit int overflow
-    int dphiTruncation() const { return dphiTruncation_; }
+    //
+    int kfShiftChi20() const { return kfShiftChi20_; }
+    //
+    int kfShiftChi21() const { return kfShiftChi21_; }
+    //
+    double kfCutChi2() const { return kfCutChi2_; }
+    //
+    int kfWidthChi2() const { return kfWidthChi2_; }
 
     // Parameter specifying DuplicateRemoval
 
     // internal memory depth
     int drDepthMemory() const { return drDepthMemory_; }
 
-    //getBendCut
-    const StubAlgorithmOfficial* stubAlgorithm() const { return stubAlgorithm_; }
+    // Parameter specifying TrackQuaility
+
+    // number of output channel
+    int tqNumChannel() const { return tqNumChannel_; }
 
   private:
     // checks consitency between history and current configuration for a specific module
@@ -532,10 +500,6 @@ namespace tt {
                       const edm::ParameterSetID&) const;
     // dumps pSetHistory where incosistent lines with pSetProcess are highlighted
     std::string dumpDiff(const edm::ParameterSet& pSetHistory, const edm::ParameterSet& pSetProcess) const;
-    // check if bField is supported
-    void checkMagneticField();
-    // check if geometry is supported
-    void checkGeometry();
     // derive constants
     void calculateConstants();
     // convert configuration of TTStubAlgorithm
@@ -553,8 +517,6 @@ namespace tt {
     // configure TPSelector
     void configureTPSelector();
 
-    // MagneticField
-    const MagneticField* magneticField_;
     // TrackerGeometry
     const TrackerGeometry* trackerGeometry_;
     // TrackerTopology
@@ -565,59 +527,28 @@ namespace tt {
     const StubAlgorithmOfficial* stubAlgorithm_;
     // pSet of ttStub algorithm, used to identify bend window sizes of sensor modules
     const edm::ParameterSet* pSetSA_;
-    // pSet of geometry configuration, used to identify if geometry is supported
-    const edm::ParameterSet* pSetGC_;
-    // pset id of current TTStubAlgorithm
-    edm::ParameterSetID pSetIdTTStubAlgorithm_;
-    // pset id of current geometry configuration
-    edm::ParameterSetID pSetIdGeometryConfiguration_;
-
-    // DD4hep
-    bool fromDD4hep_;
-
-    // Parameter to check if configured Tracker Geometry is supported
-    edm::ParameterSet pSetSG_;
-    // label of ESProducer/ESSource
-    std::string sgXMLLabel_;
-    // compared path
-    std::string sgXMLPath_;
-    // compared filen ame
-    std::string sgXMLFile_;
-    // list of supported versions
-    std::vector<std::string> sgXMLVersions_;
-
-    // Parameter to check if Process History is consistent with process configuration
-    edm::ParameterSet pSetPH_;
-    // label of compared GeometryConfiguration
-    std::string phGeometryConfiguration_;
-    // label of compared TTStubAlgorithm
-    std::string phTTStubAlgorithm_;
 
     // Common track finding parameter
     edm::ParameterSet pSetTF_;
     // half lumi region size in cm
     double beamWindowZ_;
-    // required number of layers a found track has to have in common with a TP to consider it matched to it
-    int matchedLayers_;
-    // required number of ps layers a found track has to have in common with a TP to consider it matched to it
-    int matchedLayersPS_;
-    // allowed number of stubs a found track may have not in common with its matched TP
-    int unMatchedStubs_;
-    // allowed number of PS stubs a found track may have not in common with its matched TP
-    int unMatchedStubsPS_;
-    // scattering term used to add stub phi uncertainty depending on assumed track inv2R
-    double scattering_;
-
-    // TMTT specific parameter
-    edm::ParameterSet pSetTMTT_;
     // cut on stub and TP pt, also defines region overlap shape in GeV
     double minPt_;
+    // cut on candidate pt
+    double minPtCand_;
     // cut on stub eta
     double maxEta_;
+    // in cm, constraints track reconstruction phase space
+    double maxD0_;
     // critical radius defining region overlap shape in cm
     double chosenRofPhi_;
     // number of detector layers a reconstructbale particle may cross
     int numLayers_;
+    // required number of stub layers to form a track
+    int minLayers_;
+
+    // TMTT specific parameter
+    edm::ParameterSet pSetTMTT_;
     // number of bits used for stub r - ChosenRofPhi
     int tmttWidthR_;
     // number of bits used for stub phi w.r.t. phi sector centre
@@ -627,15 +558,7 @@ namespace tt {
 
     // Hybrid specific parameter
     edm::ParameterSet pSetHybrid_;
-    // cut on stub pt in GeV, also defines region overlap shape
-    double hybridMinPtStub_;
-    // cut on andidate pt in GeV
-    double hybridMinPtCand_;
-    // cut on stub eta
-    double hybridMaxEta_;
-    // critical radius defining region overlap shape in cm
-    double hybridChosenRofPhi_;
-    // max number of detector layer connected to one DTC
+    // max number of layers connected to one DTC
     int hybridNumLayers_;
     // number of outer PS rings for disk 1, 2, 3, 4, 5
     std::vector<int> hybridNumRingsPS_;
@@ -663,31 +586,12 @@ namespace tt {
     std::vector<edm::ParameterSet> hybridDisk2SRsSet_;
     // range of stub phi in rad
     double hybridRangePhi_;
+    // biggest barrel stub z position after TrackBuilder in cm
+    double tbBarrelHalfLength_;
     // smallest stub radius after TrackBuilder in cm
     double tbInnerRadius_;
     // number of bits used for stub r w.r.t layer/disk centre for module types (barrelPS, barrel2S, diskPS, disk2S) after TrackBuilder
     std::vector<int> tbWidthsR_;
-
-    // Parameter specifying TrackingParticle used for Efficiency measurements
-    edm::ParameterSet pSetTP_;
-    // pt cut
-    double tpMinPt_;
-    // eta cut
-    double tpMaxEta_;
-    // cut on vertex pos r in cm
-    double tpMaxVertR_;
-    // cut on vertex pos z in cm
-    double tpMaxVertZ_;
-    // cut on impact parameter in cm
-    double tpMaxD0_;
-    // required number of associated layers to a TP to consider it reconstruct-able
-    int tpMinLayers_;
-    // required number of associated ps layers to a TP to consider it reconstruct-able
-    int tpMinLayersPS_;
-    // max number of unassociated 2S stubs allowed to still associate TTTrack with TP
-    int tpMaxBadStubs2S_;
-    // max number of unassociated PS stubs allowed to still associate TTTrack with TP
-    int tpMaxBadStubsPS_;
 
     // Firmware specific Parameter
     edm::ParameterSet pSetFW_;
@@ -718,13 +622,18 @@ namespace tt {
     // LHC bunch crossing rate in MHz
     double freqLHC_;
     // processing Frequency of DTC & TFP in MHz, has to be integer multiple of FreqLHC
-    double freqBE_;
+    double freqBEHigh_;
+    // processing Frequency of DTC & TFP in MHz, has to be integer multiple of FreqLHC
+    double freqBELow_;
     // number of events collected in front-end
     int tmpFE_;
     // time multiplexed period of track finding processor
     int tmpTFP_;
     // speed of light used in FW in e8 m/s
     double speedOfLight_;
+
+    // Tracker specific Parameter
+    edm::ParameterSet pSetOT_;
     // BField used in fw in T
     double bField_;
     // accepted BField difference between FW to EventSetup in T
@@ -736,31 +645,35 @@ namespace tt {
     // half length of outer tracker in cm
     double halfLength_;
     // max strip/pixel pitch of outer tracker sensors in cm
-    double maxPitch_;
+    double maxPitchRow_;
     // max strip/pixel length of outer tracker sensors in cm
-    double maxLength_;
+    double maxPitchCol_;
     // approximated tilt correction parameter used to project r to z uncertainty
     double tiltApproxSlope_;
     // approximated tilt correction parameter used to project r to z uncertainty
     double tiltApproxIntercept_;
     // In tilted barrel, constant assumed stub radial uncertainty * sqrt(12) in cm
     double tiltUncertaintyR_;
-    // minimum representable stub phi uncertainty
-    double mindPhi_;
-    // maximum representable stub phi uncertainty
-    double maxdPhi_;
-    // minimum representable stub z uncertainty
-    double mindZ_;
-    // maximum representable stub z uncertainty
-    double maxdZ_;
+    // scattering term used to add stub phi uncertainty depending on assumed track inv2R
+    double scattering_;
     // strip pitch of outer tracker sensors in cm
-    double pitch2S_;
+    double pitchRow2S_;
     // pixel pitch of outer tracker sensors in cm
-    double pitchPS_;
+    double pitchRowPS_;
     // strip length of outer tracker sensors in cm
-    double length2S_;
+    double pitchCol2S_;
     // pixel length of outer tracker sensors in cm
-    double lengthPS_;
+    double pitchColPS_;
+    // barrel layer limit r value to partition into PS and 2S region
+    double limitPSBarrel_;
+    // barrel layer limit r value to partition into tilted and untilted region
+    std::vector<double> limitsTiltedR_;
+    // barrel layer limit |z| value to partition into tilted and untilted region
+    std::vector<double> limitsTiltedZ_;
+    // endcap disk limit |z| value to partition into PS and 2S region
+    std::vector<double> limitsPSDiksZ_;
+    // endcap disk limit r value to partition into PS and 2S region
+    std::vector<double> limitsPSDiksR_;
     // barrel layer limit |z| value to partition into tilted and untilted region
     std::vector<double> tiltedLayerLimitsZ_;
     // endcap disk limit r value to partition into PS and 2S region
@@ -824,13 +737,13 @@ namespace tt {
 
     // Parameter specifying TFP
     edm::ParameterSet pSetTFP_;
-    // number of bist used for phi0
+    // number of bits used for phi0
     int tfpWidthPhi0_;
-    // umber of bist used for qOverPt
-    int tfpWidthInv2R_;
-    // number of bist used for cot(theta)
+    // umber of bits used for qOverPt
+    int tfpWidthInvR_;
+    // number of bits used for cot(theta)
     int tfpWidthCot_;
-    // number of bist used for z0
+    // number of bits used for z0
     int tfpWidthZ0_;
     // number of output links
     int tfpNumChannel_;
@@ -838,17 +751,21 @@ namespace tt {
     // Parameter specifying GeometricProcessor
     edm::ParameterSet pSetGP_;
     // number of phi sectors used in hough transform
-    int numSectorsPhi_;
+    int gpNumBinsPhiT_;
     // number of eta sectors used in hough transform
-    int numSectorsEta_;
+    int gpNumBinsZT_;
     // # critical radius defining r-z sector shape in cm
     double chosenRofZ_;
-    // range of stub z residual w.r.t. sector center which needs to be covered
-    double neededRangeChiZ_;
     // fifo depth in stub router firmware
     int gpDepthMemory_;
-    // defining r-z sector shape
-    std::vector<double> boundariesEta_;
+    //
+    int gpWidthModule_;
+    //
+    int gpPosPS_;
+    //
+    int gpPosBarrel_;
+    //
+    int gpPosTilted_;
 
     // Parameter specifying HoughTransform
     edm::ParameterSet pSetHT_;
@@ -861,90 +778,77 @@ namespace tt {
     // internal fifo depth
     int htDepthMemory_;
 
-    // Parameter specifying MiniHoughTransform
-    edm::ParameterSet pSetMHT_;
+    // Parameter specifying Clean Track Builder
+    edm::ParameterSet pSetCTB_;
     // number of finer inv2R bins inside HT bin
-    int mhtNumBinsInv2R_;
+    int ctbNumBinsInv2R_;
     // number of finer phiT bins inside HT bin
-    int mhtNumBinsPhiT_;
-    // number of dynamic load balancing steps
-    int mhtNumDLBs_;
-    // number of units per dynamic load balancing step
-    int mhtNumDLBNodes_;
-    // number of inputs per dynamic load balancing unit
-    int mhtNumDLBChannel_;
+    int ctbNumBinsPhiT_;
+    // number of used cot bins inside GP ZT bin
+    int ctbNumBinsCot_;
+    //number of used zT bins inside GP ZT bin
+    int ctbNumBinsZT_;
     // required number of stub layers to form a candidate
-    int mhtMinLayers_;
-
-    // Parameter specifying ZHoughTransform
-    edm::ParameterSet pSetZHT_;
-    //number of used zT bins
-    int zhtNumBinsZT_;
-    // number of used cot bins
-    int zhtNumBinsCot_;
-    // number of stages
-    int zhtNumStages_;
-    // required number of stub layers to form a candidate
-    int zhtMinLayers_;
+    int ctbMinLayers_;
     // max number of output tracks per node
-    int zhtMaxTracks_;
+    int ctbMaxTracks_;
     // cut on number of stub per layer for input candidates
-    int zhtMaxStubsPerLayer_;
-
-    // Parameter specifying KalmanFilter Input Formatter
-    edm::ParameterSet pSetKFin_;
-    // power of 2 multiplier of stub phi residual range
-    int kfinShiftRangePhi_;
-    // power of 2 multiplier of stub z residual range
-    int kfinShiftRangeZ_;
+    int ctbMaxStubs_;
+    // internal memory depth
+    int ctbDepthMemory_;
 
     // Parameter specifying KalmanFilter
     edm::ParameterSet pSetKF_;
     // number of kf worker
     int kfNumWorker_;
+    // max number of tracks a kf worker can process
+    int kfMaxTracks_;
     // required number of stub layers to form a track
     int kfMinLayers_;
+    // required number of ps stub layers to form a track
+    int kfMinLayersPS_;
     // maximum number of  layers added to a track
     int kfMaxLayers_;
+    //
+    int kfMaxGaps_;
+    //
+    int kfMaxSeedingLayer_;
+    //
+    int kfNumSeedStubs_;
+    //
+    double kfMinSeedDeltaR_;
     // search window of each track parameter in initial uncertainties
     double kfRangeFactor_;
-    //
+    // initial C00 is given by inv2R uncertainty squared times this power of 2
     int kfShiftInitialC00_;
-    //
+    // initial C11 is given by phiT uncertainty squared times this power of 2
     int kfShiftInitialC11_;
-    //
+    // initial C22 is given by cot uncertainty squared times this power of 2
     int kfShiftInitialC22_;
-    //
+    // initial C33 is given by zT uncertainty squared times this power of 2
     int kfShiftInitialC33_;
-
-    // Parameter specifying KalmanFilter Output Formatter
-    edm::ParameterSet pSetKFOut_;
-    // Conversion factor between dphi^2/weight and chi2rphi
-    int kfoutchi2rphiConv_;
-    // Conversion factor between dz^2/weight and chi2rz
-    int kfoutchi2rzConv_;
-    // Fraction of total dphi and dz ranges to calculate v0 and v1 LUT for
-    int weightBinFraction_;
-    // Constant used in FW to prevent 32-bit int overflow
-    int dzTruncation_;
-    // Constant used in FW to prevent 32-bit int overflow
-    int dphiTruncation_;
+    //
+    int kfShiftChi20_;
+    //
+    int kfShiftChi21_;
+    //
+    double kfCutChi2_;
+    //
+    int kfWidthChi2_;
 
     // Parameter specifying DuplicateRemoval
     edm::ParameterSet pSetDR_;
     // internal memory depth
     int drDepthMemory_;
 
+    // Parameter specifying Track Quality
+    edm::ParameterSet pSetTQ_;
+    // number of output channel
+    int tqNumChannel_;
+
     //
     // Derived constants
     //
-
-    // true if tracker geometry and magnetic field supported
-    bool configurationSupported_;
-    // selector to partly select TPs for efficiency measurements
-    TrackingParticleSelector tpSelector_;
-    // selector to partly select TPs for fake and duplicate rate measurements
-    TrackingParticleSelector tpSelectorLoose_;
 
     // TTStubAlgorithm
 
@@ -962,15 +866,21 @@ namespace tt {
     // common Track finding
 
     // number of frames betwen 2 resets of 18 BX packets
-    int numFrames_;
+    int numFramesHigh_;
+    // number of frames betwen 2 resets of 18 BX packets
+    int numFramesLow_;
     // number of valid frames per 18 BX packet
-    int numFramesIO_;
+    int numFramesIOHigh_;
+    // number of valid frames per 18 BX packet
+    int numFramesIOLow_;
     // number of valid frames per 8 BX packet
     int numFramesFE_;
     // converts GeV in 1/cm
     double invPtToDphi_;
     // region size in rad
     double baseRegion_;
+    // max cot(theta) of found tracks
+    double maxCot_;
 
     // TMTT
 
@@ -1055,30 +965,28 @@ namespace tt {
 
     // phi sector size in rad
     double baseSector_;
-    // cut on zT
-    double maxZT_;
-    // cut on stub cot theta
-    double maxCot_;
+    //
+    double maxRphi_;
+    //
+    double maxRz_;
     // total number of sectors
     int numSectors_;
-    // number of unused bits in GP output format
-    int gpNumUnusedBits_;
-    // cot(theta) of eta sectors
-    std::vector<double> sectorCots_;
 
-    // MHT
+    // CTB
 
-    // number of mht cells
-    int mhtNumCells_;
+    // number of bits used to count stubs per layer
+    int ctbWidthLayerCount_;
 
-    // ZHT
+    // KFout
 
-    // number of zht cells
-    int zhtNumCells_;
-
-    // KF
-
-    int kfWidthLayerCount_;
+    // Bins used to digitize dPhi for chi2 calculation
+    std::vector<int> kfoutdPhiBins_;
+    // Bins used to digitize dZ for chi2 calculation
+    std::vector<int> kfoutdZBins_;
+    // v0 weight Bins corresponding to dPhi Bins for chi2 calculation
+    std::vector<int> kfoutv0Bins_;
+    // v1 weight Bins corresponding to dZ Bins for chi2 calculation
+    std::vector<int> kfoutv1Bins_;
   };
 
 }  // namespace tt

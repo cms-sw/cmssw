@@ -6,8 +6,16 @@
 #include <numeric>
 
 using namespace std;
+using namespace edm;
 
 namespace tt {
+
+  StubAssociation::StubAssociation(const edm::ParameterSet& pSet, const Setup* setup)
+      : setup_(setup),
+        minLayersGood_(pSet.getParameter<int>("MinLayersGood")),
+        minLayersGoodPS_(pSet.getParameter<int>("MinLayersGoodPS")),
+        maxLayersBad_(pSet.getParameter<int>("MaxLayersBad")),
+        maxLayersBadPS_(pSet.getParameter<int>("MaxLayersBadPS")) {}
 
   // insert a TPPtr and its associated collection of TTstubRefs into the underlayering maps
   void StubAssociation::insert(const TPPtr& tpPtr, const vector<TTStubRef>& ttSTubRefs) {
@@ -32,32 +40,32 @@ namespace tt {
   // Get all TPs that are matched to these stubs in at least 'tpMinLayers' layers and 'tpMinLayersPS' ps layers
   vector<TPPtr> StubAssociation::associate(const vector<TTStubRef>& ttStubRefs) const {
     // count associated layer for each TP
-    map<TPPtr, set<int>> m;
-    map<TPPtr, set<int>> mPS;
+    map<TPPtr, pair<set<int>, set<int>>> m;
     for (const TTStubRef& ttStubRef : ttStubRefs) {
       for (const TPPtr& tpPtr : findTrackingParticlePtrs(ttStubRef)) {
         const int layerId = setup_->layerId(ttStubRef);
-        m[tpPtr].insert(layerId);
+        m[tpPtr].first.insert(layerId);
         if (setup_->psModule(ttStubRef))
-          mPS[tpPtr].insert(layerId);
+          m[tpPtr].second.insert(layerId);
       }
     }
     // count matched TPs
-    auto acc = [this](int sum, const pair<TPPtr, set<int>>& p) {
-      return sum + ((int)p.second.size() < setup_->tpMinLayers() ? 0 : 1);
+    auto acc = [this](int sum, const pair<TPPtr, pair<set<int>, set<int>>>& p) {
+      return sum +
+             ((int)p.second.first.size() < minLayersGood_ || (int)p.second.second.size() < minLayersGoodPS_ ? 0 : 1);
     };
     const int nTPs = accumulate(m.begin(), m.end(), 0, acc);
     vector<TPPtr> tpPtrs;
     tpPtrs.reserve(nTPs);
     // fill and return matched TPs
     for (const auto& p : m)
-      if ((int)p.second.size() >= setup_->tpMinLayers() && (int)mPS[p.first].size() >= setup_->tpMinLayersPS())
+      if ((int)p.second.first.size() >= minLayersGood_ && (int)p.second.second.size() >= minLayersGoodPS_)
         tpPtrs.push_back(p.first);
     return tpPtrs;
   }
 
   // Get all TPs that are matched to these stubs in at least 'tpMinLayers' layers and 'tpMinLayersPS' ps layers with not more then 'tpMaxBadStubs2S' not associated 2S stubs and not more then 'tpMaxBadStubsPS' associated PS stubs
-  std::vector<TPPtr> StubAssociation::associateFinal(const std::vector<TTStubRef>& ttStubRefs) const {
+  vector<TPPtr> StubAssociation::associateFinal(const vector<TTStubRef>& ttStubRefs) const {
     // Get all TPs that are matched to these stubs in at least 'tpMinLayers' layers and 'tpMinLayersPS' ps layers
     vector<TPPtr> tpPtrs = associate(ttStubRefs);
     // remove TPs with more then 'tpMaxBadStubs2S' not associated 2S stubs and more then 'tpMaxBadStubsPS' not associated PS stubs
@@ -69,9 +77,7 @@ namespace tt {
         if (find(tpPtrs.begin(), tpPtrs.end(), tpPtr) == tpPtrs.end())
           setup_->psModule(ttStubRef) ? badPS++ : bad2S++;
       }
-      if (badPS > setup_->tpMaxBadStubsPS() || bad2S > setup_->tpMaxBadStubs2S())
-        return true;
-      return false;
+      return (badPS > maxLayersBadPS_ || badPS + bad2S > maxLayersBad_);
     };
     tpPtrs.erase(remove_if(tpPtrs.begin(), tpPtrs.end(), check), tpPtrs.end());
     return tpPtrs;
