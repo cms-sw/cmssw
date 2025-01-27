@@ -102,7 +102,7 @@ public:
       id_ |= (MTDType::BTL & kMTDsubdMask) << kMTDsubdOffset | (zside & kZsideMask) << kZsideOffset |
             (rod & kRodRingMask) << kRodRingOffset | (module & kBTLoldModuleMask) << kBTLoldModuleOffset |
             (modtyp & kBTLoldModTypeMask) << kBTLoldModTypeOffset | (runit & kBTLoldRUMask) << kBTLoldRUOffset |
-            (crystal & kBTLoldCrystalMask) << kBTLoldCrystalOffset;
+            ((crystal - 1) & kBTLoldCrystalMask) << kBTLoldCrystalOffset;
   }
 
   /** Construct from complete geometry information v4 **/
@@ -123,7 +123,7 @@ public:
     if (id_ & kBTLNewFormat)
       return ((id_ >> kBTLCrystalOffset) & kBTLCrystalMask);
     else
-      return ((id_ >> kBTLoldCrystalOffset) & kBTLoldCrystalMask);
+      return ((id_ >> kBTLoldCrystalOffset) & kBTLoldCrystalMask) + 1;
   }
 
   /** Returns BTL crystal number in construction database. */
@@ -141,9 +141,9 @@ public:
     if (id_ & kBTLNewFormat)
       return ((id_ >> kBTLdetectorModOffset) & kBTLdetectorModMask);
     else{
-      uint32_t oldModule = (id_ >> kBTLoldModuleOffset) & kBTLoldModuleMask;
+      uint32_t oldModule = (id_ >> kBTLoldModuleOffset) & kBTLoldModuleMask; 
       uint32_t detModule = int((oldModule - 1) % (kDModulesInRUCol)) * kDModulesInRURow +
-                         int((oldModule - 1) / (kDModulesInRUCol * kSModulesInDM));
+                         int((oldModule - 1) / (kDModulesInRUCol * kSModulesInDM)); // in old scenario module number starts from 1
       return detModule;
     }
   }
@@ -154,7 +154,7 @@ public:
       return ((id_ >> kBTLsensorModOffset) & kBTLsensorModMask);
     else{
       uint32_t oldModule = (id_ >> kBTLoldModuleOffset) & kBTLoldModuleMask;
-      uint32_t senModule = int((oldModule - 1) / kDModulesInRUCol) % kSModulesInDM;
+      uint32_t senModule = int((oldModule - 1) / kDModulesInRUCol) % kSModulesInDM; // in old scenario module number starts from 1
       return senModule;
     }
   }

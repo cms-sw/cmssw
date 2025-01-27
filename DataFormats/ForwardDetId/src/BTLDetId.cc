@@ -26,8 +26,9 @@ std::ostream& operator<<(std::ostream& os, const BTLDetId& id) {
      << " Readout unit: " << id.runit() << std::endl
      << " Readout unit by type: " << id.runitByType() << std::endl
      << " Detector Module: " << id.dmodule() << std::endl
-     << " Sensor Moduke: " << id.smodule() << std::endl
+     << " Sensor Module: " << id.smodule() << std::endl
      << " Module      : " << id.module() << std::endl
      << " Crystal     : " << id.crystal() << std::endl;
+     << " Crystal in DB: " << id.crystalConsDB() << std::endl;
   return os;
 }
