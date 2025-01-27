@@ -673,7 +673,34 @@ namespace dqm::impl {
   // Returns number of cells (9 indicates empty TH2Poly without user-defined bins)
   int MonitorElement::getNcells() const {
     auto access = this->access();
-    return accessRootObject(access, __PRETTY_FUNCTION__, 1)->GetNcells();
+    if (kind() == Kind::TH1F)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->GetNcells();
+    else if (kind() == Kind::TH1S)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->GetNcells();
+    else if (kind() == Kind::TH1D)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->GetNcells();
+    else if (kind() == Kind::TH1I)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->GetNcells();
+    else if (kind() == Kind::TPROFILE)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->GetNcells();
+    else if (kind() == Kind::TH2F)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->GetNcells();
+    else if (kind() == Kind::TH2S)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->GetNcells();
+    else if (kind() == Kind::TH2D)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->GetNcells();
+    else if (kind() == Kind::TH2I)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->GetNcells();
+    else if (kind() == Kind::TH2Poly)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->GetNcells();
+    else if (kind() == Kind::TPROFILE2D)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->GetNcells();
+    else if (kind() == Kind::TH3F)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 3)->GetNcells();
+    else {
+      incompatible(__PRETTY_FUNCTION__);
+      return 0;
+    }
   }
 
   /// get # of bin entries (for profiles)
