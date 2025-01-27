@@ -1559,6 +1559,7 @@ class ConfigBuilder(object):
     def loadPhase2GTMenu(self, menuFile: str):
         import importlib
         menuPath = f'L1Trigger.Configuration.Phase2GTMenus.{menuFile}'
+        print(f"Loading P2GT menu from {menuPath}")
         menuModule = importlib.import_module(menuPath)
         
         theMenu = menuModule.menu
@@ -1585,7 +1586,7 @@ class ConfigBuilder(object):
         self.scheduleSequence('l1tGTProducerSequence', 'Phase2L1GTProducer')
         self.scheduleSequence('l1tGTAlgoBlockProducerSequence', 'Phase2L1GTAlgoBlockProducer')
         if stepSpec == None:
-            defaultMenuFile = "prototype_2023_v1_0_0"
+            defaultMenuFile = "step1_2024"
             self.loadPhase2GTMenu(menuFile = defaultMenuFile)
         else:
             self.loadPhase2GTMenu(menuFile = stepSpec)
