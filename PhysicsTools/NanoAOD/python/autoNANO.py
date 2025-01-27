@@ -58,6 +58,8 @@ autoNANO = {
     'HCAL': {'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask'},
     'HCALCalib': {'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask',
                   'customize': 'DPGAnalysis/HcalNanoAOD/customiseHcalCalib_cff.customiseHcalCalib'},
+    'HCALMC': {'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask',
+                  'customize': 'DPGAnalysis/HcalNanoAOD/customiseHcalMC_cff.customiseHcalMC'},
     # EGM flavours: add variables through customize
     'EGM': {'sequence': '@PHYS',
             'customize': '@PHYS+PhysicsTools/NanoAOD/egamma_custom_cff.addExtraEGammaVarsCustomize'},
