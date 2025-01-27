@@ -104,7 +104,8 @@ from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3Res
 
 ak4PFScoutingL1FastjetCorrector = ak4PFL1FastjetCorrector.clone(
     algorithm   = cms.string('AK4PFHLT'),
-    srcRho = cms.InputTag("hltScoutingPFPacker","rho")
+    #srcRho = cms.InputTag("hltScoutingPFPacker","rho")      ### to be updated to this once 2025 ScoutingPFMonitor datasets are available, where the "hltScoutingPacker,rho" won't be missing!
+    srcRho = cms.InputTag("fixedGridRhoFastjetAll","rho")    ### used only temporarily, because in some 2024 ScoutingPFMonitor datasets the "hltScoutingPacker,rho" is missing! 
     )
     
 ak4PFScoutingL2RelativeCorrector = ak4PFL2RelativeCorrector.clone( 
@@ -134,15 +135,6 @@ dqmAk4PFScoutingL1FastL2L3ResidualCorrectorChain = cms.Sequence(
     dqmAk4PFScoutingL1FastL2L3ResidualCorrector
 )
 
-###from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3ResidualCorrectorChain,ak4PFL1FastL2L3ResidualCorrector,ak4PFCHSL1FastL2L3Corrector,ak4PFResidualCorrector,ak4PFL3AbsoluteCorrector,ak4PFL2RelativeCorrector,ak4PFL1FastjetCorrector
-
-###ak4PFScoutingL1OffsetCorrector = ak4PFL1OffsetCorrector.clone(algorithm='AK4PFHLT')
-
-###dqmAk4PFCHSL1FastL2L3Corrector = ak4PFCHSL1FastL2L3Corrector.clone()
-###dqmAk4PFCHSL1FastL2L3CorrectorChain = cms.Sequence(
-###    #ak4CaloL2RelativeCorrector*ak4CaloL3AbsoluteCorrector*ak4CaloResidualCorrector*
-###    dqmAk4PFCHSL1FastL2L3Corrector
-###) ### ?????????
 
 HBHENoiseFilterResultProducerDQM=HBHENoiseFilterResultProducer.clone()
 
