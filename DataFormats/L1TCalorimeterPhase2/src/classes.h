@@ -9,10 +9,12 @@
 /*********************/
 
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/CaloTower.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/CaloJet.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelator.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedTowerCorrelator.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterGT.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloPFCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/CaloJet.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/CaloTower.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelator.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterGT.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedTowerCorrelator.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/Phase2L1CaloJet.h"

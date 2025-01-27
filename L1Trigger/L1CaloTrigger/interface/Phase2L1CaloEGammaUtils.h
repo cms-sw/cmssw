@@ -21,6 +21,8 @@
 #include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelator.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedTowerCorrelator.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterGT.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"
 
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
@@ -93,6 +95,13 @@ namespace p2eg {
   static constexpr int GCTCARD_2_TOWER_IPHI_OFFSET = 68;
 
   static constexpr int N_GCTTOWERS_CLUSTER_ISO_ONESIDE = 5;  // window size of isolation sum (5x5 in towers)
+
+  // Outputs to correlator
+  // Fixed number of EG and PF clusters per RCT card in each output SLR
+  static constexpr int N_EG_CLUSTERS_PER_RCT_CARD = 9;
+  static constexpr int N_PF_CLUSTERS_PER_RCT_CARD = 12;
+  // Height of one SLR region in phi in degrees
+  static constexpr float PHI_RANGE_PER_SLR_DEGREES = 120;
 
   //////////////////////////////////////////////////////////////////////////
   // RCT: indexing helper functions
@@ -1660,6 +1669,16 @@ namespace p2eg {
       int fiberEnd,
       int corrFiberIndexOffset,
       int corrTowPhiOffset);
+
+  /*******************************************************************************************/
+  /* Interface to correlator helper functions (defined in Phase2L1CaloBarrelToCorrelator.h)  */
+  /*******************************************************************************************/
+  bool compareGCTEmDigiClusterET(const l1tp2::GCTEmDigiCluster& lhs, const l1tp2::GCTEmDigiCluster& rhs);
+  void sortAndPad_eg_SLR(l1tp2::GCTEmDigiClusterLink& thisSLR);
+  bool compareGCTHadDigiClusterET(const l1tp2::GCTHadDigiCluster& lhs, const l1tp2::GCTHadDigiCluster& rhs);
+  void sortAndPad_had_SLR(l1tp2::GCTHadDigiClusterLink& thisSLR);
+  float deltaPhiInDegrees(float phi1, float phi2, const float c);
+  float wrappedPhiInDegrees(float phi);
 
 }  // namespace p2eg
 
