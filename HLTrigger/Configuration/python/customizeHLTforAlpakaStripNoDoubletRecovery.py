@@ -136,9 +136,20 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
             setattr(producer, "selectedTrackQuals", cms.VInputTag( 'hltIter0PFlowTrackSelectionHighPurity'))
             setattr(producer,"setsToMerge",cms.VPSet( cms.PSet(  pQual = cms.bool( False ), tLists = cms.vint32( 0))))
                     
-    if hasattr(process, "hltDoubletRecoveryPFlowTrackSelectionHighPurity"):
-        del process.hltDoubletRecoveryPFlowTrackSelectionHighPurity
-
+    process.hltIter0PFlowTrackCutClassifier.mva.maxChi2 = cms.vdouble( 999.0, 25.0, 99.0 )
+    process.hltIter0PFlowTrackCutClassifier.mva.maxChi2n = cms.vdouble( 1.2, 1.0, 999.0 )
+    process.hltIter0PFlowTrackCutClassifier.mva.dr_par = cms.PSet(
+        d0err = cms.vdouble(0.003, 0.003, 0.003),
+        d0err_par = cms.vdouble(0.001, 0.001, 0.001),
+        dr_exp = cms.vint32(4, 4, 4),
+        dr_par1 = cms.vdouble(3.40282346639e+38, 0.8, 3.40282346639e+38),
+        dr_par2 = cms.vdouble(3.40282346639e+38, 0.6, 3.40282346639e+38)
+    ),
+    process.hltIter0PFlowTrackCutClassifier.mva.dz_par = cms.PSet(
+        dz_exp = cms.vint32(4, 4, 4),
+        dz_par1 = cms.vdouble(3.40282346639e+38, 0.75, 3.40282346639e+38),
+        dz_par2 = cms.vdouble(3.40282346639e+38, 0.5, 3.40282346639e+38)
+    )
     for producer in producers_by_type(process, "TrackListMerger"):
         current_producers = producer.TrackProducers
         if (
@@ -150,13 +161,37 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
             setattr(producer,"indivShareFrac",cms.vdouble( 1.0))
             setattr(producer, "selectedTrackQuals", cms.VInputTag( 'hltIter0PFlowTrackSelectionHighPuritySerialSync'))
             setattr(producer,"setsToMerge",cms.VPSet( cms.PSet(  pQual = cms.bool( False ), tLists = cms.vint32( 0))))
+    
     if hasattr(process, "HLTIterativeTrackingDoubletRecovery"):
         del process.HLTIterativeTrackingDoubletRecovery
     if hasattr(process, "HLTIterativeTrackingDoubletRecoverySerialSync"):
         del process.HLTIterativeTrackingDoubletRecoverySerialSync
-    if hasattr(process, "hltDoubletRecoveryPFlowTrackSelectionHighPuritySerialSync"):
-        del process.hltDoubletRecoveryPFlowTrackSelectionHighPuritySerialSync
-                    
+
+    def remove_doublet_recovery(process, sequence_name):
+        # Remove from the sequence
+        seq = getattr(process, sequence_name)
+        processes_to_remove = [p for p in seq.moduleNames() if p.startswith('hltDoubletRecovery')]
+        for process_name in processes_to_remove:
+            seq.remove(getattr(process, process_name))
+            
+        # Remove from the execution path
+        for path_name in process.paths:
+            path = getattr(process, path_name)
+            for process_name in processes_to_remove:
+                if process_name in path.moduleNames():
+                    path.remove(getattr(process, process_name))
+    
+        # Also remove from the process itself to ensure they're not executed
+        for process_name in processes_to_remove:
+            if hasattr(process, process_name):
+                delattr(process, process_name)
+
+        return process
+
+    process = remove_doublet_recovery(process, 'HLTIterativeTrackingIter02')
+    process.hltIter0PFlowCkfTrackCandidates.maxNSeeds = cms.uint32(32*4*1024)
+
+
     # alpaka EDProducer
     # consumes
     #  - TrackingRecHitsSoACollection<TrackerTraits>
@@ -201,9 +236,9 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
 	cellZ0Cut = cms.double(10.0),
         cellPtCut = cms.double(0.5),
         doPtCut = cms.bool(True),
-        useRemovers = cms.bool(True),
+        useRemovers = cms.bool(False),
         useRiemannFit = cms.bool(False),
-        doSharedHitCut = cms.bool(True),                                                                                               
+        doSharedHitCut = cms.bool(False),                                                                                               
         dupPassThrough = cms.bool(False),                                                                                             
         useSimpleTripletCleaner = cms.bool(True),                                                                                     
         idealConditions = cms.bool(False),
@@ -273,80 +308,27 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
     if hasattr(process, 'hltPixelTracksSerialSync'):
         process.HLTRecoPixelTracksCPUSerialSequence = cms.Sequence(process.hltPixelTracksSoASerialSync+process.hltPixelTracksSerialSync)
 
+    process.hltPixelTracksSoA.useRemovers =     False
+    process.hltPixelTracksSoA.doSharedHitCut = False
+    process.hltPixelTracksSoA.CAThetaCutBarrel = cms.double(0.00111685053)
+    process.hltPixelTracksSoA.CAThetaCutForward = cms.double(0.00249872683)
+    process.hltPixelTracksSoA.hardCurvCut =  cms.double(0.695091509)
+    process.hltPixelTracksSoA.dcaCutInnerTriplet = cms.double(0.0419242041)
+    process.hltPixelTracksSoA.dcaCutOuterTriplet = cms.double(0.293522194)
+
     return process
 
 def customizeHLTforAlpakaPixelRecoVertexing(process):
-    '''Customisation to introduce the Pixel-Vertex Reconstruction in Alpaka
-    '''
+    # Iterate over all producers of the specific type
+    for prod in producers_by_type(process, "PixelVertexProducerAlpakaPhase1@alpaka"):
+        # Change the type of the producer to the new type
+        prod._TypedParameterizable__type = "PixelVertexProducerAlpakaPhase1Strip@alpaka"
     
-    # alpaka EDProducer
-    # consumes
-    #  - TkSoADevice
-    # produces
-    #  - ZVertexDevice
-    
-    process.hltPixelVerticesSoA = cms.EDProducer('PixelVertexProducerAlpakaPhase1Strip@alpaka',
-        oneKernel = cms.bool(True),
-        useDensity = cms.bool(True),
-        useDBSCAN = cms.bool(False),
-        useIterative = cms.bool(False),
-        minT = cms.int32(2),
-        eps = cms.double(0.07),
-        errmax = cms.double(0.01),
-        chi2max = cms.double(9),
-        PtMin = cms.double(0.5),
-        PtMax = cms.double(75),
-        pixelTrackSrc = cms.InputTag('hltPixelTracksSoA'),
-        # autoselect the alpaka backend
-        alpaka = cms.untracked.PSet(
-            backend = cms.untracked.string('')
-        )
-    )
-
-    process.hltPixelVerticesSoASerialSync = makeSerialClone(process.hltPixelVerticesSoA,
-        pixelTrackSrc = 'hltPixelTracksSoASerialSync'
-    )
-
-    process.hltPixelVertices = cms.EDProducer("PixelVertexProducerFromSoAAlpaka",
-        TrackCollection = cms.InputTag("hltPixelTracks"),
-        beamSpot = cms.InputTag("hltOnlineBeamSpot"),
-        src = cms.InputTag("hltPixelVerticesSoA")
-    )
-
-    process.hltPixelVerticesSerialSync = process.hltPixelVertices.clone(
-        TrackCollection = cms.InputTag("hltPixelTracksSerialSync"),
-        src = cms.InputTag("hltPixelVerticesSoASerialSync")
-    )
-
-    if hasattr(process, 'hltPixelVerticesCPU'):
-        del process.hltPixelVerticesCPU
-    if hasattr(process, 'hltPixelVerticesCPUOnly'):
-        del process.hltPixelVerticesCPUOnly
-    if hasattr(process, 'hltPixelVerticesFromGPU'):
-        del process.hltPixelVerticesFromGPU
-    if hasattr(process, 'hltPixelVerticesGPU'):
-        del process.hltPixelVerticesGPU
-
-    ## failsafe for fake menus
-    if hasattr(process, 'hltTrimmedPixelVertices'):
-        process.HLTRecopixelvertexingTask = cms.ConditionalTask(
-            process.HLTRecoPixelTracksTask,
-            process.hltPixelVerticesSoA,
-            process.hltPixelVertices,
-            process.hltTrimmedPixelVertices
-        )
-        process.HLTRecopixelvertexingSequence = cms.Sequence( process.HLTRecopixelvertexingTask )
-    if hasattr(process, 'hltTrimmedPixelVerticesSerialSync'):
-        process.HLTRecopixelvertexingCPUSerialTask = cms.ConditionalTask(
-            process.HLTRecoPixelTracksCPUSerialTask,
-            process.hltPixelVerticesSoASerialSync,
-            process.hltPixelVerticesSerialSync,
-            process.hltTrimmedPixelVerticesSerialSync
-        )
-        process.HLTRecopixelvertexingSequenceSerialSync = cms.Sequence( process.HLTRecopixelvertexingCPUSerialTask )
+    for prod in producers_by_type(process, "alpaka_serial_sync::PixelVertexProducerAlpakaPhase1"):
+        # Change the type of the producer to the new type
+        prod._TypedParameterizable__type = "alpaka_serial_sync::PixelVertexProducerAlpakaPhase1Strip"
 
     return process
-
 def customizeHLTforAlpakaPixelReco(process):
     '''Customisation to introduce the Pixel Local+Track+Vertex Reconstruction in Alpaka
     '''

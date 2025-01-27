@@ -46,7 +46,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           trkdata[idx].idv() = -1;
 
           // do not use triplets
-          if (reco::isTriplet(tracks_view, idx))
+          //if (reco::isTriplet(tracks_view, idx))
+	  if (nHits < 4)
             continue;
 
           // use only "high purity" track
