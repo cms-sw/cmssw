@@ -34,7 +34,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     void print(HGCalDigiHost const& digis, int max = -1) const;
     void print_digi_device(HGCalDigiDevice const& digis, int max = -1) const;
-    void print_recHit_device(Queue& queue, HGCalRecHitDevice const& recHits, int max = -1) const;
+    void print_recHit_device(Queue& queue,
+                             PortableHostCollection<hgcalrechit::HGCalRecHitSoALayout<> >::View const& recHits,
+                             int max = -1) const;
 
     int n_blocks_;
     int n_threads_;
