@@ -76,6 +76,8 @@ public:
   //! Return information about the given layer by index
   const Layer &layer(unsigned int index) const { return layers_[index]; }
 
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
+
 private:
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   std::unique_ptr<TrackerHitAssociator> associator_;

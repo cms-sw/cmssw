@@ -55,9 +55,14 @@ public:
   /// destructor
   ~ObjectSelectorBase() override {}
 
-  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src", edm::InputTag(""));
+    Selector::fillPSetDescription(desc);
+    desc.add<bool>("filter", false);
     desc.addUntracked<bool>("throwOnMissing", true);
-  };
+    descriptions.addWithDefaultLabel(desc);
+  }
 
 private:
   /// process one event

@@ -28,6 +28,8 @@ namespace reco {
       static SeedChargeSelector make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
         return SeedChargeSelector(cfg.getParameter<int>("charge"));
       }
+
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<int>("charge", 0); }
     };
 
   }  // namespace modules

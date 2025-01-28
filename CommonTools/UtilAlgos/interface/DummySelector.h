@@ -13,6 +13,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
   class ParameterSet;
@@ -30,6 +31,8 @@ public:
       throw edm::Exception(edm::errors::Configuration) << "DummySelector: forgot to call newEvent\n";
     return true;
   }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {}
 
 private:
   bool updated_;

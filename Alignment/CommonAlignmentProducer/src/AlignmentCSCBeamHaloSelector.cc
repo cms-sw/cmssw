@@ -19,6 +19,11 @@ AlignmentCSCBeamHaloSelector::AlignmentCSCBeamHaloSelector(const edm::ParameterS
       << " different CSC stations." << std::endl;
 }
 
+void AlignmentCSCBeamHaloSelector::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<unsigned int>("minStations", 0);
+  desc.add<unsigned int>("minHitsPerStation", 1);
+}
+
 // destructor -----------------------------------------------------------------
 
 AlignmentCSCBeamHaloSelector::~AlignmentCSCBeamHaloSelector() {}

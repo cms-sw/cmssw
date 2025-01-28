@@ -110,6 +110,22 @@ TrackClassifier const &TrackClassifier::evaluate(reco::TrackBaseRef const &track
   return *this;
 }
 
+void TrackClassifier::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  TrackHistory::fillPSetDescription(desc);
+
+  edm::ParameterSetDescription trackQualityDesc;
+  TrackQuality::fillPSetDescription(trackQualityDesc);
+  desc.add<edm::ParameterSetDescription>("hitAssociator", trackQualityDesc);
+
+  desc.addUntracked<edm::InputTag>("hepMC", edm::InputTag("generatorSmeared"));
+  desc.addUntracked<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.addUntracked<double>("badPull", 3.0);
+  desc.addUntracked<double>("longLivedDecayLength", 1e-14);
+  desc.addUntracked<double>("vertexClusteringDistance", 0.0001);
+  desc.addUntracked<unsigned int>("numberOfInnerLayers", 2);
+  desc.addUntracked<unsigned int>("minTrackerSimHits", 3);
+}
+
 TrackClassifier const &TrackClassifier::evaluate(TrackingParticleRef const &track) {
   // Initializing the category vector
   reset();

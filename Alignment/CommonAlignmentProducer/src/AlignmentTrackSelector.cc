@@ -78,10 +78,10 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet& cfg, edm
       minHitsinENDCAPminus_(cfg.getParameter<edm::ParameterSet>("minHitsPerSubDet").getParameter<int>("inENDCAPminus")),
       maxHitDiffEndcaps_(cfg.getParameter<double>("maxHitDiffEndcaps")),
       nLostHitMax_(cfg.getParameter<double>("nLostHitMax")),
-      RorZofFirstHitMin_(cfg.getParameter<std::vector<double> >("RorZofFirstHitMin")),
-      RorZofFirstHitMax_(cfg.getParameter<std::vector<double> >("RorZofFirstHitMax")),
-      RorZofLastHitMin_(cfg.getParameter<std::vector<double> >("RorZofLastHitMin")),
-      RorZofLastHitMax_(cfg.getParameter<std::vector<double> >("RorZofLastHitMax")),
+      RorZofFirstHitMin_(cfg.getParameter<std::vector<double>>("RorZofFirstHitMin")),
+      RorZofFirstHitMax_(cfg.getParameter<std::vector<double>>("RorZofFirstHitMax")),
+      RorZofLastHitMin_(cfg.getParameter<std::vector<double>>("RorZofLastHitMin")),
+      RorZofLastHitMax_(cfg.getParameter<std::vector<double>>("RorZofLastHitMax")),
       clusterValueMapTag_(cfg.getParameter<edm::InputTag>("hitPrescaleMapTag")),
       minPrescaledHits_(cfg.getParameter<int>("minPrescaledHits")),
       applyPrescaledHitsFilter_(!clusterValueMapTag_.encode().empty() && minPrescaledHits_ > 0) {
@@ -96,7 +96,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet& cfg, edm
   }
 
   //convert track quality from string to enum
-  std::vector<std::string> trkQualityStrings(cfg.getParameter<std::vector<std::string> >("trackQualities"));
+  std::vector<std::string> trkQualityStrings(cfg.getParameter<std::vector<std::string>>("trackQualities"));
   std::string qualities;
   if (!trkQualityStrings.empty()) {
     applyTrkQualityCheck_ = true;
@@ -107,7 +107,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet& cfg, edm
   } else
     applyTrkQualityCheck_ = false;
 
-  std::vector<std::string> trkIterStrings(cfg.getParameter<std::vector<std::string> >("iterativeTrackingSteps"));
+  std::vector<std::string> trkIterStrings(cfg.getParameter<std::vector<std::string>>("iterativeTrackingSteps"));
   if (!trkIterStrings.empty()) {
     applyIterStepCheck_ = true;
     std::string tracksteps;
@@ -216,6 +216,83 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet& cfg, edm
                                       << RorZofFirstHitMin_.at(1) << "]; Last hit(max): [" << RorZofLastHitMax_.at(0)
                                       << ", " << RorZofLastHitMax_.at(1) << "];";
   }
+}
+
+void AlignmentTrackSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  // Base TrackSelector settings
+  desc.add<bool>("applyBasicCuts", true);
+  desc.add<double>("ptMin", 0.0);
+  desc.add<double>("ptMax", 999.0);
+  desc.add<double>("pMin", 0.0);
+  desc.add<double>("pMax", 9999.0);
+  desc.add<double>("etaMin", -2.6);
+  desc.add<double>("etaMax", 2.6);
+  desc.add<double>("phiMax", 3.1416);
+  desc.add<double>("phiMin", -3.1416);
+  desc.add<double>("chi2nMax", 999999.0);
+  desc.add<int>("theCharge", 0);  // -1: neg charge, +1: pos charge, 0: all charges
+  desc.add<double>("d0Min", -999999.0);
+  desc.add<double>("d0Max", 999999.0);
+  desc.add<double>("dzMin", -999999.0);
+  desc.add<double>("dzMax", 999999.0);
+  desc.add<double>("nHitMin", 0.0);
+  desc.add<double>("nHitMax", 999.0);
+  desc.add<double>("nLostHitMax", 999.0);
+  desc.add<unsigned int>("nHitMin2D", 0);
+  desc.add<std::vector<double>>("RorZofFirstHitMin", {0.0, 0.0});
+  desc.add<std::vector<double>>("RorZofFirstHitMax", {999.0, 999.0});
+  desc.add<std::vector<double>>("RorZofLastHitMin", {0.0, 0.0});
+  desc.add<std::vector<double>>("RorZofLastHitMax", {999.0, 999.0});
+  desc.add<bool>("countStereoHitAs2D", true);
+
+  // Nested PSet for minHitsPerSubDet
+  edm::ParameterSetDescription minHitsPerSubDetDesc;
+  minHitsPerSubDetDesc.add<int>("inTEC", 0);
+  minHitsPerSubDetDesc.add<int>("inTOB", 0);
+  minHitsPerSubDetDesc.add<int>("inFPIX", 0);
+  minHitsPerSubDetDesc.add<int>("inTID", 0);
+  minHitsPerSubDetDesc.add<int>("inBPIX", 0);
+  minHitsPerSubDetDesc.add<int>("inTIB", 0);
+  minHitsPerSubDetDesc.add<int>("inPIXEL", 0);
+  minHitsPerSubDetDesc.add<int>("inTIDplus", 0);
+  minHitsPerSubDetDesc.add<int>("inTIDminus", 0);
+  minHitsPerSubDetDesc.add<int>("inTECplus", 0);
+  minHitsPerSubDetDesc.add<int>("inTECminus", 0);
+  minHitsPerSubDetDesc.add<int>("inFPIXplus", 0);
+  minHitsPerSubDetDesc.add<int>("inFPIXminus", 0);
+  minHitsPerSubDetDesc.add<int>("inENDCAP", 0);
+  minHitsPerSubDetDesc.add<int>("inENDCAPplus", 0);
+  minHitsPerSubDetDesc.add<int>("inENDCAPminus", 0);
+  desc.add<edm::ParameterSetDescription>("minHitsPerSubDet", minHitsPerSubDetDesc);
+
+  desc.add<double>("maxHitDiffEndcaps", 999.0);
+  desc.add<int>("seedOnlyFrom", 0);
+
+  // Multiplicity filtering
+  desc.add<bool>("applyMultiplicityFilter", false);
+  desc.add<int>("minMultiplicity", 1);
+  desc.add<int>("maxMultiplicity", 999999);
+  desc.add<bool>("multiplicityOnInput", false);
+
+  // NHighestPt settings
+  desc.add<bool>("applyNHighestPt", false);
+  desc.add<int>("nHighestPt", 2);
+
+  // Hit-related parameters
+  desc.add<edm::InputTag>("rphirecHits", edm::InputTag("siStripMatchedRecHits", "rphiRecHit"));
+  desc.add<edm::InputTag>("matchedrecHits", edm::InputTag("siStripMatchedRecHits", "matchedRecHit"));
+  desc.add<bool>("applyIsolationCut", false);
+  desc.add<double>("minHitIsolation", 0.01);
+  desc.add<bool>("applyChargeCheck", false);
+  desc.add<double>("minHitChargeStrip", 20.0);
+
+  // String-based settings
+  desc.add<std::vector<std::string>>("trackQualities", {});          // Take all if empty
+  desc.add<std::vector<std::string>>("iterativeTrackingSteps", {});  // Take all if empty
+
+  // Filtering on hits for Skim&Prescale workflow
+  desc.add<edm::InputTag>("hitPrescaleMapTag", edm::InputTag(""));  // Ignore prescale map if empty
+  desc.add<int>("minPrescaledHits", -1);
 }
 
 // destructor -----------------------------------------------------------------

@@ -1,6 +1,6 @@
-
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 
 //the selectores used to select the tracks
@@ -49,6 +49,18 @@ struct TrackConfigSelector {
       theSelectedTracks = theGlobalSelector.select(theSelectedTracks, evt, eSetup);
     if (theTwoBodyDecaySwitch)
       theSelectedTracks = theTwoBodyDecaySelector.select(theSelectedTracks, evt, eSetup);
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    AlignmentTrackSelector::fillPSetDescription(desc);
+
+    edm::ParameterSetDescription globalSelectorDesc;
+    AlignmentGlobalTrackSelector::fillPSetDescription(globalSelectorDesc);
+    desc.add<edm::ParameterSetDescription>("GlobalSelector", globalSelectorDesc);
+
+    edm::ParameterSetDescription twoBodySelectorDesc;
+    AlignmentTwoBodyDecayTrackSelector::fillPSetDescription(twoBodySelectorDesc);
+    desc.add<edm::ParameterSetDescription>("TwoBodyDecaySelector", twoBodySelectorDesc);
   }
 
 private:
