@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/StoreManagerTrait.h"
 #include "CommonTools/UtilAlgos/interface/SelectedOutputCollectionTrait.h"
@@ -41,6 +42,14 @@ public:
   }
   /// destructor
   ~ObjectSelectorProducer() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src");
+    //Base::fillPSetDescription(desc);
+    Selector::fillPSetDescription(desc);
+    descriptions.addWithDefaultLabel(desc);
+  }
 
 private:
   /// process one event
