@@ -436,7 +436,7 @@ namespace edm {
     }
 
     double SimpleMemoryCheck::averageGrowthRate(double current, double past, int count) {
-      return (current - past) / (double)count;
+      return (current - past) / (double)std::max(count, 1);
     }
 
     SimpleMemoryCheck::SimpleMemoryCheck(ParameterSet const& iPS, ActivityRegistry& iReg)
