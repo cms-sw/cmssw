@@ -51,7 +51,7 @@ HcalDigiDump::HcalDigiDump(edm::ParameterSet const& conf)
       getterOfProducts12_(edm::TypeMatch(), this),
       getterOfProducts13_(edm::TypeMatch(), this),
       getterOfProducts14_(edm::TypeMatch(), this) {
-  callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+  callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
     getterOfProducts1_(bd);
     getterOfProducts2_(bd);
     getterOfProducts3_(bd);

@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/getProducerParameterSet.h"
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
@@ -14,11 +14,11 @@
 namespace edm {
 
   ParameterSet const* getProducerParameterSet(Provenance const& provenance, ProcessHistory const& processHistory) {
-    const std::shared_ptr<BranchDescription const>& branchDescription = provenance.constBranchDescriptionPtr();
+    const std::shared_ptr<ProductDescription const>& productDescription = provenance.constProductDescriptionPtr();
 
-    if (branchDescription) {
-      std::string const& process = branchDescription->processName();
-      std::string const& label = branchDescription->moduleLabel();
+    if (productDescription) {
+      std::string const& process = productDescription->processName();
+      std::string const& label = productDescription->moduleLabel();
 
       for (ProcessConfiguration const& pc : processHistory) {
         if (pc.processName() == process) {

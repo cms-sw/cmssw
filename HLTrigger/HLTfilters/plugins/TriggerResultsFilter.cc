@@ -44,7 +44,7 @@ TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet& config)
     }
 
     // consume all matching paths
-    callWhenNewProductsRegistered([this](edm::BranchDescription const& branch) {
+    callWhenNewProductsRegistered([this](edm::ProductDescription const& branch) {
       if (branch.branchType() == edm::InEvent and branch.className() == "edm::HLTPathStatus") {
         bool consumeBranch = true;
         for (auto& pattern : hltPathStatusPatterns_) {

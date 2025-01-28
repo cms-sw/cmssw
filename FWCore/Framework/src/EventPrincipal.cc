@@ -161,7 +161,7 @@ namespace edm {
         //  If not, then we've internally changed the original BranchID to the alias BranchID
         //  in the ProductID lookup so we need the alias BranchID.
 
-        auto const& bd = prod->branchDescription();
+        auto const& bd = prod->productDescription();
         prod->setProductID(branchIDToProductID(bd.isAlias() ? bd.originalBranchID() : bd.branchID()));
       }
     }
@@ -178,7 +178,7 @@ namespace edm {
 
   RunPrincipal const& EventPrincipal::runPrincipal() const { return luminosityBlockPrincipal().runPrincipal(); }
 
-  void EventPrincipal::put(BranchDescription const& bd,
+  void EventPrincipal::put(ProductDescription const& bd,
                            std::unique_ptr<WrapperBase> edp,
                            ProductProvenance const& productProvenance) const {
     // assert commented out for DaqSource.  When DaqSource no longer uses put(), the assert can be restored.
@@ -201,14 +201,14 @@ namespace edm {
     }
     auto phb = getProductResolverByIndex(index);
 
-    productProvenanceRetrieverPtr()->insertIntoSet(ProductProvenance(phb->branchDescription().branchID(), parentage));
+    productProvenanceRetrieverPtr()->insertIntoSet(ProductProvenance(phb->productDescription().branchID(), parentage));
 
     assert(phb);
     // ProductResolver assumes ownership
     dynamic_cast<ProductPutterBase const*>(phb)->putProduct(std::move(edp));
   }
 
-  void EventPrincipal::putOnRead(BranchDescription const& bd,
+  void EventPrincipal::putOnRead(ProductDescription const& bd,
                                  std::unique_ptr<WrapperBase> edp,
                                  std::optional<ProductProvenance> productProvenance) const {
     assert(!bd.produced());

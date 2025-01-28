@@ -19,7 +19,7 @@
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/getThinned_implementation.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
@@ -189,7 +189,7 @@ edm::OptionalThinnedKey BareRootProductGetterBase::getThinnedKeyFrom(edm::Produc
 
 BareRootProductGetterBase::Buffer* BareRootProductGetterBase::createNewBuffer(edm::BranchID const& branchID) const {
   //find the branch
-  edm::BranchDescription const& bdesc = branchMap_.branchIDToBranch(branchID);
+  edm::ProductDescription const& bdesc = branchMap_.branchIDToBranch(branchID);
 
   TBranch* branch = branchMap_.getEventTree()->GetBranch(bdesc.branchName().c_str());
   if (nullptr == branch) {

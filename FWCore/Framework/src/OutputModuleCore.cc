@@ -19,7 +19,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Common/interface/EndPathStatus.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
@@ -108,20 +108,20 @@ namespace edm {
                                           ProcessBlockHelperBase const& processBlockHelper) {
       if (productSelector_.initialized())
         return;
-      productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
+      productSelector_.initialize(productSelectorRules_, preg.allProductDescriptions());
 
       // TODO: See if we can collapse keptProducts_ and productSelector_ into a
       // single object. See the notes in the header for ProductSelector
       // for more information.
 
-      std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
-      std::vector<BranchDescription const*> associationDescriptions;
+      std::map<BranchID, ProductDescription const*> trueBranchIDToKeptBranchDesc;
+      std::vector<ProductDescription const*> associationDescriptions;
       std::set<BranchID> keptProductsInEvent;
       std::set<std::string> processesWithSelectedMergeableRunProducts;
       std::set<std::string> processesWithKeptProcessBlockProducts;
 
       for (auto const& it : preg.productList()) {
-        BranchDescription const& desc = it.second;
+        ProductDescription const& desc = it.second;
         if (desc.transient()) {
           // if the class of the branch is marked transient, output nothing
         } else if (!desc.present() && !desc.produced()) {
@@ -182,8 +182,8 @@ namespace edm {
       }
     }
 
-    void OutputModuleCore::keepThisBranch(BranchDescription const& desc,
-                                          std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
+    void OutputModuleCore::keepThisBranch(ProductDescription const& desc,
+                                          std::map<BranchID, ProductDescription const*>& trueBranchIDToKeptBranchDesc,
                                           std::set<BranchID>& keptProductsInEvent) {
       ProductSelector::checkForDuplicateKeptBranch(desc, trueBranchIDToKeptBranchDesc);
 
@@ -388,7 +388,7 @@ namespace edm {
 
     ModuleDescription const& OutputModuleCore::description() const { return moduleDescription_; }
 
-    bool OutputModuleCore::selected(BranchDescription const& desc) const { return productSelector_.selected(desc); }
+    bool OutputModuleCore::selected(ProductDescription const& desc) const { return productSelector_.selected(desc); }
 
     void OutputModuleCore::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;

@@ -1,5 +1,5 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <algorithm>
 
@@ -188,7 +188,7 @@ namespace edm {
   }
 
   void ThinnedAssociationsHelper::selectAssociationProducts(
-      std::vector<BranchDescription const*> const& associationDescriptions,
+      std::vector<ProductDescription const*> const& associationDescriptions,
       std::set<BranchID> const& keptProductsInEvent,
       std::map<BranchID, bool>& keepAssociation) const {
     keepAssociation.clear();

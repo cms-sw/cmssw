@@ -9,7 +9,7 @@
 
 #include "DataFormats/Common/interface/setIsMergeable.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
@@ -480,7 +480,7 @@ namespace edm {
         // propagate_const<T> has no reset() function
         daqProvenanceHelper_ = std::make_unique<DaqProvenanceHelper>(it->second.unwrappedTypeID());
         // Create the new branch description
-        BranchDescription const& newBD = daqProvenanceHelper_->branchDescription();
+        ProductDescription const& newBD = daqProvenanceHelper_->productDescription();
         // Save info from the old and new branch descriptions
         daqProvenanceHelper_->saveInfo(it->second, newBD);
         // Map the new branch name to the old branch name.
@@ -543,7 +543,7 @@ namespace edm {
     {
       ProductRegistry::ProductList const& prodList = inputProdDescReg.productList();
       for (auto const& product : prodList) {
-        BranchDescription const& prod = product.second;
+        ProductDescription const& prod = product.second;
         std::string newFriendlyName = friendlyname::friendlyName(prod.className());
         if (newFriendlyName == prod.friendlyClassName()) {
           newReg->copyProduct(prod);
@@ -553,7 +553,7 @@ namespace edm {
                 << "Cannot change friendly class name algorithm without more development work\n"
                 << "to update BranchIDLists and ThinnedAssociationsHelper.  Contact the framework group.\n";
           }
-          BranchDescription newBD(prod);
+          ProductDescription newBD(prod);
           newBD.updateFriendlyClassName();
           newReg->copyProduct(newBD);
           newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
@@ -615,7 +615,7 @@ namespace edm {
       }
     }
     for (auto const& product : prodList) {
-      BranchDescription const& prod = product.second;
+      ProductDescription const& prod = product.second;
       if (prod.branchType() == InProcess) {
         std::vector<std::string> const& processes = storedProcessBlockHelper.processesWithProcessBlockProducts();
         auto it = std::find(processes.begin(), processes.end(), prod.processName());
@@ -1908,8 +1908,8 @@ namespace edm {
     // input files).
     ProductRegistry::ProductList& pList = inputProdDescReg.productListUpdator();
     for (auto& product : pList) {
-      BranchDescription& prod = product.second;
-      // Initialize BranchDescription from dictionary only if the
+      ProductDescription& prod = product.second;
+      // Initialize ProductDescription from dictionary only if the
       // branch is present. This allows a subsequent job to process
       // data where a dictionary of a transient parent branch has been
       // removed from the release after the file has been written.
@@ -1921,7 +1921,7 @@ namespace edm {
           auto index = std::distance(processes.begin(), it);
           processBlockTrees_[index]->setPresence(prod, newBranchToOldBranch(prod.branchName()));
         } else {
-          // Given current rules for saving BranchDescriptions, this case should only occur
+          // Given current rules for saving ProductDescriptions, this case should only occur
           // in non-Primary sequences.
           prod.setDropped(true);
         }
@@ -1935,7 +1935,7 @@ namespace edm {
   }
 
   void RootFile::markBranchToBeDropped(bool dropDescendants,
-                                       BranchDescription const& branch,
+                                       ProductDescription const& branch,
                                        std::set<BranchID>& branchesToDrop,
                                        std::map<BranchID, BranchID> const& droppedToKeptAlias) const {
     if (dropDescendants) {
@@ -1957,7 +1957,7 @@ namespace edm {
     // in the case of EDAliases.
     std::map<BranchID, BranchID> droppedToKeptAlias;
     for (auto const& product : prodList) {
-      BranchDescription const& prod = product.second;
+      ProductDescription const& prod = product.second;
       if (prod.branchID() != prod.originalBranchID() && prod.present()) {
         droppedToKeptAlias[prod.originalBranchID()] = prod.branchID();
       }
@@ -1966,14 +1966,14 @@ namespace edm {
     // This object will select products based on the branchName and the
     // keep and drop statements which are in the source configuration.
     ProductSelector productSelector;
-    productSelector.initialize(rules, reg.allBranchDescriptions());
+    productSelector.initialize(rules, reg.allProductDescriptions());
 
     // In this pass, fill in a set of branches to be dropped.
     // Don't drop anything yet.
     std::set<BranchID> branchesToDrop;
-    std::vector<BranchDescription const*> associationDescriptions;
+    std::vector<ProductDescription const*> associationDescriptions;
     for (auto const& product : prodList) {
-      BranchDescription const& prod = product.second;
+      ProductDescription const& prod = product.second;
       if (inputType != InputType::Primary && prod.branchType() == InProcess) {
         markBranchToBeDropped(dropDescendants, prod, branchesToDrop, droppedToKeptAlias);
       } else if (prod.unwrappedType() == typeid(ThinnedAssociation) && prod.present()) {
@@ -1998,7 +1998,7 @@ namespace edm {
       // are kept.
       std::set<BranchID> keptProductsInEvent;
       for (auto const& product : prodList) {
-        BranchDescription const& prod = product.second;
+        ProductDescription const& prod = product.second;
         if (branchesToDrop.find(prod.branchID()) == branchesToDrop.end() && prod.present() &&
             prod.branchType() == InEvent) {
           keptProductsInEvent.insert(prod.branchID());
@@ -2032,7 +2032,7 @@ namespace edm {
     std::set<std::string> processesWithKeptProcessBlockProducts;
     std::set<BranchID>::const_iterator branchesToDropEnd = branchesToDrop.end();
     for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
-      BranchDescription const& prod = it->second;
+      ProductDescription const& prod = it->second;
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
       if (drop) {
         if (!prod.dropped()) {
@@ -2070,7 +2070,7 @@ namespace edm {
     if (inputType == InputType::SecondaryFile) {
       TString tString;
       for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
-        BranchDescription const& prod = it->second;
+        ProductDescription const& prod = it->second;
         if (prod.present() and prod.branchType() != InEvent and prod.branchType() != InProcess) {
           TClass* cp = prod.wrappedType().getClass();
           void* p = cp->New();

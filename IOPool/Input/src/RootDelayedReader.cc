@@ -79,7 +79,7 @@ namespace edm {
     });
     TClass* cp = branchInfo->classCache_;
     if (nullptr == cp) {
-      branchInfo->classCache_ = TClass::GetClass(branchInfo->branchDescription_.wrappedName().c_str());
+      branchInfo->classCache_ = TClass::GetClass(branchInfo->productDescription_.wrappedName().c_str());
       cp = branchInfo->classCache_;
       branchInfo->offsetToWrapperBase_ = cp->GetBaseClassOffset(wrapperBaseTClass_);
     }

@@ -98,7 +98,7 @@ namespace edm::streamer {
       SendDescs const& descs = sd->descs();
       SendDescs::const_iterator iDesc(descs.begin()), eDesc(descs.end());
       while (iDesc != eDesc) {
-        BranchDescription branchDesc = *iDesc;
+        ProductDescription branchDesc = *iDesc;
         branchDesc.init();
         //branchDesc.write(std::cout);
         std::cout << branchDesc.branchName() << std::endl;

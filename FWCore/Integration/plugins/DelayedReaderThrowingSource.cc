@@ -89,17 +89,17 @@ namespace edm {
     dummy.registerIt();
     auto twd = TypeWithDict::byTypeInfo(typeid(edmtest::IntProduct));
 
-    std::vector<BranchDescription> branches;
+    std::vector<ProductDescription> branches;
     for (auto const& label : pset.getUntrackedParameter<std::vector<std::string>>("labels")) {
-      branches.push_back(BranchDescription(InEvent,
-                                           label,        //module label
-                                           "INPUTTEST",  //can't be the present process name
-                                           twd.userClassName(),
-                                           twd.friendlyClassName(),
-                                           "",  //product instance name
-                                           twd,
-                                           false  //not produced
-                                           ));
+      branches.push_back(ProductDescription(InEvent,
+                                            label,        //module label
+                                            "INPUTTEST",  //can't be the present process name
+                                            twd.userClassName(),
+                                            twd.friendlyClassName(),
+                                            "",  //product instance name
+                                            twd,
+                                            false  //not produced
+                                            ));
       branches.back().setOnDemand(true);  //says we use delayed reader
     }
     productRegistryUpdate().updateFromInput(branches);

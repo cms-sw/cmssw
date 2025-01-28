@@ -38,9 +38,9 @@ namespace edmtest {
     void readEvent_(EventPrincipal& eventPrincipal) final;
 
     int stage_;
-    BranchDescription thingDesc_;
-    BranchDescription thingWithMergeDesc_;
-    BranchDescription thingWithEqualDesc_;
+    ProductDescription thingDesc_;
+    ProductDescription thingWithMergeDesc_;
+    ProductDescription thingWithEqualDesc_;
     ProcessHistoryID historyID_;
   };
 }  // namespace edmtest

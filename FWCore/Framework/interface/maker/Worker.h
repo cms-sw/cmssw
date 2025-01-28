@@ -166,7 +166,7 @@ namespace edm {
                                          ParentContext const&,
                                          typename T::Context const*) noexcept;
 
-    virtual size_t transformIndex(edm::BranchDescription const&) const noexcept = 0;
+    virtual size_t transformIndex(edm::ProductDescription const&) const noexcept = 0;
     void doTransformAsync(WaitingTaskHolder,
                           size_t iTransformIndex,
                           EventPrincipal const&,

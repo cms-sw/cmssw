@@ -26,9 +26,9 @@ namespace edm {
       }
     }
 
-    bool operator()(edm::BranchDescription const &branchDescription) {
+    bool operator()(edm::ProductDescription const &productDescription) {
       for (auto &m : matchers_) {
-        if (m(branchDescription)) {
+        if (m(productDescription)) {
           return true;
         }
       }
@@ -88,7 +88,7 @@ public:
     jobmegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InProcess);
     runmegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InRun);
     lumimegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InLumi);
-    callWhenNewProductsRegistered([this](edm::BranchDescription const &bd) {
+    callWhenNewProductsRegistered([this](edm::ProductDescription const &bd) {
       jobmegetter_(bd);
       runmegetter_(bd);
       lumimegetter_(bd);

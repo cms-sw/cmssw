@@ -80,11 +80,11 @@ namespace edm {
 
     void mergeAuxiliary(RunAuxiliary const& aux) { return aux_.mergeAuxiliary(aux); }
 
-    void put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
+    void put(ProductDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const;
 
-    void putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
+    void putOrMerge(ProductDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
     MergeableRunProductMetadata* mergeableRunProductMetadata() { return mergeableRunProductMetadataPtr_.get(); }
 

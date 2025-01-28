@@ -11,7 +11,7 @@
 Commonly used EDM classes.
 
 \subsection interface Public interface
-- edm::BranchDescription:
+- edm::ProductDescription:
 - edm::BranchEntryDescription
 - edm::BranchKey:
 - edm::ConditionsID:

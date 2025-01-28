@@ -4,14 +4,14 @@
 
 namespace edm {
   StreamedProduct::StreamedProduct(WrapperBase const* prod,
-                                   BranchDescription const& desc,
+                                   ProductDescription const& desc,
                                    bool present,
                                    std::vector<BranchID> const* parents)
       : prod_(prod), desc_(&desc), present_(present), parents_(parents) {
     if (present_ && prod == nullptr) {
       std::string branchName = desc.branchName();
       if (branchName.empty()) {
-        BranchDescription localCopy(desc);
+        ProductDescription localCopy(desc);
         localCopy.initBranchName();
         branchName = localCopy.branchName();
       }
@@ -23,7 +23,7 @@ namespace edm {
   }
 
   void SendJobHeader::initializeTransients() {
-    for (BranchDescription& desc : descs_) {
+    for (ProductDescription& desc : descs_) {
       desc.init();
       desc.setIsProvenanceSetOnRead();
     }

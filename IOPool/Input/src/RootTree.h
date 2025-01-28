@@ -7,7 +7,7 @@ RootTree.h // used by ROOT input sources
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -41,9 +41,9 @@ namespace edm {
     unsigned int const defaultNonEventLearningEntries = 1U;
     using EntryNumber = IndexIntoFile::EntryNumber_t;
     struct BranchInfo {
-      BranchInfo(BranchDescription const& prod)
-          : branchDescription_(prod), productBranch_(nullptr), classCache_(nullptr), offsetToWrapperBase_(0) {}
-      BranchDescription const branchDescription_;
+      BranchInfo(ProductDescription const& prod)
+          : productDescription_(prod), productBranch_(nullptr), classCache_(nullptr), offsetToWrapperBase_(0) {}
+      ProductDescription const productDescription_;
       TBranch* productBranch_;
       //All access to a ROOT file is serialized
       CMS_SA_ALLOW mutable TClass* classCache_;
@@ -116,10 +116,10 @@ namespace edm {
 
     bool isValid() const;
     void numberOfBranchesToAdd(BranchMap::Map::size_type iSize) { branches_.reserve(iSize); }
-    void addBranch(BranchDescription const& prod, std::string const& oldBranchName);
+    void addBranch(ProductDescription const& prod, std::string const& oldBranchName);
     void dropBranch(std::string const& oldBranchName);
     void getEntry(TBranch* branch, EntryNumber entry) const;
-    void setPresence(BranchDescription& prod, std::string const& oldBranchName);
+    void setPresence(ProductDescription& prod, std::string const& oldBranchName);
 
     bool next() { return ++entryNumber_ < entries_; }
     bool nextWithCache();

@@ -8,30 +8,30 @@
 
 namespace edm::productResolversFactory {
   namespace {
-    std::shared_ptr<ProductResolverBase> makeScheduledProduct(std::shared_ptr<BranchDescription const> bd) {
+    std::shared_ptr<ProductResolverBase> makeScheduledProduct(std::shared_ptr<ProductDescription const> bd) {
       return std::make_shared<PuttableProductResolver>(std::move(bd));
     }
-    std::shared_ptr<ProductResolverBase> makeSourceProduct(std::shared_ptr<BranchDescription const> bd) {
+    std::shared_ptr<ProductResolverBase> makeSourceProduct(std::shared_ptr<ProductDescription const> bd) {
       return std::make_shared<PuttableProductResolver>(std::move(bd));
     }
-    std::shared_ptr<ProductResolverBase> makeDelayedReaderInputProduct(std::shared_ptr<BranchDescription const> bd) {
+    std::shared_ptr<ProductResolverBase> makeDelayedReaderInputProduct(std::shared_ptr<ProductDescription const> bd) {
       return std::make_shared<DelayedReaderInputProductResolver>(std::move(bd));
     }
-    std::shared_ptr<ProductResolverBase> makePutOnReadInputProduct(std::shared_ptr<BranchDescription const> bd) {
+    std::shared_ptr<ProductResolverBase> makePutOnReadInputProduct(std::shared_ptr<ProductDescription const> bd) {
       return std::make_shared<PutOnReadInputProductResolver>(std::move(bd));
     }
-    std::shared_ptr<ProductResolverBase> makeUnscheduledProduct(std::shared_ptr<BranchDescription const> bd) {
+    std::shared_ptr<ProductResolverBase> makeUnscheduledProduct(std::shared_ptr<ProductDescription const> bd) {
       return std::make_shared<UnscheduledProductResolver>(std::move(bd));
     }
-    std::shared_ptr<ProductResolverBase> makeTransformProduct(std::shared_ptr<BranchDescription const> bd) {
+    std::shared_ptr<ProductResolverBase> makeTransformProduct(std::shared_ptr<ProductDescription const> bd) {
       return std::make_shared<TransformingProductResolver>(std::move(bd));
     }
-    std::shared_ptr<ProductResolverBase> makeDroppedProduct(std::shared_ptr<BranchDescription const> bd) {
+    std::shared_ptr<ProductResolverBase> makeDroppedProduct(std::shared_ptr<ProductDescription const> bd) {
       return std::make_shared<DroppedDataProductResolver>(std::move(bd));
     }
 
     std::shared_ptr<ProductResolverBase> makeAliasedProduct(
-        std::shared_ptr<BranchDescription const> bd,
+        std::shared_ptr<ProductDescription const> bd,
         ProductRegistry const& iReg,
         std::vector<std::shared_ptr<ProductResolverBase>> const& iResolvers) {
       ProductResolverIndex index = iReg.indexFrom(bd->originalBranchID());
@@ -40,7 +40,7 @@ namespace edm::productResolversFactory {
           std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*iResolvers[index]));
     }
     std::shared_ptr<ProductResolverBase> makeSwitchProducerProduct(
-        std::shared_ptr<BranchDescription const> bd,
+        std::shared_ptr<ProductDescription const> bd,
         ProductRegistry const& iReg,
         std::vector<std::shared_ptr<ProductResolverBase>> const& iResolvers) {
       ProductResolverIndex index = iReg.indexFrom(bd->switchAliasForBranchID());
@@ -51,7 +51,7 @@ namespace edm::productResolversFactory {
     }
 
     std::shared_ptr<ProductResolverBase> makeSwitchAliasProduct(
-        std::shared_ptr<BranchDescription const> bd,
+        std::shared_ptr<ProductDescription const> bd,
         ProductRegistry const& iReg,
         std::vector<std::shared_ptr<ProductResolverBase>> const& iResolvers) {
       ProductResolverIndex index = iReg.indexFrom(bd->switchAliasForBranchID());
@@ -61,7 +61,7 @@ namespace edm::productResolversFactory {
           std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*iResolvers[index]));
     }
 
-    std::shared_ptr<ProductResolverBase> makeParentProcessProduct(std::shared_ptr<BranchDescription const> bd) {
+    std::shared_ptr<ProductResolverBase> makeParentProcessProduct(std::shared_ptr<ProductDescription const> bd) {
       return std::make_shared<ParentProcessProductResolver>(std::move(bd));
     }
 
@@ -69,7 +69,7 @@ namespace edm::productResolversFactory {
                            std::vector<std::shared_ptr<ProductResolverBase>>& oResolvers,
                            ProductRegistry const& iReg) {
       assert(bool(iResolver));
-      BranchDescription const& bd = iResolver->branchDescription();
+      ProductDescription const& bd = iResolver->productDescription();
       assert(!bd.className().empty());
       assert(!bd.friendlyClassName().empty());
       assert(!bd.moduleLabel().empty());
@@ -84,10 +84,10 @@ namespace edm::productResolversFactory {
       oResolvers[index] = std::move(iResolver);
     }
 
-    std::shared_ptr<ProductResolverBase> makeForPrimary(BranchDescription const& bd,
+    std::shared_ptr<ProductResolverBase> makeForPrimary(ProductDescription const& bd,
                                                         ProductRegistry const& iReg,
                                                         ProductResolverIndexHelper const& iHelper) {
-      auto cbd = std::make_shared<BranchDescription const>(bd);
+      auto cbd = std::make_shared<ProductDescription const>(bd);
       if (bd.produced()) {
         using namespace std::literals;
         if (bd.moduleLabel() == "source"sv) {
@@ -117,7 +117,7 @@ namespace edm::productResolversFactory {
                             std::vector<std::shared_ptr<edm::ProductResolverBase>> const& productResolvers) {
       for (unsigned int j = 0; j < matchingHolders.size(); ++j) {
         if ((not ambiguous[j]) and ProductResolverIndexInvalid != matchingHolders[j] and
-            productResolvers[matchingHolders[j]]->branchDescription().availableOnlyAtEndTransition()) {
+            productResolvers[matchingHolders[j]]->productDescription().availableOnlyAtEndTransition()) {
           return true;
         }
       }
@@ -206,7 +206,7 @@ namespace edm::productResolversFactory {
     bool hasAliases = false;
     bool hasSwitchAliases = false;
     for (auto const& prod : prodsList) {
-      BranchDescription const& bd = prod.second;
+      ProductDescription const& bd = prod.second;
       if (bd.branchType() == bt) {
         if (isForPrimaryProcess or bd.processName() == iProcessName) {
           if (bd.isAlias()) {
@@ -218,7 +218,7 @@ namespace edm::productResolversFactory {
           }
         } else {
           //We are in a SubProcess and this branch is from the parent
-          auto cbd = std::make_shared<BranchDescription const>(bd);
+          auto cbd = std::make_shared<ProductDescription const>(bd);
           if (bd.dropped()) {
             addProductOrThrow(makeDroppedProduct(cbd), productResolvers, iReg);
           } else {
@@ -230,9 +230,9 @@ namespace edm::productResolversFactory {
     // Now process any EDAliases
     if (hasAliases) {
       for (auto const& prod : prodsList) {
-        BranchDescription const& bd = prod.second;
+        ProductDescription const& bd = prod.second;
         if (bd.isAlias() && bd.branchType() == bt) {
-          addProductOrThrow(makeAliasedProduct(std::make_shared<BranchDescription const>(bd), iReg, productResolvers),
+          addProductOrThrow(makeAliasedProduct(std::make_shared<ProductDescription const>(bd), iReg, productResolvers),
                             productResolvers,
                             iReg);
         }
@@ -241,10 +241,10 @@ namespace edm::productResolversFactory {
     // Finally process any SwitchProducer aliases
     if (hasSwitchAliases) {
       for (auto const& prod : prodsList) {
-        BranchDescription const& bd = prod.second;
+        ProductDescription const& bd = prod.second;
         if (bd.isSwitchAlias() && bd.branchType() == bt) {
           assert(bt == InEvent);
-          auto cbd = std::make_shared<BranchDescription const>(bd);
+          auto cbd = std::make_shared<ProductDescription const>(bd);
           // Need different implementation for SwitchProducers not
           // in any Path (onDemand) and for those in a Path in order
           // to prevent the switch-aliased-for EDProducers from

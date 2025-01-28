@@ -65,7 +65,7 @@ namespace edm {
     freezeIt(toBeFrozen);
   }
 
-  void ProductRegistry::addProduct(BranchDescription const& productDesc, bool fromListener) {
+  void ProductRegistry::addProduct(ProductDescription const& productDesc, bool fromListener) {
     assert(productDesc.produced());
     throwIfFrozen();
     std::pair<ProductList::iterator, bool> ret =
@@ -105,13 +105,13 @@ namespace edm {
     addCalled(productDesc, fromListener);
   }
 
-  void ProductRegistry::addLabelAlias(BranchDescription const& productDesc,
+  void ProductRegistry::addLabelAlias(ProductDescription const& productDesc,
                                       std::string const& labelAlias,
                                       std::string const& instanceAlias) {
     assert(productDesc.produced());
     assert(productDesc.branchID().isValid());
     throwIfFrozen();
-    BranchDescription bd(productDesc, labelAlias, instanceAlias);
+    ProductDescription bd(productDesc, labelAlias, instanceAlias);
     std::pair<ProductList::iterator, bool> ret = productList_.insert(std::make_pair(BranchKey(bd), bd));
     assert(ret.second);
     transient_.aliasToOriginal_.emplace_back(
@@ -119,7 +119,7 @@ namespace edm {
     addCalled(bd, false);
   }
 
-  void ProductRegistry::copyProduct(BranchDescription const& productDesc) {
+  void ProductRegistry::copyProduct(ProductDescription const& productDesc) {
     assert(!productDesc.produced());
     throwIfFrozen();
     BranchKey k = BranchKey(productDesc);
@@ -184,7 +184,7 @@ namespace edm {
     }
   }
 
-  void ProductRegistry::addCalled(BranchDescription const&, bool) {}
+  void ProductRegistry::addCalled(ProductDescription const&, bool) {}
 
   std::vector<std::string> ProductRegistry::allBranchNames() const {
     std::vector<std::string> result;
@@ -196,8 +196,8 @@ namespace edm {
     return result;
   }
 
-  std::vector<BranchDescription const*> ProductRegistry::allBranchDescriptions() const {
-    std::vector<BranchDescription const*> result;
+  std::vector<ProductDescription const*> ProductRegistry::allProductDescriptions() const {
+    std::vector<ProductDescription const*> result;
     result.reserve(productList().size());
 
     for (auto const& product : productList()) {
@@ -212,9 +212,9 @@ namespace edm {
     }
   }
 
-  void ProductRegistry::updateFromInput(std::vector<BranchDescription> const& other) {
-    for (BranchDescription const& branchDescription : other) {
-      copyProduct(branchDescription);
+  void ProductRegistry::updateFromInput(std::vector<ProductDescription> const& other) {
+    for (ProductDescription const& productDescription : other) {
+      copyProduct(productDescription);
     }
   }
 
@@ -263,7 +263,7 @@ namespace edm {
 
   std::string ProductRegistry::merge(ProductRegistry const& other,
                                      std::string const& fileName,
-                                     BranchDescription::MatchMode branchesMustMatch) {
+                                     ProductDescription::MatchMode branchesMustMatch) {
     std::ostringstream differences;
 
     ProductRegistry::ProductList::iterator j = productList_.begin();
@@ -288,7 +288,7 @@ namespace edm {
         ++i;
       } else if (i == e || (j != s && j->first < i->first)) {
         if (j->second.present() &&
-            (branchesMustMatch == BranchDescription::Strict || j->second.branchType() == InProcess)) {
+            (branchesMustMatch == ProductDescription::Strict || j->second.branchType() == InProcess)) {
           differences << "Branch '" << j->second.branchName() << "' is in previous files\n";
           differences << "    but not in file '" << fileName << "'.\n";
         }
@@ -605,7 +605,7 @@ namespace edm {
     }
   }
 
-  void ProductRegistry::checkForDuplicateProcessName(BranchDescription const& desc,
+  void ProductRegistry::checkForDuplicateProcessName(ProductDescription const& desc,
                                                      std::string const* processName) const {
     if (processName && !desc.produced() && (*processName == desc.processName())) {
       throw Exception(errors::Configuration, "Duplicate Process Name.\n")

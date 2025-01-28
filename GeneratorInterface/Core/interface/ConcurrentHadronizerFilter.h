@@ -64,7 +64,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "CLHEP/Random/RandomEngine.h"
 
 #include "GeneratorInterface/Core/interface/HepMCFilterDriver.h"
@@ -194,7 +194,7 @@ namespace edm {
         nAttempts_(1),
         hasFilter_(ps.exists("HepMCFilter")) {
     auto ptrThis = this;
-    this->callWhenNewProductsRegistered([ptrThis](BranchDescription const& iBD) {
+    this->callWhenNewProductsRegistered([ptrThis](ProductDescription const& iBD) {
       //this is called each time a module registers that it will produce a LHERunInfoProduct
       if (iBD.unwrappedTypeID() == edm::TypeID(typeid(LHERunInfoProduct)) && iBD.branchType() == InRun) {
         ++(ptrThis->counterRunInfoProducts_);

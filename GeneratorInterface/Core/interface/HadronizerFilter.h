@@ -28,7 +28,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "CLHEP/Random/RandomEngine.h"
 
 // #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
@@ -103,7 +103,7 @@ namespace edm {
         eventProductToken_(),
         counterRunInfoProducts_(0),
         nAttempts_(1) {
-    callWhenNewProductsRegistered([this](BranchDescription const& iBD) {
+    callWhenNewProductsRegistered([this](ProductDescription const& iBD) {
       //this is called each time a module registers that it will produce a LHERunInfoProduct
       if (iBD.unwrappedTypeID() == edm::TypeID(typeid(LHERunInfoProduct)) && iBD.branchType() == InRun) {
         ++(this->counterRunInfoProducts_);

@@ -160,7 +160,7 @@ namespace edm {
 
     Principal const& principal() const { return principal_; }
 
-    BranchDescription const& getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
+    ProductDescription const& getProductDescription(TypeID const& type, std::string const& productInstanceName) const;
 
     EDPutToken::value_type getPutTokenIndex(TypeID const& type, std::string const& productInstanceName) const;
 
@@ -168,7 +168,7 @@ namespace edm {
     std::string const& productInstanceLabel(EDPutToken) const;
     typedef std::vector<BasicHandle> BasicHandleVec;
 
-    BranchDescription const& getBranchDescription(unsigned int iPutTokenIndex) const;
+    ProductDescription const& getProductDescription(unsigned int iPutTokenIndex) const;
     ProductID const& getProductID(unsigned int iPutTokenIndex) const;
     ModuleDescription const& moduleDescription() const { return md_; }
 

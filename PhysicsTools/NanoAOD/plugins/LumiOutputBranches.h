@@ -6,12 +6,12 @@
 #include <TTree.h>
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 class LumiOutputBranches {
 public:
-  LumiOutputBranches(const edm::BranchDescription *desc, const edm::EDGetToken &token)
+  LumiOutputBranches(const edm::ProductDescription *desc, const edm::EDGetToken &token)
       : m_token(token),
         m_singleton(false),
         m_extension(DontKnowYetIfMainOrExtension),

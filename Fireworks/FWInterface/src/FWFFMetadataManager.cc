@@ -2,7 +2,7 @@
 #include "Fireworks/FWInterface/src/FWFFMetadataUpdateRequest.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "DataFormats/Provenance/interface/StableProvenance.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "Fireworks/Core/interface/FWItemAccessorFactory.h"
 
@@ -16,7 +16,7 @@ bool FWFFMetadataManager::hasModuleLabel(std::string &iModuleLabel) {
 
     for (size_t pi = 0, pe = provenances.size(); pi != pe; ++pi) {
       edm::StableProvenance const *provenance = provenances[pi];
-      if (provenance && (provenance->branchDescription().moduleLabel() == iModuleLabel))
+      if (provenance && (provenance->productDescription().moduleLabel() == iModuleLabel))
         return true;
     }
   }
@@ -45,7 +45,7 @@ bool FWFFMetadataManager::doUpdate(FWJobMetadataUpdateRequest *request) {
     if (!provenance)
       continue;
     Data d;
-    const edm::BranchDescription &desc = provenance->branchDescription();
+    const edm::ProductDescription &desc = provenance->productDescription();
 
     const std::vector<FWRepresentationInfo> &infos = m_typeAndReps->representationsForType(desc.fullClassName());
 

@@ -621,7 +621,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
 
   std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<FEDRawDataCollection>(std::move(rawData)));
 
-  eventPrincipal.put(daqProvenanceHelper_.branchDescription(), std::move(edp), daqProvenanceHelper_.dummyProvenance());
+  eventPrincipal.put(daqProvenanceHelper_.productDescription(), std::move(edp), daqProvenanceHelper_.dummyProvenance());
 
   eventsThisLumi_++;
   setMonState(inReadCleanup);

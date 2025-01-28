@@ -13,6 +13,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 #include <string>
 #include <functional>
@@ -24,7 +25,6 @@ namespace edm {
   class TypeID;
   class WrapperBase;
   class EventForTransformer;
-  class BranchDescription;
   class ProductResolverIndexHelper;
   class ModuleDescription;
   class WaitingTaskWithArenaHolder;
@@ -47,7 +47,7 @@ namespace edm {
     void registerTransformAsyncImp(
         ProducerBase&, EDPutToken, const TypeID& id, std::string instanceName, PreTransformFunction, TransformFunction);
 
-    std::size_t findMatchingIndex(ProducerBase const& iBase, edm::BranchDescription const&) const noexcept;
+    std::size_t findMatchingIndex(ProducerBase const& iBase, edm::ProductDescription const&) const noexcept;
     ProductResolverIndex prefetchImp(std::size_t iIndex) const noexcept {
       return transformInfo_.get<kResolverIndex>(iIndex);
     }

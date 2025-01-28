@@ -9,11 +9,11 @@ is the storage unit of such information.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include <memory>
 
 namespace edm {
-  class BranchDescription;
   class MergeableRunProductMetadataBase;
   class WrapperBase;
 
@@ -21,13 +21,13 @@ namespace edm {
   public:
     ProductData();
 
-    explicit ProductData(std::shared_ptr<BranchDescription const> bd);
+    explicit ProductData(std::shared_ptr<ProductDescription const> bd);
 
     // For use by FWLite
     ProductData(WrapperBase* product, Provenance const& prov);
 
-    std::shared_ptr<BranchDescription const> const& branchDescription() const {
-      return prov_.constBranchDescriptionPtr();
+    std::shared_ptr<ProductDescription const> const& productDescription() const {
+      return prov_.constProductDescriptionPtr();
     }
 
     Provenance const& provenance() const { return prov_; }
@@ -47,7 +47,7 @@ namespace edm {
     void unsafe_setWrapper(std::unique_ptr<WrapperBase> iValue) const;
     void unsafe_setWrapper(std::shared_ptr<WrapperBase const> iValue) const;  // for SwitchProducer
 
-    void resetBranchDescription(std::shared_ptr<BranchDescription const> bd);
+    void resetProductDescription(std::shared_ptr<ProductDescription const> bd);
 
     void resetProductData() { wrapper_.reset(); }
 

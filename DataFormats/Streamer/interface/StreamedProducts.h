@@ -13,7 +13,7 @@
  */
 
 #include <vector>
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
@@ -32,15 +32,15 @@ namespace edm {
   class StreamedProduct {
   public:
     StreamedProduct() : prod_(nullptr), desc_(nullptr), present_(false), parents_(nullptr) {}
-    explicit StreamedProduct(BranchDescription const& desc)
+    explicit StreamedProduct(ProductDescription const& desc)
         : prod_(nullptr), desc_(&desc), present_(false), parents_(nullptr) {}
 
     StreamedProduct(WrapperBase const* prod,
-                    BranchDescription const& desc,
+                    ProductDescription const& desc,
                     bool present,
                     std::vector<BranchID> const* parents);
 
-    BranchDescription const* desc() const { return desc_; }
+    ProductDescription const* desc() const { return desc_; }
     BranchID branchID() const { return desc_->branchID(); }
     bool present() const { return present_; }
     std::vector<BranchID> const* parents() const { return parents_; }
@@ -57,7 +57,7 @@ namespace edm {
 
   private:
     WrapperBase const* prod_;
-    BranchDescription const* desc_;
+    ProductDescription const* desc_;
     bool present_;
     std::vector<BranchID> const* parents_;
   };
@@ -115,7 +115,7 @@ namespace edm {
     // other tables necessary for provenance lookup
   };
 
-  typedef std::vector<BranchDescription> SendDescs;
+  typedef std::vector<ProductDescription> SendDescs;
 
   class SendJobHeader {
   public:
@@ -123,7 +123,7 @@ namespace edm {
     SendJobHeader() {}
     SendDescs const& descs() const { return descs_; }
     ParameterSetMap const& processParameterSet() const { return processParameterSet_; }
-    void push_back(BranchDescription const& bd) { descs_.push_back(bd); }
+    void push_back(ProductDescription const& bd) { descs_.push_back(bd); }
     void setParameterSetMap(ParameterSetMap const& psetMap) { processParameterSet_ = psetMap; }
     void initializeTransients();
 

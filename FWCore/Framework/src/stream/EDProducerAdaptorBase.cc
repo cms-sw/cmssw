@@ -39,7 +39,7 @@ namespace edm {
     }
     template <>
     size_t ProducingModuleAdaptorBase<edm::stream::EDProducerBase>::transformIndex_(
-        edm::BranchDescription const& iBranch) const noexcept {
+        edm::ProductDescription const& iBranch) const noexcept {
       return m_streamModules[0]->transformIndex_(iBranch);
     }
     template <>

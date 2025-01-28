@@ -51,7 +51,7 @@ namespace edm {
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return *moduleDescriptionPtr_; }
 
-      void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
+      void callWhenNewProductsRegistered(std::function<void(ProductDescription const&)> const& func);
 
     private:
       void registerProductsAndCallbacks(EDAnalyzerBase const*, SignallingProductRegistry* reg);
@@ -66,7 +66,7 @@ namespace edm {
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) { moduleDescriptionPtr_ = iDesc; }
       // ---------- member data --------------------------------
-      std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
+      std::function<void(ProductDescription const&)> callWhenNewProductsRegistered_;
       ModuleDescription const* moduleDescriptionPtr_;
     };
 

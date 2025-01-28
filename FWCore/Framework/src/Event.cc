@@ -105,7 +105,7 @@ namespace edm {
 
   EDProductGetter const& Event::productGetter() const { return provRecorder_.principal(); }
 
-  ProductID Event::makeProductID(BranchDescription const& desc) const {
+  ProductID Event::makeProductID(ProductDescription const& desc) const {
     return eventPrincipal().branchIDToProductID(desc.originalBranchID());
   }
 

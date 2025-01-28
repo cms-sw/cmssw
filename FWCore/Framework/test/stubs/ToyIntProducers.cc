@@ -614,7 +614,7 @@ namespace edmtest {
   public:
     explicit ManyIntWhenRegisteredProducer(edm::ParameterSet const& p)
         : sourceLabel_(p.getParameter<std::string>("src")) {
-      callWhenNewProductsRegistered([=, this](edm::BranchDescription const& iBranch) {
+      callWhenNewProductsRegistered([=, this](edm::ProductDescription const& iBranch) {
         if (iBranch.moduleLabel() == sourceLabel_) {
           if (iBranch.branchType() != edm::InEvent) {
             throw edm::Exception(edm::errors::UnimplementedFeature)

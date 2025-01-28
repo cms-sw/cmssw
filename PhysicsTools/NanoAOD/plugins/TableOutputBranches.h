@@ -6,12 +6,12 @@
 #include <TTree.h>
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 class TableOutputBranches {
 public:
-  TableOutputBranches(const edm::BranchDescription *desc, const edm::EDGetToken &token)
+  TableOutputBranches(const edm::ProductDescription *desc, const edm::EDGetToken &token)
       : m_token(token), m_extension(DontKnowYetIfMainOrExtension), m_branchesBooked(false) {
     if (desc->className() != "nanoaod::FlatTable")
       throw cms::Exception("Configuration", "NanoAODOutputModule can only write out nanoaod::FlatTable objects");

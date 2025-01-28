@@ -33,6 +33,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
@@ -41,7 +42,6 @@
 namespace edm {
   class WrapperBase;
   class ProductRegistry;
-  class BranchDescription;
   class EDProductGetter;
   class RunAux;
   class Timestamp;
@@ -86,8 +86,8 @@ namespace fwlite {
 
     edm::RunAuxiliary const& runAuxiliary() const override;
 
-    std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
-      return branchMap_->getBranchDescriptions();
+    std::vector<edm::ProductDescription> const& getProductDescriptions() const {
+      return branchMap_->getProductDescriptions();
     }
 
     //       void setGetter(//Copy from Event if needed

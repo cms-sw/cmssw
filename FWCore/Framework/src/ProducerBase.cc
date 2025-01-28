@@ -14,7 +14,7 @@ namespace edm {
   ProducerBase::ProducerBase() : ProductRegistryHelper(), callWhenNewProductsRegistered_() {}
   ProducerBase::~ProducerBase() noexcept(false) {}
 
-  std::function<void(BranchDescription const&)> ProducerBase::registrationCallback() const {
+  std::function<void(ProductDescription const&)> ProducerBase::registrationCallback() const {
     return callWhenNewProductsRegistered_;
   }
 
@@ -22,12 +22,12 @@ namespace edm {
     class CallbackWrapper {
     public:
       CallbackWrapper(ProductRegistryHelper* iProd,
-                      std::function<void(BranchDescription const&)> iCallback,
+                      std::function<void(ProductDescription const&)> iCallback,
                       ProductRegistry* iReg,
                       const ModuleDescription& iDesc)
           : prod_(iProd), callback_(iCallback), reg_(iReg), mdesc_(iDesc), lastSize_(iProd->typeLabelList().size()) {}
 
-      void operator()(BranchDescription const& iDesc) {
+      void operator()(ProductDescription const& iDesc) {
         callback_(iDesc);
         addToRegistry();
       }
@@ -45,7 +45,7 @@ namespace edm {
 
     private:
       ProductRegistryHelper* prod_;
-      std::function<void(BranchDescription const&)> callback_;
+      std::function<void(ProductDescription const&)> callback_;
       ProductRegistry* reg_;
       ModuleDescription mdesc_;
       unsigned int lastSize_;

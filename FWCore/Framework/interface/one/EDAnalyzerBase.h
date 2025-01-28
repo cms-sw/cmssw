@@ -72,7 +72,7 @@ namespace edm {
 
       virtual SerialTaskQueue* globalRunsQueue();
       virtual SerialTaskQueue* globalLuminosityBlocksQueue();
-      void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
+      void callWhenNewProductsRegistered(std::function<void(ProductDescription const&)> const& func);
 
     private:
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
@@ -126,7 +126,7 @@ namespace edm {
 
       void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
       ModuleDescription moduleDescription_;
-      std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
+      std::function<void(ProductDescription const&)> callWhenNewProductsRegistered_;
 
       SharedResourcesAcquirer resourcesAcquirer_;
     };

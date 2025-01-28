@@ -299,7 +299,7 @@ namespace edm {
     sort_all(moduleLabels_);
     sort_all(getModuleLabels_);
     if (getData_) {
-      callWhenNewProductsRegistered([this](edm::BranchDescription const& iBranch) {
+      callWhenNewProductsRegistered([this](edm::ProductDescription const& iBranch) {
         if (getModuleLabels_.empty()) {
           const std::string kPathStatus("edm::PathStatus");
           const std::string kEndPathStatus("edm::EndPathStatus");
@@ -371,7 +371,7 @@ namespace edm {
                                     << " (productId = " << provenance->productID() << ")" << std::endl;
 
         if (listProvenance_) {
-          const bool isAlias = provenance->branchDescription().isAlias();
+          const bool isAlias = provenance->productDescription().isAlias();
           std::string aliasForModLabel;
           LogAbsolute("EventContent") << *provenance;
           if (isAlias) {

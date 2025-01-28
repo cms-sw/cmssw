@@ -98,7 +98,7 @@ namespace edm {
       std::set<std::string> processNamesThatProduced;
       ProductRegistry::ProductList& prodList = productRegistry.productListUpdator();
       for (auto& item : prodList) {
-        BranchDescription& prod = item.second;
+        ProductDescription& prod = item.second;
         if (prod.branchType() == InEvent) {
           prod.init();
           processNamesThatProduced.insert(prod.processName());

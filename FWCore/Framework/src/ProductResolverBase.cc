@@ -18,7 +18,7 @@ namespace edm {
   bool ProductResolverBase::provenanceAvailable() const {
     // If this product is from a the current process,
     // the provenance is available if and only if a product has been put.
-    if (branchDescription().produced()) {
+    if (productDescription().produced()) {
       return productResolved();
     }
     // If this product is from a prior process, the provenance is available,
@@ -26,7 +26,7 @@ namespace edm {
     return true;
   }
 
-  TypeID ProductResolverBase::productType() const { return TypeID(branchDescription().wrappedTypeID()); }
+  TypeID ProductResolverBase::productType() const { return TypeID(productDescription().wrappedTypeID()); }
 
   Provenance const* ProductResolverBase::provenance() const { return provenance_(); }
 

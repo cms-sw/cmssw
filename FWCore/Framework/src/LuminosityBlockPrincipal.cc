@@ -15,7 +15,7 @@ namespace edm {
     fillPrincipal(aux_.processHistoryID(), processHistory, reader);
   }
 
-  void LuminosityBlockPrincipal::put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
+  void LuminosityBlockPrincipal::put(ProductDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
     put_(bd, std::move(edp));
   }
 

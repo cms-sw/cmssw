@@ -71,7 +71,7 @@ namespace edm {
 
     void mergeAuxiliary(LuminosityBlockAuxiliary const& aux) { return aux_.mergeAuxiliary(aux); }
 
-    void put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
+    void put(ProductDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const;
 

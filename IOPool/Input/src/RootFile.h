@@ -317,7 +317,7 @@ namespace edm {
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
     void setPresenceInProductRegistry(ProductRegistry&, StoredProcessBlockHelper const&);
     void markBranchToBeDropped(bool dropDescendants,
-                               BranchDescription const& branch,
+                               ProductDescription const& branch,
                                std::set<BranchID>& branchesToDrop,
                                std::map<BranchID, BranchID> const& droppedToKeptAlias) const;
     void dropOnInputAndReorder(ProductRegistry&,

@@ -42,7 +42,7 @@ namespace {
   };
 }  // namespace
 
-void SignallingProductRegistry::addCalled(BranchDescription const& iProd, bool iFromListener) {
+void SignallingProductRegistry::addCalled(ProductDescription const& iProd, bool iFromListener) {
   // Call only for present branches (part of avoiding adding type information for dropped branches)
   if (iProd.dropped())
     return;

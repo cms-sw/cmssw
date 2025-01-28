@@ -11,7 +11,7 @@
 
 namespace triggerExpression {
 
-  void Data::setPathStatusToken(edm::BranchDescription const& branch, edm::ConsumesCollector&& iC) {
+  void Data::setPathStatusToken(edm::ProductDescription const& branch, edm::ConsumesCollector&& iC) {
     m_pathStatusTokens[branch.moduleLabel()] = iC.consumes<edm::HLTPathStatus>(
         edm::InputTag(branch.moduleLabel(), branch.productInstanceName(), branch.processName()));
   }

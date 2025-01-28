@@ -140,13 +140,13 @@ namespace edm {
 
     BasicHandle getByProductID(ProductID const& oid) const;
 
-    void put(BranchDescription const& bd,
+    void put(ProductDescription const& bd,
              std::unique_ptr<WrapperBase> edp,
              ProductProvenance const& productProvenance) const;
 
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp, ParentageID productProvenance) const;
 
-    void putOnRead(BranchDescription const& bd,
+    void putOnRead(ProductDescription const& bd,
                    std::unique_ptr<WrapperBase> edp,
                    std::optional<ProductProvenance> productProvenance) const;
 

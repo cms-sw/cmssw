@@ -133,7 +133,7 @@ added a bunch of code for declaring classes explicitly to root using the
 pool utilities and the reflex information in order to debug a problem.
 The problem appears to stem from a giving class definition in the
 xml file of StreamerData - I've added it now.  The missing class was
-vector<BranchDescription>.
+vector<ProductDescription>.
 
 5-12-05 jbk:
 

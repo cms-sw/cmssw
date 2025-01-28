@@ -105,8 +105,8 @@ namespace edmtest {
       using namespace edm;
       assert(!keptProducts()[InEvent].empty());
       for (auto product : keptProducts()[InEvent]) {
-        BranchDescription const* branchDescription = product.first;
-        TypeID const& tid = branchDescription->unwrappedTypeID();
+        ProductDescription const* productDescription = product.first;
+        TypeID const& tid = productDescription->unwrappedTypeID();
         EDGetToken const& token = product.second;
         BasicHandle bh = e.getByToken(token, tid);
         assert(bh.isValid());

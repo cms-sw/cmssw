@@ -1,6 +1,6 @@
 #include "FWCore/Common/interface/SubProcessBlockHelper.h"
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 
@@ -51,7 +51,7 @@ namespace edm {
     assert(processesWithProcessBlockProducts().empty());
     for (auto const& processName : parentProcessBlockHelper.processesWithProcessBlockProducts()) {
       for (auto const& item : productRegistry.productList()) {
-        BranchDescription const& desc = item.second;
+        ProductDescription const& desc = item.second;
         if (desc.branchType() == InProcess && desc.present() && desc.processName() == processName) {
           emplaceBackProcessName(processName);
           break;
@@ -63,7 +63,7 @@ namespace edm {
     assert(addedProcesses().empty());
     for (auto const& processName : parentProcessBlockHelper.addedProcesses()) {
       for (auto const& item : productRegistry.productList()) {
-        BranchDescription const& desc = item.second;
+        ProductDescription const& desc = item.second;
         if (desc.branchType() == InProcess && desc.present() && desc.processName() == processName) {
           emplaceBackAddedProcessName(processName);
           break;

@@ -304,36 +304,36 @@ namespace edm {
   }
 
   template <typename T>
-  inline size_t WorkerT<T>::transformIndex(edm::BranchDescription const&) const noexcept {
+  inline size_t WorkerT<T>::transformIndex(edm::ProductDescription const&) const noexcept {
     return -1;
   }
   template <>
-  inline size_t WorkerT<global::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<global::EDFilterBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<global::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<global::EDProducerBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
   inline size_t WorkerT<stream::EDProducerAdaptorBase>::transformIndex(
-      edm::BranchDescription const& iBranch) const noexcept {
+      edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<limited::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<limited::EDFilterBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<limited::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<limited::EDProducerBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<one::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<one::EDFilterBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<one::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<one::EDProducerBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
 

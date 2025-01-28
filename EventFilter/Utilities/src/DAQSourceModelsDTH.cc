@@ -44,7 +44,7 @@ void DataModeDTH::readEvent(edm::EventPrincipal& eventPrincipal) {
 
   std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<FEDRawDataCollection>(std::move(rawData)));
   eventPrincipal.put(
-      daqProvenanceHelpers_[0]->branchDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
+      daqProvenanceHelpers_[0]->productDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
   eventCached_ = false;
 }
 

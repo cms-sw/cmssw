@@ -91,14 +91,14 @@ namespace edm {
         std::shared_ptr<std::map<std::string, int>> treeMap_;
       };
 
-      explicit OutputItem(BranchDescription const* bd, EDGetToken const& token, int splitLevel, int basketSize);
+      explicit OutputItem(ProductDescription const* bd, EDGetToken const& token, int splitLevel, int basketSize);
 
-      BranchID branchID() const { return branchDescription_->branchID(); }
-      std::string const& branchName() const { return branchDescription_->branchName(); }
+      BranchID branchID() const { return productDescription_->branchID(); }
+      std::string const& branchName() const { return productDescription_->branchName(); }
 
-      bool operator<(OutputItem const& rh) const { return *branchDescription_ < *rh.branchDescription_; }
+      bool operator<(OutputItem const& rh) const { return *productDescription_ < *rh.productDescription_; }
 
-      BranchDescription const* branchDescription() const { return branchDescription_; }
+      ProductDescription const* productDescription() const { return productDescription_; }
       EDGetToken token() const { return token_; }
       void const* const product() const { return product_; }
       void const*& product() { return product_; }
@@ -107,7 +107,7 @@ namespace edm {
       int basketSize() const { return basketSize_; }
 
     private:
-      BranchDescription const* branchDescription_;
+      ProductDescription const* productDescription_;
       EDGetToken token_;
       void const* product_;
       int splitLevel_;

@@ -56,7 +56,7 @@ EDAnalyzerBase::~EDAnalyzerBase() {}
 //
 // member functions
 //
-void EDAnalyzerBase::callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+void EDAnalyzerBase::callWhenNewProductsRegistered(std::function<void(ProductDescription const&)> const& func) {
   callWhenNewProductsRegistered_ = func;
 }
 

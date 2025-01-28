@@ -1,6 +1,6 @@
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 
 namespace edm {
   void BranchChildren::append_(map_t const& lookup,
@@ -39,7 +39,7 @@ namespace edm {
 
   void BranchChildren::insertChild(BranchID parent, BranchID child) { childLookup_[parent].insert(child); }
 
-  void BranchChildren::appendToDescendants(BranchDescription const& parent,
+  void BranchChildren::appendToDescendants(ProductDescription const& parent,
                                            BranchIDSet& descendants,
                                            std::map<BranchID, BranchID> const& droppedToKeptAlias) const {
     descendants.insert(parent.branchID());

@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/ScheduleItems.h"
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
@@ -50,7 +50,7 @@ namespace edm {
         act_table_(),
         processConfiguration_() {
     for (auto& item : preg_->productListUpdator()) {
-      BranchDescription& prod = item.second;
+      ProductDescription& prod = item.second;
       prod.setOnDemand(false);
       prod.setProduced(false);
     }
@@ -59,26 +59,26 @@ namespace edm {
     std::set<BranchID> keptBranches;
     SelectedProducts const& keptVectorP = om.keptProducts()[InProcess];
     for (auto const& item : keptVectorP) {
-      BranchDescription const& desc = *item.first;
+      ProductDescription const& desc = *item.first;
       keptBranches.insert(desc.branchID());
     }
     SelectedProducts const& keptVectorR = om.keptProducts()[InRun];
     for (auto const& item : keptVectorR) {
-      BranchDescription const& desc = *item.first;
+      ProductDescription const& desc = *item.first;
       keptBranches.insert(desc.branchID());
     }
     SelectedProducts const& keptVectorL = om.keptProducts()[InLumi];
     for (auto const& item : keptVectorL) {
-      BranchDescription const& desc = *item.first;
+      ProductDescription const& desc = *item.first;
       keptBranches.insert(desc.branchID());
     }
     SelectedProducts const& keptVectorE = om.keptProducts()[InEvent];
     for (auto const& item : keptVectorE) {
-      BranchDescription const& desc = *item.first;
+      ProductDescription const& desc = *item.first;
       keptBranches.insert(desc.branchID());
     }
     for (auto& item : preg_->productListUpdator()) {
-      BranchDescription& prod = item.second;
+      ProductDescription& prod = item.second;
       if (keptBranches.find(prod.branchID()) == keptBranches.end()) {
         prod.setDropped(true);
       }

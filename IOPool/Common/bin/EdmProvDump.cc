@@ -36,7 +36,7 @@
 #include <sstream>
 #include <vector>
 
-typedef std::map<std::string, std::vector<edm::BranchDescription>> IdToBranches;
+typedef std::map<std::string, std::vector<edm::ProductDescription>> IdToBranches;
 typedef std::map<std::pair<std::string, std::string>, IdToBranches> ModuleToIdBranches;
 
 static std::ostream& prettyPrint(std::ostream& oStream,
@@ -899,7 +899,7 @@ void ProvenanceDumper::work_() {
   }
 
   //using edm::ParameterSetID as the key does not work
-  //   typedef std::map<edm::ParameterSetID, std::vector<edm::BranchDescription> > IdToBranches
+  //   typedef std::map<edm::ParameterSetID, std::vector<edm::ProductDescription> > IdToBranches
   ModuleToIdBranches moduleToIdBranches;
   //IdToBranches idToBranches;
 

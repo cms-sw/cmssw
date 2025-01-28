@@ -10,22 +10,22 @@
 
 namespace edm {
 
-  StableProvenance::StableProvenance() : StableProvenance{std::shared_ptr<BranchDescription const>(), ProductID()} {}
+  StableProvenance::StableProvenance() : StableProvenance{std::shared_ptr<ProductDescription const>(), ProductID()} {}
 
-  StableProvenance::StableProvenance(std::shared_ptr<BranchDescription const> const& p, ProductID const& pid)
-      : branchDescription_(p), productID_(pid) {}
+  StableProvenance::StableProvenance(std::shared_ptr<ProductDescription const> const& p, ProductID const& pid)
+      : productDescription_(p), productID_(pid) {}
 
   void StableProvenance::write(std::ostream& os) const {
     // This is grossly inadequate, but it is not critical for the first pass.
-    branchDescription().write(os);
+    productDescription().write(os);
   }
 
   bool operator==(StableProvenance const& a, StableProvenance const& b) {
-    return a.branchDescription() == b.branchDescription();
+    return a.productDescription() == b.productDescription();
   }
 
   void StableProvenance::swap(StableProvenance& iOther) {
-    branchDescription_.swap(iOther.branchDescription_);
+    productDescription_.swap(iOther.productDescription_);
     productID_.swap(iOther.productID_);
   }
 }  // namespace edm

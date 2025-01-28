@@ -130,7 +130,7 @@ namespace edm {
       std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const;
 
       ProductResolverIndex transformPrefetch_(size_t iTransformIndex) const noexcept;
-      size_t transformIndex_(edm::BranchDescription const& iBranch) const noexcept;
+      size_t transformIndex_(edm::ProductDescription const& iBranch) const noexcept;
       void doTransformAsync(WaitingTaskHolder iTask,
                             size_t iTransformIndex,
                             EventPrincipal const& iEvent,

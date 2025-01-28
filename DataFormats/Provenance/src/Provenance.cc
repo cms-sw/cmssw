@@ -15,7 +15,7 @@ namespace edm {
 
   Provenance::Provenance() : Provenance{StableProvenance()} {}
 
-  Provenance::Provenance(std::shared_ptr<BranchDescription const> const& p, ProductID const& pid)
+  Provenance::Provenance(std::shared_ptr<ProductDescription const> const& p, ProductID const& pid)
       : stableProvenance_(p, pid), store_(), mergeableRunProductMetadata_() {}
 
   Provenance::Provenance(StableProvenance const& stable)
@@ -29,7 +29,7 @@ namespace edm {
   }
 
   bool Provenance::knownImproperlyMerged() const {
-    if (mergeableRunProductMetadata_ && branchDescription().isMergeable()) {
+    if (mergeableRunProductMetadata_ && productDescription().isMergeable()) {
       // This part handles the cases where the product is
       // a mergeable run product from the input.
       return mergeableRunProductMetadata_->knownImproperlyMerged(processName());

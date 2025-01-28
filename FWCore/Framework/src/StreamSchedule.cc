@@ -184,7 +184,7 @@ namespace edm {
     }
 
     std::optional<std::string> findBestMatchingAlias(
-        std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+        std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
         std::unordered_multimap<std::string, StreamSchedule::AliasInfo> const& aliasMap,
         std::string const& productModuleLabel,
         ConsumesInfo const& consumesInfo) {
@@ -299,9 +299,9 @@ namespace edm {
 
     std::unordered_multimap<std::string, AliasInfo> const& aliasMap() const { return aliasMap_; }
 
-    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModuleBranches(
+    std::unordered_multimap<std::string, edm::ProductDescription const*> conditionalModuleBranches(
         std::unordered_set<std::string> const& conditionalmods) const {
-      std::unordered_multimap<std::string, edm::BranchDescription const*> ret;
+      std::unordered_multimap<std::string, edm::ProductDescription const*> ret;
       for (auto const& mod : conditionalmods) {
         auto range = conditionalModsBranches_.equal_range(mod);
         ret.insert(range.first, range.second);
@@ -363,7 +363,7 @@ namespace edm {
     }
 
     std::unordered_multimap<std::string, AliasInfo> aliasMap_;
-    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModsBranches_;
+    std::unordered_multimap<std::string, edm::ProductDescription const*> conditionalModsBranches_;
   };
 
   // -----------------------------
@@ -559,7 +559,7 @@ namespace edm {
           // so we should remove it from our list
           SelectedProductsForBranchType const& kept = comm->keptProducts();
           for (auto const& item : kept[InEvent]) {
-            BranchDescription const& desc = *item.first;
+            ProductDescription const& desc = *item.first;
             auto found = branchToReadingWorker.equal_range(desc.branchName());
             if (found.first != found.second) {
               --nUniqueBranchesToDelete;
@@ -751,7 +751,7 @@ namespace edm {
   std::vector<Worker*> StreamSchedule::tryToPlaceConditionalModules(
       Worker* worker,
       std::unordered_set<std::string>& conditionalModules,
-      std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+      std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
       std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
       ParameterSet& proc_pset,
       SignallingProductRegistry& preg,
@@ -842,7 +842,7 @@ namespace edm {
 
     std::unordered_set<std::string> conditionalmods;
     //An EDAlias may be redirecting to a module on a ConditionalTask
-    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModsBranches;
+    std::unordered_multimap<std::string, edm::ProductDescription const*> conditionalModsBranches;
     std::unordered_map<std::string, unsigned int> conditionalModOrder;
     if (condRange.first != condRange.second) {
       for (auto it = condRange.first; it != condRange.second; ++it) {

@@ -34,7 +34,7 @@
 #include "FWCore/Utilities/interface/Digest.h"
 #include "IOPool/Provenance/interface/CommonProvenanceFiller.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/NanoAOD/interface/UniqueString.h"

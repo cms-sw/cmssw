@@ -6,7 +6,7 @@
    \date 21 July 2005
 */
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
@@ -46,11 +46,11 @@ public:
   void testAddAlias();
 
 private:
-  std::shared_ptr<edm::BranchDescription> intBranch_;
-  std::shared_ptr<edm::BranchDescription> floatBranch_;
-  std::shared_ptr<edm::BranchDescription> intVecBranch_;
-  std::shared_ptr<edm::BranchDescription> simpleVecBranch_;
-  std::shared_ptr<edm::BranchDescription> simpleDerivedVecBranch_;
+  std::shared_ptr<edm::ProductDescription> intBranch_;
+  std::shared_ptr<edm::ProductDescription> floatBranch_;
+  std::shared_ptr<edm::ProductDescription> intVecBranch_;
+  std::shared_ptr<edm::ProductDescription> simpleVecBranch_;
+  std::shared_ptr<edm::ProductDescription> simpleDerivedVecBranch_;
 };
 
 ///registration of the test so that the runner can find it
@@ -60,7 +60,7 @@ namespace {
   struct Listener {
     int* heard_;
     Listener(int& hear) : heard_(&hear) {}
-    void operator()(edm::BranchDescription const&) { ++(*heard_); }
+    void operator()(edm::ProductDescription const&) { ++(*heard_); }
   };
 
   struct Responder {
@@ -69,19 +69,19 @@ namespace {
     Responder(std::string const& iName, edm::SignallingProductRegistry& iReg) : name_(iName), reg_(&iReg) {
       iReg.watchProductAdditions(this, &Responder::respond);
     }
-    void respond(edm::BranchDescription const& iDesc) {
+    void respond(edm::ProductDescription const& iDesc) {
       edm::ParameterSet dummyProcessPset;
       dummyProcessPset.registerIt();
       auto pc = std::make_shared<edm::ProcessConfiguration>();
       pc->setParameterSetID(dummyProcessPset.id());
 
-      edm::BranchDescription prod(iDesc.branchType(),
-                                  name_,
-                                  iDesc.processName(),
-                                  iDesc.fullClassName(),
-                                  iDesc.friendlyClassName(),
-                                  iDesc.productInstanceName() + "-" + name_,
-                                  iDesc.unwrappedType());
+      edm::ProductDescription prod(iDesc.branchType(),
+                                   name_,
+                                   iDesc.processName(),
+                                   iDesc.fullClassName(),
+                                   iDesc.friendlyClassName(),
+                                   iDesc.productInstanceName() + "-" + name_,
+                                   iDesc.unwrappedType());
       reg_->addProduct(prod);
     }
   };
@@ -97,31 +97,31 @@ void testProductRegistry::setUp() {
 
   edm::ParameterSet pset;
   pset.registerIt();
-  intBranch_ = std::make_shared<edm::BranchDescription>(
+  intBranch_ = std::make_shared<edm::ProductDescription>(
       edm::InEvent, "labeli", "PROD", "int", "int", "int", edm::TypeWithDict(typeid(int)));
 
-  floatBranch_ = std::make_shared<edm::BranchDescription>(
+  floatBranch_ = std::make_shared<edm::ProductDescription>(
       edm::InEvent, "labelf", "PROD", "float", "float", "float", edm::TypeWithDict(typeid(float)));
 
-  intVecBranch_ = std::make_shared<edm::BranchDescription>(
+  intVecBranch_ = std::make_shared<edm::ProductDescription>(
       edm::InEvent, "labelvi", "PROD", "std::vector<int>", "ints", "vint", edm::TypeWithDict(typeid(std::vector<int>)));
 
   simpleVecBranch_ =
-      std::make_shared<edm::BranchDescription>(edm::InEvent,
-                                               "labelovsimple",
-                                               "PROD",
-                                               "edm::OwnVector<edmtest::Simple>",
-                                               "edmtestSimplesOwned",
-                                               "ovsimple",
-                                               edm::TypeWithDict(typeid(edm::OwnVector<edmtest::Simple>)));
+      std::make_shared<edm::ProductDescription>(edm::InEvent,
+                                                "labelovsimple",
+                                                "PROD",
+                                                "edm::OwnVector<edmtest::Simple>",
+                                                "edmtestSimplesOwned",
+                                                "ovsimple",
+                                                edm::TypeWithDict(typeid(edm::OwnVector<edmtest::Simple>)));
   simpleDerivedVecBranch_ =
-      std::make_shared<edm::BranchDescription>(edm::InEvent,
-                                               "labelovsimplederived",
-                                               "PROD",
-                                               "edm::OwnVector<edmtest::SimpleDerived>",
-                                               "edmtestSimpleDerivedsOwned",
-                                               "ovsimplederived",
-                                               edm::TypeWithDict(typeid(edm::OwnVector<edmtest::SimpleDerived>)));
+      std::make_shared<edm::ProductDescription>(edm::InEvent,
+                                                "labelovsimplederived",
+                                                "PROD",
+                                                "edm::OwnVector<edmtest::SimpleDerived>",
+                                                "edmtestSimpleDerivedsOwned",
+                                                "ovsimplederived",
+                                                edm::TypeWithDict(typeid(edm::OwnVector<edmtest::SimpleDerived>)));
 }
 
 namespace {
@@ -144,7 +144,7 @@ void testProductRegistry::testSignal() {
   Listener listening(hear);
   reg.productAddedSignal_.connect(listening);
 
-  //BranchDescription prod(InEvent, "label", "PROD", "int", "int", "int", md);
+  //ProductDescription prod(InEvent, "label", "PROD", "int", "int", "int", md);
 
   //   reg.addProduct(prod);
   reg.addProduct(*intBranch_);
@@ -162,11 +162,11 @@ void testProductRegistry::testWatch() {
 
   Responder one("one", reg);
 
-  //BranchDescription prod(InEvent, "label", "PROD", "int", "int", "int");
+  //ProductDescription prod(InEvent, "label", "PROD", "int", "int", "int");
   //reg.addProduct(prod);
   reg.addProduct(*intBranch_);
 
-  //BranchDescription prod2(InEvent, "label", "PROD", "float", "float", "float");
+  //ProductDescription prod2(InEvent, "label", "PROD", "float", "float", "float");
   //   reg.addProduct(prod2);
   reg.addProduct(*floatBranch_);
 
@@ -190,7 +190,7 @@ void testProductRegistry::testCircular() {
   Responder one("one", reg);
   Responder two("two", reg);
 
-  //BranchDescription prod(InEvent, "label","PROD","int","int","int");
+  //ProductDescription prod(InEvent, "label","PROD","int","int","int");
   //reg.addProduct(prod);
   reg.addProduct(*intBranch_);
 

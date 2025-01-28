@@ -97,7 +97,7 @@ namespace edm {
       transformAsync_(iTask, iTransformIndex, ev, iAct, iToken);
     }
 
-    size_t EDProducerBase::transformIndex_(edm::BranchDescription const& iBranch) const noexcept { return -1; }
+    size_t EDProducerBase::transformIndex_(edm::ProductDescription const& iBranch) const noexcept { return -1; }
     ProductResolverIndex EDProducerBase::transformPrefetch_(std::size_t iIndex) const noexcept { return 0; }
     void EDProducerBase::transformAsync_(WaitingTaskHolder iTask,
                                          std::size_t iIndex,

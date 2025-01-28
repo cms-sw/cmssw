@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
@@ -115,13 +115,13 @@ namespace edm {
 
   std::string const& PoolOutputModule::currentFileName() const { return rootOutputFile_->fileName(); }
 
-  PoolOutputModule::AuxItem::AuxItem() : basketSize_(BranchDescription::invalidBasketSize) {}
+  PoolOutputModule::AuxItem::AuxItem() : basketSize_(ProductDescription::invalidBasketSize) {}
 
-  PoolOutputModule::OutputItem::OutputItem(BranchDescription const* bd,
+  PoolOutputModule::OutputItem::OutputItem(ProductDescription const* bd,
                                            EDGetToken const& token,
                                            int splitLevel,
                                            int basketSize)
-      : branchDescription_(bd), token_(token), product_(nullptr), splitLevel_(splitLevel), basketSize_(basketSize) {}
+      : productDescription_(bd), token_(token), product_(nullptr), splitLevel_(splitLevel), basketSize_(basketSize) {}
 
   PoolOutputModule::OutputItem::Sorter::Sorter(TTree* tree) : treeMap_(new std::map<std::string, int>) {
     // Fill a map mapping branch names to an index specifying the order in the tree.
@@ -139,8 +139,8 @@ namespace edm {
     // Branches not found are always put at the end (i.e. not found > found).
     if (treeMap_->empty())
       return lh < rh;
-    std::string const& lstring = lh.branchDescription_->branchName();
-    std::string const& rstring = rh.branchDescription_->branchName();
+    std::string const& lstring = lh.productDescription_->branchName();
+    std::string const& rstring = rh.productDescription_->branchName();
     std::map<std::string, int>::const_iterator lit = treeMap_->find(lstring);
     std::map<std::string, int>::const_iterator rit = treeMap_->find(rstring);
     bool lfound = (lit != treeMap_->end());
@@ -192,10 +192,10 @@ namespace edm {
 
     // Fill outputItemList with an entry for each branch.
     for (auto const& kept : keptVector) {
-      int splitLevel = BranchDescription::invalidSplitLevel;
-      int basketSize = BranchDescription::invalidBasketSize;
+      int splitLevel = ProductDescription::invalidSplitLevel;
+      int basketSize = ProductDescription::invalidBasketSize;
 
-      BranchDescription const& prod = *kept.first;
+      ProductDescription const& prod = *kept.first;
       if (branchType == InProcess && processName != prod.processName()) {
         continue;
       }
@@ -208,7 +208,7 @@ namespace edm {
         basketSize = theBranch->GetBasketSize();
       } else {
         auto wp = prod.wrappedType().getClass()->GetAttributeMap();
-        auto wpSplitLevel = BranchDescription::invalidSplitLevel;
+        auto wpSplitLevel = ProductDescription::invalidSplitLevel;
         if (wp && wp->HasKey("splitLevel")) {
           wpSplitLevel = strtol(wp->GetPropertyAsString("splitLevel"), nullptr, 0);
           if (wpSplitLevel < 0) {
@@ -217,13 +217,13 @@ namespace edm {
           }
           wpSplitLevel += 1;  //Compensate for wrapper
         }
-        splitLevel = (wpSplitLevel == BranchDescription::invalidSplitLevel ? splitLevel_ : wpSplitLevel);
+        splitLevel = (wpSplitLevel == ProductDescription::invalidSplitLevel ? splitLevel_ : wpSplitLevel);
         for (auto const& b : specialSplitLevelForBranches_) {
           if (b.match(prod.branchName())) {
             splitLevel = b.splitLevel_;
           }
         }
-        auto wpBasketSize = BranchDescription::invalidBasketSize;
+        auto wpBasketSize = ProductDescription::invalidBasketSize;
         if (wp && wp->HasKey("basketSize")) {
           wpBasketSize = strtol(wp->GetPropertyAsString("basketSize"), nullptr, 0);
           if (wpBasketSize <= 0) {
@@ -231,7 +231,7 @@ namespace edm {
                                                       << " is specified for class " << prod.wrappedName() << "'.\n";
           }
         }
-        basketSize = (wpBasketSize == BranchDescription::invalidBasketSize ? basketSize_ : wpBasketSize);
+        basketSize = (wpBasketSize == ProductDescription::invalidBasketSize ? basketSize_ : wpBasketSize);
       }
       outputItemList.emplace_back(&prod, kept.second, splitLevel, basketSize);
     }
@@ -435,7 +435,7 @@ namespace edm {
     ProductProvenanceRetriever const* provRetriever = e.productProvenanceRetrieverPtr();
     if (producedBranches_.empty()) {
       for (auto const& prod : e.productRegistry().productList()) {
-        BranchDescription const& desc = prod.second;
+        ProductDescription const& desc = prod.second;
         if (desc.produced() && desc.branchType() == InEvent && !desc.isAlias()) {
           producedBranches_.emplace_back(desc.branchID());
         }

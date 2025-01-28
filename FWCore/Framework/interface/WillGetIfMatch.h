@@ -11,7 +11,7 @@ See comments in the file GetterOfProducts.h.
 */
 
 #include <functional>
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -24,11 +24,12 @@ namespace edm {
     template <typename U>
     WillGetIfMatch(U const& match, EDConsumerBase* module) : match_(match), module_(module) {}
 
-    EDGetTokenT<T> operator()(BranchDescription const& branchDescription) {
-      if (match_(branchDescription)) {
-        auto transition = branchDescription.branchType();
-        edm::InputTag tag{
-            branchDescription.moduleLabel(), branchDescription.productInstanceName(), branchDescription.processName()};
+    EDGetTokenT<T> operator()(ProductDescription const& productDescription) {
+      if (match_(productDescription)) {
+        auto transition = productDescription.branchType();
+        edm::InputTag tag{productDescription.moduleLabel(),
+                          productDescription.productInstanceName(),
+                          productDescription.processName()};
         if (transition == edm::InEvent) {
           return module_->template consumes<T>(tag);
         } else if (transition == edm::InLumi) {
@@ -43,7 +44,7 @@ namespace edm {
     }
 
   private:
-    std::function<bool(BranchDescription const&)> match_;
+    std::function<bool(ProductDescription const&)> match_;
     EDConsumerBase* module_;
   };
 }  // namespace edm

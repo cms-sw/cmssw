@@ -20,6 +20,9 @@ This description also applies to every product instance on the branch.
 #include <set>
 #include <string>
 
+#if !defined(DataFormats_Provenance_ProductDescription_h)
+#error The name BranchDescription is deprecated, please use ProductDescription instead.
+#endif
 /*
   BranchDescription
 

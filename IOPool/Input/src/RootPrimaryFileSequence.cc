@@ -25,7 +25,7 @@ namespace edm {
       : RootInputFileSequence(pset, catalog),
         input_(input),
         firstFile_(true),
-        branchesMustMatch_(BranchDescription::Permissive),
+        branchesMustMatch_(ProductDescription::Permissive),
         orderedProcessHistoryIDs_(),
         eventSkipperByID_(EventSkipperByID::create(pset).release()),
         initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents")),
@@ -56,7 +56,7 @@ namespace edm {
     std::string branchesMustMatch =
         pset.getUntrackedParameter<std::string>("branchesMustMatch", std::string("permissive"));
     if (branchesMustMatch == std::string("strict"))
-      branchesMustMatch_ = BranchDescription::Strict;
+      branchesMustMatch_ = ProductDescription::Strict;
 
     // Prestage the files
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {

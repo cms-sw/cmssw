@@ -50,7 +50,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 
 #include <string>
 

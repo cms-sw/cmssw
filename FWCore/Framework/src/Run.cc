@@ -100,7 +100,7 @@ namespace edm {
       for (auto index : iShouldPut) {
         auto resolver = p.getProductResolverByIndex(index);
         if (not resolver->productResolved() and isEndTransition(provRecorder_.transition()) ==
-                                                    resolver->branchDescription().availableOnlyAtEndTransition()) {
+                                                    resolver->productDescription().availableOnlyAtEndTransition()) {
           dynamic_cast<ProductPutterBase const*>(resolver)->putProduct(std::unique_ptr<WrapperBase>());
         }
       }

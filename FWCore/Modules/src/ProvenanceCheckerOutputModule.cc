@@ -102,12 +102,12 @@ namespace edm {
     std::set<BranchID> missingFromMapper;
     std::set<BranchID> missingProductProvenance;
 
-    std::map<BranchID, const BranchDescription*> idToBranchDescriptions;
+    std::map<BranchID, const ProductDescription*> idToProductDescriptions;
     for (auto const& product : keptProducts()[InEvent]) {
-      BranchDescription const* branchDescription = product.first;
-      BranchID branchID = branchDescription->branchID();
-      idToBranchDescriptions[branchID] = branchDescription;
-      TypeID const& tid(branchDescription->unwrappedTypeID());
+      ProductDescription const* productDescription = product.first;
+      BranchID branchID = productDescription->branchID();
+      idToProductDescriptions[branchID] = productDescription;
+      TypeID const& tid(productDescription->unwrappedTypeID());
       EDGetToken const& token = product.second;
       BasicHandle bh = e.getByToken(token, tid);
       bool cannotFindProductProvenance = false;
@@ -131,7 +131,7 @@ namespace edm {
     std::set<BranchID> branchesInReg;
     for (auto const& product : e.productRegistry().productList()) {
       branchesInReg.insert(product.second.branchID());
-      idToBranchDescriptions[product.second.branchID()] = &product.second;
+      idToProductDescriptions[product.second.branchID()] = &product.second;
     }
 
     std::set<BranchID> missingFromReg;
@@ -145,7 +145,7 @@ namespace edm {
       LogError("ProvenanceChecker") << "Missing the following BranchIDs from ProductProvenanceRetriever\n";
       for (std::set<BranchID>::iterator it = missingFromMapper.begin(), itEnd = missingFromMapper.end(); it != itEnd;
            ++it) {
-        LogProblem("ProvenanceChecker") << *it << " " << *(idToBranchDescriptions[*it]);
+        LogProblem("ProvenanceChecker") << *it << " " << *(idToProductDescriptions[*it]);
       }
     }
 
@@ -154,14 +154,14 @@ namespace edm {
       for (std::set<BranchID>::iterator it = missingProductProvenance.begin(), itEnd = missingProductProvenance.end();
            it != itEnd;
            ++it) {
-        LogProblem("ProvenanceChecker") << *it << " " << *(idToBranchDescriptions[*it]);
+        LogProblem("ProvenanceChecker") << *it << " " << *(idToProductDescriptions[*it]);
       }
     }
 
     if (!missingFromReg.empty()) {
       LogError("ProvenanceChecker") << "Missing the following BranchIDs from ProductRegistry\n";
       for (auto const& item : missingFromReg) {
-        LogProblem("ProvenanceChecker") << item << " " << *(idToBranchDescriptions[item]);
+        LogProblem("ProvenanceChecker") << item << " " << *(idToProductDescriptions[item]);
       }
     }
 

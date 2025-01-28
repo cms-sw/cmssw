@@ -29,7 +29,7 @@
 #include <set>
 
 // user include files
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -91,7 +91,7 @@ namespace edm {
       /// -1 is used for unlimited.
       int remainingEvents() const { return remainingEvents_; }
 
-      bool selected(BranchDescription const& desc) const;
+      bool selected(ProductDescription const& desc) const;
 
       void selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&, ProcessBlockHelperBase const&);
       std::string const& processName() const { return process_name_; }
@@ -115,7 +115,7 @@ namespace edm {
 
       const ModuleDescription& moduleDescription() const { return moduleDescription_; }
 
-      void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+      void callWhenNewProductsRegistered(std::function<void(ProductDescription const&)> const& func) {
         callWhenNewProductsRegistered_ = func;
       }
 
@@ -165,10 +165,10 @@ namespace edm {
       // newly-introduced interface.
       // TODO: Consider using shared pointers here?
 
-      // keptProducts_ are pointers to the BranchDescription objects describing
+      // keptProducts_ are pointers to the ProductDescription objects describing
       // the branches we are to write.
       //
-      // We do not own the BranchDescriptions to which we point.
+      // We do not own the ProductDescriptions to which we point.
       SelectedProductsForBranchType keptProducts_;
       std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
@@ -197,7 +197,7 @@ namespace edm {
 
       OutputProcessBlockHelper outputProcessBlockHelper_;
 
-      std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
+      std::function<void(ProductDescription const&)> callWhenNewProductsRegistered_;
 
       //------------------------------------------------------------------
       // private member functions
@@ -253,8 +253,8 @@ namespace edm {
 
       bool hasAccumulator() const noexcept { return false; }
 
-      void keepThisBranch(BranchDescription const& desc,
-                          std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
+      void keepThisBranch(ProductDescription const& desc,
+                          std::map<BranchID, ProductDescription const*>& trueBranchIDToKeptBranchDesc,
                           std::set<BranchID>& keptProductsInEvent);
 
       void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
