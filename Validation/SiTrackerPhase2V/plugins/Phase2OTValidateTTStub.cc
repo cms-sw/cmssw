@@ -228,7 +228,6 @@ std::vector<double> Phase2OTValidateTTStub::getTPDerivedCoords(edm::Ptr<Tracking
   float tp_z0 = associatedTP->vertex().z();
   double tp_t = associatedTP->tanl();
   double tp_rinv = (tp_charge * bfield_) / (tp_pt);
-  std::cout << tp_rinv << std::endl;
 
   if (isBarrel) {
     tp_r = stub_r;

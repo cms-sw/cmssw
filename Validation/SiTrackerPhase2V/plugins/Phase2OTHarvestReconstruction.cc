@@ -1,5 +1,5 @@
 // Package:    Validation/SiTrackerPhase2V
-// Class:      Phase2OTHarvestTrackingParticles
+// Class:      Phase2OTHarvestReconstruction
 
 /**
  * This class is part of the Phase 2 Tracker validation framework and performs
@@ -24,10 +24,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-class Phase2OTHarvestTrackingParticles : public DQMEDHarvester {
+class Phase2OTHarvestReconstruction : public DQMEDHarvester {
 public:
-  explicit Phase2OTHarvestTrackingParticles(const edm::ParameterSet &);
-  ~Phase2OTHarvestTrackingParticles() override;
+  explicit Phase2OTHarvestReconstruction(const edm::ParameterSet &);
+  ~Phase2OTHarvestReconstruction() override;
   void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -37,14 +37,14 @@ private:
   std::string topFolderName_;
 };
 
-Phase2OTHarvestTrackingParticles::Phase2OTHarvestTrackingParticles(const edm::ParameterSet &iConfig)
+Phase2OTHarvestReconstruction::Phase2OTHarvestReconstruction(const edm::ParameterSet &iConfig)
     : topFolderName_(iConfig.getParameter<std::string>("TopFolderName")) {}
 
-Phase2OTHarvestTrackingParticles::~Phase2OTHarvestTrackingParticles() {}
+Phase2OTHarvestReconstruction::~Phase2OTHarvestReconstruction() {}
 
 // ------------ method called once each job just after ending the event loop
 // ------------
-void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
+void Phase2OTHarvestReconstruction::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
   using namespace edm;
 
   float eta_bins[] = {0.0, 0.7, 1.0, 1.2, 1.6, 2.0, 2.4};
@@ -662,9 +662,9 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-void Phase2OTHarvestTrackingParticles::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void Phase2OTHarvestReconstruction::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTL1TrackV");
-  descriptions.add("Phase2OTHarvestTrackingParticles", desc);
+  descriptions.add("Phase2OTHarvestReconstruction", desc);
 }
-DEFINE_FWK_MODULE(Phase2OTHarvestTrackingParticles);
+DEFINE_FWK_MODULE(Phase2OTHarvestReconstruction);

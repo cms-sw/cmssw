@@ -1,5 +1,5 @@
 // Package:    Validation/SiTrackerPhase2V
-// Class:      Phase2OTValidateTrackingParticles
+// Class:      Phase2OTValidateReconstruction
 
 /**
  * This class is part of the Phase 2 Tracker validation framework. It validates the
@@ -54,10 +54,10 @@
 #include "SimDataFormats/Associations/interface/TTStubAssociationMap.h"
 #include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 
-class Phase2OTValidateTrackingParticles : public DQMEDAnalyzer {
+class Phase2OTValidateReconstruction : public DQMEDAnalyzer {
 public:
-  explicit Phase2OTValidateTrackingParticles(const edm::ParameterSet &);
-  ~Phase2OTValidateTrackingParticles() override;
+  explicit Phase2OTValidateReconstruction(const edm::ParameterSet &);
+  ~Phase2OTValidateReconstruction() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
@@ -164,7 +164,7 @@ private:
 //
 // constructors and destructor
 //
-Phase2OTValidateTrackingParticles::Phase2OTValidateTrackingParticles(const edm::ParameterSet &iConfig)
+Phase2OTValidateReconstruction::Phase2OTValidateReconstruction(const edm::ParameterSet &iConfig)
     : m_topoToken(esConsumes()), conf_(iConfig) {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   trackingParticleToken_ =
@@ -188,12 +188,12 @@ Phase2OTValidateTrackingParticles::Phase2OTValidateTrackingParticles(const edm::
   TP_maxVtxZ = conf_.getParameter<double>("TP_maxVtxZ");  // max vertZ (or z0) to consider matching
 }
 
-Phase2OTValidateTrackingParticles::~Phase2OTValidateTrackingParticles() = default;
+Phase2OTValidateReconstruction::~Phase2OTValidateReconstruction() = default;
 
 // member functions
 
 // ------------ method called for each event  ------------
-void Phase2OTValidateTrackingParticles::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void Phase2OTValidateReconstruction::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Tracking Particles
   edm::Handle<std::vector<TrackingParticle>> trackingParticleHandle;
   iEvent.getByToken(trackingParticleToken_, trackingParticleHandle);
@@ -586,9 +586,9 @@ void Phase2OTValidateTrackingParticles::analyze(const edm::Event &iEvent, const 
 
 // ------------ method called once each job just before starting event loop
 // ------------
-void Phase2OTValidateTrackingParticles::bookHistograms(DQMStore::IBooker &iBooker,
-                                                       edm::Run const &run,
-                                                       edm::EventSetup const &es) {
+void Phase2OTValidateReconstruction::bookHistograms(DQMStore::IBooker &iBooker,
+                                                    edm::Run const &run,
+                                                    edm::EventSetup const &es) {
   // Histogram setup and definitions
   std::string HistoName;
   iBooker.setCurrentFolder(topFolderName_ + "/trackParticles");
@@ -1304,7 +1304,7 @@ void Phase2OTValidateTrackingParticles::bookHistograms(DQMStore::IBooker &iBooke
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-void Phase2OTValidateTrackingParticles::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void Phase2OTValidateReconstruction::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // OuterTrackerMonitorTrackingParticles
   edm::ParameterSetDescription desc;
   {
@@ -1425,9 +1425,9 @@ void Phase2OTValidateTrackingParticles::fillDescriptions(edm::ConfigurationDescr
   desc.add<double>("TP_minPt", 1.5);
   desc.add<double>("TP_maxEta", 2.4);
   desc.add<double>("TP_maxVtxZ", 15.0);
-  descriptions.add("Phase2OTValidateTrackingParticles", desc);
+  descriptions.add("Phase2OTValidateReconstruction", desc);
   // or use the following to generate the label from the module's C++ type
   //descriptions.addWithDefaultLabel(desc);
 }
 
-DEFINE_FWK_MODULE(Phase2OTValidateTrackingParticles);
+DEFINE_FWK_MODULE(Phase2OTValidateReconstruction);
