@@ -12,7 +12,7 @@ L1SCJetEmu::detaphi_t L1SCJetEmu::deltaPhi(L1SCJetEmu::Particle a, L1SCJetEmu::P
   detaphi_t dphi = detaphi_t(a.hwPhi) - detaphi_t(b.hwPhi);
   // phi wrap
   detaphi_t dphi0 =
-      dphi > detaphi_t(l1ct::Scales::INTPHI_PI) ? detaphi_t(l1ct::Scales::INTPHI_TWOPI - dphi) : detaphi_t(dphi);
+      dphi > detaphi_t(l1ct::Scales::INTPHI_PI) ? detaphi_t(dphi - l1ct::Scales::INTPHI_TWOPI) : detaphi_t(dphi);
   detaphi_t dphi1 =
       dphi < detaphi_t(-l1ct::Scales::INTPHI_PI) ? detaphi_t(l1ct::Scales::INTPHI_TWOPI + dphi) : detaphi_t(dphi);
   detaphi_t dphiw = dphi > detaphi_t(0) ? dphi0 : dphi1;
