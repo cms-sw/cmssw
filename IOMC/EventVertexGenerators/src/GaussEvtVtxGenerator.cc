@@ -47,13 +47,20 @@ void GaussEvtVtxGenerator::beginLuminosityBlock(edm::LuminosityBlock const&, edm
 void GaussEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
   if (readDB_ && parameterWatcher_.check(iEventSetup)) {
     edm::ESHandle<SimBeamSpotObjects> beamhandle = iEventSetup.getHandle(beamToken_);
-    fMeanX = beamhandle->meanX() * cm;
-    fMeanY = beamhandle->meanY() * cm;
-    fMeanZ = beamhandle->meanZ() * cm;
-    fSigmaX = beamhandle->sigmaX() * cm;
-    fSigmaY = beamhandle->sigmaY() * cm;
-    fSigmaZ = beamhandle->sigmaZ() * cm;
-    fTimeOffset = beamhandle->timeOffset() * ns * c_light;  // HepMC distance units are in mm
+    if (beamhandle->isGaussian()) {
+      fMeanX = beamhandle->meanX() * cm;
+      fMeanY = beamhandle->meanY() * cm;
+      fMeanZ = beamhandle->meanZ() * cm;
+      fSigmaX = beamhandle->sigmaX() * cm;
+      fSigmaY = beamhandle->sigmaY() * cm;
+      fSigmaZ = beamhandle->sigmaZ() * cm;
+      fTimeOffset = beamhandle->timeOffset() * ns * c_light;  // HepMC distance units are in mm
+    } else {
+      throw cms::Exception("Configuration")
+          << "Error in GaussEvtVtxGenerator::update: The provided SimBeamSpotObjects is not Gaussian.\n"
+          << "Please check the configuration and ensure that the beam spot parameters are appropriate for a Gaussian "
+             "distribution.";
+    }
   }
 }
 
