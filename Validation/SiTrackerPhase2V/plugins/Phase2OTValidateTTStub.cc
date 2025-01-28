@@ -232,12 +232,12 @@ std::vector<double> Phase2OTValidateTTStub::getTPDerivedCoords(edm::Ptr<Tracking
   if (isBarrel) {
     tp_r = stub_r;
     tp_phi = associatedTP->p4().phi() - std::asin(tp_r * tp_rinv * c_ / 2.0E2);
-    tp_phi = reco::reduceRange(tp_phi);
+    tp_phi = reco::reducePhiRange(tp_phi);
     tp_z = tp_z0 + (2.0E2 / c_) * tp_t * (1 / tp_rinv) * std::asin(tp_r * tp_rinv * c_ / 2.0E2);
   } else {
     tp_z = stub_z;
     tp_phi = associatedTP->p4().phi() - (tp_z - tp_z0) * tp_rinv * c_ / 2.0E2 / tp_t;
-    tp_phi = reco::reduceRange(tp_phi);
+    tp_phi = reco::reducePhiRange(tp_phi);
     tp_r = 2.0E2 / tp_rinv / c_ * std::sin((tp_z - tp_z0) * tp_rinv * c_ / 2.0E2 / tp_t);
   }
 
