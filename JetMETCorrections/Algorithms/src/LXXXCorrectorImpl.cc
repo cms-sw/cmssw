@@ -42,8 +42,7 @@ std::unique_ptr<reco::JetCorrectorImpl> LXXXCorrectorImplMaker::make(edm::Event 
 void LXXXCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iDescriptions) {
   edm::ParameterSetDescription desc;
   addToDescription(desc);
-
-  iDescriptions.addDefault(desc);
+  iDescriptions.addWithDefaultLabel(desc);
 }
 
 //------------------------------------------------------------------------

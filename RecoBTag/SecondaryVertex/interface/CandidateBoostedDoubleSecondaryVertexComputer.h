@@ -1,11 +1,13 @@
 #ifndef RecoBTag_SecondaryVertex_CandidateBoostedDoubleSecondaryVertexComputer_h
 #define RecoBTag_SecondaryVertex_CandidateBoostedDoubleSecondaryVertexComputer_h
 
-#include "FWCore/Framework/interface/ESConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
-#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
+#include "FWCore/Framework/interface/ESConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 
 class CandidateBoostedDoubleSecondaryVertexComputer : public JetTagComputer {
 public:
@@ -18,6 +20,8 @@ public:
 
   void initialize(const JetTagComputerRecord &) override;
   float discriminator(const TagInfoHelper &tagInfos) const override;
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
   const edm::FileInPath weightFile_;

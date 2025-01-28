@@ -1,13 +1,14 @@
 #ifndef RecoBTag_SecondaryVertex_TrackSelector_h
 #define RecoBTag_SecondaryVertex_TrackSelector_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "DataFormats/BTauReco/interface/IPTagInfo.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/BTauReco/interface/IPTagInfo.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace reco {
 
@@ -32,6 +33,8 @@ namespace reco {
                            const GlobalPoint &pv) const {
       return (*this)(*track, ipData, jet, pv);
     }
+
+    static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
   private:
     bool trackSelection(const reco::Track &track,

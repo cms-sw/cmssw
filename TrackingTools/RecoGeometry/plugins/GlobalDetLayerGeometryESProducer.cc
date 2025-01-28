@@ -1,12 +1,26 @@
-#include "TrackingTools/RecoGeometry/plugins/GlobalDetLayerGeometryESProducer.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-
 #include <memory>
 #include <string>
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "TrackingTools/RecoGeometry/interface/GlobalDetLayerGeometry.h"
+#include "TrackingTools/RecoGeometry/interface/RecoGeometryRecord.h"
+
+class GlobalDetLayerGeometryESProducer : public edm::ESProducer {
+public:
+  GlobalDetLayerGeometryESProducer(const edm::ParameterSet& p);
+  ~GlobalDetLayerGeometryESProducer() override = default;
+  std::unique_ptr<DetLayerGeometry> produce(const RecoGeometryRecord&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> trackerToken_;
+  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonToken_;
+  edm::ESGetToken<MTDDetLayerGeometry, MTDRecoGeometryRecord> mtdToken_;
+};
 
 using namespace edm;
 
@@ -18,7 +32,11 @@ GlobalDetLayerGeometryESProducer::GlobalDetLayerGeometryESProducer(const edm::Pa
   mtdToken_ = cc.consumes();
 }
 
-GlobalDetLayerGeometryESProducer::~GlobalDetLayerGeometryESProducer() {}
+void GlobalDetLayerGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("ComponentName", std::string(""));
+  descriptions.addWithDefaultLabel(desc);
+}
 
 std::unique_ptr<DetLayerGeometry> GlobalDetLayerGeometryESProducer::produce(const RecoGeometryRecord& iRecord) {
   auto const& tracker = iRecord.get(trackerToken_);

@@ -14,10 +14,7 @@
 
 CharmTagger::Tokens::Tokens(const edm::ParameterSet &configuration, edm::ESConsumesCollector &&cc) {
   if (configuration.getParameter<bool>("useCondDB")) {
-    gbrForest_ = cc.consumes(edm::ESInputTag{"",
-                                             configuration.existsAs<std::string>("gbrForestLabel")
-                                                 ? configuration.getParameter<std::string>("gbrForestLabel")
-                                                 : ""});
+    gbrForest_ = cc.consumes(edm::ESInputTag{"", configuration.getParameter<std::string>("gbrForestLabel")});
   }
 }
 
@@ -35,7 +32,7 @@ CharmTagger::CharmTagger(const edm::ParameterSet &configuration, Tokens tokens)
     mva_var.name = var.getParameter<std::string>("name");
     mva_var.id = reco::getTaggingVariableName(var.getParameter<std::string>("taggingVarName"));
     mva_var.has_index = var.existsAs<int>("idx");
-    mva_var.index = mva_var.has_index ? var.getParameter<int>("idx") : 0;
+    mva_var.index = var.getParameter<int>("idx");
     mva_var.default_value = var.getParameter<double>("default");
 
     variables_.push_back(mva_var);
@@ -103,4 +100,28 @@ float CharmTagger::discriminator(const TagInfoHelper &tagInfo) const {
     tag = -2;
   }  // if no tracks available, put value at -2 (only for Phase I)
   return tag;
+}
+
+void CharmTagger::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<bool>("useCondDB", false);
+  desc.add<bool>("defaultValueNoTracks", false);
+  desc.add<bool>("useAdaBoost", false);
+  desc.add<bool>("useGBRForest", true);
+  desc.add<std::string>("mvaName", "BTD");
+  desc.add<std::string>("gbrForestLabel", "");
+  desc.add<edm::FileInPath>("weightFile", edm::FileInPath());
+
+  edm::ParameterSetDescription slComputerCfg;
+  slComputerCfg.setAllowAnything();
+  desc.add<edm::ParameterSetDescription>("slComputerCfg", slComputerCfg);
+
+  {
+    std::vector<edm::ParameterSet> temp;
+    edm::ParameterSetDescription variablePSet;
+    variablePSet.add<int>("idx", 0.);
+    variablePSet.add<double>("default", 1.);
+    variablePSet.add<std::string>("name", "");
+    variablePSet.add<std::string>("taggingVarName", "");
+    desc.addVPSet("variables", variablePSet, temp)->setComment("Default empty VPSet, can contain anything");
+  }
 }

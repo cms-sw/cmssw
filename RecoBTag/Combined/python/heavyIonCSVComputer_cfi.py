@@ -10,10 +10,6 @@ heavyIonCSVComputer = cms.ESProducer(
    weightFile = cms.FileInPath('RecoBTag/Combined/data/TMVA_Btag_CsJets_PbPb2018_BDTG.weights.xml'),
 
    variables = heavyIonCSV_vpset,
-   tagInfos = cms.VInputTag(
-      cms.InputTag('impactParameterTagInfos'),
-      cms.InputTag('secondaryVertexFinderTagInfos'),
-      ),
    mvaName = cms.string('BDT'),
    useCondDB = cms.bool(False),
    gbrForestLabel = cms.string(''),

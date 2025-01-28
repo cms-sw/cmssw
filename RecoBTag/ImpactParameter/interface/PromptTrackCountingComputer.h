@@ -39,6 +39,18 @@ public:
     uses("ipTagInfos");
   }
 
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    desc.add<int>("nthTrack", -1);
+    desc.add<int>("impactParameterType", 0)->setComment("0 = 3D, 1 = 2D");
+    desc.add<double>("deltaR", -1.0)->setComment("maximum deltaR of track to jet. If -ve just use cut from JTA");
+    desc.add<double>("deltaRmin", 0.0)->setComment("minimum deltaR of track to jet.");
+    desc.add<double>("maxImpactParameter", 0.1);
+    desc.add<double>("maxImpactParameterSig", 999999.0);
+    desc.add<double>("maximumDecayLength", 999999.0);
+    desc.add<double>("maximumDistanceToJetAxis", 999999.0);
+    desc.add<std::string>("trackQualityClass", "any");
+  }
+
   float discriminator(const TagInfoHelper& ti) const override {
     const reco::TrackIPTagInfo& tkip = ti.get<reco::TrackIPTagInfo>();
     std::multiset<float> significances = orderedSignificances(tkip);

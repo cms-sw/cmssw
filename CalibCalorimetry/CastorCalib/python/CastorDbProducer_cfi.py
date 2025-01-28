@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-CastorDbProducer = cms.ESProducer( "CastorDbProducer",
-                                   appendToDataLabel = cms.string( "" )
-                                   )
+from CalibCalorimetry.CastorCalib.castorDbProducer_cfi import castorDbProducer as _castorDbProducer
+CastorDbProducer = _castorDbProducer.clone(
+    appendToDataLabel = cms.string( "" )
+)

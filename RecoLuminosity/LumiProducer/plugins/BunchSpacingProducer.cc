@@ -19,31 +19,29 @@ class BunchSpacingProducer : public edm::stream::EDProducer<> {
 public:
   explicit BunchSpacingProducer(const edm::ParameterSet&);
 
-  ~BunchSpacingProducer() override;
+  ~BunchSpacingProducer() override = default;
 
   void produce(edm::Event&, const edm::EventSetup&) final;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  edm::EDGetTokenT<int> bunchSpacing_;
-  unsigned int bunchSpacingOverride_;
-  bool overRide_;
+  const edm::EDGetTokenT<int> bunchSpacing_;
+  const bool overRide_;
+  const unsigned int bunchSpacingOverride_;
 };
 
 //
 // constructors and destructor
 //
 
-BunchSpacingProducer::BunchSpacingProducer::BunchSpacingProducer(const edm::ParameterSet& iConfig) {
+BunchSpacingProducer::BunchSpacingProducer::BunchSpacingProducer(const edm::ParameterSet& iConfig)
+    : bunchSpacing_(consumes<int>(edm::InputTag("addPileupInfo", "bunchSpacing"))),
+      overRide_(iConfig.getParameter<bool>("overrideBunchSpacing")),
+      bunchSpacingOverride_(iConfig.getParameter<unsigned int>("bunchSpacingOverride")) {
   // register your products
   produces<unsigned int>();
-  bunchSpacing_ = consumes<int>(edm::InputTag("addPileupInfo", "bunchSpacing"));
-  overRide_ = iConfig.getParameter<bool>("overrideBunchSpacing");
-  bunchSpacingOverride_ = iConfig.getParameter<unsigned int>("bunchSpacingOverride");
 }
-
-BunchSpacingProducer::~BunchSpacingProducer() {}
 
 //
 // member functions
@@ -76,8 +74,7 @@ void BunchSpacingProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
   desc.add<bool>("overrideBunchSpacing", false);       // true for prompt reco
   desc.add<unsigned int>("bunchSpacingOverride", 25);  // override value
-
-  descriptions.add("BunchSpacingProducer", desc);
+  descriptions.add("default_bunchSpacingProducer", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

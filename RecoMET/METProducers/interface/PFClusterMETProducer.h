@@ -33,8 +33,10 @@ namespace cms {
   class PFClusterMETProducer : public edm::stream::EDProducer<> {
   public:
     explicit PFClusterMETProducer(const edm::ParameterSet&);
-    ~PFClusterMETProducer() override {}
+    ~PFClusterMETProducer() override = default;
     void produce(edm::Event&, const edm::EventSetup&) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;

@@ -19,7 +19,7 @@ template <unsigned int N>
 class CloseComponentsMergerESProducer : public edm::ESProducer {
 public:
   CloseComponentsMergerESProducer(const edm::ParameterSet& p);
-  ~CloseComponentsMergerESProducer() override;
+  ~CloseComponentsMergerESProducer() override = default;
   std::unique_ptr<MultiGaussianStateMerger<N> > produce(const TrackingComponentsRecord&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -40,23 +40,6 @@ CloseComponentsMergerESProducer<N>::CloseComponentsMergerESProducer(const edm::P
                      .consumes(edm::ESInputTag("", p.getParameter<std::string>("DistanceMeasure")))) {}
 
 template <unsigned int N>
-CloseComponentsMergerESProducer<N>::~CloseComponentsMergerESProducer() {
-  //   std::cout << "MultiGaussianState: "
-  // 	    << MultiGaussianState<5>::instances_ << " "
-  // 	    << MultiGaussianState<5>::maxInstances_ << " "
-  // 	    << MultiGaussianState<5>::constructsCombinedState_ << std::endl;
-  //   std::cout << "SingleGaussianState: "
-  // 	    << SingleGaussianState<5>::instances_ << " "
-  // 	    << SingleGaussianState<5>::maxInstances_ << " "
-  // 	    << SingleGaussianState<5>::constructsWeightMatrix_ << std::endl;
-  //   std::cout << "SingleGaussianState: "
-  // 	    << SingleGaussianState<5>::instances_ << " "
-  // 	    << SingleGaussianState<5>::maxInstances_ << " "
-  // 	    << SingleGaussianState<5>::constructsWeightMatrix_ << std::endl;
-  //   std::cout << "CloseComponentsMergerESProducer deleted" << std::endl;
-}
-
-template <unsigned int N>
 typename std::unique_ptr<MultiGaussianStateMerger<N> > CloseComponentsMergerESProducer<N>::produce(
     const TrackingComponentsRecord& iRecord) {
   return std::unique_ptr<MultiGaussianStateMerger<N> >(
@@ -66,9 +49,8 @@ typename std::unique_ptr<MultiGaussianStateMerger<N> > CloseComponentsMergerESPr
 template <unsigned int N>
 void CloseComponentsMergerESProducer<N>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("ComponentName");
-  desc.add<int>("MaxComponents");
-  desc.add<std::string>("DistanceMeasure");
-
-  descriptions.addDefault(desc);
+  desc.add<std::string>("ComponentName", "");
+  desc.add<int>("MaxComponents", 1);
+  desc.add<std::string>("DistanceMeasure", "");
+  descriptions.addWithDefaultLabel(desc);
 }

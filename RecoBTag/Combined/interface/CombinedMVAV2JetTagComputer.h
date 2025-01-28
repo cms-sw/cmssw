@@ -11,6 +11,9 @@
 #include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class CombinedMVAV2JetTagComputer : public JetTagComputer {
 public:
@@ -26,6 +29,8 @@ public:
   void initialize(const JetTagComputerRecord &record) override;
 
   float discriminator(const TagInfoHelper &info) const override;
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
   std::vector<const JetTagComputer *> computers;

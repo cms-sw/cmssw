@@ -32,8 +32,16 @@ namespace cms {
   PFClusterMETProducer::PFClusterMETProducer(const edm::ParameterSet& iConfig)
       : inputToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src"))),
         globalThreshold_(iConfig.getParameter<double>("globalThreshold")) {
-    std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
-    produces<reco::PFClusterMETCollection>().setBranchAlias(alias);
+    produces<reco::PFClusterMETCollection>().setBranchAlias(iConfig.getParameter<std::string>("alias"));
+  }
+
+  //____________________________________________________________________________||
+  void PFClusterMETProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src", edm::InputTag(""));
+    desc.add<double>("globalThreshold", 0.);
+    desc.add<std::string>("alias", "");
+    descriptions.addWithDefaultLabel(desc);
   }
 
   //____________________________________________________________________________||

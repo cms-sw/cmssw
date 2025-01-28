@@ -1,14 +1,11 @@
-#include <FWCore/Utilities/interface/ESInputTag.h>
-
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/Visibility.h"
-
 #include "NavigationSchoolFactory.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
@@ -67,10 +64,10 @@ NavigationSchoolESProducer::ReturnType NavigationSchoolESProducer::produce(const
 
 void NavigationSchoolESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("ComponentName");
+  desc.add<std::string>("ComponentName", "");
   desc.add<std::string>("PluginName", "");
   desc.add<std::string>("SimpleMagneticField", "");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

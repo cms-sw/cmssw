@@ -25,10 +25,16 @@ public:
         useSig(parameters.getParameter<bool>("useSignificance")),
         unBoost(parameters.getParameter<bool>("unBoost")),
         minTracks(parameters.getParameter<unsigned int>("minTracks")),
-        minVertices_(1) {
+        minVertices_(parameters.getParameter<unsigned int>("minVertices")) {
     uses("svTagInfos");
-    minVertices_ =
-        parameters.existsAs<unsigned int>("minVertices") ? parameters.getParameter<unsigned int>("minVertices") : 1;
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    desc.add<bool>("use3d", true);
+    desc.add<bool>("useSignificance", true);
+    desc.add<bool>("unBoost", false);
+    desc.add<unsigned int>("minTracks", 2);
+    desc.add<unsigned int>("minVertices", 1);
   }
 
   float discriminator(const TagInfoHelper &tagInfos) const override {

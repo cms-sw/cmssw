@@ -3,9 +3,10 @@
 
 #include <string>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace btag {
 
@@ -19,6 +20,8 @@ namespace btag {
     inline bool isAny() const { return m_sign == any; }
     inline bool isPositive() const { return m_sign == positive; }
     inline bool isNegative() const { return m_sign == negative; }
+
+    static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
   private:
     /// optionally select leptons based on their impact parameter sign
