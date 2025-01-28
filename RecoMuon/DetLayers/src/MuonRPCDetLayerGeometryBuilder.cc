@@ -1,6 +1,7 @@
 #include <RecoMuon/DetLayers/src/MuonRPCDetLayerGeometryBuilder.h>
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
+#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <RecoMuon/DetLayers/interface/MuRingForwardDoubleLayer.h>
 #include <RecoMuon/DetLayers/interface/MuRodBarrelLayer.h>
@@ -297,31 +298,15 @@ void MuonRPCDetLayerGeometryBuilder::makeBarrelRods(vector<const GeomDet*>& geom
 }
 
 bool MuonRPCDetLayerGeometryBuilder::isFront(const RPCDetId& rpcId) {
-  // ME1/2 is always in back
-  //  if(rpcId.station() == 1 && rpcId.ring() == 2)  return false;
+  const int station = rpcId.station();
+  const int ring = rpcId.ring();
+  const int segment = RPCGeomServ(rpcId).segment();
 
-  bool result = false;
-  int ring = rpcId.ring();
-  int station = rpcId.station();
-  // 20 degree rings are a little weird! not anymore from 17x
-  if (ring == 1 && station > 1) {
-    // RE2/1 RE3/1  Upscope Geometry
-    /* goes (sector) (subsector)            1/3
-    1 1 back   // front 
-    1 2 front  // back  
-    1 3 front  // front 
-    2 1 front  // back  
-    2 2 back   // from  
-    2 3 back   // back  
-                        
-    */
-    result = (rpcId.subsector() != 2);
-    if (rpcId.sector() % 2 == 0)
-      result = !result;
-    return result;
+  if (ring == 1) {
+    return true;
+  } else if (station == 1) {
+    return (segment % 2 == 0);
   } else {
-    // 10 degree rings have odd subsectors in front
-    result = (rpcId.subsector() % 2 == 0);
+    return (segment % 2 != 0);
   }
-  return result;
 }
