@@ -1,5 +1,5 @@
-#ifndef DataFormats_L1TGlobal_L1TGtObjectMapFwd_h
-#define DataFormats_L1TGlobal_L1TGtObjectMapFwd_h
+#ifndef DataFormats_L1TGlobal_GlobalObjectMapFwd_h
+#define DataFormats_L1TGlobal_GlobalObjectMapFwd_h
 
 /**
  * \class GlobalObjectMapFwd
