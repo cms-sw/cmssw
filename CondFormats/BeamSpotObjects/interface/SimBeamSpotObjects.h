@@ -87,16 +87,23 @@ public:
   double alpha() const { return fAlpha; }
   double timeOffset() const { return fTimeOffset; }
 
+  /// Method to check if the object corresponds to GaussEvtVtxGenerator parameters
+  bool isGaussian() const {
+    // Check for the presence of GaussEvtVtxGenerator-specific parameters
+    return ((fMeanX != 0.0 || fMeanY != 0.0 || fMeanZ != 0.0) ||  // either centroid is not 0,0,0
+            (fSigmaX != -1.0 && fSigmaY != -1.0));                // or the withs are not defaults
+  }
+
   /// print sim beam spot parameters
   void print(std::stringstream& ss) const;
 
 private:
-  double fX0, fY0, fZ0;
-  double fMeanX, fMeanY, fMeanZ;
-  double fSigmaX, fSigmaY, fSigmaZ;
-  double fbetastar, femittance;
-  double fPhi, fAlpha;
-  double fTimeOffset;
+  double fX0, fY0, fZ0;              // for beta-function
+  double fMeanX, fMeanY, fMeanZ;     // for gaussian
+  double fSigmaX, fSigmaY, fSigmaZ;  // for gaussian
+  double fbetastar, femittance;      // for beta-function
+  double fPhi, fAlpha;               // for beta-function
+  double fTimeOffset;                // for both
 
   COND_SERIALIZABLE;
 };

@@ -60,14 +60,21 @@ void BetafuncEvtVtxGenerator::beginLuminosityBlock(edm::LuminosityBlock const&, 
 void BetafuncEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
   if (readDB_ && parameterWatcher_.check(iEventSetup)) {
     edm::ESHandle<SimBeamSpotObjects> beamhandle = iEventSetup.getHandle(beamToken_);
-    fX0 = beamhandle->x() * cm;
-    fY0 = beamhandle->y() * cm;
-    fZ0 = beamhandle->z() * cm;
-    fSigmaZ = beamhandle->sigmaZ() * cm;
-    fTimeOffset = beamhandle->timeOffset() * ns * c_light;  // HepMC distance units are in mm
-    fbetastar = beamhandle->betaStar() * cm;
-    femittance = beamhandle->emittance() * cm;
-    setBoost(beamhandle->alpha() * radian, beamhandle->phi() * radian);
+    if (!beamhandle->isGaussian()) {
+      fX0 = beamhandle->x() * cm;
+      fY0 = beamhandle->y() * cm;
+      fZ0 = beamhandle->z() * cm;
+      fSigmaZ = beamhandle->sigmaZ() * cm;
+      fTimeOffset = beamhandle->timeOffset() * ns * c_light;  // HepMC distance units are in mm
+      fbetastar = beamhandle->betaStar() * cm;
+      femittance = beamhandle->emittance() * cm;
+      setBoost(beamhandle->alpha() * radian, beamhandle->phi() * radian);
+    } else {
+      throw cms::Exception("Configuration")
+          << "Error in BetafuncEvtVtxGenerator::update: The provided SimBeamSpotObjects is Gaussian.\n"
+          << "Please check the configuration and ensure that the beam spot parameters are appropriate for a Betafunc "
+             "distribution.";
+    }
   }
 }
 
