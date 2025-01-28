@@ -2,15 +2,15 @@
 #define RecoTracker_LSTCore_src_alpaka_MiniDoublet_h
 
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
+#include "RecoTracker/LSTCore/interface/HitsSoA.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
 #include "RecoTracker/LSTCore/interface/alpaka/MiniDoubletsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
 #include "RecoTracker/LSTCore/interface/EndcapGeometry.h"
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
-
-#include "Hit.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   template <typename TAcc>
@@ -299,7 +299,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     drprime = (moduleSeparation / alpaka::math::sin(acc, angleA + angleB)) * alpaka::math::sin(acc, angleA);
 
     // Compute arctan of the slope and take care of the slope = infinity case
-    absArctanSlope = ((slope != kVerticalModuleSlope) ? fabs(alpaka::math::atan(acc, slope)) : kPi / 2.f);
+    absArctanSlope =
+        ((slope != kVerticalModuleSlope && edm::isFinite(slope)) ? fabs(alpaka::math::atan(acc, slope)) : kPi / 2.f);
 
     // Depending on which quadrant the pixel hit lies, we define the angleM by shifting them slightly differently
     if (xp > 0 and yp > 0) {
@@ -322,8 +323,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ya = yp + drprime_y;
 
     // Compute the new strip hit position (if the slope value is in special condition take care of the exceptions)
-    if (slope ==
-        kVerticalModuleSlope)  // Designated for tilted module when the slope is infinity (module lying along y-axis)
+    if (slope == kVerticalModuleSlope ||
+        edm::isNotFinite(slope))  // Designated for tilted module when the slope is infinity (module lying along y-axis)
     {
       xn = xa;  // New x point is simply where the anchor is
       yn = yo;  // No shift in y
@@ -673,8 +674,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   struct CreateMiniDoublets {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   ModulesConst modules,
                                   HitsConst hits,
                                   HitsRangesConst hitsRanges,
@@ -682,11 +682,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   MiniDoubletsOccupancy mdsOccupancy,
                                   ObjectRangesConst ranges,
                                   const float ptCut) const {
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (uint16_t lowerModuleIndex = globalThreadIdx[1]; lowerModuleIndex < modules.nLowerModules();
-           lowerModuleIndex += gridThreadExtent[1]) {
+      for (uint16_t lowerModuleIndex : cms::alpakatools::uniform_elements_y(acc, modules.nLowerModules())) {
         uint16_t upperModuleIndex = modules.partnerModuleIndices()[lowerModuleIndex];
         int nLowerHits = hitsRanges.hitRangesnLower()[lowerModuleIndex];
         int nUpperHits = hitsRanges.hitRangesnUpper()[lowerModuleIndex];
@@ -696,7 +692,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         unsigned int loHitArrayIndex = hitsRanges.hitRangesLower()[lowerModuleIndex];
         int limit = nUpperHits * nLowerHits;
 
-        for (int hitIndex = globalThreadIdx[2]; hitIndex < limit; hitIndex += gridThreadExtent[2]) {
+        for (int hitIndex : cms::alpakatools::uniform_elements_x(acc, limit)) {
           int lowerHitIndex = hitIndex / nUpperHits;
           int upperHitIndex = hitIndex % nUpperHits;
           if (upperHitIndex >= nUpperHits)
@@ -804,14 +800,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   struct CreateMDArrayRangesGPU {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, ModulesConst modules, ObjectRanges ranges, const float ptCut) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, ModulesConst modules, ObjectRanges ranges, const float ptCut) const {
       // implementation is 1D with a single block
-      static_assert(std::is_same_v<TAcc, ALPAKA_ACCELERATOR_NAMESPACE::Acc1D>, "Should be Acc1D");
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
-
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
 
       // Declare variables in shared memory and set to 0
       int& nTotalMDs = alpaka::declareSharedVar<int, __COUNTER__>(acc);
@@ -839,7 +830,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       // Select the appropriate occupancy matrix based on ptCut
       const auto& occupancy_matrix = (ptCut < 0.8f) ? p06_occupancy_matrix : p08_occupancy_matrix;
 
-      for (uint16_t i = globalThreadIdx[0]; i < modules.nLowerModules(); i += gridThreadExtent[0]) {
+      for (uint16_t i : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
         short module_rings = modules.rings()[i];
         short module_layers = modules.layers()[i];
         short module_subdets = modules.subdets()[i];
@@ -874,20 +865,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   };
 
   struct AddMiniDoubletRangesToEventExplicit {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsOccupancy mdsOccupancy,
                                   ObjectRanges ranges,
                                   HitsRangesConst hitsRanges) const {
       // implementation is 1D with a single block
-      static_assert(std::is_same_v<TAcc, ALPAKA_ACCELERATOR_NAMESPACE::Acc1D>, "Should be Acc1D");
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
 
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (uint16_t i = globalThreadIdx[0]; i < modules.nLowerModules(); i += gridThreadExtent[0]) {
+      for (uint16_t i : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
         if (mdsOccupancy.nMDs()[i] == 0 or hitsRanges.hitRanges()[i][0] == -1) {
           ranges.mdRanges()[i][0] = -1;
           ranges.mdRanges()[i][1] = -1;

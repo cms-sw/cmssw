@@ -786,8 +786,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   struct CreatePixelTripletsFromMap {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   ModulesPixelConst modulesPixel,
                                   ObjectRangesConst ranges,
@@ -801,16 +800,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   unsigned int* connectedPixelIndex,
                                   unsigned int nPixelSegments,
                                   const float ptCut) const {
-      auto const globalBlockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc);
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridBlockExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (unsigned int i_pLS = globalThreadIdx[1]; i_pLS < nPixelSegments; i_pLS += gridThreadExtent[1]) {
+      for (unsigned int i_pLS : cms::alpakatools::uniform_elements_z(acc, nPixelSegments)) {
         auto iLSModule_max = connectedPixelIndex[i_pLS] + connectedPixelSize[i_pLS];
 
-        for (unsigned int iLSModule = connectedPixelIndex[i_pLS] + globalBlockIdx[0]; iLSModule < iLSModule_max;
-             iLSModule += gridBlockExtent[0]) {
+        for (unsigned int iLSModule :
+             cms::alpakatools::uniform_elements_y(acc, connectedPixelIndex[i_pLS], iLSModule_max)) {
           uint16_t tripletLowerModuleIndex =
               modulesPixel.connectedPixels()
                   [iLSModule];  //connected pixels will have the appropriate lower module index by default!
@@ -850,8 +844,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           }
 
           //fetch the triplet
-          for (unsigned int outerTripletArrayIndex = globalThreadIdx[2]; outerTripletArrayIndex < nOuterTriplets;
-               outerTripletArrayIndex += gridThreadExtent[2]) {
+          for (unsigned int outerTripletArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTriplets)) {
             unsigned int outerTripletIndex =
                 ranges.tripletModuleIndices()[tripletLowerModuleIndex] + outerTripletArrayIndex;
             if (modules.moduleType()[triplets.lowerModuleIndices()[outerTripletIndex][1]] == TwoS)
