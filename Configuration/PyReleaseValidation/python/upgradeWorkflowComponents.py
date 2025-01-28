@@ -851,7 +851,10 @@ upgradeWFs['phase2L2AndL3Muons'] = UpgradeWorkflow_phase2L2AndL3Muons(
     suffix = '_phase2L2AndL3MuonsIOFirst',
     offset = 0.777,
 )
-upgradeWFs['phase2L2AndL3Muons'].step2 = {'--procModifiers':'phase2L2AndL3Muons'}
+upgradeWFs['phase2L2AndL3Muons'].step2 = {'-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:@relvalRun4,NANO:@MUHLT',
+                                          '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
+                                          '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM',
+                                          '--procModifiers':'phase2L2AndL3Muons'}
 upgradeWFs['phase2L2AndL3Muons'].step3 = {'--procModifiers':'phase2L2AndL3Muons'}
 upgradeWFs['phase2L2AndL3Muons'].step4 = {'--procModifiers':'phase2L2AndL3Muons'}
 
@@ -883,7 +886,10 @@ upgradeWFs['phase2L3MuonsOIFirst'] = UpgradeWorkflow_phase2L3MuonsOIFirst(
     suffix = '_phase2L2AndL3MuonsOIFirst',
     offset = 0.778,
 )
-upgradeWFs['phase2L3MuonsOIFirst'].step2 = {'--procModifiers':'phase2L2AndL3Muons,phase2L3MuonsOIFirst'}
+upgradeWFs['phase2L3MuonsOIFirst'].step2 = {'-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:@relvalRun4,NANO:@MUHLT',
+                                            '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
+                                            '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM',
+                                            '--procModifiers':'phase2L2AndL3Muons,phase2L3MuonsOIFirst'}
 upgradeWFs['phase2L3MuonsOIFirst'].step3 = {'--procModifiers':'phase2L2AndL3Muons,phase2L3MuonsOIFirst'}
 upgradeWFs['phase2L3MuonsOIFirst'].step4 = {'--procModifiers':'phase2L2AndL3Muons,phase2L3MuonsOIFirst'}
 
