@@ -29,10 +29,10 @@ for file in $oldFiles; do
   cmsRun ${LOCAL_TEST_DIR}/test_readGlobalObjectMapRecord_cfg.py --inputFileName "$inputfile" --globalObjectMapClassVersion 10 || die "Failed to read old file $file" $?
 done
 
-#oldFiles="testGlobalObjectMapRecord_CMSSW_15_0_0_pre2_split_99.root testGlobalObjectMapRecord_CMSSW_15_0_0_pre2_split_0.root"
-#for file in $oldFiles; do
-#  inputfile=$(edmFileInPath DataFormats/L1TGlobal/data/$file) || die "Failure edmFileInPath DataFormats/L1TGlobal/data/$file" $?
-#  cmsRun ${LOCAL_TEST_DIR}/test_readGlobalObjectMapRecord_cfg.py --inputFileName "$inputfile" --globalObjectMapClassVersion 11 || die "Failed to read old file $file" $?
-#done
+oldFiles="testGlobalObjectMapRecord_CMSSW_15_0_0_pre2_split_99.root testGlobalObjectMapRecord_CMSSW_15_0_0_pre2_split_0.root"
+for file in $oldFiles; do
+  inputfile=$(edmFileInPath DataFormats/L1TGlobal/data/$file) || die "Failure edmFileInPath DataFormats/L1TGlobal/data/$file" $?
+  cmsRun ${LOCAL_TEST_DIR}/test_readGlobalObjectMapRecord_cfg.py --inputFileName "$inputfile" --globalObjectMapClassVersion 11 || die "Failed to read old file $file" $?
+done
 
 exit 0
