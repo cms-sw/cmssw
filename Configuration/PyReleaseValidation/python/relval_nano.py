@@ -203,6 +203,13 @@ steps['scoutingNANO_mc14.0'] = merge([{'-s': 'NANO:@Scout'},
 steps['scoutingNANO_withPrompt_mc14.0'] = merge([{'-s': 'NANO:@Prompt+@Scout'},
                                                  steps['NANO_mc14.0']])
 
+steps['SinglePionRAW14.0'] = {'INPUT': InputInfo(
+    location='STD', dataSet='/SinglePion_E-50_Eta-0to3-pythia8-gun/Run3Winter25Digi-NoPU_142X_mcRun3_2025BOY_realistic_Candidate_2024_11_13_17_21_33-v2/GEN-SIM-RAW')}
+
+steps['hcalDPGNANO_mc14.0'] = merge([{'-s': 'RAW2DIGI,RECO,NANO:@HCALMC', '-n': '100',
+                                             '--processName': 'NANO'},
+                                            steps['NANO_mc14.0']])
+
 # 14.0 workflows -- data
 lumis_Run2024D = {380306: [[28, 273]]}
 steps['MuonEG2024MINIAOD14.0'] = {'INPUT': InputInfo(location='STD', ls=lumis_Run2024D,
@@ -368,6 +375,13 @@ workflows[_wfn()] = ['muDPGNANO140Xrun3', ['ZMuSkim2024RAWRECO14.0', 'muDPGNANO_
 workflows[_wfn()] = ['muDPGNANOBkg140Xrun3', ['ZeroBias2024RAW14.0', 'muDPGNANOBkg_data14.0']]
 workflows[_wfn()] = ['hcalDPGNANO140Xrun3', ['ZeroBias2024RAW14.0', 'hcalDPGNANO_data14.0']]
 workflows[_wfn()] = ['hcalDPGCalibNANO140Xrun3', ['TestEnablesEcalHcal2024RAW14.0', 'hcalDPGCalibNANO_data14.0']]
+
+# DPG custom NANOs, MC
+_wfn.subnext()
+workflows[_wfn()] = ['hcalDPGMCNANO140Xrun3', ['SinglePionRAW14.0', 'hcalDPGNANO_mc14.0']]
+# The above HCAL workflow is actually using data produced for 14.2
+# but I keep the 14.0 label for now since it's consistent with those ones
+# let me know if I should change this
 
 _wfn.next(9)
 ######## 2500.9xx ########
