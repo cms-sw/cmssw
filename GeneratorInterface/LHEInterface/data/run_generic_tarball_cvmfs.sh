@@ -43,11 +43,6 @@ if [ -n "${7}" ]; then
   echo "%MSG-MG5 override cmssw_version = $cmssw_version"
 fi
 
-if [ -n "${8}" ]; then
-  beams=${8}
-  echo "%MSG-MG5 allow kT smearing when using gammaUPC with beams=$beams"
-fi
-
 LHEWORKDIR=`pwd`
 
 if [ "$use_gridpack_env" = false -a -n "$scram_arch_version" -a -n  "$cmssw_version" ]; then
@@ -74,27 +69,8 @@ tar -xaf ${path}
 # and fallback to /tmp
 export TMPDIR=${TMPDIR:-${_CONDOR_SCRATCH_DIR:-/tmp}}
 
-# define singularity
-if [ "$use_gridpack_env" != false ]; then
-    if [ -n "$scram_arch_version" ]; then
-        sing=$(echo ${scram_arch_version} | sed -E 's/^[^0-9]*([0-9]{1,2}).*/\1/')
-    elif egrep -q "scram_arch_version=[^$]" runcmsgrid.sh; then
-        sing=$(grep "scram_arch_version=[^$]" runcmsgrid.sh | sed -E 's/^[^0-9]*([0-9]{1,2}).*/\1/')
-    fi
-    if [ -n "${sing}" ]; then
-        sing="cmssw-el"${sing}" --"
-    fi
-fi
-
 #generate events
-${sing} ./runcmsgrid.sh $nevt $rnum $ncpu ${@:5}
-
-if [ -n "${beams}" ]; then
-  # smear photon kT
-  python3 ${CMSSW_BASE}/src/GeneratorInterface/LHEInterface/test/gamma-UPC_lhe_ktsmearing_UPC.py --file='cmsgrid_final.lhe' --out='cmsgrid_final.ktsmearing.lhe' --beams=$beams
-  #overwrite the output file
-  mv cmsgrid_final.ktsmearing.lhe cmsgrid_final.lhe
-fi
+./runcmsgrid.sh $nevt $rnum $ncpu ${@:5}
 
 mv cmsgrid_final.lhe $LHEWORKDIR/
 
