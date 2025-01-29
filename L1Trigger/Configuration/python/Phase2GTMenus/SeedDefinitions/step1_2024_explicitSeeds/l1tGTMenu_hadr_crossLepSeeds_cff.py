@@ -53,21 +53,21 @@ TkMuTriPuppiJetdRMaxDoubleJetdEtaMax = l1tGTQuadObjectCond.clone( #needs z0 betw
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2JetsSC4"),
-        regionsMinPt=cms.vdouble(25,25), #safety cut
+        minPt = cms.double(25) #safety cut
     ),
     collection3 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2JetsSC4"),
-        regionsMinPt=cms.vdouble(25,25), #safety cut
+        minPt = cms.double(25) #safety cut
     ),
     collection4 = cms.PSet(
         tag = cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2JetsSC4"),
-        regionsMinPt=cms.vdouble(25,25), #safety cut
+        minPt = cms.double(25) #safety cut
     ),
     correl12 = cms.PSet(
         maxDR = cms.double(0.4),
@@ -247,7 +247,7 @@ TkElePuppiJetMinDR = l1tGTDoubleObjectCond.clone( #missing z0 between electron a
         minEta = cms.double(-2.4),
         maxEta = cms.double(2.4),
         regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2JetsSC4"),
-        regionsMinPt=cms.vdouble(25,25), #safety cut
+        minPt = cms.double(25) #safety cut
     ),
     minDR = cms.double(0.3)
 )
@@ -262,7 +262,7 @@ NNPuppiTauPuppiMet = l1tGTDoubleObjectCond.clone(
         tag = cms.InputTag("l1tGTProducer", "CL2Taus"),
         minEta = cms.double(-2.172),
         maxEta = cms.double(2.172),
-        regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2JetsSC4"),
+        regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2Taus"),
         regionsMinPt = get_object_thrs(55, "CL2Taus","default"),
         minQualityScore = get_object_ids("CL2Taus","default")
     ),
