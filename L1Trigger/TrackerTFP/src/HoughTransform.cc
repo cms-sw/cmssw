@@ -13,13 +13,11 @@ using namespace tt;
 
 namespace trackerTFP {
 
-  HoughTransform::HoughTransform(const ParameterSet& iConfig,
-                                 const Setup* setup,
+  HoughTransform::HoughTransform(const Setup* setup,
                                  const DataFormats* dataFormats,
                                  const LayerEncoding* layerEncoding,
                                  vector<StubHT>& stubs)
-      : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-        setup_(setup),
+      : setup_(setup),
         dataFormats_(dataFormats),
         layerEncoding_(layerEncoding),
         inv2R_(&dataFormats_->format(Variable::inv2R, Process::ht)),
@@ -27,32 +25,33 @@ namespace trackerTFP {
         zT_(&dataFormats_->format(Variable::zT, Process::gp)),
         phi_(&dataFormats_->format(Variable::phi, Process::ht)),
         z_(&dataFormats_->format(Variable::z, Process::gp)),
-        stubs_(stubs) {}
+        stubs_(stubs) {
+    numChannelIn_ = dataFormats_->numChannel(Process::gp);
+    numChannelOut_ = dataFormats_->numChannel(Process::ht);
+    chan_ = setup_->kfNumWorker();
+    mux_ = numChannelOut_ / chan_;
+  }
 
   // fill output products
   void HoughTransform::produce(const vector<vector<StubGP*>>& streamsIn, vector<deque<StubHT*>>& streamsOut) {
-    static const int numChannelIn = dataFormats_->numChannel(Process::gp);
-    static const int numChannelOut = dataFormats_->numChannel(Process::ht);
-    static const int chan = setup_->kfNumWorker();
-    static const int mux = numChannelOut / chan;
     // count and reserve ht stubs
     auto multiplicity = [](int sum, StubGP* s) { return sum += s ? 1 + s->inv2RMax() - s->inv2RMin() : 0; };
     int nStubs(0);
     for (const vector<StubGP*>& input : streamsIn)
       nStubs += accumulate(input.begin(), input.end(), 0, multiplicity);
     stubs_.reserve(nStubs);
-    for (int channelOut = 0; channelOut < numChannelOut; channelOut++) {
-      const int inv2Ru = mux * (channelOut % chan) + channelOut / chan;
+    for (int channelOut = 0; channelOut < numChannelOut_; channelOut++) {
+      const int inv2Ru = mux_ * (channelOut % chan_) + channelOut / chan_;
       const int inv2R = inv2R_->toSigned(inv2Ru);
       deque<StubHT*>& output = streamsOut[channelOut];
-      for (int channelIn = numChannelIn - 1; channelIn >= 0; channelIn--) {
+      for (int channelIn = numChannelIn_ - 1; channelIn >= 0; channelIn--) {
         const vector<StubGP*>& input = streamsIn[channelIn];
         vector<StubHT*> stubs;
         stubs.reserve(2 * input.size());
         // associate stubs with inv2R and phiT bins
         fillIn(inv2R, channelIn, input, stubs);
         // apply truncation
-        if (enableTruncation_ && (int)stubs.size() > setup_->numFramesHigh())
+        if (setup_->enableTruncation() && (int)stubs.size() > setup_->numFramesHigh())
           stubs.resize(setup_->numFramesHigh());
         // ht collects all stubs before readout starts -> remove all gaps
         stubs.erase(remove(stubs.begin(), stubs.end(), nullptr), stubs.end());
@@ -60,7 +59,7 @@ namespace trackerTFP {
         readOut(stubs, output);
       }
       // apply truncation
-      if (enableTruncation_ && (int)output.size() > setup_->numFramesHigh())
+      if (setup_->enableTruncation() && (int)output.size() > setup_->numFramesHigh())
         output.resize(setup_->numFramesHigh());
       // remove trailing gaps
       for (auto it = output.end(); it != output.begin();)
@@ -134,7 +133,7 @@ namespace trackerTFP {
       StubHT* stub = pop_front(delay);
       if (stub) {
         // buffer overflow
-        if (enableTruncation_ && (int)stack.size() == setup_->htDepthMemory() - 1)
+        if (setup_->enableTruncation() && (int)stack.size() == setup_->htDepthMemory() - 1)
           pop_front(stack);
         // store minor stub in fifo
         stack.push_back(stub);

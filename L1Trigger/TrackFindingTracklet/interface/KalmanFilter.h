@@ -42,8 +42,7 @@ namespace trklet {
   class KalmanFilter {
   public:
     typedef State::Stub Stub;
-    KalmanFilter(const edm::ParameterSet& iConfig,
-                 const tt::Setup* setup,
+    KalmanFilter(const tt::Setup* setup,
                  const DataFormats* dataFormats,
                  KalmanFilterFormats* kalmanFilterFormats,
                  tmtt::Settings* settings,
@@ -117,20 +116,12 @@ namespace trklet {
     // best state selection
     void accumulator();
     // updates state
-    void update(State*& state) { use5ParameterFit_ ? update5(state) : update4(state); }
+    void update(State*& state) { setup_->kfUse5ParameterFit() ? update5(state) : update4(state); }
     // updates state using 4 paramter fit
     void update4(State*& state);
     // updates state using 5 parameter fit
     void update5(State*& state);
 
-    // true if truncation is enbaled
-    bool enableTruncation_;
-    //
-    bool use5ParameterFit_;
-    //
-    bool useSimmulation_;
-    //
-    bool useTTStubResiduals_;
     // provides run-time constants
     const tt::Setup* setup_;
     // provides dataformats
@@ -157,6 +148,8 @@ namespace trklet {
     std::vector<Track> finals_;
     // current layer used during state propagation
     int layer_;
+    //
+    std::vector<double> zTs_;
   };
 
 }  // namespace trklet

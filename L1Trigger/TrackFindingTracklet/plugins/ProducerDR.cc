@@ -45,7 +45,6 @@ namespace trklet {
   private:
     void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
-    virtual void endJob() {}
     // ED input token of Tracks
     EDGetTokenT<StreamsTrack> edGetTokenTracks_;
     // ED input token of Stubs
@@ -62,8 +61,6 @@ namespace trklet {
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // ChannelAssignment token
     ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
-    // configuration
-    ParameterSet iConfig_;
     // helper class to store configurations
     const Setup* setup_ = nullptr;
     // helper class to encode layer
@@ -74,7 +71,7 @@ namespace trklet {
     const ChannelAssignment* channelAssignment_ = nullptr;
   };
 
-  ProducerDR::ProducerDR(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerDR::ProducerDR(const ParameterSet& iConfig) {
     const string& label = iConfig.getParameter<string>("InputLabelDR");
     const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
     const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
@@ -103,20 +100,14 @@ namespace trklet {
 
   void ProducerDR::produce(Event& iEvent, const EventSetup& iSetup) {
     // empty DR products
-    const int numStreamsTracks = setup_->numRegions();
-    const int numStreamsStubs = numStreamsTracks * setup_->numLayers();
-    StreamsStub streamsStub(numStreamsStubs);
-    StreamsTrack streamsTrack(numStreamsTracks);
+    StreamsStub streamsStub(setup_->numRegions() * setup_->numLayers());
+    StreamsTrack streamsTrack(setup_->numRegions());
     // read in TBout Product and produce KFin product
-    Handle<StreamsStub> handleStubs;
-    iEvent.getByToken<StreamsStub>(edGetTokenStubs_, handleStubs);
-    const StreamsStub& stubs = *handleStubs;
-    Handle<StreamsTrack> handleTracks;
-    iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
-    const StreamsTrack& tracks = *handleTracks;
+    const StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
+    const StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
     for (int region = 0; region < setup_->numRegions(); region++) {
       // object to remove duplicated tracks in a processing region
-      DuplicateRemoval dr(iConfig_, setup_, layerEncoding_, dataFormats_, channelAssignment_, region);
+      DuplicateRemoval dr(setup_, layerEncoding_, dataFormats_, channelAssignment_, region);
       // read in and organize input tracks and stubs
       dr.consume(tracks, stubs);
       // fill output products

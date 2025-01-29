@@ -18,37 +18,35 @@ using namespace tmtt;
 
 namespace trklet {
 
-  KalmanFilter::KalmanFilter(const ParameterSet& iConfig,
-                             const Setup* setup,
+  KalmanFilter::KalmanFilter(const Setup* setup,
                              const DataFormats* dataFormats,
                              KalmanFilterFormats* kalmanFilterFormats,
                              Settings* settings,
                              KFParamsComb* tmtt,
                              int region,
                              TTTracks& ttTracks)
-      : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-        use5ParameterFit_(iConfig.getParameter<bool>("Use5ParameterFit")),
-        useSimmulation_(iConfig.getParameter<bool>("UseKFsimmulation")),
-        useTTStubResiduals_(iConfig.getParameter<bool>("UseTTStubResiduals")),
-        setup_(setup),
+      : setup_(setup),
         dataFormats_(dataFormats),
         kalmanFilterFormats_(kalmanFilterFormats),
         settings_(settings),
         tmtt_(tmtt),
         region_(region),
         ttTracks_(ttTracks),
-        layer_(0) {}
+        layer_(0) {
+    zTs_.reserve(settings_->etaRegions().size());
+    for (double eta : settings_->etaRegions())
+      zTs_.emplace_back(sinh(eta) * settings_->chosenRofZ());
+  }
 
   // read in and organize input tracks and stubs
   void KalmanFilter::consume(const StreamsTrack& streamsTrack, const StreamsStub& streamsStub) {
-    static const int numLayers = setup_->numLayers();
-    const int offset = region_ * numLayers;
+    const int offset = region_ * setup_->numLayers();
     const StreamTrack& streamTrack = streamsTrack[region_];
     const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int sum, const FrameTrack& f) {
       return sum += (f.first.isNull() ? 0 : 1);
     });
     int numStubs(0);
-    for (int layer = 0; layer < numLayers; layer++) {
+    for (int layer = 0; layer < setup_->numLayers(); layer++) {
       const StreamStub& streamStub = streamsStub[offset + layer];
       numStubs += accumulate(streamStub.begin(), streamStub.end(), 0, [](int sum, const FrameStub& f) {
         return sum += (f.first.isNull() ? 0 : 1);
@@ -65,9 +63,9 @@ namespace trklet {
       }
       tracks_.emplace_back(frameTrack, dataFormats_);
       TrackDR* track = &tracks_.back();
-      vector<Stub*> stubs(numLayers, nullptr);
+      vector<Stub*> stubs(setup_->numLayers(), nullptr);
       TTBV hitPattern(0, setup_->numLayers());
-      for (int layer = 0; layer < numLayers; layer++) {
+      for (int layer = 0; layer < setup_->numLayers(); layer++) {
         const FrameStub& frameStub = streamsStub[offset + layer][frame];
         if (frameStub.first.isNull())
           continue;
@@ -81,19 +79,13 @@ namespace trklet {
       }
       states_.emplace_back(kalmanFilterFormats_, track, stubs, trackId++);
       stream_.push_back(&states_.back());
-      if (enableTruncation_ && trackId == setup_->kfMaxTracks())
+      if (setup_->enableTruncation() && trackId == setup_->kfMaxTracks())
         break;
     }
   }
 
   // call old KF
   void KalmanFilter::simulate(tt::StreamsStub& streamsStub, tt::StreamsTrack& streamsTrack) {
-    static vector<double> zTs;
-    if (zTs.empty()) {
-      zTs.reserve(settings_->etaRegions().size());
-      for (double eta : settings_->etaRegions())
-        zTs.emplace_back(sinh(eta) * settings_->chosenRofZ());
-    }
     finals_.reserve(states_.size());
     for (const State& state : states_) {
       TrackDR* trackFound = state.track();
@@ -116,7 +108,7 @@ namespace trklet {
         const TTStubRef& ttStubRef = stub.frame().first;
         SensorModule* sensorModule = setup_->sensorModule(ttStubRef);
         double r, phi, z;
-        if (useTTStubResiduals_) {
+        if (setup_->kfUseTTStubResiduals()) {
           const GlobalPoint gp = setup_->stubPos(ttStubRef);
           r = gp.perp();
           phi = gp.phi();
@@ -154,7 +146,7 @@ namespace trklet {
       const double zTtrack = ttTrackRef->z0() + settings_->chosenRofZ() * ttTrackRef->tanL();
       int iEtaReg = 0;
       for (; iEtaReg < 15; iEtaReg++)
-        if (zTtrack < zTs[iEtaReg + 1])
+        if (zTtrack < zTs_[iEtaReg + 1])
           break;
       const L1track3D l1track3D(settings_, stubsFound, qOverPt, phi0, z0, tanLambda, helixD0, iPhiSec, iEtaReg);
       const L1fittedTrack trackFitted(tmtt_->fit(l1track3D));
@@ -219,10 +211,10 @@ namespace trklet {
                              StreamsTrack& streamsTrack,
                              int& numAcceptedStates,
                              int& numLostStates) {
-    if (useSimmulation_)
+    if (setup_->kfUseSimmulation())
       return simulate(streamsStub, streamsTrack);
     // 5 parameter fit simulation
-    if (use5ParameterFit_) {
+    if (setup_->kfUse5ParameterFit()) {
       // Propagate state to each layer in turn, updating it with all viable stub combinations there, using KF maths
       for (layer_ = 0; layer_ < setup_->numLayers(); layer_++)
         addLayer();
@@ -240,7 +232,7 @@ namespace trklet {
     const int nStates =
         accumulate(stream_.begin(), stream_.end(), 0, [](int sum, State* state) { return sum += (state ? 1 : 0); });
     // apply truncation
-    if (enableTruncation_ && (int)stream_.size() > setup_->numFramesHigh())
+    if (setup_->enableTruncation() && (int)stream_.size() > setup_->numFramesHigh())
       stream_.resize(setup_->numFramesHigh());
     // cycle event, remove gaps
     stream_.erase(remove(stream_.begin(), stream_.end(), nullptr), stream_.end());
@@ -368,7 +360,7 @@ namespace trklet {
       for (int layer = 0; layer < setup_->numLayers(); layer++)
         streamsStub[offset + layer].emplace_back(hitPattern.test(layer) ? stubsKF[i++].frame() : FrameStub());
       // store d0 in copied TTTracks
-      if (use5ParameterFit_) {
+      if (setup_->kfUse5ParameterFit()) {
         const TTTrackRef& ttTrackRef = track.trackKF_.frame().first;
         ttTracks_.emplace_back(ttTrackRef->rInv(),
                                ttTrackRef->phi(),

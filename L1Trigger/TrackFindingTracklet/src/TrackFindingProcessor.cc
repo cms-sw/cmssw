@@ -14,14 +14,10 @@ using namespace trackerTFP;
 
 namespace trklet {
 
-  TrackFindingProcessor::TrackFindingProcessor(const ParameterSet& iConfig,
-                                               const Setup* setup,
+  TrackFindingProcessor::TrackFindingProcessor(const Setup* setup,
                                                const DataFormats* dataFormats,
                                                const TrackQuality* trackQuality)
-      : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-        setup_(setup),
-        dataFormats_(dataFormats),
-        trackQuality_(trackQuality) {}
+      : setup_(setup), dataFormats_(dataFormats), trackQuality_(trackQuality) {}
 
   //
   TrackFindingProcessor::Track::Track(const FrameTrack& frameTrack,
@@ -195,7 +191,7 @@ namespace trklet {
         frame.second = ttBV.bs();
       }
       // perorm truncation
-      if (enableTruncation_ && (int)output.size() > setup_->numFramesIOHigh())
+      if (setup_->enableTruncation() && (int)output.size() > setup_->numFramesIOHigh())
         output.resize(setup_->numFramesIOHigh());
       outputs[channel] = StreamTrack(output.begin(), output.end());
     }

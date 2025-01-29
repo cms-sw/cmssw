@@ -25,11 +25,10 @@ namespace trackerTFP {
     unique_ptr<LayerEncoding> produce(const LayerEncodingRcd& rcd);
 
   private:
-    const ParameterSet iConfig_;
     ESGetToken<DataFormats, DataFormatsRcd> esGetToken_;
   };
 
-  ProducerLayerEncoding::ProducerLayerEncoding(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerLayerEncoding::ProducerLayerEncoding(const ParameterSet& iConfig) {
     auto cc = setWhatProduced(this);
     esGetToken_ = cc.consumes();
   }

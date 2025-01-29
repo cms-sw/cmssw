@@ -13,11 +13,11 @@ using namespace tt;
 
 namespace trackerTFP {
 
-  Demonstrator::Demonstrator(const ParameterSet& iConfig, const Setup* setup)
-      : dirIPBB_(iConfig.getParameter<string>("DirIPBB")),
-        runTime_(iConfig.getParameter<double>("RunTime")),
-        linkMappingIn_(iConfig.getParameter<vector<int>>("LinkMappingIn")),
-        linkMappingOut_(iConfig.getParameter<vector<int>>("LinkMappingOut")),
+  Demonstrator::Demonstrator(const Config& iConfig, const Setup* setup)
+      : dirIPBB_(iConfig.dirIPBB_),
+        runTime_(iConfig.runTime_),
+        linkMappingIn_(iConfig.linkMappingIn_),
+        linkMappingOut_(iConfig.linkMappingOut_),
         dirIn_(dirIPBB_ + "in.txt"),
         dirOut_(dirIPBB_ + "out.txt"),
         dirPre_(dirIPBB_ + "pre.txt"),

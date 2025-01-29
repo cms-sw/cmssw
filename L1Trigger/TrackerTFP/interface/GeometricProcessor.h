@@ -15,8 +15,7 @@ namespace trackerTFP {
   // Class to route Stubs of one region to one stream per sector
   class GeometricProcessor {
   public:
-    GeometricProcessor(const edm::ParameterSet& iConfig,
-                       const tt::Setup* setup_,
+    GeometricProcessor(const tt::Setup* setup_,
                        const DataFormats* dataFormats,
                        const LayerEncoding* layerEncoding,
                        std::vector<StubGP>& stubs);
@@ -31,8 +30,6 @@ namespace trackerTFP {
     // remove and return first element of deque, returns nullptr if empty
     template <class T>
     T* pop_front(std::deque<T*>& ts) const;
-    // true if truncation is enbaled
-    bool enableTruncation_;
     // provides run-time constants
     const tt::Setup* setup_;
     // provides dataformats
@@ -41,6 +38,10 @@ namespace trackerTFP {
     const LayerEncoding* layerEncoding_;
     // storage of output stubs
     std::vector<StubGP>& stubs_;
+    // number of input channel
+    int numChannelIn_;
+    // number of output channel
+    int numChannelOut_;
   };
 
 }  // namespace trackerTFP

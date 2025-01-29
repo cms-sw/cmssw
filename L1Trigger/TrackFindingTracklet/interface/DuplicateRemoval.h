@@ -20,8 +20,7 @@ namespace trklet {
    */
   class DuplicateRemoval {
   public:
-    DuplicateRemoval(const edm::ParameterSet& iConfig,
-                     const tt::Setup* setup_,
+    DuplicateRemoval(const tt::Setup* setup_,
                      const trackerTFP::LayerEncoding* layerEncoding,
                      const DataFormats* dataFormats,
                      const ChannelAssignment* channelAssignment,
@@ -72,6 +71,10 @@ namespace trklet {
     std::vector<Track*> input_;
     // dataformat used to calculate pitch over stubs radius
     DataFormat r_;
+    // number of TM layers
+    int tmNumLayers_;
+    // phi data format
+    DataFormat phi_;
   };
 
 }  // namespace trklet

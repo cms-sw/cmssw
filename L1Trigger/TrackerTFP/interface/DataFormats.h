@@ -34,10 +34,8 @@ namespace trackerTFP {
   inline constexpr int operator+(Process p) { return static_cast<int>(p); }
   // conversion: Variable to int
   inline constexpr int operator+(Variable v) { return static_cast<int>(v); }
-  // increment of Process
-  inline constexpr Process operator++(Process p) { return Process(+p + 1); }
-  // increment of Variable
-  inline constexpr Variable operator++(Variable v) { return Variable(+v + 1); }
+  inline constexpr Process operator+(Process p, int i) { return Process(+p + i); }
+  inline constexpr Variable operator+(Variable v, int i) { return Variable(+v + i); }
 
   //Base class representing format of a variable
   class DataFormat {
@@ -46,7 +44,7 @@ namespace trackerTFP {
     DataFormat(bool twos, bool biased = true) : twos_(twos), width_(0), base_(1.), range_(0.) {}
     DataFormat(bool twos, int width, double base, double range)
         : twos_(twos), width_(width), base_(base), range_(range) {}
-    ~DataFormat() {}
+    virtual ~DataFormat() {}
     // converts int to bitvector
     TTBV ttBV(int i) const { return TTBV(i, width_, twos_); }
     // converts double to bitvector
@@ -311,7 +309,7 @@ namespace trackerTFP {
   public:
     DataFormats();
     DataFormats(const tt::Setup* setup);
-    ~DataFormats() {}
+    ~DataFormats() = default;
     // converts bits to ntuple of variables
     template <typename... Ts>
     void convertStub(Process p, const tt::Frame& bv, std::tuple<Ts...>& data) const {
@@ -403,8 +401,6 @@ namespace trackerTFP {
       if constexpr (it + 1 != sizeof...(Ts))
         attachTrack<it + 1>(p, data, ttBV);
     }
-    // configuration during construction
-    edm::ParameterSet iConfig_;
     // stored run-time constants
     const tt::Setup* setup_;
     // collection of unique formats
@@ -434,7 +430,7 @@ namespace trackerTFP {
     template <typename... Others>
     // construct Stub from other Stub
     Stub(const Stub<Others...>& stub, Ts... data)
-        : dataFormats_(stub.dataFormats()), p_(++stub.p()), frame_(stub.frame()), data_(data...) {
+        : dataFormats_(stub.dataFormats()), p_(stub.p() + 1), frame_(stub.frame()), data_(data...) {
       dataFormats_->convertStub(p_, data_, frame_.second);
     }
     // construct Stub from TTStubRef
@@ -657,7 +653,7 @@ namespace trackerTFP {
     // construct Track from other Track
     template <typename... Others>
     Track(const Track<Others...>& track, Ts... data)
-        : dataFormats_(track.dataFormats()), p_(++track.p()), frame_(track.frame()), data_(data...) {
+        : dataFormats_(track.dataFormats()), p_(track.p() + 1), frame_(track.frame()), data_(data...) {
       dataFormats_->convertTrack(p_, data_, frame_.second);
     }
     ~Track() {}
