@@ -1,6 +1,5 @@
-// to use computeRadiusFromThreeAnchorHits
 #include "LSTEvent.h"
-#include "Triplet.h"
+#include "Circle.h"
 
 #include "write_lst_ntuple.h"
 
@@ -672,17 +671,15 @@ void fillT5DNNBranches(LSTEvent* event, unsigned int iT3) {
     ana.tx->pushbackToBranch<int>("t5_t3_" + idx + "_moduleType", modules.moduleType()[module]);
   }
 
-  float g, f;
+  float radius;
   auto const& devHost = cms::alpakatools::host();
-  float radius = computeRadiusFromThreeAnchorHits(devHost,
-                                                  hitObjects[0].x(),
-                                                  hitObjects[0].y(),
-                                                  hitObjects[1].x(),
-                                                  hitObjects[1].y(),
-                                                  hitObjects[2].x(),
-                                                  hitObjects[2].y(),
-                                                  g,
-                                                  f);
+  std::tie(radius, std::ignore, std::ignore) = computeRadiusFromThreeAnchorHits(devHost,
+                                                                                hitObjects[0].x(),
+                                                                                hitObjects[0].y(),
+                                                                                hitObjects[1].x(),
+                                                                                hitObjects[1].y(),
+                                                                                hitObjects[2].x(),
+                                                                                hitObjects[2].y());
   ana.tx->pushbackToBranch<float>("t5_t3_pt", k2Rinv1GeVf * 2 * radius);
 
   // Angles
