@@ -131,9 +131,9 @@ public:
     if (crystal() == kCrystalsPerModuleV2)
       return -1;
     if (smodule() == 0)
-      return kCrystalsPerModuleV2 - 1 - crystal();
+      return kCrystalsPerModuleV2 - 1 - ((id_ >> kBTLCrystalOffset) & kBTLCrystalMask);
     else
-      return crystal();
+      return ((id_ >> kBTLCrystalOffset) & kBTLCrystalMask);
   }
 
   /** Returns BTL detector module number. */
@@ -162,8 +162,8 @@ public:
   /** Returns BTL module number [1-24] (OLD BTL NUMBERING). */
   inline int module() const {
     if (id_ & kBTLNewFormat)
-      return ((dmodule() % kDModulesInRUCol) * kDModulesInRURow + int(dmodule() / kDModulesInRUCol) +
-              kDModulesInRUCol * smodule());
+      return ((dmodule() % kDModulesInRURow) * (kSModulesInDM * kDModulesInRUCol) + int(dmodule() / kDModulesInRURow) +
+              kDModulesInRUCol * smodule()) + 1;
     else
       return (id_ >> kBTLoldModuleOffset) & kBTLoldModuleMask;
   }
