@@ -16,7 +16,6 @@ TrackerTFPProducer_params = cms.PSet (
   BranchTracks     = cms.string( "TrackAccepted" ),  # branch for prodcut with passed tracks
   BranchTTTracks   = cms.string( "TrackAccepted" ),  # branch for prodcut with passed TTTracks
   BranchTruncated  = cms.string( "Truncated"     ),  # branch for truncated prodcuts
-  EnableTruncation = cms.bool  ( True  ),            # enable emulation of truncation, lost stubs are filled in BranchLost
   PrintKFDebug     = cms.bool  ( True  )             # print end job internal unused MSB
 
 )

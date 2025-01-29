@@ -41,7 +41,6 @@ namespace trackerTFP {
   private:
     void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
-    void endStream() override {}
     // ED input token of stubs and tracks
     EDGetTokenT<StreamsTrack> edGetTokenTracks_;
     EDGetTokenT<StreamsStub> edGetTokenStubs_;
@@ -54,8 +53,6 @@ namespace trackerTFP {
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // TrackQuality token
     ESGetToken<TrackQuality, TrackQualityRcd> esGetTokenTrackQuality_;
-    // configuration
-    ParameterSet iConfig_;
     // helper class to store configurations
     const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
@@ -64,7 +61,7 @@ namespace trackerTFP {
     const TrackQuality* trackQuality_ = nullptr;
   };
 
-  ProducerTFP::ProducerTFP(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerTFP::ProducerTFP(const ParameterSet& iConfig) {
     const string& labelTracks = iConfig.getParameter<string>("InputLabelTFP");
     const string& labelStubs = iConfig.getParameter<string>("InputLabelTQ");
     const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
@@ -95,13 +92,11 @@ namespace trackerTFP {
     TTTracks ttTracks;
     StreamsTrack streamsTrack(setup_->numRegions() * setup_->tfpNumChannel());
     // read in TQ Products
-    Handle<StreamsTrack> handleTracks;
-    iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
-    Handle<StreamsStub> handleStubs;
-    iEvent.getByToken<StreamsStub>(edGetTokenStubs_, handleStubs);
+    const StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
+    const StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
     // produce TTTracks
-    TrackFindingProcessor tfp(iConfig_, setup_, dataFormats_, trackQuality_);
-    tfp.produce(*handleTracks, *handleStubs, ttTracks, streamsTrack);
+    TrackFindingProcessor tfp(setup_, dataFormats_, trackQuality_);
+    tfp.produce(tracks, stubs, ttTracks, streamsTrack);
     // put TTTRacks and produce TTTRackRefs
     const int nTrks = ttTracks.size();
     const OrphanHandle<TTTracks> oh = iEvent.emplace(edPutTokenTTTracks_, std::move(ttTracks));

@@ -35,20 +35,17 @@ namespace trackerTFP {
   private:
     void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
-    virtual void endJob() {}
     // ED input token of DTC stubs
     EDGetTokenT<TTDTC> edGetToken_;
     // ED output token for accepted stubs
     EDPutTokenT<StreamsStub> edPutToken_;
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
-    // configuration
-    ParameterSet iConfig_;
     // helper classe to store configurations
     const Setup* setup_ = nullptr;
   };
 
-  ProducerPP::ProducerPP(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerPP::ProducerPP(const ParameterSet& iConfig) {
     const string& label = iConfig.getParameter<string>("InputLabelPP");
     const string& branch = iConfig.getParameter<string>("BranchStubs");
     // book in- and output ED products
@@ -64,9 +61,7 @@ namespace trackerTFP {
     // empty GP products
     StreamsStub stubs(setup_->numRegions() * setup_->numDTCsPerTFP());
     // read in DTC Product and produce TFP product
-    Handle<TTDTC> handle;
-    iEvent.getByToken<TTDTC>(edGetToken_, handle);
-    const TTDTC& ttDTC = *handle.product();
+    const TTDTC& ttDTC = iEvent.get(edGetToken_);
     for (int region = 0; region < setup_->numRegions(); region++) {
       const int offset = region * setup_->numDTCsPerTFP();
       for (int channel = 0; channel < setup_->numDTCsPerTFP(); channel++)

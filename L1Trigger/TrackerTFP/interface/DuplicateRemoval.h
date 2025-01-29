@@ -12,8 +12,7 @@ namespace trackerTFP {
   // Class to do duplicate removal in a region.
   class DuplicateRemoval {
   public:
-    DuplicateRemoval(const edm::ParameterSet& iConfig,
-                     const tt::Setup* setup,
+    DuplicateRemoval(const tt::Setup* setup,
                      const DataFormats* dataFormats,
                      std::vector<TrackDR>& tracks,
                      std::vector<StubDR>& stubs);
@@ -41,8 +40,6 @@ namespace trackerTFP {
       //
       int zT_;
     };
-    // true if truncation is enbaled
-    bool enableTruncation_;
     // provides run-time constants
     const tt::Setup* setup_;
     // provides dataformats
@@ -51,6 +48,16 @@ namespace trackerTFP {
     std::vector<TrackDR>& tracks_;
     // container of output stubs
     std::vector<StubDR>& stubs_;
+    // number of channel
+    int numChannel_;
+    // number of kf layers
+    int numLayers_;
+    // number of bins in inv2R
+    int numInv2R_;
+    // number of bins in phiT
+    int numPhiT_;
+    // number of bins in zT
+    int numZT_;
   };
 
 }  // namespace trackerTFP

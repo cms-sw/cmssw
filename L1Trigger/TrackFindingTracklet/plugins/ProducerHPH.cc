@@ -29,17 +29,22 @@ namespace hph {
     unique_ptr<Setup> produce(const SetupRcd& Rcd);
 
   private:
-    const ParameterSet iConfig_;
+    Setup::Config iConfig_;
     ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     ESGetToken<trackerTFP::DataFormats, trackerTFP::DataFormatsRcd> esGetTokenDataFormats_;
     ESGetToken<trackerTFP::LayerEncoding, trackerTFP::LayerEncodingRcd> esGetTokenLayerEncoding_;
   };
 
-  ProducerHPH::ProducerHPH(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerHPH::ProducerHPH(const ParameterSet& iConfig) {
     auto cc = setWhatProduced(this);
     esGetTokenSetup_ = cc.consumes();
     esGetTokenDataFormats_ = cc.consumes();
     esGetTokenLayerEncoding_ = cc.consumes();
+    const ParameterSet& oldKFPSet = iConfig.getParameter<edm::ParameterSet>("oldKFPSet");
+    iConfig_.hphDebug_ = iConfig.getParameter<bool>("hphDebug");
+    iConfig_.useNewKF_ = iConfig.getParameter<bool>("useNewKF");
+    iConfig_.chosenRofZ_ = oldKFPSet.getParameter<double>("ChosenRofZ");
+    iConfig_.etaRegions_ = oldKFPSet.getParameter<vector<double>>("EtaRegions");
   }
 
   unique_ptr<Setup> ProducerHPH::produce(const SetupRcd& Rcd) {

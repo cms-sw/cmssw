@@ -18,8 +18,7 @@ namespace trackerDTC {
   class Stub {
   public:
     Stub(const trackerTFP::DataFormats*, const tt::SensorModule*, const TTStubRef&);
-    Stub(const edm::ParameterSet&,
-         const tt::Setup*,
+    Stub(const tt::Setup*,
          const trackerTFP::DataFormats*,
          const LayerEncoding*,
          const tt::SensorModule*,
@@ -40,7 +39,7 @@ namespace trackerDTC {
     // stub phi w.r.t. detector region centre in rad
     double phi() const { return phi_; }
 
-  public:
+  private:
     // truncates double precision to f/w integer equivalent
     double digi(double value, double precision) const;
     // 64 bit stub in hybrid data format
@@ -57,8 +56,6 @@ namespace trackerDTC {
     const tt::SensorModule* sm_;
     // underlying TTStubRef
     const TTStubRef ttStubRef_;
-    // chosen TT algorithm
-    bool hybrid_;
     // passes pt and eta cut
     bool valid_;
     // column number in pitch units

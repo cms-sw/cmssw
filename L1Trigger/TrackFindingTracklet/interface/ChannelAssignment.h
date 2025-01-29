@@ -19,8 +19,25 @@ namespace trklet {
    */
   class ChannelAssignment {
   public:
+    struct Config {
+      std::vector<std::string> tmMuxOrder_;
+      int tmNumLayers_;
+      int tmWidthStubId_;
+      int tmWidthCot_;
+      int numComparisonModules_;
+      int minIdenticalStubs_;
+      std::vector<std::string> seedTypeNames_;
+      int numChannelsStub_;
+      std::vector<std::vector<int>> seedTypesSeedLayers_;
+      std::vector<std::vector<int>> seedTypesProjectionLayers_;
+      int maxNumProjectionLayers_;
+      std::vector<int> channelEncoding_;
+      std::vector<int> offsetsStubs_;
+      int numSeedingLayers_;
+      std::vector<int> tmMuxOrderInt_;
+    };
     ChannelAssignment() {}
-    ChannelAssignment(const edm::ParameterSet& iConfig, const tt::Setup* setup);
+    ChannelAssignment(const Config& iConfig, const tt::Setup* setup);
     ~ChannelAssignment() {}
     // helper class to store configurations
     const tt::Setup* setup() const { return setup_; }
@@ -31,7 +48,7 @@ namespace trklet {
     // number of used TB channels for stubs
     int numChannelsStub() const { return numChannelsStub_; }
     //
-    std::vector<int> tmMuxOrder() const { return tmMuxOrderInt_; }
+    const std::vector<int>& tmMuxOrder() const { return tmMuxOrderInt_; }
     // number of layers per rtack
     int tmNumLayers() const { return tmNumLayers_; }
     // number of bits used to represent stub id for projected stubs
@@ -68,8 +85,6 @@ namespace trklet {
   private:
     // helper class to store configurations
     const tt::Setup* setup_;
-    // TM parameter
-    edm::ParameterSet pSetTM_;
     //
     std::vector<std::string> tmMuxOrder_;
     // number of layers per rtack
@@ -78,8 +93,6 @@ namespace trklet {
     int tmWidthStubId_;
     //
     int tmWidthCot_;
-    // DR parameter
-    edm::ParameterSet pSetDR_;
     // number of comparison modules used in each DR node
     int numComparisonModules_;
     // min number of shared stubs to identify duplicates [default: 3]

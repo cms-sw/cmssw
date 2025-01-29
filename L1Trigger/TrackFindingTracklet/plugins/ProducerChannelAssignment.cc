@@ -26,13 +26,35 @@ namespace trklet {
     unique_ptr<ChannelAssignment> produce(const ChannelAssignmentRcd& rcd);
 
   private:
-    const ParameterSet iConfig_;
+    ChannelAssignment::Config iConfig_;
     ESGetToken<Setup, SetupRcd> esGetToken_;
   };
 
-  ProducerChannelAssignment::ProducerChannelAssignment(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerChannelAssignment::ProducerChannelAssignment(const ParameterSet& iConfig) {
     auto cc = setWhatProduced(this);
     esGetToken_ = cc.consumes();
+    iConfig_.seedTypeNames_ = iConfig.getParameter<vector<string>>("SeedTypes");
+    iConfig_.channelEncoding_ = iConfig.getParameter<vector<int>>("IRChannelsIn");
+    const edm::ParameterSet& pSetTM = iConfig.getParameter<ParameterSet>("TM");
+    iConfig_.tmMuxOrder_ = pSetTM.getParameter<vector<string>>("MuxOrder");
+    iConfig_.tmNumLayers_ = pSetTM.getParameter<int>("NumLayers");
+    iConfig_.tmWidthStubId_ = pSetTM.getParameter<int>("WidthStubId");
+    iConfig_.tmWidthCot_ = pSetTM.getParameter<int>("WidthCot");
+    const edm::ParameterSet& pSetDR = iConfig.getParameter<ParameterSet>("DR");
+    iConfig_.numComparisonModules_ = pSetDR.getParameter<int>("NumComparisonModules");
+    iConfig_.minIdenticalStubs_ = pSetDR.getParameter<int>("MinIdenticalStubs");
+    iConfig_.tmMuxOrderInt_.reserve(iConfig_.tmMuxOrder_.size());
+    for (const string& s : iConfig_.tmMuxOrder_)
+      iConfig_.tmMuxOrderInt_.push_back(
+          distance(iConfig_.tmMuxOrder_.begin(), find(iConfig_.tmMuxOrder_.begin(), iConfig_.tmMuxOrder_.end(), s)));
+    const ParameterSet& pSetSeedTypesSeedLayers = iConfig.getParameter<ParameterSet>("SeedTypesSeedLayers");
+    const ParameterSet& pSetSeedTypesProjectionLayers = iConfig.getParameter<ParameterSet>("SeedTypesProjectionLayers");
+    iConfig_.seedTypesSeedLayers_.reserve(iConfig_.seedTypeNames_.size());
+    iConfig_.seedTypesProjectionLayers_.reserve(iConfig_.seedTypeNames_.size());
+    for (const string& s : iConfig_.seedTypeNames_) {
+      iConfig_.seedTypesSeedLayers_.emplace_back(pSetSeedTypesSeedLayers.getParameter<vector<int>>(s));
+      iConfig_.seedTypesProjectionLayers_.emplace_back(pSetSeedTypesProjectionLayers.getParameter<vector<int>>(s));
+    }
   }
 
   unique_ptr<ChannelAssignment> ProducerChannelAssignment::produce(const ChannelAssignmentRcd& rcd) {

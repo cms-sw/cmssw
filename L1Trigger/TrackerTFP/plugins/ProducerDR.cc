@@ -48,15 +48,21 @@ namespace trackerTFP {
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // DataFormats token
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
-    // configuration
-    ParameterSet iConfig_;
     // helper class to store configurations
     const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_ = nullptr;
+    // number of input channel
+    int numChannelIn_;
+    // number of output channel
+    int numChannelOut_;
+    // number ofprocessing regions
+    int numRegions_;
+    // number of kf layers
+    int numLayers_;
   };
 
-  ProducerDR::ProducerDR(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerDR::ProducerDR(const ParameterSet& iConfig) {
     const string& label = iConfig.getParameter<string>("InputLabelDR");
     const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
     const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
@@ -71,27 +77,21 @@ namespace trackerTFP {
   }
 
   void ProducerDR::beginRun(const Run& iRun, const EventSetup& iSetup) {
-    // helper class to store configurations
     setup_ = &iSetup.getData(esGetTokenSetup_);
-    // helper class to extract structured data from tt::Frames
     dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
+    numChannelIn_ = dataFormats_->numChannel(Process::kf);
+    numChannelOut_ = dataFormats_->numChannel(Process::dr);
+    numRegions_ = setup_->numRegions();
+    numLayers_ = setup_->numLayers();
   }
 
   void ProducerDR::produce(Event& iEvent, const EventSetup& iSetup) {
-    static const int numChannelIn = dataFormats_->numChannel(Process::kf);
-    static const int numChannelOut = dataFormats_->numChannel(Process::dr);
-    static const int numRegions = setup_->numRegions();
-    static const int numLayers = setup_->numLayers();
     // empty DR products
-    StreamsStub acceptedStubs(numRegions * numChannelOut * numLayers);
-    StreamsTrack acceptedTracks(numRegions * numChannelOut);
+    StreamsStub acceptedStubs(numRegions_ * numChannelOut_ * numLayers_);
+    StreamsTrack acceptedTracks(numRegions_ * numChannelOut_);
     // read in KF Product and produce DR product
-    Handle<StreamsStub> handleStubs;
-    iEvent.getByToken<StreamsStub>(edGetTokenStubs_, handleStubs);
-    const StreamsStub& allStubs = *handleStubs;
-    Handle<StreamsTrack> handleTracks;
-    iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
-    const StreamsTrack& allTracks = *handleTracks;
+    const StreamsStub& allStubs = iEvent.get(edGetTokenStubs_);
+    const StreamsTrack& allTracks = iEvent.get(edGetTokenTracks_);
     // helper
     auto validFrameT = [](int sum, const FrameTrack& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
     auto validFrameS = [](int sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
@@ -105,18 +105,18 @@ namespace trackerTFP {
       stream.reserve(objects.size());
       transform(objects.begin(), objects.end(), back_inserter(stream), toFrame);
     };
-    for (int region = 0; region < numRegions; region++) {
-      const int offsetIn = region * numChannelIn;
-      const int offsetOut = region * numChannelOut;
+    for (int region = 0; region < numRegions_; region++) {
+      const int offsetIn = region * numChannelIn_;
+      const int offsetOut = region * numChannelOut_;
       // count input objects
       int nTracks(0);
       int nStubs(0);
-      for (int channelIn = 0; channelIn < numChannelIn; channelIn++) {
+      for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
         const int index = offsetIn + channelIn;
-        const int offset = index * numLayers;
+        const int offset = index * numLayers_;
         const StreamTrack& tracks = allTracks[index];
         nTracks += accumulate(tracks.begin(), tracks.end(), 0, validFrameT);
-        for (int layer = 0; layer < numLayers; layer++) {
+        for (int layer = 0; layer < numLayers_; layer++) {
           const StreamStub& stubs = allStubs[offset + layer];
           nStubs += accumulate(stubs.begin(), stubs.end(), 0, validFrameS);
         }
@@ -127,13 +127,13 @@ namespace trackerTFP {
       vector<StubKF> stubsKF;
       stubsKF.reserve(nStubs);
       // h/w liked organized pointer to input data
-      vector<vector<TrackKF*>> regionTracks(numChannelIn);
-      vector<vector<StubKF*>> regionStubs(numChannelIn * numLayers);
+      vector<vector<TrackKF*>> regionTracks(numChannelIn_);
+      vector<vector<StubKF*>> regionStubs(numChannelIn_ * numLayers_);
       // read input data
-      for (int channelIn = 0; channelIn < numChannelIn; channelIn++) {
+      for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
         const int index = offsetIn + channelIn;
-        const int offsetAll = index * numLayers;
-        const int offsetRegion = channelIn * numLayers;
+        const int offsetAll = index * numLayers_;
+        const int offsetRegion = channelIn * numLayers_;
         const StreamTrack& streamTrack = allTracks[index];
         vector<TrackKF*>& tracks = regionTracks[channelIn];
         tracks.reserve(streamTrack.size());
@@ -145,7 +145,7 @@ namespace trackerTFP {
           }
           tracks.push_back(track);
         }
-        for (int layer = 0; layer < numLayers; layer++) {
+        for (int layer = 0; layer < numLayers_; layer++) {
           for (const FrameStub& frame : allStubs[offsetAll + layer]) {
             StubKF* stub = nullptr;
             if (frame.first.isNonnull()) {
@@ -162,19 +162,19 @@ namespace trackerTFP {
       vector<StubDR> stubsDR;
       stubsDR.reserve(nStubs);
       // object to remove duplicates in a processing region
-      DuplicateRemoval dr(iConfig_, setup_, dataFormats_, tracksDR, stubsDR);
+      DuplicateRemoval dr(setup_, dataFormats_, tracksDR, stubsDR);
       // empty h/w liked organized pointer to output data
-      vector<vector<TrackDR*>> streamsTrack(numChannelOut);
-      vector<vector<StubDR*>> streamsStub(numChannelOut * numLayers);
+      vector<vector<TrackDR*>> streamsTrack(numChannelOut_);
+      vector<vector<StubDR*>> streamsStub(numChannelOut_ * numLayers_);
       // fill output data
       dr.produce(regionTracks, regionStubs, streamsTrack, streamsStub);
       // convert data to ed products
-      for (int channelOut = 0; channelOut < numChannelOut; channelOut++) {
+      for (int channelOut = 0; channelOut < numChannelOut_; channelOut++) {
         const int index = offsetOut + channelOut;
-        const int offsetRegion = channelOut * numLayers;
-        const int offsetAll = index * numLayers;
+        const int offsetRegion = channelOut * numLayers_;
+        const int offsetAll = index * numLayers_;
         putT(streamsTrack[channelOut], acceptedTracks[index]);
-        for (int layer = 0; layer < numLayers; layer++)
+        for (int layer = 0; layer < numLayers_; layer++)
           putS(streamsStub[offsetRegion + layer], acceptedStubs[offsetAll + layer]);
       }
     }

@@ -15,15 +15,13 @@ using namespace tt;
 
 namespace trackerTFP {
 
-  KalmanFilter::KalmanFilter(const ParameterSet& iConfig,
-                             const Setup* setup,
+  KalmanFilter::KalmanFilter(const Setup* setup,
                              const DataFormats* dataFormats,
                              const LayerEncoding* layerEncoding,
                              KalmanFilterFormats* kalmanFilterFormats,
                              vector<TrackKF>& tracks,
                              vector<StubKF>& stubs)
-      : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-        setup_(setup),
+      : setup_(setup),
         dataFormats_(dataFormats),
         layerEncoding_(layerEncoding),
         kalmanFilterFormats_(kalmanFilterFormats),
@@ -55,7 +53,7 @@ namespace trackerTFP {
       const int nStates =
           accumulate(stream.begin(), stream.end(), 0, [](int sum, State* state) { return sum += (state ? 1 : 0); });
       // apply truncation
-      if (enableTruncation_ && (int)stream.size() > setup_->numFramesHigh())
+      if (setup_->enableTruncation() && (int)stream.size() > setup_->numFramesHigh())
         stream.resize(setup_->numFramesHigh());
       // cycle event, remove gaps
       stream.erase(remove(stream.begin(), stream.end(), nullptr), stream.end());
@@ -166,18 +164,6 @@ namespace trackerTFP {
       const double C23 = -digi(VariableKF::C23, (H3v2 + H2v3) * invdH2);
       const double C11 = digi(VariableKF::C11, (H12v0 + H02v1) * invdH2);
       const double C33 = digi(VariableKF::C33, (H32v2 + H22v3) * invdH2);
-      // cut on eta sector boundaries
-      /*const bool invalidX3 = abs(x3) > zT.base() / 2.;
-      // cut on triple found inv2R window
-      const bool invalidX0 = abs(x0) > 1.5 * inv2R.base();
-      // cut on triple found phiT window
-      const bool invalidX1 = abs(x1) > 1.5 * phiT.base();
-      // cot cut
-      const bool invalidX2 = abs(x2) > maxCot;
-      if (invalidX3 || invalidX0 || invalidX1 || invalidX2) {
-        state = nullptr;
-        continue;
-      }*/
       // create updated state
       static const double chi20 = digi(VariableKF::chi20, 0.);
       static const double chi21 = digi(VariableKF::chi21, 0.);
@@ -368,8 +354,6 @@ namespace trackerTFP {
   // best state selection
   void KalmanFilter::accumulator(vector<Track>& finals, vector<Track*>& best) {
     // create container of pointer to make sorts less CPU intense
-    //for (Track& track : finals)
-    //best.push_back(&track);
     transform(finals.begin(), finals.end(), back_inserter(best), [](Track& track) { return &track; });
     // prepare arrival order
     vector<int> trackIds;

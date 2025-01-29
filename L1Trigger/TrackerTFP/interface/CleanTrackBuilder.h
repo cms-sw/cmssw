@@ -15,8 +15,7 @@ namespace trackerTFP {
   // Class to clean and transform stream of stubs into a stream of tracks with one stub stream per kf layer
   class CleanTrackBuilder {
   public:
-    CleanTrackBuilder(const edm::ParameterSet& iConfig,
-                      const tt::Setup* setup,
+    CleanTrackBuilder(const tt::Setup* setup,
                       const DataFormats* dataFormats,
                       const LayerEncoding* layerEncoding,
                       const DataFormat& cot,
@@ -113,8 +112,6 @@ namespace trackerTFP {
     // remove and return first element of deque, returns nullptr if empty
     template <class T>
     T* pop_front(std::deque<T*>& ts) const;
-    // true if truncation is enbaled
-    bool enableTruncation_;
     // provides run-time constants
     const tt::Setup* setup_;
     // provides dataformats
@@ -131,6 +128,14 @@ namespace trackerTFP {
     std::vector<StubCTB>& stubsCTB_;
     // container of output tracks
     std::vector<TrackCTB>& tracksCTB_;
+    // number of output channel
+    int numChannelOut_;
+    // number of channel
+    int numChannel_;
+    // number of processing regions
+    int numRegions_;
+    // number of kf layers
+    int numLayers_;
   };
 
 }  // namespace trackerTFP

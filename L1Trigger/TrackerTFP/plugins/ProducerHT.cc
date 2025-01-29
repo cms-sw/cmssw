@@ -42,7 +42,6 @@ namespace trackerTFP {
   private:
     void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
-    virtual void endJob() {}
     // ED input token of gp stubs
     EDGetTokenT<StreamsStub> edGetToken_;
     // ED output token for accepted stubs
@@ -53,17 +52,21 @@ namespace trackerTFP {
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // LayerEncoding token
     ESGetToken<LayerEncoding, LayerEncodingRcd> esGetTokenLayerEncoding_;
-    // configuration
-    ParameterSet iConfig_;
     // helper class to store configurations
     const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_ = nullptr;
     //
     const LayerEncoding* layerEncoding_ = nullptr;
+    // number of input channel
+    int numChannelIn_;
+    // number of output channel
+    int numChannelOut_;
+    // number of processing regions
+    int numRegions_;
   };
 
-  ProducerHT::ProducerHT(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerHT::ProducerHT(const ParameterSet& iConfig) {
     const string& label = iConfig.getParameter<string>("InputLabelHT");
     const string& branch = iConfig.getParameter<string>("BranchStubs");
     // book in- and output ED products
@@ -76,20 +79,17 @@ namespace trackerTFP {
   }
 
   void ProducerHT::beginRun(const Run& iRun, const EventSetup& iSetup) {
-    // helper class to store configurations
     setup_ = &iSetup.getData(esGetTokenSetup_);
-    // helper class to extract structured data from tt::Frames
     dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
-    //
     layerEncoding_ = &iSetup.getData(esGetTokenLayerEncoding_);
+    numChannelIn_ = dataFormats_->numChannel(Process::gp);
+    numChannelOut_ = dataFormats_->numChannel(Process::ht);
+    numRegions_ = setup_->numRegions();
   }
 
   void ProducerHT::produce(Event& iEvent, const EventSetup& iSetup) {
-    static const int numChannelIn = dataFormats_->numChannel(Process::gp);
-    static const int numChannelOut = dataFormats_->numChannel(Process::ht);
-    static const int numRegions = setup_->numRegions();
     // empty HT products
-    StreamsStub accepted(numRegions * numChannelOut);
+    StreamsStub accepted(numRegions_ * numChannelOut_);
     // read in DTC Product and produce TFP product
     Handle<StreamsStub> handle;
     iEvent.getByToken<StreamsStub>(edGetToken_, handle);
@@ -98,12 +98,12 @@ namespace trackerTFP {
     auto validFrame = [](int sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
     auto toFrame = [](StubHT* object) { return object ? object->frame() : FrameStub(); };
     // produce HT output per region
-    for (int region = 0; region < numRegions; region++) {
-      const int offsetIn = region * numChannelIn;
-      const int offsetOut = region * numChannelOut;
+    for (int region = 0; region < numRegions_; region++) {
+      const int offsetIn = region * numChannelIn_;
+      const int offsetOut = region * numChannelOut_;
       // count input objects
       int nStubsGP(0);
-      for (int channelIn = 0; channelIn < numChannelIn; channelIn++) {
+      for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
         const StreamStub& stream = streamsStub[offsetIn + channelIn];
         nStubsGP += accumulate(stream.begin(), stream.end(), 0, validFrame);
       }
@@ -111,9 +111,9 @@ namespace trackerTFP {
       vector<StubGP> stubsGP;
       stubsGP.reserve(nStubsGP);
       // h/w liked organized pointer to input data
-      vector<vector<StubGP*>> streamsIn(numChannelIn);
+      vector<vector<StubGP*>> streamsIn(numChannelIn_);
       // read input data
-      for (int channelIn = 0; channelIn < numChannelIn; channelIn++) {
+      for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
         const StreamStub& streamStub = streamsStub[offsetIn + channelIn];
         vector<StubGP*>& stream = streamsIn[channelIn];
         stream.reserve(streamStub.size());
@@ -129,13 +129,13 @@ namespace trackerTFP {
       // container for output stubs
       vector<StubHT> stubsHT;
       // object to find initial rough candidates in r-phi in a region
-      HoughTransform ht(iConfig_, setup_, dataFormats_, layerEncoding_, stubsHT);
+      HoughTransform ht(setup_, dataFormats_, layerEncoding_, stubsHT);
       // empty h/w liked organized pointer to output data
-      vector<deque<StubHT*>> streamsOut(numChannelOut);
+      vector<deque<StubHT*>> streamsOut(numChannelOut_);
       // fill output data
       ht.produce(streamsIn, streamsOut);
       // convert data to ed products
-      for (int channelOut = 0; channelOut < numChannelOut; channelOut++) {
+      for (int channelOut = 0; channelOut < numChannelOut_; channelOut++) {
         const deque<StubHT*>& objects = streamsOut[channelOut];
         StreamStub& stream = accepted[offsetOut + channelOut];
         stream.reserve(objects.size());

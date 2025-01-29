@@ -57,18 +57,20 @@ TrackTrigger_params = cms.PSet (
 
   # Fimrware specific Parameter
   Firmware = cms.PSet (
-    WidthDSPa       = cms.int32 (  27          ), # width of the 'A' port of an DSP slice
-    WidthDSPb       = cms.int32 (  18          ), # width of the 'B' port of an DSP slice
-    WidthDSPc       = cms.int32 (  48          ), # width of the 'C' port of an DSP slice
-    WidthAddrBRAM36 = cms.int32 (   9          ), # smallest address width of an BRAM36 configured as broadest simple dual port memory
-    WidthAddrBRAM18 = cms.int32 (  10          ), # smallest address width of an BRAM18 configured as broadest simple dual port memory
-    NumFramesInfra  = cms.int32 (   6          ), # needed gap between events of emp-infrastructure firmware
-    FreqLHC         = cms.double(  40.         ), # LHC bunch crossing rate in MHz
-    FreqBEHigh      = cms.double( 360.         ), # processing Frequency of DTC, KF & TFP in MHz, has to be integer multiple of FreqLHC
-    FreqBELow       = cms.double( 240.         ), # processing Frequency of DTC, KF & TFP in MHz, has to be integer multiple of FreqLHC
-    TMP_FE          = cms.int32 (   8          ), # number of events collected in front-end
-    TMP_TFP         = cms.int32 (  18          ), # time multiplexed period of track finding processor
-    SpeedOfLight    = cms.double(   2.99792458 ), # in e8 m/s
+    EnableTruncation = cms.bool  ( True         ), # enable emulation of truncation for TM, DR, KF, TQ and TFP
+    UseHybrid        = cms.bool  ( True         ), # use Hybrid or TMTT as TT algorithm
+    WidthDSPa        = cms.int32 (  27          ), # width of the 'A' port of an DSP slice
+    WidthDSPb        = cms.int32 (  18          ), # width of the 'B' port of an DSP slice
+    WidthDSPc        = cms.int32 (  48          ), # width of the 'C' port of an DSP slice
+    WidthAddrBRAM36  = cms.int32 (   9          ), # smallest address width of an BRAM36 configured as broadest simple dual port memory
+    WidthAddrBRAM18  = cms.int32 (  10          ), # smallest address width of an BRAM18 configured as broadest simple dual port memory
+    NumFramesInfra   = cms.int32 (   6          ), # needed gap between events of emp-infrastructure firmware
+    FreqLHC          = cms.double(  40.         ), # LHC bunch crossing rate in MHz
+    FreqBEHigh       = cms.double( 360.         ), # processing Frequency of DTC, KF & TFP in MHz, has to be integer multiple of FreqLHC
+    FreqBELow        = cms.double( 240.         ), # processing Frequency of DTC, KF & TFP in MHz, has to be integer multiple of FreqLHC
+    TMP_FE           = cms.int32 (   8          ), # number of events collected in front-end
+    TMP_TFP          = cms.int32 (  18          ), # time multiplexed period of track finding processor
+    SpeedOfLight     = cms.double(   2.99792458 ), # in e8 m/s
   ),
 
   # Parameter specifying outer tracker
@@ -171,24 +173,29 @@ TrackTrigger_params = cms.PSet (
 
   # Parmeter specifying KalmanFilter
   KalmanFilter = cms.PSet (
-    NumWorker       = cms.int32 (   1   ), # number of kf worker
-    MaxTracks       = cms.int32 (  63   ), # max number of tracks a kf worker can process
-    RangeFactor     = cms.double(   3.0 ), # search window of each track parameter in initial uncertainties
-    MinLayers       = cms.int32 (   4   ), # required number of stub layers to form a track
-    MinLayersPS     = cms.int32 (   0   ), # required number of ps stub layers to form a track
-    MaxLayers       = cms.int32 (   8   ), # maximum number of  layers added to a track
-    MaxGaps         = cms.int32 (   4   ), # 
-    MaxSeedingLayer = cms.int32 (   4   ), # 
-    NumSeedStubs    = cms.int32 (   2   ), # 
-    MinSeedDeltaR   = cms.double(   1.6 ), #
-    ShiftInitialC00 = cms.int32 (   0   ), # initial C00 is given by inv2R uncertainty squared times this power of 2
-    ShiftInitialC11 = cms.int32 (   0   ), # initial C11 is given by phiT uncertainty squared times this power of 2
-    ShiftInitialC22 = cms.int32 (   0   ), # initial C22 is given by cot uncertainty squared times this power of 2
-    ShiftInitialC33 = cms.int32 (   0   ), # initial C33 is given by zT uncertainty squared times this power of 2
-    ShiftChi20      = cms.int32 (  -1   ), #
-    ShiftChi21      = cms.int32 (  -5   ), #
-    CutChi2         = cms.double(   2.0 ), #
-    WidthChi2       = cms.int32 (   8   )  #
+    Use5ParameterFit         = cms.bool  ( False ), # double precision simulation of 5 parameter fit instead of bit accurate emulation of 4 parameter fit
+    UseSimmulation           = cms.bool  ( False ), # simulate KF instead of emulate
+    UseTTStubResiduals       = cms.bool  ( True  ), # stub residuals and radius are recalculated from seed parameter and TTStub position
+    UseTTStubParameters      = cms.bool  ( True  ), # track parameter are recalculated from seed TTStub positions
+    ApplyNonLinearCorrection = cms.bool  ( True  ), # 
+    NumWorker                = cms.int32 (   1   ), # number of kf worker
+    MaxTracks                = cms.int32 (  63   ), # max number of tracks a kf worker can process
+    RangeFactor              = cms.double(   3.0 ), # search window of each track parameter in initial uncertainties
+    MinLayers                = cms.int32 (   4   ), # required number of stub layers to form a track
+    MinLayersPS              = cms.int32 (   0   ), # required number of ps stub layers to form a track
+    MaxLayers                = cms.int32 (   8   ), # maximum number of  layers added to a track
+    MaxGaps                  = cms.int32 (   4   ), # 
+    MaxSeedingLayer          = cms.int32 (   4   ), # 
+    NumSeedStubs             = cms.int32 (   2   ), # 
+    MinSeedDeltaR            = cms.double(   1.6 ), #
+    ShiftInitialC00          = cms.int32 (   0   ), # initial C00 is given by inv2R uncertainty squared times this power of 2
+    ShiftInitialC11          = cms.int32 (   0   ), # initial C11 is given by phiT uncertainty squared times this power of 2
+    ShiftInitialC22          = cms.int32 (   0   ), # initial C22 is given by cot uncertainty squared times this power of 2
+    ShiftInitialC33          = cms.int32 (   0   ), # initial C33 is given by zT uncertainty squared times this power of 2
+    ShiftChi20               = cms.int32 (  -1   ), #
+    ShiftChi21               = cms.int32 (  -5   ), #
+    CutChi2                  = cms.double(   2.0 ), #
+    WidthChi2                = cms.int32 (   8   )  #
   ),
 
   # Parmeter specifying DuplicateRemoval

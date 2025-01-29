@@ -12,22 +12,18 @@ using namespace tt;
 
 namespace trackerTFP {
 
-  GeometricProcessor::GeometricProcessor(const ParameterSet& iConfig,
-                                         const Setup* setup,
+  GeometricProcessor::GeometricProcessor(const Setup* setup,
                                          const DataFormats* dataFormats,
                                          const LayerEncoding* layerEncoding,
                                          std::vector<StubGP>& stubs)
-      : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-        setup_(setup),
-        dataFormats_(dataFormats),
-        layerEncoding_(layerEncoding),
-        stubs_(stubs) {}
+      : setup_(setup), dataFormats_(dataFormats), layerEncoding_(layerEncoding), stubs_(stubs) {
+    numChannelIn_ = dataFormats_->numChannel(Process::pp);
+    numChannelOut_ = dataFormats_->numChannel(Process::gp);
+  }
 
   // fill output products
   void GeometricProcessor::produce(const vector<vector<StubPP*>>& streamsIn, vector<deque<StubGP*>>& streamsOut) {
-    static const int numChannelIn = dataFormats_->numChannel(Process::pp);
-    static const int numChannelOut = dataFormats_->numChannel(Process::gp);
-    for (int channelOut = 0; channelOut < numChannelOut; channelOut++) {
+    for (int channelOut = 0; channelOut < numChannelOut_; channelOut++) {
       // helper
       const int phiT = channelOut % setup_->gpNumBinsPhiT() - setup_->gpNumBinsPhiT() / 2;
       const int zT = channelOut / setup_->gpNumBinsPhiT() - setup_->gpNumBinsZT() / 2;
@@ -37,8 +33,8 @@ namespace trackerTFP {
         return (phiTValid && zTValid) ? stub : nullptr;
       };
       // input streams of stubs
-      vector<deque<StubPP*>> inputs(numChannelIn);
-      for (int channelIn = 0; channelIn < numChannelIn; channelIn++) {
+      vector<deque<StubPP*>> inputs(numChannelIn_);
+      for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
         const vector<StubPP*>& streamIn = streamsIn[channelIn];
         transform(streamIn.begin(), streamIn.end(), back_inserter(inputs[channelIn]), valid);
       }
@@ -50,22 +46,21 @@ namespace trackerTFP {
       while (!all_of(inputs.begin(), inputs.end(), [](const deque<StubPP*>& stubs) { return stubs.empty(); }) or
              !all_of(stacks.begin(), stacks.end(), [](const deque<StubGP*>& stubs) { return stubs.empty(); })) {
         // fill input fifos
-        for (int channelIn = 0; channelIn < numChannelIn; channelIn++) {
+        for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
           deque<StubGP*>& stack = stacks[channelIn];
           StubPP* stub = pop_front(inputs[channelIn]);
           if (stub) {
             // convert stub
             StubGP* stubGP = produce(*stub, phiT, zT);
             // buffer overflow
-            if (enableTruncation_ && (int)stack.size() == setup_->gpDepthMemory() - 1)
+            if (setup_->enableTruncation() && (int)stack.size() == setup_->gpDepthMemory() - 1)
               pop_front(stack);
             stack.push_back(stubGP);
           }
         }
         // merge input fifos to one stream, prioritizing higher input channel over lower channel
         bool nothingToRoute(true);
-        //for (int channelIn = numChannelIn - 1; channelIn >= 0; channelIn--) {
-        for (int channelIn = 0; channelIn < numChannelIn; channelIn++) {
+        for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
           StubGP* stub = pop_front(stacks[channelIn]);
           if (stub) {
             nothingToRoute = false;
@@ -77,7 +72,7 @@ namespace trackerTFP {
           output.push_back(nullptr);
       }
       // truncate if desired
-      if (enableTruncation_ && (int)output.size() > setup_->numFramesHigh())
+      if (setup_->enableTruncation() && (int)output.size() > setup_->numFramesHigh())
         output.resize(setup_->numFramesHigh());
       // remove all gaps between end and last stub
       for (auto it = output.end(); it != output.begin();)

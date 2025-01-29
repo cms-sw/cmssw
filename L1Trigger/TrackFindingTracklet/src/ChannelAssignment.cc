@@ -14,31 +14,25 @@ using namespace tt;
 
 namespace trklet {
 
-  ChannelAssignment::ChannelAssignment(const edm::ParameterSet& iConfig, const Setup* setup)
+  ChannelAssignment::ChannelAssignment(const Config& iConfig, const Setup* setup)
       : setup_(setup),
-        pSetTM_(iConfig.getParameter<ParameterSet>("TM")),
-        tmMuxOrder_((pSetTM_.getParameter<vector<string>>("MuxOrder"))),
-        tmNumLayers_((pSetTM_.getParameter<int>("NumLayers"))),
-        tmWidthStubId_(pSetTM_.getParameter<int>("WidthStubId")),
-        tmWidthCot_(pSetTM_.getParameter<int>("WidthCot")),
-        pSetDR_(iConfig.getParameter<ParameterSet>("DR")),
-        numComparisonModules_(pSetDR_.getParameter<int>("NumComparisonModules")),
-        minIdenticalStubs_(pSetDR_.getParameter<int>("MinIdenticalStubs")),
-        seedTypeNames_(iConfig.getParameter<vector<string>>("SeedTypes")),
-        numSeedTypes_(seedTypeNames_.size()),
+        tmMuxOrder_(iConfig.tmMuxOrder_),
+        tmNumLayers_(iConfig.tmNumLayers_),
+        tmWidthStubId_(iConfig.tmWidthStubId_),
+        tmWidthCot_(iConfig.tmWidthCot_),
+        numComparisonModules_(iConfig.numComparisonModules_),
+        minIdenticalStubs_(iConfig.minIdenticalStubs_),
+        seedTypeNames_(iConfig.seedTypeNames_),
+        numSeedTypes_(iConfig.seedTypeNames_.size()),
         numChannelsTrack_(numSeedTypes_),
-        channelEncoding_(iConfig.getParameter<vector<int>>("IRChannelsIn")) {
-    tmMuxOrderInt_.reserve(tmMuxOrder_.size());
-    for (const string& s : tmMuxOrder_)
-      tmMuxOrderInt_.push_back(distance(tmMuxOrder_.begin(), find(tmMuxOrder_.begin(), tmMuxOrder_.end(), s)));
-    const ParameterSet& pSetSeedTypesSeedLayers = iConfig.getParameter<ParameterSet>("SeedTypesSeedLayers");
-    const ParameterSet& pSetSeedTypesProjectionLayers = iConfig.getParameter<ParameterSet>("SeedTypesProjectionLayers");
-    seedTypesSeedLayers_.reserve(numSeedTypes_);
-    seedTypesProjectionLayers_.reserve(numSeedTypes_);
-    for (const string& s : seedTypeNames_) {
-      seedTypesSeedLayers_.emplace_back(pSetSeedTypesSeedLayers.getParameter<vector<int>>(s));
-      seedTypesProjectionLayers_.emplace_back(pSetSeedTypesProjectionLayers.getParameter<vector<int>>(s));
-    }
+        numChannelsStub_(iConfig.numChannelsStub_),
+        seedTypesSeedLayers_(iConfig.seedTypesSeedLayers_),
+        seedTypesProjectionLayers_(iConfig.seedTypesProjectionLayers_),
+        maxNumProjectionLayers_(iConfig.maxNumProjectionLayers_),
+        channelEncoding_(iConfig.channelEncoding_),
+        offsetsStubs_(iConfig.offsetsStubs_),
+        numSeedingLayers_(iConfig.numSeedingLayers_),
+        tmMuxOrderInt_(iConfig.tmMuxOrderInt_) {
     // consistency check
     const int offsetBarrel = setup_->offsetLayerId();
     const int numBarrelLayer = setup_->numBarrelLayer();

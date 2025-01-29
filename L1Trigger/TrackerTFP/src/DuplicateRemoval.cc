@@ -15,27 +15,23 @@ using namespace tt;
 
 namespace trackerTFP {
 
-  DuplicateRemoval::DuplicateRemoval(const ParameterSet& iConfig,
-                                     const Setup* setup,
+  DuplicateRemoval::DuplicateRemoval(const Setup* setup,
                                      const DataFormats* dataFormats,
                                      vector<TrackDR>& tracks,
                                      vector<StubDR>& stubs)
-      : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-        setup_(setup),
-        dataFormats_(dataFormats),
-        tracks_(tracks),
-        stubs_(stubs) {}
+      : setup_(setup), dataFormats_(dataFormats), tracks_(tracks), stubs_(stubs) {
+    numChannel_ = dataFormats_->numChannel(Process::kf);
+    numLayers_ = setup_->numLayers();
+    numInv2R_ = setup_->htNumBinsInv2R() + 2;
+    numPhiT_ = setup_->htNumBinsPhiT() * setup_->gpNumBinsPhiT();
+    numZT_ = setup_->gpNumBinsZT();
+  }
 
   // fill output products
   void DuplicateRemoval::produce(const vector<vector<TrackKF*>>& tracksIn,
                                  const vector<vector<StubKF*>>& stubsIn,
                                  vector<vector<TrackDR*>>& tracksOut,
                                  vector<vector<StubDR*>>& stubsOut) {
-    static const int numChannel = dataFormats_->numChannel(Process::kf);
-    static const int numLayers = setup_->numLayers();
-    static const int numInv2R = setup_->htNumBinsInv2R() + 2;
-    static const int numPhiT = setup_->htNumBinsPhiT() * setup_->gpNumBinsPhiT();
-    static const int numZT = setup_->gpNumBinsZT();
     int nTracks(0);
     for (const vector<TrackKF*>& tracks : tracksIn)
       nTracks +=
@@ -44,9 +40,8 @@ namespace trackerTFP {
     tracks.reserve(nTracks);
     deque<Track*> stream;
     // merge 4 channel to 1
-    //for (int channel = 0; channel < numChannel; channel++ ) {
-    for (int channel = numChannel - 1; channel >= 0; channel--) {
-      const int offset = channel * numLayers;
+    for (int channel = numChannel_ - 1; channel >= 0; channel--) {
+      const int offset = channel * numLayers_;
       const vector<TrackKF*>& tracksChannel = tracksIn[channel];
       for (int frame = 0; frame < (int)tracksChannel.size(); frame++) {
         TrackKF* track = tracksChannel[frame];
@@ -55,26 +50,26 @@ namespace trackerTFP {
           continue;
         }
         vector<StubKF*> stubs;
-        stubs.reserve(numLayers);
-        for (int layer = 0; layer < numLayers; layer++)
+        stubs.reserve(numLayers_);
+        for (int layer = 0; layer < numLayers_; layer++)
           stubs.push_back(stubsIn[offset + layer][frame]);
         const bool match = track->match().val();
-        const int inv2R = dataFormats_->format(Variable::inv2R, Process::ht).integer(track->inv2R()) + numInv2R / 2;
-        const int phiT = dataFormats_->format(Variable::phiT, Process::ht).integer(track->phiT()) + numPhiT / 2;
-        const int zT = dataFormats_->format(Variable::zT, Process::gp).integer(track->zT()) + numZT / 2;
+        const int inv2R = dataFormats_->format(Variable::inv2R, Process::ht).integer(track->inv2R()) + numInv2R_ / 2;
+        const int phiT = dataFormats_->format(Variable::phiT, Process::ht).integer(track->phiT()) + numPhiT_ / 2;
+        const int zT = dataFormats_->format(Variable::zT, Process::gp).integer(track->zT()) + numZT_ / 2;
         tracks.emplace_back(track, stubs, match, inv2R, phiT, zT);
         stream.push_back(&tracks.back());
       }
     }
     // truncate if desired
-    if (enableTruncation_ && (int)stream.size() > setup_->numFramesHigh()) {
+    if (setup_->enableTruncation() && (int)stream.size() > setup_->numFramesHigh()) {
       const auto limit = next(stream.begin(), setup_->numFramesHigh());
       stream.erase(limit, stream.end());
     }
     // remove duplicates
     vector<Track*> killed;
     killed.reserve(stream.size());
-    vector<vector<TTBV>> hits(numZT, vector<TTBV>(numInv2R, TTBV(0, numPhiT)));
+    vector<vector<TTBV>> hits(numZT_, vector<TTBV>(numInv2R_, TTBV(0, numPhiT_)));
     for (Track*& track : stream) {
       if (!track)
         continue;
@@ -95,7 +90,7 @@ namespace trackerTFP {
       stream.push_back(track);
     }
     // truncate
-    if (enableTruncation_ && (int)stream.size() > setup_->numFramesHigh()) {
+    if (setup_->enableTruncation() && (int)stream.size() > setup_->numFramesHigh()) {
       const auto limit = next(stream.begin(), setup_->numFramesHigh());
       stream.erase(limit, stream.end());
     }
@@ -121,7 +116,7 @@ namespace trackerTFP {
       const double cot = trackKF->cot() + gp.digi(zT) / setup_->chosenRofZ();
       tracks_.emplace_back(*trackKF, inv2R, phiT, cot, zT);
       tracksOut[0].push_back(&tracks_.back());
-      for (int layer = 0; layer < numLayers; layer++) {
+      for (int layer = 0; layer < numLayers_; layer++) {
         vector<StubDR*>& layerStubs = stubsOut[layer];
         StubKF* stub = track->stubs_[layer];
         if (!stub) {

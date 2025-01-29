@@ -13,15 +13,13 @@ using namespace tt;
 
 namespace trackerTFP {
 
-  CleanTrackBuilder::CleanTrackBuilder(const ParameterSet& iConfig,
-                                       const Setup* setup,
+  CleanTrackBuilder::CleanTrackBuilder(const Setup* setup,
                                        const DataFormats* dataFormats,
                                        const LayerEncoding* layerEncoding,
                                        const DataFormat& cot,
                                        vector<StubCTB>& stubs,
                                        vector<TrackCTB>& tracks)
-      : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-        setup_(setup),
+      : setup_(setup),
         dataFormats_(dataFormats),
         layerEncoding_(layerEncoding),
         cot_(cot),
@@ -29,32 +27,29 @@ namespace trackerTFP {
         tracksCTB_(tracks) {
     stubs_.reserve(stubs.capacity());
     tracks_.reserve(tracks.capacity());
+    numChannelOut_ = dataFormats_->numChannel(Process::ctb);
+    numChannel_ = dataFormats_->numChannel(Process::ht) / numChannelOut_;
+    numLayers_ = setup_->numLayers();
   }
 
   // fill output products
   void CleanTrackBuilder::produce(const vector<vector<StubHT*>>& streamsIn,
                                   vector<deque<TrackCTB*>>& regionTracks,
                                   vector<vector<deque<StubCTB*>>>& regionStubs) {
-    static const int numChannelIn = dataFormats_->numChannel(Process::ht);
-    static const int numChannelOut = dataFormats_->numChannel(Process::ctb);
-    static const int numChannel = numChannelIn / numChannelOut;
-    static const int numLayers = setup_->numLayers();
     // loop over worker
-    for (int channelOut = 0; channelOut < numChannelOut; channelOut++) {
-      //if (channelOut != 3)
-      //continue;
+    for (int channelOut = 0; channelOut < numChannelOut_; channelOut++) {
       // clean input tracks
-      vector<deque<Track*>> streamsT(numChannel);
-      vector<deque<Stub*>> streamsS(numChannel);
-      for (int cin = 0; cin < numChannel; cin++) {
+      vector<deque<Track*>> streamsT(numChannel_);
+      vector<deque<Stub*>> streamsS(numChannel_);
+      for (int cin = 0; cin < numChannel_; cin++) {
         //if (cin != 1)
         //continue;
-        const int index = numChannel * cin + channelOut;
+        const int index = numChannel_ * cin + channelOut;
         cleanStream(streamsIn[index], streamsT[cin], streamsS[cin], index);
       }
       // route
       deque<Track*> tracks;
-      vector<deque<Stub*>> stubs(numLayers);
+      vector<deque<Stub*>> stubs(numLayers_);
       route(streamsT, tracks);
       route(streamsS, stubs);
       // sort
@@ -132,7 +127,7 @@ namespace trackerTFP {
       int nHits(0);
       int nGaps(0);
       bool doubleGap = false;
-      for (int layer = 0; layer < setup_->numLayers(); layer++) {
+      for (int layer = 0; layer < numLayers_; layer++) {
         if (pattern.test(layer)) {
           doubleGap = false;
           if (++nHits == setup_->ctbMinLayers())
@@ -171,8 +166,8 @@ namespace trackerTFP {
     };
     vector<Stub*> tStubs;
     tStubs.reserve(track.size());
-    vector<TTBV> hitPatternPhi(numBinsInv2R * numBinsPhiT, TTBV(0, setup_->numLayers()));
-    vector<TTBV> hitPatternZ(numBinsCot * numBinsZT, TTBV(0, setup_->numLayers()));
+    vector<TTBV> hitPatternPhi(numBinsInv2R * numBinsPhiT, TTBV(0, numLayers_));
+    vector<TTBV> hitPatternZ(numBinsCot * numBinsZT, TTBV(0, numLayers_));
     TTBV tracksPhi(0, numBinsInv2R * numBinsPhiT);
     TTBV tracksZ(0, numBinsCot * numBinsZT);
     // identify finer tracks each stub is consistent with
@@ -287,7 +282,7 @@ namespace trackerTFP {
           deque<Stub*>& stack = stacks[channel];
           Stub* stub = pop_front(inputs[channel]);
           if (stub) {
-            if (enableTruncation_ && (int)stack.size() == setup_->ctbDepthMemory() - 1)
+            if (setup_->enableTruncation() && (int)stack.size() == setup_->ctbDepthMemory() - 1)
               pop_front(stack);
             stack.push_back(stub);
           }
@@ -319,7 +314,7 @@ namespace trackerTFP {
         deque<Track*>& stack = stacks[channel];
         Track* track = pop_front(inputs[channel]);
         if (track && track->valid_) {
-          if (enableTruncation_ && (int)stack.size() == setup_->ctbDepthMemory() - 1)
+          if (setup_->enableTruncation() && (int)stack.size() == setup_->ctbDepthMemory() - 1)
             pop_front(stack);
           stack.push_back(track);
         }
@@ -342,7 +337,7 @@ namespace trackerTFP {
   // sort
   void CleanTrackBuilder::sort(deque<Track*>& tracks, vector<deque<Stub*>>& stubs) const {
     // aplly truncation
-    if (enableTruncation_) {
+    if (setup_->enableTruncation()) {
       if ((int)tracks.size() > setup_->numFramesHigh())
         tracks.resize(setup_->numFramesHigh());
       for (deque<Stub*>& stream : stubs)
@@ -380,7 +375,7 @@ namespace trackerTFP {
       const int trackId = tracks[frame]->trackId_;
       const int length = tracks[frame]->size_;
       tracks.insert(next(tracks.begin(), frame + 1), length - 1, nullptr);
-      for (int layer = 0; layer < setup_->numLayers(); layer++) {
+      for (int layer = 0; layer < numLayers_; layer++) {
         deque<Stub*>& stream = stubs[layer];
         if (frame >= (int)stream.size()) {
           stream.insert(stream.end(), length, nullptr);
@@ -409,7 +404,7 @@ namespace trackerTFP {
         continue;
       }
       StubHT* s = nullptr;
-      for (int layer = 0; layer < setup_->numLayers(); layer++) {
+      for (int layer = 0; layer < numLayers_; layer++) {
         for (int n = 0; n < track->size_; n++) {
           Stub* stub = iStubs[layer][iFrame + n];
           if (!stub) {
@@ -456,14 +451,14 @@ namespace trackerTFP {
     const double phi0 = deltaPhi(track->phiT() - track->inv2R() * setup_->chosenRofPhi() + region * dPhi);
     const double zT = track->zT();
     const double cot = zT / setup_->chosenRofZ();
-    TTBV hits(0, setup_->numLayers());
+    TTBV hits(0, numLayers_);
     double chi2phi(0.);
     double chi2z(0.);
     const int nStubs = accumulate(
         stubs.begin(), stubs.end(), 0, [](int sum, const vector<StubCTB*>& layer) { return sum += layer.size(); });
     vector<TTStubRef> ttStubRefs;
     ttStubRefs.reserve(nStubs);
-    for (int layer = 0; layer < setup_->numLayers(); layer++) {
+    for (int layer = 0; layer < numLayers_; layer++) {
       for (StubCTB* stub : stubs[layer]) {
         hits.set(layer);
         chi2phi += pow(stub->phi(), 2) / pow(stub->dPhi(), 2);

@@ -18,8 +18,7 @@ namespace trackerTFP {
   class KalmanFilter {
   public:
     typedef State::Stub Stub;
-    KalmanFilter(const edm::ParameterSet& iConfig,
-                 const tt::Setup* setup,
+    KalmanFilter(const tt::Setup* setup,
                  const DataFormats* dataFormats,
                  const LayerEncoding* layerEncoding,
                  KalmanFilterFormats* kalmanFilterFormats,
@@ -123,8 +122,6 @@ namespace trackerTFP {
     // updates state
     void update(State*& state);
 
-    // true if truncation is enbaled
-    bool enableTruncation_;
     // provides run-time constants
     const tt::Setup* setup_;
     // provides dataformats

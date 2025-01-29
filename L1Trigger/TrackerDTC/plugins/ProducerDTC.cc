@@ -44,7 +44,6 @@ namespace trackerDTC {
   private:
     void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
-    void endJob() {}
     // helper class to store configurations
     const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
@@ -63,11 +62,9 @@ namespace trackerDTC {
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // LayerEncoding token
     ESGetToken<LayerEncoding, LayerEncodingRcd> esGetTokenLayerEncoding_;
-    // configuration
-    ParameterSet iConfig_;
   };
 
-  ProducerDTC::ProducerDTC(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerDTC::ProducerDTC(const ParameterSet& iConfig) {
     // book in- and output ED products
     const auto& inputTag = iConfig.getParameter<InputTag>("InputTag");
     const auto& branchAccepted = iConfig.getParameter<string>("BranchAccepted");
@@ -111,7 +108,7 @@ namespace trackerDTC {
     // board level processing
     for (int dtcId = 0; dtcId < setup_->numDTCs(); dtcId++) {
       // create single outer tracker DTC board
-      DTC dtc(iConfig_, setup_, dataFormats_, layerEncoding_, dtcId, stubsDTCs.at(dtcId));
+      DTC dtc(setup_, dataFormats_, layerEncoding_, dtcId, stubsDTCs.at(dtcId));
       // route stubs and fill products
       dtc.produce(productAccepted, productLost);
     }

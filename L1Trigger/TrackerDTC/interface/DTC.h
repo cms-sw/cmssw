@@ -24,8 +24,7 @@ namespace trackerDTC {
     typedef std::vector<Stubss> Stubsss;
 
   public:
-    DTC(const edm::ParameterSet& iConfig,
-        const tt::Setup* setup,
+    DTC(const tt::Setup* setup,
         const trackerTFP::DataFormats* dataFormats,
         const LayerEncoding* layerEncoding,
         int dtcId,
@@ -47,8 +46,6 @@ namespace trackerDTC {
     const tt::Setup* setup_;
     // provides dataformats
     const trackerTFP::DataFormats* dataFormats_;
-    // enables emulation of truncation
-    bool enableTruncation_;
     // outer tracker detector region [0-8]
     int region_;
     // outer tracker dtc id in region [0-23]

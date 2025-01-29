@@ -26,7 +26,6 @@ namespace trackerTFP {
     unique_ptr<DataFormats> produce(const DataFormatsRcd& rcd);
 
   private:
-    const ParameterSet iConfig_;
     ESGetToken<Setup, SetupRcd> esGetToken_;
   };
 

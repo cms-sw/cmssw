@@ -11,14 +11,12 @@ using namespace trackerTFP;
 
 namespace trklet {
 
-  DuplicateRemoval::DuplicateRemoval(const ParameterSet& iConfig,
-                                     const Setup* setup,
+  DuplicateRemoval::DuplicateRemoval(const Setup* setup,
                                      const LayerEncoding* layerEncoding,
                                      const DataFormats* dataFormats,
                                      const ChannelAssignment* channelAssignment,
                                      int region)
-      : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-        setup_(setup),
+      : setup_(setup),
         layerEncoding_(layerEncoding),
         dataFormats_(dataFormats),
         channelAssignment_(channelAssignment),
@@ -28,6 +26,8 @@ namespace trklet {
     const double base = r.base() * pow(2., r.width() - width);
     const double range = r.range();
     r_ = DataFormat(true, width, base, range);
+    tmNumLayers_ = channelAssignment_->tmNumLayers();
+    phi_ = dataFormats_->format(Variable::phi, Process::dr);
   }
 
   // read in and organize input tracks and stubs
@@ -36,12 +36,11 @@ namespace trklet {
     auto nonNullStub = [](int sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
     // count tracks and stubs and reserve corresponding vectors
     int sizeStubs(0);
-    static const int numLayers = channelAssignment_->tmNumLayers();
-    const int offset = region_ * numLayers;
+    const int offset = region_ * tmNumLayers_;
     const StreamTrack& streamTrack = streamsTrack[region_];
     input_.reserve(streamTrack.size());
     const int sizeTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, nonNullTrack);
-    for (int layer = 0; layer < numLayers; layer++) {
+    for (int layer = 0; layer < tmNumLayers_; layer++) {
       const StreamStub& streamStub = streamsStub[offset + layer];
       sizeStubs += accumulate(streamStub.begin(), streamStub.end(), 0, nonNullStub);
     }
@@ -60,9 +59,9 @@ namespace trklet {
       const double zT = abs(track.zT());
       const double cot = zT / setup_->chosenRofZ();
       const vector<int>& layerEncoding = layerEncoding_->layerEncoding(zT);
-      vector<Stub*> stubs(numLayers, nullptr);
+      vector<Stub*> stubs(tmNumLayers_, nullptr);
       TTBV hitPattern(0, setup_->numLayers());
-      for (int layer = 0; layer < numLayers; layer++) {
+      for (int layer = 0; layer < tmNumLayers_; layer++) {
         const FrameStub& frameStub = streamsStub[offset + layer][frame];
         const TTStubRef& ttStubRef = frameStub.first;
         if (ttStubRef.isNull())
@@ -81,14 +80,13 @@ namespace trklet {
         const int stubId = stubTM.stubId() / 2;
         const bool psTilt = stubTM.stubId() % 2 == 1;
         // calculate stub uncertainties
-        static const DataFormat& dfPhi = dataFormats_->format(Variable::phi, Process::dr);
         static constexpr int numBarrelPSLayer = 3;
         const bool barrel = layer < setup_->numBarrelLayer();
         const bool ps = barrel ? layer < numBarrelPSLayer : psTilt;
         const bool tilt = barrel && psTilt;
         const double length = .5 * (ps ? setup_->pitchColPS() : setup_->pitchCol2S());
         const double pitch = .5 * (ps ? setup_->pitchRowPS() : setup_->pitchRow2S());
-        const double pitchOverR = dfPhi.digi(pitch / (r_.digi(stubTM.r()) + setup_->chosenRofPhi()));
+        const double pitchOverR = phi_.digi(pitch / (r_.digi(stubTM.r()) + setup_->chosenRofPhi()));
         double lengthZ = length;
         double lengthR = 0.;
         if (!barrel) {
@@ -100,7 +98,7 @@ namespace trklet {
         }
         const double dR = lengthR + .5 * setup_->scattering();
         const double dZ = lengthZ;
-        const double dPhi = dfPhi.digi(dR * inv2R) + pitchOverR;
+        const double dPhi = phi_.digi(dR * inv2R) + pitchOverR;
         const StubDR stubDR(stubTM, stubTM.r(), stubTM.phi(), stubTM.z(), dPhi, dZ);
         stubs_.emplace_back(stubDR.frame(), stubId, encodedLayerId);
         stubs[layer] = &stubs_.back();
