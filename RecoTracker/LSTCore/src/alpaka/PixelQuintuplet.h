@@ -2,6 +2,7 @@
 #define RecoTracker_LSTCore_src_alpaka_PixelQuintuplet_h
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
+#include "RecoTracker/LSTCore/interface/HitsSoA.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
@@ -10,7 +11,7 @@
 #include "RecoTracker/LSTCore/interface/SegmentsSoA.h"
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
 
-#include "Hit.h"
+#include "Quintuplet.h"
 #include "PixelTriplet.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
@@ -634,8 +635,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   struct CreatePixelQuintupletsFromMap {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   ModulesPixelConst modulesPixel,
                                   MiniDoubletsConst mds,
@@ -650,15 +650,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   unsigned int nPixelSegments,
                                   ObjectRangesConst ranges,
                                   const float ptCut) const {
-      auto const globalBlockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc);
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridBlockExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (unsigned int i_pLS = globalThreadIdx[1]; i_pLS < nPixelSegments; i_pLS += gridThreadExtent[1]) {
+      for (unsigned int i_pLS : cms::alpakatools::uniform_elements_z(acc, nPixelSegments)) {
         auto iLSModule_max = connectedPixelIndex[i_pLS] + connectedPixelSize[i_pLS];
-        for (unsigned int iLSModule = connectedPixelIndex[i_pLS] + globalBlockIdx[0]; iLSModule < iLSModule_max;
-             iLSModule += gridBlockExtent[0]) {
+        for (unsigned int iLSModule :
+             cms::alpakatools::uniform_elements_y(acc, connectedPixelIndex[i_pLS], iLSModule_max)) {
           //these are actual module indices
           uint16_t quintupletLowerModuleIndex = modulesPixel.connectedPixels()[iLSModule];
           if (quintupletLowerModuleIndex >= modules.nLowerModules())
@@ -676,9 +671,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           unsigned int pixelSegmentIndex = ranges.segmentModuleIndices()[pixelModuleIndex] + i_pLS;
 
           //fetch the quintuplet
-          for (unsigned int outerQuintupletArrayIndex = globalThreadIdx[2];
-               outerQuintupletArrayIndex < nOuterQuintuplets;
-               outerQuintupletArrayIndex += gridThreadExtent[2]) {
+          for (unsigned int outerQuintupletArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterQuintuplets)) {
             unsigned int quintupletIndex =
                 ranges.quintupletModuleIndices()[quintupletLowerModuleIndex] + outerQuintupletArrayIndex;
 

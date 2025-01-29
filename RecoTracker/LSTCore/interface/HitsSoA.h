@@ -27,8 +27,8 @@ namespace lst {
                       SOA_COLUMN(ArrayIx2, hitRanges),
                       SOA_COLUMN(int, hitRangesLower),
                       SOA_COLUMN(int, hitRangesUpper),
-                      SOA_COLUMN(int8_t, hitRangesnLower),
-                      SOA_COLUMN(int8_t, hitRangesnUpper))
+                      SOA_COLUMN(int16_t, hitRangesnLower),
+                      SOA_COLUMN(int16_t, hitRangesnUpper))
 
   using HitsSoA = HitsSoALayout<>;
   using HitsRangesSoA = HitsRangesSoALayout<>;
